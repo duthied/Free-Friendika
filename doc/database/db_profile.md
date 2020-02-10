@@ -9,7 +9,7 @@ Table profile
 | is-default   | Mark this profile as default profile          | tinyint(1)   | NO   |     | 0                   |                |
 | hide-friends | Hide friend list from viewers of this profile | tinyint(1)   | NO   |     | 0                   |                |
 | name         |                                               | varchar(255) | NO   |     |                     |                |
-| pdesc        | Title or description                          | varchar(255) | NO   |     |                     |                |
+| pdesc        | Deprecated                                    | varchar(255) | NO   |     |                     |                |
 | dob          | Day of birth                                  | varchar(32)  | NO   |     | 0001-01-01          |                |
 | address      |                                               | varchar(255) | NO   |     |                     |                |
 | locality     |                                               | varchar(255) | NO   |     |                     |                |
@@ -28,7 +28,7 @@ Table profile
 | prv_keywords |                                               | text         | NO   |     | NULL                |                |
 | likes        | Deprecated                                    | text         | NO   |     | NULL                |                |
 | dislikes     | Deprecated                                    | text         | NO   |     | NULL                |                |
-| about        | Deprecated                                    | text         | NO   |     | NULL                |                |
+| about        | Profile description                           | text         | NO   |     |                     |                |
 | summary      | Deprecated                                    | varchar(255) | NO   |     |                     |                |
 | music        | Deprecated                                    | text         | NO   |     | NULL                |                |
 | book         | Deprecated                                    | text         | NO   |     | NULL                |                |

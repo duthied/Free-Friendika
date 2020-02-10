@@ -916,7 +916,7 @@ class Profile
 				WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
 				AND ((`profile`.`name` LIKE ?) OR
 				(`user`.`nickname` LIKE ?) OR
-				(`profile`.`pdesc` LIKE ?) OR
+				(`profile`.`about` LIKE ?) OR
 				(`profile`.`locality` LIKE ?) OR
 				(`profile`.`region` LIKE ?) OR
 				(`profile`.`country-name` LIKE ?) OR
@@ -951,7 +951,7 @@ class Profile
 			WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
 			AND ((`profile`.`name` LIKE ?) OR
 				(`user`.`nickname` LIKE ?) OR
-				(`profile`.`pdesc` LIKE ?) OR
+				(`profile`.`about` LIKE ?) OR
 				(`profile`.`locality` LIKE ?) OR
 				(`profile`.`region` LIKE ?) OR
 				(`profile`.`country-name` LIKE ?) OR

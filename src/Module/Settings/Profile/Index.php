@@ -89,7 +89,7 @@ class Index extends BaseSettings
 
 		$namechanged = $profile['name'] != $name;
 
-		$pdesc = Strings::escapeTags(trim($_POST['pdesc']));
+		$about = Strings::escapeTags(trim($_POST['about']));
 		$address = Strings::escapeTags(trim($_POST['address']));
 		$locality = Strings::escapeTags(trim($_POST['locality']));
 		$region = Strings::escapeTags(trim($_POST['region']));
@@ -121,7 +121,7 @@ class Index extends BaseSettings
 			'profile',
 			[
 				'name'         => $name,
-				'pdesc'        => $pdesc,
+				'about'        => $about,
 				'dob'          => $dob,
 				'address'      => $address,
 				'locality'     => $locality,
@@ -273,7 +273,7 @@ class Index extends BaseSettings
 			'$baseurl' => DI::baseUrl()->get(true),
 			'$nickname' => $a->user['nickname'],
 			'$name' => ['name', DI::l10n()->t('Display name:'), $profile['name']],
-			'$pdesc' => ['pdesc', DI::l10n()->t('Title/Description:'), $profile['pdesc']],
+			'$about' => ['about', DI::l10n()->t('Description:'), $profile['about']],
 			'$dob' => Temporal::getDateofBirthField($profile['dob'], $a->user['timezone']),
 			'$hide_friends' => $hide_friends,
 			'$address' => ['address', DI::l10n()->t('Street Address:'), $profile['address']],

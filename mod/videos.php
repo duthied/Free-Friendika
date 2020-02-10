@@ -66,7 +66,7 @@ function videos_init(App $a)
 			'$photo' => $profile['photo'],
 			'$addr' => $profile['addr'] ?? '',
 			'$account_type' => $account_type,
-			'$pdesc' => $profile['pdesc'] ?? '',
+			'$about' => $profile['about'] ?? '',
 		]);
 
 		// If not there, create 'aside' empty

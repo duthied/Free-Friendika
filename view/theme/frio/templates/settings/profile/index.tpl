@@ -62,7 +62,7 @@
 					<div class="section-content-tools-wrapper">
 						{{include file="field_input.tpl" field=$name}}
 
-						{{include file="field_input.tpl" field=$pdesc}}
+						{{include file="field_textarea.tpl" field=$about}}
 
 						{{$dob nofilter}}
 

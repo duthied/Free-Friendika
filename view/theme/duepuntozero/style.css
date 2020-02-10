@@ -732,7 +732,7 @@ input#dfrn-url {
 
 #profile-edit-profile-name-label,
 #profile-edit-name-label,
-#profile-edit-pdesc-label,
+#profile-edit-about-label,
 #profile-edit-dob-label,
 #profile-edit-address-label,
 #profile-edit-locality-label,
@@ -748,7 +748,7 @@ input#dfrn-url {
 
 #profile-edit-profile-name,
 #profile-edit-name,
-#profile-edit-pdesc,
+#profile-edit-about,
 #profile-edit-dob,
 #profile-edit-address,
 #profile-edit-locality,
@@ -823,7 +823,7 @@ input#dfrn-url {
 }
 
 
-#profile-edit-pdesc-desc,
+#profile-edit-about-desc,
 #profile-edit-pubkeywords-desc,
 #profile-edit-prvkeywords-desc {
 	float: left;
@@ -855,7 +855,7 @@ input#dfrn-url {
 }
 
 #profile-edit-name-end,
-#profile-edit-pdesc-end,
+#profile-edit-about-end,
 #profile-edit-dob-end,
 #profile-edit-address-end,
 #profile-edit-locality-end,

@@ -282,7 +282,7 @@ class ProfileField extends BaseRepository
 			'religion'  => $this->l10n->t('Religious Views:'),
 			'likes'     => $this->l10n->t('Likes:'),
 			'dislikes'  => $this->l10n->t('Dislikes:'),
-			'about'     => $this->l10n->t('About:'),
+			'pdesc'     => $this->l10n->t('Title/Description:'),
 			'summary'   => $this->l10n->t('Summary'),
 			'music'     => $this->l10n->t('Musical interests'),
 			'book'      => $this->l10n->t('Books, literature'),
