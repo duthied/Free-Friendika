@@ -1593,7 +1593,6 @@ aside .panel-body {
 .wall-item-container.panel-body {
     padding: 0;
     border-top: none;
-    overflow: hidden;
 }
 
 .wall-item-container .media {
@@ -1908,7 +1907,7 @@ code > .hl-main {
     margin: 0 .3em;
 }
 .wall-item-actions .more-links {
-    position: absolute;
+    vertical-align: baseline;
 }
 
 .wall-item-responses > div > p {
