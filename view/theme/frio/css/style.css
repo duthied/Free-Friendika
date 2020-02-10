@@ -524,17 +524,6 @@ nav.navbar .nav > li > button:focus
     top: 4px;
     right: -2px;
     background-color: #ff8989;
-
-/*    text-transform: uppercase;
-    display: inline-block;
-    padding: 3px 5px 4px;
-    font-weight: 600;
-    font-size: 10px!important;
-    color: #fff!important;
-    vertical-align: baseline;
-    white-space: nowrap;
-    text-shadow: none;
-    display: none;*/
 }
 #topbar-first #intro-update{
     cursor: pointer;
@@ -960,19 +949,6 @@ nav.navbar .nav > li > button:focus
 #photo-edit-link-wrap {
     color: #555;
     margin-bottom: 15px;
-}
-.nav-pills.preferences .dropdown .dropdown-toggle,
-.nav-pills.preferences > li > .btn {
-    color: #bebebe;
-}
-.nav-pills.preferences .dropdown.open .dropdown-toggle,
-.nav-pills.preferences .dropdown.open .dropdown-toggle:hover {
-    background-color: $nav_bg;
-}
-
-.nav-pills.preferences .dropdown .dropdown-toggle,
-.nav-pills.preferences > li > .btn {
-    padding: 2px 10px;
 }
 
 #newmember-tab > a {
@@ -1681,13 +1657,13 @@ aside .panel-body {
 }
 
 /* wall items action dropdown menu */
-.nav-pills.preferences {
+.preferences {
     position: absolute;
     right: 15px;
     top: 10px;
 }
-.comment .nav-pills.preferences {
-    right: 5px;
+.comment .preferences {
+    right: 10px;
     top: 5px;
 }
 .wall-item-network {
@@ -1931,6 +1907,9 @@ code > .hl-main {
 .wall-item-actions .separator {
     margin: 0 .3em;
 }
+.wall-item-actions .more-links {
+    position: absolute;
+}
 
 .wall-item-responses > div > p {
     margin: 0;
@@ -1938,7 +1917,7 @@ code > .hl-main {
 
 /* wall item hover effects */
 .wall-item-container .wall-item-links,
-.wall-item-container .wall-item-actions,
+.wall-item-container .wall-item-actions button,
 .wall-item-container .body-attach > a {
     opacity: 0.3;
     -webkit-transition: all 0.25s ease-in-out;
@@ -1948,7 +1927,7 @@ code > .hl-main {
     transition: all 0.25s ease-in-out;
 }
 .wall-item-container:hover .wall-item-links,
-.wall-item-container:hover .wall-item-actions,
+.wall-item-container:hover .wall-item-actions button,
 .wall-item-container:hover .body-attach > a {
     opacity: 1;
     -webkit-transition: all 0.25s ease-in-out;
@@ -1962,7 +1941,7 @@ code > .hl-main {
 }
 
 /*
-/* Comments
+* Comments
 */
 .well {
     border: none;
@@ -3523,7 +3502,7 @@ section .profile-match-wrapper {
 		margin-top: 0;
 	}
 
-	.nav-pills.preferences {
+	.preferences {
 		right: 10px;
 	}
 
