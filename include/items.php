@@ -89,8 +89,7 @@ function add_page_info_data(array $data, $no_photos = false)
 		$hashtags = "\n";
 		foreach ($data["keywords"] as $keyword) {
 			/// @TODO make a positive list of allowed characters
-			$hashtag = str_replace([" ", "+", "/", ".", "#", "'", "’", "`", "(", ")", "„", "“"],
-						["", "", "", "", "", "", "", "", "", "", "", ""], $keyword);
+			$hashtag = str_replace([' ', '+', '/', '.', '#', '@', "'", '"', '’', '`', '(', ')', '„', '“'], '', $keyword);
 			$hashtags .= "#[url=" . DI::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url] ";
 		}
 	}
