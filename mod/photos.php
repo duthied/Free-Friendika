@@ -1404,6 +1404,7 @@ function photos_content(App $a)
 						'$comment' => DI::l10n()->t('Comment'),
 						'$submit' => DI::l10n()->t('Submit'),
 						'$preview' => DI::l10n()->t('Preview'),
+						'$loading' => DI::l10n()->t('Loading...'),
 						'$sourceapp' => DI::l10n()->t($a->sourcename),
 						'$ww' => '',
 						'$rand_num' => Crypto::randomDigits(12)

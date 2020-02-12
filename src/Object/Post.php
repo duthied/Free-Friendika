@@ -919,6 +919,7 @@ class Post
 				'$myphoto'     => DI::baseUrl()->remove($a->contact['thumb']),
 				'$comment'     => DI::l10n()->t('Comment'),
 				'$submit'      => DI::l10n()->t('Submit'),
+				'$loading'     => DI::l10n()->t('Loading...'),
 				'$edbold'      => DI::l10n()->t('Bold'),
 				'$editalic'    => DI::l10n()->t('Italic'),
 				'$eduline'     => DI::l10n()->t('Underline'),
