@@ -10,6 +10,7 @@
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -54,14 +55,14 @@ function cal_init(App $a)
 
 	$account_type = Contact::getAccountType($profile);
 
-	$tpl = Renderer::getMarkupTemplate("widget/vcard.tpl");
+	$tpl = Renderer::getMarkupTemplate('widget/vcard.tpl');
 
 	$vcard_widget = Renderer::replaceMacros($tpl, [
 		'$name' => $profile['name'],
 		'$photo' => $profile['photo'],
 		'$addr' => $profile['addr'] ?: '',
 		'$account_type' => $account_type,
-		'$about' => $profile['about'] ?: '',
+		'$about' => BBCode::convert($profile['about'] ?: ''),
 	]);
 
 	$cal_widget = Widget\CalendarExport::getHTML();

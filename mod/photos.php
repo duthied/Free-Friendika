@@ -58,14 +58,14 @@ function photos_init(App $a) {
 
 		$account_type = Contact::getAccountType($profile);
 
-		$tpl = Renderer::getMarkupTemplate("widget/vcard.tpl");
+		$tpl = Renderer::getMarkupTemplate('widget/vcard.tpl');
 
 		$vcard_widget = Renderer::replaceMacros($tpl, [
 			'$name' => $profile['name'],
 			'$photo' => $profile['photo'],
 			'$addr' => $profile['addr'] ?? '',
 			'$account_type' => $account_type,
-			'$about' => $profile['about'] ?? '',
+			'$about' => BBCode::convert($profile['about'] ?? ''),
 		]);
 
 		$albums = Photo::getAlbums($a->data['user']['uid']);

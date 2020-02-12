@@ -47,7 +47,7 @@ function common_content(App $a)
 		$contact = DBA::selectFirst('contact', ['name', 'url', 'photo', 'uid', 'id'], ['self' => true, 'uid' => $uid]);
 
 		if (DBA::isResult($contact)) {
-			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate("widget/vcard.tpl"), [
+			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/vcard.tpl'), [
 				'$name'  => $contact['name'],
 				'$photo' => $contact['photo'],
 				'url'    => 'contact/' . $cid
