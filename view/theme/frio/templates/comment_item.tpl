@@ -4,7 +4,7 @@
 {{else}}
 <div class="comment-wwedit-wrapper" id="comment-edit-wrapper-{{$id}}">
 {{/if}}
-	<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="item" method="post" onsubmit="post_comment({{$id}}); return false;">
+	<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="item" method="post">
 		<input type="hidden" name="type" value="{{$type}}" />
 		<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
 		<input type="hidden" name="parent" value="{{$parent}}" />
@@ -55,9 +55,9 @@
 
 		<p class="comment-edit-submit-wrapper">
 {{if $preview}}
-			<button type="button" class="btn btn-defaul btn-sm" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
+			<button type="button" class="btn btn-defaul btn-sm comment-edit-preview" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="fa fa-eye"></i> {{$preview}}</button>
 {{/if}}
-			<button type="submit" class="btn btn-primary btn-sm" id="comment-edit-submit-{{$id}}" name="submit"><i class="fa fa-envelope"></i> {{$submit}}</button>
+			<button type="submit" class="btn btn-primary btn-sm comment-edit-submit" id="comment-edit-submit-{{$id}}" name="submit" data-loading-text="{{$loading}}"><i class="fa fa-envelope"></i> {{$submit}}</button>
 		</p>
 
 		<div class="comment-edit-end clear"></div>

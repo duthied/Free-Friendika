@@ -94,6 +94,8 @@ $(document).ready(function(){
 		}
 	}
 
+	let $body = $('body');
+
 	// show bulk deletion button at network page if checkbox is checked
 	$("body").change("input.item-select", function(){
 		var checked = false;
@@ -368,6 +370,45 @@ $(document).ready(function(){
 		showHideEventMap(this);
 	});
 
+	// Comment form submit
+	$body.on('submit', '.comment-edit-form', function(e) {
+		e.preventDefault();
+
+		let $form = $(this);
+		let id = $form.data('item-id');
+		let $commentSubmit = $form.find('.comment-edit-submit').button('loading');
+
+		unpause();
+		commentBusy = true;
+
+		$.post(
+			'item',
+			$form.serialize(),
+			'json'
+		)
+		.then(function(data) {
+			if (data.success) {
+				$('#comment-edit-wrapper-' + id).hide();
+				let $textarea = $('#comment-edit-text-' + id);
+				$textarea.val('');
+				if ($textarea.get(0)) {
+					commentClose($textarea.get(0), id);
+				}
+				if (timer) {
+					clearTimeout(timer);
+				}
+				timer = setTimeout(NavUpdate,10);
+				force_update = true;
+				update_item = id;
+			}
+			if (data.reload) {
+				window.location.href = data.reload;
+			}
+		})
+		.always(function() {
+			$commentSubmit.button('reset');
+		});
+	})
 });
 
 function openClose(theID) {
