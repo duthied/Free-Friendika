@@ -56,11 +56,10 @@ body a[name]:not([href]) {
     visibility: hidden;
 }
 
-body a:hover, .btn-link:hover,
-body a:focus, .btn-link:focus,
-body a:active, .btn-link:active,
-body a.active, .btn-link.active {
-    /*color: #59d6e4;*/
+body a:hover, .btn-link:hover, .btn:hover,
+body a:focus, .btn-link:focus, .btn:focus,
+body a:active, .btn-link:active, .btn:active,
+body a.active, .btn-link.active, .btn.active {
     color: $link_hover_color;
     text-decoration: none;
     outline: none;
@@ -1890,10 +1889,6 @@ code > .hl-main {
     margin: 0;
     margin-left: 20px;
 }
-.wall-item-actions .button-event {
-    padding-left: 5px;
-    padding-right: 5px;
-}
 .wall-item-actions .button-comments,
 .wall-item-actions .button-votes,
 .wall-item-actions .button-likes {
@@ -1906,37 +1901,37 @@ code > .hl-main {
 .wall-item-actions .separator {
     margin: 0 .3em;
 }
-.wall-item-actions .more-links {
-    vertical-align: baseline;
-}
 
 .wall-item-responses > div > p {
     margin: 0;
 }
 
 /* wall item hover effects */
-.wall-item-container .wall-item-links,
-.wall-item-container .wall-item-actions button,
-.wall-item-container .body-attach > a {
-    opacity: 0.3;
-    -webkit-transition: all 0.25s ease-in-out;
-    -moz-transition: all 0.25s ease-in-out;
-    -o-transition: all 0.25s ease-in-out;
-    -ms-transition: all 0.25s ease-in-out;
-    transition: all 0.25s ease-in-out;
-}
-.wall-item-container:hover .wall-item-links,
-.wall-item-container:hover .wall-item-actions button,
-.wall-item-container:hover .body-attach > a {
-    opacity: 1;
-    -webkit-transition: all 0.25s ease-in-out;
-    -moz-transition: all 0.25s ease-in-out;
-    -o-transition: all 0.25s ease-in-out;
-    -ms-transition: all 0.25s ease-in-out;
-    transition: all 0.25s ease-in-out;
-}
-.wall-item-container .wall-item-body .body-attach > a:hover {
-    opacity: 1;
+
+@media (min-width: 768px) {
+	.wall-item-container .wall-item-links,
+	.wall-item-container .wall-item-actions button,
+	.wall-item-container .body-attach > a {
+		opacity: 0.3;
+		-webkit-transition: all 0.25s ease-in-out;
+		-moz-transition: all 0.25s ease-in-out;
+		-o-transition: all 0.25s ease-in-out;
+		-ms-transition: all 0.25s ease-in-out;
+		transition: all 0.25s ease-in-out;
+	}
+	.wall-item-container:hover .wall-item-links,
+	.wall-item-container:hover .wall-item-actions button,
+	.wall-item-container:hover .body-attach > a {
+		opacity: 1;
+		-webkit-transition: all 0.25s ease-in-out;
+		-moz-transition: all 0.25s ease-in-out;
+		-o-transition: all 0.25s ease-in-out;
+		-ms-transition: all 0.25s ease-in-out;
+		transition: all 0.25s ease-in-out;
+	}
+	.wall-item-container .wall-item-body .body-attach > a:hover {
+		opacity: 1;
+	}
 }
 
 /*
