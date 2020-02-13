@@ -26,7 +26,7 @@ aside .widget, .form-control, .panel, .nav-container, .wall-item-content, .e-con
 }
 
 #topbar-first #nav-notifications-menu li.notification-unseen {
-    border-left: 3px solid #f3fcfd;
+    border-left: 3px solid #e3eff3;
     background-color: antiquewhite;
 }
 
