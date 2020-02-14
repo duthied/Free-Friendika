@@ -632,8 +632,8 @@ nav.navbar .nav > li > button:focus
 }
 
 #topbar-first #nav-notifications-menu li.notification-unseen {
-    border-left: 3px solid #f3fcfd;
-    background-color: #f3fcfd;
+    border-left: 3px solid #e3eff3;
+    background-color: #e3eff3;
 }
 #topbar-first #nav-notifications-menu li.notif-entry:hover {
     background-color: #f7f7f7;
@@ -2980,7 +2980,7 @@ ul.notif-network-list > li:hover .intro-action-buttons {
 
 /* Notifications Page */
 ul.notif-network-list li.unseen {
-    background-color: #f3fcfd;
+    background-color: #e3eff3;
 }
 .notif-item img.notif-image {
     height: 48px;
