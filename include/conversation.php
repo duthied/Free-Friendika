@@ -673,7 +673,11 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				$isstarred = "unstarred";
 
 				$lock = false;
-				$likebuttons = false;
+				$likebuttons = [
+					'like'    => null,
+					'dislike' => null,
+					'share'   => null,
+				];
 
 				$body = Item::prepareBody($item, true, $preview);
 
