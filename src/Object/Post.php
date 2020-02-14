@@ -151,7 +151,11 @@ class Post
 			];
 		}
 		$sparkle = '';
-		$buttons = '';
+		$buttons = [
+			'like'    => null,
+			'dislike' => null,
+			'share'   => null,
+		];
 		$dropping = false;
 		$pinned = '';
 		$pin = false;
@@ -337,10 +341,8 @@ class Post
 		}
 
 		if ($conv->isWritable()) {
-			$buttons = [
-				'like'    => [DI::l10n()->t("I like this \x28toggle\x29"), DI::l10n()->t("like")],
-				'dislike' => [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t("dislike")],
-			];
+			$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29")      , DI::l10n()->t("like")];
+			$buttons['dislike'] = [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t("dislike")];
 			if ($shareable) {
 				$buttons['share'] = [DI::l10n()->t('Share this'), DI::l10n()->t('share')];
 			}
@@ -372,18 +374,14 @@ class Post
 		$owner_name_e = $this->getOwnerName();
 
 		// Disable features that aren't available in several networks
-		if (!in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA]) && isset($buttons["dislike"])) {
-			unset($buttons["dislike"]);
+		if ($buttons["dislike"] && !in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
+			$buttons["dislike"] = false;
 			$isevent = false;
 			$tagger = '';
 		}
 
-		if (($item["network"] == Protocol::FEED) && isset($buttons["like"])) {
-			unset($buttons["like"]);
-		}
-
-		if (($item["network"] == Protocol::MAIL) && isset($buttons["like"])) {
-			unset($buttons["like"]);
+		if ($buttons["like"] && in_array($item["network"], [Protocol::FEED, Protocol::MAIL])) {
+			$buttons["like"] = false;
 		}
 
 		$tags = Term::populateTagsFromItem($item);
