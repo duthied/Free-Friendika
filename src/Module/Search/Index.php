@@ -200,7 +200,7 @@ class Index extends BaseSearch
 
 		Logger::info('Start Conversation.', ['q' => $search]);
 
-		$o .= conversation(DI::app(), $r, $pager, 'search', false, false, 'commented', local_user());
+		$o .= conversation(DI::app(), $r, 'search', false, false, 'commented', local_user());
 
 		$o .= $pager->renderMinimal(count($r));
 

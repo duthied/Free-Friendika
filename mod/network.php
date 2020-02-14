@@ -291,7 +291,7 @@ function networkConversation(App $a, $items, Pager $pager, $mode, $update, $orde
 		$items = [];
 	}
 
-	$o = conversation($a, $items, $pager, $mode, $update, false, $ordering, local_user());
+	$o = conversation($a, $items, $mode, $update, false, $ordering, local_user());
 
 	if (!$update) {
 		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {

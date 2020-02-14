@@ -95,8 +95,6 @@ class Profile extends BaseModule
 			return '';
 		}
 
-		$pager = new Pager(DI::args()->getQueryString());
-
 		// Set a time stamp for this page. We will make use of it when we
 		// search for new items (update routine)
 		$last_updated_array[$last_updated_key] = time();
@@ -116,7 +114,7 @@ class Profile extends BaseModule
 
 		$items = DBA::toArray($items_stmt);
 
-		$o .= conversation($a, $items, $pager, 'profile', $profile_uid, false, 'received', $a->profile['uid']);
+		$o .= conversation($a, $items, 'profile', $profile_uid, false, 'received', $a->profile['uid']);
 
 		header("Content-type: text/html");
 		echo "<!DOCTYPE html><html><body>\r\n";

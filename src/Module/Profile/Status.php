@@ -231,7 +231,7 @@ class Status extends BaseProfile
 			$items = array_merge($items, $pinned);
 		}
 
-		$o .= conversation($a, $items, $pager, 'profile', false, false, 'pinned_received', $a->profile['uid']);
+		$o .= conversation($a, $items, 'profile', false, false, 'pinned_received', $a->profile['uid']);
 
 		$o .= $pager->renderMinimal(count($items));
 

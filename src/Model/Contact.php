@@ -1815,13 +1815,13 @@ class Contact
 
 			$items = Item::inArray($r);
 
-			$o = conversation($a, $items, $pager, 'contacts', $update, false, 'commented', local_user());
+			$o = conversation($a, $items, 'contacts', $update, false, 'commented', local_user());
 		} else {
 			$r = Item::selectForUser(local_user(), [], $condition, $params);
 
 			$items = Item::inArray($r);
 
-			$o = conversation($a, $items, $pager, 'contact-posts', false);
+			$o = conversation($a, $items, 'contact-posts', false);
 		}
 
 		if (!$update) {

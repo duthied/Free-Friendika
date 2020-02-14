@@ -82,7 +82,7 @@ function notes_content(App $a, $update = false)
 
 		$count = count($notes);
 
-		$o .= conversation($a, $notes, $pager, 'notes', $update);
+		$o .= conversation($a, $notes, 'notes', $update);
 	}
 
 	$o .= $pager->renderMinimal($count);

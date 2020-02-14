@@ -200,7 +200,7 @@ function community_content(App $a, $update = 0)
 		$s = $r;
 	}
 
-	$o .= conversation($a, $s, $pager, 'community', $update, false, 'commented', local_user());
+	$o .= conversation($a, $s, 'community', $update, false, 'commented', local_user());
 
 	if (!$update) {
 		$o .= $pager->renderMinimal(count($r));
