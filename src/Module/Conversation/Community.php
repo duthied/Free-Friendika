@@ -51,7 +51,7 @@ class Community extends BaseModule
 
 		$tabs = [];
 
-		if ((local_user() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(DI::config()->get('system', 'singleuser'))) {
+		if ((Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(DI::config()->get('system', 'singleuser'))) {
 			$tabs[] = [
 				'label' => DI::l10n()->t('Local Community'),
 				'url' => 'community/local',
@@ -62,7 +62,7 @@ class Community extends BaseModule
 			];
 		}
 
-		if (local_user() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
+		if (Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
 			$tabs[] = [
 				'label' => DI::l10n()->t('Global Community'),
 				'url' => 'community/global',
@@ -86,7 +86,7 @@ class Community extends BaseModule
 		}
 
 		// We need the editor here to be able to reshare an item.
-		if (local_user()) {
+		if (Session::isAuthenticated()) {
 			$x = [
 				'is_owner' => true,
 				'allow_location' => DI::app()->user['allow_location'],
@@ -179,7 +179,7 @@ class Community extends BaseModule
 		}
 
 		// Check if we are allowed to display the content to visitors
-		if (!local_user()) {
+		if (!Session::isAuthenticated()) {
 			$available = self::$page_style == CP_USERS_AND_GLOBAL;
 
 			if (!$available) {
