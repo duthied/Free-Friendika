@@ -55,6 +55,7 @@ return [
 		],
 		'/friendica' => [
 			'/profile/show'                      => [Module\Api\Friendica\Profile\Show::class , [R::GET         ]],
+			'/events'                            => [Module\Api\Friendica\Events\Index::class , [R::GET         ]],
 		],
 	],
 
