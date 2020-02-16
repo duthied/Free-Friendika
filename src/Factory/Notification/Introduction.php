@@ -105,7 +105,7 @@ class Introduction extends BaseFactory
 				`fcontact`.`name` AS `fname`, `fcontact`.`url` AS `furl`, `fcontact`.`addr` AS `faddr`,
 				`fcontact`.`photo` AS `fphoto`, `fcontact`.`request` AS `frequest`,
 				`gcontact`.`location` AS `glocation`, `gcontact`.`about` AS `gabout`,
-				`gcontact`.`keywords` AS `gkeywords`, `gcontact`.`gender` AS `ggender`,
+				`gcontact`.`keywords` AS `gkeywords`,
 				`gcontact`.`network` AS `gnetwork`, `gcontact`.`addr` AS `gaddr`
 			FROM `intro`
 				LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id`
@@ -157,7 +157,6 @@ class Introduction extends BaseFactory
 					if ($notification['gnetwork'] === Protocol::DIASPORA) {
 						$notification['glocation'] = "";
 						$notification['gabout']    = "";
-						$notification['ggender']   = "";
 					}
 
 					$formattedNotifications[] = new Notification\Introduction([
@@ -172,7 +171,6 @@ class Introduction extends BaseFactory
 						'location'       => BBCode::convert($notification['glocation'], false),
 						'about'          => BBCode::convert($notification['gabout'], false),
 						'keywords'       => $notification['gkeywords'],
-						'gender'         => $notification['ggender'],
 						'hidden'         => $notification['hidden'] == 1,
 						'post_newfriend' => (intval($this->pConfig->get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
 						'url'            => $notification['url'],

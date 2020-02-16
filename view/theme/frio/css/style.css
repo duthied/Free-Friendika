@@ -2966,12 +2966,12 @@ ul.notif-network-list > li:hover .intro-action-buttons {
     transition: max-height 0.1s ease-in;
 }
 .intro-desc-label, .intro-url-label, .intro-network-label,
-.intro-location-label, .intro-gender-label, .intro-keywords-label,
+.intro-location-label, .intro-keywords-label,
 .intro-about-label, .intro-knowyou-label, .intro-madeby-label {
     font-weight: bold;
 }
 .intro-contact-info.xs .intro-url-label, .intro-contact-info.xs .intro-network-label,
-.intro-contact-info.xs .intro-location-label, .intro-contact-info.xs .intro-gender-label,
+.intro-contact-info.xs .intro-location-label,
 .intro-contact-info.xs .intro-keywords-label, .intro-contact-info.xs .intro-about-label,
 .intro-contact-info.xs .intro-knowyou-label {
     display: block;

@@ -674,7 +674,7 @@ class GContact
 		}
 
 		$public_contact = DBA::selectFirst('gcontact', [
-			'name', 'nick', 'photo', 'location', 'about', 'addr', 'generation', 'birthday', 'gender', 'keywords',
+			'name', 'nick', 'photo', 'location', 'about', 'addr', 'generation', 'birthday', 'keywords',
 			'contact-type', 'hide', 'nsfw', 'network', 'alias', 'notify', 'server_url', 'connect', 'updated', 'url'
 		], ['id' => $gcontact_id]);
 
@@ -769,7 +769,7 @@ class GContact
 				'photo' => $contact['photo'], 'name' => $contact['name'],
 				'nick' => $contact['nick'], 'addr' => $contact['addr'],
 				'network' => $contact['network'], 'birthday' => $contact['birthday'],
-				'gender' => $contact['gender'], 'keywords' => $contact['keywords'],
+				'keywords' => $contact['keywords'],
 				'hide' => $contact['hide'], 'nsfw' => $contact['nsfw'],
 				'contact-type' => $contact['contact-type'], 'alias' => $contact['alias'],
 				'notify' => $contact['notify'], 'url' => $contact['url'],
@@ -997,7 +997,7 @@ class GContact
 	 */
 	private static function updateFromPublicContact($condition)
 	{
-		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'gender',
+		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords',
 			'bd', 'contact-type', 'network', 'addr', 'notify', 'alias', 'archive', 'term-date',
 			'created', 'updated', 'avatar', 'success_update', 'failure_update', 'forum', 'prv',
 			'baseurl', 'sensitive', 'unsearchable'];
@@ -1007,7 +1007,7 @@ class GContact
 			return 0;
 		}
 
-		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'gender', 'generation',
+		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'generation',
 			'birthday', 'contact-type', 'network', 'addr', 'notify', 'alias', 'archived', 'archive_date',
 			'created', 'updated', 'photo', 'last_contact', 'last_failure', 'community', 'connect',
 			'server_url', 'nsfw', 'hide', 'id'];
@@ -1021,7 +1021,7 @@ class GContact
 		$gcontact = [];
 
 		// These fields are identical in both contact and gcontact
-		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'gender',
+		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords',
 			'contact-type', 'network', 'addr', 'notify', 'alias', 'created', 'updated'];
 
 		foreach ($fields as $field) {
@@ -1133,7 +1133,7 @@ class GContact
 		);
 
 		$gcontact = ['name' => $userdata['name'], 'location' => $location, 'about' => $userdata['about'],
-				'gender' => '', 'keywords' => $userdata['pub_keywords'],
+				'keywords' => $userdata['pub_keywords'],
 				'birthday' => $userdata['dob'], 'photo' => $userdata['photo'],
 				"notify" => $userdata['notify'], 'url' => $userdata['url'],
 				"hide" => ($userdata['hidewall'] || !$userdata['net-publish']),

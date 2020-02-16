@@ -71,8 +71,6 @@ class Introduction implements \JsonSerializable
 	/** @var string */
 	private $keywords = '';
 	/** @var string */
-	private $gender = '';
-	/** @var string */
 	private $location = '';
 	/** @var string */
 	private $about = '';
@@ -256,14 +254,6 @@ class Introduction implements \JsonSerializable
 	/**
 	 * @return string
 	 */
-	public function getGender()
-	{
-		return $this->gender;
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getLocation()
 	{
 		return $this->location;
@@ -301,7 +291,6 @@ class Introduction implements \JsonSerializable
 		$this->network       = $data['network'] ?? '';
 		$this->uid           = $data['uid'] ?? -1;
 		$this->keywords      = $data['keywords'] ?? '';
-		$this->gender        = $data['gender'] ?? '';
 		$this->location      = $data['location'] ?? '';
 		$this->about         = $data['about'] ?? '';
 	}

@@ -57,7 +57,7 @@ class Probe
 	private static function rearrangeData($data)
 	{
 		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo", "account-type",
-				"community", "keywords", "location", "about", "gender", "hide",
+				"community", "keywords", "location", "about", "hide",
 				"batch", "notify", "poll", "request", "confirm", "poco",
 				"following", "followers", "inbox", "outbox", "sharedinbox",
 				"priority", "network", "pubkey", "baseurl"];
@@ -849,9 +849,6 @@ class Probe
 			if (!empty($profile['description'])) {
 				$data['about'] = $profile['description'];
 			}
-			if (!empty($profile['gender'])) {
-				$data['gender'] = $profile['gender'];
-			}
 			if (!empty($profile['keywords'])) {
 				$keywords = implode(', ', $profile['keywords']);
 				if (!empty($keywords)) {
@@ -1010,10 +1007,6 @@ class Probe
 
 		if (!empty($json["about"])) {
 			$data["about"] = $json["about"];
-		}
-
-		if (!empty($json["gender"])) {
-			$data["gender"] = $json["gender"];
 		}
 
 		if (!empty($json["key"])) {

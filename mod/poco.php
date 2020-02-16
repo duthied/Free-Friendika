@@ -152,7 +152,7 @@ function poco_init(App $a) {
 	} elseif ($system_mode) {
 		Logger::log("Start system mode query", Logger::DEBUG);
 		$contacts = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`,
-				`profile`.`gender` AS `pgender`, `profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`,
+				`profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`,
 				`profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`, `user`.`account-type`
 			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
 				INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
@@ -203,7 +203,6 @@ function poco_init(App $a) {
 		'aboutMe' => false,
 		'currentLocation' => false,
 		'network' => false,
-		'gender' => false,
 		'tags' => false,
 		'address' => false,
 		'contactType' => false,
@@ -260,9 +259,6 @@ function poco_init(App $a) {
 					}
 				}
 
-				if (($contact['gender'] == "") && isset($contact['pgender'])) {
-					$contact['gender'] = $contact['pgender'];
-				}
 				if (($contact['keywords'] == "") && isset($contact['pub_keywords'])) {
 					$contact['keywords'] = $contact['pub_keywords'];
 				}
@@ -279,7 +275,6 @@ function poco_init(App $a) {
 				if ($contact['network'] == Protocol::DIASPORA) {
 					$contact['location'] = "";
 					$about = "";
-					$contact['gender'] = "";
 				}
 
 				$entry = [];
@@ -294,9 +289,6 @@ function poco_init(App $a) {
 				}
 				if ($fields_ret['currentLocation']) {
 					$entry['currentLocation'] = $contact['location'];
-				}
-				if ($fields_ret['gender']) {
-					$entry['gender'] = $contact['gender'];
 				}
 				if ($fields_ret['generation']) {
 					$entry['generation'] = (int)$contact['generation'];

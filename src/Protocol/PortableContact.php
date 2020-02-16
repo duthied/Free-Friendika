@@ -99,7 +99,7 @@ class PortableContact
 			return;
 		}
 
-		$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation' : '?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation');
+		$url = $url . (($uid) ? '/@me/@all?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,contactType,generation' : '?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,contactType,generation');
 
 		Logger::log('load: ' . $url, Logger::DEBUG);
 
@@ -134,7 +134,6 @@ class PortableContact
 			$location = '';
 			$about = '';
 			$keywords = '';
-			$gender = '';
 			$contact_type = -1;
 			$generation = 0;
 
@@ -179,10 +178,6 @@ class PortableContact
 				$about = HTML::toBBCode($entry['aboutMe']);
 			}
 
-			if (isset($entry['gender'])) {
-				$gender = $entry['gender'];
-			}
-
 			if (isset($entry['generation']) && ($entry['generation'] > 0)) {
 				$generation = ++$entry['generation'];
 			}
@@ -203,7 +198,6 @@ class PortableContact
 					"photo" => $profile_photo,
 					"about" => $about,
 					"location" => $location,
-					"gender" => $gender,
 					"keywords" => $keywords,
 					"connect" => $connect_url,
 					"updated" => $updated,
@@ -293,7 +287,7 @@ class PortableContact
 		self::fetchServerlist($server["poco"]);
 
 		// Fetch all users from the other server
-		$url = $server["poco"] . "/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
+		$url = $server["poco"] . "/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,contactType,generation";
 
 		Logger::info("Fetch all users from the server " . $server["url"]);
 
@@ -316,7 +310,7 @@ class PortableContact
 				$updatedSince = date(DateTimeFormat::MYSQL, time() - $timeframe * 86400);
 
 				// Fetch all global contacts from the other server (Not working with Redmatrix and Friendica versions before 3.3)
-				$url = $server["poco"]."/@global?updatedSince=".$updatedSince."&fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
+				$url = $server["poco"]."/@global?updatedSince=".$updatedSince."&fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,contactType,generation";
 
 				$success = false;
 
@@ -376,7 +370,7 @@ class PortableContact
 				Logger::log('Fetch contacts for the user ' . $username . ' from the server ' . $server['nurl'], Logger::DEBUG);
 
 				// Fetch all contacts from a given user from the other server
-				$url = $server['poco'] . '/' . $username . '/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation';
+				$url = $server['poco'] . '/' . $username . '/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,contactType,generation';
 
 				$curlResult = Network::curl($url);
 
@@ -409,7 +403,6 @@ class PortableContact
 			$location = '';
 			$about = '';
 			$keywords = '';
-			$gender = '';
 			$contact_type = -1;
 			$generation = $default_generation;
 
@@ -455,10 +448,6 @@ class PortableContact
 				$about = HTML::toBBCode($entry['aboutMe']);
 			}
 
-			if (isset($entry['gender'])) {
-				$gender = $entry['gender'];
-			}
-
 			if (isset($entry['generation']) && ($entry['generation'] > 0)) {
 				$generation = ++$entry['generation'];
 			}
@@ -484,7 +473,6 @@ class PortableContact
 						"photo" => $profile_photo,
 						"about" => $about,
 						"location" => $location,
-						"gender" => $gender,
 						"keywords" => $keywords,
 						"connect" => $connect_url,
 						"updated" => $updated,

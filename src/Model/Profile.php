@@ -376,13 +376,12 @@ class Profile
 			$location = DI::l10n()->t('Location:');
 		}
 
-		$gender   = !empty($profile['gender'])   ? DI::l10n()->t('Gender:')   : false;
 		$homepage = !empty($profile['homepage']) ? DI::l10n()->t('Homepage:') : false;
 		$about    = !empty($profile['about'])    ? DI::l10n()->t('About:')    : false;
 		$xmpp     = !empty($profile['xmpp'])     ? DI::l10n()->t('XMPP:')     : false;
 
 		if ((!empty($profile['hidewall']) || $block) && !Session::isAuthenticated()) {
-			$location = $gender = $marital = $homepage = $about = false;
+			$location = $homepage = $about = false;
 		}
 
 		$split_name = Diaspora::splitName($profile['name']);
@@ -451,10 +450,6 @@ class Profile
 			$p['address'] = BBCode::convert($p['address']);
 		}
 
-		if (isset($p['gender'])) {
-			$p['gender'] = DI::l10n()->t($p['gender']);
-		}
-
 		if (isset($p['photo'])) {
 			$p['photo'] = ProxyUtils::proxifyUrl($p['photo'], false, ProxyUtils::SIZE_SMALL);
 		}
@@ -475,7 +470,6 @@ class Profile
 			'$wallmessage_link' => $wallmessage_link,
 			'$account_type' => $account_type,
 			'$location' => $location,
-			'$gender' => $gender,
 			'$homepage' => $homepage,
 			'$about' => $about,
 			'$network' => DI::l10n()->t('Network:'),

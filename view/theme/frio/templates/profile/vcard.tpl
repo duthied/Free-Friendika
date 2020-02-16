@@ -98,13 +98,6 @@
 		</div>
 		{{/if}}
 
-		{{if $gender}}
-		<div class="mf detail">
-			<span class="gender-label icon"><i class="fa fa-venus-mars"></i></span>
-			<span class="p-gender">{{$profile.gender}}</span>
-		</div>
-		{{/if}}
-
 		{{if $profile.pubkey}}<div class="key u-key" style="display:none;">{{$profile.pubkey}}</div>{{/if}}
 
 		{{if $contacts}}<div class="contacts" style="display:none;">{{$contacts}}</div>{{/if}}

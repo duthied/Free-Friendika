@@ -54,29 +54,6 @@ use Friendica\Model\Storage;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Worker\Delivery;
 
-function update_1178()
-{
-	require_once 'mod/profiles.php';
-
-	$profiles = q("SELECT `uid`, `about`, `locality`, `pub_keywords`, `gender` FROM `profile` WHERE `is-default`");
-
-	foreach ($profiles as $profile) {
-		if ($profile["about"].$profile["locality"].$profile["pub_keywords"].$profile["gender"] == "") {
-			continue;
-		}
-
-		$profile["pub_keywords"] = profile_clean_keywords($profile["pub_keywords"]);
-
-		$r = q("UPDATE `contact` SET `about` = '%s', `location` = '%s', `keywords` = '%s', `gender` = '%s' WHERE `self` AND `uid` = %d",
-			DBA::escape($profile["about"]),
-			DBA::escape($profile["locality"]),
-			DBA::escape($profile["pub_keywords"]),
-			DBA::escape($profile["gender"]),
-			intval($profile["uid"])
-		);
-	}
-}
-
 function update_1179()
 {
 	if (DI::config()->get('system', 'no_community_page')) {
@@ -153,7 +130,7 @@ function update_1191()
 
 			if ($key === 'show_on_profile') {
 				if ($value) {
-					DI::pConfig()->set($uid, feature, forumlist_profile, $value);
+					DI::pConfig()->set($uid, 'feature', 'forumlist_profile', $value);
 				}
 
 				DI::pConfig()->delete($uid, $family, $key);
@@ -161,7 +138,7 @@ function update_1191()
 
 			if ($key === 'show_on_network') {
 				if ($value) {
-					DI::pConfig()->set($uid, feature, forumlist_widget, $value);
+					DI::pConfig()->set($uid, 'feature', 'forumlist_widget', $value);
 				}
 
 				DI::pConfig()->delete($uid, $family, $key);
@@ -379,7 +356,7 @@ function update_1309()
 
 		$deliver_options = ['priority' => PRIORITY_MEDIUM, 'dont_fork' => true];
 		Worker::add($deliver_options, 'Delivery', Delivery::POST, $item['id'], $entry['cid']);
-		Logger::info('Added delivery worker', ['command' => $cmd, 'item' => $item['id'], 'contact' => $entry['cid']]);
+		Logger::info('Added delivery worker', ['item' => $item['id'], 'contact' => $entry['cid']]);
 		DBA::delete('queue', ['id' => $entry['id']]);
 	}
 	return Update::SUCCESS;
