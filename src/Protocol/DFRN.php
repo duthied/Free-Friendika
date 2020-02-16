@@ -640,7 +640,7 @@ class DFRN
 	private static function addAuthor(DOMDocument $doc, array $owner, $authorelement, $public)
 	{
 		// Should the profile be "unsearchable" in the net? Then add the "hide" element
-		$hide = DBA::exists('profile', ['uid' => $owner['uid'], 'net-publish' = false]);
+		$hide = DBA::exists('profile', ['uid' => $owner['uid'], 'net-publish' => false]);
 
 		$author = $doc->createElement($authorelement);
 
