@@ -1151,13 +1151,12 @@ function settings_content(App $a)
 
 	$expire_arr = [
 		'days' => ['expire',  DI::l10n()->t("Automatically expire posts after this many days:"), $expire, DI::l10n()->t('If empty, posts will not expire. Expired posts will be deleted')],
-		'advanced' => DI::l10n()->t('Advanced expiration settings'),
-		'label' => DI::l10n()->t('Advanced Expiration'),
-		'items' => ['expire_items',  DI::l10n()->t("Expire posts:"), $expire_items],
-		'notes' => ['expire_notes',  DI::l10n()->t("Expire personal notes:"), $expire_notes],
-		'starred' => ['expire_starred',  DI::l10n()->t("Expire starred posts:"), $expire_starred],
-		'photos' => ['expire_photos',  DI::l10n()->t("Expire photos:"), $expire_photos],
-		'network_only' => ['expire_network_only',  DI::l10n()->t("Only expire posts by others:"), $expire_network_only],
+		'label' => DI::l10n()->t('Expiration settings'),
+		'items' => ['expire_items', DI::l10n()->t('Expire posts'), $expire_items, DI::l10n()->t('When activated, posts and comments will be expired.')],
+		'notes' => ['expire_notes', DI::l10n()->t('Expire personal notes'), $expire_notes, DI::l10n()->t('When activated, the personal notes on your profile page will be expired.')],
+		'starred' => ['expire_starred', DI::l10n()->t('Expire starred posts'), $expire_starred, DI::l10n()->t('Starring posts keeps them from being expired. That behaviour is overwritten by this setting.')],
+		'photos' => ['expire_photos', DI::l10n()->t('Expire photos'), $expire_photos, DI::l10n()->t('When activated, photos will be expired.')],
+		'network_only' => ['expire_network_only', DI::l10n()->t('Only expire posts by others'), $expire_network_only, DI::l10n()->t('When activated, your own posts never expire. Then the settings above are only valid for posts you received.')],
 	];
 
 	$group_select = Group::displayGroupSelection(local_user(), $a->user['def_gid']);
