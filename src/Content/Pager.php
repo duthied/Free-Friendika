@@ -134,7 +134,6 @@ class Pager
 	{
 		$stripped = preg_replace('/([&?]page=[0-9]*)/', '', $queryString);
 
-		$stripped = str_replace('q=', '', $stripped);
 		$stripped = trim($stripped, '/');
 
 		$this->baseQueryString = $stripped;
