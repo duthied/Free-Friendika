@@ -356,11 +356,15 @@ function settings_post(App $a)
 			}
 		}
 
-		$itemspage_network = !empty($_POST['itemspage_network'])  ? intval($_POST['itemspage_network'])  : 40;
+		$itemspage_network = !empty($_POST['itemspage_network']) ?
+			intval($_POST['itemspage_network']) :
+			DI::config()->get('system', 'itemspage_network');
 		if ($itemspage_network > 100) {
 			$itemspage_network = 100;
 		}
-		$itemspage_mobile_network = !empty($_POST['itemspage_mobile_network']) ? intval($_POST['itemspage_mobile_network']) : 20;
+		$itemspage_mobile_network = !empty($_POST['itemspage_mobile_network']) ?
+			intval($_POST['itemspage_mobile_network']) :
+			DI::config()->get('system', 'itemspage_network_mobile');
 		if ($itemspage_mobile_network > 100) {
 			$itemspage_mobile_network = 100;
 		}
@@ -938,9 +942,9 @@ function settings_content(App $a)
 		}
 
 		$itemspage_network = intval(DI::pConfig()->get(local_user(), 'system', 'itemspage_network'));
-		$itemspage_network = (($itemspage_network > 0 && $itemspage_network < 101) ? $itemspage_network : 40); // default if not set: 40 items
+		$itemspage_network = (($itemspage_network > 0 && $itemspage_network < 101) ? $itemspage_network : DI::config()->get('system', 'itemspage_network'));
 		$itemspage_mobile_network = intval(DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network'));
-		$itemspage_mobile_network = (($itemspage_mobile_network > 0 && $itemspage_mobile_network < 101) ? $itemspage_mobile_network : 20); // default if not set: 20 items
+		$itemspage_mobile_network = (($itemspage_mobile_network > 0 && $itemspage_mobile_network < 101) ? $itemspage_mobile_network : DI::config()->get('system', 'itemspage_network_mobile'));
 
 		$nosmile = DI::pConfig()->get(local_user(), 'system', 'no_smilies', 0);
 		$first_day_of_week = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);

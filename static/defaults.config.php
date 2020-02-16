@@ -227,6 +227,15 @@ return [
 		// If set true registration is only possible after a current member of the node has send an invitation.
 		'invitation_only' => false,
 
+		// itemspage_network (Integer)
+		// default number of items per page in stream pages (network, community, profile/contact statuses, search)
+		'itemspage_network' => 40,
+
+		// itemspage_network_mobile (Integer)
+		// default number of items per page in stream pages (network, community, profile/contact statuses, search)
+		// on detected mobile devices
+		'itemspage_network_mobile' => 20,
+
 		// like_no_comment (Boolean)
 		// Don't update the "commented" value of an item when it is liked.
 		'like_no_comment' => false,

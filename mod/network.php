@@ -228,14 +228,12 @@ function networkPager(App $a, Pager $pager, $update)
 		return ' LIMIT 100';
 	}
 
-	//  check if we serve a mobile device and get the user settings
-	//  accordingly
 	if (DI::mode()->isMobile()) {
-		$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network');
-		$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
+		$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+			DI::config()->get('system', 'itemspage_network_mobile'));
 	} else {
-		$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_network');
-		$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 40);
+		$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+			DI::config()->get('system', 'itemspage_network'));
 	}
 
 	//  now that we have the user settings, see if the theme forces
@@ -291,7 +289,7 @@ function networkConversation(App $a, $items, Pager $pager, $mode, $update, $orde
 		$items = [];
 	}
 
-	$o = conversation($a, $items, $pager, $mode, $update, false, $ordering, local_user());
+	$o = conversation($a, $items, $mode, $update, false, $ordering, local_user());
 
 	if (!$update) {
 		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
@@ -377,7 +375,7 @@ function networkFlatView(App $a, $update = 0)
 		}
 	}
 
-	$pager = new Pager(DI::args()->getQueryString());
+	$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 	networkPager($a, $pager, $update);
 
@@ -669,7 +667,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$sql_range = '';
 	}
 
-	$pager = new Pager(DI::args()->getQueryString());
+	$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 	$pager_sql = networkPager($a, $pager, $update);
 

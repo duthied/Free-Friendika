@@ -85,7 +85,7 @@ class Contacts extends BaseProfile
 
 		$total = DBA::count('contact', $condition);
 
-		$pager = new Pager(DI::args()->getQueryString());
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 		$params = ['order' => ['name' => false], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 

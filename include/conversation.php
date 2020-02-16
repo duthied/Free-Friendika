@@ -460,7 +460,6 @@ function conv_get_blocklist()
  * that are based on unique features of the calling module.
  * @param App    $a
  * @param array  $items
- * @param Pager  $pager
  * @param        $mode
  * @param        $update
  * @param bool   $preview
@@ -470,7 +469,7 @@ function conv_get_blocklist()
  * @throws ImagickException
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function conversation(App $a, array $items, Pager $pager, $mode, $update, $preview = false, $order = 'commented', $uid = 0)
+function conversation(App $a, array $items, $mode, $update, $preview = false, $order = 'commented', $uid = 0)
 {
 	$ssl_state = (local_user() ? true : false);
 
@@ -506,7 +505,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				. (!empty($_GET['cmax'])   ? '&cmax='   . rawurlencode($_GET['cmax'])   : '')
 				. (!empty($_GET['file'])   ? '&file='   . rawurlencode($_GET['file'])   : '')
 
-				. "'; var profile_page = " . $pager->getPage() . "; </script>\r\n";
+				. "'; </script>\r\n";
 		}
 	} elseif ($mode === 'profile') {
 		$items = conversation_add_children($items, false, $order, $uid);
@@ -525,7 +524,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 				$live_update_div = '<div id="live-profile"></div>' . "\r\n"
 					. "<script> var profile_uid = " . $a->profile['uid']
-					. "; var netargs = '?f='; var profile_page = " . $pager->getPage() . "; </script>\r\n";
+					. "; var netargs = '?f='; </script>\r\n";
 			}
 		}
 	} elseif ($mode === 'notes') {
@@ -535,7 +534,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 		if (!$update) {
 			$live_update_div = '<div id="live-notes"></div>' . "\r\n"
 				. "<script> var profile_uid = " . local_user()
-				. "; var netargs = '/?f='; var profile_page = " . $pager->getPage() . "; </script>\r\n";
+				. "; var netargs = '/?f='; </script>\r\n";
 		}
 	} elseif ($mode === 'display') {
 		$items = conversation_add_children($items, false, $order, $uid);
@@ -544,7 +543,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 		if (!$update) {
 			$live_update_div = '<div id="live-display"></div>' . "\r\n"
 				. "<script> var profile_uid = " . Session::get('uid', 0) . ";"
-				. " var profile_page = 1; </script>";
+				. "</script>";
 		}
 	} elseif ($mode === 'community') {
 		$items = conversation_add_children($items, true, $order, $uid);
@@ -553,7 +552,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 		if (!$update) {
 			$live_update_div = '<div id="live-community"></div>' . "\r\n"
 				. "<script> var profile_uid = -1; var netargs = '" . substr(DI::args()->getCommand(), 10)
-				."/?f='; var profile_page = " . $pager->getPage() . "; </script>\r\n";
+				."/?f='; </script>\r\n";
 		}
 	} elseif ($mode === 'contacts') {
 		$items = conversation_add_children($items, false, $order, $uid);
@@ -562,7 +561,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 		if (!$update) {
 			$live_update_div = '<div id="live-contacts"></div>' . "\r\n"
 				. "<script> var profile_uid = -1; var netargs = '" . substr(DI::args()->getCommand(), 9)
-				."/?f='; var profile_page = " . $pager->getPage() . "; </script>\r\n";
+				."/?f='; </script>\r\n";
 		}
 	} elseif ($mode === 'search') {
 		$live_update_div = '<div id="live-search"></div>' . "\r\n";

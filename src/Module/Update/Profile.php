@@ -24,6 +24,7 @@ namespace Friendica\Module\Update;
 use Friendica\BaseModule;
 use Friendica\Content\Pager;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
@@ -95,8 +96,6 @@ class Profile extends BaseModule
 			return '';
 		}
 
-		$pager = new Pager(DI::args()->getQueryString());
-
 		// Set a time stamp for this page. We will make use of it when we
 		// search for new items (update routine)
 		$last_updated_array[$last_updated_key] = time();
@@ -116,29 +115,8 @@ class Profile extends BaseModule
 
 		$items = DBA::toArray($items_stmt);
 
-		$o .= conversation($a, $items, $pager, 'profile', $profile_uid, false, 'received', $a->profile['uid']);
+		$o .= conversation($a, $items, 'profile', $profile_uid, false, 'received', $a->profile['uid']);
 
-		header("Content-type: text/html");
-		echo "<!DOCTYPE html><html><body>\r\n";
-		// We can remove this hack once Internet Explorer recognises HTML5 natively
-		echo "<section>";
-		echo $o;
-		if (DI::pConfig()->get(local_user(), "system", "bandwidth_saver")) {
-			$replace = "<br />".DI::l10n()->t("[Embedded content - reload page to view]")."<br />";
-			$pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
-			$o = preg_replace($pattern, $replace, $o);
-			$pattern = "/<\s*video[^>]*>(.*?)<\s*\/\s*video>/i";
-			$o = preg_replace($pattern, $replace, $o);
-			$pattern = "/<\s*embed[^>]*>(.*?)<\s*\/\s*embed>/i";
-			$o = preg_replace($pattern, $replace, $o);
-			$pattern = "/<\s*iframe[^>]*>(.*?)<\s*\/\s*iframe>/i";
-			$o = preg_replace($pattern, $replace, $o);
-		}
-
-		// reportedly some versions of MSIE don't handle tabs in XMLHttpRequest documents very well
-		echo str_replace("\t", "       ", $o);
-		echo "</section>";
-		echo "</body></html>\r\n";
-		exit();
+		System::htmlUpdateExit($o);
 	}
 }

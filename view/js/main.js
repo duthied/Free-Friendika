@@ -104,6 +104,20 @@ function decodeHtml(html) {
 	return txt.value;
 }
 
+/**
+ * Retrieves a single named query string parameter
+ *
+ * @param {string} name
+ * @returns {string}
+ * @see https://davidwalsh.name/query-string-javascript
+ */
+function getUrlParameter(name) {
+	name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+	var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+	var results = regex.exec(location.search);
+	return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+};
+
 var src = null;
 var prev = null;
 var livetime = null;
@@ -511,7 +525,13 @@ function updateConvItems(data) {
 		var ident = $(this).attr('id');
 
 		// Add new top-level item.
-		if ($('#' + ident).length == 0 && profile_page == 1) {
+		if ($('#' + ident).length === 0
+			&& (!getUrlParameter('page')
+				&& !getUrlParameter('max_id')
+				&& !getUrlParameter('since_id')
+				|| getUrlParameter('page') === '1'
+			)
+		) {
 			$('#' + prev).after($(this));
 
 		// Replace already existing thread.
@@ -573,7 +593,18 @@ function liveUpdate(src) {
 	var orgHeight = $("section").height();
 
 	var udargs = ((netargs.length) ? '/' + netargs : '');
-	var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&force=' + ((force_update) ? 1 : 0) + '&item=' + update_item;
+
+	var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&force=' + ((force_update) ? 1 : 0) + '&item=' + update_item;
+
+	if (getUrlParameter('page')) {
+		update_url += '&page=' + getUrlParameter('page');
+	}
+	if (getUrlParameter('since_id')) {
+		update_url += '&since_id=' + getUrlParameter('since_id');
+	}
+	if (getUrlParameter('max_id')) {
+		update_url += '&max_id=' + getUrlParameter('max_id');
+	}
 
 	$.get(update_url,function(data) {
 		in_progress = false;

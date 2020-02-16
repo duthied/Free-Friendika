@@ -1804,7 +1804,15 @@ class Contact
 				$cid, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
 		}
 
-		$pager = new Pager(DI::args()->getQueryString());
+		if (DI::mode()->isMobile()) {
+			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+				DI::config()->get('system', 'itemspage_network_mobile'));
+		} else {
+			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+				DI::config()->get('system', 'itemspage_network'));
+		}
+
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
 		$params = ['order' => ['received' => true],
 			'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
@@ -1814,13 +1822,13 @@ class Contact
 
 			$items = Item::inArray($r);
 
-			$o = conversation($a, $items, $pager, 'contacts', $update, false, 'commented', local_user());
+			$o = conversation($a, $items, 'contacts', $update, false, 'commented', local_user());
 		} else {
 			$r = Item::selectForUser(local_user(), [], $condition, $params);
 
 			$items = Item::inArray($r);
 
-			$o = conversation($a, $items, $pager, 'contact-posts', false);
+			$o = conversation($a, $items, 'contact-posts', false);
 		}
 
 		if (!$update) {

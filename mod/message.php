@@ -296,7 +296,7 @@ function message_content(App $a)
 			$total = $r[0]['total'];
 		}
 
-		$pager = new Pager(DI::args()->getQueryString());
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 		$r = get_messages(local_user(), $pager->getStart(), $pager->getItemsPerPage());
 

@@ -18,21 +18,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * See update_profile.php for documentation
- *
  */
 
-use Friendica\App;
+namespace Friendica\Module\Update;
+
 use Friendica\Core\System;
 use Friendica\DI;
-use Friendica\Module\Contact;
+use Friendica\Module\Conversation\Community as CommunityModule;
 
-function update_contact_content(App $a)
+/**
+ * Asynchronous update module for the community page
+ *
+ * @package Friendica\Module\Update
+ */
+class Community extends CommunityModule
 {
-	if ($_GET["force"] == 1) {
-		$text = Contact::content([], true);
-	} else {
-		$text = '';
-	}
+	public static function rawContent(array $parameters = [])
+	{
+		self::parseRequest($parameters);
 
-	System::htmlUpdateExit($text);
+		$o = conversation(DI::app(), self::getItems(), 'community', true, false, 'commented', local_user());
+
+		System::htmlUpdateExit($o);
+	}
 }

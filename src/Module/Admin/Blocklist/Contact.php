@@ -68,7 +68,7 @@ class Contact extends BaseAdmin
 
 		$total = DBA::count('contact', $condition);
 
-		$pager = new Pager(DI::args()->getQueryString(), 30);
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 30);
 
 		$contacts = Model\Contact::selectToArray([], $condition, ['limit' => [$pager->getStart(), $pager->getItemsPerPage()]]);
 

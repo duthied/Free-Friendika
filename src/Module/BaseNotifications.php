@@ -102,7 +102,7 @@ abstract class BaseNotifications extends BaseModule
 		}
 
 		// Set the pager
-		$pager = new Pager(DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
 
 		// Add additional informations (needed for json output)
 		$notifications = [
@@ -132,7 +132,7 @@ abstract class BaseNotifications extends BaseModule
 		$tabs = self::getTabs();
 
 		// Set the pager
-		$pager = new Pager(DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
 
 		$notif_tpl = Renderer::getMarkupTemplate('notifications/notifications.tpl');
 		return Renderer::replaceMacros($notif_tpl, [

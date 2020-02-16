@@ -81,8 +81,15 @@ class BaseSearch extends BaseModule
 			$header = DI::l10n()->t('Forum Search - %s', $search);
 		}
 
-		$args = DI::args();
-		$pager = new Pager($args->getQueryString());
+		if (DI::mode()->isMobile()) {
+			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+				DI::config()->get('system', 'itemspage_network_mobile'));
+		} else {
+			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+				DI::config()->get('system', 'itemspage_network'));
+		}
+
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
 		if ($localSearch && empty($results)) {
 			$pager->setItemsPerPage(80);
