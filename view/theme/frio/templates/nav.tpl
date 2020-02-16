@@ -77,7 +77,7 @@
 					{{if $nav.notifications}}
 						<li id="nav-notification" class="nav-segment dropdown" role="presentation">
 							<button id="nav-notifications-menu-btn" class="btn-link dropdown-toggle" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="nav-notifications-menu">
-								<span id="notification-update" class="nav-notification-badge badge nav-notification dropdown" data-toggle="dropdown"></span>
+								<span id="notification-update" class="nav-notification-badge badge nav-notification"></span>
 								<i class="fa fa-bell fa-lg" aria-label="{{$nav.notifications.1}}"></i>
 							</button>
 							{{* The notifications dropdown menu. There are two parts of menu. The second is at the bottom of this file. It is loaded via js. Look at nav-notifications-template *}}
