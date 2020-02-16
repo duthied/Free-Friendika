@@ -616,8 +616,7 @@ class User
 		$verified   = !empty($data['verified']);
 		$language   = !empty($data['language'])   ? Strings::escapeTags(trim($data['language']))   : 'en';
 
-		$publish = !empty($data['profile_publish_reg']);
-		$netpublish = $publish && DI::config()->get('system', 'directory');
+		$netpublish = $publish = !empty($data['profile_publish_reg']);
 
 		if ($password1 != $confirm) {
 			throw new Exception(DI::l10n()->t('Passwords do not match. Password unchanged.'));

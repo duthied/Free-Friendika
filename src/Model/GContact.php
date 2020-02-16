@@ -1136,7 +1136,7 @@ class GContact
 				'keywords' => $userdata['pub_keywords'],
 				'birthday' => $userdata['dob'], 'photo' => $userdata['photo'],
 				"notify" => $userdata['notify'], 'url' => $userdata['url'],
-				"hide" => ($userdata['hidewall'] || !$userdata['net-publish']),
+				"hide" => !$userdata['net-publish'],
 				'nick' => $userdata['nickname'], 'addr' => $userdata['addr'],
 				"connect" => $userdata['addr'], "server_url" => DI::baseUrl(),
 				"generation" => 1, 'network' => Protocol::DFRN];

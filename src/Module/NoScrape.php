@@ -69,7 +69,7 @@ class NoScrape extends BaseModule
 			$json_info["dfrn-{$dfrn}"] = DI::baseUrl() . "/dfrn_{$dfrn}/{$which}";
 		}
 
-		if (!$a->profile['net-publish'] || $a->profile['hidewall']) {
+		if (!$a->profile['net-publish']) {
 			$json_info['hide'] = true;
 			System::jsonExit($json_info);
 		}

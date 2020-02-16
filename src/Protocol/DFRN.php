@@ -639,27 +639,17 @@ class DFRN
 	 */
 	private static function addAuthor(DOMDocument $doc, array $owner, $authorelement, $public)
 	{
-		// Is the profile hidden or shouldn't be published in the net? Then add the "hide" element
-		$r = q(
-			"SELECT `id` FROM `profile` INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE (`hidewall` OR NOT `net-publish`) AND `user`.`uid` = %d",
-			intval($owner['uid'])
-		);
-		if (DBA::isResult($r)) {
-			$hidewall = true;
-		} else {
-			$hidewall = false;
-		}
+		// Should the profile be "unsearchable" in the net? Then add the "hide" element
+		$hide = DBA::exists('profile', ['uid' => $owner['uid'], 'net-publish' = false]);
 
 		$author = $doc->createElement($authorelement);
 
 		$namdate = DateTimeFormat::utc($owner['name-date'].'+00:00', DateTimeFormat::ATOM);
-		$uridate = DateTimeFormat::utc($owner['uri-date'].'+00:00', DateTimeFormat::ATOM);
 		$picdate = DateTimeFormat::utc($owner['avatar-date'].'+00:00', DateTimeFormat::ATOM);
 
 		$attributes = [];
 
-		if (!$public || !$hidewall) {
+		if (!$public || !$hide) {
 			$attributes = ["dfrn:updated" => $namdate];
 		}
 
@@ -670,7 +660,7 @@ class DFRN
 		$attributes = ["rel" => "photo", "type" => "image/jpeg",
 					"media:width" => 300, "media:height" => 300, "href" => $owner['photo']];
 
-		if (!$public || !$hidewall) {
+		if (!$public || !$hide) {
 			$attributes["dfrn:updated"] = $picdate;
 		}
 
@@ -679,7 +669,7 @@ class DFRN
 		$attributes["rel"] = "avatar";
 		XML::addElement($doc, $author, "link", "", $attributes);
 
-		if ($hidewall) {
+		if ($hide) {
 			XML::addElement($doc, $author, "dfrn:hide", "true");
 		}
 

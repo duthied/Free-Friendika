@@ -75,7 +75,7 @@ class HoverCard extends BaseModule
 
 		$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $baseUrl->getHostname() . ($baseUrl->getUrlPath() ? '/' . $baseUrl->getUrlPath() : ''));
 
-		$page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . (($a->profile['net-publish']) ? 'true' : 'false') . '" />' . "\r\n";
+		$page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($a->profile['net-publish'] ? 'true' : 'false') . '" />' . "\r\n";
 		$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . $baseUrl->get() . '/dfrn_poll/' . $nickname . '" />' . "\r\n";
 		$page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . $baseUrl->get() . '/xrd/?uri=' . $uri . '" />' . "\r\n";
 		header('Link: <' . $baseUrl->get() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
