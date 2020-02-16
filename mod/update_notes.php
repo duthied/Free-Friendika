@@ -21,6 +21,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\System;
 use Friendica\DI;
 
 require_once("mod/notes.php");
@@ -28,11 +29,6 @@ require_once("mod/notes.php");
 function update_notes_content(App $a) {
 
 	$profile_uid = intval($_GET["p"]);
-
-	header("Content-type: text/html");
-	echo "<!DOCTYPE html><html><body>\r\n";
-
-	echo "<section>";
 
 	/**
 	 *
@@ -46,21 +42,5 @@ function update_notes_content(App $a) {
 
 	$text = notes_content($a, $profile_uid);
 
-	if (DI::pConfig()->get(local_user(), "system", "bandwidth_saver")) {
-		$replace = "<br />" . DI::l10n()->t("[Embedded content - reload page to view]") . "<br />";
-		$pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
-		$text = preg_replace($pattern, $replace, $text);
-		$pattern = "/<\s*video[^>]*>(.*?)<\s*\/\s*video>/i";
-		$text = preg_replace($pattern, $replace, $text);
-		$pattern = "/<\s*embed[^>]*>(.*?)<\s*\/\s*embed>/i";
-		$text = preg_replace($pattern, $replace, $text);
-		$pattern = "/<\s*iframe[^>]*>(.*?)<\s*\/\s*iframe>/i";
-		$text = preg_replace($pattern, $replace, $text);
-	}
-
-	// reportedly some versions of MSIE don't handle tabs in XMLHttpRequest documents very well
-	echo str_replace("\t", "       ", $text);
-	echo "</section>";
-	echo "</body></html>\r\n";
-	exit();
+	System::htmlUpdateExit($text);
 }
