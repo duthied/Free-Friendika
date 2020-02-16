@@ -19,7 +19,6 @@
 			<div class="intro-url"><span class="intro-url-label">{{$lbl_url}}:&nbsp;</span><a href="{{$zrl}}">{{$url}}</a></div>
 			{{if $network}}<div class="intro-network"><span class="intro-network-label">{{$lbl_network}}</span>&nbsp;{{$network}}</div>{{/if}}
 			{{if $location}}<div class="intro-location"><span class="intro-location-label">{{$lbl_location}}</span>&nbsp;{{$location}}</div>{{/if}}
-			{{if $gender}}<div class="intro-gender"><span class="intro-gender-label">{{$lbl_gender}}</span>&nbsp;{{$gender}}</div>{{/if}}
 			{{if $keywords}}<div class="intro-keywords"><span class="intro-keywords-label">{{$lbl_keywords}}</span>&nbsp;{{$keywords}}</div>{{/if}}
 			{{if $about}}<div class="intro-about"><span class="intro-about-label">{{$lbl_about}}</span>&nbsp;{{$about nofilter}}</div>{{/if}}
 			<div class="intro-knowyou"><span class="intro-knowyou-label">{{$lbl_knowyou}}</span>{{$knowyou}}</div>
@@ -31,7 +30,6 @@
 			<div class="intro-url"><span class="intro-url-label">{{$lbl_url}}:</span><a href="{{$zrl}}">{{$url}}</a></div>
 			{{if $network}}<div class="intro-network"><span class="intro-network-label">{{$lbl_network}}</span>{{$network}}</div>{{/if}}
 			{{if $location}}<div class="intro-location"><span class="intro-location-label">{{$lbl_location}}</span>{{$location}}</div>{{/if}}
-			{{if $gender}}<div class="intro-gender"><span class="intro-gender-label">{{$lbl_gender}}</span>{{$gender}}</div>{{/if}}
 			{{if $keywords}}<div class="intro-keywords"><span class="intro-keywords-label">{{$lbl_keywords}}</span>{{$keywords}}</div>{{/if}}
 			{{if $about}}<div class="intro-about"><span class="intro-about-label">{{$lbl_about}}</span>{{$about nofilter}}</div>{{/if}}
 			<div class="intro-knowyou"><span class="intro-knowyou-label">{{$lbl_knowyou}}</span>{{$knowyou}}</div>

@@ -45,8 +45,6 @@
                 </dl>
         {{/if}}
 
-	{{if $gender}}<dl class="mf"><dt class="gender-label">{{$gender}}</dt> <dd class="p-gender">{{$profile.gender}}</dd></dl>{{/if}}
-	
 	{{if $profile.pubkey}}<div class="key" style="display:none;">{{$profile.pubkey}}</div>{{/if}}
 
 	{{if $homepage}}

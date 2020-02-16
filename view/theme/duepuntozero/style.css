@@ -2317,7 +2317,7 @@ aside input[type='text'] {
 	margin-bottom: 25px;
 }
 
-.location-label, .gender-label, .homepage-label, .network-label {
+.location-label, .homepage-label, .network-label {
 	float: left;
 	text-align: right;
 	display: block;

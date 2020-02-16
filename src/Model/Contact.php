@@ -725,7 +725,7 @@ class Contact
 	 */
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
-		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'gender', 'avatar',
+		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar',
 			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
 			'photo', 'thumb', 'micro', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
@@ -751,7 +751,7 @@ class Contact
 		$fields = ['name' => $profile['name'], 'nick' => $user['nickname'],
 			'avatar-date' => $self['avatar-date'], 'location' => Profile::formatLocation($profile),
 			'about' => $profile['about'], 'keywords' => $profile['pub_keywords'],
-			'gender' => '', 'contact-type' => $user['account-type'],
+			'contact-type' => $user['account-type'],
 			'xmpp' => $profile['xmpp']];
 
 		$avatar = Photo::selectFirst(['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
@@ -1029,14 +1029,14 @@ class Contact
 
 		// Fetch contact data from the contact table for the given user
 		$s = DBA::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`
+			`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`
 		FROM `contact` WHERE `nurl` = ? AND `uid` = ?", $nurl, $uid);
 		$r = DBA::toArray($s);
 
 		// Fetch contact data from the contact table for the given user, checking with the alias
 		if (!DBA::isResult($r)) {
 			$s = DBA::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`
+				`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`
 			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = ?", $nurl, $url, $ssl_url, $uid);
 			$r = DBA::toArray($s);
 		}
@@ -1044,7 +1044,7 @@ class Contact
 		// Fetch the data from the contact table with "uid=0" (which is filled automatically)
 		if (!DBA::isResult($r)) {
 			$s = DBA::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`
+			`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`
 			FROM `contact` WHERE `nurl` = ? AND `uid` = 0", $nurl);
 			$r = DBA::toArray($s);
 		}
@@ -1052,7 +1052,7 @@ class Contact
 		// Fetch the data from the contact table with "uid=0" (which is filled automatically) - checked with the alias
 		if (!DBA::isResult($r)) {
 			$s = DBA::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`
+			`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`
 			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = 0", $nurl, $url, $ssl_url);
 			$r = DBA::toArray($s);
 		}
@@ -1060,7 +1060,7 @@ class Contact
 		// Fetch the data from the gcontact table
 		if (!DBA::isResult($r)) {
 			$s = DBA::p("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
-			`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, 0 AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`, 2 AS `rel`, 0 AS `pending`
+			`keywords`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, 0 AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`, 2 AS `rel`, 0 AS `pending`
 			FROM `gcontact` WHERE `nurl` = ?", $nurl);
 			$r = DBA::toArray($s);
 		}
@@ -1132,7 +1132,6 @@ class Contact
 		if (empty($profile["cid"]) && ($profile["network"] ?? "") == Protocol::DIASPORA) {
 			$profile["location"] = "";
 			$profile["about"] = "";
-			$profile["gender"] = "";
 			$profile["birthday"] = DBA::NULL_DATE;
 		}
 
@@ -1165,7 +1164,7 @@ class Contact
 
 		// Fetch contact data from the contact table for the given user
 		$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`
+			`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`
 			FROM `contact` WHERE `addr` = '%s' AND `uid` = %d AND NOT `deleted`",
 			DBA::escape($addr),
 			intval($uid)
@@ -1173,7 +1172,7 @@ class Contact
 		// Fetch the data from the contact table with "uid=0" (which is filled automatically)
 		if (!DBA::isResult($r)) {
 			$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`
+				`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`
 				FROM `contact` WHERE `addr` = '%s' AND `uid` = 0 AND NOT `deleted`",
 				DBA::escape($addr)
 			);
@@ -1182,7 +1181,7 @@ class Contact
 		// Fetch the data from the gcontact table
 		if (!DBA::isResult($r)) {
 			$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
-				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`, 2 AS `rel`, 0 AS `pending`
+				`keywords`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`, 2 AS `rel`, 0 AS `pending`
 				FROM `gcontact` WHERE `addr` = '%s'",
 				DBA::escape($addr)
 			);
@@ -2086,7 +2085,7 @@ class Contact
 		// These fields aren't updated by this routine:
 		// 'xmpp', 'sensitive'
 
-		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about', 'gender',
+		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about',
 			'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
 			'network', 'alias', 'baseurl', 'forum', 'prv', 'contact-type', 'pubkey'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);

@@ -2299,7 +2299,6 @@ class Diaspora
 		$name = XML::unescape($data->first_name).((strlen($data->last_name)) ? " ".XML::unescape($data->last_name) : "");
 		$image_url = XML::unescape($data->image_url);
 		$birthday = XML::unescape($data->birthday);
-		$gender = XML::unescape($data->gender);
 		$about = Markdown::toBBCode(XML::unescape($data->bio));
 		$location = Markdown::toBBCode(XML::unescape($data->location));
 		$searchable = (XML::unescape($data->searchable) == "true");
@@ -2347,8 +2346,7 @@ class Diaspora
 		}
 
 		$fields = ['name' => $name, 'location' => $location,
-			'name-date' => DateTimeFormat::utcNow(),
-			'about' => $about, 'gender' => $gender,
+			'name-date' => DateTimeFormat::utcNow(), 'about' => $about,
 			'addr' => $author, 'nick' => $nick, 'keywords' => $keywords,
 			'unsearchable' => !$searchable, 'sensitive' => $nsfw];
 
@@ -2362,7 +2360,7 @@ class Diaspora
 
 		$gcontact = ["url" => $contact["url"], "network" => Protocol::DIASPORA, "generation" => 2,
 					"photo" => $image_url, "name" => $name, "location" => $location,
-					"about" => $about, "birthday" => $birthday, "gender" => $gender,
+					"about" => $about, "birthday" => $birthday,
 					"addr" => $author, "nick" => $nick, "keywords" => $keywords,
 					"hide" => !$searchable, "nsfw" => $nsfw];
 
@@ -4164,7 +4162,6 @@ class Diaspora
 				"image_url_medium" => $medium,
 				"image_url_small" => $small,
 				"birthday" => $dob,
-				"gender" => $profile['gender'],
 				"bio" => $about,
 				"location" => $location,
 				"searchable" => $searchable,

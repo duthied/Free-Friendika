@@ -273,7 +273,6 @@ class ProfileField extends BaseRepository
 
 		$custom_fields = [
 			'hometown'  => $this->l10n->t('Hometown:'),
-			'gender'    => $this->l10n->t('Gender:'),
 			'marital'   => $this->l10n->t('Marital Status:'),
 			'with'      => $this->l10n->t('With:'),
 			'howlong'   => $this->l10n->t('Since:'),

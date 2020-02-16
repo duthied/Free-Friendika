@@ -107,7 +107,6 @@ class Hovercard extends BaseModule
 				'url'          => Contact::magicLink($contact['url']),
 				'nurl'         => $contact['nurl'],
 				'location'     => $contact['location'],
-				'gender'       => $contact['gender'],
 				'about'        => $contact['about'],
 				'network_link' => Strings::formatNetworkName($contact['network'], $contact['url']),
 				'tags'         => $contact['keywords'],

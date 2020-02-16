@@ -6,7 +6,6 @@
 <img id="photo-{{$contact_id}}" class="intro-photo" src="{{$photo}}" width="175" height=175" title="{{$fullname}}" alt="{{$fullname}}" />
 <dl><dt>{{$lbl_url}}</dt><dd><a target="blank" href="{{$zrl}}">{{$url}}</a></dd></dl>
 {{if $location}}<dl><dt>{{$lbl_location}}</dt><dd>{{$location}}</dd></dl>{{/if}}
-{{if $gender}}<dl><dt>{{$lbl_gender}}</dt><dd>{{$gender}}</dd></dl>{{/if}}
 {{if $keywords}}<dl><dt>{{$lbl_keywords}}</dt><dd>{{$keywords}}</dd></dl>{{/if}}
 {{if $about}}<dl><dt>{{$lbl_about}}</dt><dd>{{$about nofilter}}</dd></dl>{{/if}}
 <div class="intro-knowyou">{{$lbl_knowyou}} {{$knowyou}}</div>

@@ -168,8 +168,6 @@ class Introductions extends BaseNotifications
 						'$lbl_about'             => DI::l10n()->t('About:'),
 						'$keywords'              => $notification->getKeywords(),
 						'$lbl_keywords'          => DI::l10n()->t('Tags:'),
-						'$gender'                => $notification->getGender(),
-						'$lbl_gender'            => DI::l10n()->t('Gender:'),
 						'$hidden'                => ['hidden', DI::l10n()->t('Hide this contact from others'), $notification->isHidden(), ''],
 						'$lbl_connection_type'   => $helptext,
 						'$friend'                => $friend,
