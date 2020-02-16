@@ -102,6 +102,9 @@ return [
 	'/attach/{item:\d+}'   => [Module\Attach::class,       [R::GET]],
 	'/babel'               => [Module\Debug\Babel::class,  [R::GET, R::POST]],
 	'/bookmarklet'         => [Module\Bookmarklet::class,  [R::GET]],
+
+	'/community[/{content}[/{accounttype}]]' => [Module\Conversation\Community::class, [R::GET]],
+
 	'/compose[/{type}]'    => [Module\Item\Compose::class, [R::GET, R::POST]],
 
 	'/contact'   => [
@@ -288,6 +291,7 @@ return [
 	'/toggle_mobile'                 => [Module\ToggleMobile::class,          [R::GET]],
 	'/tos'                           => [Module\Tos::class,                   [R::GET]],
 
+	'/update_community[/{content}[/{accounttype}]]' => [Module\Update\Community::class, [R::GET]],
 	'/update_profile'                => [Module\Update\Profile::class,        [R::GET]],
 
 	'/view/theme/{theme}/style.pcss' => [Module\Theme::class,                 [R::GET]],

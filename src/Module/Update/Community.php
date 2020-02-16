@@ -20,19 +20,24 @@
  * See update_profile.php for documentation
  */
 
-use Friendica\App;
+namespace Friendica\Module\Update;
+
 use Friendica\Core\System;
 use Friendica\DI;
 
-require_once 'mod/community.php';
-
-function update_community_content(App $a)
+/**
+ * Asynchronous update module for the community page
+ *
+ * @package Friendica\Module\Update
+ */
+class Community extends \Friendica\Module\Conversation\Community
 {
-	if ($_GET["force"] == 1) {
-		$text = community_content($a, true);
-	} else {
-		$text = '';
-	}
+	public static function rawContent(array $parameters = [])
+	{
+		self::parseRequest($parameters);
 
-	System::htmlUpdateExit($text);
+		$o = conversation(DI::app(), self::getItems(), 'community', true, false, 'commented', local_user());
+
+		System::htmlUpdateExit($o);
+	}
 }

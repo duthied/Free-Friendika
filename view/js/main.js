@@ -527,6 +527,8 @@ function updateConvItems(data) {
 		// Add new top-level item.
 		if ($('#' + ident).length === 0
 			&& (!getUrlParameter('page')
+				&& !getUrlParameter('max_id')
+				&& !getUrlParameter('since_id')
 				|| getUrlParameter('page') === '1'
 			)
 		) {
@@ -596,6 +598,12 @@ function liveUpdate(src) {
 
 	if (getUrlParameter('page')) {
 		update_url += '&page=' + getUrlParameter('page');
+	}
+	if (getUrlParameter('since_id')) {
+		update_url += '&since_id=' + getUrlParameter('since_id');
+	}
+	if (getUrlParameter('max_id')) {
+		update_url += '&max_id=' + getUrlParameter('max_id');
 	}
 
 	$.get(update_url,function(data) {
