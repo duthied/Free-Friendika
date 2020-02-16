@@ -15,6 +15,15 @@ These endpoints uses the [Friendica API entities](help/API-Entities).
 
 ## Endpoints
 
+### GET api/friendica/events
+
+Returns a list of [Event](help/API-Entities#Event) entities for the current logged in user.
+
+#### Parameters
+
+- `since_id`: (optional) minimum event id for pagination
+- `count`: maximum number of items returned, default 20
+
 ### GET api/externalprofile/show
 
 Returns a [Contact](help/API-Entities#Contact) entity for the provided profile URL.

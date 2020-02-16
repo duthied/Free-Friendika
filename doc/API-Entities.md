@@ -361,6 +361,123 @@ Ex: Wed May 23 06:01:13 +0000 2007
 </tbody>
 </table>
 
+## Event
+
+<table class="table table-condensed table-striped table-bordered">
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>Integer</td>
+<td></td>
+</tr>
+
+<tr>
+<td><code>uid</code></td>
+<td>Integer</td>
+<td>Owner User Id</td>
+</tr>
+
+<tr>
+<td><code>cid</code></td>
+<td>Integer</td>
+<td>Target Contact Id</td>
+</tr>
+
+<tr>
+<td><code>uri</code></td>
+<td>String</td>
+<td>Item unique URI string</td>
+</tr>
+
+<tr>
+<td><code>name</code></td>
+<td>String (Plaintext)</td>
+<td>Title</td>
+</tr>
+
+<tr>
+<td><code>desc</code></td>
+<td>String (HTML)</td>
+<td>Description</td>
+</tr>
+
+<tr>
+<td><code>startTime</code></td>
+<td>String (UTC <code>YYYY-MM-DD HH:II:SS)</code>)</td>
+<td></td>
+</tr>
+
+<tr>
+<td><code>endTime</code></td>
+<td>String (UTC <code>YYYY-MM-DD HH:II:SS)</code>)</td>
+<td>Optional (null date is <code>0001-01-01 00:00:00</code></td>
+</tr>
+
+<tr>
+<td><code>type</code></td>
+<td>String (<code>event</code> or <code>birthday</code>)</td>
+<td></td>
+</tr>
+
+<tr>
+<td><code>nofinish</code></td>
+<td>Boolean</td>
+<td>Ongoing event</td>
+</tr>
+
+<tr>
+<td><code>place</code></td>
+<td>String</td>
+<td>Optional. Location.</td>
+</tr>
+
+<tr>
+<td><code>adjust</code></td>
+<td>Boolean</td>
+<td>???</td>
+</tr>
+
+<tr>
+<td><code>ignore</code></td>
+<td>Boolean</td>
+<td>???</td>
+</tr>
+
+<tr>
+<td><code>allow_cid</code></td>
+<td>String (angle-brackets escaped integers)</td>
+<td>Optional. List of allowed contact ids</td>
+</tr>
+
+<tr>
+<td><code>allow_gid</code></td>
+<td>String (angle-brackets escaped integers)</td>
+<td>Optional. List of allowed group ids</td>
+</tr>
+
+<tr>
+<td><code>deny_cid</code></td>
+<td>String (angle-brackets escaped integers)</td>
+<td>Optional. List of disallowed contact ids</td>
+</tr>
+
+<tr>
+<td><code>deny_gid</code></td>
+<td>String (angle-brackets escaped integers)</td>
+<td>Optional. List of disallowed group ids</td>
+</tr>
+
+</tbody>
+</table>
+
 ## Hashtag
 
 Unused
