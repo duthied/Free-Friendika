@@ -107,7 +107,7 @@ function common_content(App $a)
 		return $o;
 	}
 
-	$pager = new Pager(DI::args()->getQueryString());
+	$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 	if ($cid) {
 		$common_friends = Model\GContact::commonFriends($uid, $cid, $pager->getStart(), $pager->getItemsPerPage());

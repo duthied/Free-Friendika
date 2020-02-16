@@ -67,7 +67,7 @@ class AllFriends extends BaseModule
 
 		$total = Model\GContact::countAllFriends(local_user(), $cid);
 
-		$pager = new Pager(DI::args()->getQueryString());
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 		$friends = Model\GContact::allFriends(local_user(), $cid, $pager->getStart(), $pager->getItemsPerPage());
 		if (empty($friends)) {

@@ -1805,7 +1805,7 @@ class Contact
 				$cid, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
 		}
 
-		$pager = new Pager(DI::args()->getQueryString());
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 		$params = ['order' => ['received' => true],
 			'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];

@@ -180,7 +180,7 @@ class Status extends BaseProfile
 			$itemspage_network = $a->force_max_items;
 		}
 
-		$pager = new Pager($args->getQueryString(), $itemspage_network);
+		$pager = new Pager(DI::l10n(), $args->getQueryString(), $itemspage_network);
 
 		$pager_sql = sprintf(" LIMIT %d, %d ", $pager->getStart(), $pager->getItemsPerPage());
 

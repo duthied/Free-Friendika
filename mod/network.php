@@ -377,7 +377,7 @@ function networkFlatView(App $a, $update = 0)
 		}
 	}
 
-	$pager = new Pager(DI::args()->getQueryString());
+	$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 	networkPager($a, $pager, $update);
 
@@ -669,7 +669,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$sql_range = '';
 	}
 
-	$pager = new Pager(DI::args()->getQueryString());
+	$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 	$pager_sql = networkPager($a, $pager, $update);
 

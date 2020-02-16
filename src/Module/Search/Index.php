@@ -137,7 +137,7 @@ class Index extends BaseSearch
 		// OR your own posts if you are a logged in member
 		// No items will be shown if the member has a blocked profile wall.
 
-		$pager = new Pager(DI::args()->getQueryString());
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);

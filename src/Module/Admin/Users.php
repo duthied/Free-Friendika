@@ -194,7 +194,7 @@ class Users extends BaseAdmin
 		/* get pending */
 		$pending = Register::getPending();
 
-		$pager = new Pager(DI::args()->getQueryString(), 100);
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 100);
 
 		// @TODO Move below block to Model\User::getUsers($start, $count, $order = 'contact.name', $order_direction = '+')
 		$valid_orders = [

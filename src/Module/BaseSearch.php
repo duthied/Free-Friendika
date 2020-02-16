@@ -81,8 +81,7 @@ class BaseSearch extends BaseModule
 			$header = DI::l10n()->t('Forum Search - %s', $search);
 		}
 
-		$args = DI::args();
-		$pager = new Pager($args->getQueryString());
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 		if ($localSearch && empty($results)) {
 			$pager->setItemsPerPage(80);

@@ -21,17 +21,18 @@
 
 namespace Friendica\Content;
 
+use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\DI;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
- * This pager should be used by lists using the since_id/max_id parameters
+ * This pager should be used by lists using the since_id†/max_id† parameters
  *
- * In this context, "id" refers to the value of the column that the list is ordered by.
- * This pager automatically identifies if the sorting is done increasingly or decreasingly if the first item id
- * and last item id are different. Otherwise it defaults to decreasingly like reverse chronological lists.
+ * This pager automatically identifies if the sorting is done increasingly or decreasingly if the first item id†
+ * and last item id† are different. Otherwise it defaults to decreasingly like reverse chronological lists.
+ *
+ * † In this context, "id" refers to the value of the column that the item list is ordered by.
  */
 class BoundariesPager extends Pager
 {
@@ -42,14 +43,15 @@ class BoundariesPager extends Pager
 	/**
 	 * Instantiates a new Pager with the base parameters.
 	 *
+	 * @param L10n    $l10n
 	 * @param string  $queryString   The query string of the current page
-	 * @param string  $first_item_id The i
-	 * @param string  $last_item_id
-	 * @param integer $itemsPerPage An optional number of items per page to override the default value
+	 * @param string  $first_item_id The id† of the first item in the displayed item list
+	 * @param string  $last_item_id  The id† of the last item in the displayed item list
+	 * @param integer $itemsPerPage  An optional number of items per page to override the default value
 	 */
-	public function __construct($queryString, $first_item_id = null, $last_item_id = null, $itemsPerPage = 50)
+	public function __construct(L10n $l10n, $queryString, $first_item_id = null, $last_item_id = null, $itemsPerPage = 50)
 	{
-		parent::__construct($queryString, $itemsPerPage);
+		parent::__construct($l10n, $queryString, $itemsPerPage);
 
 		$this->first_item_id = $first_item_id;
 		$this->last_item_id = $last_item_id;
@@ -111,7 +113,7 @@ class BoundariesPager extends Pager
 					($this->first_item_id >= $this->last_item_id ?
 						'&since_id=' . $this->first_item_id : '&max_id=' . $this->first_item_id)
 				),
-				'text'  => DI::l10n()->t('newer'),
+				'text'  => $this->l10n->t('newer'),
 				'class' => 'previous' . ($this->first_page ? ' disabled' : '')
 			],
 			'next'  => [
@@ -119,7 +121,7 @@ class BoundariesPager extends Pager
 					($this->first_item_id >= $this->last_item_id ?
 					'&max_id=' . $this->last_item_id : '&since_id=' . $this->last_item_id)
 				),
-				'text'  => DI::l10n()->t('older'),
+				'text'  => $this->l10n->t('older'),
 				'class' =>  'next' . ($displayedItemCount < $this->getItemsPerPage() ? ' disabled' : '')
 			]
 		];

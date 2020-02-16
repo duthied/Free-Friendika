@@ -104,6 +104,7 @@ class Community extends BaseModule
 		$o .= conversation(DI::app(), $items, 'community', false, false, 'commented', local_user());
 
 		$pager = new BoundariesPager(
+			DI::l10n(),
 			DI::args()->getQueryString(),
 			$items[0]['commented'],
 			$items[count($items) - 1]['commented'],

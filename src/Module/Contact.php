@@ -731,7 +731,7 @@ class Contact extends BaseModule
 		}
 		DBA::close($stmt);
 
-		$pager = new Pager(DI::args()->getQueryString());
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 		$sql_values[] = $pager->getStart();
 		$sql_values[] = $pager->getItemsPerPage();
