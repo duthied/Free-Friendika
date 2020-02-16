@@ -37,12 +37,12 @@ class Pager
 	/**
 	 * @var integer
 	 */
-	private $itemsPerPage = 50;
+	protected $itemsPerPage = 50;
 
 	/**
 	 * @var string
 	 */
-	private $baseQueryString = '';
+	protected $baseQueryString = '';
 
 	/**
 	 * Instantiates a new Pager with the base parameters.
@@ -154,11 +154,11 @@ class Pager
 	 *
 	 * $html = $pager->renderMinimal(count($items));
 	 *
-	 * @param integer $itemCount The number of displayed items on the page
+	 * @param int $itemCount The number of displayed items on the page
 	 * @return string HTML string of the pager
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public function renderMinimal($itemCount)
+	public function renderMinimal(int $itemCount)
 	{
 		$displayedItemCount = max(0, intval($itemCount));
 
