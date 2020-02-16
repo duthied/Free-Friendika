@@ -195,11 +195,12 @@ class Community extends BaseModule
 			}
 		}
 
-		// check if we serve a mobile device and get the user settings accordingly
 		if (DI::mode()->isMobile()) {
-			self::$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network', 20);
+			self::$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			self::$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network', 40);
+			self::$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+				DI::config()->get('system', 'itemspage_network'));
 		}
 
 		// now that we have the user settings, see if the theme forces
@@ -272,6 +273,7 @@ class Community extends BaseModule
 	 * @param $itemspage
 	 * @return array
 	 * @throws \Exception
+	 * @TODO Move to repository/factory
 	 */
 	private static function selectItems($since_id, $max_id, $itemspage)
 	{

@@ -69,7 +69,15 @@ function notes_content(App $a, $update = false)
 	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
 		'contact-id'=> $a->contact['id']];
 
-	$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 40);
+	if (DI::mode()->isMobile()) {
+		$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+			DI::config()->get('system', 'itemspage_network_mobile'));
+	} else {
+		$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+			DI::config()->get('system', 'itemspage_network'));
+	}
+
+	$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
 	$params = ['order' => ['created' => true],
 		'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];

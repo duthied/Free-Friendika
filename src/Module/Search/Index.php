@@ -137,7 +137,15 @@ class Index extends BaseSearch
 		// OR your own posts if you are a logged in member
 		// No items will be shown if the member has a blocked profile wall.
 
-		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
+		if (DI::mode()->isMobile()) {
+			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+				DI::config()->get('system', 'itemspage_network_mobile'));
+		} else {
+			$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+				DI::config()->get('system', 'itemspage_network'));
+		}
+
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);

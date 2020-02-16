@@ -166,12 +166,12 @@ class Status extends BaseProfile
 			$sql_extra3 = "";
 		}
 
-		//  check if we serve a mobile device and get the user settings
-		//  accordingly
 		if (DI::mode()->isMobile()) {
-			$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network', 10);
+			$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+				DI::config()->get('system', 'itemspage_network_mobile'));
 		} else {
-			$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_network', 20);
+			$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+				DI::config()->get('system', 'itemspage_network'));
 		}
 
 		//  now that we have the user settings, see if the theme forces
