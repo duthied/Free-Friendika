@@ -130,7 +130,7 @@ function update_1191()
 
 			if ($key === 'show_on_profile') {
 				if ($value) {
-					DI::pConfig()->set($uid, feature, forumlist_profile, $value);
+					DI::pConfig()->set($uid, 'feature', 'forumlist_profile', $value);
 				}
 
 				DI::pConfig()->delete($uid, $family, $key);
@@ -138,7 +138,7 @@ function update_1191()
 
 			if ($key === 'show_on_network') {
 				if ($value) {
-					DI::pConfig()->set($uid, feature, forumlist_widget, $value);
+					DI::pConfig()->set($uid, 'feature', 'forumlist_widget', $value);
 				}
 
 				DI::pConfig()->delete($uid, $family, $key);
@@ -356,7 +356,7 @@ function update_1309()
 
 		$deliver_options = ['priority' => PRIORITY_MEDIUM, 'dont_fork' => true];
 		Worker::add($deliver_options, 'Delivery', Delivery::POST, $item['id'], $entry['cid']);
-		Logger::info('Added delivery worker', ['command' => $cmd, 'item' => $item['id'], 'contact' => $entry['cid']]);
+		Logger::info('Added delivery worker', ['item' => $item['id'], 'contact' => $entry['cid']]);
 		DBA::delete('queue', ['id' => $entry['id']]);
 	}
 	return Update::SUCCESS;
