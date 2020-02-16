@@ -24,13 +24,14 @@ namespace Friendica\Module\Update;
 
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Module\Conversation\Community as CommunityModule;
 
 /**
  * Asynchronous update module for the community page
  *
  * @package Friendica\Module\Update
  */
-class Community extends \Friendica\Module\Conversation\Community
+class Community extends CommunityModule
 {
 	public static function rawContent(array $parameters = [])
 	{
