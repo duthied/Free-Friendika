@@ -1098,17 +1098,19 @@ function settings_content(App $a)
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 	} else {
 		$profile_in_dir = Renderer::replaceMacros($opt_tpl, [
-			'$field' => ['profile_in_directory', DI::l10n()->t('Publish your default profile in your local site directory?'), $profile['publish'], DI::l10n()->t('Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', DI::baseUrl().'/directory')]
+			'$field' => ['profile_in_directory', DI::l10n()->t('Publish your profile in your local site directory?'), $profile['publish'], DI::l10n()->t('Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', DI::baseUrl().'/directory')]
 		]);
 	}
 
 	if (strlen(DI::config()->get('system', 'directory'))) {
-		$profile_in_net_dir = Renderer::replaceMacros($opt_tpl, [
-			'$field' => ['profile_in_netdirectory', DI::l10n()->t('Publish your default profile in the global social directory?'), $profile['net-publish'], DI::l10n()->t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', DI::config()->get('system', 'directory'), DI::config()->get('system', 'directory'))	. " " . DI::l10n()->t("This setting also determines whether Friendica will inform search engines that your profile should be indexed or not. Third-party search engines may or may not respect this setting.")]
-		]);
+		$net_pub_desc = ' ' . DI::l10n()->t('Your profile will also be published in the global friendica directories (e.g. <a href="%s">%s</a>).', DI::config()->get('system', 'directory'), DI::config()->get('system', 'directory'));
 	} else {
-		$profile_in_net_dir = '';
+		$net_pub_desc = '';
 	}
+
+	$profile_in_net_dir = Renderer::replaceMacros($opt_tpl, [
+		'$field' => ['profile_in_netdirectory', DI::l10n()->t('Allow your profile to be searchable globally?'), $profile['net-publish'], DI::l10n()->t("Activate this setting if you want others to easily find and follow you. Your profile will be searchable on remote systems. This setting also determines whether Friendica will inform search engines that your profile should be indexed or not.") . $net_pub_desc]
+	]);
 
 	$hide_friends = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['hide-friends', DI::l10n()->t('Hide your contact/friend list from viewers of your default profile?'), $profile['hide-friends'], DI::l10n()->t('Your contact list won\'t be shown in your default profile page. You can decide to show your contact list separately for each additional profile you create')],
@@ -1133,10 +1135,6 @@ function settings_content(App $a)
 	$unkmail = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['unkmail', DI::l10n()->t('Permit unknown people to send you private mail?'), $unkmail, DI::l10n()->t('Friendica network users may send you private messages even if they are not in your contact list.')],
 	]);
-
-	if (!$profile['publish'] && !$profile['net-publish']) {
-		info(DI::l10n()->t('Profile is <strong>not published</strong>.') . EOL);
-	}
 
 	$tpl_addr = Renderer::getMarkupTemplate('settings/nick_set.tpl');
 

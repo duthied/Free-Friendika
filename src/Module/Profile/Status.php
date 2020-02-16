@@ -48,7 +48,7 @@ class Status extends BaseProfile
 
 		ProfileModel::load($a, $parameters['nickname']);
 
-		if (!$a->profile['net-publish'] || $a->profile['hidewall']) {
+		if (!$a->profile['net-publish']) {
 			DI::page()['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 		}
 

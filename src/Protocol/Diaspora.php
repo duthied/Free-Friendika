@@ -4118,7 +4118,7 @@ class Diaspora
 		$large = DI::baseUrl().'/photo/custom/300/'.$profile['uid'].'.jpg';
 		$medium = DI::baseUrl().'/photo/custom/100/'.$profile['uid'].'.jpg';
 		$small = DI::baseUrl().'/photo/custom/50/'  .$profile['uid'].'.jpg';
-		$searchable = (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false');
+		$searchable = ($profile['net-publish'] ? 'true' : 'false');
 
 		$dob = null;
 		$about = null;

@@ -293,7 +293,7 @@ class Profile extends BaseProfile
 
 		$htmlhead .= '<meta name="dfrn-global-visibility" content="' . ($profile['net-publish'] ? 'true' : 'false') . '" />' . "\n";
 
-		if (!$profile['net-publish'] || $profile['hidewall']) {
+		if (!$profile['net-publish']) {
 			$htmlhead .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 		}
 

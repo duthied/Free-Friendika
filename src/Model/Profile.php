@@ -392,7 +392,7 @@ class Profile
 			$diaspora = [
 				'guid' => $profile['guid'],
 				'podloc' => DI::baseUrl(),
-				'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false'),
+				'searchable' => ($profile['net-publish'] ? 'true' : 'false'),
 				'nickname' => $profile['nickname'],
 				'fullname' => $profile['name'],
 				'firstname' => $firstname,

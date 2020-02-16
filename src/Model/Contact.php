@@ -785,7 +785,7 @@ class Contact
 		$fields['avatar'] = DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
-		$fields['unsearchable'] = $user['hidewall'] || !$profile['net-publish'];
+		$fields['unsearchable'] = !$profile['net-publish'];
 
 		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
 		$fields['url'] = DI::baseUrl() . '/profile/' . $user['nickname'];
