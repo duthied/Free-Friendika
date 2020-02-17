@@ -57,8 +57,6 @@
 
 {{$blocktags nofilter}}
 
-{{$suggestme nofilter}}
-
 {{$unkmail nofilter}}
 
 {{include file="field_input.tpl" field=$cntunkmail}}
