@@ -495,7 +495,6 @@ function settings_post(App $a)
 	$blocktags        = ((!empty($_POST['blocktags']) && (intval($_POST['blocktags']) == 1)) ? 0: 1); // this setting is inverted!
 	$unkmail          = ((!empty($_POST['unkmail']) && (intval($_POST['unkmail']) == 1)) ? 1: 0);
 	$cntunkmail       = (!empty($_POST['cntunkmail']) ? intval($_POST['cntunkmail']) : 0);
-	$suggestme        = (!empty($_POST['suggestme']) ? intval($_POST['suggestme'])  : 0);
 	$hide_friends     = (($_POST['hide-friends'] == 1) ? 1: 0);
 	$hidewall         = (($_POST['hidewall'] == 1) ? 1: 0);
 
@@ -592,8 +591,6 @@ function settings_post(App $a)
 	DI::pConfig()->set(local_user(), 'expire', 'starred', $expire_starred);
 	DI::pConfig()->set(local_user(), 'expire', 'photos', $expire_photos);
 	DI::pConfig()->set(local_user(), 'expire', 'network_only', $expire_network_only);
-
-	DI::pConfig()->set(local_user(), 'system', 'suggestme', $suggestme);
 
 	DI::pConfig()->set(local_user(), 'system', 'email_textonly', $email_textonly);
 	DI::pConfig()->set(local_user(), 'system', 'detailed_notif', $detailed_notif);
@@ -1024,7 +1021,6 @@ function settings_content(App $a)
 	$expire_starred = DI::pConfig()->get(local_user(), 'expire', 'starred', true);
 	$expire_photos = DI::pConfig()->get(local_user(), 'expire', 'photos', false);
 	$expire_network_only = DI::pConfig()->get(local_user(), 'expire', 'network_only', false);
-	$suggestme = DI::pConfig()->get(local_user(), 'system', 'suggestme', false);
 
 	// nowarn_insecure
 
@@ -1132,10 +1128,6 @@ function settings_content(App $a)
 		'$field' => ['blocktags', DI::l10n()->t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), DI::l10n()->t('Your contacts can add additional tags to your posts.')],
 	]);
 
-	$suggestme = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['suggestme', DI::l10n()->t('Allow us to suggest you as a potential friend to new members?'), $suggestme, DI::l10n()->t('If you like, Friendica may suggest new members to add you as a contact.')],
-	]);
-
 	$unkmail = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['unkmail', DI::l10n()->t('Permit unknown people to send you private mail?'), $unkmail, DI::l10n()->t('Friendica network users may send you private messages even if they are not in your contact list.')],
 	]);
@@ -1219,7 +1211,6 @@ function settings_content(App $a)
 		'$permdesc' => DI::l10n()->t("\x28click to open/close\x29"),
 		'$visibility' => $profile['net-publish'],
 		'$aclselect' => ACL::getFullSelectorHTML(DI::page(), $a->user),
-		'$suggestme' => $suggestme,
 		'$blockwall'=> $blockwall, // array('blockwall', DI::l10n()->t('Allow friends to post to your profile page:'), !$blockwall, ''),
 		'$blocktags'=> $blocktags, // array('blocktags', DI::l10n()->t('Allow friends to tag your posts:'), !$blocktags, ''),
 

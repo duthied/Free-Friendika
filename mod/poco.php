@@ -43,8 +43,7 @@ function poco_init(App $a) {
 		$nickname = Strings::escapeTags(trim($a->argv[1]));
 	}
 	if (empty($nickname)) {
-		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");
-		if (!DBA::isResult($c)) {
+		if (!DBA::exists('profile', ['net-publish' => true])) {
 			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 		$system_mode = true;
@@ -113,8 +112,7 @@ function poco_init(App $a) {
 			DBA::escape(Protocol::OSTATUS)
 		);
 	} elseif ($system_mode) {
-		$contacts = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1
-			AND `uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) ");
+		$totalResults = DBA::count('profile', ['net-publish' => true]);
 	} else {
 		$contacts = q("SELECT count(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
 			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
@@ -126,9 +124,9 @@ function poco_init(App $a) {
 			DBA::escape(Protocol::STATUSNET)
 		);
 	}
-	if (DBA::isResult($contacts)) {
+	if (empty($totalResults) && DBA::isResult($contacts)) {
 		$totalResults = intval($contacts[0]['total']);
-	} else {
+	} elseif (empty($totalResults)) {
 		$totalResults = 0;
 	}
 	if (!empty($_GET['startIndex'])) {
@@ -156,8 +154,8 @@ function poco_init(App $a) {
 				`profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`, `user`.`account-type`
 			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
 				INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-			WHERE `self` = 1
-			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
+			WHERE `self` = 1 AND `profile`.`net-publish`
+			LIMIT %d, %d",
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
