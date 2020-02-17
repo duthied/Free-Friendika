@@ -12,7 +12,7 @@
 
 <div id="profile-edit-links">
 	<ul>
-		<li><a class="btn" href="profile/{{$nickname}}" id="profile-edit-view-link" title="{{$viewprof}}">{{$viewprof}}</a></li>
+		<li><a class="btn" href="profile/{{$nickname}}/profile" id="profile-edit-view-link" title="{{$viewprof}}">{{$viewprof}}</a></li>
 	</ul>
 </div>
 <div id="profile-edit-links-end"></div>
