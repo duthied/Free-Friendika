@@ -61,26 +61,7 @@
 
 {{$unkmail nofilter}}
 
-
 {{include file="field_input.tpl" field=$cntunkmail}}
-
-{{include file="field_input.tpl" field=$expire.days}}
-
-
-<div class="field input">
-	<span class="field_help"><a href="#advanced-expire-popup" id="advanced-expire" class='popupbox' title="{{$expire.advanced}}">{{$expire.label}}</a></span>
-	<div style="display: none;">
-		<div id="advanced-expire-popup" style="width:auto;height:auto;overflow:auto;">
-			<h3>{{$expire.advanced}}</h3>
-			{{include file="field_checkbox.tpl" field=$expire.items}}
-			{{include file="field_checkbox.tpl" field=$expire.notes}}
-			{{include file="field_checkbox.tpl" field=$expire.starred}}
-			{{include file="field_checkbox.tpl" field=$expire.network_only}}
-		</div>
-	</div>
-
-</div>
-
 
 <div id="settings-default-perms" class="settings-default-perms" >
 	<a href="#profile-jot-acl-wrapper" id="settings-default-perms-menu" class='popupbox'>{{$permissions}} {{$permdesc}}</a>
@@ -100,15 +81,25 @@
 <div id="settings-default-perms-end"></div>
 
 {{$group_select nofilter}}
-
-
 <div class="settings-submit-wrapper" >
 <input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
 </div>
 
+<h3 class="settings-heading"><a href="javascript:;">{{$expire.label}}</a></h3>
+<div class="settings-content-block">
+<div id="settings-expiry">
+{{include file="field_input.tpl" field=$expire.days}}
+{{include file="field_checkbox.tpl" field=$expire.items}}
+{{include file="field_checkbox.tpl" field=$expire.notes}}
+{{include file="field_checkbox.tpl" field=$expire.starred}}
+{{include file="field_checkbox.tpl" field=$expire.network_only}}
 
-
+<div class="settings-submit-wrapper" >
+<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+</div>
+</div>
+</div>
 
 <h3 class="settings-heading"><a href="javascript:;">{{$h_not}}</a></h3>
 <div class="settings-content-block">
@@ -171,7 +162,6 @@
 </div>
 </div>
 
-
 <h3 class="settings-heading"><a href="javascript:;">{{$h_advn}}</a></h3>
 <div class="settings-content-block">
 <div id="settings-pagetype-desc">{{$h_descadvn}}</div>
@@ -202,6 +192,3 @@
 <input type="submit" name="resend_relocate" class="settings-submit" value="{{$relocate_button}}" />
 </div>
 </div>
-
-
-
