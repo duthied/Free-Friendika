@@ -1278,6 +1278,10 @@ class Contact
 			}
 		}
 
+		if (!empty($follow_link) || !empty($unfollow_link)) {
+			$contact_drop_link = '';
+		}
+
 		/**
 		 * Menu array:
 		 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
