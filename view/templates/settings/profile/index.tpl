@@ -5,7 +5,7 @@
 <div id="profile-edit-links">
 	<ul>
 		<li><a href="settings/profile/photo" id="profile-photo_upload-link" title="{{$profpic}}">{{$profpic}}</a></li>
-		<li><a href="profile/{{$nickname}}" id="profile-edit-view-link" title="{{$viewprof}}">{{$viewprof}}</a></li>
+		<li><a href="profile/{{$nickname}}/profile" id="profile-edit-view-link" title="{{$viewprof}}">{{$viewprof}}</a></li>
 	</ul>
 </div>
 
