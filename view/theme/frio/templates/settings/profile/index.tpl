@@ -12,7 +12,7 @@
 					<li role="presentation"><a role="menuitem" href="{{$profpiclink}}" id="profile-photo_upload-link" title="{{$profpic}}"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{$profpic}}</a></li>
 					<li role="presentation"><button role="menuitem" type="button" class="btn-link" id="profile-photo_upload-link-new" title="{{$lbl_profile_photo}}" onclick="openClose('profile-photo-upload-section');"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{$lbl_profile_photo}}</button></li>
 					<li role="presentation" class="divider"></li>
-					<li role="presentation"><a role="menuitem" href="profile/{{$nickname}}" id="profile-edit-view-link" title="{{$viewprof}}">{{$viewprof}}</a></li>
+					<li role="presentation"><a role="menuitem" href="profile/{{$nickname}}/profile" id="profile-edit-view-link" title="{{$viewprof}}">{{$viewprof}}</a></li>
 				</ul>
 			</li>
 		</ul>
