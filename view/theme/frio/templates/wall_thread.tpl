@@ -287,6 +287,10 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{/if}}
 			{{/if}}
 
+			{{if $item.remote_comment}}
+				<a href="{{$item.remote_comment.2}}" class="btn-link button-comments" title="{{$item.remote_comment.0}}"><i class="fa fa-commenting" aria-hidden="true"></i>&nbsp;{{$item.remote_comment.1}}</a>
+			{{/if}}
+
 			{{* Button to open the comment text field *}}
 			{{if $item.comment}}
 				<button type="button" class="btn-link button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i>&nbsp;{{$item.switchcomment}}</button>

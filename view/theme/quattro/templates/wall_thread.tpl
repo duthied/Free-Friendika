@@ -113,6 +113,10 @@
                                 <a href="#" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="filer-item filer-icon" title="{{$item.filer}}">{{$item.filer}}</a>
 			{{/if}}
 
+			{{if $item.remote_comment}}
+				<a title="{{$item.remote_comment.0}}" href="{{$item.remote_comment.2}}">{{$item.remote_comment.1}}</a>
+			{{/if}}
+
 			{{if $item.vote}}
 				<a href="#" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false">{{$item.vote.like.1}}</a>
 				{{if $item.vote.dislike}}

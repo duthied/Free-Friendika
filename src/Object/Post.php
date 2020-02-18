@@ -392,6 +392,14 @@ class Post
 			$ago = DI::l10n()->t('%s (Received %s)', $ago, $ago_received);
 		}
 
+		// Fetching of Diaspora posts doesn't always work. There are issues with reshares and possibly comments
+		if (($item['network'] != Protocol::DIASPORA) && empty($comment) && !empty(Session::get('remote_follow'))) {
+			$remote_comment = [DI::l10n()->t('Comment this item on your system'), DI::l10n()->t('remote comment'),
+				str_replace('{uri}', urlencode($item['uri']), Session::get('remote_follow'))];
+		} else {
+			$remote_comment = '';
+		}
+
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
@@ -455,6 +463,7 @@ class Post
 			'switchcomment'   => DI::l10n()->t('Comment'),
 			'reply_label'     => DI::l10n()->t('Reply to %s', $name_e),
 			'comment'         => $comment,
+			'remote_comment'  => $remote_comment,
 			'menu'            => DI::l10n()->t('More'),
 			'previewing'      => $conv->isPreview() ? ' preview ' : '',
 			'wait'            => DI::l10n()->t('Please wait'),

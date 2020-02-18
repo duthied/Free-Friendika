@@ -83,6 +83,9 @@
 				<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 			</div>
 			{{/if}}
+			{{if $item.remote_comment}}
+				<div class="wall-item-links-wrapper"><a href="{{$item.remote_comment.2}}" title="{{$item.remote_comment.0}}" target="_blank" class="icon remote-link{{$item.sparkle}} u-url"></a></div>
+			{{/if}}
 			{{if $item.plink}}
 				<div class="wall-item-links-wrapper"><a href="{{$item.plink.href}}" title="{{$item.plink.title}}" target="_blank" class="icon remote-link{{$item.sparkle}} u-url"></a></div>
 			{{/if}}
