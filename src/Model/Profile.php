@@ -786,7 +786,7 @@ class Profile
 		$_SESSION['visitor_handle'] = $visitor['addr'];
 		$_SESSION['visitor_home'] = $visitor['url'];
 		$_SESSION['my_url'] = $visitor['url'];
-		$_SESSION['remote_follow'] = Probe::getRemoteFollowLink($visitor['url']);
+		$_SESSION['remote_comment'] = Probe::getRemoteFollowLink($visitor['url']);
 
 		Session::setVisitorsContacts();
 
