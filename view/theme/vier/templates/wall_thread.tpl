@@ -102,6 +102,10 @@
 			<div class="wall-item-actions-social">
 			{{if $item.threaded}}
 			{{/if}}
+			{{if $item.remote_comment}}
+				<a role="button" title="{{$item.remote_comment.0}}" href="{{$item.remote_comment.2}}"><i class="icon-commenting"><span class="sr-only">{{$item.remote_comment.1}}</span></i></a>
+			{{/if}}
+
 			{{if $item.comment}}
 				<a role="button" id="comment-{{$item.id}}" class="fakelink togglecomment" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" title="{{$item.switchcomment}}"><i class="icon-commenting"><span class="sr-only">{{$item.switchcomment}}</span></i></a>
 			{{/if}}
