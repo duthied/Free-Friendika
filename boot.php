@@ -340,10 +340,6 @@ function info($s)
 {
 	$a = DI::app();
 
-	if (local_user() && DI::pConfig()->get(local_user(), 'system', 'ignore_info')) {
-		return;
-	}
-
 	if (empty($_SESSION['sysmsg_info'])) {
 		$_SESSION['sysmsg_info'] = [];
 	}
