@@ -271,7 +271,7 @@ class Nav
 			$nav['messages']['new'] = ['message/new', DI::l10n()->t('New Message'), '', DI::l10n()->t('New Message')];
 
 			if (is_array($a->identities) && count($a->identities) > 1) {
-				$nav['delegation'] = ['delegation', DI::l10n()->t('Delegation'), '', DI::l10n()->t('Manage other pages')];
+				$nav['delegation'] = ['delegation', DI::l10n()->t('Accounts'), '', DI::l10n()->t('Manage other pages')];
 			}
 
 			$nav['settings'] = ['settings', DI::l10n()->t('Settings'), '', DI::l10n()->t('Account settings')];
