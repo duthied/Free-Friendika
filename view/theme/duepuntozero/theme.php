@@ -98,3 +98,25 @@ $(document).ready(function() {
 </script>
 EOT;
 }
+
+/**
+ * @param int|null $uid
+ * @return null
+ * @see \Friendica\Core\Theme::getBackgroundColor()
+ * @TODO Implement this function
+ */
+function duepuntozero_get_background_color(int $uid = null)
+{
+	return null;
+}
+
+/**
+ * @param int|null $uid
+ * @return null
+ * @see \Friendica\Core\Theme::getThemeColor()
+ * @TODO Implement this function
+ */
+function duepuntozero_get_theme_color(int $uid = null)
+{
+	return null;
+}

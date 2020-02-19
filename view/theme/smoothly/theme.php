@@ -93,3 +93,25 @@ if (! function_exists('_js_in_foot')) {
 		return DI::page()['bottom'] = Renderer::replaceMacros($tpl, $bottom);
 	}
 }
+
+/**
+ * @param int|null $uid
+ * @return null
+ * @see \Friendica\Core\Theme::getBackgroundColor()
+ * @TODO Implement this function
+ */
+function smoothly_get_background_color(int $uid = null)
+{
+	return null;
+}
+
+/**
+ * @param int|null $uid
+ * @return null
+ * @see \Friendica\Core\Theme::getThemeColor()
+ * @TODO Implement this function
+ */
+function smoothly_get_theme_color(int $uid = null)
+{
+	return null;
+}
