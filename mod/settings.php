@@ -342,12 +342,9 @@ function settings_post(App $a)
 		$mobile_theme       = !empty($_POST['mobile_theme'])       ? Strings::escapeTags(trim($_POST['mobile_theme'])) : '';
 		$nosmile            = !empty($_POST['nosmile'])            ? intval($_POST['nosmile'])            : 0;
 		$first_day_of_week  = !empty($_POST['first_day_of_week'])  ? intval($_POST['first_day_of_week'])  : 0;
-		$noinfo             = !empty($_POST['noinfo'])             ? intval($_POST['noinfo'])             : 0;
 		$infinite_scroll    = !empty($_POST['infinite_scroll'])    ? intval($_POST['infinite_scroll'])    : 0;
 		$no_auto_update     = !empty($_POST['no_auto_update'])     ? intval($_POST['no_auto_update'])     : 0;
-		$bandwidth_saver    = !empty($_POST['bandwidth_saver'])    ? intval($_POST['bandwidth_saver'])    : 0;
 		$no_smart_threading = !empty($_POST['no_smart_threading']) ? intval($_POST['no_smart_threading']) : 0;
-		$nowarn_insecure    = !empty($_POST['nowarn_insecure'])    ? intval($_POST['nowarn_insecure'])    : 0;
 		$browser_update     = !empty($_POST['browser_update'])     ? intval($_POST['browser_update'])     : 0;
 		if ($browser_update != -1) {
 			$browser_update = $browser_update * 1000;
@@ -373,16 +370,13 @@ function settings_post(App $a)
 			DI::pConfig()->set(local_user(), 'system', 'mobile_theme', $mobile_theme);
 		}
 
-		DI::pConfig()->set(local_user(), 'system', 'nowarn_insecure'         , $nowarn_insecure);
 		DI::pConfig()->set(local_user(), 'system', 'update_interval'         , $browser_update);
 		DI::pConfig()->set(local_user(), 'system', 'itemspage_network'       , $itemspage_network);
 		DI::pConfig()->set(local_user(), 'system', 'itemspage_mobile_network', $itemspage_mobile_network);
 		DI::pConfig()->set(local_user(), 'system', 'no_smilies'              , $nosmile);
 		DI::pConfig()->set(local_user(), 'system', 'first_day_of_week'       , $first_day_of_week);
-		DI::pConfig()->set(local_user(), 'system', 'ignore_info'             , $noinfo);
 		DI::pConfig()->set(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
 		DI::pConfig()->set(local_user(), 'system', 'no_auto_update'          , $no_auto_update);
-		DI::pConfig()->set(local_user(), 'system', 'bandwidth_saver'         , $bandwidth_saver);
 		DI::pConfig()->set(local_user(), 'system', 'no_smart_threading'      , $no_smart_threading);
 
 		if (in_array($theme, Theme::getAllowedList())) {
@@ -931,8 +925,6 @@ function settings_content(App $a)
 		$theme_selected        = $a->user['theme'] ?: $default_theme;
 		$mobile_theme_selected = Session::get('mobile-theme', $default_mobile_theme);
 
-		$nowarn_insecure = intval(DI::pConfig()->get(local_user(), 'system', 'nowarn_insecure'));
-
 		$browser_update = intval(DI::pConfig()->get(local_user(), 'system', 'update_interval'));
 		if (intval($browser_update) != -1) {
 			$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
@@ -947,10 +939,8 @@ function settings_content(App $a)
 		$first_day_of_week = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
 		$weekdays = [0 => DI::l10n()->t("Sunday"), 1 => DI::l10n()->t("Monday")];
 
-		$noinfo = DI::pConfig()->get(local_user(), 'system', 'ignore_info', 0);
 		$infinite_scroll = DI::pConfig()->get(local_user(), 'system', 'infinite_scroll', 0);
 		$no_auto_update = DI::pConfig()->get(local_user(), 'system', 'no_auto_update', 0);
-		$bandwidth_saver = DI::pConfig()->get(local_user(), 'system', 'bandwidth_saver', 0);
 		$no_smart_threading = DI::pConfig()->get(local_user(), 'system', 'no_smart_threading', 0);
 
 		$theme_config = "";
@@ -969,17 +959,14 @@ function settings_content(App $a)
 
 			'$theme'	=> ['theme', DI::l10n()->t('Display Theme:'), $theme_selected, '', $themes, true],
 			'$mobile_theme'	=> ['mobile_theme', DI::l10n()->t('Mobile Theme:'), $mobile_theme_selected, '', $mobile_themes, false],
-			'$nowarn_insecure' => ['nowarn_insecure',  DI::l10n()->t('Suppress warning of insecure networks'), $nowarn_insecure, DI::l10n()->t("Should the system suppress the warning that the current group contains members of networks that can't receive non public postings.")],
 			'$ajaxint'   => ['browser_update',  DI::l10n()->t("Update browser every xx seconds"), $browser_update, DI::l10n()->t('Minimum of 10 seconds. Enter -1 to disable it.')],
 			'$itemspage_network'   => ['itemspage_network',  DI::l10n()->t("Number of items to display per page:"), $itemspage_network, DI::l10n()->t('Maximum of 100 items')],
 			'$itemspage_mobile_network'   => ['itemspage_mobile_network',  DI::l10n()->t("Number of items to display per page when viewed from mobile device:"), $itemspage_mobile_network, DI::l10n()->t('Maximum of 100 items')],
-			'$nosmile'	=> ['nosmile', DI::l10n()->t("Don't show emoticons"), $nosmile, ''],
+			'$nosmile'	=> ['nosmile', DI::l10n()->t("Don't show emoticons"), $nosmile, DI::l10n()->t('Normally emoticons are replaced with matching symbols. This setting disables this behaviour.')],
 			'$calendar_title' => DI::l10n()->t('Calendar'),
 			'$first_day_of_week'	=> ['first_day_of_week', DI::l10n()->t('Beginning of week:'), $first_day_of_week, '', $weekdays, false],
-			'$noinfo'	=> ['noinfo', DI::l10n()->t("Don't show notices"), $noinfo, ''],
-			'$infinite_scroll'	=> ['infinite_scroll', DI::l10n()->t("Infinite scroll"), $infinite_scroll, ''],
+			'$infinite_scroll'	=> ['infinite_scroll', DI::l10n()->t("Infinite scroll"), $infinite_scroll, DI::l10n()->t('Automatic add new items when reaching the page end.')],
 			'$no_auto_update'	=> ['no_auto_update', DI::l10n()->t("Automatic updates only at the top of the network page"), $no_auto_update, DI::l10n()->t('When disabled, the network page is updated all the time, which could be confusing while reading.')],
-			'$bandwidth_saver' => ['bandwidth_saver', DI::l10n()->t('Bandwidth Saver Mode'), $bandwidth_saver, DI::l10n()->t('When enabled, embedded content is not displayed on automatic updates, they only show on page reload.')],
 			'$no_smart_threading' => ['no_smart_threading', DI::l10n()->t('Disable Smart Threading'), $no_smart_threading, DI::l10n()->t('Disable the automatic suppression of extraneous thread indentation.')],
 
 			'$d_tset' => DI::l10n()->t('General Theme Settings'),
@@ -1021,8 +1008,6 @@ function settings_content(App $a)
 	$expire_starred = DI::pConfig()->get(local_user(), 'expire', 'starred', true);
 	$expire_photos = DI::pConfig()->get(local_user(), 'expire', 'photos', false);
 	$expire_network_only = DI::pConfig()->get(local_user(), 'expire', 'network_only', false);
-
-	// nowarn_insecure
 
 	if (!strlen($a->user['timezone'])) {
 		$timezone = date_default_timezone_get();
