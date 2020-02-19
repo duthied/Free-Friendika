@@ -965,7 +965,7 @@ function settings_content(App $a)
 			'$nosmile'	=> ['nosmile', DI::l10n()->t("Don't show emoticons"), $nosmile, DI::l10n()->t('Normally emoticons are replaced with matching symbols. This setting disables this behaviour.')],
 			'$calendar_title' => DI::l10n()->t('Calendar'),
 			'$first_day_of_week'	=> ['first_day_of_week', DI::l10n()->t('Beginning of week:'), $first_day_of_week, '', $weekdays, false],
-			'$infinite_scroll'	=> ['infinite_scroll', DI::l10n()->t("Infinite scroll"), $infinite_scroll, DI::l10n()->t('Automatic add new items when reaching the page end.')],
+			'$infinite_scroll'	=> ['infinite_scroll', DI::l10n()->t("Infinite scroll"), $infinite_scroll, DI::l10n()->t('Automatic fetch new items when reaching the page end.')],
 			'$no_auto_update'	=> ['no_auto_update', DI::l10n()->t("Automatic updates only at the top of the network page"), $no_auto_update, DI::l10n()->t('When disabled, the network page is updated all the time, which could be confusing while reading.')],
 			'$no_smart_threading' => ['no_smart_threading', DI::l10n()->t('Disable Smart Threading'), $no_smart_threading, DI::l10n()->t('Disable the automatic suppression of extraneous thread indentation.')],
 
