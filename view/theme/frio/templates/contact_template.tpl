@@ -73,6 +73,11 @@
 					<i class="fa fa-user-plus" aria-hidden="true"></i>
 				</a>
 				{{/if}}
+				{{if $contact.photo_menu.unfollow}}
+				<a class="contact-action-link btn-link" href="{{$contact.photo_menu.unfollow.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.unfollow.0}}">
+					<i class="fa fa-user-times" aria-hidden="true"></i>
+				</a>
+				{{/if}}
 				{{if $contact.photo_menu.hide}}
 				<a class="contact-action-link btn-link" href="{{$contact.photo_menu.hide.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.hide.0}}">
 					<i class="fa fa-times" aria-hidden="true"></i>
