@@ -31,23 +31,33 @@ class Manifest extends BaseModule
 	{
 		$config = DI::config();
 
-		header('Content-type: application/manifest+json');
-
 		$touch_icon = $config->get('system', 'touch_icon') ?: 'images/friendica-128.png';
 
 		$theme = DI::config()->get('system', 'theme');
 
-		$tpl = Core\Renderer::getMarkupTemplate('manifest.tpl');
-		$output = Core\Renderer::replaceMacros($tpl, [
-			'$touch_icon'       => $touch_icon,
-			'$title'            => $config->get('config', 'sitename', 'Friendica'),
-			'$description'      => $config->get('config', 'info', DI::l10n()->t('A Decentralized Social Network')),
-			'$background_color' => Core\Theme::getBackgroundColor($theme),
-			'$theme_color'      => Core\Theme::getThemeColor($theme),
-		]);
+		$manifest = [
+			'name'        => $config->get('config', 'sitename', 'Friendica'),
+			'start_url'   => DI::baseUrl()->get(),
+			'display'     => 'standalone',
+			'description' => $config->get('config', 'info', DI::l10n()->t('A Decentralized Social Network')),
+			'short_name'  => 'Friendica',
+			'icons'       => [
+				[
+					'src'   => DI::baseUrl()->get() . '/' . $touch_icon,
+					'sizes' => '128x128',
+					'type'  => 'image/png',
+				],
+			],
+		];
 
-		echo $output;
+		if ($background_color = Core\Theme::getBackgroundColor($theme)) {
+			$manifest['background_color'] = $background_color;
+		}
 
-		exit();
+		if ($theme_color = Core\Theme::getThemeColor($theme)) {
+			$manifest['theme_color'] = $theme_color;
+		}
+
+		Core\System::jsonExit($manifest, 'application/manifest+json');
 	}
 }
