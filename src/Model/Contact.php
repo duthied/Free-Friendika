@@ -641,35 +641,6 @@ class Contact
 	}
 
 	/**
-	 * Returns the count of OStatus contacts in a group
-	 *
-	 * @param int $gid
-	 * @return int
-	 * @throws \Exception
-	 */
-	public static function getOStatusCountByGroupId($gid)
-	{
-		$return = 0;
-		if (intval($gid)) {
-			$contacts = DBA::fetchFirst('SELECT COUNT(*) AS `count`
-				FROM `contact`
-				INNER JOIN `group_member`
-					ON `contact`.`id` = `group_member`.`contact-id`
-				WHERE `gid` = ?
-				AND `contact`.`uid` = ?
-				AND `contact`.`network` = ?
-				AND `contact`.`notify` != ""',
-				$gid,
-				local_user(),
-				Protocol::OSTATUS
-			);
-			$return = $contacts['count'];
-		}
-
-		return $return;
-	}
-
-	/**
 	 * Creates the self-contact for the provided user id
 	 *
 	 * @param int $uid

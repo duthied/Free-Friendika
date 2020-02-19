@@ -299,18 +299,6 @@ class System
 	 */
 	public static function htmlUpdateExit($o)
 	{
-		if (DI::pConfig()->get(local_user(), "system", "bandwidth_saver")) {
-			$replace = "<br />".DI::l10n()->t("[Embedded content - reload page to view]")."<br />";
-			$pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
-			$o = preg_replace($pattern, $replace, $o);
-			$pattern = "/<\s*video[^>]*>(.*?)<\s*\/\s*video>/i";
-			$o = preg_replace($pattern, $replace, $o);
-			$pattern = "/<\s*embed[^>]*>(.*?)<\s*\/\s*embed>/i";
-			$o = preg_replace($pattern, $replace, $o);
-			$pattern = "/<\s*iframe[^>]*>(.*?)<\s*\/\s*iframe>/i";
-			$o = preg_replace($pattern, $replace, $o);
-		}
-
 		header("Content-type: text/html");
 		echo "<!DOCTYPE html><html><body>\r\n";
 		// We can remove this hack once Internet Explorer recognises HTML5 natively

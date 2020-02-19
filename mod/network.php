@@ -501,13 +501,6 @@ function networkThreadedView(App $a, $update, $parent)
 		$tabs = network_tabs($a);
 		$o .= $tabs;
 
-		if ($gid && ($t = Contact::getOStatusCountByGroupId($gid)) && !DI::pConfig()->get(local_user(), 'system', 'nowarn_insecure')) {
-			notice(DI::l10n()->tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
-				"Warning: This group contains %s members from a network that doesn't allow non public messages.",
-				$t) . EOL);
-			notice(DI::l10n()->t("Messages in this group won't be send to these receivers.").EOL);
-		}
-
 		Nav::setSelected('network');
 
 		$content = '';
@@ -621,10 +614,6 @@ function networkThreadedView(App $a, $update, $parent)
 				'contacts' => $entries,
 				'id' => 'network',
 			]) . $o;
-
-			if ($contact['network'] === Protocol::OSTATUS && $contact['writable'] && !DI::pConfig()->get(local_user(),'system','nowarn_insecure')) {
-				notice(DI::l10n()->t('Private messages to this person are at risk of public disclosure.') . EOL);
-			}
 		} else {
 			notice(DI::l10n()->t('Invalid contact.') . EOL);
 			DI::baseUrl()->redirect('network');
