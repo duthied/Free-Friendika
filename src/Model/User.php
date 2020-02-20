@@ -881,6 +881,21 @@ class User
 	}
 
 	/**
+	 * Sets block state for a given user
+	 *
+	 * @param int  $uid   The user id
+	 * @param bool $block Block state (default is true)
+	 *
+	 * @return bool True, if successfully blocked
+
+	 * @throws Exception
+	 */
+	public static function block(int $uid, bool $block = true)
+	{
+		return DBA::update('user', ['blocked' => 0], ['uid' => $uid]);
+	}
+
+	/**
 	 * Sends pending registration confirmation email
 	 *
 	 * @param array  $user     User record array

@@ -25,7 +25,9 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Database\Database;
 use Friendica\Model\User as UserModel;
+use Friendica\Model\UserService;
 use RuntimeException;
+use Seld\CliPrompt\CliPrompt;
 
 /**
  * tool to set a new password for a user
@@ -48,13 +50,16 @@ class User extends \Asika\SimpleConsole\Console
 	 * @var Database
 	 */
 	private $dba;
+	/** @var UserService */
+	private $userService;
 
 	protected function getHelp()
 	{
 		$help = <<<HELP
 console user - Modify user settings per console commands.
 Usage
-	bin/console user <nickname> password [<password>] [-h|--help|-?] [-v]
+	bin/console user password <nickname> [<password>] [-h|--help|-?] [-v]
+	bin/console user add [<name> [<nickname> [<email> [<language>]]]] [-h|--help|-?] [-v]
 
 Description
 	Modify user settings per console commands.
@@ -66,13 +71,14 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, array $argv = null)
+	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, UserService $userService, array $argv = null)
 	{
 		parent::__construct($argv);
 
 		$this->appMode = $appMode;
 		$this->l10n = $l10n;
 		$this->dba = $dba;
+		$this->userService = $userService;
 	}
 
 	protected function doExecute()
@@ -88,26 +94,17 @@ HELP;
 			return 0;
 		}
 
-		if (count($this->args) < 2) {
-			throw new \Asika\SimpleConsole\CommandArgsException('Not enough arguments.');
-		}
-
 		if ($this->appMode->isInstall()) {
 			throw new RuntimeException('Database isn\'t ready or populated yet');
 		}
 
-		$nick = $this->getArgument(0);
-
-		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
-		if (!$this->dba->isResult($user)) {
-			throw new RuntimeException($this->l10n->t('User not found'));
-		}
-
-		$command = $this->getArgument(1);
+		$command = $this->getArgument(0);
 
 		switch ($command) {
 			case 'password':
-				return $this->setPassword($user);
+				return $this->password();
+			case 'add':
+				return $this->addUser();
 			default:
 				throw new \Asika\SimpleConsole\CommandArgsException('Wrong command.');
 		}
@@ -116,17 +113,24 @@ HELP;
 	/**
 	 * Sets a new password
 	 *
-	 * @param array $user The user
-	 *
 	 * @return int Return code of this command
+	 *
+	 * @throws \Exception
 	 */
-	private function setPassword(array $user)
+	private function password()
 	{
+		$nick = $this->getArgument(1);
+
+		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
+		if (!$this->dba->isResult($user)) {
+			throw new RuntimeException($this->l10n->t('User not found'));
+		}
+
 		$password = $this->getArgument(2);
 
 		if (is_null($password)) {
 			$this->out($this->l10n->t('Enter new password: '), false);
-			$password = \Seld\CliPrompt\CliPrompt::hiddenPrompt(true);
+			$password = CliPrompt::hiddenPrompt(true);
 		}
 
 		try {
@@ -142,5 +146,54 @@ HELP;
 		}
 
 		return 0;
+	}
+
+	/**
+	 * Adds a new user based on given console arguments
+	 *
+	 * @return bool True, if the command was successful
+	 * @throws \ErrorException
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private function addUser()
+	{
+		$name = $this->getArgument(1);
+		$nick = $this->getArgument(2);
+		$email= $this->getArgument(3);
+		$lang = $this->getArgument(4);
+
+		if (empty($name)) {
+			$this->out($this->l10n->t('Enter user name: '));
+			$name = CliPrompt::prompt();
+			if (empty($name)) {
+				throw new RuntimeException('A name must be set.');
+			}
+		}
+		if (empty($nick)) {
+			$this->out($this->l10n->t('Enter user nickname: '));
+			$nick = CliPrompt::prompt();
+			if (empty($nick)) {
+				throw new RuntimeException('A nick name must be set.');
+			}
+		}
+		if (empty($email)) {
+			$this->out($this->l10n->t('Enter user email address: '));
+			$email = CliPrompt::prompt();
+			if (empty($email)) {
+				throw new RuntimeException('A email address must be set.');
+			}
+		}
+
+		if (empty($lang)) {
+			$this->out($this->l10n->t('Enter a language (optional): '));
+			$lang = CliPrompt::prompt();
+		}
+
+		if (empty($lang)) {
+			return $this->userService->createMinimal($name, $email, $nick);
+		} else {
+			return $this->userService->createMinimal($name, $email, $nick, $lang);
+		}
 	}
 }

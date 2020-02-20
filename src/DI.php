@@ -315,6 +315,12 @@ abstract class DI
 		return self::$dice->create(Model\Storage\IStorage::class);
 	}
 
+	/** @return Model\UserService */
+	public static function userService()
+	{
+		return self::$dice->create(Model\UserService::class);
+	}
+
 	//
 	// "Repository" namespace
 	//

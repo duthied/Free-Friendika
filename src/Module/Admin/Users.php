@@ -48,72 +48,23 @@ class Users extends BaseAdmin
 
 		if ($nu_name !== '' && $nu_email !== '' && $nu_nickname !== '') {
 			try {
-				$result = User::create([
-					'username' => $nu_name,
-					'email' => $nu_email,
-					'nickname' => $nu_nickname,
-					'verified' => 1,
-					'language' => $nu_language
-				]);
+				DI::userService()->createMinimal($nu_name, $nu_email, $nu_nickname, $nu_language);
 			} catch (\Exception $ex) {
 				notice($ex->getMessage());
 				return;
 			}
-
-			$user = $result['user'];
-			$preamble = Strings::deindent(DI::l10n()->t('
-			Dear %1$s,
-				the administrator of %2$s has set up an account for you.'));
-			$body = Strings::deindent(DI::l10n()->t('
-			The login details are as follows:
-
-			Site Location:	%1$s
-			Login Name:		%2$s
-			Password:		%3$s
-
-			You may change your password from your account "Settings" page after logging
-			in.
-
-			Please take a few moments to review the other account settings on that page.
-
-			You may also wish to add some basic information to your default profile
-			(on the "Profiles" page) so that other people can easily find you.
-
-			We recommend setting your full name, adding a profile photo,
-			adding some profile "keywords" (very useful in making new friends) - and
-			perhaps what country you live in; if you do not wish to be more specific
-			than that.
-
-			We fully respect your right to privacy, and none of these items are necessary.
-			If you are new and do not know anybody here, they may help
-			you to make some new and interesting friends.
-
-			If you ever want to delete your account, you can do so at %1$s/removeme
-
-			Thank you and welcome to %4$s.'));
-
-			$preamble = sprintf($preamble, $user['username'], DI::config()->get('config', 'sitename'));
-			$body = sprintf($body, DI::baseUrl()->get(), $user['nickname'], $result['password'], DI::config()->get('config', 'sitename'));
-
-			$email = DI::emailer()
-				->newSystemMail()
-				->withMessage(DI::l10n()->t('Registration details for %s', DI::config()->get('config', 'sitename')), $preamble, $body)
-				->forUser($user)
-				->withRecipient($user['email'])
-				->build();
-			return DI::emailer()->send($email);
 		}
 
 		if (!empty($_POST['page_users_block'])) {
-			// @TODO Move this to Model\User:block($users);
-			DBA::update('user', ['blocked' => 1], ['uid' => $users]);
-			notice(DI::l10n()->tt('%s user blocked', '%s users blocked', count($users)));
+			if (User::block($users)) {
+				notice(DI::l10n()->tt('%s user blocked', '%s users blocked', count($users)));
+			}
 		}
 
 		if (!empty($_POST['page_users_unblock'])) {
-			// @TODO Move this to Model\User:unblock($users);
-			DBA::update('user', ['blocked' => 0], ['uid' => $users]);
-			notice(DI::l10n()->tt('%s user unblocked', '%s users unblocked', count($users)));
+			if (User::block($users, false)) {
+				notice(DI::l10n()->tt('%s user unblocked', '%s users unblocked', count($users)));
+			}
 		}
 
 		if (!empty($_POST['page_users_delete'])) {
