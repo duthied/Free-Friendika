@@ -27,7 +27,6 @@ use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -37,131 +36,21 @@ use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\User;
+use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
 use Friendica\Protocol\Email;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 use Friendica\Worker\Delivery;
 
-function get_theme_config_file($theme)
-{
-	$theme = Strings::sanitizeFilePathItem($theme);
-
-	$a = DI::app();
-	$base_theme = $a->theme_info['extends'] ?? '';
-
-	if (file_exists("view/theme/$theme/config.php")) {
-		return "view/theme/$theme/config.php";
-	}
-	if ($base_theme && file_exists("view/theme/$base_theme/config.php")) {
-		return "view/theme/$base_theme/config.php";
-	}
-	return null;
-}
-
 function settings_init(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
-	// These lines provide the javascript needed by the acl selector
-
-	$tpl = Renderer::getMarkupTemplate('settings/head.tpl');
-	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
-		'$ispublic' => DI::l10n()->t('everybody')
-	]);
-
-	$tabs = [
-		[
-			'label'	=> DI::l10n()->t('Account'),
-			'url' 	=> 'settings',
-			'selected'	=>  (($a->argc == 1) && ($a->argv[0] === 'settings')?'active':''),
-			'accesskey' => 'o',
-		],
-	];
-
-	$tabs[] = [
-		'label' => DI::l10n()->t('Two-factor authentication'),
-		'url' => 'settings/2fa',
-		'selected' => (($a->argc > 1) && ($a->argv[1] === '2fa') ? 'active' : ''),
-		'accesskey' => 'o',
-	];
-
-	$tabs[] =	[
-		'label'	=> DI::l10n()->t('Profile'),
-		'url' 	=> 'settings/profile',
-		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'profile')?'active':''),
-		'accesskey' => 'p',
-	];
-
-	if (Feature::get()) {
-		$tabs[] =	[
-					'label'	=> DI::l10n()->t('Additional features'),
-					'url' 	=> 'settings/features',
-					'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'features') ? 'active' : ''),
-					'accesskey' => 't',
-				];
-	}
-
-	$tabs[] =	[
-		'label'	=> DI::l10n()->t('Display'),
-		'url' 	=> 'settings/display',
-		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'display')?'active':''),
-		'accesskey' => 'i',
-	];
-
-	$tabs[] =	[
-		'label'	=> DI::l10n()->t('Social Networks'),
-		'url' 	=> 'settings/connectors',
-		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'connectors')?'active':''),
-		'accesskey' => 'w',
-	];
-
-	$tabs[] =	[
-		'label'	=> DI::l10n()->t('Addons'),
-		'url' 	=> 'settings/addon',
-		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'addon')?'active':''),
-		'accesskey' => 'l',
-	];
-
-	$tabs[] =	[
-		'label'	=> DI::l10n()->t('Manage Accounts'),
-		'url' 	=> 'settings/delegation',
-		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'delegation')?'active':''),
-		'accesskey' => 'd',
-	];
-
-	$tabs[] =	[
-		'label' => DI::l10n()->t('Connected apps'),
-		'url' => 'settings/oauth',
-		'selected' => (($a->argc > 1) && ($a->argv[1] === 'oauth')?'active':''),
-		'accesskey' => 'b',
-	];
-
-	$tabs[] =	[
-		'label' => DI::l10n()->t('Export personal data'),
-		'url' => 'settings/userexport',
-		'selected' => (($a->argc > 1) && ($a->argv[1] === 'userexport')?'active':''),
-		'accesskey' => 'e',
-	];
-
-	$tabs[] =	[
-		'label' => DI::l10n()->t('Remove account'),
-		'url' => 'removeme',
-		'selected' => (($a->argc == 1) && ($a->argv[0] === 'removeme')?'active':''),
-		'accesskey' => 'r',
-	];
-
-
-	$tabtpl = Renderer::getMarkupTemplate("generic_links_widget.tpl");
-	DI::page()['aside'] = Renderer::replaceMacros($tabtpl, [
-		'$title' => DI::l10n()->t('Settings'),
-		'$class' => 'settings-widget',
-		'$items' => $tabs,
-	]);
-
+	BaseSettings::content();
 }
 
 function settings_post(App $a)
@@ -333,69 +222,6 @@ function settings_post(App $a)
 		}
 		info(DI::l10n()->t('Features updated') . EOL);
 		return;
-	}
-
-	if (($a->argc > 1) && ($a->argv[1] === 'display')) {
-		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/display', 'settings_display');
-
-		$theme              = !empty($_POST['theme'])              ? Strings::escapeTags(trim($_POST['theme']))        : $a->user['theme'];
-		$mobile_theme       = !empty($_POST['mobile_theme'])       ? Strings::escapeTags(trim($_POST['mobile_theme'])) : '';
-		$nosmile            = !empty($_POST['nosmile'])            ? intval($_POST['nosmile'])            : 0;
-		$first_day_of_week  = !empty($_POST['first_day_of_week'])  ? intval($_POST['first_day_of_week'])  : 0;
-		$infinite_scroll    = !empty($_POST['infinite_scroll'])    ? intval($_POST['infinite_scroll'])    : 0;
-		$no_auto_update     = !empty($_POST['no_auto_update'])     ? intval($_POST['no_auto_update'])     : 0;
-		$no_smart_threading = !empty($_POST['no_smart_threading']) ? intval($_POST['no_smart_threading']) : 0;
-		$browser_update     = !empty($_POST['browser_update'])     ? intval($_POST['browser_update'])     : 0;
-		if ($browser_update != -1) {
-			$browser_update = $browser_update * 1000;
-			if ($browser_update < 10000) {
-				$browser_update = 10000;
-			}
-		}
-
-		$itemspage_network = !empty($_POST['itemspage_network']) ?
-			intval($_POST['itemspage_network']) :
-			DI::config()->get('system', 'itemspage_network');
-		if ($itemspage_network > 100) {
-			$itemspage_network = 100;
-		}
-		$itemspage_mobile_network = !empty($_POST['itemspage_mobile_network']) ?
-			intval($_POST['itemspage_mobile_network']) :
-			DI::config()->get('system', 'itemspage_network_mobile');
-		if ($itemspage_mobile_network > 100) {
-			$itemspage_mobile_network = 100;
-		}
-
-		if ($mobile_theme !== '') {
-			DI::pConfig()->set(local_user(), 'system', 'mobile_theme', $mobile_theme);
-		}
-
-		DI::pConfig()->set(local_user(), 'system', 'update_interval'         , $browser_update);
-		DI::pConfig()->set(local_user(), 'system', 'itemspage_network'       , $itemspage_network);
-		DI::pConfig()->set(local_user(), 'system', 'itemspage_mobile_network', $itemspage_mobile_network);
-		DI::pConfig()->set(local_user(), 'system', 'no_smilies'              , $nosmile);
-		DI::pConfig()->set(local_user(), 'system', 'first_day_of_week'       , $first_day_of_week);
-		DI::pConfig()->set(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
-		DI::pConfig()->set(local_user(), 'system', 'no_auto_update'          , $no_auto_update);
-		DI::pConfig()->set(local_user(), 'system', 'no_smart_threading'      , $no_smart_threading);
-
-		if (in_array($theme, Theme::getAllowedList())) {
-			if ($theme == $a->user['theme']) {
-				// call theme_post only if theme has not been changed
-				if (($themeconfigfile = get_theme_config_file($theme)) !== null) {
-					require_once $themeconfigfile;
-					theme_post($a);
-				}
-			} else {
-				DBA::update('user', ['theme' => $theme], ['uid' => local_user()]);
-			}
-		} else {
-			notice(DI::l10n()->t('The theme you chose isn\'t available.'));
-		}
-
-		Hook::callAll('display_settings_post', $_POST);
-		DI::baseUrl()->redirect('settings/display');
-		return; // NOTREACHED
 	}
 
 	BaseModule::checkFormSecurityTokenRedirectOnError('/settings', 'settings');
@@ -884,101 +710,6 @@ function settings_content(App $a)
 		Hook::callAll('display_settings', $o);
 		return $o;
 	}
-
-	/*
-	 * DISPLAY SETTINGS
-	 */
-	if (($a->argc > 1) && ($a->argv[1] === 'display')) {
-		$default_theme = DI::config()->get('system', 'theme');
-		if (!$default_theme) {
-			$default_theme = 'default';
-		}
-		$default_mobile_theme = DI::config()->get('system', 'mobile-theme');
-		if (!$default_mobile_theme) {
-			$default_mobile_theme = 'none';
-		}
-
-		$allowed_themes = Theme::getAllowedList();
-
-		$themes = [];
-		$mobile_themes = ["---" => DI::l10n()->t('No special theme for mobile devices')];
-		foreach ($allowed_themes as $theme) {
-			$is_experimental = file_exists('view/theme/' . $theme . '/experimental');
-			$is_unsupported  = file_exists('view/theme/' . $theme . '/unsupported');
-			$is_mobile       = file_exists('view/theme/' . $theme . '/mobile');
-			if (!$is_experimental || ($is_experimental && (DI::config()->get('experimentals', 'exp_themes')==1 || is_null(DI::config()->get('experimentals', 'exp_themes'))))) {
-				$theme_name = ucfirst($theme);
-				if ($is_unsupported) {
-					$theme_name = DI::l10n()->t('%s - (Unsupported)', $theme_name);
-				} elseif ($is_experimental) {
-					$theme_name = DI::l10n()->t('%s - (Experimental)', $theme_name);
-				}
-
-				if ($is_mobile) {
-					$mobile_themes[$theme] = $theme_name;
-				} else {
-					$themes[$theme] = $theme_name;
-				}
-			}
-		}
-
-		$theme_selected        = $a->user['theme'] ?: $default_theme;
-		$mobile_theme_selected = Session::get('mobile-theme', $default_mobile_theme);
-
-		$browser_update = intval(DI::pConfig()->get(local_user(), 'system', 'update_interval'));
-		if (intval($browser_update) != -1) {
-			$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
-		}
-
-		$itemspage_network = intval(DI::pConfig()->get(local_user(), 'system', 'itemspage_network'));
-		$itemspage_network = (($itemspage_network > 0 && $itemspage_network < 101) ? $itemspage_network : DI::config()->get('system', 'itemspage_network'));
-		$itemspage_mobile_network = intval(DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network'));
-		$itemspage_mobile_network = (($itemspage_mobile_network > 0 && $itemspage_mobile_network < 101) ? $itemspage_mobile_network : DI::config()->get('system', 'itemspage_network_mobile'));
-
-		$nosmile = DI::pConfig()->get(local_user(), 'system', 'no_smilies', 0);
-		$first_day_of_week = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
-		$weekdays = [0 => DI::l10n()->t("Sunday"), 1 => DI::l10n()->t("Monday")];
-
-		$infinite_scroll = DI::pConfig()->get(local_user(), 'system', 'infinite_scroll', 0);
-		$no_auto_update = DI::pConfig()->get(local_user(), 'system', 'no_auto_update', 0);
-		$no_smart_threading = DI::pConfig()->get(local_user(), 'system', 'no_smart_threading', 0);
-
-		$theme_config = "";
-		if (($themeconfigfile = get_theme_config_file($theme_selected)) !== null) {
-			require_once $themeconfigfile;
-			$theme_config = theme_content($a);
-		}
-
-		$tpl = Renderer::getMarkupTemplate('settings/display.tpl');
-		$o = Renderer::replaceMacros($tpl, [
-			'$ptitle' 	=> DI::l10n()->t('Display Settings'),
-			'$form_security_token' => BaseModule::getFormSecurityToken("settings_display"),
-			'$submit' 	=> DI::l10n()->t('Save Settings'),
-			'$baseurl' => DI::baseUrl()->get(true),
-			'$uid' => local_user(),
-
-			'$theme'	=> ['theme', DI::l10n()->t('Display Theme:'), $theme_selected, '', $themes, true],
-			'$mobile_theme'	=> ['mobile_theme', DI::l10n()->t('Mobile Theme:'), $mobile_theme_selected, '', $mobile_themes, false],
-			'$ajaxint'   => ['browser_update',  DI::l10n()->t("Update browser every xx seconds"), $browser_update, DI::l10n()->t('Minimum of 10 seconds. Enter -1 to disable it.')],
-			'$itemspage_network'   => ['itemspage_network',  DI::l10n()->t("Number of items to display per page:"), $itemspage_network, DI::l10n()->t('Maximum of 100 items')],
-			'$itemspage_mobile_network'   => ['itemspage_mobile_network',  DI::l10n()->t("Number of items to display per page when viewed from mobile device:"), $itemspage_mobile_network, DI::l10n()->t('Maximum of 100 items')],
-			'$nosmile'	=> ['nosmile', DI::l10n()->t("Don't show emoticons"), $nosmile, DI::l10n()->t('Normally emoticons are replaced with matching symbols. This setting disables this behaviour.')],
-			'$calendar_title' => DI::l10n()->t('Calendar'),
-			'$first_day_of_week'	=> ['first_day_of_week', DI::l10n()->t('Beginning of week:'), $first_day_of_week, '', $weekdays, false],
-			'$infinite_scroll'	=> ['infinite_scroll', DI::l10n()->t("Infinite scroll"), $infinite_scroll, DI::l10n()->t('Automatic fetch new items when reaching the page end.')],
-			'$no_auto_update'	=> ['no_auto_update', DI::l10n()->t("Automatic updates only at the top of the network page"), $no_auto_update, DI::l10n()->t('When disabled, the network page is updated all the time, which could be confusing while reading.')],
-			'$no_smart_threading' => ['no_smart_threading', DI::l10n()->t('Disable Smart Threading'), $no_smart_threading, DI::l10n()->t('Disable the automatic suppression of extraneous thread indentation.')],
-
-			'$d_tset' => DI::l10n()->t('General Theme Settings'),
-			'$d_ctset' => DI::l10n()->t('Custom Theme Settings'),
-			'$d_cset' => DI::l10n()->t('Content Settings'),
-			'stitle' => DI::l10n()->t('Theme settings'),
-			'$theme_config' => $theme_config,
-		]);
-
-		return $o;
-	}
-
 
 	/*
 	 * ACCOUNT SETTINGS

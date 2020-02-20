@@ -587,6 +587,10 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		'announce' => ['title' => DI::l10n()->t('Reshares','title')]
 	];
 
+	if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
+		unset($conv_responses['dislike']);
+	}
+
 	// array with html for each thread (parent+comments)
 	$threads = [];
 	$threadsid = -1;
@@ -677,6 +681,10 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'dislike' => null,
 					'share'   => null,
 				];
+
+				if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
+					unset($likebuttons['dislike']);
+				}
 
 				$body = Item::prepareBody($item, true, $preview);
 

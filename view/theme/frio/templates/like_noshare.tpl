@@ -3,9 +3,9 @@
 	<button type="button" class="btn-link button-likes" id="like-{{$id}}" title="{{$likethis}}" onclick="dolike({{$id}},'like'); return false;" data-toggle="button">
 		<i class="faded-icon page-action fa fa-thumbs-up" aria-hidden="true"></i>
 	</button>
-	{{if $nolike}}
+	{{if $dislike}}
 	<span class="icon-padding"> </span>
-	<button type="button" class="btn-link button-likes" id="dislike-{{$id}}" title="{{$nolike}}" onclick="dolike({{$id}},'dislike'); return false;" data-toggle="button">
+	<button type="button" class="btn-link button-likes" id="dislike-{{$id}}" title="{{$dislike}}" onclick="dolike({{$id}},'dislike'); return false;" data-toggle="button">
 		<i class="faded-icon page-action fa fa-thumbs-down" aria-hidden="true"></i>
 	</button>
 	{{/if}}

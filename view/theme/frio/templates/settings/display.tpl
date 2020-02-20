@@ -73,6 +73,7 @@
 						{{include file="field_checkbox.tpl" field=$nosmile}}
 						{{include file="field_checkbox.tpl" field=$infinite_scroll}}
 						{{include file="field_checkbox.tpl" field=$no_smart_threading}}
+						{{include file="field_checkbox.tpl" field=$hide_dislike}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
 							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
