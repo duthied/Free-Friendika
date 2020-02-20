@@ -80,16 +80,14 @@ function poco_init(App $a) {
 		$cid = intval($a->argv[4]);
 	}
 
-	if (! $system_mode && ! $global) {
-		$users = q("SELECT `user`.*,`profile`.`hide-friends` from user left join profile on `user`.`uid` = `profile`.`uid`
-			where `user`.`nickname` = '%s' limit 1",
-			DBA::escape($nickname)
-		);
-		if (! DBA::isResult($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
+	if (!$system_mode && !$global) {
+		$user = DBA::fetchFirst("SELECT `user`.`uid`, `user`.`nickname` FROM `user`
+			INNER JOIN `profile` ON `user`.`uid` = `profile`.`uid`
+			WHERE `user`.`nickname` = ? AND NOT `profile`.`hide-friends`",
+			$nickname);
+		if (!DBA::isResult($user)) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
-
-		$user = $users[0];
 	}
 
 	if ($justme) {

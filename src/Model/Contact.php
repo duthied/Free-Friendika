@@ -704,7 +704,7 @@ class Contact
 			return;
 		}
 
-		$fields = ['nickname', 'page-flags', 'account-type', 'hidewall'];
+		$fields = ['nickname', 'page-flags', 'account-type'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
 			return;

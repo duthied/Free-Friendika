@@ -45,7 +45,7 @@ function msearch_post(App $a)
 		"SELECT COUNT(*) AS `total`
 			FROM `profile`
 		  	JOIN `user` ON `user`.`uid` = `profile`.`uid`
-			WHERE `user`.`hidewall` = 0
+			WHERE `profile`.`net-publish`
 		  	AND MATCH(`pub_keywords`) AGAINST (?)",
 		$search
 	);
@@ -60,7 +60,7 @@ function msearch_post(App $a)
 		"SELECT `pub_keywords`, `username`, `nickname`, `user`.`uid`
 			FROM `user`
 			JOIN `profile` ON `user`.`uid` = `profile`.`uid`
-			WHERE `user`.`hidewall` = 0
+			WHERE `profile`.`net-publish`
 			AND MATCH(`pub_keywords`) AGAINST (?)
 			LIMIT ?, ?",
 		$search,
