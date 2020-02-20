@@ -24,7 +24,7 @@ namespace Friendica\Console;
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Database\Database;
-use Friendica\Model\User;
+use Friendica\Model\User as UserModel;
 use RuntimeException;
 
 /**
@@ -32,7 +32,7 @@ use RuntimeException;
  *
  * With this tool, you can set a new password for a user
  */
-class NewPassword extends \Asika\SimpleConsole\Console
+class User extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
 
@@ -52,12 +52,12 @@ class NewPassword extends \Asika\SimpleConsole\Console
 	protected function getHelp()
 	{
 		$help = <<<HELP
-console newpassword - Creates a new password for a given user
+console user - Modify user settings per console commands.
 Usage
-	bin/console newpassword <nickname> [<password>] [-h|--help|-?] [-v]
+	bin/console user <nickname> password [<password>] [-h|--help|-?] [-v]
 
 Description
-	Creates a new password for a user without using the "forgot password" functionality.
+	Modify user settings per console commands.
 
 Options
     -h|--help|-? Show help information
@@ -88,8 +88,8 @@ HELP;
 			return 0;
 		}
 
-		if (count($this->args) > 2) {
-			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
+		if (count($this->args) < 2) {
+			throw new \Asika\SimpleConsole\CommandArgsException('Not enough arguments.');
 		}
 
 		if ($this->appMode->isInstall()) {
@@ -103,14 +103,34 @@ HELP;
 			throw new RuntimeException($this->l10n->t('User not found'));
 		}
 
-		$password = $this->getArgument(1);
+		$command = $this->getArgument(1);
+
+		switch ($command) {
+			case 'password':
+				return $this->setPassword($user);
+			default:
+				throw new \Asika\SimpleConsole\CommandArgsException('Wrong command.');
+		}
+	}
+
+	/**
+	 * Sets a new password
+	 *
+	 * @param array $user The user
+	 *
+	 * @return int Return code of this command
+	 */
+	private function setPassword(array $user)
+	{
+		$password = $this->getArgument(2);
+
 		if (is_null($password)) {
 			$this->out($this->l10n->t('Enter new password: '), false);
 			$password = \Seld\CliPrompt\CliPrompt::hiddenPrompt(true);
 		}
 
 		try {
-			$result = User::updatePassword($user['uid'], $password);
+			$result = UserModel::updatePassword($user['uid'], $password);
 
 			if (!$this->dba->isResult($result)) {
 				throw new \Exception($this->l10n->t('Password update failed. Please try again.'));
