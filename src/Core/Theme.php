@@ -257,4 +257,56 @@ class Theme
 
 		return 'view/theme/' . $theme . '/style.pcss' . (!empty($query_params) ? '?' . http_build_query($query_params) : '');
 	}
+
+	/**
+	 * Returns the background color of the provided theme if available.
+	 *
+	 * @param string   $theme
+	 * @param int|null $uid   Current logged-in user id
+	 * @return string|null
+	 */
+	public static function getBackgroundColor(string $theme, $uid = null)
+	{
+		$theme = Strings::sanitizeFilePathItem($theme);
+
+		$return = null;
+
+		// silently fail if theme was removed or if $theme is funky
+		if (file_exists("view/theme/$theme/theme.php")) {
+			include_once "view/theme/$theme/theme.php";
+
+			$func = "{$theme}_get_background_color";
+			if (function_exists($func)) {
+				$return = $func($uid);
+			}
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Returns the theme color of the provided theme if available.
+	 *
+	 * @param string   $theme
+	 * @param int|null $uid   Current logged-in user id
+	 * @return string|null
+	 */
+	public static function getThemeColor(string $theme, int $uid = null)
+	{
+		$theme = Strings::sanitizeFilePathItem($theme);
+
+		$return = null;
+
+		// silently fail if theme was removed or if $theme is funky
+		if (file_exists("view/theme/$theme/theme.php")) {
+			include_once "view/theme/$theme/theme.php";
+
+			$func = "{$theme}_get_theme_color";
+			if (function_exists($func)) {
+				$return = $func($uid);
+			}
+		}
+
+		return $return;
+	}
 }
