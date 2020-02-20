@@ -259,6 +259,28 @@ class Theme
 	}
 
 	/**
+	 * Returns the path of the provided theme
+	 *
+	 * @param $theme
+	 * @return string|null
+	 */
+	public static function getConfigFile($theme)
+	{
+		$theme = Strings::sanitizeFilePathItem($theme);
+
+		$a = DI::app();
+		$base_theme = $a->theme_info['extends'] ?? '';
+
+		if (file_exists("view/theme/$theme/config.php")) {
+			return "view/theme/$theme/config.php";
+		}
+		if ($base_theme && file_exists("view/theme/$base_theme/config.php")) {
+			return "view/theme/$base_theme/config.php";
+		}
+		return null;
+	}
+	
+	/**
 	 * Returns the background color of the provided theme if available.
 	 *
 	 * @param string   $theme

@@ -273,6 +273,7 @@ return [
 			'/verify'       => [Module\Settings\TwoFactor\Verify::class,      [R::GET, R::POST]],
 		],
 		'/delegation[/{action}/{user_id}]' => [Module\Settings\Delegation::class,       [R::GET, R::POST]],
+		'/display'                 => [Module\Settings\Display::class,             [R::GET, R::POST]],
 		'/profile' => [
 			'[/]'                  => [Module\Settings\Profile\Index::class,       [R::GET, R::POST]],
 			'/photo[/new]'         => [Module\Settings\Profile\Photo\Index::class, [R::GET, R::POST]],
