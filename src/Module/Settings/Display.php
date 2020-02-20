@@ -51,6 +51,7 @@ class Display extends BaseSettings
 		$infinite_scroll    = !empty($_POST['infinite_scroll'])    ? intval($_POST['infinite_scroll'])    : 0;
 		$no_auto_update     = !empty($_POST['no_auto_update'])     ? intval($_POST['no_auto_update'])     : 0;
 		$no_smart_threading = !empty($_POST['no_smart_threading']) ? intval($_POST['no_smart_threading']) : 0;
+		$hide_dislike       = !empty($_POST['hide_dislike'])       ? intval($_POST['hide_dislike'])       : 0;
 		$browser_update     = !empty($_POST['browser_update'])     ? intval($_POST['browser_update'])     : 0;
 		if ($browser_update != -1) {
 			$browser_update = $browser_update * 1000;
@@ -83,6 +84,7 @@ class Display extends BaseSettings
 		DI::pConfig()->set(local_user(), 'system', 'no_smilies'              , $nosmile);
 		DI::pConfig()->set(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
 		DI::pConfig()->set(local_user(), 'system', 'no_smart_threading'      , $no_smart_threading);
+		DI::pConfig()->set(local_user(), 'system', 'hide_dislike'            , $hide_dislike);
 		DI::pConfig()->set(local_user(), 'system', 'first_day_of_week'       , $first_day_of_week);
 
 		if (in_array($theme, Theme::getAllowedList())) {
@@ -163,6 +165,7 @@ class Display extends BaseSettings
 		$nosmile            = DI::pConfig()->get(local_user(), 'system', 'no_smilies', 0);
 		$infinite_scroll    = DI::pConfig()->get(local_user(), 'system', 'infinite_scroll', 0);
 		$no_smart_threading = DI::pConfig()->get(local_user(), 'system', 'no_smart_threading', 0);
+		$hide_dislike       = DI::pConfig()->get(local_user(), 'system', 'hide_dislike', 0);
 
 		$first_day_of_week = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
 		$weekdays = [0 => DI::l10n()->t("Sunday"), 1 => DI::l10n()->t("Monday")];
@@ -198,6 +201,7 @@ class Display extends BaseSettings
 			'$nosmile'	                => ['nosmile'                 , DI::l10n()->t('Don\'t show emoticons'), $nosmile, DI::l10n()->t('Normally emoticons are replaced with matching symbols. This setting disables this behaviour.')],
 			'$infinite_scroll'          => ['infinite_scroll'         , DI::l10n()->t('Infinite scroll'), $infinite_scroll, DI::l10n()->t('Automatic fetch new items when reaching the page end.')],
 			'$no_smart_threading'       => ['no_smart_threading'      , DI::l10n()->t('Disable Smart Threading'), $no_smart_threading, DI::l10n()->t('Disable the automatic suppression of extraneous thread indentation.')],
+			'$hide_dislike'             => ['hide_dislike'            , DI::l10n()->t('Hide the Dislike feature'), $hide_dislike, DI::l10n()->t('Hides the Dislike button and dislike reactions on posts and comments.')],
 
 			'$first_day_of_week' => ['first_day_of_week', DI::l10n()->t('Beginning of week:'), $first_day_of_week, '', $weekdays, false],
 		]);
