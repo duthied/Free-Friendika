@@ -73,25 +73,17 @@ $(document).ready(function(){
 		'target': ".flex-target"
 	});
 
-	// add Jot botton to the scecond navbar
+	// add Jot button to the second navbar
 	let $jotButton = $("#jotOpen");
-	let $composeButton = $("#composeOpen");
-	if (compose) {
-		$jotButton.hide();
-		if ($composeButton.length) {
-			$composeButton.appendTo("#topbar-second > .container > #navbar-button");
-			if($("#jot-popup").is(":hidden")) {
-				$composeButton.hide();
-			}
+	if ($jotButton.length) {
+		$jotButton.appendTo("#topbar-second > .container > #navbar-button");
+		if ($("#jot-popup").is(":hidden")) {
+			$jotButton.hide();
 		}
-	} else {
-		$composeButton.hide();
-		if ($jotButton.length) {
-			$jotButton.appendTo("#topbar-second > .container > #navbar-button");
-			if($("#jot-popup").is(":hidden")) {
-				$jotButton.hide();
-			}
-		}
+		$jotButton.on('click', function (e) {
+			e.preventDefault();
+			jotShow();
+		});
 	}
 
 	let $body = $('body');

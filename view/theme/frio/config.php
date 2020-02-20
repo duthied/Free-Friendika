@@ -41,7 +41,6 @@ function theme_post(App $a)
 		DI::pConfig()->set(local_user(), 'frio', 'background_image', $_POST['frio_background_image'] ?? '');
 		DI::pConfig()->set(local_user(), 'frio', 'bg_image_option',  $_POST['frio_bg_image_option']  ?? '');
 		DI::pConfig()->set(local_user(), 'frio', 'css_modified',     time());
-		DI::pConfig()->set(local_user(), 'frio', 'enable_compose',   $_POST['frio_enable_compose']   ?? 0);
 	}
 }
 
@@ -63,7 +62,6 @@ function theme_admin_post(App $a)
 		DI::config()->set('frio', 'login_bg_image',   $_POST['frio_login_bg_image']   ?? '');
 		DI::config()->set('frio', 'login_bg_color',   $_POST['frio_login_bg_color']   ?? '');
 		DI::config()->set('frio', 'css_modified',     time());
-		DI::config()->set('frio', 'enable_compose',   $_POST['frio_enable_compose']   ?? 0);
 	}
 }
 
@@ -85,7 +83,6 @@ function theme_content(App $a)
 	$arr['contentbg_transp'] = DI::pConfig()->get(local_user(), 'frio', 'contentbg_transp', DI::config()->get('frio', 'contentbg_transp'));
 	$arr['background_image'] = DI::pConfig()->get(local_user(), 'frio', 'background_image', DI::config()->get('frio', 'background_image'));
 	$arr['bg_image_option']  = DI::pConfig()->get(local_user(), 'frio', 'bg_image_option' , DI::config()->get('frio', 'bg_image_option'));
-	$arr['enable_compose']   = DI::pConfig()->get(local_user(), 'frio', 'enable_compose'  , DI::config()->get('frio', 'enable_compose'));
 
 	return frio_form($arr);
 }
@@ -108,7 +105,6 @@ function theme_admin(App $a)
 	$arr['bg_image_option']  = DI::config()->get('frio', 'bg_image_option');
 	$arr['login_bg_image']   = DI::config()->get('frio', 'login_bg_image');
 	$arr['login_bg_color']   = DI::config()->get('frio', 'login_bg_color');
-	$arr['enable_compose']   = DI::config()->get('frio', 'enable_compose');
 
 	return frio_form($arr);
 }
@@ -152,7 +148,6 @@ function frio_form($arr)
 		'$background_image' => array_key_exists('background_image', $disable) ? '' : ['frio_background_image', DI::l10n()->t('Set the background image'), $arr['background_image'], $background_image_help, false],
 		'$bg_image_options_title' => DI::l10n()->t('Background image style'),
 		'$bg_image_options' => Image::get_options($arr),
-		'$enable_compose'   => ['frio_enable_compose', DI::l10n()->t('Enable Compose page'), $arr['enable_compose'], DI::l10n()->t('This replaces the jot modal window for writing new posts with a link to <a href="compose">the new Compose page</a>.')],
 	];
 
 	if (array_key_exists('login_bg_image', $arr) && !array_key_exists('login_bg_image', $disable)) {
