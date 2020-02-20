@@ -1384,7 +1384,7 @@ function photos_content(App $a)
 				$likebuttons = Renderer::replaceMacros($like_tpl, [
 					'$id' => $link_item['id'],
 					'$likethis' => DI::l10n()->t("I like this \x28toggle\x29"),
-					'$nolike' => DI::l10n()->t("I don't like this \x28toggle\x29"),
+					'$dislike' => DI::pConfig()->get(local_user(), 'system', 'hide_dislike') ? '' : DI::l10n()->t("I don't like this \x28toggle\x29"),
 					'$wait' => DI::l10n()->t('Please wait'),
 					'$return_path' => DI::args()->getQueryString(),
 				]);
@@ -1413,9 +1413,16 @@ function photos_content(App $a)
 			}
 
 			$conv_responses = [
-				'like' => ['title' => DI::l10n()->t('Likes','title')],'dislike' => ['title' => DI::l10n()->t('Dislikes','title')],
-				'attendyes' => ['title' => DI::l10n()->t('Attending','title')], 'attendno' => ['title' => DI::l10n()->t('Not attending','title')], 'attendmaybe' => ['title' => DI::l10n()->t('Might attend','title')]
+				'like'        => ['title' => DI::l10n()->t('Likes','title')],
+				'dislike'     => ['title' => DI::l10n()->t('Dislikes','title')],
+				'attendyes'   => ['title' => DI::l10n()->t('Attending','title')],
+				'attendno'    => ['title' => DI::l10n()->t('Not attending','title')],
+				'attendmaybe' => ['title' => DI::l10n()->t('Might attend','title')]
 			];
+
+			if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
+				unset($conv_responses['dislike']);
+			}
 
 			// display comments
 			if (DBA::isResult($items)) {
@@ -1515,9 +1522,8 @@ function photos_content(App $a)
 					}
 				}
 			}
-			$response_verbs = ['like'];
-			$response_verbs[] = 'dislike';
-			$responses = get_responses($conv_responses, $response_verbs, $link_item);
+
+			$responses = get_responses($conv_responses, ['like', 'dislike'], $link_item);
 
 			$paginate = $pager->renderFull($total);
 		}

@@ -373,6 +373,10 @@ class Post
 		$location_e   = $location;
 		$owner_name_e = $this->getOwnerName();
 
+		if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
+			$buttons['dislike'] = false;
+		}
+
 		// Disable features that aren't available in several networks
 		if ($buttons["dislike"] && !in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
 			$buttons["dislike"] = false;
