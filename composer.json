@@ -73,7 +73,6 @@
 	"autoload": {
 		"psr-4": {
 			"Friendica\\": "src/",
-			"Friendica\\Test\\": "tests/",
 			"Friendica\\Addon\\": "addon/"
 		},
 		"psr-0": {
@@ -86,6 +85,11 @@
 			"include/items.php",
 			"boot.php"
 		]
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Friendica\\Test\\": "tests/"
+		}
 	},
 	"config": {
 		"autoloader-suffix": "Friendica",
