@@ -58,6 +58,7 @@ console user - Modify user settings per console commands.
 Usage
 	bin/console user password <nickname> [<password>] [-h|--help|-?] [-v]
 	bin/console user add [<name> [<nickname> [<email> [<language>]]]] [-h|--help|-?] [-v]
+	bin/console user delete [<nickname>] [-q] [-h|--help|-?] [-v]
 	bin/console user allow [<nickname>] [-h|--help|-?] [-v]
 	bin/console user deny [<nickname>] [-h|--help|-?] [-v]
 	bin/console user block [<nickname>] [-h|--help|-?] [-v]
@@ -69,6 +70,7 @@ Description
 Options
     -h|--help|-? Show help information
     -v           Show more debug information.
+    -q           Quiet mode (don't ask for a command).
 HELP;
 		return $help;
 	}
@@ -114,6 +116,8 @@ HELP;
 				return $this->blockUser(true);
 			case 'unblock':
 				return $this->blockUser(false);
+			case 'delete':
+				return $this->deleteUser();
 			default:
 				throw new \Asika\SimpleConsole\CommandArgsException('Wrong command.');
 		}
@@ -267,5 +271,38 @@ HELP;
 		}
 
 		return $block ? UserModel::block($user['uid'] ?? 0) : UserModel::block($user['uid'] ?? 0, false);
+	}
+
+	/**
+	 * Deletes a user
+	 *
+	 * @return bool True, if the delete was successful
+	 * @throws \Exception
+	 */
+	private function deleteUser()
+	{
+		$nick = $this->getArgument(1);
+
+		if (!$nick) {
+			$this->out($this->l10n->t('Enter user nickname: '));
+			$nick = CliPrompt::prompt();
+			if (empty($nick)) {
+				throw new RuntimeException('A nick name must be set.');
+			}
+		}
+
+		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
+		if (empty($user)) {
+			throw new RuntimeException($this->l10n->t('User not found'));
+		}
+
+		if (!$this->getOption('q')) {
+			$this->out($this->l10n->t('Type "yes" to delete %s', $nick));
+			if (CliPrompt::prompt() !== 'yes') {
+				throw new RuntimeException('Delete abort.');
+			}
+		}
+
+		return UserModel::remove($user['uid'] ?? -1);
 	}
 }
