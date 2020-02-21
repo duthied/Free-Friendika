@@ -79,7 +79,6 @@ class Users extends BaseAdmin
 		}
 
 		if (!empty($_POST['page_users_approve'])) {
-			require_once 'mod/regmod.php';
 			foreach ($pending as $hash) {
 				if (User::allow($hash)) {
 					info(DI::l10n()->t('Account approved.'));
@@ -88,7 +87,6 @@ class Users extends BaseAdmin
 		}
 
 		if (!empty($_POST['page_users_deny'])) {
-			require_once 'mod/regmod.php';
 			foreach ($pending as $hash) {
 				if (User::deny($hash)) {
 					notice(DI::l10n()->t('Registration revoked'));
@@ -137,6 +135,16 @@ class Users extends BaseAdmin
 					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
 					User::block($uid, false);
 					notice(DI::l10n()->t('User "%s" unblocked', $user['username']));
+					break;
+				case 'allow':
+					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
+					User::allow(Register::getPendingForUser($uid)['hash'] ?? '');
+					notice(DI::l10n()->t('Account approved.'));
+					break;
+				case 'deny':
+					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
+					User::deny(Register::getPendingForUser($uid)['hash'] ?? '');
+					notice(DI::l10n()->t('Registration revoked'));
 					break;
 			}
 
