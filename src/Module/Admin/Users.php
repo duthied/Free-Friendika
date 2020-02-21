@@ -47,7 +47,7 @@ class Users extends BaseAdmin
 
 		if ($nu_name !== '' && $nu_email !== '' && $nu_nickname !== '') {
 			try {
-				DI::userService()->createMinimal($nu_name, $nu_email, $nu_nickname, $nu_language);
+				User::createMinimal($nu_name, $nu_email, $nu_nickname, $nu_language);
 			} catch (\Exception $ex) {
 				notice($ex->getMessage());
 				return;
@@ -55,15 +55,17 @@ class Users extends BaseAdmin
 		}
 
 		if (!empty($_POST['page_users_block'])) {
-			if (User::block($users)) {
-				notice(DI::l10n()->tt('%s user blocked', '%s users blocked', count($users)));
+			foreach ($users as $uid) {
+				User::block(Register::getPendingForUser($uid)['hash'] ?? '');
 			}
+			notice(DI::l10n()->tt('%s user blocked', '%s users blocked', count($users)));
 		}
 
 		if (!empty($_POST['page_users_unblock'])) {
-			if (User::block($users, false)) {
-				notice(DI::l10n()->tt('%s user unblocked', '%s users unblocked', count($users)));
+			foreach ($users as $uid) {
+				User::block(Register::getPendingForUser($uid)['hash'] ?? '', false);
 			}
+			notice(DI::l10n()->tt('%s user unblocked', '%s users unblocked', count($users)));
 		}
 
 		if (!empty($_POST['page_users_delete'])) {
