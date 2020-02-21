@@ -56,14 +56,14 @@ class Users extends BaseAdmin
 
 		if (!empty($_POST['page_users_block'])) {
 			foreach ($users as $uid) {
-				User::block(Register::getPendingForUser($uid)['hash'] ?? '');
+				User::block($uid);
 			}
 			notice(DI::l10n()->tt('%s user blocked', '%s users blocked', count($users)));
 		}
 
 		if (!empty($_POST['page_users_unblock'])) {
 			foreach ($users as $uid) {
-				User::block(Register::getPendingForUser($uid)['hash'] ?? '', false);
+				User::block($uid, false);
 			}
 			notice(DI::l10n()->tt('%s user unblocked', '%s users unblocked', count($users)));
 		}
@@ -82,18 +82,16 @@ class Users extends BaseAdmin
 
 		if (!empty($_POST['page_users_approve'])) {
 			foreach ($pending as $hash) {
-				if (User::allow($hash)) {
-					info(DI::l10n()->t('Account approved.'));
-				}
+				User::allow($hash);
 			}
+			notice(DI::l10n()->tt('%s user approved', '%s users approved', count($pending)));
 		}
 
 		if (!empty($_POST['page_users_deny'])) {
 			foreach ($pending as $hash) {
-				if (User::deny($hash)) {
-					notice(DI::l10n()->t('Registration revoked'));
-				}
+				User::deny($hash);
 			}
+			notice(DI::l10n()->tt('%s registration revoked', '%s registrations revoked', count($pending)));
 		}
 
 		DI::baseUrl()->redirect('admin/users');
