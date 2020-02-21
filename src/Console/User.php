@@ -60,6 +60,8 @@ Usage
 	bin/console user add [<name> [<nickname> [<email> [<language>]]]] [-h|--help|-?] [-v]
 	bin/console user allow [<nickname>] [-h|--help|-?] [-v]
 	bin/console user deny [<nickname>] [-h|--help|-?] [-v]
+	bin/console user block [<nickname>] [-h|--help|-?] [-v]
+	bin/console user unblock [<nickname>] [-h|--help|-?] [-v]
 
 Description
 	Modify user settings per console commands.
@@ -108,6 +110,10 @@ HELP;
 				return $this->pendingUser(true);
 			case 'deny':
 				return $this->pendingUser(false);
+			case 'block':
+				return $this->blockUser(true);
+			case 'unblock':
+				return $this->blockUser(false);
 			default:
 				throw new \Asika\SimpleConsole\CommandArgsException('Wrong command.');
 		}
@@ -210,7 +216,7 @@ HELP;
 	 * @return bool True, if allow was successful
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function pendingUser(bool $allow = true)
+	private function pendingUser(bool $allow = true)
 	{
 		$nick = $this->getArgument(1);
 
@@ -233,5 +239,33 @@ HELP;
 		}
 
 		return ($allow) ? UserModel::allow($pending['hash']) : UserModel::deny($pending['hash']);
+	}
+
+	/**
+	 * Blocks/unblocks a user
+	 *
+	 * @param bool $block True, if the given user should get blocked
+	 *
+	 * @return bool True, if the command was successful
+	 * @throws \Exception
+	 */
+	private function blockUser(bool $block = true)
+	{
+		$nick = $this->getArgument(1);
+
+		if (!$nick) {
+			$this->out($this->l10n->t('Enter user nickname: '));
+			$nick = CliPrompt::prompt();
+			if (empty($nick)) {
+				throw new RuntimeException('A nick name must be set.');
+			}
+		}
+
+		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
+		if (empty($user)) {
+			throw new RuntimeException($this->l10n->t('User not found'));
+		}
+
+		return $block ? UserModel::block($user['uid'] ?? 0) : UserModel::block($user['uid'] ?? 0, false);
 	}
 }

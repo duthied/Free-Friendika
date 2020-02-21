@@ -130,14 +130,12 @@ class Users extends BaseAdmin
 					break;
 				case 'block':
 					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
-					// @TODO Move this to Model\User:block([$uid]);
-					DBA::update('user', ['blocked' => 1], ['uid' => $uid]);
+					User::block($uid);
 					notice(DI::l10n()->t('User "%s" blocked', $user['username']));
 					break;
 				case 'unblock':
 					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
-					// @TODO Move this to Model\User:unblock([$uid]);
-					DBA::update('user', ['blocked' => 0], ['uid' => $uid]);
+					User::block($uid, false);
 					notice(DI::l10n()->t('User "%s" unblocked', $user['username']));
 					break;
 			}

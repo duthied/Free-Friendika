@@ -894,7 +894,7 @@ class User
 	 */
 	public static function block(int $uid, bool $block = true)
 	{
-		return DBA::update('user', ['blocked' => 0], ['uid' => $uid]);
+		return DBA::update('user', ['blocked' => $block], ['uid' => $uid]);
 	}
 
 	/**
@@ -1150,11 +1150,11 @@ class User
 	}
 
 	/**
-	 * @param object $uid user to remove
+	 * @param int $uid user to remove
 	 * @return bool
 	 * @throws InternalServerErrorException
 	 */
-	public static function remove($uid)
+	public static function remove(int $uid)
 	{
 		if (!$uid) {
 			return false;
