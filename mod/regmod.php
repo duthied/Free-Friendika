@@ -20,51 +20,11 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Register;
 use Friendica\Model\User;
 use Friendica\Module\Security\Login;
-
-function user_allow($hash)
-{
-	$register = Register::getByHash($hash);
-	if (!DBA::isResult($register)) {
-		return false;
-	}
-
-	$user = User::getById($register['uid']);
-	if (!DBA::isResult($user)) {
-		exit();
-	}
-
-	Register::deleteByHash($hash);
-
-	DBA::update('user', ['blocked' => false, 'verified' => true], ['uid' => $register['uid']]);
-
-	$profile = DBA::selectFirst('profile', ['net-publish'], ['uid' => $register['uid']]);
-
-	if (DBA::isResult($profile) && $profile['net-publish'] && DI::config()->get('system', 'directory')) {
-		$url = DI::baseUrl() . '/profile/' . $user['nickname'];
-		Worker::add(PRIORITY_LOW, "Directory", $url);
-	}
-
-	$l10n = DI::l10n()->withLang($register['language']);
-
-	$res = User::sendRegisterOpenEmail(
-		$l10n,
-		$user,
-		DI::config()->get('config', 'sitename'),
-		DI::baseUrl()->get(),
-		($register['password'] ?? '') ?: 'Sent in a previous email'
-	);
-
-	if ($res) {
-		info(DI::l10n()->t('Account approved.') . EOL);
-		return true;
-	}
-}
 
 // This does not have to go through user_remove() and save the nickname
 // permanently against re-registration, as the person was not yet
@@ -114,7 +74,9 @@ function regmod_content(App $a)
 	}
 
 	if ($cmd === 'allow') {
-		user_allow($hash);
+		if (User::allow($hash)) {
+			info(DI::l10n()->t('Account approved.') . EOL);
+		}
 		DI::baseUrl()->redirect('admin/users/');
 	}
 }

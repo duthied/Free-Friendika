@@ -49,6 +49,27 @@ class Register
 	}
 
 	/**
+	 * Returns the pending user based on a given user id
+	 *
+	 * @param int $uid The user id
+	 *
+	 * @return array The pending user information
+	 *
+	 * @throws \Exception
+	 */
+	public static function getPendingForUser(int $uid)
+	{
+		return DBA::fetchFirst(
+			"SELECT `register`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`email`
+			FROM `register`
+			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
+			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`
+			WHERE `register`.uid = ?",
+			$uid
+		);
+	}
+
+	/**
 	 * Returns the pending registration count
 	 *
 	 * @return int

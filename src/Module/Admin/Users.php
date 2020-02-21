@@ -28,7 +28,6 @@ use Friendica\DI;
 use Friendica\Model\Register;
 use Friendica\Model\User;
 use Friendica\Module\BaseAdmin;
-use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 class Users extends BaseAdmin
@@ -82,7 +81,7 @@ class Users extends BaseAdmin
 		if (!empty($_POST['page_users_approve'])) {
 			require_once 'mod/regmod.php';
 			foreach ($pending as $hash) {
-				user_allow($hash);
+				User::allow($hash);
 			}
 		}
 

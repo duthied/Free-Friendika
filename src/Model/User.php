@@ -24,6 +24,7 @@ namespace Friendica\Model;
 use DivineOmega\PasswordExposed;
 use Exception;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -31,6 +32,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\TwoFactor\AppSpecificPassword;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -279,7 +281,7 @@ class User
 	 * @param string $network network name
 	 *
 	 * @return int group id
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 */
 	public static function getDefaultGroup($uid, $network = '')
 	{
@@ -556,7 +558,7 @@ class User
 	 *
 	 * @param string $nickname The nickname that should be checked
 	 * @return boolean True is the nickname is blocked on the node
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 */
 	public static function isNicknameBlocked($nickname)
 	{
@@ -593,7 +595,7 @@ class User
 	 * @param  array $data
 	 * @return array
 	 * @throws \ErrorException
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 * @throws \ImagickException
 	 * @throws Exception
 	 */
@@ -896,6 +898,123 @@ class User
 	}
 
 	/**
+	 * Allows a registration based on a hash
+	 *
+	 * @param string $hash
+	 *
+	 * @return bool True, if the allow was successful
+	 *
+	 * @throws InternalServerErrorException
+	 * @throws Exception
+	 */
+	public static function allow(string $hash)
+	{
+		$register = Register::getByHash($hash);
+		if (!DBA::isResult($register)) {
+			return false;
+		}
+
+		$user = User::getById($register['uid']);
+		if (!DBA::isResult($user)) {
+			return false;
+		}
+
+		Register::deleteByHash($hash);
+
+		DBA::update('user', ['blocked' => false, 'verified' => true], ['uid' => $register['uid']]);
+
+		$profile = DBA::selectFirst('profile', ['net-publish'], ['uid' => $register['uid']]);
+
+		if (DBA::isResult($profile) && $profile['net-publish'] && DI::config()->get('system', 'directory')) {
+			$url = DI::baseUrl() . '/profile/' . $user['nickname'];
+			Worker::add(PRIORITY_LOW, "Directory", $url);
+		}
+
+		$l10n = DI::l10n()->withLang($register['language']);
+
+		return User::sendRegisterOpenEmail(
+			$l10n,
+			$user,
+			DI::config()->get('config', 'sitename'),
+			DI::baseUrl()->get(),
+			($register['password'] ?? '') ?: 'Sent in a previous email'
+		);
+	}
+
+	/**
+	 * Creates a new user based on a minimal set and sends an email to this user
+	 *
+	 * @param string $name  The user's name
+	 * @param string $email The user's email address
+	 * @param string $nick  The user's nick name
+	 * @param string $lang  The user's language (default is english)
+	 *
+	 * @return bool True, if the user was created successfully
+	 * @throws InternalServerErrorException
+	 * @throws \ErrorException
+	 * @throws \ImagickException
+	 */
+	public static function createMinimal(string $name, string $email, string $nick, string $lang = L10n::DEFAULT)
+	{
+		if (empty($name) ||
+		    empty($email) ||
+		    empty($nick)) {
+			throw new InternalServerErrorException('Invalid arguments.');
+		}
+
+		$result = self::create([
+			'username' => $name,
+			'email' => $email,
+			'nickname' => $nick,
+			'verified' => 1,
+			'language' => $lang
+		]);
+
+		$user = $result['user'];
+		$preamble = Strings::deindent(DI::l10n()->t('
+		Dear %1$s,
+			the administrator of %2$s has set up an account for you.'));
+		$body = Strings::deindent(DI::l10n()->t('
+		The login details are as follows:
+
+		Site Location:	%1$s
+		Login Name:		%2$s
+		Password:		%3$s
+
+		You may change your password from your account "Settings" page after logging
+		in.
+
+		Please take a few moments to review the other account settings on that page.
+
+		You may also wish to add some basic information to your default profile
+		(on the "Profiles" page) so that other people can easily find you.
+
+		We recommend setting your full name, adding a profile photo,
+		adding some profile "keywords" (very useful in making new friends) - and
+		perhaps what country you live in; if you do not wish to be more specific
+		than that.
+
+		We fully respect your right to privacy, and none of these items are necessary.
+		If you are new and do not know anybody here, they may help
+		you to make some new and interesting friends.
+
+		If you ever want to delete your account, you can do so at %1$s/removeme
+
+		Thank you and welcome to %4$s.'));
+
+		$preamble = sprintf($preamble, $user['username'], DI::config()->get('config', 'sitename'));
+		$body = sprintf($body, DI::baseUrl()->get(), $user['nickname'], $result['password'], DI::config()->get('config', 'sitename'));
+
+		$email = DI::emailer()
+			->newSystemMail()
+			->withMessage(DI::l10n()->t('Registration details for %s', DI::config()->get('config', 'sitename')), $preamble, $body)
+			->forUser($user)
+			->withRecipient($user['email'])
+			->build();
+		return DI::emailer()->send($email);
+	}
+
+	/**
 	 * Sends pending registration confirmation email
 	 *
 	 * @param array  $user     User record array
@@ -903,7 +1022,7 @@ class User
 	 * @param string $siteurl
 	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 */
 	public static function sendRegisterPendingEmail($user, $sitename, $siteurl, $password)
 	{
@@ -946,7 +1065,7 @@ class User
 	 * @param string               $password Plaintext password
 	 *
 	 * @return NULL|boolean from notification() and email() inherited
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 */
 	public static function sendRegisterOpenEmail(\Friendica\Core\L10n $l10n, $user, $sitename, $siteurl, $password)
 	{
@@ -1005,7 +1124,7 @@ class User
 	/**
 	 * @param object $uid user to remove
 	 * @return bool
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 */
 	public static function remove($uid)
 	{

@@ -24,8 +24,8 @@ namespace Friendica\Console;
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Database\Database;
+use Friendica\Model\Register;
 use Friendica\Model\User as UserModel;
-use Friendica\Model\UserService;
 use RuntimeException;
 use Seld\CliPrompt\CliPrompt;
 
@@ -50,8 +50,6 @@ class User extends \Asika\SimpleConsole\Console
 	 * @var Database
 	 */
 	private $dba;
-	/** @var UserService */
-	private $userService;
 
 	protected function getHelp()
 	{
@@ -60,6 +58,7 @@ console user - Modify user settings per console commands.
 Usage
 	bin/console user password <nickname> [<password>] [-h|--help|-?] [-v]
 	bin/console user add [<name> [<nickname> [<email> [<language>]]]] [-h|--help|-?] [-v]
+	bin/console user allow [<nickname>] [-h|--help|-?] [-v]
 
 Description
 	Modify user settings per console commands.
@@ -71,14 +70,13 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, UserService $userService, array $argv = null)
+	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, array $argv = null)
 	{
 		parent::__construct($argv);
 
-		$this->appMode = $appMode;
-		$this->l10n = $l10n;
-		$this->dba = $dba;
-		$this->userService = $userService;
+		$this->appMode     = $appMode;
+		$this->l10n        = $l10n;
+		$this->dba         = $dba;
 	}
 
 	protected function doExecute()
@@ -105,6 +103,8 @@ HELP;
 				return $this->password();
 			case 'add':
 				return $this->addUser();
+			case 'allow':
+				return $this->allowUser();
 			default:
 				throw new \Asika\SimpleConsole\CommandArgsException('Wrong command.');
 		}
@@ -158,10 +158,10 @@ HELP;
 	 */
 	private function addUser()
 	{
-		$name = $this->getArgument(1);
-		$nick = $this->getArgument(2);
-		$email= $this->getArgument(3);
-		$lang = $this->getArgument(4);
+		$name  = $this->getArgument(1);
+		$nick  = $this->getArgument(2);
+		$email = $this->getArgument(3);
+		$lang  = $this->getArgument(4);
 
 		if (empty($name)) {
 			$this->out($this->l10n->t('Enter user name: '));
@@ -170,6 +170,7 @@ HELP;
 				throw new RuntimeException('A name must be set.');
 			}
 		}
+
 		if (empty($nick)) {
 			$this->out($this->l10n->t('Enter user nickname: '));
 			$nick = CliPrompt::prompt();
@@ -177,6 +178,7 @@ HELP;
 				throw new RuntimeException('A nick name must be set.');
 			}
 		}
+
 		if (empty($email)) {
 			$this->out($this->l10n->t('Enter user email address: '));
 			$email = CliPrompt::prompt();
@@ -191,9 +193,40 @@ HELP;
 		}
 
 		if (empty($lang)) {
-			return $this->userService->createMinimal($name, $email, $nick);
+			return UserModel::createMinimal($name, $email, $nick);
 		} else {
-			return $this->userService->createMinimal($name, $email, $nick, $lang);
+			return UserModel::createMinimal($name, $email, $nick, $lang);
 		}
+	}
+
+	/**
+	 * Allows a user based on it's nickname
+	 *
+	 * @return bool True, if allow was successful
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public function allowUser()
+	{
+		$nick = $this->getArgument(1);
+
+		if (!$nick) {
+			$this->out($this->l10n->t('Enter user nickname: '));
+			$nick = CliPrompt::prompt();
+			if (empty($nick)) {
+				throw new RuntimeException('A nick name must be set.');
+			}
+		}
+
+		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
+		if (empty($user)) {
+			throw new RuntimeException($this->l10n->t('User not found'));
+		}
+
+		$pending = Register::getPendingForUser($user['uid'] ?? 0);
+		if (empty($pending)) {
+			throw new RuntimeException($this->l10n->t('User is not pending.'));
+		}
+
+		return UserModel::allow($pending['hash']);
 	}
 }
