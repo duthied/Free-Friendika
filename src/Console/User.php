@@ -59,6 +59,7 @@ Usage
 	bin/console user password <nickname> [<password>] [-h|--help|-?] [-v]
 	bin/console user add [<name> [<nickname> [<email> [<language>]]]] [-h|--help|-?] [-v]
 	bin/console user allow [<nickname>] [-h|--help|-?] [-v]
+	bin/console user deny [<nickname>] [-h|--help|-?] [-v]
 
 Description
 	Modify user settings per console commands.
@@ -104,7 +105,9 @@ HELP;
 			case 'add':
 				return $this->addUser();
 			case 'allow':
-				return $this->allowUser();
+				return $this->pendingUser(true);
+			case 'deny':
+				return $this->pendingUser(false);
 			default:
 				throw new \Asika\SimpleConsole\CommandArgsException('Wrong command.');
 		}
@@ -200,12 +203,14 @@ HELP;
 	}
 
 	/**
-	 * Allows a user based on it's nickname
+	 * Allows or denys a user based on it's nickname
+	 *
+	 * @param bool $allow True, if the pending user is allowed, false if denies
 	 *
 	 * @return bool True, if allow was successful
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function allowUser()
+	public function pendingUser(bool $allow = true)
 	{
 		$nick = $this->getArgument(1);
 
@@ -227,6 +232,6 @@ HELP;
 			throw new RuntimeException($this->l10n->t('User is not pending.'));
 		}
 
-		return UserModel::allow($pending['hash']);
+		return ($allow) ? UserModel::allow($pending['hash']) : UserModel::deny($pending['hash']);
 	}
 }

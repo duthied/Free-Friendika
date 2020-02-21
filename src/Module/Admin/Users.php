@@ -81,14 +81,18 @@ class Users extends BaseAdmin
 		if (!empty($_POST['page_users_approve'])) {
 			require_once 'mod/regmod.php';
 			foreach ($pending as $hash) {
-				User::allow($hash);
+				if (User::allow($hash)) {
+					info(DI::l10n()->t('Account approved.'));
+				}
 			}
 		}
 
 		if (!empty($_POST['page_users_deny'])) {
 			require_once 'mod/regmod.php';
 			foreach ($pending as $hash) {
-				user_deny($hash);
+				if (User::deny($hash)) {
+					notice(DI::l10n()->t('Registration revoked'));
+				}
 			}
 		}
 

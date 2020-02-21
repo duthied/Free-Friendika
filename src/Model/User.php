@@ -942,6 +942,34 @@ class User
 	}
 
 	/**
+	 * Denys a pending registration
+	 *
+	 * @param string $hash The hash of the pending user
+	 *
+	 * This does not have to go through user_remove() and save the nickname
+	 * permanently against re-registration, as the person was not yet
+	 * allowed to have friends on this system
+	 *
+	 * @return bool True, if the deny was successfull
+	 * @throws Exception
+	 */
+	public static function deny(string $hash)
+	{
+		$register = Register::getByHash($hash);
+		if (!DBA::isResult($register)) {
+			return false;
+		}
+
+		$user = User::getById($register['uid']);
+		if (!DBA::isResult($user)) {
+			return false;
+		}
+
+		return DBA::delete('user', ['uid' => $register['uid']]) &&
+		       Register::deleteByHash($register['hash']);
+	}
+
+	/**
 	 * Creates a new user based on a minimal set and sends an email to this user
 	 *
 	 * @param string $name  The user's name
