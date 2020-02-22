@@ -48,6 +48,31 @@ class Probe
 	private static $istimeout;
 
 	/**
+	 * Remove stuff from an URI that doesn't belong there
+	 *
+	 * @param string $URI
+	 * @return string Cleaned URI
+	 */
+	public static function cleanURI(string $URI)
+	{
+		// At first remove leading and trailing junk
+		$URI = trim($URI, "@#?:/ \t\n\r\0\x0B");
+
+		$parts = parse_url($URI);
+
+		if (empty($parts['scheme'])) {
+			return $URI;
+		}
+
+		// Remove the URL fragment, since these shouldn't be part of any profile URL
+		unset($parts['fragment']);
+
+		$URI = Network::unparseURL($parts);
+
+		return $URI;
+	}
+
+	/**
 	 * Rearrange the array so that it always has the same order
 	 *
 	 * @param array $data Unordered data

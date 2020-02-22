@@ -41,7 +41,7 @@ function follow_post(App $a)
 	}
 
 	$uid = local_user();
-	$url = Strings::escapeTags(trim($_REQUEST['url']));
+	$url = Probe::cleanURI($_REQUEST['url']);
 	$return_path = 'follow?url=' . urlencode($url);
 
 	// Makes the connection request for friendica contacts easier

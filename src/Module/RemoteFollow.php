@@ -54,7 +54,7 @@ class RemoteFollow extends BaseModule
 			return;
 		}
 		
-		$url = trim($_POST['dfrn_url']);
+		$url = Probe::cleanURI($_POST['dfrn_url']);
 		if (!strlen($url)) {
 			notice(DI::l10n()->t("Invalid locator"));
 			return;
