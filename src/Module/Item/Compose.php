@@ -72,7 +72,7 @@ class Compose extends BaseModule
 			}
 		}
 
-		$user = User::getById(local_user(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'hidewall', 'default-location']);
+		$user = User::getById(local_user(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'default-location']);
 
 		$aclFormatter = DI::aclFormatter();
 

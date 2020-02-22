@@ -9,10 +9,7 @@
 				<div class="panel-body">
 					<p>{{$public_desc}}</p>
 	                {{if $for_federation}}
-		                {{if $user_hidewall}}
-			                <h4>{{$jotnets_summary}}</h4>
-	                        {{$jotnets_disabled_label}}
-		                {{elseif $jotnets_fields}}
+		                {{if $jotnets_fields}}
 		                    {{if $jotnets_fields|count < 3}}
 								<div class="profile-jot-net">
 		                    {{else}}
