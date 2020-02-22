@@ -218,8 +218,7 @@ class ACL
 	 *                                      'allow_cid' => [],
 	 *                                      'allow_gid' => [],
 	 *                                      'deny_cid' => [],
-	 *                                      'deny_gid' => [],
-	 *                                      'hidewall' => true/false
+	 *                                      'deny_gid' => []
 	 *                                      ]
 	 * @param array  $condition
 	 * @param string $form_prefix
@@ -257,7 +256,6 @@ class ACL
 			'allow_gid' => $default_permissions['allow_gid'] ?? [],
 			'deny_cid'  => $default_permissions['deny_cid']  ?? [],
 			'deny_gid'  => $default_permissions['deny_gid']  ?? [],
-			'hidewall'  => $default_permissions['hidewall']  ?? false,
 		];
 
 		if (count($default_permissions['allow_cid'])
@@ -273,31 +271,21 @@ class ACL
 
 		$jotnets_fields = [];
 		if ($for_federation) {
-			$mail_enabled = false;
-			$pubmail_enabled = false;
-
 			if (function_exists('imap_open') && !DI::config()->get('system', 'imap_disabled')) {
 				$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', $user['uid']]);
 				if (DBA::isResult($mailacct)) {
-					$mail_enabled = true;
-					$pubmail_enabled = !empty($mailacct['pubmail']);
-				}
-			}
-
-			if (!$default_permissions['hidewall']) {
-				if ($mail_enabled) {
 					$jotnets_fields[] = [
 						'type' => 'checkbox',
 						'field' => [
 							'pubmail_enable',
 							DI::l10n()->t('Post to Email'),
-							$pubmail_enabled
+							!empty($mailacct['pubmail'])
 						]
 					];
+	
 				}
-
-				Hook::callAll('jot_networks', $jotnets_fields);
 			}
+			Hook::callAll('jot_networks', $jotnets_fields);
 		}
 
 		$acl_contacts = self::getContactListByUserId($user['uid'], $condition);
@@ -326,7 +314,6 @@ class ACL
 			'$emailcc'        => DI::l10n()->t('CC: email addresses'),
 			'$emtitle'        => DI::l10n()->t('Example: bob@example.com, mary@example.com'),
 			'$jotnets_summary' => DI::l10n()->t('Connectors'),
-			'$jotnets_disabled_label' => DI::l10n()->t('Connectors disabled, since "%s" is enabled.', DI::l10n()->t('Hide your profile details from unknown viewers?')),
 			'$visibility'     => $visibility,
 			'$acl_contacts'   => $acl_contacts,
 			'$acl_groups'     => $acl_groups,
@@ -337,7 +324,6 @@ class ACL
 			'$group_deny'     => implode(',', $default_permissions['deny_gid']),
 			'$for_federation' => $for_federation,
 			'$jotnets_fields' => $jotnets_fields,
-			'$user_hidewall'  => $default_permissions['hidewall'],
 			'$input_names'    => $input_names,
 			'$input_group_id' => $input_group_id,
 		]);
