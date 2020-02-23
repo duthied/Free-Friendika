@@ -34,6 +34,7 @@ use Friendica\Util\Security;
  */
 class Thread
 {
+	/** @var Post[] */
 	private $parents = [];
 	private $mode = null;
 	private $writable = false;

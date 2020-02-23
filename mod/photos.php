@@ -1412,11 +1412,11 @@ function photos_content(App $a)
 			}
 
 			$conv_responses = [
-				'like'        => ['title' => DI::l10n()->t('Likes','title')],
-				'dislike'     => ['title' => DI::l10n()->t('Dislikes','title')],
-				'attendyes'   => ['title' => DI::l10n()->t('Attending','title')],
-				'attendno'    => ['title' => DI::l10n()->t('Not attending','title')],
-				'attendmaybe' => ['title' => DI::l10n()->t('Might attend','title')]
+				'like'        => [],
+				'dislike'     => [],
+				'attendyes'   => [],
+				'attendno'    => [],
+				'attendmaybe' => []
 			];
 
 			if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
