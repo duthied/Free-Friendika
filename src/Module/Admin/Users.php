@@ -283,7 +283,7 @@ class Users extends BaseAdmin
 			}
 		}
 
-		$th_users = array_map(null, [DI::l10n()->t('Name'), DI::l10n()->t('Email'), DI::l10n()->t('Register date'), DI::l10n()->t('Last login'), DI::l10n()->t('Last item'), DI::l10n()->t('Type')], $valid_orders);
+		$th_users = array_map(null, [DI::l10n()->t('Name'), DI::l10n()->t('Email'), DI::l10n()->t('Register date'), DI::l10n()->t('Last login'), DI::l10n()->t('Last public item'), DI::l10n()->t('Type')], $valid_orders);
 
 		$t = Renderer::getMarkupTemplate('admin/users.tpl');
 		$o = Renderer::replaceMacros($t, [
@@ -308,7 +308,7 @@ class Users extends BaseAdmin
 
 			'$h_users' => DI::l10n()->t('Users'),
 			'$h_newuser' => DI::l10n()->t('New User'),
-			'$th_deleted' => [DI::l10n()->t('Name'), DI::l10n()->t('Email'), DI::l10n()->t('Register date'), DI::l10n()->t('Last login'), DI::l10n()->t('Last item'), DI::l10n()->t('Permanent deletion')],
+			'$th_deleted' => [DI::l10n()->t('Name'), DI::l10n()->t('Email'), DI::l10n()->t('Register date'), DI::l10n()->t('Last login'), DI::l10n()->t('Last public item'), DI::l10n()->t('Permanent deletion')],
 			'$th_users' => $th_users,
 			'$order_users' => $order,
 			'$order_direction_users' => $order_direction,
