@@ -1372,7 +1372,6 @@ function photos_content(App $a)
 		$likebuttons = '';
 		$comments = '';
 		$paginate = '';
-		$responses = '';
 
 		if (!empty($link_item['id']) && !empty($link_item['uri'])) {
 			$cmnt_tpl = Renderer::getMarkupTemplate('comment_item.tpl');
@@ -1460,7 +1459,6 @@ function photos_content(App $a)
 				foreach ($items as $item) {
 					$comment = '';
 					$template = $tpl;
-					$sparkle = '';
 
 					$activity = DI::activity();
 
@@ -1523,8 +1521,6 @@ function photos_content(App $a)
 				}
 			}
 
-			$responses = get_responses($conv_responses, ['like', 'dislike'], $link_item);
-
 			$paginate = $pager->renderFull($total);
 		}
 
@@ -1544,7 +1540,6 @@ function photos_content(App $a)
 			'$likebuttons' => $likebuttons,
 			'$like' => $like,
 			'$dislike' => $dislike,
-			'responses' => $responses,
 			'$comments' => $comments,
 			'$paginate' => $paginate,
 		]);
