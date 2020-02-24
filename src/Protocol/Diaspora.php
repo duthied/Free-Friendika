@@ -4135,8 +4135,7 @@ class Diaspora
 				$dob = DateTimeFormat::utc($year . '-' . $month . '-'. $day, 'Y-m-d');
 			}
 
-			$about = $profile['about'];
-			$about = strip_tags(BBCode::convert($about));
+			$about = BBCode::toPlaintext($profile['about']);
 
 			$location = Profile::formatLocation($profile);
 			$tags = '';
