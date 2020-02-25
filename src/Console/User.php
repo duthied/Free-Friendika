@@ -21,7 +21,9 @@
 
 namespace Friendica\Console;
 
+use Console_Table;
 use Friendica\App;
+use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Database\Database;
 use Friendica\Model\Register;
@@ -30,9 +32,7 @@ use RuntimeException;
 use Seld\CliPrompt\CliPrompt;
 
 /**
- * tool to set a new password for a user
- *
- * With this tool, you can set a new password for a user
+ * tool to manage users of the current node
  */
 class User extends \Asika\SimpleConsole\Console
 {
@@ -63,6 +63,8 @@ Usage
 	bin/console user deny [<nickname>] [-h|--help|-?] [-v]
 	bin/console user block [<nickname>] [-h|--help|-?] [-v]
 	bin/console user unblock [<nickname>] [-h|--help|-?] [-v]
+	bin/console user list pending [start=0 [count=50]] [-h|--help|-?] [-v]
+	bin/console user list all [start=0 [count=50]] [-h|--help|-?] [-v]
 
 Description
 	Modify user settings per console commands.
@@ -118,6 +120,8 @@ HELP;
 				return $this->blockUser(false);
 			case 'delete':
 				return $this->deleteUser();
+			case 'list':
+				return $this->listUser();
 			default:
 				throw new \Asika\SimpleConsole\CommandArgsException('Wrong command.');
 		}
@@ -304,5 +308,53 @@ HELP;
 		}
 
 		return UserModel::remove($user['uid'] ?? -1);
+	}
+
+	/**
+	 * List user of the current node
+	 *
+	 * @return bool True, if the command was successful
+	 */
+	private function listUser()
+	{
+		$subCmd = $this->getArgument(1);
+		$start = $this->getArgument(2, 0);
+		$count = $this->getArgument(3, Pager::ITEMS_PER_PAGE);
+
+		$table = new Console_Table();
+
+		switch ($subCmd) {
+			case 'pending':
+				$table->setHeaders(['Nick', 'Name', 'URL', 'E-Mail', 'Register Date', 'Comment']);
+				$pending = Register::getPending($start, $count);
+				foreach ($pending as $contact) {
+					$table->addRow([
+						$contact['nick'],
+						$contact['name'],
+						$contact['url'],
+						$contact['email'],
+						$contact['created'],
+						$contact['note'],
+					]);
+				}
+				$this->out($table->getTable());
+				return true;
+			case 'all':
+			default:
+				$table->setHeaders(['Nick', 'Name', 'URL', 'E-Mail', 'Register Date', 'Comment']);
+				$contacts = UserModel::getUsers($start, $count);
+				foreach ($contacts as $contact) {
+					$table->addRow([
+						$contact['nick'],
+						$contact['name'],
+						$contact['url'],
+						$contact['email'],
+						$contact['created'],
+						$contact['note'],
+					]);
+				}
+				$this->out($table->getTable());
+				return true;
+		}
 	}
 }

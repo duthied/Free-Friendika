@@ -156,7 +156,6 @@ class Users extends BaseAdmin
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 100);
 
-		// @TODO Move below block to Model\User::getUsers($start, $count, $order = 'contact.name', $order_direction = '+')
 		$valid_orders = [
 			'contact.name',
 			'user.email',
@@ -179,16 +178,8 @@ class Users extends BaseAdmin
 				$order = $new_order;
 			}
 		}
-		$sql_order = '`' . str_replace('.', '`.`', $order) . '`';
-		$sql_order_direction = ($order_direction === '+') ? 'ASC' : 'DESC';
 
-		$usersStmt = DBA::p("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`
-				FROM `user`
-				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
-				WHERE `user`.`verified`
-				ORDER BY $sql_order $sql_order_direction LIMIT ?, ?", $pager->getStart(), $pager->getItemsPerPage()
-		);
-		$users = DBA::toArray($usersStmt);
+		$users = User::getUsers($pager->getStart(), $pager->getItemsPerPage(), $order, $order_direction);
 
 		$adminlist = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
 		$_setup_users = function ($e) use ($adminlist) {

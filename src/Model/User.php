@@ -23,6 +23,7 @@ namespace Friendica\Model;
 
 use DivineOmega\PasswordExposed;
 use Exception;
+use Friendica\Content\Pager;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -1315,5 +1316,31 @@ class User
 		}
 
 		return $statistics;
+	}
+
+	/**
+	 * Get all users of the current node
+	 *
+	 * @param int    $start Start count (Default is 0)
+	 * @param int    $count Count of the items per page (Default is @see Pager::ITEMS_PER_PAGE)
+	 * @param string $order Order of the user list (Default is 'contact.name')
+	 * @param string $order_direction Order direction (Default is ASC)
+	 *
+	 * @return array The list of the users
+	 * @throws Exception
+	 */
+	public static function getUsers($start = 0, $count = Pager::ITEMS_PER_PAGE, $order = 'contact.name', $order_direction = '+')
+	{
+		$sql_order = '`' . str_replace('.', '`.`', $order) . '`';
+		$sql_order_direction = ($order_direction === '+') ? 'ASC' : 'DESC';
+
+		$usersStmt = DBA::p("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`, `contact`.`nick`
+				FROM `user`
+				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
+				WHERE `user`.`verified`
+				ORDER BY $sql_order $sql_order_direction LIMIT ?, ?", $start, $count
+		);
+
+		return DBA::toArray($usersStmt);
 	}
 }
