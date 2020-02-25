@@ -1334,7 +1334,7 @@ class User
 		$sql_order = '`' . str_replace('.', '`.`', $order) . '`';
 		$sql_order_direction = ($order_direction === '+') ? 'ASC' : 'DESC';
 
-		$usersStmt = DBA::p("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`, `contact`.`nick`
+		$usersStmt = DBA::p("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`, `contact`.`nick`, `contact`.`created`
 				FROM `user`
 				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 				WHERE `user`.`verified`

@@ -28,6 +28,7 @@ use Friendica\Core\L10n;
 use Friendica\Database\Database;
 use Friendica\Model\Register;
 use Friendica\Model\User as UserModel;
+use Friendica\Util\Temporal;
 use RuntimeException;
 use Seld\CliPrompt\CliPrompt;
 
@@ -64,6 +65,7 @@ Usage
 	bin/console user block [<nickname>] [-h|--help|-?] [-v]
 	bin/console user unblock [<nickname>] [-h|--help|-?] [-v]
 	bin/console user list pending [start=0 [count=50]] [-h|--help|-?] [-v]
+	bin/console user list removed [start=0 [count=50]] [-h|--help|-?] [-v]
 	bin/console user list all [start=0 [count=50]] [-h|--help|-?] [-v]
 
 Description
@@ -333,24 +335,31 @@ HELP;
 						$contact['name'],
 						$contact['url'],
 						$contact['email'],
-						$contact['created'],
+						Temporal::getRelativeDate($contact['created']),
 						$contact['note'],
 					]);
 				}
 				$this->out($table->getTable());
 				return true;
 			case 'all':
+			case 'removed':
 			default:
-				$table->setHeaders(['Nick', 'Name', 'URL', 'E-Mail', 'Register Date', 'Comment']);
+				$table->setHeaders(['Nick', 'Name', 'URL', 'E-Mail', 'Register', 'Login', 'Last Item']);
 				$contacts = UserModel::getUsers($start, $count);
 				foreach ($contacts as $contact) {
+					if (($subCmd != 'removed') && !empty($contact['account_removed']) ||
+					    ($subCmd == 'removed') && empty($contact['account_removed'])) {
+						continue;
+					}
+
 					$table->addRow([
 						$contact['nick'],
 						$contact['name'],
 						$contact['url'],
 						$contact['email'],
-						$contact['created'],
-						$contact['note'],
+						Temporal::getRelativeDate($contact['created']),
+						Temporal::getRelativeDate($contact['login_date']),
+						Temporal::getRelativeDate($contact['lastitem_date']),
 					]);
 				}
 				$this->out($table->getTable());
