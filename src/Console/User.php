@@ -67,6 +67,10 @@ Usage
 	bin/console user list pending [start=0 [count=50]] [-h|--help|-?] [-v]
 	bin/console user list removed [start=0 [count=50]] [-h|--help|-?] [-v]
 	bin/console user list all [start=0 [count=50]] [-h|--help|-?] [-v]
+	bin/console user search id <UID> [-h|--help|-?] [-v]
+	bin/console user search nick <nick> [-h|--help|-?] [-v]
+	bin/console user search mail <mail> [-h|--help|-?] [-v]
+	bin/console user search guid <GUID> [-h|--help|-?] [-v]
 
 Description
 	Modify user settings per console commands.
@@ -124,6 +128,8 @@ HELP;
 				return $this->deleteUser();
 			case 'list':
 				return $this->listUser();
+			case 'search':
+				return $this->searchUser();
 			default:
 				throw new \Asika\SimpleConsole\CommandArgsException('Wrong command.');
 		}
@@ -313,7 +319,7 @@ HELP;
 	}
 
 	/**
-	 * List user of the current node
+	 * List users of the current node
 	 *
 	 * @return bool True, if the command was successful
 	 */
@@ -343,7 +349,6 @@ HELP;
 				return true;
 			case 'all':
 			case 'removed':
-			default:
 				$table->setHeaders(['Nick', 'Name', 'URL', 'E-Mail', 'Register', 'Login', 'Last Item']);
 				$contacts = UserModel::getUsers($start, $count);
 				foreach ($contacts as $contact) {
@@ -364,6 +369,58 @@ HELP;
 				}
 				$this->out($table->getTable());
 				return true;
+			default:
+				$this->out($this->getHelp());
+				return false;
 		}
+	}
+
+	/**
+	 * Returns a user based on search parameter
+	 *
+	 * @return bool True, if the command was successful
+	 */
+	private function searchUser()
+	{
+		$fields = [
+			'uid',
+			'guid',
+			'username',
+			'nickname',
+			'email',
+			'register_date',
+			'login_date',
+			'verified',
+			'blocked',
+		];
+
+		$subCmd = $this->getArgument(1);
+		$param = $this->getArgument(2);
+
+		$table = new Console_Table();
+		$table->setHeaders(['UID', 'GUID', 'Name', 'Nick', 'E-Mail', 'Register', 'Login', 'Verified', 'Blocked']);
+
+		switch ($subCmd) {
+			case 'id':
+				$user = UserModel::getById($param, $fields);
+				break;
+			case 'guid':
+				$user = UserModel::getByGuid($param, $fields);
+				break;
+			case 'email':
+				$user = UserModel::getByEmail($param, $fields);
+				break;
+			case 'nick':
+				$user = UserModel::getByNickname($param, $fields);
+				break;
+			default:
+				$this->out($this->getHelp());
+				return false;
+		}
+
+		$table->addRow($user);
+		$this->out($table->getTable());
+
+		return true;
 	}
 }
