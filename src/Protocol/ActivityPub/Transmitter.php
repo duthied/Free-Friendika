@@ -264,7 +264,7 @@ class Transmitter
 		$data['name'] = $contact['name'];
 		$data['vcard:hasAddress'] = ['@type' => 'vcard:Home', 'vcard:country-name' => $profile['country-name'],
 			'vcard:region' => $profile['region'], 'vcard:locality' => $profile['locality']];
-		$data['summary'] = $contact['about'];
+		$data['summary'] = BBCode::convert($contact['about'], false);
 		$data['url'] = $contact['url'];
 		$data['manuallyApprovesFollowers'] = in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
 		$data['publicKey'] = ['id' => $contact['url'] . '#main-key',

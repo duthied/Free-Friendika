@@ -2004,8 +2004,6 @@ class BBCode
 	 */
 	public static function toMarkdown($text, $for_diaspora = true)
 	{
-		$a = DI::app();
-
 		$original_text = $text;
 
 		// Since Diaspora is creating a summary for links, this function removes them before posting
