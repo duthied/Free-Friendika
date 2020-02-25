@@ -64,9 +64,10 @@ Usage
 	bin/console user deny [<nickname>] [-h|--help|-?] [-v]
 	bin/console user block [<nickname>] [-h|--help|-?] [-v]
 	bin/console user unblock [<nickname>] [-h|--help|-?] [-v]
-	bin/console user list pending [start=0 [count=50]] [-h|--help|-?] [-v]
-	bin/console user list removed [start=0 [count=50]] [-h|--help|-?] [-v]
-	bin/console user list all [start=0 [count=50]] [-h|--help|-?] [-v]
+	bin/console user list pending [-s|--start=0] [-c|--count=50] [-h|--help|-?] [-v]
+	bin/console user list removed [-s|--start=0] [-c|--count=50] [-h|--help|-?] [-v]
+	bin/console user list active [-s|--start=0] [-c|--count=50] [-h|--help|-?] [-v]
+	bin/console user list all [-s|--start=0] [-c|--count=50] [-h|--help|-?] [-v]
 	bin/console user search id <UID> [-h|--help|-?] [-v]
 	bin/console user search nick <nick> [-h|--help|-?] [-v]
 	bin/console user search mail <mail> [-h|--help|-?] [-v]
@@ -326,8 +327,8 @@ HELP;
 	private function listUser()
 	{
 		$subCmd = $this->getArgument(1);
-		$start = $this->getArgument(2, 0);
-		$count = $this->getArgument(3, Pager::ITEMS_PER_PAGE);
+		$start = $this->getOption(['s', 'start'], 0);
+		$count = $this->getOption(['c', 'count'], Pager::ITEMS_PER_PAGE);
 
 		$table = new Console_Table();
 
@@ -348,15 +349,11 @@ HELP;
 				$this->out($table->getTable());
 				return true;
 			case 'all':
+			case 'active':
 			case 'removed':
 				$table->setHeaders(['Nick', 'Name', 'URL', 'E-Mail', 'Register', 'Login', 'Last Item']);
-				$contacts = UserModel::getUsers($start, $count);
+				$contacts = UserModel::getUsers($start, $count, $subCmd);
 				foreach ($contacts as $contact) {
-					if (($subCmd != 'removed') && !empty($contact['account_removed']) ||
-					    ($subCmd == 'removed') && empty($contact['account_removed'])) {
-						continue;
-					}
-
 					$table->addRow([
 						$contact['nick'],
 						$contact['name'],

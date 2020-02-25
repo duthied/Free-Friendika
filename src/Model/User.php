@@ -1323,21 +1323,38 @@ class User
 	 *
 	 * @param int    $start Start count (Default is 0)
 	 * @param int    $count Count of the items per page (Default is @see Pager::ITEMS_PER_PAGE)
+	 * @param string $type  The type of users, which should get (all, bocked, removed)
 	 * @param string $order Order of the user list (Default is 'contact.name')
 	 * @param string $order_direction Order direction (Default is ASC)
 	 *
 	 * @return array The list of the users
 	 * @throws Exception
 	 */
-	public static function getUsers($start = 0, $count = Pager::ITEMS_PER_PAGE, $order = 'contact.name', $order_direction = '+')
+	public static function getUsers($start = 0, $count = Pager::ITEMS_PER_PAGE, $type = 'all', $order = 'contact.name', $order_direction = '+')
 	{
-		$sql_order = '`' . str_replace('.', '`.`', $order) . '`';
+		$sql_order           = '`' . str_replace('.', '`.`', $order) . '`';
 		$sql_order_direction = ($order_direction === '+') ? 'ASC' : 'DESC';
+
+		switch ($type) {
+			case 'active':
+				$sql_extra = 'AND `user`.`blocked` = 0';
+				break;
+			case 'blocked':
+				$sql_extra = 'AND `user`.`blocked` = 1';
+				break;
+			case 'removed':
+				$sql_extra = 'AND `user`.`account_removed` = 1';
+				break;
+			case 'all':
+			default:
+				$sql_extra = '';
+				break;
+		}
 
 		$usersStmt = DBA::p("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`, `contact`.`nick`, `contact`.`created`
 				FROM `user`
 				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
-				WHERE `user`.`verified`
+				WHERE `user`.`verified` $sql_extra
 				ORDER BY $sql_order $sql_order_direction LIMIT ?, ?", $start, $count
 		);
 
