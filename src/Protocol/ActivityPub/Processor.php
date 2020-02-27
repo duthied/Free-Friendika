@@ -474,6 +474,15 @@ class Processor
 			return;
 		}
 
+		if (isset($activity['push'])) {
+			$push_app = $activity['push'] ? '📨' : '🚜';
+			if (!empty($item['app'])) {
+				$item['app'] .= ' (' . $push_app . ')';
+			} else {
+				$item['app'] .= $push_app;
+			}
+		}
+
 		$item['plink'] = $activity['alternate-url'] ?? $item['uri'];
 
 		$item = self::constructAttachList($activity, $item);

@@ -127,7 +127,7 @@ class Receiver
 			$trust_source = false;
 		}
 
-		self::processActivity($ldactivity, $body, $uid, $trust_source);
+		self::processActivity($ldactivity, $body, $uid, $trust_source, true);
 	}
 
 	/**
@@ -183,7 +183,7 @@ class Receiver
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function prepareObjectData($activity, $uid, &$trust_source)
+	private static function prepareObjectData($activity, $uid, $push, &$trust_source)
 	{
 		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
 		if (empty($actor)) {
@@ -225,13 +225,16 @@ class Receiver
 		if (in_array($type, ['as:Create', 'as:Update', 'as:Announce'])) {
 			if ($type == 'as:Announce') {
 				$trust_source = false;
+				$push = false;
 			}
 			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source, $uid);
 			if (empty($object_data)) {
 				Logger::log("Object data couldn't be processed", Logger::DEBUG);
 				return [];
 			}
+
 			$object_data['object_id'] = $object_id;
+			$object_data['push'] = $push;
 
 			// Test if it is an answer to a mail
 			if (DBA::exists('mail', ['uri' => $object_data['reply-to-id']])) {
@@ -339,7 +342,7 @@ class Receiver
 	 * @param boolean $trust_source Do we trust the source?
 	 * @throws \Exception
 	 */
-	public static function processActivity($activity, $body = '', $uid = null, $trust_source = false)
+	public static function processActivity($activity, $body = '', $uid = null, $trust_source = false, $push = false)
 	{
 		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
@@ -369,7 +372,7 @@ class Receiver
 		}
 
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
-		$object_data = self::prepareObjectData($activity, $uid, $trust_source);
+		$object_data = self::prepareObjectData($activity, $uid, $push, $trust_source);
 		if (empty($object_data)) {
 			Logger::log('No object data found', Logger::DEBUG);
 			return;
