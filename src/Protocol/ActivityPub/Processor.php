@@ -451,6 +451,8 @@ class Processor
 		if (!empty($activity['raw']) && isset($activity['protocol'])) {
 			$item['source'] = $activity['raw'];
 			$item['protocol'] = $activity['protocol'];
+			$item['conversation-href'] = $activity['context'] ?? '';
+			$item['conversation-uri'] = $activity['conversation'] ?? '';
 		}
 
 		$isForum = false;
