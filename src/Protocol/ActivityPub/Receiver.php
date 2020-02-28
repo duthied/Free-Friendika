@@ -28,7 +28,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Model\Contact;
 use Friendica\Model\APContact;
-use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
@@ -355,7 +354,6 @@ class Receiver
 
 		if (!empty($body)) {
 			$object_data['raw'] = $body;
-			$object_data['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
 		}
 
 		// Internal flag for thread completion. See Processor.php

@@ -29,6 +29,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Mail;
@@ -448,9 +449,9 @@ class Processor
 		$item['owner-link'] = $activity['actor'];
 		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 
-		if (!empty($activity['raw']) && isset($activity['protocol'])) {
+		if (!empty($activity['raw'])) {
 			$item['source'] = $activity['raw'];
-			$item['protocol'] = $activity['protocol'];
+			$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
 			$item['conversation-href'] = $activity['context'] ?? '';
 			$item['conversation-uri'] = $activity['conversation'] ?? '';
 		}
