@@ -448,6 +448,10 @@ class Processor
 		$item['owner-link'] = $activity['actor'];
 		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 
+		if (!empty($activity['raw'])) {
+			$item['source'] = $activity['raw'];
+		}
+
 		$isForum = false;
 
 		if (!empty($activity['thread-completion'])) {

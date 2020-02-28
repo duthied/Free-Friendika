@@ -304,33 +304,6 @@ class Receiver
 	}
 
 	/**
-	 * Store the unprocessed data into the conversation table
-	 * This has to be done outside the regular function,
-	 * since we store everything - not only item posts.
-	 *
-	 * @param array  $activity Array with activity data
-	 * @param string $body     The raw message
-	 * @throws \Exception
-	 */
-	private static function storeConversation($activity, $body)
-	{
-		if (empty($body) || empty($activity['id'])) {
-			return;
-		}
-
-		$conversation = [
-			'protocol' => Conversation::PARCEL_ACTIVITYPUB,
-			'item-uri' => $activity['id'],
-			'reply-to-uri' => $activity['reply-to-id'] ?? '',
-			'conversation-href' => $activity['context'] ?? '',
-			'conversation-uri' => $activity['conversation'] ?? '',
-			'source' => $body,
-			'received' => DateTimeFormat::utcNow()];
-
-		DBA::insert('conversation', $conversation, true);
-	}
-
-	/**
 	 * Processes the activity object
 	 *
 	 * @param array   $activity     Array with activity data
@@ -380,9 +353,9 @@ class Receiver
 			return;
 		}
 
-		// Only store content related stuff - and no announces, since they possibly overwrite the original content
-		if (in_array($object_data['object_type'], self::CONTENT_TYPES) && ($type != 'as:Announce')) {
-			self::storeConversation($object_data, $body);
+		if (!empty($body)) {
+			$object_data['raw'] = $body;
+			$object_data['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
 		}
 
 		// Internal flag for thread completion. See Processor.php
