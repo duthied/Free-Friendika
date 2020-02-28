@@ -448,8 +448,9 @@ class Processor
 		$item['owner-link'] = $activity['actor'];
 		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 
-		if (!empty($activity['raw'])) {
+		if (!empty($activity['raw']) && isset($activity['protocol'])) {
 			$item['source'] = $activity['raw'];
+			$item['protocol'] = $activity['protocol'];
 		}
 
 		$isForum = false;
