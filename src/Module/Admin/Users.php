@@ -179,7 +179,7 @@ class Users extends BaseAdmin
 			}
 		}
 
-		$users = User::getUsers($pager->getStart(), $pager->getItemsPerPage(), 'all', $order, $order_direction);
+		$users = User::getList($pager->getStart(), $pager->getItemsPerPage(), 'all', $order, $order_direction);
 
 		$adminlist = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
 		$_setup_users = function ($e) use ($adminlist) {

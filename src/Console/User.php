@@ -352,7 +352,7 @@ HELP;
 			case 'active':
 			case 'removed':
 				$table->setHeaders(['Nick', 'Name', 'URL', 'E-Mail', 'Register', 'Login', 'Last Item']);
-				$contacts = UserModel::getUsers($start, $count, $subCmd);
+				$contacts = UserModel::getList($start, $count, $subCmd);
 				foreach ($contacts as $contact) {
 					$table->addRow([
 						$contact['nick'],

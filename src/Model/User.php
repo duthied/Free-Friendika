@@ -1330,7 +1330,7 @@ class User
 	 * @return array The list of the users
 	 * @throws Exception
 	 */
-	public static function getUsers($start = 0, $count = Pager::ITEMS_PER_PAGE, $type = 'all', $order = 'contact.name', $order_direction = '+')
+	public static function getList($start = 0, $count = Pager::ITEMS_PER_PAGE, $type = 'all', $order = 'contact.name', $order_direction = '+')
 	{
 		$sql_order           = '`' . str_replace('.', '`.`', $order) . '`';
 		$sql_order_direction = ($order_direction === '+') ? 'ASC' : 'DESC';
