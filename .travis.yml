@@ -11,7 +11,7 @@ services:
  - redis-server
  - memcached
 env:
- - MYSQL_HOST=localhost MYSQL_PORT=3306 MYSQL_USERNAME=travis MYSQL_PASSWORD= MYSQL_DATABASE=test
+ - MYSQL_HOST=localhost MYSQL_PORT=3306 MYSQL_USERNAME=travis MYSQL_PASSWORD="" MYSQL_DATABASE=test
 
 install:
  - composer install
