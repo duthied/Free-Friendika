@@ -33,6 +33,9 @@ use Psr\Log\LoggerInterface;
  */
 class L10n
 {
+	/** @var string The default language */
+	const DEFAULT = 'en';
+
 	/**
 	 * A string indicating the current language used for translation:
 	 * - Two-letter ISO 639-1 code.
@@ -64,7 +67,7 @@ class L10n
 		$this->dba    = $dba;
 		$this->logger = $logger;
 
-		$this->loadTranslationTable(L10n::detectLanguage($server, $get, $config->get('system', 'language', 'en')));
+		$this->loadTranslationTable(L10n::detectLanguage($server, $get, $config->get('system', 'language', self::DEFAULT)));
 		$this->setSessionVariable($session);
 		$this->setLangFromSession($session);
 	}
@@ -158,7 +161,7 @@ class L10n
 	 *
 	 * @return string The two-letter language code
 	 */
-	public static function detectLanguage(array $server, array $get, string $sysLang = 'en')
+	public static function detectLanguage(array $server, array $get, string $sysLang = self::DEFAULT)
 	{
 		$lang_variable = $server['HTTP_ACCEPT_LANGUAGE'] ?? null;
 

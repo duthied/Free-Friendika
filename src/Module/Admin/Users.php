@@ -28,7 +28,6 @@ use Friendica\DI;
 use Friendica\Model\Register;
 use Friendica\Model\User;
 use Friendica\Module\BaseAdmin;
-use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 class Users extends BaseAdmin
@@ -48,71 +47,24 @@ class Users extends BaseAdmin
 
 		if ($nu_name !== '' && $nu_email !== '' && $nu_nickname !== '') {
 			try {
-				$result = User::create([
-					'username' => $nu_name,
-					'email' => $nu_email,
-					'nickname' => $nu_nickname,
-					'verified' => 1,
-					'language' => $nu_language
-				]);
+				User::createMinimal($nu_name, $nu_email, $nu_nickname, $nu_language);
 			} catch (\Exception $ex) {
 				notice($ex->getMessage());
 				return;
 			}
-
-			$user = $result['user'];
-			$preamble = Strings::deindent(DI::l10n()->t('
-			Dear %1$s,
-				the administrator of %2$s has set up an account for you.'));
-			$body = Strings::deindent(DI::l10n()->t('
-			The login details are as follows:
-
-			Site Location:	%1$s
-			Login Name:		%2$s
-			Password:		%3$s
-
-			You may change your password from your account "Settings" page after logging
-			in.
-
-			Please take a few moments to review the other account settings on that page.
-
-			You may also wish to add some basic information to your default profile
-			(on the "Profiles" page) so that other people can easily find you.
-
-			We recommend setting your full name, adding a profile photo,
-			adding some profile "keywords" (very useful in making new friends) - and
-			perhaps what country you live in; if you do not wish to be more specific
-			than that.
-
-			We fully respect your right to privacy, and none of these items are necessary.
-			If you are new and do not know anybody here, they may help
-			you to make some new and interesting friends.
-
-			If you ever want to delete your account, you can do so at %1$s/removeme
-
-			Thank you and welcome to %4$s.'));
-
-			$preamble = sprintf($preamble, $user['username'], DI::config()->get('config', 'sitename'));
-			$body = sprintf($body, DI::baseUrl()->get(), $user['nickname'], $result['password'], DI::config()->get('config', 'sitename'));
-
-			$email = DI::emailer()
-				->newSystemMail()
-				->withMessage(DI::l10n()->t('Registration details for %s', DI::config()->get('config', 'sitename')), $preamble, $body)
-				->forUser($user)
-				->withRecipient($user['email'])
-				->build();
-			return DI::emailer()->send($email);
 		}
 
 		if (!empty($_POST['page_users_block'])) {
-			// @TODO Move this to Model\User:block($users);
-			DBA::update('user', ['blocked' => 1], ['uid' => $users]);
+			foreach ($users as $uid) {
+				User::block($uid);
+			}
 			notice(DI::l10n()->tt('%s user blocked', '%s users blocked', count($users)));
 		}
 
 		if (!empty($_POST['page_users_unblock'])) {
-			// @TODO Move this to Model\User:unblock($users);
-			DBA::update('user', ['blocked' => 0], ['uid' => $users]);
+			foreach ($users as $uid) {
+				User::block($uid, false);
+			}
 			notice(DI::l10n()->tt('%s user unblocked', '%s users unblocked', count($users)));
 		}
 
@@ -129,17 +81,17 @@ class Users extends BaseAdmin
 		}
 
 		if (!empty($_POST['page_users_approve'])) {
-			require_once 'mod/regmod.php';
 			foreach ($pending as $hash) {
-				user_allow($hash);
+				User::allow($hash);
 			}
+			notice(DI::l10n()->tt('%s user approved', '%s users approved', count($pending)));
 		}
 
 		if (!empty($_POST['page_users_deny'])) {
-			require_once 'mod/regmod.php';
 			foreach ($pending as $hash) {
-				user_deny($hash);
+				User::deny($hash);
 			}
+			notice(DI::l10n()->tt('%s registration revoked', '%s registrations revoked', count($pending)));
 		}
 
 		DI::baseUrl()->redirect('admin/users');
@@ -176,15 +128,23 @@ class Users extends BaseAdmin
 					break;
 				case 'block':
 					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
-					// @TODO Move this to Model\User:block([$uid]);
-					DBA::update('user', ['blocked' => 1], ['uid' => $uid]);
+					User::block($uid);
 					notice(DI::l10n()->t('User "%s" blocked', $user['username']));
 					break;
 				case 'unblock':
 					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
-					// @TODO Move this to Model\User:unblock([$uid]);
-					DBA::update('user', ['blocked' => 0], ['uid' => $uid]);
+					User::block($uid, false);
 					notice(DI::l10n()->t('User "%s" unblocked', $user['username']));
+					break;
+				case 'allow':
+					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
+					User::allow(Register::getPendingForUser($uid)['hash'] ?? '');
+					notice(DI::l10n()->t('Account approved.'));
+					break;
+				case 'deny':
+					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
+					User::deny(Register::getPendingForUser($uid)['hash'] ?? '');
+					notice(DI::l10n()->t('Registration revoked'));
 					break;
 			}
 
@@ -196,7 +156,6 @@ class Users extends BaseAdmin
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 100);
 
-		// @TODO Move below block to Model\User::getUsers($start, $count, $order = 'contact.name', $order_direction = '+')
 		$valid_orders = [
 			'contact.name',
 			'user.email',
@@ -219,16 +178,8 @@ class Users extends BaseAdmin
 				$order = $new_order;
 			}
 		}
-		$sql_order = '`' . str_replace('.', '`.`', $order) . '`';
-		$sql_order_direction = ($order_direction === '+') ? 'ASC' : 'DESC';
 
-		$usersStmt = DBA::p("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`
-				FROM `user`
-				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
-				WHERE `user`.`verified`
-				ORDER BY $sql_order $sql_order_direction LIMIT ?, ?", $pager->getStart(), $pager->getItemsPerPage()
-		);
-		$users = DBA::toArray($usersStmt);
+		$users = User::getList($pager->getStart(), $pager->getItemsPerPage(), 'all', $order, $order_direction);
 
 		$adminlist = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
 		$_setup_users = function ($e) use ($adminlist) {

@@ -21,6 +21,7 @@
 
 namespace Friendica\Model;
 
+use Friendica\Content\Pager;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
@@ -33,19 +34,44 @@ class Register
 	/**
 	 * Return the list of pending registrations
 	 *
+	 * @param int    $start Start count (Default is 0)
+	 * @param int $count Count of the items per page (Default is @see Pager::ITEMS_PER_PAGE)
+	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getPending()
+	public static function getPending($start = 0, $count = Pager::ITEMS_PER_PAGE)
 	{
 		$stmt = DBA::p(
-			"SELECT `register`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`email`
+			"SELECT `register`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`email`, `contact`.`nick`
 			FROM `register`
 			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
-			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`"
+			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`
+			LIMIT ?, ?", $start, $count
 		);
 
 		return DBA::toArray($stmt);
+	}
+
+	/**
+	 * Returns the pending user based on a given user id
+	 *
+	 * @param int $uid The user id
+	 *
+	 * @return array The pending user information
+	 *
+	 * @throws \Exception
+	 */
+	public static function getPendingForUser(int $uid)
+	{
+		return DBA::fetchFirst(
+			"SELECT `register`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`email`
+			FROM `register`
+			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
+			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`
+			WHERE `register`.uid = ?",
+			$uid
+		);
 	}
 
 	/**
