@@ -1112,6 +1112,7 @@ class Item
 	 */
 	public static function deleteById($item_id, $priority = PRIORITY_HIGH)
 	{
+		Logger::notice('Delete item by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
 		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
 			'deleted', 'file', 'resource-id', 'event-id', 'attach',
@@ -1934,7 +1935,7 @@ class Item
 
 		if ($entries > 1) {
 			// There are duplicates. We delete our just created entry.
-			Logger::log('Duplicated post occurred. uri = ' . $item['uri'] . ' uid = ' . $item['uid']);
+			Logger::notice('Delete duplicated item', ['id' => $current_post, 'uri' => $item['uri'], 'uid' => $item['uid']]);
 
 			// Yes, we could do a rollback here - but we are having many users with MyISAM.
 			DBA::delete('item', ['id' => $current_post]);
@@ -2717,9 +2718,7 @@ class Item
 		if (!$mention) {
 			if (($community_page || $prvgroup) &&
 				  !$item['wall'] && !$item['origin'] && ($item['id'] == $item['parent'])) {
-				// mmh.. no mention.. community page or private group... no wall.. no origin.. top-post (not a comment)
-				// delete it!
-				Logger::log("no-mention top-level post to community or private group. delete.");
+				Logger::notice('Delete private group/communiy top-level item without mention', ['id' => $item_id]);
 				DBA::delete('item', ['id' => $item_id]);
 				return true;
 			}
@@ -3367,7 +3366,7 @@ class Item
 			$condition = ["`uri` = ? AND NOT `deleted` AND NOT (`uid` IN (?, 0))", $itemuri, $item["uid"]];
 			if (!self::exists($condition)) {
 				DBA::delete('item', ['uri' => $itemuri, 'uid' => 0]);
-				Logger::log("deleteThread: Deleted shadow for item ".$itemuri, Logger::DEBUG);
+				Logger::debug('Deleted shadow item', ['id' => $itemid, 'uri' => $itemuri]);
 			}
 		}
 	}

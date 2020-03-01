@@ -21,6 +21,7 @@
 
 namespace Friendica\Worker;
 
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Core\Protocol;
 use Friendica\Model\Item;
@@ -42,6 +43,7 @@ class RemoveContact {
 		do {
 			$items = Item::select(['id'], $condition, ['limit' => 100]);
 			while ($item = Item::fetch($items)) {
+				Logger::notice('Delete removed contact item', ['id' => $item["id"]]);
 				DBA::delete('item', ['id' => $item['id']]);
 			}
 			DBA::close($items);
