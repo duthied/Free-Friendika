@@ -251,6 +251,8 @@ function settings_post(App $a)
 				unlink($_FILES['importcontact-filename']['tmp_name']);
 			}
 		}
+
+		return;
 	}
 
 	if (!empty($_POST['resend_relocate'])) {
@@ -362,17 +364,17 @@ function settings_post(App $a)
 
 	if ($username != $a->user['username']) {
 		if (strlen($username) > 40) {
-			$err .= DI::l10n()->t(' Please use a shorter name.');
+			$err .= DI::l10n()->t('Please use a shorter name.');
 		}
 		if (strlen($username) < 3) {
-			$err .= DI::l10n()->t(' Name too short.');
+			$err .= DI::l10n()->t('Name too short.');
 		}
 	}
 
 	if ($email != $a->user['email']) {
 		//  check for the correct password
 		if (!User::authenticate(intval(local_user()), $_POST['mpassword'])) {
-			$err .= DI::l10n()->t('Wrong Password') . EOL;
+			$err .= DI::l10n()->t('Wrong Password.');
 			$email = $a->user['email'];
 		}
 		//  check the email is valid
@@ -390,7 +392,7 @@ function settings_post(App $a)
 	}
 
 	if (strlen($err)) {
-		notice($err . EOL);
+		notice($err);
 		return;
 	}
 
