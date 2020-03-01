@@ -3,9 +3,6 @@
 {{if $edit}}
 <div id="album-edit-link"><a href="{{$edit.1}}" title="{{$edit.0}}">{{$edit.0}}</a></div>
 {{/if}}
-{{if $edit}}
-<div id="album-edit-link"><a href="{{$edit.1}}" title="{{$edit.0}}">{{$edit.0}}</a></div>
-{{/if}}
 {{if $drop}}
 <div id="album-drop-link"><a href="{{$drop.1}}" title="{{$drop.0}}">{{$drop.0}}</a></div>
 {{/if}}
