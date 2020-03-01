@@ -27,7 +27,6 @@ use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -597,7 +596,7 @@ function settings_content(App $a)
 			$arr[$fname] = [];
 			$arr[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata,1) as $f) {
-				$arr[$fname][1][] = ['feature_' .$f[0], $f[1],((intval(Feature::isEnabled(local_user(), $f[0]))) ? "1" : ''), $f[2],[DI::l10n()->t('Off'), DI::l10n()->t('On')]];
+				$arr[$fname][1][] = ['feature_' . $f[0], $f[1], Feature::isEnabled(local_user(), $f[0]), $f[2]];
 			}
 		}
 
