@@ -107,7 +107,7 @@ class Notification extends BaseModule
 		$request_id = $parameters['id'] ?? false;
 
 		if ($request_id) {
-			$notify = DI::notify()->getByID($request_id);
+			$notify = DI::notify()->getByID($request_id, local_user());
 			DI::notify()->setSeen(true, $notify);
 
 			if (!empty($notify->link)) {
