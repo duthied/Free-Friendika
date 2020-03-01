@@ -100,7 +100,7 @@ class Notification extends BaseModule
 	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
-			notice(DI::l10n()->t('Permission denied.'));
+			notice(DI::l10n()->t('You must be logged in to show this page.'));
 			return Login::form();
 		}
 
