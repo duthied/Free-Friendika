@@ -204,13 +204,13 @@ function photos_post(App $a)
 
 		if (!DBA::isResult($r)) {
 			notice(DI::l10n()->t('Album not found.') . EOL);
-			DI::baseUrl()->redirect($_SESSION['photo_return']);
+			DI::baseUrl()->redirect('photos/' . $a->data['user']['nickname'] . '/album');
 			return; // NOTREACHED
 		}
 
 		// Check if the user has responded to a delete confirmation query
 		if (!empty($_REQUEST['canceled'])) {
-			DI::baseUrl()->redirect($_SESSION['photo_return']);
+			DI::baseUrl()->redirect('photos/' . $a->data['user']['nickname'] . '/album/' . $a->argv[3]);
 		}
 
 		// RENAME photo album
@@ -267,7 +267,7 @@ function photos_post(App $a)
 			}
 		}
 
-		DI::baseUrl()->redirect('photos/' . $a->argv[1]);
+		DI::baseUrl()->redirect('photos/' . $a->data['user']['nickname'] . '/album');
 	}
 
 	if ($a->argc > 3 && $a->argv[2] === 'image') {
