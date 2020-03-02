@@ -1052,6 +1052,7 @@ class DFRN
 		if ($item['private']) {
 			// Friendica versions prior to 2020.3 can't handle "unlisted" properly. So we can only transmit public and private
 			XML::addElement($doc, $entry, "dfrn:private", ($item['private'] == Item::PRIVATE ? Item::PRIVATE : Item::PUBLIC));
+			XML::addElement($doc, $entry, "dfrn:unlisted", $item['private'] == Item::UNLISTED);
 		}
 
 		if ($item['extid']) {
@@ -2404,6 +2405,11 @@ class DFRN
 		$item["coord"] = XML::getFirstNodeValue($xpath, "georss:point", $entry);
 
 		$item["private"] = XML::getFirstNodeValue($xpath, "dfrn:private/text()", $entry);
+
+		$unlisted = XML::getFirstNodeValue($xpath, "dfrn:unlisted/text()", $entry);
+		if (!empty($unlisted) && ($item['private'] != Item::PRIVATE)) {
+			$item['private'] = Item::UNLISTED;
+		}
 
 		$item["extid"] = XML::getFirstNodeValue($xpath, "dfrn:extid/text()", $entry);
 
