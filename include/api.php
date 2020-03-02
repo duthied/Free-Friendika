@@ -783,7 +783,7 @@ function api_item_get_user(App $a, $item)
 
 	$author_user = $status_user;
 
-	$status_user["protected"] = $item['private'] == Item::PRIVATE;
+	$status_user["protected"] = isset($item['private']) && ($item['private'] == Item::PRIVATE);
 
 	if (($item['thr-parent'] ?? '') == ($item['uri'] ?? '')) {
 		$owner_user = api_get_user($a, $item['owner-id'] ?? null);
