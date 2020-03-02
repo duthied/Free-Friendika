@@ -579,12 +579,12 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 	$items = $cb['items'];
 
 	$conv_responses = [
-		'like' => ['title' => DI::l10n()->t('Likes','title')],
-		'dislike' => ['title' => DI::l10n()->t('Dislikes','title')],
-		'attendyes' => ['title' => DI::l10n()->t('Attending','title')],
-		'attendno' => ['title' => DI::l10n()->t('Not attending','title')],
-		'attendmaybe' => ['title' => DI::l10n()->t('Might attend','title')],
-		'announce' => ['title' => DI::l10n()->t('Reshares','title')]
+		'like'        => [],
+		'dislike'     => [],
+		'attendyes'   => [],
+		'attendno'    => [],
+		'attendmaybe' => [],
+		'announce'    => [],	
 	];
 
 	if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
@@ -1571,57 +1571,4 @@ function render_location_dummy(array $item) {
 	if (!empty($item['coord']) && !empty($item['coord'])) {
 		return $item['coord'];
 	}
-}
-
-function get_responses(array $conv_responses, array $response_verbs, array $item, Post $ob = null) {
-	$ret = [];
-	foreach ($response_verbs as $v) {
-		$ret[$v] = [];
-		$ret[$v]['count'] = $conv_responses[$v][$item['uri']] ?? 0;
-		$ret[$v]['list']  = $conv_responses[$v][$item['uri'] . '-l'] ?? [];
-		$ret[$v]['self']  = $conv_responses[$v][$item['uri'] . '-self'] ?? '0';
-		if (count($ret[$v]['list']) > MAX_LIKERS) {
-			$ret[$v]['list_part'] = array_slice($ret[$v]['list'], 0, MAX_LIKERS);
-			array_push($ret[$v]['list_part'], '<a href="#" data-toggle="modal" data-target="#' . $v . 'Modal-'
-				. (($ob) ? $ob->getId() : $item['id']) . '"><b>' . DI::l10n()->t('View all') . '</b></a>');
-		} else {
-			$ret[$v]['list_part'] = '';
-		}
-		$ret[$v]['button'] = get_response_button_text($v, $ret[$v]['count']);
-		$ret[$v]['title'] = $conv_responses[$v]['title'];
-	}
-
-	$count = 0;
-	foreach ($ret as $key) {
-		if ($key['count'] == true) {
-			$count++;
-		}
-	}
-	$ret['count'] = $count;
-
-	return $ret;
-}
-
-function get_response_button_text($v, $count)
-{
-	$return = '';
-	switch ($v) {
-		case 'like':
-			$return = DI::l10n()->tt('Like', 'Likes', $count);
-			break;
-		case 'dislike':
-			$return = DI::l10n()->tt('Dislike', 'Dislikes', $count);
-			break;
-		case 'attendyes':
-			$return = DI::l10n()->tt('Attending', 'Attending', $count);
-			break;
-		case 'attendno':
-			$return = DI::l10n()->tt('Not Attending', 'Not Attending', $count);
-			break;
-		case 'attendmaybe':
-			$return = DI::l10n()->tt('Undecided', 'Undecided', $count);
-			break;
-	}
-
-	return $return;
 }

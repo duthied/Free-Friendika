@@ -49,8 +49,8 @@
 								<td>{{$u.name}}</td>
 								<td>{{$u.email}}</td>
 								<td>
-									<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" class="admin-settings-action-link" title="{{$approve}}"><i class="fa fa-check" aria-hidden="true"></i></a>
-									<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" class="admin-settings-action-link" title="{{$deny}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+									<a href="{{$baseurl}}/admin/users/allow/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$approve}}"><i class="fa fa-check" aria-hidden="true"></i></a>
+									<a href="{{$baseurl}}/admin/users/deny/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$deny}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
 								</td>
 							</tr>
 							{{if $u.note}}

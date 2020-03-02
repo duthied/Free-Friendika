@@ -272,10 +272,12 @@ class Post
 			}
 		}
 
-		$responses = get_responses($conv_responses, $response_verbs, $item, $this);
-
-		foreach ($response_verbs as $value => $verbs) {
-			$responses[$verbs]['output'] = !empty($conv_responses[$verbs][$item['uri']]) ? format_like($conv_responses[$verbs][$item['uri']], $conv_responses[$verbs][$item['uri'] . '-l'], $verbs, $item['uri']) : '';
+		$responses = [];
+		foreach ($response_verbs as $value => $verb) {
+			$responses[$verb] = [
+				'self'   => $conv_responses[$verb][$item['uri'] . '-self'] ?? 0,
+				'output' => !empty($conv_responses[$verb][$item['uri']]) ? format_like($conv_responses[$verb][$item['uri']], $conv_responses[$verb][$item['uri'] . '-l'], $verb, $item['uri']) : '',
+			];
 		}
 
 		/*

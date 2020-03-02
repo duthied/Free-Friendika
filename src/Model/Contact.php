@@ -1037,6 +1037,7 @@ class Contact
 		}
 
 		if (DBA::isResult($r)) {
+			$authoritativeResult = true;
 			// If there is more than one entry we filter out the connector networks
 			if (count($r) > 1) {
 				foreach ($r as $id => $result) {
@@ -1070,6 +1071,7 @@ class Contact
 				$profile["bd"] = DBA::NULL_DATE;
 			}
 		} else {
+			$authoritativeResult = false;
 			$profile = $default;
 		}
 
@@ -1106,7 +1108,11 @@ class Contact
 			$profile["birthday"] = DBA::NULL_DATE;
 		}
 
-		$cache[$url][$uid] = $profile;
+		// Only cache the result if it came from the DB since this method is used in widely different contexts
+		// @see display_fetch_author for an example of $default parameter diverging from the DB result
+		if ($authoritativeResult) {
+			$cache[$url][$uid] = $profile;
+		}
 
 		return $profile;
 	}

@@ -53,6 +53,8 @@ class Markdown
 			return  $url;
 		};
 
+		$text = self::convertDiasporaMentionsToHtml($text);
+
 		$html = $MarkdownParser->transform($text);
 
 		DI::profiler()->saveTimestamp($stamp1, "parser", System::callstack());
@@ -61,35 +63,42 @@ class Markdown
 	}
 
 	/**
-	 * Callback function to replace a Diaspora style mention in a mention for Friendica
+	 * Replace Diaspora-style mentions in a text since they trip the Markdown parser autolinker.
 	 *
-	 * @param array $match Matching values for the callback
-	 *                     [1] = mention type (@ or !)
-	 *                     [2] = name (optional)
-	 *                     [3] = address
-	 * @return string Replaced mention
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
+	 * @param string $text
+	 * @return string
 	 */
-	private static function diasporaMention2BBCodeCallback($match)
+	private static function convertDiasporaMentionsToHtml(string $text)
 	{
-		if ($match[3] == '') {
-			return;
-		}
+		return preg_replace_callback(
+			'/([@!]){(?:([^}]+?); ?)?([^} ]+)}/',
+			/*
+			 * Matching values for the callback
+			 * [1] = mention type (@ or !)
+			 * [2] = name (optional)
+			 * [3] = profile URL
+			 */
+			function ($matches) {
+				if ($matches[3] == '') {
+					return '';
+				}
 
-		$data = Contact::getDetailsByAddr($match[3]);
+				$data = Contact::getDetailsByAddr($matches[3]);
 
-		if (empty($data)) {
-			return;
-		}
+				if (empty($data)) {
+					return '';
+				}
 
-		$name = $match[2];
+				$name = $matches[2];
 
-		if ($name == '') {
-			$name = $data['name'];
-		}
+				if ($name == '') {
+					$name = $data['name'];
+				}
 
-		return $match[1] . '[url=' . $data['url'] . ']' . $name . '[/url]';
+				return $matches[1] . '<a href="' . $data['url'] . '">' . $name . '</a>';
+			},
+			$text
+		);
 	}
 
 	/*
@@ -109,9 +118,6 @@ class Markdown
 		$s = preg_replace('/^\#([^\s\#])/im', '\#$1', $s);
 
 		$s = self::convert($s);
-
-		$regexp = "/([@!])\{(?:([^\}]+?); ?)?([^\} ]+)\}/";
-		$s = preg_replace_callback($regexp, ['self', 'diasporaMention2BBCodeCallback'], $s);
 
 		$s = HTML::toBBCode($s);
 

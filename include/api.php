@@ -25,7 +25,6 @@
 
 use Friendica\App;
 use Friendica\Content\ContactSelector;
-use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -42,7 +41,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Mail;
 use Friendica\Model\Notify;
 use Friendica\Model\Photo;
-use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
 use Friendica\Network\FKOAuth1;
@@ -5920,7 +5918,7 @@ function api_friendica_notification_seen($type)
 	$id = (!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 0);
 
 	try {
-		$notify = DI::notify()->getByID($id);
+		$notify = DI::notify()->getByID($id, api_user());
 		DI::notify()->setSeen(true, $notify);
 
 		if ($notify->otype === Notify\ObjectType::ITEM) {

@@ -27,7 +27,6 @@ use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -252,6 +251,8 @@ function settings_post(App $a)
 				unlink($_FILES['importcontact-filename']['tmp_name']);
 			}
 		}
+
+		return;
 	}
 
 	if (!empty($_POST['resend_relocate'])) {
@@ -364,17 +365,17 @@ function settings_post(App $a)
 
 	if ($username != $a->user['username']) {
 		if (strlen($username) > 40) {
-			$err .= DI::l10n()->t(' Please use a shorter name.');
+			$err .= DI::l10n()->t('Please use a shorter name.');
 		}
 		if (strlen($username) < 3) {
-			$err .= DI::l10n()->t(' Name too short.');
+			$err .= DI::l10n()->t('Name too short.');
 		}
 	}
 
 	if ($email != $a->user['email']) {
 		//  check for the correct password
 		if (!User::authenticate(intval(local_user()), $_POST['mpassword'])) {
-			$err .= DI::l10n()->t('Wrong Password') . EOL;
+			$err .= DI::l10n()->t('Wrong Password.');
 			$email = $a->user['email'];
 		}
 		//  check the email is valid
@@ -392,7 +393,7 @@ function settings_post(App $a)
 	}
 
 	if (strlen($err)) {
-		notice($err . EOL);
+		notice($err);
 		return;
 	}
 
@@ -599,7 +600,7 @@ function settings_content(App $a)
 			$arr[$fname] = [];
 			$arr[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata,1) as $f) {
-				$arr[$fname][1][] = ['feature_' .$f[0], $f[1],((intval(Feature::isEnabled(local_user(), $f[0]))) ? "1" : ''), $f[2],[DI::l10n()->t('Off'), DI::l10n()->t('On')]];
+				$arr[$fname][1][] = ['feature_' . $f[0], $f[1], Feature::isEnabled(local_user(), $f[0]), $f[2]];
 			}
 		}
 

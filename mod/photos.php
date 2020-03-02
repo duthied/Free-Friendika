@@ -204,13 +204,13 @@ function photos_post(App $a)
 
 		if (!DBA::isResult($r)) {
 			notice(DI::l10n()->t('Album not found.') . EOL);
-			DI::baseUrl()->redirect($_SESSION['photo_return']);
+			DI::baseUrl()->redirect('photos/' . $a->data['user']['nickname'] . '/album');
 			return; // NOTREACHED
 		}
 
 		// Check if the user has responded to a delete confirmation query
 		if (!empty($_REQUEST['canceled'])) {
-			DI::baseUrl()->redirect($_SESSION['photo_return']);
+			DI::baseUrl()->redirect('photos/' . $a->data['user']['nickname'] . '/album/' . $a->argv[3]);
 		}
 
 		// RENAME photo album
@@ -267,7 +267,7 @@ function photos_post(App $a)
 			}
 		}
 
-		DI::baseUrl()->redirect('photos/' . $a->argv[1]);
+		DI::baseUrl()->redirect('photos/' . $a->data['user']['nickname'] . '/album');
 	}
 
 	if ($a->argc > 3 && $a->argv[2] === 'image') {
@@ -1372,7 +1372,6 @@ function photos_content(App $a)
 		$likebuttons = '';
 		$comments = '';
 		$paginate = '';
-		$responses = '';
 
 		if (!empty($link_item['id']) && !empty($link_item['uri'])) {
 			$cmnt_tpl = Renderer::getMarkupTemplate('comment_item.tpl');
@@ -1413,11 +1412,11 @@ function photos_content(App $a)
 			}
 
 			$conv_responses = [
-				'like'        => ['title' => DI::l10n()->t('Likes','title')],
-				'dislike'     => ['title' => DI::l10n()->t('Dislikes','title')],
-				'attendyes'   => ['title' => DI::l10n()->t('Attending','title')],
-				'attendno'    => ['title' => DI::l10n()->t('Not attending','title')],
-				'attendmaybe' => ['title' => DI::l10n()->t('Might attend','title')]
+				'like'        => [],
+				'dislike'     => [],
+				'attendyes'   => [],
+				'attendno'    => [],
+				'attendmaybe' => []
 			];
 
 			if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
@@ -1460,7 +1459,6 @@ function photos_content(App $a)
 				foreach ($items as $item) {
 					$comment = '';
 					$template = $tpl;
-					$sparkle = '';
 
 					$activity = DI::activity();
 
@@ -1523,8 +1521,6 @@ function photos_content(App $a)
 				}
 			}
 
-			$responses = get_responses($conv_responses, ['like', 'dislike'], $link_item);
-
 			$paginate = $pager->renderFull($total);
 		}
 
@@ -1544,7 +1540,6 @@ function photos_content(App $a)
 			'$likebuttons' => $likebuttons,
 			'$like' => $like,
 			'$dislike' => $dislike,
-			'responses' => $responses,
 			'$comments' => $comments,
 			'$paginate' => $paginate,
 		]);
