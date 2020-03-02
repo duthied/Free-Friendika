@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.03-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1333
+-- DB_UPDATE_VERSION 1334
 -- ------------------------------------------
 
 
@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`location` varchar(255) DEFAULT '' COMMENT '',
 	`about` text COMMENT '',
 	`keywords` text COMMENT 'public keywords (interests) of the contact',
-	`gender` varchar(32) NOT NULL DEFAULT '' COMMENT '',
+	`gender` varchar(32) NOT NULL DEFAULT '' COMMENT 'Deprecated',
 	`xmpp` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`attag` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -397,7 +397,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`location` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`about` text COMMENT '',
 	`keywords` text COMMENT 'puplic keywords (interests)',
-	`gender` varchar(32) NOT NULL DEFAULT '' COMMENT '',
+	`gender` varchar(32) NOT NULL DEFAULT '' COMMENT 'Deprecated',
 	`birthday` varchar(32) NOT NULL DEFAULT '0001-01-01' COMMENT '',
 	`community` boolean NOT NULL DEFAULT '0' COMMENT '1 if contact is forum account',
 	`contact-type` tinyint NOT NULL DEFAULT -1 COMMENT '',
@@ -568,7 +568,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`extid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, bookmark, ...)',
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`private` boolean NOT NULL DEFAULT '0' COMMENT 'distribution is restricted',
+	`private` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'distribution is restricted',
 	`visible` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`moderated` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`deleted` boolean NOT NULL DEFAULT '0' COMMENT 'item has been deleted',
@@ -1057,19 +1057,18 @@ CREATE TABLE IF NOT EXISTS `profile_check` (
 -- TABLE profile_field
 --
 CREATE TABLE IF NOT EXISTS `profile_field` (
-    `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'sequential ID',
-    `uid` mediumint(8) unsigned NOT NULL DEFAULT 0 COMMENT 'Owner user id',
-    `psid` int(10) unsigned DEFAULT NULL COMMENT 'ID of the permission set of this profile field - 0 = public',
-    `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name of the field',
-    `value` text COMMENT 'Value of the field',
-    `order` mediumint(8) unsigned NOT NULL DEFAULT 1 COMMENT 'Field ordering per user',
-    `label` varchar(255) NOT NULL DEFAULT '' COMMENT 'Label of the field',
-    `created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-    `edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-    PRIMARY KEY (`id`),
-    KEY `uid` (`uid`),
-    KEY `psid` (`psid`),
-    KEY `order` (`order`)
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner user id',
+	`order` mediumint unsigned NOT NULL DEFAULT 1 COMMENT 'Field ordering per user',
+	`psid` int unsigned COMMENT 'ID of the permission set of this profile field - 0 = public',
+	`label` varchar(255) NOT NULL DEFAULT '' COMMENT 'Label of the field',
+	`value` text COMMENT 'Value of the field',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'creation time',
+	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'last edit time',
+	 PRIMARY KEY(`id`),
+	 INDEX `uid` (`uid`),
+	 INDEX `order` (`order`),
+	 INDEX `psid` (`psid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Custom profile fields';
 
 --
@@ -1179,7 +1178,7 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`changed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`wall` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`private` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`private` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`moderated` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`visible` boolean NOT NULL DEFAULT '0' COMMENT '',
