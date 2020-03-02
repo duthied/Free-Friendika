@@ -40,7 +40,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Attach;
-use Friendica\Model\Config\PConfig;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
@@ -303,7 +302,7 @@ function item_post(App $a) {
 
 		if (strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) {
 			$private = Item::PRIVATE;
-		} elseif (PConfig::get($profile_uid, 'system', 'unlisted')) {
+		} elseif (DI::pConfig()->get($profile_uid, 'system', 'unlisted')) {
 			$private == Item::UNLISTED;
 		} else {
 			$private == Item::PUBLIC;
