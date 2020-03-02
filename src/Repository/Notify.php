@@ -23,9 +23,9 @@ namespace Friendica\Repository;
 
 use Exception;
 use Friendica\BaseRepository;
+use Friendica\Collection;
 use Friendica\Core\Hook;
 use Friendica\Model;
-use Friendica\Collection;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\DateTimeFormat;
@@ -61,14 +61,17 @@ class Notify extends BaseRepository
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Return one notify instance based on ID / UID
+	 *
+	 * @param int $id The ID of the notify instance
+	 * @param int $uid The user ID, bound to this notify instance (= security check)
 	 *
 	 * @return Model\Notify
 	 * @throws NotFoundException
 	 */
-	public function getByID(int $id)
+	public function getByID(int $id, int $uid)
 	{
-		return $this->selectFirst(['id' => $id, 'uid' => local_user()]);
+		return $this->selectFirst(['id' => $id, 'uid' => $uid]);
 	}
 
 	/**
