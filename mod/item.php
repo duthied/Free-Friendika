@@ -303,9 +303,9 @@ function item_post(App $a) {
 		if (strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) {
 			$private = Item::PRIVATE;
 		} elseif (DI::pConfig()->get($profile_uid, 'system', 'unlisted')) {
-			$private == Item::UNLISTED;
+			$private = Item::UNLISTED;
 		} else {
-			$private == Item::PUBLIC;
+			$private = Item::PUBLIC;
 		}
 
 		// If this is a comment, set the permissions from the parent.
