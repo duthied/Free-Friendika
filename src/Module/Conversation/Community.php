@@ -280,55 +280,32 @@ class Community extends BaseModule
 		$r = false;
 
 		if (self::$content == 'local') {
-			$values = [];
-
-			$sql_accounttype = '';
-			$sql_boundaries = '';
 			if (!is_null(self::$accounttype)) {
-				$sql_accounttype = " AND `user`.`account-type` = ?";
-				$values[] = [self::$accounttype];
+				$condition = ["`wall` AND `origin` AND `private` = ? AND `owner`.`contact-type` = ?", Item::PUBLIC, self::$accounttype];
+			} else {
+				$condition = ["`wall` AND `origin` AND `private` = ?", Item::PUBLIC];
 			}
-
-			if (isset($since_id)) {
-				$sql_boundaries .= " AND `thread`.`commented` > ?";
-				$values[] = $since_id;
-			}
-
-			if (isset($max_id)) {
-				$sql_boundaries .= " AND `thread`.`commented` < ?";
-				$values[] = $max_id;
-			}
-
-			$values[] = $itemspage;
-
-			$r = DBA::p("SELECT `item`.`uri`, `author`.`url` AS `author-link`, `thread`.`commented` FROM `thread`
-			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
-			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
-			AND `thread`.`private` = ? AND `thread`.`wall` AND `thread`.`origin`
-			$sql_accounttype
-			$sql_boundaries
-			ORDER BY `thread`.`commented` DESC
-			LIMIT ?", Item::PUBLIC, $values);
 		} elseif (self::$content == 'global') {
 			if (!is_null(self::$accounttype)) {
 				$condition = ["`uid` = ? AND `private` = ? AND `owner`.`contact-type` = ?", 0, Item::PUBLIC, self::$accounttype];
 			} else {
 				$condition = ["`uid` = ? AND `private` = ?", 0, Item::PUBLIC];
 			}
-
-			if (isset($max_id)) {
-				$condition[0] .= " AND `commented` < ?";
-				$condition[] = $max_id;
-			}
-
-			if (isset($since_id)) {
-				$condition[0] .= " AND `commented` > ?";
-				$condition[] = $since_id;
-			}
-
-			$r = Item::selectThreadForUser(0, ['uri', 'commented'], $condition, ['order' => ['commented' => true], 'limit' => $itemspage]);
+		} else {
+			return [];
 		}
+
+		if (isset($max_id)) {
+			$condition[0] .= " AND `commented` < ?";
+			$condition[] = $max_id;
+		}
+
+		if (isset($since_id)) {
+			$condition[0] .= " AND `commented` > ?";
+			$condition[] = $since_id;
+		}
+
+		$r = Item::selectThreadForUser(0, ['uri', 'commented', 'author-link'], $condition, ['order' => ['commented' => true], 'limit' => $itemspage]);
 
 		return DBA::toArray($r);
 	}
