@@ -506,14 +506,15 @@ class Receiver
 	/**
 	 * Fetch the receiver list from an activity array
 	 *
-	 * @param array  $activity
-	 * @param string $actor
-	 * @param array  $tags
+	 * @param array   $activity
+	 * @param string  $actor
+	 * @param array   $tags
+	 * @param boolean $fetch_unlisted 
 	 *
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function getReceivers($activity, $actor, $tags = [])
+	private static function getReceivers($activity, $actor, $tags = [], $fetch_unlisted = false)
 	{
 		$receivers = [];
 
@@ -549,6 +550,11 @@ class Receiver
 			foreach ($receiver_list as $receiver) {
 				if ($receiver == self::PUBLIC_COLLECTION) {
 					$receivers['uid:0'] = 0;
+				}
+
+				// Add receiver "-1" for unlisted posts 
+				if ($fetch_unlisted && ($receiver == self::PUBLIC_COLLECTION) && ($element == 'as:cc')) {
+					$receivers['uid:-1'] = -1;
 				}
 
 				if (($receiver == self::PUBLIC_COLLECTION) && !empty($actor)) {
@@ -1022,7 +1028,9 @@ class Receiver
 			}
 		}
 
-		$object_data['receiver'] = self::getReceivers($object, $object_data['actor'], $object_data['tags']);
+		$object_data['receiver'] = self::getReceivers($object, $object_data['actor'], $object_data['tags'], true);
+		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
+		unset($object_data['receiver']['uid:-1']);
 
 		// Common object data:
 

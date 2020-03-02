@@ -34,7 +34,7 @@ function share_init(App $a) {
 		'guid', 'created', 'plink', 'title'];
 	$item = Item::selectFirst($fields, ['id' => $post_id]);
 
-	if (!DBA::isResult($item) || $item['private'] == 1) {
+	if (!DBA::isResult($item) || $item['private'] == Item::PRIVATE) {
 		exit();
 	}
 

@@ -301,22 +301,20 @@ class Community extends BaseModule
 
 			$values[] = $itemspage;
 
-			/// @todo Use "unsearchable" here as well (instead of "hidewall")
 			$r = DBA::p("SELECT `item`.`uri`, `author`.`url` AS `author-link`, `thread`.`commented` FROM `thread`
-			STRAIGHT_JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
-			AND NOT `thread`.`private` AND `thread`.`wall` AND `thread`.`origin`
+			AND `thread`.`private` = ? AND `thread`.`wall` AND `thread`.`origin`
 			$sql_accounttype
 			$sql_boundaries
 			ORDER BY `thread`.`commented` DESC
-			LIMIT ?", $values);
+			LIMIT ?", Item::PUBLIC, $values);
 		} elseif (self::$content == 'global') {
 			if (!is_null(self::$accounttype)) {
-				$condition = ["`uid` = ? AND NOT `author`.`unsearchable` AND NOT `owner`.`unsearchable` AND `owner`.`contact-type` = ?", 0, self::$accounttype];
+				$condition = ["`uid` = ? AND `private` = ? AND `owner`.`contact-type` = ?", 0, Item::PUBLIC, self::$accounttype];
 			} else {
-				$condition = ["`uid` = ? AND NOT `author`.`unsearchable` AND NOT `owner`.`unsearchable`", 0];
+				$condition = ["`uid` = ? AND `private` = ?", 0, Item::PUBLIC];
 			}
 
 			if (isset($max_id)) {

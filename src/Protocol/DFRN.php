@@ -182,7 +182,7 @@ class DFRN
 
 		// default permissions - anonymous user
 
-		$sql_extra = " AND NOT `item`.`private` ";
+		$sql_extra = sprintf(" AND `item`.`private` != %s ", Item::PRIVATE);
 
 		$r = q(
 			"SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`, `user`.`account-type`
@@ -234,7 +234,7 @@ class DFRN
 			if (!empty($set)) {
 				$sql_extra = " AND `item`.`psid` IN (" . implode(',', $set) .")";
 			} else {
-				$sql_extra = " AND NOT `item`.`private`";
+				$sql_extra = sprintf(" AND `item`.`private` != %s", Item::PRIVATE);
 			}
 		}
 
@@ -332,7 +332,7 @@ class DFRN
 			if ($public_feed) {
 				$type = 'html';
 				// catch any email that's in a public conversation and make sure it doesn't leak
-				if ($item['private']) {
+				if ($item['private'] == Item::PRIVATE) {
 					continue;
 				}
 			} else {
@@ -955,7 +955,7 @@ class DFRN
 			$entry->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
 		}
 
-		if ($item['private']) {
+		if ($item['private'] == Item::PRIVATE) {
 			$body = Item::fixPrivatePhotos($item['body'], $owner['uid'], $item, $cid);
 		} else {
 			$body = $item['body'];
@@ -1050,7 +1050,8 @@ class DFRN
 		}
 
 		if ($item['private']) {
-			XML::addElement($doc, $entry, "dfrn:private", ($item['private'] ? $item['private'] : 1));
+			// Friendica versions prior to 2020.3 can't handle "unlisted" properly. So we can only transmit public and private
+			XML::addElement($doc, $entry, "dfrn:private", ($item['private'] == Item::PRIVATE ? Item::PRIVATE : Item::PUBLIC));
 		}
 
 		if ($item['extid']) {

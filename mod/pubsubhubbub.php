@@ -84,16 +84,10 @@ function pubsubhubbub_init(App $a) {
 
 		// fetch user from database given the nickname
 		$condition = ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false];
-		$owner = DBA::selectFirst('user', ['uid', 'hidewall', 'nickname'], $condition);
+		$owner = DBA::selectFirst('user', ['uid', 'nickname'], $condition);
 		if (!DBA::isResult($owner)) {
 			Logger::log('Local account not found: ' . $nick . ' - topic: ' . $hub_topic . ' - callback: ' . $hub_callback);
 			throw new \Friendica\Network\HTTPException\NotFoundException();
-		}
-
-		// abort if user's wall is supposed to be private
-		if ($owner['hidewall']) {
-			Logger::log('Local user ' . $nick . 'has chosen to hide wall, ignoring.');
-			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 
 		// get corresponding row from contact table

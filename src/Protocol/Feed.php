@@ -220,7 +220,7 @@ class Feed {
 		$header["wall"] = 0;
 		$header["origin"] = 0;
 		$header["gravity"] = GRAVITY_PARENT;
-		$header["private"] = 2;
+		$header["private"] = Item::PUBLIC;
 		$header["verb"] = Activity::POST;
 		$header["object-type"] = Activity\ObjectType::NOTE;
 

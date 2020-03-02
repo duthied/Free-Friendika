@@ -84,7 +84,7 @@ function poke_init(App $a)
 			$deny_gid   = $item['deny_gid'];
 		}
 	} else {
-		$private = (!empty($_GET['private']) ? intval($_GET['private']) : 0);
+		$private = (!empty($_GET['private']) ? intval($_GET['private']) : Item::PUBLIC);
 
 		$allow_cid     = ($private ? '<' . $target['id']. '>' : $a->user['allow_cid']);
 		$allow_gid     = ($private ? '' : $a->user['allow_gid']);

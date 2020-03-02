@@ -317,6 +317,7 @@ function settings_post(App $a)
 	$cntunkmail       = (!empty($_POST['cntunkmail']) ? intval($_POST['cntunkmail']) : 0);
 	$hide_friends     = (($_POST['hide-friends'] == 1) ? 1: 0);
 	$hidewall         = (($_POST['hidewall'] == 1) ? 1: 0);
+	$unlisted         = (($_POST['unlisted'] == 1) ? 1: 0);
 
 	$email_textonly   = (($_POST['email_textonly'] == 1) ? 1 : 0);
 	$detailed_notif   = (($_POST['detailed_notif'] == 1) ? 1 : 0);
@@ -414,6 +415,7 @@ function settings_post(App $a)
 
 	DI::pConfig()->set(local_user(), 'system', 'email_textonly', $email_textonly);
 	DI::pConfig()->set(local_user(), 'system', 'detailed_notif', $detailed_notif);
+	DI::pConfig()->set(local_user(), 'system', 'unlisted', $unlisted);
 
 	if ($page_flags == User::PAGE_FLAGS_PRVGROUP) {
 		$hidewall = 1;
@@ -836,6 +838,10 @@ function settings_content(App $a)
 		'$field' => ['hidewall', DI::l10n()->t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], DI::l10n()->t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.')],
 	]);
 
+	$unlisted = Renderer::replaceMacros($opt_tpl, [
+		'$field' => ['unlisted', DI::l10n()->t('Should public posts be unlisted?'), DI::pConfig()->get(local_user(), 'system', 'unlisted'), DI::l10n()->t('Your public posts will not appear on the community page or in search results, nor will they be transported to relay servers.')],
+	]);
+
 	$blockwall = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['blockwall', DI::l10n()->t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), DI::l10n()->t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts')],
 	]);
@@ -949,6 +955,7 @@ function settings_content(App $a)
 		'$profile_in_net_dir' => $profile_in_net_dir,
 		'$hide_friends' => $hide_friends,
 		'$hide_wall' => $hide_wall,
+		'$unlisted' => $unlisted,
 		'$unkmail' => $unkmail,
 		'$cntunkmail' 	=> ['cntunkmail', DI::l10n()->t('Maximum private messages per day from unknown people:'), $cntunkmail , DI::l10n()->t("\x28to prevent spam abuse\x29")],
 
