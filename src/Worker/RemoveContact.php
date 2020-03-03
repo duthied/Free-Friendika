@@ -41,9 +41,9 @@ class RemoveContact {
 		// Now we delete the contact and all depending tables
 		$condition = ['uid' => $contact['uid'], 'contact-id' => $id];
 		do {
-			$items = Item::select(['id'], $condition, ['limit' => 100]);
+			$items = Item::select(['id', 'guid'], $condition, ['limit' => 100]);
 			while ($item = Item::fetch($items)) {
-				Logger::notice('Delete removed contact item', ['id' => $item["id"]]);
+				Logger::notice('Delete removed contact item', ['id' => $item['id'], 'guid' => $item['guid']]);
 				DBA::delete('item', ['id' => $item['id']]);
 			}
 			DBA::close($items);

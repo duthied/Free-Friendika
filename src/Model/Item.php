@@ -1938,7 +1938,7 @@ class Item
 
 		if ($entries > 1) {
 			// There are duplicates. We delete our just created entry.
-			Logger::notice('Delete duplicated item', ['id' => $current_post, 'uri' => $item['uri'], 'uid' => $item['uid']]);
+			Logger::notice('Delete duplicated item', ['id' => $current_post, 'uri' => $item['uri'], 'uid' => $item['uid'], 'guid' => $item['guid']]);
 
 			// Yes, we could do a rollback here - but we are having many users with MyISAM.
 			DBA::delete('item', ['id' => $current_post]);
@@ -2721,7 +2721,7 @@ class Item
 		if (!$mention) {
 			if (($community_page || $prvgroup) &&
 				  !$item['wall'] && !$item['origin'] && ($item['id'] == $item['parent'])) {
-				Logger::notice('Delete private group/communiy top-level item without mention', ['id' => $item_id]);
+				Logger::notice('Delete private group/communiy top-level item without mention', ['id' => $item_id, 'guid'=> $item['guid']]);
 				DBA::delete('item', ['id' => $item_id]);
 				return true;
 			}
