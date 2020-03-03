@@ -840,7 +840,7 @@ function settings_content(App $a)
 	]);
 
 	$unlisted = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['unlisted', DI::l10n()->t('Should public posts be unlisted?'), DI::pConfig()->get(local_user(), 'system', 'unlisted'), DI::l10n()->t('Your public posts will not appear on the community page or in search results, nor will they be transported to relay servers. However they can appear on public feeds from other servers.')],
+		'$field' => ['unlisted', DI::l10n()->t('Make public posts unlisted'), DI::pConfig()->get(local_user(), 'system', 'unlisted'), DI::l10n()->t('Your public posts will not appear on the community pages or in search results, nor be sent to relay servers. However they can still appear on public feeds on remote servers.')],
 	]);
 
 	$blockwall = Renderer::replaceMacros($opt_tpl, [
