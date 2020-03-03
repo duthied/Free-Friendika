@@ -687,7 +687,7 @@ class Processor
 
 		$ldactivity['thread-completion'] = true;
 
-		ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity));
+		ActivityPub\Receiver::processActivity($ldactivity);
 		Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'object' => $activity['id']]);
 
 		return $activity['id'];
