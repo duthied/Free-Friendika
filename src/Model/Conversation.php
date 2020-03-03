@@ -135,6 +135,7 @@ class Conversation
 		unset($arr['conversation-href']);
 		unset($arr['protocol']);
 		unset($arr['source']);
+		unset($arr['direction']);
 
 		return $arr;
 	}

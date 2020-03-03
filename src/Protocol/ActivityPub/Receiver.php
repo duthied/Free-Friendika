@@ -784,7 +784,12 @@ class Receiver
 		}
 
 		if (in_array($type, self::CONTENT_TYPES)) {
-			return self::processObject($object);
+			$object_data = self::processObject($object);
+
+			if (!empty($data)) {
+				$object_data['raw'] = json_encode($data);
+			}
+			return $object_data;
 		}
 
 		if ($type == 'as:Announce') {
