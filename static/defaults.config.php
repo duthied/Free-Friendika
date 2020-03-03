@@ -496,6 +496,10 @@ return [
 		// Logs every call to /inbox as a JSON file in Friendica's temporary directory
 		'ap_inbox_log' => false,
 
+		// show_direction (Boolean)
+		// Display if a post had been fetched or had been pushed towards our server
+		'show_direction' => false,
+
 		// total_ap_delivery (Boolean)
 		// Deliver via AP to every possible receiver and we suppress the delivery to these contacts with other protocols
 		'total_ap_delivery' => false,
