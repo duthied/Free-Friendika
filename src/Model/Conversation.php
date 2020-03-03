@@ -41,6 +41,19 @@ class Conversation
 	const PARCEL_TWITTER            = 67;
 	const PARCEL_UNKNOWN            = 255;
 
+	/**
+	 * Unknown message direction
+	 */
+	const UNKNOWN = 0;
+	/**
+	 * The message had been pushed to this sytem
+	 */
+	const PUSH    = 1;
+	/**
+	 * The message had been fetched by our system
+	 */
+	const PULL    = 2;
+
 	public static function getByItemUri($item_uri)
 	{
 		return DBA::selectFirst('conversation', [], ['item-uri' => $item_uri]);
@@ -77,6 +90,10 @@ class Conversation
 
 			if (isset($arr['protocol'])) {
 				$conversation['protocol'] = $arr['protocol'];
+			}
+
+			if (isset($arr['direction'])) {
+				$conversation['direction'] = $arr['direction'];
 			}
 
 			if (isset($arr['source'])) {

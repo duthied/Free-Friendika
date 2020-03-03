@@ -174,9 +174,10 @@ class Receiver
 	/**
 	 * Prepare the object array
 	 *
-	 * @param array   $activity
-	 * @param integer $uid User ID
-	 * @param         $trust_source
+	 * @param array   $activity     Array with activity data
+	 * @param integer $uid          User ID
+	 * @param boolean $push         Message had been pushed to our system
+	 * @param boolean $trust_source Do we trust the source?
 	 *
 	 * @return array with object data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -312,6 +313,7 @@ class Receiver
 	 * @param string  $body
 	 * @param integer $uid          User ID
 	 * @param boolean $trust_source Do we trust the source?
+	 * @param boolean $push         Message had been pushed to our system
 	 * @throws \Exception
 	 */
 	public static function processActivity($activity, $body = '', $uid = null, $trust_source = false, $push = false)

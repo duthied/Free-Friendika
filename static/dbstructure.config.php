@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1334);
+	define('DB_UPDATE_VERSION', 1335);
 }
 
 return [
@@ -342,6 +342,7 @@ return [
 			"conversation-uri" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => "GNU Social conversation URI"],
 			"conversation-href" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => "GNU Social conversation link"],
 			"protocol" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "255", "comment" => "The protocol of the item"],
+			"direction" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "How the message arrived here: 1=push, 2=pull"],
 			"source" => ["type" => "mediumtext", "comment" => "Original source"],
 			"received" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Receiving date"],
 		],
