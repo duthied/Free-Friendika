@@ -461,10 +461,10 @@ class Processor
 			$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
 			$item['conversation-href'] = $activity['context'] ?? '';
 			$item['conversation-uri'] = $activity['conversation'] ?? '';
-			
+
 			if (isset($activity['push'])) {
 				$item['direction'] = $activity['push'] ? Conversation::PUSH : Conversation::PULL;
-			}	
+			}
 		}
 
 		$isForum = false;
