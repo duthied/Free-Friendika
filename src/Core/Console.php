@@ -57,7 +57,7 @@ Commands:
 	autoinstall            Starts automatic installation of friendica based on values from htconfig.php
 	lock                   Edit site locks
 	maintenance            Set maintenance mode for this node
-	newpassword            Set a new password for a given user
+	user                   User management
 	php2po                 Generate a messages.po file from a strings.php file
 	po2php                 Generate a strings.php file from a messages.po file
 	typo                   Checks for parse errors in Friendica files
@@ -85,7 +85,7 @@ HELP;
 		'autoinstall'            => Friendica\Console\AutomaticInstallation::class,
 		'lock'                   => Friendica\Console\Lock::class,
 		'maintenance'            => Friendica\Console\Maintenance::class,
-		'newpassword'            => Friendica\Console\NewPassword::class,
+		'user'                   => Friendica\Console\User::class,
 		'php2po'                 => Friendica\Console\PhpToPo::class,
 		'po2php'                 => Friendica\Console\PoToPhp::class,
 		'typo'                   => Friendica\Console\Typo::class,

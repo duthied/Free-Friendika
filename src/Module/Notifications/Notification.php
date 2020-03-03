@@ -24,6 +24,7 @@ namespace Friendica\Module\Notifications;
 use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 
 /**
@@ -31,15 +32,21 @@ use Friendica\Network\HTTPException;
  */
 class Notification extends BaseModule
 {
-	public static function init(array $parameters = [])
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\NotFoundException
+	 * @throws HTTPException\UnauthorizedException
+	 * @throws \ImagickException
+	 * @throws \Exception
+	 */
+	public static function post(array $parameters = [])
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
 		}
-	}
 
-	public static function post(array $parameters = [])
-	{
 		$request_id = $parameters['id'] ?? false;
 
 		if ($request_id) {
@@ -58,9 +65,17 @@ class Notification extends BaseModule
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws HTTPException\UnauthorizedException
+	 */
 	public static function rawContent(array $parameters = [])
 	{
-		// @TODO: Replace with parameter from router
+		if (!local_user()) {
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
+		}
+
 		if (DI::args()->get(1) === 'mark' && DI::args()->get(2) === 'all') {
 			try {
 				$success = DI::notify()->setSeen();
@@ -74,31 +89,36 @@ class Notification extends BaseModule
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Redirect to the notifications main page or to the url for the chosen notifications
 	 *
-	 * @return string|void
+	 * @throws HTTPException\NotFoundException In case the notification is either not existing or is not for this user
 	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	public static function content(array $parameters = [])
 	{
+		if (!local_user()) {
+			notice(DI::l10n()->t('You must be logged in to show this page.'));
+			return Login::form();
+		}
+
 		$request_id = $parameters['id'] ?? false;
 
 		if ($request_id) {
-			try {
-				$notify = DI::notify()->getByID($request_id);
-				DI::notify()->setSeen(true, $notify);
+			$notify = DI::notify()->getByID($request_id, local_user());
+			DI::notify()->setSeen(true, $notify);
 
-				if (!empty($notify->link)) {
-					System::externalRedirect($notify->link);
-				}
-
-			} catch (HTTPException\NotFoundException $e) {
-				info(DI::l10n()->t('Invalid notification.'));
+			if (!empty($notify->link)) {
+				System::externalRedirect($notify->link);
 			}
 
 			DI::baseUrl()->redirect();
 		}
 
 		DI::baseUrl()->redirect('notifications/system');
+
+		throw new HTTPException\InternalServerErrorException('Invalid situation.');
 	}
 }

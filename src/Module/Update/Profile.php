@@ -42,8 +42,6 @@ class Profile extends BaseModule
 			throw new ForbiddenException();
 		}
 
-		$o = '';
-
 		$profile_uid = intval($_GET['p'] ?? 0);
 
 		// Ensure we've got a profile owner if updating.
@@ -55,6 +53,12 @@ class Profile extends BaseModule
 
 		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
 			throw new ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
+		}
+
+		$o = '';
+
+		if (empty($_GET['force']) && DI::pConfig()->get(local_user(), 'system', 'no_auto_update')) {
+			System::htmlUpdateExit($o);
 		}
 
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups

@@ -29,6 +29,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Mail;
@@ -375,7 +376,7 @@ class Processor
 					Logger::warning('Unknown parent item.', ['uri' => $item['thr-parent']]);
 					return false;
 				}
-				if ($item_private && !$parent['private']) {
+				if ($item_private && ($parent['private'] == Item::PRIVATE)) {
 					Logger::warning('Item is private but the parent is not. Dropping.', ['item-uri' => $item['uri'], 'thr-parent' => $item['thr-parent']]);
 					return false;
 				}
@@ -442,11 +443,25 @@ class Processor
 		}
 
 		$item['network'] = Protocol::ACTIVITYPUB;
-		$item['private'] = !in_array(0, $activity['receiver']);
 		$item['author-link'] = $activity['author'];
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
 		$item['owner-link'] = $activity['actor'];
 		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
+
+		if (in_array(0, $activity['receiver']) && !empty($activity['unlisted'])) {
+			$item['private'] = Item::UNLISTED;
+		} elseif (in_array(0, $activity['receiver'])) {
+			$item['private'] = Item::PUBLIC;
+		} else {
+			$item['private'] = Item::PRIVATE;
+		}
+
+		if (!empty($activity['raw'])) {
+			$item['source'] = $activity['raw'];
+			$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
+			$item['conversation-href'] = $activity['context'] ?? '';
+			$item['conversation-uri'] = $activity['conversation'] ?? '';
+		}
 
 		$isForum = false;
 
@@ -490,6 +505,10 @@ class Processor
 		$stored = false;
 
 		foreach ($activity['receiver'] as $receiver) {
+			if ($receiver == -1) {
+				continue;
+			}
+
 			$item['uid'] = $receiver;
 
 			if ($isForum) {
@@ -539,7 +558,7 @@ class Processor
 		}
 
 		// Store send a follow request for every reshare - but only when the item had been stored
-		if ($stored && !$item['private'] && ($item['gravity'] == GRAVITY_PARENT) && ($item['author-link'] != $item['owner-link'])) {
+		if ($stored && ($item['private'] != Item::PRIVATE) && ($item['gravity'] == GRAVITY_PARENT) && ($item['author-link'] != $item['owner-link'])) {
 			$author = APContact::getByURL($item['owner-link'], false);
 			// We send automatic follow requests for reshared messages. (We don't need though for forum posts)
 			if ($author['type'] != 'Group') {

@@ -4,7 +4,7 @@
 
 	{{$nickname_block nofilter}}
 
-	<form action="settings" id="settings-form" method="post" autocomplete="off" >
+	<form action="settings" id="settings-form" method="post" autocomplete="off" enctype="multipart/form-data">
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 		{{* We organize the settings in collapsable panel-groups *}}
@@ -88,6 +88,8 @@
 						{{$hide_friends nofilter}}
 
 						{{$hide_wall nofilter}}
+
+						{{$unlisted nofilter}}
 
 						{{$blockwall nofilter}}
 

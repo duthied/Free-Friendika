@@ -170,12 +170,12 @@ class Post
 
 		$conv = $this->getThread();
 
-		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid'])
+		$lock = ((($item['private'] == Item::PRIVATE) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid'])
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? DI::l10n()->t('Private Message')
 			: false);
 
-		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != 1;
+		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != Item::PRIVATE;
 
 		$edpost = false;
 
@@ -272,10 +272,12 @@ class Post
 			}
 		}
 
-		$responses = get_responses($conv_responses, $response_verbs, $item, $this);
-
-		foreach ($response_verbs as $value => $verbs) {
-			$responses[$verbs]['output'] = !empty($conv_responses[$verbs][$item['uri']]) ? format_like($conv_responses[$verbs][$item['uri']], $conv_responses[$verbs][$item['uri'] . '-l'], $verbs, $item['uri']) : '';
+		$responses = [];
+		foreach ($response_verbs as $value => $verb) {
+			$responses[$verb] = [
+				'self'   => $conv_responses[$verb][$item['uri'] . '-self'] ?? 0,
+				'output' => !empty($conv_responses[$verb][$item['uri']]) ? format_like($conv_responses[$verb][$item['uri']], $conv_responses[$verb][$item['uri'] . '-l'], $verb, $item['uri']) : '',
+			];
 		}
 
 		/*

@@ -35,8 +35,8 @@
 					<td class="email">{{$u.email}}</td>
 					<td class="checkbox"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$u.hash}}" name="pending[]" value="{{$u.hash}}" /></td>
 					<td class="tools">
-						<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" title='{{$approve}}'><span class='icon like'></span></a>
-						<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" title='{{$deny}}'><span class='icon dislike'></span></a>
+						<a href="{{$baseurl}}/admin/users/allow/{{$u.uid}}?t={{$form_security_token}}" title='{{$approve}}'><span class='icon like'></span></a>
+						<a href="{{$baseurl}}/admin/users/deny/{{$u.uid}}?t={{$form_security_token}}" title='{{$deny}}'><span class='icon dislike'></span></a>
 					</td>
 				</tr>
 				<tr>

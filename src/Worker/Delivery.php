@@ -176,7 +176,7 @@ class Delivery
 				&& empty($parent['allow_gid'])
 				&& empty($parent['deny_cid'])
 				&& empty($parent['deny_gid'])
-				&& !$parent["private"]) {
+				&& ($parent["private"] != Model\Item::PRIVATE)) {
 				$public_message = true;
 			}
 		}

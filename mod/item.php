@@ -300,7 +300,13 @@ function item_post(App $a) {
 
 		$postopts = $_REQUEST['postopts'] ?? '';
 
-		$private = ((strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) ? 1 : 0);
+		if (strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) {
+			$private = Item::PRIVATE;
+		} elseif (DI::pConfig()->get($profile_uid, 'system', 'unlisted')) {
+			$private = Item::UNLISTED;
+		} else {
+			$private = Item::PUBLIC;
+		}
 
 		// If this is a comment, set the permissions from the parent.
 

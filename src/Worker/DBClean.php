@@ -107,6 +107,7 @@ class DBClean {
 				Logger::log("found global item orphans: ".$count);
 				while ($orphan = DBA::fetch($r)) {
 					$last_id = $orphan["id"];
+					Logger::notice('Delete global orphan item', ['id' => $orphan["id"]]);
 					DBA::delete('item', ['id' => $orphan["id"]]);
 				}
 				Worker::add(PRIORITY_MEDIUM, 'DBClean', 1, $last_id);
@@ -129,6 +130,7 @@ class DBClean {
 				Logger::log("found item orphans without parents: ".$count);
 				while ($orphan = DBA::fetch($r)) {
 					$last_id = $orphan["id"];
+					Logger::notice('Delete orphan item', ['id' => $orphan["id"]]);
 					DBA::delete('item', ['id' => $orphan["id"]]);
 				}
 				Worker::add(PRIORITY_MEDIUM, 'DBClean', 2, $last_id);
@@ -326,6 +328,7 @@ class DBClean {
 				Logger::log("found global item entries from expired threads: ".$count);
 				while ($orphan = DBA::fetch($r)) {
 					$last_id = $orphan["id"];
+					Logger::notice('Delete expired thread item', ['id' => $orphan["id"]]);
 					DBA::delete('item', ['id' => $orphan["id"]]);
 				}
 				Worker::add(PRIORITY_MEDIUM, 'DBClean', 9, $last_id);

@@ -30,10 +30,13 @@ use Friendica\Util\Strings;
  */
 class Pager
 {
+	/** @var int Default count of items per page */
+	const ITEMS_PER_PAGE = 50;
+
 	/** @var integer */
 	private $page = 1;
 	/** @var integer */
-	protected $itemsPerPage = 50;
+	protected $itemsPerPage = self::ITEMS_PER_PAGE;
 	/** @var string */
 	protected $baseQueryString = '';
 

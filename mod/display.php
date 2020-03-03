@@ -70,7 +70,7 @@ function display_init(App $a)
 
 		// Is this item private but could be visible to the remove visitor?
 		if (!DBA::isResult($item) && remote_user()) {
-			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1, 'origin' => true]);
+			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
 			if (DBA::isResult($item)) {
 				if (!Contact::isFollower(remote_user(), $item['uid'])) {
 					$item = null;
@@ -82,14 +82,14 @@ function display_init(App $a)
 
 		// Is it an item with uid=0?
 		if (!DBA::isResult($item)) {
-			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [0, 2], 'uid' => 0]);
+			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 		}
 	} elseif ($a->argc >= 3 && $nick == 'feed-item') {
 		$item_id = $a->argv[2];
 		if (substr($item_id, -5) == '.atom') {
 			$item_id = substr($item_id, 0, -5);
 		}
-		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $item_id, 'private' => [0, 2], 'uid' => 0]);
+		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $item_id, 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 	}
 
 	if (!DBA::isResult($item)) {
@@ -216,7 +216,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			}
 
 			if (($item_parent == 0) && remote_user()) {
-				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1, 'origin' => true]);
+				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
 				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
 					$item_id = $item["id"];
 					$item_parent = $item["parent"];
@@ -225,7 +225,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			}
 
 			if ($item_parent == 0) {
-				$condition = ['private' => [0, 2], 'guid' => $a->argv[1], 'uid' => 0];
+				$condition = ['private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $a->argv[1], 'uid' => 0];
 				$item = Item::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
 					$item_id = $item["id"];
@@ -241,7 +241,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
-	$is_public = Item::exists(['id' => $item_id, 'private' => [0, 2]]);
+	$is_public = Item::exists(['id' => $item_id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 	if ($is_public) {
 		// For the atom feed the nickname doesn't matter at all, we only need the item id.
 		$alternate = DI::baseUrl().'/display/feed-item/'.$item_id.'.atom';

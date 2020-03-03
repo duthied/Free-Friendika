@@ -53,6 +53,8 @@
 
 {{$hide_wall nofilter}}
 
+{{$unlisted nofilter}}
+
 {{$blockwall nofilter}}
 
 {{$blocktags nofilter}}

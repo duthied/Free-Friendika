@@ -113,6 +113,10 @@ class Item
 		Activity::FOLLOW,
 		Activity::ANNOUNCE];
 
+	const PUBLIC = 0;
+	const PRIVATE = 1;
+	const UNLISTED = 2;
+
 	private static $legacy_mode = null;
 
 	public static function isLegacyMode()
@@ -1112,6 +1116,7 @@ class Item
 	 */
 	public static function deleteById($item_id, $priority = PRIORITY_HIGH)
 	{
+		Logger::notice('Delete item by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
 		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
 			'deleted', 'file', 'resource-id', 'event-id', 'attach',
@@ -1541,7 +1546,7 @@ class Item
 		$item['allow_gid']     = trim($item['allow_gid'] ?? '');
 		$item['deny_cid']      = trim($item['deny_cid'] ?? '');
 		$item['deny_gid']      = trim($item['deny_gid'] ?? '');
-		$item['private']       = intval($item['private'] ?? 0);
+		$item['private']       = intval($item['private'] ?? self::PUBLIC);
 		$item['body']          = trim($item['body'] ?? '');
 		$item['tag']           = trim($item['tag'] ?? '');
 		$item['attach']        = trim($item['attach'] ?? '');
@@ -1737,8 +1742,8 @@ class Item
 				 * The original author commented, but as this is a comment, the permissions
 				 * weren't fixed up so it will still show the comment as private unless we fix it here.
 				 */
-				if ((intval($parent['forum_mode']) == 1) && $parent['private']) {
-					$item['private'] = 0;
+				if ((intval($parent['forum_mode']) == 1) && ($parent['private'] != self::PUBLIC)) {
+					$item['private'] = self::PUBLIC;
 				}
 
 				// If its a post that originated here then tag the thread as "mention"
@@ -1808,7 +1813,7 @@ class Item
 
 		// ACL settings
 		if (strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid)) {
-			$private = 1;
+			$private = self::PRIVATE;
 		} else {
 			$private = $item['private'];
 		}
@@ -1934,7 +1939,7 @@ class Item
 
 		if ($entries > 1) {
 			// There are duplicates. We delete our just created entry.
-			Logger::log('Duplicated post occurred. uri = ' . $item['uri'] . ' uid = ' . $item['uid']);
+			Logger::notice('Delete duplicated item', ['id' => $current_post, 'uri' => $item['uri'], 'uid' => $item['uid']]);
 
 			// Yes, we could do a rollback here - but we are having many users with MyISAM.
 			DBA::delete('item', ['id' => $current_post]);
@@ -2217,7 +2222,7 @@ class Item
 		// Only distribute public items from native networks
 		$condition = ['id' => $itemid, 'uid' => 0,
 			'network' => array_merge(Protocol::FEDERATED ,['']),
-			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => false];
+			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => [self::PUBLIC, self::UNLISTED]];
 		$item = self::selectFirst(self::ITEM_FIELDLIST, $condition);
 		if (!DBA::isResult($item)) {
 			return;
@@ -2367,7 +2372,7 @@ class Item
 		}
 
 		// Is it a visible public post?
-		if (!$item["visible"] || $item["deleted"] || $item["moderated"] || $item["private"]) {
+		if (!$item["visible"] || $item["deleted"] || $item["moderated"] || ($item["private"] == Item::PRIVATE)) {
 			return;
 		}
 
@@ -2558,7 +2563,7 @@ class Item
 			Contact::unmarkForArchival($contact);
 		}
 
-		$update = (!$arr['private'] && ((($arr['author-link'] ?? '') === ($arr['owner-link'] ?? '')) || ($arr["parent-uri"] === $arr["uri"])));
+		$update = (($arr['private'] != self::PRIVATE) && ((($arr['author-link'] ?? '') === ($arr['owner-link'] ?? '')) || ($arr["parent-uri"] === $arr["uri"])));
 
 		// Is it a forum? Then we don't care about the rules from above
 		if (!$update && in_array($arr["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN]) && ($arr["parent-uri"] === $arr["uri"])) {
@@ -2572,7 +2577,7 @@ class Item
 				['id' => $arr['contact-id']]);
 		}
 		// Now do the same for the system wide contacts with uid=0
-		if (!$arr['private']) {
+		if ($arr['private'] != self::PRIVATE) {
 			DBA::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']],
 				['id' => $arr['owner-id']]);
 
@@ -2717,9 +2722,7 @@ class Item
 		if (!$mention) {
 			if (($community_page || $prvgroup) &&
 				  !$item['wall'] && !$item['origin'] && ($item['id'] == $item['parent'])) {
-				// mmh.. no mention.. community page or private group... no wall.. no origin.. top-post (not a comment)
-				// delete it!
-				Logger::log("no-mention top-level post to community or private group. delete.");
+				Logger::notice('Delete private group/communiy top-level item without mention', ['id' => $item_id]);
 				DBA::delete('item', ['id' => $item_id]);
 				return true;
 			}
@@ -2753,7 +2756,7 @@ class Item
 
 		// also reset all the privacy bits to the forum default permissions
 
-		$private = ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) ? 1 : 0;
+		$private = ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) ? self::PRIVATE : self::PUBLIC;
 
 		$psid = PermissionSet::getIdFromACL(
 			$user['uid'],
@@ -2800,7 +2803,7 @@ class Item
 			return false;
 		}
 
-		if (($contact['network'] != Protocol::FEED) && $datarray['private']) {
+		if (($contact['network'] != Protocol::FEED) && ($datarray['private'] == self::PRIVATE)) {
 			Logger::log('Not public', Logger::DEBUG);
 			return false;
 		}
@@ -2838,7 +2841,7 @@ class Item
 				$urlpart = parse_url($datarray2['author-link']);
 				$datarray["app"] = $urlpart["host"];
 			} else {
-				$datarray['private'] = 0;
+				$datarray['private'] = self::PUBLIC;
 			}
 		}
 
@@ -3367,7 +3370,7 @@ class Item
 			$condition = ["`uri` = ? AND NOT `deleted` AND NOT (`uid` IN (?, 0))", $itemuri, $item["uid"]];
 			if (!self::exists($condition)) {
 				DBA::delete('item', ['uri' => $itemuri, 'uid' => 0]);
-				Logger::log("deleteThread: Deleted shadow for item ".$itemuri, Logger::DEBUG);
+				Logger::debug('Deleted shadow item', ['id' => $itemid, 'uri' => $itemuri]);
 			}
 		}
 	}
@@ -3382,7 +3385,7 @@ class Item
 		 *
 		 * default permissions - anonymous user
 		 */
-		$sql = " AND NOT `item`.`private`";
+		$sql = sprintf(" AND `item`.`private` != %d", self::PRIVATE);
 
 		// Profile owner - everything is visible
 		if ($local_user && ($local_user == $owner_id)) {
@@ -3398,12 +3401,12 @@ class Item
 			$set = PermissionSet::get($owner_id, $remote_user);
 
 			if (!empty($set)) {
-				$sql_set = " OR (`item`.`private` IN (1,2) AND `item`.`wall` AND `item`.`psid` IN (" . implode(',', $set) . "))";
+				$sql_set = sprintf(" OR (`item`.`private` = %d AND `item`.`wall` AND `item`.`psid` IN (", self::PRIVATE) . implode(',', $set) . "))";
 			} else {
 				$sql_set = '';
 			}
 
-			$sql = " AND (NOT `item`.`private`" . $sql_set . ")";
+			$sql = sprintf(" AND (`item`.`private` != %d", self::PRIVATE) . $sql_set . ")";
 		}
 
 		return $sql;
@@ -3505,7 +3508,7 @@ class Item
 					continue;
 				}
 
-				if ((local_user() == $item['uid']) && ($item['private'] == 1) && ($item['contact-id'] != $app->contact['id']) && ($item['network'] == Protocol::DFRN)) {
+				if ((local_user() == $item['uid']) && ($item['private'] == self::PRIVATE) && ($item['contact-id'] != $app->contact['id']) && ($item['network'] == Protocol::DFRN)) {
 					$img_url = 'redir/' . $item['contact-id'] . '?url=' . urlencode($mtch[1]);
 					$item['body'] = str_replace($mtch[0], '[img]' . $img_url . '[/img]', $item['body']);
 				}
@@ -3630,7 +3633,7 @@ class Item
 			$title .= ' ' . $mtch[2] . ' ' . DI::l10n()->t('bytes');
 
 			$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
-			$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
+			$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" rel="noopener noreferrer" >' . $icon . '</a>';
 		}
 
 		if ($as != '') {
@@ -3683,7 +3686,7 @@ class Item
 				$ret["title"] = DI::l10n()->t('link to source');
 			}
 
-		} elseif (!empty($item['plink']) && ($item['private'] != 1)) {
+		} elseif (!empty($item['plink']) && ($item['private'] != self::PRIVATE)) {
 			$ret = [
 				'href' => $item['plink'],
 				'orig' => $item['plink'],

@@ -151,6 +151,8 @@ class Notifier
 		// If this is a public conversation, notify the feed hub
 		$public_message = true;
 
+		$unlisted = false;
+
 		// Do a PuSH
 		$push_notify = false;
 
@@ -182,6 +184,8 @@ class Notifier
 				$diaspora_delivery = Diaspora::isSupportedByContactUrl($thr_parent['author-link']);
 				Logger::info('Threaded comment', ['diaspora_delivery' => (int)$diaspora_delivery]);
 			}
+
+			$unlisted = $target_item['private'] == Item::UNLISTED;
 
 			// This is IMPORTANT!!!!
 
@@ -245,8 +249,7 @@ class Notifier
 
 				Logger::info('Followup', ['target' => $target_id, 'guid' => $target_item['guid'], 'to' => $parent['contact-id']]);
 
-				//if (!$target_item['private'] && $target_item['wall'] &&
-				if (!$target_item['private'] &&
+				if (($target_item['private'] != Item::PRIVATE) &&
 					(strlen($target_item['allow_cid'].$target_item['allow_gid'].
 						$target_item['deny_cid'].$target_item['deny_gid']) == 0))
 					$push_notify = true;
@@ -410,7 +413,7 @@ class Notifier
 		if ($public_message && !in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION]) && !$followup) {
 			$relay_list = [];
 
-			if ($diaspora_delivery) {
+			if ($diaspora_delivery && !$unlisted) {
 				$batch_delivery = true;
 
 				$relay_list_stmt = DBA::p(

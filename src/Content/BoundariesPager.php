@@ -57,7 +57,7 @@ class BoundariesPager extends Pager
 		$this->last_item_id = $last_item_id;
 
 		$parsed = parse_url($this->getBaseQueryString());
-		if ($parsed) {
+		if (!empty($parsed['query'])) {
 			parse_str($parsed['query'], $queryParameters);
 
 			$this->first_page = !($queryParameters['since_id'] ?? null) && !($queryParameters['max_id'] ?? null);

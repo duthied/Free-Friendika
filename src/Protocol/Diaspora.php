@@ -2211,7 +2211,7 @@ class Diaspora
 			return false;
 		}
 
-		$item = Item::selectFirst(['id'], ['guid' => $parent_guid, 'origin' => true, 'private' => false]);
+		$item = Item::selectFirst(['id'], ['guid' => $parent_guid, 'origin' => true, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 		if (!DBA::isResult($item)) {
 			Logger::log('Item not found, no origin or private: '.$parent_guid);
 			return false;
@@ -2523,7 +2523,7 @@ class Diaspora
 		// Do we already have this item?
 		$fields = ['body', 'title', 'attach', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 			'author-name', 'author-link', 'author-avatar'];
-		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
+		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
 		$item = Item::selectFirst($fields, $condition);
 
 		if (DBA::isResult($item)) {
@@ -2567,7 +2567,7 @@ class Diaspora
 			if ($stored) {
 				$fields = ['body', 'title', 'attach', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 					'author-name', 'author-link', 'author-avatar'];
-				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
+				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
 				$item = Item::selectFirst($fields, $condition);
 
 				if (DBA::isResult($item)) {
@@ -2711,7 +2711,7 @@ class Diaspora
 		$datarray["app"]  = $original_item["app"];
 
 		$datarray["plink"] = self::plink($author, $guid);
-		$datarray["private"] = (($public == "false") ? 1 : 0);
+		$datarray["private"] = (($public == "false") ? Item::PRIVATE : Item::PUBLIC);
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
 		$datarray["object-type"] = $original_item["object-type"];
@@ -2941,7 +2941,7 @@ class Diaspora
 		}
 
 		$datarray["plink"] = self::plink($author, $guid);
-		$datarray["private"] = (($public == "false") ? 1 : 0);
+		$datarray["private"] = (($public == "false") ? Item::PRIVATE : Item::PUBLIC);
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
 		if (isset($address["address"])) {
@@ -3245,7 +3245,7 @@ class Diaspora
 	private static function sendParticipation(array $contact, array $item)
 	{
 		// Don't send notifications for private postings
-		if ($item['private']) {
+		if ($item['private'] == Item::PRIVATE) {
 			return;
 		}
 
@@ -3536,12 +3536,12 @@ class Diaspora
 
 		$myaddr = self::myHandle($owner);
 
-		$public = ($item["private"] ? "false" : "true");
+		$public = ($item["private"] == Item::PRIVATE ? "false" : "true");
 		$created = DateTimeFormat::utc($item['received'], DateTimeFormat::ATOM);
 		$edited = DateTimeFormat::utc($item["edited"] ?? $item["created"], DateTimeFormat::ATOM);
 
 		// Detect a share element and do a reshare
-		if (!$item['private'] && ($ret = self::isReshare($item["body"]))) {
+		if (($item['private'] != Item::PRIVATE) && ($ret = self::isReshare($item["body"]))) {
 			$message = ["author" => $myaddr,
 					"guid" => $item["guid"],
 					"created_at" => $created,
@@ -4135,8 +4135,7 @@ class Diaspora
 				$dob = DateTimeFormat::utc($year . '-' . $month . '-'. $day, 'Y-m-d');
 			}
 
-			$about = $profile['about'];
-			$about = strip_tags(BBCode::convert($about));
+			$about = BBCode::toMarkdown($profile['about']);
 
 			$location = Profile::formatLocation($profile);
 			$tags = '';

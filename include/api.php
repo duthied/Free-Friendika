@@ -25,7 +25,6 @@
 
 use Friendica\App;
 use Friendica\Content\ContactSelector;
-use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -42,7 +41,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Mail;
 use Friendica\Model\Notify;
 use Friendica\Model\Photo;
-use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
 use Friendica\Network\FKOAuth1;
@@ -785,7 +783,7 @@ function api_item_get_user(App $a, $item)
 
 	$author_user = $status_user;
 
-	$status_user["protected"] = $item['private'] ?? 0;
+	$status_user["protected"] = isset($item['private']) && ($item['private'] == Item::PRIVATE);
 
 	if (($item['thr-parent'] ?? '') == ($item['uri'] ?? '')) {
 		$owner_user = api_get_user($a, $item['owner-id'] ?? null);
@@ -1344,7 +1342,7 @@ function api_get_last_status($ownerId, $uid)
 		'author-id'=> $ownerId,
 		'uid'      => $uid,
 		'gravity'  => [GRAVITY_PARENT, GRAVITY_COMMENT],
-		'private'  => false
+		'private'  => [Item::PUBLIC, Item::UNLISTED]
 	];
 
 	$item = api_get_item($condition);
@@ -1734,8 +1732,8 @@ function api_statuses_public_timeline($type)
 	$start = max(0, ($page - 1) * $count);
 
 	if ($exclude_replies && !$conversation_id) {
-		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND NOT `author`.`hidden`",
-			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND `private` = ? AND `wall` AND NOT `author`.`hidden`",
+			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 		if ($max_id > 0) {
 			$condition[0] .= " AND `thread`.`iid` <= ?";
@@ -1747,8 +1745,8 @@ function api_statuses_public_timeline($type)
 
 		$r = Item::inArray($statuses);
 	} else {
-		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND `item`.`origin` AND NOT `author`.`hidden`",
-			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND `private` = ? AND `wall` AND `item`.`origin` AND NOT `author`.`hidden`",
+			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 		if ($max_id > 0) {
 			$condition[0] .= " AND `item`.`id` <= ?";
@@ -1813,8 +1811,8 @@ function api_statuses_networkpublic_timeline($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `thread`.`iid` > ? AND NOT `private`",
-		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
+	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `thread`.`iid` > ? AND `private` = ?",
+		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 	if ($max_id > 0) {
 		$condition[0] .= " AND `thread`.`iid` <= ?";
@@ -2042,7 +2040,7 @@ function api_statuses_repeat($type)
 	Logger::log('API: api_statuses_repeat: '.$id);
 
 	$fields = ['body', 'title', 'attach', 'tag', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
-	$item = Item::selectFirst($fields, ['id' => $id, 'private' => false]);
+	$item = Item::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 
 	if (DBA::isResult($item) && $item['body'] != "") {
 		if (strpos($item['body'], "[/share]") !== false) {
@@ -3007,7 +3005,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		'user' =>  $status_user,
 		'friendica_author' => $author_user,
 		'friendica_owner' => $owner_user,
-		'friendica_private' => $item['private'] == 1,
+		'friendica_private' => $item['private'] == Item::PRIVATE,
 		//'entities' => NULL,
 		'statusnet_html' => $converted["html"],
 		'statusnet_conversation_id' => $item['parent'],
@@ -5920,7 +5918,7 @@ function api_friendica_notification_seen($type)
 	$id = (!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 0);
 
 	try {
-		$notify = DI::notify()->getByID($id);
+		$notify = DI::notify()->getByID($id, api_user());
 		DI::notify()->setSeen(true, $notify);
 
 		if ($notify->otype === Notify\ObjectType::ITEM) {

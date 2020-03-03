@@ -28,7 +28,7 @@ use Friendica\Module\Contact;
 
 function update_contact_content(App $a)
 {
-	if ($_GET["force"] == 1) {
+	if (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update')) {
 		$text = Contact::content([], true);
 	} else {
 		$text = '';
