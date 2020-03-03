@@ -975,7 +975,8 @@ class BBCode
 				Contact::getIdForURL($attributes['profile'], 0, true, $default);
 
 				$author_contact = Contact::getDetailsByURL($attributes['profile']);
-				$author_contact['addr'] = ($author_contact['addr']  ?? '') ?: Protocol::getAddrFromProfileUrl($attributes['profile']);
+				$author_contact['url'] = ($author_contact['url'] ?? $attributes['profile']);
+				$author_contact['addr'] = ($author_contact['addr'] ?? '') ?: Protocol::getAddrFromProfileUrl($attributes['profile']);
 
 				$attributes['author']   = ($author_contact['name']  ?? '') ?: $attributes['author'];
 				$attributes['avatar']   = ($author_contact['micro'] ?? '') ?: $attributes['avatar'];

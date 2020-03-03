@@ -1682,7 +1682,7 @@ class OStatus
 
 		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
-		$condition = ['uid' => $owner["uid"], 'guid' => $repeated_guid, 'private' => false,
+		$condition = ['uid' => $owner["uid"], 'guid' => $repeated_guid, 'private' => [Item::PUBLIC, Item::UNLISTED],
 			'network' => [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]];
 		$repeated_item = Item::selectFirst([], $condition);
 		if (!DBA::isResult($repeated_item)) {
@@ -1827,7 +1827,7 @@ class OStatus
 	{
 		$item["id"] = $item["parent"] = 0;
 		$item["created"] = $item["edited"] = date("c");
-		$item["private"] = true;
+		$item["private"] = Item::PRIVATE;
 
 		$contact = Probe::uri($item['follow']);
 
@@ -2120,7 +2120,7 @@ class OStatus
 			]);
 		}
 
-		if (!$item["private"] && !$feed_mode) {
+		if (($item['private'] != Item::PRIVATE) && !$feed_mode) {
 			XML::addElement($doc, $entry, "link", "", ["rel" => "ostatus:attention",
 									"href" => "http://activityschema.org/collection/public"]);
 			XML::addElement($doc, $entry, "link", "", ["rel" => "mentioned",
@@ -2212,8 +2212,8 @@ class OStatus
 		$authorid = Contact::getIdForURL($owner["url"], 0, true);
 
 		$condition = ["`uid` = ? AND `received` > ? AND NOT `deleted`
-			AND NOT `private` AND `visible` AND `wall` AND `parent-network` IN (?, ?)",
-			$owner["uid"], $check_date, Protocol::OSTATUS, Protocol::DFRN];
+			AND `private` != ? AND `visible` AND `wall` AND `parent-network` IN (?, ?)",
+			$owner["uid"], $check_date, Item::PRIVATE, Protocol::OSTATUS, Protocol::DFRN];
 
 		if ($filter === 'comments') {
 			$condition[0] .= " AND `object-type` = ? ";

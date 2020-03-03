@@ -122,7 +122,9 @@ class JsonLD
 			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
 			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
 			'toot' => (object)['@id' => 'http://joinmastodon.org/ns#', '@type' => '@id'],
-			'litepub' => (object)['@id' => 'http://litepub.social/ns#', '@type' => '@id']];
+			'litepub' => (object)['@id' => 'http://litepub.social/ns#', '@type' => '@id'],
+			'sc' => (object)['@id' => 'http://schema.org#', '@type' => '@id'],
+			'pt' => (object)['@id' => 'https://joinpeertube.org/ns#', '@type' => '@id']];
 
 		// Preparation for adding possibly missing content to the context
 		if (!empty($json['@context']) && is_string($json['@context'])) {

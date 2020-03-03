@@ -657,11 +657,11 @@ class OnePoll
 					$datarray['owner-avatar'] = $contact['photo'];
 
 					if ($datarray['parent-uri'] === $datarray['uri']) {
-						$datarray['private'] = 1;
+						$datarray['private'] = Item::PRIVATE;
 					}
 
 					if (!DI::pConfig()->get($importer_uid, 'system', 'allow_public_email_replies')) {
-						$datarray['private'] = 1;
+						$datarray['private'] = Item::PRIVATE;
 						$datarray['allow_cid'] = '<' . $contact['id'] . '>';
 					}
 

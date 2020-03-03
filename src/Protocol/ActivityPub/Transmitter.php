@@ -173,7 +173,7 @@ class Transmitter
 		$public_contact = Contact::getIdForURL($owner['url'], 0, true);
 
 		$condition = ['uid' => 0, 'contact-id' => $public_contact, 'author-id' => $public_contact,
-			'private' => false, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'private' => [Item::PUBLIC, Item::UNLISTED], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
 			'deleted' => false, 'visible' => true, 'moderated' => false];
 		$count = DBA::count('item', $condition);
 
@@ -401,7 +401,7 @@ class Transmitter
 
 		$terms = Term::tagArrayFromItemId($item['id'], [Term::MENTION, Term::IMPLICIT_MENTION]);
 
-		if (!$item['private']) {
+		if ($item['private'] != Item::PRIVATE) {
 			// Directly mention the original author upon a quoted reshare.
 			// Else just ensure that the original author receives the reshare.
 			$announce = self::getAnnounceArray($item);
@@ -413,7 +413,12 @@ class Transmitter
 
 			$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
 
-			$data['to'][] = ActivityPub::PUBLIC_COLLECTION;
+			// Check if the item is completely public or unlisted
+			if ($item['private'] == Item::PUBLIC) {
+				$data['to'][] = ActivityPub::PUBLIC_COLLECTION;
+			} else {
+				$data['cc'][] = ActivityPub::PUBLIC_COLLECTION;
+			}
 
 			foreach ($terms as $term) {
 				$profile = APContact::getByURL($term['url'], false);
@@ -467,13 +472,13 @@ class Transmitter
 								$data['to'][] = $profile['url'];
 							} else {
 								$data['cc'][] = $profile['url'];
-								if (!$item['private'] && !empty($actor_profile['followers'])) {
+								if (($item['private'] != Item::PRIVATE) && $item['private'] && !empty($actor_profile['followers'])) {
 									$data['cc'][] = $actor_profile['followers'];
 								}
 							}
 						} else {
 							// Public thread parent post always are directed to the followers
-							if (!$item['private'] && !$forum_mode) {
+							if (($item['private'] != Item::PRIVATE) && !$forum_mode) {
 								$data['cc'][] = $actor_profile['followers'];
 							}
 						}

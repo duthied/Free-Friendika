@@ -54,7 +54,7 @@ class Fetch extends BaseModule
 			'uid', 'title', 'body', 'guid', 'contact-id', 'private', 'created', 'received', 'app', 'location', 'coord', 'network',
 			'event-id', 'resource-id', 'author-link', 'author-avatar', 'author-name', 'plink', 'owner-link', 'attach'
 		];
-		$condition = ['wall' => true, 'private' => false, 'guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
+		$condition = ['wall' => true, 'private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
 		$item = Item::selectFirst($fields, $condition);
 		if (empty($item)) {
 			$condition = ['guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];

@@ -82,7 +82,7 @@ class Term
 				WHERE `thread`.`visible`
 				  AND NOT `thread`.`deleted`
 				  AND NOT `thread`.`moderated`
-				  AND NOT `thread`.`private`
+				  AND `thread`.`private` = ?
 				  AND t.`uid` = 0
 				  AND t.`otype` = ?
 				  AND t.`type` = ?
@@ -91,6 +91,7 @@ class Term
 				GROUP BY `term`
 				ORDER BY `score` DESC
 				LIMIT ?",
+				Item::PUBLIC,
 				Term::OBJECT_TYPE_POST,
 				Term::HASHTAG,
 				$period,
@@ -122,11 +123,10 @@ class Term
 				FROM `term` t
 				JOIN `item` i ON i.`id` = t.`oid` AND i.`uid` = t.`uid`
 				JOIN `thread` ON `thread`.`iid` = i.`id`
-				JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 				WHERE `thread`.`visible`
 				  AND NOT `thread`.`deleted`
 				  AND NOT `thread`.`moderated`
-				  AND NOT `thread`.`private`
+				  AND `thread`.`private` = ?
 				  AND `thread`.`wall`
 				  AND `thread`.`origin`
 				  AND t.`otype` = ?
@@ -136,6 +136,7 @@ class Term
 				GROUP BY `term`
 				ORDER BY `score` DESC
 				LIMIT ?",
+				Item::PUBLIC,
 				Term::OBJECT_TYPE_POST,
 				Term::HASHTAG,
 				$period,

@@ -170,12 +170,12 @@ class Post
 
 		$conv = $this->getThread();
 
-		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid'])
+		$lock = ((($item['private'] == Item::PRIVATE) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid'])
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? DI::l10n()->t('Private Message')
 			: false);
 
-		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != 1;
+		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != Item::PRIVATE;
 
 		$edpost = false;
 
