@@ -220,7 +220,7 @@ class Processor
 		$owner = Contact::getIdForURL($activity['actor']);
 
 		Logger::log('Deleting item ' . $activity['object_id'] . ' from ' . $owner, Logger::DEBUG);
-		Item::delete(['uri' => $activity['object_id'], 'owner-id' => $owner]);
+		Item::markForDeletion(['uri' => $activity['object_id'], 'owner-id' => $owner]);
 	}
 
 	/**
@@ -868,7 +868,7 @@ class Processor
 			return;
 		}
 
-		Item::delete(['uri' => $activity['object_id'], 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
+		Item::markForDeletion(['uri' => $activity['object_id'], 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
 	}
 
 	/**

@@ -2716,7 +2716,7 @@ class DFRN
 
 		Logger::log('deleting item '.$item['id'].' uri='.$uri, Logger::DEBUG);
 
-		Item::delete(['id' => $item['id']]);
+		Item::markForDeletion(['id' => $item['id']]);
 	}
 
 	/**
