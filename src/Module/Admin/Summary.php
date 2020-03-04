@@ -32,7 +32,6 @@ use Friendica\DI;
 use Friendica\Model\Register;
 use Friendica\Module\BaseAdmin;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Network\HTTPRequest;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\DateTimeFormat;
 
@@ -247,7 +246,7 @@ class Summary extends BaseAdmin
 	private static function checkSelfHostMeta()
 	{
 		// Fetch the host-meta to check if this really is a vital server
-		return HTTPRequest::curl(DI::baseUrl()->get() . '/.well-known/host-meta')->isSuccess();
+		return DI::httpRequest()->curl(DI::baseUrl()->get() . '/.well-known/host-meta')->isSuccess();
 	}
 
 }

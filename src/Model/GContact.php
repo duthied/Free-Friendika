@@ -36,7 +36,6 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
@@ -846,7 +845,7 @@ class GContact
 			return false;
 		}
 
-		$curlResult = HTTPRequest::curl($gserver['noscrape'] . '/' . $data['nick']);
+		$curlResult = DI::httpRequest()->curl($gserver['noscrape'] . '/' . $data['nick']);
 
 		if ($curlResult->isSuccess() && !empty($curlResult->getBody())) {
 			$noscrape = json_decode($curlResult->getBody(), true);
@@ -928,7 +927,7 @@ class GContact
 	private static function updateFromFeed(array $data)
 	{
 		// Search for the newest entry in the feed
-		$curlResult = HTTPRequest::curl($data['poll']);
+		$curlResult = DI::httpRequest()->curl($data['poll']);
 		if (!$curlResult->isSuccess()) {
 			$fields = ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()];
 			DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
@@ -1206,7 +1205,7 @@ class GContact
 
 		$url = $server . '/main/statistics';
 
-		$curlResult = HTTPRequest::curl($url);
+		$curlResult = DI::httpRequest()->curl($url);
 		if (!$curlResult->isSuccess()) {
 			return false;
 		}

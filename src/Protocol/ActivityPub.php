@@ -24,7 +24,6 @@ namespace Friendica\Protocol;
 use Friendica\Core\Protocol;
 use Friendica\Model\APContact;
 use Friendica\Model\User;
-use Friendica\Network\HTTPRequest;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 
@@ -93,7 +92,7 @@ class ActivityPub
 			return HTTPSignature::fetch($url, $uid);
 		}
 
-		$curlResult = HTTPRequest::curl($url, false, ['accept_content' => 'application/activity+json, application/ld+json']);
+		$curlResult = DI::httpRequest()->curl($url, false, ['accept_content' => 'application/activity+json, application/ld+json']);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return false;
 		}
