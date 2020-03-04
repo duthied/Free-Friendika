@@ -36,11 +36,11 @@ use Psr\Log\LoggerInterface;
 class SystemMailBuilder extends MailBuilder
 {
 	/** @var string */
-	protected $subject;
+	protected $subject = '';
 	/** @var string */
-	protected $preamble;
+	protected $preamble = '';
 	/** @var string */
-	protected $body;
+	protected $body = null;
 
 	/** @var string */
 	protected $siteAdmin;
@@ -71,10 +71,6 @@ class SystemMailBuilder extends MailBuilder
 	 */
 	public function withMessage(string $subject, string $preamble, string $body = null)
 	{
-		if (!isset($body)) {
-			$body = $preamble;
-		}
-
 		$this->subject  = $subject;
 		$this->preamble = $preamble;
 		$this->body     = $body;
@@ -98,7 +94,7 @@ class SystemMailBuilder extends MailBuilder
 	 */
 	protected function getHtmlMessage()
 	{
-		$htmlVersion = BBCode::convert($this->body);
+		$htmlVersion = !empty($this->body) ? BBCode::convert($this->body) : '';
 
 		// load the template for private message notifications
 		$tpl = Renderer::getMarkupTemplate('email/system/html.tpl');
@@ -117,7 +113,7 @@ class SystemMailBuilder extends MailBuilder
 	 */
 	protected function getPlaintextMessage()
 	{
-		$textVersion = BBCode::toPlaintext($this->body);
+		$textVersion = !empty($this->body) ? BBCode::toPlaintext($this->body) : '';
 
 		// load the template for private message notifications
 		$tpl = Renderer::getMarkupTemplate('email/system/text.tpl');
