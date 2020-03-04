@@ -1634,7 +1634,7 @@ class GServer
 		$protocols = ['activitypub', 'diaspora', 'dfrn', 'ostatus'];
 		foreach ($protocols as $protocol) {
 			$query = '{nodes(protocol:"' . $protocol . '"){host}}';
-			$curlResult = DI::httpRequest()->fetchUrl('https://the-federation.info/graphql?query=' . urlencode($query));
+			$curlResult = DI::httpRequest()->fetch('https://the-federation.info/graphql?query=' . urlencode($query));
 			if (!empty($curlResult)) {
 				$data = json_decode($curlResult, true);
 				if (!empty($data['data']['nodes'])) {

@@ -27,7 +27,6 @@ use Friendica\Core\Config\Cache;
 use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Network\HTTPRequest;
 use Friendica\Util\Images;
 use Friendica\Util\Strings;
 
@@ -548,11 +547,11 @@ class Installer
 		$help = "";
 		$error_msg = "";
 		if (function_exists('curl_init')) {
-			$fetchResult = DI::httpRequest()->fetchUrlFull($baseurl . "/install/testrewrite");
+			$fetchResult = DI::httpRequest()->fetchFull($baseurl . "/install/testrewrite");
 
 			$url = Strings::normaliseLink($baseurl . "/install/testrewrite");
 			if ($fetchResult->getReturnCode() != 204) {
-				$fetchResult = DI::httpRequest()->fetchUrlFull($url);
+				$fetchResult = DI::httpRequest()->fetchFull($url);
 			}
 
 			if ($fetchResult->getReturnCode() != 204) {

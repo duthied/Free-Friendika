@@ -1106,7 +1106,7 @@ class BBCode
 				$text = "[url=" . $match[2] . ']' . $match[2] . "[/url]";
 
 				// if its not a picture then look if its a page that contains a picture link
-				$body = DI::httpRequest()->fetchUrl($match[1]);
+				$body = DI::httpRequest()->fetch($match[1]);
 
 				$doc = new DOMDocument();
 				@$doc->loadHTML($body);
@@ -1185,7 +1185,7 @@ class BBCode
 			}
 
 			// if its not a picture then look if its a page that contains a picture link
-			$body = DI::httpRequest()->fetchUrl($match[1]);
+			$body = DI::httpRequest()->fetch($match[1]);
 
 			$doc = new DOMDocument();
 			@$doc->loadHTML($body);

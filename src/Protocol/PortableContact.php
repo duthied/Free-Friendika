@@ -102,7 +102,7 @@ class PortableContact
 
 		Logger::log('load: ' . $url, Logger::DEBUG);
 
-		$fetchresult = DI::httpRequest()->fetchUrlFull($url);
+		$fetchresult = DI::httpRequest()->fetchFull($url);
 		$s = $fetchresult->getBody();
 
 		Logger::log('load: returns ' . $s, Logger::DATA);
