@@ -225,7 +225,6 @@ class Receiver
 		if (in_array($type, ['as:Create', 'as:Update', 'as:Announce'])) {
 			if ($type == 'as:Announce') {
 				$trust_source = false;
-				$push = false;
 			}
 			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source, $uid);
 			if (empty($object_data)) {
@@ -234,7 +233,12 @@ class Receiver
 			}
 
 			$object_data['object_id'] = $object_id;
-			$object_data['push'] = $push;
+
+			if ($type == 'as:Announce') {
+				$object_data['push'] = false;
+			} else {
+				$object_data['push'] = $push;
+			}
 
 			// Test if it is an answer to a mail
 			if (DBA::exists('mail', ['uri' => $object_data['reply-to-id']])) {
@@ -357,7 +361,7 @@ class Receiver
 			return;
 		}
 
-		if (!empty($body)) {
+		if (!empty($body) && empty($object_data['raw'])) {
 			$object_data['raw'] = $body;
 		}
 
@@ -395,6 +399,11 @@ class Receiver
 						$announce_object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
 						$announce_object_data['object_id'] = $object_data['object_id'];
 						$announce_object_data['object_type'] = $object_data['object_type'];
+						$announce_object_data['push'] = $push;
+
+						if (!empty($body)) {
+							$announce_object_data['raw'] = $body;
+						}
 
 						ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
 					}
