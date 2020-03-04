@@ -485,7 +485,7 @@ class BBCode
 					continue;
 				}
 
-				$curlResult = DI::httpRequest()->curl($mtch[1], true);
+				$curlResult = DI::httpRequest()->get($mtch[1], true);
 				if (!$curlResult->isSuccess()) {
 					continue;
 				}

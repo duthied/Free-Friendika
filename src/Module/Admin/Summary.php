@@ -246,7 +246,7 @@ class Summary extends BaseAdmin
 	private static function checkSelfHostMeta()
 	{
 		// Fetch the host-meta to check if this really is a vital server
-		return DI::httpRequest()->curl(DI::baseUrl()->get() . '/.well-known/host-meta')->isSuccess();
+		return DI::httpRequest()->get(DI::baseUrl()->get() . '/.well-known/host-meta')->isSuccess();
 	}
 
 }
