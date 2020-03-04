@@ -1066,11 +1066,11 @@ class Item
 	 * @param integer $priority  Priority for the notification
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function delete($condition, $priority = PRIORITY_HIGH)
+	public static function markForDeletion($condition, $priority = PRIORITY_HIGH)
 	{
 		$items = self::select(['id'], $condition);
 		while ($item = self::fetch($items)) {
-			self::deleteById($item['id'], $priority);
+			self::markForDeletionById($item['id'], $priority);
 		}
 		DBA::close($items);
 	}
@@ -1097,7 +1097,7 @@ class Item
 				// Delete notifications
 				DBA::delete('notify', ['iid' => $item['id'], 'uid' => $uid]);
 			} elseif ($item['uid'] == $uid) {
-				self::deleteById($item['id'], PRIORITY_HIGH);
+				self::markForDeletionById($item['id'], PRIORITY_HIGH);
 			} else {
 				Logger::log('Wrong ownership. Not deleting item ' . $item['id']);
 			}
@@ -1106,17 +1106,17 @@ class Item
 	}
 
 	/**
-	 * Delete an item and notify others about it - if it was ours
+	 * Mark an item for deletion, delete related data and notify others about it - if it was ours
 	 *
-	 * @param integer $item_id  Item ID that should be delete
+	 * @param integer $item_id
 	 * @param integer $priority Priority for the notification
 	 *
 	 * @return boolean success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function deleteById($item_id, $priority = PRIORITY_HIGH)
+	public static function markForDeletionById($item_id, $priority = PRIORITY_HIGH)
 	{
-		Logger::notice('Delete item by id', ['id' => $item_id, 'callstack' => System::callstack()]);
+		Logger::info('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
 		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
 			'deleted', 'file', 'resource-id', 'event-id', 'attach',
@@ -1124,12 +1124,12 @@ class Item
 			'icid', 'iaid', 'psid'];
 		$item = self::selectFirst($fields, ['id' => $item_id]);
 		if (!DBA::isResult($item)) {
-			Logger::log('Item with ID ' . $item_id . " hasn't been found.", Logger::DEBUG);
+			Logger::info('Item not found.', ['id' => $item_id]);
 			return false;
 		}
 
 		if ($item['deleted']) {
-			Logger::log('Item with ID ' . $item_id . ' has already been deleted.', Logger::DEBUG);
+			Logger::info('Item has already been marked for deletion.', ['id' => $item_id]);
 			return false;
 		}
 
@@ -1199,7 +1199,7 @@ class Item
 		self::deleteThread($item['id'], $item['parent-uri']);
 
 		if (!self::exists(["`uri` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri']])) {
-			self::delete(['uri' => $item['uri'], 'uid' => 0, 'deleted' => false], $priority);
+			self::markForDeletion(['uri' => $item['uri'], 'uid' => 0, 'deleted' => false], $priority);
 		}
 
 		ItemDeliveryData::delete($item['id']);
@@ -1219,14 +1219,13 @@ class Item
 
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['id'] == $item['parent']) {
-			self::delete(['parent' => $item['parent'], 'deleted' => false], $priority);
+			self::markForDeletion(['parent' => $item['parent'], 'deleted' => false], $priority);
 		}
 
 		// Is it our comment and/or our thread?
 		if ($item['origin'] || $parent['origin']) {
-
 			// When we delete the original post we will delete all existing copies on the server as well
-			self::delete(['uri' => $item['uri'], 'deleted' => false], $priority);
+			self::markForDeletion(['uri' => $item['uri'], 'deleted' => false], $priority);
 
 			// send the notification upstream/downstream
 			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", Delivery::DELETION, intval($item['id']));
@@ -1239,7 +1238,7 @@ class Item
 			}
 		}
 
-		Logger::log('Item with ID ' . $item_id . " has been deleted.", Logger::DEBUG);
+		Logger::info('Item has been marked for deletion.', ['id' => $item_id]);
 
 		return true;
 	}
@@ -1939,7 +1938,7 @@ class Item
 
 		if ($entries > 1) {
 			// There are duplicates. We delete our just created entry.
-			Logger::notice('Delete duplicated item', ['id' => $current_post, 'uri' => $item['uri'], 'uid' => $item['uid']]);
+			Logger::info('Delete duplicated item', ['id' => $current_post, 'uri' => $item['uri'], 'uid' => $item['uid'], 'guid' => $item['guid']]);
 
 			// Yes, we could do a rollback here - but we are having many users with MyISAM.
 			DBA::delete('item', ['id' => $current_post]);
@@ -2722,7 +2721,7 @@ class Item
 		if (!$mention) {
 			if (($community_page || $prvgroup) &&
 				  !$item['wall'] && !$item['origin'] && ($item['id'] == $item['parent'])) {
-				Logger::notice('Delete private group/communiy top-level item without mention', ['id' => $item_id]);
+				Logger::info('Delete private group/communiy top-level item without mention', ['id' => $item_id, 'guid'=> $item['guid']]);
 				DBA::delete('item', ['id' => $item_id]);
 				return true;
 			}
@@ -3105,7 +3104,7 @@ class Item
 				continue;
 			}
 
-			self::deleteById($item['id'], PRIORITY_LOW);
+			self::markForDeletionById($item['id'], PRIORITY_LOW);
 
 			++$expired;
 		}
@@ -3246,7 +3245,7 @@ class Item
 
 		// If it exists, mark it as deleted
 		if (DBA::isResult($like_item)) {
-			self::deleteById($like_item['id']);
+			self::markForDeletionById($like_item['id']);
 
 			if (!$event_verb_flag || $like_item['verb'] == $activity) {
 				return true;

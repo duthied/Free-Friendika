@@ -585,7 +585,7 @@ class OStatus
 			return;
 		}
 
-		Item::delete($condition);
+		Item::markForDeletion($condition);
 
 		Logger::log('Deleted item with uri '.$item['uri'].' for user '.$item['uid']);
 	}

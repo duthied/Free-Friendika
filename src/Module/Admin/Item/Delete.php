@@ -48,7 +48,7 @@ class Delete extends BaseAdmin
 			}
 			// Now that we have the GUID, drop those items, which will also delete the
 			// associated threads.
-			Item::delete(['guid' => $guid]);
+			Item::markForDeletion(['guid' => $guid]);
 		}
 
 		info(DI::l10n()->t('Item marked for deletion.') . EOL);
