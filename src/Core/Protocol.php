@@ -21,6 +21,8 @@
 
 namespace Friendica\Core;
 
+use Friendica\DI;
+
 /**
  * Manage compatibility with federated networks
  */
@@ -89,7 +91,6 @@ class Protocol
 	 * @param string $profile_url
 	 * @param array  $matches preg_match return array: [0] => Full match [1] => hostname [2] => username
 	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function matchByProfileUrl($profile_url, &$matches = [])
 	{
@@ -121,7 +122,7 @@ class Protocol
 		if (preg_match('=https?://(.*)/user/(.*)=ism', $profile_url, $matches)) {
 			$statusnet_host = $matches[1];
 			$statusnet_user = $matches[2];
-			$UserData = DI::httpRequest()->fetchUrl('http://' . $statusnet_host . '/api/users/show.json?user_id=' . $statusnet_user);
+			$UserData = DI::httpRequest()->fetch('http://' . $statusnet_host . '/api/users/show.json?user_id=' . $statusnet_user);
 			$user = json_decode($UserData);
 			if ($user) {
 				$matches[2] = $user->screen_name;
