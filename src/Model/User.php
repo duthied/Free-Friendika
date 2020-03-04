@@ -34,6 +34,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\TwoFactor\AppSpecificPassword;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPRequest;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -823,7 +824,7 @@ class User
 			$photo_failure = false;
 
 			$filename = basename($photo);
-			$curlResult = Network::curl($photo, true);
+			$curlResult = HTTPRequest::curl($photo, true);
 			if ($curlResult->isSuccess()) {
 				$img_str = $curlResult->getBody();
 				$type = $curlResult->getContentType();

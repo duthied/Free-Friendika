@@ -38,12 +38,11 @@ use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Photo;
 use Friendica\Model\Tag;
-use Friendica\Network\Probe;
+use Friendica\Network\HTTPRequest;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Images;
 use Friendica\Util\Map;
-use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
@@ -487,7 +486,7 @@ class BBCode
 					continue;
 				}
 
-				$curlResult = Network::curl($mtch[1], true);
+				$curlResult = HTTPRequest::curl($mtch[1], true);
 				if (!$curlResult->isSuccess()) {
 					continue;
 				}
@@ -1108,7 +1107,7 @@ class BBCode
 				$text = "[url=" . $match[2] . ']' . $match[2] . "[/url]";
 
 				// if its not a picture then look if its a page that contains a picture link
-				$body = Network::fetchUrl($match[1]);
+				$body = HTTPRequest::fetchUrl($match[1]);
 
 				$doc = new DOMDocument();
 				@$doc->loadHTML($body);
@@ -1187,7 +1186,7 @@ class BBCode
 			}
 
 			// if its not a picture then look if its a page that contains a picture link
-			$body = Network::fetchUrl($match[1]);
+			$body = HTTPRequest::fetchUrl($match[1]);
 
 			$doc = new DOMDocument();
 			@$doc->loadHTML($body);

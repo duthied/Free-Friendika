@@ -43,6 +43,7 @@ use Friendica\Model\Post\Category;
 use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
+use Friendica\Network\HTTPRequest;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -1194,7 +1195,7 @@ class DFRN
 
 		Logger::log('dfrn_deliver: ' . $url);
 
-		$curlResult = Network::curl($url);
+		$curlResult = HTTPRequest::curl($url);
 
 		if ($curlResult->isTimeout()) {
 			return -2; // timed out
@@ -1343,7 +1344,7 @@ class DFRN
 
 		Logger::debug('dfrn_deliver', ['post' => $postvars]);
 
-		$postResult = Network::post($contact['notify'], $postvars);
+		$postResult = HTTPRequest::post($contact['notify'], $postvars);
 
 		$xml = $postResult->getBody();
 
@@ -1440,7 +1441,7 @@ class DFRN
 
 		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
 
-		$postResult = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
+		$postResult = HTTPRequest::post($dest_url, $envelope, ["Content-Type: " . $content_type]);
 		$xml = $postResult->getBody();
 
 		$curl_stat = $postResult->getReturnCode();

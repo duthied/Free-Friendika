@@ -24,6 +24,7 @@ namespace Friendica\Util;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Network\HTTPRequest;
 
 /**
  * Image utilities
@@ -184,7 +185,7 @@ class Images
 			return $data;
 		}
 
-		$img_str = Network::fetchUrl($url, true, 4);
+		$img_str = HTTPRequest::fetchUrl($url, true, 4);
 
 		if (!$img_str) {
 			return [];

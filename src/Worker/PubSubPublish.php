@@ -25,8 +25,8 @@ use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\PushSubscriber;
+use Friendica\Network\HTTPRequest;
 use Friendica\Protocol\OStatus;
-use Friendica\Util\Network;
 
 class PubSubPublish
 {
@@ -68,7 +68,7 @@ class PubSubPublish
 
 		Logger::log('POST ' . print_r($headers, true) . "\n" . $params, Logger::DATA);
 
-		$postResult = Network::post($subscriber['callback_url'], $params, $headers);
+		$postResult = HTTPRequest::post($subscriber['callback_url'], $params, $headers);
 		$ret = $postResult->getReturnCode();
 
 		if ($ret >= 200 && $ret <= 299) {
