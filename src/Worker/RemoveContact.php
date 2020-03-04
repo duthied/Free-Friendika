@@ -43,7 +43,7 @@ class RemoveContact {
 		do {
 			$items = Item::select(['id', 'guid'], $condition, ['limit' => 100]);
 			while ($item = Item::fetch($items)) {
-				Logger::notice('Delete removed contact item', ['id' => $item['id'], 'guid' => $item['guid']]);
+				Logger::info('Delete removed contact item', ['id' => $item['id'], 'guid' => $item['guid']]);
 				DBA::delete('item', ['id' => $item['id']]);
 			}
 			DBA::close($items);

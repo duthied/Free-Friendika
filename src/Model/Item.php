@@ -1116,7 +1116,7 @@ class Item
 	 */
 	public static function markForDeletionById($item_id, $priority = PRIORITY_HIGH)
 	{
-		Logger::notice('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
+		Logger::info('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
 		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
 			'deleted', 'file', 'resource-id', 'event-id', 'attach',
@@ -1124,12 +1124,12 @@ class Item
 			'icid', 'iaid', 'psid'];
 		$item = self::selectFirst($fields, ['id' => $item_id]);
 		if (!DBA::isResult($item)) {
-			Logger::debug('Item not found.', ['id' => $item_id]);
+			Logger::info('Item not found.', ['id' => $item_id]);
 			return false;
 		}
 
 		if ($item['deleted']) {
-			Logger::debug('Item has already been marked for deletion.', ['id' => $item_id]);
+			Logger::info('Item has already been marked for deletion.', ['id' => $item_id]);
 			return false;
 		}
 
@@ -1238,7 +1238,7 @@ class Item
 			}
 		}
 
-		Logger::debug('Item has been marked for deletion.', ['id' => $item_id]);
+		Logger::info('Item has been marked for deletion.', ['id' => $item_id]);
 
 		return true;
 	}
@@ -1938,7 +1938,7 @@ class Item
 
 		if ($entries > 1) {
 			// There are duplicates. We delete our just created entry.
-			Logger::notice('Delete duplicated item', ['id' => $current_post, 'uri' => $item['uri'], 'uid' => $item['uid'], 'guid' => $item['guid']]);
+			Logger::info('Delete duplicated item', ['id' => $current_post, 'uri' => $item['uri'], 'uid' => $item['uid'], 'guid' => $item['guid']]);
 
 			// Yes, we could do a rollback here - but we are having many users with MyISAM.
 			DBA::delete('item', ['id' => $current_post]);
@@ -2721,7 +2721,7 @@ class Item
 		if (!$mention) {
 			if (($community_page || $prvgroup) &&
 				  !$item['wall'] && !$item['origin'] && ($item['id'] == $item['parent'])) {
-				Logger::notice('Delete private group/communiy top-level item without mention', ['id' => $item_id, 'guid'=> $item['guid']]);
+				Logger::info('Delete private group/communiy top-level item without mention', ['id' => $item_id, 'guid'=> $item['guid']]);
 				DBA::delete('item', ['id' => $item_id]);
 				return true;
 			}

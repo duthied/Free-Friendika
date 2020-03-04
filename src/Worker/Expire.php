@@ -45,7 +45,7 @@ class Expire
 			$condition = ["`deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY"];
 			$rows = DBA::select('item', ['id', 'guid'],  $condition);
 			while ($row = DBA::fetch($rows)) {
-				Logger::notice('Delete expired item', ['id' => $row['id'], 'guid' => $row['guid']]);
+				Logger::info('Delete expired item', ['id' => $row['id'], 'guid' => $row['guid']]);
 				DBA::delete('item', ['id' => $row['id']]);
 			}
 			DBA::close($rows);
