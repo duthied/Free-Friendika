@@ -1094,7 +1094,7 @@ class BBCode
 			$ch = @curl_init($match[1]);
 			@curl_setopt($ch, CURLOPT_NOBODY, true);
 			@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
+			@curl_setopt($ch, CURLOPT_USERAGENT, DI::httpRequest()->getUserAgent());
 			@curl_exec($ch);
 			$curl_info = @curl_getinfo($ch);
 
@@ -1168,7 +1168,7 @@ class BBCode
 		$ch = @curl_init($match[1]);
 		@curl_setopt($ch, CURLOPT_NOBODY, true);
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
+		@curl_setopt($ch, CURLOPT_USERAGENT, DI::httpRequest()->getUserAgent());
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
 
