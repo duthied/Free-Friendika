@@ -24,7 +24,6 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Network\HTTPRequest;
 
 /**
  * Check the git repository VERSION file and save the version to the DB
@@ -55,7 +54,7 @@ class CheckVersion
 		Logger::log("Checking VERSION from: ".$checked_url, Logger::DEBUG);
 
 		// fetch the VERSION file
-		$gitversion = DBA::escape(trim(HTTPRequest::fetchUrl($checked_url)));
+		$gitversion = DBA::escape(trim(DI::httpRequest()->fetchUrl($checked_url)));
 		Logger::log("Upstream VERSION is: ".$gitversion, Logger::DEBUG);
 
 		DI::config()->set('system', 'git_friendica_version', $gitversion);

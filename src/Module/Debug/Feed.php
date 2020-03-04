@@ -25,7 +25,6 @@ use Friendica\BaseModule;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model;
-use Friendica\Network\HTTPRequest;
 use Friendica\Protocol;
 
 /**
@@ -49,7 +48,7 @@ class Feed extends BaseModule
 
 			$contact = Model\Contact::getByURLForUser($url, local_user(), false);
 
-			$xml = HTTPRequest::fetchUrl($contact['poll']);
+			$xml = DI::httpRequest()->fetchUrl($contact['poll']);
 
 			$import_result = Protocol\Feed::import($xml);
 

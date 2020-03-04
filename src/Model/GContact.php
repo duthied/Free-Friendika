@@ -31,7 +31,6 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Network\HTTPRequest;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\PortableContact;
@@ -537,7 +536,7 @@ class GContact
 		$done[] = DI::baseUrl() . '/poco';
 
 		if (strlen(DI::config()->get('system', 'directory'))) {
-			$x = HTTPRequest::fetchUrl(Search::getGlobalDirectory() . '/pubsites');
+			$x = DI::httpRequest()->fetchUrl(Search::getGlobalDirectory() . '/pubsites');
 			if (!empty($x)) {
 				$j = json_decode($x);
 				if (!empty($j->entries)) {

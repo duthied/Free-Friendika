@@ -25,7 +25,6 @@ use Friendica\Core;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Process;
-use Friendica\Network\HTTPRequest;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -997,7 +996,7 @@ class Worker
 		}
 
 		$url = DI::baseUrl() . '/worker';
-		HTTPRequest::fetchUrl($url, false, 1);
+		DI::httpRequest()->fetchUrl($url, false, 1);
 	}
 
 	/**

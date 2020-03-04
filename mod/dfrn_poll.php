@@ -25,7 +25,6 @@ use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Network\HTTPRequest;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Strings;
@@ -115,7 +114,7 @@ function dfrn_poll_init(App $a)
 		);
 
 		if (DBA::isResult($r)) {
-			$s = HTTPRequest::fetchUrl($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
+			$s = DI::httpRequest()->fetchUrl($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
 
 			Logger::log("dfrn_poll: old profile returns " . $s, Logger::DATA);
 
@@ -499,7 +498,7 @@ function dfrn_poll_content(App $a)
 
 			// URL reply
 			if ($dfrn_version < 2.2) {
-				$s = HTTPRequest::fetchUrl($r[0]['poll']
+				$s = DI::httpRequest()->fetchUrl($r[0]['poll']
 				                           . '?dfrn_id=' . $encrypted_id
 				                           . '&type=profile-check'
 				                           . '&dfrn_version=' . DFRN_PROTOCOL_VERSION

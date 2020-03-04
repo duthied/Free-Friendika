@@ -41,7 +41,6 @@ use Friendica\Model\Mail;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
-use Friendica\Network\HTTPRequest;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -1380,7 +1379,7 @@ class Diaspora
 
 		Logger::log("Fetch post from ".$source_url, Logger::DEBUG);
 
-		$envelope = HTTPRequest::fetchUrl($source_url);
+		$envelope = DI::httpRequest()->fetchUrl($source_url);
 		if ($envelope) {
 			Logger::log("Envelope was fetched.", Logger::DEBUG);
 			$x = self::verifyMagicEnvelope($envelope);

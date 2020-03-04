@@ -31,7 +31,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\Register;
 use Friendica\Network\CurlResult;
-use Friendica\Network\HTTPRequest;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
@@ -1635,7 +1634,7 @@ class GServer
 		$protocols = ['activitypub', 'diaspora', 'dfrn', 'ostatus'];
 		foreach ($protocols as $protocol) {
 			$query = '{nodes(protocol:"' . $protocol . '"){host}}';
-			$curlResult = HTTPRequest::fetchUrl('https://the-federation.info/graphql?query=' . urlencode($query));
+			$curlResult = DI::httpRequest()->fetchUrl('https://the-federation.info/graphql?query=' . urlencode($query));
 			if (!empty($curlResult)) {
 				$data = json_decode($curlResult, true);
 				if (!empty($data['data']['nodes'])) {

@@ -26,7 +26,6 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Network\HTTPException;
-use Friendica\Network\HTTPRequest;
 use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
 use Friendica\Util\Network;
@@ -124,7 +123,7 @@ class Search
 			$searchUrl .= '&page=' . $page;
 		}
 
-		$resultJson = HTTPRequest::fetchUrl($searchUrl, false, 0, 'application/json');
+		$resultJson = DI::httpRequest()->fetchUrl($searchUrl, false, 0, 'application/json');
 
 		$results = json_decode($resultJson, true);
 
