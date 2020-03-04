@@ -507,7 +507,7 @@ function dfrn_poll_content(App $a)
 				                           . '&sec=' . $sec
 				);
 			} else {
-				$s = HTTPRequest::post($r[0]['poll'], [
+				$s = DI::httpRequest()->post($r[0]['poll'], [
 					'dfrn_id'      => $encrypted_id,
 					'type'         => 'profile-check',
 					'dfrn_version' => DFRN_PROTOCOL_VERSION,

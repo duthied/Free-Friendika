@@ -42,7 +42,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\User;
-use Friendica\Network\HTTPRequest;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -224,7 +223,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		 *
 		 */
 
-		$res = HTTPRequest::post($dfrn_confirm, $params, [], 120)->getBody();
+		$res = DI::httpRequest()->post($dfrn_confirm, $params, [], 120)->getBody();
 
 		Logger::log(' Confirm: received data: ' . $res, Logger::DATA);
 
