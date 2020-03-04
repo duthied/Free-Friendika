@@ -406,6 +406,15 @@ class Post
 			$remote_comment = '';
 		}
 
+		$direction = [];
+		if (DI::config()->get('debug', 'show_direction')) {
+			$conversation = DBA::selectFirst('conversation', ['direction'], ['item-uri' => $item['uri']]);
+			if (!empty($conversation['direction']) && in_array($conversation['direction'], [1, 2])) {
+				$title = [1 => DI::l10n()->t('Pushed'), 2 => DI::l10n()->t('Pulled')];
+				$direction = ['direction' => $conversation['direction'], 'title' => $title[$conversation['direction']]];
+			}
+		}
+
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
@@ -482,6 +491,7 @@ class Post
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
 			'return'          => (DI::args()->getCommand()) ? bin2hex(DI::args()->getCommand()) : '',
+			'direction'       => $direction,
 			'delivery'        => [
 				'queue_count'       => $item['delivery_queue_count'],
 				'queue_done'        => $item['delivery_queue_done'] + $item['delivery_queue_failed'], /// @todo Possibly display it separately in the future

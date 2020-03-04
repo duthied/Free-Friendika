@@ -155,6 +155,9 @@ as the value of $top_child_total (this is done at the end of this file)
 						{{if $item.owner_self}}
 							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 						{{/if}}
+						{{if $item.direction}}
+							{{include file="sub/direction.tpl" direction=$item.direction}}
+						{{/if}}
 						{{if $item.pinned}}
 							&bull; <i class="fa fa-thumb-tack" aria-hidden="true" title="{{$item.pinned}}"></i>
 							<span class="sr-only">{{$item.pinned}}</span>
@@ -183,6 +186,9 @@ as the value of $top_child_total (this is done at the end of this file)
 						{{if $item.owner_self}}
 							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 						{{/if}}
+						{{if $item.direction}}
+							{{include file="sub/direction.tpl" direction=$item.direction}}
+						{{/if}}
 					</small>
 				</p>
 			</h5>
@@ -201,6 +207,9 @@ as the value of $top_child_total (this is done at the end of this file)
 						{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}
 						{{if $item.owner_self}}
 							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
+						{{/if}}
+						{{if $item.direction}}
+							{{include file="sub/direction.tpl" direction=$item.direction}}
 						{{/if}}
 					</small>
 				</span>

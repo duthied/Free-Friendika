@@ -126,7 +126,7 @@ class Receiver
 			$trust_source = false;
 		}
 
-		self::processActivity($ldactivity, $body, $uid, $trust_source);
+		self::processActivity($ldactivity, $body, $uid, $trust_source, true);
 	}
 
 	/**
@@ -174,15 +174,16 @@ class Receiver
 	/**
 	 * Prepare the object array
 	 *
-	 * @param array   $activity
-	 * @param integer $uid User ID
-	 * @param         $trust_source
+	 * @param array   $activity     Array with activity data
+	 * @param integer $uid          User ID
+	 * @param boolean $push         Message had been pushed to our system
+	 * @param boolean $trust_source Do we trust the source?
 	 *
 	 * @return array with object data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function prepareObjectData($activity, $uid, &$trust_source)
+	private static function prepareObjectData($activity, $uid, $push, &$trust_source)
 	{
 		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
 		if (empty($actor)) {
@@ -230,7 +231,14 @@ class Receiver
 				Logger::log("Object data couldn't be processed", Logger::DEBUG);
 				return [];
 			}
+
 			$object_data['object_id'] = $object_id;
+
+			if ($type == 'as:Announce') {
+				$object_data['push'] = false;
+			} else {
+				$object_data['push'] = $push;
+			}
 
 			// Test if it is an answer to a mail
 			if (DBA::exists('mail', ['uri' => $object_data['reply-to-id']])) {
@@ -309,9 +317,10 @@ class Receiver
 	 * @param string  $body
 	 * @param integer $uid          User ID
 	 * @param boolean $trust_source Do we trust the source?
+	 * @param boolean $push         Message had been pushed to our system
 	 * @throws \Exception
 	 */
-	public static function processActivity($activity, $body = '', $uid = null, $trust_source = false)
+	public static function processActivity($activity, $body = '', $uid = null, $trust_source = false, $push = false)
 	{
 		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
@@ -341,7 +350,7 @@ class Receiver
 		}
 
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
-		$object_data = self::prepareObjectData($activity, $uid, $trust_source);
+		$object_data = self::prepareObjectData($activity, $uid, $push, $trust_source);
 		if (empty($object_data)) {
 			Logger::log('No object data found', Logger::DEBUG);
 			return;
@@ -352,7 +361,7 @@ class Receiver
 			return;
 		}
 
-		if (!empty($body)) {
+		if (!empty($body) && empty($object_data['raw'])) {
 			$object_data['raw'] = $body;
 		}
 
@@ -390,6 +399,11 @@ class Receiver
 						$announce_object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
 						$announce_object_data['object_id'] = $object_data['object_id'];
 						$announce_object_data['object_type'] = $object_data['object_type'];
+						$announce_object_data['push'] = $push;
+
+						if (!empty($body)) {
+							$announce_object_data['raw'] = $body;
+						}
 
 						ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
 					}
@@ -779,7 +793,12 @@ class Receiver
 		}
 
 		if (in_array($type, self::CONTENT_TYPES)) {
-			return self::processObject($object);
+			$object_data = self::processObject($object);
+
+			if (!empty($data)) {
+				$object_data['raw'] = json_encode($data);
+			}
+			return $object_data;
 		}
 
 		if ($type == 'as:Announce') {
