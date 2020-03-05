@@ -71,7 +71,7 @@ class Transmitter
 	 */
 	public static function getFollowers($owner, $page = null)
 	{
-		$condition = ['rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::NATIVE_SUPPORT, 'uid' => $owner['uid'],
+		$condition = ['rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::FEDERATED, 'uid' => $owner['uid'],
 			'self' => false, 'deleted' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
 		$count = DBA::count('contact', $condition);
 
@@ -120,7 +120,7 @@ class Transmitter
 	 */
 	public static function getFollowing($owner, $page = null)
 	{
-		$condition = ['rel' => [Contact::SHARING, Contact::FRIEND], 'network' => Protocol::NATIVE_SUPPORT, 'uid' => $owner['uid'],
+		$condition = ['rel' => [Contact::SHARING, Contact::FRIEND], 'network' => Protocol::FEDERATED, 'uid' => $owner['uid'],
 			'self' => false, 'deleted' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
 		$count = DBA::count('contact', $condition);
 
@@ -341,6 +341,10 @@ class Transmitter
 			}
 
 			foreach ($activity[$element] as $receiver) {
+				if (empty($receiver)) {
+					continue;
+				}
+
 				if ($receiver == $profile['followers'] && !empty($item_profile['followers'])) {
 					$permissions[$element][] = $item_profile['followers'];
 				} elseif (!in_array($receiver, $exclude)) {
@@ -649,7 +653,7 @@ class Transmitter
 			$blindcopy = in_array($element, ['bto', 'bcc']);
 
 			foreach ($permissions[$element] as $receiver) {
-				if (Network::isUrlBlocked($receiver)) {
+				if (empty($receiver) || Network::isUrlBlocked($receiver)) {
 					continue;
 				}
 
