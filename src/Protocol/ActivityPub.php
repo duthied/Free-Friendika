@@ -191,7 +191,7 @@ class ActivityPub
 	 */
 	public static function fetchOutbox($url, $uid)
 	{
-		$data = self::fetchContent($url);
+		$data = self::fetchContent($url, $uid);
 		if (empty($data)) {
 			return;
 		}
@@ -211,6 +211,37 @@ class ActivityPub
 			$ldactivity = JsonLD::compact($activity);
 			ActivityPub\Receiver::processActivity($ldactivity, '', $uid, true);
 		}
+	}
+
+	/**
+	 * Fetch items from AP endpoints
+	 *
+	 * @param string $url  Address of the endpoint
+	 * @param integer $uid Optional user id
+	 * @return array Endpoint items
+	 */
+	public static function fetchItems(string $url, int $uid = 0)
+	{
+		$data = self::fetchContent($url, $uid);
+		if (empty($data)) {
+			return [];
+		}
+
+		if (!empty($data['orderedItems'])) {
+			$items = $data['orderedItems'];
+		} elseif (!empty($data['first']['orderedItems'])) {
+			$items = $data['first']['orderedItems'];
+		} elseif (!empty($data['first'])) {
+			return self::fetchItems($data['first'], $uid);
+		} else {
+			$items = [];
+		}
+
+		if (!empty($data['next'])) {
+			$items = array_merge($items, self::fetchItems($data['next'], $uid));
+		}
+
+		return $items;
 	}
 
 	/**
