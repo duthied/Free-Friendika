@@ -1288,28 +1288,32 @@ class GContact
 
 		if (!empty($apcontact['followers']) && is_string($apcontact['followers'])) {
 			$followers = ActivityPub::fetchItems($apcontact['followers']);
-			Logger::info('Discover AP followers', ['url' => $url, 'contacts' => count($followers)]);
-			foreach ($followers as $follower) {
-				if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($follower))])) {
-					continue;
+			if (!empty($followers)) {
+				Logger::info('Discover AP followers', ['url' => $url, 'contacts' => count($followers)]);
+				foreach ($followers as $follower) {
+					if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($follower))])) {
+						continue;
+					}
+					Logger::info('Discover new AP contact', ['url' => $follower]);
+					Worker::add(PRIORITY_LOW, 'UpdateGContact', $follower);
 				}
-				Logger::info('Discover new AP contact', ['url' => $follower]);
-				Worker::add(PRIORITY_LOW, 'UpdateGContact', $follower);
+				Logger::info('AP followers discovery finished', ['url' => $url]);
 			}
-			Logger::info('AP followers discovery finished', ['url' => $url]);
 		}
 
 		if (!empty($apcontact['following']) && is_string($apcontact['following'])) {
 			$followings = ActivityPub::fetchItems($apcontact['following']);
-			Logger::info('Discover AP followings', ['url' => $url, 'contacts' => count($followings)]);
-			foreach ($followings as $following) {
-				if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($following))])) {
-					continue;
+			if (!empty($followings)) {
+				Logger::info('Discover AP followings', ['url' => $url, 'contacts' => count($followings)]);
+				foreach ($followings as $following) {
+					if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($following))])) {
+						continue;
+					}
+					Logger::info('Discover new AP contact', ['url' => $following]);
+					Worker::add(PRIORITY_LOW, 'UpdateGContact', $following);
 				}
-				Logger::info('Discover new AP contact', ['url' => $following]);
-				Worker::add(PRIORITY_LOW, 'UpdateGContact', $following);
+				Logger::info('AP followings discovery finished', ['url' => $url]);
 			}
-			Logger::info('AP followings discovery finished', ['url' => $url]);
 		}
 
 
