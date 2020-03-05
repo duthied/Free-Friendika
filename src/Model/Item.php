@@ -3140,7 +3140,7 @@ class Item
 	 *            array $arr
 	 *            'post_id' => ID of posted item
 	 */
-	public static function performLike($item_id, $verb)
+	public static function performActivity($item_id, $verb)
 	{
 		if (!Session::isAuthenticated()) {
 			return false;
@@ -3166,6 +3166,10 @@ class Item
 			case 'attendmaybe':
 			case 'unattendmaybe':
 				$activity = Activity::ATTENDMAYBE;
+				break;
+			case 'follow':
+			case 'unfollow':
+				$activity = Activity::FOLLOW;
 				break;
 			default:
 				Logger::log('like: unknown verb ' . $verb . ' for item ' . $item_id);
