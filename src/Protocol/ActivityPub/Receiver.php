@@ -983,6 +983,7 @@ class Receiver
 			$actor = JsonLD::fetchElement($object, 'as:actor', '@id');
 		}
 
+		$object_data['sc:identifier'] = JsonLD::fetchElement($object, 'sc:identifier', '@value');
 		$object_data['diaspora:guid'] = JsonLD::fetchElement($object, 'diaspora:guid', '@value');
 		$object_data['diaspora:comment'] = JsonLD::fetchElement($object, 'diaspora:comment', '@value');
 		$object_data['diaspora:like'] = JsonLD::fetchElement($object, 'diaspora:like', '@value');
