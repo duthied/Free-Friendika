@@ -3141,7 +3141,7 @@ class Item
 	 *            array $arr
 	 *            'post_id' => ID of posted item
 	 */
-	public static function performLike($item_id, $verb)
+	public static function performActivity($item_id, $verb)
 	{
 		if (!Session::isAuthenticated()) {
 			return false;
