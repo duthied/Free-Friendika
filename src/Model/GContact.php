@@ -1331,13 +1331,13 @@ class GContact
 
 		foreach ($poco['entry'] as $entries) {
 			if (!empty($entries['urls'])) {
-				foreach ($entries['urls'] as $url) {
-					if ($url['type'] == 'profile') {
-						if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($url['value']))])) {
+				foreach ($entries['urls'] as $entry) {
+					if ($entry['type'] == 'profile') {
+						if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($entry['value']))])) {
 							continue;
 						}
-						Logger::info('Discover new PoCo contact', ['url' => $$url['value']]);
-						Worker::add(PRIORITY_LOW, 'UpdateGContact', $$url['value']);
+						Logger::info('Discover new PoCo contact', ['url' => $entry['value']]);
+						Worker::add(PRIORITY_LOW, 'UpdateGContact', $entry['value']);
 					}
 				}
 			}
