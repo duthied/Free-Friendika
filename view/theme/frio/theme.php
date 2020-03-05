@@ -352,7 +352,7 @@ function frio_display_item(App $a, &$arr)
 		$subthread = [
 			'menu'   => 'follow_thread',
 			'title'  => DI::l10n()->t('Follow Thread'),
-			'action' => 'dosubthread(' . $arr['item']['id'] . '); return false;',
+			'action' => 'dosubthread(' . $arr['item']['id'] . ');',
 			'href'   => '#'
 		];
 	}

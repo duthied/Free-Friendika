@@ -220,7 +220,7 @@ class Processor
 		$owner = Contact::getIdForURL($activity['actor']);
 
 		Logger::log('Deleting item ' . $activity['object_id'] . ' from ' . $owner, Logger::DEBUG);
-		Item::delete(['uri' => $activity['object_id'], 'owner-id' => $owner]);
+		Item::markForDeletion(['uri' => $activity['object_id'], 'owner-id' => $owner]);
 	}
 
 	/**
@@ -486,7 +486,7 @@ class Processor
 
 		$item['created'] = DateTimeFormat::utc($activity['published']);
 		$item['edited'] = DateTimeFormat::utc($activity['updated']);
-		$item['guid'] = $activity['diaspora:guid'] ?: self::getGUIDByURL($item['uri']);
+		$item['guid'] = $activity['diaspora:guid'] ?: $activity['sc:identifier'] ?: self::getGUIDByURL($item['uri']);
 
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
@@ -873,7 +873,7 @@ class Processor
 			return;
 		}
 
-		Item::delete(['uri' => $activity['object_id'], 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
+		Item::markForDeletion(['uri' => $activity['object_id'], 'author-id' => $author_id, 'gravity' => GRAVITY_ACTIVITY]);
 	}
 
 	/**

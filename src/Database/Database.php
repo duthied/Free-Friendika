@@ -1262,7 +1262,7 @@ class Database
 
 			if ((count($command['conditions']) > 1) || is_int($first_key)) {
 				$sql = "DELETE FROM " . DBA::quoteIdentifier($command['table']) . " " . $condition_string;
-				$this->logger->debug($this->replaceParameters($sql, $conditions));
+				$this->logger->info($this->replaceParameters($sql, $conditions), ['callstack' => System::callstack(6), 'internal_callstack' => $callstack]);
 
 				if (!$this->e($sql, $conditions)) {
 					if ($do_transaction) {
@@ -1292,7 +1292,7 @@ class Database
 					$sql = "DELETE FROM " . DBA::quoteIdentifier($table) . " WHERE " . DBA::quoteIdentifier($field) . " IN (" .
 					       substr(str_repeat("?, ", count($field_values)), 0, -2) . ");";
 
-					$this->logger->debug($this->replaceParameters($sql, $field_values));
+					$this->logger->info($this->replaceParameters($sql, $field_values), ['callstack' => System::callstack(6), 'internal_callstack' => $callstack]);
 
 					if (!$this->e($sql, $field_values)) {
 						if ($do_transaction) {

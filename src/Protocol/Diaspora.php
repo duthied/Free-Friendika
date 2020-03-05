@@ -2794,7 +2794,7 @@ class Diaspora
 				continue;
 			}
 
-			Item::delete(['id' => $item['id']]);
+			Item::markForDeletion(['id' => $item['id']]);
 
 			Logger::log("Deleted target ".$target_guid." (".$item["id"].") from user ".$item["uid"]." parent: ".$item["parent"], Logger::DEBUG);
 		}

@@ -98,7 +98,7 @@ class DBClean {
 			$last_id = DI::config()->get('system', 'dbclean-last-id-1', 0);
 
 			Logger::log("Deleting old global item entries from item table without user copy. Last ID: ".$last_id);
-			$r = DBA::p("SELECT `id` FROM `item` WHERE `uid` = 0 AND
+			$r = DBA::p("SELECT `id`, `guid` FROM `item` WHERE `uid` = 0 AND
 						NOT EXISTS (SELECT `guid` FROM `item` AS `i` WHERE `item`.`guid` = `i`.`guid` AND `i`.`uid` != 0) AND
 						`received` < UTC_TIMESTAMP() - INTERVAL ? DAY AND `id` >= ?
 					ORDER BY `id` LIMIT ?", $days_unclaimed, $last_id, $limit);
@@ -107,7 +107,7 @@ class DBClean {
 				Logger::log("found global item orphans: ".$count);
 				while ($orphan = DBA::fetch($r)) {
 					$last_id = $orphan["id"];
-					Logger::notice('Delete global orphan item', ['id' => $orphan["id"]]);
+					Logger::info('Delete global orphan item', ['id' => $orphan['id'], 'guid' => $orphan['guid']]);
 					DBA::delete('item', ['id' => $orphan["id"]]);
 				}
 				Worker::add(PRIORITY_MEDIUM, 'DBClean', 1, $last_id);
@@ -122,7 +122,7 @@ class DBClean {
 			$last_id = DI::config()->get('system', 'dbclean-last-id-2', 0);
 
 			Logger::log("Deleting items without parents. Last ID: ".$last_id);
-			$r = DBA::p("SELECT `id` FROM `item`
+			$r = DBA::p("SELECT `id`, `guid` FROM `item`
 					WHERE NOT EXISTS (SELECT `id` FROM `item` AS `i` WHERE `item`.`parent` = `i`.`id`)
 					AND `id` >= ? ORDER BY `id` LIMIT ?", $last_id, $limit);
 			$count = DBA::numRows($r);
@@ -130,7 +130,7 @@ class DBClean {
 				Logger::log("found item orphans without parents: ".$count);
 				while ($orphan = DBA::fetch($r)) {
 					$last_id = $orphan["id"];
-					Logger::notice('Delete orphan item', ['id' => $orphan["id"]]);
+					Logger::info('Delete orphan item', ['id' => $orphan['id'], 'guid' => $orphan['guid']]);
 					DBA::delete('item', ['id' => $orphan["id"]]);
 				}
 				Worker::add(PRIORITY_MEDIUM, 'DBClean', 2, $last_id);
@@ -319,7 +319,7 @@ class DBClean {
 			$till_id = DI::config()->get('system', 'dbclean-last-id-8', 0);
 
 			Logger::log("Deleting old global item entries from expired threads from ID ".$last_id." to ID ".$till_id);
-			$r = DBA::p("SELECT `id` FROM `item` WHERE `uid` = 0 AND
+			$r = DBA::p("SELECT `id`, `guid` FROM `item` WHERE `uid` = 0 AND
 						NOT EXISTS (SELECT `guid` FROM `item` AS `i` WHERE `item`.`guid` = `i`.`guid` AND `i`.`uid` != 0) AND
 						`received` < UTC_TIMESTAMP() - INTERVAL 90 DAY AND `id` >= ? AND `id` <= ?
 					ORDER BY `id` LIMIT ?", $last_id, $till_id, $limit);
@@ -328,7 +328,7 @@ class DBClean {
 				Logger::log("found global item entries from expired threads: ".$count);
 				while ($orphan = DBA::fetch($r)) {
 					$last_id = $orphan["id"];
-					Logger::notice('Delete expired thread item', ['id' => $orphan["id"]]);
+					Logger::info('Delete expired thread item', ['id' => $orphan['id'], 'guid' => $orphan['guid']]);
 					DBA::delete('item', ['id' => $orphan["id"]]);
 				}
 				Worker::add(PRIORITY_MEDIUM, 'DBClean', 9, $last_id);
