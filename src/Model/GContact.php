@@ -28,6 +28,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Search;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\Probe;
@@ -1273,6 +1274,75 @@ class GContact
 			self::fetchGsUsers($server['url']);
 			DBA::update('gserver', ['last_poco_query' => DateTimeFormat::utcNow()], ['nurl' => $server['nurl']]);
 		}
+	}
+
+	/**
+	 * Fetches the followers of a given profile and adds them
+	 *
+	 * @param string $url URL of a profile
+	 * @return void
+	 */
+	public static function discoverFollowers(string $url)
+	{
+		$apcontact = APContact::getByURL($url);
+
+		if (!empty($apcontact['followers']) && is_string($apcontact['followers'])) {
+			$followers = ActivityPub::fetchItems($apcontact['followers']);
+			Logger::info('Discover AP followers', ['url' => $url, 'contacts' => count($followers)]);
+			foreach ($followers as $follower) {
+				if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($follower))])) {
+					continue;
+				}
+				Logger::info('Discover new AP contact', ['url' => $follower]);
+				Worker::add(PRIORITY_LOW, 'UpdateGContact', $follower);
+			}
+			Logger::info('AP followers discovery finished', ['url' => $url]);
+		}
+
+		if (!empty($apcontact['following']) && is_string($apcontact['following'])) {
+			$followings = ActivityPub::fetchItems($apcontact['following']);
+			Logger::info('Discover AP followings', ['url' => $url, 'contacts' => count($followings)]);
+			foreach ($followings as $following) {
+				if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($following))])) {
+					continue;
+				}
+				Logger::info('Discover new AP contact', ['url' => $following]);
+				Worker::add(PRIORITY_LOW, 'UpdateGContact', $following);
+			}
+			Logger::info('AP followings discovery finished', ['url' => $url]);
+		}
+
+
+		$data = Probe::uri($url);
+		if (empty($data['poco'])) {
+			return;
+		}
+
+		$curlResult = Network::curl($data['poco']);
+		if (!$curlResult->isSuccess()) {
+			return;
+		}
+		$poco = json_decode($curlResult->getBody(), true);
+		if (empty($poco['entry'])) {
+			return;
+		}
+
+		Logger::info('PoCo Discovery started', ['url' => $url, 'contacts' => count($poco['entry'])]);
+
+		foreach ($poco['entry'] as $entries) {
+			if (!empty($entries['urls'])) {
+				foreach ($entries['urls'] as $url) {
+					if ($url['type'] == 'profile') {
+						if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($url['value']))])) {
+							continue;
+						}
+						Logger::info('Discover new PoCo contact', ['url' => $$url['value']]);
+						Worker::add(PRIORITY_LOW, 'UpdateGContact', $$url['value']);
+					}
+				}
+			}
+		}
+		Logger::info('PoCo Discovery finished', ['url' => $url]);
 	}
 
 	/**

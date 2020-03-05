@@ -22,8 +22,8 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
+use Friendica\DI;
 use Friendica\Model\GContact;
-use Friendica\Database\DBA;
 
 class UpdateGContact
 {
@@ -39,5 +39,9 @@ class UpdateGContact
 		$success = GContact::updateFromProbe($url, $force);
 
 		Logger::info('Updated from probe', ['url' => $url, 'force' => $force, 'success' => $success]);
+
+		if ($success && DI::config()->get('system', 'gcontact_discovery')) {
+			GContact::discoverFollowers($url);
+		}
 	}
 }

@@ -231,13 +231,13 @@ class ActivityPub
 			$items = $data['orderedItems'];
 		} elseif (!empty($data['first']['orderedItems'])) {
 			$items = $data['first']['orderedItems'];
-		} elseif (!empty($data['first'])) {
+		} elseif (!empty($data['first']) && is_string($data['first'])) {
 			return self::fetchItems($data['first'], $uid);
 		} else {
 			$items = [];
 		}
 
-		if (!empty($data['next'])) {
+		if (!empty($data['next']) && is_string($data['next'])) {
 			$items = array_merge($items, self::fetchItems($data['next'], $uid));
 		}
 

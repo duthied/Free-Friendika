@@ -345,7 +345,7 @@ class Transmitter
 					continue;
 				}
 
-				if ($receiver == $profile['followers'] && !empty($item_profile['followers'])) {
+				if (!empty($profile['followers']) && $receiver == $profile['followers'] && !empty($item_profile['followers'])) {
 					$permissions[$element][] = $item_profile['followers'];
 				} elseif (!in_array($receiver, $exclude)) {
 					$permissions[$element][] = $receiver;
