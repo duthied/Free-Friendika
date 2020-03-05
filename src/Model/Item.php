@@ -3168,6 +3168,10 @@ class Item
 			case 'unattendmaybe':
 				$activity = Activity::ATTENDMAYBE;
 				break;
+			case 'follow':
+			case 'unfollow':
+				$activity = Activity::FOLLOW;
+				break;
 			default:
 				Logger::log('like: unknown verb ' . $verb . ' for item ' . $item_id);
 				return false;
