@@ -1309,6 +1309,7 @@ class GContact
 				Worker::add(PRIORITY_LOW, 'UpdateGContact', $contact);
 			}
 			Logger::info('AP contacts discovery finished', ['url' => $url]);
+			return;
 		}
 
 		$data = Probe::uri($url);
