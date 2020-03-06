@@ -1303,7 +1303,7 @@ class GContact
 			$gcid = $gcontact['id'];
 			if (!empty($followers)) {
 				// Clear the follower list, since it will be recreated in the next step
-				DBA::delete('gfollower', ['gcid' => $gcid]);
+				DBA::update('gfollower', ['deleted' => true], ['gcid' => $gcid]);
 			}
 
 			$contacts = array_unique(array_merge($followers, $followings));
@@ -1317,11 +1317,15 @@ class GContact
 						$fields = ['gcid' => $gcontact['id'], 'follower-gcid' => $gcid];
 					}
 					Logger::info('Set relation between contacts', $fields);
-					DBA::update('gfollower', $fields, $fields, true);
+					DBA::update('gfollower', ['deleted' => false], $fields, true);
 					continue;
 				}
 				Logger::info('Discover new AP contact', ['url' => $contact]);
 				Worker::add(PRIORITY_LOW, 'UpdateGContact', $contact);
+			}
+			if (!empty($followers)) {
+				// Delete all followers that aren't undeleted
+				DBA::delete('gfollower', ['gcid' => $gcid, 'deleted' => true]);
 			}
 			Logger::info('AP contacts discovery finished', ['url' => $url]);
 			return;
