@@ -1288,34 +1288,28 @@ class GContact
 
 		if (!empty($apcontact['followers']) && is_string($apcontact['followers'])) {
 			$followers = ActivityPub::fetchItems($apcontact['followers']);
-			if (!empty($followers)) {
-				Logger::info('Discover AP followers', ['url' => $url, 'contacts' => count($followers)]);
-				foreach ($followers as $follower) {
-					if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($follower))])) {
-						continue;
-					}
-					Logger::info('Discover new AP contact', ['url' => $follower]);
-					Worker::add(PRIORITY_LOW, 'UpdateGContact', $follower);
-				}
-				Logger::info('AP followers discovery finished', ['url' => $url]);
-			}
+		} else {
+			$followers = [];
 		}
 
 		if (!empty($apcontact['following']) && is_string($apcontact['following'])) {
 			$followings = ActivityPub::fetchItems($apcontact['following']);
-			if (!empty($followings)) {
-				Logger::info('Discover AP followings', ['url' => $url, 'contacts' => count($followings)]);
-				foreach ($followings as $following) {
-					if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($following))])) {
-						continue;
-					}
-					Logger::info('Discover new AP contact', ['url' => $following]);
-					Worker::add(PRIORITY_LOW, 'UpdateGContact', $following);
-				}
-				Logger::info('AP followings discovery finished', ['url' => $url]);
-			}
+		} else {
+			$followings = [];
 		}
 
+		if (!empty($followers) || !empty($followings)) {
+			$contacts = array_unique(array_merge($followers, $followings));
+			Logger::info('Discover AP contacts', ['url' => $url, 'contacts' => count($contacts)]);
+			foreach ($contacts as $contact) {
+				if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($contact))])) {
+					continue;
+				}
+				Logger::info('Discover new AP contact', ['url' => $contact]);
+				Worker::add(PRIORITY_LOW, 'UpdateGContact', $contact);
+			}
+			Logger::info('AP contacts discovery finished', ['url' => $url]);
+		}
 
 		$data = Probe::uri($url);
 		if (empty($data['poco'])) {
