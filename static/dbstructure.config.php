@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1335);
+	define('DB_UPDATE_VERSION', 1336);
 }
 
 return [
@@ -488,6 +488,17 @@ return [
 			"addr" => ["addr(64)"],
 			"hide_network_updated" => ["hide", "network", "updated"],
 			"updated" => ["updated"],
+		]
+	],
+	"gfollower" => [
+		"comment" => "Followers of global contacts",
+		"fields" => [
+			"gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["gcontact" => "id"], "comment" => "global contact"],
+			"follower-gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["gcontact" => "id"], "comment" => "global contact of the follower"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["gcid", "follower-gcid"],
+			"follower-gcid" => ["follower-gcid"],
 		]
 	],
 	"glink" => [

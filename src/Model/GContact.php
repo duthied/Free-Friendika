@@ -1299,10 +1299,25 @@ class GContact
 		}
 
 		if (!empty($followers) || !empty($followings)) {
+			$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(($url))]);
+			$gcid = $gcontact['id'];
+			if (!empty($followers)) {
+				// Clear the follower list, since it will be recreated in the next step
+				DBA::delete('gfollower', ['gcid' => $gcid]);
+			}
+
 			$contacts = array_unique(array_merge($followers, $followings));
 			Logger::info('Discover AP contacts', ['url' => $url, 'contacts' => count($contacts)]);
 			foreach ($contacts as $contact) {
-				if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($contact))])) {
+				$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(($contact))]);
+				if (DBA::isResult($gcontact)) {
+					if (in_array($contact, $followers)) {
+						$fields = ['gcid' => $gcid, 'follower-gcid' => $gcontact['id']];
+					} elseif (in_array($contact, $followings)) {
+						$fields = ['gcid' => $gcontact['id'], 'follower-gcid' => $gcid];
+					}
+					Logger::info('Set relation between contacts', $fields);
+					DBA::update('gfollower', $fields, $fields, true);
 					continue;
 				}
 				Logger::info('Discover new AP contact', ['url' => $contact]);

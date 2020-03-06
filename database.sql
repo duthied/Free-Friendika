@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.03-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1335
+-- DB_UPDATE_VERSION 1336
 -- ------------------------------------------
 
 
@@ -418,6 +418,16 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	 INDEX `hide_network_updated` (`hide`,`network`,`updated`),
 	 INDEX `updated` (`updated`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='global contacts';
+
+--
+-- TABLE gfollower
+--
+CREATE TABLE IF NOT EXISTS `gfollower` (
+	`gcid` int unsigned NOT NULL DEFAULT 0 COMMENT 'global contact',
+	`follower-gcid` int unsigned NOT NULL DEFAULT 0 COMMENT 'global contact of the follower',
+	 PRIMARY KEY(`gcid`,`follower-gcid`),
+	 INDEX `follower-gcid` (`follower-gcid`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Followers of global contacts';
 
 --
 -- TABLE glink
