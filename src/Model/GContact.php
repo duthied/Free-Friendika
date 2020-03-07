@@ -1326,7 +1326,16 @@ class GContact
 				DBA::update('gfollower', ['deleted' => true], ['gcid' => $gcid]);
 			}
 
-			$contacts = array_unique(array_merge($followers, $followings));
+			$contacts = [];
+			foreach (array_merge($followers, $followings) as $contact) {
+				if (is_string($contact)) {
+					$contacts[] = $contact;
+				} elseif (!empty($contact['url']) && is_string($contact['url'])) {
+					$contacts[] = $contact['url'];
+				}
+			}
+			$contacts = array_unique($contacts);
+
 			Logger::info('Discover AP contacts', ['url' => $url, 'contacts' => count($contacts)]);
 			foreach ($contacts as $contact) {
 				$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(($contact))]);
