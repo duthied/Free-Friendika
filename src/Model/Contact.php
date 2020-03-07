@@ -2653,8 +2653,17 @@ class Contact
 					]);
 				}
 			} elseif (DBA::isResult($user) && in_array($user['page-flags'], [User::PAGE_FLAGS_SOAPBOX, User::PAGE_FLAGS_FREELOVE, User::PAGE_FLAGS_COMMUNITY])) {
+				if (($user['page-flags'] == User::PAGE_FLAGS_FREELOVE) && ($network != Protocol::DIASPORA)) {
+					self::createFromProbe($importer['uid'], $url, false, $network);
+				}
+
 				$condition = ['uid' => $importer['uid'], 'url' => $url, 'pending' => true];
-				DBA::update('contact', ['pending' => false], $condition);
+				$fields = ['pending' => false];
+				if ($user['page-flags'] == User::PAGE_FLAGS_FREELOVE) {
+					$fields['rel'] = Contact::FRIEND;
+				}
+
+				DBA::update('contact', $fields, $condition);
 
 				return true;
 			}
