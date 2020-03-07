@@ -681,7 +681,7 @@ class Processor
 	 * @return string fetched message URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchMissingActivity($url, $child = [])
+	public static function fetchMissingActivity(string $url, array $child = [])
 	{
 		if (!empty($child['receiver'])) {
 			$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
