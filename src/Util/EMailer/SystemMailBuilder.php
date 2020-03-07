@@ -36,11 +36,11 @@ use Psr\Log\LoggerInterface;
 class SystemMailBuilder extends MailBuilder
 {
 	/** @var string */
-	protected $subject;
+	protected $subject = '';
 	/** @var string */
-	protected $preamble;
+	protected $preamble = '';
 	/** @var string */
-	protected $body;
+	protected $body = '';
 
 	/** @var string */
 	protected $siteAdmin;
@@ -63,18 +63,14 @@ class SystemMailBuilder extends MailBuilder
 	/**
 	 * Adds a message
 	 *
-	 * @param string      $subject  The subject of the email
-	 * @param string      $preamble The preamble of the email
-	 * @param string|null $body     The body of the email (if not set, the preamble will get used as body)
+	 * @param string $subject  The subject of the email
+	 * @param string $preamble The preamble of the email
+	 * @param string $body     The body of the email (optional)
 	 *
 	 * @return static
 	 */
-	public function withMessage(string $subject, string $preamble, string $body = null)
+	public function withMessage(string $subject, string $preamble, string $body = '')
 	{
-		if (!isset($body)) {
-			$body = $preamble;
-		}
-
 		$this->subject  = $subject;
 		$this->preamble = $preamble;
 		$this->body     = $body;
@@ -98,15 +94,13 @@ class SystemMailBuilder extends MailBuilder
 	 */
 	protected function getHtmlMessage()
 	{
-		$htmlVersion = BBCode::convert($this->body);
-
 		// load the template for private message notifications
 		$tpl = Renderer::getMarkupTemplate('email/system/html.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$preamble'    => str_replace("\n", "<br>\n", $this->preamble),
 			'$thanks'      => $this->l10n->t('thanks'),
 			'$site_admin'  => $this->siteAdmin,
-			'$htmlversion' => $htmlVersion,
+			'$htmlversion' => BBCode::convert($this->body),
 		]);
 	}
 
@@ -117,15 +111,13 @@ class SystemMailBuilder extends MailBuilder
 	 */
 	protected function getPlaintextMessage()
 	{
-		$textVersion = BBCode::toPlaintext($this->body);
-
 		// load the template for private message notifications
 		$tpl = Renderer::getMarkupTemplate('email/system/text.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$preamble'    => $this->preamble,
 			'$thanks'      => $this->l10n->t('thanks'),
 			'$site_admin'  => $this->siteAdmin,
-			'$textversion' => $textVersion,
+			'$textversion' => BBCode::toPlaintext($this->body),
 		]);
 	}
 }
