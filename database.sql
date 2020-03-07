@@ -393,6 +393,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`updated` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`last_discovery` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last contact discovery',
 	`archive_date` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`archived` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`location` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -425,6 +426,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 CREATE TABLE IF NOT EXISTS `gfollower` (
 	`gcid` int unsigned NOT NULL DEFAULT 0 COMMENT 'global contact',
 	`follower-gcid` int unsigned NOT NULL DEFAULT 0 COMMENT 'global contact of the follower',
+	`deleted` boolean NOT NULL DEFAULT '0' COMMENT '1 indicates that the connection has been deleted',
 	 PRIMARY KEY(`gcid`,`follower-gcid`),
 	 INDEX `follower-gcid` (`follower-gcid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Followers of global contacts';

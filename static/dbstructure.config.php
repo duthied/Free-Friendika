@@ -462,6 +462,7 @@ return [
 			"updated" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last_failure" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"last_discovery" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last contact discovery"],
 			"archive_date" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"archived" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
