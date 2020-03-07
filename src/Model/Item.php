@@ -3873,6 +3873,10 @@ class Item
 		// first try to fetch the item via the GUID. This will work for all reshares that had been created on this system
 		$shared_item = self::selectFirst(['title', 'body', 'attach'], ['guid' => $shared['guid'], 'uid' => [0, $uid]]);
 		if (!DBA::isResult($shared_item)) {
+			if (empty($shared['link'])) {
+				return $item;
+			}
+
 			// Otherwhise try to find (and possibly fetch) the item via the link. This should work for Diaspora and ActivityPub posts
 			$id = self::fetchByLink($shared['link'], $uid);
 			if (empty($id)) {
