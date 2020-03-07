@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1335);
+	define('DB_UPDATE_VERSION', 1336);
 }
 
 return [
@@ -462,6 +462,7 @@ return [
 			"updated" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last_failure" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"last_discovery" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last contact discovery"],
 			"archive_date" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"archived" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -488,6 +489,18 @@ return [
 			"addr" => ["addr(64)"],
 			"hide_network_updated" => ["hide", "network", "updated"],
 			"updated" => ["updated"],
+		]
+	],
+	"gfollower" => [
+		"comment" => "Followers of global contacts",
+		"fields" => [
+			"gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["gcontact" => "id"], "comment" => "global contact"],
+			"follower-gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["gcontact" => "id"], "comment" => "global contact of the follower"],
+			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 indicates that the connection has been deleted"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["gcid", "follower-gcid"],
+			"follower-gcid" => ["follower-gcid"],
 		]
 	],
 	"glink" => [

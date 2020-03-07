@@ -28,6 +28,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Search;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\Probe;
@@ -1273,6 +1274,136 @@ class GContact
 			self::fetchGsUsers($server['url']);
 			DBA::update('gserver', ['last_poco_query' => DateTimeFormat::utcNow()], ['nurl' => $server['nurl']]);
 		}
+	}
+
+	/**
+	 * Fetches the followers of a given profile and adds them
+	 *
+	 * @param string $url URL of a profile
+	 * @return void
+	 */
+	public static function discoverFollowers(string $url, int $following_gcid = 0, int $follower_gcid = 0)
+	{
+		$gcontact = DBA::selectFirst('gcontact', ['id', 'last_discovery'], ['nurl' => Strings::normaliseLink(($url))]);
+		if (!DBA::isResult($gcontact)) {
+			return;
+		}
+
+		if ($gcontact['last_discovery'] > DateTimeFormat::utc('now - 1 month')) {
+			Logger::info('Last discovery was less then a month before.', ['url' => $url, 'discovery' => $gcontact['last_discovery']]);
+			return;
+		}
+
+		$gcid = $gcontact['id'];
+
+		if (!empty($following_gcid)) {
+			$fields = ['gcid' => $following_gcid, 'follower-gcid' => $gcid];
+			Logger::info('Set relation for followed gcontact', $fields);
+			DBA::update('gfollower', ['deleted' => false], $fields, true);
+		} elseif (!empty($follower_gcid)) {
+			$fields = ['gcid' => $gcid, 'follower-gcid' => $follower_gcid];
+			Logger::info('Set relation for following gcontact', $fields);
+			DBA::update('gfollower', ['deleted' => false], $fields, true);
+		}
+
+		$apcontact = APContact::getByURL($url);
+
+		if (!empty($apcontact['followers']) && is_string($apcontact['followers'])) {
+			$followers = ActivityPub::fetchItems($apcontact['followers']);
+		} else {
+			$followers = [];
+		}
+
+		if (!empty($apcontact['following']) && is_string($apcontact['following'])) {
+			$followings = ActivityPub::fetchItems($apcontact['following']);
+		} else {
+			$followings = [];
+		}
+
+		if (!empty($followers) || !empty($followings)) {
+			if (!empty($followers)) {
+				// Clear the follower list, since it will be recreated in the next step
+				DBA::update('gfollower', ['deleted' => true], ['gcid' => $gcid]);
+			}
+
+			$contacts = [];
+			foreach (array_merge($followers, $followings) as $contact) {
+				if (is_string($contact)) {
+					$contacts[] = $contact;
+				} elseif (!empty($contact['url']) && is_string($contact['url'])) {
+					$contacts[] = $contact['url'];
+				}
+			}
+			$contacts = array_unique($contacts);
+
+			Logger::info('Discover AP contacts', ['url' => $url, 'contacts' => count($contacts)]);
+			foreach ($contacts as $contact) {
+				$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(($contact))]);
+				if (DBA::isResult($gcontact)) {
+					if (in_array($contact, $followers)) {
+						$fields = ['gcid' => $gcid, 'follower-gcid' => $gcontact['id']];
+					} elseif (in_array($contact, $followings)) {
+						$fields = ['gcid' => $gcontact['id'], 'follower-gcid' => $gcid];
+					}
+					Logger::info('Set relation between contacts', $fields);
+					DBA::update('gfollower', ['deleted' => false], $fields, true);
+					continue;
+				}
+
+				$follower_gcid = 0;
+				$following_gcid = 0;
+
+				if (in_array($contact, $followers)) {
+					$following_gcid = $gcid;
+				} elseif (in_array($contact, $followings)) {
+					$follower_gcid = $gcid;
+				}
+
+				Logger::info('Discover new AP contact', ['url' => $contact]);
+				Worker::add(PRIORITY_LOW, 'UpdateGContact', $contact, '', $following_gcid, $follower_gcid);
+			}
+			if (!empty($followers)) {
+				// Delete all followers that aren't undeleted
+				DBA::delete('gfollower', ['gcid' => $gcid, 'deleted' => true]);
+			}
+
+			DBA::update('gcontact', ['last_discovery' => DateTimeFormat::utcNow()], ['id' => $gcid]);
+			Logger::info('AP contacts discovery finished, last discovery set', ['url' => $url]);
+			return;
+		}
+
+		$data = Probe::uri($url);
+		if (empty($data['poco'])) {
+			return;
+		}
+
+		$curlResult = Network::curl($data['poco']);
+		if (!$curlResult->isSuccess()) {
+			return;
+		}
+		$poco = json_decode($curlResult->getBody(), true);
+		if (empty($poco['entry'])) {
+			return;
+		}
+
+		Logger::info('PoCo Discovery started', ['url' => $url, 'contacts' => count($poco['entry'])]);
+
+		foreach ($poco['entry'] as $entries) {
+			if (!empty($entries['urls'])) {
+				foreach ($entries['urls'] as $entry) {
+					if ($entry['type'] == 'profile') {
+						if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($entry['value']))])) {
+							continue;
+						}
+						Logger::info('Discover new PoCo contact', ['url' => $entry['value']]);
+						Worker::add(PRIORITY_LOW, 'UpdateGContact', $entry['value']);
+					}
+				}
+			}
+		}
+
+		DBA::update('gcontact', ['last_discovery' => DateTimeFormat::utcNow()], ['id' => $gcid]);
+		Logger::info('PoCo Discovery finished', ['url' => $url]);
 	}
 
 	/**
