@@ -40,7 +40,7 @@ class SystemMailBuilder extends MailBuilder
 	/** @var string */
 	protected $preamble = '';
 	/** @var string */
-	protected $body = null;
+	protected $body = '';
 
 	/** @var string */
 	protected $siteAdmin;
@@ -63,13 +63,13 @@ class SystemMailBuilder extends MailBuilder
 	/**
 	 * Adds a message
 	 *
-	 * @param string      $subject  The subject of the email
-	 * @param string      $preamble The preamble of the email
-	 * @param string|null $body     The body of the email (if not set, the preamble will get used as body)
+	 * @param string $subject  The subject of the email
+	 * @param string $preamble The preamble of the email
+	 * @param string $body     The body of the email (optional)
 	 *
 	 * @return static
 	 */
-	public function withMessage(string $subject, string $preamble, string $body = null)
+	public function withMessage(string $subject, string $preamble, string $body = '')
 	{
 		$this->subject  = $subject;
 		$this->preamble = $preamble;
@@ -94,15 +94,13 @@ class SystemMailBuilder extends MailBuilder
 	 */
 	protected function getHtmlMessage()
 	{
-		$htmlVersion = !empty($this->body) ? BBCode::convert($this->body) : '';
-
 		// load the template for private message notifications
 		$tpl = Renderer::getMarkupTemplate('email/system/html.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$preamble'    => str_replace("\n", "<br>\n", $this->preamble),
 			'$thanks'      => $this->l10n->t('thanks'),
 			'$site_admin'  => $this->siteAdmin,
-			'$htmlversion' => $htmlVersion,
+			'$htmlversion' => BBCode::convert($this->body),
 		]);
 	}
 
@@ -113,15 +111,13 @@ class SystemMailBuilder extends MailBuilder
 	 */
 	protected function getPlaintextMessage()
 	{
-		$textVersion = !empty($this->body) ? BBCode::toPlaintext($this->body) : '';
-
 		// load the template for private message notifications
 		$tpl = Renderer::getMarkupTemplate('email/system/text.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$preamble'    => $this->preamble,
 			'$thanks'      => $this->l10n->t('thanks'),
 			'$site_admin'  => $this->siteAdmin,
-			'$textversion' => $textVersion,
+			'$textversion' => BBCode::toPlaintext($this->body),
 		]);
 	}
 }
