@@ -513,7 +513,7 @@ class Contact extends BaseModule
 				$relation_text = '';
 			}
 
-			if (!in_array($contact['network'], Protocol::FEDERATED)) {
+			if (!in_array($contact['network'], array_merge(Protocol::FEDERATED, [Protocol::TWITTER]))) {
 				$relation_text = '';
 			}
 
