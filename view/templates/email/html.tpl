@@ -14,10 +14,12 @@
 				<div style="clear: both;"></div>
 			</td>
 		</tr>
+		<tr>
+			<td>
+				{{$htmlversion nofilter}}
+			</td>
+		</tr>
 	</tbody>
 	</table>
-	<p>
-	{{$htmlversion nofilter}}
-	</p>
 </body>
 </html>
