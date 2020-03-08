@@ -186,23 +186,6 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  */
 function api_login(App $a)
 {
-	$oauth1 = new FKOAuth1();
-	// login with oauth
-	try {
-		$request = OAuthRequest::from_request();
-		list($consumer, $token) = $oauth1->verify_request($request);
-		if (!is_null($token)) {
-			$oauth1->loginUser($token->uid);
-			Session::set('allow_api', true);
-			return;
-		}
-		echo __FILE__.__LINE__.__FUNCTION__ . "<pre>";
-		var_dump($consumer, $token);
-		die();
-	} catch (Exception $e) {
-		Logger::warning(API_LOG_PREFIX . 'error', ['module' => 'api', 'action' => 'login', 'exception' => $e->getMessage()]);
-	}
-
 	// workaround for HTTP-auth in CGI mode
 	if (!empty($_SERVER['REDIRECT_REMOTE_USER'])) {
 		$userpass = base64_decode(substr($_SERVER["REDIRECT_REMOTE_USER"], 6));
@@ -214,6 +197,24 @@ function api_login(App $a)
 	}
 
 	if (empty($_SERVER['PHP_AUTH_USER'])) {
+		// Try OAuth when no user is provided
+		$oauth1 = new FKOAuth1();
+		// login with oauth
+		try {
+			$request = OAuthRequest::from_request();
+			list($consumer, $token) = $oauth1->verify_request($request);
+			if (!is_null($token)) {
+				$oauth1->loginUser($token->uid);
+				Session::set('allow_api', true);
+				return;
+			}
+			echo __FILE__.__LINE__.__FUNCTION__ . "<pre>";
+			var_dump($consumer, $token);
+			die();
+		} catch (Exception $e) {
+			Logger::warning(API_LOG_PREFIX . 'OAuth error', ['module' => 'api', 'action' => 'login', 'exception' => $e->getMessage()]);
+		}
+
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		throw new UnauthorizedException("This API requires login");
