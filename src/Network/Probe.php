@@ -26,6 +26,7 @@ use DomXPath;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -141,12 +142,18 @@ class Probe
 		// Reset the static variable
 		self::$baseurl = '';
 
-		$ssl_url = "https://".$host."/.well-known/host-meta";
-		$url = "http://".$host."/.well-known/host-meta";
+		// Handles the case when the hostname contains the scheme
+		if (!parse_url($host, PHP_URL_SCHEME)) {
+			$ssl_url = "https://".$host."/.well-known/host-meta";
+			$url = "http://".$host."/.well-known/host-meta";
+		} else {
+			$ssl_url = $host."/.well-known/host-meta";
+			$url = '';
+		}
 
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 
-		Logger::log("Probing for ".$host, Logger::DEBUG);
+		Logger::info('Probing', ['host' => $host, 'ssl_url' => $ssl_url, 'url' => $url, 'callstack' => System::callstack(20)]);
 		$xrd = null;
 
 		$curlResult = Network::curl($ssl_url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
@@ -161,7 +168,7 @@ class Probe
 			return false;
 		}
 
-		if (!is_object($xrd)) {
+		if (!is_object($xrd) && ! empty($url)) {
 			$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			$connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 			if ($curlResult->isTimeout()) {
@@ -281,10 +288,6 @@ class Probe
 	/**
 	 * Check an URI for LRDD data
 	 *
-	 * this is a replacement for the "lrdd" function.
-	 * It isn't used in this class and has some redundancies in the code.
-	 * When time comes we can check the existing calls for "lrdd" if we can rework them.
-	 *
 	 * @param string $uri Address that should be probed
 	 *
 	 * @return array uri data
@@ -305,7 +308,7 @@ class Probe
 				return [];
 			}
 
-			$host = $parts["host"];
+			$host = $parts['scheme'] . '://' . $parts["host"];
 			if (!empty($parts["port"])) {
 				$host .= ':'.$parts["port"];
 			}
