@@ -18,7 +18,7 @@
 			<td>
 				{{$thanks}}
 			</td>
-	</tr>
+		</tr>
 	<tr>
 		<td>
 			{{$site_admin}}

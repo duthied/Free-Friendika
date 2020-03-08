@@ -35,11 +35,13 @@
 			</td>
 		</tr>
 		<tr>
+			<td></td>
 			<td>
 				{{$thanks}}
 			</td>
 		</tr>
 		<tr>
+			<td></td>
 			<td>
 				{{$site_admin}}
 			</td>
