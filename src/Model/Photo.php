@@ -141,7 +141,7 @@ class Photo
 	 * @return boolean|array
 	 * @throws \Exception
 	 */
-	public static function getPhoto($resourceid, $scale = 0)
+	public static function getPhoto(string $resourceid, int $scale = 0)
 	{
 		$r = self::selectFirst(["uid"], ["resource-id" => $resourceid]);
 		if (!DBA::isResult($r)) {
@@ -150,7 +150,9 @@ class Photo
 
 		$uid = $r["uid"];
 
-		$sql_acl = Security::getPermissionsSQLByUserId($uid);
+		$accessible = $uid ? DI::pConfig()->get($uid, 'system', 'accessible-photos') : false;
+
+		$sql_acl = Security::getPermissionsSQLByUserId($uid, $accessible);
 
 		$conditions = ["`resource-id` = ? AND `scale` <= ? " . $sql_acl, $resourceid, $scale];
 		$params = ["order" => ["scale" => true]];
@@ -656,18 +658,29 @@ class Photo
 			// Ensure to only modify photos that you own
 			$srch = '<' . intval($original_contact_id) . '>';
 
-			$condition = [
-				'allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
-				'resource-id' => $image_rid, 'uid' => $uid
-			];
+			$condition = ["(`allow_cid` = ? OR `allow_cid` IS NULL) AND
+				(`allow_gid` = ? OR `allow_gid` IS NULL) AND
+				(`deny_cid` = ? OR `deny_cid` IS NULL) AND
+				(`deny_gid` = ? OR `deny_gid` IS NULL) AND
+				`resource-id` = ? AND `uid` =?", $srch, '', '', '', $image_rid, $uid];
 			if (!Photo::exists($condition)) {
 				continue;
 			}
 
-			/// @todo Check if $str_contact_allow does contain a public forum. Then set the permissions to public.
+			/**
+			 * @todo Existing permissions need to be mixed with the new ones.
+			 * Otherwise this creates problems with sharing the same picture multiple times
+			 * Also check if $str_contact_allow does contain a public forum.
+			 * Then set the permissions to public.
+			 */
 
 			$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 					'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
+
+			if (DI::pConfig()->get($uid, 'system', 'accessible-photos')) {
+				$fields['accessible'] = true;
+			}
+
 			$condition = ['resource-id' => $image_rid, 'uid' => $uid];
 			Logger::info('Set permissions', ['condition' => $condition, 'permissions' => $fields]);
 			Photo::update($fields, $condition);
