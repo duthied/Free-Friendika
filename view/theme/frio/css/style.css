@@ -2072,6 +2072,19 @@ img.acpopup-img {
 .wall-item-container.thread_level_7 {
     margin-left: 15px;
 }
+
+/* Birthday */
+#birthday-notice, #birthday-wrapper {
+    margin-bottom: 5px;
+    padding: 10px;
+    border: none;
+    background-color: rgba(247,247,247,$contentbg_transp);
+    box-shadow: 0 0 3px #dadada;
+    -webkit-box-shadow: 0 0 3px #dadada;
+    -moz-box-shadow: 0 0 3px #dadada;
+    border-radius: 4px;
+}
+
 /* Menubar Tabs */
 section > .tabbar-wrapper {
 /* The tabbar shouldn't' be visibile inside
