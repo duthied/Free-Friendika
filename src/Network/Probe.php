@@ -144,10 +144,10 @@ class Probe
 
 		// Handles the case when the hostname contains the scheme
 		if (!parse_url($host, PHP_URL_SCHEME)) {
-			$ssl_url = "https://".$host."/.well-known/host-meta";
-			$url = "http://".$host."/.well-known/host-meta";
+			$ssl_url = "https://" . $host . "/.well-known/host-meta";
+			$url = "http://" . $host . "/.well-known/host-meta";
 		} else {
-			$ssl_url = $host."/.well-known/host-meta";
+			$ssl_url = $host . "/.well-known/host-meta";
 			$url = '';
 		}
 
@@ -168,7 +168,7 @@ class Probe
 			return false;
 		}
 
-		if (!is_object($xrd) && ! empty($url)) {
+		if (!is_object($xrd) && !empty($url)) {
 			$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			$connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 			if ($curlResult->isTimeout()) {
