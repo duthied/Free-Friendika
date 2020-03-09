@@ -150,7 +150,7 @@ class Photo
 
 		$uid = $r["uid"];
 
-		$accessible = $uid ? DI::pConfig()->get($uid, 'system', 'accessible-photos') : false;
+		$accessible = $uid ? (bool)DI::pConfig()->get($uid, 'system', 'accessible-photos', false) : false;
 
 		$sql_acl = Security::getPermissionsSQLByUserId($uid, $accessible);
 
