@@ -1476,7 +1476,8 @@ class Diaspora
 	public static function fetchByURL($url, $uid = 0)
 	{
 		// Check for Diaspora (and Friendica) typical paths
-		if (!preg_match("=(https?://.+)/(?:posts|display)/([a-zA-Z0-9-_@.:%]+[a-zA-Z0-9])=i", $url, $matches)) {
+		if (!preg_match("=(https?://.+)/(?:posts|display|objects)/([a-zA-Z0-9-_@.:%]+[a-zA-Z0-9])=i", $url, $matches)) {
+			Logger::info('Invalid url', ['url' => $url]);
 			return false;
 		}
 
@@ -1484,15 +1485,20 @@ class Diaspora
 
 		$item = Item::selectFirst(['id'], ['guid' => $guid, 'uid' => $uid]);
 		if (DBA::isResult($item)) {
+			Logger::info('Found', ['id' => $item['id']]);
 			return $item['id'];
 		}
 
-		self::storeByGuid($guid, $matches[1], $uid);
+		Logger::info('Fetch GUID from origin', ['guid' => $guid, 'server' => $matches[1]]);
+		$ret = self::storeByGuid($guid, $matches[1], $uid);
+		Logger::info('Result', ['ret' => $ret]);
 
 		$item = Item::selectFirst(['id'], ['guid' => $guid, 'uid' => $uid]);
 		if (DBA::isResult($item)) {
+			Logger::info('Found', ['id' => $item['id']]);
 			return $item['id'];
 		} else {
+			Logger::info('Not found', ['guid' => $guid, 'uid' => $uid]);
 			return false;
 		}
 	}
