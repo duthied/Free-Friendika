@@ -319,6 +319,7 @@ function settings_post(App $a)
 	$hide_friends     = (($_POST['hide-friends'] == 1) ? 1: 0);
 	$hidewall         = (($_POST['hidewall'] == 1) ? 1: 0);
 	$unlisted         = (($_POST['unlisted'] == 1) ? 1: 0);
+	$accessiblephotos = (($_POST['accessible-photos'] == 1) ? 1: 0);
 
 	$email_textonly   = (($_POST['email_textonly'] == 1) ? 1 : 0);
 	$detailed_notif   = (($_POST['detailed_notif'] == 1) ? 1 : 0);
@@ -417,6 +418,7 @@ function settings_post(App $a)
 	DI::pConfig()->set(local_user(), 'system', 'email_textonly', $email_textonly);
 	DI::pConfig()->set(local_user(), 'system', 'detailed_notif', $detailed_notif);
 	DI::pConfig()->set(local_user(), 'system', 'unlisted', $unlisted);
+	DI::pConfig()->set(local_user(), 'system', 'accessible-photos', $accessiblephotos);
 
 	if ($page_flags == User::PAGE_FLAGS_PRVGROUP) {
 		$hidewall = 1;
@@ -843,6 +845,10 @@ function settings_content(App $a)
 		'$field' => ['unlisted', DI::l10n()->t('Make public posts unlisted'), DI::pConfig()->get(local_user(), 'system', 'unlisted'), DI::l10n()->t('Your public posts will not appear on the community pages or in search results, nor be sent to relay servers. However they can still appear on public feeds on remote servers.')],
 	]);
 
+	$accessiblephotos = Renderer::replaceMacros($opt_tpl, [
+		'$field' => ['accessible-photos', DI::l10n()->t('Make all posted pictures accessible'), DI::pConfig()->get(local_user(), 'system', 'accessible-photos'), DI::l10n()->t("This option makes every posted picture accessible via the direct link. This is a workaround for the problem that most other networks can't handle permissions on pictures. Non public pictures still won't be visible for the public on your photo albums though.")],
+	]);
+
 	$blockwall = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['blockwall', DI::l10n()->t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), DI::l10n()->t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts')],
 	]);
@@ -957,6 +963,7 @@ function settings_content(App $a)
 		'$hide_friends' => $hide_friends,
 		'$hide_wall' => $hide_wall,
 		'$unlisted' => $unlisted,
+		'$accessiblephotos' => $accessiblephotos,
 		'$unkmail' => $unkmail,
 		'$cntunkmail' 	=> ['cntunkmail', DI::l10n()->t('Maximum private messages per day from unknown people:'), $cntunkmail , DI::l10n()->t("\x28to prevent spam abuse\x29")],
 

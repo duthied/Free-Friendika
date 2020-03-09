@@ -87,20 +87,32 @@ class Security
 		return false;
 	}
 
-	public static function getPermissionsSQLByUserId($owner_id)
+	/**
+	 * Create a permission string for an element based on the visitor
+	 *
+	 * @param integer $owner_id   User ID of the owner of the element
+	 * @param boolean $accessible Should the element be accessible anyway?
+	 * @return string SQL permissions
+	 */
+	public static function getPermissionsSQLByUserId(int $owner_id, bool $accessible = false)
 	{
 		$local_user = local_user();
 		$remote_contact = Session::getRemoteContactID($owner_id);
+		$acc_sql = '';
+
+		if ($accessible) {
+			$acc_sql = ' OR `accessible`';
+		}
 
 		/*
 		 * Construct permissions
 		 *
 		 * default permissions - anonymous user
 		 */
-		$sql = " AND allow_cid = ''
+		$sql = " AND (allow_cid = ''
 			 AND allow_gid = ''
 			 AND deny_cid  = ''
-			 AND deny_gid  = '' ";
+			 AND deny_gid  = ''" . $acc_sql . ") ";
 
 		/*
 		 * Profile owner - everything is visible
@@ -123,7 +135,8 @@ class Security
 
 			$sql = sprintf(
 				" AND (NOT (deny_cid REGEXP '<%d>' OR deny_gid REGEXP '%s')
-				  AND (allow_cid REGEXP '<%d>' OR allow_gid REGEXP '%s' OR (allow_cid = '' AND allow_gid = ''))) ",
+				  AND (allow_cid REGEXP '<%d>' OR allow_gid REGEXP '%s'
+				  OR (allow_cid = '' AND allow_gid = ''))" . $acc_sql . ") ",
 				intval($remote_contact),
 				DBA::escape($gs),
 				intval($remote_contact),

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.03-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1336
+-- DB_UPDATE_VERSION 1337
 -- ------------------------------------------
 
 
@@ -948,6 +948,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	`allow_gid` mediumtext COMMENT 'Access Control - list of allowed groups',
 	`deny_cid` mediumtext COMMENT 'Access Control - list of denied contact.id',
 	`deny_gid` mediumtext COMMENT 'Access Control - list of denied groups',
+	`accessible` boolean NOT NULL DEFAULT '0' COMMENT 'Make photo publicly accessible, ignoring permissions',
 	`backend-class` tinytext COMMENT 'Storage backend class',
 	`backend-ref` text COMMENT 'Storage backend data reference',
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',

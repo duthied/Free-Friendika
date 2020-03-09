@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1336);
+	define('DB_UPDATE_VERSION', 1337);
 }
 
 return [
@@ -1051,6 +1051,7 @@ return [
 			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
 			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
 			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+			"accessible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Make photo publicly accessible, ignoring permissions"],
 			"backend-class" => ["type" => "tinytext", "comment" => "Storage backend class"],
 			"backend-ref" => ["type" => "text", "comment" => "Storage backend data reference"],
 			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""]
