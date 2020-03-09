@@ -84,8 +84,6 @@ class Details extends BaseAdmin
 					info(DI::l10n()->t('Addon %s enabled.', $addon));
 				}
 
-				Addon::saveEnabledList();
-
 				DI::baseUrl()->redirect('admin/addons/' . $addon);
 			}
 

@@ -92,23 +92,10 @@ function update_1191()
 	DI::config()->set('system', 'maintenance', 1);
 
 	if (Addon::isEnabled('forumlist')) {
-		$addon = 'forumlist';
-		$addons = DI::config()->get('system', 'addon');
-		$addons_arr = [];
-
-		if ($addons) {
-			$addons_arr = explode(",", str_replace(" ", "", $addons));
-
-			$idx = array_search($addon, $addons_arr);
-			if ($idx !== false) {
-				unset($addons_arr[$idx]);
-				//delete forumlist manually from addon and hook table
-				// since Addon::uninstall() don't work here
-				q("DELETE FROM `addon` WHERE `name` = 'forumlist' ");
-				q("DELETE FROM `hook` WHERE `file` = 'addon/forumlist/forumlist.php' ");
-				DI::config()->set('system', 'addon', implode(", ", $addons_arr));
-			}
-		}
+		//delete forumlist manually from addon and hook table
+		// since Addon::uninstall() don't work here
+		DBA::delete('addon', ['name' => 'forumlist']);
+		DBA::delete('hook', ['file' => 'addon/forumlist/forumlist.php']);
 	}
 
 	// select old formlist addon entries

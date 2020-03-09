@@ -112,37 +112,14 @@ class Addon
 	 */
 	public static function loadAddons()
 	{
-		$installed_addons = [];
+		$installed_addons = DBA::selectToArray('addon', ['name'], ['installed' => true]);
 
-		$r = DBA::select('addon', [], ['installed' => 1]);
-		if (DBA::isResult($r)) {
-			$installed_addons = DBA::toArray($r);
-		}
-
-		$addons = DI::config()->get('system', 'addon');
 		$addons_arr = [];
-
-		if ($addons) {
-			$addons_arr = explode(',', str_replace(' ', '', $addons));
+		foreach ($installed_addons as $addon) {
+			$addons_arr[] = $addon['name'];
 		}
 
 		self::$addons = $addons_arr;
-
-		$installed_arr = [];
-
-		foreach ($installed_addons as $addon) {
-			if (!self::isEnabled($addon['name'])) {
-				self::uninstall($addon['name']);
-			} else {
-				$installed_arr[] = $addon['name'];
-			}
-		}
-
-		foreach (self::$addons as $p) {
-			if (!in_array($p, $installed_arr)) {
-				self::install($p);
-			}
-		}
 	}
 
 	/**
@@ -168,8 +145,6 @@ class Addon
 		DBA::delete('hook', ['file' => 'addon/' . $addon . '/' . $addon . '.php']);
 
 		unset(self::$addons[array_search($addon, self::$addons)]);
-
-		Addon::saveEnabledList();
 	}
 
 	/**
@@ -212,8 +187,6 @@ class Addon
 				self::$addons[] = $addon;
 			}
 
-			Addon::saveEnabledList();
-
 			return true;
 		} else {
 			Logger::error("Addon {addon}: {action} failed", ['action' => 'install', 'addon' => $addon]);
@@ -226,38 +199,33 @@ class Addon
 	 */
 	public static function reload()
 	{
-		$addons = DI::config()->get('system', 'addon');
-		if (strlen($addons)) {
-			$r = DBA::select('addon', [], ['installed' => 1]);
-			if (DBA::isResult($r)) {
-				$installed = DBA::toArray($r);
-			} else {
-				$installed = [];
-			}
+		$installed = DBA::selectToArray('addon', [], ['installed' => 1]);
 
-			$addon_list = explode(',', $addons);
+		$addon_list = [];
+		foreach ($installed as $addon) {
+			$addon_list[] = $addon['name'];
+		}
 
-			foreach ($addon_list as $addon) {
-				$addon = Strings::sanitizeFilePathItem(trim($addon));
-				$fname = 'addon/' . $addon . '/' . $addon . '.php';
-				if (file_exists($fname)) {
-					$t = @filemtime($fname);
-					foreach ($installed as $i) {
-						if (($i['name'] == $addon) && ($i['timestamp'] != $t)) {
+		foreach ($addon_list as $addon) {
+			$addon = Strings::sanitizeFilePathItem(trim($addon));
+			$fname = 'addon/' . $addon . '/' . $addon . '.php';
+			if (file_exists($fname)) {
+				$t = @filemtime($fname);
+				foreach ($installed as $i) {
+					if (($i['name'] == $addon) && ($i['timestamp'] != $t)) {
 
-							Logger::notice("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $i['name']]);
-							@include_once($fname);
+						Logger::notice("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $i['name']]);
+						@include_once($fname);
 
-							if (function_exists($addon . '_uninstall')) {
-								$func = $addon . '_uninstall';
-								$func(DI::app());
-							}
-							if (function_exists($addon . '_install')) {
-								$func = $addon . '_install';
-								$func(DI::app());
-							}
-							DBA::update('addon', ['timestamp' => $t], ['id' => $i['id']]);
+						if (function_exists($addon . '_uninstall')) {
+							$func = $addon . '_uninstall';
+							$func(DI::app());
 						}
+						if (function_exists($addon . '_install')) {
+							$func = $addon . '_install';
+							$func(DI::app());
+						}
+						DBA::update('addon', ['timestamp' => $t], ['id' => $i['id']]);
 					}
 				}
 			}
@@ -355,16 +323,6 @@ class Addon
 	public static function getEnabledList()
 	{
 		return self::$addons;
-	}
-
-	/**
-	 * Saves the current enabled addon list in the system.addon config key
-	 *
-	 * @return boolean
-	 */
-	public static function saveEnabledList()
-	{
-		return DI::config()->set('system', 'addon', implode(',', self::$addons));
 	}
 
 	/**
