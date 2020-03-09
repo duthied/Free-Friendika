@@ -32,6 +32,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Notify\Type;
+use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -196,7 +197,7 @@ class Contact
 	 * @param int $uid User ID
 	 *
 	 * @return boolean is the contact id a follower?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function isFollower($cid, $uid)
@@ -221,7 +222,7 @@ class Contact
 	 * @param int    $uid User ID
 	 *
 	 * @return boolean is the contact id a follower?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function isFollowerByURL($url, $uid)
@@ -242,7 +243,7 @@ class Contact
 	 * @param int $uid User ID
 	 *
 	 * @return boolean is the contact url being followed?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function isSharing($cid, $uid)
@@ -267,7 +268,7 @@ class Contact
 	 * @param int    $uid User ID
 	 *
 	 * @return boolean is the contact url being followed?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function isSharingByURL($url, $uid)
@@ -288,7 +289,7 @@ class Contact
 	 * @param boolean $dont_update Don't update the contact
 	 *
 	 * @return string basepath
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function getBasepath($url, $dont_update = false)
@@ -377,7 +378,7 @@ class Contact
 	 * @param int $uid User ID
 	 *
 	 * @return array with public and user's contact id
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function getPublicAndUserContacID($cid, $uid)
@@ -583,7 +584,7 @@ class Contact
 	 * @param int $uid User ID
 	 *
 	 * @return boolean is the contact id blocked for the given user?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function isCollapsedByUser($cid, $uid)
@@ -645,7 +646,7 @@ class Contact
 	 *
 	 * @param int $uid
 	 * @return bool Operation success
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function createSelfFromUserId($uid)
 	{
@@ -692,7 +693,7 @@ class Contact
 	 *
 	 * @param int     $uid
 	 * @param boolean $update_avatar Force the avatar update
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
@@ -798,7 +799,7 @@ class Contact
 	 *
 	 * @param int $id contact id
 	 * @return null
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function remove($id)
 	{
@@ -822,7 +823,7 @@ class Contact
 	 * @param array   $contact  Contact unfriended
 	 * @param boolean $dissolve Remove the contact on the remote side
 	 * @return void
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function terminateFriendship(array $user, array $contact, $dissolve = false)
@@ -875,7 +876,7 @@ class Contact
 	 *
 	 * @param array $contact contact to mark for archival
 	 * @return null
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function markForArchival(array $contact)
 	{
@@ -976,7 +977,7 @@ class Contact
 	 * @param array  $default If not data was found take this data as default value
 	 *
 	 * @return array Contact data
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function getDetailsByURL($url, $uid = -1, array $default = [])
 	{
@@ -1126,7 +1127,7 @@ class Contact
 	 * @param int    $uid  User id
 	 *
 	 * @return array Contact data
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function getDetailsByAddr($addr, $uid = -1)
@@ -1181,7 +1182,7 @@ class Contact
 	 * @param array $contact contact
 	 * @param int   $uid     optional, default 0
 	 * @return array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function photoMenu(array $contact, $uid = 0)
@@ -1444,7 +1445,7 @@ class Contact
 	 * @param boolean $in_loop   Internally used variable to prevent an endless loop
 	 *
 	 * @return integer Contact ID
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function getIdForURL($url, $uid = 0, $no_update = false, $default = [], $in_loop = false)
@@ -1663,7 +1664,7 @@ class Contact
 	 * @param int $cid contact id
 	 *
 	 * @return boolean Is the contact archived?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function isArchived(int $cid)
 	{
@@ -1707,7 +1708,7 @@ class Contact
 	 * @param int $cid contact id
 	 *
 	 * @return boolean Is the contact blocked?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function isBlocked($cid)
 	{
@@ -1911,7 +1912,7 @@ class Contact
 	 * @param bool   $force  force picture update
 	 *
 	 * @return array Returns array of the different avatar sizes
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function updateAvatar($avatar, $uid, $cid, $force = false)
@@ -2061,7 +2062,7 @@ class Contact
 	 * @param string  $network Optional network we are probing for
 	 * @param boolean $force   Optional forcing of network probing (otherwise we use the cached data)
 	 * @return boolean
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function updateFromProbe($id, $network = '', $force = false)
@@ -2255,7 +2256,7 @@ class Contact
 	 * @param bool   $interactive
 	 * @param string $network
 	 * @return array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function createFromProbe($uid, $url, $interactive = false, $network = '')
@@ -2527,7 +2528,7 @@ class Contact
 	 * @param bool   $sharing  True: Contact is now sharing with Owner; False: Contact is now following Owner (default)
 	 * @param string $note     Introduction additional message
 	 * @return bool|null True: follow request is accepted; False: relationship is rejected; Null: relationship is pending
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function addRelationship(array $importer, array $contact, array $datarray, $sharing = false, $note = '')
@@ -2761,7 +2762,7 @@ class Contact
 	 * @param string $url         An url that we will be redirected to after the authentication
 	 *
 	 * @return string with "redir" link
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function magicLink($contact_url, $url = '')
@@ -2788,7 +2789,7 @@ class Contact
 	 * @param string  $url An url that we will be redirected to after the authentication
 	 *
 	 * @return string with "redir" link
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function magicLinkbyId($cid, $url = '')
@@ -2805,7 +2806,7 @@ class Contact
 	 * @param string $url     An url that we will be redirected to after the authentication
 	 *
 	 * @return string with "redir" link
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function magicLinkByContact($contact, $url = '')
