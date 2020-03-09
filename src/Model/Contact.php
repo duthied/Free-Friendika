@@ -1911,7 +1911,7 @@ class Contact
 	 * @param int    $cid    Contact id
 	 * @param bool   $force  force picture update
 	 *
-	 * @return array Returns array of the different avatar sizes
+	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
@@ -1920,8 +1920,7 @@ class Contact
 	{
 		$contact = DBA::selectFirst('contact', ['avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
-			Logger::error('Contact not found', ['cid' => $cid]);
-			throw new HTTPException\NotFoundException('Contact not found');
+			return;
 		}
 
 		$data = [
@@ -1952,12 +1951,8 @@ class Contact
 						DBA::update('contact', $fields, ['id' => $pcontact['id']]);
 					}
 				}
-
-				return $photos;
 			}
 		}
-
-		return $data;
 	}
 
 	/**
