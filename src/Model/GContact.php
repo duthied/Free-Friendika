@@ -1282,7 +1282,7 @@ class GContact
 	 * @param string $url URL of a profile
 	 * @return void
 	 */
-	public static function discoverFollowers(string $url, int $following_gcid = 0, int $follower_gcid = 0)
+	public static function discoverFollowers(string $url)
 	{
 		$gcontact = DBA::selectFirst('gcontact', ['id', 'last_discovery'], ['nurl' => Strings::normaliseLink(($url))]);
 		if (!DBA::isResult($gcontact)) {
@@ -1295,16 +1295,6 @@ class GContact
 		}
 
 		$gcid = $gcontact['id'];
-
-		if (!empty($following_gcid)) {
-			$fields = ['gcid' => $following_gcid, 'follower-gcid' => $gcid];
-			Logger::info('Set relation for followed gcontact', $fields);
-			DBA::update('gfollower', ['deleted' => false], $fields, true);
-		} elseif (!empty($follower_gcid)) {
-			$fields = ['gcid' => $gcid, 'follower-gcid' => $follower_gcid];
-			Logger::info('Set relation for following gcontact', $fields);
-			DBA::update('gfollower', ['deleted' => false], $fields, true);
-		}
 
 		$apcontact = APContact::getByURL($url);
 
@@ -1350,17 +1340,12 @@ class GContact
 					continue;
 				}
 
-				$follower_gcid = 0;
-				$following_gcid = 0;
-
-				if (in_array($contact, $followers)) {
-					$following_gcid = $gcid;
-				} elseif (in_array($contact, $followings)) {
-					$follower_gcid = $gcid;
+				if (!Network::isUrlBlocked($contact)) {
+					Logger::info('Discover new AP contact', ['url' => $contact]);
+					Worker::add(PRIORITY_LOW, 'UpdateGContact', $contact);
+				} else {
+					Logger::info('No discovery, the URL is blocked.', ['url' => $contact]);
 				}
-
-				Logger::info('Discover new AP contact', ['url' => $contact]);
-				Worker::add(PRIORITY_LOW, 'UpdateGContact', $contact, '', $following_gcid, $follower_gcid);
 			}
 			if (!empty($followers)) {
 				// Delete all followers that aren't undeleted
@@ -1395,8 +1380,12 @@ class GContact
 						if (DBA::exists('gcontact', ['nurl' => Strings::normaliseLink(($entry['value']))])) {
 							continue;
 						}
-						Logger::info('Discover new PoCo contact', ['url' => $entry['value']]);
-						Worker::add(PRIORITY_LOW, 'UpdateGContact', $entry['value']);
+						if (!Network::isUrlBlocked($entry['value'])) {
+							Logger::info('Discover new PoCo contact', ['url' => $entry['value']]);
+							Worker::add(PRIORITY_LOW, 'UpdateGContact', $entry['value']);
+						} else {
+							Logger::info('No discovery, the URL is blocked.', ['url' => $entry['value']]);
+						}
 					}
 				}
 			}
