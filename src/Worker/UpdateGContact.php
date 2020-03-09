@@ -29,12 +29,10 @@ class UpdateGContact
 {
 	/**
 	 * Update global contact via probe
-	 * @param string  $url            Global contact url
+	 * @param string  $url     Global contact url
 	 * @param string  $command
-	 * @param integer $following_gcid gcontact ID of the contact that is followed by this one
-	 * @param integer $follower_gcid  gcontact ID of the contact that is following this one
 	 */
-	public static function execute(string $url, string $command = '', int $following_gcid = 0, int $follower_gcid = 0)
+	public static function execute(string $url, string $command = '')
 	{
 		$force = ($command == "force");
 
@@ -43,7 +41,7 @@ class UpdateGContact
 		Logger::info('Updated from probe', ['url' => $url, 'force' => $force, 'success' => $success]);
 
 		if ($success && DI::config()->get('system', 'gcontact_discovery')) {
-			GContact::discoverFollowers($url, $following_gcid, $follower_gcid);
+			GContact::discoverFollowers($url);
 		}
 	}
 }

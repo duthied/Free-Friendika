@@ -84,13 +84,13 @@ class Photo extends BaseModule
 				}
 				$photo = MPhoto::getPhoto($photoid, $scale);
 				if ($photo === false) {
-					$photo = MPhoto::createPhotoForSystemResource("images/nosign.jpg");
+					throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('The Photo with id %s is not available.', $photoid));
 				}
 				break;
 		}
 
 		if ($photo === false) {
-			System::httpExit('404', 'Not Found');
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$cacheable = ($photo["allow_cid"] . $photo["allow_gid"] . $photo["deny_cid"] . $photo["deny_gid"] === "") && (isset($photo["cacheable"]) ? $photo["cacheable"] : true);

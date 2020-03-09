@@ -55,6 +55,8 @@
 
 {{$unlisted nofilter}}
 
+{{$accessiblephotos nofilter}}
+
 {{$blockwall nofilter}}
 
 {{$blocktags nofilter}}
