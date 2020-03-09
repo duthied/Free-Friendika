@@ -1913,16 +1913,22 @@ class Contact
 	 *
 	 * @return array Returns array of the different avatar sizes
 	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
 	public static function updateAvatar($avatar, $uid, $cid, $force = false)
 	{
 		$contact = DBA::selectFirst('contact', ['avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
-			return false;
-		} else {
-			$data = [$contact["photo"], $contact["thumb"], $contact["micro"]];
+			Logger::error('Contact not found', ['cid' => $cid]);
+			throw new HTTPException\NotFoundException('Contact not found');
 		}
+
+		$data = [
+			$contact['photo'] ?? '',
+			$contact['thumb'] ?? '',
+			$contact['micro'] ?? '',
+		];
 
 		foreach ($data as $image_uri) {
 			$image_rid = Photo::ridFromURI($image_uri);
