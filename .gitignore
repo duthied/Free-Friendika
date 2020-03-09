@@ -33,6 +33,9 @@ report/
 #ignore NetBeans IDE's private files (at least)
 /nbproject/private/
 
+Ignore config files from VSCode
+/.vscode/
+
 #ignore smarty cache
 /view/smarty3/compiled/
 
