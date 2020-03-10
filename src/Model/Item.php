@@ -1753,7 +1753,7 @@ class Item
 
 				// Update the contact relations
 				if ($item['author-id'] != $parent['author-id']) {
-					dba::update('contact-relation', ['last-interaction' => $item['created']], ['cid' => $parent['author-id'], 'relation-cid' => $item['author-id']], true);
+					DBA::update('contact-relation', ['last-interaction' => $item['created']], ['cid' => $parent['author-id'], 'relation-cid' => $item['author-id']], true);
 				}
 			} else {
 				/*
