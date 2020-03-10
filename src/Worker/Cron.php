@@ -282,7 +282,7 @@ class Cron
 				}
 			}
 
-			if (($contact['network'] == Protocol::FEED) && ($contact['priority'] <= 3)) {
+			if ((($contact['network'] == Protocol::FEED) && ($contact['priority'] <= 3)) || ($contact['network'] == Protocol::MAIL)) {
 				$priority = PRIORITY_MEDIUM;
 			} elseif ($contact['archive']) {
 				$priority = PRIORITY_NEGLIGIBLE;
