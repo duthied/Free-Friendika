@@ -1758,7 +1758,7 @@ class Item
 						DBA::insert('contact-relation', $fields, true);
 					}
 				}
-		} else {
+			} else {
 				/*
 				 * Allow one to see reply tweets from status.net even when
 				 * we don't have or can't see the original post.
