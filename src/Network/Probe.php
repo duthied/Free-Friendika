@@ -161,7 +161,11 @@ class Probe
 		if ($curlResult->isSuccess()) {
 			$xml = $curlResult->getBody();
 			$xrd = XML::parseString($xml, false);
-			$host_url = 'https://'.$host;
+			if (!empty($url)) {
+				$host_url = 'https://' . $host;
+			} else {
+				$host_url = $host;
+			}
 		} elseif ($curlResult->isTimeout()) {
 			Logger::info('Probing timeout', ['url' => $ssl_url], Logger::DEBUG);
 			self::$istimeout = true;
