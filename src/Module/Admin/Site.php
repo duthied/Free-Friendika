@@ -28,6 +28,7 @@ use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\GContact;
 use Friendica\Module\BaseAdmin;
 use Friendica\Module\Register;
 use Friendica\Protocol\PortableContact;
@@ -178,7 +179,7 @@ class Site extends BaseAdmin
 		$optimize_max_tablesize = (!empty($_POST['optimize_max_tablesize']) ? intval(trim($_POST['optimize_max_tablesize'])) : 100);
 		$optimize_fragmentation = (!empty($_POST['optimize_fragmentation']) ? intval(trim($_POST['optimize_fragmentation'])) : 30);
 		$poco_completion        = (!empty($_POST['poco_completion'])        ? intval(trim($_POST['poco_completion']))        : false);
-		$gcontact_discovery     = (!empty($_POST['gcontact_discovery'])     ? intval(trim($_POST['gcontact_discovery']))     : false);
+		$gcontact_discovery     = (!empty($_POST['gcontact_discovery'])     ? intval(trim($_POST['gcontact_discovery']))     : 0);
 		$poco_requery_days      = (!empty($_POST['poco_requery_days'])      ? intval(trim($_POST['poco_requery_days']))      : 7);
 		$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : PortableContact::DISABLED);
 		$poco_discovery_since   = (!empty($_POST['poco_discovery_since'])   ? intval(trim($_POST['poco_discovery_since']))   : 30);
@@ -549,6 +550,12 @@ class Site extends BaseAdmin
 			'develop' => DI::l10n()->t('check the development version')
 		];
 
+		$discovery_choices = [
+			GContact::DISCOVERY_NONE => DI::l10n()->t('none'),
+			GContact::DISCOVERY_DIRECT => DI::l10n()->t('Direct contacts'),
+			GContact::DISCOVERY_RECURSIVE => DI::l10n()->t('Contacts of contacts')
+		];
+
 		$diaspora_able = (DI::baseUrl()->getUrlPath() == '');
 
 		$optimize_max_tablesize = DI::config()->get('system', 'optimize_max_tablesize', -1);
@@ -671,7 +678,7 @@ class Site extends BaseAdmin
 			'$optimize_fragmentation' => ['optimize_fragmentation', DI::l10n()->t('Minimum level of fragmentation'), DI::config()->get('system', 'optimize_fragmentation', 30), DI::l10n()->t('Minimum fragmenation level to start the automatic optimization - default value is 30%.')],
 
 			'$poco_completion'        => ['poco_completion', DI::l10n()->t('Periodical check of global contacts'), DI::config()->get('system', 'poco_completion'), DI::l10n()->t('If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.')],
-			'$gcontact_discovery'     => ['gcontact_discovery', DI::l10n()->t('Discover followers/followings from global contacts'), DI::config()->get('system', 'gcontact_discovery'), DI::l10n()->t('If enabled, the global contacts are checked for new contacts among their followers and following contacts. This option will create huge masses of jobs, so it should only be activated on powerful machines.')],
+			'$gcontact_discovery'     => ['gcontact_discovery', DI::l10n()->t('Discover followers/followings from global contacts'), (string)intval(DI::config()->get('system', 'gcontact_discovery')), DI::l10n()->t('If enabled, the global contacts are checked for new contacts among their followers and following contacts. This option will create huge masses of jobs, so it should only be activated on powerful machines.'), $discovery_choices],
 			'$poco_requery_days'      => ['poco_requery_days', DI::l10n()->t('Days between requery'), DI::config()->get('system', 'poco_requery_days'), DI::l10n()->t('Number of days after which a server is requeried for his contacts.')],
 			'$poco_discovery'         => ['poco_discovery', DI::l10n()->t('Discover contacts from other servers'), (string)intval(DI::config()->get('system', 'poco_discovery')), DI::l10n()->t('Periodically query other servers for contacts. You can choose between "Users": the users on the remote system, "Global Contacts": active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren\'t available. The fallback increases the server load, so the recommended setting is "Users, Global Contacts".'), $poco_discovery_choices],
 			'$poco_discovery_since'   => ['poco_discovery_since', DI::l10n()->t('Timeframe for fetching global contacts'), (string)intval(DI::config()->get('system', 'poco_discovery_since')), DI::l10n()->t('When the discovery is activated, this value defines the timeframe for the activity of the global contacts that are fetched from other servers.'), $poco_discovery_since_choices],

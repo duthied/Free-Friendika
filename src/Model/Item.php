@@ -1695,7 +1695,7 @@ class Item
 
 			$fields = ['uri', 'parent-uri', 'id', 'deleted',
 				'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-				'wall', 'private', 'forum_mode', 'origin'];
+				'wall', 'private', 'forum_mode', 'origin', 'author-id'];
 			$condition = ['uri' => $item['parent-uri'], 'uid' => $item['uid']];
 			$params = ['order' => ['id' => false]];
 			$parent = self::selectFirst($fields, $condition, $params);
@@ -1750,7 +1750,15 @@ class Item
 					DBA::update('thread', ['mention' => true], ['iid' => $parent_id]);
 					Logger::log('tagged thread ' . $parent_id . ' as mention for user ' . $item['uid'], Logger::DEBUG);
 				}
-			} else {
+
+				// Update the contact relations
+				if ($item['author-id'] != $parent['author-id']) {
+					$fields = ['cid' => $parent['author-id'], 'relation-cid' => $item['author-id']];
+					if (!DBA::exists('contact-relation', $fields)) {
+						DBA::insert('contact-relation', $fields, true);
+					}
+				}
+		} else {
 				/*
 				 * Allow one to see reply tweets from status.net even when
 				 * we don't have or can't see the original post.

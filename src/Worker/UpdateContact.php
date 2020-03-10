@@ -23,8 +23,6 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Model\Contact;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Database\DBA;
 
 class UpdateContact
 {
