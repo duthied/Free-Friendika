@@ -113,13 +113,7 @@ class Addon
 	public static function loadAddons()
 	{
 		$installed_addons = DBA::selectToArray('addon', ['name'], ['installed' => true]);
-
-		$addons_arr = [];
-		foreach ($installed_addons as $addon) {
-			$addons_arr[] = $addon['name'];
-		}
-
-		self::$addons = $addons_arr;
+		self::$addons = array_column($installed_addons, 'name');
 	}
 
 	/**
@@ -199,36 +193,28 @@ class Addon
 	 */
 	public static function reload()
 	{
-		$installed = DBA::selectToArray('addon', [], ['installed' => 1]);
+		$addons = DBA::selectToArray('addon', [], ['installed' => true]);
 
-		$addon_list = [];
-		foreach ($installed as $addon) {
-			$addon_list[] = $addon['name'];
-		}
-
-		foreach ($addon_list as $addon) {
-			$addon = Strings::sanitizeFilePathItem(trim($addon));
-			$fname = 'addon/' . $addon . '/' . $addon . '.php';
-			if (file_exists($fname)) {
-				$t = @filemtime($fname);
-				foreach ($installed as $i) {
-					if (($i['name'] == $addon) && ($i['timestamp'] != $t)) {
-
-						Logger::notice("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $i['name']]);
-						@include_once($fname);
-
-						if (function_exists($addon . '_uninstall')) {
-							$func = $addon . '_uninstall';
-							$func(DI::app());
-						}
-						if (function_exists($addon . '_install')) {
-							$func = $addon . '_install';
-							$func(DI::app());
-						}
-						DBA::update('addon', ['timestamp' => $t], ['id' => $i['id']]);
-					}
-				}
+		foreach ($addons as $addon) {
+			$addonname = Strings::sanitizeFilePathItem(trim($addon['name']));
+			$fname = 'addon/' . $addonname . '/' . $addonname . '.php';
+			$t = @filemtime($fname);
+			if (!file_exists($fname) || ($addon['timestamp'] == $t)) {
+				continue;
 			}
+
+			Logger::notice("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $addon['name']]);
+			@include_once($fname);
+
+			if (function_exists($addonname . '_uninstall')) {
+				$func = $addonname . '_uninstall';
+				$func(DI::app());
+			}
+			if (function_exists($addonname . '_install')) {
+				$func = $addonname . '_install';
+				$func(DI::app());
+			}
+			DBA::update('addon', ['timestamp' => $t], ['id' => $addon['id']]);
 		}
 	}
 
