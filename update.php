@@ -92,10 +92,7 @@ function update_1191()
 	DI::config()->set('system', 'maintenance', 1);
 
 	if (Addon::isEnabled('forumlist')) {
-		//delete forumlist manually from addon and hook table
-		// since Addon::uninstall() don't work here
-		DBA::delete('addon', ['name' => 'forumlist']);
-		DBA::delete('hook', ['file' => 'addon/forumlist/forumlist.php']);
+		Addon::uninstall('forumlist');
 	}
 
 	// select old formlist addon entries
