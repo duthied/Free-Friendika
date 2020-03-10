@@ -43,20 +43,7 @@ class Nodeinfo
 		// If the addon 'statistics_json' is enabled then disable it and activate nodeinfo.
 		if (Addon::isEnabled('statistics_json')) {
 			$config->set('system', 'nodeinfo', true);
-
-			$addon = 'statistics_json';
-			$addons = $config->get('system', 'addon');
-
-			if ($addons) {
-				$addons_arr = explode(',', str_replace(' ', '', $addons));
-
-				$idx = array_search($addon, $addons_arr);
-				if ($idx !== false) {
-					unset($addons_arr[$idx]);
-					Addon::uninstall($addon);
-					$config->set('system', 'addon', implode(', ', $addons_arr));
-				}
-			}
+			Addon::uninstall('statistics_json');
 		}
 
 		if (empty($config->get('system', 'nodeinfo'))) {
