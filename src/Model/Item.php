@@ -1695,7 +1695,7 @@ class Item
 
 			$fields = ['uri', 'parent-uri', 'id', 'deleted',
 				'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-				'wall', 'private', 'forum_mode', 'origin'];
+				'wall', 'private', 'forum_mode', 'origin', 'author-id'];
 			$condition = ['uri' => $item['parent-uri'], 'uid' => $item['uid']];
 			$params = ['order' => ['id' => false]];
 			$parent = self::selectFirst($fields, $condition, $params);
@@ -1749,6 +1749,11 @@ class Item
 				if ($item['origin'] && $item['uid']) {
 					DBA::update('thread', ['mention' => true], ['iid' => $parent_id]);
 					Logger::log('tagged thread ' . $parent_id . ' as mention for user ' . $item['uid'], Logger::DEBUG);
+				}
+
+				// Update the contact relations
+				if ($item['author-id'] != $parent['author-id']) {
+					DBA::update('contact-relation', ['last-interaction' => $item['created']], ['cid' => $parent['author-id'], 'relation-cid' => $item['author-id']], true);
 				}
 			} else {
 				/*

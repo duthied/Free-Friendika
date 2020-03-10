@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2020.03-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1337
+-- Friendica 2020.03-rc (Dalmatian Bellflower)
+-- DB_UPDATE_VERSION 1338
 -- ------------------------------------------
 
 
@@ -253,6 +253,17 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `dfrn-id` (`dfrn-id`(64)),
 	 INDEX `issued-id` (`issued-id`(64))
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='contact table';
+
+--
+-- TABLE contact-relation
+--
+CREATE TABLE IF NOT EXISTS `contact-relation` (
+	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact the related contact had interacted with',
+	`relation-cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'related contact who had interacted with the contact',
+	`last-interaction` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last interaction',
+	 PRIMARY KEY(`cid`,`relation-cid`),
+	 INDEX `relation-cid` (`relation-cid`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Contact relations';
 
 --
 -- TABLE conv

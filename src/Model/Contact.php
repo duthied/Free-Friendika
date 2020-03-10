@@ -1621,6 +1621,9 @@ class Contact
 				// Update the gcontact entry
 				if ($uid == 0) {
 					GContact::updateFromPublicContactID($contact_id);
+					if (($data['network'] == Protocol::ACTIVITYPUB) && in_array(DI::config()->get('system', 'gcontact_discovery'), [GContact::DISCOVERY_DIRECT, GContact::DISCOVERY_RECURSIVE])) {
+						GContact::discoverFollowers($data['url']);
+					}
 				}
 			}
 		} else {

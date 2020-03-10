@@ -44,6 +44,19 @@ use Friendica\Util\Strings;
 class GContact
 {
 	/**
+	 * No discovery of followers/followings
+	 */
+	const DISCOVERY_NONE = 0;
+	/**
+	 * Only discover followers/followings from direct contacts
+	 */
+	const DISCOVERY_DIRECT = 1;
+	/**
+	 * Recursive discovery of followers/followings
+	 */
+	const DISCOVERY_RECURSIVE = 2;
+
+	/**
 	 * Search global contact table by nick or name
 	 *
 	 * @param string $search Name or nick

@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1337);
+	define('DB_UPDATE_VERSION', 1338);
 }
 
 return [
@@ -315,6 +315,18 @@ return [
 			"nick_uid" => ["nick(32)", "uid"],
 			"dfrn-id" => ["dfrn-id(64)"],
 			"issued-id" => ["issued-id(64)"],
+		]
+	],
+	"contact-relation" => [
+		"comment" => "Contact relations",
+		"fields" => [
+			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "contact the related contact had interacted with"],
+			"relation-cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "related contact who had interacted with the contact"],
+			"last-interaction" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last interaction"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["cid", "relation-cid"],
+			"relation-cid" => ["relation-cid"],
 		]
 	],
 	"conv" => [
