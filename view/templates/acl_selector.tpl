@@ -259,9 +259,9 @@
 			$contact_deny_input.val('');
 			[].forEach.call($acl_deny_input.tagsinput('items'), function (item) {
 				if (item.type === 'group') {
-					$group_deny_input.val($group_allow_input.val() + ',' + item.id);
+					$group_deny_input.val($group_deny_input.val() + ',' + item.id);
 				} else {
-					$contact_deny_input.val($contact_allow_input.val() + ',' + item.id);
+					$contact_deny_input.val($contact_deny_input.val() + ',' + item.id);
 				}
 			});
 		});
