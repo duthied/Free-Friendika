@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\Content\Text;
 
+use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
@@ -67,5 +68,31 @@ class MarkdownTest extends MockedTest
 		$output = Markdown::convert($input);
 
 		$this->assertEquals($expected, $output);
+	}
+
+	public function dataMarkdownText()
+	{
+		return [
+			'bug-8358-double-decode' => [
+				'expectedBBCode' => 'with the <sup> and </sup> tag',
+				'markdown' => 'with the &lt;sup&gt; and &lt;/sup&gt; tag',
+			],
+		];
+	}
+
+	/**
+	 * Test convert Markdown to BBCode
+	 *
+	 * @dataProvider dataMarkdownText
+	 *
+	 * @param string $expectedBBCode Expected BBCode output
+	 * @param string $html           Markdown text
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public function testToBBCode($expectedBBCode, $html)
+	{
+		$actual = Markdown::toBBCode($html);
+
+		$this->assertEquals($expectedBBCode, $actual);
 	}
 }
