@@ -1,7 +1,7 @@
 <div class="vcard h-card">
 
 	<div class="tool">
-		<div class="fn label p-name">{{$profile.name}}</div>
+		<div class="fn p-name">{{$profile.name}}</div>
 		{{if $profile.edit}}
 			<div class="action">
 			<a class="icon s16 edit ttright" href="#" rel="#profiles-menu" title="{{$profile.edit.3}}"><span>{{$profile.edit.1}}</span></a>
@@ -17,7 +17,6 @@
 
 	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
 
-	{{if $about}}<div class="title">{{$profile.about nofilter}}</div>{{/if}}
 	<div id="profile-photo-wrapper"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" /></div>
 
 	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
@@ -37,6 +36,8 @@
 		</dd>
 		</dl>
 	{{/if}}
+
+	{{if $about}}<div class="title">{{$profile.about nofilter}}</div>{{/if}}
 
         {{if $profile.xmpp}}
                 <dl class="xmpp">
