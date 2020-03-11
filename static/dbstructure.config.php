@@ -320,8 +320,8 @@ return [
 	"contact-relation" => [
 		"comment" => "Contact relations",
 		"fields" => [
-			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "contact the related contact had interacted with"],
-			"relation-cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "related contact who had interacted with the contact"],
+			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "primary" => "1", "comment" => "contact the related contact had interacted with"],
+			"relation-cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "primary" => "1", "comment" => "related contact who had interacted with the contact"],
 			"last-interaction" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last interaction"],
 		],
 		"indexes" => [
