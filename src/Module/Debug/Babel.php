@@ -37,9 +37,7 @@ class Babel extends BaseModule
 	{
 		function visible_whitespace($s)
 		{
-			$s = str_replace(' ', '&nbsp;', $s);
-
-			return str_replace(["\r\n", "\n", "\r"], '<br />', $s);
+			return '<pre>' . htmlspecialchars($s) . '</pre>';
 		}
 
 		$results = [];
@@ -61,7 +59,7 @@ class Babel extends BaseModule
 					$html = Text\BBCode::convert($bbcode);
 					$results[] = [
 						'title'   => DI::l10n()->t('BBCode::convert (raw HTML)'),
-						'content' => visible_whitespace(htmlspecialchars($html))
+						'content' => visible_whitespace($html)
 					];
 
 					$results[] = [
@@ -78,13 +76,13 @@ class Babel extends BaseModule
 					$markdown = Text\BBCode::toMarkdown($bbcode);
 					$results[] = [
 						'title'   => DI::l10n()->t('BBCode::toMarkdown'),
-						'content' => visible_whitespace(htmlspecialchars($markdown))
+						'content' => visible_whitespace($markdown)
 					];
 
 					$html2 = Text\Markdown::convert($markdown);
 					$results[] = [
 						'title'   => DI::l10n()->t('BBCode::toMarkdown => Markdown::convert (raw HTML)'),
-						'content' => visible_whitespace(htmlspecialchars($html2))
+						'content' => visible_whitespace($html2)
 					];
 					$results[] = [
 						'title'   => DI::l10n()->t('BBCode::toMarkdown => Markdown::convert'),
@@ -118,17 +116,28 @@ class Babel extends BaseModule
 						'content' => $item['tag']
 					];
 					break;
-				case 'markdown':
-					$markdown = trim($_REQUEST['text']);
+				case 'diaspora':
+					$diaspora = trim($_REQUEST['text']);
 					$results[] = [
 						'title'   => DI::l10n()->t('Source input (Diaspora format)'),
-						'content' => '<pre>' . htmlspecialchars($markdown) . '</pre>'
+						'content' => visible_whitespace($diaspora),
 					];
 
-					$html = Text\Markdown::convert(html_entity_decode($markdown,ENT_COMPAT, 'UTF-8'));
+					$markdown = XML::unescape($diaspora);
+				case 'markdown':
+					if (!isset($markdown)) {
+						$markdown = trim($_REQUEST['text']);
+					}
+
+					$results[] = [
+						'title'   => DI::l10n()->t('Source input (Markdown)'),
+						'content' => visible_whitespace($markdown),
+					];
+
+					$html = Text\Markdown::convert($markdown);
 					$results[] = [
 						'title'   => DI::l10n()->t('Markdown::convert (raw HTML)'),
-						'content' => visible_whitespace(htmlspecialchars($html))
+						'content' => visible_whitespace($html),
 					];
 
 					$results[] = [
@@ -136,17 +145,17 @@ class Babel extends BaseModule
 						'content' => $html
 					];
 
-					$bbcode = Text\Markdown::toBBCode(XML::unescape($markdown));
+					$bbcode = Text\Markdown::toBBCode($markdown);
 					$results[] = [
 						'title'   => DI::l10n()->t('Markdown::toBBCode'),
-						'content' => '<pre>' . $bbcode . '</pre>'
+						'content' => visible_whitespace($bbcode),
 					];
 					break;
 				case 'html' :
 					$html = trim($_REQUEST['text']);
 					$results[] = [
 						'title'   => DI::l10n()->t('Raw HTML input'),
-						'content' => htmlspecialchars($html)
+						'content' => visible_whitespace($html),
 					];
 
 					$results[] = [
@@ -174,7 +183,7 @@ class Babel extends BaseModule
 					$bbcode2plain = Text\BBCode::toPlaintext($bbcode);
 					$results[] = [
 						'title'   => DI::l10n()->t('HTML::toBBCode => BBCode::toPlaintext'),
-						'content' => '<pre>' . $bbcode2plain . '</pre>'
+						'content' => visible_whitespace($bbcode2plain),
 					];
 
 					$markdown = Text\HTML::toMarkdown($html);
@@ -186,13 +195,13 @@ class Babel extends BaseModule
 					$text = Text\HTML::toPlaintext($html, 0);
 					$results[] = [
 						'title'   => DI::l10n()->t('HTML::toPlaintext'),
-						'content' => '<pre>' . $text . '</pre>'
+						'content' => visible_whitespace($text),
 					];
 
 					$text = Text\HTML::toPlaintext($html, 0, true);
 					$results[] = [
 						'title'   => DI::l10n()->t('HTML::toPlaintext (compact)'),
-						'content' => '<pre>' . $text . '</pre>'
+						'content' => visible_whitespace($text),
 					];
 			}
 		}
@@ -201,6 +210,7 @@ class Babel extends BaseModule
 		$o = Renderer::replaceMacros($tpl, [
 			'$text'          => ['text', DI::l10n()->t('Source text'), $_REQUEST['text'] ?? '', ''],
 			'$type_bbcode'   => ['type', DI::l10n()->t('BBCode'), 'bbcode', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'bbcode'],
+			'$type_diaspora' => ['type', DI::l10n()->t('Diaspora'), 'diaspora', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'diaspora'],
 			'$type_markdown' => ['type', DI::l10n()->t('Markdown'), 'markdown', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'markdown'],
 			'$type_html'     => ['type', DI::l10n()->t('HTML'), 'html', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'html'],
 			'$results'       => $results
