@@ -109,8 +109,6 @@ class Markdown
 	 */
 	public static function toBBCode($s)
 	{
-		$s = html_entity_decode($s, ENT_COMPAT, 'UTF-8');
-
 		// The parser cannot handle paragraphs correctly
 		$s = str_replace(['</p>', '<p>', '<p dir="ltr">'], ['<br>', '<br>', '<br>'], $s);
 

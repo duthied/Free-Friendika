@@ -1,11 +1,10 @@
 
 <div class="vcard h-card">
 
-	<div class="fn label p-name">{{$profile.name}}</div>
+	<div class="fn p-name">{{$profile.name}}</div>
 	
 	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
 	
-	{{if $profile.about}}<div class="title">{{$profile.about nofilter}}</div>{{/if}}
 	<div id="profile-photo-wrapper"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></div>
 
 	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
@@ -25,6 +24,8 @@
 		</dd>
 		</dl>
 	{{/if}}
+
+	{{if $profile.about}}<div class="title">{{$profile.about nofilter}}</div>{{/if}}
 
 	{{if $profile.pubkey}}<div class="key" style="display:none;">{{$profile.pubkey}}</div>{{/if}}
 
