@@ -298,6 +298,13 @@ class Photo
 			$backend_ref = $storage->put($Image->asString(), $backend_ref);
 		}
 
+		// Prevent "null" permissions
+		if (!empty($uid)) {
+			$allow_cid = $allow_cid ?? '<' . $uid . '>';
+			$allow_gid = $allow_gid ?? '';
+			$deny_cid = $deny_cid ?? '';
+			$deny_gid = $deny_gid ?? '';
+		}
 
 		$fields = [
 			"uid" => $uid,
