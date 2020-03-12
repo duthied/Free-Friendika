@@ -298,6 +298,13 @@ class Photo
 			$backend_ref = $storage->put($Image->asString(), $backend_ref);
 		}
 
+		// Prevent "null" permissions
+		if (!empty($uid)) {
+			$allow_cid = $allow_cid ?? '<' . $uid . '>';
+			$allow_gid = $allow_gid ?? '';
+			$deny_cid = $deny_cid ?? '';
+			$deny_gid = $deny_gid ?? '';
+		}
 
 		$fields = [
 			"uid" => $uid,
@@ -655,6 +662,12 @@ class Photo
 				continue;
 			}
 
+			if (DI::pConfig()->get($uid, 'system', 'accessible-photos')) {
+				$condition = ['resource-id' => $image_rid, 'uid' => $uid];
+				Logger::info('Set accessibility', ['condition' => $condition]);
+				Photo::update(['accessible' => true], $condition);
+			}
+
 			// Ensure to only modify photos that you own
 			$srch = '<' . intval($original_contact_id) . '>';
 
@@ -676,10 +689,6 @@ class Photo
 
 			$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 					'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
-
-			if (DI::pConfig()->get($uid, 'system', 'accessible-photos')) {
-				$fields['accessible'] = true;
-			}
 
 			$condition = ['resource-id' => $image_rid, 'uid' => $uid];
 			Logger::info('Set permissions', ['condition' => $condition, 'permissions' => $fields]);
