@@ -1343,7 +1343,7 @@ class GContact
 			foreach ($contacts as $contact) {
 				$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(($contact))]);
 				if (DBA::isResult($gcontact)) {
-					$field = [];
+					$fields = [];
 					if (in_array($contact, $followers)) {
 						$fields = ['gcid' => $gcid, 'follower-gcid' => $gcontact['id']];
 					} elseif (in_array($contact, $followings)) {
