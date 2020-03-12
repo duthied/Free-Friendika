@@ -1343,14 +1343,18 @@ class GContact
 			foreach ($contacts as $contact) {
 				$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(($contact))]);
 				if (DBA::isResult($gcontact)) {
+					$fields = [];
 					if (in_array($contact, $followers)) {
 						$fields = ['gcid' => $gcid, 'follower-gcid' => $gcontact['id']];
 					} elseif (in_array($contact, $followings)) {
 						$fields = ['gcid' => $gcontact['id'], 'follower-gcid' => $gcid];
 					}
-					Logger::info('Set relation between contacts', $fields);
-					DBA::update('gfollower', ['deleted' => false], $fields, true);
-					continue;
+
+					if (!empty($fields)) {
+						Logger::info('Set relation between contacts', $fields);
+						DBA::update('gfollower', ['deleted' => false], $fields, true);
+						continue;
+					}
 				}
 
 				if (!Network::isUrlBlocked($contact)) {
