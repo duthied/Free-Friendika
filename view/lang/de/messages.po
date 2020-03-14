@@ -49,7 +49,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-03-07 18:07+0100\n"
-"PO-Revision-Date: 2020-03-09 09:54+0000\n"
+"PO-Revision-Date: 2020-03-14 12:02+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -565,7 +565,7 @@ msgstr "%1$s erwähnte dich auf %2$s"
 #: include/enotify.php:221
 #, php-format
 msgid "%1$s Comment to conversation #%2$d by %3$s"
-msgstr "%1$sKommentar von %3$sauf Unterhaltung %2$d"
+msgstr "%1$sKommentar von %3$s auf Unterhaltung %2$d"
 
 #: include/enotify.php:223
 #, php-format
@@ -5253,7 +5253,7 @@ msgid ""
 "\n"
 "\t\tDear %1$s,\n"
 "\t\t\tthe administrator of %2$s has set up an account for you."
-msgstr ""
+msgstr "\nHallo %1$s\nein Admin von %2$s hat dir ein Nutzerkonto angelegt."
 
 #: src/Model/User.php:1006
 #, php-format
