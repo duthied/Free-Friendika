@@ -1,9 +1,73 @@
 Version 2020.03 (unreleased3)
   Friendica Core:
+    Updates to the translations (DE, FR, JA, RU, ZH-CN) [translation teams]
+    Updates to the documentation [annando, MrPetovan]
+    Updates to the themes (all) [AlfredSK, annando, MrPetovan, ozero]
+    General code refactoring and enhancements [annando, MrPetovan, nupplaphil]
+    Enhanced the performance in several background tasks [annando]
+    Enhanced the display of contact relations (Twitter) [annando]
+    Enhanced the permission selection for uploaded photos [annando]
+    Enhanced the access control during composing a posting [MrPetovan]
+    Enhanced the accessibility [annando, MrPetovan]
+    Enhanced the delegation process [annando]
+    Enhanced the contact management links [annando]
+    Enhanced the pagination on the community page [MrPetovan]
+    Enhanced the remote following page [annando]
+    Enhanced the generated node statistics [AlfredSK]
+    Enhanced the federation statistics page in the admin panel [annando]
+    Enhanced the probing mechanism [annando]
+    Enhanced the federation with Zot [annando]
+    Enhanced the permission selections for events [MrPetovan]
+    Enhanced the logging format of the date-time entries [MrPetovan]
+    Fixed a problem with the uninstalling of addons [annando]
+    Fixed a problem with the XML escaping in postings [MrPetovan]
+    Fixed a problem with the Markdown parser [MrPetovan]
+    Fixed AP federation problems with GNU social [annando]
+    Fixed AP federation problems with Peertube [annando]
+    Fixed a problem with the update process of the database [annando]
+    Fixed problems in the generation of notification emails [nupplaphil]
+    Fixed a problem with automatic contact approvals [annando]
+    Fixed a problem with following items [annando]
+    Fixed the redirection in the photo album after actions there [MrPetovan]
+    Fixed redirection from notifications for non logged in users [nupplaphil]
+    All target _blank links now have the rel noopener noreferrer [MrPetovan]
+    The "more action" menu in Frio was moved to the action buttons [annando]
+    Replacement of the "hide_wall" option with more clear options [annando]
+    Replaced most of all fixed profile field with free form profile fields [MrPetovan]
+    Removed the "compose on new page" option in Frio [MrPetovan]
+    Removed multiple profiles in favour of custom profile fields [MrPetovan]
+    Added an option to hide the dislike reaction [MrPetovan]
+    Added user group filter to contact listings [MrPetovan]
+    Added folding to the widgets in the side bar [annando]
+    Added user management functionality to the Friendica console [nupplaphil]
+    Added api/friendica/events endpoint to the API [MrPetovan]
+    Added api/friendica/events endpoint to the API [MrPetovan]
+    Added custom profile fields [MrPetovan]
 
   Friendica Addons:
+    Update to the translations (CS, DE, FR, PL, RU, ZH-CN) [translation teams]
+    General code refactoring and enhancements [AndyHee, annando, MrPetovan, nupplaphil]
+    blockbot:
+      Ensure that good agents are whitelisted [valvin1]
+    markdown:
+      Addon to use Markdown while composing a posting was added [annando]
+    showmore:
+      Functionality is ignored by screen readers [annando]
+    twitter:
+      Added fetching of contact relations [annando]
+    unicode emoticons:
+      Extended the list of supported emoticons [loma-one]
+      
+
 
   Closed Issues:
+    4599, 5562, 6205, 6418, 6757, 7558, 7560, 7808, 7817, 7964, 7968,
+    7978, 7984, 7991, 7992, 7994, 8002, 8008, 8014, 8058, 8067, 8081,
+    8084, 8087, 8090, 8097, 8098, 8103, 8136, 8151, 8153, 8157, 8160,
+    8164, 8165, 8167, 8172, 8173, 8181, 8182, 8185, 8187, 8193, 8197,
+    8205, 8206, 8216, 8219, 8229, 8233, 8234, 8238, 8245, 8248, 8251,
+    8252, 8255, 8264, 8268, 8275, 8280, 8288, 8289, 8290, 8303, 8310,
+    8318, 8321, 8338, 8339, 8342, 8358, 8393, 8396, 8404, 8412
 
 Version 2019.12 (2019-12-23)
   Friendica Core:
