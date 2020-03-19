@@ -244,10 +244,10 @@ function item_post(App $a) {
 	$body = preg_replace('#\[url=([^\]]*?)\]\[/url\]#ism', '[url]$1[/url]', $body);
 
 	if (!empty($orig_post)) {
-		$str_group_allow   = $orig_post['allow_gid'];
-		$str_contact_allow = $orig_post['allow_cid'];
-		$str_group_deny    = $orig_post['deny_gid'];
-		$str_contact_deny  = $orig_post['deny_cid'];
+		$str_group_allow   = $orig_post['allow_gid'] ?? '';
+		$str_contact_allow = $orig_post['allow_cid'] ?? '';
+		$str_group_deny    = $orig_post['deny_gid']  ?? '';
+		$str_contact_deny  = $orig_post['deny_cid']  ?? '';
 		$location          = $orig_post['location'];
 		$coord             = $orig_post['coord'];
 		$verb              = $orig_post['verb'];
@@ -261,33 +261,13 @@ function item_post(App $a) {
 		$network           = $orig_post['network'];
 		$guid              = $orig_post['guid'];
 		$extid             = $orig_post['extid'];
-
 	} else {
+		$aclFormatter = DI::aclFormatter();
 
-		/*
-		 * if coming from the API and no privacy settings are set,
-		 * use the user default permissions - as they won't have
-		 * been supplied via a form.
-		 */
-		if ($api_source
-			&& !array_key_exists('contact_allow', $_REQUEST)
-			&& !array_key_exists('group_allow', $_REQUEST)
-			&& !array_key_exists('contact_deny', $_REQUEST)
-			&& !array_key_exists('group_deny', $_REQUEST)) {
-			$str_group_allow   = $user['allow_gid'];
-			$str_contact_allow = $user['allow_cid'];
-			$str_group_deny    = $user['deny_gid'];
-			$str_contact_deny  = $user['deny_cid'];
-		} else {
-			// use the posted permissions
-
-			$aclFormatter = DI::aclFormatter();
-
-			$str_group_allow   = $aclFormatter->toString($_REQUEST['group_allow'] ?? '');
-			$str_contact_allow = $aclFormatter->toString($_REQUEST['contact_allow'] ?? '');
-			$str_group_deny    = $aclFormatter->toString($_REQUEST['group_deny'] ?? '');
-			$str_contact_deny  = $aclFormatter->toString($_REQUEST['contact_deny'] ?? '');
-		}
+		$str_group_allow   = isset($_REQUEST['group_allow'])   ? $aclFormatter->toString($_REQUEST['group_allow'])    : $user['allow_gid'] ?? '';
+		$str_contact_allow = isset($_REQUEST['contact_allow']) ? $aclFormatter->toString($_REQUEST['contact__allow']) : $user['allow_cid'] ?? '';
+		$str_group_deny    = isset($_REQUEST['group_deny'])    ? $aclFormatter->toString($_REQUEST['group_deny'])     : $user['deny_gid']  ?? '';
+		$str_contact_deny  = isset($_REQUEST['contact_deny'])  ? $aclFormatter->toString($_REQUEST['contact_deny'])   : $user['deny_cid']  ?? '';
 
 		$title             = Strings::escapeTags(trim($_REQUEST['title']    ?? ''));
 		$location          = Strings::escapeTags(trim($_REQUEST['location'] ?? ''));
