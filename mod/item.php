@@ -128,7 +128,7 @@ function item_post(App $a) {
 			$thread_parent_contact = Contact::getDetailsByURL($toplevel_item["author-link"]);
 
 			if ($toplevel_item['id'] != $toplevel_item['parent']) {
-				$toplevel_item = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $toplevel_item['parent']]);
+				$toplevel_item = Item::selectFirst([], ['id' => $toplevel_item['parent']]);
 			}
 		}
 
@@ -298,10 +298,10 @@ function item_post(App $a) {
 				$network = $toplevel_item['network'];
 			}
 
-			$str_contact_allow = $toplevel_item['allow_cid'];
-			$str_group_allow   = $toplevel_item['allow_gid'];
-			$str_contact_deny  = $toplevel_item['deny_cid'];
-			$str_group_deny    = $toplevel_item['deny_gid'];
+			$str_contact_allow = $toplevel_item['allow_cid'] ?? '';
+			$str_group_allow   = $toplevel_item['allow_gid'] ?? '';
+			$str_contact_deny  = $toplevel_item['deny_cid'] ?? '';
+			$str_group_deny    = $toplevel_item['deny_gid'] ?? '';
 			$private           = $toplevel_item['private'];
 
 			$wall              = $toplevel_item['wall'];
