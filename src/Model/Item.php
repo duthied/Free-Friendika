@@ -44,6 +44,7 @@ use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Worker\Delivery;
 use Text_LanguageDetect;
+use Friendica\Repository\PermissionSet as RepPermissionSet;
 
 class Item
 {
@@ -326,6 +327,21 @@ class Item
 			}
 		}
 
+		if ($row['internal-psid'] == RepPermissionSet::PUBLIC) {
+			if (array_key_exists('allow_cid', $row)) {
+				$row['allow_cid'] = '';
+			}
+			if (array_key_exists('allow_gid', $row)) {
+				$row['allow_gid'] = '';
+			}
+			if (array_key_exists('deny_cid', $row)) {
+				$row['deny_cid'] = '';
+			}
+			if (array_key_exists('deny_gid', $row)) {
+				$row['deny_gid'] = '';
+			}
+		}
+
 		if (array_key_exists('signed_text', $row) && array_key_exists('interaction', $row) && !is_null($row['interaction'])) {
 			$row['signed_text'] = $row['interaction'];
 		}
@@ -338,6 +354,7 @@ class Item
 		unset($row['internal-activity']);
 		unset($row['internal-network']);
 		unset($row['internal-iid']);
+		unset($row['internal-psid']);
 		unset($row['internal-iaid']);
 		unset($row['internal-icid']);
 		unset($row['internal-user-ignored']);
@@ -664,7 +681,7 @@ class Item
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
 			'id' => 'item_id', 'network', 'icid', 'iaid', 'id' => 'internal-iid',
 			'network' => 'internal-network', 'icid' => 'internal-icid',
-			'iaid' => 'internal-iaid'];
+			'iaid' => 'internal-iaid', 'psid' => 'internal-psid'];
 
 		if ($usermode) {
 			$fields['user-item'] = ['pinned', 'notification-type', 'ignored' => 'internal-user-ignored'];
@@ -833,6 +850,7 @@ class Item
 	{
 		if (!empty($selected)) {
 			$selected[] = 'internal-iid';
+			$selected[] = 'internal-psid';			
 			$selected[] = 'internal-iaid';
 			$selected[] = 'internal-icid';
 			$selected[] = 'internal-network';
