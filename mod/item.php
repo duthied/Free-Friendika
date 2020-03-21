@@ -244,10 +244,10 @@ function item_post(App $a) {
 	$body = preg_replace('#\[url=([^\]]*?)\]\[/url\]#ism', '[url]$1[/url]', $body);
 
 	if (!empty($orig_post)) {
-		$str_group_allow   = $orig_post['allow_gid'] ?? '';
-		$str_contact_allow = $orig_post['allow_cid'] ?? '';
-		$str_group_deny    = $orig_post['deny_gid']  ?? '';
-		$str_contact_deny  = $orig_post['deny_cid']  ?? '';
+		$str_group_allow   = $orig_post['allow_gid'];
+		$str_contact_allow = $orig_post['allow_cid'];
+		$str_group_deny    = $orig_post['deny_gid'];
+		$str_contact_deny  = $orig_post['deny_cid'];
 		$location          = $orig_post['location'];
 		$coord             = $orig_post['coord'];
 		$verb              = $orig_post['verb'];
