@@ -264,10 +264,10 @@ function item_post(App $a) {
 	} else {
 		$aclFormatter = DI::aclFormatter();
 
-		$str_group_allow   = isset($_REQUEST['group_allow'])   ? $aclFormatter->toString($_REQUEST['group_allow'])    : $user['allow_gid'] ?? '';
-		$str_contact_allow = isset($_REQUEST['contact_allow']) ? $aclFormatter->toString($_REQUEST['contact__allow']) : $user['allow_cid'] ?? '';
-		$str_group_deny    = isset($_REQUEST['group_deny'])    ? $aclFormatter->toString($_REQUEST['group_deny'])     : $user['deny_gid']  ?? '';
-		$str_contact_deny  = isset($_REQUEST['contact_deny'])  ? $aclFormatter->toString($_REQUEST['contact_deny'])   : $user['deny_cid']  ?? '';
+		$str_group_allow   = isset($_REQUEST['group_allow'])   ? $aclFormatter->toString($_REQUEST['group_allow'])   : $user['allow_gid'] ?? '';
+		$str_contact_allow = isset($_REQUEST['contact_allow']) ? $aclFormatter->toString($_REQUEST['contact_allow']) : $user['allow_cid'] ?? '';
+		$str_group_deny    = isset($_REQUEST['group_deny'])    ? $aclFormatter->toString($_REQUEST['group_deny'])    : $user['deny_gid']  ?? '';
+		$str_contact_deny  = isset($_REQUEST['contact_deny'])  ? $aclFormatter->toString($_REQUEST['contact_deny'])  : $user['deny_cid']  ?? '';
 
 		$title             = Strings::escapeTags(trim($_REQUEST['title']    ?? ''));
 		$location          = Strings::escapeTags(trim($_REQUEST['location'] ?? ''));
