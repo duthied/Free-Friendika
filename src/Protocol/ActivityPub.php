@@ -231,7 +231,7 @@ class ActivityPub
 			$items = $data['orderedItems'];
 		} elseif (!empty($data['first']['orderedItems'])) {
 			$items = $data['first']['orderedItems'];
-		} elseif (!empty($data['first']) && is_string($data['first'])) {
+		} elseif (!empty($data['first']) && is_string($data['first']) && ($data['first'] != $url)) {
 			return self::fetchItems($data['first'], $uid);
 		} else {
 			$items = [];

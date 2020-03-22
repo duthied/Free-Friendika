@@ -232,8 +232,16 @@ class Feed {
 		}
 
 		$items = [];
+
+		// Limit the number of items that are about to be fetched
+		$total_items = ($entries->length - 1);
+		$max_items = DI::config()->get('system', 'max_feed_items');
+		if (($max_items > 0) && ($total_items > $max_items)) {
+			$total_items = $max_items;
+		}
+
 		// Importing older entries first
-		for ($i = $entries->length - 1; $i >= 0; --$i) {
+		for ($i = $total_items; $i >= 0; --$i) {
 			$entry = $entries->item($i);
 
 			$item = array_merge($header, $author);

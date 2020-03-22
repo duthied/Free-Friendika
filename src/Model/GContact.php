@@ -884,11 +884,11 @@ class GContact
 			$items = $outbox['orderedItems'];
 		} elseif (!empty($outbox['first']['orderedItems'])) {
 			$items = $outbox['first']['orderedItems'];
-		} elseif (!empty($outbox['first']['href'])) {
+		} elseif (!empty($outbox['first']['href']) && ($outbox['first']['href'] != $feed)) {
 			self::updateFromOutbox($outbox['first']['href'], $data);
 			return;
 		} elseif (!empty($outbox['first'])) {
-			if (is_string($outbox['first'])) {
+			if (is_string($outbox['first']) && ($outbox['first'] != $feed)) {
 				self::updateFromOutbox($outbox['first'], $data);
 			} else {
 				Logger::warning('Unexpected data', ['outbox' => $outbox]);
