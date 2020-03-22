@@ -275,7 +275,7 @@ return [
 
 		// max_feed_items (Integer)
 		// Maximum number of feed items that are fetched and processed. For unlimited items set to 0.
-		'max_feed_items' => 10,
+		'max_feed_items' => 20,
 
 		// max_image_length (Integer)
 		// An alternate way of limiting picture upload sizes.
