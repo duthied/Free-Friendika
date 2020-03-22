@@ -663,7 +663,7 @@ class Photo
 			];
 			if (!Photo::exists($condition)) {
 				$condition = ['resource-id' => $image_rid];
-				$photo = Photo::selectFirst(['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'uid'], $condition);
+				$photo = self::selectFirst(['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'uid'], $condition);
 				if (!DBA::isResult($photo)) {
 					Logger::info('Image not found', ['condition' => $condition]);
 				} else {
