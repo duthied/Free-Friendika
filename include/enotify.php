@@ -176,7 +176,7 @@ function notification($params)
 		if ($params['activity']['origin_comment']) {
 			$message = $l10n->t('%1$s replied to you on %2$s\'s %3$s %4$s');
 		} elseif ($params['activity']['explicit_tagged']) {
-			$message = $l10n->t('$l10n->t(%1$s tagged you on %2$s\'s %3$s %4$s');
+			$message = $l10n->t('%1$s tagged you on %2$s\'s %3$s %4$s');
 		} else {
 			$message = $l10n->t('%1$s commented on %2$s\'s %3$s %4$s');
 		}
