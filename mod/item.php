@@ -461,7 +461,7 @@ function item_post(App $a) {
 
 	$match = null;
 
-	if (!$preview && Photo::setPermissionFromBody($body, $profile_uid, $original_contact_id, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny)) {
+	if (!$preview && Photo::setPermissionFromBody($body, $uid, $original_contact_id, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny)) {
 		$objecttype = Activity\ObjectType::IMAGE;
 	}
 
