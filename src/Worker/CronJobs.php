@@ -84,10 +84,6 @@ class CronJobs
 				self::clearCache($a);
 				break;
 
-			case 'repair_diaspora':
-				self::repairDiaspora($a);
-				break;
-
 			case 'repair_database':
 				self::repairDatabase();
 				break;
@@ -242,46 +238,6 @@ class CronJobs
 		}
 
 		DI::config()->set('system', 'cache_last_cleared', time());
-	}
-
-	/**
-	 * Repair missing values in Diaspora contacts
-	 *
-	 * @param App $a
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	private static function repairDiaspora(App $a)
-	{
-		$starttime = time();
-
-		$r = q("SELECT `id`, `url` FROM `contact`
-			WHERE `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
-				ORDER BY RAND() LIMIT 50", DBA::escape(Protocol::DIASPORA));
-		if (!DBA::isResult($r)) {
-			return;
-		}
-
-		foreach ($r as $contact) {
-			// Quit the loop after 3 minutes
-			if (time() > ($starttime + 180)) {
-				return;
-			}
-
-			if (!GServer::reachable($contact["url"])) {
-				continue;
-			}
-
-			$data = Probe::uri($contact["url"]);
-			if ($data["network"] != Protocol::DIASPORA) {
-				continue;
-			}
-
-			Logger::log("Repair contact " . $contact["id"] . " " . $contact["url"], Logger::DEBUG);
-			q("UPDATE `contact` SET `batch` = '%s', `notify` = '%s', `poll` = '%s', pubkey = '%s' WHERE `id` = %d",
-				DBA::escape($data["batch"]), DBA::escape($data["notify"]), DBA::escape($data["poll"]), DBA::escape($data["pubkey"]),
-				intval($contact["id"]));
-		}
 	}
 
 	/**

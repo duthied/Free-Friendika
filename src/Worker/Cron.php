@@ -69,9 +69,6 @@ class Cron
 		// Clear cache entries
 		Worker::add(PRIORITY_LOW, "CronJobs", "clear_cache");
 
-		// Repair missing Diaspora values in contacts
-		Worker::add(PRIORITY_LOW, "CronJobs", "repair_diaspora");
-
 		// Repair entries in the database
 		Worker::add(PRIORITY_LOW, "CronJobs", "repair_database");
 
