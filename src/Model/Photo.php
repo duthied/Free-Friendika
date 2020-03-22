@@ -662,10 +662,9 @@ class Photo
 				'resource-id' => $image_rid, 'uid' => $uid
 			];
 			if (!Photo::exists($condition)) {
-				$condition = ['resource-id' => $image_rid];
-				$photo = self::selectFirst(['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'uid'], $condition);
+				$photo = self::selectFirst(['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'uid'], ['resource-id' => $image_rid]);
 				if (!DBA::isResult($photo)) {
-					Logger::info('Image not found', ['condition' => $condition]);
+					Logger::info('Image not found', ['resource-id' => $image_rid]);
 				} else {
 					Logger::info('Mismatching permissions', ['condition' => $condition, 'photo' => $photo]);
 				}
