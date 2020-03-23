@@ -133,6 +133,18 @@ class Processor
 				} else {
 					$item['body'] .= "\n[img=" . $attach['url'] . ']' . $attach['name'] . '[/img]';
 				}
+			} elseif ($filetype == 'audio') {
+				if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
+					continue;
+				}
+
+				$item['body'] .= "\n[audio]" . $attach['url'] . '[/audio]';
+			} elseif ($filetype == 'video') {
+				if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
+					continue;
+				}
+
+				$item['body'] .= "\n[video]" . $attach['url'] . '[/video]';
 			} else {
 				if (!empty($item["attach"])) {
 					$item["attach"] .= ',';
@@ -387,10 +399,6 @@ class Processor
 			}
 			$item['content-warning'] = HTML::toBBCode($activity['summary']);
 			$item['body'] = $content;
-
-			if (($activity['object_type'] == 'as:Video') && !empty($activity['alternate-url'])) {
-				$item['body'] .= "\n[video]" . $activity['alternate-url'] . '[/video]';
-			}
 		}
 
 		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
