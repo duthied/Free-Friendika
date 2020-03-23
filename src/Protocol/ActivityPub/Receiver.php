@@ -55,7 +55,7 @@ class Receiver
 {
 	const PUBLIC_COLLECTION = 'as:Public';
 	const ACCOUNT_TYPES = ['as:Person', 'as:Organization', 'as:Service', 'as:Group', 'as:Application'];
-	const CONTENT_TYPES = ['as:Note', 'as:Article', 'as:Video', 'as:Image', 'as:Event'];
+	const CONTENT_TYPES = ['as:Note', 'as:Article', 'as:Video', 'as:Image', 'as:Event', 'as:Audio'];
 	const ACTIVITY_TYPES = ['as:Like', 'as:Dislike', 'as:Accept', 'as:Reject', 'as:TentativeAccept'];
 
 	/**
@@ -937,6 +937,75 @@ class Receiver
 	}
 
 	/**
+	 * Check if the "as:url" element is an array with multiple links
+	 * This is the case with audio and video posts.
+	 * Then the links are added as attachments
+	 *
+	 * @param array $object      The raw object
+	 * @param array $object_data The parsed object data for later processing
+	 * @return array the object data
+	 */
+	private static function processAttachmentUrls(array $object, array $object_data) {
+		// Check if this is some url with multiple links
+		if (empty($object['as:url'])) {
+			return $object_data;
+		}
+		
+		$urls = $object['as:url'];
+		$keys = array_keys($urls);
+		if (!is_numeric(array_pop($keys))) {
+			return $object_data;
+		}
+
+		$attachments = [];
+
+		foreach ($urls as $url) {
+			if (empty($url['@type']) || ($url['@type'] != 'as:Link')) {
+				continue;
+			}
+
+			$href = JsonLD::fetchElement($url, 'as:href', '@id');
+			if (empty($href)) {
+				continue;
+			}
+
+			$mediatype = JsonLD::fetchElement($url, 'as:mediaType');
+			if (empty($mediatype)) {
+				continue;
+			}
+
+			if ($mediatype == 'text/html') {
+				$object_data['alternate-url'] = $href;
+			}
+
+			$filetype = strtolower(substr($mediatype, 0, strpos($mediatype, '/')));
+
+			if ($filetype == 'audio') {
+				$attachments[$filetype] = ['type' => $mediatype, 'url' => $href];
+			} elseif ($filetype == 'video') {
+				$height = (int)JsonLD::fetchElement($url, 'as:height', '@value');
+
+				// We save bandwidth by using a moderate height
+				// Peertube normally uses these heights: 240, 360, 480, 720, 1080
+				if (!empty($attachments[$filetype]['height']) &&
+					(($height > 480) || $height < $attachments[$filetype]['height'])) {
+					continue;
+				}
+
+				$attachments[$filetype] = ['type' => $mediatype, 'url' => $href, 'height' => $height];
+			}
+		}
+
+		foreach ($attachments as $type => $attachment) {
+			$object_data['attachments'][] = ['type' => $type,
+				'mediaType' => $attachment['type'],
+				'name' => '',
+				'url' => $attachment['url']];
+		}
+		return $object_data;
+	}
+
+	/**
 	 * Fetches data from the object part of an activity
 	 *
 	 * @param array $object
@@ -1017,6 +1086,10 @@ class Receiver
 			if (!is_string($object_data['alternate-url'])) {
 				$object_data['alternate-url'] = JsonLD::fetchElement($object['as:url'], 'as:href', '@id');
 			}
+		}
+
+		if (in_array($object_data['object_type'], ['as:Audio', 'as:Video'])) {
+			$object_data = self::processAttachmentUrls($object, $object_data);
 		}
 
 		$object_data['receiver'] = self::getReceivers($object, $object_data['actor'], $object_data['tags'], true);
