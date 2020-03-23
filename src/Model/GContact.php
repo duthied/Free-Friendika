@@ -107,7 +107,7 @@ class GContact
 
 			// Ignore results that look strange.
 			// For historic reasons the gcontact table does contain some garbage.
-			if (!empty($urlparts['query']) || !empty($urlparts['fragment'])) {
+			if (empty($result['nurl']) || !empty($urlparts['query']) || !empty($urlparts['fragment'])) {
 				continue;
 			}
 
