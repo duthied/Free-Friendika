@@ -1,9 +1,9 @@
 Version 2020.03 (unreleased3)
   Friendica Core:
-    Updates to the translations (DE, FR, JA, RU, ZH-CN) [translation teams]
+    Updates to the translations (DE, FR, JA, PL, RU, ZH-CN) [translation teams]
     Updates to the documentation [annando, MrPetovan]
     Updates to the themes (all) [AlfredSK, annando, MrPetovan, ozero]
-    General code refactoring and enhancements [annando, MrPetovan, nupplaphil]
+    General code refactoring and enhancements [annando, MrPetovan, nupplaphil, tobiasd]
     Enhanced the performance in several background tasks [annando]
     Enhanced the display of contact relations (Twitter) [annando]
     Enhanced the permission selection for uploaded photos [annando]
@@ -30,7 +30,9 @@ Version 2020.03 (unreleased3)
     Fixed a problem with following items [annando]
     Fixed the redirection in the photo album after actions there [MrPetovan]
     Fixed redirection from notifications for non logged in users [nupplaphil]
-    All target _blank links now have the rel noopener noreferrer [MrPetovan]
+    Fixed a problem with image permissions in comments [annando]
+    Fixed a problem leading to random deletion of postings [MrPetovan, SpcCw]
+    All target _blank links now have the rel no-opener no-referrer [MrPetovan]
     The "more action" menu in Frio was moved to the action buttons [annando]
     Replacement of the "hide_wall" option with more clear options [annando]
     Replaced most of all fixed profile field with free form profile fields [MrPetovan]
@@ -43,6 +45,7 @@ Version 2020.03 (unreleased3)
     Added api/friendica/events endpoint to the API [MrPetovan]
     Added api/friendica/events endpoint to the API [MrPetovan]
     Added custom profile fields [MrPetovan]
+    Added AP type audio for the federation with Funkwhale [annando]
 
   Friendica Addons:
     Update to the translations (CS, DE, FR, PL, RU, ZH-CN) [translation teams]
