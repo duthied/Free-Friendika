@@ -1,6 +1,6 @@
 Version 2020.03 (unreleased3)
   Friendica Core:
-    Updates to the translations (DE, FR, JA, PL, RU, ZH-CN) [translation teams]
+    Updates to the translations (DE, FR, JA, NL, PL, RU, ZH-CN) [translation teams]
     Updates to the documentation [annando, MrPetovan]
     Updates to the themes (all) [AlfredSK, annando, MrPetovan, ozero]
     General code refactoring and enhancements [annando, MrPetovan, nupplaphil, tobiasd]
