@@ -841,6 +841,10 @@ class Receiver
 				continue;
 			}
 
+			if (empty($element['href'])) {
+				$element['href'] = $element['name'];
+			}
+
 			$taglist[] = $element;
 		}
 		return $taglist;
