@@ -1636,7 +1636,6 @@ class Diaspora
 		}
 
 		if ($platform == 'socialhome') {
-			// This doesn't really seem to work on Socialhome
 			return $contact['baseurl'] . '/content/' . $guid;
 		}
 
