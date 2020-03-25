@@ -10,9 +10,11 @@ AgnesElisa
 Albert
 Alberto Díaz Tormo
 Alex
+Alexander An
 Alexander Fortin
 Alexander Kampmann
 Alexandre Alapetite
+Alexey Adamov
 AlfredSK
 Andi
 Andi Stadler
@@ -42,6 +44,7 @@ ben-utzer
 BinkaDroid
 Bjoessi
 bufalo1973
+ButterflyOfFire
 Calango Jr
 Carlos Solís
 Carsten Pfeiffer
@@ -80,6 +83,7 @@ emilia.krawczyk
 Eric Côté
 erik
 Erkan Yilmaz
+Eugene Veresk
 Fabian Dost
 Fabio Comuni
 felixgilles
@@ -136,6 +140,7 @@ Lea1995polish
 Leberwurscht
 Leonard Lausen
 Lionel Triay
+loma-one
 Lorem Ipsum
 Ludovic Grossard
 maase2
@@ -221,6 +226,7 @@ Simon L'nu
 Simó Albert i Beltran
 softmetz
 soko1
+SpencerDub
 St John Karp
 Stanislav N.
 Steffen K9
@@ -243,7 +249,7 @@ TiMESPLiNTER
 Tino
 Tobias Diekershoff
 Tobias Hößl
-tomacat
+Tom
 tomamplius
 tomtom84
 Tony Baldwin
