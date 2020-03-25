@@ -247,7 +247,7 @@ class OStatus
 			$gcid = GContact::update($contact);
 
 			GContact::link($gcid, $contact["uid"], $contact["id"]);
-		} elseif ($contact["network"] != Protocol::DFRN) {
+		} elseif (empty($contact["network"]) || ($contact["network"] != Protocol::DFRN)) {
 			$contact = [];
 		}
 
