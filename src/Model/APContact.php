@@ -26,6 +26,7 @@ use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Util\Crypto;
 use Friendica\Util\Network;
 use Friendica\Util\JsonLD;
 use Friendica\Util\DateTimeFormat;
@@ -209,6 +210,9 @@ class APContact
 		$apcontact['pubkey'] = null;
 		if (!empty($compacted['w3id:publicKey'])) {
 			$apcontact['pubkey'] = trim(JsonLD::fetchElement($compacted['w3id:publicKey'], 'w3id:publicKeyPem', '@value'));
+			if (strstr($apcontact['pubkey'], 'RSA ')) {
+				$apcontact['pubkey'] = Crypto::rsaToPem($apcontact['pubkey']);
+			}
 		}
 
 		$apcontact['manually-approve'] = (int)JsonLD::fetchElement($compacted, 'as:manuallyApprovesFollowers');
