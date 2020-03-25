@@ -87,7 +87,7 @@ class ParseUrl
 		DBA::insert(
 			'parsed_url',
 			[
-				'url' => Strings::normaliseLink($url), 'guessing' => !$no_guessing,
+				'url' => substr(Strings::normaliseLink($url), 0, 255), 'guessing' => !$no_guessing,
 				'oembed' => $do_oembed, 'content' => serialize($data),
 				'created' => DateTimeFormat::utcNow()
 			],
