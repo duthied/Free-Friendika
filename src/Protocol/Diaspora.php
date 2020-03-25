@@ -1616,13 +1616,8 @@ class Diaspora
 			$platform = strtolower($gserver['platform']);
 			Logger::info('Detected platform', ['platform' => $platform, 'url' => $contact['url']]);
 		}
-		if ($platform == 'socialhome') {
-			// Socialhome doesn't offer an item endpoint that we could use
-			Logger::info('Ignoring Socialhome', ['platform' => $platform, 'url' => $contact['url']]);
-			return '';
-		}
 
-		if (!in_array($platform, ['diaspora', 'friendica', 'hubzilla'])) {
+		if (!in_array($platform, ['diaspora', 'friendica', 'hubzilla', 'socialhome'])) {
 			if (self::isHubzilla($contact['url'])) {
 				Logger::info('Detected unknown platform as Hubzilla', ['platform' => $platform, 'url' => $contact['url']]);
 				$platform = 'hubzilla';
@@ -1638,6 +1633,11 @@ class Diaspora
 
 		if ($platform == 'hubzilla') {
 			return $contact['baseurl'] . '/item/' . $guid;
+		}
+
+		if ($platform == 'socialhome') {
+			// This doesn't really seem to work on Socialhome
+			return $contact['baseurl'] . '/content/' . $guid;
 		}
 
 		if ($platform != 'diaspora') {
