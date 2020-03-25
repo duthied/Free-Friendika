@@ -1581,9 +1581,9 @@ class Diaspora
 	 *
 	 * @return bool is it a hubzilla server?
 	 */
-	public static function isRedmatrix($url)
+	private static function isHubzilla($url)
 	{
-		return(strstr($url, "/channel/"));
+		return(strstr($url, '/channel/'));
 	}
 
 	/**
@@ -1600,28 +1600,55 @@ class Diaspora
 	private static function plink($addr, $guid, $parent_guid = '')
 	{
 		$contact = Contact::getDetailsByAddr($addr);
+		if (empty($contact)) {
+			Logger::info('No contact data for address', ['addr' => $addr]);
+			return '';
+		}
 
-		// Fallback
-		if (!$contact) {
-			if ($parent_guid != '') {
-				return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $parent_guid . "#" . $guid;
-			} else {
-				return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $guid;
+		if (empty($contact['baseurl'])) {
+			$contact['baseurl'] = 'https://' . substr($addr, strpos($addr, '@') + 1);
+			Logger::info('Create baseurl from address', ['baseurl' => $contact['baseurl'], 'url' => $contact['url']]);
+		}
+
+		$platform = '';
+		$gserver = DBA::selectFirst('gserver', ['platform'], ['nurl' => Strings::normaliseLink($contact['baseurl'])]);
+		if (!empty($gserver['platform'])) {
+			$platform = strtolower($gserver['platform']);
+			Logger::info('Detected platform', ['platform' => $platform, 'url' => $contact['url']]);
+		}
+		if ($platform == 'socialhome') {
+			// Socialhome doesn't offer an item endpoint that we could use
+			Logger::info('Ignoring Socialhome', ['platform' => $platform, 'url' => $contact['url']]);
+			return '';
+		}
+
+		if (!in_array($platform, ['diaspora', 'friendica', 'hubzilla'])) {
+			if (self::isHubzilla($contact['url'])) {
+				Logger::info('Detected unknown platform as Hubzilla', ['platform' => $platform, 'url' => $contact['url']]);
+				$platform = 'hubzilla';
+			} elseif ($contact['network'] == Protocol::DFRN) {
+				Logger::info('Detected unknown platform as Friendica', ['platform' => $platform, 'url' => $contact['url']]);
+				$platform = 'friendica';
 			}
 		}
 
-		if ($contact["network"] == Protocol::DFRN) {
-			return str_replace("/profile/" . $contact["nick"] . "/", "/display/" . $guid, $contact["url"] . "/");
+		if ($platform == 'friendica') {
+			return str_replace('/profile/' . $contact['nick'] . '/', '/display/' . $guid, $contact['url'] . '/');
 		}
 
-		if (self::isRedmatrix($contact["url"])) {
-			return $contact["url"] . "/?mid=" . $guid;
+		if ($platform == 'hubzilla') {
+			return $contact['baseurl'] . '/item/' . $guid;
+		}
+
+		if ($platform != 'diaspora') {
+			Logger::info('Unknown platform', ['platform' => $platform, 'url' => $contact['url']]);
+			return '';
 		}
 
 		if ($parent_guid != '') {
-			return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $parent_guid . "#" . $guid;
+			return $contact['baseurl'] . '/posts/' . $parent_guid . '#' . $guid;
 		} else {
-			return "https://" . substr($addr, strpos($addr, "@") + 1) . "/posts/" . $guid;
+			return $contact['baseurl'] . '/posts/' . $guid;
 		}
 	}
 
@@ -1869,7 +1896,6 @@ class Diaspora
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
 		$datarray["plink"] = self::plink($author, $guid, $parent_item['guid']);
-
 		$body = Markdown::toBBCode($text);
 
 		$datarray["body"] = self::replacePeopleGuid($body, $person["url"]);
@@ -2907,7 +2933,7 @@ class Diaspora
 			$datarray["object-type"] = Activity\ObjectType::NOTE;
 
 			// Add OEmbed and other information to the body
-			if (!self::isRedmatrix($contact["url"])) {
+			if (!self::isHubzilla($contact["url"])) {
 				$body = add_page_info_to_body($body, false, true);
 			}
 		}
