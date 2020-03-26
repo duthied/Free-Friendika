@@ -1558,7 +1558,7 @@ class Item
 		$item['object']        = trim($item['object'] ?? '');
 		$item['target-type']   = trim($item['target-type'] ?? '');
 		$item['target']        = trim($item['target'] ?? '');
-		$item['plink']         = trim($item['plink'] ?? '');
+		$item['plink']         = substr(trim($item['plink'] ?? ''), 0, 255);
 		$item['allow_cid']     = trim($item['allow_cid'] ?? '');
 		$item['allow_gid']     = trim($item['allow_gid'] ?? '');
 		$item['deny_cid']      = trim($item['deny_cid'] ?? '');
