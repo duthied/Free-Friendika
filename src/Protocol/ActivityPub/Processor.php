@@ -544,7 +544,7 @@ class Processor
 				Logger::info('Accepting post', ['uid' => $receiver, 'url' => $item['uri']]);
 			}
 
-			if ($activity['object_type'] == 'as:Event') {
+			if (($item['gravity'] != GRAVITY_ACTIVITY) && ($activity['object_type'] == 'as:Event')) {
 				self::createEvent($activity, $item);
 			}
 
