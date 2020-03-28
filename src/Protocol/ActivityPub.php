@@ -234,7 +234,7 @@ class ActivityPub
 		} elseif (!empty($data['first']) && is_string($data['first']) && ($data['first'] != $url)) {
 			return self::fetchItems($data['first'], $uid);
 		} else {
-			$items = [];
+			return [];
 		}
 
 		if (!empty($data['next']) && is_string($data['next'])) {
