@@ -260,6 +260,22 @@ class APContact
 		// Unhandled from Kroeg
 		// kroeg:blocks, updated
 
+		// When the photo is too large, try to shorten it by removing parts
+		if (strlen($apcontact['photo']) > 255) {
+			$parts = parse_url($apcontact['photo']);
+			unset($parts['query']);
+			$apcontact['photo'] = Network::unparseURL($parts);
+
+			if (strlen($apcontact['photo']) > 255) {
+				unset($parts['fragment']);
+				$apcontact['photo'] = Network::unparseURL($parts);
+			}
+
+			if (strlen($apcontact['photo']) > 255) {
+				$apcontact['photo'] = substr($apcontact['photo'], 0, 255);
+			}
+		}
+
 		$parts = parse_url($apcontact['url']);
 		unset($parts['path']);
 		$baseurl = Network::unparseURL($parts);
