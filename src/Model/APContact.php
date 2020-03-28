@@ -263,11 +263,11 @@ class APContact
 		// When the photo is too large, try to shorten it by removing parts
 		if (strlen($apcontact['photo']) > 255) {
 			$parts = parse_url($apcontact['photo']);
-			unset($parts['query']);
+			unset($parts['fragment']);
 			$apcontact['photo'] = Network::unparseURL($parts);
 
 			if (strlen($apcontact['photo']) > 255) {
-				unset($parts['fragment']);
+				unset($parts['query']);
 				$apcontact['photo'] = Network::unparseURL($parts);
 			}
 
