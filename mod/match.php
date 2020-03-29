@@ -60,7 +60,7 @@ function match_content(App $a)
 		return '';
 	}
 	if (!$profile['pub_keywords'] && (!$profile['prv_keywords'])) {
-		notice(DI::l10n()->t('No keywords to match. Please add keywords to your default profile.') . EOL);
+		notice(DI::l10n()->t('No keywords to match. Please add keywords to your profile.') . EOL);
 		return '';
 	}
 
