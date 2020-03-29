@@ -177,7 +177,7 @@ class Item
 		}
 
 		$pinned = [];
-		while ($useritem = self::fetch($useritems)) {
+		while ($useritem = DBA::fetch($useritems)) {
 			$pinned[] = $useritem['iid'];
 		}
 		DBA::close($useritems);
@@ -846,7 +846,9 @@ class Item
 	 */
 	private static function constructSelectFields(array $fields, array $selected)
 	{
-		$selected = array_merge($selected, ['internal-iid', 'internal-psid', 'internal-iaid', 'internal-network']);
+		if (!empty($selected)) {
+			$selected = array_merge($selected, ['internal-iid', 'internal-psid', 'internal-iaid', 'internal-network']);
+		}
 
 		if (in_array('verb', $selected)) {
 			$selected[] = 'internal-activity';
