@@ -356,7 +356,6 @@ class Item
 		unset($row['internal-iid']);
 		unset($row['internal-psid']);
 		unset($row['internal-iaid']);
-		unset($row['internal-icid']);
 		unset($row['internal-user-ignored']);
 		unset($row['interaction']);
 
@@ -680,8 +679,7 @@ class Item
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
 			'id' => 'item_id', 'network', 'icid', 'iaid', 'id' => 'internal-iid',
-			'network' => 'internal-network', 'icid' => 'internal-icid',
-			'iaid' => 'internal-iaid', 'psid' => 'internal-psid'];
+			'network' => 'internal-network', 'iaid' => 'internal-iaid', 'psid' => 'internal-psid'];
 
 		if ($usermode) {
 			$fields['user-item'] = ['pinned', 'notification-type', 'ignored' => 'internal-user-ignored'];
@@ -846,15 +844,9 @@ class Item
 	 *
 	 * @return string The field list
 	 */
-	private static function constructSelectFields($fields, $selected)
+	private static function constructSelectFields(array $fields, array $selected)
 	{
-		if (!empty($selected)) {
-			$selected[] = 'internal-iid';
-			$selected[] = 'internal-psid';			
-			$selected[] = 'internal-iaid';
-			$selected[] = 'internal-icid';
-			$selected[] = 'internal-network';
-		}
+		$selected = array_merge($selected, ['internal-iid', 'internal-psid', 'internal-iaid', 'internal-network']);
 
 		if (in_array('verb', $selected)) {
 			$selected[] = 'internal-activity';

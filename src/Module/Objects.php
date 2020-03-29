@@ -63,7 +63,7 @@ class Objects extends BaseModule
 		$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
 
 		// Only display "Create" activity objects here, no reshares or anything else
-		if (!is_array($activity['object']) || ($activity['type'] != 'Create')) {
+		if (empty($activity['object']) || ($activity['type'] != 'Create')) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
