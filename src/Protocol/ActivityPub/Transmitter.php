@@ -193,10 +193,10 @@ class Transmitter
 			$items = Item::select(['id'], $condition, ['limit' => [($page - 1) * 20, 20], 'order' => ['created' => true]]);
 			while ($item = Item::fetch($items)) {
 				$activity = self::createActivityFromItem($item['id'], true);
-		                $activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
+				$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
 
 				// Only list "Create" activity objects here, no reshares
-				if (is_array($activity['object']) && ($activity['type'] == 'Create')) {
+				if (!empty($activity['object']) && ($activity['type'] == 'Create')) {
 					$list[] = $activity['object'];
 				}
 			}
