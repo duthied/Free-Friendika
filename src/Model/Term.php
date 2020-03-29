@@ -345,7 +345,7 @@ class Term
 				'oid'      => $item_id,
 				'otype'    => self::OBJECT_TYPE_POST,
 				'type'     => $type,
-				'term'     => $term,
+				'term'     => substr($term, 0, 255),
 				'url'      => $link,
 				'guid'     => $item['guid'],
 				'created'  => $item['created'],
