@@ -177,7 +177,7 @@ class Item
 		}
 
 		$pinned = [];
-		while ($useritem = self::fetch($useritems)) {
+		while ($useritem = DBA::fetch($useritems)) {
 			$pinned[] = $useritem['iid'];
 		}
 		DBA::close($useritems);
