@@ -2369,31 +2369,10 @@ class DFRN
 
 		$item["body"] = XML::getFirstNodeValue($xpath, "dfrn:env/text()", $entry);
 		$item["body"] = str_replace([' ',"\t","\r","\n"], ['','','',''], $item["body"]);
-		// make sure nobody is trying to sneak some html tags by us
+
 		$item["body"] = Strings::base64UrlDecode($item["body"]);
 
 		$item["body"] = BBCode::limitBodySize($item["body"]);
-
-		/// @todo Do we really need this check for HTML elements? (It was copied from the old function)
-		if ((strpos($item['body'], '<') !== false) && (strpos($item['body'], '>') !== false)) {
-			$base_url = DI::baseUrl()->get();
-			$item['body'] = HTML::relToAbs($item['body'], $base_url);
-
-			$item['body'] = HTML::toBBCodeVideo($item['body']);
-
-			$item['body'] = OEmbed::HTML2BBCode($item['body']);
-
-			$config = HTMLPurifier_Config::createDefault();
-			$config->set('Cache.DefinitionImpl', null);
-
-			// we shouldn't need a whitelist, because the bbcode converter
-			// will strip out any unsupported tags.
-
-			$purifier = new HTMLPurifier($config);
-			$item['body'] = $purifier->purify($item['body']);
-
-			$item['body'] = @HTML::toBBCode($item['body']);
-		}
 
 		/// @todo We should check for a repeated post and if we know the repeated author.
 
