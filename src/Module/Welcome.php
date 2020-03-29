@@ -60,7 +60,7 @@ class Welcome extends BaseModule
 			'$profiles_link'          => DI::l10n()->t('Edit Your Profile'),
 			'$profiles_txt'           => DI::l10n()->t('Edit your <strong>default</strong> profile to your liking. Review the settings for hiding your list of friends and hiding the profile from unknown visitors.'),
 			'$profiles_keywords_link' => DI::l10n()->t('Profile Keywords'),
-			'$profiles_keywords_txt'  => DI::l10n()->t('Set some public keywords for your default profile which describe your interests. We may be able to find other people with similar interests and suggest friendships.'),
+			'$profiles_keywords_txt'  => DI::l10n()->t('Set some public keywords for your profile which describe your interests. We may be able to find other people with similar interests and suggest friendships.'),
 
 			'$connecting'       => DI::l10n()->t('Connecting'),
 			'$mail_disabled'    => $mail_disabled,

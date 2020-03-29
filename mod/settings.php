@@ -834,7 +834,7 @@ function settings_content(App $a)
 	]);
 
 	$hide_friends = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['hide-friends', DI::l10n()->t('Hide your contact/friend list from viewers of your default profile?'), $profile['hide-friends'], DI::l10n()->t('Your contact list won\'t be shown in your default profile page. You can decide to show your contact list separately for each additional profile you create')],
+		'$field' => ['hide-friends', DI::l10n()->t('Hide your contact/friend list from viewers of your profile?'), $profile['hide-friends'], DI::l10n()->t('A list of your contacts is displayed on your profile page. Activate this option to disable the display of your contact list.')],
 	]);
 
 	$hide_wall = Renderer::replaceMacros($opt_tpl, [
