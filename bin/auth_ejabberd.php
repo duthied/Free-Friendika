@@ -35,9 +35,11 @@
  * 	- Change the access mode so it is readable only to the user ejabberd and has exec
  * 	  $ chmod 700 /path/to/friendica/bin/auth_ejabberd.php
  *
- * 	- Edit your ejabberd.cfg file, comment out your auth_method and add:
- * 	  {auth_method, external}.
- * 	  {extauth_program, "/path/to/friendica/bin/auth_ejabberd.php"}.
+ * 	- Edit your ejabberd.yml file and add after "shaper:":
+ *
+ * 	  auth_method: [external]
+ * 	  extauth_program: "/path/to/friendica/bin/auth_ejabberd.php"
+ *    auth_use_cache: false
  *
  * 	- Restart your ejabberd service, you should be able to login with your friendica auth info
  *
