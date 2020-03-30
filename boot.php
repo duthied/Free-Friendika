@@ -38,8 +38,8 @@ use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
-define('FRIENDICA_CODENAME',     'Dalmatian Bellflower');
-define('FRIENDICA_VERSION',      '2020.03-rc');
+define('FRIENDICA_CODENAME',     'Red Hot Poker');
+define('FRIENDICA_VERSION',      '2020.03');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
