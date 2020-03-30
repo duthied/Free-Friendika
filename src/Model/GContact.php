@@ -1359,7 +1359,7 @@ class GContact
 
 				if (!Network::isUrlBlocked($contact)) {
 					Logger::info('Discover new AP contact', ['url' => $contact]);
-					Worker::add(PRIORITY_LOW, 'UpdateGContact', $contact);
+					Worker::add(PRIORITY_LOW, 'UpdateGContact', $contact, 'nodiscover');
 				} else {
 					Logger::info('No discovery, the URL is blocked.', ['url' => $contact]);
 				}
@@ -1399,7 +1399,7 @@ class GContact
 						}
 						if (!Network::isUrlBlocked($entry['value'])) {
 							Logger::info('Discover new PoCo contact', ['url' => $entry['value']]);
-							Worker::add(PRIORITY_LOW, 'UpdateGContact', $entry['value']);
+							Worker::add(PRIORITY_LOW, 'UpdateGContact', $entry['value'], 'nodiscover');
 						} else {
 							Logger::info('No discovery, the URL is blocked.', ['url' => $entry['value']]);
 						}
