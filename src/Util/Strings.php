@@ -420,4 +420,42 @@ class Strings
 
 		return $pathItem;
 	}
+
+	/**
+	 * Multi-byte safe implementation of substr_replace where $start and $length are character offset and count rather
+	 * than byte offset and counts.
+	 *
+	 * Depends on mbstring, use default encoding.
+	 *
+	 * @param string   $string
+	 * @param string   $replacement
+	 * @param int      $start
+	 * @param int|null $length
+	 * @return string
+	 * @see substr_replace()
+	 */
+	public static function substringReplace(string $string, string $replacement, int $start, int $length = null)
+	{
+		$string_length = mb_strlen($string);
+
+		$length = $length ?? $string_length;
+
+		if ($start < 0) {
+			$start = max(0, $string_length + $start);
+		} else if ($start > $string_length) {
+			$start = $string_length;
+		}
+
+		if ($length < 0) {
+			$length = max(0, $string_length - $start + $length);
+		} else if ($length > $string_length) {
+			$length = $string_length;
+		}
+
+		if (($start + $length) > $string_length) {
+			$length = $string_length - $start;
+		}
+
+		return mb_substr($string, 0, $start) . $replacement . mb_substr($string, $start + $length, $string_length - $start - $length);
+	}
 }
