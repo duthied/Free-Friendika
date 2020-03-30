@@ -1,7 +1,7 @@
 Version 2020.03 (unreleased3)
   Friendica Core:
     Updates to the translations (DE, FR, JA, NL, PL, RU, ZH-CN) [translation teams]
-    Updates to the documentation [annando, MrPetovan]
+    Updates to the documentation [AlfredSK, annando, MrPetovan]
     Updates to the themes (all) [AlfredSK, annando, MrPetovan, ozero]
     General code refactoring and enhancements [annando, MrPetovan, nupplaphil, tobiasd]
     Enhanced the performance in several background tasks [annando]
@@ -32,6 +32,7 @@ Version 2020.03 (unreleased3)
     Fixed redirection from notifications for non logged in users [nupplaphil]
     Fixed a problem with image permissions in comments [annando]
     Fixed a problem leading to random deletion of postings [MrPetovan, SpcCw]
+    Fixed a problem while transmitting XML in CODE blocks [annando]
     All target _blank links now have the rel no-opener no-referrer [MrPetovan]
     The "more action" menu in Frio was moved to the action buttons [annando]
     Replacement of the "hide_wall" option with more clear options [annando]
@@ -62,14 +63,14 @@ Version 2020.03 (unreleased3)
       Extended the list of supported emoticons [loma-one]
       
   Closed Issues:
-    4599, 5562, 6205, 6418, 6757, 7558, 7560, 7808, 7817, 7964, 7968,
-    7978, 7984, 7991, 7992, 7994, 8002, 8008, 8014, 8058, 8067, 8081,
-    8084, 8087, 8090, 8097, 8098, 8103, 8136, 8151, 8153, 8157, 8160,
-    8164, 8165, 8167, 8172, 8173, 8181, 8182, 8185, 8187, 8193, 8197,
-    8205, 8206, 8216, 8219, 8229, 8233, 8234, 8238, 8245, 8248, 8251,
-    8252, 8255, 8264, 8268, 8275, 8280, 8288, 8289, 8290, 8303, 8310,
-    8318, 8321, 8338, 8339, 8342, 8358, 8371, 8383, 8393, 8396, 8404,
-    8412, 8417, 8449
+    4599, 5562, 6205, 6418, 6757, 7558, 7560, 7771, 7808, 7817, 7892,
+    7964, 7968, 7978, 7984, 7991, 7992, 7994, 8002, 8008, 8014, 8058,
+    8067, 8081, 8084, 8087, 8090, 8097, 8098, 8103, 8136, 8151, 8153,
+    8157, 8160, 8164, 8165, 8167, 8172, 8173, 8181, 8182, 8185, 8187,
+    8193, 8197, 8205, 8206, 8216, 8219, 8229, 8233, 8234, 8238, 8245,
+    8248, 8251, 8252, 8254, 8255, 8264, 8268, 8275, 8280, 8286, 8288,
+    8289, 8290, 8299, 8303, 8305, 8310, 8318, 8321, 8338, 8339, 8341,
+    8342, 8358, 8371, 8383, 8393, 8396, 8404, 8412, 8417, 8449, 8467
 
 Version 2019.12 (2019-12-23)
   Friendica Core:
