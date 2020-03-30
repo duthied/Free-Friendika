@@ -35,12 +35,13 @@ class UpdateGContact
 	public static function execute(string $url, string $command = '')
 	{
 		$force = ($command == "force");
+		$nodiscover = ($command == "nodiscover");
 
 		$success = GContact::updateFromProbe($url, $force);
 
 		Logger::info('Updated from probe', ['url' => $url, 'force' => $force, 'success' => $success]);
 
-		if ($success && (DI::config()->get('system', 'gcontact_discovery') == GContact::DISCOVERY_RECURSIVE)) {
+		if ($success && !$nodiscover && (DI::config()->get('system', 'gcontact_discovery') == GContact::DISCOVERY_RECURSIVE)) {
 			GContact::discoverFollowers($url);
 		}
 	}
