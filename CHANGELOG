@@ -1,3 +1,12 @@
+Version 2020.06 (unreleased)
+  Friendica Core:
+
+  Friendica Addons:
+    showmore_dyn:
+      New addon to collapse long post depending on their actual height [wiwie]
+
+  Closed Issues:
+
 Version 2020.03 "Red Hot Poker"  (2020-03-30)
   Friendica Core:
     Updates to the translations (DE, FR, JA, NL, PL, RU, ZH-CN) [translation teams]
