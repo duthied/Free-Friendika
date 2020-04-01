@@ -2832,11 +2832,6 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     margin-bottom: 20px;
 }
 
-.panel-group-settings > .panel,
-.panel-group-settings > form > .panel {
-    padding-left: 10px;
-    padding-right: 10px;
-}
 #profile-photo-upload-section {
     display: none;
     padding: 10px;
