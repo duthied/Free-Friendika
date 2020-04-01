@@ -432,9 +432,7 @@ class Photo
 			return false;
 		}
 
-		if (empty($type)) {
-			$type = Images::guessType($image_url, true);
-		}
+		$type = Images::getMimeTypeByData($img_str, $image_url, $type);
 
 		$Image = new Image($img_str, $type);
 		if ($Image->isValid()) {

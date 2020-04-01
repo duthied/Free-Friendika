@@ -709,22 +709,6 @@ class Image
 	}
 
 	/**
-	 * Guess image mimetype from filename or from Content-Type header
-	 *
-	 * @param string  $filename Image filename
-	 * @param boolean $fromcurl Check Content-Type header from curl request
-	 * @param string  $header   passed headers to take into account
-	 *
-	 * @return string|null
-	 * @throws Exception
-	 * @deprecated in version 2019.12 please use Util\Images::guessType() instead.
-	 */
-	public static function guessType($filename, $fromcurl = false, $header = '')
-	{
-		return Images::guessType($filename, $fromcurl, $header);
-	}
-
-	/**
 	 * @param string $url url
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

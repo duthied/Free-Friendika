@@ -174,23 +174,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		exit();
 	}
 
-	// This is a special treatment for picture upload from Twidere
-	if (($filename == "octet-stream") && ($filetype != "")) {
-		$filename = $filetype;
-		$filetype = "";
-	}
-
-	if ($filetype == "") {
-		$filetype = Images::guessType($filename);
-	}
-
-	// If there is a temp name, then do a manual check
-	// This is more reliable than the provided value
-
-	$imagedata = getimagesize($src);
-	if ($imagedata) {
-		$filetype = $imagedata['mime'];
-	}
+	$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
 
 	Logger::log("File upload src: " . $src . " - filename: " . $filename .
 		" - size: " . $filesize . " - type: " . $filetype, Logger::DEBUG);

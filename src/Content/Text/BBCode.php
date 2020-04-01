@@ -453,6 +453,10 @@ class BBCode
 	{
 		$s = $srctext;
 
+		// Simplify image links
+		$s = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $s);
+		$s = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $s);
+
 		$matches = null;
 		$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism', $s, $matches, PREG_SET_ORDER);
 		if ($c) {
@@ -464,13 +468,14 @@ class BBCode
 					continue;
 				}
 
-				$i = Network::fetchUrl($mtch[1]);
-				if (!$i) {
-					return $srctext;
+				$curlResult = Network::curl($mtch[1], true);
+				if (!$curlResult->isSuccess()) {
+					continue;
 				}
 
-				// guess mimetype from headers or filename
-				$type = Images::guessType($mtch[1], true);
+				$i = $curlResult->getBody();
+				$type = $curlResult->getContentType();
+				$type = Images::getMimeTypeByData($i, $mtch[1], $type);
 
 				if ($i) {
 					$Image = new Image($i, $type);

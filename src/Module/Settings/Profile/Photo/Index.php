@@ -52,9 +52,8 @@ class Index extends BaseSettings
 		$filename = basename($_FILES['userfile']['name']);
 		$filesize = intval($_FILES['userfile']['size']);
 		$filetype = $_FILES['userfile']['type'];
-		if ($filetype == '') {
-			$filetype = Images::guessType($filename);
-		}
+
+		$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
 
 		$maximagesize = DI::config()->get('system', 'maximagesize', 0);
 

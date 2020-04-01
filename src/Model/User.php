@@ -839,9 +839,16 @@ class User
 			$photo_failure = false;
 
 			$filename = basename($photo);
-			$img_str = Network::fetchUrl($photo, true);
-			// guess mimetype from headers or filename
-			$type = Images::guessType($photo, true);
+			$curlResult = Network::curl($photo, true);
+			if ($curlResult->isSuccess()) {
+				$img_str = $curlResult->getBody();
+				$type = $curlResult->getContentType();
+			} else {
+				$img_str = '';
+				$type = '';
+			}
+
+			$type = Images::getMimeTypeByData($img_str, $photo, $type);
 
 			$Image = new Image($img_str, $type);
 			if ($Image->isValid()) {
