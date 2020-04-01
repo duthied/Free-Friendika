@@ -937,7 +937,6 @@ function settings_content(App $a)
 
 		'$maxreq' 	=> ['maxreq', DI::l10n()->t('Maximum Friend Requests/Day:'), $maxreq , DI::l10n()->t("\x28to prevent spam abuse\x29")],
 		'$permissions' => DI::l10n()->t('Default Post Permissions'),
-		'$permdesc' => DI::l10n()->t("\x28click to open/close\x29"),
 		'$visibility' => $profile['net-publish'],
 		'$aclselect' => ACL::getFullSelectorHTML(DI::page(), $a->user),
 		'$blockwall'=> $blockwall, // array('blockwall', DI::l10n()->t('Allow friends to post to your profile page:'), !$blockwall, ''),
