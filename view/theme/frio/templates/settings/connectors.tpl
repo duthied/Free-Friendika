@@ -1,25 +1,23 @@
 <div class="generic-page-wrapper">
-	{{* include the title template for the settings title *}}
-	{{include file="section_title.tpl" title=$title}}
+	<h1>{{$title}}</h1>
 
 	<p class="connector_statusmsg">{{$diasp_enabled}}</p>
 	<p class="connector_statusmsg">{{$ostat_enabled}}</p>
 
 	<form action="settings/connectors" method="post" autocomplete="off">
-		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
+		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 		<div class="panel-group panel-group-settings" id="settings" role="tablist" aria-multiselectable="true">
 			<div class="panel">
-				<div class="section-subtitle-wrapper" role="tab" id="content-settings-title">
-					<h4>
+				<div class="section-subtitle-wrapper panel-heading" role="tab" id="content-settings-title">
+					<h2>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#content-settings-content" aria-expanded="false" aria-controls="content-settings-content">
 							{{$general_settings}}
 						</a>
-					</h4>
+					</h2>
 				</div>
 				<div id="content-settings-content" class="panel-collapse collapse" role="tabpanel" aria-labelledby="content-settings">
-					<div class="section-content-wrapper">
-
+					<div class="panel-body">
 						{{include file="field_checkbox.tpl" field=$accept_only_sharer}}
 
 						{{include file="field_checkbox.tpl" field=$disable_cw}}
@@ -35,11 +33,9 @@
 						{{include file="field_input.tpl" field=$legacy_contact}}
 
 						<p><a href="{{$repair_ostatus_url}}">{{$repair_ostatus_text}}</a></p>
-
-						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" id="general-submit" name="general-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
-						</div>
-						<div class="clear"></div>
+					</div>
+					<div class="panel-footer">
+						<button type="submit" id="general-submit" name="general-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
 			</div>
