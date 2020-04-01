@@ -65,24 +65,12 @@
 
 {{include file="field_input.tpl" field=$cntunkmail}}
 
-<div id="settings-default-perms" class="settings-default-perms" >
-	<a href="#profile-jot-acl-wrapper" id="settings-default-perms-menu" class='popupbox'>{{$permissions}} {{$permdesc}}</a>
-	<div id="settings-default-perms-menu-end"></div>
-
-	<div id="settings-default-perms-select" style="display: none; margin-bottom: 20px" >
-
-	<div style="display: none;">
-		<div id="profile-jot-acl-wrapper" style="width:auto;height:auto;overflow:auto;">
-			{{$aclselect nofilter}}
-		</div>
-	</div>
-
-	</div>
-</div>
-<br/>
-<div id="settings-default-perms-end"></div>
-
 {{$group_select nofilter}}
+
+<h3>{{$permissions}}</h3>
+
+{{$aclselect nofilter}}
+
 <div class="settings-submit-wrapper" >
 <input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>

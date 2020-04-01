@@ -101,29 +101,11 @@
 
 						{{include file="field_input.tpl" field=$cntunkmail}}
 
-						{{* Block for setting default permissions *}}
-						<div id="settings-default-perms" class="settings-default-perms">
-							<a id="settings-default-perms-menu" class="settings-default-perms" data-toggle="modal" data-target="#aclModal">{{$permissions}} {{$permdesc}}</a>
-							<div id="settings-default-perms-menu-end"></div>
-
-							{{* We include the aclModal directly into the template since we cant use frio's default modal *}}
-							<div class="modal" id="aclModal">
-								<div class="modal-dialog">
-									<div class="modal-content">
-										<div class="modal-header">
-											<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-											<h4 class="modal-title">{{$permissions}}</h4>
-										</div>
-										<div class="modal-body">
-											{{$aclselect nofilter}}
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<br/>
-
 						{{$group_select nofilter}}
+
+						<h4>{{$permissions}}</h4>
+
+						{{$aclselect nofilter}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
 							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
