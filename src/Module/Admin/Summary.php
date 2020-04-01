@@ -50,6 +50,11 @@ class Summary extends BaseAdmin
 			$warningtext[] = DI::l10n()->t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 		}
 
+		// are there InnoDB tables in Antelope in the DB? If so, trigger a warning message
+		if (DBA::count(['information_schema' => 'tables'], ['ENGINE' => 'InnoDB', 'ROW_FORMAT' => ['COMPACT', 'REDUNDANT'], 'table_schema' => DBA::databaseName()])) {
+			$warningtext[] = DI::l10n()->t('Your DB still runs with InnoDB tables in the Antelope file format. You should change the file format to Barracuda. Friendica is using features that are not provided by the Antelope format. See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/innodb-file-format.html');
+		}
+
 		// Check if github.com/friendica/master/VERSION is higher then
 		// the local version of Friendica. Check is opt-in, source may be master or devel branch
 		if (DI::config()->get('system', 'check_new_version_url', 'none') != 'none') {

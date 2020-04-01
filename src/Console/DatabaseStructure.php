@@ -54,7 +54,7 @@ Commands
 	dryrun   Show database update schema queries without running them
 	update   Update database schema
 	dumpsql  Dump database schema
-	toinnodb Convert all tables from MyISAM to InnoDB
+	toinnodb Convert all tables from MyISAM or InnoDB in the Antelope file format to InnoDB in the Barracuda file format
 
 Options
     -h|--help|-?       Show help information
