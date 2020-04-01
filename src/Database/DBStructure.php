@@ -49,7 +49,7 @@ class DBStructure
 	private static $definition = [];
 
 	/**
-	 * Converts all tables from MyISAM to InnoDB
+	 * Converts all tables from MyISAM/InnoDB Antelope to InnoDB Barracuda
 	 */
 	public static function convertToInnoDB()
 	{
@@ -59,13 +59,19 @@ class DBStructure
 			['engine' => 'MyISAM', 'table_schema' => DBA::databaseName()]
 		);
 
+		$tables = array_merge($tables, DBA::selectToArray(
+			['information_schema' => 'tables'],
+			['table_name'],
+			['engine' => 'InnoDB', 'ROW_FORMAT' => ['COMPACT', 'REDUNDANT'], 'table_schema' => DBA::databaseName()]
+		));
+
 		if (!DBA::isResult($tables)) {
-			echo DI::l10n()->t('There are no tables on MyISAM.') . "\n";
+			echo DI::l10n()->t('There are no tables on MyISAM or InnoDB with the Antelope file format.') . "\n";
 			return;
 		}
 
 		foreach ($tables AS $table) {
-			$sql = "ALTER TABLE " . DBA::quoteIdentifier($table['table_name']) . " engine=InnoDB;";
+			$sql = "ALTER TABLE " . DBA::quoteIdentifier($table['table_name']) . " ENGINE=InnoDB ROW_FORMAT=DYNAMIC;";
 			echo $sql . "\n";
 
 			$result = DBA::e($sql);

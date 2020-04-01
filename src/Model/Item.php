@@ -1957,7 +1957,7 @@ class Item
 			// There are duplicates. We delete our just created entry.
 			Logger::info('Delete duplicated item', ['id' => $current_post, 'uri' => $item['uri'], 'uid' => $item['uid'], 'guid' => $item['guid']]);
 
-			// Yes, we could do a rollback here - but we are having many users with MyISAM.
+			// Yes, we could do a rollback here - but we possibly are still having users with MyISAM.
 			DBA::delete('item', ['id' => $current_post]);
 			DBA::commit();
 			return 0;
