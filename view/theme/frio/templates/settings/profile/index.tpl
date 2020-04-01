@@ -1,5 +1,5 @@
 <div class="generic-page-wrapper">
-	{{include file="section_title.tpl" title=$banner}}
+	<h1>{{$banner}}</h1>
 
 	{{* The actions dropdown which can performed to the current profile *}}
 	<div id="profile-edit-links">
@@ -50,16 +50,16 @@
 		<div class="panel-group panel-group-settings" id="profile-edit-wrapper" role="tablist" aria-multiselectable="true">
 			{{* The personal settings *}}
 			<div class="panel">
-				<div class="section-subtitle-wrapper" role="tab" id="personal">
-					<h4>
+				<div class="section-subtitle-wrapper panel-heading" role="tab" id="personal">
+					<h2>
 						<a class="accordion-toggle" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#personal-collapse" aria-expanded="true" aria-controls="personal-collapse">
 							{{$lbl_personal_section}}
 						</a>
-					</h4>
+					</h2>
 				</div>
 				{{* for the $detailed_profile we use bootstraps collapsable panel-groups to have expandable groups *}}
 				<div id="personal-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="personal">
-					<div class="section-content-tools-wrapper">
+					<div class="panel-body">
 						{{include file="field_input.tpl" field=$name}}
 
 						{{include file="field_textarea.tpl" field=$about}}
@@ -67,26 +67,24 @@
 						{{$dob nofilter}}
 
 						{{$hide_friends nofilter}}
-
-						<div class="form-group pull-right">
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
-						</div>
-						<div class="clear"></div>
+					</div>
+					<div class="panel-footer">
+						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
 			</div>
 
 			{{* The location settings *}}
 			<div class="panel">
-				<div class="section-subtitle-wrapper" role="tab" id="location">
-					<h4>
+				<div class="section-subtitle-wrapper panel-heading" role="tab" id="location">
+					<h2>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#location-collapse" aria-expanded="false" aria-controls="location-collapse">
 							{{$lbl_location_section}}
 						</a>
-					</h4>
+					</h2>
 				</div>
 				<div id="location-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="location">
-					<div class="section-content-tools-wrapper">
+					<div class="panel-body">
 						{{include file="field_input.tpl" field=$address}}
 
 						{{include file="field_input.tpl" field=$locality}}
@@ -109,27 +107,24 @@
 								<option>temp</option>
 							</select>
 						</div>
-						<div class="clear"></div>
-
-						<div class="form-group pull-right">
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
-						</div>
-						<div class="clear"></div>
+					</div>
+					<div class="panel-footer">
+						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
 			</div>
 
 			{{* The miscellanous other settings *}}
 			<div class="panel">
-				<div class="section-subtitle-wrapper" role="tab" id="miscellaneous">
-					<h4>
+				<div class="section-subtitle-wrapper panel-heading" role="tab" id="miscellaneous">
+					<h2>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#miscellaneous-collapse" aria-expanded="false" aria-controls="miscellaneous-collapse">
 							{{$lbl_miscellaneous_section}}
 						</a>
-					</h4>
+					</h2>
 				</div>
 				<div id="miscellaneous-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="miscellaneous">
-					<div class="section-content-tools-wrapper">
+					<div class="panel-body">
 						{{include file="field_input.tpl" field=$homepage}}
 
 						{{include file="field_input.tpl" field=$xmpp}}
@@ -137,37 +132,33 @@
 						{{include file="field_input.tpl" field=$pub_keywords}}
 
 						{{include file="field_input.tpl" field=$prv_keywords}}
-
-						<div class="form-group pull-right">
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
-						</div>
-						<div class="clear"></div>
+					</div>
+					<div class="panel-footer">
+						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
 			</div>
 
 			{{* The miscellanous other settings *}}
 			<div class="panel">
-				<div class="section-subtitle-wrapper" role="tab" id="custom-fields">
-					<h4>
+				<div class="section-subtitle-wrapper panel-heading" role="tab" id="custom-fields">
+					<h2>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#profile-edit-wrapper" href="#custom-fields-collapse" aria-expanded="false" aria-controls="custom-fields-collapse">
 							{{$lbl_custom_fields_section}}
 						</a>
-					</h4>
+					</h2>
 				</div>
 				<div id="custom-fields-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="custom-fields">
-					<div class="section-content-tools-wrapper">
+					<div class="panel-body">
 						{{$custom_fields_description nofilter}}
 						<div id="profile-custom-fields">
 						{{foreach $custom_fields as $custom_field}}
 							{{include file="settings/profile/field/edit.tpl" profile_field=$custom_field}}
 						{{/foreach}}
 						</div>
-
-						<div class="form-group pull-right">
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
-						</div>
-						<div class="clear"></div>
+					</div>
+					<div class="panel-footer">
+						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
 			</div>
