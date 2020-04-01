@@ -134,4 +134,64 @@ class StringsTest extends TestCase
 	{
 		$this->assertEquals($valid, Strings::isHex($input));
 	}
+
+	/**
+	 * Tests that Strings::substringReplace behaves the same as substr_replace with ASCII strings in all the possible
+	 * numerical parameter configurations (positive, negative, zero, out of bounds either side, null)
+	 */
+	public function testSubstringReplaceASCII()
+	{
+		for ($start = -10; $start <= 10; $start += 5) {
+			$this->assertEquals(
+				substr_replace('string', 'replacement', $start),
+				Strings::substringReplace('string', 'replacement', $start)
+			);
+
+			for ($length = -10; $length <= 10; $length += 5) {
+				$this->assertEquals(
+					substr_replace('string', 'replacement', $start, $length),
+					Strings::substringReplace('string', 'replacement', $start, $length)
+				);
+			}
+		}
+	}
+
+
+	public function dataSubstringReplaceMultiByte()
+	{
+		return [
+			'issue-8470' => [
+				'expected' => 'Je n’y pense que maintenant (pask ma sonnette ne fonctionne pas) : mettre un gentil mot avec mes coordonnées sur ma porte est le moyen le plus simple de rester en contact si besoin avec mon voisinage direct ! [url=https://www.instagram.com/p/B-UdH2loee1/?igshid=x4aglyju9kva]instagram.com/p/B-UdH2loee1/…[/url] [rest of the post]',
+				'string' => 'Je n’y pense que maintenant (pask ma sonnette ne fonctionne pas) : mettre un gentil mot avec mes coordonnées sur ma porte est le moyen le plus simple de rester en contact si besoin avec mon voisinage direct ! https://t.co/YoBWTHsAAk [rest of the post]',
+				'replacement' => '[url=https://www.instagram.com/p/B-UdH2loee1/?igshid=x4aglyju9kva]instagram.com/p/B-UdH2loee1/…[/url]',
+				'start' => 209,
+				'length' => 23,
+			],
+		];
+	}
+
+	/**
+	 * Tests cases where Strings::substringReplace is needed over substr_replace with multi-byte strings and character
+	 * offsets
+	 *
+	 * @param string   $expected
+	 * @param string   $string
+	 * @param string   $replacement
+	 * @param int      $start
+	 * @param int|null $length
+	 *
+	 * @dataProvider dataSubstringReplaceMultiByte
+	 */
+	public function testSubstringReplaceMultiByte(string $expected, string $string, string $replacement, int $start, int $length = null)
+	{
+		$this->assertEquals(
+			$expected,
+			Strings::substringReplace(
+				$string,
+				$replacement,
+				$start,
+				$length
+			)
+		);
+	}
 }
