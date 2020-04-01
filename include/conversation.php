@@ -1295,6 +1295,8 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		//jot nav tab (used in some themes)
 		'$message' => DI::l10n()->t('Message'),
 		'$browser' => DI::l10n()->t('Browser'),
+
+		'$compose_link_title' => DI::l10n()->t('Open Compose page'),
 	]);
 
 
