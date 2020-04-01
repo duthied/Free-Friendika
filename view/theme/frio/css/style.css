@@ -2904,6 +2904,12 @@ details.profile-jot-net[open] summary:before {
     font-size: 18px;
 }
 
+.section-subtitle-wrapper > h2 {
+	font-size: 18px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
 .fakelink > h3:before {
     padding-right: 10px;
 }
