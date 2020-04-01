@@ -706,9 +706,7 @@ function photos_post(App $a)
 		return;
 	}
 
-	if ($type == "") {
-		$type = Images::guessType($filename);
-	}
+	$type = Images::getMimeTypeBySource($src, $filename, $type);
 
 	Logger::log('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', Logger::DEBUG);
 

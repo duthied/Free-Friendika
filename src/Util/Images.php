@@ -24,7 +24,6 @@ namespace Friendica\Util;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
-use Imagick;
 
 /**
  * Image utilities
@@ -74,61 +73,79 @@ class Images
 	}
 
 	/**
-	 * Guess image mimetype from filename or from Content-Type header
+	 * Fetch image mimetype from the image data or guessing from the file name
 	 *
-	 * @param string  $filename Image filename
-	 * @param boolean $fromcurl Check Content-Type header from curl request
-	 * @param string  $header   passed headers to take into account
+	 * @param string $image_data Image data
+	 * @param string $filename   File name (for guessing the type via the extension)
+	 * @param string $mime       default mime type
 	 *
-	 * @return string|null
+	 * @return string
 	 * @throws \Exception
 	 */
-	public static function guessType($filename, $fromcurl = false, $header = '')
+	public static function getMimeTypeByData(string $image_data, string $filename = '', string $mime = '')
 	{
-		Logger::info('Image: guessType: ' . $filename . ($fromcurl ? ' from curl headers' : ''));
-		$type = null;
-		if ($fromcurl) {
-			$headers = [];
-			$h = explode("\n", $header);
-			foreach ($h as $l) {
-				$data = array_map("trim", explode(":", trim($l), 2));
-				if (count($data) > 1) {
-					list($k, $v) = $data;
-					$headers[$k] = $v;
-				}
-			}
-
-			if (array_key_exists('Content-Type', $headers)) {
-				$type = $headers['Content-Type'];
-			}
+		if (substr($mime, 0, 6) == 'image/') {
+			Logger::info('Using default mime type', ['filename' => $filename, 'mime' => $mime]);
+			return $mime;
 		}
 
-		if (is_null($type)) {
-			// Guessing from extension? Isn't that... dangerous?
-			if (class_exists('Imagick') && file_exists($filename) && is_readable($filename)) {
-				/**
-				 * Well, this not much better,
-				 * but at least it comes from the data inside the image,
-				 * we won't be tricked by a manipulated extension
-				 */
-				$image = new Imagick($filename);
-				$type = $image->getImageMimeType();
-			} else {
-				$ext = pathinfo($filename, PATHINFO_EXTENSION);
-				$types = self::supportedTypes();
-				$type = 'image/jpeg';
-				foreach ($types as $m => $e) {
-					if ($ext == $e) {
-						$type = $m;
-					}
-				}
-			}
+		$image = @getimagesizefromstring($image_data);
+		if (!empty($image['mime'])) {
+			Logger::info('Mime type detected via data', ['filename' => $filename, 'default' => $mime, 'mime' => $image['mime']]);
+			return $image['mime'];
 		}
 
-		Logger::info('Image: guessType: type=' . $type);
-		return $type;
+		return self::guessTypeByExtension($filename);
 	}
 
+	/**
+	 * Fetch image mimetype from the image data or guessing from the file name
+	 *
+	 * @param string $sourcefile Source file of the image
+	 * @param string $filename   File name (for guessing the type via the extension)
+	 * @param string $mime       default mime type
+	 *
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function getMimeTypeBySource(string $sourcefile, string $filename = '', string $mime = '')
+	{
+		if (substr($mime, 0, 6) == 'image/') {
+			Logger::info('Using default mime type', ['filename' => $filename, 'mime' => $mime]);
+			return $mime;
+		}
+
+		$image = @getimagesize($sourcefile);
+		if (!empty($image['mime'])) {
+			Logger::info('Mime type detected via file', ['filename' => $filename, 'default' => $mime, 'image' => $image]);
+			return $image['mime'];
+		}
+
+		return self::guessTypeByExtension($filename);
+	}
+
+	/**
+	 * Guess image mimetype from the filename
+	 *
+	 * @param string $filename   Image filename
+	 *
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function guessTypeByExtension(string $filename)
+	{
+		$ext = pathinfo(parse_url($filename, PHP_URL_PATH), PATHINFO_EXTENSION);
+		$types = self::supportedTypes();
+		$type = 'image/jpeg';
+		foreach ($types as $m => $e) {
+			if ($ext == $e) {
+				$type = $m;
+			}
+		}
+
+		Logger::info('Mime type guessed via extension', ['filename' => $filename, 'type' => $type]);
+		return $type;
+	}
 
 	/**
 	 * @param string $url

@@ -4734,13 +4734,8 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		}
 	}
 
-	if ($filetype == "") {
-		$filetype = Images::guessType($filename);
-	}
-	$imagedata = @getimagesize($src);
-	if ($imagedata) {
-		$filetype = $imagedata['mime'];
-	}
+	$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
+
 	Logger::log(
 		"File upload src: " . $src . " - filename: " . $filename .
 		" - size: " . $filesize . " - type: " . $filetype,
