@@ -613,7 +613,7 @@ class Site extends BaseAdmin
 			'$worker_title'      => DI::l10n()->t('Worker'),
 			'$relay_title'       => DI::l10n()->t('Message Relay'),
 			'$relocate'          => DI::l10n()->t('Relocate Instance'),
-			'$relocate_warning'  => DI::l10n()->t('Warning! Advanced function. Could make this server unreachable.'),
+			'$relocate_warning'  => DI::l10n()->t('<strong>Warning!</strong> Advanced function. Could make this server unreachable.'),
 			'$baseurl'           => DI::baseUrl()->get(true),
 
 			// name, label, value, help string, extra data...

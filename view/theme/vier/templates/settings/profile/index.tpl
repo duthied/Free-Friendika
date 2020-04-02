@@ -23,7 +23,7 @@
 
 		<!-- Profile picture -->
 		<div class="toggle-section js-toggle-section">
-			<a class="section-caption js-section-toggler" href="javascript:;">{{$lbl_picture_section}} &raquo;</a>
+			<h2><a class="section-caption js-section-toggler" href="javascript:;">{{$lbl_picture_section}} &raquo;</a></h2>
 			<div class="js-section toggle-section-content hidden">
 
 				<div id="profile-photo-upload-wrapper">
@@ -45,7 +45,7 @@
 
 		<!-- Basic information -->
 		<div class="toggle-section js-toggle-section">
-			<a class="section-caption js-section-toggler" href="javascript:;">{{$lbl_personal_section}} &raquo;</a>
+			<h2><a class="section-caption js-section-toggler" href="javascript:;">{{$lbl_personal_section}} &raquo;</a></h2>
 			<div class="js-section toggle-section-content hidden">
 
 				<div id="profile-edit-name-wrapper">
@@ -103,7 +103,7 @@
 		</div>
 		<!-- About you -->
 		<div class="toggle-section js-toggle-section">
-			<a class="section-caption js-section-toggler" href="javascript:;">{{$lbl_location_section}} &raquo;</a>
+			<h2><a class="section-caption js-section-toggler" href="javascript:;">{{$lbl_location_section}} &raquo;</a></h2>
 			<div class="js-section toggle-section-content hidden">
 
 				<div id="profile-edit-address-wrapper">
@@ -148,7 +148,7 @@
 		</div>
 		<!-- Interests -->
 		<div class="toggle-section js-toggle-section">
-			<a class="section-caption js-section-toggler" href="javascript:;">{{$lbl_custom_fields_section}} &raquo;</a>
+			<h2><a class="section-caption js-section-toggler" href="javascript:;">{{$lbl_custom_fields_section}} &raquo;</a></h2>
 			<div class="js-section toggle-section-content hidden">
 				{{$custom_fields_description nofilter}}
 				<div id="profile-custom-fields">
