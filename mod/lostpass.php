@@ -44,7 +44,7 @@ function lostpass_post(App $a)
 	$pwdreset_token = Strings::getRandomHex(32);
 
 	$fields = [
-		'pwdreset' => $pwdreset_token,
+		'pwdreset' => hash('sha256', $pwdreset_token),
 		'pwdreset_time' => DateTimeFormat::utcNow()
 	];
 	$result = DBA::update('user', $fields, ['uid' => $user['uid']]);
@@ -95,7 +95,7 @@ function lostpass_content(App $a)
 	if ($a->argc > 1) {
 		$pwdreset_token = $a->argv[1];
 
-		$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'email', 'pwdreset_time', 'language'], ['pwdreset' => $pwdreset_token]);
+		$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'email', 'pwdreset_time', 'language'], ['pwdreset' => hash('sha256', $pwdreset_token)]);
 		if (!DBA::isResult($user)) {
 			notice(DI::l10n()->t("Request could not be verified. \x28You may have previously submitted it.\x29 Password reset failed."));
 
