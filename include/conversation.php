@@ -144,222 +144,106 @@ function localize_item(&$item)
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 	}
 
-	/*
-	heluecht 2018-06-19: from my point of view this whole code part is useless.
-	It just renders the body message of technical posts (Like, dislike, ...).
-	But: The body isn't visible at all. So we do this stuff just because we can.
-	Even if these messages were visible, this would only mean that something went wrong.
-	During the further steps of the database restructuring I would like to address this issue.
-	*/
+	/// @todo The following functionality needs to be cleaned up. 
+	if (!empty($item['verb'])) {
+		$activity = DI::activity();
 
-	$activity = DI::activity();
+		if (stristr($item['verb'], Activity::POKE)) {
+			$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
+			if (!$verb) {
+				return;
+			}
+			if ($item['object-type']=="" || $item['object-type']!== Activity\ObjectType::PERSON) {
+				return;
+			}
 
-	$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
-	if ($activity->match($item['verb'], Activity::LIKE)
-		|| $activity->match($item['verb'], Activity::DISLIKE)
-		|| $activity->match($item['verb'], Activity::ATTEND)
-		|| $activity->match($item['verb'], Activity::ATTENDNO)
-		|| $activity->match($item['verb'], Activity::ATTENDMAYBE)) {
+			$Aname = $item['author-name'];
+			$Alink = $item['author-link'];
 
-		$fields = ['author-link', 'author-name', 'verb', 'object-type', 'resource-id', 'body', 'plink'];
-		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
-		if (!DBA::isResult($obj)) {
-			return;
+			$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
+
+			$obj = XML::parseString($xmlhead.$item['object']);
+
+			$Bname = $obj->title;
+			$Blink = $obj->id;
+			$Bphoto = "";
+
+			foreach ($obj->link as $l) {
+				$atts = $l->attributes();
+				switch ($atts['rel']) {
+					case "alternate": $Blink = $atts['href'];
+					case "photo": $Bphoto = $atts['href'];
+				}
+			}
+
+			$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
+			$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
+			if ($Bphoto != "") {
+				$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
+			}
+
+			/*
+			 * we can't have a translation string with three positions but no distinguishable text
+			 * So here is the translate string.
+			 */
+			$txt = DI::l10n()->t('%1$s poked %2$s');
+
+			// now translate the verb
+			$poked_t = trim(sprintf($txt, "", ""));
+			$txt = str_replace($poked_t, DI::l10n()->t($verb), $txt);
+
+			// then do the sprintf on the translation string
+
+			$item['body'] = sprintf($txt, $A, $B). "\n\n\n" . $Bphoto;
+
 		}
 
-		$author  = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
-		$objauthor =  '[url=' . $obj['author-link'] . ']' . $obj['author-name'] . '[/url]';
+		if ($activity->match($item['verb'],  Activity::TAG)) {
+			$fields = ['author-id', 'author-link', 'author-name', 'author-network',
+				'verb', 'object-type', 'resource-id', 'body', 'plink'];
+			$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
+			if (!DBA::isResult($obj)) {
+				return;
+			}
 
-		switch ($obj['verb']) {
-			case Activity::POST:
-				switch ($obj['object-type']) {
-					case Activity\ObjectType::EVENT:
-						$post_type = DI::l10n()->t('event');
-						break;
-					default:
+			$author_arr = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
+			$author  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $item['author-name'] . '[/url]';
+
+			$author_arr = ['uid' => 0, 'id' => $obj['author-id'],
+				'network' => $obj['author-network'], 'url' => $obj['author-link']];
+			$objauthor  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $obj['author-name'] . '[/url]';
+
+			switch ($obj['verb']) {
+				case Activity::POST:
+					switch ($obj['object-type']) {
+						case Activity\ObjectType::EVENT:
+							$post_type = DI::l10n()->t('event');
+							break;
+						default:
+							$post_type = DI::l10n()->t('status');
+					}
+					break;
+				default:
+					if ($obj['resource-id']) {
+						$post_type = DI::l10n()->t('photo');
+						$m=[]; preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
+						$rr['plink'] = $m[1];
+					} else {
 						$post_type = DI::l10n()->t('status');
-				}
-				break;
-			default:
-				if ($obj['resource-id']) {
-					$post_type = DI::l10n()->t('photo');
-					$m = [];
-					preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
-					$rr['plink'] = $m[1];
-				} else {
-					$post_type = DI::l10n()->t('status');
-				}
-		}
-
-		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
-
-		$bodyverb = '';
-		if ($activity->match($item['verb'], Activity::LIKE)) {
-			$bodyverb = DI::l10n()->t('%1$s likes %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], Activity::DISLIKE)) {
-			$bodyverb = DI::l10n()->t('%1$s doesn\'t like %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], Activity::ATTEND)) {
-			$bodyverb = DI::l10n()->t('%1$s attends %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], Activity::ATTENDNO)) {
-			$bodyverb = DI::l10n()->t('%1$s doesn\'t attend %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], Activity::ATTENDMAYBE)) {
-			$bodyverb = DI::l10n()->t('%1$s attends maybe %2$s\'s %3$s');
-		}
-
-		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
-	}
-
-	if ($activity->match($item['verb'], Activity::FRIEND)) {
-
-		if ($item['object-type']=="" || $item['object-type']!== Activity\ObjectType::PERSON) return;
-
-		$Aname = $item['author-name'];
-		$Alink = $item['author-link'];
-
-		$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-
-		$obj = XML::parseString($xmlhead.$item['object']);
-		$links = XML::parseString($xmlhead."<links>".XML::unescape($obj->link)."</links>");
-
-		$Bname = $obj->title;
-		$Blink = "";
-		$Bphoto = "";
-		foreach ($links->link as $l) {
-			$atts = $l->attributes();
-			switch ($atts['rel']) {
-				case "alternate": $Blink = $atts['href']; break;
-				case "photo": $Bphoto = $atts['href']; break;
+					}
+					// Let's break everthing ... ;-)
+					break;
 			}
-		}
+			$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
 
-		$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
-		if ($Bphoto != "") {
-			$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img]' . $Bphoto . '[/img][/url]';
-		}
+			$parsedobj = XML::parseString($xmlhead.$item['object']);
 
-		$item['body'] = DI::l10n()->t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$Bphoto;
-
-	}
-	if (stristr($item['verb'], Activity::POKE)) {
-		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
-		if (!$verb) {
-			return;
-		}
-		if ($item['object-type']=="" || $item['object-type']!== Activity\ObjectType::PERSON) {
-			return;
-		}
-
-		$Aname = $item['author-name'];
-		$Alink = $item['author-link'];
-
-		$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
-
-		$obj = XML::parseString($xmlhead.$item['object']);
-
-		$Bname = $obj->title;
-		$Blink = $obj->id;
-		$Bphoto = "";
-
-		foreach ($obj->link as $l) {
-			$atts = $l->attributes();
-			switch ($atts['rel']) {
-				case "alternate": $Blink = $atts['href'];
-				case "photo": $Bphoto = $atts['href'];
-			}
-		}
-
-		$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
-		if ($Bphoto != "") {
-			$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
-		}
-
-		/*
-		 * we can't have a translation string with three positions but no distinguishable text
-		 * So here is the translate string.
-		 */
-		$txt = DI::l10n()->t('%1$s poked %2$s');
-
-		// now translate the verb
-		$poked_t = trim(sprintf($txt, "", ""));
-		$txt = str_replace($poked_t, DI::l10n()->t($verb), $txt);
-
-		// then do the sprintf on the translation string
-
-		$item['body'] = sprintf($txt, $A, $B). "\n\n\n" . $Bphoto;
-
-	}
-
-	if ($activity->match($item['verb'],  Activity::TAG)) {
-		$fields = ['author-id', 'author-link', 'author-name', 'author-network',
-			'verb', 'object-type', 'resource-id', 'body', 'plink'];
-		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
-		if (!DBA::isResult($obj)) {
-			return;
-		}
-
-		$author_arr = ['uid' => 0, 'id' => $item['author-id'],
-			'network' => $item['author-network'], 'url' => $item['author-link']];
-		$author  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $item['author-name'] . '[/url]';
-
-		$author_arr = ['uid' => 0, 'id' => $obj['author-id'],
-			'network' => $obj['author-network'], 'url' => $obj['author-link']];
-		$objauthor  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $obj['author-name'] . '[/url]';
-
-		switch ($obj['verb']) {
-			case Activity::POST:
-				switch ($obj['object-type']) {
-					case Activity\ObjectType::EVENT:
-						$post_type = DI::l10n()->t('event');
-						break;
-					default:
-						$post_type = DI::l10n()->t('status');
-				}
-				break;
-			default:
-				if ($obj['resource-id']) {
-					$post_type = DI::l10n()->t('photo');
-					$m=[]; preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
-					$rr['plink'] = $m[1];
-				} else {
-					$post_type = DI::l10n()->t('status');
-				}
-				// Let's break everthing ... ;-)
-				break;
-		}
-		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
-
-		$parsedobj = XML::parseString($xmlhead.$item['object']);
-
-		$tag = sprintf('#[url=%s]%s[/url]', $parsedobj->id, $parsedobj->content);
-		$item['body'] = DI::l10n()->t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
-	}
-
-	if ($activity->match($item['verb'], Activity::FAVORITE)) {
-		if ($item['object-type'] == "") {
-			return;
-		}
-
-		$Aname = $item['author-name'];
-		$Alink = $item['author-link'];
-
-		$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
-
-		$obj = XML::parseString($xmlhead.$item['object']);
-		if (strlen($obj->id)) {
-			$fields = ['author-link', 'author-name', 'plink'];
-			$target = Item::selectFirst($fields, ['uri' => $obj->id, 'uid' => $item['uid']]);
-			if (DBA::isResult($target) && $target['plink']) {
-				$Bname = $target['author-name'];
-				$Blink = $target['author-link'];
-				$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
-				$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
-				$P = '[url=' . $target['plink'] . ']' . DI::l10n()->t('post/item') . '[/url]';
-				$item['body'] = DI::l10n()->t('%1$s marked %2$s\'s %3$s as favorite', $A, $B, $P)."\n";
-			}
+			$tag = sprintf('#[url=%s]%s[/url]', $parsedobj->id, $parsedobj->content);
+			$item['body'] = DI::l10n()->t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
 		}
 	}
+
 	$matches = null;
 	if (preg_match_all('/@\[url=(.*?)\]/is', $item['body'], $matches, PREG_SET_ORDER)) {
 		foreach ($matches as $mtch) {
