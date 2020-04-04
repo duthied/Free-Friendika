@@ -478,7 +478,7 @@ class Transmitter
 								$data['to'][] = $profile['url'];
 							} else {
 								$data['cc'][] = $profile['url'];
-								if (($item['private'] != Item::PRIVATE) && $item['private'] && !empty($actor_profile['followers'])) {
+								if (($item['private'] != Item::PRIVATE) && !empty($actor_profile['followers'])) {
 									$data['cc'][] = $actor_profile['followers'];
 								}
 							}
