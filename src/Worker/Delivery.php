@@ -564,7 +564,8 @@ class Delivery
 				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $local_user['email'] . '>' . "\n";
 			}
 		} else {
-			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <noreply@' . DI::baseUrl()->getHostname() . '>' . "\n";
+			$sender = DI::config()->get('config', 'sender_email', 'noreply@' . DI::baseUrl()->getHostname());
+			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <' . $sender . '>' . "\n";
 		}
 
 		$headers .= 'Message-Id: <' . Email::iri2msgid($target_item['uri']) . '>' . "\n";
