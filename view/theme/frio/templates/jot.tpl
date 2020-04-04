@@ -9,25 +9,41 @@
 			in with dropdows the close button needs to be inserted after the dropdown. *}}
 			<button type="button" class="close hidden-xs" data-dismiss="modal" aria-label="Close" style="float: right;">&times;</button>
 
+			<a href="/compose" class="btn compose-link" title="{{$compose_link_title}}" aria-label="{{$compose_link_title}}">
+				<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+			</a>
+
 			{{* The Jot navigation menu for desktop user (text input, permissions, preview, filebrowser) *}}
 			<ul class="nav nav-tabs hidden-xs jot-nav" role="tablist" data-tabs="tabs">
 				{{* Mark the first list entry as active because it is the first which is active after opening
 					the modal. Changing of the activity status is done by js in jot.tpl-header *}}
 				<li class="active" role="presentation">
-					<a href="#profile-jot-wrapper" class="jot-text-lnk jot-nav-lnk" id="jot-text-lnk" role="tab" aria-controls="profile-jot-wrapper">{{$message}}</a>
+					<a href="#profile-jot-wrapper" class="jot-text-lnk jot-nav-lnk" id="jot-text-lnk" role="tab" aria-controls="profile-jot-wrapper">
+						<i class="fa fa-file-text-o" aria-hidden="true"></i>
+						{{$message}}
+					</a>
 				</li>
 				{{if $acl}}
 				<li role="presentation">
-					<a href="#profile-jot-acl-wrapper" class="jot-perms-lnk jot-nav-lnk" id="jot-perms-lnk" role="tab" aria-controls="profile-jot-acl-wrapper">{{$shortpermset}}</a>
+					<a href="#profile-jot-acl-wrapper" class="jot-perms-lnk jot-nav-lnk" id="jot-perms-lnk" role="tab" aria-controls="profile-jot-acl-wrapper">
+						<i class="fa fa-shield" aria-hidden="true"></i>
+						{{$shortpermset}}
+					</a>
 				</li>
 				{{/if}}
 				{{if $preview}}
 				<li role="presentation">
-					<a href="#jot-preview-content" class="jot-preview-lnk jot-nav-lnk" id="jot-preview-lnk" role="tab" aria-controls="jot-preview-content">{{$preview}}</a>
+					<a href="#jot-preview-content" class="jot-preview-lnk jot-nav-lnk" id="jot-preview-lnk" role="tab" aria-controls="jot-preview-content">
+						<i class="fa fa-eye" aria-hidden="true"></i>
+						{{$preview}}
+					</a>
 				</li>
 				{{/if}}
 				<li role="presentation">
-					<a href="#jot-fbrowser-wrapper" class="jot-browser-lnk jot-nav-lnk" id="jot-browser-link" role="tab" aria-controls="jot-fbrowser-wrapper">{{$browser}}</a>
+					<a href="#jot-fbrowser-wrapper" class="jot-browser-lnk jot-nav-lnk" id="jot-browser-link" role="tab" aria-controls="jot-fbrowser-wrapper">
+						<i class="fa fa-picture-o" aria-hidden="true"></i>
+						{{$browser}}
+					</a>
 				</li>
 			</ul>
 
