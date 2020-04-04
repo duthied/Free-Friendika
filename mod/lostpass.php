@@ -41,7 +41,7 @@ function lostpass_post(App $a)
 		DI::baseUrl()->redirect();
 	}
 
-	$pwdreset_token = Strings::getRandomName(12) . random_int(1000, 9999);
+	$pwdreset_token = Strings::getRandomHex(32);
 
 	$fields = [
 		'pwdreset' => $pwdreset_token,
