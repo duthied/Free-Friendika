@@ -189,12 +189,12 @@ function localize_item(&$item)
 			$txt = DI::l10n()->t('%1$s poked %2$s');
 
 			// now translate the verb
-			$poked_t = trim(sprintf($txt, "", ""));
+			$poked_t = trim(sprintf($txt, '', ''));
 			$txt = str_replace($poked_t, DI::l10n()->t($verb), $txt);
 
 			// then do the sprintf on the translation string
 
-			$item['body'] = sprintf($txt, $A, $B). "\n\n\n" . $Bphoto;
+			$item['body'] = sprintf($txt, $A, $B) . "\n\n\n" . $Bphoto;
 
 		}
 
