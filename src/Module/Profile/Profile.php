@@ -54,6 +54,8 @@ class Profile extends BaseProfile
 				// The function returns an empty array when the account is removed, expired or blocked
 				$data = ActivityPub\Transmitter::getProfile($user['uid']);
 				if (!empty($data)) {
+					header('Access-Control-Allow-Origin: *');
+					header('Cache-Control: max-age=23200, stale-while-revalidate=23200');
 					System::jsonExit($data, 'application/activity+json');
 				}
 			}

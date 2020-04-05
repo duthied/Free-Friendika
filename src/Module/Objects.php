@@ -76,6 +76,8 @@ class Objects extends BaseModule
 		$data = ['@context' => ActivityPub::CONTEXT];
 		$data = array_merge($data, $activity['object']);
 
+		// Relaxed CORS header for public items
+		header('Access-Control-Allow-Origin: *');
 		System::jsonExit($data, 'application/activity+json');
 	}
 }
