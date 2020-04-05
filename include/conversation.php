@@ -149,11 +149,11 @@ function localize_item(&$item)
 		$activity = DI::activity();
 
 		if (stristr($item['verb'], Activity::POKE)) {
-			$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
+			$verb = urldecode(substr($item['verb'], strpos($item['verb'],'#') + 1));
 			if (!$verb) {
 				return;
 			}
-			if ($item['object-type']=="" || $item['object-type']!== Activity\ObjectType::PERSON) {
+			if ($item['object-type'] == "" || $item['object-type'] !== Activity\ObjectType::PERSON) {
 				return;
 			}
 
@@ -162,7 +162,7 @@ function localize_item(&$item)
 
 			$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 
-			$obj = XML::parseString($xmlhead.$item['object']);
+			$obj = XML::parseString($xmlhead . $item['object']);
 
 			$Bname = $obj->title;
 			$Blink = $obj->id;
@@ -198,7 +198,7 @@ function localize_item(&$item)
 
 		}
 
-		if ($activity->match($item['verb'],  Activity::TAG)) {
+		if ($activity->match($item['verb'], Activity::TAG)) {
 			$fields = ['author-id', 'author-link', 'author-name', 'author-network',
 				'verb', 'object-type', 'resource-id', 'body', 'plink'];
 			$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
