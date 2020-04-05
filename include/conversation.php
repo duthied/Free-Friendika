@@ -148,6 +148,8 @@ function localize_item(&$item)
 	if (!empty($item['verb'])) {
 		$activity = DI::activity();
 
+		$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
+
 		if (stristr($item['verb'], Activity::POKE)) {
 			$verb = urldecode(substr($item['verb'], strpos($item['verb'],'#') + 1));
 			if (!$verb) {
@@ -159,8 +161,6 @@ function localize_item(&$item)
 
 			$Aname = $item['author-name'];
 			$Alink = $item['author-link'];
-
-			$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 
 			$obj = XML::parseString($xmlhead . $item['object']);
 
@@ -237,7 +237,7 @@ function localize_item(&$item)
 			}
 			$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
 
-			$parsedobj = XML::parseString($xmlhead.$item['object']);
+			$parsedobj = XML::parseString($xmlhead . $item['object']);
 
 			$tag = sprintf('#[url=%s]%s[/url]', $parsedobj->id, $parsedobj->content);
 			$item['body'] = DI::l10n()->t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
