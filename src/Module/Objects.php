@@ -22,10 +22,13 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Util\Network;
 
 /**
  * ActivityPub Objects
@@ -34,10 +37,8 @@ class Objects extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$a = DI::app();
-
-		if (empty($a->argv[1])) {
-			throw new \Friendica\Network\HTTPException\NotFoundException();
+		if (empty($parameters['guid'])) {
+			throw new HTTPException\BadRequestException();
 		}
 
 		if (!ActivityPub::isRequest()) {
@@ -47,31 +48,36 @@ class Objects extends BaseModule
 		/// @todo Add Authentication to enable fetching of non public content
 		// $requester = HTTPSignature::getSigner('', $_SERVER);
 
-		// At first we try the original post with that guid
-		// @TODO: Replace with parameter from router
-		$item = Item::selectFirst(['id'], ['guid' => $a->argv[1], 'origin' => true, 'private' => [item::PUBLIC, Item::UNLISTED]]);
-		if (!DBA::isResult($item)) {
-			// If no original post could be found, it could possibly be a forum post, there we remove the "origin" field.
-			// @TODO: Replace with parameter from router
-			$item = Item::selectFirst(['id', 'author-link'], ['guid' => $a->argv[1], 'private' => [item::PUBLIC, Item::UNLISTED]]);
-			if (!DBA::isResult($item) || !strstr($item['author-link'], DI::baseUrl()->get())) {
-				throw new \Friendica\Network\HTTPException\NotFoundException();
-			}
+		$item = Item::selectFirst(
+			['id', 'origin', 'author-link', 'changed'],
+			[
+				'guid' => $parameters['guid'],
+				'private' => [Item::PUBLIC, Item::UNLISTED]
+			],
+			['order' => ['origin' => true]]
+		);
+		// Valid items are original post or posted from this node (including in the case of a forum)
+		if (!DBA::isResult($item) || !$item['origin'] && !strstr($item['author-link'], DI::baseUrl()->get())) {
+			throw new HTTPException\NotFoundException();
 		}
+
+		$etag          = md5($parameters['guid'] . '-' . $item['changed']);
+		$last_modified = $item['changed'];
+		Network::checkEtagModified($etag, $last_modified);
 
 		$activity = ActivityPub\Transmitter::createActivityFromItem($item['id'], true);
 		$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
 
 		// Only display "Create" activity objects here, no reshares or anything else
 		if (empty($activity['object']) || ($activity['type'] != 'Create')) {
-			throw new \Friendica\Network\HTTPException\NotFoundException();
+			throw new HTTPException\NotFoundException();
 		}
 
 		$data = ['@context' => ActivityPub::CONTEXT];
 		$data = array_merge($data, $activity['object']);
 
-		header('Content-Type: application/activity+json');
-		echo json_encode($data);
-		exit();
+		// Relaxed CORS header for public items
+		header('Access-Control-Allow-Origin: *');
+		System::jsonExit($data, 'application/activity+json');
 	}
 }

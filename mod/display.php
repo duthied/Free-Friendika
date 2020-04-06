@@ -42,7 +42,7 @@ use Friendica\Util\Strings;
 function display_init(App $a)
 {
 	if (ActivityPub::isRequest()) {
-		Objects::rawContent();
+		Objects::rawContent(['guid' => $a->argv[1] ?? null]);
 	}
 
 	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
