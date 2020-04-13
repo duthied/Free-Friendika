@@ -714,8 +714,6 @@ class Item
 			'nofinish' => 'event-nofinish','adjust' => 'event-adjust',
 			'ignore' => 'event-ignore', 'id' => 'event-id'];
 
-		$fields['sign'] = ['signed_text', 'signature', 'signer'];
-
 		$fields['diaspora-interaction'] = ['interaction'];
 
 		return $fields;
@@ -799,10 +797,6 @@ class Item
 
 		if (strpos($sql_commands, "`event`.") !== false) {
 			$joins .= " LEFT JOIN `event` ON `event-id` = `event`.`id`";
-		}
-
-		if (strpos($sql_commands, "`sign`.") !== false) {
-			$joins .= " LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`";
 		}
 
 		if (strpos($sql_commands, "`diaspora-interaction`.") !== false) {
@@ -2000,10 +1994,6 @@ class Item
 
 			if (!empty($dsprsig->signed_text) && empty($dsprsig->signature) && empty($dsprsig->signer)) {
 				DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $dsprsig->signed_text], true);
-			} else {
-				// The other fields are used by very old Friendica servers, so we currently store them differently
-				DBA::insert('sign', ['iid' => $current_post, 'signed_text' => $dsprsig->signed_text,
-					'signature' => $dsprsig->signature, 'signer' => $dsprsig->signer]);
 			}
 		}
 
