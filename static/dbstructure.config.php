@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1338);
+	define('DB_UPDATE_VERSION', 1339);
 }
 
 return [
@@ -1290,6 +1290,19 @@ return [
 			"uid_otype_type_term_global_created" => ["uid", "otype", "type", "term(32)", "global", "created"],
 			"uid_otype_type_url" => ["uid", "otype", "type", "url(64)"],
 			"guid" => ["guid(64)"],
+		]
+	],
+	"tag" => [
+		"comment" => "item tags and mentions",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "relation" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
+			"name" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "primary" => "1", "comment" => ""],
+			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""]
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id", "type", "name"],
+			"type_name" => ["type", "name"]
 		]
 	],
 	"thread" => [

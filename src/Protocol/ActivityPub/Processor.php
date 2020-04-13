@@ -32,6 +32,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
 use Friendica\Model\Term;
 use Friendica\Model\User;
@@ -403,6 +404,8 @@ class Processor
 
 		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
 
+		self::storeTags($item['uri-id'], $activity['tags'], $activity['sensitive']);
+
 		$item['location'] = $activity['location'];
 
 		if (!empty($item['latitude']) && !empty($item['longitude'])) {
@@ -496,6 +499,8 @@ class Processor
 		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 		$item['guid'] = $activity['diaspora:guid'] ?: $activity['sc:identifier'] ?: self::getGUIDByURL($item['uri']);
 
+		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
+
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
 			return;
@@ -568,6 +573,51 @@ class Processor
 				Logger::log('Send follow request for ' . $item['uri'] . ' (' . $stored . ') to ' . $item['author-link'], Logger::DEBUG);
 				ActivityPub\Transmitter::sendFollowObject($item['uri'], $item['author-link']);
 			}
+		}
+	}
+
+	private static function storeTags(int $uriid, array $tags = null, $sensitive = false)
+	{
+		// Make sure to delete all existing tags (can happen when called via the update functionality)
+		DBA::delete('tag', ['uri-id' => $uriid]);
+
+		foreach ($tags as $tag) {
+			if (empty($tag['name']) || empty($tag['type']) || !in_array($tag['type'], ['Mention', 'Hashtag'])) {
+				continue;
+			}
+
+			$fields = ['uri-id' => $uriid, 'name' => $tag['name']];
+
+			if ($tag['type'] == 'Mention') {
+				$fields['type'] = Term::MENTION;
+
+				if (substr($fields['name'], 0, 1) == Term::TAG_CHARACTER[Term::MENTION]) {
+					$fields['name'] = substr($fields['name'], 1);
+				} elseif (substr($fields['name'], 0, 1) == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]) {
+					$fields['type'] = Term::EXCLUSIVE_MENTION;
+					$fields['name'] = substr($fields['name'], 1);
+				} elseif (substr($fields['name'], 0, 1) == Term::TAG_CHARACTER[Term::IMPLICIT_MENTION]) {
+					$fields['type'] = Term::IMPLICIT_MENTION;
+					$fields['name'] = substr($fields['name'], 1);
+				}
+			} elseif ($tag['type'] == 'Hashtag') {
+				$fields['type'] = Term::HASHTAG;
+				if (substr($fields['name'], 0, 1) == Term::TAG_CHARACTER[Term::HASHTAG]) {
+					$fields['name'] = substr($fields['name'], 1);
+				}
+			}
+
+			if (empty($fields['name'])) {
+				continue;
+			}
+			
+			if (!empty($tag['href'] && ($tag['href'] != $tag['name']))) {
+				$fields['url'] = $tag['href'];
+			}
+
+			DBA::insert('tag', $fields, true);
+
+			Logger::info('Got Tag', ['uriid' => $uriid, 'tag' => $tag, 'sensitive' => $sensitive, 'fields' => $fields]);
 		}
 	}
 
