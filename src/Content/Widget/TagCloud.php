@@ -25,6 +25,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Term;
 
 /**
  * TagCloud widget
@@ -45,7 +46,7 @@ class TagCloud
 	 * @return string       HTML formatted output.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getHTML($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HASHTAG)
+	public static function getHTML($uid, $count = 0, $owner_id = 0, $flags = '', $type = Term::HASHTAG)
 	{
 		$o = '';
 		$r = self::tagadelic($uid, $count, $owner_id, $flags, $type);
@@ -84,7 +85,7 @@ class TagCloud
 	 * @return array        Alphabetical sorted array of used tags of an user.
 	 * @throws \Exception
 	 */
-	private static function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HASHTAG)
+	private static function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = Term::HASHTAG)
 	{
 		$sql_options = Item::getPermissionsSQLByUserId($uid);
 		$limit = $count ? sprintf('LIMIT %d', intval($count)) : '';
@@ -109,7 +110,7 @@ class TagCloud
 			GROUP BY `term` ORDER BY `total` DESC $limit",
 			$uid,
 			$type,
-			TERM_OBJ_POST
+			Term::OBJECT_TYPE_POST
 		);
 		if (!DBA::isResult($tag_stmt)) {
 			return [];

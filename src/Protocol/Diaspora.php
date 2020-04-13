@@ -38,6 +38,7 @@ use Friendica\Model\Item;
 use Friendica\Model\ItemDeliveryData;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
+use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
@@ -123,7 +124,7 @@ class Diaspora
 			}
 
 			// All tags of the current post
-			$condition = ['otype' => TERM_OBJ_POST, 'type' => TERM_HASHTAG, 'oid' => $parent['parent']];
+			$condition = ['otype' => Term::OBJECT_TYPE_POST, 'type' => Term::HASHTAG, 'oid' => $parent['parent']];
 			$tags = DBA::select('term', ['term'], $condition);
 			$taglist = [];
 			while ($tag = DBA::fetch($tags)) {

@@ -23,6 +23,7 @@ namespace Friendica\Model;
 
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Term;
 
 /**
  * This class handles FileTag related functions
@@ -195,11 +196,11 @@ class FileTag
 			if ($type == 'file') {
 				$lbracket = '[';
 				$rbracket = ']';
-				$termtype = TERM_FILE;
+				$termtype = Term::FILE;
 			} else {
 				$lbracket = '<';
 				$rbracket = '>';
-				$termtype = TERM_CATEGORY;
+				$termtype = Term::CATEGORY;
 			}
 
 			$filetags_updated = $saved;

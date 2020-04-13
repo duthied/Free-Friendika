@@ -31,6 +31,7 @@ use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
+use Friendica\Model\Term;
 use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
@@ -142,12 +143,12 @@ class Status extends BaseProfile
 
 		if (!empty($category)) {
 			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				DBA::escape(Strings::protectSprintf($category)), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), intval($a->profile['uid']));
+				DBA::escape(Strings::protectSprintf($category)), intval(Term::OBJECT_TYPE_POST), intval(Term::CATEGORY), intval($a->profile['uid']));
 		}
 
 		if (!empty($hashtags)) {
 			$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				DBA::escape(Strings::protectSprintf($hashtags)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval($a->profile['uid']));
+				DBA::escape(Strings::protectSprintf($hashtags)), intval(Term::OBJECT_TYPE_POST), intval(Term::HASHTAG), intval($a->profile['uid']));
 		}
 
 		if (!empty($datequery)) {

@@ -25,6 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\Strings;
+use Friendica\Model\Term;
 
 /**
  * Hashtag module.
@@ -43,7 +44,7 @@ class Hashtag extends BaseModule
 
 		$taglist = DBA::p("SELECT DISTINCT(`term`) FROM `term` WHERE `term` LIKE ? AND `type` = ? ORDER BY `term`",
 			$t . '%',
-			intval(TERM_HASHTAG)
+			intval(Term::HASHTAG)
 		);
 		while ($tag = DBA::fetch($taglist)) {
 			$result[] = ['text' => $tag['term']];

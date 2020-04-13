@@ -24,9 +24,7 @@ namespace Friendica\Protocol;
 use DOMDocument;
 use DOMXPath;
 use Friendica\App\BaseURL;
-use Friendica\Content\OEmbed;
 use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -41,6 +39,7 @@ use Friendica\Model\Mail;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\PermissionSet;
 use Friendica\Model\Profile;
+use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
@@ -49,8 +48,6 @@ use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
-use HTMLPurifier;
-use HTMLPurifier_Config;
 
 /**
  * This class contain functions to create and send DFRN XML files
@@ -252,8 +249,8 @@ class DFRN
 			$sql_post_table = sprintf(
 				"INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 				DBA::escape(Strings::protectSprintf($category)),
-				intval(TERM_OBJ_POST),
-				intval(TERM_CATEGORY),
+				intval(Term::OBJECT_TYPE_POST),
+				intval(Term::CATEGORY),
 				intval($owner_id)
 			);
 		}

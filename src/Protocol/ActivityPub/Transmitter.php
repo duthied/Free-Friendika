@@ -1218,7 +1218,7 @@ class Transmitter
 	 */
 	private static function isSensitive($item_id)
 	{
-		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $item_id, 'type' => TERM_HASHTAG, 'term' => 'nsfw'];
+		$condition = ['otype' => Term::OBJECT_TYPE_POST, 'oid' => $item_id, 'type' => Term::HASHTAG, 'term' => 'nsfw'];
 		return DBA::exists('term', $condition);
 	}
 
