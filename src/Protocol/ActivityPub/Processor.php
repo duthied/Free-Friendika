@@ -619,7 +619,7 @@ class Processor
 
 			DBA::insert('tag', $fields, true);
 
-			Logger::info('Got Tag', ['uriid' => $uriid, 'tag' => $tag, 'sensitive' => $sensitive, 'fields' => $fields]);
+			Logger::info('Stored tag/mention', ['uriid' => $uriid, 'tag' => $tag, 'sensitive' => $sensitive, 'fields' => $fields]);
 		}
 	}
 
