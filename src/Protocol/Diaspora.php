@@ -1833,7 +1833,7 @@ class Diaspora
 				continue;
 			}
 
-			$fields = ['uri-id' => $uriid, 'name' => $person['addr'], 'url' => $person['url']];
+			$fields = ['uri-id' => $uriid, 'name' => substr($person['addr'], 0, 64), 'url' => $person['url']];
 
 			if ($match[1] == Term::TAG_CHARACTER[Term::MENTION]) {
 				$fields['type'] = Term::MENTION;
@@ -1847,6 +1847,25 @@ class Diaspora
 
 			DBA::insert('tag', $fields, true);
 			Logger::info('Stored mention', ['uriid' => $uriid, 'match' => $match, 'fields' => $fields]);
+		}
+	}
+
+	private static function storeTags(int $uriid, string $body)
+	{
+		$tags = BBCode::getTags($body);
+		if (empty($tags)) {
+			return;
+		}
+
+		foreach ($tags as $tag) {
+			if ((substr($tag, 0, 1) != Term::TAG_CHARACTER[Term::HASHTAG]) || (strlen($tag) <= 1)) {
+				Logger::info('Skip tag', ['uriid' => $uriid, 'tag' => $tag]);
+				continue;
+			}
+
+			$fields = ['uri-id' => $uriid, 'name' => substr($tag, 1, 64), 'type' => Term::HASHTAG];
+			DBA::insert('tag', $fields, true);
+			Logger::info('Stored tag', ['uriid' => $uriid, 'tag' => $tag, 'fields' => $fields]);
 		}
 	}
 
@@ -1939,12 +1958,13 @@ class Diaspora
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
 		$datarray["plink"] = self::plink($author, $guid, $parent_item['guid']);
-
-		self::storeMentions($datarray['uri-id'], $text);
-
+	
 		$body = Markdown::toBBCode($text);
 
 		$datarray["body"] = self::replacePeopleGuid($body, $person["url"]);
+
+		self::storeMentions($datarray['uri-id'], $text);
+		self::storeTags($datarray['uri-id'], $datarray["body"]);
 
 		self::fetchGuid($datarray);
 
@@ -3017,9 +3037,10 @@ class Diaspora
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
 
-		self::storeMentions($datarray['uri-id'], $text);
-
 		$datarray["body"] = self::replacePeopleGuid($body, $contact["url"]);
+
+		self::storeMentions($datarray['uri-id'], $text);
+		self::storeTags($datarray['uri-id'], $datarray["body"]);
 
 		if ($provider_display_name != "") {
 			$datarray["app"] = $provider_display_name;

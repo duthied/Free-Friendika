@@ -609,6 +609,8 @@ class Processor
 
 			if (empty($fields['name'])) {
 				continue;
+			} else {
+				$fields['name'] = substr($fields['name'], 0, 64);
 			}
 			
 			if (!empty($tag['href'] && ($tag['href'] != $tag['name']))) {
