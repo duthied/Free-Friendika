@@ -35,6 +35,8 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
+use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
@@ -437,6 +439,7 @@ class OStatus
 			$item = array_merge($header, $author);
 
 			$item["uri"] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
+			$item['uri-id'] = ItemURI::insert(['uri' => $item['uri']]);
 
 			$item["verb"] = XML::getFirstNodeValue($xpath, 'activity:verb/text()', $entry);
 
@@ -660,6 +663,12 @@ class OStatus
 						}
 
 						$item['tag'] .= '#[url=' . DI::baseUrl() . '/search?tag=' . $term . ']' . $term . '[/url]';
+
+						// Store the hashtag
+						$fields = ['uri-id' => $item['uri-id'], 'name' => substr($term, 0, 64), 'type' => Term::HASHTAG];
+						DBA::insert('tag', $fields, true);
+
+						Logger::info('Stored tag', ['uri-id' => $item['uri-id'], 'tag' => $term, 'fields' => $fields]);
 					}
 				}
 			}

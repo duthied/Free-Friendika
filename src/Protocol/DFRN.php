@@ -2465,13 +2465,13 @@ class DFRN
 						$fields = ['uri-id' => $item['uri-id'], 'name' => substr($term, 0, 64)];
 
 						if ($termhash == Term::TAG_CHARACTER[Term::MENTION]) {
-							$fields['type'] = Term::EXCLUSIVE_MENTION;
+							$fields['type'] = Term::MENTION;
 						} elseif ($termhash == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]) {
 							$fields['type'] = Term::EXCLUSIVE_MENTION;
 						} elseif ($termhash == Term::TAG_CHARACTER[Term::IMPLICIT_MENTION]) {
 							$fields['type'] = Term::IMPLICIT_MENTION;
 						} elseif ($termhash == Term::TAG_CHARACTER[Term::HASHTAG]) {
-							$fields['type'] = Term::IMPLICIT_MENTION;
+							$fields['type'] = Term::HASHTAG;
 						}
 
 						if (!empty($termurl)) {
