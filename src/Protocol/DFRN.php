@@ -35,6 +35,7 @@ use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\PermissionSet;
@@ -2404,6 +2405,8 @@ class DFRN
 
 		$item["guid"] = XML::getFirstNodeValue($xpath, "dfrn:diaspora_guid/text()", $entry);
 
+		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
+
 		// We store the data from "dfrn:diaspora_signature" in a different table, this is done in "Item::insert"
 		$dsprsig = XML::unescape(XML::getFirstNodeValue($xpath, "dfrn:diaspora_signature/text()", $entry));
 		if ($dsprsig != "") {
@@ -2457,6 +2460,27 @@ class DFRN
 						}
 
 						$item["tag"] .= $termhash . "[url=" . $termurl . "]" . $term . "[/url]";
+
+						// Store the hashtag/mention
+						$fields = ['uri-id' => $item['uri-id'], 'name' => substr($term, 0, 64)];
+
+						if ($termhash == Term::TAG_CHARACTER[Term::MENTION]) {
+							$fields['type'] = Term::EXCLUSIVE_MENTION;
+						} elseif ($termhash == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]) {
+							$fields['type'] = Term::EXCLUSIVE_MENTION;
+						} elseif ($termhash == Term::TAG_CHARACTER[Term::IMPLICIT_MENTION]) {
+							$fields['type'] = Term::IMPLICIT_MENTION;
+						} elseif ($termhash == Term::TAG_CHARACTER[Term::HASHTAG]) {
+							$fields['type'] = Term::IMPLICIT_MENTION;
+						}
+
+						if (!empty($termurl)) {
+							$fields['url'] = $termurl;
+						}
+
+						DBA::insert('tag', $fields, true);
+
+						Logger::info('Stored tag/mention', ['uri-id' => $item['uri-id'], 'tag' => $term, 'url' => $termurl, 'hash' => $termhash, 'fields' => $fields]);
 					}
 				}
 			}
