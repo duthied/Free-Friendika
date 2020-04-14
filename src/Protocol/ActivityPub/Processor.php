@@ -170,10 +170,14 @@ class Processor
 	 */
 	public static function updateItem($activity)
 	{
-		$item = Item::selectFirst(['uri', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
+		$item = Item::selectFirst(['uri', 'uri-id', 'guid', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('Unknown item', ['uri' => $activity['id']]);
 			return;
+		}
+
+		if (empty($item['uri-id'])) {
+			$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 		}
 
 		$item['changed'] = DateTimeFormat::utcNow();
@@ -404,7 +408,7 @@ class Processor
 
 		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
 
-		self::storeTags($item['uri-id'], $activity['tags'], $activity['sensitive']);
+		self::storeTags($item['uri-id'], $activity['tags']);
 
 		$item['location'] = $activity['location'];
 
@@ -576,7 +580,7 @@ class Processor
 		}
 	}
 
-	private static function storeTags(int $uriid, array $tags = null, $sensitive = false)
+	private static function storeTags(int $uriid, array $tags = null)
 	{
 		// Make sure to delete all existing tags (can happen when called via the update functionality)
 		DBA::delete('tag', ['uri-id' => $uriid]);
@@ -619,7 +623,7 @@ class Processor
 
 			DBA::insert('tag', $fields, true);
 
-			Logger::info('Stored tag/mention', ['uriid' => $uriid, 'tag' => $tag, 'sensitive' => $sensitive, 'fields' => $fields]);
+			Logger::info('Stored tag/mention', ['uriid' => $uriid, 'tag' => $tag, 'fields' => $fields]);
 		}
 	}
 
