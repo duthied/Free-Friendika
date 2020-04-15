@@ -1072,7 +1072,7 @@ class DFRN
 		// The signed text contains the content in Markdown, the sender handle and the signatur for the content
 		// It is needed for relayed comments to Diaspora.
 		if ($item['signed_text']) {
-			$sign = base64_encode(json_encode(['signed_text' => $item['signed_text'],'signature' => $item['signature'],'signer' => $item['signer']]));
+			$sign = base64_encode(json_encode(['signed_text' => $item['signed_text'],'signature' => '','signer' => '']));
 			XML::addElement($doc, $entry, "dfrn:diaspora_signature", $sign);
 		}
 
