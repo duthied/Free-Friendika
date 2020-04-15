@@ -342,7 +342,7 @@ class Item
 			}
 		}
 
-		if (array_key_exists('signed_text', $row) && array_key_exists('interaction', $row) && !is_null($row['interaction'])) {
+		if (array_key_exists('interaction', $row)) {
 			$row['signed_text'] = $row['interaction'];
 		}
 
@@ -672,7 +672,8 @@ class Item
 	{
 		$fields = [];
 
-		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
+		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
+			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
 			'created', 'edited', 'commented', 'received', 'changed', 'psid',
 			'resource-id', 'event-id', 'tag', 'attach', 'post-type', 'file',
