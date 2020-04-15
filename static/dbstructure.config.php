@@ -1268,20 +1268,6 @@ return [
 			"expire" => ["expire"],
 		]
 	],
-	"sign" => [
-		"comment" => "Diaspora signatures",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => "item.id"],
-			"signed_text" => ["type" => "mediumtext", "comment" => ""],
-			"signature" => ["type" => "text", "comment" => ""],
-			"signer" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"iid" => ["UNIQUE", "iid"],
-		]
-	],
 	"term" => [
 		"comment" => "item taxonomy (categories, tags, etc.) table",
 		"fields" => [

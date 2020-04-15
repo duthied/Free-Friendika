@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 2020.03-rc (Dalmatian Bellflower)
+-- Friendica 2020.06-dev (Red Hot Poker)
 -- DB_UPDATE_VERSION 1338
 -- ------------------------------------------
 
@@ -1151,19 +1151,6 @@ CREATE TABLE IF NOT EXISTS `session` (
 	 INDEX `sid` (`sid`(64)),
 	 INDEX `expire` (`expire`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='web session storage';
-
---
--- TABLE sign
---
-CREATE TABLE IF NOT EXISTS `sign` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`iid` int unsigned NOT NULL DEFAULT 0 COMMENT 'item.id',
-	`signed_text` mediumtext COMMENT '',
-	`signature` text COMMENT '',
-	`signer` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `iid` (`iid`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Diaspora signatures';
 
 --
 -- TABLE term

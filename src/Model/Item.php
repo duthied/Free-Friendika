@@ -342,10 +342,6 @@ class Item
 			}
 		}
 
-		if (array_key_exists('signed_text', $row) && array_key_exists('interaction', $row) && !is_null($row['interaction'])) {
-			$row['signed_text'] = $row['interaction'];
-		}
-
 		if (array_key_exists('ignored', $row) && array_key_exists('internal-user-ignored', $row) && !is_null($row['internal-user-ignored'])) {
 			$row['ignored'] = $row['internal-user-ignored'];
 		}
@@ -672,7 +668,8 @@ class Item
 	{
 		$fields = [];
 
-		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
+		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
+			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
 			'created', 'edited', 'commented', 'received', 'changed', 'psid',
 			'resource-id', 'event-id', 'tag', 'attach', 'post-type', 'file',
@@ -714,9 +711,7 @@ class Item
 			'nofinish' => 'event-nofinish','adjust' => 'event-adjust',
 			'ignore' => 'event-ignore', 'id' => 'event-id'];
 
-		$fields['sign'] = ['signed_text', 'signature', 'signer'];
-
-		$fields['diaspora-interaction'] = ['interaction'];
+		$fields['diaspora-interaction'] = ['interaction', 'interaction' => 'signed_text'];
 
 		return $fields;
 	}
@@ -801,10 +796,6 @@ class Item
 			$joins .= " LEFT JOIN `event` ON `event-id` = `event`.`id`";
 		}
 
-		if (strpos($sql_commands, "`sign`.") !== false) {
-			$joins .= " LEFT JOIN `sign` ON `sign`.`iid` = `item`.`id`";
-		}
-
 		if (strpos($sql_commands, "`diaspora-interaction`.") !== false) {
 			$joins .= " LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`";
 		}
@@ -856,10 +847,6 @@ class Item
 
 		if (in_array('ignored', $selected)) {
 			$selected[] = 'internal-user-ignored';
-		}
-
-		if (in_array('signed_text', $selected)) {
-			$selected[] = 'interaction';
 		}
 
 		$legacy_fields = array_merge(ItemDeliveryData::LEGACY_FIELD_LIST, self::MIXED_CONTENT_FIELDLIST);
@@ -2000,10 +1987,6 @@ class Item
 
 			if (!empty($dsprsig->signed_text) && empty($dsprsig->signature) && empty($dsprsig->signer)) {
 				DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $dsprsig->signed_text], true);
-			} else {
-				// The other fields are used by very old Friendica servers, so we currently store them differently
-				DBA::insert('sign', ['iid' => $current_post, 'signed_text' => $dsprsig->signed_text,
-					'signature' => $dsprsig->signature, 'signer' => $dsprsig->signer]);
 			}
 		}
 
