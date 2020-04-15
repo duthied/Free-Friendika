@@ -39,6 +39,7 @@ use Friendica\Model\ItemURI;
 use Friendica\Model\ItemDeliveryData;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
@@ -1850,25 +1851,6 @@ class Diaspora
 		}
 	}
 
-	private static function storeTags(int $uriid, string $body)
-	{
-		$tags = BBCode::getTags($body);
-		if (empty($tags)) {
-			return;
-		}
-
-		foreach ($tags as $tag) {
-			if ((substr($tag, 0, 1) != Term::TAG_CHARACTER[Term::HASHTAG]) || (strlen($tag) <= 1)) {
-				Logger::info('Skip tag', ['uriid' => $uriid, 'tag' => $tag]);
-				continue;
-			}
-
-			$fields = ['uri-id' => $uriid, 'name' => substr($tag, 1, 64), 'type' => Term::HASHTAG];
-			DBA::insert('tag', $fields, true);
-			Logger::info('Stored tag', ['uriid' => $uriid, 'tag' => $tag, 'fields' => $fields]);
-		}
-	}
-
 	/**
 	 * Processes an incoming comment
 	 *
@@ -1963,7 +1945,7 @@ class Diaspora
 		$datarray["body"] = self::replacePeopleGuid($body, $person["url"]);
 
 		self::storeMentions($datarray['uri-id'], $text);
-		self::storeTags($datarray['uri-id'], $datarray["body"]);
+		Tag::storeFromBody($datarray['uri-id'], $datarray["body"]);
 
 		self::fetchGuid($datarray);
 

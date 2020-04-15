@@ -40,6 +40,7 @@ use Friendica\Model\Mail;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\PermissionSet;
 use Friendica\Model\Profile;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
@@ -2406,6 +2407,8 @@ class DFRN
 		$item["guid"] = XML::getFirstNodeValue($xpath, "dfrn:diaspora_guid/text()", $entry);
 
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
+
+		Tag::storeFromBody($item['uri-id'], $item["body"]);
 
 		// We store the data from "dfrn:diaspora_signature" in a different table, this is done in "Item::insert"
 		$dsprsig = XML::unescape(XML::getFirstNodeValue($xpath, "dfrn:diaspora_signature/text()", $entry));
