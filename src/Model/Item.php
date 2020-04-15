@@ -712,7 +712,8 @@ class Item
 			'ignore' => 'event-ignore', 'id' => 'event-id'];
 
 		$fields['diaspora-interaction'] = ['interaction', 'interaction' => 'signed_text'];
-			
+
+		
 		return $fields;
 	}
 
