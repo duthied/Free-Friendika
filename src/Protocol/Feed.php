@@ -523,7 +523,7 @@ class Feed {
 					// Set the delivery priority for "remote self" to "medium"
 					$notify = PRIORITY_MEDIUM;
 				}
-	
+
 				$id = Item::insert($item, false, $notify);
 
 				Logger::info("Feed for contact " . $contact["url"] . " stored under id " . $id);

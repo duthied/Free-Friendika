@@ -1958,7 +1958,6 @@ class Diaspora
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
 		$datarray["plink"] = self::plink($author, $guid, $parent_item['guid']);
-	
 		$body = Markdown::toBBCode($text);
 
 		$datarray["body"] = self::replacePeopleGuid($body, $person["url"]);
@@ -2708,7 +2707,6 @@ class Diaspora
 
 		$datarray['guid'] = $parent['guid'] . '-' . $guid;
 		$datarray['uri'] = self::getUriFromGuid($author, $datarray['guid']);
-
 		$datarray['parent-uri'] = $parent['uri'];
 
 		$datarray['verb'] = $datarray['body'] = Activity::ANNOUNCE;
