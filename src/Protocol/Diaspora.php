@@ -3020,7 +3020,7 @@ class Diaspora
 		$datarray["body"] = self::replacePeopleGuid($body, $contact["url"]);
 
 		self::storeMentions($datarray['uri-id'], $text);
-		self::storeTags($datarray['uri-id'], $datarray["body"]);
+		Tag::storeFromBody($datarray['uri-id'], $datarray["body"]);
 
 		if ($provider_display_name != "") {
 			$datarray["app"] = $provider_display_name;
