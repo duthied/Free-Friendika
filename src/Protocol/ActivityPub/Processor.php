@@ -602,8 +602,8 @@ class Processor
 				}
 				if (!empty($tag['href'])) {
 					$apcontact = APContact::getByURL($tag['href']);
-					if (!empty($apcontact['name'])) {
-						$fields['name'] = $apcontact['name'];
+					if (!empty($apcontact['name']) || !empty($apcontact['nick'])) {
+						$fields['name'] = $apcontact['name'] ?: $apcontact['nick'];
 					}
 				}
 			} elseif ($tag['type'] == 'Hashtag') {
