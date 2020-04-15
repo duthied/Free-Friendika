@@ -68,12 +68,12 @@ class Tag
 		}
 
 		foreach ($tags as $tag) {
-			if ((substr($tag, 0, 1) != Term::TAG_CHARACTER[Term::HASHTAG]) || (strlen($tag) <= 1)) {
+			if ((substr($tag, 0, 1) != self::TAG_CHARACTER[self::HASHTAG]) || (strlen($tag) <= 1)) {
 				Logger::info('Skip tag', ['uriid' => $uriid, 'tag' => $tag]);
 				continue;
 			}
 
-			$fields = ['uri-id' => $uriid, 'name' => substr($tag, 1, 64), 'type' => Term::HASHTAG];
+			$fields = ['uri-id' => $uriid, 'name' => substr($tag, 1, 64), 'type' => self::HASHTAG];
 			DBA::insert('tag', $fields, true);
 			Logger::info('Stored tag', ['uriid' => $uriid, 'tag' => $tag, 'fields' => $fields]);
 		}
