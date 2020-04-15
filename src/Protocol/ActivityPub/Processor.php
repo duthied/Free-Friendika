@@ -170,14 +170,10 @@ class Processor
 	 */
 	public static function updateItem($activity)
 	{
-		$item = Item::selectFirst(['uri', 'uri-id', 'guid', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
+		$item = Item::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('Unknown item', ['uri' => $activity['id']]);
 			return;
-		}
-
-		if (empty($item['uri-id'])) {
-			$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 		}
 
 		$item['changed'] = DateTimeFormat::utcNow();

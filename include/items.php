@@ -141,11 +141,12 @@ function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklis
 	return $data;
 }
 
-function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blacklist = "")
+function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blacklist = "", $return_array = false)
 {
 	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
 
 	$tags = "";
+	$taglist = [];
 	if (isset($data["keywords"]) && count($data["keywords"])) {
 		foreach ($data["keywords"] as $keyword) {
 			$hashtag = str_replace([" ", "+", "/", ".", "#", "'"],
@@ -156,10 +157,15 @@ function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blackl
 			}
 
 			$tags .= "#[url=" . DI::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url]";
+			$taglist[] = $hashtag;
 		}
 	}
 
-	return $tags;
+	if ($return_array) {
+		return $taglist;
+	} else {
+		return $tags;
+	}
 }
 
 function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "")
