@@ -4016,30 +4016,24 @@ class Diaspora
 
 		Logger::log("Got relayable data ".$type." for item ".$item["guid"]." (".$item["id"].")", Logger::DEBUG);
 
-		// Old way - is used by the internal Friendica functions
-		/// @todo Change all signatur storing functions to the new format
-		if ($item['signed_text'] && $item['signature'] && $item['signer']) {
-			$message = self::messageFromSignature($item);
-		} else {// New way
-			$msg = json_decode($item['signed_text'], true);
+		$msg = json_decode($item['signed_text'], true);
 
-			$message = [];
-			if (is_array($msg)) {
-				foreach ($msg as $field => $data) {
-					if (!$item["deleted"]) {
-						if ($field == "diaspora_handle") {
-							$field = "author";
-						}
-						if ($field == "target_type") {
-							$field = "parent_type";
-						}
+		$message = [];
+		if (is_array($msg)) {
+			foreach ($msg as $field => $data) {
+				if (!$item["deleted"]) {
+					if ($field == "diaspora_handle") {
+						$field = "author";
 					}
-
-					$message[$field] = $data;
+					if ($field == "target_type") {
+						$field = "parent_type";
+					}
 				}
-			} else {
-				Logger::log("Signature text for item ".$item["guid"]." (".$item["id"].") couldn't be extracted: ".$item['signed_text'], Logger::DEBUG);
+
+				$message[$field] = $data;
 			}
+		} else {
+			Logger::log("Signature text for item ".$item["guid"]." (".$item["id"].") couldn't be extracted: ".$item['signed_text'], Logger::DEBUG);
 		}
 
 		$message["parent_author_signature"] = self::signature($owner, $message);

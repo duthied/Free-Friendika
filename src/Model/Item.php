@@ -342,10 +342,6 @@ class Item
 			}
 		}
 
-		if (array_key_exists('interaction', $row)) {
-			$row['signed_text'] = $row['interaction'];
-		}
-
 		if (array_key_exists('ignored', $row) && array_key_exists('internal-user-ignored', $row) && !is_null($row['internal-user-ignored'])) {
 			$row['ignored'] = $row['internal-user-ignored'];
 		}
@@ -715,7 +711,7 @@ class Item
 			'nofinish' => 'event-nofinish','adjust' => 'event-adjust',
 			'ignore' => 'event-ignore', 'id' => 'event-id'];
 
-		$fields['diaspora-interaction'] = ['interaction'];
+		$fields['diaspora-interaction'] = ['interaction', 'interaction' => 'signed_text'];
 
 		return $fields;
 	}
@@ -851,10 +847,6 @@ class Item
 
 		if (in_array('ignored', $selected)) {
 			$selected[] = 'internal-user-ignored';
-		}
-
-		if (in_array('signed_text', $selected)) {
-			$selected[] = 'interaction';
 		}
 
 		$legacy_fields = array_merge(ItemDeliveryData::LEGACY_FIELD_LIST, self::MIXED_CONTENT_FIELDLIST);
