@@ -600,6 +600,12 @@ class Processor
 					$fields['type'] = Term::IMPLICIT_MENTION;
 					$fields['name'] = substr($fields['name'], 1);
 				}
+				if (!empty($tag['href'])) {
+					$apcontact = APContact::getByURL($tag['href']);
+					if (!empty($apcontact['name'])) {
+						$fields['name'] = $apcontact['name'];
+					}
+				}
 			} elseif ($tag['type'] == 'Hashtag') {
 				$fields['type'] = Term::HASHTAG;
 				if (substr($fields['name'], 0, 1) == Term::TAG_CHARACTER[Term::HASHTAG]) {

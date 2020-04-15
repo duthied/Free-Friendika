@@ -1834,7 +1834,7 @@ class Diaspora
 				continue;
 			}
 
-			$fields = ['uri-id' => $uriid, 'name' => substr($person['addr'], 0, 64), 'url' => $person['url']];
+			$fields = ['uri-id' => $uriid, 'name' => substr($person['name'] ?: $person['nick'], 0, 64), 'url' => $person['url']];
 
 			if ($match[1] == Term::TAG_CHARACTER[Term::MENTION]) {
 				$fields['type'] = Term::MENTION;
