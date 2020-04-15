@@ -713,7 +713,6 @@ class Item
 
 		$fields['diaspora-interaction'] = ['interaction', 'interaction' => 'signed_text'];
 
-		
 		return $fields;
 	}
 
