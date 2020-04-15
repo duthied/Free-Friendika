@@ -576,6 +576,12 @@ class Processor
 		}
 	}
 
+	/**
+	 * Store tags and mentions into the tag table
+	 *
+	 * @param integer $uriid
+	 * @param array $tags
+	 */
 	private static function storeTags(int $uriid, array $tags = null)
 	{
 		// Make sure to delete all existing tags (can happen when called via the update functionality)

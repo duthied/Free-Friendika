@@ -1810,6 +1810,12 @@ class Diaspora
 		return false;
 	}
 
+	/**
+	 * Store the mentions in the tag table
+	 *
+	 * @param integer $uriid
+	 * @param string $text
+	 */
 	private static function storeMentions(int $uriid, string $text)
 	{
 		preg_match_all('/([@!]){(?:([^}]+?); ?)?([^} ]+)}/', $text, $matches, PREG_SET_ORDER);
