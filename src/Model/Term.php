@@ -330,6 +330,10 @@ class Term
 				continue;
 			}
 
+			if (empty($term)) {
+				continue;
+			}
+
 			if ($item['uid'] == 0) {
 				$global = true;
 				DBA::update('term', ['global' => true], ['otype' => self::OBJECT_TYPE_POST, 'guid' => $item['guid']]);
