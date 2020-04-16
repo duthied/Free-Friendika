@@ -33,26 +33,26 @@ use Friendica\Content\Text\BBCode;
  */
 class Tag
 {
-    const UNKNOWN           = 0;
-    const HASHTAG           = 1;
-    const MENTION           = 2;
-    const CATEGORY          = 3;
-    const FILE              = 5;
+	const UNKNOWN  = 0;
+	const HASHTAG  = 1;
+	const MENTION  = 2;
+	const CATEGORY = 3;
+	const FILE     = 5;
 	/**
 	 * An implicit mention is a mention in a comment body that is redundant with the threading information.
 	 */
-    const IMPLICIT_MENTION  = 8;
+	const IMPLICIT_MENTION  = 8;
 	/**
 	 * An exclusive mention transfers the ownership of the post to the target account, usually a forum.
 	 */
-    const EXCLUSIVE_MENTION = 9;
+	const EXCLUSIVE_MENTION = 9;
 
-    const TAG_CHARACTER = [
-    	self::HASHTAG           => '#',
-    	self::MENTION           => '@',
-    	self::IMPLICIT_MENTION  => '%',
-    	self::EXCLUSIVE_MENTION => '!',
-    ];
+	const TAG_CHARACTER = [
+		self::HASHTAG           => '#',
+		self::MENTION           => '@',
+		self::IMPLICIT_MENTION  => '%',
+		self::EXCLUSIVE_MENTION => '!',
+	];
 
 	/**
 	 * Store tags from the body
