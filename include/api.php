@@ -2041,7 +2041,7 @@ function api_statuses_repeat($type)
 
 	Logger::log('API: api_statuses_repeat: '.$id);
 
-	$fields = ['body', 'title', 'attach', 'tag', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
+	$fields = ['uri-id', 'body', 'title', 'attach', 'tag', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 	$item = Item::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 
 	if (DBA::isResult($item) && $item['body'] != "") {
@@ -2069,6 +2069,8 @@ function api_statuses_repeat($type)
 		}
 
 		$item_id = item_post($a);
+
+		/// @todo Copy tags from the original post to the new one
 	} else {
 		throw new ForbiddenException();
 	}
