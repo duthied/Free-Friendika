@@ -54,6 +54,14 @@ class Tag
 		self::EXCLUSIVE_MENTION => '!',
 	];
 
+	/**
+	 * Store tag/mention elements
+	 *
+	 * @param integer $uriid
+	 * @param integer $type
+	 * @param string $name
+	 * @param string $url
+	 */
 	public static function store(int $uriid, int $type, string $name, string $url = '')
 	{
 		$name = trim($name, "\x00..\x20\xFF#!@");
@@ -85,6 +93,14 @@ class Tag
 		Logger::info('Stored tag/mention', ['uri-id' => $uriid, 'tag-id' => $tagid, 'tag' => $fields]);
 	}
 
+	/**
+	 * Store tag/mention elements
+	 *
+	 * @param integer $uriid
+	 * @param string $hash
+	 * @param string $name
+	 * @param string $url
+	 */
 	public static function storeByHash(int $uriid, string $hash, string $name, string $url = '')
 	{
 		if ($hash == self::TAG_CHARACTER[self::MENTION]) {
