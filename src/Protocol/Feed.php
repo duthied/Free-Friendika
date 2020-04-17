@@ -531,7 +531,7 @@ class Feed {
 				if (!empty($id) && !empty($taglist)) {
 					$feeditem = Item::selectFirst(['uri-id'], ['id' => $id]);
 					foreach ($taglist as $tag) {
-						Tag::storeByHash($feeditem['uri-id'], '#', $tag);
+						Tag::store($feeditem['uri-id'], Tag::HASHTAG, $tag);
 					}					
 				}
 			}

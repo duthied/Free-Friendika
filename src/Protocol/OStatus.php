@@ -665,7 +665,7 @@ class OStatus
 						$item['tag'] .= '#[url=' . DI::baseUrl() . '/search?tag=' . $term . ']' . $term . '[/url]';
 
 						// Store the hashtag
-						Tag::storeByHash($item['uri-id'], '#', $term);
+						Tag::store($item['uri-id'], Tag::HASHTAG, $term);
 					}
 				}
 			}
