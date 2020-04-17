@@ -28,6 +28,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Strings;
@@ -170,6 +171,8 @@ EOT;
 	}
 
 	$term_objtype = ($item['resource-id'] ? Term::OBJECT_TYPE_PHOTO : Term::OBJECT_TYPE_POST);
+
+	Tag::store($item['uri-id'], Tag::HASHTAG, $term);
 
 	$t = q("SELECT count(tid) as tcount FROM term WHERE oid=%d AND term='%s'",
 		intval($item['id']),
