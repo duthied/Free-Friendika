@@ -2464,26 +2464,7 @@ class DFRN
 
 						$item["tag"] .= $termhash . "[url=" . $termurl . "]" . $term . "[/url]";
 
-						// Store the hashtag/mention
-						$fields = ['uri-id' => $item['uri-id'], 'name' => substr($term, 0, 64)];
-
-						if ($termhash == Term::TAG_CHARACTER[Term::MENTION]) {
-							$fields['type'] = Term::MENTION;
-						} elseif ($termhash == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]) {
-							$fields['type'] = Term::EXCLUSIVE_MENTION;
-						} elseif ($termhash == Term::TAG_CHARACTER[Term::IMPLICIT_MENTION]) {
-							$fields['type'] = Term::IMPLICIT_MENTION;
-						} elseif ($termhash == Term::TAG_CHARACTER[Term::HASHTAG]) {
-							$fields['type'] = Term::HASHTAG;
-						}
-
-						if (!empty($termurl)) {
-							$fields['url'] = $termurl;
-						}
-
-						DBA::insert('tag', $fields, true);
-
-						Logger::info('Stored tag/mention', ['uri-id' => $item['uri-id'], 'tag' => $term, 'url' => $termurl, 'hash' => $termhash, 'fields' => $fields]);
+						Tag::storeByHash($item['uri-id'], $termhash, $term, $termurl);
 					}
 				}
 			}

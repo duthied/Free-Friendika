@@ -1840,20 +1840,7 @@ class Diaspora
 				continue;
 			}
 
-			$fields = ['uri-id' => $uriid, 'name' => substr($person['name'] ?: $person['nick'], 0, 64), 'url' => $person['url']];
-
-			if ($match[1] == Term::TAG_CHARACTER[Term::MENTION]) {
-				$fields['type'] = Term::MENTION;
-			} elseif ($match[1] == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]) {
-				$fields['type'] = Term::EXCLUSIVE_MENTION;
-			} elseif ($match[1] == Term::TAG_CHARACTER[Term::IMPLICIT_MENTION]) {
-				$fields['type'] = Term::IMPLICIT_MENTION;
-			} else {
-				continue;
-			}
-
-			DBA::insert('tag', $fields, true);
-			Logger::info('Stored mention', ['uriid' => $uriid, 'match' => $match, 'fields' => $fields]);
+			Tag::storeByHash($uriid, $match[1], $person['name'] ?: $person['nick'], $person['url']);
 		}
 	}
 

@@ -36,7 +36,7 @@ use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
@@ -665,10 +665,7 @@ class OStatus
 						$item['tag'] .= '#[url=' . DI::baseUrl() . '/search?tag=' . $term . ']' . $term . '[/url]';
 
 						// Store the hashtag
-						$fields = ['uri-id' => $item['uri-id'], 'name' => substr($term, 0, 64), 'type' => Term::HASHTAG];
-						DBA::insert('tag', $fields, true);
-
-						Logger::info('Stored tag', ['uri-id' => $item['uri-id'], 'tag' => $term, 'fields' => $fields]);
+						Tag::storeByHash($item['uri-id'], '#', $term);
 					}
 				}
 			}

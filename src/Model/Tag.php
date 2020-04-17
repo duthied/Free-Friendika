@@ -54,6 +54,54 @@ class Tag
 		self::EXCLUSIVE_MENTION => '!',
 	];
 
+	public static function store(int $uriid, int $type, string $name, string $url = '')
+	{
+		$name = trim($name, "\x00..\x20\xFF#!@");
+		if (empty($name)) {
+			return;
+		}
+
+		$fields = ['name' => substr($name, 0, 64), 'type' => $type];
+
+		if (!empty($url) && ($url != $name)) {
+			$fields['url'] = strtolower($url);
+		}
+
+		$tag = DBA::selectFirst('tag', ['id'], $fields);
+		if (!DBA::isResult($tag)) {
+			DBA::insert('tag', $fields, true);
+			$tagid = DBA::lastInsertId();
+		} else {
+			$tagid = $tag['id'];
+		}
+
+		if (empty($tagid)) {
+			Logger::error('No tag id created', $fields);
+			return;
+		}
+
+		DBA::insert('post-tag', ['uri-id' => $uriid, 'tid' => $tagid], true);
+
+		Logger::info('Stored tag/mention', ['uri-id' => $uriid, 'tag-id' => $tagid, 'tag' => $fields]);
+	}
+
+	public static function storeByHash(int $uriid, string $hash, string $name, string $url = '')
+	{
+		if ($hash == self::TAG_CHARACTER[self::MENTION]) {
+			$type = self::MENTION;
+		} elseif ($hash == self::TAG_CHARACTER[self::EXCLUSIVE_MENTION]) {
+			$type = self::EXCLUSIVE_MENTION;
+		} elseif ($hash == self::TAG_CHARACTER[self::IMPLICIT_MENTION]) {
+			$type = self::IMPLICIT_MENTION;
+		} elseif ($hash == self::TAG_CHARACTER[self::HASHTAG]) {
+			$type = self::HASHTAG;
+		} else {
+			return;
+		}
+
+		self::store($uriid, $type, $name, $url);
+	}
+
 	/**
 	 * Store tags from the body
 	 *
@@ -73,9 +121,7 @@ class Tag
 				continue;
 			}
 
-			$fields = ['uri-id' => $uriid, 'name' => substr($tag, 1, 64), 'type' => self::HASHTAG];
-			DBA::insert('tag', $fields, true);
-			Logger::info('Stored tag', ['uriid' => $uriid, 'tag' => $tag, 'fields' => $fields]);
+			self::storeByHash($uriid, '#', $tag);
 		}
 	}
 }

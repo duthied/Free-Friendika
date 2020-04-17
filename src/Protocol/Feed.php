@@ -29,7 +29,7 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\XML;
@@ -478,7 +478,7 @@ class Feed {
 				$item["title"] = "";
 				$item["body"] = $item["body"] . add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
 				$item["tag"] = add_page_keywords($item["plink"], $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
-				$taglist = add_page_keywords($item["plink"], $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"], true);
+				$taglist = get_page_keywords($item["plink"], $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
 				$item["object-type"] = Activity\ObjectType::BOOKMARK;
 				unset($item["attach"]);
 			} else {
@@ -492,7 +492,7 @@ class Feed {
 					} else {
 						// @todo $preview is never set in this case, is it intended? - @MrPetovan 2018-02-13
 						$item["tag"] = add_page_keywords($item["plink"], $preview, true, $contact["ffi_keyword_blacklist"]);
-						$taglist = add_page_keywords($item["plink"], $preview, true, $contact["ffi_keyword_blacklist"], true);
+						$taglist = get_page_keywords($item["plink"], $preview, true, $contact["ffi_keyword_blacklist"]);
 					}
 					$item["body"] .= "\n" . $item['tag'];
 				} else {
@@ -531,10 +531,7 @@ class Feed {
 				if (!empty($id) && !empty($taglist)) {
 					$feeditem = Item::selectFirst(['uri-id'], ['id' => $id]);
 					foreach ($taglist as $tag) {
-						$fields = ['uri-id' => $feeditem['uri-id'], 'name' => substr($tag, 0, 64), 'type' => Term::HASHTAG];
-						DBA::insert('tag', $fields, true);
-		
-						Logger::info('Stored tag', ['uri-id' => $feeditem['uri-id'], 'tag' => $tag, 'fields' => $fields]);
+						Tag::storeByHash($feeditem['uri-id'], '#', $tag);
 					}					
 				}
 			}

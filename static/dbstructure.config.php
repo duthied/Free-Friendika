@@ -1293,16 +1293,27 @@ return [
 		]
 	],
 	"tag" => [
-		"comment" => "item tags and mentions",
+		"comment" => "tags and mentions",
 		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "relation" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
-			"name" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "primary" => "1", "comment" => ""],
-			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""]
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"name" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
+			"url" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""]
 		],
 		"indexes" => [
-			"PRIMARY" => ["uri-id", "type", "name"],
-			"type_name" => ["type", "name"]
+			"PRIMARY" => ["id"],			
+			"type_name_url" => ["UNIQUE", "type", "name", "url"]
+		]
+	],
+	"post-tag" => [
+		"comment" => "post relation to tags",
+		"fields" => [
+			"tid" => ["type" => "int unsigned", "not null" => "1", "relation" => ["tag" => "id"], "primary" => "1", "comment" => ""],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "relation" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["tid", "uri-id"],
+			"uri-id" => ["uri-id"]
 		]
 	],
 	"thread" => [

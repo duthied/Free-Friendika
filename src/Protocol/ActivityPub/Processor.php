@@ -34,6 +34,7 @@ use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
@@ -585,53 +586,43 @@ class Processor
 	private static function storeTags(int $uriid, array $tags = null)
 	{
 		// Make sure to delete all existing tags (can happen when called via the update functionality)
-		DBA::delete('tag', ['uri-id' => $uriid]);
+		DBA::delete('post-tag', ['uri-id' => $uriid]);
 
 		foreach ($tags as $tag) {
 			if (empty($tag['name']) || empty($tag['type']) || !in_array($tag['type'], ['Mention', 'Hashtag'])) {
 				continue;
 			}
 
-			$fields = ['uri-id' => $uriid, 'name' => $tag['name']];
+			$hash = substr($tag['name'], 0, 1);
 
 			if ($tag['type'] == 'Mention') {
-				$fields['type'] = Term::MENTION;
-
-				if (substr($fields['name'], 0, 1) == Term::TAG_CHARACTER[Term::MENTION]) {
-					$fields['name'] = substr($fields['name'], 1);
-				} elseif (substr($fields['name'], 0, 1) == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]) {
-					$fields['type'] = Term::EXCLUSIVE_MENTION;
-					$fields['name'] = substr($fields['name'], 1);
-				} elseif (substr($fields['name'], 0, 1) == Term::TAG_CHARACTER[Term::IMPLICIT_MENTION]) {
-					$fields['type'] = Term::IMPLICIT_MENTION;
-					$fields['name'] = substr($fields['name'], 1);
+				if (in_array($hash, [Tag::TAG_CHARACTER[Tag::MENTION],
+					Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION],
+					Tag::TAG_CHARACTER[Tag::IMPLICIT_MENTION]])) {
+					$tag['name'] = substr($tag['name'], 1);
+				} else {
+					$hash = '#';
 				}
+
 				if (!empty($tag['href'])) {
 					$apcontact = APContact::getByURL($tag['href']);
 					if (!empty($apcontact['name']) || !empty($apcontact['nick'])) {
-						$fields['name'] = $apcontact['name'] ?: $apcontact['nick'];
+						$tag['name'] = $apcontact['name'] ?: $apcontact['nick'];
 					}
 				}
 			} elseif ($tag['type'] == 'Hashtag') {
-				$fields['type'] = Term::HASHTAG;
-				if (substr($fields['name'], 0, 1) == Term::TAG_CHARACTER[Term::HASHTAG]) {
-					$fields['name'] = substr($fields['name'], 1);
+				if (substr($tag['name'], 0, 1) == Term::TAG_CHARACTER[Term::HASHTAG]) {
+					$tag['name'] = substr($tag['name'], 1);
+				} else {
+					$hash = '@';
 				}
 			}
 
-			if (empty($fields['name'])) {
+			if (empty($tag['name'])) {
 				continue;
-			} else {
-				$fields['name'] = substr($fields['name'], 0, 64);
 			}
 			
-			if (!empty($tag['href'] && ($tag['href'] != $tag['name']))) {
-				$fields['url'] = $tag['href'];
-			}
-
-			DBA::insert('tag', $fields, true);
-
-			Logger::info('Stored tag/mention', ['uriid' => $uriid, 'tag' => $tag, 'fields' => $fields]);
+			Tag::storeByHash($uriid, $hash, $tag['name'], $tag['href']);
 		}
 	}
 
