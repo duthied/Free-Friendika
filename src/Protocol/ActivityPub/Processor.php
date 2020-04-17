@@ -251,7 +251,7 @@ class Processor
 		}
 
 		foreach ($activity['receiver'] as $receiver) {
-			$item = Item::selectFirst(['id', 'tag', 'origin', 'author-link'], ['uri' => $activity['target_id'], 'uid' => $receiver]);
+			$item = Item::selectFirst(['id', 'uri-id', 'tag', 'origin', 'author-link'], ['uri' => $activity['target_id'], 'uid' => $receiver]);
 			if (!DBA::isResult($item)) {
 				// We don't fetch missing content for this purpose
 				continue;
@@ -261,6 +261,8 @@ class Processor
 				Logger::info('Not origin, not from the author, skipping update', ['id' => $item['id'], 'author' => $item['author-link'], 'actor' => $activity['actor']]);
 				continue;
 			}
+
+			Tag::store($item['uri-id'], Tag::HASHTAG, $activity['object_content'], $activity['object_id']);
 
 			// To-Do:
 			// - Check if "blocktag" is set

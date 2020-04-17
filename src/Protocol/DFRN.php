@@ -2243,7 +2243,7 @@ class DFRN
 				$xt = XML::parseString($item["target"], false);
 
 				if ($xt->type == Activity\ObjectType::NOTE) {
-					$item_tag = Item::selectFirst(['id', 'tag'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
+					$item_tag = Item::selectFirst(['id', 'uri-id', 'tag'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
 
 					if (!DBA::isResult($item_tag)) {
 						Logger::log("Query failed to execute, no result returned in " . __FUNCTION__);
@@ -2252,6 +2252,8 @@ class DFRN
 
 					// extract tag, if not duplicate, add to parent item
 					if ($xo->content) {
+						Tag::store($item_tag['uri-id'], Tag::HASHTAG, $xo->content);
+
 						if (!stristr($item_tag["tag"], trim($xo->content))) {
 							$tag = $item_tag["tag"] . (strlen($item_tag["tag"]) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]';
 							Item::update(['tag' => $tag], ['id' => $item_tag["id"]]);
