@@ -127,7 +127,7 @@ class Tag
 	 */
 	public static function storeFromBody(int $uriid, string $body, string $tags = '#@!')
 	{
-		if (!preg_match_all("/([" . $tags . "])\[url\=(.*?)\](.*?)\[\/url\]/ism", $body, $result, PREG_SET_ORDER)) {
+		if (!preg_match_all("/([" . $tags . "])\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism", $body, $result, PREG_SET_ORDER)) {
 			return;
 		}
 
