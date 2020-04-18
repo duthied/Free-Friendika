@@ -69,7 +69,7 @@ class Tag
 			return;
 		}
 
-		$fields = ['name' => substr($name, 0, 64), 'type' => $type];
+		$fields = ['name' => substr($name, 0, 96), 'type' => $type];
 
 		if (!empty($url) && ($url != $name)) {
 			$fields['url'] = strtolower($url);
@@ -119,25 +119,20 @@ class Tag
 	}
 
 	/**
-	 * Store tags from the body
-	 *
-	 * @param integer $uriid
-	 * @param string $body
+	 * Store tags and mentions from the body
+	 * 
+	 * @param integer $uriid URI-Id
+	 * @param string  $body   Body of the post
+	 * @param string  $tags   Accepted tags
 	 */
-	public static function storeFromBody(int $uriid, string $body)
+	public static function storeFromBody(int $uriid, string $body, string $tags = '#@!')
 	{
-		$tags = BBCode::getTags($body);
-		if (empty($tags)) {
+		if (!preg_match_all("/([" . $tags . "])\[url\=(.*?)\](.*?)\[\/url\]/ism", $body, $result, PREG_SET_ORDER)) {
 			return;
 		}
 
-		foreach ($tags as $tag) {
-			if ((substr($tag, 0, 1) != self::TAG_CHARACTER[self::HASHTAG]) || (strlen($tag) <= 1)) {
-				Logger::info('Skip tag', ['uriid' => $uriid, 'tag' => $tag]);
-				continue;
-			}
-
-			self::storeByHash($uriid, '#', $tag);
+		foreach ($result as $tag) {
+			self::storeByHash($uriid, $tag[1], $tag[3], $tag[2]);
 		}
 	}
 }

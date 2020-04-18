@@ -1297,7 +1297,7 @@ return [
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
 			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"name" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
+			"name" => ["type" => "varchar(96)", "not null" => "1", "default" => "", "comment" => ""],
 			"url" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""]
 		],
 		"indexes" => [

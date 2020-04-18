@@ -2410,7 +2410,7 @@ class DFRN
 
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 
-		Tag::storeFromBody($item['uri-id'], $item["body"]);
+		Tag::storeFromBody($item['uri-id'], $item["body"], '#');
 
 		// We store the data from "dfrn:diaspora_signature" in a different table, this is done in "Item::insert"
 		$dsprsig = XML::unescape(XML::getFirstNodeValue($xpath, "dfrn:diaspora_signature/text()", $entry));
