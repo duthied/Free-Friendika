@@ -127,15 +127,8 @@ class Tag
 	 */
 	public static function storeByHash(int $uriid, string $hash, string $name, string $url = '')
 	{
-		if ($hash == self::TAG_CHARACTER[self::MENTION]) {
-			$type = self::MENTION;
-		} elseif ($hash == self::TAG_CHARACTER[self::EXCLUSIVE_MENTION]) {
-			$type = self::EXCLUSIVE_MENTION;
-		} elseif ($hash == self::TAG_CHARACTER[self::IMPLICIT_MENTION]) {
-			$type = self::IMPLICIT_MENTION;
-		} elseif ($hash == self::TAG_CHARACTER[self::HASHTAG]) {
-			$type = self::HASHTAG;
-		} else {
+		$type = self::getTypeForHash($hash);
+		if ($type == self::UNKNOWN) {
 			return;
 		}
 
@@ -193,18 +186,33 @@ class Tag
 	 */
 	public static function removeByHash(int $uriid, string $hash, string $name, string $url = '')
 	{
-		if ($hash == self::TAG_CHARACTER[self::MENTION]) {
-			$type = self::MENTION;
-		} elseif ($hash == self::TAG_CHARACTER[self::EXCLUSIVE_MENTION]) {
-			$type = self::EXCLUSIVE_MENTION;
-		} elseif ($hash == self::TAG_CHARACTER[self::IMPLICIT_MENTION]) {
-			$type = self::IMPLICIT_MENTION;
-		} elseif ($hash == self::TAG_CHARACTER[self::HASHTAG]) {
-			$type = self::HASHTAG;
-		} else {
+		$type = self::getTypeForHash($hash);
+		if ($type == self::UNKNOWN) {
 			return;
 		}
 
 		self::remove($uriid, $type, $name, $url);
+	}
+
+	/**
+	 * Get the type for the given hash
+	 *
+	 * @param string $hash
+	 * @return integer type
+	 */
+	private static function getTypeForHash(string $hash)
+	{
+		if ($hash == self::TAG_CHARACTER[self::MENTION]) {
+			return self::MENTION;
+		} elseif ($hash == self::TAG_CHARACTER[self::EXCLUSIVE_MENTION]) {
+			return self::EXCLUSIVE_MENTION;
+		} elseif ($hash == self::TAG_CHARACTER[self::IMPLICIT_MENTION]) {
+			return self::IMPLICIT_MENTION;
+		} elseif ($hash == self::TAG_CHARACTER[self::HASHTAG]) {
+			return self::HASHTAG;
+		} else {
+			return self::UNKNOWN;
+		}
+
 	}
 }
