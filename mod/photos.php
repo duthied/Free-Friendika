@@ -36,6 +36,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Network\Probe;
@@ -421,7 +422,7 @@ function photos_post(App $a)
 		}
 
 		if ($item_id) {
-			$item = Item::selectFirst(['tag', 'inform'], ['id' => $item_id, 'uid' => $page_owner_uid]);
+			$item = Item::selectFirst(['tag', 'inform', 'uri-id'], ['id' => $item_id, 'uid' => $page_owner_uid]);
 
 			if (DBA::isResult($item)) {
 				$old_tag    = $item['tag'];
@@ -521,10 +522,17 @@ function photos_post(App $a)
 
 							$profile = str_replace(',', '%2c', $profile);
 							$str_tags .= '@[url=' . $profile . ']' . $newname . '[/url]';
+
+							if (!empty($item['uri-id'])) {
+								Tag::store($item['uri-id'], Tag::MENTION, $newname, $profile);
+							}	
 						}
 					} elseif (strpos($tag, '#') === 0) {
 						$tagname = substr($tag, 1);
 						$str_tags .= '#[url=' . DI::baseUrl() . "/search?tag=" . $tagname . ']' . $tagname . '[/url],';
+						if (!empty($item['uri-id'])) {
+							Tag::store($item['uri-id'], Tag::HASHTAG, $tagname);
+						}
 					}
 				}
 			}

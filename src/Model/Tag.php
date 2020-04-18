@@ -92,7 +92,7 @@ class Tag
 		}
 
 		if (empty($cid)) {
-			$fields = ['name' => substr($name, 0, 96)];
+			$fields = ['name' => substr($name, 0, 96), 'url' => ''];
 
 			if (!empty($url) && ($url != $name)) {
 				$fields['url'] = strtolower($url);
@@ -162,5 +162,49 @@ class Tag
 		foreach ($result as $tag) {
 			self::storeByHash($uriid, $tag[1], $tag[3], $tag[2]);
 		}
+	}
+
+	/**
+	 * Remove tag/mention
+	 *
+	 * @param integer $uriid
+	 * @param integer $type
+	 * @param string $name
+	 * @param string $url
+	 */
+	public static function remove(int $uriid, int $type, string $name, string $url = '')
+	{
+		$tag = DBA::fetchFirst("SELECT `id` FROM `tag` INNER JOIN `post-tag` ON `post-tag`.`tid` = `tag`.`id`
+			WHERE `uri-id` = ? AND `type` = ? AND `name` = ? AND `url` = ?", $uriid, $type, $name, $url);
+		if (!DBA::isResult($tag)) {
+			return;
+		}
+		Logger::info('Removing tag/mention', ['uri-id' => $uriid, 'tid' => $tag['id'], 'name' => $name, 'url' => $url]);
+		DBA::delete('post-tag', ['uri-id' => $uriid, 'tid' => $tag['id']]);
+	}
+
+	/**
+	 * Remove tag/mention
+	 *
+	 * @param integer $uriid
+	 * @param string $hash
+	 * @param string $name
+	 * @param string $url
+	 */
+	public static function removeByHash(int $uriid, string $hash, string $name, string $url = '')
+	{
+		if ($hash == self::TAG_CHARACTER[self::MENTION]) {
+			$type = self::MENTION;
+		} elseif ($hash == self::TAG_CHARACTER[self::EXCLUSIVE_MENTION]) {
+			$type = self::EXCLUSIVE_MENTION;
+		} elseif ($hash == self::TAG_CHARACTER[self::IMPLICIT_MENTION]) {
+			$type = self::IMPLICIT_MENTION;
+		} elseif ($hash == self::TAG_CHARACTER[self::HASHTAG]) {
+			$type = self::HASHTAG;
+		} else {
+			return;
+		}
+
+		self::remove($uriid, $type, $name, $url);
 	}
 }
