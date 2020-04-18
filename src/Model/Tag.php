@@ -23,7 +23,7 @@ namespace Friendica\Model;
 
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
+use Friendica\Util\Strings;
 
 /**
  * Class Tag
@@ -69,6 +69,9 @@ class Tag
 			return;
 		}
 
+		$cid = 0;
+		$tagid = 0;
+
 		if (in_array($type, [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION])) {
 			if (empty($url)) {
 				// No mention without a contact url
@@ -77,13 +80,18 @@ class Tag
 
 			Logger::info('Get ID for contact', ['url' => $url]);
 
-			$cid = Contact::getIdForURL($url, 0, true);
-			if (empty($cid)) {
-				Logger::error('No contact found', ['url' => $url]);
-				return;
+			$condition = ['nurl' => Strings::normaliseLink($url), 'uid' => 0, 'deleted' => false];
+			$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+			if (DBA::isResult($contact)) {
+				$cid = $contact['id'];
+			} else {
+				// The contact wasn't found in the system (most likely some dead account)
+				// We ensure that we only store a single entry by overwriting the previous name
+				DBA::update('tag', ['name' => substr($name, 0, 96)], ['url' => $url]);
 			}
-			$tagid = 0;
-		} else {
+		}
+
+		if (empty($cid)) {
 			$fields = ['name' => substr($name, 0, 96)];
 
 			if (!empty($url) && ($url != $name)) {
@@ -102,7 +110,6 @@ class Tag
 				Logger::error('No tag id created', $fields);
 				return;
 			}
-			$cid = 0;
 		}
 
 		DBA::insert('post-tag', ['uri-id' => $uriid, 'type' => $type, 'tid' => $tagid, 'cid' => $cid], true);
