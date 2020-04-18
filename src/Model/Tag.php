@@ -149,8 +149,12 @@ class Tag
 	 * @param string  $body   Body of the post
 	 * @param string  $tags   Accepted tags
 	 */
-	public static function storeFromBody(int $uriid, string $body, string $tags = '#@!')
+	public static function storeFromBody(int $uriid, string $body, string $tags = null)
 	{
+		if (is_null($tags)) {
+			$tags =  self::TAG_CHARACTER[self::HASHTAG] . self::TAG_CHARACTER[self::MENTION] . self::TAG_CHARACTER[self::EXCLUSIVE_MENTION];
+		}
+
 		if (!preg_match_all("/([" . $tags . "])\[url\=([^\[\]]*)\]([^\[\]]*)\[\/url\]/ism", $body, $result, PREG_SET_ORDER)) {
 			return;
 		}
