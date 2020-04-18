@@ -23,7 +23,7 @@ namespace Friendica\Model;
 
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
-use Friendica\Content\Text\BBCode;
+use Friendica\Model\Contact;
 
 /**
  * Class Tag
@@ -69,28 +69,45 @@ class Tag
 			return;
 		}
 
-		$fields = ['name' => substr($name, 0, 96), 'type' => $type];
+		if (in_array($type, [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION])) {
+			if (empty($url)) {
+				// No mention without a contact url
+				return;
+			}
 
-		if (!empty($url) && ($url != $name)) {
-			$fields['url'] = strtolower($url);
-		}
+			Logger::info('Get ID for contact', ['url' => $url]);
 
-		$tag = DBA::selectFirst('tag', ['id'], $fields);
-		if (!DBA::isResult($tag)) {
-			DBA::insert('tag', $fields, true);
-			$tagid = DBA::lastInsertId();
+			$cid = Contact::getIdForURL($url, 0, true);
+			if (empty($cid)) {
+				Logger::error('No contact found', ['url' => $url]);
+				return;
+			}
+			$tagid = 0;
 		} else {
-			$tagid = $tag['id'];
+			$fields = ['name' => substr($name, 0, 96)];
+
+			if (!empty($url) && ($url != $name)) {
+				$fields['url'] = strtolower($url);
+			}
+	
+			$tag = DBA::selectFirst('tag', ['id'], $fields);
+			if (!DBA::isResult($tag)) {
+				DBA::insert('tag', $fields, true);
+				$tagid = DBA::lastInsertId();
+			} else {
+				$tagid = $tag['id'];
+			}
+	
+			if (empty($tagid)) {
+				Logger::error('No tag id created', $fields);
+				return;
+			}
+			$cid = 0;
 		}
 
-		if (empty($tagid)) {
-			Logger::error('No tag id created', $fields);
-			return;
-		}
+		DBA::insert('post-tag', ['uri-id' => $uriid, 'type' => $type, 'tid' => $tagid, 'cid' => $cid], true);
 
-		DBA::insert('post-tag', ['uri-id' => $uriid, 'tid' => $tagid], true);
-
-		Logger::info('Stored tag/mention', ['uri-id' => $uriid, 'tag-id' => $tagid, 'tag' => $fields]);
+		Logger::info('Stored tag/mention', ['uri-id' => $uriid, 'tag-id' => $tagid, 'contact-id' => $cid]);
 	}
 
 	/**
@@ -127,7 +144,7 @@ class Tag
 	 */
 	public static function storeFromBody(int $uriid, string $body, string $tags = '#@!')
 	{
-		if (!preg_match_all("/([" . $tags . "])\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism", $body, $result, PREG_SET_ORDER)) {
+		if (!preg_match_all("/([" . $tags . "])\[url\=([^\[\]]*)\]([^\[\]]*)\[\/url\]/ism", $body, $result, PREG_SET_ORDER)) {
 			return;
 		}
 
