@@ -1310,7 +1310,7 @@ return [
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "relation" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
-			"tid" => ["type" => "int unsigned", "not null" => "1", "relation" => ["tag" => "id"], "primary" => "1", "comment" => ""],
+			"tid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["tag" => "id"], "comment" => ""],
 			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["contact" => "id"], "comment" => "Contact id of the mentioned public contact"],
 		],
 		"indexes" => [
