@@ -21,7 +21,9 @@
 
 namespace Friendica\Model;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\Strings;
 
@@ -87,6 +89,7 @@ class Tag
 			} else {
 				// The contact wasn't found in the system (most likely some dead account)
 				// We ensure that we only store a single entry by overwriting the previous name
+				Logger::info('Update tag', ['url' => $url, 'name' => $name]);
 				DBA::update('tag', ['name' => substr($name, 0, 96)], ['url' => $url]);
 			}
 		}
@@ -148,12 +151,43 @@ class Tag
 			$tags =  self::TAG_CHARACTER[self::HASHTAG] . self::TAG_CHARACTER[self::MENTION] . self::TAG_CHARACTER[self::EXCLUSIVE_MENTION];
 		}
 
+		Logger::info('Check for tags', ['uri-id' => $uriid, 'hash' => $tags, 'callstack' => System::callstack()]);
+
 		if (!preg_match_all("/([" . $tags . "])\[url\=([^\[\]]*)\]([^\[\]]*)\[\/url\]/ism", $body, $result, PREG_SET_ORDER)) {
 			return;
 		}
 
+		Logger::info('Found tags', ['uri-id' => $uriid, 'hash' => $tags, 'result' => $result]);
+
 		foreach ($result as $tag) {
 			self::storeByHash($uriid, $tag[1], $tag[3], $tag[2]);
+		}
+	}
+
+	/**
+	 * Store raw tags (not encapsulated in links) from the body
+	 * This function is needed in the intermediate phase.
+	 * Later we can call item::setHashtags in advance to have all tags converted.
+	 * 
+	 * @param integer $uriid URI-Id
+	 * @param string  $body   Body of the post
+	 */
+	public static function storeRawTagsFromBody(int $uriid, string $body)
+	{
+		Logger::info('Check for tags', ['uri-id' => $uriid, 'callstack' => System::callstack()]);
+
+		$result = BBCode::getTags($body);
+		if (empty($result)) {
+			return;
+		}
+
+		Logger::info('Found tags', ['uri-id' => $uriid, 'result' => $result]);
+
+		foreach ($result as $tag) {
+			if (substr($tag, 0, 1) != self::TAG_CHARACTER[self::HASHTAG]) {
+				continue;
+			}
+			self::storeByHash($uriid, substr($tag, 0, 1), substr($tag, 1));
 		}
 	}
 

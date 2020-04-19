@@ -2610,7 +2610,10 @@ class Item
 
 		// This sorting is important when there are hashtags that are part of other hashtags
 		// Otherwise there could be problems with hashtags like #test and #test2
-		rsort($tags);
+		// Because of this we are sorting from the longest to the shortest tag.
+		usort($rawtags, function($a, $b) {
+			return strlen($b) <=> strlen($a);
+		});
 
 		$URLSearchString = "^\[\]";
 
