@@ -94,7 +94,7 @@ class Tag
 		if (empty($cid)) {
 			$fields = ['name' => substr($name, 0, 96), 'url' => ''];
 
-			if (!empty($url) && ($url != $name)) {
+			if (($type != Tag::HASHTAG) && !empty($url) && ($url != $name)) {
 				$fields['url'] = strtolower($url);
 			}
 	

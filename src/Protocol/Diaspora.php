@@ -2781,6 +2781,8 @@ class Diaspora
 
 		$datarray["body"] = $prefix.$original_item["body"]."[/share]";
 
+		Tag::storeFromBody($datarray['uri-id'], $datarray["body"]);
+
 		$datarray["tag"] = $original_item["tag"];
 		$datarray["attach"] = $original_item["attach"];
 		$datarray["app"]  = $original_item["app"];

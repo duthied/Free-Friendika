@@ -709,6 +709,8 @@ class OStatus
 			$item["body"] = add_page_info_to_body($item["body"]);
 		}
 
+		Tag::storeFromBody($item['uri-id'], $item['body']);
+
 		// Mastodon Content Warning
 		if (($item["verb"] == Activity::POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
 			$clear_text = XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry);
