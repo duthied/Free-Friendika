@@ -407,6 +407,7 @@ class Processor
 
 		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
 
+		Tag::storeFromBody($item['uri-id'], $item['body'], '@!');
 		self::storeTags($item['uri-id'], $activity['tags']);
 
 		$item['location'] = $activity['location'];
@@ -602,9 +603,8 @@ class Processor
 					Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION],
 					Tag::TAG_CHARACTER[Tag::IMPLICIT_MENTION]])) {
 					$tag['name'] = substr($tag['name'], 1);
-				} else {
-					$hash = '#';
 				}
+				$type = Tag::IMPLICIT_MENTION;
 
 				if (!empty($tag['href'])) {
 					$apcontact = APContact::getByURL($tag['href']);
@@ -613,18 +613,17 @@ class Processor
 					}
 				}
 			} elseif ($tag['type'] == 'Hashtag') {
-				if (substr($tag['name'], 0, 1) == Term::TAG_CHARACTER[Term::HASHTAG]) {
+				if ($hash == Tag::TAG_CHARACTER[Tag::HASHTAG]) {
 					$tag['name'] = substr($tag['name'], 1);
-				} else {
-					$hash = '@';
 				}
+				$type = Tag::HASHTAG;
 			}
 
 			if (empty($tag['name'])) {
 				continue;
 			}
 			
-			Tag::storeByHash($uriid, $hash, $tag['name'], $tag['href']);
+			Tag::store($uriid, $type, $tag['name'], $tag['href']);
 		}
 	}
 

@@ -115,7 +115,18 @@ class Tag
 			}
 		}
 
-		DBA::insert('post-tag', ['uri-id' => $uriid, 'type' => $type, 'tid' => $tagid, 'cid' => $cid], true);
+		$fields = ['uri-id' => $uriid, 'type' => $type, 'tid' => $tagid, 'cid' => $cid];
+
+		if (in_array($type, [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION])) {
+			$condition = $fields;
+			$condition['type'] = [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION];
+			if (DBA::exists('post-tag', $condition)) {
+				Logger::info('Tag already exists', $fields);
+				return;
+			}
+		}
+
+		DBA::insert('post-tag', $fields, true);
 
 		Logger::info('Stored tag/mention', ['uri-id' => $uriid, 'tag-id' => $tagid, 'contact-id' => $cid, 'callstack' => System::callstack(8)]);
 	}
