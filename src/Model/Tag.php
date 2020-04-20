@@ -61,10 +61,11 @@ class Tag
 	 *
 	 * @param integer $uriid
 	 * @param integer $type
-	 * @param string $name
-	 * @param string $url
+	 * @param string  $name
+	 * @param string  $url
+	 * @param boolean $probing
 	 */
-	public static function store(int $uriid, int $type, string $name, string $url = '')
+	public static function store(int $uriid, int $type, string $name, string $url = '', $probing = true)
 	{
 		$name = trim($name, "\x00..\x20\xFF#!@");
 		if (empty($name)) {
@@ -80,16 +81,32 @@ class Tag
 				return;
 			}
 
-			Logger::info('Get ID for contact', ['url' => $url]);
+			if (!$probing) {
+				$condition = ['nurl' => Strings::normaliseLink($url), 'uid' => 0, 'deleted' => false];
+				$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+				if (DBA::isResult($contact)) {
+					$cid = $contact['id'];
+					Logger::info('Got id for contact url', ['cid' => $cid, 'url' => $url]);
+				}
 
-			$condition = ['nurl' => Strings::normaliseLink($url), 'uid' => 0, 'deleted' => false];
-			$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
-			if (DBA::isResult($contact)) {
-				$cid = $contact['id'];
+				if (empty($cid)) {
+					$ssl_url = str_replace('http://', 'https://', $url);
+					$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, 0];
+					$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+					if (DBA::isResult($contact)) {
+						$cid = $contact['id'];
+						Logger::info('Got id for contact alias', ['cid' => $cid, 'url' => $url]);
+					}
+				}
 			} else {
+				$cid = Contact::getIdForURL($url, 0, true);
+				Logger::info('Got id by probing', ['cid' => $cid, 'url' => $url]);
+			}
+
+			if (empty($cid)) {
 				// The contact wasn't found in the system (most likely some dead account)
 				// We ensure that we only store a single entry by overwriting the previous name
-				Logger::info('Update tag', ['url' => $url, 'name' => $name]);
+				Logger::info('Contact not found, updating tag', ['url' => $url, 'name' => $name]);
 				DBA::update('tag', ['name' => substr($name, 0, 96)], ['url' => $url]);
 			}
 		}
@@ -100,7 +117,7 @@ class Tag
 			if (($type != Tag::HASHTAG) && !empty($url) && ($url != $name)) {
 				$fields['url'] = strtolower($url);
 			}
-	
+
 			$tag = DBA::selectFirst('tag', ['id'], $fields);
 			if (!DBA::isResult($tag)) {
 				DBA::insert('tag', $fields, true);
@@ -108,7 +125,7 @@ class Tag
 			} else {
 				$tagid = $tag['id'];
 			}
-	
+
 			if (empty($tagid)) {
 				Logger::error('No tag id created', $fields);
 				return;
@@ -128,7 +145,7 @@ class Tag
 
 		DBA::insert('post-tag', $fields, true);
 
-		Logger::info('Stored tag/mention', ['uri-id' => $uriid, 'tag-id' => $tagid, 'contact-id' => $cid, 'callstack' => System::callstack(8)]);
+		Logger::info('Stored tag/mention', ['uri-id' => $uriid, 'tag-id' => $tagid, 'contact-id' => $cid, 'name' => $name, 'type' => $type, 'callstack' => System::callstack(8)]);
 	}
 
 	/**
@@ -138,25 +155,27 @@ class Tag
 	 * @param string $hash
 	 * @param string $name
 	 * @param string $url
+	 * @param boolean $probing
 	 */
-	public static function storeByHash(int $uriid, string $hash, string $name, string $url = '')
+	public static function storeByHash(int $uriid, string $hash, string $name, string $url = '', $probing = true)
 	{
 		$type = self::getTypeForHash($hash);
 		if ($type == self::UNKNOWN) {
 			return;
 		}
 
-		self::store($uriid, $type, $name, $url);
+		self::store($uriid, $type, $name, $url, $probing);
 	}
 
 	/**
 	 * Store tags and mentions from the body
 	 * 
-	 * @param integer $uriid URI-Id
-	 * @param string  $body   Body of the post
-	 * @param string  $tags   Accepted tags
+	 * @param integer $uriid   URI-Id
+	 * @param string  $body    Body of the post
+	 * @param string  $tags    Accepted tags
+	 * @param boolean $probing Perform a probing for contacts, adding them if needed
 	 */
-	public static function storeFromBody(int $uriid, string $body, string $tags = null)
+	public static function storeFromBody(int $uriid, string $body, string $tags = null, $probing = true)
 	{
 		if (is_null($tags)) {
 			$tags =  self::TAG_CHARACTER[self::HASHTAG] . self::TAG_CHARACTER[self::MENTION] . self::TAG_CHARACTER[self::EXCLUSIVE_MENTION];
@@ -171,7 +190,7 @@ class Tag
 		Logger::info('Found tags', ['uri-id' => $uriid, 'hash' => $tags, 'result' => $result]);
 
 		foreach ($result as $tag) {
-			self::storeByHash($uriid, $tag[1], $tag[3], $tag[2]);
+			self::storeByHash($uriid, $tag[1], $tag[3], $tag[2], $probing);
 		}
 	}
 

@@ -407,7 +407,7 @@ class Processor
 
 		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
 
-		Tag::storeFromBody($item['uri-id'], $item['body'], '@!');
+		self::storeFromBody($item);
 		self::storeTags($item['uri-id'], $activity['tags']);
 
 		$item['location'] = $activity['location'];
@@ -419,6 +419,14 @@ class Processor
 		$item['app'] = $activity['generator'];
 
 		return $item;
+	}
+
+	private static function storeFromBody($item)
+	{
+		// Make sure to delete all existing tags (can happen when called via the update functionality)
+		DBA::delete('post-tag', ['uri-id' => $uriid]);
+
+		Tag::storeFromBody($item['uri-id'], $item['body'], '@!');
 	}
 
 	/**
@@ -588,9 +596,6 @@ class Processor
 	 */
 	private static function storeTags(int $uriid, array $tags = null)
 	{
-		// Make sure to delete all existing tags (can happen when called via the update functionality)
-		DBA::delete('post-tag', ['uri-id' => $uriid]);
-
 		foreach ($tags as $tag) {
 			if (empty($tag['name']) || empty($tag['type']) || !in_array($tag['type'], ['Mention', 'Hashtag'])) {
 				continue;
@@ -622,7 +627,7 @@ class Processor
 			if (empty($tag['name'])) {
 				continue;
 			}
-			
+
 			Tag::store($uriid, $type, $tag['name'], $tag['href']);
 		}
 	}
