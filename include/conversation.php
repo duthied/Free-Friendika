@@ -837,15 +837,15 @@ function item_photo_menu($item) {
 
 	if (!empty($pcid)) {
 		$contact_url = 'contact/' . $pcid;
-		$posts_link = 'contact/' . $pcid . '/posts';
-		$block_link = 'contact/' . $pcid . '/block';
-		$ignore_link = 'contact/' . $pcid . '/ignore';
+		$posts_link  = $contact_url . '/posts';
+		$block_link  = $contact_url . '/block';
+		$ignore_link = $contact_url . '/ignore';
 	}
 
 	if ($cid && !$item['self']) {
-		$poke_link = 'poke?c=' . $cid;
 		$contact_url = 'contact/' . $cid;
-		$posts_link = 'contact/' . $cid . '/posts';
+		$poke_link   = $contact_url . '/poke';
+		$posts_link  = $contact_url . '/posts';
 
 		if (in_array($network, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
 			$pm_url = 'message/new/' . $cid;

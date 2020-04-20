@@ -2273,7 +2273,7 @@ ul.dropdown-menu li:hover {
  * PAGES
  *********/
 
-.generic-page-wrapper, .videos-content-wrapper,
+.generic-page-wrapper, .contact-content-wrapper, .videos-content-wrapper,
  .suggest-content-wrapper, .common-content-wrapper, .help-content-wrapper,
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
 .delegation-content-wrapper, .notes-content-wrapper,
@@ -2609,14 +2609,6 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .photo-album-actions .photos-order-link {
     float: right;
 }
-/* poke */
-#poke-desc {
-    margin: 5px 0 30px;
-}
-#poke-wrapper-end {
-    clear: both;
-}
-
 /* Events page */
 
 .fc .fc-month-view .fc-content .fc-title .item-desc:hover {

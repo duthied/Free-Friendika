@@ -1235,7 +1235,7 @@ class Contact
 		}
 
 		if (($contact['network'] == Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
-			$poke_link = DI::baseUrl() . '/poke/?c=' . $contact['id'];
+			$poke_link = 'contact/' . $contact['id'] . '/poke';
 		}
 
 		$contact_url = DI::baseUrl() . '/contact/' . $contact['id'];

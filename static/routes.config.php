@@ -117,6 +117,7 @@ return [
 		'/{id:\d+}/conversations' => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/drop'          => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/ignore'        => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/poke'          => [Module\Contact\Poke::class,      [R::GET, R::POST]],
 		'/{id:\d+}/posts'         => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/update'        => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/updateprofile' => [Module\Contact::class,           [R::GET]],
