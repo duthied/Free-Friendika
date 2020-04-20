@@ -42,7 +42,7 @@ class Poke extends BaseModule
 			return self::postReturn(false);
 		}
 
-		Logger::info('poke: verb ' . $verb . ' contact ' . $contact_id);
+		Logger::info('verb ' . $verb . ' contact ' . $contact_id);
 
 		$contact = DBA::selectFirst('contact', ['id', 'name'], ['id' => $parameters['id'], 'uid' => local_user()]);
 		if (!DBA::isResult($contact)) {
