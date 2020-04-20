@@ -421,10 +421,15 @@ class Processor
 		return $item;
 	}
 
-	private static function storeFromBody($item)
+	/**
+	 * Store hashtags and mentions
+	 *
+	 * @param array $item
+	 */
+	private static function storeFromBody(array $item)
 	{
 		// Make sure to delete all existing tags (can happen when called via the update functionality)
-		DBA::delete('post-tag', ['uri-id' => $uriid]);
+		DBA::delete('post-tag', ['uri-id' => $item['uri-id']]);
 
 		Tag::storeFromBody($item['uri-id'], $item['body'], '@!');
 	}
