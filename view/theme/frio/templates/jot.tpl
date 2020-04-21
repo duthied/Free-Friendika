@@ -4,10 +4,7 @@
 <div id="jot-content">
 	<div id="jot-sections">
 		<div class="modal-header">
-			{{* Note: We need 2 modal close buttons here to bypass a bug in bootstrap.
-			The second is for mobile view. The first one doesnt work with dropdowns. To get a working close button
-			in with dropdows the close button needs to be inserted after the dropdown. *}}
-			<button type="button" class="close hidden-xs" data-dismiss="modal" aria-label="Close" style="float: right;">&times;</button>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="float: right;">&times;</button>
 
 			<a href="/compose" class="btn compose-link" title="{{$compose_link_title}}" aria-label="{{$compose_link_title}}">
 				<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
@@ -71,7 +68,6 @@
 					</li>
 				</ul>
 			</div>
-			<button type="button" class="close hidden-lg hidden-md hidden-sm" data-dismiss="modal" style="float: right;">&times;</button>
 		</div>
 
 		<div id="jot-modal-body" class="modal-body">
