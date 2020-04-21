@@ -449,13 +449,20 @@ class BBCode
 		}
 	}
 
-	public static function scaleExternalImages($srctext)
+	/**
+	 * This function changing the visual size (not the real size) of images.
+	 * The function does not work for pictures with an alternate text description.
+	 * This could only be changed by using some new "img" BBCode format.
+	 *
+	 * @param string $srctext The body with images
+	 * @return string The body with possibly scaled images
+	 */
+	public static function scaleExternalImages(string $srctext)
 	{
 		$s = $srctext;
 
 		// Simplify image links
 		$s = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $s);
-		$s = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $s);
 
 		$matches = null;
 		$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism', $s, $matches, PREG_SET_ORDER);
