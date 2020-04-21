@@ -89,7 +89,7 @@ $(document).ready(function(){
 	let $body = $('body');
 
 	// show bulk deletion button at network page if checkbox is checked
-	$("body").change("input.item-select", function(){
+	$body.change("input.item-select", function(){
 		var checked = false;
 
 		// We need to get all checked items, so it would close the delete button
@@ -230,7 +230,7 @@ $(document).ready(function(){
 
 	// Dropdown menus with the class "dropdown-head" will display the active tab
 	// as button text
-	$("body").on('click', '.dropdown-head .dropdown-menu li a, .dropdown-head .dropdown-menu li button', function(){
+	$body.on('click', '.dropdown-head .dropdown-menu li a, .dropdown-head .dropdown-menu li button', function(){
 		toggleDropdownText(this);
 	});
 
@@ -264,7 +264,7 @@ $(document).ready(function(){
 	// to the input element where the padding value would be at least the width
 	// of the button. Otherwise long user input would be invisible because it is
 	// behind the button.
-	$("body").on('click', '.form-group-search > input', function() {
+	$body.on('click', '.form-group-search > input', function() {
 		// Get the width of the button (if the button isn't available
 		// buttonWidth will be null
 		var buttonWidth = $(this).next('.form-button-search').outerWidth();
@@ -351,14 +351,14 @@ $(document).ready(function(){
 	 */
 	$("aside")
 		.on("shown.bs.offcanvas", function() {
-			$("body").addClass("aside-out");
+			$body.addClass("aside-out");
 		})
 		.on("hidden.bs.offcanvas", function() {
-			$("body").removeClass("aside-out");
+			$body.removeClass("aside-out");
 		});
 
 	// Event listener for 'Show & hide event map' button in the network stream.
-	$("body").on("click", ".event-map-btn", function() {
+	$body.on("click", ".event-map-btn", function() {
 		showHideEventMap(this);
 	});
 
@@ -399,6 +399,27 @@ $(document).ready(function(){
 		})
 		.always(function() {
 			$commentSubmit.button('reset');
+		});
+	});
+
+	$body.on('submit', '.modal-body #poke-wrapper', function(e) {
+		e.preventDefault();
+
+		let $form = $(this);
+		let $pokeSubmit = $form.find('button[type=submit]').button('loading');
+
+		$.post(
+			$form.attr('action'),
+			$form.serialize(),
+			'json'
+		)
+		.then(function(data) {
+			if (data.success) {
+				$('#modal').modal('hide');
+			}
+		})
+		.always(function() {
+			$pokeSubmit.button('reset');
 		});
 	})
 });
