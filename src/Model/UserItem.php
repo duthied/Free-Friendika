@@ -207,7 +207,7 @@ class UserItem
 		}
 
 		// Or the contact is a mentioned forum
-		$tags = DBA::select('term', ['url'], ['otype' => term::OBJECT_TYPE_POST, 'oid' => $item['id'], 'type' => Term::MENTION, 'uid' => $uid]);
+		$tags = DBA::select('term', ['url'], ['otype' => Term::OBJECT_TYPE_POST, 'oid' => $item['id'], 'type' => Term::MENTION, 'uid' => $uid]);
 		while ($tag = DBA::fetch($tags)) {
 			$condition = ['nurl' => Strings::normaliseLink($tag['url']), 'uid' => $uid, 'notify_new_posts' => true, 'contact-type' => Contact::TYPE_COMMUNITY];
 			if (DBA::exists('contact', $condition)) {

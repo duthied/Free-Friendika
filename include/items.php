@@ -144,7 +144,7 @@ function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklis
 function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blacklist = "")
 {
 	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
-	if (empty($data['keywords']) || !is_array($data['keywords'])) {
+	if (empty($data["keywords"]) || !is_array($data["keywords"])) {
 		return '';
 	}
 
@@ -166,7 +166,7 @@ function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blackl
 function get_page_keywords($url, $photo = "", $keywords = false, $keyword_blacklist = "")
 {
 	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
-	if (empty($data['keywords']) || !is_array($data['keywords'])) {
+	if (empty($data["keywords"]) || !is_array($data["keywords"])) {
 		return [];
 	}
 
