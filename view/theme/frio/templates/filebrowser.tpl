@@ -9,7 +9,9 @@
 
 		{{* The breadcrumb navigation *}}
 		<ol class="path breadcrumb" aria-label="Breadcrumb" role="navigation">
-			{{foreach $path as $p}}<li role="presentation"><a href="#" data-folder="{{$p.0}}">{{$p.1}}</a></li>{{/foreach}}
+		{{foreach $path as $folder => $name}}
+			<li role="presentation"><a href="#" data-folder="{{$folder}}">{{$name}}</a></li>
+		{{/foreach}}
 
 			{{* Switch between image and file mode *}}
 			<div class="fbswitcher btn-group btn-group-xs pull-right" aria-label="Switch between image and file mode">
@@ -24,9 +26,9 @@
 			{{if $folders }}
 			<div class="folders media-left" role="navigation" aria-label="Album Navigation">
 				<ul role="menu">
-					{{foreach $folders as $f}}
+					{{foreach $folders as $folder}}
 					<li role="presentation">
-						<a href="#" data-folder="{{$f.0}}" role="menuitem">{{$f.1}}</a>
+						<a href="#" data-folder="{{$folder}}" role="menuitem">{{$folder}}</a>
 					</li>
 					{{/foreach}}
 				</ul>

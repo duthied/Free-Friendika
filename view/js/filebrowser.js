@@ -77,8 +77,7 @@ var FileBrowser = {
 
 		$(".folders a, .path a").on("click", function(e){
 			e.preventDefault();
-			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=minimal" + location['hash'];
-			location.href = url;
+			location.href = baseurl + "/fbrowser/" + FileBrowser.type + "/" + encodeURIComponent(this.dataset.folder) + "?mode=minimal" + location['hash'];
 		});
 
 		$(".photo-album-photo-link").on('click', function(e){

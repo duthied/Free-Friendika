@@ -99,7 +99,7 @@ var FileBrowser = {
 		// Click on album link
 		$(".fbrowser").on("click", ".folders a, .path a", function(e) {
 			e.preventDefault();
-			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=none&theme=frio";
+			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + encodeURIComponent(this.dataset.folder) + "?mode=none&theme=frio";
 			FileBrowser.folder = this.dataset.folder;
 
 			FileBrowser.loadContent(url);
@@ -161,12 +161,11 @@ var FileBrowser = {
 	// Initialize the AjaxUpload for the upload buttons
 	uploadButtons: function() {
 		if ($("#upload-image").length) {
-			// To get the albumname we need to convert it from hex
-			var albumname = hex2bin(FileBrowser.folder);
 			//AjaxUpload for images
 			var image_uploader = new window.AjaxUpload(
 				'upload-image',
-				{	action: 'wall_upload/' + FileBrowser.nickname + '?response=json&album=' + albumname,
+				{
+					action: 'wall_upload/' + FileBrowser.nickname + '?response=json&album=' + encodeURIComponent(FileBrowser.folder),
 					name: 'userfile',
 					responseType: 'json',
 					onSubmit: function(file, ext) {
@@ -183,9 +182,8 @@ var FileBrowser = {
 							return;
 						}
 
-						var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + FileBrowser.folder + "?mode=none&theme=frio";
 						// load new content to fbrowser window
-						FileBrowser.loadContent(url);
+						FileBrowser.loadContent(baseurl + '/fbrowser/' + FileBrowser.type + '/' + encodeURIComponent(FileBrowser.folder) + '?mode=none&theme=frio');
 					}
 				}
 			);
