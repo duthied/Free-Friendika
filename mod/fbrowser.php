@@ -39,31 +39,26 @@ function fbrowser_content(App $a)
 
 	switch ($a->argv[1]) {
 		case "image":
-			$path = [["", DI::l10n()->t("Photos")]];
+			$path = ['' => DI::l10n()->t('Photos')];
 			$albums = false;
 			$sql_extra = "";
 			$sql_extra2 = " ORDER BY created DESC LIMIT 0, 10";
 
 			if ($a->argc==2) {
-				$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' ",
+				$photos = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' ",
 					intval(local_user()),
 					DBA::escape('Contact Photos'),
 					DBA::escape(DI::l10n()->t('Contact Photos'))
 				);
 
-				function _map_folder1($el)
-				{
-					return [bin2hex($el['album']),$el['album']];
-				};
-
-				$albums = array_map("_map_folder1", $albums);
+				$albums = array_column($photos, 'album');
 			}
 
 			if ($a->argc == 3) {
-				$album = hex2bin($a->argv[2]);
+				$album = $a->argv[2];
 				$sql_extra = sprintf("AND `album` = '%s' ", DBA::escape($album));
 				$sql_extra2 = "";
-				$path[] = [$a->argv[2], $album];
+				$path[$album] = $album;
 			}
 
 			$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,

@@ -309,7 +309,7 @@ function photos_post(App $a)
 		$desc        = !empty($_POST['desc'])      ? Strings::escapeTags(trim($_POST['desc']))      : '';
 		$rawtags     = !empty($_POST['newtag'])    ? Strings::escapeTags(trim($_POST['newtag']))    : '';
 		$item_id     = !empty($_POST['item_id'])   ? intval($_POST['item_id'])                      : 0;
-		$albname     = !empty($_POST['albname'])   ? Strings::escapeTags(trim($_POST['albname']))   : '';
+		$albname     = !empty($_POST['albname'])   ? trim($_POST['albname'])                        : '';
 		$origaname   = !empty($_POST['origaname']) ? Strings::escapeTags(trim($_POST['origaname'])) : '';
 
 		$aclFormatter = DI::aclFormatter();
@@ -615,10 +615,10 @@ function photos_post(App $a)
 	Hook::callAll('photo_post_init', $_POST);
 
 	// Determine the album to use
-	$album    = !empty($_REQUEST['album'])    ? Strings::escapeTags(trim($_REQUEST['album']))    : '';
-	$newalbum = !empty($_REQUEST['newalbum']) ? Strings::escapeTags(trim($_REQUEST['newalbum'])) : '';
+	$album    = trim($_REQUEST['album'] ?? '');
+	$newalbum = trim($_REQUEST['newalbum'] ?? '');
 
-	Logger::log('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , Logger::DEBUG);
+	Logger::info('album= ' . $album . ' newalbum= ' . $newalbum);
 
 	if (!strlen($album)) {
 		if (strlen($newalbum)) {
