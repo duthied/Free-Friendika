@@ -109,7 +109,11 @@ class DBView
 
 		$sql_rows = [];
 		foreach ($structure["fields"] AS $fieldname => $origin) {
-			$sql_rows[] = $origin . " AS `" . DBA::escape($fieldname) . "`";
+			if (is_string($origin)) {
+				$sql_rows[] = $origin . " AS `" . DBA::escape($fieldname) . "`";
+			} elseif (is_array($origin) && (sizeof($origin) == 2)) {
+				$sql_rows[] = "`" . DBA::escape($origin[0]) . "`.`" . DBA::escape($origin[1]) . "` AS `" . DBA::escape($fieldname) . "`";
+			}
 		}
 
 		$sql = sprintf("DROP VIEW IF EXISTS `%s`", DBA::escape($name));

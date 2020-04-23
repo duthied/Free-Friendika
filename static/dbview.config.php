@@ -24,8 +24,7 @@
  * Syntax (braces indicate optionale values):
  * "<view name>" => [
  *	"fields" => [
- *		"<field name>" => "`table`.`field`",
- *		"<field name>" => "`other-table`.`field`",
+ *		"<field name>" => ["table", "field"],
  *		"<field name>" => "SQL expression",
  *		...
  *	],
@@ -39,12 +38,12 @@
 
 return [
 	"tag-view" => [
-		"fields" => ["uri-id" => "`post-tag`.`uri-id`",
-			"uri" => "`item-uri`.`uri`",
-			"guid" => "`item-uri`.`guid`",
-			"type" => "`post-tag`.`type`",
-			"tid" => "`post-tag`.`tid`",
-			"cid" => "`post-tag`.`cid`",
+		"fields" => ["uri-id" => ["post-tag", "uri-id"],
+			"uri" => ["item-uri", "uri"],
+			"guid" => ["item-uri", "guid"],
+			"type" => ["post-tag", "type"],
+			"tid" => ["post-tag", "tid"],
+			"cid" => ["post-tag", "cid"],
 			"name" => "CASE `cid` WHEN 0 THEN `tag`.`name` ELSE `contact`.`name` END",
 			"url" => "CASE `cid` WHEN 0 THEN `tag`.`url` ELSE `contact`.`url` END"],
 		"query" => "FROM `post-tag`
