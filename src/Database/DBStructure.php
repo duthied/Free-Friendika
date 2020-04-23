@@ -112,6 +112,8 @@ class DBStructure
 
 			echo "\n";
 		}
+
+		DBView::printStructure($basePath);
 	}
 
 	/**
@@ -593,6 +595,8 @@ class DBStructure
 				}
 			}
 		}
+
+		DBView::create($verbose, $action);
 
 		if ($action && !$install) {
 			DI::config()->set('system', 'maintenance', 0);

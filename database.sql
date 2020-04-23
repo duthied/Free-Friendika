@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1338
+-- DB_UPDATE_VERSION 1340
 -- ------------------------------------------
 
 
@@ -1176,6 +1176,31 @@ CREATE TABLE IF NOT EXISTS `term` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='item taxonomy (categories, tags, etc.) table';
 
 --
+-- TABLE tag
+--
+CREATE TABLE IF NOT EXISTS `tag` (
+	`id` int unsigned NOT NULL auto_increment COMMENT '',
+	`name` varchar(96) NOT NULL DEFAULT '' COMMENT '',
+	`url` varbinary(255) NOT NULL DEFAULT '' COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `type_name_url` (`name`,`url`),
+	 INDEX `url` (`url`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='tags and mentions';
+
+--
+-- TABLE post-tag
+--
+CREATE TABLE IF NOT EXISTS `post-tag` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`tid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Contact id of the mentioned public contact',
+	 PRIMARY KEY(`uri-id`,`type`,`tid`,`cid`),
+	 INDEX `uri-id` (`tid`),
+	 INDEX `cid` (`tid`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to tags';
+
+--
 -- TABLE thread
 --
 CREATE TABLE IF NOT EXISTS `thread` (
@@ -1360,5 +1385,23 @@ CREATE TABLE IF NOT EXISTS `storage` (
 	`data` longblob NOT NULL COMMENT 'file data',
 	 PRIMARY KEY(`id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Data stored by Database storage backend';
+
+--
+-- VIEW tag-view
+--
+DROP VIEW IF EXISTS `tag-view`;
+CREATE VIEW `tag-view` AS SELECT 
+	`post-tag`.`uri-id` AS `uri-id`,
+	`item-uri`.`uri` AS `uri`,
+	`item-uri`.`guid` AS `guid`,
+	`post-tag`.`type` AS `type`,
+	`post-tag`.`tid` AS `tid`,
+	`post-tag`.`cid` AS `cid`,
+	CASE `cid` WHEN 0 THEN `tag`.`name` ELSE `contact`.`name` END AS `name`,
+	CASE `cid` WHEN 0 THEN `tag`.`url` ELSE `contact`.`url` END AS `url`
+	FROM `post-tag`
+			INNER JOIN `item-uri` ON `item-uri`.id = `post-tag`.`uri-id`
+			LEFT JOIN `tag` ON `post-tag`.`tid` = `tag`.`id`
+			LEFT JOIN `contact` ON `post-tag`.`cid` = `contact`.`id`;
 
 
