@@ -173,7 +173,8 @@ class Processor
 	{
 		$item = Item::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
-			Logger::warning('Unknown item', ['uri' => $activity['id']]);
+			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
+			self::createItem($activity);
 			return;
 		}
 
