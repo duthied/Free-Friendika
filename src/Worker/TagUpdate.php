@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
+use Friendica\Model\Term;
 
 class TagUpdate
 {
@@ -35,14 +36,14 @@ class TagUpdate
 			if ($message['uid'] == 0) {
 				$global = true;
 
-				DBA::update('term', ['global' => true], ['otype' => TERM_OBJ_POST, 'guid' => $message['guid']]);
+				DBA::update('term', ['global' => true], ['otype' => Term::OBJECT_TYPE_POST, 'guid' => $message['guid']]);
 			} else {
-				$global = (DBA::count('term', ['uid' => 0, 'otype' => TERM_OBJ_POST, 'guid' => $message['guid']]) > 0);
+				$global = (DBA::count('term', ['uid' => 0, 'otype' => Term::OBJECT_TYPE_POST, 'guid' => $message['guid']]) > 0);
 			}
 
 			$fields = ['guid' => $message['guid'], 'created' => $message['created'],
 				'received' => $message['received'], 'global' => $global];
-			DBA::update('term', $fields, ['otype' => TERM_OBJ_POST, 'oid' => $message['oid']]);
+			DBA::update('term', $fields, ['otype' => Term::OBJECT_TYPE_POST, 'oid' => $message['oid']]);
 		}
 
 		DBA::close($messages);

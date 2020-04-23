@@ -2107,7 +2107,7 @@ class BBCode
 		$ret = [];
 
 		// Convert hashtag links to hashtags
-		$string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2', $string);
+		$string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2 ', $string);
 
 		// ignore anything in a code block
 		$string = preg_replace('/\[code.*?\].*?\[\/code\]/sm', '', $string);

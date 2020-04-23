@@ -46,6 +46,7 @@ use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\Photo;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Network\HTTPException;
 use Friendica\Object\EMail\ItemCCEMail;
@@ -749,6 +750,8 @@ function item_post(App $a) {
 
 		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item couldn\'t be fetched.'));
 	}
+
+	Tag::storeFromBody($datarray['uri-id'], $datarray['body']);
 
 	// update filetags in pconfig
 	FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');

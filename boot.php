@@ -178,29 +178,6 @@ define('NOTIFY_SHARE',       Notify\Type::SHARE);
 define('NOTIFY_SYSTEM',      Notify\Type::SYSTEM);
 /* @}*/
 
-
-/** @deprecated since 2019.03, use Term::UNKNOWN instead */
-define('TERM_UNKNOWN',   Term::UNKNOWN);
-/** @deprecated since 2019.03, use Term::HASHTAG instead */
-define('TERM_HASHTAG',   Term::HASHTAG);
-/** @deprecated since 2019.03, use Term::MENTION instead */
-define('TERM_MENTION',   Term::MENTION);
-/** @deprecated since 2019.03, use Term::CATEGORY instead */
-define('TERM_CATEGORY',  Term::CATEGORY);
-/** @deprecated since 2019.03, use Term::PCATEGORY instead */
-define('TERM_PCATEGORY', Term::PCATEGORY);
-/** @deprecated since 2019.03, use Term::FILE instead */
-define('TERM_FILE',      Term::FILE);
-/** @deprecated since 2019.03, use Term::SAVEDSEARCH instead */
-define('TERM_SAVEDSEARCH', Term::SAVEDSEARCH);
-/** @deprecated since 2019.03, use Term::CONVERSATION instead */
-define('TERM_CONVERSATION', Term::CONVERSATION);
-
-/** @deprecated since 2019.03, use Term::OBJECT_TYPE_POST instead */
-define('TERM_OBJ_POST',  Term::OBJECT_TYPE_POST);
-/** @deprecated since 2019.03, use Term::OBJECT_TYPE_PHOTO instead */
-define('TERM_OBJ_PHOTO', Term::OBJECT_TYPE_PHOTO);
-
 /**
  * @name Gravity
  *

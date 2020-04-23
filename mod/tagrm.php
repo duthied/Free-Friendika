@@ -24,6 +24,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Util\Strings;
 
@@ -62,7 +63,7 @@ function update_tags($item_id, $tags){
 		return;
 	}
 
-	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
+	$item = Item::selectFirst(['tag', 'uri-id'], ['id' => $item_id, 'uid' => local_user()]);
 	if (!DBA::isResult($item)) {
 		return;
 	}
@@ -70,6 +71,12 @@ function update_tags($item_id, $tags){
 	$old_tags = explode(',', $item['tag']);
 
 	foreach ($tags as $new_tag) {
+		if (preg_match_all('/([#@!])\[url\=([^\[\]]*)\]([^\[\]]*)\[\/url\]/ism', $new_tag, $results, PREG_SET_ORDER)) {
+			foreach ($results as $tag) {
+				Tag::removeByHash($item['uri-id'], $tag[1], $tag[3], $tag[2]);
+			}
+		}
+	
 		foreach ($old_tags as $index => $old_tag) {
 			if (strcmp($old_tag, $new_tag) == 0) {
 				unset($old_tags[$index]);

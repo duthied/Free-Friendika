@@ -24,9 +24,7 @@ namespace Friendica\Protocol;
 use DOMDocument;
 use DOMXPath;
 use Friendica\App\BaseURL;
-use Friendica\Content\OEmbed;
 use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -37,10 +35,13 @@ use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\PermissionSet;
 use Friendica\Model\Profile;
+use Friendica\Model\Tag;
+use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
@@ -49,8 +50,6 @@ use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
-use HTMLPurifier;
-use HTMLPurifier_Config;
 
 /**
  * This class contain functions to create and send DFRN XML files
@@ -252,8 +251,8 @@ class DFRN
 			$sql_post_table = sprintf(
 				"INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
 				DBA::escape(Strings::protectSprintf($category)),
-				intval(TERM_OBJ_POST),
-				intval(TERM_CATEGORY),
+				intval(Term::OBJECT_TYPE_POST),
+				intval(Term::CATEGORY),
 				intval($owner_id)
 			);
 		}
@@ -2244,7 +2243,7 @@ class DFRN
 				$xt = XML::parseString($item["target"], false);
 
 				if ($xt->type == Activity\ObjectType::NOTE) {
-					$item_tag = Item::selectFirst(['id', 'tag'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
+					$item_tag = Item::selectFirst(['id', 'uri-id', 'tag'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
 
 					if (!DBA::isResult($item_tag)) {
 						Logger::log("Query failed to execute, no result returned in " . __FUNCTION__);
@@ -2253,6 +2252,8 @@ class DFRN
 
 					// extract tag, if not duplicate, add to parent item
 					if ($xo->content) {
+						Tag::store($item_tag['uri-id'], Tag::HASHTAG, $xo->content);
+
 						if (!stristr($item_tag["tag"], trim($xo->content))) {
 							$tag = $item_tag["tag"] . (strlen($item_tag["tag"]) ? ',' : '') . '#[url=' . $xo->id . ']'. $xo->content . '[/url]';
 							Item::update(['tag' => $tag], ['id' => $item_tag["id"]]);
@@ -2407,6 +2408,10 @@ class DFRN
 
 		$item["guid"] = XML::getFirstNodeValue($xpath, "dfrn:diaspora_guid/text()", $entry);
 
+		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
+
+		Tag::storeFromBody($item['uri-id'], $item["body"]);
+
 		// We store the data from "dfrn:diaspora_signature" in a different table, this is done in "Item::insert"
 		$dsprsig = XML::unescape(XML::getFirstNodeValue($xpath, "dfrn:diaspora_signature/text()", $entry));
 		if ($dsprsig != "") {
@@ -2460,6 +2465,8 @@ class DFRN
 						}
 
 						$item["tag"] .= $termhash . "[url=" . $termurl . "]" . $term . "[/url]";
+
+						Tag::store($item['uri-id'], Tag::IMPLICIT_MENTION, $term, $termurl);
 					}
 				}
 			}

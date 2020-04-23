@@ -40,10 +40,7 @@ class Term
     const HASHTAG           = 1;
     const MENTION           = 2;
     const CATEGORY          = 3;
-    const PCATEGORY         = 4;
     const FILE              = 5;
-    const SAVEDSEARCH       = 6;
-    const CONVERSATION      = 7;
 	/**
 	 * An implicit mention is a mention in a comment body that is redundant with the threading information.
 	 */
@@ -330,6 +327,10 @@ class Term
 			}
 
 			if (DBA::exists('term', ['uid' => $item['uid'], 'otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'term' => $term, 'type' => $type])) {
+				continue;
+			}
+
+			if (empty($term)) {
 				continue;
 			}
 

@@ -42,11 +42,15 @@ class ItemURI
 			DBA::insert('item-uri', $fields, true);
 		}
 
-		$itemuri = DBA::selectFirst('item-uri', ['id'], ['uri' => $uri]);
+		$itemuri = DBA::selectFirst('item-uri', ['id', 'guid'], ['uri' => $uri]);
 
 		if (!DBA::isResult($itemuri)) {
 			// This shouldn't happen
 			return null;
+		}
+
+		if (empty($itemuri['guid']) && !empty($fields['guid'])) {
+			DBA::update('item-uri', ['guid' => $fields['guid']], ['id' => $itemuri['id']]);
 		}
 
 		return $itemuri['id'];

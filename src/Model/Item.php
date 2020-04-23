@@ -94,7 +94,8 @@ class Item
 	const CONTENT_FIELDLIST = ['language'];
 
 	// All fields in the item table
-	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent', 'guid',
+	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
+			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id',
 			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'iaid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
@@ -2609,7 +2610,10 @@ class Item
 
 		// This sorting is important when there are hashtags that are part of other hashtags
 		// Otherwise there could be problems with hashtags like #test and #test2
-		rsort($tags);
+		// Because of this we are sorting from the longest to the shortest tag.
+		usort($tags, function($a, $b) {
+			return strlen($b) <=> strlen($a);
+		});
 
 		$URLSearchString = "^\[\]";
 

@@ -35,9 +35,12 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\ItemDeliveryData;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
+use Friendica\Model\Tag;
+use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
@@ -123,7 +126,7 @@ class Diaspora
 			}
 
 			// All tags of the current post
-			$condition = ['otype' => TERM_OBJ_POST, 'type' => TERM_HASHTAG, 'oid' => $parent['parent']];
+			$condition = ['otype' => Term::OBJECT_TYPE_POST, 'type' => Term::HASHTAG, 'oid' => $parent['parent']];
 			$tags = DBA::select('term', ['term'], $condition);
 			$taglist = [];
 			while ($tag = DBA::fetch($tags)) {
@@ -1808,6 +1811,40 @@ class Diaspora
 	}
 
 	/**
+	 * Store the mentions in the tag table
+	 *
+	 * @param integer $uriid
+	 * @param string $text
+	 */
+	private static function storeMentions(int $uriid, string $text)
+	{
+		preg_match_all('/([@!]){(?:([^}]+?); ?)?([^} ]+)}/', $text, $matches, PREG_SET_ORDER);
+		if (empty($matches)) {
+			return;
+		}
+
+		/*
+		 * Matching values for the preg match
+		 * [1] = mention type (@ or !)
+		 * [2] = name (optional)
+		 * [3] = profile URL
+		 */
+
+		foreach ($matches as $match) {
+			if (empty($match)) {
+				continue;
+			}
+
+			$person = self::personByHandle($match[3]);
+			if (empty($person)) {
+				continue;
+			}
+
+			Tag::storeByHash($uriid, $match[1], $person['name'] ?: $person['nick'], $person['url']);
+		}
+	}
+
+	/**
 	 * Processes an incoming comment
 	 *
 	 * @param array  $importer Array of the importer user
@@ -1877,6 +1914,7 @@ class Diaspora
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = self::getUriFromGuid($author, $guid);
+		$datarray['uri-id'] = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);
 
 		$datarray["verb"] = Activity::POST;
 		$datarray["gravity"] = GRAVITY_COMMENT;
@@ -1898,6 +1936,9 @@ class Diaspora
 		$body = Markdown::toBBCode($text);
 
 		$datarray["body"] = self::replacePeopleGuid($body, $person["url"]);
+
+		self::storeMentions($datarray['uri-id'], $text);
+		Tag::storeRawTagsFromBody($datarray['uri-id'], $datarray["body"]);
 
 		self::fetchGuid($datarray);
 
@@ -2715,12 +2756,15 @@ class Diaspora
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = $datarray["parent-uri"] = self::getUriFromGuid($author, $guid);
+		$datarray['uri-id'] = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);
 
 		$datarray["verb"] = Activity::POST;
 		$datarray["gravity"] = GRAVITY_PARENT;
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
+
+		/// @todo Copy tag data from original post
 
 		$prefix = share_header(
 			$original_item["author-name"],
@@ -2736,6 +2780,8 @@ class Diaspora
 		}
 
 		$datarray["body"] = $prefix.$original_item["body"]."[/share]";
+
+		Tag::storeFromBody($datarray['uri-id'], $datarray["body"]);
 
 		$datarray["tag"] = $original_item["tag"];
 		$datarray["attach"] = $original_item["attach"];
@@ -2958,6 +3004,7 @@ class Diaspora
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = $datarray["parent-uri"] = self::getUriFromGuid($author, $guid);
+		$datarray['uri-id'] = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);
 
 		$datarray["verb"] = Activity::POST;
 		$datarray["gravity"] = GRAVITY_PARENT;
@@ -2966,6 +3013,9 @@ class Diaspora
 		$datarray["source"] = $xml;
 
 		$datarray["body"] = self::replacePeopleGuid($body, $contact["url"]);
+
+		self::storeMentions($datarray['uri-id'], $text);
+		Tag::storeRawTagsFromBody($datarray['uri-id'], $datarray["body"]);
 
 		if ($provider_display_name != "") {
 			$datarray["app"] = $provider_display_name;

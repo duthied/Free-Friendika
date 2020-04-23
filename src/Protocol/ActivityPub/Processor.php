@@ -32,7 +32,9 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
@@ -169,7 +171,7 @@ class Processor
 	 */
 	public static function updateItem($activity)
 	{
-		$item = Item::selectFirst(['uri', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
+		$item = Item::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('Unknown item', ['uri' => $activity['id']]);
 			return;
@@ -249,7 +251,7 @@ class Processor
 		}
 
 		foreach ($activity['receiver'] as $receiver) {
-			$item = Item::selectFirst(['id', 'tag', 'origin', 'author-link'], ['uri' => $activity['target_id'], 'uid' => $receiver]);
+			$item = Item::selectFirst(['id', 'uri-id', 'tag', 'origin', 'author-link'], ['uri' => $activity['target_id'], 'uid' => $receiver]);
 			if (!DBA::isResult($item)) {
 				// We don't fetch missing content for this purpose
 				continue;
@@ -259,6 +261,8 @@ class Processor
 				Logger::info('Not origin, not from the author, skipping update', ['id' => $item['id'], 'author' => $item['author-link'], 'actor' => $activity['actor']]);
 				continue;
 			}
+
+			Tag::store($item['uri-id'], Tag::HASHTAG, $activity['object_content'], $activity['object_id']);
 
 			// To-Do:
 			// - Check if "blocktag" is set
@@ -403,6 +407,9 @@ class Processor
 
 		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
 
+		self::storeFromBody($item);
+		self::storeTags($item['uri-id'], $activity['tags']);
+
 		$item['location'] = $activity['location'];
 
 		if (!empty($item['latitude']) && !empty($item['longitude'])) {
@@ -412,6 +419,19 @@ class Processor
 		$item['app'] = $activity['generator'];
 
 		return $item;
+	}
+
+	/**
+	 * Store hashtags and mentions
+	 *
+	 * @param array $item
+	 */
+	private static function storeFromBody(array $item)
+	{
+		// Make sure to delete all existing tags (can happen when called via the update functionality)
+		DBA::delete('post-tag', ['uri-id' => $item['uri-id']]);
+
+		Tag::storeFromBody($item['uri-id'], $item['body'], '@!');
 	}
 
 	/**
@@ -496,6 +516,8 @@ class Processor
 		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 		$item['guid'] = $activity['diaspora:guid'] ?: $activity['sc:identifier'] ?: self::getGUIDByURL($item['uri']);
 
+		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
+
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
 			return;
@@ -568,6 +590,50 @@ class Processor
 				Logger::log('Send follow request for ' . $item['uri'] . ' (' . $stored . ') to ' . $item['author-link'], Logger::DEBUG);
 				ActivityPub\Transmitter::sendFollowObject($item['uri'], $item['author-link']);
 			}
+		}
+	}
+
+	/**
+	 * Store tags and mentions into the tag table
+	 *
+	 * @param integer $uriid
+	 * @param array $tags
+	 */
+	private static function storeTags(int $uriid, array $tags = null)
+	{
+		foreach ($tags as $tag) {
+			if (empty($tag['name']) || empty($tag['type']) || !in_array($tag['type'], ['Mention', 'Hashtag'])) {
+				continue;
+			}
+
+			$hash = substr($tag['name'], 0, 1);
+
+			if ($tag['type'] == 'Mention') {
+				if (in_array($hash, [Tag::TAG_CHARACTER[Tag::MENTION],
+					Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION],
+					Tag::TAG_CHARACTER[Tag::IMPLICIT_MENTION]])) {
+					$tag['name'] = substr($tag['name'], 1);
+				}
+				$type = Tag::IMPLICIT_MENTION;
+
+				if (!empty($tag['href'])) {
+					$apcontact = APContact::getByURL($tag['href']);
+					if (!empty($apcontact['name']) || !empty($apcontact['nick'])) {
+						$tag['name'] = $apcontact['name'] ?: $apcontact['nick'];
+					}
+				}
+			} elseif ($tag['type'] == 'Hashtag') {
+				if ($hash == Tag::TAG_CHARACTER[Tag::HASHTAG]) {
+					$tag['name'] = substr($tag['name'], 1);
+				}
+				$type = Tag::HASHTAG;
+			}
+
+			if (empty($tag['name'])) {
+				continue;
+			}
+
+			Tag::store($uriid, $type, $tag['name'], $tag['href']);
 		}
 	}
 
