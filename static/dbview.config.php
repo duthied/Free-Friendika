@@ -174,6 +174,26 @@ return [
 		"query" => "FROM `user`
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`"
-	]
+	],
+	"pending-view" => [
+		"fields" => [
+			"id" => ["register", "id"],
+			"hash" => ["register", "hash"],
+			"created" => ["register", "created"],
+			"uid" => ["register", "uid"],
+			"password" => ["register", "password"],
+			"language" => ["register", "language"],
+			"note" => ["register", "note"],
+			"self" => ["contact", "self"],
+			"name" => ["contact", "name"],
+			"url" => ["contact", "url"],
+			"micro" => ["contact", "micro"],
+			"email" => ["user", "email"],
+			"nick" => ["contact", "nick"],
+		],
+		"query" => "FROM `register`
+			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
+			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`"
+	],
 ];
 
