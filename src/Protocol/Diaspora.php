@@ -259,26 +259,12 @@ class Diaspora
 	 */
 	public static function participantsForThread($thread, array $contacts)
 	{
-		$r = DBA::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`network`, `contact`.`protocol`,
-				`fcontact`.`batch` AS `fbatch`, `fcontact`.`network` AS `fnetwork` FROM `participation`
-				INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid`
-				INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`
-				WHERE `participation`.`iid` = ? AND NOT `contact`.`archive`", $thread);
+		$participation = DBA::select('participation-view', [], ['iid' => $thread]);
 
-		while ($contact = DBA::fetch($r)) {
-			if (!empty($contact['fnetwork'])) {
-				$contact['network'] = $contact['fnetwork'];
-			}
-			unset($contact['fnetwork']);
-
+		while ($contact = DBA::fetch($participation)) {	
 			if (empty($contact['protocol'])) {
 				$contact['protocol'] = $contact['network'];
 			}
-
-			if (empty($contact['batch']) && !empty($contact['fbatch'])) {
-				$contact['batch'] = $contact['fbatch'];
-			}
-			unset($contact['fbatch']);
 
 			$exists = false;
 			foreach ($contacts as $entry) {
@@ -291,7 +277,8 @@ class Diaspora
 				$contacts[] = $contact;
 			}
 		}
-		DBA::close($r);
+
+		DBA::close($participation);
 
 		return $contacts;
 	}
