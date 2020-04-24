@@ -209,5 +209,14 @@ return [
 			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
 			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`"
 	],
+	"workerqueue-view" => [
+		"fields" => [
+			"pid" => ["process", "pid"],
+			"priority" => ["workerqueue", "priority"],
+		],
+		"query" => "FROM `process`
+			INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`
+			WHERE NOT `workerqueue`.`done`"
+	],
 ];
 
