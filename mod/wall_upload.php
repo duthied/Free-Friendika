@@ -45,15 +45,9 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ($a->argc > 1) {
 		if (empty($_FILES['media'])) {
-			$nick = $a->argv[1];
-			$r = q("SELECT `user`.*, `contact`.`id` FROM `user`
-				INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
-				WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0
-				AND `contact`.`self` = 1 LIMIT 1",
-				DBA::escape($nick)
-			);
-
-			if (!DBA::isResult($r)) {
+			$nick = $a->argv[1];			
+			$user = DBA::selectFirst('owner-view', ['id', 'uid', 'nickname', 'page-flags'], ['nickname' => $nick, 'blocked' => false]);
+			if (!DBA::isResult($user)) {
 				if ($r_json) {
 					echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
 					exit();
@@ -62,12 +56,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			}
 		} else {
 			$user_info = api_get_user($a);
-			$r = q("SELECT `user`.*, `contact`.`id` FROM `user`
-				INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
-				WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0
-				AND `contact`.`self` = 1 LIMIT 1",
-				DBA::escape($user_info['screen_name'])
-			);
+			$user = DBA::selectFirst('owner-view', ['id', 'uid', 'nickname', 'page-flags'], ['nickname' => $user_info['screen_name'], 'blocked' => false]);
 		}
 	} else {
 		if ($r_json) {
@@ -83,10 +72,10 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$can_post  = false;
 	$visitor   = 0;
 
-	$page_owner_uid   = $r[0]['uid'];
-	$default_cid      = $r[0]['id'];
-	$page_owner_nick  = $r[0]['nickname'];
-	$community_page   = (($r[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
+	$page_owner_uid   = $user['uid'];
+	$default_cid      = $user['id'];
+	$page_owner_nick  = $user['nickname'];
+	$community_page   = (($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
 	if ((local_user()) && (local_user() == $page_owner_uid)) {
 		$can_post = true;
