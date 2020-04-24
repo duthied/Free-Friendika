@@ -133,11 +133,15 @@ return [
 			"notify_new_posts" => ["notify_new_posts"],
 			"fetch_further_information" => ["fetch_further_information"],
 			"ffi_keyword_blacklist" => ["ffi_keyword_blacklist"],
+			"guid" => ["user", "guid"],
+			"theme" => ["user", "theme"],
+			"language" => ["user", "language"],
 			"email" => ["user", "email"],
 			"uprvkey" => ["user", "prvkey"],
 			"upubkey" => ["user", "pubkey"],
 			"timezone" => ["user", "timezone"],
-			"nickname" => ["user", "nickname"], /// @todo Remove duplicate
+			"nickname" => ["user", "nickname"], /// @todo Replaces all uses of "nickname" with "nick"
+			"username" => ["user", "username"], /// @todo Replaces all uses of "username" with "name"
 			"sprvkey" => ["user", "sprvkey"],
 			"spubkey" => ["user", "spubkey"],
 			"page-flags" => ["user", "page-flags"],

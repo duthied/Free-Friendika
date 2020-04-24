@@ -183,19 +183,12 @@ class DFRN
 
 		$sql_extra = sprintf(" AND `item`.`private` != %s ", Item::PRIVATE);
 
-		$r = q(
-			"SELECT `contact`.*, `user`.`nickname`, `user`.`timezone`, `user`.`page-flags`, `user`.`account-type`
-			FROM `contact` INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-			WHERE `contact`.`self` AND `user`.`nickname` = '%s' LIMIT 1",
-			DBA::escape($owner_nick)
-		);
-
-		if (! DBA::isResult($r)) {
+		$owner = DBA::selectFirst('owner-view', [], ['nickname' => $owner_nick]);
+		if (!DBA::isResult($owner)) {
 			Logger::log(sprintf('No contact found for nickname=%d', $owner_nick), Logger::WARNING);
 			exit();
 		}
 
-		$owner = $r[0];
 		$owner_id = $owner['uid'];
 
 		$sql_post_table = "";
@@ -684,18 +677,10 @@ class DFRN
 		}
 
 		// Only show contact details when we are allowed to
-		$r = q(
-			"SELECT `profile`.`about`, `profile`.`name`, `profile`.`homepage`, `user`.`nickname`,
-				`user`.`timezone`, `profile`.`locality`, `profile`.`region`, `profile`.`country-name`,
-				`profile`.`pub_keywords`, `profile`.`xmpp`, `profile`.`dob`
-			FROM `profile`
-				INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE NOT `user`.`hidewall` AND `user`.`uid` = %d",
-			intval($owner['uid'])
-		);
-		if (DBA::isResult($r)) {
-			$profile = $r[0];
-
+		$profile = DBA::selectFirst('owner-view',
+			['about', 'name', 'homepage', 'nickname', 'timezone', 'locality', 'region', 'country-name', 'pub_keywords', 'xmpp', 'dob'],
+			['uid' => $owner['uid'], 'hidewall' => false]);
+		if (DBA::isResult($profile)) {
 			XML::addElement($doc, $author, "poco:displayName", $profile["name"]);
 			XML::addElement($doc, $author, "poco:updated", $namdate);
 
