@@ -398,18 +398,15 @@ class Profile
 		$contact_block = '';
 		$updated = '';
 		$contact_count = 0;
+
+		if (!empty($profile['last-item'])) {
+			$updated = date('c', strtotime($profile['last-item']));
+		}
+
 		if (!$block) {
 			$contact_block = ContactBlock::getHTML($a->profile);
 
 			if (is_array($a->profile) && !$a->profile['hide-friends']) {
-				$r = q(
-					"SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
-					intval($a->profile['uid'])
-				);
-				if (DBA::isResult($r)) {
-					$updated = date('c', strtotime($r[0]['updated']));
-				}
-
 				$contact_count = DBA::count('contact', [
 					'uid' => $profile['uid'],
 					'self' => false,
