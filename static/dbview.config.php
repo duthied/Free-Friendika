@@ -52,6 +52,6 @@ return [
 			INNER JOIN `item-uri` ON `item-uri`.id = `post-tag`.`uri-id`
 			LEFT JOIN `tag` ON `post-tag`.`tid` = `tag`.`id`
 			LEFT JOIN `contact` ON `post-tag`.`cid` = `contact`.`id`"
-	]
+	],
 ];
 
