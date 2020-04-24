@@ -157,15 +157,15 @@ class Users extends BaseAdmin
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 100);
 
 		$valid_orders = [
-			'contact.name',
-			'user.email',
-			'user.register_date',
-			'user.login_date',
+			'name',
+			'email',
+			'register_date',
+			'login_date',
 			'lastitem_date',
-			'user.page-flags'
+			'page-flags'
 		];
 
-		$order = 'contact.name';
+		$order = 'name';
 		$order_direction = '+';
 		if (!empty($_GET['o'])) {
 			$new_order = $_GET['o'];
@@ -179,7 +179,7 @@ class Users extends BaseAdmin
 			}
 		}
 
-		$users = User::getList($pager->getStart(), $pager->getItemsPerPage(), 'all', $order, $order_direction);
+		$users = User::getList($pager->getStart(), $pager->getItemsPerPage(), 'all', $order, ($order_direction == '-'));
 
 		$adminlist = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
 		$_setup_users = function ($e) use ($adminlist) {

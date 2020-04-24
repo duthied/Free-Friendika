@@ -231,13 +231,18 @@ class Tag
 	 */
 	public static function remove(int $uriid, int $type, string $name, string $url = '')
 	{
-		$tag = DBA::fetchFirst("SELECT `id` FROM `tag` INNER JOIN `post-tag` ON `post-tag`.`tid` = `tag`.`id`
-			WHERE `uri-id` = ? AND `type` = ? AND `name` = ? AND `url` = ?", $uriid, $type, $name, $url);
+		$condition = ['uri-id' => $uriid, 'type' => $type, 'url' => $url];
+		if ($type == self::HASHTAG) {
+			$condition['name'] = $name;
+		}
+
+		$tag = DBA::selectFirst('tag-view', ['tid', 'cid'], $condition);
 		if (!DBA::isResult($tag)) {
 			return;
 		}
-		Logger::info('Removing tag/mention', ['uri-id' => $uriid, 'tid' => $tag['id'], 'name' => $name, 'url' => $url, 'callstack' => System::callstack(8)]);
-		DBA::delete('post-tag', ['uri-id' => $uriid, 'tid' => $tag['id']]);
+
+		Logger::info('Removing tag/mention', ['uri-id' => $uriid, 'tid' => $tag['tid'], 'name' => $name, 'url' => $url, 'callstack' => System::callstack(8)]);
+		DBA::delete('post-tag', ['uri-id' => $uriid, 'type' => $type, 'tid' => $tag['tid'], 'cid' => $tag['cid']]);
 	}
 
 	/**
