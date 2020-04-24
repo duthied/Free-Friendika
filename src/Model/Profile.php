@@ -887,30 +887,25 @@ class Profile
 	 */
 	public static function searchProfiles($start = 0, $count = 100, $search = null)
 	{
-		$publish = (DI::config()->get('system', 'publish_all') ? '' : "`publish` = 1");
+		$publish = (DI::config()->get('system', 'publish_all') ? 'true' : "`publish` = 1");
 		$total = 0;
 
 		if (!empty($search)) {
 			$searchTerm = '%' . $search . '%';
-			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
-				FROM `profile`
-				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
-				AND ((`profile`.`name` LIKE ?) OR
-				(`user`.`nickname` LIKE ?) OR
-				(`profile`.`about` LIKE ?) OR
-				(`profile`.`locality` LIKE ?) OR
-				(`profile`.`region` LIKE ?) OR
-				(`profile`.`country-name` LIKE ?) OR
-				(`profile`.`pub_keywords` LIKE ?) OR
-				(`profile`.`prv_keywords` LIKE ?))",
-				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
-				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm);
+			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` FROM `owner-view`
+				WHERE $publish AND NOT `blocked` AND NOT `account_removed`
+				AND ((`name` LIKE ?) OR
+				(`nickname` LIKE ?) OR
+				(`about` LIKE ?) OR
+				(`locality` LIKE ?) OR
+				(`region` LIKE ?) OR
+				(`country-name` LIKE ?) OR
+				(`pub_keywords` LIKE ?) OR
+				(`prv_keywords` LIKE ?))",
+				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm);
 		} else {
 			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
-				FROM `profile`
-				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`");
+				FROM `owner-view` WHERE $publish AND NOT `blocked` AND NOT `account_removed`");
 		}
 
 		if (DBA::isResult($cnt)) {
@@ -925,35 +920,23 @@ class Profile
 			if (!empty($search)) {
 				$searchTerm = '%' . $search . '%';
 
-				$profiles = DBA::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
-			`contact`.`addr`, `contact`.`url` AS `profile_url`
-			FROM `profile`
-			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
-			WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
-			AND ((`profile`.`name` LIKE ?) OR
-				(`user`.`nickname` LIKE ?) OR
-				(`profile`.`about` LIKE ?) OR
-				(`profile`.`locality` LIKE ?) OR
-				(`profile`.`region` LIKE ?) OR
-				(`profile`.`country-name` LIKE ?) OR
-				(`profile`.`pub_keywords` LIKE ?) OR
-				(`profile`.`prv_keywords` LIKE ?))
-			$order LIMIT ?,?",
+				$profiles = DBA::p("SELECT * FROM `owner-view`
+					WHERE $publish AND NOT `blocked` AND NOT `account_removed`
+					AND ((`name` LIKE ?) OR
+						(`nickname` LIKE ?) OR
+						(`about` LIKE ?) OR
+						(`locality` LIKE ?) OR
+						(`region` LIKE ?) OR
+						(`country-name` LIKE ?) OR
+						(`pub_keywords` LIKE ?) OR
+						(`prv_keywords` LIKE ?))
+					$order LIMIT ?,?",
 					$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
-					$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
 					$start, $count
 				);
 			} else {
-				$profiles = DBA::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
-			`contact`.`addr`, `contact`.`url` AS `profile_url`
-			FROM `profile`
-			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
-			WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
-			$order LIMIT ?,?",
-					$start, $count
-				);
+				$profiles = DBA::p("SELECT * FROM `owner-view`
+					WHERE $publish AND NOT `blocked` AND NOT `account_removed` $order LIMIT ?,?", $start, $count);
 			}
 		}
 
