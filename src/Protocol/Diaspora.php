@@ -4170,20 +4170,11 @@ class Diaspora
 	 */
 	private static function createProfileData($uid)
 	{
-		$r = q(
-			"SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `user`.*, `user`.`prvkey` AS `uprvkey`, `contact`.`addr`
-			FROM `profile`
-			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-			INNER JOIN `contact` ON `profile`.`uid` = `contact`.`uid`
-			WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
-			intval($uid)
-		);
-
-		if (!$r) {
+		$profile = DBA::selectFirst('owner-view', ['uid', 'addr', 'name', 'location', 'net-publish', 'dob', 'about', 'pub_keywords'], ['uid' => $uid]);
+		if (!DBA::isResult($profile)) {
 			return [];
 		}
 
-		$profile = $r[0];
 		$handle = $profile["addr"];
 
 		$split_name = self::splitName($profile['name']);
@@ -4212,7 +4203,7 @@ class Diaspora
 
 			$about = BBCode::toMarkdown($profile['about']);
 
-			$location = Profile::formatLocation($profile);
+			$location = $profile['location'];
 			$tags = '';
 			if ($profile['pub_keywords']) {
 				$kw = str_replace(',', ' ', $profile['pub_keywords']);
