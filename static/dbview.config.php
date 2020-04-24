@@ -105,9 +105,9 @@ return [
 			"avatar-date" => ["contact", "avatar-date"],
 			"term-date" => ["contact", "term-date"],
 			"last-item" => ["contact", "last-item"],			
-			"lastitem_date" => ["contact", "last-item"],
+			"lastitem_date" => ["contact", "last-item"], /// @todo Replaces all uses of "lastitem_date" with "last-item"
 			"priority" => ["contact", "priority"],
-			"blocked" => ["contact", "blocked"],
+			"blocked" => ["contact", "blocked"], /// @todo Check if "blocked" from contact or from the users table
 			"block_reason" => ["contact", "block_reason"],
 			"readonly" => ["contact", "readonly"],
 			"writable" => ["contact", "writable"],
@@ -133,8 +133,9 @@ return [
 			"ffi_keyword_blacklist" => ["ffi_keyword_blacklist"],
 			"email" => ["user", "email"],
 			"uprvkey" => ["user", "prvkey"],
+			"upubkey" => ["user", "pubkey"],
 			"timezone" => ["user", "timezone"],
-			"nickname" => ["user", "nickname"],
+			"nickname" => ["user", "nickname"], /// @todo Remove duplicate
 			"sprvkey" => ["user", "sprvkey"],
 			"spubkey" => ["user", "spubkey"],
 			"page-flags" => ["user", "page-flags"],
@@ -145,12 +146,28 @@ return [
 			"login_date" => ["user", "login_date"],
 			"register_date" => ["user", "register_date"],
 			"verified" => ["user", "verified"],
+			"expire" => ["user", "expire"],
+			"expire_notification_sent" => ["user", "expire_notification_sent"],			
 			"account_removed" => ["user", "account_removed"],
 			"account_expired" => ["user", "account_expired"],
 			"account_expires_on" => ["user", "account_expires_on"],
+			"publish" => ["profile", "publish"],
+			"net-publish" => ["profile", "net-publish"],
+			"hide-friends" => ["profile", "hide-friends"],
+			"prv_keywords" => ["profile", "prv_keywords"],
+			"pub_keywords" => ["profile", "pub_keywords"],
+			"address" => ["profile", "address"],
+			"locality" => ["profile", "locality"],
+			"region" => ["profile", "region"],
+			"postal-code" => ["profile", "postal-code"],
+			"country-name" => ["profile", "country-name"],
+			"homepage" => ["profile", "homepage"],
+			"xmpp" => ["profile", "xmpp"],
+			"dob" => ["profile", "dob"],
 		],
 		"query" => "FROM `user`
-			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`"
+			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
+			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`"
 	]
 ];
 

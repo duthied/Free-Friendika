@@ -81,10 +81,7 @@ function poco_init(App $a) {
 	}
 
 	if (!$system_mode && !$global) {
-		$user = DBA::fetchFirst("SELECT `user`.`uid`, `user`.`nickname` FROM `user`
-			INNER JOIN `profile` ON `user`.`uid` = `profile`.`uid`
-			WHERE `user`.`nickname` = ? AND NOT `profile`.`hide-friends`",
-			$nickname);
+		$user = DBA::selectFirst('owner-view', ['uid', 'nickname'], ['nickname' => $nickname, 'hide-friends' => false]);
 		if (!DBA::isResult($user)) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
