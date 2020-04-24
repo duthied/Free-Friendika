@@ -234,19 +234,7 @@ class Profile
 	 */
 	public static function getByNickname($nickname, $uid = 0)
 	{
-		$profile = DBA::fetchFirst(
-			"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` AS `contact_photo`,
-				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
-				`profile`.*,
-				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `contact`.`url`, `user`.*
-			FROM `profile`
-			INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
-			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-			WHERE `user`.`nickname` = ? AND `profile`.`uid` = ? LIMIT 1",
-			$nickname,
-			intval($uid)
-		);
-
+		$profile = DBA::selectFirst('owner-view', [], ['nickname' => $nickname, 'uid' => $uid]);
 		return $profile;
 	}
 
@@ -399,9 +387,9 @@ class Profile
 				'fullname' => $profile['name'],
 				'firstname' => $firstname,
 				'lastname' => $lastname,
-				'photo300' => $profile['contact_photo'] ?? '',
-				'photo100' => $profile['contact_thumb'] ?? '',
-				'photo50' => $profile['contact_micro'] ?? '',
+				'photo300' => $profile['photo'] ?? '',
+				'photo100' => $profile['thumb'] ?? '',
+				'photo50' => $profile['micro'] ?? '',
 			];
 		} else {
 			$diaspora = false;

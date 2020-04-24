@@ -103,6 +103,8 @@ return [
 			"name-date" => ["contact", "name-date"],
 			"uri-date" => ["contact", "uri-date"],
 			"avatar-date" => ["contact", "avatar-date"],
+			"contact_id" => ["contact", "id"], /// @todo Replaces all uses of "contact_id" with "id"
+			"picdate" => ["contact", "avatar-date"], /// @todo Replaces all uses of "picdate" with "avatar-date"
 			"term-date" => ["contact", "term-date"],
 			"last-item" => ["contact", "last-item"],			
 			"lastitem_date" => ["contact", "last-item"], /// @todo Replaces all uses of "lastitem_date" with "last-item"

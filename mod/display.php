@@ -116,11 +116,7 @@ function display_init(App $a)
 		$nickname = str_replace(Strings::normaliseLink(DI::baseUrl()) . '/profile/', '', Strings::normaliseLink($profiledata['url']));
 
 		if (!empty($a->user['nickname']) && $nickname != $a->user['nickname']) {
-			$profile = DBA::fetchFirst("SELECT `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
-				INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-				WHERE `user`.`nickname` = ? AND `contact`.`self` LIMIT 1",
-				$nickname
-			);
+			$profile = DBA::selectFirst('owner-view', [], ['nickname' => $nickname]);
 			if (DBA::isResult($profile)) {
 				$profiledata = $profile;
 			}
