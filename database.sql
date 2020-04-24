@@ -1523,4 +1523,26 @@ CREATE VIEW `owner-view` AS SELECT
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`;
 
+--
+-- VIEW pending-view
+--
+DROP VIEW IF EXISTS `pending-view`;
+CREATE VIEW `pending-view` AS SELECT 
+	`register`.`id` AS `id`,
+	`register`.`hash` AS `hash`,
+	`register`.`created` AS `created`,
+	`register`.`uid` AS `uid`,
+	`register`.`password` AS `password`,
+	`register`.`language` AS `language`,
+	`register`.`note` AS `note`,
+	`contact`.`self` AS `self`,
+	`contact`.`name` AS `name`,
+	`contact`.`url` AS `url`,
+	`contact`.`micro` AS `micro`,
+	`user`.`email` AS `email`,
+	`contact`.`nick` AS `nick`
+	FROM `register`
+			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
+			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`;
+
 
