@@ -23,14 +23,11 @@ namespace Friendica\Database;
 
 use Exception;
 use Friendica\Core\Hook;
-use Friendica\Core\Logger;
 use Friendica\DI;
-use Friendica\Util\DateTimeFormat;
-use phpDocumentor\Reflection\Types\Boolean;
 
 require_once __DIR__ . '/../../include/dba.php';
 
-class DBView
+class View
 {
 	/**
 	 * view definition loaded from config/dbview.config.php
