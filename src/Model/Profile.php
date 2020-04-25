@@ -936,7 +936,13 @@ class Profile
 				);
 			} else {
 				$profiles = DBA::p("SELECT * FROM `owner-view`
-					WHERE $publish AND NOT `blocked` AND NOT `account_removed` $order LIMIT ?,?", $start, $count);
+					WHERE NOT `blocked` AND NOT `account_removed`
+					$publish
+					$order
+					LIMIT ?, ?",
+					$start,
+					$count
+				);
 			}
 		}
 
