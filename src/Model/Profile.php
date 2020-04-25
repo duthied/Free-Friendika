@@ -887,7 +887,7 @@ class Profile
 	 */
 	public static function searchProfiles($start = 0, $count = 100, $search = null)
 	{
-		$publish = (DI::config()->get('system', 'publish_all') ? 'true' : "`publish` = 1");
+		$publish = (DI::config()->get('system', 'publish_all') ? '' : "AND `publish` = 1");
 		$total = 0;
 
 		if (!empty($search)) {
