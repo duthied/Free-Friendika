@@ -25,8 +25,6 @@ use Exception;
 use Friendica\Core\Hook;
 use Friendica\DI;
 
-require_once __DIR__ . '/../../include/dba.php';
-
 class View
 {
 	/**
@@ -37,7 +35,7 @@ class View
 	private static $definition = [];
 
 	/**
-	 * Loads the database structure definition from the config/dbview.config.php file.
+	 * Loads the database structure definition from the static/dbview.config.php file.
 	 * On first pass, defines DB_UPDATE_VERSION constant.
 	 *
 	 * @see static/dbview.config.php

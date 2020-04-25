@@ -117,7 +117,7 @@ class DBStructure
 	}
 
 	/**
-	 * Loads the database structure definition from the config/dbstructure.config.php file.
+	 * Loads the database structure definition from the static/dbstructure.config.php file.
 	 * On first pass, defines DB_UPDATE_VERSION constant.
 	 *
 	 * @see static/dbstructure.config.php
