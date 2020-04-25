@@ -161,7 +161,7 @@ class Users extends BaseAdmin
 			'email',
 			'register_date',
 			'login_date',
-			'lastitem_date',
+			'last-item',
 			'page-flags'
 		];
 
@@ -206,7 +206,7 @@ class Users extends BaseAdmin
 
 			$e['register_date'] = Temporal::getRelativeDate($e['register_date']);
 			$e['login_date'] = Temporal::getRelativeDate($e['login_date']);
-			$e['lastitem_date'] = Temporal::getRelativeDate($e['lastitem_date']);
+			$e['last-item'] = Temporal::getRelativeDate($e['last-item']);
 			$e['is_admin'] = in_array($e['email'], $adminlist);
 			$e['is_deletable'] = (intval($e['uid']) != local_user());
 			$e['deleted'] = ($e['account_removed'] ? Temporal::getRelativeDate($e['account_expires_on']) : False);

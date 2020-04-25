@@ -103,11 +103,9 @@ return [
 			"name-date" => ["contact", "name-date"],
 			"uri-date" => ["contact", "uri-date"],
 			"avatar-date" => ["contact", "avatar-date"],
-			"contact_id" => ["contact", "id"], /// @todo Replaces all uses of "contact_id" with "id"
 			"picdate" => ["contact", "avatar-date"], /// @todo Replaces all uses of "picdate" with "avatar-date"
 			"term-date" => ["contact", "term-date"],
-			"last-item" => ["contact", "last-item"],			
-			"lastitem_date" => ["contact", "last-item"], /// @todo Replaces all uses of "lastitem_date" with "last-item"
+			"last-item" => ["contact", "last-item"],
 			"priority" => ["contact", "priority"],
 			"blocked" => ["contact", "blocked"], /// @todo Check if "blocked" from contact or from the users table
 			"block_reason" => ["contact", "block_reason"],
@@ -135,7 +133,6 @@ return [
 			"ffi_keyword_blacklist" => ["ffi_keyword_blacklist"],
 			"parent-uid" => ["user", "parent-uid"],
 			"guid" => ["user", "guid"],
-			"username" => ["user", "username"], /// @todo Replaces all uses of "username" with "name"
 			"nickname" => ["user", "nickname"], /// @todo Replaces all uses of "nickname" with "nick"
 			"email" => ["user", "email"],
 			"openid" => ["user", "openid"],

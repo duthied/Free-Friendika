@@ -111,13 +111,13 @@ class Salmon
 	{
 		// does contact have a salmon endpoint?
 
-		if (! strlen($url)) {
+		if (!strlen($url)) {
 			return;
 		}
 
-		if (! $owner['sprvkey']) {
+		if (!$owner['sprvkey']) {
 			Logger::log(sprintf("user '%s' (%d) does not have a salmon private key. Send failed.",
-			$owner['username'], $owner['uid']));
+			$owner['name'], $owner['uid']));
 			return;
 		}
 
