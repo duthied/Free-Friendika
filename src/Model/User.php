@@ -197,7 +197,11 @@ class User
 	{
 		$owner = DBA::selectFirst('owner-view', [], ['uid' => $uid]);
 		if (!DBA::isResult($owner)) {
-			return false;
+			if (!DBA::exists('user', ['uid' => $uid]) || !$check_valid) {
+				return false;
+			}
+			Contact::createSelfFromUserId($uid);
+			$owner = self::getOwnerDataById($uid, false);
 		}
 
 		if (empty($owner['nickname'])) {
