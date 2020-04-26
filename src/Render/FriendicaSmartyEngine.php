@@ -68,15 +68,17 @@ class FriendicaSmartyEngine implements ITemplateEngine
 		return $s->parsed($template);
 	}
 
-	public function getTemplateFile($file, $root = '')
+	public function getTemplateFile($file, $subDir = '')
 	{
 		$a = DI::app();
 		$template = new FriendicaSmarty();
 
 		// Make sure $root ends with a slash /
-		if ($root !== '' && substr($root, -1, 1) !== '/') {
-			$root = $root . '/';
+		if ($subDir !== '' && substr($subDir, -1, 1) !== '/') {
+			$subDir = $subDir . '/';
 		}
+
+		$root = DI::basePath() . '/' . $subDir;
 
 		$theme = $a->getCurrentTheme();
 		$filename = $template::SMARTY3_TEMPLATE_FOLDER . '/' . $file;
