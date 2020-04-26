@@ -28,7 +28,7 @@ use Friendica\DI;
 class View
 {
 	/**
-	 * view definition loaded from config/dbview.config.php
+	 * view definition loaded from static/dbview.config.php
 	 *
 	 * @var array
 	 */
