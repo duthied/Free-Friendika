@@ -89,8 +89,8 @@ class Term
 				ORDER BY `score` DESC
 				LIMIT ?",
 				Item::PUBLIC,
-				Term::OBJECT_TYPE_POST,
-				Term::HASHTAG,
+				self::OBJECT_TYPE_POST,
+				self::HASHTAG,
 				$period,
 				$limit
 			);
@@ -134,8 +134,8 @@ class Term
 				ORDER BY `score` DESC
 				LIMIT ?",
 				Item::PUBLIC,
-				Term::OBJECT_TYPE_POST,
-				Term::HASHTAG,
+				self::OBJECT_TYPE_POST,
+				self::HASHTAG,
 				$period,
 				$limit
 			);
@@ -422,64 +422,6 @@ class Term
 				]);
 			}
 		}
-	}
-
-	/**
-	 * Sorts an item's tags into mentions, hashtags and other tags. Generate personalized URLs by user and modify the
-	 * provided item's body with them.
-	 *
-	 * @param array $item
-	 * @return array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function populateTagsFromItem(&$item)
-	{
-		$return = [
-			'tags' => [],
-			'hashtags' => [],
-			'mentions' => [],
-			'implicit_mentions' => [],
-		];
-
-		$searchpath = DI::baseUrl() . "/search?tag=";
-
-		$taglist = DBA::select(
-			'term',
-			['type', 'term', 'url'],
-			['otype' => self::OBJECT_TYPE_POST, 'oid' => $item['id'], 'type' => [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION]],
-			['order' => ['tid']]
-		);
-		while ($tag = DBA::fetch($taglist)) {
-			if ($tag['url'] == '') {
-				$tag['url'] = $searchpath . rawurlencode($tag['term']);
-			}
-
-			$orig_tag = $tag['url'];
-
-			$prefix = self::TAG_CHARACTER[$tag['type']];
-			switch($tag['type']) {
-				case self::HASHTAG:
-					if ($orig_tag != $tag['url']) {
-						$item['body'] = str_replace($orig_tag, $tag['url'], $item['body']);
-					}
-
-					$return['hashtags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['term']) . '</a>';
-					$return['tags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['term']) . '</a>';
-					break;
-				case self::MENTION:
-					$tag['url'] = Contact::magicLink($tag['url']);
-					$return['mentions'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['term']) . '</a>';
-					$return['tags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['term']) . '</a>';
-					break;
-				case self::IMPLICIT_MENTION:
-					$return['implicit_mentions'][] = $prefix . $tag['term'];
-					break;
-			}
-		}
-		DBA::close($taglist);
-
-		return $return;
 	}
 
 	/**

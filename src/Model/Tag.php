@@ -25,6 +25,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Strings;
 
 /**
@@ -222,6 +223,17 @@ class Tag
 	}
 
 	/**
+	 * Checks for stored hashtags and mentions for the given post
+	 *
+	 * @param integer $uriid
+	 * @return bool
+	 */
+	public static function existsForPost(int $uriid)
+	{
+		return DBA::exists('post-tag', ['uri-id' => $uriid, 'type' => [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION]]);
+	}
+
+	/**
 	 * Remove tag/mention
 	 *
 	 * @param integer $uriid
@@ -282,6 +294,86 @@ class Tag
 		} else {
 			return self::UNKNOWN;
 		}
-
 	}
+
+	/**
+	 * Retrieves the terms from the provided type(s) associated with the provided item ID.
+	 *
+	 * @param int       $item_id
+	 * @param int|array $type
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function ArrayFromURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION])
+	{
+		$condition = ['uri-id' => $uri_id, 'type' => $type];
+		$tags = DBA::select('tag-view', ['type', 'name', 'url'], $condition);
+		if (!DBA::isResult($tags)) {
+			return [];
+		}
+
+		$tag_list = [];
+		while ($tag = DBA::fetch($tags)) {
+			$tag['term'] = $tag['name']; /// @todo Remove this line when all occurrences of "term" had been replaced with "name"
+			$tag_list[] = $tag;
+		}
+
+		return $tag_list;
+	}
+
+		/**
+	 * Sorts an item's tags into mentions, hashtags and other tags. Generate personalized URLs by user and modify the
+	 * provided item's body with them.
+	 *
+	 * @param array $item
+	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function populateTagsFromItem(&$item)
+	{
+		$return = [
+			'tags' => [],
+			'hashtags' => [],
+			'mentions' => [],
+			'implicit_mentions' => [],
+		];
+
+		$searchpath = DI::baseUrl() . "/search?tag=";
+
+		$taglist = DBA::select('tag-view', ['type', 'name', 'url'],
+			['uri-id' => $item['uri-id'], 'type' => [self::HASHTAG, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION]]);
+		while ($tag = DBA::fetch($taglist)) {
+			if ($tag['url'] == '') {
+				$tag['url'] = $searchpath . rawurlencode($tag['name']);
+			}
+
+			$orig_tag = $tag['url'];
+
+			$prefix = self::TAG_CHARACTER[$tag['type']];
+			switch($tag['type']) {
+				case self::HASHTAG:
+					if ($orig_tag != $tag['url']) {
+						$item['body'] = str_replace($orig_tag, $tag['url'], $item['body']);
+					}
+
+					$return['hashtags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['name']) . '</a>';
+					$return['tags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['name']) . '</a>';
+					break;
+				case self::MENTION:
+				case self::EXCLUSIVE_MENTION:
+						$tag['url'] = Contact::magicLink($tag['url']);
+					$return['mentions'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['name']) . '</a>';
+					$return['tags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['name']) . '</a>';
+					break;
+				case self::IMPLICIT_MENTION:
+					$return['implicit_mentions'][] = $prefix . $tag['name'];
+					break;
+			}
+		}
+		DBA::close($taglist);
+
+		return $return;
+	}
+
 }

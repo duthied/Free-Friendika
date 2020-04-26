@@ -33,7 +33,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
@@ -390,7 +390,7 @@ class Post
 			$buttons["like"] = false;
 		}
 
-		$tags = Term::populateTagsFromItem($item);
+		$tags = Tag::populateTagsFromItem($item);
 
 		$ago = Temporal::getRelativeDate($item['created']);
 		$ago_received = Temporal::getRelativeDate($item['received']);
@@ -860,7 +860,7 @@ class Post
 			return '';
 		}
 
-		$item = Item::selectFirst(['author-addr'], ['id' => $this->getId()]);
+		$item = Item::selectFirst(['author-addr', 'uri-id'], ['id' => $this->getId()]);
 		if (!DBA::isResult($item) || empty($item['author-addr'])) {
 			// Should not happen
 			return '';
@@ -872,7 +872,7 @@ class Post
 			$text = '';
 		}
 
-		$terms = Term::tagArrayFromItemId($this->getId(), [Term::MENTION, Term::IMPLICIT_MENTION]);
+		$terms = Tag::ArrayFromURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 		foreach ($terms as $term) {
 			$profile = Contact::getDetailsByURL($term['url']);
 			if (!empty($profile['addr']) && ((($profile['contact-type'] ?? '') ?: Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&

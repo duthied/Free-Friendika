@@ -22,7 +22,6 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
-use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
@@ -34,7 +33,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Protocol\Activity;
@@ -527,7 +526,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					$profile_name = $item['author-link'];
 				}
 
-				$tags = Term::populateTagsFromItem($item);
+				$tags = Tag::populateTagsFromItem($item);
 
 				$author = ['uid' => 0, 'id' => $item['author-id'],
 					'network' => $item['author-network'], 'url' => $item['author-link']];

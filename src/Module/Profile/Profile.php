@@ -35,7 +35,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile as ProfileModel;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
@@ -184,7 +184,7 @@ class Profile extends BaseProfile
 			foreach (explode(',', $a->profile['pub_keywords']) as $tag_label) {
 				$tags[] = [
 					'url' => '/search?tag=' . $tag_label,
-					'label' => Term::TAG_CHARACTER[Term::HASHTAG] . $tag_label,
+					'label' => Tag::TAG_CHARACTER[Tag::HASHTAG] . $tag_label,
 				];
 			}
 
