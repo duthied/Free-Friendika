@@ -391,6 +391,7 @@ header #banner #logo-img,
 }
 #navbrand-container #navbar-brand-text {
     padding-left: 5px;
+	color: $nav_icon_color;
 }
 
 /* NavBar */
