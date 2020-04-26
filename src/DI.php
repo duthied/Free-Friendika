@@ -384,6 +384,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return string
+	 */
+	public static function basePath()
+	{
+		return self::$dice->create('$basepath');
+	}
+
+	/**
 	 * @return Util\DateTimeFormat
 	 */
 	public static function dtFormat()

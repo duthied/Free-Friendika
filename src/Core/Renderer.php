@@ -99,19 +99,18 @@ class Renderer
 	 * Load a given template $s
 	 *
 	 * @param string $s    Template to load.
-	 * @param string $root Optional.
+	 * @param string $subDir Subdirectory (Optional)
 	 *
 	 * @return string template.
 	 * @throws Exception
 	 */
-	public static function getMarkupTemplate($s, $root = '')
+	public static function getMarkupTemplate($s, $subDir = '')
 	{
 		$stamp1 = microtime(true);
-		$a = DI::app();
 		$t = self::getTemplateEngine();
 
 		try {
-			$template = $t->getTemplateFile($s, $root);
+			$template = $t->getTemplateFile($s, $subDir);
 		} catch (Exception $e) {
 			echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
 			exit();
