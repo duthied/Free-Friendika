@@ -259,26 +259,12 @@ class Diaspora
 	 */
 	public static function participantsForThread($thread, array $contacts)
 	{
-		$r = DBA::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`network`, `contact`.`protocol`,
-				`fcontact`.`batch` AS `fbatch`, `fcontact`.`network` AS `fnetwork` FROM `participation`
-				INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid`
-				INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`
-				WHERE `participation`.`iid` = ? AND NOT `contact`.`archive`", $thread);
+		$participation = DBA::select('participation-view', [], ['iid' => $thread]);
 
-		while ($contact = DBA::fetch($r)) {
-			if (!empty($contact['fnetwork'])) {
-				$contact['network'] = $contact['fnetwork'];
-			}
-			unset($contact['fnetwork']);
-
+		while ($contact = DBA::fetch($participation)) {	
 			if (empty($contact['protocol'])) {
 				$contact['protocol'] = $contact['network'];
 			}
-
-			if (empty($contact['batch']) && !empty($contact['fbatch'])) {
-				$contact['batch'] = $contact['fbatch'];
-			}
-			unset($contact['fbatch']);
 
 			$exists = false;
 			foreach ($contacts as $entry) {
@@ -291,7 +277,8 @@ class Diaspora
 				$contacts[] = $contact;
 			}
 		}
-		DBA::close($r);
+
+		DBA::close($participation);
 
 		return $contacts;
 	}
@@ -4170,20 +4157,11 @@ class Diaspora
 	 */
 	private static function createProfileData($uid)
 	{
-		$r = q(
-			"SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `user`.*, `user`.`prvkey` AS `uprvkey`, `contact`.`addr`
-			FROM `profile`
-			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-			INNER JOIN `contact` ON `profile`.`uid` = `contact`.`uid`
-			WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
-			intval($uid)
-		);
-
-		if (!$r) {
+		$profile = DBA::selectFirst('owner-view', ['uid', 'addr', 'name', 'location', 'net-publish', 'dob', 'about', 'pub_keywords'], ['uid' => $uid]);
+		if (!DBA::isResult($profile)) {
 			return [];
 		}
 
-		$profile = $r[0];
 		$handle = $profile["addr"];
 
 		$split_name = self::splitName($profile['name']);
@@ -4212,7 +4190,7 @@ class Diaspora
 
 			$about = BBCode::toMarkdown($profile['about']);
 
-			$location = Profile::formatLocation($profile);
+			$location = $profile['location'];
 			$tags = '';
 			if ($profile['pub_keywords']) {
 				$kw = str_replace(',', ' ', $profile['pub_keywords']);

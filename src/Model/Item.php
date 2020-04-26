@@ -2563,7 +2563,8 @@ class Item
 			Contact::unmarkForArchival($contact);
 		}
 
-		$update = (($arr['private'] != self::PRIVATE) && ((($arr['author-link'] ?? '') === ($arr['owner-link'] ?? '')) || ($arr["parent-uri"] === $arr["uri"])));
+		/// @todo On private posts we could obfuscate the date
+		$update = ($arr['private'] != self::PRIVATE);
 
 		// Is it a forum? Then we don't care about the rules from above
 		if (!$update && in_array($arr["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN]) && ($arr["parent-uri"] === $arr["uri"])) {
@@ -2573,8 +2574,15 @@ class Item
 		}
 
 		if ($update) {
-			DBA::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']],
-				['id' => $arr['contact-id']]);
+			// The "self" contact id is used (for example in the connectors) when the contact is unknown
+			// So we have to ensure to only update the last item when it had been our own post,
+			// or it had been done by a "regular" contact.
+			if (!empty($arr['wall'])) {
+				$condition = ['id' => $arr['contact-id']];
+			} else { 
+				$condition = ['id' => $arr['contact-id'], 'self' => false];
+			}
+			DBA::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']], $condition);
 		}
 		// Now do the same for the system wide contacts with uid=0
 		if ($arr['private'] != self::PRIVATE) {

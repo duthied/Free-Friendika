@@ -684,7 +684,7 @@ class Worker
 				self::$db_duration_stat += (microtime(true) - $stamp);
 				while ($entry = DBA::fetch($jobs)) {
 					$stamp = (float)microtime(true);
-					$processes = DBA::p("SELECT COUNT(*) AS `running` FROM `process` INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` WHERE NOT `done` AND `priority` = ?", $entry["priority"]);
+					$processes = DBA::p("SELECT COUNT(*) AS `running` FROM `workerqueue-view` WHERE `priority` = ?", $entry["priority"]);
 					self::$db_duration += (microtime(true) - $stamp);
 					self::$db_duration_stat += (microtime(true) - $stamp);
 					if ($process = DBA::fetch($processes)) {
@@ -698,7 +698,7 @@ class Worker
 			} else {
 				$waiting_processes =  self::totalEntries();
 				$stamp = (float)microtime(true);
-				$jobs = DBA::p("SELECT COUNT(*) AS `running`, `priority` FROM `process` INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` AND NOT `done` GROUP BY `priority` ORDER BY `priority`");
+				$jobs = DBA::p("SELECT COUNT(*) AS `running`, `priority` FROM `workerqueue-view` GROUP BY `priority` ORDER BY `priority`");
 				self::$db_duration += (microtime(true) - $stamp);
 				self::$db_duration_stat += (microtime(true) - $stamp);
 
@@ -839,9 +839,7 @@ class Worker
 		$running = [];
 		$running_total = 0;
 		$stamp = (float)microtime(true);
-		$processes = DBA::p("SELECT COUNT(DISTINCT(`process`.`pid`)) AS `running`, `priority` FROM `process`
-			INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`
-			WHERE NOT `done` GROUP BY `priority`");
+		$processes = DBA::p("SELECT COUNT(DISTINCT(`pid`)) AS `running`, `priority` FROM `workerqueue-view` GROUP BY `priority`");
 		self::$db_duration += (microtime(true) - $stamp);
 		while ($process = DBA::fetch($processes)) {
 			$running[$process['priority']] = $process['running'];

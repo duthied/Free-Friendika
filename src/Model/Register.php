@@ -42,15 +42,7 @@ class Register
 	 */
 	public static function getPending($start = 0, $count = Pager::ITEMS_PER_PAGE)
 	{
-		$stmt = DBA::p(
-			"SELECT `register`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`email`, `contact`.`nick`
-			FROM `register`
-			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
-			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`
-			LIMIT ?, ?", $start, $count
-		);
-
-		return DBA::toArray($stmt);
+		return DBA::selectToArray('pending-view', [], [], ['limit' => [$start, $count]]);
 	}
 
 	/**
@@ -64,14 +56,7 @@ class Register
 	 */
 	public static function getPendingForUser(int $uid)
 	{
-		return DBA::fetchFirst(
-			"SELECT `register`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`email`
-			FROM `register`
-			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
-			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`
-			WHERE `register`.uid = ?",
-			$uid
-		);
+		return DBA::selectToArray('pending-view', [], ['uid' => $uid]);
 	}
 
 	/**
@@ -82,13 +67,7 @@ class Register
 	 */
 	public static function getPendingCount()
 	{
-		$register = DBA::fetchFirst(
-			"SELECT COUNT(*) AS `count`
-			FROM `register`
-			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid` AND `contact`.`self`"
-		);
-
-		return $register['count'];
+		return DBA::count('pending-view', ['self' => true]);
 	}
 
 	/**

@@ -234,19 +234,7 @@ class Profile
 	 */
 	public static function getByNickname($nickname, $uid = 0)
 	{
-		$profile = DBA::fetchFirst(
-			"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` AS `contact_photo`,
-				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
-				`profile`.*,
-				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `contact`.`url`, `user`.*
-			FROM `profile`
-			INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
-			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-			WHERE `user`.`nickname` = ? AND `profile`.`uid` = ? LIMIT 1",
-			$nickname,
-			intval($uid)
-		);
-
+		$profile = DBA::selectFirst('owner-view', [], ['nickname' => $nickname, 'uid' => $uid]);
 		return $profile;
 	}
 
@@ -399,9 +387,9 @@ class Profile
 				'fullname' => $profile['name'],
 				'firstname' => $firstname,
 				'lastname' => $lastname,
-				'photo300' => $profile['contact_photo'] ?? '',
-				'photo100' => $profile['contact_thumb'] ?? '',
-				'photo50' => $profile['contact_micro'] ?? '',
+				'photo300' => $profile['photo'] ?? '',
+				'photo100' => $profile['thumb'] ?? '',
+				'photo50' => $profile['micro'] ?? '',
 			];
 		} else {
 			$diaspora = false;
@@ -410,18 +398,15 @@ class Profile
 		$contact_block = '';
 		$updated = '';
 		$contact_count = 0;
+
+		if (!empty($profile['last-item'])) {
+			$updated = date('c', strtotime($profile['last-item']));
+		}
+
 		if (!$block) {
 			$contact_block = ContactBlock::getHTML($a->profile);
 
 			if (is_array($a->profile) && !$a->profile['hide-friends']) {
-				$r = q(
-					"SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
-					intval($a->profile['uid'])
-				);
-				if (DBA::isResult($r)) {
-					$updated = date('c', strtotime($r[0]['updated']));
-				}
-
 				$contact_count = DBA::count('contact', [
 					'uid' => $profile['uid'],
 					'self' => false,
@@ -902,87 +887,37 @@ class Profile
 	 */
 	public static function searchProfiles($start = 0, $count = 100, $search = null)
 	{
-		$publish = (DI::config()->get('system', 'publish_all') ? '' : "`publish` = 1");
-		$total = 0;
-
 		if (!empty($search)) {
+			$publish = (DI::config()->get('system', 'publish_all') ? '' : "AND `publish` ");
 			$searchTerm = '%' . $search . '%';
-			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
-				FROM `profile`
-				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
-				AND ((`profile`.`name` LIKE ?) OR
-				(`user`.`nickname` LIKE ?) OR
-				(`profile`.`about` LIKE ?) OR
-				(`profile`.`locality` LIKE ?) OR
-				(`profile`.`region` LIKE ?) OR
-				(`profile`.`country-name` LIKE ?) OR
-				(`profile`.`pub_keywords` LIKE ?) OR
-				(`profile`.`prv_keywords` LIKE ?))",
-				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
-				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm);
+			$condition = ["NOT `blocked` AND NOT `account_removed`
+				$publish
+				AND ((`name` LIKE ?) OR
+				(`nickname` LIKE ?) OR
+				(`about` LIKE ?) OR
+				(`locality` LIKE ?) OR
+				(`region` LIKE ?) OR
+				(`country-name` LIKE ?) OR
+				(`pub_keywords` LIKE ?) OR
+				(`prv_keywords` LIKE ?))",
+				$searchTerm, $searchTerm, $searchTerm, $searchTerm,
+				$searchTerm, $searchTerm, $searchTerm, $searchTerm];
 		} else {
-			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
-				FROM `profile`
-				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`");
-		}
-
-		if (DBA::isResult($cnt)) {
-			$total = $cnt['total'];
-		}
-
-		$order = " ORDER BY `name` ASC ";
-		$profiles = [];
-
-		// If nothing found, don't try to select details
-		if ($total > 0) {
-			if (!empty($search)) {
-				$searchTerm = '%' . $search . '%';
-
-				$profiles = DBA::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
-			`contact`.`addr`, `contact`.`url` AS `profile_url`
-			FROM `profile`
-			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
-			WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
-			AND ((`profile`.`name` LIKE ?) OR
-				(`user`.`nickname` LIKE ?) OR
-				(`profile`.`about` LIKE ?) OR
-				(`profile`.`locality` LIKE ?) OR
-				(`profile`.`region` LIKE ?) OR
-				(`profile`.`country-name` LIKE ?) OR
-				(`profile`.`pub_keywords` LIKE ?) OR
-				(`profile`.`prv_keywords` LIKE ?))
-			$order LIMIT ?,?",
-					$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
-					$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
-					$start, $count
-				);
-			} else {
-				$profiles = DBA::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
-			`contact`.`addr`, `contact`.`url` AS `profile_url`
-			FROM `profile`
-			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
-			WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
-			$order LIMIT ?,?",
-					$start, $count
-				);
+			$condition = ['blocked' => false, 'account_removed' => false];
+			if (!DI::config()->get('system', 'publish_all')) {
+				$condition['publish'] = true;
 			}
 		}
 
-		if (DBA::isResult($profiles) && $total > 0) {
-			return [
-				'total'   => $total,
-				'entries' => DBA::toArray($profiles),
-			];
+		$total = DBA::count('owner-view', $condition);
 
+		// If nothing found, don't try to select details
+		if ($total > 0) {
+			$profiles = DBA::selectToArray('owner-view', [], $condition, ['order' => ['name'], 'limit' => [$start, $count]]);
 		} else {
-			return [
-				'total'   => $total,
-				'entries' => [],
-			];
+			$profiles = [];
 		}
+
+		return ['total' => $total, 'entries' => $profiles];
 	}
 }

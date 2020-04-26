@@ -361,7 +361,7 @@ HELP;
 						$contact['email'],
 						Temporal::getRelativeDate($contact['created']),
 						Temporal::getRelativeDate($contact['login_date']),
-						Temporal::getRelativeDate($contact['lastitem_date']),
+						Temporal::getRelativeDate($contact['last-item']),
 					]);
 				}
 				$this->out($table->getTable());

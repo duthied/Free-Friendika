@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1339);
+	define('DB_UPDATE_VERSION', 1340);
 }
 
 return [

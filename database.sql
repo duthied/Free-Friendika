@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1338
+-- DB_UPDATE_VERSION 1340
 -- ------------------------------------------
 
 
@@ -1176,6 +1176,31 @@ CREATE TABLE IF NOT EXISTS `term` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='item taxonomy (categories, tags, etc.) table';
 
 --
+-- TABLE tag
+--
+CREATE TABLE IF NOT EXISTS `tag` (
+	`id` int unsigned NOT NULL auto_increment COMMENT '',
+	`name` varchar(96) NOT NULL DEFAULT '' COMMENT '',
+	`url` varbinary(255) NOT NULL DEFAULT '' COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `type_name_url` (`name`,`url`),
+	 INDEX `url` (`url`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='tags and mentions';
+
+--
+-- TABLE post-tag
+--
+CREATE TABLE IF NOT EXISTS `post-tag` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`tid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Contact id of the mentioned public contact',
+	 PRIMARY KEY(`uri-id`,`type`,`tid`,`cid`),
+	 INDEX `uri-id` (`tid`),
+	 INDEX `cid` (`tid`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to tags';
+
+--
 -- TABLE thread
 --
 CREATE TABLE IF NOT EXISTS `thread` (
@@ -1360,5 +1385,164 @@ CREATE TABLE IF NOT EXISTS `storage` (
 	`data` longblob NOT NULL COMMENT 'file data',
 	 PRIMARY KEY(`id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Data stored by Database storage backend';
+
+--
+-- VIEW tag-view
+--
+DROP VIEW IF EXISTS `tag-view`;
+CREATE VIEW `tag-view` AS SELECT 
+	`post-tag`.`uri-id` AS `uri-id`,
+	`item-uri`.`uri` AS `uri`,
+	`item-uri`.`guid` AS `guid`,
+	`post-tag`.`type` AS `type`,
+	`post-tag`.`tid` AS `tid`,
+	`post-tag`.`cid` AS `cid`,
+	CASE `cid` WHEN 0 THEN `tag`.`name` ELSE `contact`.`name` END AS `name`,
+	CASE `cid` WHEN 0 THEN `tag`.`url` ELSE `contact`.`url` END AS `url`
+	FROM `post-tag`
+			INNER JOIN `item-uri` ON `item-uri`.id = `post-tag`.`uri-id`
+			LEFT JOIN `tag` ON `post-tag`.`tid` = `tag`.`id`
+			LEFT JOIN `contact` ON `post-tag`.`cid` = `contact`.`id`;
+
+--
+-- VIEW owner-view
+--
+DROP VIEW IF EXISTS `owner-view`;
+CREATE VIEW `owner-view` AS SELECT 
+	`contact`.`id` AS `id`,
+	`contact`.`uid` AS `uid`,
+	`contact`.`created` AS `created`,
+	`contact`.`updated` AS `updated`,
+	`contact`.`self` AS `self`,
+	`contact`.`remote_self` AS `remote_self`,
+	`contact`.`rel` AS `rel`,
+	`contact`.`duplex` AS `duplex`,
+	`contact`.`network` AS `network`,
+	`contact`.`protocol` AS `protocol`,
+	`contact`.`name` AS `name`,
+	`contact`.`nick` AS `nick`,
+	`contact`.`location` AS `location`,
+	`contact`.`about` AS `about`,
+	`contact`.`keywords` AS `keywords`,
+	`contact`.`gender` AS `gender`,
+	`profile`.`xmpp` AS `xmpp`,
+	`contact`.`attag` AS `attag`,
+	`contact`.`avatar` AS `avatar`,
+	`contact`.`photo` AS `photo`,
+	`contact`.`thumb` AS `thumb`,
+	`contact`.`micro` AS `micro`,
+	`contact`.`site-pubkey` AS `site-pubkey`,
+	`contact`.`issued-id` AS `issued-id`,
+	`contact`.`dfrn-id` AS `dfrn-id`,
+	`contact`.`url` AS `url`,
+	`contact`.`nurl` AS `nurl`,
+	`contact`.`addr` AS `addr`,
+	`contact`.`alias` AS `alias`,
+	`contact`.`pubkey` AS `pubkey`,
+	`contact`.`prvkey` AS `prvkey`,
+	`contact`.`batch` AS `batch`,
+	`contact`.`request` AS `request`,
+	`contact`.`notify` AS `notify`,
+	`contact`.`poll` AS `poll`,
+	`contact`.`confirm` AS `confirm`,
+	`contact`.`poco` AS `poco`,
+	`contact`.`aes_allow` AS `aes_allow`,
+	`contact`.`ret-aes` AS `ret-aes`,
+	`contact`.`usehub` AS `usehub`,
+	`contact`.`subhub` AS `subhub`,
+	`contact`.`hub-verify` AS `hub-verify`,
+	`contact`.`last-update` AS `last-update`,
+	`contact`.`success_update` AS `success_update`,
+	`contact`.`failure_update` AS `failure_update`,
+	`contact`.`name-date` AS `name-date`,
+	`contact`.`uri-date` AS `uri-date`,
+	`contact`.`avatar-date` AS `avatar-date`,
+	`contact`.`id` AS `contact_id`,
+	`contact`.`avatar-date` AS `picdate`,
+	`contact`.`term-date` AS `term-date`,
+	`contact`.`last-item` AS `last-item`,
+	`contact`.`last-item` AS `lastitem_date`,
+	`contact`.`priority` AS `priority`,
+	`contact`.`blocked` AS `blocked`,
+	`contact`.`block_reason` AS `block_reason`,
+	`contact`.`readonly` AS `readonly`,
+	`contact`.`writable` AS `writable`,
+	`contact`.`forum` AS `forum`,
+	`contact`.`prv` AS `prv`,
+	`contact`.`contact-type` AS `contact-type`,
+	`contact`.`hidden` AS `hidden`,
+	`contact`.`archive` AS `archive`,
+	`contact`.`pending` AS `pending`,
+	`contact`.`deleted` AS `deleted`,
+	`contact`.`rating` AS `rating`,
+	`contact`.`unsearchable` AS `unsearchable`,
+	`contact`.`sensitive` AS `sensitive`,
+	`contact`.`baseurl` AS `baseurl`,
+	`contact`.`reason` AS `reason`,
+	`contact`.`closeness` AS `closeness`,
+	`contact`.`info` AS `info`,
+	`contact`.`profile-id` AS `profile-id`,
+	`contact`.`bdyear` AS `bdyear`,
+	`contact`.`bd` AS `bd`,
+	`user`.`guid` AS `guid`,
+	`user`.`theme` AS `theme`,
+	`user`.`language` AS `language`,
+	`user`.`email` AS `email`,
+	`user`.`prvkey` AS `uprvkey`,
+	`user`.`pubkey` AS `upubkey`,
+	`user`.`timezone` AS `timezone`,
+	`user`.`nickname` AS `nickname`,
+	`user`.`username` AS `username`,
+	`user`.`sprvkey` AS `sprvkey`,
+	`user`.`spubkey` AS `spubkey`,
+	`user`.`page-flags` AS `page-flags`,
+	`user`.`account-type` AS `account-type`,
+	`user`.`prvnets` AS `prvnets`,
+	`user`.`account_removed` AS `account_removed`,
+	`user`.`hidewall` AS `hidewall`,
+	`user`.`login_date` AS `login_date`,
+	`user`.`register_date` AS `register_date`,
+	`user`.`verified` AS `verified`,
+	`user`.`expire` AS `expire`,
+	`user`.`expire_notification_sent` AS `expire_notification_sent`,
+	`user`.`account_expired` AS `account_expired`,
+	`user`.`account_expires_on` AS `account_expires_on`,
+	`profile`.`publish` AS `publish`,
+	`profile`.`net-publish` AS `net-publish`,
+	`profile`.`hide-friends` AS `hide-friends`,
+	`profile`.`prv_keywords` AS `prv_keywords`,
+	`profile`.`pub_keywords` AS `pub_keywords`,
+	`profile`.`address` AS `address`,
+	`profile`.`locality` AS `locality`,
+	`profile`.`region` AS `region`,
+	`profile`.`postal-code` AS `postal-code`,
+	`profile`.`country-name` AS `country-name`,
+	`profile`.`homepage` AS `homepage`,
+	`profile`.`dob` AS `dob`
+	FROM `user`
+			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
+			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`;
+
+--
+-- VIEW pending-view
+--
+DROP VIEW IF EXISTS `pending-view`;
+CREATE VIEW `pending-view` AS SELECT 
+	`register`.`id` AS `id`,
+	`register`.`hash` AS `hash`,
+	`register`.`created` AS `created`,
+	`register`.`uid` AS `uid`,
+	`register`.`password` AS `password`,
+	`register`.`language` AS `language`,
+	`register`.`note` AS `note`,
+	`contact`.`self` AS `self`,
+	`contact`.`name` AS `name`,
+	`contact`.`url` AS `url`,
+	`contact`.`micro` AS `micro`,
+	`user`.`email` AS `email`,
+	`contact`.`nick` AS `nick`
+	FROM `register`
+			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
+			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`;
 
 

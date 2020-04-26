@@ -81,10 +81,7 @@ function poco_init(App $a) {
 	}
 
 	if (!$system_mode && !$global) {
-		$user = DBA::fetchFirst("SELECT `user`.`uid`, `user`.`nickname` FROM `user`
-			INNER JOIN `profile` ON `user`.`uid` = `profile`.`uid`
-			WHERE `user`.`nickname` = ? AND NOT `profile`.`hide-friends`",
-			$nickname);
+		$user = DBA::selectFirst('owner-view', ['uid', 'nickname'], ['nickname' => $nickname, 'hide-friends' => false]);
 		if (!DBA::isResult($user)) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
@@ -147,16 +144,7 @@ function poco_init(App $a) {
 		);
 	} elseif ($system_mode) {
 		Logger::log("Start system mode query", Logger::DEBUG);
-		$contacts = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`,
-				`profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`,
-				`profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`, `user`.`account-type`
-			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
-				INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-			WHERE `self` = 1 AND `profile`.`net-publish`
-			LIMIT %d, %d",
-			intval($startIndex),
-			intval($itemsPerPage)
-		);
+		$contacts = DBA::selectToArray('owner-view', [], ['net-publish' => true], ['limit' => [$startIndex, $itemsPerPage]]);
 	} else {
 		Logger::log("Start query for user " . $user['nickname'], Logger::DEBUG);
 		$contacts = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
@@ -230,28 +218,6 @@ function poco_init(App $a) {
 						$contact['generation'] = 1;
 					} else {
 						$contact['generation'] = 2;
-					}
-				}
-
-				if (($contact['about'] == "") && isset($contact['pabout'])) {
-					$contact['about'] = $contact['pabout'];
-				}
-				if ($contact['location'] == "") {
-					if (isset($contact['plocation'])) {
-						$contact['location'] = $contact['plocation'];
-					}
-					if (isset($contact['pregion']) && ( $contact['pregion'] != "")) {
-						if ($contact['location'] != "") {
-							$contact['location'] .= ", ";
-						}
-						$contact['location'] .= $contact['pregion'];
-					}
-
-					if (isset($contact['pcountry']) && ( $contact['pcountry'] != "")) {
-						if ($contact['location'] != "") {
-							$contact['location'] .= ", ";
-						}
-						$contact['location'] .= $contact['pcountry'];
 					}
 				}
 
@@ -346,21 +312,21 @@ function poco_init(App $a) {
 					$entry['address'] = [];
 
 					// Deactivated. It just reveals too much data. (Although its from the default profile)
-					//if (isset($rr['paddress']))
-					//	 $entry['address']['streetAddress'] = $rr['paddress'];
+					//if (isset($rr['address']))
+					//	 $entry['address']['streetAddress'] = $rr['address'];
 
-					if (isset($contact['plocation'])) {
-						$entry['address']['locality'] = $contact['plocation'];
+					if (isset($contact['locality'])) {
+						$entry['address']['locality'] = $contact['locality'];
 					}
-					if (isset($contact['pregion'])) {
-						$entry['address']['region'] = $contact['pregion'];
+					if (isset($contact['region'])) {
+						$entry['address']['region'] = $contact['region'];
 					}
 					// See above
-					//if (isset($rr['ppostalcode']))
-					//	 $entry['address']['postalCode'] = $rr['ppostalcode'];
+					//if (isset($rr['postal-code']))
+					//	 $entry['address']['postalCode'] = $rr['postal-code'];
 
-					if (isset($contact['pcountry'])) {
-						$entry['address']['country'] = $contact['pcountry'];
+					if (isset($contact['country'])) {
+						$entry['address']['country'] = $contact['country'];
 					}
 				}
 

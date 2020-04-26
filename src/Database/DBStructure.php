@@ -112,10 +112,12 @@ class DBStructure
 
 			echo "\n";
 		}
+
+		View::printStructure($basePath);
 	}
 
 	/**
-	 * Loads the database structure definition from the config/dbstructure.config.php file.
+	 * Loads the database structure definition from the static/dbstructure.config.php file.
 	 * On first pass, defines DB_UPDATE_VERSION constant.
 	 *
 	 * @see static/dbstructure.config.php
@@ -593,6 +595,8 @@ class DBStructure
 				}
 			}
 		}
+
+		View::create($verbose, $action);
 
 		if ($action && !$install) {
 			DI::config()->set('system', 'maintenance', 0);
