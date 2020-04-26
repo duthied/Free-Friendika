@@ -61,7 +61,7 @@ class Item
 
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = [
-		'uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid', 'network', 'gravity',
+		'uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid', 'network', 'gravity',
 		'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 		'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
@@ -77,7 +77,7 @@ class Item
 	];
 
 	// Field list that is used to deliver items via the protocols
-	const DELIVER_FIELDLIST = ['uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid',
+	const DELIVER_FIELDLIST = ['uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid',
 			'parent-guid', 'created', 'edited', 'verb', 'object-type', 'object', 'target',
 			'private', 'title', 'body', 'location', 'coord', 'app',
 			'attach', 'tag', 'deleted', 'extid', 'post-type',
@@ -1673,6 +1673,11 @@ class Item
 
 		// Check for hashtags in the body and repair or add hashtag links
 		self::setHashtags($item);
+
+		// Store tags from the body if this hadn't been handled previously in the protocol classes
+		if (!Tag::existsForPost($item['uri-id'])) {
+			Tag::storeFromBody($item['uri-id'], $item['body']);
+		}
 
 		$item['thr-parent'] = $item['parent-uri'];
 
@@ -3558,7 +3563,7 @@ class Item
 			return $ev;
 		}
 
-		$tags = Term::populateTagsFromItem($item);
+		$tags = Tag::populateTagsFromItem($item);
 
 		$item['tags'] = $tags['tags'];
 		$item['hashtags'] = $tags['hashtags'];

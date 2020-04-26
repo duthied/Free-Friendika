@@ -23,6 +23,7 @@ namespace Friendica\Content\Widget;
 
 use Friendica\Core\Renderer;
 use Friendica\DI;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 
 /**

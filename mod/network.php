@@ -38,6 +38,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
@@ -793,7 +794,7 @@ function networkThreadedView(App $a, $update, $parent)
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
 			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ? AND `item`.`gravity` = ?
 				AND NOT `author`.`hidden` AND NOT `author`.`blocked`" . $sql_tag_nets,
-			local_user(), Term::OBJECT_TYPE_POST, Term::HASHTAG,
+			local_user(), Term::OBJECT_TYPE_POST, Tag::HASHTAG,
 			$top_limit, $bottom_limit, GRAVITY_PARENT);
 
 		$data = DBA::toArray($items);

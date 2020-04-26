@@ -41,6 +41,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Mail;
 use Friendica\Model\Notify;
 use Friendica\Model\Photo;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
@@ -1542,7 +1543,7 @@ function api_search($type)
 		$condition = ["`oid` > ?
 			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) 
 			AND `otype` = ? AND `type` = ? AND `term` = ?",
-			$since_id, local_user(), Term::OBJECT_TYPE_POST, Term::HASHTAG, $searchTerm];
+			$since_id, local_user(), Term::OBJECT_TYPE_POST, Tag::HASHTAG, $searchTerm];
 		if ($max_id > 0) {
 			$condition[0] .= ' AND `oid` <= ?';
 			$condition[] = $max_id;

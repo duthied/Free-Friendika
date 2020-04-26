@@ -33,6 +33,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Module\BaseSearch;
 use Friendica\Network\HTTPException;
@@ -153,7 +154,7 @@ class Index extends BaseSearch
 			$condition = [
 				"(`uid` = 0 OR (`uid` = ? AND NOT `global`))
 				AND `otype` = ? AND `type` = ? AND `term` = ?",
-				local_user(), Term::OBJECT_TYPE_POST, Term::HASHTAG, $search
+				local_user(), Term::OBJECT_TYPE_POST, Tag::HASHTAG, $search
 			];
 			$params = [
 				'order' => ['received' => true],

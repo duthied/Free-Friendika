@@ -31,6 +31,7 @@ use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
+use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
@@ -148,7 +149,7 @@ class Status extends BaseProfile
 
 		if (!empty($hashtags)) {
 			$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				DBA::escape(Strings::protectSprintf($hashtags)), intval(Term::OBJECT_TYPE_POST), intval(Term::HASHTAG), intval($a->profile['uid']));
+				DBA::escape(Strings::protectSprintf($hashtags)), intval(Term::OBJECT_TYPE_POST), intval(Tag::HASHTAG), intval($a->profile['uid']));
 		}
 
 		if (!empty($datequery)) {

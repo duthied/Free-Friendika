@@ -183,7 +183,7 @@ EOT;
 		q("INSERT INTO term (oid, otype, type, term, url, uid) VALUE (%d, %d, %d, '%s', '%s', %d)",
 		   intval($item['id']),
 		   $term_objtype,
-		   Term::HASHTAG,
+		   Tag::HASHTAG,
 		   DBA::escape($term),
 		   '',
 		   intval($owner_uid)
@@ -205,7 +205,7 @@ EOT;
 			q("INSERT INTO term (`oid`, `otype`, `type`, `term`, `url`, `uid`) VALUE (%d, %d, %d, '%s', '%s', %d)",
 				intval($original_item['id']),
 				$term_objtype,
-				Term::HASHTAG,
+				Tag::HASHTAG,
 				DBA::escape($term),
 				'',
 				intval($owner_uid)
