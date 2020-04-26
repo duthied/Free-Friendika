@@ -906,7 +906,7 @@ class Profile
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm);
 		} else {
 			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
-				FROM `owner-view` WHERE $publish AND NOT `blocked` AND NOT `account_removed`");
+				FROM `owner-view` WHERE NOT `blocked` AND NOT `account_removed` $publish");
 		}
 
 		if (DBA::isResult($cnt)) {
