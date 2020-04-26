@@ -922,7 +922,8 @@ class Profile
 				$searchTerm = '%' . $search . '%';
 
 				$profiles = DBA::p("SELECT * FROM `owner-view`
-					WHERE $publish AND NOT `blocked` AND NOT `account_removed`
+					WHERE NOT `blocked` AND NOT `account_removed`
+					$publish
 					AND ((`name` LIKE ?) OR
 						(`nickname` LIKE ?) OR
 						(`about` LIKE ?) OR
