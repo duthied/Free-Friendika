@@ -27,5 +27,5 @@ namespace Friendica\Render;
 interface ITemplateEngine
 {
 	public function replaceMacros($s, $v);
-	public function getTemplateFile($file, $root = '');
+	public function getTemplateFile($file, $subDir = '');
 }
