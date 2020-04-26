@@ -887,13 +887,14 @@ class Profile
 	 */
 	public static function searchProfiles($start = 0, $count = 100, $search = null)
 	{
-		$publish = (DI::config()->get('system', 'publish_all') ? 'true' : "`publish` = 1");
+		$publish = (DI::config()->get('system', 'publish_all') ? '' : "AND `publish` = 1");
 		$total = 0;
 
 		if (!empty($search)) {
 			$searchTerm = '%' . $search . '%';
 			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` FROM `owner-view`
-				WHERE $publish AND NOT `blocked` AND NOT `account_removed`
+				WHERE NOT `blocked` AND NOT `account_removed`
+				$publish
 				AND ((`name` LIKE ?) OR
 				(`nickname` LIKE ?) OR
 				(`about` LIKE ?) OR
@@ -905,7 +906,7 @@ class Profile
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm);
 		} else {
 			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
-				FROM `owner-view` WHERE $publish AND NOT `blocked` AND NOT `account_removed`");
+				FROM `owner-view` WHERE NOT `blocked` AND NOT `account_removed` $publish");
 		}
 
 		if (DBA::isResult($cnt)) {
@@ -921,7 +922,8 @@ class Profile
 				$searchTerm = '%' . $search . '%';
 
 				$profiles = DBA::p("SELECT * FROM `owner-view`
-					WHERE $publish AND NOT `blocked` AND NOT `account_removed`
+					WHERE NOT `blocked` AND NOT `account_removed`
+					$publish
 					AND ((`name` LIKE ?) OR
 						(`nickname` LIKE ?) OR
 						(`about` LIKE ?) OR
@@ -936,7 +938,13 @@ class Profile
 				);
 			} else {
 				$profiles = DBA::p("SELECT * FROM `owner-view`
-					WHERE $publish AND NOT `blocked` AND NOT `account_removed` $order LIMIT ?,?", $start, $count);
+					WHERE NOT `blocked` AND NOT `account_removed`
+					$publish
+					$order
+					LIMIT ?, ?",
+					$start,
+					$count
+				);
 			}
 		}
 
