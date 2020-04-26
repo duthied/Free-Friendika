@@ -893,7 +893,8 @@ class Profile
 		if (!empty($search)) {
 			$searchTerm = '%' . $search . '%';
 			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` FROM `owner-view`
-				WHERE $publish AND NOT `blocked` AND NOT `account_removed`
+				WHERE NOT `blocked` AND NOT `account_removed`
+				$publish
 				AND ((`name` LIKE ?) OR
 				(`nickname` LIKE ?) OR
 				(`about` LIKE ?) OR
