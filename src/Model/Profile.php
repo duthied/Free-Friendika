@@ -887,13 +887,10 @@ class Profile
 	 */
 	public static function searchProfiles($start = 0, $count = 100, $search = null)
 	{
-		$publish = (DI::config()->get('system', 'publish_all') ? '' : "AND `publish` = 1");
-		$total = 0;
-
 		if (!empty($search)) {
+			$publish = (DI::config()->get('system', 'publish_all') ? '' : "AND `publish` ");
 			$searchTerm = '%' . $search . '%';
-			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` FROM `owner-view`
-				WHERE NOT `blocked` AND NOT `account_removed`
+			$condition = ["NOT `blocked` AND NOT `account_removed`
 				$publish
 				AND ((`name` LIKE ?) OR
 				(`nickname` LIKE ?) OR
@@ -903,62 +900,24 @@ class Profile
 				(`country-name` LIKE ?) OR
 				(`pub_keywords` LIKE ?) OR
 				(`prv_keywords` LIKE ?))",
-				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm);
+				$searchTerm, $searchTerm, $searchTerm, $searchTerm,
+				$searchTerm, $searchTerm, $searchTerm, $searchTerm];
 		} else {
-			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
-				FROM `owner-view` WHERE NOT `blocked` AND NOT `account_removed` $publish");
-		}
-
-		if (DBA::isResult($cnt)) {
-			$total = $cnt['total'];
-		}
-
-		$order = " ORDER BY `name` ASC ";
-		$profiles = [];
-
-		// If nothing found, don't try to select details
-		if ($total > 0) {
-			if (!empty($search)) {
-				$searchTerm = '%' . $search . '%';
-
-				$profiles = DBA::p("SELECT * FROM `owner-view`
-					WHERE NOT `blocked` AND NOT `account_removed`
-					$publish
-					AND ((`name` LIKE ?) OR
-						(`nickname` LIKE ?) OR
-						(`about` LIKE ?) OR
-						(`locality` LIKE ?) OR
-						(`region` LIKE ?) OR
-						(`country-name` LIKE ?) OR
-						(`pub_keywords` LIKE ?) OR
-						(`prv_keywords` LIKE ?))
-					$order LIMIT ?,?",
-					$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
-					$start, $count
-				);
-			} else {
-				$profiles = DBA::p("SELECT * FROM `owner-view`
-					WHERE NOT `blocked` AND NOT `account_removed`
-					$publish
-					$order
-					LIMIT ?, ?",
-					$start,
-					$count
-				);
+			$condition = ['blocked' => false, 'account_removed' => false];
+			if (!DI::config()->get('system', 'publish_all')) {
+				$condition['publish'] = true;
 			}
 		}
 
-		if (DBA::isResult($profiles) && $total > 0) {
-			return [
-				'total'   => $total,
-				'entries' => DBA::toArray($profiles),
-			];
+		$total = DBA::count('owner-view', $condition);
 
+		// If nothing found, don't try to select details
+		if ($total > 0) {
+			$profiles = DBA::selectToArray('owner-view', [], $condition, ['order' => ['name'], 'limit' => [$start, $count]]);
 		} else {
-			return [
-				'total'   => $total,
-				'entries' => [],
-			];
+			$profiles = [];
 		}
+
+		return ['total' => $total, 'entries' => $profiles];
 	}
 }
