@@ -325,7 +325,7 @@ class Diaspora
 	 */
 	private static function verifyMagicEnvelope($envelope)
 	{
-		$basedom = XML::parseString($envelope);
+		$basedom = XML::parseString($envelope, true);
 
 		if (!is_object($basedom)) {
 			Logger::log("Envelope is no XML file");
@@ -451,7 +451,7 @@ class Diaspora
 			$xml = $raw;
 		}
 
-		$basedom = XML::parseString($xml);
+		$basedom = XML::parseString($xml, true);
 
 		if (!is_object($basedom)) {
 			Logger::log('Received data does not seem to be an XML. Discarding. '.$xml);

@@ -747,7 +747,7 @@ class GServer
 			return false;
 		}
 
-		$xrd = XML::parseString($curlResult->getBody(), false);
+		$xrd = XML::parseString($curlResult->getBody());
 		if (!is_object($xrd)) {
 			return false;
 		}
@@ -796,13 +796,13 @@ class GServer
 		DBA::close($gcontacts);
 
 		$apcontacts = DBA::select('apcontact', ['url'], ['baseurl' => [$url, $serverdata['nurl']]]);
-		while ($gcontact = DBA::fetch($gcontacts)) {
+		while ($apcontact = DBA::fetch($apcontacts)) {
 			$contacts[Strings::normaliseLink($apcontact['url'])] = $apcontact['url'];
 		}
 		DBA::close($apcontacts);
 
 		$pcontacts = DBA::select('contact', ['url', 'nurl'], ['uid' => 0, 'baseurl' => [$url, $serverdata['nurl']]]);
-		while ($gcontact = DBA::fetch($gcontacts)) {
+		while ($pcontact = DBA::fetch($pcontacts)) {
 			$contacts[$pcontact['nurl']] = $pcontact['url'];
 		}
 		DBA::close($pcontacts);
