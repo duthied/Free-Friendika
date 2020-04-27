@@ -56,13 +56,13 @@ body a[name]:not([href]) {
     visibility: hidden;
 }
 
-body a:hover, .btn-link:hover, .btn:hover,
-body a:focus, .btn-link:focus, .btn:focus,
-body a:active, .btn-link:active, .btn:active,
-body a.active, .btn-link.active, .btn.active {
+body a:hover, .btn-link:hover,
+body a:focus, .btn-link:focus,
+body a:active, .btn-link:active,
+body a.active, .btn-link.active {
     color: $link_hover_color;
+	outline-color: $link_hover_color;;
     text-decoration: none;
-    outline: none;
 }
 
 .wall-item-container a:hover {
@@ -197,8 +197,8 @@ blockquote {
     padding: 8px 16px;
     color: inherit;
 }
-a.btn:hover {
-    color: #333;
+.btn:focus {
+	outline-color: $link_hover_color;
 }
 
 .btn-default {
@@ -219,17 +219,17 @@ a.btn:hover {
     padding: 1px 5px;
     font-size: 12px;
 }
-.btn-primary {
-    background: $nav_bg !important;
-    color: $btn_primary_color !important;
+.btn.btn-primary {
+    background: $nav_bg;
+    color: $btn_primary_color;
 }
-.btn-primary:hover, .btn-primary:focus {
+.btn.btn-primary:hover, .btn.btn-primary:focus {
+	color: $btn_primary_color;
     background: $btn_primary_hover_color;
     text-decoration: none;
 }
-.btn-primary:active, .btn-primary.active {
-    outline: 0;
-    background: $btn_primary_hover_color !important;
+.btn.btn-primary:active, .btn.btn-primary.active {
+    background: $btn_primary_hover_color;
 }
 
 .btn-primary.active.focus, .btn-primary.active:focus, .btn-primary.active:hover,
@@ -262,31 +262,7 @@ a.btn:hover {
 .btn-separator {
     border-left: 1px solid #777;
 }
-/*.btn-info {
-    background: #6fdbe8;
-    color: #fff!important;
-}
-.btn-info:hover, .btn-info:focus {
-    background: #59d6e4!important;
-    text-decoration: none;
-}
-.btn-info:active, .btn-info.active {
-    outline: 0;
-    background: #59d6e4;
-}*/
 
-.btn-main {
-    background: $link_color;
-    color: #fff!important;
-}
-.btn-main:hover, .btn-main:focus {
-    background: $link_hover_color !important;
-    text-decoration: none;
-}
-.btn-main:active, .btn-main.active {
-    outline: 0;
-    background: $link_hover_color;
-}
 .toggle.btn {
     border: 1px solid transparent;
 }
@@ -2202,19 +2178,13 @@ ul.dropdown-menu li:hover {
     box-shadow: none;
 }
 .form-control:focus {
-    /*border: 2px solid #6fdbe8;*/
     border: 2px solid $link_color;
-    outline: 0;
     box-shadow: none;
 }
 
-
 .checkbox input[type="checkbox"]:focus + label::before,
-.checkbox input[type="radio"]:focus + label::before {
-    /*border: 2px solid #6fdbe8;*/
-    border: 2px solid $link_color;
-    outline: 0;
-    box-shadow: none;
+.radio input[type="radio"]:focus + label::before {
+	outline-color: $link_hover_color;
 }
 
 /* Search form */
