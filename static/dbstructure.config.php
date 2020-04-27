@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1340);
+	define('DB_UPDATE_VERSION', 1341);
 }
 
 return [
@@ -754,6 +754,7 @@ return [
 			"icid" => ["icid"],
 			"iaid" => ["iaid"],
 			"psid_wall" => ["psid", "wall"],
+			"uri-id" => ["uri-id"],
 		]
 	],
 	"item-activity" => [
