@@ -128,6 +128,7 @@ class CronJobs
 		while ($user = DBA::fetch($users)) {
 			User::remove($user['uid']);
 		}
+		DBA::close($users);
 
 		// delete user records for recently removed accounts
 		$users = DBA::select('user', ['uid'], ["`account_removed` AND `account_expires_on` < UTC_TIMESTAMP() "]);
@@ -140,6 +141,7 @@ class CronJobs
 
 			DBA::delete('user', ['uid' => $user['uid']]);
 		}
+		DBA::close($users);
 	}
 
 	/**

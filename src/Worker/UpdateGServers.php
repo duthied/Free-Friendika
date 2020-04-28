@@ -52,5 +52,6 @@ class UpdateGServers
 				return;
 			}
 		}
+		DBA::close($gservers);
 	}
 }

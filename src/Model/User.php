@@ -1298,6 +1298,7 @@ class User
 				$statistics['active_users_monthly']++;
 			}
 		}
+		DBA::close($userStmt);
 
 		return $statistics;
 	}
