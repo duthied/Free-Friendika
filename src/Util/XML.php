@@ -433,18 +433,26 @@ class XML
 		}
 	}
 
-	public static function parseString($s, $strict = true)
+	/**
+	 * Parse XML string
+	 *
+	 * @param string  $s
+	 * @param boolean $suppress_log
+	 * @return Object
+	 */
+	public static function parseString(string $s, bool $suppress_log = false)
 	{
-		// the "strict" parameter is deactivated
 		libxml_use_internal_errors(true);
 
 		$x = @simplexml_load_string($s);
 		if (!$x) {
-			Logger::error('Error(s) while parsing XML string.', ['callstack' => System::callstack()]);
-			foreach (libxml_get_errors() as $err) {
-				Logger::info('libxml error', ['code' => $err->code, 'position' => $err->line . ":" . $err->column, 'message' => $err->message]);
+			if (!$suppress_log) {
+				Logger::error('Error(s) while parsing XML string.', ['callstack' => System::callstack()]);
+				foreach (libxml_get_errors() as $err) {
+					Logger::info('libxml error', ['code' => $err->code, 'position' => $err->line . ":" . $err->column, 'message' => $err->message]);
+				}
+				Logger::debug('Erroring XML string', ['xml' => $s]);
 			}
-			Logger::debug('Erroring XML string', ['xml' => $s]);
 			libxml_clear_errors();
 		}
 		return $x;

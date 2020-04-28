@@ -1249,8 +1249,8 @@ class Item
 			return;
 		}
 
-		$xo = XML::parseString($item["object"], false);
-		$xt = XML::parseString($item["target"], false);
+		$xo = XML::parseString($item["object"]);
+		$xt = XML::parseString($item["target"]);
 
 		if ($xt->type != Activity\ObjectType::NOTE) {
 			return;

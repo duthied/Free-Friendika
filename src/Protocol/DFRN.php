@@ -805,7 +805,7 @@ class DFRN
 		if ($activity) {
 			$entry = $doc->createElement($element);
 
-			$r = XML::parseString($activity, false);
+			$r = XML::parseString($activity);
 			if (!$r) {
 				return false;
 			}
@@ -831,7 +831,7 @@ class DFRN
 					$r->link = preg_replace('/\<link(.*?)\"\>/', '<link$1"/>', $r->link);
 
 					// XML does need a single element as root element so we add a dummy element here
-					$data = XML::parseString("<dummy>" . $r->link . "</dummy>", false);
+					$data = XML::parseString("<dummy>" . $r->link . "</dummy>");
 					if (is_object($data)) {
 						foreach ($data->link as $link) {
 							$attributes = [];
@@ -2101,7 +2101,7 @@ class DFRN
 		if (!$verb) {
 			return;
 		}
-		$xo = XML::parseString($item["object"], false);
+		$xo = XML::parseString($item["object"]);
 
 		if (($xo->type == Activity\ObjectType::PERSON) && ($xo->id)) {
 			// somebody was poked/prodded. Was it me?
@@ -2224,8 +2224,8 @@ class DFRN
 			}
 
 			if (($item["verb"] == Activity::TAG) && ($item["object-type"] == Activity\ObjectType::TAGTERM)) {
-				$xo = XML::parseString($item["object"], false);
-				$xt = XML::parseString($item["target"], false);
+				$xo = XML::parseString($item["object"]);
+				$xt = XML::parseString($item["target"]);
 
 				if ($xt->type == Activity\ObjectType::NOTE) {
 					$item_tag = Item::selectFirst(['id', 'uri-id', 'tag'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
@@ -2413,7 +2413,7 @@ class DFRN
 		$item["object"] = self::transformActivity($xpath, $object, "object");
 
 		if (trim($item["object"]) != "") {
-			$r = XML::parseString($item["object"], false);
+			$r = XML::parseString($item["object"]);
 			if (isset($r->type)) {
 				$item["object-type"] = $r->type;
 			}
