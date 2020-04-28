@@ -160,7 +160,7 @@ class Probe
 		$ssl_connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 		if ($curlResult->isSuccess()) {
 			$xml = $curlResult->getBody();
-			$xrd = XML::parseString($xml, false);
+			$xrd = XML::parseString($xml, true);
 			if (!empty($url)) {
 				$host_url = 'https://' . $host;
 			} else {
@@ -185,7 +185,7 @@ class Probe
 			}
 
 			$xml = $curlResult->getBody();
-			$xrd = XML::parseString($xml, false);
+			$xrd = XML::parseString($xml, true);
 			$host_url = 'http://'.$host;
 		}
 		if (!is_object($xrd)) {
@@ -936,7 +936,7 @@ class Probe
 		}
 
 		// If it is not JSON, maybe it is XML
-		$xrd = XML::parseString($data, false);
+		$xrd = XML::parseString($data, true);
 		if (!is_object($xrd)) {
 			Logger::log("No webfinger data retrievable for ".$url, Logger::DEBUG);
 			return false;
