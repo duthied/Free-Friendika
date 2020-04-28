@@ -1408,8 +1408,8 @@ class Transmitter
 	 */
 	private static function createAddTag($item, $data)
 	{
-		$object = XML::parseString($item['object'], false);
-		$target = XML::parseString($item["target"], false);
+		$object = XML::parseString($item['object']);
+		$target = XML::parseString($item["target"]);
 
 		$data['diaspora:guid'] = $item['guid'];
 		$data['actor'] = $item['author-link'];
