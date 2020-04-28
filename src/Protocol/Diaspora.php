@@ -124,7 +124,7 @@ class Diaspora
 			}
 
 			// All tags of the current post
-			$tags = DBA::select('tag-view', ['term'], ['uri-id' => $parent['uri-id'], 'type' => Tag::HASHTAG]);
+			$tags = DBA::select('tag-view', ['name'], ['uri-id' => $parent['uri-id'], 'type' => Tag::HASHTAG]);
 			$taglist = [];
 			while ($tag = DBA::fetch($tags)) {
 				$taglist[] = $tag['name'];
