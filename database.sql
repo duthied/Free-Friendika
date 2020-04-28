@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1340
+-- DB_UPDATE_VERSION 1341
 -- ------------------------------------------
 
 
@@ -1425,7 +1425,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`about` AS `about`,
 	`contact`.`keywords` AS `keywords`,
 	`contact`.`gender` AS `gender`,
-	`profile`.`xmpp` AS `xmpp`,
+	`contact`.`xmpp` AS `xmpp`,
 	`contact`.`attag` AS `attag`,
 	`contact`.`avatar` AS `avatar`,
 	`contact`.`photo` AS `photo`,
@@ -1457,11 +1457,9 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`name-date` AS `name-date`,
 	`contact`.`uri-date` AS `uri-date`,
 	`contact`.`avatar-date` AS `avatar-date`,
-	`contact`.`id` AS `contact_id`,
 	`contact`.`avatar-date` AS `picdate`,
 	`contact`.`term-date` AS `term-date`,
 	`contact`.`last-item` AS `last-item`,
-	`contact`.`last-item` AS `lastitem_date`,
 	`contact`.`priority` AS `priority`,
 	`contact`.`blocked` AS `blocked`,
 	`contact`.`block_reason` AS `block_reason`,
@@ -1484,29 +1482,47 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`profile-id` AS `profile-id`,
 	`contact`.`bdyear` AS `bdyear`,
 	`contact`.`bd` AS `bd`,
+	`contact`.`notify_new_posts` AS `notify_new_posts`,
+	`contact`.`fetch_further_information` AS `fetch_further_information`,
+	`contact`.`ffi_keyword_blacklist` AS `ffi_keyword_blacklist`,
+	`user`.`parent-uid` AS `parent-uid`,
 	`user`.`guid` AS `guid`,
-	`user`.`theme` AS `theme`,
-	`user`.`language` AS `language`,
-	`user`.`email` AS `email`,
-	`user`.`prvkey` AS `uprvkey`,
-	`user`.`pubkey` AS `upubkey`,
-	`user`.`timezone` AS `timezone`,
 	`user`.`nickname` AS `nickname`,
-	`user`.`username` AS `username`,
+	`user`.`email` AS `email`,
+	`user`.`openid` AS `openid`,
+	`user`.`timezone` AS `timezone`,
+	`user`.`language` AS `language`,
+	`user`.`register_date` AS `register_date`,
+	`user`.`login_date` AS `login_date`,
+	`user`.`default-location` AS `default-location`,
+	`user`.`allow_location` AS `allow_location`,
+	`user`.`theme` AS `theme`,
+	`user`.`pubkey` AS `upubkey`,
+	`user`.`prvkey` AS `uprvkey`,
 	`user`.`sprvkey` AS `sprvkey`,
 	`user`.`spubkey` AS `spubkey`,
+	`user`.`verified` AS `verified`,
+	`user`.`blockwall` AS `blockwall`,
+	`user`.`hidewall` AS `hidewall`,
+	`user`.`blocktags` AS `blocktags`,
+	`user`.`unkmail` AS `unkmail`,
+	`user`.`cntunkmail` AS `cntunkmail`,
+	`user`.`notify-flags` AS `notify-flags`,
 	`user`.`page-flags` AS `page-flags`,
 	`user`.`account-type` AS `account-type`,
 	`user`.`prvnets` AS `prvnets`,
-	`user`.`account_removed` AS `account_removed`,
-	`user`.`hidewall` AS `hidewall`,
-	`user`.`login_date` AS `login_date`,
-	`user`.`register_date` AS `register_date`,
-	`user`.`verified` AS `verified`,
+	`user`.`maxreq` AS `maxreq`,
 	`user`.`expire` AS `expire`,
-	`user`.`expire_notification_sent` AS `expire_notification_sent`,
+	`user`.`account_removed` AS `account_removed`,
 	`user`.`account_expired` AS `account_expired`,
 	`user`.`account_expires_on` AS `account_expires_on`,
+	`user`.`expire_notification_sent` AS `expire_notification_sent`,
+	`user`.`def_gid` AS `def_gid`,
+	`user`.`allow_cid` AS `allow_cid`,
+	`user`.`allow_gid` AS `allow_gid`,
+	`user`.`deny_cid` AS `deny_cid`,
+	`user`.`deny_gid` AS `deny_gid`,
+	`user`.`openidserver` AS `openidserver`,
 	`profile`.`publish` AS `publish`,
 	`profile`.`net-publish` AS `net-publish`,
 	`profile`.`hide-friends` AS `hide-friends`,
@@ -1522,6 +1538,22 @@ CREATE VIEW `owner-view` AS SELECT
 	FROM `user`
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`;
+
+--
+-- VIEW participation-view
+--
+DROP VIEW IF EXISTS `participation-view`;
+CREATE VIEW `participation-view` AS SELECT 
+	`participation`.`iid` AS `iid`,
+	`contact`.`id` AS `id`,
+	`contact`.`url` AS `url`,
+	`contact`.`name` AS `name`,
+	`contact`.`protocol` AS `protocol`,
+	CASE `contact`.`batch` WHEN '' THEN `fcontact`.`batch` ELSE `contact`.`batch` END AS `batch`,
+	CASE `fcontact`.`network` WHEN '' THEN `contact`.`network` ELSE `fcontact`.`network` END AS `network`
+	FROM `participation`
+			INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid` AND NOT `contact`.`archive`
+			INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`;
 
 --
 -- VIEW pending-view
@@ -1544,5 +1576,16 @@ CREATE VIEW `pending-view` AS SELECT
 	FROM `register`
 			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
 			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`;
+
+--
+-- VIEW workerqueue-view
+--
+DROP VIEW IF EXISTS `workerqueue-view`;
+CREATE VIEW `workerqueue-view` AS SELECT 
+	`process`.`pid` AS `pid`,
+	`workerqueue`.`priority` AS `priority`
+	FROM `process`
+			INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`
+			WHERE NOT `workerqueue`.`done`;
 
 
