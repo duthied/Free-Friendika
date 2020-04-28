@@ -68,7 +68,7 @@ function msearch_post(App $a)
 		$perpage
 	);
 
-	while($search_result = DBA::fetch($search_stmt)) {
+	while ($search_result = DBA::fetch($search_stmt)) {
 		$results[] = [
 			'name'  => $search_result['name'],
 			'url'   => DI::baseUrl() . '/profile/' . $search_result['nickname'],
@@ -76,6 +76,8 @@ function msearch_post(App $a)
 			'tags'  => str_replace([',', '  '], [' ', ' '], $search_result['pub_keywords'])
 		];
 	}
+
+	DBA::close($search_stmt);
 
 	$output = ['total' => $total, 'items_page' => $perpage, 'page' => $page, 'results' => $results];
 

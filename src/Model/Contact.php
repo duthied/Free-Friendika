@@ -2057,6 +2057,7 @@ class Contact
 
 			Worker::add(PRIORITY_HIGH, 'MergeContact', $first, $duplicate['id'], $uid);
 		}
+		DBA::close($duplicates);
 		Logger::info('Duplicates handled', ['uid' => $uid, 'nurl' => $nurl]);
 		return true;
 	}
@@ -2732,6 +2733,7 @@ class Contact
 				);
 			}
 		}
+		DBA::close($contacts);
 	}
 
 	/**

@@ -113,6 +113,7 @@ class GContact
 
 			$gcontacts[] = Contact::getDetailsByURL($result['nurl'], local_user());
 		}
+		DBA::close($results);
 		return $gcontacts;
 	}
 
@@ -563,6 +564,7 @@ class GContact
 				PortableContact::loadWorker(0, 0, 0, $base);
 			}
 		}
+		DBA::close($contacts);
 	}
 
 	/**

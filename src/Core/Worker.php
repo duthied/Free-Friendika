@@ -614,6 +614,7 @@ class Worker
 				}
 			}
 		}
+		DBA::close($entries);
 	}
 
 	/**

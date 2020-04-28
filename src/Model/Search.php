@@ -44,7 +44,7 @@ class Search
 		while ($term = DBA::fetch($termsStmt)) {
 			$tags[] = trim($term['term'], '#');
 		}
-
+		DBA::close($termsStmt);
 		return $tags;
 	}
 }

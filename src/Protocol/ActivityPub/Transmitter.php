@@ -96,6 +96,7 @@ class Transmitter
 			while ($contact = DBA::fetch($contacts)) {
 				$list[] = $contact['url'];
 			}
+			DBA::close($contacts);
 
 			if (!empty($list)) {
 				$data['next'] = DI::baseUrl() . '/followers/' . $owner['nickname'] . '?page=' . ($page + 1);
@@ -145,6 +146,7 @@ class Transmitter
 			while ($contact = DBA::fetch($contacts)) {
 				$list[] = $contact['url'];
 			}
+			DBA::close($contacts);
 
 			if (!empty($list)) {
 				$data['next'] = DI::baseUrl() . '/following/' . $owner['nickname'] . '?page=' . ($page + 1);
