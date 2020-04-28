@@ -68,7 +68,19 @@ class Tag
 	 */
 	public static function store(int $uriid, int $type, string $name, string $url = '', $probing = true)
 	{
-		$name = trim($name, "\x00..\x20\xFF#!@");
+		if ($type = self::HASHTAG) {
+			// Remove some common "garbarge" from tags
+			$name = trim($name, "\x00..\x20\xFF#!@,;.:'/?!^°$%".'"');
+
+			$tags = explode(self::TAG_CHARACTER[self::HASHTAG], $name);
+			if (count($tags) > 1) {
+				foreach ($tags as $tag) {
+					self::store($uriid, $type, $tag, $url, $probing);
+				}
+				return;
+			}
+		}
+
 		if (empty($name)) {
 			return;
 		}
@@ -76,7 +88,7 @@ class Tag
 		$cid = 0;
 		$tagid = 0;
 
-		if (in_array($type, [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION])) {
+		if (in_array($type, [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION])) {
 			if (empty($url)) {
 				// No mention without a contact url
 				return;
@@ -115,7 +127,7 @@ class Tag
 		if (empty($cid)) {
 			$fields = ['name' => substr($name, 0, 96), 'url' => ''];
 
-			if (($type != Tag::HASHTAG) && !empty($url) && ($url != $name)) {
+			if (($type != self::HASHTAG) && !empty($url) && ($url != $name)) {
 				$fields['url'] = strtolower($url);
 			}
 
@@ -135,9 +147,9 @@ class Tag
 
 		$fields = ['uri-id' => $uriid, 'type' => $type, 'tid' => $tagid, 'cid' => $cid];
 
-		if (in_array($type, [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION])) {
+		if (in_array($type, [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION])) {
 			$condition = $fields;
-			$condition['type'] = [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION];
+			$condition['type'] = [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION];
 			if (DBA::exists('post-tag', $condition)) {
 				Logger::info('Tag already exists', $fields);
 				return;
@@ -376,4 +388,32 @@ class Tag
 		return $return;
 	}
 
+	/**
+	 * Search posts for given tag
+	 *
+	 * @param string $search
+	 * @param integer $uid
+	 * @param integer $start
+	 * @param integer $limit
+	 * @return array with URI-ID
+	 */
+	public static function getURIIdListForTag(string $search, int $uid = 0, int $start = 0, int $limit = 100)
+	{
+		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
+		$params = [
+			'order' => ['uri-id' => true],
+			'group_by' => ['uri-id'],
+			'limit' => [$start, $limit]
+		];
+
+		$tags = DBA::select('tag-search-view', ['uri-id'], $condition, $params);
+
+		$uriids = [];
+		while ($tag = DBA::fetch($tags)) {
+			$uriids[] = $tag['uri-id'];
+		}
+		DBA::close($tags);
+
+		return $uriids;
+	}
 }
