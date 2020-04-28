@@ -142,7 +142,7 @@ class Search
 		$profiles = $results['profiles'] ?? [];
 
 		foreach ($profiles as $profile) {
-			$profile_url = $profile['profile_url'] ?? '';
+			$profile_url = $profile['url'] ?? '';
 			$contactDetails = Contact::getDetailsByURL($profile_url, local_user());
 
 			$result = new ContactResult(

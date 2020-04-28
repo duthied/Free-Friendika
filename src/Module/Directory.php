@@ -120,9 +120,9 @@ class Directory extends BaseModule
 	 */
 	public static function formatEntry(array $contact, $photo_size = 'photo')
 	{
-		$itemurl = (($contact['addr'] != "") ? $contact['addr'] : $contact['profile_url']);
+		$itemurl = (($contact['addr'] != "") ? $contact['addr'] : $contact['url']);
 
-		$profile_link = $contact['profile_url'];
+		$profile_link = $contact['url'];
 
 		$about = (($contact['about']) ? $contact['about'] . '<br />' : '');
 
