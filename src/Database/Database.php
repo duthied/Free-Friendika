@@ -57,6 +57,7 @@ class Database
 	/** @var PDO|mysqli */
 	protected $connection;
 	protected $driver;
+	private $emulate_prepares = false;
 	private $error          = false;
 	private $errorno        = 0;
 	private $affected_rows  = 0;
@@ -129,6 +130,8 @@ class Database
 		if (!(strlen($server) && strlen($user))) {
 			return false;
 		}
+
+		$this->emulate_prepares = (bool)$this->configCache->get('database', 'emulate_prepares');
 
 		if (class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
 			$this->driver = 'pdo';
@@ -428,8 +431,10 @@ class Database
 	{
 		$offset = 0;
 		foreach ($args AS $param => $value) {
-			if (is_int($args[$param]) || is_float($args[$param])) {
+			if (is_int($args[$param]) || is_float($args[$param]) || is_bool($args[$param])) {
 				$replace = intval($args[$param]);
+			} elseif (is_null($args[$param])) {
+				$replace = 'NULL';
 			} else {
 				$replace = "'" . $this->escape($args[$param]) . "'";
 			}
@@ -515,8 +520,8 @@ class Database
 		switch ($this->driver) {
 			case 'pdo':
 				// If there are no arguments we use "query"
-				if (count($args) == 0) {
-					if (!$retval = $this->connection->query($sql)) {
+				if ($this->emulate_prepares || count($args) == 0) {
+					if (!$retval = $this->connection->query($this->replaceParameters($sql, $args))) {
 						$errorInfo     = $this->connection->errorInfo();
 						$this->error   = $errorInfo[2];
 						$this->errorno = $errorInfo[1];
@@ -562,7 +567,7 @@ class Database
 				$can_be_prepared = in_array($command, ['select', 'update', 'insert', 'delete']);
 
 				// The fallback routine is called as well when there are no arguments
-				if (!$can_be_prepared || (count($args) == 0)) {
+				if ($this->emulate_prepares || !$can_be_prepared || (count($args) == 0)) {
 					$retval = $this->connection->query($this->replaceParameters($sql, $args));
 					if ($this->connection->errno) {
 						$this->error   = $this->connection->error;
