@@ -125,6 +125,7 @@ class Delegation extends BaseSettings
 		while ($contact = DBA::fetch($contacts)) {
 			$nicknames[] = $contact['nick'];
 		}
+		DBA::close($contacts);
 
 		// get user records for all potential page delegates who are not already delegates or managers
 		$potentialDelegateUsers = DBA::selectToArray('user', ['uid', 'username', 'nickname'], ['nickname' => $nicknames]);

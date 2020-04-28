@@ -96,5 +96,6 @@ class UpdateGContacts
 				return;
 			}
 		}
+		DBA::close($contacts);
 	}
 }

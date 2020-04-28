@@ -214,6 +214,7 @@ class UserItem
 				return true;
 			}
 		}
+		DBA::close($tags);
 
 		return false;
 	}

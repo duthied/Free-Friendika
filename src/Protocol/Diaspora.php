@@ -124,6 +124,7 @@ class Diaspora
 			while ($server = DBA::fetch($servers)) {
 				$serverlist[$server['url']] = $server['url'];
 			}
+			DBA::close($servers);
 
 			// All tags of the current post
 			$condition = ['otype' => Term::OBJECT_TYPE_POST, 'type' => Term::HASHTAG, 'oid' => $parent['parent']];
@@ -132,6 +133,7 @@ class Diaspora
 			while ($tag = DBA::fetch($tags)) {
 				$taglist[] = $tag['term'];
 			}
+			DBA::close($tags);
 
 			// All servers who wants content with this tag
 			$tagserverlist = [];
@@ -140,6 +142,7 @@ class Diaspora
 				while ($server = DBA::fetch($tagserver)) {
 					$tagserverlist[] = $server['gserver-id'];
 				}
+				DBA::close($tagserver);
 			}
 
 			// All adresses with the given id
@@ -148,6 +151,7 @@ class Diaspora
 				while ($server = DBA::fetch($servers)) {
 					$serverlist[$server['url']] = $server['url'];
 				}
+				DBA::close($servers);
 			}
 		}
 
@@ -1720,6 +1724,7 @@ class Diaspora
 		while ($contact = DBA::fetch($contacts)) {
 			Contact::remove($contact["id"]);
 		}
+		DBA::close($contacts);
 
 		DBA::delete('gcontact', ['addr' => $author]);
 

@@ -121,6 +121,7 @@ class Site extends BaseAdmin
 			while ($user = DBA::fetch($usersStmt)) {
 				Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $user['uid']);
 			}
+			DBA::close($usersStmt);
 
 			info("Relocation started. Could take a while to complete.");
 
