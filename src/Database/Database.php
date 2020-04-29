@@ -1654,10 +1654,7 @@ class Database
 	public function getVariable(string $name)
 	{
 		$result = $this->fetchFirst("SHOW GLOBAL VARIABLES WHERE `Variable_name` = ?", $name);
-		if (!isset($result['Value'])) {
-			return null;
-		}
-		return $result['Value'];
+		return $result['Value'] ?? null;
 	}
 
 	/**
