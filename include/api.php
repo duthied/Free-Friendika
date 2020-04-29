@@ -1540,6 +1540,7 @@ function api_search($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	if (preg_match('/^#(\w+)$/', $searchTerm, $matches) === 1 && isset($matches[1])) {
 		$searchTerm = $matches[1];
+		/// @todo $uriids = Tag::getURIIdListForTag($searchTerm, local_user());
 		$condition = ["`oid` > ?
 			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) 
 			AND `otype` = ? AND `type` = ? AND `term` = ?",
