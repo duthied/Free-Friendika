@@ -1646,6 +1646,21 @@ class Database
 	}
 
 	/**
+	 * Fetch a database variable
+	 *
+	 * @param string $name
+	 * @return string content
+	 */
+	public function getVariable(string $name)
+	{
+		$result = $this->fetchFirst("SHOW GLOBAL VARIABLES WHERE `Variable_name` = ?", $name);
+		if (!isset($result['Value'])) {
+			return null;
+		}
+		return $result['Value'];
+	}
+
+	/**
 	 * Checks if $array is a filled array with at least one entry.
 	 *
 	 * @param mixed $array A filled array with at least one entry
