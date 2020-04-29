@@ -56,7 +56,7 @@ class Register
 	 */
 	public static function getPendingForUser(int $uid)
 	{
-		return DBA::selectToArray('pending-view', [], ['uid' => $uid]);
+		return DBA::selectFirst('pending-view', [], ['uid' => $uid, 'self' => true]);
 	}
 
 	/**
