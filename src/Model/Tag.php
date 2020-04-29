@@ -68,7 +68,7 @@ class Tag
 	 */
 	public static function store(int $uriid, int $type, string $name, string $url = '', $probing = true)
 	{
-		if ($type = self::HASHTAG) {
+		if ($type == self::HASHTAG) {
 			// Remove some common "garbarge" from tags
 			$name = trim($name, "\x00..\x20\xFF#!@,;.:'/?!^°$%".'"');
 
