@@ -585,9 +585,9 @@ class PostUpdate
 
 		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
 
-		// When there are less than 100 items processed this means that we reached the end
+		// When there are less than 1,000 items processed this means that we reached the end
 		// The other entries will then be processed with the regular functionality
-		if ($rows < 100) {
+		if ($rows < 1000) {
 			DI::config()->set('system', 'post_update_version', 1341);
 			Logger::info('Done');
 			return true;
@@ -657,9 +657,9 @@ class PostUpdate
 
 		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
 
-		// When there are less than 100 items processed this means that we reached the end
+		// When there are less than 1,000 items processed this means that we reached the end
 		// The other entries will then be processed with the regular functionality
-		if ($rows < 100) {
+		if ($rows < 1000) {
 			DI::config()->set('system', 'post_update_version', 1342);
 			Logger::info('Done');
 			return true;
