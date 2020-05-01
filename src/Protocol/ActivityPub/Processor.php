@@ -1015,7 +1015,7 @@ class Processor
 			return [];
 		}
 
-		$parent_terms = Tag::ArrayFromURIId($parent['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
+		$parent_terms = Tag::getByURIId($parent['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
 		$parent_author = Contact::getDetailsByURL($parent['author-link'], 0);
 

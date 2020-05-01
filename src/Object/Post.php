@@ -390,7 +390,7 @@ class Post
 			$buttons["like"] = false;
 		}
 
-		$tags = Tag::populateTagsFromItem($item);
+		$tags = Tag::populateFromItem($item);
 
 		$ago = Temporal::getRelativeDate($item['created']);
 		$ago_received = Temporal::getRelativeDate($item['received']);
@@ -872,7 +872,7 @@ class Post
 			$text = '';
 		}
 
-		$terms = Tag::ArrayFromURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
+		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 		foreach ($terms as $term) {
 			$profile = Contact::getDetailsByURL($term['url']);
 			if (!empty($profile['addr']) && ((($profile['contact-type'] ?? '') ?: Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&

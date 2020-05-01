@@ -526,7 +526,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					$profile_name = $item['author-link'];
 				}
 
-				$tags = Tag::populateTagsFromItem($item);
+				$tags = Tag::populateFromItem($item);
 
 				$author = ['uid' => 0, 'id' => $item['author-id'],
 					'network' => $item['author-network'], 'url' => $item['author-link']];

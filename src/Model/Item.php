@@ -3563,7 +3563,7 @@ class Item
 			return $ev;
 		}
 
-		$tags = Tag::populateTagsFromItem($item);
+		$tags = Tag::populateFromItem($item);
 
 		$item['tags'] = $tags['tags'];
 		$item['hashtags'] = $tags['hashtags'];

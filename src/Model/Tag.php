@@ -316,7 +316,7 @@ class Tag
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function ArrayFromURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION])
+	public static function getByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION])
 	{
 		$condition = ['uri-id' => $uri_id, 'type' => $type];
 		$tags = DBA::select('tag-view', ['type', 'name', 'url'], $condition);
@@ -333,7 +333,7 @@ class Tag
 		return $tag_list;
 	}
 
-		/**
+	/**
 	 * Sorts an item's tags into mentions, hashtags and other tags. Generate personalized URLs by user and modify the
 	 * provided item's body with them.
 	 *
@@ -342,7 +342,7 @@ class Tag
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function populateTagsFromItem(&$item)
+	public static function populateFromItem(&$item)
 	{
 		$return = [
 			'tags' => [],
