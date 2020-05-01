@@ -149,7 +149,7 @@ class Index extends BaseSearch
 
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);
-			$uriids = Tag::getURIIdListForTag($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
+			$uriids = Tag::getURIIdListByTag($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
 
 			if (!empty($uriids)) {
 				$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];

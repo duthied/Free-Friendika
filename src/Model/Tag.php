@@ -398,7 +398,7 @@ class Tag
 	 * @param integer $limit
 	 * @return array with URI-ID
 	 */
-	public static function getURIIdListForTag(string $search, int $uid = 0, int $start = 0, int $limit = 100)
+	public static function getURIIdListByTag(string $search, int $uid = 0, int $start = 0, int $limit = 100)
 	{
 		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
 		$params = [
