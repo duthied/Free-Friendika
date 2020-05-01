@@ -1015,8 +1015,8 @@ class Transmitter
 		$terms = Tag::getByURIId($item['uri-id'], [Tag::HASHTAG, Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 		foreach ($terms as $term) {
 			if ($term['type'] == Tag::HASHTAG) {
-				$url = DI::baseUrl() . '/search?tag=' . urlencode($term['term']);
-				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['term']];
+				$url = DI::baseUrl() . '/search?tag=' . urlencode($term['name']);
+				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['name']];
 			} else {
 				$contact = Contact::getDetailsByURL($term['url']);
 				if (!empty($contact['addr'])) {
