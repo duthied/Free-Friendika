@@ -34,6 +34,7 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Profile;
 use Friendica\Model\Photo;
 use Friendica\Model\Tag;
@@ -700,6 +701,8 @@ class Transmitter
 		if (!DBA::isResult($mail)) {
 			return [];
 		}
+
+		$mail['uri-id'] = ItemURI::insert(['uri' => $mail['uri'], 'guid' => $mail['guid']]);
 
 		$reply = DBA::selectFirst('mail', ['uri'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
 
