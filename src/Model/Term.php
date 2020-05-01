@@ -21,7 +21,6 @@
 
 namespace Friendica\Model;
 
-use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -202,7 +201,7 @@ class Term
 		}
 
 		foreach ($tags as $link => $tag) {
-			if (self::isType($tag, self::HASHTAG)) {
+			if (Tag::isType($tag, self::HASHTAG)) {
 				// try to ignore #039 or #1 or anything like that
 				if (ctype_digit(substr(trim($tag), 1))) {
 					continue;
@@ -216,8 +215,8 @@ class Term
 				$type = self::HASHTAG;
 				$term = substr($tag, 1);
 				$link = '';
-			} elseif (self::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION)) {
-				if (self::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION)) {
+			} elseif (Tag::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION)) {
+				if (Tag::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION)) {
 					$type = self::MENTION;
 				} else {
 					$type = self::IMPLICIT_MENTION;
@@ -266,7 +265,7 @@ class Term
 			]);
 
 			// Search for mentions
-			if (self::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION)
+			if (Tag::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION)
 				&& (
 					strpos($link, $profile_base_friendica) !== false
 					|| strpos($link, $profile_base_diaspora) !== false
@@ -350,24 +349,5 @@ class Term
 
 		// Clean up all tags
 		DBA::delete('term', ['otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'type' => $type]);
-	}
-
-	/**
-	 * Check if the provided tag is of one of the provided term types.
-	 *
-	 * @param string $tag
-	 * @param int    ...$types
-	 * @return bool
-	 */
-	public static function isType($tag, ...$types)
-	{
-		$tag_chars = [];
-		foreach ($types as $type) {
-			if (array_key_exists($type, self::TAG_CHARACTER)) {
-				$tag_chars[] = self::TAG_CHARACTER[$type];
-			}
-		}
-
-		return Strings::startsWith($tag, $tag_chars);
 	}
 }

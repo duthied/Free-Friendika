@@ -471,4 +471,23 @@ class Tag
 
 		return $tags ?: [];
 	}
+
+	/**
+	 * Check if the provided tag is of one of the provided term types.
+	 *
+	 * @param string $tag
+	 * @param int    ...$types
+	 * @return bool
+	 */
+	public static function isType($tag, ...$types)
+	{
+		$tag_chars = [];
+		foreach ($types as $type) {
+			if (array_key_exists($type, self::TAG_CHARACTER)) {
+				$tag_chars[] = self::TAG_CHARACTER[$type];
+			}
+		}
+
+		return Strings::startsWith($tag, $tag_chars);
+	}	
 }
