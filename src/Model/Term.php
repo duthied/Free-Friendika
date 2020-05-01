@@ -61,95 +61,6 @@ class Term
     const OBJECT_TYPE_PHOTO = 2;
 
 	/**
-	 * Returns a list of the most frequent global hashtags over the given period
-	 *
-	 * @param int $period Period in hours to consider posts
-	 * @return array
-	 * @throws \Exception
-	 */
-	public static function getGlobalTrendingHashtags(int $period, $limit = 10)
-	{
-		$tags = DI::cache()->get('global_trending_tags');
-
-		if (!$tags) {
-			$tagsStmt = DBA::p("SELECT t.`term`, COUNT(*) AS `score`
-				FROM `term` t
-				 JOIN `item` i ON i.`id` = t.`oid` AND i.`uid` = t.`uid`
-				 JOIN `thread` ON `thread`.`iid` = i.`id`
-				WHERE `thread`.`visible`
-				  AND NOT `thread`.`deleted`
-				  AND NOT `thread`.`moderated`
-				  AND `thread`.`private` = ?
-				  AND t.`uid` = 0
-				  AND t.`otype` = ?
-				  AND t.`type` = ?
-				  AND t.`term` != ''
-				  AND i.`received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
-				GROUP BY `term`
-				ORDER BY `score` DESC
-				LIMIT ?",
-				Item::PUBLIC,
-				self::OBJECT_TYPE_POST,
-				self::HASHTAG,
-				$period,
-				$limit
-			);
-
-			if (DBA::isResult($tagsStmt)) {
-				$tags = DBA::toArray($tagsStmt);
-				DI::cache()->set('global_trending_tags', $tags, Duration::HOUR);
-			}
-		}
-
-		return $tags ?: [];
-	}
-
-	/**
-	 * Returns a list of the most frequent local hashtags over the given period
-	 *
-	 * @param int $period Period in hours to consider posts
-	 * @return array
-	 * @throws \Exception
-	 */
-	public static function getLocalTrendingHashtags(int $period, $limit = 10)
-	{
-		$tags = DI::cache()->get('local_trending_tags');
-
-		if (!$tags) {
-			$tagsStmt = DBA::p("SELECT t.`term`, COUNT(*) AS `score`
-				FROM `term` t
-				JOIN `item` i ON i.`id` = t.`oid` AND i.`uid` = t.`uid`
-				JOIN `thread` ON `thread`.`iid` = i.`id`
-				WHERE `thread`.`visible`
-				  AND NOT `thread`.`deleted`
-				  AND NOT `thread`.`moderated`
-				  AND `thread`.`private` = ?
-				  AND `thread`.`wall`
-				  AND `thread`.`origin`
-				  AND t.`otype` = ?
-				  AND t.`type` = ?
-				  AND t.`term` != ''
-				  AND i.`received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
-				GROUP BY `term`
-				ORDER BY `score` DESC
-				LIMIT ?",
-				Item::PUBLIC,
-				self::OBJECT_TYPE_POST,
-				self::HASHTAG,
-				$period,
-				$limit
-			);
-
-			if (DBA::isResult($tagsStmt)) {
-				$tags = DBA::toArray($tagsStmt);
-				DI::cache()->set('local_trending_tags', $tags, Duration::HOUR);
-			}
-		}
-
-		return $tags ?: [];
-	}
-
-	/**
 	 * Generates the legacy item.tag field comma-separated BBCode string from an item ID.
 	 * Includes only hashtags, implicit and explicit mentions.
 	 *
@@ -176,7 +87,7 @@ class Term
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function tagArrayFromItemId($item_id, $type = [self::HASHTAG, self::MENTION])
+	private static function tagArrayFromItemId($item_id, $type = [self::HASHTAG, self::MENTION])
 	{
 		$condition = ['otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'type' => $type];
 		$tags = DBA::select('term', ['type', 'term', 'url'], $condition);

@@ -101,7 +101,7 @@ function item_post(App $a) {
 	$toplevel_item_id = intval($_REQUEST['parent'] ?? 0);
 	$thr_parent_uri = trim($_REQUEST['parent_uri'] ?? '');
 
-	$thread_parent_id = 0;
+	$thread_parent_uriid = 0;
 	$thread_parent_contact = null;
 
 	$toplevel_item = null;
@@ -123,7 +123,7 @@ function item_post(App $a) {
 		// if this isn't the top-level parent of the conversation, find it
 		if (DBA::isResult($toplevel_item)) {
 			// The URI and the contact is taken from the direct parent which needn't to be the top parent
-			$thread_parent_id = $toplevel_item['id'];
+			$thread_parent_uriid = $toplevel_item['uri-id'];
 			$thr_parent_uri = $toplevel_item['uri'];
 			$thread_parent_contact = Contact::getDetailsByURL($toplevel_item["author-link"]);
 
@@ -381,8 +381,8 @@ function item_post(App $a) {
 
 	$tags = BBCode::getTags($body);
 
-	if ($thread_parent_id && !\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions')) {
-		$tags = item_add_implicit_mentions($tags, $thread_parent_contact, $thread_parent_id);
+	if ($thread_parent_uriid && !\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions')) {
+		$tags = item_add_implicit_mentions($tags, $thread_parent_contact, $thread_parent_uriid);
 	}
 
 	$tagged = [];
@@ -1044,7 +1044,7 @@ function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network =
 	return ['replaced' => $replaced, 'contact' => $contact];
 }
 
-function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $thread_parent_id)
+function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $thread_parent_uriid)
 {
 	if (DI::config()->get('system', 'disable_implicit_mentions')) {
 		// Add a tag if the parent contact is from ActivityPub or OStatus (This will notify them)
@@ -1059,7 +1059,7 @@ function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $
 			$thread_parent_contact['url'] => $thread_parent_contact['nick']
 		];
 
-		$parent_terms = Term::tagArrayFromItemId($thread_parent_id, [Tag::MENTION, Tag::IMPLICIT_MENTION]);
+		$parent_terms = Tag::getByURIId($thread_parent_uriid, [Tag::MENTION, Tag::IMPLICIT_MENTION]);
 
 		foreach ($parent_terms as $parent_term) {
 			$implicit_mentions[$parent_term['url']] = $parent_term['term'];

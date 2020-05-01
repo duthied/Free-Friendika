@@ -228,6 +228,10 @@ return [
 			"guid" => ["item", "guid"],
 			"uid" => ["item", "uid"],
 			"private" => ["item", "private"],
+			"wall" => ["item", "wall"],
+			"origin" => ["item", "origin"],
+			"gravity" => ["item", "gravity"],
+			"received" => ["item", "received"],			
 			"name" => ["tag", "name"],
 		],
 		"query" => "FROM `post-tag`
