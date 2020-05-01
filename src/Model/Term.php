@@ -70,7 +70,7 @@ class Term
 	public static function tagTextFromItemId($item_id)
 	{
 		$tag_list = [];
-		$tags = self::tagArrayFromItemId($item_id, [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION]);
+		$tags = self::getByItemId($item_id, [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION]);
 		foreach ($tags as $tag) {
 			$tag_list[] = self::TAG_CHARACTER[$tag['type']] . '[url=' . $tag['url'] . ']' . $tag['term'] . '[/url]';
 		}
@@ -86,7 +86,7 @@ class Term
 	 * @return array
 	 * @throws \Exception
 	 */
-	private static function tagArrayFromItemId($item_id, $type = [self::HASHTAG, self::MENTION])
+	private static function getByItemId($item_id, $type = [self::HASHTAG, self::MENTION])
 	{
 		$condition = ['otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'type' => $type];
 		$tags = DBA::select('term', ['type', 'term', 'url'], $condition);
@@ -108,7 +108,7 @@ class Term
 	public static function fileTextFromItemId($item_id)
 	{
 		$file_text = '';
-		$tags = self::tagArrayFromItemId($item_id, [self::FILE, self::CATEGORY]);
+		$tags = self::getByItemId($item_id, [self::FILE, self::CATEGORY]);
 		foreach ($tags as $tag) {
 			if ($tag['type'] == self::CATEGORY) {
 				$file_text .= '<' . $tag['term'] . '>';
