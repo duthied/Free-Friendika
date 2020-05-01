@@ -102,16 +102,13 @@ class TagCloud
 		}
 
 		// Fetch tags
-		$tag_stmt = DBA::p("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
-			LEFT JOIN `item` ON `term`.`oid` = `item`.`id`
-			WHERE `term`.`uid` = ? AND `term`.`type` = ?
-			AND `term`.`otype` = ?
+		$tag_stmt = DBA::p("SELECT `name`, COUNT(`name`) AS `total` FROM `tag-search-view`
+			LEFT JOIN `item` ON `tag-search-view`.`uri-id` = `item`.`uri-id`
+			WHERE `tag-search-view`.`uid` = ?
 			AND `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 			$sql_options
-			GROUP BY `term` ORDER BY `total` DESC $limit",
-			$uid,
-			$type,
-			Term::OBJECT_TYPE_POST
+			GROUP BY `name` ORDER BY `total` DESC $limit",
+			$uid
 		);
 		if (!DBA::isResult($tag_stmt)) {
 			return [];
@@ -140,7 +137,7 @@ class TagCloud
 		}
 
 		foreach ($arr as $rr) {
-			$tags[$x][0] = $rr['term'];
+			$tags[$x][0] = $rr['name'];
 			$tags[$x][1] = log($rr['total']);
 			$tags[$x][2] = 0;
 			$min = min($min, $tags[$x][1]);
