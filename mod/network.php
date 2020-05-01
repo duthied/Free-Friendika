@@ -38,7 +38,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
-use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;

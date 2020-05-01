@@ -31,7 +31,6 @@ use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
-use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;

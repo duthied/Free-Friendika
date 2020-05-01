@@ -41,8 +41,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Mail;
 use Friendica\Model\Notify;
 use Friendica\Model\Photo;
-use Friendica\Model\Tag;
-use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
 use Friendica\Network\FKOAuth1;

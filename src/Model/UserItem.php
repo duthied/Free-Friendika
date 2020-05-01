@@ -27,7 +27,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Strings;
 use Friendica\Model\Tag;
-use Friendica\Model\Term;
 
 class UserItem
 {

@@ -26,7 +26,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Tag;
-use Friendica\Model\Term;
 
 /**
  * TagCloud widget

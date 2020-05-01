@@ -46,7 +46,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\Photo;
 use Friendica\Model\Tag;
-use Friendica\Model\Term;
 use Friendica\Network\HTTPException;
 use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
