@@ -1540,32 +1540,24 @@ function api_search($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	if (preg_match('/^#(\w+)$/', $searchTerm, $matches) === 1 && isset($matches[1])) {
 		$searchTerm = $matches[1];
-		/// @todo $uriids = Tag::getURIIdListForTag($searchTerm, local_user());
-		$condition = ["`oid` > ?
-			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) 
-			AND `otype` = ? AND `type` = ? AND `term` = ?",
-			$since_id, local_user(), Term::OBJECT_TYPE_POST, Tag::HASHTAG, $searchTerm];
-		if ($max_id > 0) {
-			$condition[0] .= ' AND `oid` <= ?';
-			$condition[] = $max_id;
+		$condition = ["`iid` > ? AND `name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $since_id, $searchTerm, local_user()];
+		$tags = DBA::select('tag-search-view', ['uri-id'], $condition);
+		$uriids = [];
+		while ($tag = DBA::fetch($tags)) {
+			$uriids[] = $tag['uri-id'];
 		}
-		$terms = DBA::select('term', ['oid'], $condition, []);
-		$itemIds = [];
-		while ($term = DBA::fetch($terms)) {
-			$itemIds[] = $term['oid'];
-		}
-		DBA::close($terms);
+		DBA::close($tags);
 
-		if (empty($itemIds)) {
+		if (empty($uriids)) {
 			return api_format_data('statuses', $type, $data);
 		}
 
-		$preCondition = ['`id` IN (' . implode(', ', $itemIds) . ')'];
+		$condition = ['uri-id' => $uriids];
 		if ($exclude_replies) {
-			$preCondition[] = '`id` = `parent`';
+			$condition['gravity'] = GRAVITY_PARENT;
 		}
 
-		$condition = [implode(' AND ', $preCondition)];
+		$params['group_by'] = ['uri-id'];
 	} else {
 		$condition = ["`id` > ?
 			" . ($exclude_replies ? " AND `id` = `parent` " : ' ') . "

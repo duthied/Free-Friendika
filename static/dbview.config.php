@@ -223,6 +223,7 @@ return [
 	"tag-search-view" => [
 		"fields" => [
 			"uri-id" => ["post-tag", "uri-id"],
+			"iid" => ["item", "id"],
 			"uri" => ["item", "uri"],
 			"guid" => ["item", "guid"],
 			"uid" => ["item", "uid"],
