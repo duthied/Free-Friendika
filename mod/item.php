@@ -29,7 +29,6 @@
  */
 
 use Friendica\App;
-use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
@@ -47,7 +46,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\Photo;
 use Friendica\Model\Tag;
-use Friendica\Model\Term;
 use Friendica\Network\HTTPException;
 use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
@@ -102,7 +100,7 @@ function item_post(App $a) {
 	$toplevel_item_id = intval($_REQUEST['parent'] ?? 0);
 	$thr_parent_uri = trim($_REQUEST['parent_uri'] ?? '');
 
-	$thread_parent_id = 0;
+	$thread_parent_uriid = 0;
 	$thread_parent_contact = null;
 
 	$toplevel_item = null;
@@ -124,7 +122,7 @@ function item_post(App $a) {
 		// if this isn't the top-level parent of the conversation, find it
 		if (DBA::isResult($toplevel_item)) {
 			// The URI and the contact is taken from the direct parent which needn't to be the top parent
-			$thread_parent_id = $toplevel_item['id'];
+			$thread_parent_uriid = $toplevel_item['uri-id'];
 			$thr_parent_uri = $toplevel_item['uri'];
 			$thread_parent_contact = Contact::getDetailsByURL($toplevel_item["author-link"]);
 
@@ -382,8 +380,8 @@ function item_post(App $a) {
 
 	$tags = BBCode::getTags($body);
 
-	if ($thread_parent_id && !\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions')) {
-		$tags = item_add_implicit_mentions($tags, $thread_parent_contact, $thread_parent_id);
+	if ($thread_parent_uriid && !\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions')) {
+		$tags = item_add_implicit_mentions($tags, $thread_parent_contact, $thread_parent_uriid);
 	}
 
 	$tagged = [];
@@ -396,7 +394,7 @@ function item_post(App $a) {
 		foreach ($tags as $tag) {
 			$tag_type = substr($tag, 0, 1);
 
-			if ($tag_type == Term::TAG_CHARACTER[Term::HASHTAG]) {
+			if ($tag_type == Tag::TAG_CHARACTER[Tag::HASHTAG]) {
 				continue;
 			}
 
@@ -421,9 +419,9 @@ function item_post(App $a) {
 				$tagged[] = $tag;
 			}
 			// When the forum is private or the forum is addressed with a "!" make the post private
-			if (is_array($success['contact']) && (!empty($success['contact']['prv']) || ($tag_type == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]))) {
+			if (is_array($success['contact']) && (!empty($success['contact']['prv']) || ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]))) {
 				$private_forum = $success['contact']['prv'];
-				$only_to_forum = ($tag_type == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]);
+				$only_to_forum = ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
 				$private_id = $success['contact']['id'];
 				$forum_contact = $success['contact'];
 			} elseif (is_array($success['contact']) && !empty($success['contact']['forum']) &&
@@ -907,7 +905,7 @@ function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network =
 	$r = null;
 
 	//is it a person tag?
-	if (Term::isType($tag, Term::MENTION, Term::IMPLICIT_MENTION, Term::EXCLUSIVE_MENTION)) {
+	if (Tag::isType($tag, Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION)) {
 		$tag_type = substr($tag, 0, 1);
 		//is it already replaced?
 		if (strpos($tag, '[url=')) {
@@ -1045,12 +1043,12 @@ function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network =
 	return ['replaced' => $replaced, 'contact' => $contact];
 }
 
-function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $thread_parent_id)
+function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $thread_parent_uriid)
 {
 	if (DI::config()->get('system', 'disable_implicit_mentions')) {
 		// Add a tag if the parent contact is from ActivityPub or OStatus (This will notify them)
 		if (in_array($thread_parent_contact['network'], [Protocol::OSTATUS, Protocol::ACTIVITYPUB])) {
-			$contact = Term::TAG_CHARACTER[Term::MENTION] . '[url=' . $thread_parent_contact['url'] . ']' . $thread_parent_contact['nick'] . '[/url]';
+			$contact = Tag::TAG_CHARACTER[Tag::MENTION] . '[url=' . $thread_parent_contact['url'] . ']' . $thread_parent_contact['nick'] . '[/url]';
 			if (!stripos(implode($tags), '[url=' . $thread_parent_contact['url'] . ']')) {
 				$tags[] = $contact;
 			}
@@ -1060,15 +1058,15 @@ function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $
 			$thread_parent_contact['url'] => $thread_parent_contact['nick']
 		];
 
-		$parent_terms = Term::tagArrayFromItemId($thread_parent_id, [Term::MENTION, Term::IMPLICIT_MENTION]);
+		$parent_terms = Tag::getByURIId($thread_parent_uriid, [Tag::MENTION, Tag::IMPLICIT_MENTION]);
 
 		foreach ($parent_terms as $parent_term) {
-			$implicit_mentions[$parent_term['url']] = $parent_term['term'];
+			$implicit_mentions[$parent_term['url']] = $parent_term['name'];
 		}
 
 		foreach ($implicit_mentions as $url => $label) {
 			if ($url != \Friendica\Model\Profile::getMyURL() && !stripos(implode($tags), '[url=' . $url . ']')) {
-				$tags[] = Term::TAG_CHARACTER[Term::IMPLICIT_MENTION] . '[url=' . $url . ']' . $label . '[/url]';
+				$tags[] = Tag::TAG_CHARACTER[Tag::IMPLICIT_MENTION] . '[url=' . $url . ']' . $label . '[/url]';
 			}
 		}
 	}

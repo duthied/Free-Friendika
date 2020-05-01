@@ -21,7 +21,6 @@
 
 namespace Friendica\Model;
 
-use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -61,95 +60,6 @@ class Term
     const OBJECT_TYPE_PHOTO = 2;
 
 	/**
-	 * Returns a list of the most frequent global hashtags over the given period
-	 *
-	 * @param int $period Period in hours to consider posts
-	 * @return array
-	 * @throws \Exception
-	 */
-	public static function getGlobalTrendingHashtags(int $period, $limit = 10)
-	{
-		$tags = DI::cache()->get('global_trending_tags');
-
-		if (!$tags) {
-			$tagsStmt = DBA::p("SELECT t.`term`, COUNT(*) AS `score`
-				FROM `term` t
-				 JOIN `item` i ON i.`id` = t.`oid` AND i.`uid` = t.`uid`
-				 JOIN `thread` ON `thread`.`iid` = i.`id`
-				WHERE `thread`.`visible`
-				  AND NOT `thread`.`deleted`
-				  AND NOT `thread`.`moderated`
-				  AND `thread`.`private` = ?
-				  AND t.`uid` = 0
-				  AND t.`otype` = ?
-				  AND t.`type` = ?
-				  AND t.`term` != ''
-				  AND i.`received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
-				GROUP BY `term`
-				ORDER BY `score` DESC
-				LIMIT ?",
-				Item::PUBLIC,
-				Term::OBJECT_TYPE_POST,
-				Term::HASHTAG,
-				$period,
-				$limit
-			);
-
-			if (DBA::isResult($tagsStmt)) {
-				$tags = DBA::toArray($tagsStmt);
-				DI::cache()->set('global_trending_tags', $tags, Duration::HOUR);
-			}
-		}
-
-		return $tags ?: [];
-	}
-
-	/**
-	 * Returns a list of the most frequent local hashtags over the given period
-	 *
-	 * @param int $period Period in hours to consider posts
-	 * @return array
-	 * @throws \Exception
-	 */
-	public static function getLocalTrendingHashtags(int $period, $limit = 10)
-	{
-		$tags = DI::cache()->get('local_trending_tags');
-
-		if (!$tags) {
-			$tagsStmt = DBA::p("SELECT t.`term`, COUNT(*) AS `score`
-				FROM `term` t
-				JOIN `item` i ON i.`id` = t.`oid` AND i.`uid` = t.`uid`
-				JOIN `thread` ON `thread`.`iid` = i.`id`
-				WHERE `thread`.`visible`
-				  AND NOT `thread`.`deleted`
-				  AND NOT `thread`.`moderated`
-				  AND `thread`.`private` = ?
-				  AND `thread`.`wall`
-				  AND `thread`.`origin`
-				  AND t.`otype` = ?
-				  AND t.`type` = ?
-				  AND t.`term` != ''
-				  AND i.`received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
-				GROUP BY `term`
-				ORDER BY `score` DESC
-				LIMIT ?",
-				Item::PUBLIC,
-				Term::OBJECT_TYPE_POST,
-				Term::HASHTAG,
-				$period,
-				$limit
-			);
-
-			if (DBA::isResult($tagsStmt)) {
-				$tags = DBA::toArray($tagsStmt);
-				DI::cache()->set('local_trending_tags', $tags, Duration::HOUR);
-			}
-		}
-
-		return $tags ?: [];
-	}
-
-	/**
 	 * Generates the legacy item.tag field comma-separated BBCode string from an item ID.
 	 * Includes only hashtags, implicit and explicit mentions.
 	 *
@@ -160,7 +70,7 @@ class Term
 	public static function tagTextFromItemId($item_id)
 	{
 		$tag_list = [];
-		$tags = self::tagArrayFromItemId($item_id, [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION]);
+		$tags = self::getByItemId($item_id, [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION]);
 		foreach ($tags as $tag) {
 			$tag_list[] = self::TAG_CHARACTER[$tag['type']] . '[url=' . $tag['url'] . ']' . $tag['term'] . '[/url]';
 		}
@@ -176,7 +86,7 @@ class Term
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function tagArrayFromItemId($item_id, $type = [self::HASHTAG, self::MENTION])
+	private static function getByItemId($item_id, $type = [self::HASHTAG, self::MENTION])
 	{
 		$condition = ['otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'type' => $type];
 		$tags = DBA::select('term', ['type', 'term', 'url'], $condition);
@@ -198,7 +108,7 @@ class Term
 	public static function fileTextFromItemId($item_id)
 	{
 		$file_text = '';
-		$tags = self::tagArrayFromItemId($item_id, [self::FILE, self::CATEGORY]);
+		$tags = self::getByItemId($item_id, [self::FILE, self::CATEGORY]);
 		foreach ($tags as $tag) {
 			if ($tag['type'] == self::CATEGORY) {
 				$file_text .= '<' . $tag['term'] . '>';
@@ -291,7 +201,7 @@ class Term
 		}
 
 		foreach ($tags as $link => $tag) {
-			if (self::isType($tag, self::HASHTAG)) {
+			if (Tag::isType($tag, self::HASHTAG)) {
 				// try to ignore #039 or #1 or anything like that
 				if (ctype_digit(substr(trim($tag), 1))) {
 					continue;
@@ -305,8 +215,8 @@ class Term
 				$type = self::HASHTAG;
 				$term = substr($tag, 1);
 				$link = '';
-			} elseif (self::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION)) {
-				if (self::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION)) {
+			} elseif (Tag::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION)) {
+				if (Tag::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION)) {
 					$type = self::MENTION;
 				} else {
 					$type = self::IMPLICIT_MENTION;
@@ -355,7 +265,7 @@ class Term
 			]);
 
 			// Search for mentions
-			if (self::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION)
+			if (Tag::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION)
 				&& (
 					strpos($link, $profile_base_friendica) !== false
 					|| strpos($link, $profile_base_diaspora) !== false
@@ -425,64 +335,6 @@ class Term
 	}
 
 	/**
-	 * Sorts an item's tags into mentions, hashtags and other tags. Generate personalized URLs by user and modify the
-	 * provided item's body with them.
-	 *
-	 * @param array $item
-	 * @return array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function populateTagsFromItem(&$item)
-	{
-		$return = [
-			'tags' => [],
-			'hashtags' => [],
-			'mentions' => [],
-			'implicit_mentions' => [],
-		];
-
-		$searchpath = DI::baseUrl() . "/search?tag=";
-
-		$taglist = DBA::select(
-			'term',
-			['type', 'term', 'url'],
-			['otype' => self::OBJECT_TYPE_POST, 'oid' => $item['id'], 'type' => [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION]],
-			['order' => ['tid']]
-		);
-		while ($tag = DBA::fetch($taglist)) {
-			if ($tag['url'] == '') {
-				$tag['url'] = $searchpath . rawurlencode($tag['term']);
-			}
-
-			$orig_tag = $tag['url'];
-
-			$prefix = self::TAG_CHARACTER[$tag['type']];
-			switch($tag['type']) {
-				case self::HASHTAG:
-					if ($orig_tag != $tag['url']) {
-						$item['body'] = str_replace($orig_tag, $tag['url'], $item['body']);
-					}
-
-					$return['hashtags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['term']) . '</a>';
-					$return['tags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['term']) . '</a>';
-					break;
-				case self::MENTION:
-					$tag['url'] = Contact::magicLink($tag['url']);
-					$return['mentions'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['term']) . '</a>';
-					$return['tags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['term']) . '</a>';
-					break;
-				case self::IMPLICIT_MENTION:
-					$return['implicit_mentions'][] = $prefix . $tag['term'];
-					break;
-			}
-		}
-		DBA::close($taglist);
-
-		return $return;
-	}
-
-	/**
 	 * Delete tags of the specific type(s) from an item
 	 *
 	 * @param int       $item_id
@@ -497,24 +349,5 @@ class Term
 
 		// Clean up all tags
 		DBA::delete('term', ['otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'type' => $type]);
-	}
-
-	/**
-	 * Check if the provided tag is of one of the provided term types.
-	 *
-	 * @param string $tag
-	 * @param int    ...$types
-	 * @return bool
-	 */
-	public static function isType($tag, ...$types)
-	{
-		$tag_chars = [];
-		foreach ($types as $type) {
-			if (array_key_exists($type, self::TAG_CHARACTER)) {
-				$tag_chars[] = self::TAG_CHARACTER[$type];
-			}
-		}
-
-		return Strings::startsWith($tag, $tag_chars);
 	}
 }

@@ -220,6 +220,25 @@ return [
 			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
 			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`"
 	],
+	"tag-search-view" => [
+		"fields" => [
+			"uri-id" => ["post-tag", "uri-id"],
+			"iid" => ["item", "id"],
+			"uri" => ["item", "uri"],
+			"guid" => ["item", "guid"],
+			"uid" => ["item", "uid"],
+			"private" => ["item", "private"],
+			"wall" => ["item", "wall"],
+			"origin" => ["item", "origin"],
+			"gravity" => ["item", "gravity"],
+			"received" => ["item", "received"],			
+			"name" => ["tag", "name"],
+		],
+		"query" => "FROM `post-tag`
+			INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid`
+			INNER JOIN `item` ON `item`.`uri-id` = `post-tag`.`uri-id`
+			WHERE `post-tag`.`type` = 1"
+	],
 	"workerqueue-view" => [
 		"fields" => [
 			"pid" => ["process", "pid"],

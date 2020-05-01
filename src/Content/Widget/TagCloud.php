@@ -25,7 +25,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 
 /**
  * TagCloud widget
@@ -46,7 +46,7 @@ class TagCloud
 	 * @return string       HTML formatted output.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getHTML($uid, $count = 0, $owner_id = 0, $flags = '', $type = Term::HASHTAG)
+	public static function getHTML($uid, $count = 0, $owner_id = 0, $flags = '', $type = Tag::HASHTAG)
 	{
 		$o = '';
 		$r = self::tagadelic($uid, $count, $owner_id, $flags, $type);
@@ -85,7 +85,7 @@ class TagCloud
 	 * @return array        Alphabetical sorted array of used tags of an user.
 	 * @throws \Exception
 	 */
-	private static function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = Term::HASHTAG)
+	private static function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = Tag::HASHTAG)
 	{
 		$sql_options = Item::getPermissionsSQLByUserId($uid);
 		$limit = $count ? sprintf('LIMIT %d', intval($count)) : '';
@@ -101,16 +101,13 @@ class TagCloud
 		}
 
 		// Fetch tags
-		$tag_stmt = DBA::p("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
-			LEFT JOIN `item` ON `term`.`oid` = `item`.`id`
-			WHERE `term`.`uid` = ? AND `term`.`type` = ?
-			AND `term`.`otype` = ?
+		$tag_stmt = DBA::p("SELECT `name`, COUNT(`name`) AS `total` FROM `tag-search-view`
+			LEFT JOIN `item` ON `tag-search-view`.`uri-id` = `item`.`uri-id`
+			WHERE `tag-search-view`.`uid` = ?
 			AND `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 			$sql_options
-			GROUP BY `term` ORDER BY `total` DESC $limit",
-			$uid,
-			$type,
-			Term::OBJECT_TYPE_POST
+			GROUP BY `name` ORDER BY `total` DESC $limit",
+			$uid
 		);
 		if (!DBA::isResult($tag_stmt)) {
 			return [];
@@ -139,7 +136,7 @@ class TagCloud
 		}
 
 		foreach ($arr as $rr) {
-			$tags[$x][0] = $rr['term'];
+			$tags[$x][0] = $rr['name'];
 			$tags[$x][1] = log($rr['total']);
 			$tags[$x][2] = 0;
 			$min = min($min, $tags[$x][1]);

@@ -23,7 +23,7 @@ namespace Friendica\Content\Widget;
 
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 
 /**
  * Trending tags aside widget for the community pages, handles both local and global scopes
@@ -41,9 +41,9 @@ class TrendingTags
 	public static function getHTML($content = 'global', int $period = 24)
 	{
 		if ($content == 'local') {
-			$tags = Term::getLocalTrendingHashtags($period, 20);
+			$tags = Tag::getLocalTrendingHashtags($period, 20);
 		} else {
-			$tags = Term::getGlobalTrendingHashtags($period, 20);
+			$tags = Tag::getGlobalTrendingHashtags($period, 20);
 		}
 
 		$tpl = Renderer::getMarkupTemplate('widget/trending_tags.tpl');

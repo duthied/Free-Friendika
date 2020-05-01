@@ -38,9 +38,7 @@ use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\ItemDeliveryData;
 use Friendica\Model\Mail;
-use Friendica\Model\Profile;
 use Friendica\Model\Tag;
-use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
@@ -114,7 +112,7 @@ class Diaspora
 
 		if (DI::config()->get("system", "relay_directly", false)) {
 			// We distribute our stuff based on the parent to ensure that the thread will be complete
-			$parent = Item::selectFirst(['parent'], ['id' => $item_id]);
+			$parent = Item::selectFirst(['uri-id'], ['id' => $item_id]);
 			if (!DBA::isResult($parent)) {
 				return;
 			}
@@ -127,11 +125,10 @@ class Diaspora
 			DBA::close($servers);
 
 			// All tags of the current post
-			$condition = ['otype' => Term::OBJECT_TYPE_POST, 'type' => Term::HASHTAG, 'oid' => $parent['parent']];
-			$tags = DBA::select('term', ['term'], $condition);
+			$tags = DBA::select('tag-view', ['name'], ['uri-id' => $parent['uri-id'], 'type' => Tag::HASHTAG]);
 			$taglist = [];
 			while ($tag = DBA::fetch($tags)) {
-				$taglist[] = $tag['term'];
+				$taglist[] = $tag['name'];
 			}
 			DBA::close($tags);
 

@@ -34,9 +34,10 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Profile;
 use Friendica\Model\Photo;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -407,7 +408,7 @@ class Transmitter
 			$actor_profile = APContact::getByURL($item['author-link']);
 		}
 
-		$terms = Term::tagArrayFromItemId($item['id'], [Term::MENTION, Term::IMPLICIT_MENTION]);
+		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
 		if ($item['private'] != Item::PRIVATE) {
 			// Directly mention the original author upon a quoted reshare.
@@ -700,6 +701,8 @@ class Transmitter
 		if (!DBA::isResult($mail)) {
 			return [];
 		}
+
+		$mail['uri-id'] = ItemURI::insert(['uri' => $mail['uri'], 'guid' => $mail['guid']]);
 
 		$reply = DBA::selectFirst('mail', ['uri'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
 
@@ -1009,12 +1012,12 @@ class Transmitter
 	{
 		$tags = [];
 
-		$terms = Term::tagArrayFromItemId($item['id'], [Term::HASHTAG, Term::MENTION, Term::IMPLICIT_MENTION]);
+		$terms = Tag::getByURIId($item['uri-id'], [Tag::HASHTAG, Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 		foreach ($terms as $term) {
-			if ($term['type'] == Term::HASHTAG) {
-				$url = DI::baseUrl() . '/search?tag=' . urlencode($term['term']);
-				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['term']];
-			} elseif ($term['type'] == Term::MENTION || $term['type'] == Term::IMPLICIT_MENTION) {
+			if ($term['type'] == Tag::HASHTAG) {
+				$url = DI::baseUrl() . '/search?tag=' . urlencode($term['name']);
+				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['name']];
+			} else {
 				$contact = Contact::getDetailsByURL($term['url']);
 				if (!empty($contact['addr'])) {
 					$mention = '@' . $contact['addr'];
@@ -1213,15 +1216,14 @@ class Transmitter
 	/**
 	 * Returns if the post contains sensitive content ("nsfw")
 	 *
-	 * @param integer $item_id
+	 * @param integer $uri_id
 	 *
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	private static function isSensitive($item_id)
+	private static function isSensitive($uri_id)
 	{
-		$condition = ['otype' => Term::OBJECT_TYPE_POST, 'oid' => $item_id, 'type' => Term::HASHTAG, 'term' => 'nsfw'];
-		return DBA::exists('term', $condition);
+		return DBA::exists('tag-view', ['uri-id' => $uri_id, 'name' => 'nsfw']);
 	}
 
 	/**
@@ -1303,7 +1305,7 @@ class Transmitter
 
 		$data['url'] = $item['plink'];
 		$data['attributedTo'] = $item['author-link'];
-		$data['sensitive'] = self::isSensitive($item['id']);
+		$data['sensitive'] = self::isSensitive($item['uri-id']);
 		$data['context'] = self::fetchContextURLForItem($item);
 
 		if (!empty($item['title'])) {

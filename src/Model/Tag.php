@@ -22,9 +22,11 @@
 namespace Friendica\Model;
 
 use Friendica\Content\Text\BBCode;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Strings;
 
 /**
@@ -67,7 +69,19 @@ class Tag
 	 */
 	public static function store(int $uriid, int $type, string $name, string $url = '', $probing = true)
 	{
-		$name = trim($name, "\x00..\x20\xFF#!@");
+		if ($type == self::HASHTAG) {
+			// Remove some common "garbarge" from tags
+			$name = trim($name, "\x00..\x20\xFF#!@,;.:'/?!^°$%".'"');
+
+			$tags = explode(self::TAG_CHARACTER[self::HASHTAG], $name);
+			if (count($tags) > 1) {
+				foreach ($tags as $tag) {
+					self::store($uriid, $type, $tag, $url, $probing);
+				}
+				return;
+			}
+		}
+
 		if (empty($name)) {
 			return;
 		}
@@ -75,7 +89,7 @@ class Tag
 		$cid = 0;
 		$tagid = 0;
 
-		if (in_array($type, [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION])) {
+		if (in_array($type, [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION])) {
 			if (empty($url)) {
 				// No mention without a contact url
 				return;
@@ -114,7 +128,7 @@ class Tag
 		if (empty($cid)) {
 			$fields = ['name' => substr($name, 0, 96), 'url' => ''];
 
-			if (($type != Tag::HASHTAG) && !empty($url) && ($url != $name)) {
+			if (($type != self::HASHTAG) && !empty($url) && ($url != $name)) {
 				$fields['url'] = strtolower($url);
 			}
 
@@ -134,9 +148,9 @@ class Tag
 
 		$fields = ['uri-id' => $uriid, 'type' => $type, 'tid' => $tagid, 'cid' => $cid];
 
-		if (in_array($type, [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION])) {
+		if (in_array($type, [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION])) {
 			$condition = $fields;
-			$condition['type'] = [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION];
+			$condition['type'] = [self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION];
 			if (DBA::exists('post-tag', $condition)) {
 				Logger::info('Tag already exists', $fields);
 				return;
@@ -222,6 +236,17 @@ class Tag
 	}
 
 	/**
+	 * Checks for stored hashtags and mentions for the given post
+	 *
+	 * @param integer $uriid
+	 * @return bool
+	 */
+	public static function existsForPost(int $uriid)
+	{
+		return DBA::exists('post-tag', ['uri-id' => $uriid, 'type' => [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION]]);
+	}
+
+	/**
 	 * Remove tag/mention
 	 *
 	 * @param integer $uriid
@@ -282,6 +307,176 @@ class Tag
 		} else {
 			return self::UNKNOWN;
 		}
-
 	}
+
+	/**
+	 * Retrieves the terms from the provided type(s) associated with the provided item ID.
+	 *
+	 * @param int       $item_id
+	 * @param int|array $type
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION])
+	{
+		$condition = ['uri-id' => $uri_id, 'type' => $type];
+		return DBA::selectToArray('tag-view', ['type', 'name', 'url'], $condition);
+	}
+
+	/**
+	 * Sorts an item's tags into mentions, hashtags and other tags. Generate personalized URLs by user and modify the
+	 * provided item's body with them.
+	 *
+	 * @param array $item
+	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function populateFromItem(&$item)
+	{
+		$return = [
+			'tags' => [],
+			'hashtags' => [],
+			'mentions' => [],
+			'implicit_mentions' => [],
+		];
+
+		$searchpath = DI::baseUrl() . "/search?tag=";
+
+		$taglist = DBA::select('tag-view', ['type', 'name', 'url'],
+			['uri-id' => $item['uri-id'], 'type' => [self::HASHTAG, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION]]);
+		while ($tag = DBA::fetch($taglist)) {
+			if ($tag['url'] == '') {
+				$tag['url'] = $searchpath . rawurlencode($tag['name']);
+			}
+
+			$orig_tag = $tag['url'];
+
+			$prefix = self::TAG_CHARACTER[$tag['type']];
+			switch($tag['type']) {
+				case self::HASHTAG:
+					if ($orig_tag != $tag['url']) {
+						$item['body'] = str_replace($orig_tag, $tag['url'], $item['body']);
+					}
+
+					$return['hashtags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['name']) . '</a>';
+					$return['tags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['name']) . '</a>';
+					break;
+				case self::MENTION:
+				case self::EXCLUSIVE_MENTION:
+						$tag['url'] = Contact::magicLink($tag['url']);
+					$return['mentions'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['name']) . '</a>';
+					$return['tags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['name']) . '</a>';
+					break;
+				case self::IMPLICIT_MENTION:
+					$return['implicit_mentions'][] = $prefix . $tag['name'];
+					break;
+			}
+		}
+		DBA::close($taglist);
+
+		return $return;
+	}
+
+	/**
+	 * Search posts for given tag
+	 *
+	 * @param string $search
+	 * @param integer $uid
+	 * @param integer $start
+	 * @param integer $limit
+	 * @return array with URI-ID
+	 */
+	public static function getURIIdListByTag(string $search, int $uid = 0, int $start = 0, int $limit = 100)
+	{
+		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
+		$params = [
+			'order' => ['uri-id' => true],
+			'group_by' => ['uri-id'],
+			'limit' => [$start, $limit]
+		];
+
+		$tags = DBA::select('tag-search-view', ['uri-id'], $condition, $params);
+
+		$uriids = [];
+		while ($tag = DBA::fetch($tags)) {
+			$uriids[] = $tag['uri-id'];
+		}
+		DBA::close($tags);
+
+		return $uriids;
+	}
+
+	/**
+	 * Returns a list of the most frequent global hashtags over the given period
+	 *
+	 * @param int $period Period in hours to consider posts
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getGlobalTrendingHashtags(int $period, $limit = 10)
+	{
+		$tags = DI::cache()->get('global_trending_tags');
+
+		if (empty($tags)) {
+			$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
+				FROM `tag-search-view`
+				WHERE `private` = ? AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
+				GROUP BY `term` ORDER BY `score` DESC LIMIT ?",
+				Item::PUBLIC, $period, $limit);
+
+			if (DBA::isResult($tagsStmt)) {
+				$tags = DBA::toArray($tagsStmt);
+				DI::cache()->set('global_trending_tags', $tags, Duration::HOUR);
+			}
+		}
+
+		return $tags ?: [];
+	}
+
+	/**
+	 * Returns a list of the most frequent local hashtags over the given period
+	 *
+	 * @param int $period Period in hours to consider posts
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getLocalTrendingHashtags(int $period, $limit = 10)
+	{
+		$tags = DI::cache()->get('local_trending_tags');
+
+		if (empty($tags)) {
+			$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
+				FROM `tag-search-view`
+				WHERE `private` = ? AND `wall` AND `origin` AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
+				GROUP BY `term` ORDER BY `score` DESC LIMIT ?",
+				Item::PUBLIC, $period, $limit);
+
+			if (DBA::isResult($tagsStmt)) {
+				$tags = DBA::toArray($tagsStmt);
+				DI::cache()->set('local_trending_tags', $tags, Duration::HOUR);
+			}
+		}
+
+		return $tags ?: [];
+	}
+
+	/**
+	 * Check if the provided tag is of one of the provided term types.
+	 *
+	 * @param string $tag
+	 * @param int    ...$types
+	 * @return bool
+	 */
+	public static function isType($tag, ...$types)
+	{
+		$tag_chars = [];
+		foreach ($types as $type) {
+			if (array_key_exists($type, self::TAG_CHARACTER)) {
+				$tag_chars[] = self::TAG_CHARACTER[$type];
+			}
+		}
+
+		return Strings::startsWith($tag, $tag_chars);
+	}	
 }
