@@ -320,18 +320,7 @@ class Tag
 	public static function getByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION])
 	{
 		$condition = ['uri-id' => $uri_id, 'type' => $type];
-		$tags = DBA::select('tag-view', ['type', 'name', 'url'], $condition);
-		if (!DBA::isResult($tags)) {
-			return [];
-		}
-
-		$tag_list = [];
-		while ($tag = DBA::fetch($tags)) {
-			$tag['term'] = $tag['name']; /// @todo Remove this line when all occurrences of "term" had been replaced with "name"
-			$tag_list[] = $tag;
-		}
-
-		return $tag_list;
+		return DBA::selectToArray('tag-view', ['type', 'name', 'url'], $condition);
 	}
 
 	/**

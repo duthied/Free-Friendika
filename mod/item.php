@@ -1061,7 +1061,7 @@ function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $
 		$parent_terms = Tag::getByURIId($thread_parent_uriid, [Tag::MENTION, Tag::IMPLICIT_MENTION]);
 
 		foreach ($parent_terms as $parent_term) {
-			$implicit_mentions[$parent_term['url']] = $parent_term['term'];
+			$implicit_mentions[$parent_term['url']] = $parent_term['name'];
 		}
 
 		foreach ($implicit_mentions as $url => $label) {
