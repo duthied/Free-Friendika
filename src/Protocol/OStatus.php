@@ -2081,13 +2081,10 @@ class OStatus
 			XML::addElement($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
 		}
 
-		$tags = item::getFeedTags($item);
-
+		$tags = Tag::getByURIId($item['uri-id']);
 		if (count($tags)) {
-			foreach ($tags as $t) {
-				if ($t[0] == "@") {
-					$mentioned[$t[1]] = $t[1];
-				}
+			foreach ($tags as $tag) {
+				$mentioned[$tag['url']] = $tag['url'];
 			}
 		}
 
@@ -2138,9 +2135,9 @@ class OStatus
 		}
 
 		if (count($tags)) {
-			foreach ($tags as $t) {
-				if ($t[0] != "@") {
-					XML::addElement($doc, $entry, "category", "", ["term" => $t[2]]);
+			foreach ($tags as $tag) {
+				if ($tag['type'] == Tag::HASHTAG) {
+					XML::addElement($doc, $entry, "category", "", ["term" => $tag['name']]);
 				}
 			}
 		}

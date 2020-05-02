@@ -227,9 +227,10 @@ class UserItem
 	 */
 	private static function checkImplicitMention(array $item, array $profiles)
 	{
-		foreach ($profiles AS $profile) {
-			if (strpos($item['tag'], '=' . $profile.']') || strpos($item['body'], '=' . $profile . ']')) {
-				if (strpos($item['body'], $profile) === false) {
+		$mentions = Tag::getByURIId($item['uri-id'], [Tag::IMPLICIT_MENTION]);
+		foreach ($mentions as $mention) {
+			foreach ($profiles as $profile) {
+				if (Strings::compareLink($profile, $mention['url'])) {
 					return true;
 				}
 			}
@@ -246,9 +247,10 @@ class UserItem
 	 */
 	private static function checkExplicitMention(array $item, array $profiles)
 	{
-		foreach ($profiles AS $profile) {
-			if (strpos($item['tag'], '=' . $profile.']') || strpos($item['body'], '=' . $profile . ']')) {
-				if (!(strpos($item['body'], $profile) === false)) {
+		$mentions = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
+		foreach ($mentions as $mention) {
+			foreach ($profiles as $profile) {
+				if (Strings::compareLink($profile, $mention['url'])) {
 					return true;
 				}
 			}

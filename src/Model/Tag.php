@@ -40,8 +40,6 @@ class Tag
 	const UNKNOWN  = 0;
 	const HASHTAG  = 1;
 	const MENTION  = 2;
-	const CATEGORY = 3;
-	const FILE     = 5;
 	/**
 	 * An implicit mention is a mention in a comment body that is redundant with the threading information.
 	 */

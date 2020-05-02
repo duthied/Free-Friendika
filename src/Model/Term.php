@@ -21,10 +21,7 @@
 
 namespace Friendica\Model;
 
-use Friendica\Core\Logger;
 use Friendica\Database\DBA;
-use Friendica\DI;
-use Friendica\Util\Strings;
 
 /**
  * Class Term
@@ -36,66 +33,10 @@ use Friendica\Util\Strings;
 class Term
 {
     const UNKNOWN           = 0;
-    const HASHTAG           = 1;
-    const MENTION           = 2;
     const CATEGORY          = 3;
     const FILE              = 5;
-	/**
-	 * An implicit mention is a mention in a comment body that is redundant with the threading information.
-	 */
-    const IMPLICIT_MENTION  = 8;
-	/**
-	 * An exclusive mention transfers the ownership of the post to the target account, usually a forum.
-	 */
-    const EXCLUSIVE_MENTION = 9;
-
-    const TAG_CHARACTER = [
-    	self::HASHTAG           => '#',
-    	self::MENTION           => '@',
-    	self::IMPLICIT_MENTION  => '%',
-    	self::EXCLUSIVE_MENTION => '!',
-    ];
 
     const OBJECT_TYPE_POST  = 1;
-    const OBJECT_TYPE_PHOTO = 2;
-
-	/**
-	 * Generates the legacy item.tag field comma-separated BBCode string from an item ID.
-	 * Includes only hashtags, implicit and explicit mentions.
-	 *
-	 * @param int $item_id
-	 * @return string
-	 * @throws \Exception
-	 */
-	public static function tagTextFromItemId($item_id)
-	{
-		$tag_list = [];
-		$tags = self::getByItemId($item_id, [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION]);
-		foreach ($tags as $tag) {
-			$tag_list[] = self::TAG_CHARACTER[$tag['type']] . '[url=' . $tag['url'] . ']' . $tag['term'] . '[/url]';
-		}
-
-		return implode(',', $tag_list);
-	}
-
-	/**
-	 * Retrieves the terms from the provided type(s) associated with the provided item ID.
-	 *
-	 * @param int       $item_id
-	 * @param int|array $type
-	 * @return array
-	 * @throws \Exception
-	 */
-	private static function getByItemId($item_id, $type = [self::HASHTAG, self::MENTION])
-	{
-		$condition = ['otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'type' => $type];
-		$tags = DBA::select('term', ['type', 'term', 'url'], $condition);
-		if (!DBA::isResult($tags)) {
-			return [];
-		}
-
-		return DBA::toArray($tags);
-	}
 
 	/**
 	 * Generates the legacy item.file field string from an item ID.
@@ -108,7 +49,9 @@ class Term
 	public static function fileTextFromItemId($item_id)
 	{
 		$file_text = '';
-		$tags = self::getByItemId($item_id, [self::FILE, self::CATEGORY]);
+
+		$condition = ['otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'type' => [self::FILE, self::CATEGORY]];
+		$tags = DBA::selectToArray('term', ['type', 'term', 'url'], $condition);
 		foreach ($tags as $tag) {
 			if ($tag['type'] == self::CATEGORY) {
 				$file_text .= '<' . $tag['term'] . '>';
@@ -118,170 +61,6 @@ class Term
 		}
 
 		return $file_text;
-	}
-
-	/**
-	 * Inserts new terms for the provided item ID based on the legacy item.tag field BBCode content.
-	 * Deletes all previous tag terms for the same item ID.
-	 * Sets both the item.mention and thread.mentions field flags if a mention concerning the item UID is found.
-	 *
-	 * @param int    $item_id
-	 * @param string $tag_str
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function insertFromTagFieldByItemId($item_id, $tag_str)
-	{
-		$profile_base = DI::baseUrl();
-		$profile_data = parse_url($profile_base);
-		$profile_path = $profile_data['path'] ?? '';
-		$profile_base_friendica = $profile_data['host'] . $profile_path . '/profile/';
-		$profile_base_diaspora = $profile_data['host'] . $profile_path . '/u/';
-
-		$fields = ['guid', 'uid', 'id', 'edited', 'deleted', 'created', 'received', 'title', 'body', 'parent'];
-		$item = Item::selectFirst($fields, ['id' => $item_id]);
-		if (!DBA::isResult($item)) {
-			return;
-		}
-
-		$item['tag'] = $tag_str;
-
-		// Clean up all tags
-		self::deleteByItemId($item_id);
-
-		if ($item['deleted']) {
-			return;
-		}
-
-		$taglist = explode(',', $item['tag']);
-
-		$tags_string = '';
-		foreach ($taglist as $tag) {
-			if (Strings::startsWith($tag, self::TAG_CHARACTER)) {
-				$tags_string .= ' ' . trim($tag);
-			} else {
-				$tags_string .= ' #' . trim($tag);
-			}
-		}
-
-		$data = ' ' . $item['title'] . ' ' . $item['body'] . ' ' . $tags_string . ' ';
-
-		// ignore anything in a code block
-		$data = preg_replace('/\[code\](.*?)\[\/code\]/sm', '', $data);
-
-		$tags = [];
-
-		$pattern = '/\W\#([^\[].*?)[\s\'".,:;\?!\[\]\/]/ism';
-		if (preg_match_all($pattern, $data, $matches)) {
-			foreach ($matches[1] as $match) {
-				$tags['#' . $match] = '';
-			}
-		}
-
-		$pattern = '/\W([\#@!%])\[url\=(.*?)\](.*?)\[\/url\]/ism';
-		if (preg_match_all($pattern, $data, $matches, PREG_SET_ORDER)) {
-			foreach ($matches as $match) {
-
-				if (in_array($match[1], [
-					self::TAG_CHARACTER[self::MENTION],
-					self::TAG_CHARACTER[self::IMPLICIT_MENTION],
-					self::TAG_CHARACTER[self::EXCLUSIVE_MENTION]
-				])) {
-					$contact = Contact::getDetailsByURL($match[2], 0);
-					if (!empty($contact['addr'])) {
-						$match[3] = $contact['addr'];
-					}
-
-					if (!empty($contact['url'])) {
-						$match[2] = $contact['url'];
-					}
-				}
-
-				$tags[$match[2]] = $match[1] . trim($match[3], ',.:;[]/\"?!');
-			}
-		}
-
-		foreach ($tags as $link => $tag) {
-			if (Tag::isType($tag, self::HASHTAG)) {
-				// try to ignore #039 or #1 or anything like that
-				if (ctype_digit(substr(trim($tag), 1))) {
-					continue;
-				}
-
-				// try to ignore html hex escapes, e.g. #x2317
-				if ((substr(trim($tag), 1, 1) == 'x' || substr(trim($tag), 1, 1) == 'X') && ctype_digit(substr(trim($tag), 2))) {
-					continue;
-				}
-
-				$type = self::HASHTAG;
-				$term = substr($tag, 1);
-				$link = '';
-			} elseif (Tag::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION)) {
-				if (Tag::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION)) {
-					$type = self::MENTION;
-				} else {
-					$type = self::IMPLICIT_MENTION;
-				}
-
-				$contact = Contact::getDetailsByURL($link, 0);
-				if (!empty($contact['name'])) {
-					$term = $contact['name'];
-				} else {
-					$term = substr($tag, 1);
-				}
-			} else { // This shouldn't happen
-				$type = self::HASHTAG;
-				$term = $tag;
-				$link = '';
-
-				Logger::notice('Unknown term type', ['tag' => $tag]);
-			}
-
-			if (DBA::exists('term', ['uid' => $item['uid'], 'otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'term' => $term, 'type' => $type])) {
-				continue;
-			}
-
-			if (empty($term)) {
-				continue;
-			}
-
-			if ($item['uid'] == 0) {
-				$global = true;
-				DBA::update('term', ['global' => true], ['otype' => self::OBJECT_TYPE_POST, 'guid' => $item['guid']]);
-			} else {
-				$global = DBA::exists('term', ['uid' => 0, 'otype' => self::OBJECT_TYPE_POST, 'guid' => $item['guid']]);
-			}
-
-			DBA::insert('term', [
-				'uid'      => $item['uid'],
-				'oid'      => $item_id,
-				'otype'    => self::OBJECT_TYPE_POST,
-				'type'     => $type,
-				'term'     => substr($term, 0, 255),
-				'url'      => $link,
-				'guid'     => $item['guid'],
-				'created'  => $item['created'],
-				'received' => $item['received'],
-				'global'   => $global
-			]);
-
-			// Search for mentions
-			if (Tag::isType($tag, self::MENTION, self::EXCLUSIVE_MENTION)
-				&& (
-					strpos($link, $profile_base_friendica) !== false
-					|| strpos($link, $profile_base_diaspora) !== false
-				)
-			) {
-				$users_stmt = DBA::p("SELECT `uid` FROM `contact` WHERE self AND (`url` = ? OR `nurl` = ?)", $link, $link);
-				$users = DBA::toArray($users_stmt);
-				foreach ($users AS $user) {
-					if ($user['uid'] == $item['uid']) {
-						/// @todo This function is called from Item::update - so we mustn't call that function here
-						DBA::update('item', ['mention' => true], ['id' => $item_id]);
-						DBA::update('thread', ['mention' => true], ['iid' => $item['parent']]);
-					}
-				}
-			}
-		}
 	}
 
 	/**
@@ -332,22 +111,5 @@ class Term
 				]);
 			}
 		}
-	}
-
-	/**
-	 * Delete tags of the specific type(s) from an item
-	 *
-	 * @param int       $item_id
-	 * @param int|array $type
-	 * @throws \Exception
-	 */
-	public static function deleteByItemId($item_id, $type = [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION])
-	{
-		if (empty($item_id)) {
-			return;
-		}
-
-		// Clean up all tags
-		DBA::delete('term', ['otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'type' => $type]);
 	}
 }
