@@ -226,7 +226,6 @@ return [
 			'uid' => 42,
 			'link' => 'http://localhost/notification/1',
 			'iid' => 4,
-			'uri-id' => 4,
 			'seen' => 0,
 			'verb' => '',
 			'otype' => 'item',
