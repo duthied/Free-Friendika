@@ -481,7 +481,7 @@ class Feed {
 					if (empty($taglist)) {
 						$taglist = get_page_keywords($item["plink"], $preview, true, $contact["ffi_keyword_blacklist"]);
 					}
-					/// @todo $item["body"] .= "\n" . $tags;
+					$item["body"] .= "\n" . self::tagToString($taglist);
 				} else {
 					$taglist = [];
 				}
@@ -525,6 +525,27 @@ class Feed {
 		}
 
 		return ["header" => $author, "items" => $items];
+	}
+
+	/**
+	 * Convert a tag array to a tag string
+	 *
+	 * @param array $tags
+	 * @return string tag string
+	 */
+	private static function tagToString(array $tags)
+	{
+		$tagstr = '';
+
+		foreach ($tags as $tag) {
+			if ($tagstr != "") {
+				$tagstr .= ", ";
+			}
+	
+			$tagstr .= "#[url=" . DI::baseUrl() . "/search?tag=" . urlencode($tag) . "]" . $tag . "[/url]";
+		}
+
+		return $tagstr;
 	}
 
 	private static function titleIsBody($title, $body)
