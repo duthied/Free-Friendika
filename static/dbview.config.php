@@ -186,20 +186,6 @@ return [
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`"
 	],
-	"participation-view" => [
-		"fields" => [
-			"iid" => ["participation", "iid"],
-			"id" => ["contact", "id"],
-			"url" => ["contact", "url"],
-			"name" => ["contact", "name"],
-			"protocol" => ["contact", "protocol"],
-			"batch" => "CASE `contact`.`batch` WHEN '' THEN `fcontact`.`batch` ELSE `contact`.`batch` END",
-			"network" => "CASE `fcontact`.`network` WHEN '' THEN `contact`.`network` ELSE `fcontact`.`network` END",
-		],
-		"query" => "FROM `participation`
-			INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid` AND NOT `contact`.`archive`
-			INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`"
-	],
 	"pending-view" => [
 		"fields" => [
 			"id" => ["register", "id"],
