@@ -1903,8 +1903,7 @@ class Item
 			self::insertContent($item);
 		}
 
-		$postfields = $item;
-		$delivery_data = Post\DeliveryData::extractFields($postfields);
+		$delivery_data = Post\DeliveryData::extractFields($item);
 
 		unset($item['postopts']);
 		unset($item['inform']);
