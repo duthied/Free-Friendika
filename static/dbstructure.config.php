@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1343);
+	define('DB_UPDATE_VERSION', 1344);
 }
 
 return [
@@ -927,6 +927,8 @@ return [
 			"link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => "item.id"],
 			"parent" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+			"uri-id" => ["type" => "int unsigned", "relation" => ["item-uri" => "id"], "comment" => "Item-uri id of the related post"],
+			"parent-uri-id" => ["type" => "int unsigned", "relation" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related post"],
 			"seen" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"verb" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],
 			"otype" => ["type" => "varchar(10)", "not null" => "1", "default" => "", "comment" => ""],
@@ -945,8 +947,8 @@ return [
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"notify-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["notify" => "id"], "comment" => ""],
-			"master-parent-item" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"],
-				"comment" => ""],
+			"master-parent-item" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
+			"master-parent-uri-id" => ["type" => "int unsigned", "relation" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related post"],
 			"parent-item" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"receiver-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"],
 				"comment" => "User id"],
