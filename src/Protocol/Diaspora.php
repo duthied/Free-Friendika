@@ -36,8 +36,8 @@ use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
-use Friendica\Model\ItemDeliveryData;
 use Friendica\Model\Mail;
+use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
@@ -2293,7 +2293,7 @@ class Diaspora
 		}
 
 		// Send all existing comments and likes to the requesting server
-		$comments = Item::select(['id', 'parent', 'verb', 'self'], ['parent' => $item['id']]);
+		$comments = Item::select(['id', 'uri-id', 'parent', 'verb', 'self'], ['parent' => $item['id']]);
 		while ($comment = Item::fetch($comments)) {
 			if ($comment['id'] == $comment['parent']) {
 				continue;
@@ -2301,7 +2301,7 @@ class Diaspora
 
 			Logger::info('Deliver participation', ['item' => $comment['id'], 'contact' => $contact_id]);
 			if (Worker::add(PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['id'], $contact_id)) {
-				ItemDeliveryData::incrementQueueCount($comment['id'], 1);
+				Post\DeliveryData::incrementQueueCount($comment['uri-id'], 1);
 			}
 		}
 		DBA::close($comments);
