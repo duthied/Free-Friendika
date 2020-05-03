@@ -49,12 +49,12 @@ class Category
 	{
 		$file_text = '';
 
-		$tags = DBA::selectToArray('post-category', ['type', 'name'], ['uri-id' => $uri_id, 'uid' => $uid]);
+		$tags = DBA::selectToArray('category-view', ['type', 'name'], ['uri-id' => $uri_id, 'uid' => $uid]);
 		foreach ($tags as $tag) {
 			if ($tag['type'] == self::CATEGORY) {
-				$file_text .= '<' . $tag['term'] . '>';
+				$file_text .= '<' . $tag['name'] . '>';
 			} else {
-				$file_text .= '[' . $tag['term'] . ']';
+				$file_text .= '[' . $tag['name'] . ']';
 			}
 		}
 
