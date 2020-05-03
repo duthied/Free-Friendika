@@ -39,9 +39,9 @@ use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\PermissionSet;
+use Friendica\Model\Post\Category;
 use Friendica\Model\Profile;
 use Friendica\Model\Tag;
-use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
@@ -241,13 +241,8 @@ class DFRN
 		}
 
 		if (isset($category)) {
-			$sql_post_table = sprintf(
-				"INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				DBA::escape(Strings::protectSprintf($category)),
-				intval(Term::OBJECT_TYPE_POST),
-				intval(Term::CATEGORY),
-				intval($owner_id)
-			);
+			$sql_post_table = sprintf("INNER JOIN (SELECT `uri-id` FROM `category-view` WHERE `name` = '%s' AND `type` = %d AND `uid` = %d ORDER BY `uri-id` DESC) AS `category` ON `item`.`uri-id` = `category`.`uri-id` ",
+				DBA::escape(Strings::protectSprintf($category)), intval(Category::CATEGORY), intval($owner_id));
 		}
 
 		if ($public_feed && ! $converse) {

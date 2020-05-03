@@ -29,9 +29,9 @@ use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post\Category;
 use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
-use Friendica\Model\Term;
 use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
@@ -142,8 +142,8 @@ class Status extends BaseProfile
 		$sql_post_table = "";
 
 		if (!empty($category)) {
-			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				DBA::escape(Strings::protectSprintf($category)), intval(Term::OBJECT_TYPE_POST), intval(Term::CATEGORY), intval($a->profile['uid']));
+			$sql_post_table = sprintf("INNER JOIN (SELECT `uri-id` FROM `category-view` WHERE `name` = '%s' AND `type` = %d AND `uid` = %d ORDER BY `uri-id` DESC) AS `category` ON `item`.`uri-id` = `category`.`uri-id` ",
+				DBA::escape(Strings::protectSprintf($category)), intval(Category::CATEGORY), intval($a->profile['uid']));
 		}
 
 		if (!empty($hashtags)) {

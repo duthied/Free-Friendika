@@ -32,6 +32,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Post\Category;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
@@ -319,7 +320,7 @@ class Item
 		if (!array_key_exists('verb', $row) || in_array($row['verb'], ['', Activity::POST, Activity::SHARE])) {
 			// Build the file string out of the term entries
 			if (array_key_exists('file', $row) && empty($row['file'])) {
-				$row['file'] = Term::fileTextFromItemId($row['internal-iid']);
+				$row['file'] = Category::getTextByURIId($row['internal-uri-id'], $row['internal-uid']);
 			}
 		}
 
@@ -345,7 +346,8 @@ class Item
 		// Remove internal fields
 		unset($row['internal-activity']);
 		unset($row['internal-network']);
-		unset($row['internal-iid']);
+		unset($row['internal-uri-id']);
+		unset($row['internal-uid']);
 		unset($row['internal-psid']);
 		unset($row['internal-iaid']);
 		unset($row['internal-user-ignored']);
@@ -671,7 +673,8 @@ class Item
 			'resource-id', 'event-id', 'attach', 'post-type', 'file',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
-			'id' => 'item_id', 'network', 'icid', 'iaid', 'id' => 'internal-iid',
+			'id' => 'item_id', 'network', 'icid', 'iaid',
+			'uri-id' => 'internal-uri-id', 'uid' => 'internal-uid',
 			'network' => 'internal-network', 'iaid' => 'internal-iaid', 'psid' => 'internal-psid'];
 
 		if ($usermode) {
@@ -834,7 +837,7 @@ class Item
 	private static function constructSelectFields(array $fields, array $selected)
 	{
 		if (!empty($selected)) {
-			$selected = array_merge($selected, ['internal-iid', 'internal-psid', 'internal-iaid', 'internal-network']);
+			$selected = array_merge($selected, ['internal-uri-id', 'internal-uid', 'internal-psid', 'internal-iaid', 'internal-network']);
 		}
 
 		if (in_array('verb', $selected)) {
@@ -917,7 +920,7 @@ class Item
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'iaid', 'icid', 'file'], $condition);
+		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'iaid', 'icid', 'uid', 'file'], $condition);
 
 		$content_fields = [];
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
@@ -1013,7 +1016,7 @@ class Item
 			}
 
 			if (!is_null($files)) {
-				Term::insertFromFileFieldByItemId($item['id'], $files);
+				Category::storeTextByURIId($item['uri-id'], $item['uid'], $files);
 				if (!empty($item['file'])) {
 					DBA::update('item', ['file' => ''], ['id' => $item['id']]);
 				}
@@ -1099,7 +1102,7 @@ class Item
 	{
 		Logger::info('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
-		$fields = ['id', 'uri', 'uid', 'parent', 'parent-uri', 'origin',
+		$fields = ['id', 'uri', 'uri-id', 'uid', 'parent', 'parent-uri', 'origin',
 			'deleted', 'file', 'resource-id', 'event-id', 'attach',
 			'verb', 'object-type', 'object', 'target', 'contact-id',
 			'icid', 'iaid', 'psid'];
@@ -1172,7 +1175,7 @@ class Item
 		$item_fields = ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
 		DBA::update('item', $item_fields, ['id' => $item['id']]);
 
-		Term::insertFromFileFieldByItemId($item['id'], '');
+		Category::storeTextByURIId($item['uri-id'], $item['uid'], '');
 		self::deleteThread($item['id'], $item['parent-uri']);
 
 		if (!self::exists(["`uri` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri']])) {
@@ -1949,7 +1952,7 @@ class Item
 		 * This is not perfect - but a workable solution until we found the reason for the problem.
 		 */
 		if (!empty($files)) {
-			Term::insertFromFileFieldByItemId($current_post, $files);
+			Category::storeTextByURIId($item['uri-id'], $item['uid'], $files);
 		}
 
 		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances

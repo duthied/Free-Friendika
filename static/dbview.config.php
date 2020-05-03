@@ -37,6 +37,21 @@
  */
 
 return [
+	"category-view" => [
+		"fields" => [
+			"uri-id" => ["post-category", "uri-id"],
+			"uid" => ["post-category", "uid"],
+			"uri" => ["item-uri", "uri"],
+			"guid" => ["item-uri", "guid"],
+			"type" => ["post-category", "type"],
+			"tid" => ["post-category", "tid"],
+			"name" => ["tag", "name"],
+			"url" => ["tag", "url"],
+		],
+		"query" => "FROM `post-category`
+			INNER JOIN `item-uri` ON `item-uri`.id = `post-category`.`uri-id`
+			LEFT JOIN `tag` ON `post-category`.`tid` = `tag`.`id`"
+	],
 	"tag-view" => [
 		"fields" => [
 			"uri-id" => ["post-tag", "uri-id"],
