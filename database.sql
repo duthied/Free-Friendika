@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1341
+-- DB_UPDATE_VERSION 1346
 -- ------------------------------------------
 
 
@@ -666,7 +666,8 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_eventid` (`uid`,`event-id`),
 	 INDEX `icid` (`icid`),
 	 INDEX `iaid` (`iaid`),
-	 INDEX `psid_wall` (`psid`,`wall`)
+	 INDEX `psid_wall` (`psid`,`wall`),
+	 INDEX `uri-id` (`uri-id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
 --
@@ -1188,6 +1189,18 @@ CREATE TABLE IF NOT EXISTS `tag` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='tags and mentions';
 
 --
+-- TABLE post-category
+--
+CREATE TABLE IF NOT EXISTS `post-category` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
+	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`tid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	 PRIMARY KEY(`uri-id`,`uid`,`type`,`tid`),
+	 INDEX `uri-id` (`tid`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to categories';
+
+--
 -- TABLE post-tag
 --
 CREATE TABLE IF NOT EXISTS `post-tag` (
@@ -1387,6 +1400,23 @@ CREATE TABLE IF NOT EXISTS `storage` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Data stored by Database storage backend';
 
 --
+-- VIEW category-view
+--
+DROP VIEW IF EXISTS `category-view`;
+CREATE VIEW `category-view` AS SELECT 
+	`post-category`.`uri-id` AS `uri-id`,
+	`post-category`.`uid` AS `uid`,
+	`item-uri`.`uri` AS `uri`,
+	`item-uri`.`guid` AS `guid`,
+	`post-category`.`type` AS `type`,
+	`post-category`.`tid` AS `tid`,
+	`tag`.`name` AS `name`,
+	`tag`.`url` AS `url`
+	FROM `post-category`
+			INNER JOIN `item-uri` ON `item-uri`.id = `post-category`.`uri-id`
+			LEFT JOIN `tag` ON `post-category`.`tid` = `tag`.`id`;
+
+--
 -- VIEW tag-view
 --
 DROP VIEW IF EXISTS `tag-view`;
@@ -1576,6 +1606,27 @@ CREATE VIEW `pending-view` AS SELECT
 	FROM `register`
 			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
 			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`;
+
+--
+-- VIEW tag-search-view
+--
+DROP VIEW IF EXISTS `tag-search-view`;
+CREATE VIEW `tag-search-view` AS SELECT 
+	`post-tag`.`uri-id` AS `uri-id`,
+	`item`.`id` AS `iid`,
+	`item`.`uri` AS `uri`,
+	`item`.`guid` AS `guid`,
+	`item`.`uid` AS `uid`,
+	`item`.`private` AS `private`,
+	`item`.`wall` AS `wall`,
+	`item`.`origin` AS `origin`,
+	`item`.`gravity` AS `gravity`,
+	`item`.`received` AS `received`,
+	`tag`.`name` AS `name`
+	FROM `post-tag`
+			INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid`
+			INNER JOIN `item` ON `item`.`uri-id` = `post-tag`.`uri-id`
+			WHERE `post-tag`.`type` = 1;
 
 --
 -- VIEW workerqueue-view
