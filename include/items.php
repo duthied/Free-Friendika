@@ -141,28 +141,6 @@ function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklis
 	return $data;
 }
 
-function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blacklist = "")
-{
-	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
-	if (empty($data["keywords"]) || !is_array($data["keywords"])) {
-		return '';
-	}
-
-	$tags = "";
-	foreach ($data["keywords"] as $keyword) {
-		$hashtag = str_replace([" ", "+", "/", ".", "#", "'"],
-			["", "", "", "", "", ""], $keyword);
-
-		if ($tags != "") {
-			$tags .= ", ";
-		}
-
-		$tags .= "#[url=" . DI::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url]";
-	}
-
-	return $tags;
-}
-
 function get_page_keywords($url, $photo = "", $keywords = false, $keyword_blacklist = "")
 {
 	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
