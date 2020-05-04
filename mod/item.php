@@ -375,7 +375,6 @@ function item_post(App $a) {
 	}
 
 	// Look for any tags and linkify them
-	$str_tags = '';
 	$inform   = '';
 
 	$tags = BBCode::getTags($body);
@@ -414,7 +413,7 @@ function item_post(App $a) {
 				continue;
 			}
 
-			$success = handle_tag($body, $inform, $str_tags, local_user() ? local_user() : $profile_uid, $tag, $network);
+			$success = handle_tag($body, $inform, local_user() ? local_user() : $profile_uid, $tag, $network);
 			if ($success['replaced']) {
 				$tagged[] = $tag;
 			}
@@ -598,7 +597,6 @@ function item_post(App $a) {
 	$datarray['app']           = $app;
 	$datarray['location']      = $location;
 	$datarray['coord']         = $coord;
-	$datarray['tag']           = $str_tags;
 	$datarray['file']          = $categories;
 	$datarray['inform']        = $inform;
 	$datarray['verb']          = $verb;
@@ -695,7 +693,6 @@ function item_post(App $a) {
 		$fields = [
 			'title' => $datarray['title'],
 			'body' => $datarray['body'],
-			'tag' => $datarray['tag'],
 			'attach' => $datarray['attach'],
 			'file' => $datarray['file'],
 			'rendered-html' => $datarray['rendered-html'],
@@ -890,7 +887,6 @@ function item_content(App $a)
  * @param App     $a
  * @param string  $body     the text to replace the tag in
  * @param string  $inform   a comma-seperated string containing everybody to inform
- * @param string  $str_tags string to add the tag to
  * @param integer $profile_uid
  * @param string  $tag      the tag to replace
  * @param string  $network  The network of the post
@@ -899,24 +895,15 @@ function item_content(App $a)
  * @throws ImagickException
  * @throws HTTPException\InternalServerErrorException
  */
-function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "")
+function handle_tag(&$body, &$inform, $profile_uid, $tag, $network = "")
 {
 	$replaced = false;
-	$r = null;
 
 	//is it a person tag?
 	if (Tag::isType($tag, Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION)) {
 		$tag_type = substr($tag, 0, 1);
 		//is it already replaced?
 		if (strpos($tag, '[url=')) {
-			//append tag to str_tags
-			if (!stristr($str_tags, $tag)) {
-				if (strlen($str_tags)) {
-					$str_tags .= ',';
-				}
-				$str_tags .= $tag;
-			}
-
 			// Checking for the alias that is used for OStatus
 			$pattern = "/[@!]\[url\=(.*?)\](.*?)\[\/url\]/ism";
 			if (preg_match($pattern, $tag, $matches)) {
@@ -924,14 +911,6 @@ function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network =
 
 				if ($data["alias"] != "") {
 					$newtag = '@[url=' . $data["alias"] . ']' . $data["nick"] . '[/url]';
-
-					if (!stripos($str_tags, '[url=' . $data["alias"] . ']')) {
-						if (strlen($str_tags)) {
-							$str_tags .= ',';
-						}
-
-						$str_tags .= $newtag;
-					}
 				}
 			}
 
@@ -1005,7 +984,6 @@ function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network =
 			}
 
 			$profile = $contact["url"];
-			$alias   = $contact["alias"];
 			$newname = ($contact["name"] ?? '') ?: $contact["nick"];
 		}
 
@@ -1016,27 +994,6 @@ function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network =
 			$profile = str_replace(',', '%2c', $profile);
 			$newtag = $tag_type.'[url=' . $profile . ']' . $newname . '[/url]';
 			$body = str_replace($tag_type . $name, $newtag, $body);
-			// append tag to str_tags
-			if (!stristr($str_tags, $newtag)) {
-				if (strlen($str_tags)) {
-					$str_tags .= ',';
-				}
-				$str_tags .= $newtag;
-			}
-
-			/*
-			 * Status.Net seems to require the numeric ID URL in a mention if the person isn't
-			 * subscribed to you. But the nickname URL is OK if they are. Grrr. We'll tag both.
-			 */
-			if (!empty($alias)) {
-				$newtag = '@[url=' . $alias . ']' . $newname . '[/url]';
-				if (!stripos($str_tags, '[url=' . $alias . ']')) {
-					if (strlen($str_tags)) {
-						$str_tags .= ',';
-					}
-					$str_tags .= $newtag;
-				}
-			}
 		}
 	}
 

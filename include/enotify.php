@@ -574,7 +574,7 @@ function check_user_notification($itemid) {
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function check_item_notification($itemid, $uid, $notification_type) {
-	$fields = ['id', 'mention', 'tag', 'parent', 'title', 'body',
+	$fields = ['id', 'mention', 'parent', 'title', 'body',
 		'author-link', 'author-name', 'author-avatar', 'author-id',
 		'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
 	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'deleted' => false];
