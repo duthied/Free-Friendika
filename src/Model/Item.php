@@ -80,7 +80,7 @@ class Item
 	const DELIVER_FIELDLIST = ['uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid',
 			'parent-guid', 'created', 'edited', 'verb', 'object-type', 'object', 'target',
 			'private', 'title', 'body', 'location', 'coord', 'app',
-			'attach', 'tag', 'deleted', 'extid', 'post-type',
+			'attach', 'deleted', 'extid', 'post-type',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'author-id', 'author-link', 'owner-link', 'contact-uid',
 			'signed_text', 'signature', 'signer', 'network'];
@@ -98,7 +98,7 @@ class Item
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id',
 			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'iaid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
-			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
+			'postopts', 'plink', 'resource-id', 'event-id', 'attach', 'inform',
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
@@ -317,11 +317,6 @@ class Item
 		}
 
 		if (!array_key_exists('verb', $row) || in_array($row['verb'], ['', Activity::POST, Activity::SHARE])) {
-			// Build the tag string out of the term entries
-			if (array_key_exists('tag', $row) && empty($row['tag'])) {
-				$row['tag'] = Term::tagTextFromItemId($row['internal-iid']);
-			}
-
 			// Build the file string out of the term entries
 			if (array_key_exists('file', $row) && empty($row['file'])) {
 				$row['file'] = Term::fileTextFromItemId($row['internal-iid']);
@@ -673,7 +668,7 @@ class Item
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
 			'created', 'edited', 'commented', 'received', 'changed', 'psid',
-			'resource-id', 'event-id', 'tag', 'attach', 'post-type', 'file',
+			'resource-id', 'event-id', 'attach', 'post-type', 'file',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
 			'id' => 'item_id', 'network', 'icid', 'iaid', 'id' => 'internal-iid',
@@ -922,7 +917,7 @@ class Item
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'iaid', 'icid', 'tag', 'file'], $condition);
+		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'iaid', 'icid', 'file'], $condition);
 
 		$content_fields = [];
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
@@ -943,13 +938,6 @@ class Item
 			if (array_key_exists($field, $fields)) {
 				$fields[$field] = null;
 			}
-		}
-
-		if (array_key_exists('tag', $fields)) {
-			$tags = $fields['tag'];
-			$fields['tag'] = null;
-		} else {
-			$tags = null;
 		}
 
 		if (array_key_exists('file', $fields)) {
@@ -1021,13 +1009,6 @@ class Item
 						}
 						DBA::update('item', $item_fields, ['id' => $item['id']]);
 					}
-				}
-			}
-
-			if (!is_null($tags)) {
-				Term::insertFromTagFieldByItemId($item['id'], $tags);
-				if (!empty($item['tag'])) {
-					DBA::update('item', ['tag' => ''], ['id' => $item['id']]);
 				}
 			}
 
@@ -1184,9 +1165,6 @@ class Item
 			}
 		}
 
-		// Delete tags that had been attached to other items
-		self::deleteTagsFromItem($item);
-
 		// Delete notifications
 		DBA::delete('notify', ['iid' => $item['id'], 'uid' => $item['uid']]);
 
@@ -1194,7 +1172,6 @@ class Item
 		$item_fields = ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
 		DBA::update('item', $item_fields, ['id' => $item['id']]);
 
-		Term::insertFromTagFieldByItemId($item['id'], '');
 		Term::insertFromFileFieldByItemId($item['id'], '');
 		self::deleteThread($item['id'], $item['parent-uri']);
 
@@ -1243,43 +1220,6 @@ class Item
 		return true;
 	}
 
-	private static function deleteTagsFromItem($item)
-	{
-		if (($item["verb"] != Activity::TAG) || ($item["object-type"] != Activity\ObjectType::TAGTERM)) {
-			return;
-		}
-
-		$xo = XML::parseString($item["object"]);
-		$xt = XML::parseString($item["target"]);
-
-		if ($xt->type != Activity\ObjectType::NOTE) {
-			return;
-		}
-
-		$i = self::selectFirst(['id', 'contact-id', 'tag'], ['uri' => $xt->id, 'uid' => $item['uid']]);
-		if (!DBA::isResult($i)) {
-			return;
-		}
-
-		// For tags, the owner cannot remove the tag on the author's copy of the post.
-		$owner_remove = ($item["contact-id"] == $i["contact-id"]);
-		$author_copy = $item["origin"];
-
-		if (($owner_remove && $author_copy) || !$owner_remove) {
-			return;
-		}
-
-		$tags = explode(',', $i["tag"]);
-		$newtags = [];
-		if (count($tags)) {
-			foreach ($tags as $tag) {
-				if (trim($tag) !== trim($xo->body)) {
-				       $newtags[] = trim($tag);
-				}
-			}
-		}
-		self::update(['tag' => implode(',', $newtags)], ['id' => $i["id"]]);
-	}
 
 	private static function guid($item, $notify)
 	{
@@ -1547,7 +1487,6 @@ class Item
 		$item['deny_gid']      = trim($item['deny_gid'] ?? '');
 		$item['private']       = intval($item['private'] ?? self::PUBLIC);
 		$item['body']          = trim($item['body'] ?? '');
-		$item['tag']           = trim($item['tag'] ?? '');
 		$item['attach']        = trim($item['attach'] ?? '');
 		$item['app']           = trim($item['app'] ?? '');
 		$item['origin']        = intval($item['origin'] ?? 0);
@@ -1870,13 +1809,6 @@ class Item
 
 		Logger::log('' . print_r($item,true), Logger::DATA);
 
-		if (array_key_exists('tag', $item)) {
-			$tags = $item['tag'];
-			unset($item['tag']);
-		} else {
-			$tags = '';
-		}
-
 		if (array_key_exists('file', $item)) {
 			$files = $item['file'];
 			unset($item['file']);
@@ -2016,10 +1948,6 @@ class Item
 		 * Due to deadlock issues with the "term" table we are doing these steps after the commit.
 		 * This is not perfect - but a workable solution until we found the reason for the problem.
 		 */
-		if (!empty($tags)) {
-			Term::insertFromTagFieldByItemId($current_post, $tags);
-		}
-
 		if (!empty($files)) {
 			Term::insertFromFileFieldByItemId($current_post, $files);
 		}
@@ -2634,9 +2562,6 @@ class Item
 		if (DI::config()->get('system', 'local_tags')) {
 			$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 					"#[url=".DI::baseUrl()."/search?tag=$2]$2[/url]", $item["body"]);
-
-			$item["tag"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-					"#[url=".DI::baseUrl()."/search?tag=$2]$2[/url]", $item["tag"]);
 		}
 
 		// mask hashtags inside of url, bookmarks and attachments to avoid urls in urls
@@ -2668,13 +2593,6 @@ class Item
 			$newtag = '#[url=' . DI::baseUrl() . '/search?tag=' . $basetag . ']' . $basetag . '[/url]';
 
 			$item["body"] = str_replace($tag, $newtag, $item["body"]);
-
-			if (!stristr($item["tag"], "/search?tag=" . $basetag . "]" . $basetag . "[/url]")) {
-				if (strlen($item["tag"])) {
-					$item["tag"] = ',' . $item["tag"];
-				}
-				$item["tag"] = $newtag . $item["tag"];
-			}
 		}
 
 		// Convert back the masked hashtags
@@ -3030,30 +2948,6 @@ class Item
 		$deny         = array_unique(array_merge($deny_people, $deny_groups));
 		$recipients   = array_diff($recipients, $deny);
 		return $recipients;
-	}
-
-	public static function getFeedTags($item)
-	{
-		$ret = [];
-		$matches = false;
-		$cnt = preg_match_all('|\#\[url\=(.*?)\](.*?)\[\/url\]|', $item['tag'], $matches);
-		if ($cnt) {
-			for ($x = 0; $x < $cnt; $x ++) {
-				if ($matches[1][$x]) {
-					$ret[$matches[2][$x]] = ['#', $matches[1][$x], $matches[2][$x]];
-				}
-			}
-		}
-		$matches = false;
-		$cnt = preg_match_all('|\@\[url\=(.*?)\](.*?)\[\/url\]|', $item['tag'], $matches);
-		if ($cnt) {
-			for ($x = 0; $x < $cnt; $x ++) {
-				if ($matches[1][$x]) {
-					$ret[] = ['@', $matches[1][$x], $matches[2][$x]];
-				}
-			}
-		}
-		return $ret;
 	}
 
 	public static function expire($uid, $days, $network = "", $force = false)

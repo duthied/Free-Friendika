@@ -2582,7 +2582,7 @@ class Diaspora
 		}
 
 		// Do we already have this item?
-		$fields = ['body', 'title', 'attach', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
+		$fields = ['body', 'title', 'attach', 'app', 'created', 'object-type', 'uri', 'guid',
 			'author-name', 'author-link', 'author-avatar'];
 		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
 		$item = Item::selectFirst($fields, $condition);
@@ -2626,7 +2626,7 @@ class Diaspora
 			}
 
 			if ($stored) {
-				$fields = ['body', 'title', 'attach', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
+				$fields = ['body', 'title', 'attach', 'app', 'created', 'object-type', 'uri', 'guid',
 					'author-name', 'author-link', 'author-avatar'];
 				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
 				$item = Item::selectFirst($fields, $condition);
@@ -2772,7 +2772,6 @@ class Diaspora
 
 		Tag::storeFromBody($datarray['uri-id'], $datarray["body"]);
 
-		$datarray["tag"] = $original_item["tag"];
 		$datarray["attach"] = $original_item["attach"];
 		$datarray["app"]  = $original_item["app"];
 

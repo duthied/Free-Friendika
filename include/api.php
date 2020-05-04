@@ -2033,7 +2033,7 @@ function api_statuses_repeat($type)
 
 	Logger::log('API: api_statuses_repeat: '.$id);
 
-	$fields = ['uri-id', 'body', 'title', 'attach', 'tag', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
+	$fields = ['uri-id', 'body', 'title', 'attach', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 	$item = Item::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 
 	if (DBA::isResult($item) && $item['body'] != "") {
@@ -2051,7 +2051,6 @@ function api_statuses_repeat($type)
 			$post .= "[/share]";
 		}
 		$_REQUEST['body'] = $post;
-		$_REQUEST['tag'] = $item['tag'];
 		$_REQUEST['attach'] = $item['attach'];
 		$_REQUEST['profile_uid'] = api_user();
 		$_REQUEST['api_source'] = true;
