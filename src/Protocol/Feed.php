@@ -385,18 +385,10 @@ class Feed {
 				$item["attach"] .= '[attach]href="' . $href . '" length="' . $length . '" type="' . $type . '"[/attach]';
 			}
 
-			$tags = '';
 			$taglist = [];
 			$categories = $xpath->query("category", $entry);
 			foreach ($categories AS $category) {
-				$hashtag = $category->nodeValue;
-				if ($tags != '') {
-					$tags .= ', ';
-				}
-
-				$taglink = "#[url=" . DI::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url]";
-				$tags .= $taglink;
-				$taglist[] = $hashtag;
+				$taglist[] = $category->nodeValue;
 			}
 
 			$body = trim(XML::getFirstNodeValue($xpath, 'atom:content/text()', $entry));
@@ -477,7 +469,6 @@ class Feed {
 				// We always strip the title since it will be added in the page information
 				$item["title"] = "";
 				$item["body"] = $item["body"] . add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
-				$item["tag"] = add_page_keywords($item["plink"], $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
 				$taglist = get_page_keywords($item["plink"], $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
 				$item["object-type"] = Activity\ObjectType::BOOKMARK;
 				unset($item["attach"]);
@@ -487,14 +478,10 @@ class Feed {
 				}
 
 				if (!empty($contact["fetch_further_information"]) && ($contact["fetch_further_information"] == 3)) {
-					if (!empty($tags)) {
-						$item["tag"] = $tags;
-					} else {
-						// @todo $preview is never set in this case, is it intended? - @MrPetovan 2018-02-13
-						$item["tag"] = add_page_keywords($item["plink"], $preview, true, $contact["ffi_keyword_blacklist"]);
+					if (empty($taglist)) {
 						$taglist = get_page_keywords($item["plink"], $preview, true, $contact["ffi_keyword_blacklist"]);
 					}
-					$item["body"] .= "\n" . $item['tag'];
+					$item["body"] .= "\n" . self::tagToString($taglist);
 				} else {
 					$taglist = [];
 				}
@@ -538,6 +525,27 @@ class Feed {
 		}
 
 		return ["header" => $author, "items" => $items];
+	}
+
+	/**
+	 * Convert a tag array to a tag string
+	 *
+	 * @param array $tags
+	 * @return string tag string
+	 */
+	private static function tagToString(array $tags)
+	{
+		$tagstr = '';
+
+		foreach ($tags as $tag) {
+			if ($tagstr != "") {
+				$tagstr .= ", ";
+			}
+	
+			$tagstr .= "#[url=" . DI::baseUrl() . "/search?tag=" . urlencode($tag) . "]" . $tag . "[/url]";
+		}
+
+		return $tagstr;
 	}
 
 	private static function titleIsBody($title, $body)

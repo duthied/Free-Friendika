@@ -48,14 +48,14 @@ class Source extends BaseAdmin
 		$item_id = '';
 		$terms = [];
 		if (!empty($guid)) {
-			$item = Model\Item::selectFirst(['id', 'guid', 'uri'], ['guid' => $guid]);
+			$item = Model\Item::selectFirst(['id', 'uri-id', 'guid', 'uri'], ['guid' => $guid]);
 
 			$conversation = Model\Conversation::getByItemUri($item['uri']);
 
 			$item_id = $item['id'];
 			$item_uri = $item['uri'];
 			$source = $conversation['source'];
-			$terms = Model\Term::tagArrayFromItemId($item['id'], [Model\Term::HASHTAG, Model\Term::MENTION, Model\Term::IMPLICIT_MENTION]);
+			$terms = Model\Tag::getByURIId($item['uri-id'], [Model\Tag::HASHTAG, Model\Tag::MENTION, Model\Tag::IMPLICIT_MENTION]);
 		}
 
 		$tpl = Renderer::getMarkupTemplate('admin/item/source.tpl');

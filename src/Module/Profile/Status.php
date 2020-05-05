@@ -147,8 +147,8 @@ class Status extends BaseProfile
 		}
 
 		if (!empty($hashtags)) {
-			$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				DBA::escape(Strings::protectSprintf($hashtags)), intval(Term::OBJECT_TYPE_POST), intval(Term::HASHTAG), intval($a->profile['uid']));
+			$sql_post_table .= sprintf("INNER JOIN (SELECT `uri-id` FROM `tag-search-view` WHERE `name` = '%s' AND `uid` = %d ORDER BY `uri-id` DESC) AS `tag-search` ON `item`.`uri-id` = `tag-search`.`uri-id` ",
+				DBA::escape(Strings::protectSprintf($hashtags)), intval($a->profile['uid']));
 		}
 
 		if (!empty($datequery)) {

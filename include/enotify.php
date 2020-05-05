@@ -107,10 +107,22 @@ function notification($params)
 		$item_id = 0;
 	}
 
+	if (isset($params['item']['uri-id'])) {
+		$uri_id = $params['item']['uri-id'];
+	} else {
+		$uri_id = 0;
+	}
+
 	if (isset($params['parent'])) {
 		$parent_id = $params['parent'];
 	} else {
 		$parent_id = 0;
+	}
+
+	if (isset($params['item']['parent-uri-id'])) {
+		$parent_uri_id = $params['item']['parent-uri-id'];
+	} else {
+		$parent_uri_id = 0;
 	}
 
 	$epreamble = '';
@@ -452,17 +464,19 @@ function notification($params)
 
 	if ($show_in_notification_page) {
 		$notification = DI::notify()->insert([
-			'name'       => $params['source_name'] ?? '',
-			'name_cache' => substr(strip_tags(BBCode::convert($params['source_name'] ?? '')), 0, 255),
-			'url'        => $params['source_link'] ?? '',
-			'photo'      => $params['source_photo'] ?? '',
-			'link'       => $itemlink ?? '',
-			'uid'        => $params['uid'] ?? 0,
-			'iid'        => $item_id ?? 0,
-			'parent'     => $parent_id ?? 0,
-			'type'       => $params['type'] ?? '',
-			'verb'       => $params['verb'] ?? '',
-			'otype'      => $params['otype'] ?? '',
+			'name'          => $params['source_name'] ?? '',
+			'name_cache'    => substr(strip_tags(BBCode::convert($params['source_name'] ?? '')), 0, 255),
+			'url'           => $params['source_link'] ?? '',
+			'photo'         => $params['source_photo'] ?? '',
+			'link'          => $itemlink ?? '',
+			'uid'           => $params['uid'] ?? 0,
+			'iid'           => $item_id,
+			'uri-id'        => $uri_id,
+			'parent'        => $parent_id,
+			'parent-uri-id' => $parent_uri_id,
+			'type'          => $params['type'] ?? '',
+			'verb'          => $params['verb'] ?? '',
+			'otype'         => $params['otype'] ?? '',
 		]);
 
 		$notification->msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $notification->link]);
@@ -486,8 +500,9 @@ function notification($params)
 			if (!DBA::exists('notify-threads', ['master-parent-item' => $params['parent'], 'receiver-uid' => $params['uid']])) {
 				Logger::log("notify_id:" . intval($notify_id) . ", parent: " . intval($params['parent']) . "uid: " . intval($params['uid']), Logger::DEBUG);
 
-				$fields = ['notify-id'    => $notify_id, 'master-parent-item' => $params['parent'],
-				           'receiver-uid' => $params['uid'], 'parent-item' => 0];
+				$fields = ['notify-id' => $notify_id, 'master-parent-item' => $params['parent'],
+					'master-parent-uri-id' => $parent_uri_id,
+					'receiver-uid' => $params['uid'], 'parent-item' => 0];
 				DBA::insert('notify-threads', $fields);
 
 				$additional_mail_header .= "Message-ID: <${id_for_parent}>\n";
@@ -574,7 +589,7 @@ function check_user_notification($itemid) {
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function check_item_notification($itemid, $uid, $notification_type) {
-	$fields = ['id', 'mention', 'tag', 'parent', 'title', 'body',
+	$fields = ['id', 'uri-id', 'mention', 'parent', 'parent-uri-id', 'title', 'body',
 		'author-link', 'author-name', 'author-avatar', 'author-id',
 		'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
 	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'deleted' => false];

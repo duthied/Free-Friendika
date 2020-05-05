@@ -41,7 +41,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Mail;
 use Friendica\Model\Notify;
 use Friendica\Model\Photo;
-use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
 use Friendica\Network\FKOAuth1;
@@ -1539,31 +1538,24 @@ function api_search($type)
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	if (preg_match('/^#(\w+)$/', $searchTerm, $matches) === 1 && isset($matches[1])) {
 		$searchTerm = $matches[1];
-		$condition = ["`oid` > ?
-			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) 
-			AND `otype` = ? AND `type` = ? AND `term` = ?",
-			$since_id, local_user(), Term::OBJECT_TYPE_POST, Term::HASHTAG, $searchTerm];
-		if ($max_id > 0) {
-			$condition[0] .= ' AND `oid` <= ?';
-			$condition[] = $max_id;
+		$condition = ["`iid` > ? AND `name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $since_id, $searchTerm, local_user()];
+		$tags = DBA::select('tag-search-view', ['uri-id'], $condition);
+		$uriids = [];
+		while ($tag = DBA::fetch($tags)) {
+			$uriids[] = $tag['uri-id'];
 		}
-		$terms = DBA::select('term', ['oid'], $condition, []);
-		$itemIds = [];
-		while ($term = DBA::fetch($terms)) {
-			$itemIds[] = $term['oid'];
-		}
-		DBA::close($terms);
+		DBA::close($tags);
 
-		if (empty($itemIds)) {
+		if (empty($uriids)) {
 			return api_format_data('statuses', $type, $data);
 		}
 
-		$preCondition = ['`id` IN (' . implode(', ', $itemIds) . ')'];
+		$condition = ['uri-id' => $uriids];
 		if ($exclude_replies) {
-			$preCondition[] = '`id` = `parent`';
+			$condition['gravity'] = GRAVITY_PARENT;
 		}
 
-		$condition = [implode(' AND ', $preCondition)];
+		$params['group_by'] = ['uri-id'];
 	} else {
 		$condition = ["`id` > ?
 			" . ($exclude_replies ? " AND `id` = `parent` " : ' ') . "
@@ -2041,7 +2033,7 @@ function api_statuses_repeat($type)
 
 	Logger::log('API: api_statuses_repeat: '.$id);
 
-	$fields = ['uri-id', 'body', 'title', 'attach', 'tag', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
+	$fields = ['uri-id', 'body', 'title', 'attach', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 	$item = Item::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 
 	if (DBA::isResult($item) && $item['body'] != "") {
@@ -2059,7 +2051,6 @@ function api_statuses_repeat($type)
 			$post .= "[/share]";
 		}
 		$_REQUEST['body'] = $post;
-		$_REQUEST['tag'] = $item['tag'];
 		$_REQUEST['attach'] = $item['attach'];
 		$_REQUEST['profile_uid'] = api_user();
 		$_REQUEST['api_source'] = true;

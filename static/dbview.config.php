@@ -186,20 +186,6 @@ return [
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`"
 	],
-	"participation-view" => [
-		"fields" => [
-			"iid" => ["participation", "iid"],
-			"id" => ["contact", "id"],
-			"url" => ["contact", "url"],
-			"name" => ["contact", "name"],
-			"protocol" => ["contact", "protocol"],
-			"batch" => "CASE `contact`.`batch` WHEN '' THEN `fcontact`.`batch` ELSE `contact`.`batch` END",
-			"network" => "CASE `fcontact`.`network` WHEN '' THEN `contact`.`network` ELSE `fcontact`.`network` END",
-		],
-		"query" => "FROM `participation`
-			INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid` AND NOT `contact`.`archive`
-			INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`"
-	],
 	"pending-view" => [
 		"fields" => [
 			"id" => ["register", "id"],
@@ -219,6 +205,25 @@ return [
 		"query" => "FROM `register`
 			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
 			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`"
+	],
+	"tag-search-view" => [
+		"fields" => [
+			"uri-id" => ["post-tag", "uri-id"],
+			"iid" => ["item", "id"],
+			"uri" => ["item", "uri"],
+			"guid" => ["item", "guid"],
+			"uid" => ["item", "uid"],
+			"private" => ["item", "private"],
+			"wall" => ["item", "wall"],
+			"origin" => ["item", "origin"],
+			"gravity" => ["item", "gravity"],
+			"received" => ["item", "received"],			
+			"name" => ["tag", "name"],
+		],
+		"query" => "FROM `post-tag`
+			INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid`
+			INNER JOIN `item` ON `item`.`uri-id` = `post-tag`.`uri-id`
+			WHERE `post-tag`.`type` = 1"
 	],
 	"workerqueue-view" => [
 		"fields" => [

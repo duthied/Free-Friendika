@@ -35,7 +35,6 @@ use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
 use Friendica\Model\Tag;
-use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -388,7 +387,7 @@ class Processor
 
 			if (empty($activity['directmessage']) && ($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
 				$item_private = !in_array(0, $activity['item_receiver']);
-				$parent = Item::selectFirst(['id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
+				$parent = Item::selectFirst(['id', 'uri-id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
 				if (!DBA::isResult($parent)) {
 					Logger::warning('Unknown parent item.', ['uri' => $item['thr-parent']]);
 					return false;
@@ -1016,7 +1015,7 @@ class Processor
 			return [];
 		}
 
-		$parent_terms = Term::tagArrayFromItemId($parent['id'], [Term::MENTION, Term::IMPLICIT_MENTION]);
+		$parent_terms = Tag::getByURIId($parent['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
 		$parent_author = Contact::getDetailsByURL($parent['author-link'], 0);
 
@@ -1084,8 +1083,8 @@ class Processor
 		foreach ($activity_tags as $index => $tag) {
 			if (in_array($tag['href'], $potential_mentions)) {
 				$activity_tags[$index]['name'] = preg_replace(
-					'/' . preg_quote(Term::TAG_CHARACTER[Term::MENTION], '/') . '/',
-					Term::TAG_CHARACTER[Term::IMPLICIT_MENTION],
+					'/' . preg_quote(Tag::TAG_CHARACTER[Tag::MENTION], '/') . '/',
+					Tag::TAG_CHARACTER[Tag::IMPLICIT_MENTION],
 					$activity_tags[$index]['name'],
 					1
 				);

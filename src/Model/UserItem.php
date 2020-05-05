@@ -26,7 +26,7 @@ use Friendica\Core\Hook;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Strings;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 
 class UserItem
 {
@@ -50,7 +50,7 @@ class UserItem
 	 */
 	public static function setNotification(int $iid)
 	{
-		$fields = ['id', 'uid', 'body', 'parent', 'gravity', 'tag', 'contact-id', 'thr-parent', 'parent-uri', 'author-id'];
+		$fields = ['id', 'uri-id', 'uid', 'body', 'parent', 'gravity', 'tag', 'contact-id', 'thr-parent', 'parent-uri', 'author-id'];
 		$item = Item::selectFirst($fields, ['id' => $iid, 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			return;
@@ -207,7 +207,7 @@ class UserItem
 		}
 
 		// Or the contact is a mentioned forum
-		$tags = DBA::select('term', ['url'], ['otype' => Term::OBJECT_TYPE_POST, 'oid' => $item['id'], 'type' => Term::MENTION, 'uid' => $uid]);
+		$tags = DBA::select('tag-view', ['url'], ['uri-id' => $item['uri-id'], 'type' => [Tag::MENTION, Tag::EXCLUSIVE_MENTION]]);
 		while ($tag = DBA::fetch($tags)) {
 			$condition = ['nurl' => Strings::normaliseLink($tag['url']), 'uid' => $uid, 'notify_new_posts' => true, 'contact-type' => Contact::TYPE_COMMUNITY];
 			if (DBA::exists('contact', $condition)) {
@@ -227,9 +227,10 @@ class UserItem
 	 */
 	private static function checkImplicitMention(array $item, array $profiles)
 	{
-		foreach ($profiles AS $profile) {
-			if (strpos($item['tag'], '=' . $profile.']') || strpos($item['body'], '=' . $profile . ']')) {
-				if (strpos($item['body'], $profile) === false) {
+		$mentions = Tag::getByURIId($item['uri-id'], [Tag::IMPLICIT_MENTION]);
+		foreach ($mentions as $mention) {
+			foreach ($profiles as $profile) {
+				if (Strings::compareLink($profile, $mention['url'])) {
 					return true;
 				}
 			}
@@ -246,9 +247,10 @@ class UserItem
 	 */
 	private static function checkExplicitMention(array $item, array $profiles)
 	{
-		foreach ($profiles AS $profile) {
-			if (strpos($item['tag'], '=' . $profile.']') || strpos($item['body'], '=' . $profile . ']')) {
-				if (!(strpos($item['body'], $profile) === false)) {
+		$mentions = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
+		foreach ($mentions as $mention) {
+			foreach ($profiles as $profile) {
+				if (Strings::compareLink($profile, $mention['url'])) {
 					return true;
 				}
 			}

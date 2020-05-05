@@ -29,7 +29,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Tag;
-use Friendica\Model\Term;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
@@ -170,49 +169,7 @@ EOT;
 		Item::update(['visible' => true], ['id' => $item['id']]);
 	}
 
-	$term_objtype = ($item['resource-id'] ? Term::OBJECT_TYPE_PHOTO : Term::OBJECT_TYPE_POST);
-
 	Tag::store($item['uri-id'], Tag::HASHTAG, $term);
-
-	$t = q("SELECT count(tid) as tcount FROM term WHERE oid=%d AND term='%s'",
-		intval($item['id']),
-		DBA::escape($term)
-	);
-
-	if (!$blocktags && $t[0]['tcount'] == 0) {
-		q("INSERT INTO term (oid, otype, type, term, url, uid) VALUE (%d, %d, %d, '%s', '%s', %d)",
-		   intval($item['id']),
-		   $term_objtype,
-		   Term::HASHTAG,
-		   DBA::escape($term),
-		   '',
-		   intval($owner_uid)
-		);
-	}
-
-	// if the original post is on this site, update it.
-	$original_item = Item::selectFirst(['tag', 'id', 'uid'], ['origin' => true, 'uri' => $item['uri']]);
-	if (DBA::isResult($original_item)) {
-		$x = q("SELECT `blocktags` FROM `user` WHERE `uid`=%d LIMIT 1",
-			intval($original_item['uid'])
-		);
-		$t = q("SELECT COUNT(`tid`) AS `tcount` FROM `term` WHERE `oid`=%d AND `term`='%s'",
-			intval($original_item['id']),
-			DBA::escape($term)
-		);
-
-		if (DBA::isResult($x) && !$x[0]['blocktags'] && $t[0]['tcount'] == 0){
-			q("INSERT INTO term (`oid`, `otype`, `type`, `term`, `url`, `uid`) VALUE (%d, %d, %d, '%s', '%s', %d)",
-				intval($original_item['id']),
-				$term_objtype,
-				Term::HASHTAG,
-				DBA::escape($term),
-				'',
-				intval($owner_uid)
-			);
-		}
-	}
-
 
 	$arr['id'] = $post_id;
 

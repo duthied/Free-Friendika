@@ -33,7 +33,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Notify;
-use Friendica\Model\Term;
 use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 

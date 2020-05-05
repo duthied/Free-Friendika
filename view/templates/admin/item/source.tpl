@@ -45,7 +45,7 @@
 			{{if $term.type == 8}}Implicit Mention{{/if}}
 					</td>
 					<td>
-						{{$term.term}}
+						{{$term.name}}
 					</td>
 					<td>
 						{{$term.url}}

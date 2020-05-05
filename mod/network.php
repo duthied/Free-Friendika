@@ -787,14 +787,13 @@ function networkThreadedView(App $a, $update, $parent)
 		}
 
 		$items = DBA::p("SELECT `item`.`parent-uri` AS `uri`, 0 AS `item_id`, `item`.$ordering AS `order_date`, `author`.`url` AS `author-link` FROM `item`
-			STRAIGHT_JOIN (SELECT `oid` FROM `term` WHERE `term` IN
-				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
-			ON `item`.`id` = `term`.`oid`
+			STRAIGHT_JOIN (SELECT `uri-id` FROM `tag-search-view` WHERE `name` IN
+				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `uid` = 0) AS `tag-search`
+			ON `item`.`uri-id` = `tag-search`.`uri-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
 			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ? AND `item`.`gravity` = ?
 				AND NOT `author`.`hidden` AND NOT `author`.`blocked`" . $sql_tag_nets,
-			local_user(), Term::OBJECT_TYPE_POST, Term::HASHTAG,
-			$top_limit, $bottom_limit, GRAVITY_PARENT);
+			local_user(), $top_limit, $bottom_limit, GRAVITY_PARENT);
 
 		$data = DBA::toArray($items);
 
