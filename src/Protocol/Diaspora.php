@@ -2325,7 +2325,7 @@ class Diaspora
 		Logger::info('Participation stored', ['id' => $message_id, 'guid' => $guid, 'parent_guid' => $parent_guid, 'author' => $author]);
 
 		// Send all existing comments and likes to the requesting server
-		$comments = Item::select(['id', 'uri-id', 'parent', 'verb', 'self'], ['parent' => $parent_item['id']]);
+		$comments = Item::select(['id', 'uri-id', 'parent'], ['parent' => $parent_item['id']]);
 		while ($comment = Item::fetch($comments)) {
 			if ($comment['id'] == $comment['parent']) {
 				continue;
