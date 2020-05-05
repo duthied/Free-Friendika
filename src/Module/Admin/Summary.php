@@ -55,6 +55,16 @@ class Summary extends BaseAdmin
 			$warningtext[] = DI::l10n()->t('Your DB still runs with InnoDB tables in the Antelope file format. You should change the file format to Barracuda. Friendica is using features that are not provided by the Antelope format. See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/innodb-file-format.html');
 		}
 
+		// Avoid the database error 1615 "Prepared statement needs to be re-prepared", see https://github.com/friendica/friendica/issues/8550
+		$table_definition_cache = DBA::getVariable('table_definition_cache');
+		$table_open_cache = DBA::getVariable('table_open_cache');
+		if (!empty($table_definition_cache) && !empty($table_open_cache)) {
+			$suggested_definition_cache = min(400 + round($table_open_cache / 2, 1), 2000);
+			if ($suggested_definition_cache > $table_definition_cache) {
+				$warningtext[] = DI::l10n()->t('Your table_definition_cache is too low (%d). This can lead to the database error "Prepared statement needs to be re-prepared". Please set it at least to %d (or -1 for autosizing). See <a href="%s">here</a> for more information.<br />', $table_definition_cache, $suggested_definition_cache, 'https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_table_definition_cache');
+			}
+		}
+
 		// Check if github.com/friendica/master/VERSION is higher then
 		// the local version of Friendica. Check is opt-in, source may be master or devel branch
 		if (DI::config()->get('system', 'check_new_version_url', 'none') != 'none') {
