@@ -2073,7 +2073,8 @@ class OStatus
 		}
 
 		// uri-id isn't present for follow entry pseudo-items
-		foreach (Tag::getByURIId($item['uri-id'] ?? 0) as $tag) {
+		$tags = Tag::getByURIId($item['uri-id'] ?? 0);
+		foreach ($tags as $tag) {
 			$mentioned[$tag['url']] = $tag['url'];
 		}
 
@@ -2123,11 +2124,9 @@ class OStatus
 			XML::addElement($doc, $entry, "mastodon:scope", "public");
 		}
 
-		if (count($tags)) {
-			foreach ($tags as $tag) {
-				if ($tag['type'] == Tag::HASHTAG) {
-					XML::addElement($doc, $entry, "category", "", ["term" => $tag['name']]);
-				}
+		foreach ($tags as $tag) {
+			if ($tag['type'] == Tag::HASHTAG) {
+				XML::addElement($doc, $entry, "category", "", ["term" => $tag['name']]);
 			}
 		}
 
