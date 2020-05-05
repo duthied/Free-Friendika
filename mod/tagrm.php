@@ -97,15 +97,16 @@ function tagrm_content(App $a)
 		// NOTREACHED
 	}
 
-	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
+	$item = Item::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => local_user()]);
 	if (!DBA::isResult($item)) {
 		DI::baseUrl()->redirect($_SESSION['photo_return']);
 	}
 
-	$arr = explode(',', $item['tag']);
+	$tag_text = Tag::tagTextFromItemId($item['uri-id']);
 
+	$arr = explode(',', $tag_text);
 
-	if (empty($item['tag'])) {
+	if (empty($arr)) {
 		DI::baseUrl()->redirect($_SESSION['photo_return']);
 	}
 

@@ -1307,9 +1307,10 @@ function photos_content(App $a)
 		}
 
 		$tags = null;
+		$tag_text = Tag::tagTextFromItemId($link_item['uri-id']);
 
-		if (!empty($link_item['id']) && !empty($link_item['tag'])) {
-			$arr = explode(',', $link_item['tag']);
+		if (!empty($link_item['id']) && !empty($tag_text)) {
+			$arr = explode(',', $tag_text);
 			// parse tags and add links
 			$tag_arr = [];
 			foreach ($arr as $tag) {
