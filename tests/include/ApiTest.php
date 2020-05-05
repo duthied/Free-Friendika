@@ -3849,7 +3849,7 @@ class ApiTest extends DatabaseTest
 		$assertXml=<<<XML
 <?xml version="1.0"?>
 <notes>
-  <note id="1" hash="" type="8" name="Reply to" url="http://localhost/display/1" photo="http://localhost/" date="2020-01-01 12:12:02" msg="A test reply from an item" uid="42" uri-id="" link="http://localhost/notification/1" iid="4" parent="0" seen="0" verb="" otype="item" name_cache="" msg_cache="A test reply from an item" timestamp="1577880722" date_rel="{$dateRel}" msg_html="A test reply from an item" msg_plain="A test reply from an item"/>
+  <note id="1" hash="" type="8" name="Reply to" url="http://localhost/display/1" photo="http://localhost/" date="2020-01-01 12:12:02" msg="A test reply from an item" uid="42" uri-id="" link="http://localhost/notification/1" iid="4" parent="0" parent-uri-id="" seen="0" verb="" otype="item" name_cache="" msg_cache="A test reply from an item" timestamp="1577880722" date_rel="{$dateRel}" msg_html="A test reply from an item" msg_plain="A test reply from an item"/>
 </notes>
 XML;
 		$this->assertXmlStringEqualsXmlString($assertXml, $result);
