@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1341
+-- DB_UPDATE_VERSION 1343
 -- ------------------------------------------
 
 
@@ -666,7 +666,8 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_eventid` (`uid`,`event-id`),
 	 INDEX `icid` (`icid`),
 	 INDEX `iaid` (`iaid`),
-	 INDEX `psid_wall` (`psid`,`wall`)
+	 INDEX `psid_wall` (`psid`,`wall`),
+	 INDEX `uri-id` (`uri-id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
 --
@@ -1540,22 +1541,6 @@ CREATE VIEW `owner-view` AS SELECT
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`;
 
 --
--- VIEW participation-view
---
-DROP VIEW IF EXISTS `participation-view`;
-CREATE VIEW `participation-view` AS SELECT 
-	`participation`.`iid` AS `iid`,
-	`contact`.`id` AS `id`,
-	`contact`.`url` AS `url`,
-	`contact`.`name` AS `name`,
-	`contact`.`protocol` AS `protocol`,
-	CASE `contact`.`batch` WHEN '' THEN `fcontact`.`batch` ELSE `contact`.`batch` END AS `batch`,
-	CASE `fcontact`.`network` WHEN '' THEN `contact`.`network` ELSE `fcontact`.`network` END AS `network`
-	FROM `participation`
-			INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid` AND NOT `contact`.`archive`
-			INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`;
-
---
 -- VIEW pending-view
 --
 DROP VIEW IF EXISTS `pending-view`;
@@ -1576,6 +1561,27 @@ CREATE VIEW `pending-view` AS SELECT
 	FROM `register`
 			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
 			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`;
+
+--
+-- VIEW tag-search-view
+--
+DROP VIEW IF EXISTS `tag-search-view`;
+CREATE VIEW `tag-search-view` AS SELECT 
+	`post-tag`.`uri-id` AS `uri-id`,
+	`item`.`id` AS `iid`,
+	`item`.`uri` AS `uri`,
+	`item`.`guid` AS `guid`,
+	`item`.`uid` AS `uid`,
+	`item`.`private` AS `private`,
+	`item`.`wall` AS `wall`,
+	`item`.`origin` AS `origin`,
+	`item`.`gravity` AS `gravity`,
+	`item`.`received` AS `received`,
+	`tag`.`name` AS `name`
+	FROM `post-tag`
+			INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid`
+			INNER JOIN `item` ON `item`.`uri-id` = `post-tag`.`uri-id`
+			WHERE `post-tag`.`type` = 1;
 
 --
 -- VIEW workerqueue-view
