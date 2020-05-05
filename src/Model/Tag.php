@@ -345,7 +345,7 @@ class Tag
 	 * @param integer $uri_id
 	 * @return string tags and mentions
 	 */
-	public static function tagTextFromItemId(int $uri_id)
+	public static function getCSVByURIId(int $uri_id)
 	{
 		$tag_list = [];
 		$tags = self::getByURIId($uri_id);

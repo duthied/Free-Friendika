@@ -102,7 +102,7 @@ function tagrm_content(App $a)
 		DI::baseUrl()->redirect($_SESSION['photo_return']);
 	}
 
-	$tag_text = Tag::tagTextFromItemId($item['uri-id']);
+	$tag_text = Tag::getCSVByURIId($item['uri-id']);
 
 	$arr = explode(',', $tag_text);
 
