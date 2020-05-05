@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1345
+-- DB_UPDATE_VERSION 1346
 -- ------------------------------------------
 
 
@@ -815,6 +815,8 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`link` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`iid` int unsigned NOT NULL DEFAULT 0 COMMENT 'item.id',
 	`parent` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`uri-id` int unsigned COMMENT 'Item-uri id of the related post',
+	`parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
 	`seen` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`verb` varchar(100) NOT NULL DEFAULT '' COMMENT '',
 	`otype` varchar(10) NOT NULL DEFAULT '' COMMENT '',
@@ -833,6 +835,7 @@ CREATE TABLE IF NOT EXISTS `notify-threads` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`notify-id` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`master-parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`master-parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
 	`parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`receiver-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`)
@@ -1171,6 +1174,18 @@ CREATE TABLE IF NOT EXISTS `tag` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='tags and mentions';
 
 --
+-- TABLE post-category
+--
+CREATE TABLE IF NOT EXISTS `post-category` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
+	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`tid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	 PRIMARY KEY(`uri-id`,`uid`,`type`,`tid`),
+	 INDEX `uri-id` (`tid`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to categories';
+
+--
 -- TABLE post-delivery-data
 --
 CREATE TABLE IF NOT EXISTS `post-delivery-data` (
@@ -1386,6 +1401,23 @@ CREATE TABLE IF NOT EXISTS `storage` (
 	`data` longblob NOT NULL COMMENT 'file data',
 	 PRIMARY KEY(`id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Data stored by Database storage backend';
+
+--
+-- VIEW category-view
+--
+DROP VIEW IF EXISTS `category-view`;
+CREATE VIEW `category-view` AS SELECT 
+	`post-category`.`uri-id` AS `uri-id`,
+	`post-category`.`uid` AS `uid`,
+	`item-uri`.`uri` AS `uri`,
+	`item-uri`.`guid` AS `guid`,
+	`post-category`.`type` AS `type`,
+	`post-category`.`tid` AS `tid`,
+	`tag`.`name` AS `name`,
+	`tag`.`url` AS `url`
+	FROM `post-category`
+			INNER JOIN `item-uri` ON `item-uri`.id = `post-category`.`uri-id`
+			LEFT JOIN `tag` ON `post-category`.`tid` = `tag`.`id`;
 
 --
 -- VIEW tag-view

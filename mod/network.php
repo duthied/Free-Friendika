@@ -37,8 +37,8 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
+use Friendica\Model\Post\Category;
 use Friendica\Model\Profile;
-use Friendica\Model\Term;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -379,25 +379,25 @@ function networkFlatView(App $a, $update = 0)
 
 	networkPager($a, $pager, $update);
 
-	$item_params = ['order' => ['id' => true]];
 
 	if (strlen($file)) {
-		$term_condition = ["`term` = ? AND `otype` = ? AND `type` = ? AND `uid` = ?",
-			$file, Term::OBJECT_TYPE_POST, Term::FILE, local_user()];
+		$item_params = ['order' => ['uri-id' => true]];
+		$term_condition = ['name' => $file, 'type' => Category::FILE, 'uid' => local_user()];
 		$term_params = ['order' => ['tid' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
-		$result = DBA::select('term', ['oid'], $term_condition, $term_params);
+		$result = DBA::select('category-view', ['uri-id'], $term_condition, $term_params);
 
 		$posts = [];
 		while ($term = DBA::fetch($result)) {
-			$posts[] = $term['oid'];
+			$posts[] = $term['uri-id'];
 		}
 		DBA::close($result);
 
 		if (count($posts) == 0) {
 			return '';
 		}
-		$item_condition = ['uid' => local_user(), 'id' => $posts];
+		$item_condition = ['uid' => local_user(), 'uri-id' => $posts];
 	} else {
+		$item_params = ['order' => ['id' => true]];
 		$item_condition = ['uid' => local_user()];
 		$item_params['limit'] = [$pager->getStart(), $pager->getItemsPerPage()];
 

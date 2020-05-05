@@ -124,22 +124,14 @@ class Tag
 		}
 
 		if (empty($cid)) {
-			$fields = ['name' => substr($name, 0, 96), 'url' => ''];
-
 			if (($type != self::HASHTAG) && !empty($url) && ($url != $name)) {
-				$fields['url'] = strtolower($url);
-			}
-
-			$tag = DBA::selectFirst('tag', ['id'], $fields);
-			if (!DBA::isResult($tag)) {
-				DBA::insert('tag', $fields, true);
-				$tagid = DBA::lastInsertId();
+				$url = strtolower($url);
 			} else {
-				$tagid = $tag['id'];
+				$url = '';
 			}
 
+			$tagid = self::getID($name, $url);
 			if (empty($tagid)) {
-				Logger::error('No tag id created', $fields);
 				return;
 			}
 		}
@@ -158,6 +150,32 @@ class Tag
 		DBA::insert('post-tag', $fields, true);
 
 		Logger::info('Stored tag/mention', ['uri-id' => $uriid, 'tag-id' => $tagid, 'contact-id' => $cid, 'name' => $name, 'type' => $type, 'callstack' => System::callstack(8)]);
+	}
+
+	/**
+	 * Get a tag id for a given tag name and url
+	 *
+	 * @param string $name
+	 * @param string $url
+	 * @return void
+	 */
+	public static function getID(string $name, string $url = '')
+	{
+		$fields = ['name' => substr($name, 0, 96), 'url' => $url];
+
+		$tag = DBA::selectFirst('tag', ['id'], $fields);
+		if (DBA::isResult($tag)) {
+			return $tag['id'];
+		}
+
+		DBA::insert('tag', $fields, true);
+		$tid = DBA::lastInsertId();
+		if (!empty($tid)) {
+			return $tid;
+		}
+
+		Logger::error('No tag id created', $fields);
+		return 0;
 	}
 
 	/**

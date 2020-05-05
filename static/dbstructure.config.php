@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1345);
+	define('DB_UPDATE_VERSION', 1346);
 }
 
 return [
@@ -1287,6 +1287,19 @@ return [
 			"PRIMARY" => ["id"],
 			"type_name_url" => ["UNIQUE", "name", "url"],
 			"url" => ["url"]
+		]
+	],
+	"post-category" => [
+		"comment" => "post relation to categories",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "relation" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
+			"tid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["tag" => "id"], "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id", "uid", "type", "tid"],
+			"uri-id" => ["tid"]
 		]
 	],
 	"post-delivery-data" => [

@@ -425,13 +425,11 @@ function photos_post(App $a)
 			$item = Item::selectFirst(['tag', 'inform', 'uri-id'], ['id' => $item_id, 'uid' => $page_owner_uid]);
 
 			if (DBA::isResult($item)) {
-				$old_tag    = $item['tag'];
 				$old_inform = $item['inform'];
 			}
 		}
 
 		if (strlen($rawtags)) {
-			$str_tags = '';
 			$inform   = '';
 
 			// if the new tag doesn't have a namespace specifier (@foo or #foo) give it a hashtag
@@ -513,15 +511,10 @@ function photos_post(App $a)
 							if (!empty($contact)) {
 								$taginfo[] = [$newname, $profile, $notify, $contact, '@[url=' . str_replace(',', '%2c', $profile) . ']' . $newname . '[/url]'];
 							} else {
-								$taginfo[] = [$newname, $profile, $notify, null, $str_tags .= '@[url=' . $profile . ']' . $newname . '[/url]'];
-							}
-
-							if (strlen($str_tags)) {
-								$str_tags .= ',';
+								$taginfo[] = [$newname, $profile, $notify, null, '@[url=' . $profile . ']' . $newname . '[/url]'];
 							}
 
 							$profile = str_replace(',', '%2c', $profile);
-							$str_tags .= '@[url=' . $profile . ']' . $newname . '[/url]';
 
 							if (!empty($item['uri-id'])) {
 								Tag::store($item['uri-id'], Tag::MENTION, $newname, $profile);
@@ -529,7 +522,6 @@ function photos_post(App $a)
 						}
 					} elseif (strpos($tag, '#') === 0) {
 						$tagname = substr($tag, 1);
-						$str_tags .= '#[url=' . DI::baseUrl() . "/search?tag=" . $tagname . ']' . $tagname . '[/url],';
 						if (!empty($item['uri-id'])) {
 							Tag::store($item['uri-id'], Tag::HASHTAG, $tagname);
 						}
@@ -537,19 +529,13 @@ function photos_post(App $a)
 				}
 			}
 
-			$newtag = $old_tag ?? '';
-			if (strlen($newtag) && strlen($str_tags)) {
-				$newtag .= ',';
-			}
-			$newtag .= $str_tags;
-
 			$newinform = $old_inform ?? '';
 			if (strlen($newinform) && strlen($inform)) {
 				$newinform .= ',';
 			}
 			$newinform .= $inform;
 
-			$fields = ['tag' => $newtag, 'inform' => $newinform, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
+			$fields = ['inform' => $newinform, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
 			$condition = ['id' => $item_id];
 			Item::update($fields, $condition);
 

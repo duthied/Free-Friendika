@@ -28,7 +28,9 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\PermissionSet;
+use Friendica\Model\Post\Category;
 use Friendica\Model\Tag;
+use Friendica\Model\Term;
 use Friendica\Model\UserItem;
 use Friendica\Util\Strings;
 
@@ -73,6 +75,9 @@ class PostUpdate
 			return false;
 		}
 		if (!self::update1345()) {
+			return false;
+		}
+		if (!self::update1346()) {
 			return false;
 		}
 
@@ -721,4 +726,66 @@ class PostUpdate
 
 		return false;
 	}
+
+	/**
+	 * Fill the "tag" table with tags and mentions from the "term" table
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function update1346()
+	{
+		// Was the script completed?
+		if (DI::config()->get('system', 'post_update_version') >= 1346) {
+			return true;
+		}
+
+		$id = DI::config()->get('system', 'post_update_version_1346_id', 0);
+
+		Logger::info('Start', ['item' => $id]);
+
+		$rows = 0;
+
+		$terms = DBA::select('term', ['oid'],
+			["`type` IN (?, ?) AND `oid` >= ?", Category::CATEGORY, Category::FILE, $id],
+			['order' => ['oid'], 'limit' => 1000, 'group_by' => ['oid']]);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($term = DBA::fetch($terms)) {
+			$item = Item::selectFirst(['uri-id', 'uid'], ['id' => $term['oid']]);
+			if (!DBA::isResult($item)) {
+				continue;
+			}
+
+			$file = Term::fileTextFromItemId($term['oid']);
+			if (!empty($file)) {
+				Category::storeTextByURIId($item['uri-id'], $item['uid'], $file);
+			}
+
+			$id = $term['oid'];
+			++$rows;
+			if ($rows % 100 == 0) {
+				DI::config()->set('system', 'post_update_version_1346_id', $id);
+			}
+		}
+		DBA::close($terms);
+
+		DI::config()->set('system', 'post_update_version_1346_id', $id);
+
+		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
+
+		// When there are less than 10 items processed this means that we reached the end
+		// The other entries will then be processed with the regular functionality
+		if ($rows < 10) {
+			DI::config()->set('system', 'post_update_version', 1346);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
+	}	
 }
