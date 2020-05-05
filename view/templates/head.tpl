@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="view/asset/jquery-colorbox/example5/colorbox.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
 <link rel="stylesheet" href="view/asset/jgrowl/jquery.jgrowl.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
 <link rel="stylesheet" href="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
-<link rel="stylesheet" href="library/perfect-scrollbar/css/perfect-scrollbar.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
+<link rel="stylesheet" href="view/js/perfect-scrollbar/css/perfect-scrollbar.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
 
 {{foreach $stylesheets as $stylesheetUrl}}
 <link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
@@ -40,7 +40,7 @@
 <script type="text/javascript" src="view/asset/jquery-colorbox/jquery.colorbox-min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/asset/jgrowl/jquery.jgrowl.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
-<script type="text/javascript" src="library/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
+<script type="text/javascript" src="view/js/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
 <script type="text/javascript" src="view/asset/imagesloaded/imagesloaded.pkgd.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/asset/base64/base64.min.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
 <script type="text/javascript" src="view/asset/dompurify/dist/purify.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
