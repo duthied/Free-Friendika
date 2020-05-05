@@ -238,37 +238,6 @@
             "time": "2019-02-28T15:21:34+00:00"
         },
         {
-            "name": "bower-asset/perfect-scrollbar",
-            "version": "0.6.16",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/utatti/perfect-scrollbar-bower.git",
-                "reference": "3049129e5dbb403295ce8507a461cdd0f200938c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/utatti/perfect-scrollbar-bower/zipball/3049129e5dbb403295ce8507a461cdd0f200938c",
-                "reference": "3049129e5dbb403295ce8507a461cdd0f200938c",
-                "shasum": ""
-            },
-            "type": "bower-asset-library",
-            "extra": {
-                "bower-asset-main": [
-                    "css/perfect-scrollbar.css",
-                    "js/perfect-scrollbar.js"
-                ],
-                "bower-asset-ignore": [
-                    "**/.*",
-                    "bower_components"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Minimalistic but perfect custom scrollbar plugin",
-            "time": "2017-01-10T01:04:09+00:00"
-        },
-        {
             "name": "bower-asset/vue",
             "version": "v2.6.10",
             "source": {
