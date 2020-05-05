@@ -2081,11 +2081,9 @@ class OStatus
 			XML::addElement($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
 		}
 
-		$tags = Tag::getByURIId($item['uri-id']);
-		if (count($tags)) {
-			foreach ($tags as $tag) {
-				$mentioned[$tag['url']] = $tag['url'];
-			}
+		// uri-id isn't present for follow entry pseudo-items
+		foreach (Tag::getByURIId($item['uri-id'] ?? 0) as $tag) {
+			$mentioned[$tag['url']] = $tag['url'];
 		}
 
 		// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
