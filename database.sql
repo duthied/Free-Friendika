@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1343
+-- DB_UPDATE_VERSION 1345
 -- ------------------------------------------
 
 
@@ -716,24 +716,6 @@ CREATE TABLE IF NOT EXISTS `item-content` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --
--- TABLE item-delivery-data
---
-CREATE TABLE IF NOT EXISTS `item-delivery-data` (
-	`iid` int unsigned NOT NULL COMMENT 'Item id',
-	`postopts` text COMMENT 'External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery',
-	`inform` mediumtext COMMENT 'Additional receivers of the linked item',
-	`queue_count` mediumint NOT NULL DEFAULT 0 COMMENT 'Initial number of delivery recipients, used as item.delivery_queue_count',
-	`queue_done` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries, used as item.delivery_queue_done',
-	`queue_failed` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of unsuccessful deliveries, used as item.delivery_queue_failed',
-	`activitypub` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via ActivityPub',
-	`dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via DFRN',
-	`legacy_dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via legacy DFRN',
-	`diaspora` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via Diaspora',
-	`ostatus` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via OStatus',
-	 PRIMARY KEY(`iid`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
-
---
 -- TABLE item-uri
 --
 CREATE TABLE IF NOT EXISTS `item-uri` (
@@ -1187,6 +1169,24 @@ CREATE TABLE IF NOT EXISTS `tag` (
 	 UNIQUE INDEX `type_name_url` (`name`,`url`),
 	 INDEX `url` (`url`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='tags and mentions';
+
+--
+-- TABLE post-delivery-data
+--
+CREATE TABLE IF NOT EXISTS `post-delivery-data` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`postopts` text COMMENT 'External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery',
+	`inform` mediumtext COMMENT 'Additional receivers of the linked item',
+	`queue_count` mediumint NOT NULL DEFAULT 0 COMMENT 'Initial number of delivery recipients, used as item.delivery_queue_count',
+	`queue_done` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries, used as item.delivery_queue_done',
+	`queue_failed` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of unsuccessful deliveries, used as item.delivery_queue_failed',
+	`activitypub` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via ActivityPub',
+	`dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via DFRN',
+	`legacy_dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via legacy DFRN',
+	`diaspora` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via Diaspora',
+	`ostatus` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via OStatus',
+	 PRIMARY KEY(`uri-id`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
 
 --
 -- TABLE post-tag

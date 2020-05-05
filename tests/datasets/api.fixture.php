@@ -27,7 +27,7 @@ return [
 	'photo',
 	'workerqueue',
 	'mail',
-	'item-delivery-data',
+	'post-delivery-data',
 	// Base test config to avoid notice messages
 	'config'  => [
 		[
@@ -103,6 +103,7 @@ return [
 	'item'    => [
 		[
 			'id'          => 1,
+			'uri-id'      => 1,
 			'visible'     => 1,
 			'contact-id'  => 42,
 			'author-id'   => 42,
@@ -123,6 +124,7 @@ return [
 		],
 		[
 			'id'          => 2,
+			'uri-id'      => 2,
 			'visible'     => 1,
 			'contact-id'  => 42,
 			'author-id'   => 42,
@@ -140,6 +142,7 @@ return [
 		[
 
 			'id'          => 3,
+			'uri-id'      => 3,
 			'visible'     => 1,
 			'contact-id'  => 43,
 			'author-id'   => 43,
@@ -156,6 +159,7 @@ return [
 		],
 		[
 			'id'          => 4,
+			'uri-id'      => 4,
 			'visible'     => 1,
 			'contact-id'  => 44,
 			'author-id'   => 44,
@@ -173,6 +177,7 @@ return [
 		[
 
 			'id'          => 5,
+			'uri-id'      => 5,
 			'visible'     => 1,
 			'contact-id'  => 42,
 			'author-id'   => 42,
@@ -193,6 +198,7 @@ return [
 		],
 		[
 			'id'          => 6,
+			'uri-id'      => 6,
 			'visible'     => 1,
 			'contact-id'  => 44,
 			'author-id'   => 44,

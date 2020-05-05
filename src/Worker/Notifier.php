@@ -32,7 +32,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
-use Friendica\Model\ItemDeliveryData;
+use Friendica\Model\Post;
 use Friendica\Model\PushSubscriber;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
@@ -573,7 +573,7 @@ class Notifier
 				/// @TODO Redeliver/queue these items on failure, though there is no contact record
 				$delivery_queue_count++;
 				Salmon::slapper($owner, $url, $slap);
-				ItemDeliveryData::incrementQueueDone($target_id, ItemDeliveryData::OSTATUS);
+				Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Post\DeliveryData::OSTATUS);
 			}
 		}
 
@@ -595,11 +595,11 @@ class Notifier
 			// Workaround for pure connector posts
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				if ($delivery_queue_count == 0) {
-					ItemDeliveryData::incrementQueueDone($target_item['id']);
+					Post\DeliveryData::incrementQueueDone($target_item['uri-id']);
 					$delivery_queue_count = 1;
 				}
 
-				ItemDeliveryData::incrementQueueCount($target_item['id'], $delivery_queue_count);
+				Post\DeliveryData::incrementQueueCount($target_item['uri-id'], $delivery_queue_count);
 			}
 		}
 

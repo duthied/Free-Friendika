@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1344);
+	define('DB_UPDATE_VERSION', 1345);
 }
 
 return [
@@ -804,25 +804,6 @@ return [
 			"uri-id" => ["uri-id"]
 		]
 	],
-	"item-delivery-data" => [
-		"comment" => "Delivery data for items",
-		"fields" => [
-			"iid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "relation" => ["item" => "id"], "comment" => "Item id"],
-			"postopts" => ["type" => "text", "comment" => "External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery"],
-			"inform" => ["type" => "mediumtext", "comment" => "Additional receivers of the linked item"],
-			"queue_count" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Initial number of delivery recipients, used as item.delivery_queue_count"],
-			"queue_done" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries, used as item.delivery_queue_done"],
-			"queue_failed" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of unsuccessful deliveries, used as item.delivery_queue_failed"],
-			"activitypub" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via ActivityPub"],
-			"dfrn" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via DFRN"],
-			"legacy_dfrn" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via legacy DFRN"],
-			"diaspora" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via Diaspora"],
-			"ostatus" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via OStatus"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["iid"],
-		]
-	],
 	"item-uri" => [
 		"comment" => "URI and GUID for items",
 		"fields" => [
@@ -1306,6 +1287,25 @@ return [
 			"PRIMARY" => ["id"],
 			"type_name_url" => ["UNIQUE", "name", "url"],
 			"url" => ["url"]
+		]
+	],
+	"post-delivery-data" => [
+		"comment" => "Delivery data for items",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "relation" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"postopts" => ["type" => "text", "comment" => "External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery"],
+			"inform" => ["type" => "mediumtext", "comment" => "Additional receivers of the linked item"],
+			"queue_count" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Initial number of delivery recipients, used as item.delivery_queue_count"],
+			"queue_done" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries, used as item.delivery_queue_done"],
+			"queue_failed" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of unsuccessful deliveries, used as item.delivery_queue_failed"],
+			"activitypub" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via ActivityPub"],
+			"dfrn" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via DFRN"],
+			"legacy_dfrn" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via legacy DFRN"],
+			"diaspora" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via Diaspora"],
+			"ostatus" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via OStatus"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id"],
 		]
 	],
 	"post-tag" => [

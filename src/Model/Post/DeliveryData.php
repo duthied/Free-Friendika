@@ -19,12 +19,12 @@
  *
  */
 
-namespace Friendica\Model;
+namespace Friendica\Model\Post;
 
 use Friendica\Database\DBA;
 use \BadMethodCallException;
 
-class ItemDeliveryData
+class DeliveryData
 {
 	const LEGACY_FIELD_LIST = [
 		// Legacy fields moved from item table
@@ -55,7 +55,7 @@ class ItemDeliveryData
 	public static function extractFields(array &$fields)
 	{
 		$delivery_data = [];
-		foreach (array_merge(ItemDeliveryData::FIELD_LIST, ItemDeliveryData::LEGACY_FIELD_LIST) as $key => $field) {
+		foreach (array_merge(self::FIELD_LIST, self::LEGACY_FIELD_LIST) as $key => $field) {
 			if (is_int($key) && isset($fields[$field])) {
 				// Legacy field moved from item table
 				$delivery_data[$field] = $fields[$field];
@@ -71,16 +71,16 @@ class ItemDeliveryData
 	}
 
 	/**
-	 * Increments the queue_done for the given item ID.
+	 * Increments the queue_done for the given URI ID.
 	 *
 	 * Avoids racing condition between multiple delivery threads.
 	 *
-	 * @param integer $item_id
+	 * @param integer $uri_id
 	 * @param integer $protocol
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function incrementQueueDone($item_id, $protocol = 0)
+	public static function incrementQueueDone(int $uri_id, int $protocol = 0)
 	{
 		$sql = '';
 
@@ -102,69 +102,69 @@ class ItemDeliveryData
 				break;
 		}
 
-		return DBA::e('UPDATE `item-delivery-data` SET `queue_done` = `queue_done` + 1' . $sql . ' WHERE `iid` = ?', $item_id);
+		return DBA::e('UPDATE `post-delivery-data` SET `queue_done` = `queue_done` + 1' . $sql . ' WHERE `uri-id` = ?', $uri_id);
 	}
 
 	/**
-	 * Increments the queue_failed for the given item ID.
+	 * Increments the queue_failed for the given URI ID.
 	 *
 	 * Avoids racing condition between multiple delivery threads.
 	 *
-	 * @param integer $item_id
+	 * @param integer $uri_id
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function incrementQueueFailed($item_id)
+	public static function incrementQueueFailed(int $uri_id)
 	{
-		return DBA::e('UPDATE `item-delivery-data` SET `queue_failed` = `queue_failed` + 1 WHERE `iid` = ?', $item_id);
+		return DBA::e('UPDATE `post-delivery-data` SET `queue_failed` = `queue_failed` + 1 WHERE `uri-id` = ?', $uri_id);
 	}
 
 	/**
-	 * Increments the queue_count for the given item ID.
+	 * Increments the queue_count for the given URI ID.
 	 *
-	 * @param integer $item_id
+	 * @param integer $uri_id
 	 * @param integer $increment
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function incrementQueueCount(int $item_id, int $increment = 1)
+	public static function incrementQueueCount(int $uri_id, int $increment = 1)
 	{
-		return DBA::e('UPDATE `item-delivery-data` SET `queue_count` = `queue_count` + ? WHERE `iid` = ?', $increment, $item_id);
+		return DBA::e('UPDATE `post-delivery-data` SET `queue_count` = `queue_count` + ? WHERE `uri-id` = ?', $increment, $uri_id);
 	}
 
 	/**
-	 * Insert a new item delivery data entry
+	 * Insert a new URI delivery data entry
 	 *
-	 * @param integer $item_id
+	 * @param integer $uri_id
 	 * @param array   $fields
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function insert($item_id, array $fields)
+	public static function insert(int $uri_id, array $fields)
 	{
-		if (empty($item_id)) {
-			throw new BadMethodCallException('Empty item_id');
+		if (empty($uri_id)) {
+			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields['iid'] = $item_id;
+		$fields['uri-id'] = $uri_id;
 
-		return DBA::insert('item-delivery-data', $fields);
+		return DBA::insert('post-delivery-data', $fields);
 	}
 
 	/**
-	 * Update/Insert item delivery data
+	 * Update/Insert URI delivery data
 	 *
 	 * If you want to update queue_done, please use incrementQueueDone instead.
 	 *
-	 * @param integer $item_id
+	 * @param integer $uri_id
 	 * @param array   $fields
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function update($item_id, array $fields)
+	public static function update(int $uri_id, array $fields)
 	{
-		if (empty($item_id)) {
-			throw new BadMethodCallException('Empty item_id');
+		if (empty($uri_id)) {
+			throw new BadMethodCallException('Empty URI_id');
 		}
 
 		if (empty($fields)) {
@@ -172,22 +172,22 @@ class ItemDeliveryData
 			return true;
 		}
 
-		return DBA::update('item-delivery-data', $fields, ['iid' => $item_id], true);
+		return DBA::update('post-delivery-data', $fields, ['uri-id' => $uri_id], true);
 	}
 
 	/**
-	 * Delete item delivery data
+	 * Delete URI delivery data
 	 *
-	 * @param integer $item_id
+	 * @param integer $uri_id
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function delete($item_id)
+	public static function delete(int $uri_id)
 	{
-		if (empty($item_id)) {
-			throw new BadMethodCallException('Empty item_id');
+		if (empty($uri_id)) {
+			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		return DBA::delete('item-delivery-data', ['iid' => $item_id]);
+		return DBA::delete('post-delivery-data', ['uri-id' => $uri_id]);
 	}
 }
