@@ -50,7 +50,6 @@
 		"bower-asset/base64": "^1.0",
 		"bower-asset/chart-js": "^2.8",
 		"bower-asset/dompurify": "^1.0",
-		"bower-asset/perfect-scrollbar": "^0.6",
 		"bower-asset/vue": "^2.6",
 		"npm-asset/es-jquery-sortable": "^0.9.13",
 		"npm-asset/jquery": "^2.0",

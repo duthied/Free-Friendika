@@ -284,7 +284,7 @@ class Item
 
 		// Fetch data from the item-content table whenever there is content there
 		if (self::isLegacyMode()) {
-			$legacy_fields = array_merge(ItemDeliveryData::LEGACY_FIELD_LIST, self::MIXED_CONTENT_FIELDLIST);
+			$legacy_fields = array_merge(Post\DeliveryData::LEGACY_FIELD_LIST, self::MIXED_CONTENT_FIELDLIST);
 			foreach ($legacy_fields as $field) {
 				if (empty($row[$field]) && !empty($row['internal-item-' . $field])) {
 					$row[$field] = $row['internal-item-' . $field];
@@ -685,7 +685,7 @@ class Item
 
 		$fields['item-content'] = array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST);
 
-		$fields['item-delivery-data'] = array_merge(ItemDeliveryData::LEGACY_FIELD_LIST, ItemDeliveryData::FIELD_LIST);
+		$fields['post-delivery-data'] = array_merge(Post\DeliveryData::LEGACY_FIELD_LIST, Post\DeliveryData::FIELD_LIST);
 
 		$fields['permissionset'] = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
 
@@ -807,8 +807,8 @@ class Item
 			$joins .= " LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`";
 		}
 
-		if (strpos($sql_commands, "`item-delivery-data`.") !== false) {
-			$joins .= " LEFT JOIN `item-delivery-data` ON `item-delivery-data`.`iid` = `item`.`id`";
+		if (strpos($sql_commands, "`post-delivery-data`.") !== false) {
+			$joins .= " LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `item`.`uri-id` AND `item`.`origin`";
 		}
 
 		if (strpos($sql_commands, "`permissionset`.") !== false) {
@@ -848,7 +848,7 @@ class Item
 			$selected[] = 'internal-user-ignored';
 		}
 
-		$legacy_fields = array_merge(ItemDeliveryData::LEGACY_FIELD_LIST, self::MIXED_CONTENT_FIELDLIST);
+		$legacy_fields = array_merge(Post\DeliveryData::LEGACY_FIELD_LIST, self::MIXED_CONTENT_FIELDLIST);
 
 		$selection = [];
 		foreach ($fields as $table => $table_fields) {
@@ -934,7 +934,7 @@ class Item
 			}
 		}
 
-		$delivery_data = ItemDeliveryData::extractFields($fields);
+		$delivery_data = Post\DeliveryData::extractFields($fields);
 
 		$clear_fields = ['bookmark', 'type', 'author-name', 'author-avatar', 'author-link', 'owner-name', 'owner-avatar', 'owner-link', 'postopts', 'inform'];
 		foreach ($clear_fields as $field) {
@@ -1022,7 +1022,7 @@ class Item
 				}
 			}
 
-			ItemDeliveryData::update($item['id'], $delivery_data);
+			Post\DeliveryData::update($item['uri-id'], $delivery_data);
 
 			self::updateThread($item['id']);
 
@@ -1182,7 +1182,7 @@ class Item
 			self::markForDeletion(['uri' => $item['uri'], 'uid' => 0, 'deleted' => false], $priority);
 		}
 
-		ItemDeliveryData::delete($item['id']);
+		Post\DeliveryData::delete($item['uri-id']);
 
 		// We don't delete the item-activity here, since we need some of the data for ActivityPub
 
@@ -1838,7 +1838,7 @@ class Item
 			self::insertContent($item);
 		}
 
-		$delivery_data = ItemDeliveryData::extractFields($item);
+		$delivery_data = Post\DeliveryData::extractFields($item);
 
 		unset($item['postopts']);
 		unset($item['inform']);
@@ -1942,7 +1942,7 @@ class Item
 		}
 
 		if (!empty($item['origin']) || !empty($item['wall']) || !empty($delivery_data['postopts']) || !empty($delivery_data['inform'])) {
-			ItemDeliveryData::insert($current_post, $delivery_data);
+			Post\DeliveryData::insert($item['uri-id'], $delivery_data);
 		}
 
 		DBA::commit();

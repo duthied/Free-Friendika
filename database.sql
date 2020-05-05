@@ -716,24 +716,6 @@ CREATE TABLE IF NOT EXISTS `item-content` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --
--- TABLE item-delivery-data
---
-CREATE TABLE IF NOT EXISTS `item-delivery-data` (
-	`iid` int unsigned NOT NULL COMMENT 'Item id',
-	`postopts` text COMMENT 'External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery',
-	`inform` mediumtext COMMENT 'Additional receivers of the linked item',
-	`queue_count` mediumint NOT NULL DEFAULT 0 COMMENT 'Initial number of delivery recipients, used as item.delivery_queue_count',
-	`queue_done` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries, used as item.delivery_queue_done',
-	`queue_failed` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of unsuccessful deliveries, used as item.delivery_queue_failed',
-	`activitypub` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via ActivityPub',
-	`dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via DFRN',
-	`legacy_dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via legacy DFRN',
-	`diaspora` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via Diaspora',
-	`ostatus` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via OStatus',
-	 PRIMARY KEY(`iid`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
-
---
 -- TABLE item-uri
 --
 CREATE TABLE IF NOT EXISTS `item-uri` (
@@ -1201,6 +1183,24 @@ CREATE TABLE IF NOT EXISTS `post-category` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to categories';
 
 --
+-- TABLE post-delivery-data
+--
+CREATE TABLE IF NOT EXISTS `post-delivery-data` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`postopts` text COMMENT 'External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery',
+	`inform` mediumtext COMMENT 'Additional receivers of the linked item',
+	`queue_count` mediumint NOT NULL DEFAULT 0 COMMENT 'Initial number of delivery recipients, used as item.delivery_queue_count',
+	`queue_done` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries, used as item.delivery_queue_done',
+	`queue_failed` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of unsuccessful deliveries, used as item.delivery_queue_failed',
+	`activitypub` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via ActivityPub',
+	`dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via DFRN',
+	`legacy_dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via legacy DFRN',
+	`diaspora` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via Diaspora',
+	`ostatus` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via OStatus',
+	 PRIMARY KEY(`uri-id`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
+
+--
 -- TABLE post-tag
 --
 CREATE TABLE IF NOT EXISTS `post-tag` (
@@ -1568,22 +1568,6 @@ CREATE VIEW `owner-view` AS SELECT
 	FROM `user`
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`;
-
---
--- VIEW participation-view
---
-DROP VIEW IF EXISTS `participation-view`;
-CREATE VIEW `participation-view` AS SELECT 
-	`participation`.`iid` AS `iid`,
-	`contact`.`id` AS `id`,
-	`contact`.`url` AS `url`,
-	`contact`.`name` AS `name`,
-	`contact`.`protocol` AS `protocol`,
-	CASE `contact`.`batch` WHEN '' THEN `fcontact`.`batch` ELSE `contact`.`batch` END AS `batch`,
-	CASE `fcontact`.`network` WHEN '' THEN `contact`.`network` ELSE `fcontact`.`network` END AS `network`
-	FROM `participation`
-			INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid` AND NOT `contact`.`archive`
-			INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`;
 
 --
 -- VIEW pending-view
