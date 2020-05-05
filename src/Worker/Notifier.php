@@ -34,6 +34,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\PushSubscriber;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityPub;
@@ -367,16 +368,11 @@ class Notifier
 				}
 
 				// Send a salmon notification to every person we mentioned in the post
-				$arr = explode(',',$target_item['tag']);
-				foreach ($arr as $x) {
-					//Logger::log('Checking tag '.$x, Logger::DEBUG);
-					$matches = null;
-					if (preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
-							$probed_contact = Probe::uri($matches[1]);
-						if ($probed_contact["notify"] != "") {
-							Logger::log('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
-							$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
-						}
+				foreach (Tag::getByURIId($target_item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION]) as $tag) {
+					$probed_contact = Probe::uri($tag['url']);
+					if ($probed_contact["notify"] != "") {
+						Logger::log('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
+						$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 					}
 				}
 

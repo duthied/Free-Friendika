@@ -655,17 +655,8 @@ class OStatus
 			foreach ($categories as $category) {
 				foreach ($category->attributes as $attributes) {
 					if ($attributes->name == 'term') {
-						$term = $attributes->textContent;
-						if (!empty($item['tag'])) {
-							$item['tag'] .= ',';
-						} else {
-							$item['tag'] = '';
-						}
-
-						$item['tag'] .= '#[url=' . DI::baseUrl() . '/search?tag=' . $term . ']' . $term . '[/url]';
-
 						// Store the hashtag
-						Tag::store($item['uri-id'], Tag::HASHTAG, $term);
+						Tag::store($item['uri-id'], Tag::HASHTAG, $attributes->textContent);
 					}
 				}
 			}
