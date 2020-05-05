@@ -1541,22 +1541,6 @@ CREATE VIEW `owner-view` AS SELECT
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`;
 
 --
--- VIEW participation-view
---
-DROP VIEW IF EXISTS `participation-view`;
-CREATE VIEW `participation-view` AS SELECT 
-	`participation`.`iid` AS `iid`,
-	`contact`.`id` AS `id`,
-	`contact`.`url` AS `url`,
-	`contact`.`name` AS `name`,
-	`contact`.`protocol` AS `protocol`,
-	CASE `contact`.`batch` WHEN '' THEN `fcontact`.`batch` ELSE `contact`.`batch` END AS `batch`,
-	CASE `fcontact`.`network` WHEN '' THEN `contact`.`network` ELSE `fcontact`.`network` END AS `network`
-	FROM `participation`
-			INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid` AND NOT `contact`.`archive`
-			INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`;
-
---
 -- VIEW pending-view
 --
 DROP VIEW IF EXISTS `pending-view`;

@@ -252,19 +252,25 @@ class Diaspora
 	 * One of the parameters is a contact array.
 	 * This is done to avoid duplicates.
 	 *
-	 * @param integer $thread   The id of the thread
-	 * @param array   $contacts The previously fetched contacts
+	 * @param array $parent   The parent post
+	 * @param array $contacts The previously fetched contacts
 	 *
 	 * @return array of relay servers
 	 * @throws \Exception
 	 */
-	public static function participantsForThread($thread, array $contacts)
+	public static function participantsForThread(array $parent, array $contacts)
 	{
-		$participation = DBA::select('participation-view', [], ['iid' => $thread]);
+		if (!in_array($parent['private'], [Item::PUBLIC, Item::UNLISTED])) {
+			return $contacts;
+		}
 
-		while ($contact = DBA::fetch($participation)) {	
-			if (empty($contact['protocol'])) {
-				$contact['protocol'] = $contact['network'];
+		$items = Item::select(['author-id'], ['parent' => $parent['id']], ['group_by' => ['author-id']]);
+		while ($item = DBA::fetch($items)) {
+			$contact = DBA::selectFirst('contact', ['id', 'url', 'name', 'protocol', 'batch', 'network'],
+				['id' => $item['author-id']]);
+			if (!DBA::isResult($contact)) {
+				// Shouldn't happen
+				continue;
 			}
 
 			$exists = false;
@@ -275,11 +281,11 @@ class Diaspora
 			}
 
 			if (!$exists) {
+				Logger::info('Add participant to receiver list', ['item' => $parent['guid'], 'participant' => $contact['url']]);
 				$contacts[] = $contact;
 			}
 		}
-
-		DBA::close($participation);
+		DBA::close($items);
 
 		return $contacts;
 	}
@@ -2251,18 +2257,32 @@ class Diaspora
 	 * @param array  $importer Array of the importer user
 	 * @param object $data     The message object
 	 *
-	 * @return bool always true
+	 * @return bool success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	private static function receiveParticipation(array $importer, $data)
 	{
 		$author = strtolower(Strings::escapeTags(XML::unescape($data->author)));
+		$guid = Strings::escapeTags(XML::unescape($data->guid));
 		$parent_guid = Strings::escapeTags(XML::unescape($data->parent_guid));
 
-		$contact_id = Contact::getIdForURL($author);
-		if (!$contact_id) {
-			Logger::log('Contact not found: '.$author);
+		$contact = self::allowedContactByHandle($importer, $author, true);
+		if (!$contact) {
+			return false;
+		}
+
+		if (self::messageExists($importer["uid"], $guid)) {
+			return true;
+		}
+
+		$parent_item = self::parentItem($importer["uid"], $parent_guid, $author, $contact);
+		if (!$parent_item) {
+			return false;
+		}
+
+		if (!in_array($parent_item['private'], [Item::PUBLIC, Item::UNLISTED])) {
+			Logger::info('Item is not public, participation is ignored', ['parent_guid' => $parent_guid, 'guid' => $guid, 'author' => $author]);
 			return false;
 		}
 
@@ -2272,35 +2292,47 @@ class Diaspora
 			return false;
 		}
 
-		$item = Item::selectFirst(['id'], ['guid' => $parent_guid, 'origin' => true, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
-		if (!DBA::isResult($item)) {
-			Logger::log('Item not found, no origin or private: '.$parent_guid);
-			return false;
-		}
+		$author_contact = self::authorContactByUrl($contact, $person, $importer["uid"]);
 
-		$author_parts = explode('@', $author);
-		if (isset($author_parts[1])) {
-			$server = $author_parts[1];
-		} else {
-			// Should never happen
-			$server = $author;
-		}
+		// Store participation
+		$datarray = [];
 
-		Logger::log('Received participation for ID: '.$item['id'].' - Contact: '.$contact_id.' - Server: '.$server, Logger::DEBUG);
+		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 
-		if (!DBA::exists('participation', ['iid' => $item['id'], 'server' => $server])) {
-			DBA::insert('participation', ['iid' => $item['id'], 'cid' => $contact_id, 'fid' => $person['id'], 'server' => $server]);
-		}
+		$datarray["uid"] = $importer["uid"];
+		$datarray["contact-id"] = $author_contact["cid"];
+		$datarray["network"]  = $author_contact["network"];
+
+		$datarray["owner-link"] = $datarray["author-link"] = $person["url"];
+		$datarray["owner-id"] = $datarray["author-id"] = Contact::getIdForURL($person["url"], 0);
+
+		$datarray["guid"] = $guid;
+		$datarray["uri"] = self::getUriFromGuid($author, $guid);
+
+		$datarray["verb"] = Activity::FOLLOW;
+		$datarray["gravity"] = GRAVITY_ACTIVITY;
+		$datarray["parent-uri"] = $parent_item["uri"];
+
+		$datarray["object-type"] = Activity\ObjectType::NOTE;
+
+		$datarray["body"] = Activity::FOLLOW;
+
+		// Diaspora doesn't provide a date for a participation
+		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = DateTimeFormat::utcNow();
+
+		$message_id = Item::insert($datarray);
+
+		Logger::info('Participation stored', ['id' => $message_id, 'guid' => $guid, 'parent_guid' => $parent_guid, 'author' => $author]);
 
 		// Send all existing comments and likes to the requesting server
-		$comments = Item::select(['id', 'uri-id', 'parent', 'verb', 'self'], ['parent' => $item['id']]);
+		$comments = Item::select(['id', 'uri-id', 'parent', 'verb', 'self'], ['parent' => $parent_item['id']]);
 		while ($comment = Item::fetch($comments)) {
 			if ($comment['id'] == $comment['parent']) {
 				continue;
 			}
 
-			Logger::info('Deliver participation', ['item' => $comment['id'], 'contact' => $contact_id]);
-			if (Worker::add(PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['id'], $contact_id)) {
+			Logger::info('Deliver participation', ['item' => $comment['id'], 'contact' => $author_contact["cid"]]);
+			if (Worker::add(PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['id'], $author_contact["cid"])) {
 				Post\DeliveryData::incrementQueueCount($comment['uri-id'], 1);
 			}
 		}
