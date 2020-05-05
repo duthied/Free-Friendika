@@ -59,7 +59,7 @@ class Summary extends BaseAdmin
 		$table_definition_cache = DBA::getVariable('table_definition_cache');
 		$table_open_cache = DBA::getVariable('table_open_cache');
 		if (!empty($table_definition_cache) && !empty($table_open_cache)) {
-			$suggested_definition_cache = max(400, round($table_open_cache / 2, 1));
+			$suggested_definition_cache = min(400 + round($table_open_cache / 2, 1), 2000);
 			if ($suggested_definition_cache > $table_definition_cache) {
 				$warningtext[] = DI::l10n()->t('Your table_definition_cache is too low (%d). This can lead to the database error "Prepared statement needs to be re-prepared". Please set it at least to %d (or -1 for autosizing). See <a href="%s">here</a> for more information.<br />', $table_definition_cache, $suggested_definition_cache, 'https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_table_definition_cache');
 			}
