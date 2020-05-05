@@ -2001,7 +2001,7 @@ class DFRN
 			}
 
 			$fields = ['title' => $item['title'] ?? '', 'body' => $item['body'] ?? '',
-					'tag' => $item['tag'] ?? '', 'changed' => DateTimeFormat::utcNow(),
+					'changed' => DateTimeFormat::utcNow(),
 					'edited' => DateTimeFormat::utc($item["edited"])];
 
 			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]];

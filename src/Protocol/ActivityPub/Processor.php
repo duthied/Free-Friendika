@@ -80,35 +80,6 @@ class Processor
 	}
 
 	/**
-	 * Constructs a string with tags for a given tag array
-	 *
-	 * @param array   $tags
-	 * @param boolean $sensitive
-	 * @return string with tags
-	 */
-	private static function constructTagString(array $tags = null, $sensitive = false)
-	{
-		if (empty($tags)) {
-			return '';
-		}
-
-		$tag_text = '';
-		foreach ($tags as $tag) {
-			if (in_array($tag['type'] ?? '', ['Mention', 'Hashtag'])) {
-				if (!empty($tag_text)) {
-					$tag_text .= ',';
-				}
-
-				$tag_text .= substr($tag['name'], 0, 1) . '[url=' . $tag['href'] . ']' . substr($tag['name'], 1) . '[/url]';
-			}
-		}
-
-		/// @todo add nsfw for $sensitive
-
-		return $tag_text;
-	}
-
-	/**
 	 * Add attachment data to the item array
 	 *
 	 * @param array   $activity
@@ -263,16 +234,7 @@ class Processor
 			}
 
 			Tag::store($item['uri-id'], Tag::HASHTAG, $activity['object_content'], $activity['object_id']);
-
-			// To-Do:
-			// - Check if "blocktag" is set
-			// - Check if actor is a contact
-
-			if (!stristr($item['tag'], trim($activity['object_content']))) {
-				$tag = $item['tag'] . (strlen($item['tag']) ? ',' : '') . '#[url=' . $activity['object_id'] . ']'. $activity['object_content'] . '[/url]';
-				Item::update(['tag' => $tag], ['id' => $item['id']]);
-				Logger::info('Tagged item', ['id' => $item['id'], 'tag' => $activity['object_content'], 'uri' => $activity['target_id'], 'actor' => $activity['actor']]);
-			}
+			Logger::info('Tagged item', ['id' => $item['id'], 'tag' => $activity['object_content'], 'uri' => $activity['target_id'], 'actor' => $activity['actor']]);
 		}
 	}
 
@@ -404,8 +366,6 @@ class Processor
 			$item['content-warning'] = HTML::toBBCode($activity['summary']);
 			$item['body'] = $content;
 		}
-
-		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
 
 		self::storeFromBody($item);
 		self::storeTags($item['uri-id'], $activity['tags']);
