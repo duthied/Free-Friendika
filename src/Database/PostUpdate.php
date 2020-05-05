@@ -688,6 +688,7 @@ class PostUpdate
 		}
 
 		$id = DI::config()->get('system', 'post_update_version_1345_id', 0);
+
 		Logger::info('Start', ['item' => $id]);
 
 		$rows = 0;
@@ -725,8 +726,6 @@ class PostUpdate
 
 		return false;
 	}
-
-
 
 	/**
 	 * Fill the "tag" table with tags and mentions from the "term" table

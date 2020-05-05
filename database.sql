@@ -815,6 +815,8 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`link` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`iid` int unsigned NOT NULL DEFAULT 0 COMMENT 'item.id',
 	`parent` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`uri-id` int unsigned COMMENT 'Item-uri id of the related post',
+	`parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
 	`seen` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`verb` varchar(100) NOT NULL DEFAULT '' COMMENT '',
 	`otype` varchar(10) NOT NULL DEFAULT '' COMMENT '',
@@ -833,6 +835,7 @@ CREATE TABLE IF NOT EXISTS `notify-threads` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`notify-id` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`master-parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`master-parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
 	`parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`receiver-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`)
