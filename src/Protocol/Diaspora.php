@@ -252,24 +252,27 @@ class Diaspora
 	 * One of the parameters is a contact array.
 	 * This is done to avoid duplicates.
 	 *
-	 * @param array $parent   The parent post
+	 * @param array $item     Item that is about to be delivered
 	 * @param array $contacts The previously fetched contacts
 	 *
 	 * @return array of relay servers
 	 * @throws \Exception
 	 */
-	public static function participantsForThread(array $parent, array $contacts)
+	public static function participantsForThread(array $item, array $contacts)
 	{
-		if (!in_array($parent['private'], [Item::PUBLIC, Item::UNLISTED])) {
+		if (!in_array($item['private'], [Item::PUBLIC, Item::UNLISTED]) || in_array($item["verb"], [Activity::FOLLOW, Activity::TAG])) {
 			return $contacts;
 		}
 
-		$items = Item::select(['author-id'], ['parent' => $parent['id']], ['group_by' => ['author-id']]);
+		$items = Item::select(['author-id', 'author-link', 'parent-author-link'],
+			['parent' => $item['parent'], 'gravity' => [GRAVITY_COMMENT, GRAVITY_ACTIVITY]],
+			['group_by' => ['author-id']]);
 		while ($item = DBA::fetch($items)) {
 			$contact = DBA::selectFirst('contact', ['id', 'url', 'name', 'protocol', 'batch', 'network'],
 				['id' => $item['author-id']]);
-			if (!DBA::isResult($contact)) {
-				// Shouldn't happen
+			if (!DBA::isResult($contact) || empty($contact['batch']) ||
+				($contact['network'] != Protocol::DIASPORA) ||
+				Strings::compareLink($item['parent-author-link'], $item['author-link'])) {
 				continue;
 			}
 
@@ -281,7 +284,7 @@ class Diaspora
 			}
 
 			if (!$exists) {
-				Logger::info('Add participant to receiver list', ['item' => $parent['guid'], 'participant' => $contact['url']]);
+				Logger::info('Add participant to receiver list', ['parent' => $item['parent-guid'], 'item' => $item['guid'], 'participant' => $contact['url']]);
 				$contacts[] = $contact;
 			}
 		}
