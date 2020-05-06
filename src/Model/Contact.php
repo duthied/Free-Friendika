@@ -847,7 +847,7 @@ class Contact
 			$item['body'] = '';
 			$item['title'] = '';
 			$item['guid'] = '';
-			$item['tag'] = '';
+			$item['uri-id'] = 0;
 			$item['attach'] = '';
 			$slap = OStatus::salmon($item, $user);
 
@@ -2457,7 +2457,7 @@ class Contact
 				$item['body'] = '';
 				$item['title'] = '';
 				$item['guid'] = '';
-				$item['tag'] = '';
+				$item['uri-id'] = 0;
 				$item['attach'] = '';
 
 				$slap = OStatus::salmon($item, $owner);

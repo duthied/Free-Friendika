@@ -655,17 +655,8 @@ class OStatus
 			foreach ($categories as $category) {
 				foreach ($category->attributes as $attributes) {
 					if ($attributes->name == 'term') {
-						$term = $attributes->textContent;
-						if (!empty($item['tag'])) {
-							$item['tag'] .= ',';
-						} else {
-							$item['tag'] = '';
-						}
-
-						$item['tag'] .= '#[url=' . DI::baseUrl() . '/search?tag=' . $term . ']' . $term . '[/url]';
-
 						// Store the hashtag
-						Tag::store($item['uri-id'], Tag::HASHTAG, $term);
+						Tag::store($item['uri-id'], Tag::HASHTAG, $attributes->textContent);
 					}
 				}
 			}
@@ -2081,11 +2072,10 @@ class OStatus
 			XML::addElement($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
 		}
 
-		$tags = Tag::getByURIId($item['uri-id']);
-		if (count($tags)) {
-			foreach ($tags as $tag) {
-				$mentioned[$tag['url']] = $tag['url'];
-			}
+		// uri-id isn't present for follow entry pseudo-items
+		$tags = Tag::getByURIId($item['uri-id'] ?? 0);
+		foreach ($tags as $tag) {
+			$mentioned[$tag['url']] = $tag['url'];
 		}
 
 		// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
@@ -2134,11 +2124,9 @@ class OStatus
 			XML::addElement($doc, $entry, "mastodon:scope", "public");
 		}
 
-		if (count($tags)) {
-			foreach ($tags as $tag) {
-				if ($tag['type'] == Tag::HASHTAG) {
-					XML::addElement($doc, $entry, "category", "", ["term" => $tag['name']]);
-				}
+		foreach ($tags as $tag) {
+			if ($tag['type'] == Tag::HASHTAG) {
+				XML::addElement($doc, $entry, "category", "", ["term" => $tag['name']]);
 			}
 		}
 

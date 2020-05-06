@@ -340,6 +340,23 @@ class Tag
 	}
 
 	/**
+	 * Return a string with all tags and mentions
+	 *
+	 * @param integer $uri_id
+	 * @return string tags and mentions
+	 */
+	public static function getCSVByURIId(int $uri_id)
+	{
+		$tag_list = [];
+		$tags = self::getByURIId($uri_id);
+		foreach ($tags as $tag) {
+			$tag_list[] = self::TAG_CHARACTER[$tag['type']] . '[url=' . $tag['url'] . ']' . $tag['name'] . '[/url]';
+		}
+
+		return implode(',', $tag_list);
+	}
+
+	/**
 	 * Sorts an item's tags into mentions, hashtags and other tags. Generate personalized URLs by user and modify the
 	 * provided item's body with them.
 	 *

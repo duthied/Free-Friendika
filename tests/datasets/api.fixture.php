@@ -27,7 +27,7 @@ return [
 	'photo',
 	'workerqueue',
 	'mail',
-	'item-delivery-data',
+	'post-delivery-data',
 	// Base test config to avoid notice messages
 	'config'  => [
 		[

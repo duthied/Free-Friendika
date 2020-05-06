@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1341
+-- DB_UPDATE_VERSION 1346
 -- ------------------------------------------
 
 
@@ -666,7 +666,8 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_eventid` (`uid`,`event-id`),
 	 INDEX `icid` (`icid`),
 	 INDEX `iaid` (`iaid`),
-	 INDEX `psid_wall` (`psid`,`wall`)
+	 INDEX `psid_wall` (`psid`,`wall`),
+	 INDEX `uri-id` (`uri-id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
 --
@@ -713,24 +714,6 @@ CREATE TABLE IF NOT EXISTS `item-content` (
 	 INDEX `plink` (`plink`(191)),
 	 INDEX `uri-id` (`uri-id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
-
---
--- TABLE item-delivery-data
---
-CREATE TABLE IF NOT EXISTS `item-delivery-data` (
-	`iid` int unsigned NOT NULL COMMENT 'Item id',
-	`postopts` text COMMENT 'External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery',
-	`inform` mediumtext COMMENT 'Additional receivers of the linked item',
-	`queue_count` mediumint NOT NULL DEFAULT 0 COMMENT 'Initial number of delivery recipients, used as item.delivery_queue_count',
-	`queue_done` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries, used as item.delivery_queue_done',
-	`queue_failed` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of unsuccessful deliveries, used as item.delivery_queue_failed',
-	`activitypub` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via ActivityPub',
-	`dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via DFRN',
-	`legacy_dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via legacy DFRN',
-	`diaspora` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via Diaspora',
-	`ostatus` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via OStatus',
-	 PRIMARY KEY(`iid`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
 
 --
 -- TABLE item-uri
@@ -832,6 +815,8 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`link` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`iid` int unsigned NOT NULL DEFAULT 0 COMMENT 'item.id',
 	`parent` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`uri-id` int unsigned COMMENT 'Item-uri id of the related post',
+	`parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
 	`seen` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`verb` varchar(100) NOT NULL DEFAULT '' COMMENT '',
 	`otype` varchar(10) NOT NULL DEFAULT '' COMMENT '',
@@ -850,6 +835,7 @@ CREATE TABLE IF NOT EXISTS `notify-threads` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`notify-id` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`master-parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`master-parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
 	`parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`receiver-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`)
@@ -1188,6 +1174,36 @@ CREATE TABLE IF NOT EXISTS `tag` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='tags and mentions';
 
 --
+-- TABLE post-category
+--
+CREATE TABLE IF NOT EXISTS `post-category` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
+	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`tid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	 PRIMARY KEY(`uri-id`,`uid`,`type`,`tid`),
+	 INDEX `uri-id` (`tid`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to categories';
+
+--
+-- TABLE post-delivery-data
+--
+CREATE TABLE IF NOT EXISTS `post-delivery-data` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`postopts` text COMMENT 'External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery',
+	`inform` mediumtext COMMENT 'Additional receivers of the linked item',
+	`queue_count` mediumint NOT NULL DEFAULT 0 COMMENT 'Initial number of delivery recipients, used as item.delivery_queue_count',
+	`queue_done` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries, used as item.delivery_queue_done',
+	`queue_failed` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of unsuccessful deliveries, used as item.delivery_queue_failed',
+	`activitypub` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via ActivityPub',
+	`dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via DFRN',
+	`legacy_dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via legacy DFRN',
+	`diaspora` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via Diaspora',
+	`ostatus` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via OStatus',
+	 PRIMARY KEY(`uri-id`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
+
+--
 -- TABLE post-tag
 --
 CREATE TABLE IF NOT EXISTS `post-tag` (
@@ -1387,6 +1403,23 @@ CREATE TABLE IF NOT EXISTS `storage` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Data stored by Database storage backend';
 
 --
+-- VIEW category-view
+--
+DROP VIEW IF EXISTS `category-view`;
+CREATE VIEW `category-view` AS SELECT 
+	`post-category`.`uri-id` AS `uri-id`,
+	`post-category`.`uid` AS `uid`,
+	`item-uri`.`uri` AS `uri`,
+	`item-uri`.`guid` AS `guid`,
+	`post-category`.`type` AS `type`,
+	`post-category`.`tid` AS `tid`,
+	`tag`.`name` AS `name`,
+	`tag`.`url` AS `url`
+	FROM `post-category`
+			INNER JOIN `item-uri` ON `item-uri`.id = `post-category`.`uri-id`
+			LEFT JOIN `tag` ON `post-category`.`tid` = `tag`.`id`;
+
+--
 -- VIEW tag-view
 --
 DROP VIEW IF EXISTS `tag-view`;
@@ -1540,22 +1573,6 @@ CREATE VIEW `owner-view` AS SELECT
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`;
 
 --
--- VIEW participation-view
---
-DROP VIEW IF EXISTS `participation-view`;
-CREATE VIEW `participation-view` AS SELECT 
-	`participation`.`iid` AS `iid`,
-	`contact`.`id` AS `id`,
-	`contact`.`url` AS `url`,
-	`contact`.`name` AS `name`,
-	`contact`.`protocol` AS `protocol`,
-	CASE `contact`.`batch` WHEN '' THEN `fcontact`.`batch` ELSE `contact`.`batch` END AS `batch`,
-	CASE `fcontact`.`network` WHEN '' THEN `contact`.`network` ELSE `fcontact`.`network` END AS `network`
-	FROM `participation`
-			INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid` AND NOT `contact`.`archive`
-			INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`;
-
---
 -- VIEW pending-view
 --
 DROP VIEW IF EXISTS `pending-view`;
@@ -1576,6 +1593,27 @@ CREATE VIEW `pending-view` AS SELECT
 	FROM `register`
 			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
 			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`;
+
+--
+-- VIEW tag-search-view
+--
+DROP VIEW IF EXISTS `tag-search-view`;
+CREATE VIEW `tag-search-view` AS SELECT 
+	`post-tag`.`uri-id` AS `uri-id`,
+	`item`.`id` AS `iid`,
+	`item`.`uri` AS `uri`,
+	`item`.`guid` AS `guid`,
+	`item`.`uid` AS `uid`,
+	`item`.`private` AS `private`,
+	`item`.`wall` AS `wall`,
+	`item`.`origin` AS `origin`,
+	`item`.`gravity` AS `gravity`,
+	`item`.`received` AS `received`,
+	`tag`.`name` AS `name`
+	FROM `post-tag`
+			INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid`
+			INNER JOIN `item` ON `item`.`uri-id` = `post-tag`.`uri-id`
+			WHERE `post-tag`.`type` = 1;
 
 --
 -- VIEW workerqueue-view

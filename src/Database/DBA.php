@@ -742,6 +742,17 @@ class DBA
 	}
 
 	/**
+	 * Fetch a database variable
+	 *
+	 * @param string $name
+	 * @return string content
+	 */
+	public static function getVariable(string $name)
+	{
+		return DI::dba()->getVariable($name);
+	}
+
+	/**
 	 * Checks if $array is a filled array with at least one entry.
 	 *
 	 * @param mixed $array A filled array with at least one entry
