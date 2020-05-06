@@ -437,7 +437,7 @@ class Notifier
 
 				// Fetch the participation list
 				// The function will ensure that there are no duplicates
-				$relay_list = Diaspora::participantsForThread($parent, $relay_list);
+				$relay_list = Diaspora::participantsForThread($target_item, $relay_list);
 
 				// Add the relay to the list, avoid duplicates.
 				// Don't send community posts to the relay. Forum posts via the Diaspora protocol are looking ugly.
