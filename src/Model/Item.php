@@ -1989,7 +1989,18 @@ class Item
 
 		check_user_notification($current_post);
 
-		if ($notify || ($item['visible'] && ((!empty($parent) && $parent['origin']) || $item['origin']))) {
+		$transmit = $notify || ($item['visible'] && ((!empty($parent) && $parent['origin']) || $item['origin']));
+
+		if ($transmit) {
+			$transmit_item = Item::selectFirst(['verb', 'origin'], ['id' => $item['id']]);
+			// Don't relay participation messages
+			if (($transmit_item['verb'] == Activity::FOLLOW) && !$transmit_item['origin']) {
+				Logger::info('Participation messages will not be relayed', ['item' => $item['id'], 'uri' => $item['uri'], 'verb' => $transmit_item['verb']]);
+				$transmit = false;
+			}
+		}
+
+		if ($transmit) {
 			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, $current_post);
 		}
 
