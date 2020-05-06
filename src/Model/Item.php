@@ -1994,7 +1994,8 @@ class Item
 		if ($transmit) {
 			$transmit_item = Item::selectFirst(['verb', 'origin'], ['id' => $item['id']]);
 			// Don't relay participation messages
-			if (($transmit_item['verb'] == Activity::FOLLOW) && !$transmit_item['origin']) {
+			if (($transmit_item['verb'] == Activity::FOLLOW) && 
+				(!$transmit_item['origin'] || ($item['author-id'] != Contact::getPublicIdByUserId($uid)))) {
 				Logger::info('Participation messages will not be relayed', ['item' => $item['id'], 'uri' => $item['uri'], 'verb' => $transmit_item['verb']]);
 				$transmit = false;
 			}
