@@ -1307,9 +1307,9 @@ function photos_content(App $a)
 		}
 
 		$tags = null;
-		$tag_text = Tag::getCSVByURIId($link_item['uri-id']);
 
-		if (!empty($link_item['id']) && !empty($tag_text)) {
+		if (!empty($link_item['id'])) {
+			$tag_text = Tag::getCSVByURIId($link_item['uri-id']);
 			$arr = explode(',', $tag_text);
 			// parse tags and add links
 			$tag_arr = [];
