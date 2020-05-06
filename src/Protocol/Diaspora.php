@@ -261,6 +261,7 @@ class Diaspora
 	public static function participantsForThread(array $item, array $contacts)
 	{
 		if (!in_array($item['private'], [Item::PUBLIC, Item::UNLISTED]) || in_array($item["verb"], [Activity::FOLLOW, Activity::TAG])) {
+			Logger::info('Item is private or a participation request. It will not be relayed', ['guid' => $item['guid'], 'private' => $item['private'], 'verb' => $item['verb']]);
 			return $contacts;
 		}
 
@@ -2283,6 +2284,10 @@ class Diaspora
 			return false;
 		}
 
+		if (!$parent_item['origin']) {
+			Logger::info('Not our origin. Participation is ignored', ['parent_guid' => $parent_guid, 'guid' => $guid, 'author' => $author]);
+		}
+
 		if (!in_array($parent_item['private'], [Item::PUBLIC, Item::UNLISTED])) {
 			Logger::info('Item is not public, participation is ignored', ['parent_guid' => $parent_guid, 'guid' => $guid, 'author' => $author]);
 			return false;
@@ -2327,9 +2332,10 @@ class Diaspora
 		Logger::info('Participation stored', ['id' => $message_id, 'guid' => $guid, 'parent_guid' => $parent_guid, 'author' => $author]);
 
 		// Send all existing comments and likes to the requesting server
-		$comments = Item::select(['id', 'uri-id', 'parent', 'verb'], ['parent' => $parent_item['id']]);
+		$comments = Item::select(['id', 'uri-id', 'parent', 'verb'], ['parent' => $parent_item['id'], 'gravity' => [GRAVITY_COMMENT, GRAVITY_ACTIVITY]]);
 		while ($comment = Item::fetch($comments)) {
-			if ($comment['id'] == $comment['parent'] || in_array($comment["verb"], [Activity::FOLLOW, Activity::TAG])) {
+			if (in_array($comment["verb"], [Activity::FOLLOW, Activity::TAG])) {
+				Logger::info('participation messages are not relayed', ['item' => $comment['id']]);
 				continue;
 			}
 
