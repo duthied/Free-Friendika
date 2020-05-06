@@ -74,16 +74,30 @@ class Transmitter
 	 */
 	public static function getContacts($owner, $rel, $module, $page = null)
 	{
-		$condition = ['rel' => $rel, 'network' => Protocol::FEDERATED, 'uid' => $owner['uid'],
-			'self' => false, 'deleted' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
-		$count = DBA::count('contact', $condition);
+		$parameters = [
+			'rel' => $rel,
+			'uid' => $owner['uid'],
+			'self' => false,
+			'deleted' => false,
+			'hidden' => false,
+			'archive' => false,
+			'pending' => false
+		];
+		$condition = DBA::buildCondition($parameters);
+
+		$sql = "SELECT COUNT(*) as `count`
+		FROM `contact`
+		JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
+		" . $condition;
+
+		$contacts = DBA::fetchFirst($sql, ...$parameters);
 
 		$modulePath = '/' . $module . '/';
 
 		$data = ['@context' => ActivityPub::CONTEXT];
 		$data['id'] = DI::baseUrl() . $modulePath . $owner['nickname'];
 		$data['type'] = 'OrderedCollection';
-		$data['totalItems'] = $count;
+		$data['totalItems'] = $contacts['count'];
 
 		// When we hide our friends we will only show the pure number but don't allow more.
 		$profile = Profile::getByUID($owner['uid']);
@@ -97,7 +111,16 @@ class Transmitter
 			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
 
-			$contacts = DBA::select('contact', ['url'], $condition, ['limit' => [($page - 1) * 100, 100]]);
+			$sql = "SELECT `contact`.`url`
+			FROM `contact`
+			JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
+			" . $condition . "
+			LIMIT ?, ?";
+
+			$parameters[] = ($page - 1) * 100;
+			$parameters[] = 100;
+
+			$contacts = DBA::p($sql, ...$parameters);
 			while ($contact = DBA::fetch($contacts)) {
 				$list[] = $contact['url'];
 			}
