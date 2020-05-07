@@ -86,9 +86,9 @@ class Transmitter
 		$condition = DBA::buildCondition($parameters);
 
 		$sql = "SELECT COUNT(*) as `count`
-		FROM `contact`
-		JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
-		" . $condition;
+			FROM `contact`
+			JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
+			" . $condition;
 
 		$contacts = DBA::fetchFirst($sql, ...$parameters);
 
@@ -112,10 +112,10 @@ class Transmitter
 			$list = [];
 
 			$sql = "SELECT `contact`.`url`
-			FROM `contact`
-			JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
-			" . $condition . "
-			LIMIT ?, ?";
+				FROM `contact`
+				JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
+				" . $condition . "
+				LIMIT ?, ?";
 
 			$parameters[] = ($page - 1) * 100;
 			$parameters[] = 100;
