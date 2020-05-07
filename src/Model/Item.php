@@ -74,7 +74,7 @@ class Item
 		'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
 		'event-summary', 'event-desc', 'event-location', 'event-type',
 		'event-nofinish', 'event-adjust', 'event-ignore', 'event-id',
-		'delivery_queue_count', 'delivery_queue_done', 'delivery_queue_failed'
+		'delivery_queue_count', 'delivery_queue_done', 'delivery_queue_failed', 'activity'
 	];
 
 	// Field list that is used to deliver items via the protocols
@@ -1672,7 +1672,13 @@ class Item
 				$allow_gid      = $parent['allow_gid'];
 				$deny_cid       = $parent['deny_cid'];
 				$deny_gid       = $parent['deny_gid'];
-				$item['wall']   = $parent['wall'];
+
+				// Don't federate received participation messages
+				if ($item['verb'] != Activity::FOLLOW) {
+					$item['wall'] = $parent['wall'];
+				} else {
+					$item['wall'] = false;
+				}
 
 				/*
 				 * If the parent is private, force privacy for the entire conversation
