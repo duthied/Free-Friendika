@@ -1059,12 +1059,13 @@ class Receiver
 
 		$location = JsonLD::fetchElement($object, 'as:location', 'as:name', '@type', 'as:Place');
 		$location = JsonLD::fetchElement($location, 'location', '@value');
-
-		// Some AP software allow formatted text in post location, so we run all the text converters we have to boil
-		// down to HTML and then finally format to plaintext.
-		$location = Markdown::convert($location);
-		$location = BBCode::convert($location);
-		$location = HTML::toPlaintext($location);
+		if ($location) {
+			// Some AP software allow formatted text in post location, so we run all the text converters we have to boil
+			// down to HTML and then finally format to plaintext.
+			$location = Markdown::convert($location);
+			$location = BBCode::convert($location);
+			$location = HTML::toPlaintext($location);
+		}
 
 		$object_data['sc:identifier'] = JsonLD::fetchElement($object, 'sc:identifier', '@value');
 		$object_data['diaspora:guid'] = JsonLD::fetchElement($object, 'diaspora:guid', '@value');
