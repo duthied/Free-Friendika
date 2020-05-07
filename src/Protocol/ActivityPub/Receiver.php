@@ -21,6 +21,7 @@
 
 namespace Friendica\Protocol\ActivityPub;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
@@ -1056,6 +1057,15 @@ class Receiver
 			$actor = JsonLD::fetchElement($object, 'as:actor', '@id');
 		}
 
+		$location = JsonLD::fetchElement($object, 'as:location', 'as:name', '@type', 'as:Place');
+		$location = JsonLD::fetchElement($location, 'location', '@value');
+
+		// Some AP software allow formatted text in post location, so we run all the text converters we have to boil
+		// down to HTML and then finally format to plaintext.
+		$location = Markdown::convert($location);
+		$location = BBCode::convert($location);
+		$location = HTML::toPlaintext($location);
+
 		$object_data['sc:identifier'] = JsonLD::fetchElement($object, 'sc:identifier', '@value');
 		$object_data['diaspora:guid'] = JsonLD::fetchElement($object, 'diaspora:guid', '@value');
 		$object_data['diaspora:comment'] = JsonLD::fetchElement($object, 'diaspora:comment', '@value');
@@ -1070,8 +1080,7 @@ class Receiver
 		$object_data = self::getSource($object, $object_data);
 		$object_data['start-time'] = JsonLD::fetchElement($object, 'as:startTime', '@value');
 		$object_data['end-time'] = JsonLD::fetchElement($object, 'as:endTime', '@value');
-		$object_data['location'] = JsonLD::fetchElement($object, 'as:location', 'as:name', '@type', 'as:Place');
-		$object_data['location'] = JsonLD::fetchElement($object_data, 'location', '@value');
+		$object_data['location'] = $location;
 		$object_data['latitude'] = JsonLD::fetchElement($object, 'as:location', 'as:latitude', '@type', 'as:Place');
 		$object_data['latitude'] = JsonLD::fetchElement($object_data, 'latitude', '@value');
 		$object_data['longitude'] = JsonLD::fetchElement($object, 'as:location', 'as:longitude', '@type', 'as:Place');
