@@ -62,24 +62,42 @@ require_once 'mod/share.php';
 class Transmitter
 {
 	/**
-	 * collects the lost of followers of the given owner
+	 * Collects a list of contacts of the given owner
 	 *
-	 * @param array   $owner Owner array
-	 * @param integer $page  Page number
+	 * @param array     $owner  Owner array
+	 * @param int|array $rel    The relevant value(s) contact.rel should match
+	 * @param string    $module The name of the relevant AP endpoint module (followers|following)
+	 * @param integer   $page   Page number
 	 *
 	 * @return array of owners
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function getFollowers($owner, $page = null)
+	public static function getContacts($owner, $rel, $module, $page = null)
 	{
-		$condition = ['rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::FEDERATED, 'uid' => $owner['uid'],
-			'self' => false, 'deleted' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
-		$count = DBA::count('contact', $condition);
+		$parameters = [
+			'rel' => $rel,
+			'uid' => $owner['uid'],
+			'self' => false,
+			'deleted' => false,
+			'hidden' => false,
+			'archive' => false,
+			'pending' => false
+		];
+		$condition = DBA::buildCondition($parameters);
+
+		$sql = "SELECT COUNT(*) as `count`
+			FROM `contact`
+			JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
+			" . $condition;
+
+		$contacts = DBA::fetchFirst($sql, ...$parameters);
+
+		$modulePath = '/' . $module . '/';
 
 		$data = ['@context' => ActivityPub::CONTEXT];
-		$data['id'] = DI::baseUrl() . '/followers/' . $owner['nickname'];
+		$data['id'] = DI::baseUrl() . $modulePath . $owner['nickname'];
 		$data['type'] = 'OrderedCollection';
-		$data['totalItems'] = $count;
+		$data['totalItems'] = $contacts['count'];
 
 		// When we hide our friends we will only show the pure number but don't allow more.
 		$profile = Profile::getByUID($owner['uid']);
@@ -88,72 +106,31 @@ class Transmitter
 		}
 
 		if (empty($page)) {
-			$data['first'] = DI::baseUrl() . '/followers/' . $owner['nickname'] . '?page=1';
+			$data['first'] = DI::baseUrl() . $modulePath . $owner['nickname'] . '?page=1';
 		} else {
 			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
 
-			$contacts = DBA::select('contact', ['url'], $condition, ['limit' => [($page - 1) * 100, 100]]);
+			$sql = "SELECT `contact`.`url`
+				FROM `contact`
+				JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
+				" . $condition . "
+				LIMIT ?, ?";
+
+			$parameters[] = ($page - 1) * 100;
+			$parameters[] = 100;
+
+			$contacts = DBA::p($sql, ...$parameters);
 			while ($contact = DBA::fetch($contacts)) {
 				$list[] = $contact['url'];
 			}
 			DBA::close($contacts);
 
 			if (!empty($list)) {
-				$data['next'] = DI::baseUrl() . '/followers/' . $owner['nickname'] . '?page=' . ($page + 1);
+				$data['next'] = DI::baseUrl() . $modulePath . $owner['nickname'] . '?page=' . ($page + 1);
 			}
 
-			$data['partOf'] = DI::baseUrl() . '/followers/' . $owner['nickname'];
-
-			$data['orderedItems'] = $list;
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Create list of following contacts
-	 *
-	 * @param array   $owner Owner array
-	 * @param integer $page  Page numbe
-	 *
-	 * @return array of following contacts
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function getFollowing($owner, $page = null)
-	{
-		$condition = ['rel' => [Contact::SHARING, Contact::FRIEND], 'network' => Protocol::FEDERATED, 'uid' => $owner['uid'],
-			'self' => false, 'deleted' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
-		$count = DBA::count('contact', $condition);
-
-		$data = ['@context' => ActivityPub::CONTEXT];
-		$data['id'] = DI::baseUrl() . '/following/' . $owner['nickname'];
-		$data['type'] = 'OrderedCollection';
-		$data['totalItems'] = $count;
-
-		// When we hide our friends we will only show the pure number but don't allow more.
-		$profile = Profile::getByUID($owner['uid']);
-		if (!empty($profile['hide-friends'])) {
-			return $data;
-		}
-
-		if (empty($page)) {
-			$data['first'] = DI::baseUrl() . '/following/' . $owner['nickname'] . '?page=1';
-		} else {
-			$data['type'] = 'OrderedCollectionPage';
-			$list = [];
-
-			$contacts = DBA::select('contact', ['url'], $condition, ['limit' => [($page - 1) * 100, 100]]);
-			while ($contact = DBA::fetch($contacts)) {
-				$list[] = $contact['url'];
-			}
-			DBA::close($contacts);
-
-			if (!empty($list)) {
-				$data['next'] = DI::baseUrl() . '/following/' . $owner['nickname'] . '?page=' . ($page + 1);
-			}
-
-			$data['partOf'] = DI::baseUrl() . '/following/' . $owner['nickname'];
+			$data['partOf'] = DI::baseUrl() . $modulePath . $owner['nickname'];
 
 			$data['orderedItems'] = $list;
 		}
