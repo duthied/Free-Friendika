@@ -50,19 +50,19 @@
 		"bower-asset/base64": "^1.0",
 		"bower-asset/chart-js": "^2.8",
 		"bower-asset/dompurify": "^1.0",
-		"bower-asset/perfect-scrollbar": "^0.6",
+		"bower-asset/fork-awesome": "^1.1",
 		"bower-asset/vue": "^2.6",
+		"npm-asset/cropperjs": "1.2.2",
 		"npm-asset/es-jquery-sortable": "^0.9.13",
+		"npm-asset/fullcalendar": "^3.10",
+		"npm-asset/imagesloaded": "4.1.4",
 		"npm-asset/jquery": "^2.0",
 		"npm-asset/jquery-colorbox": "^1.6",
 		"npm-asset/jquery-datetimepicker": "^2.5",
 		"npm-asset/jgrowl": "^1.4",
 		"npm-asset/moment": "^2.24",
-		"npm-asset/fullcalendar": "^3.10",
-		"npm-asset/cropperjs": "1.2.2",
-		"npm-asset/imagesloaded": "4.1.4",
-		"npm-asset/typeahead.js": "^0.11.1",
-		"bower-asset/fork-awesome": "^1.1"
+		"npm-asset/perfect-scrollbar": "0.6.16",
+		"npm-asset/typeahead.js": "^0.11.1"
 	},
 	"repositories": [
 		{
