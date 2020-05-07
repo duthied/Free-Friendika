@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0d0fe0cafbe7bd050b41a5c9e96dba5f",
+    "content-hash": "b3a7490d8f103ef40431848a26fcc2a6",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -1724,6 +1724,64 @@
             "time": "2019-01-21T21:10:34+00:00"
         },
         {
+            "name": "npm-asset/perfect-scrollbar",
+            "version": "0.6.16",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/perfect-scrollbar/-/perfect-scrollbar-0.6.16.tgz",
+                "shasum": "b1d61a5245cf3962bb9a8407a3fc669d923212fc"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/noraesae/perfect-scrollbar/issues"
+                },
+                "npm-asset-files": [
+                    "dist",
+                    "src",
+                    "index.js",
+                    "jquery.js",
+                    "perfect-scrollbar.d.ts"
+                ],
+                "npm-asset-main": "./index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/noraesae/perfect-scrollbar.git"
+                },
+                "npm-asset-scripts": {
+                    "test": "gulp",
+                    "before-deploy": "gulp && gulp compress",
+                    "release": "rm -rf dist && gulp && npm publish"
+                },
+                "npm-asset-engines": {
+                    "node": ">= 0.12.0"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hyunje Jun",
+                    "email": "me@noraesae.net"
+                },
+                {
+                    "name": "Hyunje Jun",
+                    "email": "me@noraesae.net"
+                }
+            ],
+            "description": "Minimalistic but perfect custom scrollbar plugin",
+            "homepage": "https://github.com/noraesae/perfect-scrollbar#readme",
+            "keywords": [
+                "frontend",
+                "jquery-plugin",
+                "scroll",
+                "scrollbar"
+            ],
+            "time": "2017-01-10T01:03:05+00:00"
+        },
+        {
             "name": "npm-asset/php-date-formatter",
             "version": "v1.3.5",
             "source": {
@@ -2986,6 +3044,7 @@
             ],
             "description": "This tool check syntax of PHP files about 20x faster than serial check.",
             "homepage": "https://github.com/JakubOnderka/PHP-Parallel-Lint",
+            "abandoned": "php-parallel-lint/php-parallel-lint",
             "time": "2018-02-24T15:31:20+00:00"
         },
         {
