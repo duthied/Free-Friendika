@@ -769,20 +769,12 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	$items = [];
 
+	$follow = Item::activityToIndex(Activity::FOLLOW);
+
 	foreach ($parents AS $parent) {
-		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) ",
-			$parent['uri'], $uid];
-		if ($block_authors) {
-			$condition[0] .= "AND NOT `author`.`hidden`";
-		}
-
-		$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity']), $condition, $params);
-
-		$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false);
-
-		if (count($comments) != 0) {
-			$items = array_merge($items, $comments);
-		}
+		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) AND (`activity` != ? OR `activity` IS NULL)",
+			$parent['uri'], $uid, $follow];
+		$items = conversation_fetch_items($parent, $items, $condition, $block_authors, $params);
 	}
 
 	foreach ($items as $index => $item) {
@@ -793,6 +785,31 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	$items = conv_sort($items, $order);
 
+	return $items;
+}
+
+/**
+ * Fetch conversation items
+ *
+ * @param array $parent
+ * @param array $items
+ * @param array $condition
+ * @param boolean $block_authors
+ * @param array $params
+ * @return array
+ */
+function conversation_fetch_items(array $parent, array $items, array $condition, bool $block_authors, array $params) {
+	if ($block_authors) {
+		$condition[0] .= "AND NOT `author`.`hidden`";
+	}
+
+	$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity']), $condition, $params);
+
+	$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false);
+
+	if (count($comments) != 0) {
+		$items = array_merge($items, $comments);
+	}
 	return $items;
 }
 
