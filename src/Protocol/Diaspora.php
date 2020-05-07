@@ -265,7 +265,7 @@ class Diaspora
 			return $contacts;
 		}
 
-		$items = Item::select(['author-id', 'author-link', 'parent-author-link', 'parent-guid'],
+		$items = Item::select(['author-id', 'author-link', 'parent-author-link', 'parent-guid', 'guid'],
 			['parent' => $item['parent'], 'gravity' => [GRAVITY_COMMENT, GRAVITY_ACTIVITY]]);
 		while ($item = DBA::fetch($items)) {
 			$contact = DBA::selectFirst('contact', ['id', 'url', 'name', 'protocol', 'batch', 'network'],
