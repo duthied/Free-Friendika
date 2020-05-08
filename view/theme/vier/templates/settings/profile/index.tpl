@@ -3,7 +3,7 @@
 		//$('.toggle-section-content + .toggle-section-content').hide();
 		$('.js-section-toggler').click(function () {
 			$('.toggle-section-content').hide();
-			$(this).next('.toggle-section-content').toggle();
+			$(this).parents('.toggle-section').find('.toggle-section-content').toggle();
 		});
 	});
 </script>
