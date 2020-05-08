@@ -639,7 +639,7 @@ class Transmitter
 					continue;
 				}
 
-				if ($receiver == $item_profile['followers']) {
+				if ($item_profile && $receiver == $item_profile['followers']) {
 					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal));
 				} else {
 					if (Contact::isLocal($receiver)) {
