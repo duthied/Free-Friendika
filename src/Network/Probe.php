@@ -370,7 +370,7 @@ class Probe
 			$data[] = ["@attributes" => $link];
 		}
 
-		if (is_array($webfinger["aliases"])) {
+		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
 				$data[] = ["@attributes" =>
 							["rel" => "alias",
