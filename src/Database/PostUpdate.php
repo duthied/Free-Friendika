@@ -32,6 +32,7 @@ use Friendica\Model\Post\Category;
 use Friendica\Model\Tag;
 use Friendica\Model\Term;
 use Friendica\Model\UserItem;
+use Friendica\Model\Verb;
 use Friendica\Util\Strings;
 
 /**
@@ -78,6 +79,9 @@ class PostUpdate
 			return false;
 		}
 		if (!self::update1346()) {
+			return false;
+		}
+		if (!self::update1347()) {
 			return false;
 		}
 
@@ -787,5 +791,56 @@ class PostUpdate
 		}
 
 		return false;
-	}	
+	}
+
+	/**
+	 * update the "vid" (verb) field in the item table 
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1347()
+	{
+		// Was the script completed?
+		if (DI::config()->get("system", "post_update_version") >= 1347) {
+			return true;
+		}
+
+		$id = DI::config()->get("system", "post_update_version_1347_id", 0);
+
+		Logger::info('Start', ['item' => $id]);
+
+		$start_id = $id;
+		$rows = 0;
+		$condition = ["`id` > ? AND `vid` IS NULL", $id];
+		$params = ['order' => ['id'], 'limit' => 10000];
+		$items = Item::select(['id', 'verb'], $condition, $params);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($item = Item::fetch($items)) {
+			$id = $item['id'];
+
+			DBA::update('item', ['vid' => Verb::getID($item['verb'])], ['id' => $item['id']]);
+
+			++$rows;
+		}
+		DBA::close($items);
+
+		DI::config()->set("system", "post_update_version_1347_id", $id);
+
+		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
+
+		if ($start_id == $id) {
+			DI::config()->set("system", "post_update_version", 1347);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
+	}
 }

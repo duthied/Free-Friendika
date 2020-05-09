@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1346
+-- DB_UPDATE_VERSION 1347
 -- ------------------------------------------
 
 
@@ -589,6 +589,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
 	`icid` int unsigned COMMENT 'Id of the item-content table entry that contains the whole item content',
 	`iaid` int unsigned COMMENT 'Id of the item-activity table entry that contains the activity data',
+	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
 	`extid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, bookmark, ...)',
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -1361,6 +1362,15 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 	 INDEX `uid_pinned` (`uid`,`pinned`),
 	 INDEX `iid_uid` (`iid`,`uid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
+
+--
+-- TABLE verb
+--
+CREATE TABLE IF NOT EXISTS `verb` (
+	`id` int unsigned NOT NULL auto_increment,
+	`name` varchar(100) NOT NULL DEFAULT '' COMMENT '',
+	 PRIMARY KEY(`id`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activity Verbs';
 
 --
 -- TABLE worker-ipc

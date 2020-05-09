@@ -1505,6 +1505,10 @@ class Item
 			return 0;
 		}
 
+		if (empty($item['vid']) && !empty($item['verb'])) {
+			$item['vid'] = Verb::getID($item['verb']);
+		}
+
 		self::addLanguageToItemArray($item);
 
 		// Items cannot be stored before they happen ...
