@@ -349,6 +349,7 @@ class Tag
 		while ($tag = DBA::fetch($tags)) {
 			self::store($uri_id, self::IMPLICIT_MENTION, $tag['name'], $tag['url']);
 		}
+		DBA::close($tags);
 	}
 
 	/**
