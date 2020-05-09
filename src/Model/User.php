@@ -1162,7 +1162,7 @@ class User
 		// unique), so it cannot be re-registered in the future.
 		DBA::insert('userd', ['username' => $user['nickname']]);
 
-		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
+		// The user and related data will be deleted in Friendica\Worker\CronJobs::expireAndRemoveUsers()
 		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc('now + 7 day')], ['uid' => $uid]);
 		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::REMOVAL, $uid);
 
