@@ -359,9 +359,7 @@ class Processor
 					return false;
 				}
 
-				$potential_implicit_mentions = self::getImplicitMentionList($parent);
-				$content = self::removeImplicitMentionsFromBody($content, $potential_implicit_mentions);
-				$activity['tags'] = self::convertImplicitMentionsInTags($activity['tags'], $potential_implicit_mentions);
+				$content = self::removeImplicitMentionsFromBody($content, self::getImplicitMentionList($parent));
 			}
 			$item['content-warning'] = HTML::toBBCode($activity['summary']);
 			$item['body'] = $content;
@@ -1032,25 +1030,5 @@ class Processor
 		$kept_mentions[] = $body;
 
 		return implode('', $kept_mentions);
-	}
-
-	private static function convertImplicitMentionsInTags($activity_tags, array $potential_mentions)
-	{
-		if (DI::config()->get('system', 'disable_implicit_mentions')) {
-			return $activity_tags;
-		}
-
-		foreach ($activity_tags as $index => $tag) {
-			if (in_array($tag['href'], $potential_mentions)) {
-				$activity_tags[$index]['name'] = preg_replace(
-					'/' . preg_quote(Tag::TAG_CHARACTER[Tag::MENTION], '/') . '/',
-					Tag::TAG_CHARACTER[Tag::IMPLICIT_MENTION],
-					$activity_tags[$index]['name'],
-					1
-				);
-			}
-		}
-
-		return $activity_tags;
 	}
 }
