@@ -304,19 +304,24 @@ HELP;
 			}
 		}
 
-		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
+		$user = $this->dba->selectFirst('user', ['uid', 'account_removed'], ['nickname' => $nick]);
 		if (empty($user)) {
 			throw new RuntimeException($this->l10n->t('User not found'));
+		}
+
+		if (!empty($user['account_removed'])) {
+			$this->out($this->l10n->t('User has already been marked for deletion.'));
+			return true;
 		}
 
 		if (!$this->getOption('q')) {
 			$this->out($this->l10n->t('Type "yes" to delete %s', $nick));
 			if (CliPrompt::prompt() !== 'yes') {
-				throw new RuntimeException('Delete abort.');
+				throw new RuntimeException($this->l10n->t('Deletion aborted.'));
 			}
 		}
 
-		return UserModel::remove($user['uid'] ?? -1);
+		return UserModel::remove($user['uid']);
 	}
 
 	/**
