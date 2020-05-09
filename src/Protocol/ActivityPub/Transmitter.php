@@ -1294,7 +1294,7 @@ class Transmitter
 		$body = $item['body'];
 
 		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions')) {
-			$body = self::prependMentions($body, $permission_block);
+			$body = self::prependMentions($body, $item['uri-id']);
 		}
 
 		if ($type == 'Note') {
@@ -1843,22 +1843,18 @@ class Transmitter
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
-	private static function prependMentions($body, array $permission_block)
+	private static function prependMentions($body, int $uriid)
 	{
-		if (DI::config()->get('system', 'disable_implicit_mentions')) {
-			return $body;
-		}
-
 		$mentions = [];
 
-		foreach ($permission_block['to'] as $profile_url) {
-			$profile = Contact::getDetailsByURL($profile_url);
+		foreach (Tag::getByURIId($uriid, [Tag::IMPLICIT_MENTION]) as $tag) {
+			$profile = Contact::getDetailsByURL($tag['url']);
 			if (!empty($profile['addr'])
 				&& $profile['contact-type'] != Contact::TYPE_COMMUNITY
 				&& !strstr($body, $profile['addr'])
-				&& !strstr($body, $profile_url)
+				&& !strstr($body, $tag['url'])
 			) {
-				$mentions[] = '@[url=' . $profile_url . ']' . $profile['nick'] . '[/url]';
+				$mentions[] = '@[url=' . $tag['url'] . ']' . $profile['nick'] . '[/url]';
 			}
 		}
 

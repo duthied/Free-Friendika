@@ -326,6 +326,29 @@ class Tag
 	}
 
 	/**
+	 * Create implicit mentions for a given post
+	 *
+	 * @param integer $uri_id
+	 * @param integer $parent_uri_id
+	 */
+	public static function createImplicitMentions(int $uri_id, int $parent_uri_id)
+	{
+		// Always mention the direct parent author
+		$parent = Item::selectFirst(['author-link', 'author-name'], ['uri-id' => $parent_uri_id]);
+		self::store($uri_id, self::IMPLICIT_MENTION, $parent['author-name'], $parent['author-link']);
+
+		if (DI::config()->get('system', 'disable_implicit_mentions')) {
+			return;
+		}
+
+		$tags = DBA::select('tag-view', ['name', 'url'], ['uri-id' => $parent_uri_id]);
+		while ($tag = DBA::fetch($tags)) {
+			self::store($uri_id, self::IMPLICIT_MENTION, $tag['name'], $tag['url']);
+		}
+		DBA::close($tags);
+	}
+
+	/**
 	 * Retrieves the terms from the provided type(s) associated with the provided item ID.
 	 *
 	 * @param int       $item_id

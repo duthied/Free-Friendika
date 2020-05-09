@@ -359,9 +359,7 @@ class Processor
 					return false;
 				}
 
-				$potential_implicit_mentions = self::getImplicitMentionList($parent);
-				$content = self::removeImplicitMentionsFromBody($content, $potential_implicit_mentions);
-				$activity['tags'] = self::convertImplicitMentionsInTags($activity['tags'], $potential_implicit_mentions);
+				$content = self::removeImplicitMentionsFromBody($content, $parent);
 			}
 			$item['content-warning'] = HTML::toBBCode($activity['summary']);
 			$item['body'] = $content;
@@ -971,10 +969,6 @@ class Processor
 	 */
 	private static function getImplicitMentionList(array $parent)
 	{
-		if (DI::config()->get('system', 'disable_implicit_mentions')) {
-			return [];
-		}
-
 		$parent_terms = Tag::getByURIId($parent['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
 		$parent_author = Contact::getDetailsByURL($parent['author-link'], 0);
@@ -1008,14 +1002,16 @@ class Processor
 	 * Strips from the body prepended implicit mentions
 	 *
 	 * @param string $body
-	 * @param array $potential_mentions
+	 * @param array $parent
 	 * @return string
 	 */
-	private static function removeImplicitMentionsFromBody($body, array $potential_mentions)
+	private static function removeImplicitMentionsFromBody(string $body, array $parent)
 	{
 		if (DI::config()->get('system', 'disable_implicit_mentions')) {
 			return $body;
 		}
+
+		$potential_mentions = self::getImplicitMentionList($parent);
 
 		$kept_mentions = [];
 
@@ -1032,25 +1028,5 @@ class Processor
 		$kept_mentions[] = $body;
 
 		return implode('', $kept_mentions);
-	}
-
-	private static function convertImplicitMentionsInTags($activity_tags, array $potential_mentions)
-	{
-		if (DI::config()->get('system', 'disable_implicit_mentions')) {
-			return $activity_tags;
-		}
-
-		foreach ($activity_tags as $index => $tag) {
-			if (in_array($tag['href'], $potential_mentions)) {
-				$activity_tags[$index]['name'] = preg_replace(
-					'/' . preg_quote(Tag::TAG_CHARACTER[Tag::MENTION], '/') . '/',
-					Tag::TAG_CHARACTER[Tag::IMPLICIT_MENTION],
-					$activity_tags[$index]['name'],
-					1
-				);
-			}
-		}
-
-		return $activity_tags;
 	}
 }

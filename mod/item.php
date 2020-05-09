@@ -100,13 +100,8 @@ function item_post(App $a) {
 	$toplevel_item_id = intval($_REQUEST['parent'] ?? 0);
 	$thr_parent_uri = trim($_REQUEST['parent_uri'] ?? '');
 
-	$thread_parent_uriid = 0;
-	$thread_parent_contact = null;
-
 	$toplevel_item = null;
 	$parent_user = null;
-
-	$parent_contact = null;
 
 	$objecttype = null;
 	$profile_uid = ($_REQUEST['profile_uid'] ?? 0) ?: local_user();
@@ -122,9 +117,7 @@ function item_post(App $a) {
 		// if this isn't the top-level parent of the conversation, find it
 		if (DBA::isResult($toplevel_item)) {
 			// The URI and the contact is taken from the direct parent which needn't to be the top parent
-			$thread_parent_uriid = $toplevel_item['uri-id'];
 			$thr_parent_uri = $toplevel_item['uri'];
-			$thread_parent_contact = Contact::getDetailsByURL($toplevel_item["author-link"]);
 
 			if ($toplevel_item['id'] != $toplevel_item['parent']) {
 				$toplevel_item = Item::selectFirst([], ['id' => $toplevel_item['parent']]);
@@ -378,10 +371,6 @@ function item_post(App $a) {
 	$inform   = '';
 
 	$tags = BBCode::getTags($body);
-
-	if ($thread_parent_uriid && !\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions')) {
-		$tags = item_add_implicit_mentions($tags, $thread_parent_contact, $thread_parent_uriid);
-	}
 
 	$tagged = [];
 
@@ -748,6 +737,10 @@ function item_post(App $a) {
 
 	Tag::storeFromBody($datarray['uri-id'], $datarray['body']);
 
+	if (!\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions') && ($datarray['gravity'] == GRAVITY_COMMENT)) {
+		Tag::createImplicitMentions($datarray['uri-id'], $datarray['thr-parent-id']);
+	}
+
 	// update filetags in pconfig
 	FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
@@ -998,35 +991,4 @@ function handle_tag(&$body, &$inform, $profile_uid, $tag, $network = "")
 	}
 
 	return ['replaced' => $replaced, 'contact' => $contact];
-}
-
-function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $thread_parent_uriid)
-{
-	if (DI::config()->get('system', 'disable_implicit_mentions')) {
-		// Add a tag if the parent contact is from ActivityPub or OStatus (This will notify them)
-		if (in_array($thread_parent_contact['network'], [Protocol::OSTATUS, Protocol::ACTIVITYPUB])) {
-			$contact = Tag::TAG_CHARACTER[Tag::MENTION] . '[url=' . $thread_parent_contact['url'] . ']' . $thread_parent_contact['nick'] . '[/url]';
-			if (!stripos(implode($tags), '[url=' . $thread_parent_contact['url'] . ']')) {
-				$tags[] = $contact;
-			}
-		}
-	} else {
-		$implicit_mentions = [
-			$thread_parent_contact['url'] => $thread_parent_contact['nick']
-		];
-
-		$parent_terms = Tag::getByURIId($thread_parent_uriid, [Tag::MENTION, Tag::IMPLICIT_MENTION]);
-
-		foreach ($parent_terms as $parent_term) {
-			$implicit_mentions[$parent_term['url']] = $parent_term['name'];
-		}
-
-		foreach ($implicit_mentions as $url => $label) {
-			if ($url != \Friendica\Model\Profile::getMyURL() && !stripos(implode($tags), '[url=' . $url . ']')) {
-				$tags[] = Tag::TAG_CHARACTER[Tag::IMPLICIT_MENTION] . '[url=' . $url . ']' . $label . '[/url]';
-			}
-		}
-	}
-
-	return $tags;
 }
