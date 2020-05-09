@@ -422,3 +422,12 @@ function update_1332()
 
 	return Update::SUCCESS;
 }
+
+function update_1347()
+{
+	foreach (Item::ACTIVITIES as $index => $activity) {
+		DBA::insert('verb', ['id' => $index + 1, 'name' => $activity], true);
+	}
+
+	return Update::SUCCESS;
+}

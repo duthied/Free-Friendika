@@ -51,7 +51,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1346);
+	define('DB_UPDATE_VERSION', 1347);
 }
 
 return [
@@ -670,6 +670,7 @@ return [
 			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "Link to the contact table with uid=0 of the author of this item"],
 			"icid" => ["type" => "int unsigned", "relation" => ["item-content" => "id"], "comment" => "Id of the item-content table entry that contains the whole item content"],
 			"iaid" => ["type" => "int unsigned", "relation" => ["item-activity" => "id"], "comment" => "Id of the item-activity table entry that contains the activity data"],
+			"vid" => ["type" => "smallint unsigned", "relation" => ["verb" => "id"], "comment" => "Id of the verb table entry that contains the activity verbs"],
 			"extid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"post-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Post type (personal note, bookmark, ...)"],
 			"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -1487,6 +1488,16 @@ return [
 			"PRIMARY" => ["uid", "iid"],
 			"uid_pinned" => ["uid", "pinned"],
 			"iid_uid" => ["iid", "uid"]
+		]
+	],
+	"verb" => [
+		"comment" => "Activity Verbs",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
+			"name" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""]
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"]
 		]
 	],
 	"worker-ipc" => [
