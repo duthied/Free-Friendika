@@ -359,7 +359,7 @@ class Processor
 					return false;
 				}
 
-				$content = self::removeImplicitMentionsFromBody($content, self::getImplicitMentionList($parent));
+				$content = self::removeImplicitMentionsFromBody($content, $parent);
 			}
 			$item['content-warning'] = HTML::toBBCode($activity['summary']);
 			$item['body'] = $content;
@@ -969,10 +969,6 @@ class Processor
 	 */
 	private static function getImplicitMentionList(array $parent)
 	{
-		if (DI::config()->get('system', 'disable_implicit_mentions')) {
-			return [];
-		}
-
 		$parent_terms = Tag::getByURIId($parent['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
 		$parent_author = Contact::getDetailsByURL($parent['author-link'], 0);
@@ -1006,14 +1002,16 @@ class Processor
 	 * Strips from the body prepended implicit mentions
 	 *
 	 * @param string $body
-	 * @param array $potential_mentions
+	 * @param array $parent
 	 * @return string
 	 */
-	private static function removeImplicitMentionsFromBody($body, array $potential_mentions)
+	private static function removeImplicitMentionsFromBody(string $body, array $parent)
 	{
 		if (DI::config()->get('system', 'disable_implicit_mentions')) {
 			return $body;
 		}
+
+		$potential_mentions = self::getImplicitMentionList($parent);
 
 		$kept_mentions = [];
 
