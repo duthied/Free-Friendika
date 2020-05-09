@@ -379,10 +379,6 @@ function item_post(App $a) {
 
 	$tags = BBCode::getTags($body);
 
-	if ($thread_parent_uriid && !\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions')) {
-		$tags = item_add_implicit_mentions($tags, $thread_parent_contact, $thread_parent_uriid);
-	}
-
 	$tagged = [];
 
 	$private_forum = false;
@@ -747,7 +743,10 @@ function item_post(App $a) {
 	}
 
 	Tag::storeFromBody($datarray['uri-id'], $datarray['body']);
-	Tag::createImplicitMentions($datarray['uri-id'], $datarray['thr-parent-id']);
+
+	if (!\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions')) {
+		Tag::createImplicitMentions($datarray['uri-id'], $datarray['thr-parent-id']);
+	}
 
 	// update filetags in pconfig
 	FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
@@ -999,21 +998,4 @@ function handle_tag(&$body, &$inform, $profile_uid, $tag, $network = "")
 	}
 
 	return ['replaced' => $replaced, 'contact' => $contact];
-}
-
-function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $thread_parent_uriid)
-{
-	if (!DI::config()->get('system', 'disable_implicit_mentions')) {
-		return $tags;
-	}
-
-	// Add a tag if the parent contact is from ActivityPub or OStatus (This will notify them)
-	if (in_array($thread_parent_contact['network'], [Protocol::OSTATUS, Protocol::ACTIVITYPUB])) {
-		$contact = Tag::TAG_CHARACTER[Tag::MENTION] . '[url=' . $thread_parent_contact['url'] . ']' . $thread_parent_contact['nick'] . '[/url]';
-		if (!stripos(implode($tags), '[url=' . $thread_parent_contact['url'] . ']')) {
-			$tags[] = $contact;
-		}
-	}
-
-	return $tags;
 }
