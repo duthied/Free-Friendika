@@ -100,13 +100,8 @@ function item_post(App $a) {
 	$toplevel_item_id = intval($_REQUEST['parent'] ?? 0);
 	$thr_parent_uri = trim($_REQUEST['parent_uri'] ?? '');
 
-	$thread_parent_uriid = 0;
-	$thread_parent_contact = null;
-
 	$toplevel_item = null;
 	$parent_user = null;
-
-	$parent_contact = null;
 
 	$objecttype = null;
 	$profile_uid = ($_REQUEST['profile_uid'] ?? 0) ?: local_user();
@@ -122,9 +117,7 @@ function item_post(App $a) {
 		// if this isn't the top-level parent of the conversation, find it
 		if (DBA::isResult($toplevel_item)) {
 			// The URI and the contact is taken from the direct parent which needn't to be the top parent
-			$thread_parent_uriid = $toplevel_item['uri-id'];
 			$thr_parent_uri = $toplevel_item['uri'];
-			$thread_parent_contact = Contact::getDetailsByURL($toplevel_item["author-link"]);
 
 			if ($toplevel_item['id'] != $toplevel_item['parent']) {
 				$toplevel_item = Item::selectFirst([], ['id' => $toplevel_item['parent']]);
