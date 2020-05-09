@@ -1845,10 +1845,6 @@ class Transmitter
 
 	private static function prependMentions($body, int $uriid)
 	{
-		if (DI::config()->get('system', 'disable_implicit_mentions')) {
-			return $body;
-		}
-
 		$mentions = [];
 
 		foreach (Tag::getByURIId($uriid, [Tag::IMPLICIT_MENTION]) as $tag) {
