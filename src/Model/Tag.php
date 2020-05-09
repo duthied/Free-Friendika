@@ -333,10 +333,6 @@ class Tag
 	 */
 	public static function createImplicitMentions(int $uri_id, int $parent_uri_id)
 	{
-		if ($uri_id == $parent_uri_id) {
-			return;
-		}
-
 		// Always mention the direct parent author
 		$parent = Item::selectFirst(['author-link', 'author-name'], ['uri-id' => $parent_uri_id]);
 		self::store($uri_id, self::IMPLICIT_MENTION, $parent['author-name'], $parent['author-link']);

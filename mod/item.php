@@ -737,7 +737,7 @@ function item_post(App $a) {
 
 	Tag::storeFromBody($datarray['uri-id'], $datarray['body']);
 
-	if (!\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions')) {
+	if (!\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions') && ($datarray['gravity'] == GRAVITY_COMMENT)) {
 		Tag::createImplicitMentions($datarray['uri-id'], $datarray['thr-parent-id']);
 	}
 
