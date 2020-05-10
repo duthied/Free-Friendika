@@ -434,10 +434,12 @@ function update_1347()
 
 function pre_update_1348()
 {
-	DBA::insert('contact', ['nurl' => '']);
-	$lastid = DBA::lastInsertId();
-	if ($lastid != 0) {
-		DBA::update('contact', ['id' => 0], ['id' => $lastid]);
+	if (!DBA::exists('contact', ['id' => 0])) {
+		DBA::insert('contact', ['nurl' => '']);
+		$lastid = DBA::lastInsertId();
+		if ($lastid != 0) {
+			DBA::update('contact', ['id' => 0], ['id' => $lastid]);
+		}
 	}
 
 	// The tables "permissionset" and "tag" could or could not exist during the update.
@@ -453,17 +455,20 @@ function update_1348()
 {
 	// Insert a permissionset with id=0
 	// Setting it to -1 and then changing the value to 0 tricks the auto increment
-	DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
-	$lastid = DBA::lastInsertId();
-	if ($lastid != 0) {
-		DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
+	if (!DBA::exists('permissionset', ['id' => 0])) {
+		DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
+		$lastid = DBA::lastInsertId();
+		if ($lastid != 0) {
+			DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
+		}
 	}
 
-
-	DBA::insert('tag', ['name' => '']);
-	$lastid = DBA::lastInsertId();
-	if ($lastid != 0) {
-		DBA::update('tag', ['id' => 0], ['id' => $lastid]);
+	if (!DBA::exists('tag', ['id' => 0])) {
+		DBA::insert('tag', ['name' => '']);
+		$lastid = DBA::lastInsertId();
+		if ($lastid != 0) {
+			DBA::update('tag', ['id' => 0], ['id' => $lastid]);
+		}
 	}
 
 	return Update::SUCCESS;
