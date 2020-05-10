@@ -454,7 +454,7 @@ function pre_update_1348()
 function update_1348()
 {
 	// Insert a permissionset with id=0
-	// Setting it to -1 and then changing the value to 0 tricks the auto increment
+	// Inserting it without an ID and then changing the value to 0 tricks the auto increment
 	if (!DBA::exists('permissionset', ['id' => 0])) {
 		DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
 		$lastid = DBA::lastInsertId();
