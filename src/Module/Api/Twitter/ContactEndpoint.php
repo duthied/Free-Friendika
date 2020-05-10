@@ -114,8 +114,6 @@ abstract class ContactEndpoint extends BaseApi
 			'total_count' => $return['total_count'],
 		];
 
-
-
 		return $return;
 	}
 
@@ -140,27 +138,32 @@ abstract class ContactEndpoint extends BaseApi
 			$hide_friends = (bool)$profile['hide-friends'];
 		}
 
-		$condition = DBA::collapseCondition([
-			'rel' => $rel,
-			'uid' => $uid,
-			'self' => false,
-			'deleted' => false,
-			'hidden' => false,
-			'archive' => false,
-			'pending' => false
-		]);
-
-		if ($cursor !== -1) {
-			$condition[0] .= " AND `id` > ?";
-			$condition[] = $cursor;
-		}
-
 		$ids = [];
 		$next_cursor = 0;
 		$previous_cursor = 0;
 		$total_count = 0;
 		if (!$hide_friends) {
+			$condition = DBA::collapseCondition([
+				'rel' => $rel,
+				'uid' => $uid,
+				'self' => false,
+				'deleted' => false,
+				'hidden' => false,
+				'archive' => false,
+				'pending' => false
+			]);
+
 			$total_count = DBA::count('contact', $condition);
+
+			if ($cursor !== -1) {
+				if ($cursor > 0) {
+					$condition[0] .= " AND `id` > ?";
+					$condition[] = $cursor;
+				} else {
+					$condition[0] .= " AND `id` < ?";
+					$condition[] = -$cursor;
+				}
+			}
 
 			$contacts = Contact::selectToArray(['id'], $condition, ['limit' => $count, 'order' => ['id']]);
 
@@ -169,7 +172,30 @@ abstract class ContactEndpoint extends BaseApi
 
 			// Cursor is on the user-specific contact id since it's the sort field
 			if (count($ids)) {
+				$previous_cursor = -$ids[0];
 				$next_cursor = $ids[count($ids) -1];
+			}
+
+			// No next page
+			if ($total_count <= count($contacts) || count($contacts) < $count) {
+				$next_cursor = 0;
+			}
+			// End of results
+			if ($cursor < 0 && count($contacts) === 0) {
+				$next_cursor = -1;
+			}
+
+			// No previous page
+			if ($cursor === -1) {
+				$previous_cursor = 0;
+			}
+
+			if ($cursor > 0 && count($contacts) === 0) {
+				$previous_cursor = -$cursor;
+			}
+
+			if ($cursor < 0 && count($contacts) === 0) {
+				$next_cursor = -1;
 			}
 
 			// Conversion to public contact ids
@@ -181,11 +207,6 @@ abstract class ContactEndpoint extends BaseApi
 					$contactId = (int)$cdata['public'];
 				}
 			});
-
-			// No next page
-			if ($total_count <= count($contacts)) {
-				$next_cursor = 0;
-			}
 		}
 
 		$return = [

@@ -157,11 +157,13 @@ These endpoints use the [Friendica API entities](help/API-Entities).
   - [GET api/followers/list](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-list)
   - [GET api/friends/ids](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-ids)
   - [GET api/friends/list](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-list)
-    - Additional parameter:
-        - `since_id`: Same behavior as `cursor`, use the `next_cursor` value to load the next page.
+    - Additional parameters:
+        - `since_id`: You can use the `next_cursor` value to load the next page.
+        - `max_id`: You can use the inverse of the `previous_cursor` value to load the previous page.
     - Unsupported parameter:
         - `skip_status`: No status is returned even if it isn't set to true.
     - Caveats:
+        - `cursor` trumps `since_id` trumps `max_id` if any combination is provided. 
         - `user_id` must be the ID of a contact associated with a local user account.
         - `screen_name` must be associated with a local user account.
         - `screen_name` trumps `user_id` if both are provided (undocumented Twitter behavior).

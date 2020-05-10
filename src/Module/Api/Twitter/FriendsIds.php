@@ -32,16 +32,25 @@ class FriendsIds extends ContactEndpoint
 	public static function rawContent(array $parameters = [])
 	{
 		// Expected value for user_id parameter: public/user contact id
-		$contact_id    = $_GET['user_id'] ?? null;
-		$screen_name   = $_GET['screen_name'] ?? null;
-		$cursor        = $_GET['cursor'] ?? $_GET['since_id'] ?? -1;
-		$stringify_ids = ($_GET['stringify_ids'] ?? 'false') != 'false';
-		$count         = min((int) ($_GET['count'] ?? self::DEFAULT_COUNT), self::MAX_COUNT);
+		$contact_id    = filter_input(INPUT_GET, 'user_id'      , FILTER_VALIDATE_INT);
+		$screen_name   = filter_input(INPUT_GET, 'screen_name');
+		$cursor        = filter_input(INPUT_GET, 'cursor'       , FILTER_VALIDATE_INT);
+		$stringify_ids = filter_input(INPUT_GET, 'stringify_ids', FILTER_VALIDATE_BOOLEAN);
+		$count         = filter_input(INPUT_GET, 'count'        , FILTER_VALIDATE_INT, ['options' => [
+			'default' => self::DEFAULT_COUNT,
+			'min_range' => 1,
+			'max_range' => self::MAX_COUNT,
+		]]);
+		// Friendica-specific
+		$since_id      = filter_input(INPUT_GET, 'since_id'     , FILTER_VALIDATE_INT);
+		$max_id        = filter_input(INPUT_GET, 'max_id'       , FILTER_VALIDATE_INT, ['options' => [
+			'default' => 1,
+		]]);
 
 		System::jsonExit(self::ids(
 			[Contact::SHARING, Contact::FRIEND],
 			self::getUid($contact_id, $screen_name),
-			$cursor,
+			$cursor ?? $since_id ?? - $max_id,
 			$count,
 			$stringify_ids
 		));
