@@ -152,17 +152,25 @@ These endpoints use the [Friendica API entities](help/API-Entities).
 - [GET api/friendships/incoming](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friendships-incoming)
     - Unsupported parameters
         - `stringify_ids`
-- [GET api/followers/ids](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-ids)
-    - Unsupported parameters:
-        - `user_id`: Relationships aren't returned for other users than self
-        - `screen_name`: Relationships aren't returned for other users than self
-- [GET api/friends/ids](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-ids)
-    - Unsupported parameters:
-        - `user_id`: Relationships aren't returned for other users than self
-        - `screen_name`: Relationships aren't returned for other users than self
+
+- - [GET api/followers/ids](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-ids)
+  - [GET api/followers/list](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-list)
+  - [GET api/friends/ids](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-ids)
+  - [GET api/friends/list](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-list)
+    - Additional parameter:
+        - `since_id`: Same behavior as `cursor`, use the `next_cursor` value to load the next page.
+    - Unsupported parameter:
+        - `skip_status`: No status is returned even if it isn't set to true.
+    - Caveats:
+        - `user_id` must be the ID of a contact associated with a local user account.
+        - `screen_name` must be associated with a local user account.
+        - `screen_name` trumps `user_id` if both are provided (undocumented Twitter behavior).
+        - Will succeed but return an empty array for users hiding their contact lists.
 
 
 - [POST api/friendships/destroy](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/post-friendships-destroy)
+
+
 
 
 ## Non-implemented endpoints
@@ -188,8 +196,6 @@ These endpoints use the [Friendica API entities](help/API-Entities).
 - [POST lists/subscribers/destroy](https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/post-lists-subscribers-destroy)
 
 
-- [GET followers/list](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-list)
-- [GET friends/list](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-list)
 - [GET friendships/lookup](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friendships-lookup)
 - [GET friendships/no_retweets/ids](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friendships-no_retweets-ids)
 - [GET friendships/outgoing](https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friendships-outgoing)

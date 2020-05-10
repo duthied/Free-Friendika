@@ -57,6 +57,10 @@ return [
 			'/profile/show'                      => [Module\Api\Friendica\Profile\Show::class , [R::GET         ]],
 			'/events'                            => [Module\Api\Friendica\Events\Index::class , [R::GET         ]],
 		],
+		'/followers/ids'                         => [Module\Api\Twitter\FollowersIds::class   , [R::GET         ]],
+		'/followers/list'                        => [Module\Api\Twitter\FollowersList::class  , [R::GET         ]],
+		'/friends/ids'                           => [Module\Api\Twitter\FriendsIds::class     , [R::GET         ]],
+		'/friends/list'                          => [Module\Api\Twitter\FriendsList::class    , [R::GET         ]],
 	],
 
 	'/admin'               => [

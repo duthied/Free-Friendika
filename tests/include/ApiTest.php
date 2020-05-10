@@ -2852,61 +2852,6 @@ class ApiTest extends DatabaseTest
 	}
 
 	/**
-	 * Test the api_ff_ids() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFfIds()
-	{
-		$result = api_ff_ids('json', Contact::FOLLOWER);
-		$this->assertEquals(['id' => []], $result);
-	}
-
-	/**
-	 * Test the api_ff_ids() function with a result.
-	 *
-	 * @return void
-	 */
-	public function testApiFfIdsWithResult()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Test the api_ff_ids() function without an authenticated user.
-	 *
-	 * @return void
-	 * @expectedException Friendica\Network\HTTPException\ForbiddenException
-	 */
-	public function testApiFfIdsWithoutAuthenticatedUser()
-	{
-		$_SESSION['authenticated'] = false;
-		api_ff_ids('json', Contact::FOLLOWER);
-	}
-
-	/**
-	 * Test the api_friends_ids() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendsIds()
-	{
-		$result = api_friends_ids('json');
-		$this->assertEquals(['id' => []], $result);
-	}
-
-	/**
-	 * Test the api_followers_ids() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFollowersIds()
-	{
-		$result = api_followers_ids('json');
-		$this->assertEquals(['id' => []], $result);
-	}
-
-	/**
 	 * Test the api_direct_messages_new() function.
 	 *
 	 * @return void
