@@ -431,3 +431,45 @@ function update_1347()
 
 	return Update::SUCCESS;
 }
+
+function pre_update_1348()
+{
+	if (!DBA::exists('contact', ['id' => 0])) {
+		DBA::insert('contact', ['nurl' => '']);
+		$lastid = DBA::lastInsertId();
+		if ($lastid != 0) {
+			DBA::update('contact', ['id' => 0], ['id' => $lastid]);
+		}
+	}
+
+	// The tables "permissionset" and "tag" could or could not exist during the update.
+	// This depends upon the previous version. Depending upon this situation we have to add
+	// the "0" values before adding the foreign keys - or after would be sufficient.
+
+	update_1348();
+
+	return Update::SUCCESS;
+}
+
+function update_1348()
+{
+	// Insert a permissionset with id=0
+	// Inserting it without an ID and then changing the value to 0 tricks the auto increment
+	if (!DBA::exists('permissionset', ['id' => 0])) {
+		DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
+		$lastid = DBA::lastInsertId();
+		if ($lastid != 0) {
+			DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
+		}
+	}
+
+	if (!DBA::exists('tag', ['id' => 0])) {
+		DBA::insert('tag', ['name' => '']);
+		$lastid = DBA::lastInsertId();
+		if ($lastid != 0) {
+			DBA::update('tag', ['id' => 0], ['id' => $lastid]);
+		}
+	}
+
+	return Update::SUCCESS;
+}

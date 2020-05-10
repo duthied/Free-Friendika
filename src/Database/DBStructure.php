@@ -162,10 +162,15 @@ class DBStructure
 		$comment = "";
 		$sql_rows = [];
 		$primary_keys = [];
+		$foreign_keys = [];
+
 		foreach ($structure["fields"] AS $fieldname => $field) {
 			$sql_rows[] = "`" . DBA::escape($fieldname) . "` " . self::FieldCommand($field);
 			if (!empty($field['primary'])) {
 				$primary_keys[] = $fieldname;
+			}
+			if (!empty($field['foreign'])) {
+				$foreign_keys[$fieldname] = $field;
 			}
 		}
 
@@ -176,6 +181,10 @@ class DBStructure
 					$sql_rows[] = $sql_index;
 				}
 			}
+		}
+
+		foreach ($foreign_keys AS $fieldname => $parameters) {
+			$sql_rows[] = self::foreignCommand($name, $fieldname, $parameters);
 		}
 
 		if (isset($structure["engine"])) {
@@ -295,7 +304,7 @@ class DBStructure
 		$database = [];
 
 		if (is_null($tables)) {
-			$tables = q("SHOW TABLES");
+			$tables = DBA::toArray(DBA::p("SHOW TABLES"));
 		}
 
 		if (DBA::isResult($tables)) {
@@ -387,6 +396,7 @@ class DBStructure
 
 						// Remove the relation data that is used for the referential integrity
 						unset($parameters['relation']);
+						unset($parameters['foreign']);
 
 						// We change the collation after the indexes had been changed.
 						// This is done to avoid index length problems.
@@ -438,6 +448,40 @@ class DBStructure
 								$sql3 .= ", " . $sql2;
 							}
 						}
+					}
+				}
+
+				$existing_foreign_keys = $database[$name]['foreign_keys'];
+
+				// Foreign keys
+				// Compare the field structure field by field
+				foreach ($structure["fields"] AS $fieldname => $parameters) {
+					if (empty($parameters['foreign'])) {
+						continue;
+					}
+
+					$constraint = self::getConstraintName($name, $fieldname, $parameters);
+
+					unset($existing_foreign_keys[$constraint]);
+
+					if (empty($database[$name]['foreign_keys'][$constraint])) {
+						$sql2 = self::addForeignKey($name, $fieldname, $parameters);
+
+						if ($sql3 == "") {
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+						} else {
+							$sql3 .= ", " . $sql2;
+						}
+					}
+				}
+
+				foreach ($existing_foreign_keys as $constraint => $param) {
+					$sql2 = self::dropForeignKey($constraint);
+
+					if ($sql3 == "") {
+						$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+					} else {
+						$sql3 .= ", " . $sql2;
 					}
 				}
 
@@ -596,7 +640,7 @@ class DBStructure
 			}
 		}
 
-		View::create($verbose, $action);
+		View::create(false, $action);
 
 		if ($action && !$install) {
 			DI::config()->set('system', 'maintenance', 0);
@@ -620,6 +664,11 @@ class DBStructure
 
 		$indexes = q("SHOW INDEX FROM `%s`", $table);
 
+		$foreign_keys = DBA::selectToArray(['INFORMATION_SCHEMA' => 'KEY_COLUMN_USAGE'],
+			['COLUMN_NAME', 'CONSTRAINT_NAME', 'REFERENCED_TABLE_NAME', 'REFERENCED_COLUMN_NAME'],
+			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL",
+			DBA::databaseName(), $table]);
+
 		$table_status = q("SHOW TABLE STATUS WHERE `name` = '%s'", $table);
 
 		if (DBA::isResult($table_status)) {
@@ -630,6 +679,15 @@ class DBStructure
 
 		$fielddata = [];
 		$indexdata = [];
+		$foreigndata = [];
+
+		if (DBA::isResult($foreign_keys)) {
+			foreach ($foreign_keys as $foreign_key) {
+				$constraint = $foreign_key['CONSTRAINT_NAME'];
+				unset($foreign_key['CONSTRAINT_NAME']); 
+				$foreigndata[$constraint] = $foreign_key;
+			}
+		}
 
 		if (DBA::isResult($indexes)) {
 			foreach ($indexes AS $index) {
@@ -682,7 +740,8 @@ class DBStructure
 			}
 		}
 
-		return ["fields" => $fielddata, "indexes" => $indexdata, "table_status" => $table_status];
+		return ["fields" => $fielddata, "indexes" => $indexdata,
+			"foreign_keys" => $foreigndata, "table_status" => $table_status];
 	}
 
 	private static function dropIndex($indexname)
@@ -701,6 +760,48 @@ class DBStructure
 	{
 		$sql = sprintf("MODIFY `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters, false));
 		return ($sql);
+	}
+
+	private static function getConstraintName(string $tablename, string $fieldname, array $parameters)
+	{
+		$foreign_table = array_keys($parameters['foreign'])[0];
+		$foreign_field = array_values($parameters['foreign'])[0];
+
+		return $tablename . "-" . $fieldname. "-" . $foreign_table. "-" . $foreign_field;
+	}
+
+	private static function foreignCommand(string $tablename, string $fieldname, array $parameters) {
+		$foreign_table = array_keys($parameters['foreign'])[0];
+		$foreign_field = array_values($parameters['foreign'])[0];
+
+		$constraint = self::getConstraintName($tablename, $fieldname, $parameters);
+
+		$sql = "CONSTRAINT `" . $constraint . "` FOREIGN KEY (`" . $fieldname . "`)" .
+			" REFERENCES `" . $foreign_table . "` (`" . $foreign_field . "`)";
+
+		if (!empty($parameters['foreign']['on update'])) {
+			$sql .= " ON UPDATE " . strtoupper($parameters['foreign']['on update']);
+		} else {
+			$sql .= " ON UPDATE RESTRICT";
+		}
+
+		if (!empty($parameters['foreign']['on delete'])) {
+			$sql .= " ON DELETE " . strtoupper($parameters['foreign']['on delete']);
+		} else {
+			$sql .= " ON DELETE CASCADE";
+		}
+
+		return $sql;
+	}
+
+	private static function addForeignKey(string $tablename, string $fieldname, array $parameters)
+	{
+		return sprintf("ADD %s", self::foreignCommand($tablename, $fieldname, $parameters));
+	}
+
+	private static function dropForeignKey(string $constraint)
+	{
+		return sprintf("DROP FOREIGN KEY `%s`", $constraint);
 	}
 
 	/**
