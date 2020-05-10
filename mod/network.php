@@ -383,7 +383,7 @@ function networkFlatView(App $a, $update = 0)
 	if (strlen($file)) {
 		$item_params = ['order' => ['uri-id' => true]];
 		$term_condition = ['name' => $file, 'type' => Category::FILE, 'uid' => local_user()];
-		$term_params = ['order' => ['tid' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+		$term_params = ['order' => ['uri-id' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 		$result = DBA::select('category-view', ['uri-id'], $term_condition, $term_params);
 
 		$posts = [];
