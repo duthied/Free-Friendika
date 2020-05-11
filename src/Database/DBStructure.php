@@ -657,7 +657,7 @@ class DBStructure
 	private static function tableStructure($table)
 	{
 		// This query doesn't seem to be executable as a prepared statement
-		$indexes = DBA::toArray(DBA::p(sprintf("SHOW INDEX FROM `%s`", $table)));
+		$indexes = DBA::toArray(DBA::p("SHOW INDEX FROM " . DBA::quoteIdentifier($table)));
 
 		$fields = DBA::selectToArray(['INFORMATION_SCHEMA' => 'COLUMNS'],
 			['COLUMN_NAME', 'COLUMN_TYPE', 'IS_NULLABLE', 'COLUMN_DEFAULT', 'EXTRA',
@@ -717,7 +717,7 @@ class DBStructure
 				$fielddata[$field['COLUMN_NAME']]['type'] = $field['COLUMN_TYPE'];
 
 				if ($field['IS_NULLABLE'] == 'NO') {
-					$fielddata[$field['COLUMN_NAME']]['not null'] = 1;
+					$fielddata[$field['COLUMN_NAME']]['not null'] = true;
 				}
 
 				if (isset($field['COLUMN_DEFAULT'])) {
