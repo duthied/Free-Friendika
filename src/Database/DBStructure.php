@@ -729,7 +729,7 @@ class DBStructure
 				}
 
 				if ($field['COLUMN_KEY'] == 'PRI') {
-					$fielddata[$field['COLUMN_NAME']]['primary'] = 1;
+					$fielddata[$field['COLUMN_NAME']]['primary'] = true;
 				}
 
 				$fielddata[$field['COLUMN_NAME']]['Collation'] = $field['COLLATION_NAME'];
