@@ -68,13 +68,14 @@ class APDelivery
 			}
 		}
 
-		// This should never fail and is temporariy (until the move to )
+		// This should never fail and is temporariy (until the move to the "post" structure)
 		$item = Item::selectFirst(['uri-id'], ['id' => $target_id]);
+		$uriid = $item['uri-id'] ?? 0;
 
 		if (!$success && !Worker::defer() && in_array($cmd, [Delivery::POST])) {
-			Post\DeliveryData::incrementQueueFailed($item['uri-id']);
+			Post\DeliveryData::incrementQueueFailed($uriid);
 		} elseif ($success && in_array($cmd, [Delivery::POST])) {
-			Post\DeliveryData::incrementQueueDone($item['uri-id'], Post\DeliveryData::ACTIVITYPUB);
+			Post\DeliveryData::incrementQueueDone($uriid, Post\DeliveryData::ACTIVITYPUB);
 		}
 	}
 }
