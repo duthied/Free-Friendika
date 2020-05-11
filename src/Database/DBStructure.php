@@ -27,8 +27,6 @@ use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 
-require_once __DIR__ . '/../../include/dba.php';
-
 /**
  * This class contains functions that doesn't need to know if pdo, mysqli or whatever is used.
  */
@@ -485,9 +483,9 @@ class DBStructure
 					}
 				}
 
-				if (isset($database[$name]["table_status"]["Comment"])) {
+				if (isset($database[$name]["table_status"]["TABLE_COMMENT"])) {
 					$structurecomment = $structure["comment"] ?? '';
-					if ($database[$name]["table_status"]["Comment"] != $structurecomment) {
+					if ($database[$name]["table_status"]["TABLE_COMMENT"] != $structurecomment) {
 						$sql2 = "COMMENT = '" . DBA::escape($structurecomment) . "'";
 
 						if ($sql3 == "") {
@@ -498,8 +496,8 @@ class DBStructure
 					}
 				}
 
-				if (isset($database[$name]["table_status"]["Engine"]) && isset($structure['engine'])) {
-					if ($database[$name]["table_status"]["Engine"] != $structure['engine']) {
+				if (isset($database[$name]["table_status"]["ENGINE"]) && isset($structure['engine'])) {
+					if ($database[$name]["table_status"]["ENGINE"] != $structure['engine']) {
 						$sql2 = "ENGINE = '" . DBA::escape($structure['engine']) . "'";
 
 						if ($sql3 == "") {
@@ -510,8 +508,8 @@ class DBStructure
 					}
 				}
 
-				if (isset($database[$name]["table_status"]["Collation"])) {
-					if ($database[$name]["table_status"]["Collation"] != 'utf8mb4_general_ci') {
+				if (isset($database[$name]["table_status"]["TABLE_COLLATION"])) {
+					if ($database[$name]["table_status"]["TABLE_COLLATION"] != 'utf8mb4_general_ci') {
 						$sql2 = "DEFAULT COLLATE utf8mb4_general_ci";
 
 						if ($sql3 == "") {
@@ -658,24 +656,24 @@ class DBStructure
 
 	private static function tableStructure($table)
 	{
-		$structures = q("DESCRIBE `%s`", $table);
+		// This query doesn't seem to be executable as a prepared statement
+		$indexes = DBA::toArray(DBA::p("SHOW INDEX FROM " . DBA::quoteIdentifier($table)));
 
-		$full_columns = q("SHOW FULL COLUMNS FROM `%s`", $table);
-
-		$indexes = q("SHOW INDEX FROM `%s`", $table);
+		$fields = DBA::selectToArray(['INFORMATION_SCHEMA' => 'COLUMNS'],
+			['COLUMN_NAME', 'COLUMN_TYPE', 'IS_NULLABLE', 'COLUMN_DEFAULT', 'EXTRA',
+			'COLUMN_KEY', 'COLLATION_NAME', 'COLUMN_COMMENT'],
+			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?",
+			DBA::databaseName(), $table]);
 
 		$foreign_keys = DBA::selectToArray(['INFORMATION_SCHEMA' => 'KEY_COLUMN_USAGE'],
 			['COLUMN_NAME', 'CONSTRAINT_NAME', 'REFERENCED_TABLE_NAME', 'REFERENCED_COLUMN_NAME'],
 			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL",
 			DBA::databaseName(), $table]);
 
-		$table_status = q("SHOW TABLE STATUS WHERE `name` = '%s'", $table);
-
-		if (DBA::isResult($table_status)) {
-			$table_status = $table_status[0];
-		} else {
-			$table_status = [];
-		}
+		$table_status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'],
+			['ENGINE', 'TABLE_COLLATION', 'TABLE_COMMENT'],
+			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?",
+			DBA::databaseName(), $table]);
 
 		$fielddata = [];
 		$indexdata = [];
@@ -708,35 +706,34 @@ class DBStructure
 				$indexdata[$index["Key_name"]][] = $column;
 			}
 		}
-		if (DBA::isResult($structures)) {
-			foreach ($structures AS $field) {
-				// Replace the default size values so that we don't have to define them
+
+		$fielddata = [];
+		if (DBA::isResult($fields)) {
+			foreach ($fields AS $field) {
 				$search = ['tinyint(1)', 'tinyint(3) unsigned', 'tinyint(4)', 'smallint(5) unsigned', 'smallint(6)', 'mediumint(8) unsigned', 'mediumint(9)', 'bigint(20)', 'int(10) unsigned', 'int(11)'];
 				$replace = ['boolean', 'tinyint unsigned', 'tinyint', 'smallint unsigned', 'smallint', 'mediumint unsigned', 'mediumint', 'bigint', 'int unsigned', 'int'];
-				$field["Type"] = str_replace($search, $replace, $field["Type"]);
+				$field['COLUMN_TYPE'] = str_replace($search, $replace, $field['COLUMN_TYPE']);
 
-				$fielddata[$field["Field"]]["type"] = $field["Type"];
-				if ($field["Null"] == "NO") {
-					$fielddata[$field["Field"]]["not null"] = true;
+				$fielddata[$field['COLUMN_NAME']]['type'] = $field['COLUMN_TYPE'];
+
+				if ($field['IS_NULLABLE'] == 'NO') {
+					$fielddata[$field['COLUMN_NAME']]['not null'] = true;
 				}
 
-				if (isset($field["Default"])) {
-					$fielddata[$field["Field"]]["default"] = $field["Default"];
+				if (isset($field['COLUMN_DEFAULT'])) {
+					$fielddata[$field['COLUMN_NAME']]['default'] = $field['COLUMN_DEFAULT'];
 				}
 
-				if ($field["Extra"] != "") {
-					$fielddata[$field["Field"]]["extra"] = $field["Extra"];
+				if (!empty($field['EXTRA'])) {
+					$fielddata[$field['COLUMN_NAME']]['extra'] = $field['EXTRA'];
 				}
 
-				if ($field["Key"] == "PRI") {
-					$fielddata[$field["Field"]]["primary"] = true;
+				if ($field['COLUMN_KEY'] == 'PRI') {
+					$fielddata[$field['COLUMN_NAME']]['primary'] = true;
 				}
-			}
-		}
-		if (DBA::isResult($full_columns)) {
-			foreach ($full_columns AS $column) {
-				$fielddata[$column["Field"]]["Collation"] = $column["Collation"];
-				$fielddata[$column["Field"]]["comment"] = $column["Comment"];
+
+				$fielddata[$field['COLUMN_NAME']]['Collation'] = $field['COLLATION_NAME'];
+				$fielddata[$field['COLUMN_NAME']]['comment'] = $field['COLUMN_COMMENT'];
 			}
 		}
 
