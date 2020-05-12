@@ -1333,7 +1333,269 @@ class Item
 		}
 	}
 
-	public static function insert($item, $force_parent = false, $notify = false, $dontcache = false)
+	private static function isDuplicate($item)
+	{
+		// Checking if there is already an item with the same guid
+		$condition = ['guid' => $item['guid'], 'network' => $item['network'], 'uid' => $item['uid']];
+		if (self::exists($condition)) {
+			Logger::notice('Found already existing item', [
+				'guid' => $item['guid'],
+				'uid' => $item['uid'],
+				'network' => $item['network']
+			]);
+			return true;
+		}
+
+		$condition = ["`uri` = ? AND `network` IN (?, ?) AND `uid` = ?",
+			$item['uri'], $item['network'], Protocol::DFRN, $item['uid']];
+		if (self::exists($condition)) {
+			Logger::notice('duplicated item with the same uri found.', $item);
+			return true;
+		}
+
+		// On Friendica and Diaspora the GUID is unique
+		if (in_array($item['network'], [Protocol::DFRN, Protocol::DIASPORA])) {
+			$condition = ['guid' => $item['guid'], 'uid' => $item['uid']];
+			if (self::exists($condition)) {
+				Logger::notice('duplicated item with the same guid found.', $item);
+				return true;
+			}
+		} elseif ($item['network'] == Protocol::OSTATUS) {
+			// Check for an existing post with the same content. There seems to be a problem with OStatus.
+			$condition = ["`body` = ? AND `network` = ? AND `created` = ? AND `contact-id` = ? AND `uid` = ?",
+					$item['body'], $item['network'], $item['created'], $item['contact-id'], $item['uid']];
+			if (self::exists($condition)) {
+				Logger::notice('duplicated item with the same body found.', $item);
+				return true;
+			}
+		}
+
+		/*
+		 * Check for already added items.
+		 * There is a timing issue here that sometimes creates double postings.
+		 * An unique index would help - but the limitations of MySQL (maximum size of index values) prevent this.
+		 */
+		if (($item["uid"] == 0) && self::exists(['uri' => trim($item['uri']), 'uid' => 0])) {
+			Logger::notice('Global item already stored.', ['uri' => $item['uri'], 'network' => $item['network']]);
+			return true;
+		}
+
+		return false;
+	}
+
+	private static function validItem($item)
+	{
+		// When there is no content then we don't post it
+		if ($item['body'].$item['title'] == '') {
+			Logger::notice('No body, no title.');
+			return false;
+		}
+
+		// check for create date and expire time
+		$expire_interval = DI::config()->get('system', 'dbclean-expire-days', 0);
+
+		$user = DBA::selectFirst('user', ['expire'], ['uid' => $item['uid']]);
+		if (DBA::isResult($user) && ($user['expire'] > 0) && (($user['expire'] < $expire_interval) || ($expire_interval == 0))) {
+			$expire_interval = $user['expire'];
+		}
+
+		if (($expire_interval > 0) && !empty($item['created'])) {
+			$expire_date = time() - ($expire_interval * 86400);
+			$created_date = strtotime($item['created']);
+			if ($created_date < $expire_date) {
+				Logger::notice('Item created before expiration interval.', [
+					'created' => date('c', $created_date),
+					'expired' => date('c', $expire_date),
+					'$item' => $item
+				]);
+				return false;
+			}
+		}
+
+		if (Contact::isBlocked($item['author-id'])) {
+			Logger::notice('Author is blocked node-wide', ['author-link' => $item['author-link'], 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (!empty($item['author-link']) && Network::isUrlBlocked($item['author-link'])) {
+			Logger::notice('Author server is blocked', ['author-link' => $item['author-link'], 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (!empty($item['uid']) && Contact::isBlockedByUser($item['author-id'], $item['uid'])) {
+			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (Contact::isBlocked($item['owner-id'])) {
+			Logger::notice('Owner is blocked node-wide', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (!empty($item['owner-link']) && Network::isUrlBlocked($item['owner-link'])) {
+			Logger::notice('Owner server is blocked', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (!empty($item['uid']) && Contact::isBlockedByUser($item['owner-id'], $item['uid'])) {
+			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		// The causer is set during a thread completion, for example because of a reshare. It countains the responsible actor.
+		if (!empty($item['uid']) && !empty($item['causer-id']) && Contact::isBlockedByUser($item['causer-id'], $item['uid'])) {
+			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (!empty($item['uid']) && !empty($item['causer-id']) && ($item['parent-uri'] == $item['uri']) && Contact::isIgnoredByUser($item['causer-id'], $item['uid'])) {
+			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
+			return false;
+		}
+		
+		if ($item['verb'] == Activity::FOLLOW) {
+			if (!$item['origin'] && ($item['author-id'] == Contact::getPublicIdByUserId($item['uid']))) {
+				// Our own follow request can be relayed to us. We don't store it to avoid notification chaos.
+				Logger::log("Follow: Don't store not origin follow request from us for " . $item['parent-uri'], Logger::DEBUG);
+				return false;
+			}
+
+			$condition = ['verb' => Activity::FOLLOW, 'uid' => $item['uid'],
+				'parent-uri' => $item['parent-uri'], 'author-id' => $item['author-id']];
+			if (self::exists($condition)) {
+				// It happens that we receive multiple follow requests by the same author - we only store one.
+				Logger::log('Follow: Found existing follow request from author ' . $item['author-id'] . ' for ' . $item['parent-uri'], Logger::DEBUG);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static function getDuplicateID($item)
+	{
+		if (empty($item['network']) || in_array($item['network'], Protocol::FEDERATED)) {
+			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
+				trim($item['uri']), $item['uid'],
+				Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
+			$existing = self::selectFirst(['id', 'network'], $condition);
+			if (DBA::isResult($existing)) {
+				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
+				if ($item['uid'] != 0) {
+					Logger::notice('Item already existed for user', [
+						'uri' => $item['uri'],
+						'uid' => $item['uid'],
+						'network' => $item['network'],
+						'existing_id' => $existing["id"],
+						'existing_network' => $existing["network"]
+					]);
+				}
+
+				return $existing["id"];
+			}
+		}
+		return 0;
+	}
+
+	private static function getParentData($item)
+	{
+		// find the parent and snarf the item id and ACLs
+		// and anything else we need to inherit
+
+		$fields = ['uri', 'parent-uri', 'id', 'deleted',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+			'wall', 'private', 'forum_mode', 'origin', 'author-id'];
+		$condition = ['uri' => $item['parent-uri'], 'uid' => $item['uid']];
+		$params = ['order' => ['id' => false]];
+		$parent = self::selectFirst($fields, $condition, $params);
+
+		if (!DBA::isResult($parent)) {
+			Logger::info('item parent was not found - ignoring item', ['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
+			return [];
+		} else {
+			// is the new message multi-level threaded?
+			// even though we don't support it now, preserve the info
+			// and re-attach to the conversation parent.
+			if ($parent['uri'] != $parent['parent-uri']) {
+				$item['parent-uri'] = $parent['parent-uri'];
+
+				$condition = ['uri' => $item['parent-uri'],
+					'parent-uri' => $item['parent-uri'],
+					'uid' => $item['uid']];
+				$params = ['order' => ['id' => false]];
+				$toplevel_parent = self::selectFirst($fields, $condition, $params);
+
+				if (DBA::isResult($toplevel_parent)) {
+					$parent = $toplevel_parent;
+				}
+			}
+
+			$item["parent"]        = $parent['id'];
+			$item["deleted"]       = $parent['deleted'];
+			$item["allow_cid"]     = $parent['allow_cid'];
+			$item['allow_gid']     = $parent['allow_gid'];
+			$item['deny_cid']      = $parent['deny_cid'];
+			$item['deny_gid']      = $parent['deny_gid'];
+			$item['parent_origin'] = $parent['origin'];
+
+			// Don't federate received participation messages
+			if ($item['verb'] != Activity::FOLLOW) {
+				$item['wall'] = $parent['wall'];
+			} else {
+				$item['wall'] = false;
+			}
+
+			/*
+			 * If the parent is private, force privacy for the entire conversation
+			 * This differs from the above settings as it subtly allows comments from
+			 * email correspondents to be private even if the overall thread is not.
+			 */
+			if ($parent['private']) {
+				$item['private'] = $parent['private'];
+			}
+
+			/*
+			 * Edge case. We host a public forum that was originally posted to privately.
+			 * The original author commented, but as this is a comment, the permissions
+			 * weren't fixed up so it will still show the comment as private unless we fix it here.
+			 */
+			if ((intval($parent['forum_mode']) == 1) && ($parent['private'] != self::PUBLIC)) {
+				$item['private'] = self::PUBLIC;
+			}
+
+			// If its a post that originated here then tag the thread as "mention"
+			if ($item['origin'] && $item['uid']) {
+				DBA::update('thread', ['mention' => true], ['iid' => $item["parent"]]);
+				Logger::info('tagged thread as mention', ['parent' => $item["parent"], 'uid' => $item['uid']]);
+			}
+
+			// Update the contact relations
+			if ($item['author-id'] != $parent['author-id']) {
+				DBA::update('contact-relation', ['last-interaction' => $item['created']], ['cid' => $parent['author-id'], 'relation-cid' => $item['author-id']], true);
+			}
+		}
+
+		return $item;
+	}
+
+	private static function getGravity($item)
+	{
+		$activity = DI::activity();
+
+		if (isset($item['gravity'])) {
+			return intval($item['gravity']);
+		} elseif ($item['parent-uri'] === $item['uri']) {
+			return GRAVITY_PARENT;
+		} elseif ($activity->match($item['verb'], Activity::POST)) {
+			return GRAVITY_COMMENT;
+		} elseif ($activity->match($item['verb'], Activity::FOLLOW)) {
+			return GRAVITY_ACTIVITY;
+		}
+		Logger::info('Unknown gravity for verb', ['verb' => $item['verb']]);
+		return GRAVITY_UNKNOWN;   // Should not happen
+	}
+
+	public static function insert($item, $dummy = false, $notify = false, $dontcache = false)
 	{
 		$orig_item = $item;
 
@@ -1353,6 +1615,8 @@ class Item
 			$item['network'] = trim(($item['network'] ?? '') ?: Protocol::PHANTOM);
 		}
 
+		$uid = intval($item['uid']);
+
 		$item['guid'] = self::guid($item, $notify);
 		$item['uri'] = substr(Strings::escapeTags(trim(($item['uri'] ?? '') ?: self::newURI($item['uid'], $item['guid']))), 0, 255);
 
@@ -1362,74 +1626,8 @@ class Item
 		// Store conversation data
 		$item = Conversation::insert($item);
 
-		/*
-		 * If a Diaspora signature structure was passed in, pull it out of the
-		 * item array and set it aside for later storage.
-		 */
-
-		$dsprsig = null;
-		if (isset($item['dsprsig'])) {
-			$encoded_signature = $item['dsprsig'];
-			$dsprsig = json_decode(base64_decode($item['dsprsig']));
-			unset($item['dsprsig']);
-		}
-
-		$diaspora_signed_text = '';
-		if (isset($item['diaspora_signed_text'])) {
-			$diaspora_signed_text = $item['diaspora_signed_text'];
-			unset($item['diaspora_signed_text']);
-		}
-
-		// Converting the plink
-		/// @TODO Check if this is really still needed
-		if ($item['network'] == Protocol::OSTATUS) {
-			if (isset($item['plink'])) {
-				$item['plink'] = OStatus::convertHref($item['plink']);
-			} elseif (isset($item['uri'])) {
-				$item['plink'] = OStatus::convertHref($item['uri']);
-			}
-		}
-
 		if (!empty($item['thr-parent'])) {
 			$item['parent-uri'] = $item['thr-parent'];
-		}
-
-		$activity = DI::activity();
-
-		if (isset($item['gravity'])) {
-			$item['gravity'] = intval($item['gravity']);
-		} elseif ($item['parent-uri'] === $item['uri']) {
-			$item['gravity'] = GRAVITY_PARENT;
-		} elseif ($activity->match($item['verb'], Activity::POST)) {
-			$item['gravity'] = GRAVITY_COMMENT;
-		} elseif ($activity->match($item['verb'], Activity::FOLLOW)) {
-			$item['gravity'] = GRAVITY_ACTIVITY;
-		} else {
-			$item['gravity'] = GRAVITY_UNKNOWN;   // Should not happen
-			Logger::log('Unknown gravity for verb: ' . $item['verb'], Logger::DEBUG);
-		}
-
-		$uid = intval($item['uid']);
-
-		// check for create date and expire time
-		$expire_interval = DI::config()->get('system', 'dbclean-expire-days', 0);
-
-		$user = DBA::selectFirst('user', ['expire'], ['uid' => $uid]);
-		if (DBA::isResult($user) && ($user['expire'] > 0) && (($user['expire'] < $expire_interval) || ($expire_interval == 0))) {
-			$expire_interval = $user['expire'];
-		}
-
-		if (($expire_interval > 0) && !empty($item['created'])) {
-			$expire_date = time() - ($expire_interval * 86400);
-			$created_date = strtotime($item['created']);
-			if ($created_date < $expire_date) {
-				Logger::notice('Item created before expiration interval.', [
-					'created' => date('c', $created_date),
-					'expired' => date('c', $expire_date),
-					'$item' => $item
-				]);
-				return 0;
-			}
 		}
 
 		/*
@@ -1437,25 +1635,15 @@ class Item
 		 * We have to check several networks since Friendica posts could be repeated
 		 * via OStatus (maybe Diasporsa as well)
 		 */
-		if (empty($item['network']) || in_array($item['network'], Protocol::FEDERATED)) {
-			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
-				trim($item['uri']), $item['uid'],
-				Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
-			$existing = self::selectFirst(['id', 'network'], $condition);
-			if (DBA::isResult($existing)) {
-				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
-				if ($uid != 0) {
-					Logger::notice('Item already existed for user', [
-						'uri' => $item['uri'],
-						'uid' => $uid,
-						'network' => $item['network'],
-						'existing_id' => $existing["id"],
-						'existing_network' => $existing["network"]
-					]);
-				}
+		$duplicate = self::getDuplicateID($item);
+		if ($duplicate) {
+			return $duplicate;
+		}
 
-				return $existing["id"];
-			}
+		// Additional duplicate checks
+		/// @todo Check why the first duplication check returns the item number and the second a 0
+		if (self::isDuplicate($item)) {
+			return 0;
 		}
 
 		$item['wall']          = intval($item['wall'] ?? 0);
@@ -1499,16 +1687,6 @@ class Item
 		$item['inform']        = trim($item['inform'] ?? '');
 		$item['file']          = trim($item['file'] ?? '');
 
-		// When there is no content then we don't post it
-		if ($item['body'].$item['title'] == '') {
-			Logger::notice('No body, no title.');
-			return 0;
-		}
-
-		if (empty($item['vid']) && !empty($item['verb'])) {
-			$item['vid'] = Verb::getID($item['verb']);
-		}
-
 		self::addLanguageToItemArray($item);
 
 		// Items cannot be stored before they happen ...
@@ -1523,60 +1701,26 @@ class Item
 
 		$item['plink'] = ($item['plink'] ?? '') ?: DI::baseUrl() . '/display/' . urlencode($item['guid']);
 
+		$item['gravity'] = self::getGravity($item);
+
 		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 			'photo' => $item['author-avatar'], 'network' => $item['network']];
 
 		$item['author-id'] = ($item['author-id'] ?? 0) ?: Contact::getIdForURL($item['author-link'], 0, false, $default);
 
-		if (Contact::isBlocked($item['author-id'])) {
-			Logger::notice('Author is blocked node-wide', ['author-link' => $item['author-link'], 'item-uri' => $item['uri']]);
-			return 0;
-		}
-
-		if (!empty($item['author-link']) && Network::isUrlBlocked($item['author-link'])) {
-			Logger::notice('Author server is blocked', ['author-link' => $item['author-link'], 'item-uri' => $item['uri']]);
-			return 0;
-		}
-
-		if (!empty($uid) && Contact::isBlockedByUser($item['author-id'], $uid)) {
-			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
-			return 0;
-		}
+		unset($item['author-link']);
+		unset($item['author-name']);
+		unset($item['author-avatar']);
+		unset($item['author-network']);
 
 		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 
 		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, false, $default);
 
-		if (Contact::isBlocked($item['owner-id'])) {
-			Logger::notice('Owner is blocked node-wide', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
-			return 0;
-		}
-
-		if (!empty($item['owner-link']) && Network::isUrlBlocked($item['owner-link'])) {
-			Logger::notice('Owner server is blocked', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
-			return 0;
-		}
-
-		if (!empty($uid) && Contact::isBlockedByUser($item['owner-id'], $uid)) {
-			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
-			return 0;
-		}
-
-		// The causer is set during a thread completion, for example because of a reshare. It countains the responsible actor.
-		if (!empty($uid) && !empty($item['causer-id']) && Contact::isBlockedByUser($item['causer-id'], $uid)) {
-			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
-			return 0;
-		}
-
-		if (!empty($uid) && !empty($item['causer-id']) && ($item['parent-uri'] == $item['uri']) && Contact::isIgnoredByUser($item['causer-id'], $uid)) {
-			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
-			return 0;
-		}
-
-		// We don't store the causer, we only have it here for the checks above
-		unset($item['causer-id']);
-		unset($item['causer-link']);
+		unset($item['owner-link']);
+		unset($item['owner-name']);
+		unset($item['owner-avatar']);
 
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
 		$item["contact-id"] = self::contactId($item);
@@ -1590,177 +1734,33 @@ class Item
 			]);
 		}
 
-		// Checking if there is already an item with the same guid
-		$condition = ['guid' => $item['guid'], 'network' => $item['network'], 'uid' => $item['uid']];
-		if (self::exists($condition)) {
-			Logger::notice('Found already existing item', [
-				'guid' => $item['guid'],
-				'uid' => $item['uid'],
-				'network' => $item['network']
-			]);
+		if (!self::validItem($item)) {
 			return 0;
 		}
 
-		if ($item['verb'] == Activity::FOLLOW) {
-			if (!$item['origin'] && ($item['author-id'] == Contact::getPublicIdByUserId($uid))) {
-				// Our own follow request can be relayed to us. We don't store it to avoid notification chaos.
-				Logger::log("Follow: Don't store not origin follow request from us for " . $item['parent-uri'], Logger::DEBUG);
-				return 0;
-			}
-
-			$condition = ['verb' => Activity::FOLLOW, 'uid' => $item['uid'],
-				'parent-uri' => $item['parent-uri'], 'author-id' => $item['author-id']];
-			if (self::exists($condition)) {
-				// It happens that we receive multiple follow requests by the same author - we only store one.
-				Logger::log('Follow: Found existing follow request from author ' . $item['author-id'] . ' for ' . $item['parent-uri'], Logger::DEBUG);
-				return 0;
-			}
-		}
-
-		// Check for hashtags in the body and repair or add hashtag links
-		self::setHashtags($item);
-
-		// Store tags from the body if this hadn't been handled previously in the protocol classes
-		if (!Tag::existsForPost($item['uri-id'])) {
-			Tag::storeFromBody($item['uri-id'], $item['body']);
-		}
-
+		// We don't store the causer, we only have it here for the checks in the function above
+		unset($item['causer-id']);
+		unset($item['causer-link']);
+		
 		$item['thr-parent'] = $item['parent-uri'];
 
-		$notify_type = Delivery::POST;
-		$allow_cid = '';
-		$allow_gid = '';
-		$deny_cid  = '';
-		$deny_gid  = '';
-
-		if ($item['parent-uri'] === $item['uri']) {
-			$parent_id = 0;
-			$parent_deleted = 0;
-			$allow_cid = $item['allow_cid'];
-			$allow_gid = $item['allow_gid'];
-			$deny_cid  = $item['deny_cid'];
-			$deny_gid  = $item['deny_gid'];
-		} else {
-			// find the parent and snarf the item id and ACLs
-			// and anything else we need to inherit
-
-			$fields = ['uri', 'parent-uri', 'id', 'deleted',
-				'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-				'wall', 'private', 'forum_mode', 'origin', 'author-id'];
-			$condition = ['uri' => $item['parent-uri'], 'uid' => $item['uid']];
-			$params = ['order' => ['id' => false]];
-			$parent = self::selectFirst($fields, $condition, $params);
-
-			if (DBA::isResult($parent)) {
-				// is the new message multi-level threaded?
-				// even though we don't support it now, preserve the info
-				// and re-attach to the conversation parent.
-
-				if ($parent['uri'] != $parent['parent-uri']) {
-					$item['parent-uri'] = $parent['parent-uri'];
-
-					$condition = ['uri' => $item['parent-uri'],
-						'parent-uri' => $item['parent-uri'],
-						'uid' => $item['uid']];
-					$params = ['order' => ['id' => false]];
-					$toplevel_parent = self::selectFirst($fields, $condition, $params);
-
-					if (DBA::isResult($toplevel_parent)) {
-						$parent = $toplevel_parent;
-					}
-				}
-
-				$parent_id      = $parent['id'];
-				$parent_deleted = $parent['deleted'];
-				$allow_cid      = $parent['allow_cid'];
-				$allow_gid      = $parent['allow_gid'];
-				$deny_cid       = $parent['deny_cid'];
-				$deny_gid       = $parent['deny_gid'];
-
-				// Don't federate received participation messages
-				if ($item['verb'] != Activity::FOLLOW) {
-					$item['wall'] = $parent['wall'];
-				} else {
-					$item['wall'] = false;
-				}
-
-				/*
-				 * If the parent is private, force privacy for the entire conversation
-				 * This differs from the above settings as it subtly allows comments from
-				 * email correspondents to be private even if the overall thread is not.
-				 */
-				if ($parent['private']) {
-					$item['private'] = $parent['private'];
-				}
-
-				/*
-				 * Edge case. We host a public forum that was originally posted to privately.
-				 * The original author commented, but as this is a comment, the permissions
-				 * weren't fixed up so it will still show the comment as private unless we fix it here.
-				 */
-				if ((intval($parent['forum_mode']) == 1) && ($parent['private'] != self::PUBLIC)) {
-					$item['private'] = self::PUBLIC;
-				}
-
-				// If its a post that originated here then tag the thread as "mention"
-				if ($item['origin'] && $item['uid']) {
-					DBA::update('thread', ['mention' => true], ['iid' => $parent_id]);
-					Logger::log('tagged thread ' . $parent_id . ' as mention for user ' . $item['uid'], Logger::DEBUG);
-				}
-
-				// Update the contact relations
-				if ($item['author-id'] != $parent['author-id']) {
-					DBA::update('contact-relation', ['last-interaction' => $item['created']], ['cid' => $parent['author-id'], 'relation-cid' => $item['author-id']], true);
-				}
-			} else {
-				/*
-				 * Allow one to see reply tweets from status.net even when
-				 * we don't have or can't see the original post.
-				 */
-				if ($force_parent) {
-					Logger::log('$force_parent=true, reply converted to top-level post.');
-					$parent_id = 0;
-					$item['parent-uri'] = $item['uri'];
-					$item['gravity'] = GRAVITY_PARENT;
-				} else {
-					Logger::log('item parent '.$item['parent-uri'].' for '.$item['uid'].' was not found - ignoring item');
-					return 0;
-				}
-
-				$parent_deleted = 0;
+		if ($item['parent-uri'] != $item['uri']) {
+			$item = self::getParentData($item);
+			if (empty($item)) {
+				return 0;
 			}
-		}
 
-		if (stristr($item['verb'], Activity::POKE)) {
-			$notify_type = Delivery::POKE;
+			$parent_id = $item['parent'];
+			unset($item['parent']);
+			$parent_origin = $item['parent_origin'];
+			unset($item['parent_origin']);
+		} else {
+			$parent_id = 0;
+			$parent_origin = $item['origin'];
 		}
 
 		$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);
 		$item['thr-parent-id'] = ItemURI::getIdByURI($item['thr-parent']);
-
-		$condition = ["`uri` = ? AND `network` IN (?, ?) AND `uid` = ?",
-			$item['uri'], $item['network'], Protocol::DFRN, $item['uid']];
-		if (self::exists($condition)) {
-			Logger::log('duplicated item with the same uri found. '.print_r($item,true));
-			return 0;
-		}
-
-		// On Friendica and Diaspora the GUID is unique
-		if (in_array($item['network'], [Protocol::DFRN, Protocol::DIASPORA])) {
-			$condition = ['guid' => $item['guid'], 'uid' => $item['uid']];
-			if (self::exists($condition)) {
-				Logger::log('duplicated item with the same guid found. '.print_r($item,true));
-				return 0;
-			}
-		} elseif ($item['network'] == Protocol::OSTATUS) {
-			// Check for an existing post with the same content. There seems to be a problem with OStatus.
-			$condition = ["`body` = ? AND `network` = ? AND `created` = ? AND `contact-id` = ? AND `uid` = ?",
-					$item['body'], $item['network'], $item['created'], $item['contact-id'], $item['uid']];
-			if (self::exists($condition)) {
-				Logger::log('duplicated item with the same body found. '.print_r($item,true));
-				return 0;
-			}
-		}
 
 		// Is this item available in the global items (with uid=0)?
 		if ($item["uid"] == 0) {
@@ -1773,21 +1773,9 @@ class Item
 		}
 
 		// ACL settings
-		if (strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid)) {
-			$private = self::PRIVATE;
-		} else {
-			$private = $item['private'];
+		if (!empty($item["allow_cid"] . $item["allow_gid"] . $item["deny_cid"] . $item["deny_gid"])) {
+			$item["private"] = self::PRIVATE;
 		}
-
-		$item["allow_cid"] = $allow_cid;
-		$item["allow_gid"] = $allow_gid;
-		$item["deny_cid"] = $deny_cid;
-		$item["deny_gid"] = $deny_gid;
-		$item["private"] = $private;
-		$item["deleted"] = $parent_deleted;
-
-		// Fill the cache field
-		self::putInCache($item);
 
 		if ($notify) {
 			$item['edit'] = false;
@@ -1799,34 +1787,13 @@ class Item
 			Hook::callAll('post_remote', $item);
 		}
 
-		// This array field is used to trigger some automatic reactions
-		// It is mainly used in the "post_local" hook.
-		unset($item['api_source']);
-
 		if (!empty($item['cancel'])) {
 			Logger::log('post cancelled by addon.');
 			return 0;
 		}
 
-		/*
-		 * Check for already added items.
-		 * There is a timing issue here that sometimes creates double postings.
-		 * An unique index would help - but the limitations of MySQL (maximum size of index values) prevent this.
-		 */
-		if ($item["uid"] == 0) {
-			if (self::exists(['uri' => trim($item['uri']), 'uid' => 0])) {
-				Logger::log('Global item already stored. URI: '.$item['uri'].' on network '.$item['network'], Logger::DEBUG);
-				return 0;
-			}
-		}
-
-		Logger::log('' . print_r($item,true), Logger::DATA);
-
-		if (array_key_exists('file', $item)) {
-			$files = $item['file'];
-			unset($item['file']);
-		} else {
-			$files = '';
+		if (empty($item['vid']) && !empty($item['verb'])) {
+			$item['vid'] = Verb::getID($item['verb']);
 		}
 
 		// Creates or assigns the permission set
@@ -1838,30 +1805,72 @@ class Item
 			$item['deny_gid']
 		);
 
-		$item['allow_cid'] = null;
-		$item['allow_gid'] = null;
-		$item['deny_cid'] = null;
-		$item['deny_gid'] = null;
+		unset($item['allow_cid']);
+		unset($item['allow_gid']);
+		unset($item['deny_cid']);
+		unset($item['deny_gid']);
+
+		// This array field is used to trigger some automatic reactions
+		// It is mainly used in the "post_local" hook.
+		unset($item['api_source']);
+
+		// Filling item related side tables
+		if (!empty($item['dsprsig'])) {
+			$dsprsig = json_decode(base64_decode($item['dsprsig']));
+
+			/*
+			 * Friendica servers lower than 3.4.3-2 had double encoded the signature ...
+			 * We can check for this condition when we decode and encode the stuff again.
+			 */
+			if (base64_encode(base64_decode(base64_decode($dsprsig->signature))) == base64_decode($dsprsig->signature)) {
+				$dsprsig->signature = base64_decode($dsprsig->signature);
+				Logger::log("Repaired double encoded signature from handle ".$dsprsig->signer, Logger::DEBUG);
+			}
+
+			if (!empty($dsprsig->signed_text) && empty($dsprsig->signature) && empty($dsprsig->signer)) {
+				DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $dsprsig->signed_text], true);
+			}
+		}
+
+		unset($item['dsprsig']);
+
+		if (!empty($item['diaspora_signed_text'])) {
+			DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $item['diaspora_signed_text']], true);
+		}
+
+		unset($item['diaspora_signed_text']);
+
+		if (array_key_exists('file', $item) && !empty($item['file'])) {
+			Category::storeTextByURIId($item['uri-id'], $item['uid'], $item['file']);
+		}
+
+		unset($item['file']);
+
+		$delivery_data = Post\DeliveryData::extractFields($item);
+		unset($item['postopts']);
+		unset($item['inform']);
+
+		// Check for hashtags in the body and repair or add hashtag links
+		self::setHashtags($item);
+
+		// Store tags from the body if this hadn't been handled previously in the protocol classes
+		if (!Tag::existsForPost($item['uri-id'])) {
+			Tag::storeFromBody($item['uri-id'], $item['body']);
+		}
+		
+		// Fill the cache field
+		self::putInCache($item);
+
+		if (stristr($item['verb'], Activity::POKE)) {
+			$notify_type = Delivery::POKE;
+		} else {
+			$notify_type = Delivery::POST;
+		}
 
 		// We are doing this outside of the transaction to avoid timing problems
 		if (!self::insertActivity($item)) {
 			self::insertContent($item);
 		}
-
-		$delivery_data = Post\DeliveryData::extractFields($item);
-
-		unset($item['postopts']);
-		unset($item['inform']);
-
-		// These fields aren't stored anymore in the item table, they are fetched upon request
-		unset($item['author-link']);
-		unset($item['author-name']);
-		unset($item['author-avatar']);
-		unset($item['author-network']);
-
-		unset($item['owner-link']);
-		unset($item['owner-name']);
-		unset($item['owner-avatar']);
 
 		$like_no_comment = DI::config()->get('system', 'like_no_comment');
 
@@ -1926,25 +1935,6 @@ class Item
 			DBA::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		}
 
-		if ($dsprsig) {
-			/*
-			 * Friendica servers lower than 3.4.3-2 had double encoded the signature ...
-			 * We can check for this condition when we decode and encode the stuff again.
-			 */
-			if (base64_encode(base64_decode(base64_decode($dsprsig->signature))) == base64_decode($dsprsig->signature)) {
-				$dsprsig->signature = base64_decode($dsprsig->signature);
-				Logger::log("Repaired double encoded signature from handle ".$dsprsig->signer, Logger::DEBUG);
-			}
-
-			if (!empty($dsprsig->signed_text) && empty($dsprsig->signature) && empty($dsprsig->signer)) {
-				DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $dsprsig->signed_text], true);
-			}
-		}
-
-		if (!empty($diaspora_signed_text)) {
-			DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $diaspora_signed_text], true);
-		}
-
 		if ($item['parent-uri'] === $item['uri']) {
 			self::addThread($current_post);
 		} else {
@@ -1956,14 +1946,6 @@ class Item
 		}
 
 		DBA::commit();
-
-		/*
-		 * Due to deadlock issues with the "term" table we are doing these steps after the commit.
-		 * This is not perfect - but a workable solution until we found the reason for the problem.
-		 */
-		if (!empty($files)) {
-			Category::storeTextByURIId($item['uri-id'], $item['uid'], $files);
-		}
 
 		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances
 		if (self::tagDeliver($item['uid'], $current_post)) {
@@ -1999,7 +1981,7 @@ class Item
 
 		check_user_notification($current_post);
 
-		$transmit = $notify || ($item['visible'] && ((!empty($parent) && $parent['origin']) || $item['origin']));
+		$transmit = $notify || ($item['visible'] && ($parent_origin || $item['origin']));
 
 		if ($transmit) {
 			$transmit_item = Item::selectFirst(['verb', 'origin'], ['id' => $item['id']]);
