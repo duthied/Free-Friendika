@@ -58,14 +58,12 @@ class Delivery
 		if ($cmd == self::MAIL) {
 			$target_item = DBA::selectFirst('mail', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
-				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::SUGGESTION) {
 			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
-				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
 			$uid = $target_item['uid'];
@@ -75,7 +73,6 @@ class Delivery
 		} else {
 			$item = Model\Item::selectFirst(['parent'], ['id' => $target_id]);
 			if (!DBA::isResult($item) || empty($item['parent'])) {
-				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
 			$parent_id = intval($item['parent']);
@@ -97,7 +94,6 @@ class Delivery
 
 			if (empty($target_item)) {
 				Logger::log('Item ' . $target_id . "wasn't found. Quitting here.");
-				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
 
