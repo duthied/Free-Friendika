@@ -2584,7 +2584,7 @@ class DFRN
 			// Turn this into a wall post.
 			$notify = Item::isRemoteSelf($importer, $item);
 
-			$posted_id = Item::insert($item, false, $notify);
+			$posted_id = Item::insert($item, $notify);
 
 			if ($notify) {
 				$posted_id = $notify;

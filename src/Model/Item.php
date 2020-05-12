@@ -36,13 +36,11 @@ use Friendica\Model\Post\Category;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
-use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
-use Friendica\Util\XML;
 use Friendica\Worker\Delivery;
 use Text_LanguageDetect;
 use Friendica\Repository\PermissionSet as RepPermissionSet;
@@ -1595,7 +1593,7 @@ class Item
 		return GRAVITY_UNKNOWN;   // Should not happen
 	}
 
-	public static function insert($item, $dummy = false, $notify = false, $dontcache = false)
+	public static function insert($item, $notify = false, $dontcache = false)
 	{
 		$orig_item = $item;
 
@@ -2277,7 +2275,7 @@ class Item
 			}
 		}
 
-		$distributed = self::insert($item, false, $notify, true);
+		$distributed = self::insert($item, $notify, true);
 
 		if (!$distributed) {
 			Logger::log("Distributed public item " . $itemid . " for user " . $uid . " wasn't stored", Logger::DEBUG);
@@ -2344,7 +2342,7 @@ class Item
 				$item['contact-id'] = $item['author-id'];
 			}
 
-			$public_shadow = self::insert($item, false, false, true);
+			$public_shadow = self::insert($item, false, true);
 
 			Logger::log("Stored public shadow for thread ".$itemid." under id ".$public_shadow, Logger::DEBUG);
 		}
@@ -2402,7 +2400,7 @@ class Item
 		unset($item['inform']);
 		$item['contact-id'] = Contact::getIdForURL($item['author-link']);
 
-		$public_shadow = self::insert($item, false, false, true);
+		$public_shadow = self::insert($item, false, true);
 
 		Logger::log("Stored public shadow for comment ".$item['uri']." under id ".$public_shadow, Logger::DEBUG);
 
@@ -2788,7 +2786,7 @@ class Item
 
 		if ($contact['network'] != Protocol::FEED) {
 			// Store the original post
-			$result = self::insert($datarray2, false, false);
+			$result = self::insert($datarray2);
 			Logger::log('remote-self post original item - Contact '.$contact['url'].' return '.$result.' Item '.print_r($datarray2, true), Logger::DEBUG);
 		} else {
 			$datarray["app"] = "Feed";
