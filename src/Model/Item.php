@@ -1331,7 +1331,13 @@ class Item
 		}
 	}
 
-	private static function isDuplicate($item)
+	/**
+	 * Check if the item array is a duplicate
+	 *
+	 * @param array $item
+	 * @return boolean is it a duplicate?
+	 */
+	private static function isDuplicate(array $item)
 	{
 		// Checking if there is already an item with the same guid
 		$condition = ['guid' => $item['guid'], 'network' => $item['network'], 'uid' => $item['uid']];
@@ -1381,7 +1387,13 @@ class Item
 		return false;
 	}
 
-	private static function validItem($item)
+	/**
+	 * Check if the item array is valid
+	 *
+	 * @param array $item
+	 * @return boolean item is valid
+	 */
+	private static function validItem(array $item)
 	{
 		// When there is no content then we don't post it
 		if ($item['body'].$item['title'] == '') {
@@ -1470,7 +1482,13 @@ class Item
 		return true;
 	}
 
-	private static function getDuplicateID($item)
+	/**
+	 * Return the id of the givven item array when it had been stored before
+	 *
+	 * @param array $item
+	 * @return integer item id
+	 */
+	private static function getDuplicateID(array $item)
 	{
 		if (empty($item['network']) || in_array($item['network'], Protocol::FEDERATED)) {
 			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
@@ -1495,7 +1513,13 @@ class Item
 		return 0;
 	}
 
-	private static function getParentData($item)
+	/**
+	 * Fetch parent data for the given item array
+	 *
+	 * @param array $item
+	 * @return array item array with parent data
+	 */
+	private static function getParentData(array $item)
 	{
 		// find the parent and snarf the item id and ACLs
 		// and anything else we need to inherit
@@ -1576,7 +1600,13 @@ class Item
 		return $item;
 	}
 
-	private static function getGravity($item)
+	/**
+	 * Get the gravity for the given item array
+	 *
+	 * @param array $item
+	 * @return integer gravity
+	 */
+	private static function getGravity(array $item)
 	{
 		$activity = DI::activity();
 
