@@ -1685,8 +1685,6 @@ class Item
 		$item['inform']        = trim($item['inform'] ?? '');
 		$item['file']          = trim($item['file'] ?? '');
 
-		self::addLanguageToItemArray($item);
-
 		// Items cannot be stored before they happen ...
 		if ($item['created'] > DateTimeFormat::utcNow()) {
 			$item['created'] = DateTimeFormat::utcNow();
@@ -1699,29 +1697,20 @@ class Item
 
 		$item['plink'] = ($item['plink'] ?? '') ?: DI::baseUrl() . '/display/' . urlencode($item['guid']);
 
+		$item['language'] = self::getLanguage($item);
+
 		$item['gravity'] = self::getGravity($item);
 
 		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 			'photo' => $item['author-avatar'], 'network' => $item['network']];
-
 		$item['author-id'] = ($item['author-id'] ?? 0) ?: Contact::getIdForURL($item['author-link'], 0, false, $default);
 
 		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
-
 		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, false, $default);
 
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
 		$item["contact-id"] = self::contactId($item);
-
-		if ($item['network'] == Protocol::PHANTOM) {
-			$item['network'] = Protocol::DFRN;
-			Logger::notice('Missing network, setting to {network}.', [
-				'uri' => $item["uri"],
-				'network' => $item['network'],
-				'callstack' => System::callstack()
-			]);
-		}
 
 		if (!self::validItem($item)) {
 			return 0;
@@ -1740,7 +1729,6 @@ class Item
 		unset($item['owner-link']);
 		unset($item['owner-name']);
 		unset($item['owner-avatar']);
-
 
 		$item['thr-parent'] = $item['parent-uri'];
 
@@ -1814,34 +1802,9 @@ class Item
 		// It is mainly used in the "post_local" hook.
 		unset($item['api_source']);
 
-		// Filling item related side tables
-
-		// Diaspora signature
-		if (!empty($item['diaspora_signed_text'])) {
-			DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $item['diaspora_signed_text']], true);
-		}
-
-		unset($item['diaspora_signed_text']);
-
-		// Attached file links
-		if (array_key_exists('file', $item) && !empty($item['file'])) {
-			Category::storeTextByURIId($item['uri-id'], $item['uid'], $item['file']);
-		}
-
-		unset($item['file']);
-
-		// Delivery relevant data
-		$delivery_data = Post\DeliveryData::extractFields($item);
-		unset($item['postopts']);
-		unset($item['inform']);
 
 		// Check for hashtags in the body and repair or add hashtag links
 		self::setHashtags($item);
-
-		// Store tags from the body if this hadn't been handled previously in the protocol classes
-		if (!Tag::existsForPost($item['uri-id'])) {
-			Tag::storeFromBody($item['uri-id'], $item['body']);
-		}
 		
 		// Fill the cache field
 		self::putInCache($item);
@@ -1852,6 +1815,8 @@ class Item
 			$notify_type = Delivery::POST;
 		}
 
+		$body = $item['body'];
+		
 		// We are doing this outside of the transaction to avoid timing problems
 		if (!self::insertActivity($item)) {
 			self::insertContent($item);
@@ -1860,6 +1825,37 @@ class Item
 		$like_no_comment = DI::config()->get('system', 'like_no_comment');
 
 		DBA::transaction();
+
+		// Filling item related side tables
+
+		// Diaspora signature
+		if (!empty($item['diaspora_signed_text'])) {
+			DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $item['diaspora_signed_text']], true);
+		}
+
+		unset($item['diaspora_signed_text']);
+
+		// Attached file links
+		if (!empty($item['file'])) {
+			Category::storeTextByURIId($item['uri-id'], $item['uid'], $item['file']);
+		}
+
+		unset($item['file']);
+
+		// Delivery relevant data
+		$delivery_data = Post\DeliveryData::extractFields($item);
+		unset($item['postopts']);
+		unset($item['inform']);
+
+		if (!empty($item['origin']) || !empty($item['wall']) || !empty($delivery_data['postopts']) || !empty($delivery_data['inform'])) {
+			Post\DeliveryData::insert($item['uri-id'], $delivery_data);
+		}
+
+		// Store tags from the body if this hadn't been handled previously in the protocol classes
+		if (!Tag::existsForPost($item['uri-id'])) {
+			Tag::storeFromBody($item['uri-id'], $body);
+		}
+		
 		$ret = DBA::insert('item', $item);
 
 		// When the item was successfully stored we fetch the ID of the item.
@@ -1925,11 +1921,6 @@ class Item
 		} else {
 			self::updateThread($parent_id);
 		}
-
-		if (!empty($item['origin']) || !empty($item['wall']) || !empty($delivery_data['postopts']) || !empty($delivery_data['inform'])) {
-			Post\DeliveryData::insert($item['uri-id'], $delivery_data);
-		}
-
 		DBA::commit();
 
 		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances
@@ -2402,20 +2393,22 @@ class Item
 	 * Adds a language specification in a "language" element of given $arr.
 	 * Expects "body" element to exist in $arr.
 	 *
-	 * @param $item
+	 * @param array $item
+	 * @return string detected language
 	 * @throws \Text_LanguageDetect_Exception
 	 */
-	private static function addLanguageToItemArray(&$item)
+	private static function getLanguage(array $item)
 	{
 		$naked_body = BBCode::toPlaintext($item['body'], false);
 
 		$ld = new Text_LanguageDetect();
 		$ld->setNameMode(2);
 		$languages = $ld->detect($naked_body, 3);
-
 		if (is_array($languages)) {
-			$item['language'] = json_encode($languages);
+			return json_encode($languages);
 		}
+
+		return '';
 	}
 
 	/**
