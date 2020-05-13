@@ -1454,7 +1454,7 @@ class Item
 		if ($item['verb'] == Activity::FOLLOW) {
 			if (!$item['origin'] && ($item['author-id'] == Contact::getPublicIdByUserId($item['uid']))) {
 				// Our own follow request can be relayed to us. We don't store it to avoid notification chaos.
-				Logger::log("Follow: Don't store not origin follow request from us for " . $item['parent-uri'], Logger::DEBUG);
+				Logger::info("Follow: Don't store not origin follow request", ['parent-uri' => $item['parent-uri']]);
 				return false;
 			}
 
@@ -1462,7 +1462,7 @@ class Item
 				'parent-uri' => $item['parent-uri'], 'author-id' => $item['author-id']];
 			if (self::exists($condition)) {
 				// It happens that we receive multiple follow requests by the same author - we only store one.
-				Logger::log('Follow: Found existing follow request from author ' . $item['author-id'] . ' for ' . $item['parent-uri'], Logger::DEBUG);
+				Logger::info('Follow: Found existing follow request from author', ['author-id' => $item['author-id'], 'parent-uri' => $item['parent-uri']]);
 				return false;
 			}
 		}
@@ -1706,19 +1706,10 @@ class Item
 
 		$item['author-id'] = ($item['author-id'] ?? 0) ?: Contact::getIdForURL($item['author-link'], 0, false, $default);
 
-		unset($item['author-link']);
-		unset($item['author-name']);
-		unset($item['author-avatar']);
-		unset($item['author-network']);
-
 		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 
 		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, false, $default);
-
-		unset($item['owner-link']);
-		unset($item['owner-name']);
-		unset($item['owner-avatar']);
 
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
 		$item["contact-id"] = self::contactId($item);
@@ -1739,7 +1730,18 @@ class Item
 		// We don't store the causer, we only have it here for the checks in the function above
 		unset($item['causer-id']);
 		unset($item['causer-link']);
-		
+
+		// We don't store these fields anymore in the item table
+		unset($item['author-link']);
+		unset($item['author-name']);
+		unset($item['author-avatar']);
+		unset($item['author-network']);
+
+		unset($item['owner-link']);
+		unset($item['owner-name']);
+		unset($item['owner-avatar']);
+
+
 		$item['thr-parent'] = $item['parent-uri'];
 
 		if ($item['parent-uri'] != $item['uri']) {
@@ -1813,37 +1815,22 @@ class Item
 		unset($item['api_source']);
 
 		// Filling item related side tables
-		if (!empty($item['dsprsig'])) {
-			$dsprsig = json_decode(base64_decode($item['dsprsig']));
 
-			/*
-			 * Friendica servers lower than 3.4.3-2 had double encoded the signature ...
-			 * We can check for this condition when we decode and encode the stuff again.
-			 */
-			if (base64_encode(base64_decode(base64_decode($dsprsig->signature))) == base64_decode($dsprsig->signature)) {
-				$dsprsig->signature = base64_decode($dsprsig->signature);
-				Logger::log("Repaired double encoded signature from handle ".$dsprsig->signer, Logger::DEBUG);
-			}
-
-			if (!empty($dsprsig->signed_text) && empty($dsprsig->signature) && empty($dsprsig->signer)) {
-				DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $dsprsig->signed_text], true);
-			}
-		}
-
-		unset($item['dsprsig']);
-
+		// Diaspora signature
 		if (!empty($item['diaspora_signed_text'])) {
 			DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $item['diaspora_signed_text']], true);
 		}
 
 		unset($item['diaspora_signed_text']);
 
+		// Attached file links
 		if (array_key_exists('file', $item) && !empty($item['file'])) {
 			Category::storeTextByURIId($item['uri-id'], $item['uid'], $item['file']);
 		}
 
 		unset($item['file']);
 
+		// Delivery relevant data
 		$delivery_data = Post\DeliveryData::extractFields($item);
 		unset($item['postopts']);
 		unset($item['inform']);
