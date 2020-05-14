@@ -1379,7 +1379,7 @@ class Item
 		 * There is a timing issue here that sometimes creates double postings.
 		 * An unique index would help - but the limitations of MySQL (maximum size of index values) prevent this.
 		 */
-		if (($item["uid"] == 0) && self::exists(['uri' => trim($item['uri']), 'uid' => 0])) {
+		if (($item['uid'] == 0) && self::exists(['uri' => trim($item['uri']), 'uid' => 0])) {
 			Logger::notice('Global item already stored.', ['uri' => $item['uri'], 'network' => $item['network']]);
 			return true;
 		}
@@ -1393,7 +1393,7 @@ class Item
 	 * @param array $item
 	 * @return boolean item is valid
 	 */
-	private static function validItem(array $item)
+	private static function isValid(array $item)
 	{
 		// When there is no content then we don't post it
 		if ($item['body'].$item['title'] == '') {
@@ -1483,7 +1483,7 @@ class Item
 	}
 
 	/**
-	 * Return the id of the givven item array when it had been stored before
+	 * Return the id of the given item array if it has been stored before
 	 *
 	 * @param array $item
 	 * @return integer item id
@@ -1742,7 +1742,7 @@ class Item
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
 		$item["contact-id"] = self::contactId($item);
 
-		if (!self::validItem($item)) {
+		if (!self::isValid($item)) {
 			return 0;
 		}
 
