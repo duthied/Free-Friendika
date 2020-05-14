@@ -274,7 +274,7 @@ class Receiver
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
 
 			// An Undo is done on the object of an object, so we need that type as well
-			if ($type == 'as:Undo') {
+			if (($type == 'as:Undo') && !empty($object_data['object_object'])) {
 				$object_data['object_object_type'] = self::fetchObjectType([], $object_data['object_object'], $uid);
 			}
 		}
