@@ -26,6 +26,7 @@ use Friendica\Content\Text;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Tag;
 use Friendica\Util\XML;
 
 /**
@@ -101,10 +102,9 @@ class Babel extends BaseModule
 						'content' => visible_whitespace($bbcode4)
 					];
 
-					$item = [
-						'body' => $bbcode,
-						'tag'  => '',
-					];
+					$item = ['body' => $bbcode];
+
+					$tags = Text\BBCode::getTags($bbcode);
 
 					Item::setHashtags($item);
 					$results[] = [
@@ -113,7 +113,7 @@ class Babel extends BaseModule
 					];
 					$results[] = [
 						'title'   => DI::l10n()->t('Item Tags'),
-						'content' => $item['tag']
+						'content' => visible_whitespace(var_export($tags, true)),
 					];
 					break;
 				case 'diaspora':
