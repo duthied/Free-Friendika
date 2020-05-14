@@ -366,12 +366,14 @@ class Tag
 	 * Return a string with all tags and mentions
 	 *
 	 * @param integer $uri_id
+	 * @param array   $type
 	 * @return string tags and mentions
+	 * @throws \Exception
 	 */
-	public static function getCSVByURIId(int $uri_id)
+	public static function getCSVByURIId(int $uri_id, array $type = [self::HASHTAG, self::MENTION, self::IMPLICIT_MENTION, self::EXCLUSIVE_MENTION])
 	{
 		$tag_list = [];
-		$tags = self::getByURIId($uri_id);
+		$tags = self::getByURIId($uri_id, $type);
 		foreach ($tags as $tag) {
 			$tag_list[] = self::TAG_CHARACTER[$tag['type']] . '[url=' . $tag['url'] . ']' . $tag['name'] . '[/url]';
 		}
