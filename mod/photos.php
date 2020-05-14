@@ -509,9 +509,9 @@ function photos_post(App $a)
 
 						if ($profile) {
 							if (!empty($contact)) {
-								$taginfo[] = [$newname, $profile, $notify, $contact, '@[url=' . str_replace(',', '%2c', $profile) . ']' . $newname . '[/url]'];
+								$taginfo[] = [$newname, $profile, $notify, $contact];
 							} else {
-								$taginfo[] = [$newname, $profile, $notify, null, '@[url=' . $profile . ']' . $newname . '[/url]'];
+								$taginfo[] = [$newname, $profile, $notify, null];
 							}
 
 							$profile = str_replace(',', '%2c', $profile);
@@ -579,7 +579,6 @@ function photos_post(App $a)
 					$arr['gravity']       = GRAVITY_PARENT;
 					$arr['object-type']   = Activity\ObjectType::PERSON;
 					$arr['target-type']   = Activity\ObjectType::IMAGE;
-					$arr['tag']           = $tagged[4];
 					$arr['inform']        = $tagged[2];
 					$arr['origin']        = 1;
 					$arr['body']          = DI::l10n()->t('%1$s was tagged in %2$s by %3$s', '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . ']' . DI::l10n()->t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
