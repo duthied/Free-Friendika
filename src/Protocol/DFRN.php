@@ -2384,7 +2384,11 @@ class DFRN
 		// We store the data from "dfrn:diaspora_signature" in a different table, this is done in "Item::insert"
 		$dsprsig = XML::unescape(XML::getFirstNodeValue($xpath, "dfrn:diaspora_signature/text()", $entry));
 		if ($dsprsig != "") {
-			$item["dsprsig"] = $dsprsig;
+			$signature = json_decode(base64_decode($dsprsig));
+			// We don't store the old style signatures anymore that also contained the "signature" and "signer"
+			if (!empty($signature->signed_text) && empty($signature->signature) && empty($signature->signer)) {
+				$item["diaspora_signed_text"] = $signature->signed_text;
+			}
 		}
 
 		$item["verb"] = XML::getFirstNodeValue($xpath, "activity:verb/text()", $entry);
@@ -2584,7 +2588,7 @@ class DFRN
 			// Turn this into a wall post.
 			$notify = Item::isRemoteSelf($importer, $item);
 
-			$posted_id = Item::insert($item, false, $notify);
+			$posted_id = Item::insert($item, $notify);
 
 			if ($notify) {
 				$posted_id = $notify;

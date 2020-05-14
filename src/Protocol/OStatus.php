@@ -1001,7 +1001,7 @@ class OStatus
 
 		// Even more worse workaround for GNU Social ;-)
 		if ($xml == '') {
-			$related_guess = OStatus::convertHref($related_uri);
+			$related_guess = self::convertHref($related_uri);
 			$curlResult = Network::curl(str_replace('/notice/', '/api/statuses/show/', $related_guess).'.atom');
 
 			if ($curlResult->isSuccess()) {
@@ -1175,7 +1175,7 @@ class OStatus
 	 *
 	 * @return string URL in the format http(s)://....
 	 */
-	public static function convertHref($href)
+	private static function convertHref($href)
 	{
 		$elements = explode(":", $href);
 

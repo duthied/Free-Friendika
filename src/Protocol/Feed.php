@@ -511,7 +511,7 @@ class Feed {
 					$notify = PRIORITY_MEDIUM;
 				}
 
-				$id = Item::insert($item, false, $notify);
+				$id = Item::insert($item, $notify);
 
 				Logger::info("Feed for contact " . $contact["url"] . " stored under id " . $id);
 
