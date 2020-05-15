@@ -71,7 +71,7 @@ trait DatabaseTestTrait
 			}
 
 			foreach ($rows as $row) {
-				$dba->insert($tableName, $row, true);
+				$dba->insert($tableName, $row);
 			}
 		}
 	}
