@@ -70,7 +70,7 @@ class ApiTest extends DatabaseTest
 		/** @var Database $dba */
 		$dba = $this->dice->create(Database::class);
 
-		// test $dba->setTestmode(true);
+		$dba->setTestmode(true);
 
 		DBStructure::checkInitialValues();
 
