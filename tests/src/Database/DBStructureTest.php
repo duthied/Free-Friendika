@@ -75,10 +75,10 @@ class DBStructureTest extends DatabaseTest
 	 * @small
 	 */
 	public function testChangePrimaryKey() {
-		$oldID = 'client_id';
+		$oldID = 'id';
 		$newID = 'pw';
 
-		$this->assertTrue(DBStructure::rename('clients', [ $newID ], DBStructure::RENAME_PRIMARY_KEY));
-		$this->assertTrue(DBStructure::rename('clients', [ $oldID ], DBStructure::RENAME_PRIMARY_KEY));
+		$this->assertTrue(DBStructure::rename('workerqueue', [ $newID ], DBStructure::RENAME_PRIMARY_KEY));
+		$this->assertTrue(DBStructure::rename('workerqueue', [ $oldID ], DBStructure::RENAME_PRIMARY_KEY));
 	}
 }
