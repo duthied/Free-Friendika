@@ -720,8 +720,7 @@ function item_post(App $a) {
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
-
-		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item wasn\'t stored.'));
+		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item wasn\'t stored. Last database error: %d %s', DBA::errorNo(), dba::errorMessage()));
 	}
 
 	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
