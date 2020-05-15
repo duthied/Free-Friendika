@@ -71,6 +71,8 @@ class ApiTest extends DatabaseTest
 		/** @var Database $dba */
 		$dba = $this->dice->create(Database::class);
 
+		$dba->setTestmode(true);
+
 		/** @var IConfig $config */
 		$this->config = $this->dice->create(IConfig::class);
 

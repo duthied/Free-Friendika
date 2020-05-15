@@ -21,8 +21,10 @@
 
 namespace Friendica\Database;
 
+use Exception;
 use Friendica\Core\Config\Cache;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -63,6 +65,7 @@ class Database
 	private $affected_rows  = 0;
 	protected $in_transaction = false;
 	protected $in_retrial     = false;
+	protected $testmode       = false;
 	private $relation       = [];
 
 	public function __construct(Cache $configCache, Profiler $profiler, LoggerInterface $logger, array $server = [])
@@ -181,6 +184,10 @@ class Database
 		return $this->connected;
 	}
 
+	public function setTestmode(bool $test)
+	{
+		$this->testmode = $test;
+	}
 	/**
 	 * Sets the logger for DBA
 	 *
@@ -629,6 +636,10 @@ class Database
 			// We have to preserve the error code, somewhere in the logging it get lost
 			$error   = $this->error;
 			$errorno = $this->errorno;
+
+			if ($this->testmode) {
+				throw new Exception(DI::l10n()->t('Database error %d "%s" at "%s"', $errorno, $error, $this->replaceParameters($sql, $args)));
+			}
 
 			$this->logger->error('DB Error', [
 				'code'      => $this->errorno,
