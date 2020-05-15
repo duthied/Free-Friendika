@@ -58,6 +58,158 @@ if (!defined('DB_UPDATE_VERSION')) {
 }
 
 return [
+	// Side tables
+	"clients" => [
+		"comment" => "OAuth usage",
+		"fields" => [
+			"client_id" => ["type" => "varchar(20)", "not null" => "1", "primary" => "1", "comment" => ""],
+			"pw" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""],
+			"redirect_uri" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
+			"name" => ["type" => "text", "comment" => ""],
+			"icon" => ["type" => "text", "comment" => ""],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["client_id"],
+		]
+	],
+	"contact" => [
+		"comment" => "contact table",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner User id"],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"updated" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Date of last contact update"],
+			"self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 if the contact is the user him/her self"],
+			"remote_self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"rel" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "The kind of the relation between the user and the contact"],
+			"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Network of the contact"],
+			"protocol" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Protocol of the contact"],
+			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Name that this contact is known by"],
+			"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Nick- and user name of the contact"],
+			"location" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
+			"about" => ["type" => "text", "comment" => ""],
+			"keywords" => ["type" => "text", "comment" => "public keywords (interests) of the contact"],
+			"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Deprecated"],
+			"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"attag" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"photo" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo of the contact"],
+			"thumb" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo (thumb size)"],
+			"micro" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo (micro size)"],
+			"site-pubkey" => ["type" => "text", "comment" => ""],
+			"issued-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"pubkey" => ["type" => "text", "comment" => "RSA public key 4096 bit"],
+			"prvkey" => ["type" => "text", "comment" => "RSA private key 4096 bit"],
+			"batch" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"request" => ["type" => "varchar(255)", "comment" => ""],
+			"notify" => ["type" => "varchar(255)", "comment" => ""],
+			"poll" => ["type" => "varchar(255)", "comment" => ""],
+			"confirm" => ["type" => "varchar(255)", "comment" => ""],
+			"poco" => ["type" => "varchar(255)", "comment" => ""],
+			"aes_allow" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"ret-aes" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"usehub" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"subhub" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"hub-verify" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"last-update" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last try to update the contact info"],
+			"success_update" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last successful contact update"],
+			"failure_update" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last failed update"],
+			"name-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"uri-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"avatar-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"term-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"last-item" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "date of the last post"],
+			"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "Node-wide block status"],
+			"block_reason" => ["type" => "text", "comment" => "Node-wide block reason"],
+			"readonly" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "posts of the contact are readonly"],
+			"writable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"forum" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "contact is a forum"],
+			"prv" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "contact is a private group"],
+			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"archive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"pending" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
+			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact has been deleted"],
+			"rating" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+			"unsearchable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact prefers to not be searchable"],
+			"sensitive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact posts sensitive content"],
+			"baseurl" => ["type" => "varchar(255)", "default" => "", "comment" => "baseurl of the contact"],
+			"reason" => ["type" => "text", "comment" => ""],
+			"closeness" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "99", "comment" => ""],
+			"info" => ["type" => "mediumtext", "comment" => ""],
+			"profile-id" => ["type" => "int unsigned", "comment" => "Deprecated"],
+			"bdyear" => ["type" => "varchar(4)", "not null" => "1", "default" => "", "comment" => ""],
+			"bd" => ["type" => "date", "not null" => "1", "default" => DBA::NULL_DATE, "comment" => ""],
+			"notify_new_posts" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"fetch_further_information" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"ffi_keyword_blacklist" => ["type" => "text", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uid_name" => ["uid", "name(190)"],
+			"self_uid" => ["self", "uid"],
+			"alias_uid" => ["alias(32)", "uid"],
+			"pending_uid" => ["pending", "uid"],
+			"blocked_uid" => ["blocked", "uid"],
+			"uid_rel_network_poll" => ["uid", "rel", "network", "poll(64)", "archive"],
+			"uid_network_batch" => ["uid", "network", "batch(64)"],
+			"addr_uid" => ["addr(32)", "uid"],
+			"nurl_uid" => ["nurl(32)", "uid"],
+			"nick_uid" => ["nick(32)", "uid"],
+			"dfrn-id" => ["dfrn-id(64)"],
+			"issued-id" => ["issued-id(64)"],
+		]
+	],
+	"item-uri" => [
+		"comment" => "URI and GUID for items",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
+			"uri" => ["type" => "varbinary(255)", "not null" => "1", "comment" => "URI of an item"],
+			"guid" => ["type" => "varbinary(255)", "comment" => "A unique identifier for an item"]
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uri" => ["UNIQUE", "uri"],
+			"guid" => ["guid"]
+		]
+	],
+	"permissionset" => [
+		"comment" => "",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner id of this permission set"],
+			"allow_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
+			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
+			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
+			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uid_allow_cid_allow_gid_deny_cid_deny_gid" => ["allow_cid(50)", "allow_gid(30)", "deny_cid(50)", "deny_gid(30)"],
+		]
+	],
+	"tag" => [
+		"comment" => "tags and mentions",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+			"name" => ["type" => "varchar(96)", "not null" => "1", "default" => "", "comment" => ""],
+			"url" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""]
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"type_name_url" => ["UNIQUE", "name", "url"],
+			"url" => ["url"]
+		]
+	],
+	// Main tables
 	"2fa_app_specific_password" => [
 		"comment" => "Two-factor app-specific _password",
 		"fields" => [
@@ -199,20 +351,6 @@ return [
 			"PRIMARY" => ["id"],
 		]
 	],
-	"clients" => [
-		"comment" => "OAuth usage",
-		"fields" => [
-			"client_id" => ["type" => "varchar(20)", "not null" => "1", "primary" => "1", "comment" => ""],
-			"pw" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""],
-			"redirect_uri" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
-			"name" => ["type" => "text", "comment" => ""],
-			"icon" => ["type" => "text", "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["client_id"],
-		]
-	],
 	"config" => [
 		"comment" => "main configuration storage",
 		"fields" => [
@@ -224,101 +362,6 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"cat_k" => ["UNIQUE", "cat", "k"],
-		]
-	],
-	"contact" => [
-		"comment" => "contact table",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner User id"],
-			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"updated" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Date of last contact update"],
-			"self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 if the contact is the user him/her self"],
-			"remote_self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"rel" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "The kind of the relation between the user and the contact"],
-			"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Network of the contact"],
-			"protocol" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Protocol of the contact"],
-			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Name that this contact is known by"],
-			"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Nick- and user name of the contact"],
-			"location" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
-			"about" => ["type" => "text", "comment" => ""],
-			"keywords" => ["type" => "text", "comment" => "public keywords (interests) of the contact"],
-			"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Deprecated"],
-			"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"attag" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"photo" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo of the contact"],
-			"thumb" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo (thumb size)"],
-			"micro" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo (micro size)"],
-			"site-pubkey" => ["type" => "text", "comment" => ""],
-			"issued-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"pubkey" => ["type" => "text", "comment" => "RSA public key 4096 bit"],
-			"prvkey" => ["type" => "text", "comment" => "RSA private key 4096 bit"],
-			"batch" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"request" => ["type" => "varchar(255)", "comment" => ""],
-			"notify" => ["type" => "varchar(255)", "comment" => ""],
-			"poll" => ["type" => "varchar(255)", "comment" => ""],
-			"confirm" => ["type" => "varchar(255)", "comment" => ""],
-			"poco" => ["type" => "varchar(255)", "comment" => ""],
-			"aes_allow" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"ret-aes" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"usehub" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"subhub" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"hub-verify" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"last-update" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last try to update the contact info"],
-			"success_update" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last successful contact update"],
-			"failure_update" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last failed update"],
-			"name-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"uri-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"avatar-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"term-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"last-item" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "date of the last post"],
-			"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "Node-wide block status"],
-			"block_reason" => ["type" => "text", "comment" => "Node-wide block reason"],
-			"readonly" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "posts of the contact are readonly"],
-			"writable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"forum" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "contact is a forum"],
-			"prv" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "contact is a private group"],
-			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
-			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"archive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"pending" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
-			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact has been deleted"],
-			"rating" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
-			"unsearchable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact prefers to not be searchable"],
-			"sensitive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact posts sensitive content"],
-			"baseurl" => ["type" => "varchar(255)", "default" => "", "comment" => "baseurl of the contact"],
-			"reason" => ["type" => "text", "comment" => ""],
-			"closeness" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "99", "comment" => ""],
-			"info" => ["type" => "mediumtext", "comment" => ""],
-			"profile-id" => ["type" => "int unsigned", "comment" => "Deprecated"],
-			"bdyear" => ["type" => "varchar(4)", "not null" => "1", "default" => "", "comment" => ""],
-			"bd" => ["type" => "date", "not null" => "1", "default" => DBA::NULL_DATE, "comment" => ""],
-			"notify_new_posts" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"fetch_further_information" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"ffi_keyword_blacklist" => ["type" => "text", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"uid_name" => ["uid", "name(190)"],
-			"self_uid" => ["self", "uid"],
-			"alias_uid" => ["alias(32)", "uid"],
-			"pending_uid" => ["pending", "uid"],
-			"blocked_uid" => ["blocked", "uid"],
-			"uid_rel_network_poll" => ["uid", "rel", "network", "poll(64)", "archive"],
-			"uid_network_batch" => ["uid", "network", "batch(64)"],
-			"addr_uid" => ["addr(32)", "uid"],
-			"nurl_uid" => ["nurl(32)", "uid"],
-			"nick_uid" => ["nick(32)", "uid"],
-			"dfrn-id" => ["dfrn-id(64)"],
-			"issued-id" => ["issued-id(64)"],
 		]
 	],
 	"contact-relation" => [
@@ -811,19 +854,6 @@ return [
 			"uri-id" => ["uri-id"]
 		]
 	],
-	"item-uri" => [
-		"comment" => "URI and GUID for items",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
-			"uri" => ["type" => "varbinary(255)", "not null" => "1", "comment" => "URI of an item"],
-			"guid" => ["type" => "varbinary(255)", "comment" => "A unique identifier for an item"]
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"uri" => ["UNIQUE", "uri"],
-			"guid" => ["guid"]
-		]
-	],
 	"locks" => [
 		"comment" => "",
 		"fields" => [
@@ -1015,21 +1045,6 @@ return [
 			"uid_cat_k" => ["UNIQUE", "uid", "cat", "k"],
 		]
 	],
-	"permissionset" => [
-		"comment" => "",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner id of this permission set"],
-			"allow_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
-			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"uid_allow_cid_allow_gid_deny_cid_deny_gid" => ["allow_cid(50)", "allow_gid(30)", "deny_cid(50)", "deny_gid(30)"],
-		]
-	],
 	"photo" => [
 		"comment" => "photo storage",
 		"fields" => [
@@ -1101,6 +1116,52 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"poll_id" => ["poll_id"],
+		]
+	],
+	"post-category" => [
+		"comment" => "post relation to categories",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
+			"tid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["tag" => "id", "on delete" => "restrict"], "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id", "uid", "type", "tid"],
+			"uri-id" => ["tid"]
+		]
+	],
+	"post-delivery-data" => [
+		"comment" => "Delivery data for items",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"postopts" => ["type" => "text", "comment" => "External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery"],
+			"inform" => ["type" => "mediumtext", "comment" => "Additional receivers of the linked item"],
+			"queue_count" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Initial number of delivery recipients, used as item.delivery_queue_count"],
+			"queue_done" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries, used as item.delivery_queue_done"],
+			"queue_failed" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of unsuccessful deliveries, used as item.delivery_queue_failed"],
+			"activitypub" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via ActivityPub"],
+			"dfrn" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via DFRN"],
+			"legacy_dfrn" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via legacy DFRN"],
+			"diaspora" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via Diaspora"],
+			"ostatus" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via OStatus"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id"],
+		]
+	],
+	"post-tag" => [
+		"comment" => "post relation to tags",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
+			"tid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["tag" => "id", "on delete" => "restrict"], "comment" => ""],
+			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Contact id of the mentioned public contact"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id", "type", "tid", "cid"],
+			"tid" => ["tid"],
+			"cid" => ["cid"]
 		]
 	],
 	"process" => [
@@ -1260,63 +1321,14 @@ return [
 			"expire" => ["expire"],
 		]
 	],
-	"tag" => [
-		"comment" => "tags and mentions",
+	"storage" => [
+		"comment" => "Data stored by Database storage backend",
 		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-			"name" => ["type" => "varchar(96)", "not null" => "1", "default" => "", "comment" => ""],
-			"url" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""]
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented image data id"],
+			"data" => ["type" => "longblob", "not null" => "1", "comment" => "file data"]
 		],
 		"indexes" => [
-			"PRIMARY" => ["id"],
-			"type_name_url" => ["UNIQUE", "name", "url"],
-			"url" => ["url"]
-		]
-	],
-	"post-category" => [
-		"comment" => "post relation to categories",
-		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["user" => "uid"], "comment" => "User id"],
-			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
-			"tid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["tag" => "id", "on delete" => "restrict"], "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["uri-id", "uid", "type", "tid"],
-			"uri-id" => ["tid"]
-		]
-	],
-	"post-delivery-data" => [
-		"comment" => "Delivery data for items",
-		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"postopts" => ["type" => "text", "comment" => "External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery"],
-			"inform" => ["type" => "mediumtext", "comment" => "Additional receivers of the linked item"],
-			"queue_count" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Initial number of delivery recipients, used as item.delivery_queue_count"],
-			"queue_done" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries, used as item.delivery_queue_done"],
-			"queue_failed" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of unsuccessful deliveries, used as item.delivery_queue_failed"],
-			"activitypub" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via ActivityPub"],
-			"dfrn" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via DFRN"],
-			"legacy_dfrn" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via legacy DFRN"],
-			"diaspora" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via Diaspora"],
-			"ostatus" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries via OStatus"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["uri-id"],
-		]
-	],
-	"post-tag" => [
-		"comment" => "post relation to tags",
-		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
-			"tid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["tag" => "id", "on delete" => "restrict"], "comment" => ""],
-			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Contact id of the mentioned public contact"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["uri-id", "type", "tid", "cid"],
-			"tid" => ["tid"],
-			"cid" => ["cid"]
+			"PRIMARY" => ["id"]
 		]
 	],
 	"thread" => [
@@ -1518,15 +1530,4 @@ return [
 			"done_pid_priority_created" => ["done", "pid", "priority", "created"]
 		]
 	],
-	"storage" => [
-		"comment" => "Data stored by Database storage backend",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented image data id"],
-			"data" => ["type" => "longblob", "not null" => "1", "comment" => "file data"]
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"]
-		]
-	]
 ];
-
