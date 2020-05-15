@@ -227,31 +227,8 @@ class DBClean {
 			// The legacy functionality had been removed
 			DI::config()->set('system', 'finished-dbclean-6', true);
 		} elseif ($stage == 7) {
-			$last_id = DI::config()->get('system', 'dbclean-last-id-7', 0);
-
-			Logger::log("Deleting orphaned data from term table. Last ID: ".$last_id);
-			$r = DBA::p("SELECT `oid`, `tid` FROM `term`
-					WHERE NOT EXISTS (SELECT `id` FROM `item` WHERE `item`.`id` = `term`.`oid`) AND `tid` >= ?
-					ORDER BY `tid` LIMIT ?", $last_id, $limit);
-			$count = DBA::numRows($r);
-			if ($count > 0) {
-				Logger::log("found term orphans: ".$count);
-				while ($orphan = DBA::fetch($r)) {
-					$last_id = $orphan["tid"];
-					DBA::delete('term', ['oid' => $orphan["oid"]]);
-				}
-				Worker::add(PRIORITY_MEDIUM, 'DBClean', 7, $last_id);
-			} else {
-				Logger::log("No term orphans found");
-			}
-			DBA::close($r);
-			Logger::log("Done deleting ".$count." orphaned data from term table. Last ID: ".$last_id);
-
-			DI::config()->set('system', 'dbclean-last-id-7', $last_id);
-
-			if ($count < $limit) {
-				DI::config()->set('system', 'finished-dbclean-7', true);
-			}
+			// The legacy functionality had been removed
+			DI::config()->set('system', 'finished-dbclean-7', true);
 		} elseif ($stage == 8) {
 			if ($days <= 0) {
 				return;

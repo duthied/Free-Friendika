@@ -294,6 +294,10 @@ class DBStructure
 			DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
 		}
 
+		// ensure that all initial values exist. This test has to be done prior and after the structure check.
+		// Prior is needed if the specific tables already exists - after is needed when they had been created.
+		self::checkInitialValues();
+
 		$errors = '';
 
 		Logger::log('updating structure', Logger::DEBUG);
@@ -640,6 +644,8 @@ class DBStructure
 
 		View::create(false, $action);
 
+		self::checkInitialValues();
+
 		if ($action && !$install) {
 			DI::config()->set('system', 'maintenance', 0);
 			DI::config()->set('system', 'maintenance_reason', '');
@@ -975,5 +981,35 @@ class DBStructure
 	{
 		$stmtColumns = DBA::p("SHOW COLUMNS FROM `" . $table . "`");
 		return DBA::toArray($stmtColumns);
+	}
+
+	/**
+	 * Check if initial database values do exist - or create them
+	 */
+	public static function checkInitialValues()
+	{
+		if (self::existsTable('contact') && !DBA::exists('contact', ['id' => 0])) {
+			DBA::insert('contact', ['nurl' => '']);
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('contact', ['id' => 0], ['id' => $lastid]);
+			}		
+		}
+
+		if (self::existsTable('permissionset') && !DBA::exists('permissionset', ['id' => 0])) {
+			DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
+			}
+		}
+	
+		if (self::existsTable('tag') && !DBA::exists('tag', ['id' => 0])) {
+			DBA::insert('tag', ['name' => '']);
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('tag', ['id' => 0], ['id' => $lastid]);
+			}
+		}	
 	}
 }

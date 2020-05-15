@@ -12,9 +12,8 @@ use Friendica\Core\PConfig\IPConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session;
 use Friendica\Core\Session\ISession;
-use Friendica\Core\System;
 use Friendica\Database\Database;
-use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
@@ -70,6 +69,10 @@ class ApiTest extends DatabaseTest
 
 		/** @var Database $dba */
 		$dba = $this->dice->create(Database::class);
+
+		$dba->setTestmode(true);
+
+		DBStructure::checkInitialValues();
 
 		/** @var IConfig $config */
 		$this->config = $this->dice->create(IConfig::class);

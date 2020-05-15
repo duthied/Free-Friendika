@@ -1310,7 +1310,7 @@ api_register_func('api/media/metadata/create', 'api_media_metadata_create', true
 /**
  * @param string $type    Return format (atom, rss, xml, json)
  * @param int    $item_id
- * @return string
+ * @return array|string
  * @throws Exception
  */
 function api_status_show($type, $item_id)

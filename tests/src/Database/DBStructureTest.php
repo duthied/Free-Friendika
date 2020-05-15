@@ -75,6 +75,7 @@ class DBStructureTest extends DatabaseTest
 	 * @small
 	 */
 	public function testChangePrimaryKey() {
+		$this->markTestSkipped('rename primary key with autoincrement and foreign key support necessary first');
 		$oldID = 'client_id';
 		$newID = 'pw';
 
