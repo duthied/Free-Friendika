@@ -1661,6 +1661,18 @@ class Database
 	}
 
 	/**
+	 * Test if the given table exists
+	 *
+	 * @param string $table
+	 * @return bool
+	 */
+	public function tableExists(string $table)
+	{
+		return $this->exists(['information_schema' => 'tables'],
+			['table_name' => $table, 'table_schema' => $this->databaseName()]);
+	}
+
+	/**
 	 * Fetch a database variable
 	 *
 	 * @param string $name
