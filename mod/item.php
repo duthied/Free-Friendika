@@ -650,6 +650,7 @@ function item_post(App $a) {
 		// We set the datarray ID to -1 because in preview mode the dataray
 		// doesn't have an ID.
 		$datarray["id"] = -1;
+		$datarray["uri-id"] = -1;
 		$datarray["item_id"] = -1;
 		$datarray["author-network"] = Protocol::DFRN;
 
