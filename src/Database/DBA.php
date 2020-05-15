@@ -742,17 +742,6 @@ class DBA
 	}
 
 	/**
-	 * Test if the given table exists
-	 *
-	 * @param string $table
-	 * @return bool
-	 */
-	public static function tableExists(string $table)
-	{
-		return DI::dba()->tableExists($table);
-	}
-
-	/**
 	 * Fetch a database variable
 	 *
 	 * @param string $name

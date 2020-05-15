@@ -988,7 +988,7 @@ class DBStructure
 	 */
 	public static function checkInitialValues()
 	{
-		if (DBA::tableExists('contact') && !DBA::exists('contact', ['id' => 0])) {
+		if (self::existsTable('contact') && !DBA::exists('contact', ['id' => 0])) {
 			DBA::insert('contact', ['nurl' => '']);
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
@@ -996,7 +996,7 @@ class DBStructure
 			}		
 		}
 
-		if (DBA::tableExists('permissionset') && !DBA::exists('permissionset', ['id' => 0])) {
+		if (self::existsTable('permissionset') && !DBA::exists('permissionset', ['id' => 0])) {
 			DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
@@ -1004,7 +1004,7 @@ class DBStructure
 			}
 		}
 	
-		if (DBA::tableExists('tag') && !DBA::exists('tag', ['id' => 0])) {
+		if (self::existsTable('tag') && !DBA::exists('tag', ['id' => 0])) {
 			DBA::insert('tag', ['name' => '']);
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
