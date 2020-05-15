@@ -38,7 +38,7 @@ trait DatabaseTestTrait
 		// Start the first, outer transaction
 		StaticDatabase::getGlobConnection()->beginTransaction();
 
-		$this->dba->setTestmode(true);
+		StaticDatabase::setTestmode(true);
 
 		DBStructure::checkInitialValues();
 
