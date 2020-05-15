@@ -22,6 +22,7 @@
 namespace Friendica\Test\Util\Database;
 
 use Friendica\Database\Database;
+use Friendica\Database\DBStructure;
 use PDO;
 use PDOException;
 
@@ -56,6 +57,10 @@ class StaticDatabase extends Database
 		$this->driver = 'pdo';
 		$this->connection = self::$staticConnection;
 		$this->connected = true;
+
+		$this->setTestmode(true);
+
+		DBStructure::checkInitialValues();
 
 		return $this->connected;
 	}
