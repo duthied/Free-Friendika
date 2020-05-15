@@ -22,6 +22,7 @@
 namespace Friendica\Test;
 
 use Friendica\Database\Database;
+use Friendica\Database\DBStructure;
 use Friendica\Test\Util\Database\StaticDatabase;
 
 /**
@@ -36,6 +37,10 @@ trait DatabaseTestTrait
 		StaticDatabase::statRollback();
 		// Start the first, outer transaction
 		StaticDatabase::getGlobConnection()->beginTransaction();
+
+		$this->dba->setTestmode(true);
+
+		DBStructure::checkInitialValues();
 
 		parent::setUp();
 	}

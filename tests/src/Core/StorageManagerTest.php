@@ -34,6 +34,7 @@ use Friendica\Factory\ConfigFactory;
 use Friendica\Model\Config\Config;
 use Friendica\Model\Storage;
 use Friendica\Core\Session;
+use Friendica\Database\DBStructure;
 use Friendica\Test\DatabaseTest;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
@@ -73,6 +74,10 @@ class StorageManagerTest extends DatabaseTest
 		$configCache   = $configFactory->createCache($loader);
 
 		$this->dba = new StaticDatabase($configCache, $profiler, $this->logger);
+
+		$this->dba->setTestmode(true);
+
+		DBStructure::checkInitialValues();
 
 		$configModel  = new Config($this->dba);
 		$this->config = new PreloadConfig($configCache, $configModel);
