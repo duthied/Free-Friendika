@@ -57,8 +57,6 @@ class StaticDatabase extends Database
 		$this->connection = self::$staticConnection;
 		$this->connected = true;
 
-		$this->setTestmode(true);
-
 		return $this->connected;
 	}
 
