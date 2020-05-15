@@ -61,7 +61,7 @@ trait DatabaseTestTrait
 		$data = include $fixture;
 
 		foreach ($data as $tableName => $rows) {
-			if (!is_array($rows)) {
+			if (!is_array($rows) && !is_numeric($tableName)) {
 				$dba->p('TRUNCATE TABLE `' . $tableName . '``');
 				continue;
 			}
