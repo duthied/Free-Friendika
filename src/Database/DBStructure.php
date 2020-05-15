@@ -983,7 +983,10 @@ class DBStructure
 		return DBA::toArray($stmtColumns);
 	}
 
-	private static function checkInitialValues()
+	/**
+	 * Check if initial database values do exist - or create them
+	 */
+	public static function checkInitialValues()
 	{
 		if (DBA::tableExists('contact') && !DBA::exists('contact', ['id' => 0])) {
 			DBA::insert('contact', ['nurl' => '']);

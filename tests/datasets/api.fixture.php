@@ -58,10 +58,6 @@ return [
 	],
 	'contact' => [
 		[
-			'id'      => 0,
-			'uid'     => 0,
-		],
-		[
 			'id'      => 42,
 			'uid'     => 42,
 			'name'    => 'Self contact',
@@ -135,11 +131,6 @@ return [
 			'uri'  => '6',
 			'guid' => '6',
 		],
-	],
-	'permissionset' => [
-		[
-			'id' => 0,
-		]
 	],
 	'item'    => [
 		[
