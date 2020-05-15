@@ -77,8 +77,6 @@ class StorageManagerTest extends DatabaseTest
 
 		$this->dba->setTestmode(true);
 
-		DBStructure::checkInitialValues();
-
 		$configModel  = new Config($this->dba);
 		$this->config = new PreloadConfig($configCache, $configModel);
 
