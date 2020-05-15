@@ -740,6 +740,10 @@ class Database
 			$error   = $this->error;
 			$errorno = $this->errorno;
 
+			if ($this->testmode) {
+				throw new Exception(DI::l10n()->t('Database error %d "%s" at "%s"', $errorno, $error, $this->replaceParameters($sql, $params)));
+			}
+
 			$this->logger->error('DB Error', [
 				'code'      => $this->errorno,
 				'error'     => $this->error,
