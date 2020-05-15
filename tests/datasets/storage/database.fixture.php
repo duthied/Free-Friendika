@@ -48,7 +48,8 @@ return [
 //			'backend-class' => 'invalid!',
 //			'backend-ref'   => 'unimported',
 //			'data'          => '',
-//		],	],
+//		],
+	],
 	'storage' => [
 		[
 			'id'   => 1,
