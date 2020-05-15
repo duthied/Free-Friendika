@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1347
+-- DB_UPDATE_VERSION 1348
 -- ------------------------------------------
 
 
@@ -107,7 +107,9 @@ CREATE TABLE IF NOT EXISTS `auth_codes` (
 	`redirect_uri` varchar(200) NOT NULL DEFAULT '' COMMENT '',
 	`expires` int NOT NULL DEFAULT 0 COMMENT '',
 	`scope` varchar(250) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `client_id` (`client_id`),
+	CONSTRAINT `auth_codes-client_id-clients-client_id` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
 
 --
@@ -304,7 +306,8 @@ CREATE TABLE IF NOT EXISTS `conversation` (
 CREATE TABLE IF NOT EXISTS `diaspora-interaction` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`interaction` mediumtext COMMENT 'The Diaspora interaction',
-	 PRIMARY KEY(`uri-id`)
+	 PRIMARY KEY(`uri-id`),
+	CONSTRAINT `diaspora-interaction-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Signed Diaspora Interaction';
 
 --
@@ -668,7 +671,13 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `icid` (`icid`),
 	 INDEX `iaid` (`iaid`),
 	 INDEX `psid_wall` (`psid`,`wall`),
-	 INDEX `uri-id` (`uri-id`)
+	 INDEX `uri-id` (`uri-id`),
+	 INDEX `parent-uri-id` (`parent-uri-id`),
+	 INDEX `thr-parent-id` (`thr-parent-id`),
+	CONSTRAINT `item-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	CONSTRAINT `item-parent-uri-id-item-uri-id` FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	CONSTRAINT `item-thr-parent-id-item-uri-id` FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	CONSTRAINT `item-psid-permissionset-id` FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
 --
@@ -683,7 +692,8 @@ CREATE TABLE IF NOT EXISTS `item-activity` (
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-hash` (`uri-hash`),
 	 INDEX `uri` (`uri`(191)),
-	 INDEX `uri-id` (`uri-id`)
+	 INDEX `uri-id` (`uri-id`),
+	CONSTRAINT `item-activity-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activities for items';
 
 --
@@ -713,7 +723,8 @@ CREATE TABLE IF NOT EXISTS `item-content` (
 	 UNIQUE INDEX `uri-plink-hash` (`uri-plink-hash`),
 	 INDEX `uri` (`uri`(191)),
 	 INDEX `plink` (`plink`(191)),
-	 INDEX `uri-id` (`uri-id`)
+	 INDEX `uri-id` (`uri-id`),
+	CONSTRAINT `item-content-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --
@@ -839,7 +850,8 @@ CREATE TABLE IF NOT EXISTS `notify-threads` (
 	`master-parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
 	`parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`receiver-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `master-parent-uri-id` (`master-parent-uri-id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
@@ -1080,7 +1092,8 @@ CREATE TABLE IF NOT EXISTS `profile_field` (
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	 INDEX `order` (`order`),
-	 INDEX `psid` (`psid`)
+	 INDEX `psid` (`psid`),
+	CONSTRAINT `profile_field-psid-permissionset-id` FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Custom profile fields';
 
 --
@@ -1140,29 +1153,6 @@ CREATE TABLE IF NOT EXISTS `session` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='web session storage';
 
 --
--- TABLE term
---
-CREATE TABLE IF NOT EXISTS `term` (
-	`tid` int unsigned NOT NULL auto_increment COMMENT '',
-	`oid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`otype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`term` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`guid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	 PRIMARY KEY(`tid`),
-	 INDEX `term_type` (`term`(64),`type`),
-	 INDEX `oid_otype_type_term` (`oid`,`otype`,`type`,`term`(32)),
-	 INDEX `uid_otype_type_term_global_created` (`uid`,`otype`,`type`,`term`(32),`global`,`created`),
-	 INDEX `uid_otype_type_url` (`uid`,`otype`,`type`,`url`(64)),
-	 INDEX `guid` (`guid`(64))
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='item taxonomy (categories, tags, etc.) table';
-
---
 -- TABLE tag
 --
 CREATE TABLE IF NOT EXISTS `tag` (
@@ -1183,7 +1173,9 @@ CREATE TABLE IF NOT EXISTS `post-category` (
 	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`tid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`uri-id`,`uid`,`type`,`tid`),
-	 INDEX `uri-id` (`tid`)
+	 INDEX `uri-id` (`tid`),
+	CONSTRAINT `post-category-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	CONSTRAINT `post-category-tid-tag-id` FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to categories';
 
 --
@@ -1201,7 +1193,8 @@ CREATE TABLE IF NOT EXISTS `post-delivery-data` (
 	`legacy_dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via legacy DFRN',
 	`diaspora` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via Diaspora',
 	`ostatus` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via OStatus',
-	 PRIMARY KEY(`uri-id`)
+	 PRIMARY KEY(`uri-id`),
+	CONSTRAINT `post-delivery-data-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
 
 --
@@ -1213,8 +1206,11 @@ CREATE TABLE IF NOT EXISTS `post-tag` (
 	`tid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Contact id of the mentioned public contact',
 	 PRIMARY KEY(`uri-id`,`type`,`tid`,`cid`),
-	 INDEX `uri-id` (`tid`),
-	 INDEX `cid` (`tid`)
+	 INDEX `tid` (`tid`),
+	 INDEX `cid` (`cid`),
+	CONSTRAINT `post-tag-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	CONSTRAINT `post-tag-tid-tag-id` FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	CONSTRAINT `post-tag-cid-contact-id` FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to tags';
 
 --
@@ -1270,7 +1266,9 @@ CREATE TABLE IF NOT EXISTS `tokens` (
 	`expires` int NOT NULL DEFAULT 0 COMMENT '',
 	`scope` varchar(200) NOT NULL DEFAULT '' COMMENT '',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `client_id` (`client_id`),
+	CONSTRAINT `tokens-client_id-clients-client_id` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
 
 --
@@ -1367,7 +1365,7 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 -- TABLE verb
 --
 CREATE TABLE IF NOT EXISTS `verb` (
-	`id` int unsigned NOT NULL auto_increment,
+	`id` smallint unsigned NOT NULL auto_increment,
 	`name` varchar(100) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activity Verbs';

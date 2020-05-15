@@ -70,7 +70,8 @@ function update_1181()
 {
 
 	// Fill the new fields in the term table.
-	Worker::add(PRIORITY_LOW, "TagUpdate");
+	// deactivated, the "term" table is deprecated
+	// Worker::add(PRIORITY_LOW, "TagUpdate");
 
 	return Update::SUCCESS;
 }

@@ -1260,30 +1260,6 @@ return [
 			"expire" => ["expire"],
 		]
 	],
-	"term" => [
-		"comment" => "item taxonomy (categories, tags, etc.) table",
-		"fields" => [
-			"tid" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-			"oid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
-			"otype" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"term" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"received" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["tid"],
-			"term_type" => ["term(64)", "type"],
-			"oid_otype_type_term" => ["oid", "otype", "type", "term(32)"],
-			"uid_otype_type_term_global_created" => ["uid", "otype", "type", "term(32)", "global", "created"],
-			"uid_otype_type_url" => ["uid", "otype", "type", "url(64)"],
-			"guid" => ["guid(64)"],
-		]
-	],
 	"tag" => [
 		"comment" => "tags and mentions",
 		"fields" => [

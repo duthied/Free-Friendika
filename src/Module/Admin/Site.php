@@ -103,7 +103,6 @@ class Site extends BaseAdmin
 			// update tables
 			// update profile links in the format "http://server.tld"
 			update_table($a, "profile", ['photo', 'thumb'], $old_url, $new_url);
-			update_table($a, "term", ['url'], $old_url, $new_url);
 			update_table($a, "contact", ['photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'], $old_url, $new_url);
 			update_table($a, "gcontact", ['url', 'nurl', 'photo', 'server_url', 'notify', 'alias'], $old_url, $new_url);
 			update_table($a, "item", ['owner-link', 'author-link', 'body', 'plink', 'tag'], $old_url, $new_url);

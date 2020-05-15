@@ -30,7 +30,6 @@ use Friendica\Model\ItemURI;
 use Friendica\Model\PermissionSet;
 use Friendica\Model\Post\Category;
 use Friendica\Model\Tag;
-use Friendica\Model\Term;
 use Friendica\Model\UserItem;
 use Friendica\Model\Verb;
 use Friendica\Util\Strings;
@@ -43,6 +42,9 @@ use Friendica\Util\Strings;
  */
 class PostUpdate
 {
+	// Needed for the helper function to read from the legacy term table
+	const OBJECT_TYPE_POST  = 1;
+
 	/**
 	 * Calls the post update functions
 	 */
@@ -732,6 +734,31 @@ class PostUpdate
 	}
 
 	/**
+	 * Generates the legacy item.file field string from an item ID.
+	 * Includes only file and category terms.
+	 *
+	 * @param int $item_id
+	 * @return string
+	 * @throws \Exception
+	 */
+	private static function fileTextFromItemId($item_id)
+	{
+		$file_text = '';
+
+		$condition = ['otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'type' => [Category::FILE, Category::CATEGORY]];
+		$tags = DBA::selectToArray('term', ['type', 'term', 'url'], $condition);
+		foreach ($tags as $tag) {
+			if ($tag['type'] == Category::CATEGORY) {
+				$file_text .= '<' . $tag['term'] . '>';
+			} else {
+				$file_text .= '[' . $tag['term'] . ']';
+			}
+		}
+
+		return $file_text;
+	}
+
+	/**
 	 * Fill the "tag" table with tags and mentions from the "term" table
 	 *
 	 * @return bool "true" when the job is done
@@ -765,7 +792,7 @@ class PostUpdate
 				continue;
 			}
 
-			$file = Term::fileTextFromItemId($term['oid']);
+			$file = self::fileTextFromItemId($term['oid']);
 			if (!empty($file)) {
 				Category::storeTextByURIId($item['uri-id'], $item['uid'], $file);
 			}
