@@ -1074,21 +1074,18 @@ class DBStructure
 	 */
 	private static function isUpdating()
 	{
-		$processes = DBA::select(['information_schema' => 'processlist'],
-			['command', 'info'], ['db' => DBA::databaseName()]);
-
 		$isUpdate = false;
 
+		$processes = DBA::select(['information_schema' => 'processlist'], ['info'],
+			['db' => DBA::databaseName(), 'command' => ['Query', 'Execute']]);
+
 		while ($process = DBA::fetch($processes)) {
-			if (empty($process['info'])) {
-				continue;
-			}
 			$parts = explode(' ', $process['info']);
-			$command = strtolower(array_shift($parts));
-			if ($command == 'alter') {
+			if (strtolower(array_shift($parts)) == 'alter') {
 				$isUpdate = true;
 			}
 		}
+
 		DBA::close($processes);
 
 		return $isUpdate;
