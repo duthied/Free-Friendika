@@ -25,6 +25,8 @@ use Exception;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\DI;
+use Friendica\Model\Item;
+use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -945,6 +947,19 @@ class DBStructure
 	}
 
 	/**
+	 * Check if a foreign key exists for the given table field
+	 *
+	 * @param string $table
+	 * @param string $field
+	 * @return boolean
+	 */
+	public static function existsForeignKeyForField(string $table, string $field)
+	{
+		return DBA::exists(['INFORMATION_SCHEMA' => 'KEY_COLUMN_USAGE'],
+			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? AND `COLUMN_NAME` = ? AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL",
+			DBA::databaseName(), $table, $field]);
+	}
+	/**
 	 *    Check if a table exists
 	 *
 	 * @param string|array $table Table name
@@ -996,11 +1011,34 @@ class DBStructure
 			}		
 		}
 
-		if (self::existsTable('permissionset') && !DBA::exists('permissionset', ['id' => 0])) {
-			DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
-			$lastid = DBA::lastInsertId();
-			if ($lastid != 0) {
-				DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
+		if (self::existsTable('permissionset')) {
+			if (!DBA::exists('permissionset', ['id' => 0])) {
+				DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
+				$lastid = DBA::lastInsertId();
+				if ($lastid != 0) {
+					DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
+				}
+			}
+			if (!self::existsForeignKeyForField('item', 'psid')) {
+				$sets = DBA::p("SELECT `psid`, `item`.`uid`, `item`.`private` FROM `item`
+					LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
+					WHERE `permissionset`.`id` IS NULL AND NOT `psid` IS NULL");
+				while ($set = DBA::fetch($sets)) {
+					if (($set['private'] == Item::PRIVATE) && ($set['uid'] != 0)) {
+						$owner = User::getOwnerDataById($set['uid']);
+						if ($owner) {
+							$permission = '<' . $owner['id'] . '>';
+						} else {
+							$permission = '<>';
+						}
+					} else {
+						$permission = '';
+					}
+					$fields = ['id' => $set['psid'], 'uid' => $set['uid'], 'allow_cid' => $permission,
+						'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => ''];
+					DBA::insert('permissionset', $fields);
+				}
+				DBA::close($sets);
 			}
 		}
 	
@@ -1010,6 +1048,16 @@ class DBStructure
 			if ($lastid != 0) {
 				DBA::update('tag', ['id' => 0], ['id' => $lastid]);
 			}
-		}	
+		}
+
+		if (!self::existsForeignKeyForField('tokens', 'client_id')) {
+			$tokens = DBA::p("SELECT `tokens`.`id` FROM `tokens`
+				LEFT JOIN `clients` ON `clients`.`client_id` = `tokens`.`client_id`
+				WHERE `clients`.`client_id` IS NULL");
+			while ($token = DBA::fetch($tokens)) {
+				DBA::delete('tokens', ['id' => $token['id']]);
+			}
+			DBA::close($tokens);
+		}
 	}
 }
