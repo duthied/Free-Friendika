@@ -443,15 +443,15 @@ class BBCode
 	 */
 	public static function toPlaintext($text, $keep_urls = true)
 	{
-		$naked_text = HTML::toPlaintext(BBCode::convert($text, false, 0, true), 0, !$keep_urls);
+		$naked_text = HTML::toPlaintext(self::convert($text, false, 0, true), 0, !$keep_urls);
 
 		return $naked_text;
 	}
 
-	private static function proxyUrl($image, $simplehtml = BBCode::INTERNAL)
+	private static function proxyUrl($image, $simplehtml = self::INTERNAL)
 	{
 		// Only send proxied pictures to API and for internal display
-		if (in_array($simplehtml, [BBCode::INTERNAL, BBCode::API])) {
+		if (in_array($simplehtml, [self::INTERNAL, self::API])) {
 			return ProxyUtils::proxifyUrl($image);
 		} else {
 			return $image;
@@ -620,7 +620,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function convertAttachment($text, $simplehtml = BBCode::INTERNAL, $tryoembed = true)
+	private static function convertAttachment($text, $simplehtml = self::INTERNAL, $tryoembed = true)
 	{
 		$data = self::getAttachmentData($text);
 		if (empty($data) || empty($data['url'])) {
@@ -649,7 +649,7 @@ class BBCode
 		} catch (Exception $e) {
 			$data['title'] = ($data['title'] ?? '') ?: $data['url'];
 
-			if ($simplehtml != BBCode::CONNECTORS) {
+			if ($simplehtml != self::CONNECTORS) {
 				$return = sprintf('<div class="type-%s">', $data['type']);
 			}
 
@@ -676,7 +676,7 @@ class BBCode
 				$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
 			}
 
-			if ($simplehtml != BBCode::CONNECTORS) {
+			if ($simplehtml != self::CONNECTORS) {
 				$return .= '</div>';
 			}
 		}
@@ -1261,7 +1261,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convert($text, $try_oembed = true, $simple_html = BBCode::INTERNAL, $for_plaintext = false)
+	public static function convert($text, $try_oembed = true, $simple_html = self::INTERNAL, $for_plaintext = false)
 	{
 		$a = DI::app();
 
@@ -1389,9 +1389,9 @@ class BBCode
 
 		/// @todo Have a closer look at the different html modes
 		// Handle attached links or videos
-		if ($simple_html == BBCode::ACTIVITYPUB) {
+		if ($simple_html == self::ACTIVITYPUB) {
 			$text = self::removeAttachment($text);
-		} elseif (!in_array($simple_html, [BBCode::INTERNAL, BBCode::CONNECTORS])) {
+		} elseif (!in_array($simple_html, [self::INTERNAL, self::CONNECTORS])) {
 			$text = self::removeAttachment($text, true);
 		} else {
 			$text = self::convertAttachment($text, $simple_html, $try_oembed);
@@ -1454,7 +1454,7 @@ class BBCode
 
 		// Check for sized text
 		// [size=50] --> font-size: 50px (with the unit).
-		if ($simple_html != BBCode::DIASPORA) {
+		if ($simple_html != self::DIASPORA) {
 			$text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1px; line-height: initial;\">$2</span>", $text);
 			$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1; line-height: initial;\">$2</span>", $text);
 		} else {
@@ -1728,7 +1728,7 @@ class BBCode
 		}
 
 		if (!$for_plaintext) {
-			if (in_array($simple_html, [BBCode::OSTATUS, BBCode::ACTIVITYPUB])) {
+			if (in_array($simple_html, [self::OSTATUS, self::ACTIVITYPUB])) {
 				$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
 				$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
 			}
@@ -1740,14 +1740,14 @@ class BBCode
 		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
 
 		// Remove all hashtag addresses
-		if ($simple_html && !in_array($simple_html, [BBCode::DIASPORA, BBCode::OSTATUS, BBCode::ACTIVITYPUB])) {
+		if ($simple_html && !in_array($simple_html, [self::DIASPORA, self::OSTATUS, self::ACTIVITYPUB])) {
 			$text = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '$1$3', $text);
-		} elseif ($simple_html == BBCode::DIASPORA) {
+		} elseif ($simple_html == self::DIASPORA) {
 			// The ! is converted to @ since Diaspora only understands the @
 			$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 				'@<a href="$2">$3</a>',
 				$text);
-		} elseif (in_array($simple_html, [BBCode::OSTATUS, BBCode::ACTIVITYPUB])) {
+		} elseif (in_array($simple_html, [self::OSTATUS, self::ACTIVITYPUB])) {
 			$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 				'$1<span class="vcard"><a href="$2" class="url u-url mention" title="$3"><span class="fn nickname mention">$3</span></a></span>',
 				$text);
@@ -1763,7 +1763,7 @@ class BBCode
 		$text = preg_replace("/#\[url\=.*?\]\^\[\/url\]\[url\=(.*?)\](.*?)\[\/url\]/i",
 					"[bookmark=$1]$2[/bookmark]", $text);
 
-		if (in_array($simple_html, [BBCode::API, BBCode::OSTATUS, BBCode::TWITTER])) {
+		if (in_array($simple_html, [self::API, self::OSTATUS, self::TWITTER])) {
 			$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "self::expandLinksCallback", $text);
 			//$Text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
 			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]',$text);
