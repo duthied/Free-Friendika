@@ -254,7 +254,7 @@ CREATE TABLE IF NOT EXISTS `auth_codes` (
 	`scope` varchar(250) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`),
 	 INDEX `client_id` (`client_id`),
-	CONSTRAINT `auth_codes-client_id-clients-client_id` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
 
 --
@@ -345,7 +345,7 @@ CREATE TABLE IF NOT EXISTS `diaspora-interaction` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`interaction` mediumtext COMMENT 'The Diaspora interaction',
 	 PRIMARY KEY(`uri-id`),
-	CONSTRAINT `diaspora-interaction-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Signed Diaspora Interaction';
 
 --
@@ -712,10 +712,10 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uri-id` (`uri-id`),
 	 INDEX `parent-uri-id` (`parent-uri-id`),
 	 INDEX `thr-parent-id` (`thr-parent-id`),
-	CONSTRAINT `item-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	CONSTRAINT `item-parent-uri-id-item-uri-id` FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	CONSTRAINT `item-thr-parent-id-item-uri-id` FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	CONSTRAINT `item-psid-permissionset-id` FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
 --
@@ -731,7 +731,7 @@ CREATE TABLE IF NOT EXISTS `item-activity` (
 	 UNIQUE INDEX `uri-hash` (`uri-hash`),
 	 INDEX `uri` (`uri`(191)),
 	 INDEX `uri-id` (`uri-id`),
-	CONSTRAINT `item-activity-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activities for items';
 
 --
@@ -762,7 +762,7 @@ CREATE TABLE IF NOT EXISTS `item-content` (
 	 INDEX `uri` (`uri`(191)),
 	 INDEX `plink` (`plink`(191)),
 	 INDEX `uri-id` (`uri-id`),
-	CONSTRAINT `item-content-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --
@@ -1024,8 +1024,8 @@ CREATE TABLE IF NOT EXISTS `post-category` (
 	`tid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`uri-id`,`uid`,`type`,`tid`),
 	 INDEX `uri-id` (`tid`),
-	CONSTRAINT `post-category-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	CONSTRAINT `post-category-tid-tag-id` FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to categories';
 
 --
@@ -1044,7 +1044,7 @@ CREATE TABLE IF NOT EXISTS `post-delivery-data` (
 	`diaspora` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via Diaspora',
 	`ostatus` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via OStatus',
 	 PRIMARY KEY(`uri-id`),
-	CONSTRAINT `post-delivery-data-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
 
 --
@@ -1058,9 +1058,9 @@ CREATE TABLE IF NOT EXISTS `post-tag` (
 	 PRIMARY KEY(`uri-id`,`type`,`tid`,`cid`),
 	 INDEX `tid` (`tid`),
 	 INDEX `cid` (`cid`),
-	CONSTRAINT `post-tag-uri-id-item-uri-id` FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	CONSTRAINT `post-tag-tid-tag-id` FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-	CONSTRAINT `post-tag-cid-contact-id` FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to tags';
 
 --
@@ -1154,7 +1154,7 @@ CREATE TABLE IF NOT EXISTS `profile_field` (
 	 INDEX `uid` (`uid`),
 	 INDEX `order` (`order`),
 	 INDEX `psid` (`psid`),
-	CONSTRAINT `profile_field-psid-permissionset-id` FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Custom profile fields';
 
 --
@@ -1277,7 +1277,7 @@ CREATE TABLE IF NOT EXISTS `tokens` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`),
 	 INDEX `client_id` (`client_id`),
-	CONSTRAINT `tokens-client_id-clients-client_id` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
 
 --

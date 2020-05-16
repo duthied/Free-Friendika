@@ -483,8 +483,8 @@ class DBStructure
 					}
 				}
 
-				foreach ($existing_foreign_keys as $constraint => $param) {
-					$sql2 = self::dropForeignKey($constraint);
+				foreach ($existing_foreign_keys as $param) {
+					$sql2 = self::dropForeignKey($param['CONSTRAINT_NAME']);
 
 					if ($sql3 == "") {
 						$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
@@ -693,8 +693,8 @@ class DBStructure
 
 		if (DBA::isResult($foreign_keys)) {
 			foreach ($foreign_keys as $foreign_key) {
-				$constraint = $foreign_key['CONSTRAINT_NAME'];
-				unset($foreign_key['CONSTRAINT_NAME']); 
+				$parameters = ['foreign' => [$foreign_key['REFERENCED_TABLE_NAME'] => $foreign_key['REFERENCED_COLUMN_NAME']]];
+				$constraint = self::getConstraintName($table, $foreign_key['COLUMN_NAME'], $parameters);
 				$foreigndata[$constraint] = $foreign_key;
 			}
 		}
@@ -783,10 +783,7 @@ class DBStructure
 		$foreign_table = array_keys($parameters['foreign'])[0];
 		$foreign_field = array_values($parameters['foreign'])[0];
 
-		$constraint = self::getConstraintName($tablename, $fieldname, $parameters);
-
-		$sql = "CONSTRAINT `" . $constraint . "` FOREIGN KEY (`" . $fieldname . "`)" .
-			" REFERENCES `" . $foreign_table . "` (`" . $foreign_field . "`)";
+		$sql = "FOREIGN KEY (`" . $fieldname . "`) REFERENCES `" . $foreign_table . "` (`" . $foreign_field . "`)";
 
 		if (!empty($parameters['foreign']['on update'])) {
 			$sql .= " ON UPDATE " . strtoupper($parameters['foreign']['on update']);
