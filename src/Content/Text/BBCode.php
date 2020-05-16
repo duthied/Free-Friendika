@@ -48,6 +48,15 @@ use Friendica\Util\XML;
 
 class BBCode
 {
+	const INTERNAL = 0;
+	const API = 2;
+	const DIASPORA = 3;
+	const CONNECTORS = 4;
+	const OSTATUS = 7;
+	const TWITTER = 8;
+	const BACKLINK = 8;
+	const ACTIVITYPUB = 9;
+
 	/**
 	 * Fetches attachment data that were generated the old way
 	 *
@@ -439,10 +448,10 @@ class BBCode
 		return $naked_text;
 	}
 
-	private static function proxyUrl($image, $simplehtml = false)
+	private static function proxyUrl($image, $simplehtml = BBCode::INTERNAL)
 	{
 		// Only send proxied pictures to API and for internal display
-		if (in_array($simplehtml, [false, 2])) {
+		if (in_array($simplehtml, [BBCode::INTERNAL, BBCode::API])) {
 			return ProxyUtils::proxifyUrl($image);
 		} else {
 			return $image;
@@ -605,13 +614,13 @@ class BBCode
 	 *
 	 * Note: Can produce a [bookmark] tag in the returned string
 	 *
-	 * @param string   $text
-	 * @param bool|int $simplehtml
-	 * @param bool     $tryoembed
+	 * @param string  $text
+	 * @param integer $simplehtml
+	 * @param bool    $tryoembed
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function convertAttachment($text, $simplehtml = false, $tryoembed = true)
+	private static function convertAttachment($text, $simplehtml = BBCode::INTERNAL, $tryoembed = true)
 	{
 		$data = self::getAttachmentData($text);
 		if (empty($data) || empty($data['url'])) {
@@ -640,7 +649,7 @@ class BBCode
 		} catch (Exception $e) {
 			$data['title'] = ($data['title'] ?? '') ?: $data['url'];
 
-			if ($simplehtml != 4) {
+			if ($simplehtml != BBCode::CONNECTORS) {
 				$return = sprintf('<div class="type-%s">', $data['type']);
 			}
 
@@ -667,7 +676,7 @@ class BBCode
 				$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
 			}
 
-			if ($simplehtml != 4) {
+			if ($simplehtml != BBCode::CONNECTORS) {
 				$return .= '</div>';
 			}
 		}
@@ -1025,13 +1034,10 @@ class BBCode
 		$mention = Protocol::formatMention($attributes['profile'], $attributes['author']);
 
 		switch ($simplehtml) {
-			case 1:
-				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' <a href="' . $attributes['profile'] . '">' . $mention . '</a>: </p>' . "\n" . '«' . $content . '»';
-				break;
-			case 2:
+			case self::API:
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
-			case 3: // Diaspora
+			case self::DIASPORA:
 				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0) {
 					$text = ($is_quote_share? '<hr />' : '') . '<p><a href="' . $attributes['link'] . '">' . $attributes['link'] . '</a></p>' . "\n";
 				} else {
@@ -1049,7 +1055,7 @@ class BBCode
 				}
 
 				break;
-			case 4:
+			case self::CONNECTORS:
 				$headline = '<p><b>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8');
 				$headline .= DI::l10n()->t('<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a> %3$s', $attributes['link'], $mention, $attributes['posted']);
 				$headline .= ':</b></p>' . "\n";
@@ -1057,13 +1063,10 @@ class BBCode
 				$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote class="shared_content">' . trim($content) . '</blockquote>' . "\n";
 
 				break;
-			case 5:
-				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
-				break;
-			case 7: // statusnet/GNU Social
+			case self::OSTATUS:
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' @' . $author_contact['addr'] . ': ' . $content . '</p>' . "\n";
 				break;
-			case 9: // ActivityPub
+			case self::ACTIVITYPUB:
 				$author = '@<span class="vcard"><a href="' . $author_contact['url'] . '" class="url u-url mention" title="' . $author_contact['addr'] . '"><span class="fn nickname mention">' . $author_contact['addr'] . '</span></a>:</span>';
 				$text = '<div><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672;', ENT_QUOTES, 'UTF-8') . '</a> ' . $author . '<blockquote>' . $content . '</blockquote></div>' . "\n";
 				break;
@@ -1258,7 +1261,7 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convert($text, $try_oembed = true, $simple_html = 0, $for_plaintext = false)
+	public static function convert($text, $try_oembed = true, $simple_html = BBCode::INTERNAL, $for_plaintext = false)
 	{
 		$a = DI::app();
 
@@ -1386,9 +1389,9 @@ class BBCode
 
 		/// @todo Have a closer look at the different html modes
 		// Handle attached links or videos
-		if (in_array($simple_html, [9])) {
+		if ($simple_html == BBCode::ACTIVITYPUB) {
 			$text = self::removeAttachment($text);
-		} elseif (!in_array($simple_html, [0, 4])) {
+		} elseif (!in_array($simple_html, [BBCode::INTERNAL, BBCode::CONNECTORS])) {
 			$text = self::removeAttachment($text, true);
 		} else {
 			$text = self::convertAttachment($text, $simple_html, $try_oembed);
@@ -1451,7 +1454,7 @@ class BBCode
 
 		// Check for sized text
 		// [size=50] --> font-size: 50px (with the unit).
-		if ($simple_html != 3) {
+		if ($simple_html != BBCode::DIASPORA) {
 			$text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1px; line-height: initial;\">$2</span>", $text);
 			$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1; line-height: initial;\">$2</span>", $text);
 		} else {
@@ -1725,7 +1728,7 @@ class BBCode
 		}
 
 		if (!$for_plaintext) {
-			if (in_array($simple_html, [7, 9])) {
+			if (in_array($simple_html, [BBCode::OSTATUS, BBCode::ACTIVITYPUB])) {
 				$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
 				$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
 			}
@@ -1737,14 +1740,14 @@ class BBCode
 		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
 
 		// Remove all hashtag addresses
-		if ($simple_html && !in_array($simple_html, [3, 7, 9])) {
+		if ($simple_html && !in_array($simple_html, [BBCode::DIASPORA, BBCode::OSTATUS, BBCode::ACTIVITYPUB])) {
 			$text = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '$1$3', $text);
-		} elseif ($simple_html == 3) {
+		} elseif ($simple_html == BBCode::DIASPORA) {
 			// The ! is converted to @ since Diaspora only understands the @
 			$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 				'@<a href="$2">$3</a>',
 				$text);
-		} elseif (in_array($simple_html, [7, 9])) {
+		} elseif (in_array($simple_html, [BBCode::OSTATUS, BBCode::ACTIVITYPUB])) {
 			$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
 				'$1<span class="vcard"><a href="$2" class="url u-url mention" title="$3"><span class="fn nickname mention">$3</span></a></span>',
 				$text);
@@ -1760,14 +1763,10 @@ class BBCode
 		$text = preg_replace("/#\[url\=.*?\]\^\[\/url\]\[url\=(.*?)\](.*?)\[\/url\]/i",
 					"[bookmark=$1]$2[/bookmark]", $text);
 
-		if (in_array($simple_html, [2, 6, 7, 8])) {
+		if (in_array($simple_html, [BBCode::API, BBCode::OSTATUS, BBCode::TWITTER])) {
 			$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "self::expandLinksCallback", $text);
 			//$Text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
 			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]',$text);
-		}
-
-		if ($simple_html == 5) {
-			$text = preg_replace("/[^#@!]\[url\=(.*?)\](.*?)\[\/url\]/ism", '[url]$1[/url]', $text);
 		}
 
 		// Perform URL Search
@@ -1775,11 +1774,7 @@ class BBCode
 			$text = preg_replace_callback("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $try_oembed_callback, $text);
 		}
 
-		if ($simple_html == 5) {
-			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", '[url]$1[/url]', $text);
-		} else {
-			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", '[url=$1]$2[/url]', $text);
-		}
+		$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", '[url=$1]$2[/url]', $text);
 
 		// Handle Diaspora posts
 		$text = preg_replace_callback(

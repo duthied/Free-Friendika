@@ -2491,10 +2491,10 @@ function api_format_messages($item, $recipient, $sender)
 		if ($_GET['getText'] == 'html') {
 			$ret['text'] = BBCode::convert($item['body'], false);
 		} elseif ($_GET['getText'] == 'plain') {
-			$ret['text'] = trim(HTML::toPlaintext(BBCode::convert(api_clean_plain_items($item['body']), false, 2, true), 0));
+			$ret['text'] = trim(HTML::toPlaintext(BBCode::convert(api_clean_plain_items($item['body']), false, BBCode::API, true), 0));
 		}
 	} else {
-		$ret['text'] = $item['title'] . "\n" . HTML::toPlaintext(BBCode::convert(api_clean_plain_items($item['body']), false, 2, true), 0);
+		$ret['text'] = $item['title'] . "\n" . HTML::toPlaintext(BBCode::convert(api_clean_plain_items($item['body']), false, BBCode::API, true), 0);
 	}
 	if (!empty($_GET['getUserObjects']) && $_GET['getUserObjects'] == 'false') {
 		unset($ret['sender']);
@@ -2520,7 +2520,7 @@ function api_convert_item($item)
 	$attachments = api_get_attachments($body);
 
 	// Workaround for ostatus messages where the title is identically to the body
-	$html = BBCode::convert(api_clean_plain_items($body), false, 2, true);
+	$html = BBCode::convert(api_clean_plain_items($body), false, BBCode::API, true);
 	$statusbody = trim(HTML::toPlaintext($html, 0));
 
 	// handle data: images

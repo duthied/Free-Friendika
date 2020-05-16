@@ -1215,7 +1215,7 @@ class Transmitter
 	{
 		$event = [];
 		$event['name'] = $item['event-summary'];
-		$event['content'] = BBCode::convert($item['event-desc'], false, 9);
+		$event['content'] = BBCode::convert($item['event-desc'], false, BBCode::ACTIVITYPUB);
 		$event['startTime'] = DateTimeFormat::utc($item['event-start'] . '+00:00', DateTimeFormat::ATOM);
 
 		if (!$item['event-nofinish']) {
@@ -1309,7 +1309,7 @@ class Transmitter
 			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
 			$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
 
-			$data['content'] = BBCode::convert($body, false, 9);
+			$data['content'] = BBCode::convert($body, false, BBCode::ACTIVITYPUB);
 		}
 
 		// The regular "content" field does contain a minimized HTML. This is done since systems like

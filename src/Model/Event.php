@@ -611,7 +611,7 @@ class Event
 
 			$title = BBCode::convert(Strings::escapeHtml($event['summary']));
 			if (!$title) {
-				list($title, $_trash) = explode("<br", BBCode::convert(Strings::escapeHtml($event['desc'])), 2);
+				list($title, $_trash) = explode("<br", BBCode::convert(Strings::escapeHtml($event['desc'])), BBCode::API);
 			}
 
 			$author_link = $event['author-link'];
