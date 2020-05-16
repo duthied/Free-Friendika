@@ -951,7 +951,7 @@ class DFRN
 				$htmlbody = "[b]" . $item['title'] . "[/b]\n\n" . $htmlbody;
 			}
 
-			$htmlbody = BBCode::convert($htmlbody, false, 7);
+			$htmlbody = BBCode::convert($htmlbody, false, BBCode::OSTATUS);
 		}
 
 		$author = self::addEntryAuthor($doc, "author", $item["author-link"], $item);
@@ -2428,7 +2428,8 @@ class DFRN
 				if (($term != "") && ($scheme != "")) {
 					$parts = explode(":", $scheme);
 					if ((count($parts) >= 4) && (array_shift($parts) == "X-DFRN")) {
-						$termurl = implode(":", $parts);
+						$termurl = array_pop($parts);
+						$termurl = array_pop($parts) . $termurl;
 						Tag::store($item['uri-id'], Tag::IMPLICIT_MENTION, $term, $termurl);
 					}
 				}

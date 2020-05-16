@@ -22,6 +22,7 @@
 namespace Friendica\Model;
 
 use Friendica\Content\Text;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Protocol;
 use Friendica\DI;
 
@@ -41,7 +42,7 @@ class ItemContent
 	 * @see   \Friendica\Content\Text\BBCode::getAttachedData
 	 *
 	 */
-	public static function getPlaintextPost($item, $limit = 0, $includedlinks = false, $htmlmode = 2, $target_network = '')
+	public static function getPlaintextPost($item, $limit = 0, $includedlinks = false, $htmlmode = BBCode::API, $target_network = '')
 	{
 		// Remove hashtags
 		$URLSearchString = '^\[\]';
@@ -79,11 +80,11 @@ class ItemContent
 			}
 		} else {// Try to guess the correct target network
 			switch ($htmlmode) {
-				case 8:
+				case BBCode::TWITTER:
 					$abstract = Text\BBCode::getAbstract($item['body'], Protocol::TWITTER);
 					break;
 
-				case 7:
+				case BBCode::OSTATUS:
 					$abstract = Text\BBCode::getAbstract($item['body'], Protocol::STATUSNET);
 					break;
 
@@ -139,8 +140,8 @@ class ItemContent
 					$msg = trim(str_replace($link, '', $msg));
 				} elseif (($limit == 0) || ($pos < $limit)) {
 					// The limit has to be increased since it will be shortened - but not now
-					// Only do it with Twitter (htmlmode = 8)
-					if (($limit > 0) && (strlen($link) > 23) && ($htmlmode == 8)) {
+					// Only do it with Twitter
+					if (($limit > 0) && (strlen($link) > 23) && ($htmlmode == BBCode::TWITTER)) {
 						$limit = $limit - 23 + strlen($link);
 					}
 

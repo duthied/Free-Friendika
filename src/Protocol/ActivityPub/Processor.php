@@ -644,7 +644,7 @@ class Processor
 					$title = $matches[3];
 				}
 
-				$title = trim(HTML::toPlaintext(BBCode::convert($title, false, 2, true), 0));
+				$title = trim(HTML::toPlaintext(BBCode::convert($title, false, BBCode::API, true), 0));
 
 				if (strlen($title) > 20) {
 					$title = substr($title, 0, 20) . '...';

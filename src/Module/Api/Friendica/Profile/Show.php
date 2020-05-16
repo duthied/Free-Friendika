@@ -83,7 +83,7 @@ class Show extends BaseApi
 		foreach ($profileFields as $profileField) {
 			$custom_fields[] = [
 				'label' => $profileField->label,
-				'value' => BBCode::convert($profileField->value, false, 2),
+				'value' => BBCode::convert($profileField->value, false, BBCode::API),
 			];
 		}
 

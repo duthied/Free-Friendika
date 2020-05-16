@@ -1456,7 +1456,7 @@ class OStatus
 		XML::addElement($doc, $author, "name", $owner["nick"]);
 		XML::addElement($doc, $author, "email", $owner["addr"]);
 		if ($show_profile) {
-			XML::addElement($doc, $author, "summary", BBCode::convert($owner["about"], false, 7));
+			XML::addElement($doc, $author, "summary", BBCode::convert($owner["about"], false, BBCode::OSTATUS));
 		}
 
 		$attributes = ["rel" => "alternate", "type" => "text/html", "href" => $owner["url"]];
@@ -1483,7 +1483,7 @@ class OStatus
 		XML::addElement($doc, $author, "poco:preferredUsername", $owner["nick"]);
 		XML::addElement($doc, $author, "poco:displayName", $owner["name"]);
 		if ($show_profile) {
-			XML::addElement($doc, $author, "poco:note", BBCode::convert($owner["about"], false, 7));
+			XML::addElement($doc, $author, "poco:note", BBCode::convert($owner["about"], false, BBCode::OSTATUS));
 
 			if (trim($owner["location"]) != "") {
 				$element = $doc->createElement("poco:address");
@@ -1895,7 +1895,7 @@ class OStatus
 
 		if (!$toplevel) {
 			if (!empty($item['title'])) {
-				$title = BBCode::convert($item['title'], false, 7);
+				$title = BBCode::convert($item['title'], false, BBCode::OSTATUS);
 			} else {
 				$title = sprintf("New note by %s", $owner["nick"]);
 			}
@@ -1984,7 +1984,7 @@ class OStatus
 			$body = "[b]".$item['title']."[/b]\n\n".$body;
 		}
 
-		$body = BBCode::convert($body, false, 7);
+		$body = BBCode::convert($body, false, BBCode::OSTATUS);
 
 		XML::addElement($doc, $entry, "content", $body, ["type" => "html"]);
 
