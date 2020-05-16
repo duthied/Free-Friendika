@@ -1801,12 +1801,16 @@ class BBCode
 		 * - #[url=<anything>]<term>[/url]
 		 * - [url=<anything>]#<term>[/url]
 		 */
-		$text = preg_replace_callback("/(?:#\[url\=[^\[\]]*\]|\[url\=[^\[\]]*\]#)(.*?)\[\/url\]/ism", function($matches) {
-			return '#<a href="'
-				. DI::baseUrl()	. '/search?tag=' . rawurlencode($matches[1])
-				. '" class="tag" rel="tag" title="' . XML::escape($matches[1]) . '">'
-				. XML::escape($matches[1])
-				. '</a>';
+		$text = preg_replace_callback("/(?:#\[url\=[^\[\]]*\]|\[url\=[^\[\]]*\]#)(.*?)\[\/url\]/ism", function($matches) use ($simple_html) {
+			if ($simple_html == BBCode::ACTIVITYPUB) {
+				return '<a href="' . DI::baseUrl() . '/search?tag=' . rawurlencode($matches[1])
+					. '" data-tag="' . XML::escape($matches[1]) . '" rel="tag ugc">#'
+					. XML::escape($matches[1]) . '</a>';
+			} else {
+				return '#<a href="' . DI::baseUrl() . '/search?tag=' . rawurlencode($matches[1])
+					. '" class="tag" rel="tag" title="' . XML::escape($matches[1]) . '">'
+					. XML::escape($matches[1]) . '</a>';
+			}
 		}, $text);
 
 		// We need no target="_blank" rel="noopener noreferrer" for local links
