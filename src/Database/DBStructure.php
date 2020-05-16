@@ -291,13 +291,11 @@ class DBStructure
 	 */
 	public static function update($basePath, $verbose, $action, $install = false, array $tables = null, array $definition = null)
 	{
-		if (!$install) {
+		if ($action && !$install) {
 			if (self::isUpdating()) {
 				return DI::l10n()->t('Another database update is currently running.');
 			}
-		}
 
-		if ($action && !$install) {
 			DI::config()->set('system', 'maintenance', 1);
 			DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
 		}
