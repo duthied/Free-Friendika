@@ -2035,7 +2035,7 @@ class BBCode
 
 		// Convert it to HTML - don't try oembed
 		if ($for_diaspora) {
-			$text = self::convert($text, false, 3);
+			$text = self::convert($text, false, self::DIASPORA);
 
 			// Add all tags that maybe were removed
 			if (preg_match_all("/#\[url\=([$url_search_string]*)\](.*?)\[\/url\]/ism", $original_text, $tags)) {
@@ -2049,7 +2049,7 @@ class BBCode
 				$text = $text . " " . $tagline;
 			}
 		} else {
-			$text = self::convert($text, false, 4);
+			$text = self::convert($text, false, self::CONNECTORS);
 		}
 
 		// If a link is followed by a quote then there should be a newline before it
