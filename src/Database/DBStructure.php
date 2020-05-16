@@ -1055,7 +1055,7 @@ class DBStructure
 				LEFT JOIN `clients` ON `clients`.`client_id` = `tokens`.`client_id`
 				WHERE `clients`.`client_id` IS NULL");
 			while ($token = DBA::fetch($tokens)) {
-				DBA::delete('token', ['id' => $token['id']]);
+				DBA::delete('tokens', ['id' => $token['id']]);
 			}
 			DBA::close($tokens);
 		}
