@@ -732,8 +732,8 @@ class DBStructure
 					$fielddata[$field['COLUMN_NAME']]['not null'] = true;
 				}
 
-				if (isset($field['COLUMN_DEFAULT'])) {
-					$fielddata[$field['COLUMN_NAME']]['default'] = $field['COLUMN_DEFAULT'];
+				if (isset($field['COLUMN_DEFAULT']) && ($field['COLUMN_DEFAULT'] != 'NULL')) {
+					$fielddata[$field['COLUMN_NAME']]['default'] = trim($field['COLUMN_DEFAULT'], "'");
 				}
 
 				if (!empty($field['EXTRA'])) {
