@@ -1079,7 +1079,7 @@ class DBStructure
 
 		while ($process = DBA::fetch($processes)) {
 			$parts = explode(' ', $process['info']);
-			if (strtolower(array_shift($parts)) == 'alter') {
+			if (in_array(strtolower(array_shift($parts)), ['alter', 'create', 'drop', 'rename'])) {
 				$isUpdate = true;
 			}
 		}
