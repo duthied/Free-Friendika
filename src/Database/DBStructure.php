@@ -292,6 +292,10 @@ class DBStructure
 	public static function update($basePath, $verbose, $action, $install = false, array $tables = null, array $definition = null)
 	{
 		if ($action && !$install) {
+			if (self::isUpdating()) {
+				return DI::l10n()->t('Another database update is currently running.');
+			}
+
 			DI::config()->set('system', 'maintenance', 1);
 			DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
 		}
@@ -1059,5 +1063,29 @@ class DBStructure
 			}
 			DBA::close($tokens);
 		}
+	}
+
+	/**
+	 * Checks if a database update is currently running
+	 *
+	 * @return boolean
+	 */
+	private static function isUpdating()
+	{
+		$isUpdate = false;
+
+		$processes = DBA::select(['information_schema' => 'processlist'], ['info'],
+			['db' => DBA::databaseName(), 'command' => ['Query', 'Execute']]);
+
+		while ($process = DBA::fetch($processes)) {
+			$parts = explode(' ', $process['info']);
+			if (in_array(strtolower(array_shift($parts)), ['alter', 'create', 'drop', 'rename'])) {
+				$isUpdate = true;
+			}
+		}
+
+		DBA::close($processes);
+
+		return $isUpdate;
 	}
 }
