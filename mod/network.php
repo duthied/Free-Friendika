@@ -786,6 +786,13 @@ function networkThreadedView(App $a, $update, $parent)
 			$top_limit = DateTimeFormat::utcNow();
 		}
 
+		// Handle bad performance situations when the distance between top and bottom is too high
+		// See issue https://github.com/friendica/friendica/issues/8619
+		if (strtotime($top_limit) - strtotime($bottom_limit) > 86400) {
+			// Set the bottom limit to one day in the past at maximum
+			$bottom_limit = DateTimeFormat::utc(date('c', strtotime($top_limit) - 86400));
+		}
+
 		$items = DBA::p("SELECT `item`.`parent-uri` AS `uri`, 0 AS `item_id`, `item`.$ordering AS `order_date`, `author`.`url` AS `author-link` FROM `item`
 			STRAIGHT_JOIN (SELECT `uri-id` FROM `tag-search-view` WHERE `name` IN
 				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `uid` = 0) AS `tag-search`
