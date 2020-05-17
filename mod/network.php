@@ -58,8 +58,8 @@ function network_init(App $a)
 	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
 
 	$cid = 0;
-	if (!empty($_GET['cid'])) {
-		$cid = $_GET['cid'];
+	if (!empty($_GET['contactid'])) {
+		$cid = $_GET['contactid'];
 		$_GET['nets'] = '';
 		$group_id = 0;
 	}
@@ -466,12 +466,12 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$o = '';
 
-	$cid   = intval($_GET['cid']   ?? 0);
-	$star  = intval($_GET['star']  ?? 0);
-	$bmark = intval($_GET['bmark'] ?? 0);
-	$conv  = intval($_GET['conv']  ?? 0);
+	$cid   = intval($_GET['contactid'] ?? 0);
+	$star  = intval($_GET['star']      ?? 0);
+	$bmark = intval($_GET['bmark']     ?? 0);
+	$conv  = intval($_GET['conv']      ?? 0);
 	$order = Strings::escapeTags(($_GET['order'] ?? '') ?: 'activity');
-	$nets  =        $_GET['nets']  ?? '';
+	$nets  =        $_GET['nets']      ?? '';
 
 	$allowedCids = [];
 	if ($cid) {
@@ -891,8 +891,8 @@ function network_tabs(App $a)
 	$cmd = DI::args()->getCommand();
 
 	$def_param = [];
-	if (!empty($_GET['cid'])) {
-		$def_param['cid'] = $_GET['cid'];
+	if (!empty($_GET['contactid'])) {
+		$def_param['contactid'] = $_GET['contactid'];
 	}
 
 	// tabs
