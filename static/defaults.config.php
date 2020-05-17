@@ -103,6 +103,10 @@ return [
 		// chose "Remember me" when logging in is considered logged out.
 		'auth_cookie_lifetime' => 7,
 
+		// big_emojis (Boolean)
+		// Display "Emoji Only" posts in big.
+		'big_emojis' => false,
+
 		// block_local_dir (Boolean)
 		// Deny public access to the local user directory.
 		'block_local_dir' => false,
