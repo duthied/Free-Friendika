@@ -504,6 +504,7 @@ class Database
 			$sql = "/*" . System::callstack() . " */ " . $sql;
 		}
 
+		$is_error            = false;
 		$this->error         = '';
 		$this->errorno       = 0;
 		$this->affected_rows = 0;
@@ -533,6 +534,7 @@ class Database
 						$this->error   = $errorInfo[2];
 						$this->errorno = $errorInfo[1];
 						$retval        = false;
+						$is_error      = true;
 						break;
 					}
 					$this->affected_rows = $retval->rowCount();
@@ -545,6 +547,7 @@ class Database
 					$this->error   = $errorInfo[2];
 					$this->errorno = $errorInfo[1];
 					$retval        = false;
+					$is_error      = true;
 					break;
 				}
 
@@ -562,6 +565,7 @@ class Database
 					$this->error   = $errorInfo[2];
 					$this->errorno = $errorInfo[1];
 					$retval        = false;
+					$is_error      = true;
 				} else {
 					$retval              = $stmt;
 					$this->affected_rows = $retval->rowCount();
@@ -580,6 +584,7 @@ class Database
 						$this->error   = $this->connection->error;
 						$this->errorno = $this->connection->errno;
 						$retval        = false;
+						$is_error      = true;
 					} else {
 						if (isset($retval->num_rows)) {
 							$this->affected_rows = $retval->num_rows;
@@ -596,6 +601,7 @@ class Database
 					$this->error   = $stmt->error;
 					$this->errorno = $stmt->errno;
 					$retval        = false;
+					$is_error      = true;
 					break;
 				}
 
@@ -623,12 +629,23 @@ class Database
 					$this->error   = $this->connection->error;
 					$this->errorno = $this->connection->errno;
 					$retval        = false;
+					$is_error      = true;
 				} else {
 					$stmt->store_result();
 					$retval              = $stmt;
 					$this->affected_rows = $retval->affected_rows;
 				}
 				break;
+		}
+
+		// See issue https://github.com/friendica/friendica/issues/8572
+		// Ensure that we always get an error message on an error.
+		if ($is_error && empty($this->errorno)) {
+			$this->errorno = -1;
+		}
+
+		if ($is_error && empty($this->error)) {
+			$this->error = 'Unknown database error';
 		}
 
 		// We are having an own error logging in the function "e"
@@ -642,8 +659,8 @@ class Database
 			}
 
 			$this->logger->error('DB Error', [
-				'code'      => $this->errorno,
-				'error'     => $this->error,
+				'code'      => $errorno,
+				'error'     => $error,
 				'callstack' => System::callstack(8),
 				'params'    => $this->replaceParameters($sql, $args),
 			]);
@@ -654,21 +671,21 @@ class Database
 					// It doesn't make sense to continue when the database connection was lost
 					if ($this->in_retrial) {
 						$this->logger->notice('Giving up retrial because of database error', [
-							'code'  => $this->errorno,
-							'error' => $this->error,
+							'code'  => $errorno,
+							'error' => $error,
 						]);
 					} else {
 						$this->logger->notice('Couldn\'t reconnect after database error', [
-							'code'  => $this->errorno,
-							'error' => $this->error,
+							'code'  => $errorno,
+							'error' => $error,
 						]);
 					}
 					exit(1);
 				} else {
 					// We try it again
 					$this->logger->notice('Reconnected after database error', [
-						'code'  => $this->errorno,
-						'error' => $this->error,
+						'code'  => $errorno,
+						'error' => $error,
 					]);
 					$this->in_retrial = true;
 					$ret              = $this->p($sql, $args);
@@ -745,8 +762,8 @@ class Database
 			}
 
 			$this->logger->error('DB Error', [
-				'code'      => $this->errorno,
-				'error'     => $this->error,
+				'code'      => $errorno,
+				'error'     => $error,
 				'callstack' => System::callstack(8),
 				'params'    => $this->replaceParameters($sql, $params),
 			]);
@@ -755,8 +772,8 @@ class Database
 			// A reconnect like in $this->p could be dangerous with modifications
 			if ($errorno == 2006) {
 				$this->logger->notice('Giving up because of database error', [
-					'code'  => $this->errorno,
-					'error' => $this->error,
+					'code'  => $errorno,
+					'error' => $error,
 				]);
 				exit(1);
 			}
