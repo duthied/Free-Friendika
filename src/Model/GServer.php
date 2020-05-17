@@ -353,6 +353,15 @@ class GServer
 			return;
 		}
 
+		// Sanitize incoming data, see https://github.com/friendica/friendica/issues/8565
+		$data['subscribe'] = (bool)$data['subscribe'] ?? false;
+
+		if (!$data['subscribe'] || empty($data['scope']) || !in_array(strtolower($data['scope']), ['all', 'tags'])) {
+			$data['scope'] = '';
+			$data['subscribe'] = false;
+			$data['tags'] = [];
+		}
+
 		$gserver = DBA::selectFirst('gserver', ['id', 'relay-subscribe', 'relay-scope'], ['nurl' => Strings::normaliseLink($server_url)]);
 		if (!DBA::isResult($gserver)) {
 			return;
