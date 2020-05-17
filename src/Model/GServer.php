@@ -339,7 +339,7 @@ class GServer
 	 * @param string $server_url address of the server
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function discoverRelay(string $server_url)
+	public static function discoverRelay(string $server_url)
 	{
 		Logger::info('Discover relay data', ['server' => $server_url]);
 
@@ -351,6 +351,15 @@ class GServer
 		$data = json_decode($curlResult->getBody(), true);
 		if (!is_array($data)) {
 			return;
+		}
+
+		// Sanitize incoming data, see https://github.com/friendica/friendica/issues/8565
+		$data['subscribe'] = (bool)$data['subscribe'] ?? false;
+
+		if (!$data['subscribe'] || empty($data['scope']) || !in_array(strtolower($data['scope']), ['all', 'tags'])) {
+			$data['scope'] = '';
+			$data['subscribe'] = false;
+			$data['tags'] = [];
 		}
 
 		$gserver = DBA::selectFirst('gserver', ['id', 'relay-subscribe', 'relay-scope'], ['nurl' => Strings::normaliseLink($server_url)]);
