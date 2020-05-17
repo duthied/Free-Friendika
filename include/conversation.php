@@ -376,17 +376,17 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 				. "<script> var profile_uid = " . $_SESSION['uid']
 				. "; var netargs = '" . substr(DI::args()->getCommand(), 8)
 				. '?f='
-				. (!empty($_GET['cid'])    ? '&cid='    . rawurlencode($_GET['cid'])    : '')
-				. (!empty($_GET['search']) ? '&search=' . rawurlencode($_GET['search']) : '')
-				. (!empty($_GET['star'])   ? '&star='   . rawurlencode($_GET['star'])   : '')
-				. (!empty($_GET['order'])  ? '&order='  . rawurlencode($_GET['order'])  : '')
-				. (!empty($_GET['bmark'])  ? '&bmark='  . rawurlencode($_GET['bmark'])  : '')
-				. (!empty($_GET['liked'])  ? '&liked='  . rawurlencode($_GET['liked'])  : '')
-				. (!empty($_GET['conv'])   ? '&conv='   . rawurlencode($_GET['conv'])   : '')
-				. (!empty($_GET['nets'])   ? '&nets='   . rawurlencode($_GET['nets'])   : '')
-				. (!empty($_GET['cmin'])   ? '&cmin='   . rawurlencode($_GET['cmin'])   : '')
-				. (!empty($_GET['cmax'])   ? '&cmax='   . rawurlencode($_GET['cmax'])   : '')
-				. (!empty($_GET['file'])   ? '&file='   . rawurlencode($_GET['file'])   : '')
+				. (!empty($_GET['contactid']) ? '&contactid=' . rawurlencode($_GET['contactid']) : '')
+				. (!empty($_GET['search'])    ? '&search='    . rawurlencode($_GET['search'])    : '')
+				. (!empty($_GET['star'])      ? '&star='      . rawurlencode($_GET['star'])      : '')
+				. (!empty($_GET['order'])     ? '&order='     . rawurlencode($_GET['order'])     : '')
+				. (!empty($_GET['bmark'])     ? '&bmark='     . rawurlencode($_GET['bmark'])     : '')
+				. (!empty($_GET['liked'])     ? '&liked='     . rawurlencode($_GET['liked'])     : '')
+				. (!empty($_GET['conv'])      ? '&conv='      . rawurlencode($_GET['conv'])      : '')
+				. (!empty($_GET['nets'])      ? '&nets='      . rawurlencode($_GET['nets'])      : '')
+				. (!empty($_GET['cmin'])      ? '&cmin='      . rawurlencode($_GET['cmin'])      : '')
+				. (!empty($_GET['cmax'])      ? '&cmax='      . rawurlencode($_GET['cmax'])      : '')
+				. (!empty($_GET['file'])      ? '&file='      . rawurlencode($_GET['file'])      : '')
 
 				. "'; </script>\r\n";
 		}
