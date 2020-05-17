@@ -339,7 +339,7 @@ class GServer
 	 * @param string $server_url address of the server
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function discoverRelay(string $server_url)
+	private static function discoverRelay(string $server_url)
 	{
 		Logger::info('Discover relay data', ['server' => $server_url]);
 
