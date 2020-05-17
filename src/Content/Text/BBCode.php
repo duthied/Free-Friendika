@@ -1724,14 +1724,14 @@ class BBCode
 
 		// Replace non graphical smilies for external posts
 		if (!$nosmile && !$for_plaintext) {
-			$oldtext = $text;
 			$text = Smilies::replace($text);			
-			if (DI::config()->get('system', 'big_emojis') && ($simple_html != self::DIASPORA) && ($oldtext != $text)) {
-				$conv = html_entity_decode(str_replace([' ', "\n", "\r"], '', $text));
-				// Emojis are always 4 byte Unicode characters
-				if (strlen($conv) / mb_strlen($conv) == 4) {
-					$text = '<span style="font-size: xx-large; line-height: initial;">' . $text . '</span>';
-				}
+		}
+
+		if (DI::config()->get('system', 'big_emojis') && ($simple_html != self::DIASPORA)) {
+			$conv = html_entity_decode(str_replace([' ', "\n", "\r"], '', $text));
+			// Emojis are always 4 byte Unicode characters
+			if (strlen($conv) / mb_strlen($conv) == 4) {
+				$text = '<span style="font-size: xx-large; line-height: initial;">' . $text . '</span>';
 			}
 		}
 
