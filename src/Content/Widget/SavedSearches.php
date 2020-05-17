@@ -22,6 +22,7 @@
 namespace Friendica\Content\Widget;
 
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
 
@@ -45,6 +46,7 @@ class SavedSearches
 					'id'          => $saved_search['id'],
 					'term'        => $saved_search['term'],
 					'encodedterm' => urlencode($saved_search['term']),
+					'searchpath'  => Search::getSearchPath($saved_search['term']),
 					'delete'      => DI::l10n()->t('Remove term'),
 					'selected'    => $search == $saved_search['term'],
 				];

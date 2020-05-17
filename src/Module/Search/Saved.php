@@ -22,6 +22,7 @@
 namespace Friendica\Module\Search;
 
 use Friendica\BaseModule;
+use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Strings;
@@ -33,7 +34,7 @@ class Saved extends BaseModule
 		$action = DI::args()->get(2, 'none');
 		$search = Strings::escapeTags(trim(rawurldecode($_GET['term'] ?? '')));
 
-		$return_url = $_GET['return_url'] ?? 'search?q=' . urlencode($search);
+		$return_url = $_GET['return_url'] ?? Search::getSearchPath($search);
 
 		if (local_user() && $search) {
 			switch ($action) {
