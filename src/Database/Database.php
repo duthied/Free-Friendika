@@ -135,8 +135,9 @@ class Database
 		}
 
 		$this->emulate_prepares = (bool)$this->configCache->get('database', 'emulate_prepares');
+		$this->pdo_emulate_prepares = (bool)$this->configCache->get('database', 'pdo_emulate_prepares');
 
-		if (class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
+		if (!$this->configCache->get('database', 'disable_pdo') && class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
 			$this->driver = 'pdo';
 			$connect      = "mysql:host=" . $server . ";dbname=" . $db;
 
@@ -150,7 +151,7 @@ class Database
 
 			try {
 				$this->connection = @new PDO($connect, $user, $pass);
-				$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+				$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 				$this->connected = true;
 			} catch (PDOException $e) {
 				$this->connected = false;
@@ -1046,7 +1047,7 @@ class Database
 		$success = $this->e("LOCK TABLES " . DBA::buildTableString($table) . " WRITE");
 
 		if ($this->driver == 'pdo') {
-			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 		}
 
 		if (!$success) {
@@ -1079,7 +1080,7 @@ class Database
 		$success = $this->e("UNLOCK TABLES");
 
 		if ($this->driver == 'pdo') {
-			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 			$this->e("SET autocommit=1");
 		} else {
 			$this->connection->autocommit(true);

@@ -45,8 +45,23 @@ return [
 		'database' => '',
 
 		// charset (String)
-		// Database connexion charset. Changing this value will likely corrupt special characters.
+		// Database connection charset. Changing this value will likely corrupt special characters.
 		'charset' => 'utf8mb4',
+
+		// emulate_prepares (Boolean) (Experimental)
+		// If enabled, prepared statements will be emulated.
+		// In combination with MySQLi this will cast all return values to strings.
+		'emulate_prepares' => false,
+
+		// pdo_emulate_prepares (Boolean) (Experimental)
+		// If enabled, the builtin emulation for prepared statements is used.
+		// Due to limitations of that emulation (all return values are casted as strings)
+		// this will most likely cause issues and should not be used on production systems.
+		'pdo_emulate_prepares' => false,
+
+		// disable_pdo (Boolean)
+		// PDO is used by default (if available). Otherwise MySQLi will be used.
+		'disable_pdo' => false,
 	],
 	'config' => [
 		// admin_email (Comma-separated list)
