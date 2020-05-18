@@ -23,6 +23,7 @@ namespace Friendica\Core;
 
 use Exception;
 use Friendica\DI;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Render\TemplateEngine;
 
 /**
@@ -70,6 +71,7 @@ class Renderer
 	 * @param string $template
 	 * @param array  $vars
 	 * @return string
+	 * @throws InternalServerErrorException
 	 */
 	public static function replaceMacros(string $template, array $vars)
 	{
@@ -83,8 +85,8 @@ class Renderer
 		try {
 			$output = $t->replaceMacros($template, $vars);
 		} catch (Exception $e) {
-			echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
-			exit();
+			DI::logger()->critical($e->getMessage(), ['template' => $template, 'vars' => $vars]);
+			throw new InternalServerErrorException(DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator or check the Friendica log for errors.'));
 		}
 
 		DI::profiler()->saveTimestamp($stamp1, "rendering", System::callstack());
@@ -99,7 +101,7 @@ class Renderer
 	 * @param string $subDir Subdirectory (Optional)
 	 *
 	 * @return string template.
-	 * @throws Exception
+	 * @throws InternalServerErrorException
 	 */
 	public static function getMarkupTemplate($file, $subDir = '')
 	{
@@ -109,8 +111,8 @@ class Renderer
 		try {
 			$template = $t->getTemplateFile($file, $subDir);
 		} catch (Exception $e) {
-			echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
-			exit();
+			DI::logger()->critical($e->getMessage(), ['file' => $file, 'subDir' => $subDir]);
+			throw new InternalServerErrorException(DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator or check the Friendica log for errors.'));
 		}
 
 		DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
@@ -122,6 +124,7 @@ class Renderer
 	 * Register template engine class
 	 *
 	 * @param string $class
+	 * @throws InternalServerErrorException
 	 */
 	public static function registerTemplateEngine($class)
 	{
@@ -131,8 +134,8 @@ class Renderer
 			$name = $v['name'];
 			self::$template_engines[$name] = $class;
 		} else {
-			echo "template engine <tt>$class</tt> cannot be registered without a name.\n";
-			die();
+			DI::logger()->critical(DI::l10n()->t('template engine cannot be registered without a name.'), ['class' => $class]);
+			throw new InternalServerErrorException(DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator or check the Friendica log for errors.'));
 		}
 	}
 
@@ -143,6 +146,7 @@ class Renderer
 	 * or default
 	 *
 	 * @return TemplateEngine Template Engine instance
+	 * @throws InternalServerErrorException
 	 */
 	public static function getTemplateEngine()
 	{
@@ -160,8 +164,8 @@ class Renderer
 			}
 		}
 
-		echo "template engine <tt>$template_engine</tt> is not registered!\n";
-		exit();
+		DI::logger()->critical(DI::l10n()->t('template engine is not registered!'), ['template_engine' => $template_engine]);
+		throw new InternalServerErrorException(DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator or check the Friendica log for errors.'));
 	}
 
 	/**

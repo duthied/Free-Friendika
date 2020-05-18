@@ -23,6 +23,7 @@ namespace Friendica\Render;
 
 use Friendica\Core\Hook;
 use Friendica\DI;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Strings;
 
 /**
@@ -48,8 +49,8 @@ final class FriendicaSmartyEngine extends TemplateEngine
 		$this->smarty = new FriendicaSmarty($this->theme, $this->theme_info);
 
 		if (!is_writable(DI::basePath() . '/view/smarty3')) {
-			echo "<b>ERROR:</b> folder <tt>view/smarty3/</tt> must be writable by webserver.";
-			exit();
+			DI::logger()->critical(DI::l10n()->t('The folder view/smarty3/ must be writable by webserver.'));
+			throw new InternalServerErrorException(DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator or check the Friendica log for errors.'));
 		}
 	}
 
