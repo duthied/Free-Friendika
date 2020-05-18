@@ -535,6 +535,6 @@ class Tag
 			}
 		}
 
-		return Strings::startsWith($tag, $tag_chars);
+		return Strings::startsWithChars($tag, $tag_chars);
 	}	
 }
