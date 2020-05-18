@@ -369,9 +369,23 @@ class Strings
 	 * @param array	 $chars
 	 * @return bool
 	 */
-	public static function startsWith($string, array $chars)
+	public static function startsWithChars($string, array $chars)
 	{
 		$return = in_array(substr(trim($string), 0, 1), $chars);
+
+		return $return;
+	}
+
+	/**
+	 * Check if the first string starts with the second
+	 *
+	 * @param string $string
+	 * @param string $start
+	 * @return bool
+	 */
+	public static function startsWith(string $string, string $start)
+	{
+		$return = substr_compare($string, $start, 0, strlen($start)) === 0;
 
 		return $return;
 	}
