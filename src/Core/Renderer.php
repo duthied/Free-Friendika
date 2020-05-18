@@ -73,7 +73,7 @@ class Renderer
 	 * @return string
 	 * @throws InternalServerErrorException
 	 */
-	public static function replaceMacros(string $template, array $vars)
+	public static function replaceMacros(string $template, array $vars = [])
 	{
 		$stamp1 = microtime(true);
 
