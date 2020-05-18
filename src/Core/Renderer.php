@@ -86,7 +86,10 @@ class Renderer
 			$output = $t->replaceMacros($template, $vars);
 		} catch (Exception $e) {
 			DI::logger()->critical($e->getMessage(), ['template' => $template, 'vars' => $vars]);
-			throw new InternalServerErrorException(DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator or check the Friendica log for errors.'));
+			$message = is_site_admin() ?
+				$e->getMessage() :
+				DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
+			throw new InternalServerErrorException($message);
 		}
 
 		DI::profiler()->saveTimestamp($stamp1, "rendering", System::callstack());
@@ -112,7 +115,10 @@ class Renderer
 			$template = $t->getTemplateFile($file, $subDir);
 		} catch (Exception $e) {
 			DI::logger()->critical($e->getMessage(), ['file' => $file, 'subDir' => $subDir]);
-			throw new InternalServerErrorException(DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator or check the Friendica log for errors.'));
+			$message = is_site_admin() ?
+				$e->getMessage() :
+				DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
+			throw new InternalServerErrorException($message);
 		}
 
 		DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
@@ -134,8 +140,12 @@ class Renderer
 			$name = $v['name'];
 			self::$template_engines[$name] = $class;
 		} else {
-			DI::logger()->critical(DI::l10n()->t('template engine cannot be registered without a name.'), ['class' => $class]);
-			throw new InternalServerErrorException(DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator or check the Friendica log for errors.'));
+			$admin_message = DI::l10n()->t('template engine cannot be registered without a name.');
+			DI::logger()->critical($admin_message, ['class' => $class]);
+			$message = is_site_admin() ?
+				$admin_message :
+				DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
+			throw new InternalServerErrorException($message);
 		}
 	}
 
@@ -164,8 +174,12 @@ class Renderer
 			}
 		}
 
-		DI::logger()->critical(DI::l10n()->t('template engine is not registered!'), ['template_engine' => $template_engine]);
-		throw new InternalServerErrorException(DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator or check the Friendica log for errors.'));
+		$admin_message = DI::l10n()->t('template engine is not registered!');
+		DI::logger()->critical($admin_message, ['template_engine' => $template_engine]);
+		$message = is_site_admin() ?
+			$admin_message :
+			DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
+		throw new InternalServerErrorException($message);
 	}
 
 	/**

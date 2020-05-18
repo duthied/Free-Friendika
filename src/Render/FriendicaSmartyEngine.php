@@ -49,8 +49,12 @@ final class FriendicaSmartyEngine extends TemplateEngine
 		$this->smarty = new FriendicaSmarty($this->theme, $this->theme_info);
 
 		if (!is_writable(DI::basePath() . '/view/smarty3')) {
-			DI::logger()->critical(DI::l10n()->t('The folder view/smarty3/ must be writable by webserver.'));
-			throw new InternalServerErrorException(DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator or check the Friendica log for errors.'));
+			$admin_message = DI::l10n()->t('The folder view/smarty3/ must be writable by webserver.');
+			DI::logger()->critical($admin_message);
+			$message = is_site_admin() ?
+				$admin_message :
+				DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
+			throw new InternalServerErrorException($message);
 		}
 	}
 
