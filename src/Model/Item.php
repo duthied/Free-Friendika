@@ -291,27 +291,31 @@ class Item
 			}
 		}
 
-		if (!empty($row['internal-iaid']) && array_key_exists('verb', $row)) {
-			$row['verb'] = self::indexToActivity($row['internal-activity']);
-			if (array_key_exists('title', $row)) {
-				$row['title'] = '';
+		if (array_key_exists('verb', $row)) {
+			if (!is_null($row['internal-verb'])) {
+				$row['verb'] = $row['internal-verb'];
+			} elseif (!is_null($row['internal-activity'])) {
+				$row['verb'] = self::indexToActivity($row['internal-activity']);
 			}
-			if (array_key_exists('body', $row)) {
-				$row['body'] = $row['verb'];
-			}
-			if (array_key_exists('object', $row)) {
-				$row['object'] = '';
-			}
-			if (array_key_exists('object-type', $row)) {
-				$row['object-type'] = Activity\ObjectType::NOTE;
-			}
-		} elseif (array_key_exists('verb', $row) && in_array($row['verb'], ['', Activity::POST, Activity::SHARE])) {
-			// Posts don't have a target - but having tags or files.
-			// We safe some performance by building tag and file strings only here.
-			// We remove the target since they aren't used for this type.
-			// In mail posts we do store some mail header data in the object.
-			if (array_key_exists('target', $row)) {
-				$row['target'] = '';
+
+			if (in_array($row['verb'], self::ACTIVITIES)) {
+				if (array_key_exists('title', $row)) {
+					$row['title'] = '';
+				}
+				if (array_key_exists('body', $row)) {
+					$row['body'] = $row['verb'];
+				}
+				if (array_key_exists('object', $row)) {
+					$row['object'] = '';
+				}
+				if (array_key_exists('object-type', $row)) {
+					$row['object-type'] = Activity\ObjectType::NOTE;
+				}
+			} elseif (in_array($row['verb'], ['', Activity::POST, Activity::SHARE])) {
+				// Posts don't have a target - but having tags or files.
+				if (array_key_exists('target', $row)) {
+					$row['target'] = '';
+				}
 			}
 		}
 
@@ -347,7 +351,7 @@ class Item
 		unset($row['internal-uri-id']);
 		unset($row['internal-uid']);
 		unset($row['internal-psid']);
-		unset($row['internal-iaid']);
+		unset($row['internal-verb']);
 		unset($row['internal-user-ignored']);
 		unset($row['interaction']);
 
@@ -673,7 +677,7 @@ class Item
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
 			'id' => 'item_id', 'network', 'icid', 'iaid',
 			'uri-id' => 'internal-uri-id', 'uid' => 'internal-uid',
-			'network' => 'internal-network', 'iaid' => 'internal-iaid', 'psid' => 'internal-psid'];
+			'network' => 'internal-network', 'psid' => 'internal-psid'];
 
 		if ($usermode) {
 			$fields['user-item'] = ['pinned', 'notification-type', 'ignored' => 'internal-user-ignored'];
@@ -684,6 +688,8 @@ class Item
 		$fields['item-content'] = array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST);
 
 		$fields['post-delivery-data'] = array_merge(Post\DeliveryData::LEGACY_FIELD_LIST, Post\DeliveryData::FIELD_LIST);
+
+		$fields['verb'] = ['name' => 'internal-verb'];
 
 		$fields['permissionset'] = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
 
@@ -809,6 +815,10 @@ class Item
 			$joins .= " LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `item`.`uri-id` AND `item`.`origin`";
 		}
 
+		if (strpos($sql_commands, "`verb`.") !== false) {
+			$joins .= " LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`";
+		}
+
 		if (strpos($sql_commands, "`permissionset`.") !== false) {
 			$joins .= " LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`";
 		}
@@ -835,11 +845,11 @@ class Item
 	private static function constructSelectFields(array $fields, array $selected)
 	{
 		if (!empty($selected)) {
-			$selected = array_merge($selected, ['internal-uri-id', 'internal-uid', 'internal-psid', 'internal-iaid', 'internal-network']);
+			$selected = array_merge($selected, ['internal-uri-id', 'internal-uid', 'internal-psid', 'internal-network']);
 		}
 
 		if (in_array('verb', $selected)) {
-			$selected[] = 'internal-activity';
+			$selected = array_merge($selected, ['internal-activity', 'internal-verb']);
 		}
 
 		if (in_array('ignored', $selected)) {
@@ -1845,11 +1855,18 @@ class Item
 			$notify_type = Delivery::POST;
 		}
 
+		// We are doing this outside of the transaction to avoid timing problems
+		if (in_array($item['verb'], self::ACTIVITIES)) {
+			$item['iaid'] = self::insertActivity($item);
+		} else {
+			$item['icid'] = self::insertContent($item);
+		}
+
 		$body = $item['body'];
 		
-		// We are doing this outside of the transaction to avoid timing problems
-		if (!self::insertActivity($item)) {
-			self::insertContent($item);
+		// We just remove everything that is content
+		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
+			unset($item[$field]);
 		}
 
 		$like_no_comment = DI::config()->get('system', 'like_no_comment');
@@ -2013,20 +2030,15 @@ class Item
 	 * @return bool
 	 * @throws \Exception
 	 */
-	private static function insertActivity(&$item)
+	private static function insertActivity(array $item)
 	{
 		$activity_index = self::activityToIndex($item['verb']);
-
 		if ($activity_index < 0) {
-			return false;
+			// SHouldn't happen at all
+			return null;
 		}
 
 		$fields = ['activity' => $activity_index, 'uri-hash' => (string)$item['uri-id'], 'uri-id' => $item['uri-id']];
-
-		// We just remove everything that is content
-		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
-			unset($item[$field]);
-		}
 
 		// To avoid timing problems, we are using locks.
 		$locked = DI::lock()->acquire('item_insert_activity');
@@ -2037,21 +2049,20 @@ class Item
 		// Do we already have this content?
 		$item_activity = DBA::selectFirst('item-activity', ['id'], ['uri-id' => $item['uri-id']]);
 		if (DBA::isResult($item_activity)) {
-			$item['iaid'] = $item_activity['id'];
-			Logger::log('Fetched activity for URI ' . $item['uri'] . ' (' . $item['iaid'] . ')');
+			$iaid = $item_activity['id'];
+			Logger::log('Fetched activity for URI ' . $item['uri'] . ' (' . $iaid . ')');
 		} elseif (DBA::insert('item-activity', $fields)) {
-			$item['iaid'] = DBA::lastInsertId();
-			Logger::log('Inserted activity for URI ' . $item['uri'] . ' (' . $item['iaid'] . ')');
+			$iaid = DBA::lastInsertId();
+			Logger::log('Inserted activity for URI ' . $item['uri'] . ' (' . $iaid . ')');
 		} else {
 			// This shouldn't happen.
+			$iaid = null;
 			Logger::log('Could not insert activity for URI ' . $item['uri'] . ' - should not happen');
-			DI::lock()->release('item_insert_activity');
-			return false;
 		}
 		if ($locked) {
 			DI::lock()->release('item_insert_activity');
 		}
-		return true;
+		return $iaid;
 	}
 
 	/**
@@ -2060,14 +2071,13 @@ class Item
 	 * @param array $item The item fields that are to be inserted
 	 * @throws \Exception
 	 */
-	private static function insertContent(&$item)
+	private static function insertContent(array $item)
 	{
 		$fields = ['uri-plink-hash' => (string)$item['uri-id'], 'uri-id' => $item['uri-id']];
 
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($item[$field])) {
 				$fields[$field] = $item[$field];
-				unset($item[$field]);
 			}
 		}
 
@@ -2080,18 +2090,20 @@ class Item
 		// Do we already have this content?
 		$item_content = DBA::selectFirst('item-content', ['id'], ['uri-id' => $item['uri-id']]);
 		if (DBA::isResult($item_content)) {
-			$item['icid'] = $item_content['id'];
-			Logger::log('Fetched content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
+			$icid = $item_content['id'];
+			Logger::log('Fetched content for URI ' . $item['uri'] . ' (' . $icid . ')');
 		} elseif (DBA::insert('item-content', $fields)) {
-			$item['icid'] = DBA::lastInsertId();
-			Logger::log('Inserted content for URI ' . $item['uri'] . ' (' . $item['icid'] . ')');
+			$icid = DBA::lastInsertId();
+			Logger::log('Inserted content for URI ' . $item['uri'] . ' (' . $icid . ')');
 		} else {
 			// This shouldn't happen.
+			$icid = null;
 			Logger::log('Could not insert content for URI ' . $item['uri'] . ' - should not happen');
 		}
 		if ($locked) {
 			DI::lock()->release('item_insert_content');
 		}
+		return $icid;
 	}
 
 	/**
