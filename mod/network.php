@@ -58,8 +58,8 @@ function network_init(App $a)
 	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
 
 	$cid = 0;
-	if (!empty($_GET['cid'])) {
-		$cid = $_GET['cid'];
+	if (!empty($_GET['contactid'])) {
+		$cid = $_GET['contactid'];
 		$_GET['nets'] = '';
 		$group_id = 0;
 	}
@@ -466,12 +466,12 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$o = '';
 
-	$cid   = intval($_GET['cid']   ?? 0);
-	$star  = intval($_GET['star']  ?? 0);
-	$bmark = intval($_GET['bmark'] ?? 0);
-	$conv  = intval($_GET['conv']  ?? 0);
+	$cid   = intval($_GET['contactid'] ?? 0);
+	$star  = intval($_GET['star']      ?? 0);
+	$bmark = intval($_GET['bmark']     ?? 0);
+	$conv  = intval($_GET['conv']      ?? 0);
 	$order = Strings::escapeTags(($_GET['order'] ?? '') ?: 'activity');
-	$nets  =        $_GET['nets']  ?? '';
+	$nets  =        $_GET['nets']      ?? '';
 
 	$allowedCids = [];
 	if ($cid) {
@@ -786,6 +786,13 @@ function networkThreadedView(App $a, $update, $parent)
 			$top_limit = DateTimeFormat::utcNow();
 		}
 
+		// Handle bad performance situations when the distance between top and bottom is too high
+		// See issue https://github.com/friendica/friendica/issues/8619
+		if (strtotime($top_limit) - strtotime($bottom_limit) > 86400) {
+			// Set the bottom limit to one day in the past at maximum
+			$bottom_limit = DateTimeFormat::utc(date('c', strtotime($top_limit) - 86400));
+		}
+
 		$items = DBA::p("SELECT `item`.`parent-uri` AS `uri`, 0 AS `item_id`, `item`.$ordering AS `order_date`, `author`.`url` AS `author-link` FROM `item`
 			STRAIGHT_JOIN (SELECT `uri-id` FROM `tag-search-view` WHERE `name` IN
 				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `uid` = 0) AS `tag-search`
@@ -891,8 +898,8 @@ function network_tabs(App $a)
 	$cmd = DI::args()->getCommand();
 
 	$def_param = [];
-	if (!empty($_GET['cid'])) {
-		$def_param['cid'] = $_GET['cid'];
+	if (!empty($_GET['contactid'])) {
+		$def_param['contactid'] = $_GET['contactid'];
 	}
 
 	// tabs

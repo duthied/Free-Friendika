@@ -202,7 +202,7 @@ function vier_community_info()
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
 				$entry = [
-					'url'          => 'network?cid=' . $contact['id'],
+					'url'          => 'network?contactid=' . $contact['id'],
 					'external_url' => Contact::magicLink($contact['url']),
 					'name'         => $contact['name'],
 					'cid'          => $contact['id'],

@@ -3139,7 +3139,9 @@ class Diaspora
 		$json = json_encode(["iv" => $b_iv, "key" => $b_aes_key]);
 
 		$encrypted_key_bundle = "";
-		openssl_public_encrypt($json, $encrypted_key_bundle, $pubkey);
+		if (!@openssl_public_encrypt($json, $encrypted_key_bundle, $pubkey)) {
+			return false;
+		}
 
 		$json_object = json_encode(
 			["aes_key" => base64_encode($encrypted_key_bundle),
