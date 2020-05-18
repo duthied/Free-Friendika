@@ -41,6 +41,14 @@ abstract class TemplateEngine
 	abstract public function __construct(string $theme, array $theme_info);
 
 	/**
+	 * Checks the template engine is correctly installed and configured and reports error messages in the provided
+	 * parameter or displays them directly if it's null.
+	 *
+	 * @param array|null $errors
+	 */
+	abstract public function testInstall(array &$errors = null);
+
+	/**
 	 * Returns the rendered template output from the template string and variables
 	 *
 	 * @param string $template

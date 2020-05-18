@@ -56,6 +56,14 @@ final class FriendicaSmartyEngine extends TemplateEngine
 	/**
 	 * @inheritDoc
 	 */
+	public function testInstall(array &$errors = null)
+	{
+		$this->smarty->testInstall($errors);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function replaceMacros(string $template, array $vars)
 	{
 		if (!Strings::startsWith($template, self::FILE_PREFIX)) {
