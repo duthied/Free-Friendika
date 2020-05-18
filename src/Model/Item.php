@@ -2032,13 +2032,8 @@ class Item
 	 */
 	private static function insertActivity(array $item)
 	{
-		$activity_index = self::activityToIndex($item['verb']);
-		if ($activity_index < 0) {
-			// SHouldn't happen at all
-			return null;
-		}
-
-		$fields = ['activity' => $activity_index, 'uri-hash' => (string)$item['uri-id'], 'uri-id' => $item['uri-id']];
+		$fields = ['activity' => self::activityToIndex($item['verb']),
+			'uri-hash' => (string)$item['uri-id'], 'uri-id' => $item['uri-id']];
 
 		// To avoid timing problems, we are using locks.
 		$locked = DI::lock()->acquire('item_insert_activity');
