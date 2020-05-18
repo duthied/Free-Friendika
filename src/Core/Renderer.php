@@ -23,8 +23,7 @@ namespace Friendica\Core;
 
 use Exception;
 use Friendica\DI;
-use Friendica\Render\FriendicaSmarty;
-use Friendica\Render\ITemplateEngine;
+use Friendica\Render\TemplateEngine;
 
 /**
  * This class handles Renderer related functions.
@@ -66,25 +65,23 @@ class Renderer
 	];
 
 	/**
-	 * This is our template processor
+	 * Returns the rendered template output from the template string and variables
 	 *
-	 * @param string|FriendicaSmarty $s    The string requiring macro substitution or an instance of FriendicaSmarty
-	 * @param array                  $vars Key value pairs (search => replace)
-	 *
-	 * @return string substituted string
-	 * @throws Exception
+	 * @param string $template
+	 * @param array  $vars
+	 * @return string
 	 */
-	public static function replaceMacros($s, array $vars = [])
+	public static function replaceMacros(string $template, array $vars)
 	{
 		$stamp1 = microtime(true);
 
 		// pass $baseurl to all templates if it isn't set
-		$vars = array_merge(['$baseurl' => DI::baseUrl()->get()], $vars);
+		$vars = array_merge(['$baseurl' => DI::baseUrl()->get(), '$APP' => DI::app()], $vars);
 
 		$t = self::getTemplateEngine();
 
 		try {
-			$output = $t->replaceMacros($s, $vars);
+			$output = $t->replaceMacros($template, $vars);
 		} catch (Exception $e) {
 			echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
 			exit();
@@ -98,19 +95,19 @@ class Renderer
 	/**
 	 * Load a given template $s
 	 *
-	 * @param string $s    Template to load.
+	 * @param string $file   Template to load.
 	 * @param string $subDir Subdirectory (Optional)
 	 *
 	 * @return string template.
 	 * @throws Exception
 	 */
-	public static function getMarkupTemplate($s, $subDir = '')
+	public static function getMarkupTemplate($file, $subDir = '')
 	{
 		$stamp1 = microtime(true);
 		$t = self::getTemplateEngine();
 
 		try {
-			$template = $t->getTemplateFile($s, $subDir);
+			$template = $t->getTemplateFile($file, $subDir);
 		} catch (Exception $e) {
 			echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
 			exit();
@@ -130,8 +127,7 @@ class Renderer
 	{
 		$v = get_class_vars($class);
 
-		if (!empty($v['name']))
-		{
+		if (!empty($v['name'])) {
 			$name = $v['name'];
 			self::$template_engines[$name] = $class;
 		} else {
@@ -146,7 +142,7 @@ class Renderer
 	 * If $name is not defined, return engine defined by theme,
 	 * or default
 	 *
-	 * @return ITemplateEngine Template Engine instance
+	 * @return TemplateEngine Template Engine instance
 	 */
 	public static function getTemplateEngine()
 	{
@@ -156,8 +152,9 @@ class Renderer
 			if (isset(self::$template_engine_instance[$template_engine])) {
 				return self::$template_engine_instance[$template_engine];
 			} else {
+				$a = DI::app();
 				$class = self::$template_engines[$template_engine];
-				$obj = new $class;
+				$obj = new $class($a->getCurrentTheme(), $a->theme_info);
 				self::$template_engine_instance[$template_engine] = $obj;
 				return $obj;
 			}

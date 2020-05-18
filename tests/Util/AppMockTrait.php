@@ -108,7 +108,7 @@ trait AppMockTrait
 			->andReturn($this->configMock);
 		$this->app
 			->shouldReceive('getTemplateEngine')
-			->andReturn(new FriendicaSmartyEngine());
+			->andReturn(new FriendicaSmartyEngine('frio', []));
 		$this->app
 			->shouldReceive('getCurrentTheme')
 			->andReturn('Smarty3');
