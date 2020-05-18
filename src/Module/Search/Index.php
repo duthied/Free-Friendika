@@ -28,6 +28,7 @@ use Friendica\Content\Widget;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -80,7 +81,7 @@ class Index extends BaseSearch
 		}
 
 		if (local_user()) {
-			DI::page()['aside'] .= Widget\SavedSearches::getHTML('search?q=' . urlencode($search), $search);
+			DI::page()['aside'] .= Widget\SavedSearches::getHTML(Search::getSearchPath($search), $search);
 		}
 
 		Nav::setSelected('search');

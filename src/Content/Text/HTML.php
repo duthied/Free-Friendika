@@ -26,6 +26,7 @@ use DOMXPath;
 use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Util\Network;
@@ -917,7 +918,7 @@ class HTML
 			'$save_label'   => $save_label,
 			'$search_hint'  => DI::l10n()->t('@name, !forum, #tags, content'),
 			'$mode'         => $mode,
-			'$return_url'   => urlencode('search?q=' . urlencode($s)),
+			'$return_url'   => urlencode(Search::getSearchPath($s)),
 		];
 
 		if (!$aside) {

@@ -311,4 +311,19 @@ class Search
 	{
 		return DI::config()->get('system', 'directory', self::DEFAULT_DIRECTORY);
 	}
+
+	/**
+	 * Return the search path (either fulltext search or tag search)
+	 *
+	 * @param string $search
+	 * @return string search path
+	 */
+	public static function getSearchPath(string $search)
+	{
+		if (substr($search, 0, 1) == '#') {
+			return 'search?tag=' . urlencode(substr($search, 1));
+		} else {
+			return 'search?q=' . urlencode($search);
+		}
+	}
 }
