@@ -33,7 +33,7 @@ class Verb
 	 * @return integer verb id
 	 * @throws \Exception
 	 */
-	public static function getID($verb)
+	public static function getID(string $verb)
 	{
 		if (empty($verb)) {
 			return 0;
@@ -47,5 +47,25 @@ class Verb
 		DBA::insert('verb', ['name' => $verb], true);
 
 		return DBA::lastInsertId();
+	}
+
+	/**
+	 * Return verb name for the given ID
+	 *
+	 * @param integer $id
+	 * @return string verb
+	 */
+	public static function getbyID(int $id)
+	{
+		if (empty($id)) {
+			return '';
+		}
+
+		$verb_record = DBA::selectFirst('verb', ['name'], ['id' => $id]);
+		if (!DBA::isResult($verb_record)) {
+			return '';
+		}
+
+		return $verb_record['name'];
 	}
 }
