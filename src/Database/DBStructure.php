@@ -1004,6 +1004,12 @@ class DBStructure
 	 */
 	public static function checkInitialValues()
 	{
+		if (self::existsTable('verb') && !DBA::exists('verb', ['id' => 1])) {
+			foreach (Item::ACTIVITIES as $index => $activity) {
+				DBA::insert('verb', ['id' => $index + 1, 'name' => $activity], true);
+			}
+		}
+
 		if (self::existsTable('contact') && !DBA::exists('contact', ['id' => 0])) {
 			DBA::insert('contact', ['nurl' => '']);
 			$lastid = DBA::lastInsertId();
