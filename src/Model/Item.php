@@ -94,7 +94,7 @@ class Item
 
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
-			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id',
+			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'vid',
 			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'iaid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'attach', 'inform',
@@ -669,7 +669,7 @@ class Item
 		$fields = [];
 
 		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
-			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id',
+			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'vid',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
 			'created', 'edited', 'commented', 'received', 'changed', 'psid',
 			'resource-id', 'event-id', 'attach', 'post-type', 'file',
