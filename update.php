@@ -474,3 +474,28 @@ function update_1348()
 
 	return Update::SUCCESS;
 }
+
+function update_1349()
+{
+	$correct = true;
+	foreach (Item::ACTIVITIES as $index => $activity) {
+		if (!DBA::exists('verb', ['id' => $index + 1, 'name' => $activity])) {
+			$correct = false;
+		}
+	}
+
+	if (!$correct) {
+		// The update failed - but it cannot be recovered, since the data doesn't match our expectation
+		// This means that we can't use this "shortcut" to fill the "vid" field and we have to rely upon
+		// the postupdate. This is not fatal, but means that it will take some longer time for the system
+		// to fill all data.
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("UPDATE `item` INNER JOIN `item-activity` ON `item`.`uri-id` = `item-activity`.`uri-id`
+		SET `vid` = `item-activity`.`activity` + 1 WHERE `gravity` = ? AND (`vid` IS NULL OR `vid` = 0)", GRAVITY_ACTIVITY)) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
