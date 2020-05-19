@@ -55,7 +55,7 @@ class Verb
 	 * @param integer $id
 	 * @return string verb
 	 */
-	public static function getbyID(int $id)
+	public static function getByID(int $id)
 	{
 		if (empty($id)) {
 			return '';
