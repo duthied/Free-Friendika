@@ -128,13 +128,14 @@ class GServer
 	/**
 	 * Checks the state of the given server.
 	 *
-	 * @param string  $server_url URL of the given server
-	 * @param string  $network    Network value that is used, when detection failed
-	 * @param boolean $force      Force an update.
+	 * @param string  $server_url    URL of the given server
+	 * @param string  $network       Network value that is used, when detection failed
+	 * @param boolean $force         Force an update.
+	 * @param boolean $only_nodeinfo Only use nodeinfo for server detection
 	 *
 	 * @return boolean 'true' if server seems vital
 	 */
-	public static function check(string $server_url, string $network = '', bool $force = false)
+	public static function check(string $server_url, string $network = '', bool $force = false, bool $only_nodeinfo = false)
 	{
 		// Unify the server address
 		$server_url = trim($server_url, '/');
@@ -174,19 +175,38 @@ class GServer
 			Logger::info('Server is unknown. Start discovery.', ['Server' => $server_url]);
 		}
 
-		return self::detect($server_url, $network);
+		return self::detect($server_url, $network, $only_nodeinfo);
+	}
+
+	/**
+	 * Set failed server status
+	 *
+	 * @param string $url
+	 */
+	private static function setFailure(string $url)
+	{
+		if (DBA::exists('gserver', ['nurl' => Strings::normaliseLink($url)])) {
+			DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($url)]);
+			Logger::info('Set failed status for existing server', ['url' => $url]);
+			return;
+		}
+		DBA::insert('gserver', ['url' => $url, 'nurl' => Strings::normaliseLink($url),
+			'network' => Protocol::PHANTOM, 'created' => DateTimeFormat::utcNow(),
+			'last_failure' => DateTimeFormat::utcNow()]);
+		Logger::info('Set failed status for new server', ['url' => $url]);
 	}
 
 	/**
 	 * Detect server data (type, protocol, version number, ...)
 	 * The detected data is then updated or inserted in the gserver table.
 	 *
-	 * @param string  $url     URL of the given server
-	 * @param string  $network Network value that is used, when detection failed
+	 * @param string  $url           URL of the given server
+	 * @param string  $network       Network value that is used, when detection failed
+	 * @param boolean $only_nodeinfo Only use nodeinfo for server detection
 	 *
 	 * @return boolean 'true' if server could be detected
 	 */
-	public static function detect(string $url, string $network = '')
+	public static function detect(string $url, string $network = '', bool $only_nodeinfo = false)
 	{
 		Logger::info('Detect server type', ['server' => $url]);
 		$serverdata = [];
@@ -210,11 +230,16 @@ class GServer
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
 		$curlResult = Network::curl($url . '/.well-known/nodeinfo', false, ['timeout' => $xrd_timeout]);
 		if ($curlResult->isTimeout()) {
-			DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($url)]);
+			self::setFailure($url);
 			return false;
 		}
 
 		$nodeinfo = self::fetchNodeinfo($url, $curlResult);
+		if ($only_nodeinfo && empty($nodeinfo)) {
+			Logger::info('Invalid nodeinfo in nodeinfo-mode, server is marked as failure', ['url' => $url]);
+			self::setFailure($url);
+			return false;
+		}
 
 		// When nodeinfo isn't present, we use the older 'statistics.json' endpoint
 		if (empty($nodeinfo)) {
@@ -233,7 +258,7 @@ class GServer
 				}
 
 				if (!$curlResult->isSuccess() || empty($curlResult->getBody()) || self::invalidBody($curlResult->getBody())) {
-					DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($url)]);
+					self::setFailure($url);
 					return false;
 				}
 			}
@@ -246,7 +271,7 @@ class GServer
 			// With this check we don't have to waste time and ressources for dead systems.
 			// Also this hopefully prevents us from receiving abuse messages.
 			if (empty($serverdata['network']) && !self::validHostMeta($url)) {
-				DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($url)]);
+				self::setFailure($url);
 				return false;
 			}
 
@@ -481,6 +506,10 @@ class GServer
 	 */
 	private static function fetchNodeinfo(string $url, CurlResult $curlResult)
 	{
+		if (!$curlResult->isSuccess()) {
+			return [];
+		}
+
 		$nodeinfo = json_decode($curlResult->getBody(), true);
 
 		if (!is_array($nodeinfo) || empty($nodeinfo['links'])) {
@@ -1430,7 +1459,8 @@ class GServer
 
 			if (!empty($servers['pods'])) {
 				foreach ($servers['pods'] as $server) {
-					Worker::add(PRIORITY_LOW, 'UpdateGServer', 'https://' . $server['host']);
+					// Using "only_nodeinfo" since servers that are listed on that page should always have it.
+					Worker::add(PRIORITY_LOW, 'UpdateGServer', 'https://' . $server['host'], true);
 				}
 			}
 		}
