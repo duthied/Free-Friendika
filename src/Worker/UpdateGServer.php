@@ -29,9 +29,10 @@ class UpdateGServer
 {
 	/**
 	 * Update the given server
-	 * @param string $server_url Server URL
+	 * @param string  $server_url    Server URL
+	 * @param boolean $only_nodeinfo Only use nodeinfo for server detection
 	 */
-	public static function execute($server_url)
+	public static function execute(string $server_url, bool $only_nodeinfo = false)
 	{
 		if (empty($server_url)) {
 			return;
@@ -42,7 +43,7 @@ class UpdateGServer
 			return;
 		}
 
-		$ret = GServer::check($server_url);
+		$ret = GServer::check($server_url, '', false, $only_nodeinfo);
 		Logger::info('Updated gserver', ['url' => $server_url, 'result' => $ret]);
 	}
 }
