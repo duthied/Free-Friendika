@@ -1756,25 +1756,20 @@ class Probe
 	}
 
 	/**
-	 * Check page for feed link
+	 * Checks HTML page for RSS feed link
 	 *
-	 * @param string $url Page link
-	 *
-	 * @return string feed link
+	 * @param string $url  Page link
+	 * @param string $body Page body string
+	 * @return string|false Feed link or false if body was invalid HTML document
 	 */
-	private static function getFeedLink($url)
+	public static function getFeedLink(string $url, string $body)
 	{
-		$curlResult = Network::curl($url);
-		if (!$curlResult->isSuccess()) {
-			return false;
-		}
-
 		$doc = new DOMDocument();
-		if (!@$doc->loadHTML($curlResult->getBody())) {
+		if (!@$doc->loadHTML($body)) {
 			return false;
 		}
 
-		$xpath = new DomXPath($doc);
+		$xpath = new DOMXPath($doc);
 
 		//$feeds = $xpath->query("/html/head/link[@type='application/rss+xml']");
 		$feeds = $xpath->query("/html/head/link[@type='application/rss+xml' and @rel='alternate']");
@@ -1826,7 +1821,7 @@ class Probe
 				return false;
 			}
 
-			$feed_url = self::getFeedLink($url);
+			$feed_url = self::getFeedLink($url, $feed);
 
 			if (!$feed_url) {
 				return false;
