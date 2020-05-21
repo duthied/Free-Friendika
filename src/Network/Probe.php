@@ -1792,7 +1792,7 @@ class Probe
 	 */
 	private static function ensureAbsoluteLinkFromHTMLDoc(string $href, string $base, DOMXPath $xpath)
 	{
-		if (filter_var($href, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED)) {
+		if (filter_var($href, FILTER_VALIDATE_URL)) {
 			return $href;
 		}
 
