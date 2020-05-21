@@ -1771,30 +1771,72 @@ class Probe
 
 		$xpath = new DOMXPath($doc);
 
-		//$feeds = $xpath->query("/html/head/link[@type='application/rss+xml']");
-		$feeds = $xpath->query("/html/head/link[@type='application/rss+xml' and @rel='alternate']");
-		if (!is_object($feeds)) {
-			return false;
+		$feedUrl = $xpath->evaluate('string(/html/head/link[@type="application/rss+xml" and @rel="alternate"]/@href)');
+
+		$feedUrl = $feedUrl ? self::ensureAbsoluteLinkFromHTMLDoc($feedUrl, $url, $xpath) : '';
+
+		return $feedUrl;
+	}
+
+	/**
+	 * Return an absolute URL in the context of a HTML document retrieved from the provided URL.
+	 *
+	 * Loosely based on RFC 1808
+	 *
+	 * @see https://tools.ietf.org/html/rfc1808
+	 *
+	 * @param string   $href  The potential relative href found in the HTML document
+	 * @param string   $base  The HTML document URL
+	 * @param DOMXPath $xpath The HTML document XPath
+	 * @return string
+	 */
+	private static function ensureAbsoluteLinkFromHTMLDoc(string $href, string $base, DOMXPath $xpath)
+	{
+		if (filter_var($href, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED)) {
+			return $href;
 		}
 
-		if ($feeds->length == 0) {
-			return false;
-		}
+		$base = $xpath->evaluate('string(/html/head/base/@href)') ?: $base;
 
-		$feed_url = "";
+		$baseParts = parse_url($base);
 
-		foreach ($feeds as $feed) {
-			$attr = [];
-			foreach ($feed->attributes as $attribute) {
-				$attr[$attribute->name] = trim($attribute->value);
+		// Naked domain case (scheme://basehost)
+		$path = $baseParts['path'] ?? '/';
+
+		// Remove the filename part of the path if it exists (/base/path/file)
+		$path = implode('/', array_slice(explode('/', $path), 0, -1));
+
+		$hrefParts = parse_url($href);
+
+		// Root path case (/path) including relative scheme case (//host/path)
+		if ($hrefParts['path'] && $hrefParts['path'][0] == '/') {
+			$path = $hrefParts['path'];
+		} else {
+			$path = $path . '/' . $hrefParts['path'];
+
+			// Resolve arbitrary relative path
+			// Lifted from https://www.php.net/manual/en/function.realpath.php#84012
+			$parts = array_filter(explode('/', $path), 'strlen');
+			$absolutes = array();
+			foreach ($parts as $part) {
+				if ('.' == $part) continue;
+				if ('..' == $part) {
+					array_pop($absolutes);
+				} else {
+					$absolutes[] = $part;
+				}
 			}
 
-			if (empty($feed_url) && !empty($attr['href'])) {
-				$feed_url = $attr["href"];
-			}
+			$path = '/' . implode('/', $absolutes);
 		}
 
-		return $feed_url;
+		// Relative scheme case (//host/path)
+		$baseParts['host'] = $hrefParts['host'] ?? $baseParts['host'];
+		$baseParts['path'] = $path;
+		unset($baseParts['query']);
+		unset($baseParts['fragment']);
+
+		return Network::unparseURL($baseParts);
 	}
 
 	/**
