@@ -247,6 +247,12 @@ class GServer
 		Logger::info('Set failed status for new server', ['url' => $url]);
 	}
 
+	/**
+	 * Remove unwanted content from the given URL
+	 *
+	 * @param string $url
+	 * @return string cleaned URL
+	 */
 	public static function cleanURL(string $url)
 	{
 		$url = trim($url, '/');
@@ -260,13 +266,15 @@ class GServer
 		return Network::unparseURL($urlparts);
 	}
 
+	/**
+	 * Return the base URL
+	 *
+	 * @param string $url
+	 * @return string base URL
+	 */
 	private static function getBaseURL(string $url)
 	{
-		$urlparts = parse_url($url);
-		unset($urlparts['user']);
-		unset($urlparts['pass']);
-		unset($urlparts['query']);
-		unset($urlparts['fragment']);
+		$urlparts = parse_url(self::cleanURL($url));
 		unset($urlparts['path']);
 		return Network::unparseURL($urlparts);
 	}
