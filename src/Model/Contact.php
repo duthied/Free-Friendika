@@ -1530,10 +1530,6 @@ class Contact
 
 		if (empty($data)) {
 			$data = Probe::uri($url, "", $uid);
-			// Ensure that there is a gserver entry
-			if (!empty($data['baseurl']) && ($data['network'] != Protocol::PHANTOM)) {
-				GServer::check($data['baseurl']);
-			}
 		}
 
 		// Take the default values when probing failed
@@ -1575,6 +1571,7 @@ class Contact
 				'confirm'   => $data['confirm'] ?? '',
 				'poco'      => $data['poco'] ?? '',
 				'baseurl'   => $data['baseurl'] ?? '',
+				'gsid'      => $data['gsid'] ?? null,
 				'name-date' => DateTimeFormat::utcNow(),
 				'uri-date'  => DateTimeFormat::utcNow(),
 				'avatar-date' => DateTimeFormat::utcNow(),
@@ -2082,7 +2079,7 @@ class Contact
 
 		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about',
 			'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
-			'network', 'alias', 'baseurl', 'forum', 'prv', 'contact-type', 'pubkey'];
+			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
@@ -2415,6 +2412,7 @@ class Contact
 				'nick'    => $ret['nick'],
 				'network' => $ret['network'],
 				'baseurl' => $ret['baseurl'],
+				'gsid'    => $ret['gsid'] ?? null,
 				'protocol' => $protocol,
 				'pubkey'  => $ret['pubkey'],
 				'rel'     => $new_relation,

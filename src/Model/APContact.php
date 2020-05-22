@@ -291,6 +291,12 @@ class APContact
 			$apcontact['baseurl'] = null;
 		}
 
+		if (!empty($apcontact['baseurl']) && empty($fetched_contact['gsid'])) {
+			$apcontact['gsid'] = GServer::getID($apcontact['baseurl']);
+		} elseif (!empty($fetched_contact['gsid'])) {
+			$apcontact['gsid'] = $fetched_contact['gsid'];
+		}
+
 		if ($apcontact['url'] == $apcontact['alias']) {
 			$apcontact['alias'] = null;
 		}

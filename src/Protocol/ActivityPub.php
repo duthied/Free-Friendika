@@ -171,6 +171,7 @@ class ActivityPub
 		$profile['poll'] = $apcontact['outbox'];
 		$profile['pubkey'] = $apcontact['pubkey'];
 		$profile['baseurl'] = $apcontact['baseurl'];
+		$profile['gsid'] = $apcontact['gsid'];
 
 		// Remove all "null" fields
 		foreach ($profile as $field => $content) {

@@ -1,8 +1,36 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1348
+-- DB_UPDATE_VERSION 1350
 -- ------------------------------------------
 
+
+--
+-- TABLE gserver
+--
+CREATE TABLE IF NOT EXISTS `gserver` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`nurl` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`version` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`site_name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`info` text COMMENT '',
+	`register_policy` tinyint NOT NULL DEFAULT 0 COMMENT '',
+	`registered-users` int unsigned NOT NULL DEFAULT 0 COMMENT 'Number of registered users',
+	`directory-type` tinyint DEFAULT 0 COMMENT 'Type of directory service (Poco, Mastodon)',
+	`poco` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`noscrape` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
+	`platform` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`relay-subscribe` boolean NOT NULL DEFAULT '0' COMMENT 'Has the server subscribed to the relay system',
+	`relay-scope` varchar(10) NOT NULL DEFAULT '' COMMENT 'The scope of messages that the server wants to get',
+	`detection-method` tinyint unsigned COMMENT 'Method that had been used to detect that server',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`last_poco_query` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `nurl` (`nurl`(190))
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Global servers';
 
 --
 -- TABLE clients
@@ -87,6 +115,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`unsearchable` boolean NOT NULL DEFAULT '0' COMMENT 'Contact prefers to not be searchable',
 	`sensitive` boolean NOT NULL DEFAULT '0' COMMENT 'Contact posts sensitive content',
 	`baseurl` varchar(255) DEFAULT '' COMMENT 'baseurl of the contact',
+	`gsid` int unsigned COMMENT 'Global Server ID',
 	`reason` text COMMENT '',
 	`closeness` tinyint unsigned NOT NULL DEFAULT 99 COMMENT '',
 	`info` mediumtext COMMENT '',
@@ -108,7 +137,9 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `nurl_uid` (`nurl`(32),`uid`),
 	 INDEX `nick_uid` (`nick`(32),`uid`),
 	 INDEX `dfrn-id` (`dfrn-id`(64)),
-	 INDEX `issued-id` (`issued-id`(64))
+	 INDEX `issued-id` (`issued-id`(64)),
+	 INDEX `gsid` (`gsid`),
+	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='contact table';
 
 --
@@ -210,6 +241,7 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	`alias` varchar(255) COMMENT '',
 	`pubkey` text COMMENT '',
 	`baseurl` varchar(255) COMMENT 'baseurl of the ap contact',
+	`gsid` int unsigned COMMENT 'Global Server ID',
 	`generator` varchar(255) COMMENT 'Name of the contact\'s system',
 	`following_count` int unsigned DEFAULT 0 COMMENT 'Number of following contacts',
 	`followers_count` int unsigned DEFAULT 0 COMMENT 'Number of followers',
@@ -218,7 +250,9 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	 PRIMARY KEY(`url`),
 	 INDEX `addr` (`addr`(32)),
 	 INDEX `alias` (`alias`(190)),
-	 INDEX `url` (`followers`(190))
+	 INDEX `followers` (`followers`(190)),
+	 INDEX `gsid` (`gsid`),
+	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='ActivityPub compatible contacts - used in the ActivityPub implementation';
 
 --
@@ -463,13 +497,16 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`alias` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`generation` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`server_url` varchar(255) NOT NULL DEFAULT '' COMMENT 'baseurl of the contacts server',
+	`gsid` int unsigned COMMENT 'Global Server ID',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `nurl` (`nurl`(190)),
 	 INDEX `name` (`name`(64)),
 	 INDEX `nick` (`nick`(32)),
 	 INDEX `addr` (`addr`(64)),
 	 INDEX `hide_network_updated` (`hide`,`network`,`updated`),
-	 INDEX `updated` (`updated`)
+	 INDEX `updated` (`updated`),
+	 INDEX `gsid` (`gsid`),
+	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='global contacts';
 
 --
@@ -522,33 +559,6 @@ CREATE TABLE IF NOT EXISTS `group_member` (
 	 INDEX `contactid` (`contact-id`),
 	 UNIQUE INDEX `gid_contactid` (`gid`,`contact-id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy groups, member info';
-
---
--- TABLE gserver
---
-CREATE TABLE IF NOT EXISTS `gserver` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`nurl` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`version` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`site_name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`info` text COMMENT '',
-	`register_policy` tinyint NOT NULL DEFAULT 0 COMMENT '',
-	`registered-users` int unsigned NOT NULL DEFAULT 0 COMMENT 'Number of registered users',
-	`directory-type` tinyint DEFAULT 0 COMMENT 'Type of directory service (Poco, Mastodon)',
-	`poco` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`noscrape` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
-	`platform` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`relay-subscribe` boolean NOT NULL DEFAULT '0' COMMENT 'Has the server subscribed to the relay system',
-	`relay-scope` varchar(10) NOT NULL DEFAULT '' COMMENT 'The scope of messages that the server wants to get',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last_poco_query` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `nurl` (`nurl`(190))
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Global servers';
 
 --
 -- TABLE gserver-tag

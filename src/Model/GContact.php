@@ -690,7 +690,7 @@ class GContact
 		}
 
 		$public_contact = DBA::selectFirst('gcontact', [
-			'name', 'nick', 'photo', 'location', 'about', 'addr', 'generation', 'birthday', 'keywords',
+			'name', 'nick', 'photo', 'location', 'about', 'addr', 'generation', 'birthday', 'keywords', 'gsid',
 			'contact-type', 'hide', 'nsfw', 'network', 'alias', 'notify', 'server_url', 'connect', 'updated', 'url'
 		], ['id' => $gcontact_id]);
 
@@ -752,6 +752,10 @@ class GContact
 			$contact['server_url'] = Strings::normaliseLink($contact['server_url']);
 		}
 
+		if (!empty($contact['server_url']) && empty($contact['gsid'])) {
+			$contact['gsid'] = GServer::getID($contact['server_url']);
+		}
+
 		if (empty($contact['addr']) && !empty($contact['server_url']) && !empty($contact['nick'])) {
 			$hostname = str_replace('http://', '', $contact['server_url']);
 			$contact['addr'] = $contact['nick'] . '@' . $hostname;
@@ -791,7 +795,8 @@ class GContact
 				'notify' => $contact['notify'], 'url' => $contact['url'],
 				'location' => $contact['location'], 'about' => $contact['about'],
 				'generation' => $contact['generation'], 'updated' => $contact['updated'],
-				'server_url' => $contact['server_url'], 'connect' => $contact['connect']
+				'server_url' => $contact['server_url'], 'connect' => $contact['connect'],
+				'gsid' => $contact['gsid']
 			];
 
 			DBA::update('gcontact', $updated, $condition, $fields);
@@ -1016,7 +1021,7 @@ class GContact
 		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords',
 			'bd', 'contact-type', 'network', 'addr', 'notify', 'alias', 'archive', 'term-date',
 			'created', 'updated', 'avatar', 'success_update', 'failure_update', 'forum', 'prv',
-			'baseurl', 'sensitive', 'unsearchable'];
+			'baseurl', 'gsid', 'sensitive', 'unsearchable'];
 
 		$contact = DBA::selectFirst('contact', $fields, array_merge($condition, ['uid' => 0, 'network' => Protocol::FEDERATED]));
 		if (!DBA::isResult($contact)) {
@@ -1026,7 +1031,7 @@ class GContact
 		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'generation',
 			'birthday', 'contact-type', 'network', 'addr', 'notify', 'alias', 'archived', 'archive_date',
 			'created', 'updated', 'photo', 'last_contact', 'last_failure', 'community', 'connect',
-			'server_url', 'nsfw', 'hide', 'id'];
+			'server_url', 'gsid', 'nsfw', 'hide', 'id'];
 
 		$old_gcontact = DBA::selectFirst('gcontact', $fields, ['nurl' => $contact['nurl']]);
 		$do_insert = !DBA::isResult($old_gcontact);
@@ -1037,7 +1042,7 @@ class GContact
 		$gcontact = [];
 
 		// These fields are identical in both contact and gcontact
-		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords',
+		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'gsid',
 			'contact-type', 'network', 'addr', 'notify', 'alias', 'created', 'updated'];
 
 		foreach ($fields as $field) {
