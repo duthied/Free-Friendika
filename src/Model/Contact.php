@@ -1530,10 +1530,6 @@ class Contact
 
 		if (empty($data)) {
 			$data = Probe::uri($url, "", $uid);
-			// Ensure that there is a gserver entry
-			if (!empty($data['baseurl']) && ($data['network'] != Protocol::PHANTOM)) {
-				$data['gsid'] = GServer::getID($data['baseurl']);
-			}
 		}
 
 		// Take the default values when probing failed
@@ -2136,10 +2132,6 @@ class Contact
 			}
 		}
 
-		if (!empty($ret['baseurl']) && empty($contact['gsid'])) {
-			$ret['gsid'] = GServer::getID($ret['baseurl']);
-		}
-
 		$new_pubkey = $ret['pubkey'];
 
 		$update = false;
@@ -2306,10 +2298,6 @@ class Contact
 			$ret = $arr['contact'];
 		} else {
 			$ret = Probe::uri($url, $network, $uid, false);
-		}
-
-		if (!empty($ret['baseurl'])) {
-			$ret['gsid'] = GServer::getID($ret['baseurl']);
 		}
 
 		if (($network != '') && ($ret['network'] != $network)) {

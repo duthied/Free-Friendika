@@ -30,6 +30,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\GServer;
 use Friendica\Model\Profile;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
@@ -86,14 +87,16 @@ class Probe
 				"community", "keywords", "location", "about", "hide",
 				"batch", "notify", "poll", "request", "confirm", "poco",
 				"following", "followers", "inbox", "outbox", "sharedinbox",
-				"priority", "network", "pubkey", "baseurl"];
+				"priority", "network", "pubkey", "baseurl", "gsid"];
 
 		$newdata = [];
 		foreach ($fields as $field) {
 			if (isset($data[$field])) {
 				$newdata[$field] = $data[$field];
-			} else {
+			} elseif ($field != "gsid") {
 				$newdata[$field] = "";
+			} else {
+				$newdata[$field] = null;
 			}
 		}
 
@@ -459,6 +462,10 @@ class Probe
 
 		if (!empty(self::$baseurl)) {
 			$data['baseurl'] = self::$baseurl;
+		}
+
+		if (!empty($data['baseurl']) && empty($data['gsid'])) {
+			$data['gsid'] = GServer::getID($data['baseurl']);
 		}
 
 		if (empty($data['network'])) {
