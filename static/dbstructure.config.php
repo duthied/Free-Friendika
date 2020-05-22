@@ -59,6 +59,35 @@ if (!defined('DB_UPDATE_VERSION')) {
 
 return [
 	// Side tables
+	"gserver" => [
+		"comment" => "Global servers",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"version" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"site_name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"info" => ["type" => "text", "comment" => ""],
+			"register_policy" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+			"registered-users" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Number of registered users"],
+			"directory-type" => ["type" => "tinyint", "default" => "0", "comment" => "Type of directory service (Poco, Mastodon)"],
+			"poco" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"noscrape" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
+			"platform" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"relay-subscribe" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Has the server subscribed to the relay system"],
+			"relay-scope" => ["type" => "varchar(10)", "not null" => "1", "default" => "", "comment" => "The scope of messages that the server wants to get"],
+			"detection-method" => ["type" => "tinyint unsigned", "comment" => "Method that had been used to detect that server"],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"last_poco_query" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"last_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"last_failure" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"nurl" => ["UNIQUE", "nurl(190)"],
+		]
+	],
 	"clients" => [
 		"comment" => "OAuth usage",
 		"fields" => [
@@ -609,35 +638,6 @@ return [
 			"PRIMARY" => ["id"],
 			"contactid" => ["contact-id"],
 			"gid_contactid" => ["UNIQUE", "gid", "contact-id"],
-		]
-	],
-	"gserver" => [
-		"comment" => "Global servers",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"version" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"site_name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"info" => ["type" => "text", "comment" => ""],
-			"register_policy" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
-			"registered-users" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Number of registered users"],
-			"directory-type" => ["type" => "tinyint", "default" => "0", "comment" => "Type of directory service (Poco, Mastodon)"],
-			"poco" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"noscrape" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
-			"platform" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"relay-subscribe" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Has the server subscribed to the relay system"],
-			"relay-scope" => ["type" => "varchar(10)", "not null" => "1", "default" => "", "comment" => "The scope of messages that the server wants to get"],
-			"detection-method" => ["type" => "tinyint unsigned", "comment" => "Method that had been used to detect that server"],
-			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"last_poco_query" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"last_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"last_failure" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"nurl" => ["UNIQUE", "nurl(190)"],
 		]
 	],
 	"gserver-tag" => [

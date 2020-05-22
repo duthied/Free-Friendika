@@ -5,6 +5,34 @@
 
 
 --
+-- TABLE gserver
+--
+CREATE TABLE IF NOT EXISTS `gserver` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`nurl` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`version` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`site_name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`info` text COMMENT '',
+	`register_policy` tinyint NOT NULL DEFAULT 0 COMMENT '',
+	`registered-users` int unsigned NOT NULL DEFAULT 0 COMMENT 'Number of registered users',
+	`directory-type` tinyint DEFAULT 0 COMMENT 'Type of directory service (Poco, Mastodon)',
+	`poco` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`noscrape` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
+	`platform` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`relay-subscribe` boolean NOT NULL DEFAULT '0' COMMENT 'Has the server subscribed to the relay system',
+	`relay-scope` varchar(10) NOT NULL DEFAULT '' COMMENT 'The scope of messages that the server wants to get',
+	`detection-method` tinyint unsigned COMMENT 'Method that had been used to detect that server',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`last_poco_query` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `nurl` (`nurl`(190))
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Global servers';
+
+--
 -- TABLE clients
 --
 CREATE TABLE IF NOT EXISTS `clients` (
@@ -531,34 +559,6 @@ CREATE TABLE IF NOT EXISTS `group_member` (
 	 INDEX `contactid` (`contact-id`),
 	 UNIQUE INDEX `gid_contactid` (`gid`,`contact-id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy groups, member info';
-
---
--- TABLE gserver
---
-CREATE TABLE IF NOT EXISTS `gserver` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`nurl` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`version` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`site_name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`info` text COMMENT '',
-	`register_policy` tinyint NOT NULL DEFAULT 0 COMMENT '',
-	`registered-users` int unsigned NOT NULL DEFAULT 0 COMMENT 'Number of registered users',
-	`directory-type` tinyint DEFAULT 0 COMMENT 'Type of directory service (Poco, Mastodon)',
-	`poco` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`noscrape` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
-	`platform` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`relay-subscribe` boolean NOT NULL DEFAULT '0' COMMENT 'Has the server subscribed to the relay system',
-	`relay-scope` varchar(10) NOT NULL DEFAULT '' COMMENT 'The scope of messages that the server wants to get',
-	`detection-method` tinyint unsigned COMMENT 'Method that had been used to detect that server',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last_poco_query` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `nurl` (`nurl`(190))
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Global servers';
 
 --
 -- TABLE gserver-tag
