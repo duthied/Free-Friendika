@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1349);
+	define('DB_UPDATE_VERSION', 1350);
 }
 
 return [
@@ -142,6 +142,7 @@ return [
 			"unsearchable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact prefers to not be searchable"],
 			"sensitive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact posts sensitive content"],
 			"baseurl" => ["type" => "varchar(255)", "default" => "", "comment" => "baseurl of the contact"],
+			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID"],
 			"reason" => ["type" => "text", "comment" => ""],
 			"closeness" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "99", "comment" => ""],
 			"info" => ["type" => "mediumtext", "comment" => ""],
@@ -166,6 +167,7 @@ return [
 			"nick_uid" => ["nick(32)", "uid"],
 			"dfrn-id" => ["dfrn-id(64)"],
 			"issued-id" => ["issued-id(64)"],
+			"gsid" => ["gsid"]
 		]
 	],
 	"item-uri" => [
@@ -273,6 +275,7 @@ return [
 			"alias" => ["type" => "varchar(255)", "comment" => ""],
 			"pubkey" => ["type" => "text", "comment" => ""],
 			"baseurl" => ["type" => "varchar(255)", "comment" => "baseurl of the ap contact"],
+			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID"],
 			"generator" => ["type" => "varchar(255)", "comment" => "Name of the contact's system"],
 			"following_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of following contacts"],
 			"followers_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of followers"],
@@ -283,7 +286,8 @@ return [
 			"PRIMARY" => ["url"],
 			"addr" => ["addr(32)"],
 			"alias" => ["alias(190)"],
-			"url" => ["followers(190)"]
+			"followers" => ["followers(190)"],
+			"gsid" => ["gsid"]
 		]
 	],
 	"attach" => [
@@ -539,6 +543,7 @@ return [
 			"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"generation" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"server_url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "baseurl of the contacts server"],
+			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -548,6 +553,7 @@ return [
 			"addr" => ["addr(64)"],
 			"hide_network_updated" => ["hide", "network", "updated"],
 			"updated" => ["updated"],
+			"gsid" => ["gsid"]
 		]
 	],
 	"gfollower" => [
@@ -623,6 +629,7 @@ return [
 			"platform" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"relay-subscribe" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Has the server subscribed to the relay system"],
 			"relay-scope" => ["type" => "varchar(10)", "not null" => "1", "default" => "", "comment" => "The scope of messages that the server wants to get"],
+			"detection-method" => ["type" => "tinyint unsigned", "comment" => "Method that had been used to detect that server"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last_poco_query" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
