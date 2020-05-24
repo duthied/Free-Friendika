@@ -436,9 +436,7 @@ class Probe
 			$data['url'] = $uri;
 		}
 
-		if (!empty($data['photo']) && !empty($data['baseurl'])) {
-			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink($data['baseurl']), Strings::normaliseLink($data['photo']));
-		} elseif (empty($data['photo'])) {
+		if (empty($data['photo'])) {
 			$data['photo'] = DI::baseUrl() . '/images/person-300.jpg';
 		}
 
