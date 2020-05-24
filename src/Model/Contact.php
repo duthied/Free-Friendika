@@ -1542,6 +1542,14 @@ class Contact
 			return 0;
 		}
 
+		if (!empty($data['baseurl'])) {
+			$data['baseurl'] = GServer::cleanURL($data['baseurl']);
+		}
+
+		if (!empty($data['baseurl']) && empty($data['gsid'])) {
+			$data['gsid'] = GServer::getID($data['baseurl']);
+		}
+
 		if (!$contact_id && !empty($data['alias']) && ($data['alias'] != $url) && !$in_loop) {
 			$contact_id = self::getIdForURL($data["alias"], $uid, true, $default, true);
 		}
@@ -1624,7 +1632,7 @@ class Contact
 				}
 			}
 		} else {
-			$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'baseurl'];
+			$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'baseurl', 'gsid'];
 			$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
 
 			// This condition should always be true
@@ -1638,7 +1646,7 @@ class Contact
 				'updated' => DateTimeFormat::utcNow()
 			];
 
-			$fields = ['addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'baseurl'];
+			$fields = ['addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'baseurl', 'gsid'];
 
 			foreach ($fields as $field) {
 				$updated[$field] = ($data[$field] ?? '') ?: $contact[$field];
