@@ -134,6 +134,7 @@ var commentBusy = false;
 var last_popup_menu = null;
 var last_popup_button = null;
 var lockLoadContent = false;
+var originalTitle = document.title;
 
 const urlRegex = /^(?:https?:\/\/|\s)[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})(?:\/+[a-z0-9_.:;-]*)*(?:\?[&%|+a-z0-9_=,.:;-]*)?(?:[&%|+&a-z0-9_=,:;.-]*)(?:[!#\/&%|+a-z0-9_=,:;.-]*)}*$/i;
 
@@ -240,6 +241,13 @@ $(function() {
 		var invalid = data.invalid || 0;
 		if (invalid == 1) {
 			window.location.href=window.location.href
+		}
+
+		let tabNotifications = data.mail + data.notification;
+		if (tabNotifications > 0) {
+			document.title = '(' + tabNotifications + ') ' + originalTitle;
+		} else {
+			document.title = originalTitle;
 		}
 
 		['net', 'home', 'intro', 'mail', 'events', 'birthdays', 'notification'].forEach(function(type) {
