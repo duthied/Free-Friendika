@@ -112,10 +112,8 @@ $(document).ready(function(){
 		}
 	});
 
-	//$('ul.flex-nav').flexMenu();
-
 	// initialize the bootstrap tooltips
-	$('body').tooltip({
+	$body.tooltip({
 		selector: '[data-toggle="tooltip"]',
 		container: 'body',
 		animation: true,
@@ -364,10 +362,17 @@ $(document).ready(function(){
 
 	// Comment form submit
 	$body.on('submit', '.comment-edit-form', function(e) {
+		let id = $form.data('item-id');
+
+		// Compose page form exception: id is always 0 and form must not be submitted asynchronously
+		if (id === 0) {
+			return;
+		}
+
 		e.preventDefault();
 
 		let $form = $(this);
-		let id = $form.data('item-id');
+
 		let $commentSubmit = $form.find('.comment-edit-submit').button('loading');
 
 		unpause();
