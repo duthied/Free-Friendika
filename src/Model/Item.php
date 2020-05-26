@@ -95,7 +95,7 @@ class Item
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'vid',
-			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'iaid', 'psid',
+			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'attach', 'inform',
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
@@ -106,8 +106,8 @@ class Item
 			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 			'owner-id', 'owner-link', 'owner-name', 'owner-avatar'];
 
+	// List of all verbs that don't need additional content data.
 	// Never reorder or remove entries from this list. Just add new ones at the end, if needed.
-	// The item-activity table only stores the index and needs this array to know the matching activity.
 	const ACTIVITIES = [
 		Activity::LIKE, Activity::DISLIKE,
 		Activity::ATTEND, Activity::ATTENDNO, Activity::ATTENDMAYBE,
@@ -204,38 +204,6 @@ class Item
 	}
 
 	/**
-	 * returns an activity index from an activity string
-	 *
-	 * @param string $activity activity string
-	 * @return integer Activity index
-	 */
-	public static function activityToIndex($activity)
-	{
-		$index = array_search($activity, self::ACTIVITIES);
-
-		if (is_bool($index)) {
-			$index = -1;
-		}
-
-		return $index;
-	}
-
-	/**
-	 * returns an activity string from an activity index
-	 *
-	 * @param integer $index activity index
-	 * @return string Activity string
-	 */
-	private static function indexToActivity($index)
-	{
-		if (is_null($index) || !array_key_exists($index, self::ACTIVITIES)) {
-			return '';
-		}
-
-		return self::ACTIVITIES[$index];
-	}
-
-	/**
 	 * Fetch a single item row
 	 *
 	 * @param mixed $stmt statement object
@@ -294,8 +262,6 @@ class Item
 		if (array_key_exists('verb', $row)) {
 			if (!is_null($row['internal-verb'])) {
 				$row['verb'] = $row['internal-verb'];
-			} elseif (!is_null($row['internal-activity'])) {
-				$row['verb'] = self::indexToActivity($row['internal-activity']);
 			}
 
 			if (in_array($row['verb'], self::ACTIVITIES)) {
@@ -346,7 +312,6 @@ class Item
 		}
 
 		// Remove internal fields
-		unset($row['internal-activity']);
 		unset($row['internal-network']);
 		unset($row['internal-uri-id']);
 		unset($row['internal-uid']);
@@ -675,15 +640,13 @@ class Item
 			'resource-id', 'event-id', 'attach', 'post-type', 'file',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
-			'id' => 'item_id', 'network', 'icid', 'iaid',
+			'id' => 'item_id', 'network', 'icid',
 			'uri-id' => 'internal-uri-id', 'uid' => 'internal-uid',
 			'network' => 'internal-network', 'psid' => 'internal-psid'];
 
 		if ($usermode) {
 			$fields['user-item'] = ['pinned', 'notification-type', 'ignored' => 'internal-user-ignored'];
 		}
-
-		$fields['item-activity'] = ['activity', 'activity' => 'internal-activity'];
 
 		$fields['item-content'] = array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST);
 
@@ -803,10 +766,6 @@ class Item
 			$joins .= " LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`";
 		}
 
-		if (strpos($sql_commands, "`item-activity`.") !== false) {
-			$joins .= " LEFT JOIN `item-activity` ON `item-activity`.`uri-id` = `item`.`uri-id`";
-		}
-
 		if (strpos($sql_commands, "`item-content`.") !== false) {
 			$joins .= " LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`";
 		}
@@ -849,7 +808,7 @@ class Item
 		}
 
 		if (in_array('verb', $selected)) {
-			$selected = array_merge($selected, ['internal-activity', 'internal-verb']);
+			$selected = array_merge($selected, ['internal-verb']);
 		}
 
 		if (in_array('ignored', $selected)) {
@@ -928,7 +887,7 @@ class Item
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'iaid', 'icid', 'uid', 'file'], $condition);
+		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'icid', 'uid', 'file'], $condition);
 
 		$content_fields = [];
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
@@ -958,6 +917,10 @@ class Item
 			$files = null;
 		}
 
+		if (!empty($content_fields['verb'])) {
+			$fields['vid'] = Verb::getID($content_fields['verb']);
+		}
+
 		if (!empty($fields)) {
 			$success = DBA::update('item', $fields, $condition);
 
@@ -974,34 +937,7 @@ class Item
 		$notify_items = [];
 
 		while ($item = DBA::fetch($items)) {
-			if (!empty($item['iaid']) || (!empty($content_fields['verb']) && (self::activityToIndex($content_fields['verb']) >= 0))) {
-				self::updateActivity($content_fields, ['uri-id' => $item['uri-id']]);
-
-				if (empty($item['iaid'])) {
-					$item_activity = DBA::selectFirst('item-activity', ['id'], ['uri-id' => $item['uri-id']]);
-					if (DBA::isResult($item_activity)) {
-						$item_fields = ['iaid' => $item_activity['id'], 'icid' => null];
-						foreach (self::MIXED_CONTENT_FIELDLIST as $field) {
-							if (self::isLegacyMode()) {
-								$item_fields[$field] = null;
-							} else {
-								unset($item_fields[$field]);
-							}
-						}
-						DBA::update('item', $item_fields, ['id' => $item['id']]);
-
-						if (!empty($item['icid']) && !DBA::exists('item', ['icid' => $item['icid']])) {
-							DBA::delete('item-content', ['id' => $item['icid']]);
-						}
-					}
-				} elseif (!empty($item['icid'])) {
-					DBA::update('item', ['icid' => null], ['id' => $item['id']]);
-
-					if (!DBA::exists('item', ['icid' => $item['icid']])) {
-						DBA::delete('item-content', ['id' => $item['icid']]);
-					}
-				}
-			} else {
+			if (empty($content_fields['verb']) || !in_array($content_fields['verb'], self::ACTIVITIES)) {
 				self::updateContent($content_fields, ['uri-id' => $item['uri-id']]);
 
 				if (empty($item['icid'])) {
@@ -1009,12 +945,10 @@ class Item
 					if (DBA::isResult($item_content)) {
 						$item_fields = ['icid' => $item_content['id']];
 						// Clear all fields in the item table that have a content in the item-content table
-						foreach ($item_content as $field => $content) {
-							if (in_array($field, self::MIXED_CONTENT_FIELDLIST) && !empty($item_content[$field])) {
-								if (self::isLegacyMode()) {
+						if (self::isLegacyMode()) {
+							foreach ($item_content as $field => $content) {
+								if (in_array($field, self::MIXED_CONTENT_FIELDLIST) && !empty($content)) {
 									$item_fields[$field] = null;
-								} else {
-									unset($item_fields[$field]);
 								}
 							}
 						}
@@ -1113,7 +1047,7 @@ class Item
 		$fields = ['id', 'uri', 'uri-id', 'uid', 'parent', 'parent-uri', 'origin',
 			'deleted', 'file', 'resource-id', 'event-id', 'attach',
 			'verb', 'object-type', 'object', 'target', 'contact-id',
-			'icid', 'iaid', 'psid'];
+			'icid', 'psid'];
 		$item = self::selectFirst($fields, ['id' => $item_id]);
 		if (!DBA::isResult($item)) {
 			Logger::info('Item not found.', ['id' => $item_id]);
@@ -1191,8 +1125,6 @@ class Item
 		}
 
 		Post\DeliveryData::delete($item['uri-id']);
-
-		// We don't delete the item-activity here, since we need some of the data for ActivityPub
 
 		if (!empty($item['icid']) && !self::exists(['icid' => $item['icid'], 'deleted' => false])) {
 			DBA::delete('item-content', ['id' => $item['icid']], ['cascade' => false]);
@@ -1855,10 +1787,11 @@ class Item
 			$notify_type = Delivery::POST;
 		}
 
-		// We are doing this outside of the transaction to avoid timing problems
-		if (in_array($item['verb'], self::ACTIVITIES)) {
-			$item['iaid'] = self::insertActivity($item);
-		} else {
+		$like_no_comment = DI::config()->get('system', 'like_no_comment');
+
+		DBA::transaction();
+
+		if (!in_array($item['verb'], self::ACTIVITIES)) {
 			$item['icid'] = self::insertContent($item);
 		}
 
@@ -1868,10 +1801,6 @@ class Item
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			unset($item[$field]);
 		}
-
-		$like_no_comment = DI::config()->get('system', 'like_no_comment');
-
-		DBA::transaction();
 
 		// Filling item related side tables
 
@@ -2027,43 +1956,6 @@ class Item
 	 * Insert a new item content entry
 	 *
 	 * @param array $item The item fields that are to be inserted
-	 * @return bool
-	 * @throws \Exception
-	 */
-	private static function insertActivity(array $item)
-	{
-		$fields = ['activity' => self::activityToIndex($item['verb']),
-			'uri-hash' => (string)$item['uri-id'], 'uri-id' => $item['uri-id']];
-
-		// To avoid timing problems, we are using locks.
-		$locked = DI::lock()->acquire('item_insert_activity');
-		if (!$locked) {
-			Logger::log("Couldn't acquire lock for URI " . $item['uri'] . " - proceeding anyway.");
-		}
-
-		// Do we already have this content?
-		$item_activity = DBA::selectFirst('item-activity', ['id'], ['uri-id' => $item['uri-id']]);
-		if (DBA::isResult($item_activity)) {
-			$iaid = $item_activity['id'];
-			Logger::log('Fetched activity for URI ' . $item['uri'] . ' (' . $iaid . ')');
-		} elseif (DBA::insert('item-activity', $fields)) {
-			$iaid = DBA::lastInsertId();
-			Logger::log('Inserted activity for URI ' . $item['uri'] . ' (' . $iaid . ')');
-		} else {
-			// This shouldn't happen.
-			$iaid = null;
-			Logger::log('Could not insert activity for URI ' . $item['uri'] . ' - should not happen');
-		}
-		if ($locked) {
-			DI::lock()->release('item_insert_activity');
-		}
-		return $iaid;
-	}
-
-	/**
-	 * Insert a new item content entry
-	 *
-	 * @param array $item The item fields that are to be inserted
 	 * @throws \Exception
 	 */
 	private static function insertContent(array $item)
@@ -2076,57 +1968,33 @@ class Item
 			}
 		}
 
-		// To avoid timing problems, we are using locks.
-		$locked = DI::lock()->acquire('item_insert_content');
-		if (!$locked) {
-			Logger::log("Couldn't acquire lock for URI " . $item['uri'] . " - proceeding anyway.");
-		}
-
-		// Do we already have this content?
 		$item_content = DBA::selectFirst('item-content', ['id'], ['uri-id' => $item['uri-id']]);
 		if (DBA::isResult($item_content)) {
 			$icid = $item_content['id'];
-			Logger::log('Fetched content for URI ' . $item['uri'] . ' (' . $icid . ')');
-		} elseif (DBA::insert('item-content', $fields)) {
-			$icid = DBA::lastInsertId();
-			Logger::log('Inserted content for URI ' . $item['uri'] . ' (' . $icid . ')');
-		} else {
-			// This shouldn't happen.
-			$icid = null;
-			Logger::log('Could not insert content for URI ' . $item['uri'] . ' - should not happen');
-		}
-		if ($locked) {
-			DI::lock()->release('item_insert_content');
-		}
-		return $icid;
-	}
-
-	/**
-	 * Update existing item content entries
-	 *
-	 * @param array $item      The item fields that are to be changed
-	 * @param array $condition The condition for finding the item content entries
-	 * @return bool
-	 * @throws \Exception
-	 */
-	private static function updateActivity($item, $condition)
-	{
-		if (empty($item['verb'])) {
-			return false;
-		}
-		$activity_index = self::activityToIndex($item['verb']);
-
-		if ($activity_index < 0) {
-			return false;
+			Logger::info('Content found', ['icid' => $icid, 'uri' => $item['uri']]);
+			return $icid;
 		}
 
-		$fields = ['activity' => $activity_index];
+		DBA::insert('item-content', $fields, true);
+		$icid = DBA::lastInsertId();
+		if ($icid != 0) {
+			Logger::info('Content inserted', ['icid' => $icid, 'uri' => $item['uri']]);
+			return $icid;
+		}
 
-		Logger::log('Update activity for ' . json_encode($condition));
+		// Possibly there can be timing issues. Then the same content could be inserted multiple times.
+		// Due to the indexes this doesn't happen, but "lastInsertId" will be empty in these situations.
+		// So we have to fetch the id manually. This is no bug and there is no data loss.
+		$item_content = DBA::selectFirst('item-content', ['id'], ['uri-id' => $item['uri-id']]);
+		if (DBA::isResult($item_content)) {
+			$icid = $item_content['id'];
+			Logger::notice('Content inserted with empty lastInsertId', ['icid' => $icid, 'uri' => $item['uri']]);
+			return $icid;
+		}
 
-		DBA::update('item-activity', $fields, $condition, true);
-
-		return true;
+		// This shouldn't happen.
+		Logger::error("Content wasn't inserted", $item);
+		return null;
 	}
 
 	/**
@@ -2152,9 +2020,8 @@ class Item
 			$fields = $condition;
 		}
 
-		Logger::log('Update content for ' . json_encode($condition));
-
 		DBA::update('item-content', $fields, $condition, true);
+		Logger::info('Updated content', ['condition' => $condition]);
 	}
 
 	/**
@@ -3167,15 +3034,15 @@ class Item
 			$verbs = [Activity::ATTEND, Activity::ATTENDNO, Activity::ATTENDMAYBE];
 
 			// Translate to the index based activity index
-			$activities = [];
+			$vids = [];
 			foreach ($verbs as $verb) {
-				$activities[] = self::activityToIndex($verb);
+				$vids[] = Verb::getID($verb);
 			}
 		} else {
-			$activities = self::activityToIndex($activity);
+			$vids = Verb::getID($activity);
 		}
 
-		$condition = ['activity' => $activities, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
+		$condition = ['vid' => $vids, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
 			'author-id' => $author_id, 'uid' => $item['uid'], 'thr-parent' => $item_uri];
 
 		$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);

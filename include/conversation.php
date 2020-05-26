@@ -34,6 +34,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Model\Tag;
+use Friendica\Model\Verb;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Protocol\Activity;
@@ -769,11 +770,9 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	$items = [];
 
-	$follow = Item::activityToIndex(Activity::FOLLOW);
-
 	foreach ($parents AS $parent) {
-		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) AND (`activity` != ? OR `activity` IS NULL)",
-			$parent['uri'], $uid, $follow];
+		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) AND `vid` != ?",
+			$parent['uri'], $uid, Verb::getID(Activity::FOLLOW)];
 		$items = conversation_fetch_items($parent, $items, $condition, $block_authors, $params);
 	}
 

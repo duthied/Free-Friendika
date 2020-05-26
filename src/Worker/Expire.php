@@ -52,11 +52,6 @@ class Expire
 
 			// Normally we shouldn't have orphaned data at all.
 			// If we do have some, then we have to check why.
-			Logger::log('Deleting orphaned item activities - start', Logger::DEBUG);
-			$condition = ["NOT EXISTS (SELECT `iaid` FROM `item` WHERE `item`.`iaid` = `item-activity`.`id`)"];
-			DBA::delete('item-activity', $condition);
-			Logger::log('Orphaned item activities deleted: ' . DBA::affectedRows(), Logger::DEBUG);
-
 			Logger::log('Deleting orphaned item content - start', Logger::DEBUG);
 			$condition = ["NOT EXISTS (SELECT `icid` FROM `item` WHERE `item`.`icid` = `item-content`.`id`)"];
 			DBA::delete('item-content', $condition);
