@@ -43,6 +43,7 @@ use Friendica\Model\Notify;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
+use Friendica\Model\Verb;
 use Friendica\Network\FKOAuth1;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -5102,8 +5103,7 @@ function api_get_announce($item)
 	}
 
 	$fields = ['author-id', 'author-name', 'author-link', 'author-avatar'];
-	$activity = Item::activityToIndex(Activity::ANNOUNCE);
-	$condition = ['parent-uri' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY, 'uid' => [0, $item['uid']], 'activity' => $activity];
+	$condition = ['parent-uri' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY, 'uid' => [0, $item['uid']], 'vid' => Verb::getID(Activity::ANNOUNCE)];
 	$announce = Item::selectFirstForUser($item['uid'], $fields, $condition, ['order' => ['received' => true]]);
 	if (!DBA::isResult($announce)) {
 		return [];
