@@ -65,16 +65,30 @@ class Objects extends BaseModule
 		$last_modified = $item['changed'];
 		Network::checkEtagModified($etag, $last_modified);
 
-		$activity = ActivityPub\Transmitter::createActivityFromItem($item['id'], true);
-		$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
+		if (empty($parameters['activity'])) {
+			$activity = ActivityPub\Transmitter::createActivityFromItem($item['id'], true);
+			$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
 
-		// Only display "Create" activity objects here, no reshares or anything else
-		if (empty($activity['object']) || ($activity['type'] != 'Create')) {
+			// Only display "Create" activity objects here, no reshares or anything else
+			if (empty($activity['object']) || ($activity['type'] != 'Create')) {
+				throw new HTTPException\NotFoundException();
+			}
+
+			$data = ['@context' => ActivityPub::CONTEXT];
+			$data = array_merge($data, $activity['object']);
+		} elseif (in_array($parameters['activity'], ['Create', 'Announce', 'Update', 
+			'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'Follow', 'Add'])) {
+			$data = ActivityPub\Transmitter::createActivityFromItem($item['id']);
+			if (empty($data)) {
+				throw new HTTPException\NotFoundException();
+			}
+			if ($parameters['activity'] != 'Create') {
+				$data['type'] = $parameters['activity'];
+				$data['id'] = str_replace('/Create', '/' . $parameters['activity'], $data['id']);
+			}
+		} else {
 			throw new HTTPException\NotFoundException();
 		}
-
-		$data = ['@context' => ActivityPub::CONTEXT];
-		$data = array_merge($data, $activity['object']);
 
 		// Relaxed CORS header for public items
 		header('Access-Control-Allow-Origin: *');
