@@ -850,20 +850,31 @@ class PostUpdate
 
 		$start_id = $id;
 		$rows = 0;
-		$condition = ["`id` > ? AND `vid` IS NULL", $id];
-		$params = ['order' => ['id'], 'limit' => 10000];
-		$items = Item::select(['id', 'verb'], $condition, $params);
+
+		$items = DBA::p("SELECT `item`.`id`, `item`.`vid`, `item`.`verb` AS `item-verb`, `item-content`.`verb`, `item-activity`.`activity`
+			FROM `item` LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`
+			LEFT JOIN `item-activity` ON `item-activity`.`uri-id` = `item`.`uri-id` AND `item`.`gravity` = ?
+			WHERE `item`.`id` >= ? ORDER BY `item`.`id` LIMIT 10000", GRAVITY_ACTIVITY, $id);
 
 		if (DBA::errorNo() != 0) {
 			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
 			return false;
 		}
 
-		while ($item = Item::fetch($items)) {
+		while ($item = DBA::fetch($items)) {
 			$id = $item['id'];
+			$verb = $item['item-verb'];
+			if (empty($verb)) {
+				$verb = $item['verb'];
+			}
+			if (empty($verb) && is_int($item['activity'])) {
+				$verb = Item::ACTIVITIES[$item['activity']];
+			}
+			if (empty($verb)) {
+				continue;
+			}
 
-			DBA::update('item', ['vid' => Verb::getID($item['verb'])], ['id' => $item['id']]);
-
+			DBA::update('item', ['vid' => Verb::getID($verb)], ['id' => $item['id']]);
 			++$rows;
 		}
 		DBA::close($items);
