@@ -729,7 +729,7 @@ class Transmitter
 			$data = [];
 		}
 
-		$data['id'] = $mail['uri'] . '#Create';
+		$data['id'] = $mail['uri'] . '/Create';
 		$data['type'] = 'Create';
 		$data['actor'] = $mail['author-link'];
 		$data['published'] = DateTimeFormat::utc($mail['created'] . '+00:00', DateTimeFormat::ATOM);
@@ -893,7 +893,7 @@ class Transmitter
 			$data = [];
 		}
 
-		$data['id'] = $item['uri'] . '#' . $type;
+		$data['id'] = $item['uri'] . '/' . $type;
 		$data['type'] = $type;
 
 		if (Item::isForumPost($item) && ($type != 'Announce')) {
