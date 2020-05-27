@@ -380,8 +380,11 @@ class Post
 		}
 
 		// Disable features that aren't available in several networks
-		if ($buttons["dislike"] && !in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
-			$buttons["dislike"] = false;
+		if (!in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
+			if ($buttons["dislike"]) {
+				$buttons["dislike"] = false;
+			}
+
 			$isevent = false;
 			$tagger = '';
 		}
