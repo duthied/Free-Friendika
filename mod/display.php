@@ -183,6 +183,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	$item = null;
 
+	$force = (bool)($_REQUEST['force'] ?? false);
+
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
 		$item = Item::selectFirst(['uid', 'parent', 'parent-uri'], ['id' => $item_id]);
@@ -281,7 +283,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	// We need the editor here to be able to reshare an item.
-	if ($is_owner) {
+	if ($is_owner && !$update) {
 		$x = [
 			'is_owner' => true,
 			'allow_location' => $a->user['allow_location'],
@@ -304,7 +306,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$unseen = false;
 	}
 
-	if ($update && !$unseen) {
+	if ($update && !$unseen && !$force) {
 		return '';
 	}
 
