@@ -362,6 +362,7 @@ $(document).ready(function(){
 
 	// Comment form submit
 	$body.on('submit', '.comment-edit-form', function(e) {
+		let $form = $(this);
 		let id = $form.data('item-id');
 
 		// Compose page form exception: id is always 0 and form must not be submitted asynchronously
@@ -370,8 +371,6 @@ $(document).ready(function(){
 		}
 
 		e.preventDefault();
-
-		let $form = $(this);
 
 		let $commentSubmit = $form.find('.comment-edit-submit').button('loading');
 
