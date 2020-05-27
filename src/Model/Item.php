@@ -1047,7 +1047,7 @@ class Item
 		$fields = ['id', 'uri', 'uri-id', 'uid', 'parent', 'parent-uri', 'origin',
 			'deleted', 'file', 'resource-id', 'event-id', 'attach',
 			'verb', 'object-type', 'object', 'target', 'contact-id',
-			'icid', 'psid'];
+			'icid', 'psid', 'gravity'];
 		$item = self::selectFirst($fields, ['id' => $item_id]);
 		if (!DBA::isResult($item)) {
 			Logger::info('Item not found.', ['id' => $item_id]);
@@ -1138,7 +1138,7 @@ class Item
 		//}
 
 		// If it's the parent of a comment thread, kill all the kids
-		if ($item['id'] == $item['parent']) {
+		if ($item['gravity'] == GRAVITY_PARENT) {
 			self::markForDeletion(['parent' => $item['parent'], 'deleted' => false], $priority);
 		}
 
@@ -1494,7 +1494,7 @@ class Item
 				}
 			}
 
-			$item["parent"]        = $parent['id'];
+			$item['parent']        = $parent['id'];
 			$item["deleted"]       = $parent['deleted'];
 			$item["allow_cid"]     = $parent['allow_cid'];
 			$item['allow_gid']     = $parent['allow_gid'];
@@ -1529,8 +1529,8 @@ class Item
 
 			// If its a post that originated here then tag the thread as "mention"
 			if ($item['origin'] && $item['uid']) {
-				DBA::update('thread', ['mention' => true], ['iid' => $item["parent"]]);
-				Logger::info('tagged thread as mention', ['parent' => $item["parent"], 'uid' => $item['uid']]);
+				DBA::update('thread', ['mention' => true], ['iid' => $item['parent']]);
+				Logger::info('tagged thread as mention', ['parent' => $item['parent'], 'uid' => $item['uid']]);
 			}
 
 			// Update the contact relations
@@ -2246,7 +2246,7 @@ class Item
 		}
 
 		// Is it a toplevel post?
-		if ($item['id'] == $item['parent']) {
+		if ($item['gravity'] == GRAVITY_PARENT) {
 			self::addShadow($itemid);
 			return;
 		}
@@ -2544,7 +2544,7 @@ class Item
 
 		if (!$mention) {
 			if (($community_page || $prvgroup) &&
-				  !$item['wall'] && !$item['origin'] && ($item['id'] == $item['parent'])) {
+				  !$item['wall'] && !$item['origin'] && ($item['gravity'] == GRAVITY_PARENT)) {
 				Logger::info('Delete private group/communiy top-level item without mention', ['id' => $item_id, 'guid'=> $item['guid']]);
 				DBA::delete('item', ['id' => $item_id]);
 				return true;
@@ -2845,7 +2845,7 @@ class Item
 			return;
 		}
 
-		$condition = ["`uid` = ? AND NOT `deleted` AND `id` = `parent` AND `gravity` = ?",
+		$condition = ["`uid` = ? AND NOT `deleted` AND `gravity` = ?",
 			$uid, GRAVITY_PARENT];
 
 		/*
@@ -3227,9 +3227,9 @@ class Item
 			return DI::l10n()->t('event');
 		} elseif (!empty($item['resource-id'])) {
 			return DI::l10n()->t('photo');
-		} elseif (!empty($item['verb']) && $item['verb'] !== Activity::POST) {
+		} elseif ($item['gravity'] == GRAVITY_ACTIVITY) {
 			return DI::l10n()->t('activity');
-		} elseif ($item['id'] != $item['parent']) {
+		} elseif ($item['gravity'] == GRAVITY_COMMENT) {
 			return DI::l10n()->t('comment');
 		}
 

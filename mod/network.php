@@ -709,7 +709,7 @@ function networkThreadedView(App $a, $update, $parent)
 			}
 			if ($order === 'post') {
 				// Only show toplevel posts when updating posts in this order mode
-				$sql_extra4 .= " AND `item`.`id` = `item`.`parent`";
+				$sql_extra4 .= " AND `item`.`gravity` = " . GRAVITY_PARENT;
 			}
 		}
 

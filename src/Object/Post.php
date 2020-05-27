@@ -214,7 +214,7 @@ class Post
 			$pinned = DI::l10n()->t('pinned item');
 		}
 
-		if ($origin && ($item['id'] != $item['parent']) && ($item['network'] == Protocol::ACTIVITYPUB)) {
+		if ($origin && ($item['gravity'] != GRAVITY_PARENT) && ($item['network'] == Protocol::ACTIVITYPUB)) {
 			// ActivityPub doesn't allow removal of remote comments
 			$delete = DI::l10n()->t('Delete locally');
 		} else {

@@ -1456,7 +1456,7 @@ function photos_content(App $a)
 
 					if (($activity->match($item['verb'], Activity::LIKE) ||
 					     $activity->match($item['verb'], Activity::DISLIKE)) &&
-					    ($item['id'] != $item['parent'])) {
+					    ($item['gravity'] != GRAVITY_PARENT)) {
 						continue;
 					}
 

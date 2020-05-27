@@ -1675,7 +1675,7 @@ class OStatus
 	 */
 	private static function reshareEntry(DOMDocument $doc, array $item, array $owner, $repeated_guid, $toplevel)
 	{
-		if (($item["id"] != $item["parent"]) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
+		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
@@ -1740,7 +1740,7 @@ class OStatus
 	 */
 	private static function likeEntry(DOMDocument $doc, array $item, array $owner, $toplevel)
 	{
-		if (($item["id"] != $item["parent"]) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
+		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
@@ -1824,7 +1824,7 @@ class OStatus
 	 */
 	private static function followEntry(DOMDocument $doc, array $item, array $owner, $toplevel)
 	{
-		$item["id"] = $item["parent"] = 0;
+		$item["id"] = $item['parent'] = 0;
 		$item["created"] = $item["edited"] = date("c");
 		$item["private"] = Item::PRIVATE;
 
@@ -1889,7 +1889,7 @@ class OStatus
 	 */
 	private static function noteEntry(DOMDocument $doc, array $item, array $owner, $toplevel, $feed_mode)
 	{
-		if (($item["id"] != $item["parent"]) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
+		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
@@ -2021,7 +2021,7 @@ class OStatus
 		$mentioned = [];
 
 		if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
-			$parent = Item::selectFirst(['guid', 'author-link', 'owner-link'], ['id' => $item["parent"]]);
+			$parent = Item::selectFirst(['guid', 'author-link', 'owner-link'], ['id' => $item['parent']]);
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
 			$thrparent = Item::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner["uid"], 'uri' => $parent_item]);
@@ -2047,7 +2047,7 @@ class OStatus
 			XML::addElement($doc, $entry, "link", "", $attributes);
 		}
 
-		if (!$feed_mode && (intval($item["parent"]) > 0)) {
+		if (!$feed_mode && (intval($item['parent']) > 0)) {
 			$conversation_href = $conversation_uri = str_replace('/objects/', '/context/', $item['parent-uri']);
 
 			if (isset($parent_item)) {
@@ -2066,7 +2066,7 @@ class OStatus
 
 			$attributes = [
 					"href" => $conversation_href,
-					"local_id" => $item["parent"],
+					"local_id" => $item['parent'],
 					"ref" => $conversation_uri];
 
 			XML::addElement($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);

@@ -467,13 +467,13 @@ function ping_get_notifications($uid)
 
 			if ($notification["visible"]
 				&& !$notification["deleted"]
-				&& empty($result[$notification["parent"]])
+				&& empty($result[$notification['parent']])
 			) {
 				// Should we condense the notifications or show them all?
 				if (DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
 					$result[$notification["id"]] = $notification;
 				} else {
-					$result[$notification["parent"]] = $notification;
+					$result[$notification['parent']] = $notification;
 				}
 			}
 		}
