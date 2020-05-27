@@ -282,13 +282,13 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{* Buttons for like and dislike *}}
 			{{if $item.vote}}
 				{{if $item.vote.like}}
-				<button type="button" class="btn-link button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}},'like');" data-toggle="button"><i class="fa fa-thumbs-up" aria-hidden="true"></i>&nbsp;{{$item.vote.like.1}}</button>
+				<button type="button" class="btn-link button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-thumbs-up" aria-hidden="true"></i>&nbsp;{{$item.vote.like.1}}</button>
 				{{/if}}
 				{{if $item.vote.like AND $item.vote.dislike}}
 				<span role="presentation" class="separator"></span>
 				{{/if}}
 				{{if $item.vote.dislike}}
-				<button type="button" class="btn-link button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}},'dislike');" data-toggle="button"><i class="fa fa-thumbs-down" aria-hidden="true"></i>&nbsp;{{$item.vote.dislike.1}}</button>
+				<button type="button" class="btn-link button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-thumbs-down" aria-hidden="true"></i>&nbsp;{{$item.vote.dislike.1}}</button>
 				{{/if}}
 
 				{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment}}
@@ -390,9 +390,9 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{* Event attendance buttons *}}
 			{{if $item.isevent}}
 				<span class="vote-event">
-					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}},'attendyes');"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
-					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}},'attendno');"><i class="fa fa-times" aria-hidden="true"><span class="sr-only">{{$item.attend.1}}</span></i></button>
-					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}},'attendmaybe');"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
+					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}});"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
+					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}}, 'attendno'{{if $item.responses.attendno.self}}, true{{/if}});"><i class="fa fa-times" aria-hidden="true"><span class="sr-only">{{$item.attend.1}}</span></i></button>
+					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}});"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
 				</span>
 			{{/if}}
 
@@ -409,10 +409,10 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{if $item.vote}}
 				<div class="btn-group" role="group">
 				{{if $item.vote.like}}
-					<button type="button" class="btn btn-sm button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}},'like');" data-toggle="button""><i class="fa fa-thumbs-up" aria-hidden="true"></i></button>
+					<button type="button" class="btn btn-sm button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-thumbs-up" aria-hidden="true"></i></button>
 				{{/if}}
 				{{if $item.vote.dislike}}
-					<button type="button" class="btn btn-sm button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}},'dislike');" data-toggle="button"><i class="fa fa-thumbs-down" aria-hidden="true"></i></button>
+					<button type="button" class="btn btn-sm button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-thumbs-down" aria-hidden="true"></i></button>
 				{{/if}}
 				</div>
 			{{/if}}
@@ -441,9 +441,9 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{* Event attendance buttons *}}
 			{{if $item.isevent}}
 				<div class="btn-group" role="group">
-					<button type="button" class="btn btn-sm btn-default button-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}},'attendyes');"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
-					<button type="button" class="btn btn-sm btn-default button-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}},'attendno');"><i class="fa fa-times" aria-hidden="true"><span class="sr-only">{{$item.attend.1}}</span></i></button>
-					<button type="button" class="btn btn-sm btn-default button-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}},'attendmaybe');"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
+					<button type="button" class="btn btn-sm btn-default button-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}});"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
+					<button type="button" class="btn btn-sm btn-default button-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}}, 'attendno'{{if $item.responses.attendno.self}}, true{{/if}});"><i class="fa fa-times" aria-hidden="true"><span class="sr-only">{{$item.attend.1}}</span></i></button>
+					<button type="button" class="btn btn-sm btn-default button-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}});"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
 				</div>
 			{{/if}}
 

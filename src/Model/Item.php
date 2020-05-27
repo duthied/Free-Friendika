@@ -2946,39 +2946,6 @@ class Item
 			return false;
 		}
 
-		switch ($verb) {
-			case 'like':
-			case 'unlike':
-				$activity = Activity::LIKE;
-				break;
-			case 'dislike':
-			case 'undislike':
-				$activity = Activity::DISLIKE;
-				break;
-			case 'attendyes':
-			case 'unattendyes':
-				$activity = Activity::ATTEND;
-				break;
-			case 'attendno':
-			case 'unattendno':
-				$activity = Activity::ATTENDNO;
-				break;
-			case 'attendmaybe':
-			case 'unattendmaybe':
-				$activity = Activity::ATTENDMAYBE;
-				break;
-			case 'follow':
-			case 'unfollow':
-				$activity = Activity::FOLLOW;
-				break;
-			default:
-				Logger::log('like: unknown verb ' . $verb . ' for item ' . $item_id);
-				return false;
-		}
-
-		// Enable activity toggling instead of on/off
-		$event_verb_flag = $activity === Activity::ATTEND || $activity === Activity::ATTENDNO || $activity === Activity::ATTENDMAYBE;
-
 		Logger::log('like: verb ' . $verb . ' item ' . $item_id);
 
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['`id` = ? OR `uri` = ?', $item_id, $item_id]);
@@ -3027,9 +2994,43 @@ class Item
 			}
 		}
 
+		switch ($verb) {
+			case 'like':
+			case 'unlike':
+				$activity = Activity::LIKE;
+				break;
+			case 'dislike':
+			case 'undislike':
+				$activity = Activity::DISLIKE;
+				break;
+			case 'attendyes':
+			case 'unattendyes':
+				$activity = Activity::ATTEND;
+				break;
+			case 'attendno':
+			case 'unattendno':
+				$activity = Activity::ATTENDNO;
+				break;
+			case 'attendmaybe':
+			case 'unattendmaybe':
+				$activity = Activity::ATTENDMAYBE;
+				break;
+			case 'follow':
+			case 'unfollow':
+				$activity = Activity::FOLLOW;
+				break;
+			default:
+				Logger::log('like: unknown verb ' . $verb . ' for item ' . $item_id);
+				return false;
+		}
+
+		$mode = Strings::startsWith($verb, 'un') ? 'delete' : 'create';
+
+		// Enable activity toggling instead of on/off
+		$event_verb_flag = $activity === Activity::ATTEND || $activity === Activity::ATTENDNO || $activity === Activity::ATTENDMAYBE;
+
 		// Look for an existing verb row
-		// event participation are essentially radio toggles. If you make a subsequent choice,
-		// we need to eradicate your first choice.
+		// Event participation activities are mutually exclusive, only one of them can exist at all times.
 		if ($event_verb_flag) {
 			$verbs = [Activity::ATTEND, Activity::ATTENDNO, Activity::ATTENDMAYBE];
 
@@ -3044,20 +3045,43 @@ class Item
 
 		$condition = ['vid' => $vids, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
 			'author-id' => $author_id, 'uid' => $item['uid'], 'thr-parent' => $item_uri];
-
 		$like_item = self::selectFirst(['id', 'guid', 'verb'], $condition);
 
-		// If it exists, mark it as deleted
 		if (DBA::isResult($like_item)) {
-			self::markForDeletionById($like_item['id']);
+			/**
+			 * Truth table for existing activities
+			 *
+			 * |          Inputs            ||      Outputs      |
+			 * |----------------------------||-------------------|
+			 * |  Mode  | Event | Same verb || Delete? | Return? |
+			 * |--------|-------|-----------||---------|---------|
+			 * | create |  Yes  |    Yes    ||   No    |   Yes   |
+			 * | create |  Yes  |    No     ||   Yes   |   No    |
+			 * | create |  No   |    Yes    ||   No    |   Yes   |
+			 * | create |  No   |    No     ||        N/A†       |
+			 * | delete |  Yes  |    Yes    ||   Yes   |   N/A‡  |
+			 * | delete |  Yes  |    No     ||   No    |   N/A‡  |
+			 * | delete |  No   |    Yes    ||   Yes   |   N/A‡  |
+			 * | delete |  No   |    No     ||        N/A†       |
+			 * |--------|-------|-----------||---------|---------|
+			 * |   A    |   B   |     C     || A xor C | !B or C |
+			 *
+			 * † Can't happen: It's impossible to find an existing non-event activity without
+			 *                 the same verb because we are only looking for this single verb.
+			 *
+			 * ‡ The "mode = delete" is returning early whether an existing activity was found or not.
+			 */
+			if ($mode == 'create' xor $like_item['verb'] == $activity) {
+				self::markForDeletionById($like_item['id']);
+			}
 
 			if (!$event_verb_flag || $like_item['verb'] == $activity) {
 				return true;
 			}
 		}
 
-		// Verb is "un-something", just trying to delete existing entries
-		if (strpos($verb, 'un') === 0) {
+		// No need to go further if we aren't creating anything
+		if ($mode == 'delete') {
 			return true;
 		}
 

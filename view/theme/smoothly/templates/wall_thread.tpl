@@ -91,9 +91,9 @@
 
 			{{if $item.vote}}
 			<div class="wall-item-like-buttons" id="wall-item-like-buttons-{{$item.id}}">
-				<a href="#" class="icon like{{if $item.responses.like.self}} self{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false"></a>
+				<a href="#" class="icon like{{if $item.responses.like.self}} self{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false"></a>
 				{{if $item.vote.dislike}}
-				<a href="#" class="icon dislike{{if $item.responses.dislike.self}} self{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false"></a>
+				<a href="#" class="icon dislike{{if $item.responses.dislike.self}} self{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false"></a>
 				{{/if}}
 				{{if $item.vote.share}}
 				<a href="#" class="icon recycle wall-item-share-buttons" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"></a>				{{/if}}

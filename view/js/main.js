@@ -649,9 +649,15 @@ function imgdull(node) {
 // trickery. This still could cause confusion if the "like" ajax call
 // is delayed and NavUpdate runs before it completes.
 
-function dolike(ident,verb) {
+/**
+ * @param {int}     ident The id of the relevant item
+ * @param {string}  verb  The verb of the action
+ * @param {boolean} un    Whether to perform an activity removal instead of creation
+ */
+function dolike(ident, verb, un) {
 	unpause();
 	$('#like-rotator-' + ident.toString()).show();
+	verb = un ? 'un' + verb : verb;
 	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate);
 	liking = 1;
 	force_update = true;
