@@ -469,7 +469,7 @@ class GServer
 			}
 		}
 
-		if (!empty($id) && ($serverdata['network'] != Protocol::PHANTOM)) {
+		if (!empty($serverdata['network']) && !empty($id) && ($serverdata['network'] != Protocol::PHANTOM)) {
 			$gcontacts = DBA::count('gcontact', ['gsid' => $id]);
 			$apcontacts = DBA::count('apcontact', ['gsid' => $id]);
 			$contacts = DBA::count('contact', ['uid' => 0, 'gsid' => $id]);
