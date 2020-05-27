@@ -95,11 +95,11 @@ class Notification extends BaseFactory
 			$item['author-avatar'] = $item['contact-avatar'];
 		}
 
-		$item['label'] = (($item['id'] == $item['parent']) ? 'post' : 'comment');
+		$item['label'] = (($item['gravity'] == GRAVITY_PARENT) ? 'post' : 'comment');
 		$item['link']  = $this->baseUrl->get(true) . '/display/' . $item['parent-guid'];
 		$item['image'] = Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO);
 		$item['url']   = $item['author-link'];
-		$item['text']  = (($item['id'] == $item['parent'])
+		$item['text']  = (($item['gravity'] == GRAVITY_PARENT)
 			? $this->l10n->t("%s created a new post", $item['author-name'])
 			: $this->l10n->t("%s commented on %s's post", $item['author-name'], $item['parent-author-name']));
 		$item['when']  = DateTimeFormat::local($item['created'], 'r');

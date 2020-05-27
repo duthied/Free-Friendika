@@ -671,7 +671,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 
 				$item['pagedrop'] = $page_dropping;
 
-				if ($item['id'] == $item['parent']) {
+				if ($item['gravity'] == GRAVITY_PARENT) {
 					$item_object = new Post($item);
 					$conv->addParent($item_object);
 				}
@@ -948,7 +948,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 				return;
 		}
 
-		if (!empty($item['verb']) && DI::activity()->match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
+		if (!empty($item['verb']) && DI::activity()->match($item['verb'], $verb) && ($item['gravity'] != GRAVITY_PARENT)) {
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
 			$url = Contact::magicLinkByContact($author);
@@ -1218,7 +1218,7 @@ function get_item_children(array &$item_list, array $parent, $recursive = true)
 {
 	$children = [];
 	foreach ($item_list as $i => $item) {
-		if ($item['id'] != $item['parent']) {
+		if ($item['gravity'] != GRAVITY_PARENT) {
 			if ($recursive) {
 				// Fallback to parent-uri if thr-parent is not set
 				$thr_parent = $item['thr-parent'];
@@ -1366,7 +1366,7 @@ function conv_sort(array $item_list, $order)
 
 	// Extract the top level items
 	foreach ($item_array as $item) {
-		if ($item['id'] == $item['parent']) {
+		if ($item['gravity'] == GRAVITY_PARENT) {
 			$parents[] = $item;
 		}
 	}

@@ -1559,7 +1559,7 @@ function api_search($type)
 		$params['group_by'] = ['uri-id'];
 	} else {
 		$condition = ["`id` > ?
-			" . ($exclude_replies ? " AND `id` = `parent` " : ' ') . "
+			" . ($exclude_replies ? " AND `gravity` = " . GRAVITY_PARENT : ' ') . "
 			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))
 			AND `body` LIKE CONCAT('%',?,'%')",
 			$since_id, api_user(), $_REQUEST['q']];
@@ -3028,7 +3028,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 	$retweeted_item = [];
 	$quoted_item = [];
 
-	if ($item["id"] == $item["parent"]) {
+	if ($item['gravity'] == GRAVITY_PARENT) {
 		$body = $item['body'];
 		$retweeted_item = api_share_as_retweet($item);
 		if ($body != $item['body']) {

@@ -119,7 +119,7 @@ function item_post(App $a) {
 			// The URI and the contact is taken from the direct parent which needn't to be the top parent
 			$thr_parent_uri = $toplevel_item['uri'];
 
-			if ($toplevel_item['id'] != $toplevel_item['parent']) {
+			if ($toplevel_item['gravity'] != GRAVITY_PARENT) {
 				$toplevel_item = Item::selectFirst([], ['id' => $toplevel_item['parent']]);
 			}
 		}

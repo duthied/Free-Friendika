@@ -1517,7 +1517,7 @@ class Diaspora
 	private static function parentItem($uid, $guid, $author, array $contact)
 	{
 		$fields = ['id', 'parent', 'body', 'wall', 'uri', 'guid', 'private', 'origin',
-			'author-name', 'author-link', 'author-avatar',
+			'author-name', 'author-link', 'author-avatar', 'gravity',
 			'owner-name', 'owner-link', 'owner-avatar'];
 		$condition = ['uid' => $uid, 'guid' => $guid];
 		$item = Item::selectFirst($fields, $condition);
@@ -2164,8 +2164,8 @@ class Diaspora
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = DateTimeFormat::utcNow();
 
 		// like on comments have the comment as parent. So we need to fetch the toplevel parent
-		if ($parent_item["id"] != $parent_item["parent"]) {
-			$toplevel = Item::selectFirst(['origin'], ['id' => $parent_item["parent"]]);
+		if ($parent_item['gravity'] != GRAVITY_PARENT) {
+			$toplevel = Item::selectFirst(['origin'], ['id' => $parent_item['parent']]);
 			$origin = $toplevel["origin"];
 		} else {
 			$origin = $parent_item["origin"];
@@ -2891,7 +2891,7 @@ class Diaspora
 			}
 
 			// Fetch the parent item
-			$parent = Item::selectFirst(['author-link'], ['id' => $item["parent"]]);
+			$parent = Item::selectFirst(['author-link'], ['id' => $item['parent']]);
 
 			// Only delete it if the parent author really fits
 			if (!Strings::compareLink($parent["author-link"], $contact["url"]) && !Strings::compareLink($item["author-link"], $contact["url"])) {
@@ -2901,7 +2901,7 @@ class Diaspora
 
 			Item::markForDeletion(['id' => $item['id']]);
 
-			Logger::log("Deleted target ".$target_guid." (".$item["id"].") from user ".$item["uid"]." parent: ".$item["parent"], Logger::DEBUG);
+			Logger::log("Deleted target ".$target_guid." (".$item["id"].") from user ".$item["uid"]." parent: ".$item['parent'], Logger::DEBUG);
 		}
 
 		return true;
@@ -3870,9 +3870,9 @@ class Diaspora
 			return $result;
 		}
 
-		$toplevel_item = Item::selectFirst(['guid', 'author-id', 'author-link'], ['id' => $item["parent"], 'parent' => $item["parent"]]);
+		$toplevel_item = Item::selectFirst(['guid', 'author-id', 'author-link'], ['id' => $item['parent'], 'parent' => $item['parent']]);
 		if (!DBA::isResult($toplevel_item)) {
-			Logger::error('Missing parent conversation item', ['parent' => $item["parent"]]);
+			Logger::error('Missing parent conversation item', ['parent' => $item['parent']]);
 			return false;
 		}
 
@@ -4066,7 +4066,7 @@ class Diaspora
 
 		$msg_type = "retraction";
 
-		if ($item['id'] == $item['parent']) {
+		if ($item['gravity'] == GRAVITY_PARENT) {
 			$target_type = "Post";
 		} elseif (in_array($item["verb"], [Activity::LIKE, Activity::DISLIKE])) {
 			$target_type = "Like";
