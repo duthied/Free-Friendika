@@ -218,7 +218,7 @@ return [
 		'/mark/all' => [Module\Notifications\Notification::class, [R::GET]],
 		'/{id:\d+}' => [Module\Notifications\Notification::class, [R::GET, R::POST]],
 	],
-	'/objects/{guid}' => [Module\Objects::class, [R::GET]],
+	'/objects/{guid}[/{activity}]' => [Module\Objects::class, [R::GET]],
 
 	'/oembed'         => [
 		'/b2h'    => [Module\Oembed::class, [R::GET]],
