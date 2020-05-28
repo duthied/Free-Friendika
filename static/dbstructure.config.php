@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1350);
+	define('DB_UPDATE_VERSION', 1351);
 }
 
 return [
@@ -1343,6 +1343,7 @@ return [
 		"fields" => [
 			"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["item" => "id"],
 				"comment" => "sequential ID"],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
 			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "Item owner"],
@@ -1381,6 +1382,7 @@ return [
 			"uid_commented" => ["uid", "commented"],
 			"uid_wall_received" => ["uid", "wall", "received"],
 			"private_wall_origin_commented" => ["private", "wall", "origin", "commented"],
+			"uri-id" => ["uri-id"],
 		]
 	],
 	"tokens" => [

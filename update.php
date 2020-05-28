@@ -499,3 +499,12 @@ function update_1349()
 
 	return Update::SUCCESS;
 }
+
+function update_1351()
+{
+	if (!DBA::e("UPDATE `thread` INNER JOIN `item` ON `thread`.`iid` = `item`.`id` SET `thread`.`uri-id` = `item`.`uri-id`")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
