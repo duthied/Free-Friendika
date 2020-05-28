@@ -771,7 +771,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 	$items = [];
 
 	foreach ($parents AS $parent) {
-		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) AND `vid` != ? ",
+		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) AND `vid` != ?",
 			$parent['uri'], $uid, Verb::getID(Activity::FOLLOW)];
 		$items = conversation_fetch_items($parent, $items, $condition, $block_authors, $params);
 	}
@@ -799,7 +799,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
  */
 function conversation_fetch_items(array $parent, array $items, array $condition, bool $block_authors, array $params) {
 	if ($block_authors) {
-		$condition[0] .= "AND NOT `author`.`hidden`";
+		$condition[0] .= " AND NOT `author`.`hidden`";
 	}
 
 	$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity']), $condition, $params);
