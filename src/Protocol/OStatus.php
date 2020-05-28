@@ -2020,7 +2020,7 @@ class OStatus
 	{
 		$mentioned = [];
 
-		if (($item['parent'] != $item['id']) || ($item['parent-uri'] !== $item['uri']) || (($item['thr-parent'] !== '') && ($item['thr-parent'] !== $item['uri']))) {
+		if ($item['gravity'] != GRAVITY_PARENT) {
 			$parent = Item::selectFirst(['guid', 'author-link', 'owner-link'], ['id' => $item['parent']]);
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
