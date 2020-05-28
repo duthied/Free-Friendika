@@ -346,7 +346,7 @@ function frio_display_item(App $a, &$arr)
 	if (
 		local_user()
 		&& local_user() == $arr['item']['uid']
-		&& $arr['item']['parent'] == $arr['item']['id']
+		&& $arr['item']['gravity'] == GRAVITY_PARENT
 		&& !$arr['item']['self'])
 	{
 		$subthread = [

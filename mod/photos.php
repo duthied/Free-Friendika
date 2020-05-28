@@ -1287,7 +1287,7 @@ function photos_content(App $a)
 		}
 
 		if (!empty($link_item['parent']) && !empty($link_item['uid'])) {
-			$condition = ["`parent` = ? AND `parent` != `id`",  $link_item['parent']];
+			$condition = ["`parent` = ? AND `gravity` != ?",  $link_item['parent'], GRAVITY_PARENT];
 			$total = DBA::count('item', $condition);
 
 			$pager = new Pager(DI::l10n(), DI::args()->getQueryString());

@@ -1647,7 +1647,8 @@ function api_statuses_home_timeline($type)
 		$condition[] = $max_id;
 	}
 	if ($exclude_replies) {
-		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
+		$condition[0] .= ' AND `item`.`gravity` = ?';
+		$condition[] = GRAVITY_PARENT;
 	}
 	if ($conversation_id > 0) {
 		$condition[0] .= " AND `item`.`parent` = ?";
@@ -2255,7 +2256,8 @@ function api_statuses_user_timeline($type)
 	}
 
 	if ($exclude_replies) {
-		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
+		$condition[0] .= ' AND `item`.`gravity` = ?';
+		$condition[] = GRAVITY_PARENT;
 	}
 
 	if ($conversation_id > 0) {
@@ -3305,7 +3307,8 @@ function api_lists_statuses($type)
 		$condition[] = $max_id;
 	}
 	if ($exclude_replies > 0) {
-		$condition[0] .= ' AND `item`.`parent` = `item`.`id`';
+		$condition[0] .= ' AND `item`.`gravity` = ?';
+		$condition[] = GRAVITY_PARENT;
 	}
 	if ($conversation_id > 0) {
 		$condition[0] .= " AND `item`.`parent` = ?";
@@ -5199,7 +5202,7 @@ function api_in_reply_to($item)
 	$in_reply_to['user_id_str'] = null;
 	$in_reply_to['screen_name'] = null;
 
-	if (($item['thr-parent'] != $item['uri']) && (intval($item['parent']) != intval($item['id']))) {
+	if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] != GRAVITY_PARENT)) {
 		$parent = Item::selectFirst(['id'], ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
 		if (DBA::isResult($parent)) {
 			$in_reply_to['status_id'] = intval($parent['id']);
