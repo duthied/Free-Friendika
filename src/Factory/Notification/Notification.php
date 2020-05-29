@@ -272,7 +272,7 @@ class Notification extends BaseFactory
 		}
 
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
-			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
+			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'gravity'];
 		$params = ['order' => ['received' => true], 'limit' => [$start, $limit]];
 
 		$formattedNotifications = [];
@@ -313,7 +313,7 @@ class Notification extends BaseFactory
 		}
 
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
-			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
+			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'gravity'];
 		$params = ['order' => ['received' => true], 'limit' => [$start, $limit]];
 
 		$formattedNotifications = [];
@@ -350,7 +350,7 @@ class Notification extends BaseFactory
 		}
 
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
-			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
+			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'gravity'];
 		$params = ['order' => ['received' => true], 'limit' => [$start, $limit]];
 
 		$formattedNotifications = [];
