@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1350
+-- DB_UPDATE_VERSION 1351
 -- ------------------------------------------
 
 
@@ -1237,6 +1237,7 @@ CREATE TABLE IF NOT EXISTS `storage` (
 --
 CREATE TABLE IF NOT EXISTS `thread` (
 	`iid` int unsigned NOT NULL DEFAULT 0 COMMENT 'sequential ID',
+	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
@@ -1272,7 +1273,9 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	 INDEX `uid_received` (`uid`,`received`),
 	 INDEX `uid_commented` (`uid`,`commented`),
 	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
-	 INDEX `private_wall_origin_commented` (`private`,`wall`,`origin`,`commented`)
+	 INDEX `private_wall_origin_commented` (`private`,`wall`,`origin`,`commented`),
+	 INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data';
 
 --
