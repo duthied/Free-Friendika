@@ -77,8 +77,8 @@
 		<div class="wall-item-tools" id="wall-item-tools-{{$item.id}}">
 			{{if $item.vote}}
 			<div class="wall-item-like-buttons" id="wall-item-like-buttons-{{$item.id}}">
-				<a href="#" class="icon like{{if $item.responses.like.self}} active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false"></a>
-				{{if $item.vote.dislike}}<a href="#" class="icon dislike{{if $item.responses.dislike.self}} active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false"></a>{{/if}}
+				<a href="#" class="icon like{{if $item.responses.like.self}} active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false"></a>
+				{{if $item.vote.dislike}}<a href="#" class="icon dislike{{if $item.responses.dislike.self}} active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false"></a>{{/if}}
 				{{if $item.vote.share}}<a href="#" class="icon recycle wall-item-share-buttons" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"></a>{{/if}}
 				<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 			</div>
@@ -107,9 +107,9 @@
 			{{/if}}
 			{{if $item.isevent }}
 			<div class="wall-item-attend-wrapper">
-				<a href="#" id="attendyes-{{$item.id}}" class="icon attendyes{{if $item.responses.attendyes.self}} active{{/if}}" onclick="dolike({{$item.id}},'attendyes'); return false;" title="{{$item.attend.0}}"></a>
-				<a href="#" id="attendno-{{$item.id}}" class="icon attendno{{if $item.responses.attendno.self}} active{{/if}}"  onclick="dolike({{$item.id}},'attendno'); return false;" title="{{$item.attend.1}}"></a>
-				<a href="#" id="attendmaybe-{{$item.id}}"  class="icon attendmaybe{{if $item.responses.attendmaybe.self}} active{{/if}}" onclick="dolike({{$item.id}},'attendmaybe'); return false;" title="{{$item.attend.2}}"></a>
+				<a href="#" id="attendyes-{{$item.id}}" class="icon attendyes{{if $item.responses.attendyes.self}} active{{/if}}" onclick="dolike({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}}); return false;" title="{{$item.attend.0}}"></a>
+				<a href="#" id="attendno-{{$item.id}}" class="icon attendno{{if $item.responses.attendno.self}} active{{/if}}"  onclick="dolike({{$item.id}}, 'attendno'{{if $item.responses.attendno.self}}, true{{/if}}); return false;" title="{{$item.attend.1}}"></a>
+				<a href="#" id="attendmaybe-{{$item.id}}"  class="icon attendmaybe{{if $item.responses.attendmaybe.self}} active{{/if}}" onclick="dolike({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}}); return false;" title="{{$item.attend.2}}"></a>
 			</div>
 			{{/if}}
 			<div class="wall-item-delete-wrapper" id="wall-item-delete-wrapper-{{$item.id}}" >

@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Core\Session;
@@ -68,5 +69,7 @@ class Like extends BaseModule
 
 			DI::baseUrl()->redirect($returnPath . $rand);
 		}
+
+		System::jsonExit(['status' => 'OK']);
 	}
 }
