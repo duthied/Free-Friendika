@@ -268,6 +268,7 @@ return [
 	'thread'  => [
 		[
 			'iid'        => 1,
+			'uri-id'     => 1,
 			'visible'    => 1,
 			'contact-id' => 42,
 			'author-id'  => 42,
@@ -277,6 +278,7 @@ return [
 		],
 		[
 			'iid'        => 3,
+			'uri-id'     => 3,
 			'visible'    => 1,
 			'contact-id' => 43,
 			'author-id'  => 43,
@@ -286,6 +288,7 @@ return [
 		],
 		[
 			'iid'        => 6,
+			'uri-id'     => 6,
 			'visible'    => 1,
 			'contact-id' => 44,
 			'author-id'  => 44,
