@@ -2994,6 +2994,7 @@ class Item
 			}
 		}
 
+		$activity = null;
 		switch ($verb) {
 			case 'like':
 			case 'unlike':
