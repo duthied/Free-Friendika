@@ -29,38 +29,38 @@ class MergeContact
 	/**
 	 * Replace all occurences of the given contact id and replace it
 	 *
-	 * @param integer $search_cid
-	 * @param integer $replace_cid
+	 * @param integer $new_cid
+	 * @param integer $old_cid
 	 * @param integer $uid
 	 */
-	public static function execute(int $search_cid, int $replace_cid, int $uid)
+	public static function execute(int $new_cid, int $old_cid, int $uid)
 	{
-		if (empty($search_cid) || empty($replace_cid) || ($search_cid == $replace_cid)) {
+		if (empty($new_cid) || empty($old_cid) || ($new_cid == $old_cid)) {
 			// Invalid request
 			return;
 		}
 
-		Logger::info('Handling duplicate', ['search' => $replace_cid, 'replace' => $search_cid]);
+		Logger::info('Handling duplicate', ['search' => $old_cid, 'replace' => $new_cid]);
 
 		// Search and replace
-		DBA::update('item', ['contact-id' => $search_cid], ['contact-id' => $replace_cid]);
-		DBA::update('thread', ['contact-id' => $search_cid], ['contact-id' => $replace_cid]);
-		DBA::update('mail', ['contact-id' => $search_cid], ['contact-id' => $replace_cid]);
-		DBA::update('photo', ['contact-id' => $search_cid], ['contact-id' => $replace_cid]);
-		DBA::update('event', ['cid' => $search_cid], ['cid' => $replace_cid]);
+		DBA::update('item', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
+		DBA::update('thread', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
+		DBA::update('mail', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
+		DBA::update('photo', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
+		DBA::update('event', ['cid' => $new_cid], ['cid' => $old_cid]);
 
 		// These fields only contain public contact entries (uid = 0)
 		if ($uid == 0) {
-			DBA::update('post-tag', ['cid' => $search_cid], ['cid' => $replace_cid]);
-			DBA::update('item', ['author-id' => $search_cid], ['author-id' => $replace_cid]);
-			DBA::update('item', ['owner-id' => $search_cid], ['owner-id' => $replace_cid]);
-			DBA::update('thread', ['author-id' => $search_cid], ['author-id' => $replace_cid]);
-			DBA::update('thread', ['owner-id' => $search_cid], ['owner-id' => $replace_cid]);
+			DBA::update('post-tag', ['cid' => $new_cid], ['cid' => $old_cid]);
+			DBA::update('item', ['author-id' => $new_cid], ['author-id' => $old_cid]);
+			DBA::update('item', ['owner-id' => $new_cid], ['owner-id' => $old_cid]);
+			DBA::update('thread', ['author-id' => $new_cid], ['author-id' => $old_cid]);
+			DBA::update('thread', ['owner-id' => $new_cid], ['owner-id' => $old_cid]);
 		} else {
 			/// @todo Check if some other data needs to be adjusted as well, possibly the "rel" status?
 		}
 
 		// Remove the duplicate
-		DBA::delete('contact', ['id' => $replace_cid]);
+		DBA::delete('contact', ['id' => $old_cid]);
 	}
 }
