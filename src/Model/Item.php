@@ -79,7 +79,7 @@ class Item
 	const DELIVER_FIELDLIST = ['uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid',
 			'parent-guid', 'created', 'edited', 'verb', 'object-type', 'object', 'target',
 			'private', 'title', 'body', 'location', 'coord', 'app',
-			'attach', 'deleted', 'extid', 'post-type',
+			'attach', 'deleted', 'extid', 'post-type', 'gravity',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'author-id', 'author-link', 'owner-link', 'contact-uid',
 			'signed_text', 'signature', 'signer', 'network'];
@@ -1066,7 +1066,7 @@ class Item
 
 		// clean up categories and tags so they don't end up as orphans
 
-		$matches = false;
+		$matches = [];
 		$cnt = preg_match_all('/<(.*?)>/', $item['file'], $matches, PREG_SET_ORDER);
 
 		if ($cnt) {
@@ -1075,7 +1075,7 @@ class Item
 			}
 		}
 
-		$matches = false;
+		$matches = [];
 
 		$cnt = preg_match_all('/\[(.*?)\]/', $item['file'], $matches, PREG_SET_ORDER);
 
