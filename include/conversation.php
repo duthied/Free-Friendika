@@ -771,7 +771,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 	$items = [];
 
 	foreach ($parents AS $parent) {
-		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) AND `vid` != ?",
+		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
 			$parent['uri'], $uid, Verb::getID(Activity::FOLLOW)];
 		$items = conversation_fetch_items($parent, $items, $condition, $block_authors, $params);
 	}
