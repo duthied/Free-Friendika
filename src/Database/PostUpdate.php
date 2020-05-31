@@ -831,7 +831,7 @@ class PostUpdate
 	}
 
 	/**
-	 * update the "vid" (verb) field in the item table 
+	 * update the "vid" (verb) field in the item table
 	 *
 	 * @return bool "true" when the job is done
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -851,10 +851,10 @@ class PostUpdate
 		$start_id = $id;
 		$rows = 0;
 
-		$items = DBA::p("SELECT `item`.`id`, `item`.`vid`, `item`.`verb` AS `item-verb`, `item-content`.`verb`, `item-activity`.`activity`
+		$items = DBA::p("SELECT `item`.`id`, `item`.`verb` AS `item-verb`, `item-content`.`verb`, `item-activity`.`activity`
 			FROM `item` LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`
 			LEFT JOIN `item-activity` ON `item-activity`.`uri-id` = `item`.`uri-id` AND `item`.`gravity` = ?
-			WHERE `item`.`id` >= ? ORDER BY `item`.`id` LIMIT 10000", GRAVITY_ACTIVITY, $id);
+			WHERE `item`.`id` >= ? AND `item`.`vid` IS NULL ORDER BY `item`.`id` LIMIT 10000", GRAVITY_ACTIVITY, $id);
 
 		if (DBA::errorNo() != 0) {
 			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
