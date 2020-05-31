@@ -72,7 +72,7 @@ class Item
 		'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
 		'event-summary', 'event-desc', 'event-location', 'event-type',
 		'event-nofinish', 'event-adjust', 'event-ignore', 'event-id',
-		'delivery_queue_count', 'delivery_queue_done', 'delivery_queue_failed', 'activity'
+		'delivery_queue_count', 'delivery_queue_done', 'delivery_queue_failed'
 	];
 
 	// Field list that is used to deliver items via the protocols
@@ -285,6 +285,10 @@ class Item
 			}
 		}
 
+		if (array_key_exists('vid', $row) && is_null($row['vid']) && !empty($row['verb'])) {
+			$row['vid'] = Verb::getID($row['verb']);
+		}
+			
 		if (!array_key_exists('verb', $row) || in_array($row['verb'], ['', Activity::POST, Activity::SHARE])) {
 			// Build the file string out of the term entries
 			if (array_key_exists('file', $row) && empty($row['file'])) {
@@ -1777,7 +1781,7 @@ class Item
 
 		// Check for hashtags in the body and repair or add hashtag links
 		self::setHashtags($item);
-		
+
 		// Fill the cache field
 		self::putInCache($item);
 
@@ -1796,11 +1800,13 @@ class Item
 		}
 
 		$body = $item['body'];
-		
+
 		// We just remove everything that is content
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			unset($item[$field]);
 		}
+
+		unset($item['activity']);
 
 		// Filling item related side tables
 

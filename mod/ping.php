@@ -136,7 +136,7 @@ function ping_init(App $a)
 
 		$notifs = ping_get_notifications(local_user());
 
-		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ? AND `vid` != ?",
+		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ? AND (`vid` != ? OR `vid` IS NULL)",
 			local_user(), local_user(), Verb::getID(Activity::FOLLOW)];
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
 			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'wall', 'activity'];
