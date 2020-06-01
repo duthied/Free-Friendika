@@ -66,7 +66,7 @@ class Worker
 
 		// At first check the maximum load. We shouldn't continue with a high load
 		if (DI::process()->isMaxLoadReached()) {
-			Logger::log('Pre check: maximum load reached, quitting.', Logger::DEBUG);
+			Logger::info('Pre check: maximum load reached, quitting.');
 			return;
 		}
 
@@ -82,25 +82,25 @@ class Worker
 
 		// Count active workers and compare them with a maximum value that depends on the load
 		if (self::tooMuchWorkers()) {
-			Logger::log('Pre check: Active worker limit reached, quitting.', Logger::DEBUG);
+			Logger::info('Pre check: Active worker limit reached, quitting.');
 			return;
 		}
 
 		// Do we have too few memory?
 		if (DI::process()->isMinMemoryReached()) {
-			Logger::log('Pre check: Memory limit reached, quitting.', Logger::DEBUG);
+			Logger::info('Pre check: Memory limit reached, quitting.');
 			return;
 		}
 
 		// Possibly there are too much database connections
 		if (self::maxConnectionsReached()) {
-			Logger::log('Pre check: maximum connections reached, quitting.', Logger::DEBUG);
+			Logger::info('Pre check: maximum connections reached, quitting.');
 			return;
 		}
 
 		// Possibly there are too much database processes that block the system
 		if (DI::process()->isMaxProcessesReached()) {
-			Logger::log('Pre check: maximum processes reached, quitting.', Logger::DEBUG);
+			Logger::info('Pre check: maximum processes reached, quitting.');
 			return;
 		}
 
@@ -121,7 +121,7 @@ class Worker
 
 				// The work will be done
 				if (!self::execute($entry)) {
-					Logger::log('Process execution failed, quitting.', Logger::DEBUG);
+					Logger::info('Process execution failed, quitting.');
 					return;
 				}
 
@@ -143,14 +143,14 @@ class Worker
 				if (DI::lock()->acquire('worker', 0)) {
 				// Count active workers and compare them with a maximum value that depends on the load
 					if (self::tooMuchWorkers()) {
-						Logger::log('Active worker limit reached, quitting.', Logger::DEBUG);
+						Logger::info('Active worker limit reached, quitting.');
 						DI::lock()->release('worker');
 						return;
 					}
 
 					// Check free memory
 					if (DI::process()->isMinMemoryReached()) {
-						Logger::log('Memory limit reached, quitting.', Logger::DEBUG);
+						Logger::info('Memory limit reached, quitting.');
 						DI::lock()->release('worker');
 						return;
 					}
@@ -170,7 +170,7 @@ class Worker
 		if (DI::config()->get('system', 'worker_daemon_mode', false)) {
 			self::IPCSetJobState(false);
 		}
-		Logger::log("Couldn't select a workerqueue entry, quitting process " . getmypid() . ".", Logger::DEBUG);
+		Logger::info("Couldn't select a workerqueue entry, quitting process", ['pid' => getmypid()]);
 	}
 
 	/**
@@ -264,23 +264,27 @@ class Worker
 
 		// Quit when in maintenance
 		if (DI::config()->get('system', 'maintenance', false, true)) {
-			Logger::log("Maintenance mode - quit process ".$mypid, Logger::DEBUG);
+			Logger::info("Maintenance mode - quit process", ['pid' => $mypid]);
 			return false;
 		}
 
 		// Constantly check the number of parallel database processes
 		if (DI::process()->isMaxProcessesReached()) {
-			Logger::log("Max processes reached for process ".$mypid, Logger::DEBUG);
+			Logger::info("Max processes reached for process", ['pid' => $mypid]);
 			return false;
 		}
 
 		// Constantly check the number of available database connections to let the frontend be accessible at any time
 		if (self::maxConnectionsReached()) {
-			Logger::log("Max connection reached for process ".$mypid, Logger::DEBUG);
+			Logger::info("Max connection reached for process", ['pid' => $mypid]);
 			return false;
 		}
 
 		$argv = json_decode($queue["parameter"], true);
+		if (empty($argv)) {
+			Logger::error('Parameter is empty', ['queue' => $queue]);
+			return false;
+		}
 
 		// Check for existance and validity of the include file
 		$include = $argv[0];
@@ -383,8 +387,6 @@ class Worker
 	{
 		$a = DI::app();
 
-		$argc = count($argv);
-
 		Logger::enableWorker($funcname);
 
 		Logger::info("Process start.", ['priority' => $queue["priority"], 'id' => $queue["id"]]);
@@ -406,7 +408,7 @@ class Worker
 		if ($method_call) {
 			call_user_func_array(sprintf('Friendica\Worker\%s::execute', $funcname), $argv);
 		} else {
-			$funcname($argv, $argc);
+			$funcname($argv, count($argv));
 		}
 
 		Logger::disableWorker();
@@ -504,7 +506,7 @@ class Worker
 			$used = DBA::numRows($r);
 			DBA::close($r);
 
-			Logger::log("Connection usage (user values): ".$used."/".$max, Logger::DEBUG);
+			Logger::info("Connection usage (user values)", ['usage' => $used, 'max' => $max]);
 
 			$level = ($used / $max) * 100;
 
@@ -532,7 +534,7 @@ class Worker
 		if ($used == 0) {
 			return false;
 		}
-		Logger::log("Connection usage (system values): ".$used."/".$max, Logger::DEBUG);
+		Logger::info("Connection usage (system values)", ['used' => $used, 'max' => $max]);
 
 		$level = $used / $max * 100;
 
@@ -582,6 +584,10 @@ class Worker
 				$max_duration = $max_duration_defaults[$entry["priority"]];
 
 				$argv = json_decode($entry["parameter"], true);
+				if (empty($argv)) {
+					return;
+				}
+
 				$argv[0] = basename($argv[0]);
 
 				// How long is the process already running?
@@ -610,7 +616,7 @@ class Worker
 					self::$db_duration += (microtime(true) - $stamp);
 					self::$db_duration_write += (microtime(true) - $stamp);
 				} else {
-					Logger::log("Worker process ".$entry["pid"]." (".substr(json_encode($argv), 0, 50).") now runs for ".round($duration)." of ".$max_duration." allowed minutes. That's okay.", Logger::DEBUG);
+					Logger::info('Process runtime is okay', ['pid' => $entry["pid"], 'duration' => $duration, 'max' => $max_duration, 'command' => substr(json_encode($argv), 0, 50)]);
 				}
 			}
 		}
@@ -721,7 +727,7 @@ class Worker
 				$high_running = self::processWithPriorityActive($top_priority);
 
 				if (!$high_running && ($top_priority > PRIORITY_UNDEFINED) && ($top_priority < PRIORITY_NEGLIGIBLE)) {
-					Logger::log("There are jobs with priority ".$top_priority." waiting but none is executed. Open a fastlane.", Logger::DEBUG);
+					Logger::info("Jobs with a higher priority are waiting but none is executed. Open a fastlane.", ['priority' => $top_priority]);
 					$queues = $active + 1;
 				}
 			}
@@ -730,7 +736,7 @@ class Worker
 
 			// Are there fewer workers running as possible? Then fork a new one.
 			if (!DI::config()->get("system", "worker_dont_fork", false) && ($queues > ($active + 1)) && self::entriesExists()) {
-				Logger::log("Active workers: ".$active."/".$queues." Fork a new worker.", Logger::DEBUG);
+				Logger::info("There are fewer workers as possible, fork a new worker.", ['active' => $active, 'queues' => $queues]);
 				if (DI::config()->get('system', 'worker_daemon_mode', false)) {
 					self::IPCSetJobState(true);
 				} else {
@@ -932,7 +938,7 @@ class Worker
 	/**
 	 * Returns the next worker process
 	 *
-	 * @return string SQL statement
+	 * @return array worker processes
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function workerProcess()
@@ -1027,7 +1033,7 @@ class Worker
 
 			self::runCron();
 
-			Logger::log('Call worker', Logger::DEBUG);
+			Logger::info('Call worker');
 			self::spawnWorker();
 			return;
 		}
@@ -1073,7 +1079,7 @@ class Worker
 	 */
 	private static function runCron()
 	{
-		Logger::log('Add cron entries', Logger::DEBUG);
+		Logger::info('Add cron entries');
 
 		// Check for spooled items
 		self::add(['priority' => PRIORITY_HIGH, 'force_priority' => true], 'SpoolPost');
