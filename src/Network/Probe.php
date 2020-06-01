@@ -85,7 +85,7 @@ class Probe
 	{
 		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo", "account-type",
 				"community", "keywords", "location", "about", "hide",
-				"batch", "notify", "poll", "request", "confirm", "poco",
+				"batch", "notify", "poll", "request", "confirm", "subscribe", "poco",
 				"following", "followers", "inbox", "outbox", "sharedinbox",
 				"priority", "network", "pubkey", "baseurl", "gsid"];
 
@@ -271,36 +271,14 @@ class Probe
 	}
 
 	/**
-	 * Get the link for the remote follow page for a given profile link
-	 *
-	 * @param sting $profile
-	 * @return string Remote follow page link
-	 */
-	public static function getRemoteFollowLink(string $profile)
-	{
-		$follow_link = '';
-
-		$links = self::lrdd($profile);
-
-		if (!empty($links) && is_array($links)) {
-			foreach ($links as $link) {
-				if ($link['@attributes']['rel'] === ActivityNamespace::OSTATUSSUB) {
-					$follow_link = $link['@attributes']['template'];
-				}
-			}
-		}
-		return $follow_link;
-	}
-
-	/**
 	 * Check an URI for LRDD data
 	 *
-	 * @param string $uri Address that should be probed
+	 * @param string $uri     Address that should be probed
 	 *
 	 * @return array uri data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function lrdd($uri)
+	public static function lrdd(string $uri)
 	{
 		$lrdd = self::hostMeta($uri);
 		$webfinger = null;
@@ -423,7 +401,9 @@ class Probe
 			$ap_profile = ActivityPub::probeProfile($uri);
 
 			if (empty($data) || (!empty($ap_profile) && empty($network) && (($data['network'] ?? '') != Protocol::DFRN))) {
+				$subscribe = $data['subscribe'];
 				$data = $ap_profile;
+				$data['subscribe'] = $subscribe;
 			} elseif (!empty($ap_profile)) {
 				$ap_profile['batch'] = '';
 				$data = array_merge($ap_profile, $data);
@@ -598,6 +578,28 @@ class Probe
 	}
 
 	/**
+	 * Fetch the "subscribe" and add it to the result
+	 *
+	 * @param array $result
+	 * @param array $webfinger
+	 * @return array result
+	 */
+	private static function getSubscribeLink(array $result, array $webfinger)
+	{
+		if (empty($webfinger['links'])) {
+			return $result;
+		}
+
+		foreach ($webfinger['links'] as $link) {
+			if ($link['rel'] === ActivityNamespace::OSTATUSSUB) {
+				$result['subscribe'] = $link['template'];
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Fetch information (protocol endpoints and user information) about a given uri
 	 *
 	 * This function is only called by the "uri" function that adds caching and rearranging of data.
@@ -720,7 +722,7 @@ class Probe
 
 		$result = false;
 
-		Logger::log("Probing ".$uri, Logger::DEBUG);
+		Logger::info("Probing", ['uri' => $uri]);
 
 		if (in_array($network, ["", Protocol::DFRN])) {
 			$result = self::dfrn($webfinger);
@@ -750,6 +752,8 @@ class Probe
 				$result["addr"] = $addr;
 			}
 		}
+
+		$result = self::getSubscribeLink($result, $webfinger);
 
 		if (empty($result["network"])) {
 			$result["network"] = Protocol::PHANTOM;

@@ -276,15 +276,17 @@ class APContact
 			}
 		}
 
-		$parts = parse_url($apcontact['url']);
-		unset($parts['path']);
-		$baseurl = Network::unparseURL($parts);
+		if (empty($fetched_contact['baseurl']) || $update) {
+			$parts = parse_url($apcontact['url']);
+			unset($parts['path']);
+			$baseurl = Network::unparseURL($parts);
 
-		// Check if the address is resolvable or the profile url is identical with the base url of the system
-		if (self::addrToUrl($apcontact['addr'], $apcontact['url']) || Strings::compareLink($apcontact['url'], $baseurl)) {
-			$apcontact['baseurl'] = $baseurl;
-		} else {
-			$apcontact['addr'] = null;
+			// Check if the address is resolvable or the profile url is identical with the base url of the system
+			if (self::addrToUrl($apcontact['addr'], $apcontact['url']) || Strings::compareLink($apcontact['url'], $baseurl)) {
+				$apcontact['baseurl'] = $baseurl;
+			} else {
+				$apcontact['addr'] = null;
+			}
 		}
 
 		if (empty($apcontact['baseurl'])) {
@@ -312,7 +314,7 @@ class APContact
 			DBA::delete('apcontact', ['url' => $url]);
 		}
 
-		Logger::log('Updated profile for ' . $url, Logger::DEBUG);
+		Logger::info('Updated profile', ['url' => $url]);
 
 		return $apcontact;
 	}
