@@ -168,7 +168,7 @@ class CurlResult
 
 		if (!$this->isSuccess) {
 			Logger::error('error', ['url' => $this->url, 'code' => $this->returnCode, 'error'  => $this->error, 'callstack' => System::callstack(20)]);
-			Logger::log('debug: ' . print_r($this->info, true), Logger::DATA);
+			Logger::debug('debug', ['info' => $this->info]);
 		}
 
 		if (!$this->isSuccess && $this->errorNumber == CURLE_OPERATION_TIMEDOUT) {
