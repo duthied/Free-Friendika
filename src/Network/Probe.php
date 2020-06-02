@@ -389,11 +389,7 @@ class Probe
 
 		self::$istimeout = false;
 
-		if ($network != Protocol::ACTIVITYPUB) {
-			$data = self::detect($uri, $network, $uid);
-		} else {
-			$data = null;
-		}
+		$data = self::detect($uri, $network, $uid);
 
 		// When the previous detection process had got a time out
 		// we could falsely detect a Friendica profile as AP profile.
