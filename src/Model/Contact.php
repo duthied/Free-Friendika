@@ -2085,7 +2085,7 @@ class Contact
 		// These fields aren't updated by this routine:
 		// 'xmpp', 'sensitive'
 
-		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about',
+		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
 			'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
 			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);

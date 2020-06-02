@@ -27,7 +27,6 @@ use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Network\Probe;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -772,7 +771,7 @@ class Profile
 		$_SESSION['visitor_handle'] = $visitor['addr'];
 		$_SESSION['visitor_home'] = $visitor['url'];
 		$_SESSION['my_url'] = $visitor['url'];
-		$_SESSION['remote_comment'] = Probe::getRemoteFollowLink($visitor['url']);
+		$_SESSION['remote_comment'] = $visitor['subscribe'];
 
 		Session::setVisitorsContacts();
 

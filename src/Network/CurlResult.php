@@ -22,6 +22,7 @@
 namespace Friendica\Network;
 
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Network;
 
@@ -166,8 +167,8 @@ class CurlResult
 		}
 
 		if (!$this->isSuccess) {
-			Logger::log('error: ' . $this->url . ': ' . $this->returnCode . ' - ' . $this->error, Logger::INFO);
-			Logger::log('debug: ' . print_r($this->info, true), Logger::DATA);
+			Logger::error('error', ['url' => $this->url, 'code' => $this->returnCode, 'error'  => $this->error, 'callstack' => System::callstack(20)]);
+			Logger::debug('debug', ['info' => $this->info]);
 		}
 
 		if (!$this->isSuccess && $this->errorNumber == CURLE_OPERATION_TIMEDOUT) {

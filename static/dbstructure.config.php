@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1351);
+	define('DB_UPDATE_VERSION', 1352);
 }
 
 return [
@@ -141,6 +141,7 @@ return [
 			"notify" => ["type" => "varchar(255)", "comment" => ""],
 			"poll" => ["type" => "varchar(255)", "comment" => ""],
 			"confirm" => ["type" => "varchar(255)", "comment" => ""],
+			"subscribe" => ["type" => "varchar(255)", "comment" => ""],
 			"poco" => ["type" => "varchar(255)", "comment" => ""],
 			"aes_allow" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"ret-aes" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
