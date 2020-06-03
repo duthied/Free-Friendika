@@ -674,7 +674,7 @@ class Probe
 			$addr = $uri;
 		} else {
 			Logger::log("Uri ".$uri." was not detectable", Logger::DEBUG);
-			return false;
+			return [];
 		}
 
 		$webfinger = false;
@@ -716,7 +716,7 @@ class Probe
 			return self::feed($uri);
 		}
 
-		$result = false;
+		$result = [];
 
 		Logger::info("Probing", ['uri' => $uri]);
 
@@ -767,6 +767,7 @@ class Probe
 				$result["baseurl"] = substr($result["url"], 0, $pos).$host;
 			}
 		}
+
 		return $result;
 	}
 
