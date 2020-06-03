@@ -48,7 +48,7 @@ function redir_init(App $a) {
 	redir_magic($a, $cid, $url);
 
 	if (empty($cid)) {
-		throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('Contact not found.'));
+		throw new \Friendica\Network\HTTPException\BadRequestException(DI::l10n()->t('Bad Request.'));
 	}
 
 	$fields = ['id', 'uid', 'nurl', 'url', 'addr', 'name', 'network', 'poll', 'issued-id', 'dfrn-id', 'duplex', 'pending'];
