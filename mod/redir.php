@@ -125,13 +125,10 @@ function redir_init(App $a) {
 
 		System::externalRedirect($contact['poll'] . '?dfrn_id=' . $dfrn_id
 			. '&dfrn_version=' . DFRN_PROTOCOL_VERSION . '&type=profile&sec=' . $sec . $dest . $quiet);
-
-		redir_check_url($contact_url, $url);
-		$url = $url ?: $contact_url;
 	}
 
 	if (empty($url)) {
-		throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('Contact not found.'));
+		throw new \Friendica\Network\HTTPException\BadRequestException(DI::l10n()->t('Bad Request.'));
 	}
 
 	// If we don't have a connected contact, redirect with
