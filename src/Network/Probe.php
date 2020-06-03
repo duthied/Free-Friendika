@@ -172,7 +172,7 @@ class Probe
 		} elseif ($curlResult->isTimeout()) {
 			Logger::info('Probing timeout', ['url' => $ssl_url], Logger::DEBUG);
 			self::$istimeout = true;
-			return false;
+			return [];
 		}
 
 		if (!is_object($xrd) && !empty($url)) {
@@ -181,10 +181,10 @@ class Probe
 			if ($curlResult->isTimeout()) {
 				Logger::info('Probing timeout', ['url' => $url], Logger::DEBUG);
 				self::$istimeout = true;
-				return false;
+				return [];
 			} elseif ($connection_error && $ssl_connection_error) {
 				self::$istimeout = true;
-				return false;
+				return [];
 			}
 
 			$xml = $curlResult->getBody();
@@ -340,9 +340,9 @@ class Probe
 			}
 		}
 
-		if (!is_array($webfinger["links"])) {
+		if (empty($webfinger["links"])) {
 			Logger::log("No webfinger links found for ".$uri, Logger::DEBUG);
-			return false;
+			return [];
 		}
 
 		$data = [];
@@ -397,7 +397,7 @@ class Probe
 			$ap_profile = ActivityPub::probeProfile($uri);
 
 			if (empty($data) || (!empty($ap_profile) && empty($network) && (($data['network'] ?? '') != Protocol::DFRN))) {
-				$subscribe = $data['subscribe'];
+				$subscribe = $data['subscribe'] ?? '';
 				$data = $ap_profile;
 				$data['subscribe'] = $subscribe;
 			} elseif (!empty($ap_profile)) {
@@ -928,15 +928,15 @@ class Probe
 		$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
-			return false;
+			return [];
 		}
 		$data = $curlResult->getBody();
 
 		$webfinger = json_decode($data, true);
-		if (is_array($webfinger)) {
+		if (!empty($webfinger)) {
 			if (!isset($webfinger["links"])) {
 				Logger::log("No json webfinger links for ".$url, Logger::DEBUG);
-				return false;
+				return [];
 			}
 			return $webfinger;
 		}
@@ -945,13 +945,13 @@ class Probe
 		$xrd = XML::parseString($data, true);
 		if (!is_object($xrd)) {
 			Logger::log("No webfinger data retrievable for ".$url, Logger::DEBUG);
-			return false;
+			return [];
 		}
 
 		$xrd_arr = XML::elementToArray($xrd);
 		if (!isset($xrd_arr["xrd"]["link"])) {
 			Logger::log("No XML webfinger links for ".$url, Logger::DEBUG);
-			return false;
+			return [];
 		}
 
 		$webfinger = [];
@@ -997,18 +997,18 @@ class Probe
 		$curlResult = Network::curl($noscrape_url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
-			return false;
+			return [];
 		}
 		$content = $curlResult->getBody();
 		if (!$content) {
 			Logger::log("Empty body for ".$noscrape_url, Logger::DEBUG);
-			return false;
+			return [];
 		}
 
 		$json = json_decode($content, true);
 		if (!is_array($json)) {
 			Logger::log("No json data for ".$noscrape_url, Logger::DEBUG);
-			return false;
+			return [];
 		}
 
 		if (!empty($json["fn"])) {
@@ -1218,7 +1218,7 @@ class Probe
 		}
 
 		if (!isset($data["network"]) || ($hcard_url == "")) {
-			return false;
+			return [];
 		}
 
 		// Fetch data via noscrape - this is faster
@@ -1255,23 +1255,23 @@ class Probe
 		$curlResult = Network::curl($hcard_url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
-			return false;
+			return [];
 		}
 		$content = $curlResult->getBody();
 		if (!$content) {
-			return false;
+			return [];
 		}
 
 		$doc = new DOMDocument();
 		if (!@$doc->loadHTML($content)) {
-			return false;
+			return [];
 		}
 
 		$xpath = new DomXPath($doc);
 
 		$vcards = $xpath->query("//div[contains(concat(' ', @class, ' '), ' vcard ')]");
 		if (!is_object($vcards)) {
-			return false;
+			return [];
 		}
 
 		if (!isset($data["baseurl"])) {
@@ -1409,7 +1409,7 @@ class Probe
 		}
 
 		if (empty($data["url"]) || empty($hcard_url)) {
-			return false;
+			return [];
 		}
 
 		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
@@ -1430,7 +1430,7 @@ class Probe
 		$data = self::pollHcard($hcard_url, $data);
 
 		if (!$data) {
-			return false;
+			return [];
 		}
 
 		if (!empty($data["url"])
@@ -1450,7 +1450,7 @@ class Probe
 			$data["notify"] = $data["baseurl"] . "/receive/users/" . $data["guid"];
 			$data["batch"]  = $data["baseurl"] . "/receive/public";
 		} else {
-			return false;
+			return [];
 		}
 
 		return $data;
@@ -1483,7 +1483,7 @@ class Probe
 			$data["addr"] = str_replace('acct:', '', $webfinger["subject"]);
 		}
 
-		if (is_array($webfinger["links"])) {
+		if (!empty($webfinger["links"])) {
 			// The array is reversed to take into account the order of preference for same-rel links
 			// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
 			foreach (array_reverse($webfinger["links"]) as $link) {
@@ -1509,7 +1509,7 @@ class Probe
 						$curlResult = Network::curl($pubkey);
 						if ($curlResult->isTimeout()) {
 							self::$istimeout = true;
-							return false;
+							return $short ? false : [];
 						}
 						$pubkey = $curlResult->getBody();
 					}
@@ -1531,7 +1531,7 @@ class Probe
 		) {
 			$data["network"] = Protocol::OSTATUS;
 		} else {
-			return false;
+			return $short ? false : [];
 		}
 
 		if ($short) {
@@ -1542,12 +1542,12 @@ class Probe
 		$curlResult = Network::curl($data["poll"]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
-			return false;
+			return [];
 		}
 		$feed = $curlResult->getBody();
 		$feed_data = Feed::import($feed);
 		if (!$feed_data) {
-			return false;
+			return [];
 		}
 
 		if (!empty($feed_data["header"]["author-name"])) {
@@ -1594,12 +1594,12 @@ class Probe
 	{
 		$curlResult = Network::curl($profile_link);
 		if (!$curlResult->isSuccess()) {
-			return false;
+			return [];
 		}
 
 		$doc = new DOMDocument();
 		if (!@$doc->loadHTML($curlResult->getBody())) {
-			return false;
+			return [];
 		}
 
 		$xpath = new DomXPath($doc);
@@ -1680,13 +1680,13 @@ class Probe
 
 			$data["network"] = Protocol::PUMPIO;
 		} else {
-			return false;
+			return [];
 		}
 
 		$profile_data = self::pumpioProfileData($data["url"]);
 
 		if (!$profile_data) {
-			return false;
+			return [];
 		}
 
 		$data = array_merge($data, $profile_data);
@@ -1859,20 +1859,20 @@ class Probe
 		$curlResult = Network::curl($url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
-			return false;
+			return [];
 		}
 		$feed = $curlResult->getBody();
 		$feed_data = Feed::import($feed);
 
 		if (!$feed_data) {
 			if (!$probe) {
-				return false;
+				return [];
 			}
 
 			$feed_url = self::getFeedLink($url, $feed);
 
 			if (!$feed_url) {
-				return false;
+				return [];
 			}
 
 			return self::feed($feed_url, false);
@@ -1920,11 +1920,11 @@ class Probe
 	private static function mail($uri, $uid)
 	{
 		if (!Network::isEmailDomainValid($uri)) {
-			return false;
+			return [];
 		}
 
 		if ($uid == 0) {
-			return false;
+			return [];
 		}
 
 		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => $uid]);
@@ -1934,7 +1934,7 @@ class Probe
 		$mailacct = DBA::selectFirst('mailacct', $fields, $condition);
 
 		if (!DBA::isResult($user) || !DBA::isResult($mailacct)) {
-			return false;
+			return [];
 		}
 
 		$mailbox = Email::constructMailboxName($mailacct);
@@ -1942,14 +1942,14 @@ class Probe
 		openssl_private_decrypt(hex2bin($mailacct['pass']), $password, $user['prvkey']);
 		$mbox = Email::connect($mailbox, $mailacct['user'], $password);
 		if (!$mbox) {
-			return false;
+			return [];
 		}
 
 		$msgs = Email::poll($mbox, $uri);
 		Logger::log('searching '.$uri.', '.count($msgs).' messages found.', Logger::DEBUG);
 
 		if (!count($msgs)) {
-			return false;
+			return [];
 		}
 
 		$phost = substr($uri, strpos($uri, '@') + 1);
