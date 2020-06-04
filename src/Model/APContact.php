@@ -295,6 +295,8 @@ class APContact
 				if (!empty($data['subscribe'])) {
 					$apcontact['subscribe'] = $data['subscribe'];
 				}
+			} else {
+				$apcontact['addr'] = null;
 			}
 		}
 
