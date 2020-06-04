@@ -2163,4 +2163,22 @@ class BBCode
 
 		return $ret;
 	}
+
+	/**
+	 * Perform a custom function on a text after having escaped blocks enclosed in the provided tag list.
+	 *
+	 * @param string   $text
+	 * @param array    $tagList A list of tag names, e.g ['noparse', 'nobb', 'pre']
+	 * @param callable $callback
+	 * @return string
+	 * @throws Exception
+	 *@see Strings::performWithEscapedBlocks
+	 *
+	 */
+	public static function performWithEscapedTags(string $text, array $tagList, callable $callback)
+	{
+		$tagList = array_map('preg_quote', $tagList);
+
+		return Strings::performWithEscapedBlocks($text, '#\[(?:' . implode('|', $tagList) . ').*?\[/(?:' . implode('|', $tagList) . ')]#ism', $callback);
+	}
 }

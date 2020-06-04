@@ -472,4 +472,52 @@ class Strings
 
 		return mb_substr($string, 0, $start) . $replacement . mb_substr($string, $start + $length, $string_length - $start - $length);
 	}
+
+	/**
+	 * Perform a custom function on a text after having escaped blocks matched by the provided regular expressions.
+	 * Only full matches are used, capturing group are ignored.
+	 *
+	 * To change the provided text, the callback function needs to return it and this function will return the modified
+	 * version as well after having restored the escaped blocks.
+	 *
+	 * @param string   $text
+	 * @param string   $regex
+	 * @param callable $callback
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function performWithEscapedBlocks(string $text, string $regex, callable $callback)
+	{
+		// Enables nested use
+		$executionId = random_int(PHP_INT_MAX / 10, PHP_INT_MAX);
+
+		$blocks = [];
+
+		$text = preg_replace_callback($regex,
+			function ($matches) use ($executionId, &$blocks) {
+				$return = '«block-' . $executionId . '-' . count($blocks) . '»';
+
+				$blocks[] = $matches[0];
+
+				return $return;
+			},
+			$text
+		);
+
+		$text = $callback($text) ?? '';
+
+		// Restore code blocks
+		$text = preg_replace_callback('/«block-' . $executionId . '-([0-9]+)»/iU',
+			function ($matches) use ($blocks) {
+				$return = $matches[0];
+				if (isset($blocks[intval($matches[1])])) {
+					$return = $blocks[$matches[1]];
+				}
+				return $return;
+			},
+			$text
+		);
+
+		return $text;
+	}
 }
