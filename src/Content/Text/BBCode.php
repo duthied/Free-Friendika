@@ -1071,26 +1071,17 @@ class BBCode
 				$text = '<div><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672;', ENT_QUOTES, 'UTF-8') . '</a> ' . $author . '<blockquote>' . $content . '</blockquote></div>' . "\n";
 				break;
 			default:
-				// Transforms quoted tweets in rich attachments to avoid nested tweets
-				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($attributes['link'])) {
-					try {
-						$text = ($is_quote_share? '<br />' : '') . OEmbed::getHTML($attributes['link']);
-					} catch (Exception $e) {
-						$text = ($is_quote_share? '<br />' : '') . sprintf('[bookmark=%s]%s[/bookmark]', $attributes['link'], $content);
-					}
-				} else {
-					$text = ($is_quote_share? "\n" : '');
+				$text = ($is_quote_share? "\n" : '');
 
-					$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
-					$text .= Renderer::replaceMacros($tpl, [
-						'$profile' => $attributes['profile'],
-						'$avatar'  => $attributes['avatar'],
-						'$author'  => $attributes['author'],
-						'$link'    => $attributes['link'],
-						'$posted'  => $attributes['posted'],
-						'$content' => trim($content)
-					]);
-				}
+				$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
+				$text .= Renderer::replaceMacros($tpl, [
+					'$profile' => $attributes['profile'],
+					'$avatar'  => $attributes['avatar'],
+					'$author'  => $attributes['author'],
+					'$link'    => $attributes['link'],
+					'$posted'  => $attributes['posted'],
+					'$content' => trim($content)
+				]);
 				break;
 		}
 
@@ -1765,15 +1756,6 @@ class BBCode
 				$text);
 		}
 
-		// Shared content conversion
-		// Notice: may create [bookmark] tags so this must be ran before the link handling
-		$text = self::convertShare(
-			$text,
-			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
-				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
-			}
-		);
-
 		// Bookmarks in red - will be converted to bookmarks in friendica
 		$text = preg_replace("/#\^\[url\](.*?)\[\/url\]/ism", '[bookmark=$1]$1[/bookmark]', $text);
 		$text = preg_replace("/#\^\[url\=(.*?)\](.*?)\[\/url\]/ism", '[bookmark=$1]$2[/bookmark]', $text);
@@ -1891,6 +1873,14 @@ class BBCode
 
 		$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
 		$text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . DI::l10n()->t('Invalid link protocol') . '">', $text);
+
+		// Shared content
+		$text = self::convertShare(
+			$text,
+			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
+				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
+			}
+		);
 
 		if ($saved_image) {
 			$text = self::interpolateSavedImagesIntoItemBody($text, $saved_image);
