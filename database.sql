@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1351
+-- DB_UPDATE_VERSION 1353
 -- ------------------------------------------
 
 
@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`notify` varchar(255) COMMENT '',
 	`poll` varchar(255) COMMENT '',
 	`confirm` varchar(255) COMMENT '',
+	`subscribe` varchar(255) COMMENT '',
 	`poco` varchar(255) COMMENT '',
 	`aes_allow` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`ret-aes` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -240,6 +241,7 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	`addr` varchar(255) COMMENT '',
 	`alias` varchar(255) COMMENT '',
 	`pubkey` text COMMENT '',
+	`subscribe` varchar(255) COMMENT '',
 	`baseurl` varchar(255) COMMENT 'baseurl of the ap contact',
 	`gsid` int unsigned COMMENT 'Global Server ID',
 	`generator` varchar(255) COMMENT 'Name of the contact\'s system',

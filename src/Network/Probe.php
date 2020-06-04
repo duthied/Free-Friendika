@@ -389,7 +389,11 @@ class Probe
 
 		self::$istimeout = false;
 
-		$data = self::detect($uri, $network, $uid);
+		if ($network != Protocol::ACTIVITYPUB) {
+			$data = self::detect($uri, $network, $uid);
+		} else {
+			$data = null;
+		}
 
 		// When the previous detection process had got a time out
 		// we could falsely detect a Friendica profile as AP profile.
@@ -397,9 +401,7 @@ class Probe
 			$ap_profile = ActivityPub::probeProfile($uri);
 
 			if (empty($data) || (!empty($ap_profile) && empty($network) && (($data['network'] ?? '') != Protocol::DFRN))) {
-				$subscribe = $data['subscribe'] ?? '';
 				$data = $ap_profile;
-				$data['subscribe'] = $subscribe;
 			} elseif (!empty($ap_profile)) {
 				$ap_profile['batch'] = '';
 				$data = array_merge($ap_profile, $data);
@@ -921,7 +923,7 @@ class Probe
 	 * @return array webfinger data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function webfinger($url, $type)
+	public static function webfinger($url, $type)
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 

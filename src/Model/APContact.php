@@ -25,6 +25,8 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\Probe;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Crypto;
 use Friendica\Util\Network;
@@ -35,56 +37,55 @@ use Friendica\Util\Strings;
 class APContact
 {
 	/**
-	 * Resolves the profile url from the address by using webfinger
+	 * Fetch webfinger data
 	 *
-	 * @param string $addr profile address (user@domain.tld)
-	 * @param string $url profile URL. When set then we return "true" when this profile url can be found at the address
-	 * @return string|boolean url
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param string $addr Address
+	 * @return array webfinger data
 	 */
-	private static function addrToUrl($addr, $url = null)
+	public static function fetchWebfingerData(string $addr)
 	{
 		$addr_parts = explode('@', $addr);
 		if (count($addr_parts) != 2) {
-			return false;
+			return [];
 		}
 
-		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-
-		$webfinger = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
-
-		$curlResult = Network::curl($webfinger, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/jrd+json,application/json']);
-		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-			$webfinger = Strings::normaliseLink($webfinger);
-
-			$curlResult = Network::curl($webfinger, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/jrd+json,application/json']);
-
-			if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-				return false;
+		$data = ['addr' => $addr];
+		$template = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
+		$webfinger = Probe::webfinger(str_replace('{uri}', urlencode($addr), $template), 'application/jrd+json');
+		if (empty($webfinger['links'])) {
+			$template = 'http://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
+			$webfinger = Probe::webfinger(str_replace('{uri}', urlencode($addr), $template), 'application/jrd+json');
+			if (empty($webfinger['links'])) {
+				return [];
 			}
+			$data['baseurl'] = 'http://' . $addr_parts[1];
+		} else {
+			$data['baseurl'] = 'https://' . $addr_parts[1];
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
-
-		if (empty($data['links'])) {
-			return false;
-		}
-
-		foreach ($data['links'] as $link) {
-			if (!empty($url) && !empty($link['href']) && ($link['href'] == $url)) {
-				return true;
-			}
-
-			if (empty($link['href']) || empty($link['rel']) || empty($link['type'])) {
+		foreach ($webfinger['links'] as $link) {
+			if (empty($link['rel'])) {
 				continue;
 			}
 
-			if (empty($url) && ($link['rel'] == 'self') && ($link['type'] == 'application/activity+json')) {
-				return $link['href'];
+			if (!empty($link['template']) && ($link['rel'] == ActivityNamespace::OSTATUSSUB)) {
+				$data['subscribe'] = $link['template'];
+			}
+
+			if (!empty($link['href']) && !empty($link['type']) && ($link['rel'] == 'self') && ($link['type'] == 'application/activity+json')) {
+				$data['url'] = $link['href'];
+			}
+
+			if (!empty($link['href']) && !empty($link['type']) && ($link['rel'] == 'http://webfinger.net/rel/profile-page') && ($link['type'] == 'text/html')) {
+				$data['alias'] = $link['href'];
 			}
 		}
 
-		return false;
+		if (!empty($data['url']) && !empty($data['alias']) && ($data['url'] == $data['alias'])) {
+			unset($data['alias']);
+		}
+
+		return $data;
 	}
 
 	/**
@@ -133,11 +134,15 @@ class APContact
 			}
 		}
 
-		if (empty(parse_url($url, PHP_URL_SCHEME))) {
-			$url = self::addrToUrl($url);
-			if (empty($url)) {
+		$apcontact = [];
+
+		$webfinger = empty(parse_url($url, PHP_URL_SCHEME));
+		if ($webfinger) {
+			$apcontact = self::fetchWebfingerData($url);
+			if (empty($apcontact['url'])) {
 				return $fetched_contact;
 			}
+			$url = $apcontact['url'];
 		}
 
 		$data = ActivityPub::fetchContent($url);
@@ -151,7 +156,6 @@ class APContact
 			return $fetched_contact;
 		}
 
-		$apcontact = [];
 		$apcontact['url'] = $compacted['@id'];
 		$apcontact['uuid'] = JsonLD::fetchElement($compacted, 'diaspora:guid', '@value');
 		$apcontact['type'] = str_replace('as:', '', JsonLD::fetchElement($compacted, '@type'));
@@ -182,9 +186,11 @@ class APContact
 			$apcontact['photo'] = JsonLD::fetchElement($compacted['as:icon'], 'as:url', '@id');
 		}
 
-		$apcontact['alias'] = JsonLD::fetchElement($compacted, 'as:url', '@id');
-		if (is_array($apcontact['alias'])) {
-			$apcontact['alias'] = JsonLD::fetchElement($compacted['as:url'], 'as:href', '@id');
+		if (empty($apcontact['alias'])) {
+			$apcontact['alias'] = JsonLD::fetchElement($compacted, 'as:url', '@id');
+			if (is_array($apcontact['alias'])) {
+				$apcontact['alias'] = JsonLD::fetchElement($compacted['as:url'], 'as:href', '@id');
+			}
 		}
 
 		// Quit if none of the basic values are set
@@ -201,10 +207,12 @@ class APContact
 		unset($parts['scheme']);
 		unset($parts['path']);
 
-		if (!empty($apcontact['nick'])) {
-			$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
-		} else {
-			$apcontact['addr'] = '';
+		if (empty($apcontact['addr'])) {
+			if (!empty($apcontact['nick'])) {
+				$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
+			} else {
+				$apcontact['addr'] = '';
+			}
 		}
 
 		$apcontact['pubkey'] = null;
@@ -276,16 +284,17 @@ class APContact
 			}
 		}
 
-		if (empty($fetched_contact['baseurl']) || $update) {
-			$parts = parse_url($apcontact['url']);
-			unset($parts['path']);
-			$baseurl = Network::unparseURL($parts);
+		if (!$webfinger && !empty($apcontact['addr'])) {
+			$data = self::fetchWebfingerData($apcontact['addr']);
+			if (!empty($data)) {
+				$apcontact['baseurl'] = $data['baseurl'];
 
-			// Check if the address is resolvable or the profile url is identical with the base url of the system
-			if (self::addrToUrl($apcontact['addr'], $apcontact['url']) || Strings::compareLink($apcontact['url'], $baseurl)) {
-				$apcontact['baseurl'] = $baseurl;
-			} else {
-				$apcontact['addr'] = null;
+				if (empty($apcontact['alias']) && !empty($data['alias'])) {
+					$apcontact['alias'] = $data['alias'];
+				}
+				if (!empty($data['subscribe'])) {
+					$apcontact['subscribe'] = $data['subscribe'];
+				}
 			}
 		}
 
