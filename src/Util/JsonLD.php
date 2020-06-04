@@ -175,10 +175,6 @@ class JsonLD
 	 */
 	public static function fetchElementArray($array, $element, $key = null)
 	{
-		if (empty($array)) {
-			return null;
-		}
-
 		if (!isset($array[$element])) {
 			return null;
 		}
