@@ -1071,26 +1071,17 @@ class BBCode
 				$text = '<div><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672;', ENT_QUOTES, 'UTF-8') . '</a> ' . $author . '<blockquote>' . $content . '</blockquote></div>' . "\n";
 				break;
 			default:
-				// Transforms quoted tweets in rich attachments to avoid nested tweets
-				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($attributes['link'])) {
-					try {
-						$text = ($is_quote_share? '<br />' : '') . OEmbed::getHTML($attributes['link']);
-					} catch (Exception $e) {
-						$text = ($is_quote_share? '<br />' : '') . sprintf('[bookmark=%s]%s[/bookmark]', $attributes['link'], $content);
-					}
-				} else {
-					$text = ($is_quote_share? "\n" : '');
+				$text = ($is_quote_share? "\n" : '');
 
-					$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
-					$text .= Renderer::replaceMacros($tpl, [
-						'$profile' => $attributes['profile'],
-						'$avatar'  => $attributes['avatar'],
-						'$author'  => $attributes['author'],
-						'$link'    => $attributes['link'],
-						'$posted'  => $attributes['posted'],
-						'$content' => trim($content)
-					]);
-				}
+				$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
+				$text .= Renderer::replaceMacros($tpl, [
+					'$profile' => $attributes['profile'],
+					'$avatar'  => $attributes['avatar'],
+					'$author'  => $attributes['author'],
+					'$link'    => $attributes['link'],
+					'$posted'  => $attributes['posted'],
+					'$content' => trim($content)
+				]);
 				break;
 		}
 
