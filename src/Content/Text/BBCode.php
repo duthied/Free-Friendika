@@ -1765,15 +1765,6 @@ class BBCode
 				$text);
 		}
 
-		// Shared content conversion
-		// Notice: may create [bookmark] tags so this must be ran before the link handling
-		$text = self::convertShare(
-			$text,
-			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
-				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
-			}
-		);
-
 		// Bookmarks in red - will be converted to bookmarks in friendica
 		$text = preg_replace("/#\^\[url\](.*?)\[\/url\]/ism", '[bookmark=$1]$1[/bookmark]', $text);
 		$text = preg_replace("/#\^\[url\=(.*?)\](.*?)\[\/url\]/ism", '[bookmark=$1]$2[/bookmark]', $text);
@@ -1891,6 +1882,14 @@ class BBCode
 
 		$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
 		$text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . DI::l10n()->t('Invalid link protocol') . '">', $text);
+
+		// Shared content
+		$text = self::convertShare(
+			$text,
+			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
+				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
+			}
+		);
 
 		if ($saved_image) {
 			$text = self::interpolateSavedImagesIntoItemBody($text, $saved_image);

@@ -236,7 +236,7 @@ class BBCodeTest extends MockedTest
 			'bug-7808-code-amp' => [
 				'expectedHtml' => '<code>&amp;</code>',
 				'text' => '[code]&[/code]',
-			],
+			]
 		];
 	}
 
