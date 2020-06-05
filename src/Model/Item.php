@@ -1780,7 +1780,7 @@ class Item
 
 
 		// Check for hashtags in the body and repair or add hashtag links
-		self::setHashtags($item);
+		$item['body'] = self::setHashtags($item['body']);
 
 		// Fill the cache field
 		self::putInCache($item);
@@ -2424,84 +2424,69 @@ class Item
 		}
 	}
 
-	public static function setHashtags(&$item)
+	public static function setHashtags($body)
 	{
-		$tags = BBCode::getTags($item["body"]);
+		$body = BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code'], function ($body) {
+			$tags = BBCode::getTags($body);
 
-		// No hashtags?
-		if (!count($tags)) {
-			return false;
-		}
-
-		// What happens in [code], stays in [code]!
-		// escape the # and the [
-		// hint: we will also get in trouble with #tags, when we want markdown in posts -> ### Headline 3
-		$item["body"] = preg_replace_callback("/\[code(.*?)\](.*?)\[\/code\]/ism",
-			function ($match) {
-				// we truly ESCape all # and [ to prevent gettin weird tags in [code] blocks
-				$find = ['#', '['];
-				$replace = [chr(27).'sharp', chr(27).'leftsquarebracket'];
-				return ("[code" . $match[1] . "]" . str_replace($find, $replace, $match[2]) . "[/code]");
-			}, $item["body"]);
-
-		// This sorting is important when there are hashtags that are part of other hashtags
-		// Otherwise there could be problems with hashtags like #test and #test2
-		// Because of this we are sorting from the longest to the shortest tag.
-		usort($tags, function($a, $b) {
-			return strlen($b) <=> strlen($a);
-		});
-
-		$URLSearchString = "^\[\]";
-
-		// All hashtags should point to the home server if "local_tags" is activated
-		if (DI::config()->get('system', 'local_tags')) {
-			$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-					"#[url=".DI::baseUrl()."/search?tag=$2]$2[/url]", $item["body"]);
-		}
-
-		// mask hashtags inside of url, bookmarks and attachments to avoid urls in urls
-		$item["body"] = preg_replace_callback("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-			function ($match) {
-				return ("[url=" . str_replace("#", "&num;", $match[1]) . "]" . str_replace("#", "&num;", $match[2]) . "[/url]");
-			}, $item["body"]);
-
-		$item["body"] = preg_replace_callback("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism",
-			function ($match) {
-				return ("[bookmark=" . str_replace("#", "&num;", $match[1]) . "]" . str_replace("#", "&num;", $match[2]) . "[/bookmark]");
-			}, $item["body"]);
-
-		$item["body"] = preg_replace_callback("/\[attachment (.*)\](.*?)\[\/attachment\]/ism",
-			function ($match) {
-				return ("[attachment " . str_replace("#", "&num;", $match[1]) . "]" . $match[2] . "[/attachment]");
-			}, $item["body"]);
-
-		// Repair recursive urls
-		$item["body"] = preg_replace("/&num;\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				"&num;$2", $item["body"]);
-
-		foreach ($tags as $tag) {
-			if ((strpos($tag, '#') !== 0) || strpos($tag, '[url=') || strlen($tag) < 2 || $tag[1] == '#') {
-				continue;
+			// No hashtags?
+			if (!count($tags)) {
+				return $body;
 			}
 
-			$basetag = str_replace('_',' ',substr($tag,1));
-			$newtag = '#[url=' . DI::baseUrl() . '/search?tag=' . $basetag . ']' . $basetag . '[/url]';
+			// This sorting is important when there are hashtags that are part of other hashtags
+			// Otherwise there could be problems with hashtags like #test and #test2
+			// Because of this we are sorting from the longest to the shortest tag.
+			usort($tags, function ($a, $b) {
+				return strlen($b) <=> strlen($a);
+			});
 
-			$item["body"] = str_replace($tag, $newtag, $item["body"]);
-		}
+			$URLSearchString = "^\[\]";
 
-		// Convert back the masked hashtags
-		$item["body"] = str_replace("&num;", "#", $item["body"]);
+			// All hashtags should point to the home server if "local_tags" is activated
+			if (DI::config()->get('system', 'local_tags')) {
+				$body = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+					"#[url=" . DI::baseUrl() . "/search?tag=$2]$2[/url]", $body);
+			}
 
-		// Remember! What happens in [code], stays in [code]
-		// roleback the # and [
-		$item["body"] = preg_replace_callback("/\[code(.*?)\](.*?)\[\/code\]/ism",
-			function ($match) {
-				// we truly unESCape all sharp and leftsquarebracket
-				$find = [chr(27).'sharp', chr(27).'leftsquarebracket'];
-				$replace = ['#', '['];
-				return ("[code" . $match[1] . "]" . str_replace($find, $replace, $match[2]) . "[/code]");
-			}, $item["body"]);
+			// mask hashtags inside of url, bookmarks and attachments to avoid urls in urls
+			$body = preg_replace_callback("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+				function ($match) {
+					return ("[url=" . str_replace("#", "&num;", $match[1]) . "]" . str_replace("#", "&num;", $match[2]) . "[/url]");
+				}, $body);
+
+			$body = preg_replace_callback("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism",
+				function ($match) {
+					return ("[bookmark=" . str_replace("#", "&num;", $match[1]) . "]" . str_replace("#", "&num;", $match[2]) . "[/bookmark]");
+				}, $body);
+
+			$body = preg_replace_callback("/\[attachment (.*)\](.*?)\[\/attachment\]/ism",
+				function ($match) {
+					return ("[attachment " . str_replace("#", "&num;", $match[1]) . "]" . $match[2] . "[/attachment]");
+				}, $body);
+
+			// Repair recursive urls
+			$body = preg_replace("/&num;\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
+				"&num;$2", $body);
+
+			foreach ($tags as $tag) {
+				if ((strpos($tag, '#') !== 0) || strpos($tag, '[url=') || strlen($tag) < 2 || $tag[1] == '#') {
+					continue;
+				}
+
+				$basetag = str_replace('_', ' ', substr($tag, 1));
+				$newtag = '#[url=' . DI::baseUrl() . '/search?tag=' . $basetag . ']' . $basetag . '[/url]';
+
+				$body = str_replace($tag, $newtag, $body);
+			}
+
+			// Convert back the masked hashtags
+			$body = str_replace("&num;", "#", $body);
+
+			return $body;
+		});
+
+		return $body;
 	}
 
 	/**

@@ -642,7 +642,7 @@ function item_post(App $a) {
 
 	// Check for hashtags in the body and repair or add hashtag links
 	if ($preview || $orig_post) {
-		Item::setHashtags($datarray);
+		$datarray['body'] = Item::setHashtags($datarray['body']);
 	}
 
 	// preview mode - prepare the body for display and send it via json
