@@ -1854,9 +1854,7 @@ code > .hl-main {
 }
 .wall-item-actions .active {
     font-weight: bold;
-}
-.wall-item-actions .active:hover {
-    color: $link_color;
+	color: $link_color;
 }
 .wall-item-actions-left {
     display: table-cell;
