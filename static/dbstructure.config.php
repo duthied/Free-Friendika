@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1352);
+	define('DB_UPDATE_VERSION', 1353);
 }
 
 return [
@@ -304,6 +304,7 @@ return [
 			"addr" => ["type" => "varchar(255)", "comment" => ""],
 			"alias" => ["type" => "varchar(255)", "comment" => ""],
 			"pubkey" => ["type" => "text", "comment" => ""],
+			"subscribe" => ["type" => "varchar(255)", "comment" => ""],
 			"baseurl" => ["type" => "varchar(255)", "comment" => "baseurl of the ap contact"],
 			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID"],
 			"generator" => ["type" => "varchar(255)", "comment" => "Name of the contact's system"],
