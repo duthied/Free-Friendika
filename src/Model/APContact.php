@@ -304,6 +304,10 @@ class APContact
 			$apcontact['baseurl'] = null;
 		}
 
+		if (empty($apcontact['subscribe'])) {
+			$apcontact['subscribe'] = null;
+		}		
+
 		if (!empty($apcontact['baseurl']) && empty($fetched_contact['gsid'])) {
 			$apcontact['gsid'] = GServer::getID($apcontact['baseurl']);
 		} elseif (!empty($fetched_contact['gsid'])) {
