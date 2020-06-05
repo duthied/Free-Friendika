@@ -369,16 +369,16 @@ function item_post(App $a) {
 
 	// Look for any tags and linkify them
 	$inform   = '';
-
-	$tags = BBCode::getTags($body);
-
-	$tagged = [];
-
 	$private_forum = false;
+	$private_id = null;
 	$only_to_forum = false;
 	$forum_contact = [];
 
-	if (count($tags)) {
+	BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code'], function ($body) use ($profile_uid, $network, $str_contact_allow, &$inform, &$private_forum, &$private_id, &$only_to_forum, &$forum_contact) {
+		$tags = BBCode::getTags($body);
+
+		$tagged = [];
+
 		foreach ($tags as $tag) {
 			$tag_type = substr($tag, 0, 1);
 
@@ -386,20 +386,13 @@ function item_post(App $a) {
 				continue;
 			}
 
-			/*
-			 * If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
+			/* If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
 			 * Robert Johnson should be first in the $tags array
 			 */
-			$fullnametagged = false;
-			/// @TODO $tagged is initialized above if () block and is not filled, maybe old-lost code?
 			foreach ($tagged as $nextTag) {
 				if (stristr($nextTag, $tag . ' ')) {
-					$fullnametagged = true;
-					break;
+					continue 2;
 				}
-			}
-			if ($fullnametagged) {
-				continue;
 			}
 
 			$success = handle_tag($body, $inform, local_user() ? local_user() : $profile_uid, $tag, $network);
@@ -407,20 +400,22 @@ function item_post(App $a) {
 				$tagged[] = $tag;
 			}
 			// When the forum is private or the forum is addressed with a "!" make the post private
-			if (is_array($success['contact']) && (!empty($success['contact']['prv']) || ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]))) {
+			if (!empty($success['contact']['prv']) || ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
 				$private_forum = $success['contact']['prv'];
 				$only_to_forum = ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
 				$private_id = $success['contact']['id'];
 				$forum_contact = $success['contact'];
-			} elseif (is_array($success['contact']) && !empty($success['contact']['forum']) &&
-				($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
+			} elseif (!empty($success['contact']['forum']) && ($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
 				$private_forum = false;
 				$only_to_forum = true;
 				$private_id = $success['contact']['id'];
 				$forum_contact = $success['contact'];
 			}
 		}
-	}
+
+		return $body;
+	});
+
 
 	$original_contact_id = $contact_id;
 
