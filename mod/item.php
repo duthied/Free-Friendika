@@ -245,7 +245,7 @@ function item_post(App $a) {
 		$verb              = $orig_post['verb'];
 		$objecttype        = $orig_post['object-type'];
 		$app               = $orig_post['app'];
-		$categories        = $orig_post['file'];
+		$categories        = $orig_post['file'] ?? '';
 		$title             = Strings::escapeTags(trim($_REQUEST['title']));
 		$body              = trim($body);
 		$private           = $orig_post['private'];
