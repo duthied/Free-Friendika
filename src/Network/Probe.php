@@ -441,7 +441,7 @@ class Probe
 			}
 		}
 
-		if (!empty(self::$baseurl)) {
+		if (empty($data['baseurl']) && !empty(self::$baseurl)) {
 			$data['baseurl'] = self::$baseurl;
 		}
 
@@ -1730,6 +1730,8 @@ class Probe
 	 */
 	private static function twitter($uri)
 	{
+		self::$baseurl = '';
+
 		if (preg_match('=(.*)@twitter.com=i', $uri, $matches)) {
 			$nick = $matches[1];
 		} elseif (preg_match('=https?://twitter.com/(.*)=i', $uri, $matches)) {
