@@ -781,13 +781,6 @@ class Probe
 
 		Logger::log($uri." is ".$result["network"], Logger::DEBUG);
 
-		if (empty($result["baseurl"]) && ($result["network"] != Protocol::PHANTOM)) {
-			$pos = strpos($result["url"], $host);
-			if ($pos) {
-				$result["baseurl"] = substr($result["url"], 0, $pos).$host;
-			}
-		}
-
 		return $result;
 	}
 
@@ -1730,8 +1723,6 @@ class Probe
 	 */
 	private static function twitter($uri)
 	{
-		self::$baseurl = '';
-
 		if (preg_match('=(.*)@twitter.com=i', $uri, $matches)) {
 			$nick = $matches[1];
 		} elseif (preg_match('=https?://twitter.com/(.*)=i', $uri, $matches)) {

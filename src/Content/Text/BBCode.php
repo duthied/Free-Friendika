@@ -1076,7 +1076,7 @@ class BBCode
 			default:
 				$text = ($is_quote_share? "\n" : '');
 
-				$authorId = Contact::getIdForURL($attributes['profile'], 0);
+				$authorId = Contact::getIdForURL($attributes['profile']);
 
 				$contact = Contact::getById($authorId, ['network']);
 
