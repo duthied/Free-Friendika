@@ -37,6 +37,15 @@ class JsonLDTest extends TestCase
 		$this->assertNull($data);
 	}
 
+	public function testFetchElementArrayFoundID()
+	{
+		$object = ['field' => ['value1', ['@id' => 'value2'], ['@id' => 'value3']]];
+
+		$data = JsonLD::fetchElementArray($object, 'field', '@id');
+		$this->assertSame(['value1', 'value2', 'value3'], $data);
+	}
+
+
 	public function testFetchElementNotFound()
 	{
 		$object = [];
