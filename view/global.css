@@ -180,11 +180,6 @@ span.connector {
   margin-right: 9px;
 }
 
-.shared_header span {
-  display: table-cell;
-  float: none;
-}
-
 blockquote.shared_content {
   margin-left: 32px;
   color: #000;

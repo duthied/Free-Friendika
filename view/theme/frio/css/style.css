@@ -1747,19 +1747,24 @@ aside .panel-body {
 }
 
 /* wall-item content elements */
-.shared-wrapper,
+.shared-wrapper {
+	position: relative;
+	margin-top: 10px;
+	margin-bottom: 0;
+}
 .vevent {
     padding: 10px;
     box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .1) inset, 0 1px 1px rgba(0, 0, 0, .05);
 }
 @media screen and (max-width: 767px) {
-    .shared-wrapper,
     .vevent {
-    margin-left: 0px;
-    margin-right: 0px;
+		margin-left: 0px;
+		margin-right: 0px;
     }
+	.shared-wrapper {
+		margin: 5px -10px 0;
+	}
 }
-.shared-wrapper:hover,
 .vevent:hover {
     box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .15) inset, 0 1px 1px rgba(0, 0, 0, .05);
 }
@@ -1915,7 +1920,7 @@ code > .hl-main {
 /*
 * Comments
 */
-.well {
+wall-item-comment-wrapper.well {
     border: none;
     box-shadow: none;
     /*background-color: #ededed;*/
@@ -1923,14 +1928,14 @@ code > .hl-main {
     background-image: none;
     margin-bottom: 1px;
 }
-.well-small {
+wall-item-comment-wrapper.well-small {
     padding: 10px;
     border-radius: 3px;
 }
-.well hr {
+wall-item-comment-wrapper.well hr {
     border-top: 1px solid #d9d9d9;
 }
-.wall-entry .well {
+.wall-entry wall-item-comment-wrapper.well {
     margin-bottom: 0;
 }
 .comment-container {
