@@ -45,6 +45,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
@@ -503,6 +504,16 @@ function update_1349()
 function update_1351()
 {
 	if (!DBA::e("UPDATE `thread` INNER JOIN `item` ON `thread`.`iid` = `item`.`id` SET `thread`.`uri-id` = `item`.`uri-id`")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function pre_update_1354()
+{
+	if(DBStructure::existsColumn('contact', 'ffi_keyword_blacklist')
+		&& !DBA::e("ALTER TABLE `contact` CHANGE `ffi_keyword_blacklist` `ffi_keyword_denylist` text null")) {
 		return Update::FAILED;
 	}
 

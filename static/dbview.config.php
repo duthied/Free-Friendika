@@ -145,7 +145,7 @@ return [
 			"bd" => ["contact", "bd"],
 			"notify_new_posts" => ["contact", "notify_new_posts"],
 			"fetch_further_information" => ["contact", "fetch_further_information"],
-			"ffi_keyword_blacklist" => ["contact", "ffi_keyword_blacklist"],
+			"ffi_keyword_denylist" => ["contact", "ffi_keyword_denylist"],
 			"parent-uid" => ["user", "parent-uid"],
 			"guid" => ["user", "guid"],
 			"nickname" => ["user", "nickname"], /// @todo Replaces all uses of "nickname" with "nick"
