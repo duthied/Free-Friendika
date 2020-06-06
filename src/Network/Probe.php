@@ -92,7 +92,11 @@ class Probe
 		$newdata = [];
 		foreach ($fields as $field) {
 			if (isset($data[$field])) {
-				$newdata[$field] = $data[$field];
+				if (in_array($field, ["gsid", "hide", "account-type"])) {
+					$newdata[$field] = (int)$data[$field];
+				} else {	
+					$newdata[$field] = $data[$field];
+				}
 			} elseif ($field != "gsid") {
 				$newdata[$field] = "";
 			} else {
@@ -398,7 +402,7 @@ class Probe
 		// When the previous detection process had got a time out
 		// we could falsely detect a Friendica profile as AP profile.
 		if (!self::$istimeout) {
-			$ap_profile = ActivityPub::probeProfile($uri);
+			$ap_profile = ActivityPub::probeProfile($uri, !$cache);
 
 			if (empty($data) || (!empty($ap_profile) && empty($network) && (($data['network'] ?? '') != Protocol::DFRN))) {
 				$data = $ap_profile;

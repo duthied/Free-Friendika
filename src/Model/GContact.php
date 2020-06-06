@@ -627,11 +627,6 @@ class GContact
 			$contact['network'] = Protocol::OSTATUS;
 		}
 
-		// All new contacts are hidden by default
-		if (!isset($contact['hide'])) {
-			$contact['hide'] = true;
-		}
-
 		// Remove unwanted parts from the contact url (e.g. '?zrl=...')
 		if (in_array($contact['network'], Protocol::FEDERATED)) {
 			$contact['url'] = self::cleanContactUrl($contact['url']);
@@ -646,6 +641,7 @@ class GContact
 			$contact['location'] = $contact['location'] ?? '';
 			$contact['about'] = $contact['about'] ?? '';
 			$contact['generation'] = $contact['generation'] ?? 0;
+			$contact['hide'] = $contact['hide'] ?? true;
 
 			$fields = ['name' => $contact['name'], 'nick' => $contact['nick'] ?? '', 'addr' => $contact['addr'] ?? '', 'network' => $contact['network'],
 				'url' => $contact['url'], 'nurl' => Strings::normaliseLink($contact['url']), 'photo' => $contact['photo'],
