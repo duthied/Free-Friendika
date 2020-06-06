@@ -24,6 +24,7 @@ namespace Friendica\Network;
 use DOMDocument;
 use DomXPath;
 use Friendica\Core\Cache\Duration;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -616,6 +617,19 @@ class Probe
 	private static function detect($uri, $network, $uid)
 	{
 		$parts = parse_url($uri);
+
+		$hookData = [
+			'uri'     => $uri,
+			'network' => $network,
+			'uid'     => $uid,
+			'result'  => [],
+		];
+
+		Hook::callAll('probe_detect', $hookData);
+
+		if ($hookData['result']) {
+			return $hookData['result'];
+		}
 
 		if (!empty($parts["scheme"]) && !empty($parts["host"])) {
 			$host = $parts["host"];
