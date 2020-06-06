@@ -37,6 +37,14 @@ class JsonLDTest extends TestCase
 		$this->assertNull($data);
 	}
 
+	public function testFetchElementArrayFoundEmptyArray()
+	{
+		$object = ['field' => []];
+
+		$data = JsonLD::fetchElementArray($object, 'field');
+		$this->assertSame([], $data);
+	}
+
 	public function testFetchElementArrayFoundID()
 	{
 		$object = ['field' => ['value1', ['@id' => 'value2'], ['@id' => 'value3']]];
@@ -45,6 +53,17 @@ class JsonLDTest extends TestCase
 		$this->assertSame(['value1', 'value2', 'value3'], $data);
 	}
 
+	public function testFetchElementArrayFoundArrays()
+	{
+		$object = ['field' => [['subfield11' => 'value11', 'subfield12' => 'value12'],
+			['subfield21' => 'value21', 'subfield22' => 'value22']]];
+
+		$expect = [['subfield11' => 'value11', 'subfield12' => 'value12'],
+			['subfield21' => 'value21', 'subfield22' => 'value22']];
+
+		$data = JsonLD::fetchElementArray($object, 'field');
+		$this->assertSame($expect, $data);
+	}
 
 	public function testFetchElementNotFound()
 	{
@@ -60,6 +79,14 @@ class JsonLDTest extends TestCase
 
 		$data = JsonLD::fetchElement($object, 'field');
 		$this->assertSame('value', $data);
+	}
+
+	public function testFetchElementFoundEmptyString()
+	{
+		$object = ['field' => ''];
+
+		$data = JsonLD::fetchElement($object, 'field');
+		$this->assertSame('', $data);
 	}
 
 	public function testFetchElementFoundID()
