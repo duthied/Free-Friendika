@@ -46,13 +46,16 @@ class NoScrape extends BaseModule
 			$which = $parameters['nick'];
 		} elseif (local_user() && isset($parameters['profile']) && DI::args()->get(2) == 'view') {
 			// view infos about a known profile (needs a login)
-			$which   = $a->user['nickname'];
+			$which = $a->user['nickname'];
 		} else {
 			System::jsonError(403, 'Authentication required');
-			exit();
 		}
 
 		Profile::load($a, $which);
+
+		if (empty($a->profile['uid'])) {
+			System::jsonError(404, 'Profile not found');
+		}
 
 		$json_info = [
 			'addr'         => $a->profile['addr'],
