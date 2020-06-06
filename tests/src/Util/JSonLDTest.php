@@ -42,7 +42,7 @@ class JsonLDTest extends TestCase
 		$object = ['field' => []];
 
 		$data = JsonLD::fetchElementArray($object, 'field');
-		$this->assertSame([], $data);
+		$this->assertSame([[]], $data);
 	}
 
 	public function testFetchElementArrayFoundID()
