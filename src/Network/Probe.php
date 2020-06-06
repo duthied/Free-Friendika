@@ -24,6 +24,7 @@ namespace Friendica\Network;
 use DOMDocument;
 use DomXPath;
 use Friendica\Core\Cache\Duration;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -616,6 +617,19 @@ class Probe
 	private static function detect($uri, $network, $uid)
 	{
 		$parts = parse_url($uri);
+
+		$hookData = [
+			'uri'     => $uri,
+			'network' => $network,
+			'uid'     => $uid,
+			'result'  => [],
+		];
+
+		Hook::callAll('probe_detect', $hookData);
+
+		if ($hookData['result']) {
+			return $hookData['result'];
+		}
 
 		if (!empty($parts["scheme"]) && !empty($parts["host"])) {
 			$host = $parts["host"];
@@ -1730,39 +1744,6 @@ class Probe
 		$data['nick'] = $data['name'] = $nick;
 		$data['network'] = Protocol::TWITTER;
 		$data['baseurl'] = 'https://twitter.com';
-
-		$curlResult = Network::curl($data['url'], false);
-		if (!$curlResult->isSuccess()) {
-			return [];
-		}
-
-		$body = $curlResult->getBody();
-		$doc = new DOMDocument();
-		@$doc->loadHTML($body);
-		$xpath = new DOMXPath($doc);
-
-		$list = $xpath->query('//img[@class]');
-		foreach ($list as $node) {
-			$img_attr = [];
-			if ($node->attributes->length) {
-				foreach ($node->attributes as $attribute) {
-					$img_attr[$attribute->name] = $attribute->value;
-				}
-			}
-
-			if (empty($img_attr['class'])) {
-				continue;
-			}
-
-			if (strpos($img_attr['class'], 'ProfileAvatar-image') !== false) {
-				if (!empty($img_attr['src'])) {
-					$data['photo'] = $img_attr['src'];
-				}
-				if (!empty($img_attr['alt'])) {
-					$data['name'] = $img_attr['alt'];
-				}
-			}
-		}
 
 		return $data;
 	}
