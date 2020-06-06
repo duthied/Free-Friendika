@@ -349,7 +349,7 @@ class Database
 	}
 
 	/**
-	 * Removes every not whitelisted character from the identifier string
+	 * Removes every not allowlisted character from the identifier string
 	 *
 	 * @param string $identifier
 	 *

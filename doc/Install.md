@@ -435,7 +435,7 @@ provided by one of our members.
 > 
 > This is obvious as soon as you notice that the friendica-cron uses `proc_open`
 > to execute PHP scripts that also use `proc_open`, but it took me quite some time to find that out.
-> I hope this saves some time for other people using suhosin with function blacklists.
+> I hope this saves some time for other people using suhosin with function blocklists.
 
 ### Unable to create all mysql tables on MySQL 5.7.17 or newer
 
