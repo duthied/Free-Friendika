@@ -24,6 +24,8 @@ namespace Friendica\Content\Text;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use Friendica\Content\ContactSelector;
+use Friendica\Content\Item;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
 use Friendica\Core\Hook;
@@ -35,6 +37,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Photo;
+use Friendica\Model\Tag;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
@@ -1073,14 +1076,21 @@ class BBCode
 			default:
 				$text = ($is_quote_share? "\n" : '');
 
+				$authorId = Contact::getIdForURL($attributes['profile'], 0);
+
+				$contact = Contact::getById($authorId, ['network']);
+
 				$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
 				$text .= Renderer::replaceMacros($tpl, [
-					'$profile' => $attributes['profile'],
-					'$avatar'  => $attributes['avatar'],
-					'$author'  => $attributes['author'],
-					'$link'    => $attributes['link'],
-					'$posted'  => $attributes['posted'],
-					'$content' => trim($content)
+					'$profile'      => $attributes['profile'],
+					'$avatar'       => $attributes['avatar'],
+					'$author'       => $attributes['author'],
+					'$link'         => $attributes['link'],
+					'$link_title'   => DI::l10n()->t('link to source'),
+					'$posted'       => $attributes['posted'],
+					'$network_name' => ContactSelector::networkToName($contact['network'], $attributes['profile']),
+					'$network_icon' => ContactSelector::networkToIcon($contact['network'], $attributes['profile']),
+					'$content'      => self::setMentions(trim($content), 0, $contact['network']),
 				]);
 				break;
 		}
@@ -2164,5 +2174,49 @@ class BBCode
 		$tagList = array_map('preg_quote', $tagList);
 
 		return Strings::performWithEscapedBlocks($text, '#\[(?:' . implode('|', $tagList) . ').*?\[/(?:' . implode('|', $tagList) . ')]#ism', $callback);
+	}
+
+	/**
+	 * Replaces mentions in the provided message body for the provided user and network if any
+	 *
+	 * @param $body
+	 * @param $profile_uid
+	 * @param $network
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function setMentions($body, $profile_uid = 0, $network = '')
+	{
+		$tags = BBCode::getTags($body);
+
+		$tagged = [];
+		$inform = '';
+
+		foreach ($tags as $tag) {
+			$tag_type = substr($tag, 0, 1);
+
+			if ($tag_type == Tag::TAG_CHARACTER[Tag::HASHTAG]) {
+				continue;
+			}
+
+			/*
+			 * If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
+			 * Robert Johnson should be first in the $tags array
+			 */
+			foreach ($tagged as $nextTag) {
+				if (stristr($nextTag, $tag . ' ')) {
+					continue 2;
+				}
+			}
+
+			$success = Item::replaceTag($body, $inform, $profile_uid, $tag, $network);
+
+			if ($success['replaced']) {
+				$tagged[] = $tag;
+			}
+		}
+
+		return $body;
 	}
 }
