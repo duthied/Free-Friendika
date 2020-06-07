@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1353);
+	define('DB_UPDATE_VERSION', 1354);
 }
 
 return [
@@ -181,7 +181,7 @@ return [
 			"bd" => ["type" => "date", "not null" => "1", "default" => DBA::NULL_DATE, "comment" => ""],
 			"notify_new_posts" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"fetch_further_information" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"ffi_keyword_blacklist" => ["type" => "text", "comment" => ""],
+			"ffi_keyword_denylist" => ["type" => "text", "comment" => ""],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],

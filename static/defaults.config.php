@@ -143,9 +143,9 @@ return [
 		// Watchlist of indexes to watch.
 		'db_log_index_watch' => '',
 
-		// db_log_index_blacklist (Comma-separated list)
-		// Blacklist of indexes that shouldn't be watched.
-		'db_log_index_blacklist' => '',
+		// db_log_index_denylist (Comma-separated list)
+		// Deny list of indexes that shouldn't be watched.
+		'db_log_index_denylist' => '',
 
 		// db_loglimit (Integer)
 		// If a database call lasts longer than this value in seconds it is logged.

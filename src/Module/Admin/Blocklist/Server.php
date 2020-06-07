@@ -88,7 +88,7 @@ class Server extends BaseAdmin
 		return Renderer::replaceMacros($t, [
 			'$title' => DI::l10n()->t('Administration'),
 			'$page' => DI::l10n()->t('Server Domain Pattern Blocklist'),
-			'$intro' => DI::l10n()->t('This page can be used to define a blacklist of server domain patterns from the federated network that are not allowed to interact with your node. For each domain pattern you should also provide the reason why you block it.'),
+			'$intro' => DI::l10n()->t('This page can be used to define a blocklist of server domain patterns from the federated network that are not allowed to interact with your node. For each domain pattern you should also provide the reason why you block it.'),
 			'$public' => DI::l10n()->t('The list of blocked server domain patterns will be made publically available on the <a href="/friendica">/friendica</a> page so that your users and people investigating communication problems can find the reason easily.'),
 			'$syntax' => DI::l10n()->t('<p>The server domain pattern syntax is case-insensitive shell wildcard, comprising the following special characters:</p>
 <ul>

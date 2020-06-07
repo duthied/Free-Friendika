@@ -111,7 +111,7 @@ function add_page_info_data(array $data, $no_photos = false)
 	return "\n".$text.$hashtags;
 }
 
-function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklist = "")
+function query_page_info($url, $photo = "", $keywords = false, $keyword_denylist = "")
 {
 	$data = ParseUrl::getSiteinfoCached($url, true);
 
@@ -125,8 +125,8 @@ function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklis
 		unset($data["keywords"]);
 	}
 
-	if (($keyword_blacklist != "") && isset($data["keywords"])) {
-		$list = explode(", ", $keyword_blacklist);
+	if (($keyword_denylist != "") && isset($data["keywords"])) {
+		$list = explode(", ", $keyword_denylist);
 
 		foreach ($list as $keyword) {
 			$keyword = trim($keyword);
@@ -141,9 +141,9 @@ function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklis
 	return $data;
 }
 
-function get_page_keywords($url, $photo = "", $keywords = false, $keyword_blacklist = "")
+function get_page_keywords($url, $photo = "", $keywords = false, $keyword_denylist = "")
 {
-	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
+	$data = query_page_info($url, $photo, $keywords, $keyword_denylist);
 	if (empty($data["keywords"]) || !is_array($data["keywords"])) {
 		return [];
 	}
@@ -159,9 +159,9 @@ function get_page_keywords($url, $photo = "", $keywords = false, $keyword_blackl
 	return $taglist;
 }
 
-function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "")
+function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_denylist = "")
 {
-	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
+	$data = query_page_info($url, $photo, $keywords, $keyword_denylist);
 
 	$text = '';
 

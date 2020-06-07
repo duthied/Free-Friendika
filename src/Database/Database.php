@@ -319,7 +319,7 @@ class Database
 		}
 
 		$watchlist = explode(',', $this->configCache->get('system', 'db_log_index_watch'));
-		$blacklist = explode(',', $this->configCache->get('system', 'db_log_index_blacklist'));
+		$denylist = explode(',', $this->configCache->get('system', 'db_log_index_denylist'));
 
 		while ($row = $this->fetch($r)) {
 			if ((intval($this->configCache->get('system', 'db_loglimit_index')) > 0)) {
@@ -333,7 +333,7 @@ class Database
 				$log = true;
 			}
 
-			if (in_array($row['key'], $blacklist) || ($row['key'] == "")) {
+			if (in_array($row['key'], $denylist) || ($row['key'] == "")) {
 				$log = false;
 			}
 
@@ -349,7 +349,7 @@ class Database
 	}
 
 	/**
-	 * Removes every not whitelisted character from the identifier string
+	 * Removes every not allowlisted character from the identifier string
 	 *
 	 * @param string $identifier
 	 *

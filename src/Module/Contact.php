@@ -125,7 +125,7 @@ class Contact extends BaseModule
 
 		$fetch_further_information = intval($_POST['fetch_further_information'] ?? 0);
 
-		$ffi_keyword_blacklist = Strings::escapeHtml(trim($_POST['ffi_keyword_blacklist'] ?? ''));
+		$ffi_keyword_denylist = Strings::escapeHtml(trim($_POST['ffi_keyword_denylist'] ?? ''));
 
 		$priority = intval($_POST['poll'] ?? 0);
 		if ($priority > 5 || $priority < 0) {
@@ -140,7 +140,7 @@ class Contact extends BaseModule
 			'hidden'     => $hidden,
 			'notify_new_posts' => $notify,
 			'fetch_further_information' => $fetch_further_information,
-			'ffi_keyword_blacklist'     => $ffi_keyword_blacklist],
+			'ffi_keyword_denylist'     => $ffi_keyword_denylist],
 			['id' => $contact_id, 'uid' => local_user()]
 		);
 
@@ -613,7 +613,7 @@ class Contact extends BaseModule
 				'$hidden'         => ['hidden', DI::l10n()->t('Hide this contact from others'), ($contact['hidden'] == 1), DI::l10n()->t('Replies/likes to your public posts <strong>may</strong> still be visible')],
 				'$notify'         => ['notify', DI::l10n()->t('Notification for new posts'), ($contact['notify_new_posts'] == 1), DI::l10n()->t('Send a notification of every new post of this contact')],
 				'$fetch_further_information' => $fetch_further_information,
-				'$ffi_keyword_blacklist' => ['ffi_keyword_blacklist', DI::l10n()->t('Blacklisted keywords'), $contact['ffi_keyword_blacklist'], DI::l10n()->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
+				'$ffi_keyword_denylist' => ['ffi_keyword_denylist', DI::l10n()->t('Keyword Deny List'), $contact['ffi_keyword_denylist'], DI::l10n()->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
 				'$photo'          => $contact['photo'],
 				'$name'           => $contact['name'],
 				'$dir_icon'       => $dir_icon,

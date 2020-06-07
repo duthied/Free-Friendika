@@ -1859,7 +1859,7 @@ class BBCode
 		$text = preg_replace('#<([^>]*?)(src)="(?!' . implode('|', $allowed_src_protocols) . ')(.*?)"(.*?)>#ism',
 					 '<$1$2=""$4 data-original-src="$3" class="invalid-src" title="' . DI::l10n()->t('Invalid source protocol') . '">', $text);
 
-		// sanitize href attributes (only whitelisted protocols URLs)
+		// sanitize href attributes (only allowlisted protocols URLs)
 		// default value for backward compatibility
 		$allowed_link_protocols = DI::config()->get('system', 'allowed_link_protocols', []);
 
