@@ -98,6 +98,14 @@ class JsonLDTest extends TestCase
 		$this->assertSame('', $data);
 	}
 
+	public function testFetchElementKeyFoundEmptyArray()
+	{
+		$object = ['field' => ['content' => []]];
+
+		$data = JsonLD::fetchElement($object, 'field', 'content');
+		$this->assertSame([], $data);
+	}
+
 	public function testFetchElementFoundID()
 	{
 		$object = ['field' => ['field2' => 'value2', '@id' => 'value', 'field3' => 'value3']];
@@ -130,7 +138,7 @@ class JsonLDTest extends TestCase
 		$this->assertNull($data);
 	}
 
-	public function testFetchElementTypeWithoutType()
+	public function testFetchElementKeyWithoutType()
 	{
 		$object = ['source' => ['content' => 'body', 'mediaType' => 'text/bbcode']];
 
