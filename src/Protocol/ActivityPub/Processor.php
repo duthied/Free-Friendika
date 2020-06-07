@@ -96,7 +96,15 @@ class Processor
 		foreach ($activity['attachments'] as $attach) {
 			switch ($attach['type']) {
 				case 'link':
-					$item['body'] .= "\n[attachment type='link' url='" . $attach['url'] . "' title='" . ($attach['title'] ?? '') . "' image='" . ($attach['image'] ?? '') . "']" . ($attach['desc'] ?? '') . '[/attachment]';
+					// Only one [attachment] tag is allowed
+					$existingAttachmentPos = strpos($item['body'], '[attachment');
+					if ($existingAttachmentPos !== false) {
+						$linkTitle = $attach['title'] ?: $attach['url'];
+						// Additional link attachments are prepended before the existing [attachment] tag
+						$item['body'] = substr_replace($item['body'], "\n[bookmark=" . $attach['url'] . ']' . $linkTitle . "[/bookmark]\n", $existingAttachmentPos, 0);
+					} else {
+						$item['body'] .= "\n[attachment type='link' url='" . $attach['url'] . "' title='" . ($attach['title'] ?? '') . "' image='" . ($attach['image'] ?? '') . "']" . ($attach['desc'] ?? '') . '[/attachment]';
+					}
 					break;
 				default:
 					$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
