@@ -53,6 +53,15 @@ class JsonLDTest extends TestCase
 		$this->assertSame(['value1', 'value2', 'value3'], $data);
 	}
 
+	public function testFetchElementArrayFoundID2()
+	{
+		$object = ['field' => [['subfield11' => 'value11', 'subfield12' => 'value12'],
+			['subfield21' => 'value21', 'subfield22' => 'value22'],
+			'value3', ['@id' => 'value4', 'subfield42' => 'value42']]];
+
+		$data = JsonLD::fetchElementArray($object, 'field', '@id');
+		$this->assertSame(['value3', 'value4'], $data);
+	}
 	public function testFetchElementArrayFoundArrays()
 	{
 		$object = ['field' => [['subfield11' => 'value11', 'subfield12' => 'value12'],
