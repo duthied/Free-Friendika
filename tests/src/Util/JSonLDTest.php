@@ -114,6 +114,22 @@ class JsonLDTest extends TestCase
 		$this->assertSame('body', $data);
 	}
 
+	public function testFetchElementTypeNotFound()
+	{
+		$object = ['source' => ['content' => 'body', 'mediaType' => 'text/html']];
+
+		$data = JsonLD::fetchElement($object, 'source', 'content', 'mediaType', 'text/bbcode');
+		$this->assertNull($data);
+	}
+
+	public function testFetchElementTypeWithoutType()
+	{
+		$object = ['source' => ['content' => 'body', 'mediaType' => 'text/bbcode']];
+
+		$data = JsonLD::fetchElement($object, 'source', 'content');
+		$this->assertSame('body', $data);
+	}
+
 	public function testFetchElementTypeArray()
 	{
 		$object = ['source' => [['content' => 'body2', 'mediaType' => 'text/html'],
