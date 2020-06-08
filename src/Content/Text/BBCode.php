@@ -1252,8 +1252,13 @@ class BBCode
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convert($text, $try_oembed = true, $simple_html = self::INTERNAL, $for_plaintext = false)
+	public static function convert(string $text = null, $try_oembed = true, $simple_html = self::INTERNAL, $for_plaintext = false)
 	{
+		// Accounting for null default column values
+		if (is_null($text) || $text === '') {
+			return '';
+		}
+
 		$a = DI::app();
 
 		$text = self::performWithEscapedTags($text, ['code'], function ($text) use ($try_oembed, $simple_html, $for_plaintext, $a) {
