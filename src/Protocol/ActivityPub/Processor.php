@@ -94,39 +94,51 @@ class Processor
 		}
 
 		foreach ($activity['attachments'] as $attach) {
-			$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
-			if ($filetype == 'image') {
-				if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-					continue;
-				}
+			switch ($attach['type']) {
+				case 'link':
+					// Only one [attachment] tag is allowed
+					$existingAttachmentPos = strpos($item['body'], '[attachment');
+					if ($existingAttachmentPos !== false) {
+						$linkTitle = $attach['title'] ?: $attach['url'];
+						// Additional link attachments are prepended before the existing [attachment] tag
+						$item['body'] = substr_replace($item['body'], "\n[bookmark=" . $attach['url'] . ']' . $linkTitle . "[/bookmark]\n", $existingAttachmentPos, 0);
+					} else {
+						$item['body'] .= "\n[attachment type='link' url='" . $attach['url'] . "' title='" . ($attach['title'] ?? '') . "' image='" . ($attach['image'] ?? '') . "']" . ($attach['desc'] ?? '') . '[/attachment]';
+					}
+					break;
+				default:
+					$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
+					if ($filetype == 'image') {
+						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
+							continue;
+						}
 
-				if (empty($attach['name'])) {
-					$item['body'] .= "\n[img]" . $attach['url'] . '[/img]';
-				} else {
-					$item['body'] .= "\n[img=" . $attach['url'] . ']' . $attach['name'] . '[/img]';
-				}
-			} elseif ($filetype == 'audio') {
-				if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-					continue;
-				}
+						if (empty($attach['name'])) {
+							$item['body'] .= "\n[img]" . $attach['url'] . '[/img]';
+						} else {
+							$item['body'] .= "\n[img=" . $attach['url'] . ']' . $attach['name'] . '[/img]';
+						}
+					} elseif ($filetype == 'audio') {
+						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
+							continue;
+						}
 
-				$item['body'] .= "\n[audio]" . $attach['url'] . '[/audio]';
-			} elseif ($filetype == 'video') {
-				if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-					continue;
-				}
+						$item['body'] .= "\n[audio]" . $attach['url'] . '[/audio]';
+					} elseif ($filetype == 'video') {
+						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
+							continue;
+						}
 
-				$item['body'] .= "\n[video]" . $attach['url'] . '[/video]';
-			} else {
-				if (!empty($item["attach"])) {
-					$item["attach"] .= ',';
-				} else {
-					$item["attach"] = '';
-				}
-				if (!isset($attach['length'])) {
-					$attach['length'] = "0";
-				}
-				$item["attach"] .= '[attach]href="'.$attach['url'].'" length="'.$attach['length'].'" type="'.$attach['mediaType'].'" title="'.($attach['name'] ?? '') .'"[/attach]';
+						$item['body'] .= "\n[video]" . $attach['url'] . '[/video]';
+					} else {
+						if (!empty($item["attach"])) {
+							$item["attach"] .= ',';
+						} else {
+							$item["attach"] = '';
+						}
+
+						$item["attach"] .= '[attach]href="' . $attach['url'] . '" length="' . ($attach['length'] ?? '0') . '" type="' . $attach['mediaType'] . '" title="' . ($attach['name'] ?? '') . '"[/attach]';
+					}
 			}
 		}
 
