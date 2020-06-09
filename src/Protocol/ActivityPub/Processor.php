@@ -110,7 +110,7 @@ class Processor
 					$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
 					if ($filetype == 'image') {
 						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-							continue;
+							continue 2;
 						}
 
 						if (empty($attach['name'])) {
@@ -120,13 +120,13 @@ class Processor
 						}
 					} elseif ($filetype == 'audio') {
 						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-							continue;
+							continue 2;
 						}
 
 						$item['body'] .= "\n[audio]" . $attach['url'] . '[/audio]';
 					} elseif ($filetype == 'video') {
 						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-							continue;
+							continue 2;
 						}
 
 						$item['body'] .= "\n[video]" . $attach['url'] . '[/video]';
