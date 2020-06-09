@@ -103,7 +103,7 @@ class Processor
 						// Additional link attachments are prepended before the existing [attachment] tag
 						$item['body'] = substr_replace($item['body'], "\n[bookmark=" . $attach['url'] . ']' . $linkTitle . "[/bookmark]\n", $existingAttachmentPos, 0);
 					} else {
-						$item['body'] .= "\n[attachment type='link' url='" . $attach['url'] . "' title='" . ($attach['title'] ?? '') . "' image='" . ($attach['image'] ?? '') . "']" . ($attach['desc'] ?? '') . '[/attachment]';
+						$item['body'] .= "\n[attachment type='link' url='" . $attach['url'] . "' title='" . htmlspecialchars($attach['title'] ?? '', ENT_QUOTES) . "' image='" . ($attach['image'] ?? '') . "']" . ($attach['desc'] ?? '') . '[/attachment]';
 					}
 					break;
 				default:
