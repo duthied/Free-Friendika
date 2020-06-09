@@ -613,14 +613,25 @@ On Mastodon this field is used for the content warning.
   <th>Result</th>
 </tr>
 <tr>
-  <td>If you need to put literal bbcode in a message, [noparse], [nobb] or [pre] are used to escape bbcode:
+  <td>If you need to put literal BBCode in a message, [noparse], [nobb] or [pre] blocks prevent BBCode conversion:
     <ul>
       <li>[noparse][b]bold[/b][/noparse]</li>
       <li>[nobb][b]bold[/b][/nobb]</li>
       <li>[pre][b]bold[/b][/pre]</li>
     </ul>
+    Note: [code] has priority over [noparse], [nobb] and [pre] which makes them display as BBCode tags in code blocks instead of being removed.
+    [code] blocks inside [noparse] will still be converted to a code block.
   </td>
   <td>[b]bold[/b]</td>
+</tr>
+<tr>
+  <td>Additionally, [noparse] and [pre] blocks prevent mention and hashtag conversion to links:
+    <ul>
+      <li>[noparse]@user@domain.tld #hashtag[/noparse]</li>
+      <li>[pre]@user@domain.tld #hashtag[/pre]</li>
+    </ul>
+  </td>
+  <td>@user@domain.tld #hashtag</td>
 </tr>
 <tr>
   <td>[nosmile] is used to disable smilies on a post by post basis<br>

@@ -70,7 +70,7 @@ class Notify extends BaseModel
 	private function setNameCache()
 	{
 		try {
-			$this->name_cache = strip_tags(BBCode::convert($this->source_name ?? ''));
+			$this->name_cache = strip_tags(BBCode::convert($this->source_name));
 		} catch (InternalServerErrorException $e) {
 		}
 	}

@@ -102,14 +102,12 @@ class Babel extends BaseModule
 						'content' => visible_whitespace($bbcode4)
 					];
 
-					$item = ['body' => $bbcode];
-
 					$tags = Text\BBCode::getTags($bbcode);
 
-					Item::setHashtags($item);
+					$body = Item::setHashtags($bbcode);
 					$results[] = [
 						'title'   => DI::l10n()->t('Item Body'),
-						'content' => visible_whitespace($item['body'])
+						'content' => visible_whitespace($body)
 					];
 					$results[] = [
 						'title'   => DI::l10n()->t('Item Tags'),
@@ -125,9 +123,7 @@ class Babel extends BaseModule
 
 					$markdown = XML::unescape($diaspora);
 				case 'markdown':
-					if (!isset($markdown)) {
-						$markdown = trim($_REQUEST['text']);
-					}
+					$markdown = $markdown ?? trim($_REQUEST['text']);
 
 					$results[] = [
 						'title'   => DI::l10n()->t('Source input (Markdown)'),

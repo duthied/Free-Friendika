@@ -194,4 +194,30 @@ class StringsTest extends TestCase
 			)
 		);
 	}
+
+	public function testPerformWithEscapedBlocks()
+	{
+		$originalText = '[noparse][/noparse][nobb]nobb[/nobb][noparse]noparse[/noparse]';
+
+		$text = Strings::performWithEscapedBlocks($originalText, '#[(?:noparse|nobb)].*?\[/(?:noparse|nobb)]#is', function ($text) {
+			return $text;
+		});
+
+		$this->assertEquals($originalText, $text);
+	}
+
+	public function testPerformWithEscapedBlocksNested()
+	{
+		$originalText = '[noparse][/noparse][nobb]nobb[/nobb][noparse]noparse[/noparse]';
+
+		$text = Strings::performWithEscapedBlocks($originalText, '#[nobb].*?\[/nobb]#is', function ($text) {
+			$text = Strings::performWithEscapedBlocks($text, '#[noparse].*?\[/noparse]#is', function ($text) {
+				return $text;
+			});
+
+			return $text;
+		});
+
+		$this->assertEquals($originalText, $text);
+	}
 }

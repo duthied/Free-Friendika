@@ -204,142 +204,142 @@ function poco_init(App $a) {
 		}
 	}
 
-	if (is_array($contacts)) {
-		if (DBA::isResult($contacts)) {
-			foreach ($contacts as $contact) {
-				if (!isset($contact['updated'])) {
-					$contact['updated'] = '';
-				}
+	if (!is_array($contacts)) {
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
+	}
 
-				if (! isset($contact['generation'])) {
-					if ($global) {
-						$contact['generation'] = 3;
-					} elseif ($system_mode) {
-						$contact['generation'] = 1;
-					} else {
-						$contact['generation'] = 2;
-					}
-				}
-
-				if (($contact['keywords'] == "") && isset($contact['pub_keywords'])) {
-					$contact['keywords'] = $contact['pub_keywords'];
-				}
-				if (isset($contact['account-type'])) {
-					$contact['contact-type'] = $contact['account-type'];
-				}
-				$about = DI::cache()->get("about:" . $contact['updated'] . ":" . $contact['nurl']);
-				if (is_null($about)) {
-					$about = BBCode::convert($contact['about'], false);
-					DI::cache()->set("about:" . $contact['updated'] . ":" . $contact['nurl'], $about);
-				}
-
-				// Non connected persons can only see the keywords of a Diaspora account
-				if ($contact['network'] == Protocol::DIASPORA) {
-					$contact['location'] = "";
-					$about = "";
-				}
-
-				$entry = [];
-				if ($fields_ret['id']) {
-					$entry['id'] = (int)$contact['id'];
-				}
-				if ($fields_ret['displayName']) {
-					$entry['displayName'] = $contact['name'];
-				}
-				if ($fields_ret['aboutMe']) {
-					$entry['aboutMe'] = $about;
-				}
-				if ($fields_ret['currentLocation']) {
-					$entry['currentLocation'] = $contact['location'];
-				}
-				if ($fields_ret['generation']) {
-					$entry['generation'] = (int)$contact['generation'];
-				}
-				if ($fields_ret['urls']) {
-					$entry['urls'] = [['value' => $contact['url'], 'type' => 'profile']];
-					if ($contact['addr'] && ($contact['network'] !== Protocol::MAIL)) {
-						$entry['urls'][] = ['value' => 'acct:' . $contact['addr'], 'type' => 'webfinger'];
-					}
-				}
-				if ($fields_ret['preferredUsername']) {
-					$entry['preferredUsername'] = $contact['nick'];
-				}
-				if ($fields_ret['updated']) {
-					if (! $global) {
-						$entry['updated'] = $contact['success_update'];
-
-						if ($contact['name-date'] > $entry['updated']) {
-							$entry['updated'] = $contact['name-date'];
-						}
-						if ($contact['uri-date'] > $entry['updated']) {
-							$entry['updated'] = $contact['uri-date'];
-						}
-						if ($contact['avatar-date'] > $entry['updated']) {
-							$entry['updated'] = $contact['avatar-date'];
-						}
-					} else {
-						$entry['updated'] = $contact['updated'];
-					}
-					$entry['updated'] = date("c", strtotime($entry['updated']));
-				}
-				if ($fields_ret['photos']) {
-					$entry['photos'] = [['value' => $contact['photo'], 'type' => 'profile']];
-				}
-				if ($fields_ret['network']) {
-					$entry['network'] = $contact['network'];
-					if ($entry['network'] == Protocol::STATUSNET) {
-						$entry['network'] = Protocol::OSTATUS;
-					}
-					if (($entry['network'] == "") && ($contact['self'])) {
-						$entry['network'] = Protocol::DFRN;
-					}
-				}
-				if ($fields_ret['tags']) {
-					$tags = str_replace(",", " ", $contact['keywords']);
-					$tags = explode(" ", $tags);
-
-					$cleaned = [];
-					foreach ($tags as $tag) {
-						$tag = trim(strtolower($tag));
-						if ($tag != "") {
-							$cleaned[] = $tag;
-						}
-					}
-
-					$entry['tags'] = [$cleaned];
-				}
-				if ($fields_ret['address']) {
-					$entry['address'] = [];
-
-					// Deactivated. It just reveals too much data. (Although its from the default profile)
-					//if (isset($rr['address']))
-					//	 $entry['address']['streetAddress'] = $rr['address'];
-
-					if (isset($contact['locality'])) {
-						$entry['address']['locality'] = $contact['locality'];
-					}
-					if (isset($contact['region'])) {
-						$entry['address']['region'] = $contact['region'];
-					}
-					// See above
-					//if (isset($rr['postal-code']))
-					//	 $entry['address']['postalCode'] = $rr['postal-code'];
-
-					if (isset($contact['country'])) {
-						$entry['address']['country'] = $contact['country'];
-					}
-				}
-
-				if ($fields_ret['contactType']) {
-					$entry['contactType'] = intval($contact['contact-type']);
-				}
-				$ret['entry'][] = $entry;
+	if (DBA::isResult($contacts)) {
+		foreach ($contacts as $contact) {
+			if (!isset($contact['updated'])) {
+				$contact['updated'] = '';
 			}
-		} else {
-			$ret['entry'][] = [];
+
+			if (! isset($contact['generation'])) {
+				if ($global) {
+					$contact['generation'] = 3;
+				} elseif ($system_mode) {
+					$contact['generation'] = 1;
+				} else {
+					$contact['generation'] = 2;
+				}
+			}
+
+			if (($contact['keywords'] == "") && isset($contact['pub_keywords'])) {
+				$contact['keywords'] = $contact['pub_keywords'];
+			}
+			if (isset($contact['account-type'])) {
+				$contact['contact-type'] = $contact['account-type'];
+			}
+			$about = DI::cache()->get("about:" . $contact['updated'] . ":" . $contact['nurl']);
+			if (is_null($about)) {
+				$about = BBCode::convert($contact['about'], false);
+				DI::cache()->set("about:" . $contact['updated'] . ":" . $contact['nurl'], $about);
+			}
+
+			// Non connected persons can only see the keywords of a Diaspora account
+			if ($contact['network'] == Protocol::DIASPORA) {
+				$contact['location'] = "";
+				$about = "";
+			}
+
+			$entry = [];
+			if ($fields_ret['id']) {
+				$entry['id'] = (int)$contact['id'];
+			}
+			if ($fields_ret['displayName']) {
+				$entry['displayName'] = $contact['name'];
+			}
+			if ($fields_ret['aboutMe']) {
+				$entry['aboutMe'] = $about;
+			}
+			if ($fields_ret['currentLocation']) {
+				$entry['currentLocation'] = $contact['location'];
+			}
+			if ($fields_ret['generation']) {
+				$entry['generation'] = (int)$contact['generation'];
+			}
+			if ($fields_ret['urls']) {
+				$entry['urls'] = [['value' => $contact['url'], 'type' => 'profile']];
+				if ($contact['addr'] && ($contact['network'] !== Protocol::MAIL)) {
+					$entry['urls'][] = ['value' => 'acct:' . $contact['addr'], 'type' => 'webfinger'];
+				}
+			}
+			if ($fields_ret['preferredUsername']) {
+				$entry['preferredUsername'] = $contact['nick'];
+			}
+			if ($fields_ret['updated']) {
+				if (! $global) {
+					$entry['updated'] = $contact['success_update'];
+
+					if ($contact['name-date'] > $entry['updated']) {
+						$entry['updated'] = $contact['name-date'];
+					}
+					if ($contact['uri-date'] > $entry['updated']) {
+						$entry['updated'] = $contact['uri-date'];
+					}
+					if ($contact['avatar-date'] > $entry['updated']) {
+						$entry['updated'] = $contact['avatar-date'];
+					}
+				} else {
+					$entry['updated'] = $contact['updated'];
+				}
+				$entry['updated'] = date("c", strtotime($entry['updated']));
+			}
+			if ($fields_ret['photos']) {
+				$entry['photos'] = [['value' => $contact['photo'], 'type' => 'profile']];
+			}
+			if ($fields_ret['network']) {
+				$entry['network'] = $contact['network'];
+				if ($entry['network'] == Protocol::STATUSNET) {
+					$entry['network'] = Protocol::OSTATUS;
+				}
+				if (($entry['network'] == "") && ($contact['self'])) {
+					$entry['network'] = Protocol::DFRN;
+				}
+			}
+			if ($fields_ret['tags']) {
+				$tags = str_replace(",", " ", $contact['keywords']);
+				$tags = explode(" ", $tags);
+
+				$cleaned = [];
+				foreach ($tags as $tag) {
+					$tag = trim(strtolower($tag));
+					if ($tag != "") {
+						$cleaned[] = $tag;
+					}
+				}
+
+				$entry['tags'] = [$cleaned];
+			}
+			if ($fields_ret['address']) {
+				$entry['address'] = [];
+
+				// Deactivated. It just reveals too much data. (Although its from the default profile)
+				//if (isset($rr['address']))
+				//	 $entry['address']['streetAddress'] = $rr['address'];
+
+				if (isset($contact['locality'])) {
+					$entry['address']['locality'] = $contact['locality'];
+				}
+				if (isset($contact['region'])) {
+					$entry['address']['region'] = $contact['region'];
+				}
+				// See above
+				//if (isset($rr['postal-code']))
+				//	 $entry['address']['postalCode'] = $rr['postal-code'];
+
+				if (isset($contact['country'])) {
+					$entry['address']['country'] = $contact['country'];
+				}
+			}
+
+			if ($fields_ret['contactType']) {
+				$entry['contactType'] = intval($contact['contact-type']);
+			}
+			$ret['entry'][] = $entry;
 		}
 	} else {
-		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
+		$ret['entry'][] = [];
 	}
 
 	Logger::log("End of poco", Logger::DEBUG);

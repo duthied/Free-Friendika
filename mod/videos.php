@@ -67,7 +67,7 @@ function videos_init(App $a)
 			'$photo' => $profile['photo'],
 			'$addr' => $profile['addr'] ?? '',
 			'$account_type' => $account_type,
-			'$about' => BBCode::convert($profile['about'] ?? ''),
+			'$about' => BBCode::convert($profile['about']),
 		]);
 
 		// If not there, create 'aside' empty
