@@ -91,7 +91,7 @@ function ostatus_subscribe_content(App $a)
 
 	$probed = Probe::uri($url);
 	if ($probed['network'] == Protocol::OSTATUS) {
-		$result = Contact::createFromProbe($uid, $url, true, Protocol::OSTATUS);
+		$result = Contact::createFromProbe($a->user, $url, true, Protocol::OSTATUS);
 		if ($result['success']) {
 			$o .= ' - ' . DI::l10n()->t('success');
 		} else {

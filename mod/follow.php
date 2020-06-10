@@ -40,7 +40,6 @@ function follow_post(App $a)
 		DI::baseUrl()->redirect('contact');
 	}
 
-	$uid = local_user();
 	$url = Probe::cleanURI($_REQUEST['url']);
 	$return_path = 'follow?url=' . urlencode($url);
 
@@ -48,7 +47,7 @@ function follow_post(App $a)
 	// This is just a precaution if maybe this page is called somewhere directly via POST
 	$_SESSION['fastlane'] = $url;
 
-	$result = Contact::createFromProbe($uid, $url, true);
+	$result = Contact::createFromProbe($a->user, $url, true);
 
 	if ($result['success'] == false) {
 		// Possibly it is a remote item and not an account
