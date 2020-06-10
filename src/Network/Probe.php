@@ -537,50 +537,6 @@ class Probe
 	}
 
 	/**
-	 * Checks if a profile url should be OStatus but only provides partial information
-	 *
-	 * @param array  $webfinger Webfinger data
-	 * @param string $lrdd      Path template for webfinger request
-	 * @param string $type      type
-	 *
-	 * @return array fixed webfinger data
-	 * @throws HTTPException\InternalServerErrorException
-	 */
-	private static function fixOStatus($webfinger, $lrdd, $type)
-	{
-		if (empty($webfinger['links']) || empty($webfinger['subject'])) {
-			return $webfinger;
-		}
-
-		$is_ostatus = false;
-		$has_key = false;
-
-		foreach ($webfinger['links'] as $link) {
-			if ($link['rel'] == ActivityNamespace::OSTATUSSUB) {
-				$is_ostatus = true;
-			}
-			if ($link['rel'] == 'magic-public-key') {
-				$has_key = true;
-			}
-		}
-
-		if (!$is_ostatus || $has_key) {
-			return $webfinger;
-		}
-
-		$url = Network::switchScheme($webfinger['subject']);
-		$path = str_replace('{uri}', urlencode($url), $lrdd);
-		$webfinger2 = self::webfinger($path, $type);
-
-		// Is the new webfinger detectable as OStatus?
-		if (self::ostatus($webfinger2, true)) {
-			$webfinger = $webfinger2;
-		}
-
-		return $webfinger;
-	}
-
-	/**
 	 * Fetch the "subscribe" and add it to the result
 	 *
 	 * @param array $result
@@ -706,29 +662,28 @@ class Probe
 				continue;
 			}
 
-			// At first try it with the given uri
-			$path = str_replace('{uri}', urlencode($uri), $template);
-			$webfinger = self::webfinger($path, $type);
-
-			// Fix possible problems with GNU Social probing to wrong scheme
-			$webfinger = self::fixOStatus($webfinger, $template, $type);
-
-			// We cannot be sure that the detected address was correct, so we don't use the values
-			if ($webfinger && ($uri != $addr)) {
-				$nick = "";
-				$addr = "";
+			// Try the URI first
+			if ($uri != $addr) {
+				$path = str_replace('{uri}', urlencode($uri), $template);
+				$webfinger = self::webfinger($path, $type);
 			}
 
-			// Try webfinger with the address (user@domain.tld)
+			// Then try the address
+			if (!$webfinger) {
+				$path = str_replace('{uri}', urlencode("acct:" . $addr), $template);
+				$webfinger = self::webfinger($path, $type);
+			}
+
+			// Finally try without the "acct"
 			if (!$webfinger) {
 				$path = str_replace('{uri}', urlencode($addr), $template);
 				$webfinger = self::webfinger($path, $type);
 			}
 
-			// Mastodon needs to have it with "acct:"
-			if (!$webfinger) {
-				$path = str_replace('{uri}', urlencode("acct:".$addr), $template);
-				$webfinger = self::webfinger($path, $type);
+			// We cannot be sure that the detected address was correct, so we don't use the values
+			if ($webfinger && ($uri != $addr)) {
+				$nick = "";
+				$addr = "";
 			}
 		}
 
@@ -1511,7 +1466,7 @@ class Probe
 					&& (($link["type"] ?? "") == "text/html")
 					&& ($link["href"] != "")
 				) {
-					$data["url"] = $link["href"];
+					$data["url"] = $data["alias"] = $link["href"];
 				} elseif (($link["rel"] == "salmon") && !empty($link["href"])) {
 					$data["notify"] = $link["href"];
 				} elseif (($link["rel"] == ActivityNamespace::FEED) && !empty($link["href"])) {
@@ -1594,8 +1549,7 @@ class Probe
 			$data["url"] = $feed_data["header"]["author-link"];
 		}
 
-		if (($data['poll'] == $data['url']) && ($data["alias"] != '')) {
-			$data['url'] = $data["alias"];
+		if ($data["url"] == $data["alias"]) {
 			$data["alias"] = '';
 		}
 
