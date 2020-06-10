@@ -976,7 +976,12 @@ class Contact extends BaseModule
 			$profiledata = Model\Contact::getDetailsByURL($contact['url']);
 
 			Model\Profile::load($a, '', $profiledata, true);
-			$o .= Model\Contact::getPostsFromUrl($contact['url'], true, $update);
+
+			if ($contact['uid'] == 0) {
+				$o .= Model\Contact::getPostsFromId($contact['id'], true, $update);
+			} else {
+				$o .= Model\Contact::getPostsFromUrl($contact['url'], true, $update);
+			}
 		}
 
 		return $o;
@@ -998,7 +1003,12 @@ class Contact extends BaseModule
 			}
 
 			Model\Profile::load($a, '', $profiledata, true);
-			$o .= Model\Contact::getPostsFromUrl($contact['url']);
+
+			if ($contact['uid'] == 0) {
+				$o .= Model\Contact::getPostsFromId($contact['id']);
+			} else {
+				$o .= Model\Contact::getPostsFromUrl($contact['url']);
+			}
 		}
 
 		return $o;

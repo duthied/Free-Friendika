@@ -1761,7 +1761,6 @@ class Contact
 	 * Returns posts from a given contact url
 	 *
 	 * @param string $contact_url Contact URL
-	 *
 	 * @param bool   $thread_mode
 	 * @param int    $update
 	 * @return string posts in HTML
@@ -1769,9 +1768,21 @@ class Contact
 	 */
 	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0)
 	{
-		$a = DI::app();
+		return self::getPostsFromId(self::getIdForURL($contact_url), $thread_mode, $update);
+	}
 
-		$cid = self::getIdForURL($contact_url);
+	/**
+	 * Returns posts from a given contact id
+	 *
+	 * @param integer $cid
+	 * @param bool    $thread_mode
+	 * @param integer $update
+	 * @return string posts in HTML
+	 * @throws \Exception
+	 */
+	public static function getPostsFromId($cid, $thread_mode = false, $update = 0)
+	{
+		$a = DI::app();
 
 		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
