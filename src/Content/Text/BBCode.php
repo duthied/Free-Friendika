@@ -2188,34 +2188,38 @@ class BBCode
 	 */
 	public static function setMentions($body, $profile_uid = 0, $network = '')
 	{
-		$tags = BBCode::getTags($body);
+		BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code'], function ($body) use ($profile_uid, $network) {
+			$tags = BBCode::getTags($body);
 
-		$tagged = [];
-		$inform = '';
+			$tagged = [];
+			$inform = '';
 
-		foreach ($tags as $tag) {
-			$tag_type = substr($tag, 0, 1);
+			foreach ($tags as $tag) {
+				$tag_type = substr($tag, 0, 1);
 
-			if ($tag_type == Tag::TAG_CHARACTER[Tag::HASHTAG]) {
-				continue;
-			}
-
-			/*
-			 * If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
-			 * Robert Johnson should be first in the $tags array
-			 */
-			foreach ($tagged as $nextTag) {
-				if (stristr($nextTag, $tag . ' ')) {
-					continue 2;
+				if ($tag_type == Tag::TAG_CHARACTER[Tag::HASHTAG]) {
+					continue;
 				}
-			}
+
+				/*
+				 * If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
+				 * Robert Johnson should be first in the $tags array
+				 */
+				foreach ($tagged as $nextTag) {
+					if (stristr($nextTag, $tag . ' ')) {
+						continue 2;
+					}
+				}
 
 			$success = Item::replaceTag($body, $inform, $profile_uid, $tag, $network);
 
-			if ($success['replaced']) {
-				$tagged[] = $tag;
+				if ($success['replaced']) {
+					$tagged[] = $tag;
+				}
 			}
-		}
+
+			return $body;
+		});
 
 		return $body;
 	}
