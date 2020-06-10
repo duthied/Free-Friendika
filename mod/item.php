@@ -374,7 +374,7 @@ function item_post(App $a) {
 	$only_to_forum = false;
 	$forum_contact = [];
 
-	BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code'], function ($body) use ($profile_uid, $network, $str_contact_allow, &$inform, &$private_forum, &$private_id, &$only_to_forum, &$forum_contact) {
+	$body = BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code'], function ($body) use ($profile_uid, $network, $str_contact_allow, &$inform, &$private_forum, &$private_id, &$only_to_forum, &$forum_contact) {
 		$tags = BBCode::getTags($body);
 
 		$tagged = [];
@@ -415,7 +415,6 @@ function item_post(App $a) {
 
 		return $body;
 	});
-
 
 	$original_contact_id = $contact_id;
 
