@@ -594,7 +594,7 @@ class Probe
 		}
 
 		foreach ($webfinger['links'] as $link) {
-			if ($link['rel'] === ActivityNamespace::OSTATUSSUB) {
+			if (!empty($link['template']) && ($link['rel'] === ActivityNamespace::OSTATUSSUB)) {
 				$result['subscribe'] = $link['template'];
 			}
 		}
