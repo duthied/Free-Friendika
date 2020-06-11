@@ -441,7 +441,7 @@ class Probe
 			}
 		}
 
-		if (!empty(self::$baseurl)) {
+		if (empty($data['baseurl']) && !empty(self::$baseurl)) {
 			$data['baseurl'] = self::$baseurl;
 		}
 
@@ -735,13 +735,6 @@ class Probe
 		}
 
 		Logger::log($uri." is ".$result["network"], Logger::DEBUG);
-
-		if (empty($result["baseurl"]) && ($result["network"] != Protocol::PHANTOM)) {
-			$pos = strpos($result["url"], $host);
-			if ($pos) {
-				$result["baseurl"] = substr($result["url"], 0, $pos).$host;
-			}
-		}
 
 		return $result;
 	}

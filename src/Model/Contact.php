@@ -1168,7 +1168,7 @@ class Contact
 		if (!DBA::isResult($r)) {
 			$data = Probe::uri($addr);
 
-			$profile = self::getDetailsByURL($data['url'], $uid);
+			$profile = self::getDetailsByURL($data['url'], $uid, $data);
 		} else {
 			$profile = $r[0];
 		}

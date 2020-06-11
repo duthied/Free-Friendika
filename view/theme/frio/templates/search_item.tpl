@@ -92,11 +92,6 @@
 
 			{{* item content *}}
 			<div class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
-				{{* insert some space if it's an top-level post *}}
-				{{if $item.thread_level==1}}
-				<div style="height:10px;">&nbsp;</div> <!-- use padding/margin instead-->
-				{{/if}}
-
 				{{if $item.title}}
 				<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h4><br /></span>
 				{{/if}}
