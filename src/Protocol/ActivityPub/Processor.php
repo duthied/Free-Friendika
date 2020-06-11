@@ -103,6 +103,9 @@ class Processor
 						// Additional link attachments are prepended before the existing [attachment] tag
 						$item['body'] = substr_replace($item['body'], "\n[bookmark=" . $attach['url'] . ']' . $linkTitle . "[/bookmark]\n", $existingAttachmentPos, 0);
 					} else {
+						// Strip the link preview URL from the end of the body if any
+						$quotedUrl = preg_quote($attach['url'], '#');
+						$item['body'] = preg_replace("#\s*(?:\[bookmark={$quotedUrl}].+?\[/bookmark]|\[url={$quotedUrl}].+?\[/url]|\[url]{$quotedUrl}\[/url]|{$quotedUrl})\s*$#", '', $item['body']);
 						$item['body'] .= "\n[attachment type='link' url='" . $attach['url'] . "' title='" . htmlspecialchars($attach['title'] ?? '', ENT_QUOTES) . "' image='" . ($attach['image'] ?? '') . "']" . ($attach['desc'] ?? '') . '[/attachment]';
 					}
 					break;
