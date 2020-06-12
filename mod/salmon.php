@@ -42,14 +42,10 @@ function salmon_post(App $a, $xml = '') {
 
 	$nick       = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : '');
 
-	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
-		DBA::escape($nick)
-	);
-	if (! DBA::isResult($r)) {
+	$importer = DBA::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
+	if (! DBA::isResult($importer)) {
 		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}
-
-	$importer = $r[0];
 
 	// parse the xml
 
@@ -175,7 +171,7 @@ function salmon_post(App $a, $xml = '') {
 		Logger::log('Author ' . $author_link . ' unknown to user ' . $importer['uid'] . '.');
 
 		if (DI::pConfig()->get($importer['uid'], 'system', 'ostatus_autofriend')) {
-			$result = Contact::createFromProbe($importer['uid'], $author_link);
+			$result = Contact::createFromProbe($importer, $author_link);
 
 			if ($result['success']) {
 				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s')
