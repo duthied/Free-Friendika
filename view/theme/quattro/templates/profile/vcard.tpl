@@ -46,7 +46,7 @@
                 </dl>
         {{/if}}
 
-	{{if $profile.pubkey}}<div class="key" style="display:none;">{{$profile.pubkey}}</div>{{/if}}
+	{{if $profile.upubkey}}<div class="key" style="display:none;">{{$profile.upubkey}}</div>{{/if}}
 
 	{{if $homepage}}
 	<dl class="homepage"><dt class="homepage-label">{{$homepage}}</dt>
