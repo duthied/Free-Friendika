@@ -6,7 +6,10 @@
 	<?php if(!empty($page['htmlhead'])) echo $page['htmlhead'] ?>
 </head>
 <body class="minimal">
-	<section><?php if(!empty($page['content'])) echo $page['content']; ?>
+	<section>
+		<div  class="generic-page-wrapper">
+			<?php if(!empty($page['content'])) echo $page['content']; ?>
+		</div>
 		<div id="page-footer"></div>
 	</section>
 	<!-- Modal  -->
