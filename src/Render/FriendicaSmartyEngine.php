@@ -83,6 +83,8 @@ final class FriendicaSmartyEngine extends TemplateEngine
 		Hook::callAll('template_vars', $arr);
 		$vars = $arr['vars'];
 
+		$this->smarty->clearAllAssign();
+
 		foreach ($vars as $key => $value) {
 			if ($key[0] === '$') {
 				$key = substr($key, 1);
