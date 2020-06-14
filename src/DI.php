@@ -280,6 +280,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Twitter\User
+	 */
+	public static function twitterUser()
+	{
+		return self::$dice->create(Factory\Api\Twitter\User::class);
+	}
+
+	/**
 	 * @return Factory\Notification\Notification
 	 */
 	public static function notification()
