@@ -145,7 +145,7 @@ class ActivityPub
 	{
 		$apcontact = APContact::getByURL($url, $update);
 		if (empty($apcontact)) {
-			return false;
+			return [];
 		}
 
 		$profile = ['network' => Protocol::ACTIVITYPUB];

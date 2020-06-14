@@ -47,6 +47,8 @@ use Friendica\Util\XML;
  */
 class Probe
 {
+	const WEBFINGER = '/.well-known/webfinger?resource={uri}';
+
 	private static $baseurl;
 	private static $istimeout;
 
@@ -207,7 +209,7 @@ class Probe
 			return [];
 		}
 
-		$lrdd = ['application/jrd+json' => $host_url . '/.well-known/webfinger?resource={uri}'];
+		$lrdd = [];
 
 		foreach ($links["xrd"]["link"] as $value => $link) {
 			if (!empty($link["@attributes"])) {
@@ -285,65 +287,11 @@ class Probe
 	 */
 	public static function lrdd(string $uri)
 	{
-		$lrdd = self::hostMeta($uri);
-		$webfinger = null;
-
-		if (is_bool($lrdd)) {
+		$data = self::getWebfingerArray($uri);
+		if (empty($data)) {
 			return [];
 		}
-
-		if (!$lrdd) {
-			$parts = @parse_url($uri);
-			if (!$parts || empty($parts["host"]) || empty($parts["path"])) {
-				return [];
-			}
-
-			$host = $parts['scheme'] . '://' . $parts["host"];
-			if (!empty($parts["port"])) {
-				$host .= ':'.$parts["port"];
-			}
-
-			$path_parts = explode("/", trim($parts["path"], "/"));
-
-			$nick = array_pop($path_parts);
-
-			do {
-				$lrdd = self::hostMeta($host);
-				$host .= "/".array_shift($path_parts);
-			} while (!$lrdd && (sizeof($path_parts) > 0));
-		}
-
-		if (!$lrdd) {
-			Logger::log("No lrdd data found for ".$uri, Logger::DEBUG);
-			return [];
-		}
-
-		foreach ($lrdd as $type => $template) {
-			if ($webfinger) {
-				continue;
-			}
-
-			$path = str_replace('{uri}', urlencode($uri), $template);
-			$webfinger = self::webfinger($path, $type);
-
-			if (!$webfinger && (strstr($uri, "@"))) {
-				$path = str_replace('{uri}', urlencode("acct:".$uri), $template);
-				$webfinger = self::webfinger($path, $type);
-			}
-
-			// Special treatment for Mastodon
-			// Problem is that Mastodon uses an URL format like http://domain.tld/@nick
-			// But the webfinger for this format fails.
-			if (!$webfinger && !empty($nick)) {
-				// Mastodon uses a "@" as prefix for usernames in their url format
-				$nick = ltrim($nick, '@');
-
-				$addr = $nick."@".$host;
-
-				$path = str_replace('{uri}', urlencode("acct:".$addr), $template);
-				$webfinger = self::webfinger($path, $type);
-			}
-		}
+		$webfinger = $data['webfinger'];
 
 		if (empty($webfinger["links"])) {
 			Logger::log("No webfinger links found for ".$uri, Logger::DEBUG);
@@ -381,8 +329,9 @@ class Probe
 	 */
 	public static function uri($uri, $network = '', $uid = -1, $cache = true)
 	{
+		$cachekey = 'Probe::uri:' . $network . ':' . $uri;
 		if ($cache) {
-			$result = DI::cache()->get('Probe::uri:' . $network . ':' . $uri);
+			$result = DI::cache()->get($cachekey);
 			if (!is_null($result)) {
 				return $result;
 			}
@@ -396,13 +345,16 @@ class Probe
 
 		if ($network != Protocol::ACTIVITYPUB) {
 			$data = self::detect($uri, $network, $uid);
+			if (!is_array($data)) {
+				$data = [];
+			}
 		} else {
-			$data = null;
+			$data = [];
 		}
 
 		// When the previous detection process had got a time out
 		// we could falsely detect a Friendica profile as AP profile.
-		if (!self::$istimeout) {
+		if (!self::$istimeout && (empty($network) || $network == Protocol::ACTIVITYPUB)) {
 			$ap_profile = ActivityPub::probeProfile($uri, !$cache);
 
 			if (empty($data) || (!empty($ap_profile) && empty($network) && (($data['network'] ?? '') != Protocol::DFRN))) {
@@ -411,8 +363,6 @@ class Probe
 				$ap_profile['batch'] = '';
 				$data = array_merge($ap_profile, $data);
 			}
-		} else {
-			Logger::notice('Time out detected. AP will not be probed.', ['uri' => $uri]);
 		}
 
 		if (!isset($data['url'])) {
@@ -441,10 +391,6 @@ class Probe
 			}
 		}
 
-		if (empty($data['baseurl']) && !empty(self::$baseurl)) {
-			$data['baseurl'] = self::$baseurl;
-		}
-
 		if (!empty($data['baseurl']) && empty($data['gsid'])) {
 			$data['gsid'] = GServer::getID($data['baseurl']);
 		}
@@ -466,7 +412,7 @@ class Probe
 
 		// Only store into the cache if the value seems to be valid
 		if (!in_array($data['network'], [Protocol::PHANTOM, Protocol::MAIL])) {
-			DI::cache()->set('Probe::uri:' . $network . ':' . $uri, $data, Duration::DAY);
+			DI::cache()->set($cachekey, $data, Duration::DAY);
 		}
 
 		return $data;
@@ -559,6 +505,160 @@ class Probe
 	}
 
 	/**
+	 * Get webfinger data from a given URI
+	 *
+	 * @param string $uri
+	 * @return array Webfinger array
+	 */
+	private static function getWebfingerArray(string $uri)
+	{
+		$parts = parse_url($uri);
+
+		if (!empty($parts['scheme']) && !empty($parts['host'])) {
+			$host = $parts['host'];
+			if (!empty($parts['port'])) {
+				$host .= ':'.$parts['port'];
+			}
+
+			$baseurl = $parts['scheme'] . '://' . $host;
+
+			$nick = '';
+			$addr = '';
+
+			$path_parts = explode("/", trim($parts['path'] ?? '', "/"));
+			if (!empty($path_parts)) {
+				$nick = ltrim(end($path_parts), '@');
+				// When the last part of the URI is numeric then it is most likely an ID and not a nick name
+				if (!is_numeric($nick)) {
+					$addr = $nick."@".$host;
+				} else {
+					$nick = '';
+				}
+			}
+
+			$webfinger = self::getWebfinger($parts['scheme'] . '://' . $host . self::WEBFINGER, 'application/jrd+json', $uri, $addr);
+			if (empty($webfinger)) {
+				$lrdd = self::hostMeta($host);
+			}
+
+			if (empty($webfinger) && empty($lrdd)) {
+				while (empty($lrdd) && empty($webfinger) && (sizeof($path_parts) > 1)) {
+					$host .= "/".array_shift($path_parts);
+					$baseurl = $parts['scheme'] . '://' . $host;
+
+					if (!empty($nick)) {
+						$addr = $nick."@".$host;
+					}
+
+					$webfinger = self::getWebfinger($parts['scheme'] . '://' . $host . self::WEBFINGER, 'application/jrd+json', $uri, $addr);
+					if (empty($webfinger)) {
+						$lrdd = self::hostMeta($host);
+					}
+				}
+
+				if (empty($lrdd) && empty($webfinger)) {
+					return [];
+				}
+			}
+		} elseif (strstr($uri, '@')) {
+			// Remove "acct:" from the URI
+			$uri = str_replace('acct:', '', $uri);
+
+			$host = substr($uri, strpos($uri, '@') + 1);
+			$nick = substr($uri, 0, strpos($uri, '@'));
+			$addr = $uri;
+
+			$webfinger = self::getWebfinger('https://' . $host . self::WEBFINGER, 'application/jrd+json', $uri, $addr);
+			if (self::$istimeout) {
+				return [];
+			}
+
+			if (empty($webfinger)) {
+				$webfinger = self::getWebfinger('http://' . $host . self::WEBFINGER, 'application/jrd+json', $uri, $addr);
+				if (self::$istimeout) {
+					return [];
+				}
+			} else {
+				$baseurl = 'https://' . $host;
+			}
+
+			if (empty($webfinger)) {
+				$lrdd = self::hostMeta($host);
+				if (self::$istimeout) {
+					return [];
+				}
+				$baseurl = self::$baseurl;
+			} else {
+				$baseurl = 'http://' . $host;
+			}
+		} else {
+			Logger::info('URI was not detectable', ['uri' => $uri]);
+			return [];
+		}
+
+		if (empty($webfinger)) {
+			foreach ($lrdd as $type => $template) {
+				if ($webfinger) {
+					continue;
+				}
+
+				$webfinger = self::getWebfinger($template, $type, $uri, $addr);
+			}
+		}
+
+		if (empty($webfinger)) {
+			return [];
+		}
+
+		if ($webfinger['detected'] == $addr) {
+			$webfinger['nick'] = $nick;
+			$webfinger['addr'] = $addr;
+		}
+
+		$webfinger['baseurl'] = $baseurl;
+
+		return $webfinger;
+	}
+
+	/**
+	 * Perform network request for webfinger data
+	 *
+	 * @param string $template
+	 * @param string $type
+	 * @param string $uri
+	 * @param string $addr
+	 * @return array webfinger results
+	 */
+	private static function getWebfinger(string $template, string $type, string $uri, string $addr)
+	{
+		// First try the address because this is the primary purpose of webfinger
+		if (!empty($addr)) {
+			$detected = $addr;
+			$path = str_replace('{uri}', urlencode("acct:" . $addr), $template);
+			$webfinger = self::webfinger($path, $type);
+			if (self::$istimeout) {
+				return [];
+			}
+		}
+
+		// Then try the URI
+		if (empty($webfinger) && $uri != $addr) {
+			$detected = $uri;
+			$path = str_replace('{uri}', urlencode($uri), $template);
+			$webfinger = self::webfinger($path, $type);
+			if (self::$istimeout) {
+				return [];
+			}
+		}
+
+		if (empty($webfinger)) {
+			return [];
+		}
+
+		return ['webfinger' => $webfinger, 'detected' => $detected];
+	}
+
+	/**
 	 * Fetch information (protocol endpoints and user information) about a given uri
 	 *
 	 * This function is only called by the "uri" function that adds caching and rearranging of data.
@@ -572,8 +672,6 @@ class Probe
 	 */
 	private static function detect($uri, $network, $uid)
 	{
-		$parts = parse_url($uri);
-
 		$hookData = [
 			'uri'     => $uri,
 			'network' => $network,
@@ -584,40 +682,19 @@ class Probe
 		Hook::callAll('probe_detect', $hookData);
 
 		if ($hookData['result']) {
-			return $hookData['result'];
+			if (!is_array($hookData['result'])) {
+				return [];
+			} else {
+				return $hookData['result'];
+			}
 		}
 
-		if (!empty($parts["scheme"]) && !empty($parts["host"])) {
-			$host = $parts["host"];
-			if (!empty($parts["port"])) {
-				$host .= ':'.$parts["port"];
-			}
+		$parts = parse_url($uri);
 
-			if ($host == 'twitter.com') {
+		if (!empty($parts['scheme']) && !empty($parts['host'])) {
+			if ($parts['host'] == 'twitter.com') {
 				return self::twitter($uri);
 			}
-			$lrdd = self::hostMeta($host);
-
-			if (is_bool($lrdd)) {
-				return [];
-			}
-
-			$path_parts = explode("/", trim($parts['path'] ?? '', "/"));
-
-			while (!$lrdd && (sizeof($path_parts) > 1)) {
-				$host .= "/".array_shift($path_parts);
-				$lrdd = self::hostMeta($host);
-			}
-			if (!$lrdd) {
-				Logger::log('No XRD data was found for '.$uri, Logger::DEBUG);
-				return self::feed($uri);
-			}
-			$nick = array_pop($path_parts);
-
-			// Mastodon uses a "@" as prefix for usernames in their url format
-			$nick = ltrim($nick, '@');
-
-			$addr = $nick."@".$host;
 		} elseif (strstr($uri, '@')) {
 			// If the URI starts with "mailto:" then jump directly to the mail detection
 			if (strpos($uri, 'mailto:') !== false) {
@@ -628,72 +705,34 @@ class Probe
 			if ($network == Protocol::MAIL) {
 				return self::mail($uri, $uid);
 			}
-			// Remove "acct:" from the URI
-			$uri = str_replace('acct:', '', $uri);
-
-			$host = substr($uri, strpos($uri, '@') + 1);
-			$nick = substr($uri, 0, strpos($uri, '@'));
 
 			if (strpos($uri, '@twitter.com')) {
 				return self::twitter($uri);
 			}
-			$lrdd = self::hostMeta($host);
-
-			if (is_bool($lrdd)) {
-				return [];
-			}
-
-			if (!$lrdd) {
-				Logger::log('No XRD data was found for '.$uri, Logger::DEBUG);
-				return self::mail($uri, $uid);
-			}
-			$addr = $uri;
 		} else {
-			Logger::log("Uri ".$uri." was not detectable", Logger::DEBUG);
+			Logger::info('URI was not detectable', ['uri' => $uri]);
 			return [];
 		}
 
-		$webfinger = false;
+		Logger::info('Probing start', ['uri' => $uri]);
 
-		/// @todo Do we need the prefix "acct:" or "acct://"?
-
-		foreach ($lrdd as $type => $template) {
-			if ($webfinger) {
-				continue;
-			}
-
-			// Try the URI first
-			if ($uri != $addr) {
-				$path = str_replace('{uri}', urlencode($uri), $template);
-				$webfinger = self::webfinger($path, $type);
-			}
-
-			// Then try the address
-			if (!$webfinger) {
-				$path = str_replace('{uri}', urlencode("acct:" . $addr), $template);
-				$webfinger = self::webfinger($path, $type);
-			}
-
-			// Finally try without the "acct"
-			if (!$webfinger) {
-				$path = str_replace('{uri}', urlencode($addr), $template);
-				$webfinger = self::webfinger($path, $type);
-			}
-
-			// We cannot be sure that the detected address was correct, so we don't use the values
-			if ($webfinger && ($uri != $addr)) {
-				$nick = "";
-				$addr = "";
+		$data = self::getWebfingerArray($uri);
+		if (empty($data)) {
+			if (!empty($parts['scheme'])) {
+				return self::feed($uri);
+			} elseif (!empty($uid)) {
+				return self::mail($uri, $uid);
+			} else {
+				return [];
 			}
 		}
 
-		if (!$webfinger) {
-			return self::feed($uri);
-		}
+		$webfinger = $data['webfinger'];
+		$nick = $data['nick'] ?? '';
+		$addr = $data['addr'] ?? '';
+		$baseurl = $data['baseurl'] ?? '';
 
 		$result = [];
-
-		Logger::info("Probing", ['uri' => $uri]);
 
 		if (in_array($network, ["", Protocol::DFRN])) {
 			$result = self::dfrn($webfinger);
@@ -705,7 +744,7 @@ class Probe
 			$result = self::ostatus($webfinger);
 		}
 		if (in_array($network, ['', Protocol::ZOT])) {
-			$result = self::zot($webfinger, $result);
+			$result = self::zot($webfinger, $result, $baseurl);
 		}
 		if ((!$result && ($network == "")) || ($network == Protocol::PUMPIO)) {
 			$result = self::pumpio($webfinger, $addr);
@@ -730,11 +769,15 @@ class Probe
 			$result["network"] = Protocol::PHANTOM;
 		}
 
+		if (empty($result['baseurl']) && !empty($baseurl)) {
+			$result['baseurl'] = $baseurl;
+		}
+
 		if (empty($result["url"])) {
 			$result["url"] = $uri;
 		}
 
-		Logger::log($uri." is ".$result["network"], Logger::DEBUG);
+		Logger::info('Probing done', ['uri' => $uri, 'network' => $result["network"]]);
 
 		return $result;
 	}
@@ -748,7 +791,7 @@ class Probe
 	 * @return array Zot data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function zot($webfinger, $data)
+	private static function zot($webfinger, $data, $baseurl)
 	{
 		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
@@ -769,12 +812,12 @@ class Probe
 			}
 		}
 
-		if (empty($zot_url) && !empty($data['addr']) && !empty(self::$baseurl)) {
-			$condition = ['nurl' => Strings::normaliseLink(self::$baseurl), 'platform' => ['hubzilla']];
+		if (empty($zot_url) && !empty($data['addr']) && !empty($baseurl)) {
+			$condition = ['nurl' => Strings::normaliseLink($baseurl), 'platform' => ['hubzilla']];
 			if (!DBA::exists('gserver', $condition)) {
 				return $data;
 			}
-			$zot_url = self::$baseurl . '/.well-known/zot-info?address=' . $data['addr'];
+			$zot_url = $baseurl . '/.well-known/zot-info?address=' . $data['addr'];
 		}
 
 		if (empty($zot_url)) {
