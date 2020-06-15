@@ -70,7 +70,7 @@ Falls Addons installiert werden sollen: Gehe in den Friendica-Ordner
 
 Und die Addon Repository klonst:
 
-    git clone https://github.com/friendica/friendica-addons.git -b master addon
+    git clone https://github.com/friendica/friendica-addons.git -b stable addon
 
 Um das Addon-Verzeichnis aktuell zu halten, solltest du in diesem Pfad ein "git pull"-Befehl eintragen
 

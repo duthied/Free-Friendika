@@ -88,7 +88,7 @@ Get the addons by going into your website folder.
 
 Clone the addon repository (separately):
 
-    git clone https://github.com/friendica/friendica-addons.git -b master addon
+    git clone https://github.com/friendica/friendica-addons.git -b stable addon
 
 If you want to use the development version of Friendica you can switch to the develop branch in the repository by running
 
