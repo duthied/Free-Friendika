@@ -75,8 +75,8 @@ class Summary extends BaseAdmin
 			}
 		}
 
-		// Check if github.com/friendica/master/VERSION is higher then
-		// the local version of Friendica. Check is opt-in, source may be master or devel branch
+		// Check if github.com/friendica/stable/VERSION is higher then
+		// the local version of Friendica. Check is opt-in, source may be stable or develop branch
 		if (DI::config()->get('system', 'check_new_version_url', 'none') != 'none') {
 			$gitversion = DI::config()->get('system', 'git_friendica_version');
 			if (version_compare(FRIENDICA_VERSION, $gitversion) < 0) {

@@ -27,9 +27,9 @@
  *   2. We may be the target or other side of the conversation to scenario 1, and will
  *      interact with that process on our own user's behalf.
  *
- *  @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
+ *  @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/stable/spec/dfrn2.pdf
  *    You also find a graphic which describes the confirmation process at
- *    https://github.com/friendica/friendica/blob/master/spec/dfrn2_contact_confirmation.png
+ *    https://github.com/friendica/friendica/blob/stable/spec/dfrn2_contact_confirmation.png
  */
 
 use Friendica\App;

@@ -3,7 +3,7 @@
 * [Home](help)
 
 To change the look of friendica you have to touch the themes.
-The current default theme is [Vier](https://github.com/friendica/friendica/tree/master/view/theme/vier) but there are numerous others.
+The current default theme is [Vier](https://github.com/friendica/friendica/tree/stable/view/theme/vier) but there are numerous others.
 Have a look at [friendica-themes.com](http://friendica-themes.com) for an overview of the existing themes.
 In case none of them suits your needs, there are several ways to change a theme.
 

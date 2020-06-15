@@ -19,7 +19,7 @@
  *
  * The dfrn notify endpoint
  *
- * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
+ * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/stable/spec/dfrn2.pdf
  */
 
 use Friendica\App;

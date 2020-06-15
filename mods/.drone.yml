@@ -36,7 +36,7 @@ volumes:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -79,7 +79,7 @@ volumes:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -122,7 +122,7 @@ volumes:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -169,7 +169,7 @@ volumes:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -211,7 +211,7 @@ volumes:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -253,7 +253,7 @@ volumes:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -282,7 +282,7 @@ services:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -306,7 +306,7 @@ services:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -330,7 +330,7 @@ services:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -360,7 +360,7 @@ services:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -384,7 +384,7 @@ services:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -408,7 +408,7 @@ services:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -439,7 +439,7 @@ services:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -463,7 +463,7 @@ services:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
@@ -487,7 +487,7 @@ services:
 
 trigger:
   branch:
-#    - master
+#    - stable
     - develop
 #    - "*-rc"
 #  event:
