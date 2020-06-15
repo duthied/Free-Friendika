@@ -100,7 +100,7 @@ class Search
 	/**
 	 * Search in the global directory for occurrences of the search string
 	 *
-	 * @see https://github.com/friendica/friendica-directory/blob/master/docs/Protocol.md#search
+	 * @see https://github.com/friendica/friendica-directory/blob/stable/docs/Protocol.md#search
 	 *
 	 * @param string $search
 	 * @param int    $type specific type of searching
