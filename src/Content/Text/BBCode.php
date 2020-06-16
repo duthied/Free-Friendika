@@ -2188,7 +2188,7 @@ class BBCode
 	 */
 	public static function setMentions($body, $profile_uid = 0, $network = '')
 	{
-		BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code'], function ($body) use ($profile_uid, $network) {
+		BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network) {
 			$tags = BBCode::getTags($body);
 
 			$tagged = [];
@@ -2211,7 +2211,7 @@ class BBCode
 					}
 				}
 
-			$success = Item::replaceTag($body, $inform, $profile_uid, $tag, $network);
+				$success = Item::replaceTag($body, $inform, $profile_uid, $tag, $network);
 
 				if ($success['replaced']) {
 					$tagged[] = $tag;
