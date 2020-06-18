@@ -863,7 +863,7 @@ class Transmitter
 				$type = 'Announce';
 
 				// Disguise forum posts as reshares. Will later be converted to a real announce
-				$item['body'] = share_header($item['author-name'], $item['author-link'], $item['author-avatar'],
+				$item['body'] = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'],
 					$item['guid'], $item['created'], $item['plink']) . $item['body'] . '[/share]';
 			}
 		}

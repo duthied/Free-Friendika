@@ -2223,4 +2223,33 @@ class BBCode
 
 		return $body;
 	}
+
+	/**
+	 * @param $author
+	 * @param $profile
+	 * @param $avatar
+	 * @param $guid
+	 * @param $posted
+	 * @param $link
+	 * @return string
+	 * @TODO Rewrite to handle over whole record array
+	 */
+	public static function getShareOpeningTag($author, $profile, $avatar, $guid, $posted, $link)
+	{
+		$header = "[share author='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author).
+			"' profile='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $profile).
+			"' avatar='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $avatar);
+
+		if ($guid) {
+			$header .= "' guid='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $guid);
+		}
+
+		if ($posted) {
+			$header .= "' posted='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $posted);
+		}
+
+		$header .= "' link='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $link)."']";
+
+		return $header;
+	}
 }
