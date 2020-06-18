@@ -2795,7 +2795,7 @@ class Diaspora
 
 		/// @todo Copy tag data from original post
 
-		$prefix = share_header(
+		$prefix = BBCode::getShareOpeningTag(
 			$original_item["author-name"],
 			$original_item["author-link"],
 			$original_item["author-avatar"],
@@ -3676,7 +3676,7 @@ class Diaspora
 
 			if ($item['author-link'] != $item['owner-link']) {
 				require_once 'mod/share.php';
-				$body = share_header($item['author-name'], $item['author-link'], $item['author-avatar'],
+				$body = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'],
 					"", $item['created'], $item['plink']) . $body . '[/share]';
 			}
 
