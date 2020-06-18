@@ -74,24 +74,24 @@ class Feed
 	public static function consume($xml, array $importer, array $contact, &$hub)
 	{
 		if ($contact['network'] === Protocol::OSTATUS) {
-			Logger::log('Consume OStatus messages ', Logger::DEBUG);
+			Logger::info('Consume OStatus messages');
 			OStatus::import($xml, $importer, $contact, $hub);
 
 			return;
 		}
 
 		if ($contact['network'] === Protocol::FEED) {
-			Logger::log('Consume feeds', Logger::DEBUG);
+			Logger::info('Consume feeds');
 			self::import($xml, $importer, $contact);
 
 			return;
 		}
 
 		if ($contact['network'] === Protocol::DFRN) {
-			Logger::log('Consume DFRN messages', Logger::DEBUG);
+			Logger::info('Consume DFRN messages');
 			$dfrn_importer = DFRN::getImporter($contact['id'], $importer['uid']);
 			if (!empty($dfrn_importer)) {
-				Logger::log('Now import the DFRN feed');
+				Logger::info('Now import the DFRN feed');
 				DFRN::import($xml, $dfrn_importer, true);
 				return;
 			}

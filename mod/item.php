@@ -928,9 +928,9 @@ function drop_item(int $id, string $return = '')
 			DI::baseUrl()->redirect('display/' . $item['guid']);
 		}
 
-		$is_comment = ($item['gravity'] == GRAVITY_COMMENT) ? true : false;
+		$is_comment = $item['gravity'] == GRAVITY_COMMENT;
 		$parentitem = null;
-		if (!empty($item['parent'])){
+		if (!empty($item['parent'])) {
 			$fields = ['guid'];
 			$parentitem = Item::selectFirstForUser(local_user(), $fields, ['id' => $item['parent']]);
 		}
@@ -949,14 +949,12 @@ function drop_item(int $id, string $return = '')
 			if (!empty($parentitem)) {
 				DI::baseUrl()->redirect('display/' . $parentitem['guid']);
 				//NOTREACHED
-			}
-			// In case something goes wrong
+			} // In case something goes wrong
 			else {
 				DI::baseUrl()->redirect('network');
 				//NOTREACHED
 			}
-		}
-		else {
+		} else {
 			// if unknown location or deleting top level post called from display
 			if (empty($return_url) || strpos($return_url, 'display') !== false) {
 				DI::baseUrl()->redirect('network');
