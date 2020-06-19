@@ -528,7 +528,7 @@ class Feed
 
 				// We always strip the title since it will be added in the page information
 				$item["title"] = "";
-				$item["body"] = $item["body"] . add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_denylist"]);
+				$item["body"] = $item["body"] . add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_denylist"] ?? '');
 				$taglist = get_page_keywords($item["plink"], $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_denylist"]);
 				$item["object-type"] = Activity\ObjectType::BOOKMARK;
 				unset($item["attach"]);
