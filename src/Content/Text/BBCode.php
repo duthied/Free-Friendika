@@ -978,7 +978,7 @@ class BBCode
 			function ($match) use ($callback) {
 				$attribute_string = $match[2];
 				$attributes = [];
-				foreach (['author', 'profile', 'avatar', 'link', 'posted'] as $field) {
+				foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid'] as $field) {
 					preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
 					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}
@@ -1088,6 +1088,7 @@ class BBCode
 					'$link'         => $attributes['link'],
 					'$link_title'   => DI::l10n()->t('link to source'),
 					'$posted'       => $attributes['posted'],
+					'$guid'         => $attributes['guid'],
 					'$network_name' => ContactSelector::networkToName($contact['network'], $attributes['profile']),
 					'$network_icon' => ContactSelector::networkToIcon($contact['network'], $attributes['profile']),
 					'$content'      => self::setMentions(trim($content), 0, $contact['network']),
