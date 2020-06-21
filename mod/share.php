@@ -43,7 +43,7 @@ function share_init(App $a) {
 		$pos = strpos($item['body'], "[share");
 		$o = substr($item['body'], $pos);
 	} else {
-		$o = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['guid'], $item['created'], $item['plink']);
+		$o = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
 
 		if ($item['title']) {
 			$o .= '[h3]'.$item['title'].'[/h3]'."\n";
