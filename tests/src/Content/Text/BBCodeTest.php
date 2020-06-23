@@ -241,6 +241,10 @@ class BBCodeTest extends MockedTest
 				'expectedHtml' => '[test] Space',
 				'text' => '[test] Space',
 			],
+			'task-8800-pre-spaces' => [
+				'expectedHtml' => '&nbsp;&nbsp;&nbsp;&nbsp;Spaces',
+				'text' => '[pre]    Spaces[/pre]',
+			],
 		];
 	}
 

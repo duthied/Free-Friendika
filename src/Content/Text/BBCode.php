@@ -1878,7 +1878,11 @@ class BBCode
 			// Remove escaping tags
 			$text = preg_replace("/\[noparse\](.*?)\[\/noparse\]/ism", '\1', $text);
 			$text = preg_replace("/\[nobb\](.*?)\[\/nobb\]/ism", '\1', $text);
-			$text = preg_replace("/\[pre\](.*?)\[\/pre\]/ism", '\1', $text);
+
+			// Additionally, [pre] tags preserve spaces
+			$text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", function ($match) {
+				return str_replace(' ', '&nbsp;', $match[1]);
+			}, $text);
 
 			return $text;
 		}); // Escaped code
