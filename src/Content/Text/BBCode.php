@@ -1299,9 +1299,9 @@ class BBCode
 				// Remove the abstract element. It is a non visible element.
 				$text = self::stripAbstract($text);
 
-				// Move all spaces out of the tags
-				$text = preg_replace("/\[(\w*)\](\s*)/ism", '$2[$1]', $text);
-				$text = preg_replace("/(\s*)\[\/(\w*)\]/ism", '[/$2]$1', $text);
+				// Move new lines outside of tags
+				$text = preg_replace("#\[(\w*)](\n*)#ism", '$2[$1]', $text);
+				$text = preg_replace("#(\n*)\[/(\w*)]#ism", '[/$2]$1', $text);
 
 				// Extract the private images which use data urls since preg has issues with
 				// large data sizes. Stash them away while we do bbcode conversion, and then put them back
@@ -1878,7 +1878,11 @@ class BBCode
 			// Remove escaping tags
 			$text = preg_replace("/\[noparse\](.*?)\[\/noparse\]/ism", '\1', $text);
 			$text = preg_replace("/\[nobb\](.*?)\[\/nobb\]/ism", '\1', $text);
-			$text = preg_replace("/\[pre\](.*?)\[\/pre\]/ism", '\1', $text);
+
+			// Additionally, [pre] tags preserve spaces
+			$text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", function ($match) {
+				return str_replace(' ', '&nbsp;', $match[1]);
+			}, $text);
 
 			return $text;
 		}); // Escaped code
