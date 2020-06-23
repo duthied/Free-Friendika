@@ -978,7 +978,7 @@ class BBCode
 			function ($match) use ($callback) {
 				$attribute_string = $match[2];
 				$attributes = [];
-				foreach (['author', 'profile', 'avatar', 'link', 'posted'] as $field) {
+				foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid'] as $field) {
 					preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
 					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}
@@ -1088,6 +1088,7 @@ class BBCode
 					'$link'         => $attributes['link'],
 					'$link_title'   => DI::l10n()->t('link to source'),
 					'$posted'       => $attributes['posted'],
+					'$guid'         => $attributes['guid'],
 					'$network_name' => ContactSelector::networkToName($contact['network'], $attributes['profile']),
 					'$network_icon' => ContactSelector::networkToIcon($contact['network'], $attributes['profile']),
 					'$content'      => self::setMentions(trim($content), 0, $contact['network']),
@@ -2229,30 +2230,28 @@ class BBCode
 	}
 
 	/**
-	 * @param $author
-	 * @param $profile
-	 * @param $avatar
-	 * @param $guid
-	 * @param $posted
-	 * @param $link
+	 * @param string      $author  Author display name
+	 * @param string      $profile Author profile URL
+	 * @param string      $avatar  Author profile picture URL
+	 * @param string      $link    Post source URL
+	 * @param string      $posted  Post created date
+	 * @param string|null $guid    Post guid (if any)
 	 * @return string
 	 * @TODO Rewrite to handle over whole record array
 	 */
-	public static function getShareOpeningTag($author, $profile, $avatar, $guid, $posted, $link)
+	public static function getShareOpeningTag(string $author, string $profile, string $avatar, string $link, string $posted, string $guid = null)
 	{
-		$header = "[share author='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author).
-			"' profile='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $profile).
-			"' avatar='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $avatar);
+		$header = "[share author='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author) .
+			"' profile='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $profile) .
+			"' avatar='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $avatar) .
+			"' link='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $link) .
+			"' posted='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $posted);
 
 		if ($guid) {
 			$header .= "' guid='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $guid);
 		}
 
-		if ($posted) {
-			$header .= "' posted='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $posted);
-		}
-
-		$header .= "' link='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $link)."']";
+		$header  .= "']";
 
 		return $header;
 	}

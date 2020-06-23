@@ -2799,9 +2799,9 @@ class Diaspora
 			$original_item["author-name"],
 			$original_item["author-link"],
 			$original_item["author-avatar"],
-			$original_item["guid"],
+			$orig_url,
 			$original_item["created"],
-			$orig_url
+			$original_item["guid"]
 		);
 
 		if (!empty($original_item['title'])) {
@@ -3677,7 +3677,7 @@ class Diaspora
 			if ($item['author-link'] != $item['owner-link']) {
 				require_once 'mod/share.php';
 				$body = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'],
-					"", $item['created'], $item['plink']) . $body . '[/share]';
+					$item['plink'], $item['created']) . $body . '[/share]';
 			}
 
 			// convert to markdown

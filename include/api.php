@@ -2046,7 +2046,7 @@ function api_statuses_repeat($type)
 			$pos = strpos($item['body'], "[share");
 			$post = substr($item['body'], $pos);
 		} else {
-			$post = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['guid'], $item['created'], $item['plink']);
+			$post = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
 
 			if (!empty($item['title'])) {
 				$post .= '[h3]' . $item['title'] . "[/h3]\n";
