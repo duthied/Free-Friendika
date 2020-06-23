@@ -264,7 +264,10 @@ function api_login(App $a)
 		throw new UnauthorizedException("This API requires login");
 	}
 
-	DI::auth()->setForUser($a, $record, false, false, true);
+	// Don't refresh the login date more often than twice a day to spare database writes
+	$login_refresh = strcmp(DateTimeFormat::utc('now - 12 hours'), $record['login_date']) > 0;
+
+	DI::auth()->setForUser($a, $record, false, false, $login_refresh);
 
 	$_SESSION["allow_api"] = true;
 
