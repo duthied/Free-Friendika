@@ -4084,17 +4084,12 @@ function api_fr_photoalbum_delete($type)
 		throw new BadRequestException("album not available");
 	}
 
+	$resourceIds = array_unique(array_column($photos, 'resource-id'));
+
 	// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 	// to the user and the contacts of the users (drop_items() performs the federation of the deletion to other networks
-	foreach ($photos as $photo) {
-		$condition = ['uid' => local_user(), 'resource-id' => $photo['resource-id'], 'type' => 'photo'];
-		$photo_item = Item::selectFirstForUser(local_user(), ['id'], $condition);
-
-		if (!DBA::isResult($photo_item)) {
-			throw new InternalServerErrorException("problem with deleting items occured");
-		}
-		Item::deleteForUser(['id' => $photo_item['id']], api_user());
-	}
+	$condition = ['uid' => api_user(), 'resource-id' => $resourceIds, 'type' => 'photo'];
+	Item::deleteForUser($condition, api_user());
 
 	// now let's delete all photos from the album
 	$result = Photo::delete(['uid' => api_user(), 'album' => $album]);
@@ -4371,16 +4366,10 @@ function api_fr_photo_delete($type)
 
 	// return success of deletion or error message
 	if ($result) {
-		// retrieve the id of the parent element (the photo element)
-		$condition = ['uid' => local_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
-		$photo_item = Item::selectFirstForUser(local_user(), ['id'], $condition);
-
-		if (!DBA::isResult($photo_item)) {
-			throw new InternalServerErrorException("problem with deleting items occured");
-		}
 		// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 		// to the user and the contacts of the users (drop_items() do all the necessary magic to avoid orphans in database and federate deletion)
-		Item::deleteForUser(['id' => $photo_item['id']], api_user());
+		$condition = ['uid' => api_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
+		Item::deleteForUser($condition, api_user());
 
 		$result = ['result' => 'deleted', 'message' => 'photo with id `' . $photo_id . '` has been deleted from server.'];
 		return api_format_data("photo_delete", $type, ['$result' => $result]);
@@ -4889,8 +4878,8 @@ function prepare_photo_data($type, $scale, $photo_id)
 	}
 
 	// retrieve item element for getting activities (like, dislike etc.) related to photo
-	$condition = ['uid' => local_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
-	$item = Item::selectFirstForUser(local_user(), ['id'], $condition);
+	$condition = ['uid' => api_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
+	$item = Item::selectFirst(['id', 'uid', 'uri', 'parent', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid'], $condition);
 	if (!DBA::isResult($item)) {
 		throw new NotFoundException('Photo-related item not found.');
 	}
