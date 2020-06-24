@@ -979,7 +979,7 @@ class Database
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public function insert($table, $param, $on_duplicate_update = false)
+	public function insert($table, array $param, bool $on_duplicate_update = false)
 	{
 		if (empty($table) || empty($param)) {
 			$this->logger->info('Table and fields have to be set');
