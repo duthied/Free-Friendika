@@ -258,7 +258,7 @@ class Profile
 	 * @hooks 'profile_sidebar'
 	 *      array $arr
 	 */
-	private static function sidebar(App $a, $profile, $block = 0, $show_connect = true)
+	private static function sidebar(App $a, array $profile, $block = 0, $show_connect = true)
 	{
 		$o = '';
 		$location = false;
@@ -266,7 +266,8 @@ class Profile
 		// This function can also use contact information in $profile
 		$is_contact = !empty($profile['cid']);
 
-		if (!is_array($profile) && !count($profile)) {
+		if (empty($profile['nickname'])) {
+			Logger::warning('Received profile with no nickname', ['profile' => $profile, 'callstack' => System::callstack(10)]);
 			return $o;
 		}
 
@@ -290,8 +291,6 @@ class Profile
 		$unfollow_link = null;
 		$subscribe_feed_link = null;
 		$wallmessage_link = null;
-
-
 
 		$visitor_contact = [];
 		if (!empty($profile['uid']) && self::getMyURL()) {
