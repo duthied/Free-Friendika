@@ -9,6 +9,7 @@ Aditoo
 AgnesElisa
 Albert
 Alberto Díaz Tormo
+Aleksandr "M.O.Z.G" Dikov
 Alex
 Alexander An
 Alexander Fortin
@@ -131,6 +132,7 @@ julia.domagalska
 Julio Cova
 Karel
 Karolina
+Keenan Pepper
 Keith Fernie
 Klaus Weidenbach
 Koyu Berteon
@@ -141,10 +143,11 @@ Leberwurscht
 Leonard Lausen
 Lionel Triay
 loma-one
+loma1
 Lorem Ipsum
 Ludovic Grossard
+Lynn Stephenson
 maase2
-Magdalena Gazda
 Mai Anh Nguyen
 Manuel Pérez Monís
 Marcin Klessa
@@ -231,6 +234,7 @@ St John Karp
 Stanislav N.
 Steffen K9
 StefOfficiel
+steve jobs
 Sveinn í Felli
 Sven Anders
 Sylke Vicious
@@ -264,6 +268,7 @@ ufic
 Ulf Rompe
 Unknown
 Valvin
+valvin
 Valvin A
 Vasudev Kamath
 Vasya Novikov
