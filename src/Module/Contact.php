@@ -714,15 +714,14 @@ class Contact extends BaseModule
 			$sql_values[] = $group;
 		}
 
-		$sql_extra .= Widget::unavailableNetworks();
-
 		$total = 0;
 		$stmt = DBA::p("SELECT COUNT(*) AS `total`
 			FROM `contact`
 			WHERE `uid` = ?
 			AND `self` = 0
 			AND NOT `deleted`
-			$sql_extra",
+			$sql_extra
+			" . Widget::unavailableNetworks(),
 			$sql_values
 		);
 		if (DBA::isResult($stmt)) {
