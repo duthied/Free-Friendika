@@ -48,7 +48,6 @@ function ostatus_subscribe_content(App $a)
 		}
 
 		$contact = Probe::uri($_REQUEST['url']);
-
 		if (!$contact) {
 			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
 			return $o . DI::l10n()->t('Couldn\'t fetch information for contact.');
@@ -91,7 +90,7 @@ function ostatus_subscribe_content(App $a)
 
 	$probed = Probe::uri($url);
 	if ($probed['network'] == Protocol::OSTATUS) {
-		$result = Contact::createFromProbe($a->user, $url, true, Protocol::OSTATUS);
+		$result = Contact::createFromProbe($a->user, $probed['url'], true, Protocol::OSTATUS);
 		if ($result['success']) {
 			$o .= ' - ' . DI::l10n()->t('success');
 		} else {

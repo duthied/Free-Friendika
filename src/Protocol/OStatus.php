@@ -1829,11 +1829,12 @@ class OStatus
 		$item["private"] = Item::PRIVATE;
 
 		$contact = Probe::uri($item['follow']);
+		$item['follow'] = $contact['url'];
 
-		if ($contact['alias'] == '') {
-			$contact['alias'] = $contact["url"];
-		} else {
+		if ($contact['alias']) {
 			$item['follow'] = $contact['alias'];
+		} else {
+			$contact['alias'] = $contact['url'];
 		}
 
 		$condition = ['uid' => $owner['uid'], 'nurl' => Strings::normaliseLink($contact["url"])];

@@ -129,7 +129,7 @@ function follow_content(App $a)
 
 	if ($protocol == Protocol::PHANTOM) {
 		// Possibly it is a remote item and not an account
-		follow_remote_item($url);
+		follow_remote_item($ret['url']);
 
 		notice(DI::l10n()->t("The network type couldn't be detected. Contact can't be added."));
 		$submit = '';

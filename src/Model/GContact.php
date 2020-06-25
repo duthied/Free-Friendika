@@ -230,8 +230,6 @@ class GContact
 				throw new Exception('Probing for URL ' . $gcontact['url'] . ' failed');
 			}
 
-			$orig_profile = $gcontact['url'];
-
 			$gcontact['server_url'] = $data['baseurl'];
 
 			$gcontact = array_merge($gcontact, $data);
