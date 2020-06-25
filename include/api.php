@@ -4079,12 +4079,12 @@ function api_fr_photoalbum_delete($type)
 	}
 	// check if album is existing
 
-	$photos = DBA::selectToArray('photo', ['resource-id'], ['uid' => api_user(), 'album' => $album]);
+	$photos = DBA::selectToArray('photo', ['resource-id'], ['uid' => api_user(), 'album' => $album], ['group_by' => ['resource-id']]);
 	if (!DBA::isResult($photos)) {
 		throw new BadRequestException("album not available");
 	}
 
-	$resourceIds = array_unique(array_column($photos, 'resource-id'));
+	$resourceIds = array_column($photos, 'resource-id');
 
 	// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 	// to the user and the contacts of the users (drop_items() performs the federation of the deletion to other networks
