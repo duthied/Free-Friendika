@@ -341,28 +341,27 @@ class Probe
 			$uid = local_user();
 		}
 
+		if (empty($network) || ($network == Protocol::ACTIVITYPUB)) {
+			$ap_profile = ActivityPub::probeProfile($uri, !$cache);
+		} else {
+			$ap_profile = [];
+		}
+
 		self::$istimeout = false;
 
 		if ($network != Protocol::ACTIVITYPUB) {
-			$data = self::detect($uri, $network, $uid);
+			$data = self::detect($uri, $network, $uid, $ap_profile);
 			if (!is_array($data)) {
 				$data = [];
 			}
-		} else {
-			$data = [];
-		}
-
-		// When the previous detection process had got a time out
-		// we could falsely detect a Friendica profile as AP profile.
-		if (!self::$istimeout && (empty($network) || $network == Protocol::ACTIVITYPUB)) {
-			$ap_profile = ActivityPub::probeProfile($uri, !$cache);
-
 			if (empty($data) || (!empty($ap_profile) && empty($network) && (($data['network'] ?? '') != Protocol::DFRN))) {
 				$data = $ap_profile;
 			} elseif (!empty($ap_profile)) {
 				$ap_profile['batch'] = '';
 				$data = array_merge($ap_profile, $data);
 			}
+		} else {
+			$data = $ap_profile;
 		}
 
 		if (!isset($data['url'])) {
@@ -663,14 +662,15 @@ class Probe
 	 *
 	 * This function is only called by the "uri" function that adds caching and rearranging of data.
 	 *
-	 * @param string  $uri     Address that should be probed
-	 * @param string  $network Test for this specific network
-	 * @param integer $uid     User ID for the probe (only used for mails)
+	 * @param string  $uri        Address that should be probed
+	 * @param string  $network    Test for this specific network
+	 * @param integer $uid        User ID for the probe (only used for mails)
+	 * @param array   $ap_profile Previously probed AP profile
 	 *
 	 * @return array uri data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function detect($uri, $network, $uid)
+	private static function detect(string $uri, string $network, int $uid, array $ap_profile)
 	{
 		$hookData = [
 			'uri'     => $uri,
@@ -749,7 +749,7 @@ class Probe
 		if ((!$result && ($network == "")) || ($network == Protocol::PUMPIO)) {
 			$result = self::pumpio($webfinger, $addr);
 		}
-		if ((!$result && ($network == "")) || ($network == Protocol::FEED)) {
+		if (empty($result['network']) && empty($ap_profile['network']) || ($network == Protocol::FEED)) {
 			$result = self::feed($uri);
 		} else {
 			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
@@ -1873,12 +1873,6 @@ class Probe
 
 		$data["url"] = $url;
 		$data["poll"] = $url;
-
-		if (!empty($feed_data["header"]["author-link"])) {
-			$data["baseurl"] = $feed_data["header"]["author-link"];
-		} else {
-			$data["baseurl"] = $data["url"];
-		}
 
 		$data["network"] = Protocol::FEED;
 
