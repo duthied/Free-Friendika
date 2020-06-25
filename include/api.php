@@ -4078,26 +4078,18 @@ function api_fr_photoalbum_delete($type)
 		throw new BadRequestException("no albumname specified");
 	}
 	// check if album is existing
-	$r = q(
-		"SELECT DISTINCT `resource-id` FROM `photo` WHERE `uid` = %d AND `album` = '%s'",
-		intval(api_user()),
-		DBA::escape($album)
-	);
-	if (!DBA::isResult($r)) {
+
+	$photos = DBA::selectToArray('photo', ['resource-id'], ['uid' => api_user(), 'album' => $album], ['group_by' => ['resource-id']]);
+	if (!DBA::isResult($photos)) {
 		throw new BadRequestException("album not available");
 	}
 
+	$resourceIds = array_column($photos, 'resource-id');
+
 	// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 	// to the user and the contacts of the users (drop_items() performs the federation of the deletion to other networks
-	foreach ($r as $rr) {
-		$condition = ['uid' => local_user(), 'resource-id' => $rr['resource-id'], 'type' => 'photo'];
-		$photo_item = Item::selectFirstForUser(local_user(), ['id'], $condition);
-
-		if (!DBA::isResult($photo_item)) {
-			throw new InternalServerErrorException("problem with deleting items occured");
-		}
-		Item::deleteForUser(['id' => $photo_item['id']], api_user());
-	}
+	$condition = ['uid' => api_user(), 'resource-id' => $resourceIds, 'type' => 'photo'];
+	Item::deleteForUser($condition, api_user());
 
 	// now let's delete all photos from the album
 	$result = Photo::delete(['uid' => api_user(), 'album' => $album]);
@@ -4374,19 +4366,13 @@ function api_fr_photo_delete($type)
 
 	// return success of deletion or error message
 	if ($result) {
-		// retrieve the id of the parent element (the photo element)
-		$condition = ['uid' => local_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
-		$photo_item = Item::selectFirstForUser(local_user(), ['id'], $condition);
-
-		if (!DBA::isResult($photo_item)) {
-			throw new InternalServerErrorException("problem with deleting items occured");
-		}
 		// function for setting the items to "deleted = 1" which ensures that comments, likes etc. are not shown anymore
 		// to the user and the contacts of the users (drop_items() do all the necessary magic to avoid orphans in database and federate deletion)
-		Item::deleteForUser(['id' => $photo_item['id']], api_user());
+		$condition = ['uid' => api_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
+		Item::deleteForUser($condition, api_user());
 
-		$answer = ['result' => 'deleted', 'message' => 'photo with id `' . $photo_id . '` has been deleted from server.'];
-		return api_format_data("photo_delete", $type, ['$result' => $answer]);
+		$result = ['result' => 'deleted', 'message' => 'photo with id `' . $photo_id . '` has been deleted from server.'];
+		return api_format_data("photo_delete", $type, ['$result' => $result]);
 	} else {
 		throw new InternalServerErrorException("unknown error on deleting photo from database table");
 	}
@@ -4745,7 +4731,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		Logger::log("photo upload: new profile image upload ended", Logger::DEBUG);
 	}
 
-	if (isset($r) && $r) {
+	if (!empty($r)) {
 		// create entry in 'item'-table on new uploads to enable users to comment/like/dislike the photo
 		if ($photo_id == null && $mediatype == "photo") {
 			post_photo_item($resource_id, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $filetype, $visibility);
@@ -4892,8 +4878,8 @@ function prepare_photo_data($type, $scale, $photo_id)
 	}
 
 	// retrieve item element for getting activities (like, dislike etc.) related to photo
-	$condition = ['uid' => local_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
-	$item = Item::selectFirstForUser(local_user(), ['id'], $condition);
+	$condition = ['uid' => api_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
+	$item = Item::selectFirst(['id', 'uid', 'uri', 'parent', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid'], $condition);
 	if (!DBA::isResult($item)) {
 		throw new NotFoundException('Photo-related item not found.');
 	}
@@ -4902,7 +4888,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 
 	// retrieve comments on photo
 	$condition = ["`parent` = ? AND `uid` = ? AND (`gravity` IN (?, ?) OR `type`='photo')",
-		$item[0]['parent'], api_user(), GRAVITY_PARENT, GRAVITY_COMMENT];
+		$item['parent'], api_user(), GRAVITY_PARENT, GRAVITY_COMMENT];
 
 	$statuses = Item::selectForUser(api_user(), [], $condition);
 
@@ -4922,10 +4908,10 @@ function prepare_photo_data($type, $scale, $photo_id)
 	$data['photo']['friendica_comments'] = $comments;
 
 	// include info if rights on photo and rights on item are mismatching
-	$rights_mismatch = $data['photo']['allow_cid'] != $item[0]['allow_cid'] ||
-		$data['photo']['deny_cid'] != $item[0]['deny_cid'] ||
-		$data['photo']['allow_gid'] != $item[0]['allow_gid'] ||
-		$data['photo']['deny_cid'] != $item[0]['deny_cid'];
+	$rights_mismatch = $data['photo']['allow_cid'] != $item['allow_cid'] ||
+		$data['photo']['deny_cid'] != $item['deny_cid'] ||
+		$data['photo']['allow_gid'] != $item['allow_gid'] ||
+		$data['photo']['deny_gid'] != $item['deny_gid'];
 	$data['photo']['rights_mismatch'] = $rights_mismatch;
 
 	return $data;
