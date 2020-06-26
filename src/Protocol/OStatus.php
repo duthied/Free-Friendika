@@ -2087,9 +2087,8 @@ class OStatus
 		$mentioned = $newmentions;
 
 		foreach ($mentioned as $mention) {
-			$contact = Contact::getDetailsByURL($mention, $owner['uid']);
-			if (!empty($contact) && ($contact["forum"] || $contact["prv"] || ($owner['contact-type'] == Contact::TYPE_COMMUNITY) ||
-				($contact['self'] && ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY)))) {
+			$contact = Contact::getByURL($mention, 0, ['contact-type']);
+			if (!empty($contact) && ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
 				XML::addElement($doc, $entry, "link", "",
 					[
 						"rel" => "mentioned",
