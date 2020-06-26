@@ -191,6 +191,44 @@ class Contact
 	}
 
 	/**
+	 * Fetches a contact by a given url
+	 *
+	 * @param string  $url    profile url
+	 * @param integer $uid    User ID of the contact
+	 * @param array   $fields Field list
+	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
+	 * @return array contact array
+	 */
+	public static function getByURL(string $url, int $uid = 0, array $fields = [], $update = null)
+	{
+		if ($update || is_null($update)) {
+			$cid = self::getIdForURL($url, $uid, !($update ?? false));
+			if (empty($cid)) {
+				return [];
+			}
+			return self::getById($cid, $fields);
+		}
+
+		// We first try the nurl (http://server.tld/nick), most common case
+		$options = ['order' => ['id']];
+		$contact = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false], $options);
+
+		// Then the addr (nick@server.tld)
+		if (!DBA::isResult($contact)) {
+			$contact = DBA::selectFirst('contact', $fields, ['addr' => str_replace('acct:', '', $url), 'uid' => $uid, 'deleted' => false], $options);
+		}
+
+		// Then the alias (which could be anything)
+		if (!DBA::isResult($contact)) {
+			// The link could be provided as http although we stored it as https
+			$ssl_url = str_replace('http://', 'https://', $url);
+			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, $uid];
+			$contact = DBA::selectFirst('contact', $fields, $condition, $options);
+		}
+		return $contact;
+	}
+
+	/**
 	 * Tests if the given contact is a follower
 	 *
 	 * @param int $cid Either public contact id or user's contact id
@@ -1459,26 +1497,9 @@ class Contact
 			return 0;
 		}
 
-		/// @todo Verify if we can't use Contact::getDetailsByUrl instead of the following
-		// We first try the nurl (http://server.tld/nick), most common case
-		$fields = ['id', 'avatar', 'updated', 'network'];
-		$options = ['order' => ['id']];
-		$contact = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false], $options);
+		$contact = self::getByURL($url, $uid, ['id', 'avatar', 'updated', 'network'], false);
 
-		// Then the addr (nick@server.tld)
-		if (!DBA::isResult($contact)) {
-			$contact = DBA::selectFirst('contact', $fields, ['addr' => str_replace('acct:', '', $url), 'uid' => $uid, 'deleted' => false], $options);
-		}
-
-		// Then the alias (which could be anything)
-		if (!DBA::isResult($contact)) {
-			// The link could be provided as http although we stored it as https
-			$ssl_url = str_replace('http://', 'https://', $url);
-			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, $uid];
-			$contact = DBA::selectFirst('contact', $fields, $condition, $options);
-		}
-
-		if (DBA::isResult($contact)) {
+		if (!empty($contact)) {
 			$contact_id = $contact["id"];
 			$update_contact = false;
 
