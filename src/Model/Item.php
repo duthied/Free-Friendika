@@ -672,7 +672,8 @@ class Item
 
 		$fields['parent-item'] = ['guid' => 'parent-guid', 'network' => 'parent-network'];
 
-		$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name'];
+		$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name',
+			'network' => 'parent-author-network'];
 
 		$fields['event'] = ['created' => 'event-created', 'edited' => 'event-edited',
 			'start' => 'event-start','finish' => 'event-finish',

@@ -2332,10 +2332,21 @@ class Diaspora
 		Logger::info('Participation stored', ['id' => $message_id, 'guid' => $guid, 'parent_guid' => $parent_guid, 'author' => $author]);
 
 		// Send all existing comments and likes to the requesting server
-		$comments = Item::select(['id', 'uri-id', 'parent', 'verb'], ['parent' => $parent_item['id'], 'gravity' => [GRAVITY_COMMENT, GRAVITY_ACTIVITY]]);
+		$comments = Item::select(['id', 'uri-id', 'parent-author-network', 'author-network', 'verb'],
+			['parent' => $parent_item['id'], 'gravity' => [GRAVITY_COMMENT, GRAVITY_ACTIVITY]]);
 		while ($comment = Item::fetch($comments)) {
-			if (in_array($comment["verb"], [Activity::FOLLOW, Activity::TAG])) {
+			if (in_array($comment['verb'], [Activity::FOLLOW, Activity::TAG])) {
 				Logger::info('participation messages are not relayed', ['item' => $comment['id']]);
+				continue;
+			}
+
+			if ($comment['author-network'] == Protocol::ACTIVITYPUB) {
+				Logger::info('Comments from ActivityPub authors are not relayed', ['item' => $comment['id']]);
+				continue;
+			}
+
+			if ($comment['parent-author-network'] == Protocol::ACTIVITYPUB) {
+				Logger::info('Comments to comments from ActivityPub authors are not relayed', ['item' => $comment['id']]);
 				continue;
 			}
 
