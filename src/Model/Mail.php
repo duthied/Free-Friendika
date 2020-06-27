@@ -276,10 +276,7 @@ class Mail
 
 		$recip_handle = $recipient['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
 
-		$sender_nick = basename($me['url']);
-		$sender_host = substr($me['url'], strpos($me['url'], '://') + 3);
-		$sender_host = substr($sender_host, 0, strpos($sender_host, '/'));
-		$sender_handle = $sender_nick . '@' . $sender_host;
+		$sender_handle = $me['addr'];
 
 		$handles = $recip_handle . ';' . $sender_handle;
 
