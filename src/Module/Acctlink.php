@@ -36,7 +36,6 @@ class Acctlink extends BaseModule
 
 		if ($addr) {
 			$url = Probe::uri($addr)['url'] ?? '';
-
 			if ($url) {
 				System::externalRedirect($url);
 				exit();

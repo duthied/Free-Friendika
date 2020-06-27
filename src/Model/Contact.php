@@ -1572,7 +1572,7 @@ class Contact
 			$data['gsid'] = GServer::getID($data['baseurl']);
 		}
 
-		if (!$contact_id && !empty($data['alias']) && ($data['alias'] != $url) && !$in_loop) {
+		if (!$contact_id && !empty($data['alias']) && ($data['alias'] != $data['url']) && !$in_loop) {
 			$contact_id = self::getIdForURL($data["alias"], $uid, true, $default, true);
 		}
 
@@ -2353,11 +2353,11 @@ class Contact
 		$condition = ['uid' => $user['uid'], 'poll' => [$ret['poll'], Strings::normaliseLink($ret['poll'])], 'network' => $ret['network'], 'pending' => false];
 		$contact = DBA::selectFirst('contact', ['id', 'rel'], $condition);
 		if (!DBA::isResult($contact)) {
-			$condition = ['uid' => $user['uid'], 'nurl' => Strings::normaliseLink($url), 'network' => $ret['network'], 'pending' => false];
+			$condition = ['uid' => $user['uid'], 'nurl' => Strings::normaliseLink($ret['url']), 'network' => $ret['network'], 'pending' => false];
 			$contact = DBA::selectFirst('contact', ['id', 'rel'], $condition);
 		}
 
-		$protocol = self::getProtocol($url, $ret['network']);
+		$protocol = self::getProtocol($ret['url'], $ret['network']);
 
 		if (($protocol === Protocol::DFRN) && !DBA::isResult($contact)) {
 			if ($interactive) {
@@ -2394,7 +2394,7 @@ class Contact
 			if (empty($ret['url'])) {
 				$result['message'] .= DI::l10n()->t('No browser URL could be matched to this address.') . EOL;
 			}
-			if (strpos($url, '@') !== false) {
+			if (strpos($ret['url'], '@') !== false) {
 				$result['message'] .= DI::l10n()->t('Unable to match @-style Identity Address with a known protocol or email contact.') . EOL;
 				$result['message'] .= DI::l10n()->t('Use mailto: in front of address to force email check.') . EOL;
 			}
@@ -2418,7 +2418,7 @@ class Contact
 
 		$pending = false;
 		if ($protocol == Protocol::ACTIVITYPUB) {
-			$apcontact = APContact::getByURL($url, false);
+			$apcontact = APContact::getByURL($ret['url'], false);
 			if (isset($apcontact['manually-approve'])) {
 				$pending = (bool)$apcontact['manually-approve'];
 			}

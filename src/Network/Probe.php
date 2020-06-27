@@ -692,7 +692,7 @@ class Probe
 		$parts = parse_url($uri);
 
 		if (!empty($parts['scheme']) && !empty($parts['host'])) {
-			if ($parts['host'] == 'twitter.com') {
+			if (in_array($parts['host'], ['twitter.com', 'mobile.twitter.com'])) {
 				return self::twitter($uri);
 			}
 		} elseif (strstr($uri, '@')) {
@@ -706,7 +706,9 @@ class Probe
 				return self::mail($uri, $uid);
 			}
 
-			if (strpos($uri, '@twitter.com')) {
+			if (Strings::endsWith($uri, '@twitter.com')
+				|| Strings::endsWith($uri, '@mobile.twitter.com')
+			) {
 				return self::twitter($uri);
 			}
 		} else {
@@ -1720,9 +1722,9 @@ class Probe
 	 */
 	private static function twitter($uri)
 	{
-		if (preg_match('=(.*)@twitter.com=i', $uri, $matches)) {
+		if (preg_match('=([^@]+)@(?:mobile\.)?twitter\.com$=i', $uri, $matches)) {
 			$nick = $matches[1];
-		} elseif (preg_match('=https?://twitter.com/(.*)=i', $uri, $matches)) {
+		} elseif (preg_match('=^https?://(?:mobile\.)?twitter\.com/(.+)=i', $uri, $matches)) {
 			$nick = $matches[1];
 		} else {
 			return [];
