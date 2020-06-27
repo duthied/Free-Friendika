@@ -166,7 +166,7 @@ class Notifier
 		if (!empty($target_item) && !empty($items)) {
 			$parent = $items[0];
 
-			$fields = ['network', 'author-id', 'author-link', 'owner-id'];
+			$fields = ['network', 'author-id', 'author-link', 'author-network', 'owner-id'];
 			$condition = ['uri' => $target_item["thr-parent"], 'uid' => $target_item["uid"]];
 			$thr_parent = Item::selectFirst($fields, $condition);
 			if (empty($thr_parent)) {
