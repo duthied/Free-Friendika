@@ -321,7 +321,7 @@
 		/*
 		 *    Relocate
 		 */ -->
-		<form class="panel" action="{{$baseurl}}/admin/site" method="post">
+		<form id="relocate-form" class="panel" action="{{$baseurl}}/admin/site" method="post">
 			<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 			<input type="hidden" name="page_site" value="{{$submit}}">
 			<input type="hidden" name="active_panel" value="admin-settings-relocate-collapse">
