@@ -2167,9 +2167,9 @@ class Item
 		$distributed = self::insert($item, $notify, true);
 
 		if (!$distributed) {
-			Logger::log("Distributed public item " . $itemid . " for user " . $uid . " wasn't stored", Logger::DEBUG);
+			Logger::info("Distributed public item wasn't stored", ['id' => $itemid, 'user' => $uid]);
 		} else {
-			Logger::log("Distributed public item " . $itemid . " for user " . $uid . " with id " . $distributed, Logger::DEBUG);
+			Logger::info('Distributed public item was stored', ['id' => $itemid, 'user' => $uid, 'stored' => $distributed]);
 		}
 	}
 
@@ -2233,7 +2233,7 @@ class Item
 
 			$public_shadow = self::insert($item, false, true);
 
-			Logger::log("Stored public shadow for thread ".$itemid." under id ".$public_shadow, Logger::DEBUG);
+			Logger::info('Stored public shadow', ['thread' => $itemid, 'id' => $public_shadow]);
 		}
 	}
 
@@ -2291,7 +2291,7 @@ class Item
 
 		$public_shadow = self::insert($item, false, true);
 
-		Logger::log("Stored public shadow for comment ".$item['uri']." under id ".$public_shadow, Logger::DEBUG);
+		Logger::info('Stored public shadow', ['uri' => $item['uri'], 'id' => $public_shadow]);
 
 		// If this was a comment to a Diaspora post we don't get our comment back.
 		// This means that we have to distribute the comment by ourselves.
@@ -2602,29 +2602,29 @@ class Item
 
 		// Prevent the forwarding of posts that are forwarded
 		if (!empty($datarray["extid"]) && ($datarray["extid"] == Protocol::DFRN)) {
-			Logger::log('Already forwarded', Logger::DEBUG);
+			Logger::info('Already forwarded');
 			return false;
 		}
 
 		// Prevent to forward already forwarded posts
 		if ($datarray["app"] == DI::baseUrl()->getHostname()) {
-			Logger::log('Already forwarded (second test)', Logger::DEBUG);
+			Logger::info('Already forwarded (second test)');
 			return false;
 		}
 
 		// Only forward posts
 		if ($datarray["verb"] != Activity::POST) {
-			Logger::log('No post', Logger::DEBUG);
+			Logger::info('No post');
 			return false;
 		}
 
 		if (($contact['network'] != Protocol::FEED) && ($datarray['private'] == self::PRIVATE)) {
-			Logger::log('Not public', Logger::DEBUG);
+			Logger::info('Not public');
 			return false;
 		}
 
 		$datarray2 = $datarray;
-		Logger::log('remote-self start - Contact '.$contact['url'].' - '.$contact['remote_self'].' Item '.print_r($datarray, true), Logger::DEBUG);
+		Logger::info('remote-self start', ['contact' => $contact['url'], 'remote_self'=> $contact['remote_self'], 'item' => $datarray]);
 		if ($contact['remote_self'] == 2) {
 			$self = DBA::selectFirst('contact', ['id', 'name', 'url', 'thumb'],
 					['uid' => $contact['uid'], 'self' => true]);
@@ -2663,7 +2663,7 @@ class Item
 		if ($contact['network'] != Protocol::FEED) {
 			// Store the original post
 			$result = self::insert($datarray2);
-			Logger::log('remote-self post original item - Contact '.$contact['url'].' return '.$result.' Item '.print_r($datarray2, true), Logger::DEBUG);
+			Logger::info('remote-self post original item', ['contact' => $contact['url'], 'result'=> $result, 'item' => $datarray2]);
 		} else {
 			$datarray["app"] = "Feed";
 			$result = true;
@@ -2695,7 +2695,7 @@ class Item
 			return $s;
 		}
 
-		Logger::log('check for photos', Logger::DEBUG);
+		Logger::info('check for photos');
 		$site = substr(DI::baseUrl(), strpos(DI::baseUrl(), '://'));
 
 		$orig_body = $s;
@@ -2709,7 +2709,7 @@ class Item
 			$img_st_close++; // make it point to AFTER the closing bracket
 			$image = substr($orig_body, $img_start + $img_st_close, $img_len);
 
-			Logger::log('found photo ' . $image, Logger::DEBUG);
+			Logger::info('found photo', ['image' => $image]);
 
 			if (stristr($image, $site . '/photo/')) {
 				// Only embed locally hosted photos
@@ -2748,7 +2748,7 @@ class Item
 							$photo_img = Photo::getImageForPhoto($photo);
 							// If a custom width and height were specified, apply before embedding
 							if (preg_match("/\[img\=([0-9]*)x([0-9]*)\]/is", substr($orig_body, $img_start, $img_st_close), $match)) {
-								Logger::log('scaling photo', Logger::DEBUG);
+								Logger::info('scaling photo');
 
 								$width = intval($match[1]);
 								$height = intval($match[2]);
@@ -2759,9 +2759,9 @@ class Item
 							$data = $photo_img->asString();
 							$type = $photo_img->getType();
 
-							Logger::log('replacing photo', Logger::DEBUG);
+							Logger::info('replacing photo');
 							$image = 'data:' . $type . ';base64,' . base64_encode($data);
-							Logger::log('replaced: ' . $image, Logger::DATA);
+							Logger::debug('replaced', ['image' => $image]);
 						}
 					}
 				}
@@ -3141,7 +3141,7 @@ class Item
 		if (!$onlyshadow) {
 			$result = DBA::insert('thread', $item);
 
-			Logger::log("Add thread for item ".$itemid." - ".print_r($result, true), Logger::DEBUG);
+			Logger::info('Add thread', ['item' => $itemid, 'result' => $result]);
 		}
 	}
 
@@ -3171,20 +3171,20 @@ class Item
 
 		$result = DBA::update('thread', $fields, ['iid' => $itemid]);
 
-		Logger::log("Update thread for item ".$itemid." - guid ".$item["guid"]." - ".(int)$result, Logger::DEBUG);
+		Logger::info('Update thread', ['item' => $itemid, 'guid' => $item["guid"], 'result' => $result]);
 	}
 
 	private static function deleteThread($itemid, $itemuri = "")
 	{
 		$item = DBA::selectFirst('thread', ['uid'], ['iid' => $itemid]);
 		if (!DBA::isResult($item)) {
-			Logger::log('No thread found for id '.$itemid, Logger::DEBUG);
+			Logger::info('No thread found', ['id' => $itemid]);
 			return;
 		}
 
 		$result = DBA::delete('thread', ['iid' => $itemid], ['cascade' => false]);
 
-		Logger::log("deleteThread: Deleted thread for item ".$itemid." - ".print_r($result, true), Logger::DEBUG);
+		Logger::info('Deleted thread', ['item' => $itemid, 'result' => $result]);
 
 		if ($itemuri != "") {
 			$condition = ["`uri` = ? AND NOT `deleted` AND NOT (`uid` IN (?, 0))", $itemuri, $item["uid"]];
