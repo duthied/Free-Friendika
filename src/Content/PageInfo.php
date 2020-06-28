@@ -176,7 +176,7 @@ class PageInfo
 
 		if (!$keywords) {
 			unset($data['keywords']);
-		} elseif ($keyword_denylist) {
+		} elseif ($keyword_denylist && !empty($data['keywords'])) {
 			$list = explode(', ', $keyword_denylist);
 
 			foreach ($list as $keyword) {
@@ -205,8 +205,14 @@ class PageInfo
 	{
 		$data = self::queryUrl($url, $photo, true, $keyword_denylist);
 
+		if (empty($data['keywords'])) {
+			return [];
+		}
+
 		$taglist = [];
+
 		foreach ($data['keywords'] as $keyword) {
+
 			$hashtag = str_replace([' ', '+', '/', '.', '#', "'"],
 				['', '', '', '', '', ''], $keyword);
 
