@@ -983,22 +983,7 @@ class BBCode
 					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}
 
-				// We only call this so that a previously unknown contact can be added.
-				// This is important for the function "Model\Contact::getDetailsByURL()".
-				// This function then can fetch an entry from the contact table.
-				$default['url'] = $attributes['profile'];
-
-				if (!empty($attributes['author'])) {
-					$default['name'] = $attributes['author'];
-				}
-
-				if (!empty($attributes['avatar'])) {
-					$default['photo'] = $attributes['avatar'];
-				}
-
-				Contact::getIdForURL($attributes['profile'], 0, true, $default);
-
-				$author_contact = Contact::getDetailsByURL($attributes['profile']);
+				$author_contact = Contact::getByURL($attributes['profile'], 0, ['url', 'addr', 'name', 'micro'], false);
 				$author_contact['url'] = ($author_contact['url'] ?? $attributes['profile']);
 				$author_contact['addr'] = ($author_contact['addr'] ?? '') ?: Protocol::getAddrFromProfileUrl($attributes['profile']);
 
@@ -1076,9 +1061,8 @@ class BBCode
 			default:
 				$text = ($is_quote_share? "\n" : '');
 
-				$authorId = Contact::getIdForURL($attributes['profile']);
-
-				$contact = Contact::getById($authorId, ['network']);
+				$contact = Contact::getByURL($attributes['profile'], 0, ['network'], false);
+				$network = $contact['network'] ?? Protocol::PHANTOM;
 
 				$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
 				$text .= Renderer::replaceMacros($tpl, [
@@ -1089,9 +1073,9 @@ class BBCode
 					'$link_title'   => DI::l10n()->t('link to source'),
 					'$posted'       => $attributes['posted'],
 					'$guid'         => $attributes['guid'],
-					'$network_name' => ContactSelector::networkToName($contact['network'], $attributes['profile']),
-					'$network_icon' => ContactSelector::networkToIcon($contact['network'], $attributes['profile']),
-					'$content'      => self::setMentions(trim($content), 0, $contact['network']),
+					'$network_name' => ContactSelector::networkToName($network, $attributes['profile']),
+					'$network_icon' => ContactSelector::networkToIcon($network, $attributes['profile']),
+					'$content'      => self::setMentions(trim($content), 0, $network),
 				]);
 				break;
 		}
