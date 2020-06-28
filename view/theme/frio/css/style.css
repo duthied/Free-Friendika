@@ -3122,6 +3122,10 @@ section.help-content-wrapper li {
     pointer-events: none;
 }
 
+#relocate-form {
+	margin-top: 5px;
+}
+
 /* Manage Page */
 #identity-selector-wrapper {
     width: auto;
