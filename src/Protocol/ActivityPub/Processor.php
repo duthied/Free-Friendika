@@ -385,8 +385,8 @@ class Processor
 
 		$item['location'] = $activity['location'];
 
-		if (!empty($item['latitude']) && !empty($item['longitude'])) {
-			$item['coord'] = $item['latitude'] . ' ' . $item['longitude'];
+		if (!empty($activity['latitude']) && !empty($activity['longitude'])) {
+			$item['coord'] = $activity['latitude'] . ' ' . $activity['longitude'];
 		}
 
 		$item['app'] = $activity['generator'];
