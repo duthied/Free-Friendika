@@ -210,9 +210,7 @@ class PageInfo
 		}
 
 		$taglist = [];
-
 		foreach ($data['keywords'] as $keyword) {
-
 			$hashtag = str_replace([' ', '+', '/', '.', '#', "'"],
 				['', '', '', '', '', ''], $keyword);
 
