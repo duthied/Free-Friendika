@@ -479,6 +479,11 @@ function notification($params)
 			'otype'         => $params['otype'] ?? '',
 		]);
 
+		// Notification insertion can be intercepted by an addon registering the 'enotify_store' hook
+		if (!$notification) {
+			return false;
+		}
+
 		$notification->msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $notification->link]);
 
 		DI::notify()->update($notification);
