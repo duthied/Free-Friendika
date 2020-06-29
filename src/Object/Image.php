@@ -456,7 +456,6 @@ class Image
 				break;
 		}
 
-		//	Logger::log('exif: ' . print_r($exif,true));
 		return $exif;
 	}
 

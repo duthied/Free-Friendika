@@ -1244,7 +1244,7 @@ function api_media_upload()
 				"image_type" => $media["type"],
 				"friendica_preview_url" => $media["preview"]];
 
-	Logger::log("Media uploaded: " . print_r($returndata, true), Logger::DEBUG);
+	Logger::info('Media uploaded', ['return' => $returndata]);
 
 	return ["media" => $returndata];
 }
@@ -2233,12 +2233,7 @@ function api_statuses_user_timeline($type)
 		throw new ForbiddenException();
 	}
 
-	Logger::log(
-		"api_statuses_user_timeline: api_user: ". api_user() .
-			"\nuser_info: ".print_r($user_info, true) .
-			"\n_REQUEST:  ".print_r($_REQUEST, true),
-		Logger::DEBUG
-	);
+	Logger::info('api_statuses_user_timeline', ['api_user' => api_user(), 'user_info' => $user_info, '_REQUEST' => $_REQUEST]);
 
 	$since_id        = $_REQUEST['since_id'] ?? 0;
 	$max_id          = $_REQUEST['max_id'] ?? 0;

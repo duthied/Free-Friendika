@@ -120,7 +120,7 @@ function salmon_post(App $a, $xml = '') {
 	$m = Strings::base64UrlDecode($key_info[1]);
 	$e = Strings::base64UrlDecode($key_info[2]);
 
-	Logger::log('key details: ' . print_r($key_info,true), Logger::DEBUG);
+	Logger::info('key details', ['info' => $key_info]);
 
 	$pubkey = Crypto::meToPem($m, $e);
 

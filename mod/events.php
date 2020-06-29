@@ -66,7 +66,7 @@ function events_init(App $a)
 function events_post(App $a)
 {
 
-	Logger::log('post: ' . print_r($_REQUEST, true), Logger::DATA);
+	Logger::debug('post', ['request' => $_REQUEST]);
 
 	if (!local_user()) {
 		return;

@@ -393,7 +393,7 @@ class Crypto
 			// log the offending call so we can track it down
 			if (!openssl_public_encrypt($key, $k, $pubkey)) {
 				$x = debug_backtrace();
-				Logger::log('RSA failed. ' . print_r($x[0], true));
+				Logger::notice('RSA failed', ['trace' => $x[0]]);
 			}
 
 			$result['alg'] = $alg;

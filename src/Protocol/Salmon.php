@@ -78,7 +78,7 @@ class Salmon
 		}
 
 
-		Logger::log('Key located: ' . print_r($ret, true));
+		Logger::notice('Key located', ['ret' => $ret]);
 
 		if (count($ret) == 1) {
 			// We only found one one key so we don't care if the hash matches.

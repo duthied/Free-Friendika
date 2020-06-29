@@ -294,37 +294,6 @@ class Diaspora
 	}
 
 	/**
-	 * repairs a signature that was double encoded
-	 *
-	 * The function is unused at the moment. It was copied from the old implementation.
-	 *
-	 * @param string  $signature The signature
-	 * @param string  $handle    The handle of the signature owner
-	 * @param integer $level     This value is only set inside this function to avoid endless loops
-	 *
-	 * @return string the repaired signature
-	 * @throws \Exception
-	 */
-	private static function repairSignature($signature, $handle = "", $level = 1)
-	{
-		if ($signature == "") {
-			return ($signature);
-		}
-
-		if (base64_encode(base64_decode(base64_decode($signature))) == base64_decode($signature)) {
-			$signature = base64_decode($signature);
-			Logger::log("Repaired double encoded signature from Diaspora/Hubzilla handle ".$handle." - level ".$level, Logger::DEBUG);
-
-			// Do a recursive call to be able to fix even multiple levels
-			if ($level < 10) {
-				$signature = self::repairSignature($signature, $handle, ++$level);
-			}
-		}
-
-		return($signature);
-	}
-
-	/**
 	 * verify the envelope and return the verified data
 	 *
 	 * @param string $envelope The magic envelope
@@ -542,7 +511,7 @@ class Diaspora
 		$basedom = XML::parseString($xml);
 
 		if (!is_object($basedom)) {
-			Logger::log("XML is not parseable.");
+			Logger::notice('XML is not parseable.');
 			return false;
 		}
 		$children = $basedom->children('https://joindiaspora.com/protocol');
@@ -556,7 +525,7 @@ class Diaspora
 		} else {
 			// This happens with posts from a relais
 			if (empty($privKey)) {
-				Logger::log("This is no private post in the old format", Logger::DEBUG);
+				Logger::info('This is no private post in the old format');
 				return false;
 			}
 
@@ -575,7 +544,7 @@ class Diaspora
 
 			$decrypted = self::aesDecrypt($outer_key, $outer_iv, $ciphertext);
 
-			Logger::log('decrypted: '.$decrypted, Logger::DEBUG);
+			Logger::info('decrypted', ['data' => $decrypted]);
 			$idom = XML::parseString($decrypted);
 
 			$inner_iv = base64_decode($idom->iv);
@@ -724,7 +693,7 @@ class Diaspora
 
 		$type = $fields->getName();
 
-		Logger::log("Received message type ".$type." from ".$sender." for user ".$importer["uid"], Logger::DEBUG);
+		Logger::info('Received message', ['type' => $type, 'sender' => $sender, 'user' => $importer["uid"]]);
 
 		switch ($type) {
 			case "account_migration":
@@ -816,7 +785,7 @@ class Diaspora
 		$data = XML::parseString($msg["message"]);
 
 		if (!is_object($data)) {
-			Logger::log("No valid XML ".$msg["message"], Logger::DEBUG);
+			Logger::info('No valid XML', ['message' => $msg['message']]);
 			return false;
 		}
 
@@ -928,7 +897,7 @@ class Diaspora
 		if (isset($parent_author_signature)) {
 			$key = self::key($msg["author"]);
 			if (empty($key)) {
-				Logger::log("No key found for parent author ".$msg["author"], Logger::DEBUG);
+				Logger::info('No key found for parent', ['author' => $msg["author"]]);
 				return false;
 			}
 
@@ -940,7 +909,7 @@ class Diaspora
 
 		$key = self::key($fields->author);
 		if (empty($key)) {
-			Logger::log("No key found for author ".$fields->author, Logger::DEBUG);
+			Logger::info('No key found', ['author' => $fields->author]);
 			return false;
 		}
 
@@ -994,7 +963,7 @@ class Diaspora
 		}
 
 		if (DBA::isResult($person)) {
-			Logger::debug("In cache " . print_r($person, true));
+			Logger::debug('In cache', ['person' => $person]);
 
 			if (is_null($update)) {
 				// update record occasionally so it doesn't get stale
@@ -1108,7 +1077,7 @@ class Diaspora
 	 */
 	public static function urlFromContactGuid($fcontact_guid)
 	{
-		Logger::log("fcontact guid is ".$fcontact_guid, Logger::DEBUG);
+		Logger::info('fcontact', ['guid' => $fcontact_guid]);
 
 		$r = q(
 			"SELECT `url` FROM `fcontact` WHERE `url` != '' AND `network` = '%s' AND `guid` = '%s'",
@@ -3427,7 +3396,7 @@ class Diaspora
 				"profile" => $profile,
 				"signature" => $signature];
 
-		Logger::log("Send account migration ".print_r($message, true), Logger::DEBUG);
+		Logger::info('Send account migration', ['msg' => $message]);
 
 		return self::buildAndTransmit($owner, $contact, "account_migration", $message);
 	}
@@ -3471,7 +3440,7 @@ class Diaspora
 				"following" => "true",
 				"sharing" => "true"];
 
-		Logger::log("Send share ".print_r($message, true), Logger::DEBUG);
+		Logger::info('Send share', ['msg' => $message]);
 
 		return self::buildAndTransmit($owner, $contact, "contact", $message);
 	}
@@ -3492,7 +3461,7 @@ class Diaspora
 				"following" => "false",
 				"sharing" => "false"];
 
-		Logger::log("Send unshare ".print_r($message, true), Logger::DEBUG);
+		Logger::info('Send unshare', ['msg' => $message]);
 
 		return self::buildAndTransmit($owner, $contact, "contact", $message);
 	}
@@ -4054,7 +4023,7 @@ class Diaspora
 
 		$message["parent_author_signature"] = self::signature($owner, $message);
 
-		Logger::log("Relayed data ".print_r($message, true), Logger::DEBUG);
+		Logger::info('Relayed data', ['msg' => $message]);
 
 		return self::buildAndTransmit($owner, $contact, $type, $message, $public_batch, $item["guid"]);
 	}
@@ -4089,7 +4058,7 @@ class Diaspora
 				"target_guid" => $item['guid'],
 				"target_type" => $target_type];
 
-		Logger::log("Got message ".print_r($message, true), Logger::DEBUG);
+		Logger::info('Got message', ['msg' => $message]);
 
 		return self::buildAndTransmit($owner, $contact, $msg_type, $message, $public_batch, $item["guid"]);
 	}
@@ -4330,7 +4299,7 @@ class Diaspora
 	{
 		$owner = User::getOwnerDataById($uid);
 		if (empty($owner)) {
-			Logger::log("No owner post, so not storing signature", Logger::DEBUG);
+			Logger::info('No owner post, so not storing signature');
 			return false;
 		}
 
@@ -4361,7 +4330,7 @@ class Diaspora
 	{
 		$owner = User::getOwnerDataById($uid);
 		if (empty($owner)) {
-			Logger::log("No owner post, so not storing signature", Logger::DEBUG);
+			Logger::info('No owner post, so not storing signature');
 			return false;
 		}
 

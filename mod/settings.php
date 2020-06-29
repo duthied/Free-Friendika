@@ -183,7 +183,7 @@ function settings_post(App $a)
 					intval($mail_pubmail),
 					intval(local_user())
 				);
-				Logger::log("mail: updating mailaccount. Response: ".print_r($r, true));
+				Logger::notice('updating mailaccount', ['response' => $r]);
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);

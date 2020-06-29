@@ -42,9 +42,9 @@ class Magic extends BaseModule
 	{
 		$a = DI::app();
 		$ret = ['success' => false, 'url' => '', 'message' => ''];
-		Logger::log('magic mdule: invoked', Logger::DEBUG);
+		Logger::info('magic mdule: invoked');
 
-		Logger::log('args: ' . print_r($_REQUEST, true), Logger::DATA);
+		Logger::debug('args', ['request' => $_REQUEST]);
 
 		$addr = $_REQUEST['addr'] ?? '';
 		$dest = $_REQUEST['dest'] ?? '';
@@ -73,7 +73,7 @@ class Magic extends BaseModule
 				return $ret;
 			}
 
-			Logger::log('Contact is already authenticated', Logger::DEBUG);
+			Logger::info('Contact is already authenticated');
 			System::externalRedirect($dest);
 		}
 

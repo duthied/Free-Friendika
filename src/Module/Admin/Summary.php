@@ -202,7 +202,7 @@ class Summary extends BaseAdmin
 		}
 		DBA::close($pageFlagsCountStmt);
 
-		Logger::log('accounts: ' . print_r($accounts, true), Logger::DATA);
+		Logger::debug('accounts', ['accounts' => $accounts]);
 
 		$pending = Register::getPendingCount();
 

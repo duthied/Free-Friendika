@@ -148,7 +148,7 @@ class Receive extends BaseModule
 		}
 
 		self::$logger->info('Diaspora: Post decoded.');
-		self::$logger->debug('Diaspora: Decoded message.', ['msg' => print_r($msg, true)]);
+		self::$logger->debug('Diaspora: Decoded message.', ['msg' => $msg]);
 
 		if (!is_array($msg)) {
 			throw new HTTPException\InternalServerErrorException('Message is not an array.');

@@ -214,7 +214,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$params['page'] = 2;
 		}
 
-		Logger::log('Confirm: posting data to ' . $dfrn_confirm . ': ' . print_r($params, true), Logger::DATA);
+		Logger::debug('Confirm: posting data', ['confirm'  => $dfrn_confirm, 'parameter' => $params]);
 
 		/*
 		 *
@@ -372,9 +372,9 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		$forum = (($page == 1) ? 1 : 0);
 		$prv   = (($page == 2) ? 1 : 0);
 
-		Logger::log('dfrn_confirm: requestee contacted: ' . $node);
+		Logger::notice('requestee contacted', ['node' => $node]);
 
-		Logger::log('dfrn_confirm: request: POST=' . print_r($_POST, true), Logger::DATA);
+		Logger::debug('request', ['POST' => $_POST]);
 
 		// If $aes_key is set, both of these items require unpacking from the hex transport encoding.
 
