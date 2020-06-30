@@ -1341,7 +1341,7 @@ class DFRN
 		}
 
 
-		Logger::log('dfrn_deliver: ' . "SENDING: " . print_r($postvars, true), Logger::DATA);
+		Logger::debug('dfrn_deliver', ['post' => $postvars]);
 
 		$postResult = Network::post($contact['notify'], $postvars);
 

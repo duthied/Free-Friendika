@@ -926,10 +926,10 @@ class Contact
 				return;
 			}
 		} elseif (!isset($contact['url'])) {
-			Logger::log('Empty contact: ' . json_encode($contact) . ' - ' . System::callstack(20), Logger::DEBUG);
+			Logger::info('Empty contact', ['contact' => $contact, 'callstack' => System::callstack(20)]);
 		}
 
-		Logger::log('Contact '.$contact['id'].' is marked for archival', Logger::DEBUG);
+		Logger::info('Contact is marked for archival', ['id' => $contact['id']]);
 
 		// Contact already archived or "self" contact? => nothing to do
 		if ($contact['archive'] || $contact['self']) {
@@ -988,7 +988,7 @@ class Contact
 			return;
 		}
 
-		Logger::log('Contact '.$contact['id'].' is marked as vital again', Logger::DEBUG);
+		Logger::info('Contact is marked as vital again', ['id' => $contact['id']]);
 
 		if (!isset($contact['url']) && !empty($contact['id'])) {
 			$fields = ['id', 'url', 'batch'];
@@ -1489,7 +1489,7 @@ class Contact
 	 */
 	public static function getIdForURL($url, $uid = 0, $no_update = false, $default = [], $in_loop = false)
 	{
-		Logger::log("Get contact data for url " . $url . " and user " . $uid . " - " . System::callstack(), Logger::DEBUG);
+		Logger::info('Get contact data', ['url' => $url, 'user' => $uid]);
 
 		$contact_id = 0;
 

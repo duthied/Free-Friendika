@@ -506,14 +506,14 @@ class BBCode
 							$Image->scaleDown(640);
 							$new_width = $Image->getWidth();
 							$new_height = $Image->getHeight();
-							Logger::log('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], Logger::DEBUG);
+							Logger::info('External images scaled', ['orig_width' => $orig_width, 'new_width' => $new_width, 'orig_height' => $orig_height, 'new_height' => $new_height, 'match' => $mtch[0]]);
 							$s = str_replace(
 								$mtch[0],
 								'[img=' . $new_width . 'x' . $new_height. ']' . $mtch[1] . '[/img]'
 								. "\n",
 								$s
 							);
-							Logger::log('scale_external_images: new string: ' . $s, Logger::DEBUG);
+							Logger::info('New string', ['image' => $s]);
 						}
 					}
 				}
@@ -541,7 +541,7 @@ class BBCode
 		// than the maximum, then don't waste time looking for the images
 		if ($maxlen && (strlen($body) > $maxlen)) {
 
-			Logger::log('the total body length exceeds the limit', Logger::DEBUG);
+			Logger::info('the total body length exceeds the limit', ['maxlen' => $maxlen, 'body_len' => strlen($body)]);
 
 			$orig_body = $body;
 			$new_body = '';
@@ -561,7 +561,7 @@ class BBCode
 
 					if (($textlen + $img_start) > $maxlen) {
 						if ($textlen < $maxlen) {
-							Logger::log('the limit happens before an embedded image', Logger::DEBUG);
+							Logger::info('the limit happens before an embedded image');
 							$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
 							$textlen = $maxlen;
 						}
@@ -575,7 +575,7 @@ class BBCode
 
 					if (($textlen + $img_end) > $maxlen) {
 						if ($textlen < $maxlen) {
-							Logger::log('the limit happens before the end of a non-embedded image', Logger::DEBUG);
+							Logger::info('the limit happens before the end of a non-embedded image');
 							$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
 							$textlen = $maxlen;
 						}
@@ -598,11 +598,11 @@ class BBCode
 
 			if (($textlen + strlen($orig_body)) > $maxlen) {
 				if ($textlen < $maxlen) {
-					Logger::log('the limit happens after the end of the last image', Logger::DEBUG);
+					Logger::info('the limit happens after the end of the last image');
 					$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
 				}
 			} else {
-				Logger::log('the text size with embedded images extracted did not violate the limit', Logger::DEBUG);
+				Logger::info('the text size with embedded images extracted did not violate the limit');
 				$new_body = $new_body . $orig_body;
 			}
 

@@ -30,9 +30,9 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
@@ -177,7 +177,7 @@ class Probe
 				$host_url = $host;
 			}
 		} elseif ($curlResult->isTimeout()) {
-			Logger::info('Probing timeout', ['url' => $ssl_url], Logger::DEBUG);
+			Logger::info('Probing timeout', ['url' => $ssl_url]);
 			self::$istimeout = true;
 			return [];
 		}
@@ -186,7 +186,7 @@ class Probe
 			$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			$connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 			if ($curlResult->isTimeout()) {
-				Logger::info('Probing timeout', ['url' => $url], Logger::DEBUG);
+				Logger::info('Probing timeout', ['url' => $url]);
 				self::$istimeout = true;
 				return [];
 			} elseif ($connection_error && $ssl_connection_error) {
@@ -199,13 +199,13 @@ class Probe
 			$host_url = 'http://'.$host;
 		}
 		if (!is_object($xrd)) {
-			Logger::log("No xrd object found for ".$host, Logger::DEBUG);
+			Logger::info('No xrd object found', ['host' => $host]);
 			return [];
 		}
 
 		$links = XML::elementToArray($xrd);
 		if (!isset($links["xrd"]["link"])) {
-			Logger::log("No xrd data found for ".$host, Logger::DEBUG);
+			Logger::info('No xrd data found', ['host' => $host]);
 			return [];
 		}
 
@@ -229,7 +229,7 @@ class Probe
 
 		self::$baseurl = $host_url;
 
-		Logger::log("Probing successful for ".$host, Logger::DEBUG);
+		Logger::info('Probing successful', ['host' => $host]);
 
 		return $lrdd;
 	}
@@ -260,7 +260,7 @@ class Probe
 		$profile_link = '';
 
 		$links = self::lrdd($webbie);
-		Logger::log('webfingerDfrn: '.$webbie.':'.print_r($links, true), Logger::DATA);
+		Logger::debug('Result', ['url' => $webbie, 'links' => $links]);
 		if (!empty($links) && is_array($links)) {
 			foreach ($links as $link) {
 				if ($link['@attributes']['rel'] === ActivityNamespace::DFRN) {
@@ -294,7 +294,7 @@ class Probe
 		$webfinger = $data['webfinger'];
 
 		if (empty($webfinger["links"])) {
-			Logger::log("No webfinger links found for ".$uri, Logger::DEBUG);
+			Logger::info('No webfinger links found', ['uri' => $uri]);
 			return [];
 		}
 
@@ -892,7 +892,7 @@ class Probe
 		}
 		if (!empty($json['public_forum'])) {
 			$data['community'] = $json['public_forum'];
-			$data['account-type'] = Contact::PAGE_COMMUNITY;
+			$data['account-type'] = User::PAGE_FLAGS_COMMUNITY;
 		}
 
 		if (!empty($json['profile'])) {
@@ -948,7 +948,7 @@ class Probe
 		$webfinger = json_decode($data, true);
 		if (!empty($webfinger)) {
 			if (!isset($webfinger["links"])) {
-				Logger::log("No json webfinger links for ".$url, Logger::DEBUG);
+				Logger::info('No json webfinger links', ['url' => $url]);
 				return [];
 			}
 			return $webfinger;
@@ -957,13 +957,13 @@ class Probe
 		// If it is not JSON, maybe it is XML
 		$xrd = XML::parseString($data, true);
 		if (!is_object($xrd)) {
-			Logger::log("No webfinger data retrievable for ".$url, Logger::DEBUG);
+			Logger::info('No webfinger data retrievable', ['url' => $url]);
 			return [];
 		}
 
 		$xrd_arr = XML::elementToArray($xrd);
 		if (!isset($xrd_arr["xrd"]["link"])) {
-			Logger::log("No XML webfinger links for ".$url, Logger::DEBUG);
+			Logger::info('No XML webfinger links', ['url' => $url]);
 			return [];
 		}
 
@@ -1014,13 +1014,13 @@ class Probe
 		}
 		$content = $curlResult->getBody();
 		if (!$content) {
-			Logger::log("Empty body for ".$noscrape_url, Logger::DEBUG);
+			Logger::info('Empty body', ['url' => $noscrape_url]);
 			return [];
 		}
 
 		$json = json_decode($content, true);
 		if (!is_array($json)) {
-			Logger::log("No json data for ".$noscrape_url, Logger::DEBUG);
+			Logger::info('No json data', ['url' => $noscrape_url]);
 			return [];
 		}
 
@@ -1134,7 +1134,7 @@ class Probe
 	{
 		$data = [];
 
-		Logger::log("Check profile ".$profile_link, Logger::DEBUG);
+		Logger::info('Check profile', ['link' => $profile_link]);
 
 		// Fetch data via noscrape - this is faster
 		$noscrape_url = str_replace(["/hcard/", "/profile/"], "/noscrape/", $profile_link);
@@ -1168,7 +1168,7 @@ class Probe
 		$prof_data["fn"]           = $data['name']    ?? null;
 		$prof_data["key"]          = $data['pubkey']  ?? null;
 
-		Logger::log("Result for profile ".$profile_link.": ".print_r($prof_data, true), Logger::DEBUG);
+		Logger::debug('Result', ['link' => $profile_link, 'data' => $prof_data]);
 
 		return $prof_data;
 	}
@@ -1919,7 +1919,7 @@ class Probe
 		}
 
 		$msgs = Email::poll($mbox, $uri);
-		Logger::log('searching '.$uri.', '.count($msgs).' messages found.', Logger::DEBUG);
+		Logger::info('Messages found', ['uri' => $uri, 'count' => count($msgs)]);
 
 		if (!count($msgs)) {
 			return [];
@@ -2002,7 +2002,7 @@ class Probe
 
 		$fixed = $scheme.$host.$port.$path.$query.$fragment;
 
-		Logger::log('Base: '.$base.' - Avatar: '.$avatar.' - Fixed: '.$fixed, Logger::DATA);
+		Logger::debug('Avatar fixed', ['base' => $base, 'avatar' => $avatar, 'fixed' => $fixed]);
 
 		return $fixed;
 	}

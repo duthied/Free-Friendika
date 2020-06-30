@@ -131,7 +131,7 @@ class CurlResult
 		$this->errorNumber = $errorNumber;
 		$this->error = $error;
 
-		Logger::log($url . ': ' . $this->returnCode . " " . $result, Logger::DATA);
+		Logger::debug('construct', ['url' => $url, 'returncode' => $this->returnCode, 'result' => $result]);
 
 		$this->parseBodyHeader($result);
 		$this->checkSuccess();
@@ -167,7 +167,7 @@ class CurlResult
 		}
 
 		if (!$this->isSuccess) {
-			Logger::error('error', ['url' => $this->url, 'code' => $this->returnCode, 'error'  => $this->error, 'callstack' => System::callstack(20)]);
+			Logger::notice('http error', ['url' => $this->url, 'code' => $this->returnCode, 'error'  => $this->error, 'callstack' => System::callstack(20)]);
 			Logger::debug('debug', ['info' => $this->info]);
 		}
 

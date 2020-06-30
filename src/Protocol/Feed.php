@@ -556,7 +556,7 @@ class Feed
 				$items[] = $item;
 				break;
 			} else {
-				Logger::info("Stored feed: " . print_r($item, true));
+				Logger::info('Stored feed', ['item' => $item]);
 
 				$notify = Item::isRemoteSelf($contact, $item);
 
