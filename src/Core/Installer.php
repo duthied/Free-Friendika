@@ -259,7 +259,7 @@ class Installer
 		$help = "";
 		if (!$passed) {
 			$help .= DI::l10n()->t('Could not find a command line version of PHP in the web server PATH.') . EOL;
-			$help .= DI::l10n()->t("If you don't have a command line version of PHP installed on your server, you will not be able to run the background processing. See <a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-worker'>'Setup the worker'</a>") . EOL;
+			$help .= DI::l10n()->t("If you don't have a command line version of PHP installed on your server, you will not be able to run the background processing. See <a href='https://github.com/friendica/friendica/blob/stable/doc/Install.md#set-up-the-worker'>'Setup the worker'</a>") . EOL;
 			$help .= EOL . EOL;
 			$tpl = Renderer::getMarkupTemplate('field_input.tpl');
 			/// @todo Separate backend Installer class and presentation layer/view

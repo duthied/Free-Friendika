@@ -30,7 +30,7 @@ use Friendica\Util\Network;
  * Check the git repository VERSION file and save the version to the DB
  *
  * Checking the upstream version is optional (opt-in) and can be done to either
- * the master or the develop branch in the repository.
+ * the stable or the develop branch in the repository.
  */
 class CheckVersion
 {
@@ -42,7 +42,8 @@ class CheckVersion
 
 		switch ($checkurl) {
 			case 'master':
-				$checked_url = 'https://raw.githubusercontent.com/friendica/friendica/master/VERSION';
+			case 'stable':
+				$checked_url = 'https://raw.githubusercontent.com/friendica/friendica/stable/VERSION';
 				break;
 			case 'develop':
 				$checked_url = 'https://raw.githubusercontent.com/friendica/friendica/develop/VERSION';

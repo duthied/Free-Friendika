@@ -19,9 +19,9 @@
  *
  *Handles communication associated with the issuance of friend requests.
  *
- * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
+ * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/stable/spec/dfrn2.pdf
  *    You also find a graphic which describes the confirmation process at
- *    https://github.com/friendica/friendica/blob/master/spec/dfrn2_contact_request.png
+ *    https://github.com/friendica/friendica/blob/stable/spec/dfrn2_contact_request.png
  */
 
 use Friendica\App;

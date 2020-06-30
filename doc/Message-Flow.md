@@ -4,7 +4,7 @@ Friendica Message Flow
 This page documents some of the details of how messages get from one person to another in the Friendica network.
 There are multiple paths, using multiple protocols and message formats.
 
-Those attempting to understand these message flows should become familiar with (at the minimum) the [DFRN protocol document](https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf) and the message passing elements of the OStatus stack (salmon and Pubsubhubbub).
+Those attempting to understand these message flows should become familiar with (at the minimum) the [DFRN protocol document](https://github.com/friendica/friendica/blob/stable/spec/dfrn2.pdf) and the message passing elements of the OStatus stack (salmon and Pubsubhubbub).
 
 Most message passing involves the file include/items.php, which has functions for several feed-related import/export activities. 
 
