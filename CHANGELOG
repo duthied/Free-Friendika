@@ -28,8 +28,8 @@ Version 2020.06 (unreleased)
     Added entities [nupplaphil]
 
   Friendica Addons:
-   Update to the translations (NB NO, NL, PL, RU, ZH CN) [translation teams]
-   Diaspora*:
+    Update to the translations (NB NO, NL, PL, RU, ZH CN) [translation teams]
+    Diaspora*:
       Enhanced conntector settings [MrPetovan]
     PHP Mailer SMTP:
       Updated phpmailer version [dependabot]
