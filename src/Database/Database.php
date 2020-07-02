@@ -1467,24 +1467,30 @@ class Database
 	/**
 	 * Select rows from a table
 	 *
+	 *
+	 * Example:
+	 * $table = 'item';
+	 * or:
+	 * $table = ['schema' => 'table'];
+	 * @see DBA::buildTableString()
+	 *
+	 * $fields = ['id', 'uri', 'uid', 'network'];
+	 *
+	 * $condition = ['uid' => 1, 'network' => 'dspr', 'blocked' => true];
+	 * or:
+	 * $condition = ['`uid` = ? AND `network` IN (?, ?)', 1, 'dfrn', 'dspr'];
+	 * @see DBA::buildCondition()
+	 *
+	 * $params = ['order' => ['id', 'received' => true, 'created' => 'ASC'), 'limit' => 10];
+	 * @see DBA::buildParameter()
+	 *
+	 * $data = DBA::select($table, $fields, $condition, $params);
+	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $fields    Array of selected fields, empty for all
 	 * @param array        $condition Array of fields for condition
 	 * @param array        $params    Array of several parameters
-	 *
 	 * @return boolean|object
-	 *
-	 * Example:
-	 * $table = "item";
-	 * $fields = array("id", "uri", "uid", "network");
-	 *
-	 * $condition = array("uid" => 1, "network" => 'dspr');
-	 * or:
-	 * $condition = array("`uid` = ? AND `network` IN (?, ?)", 1, 'dfrn', 'dspr');
-	 *
-	 * $params = array("order" => array("id", "received" => true), "limit" => 10);
-	 *
-	 * $data = DBA::select($table, $fields, $condition, $params);
 	 * @throws \Exception
 	 */
 	public function select($table, array $fields = [], array $condition = [], array $params = [])
