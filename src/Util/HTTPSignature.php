@@ -534,6 +534,14 @@ class HTTPSignature
 
 		$algorithm = null;
 
+		// Wildcard value where signing algorithm should be derived from keyId
+		// @see https://tools.ietf.org/html/draft-ietf-httpbis-message-signatures-00#section-4.1
+		// Defaulting to SHA256 as it seems to be the prevalent implementation
+		// @see https://arewehs2019yet.vpzom.click
+		if ($sig_block['algorithm'] === 'hs2019') {
+			$algorithm = 'sha256';
+		}
+
 		if ($sig_block['algorithm'] === 'rsa-sha256') {
 			$algorithm = 'sha256';
 		}
