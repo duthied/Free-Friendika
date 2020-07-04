@@ -423,7 +423,7 @@ function item_post(App $a) {
 
 	$original_contact_id = $contact_id;
 
-	if (!$toplevel_item_id && count($forum_contact) && ($private_forum || $only_to_forum)) {
+	if (!$toplevel_item_id && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
 		// we tagged a forum in a top level post. Now we change the post
 		$private = $private_forum;
 
@@ -745,8 +745,8 @@ function item_post(App $a) {
 	FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
 	// These notifications are sent if someone else is commenting other your wall
-	if ($toplevel_item_id) {
-		if ($contact_record != $author) {
+	if ($contact_record != $author) {
+		if ($toplevel_item_id) {
 			notification([
 				'type'         => Type::COMMENT,
 				'notify_flags' => $user['notify-flags'],
@@ -764,9 +764,7 @@ function item_post(App $a) {
 				'parent'       => $toplevel_item_id,
 				'parent_uri'   => $toplevel_item['uri']
 			]);
-		}
-	} else {
-		if (($contact_record != $author) && !count($forum_contact)) {
+		} elseif (empty($forum_contact)) {
 			notification([
 				'type'         => Type::WALL,
 				'notify_flags' => $user['notify-flags'],
