@@ -367,9 +367,9 @@ function item_post(App $a) {
 
 	// get contact info for owner
 	if ($profile_uid == local_user() || $allow_comment) {
-		$contact_record = $author;
+		$contact_record = $author ?: [];
 	} else {
-		$contact_record = DBA::selectFirst('contact', [], ['uid' => $profile_uid, 'self' => true]);
+		$contact_record = DBA::selectFirst('contact', [], ['uid' => $profile_uid, 'self' => true]) ?: [];
 	}
 
 	// Look for any tags and linkify them
@@ -564,9 +564,9 @@ function item_post(App $a) {
 	$datarray['gravity']       = $gravity;
 	$datarray['network']       = $network;
 	$datarray['contact-id']    = $contact_id;
-	$datarray['owner-name']    = $contact_record['name'];
-	$datarray['owner-link']    = $contact_record['url'];
-	$datarray['owner-avatar']  = $contact_record['thumb'];
+	$datarray['owner-name']    = $contact_record['name'] ?? '';
+	$datarray['owner-link']    = $contact_record['url'] ?? '';
+	$datarray['owner-avatar']  = $contact_record['thumb'] ?? '';
 	$datarray['owner-id']      = Contact::getIdForURL($datarray['owner-link']);
 	$datarray['author-name']   = $author['name'];
 	$datarray['author-link']   = $author['url'];
