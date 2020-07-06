@@ -59,7 +59,7 @@ console user - Modify user settings per console commands.
 Usage
 	bin/console user password <nickname> [<password>] [-h|--help|-?] [-v]
 	bin/console user add [<name> [<nickname> [<email> [<language>]]]] [-h|--help|-?] [-v]
-	bin/console user delete [<nickname>] [-q] [-h|--help|-?] [-v]
+	bin/console user delete [<nickname>] [-y] [-h|--help|-?] [-v]
 	bin/console user allow [<nickname>] [-h|--help|-?] [-v]
 	bin/console user deny [<nickname>] [-h|--help|-?] [-v]
 	bin/console user block [<nickname>] [-h|--help|-?] [-v]
@@ -78,8 +78,8 @@ Description
 
 Options
     -h|--help|-? Show help information
-    -v           Show more debug information.
-    -q           Quiet mode (don't ask for a command).
+    -v           Show more debug information
+    -y           Non-interactive mode, assume "yes" as answer to the user deletion prompt
 HELP;
 		return $help;
 	}
@@ -314,7 +314,7 @@ HELP;
 			return true;
 		}
 
-		if (!$this->getOption('q')) {
+		if (!$this->getOption('y')) {
 			$this->out($this->l10n->t('Type "yes" to delete %s', $nick));
 			if (CliPrompt::prompt() !== 'yes') {
 				throw new RuntimeException($this->l10n->t('Deletion aborted.'));
