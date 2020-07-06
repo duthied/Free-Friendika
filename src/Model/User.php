@@ -1321,6 +1321,7 @@ class User
 		$condition = [];
 		switch ($type) {
 			case 'active':
+				$condition['account_removed'] = false;
 				$condition['blocked'] = false;
 				break;
 			case 'blocked':
