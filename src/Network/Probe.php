@@ -342,7 +342,7 @@ class Probe
 		}
 
 		if (empty($network) || ($network == Protocol::ACTIVITYPUB)) {
-			$ap_profile = ActivityPub::probeProfile($uri, !$cache);
+			$ap_profile = ActivityPub::probeProfile($uri);
 		} else {
 			$ap_profile = [];
 		}
