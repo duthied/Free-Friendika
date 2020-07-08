@@ -617,10 +617,8 @@ class Event
 			}
 
 			$author_link = $event['author-link'];
-			$plink       = $event['plink'];
 
 			$event['author-link'] = Contact::magicLink($author_link);
-			$event['plink']       = Contact::magicLink($author_link, $plink);
 
 			$html = self::getHTML($event);
 			$event['summary']  = BBCode::convert(Strings::escapeHtml($event['summary']));
@@ -640,7 +638,7 @@ class Event
 				'is_first' => $is_first,
 				'item'     => $event,
 				'html'     => $html,
-				'plink'    => [$event['plink'], DI::l10n()->t('link to source'), '', ''],
+				'plink'    => Item::getPlink($event),
 			];
 		}
 
