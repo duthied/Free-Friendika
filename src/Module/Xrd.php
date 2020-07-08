@@ -85,6 +85,11 @@ class Xrd extends BaseModule
 
 		$owner = User::getOwnerDataById($user['uid']);
 
+		if (empty($owner)) {
+			DI::logger()->warning('No owner data for user id', ['uri' => $uri, 'name' => $name, 'user' => $user]);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
+		}
+
 		$alias = str_replace('/profile/', '/~', $owner['url']);
 
 		$avatar = Photo::selectFirst(['type'], ['uid' => $owner['uid'], 'profile' => true]);
