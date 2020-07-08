@@ -34,6 +34,7 @@ use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
+use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
@@ -48,6 +49,10 @@ class Status extends BaseProfile
 		$a = DI::app();
 
 		ProfileModel::load($a, $parameters['nickname']);
+
+		if (empty($a->profile)) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		}
 
 		if (!$a->profile['net-publish']) {
 			DI::page()['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
