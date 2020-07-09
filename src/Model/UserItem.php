@@ -75,7 +75,7 @@ class UserItem
 	private static function setNotificationForUser(array $item, int $uid)
 	{
 		$thread = Item::selectFirstThreadForUser($uid, ['ignored'], ['iid' => $item['parent'], 'deleted' => false]);
-		if ($thread['ignored']) {
+		if (!empty($thread['ignored'])) {
 			return;
 		}
 
