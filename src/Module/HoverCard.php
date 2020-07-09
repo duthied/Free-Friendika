@@ -26,7 +26,7 @@ use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
-use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Network\HTTPException;
 
 /**
  * Loads a profile for the HoverCard view
@@ -44,10 +44,14 @@ class HoverCard extends BaseModule
 			// Show the profile hovercard
 			$nickname = $parameters['profile'];
 		} else {
-			throw new NotFoundException(DI::l10n()->t('No profile'));
+			throw new HTTPException\NotFoundException(DI::l10n()->t('No profile'));
 		}
 
 		Profile::load($a, $nickname);
+
+		if (empty($a->profile)) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		}
 
 		$page = DI::page();
 
