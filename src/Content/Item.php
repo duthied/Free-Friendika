@@ -168,10 +168,17 @@ class Item
 					$contact = DBA::selectFirst('contact', $fields, ['id' => $tagcid, 'uid' => $profile_uid]);
 				}
 
-				// select someone by nick or attag in the current network
+				// select someone by nick in the current network
 				if (!DBA::isResult($contact) && ($network != '')) {
-					$condition = ["(`nick` = ? OR `attag` = ?) AND `network` = ? AND `uid` = ?",
-						$name, $name, $network, $profile_uid];
+					$condition = ["`nick` = ? AND `network` = ? AND `uid` = ?",
+						$name, $network, $profile_uid];
+					$contact = DBA::selectFirst('contact', $fields, $condition);
+				}
+
+				// select someone by attag in the current network
+				if (!DBA::isResult($contact) && ($network != '')) {
+					$condition = ["`attag` = ? AND `network` = ? AND `uid` = ?",
+						$name, $network, $profile_uid];
 					$contact = DBA::selectFirst('contact', $fields, $condition);
 				}
 
@@ -181,9 +188,15 @@ class Item
 					$contact = DBA::selectFirst('contact', $fields, $condition);
 				}
 
-				// select someone by nick or attag in any network
+				// select someone by nick in any network
 				if (!DBA::isResult($contact)) {
-					$condition = ["(`nick` = ? OR `attag` = ?) AND `uid` = ?", $name, $name, $profile_uid];
+					$condition = ["`nick` = ? AND `uid` = ?", $name, $profile_uid];
+					$contact = DBA::selectFirst('contact', $fields, $condition);
+				}
+
+				// select someone by attag in any network
+				if (!DBA::isResult($contact)) {
+					$condition = ["`attag` = ? AND `uid` = ?", $name, $profile_uid];
 					$contact = DBA::selectFirst('contact', $fields, $condition);
 				}
 

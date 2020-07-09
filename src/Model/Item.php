@@ -1838,7 +1838,7 @@ class Item
 		if (!Tag::existsForPost($item['uri-id'])) {
 			Tag::storeFromBody($item['uri-id'], $body);
 		}
-		
+
 		$ret = DBA::insert('item', $item);
 
 		// When the item was successfully stored we fetch the ID of the item.
@@ -2022,9 +2022,7 @@ class Item
 		}
 
 		if (empty($fields)) {
-			// when there are no fields at all, just use the condition
-			// This is to ensure that we always store content.
-			$fields = $condition;
+			return;
 		}
 
 		DBA::update('item-content', $fields, $condition, true);
