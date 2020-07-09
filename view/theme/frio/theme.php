@@ -224,7 +224,7 @@ function frio_remote_nav($a, &$nav)
 
 	// since $userinfo isn't available for the hook we write it to the nav array
 	// this isn't optimal because the contact query will be done now twice
-	if (local_user()) {
+	if (local_user() && !empty($a->user['uid'])) {
 		// empty the server url for local user because we won't need it
 		$server_url = '';
 		// user info

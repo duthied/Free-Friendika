@@ -27,7 +27,7 @@ function vier_init(App $a)
 
 	Renderer::setActiveTemplateEngine('smarty3');
 
-	if (!empty($a->argv[0]) && ($a->argv[0] . ($a->argv[1] ?? '')) === ('profile' . $a->user['nickname']) || $a->argv[0] === 'network' && local_user()) {
+	if (!empty($a->argv[0]) && ($a->argv[0] . ($a->argv[1] ?? '')) === ('profile' . ($a->user['nickname'] ?? '')) || $a->argv[0] === 'network' && local_user()) {
 		vier_community_info();
 
 		DI::page()['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
