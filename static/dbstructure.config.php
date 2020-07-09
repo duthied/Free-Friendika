@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1354);
+	define('DB_UPDATE_VERSION', 1355);
 }
 
 return [
@@ -195,6 +195,7 @@ return [
 			"addr_uid" => ["addr(32)", "uid"],
 			"nurl_uid" => ["nurl(32)", "uid"],
 			"nick_uid" => ["nick(32)", "uid"],
+			"attag_uid" => ["attag(32)", "uid"],
 			"dfrn-id" => ["dfrn-id(64)"],
 			"issued-id" => ["issued-id(64)"],
 			"gsid" => ["gsid"]
