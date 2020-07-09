@@ -2603,7 +2603,7 @@ class Diaspora
 
 		// Do we already have this item?
 		$fields = ['body', 'title', 'attach', 'app', 'created', 'object-type', 'uri', 'guid',
-			'author-name', 'author-link', 'author-avatar'];
+			'author-name', 'author-link', 'author-avatar', 'plink'];
 		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
 		$item = Item::selectFirst($fields, $condition);
 
@@ -2647,7 +2647,7 @@ class Diaspora
 
 			if ($stored) {
 				$fields = ['body', 'title', 'attach', 'app', 'created', 'object-type', 'uri', 'guid',
-					'author-name', 'author-link', 'author-avatar'];
+					'author-name', 'author-link', 'author-avatar', 'plink'];
 				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
 				$item = Item::selectFirst($fields, $condition);
 
@@ -2749,8 +2749,6 @@ class Diaspora
 			return false;
 		}
 
-		$orig_url = DI::baseUrl()."/display/".$original_item["guid"];
-
 		$datarray = [];
 
 		$datarray["uid"] = $importer["uid"];
@@ -2779,7 +2777,7 @@ class Diaspora
 			$original_item["author-name"],
 			$original_item["author-link"],
 			$original_item["author-avatar"],
-			$orig_url,
+			$original_item["plink"],
 			$original_item["created"],
 			$original_item["guid"]
 		);
