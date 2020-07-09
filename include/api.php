@@ -335,16 +335,16 @@ function api_call(App $a, App\Arguments $args = null)
 
 				if (!empty($info['auth']) && api_user() === false) {
 					api_login($a);
+					Logger::info(API_LOG_PREFIX . 'username {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username']]);
 				}
 
-				Logger::info(API_LOG_PREFIX . 'username {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username']]);
 				Logger::debug(API_LOG_PREFIX . 'parameters', ['module' => 'api', 'action' => 'call', 'parameters' => $_REQUEST]);
 
 				$stamp =  microtime(true);
 				$return = call_user_func($info['func'], $type);
 				$duration = floatval(microtime(true) - $stamp);
 
-				Logger::info(API_LOG_PREFIX . 'username {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username'], 'duration' => round($duration, 2)]);
+				Logger::info(API_LOG_PREFIX . 'duration {duration}', ['module' => 'api', 'action' => 'call', 'duration' => round($duration, 2)]);
 
 				DI::profiler()->saveLog(DI::logger(), API_LOG_PREFIX . 'performance');
 
