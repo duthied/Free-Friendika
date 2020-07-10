@@ -777,7 +777,7 @@ class Processor
 
 		$result = Contact::addRelationship($owner, $contact, $item, false, $note);
 		if ($result === true) {
-			ActivityPub\Transmitter::sendContactAccept($item['author-link'], $item['author-id'], $owner['uid']);
+			ActivityPub\Transmitter::sendContactAccept($item['author-link'], $activity['id'], $owner['uid']);
 		}
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
