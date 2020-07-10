@@ -609,8 +609,6 @@ class GContact
 	 */
 	public static function getId($contact)
 	{
-		$gcontact_id = 0;
-
 		if (empty($contact['network'])) {
 			Logger::notice('Empty network', ['url' => $contact['url'], 'callstack' => System::callstack()]);
 			return false;
@@ -630,33 +628,32 @@ class GContact
 			$contact['url'] = self::cleanContactUrl($contact['url']);
 		}
 
-		DBA::lock('gcontact');
-		$fields = ['id', 'last_contact', 'last_failure', 'network'];
-		$gcnt = DBA::selectFirst('gcontact', $fields, ['nurl' => Strings::normaliseLink($contact['url'])]);
-		if (DBA::isResult($gcnt)) {
-			$gcontact_id = $gcnt['id'];
-		} else {
-			$contact['location'] = $contact['location'] ?? '';
-			$contact['about'] = $contact['about'] ?? '';
-			$contact['generation'] = $contact['generation'] ?? 0;
-			$contact['hide'] = $contact['hide'] ?? true;
-
-			$fields = ['name' => $contact['name'], 'nick' => $contact['nick'] ?? '', 'addr' => $contact['addr'] ?? '', 'network' => $contact['network'],
-				'url' => $contact['url'], 'nurl' => Strings::normaliseLink($contact['url']), 'photo' => $contact['photo'],
-				'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(), 'location' => $contact['location'],
-				'about' => $contact['about'], 'hide' => $contact['hide'], 'generation' => $contact['generation']];
-
-			DBA::insert('gcontact', $fields);
-
-			$condition = ['nurl' => Strings::normaliseLink($contact['url'])];
-			$cnt = DBA::selectFirst('gcontact', ['id', 'network'], $condition, ['order' => ['id']]);
-			if (DBA::isResult($cnt)) {
-				$gcontact_id = $cnt['id'];
-			}
+		$condition = ['nurl' => Strings::normaliseLink($contact['url'])];
+		$gcontact = DBA::selectFirst('gcontact', ['id'], $condition, ['order' => ['id']]);
+		if (DBA::isResult($gcontact)) {
+			return $gcontact['id'];
 		}
-		DBA::unlock();
 
-		return $gcontact_id;
+		$contact['location'] = $contact['location'] ?? '';
+		$contact['about'] = $contact['about'] ?? '';
+		$contact['generation'] = $contact['generation'] ?? 0;
+		$contact['hide'] = $contact['hide'] ?? true;
+
+		$fields = ['name' => $contact['name'], 'nick' => $contact['nick'] ?? '', 'addr' => $contact['addr'] ?? '', 'network' => $contact['network'],
+			'url' => $contact['url'], 'nurl' => Strings::normaliseLink($contact['url']), 'photo' => $contact['photo'],
+			'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(), 'location' => $contact['location'],
+			'about' => $contact['about'], 'hide' => $contact['hide'], 'generation' => $contact['generation']];
+
+		DBA::insert('gcontact', $fields);
+
+		// We intentionally aren't using lastInsertId here. There is a chance for duplicates.
+		$gcontact = DBA::selectFirst('gcontact', ['id'], $condition, ['order' => ['id']]);
+		if (!DBA::isResult($gcontact)) {
+			Logger::info('GContact creation failed', $fields);
+			// Shouldn't happen
+			return 0;
+		}
+		return $gcontact['id'];
 	}
 
 	/**

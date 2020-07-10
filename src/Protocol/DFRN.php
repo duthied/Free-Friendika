@@ -1560,7 +1560,7 @@ class DFRN
 		if (DBA::isResult($contact_old) && !$onlyfetch) {
 			Logger::log("Check if contact details for contact " . $contact_old["id"] . " (" . $contact_old["nick"] . ") have to be updated.", Logger::DEBUG);
 
-			$poco = ["url" => $contact_old["url"]];
+			$poco = ["url" => $contact_old["url"], "network" => $contact_old["network"]];
 
 			// When was the last change to name or uri?
 			$name_element = $xpath->query($element . "/atom:name", $context)->item(0);
