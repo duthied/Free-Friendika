@@ -45,20 +45,22 @@ class System
 		array_shift($trace);
 
 		$callstack = [];
-		$previous = ['class' => '', 'function' => ''];
+		$previous = ['class' => '', 'function' => '', 'database' => false];
 
 		// The ignore list contains all functions that are only wrapper functions
 		$ignore = ['fetchUrl', 'call_user_func_array'];
 
 		while ($func = array_pop($trace)) {
 			if (!empty($func['class'])) {
-				// Don't show multiple calls from the "dba" class to show the essential parts of the callstack
-				if ((($previous['class'] != $func['class']) || ($func['class'] != 'Friendica\Database\DBA')) && ($previous['function'] != 'q')) {
+				// Don't show multiple calls from the Database classes to show the essential parts of the callstack
+				$func['database'] = in_array($func['class'], ['Friendica\Database\DBA', 'Friendica\Database\Database']);
+				if (!$previous['database'] || !$func['database']) {	
 					$classparts = explode("\\", $func['class']);
 					$callstack[] = array_pop($classparts).'::'.$func['function'];
 					$previous = $func;
 				}
 			} elseif (!in_array($func['function'], $ignore)) {
+				$func['database'] = ($func['function'] == 'q');
 				$callstack[] = $func['function'];
 				$func['class'] = '';
 				$previous = $func;
