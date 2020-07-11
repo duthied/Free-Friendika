@@ -1077,7 +1077,6 @@ class Contact
 		}
 
 		if (DBA::isResult($r)) {
-			$authoritativeResult = true;
 			// If there is more than one entry we filter out the connector networks
 			if (count($r) > 1) {
 				foreach ($r as $id => $result) {
@@ -1088,7 +1087,10 @@ class Contact
 			}
 
 			$profile = array_shift($r);
+		}
 
+		if (!empty($profile)) {
+			$authoritativeResult = true;
 			// "bd" always contains the upcoming birthday of a contact.
 			// "birthday" might contain the birthday including the year of birth.
 			if ($profile["birthday"] > DBA::NULL_DATE) {
