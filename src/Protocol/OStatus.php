@@ -2095,48 +2095,50 @@ class OStatus
 			$mentioned[$tag['url']] = $tag['url'];
 		}
 
-		// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
-		$newmentions = [];
-		foreach ($mentioned as $mention) {
-			$newmentions[str_replace("http://", "https://", $mention)] = str_replace("http://", "https://", $mention);
-			$newmentions[str_replace("https://", "http://", $mention)] = str_replace("https://", "http://", $mention);
-		}
-		$mentioned = $newmentions;
-
-		foreach ($mentioned as $mention) {
-			$contact = Contact::getByURL($mention, 0, ['contact-type']);
-			if (!empty($contact) && ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
-				XML::addElement($doc, $entry, "link", "",
-					[
-						"rel" => "mentioned",
-						"ostatus:object-type" => Activity\ObjectType::GROUP,
-						"href" => $mention]
-				);
-			} else {
-				XML::addElement($doc, $entry, "link", "",
-					[
-						"rel" => "mentioned",
-						"ostatus:object-type" => Activity\ObjectType::PERSON,
-						"href" => $mention]
-				);
+		if (!$feed_mode) {
+			// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
+			$newmentions = [];
+			foreach ($mentioned as $mention) {
+				$newmentions[str_replace("http://", "https://", $mention)] = str_replace("http://", "https://", $mention);
+				$newmentions[str_replace("https://", "http://", $mention)] = str_replace("https://", "http://", $mention);
 			}
-		}
+			$mentioned = $newmentions;
 
-		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-			XML::addElement($doc, $entry, "link", "", [
-				"rel" => "mentioned",
-				"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/group",
-				"href" => $owner['url']
-			]);
-		}
+			foreach ($mentioned as $mention) {
+				$contact = Contact::getByURL($mention, 0, ['contact-type']);
+				if (!empty($contact) && ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
+					XML::addElement($doc, $entry, "link", "",
+						[
+							"rel" => "mentioned",
+							"ostatus:object-type" => Activity\ObjectType::GROUP,
+							"href" => $mention]
+					);
+				} else {
+					XML::addElement($doc, $entry, "link", "",
+						[
+							"rel" => "mentioned",
+							"ostatus:object-type" => Activity\ObjectType::PERSON,
+							"href" => $mention]
+					);
+				}
+			}
 
-		if (($item['private'] != Item::PRIVATE) && !$feed_mode) {
-			XML::addElement($doc, $entry, "link", "", ["rel" => "ostatus:attention",
-									"href" => "http://activityschema.org/collection/public"]);
-			XML::addElement($doc, $entry, "link", "", ["rel" => "mentioned",
-									"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/collection",
-									"href" => "http://activityschema.org/collection/public"]);
-			XML::addElement($doc, $entry, "mastodon:scope", "public");
+			if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
+				XML::addElement($doc, $entry, "link", "", [
+					"rel" => "mentioned",
+					"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/group",
+					"href" => $owner['url']
+				]);
+			}
+
+			if ($item['private'] != Item::PRIVATE) {
+				XML::addElement($doc, $entry, "link", "", ["rel" => "ostatus:attention",
+										"href" => "http://activityschema.org/collection/public"]);
+				XML::addElement($doc, $entry, "link", "", ["rel" => "mentioned",
+										"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/collection",
+										"href" => "http://activityschema.org/collection/public"]);
+				XML::addElement($doc, $entry, "mastodon:scope", "public");
+			}
 		}
 
 		foreach ($tags as $tag) {
@@ -2147,7 +2149,7 @@ class OStatus
 
 		self::getAttachment($doc, $entry, $item);
 
-		if ($complete && ($item["id"] > 0)) {
+		if (!$feed_mode && $complete && ($item["id"] > 0)) {
 			$app = $item["app"];
 			if ($app == "") {
 				$app = "web";
@@ -2163,9 +2165,7 @@ class OStatus
 				XML::addElement($doc, $entry, "georss:point", $item["coord"]);
 			}
 
-			if (!$feed_mode) {
-				XML::addElement($doc, $entry, "statusnet:notice_info", "", $attributes);
-			}
+			XML::addElement($doc, $entry, "statusnet:notice_info", "", $attributes);
 		}
 	}
 
