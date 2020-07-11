@@ -57,7 +57,7 @@ class Objects extends BaseModule
 			['order' => ['origin' => true]]
 		);
 		// Valid items are original post or posted from this node (including in the case of a forum)
-		if (!DBA::isResult($item) || !$item['origin'] && !strstr($item['author-link'], DI::baseUrl()->get())) {
+		if (!DBA::isResult($item) || !$item['origin'] && (parse_url($item['author-link'], PHP_URL_HOST) != parse_url(DI::baseUrl()->get(), PHP_URL_HOST))) {
 			throw new HTTPException\NotFoundException();
 		}
 

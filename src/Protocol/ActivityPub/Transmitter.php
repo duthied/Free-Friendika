@@ -834,7 +834,7 @@ class Transmitter
 			}
 		}
 
-		$data = ActivityPub\Transmitter::createActivityFromItem($item_id);
+		$data = self::createActivityFromItem($item_id);
 
 		DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
 		return $data;
@@ -873,8 +873,21 @@ class Transmitter
 			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
 			if (DBA::isResult($conversation)) {
 				$data = json_decode($conversation['source'], true);
-				if (!empty($data)) {
-					return $data;
+				if (!empty($data['type'])) {
+					if (in_array($data['type'], ['Create', 'Update'])) {
+						if ($object_mode) {
+							unset($data['@context']);
+							unset($data['signature']);
+						}
+						return $data;
+					} elseif (in_array('as:' . $data['type'], Receiver::CONTENT_TYPES)) {
+						if (!empty($data['@context'])) {
+							$context = $data['@context'];
+							unset($data['@context']);
+						}
+						unset($data['actor']);
+						$object = $data;
+					}
 				}
 			}
 
@@ -882,7 +895,7 @@ class Transmitter
 		}
 
 		if (!$object_mode) {
-			$data = ['@context' => ActivityPub::CONTEXT];
+			$data = ['@context' => $context ?? ActivityPub::CONTEXT];
 
 			if ($item['deleted'] && ($item['gravity'] == GRAVITY_ACTIVITY)) {
 				$type = 'Undo';
@@ -909,7 +922,7 @@ class Transmitter
 		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
-			$data['object'] = self::createNote($item);
+			$data['object'] = $object ?? self::createNote($item);
 		} elseif ($data['type'] == 'Add') {
 			$data = self::createAddTag($item, $data);
 		} elseif ($data['type'] == 'Announce') {
