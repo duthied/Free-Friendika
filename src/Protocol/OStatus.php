@@ -2200,7 +2200,7 @@ class OStatus
 			$last_update = 'now -30 days';
 		}
 
-		$check_date = DateTimeFormat::utc($last_update);
+		$check_date = $feed_mode ? '' : DateTimeFormat::utc($last_update);
 		$authorid = Contact::getIdForURL($owner["url"], 0, true);
 
 		$condition = ["`uid` = ? AND `received` > ? AND NOT `deleted`
