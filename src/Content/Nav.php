@@ -187,7 +187,7 @@ class Nav
 					'name' => $a->user['username'],
 				];
 			} else {
-				DI::logger()->warning('Empty $a->user for local user'. ['local_user' => local_user(), '$a' => $a]);
+				DI::logger()->warning('Empty $a->user for local user', ['local_user' => local_user(), '$a' => $a]);
 			}
 		}
 
@@ -256,7 +256,7 @@ class Nav
 		}
 
 		// The following nav links are only show to logged in users
-		if (local_user()) {
+		if (local_user() && !empty($a->user)) {
 			$nav['network'] = ['network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
 
 			$nav['home'] = ['profile/' . $a->user['nickname'], DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];

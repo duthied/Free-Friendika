@@ -59,7 +59,7 @@ class Fetch extends BaseModule
 		if (empty($item)) {
 			$condition = ['guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
 			$item = Item::selectFirst(['author-link'], $condition);
-			if (empty($item)) {
+			if (!empty($item["author-link"])) {
 				$parts = parse_url($item["author-link"]);
 				if (empty($parts["scheme"]) || empty($parts["host"])) {
 					throw new HTTPException\InternalServerErrorException();
