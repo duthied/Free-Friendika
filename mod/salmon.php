@@ -79,7 +79,7 @@ function salmon_post(App $a, $xml = '') {
 	// stash away some other stuff for later
 
 	$type = $base->data[0]->attributes()->type[0];
-	$keyhash = $base->sig[0]->attributes()->keyhash[0];
+	$keyhash = $base->sig[0]->attributes()->keyhash[0] ?? '';
 	$encoding = $base->encoding;
 	$alg = $base->alg;
 
