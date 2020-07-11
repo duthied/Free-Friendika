@@ -79,6 +79,11 @@ class Acl extends BaseModule
 
 		$contacts = [];
 		foreach ($r as $g) {
+			if (empty($g['name'])) {
+				DI::logger()->warning('Wrong result item from Search::searchGlobalContact', ['$g' => $g, '$search' => $search, '$mode' => $mode, '$page' => $page]);
+				continue;
+			}
+
 			$contacts[] = [
 				'photo'   => ProxyUtils::proxifyUrl($g['photo'], false, ProxyUtils::SIZE_MICRO),
 				'name'    => htmlspecialchars($g['name']),
