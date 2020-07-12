@@ -1793,6 +1793,64 @@
             "time": "2017-01-10T01:03:05+00:00"
         },
         {
+            "name": "npm-asset/perfect-scrollbar",
+            "version": "0.6.16",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/perfect-scrollbar/-/perfect-scrollbar-0.6.16.tgz",
+                "shasum": "b1d61a5245cf3962bb9a8407a3fc669d923212fc"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/noraesae/perfect-scrollbar/issues"
+                },
+                "npm-asset-files": [
+                    "dist",
+                    "src",
+                    "index.js",
+                    "jquery.js",
+                    "perfect-scrollbar.d.ts"
+                ],
+                "npm-asset-main": "./index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/noraesae/perfect-scrollbar.git"
+                },
+                "npm-asset-scripts": {
+                    "test": "gulp",
+                    "before-deploy": "gulp && gulp compress",
+                    "release": "rm -rf dist && gulp && npm publish"
+                },
+                "npm-asset-engines": {
+                    "node": ">= 0.12.0"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hyunje Jun",
+                    "email": "me@noraesae.net"
+                },
+                {
+                    "name": "Hyunje Jun",
+                    "email": "me@noraesae.net"
+                }
+            ],
+            "description": "Minimalistic but perfect custom scrollbar plugin",
+            "homepage": "https://github.com/noraesae/perfect-scrollbar#readme",
+            "keywords": [
+                "frontend",
+                "jquery-plugin",
+                "scroll",
+                "scrollbar"
+            ],
+            "time": "2017-01-10T01:03:05+00:00"
+        },
+        {
             "name": "npm-asset/php-date-formatter",
             "version": "v1.3.6",
             "source": {
