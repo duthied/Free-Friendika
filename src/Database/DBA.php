@@ -648,6 +648,20 @@ class DBA
 	/**
 	 * Returns the SQL parameter string built from the provided parameter array
 	 *
+	 * Expected format for each key:
+	 *
+	 * group_by:
+	 *  - list of column names
+	 *
+	 * order:
+	 *  - numeric keyed column name => ASC
+	 *  - associative element with boolean value => DESC (true), ASC (false)
+	 *  - associative element with string value => 'ASC' or 'DESC' literally
+	 *
+	 * limit:
+	 *  - single numeric value => count
+	 *  - list with two numeric values => offset, count
+	 *
 	 * @param array $params
 	 * @return string
 	 */
@@ -665,7 +679,11 @@ class DBA
 				if ($order === 'RAND()') {
 					$order_string .= "RAND(), ";
 				} elseif (!is_int($fields)) {
-					$order_string .= self::quoteIdentifier($fields) . " " . ($order ? "DESC" : "ASC") . ", ";
+					if ($order !== 'DESC' && $order !== 'ASC') {
+						$order = $order ? 'DESC' : 'ASC';
+					}
+
+					$order_string .= self::quoteIdentifier($fields) . " " . $order . ", ";
 				} else {
 					$order_string .= self::quoteIdentifier($order) . ", ";
 				}
@@ -739,6 +757,17 @@ class DBA
 	public static function processlist()
 	{
 		return DI::dba()->processlist();
+	}
+
+	/**
+	 * Fetch a database variable
+	 *
+	 * @param string $name
+	 * @return string content
+	 */
+	public static function getVariable(string $name)
+	{
+		return DI::dba()->getVariable($name);
 	}
 
 	/**

@@ -36,6 +36,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Network\Probe;
@@ -81,7 +82,7 @@ function photos_init(App $a) {
 			'$photo' => $profile['photo'],
 			'$addr' => $profile['addr'] ?? '',
 			'$account_type' => $account_type,
-			'$about' => BBCode::convert($profile['about'] ?? ''),
+			'$about' => BBCode::convert($profile['about']),
 		]);
 
 		$albums = Photo::getAlbums($a->data['user']['uid']);
@@ -309,7 +310,7 @@ function photos_post(App $a)
 		$desc        = !empty($_POST['desc'])      ? Strings::escapeTags(trim($_POST['desc']))      : '';
 		$rawtags     = !empty($_POST['newtag'])    ? Strings::escapeTags(trim($_POST['newtag']))    : '';
 		$item_id     = !empty($_POST['item_id'])   ? intval($_POST['item_id'])                      : 0;
-		$albname     = !empty($_POST['albname'])   ? Strings::escapeTags(trim($_POST['albname']))   : '';
+		$albname     = !empty($_POST['albname'])   ? trim($_POST['albname'])                        : '';
 		$origaname   = !empty($_POST['origaname']) ? Strings::escapeTags(trim($_POST['origaname'])) : '';
 
 		$aclFormatter = DI::aclFormatter();
@@ -421,16 +422,14 @@ function photos_post(App $a)
 		}
 
 		if ($item_id) {
-			$item = Item::selectFirst(['tag', 'inform'], ['id' => $item_id, 'uid' => $page_owner_uid]);
+			$item = Item::selectFirst(['tag', 'inform', 'uri-id'], ['id' => $item_id, 'uid' => $page_owner_uid]);
 
 			if (DBA::isResult($item)) {
-				$old_tag    = $item['tag'];
 				$old_inform = $item['inform'];
 			}
 		}
 
 		if (strlen($rawtags)) {
-			$str_tags = '';
 			$inform   = '';
 
 			// if the new tag doesn't have a namespace specifier (@foo or #foo) give it a hashtag
@@ -510,30 +509,25 @@ function photos_post(App $a)
 
 						if ($profile) {
 							if (!empty($contact)) {
-								$taginfo[] = [$newname, $profile, $notify, $contact, '@[url=' . str_replace(',', '%2c', $profile) . ']' . $newname . '[/url]'];
+								$taginfo[] = [$newname, $profile, $notify, $contact];
 							} else {
-								$taginfo[] = [$newname, $profile, $notify, null, $str_tags .= '@[url=' . $profile . ']' . $newname . '[/url]'];
-							}
-
-							if (strlen($str_tags)) {
-								$str_tags .= ',';
+								$taginfo[] = [$newname, $profile, $notify, null];
 							}
 
 							$profile = str_replace(',', '%2c', $profile);
-							$str_tags .= '@[url=' . $profile . ']' . $newname . '[/url]';
+
+							if (!empty($item['uri-id'])) {
+								Tag::store($item['uri-id'], Tag::MENTION, $newname, $profile);
+							}	
 						}
 					} elseif (strpos($tag, '#') === 0) {
 						$tagname = substr($tag, 1);
-						$str_tags .= '#[url=' . DI::baseUrl() . "/search?tag=" . $tagname . ']' . $tagname . '[/url],';
+						if (!empty($item['uri-id'])) {
+							Tag::store($item['uri-id'], Tag::HASHTAG, $tagname);
+						}
 					}
 				}
 			}
-
-			$newtag = $old_tag ?? '';
-			if (strlen($newtag) && strlen($str_tags)) {
-				$newtag .= ',';
-			}
-			$newtag .= $str_tags;
 
 			$newinform = $old_inform ?? '';
 			if (strlen($newinform) && strlen($inform)) {
@@ -541,7 +535,7 @@ function photos_post(App $a)
 			}
 			$newinform .= $inform;
 
-			$fields = ['tag' => $newtag, 'inform' => $newinform, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
+			$fields = ['inform' => $newinform, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
 			$condition = ['id' => $item_id];
 			Item::update($fields, $condition);
 
@@ -585,7 +579,6 @@ function photos_post(App $a)
 					$arr['gravity']       = GRAVITY_PARENT;
 					$arr['object-type']   = Activity\ObjectType::PERSON;
 					$arr['target-type']   = Activity\ObjectType::IMAGE;
-					$arr['tag']           = $tagged[4];
 					$arr['inform']        = $tagged[2];
 					$arr['origin']        = 1;
 					$arr['body']          = DI::l10n()->t('%1$s was tagged in %2$s by %3$s', '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . DI::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . ']' . DI::l10n()->t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
@@ -615,10 +608,10 @@ function photos_post(App $a)
 	Hook::callAll('photo_post_init', $_POST);
 
 	// Determine the album to use
-	$album    = !empty($_REQUEST['album'])    ? Strings::escapeTags(trim($_REQUEST['album']))    : '';
-	$newalbum = !empty($_REQUEST['newalbum']) ? Strings::escapeTags(trim($_REQUEST['newalbum'])) : '';
+	$album    = trim($_REQUEST['album'] ?? '');
+	$newalbum = trim($_REQUEST['newalbum'] ?? '');
 
-	Logger::log('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , Logger::DEBUG);
+	Logger::info('album= ' . $album . ' newalbum= ' . $newalbum);
 
 	if (!strlen($album)) {
 		if (strlen($newalbum)) {
@@ -706,9 +699,7 @@ function photos_post(App $a)
 		return;
 	}
 
-	if ($type == "") {
-		$type = Images::guessType($filename);
-	}
+	$type = Images::getMimeTypeBySource($src, $filename, $type);
 
 	Logger::log('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', Logger::DEBUG);
 
@@ -787,7 +778,7 @@ function photos_post(App $a)
 
 	// Create item container
 	$lat = $lon = null;
-	if ($exif && $exif['GPS'] && Feature::isEnabled($page_owner_uid, 'photo_location')) {
+	if (!empty($exif['GPS']) && Feature::isEnabled($page_owner_uid, 'photo_location')) {
 		$lat = Photo::getGps($exif['GPS']['GPSLatitude'], $exif['GPS']['GPSLatitudeRef']);
 		$lon = Photo::getGps($exif['GPS']['GPSLongitude'], $exif['GPS']['GPSLongitudeRef']);
 	}
@@ -1296,7 +1287,7 @@ function photos_content(App $a)
 		}
 
 		if (!empty($link_item['parent']) && !empty($link_item['uid'])) {
-			$condition = ["`parent` = ? AND `parent` != `id`",  $link_item['parent']];
+			$condition = ["`parent` = ? AND `gravity` != ?",  $link_item['parent'], GRAVITY_PARENT];
 			$total = DBA::count('item', $condition);
 
 			$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
@@ -1316,8 +1307,9 @@ function photos_content(App $a)
 
 		$tags = null;
 
-		if (!empty($link_item['id']) && !empty($link_item['tag'])) {
-			$arr = explode(',', $link_item['tag']);
+		if (!empty($link_item['id'])) {
+			$tag_text = Tag::getCSVByURIId($link_item['uri-id']);
+			$arr = explode(',', $tag_text);
 			// parse tags and add links
 			$tag_arr = [];
 			foreach ($arr as $tag) {
@@ -1464,7 +1456,7 @@ function photos_content(App $a)
 
 					if (($activity->match($item['verb'], Activity::LIKE) ||
 					     $activity->match($item['verb'], Activity::DISLIKE)) &&
-					    ($item['id'] != $item['parent'])) {
+					    ($item['gravity'] != GRAVITY_PARENT)) {
 						continue;
 					}
 

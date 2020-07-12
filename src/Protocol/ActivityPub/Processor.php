@@ -32,8 +32,9 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -79,35 +80,6 @@ class Processor
 	}
 
 	/**
-	 * Constructs a string with tags for a given tag array
-	 *
-	 * @param array   $tags
-	 * @param boolean $sensitive
-	 * @return string with tags
-	 */
-	private static function constructTagString(array $tags = null, $sensitive = false)
-	{
-		if (empty($tags)) {
-			return '';
-		}
-
-		$tag_text = '';
-		foreach ($tags as $tag) {
-			if (in_array($tag['type'] ?? '', ['Mention', 'Hashtag'])) {
-				if (!empty($tag_text)) {
-					$tag_text .= ',';
-				}
-
-				$tag_text .= substr($tag['name'], 0, 1) . '[url=' . $tag['href'] . ']' . substr($tag['name'], 1) . '[/url]';
-			}
-		}
-
-		/// @todo add nsfw for $sensitive
-
-		return $tag_text;
-	}
-
-	/**
 	 * Add attachment data to the item array
 	 *
 	 * @param array   $activity
@@ -122,39 +94,54 @@ class Processor
 		}
 
 		foreach ($activity['attachments'] as $attach) {
-			$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
-			if ($filetype == 'image') {
-				if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-					continue;
-				}
+			switch ($attach['type']) {
+				case 'link':
+					// Only one [attachment] tag is allowed
+					$existingAttachmentPos = strpos($item['body'], '[attachment');
+					if ($existingAttachmentPos !== false) {
+						$linkTitle = $attach['title'] ?: $attach['url'];
+						// Additional link attachments are prepended before the existing [attachment] tag
+						$item['body'] = substr_replace($item['body'], "\n[bookmark=" . $attach['url'] . ']' . $linkTitle . "[/bookmark]\n", $existingAttachmentPos, 0);
+					} else {
+						// Strip the link preview URL from the end of the body if any
+						$quotedUrl = preg_quote($attach['url'], '#');
+						$item['body'] = preg_replace("#\s*(?:\[bookmark={$quotedUrl}].+?\[/bookmark]|\[url={$quotedUrl}].+?\[/url]|\[url]{$quotedUrl}\[/url]|{$quotedUrl})\s*$#", '', $item['body']);
+						$item['body'] .= "\n[attachment type='link' url='" . $attach['url'] . "' title='" . htmlspecialchars($attach['title'] ?? '', ENT_QUOTES) . "' image='" . ($attach['image'] ?? '') . "']" . ($attach['desc'] ?? '') . '[/attachment]';
+					}
+					break;
+				default:
+					$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
+					if ($filetype == 'image') {
+						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
+							continue 2;
+						}
 
-				if (empty($attach['name'])) {
-					$item['body'] .= "\n[img]" . $attach['url'] . '[/img]';
-				} else {
-					$item['body'] .= "\n[img=" . $attach['url'] . ']' . $attach['name'] . '[/img]';
-				}
-			} elseif ($filetype == 'audio') {
-				if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-					continue;
-				}
+						if (empty($attach['name'])) {
+							$item['body'] .= "\n[img]" . $attach['url'] . '[/img]';
+						} else {
+							$item['body'] .= "\n[img=" . $attach['url'] . ']' . $attach['name'] . '[/img]';
+						}
+					} elseif ($filetype == 'audio') {
+						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
+							continue 2;
+						}
 
-				$item['body'] .= "\n[audio]" . $attach['url'] . '[/audio]';
-			} elseif ($filetype == 'video') {
-				if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-					continue;
-				}
+						$item['body'] .= "\n[audio]" . $attach['url'] . '[/audio]';
+					} elseif ($filetype == 'video') {
+						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
+							continue 2;
+						}
 
-				$item['body'] .= "\n[video]" . $attach['url'] . '[/video]';
-			} else {
-				if (!empty($item["attach"])) {
-					$item["attach"] .= ',';
-				} else {
-					$item["attach"] = '';
-				}
-				if (!isset($attach['length'])) {
-					$attach['length'] = "0";
-				}
-				$item["attach"] .= '[attach]href="'.$attach['url'].'" length="'.$attach['length'].'" type="'.$attach['mediaType'].'" title="'.($attach['name'] ?? '') .'"[/attach]';
+						$item['body'] .= "\n[video]" . $attach['url'] . '[/video]';
+					} else {
+						if (!empty($item["attach"])) {
+							$item["attach"] .= ',';
+						} else {
+							$item["attach"] = '';
+						}
+
+						$item["attach"] .= '[attach]href="' . $attach['url'] . '" length="' . ($attach['length'] ?? '0') . '" type="' . $attach['mediaType'] . '" title="' . ($attach['name'] ?? '') . '"[/attach]';
+					}
 			}
 		}
 
@@ -169,9 +156,10 @@ class Processor
 	 */
 	public static function updateItem($activity)
 	{
-		$item = Item::selectFirst(['uri', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
+		$item = Item::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
-			Logger::warning('Unknown item', ['uri' => $activity['id']]);
+			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
+			self::createItem($activity);
 			return;
 		}
 
@@ -231,7 +219,7 @@ class Processor
 	{
 		$owner = Contact::getIdForURL($activity['actor']);
 
-		Logger::log('Deleting item ' . $activity['object_id'] . ' from ' . $owner, Logger::DEBUG);
+		Logger::info('Deleting item', ['object' => $activity['object_id'], 'owner'  => $owner]);
 		Item::markForDeletion(['uri' => $activity['object_id'], 'owner-id' => $owner]);
 	}
 
@@ -249,7 +237,7 @@ class Processor
 		}
 
 		foreach ($activity['receiver'] as $receiver) {
-			$item = Item::selectFirst(['id', 'tag', 'origin', 'author-link'], ['uri' => $activity['target_id'], 'uid' => $receiver]);
+			$item = Item::selectFirst(['id', 'uri-id', 'tag', 'origin', 'author-link'], ['uri' => $activity['target_id'], 'uid' => $receiver]);
 			if (!DBA::isResult($item)) {
 				// We don't fetch missing content for this purpose
 				continue;
@@ -260,15 +248,8 @@ class Processor
 				continue;
 			}
 
-			// To-Do:
-			// - Check if "blocktag" is set
-			// - Check if actor is a contact
-
-			if (!stristr($item['tag'], trim($activity['object_content']))) {
-				$tag = $item['tag'] . (strlen($item['tag']) ? ',' : '') . '#[url=' . $activity['object_id'] . ']'. $activity['object_content'] . '[/url]';
-				Item::update(['tag' => $tag], ['id' => $item['id']]);
-				Logger::info('Tagged item', ['id' => $item['id'], 'tag' => $activity['object_content'], 'uri' => $activity['target_id'], 'actor' => $activity['actor']]);
-			}
+			Tag::store($item['uri-id'], Tag::HASHTAG, $activity['object_content'], $activity['object_id']);
+			Logger::info('Tagged item', ['id' => $item['id'], 'tag' => $activity['object_content'], 'uri' => $activity['target_id'], 'actor' => $activity['actor']]);
 		}
 	}
 
@@ -355,7 +336,7 @@ class Processor
 		}
 
 		$event_id = Event::store($event);
-		Logger::log('Event '.$event_id.' was stored', Logger::DEBUG);
+		Logger::info('Event was stored', ['id' => $event_id]);
 	}
 
 	/**
@@ -383,35 +364,47 @@ class Processor
 
 			if (empty($activity['directmessage']) && ($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
 				$item_private = !in_array(0, $activity['item_receiver']);
-				$parent = Item::selectFirst(['id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
+				$parent = Item::selectFirst(['id', 'uri-id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
 				if (!DBA::isResult($parent)) {
 					Logger::warning('Unknown parent item.', ['uri' => $item['thr-parent']]);
 					return false;
 				}
-				if ($item_private && ($parent['private'] == Item::PRIVATE)) {
+				if ($item_private && ($parent['private'] != Item::PRIVATE)) {
 					Logger::warning('Item is private but the parent is not. Dropping.', ['item-uri' => $item['uri'], 'thr-parent' => $item['thr-parent']]);
 					return false;
 				}
 
-				$potential_implicit_mentions = self::getImplicitMentionList($parent);
-				$content = self::removeImplicitMentionsFromBody($content, $potential_implicit_mentions);
-				$activity['tags'] = self::convertImplicitMentionsInTags($activity['tags'], $potential_implicit_mentions);
+				$content = self::removeImplicitMentionsFromBody($content, $parent);
 			}
 			$item['content-warning'] = HTML::toBBCode($activity['summary']);
 			$item['body'] = $content;
 		}
 
-		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
+		self::storeFromBody($item);
+		self::storeTags($item['uri-id'], $activity['tags']);
 
 		$item['location'] = $activity['location'];
 
-		if (!empty($item['latitude']) && !empty($item['longitude'])) {
-			$item['coord'] = $item['latitude'] . ' ' . $item['longitude'];
+		if (!empty($activity['latitude']) && !empty($activity['longitude'])) {
+			$item['coord'] = $activity['latitude'] . ' ' . $activity['longitude'];
 		}
 
 		$item['app'] = $activity['generator'];
 
 		return $item;
+	}
+
+	/**
+	 * Store hashtags and mentions
+	 *
+	 * @param array $item
+	 */
+	private static function storeFromBody(array $item)
+	{
+		// Make sure to delete all existing tags (can happen when called via the update functionality)
+		DBA::delete('post-tag', ['uri-id' => $item['uri-id']]);
+
+		Tag::storeFromBody($item['uri-id'], $item['body'], '@!');
 	}
 
 	/**
@@ -494,7 +487,10 @@ class Processor
 
 		$item['created'] = DateTimeFormat::utc($activity['published']);
 		$item['edited'] = DateTimeFormat::utc($activity['updated']);
-		$item['guid'] = $activity['diaspora:guid'] ?: $activity['sc:identifier'] ?: self::getGUIDByURL($item['uri']);
+		$guid = $activity['sc:identifier'] ?: self::getGUIDByURL($item['uri']);
+		$item['guid'] = $activity['diaspora:guid'] ?: $guid;
+
+		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
@@ -565,9 +561,53 @@ class Processor
 			$author = APContact::getByURL($item['owner-link'], false);
 			// We send automatic follow requests for reshared messages. (We don't need though for forum posts)
 			if ($author['type'] != 'Group') {
-				Logger::log('Send follow request for ' . $item['uri'] . ' (' . $stored . ') to ' . $item['author-link'], Logger::DEBUG);
+				Logger::info('Send follow request', ['uri' => $item['uri'], 'stored' => $stored, 'to' => $item['author-link']]);
 				ActivityPub\Transmitter::sendFollowObject($item['uri'], $item['author-link']);
 			}
+		}
+	}
+
+	/**
+	 * Store tags and mentions into the tag table
+	 *
+	 * @param integer $uriid
+	 * @param array $tags
+	 */
+	private static function storeTags(int $uriid, array $tags = null)
+	{
+		foreach ($tags as $tag) {
+			if (empty($tag['name']) || empty($tag['type']) || !in_array($tag['type'], ['Mention', 'Hashtag'])) {
+				continue;
+			}
+
+			$hash = substr($tag['name'], 0, 1);
+
+			if ($tag['type'] == 'Mention') {
+				if (in_array($hash, [Tag::TAG_CHARACTER[Tag::MENTION],
+					Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION],
+					Tag::TAG_CHARACTER[Tag::IMPLICIT_MENTION]])) {
+					$tag['name'] = substr($tag['name'], 1);
+				}
+				$type = Tag::IMPLICIT_MENTION;
+
+				if (!empty($tag['href'])) {
+					$apcontact = APContact::getByURL($tag['href']);
+					if (!empty($apcontact['name']) || !empty($apcontact['nick'])) {
+						$tag['name'] = $apcontact['name'] ?: $apcontact['nick'];
+					}
+				}
+			} elseif ($tag['type'] == 'Hashtag') {
+				if ($hash == Tag::TAG_CHARACTER[Tag::HASHTAG]) {
+					$tag['name'] = substr($tag['name'], 1);
+				}
+				$type = Tag::HASHTAG;
+			}
+
+			if (empty($tag['name'])) {
+				continue;
+			}
+
+			Tag::store($uriid, $type, $tag['name'], $tag['href']);
 		}
 	}
 
@@ -620,7 +660,7 @@ class Processor
 					$title = $matches[3];
 				}
 
-				$title = trim(HTML::toPlaintext(BBCode::convert($title, false, 2, true), 0));
+				$title = trim(HTML::toPlaintext(BBCode::convert($title, false, BBCode::API, true), 0));
 
 				if (strlen($title) > 20) {
 					$title = substr($title, 0, 20) . '...';
@@ -737,7 +777,7 @@ class Processor
 
 		$result = Contact::addRelationship($owner, $contact, $item, false, $note);
 		if ($result === true) {
-			ActivityPub\Transmitter::sendContactAccept($item['author-link'], $item['author-id'], $owner['uid']);
+			ActivityPub\Transmitter::sendContactAccept($item['author-link'], $activity['id'], $owner['uid']);
 		}
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
@@ -764,7 +804,7 @@ class Processor
 			return;
 		}
 
-		Logger::log('Updating profile for ' . $activity['object_id'], Logger::DEBUG);
+		Logger::info('Updating profile', ['object' => $activity['object_id']]);
 		Contact::updateFromProbeByURL($activity['object_id'], true);
 	}
 
@@ -777,12 +817,12 @@ class Processor
 	public static function deletePerson($activity)
 	{
 		if (empty($activity['object_id']) || empty($activity['actor'])) {
-			Logger::log('Empty object id or actor.', Logger::DEBUG);
+			Logger::info('Empty object id or actor.');
 			return;
 		}
 
 		if ($activity['object_id'] != $activity['actor']) {
-			Logger::log('Object id does not match actor.', Logger::DEBUG);
+			Logger::info('Object id does not match actor.');
 			return;
 		}
 
@@ -792,7 +832,7 @@ class Processor
 		}
 		DBA::close($contacts);
 
-		Logger::log('Deleted contact ' . $activity['object_id'], Logger::DEBUG);
+		Logger::info('Deleted contact', ['object' => $activity['object_id']]);
 	}
 
 	/**
@@ -811,7 +851,7 @@ class Processor
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			Logger::log('No contact found for ' . $activity['actor'], Logger::DEBUG);
+			Logger::info('No contact found', ['actor' => $activity['actor']]);
 			return;
 		}
 
@@ -826,7 +866,7 @@ class Processor
 
 		$condition = ['id' => $cid];
 		DBA::update('contact', $fields, $condition);
-		Logger::log('Accept contact request from contact ' . $cid . ' for user ' . $uid, Logger::DEBUG);
+		Logger::info('Accept contact request', ['contact' => $cid, 'user' => $uid]);
 	}
 
 	/**
@@ -845,7 +885,7 @@ class Processor
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			Logger::log('No contact found for ' . $activity['actor'], Logger::DEBUG);
+			Logger::info('No contact found', ['actor' => $activity['actor']]);
 			return;
 		}
 
@@ -853,9 +893,9 @@ class Processor
 
 		if (DBA::exists('contact', ['id' => $cid, 'rel' => Contact::SHARING])) {
 			Contact::remove($cid);
-			Logger::log('Rejected contact request from contact ' . $cid . ' for user ' . $uid . ' - contact had been removed.', Logger::DEBUG);
+			Logger::info('Rejected contact request - contact removed', ['contact' => $cid, 'user' => $uid]);
 		} else {
-			Logger::log('Rejected contact request from contact ' . $cid . ' for user ' . $uid . '.', Logger::DEBUG);
+			Logger::info('Rejected contact request', ['contact' => $cid, 'user' => $uid]);
 		}
 	}
 
@@ -902,7 +942,7 @@ class Processor
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
-			Logger::log('No contact found for ' . $activity['actor'], Logger::DEBUG);
+			Logger::info('No contact found', ['actor' => $activity['actor']]);
 			return;
 		}
 
@@ -914,7 +954,7 @@ class Processor
 		}
 
 		Contact::removeFollower($owner, $contact);
-		Logger::log('Undo following request from contact ' . $cid . ' for user ' . $uid, Logger::DEBUG);
+		Logger::info('Undo following request', ['contact' => $cid, 'user' => $uid]);
 	}
 
 	/**
@@ -945,16 +985,12 @@ class Processor
 	 */
 	private static function getImplicitMentionList(array $parent)
 	{
-		if (DI::config()->get('system', 'disable_implicit_mentions')) {
-			return [];
-		}
-
-		$parent_terms = Term::tagArrayFromItemId($parent['id'], [Term::MENTION, Term::IMPLICIT_MENTION]);
+		$parent_terms = Tag::getByURIId($parent['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
 		$parent_author = Contact::getDetailsByURL($parent['author-link'], 0);
 
 		$implicit_mentions = [];
-		if (empty($parent_author)) {
+		if (empty($parent_author['url'])) {
 			Logger::notice('Author public contact unknown.', ['author-link' => $parent['author-link'], 'item-id' => $parent['id']]);
 		} else {
 			$implicit_mentions[] = $parent_author['url'];
@@ -968,7 +1004,7 @@ class Processor
 
 		foreach ($parent_terms as $term) {
 			$contact = Contact::getDetailsByURL($term['url'], 0);
-			if (!empty($contact)) {
+			if (!empty($contact['url'])) {
 				$implicit_mentions[] = $contact['url'];
 				$implicit_mentions[] = $contact['nurl'];
 				$implicit_mentions[] = $contact['alias'];
@@ -982,14 +1018,16 @@ class Processor
 	 * Strips from the body prepended implicit mentions
 	 *
 	 * @param string $body
-	 * @param array $potential_mentions
+	 * @param array $parent
 	 * @return string
 	 */
-	private static function removeImplicitMentionsFromBody($body, array $potential_mentions)
+	private static function removeImplicitMentionsFromBody(string $body, array $parent)
 	{
 		if (DI::config()->get('system', 'disable_implicit_mentions')) {
 			return $body;
 		}
+
+		$potential_mentions = self::getImplicitMentionList($parent);
 
 		$kept_mentions = [];
 
@@ -1006,25 +1044,5 @@ class Processor
 		$kept_mentions[] = $body;
 
 		return implode('', $kept_mentions);
-	}
-
-	private static function convertImplicitMentionsInTags($activity_tags, array $potential_mentions)
-	{
-		if (DI::config()->get('system', 'disable_implicit_mentions')) {
-			return $activity_tags;
-		}
-
-		foreach ($activity_tags as $index => $tag) {
-			if (in_array($tag['href'], $potential_mentions)) {
-				$activity_tags[$index]['name'] = preg_replace(
-					'/' . preg_quote(Term::TAG_CHARACTER[Term::MENTION], '/') . '/',
-					Term::TAG_CHARACTER[Term::IMPLICIT_MENTION],
-					$activity_tags[$index]['name'],
-					1
-				);
-			}
-		}
-
-		return $activity_tags;
 	}
 }

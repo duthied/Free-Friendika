@@ -56,13 +56,13 @@ body a[name]:not([href]) {
     visibility: hidden;
 }
 
-body a:hover, .btn-link:hover, .btn:hover,
-body a:focus, .btn-link:focus, .btn:focus,
-body a:active, .btn-link:active, .btn:active,
-body a.active, .btn-link.active, .btn.active {
+body a:hover, .btn-link:hover,
+body a:focus, .btn-link:focus,
+body a:active, .btn-link:active,
+body a.active, .btn-link.active {
     color: $link_hover_color;
+	outline-color: $link_hover_color;;
     text-decoration: none;
-    outline: none;
 }
 
 .wall-item-container a:hover {
@@ -197,8 +197,8 @@ blockquote {
     padding: 8px 16px;
     color: inherit;
 }
-a.btn:hover {
-    color: #333;
+.btn:focus {
+	outline-color: $link_hover_color;
 }
 
 .btn-default {
@@ -219,17 +219,17 @@ a.btn:hover {
     padding: 1px 5px;
     font-size: 12px;
 }
-.btn-primary {
-    background: $nav_bg !important;
-    color: $btn_primary_color !important;
+.btn.btn-primary {
+    background: $nav_bg;
+    color: $btn_primary_color;
 }
-.btn-primary:hover, .btn-primary:focus {
+.btn.btn-primary:hover, .btn.btn-primary:focus {
+	color: $btn_primary_color;
     background: $btn_primary_hover_color;
     text-decoration: none;
 }
-.btn-primary:active, .btn-primary.active {
-    outline: 0;
-    background: $btn_primary_hover_color !important;
+.btn.btn-primary:active, .btn.btn-primary.active {
+    background: $btn_primary_hover_color;
 }
 
 .btn-primary.active.focus, .btn-primary.active:focus, .btn-primary.active:hover,
@@ -262,31 +262,7 @@ a.btn:hover {
 .btn-separator {
     border-left: 1px solid #777;
 }
-/*.btn-info {
-    background: #6fdbe8;
-    color: #fff!important;
-}
-.btn-info:hover, .btn-info:focus {
-    background: #59d6e4!important;
-    text-decoration: none;
-}
-.btn-info:active, .btn-info.active {
-    outline: 0;
-    background: #59d6e4;
-}*/
 
-.btn-main {
-    background: $link_color;
-    color: #fff!important;
-}
-.btn-main:hover, .btn-main:focus {
-    background: $link_hover_color !important;
-    text-decoration: none;
-}
-.btn-main:active, .btn-main.active {
-    outline: 0;
-    background: $link_hover_color;
-}
 .toggle.btn {
     border: 1px solid transparent;
 }
@@ -391,6 +367,7 @@ header #banner #logo-img,
 }
 #navbrand-container #navbar-brand-text {
     padding-left: 5px;
+	color: $nav_icon_color;
 }
 
 /* NavBar */
@@ -1342,6 +1319,10 @@ section #jotOpen {
 #jot-modal .modal-header {
     border-bottom: none;
 }
+#jot-modal .modal-header .compose-link {
+	float: right;
+	margin-right: 20px;
+}
 #jot-title-wrap, #jot-category-wrap {
     margin-bottom: 5px;
 }
@@ -1766,19 +1747,24 @@ aside .panel-body {
 }
 
 /* wall-item content elements */
-.shared-wrapper,
+.shared-wrapper {
+	position: relative;
+	margin-top: 10px;
+	margin-bottom: 0;
+}
 .vevent {
     padding: 10px;
     box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .1) inset, 0 1px 1px rgba(0, 0, 0, .05);
 }
 @media screen and (max-width: 767px) {
-    .shared-wrapper,
     .vevent {
-    margin-left: 0px;
-    margin-right: 0px;
+		margin-left: 0px;
+		margin-right: 0px;
     }
+	.shared-wrapper {
+		margin: 5px -10px 0;
+	}
 }
-.shared-wrapper:hover,
 .vevent:hover {
     box-shadow: 0 0 0 1.5px rgba(0, 0, 0, .15) inset, 0 1px 1px rgba(0, 0, 0, .05);
 }
@@ -1873,9 +1859,7 @@ code > .hl-main {
 }
 .wall-item-actions .active {
     font-weight: bold;
-}
-.wall-item-actions .active:hover {
-    color: $link_color;
+	color: $link_color;
 }
 .wall-item-actions-left {
     display: table-cell;
@@ -1936,7 +1920,7 @@ code > .hl-main {
 /*
 * Comments
 */
-.well {
+wall-item-comment-wrapper.well {
     border: none;
     box-shadow: none;
     /*background-color: #ededed;*/
@@ -1944,14 +1928,14 @@ code > .hl-main {
     background-image: none;
     margin-bottom: 1px;
 }
-.well-small {
+wall-item-comment-wrapper.well-small {
     padding: 10px;
     border-radius: 3px;
 }
-.well hr {
+wall-item-comment-wrapper.well hr {
     border-top: 1px solid #d9d9d9;
 }
-.wall-entry .well {
+.wall-entry wall-item-comment-wrapper.well {
     margin-bottom: 0;
 }
 .comment-container {
@@ -2197,19 +2181,13 @@ ul.dropdown-menu li:hover {
     box-shadow: none;
 }
 .form-control:focus {
-    /*border: 2px solid #6fdbe8;*/
     border: 2px solid $link_color;
-    outline: 0;
     box-shadow: none;
 }
 
-
 .checkbox input[type="checkbox"]:focus + label::before,
-.checkbox input[type="radio"]:focus + label::before {
-    /*border: 2px solid #6fdbe8;*/
-    border: 2px solid $link_color;
-    outline: 0;
-    box-shadow: none;
+.radio input[type="radio"]:focus + label::before {
+	outline-color: $link_hover_color;
 }
 
 /* Search form */
@@ -2269,7 +2247,7 @@ ul.dropdown-menu li:hover {
  * PAGES
  *********/
 
-.generic-page-wrapper, .videos-content-wrapper,
+section > .generic-page-wrapper, .videos-content-wrapper,
  .suggest-content-wrapper, .common-content-wrapper, .help-content-wrapper,
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
 .delegation-content-wrapper, .notes-content-wrapper,
@@ -2605,14 +2583,6 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .photo-album-actions .photos-order-link {
     float: right;
 }
-/* poke */
-#poke-desc {
-    margin: 5px 0 30px;
-}
-#poke-wrapper-end {
-    clear: both;
-}
-
 /* Events page */
 
 .fc .fc-month-view .fc-content .fc-title .item-desc:hover {
@@ -2832,11 +2802,6 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     margin-bottom: 20px;
 }
 
-.panel-group-settings > .panel,
-.panel-group-settings > form > .panel {
-    padding-left: 10px;
-    padding-right: 10px;
-}
 #profile-photo-upload-section {
     display: none;
     padding: 10px;
@@ -2875,7 +2840,7 @@ details.profile-jot-net[open] summary:before {
 
 /* Emulates Bootstrap display */
 .settings-block {
-    margin: 0 -15px 5px;
+    margin: 0 0 5px;
     color: #333;
     background-color: rgba(255,255,255,0.95);
     border-radius: 4px;
@@ -2902,6 +2867,12 @@ details.profile-jot-net[open] summary:before {
     padding: 0;
     color: $link_color;
     font-size: 18px;
+}
+
+.section-subtitle-wrapper > h2 {
+	font-size: 18px;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 .fakelink > h3:before {
@@ -3149,6 +3120,10 @@ section.help-content-wrapper li {
     height: 100px;
     visibility: hidden;
     pointer-events: none;
+}
+
+#relocate-form {
+	margin-top: 5px;
 }
 
 /* Manage Page */

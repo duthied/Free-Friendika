@@ -12,7 +12,7 @@
 			<a href="search/saved/remove?term={{$search.encodedterm}}&amp;return_url={{$return_url}}" title="{{$search.delete}}" onclick="return confirmDelete();" id="drop-saved-search-term-{{$search.id}}" class="savedsearchdrop pull-right widget-action faded-icon">
 				<i class="fa fa-trash" aria-hidden="true"></i>
 			</a>
-			<a href="search?q={{$search.encodedterm}}" id="saved-search-term-{{$search.id}}" class="savedsearchterm">{{$search.term}}</a>
+			<a href="{{$search.searchpath}}" id="saved-search-term-{{$search.id}}" class="savedsearchterm">{{$search.term}}</a>
 		</li>
 		{{/foreach}}
 	</ul>

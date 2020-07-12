@@ -195,66 +195,50 @@ class User
 	 */
 	public static function getOwnerDataById($uid, $check_valid = true)
 	{
-		$r = DBA::fetchFirst(
-			"SELECT
-			`contact`.*,
-			`user`.`prvkey` AS `uprvkey`,
-			`user`.`timezone`,
-			`user`.`nickname`,
-			`user`.`sprvkey`,
-			`user`.`spubkey`,
-			`user`.`page-flags`,
-			`user`.`account-type`,
-			`user`.`prvnets`,
-			`user`.`account_removed`,
-			`user`.`hidewall`
-			FROM `contact`
-			INNER JOIN `user`
-				ON `user`.`uid` = `contact`.`uid`
-			WHERE `contact`.`uid` = ?
-			AND `contact`.`self`
-			LIMIT 1",
-			$uid
-		);
-		if (!DBA::isResult($r)) {
-			return false;
+		$owner = DBA::selectFirst('owner-view', [], ['uid' => $uid]);
+		if (!DBA::isResult($owner)) {
+			if (!DBA::exists('user', ['uid' => $uid]) || !$check_valid) {
+				return false;
+			}
+			Contact::createSelfFromUserId($uid);
+			$owner = self::getOwnerDataById($uid, false);
 		}
 
-		if (empty($r['nickname'])) {
+		if (empty($owner['nickname'])) {
 			return false;
 		}
 
 		if (!$check_valid) {
-			return $r;
+			return $owner;
 		}
 
 		// Check if the returned data is valid, otherwise fix it. See issue #6122
 
 		// Check for correct url and normalised nurl
-		$url = DI::baseUrl() . '/profile/' . $r['nickname'];
-		$repair = ($r['url'] != $url) || ($r['nurl'] != Strings::normaliseLink($r['url']));
+		$url = DI::baseUrl() . '/profile/' . $owner['nickname'];
+		$repair = ($owner['url'] != $url) || ($owner['nurl'] != Strings::normaliseLink($owner['url']));
 
 		if (!$repair) {
 			// Check if "addr" is present and correct
-			$addr = $r['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
-			$repair = ($addr != $r['addr']);
+			$addr = $owner['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
+			$repair = ($addr != $owner['addr']);
 		}
 
 		if (!$repair) {
 			// Check if the avatar field is filled and the photo directs to the correct path
 			$avatar = Photo::selectFirst(['resource-id'], ['uid' => $uid, 'profile' => true]);
 			if (DBA::isResult($avatar)) {
-				$repair = empty($r['avatar']) || !strpos($r['photo'], $avatar['resource-id']);
+				$repair = empty($owner['avatar']) || !strpos($owner['photo'], $avatar['resource-id']);
 			}
 		}
 
 		if ($repair) {
 			Contact::updateSelfFromUserID($uid);
 			// Return the corrected data and avoid a loop
-			$r = self::getOwnerDataById($uid, false);
+			$owner = self::getOwnerDataById($uid, false);
 		}
 
-		return $r;
+		return $owner;
 	}
 
 	/**
@@ -839,9 +823,16 @@ class User
 			$photo_failure = false;
 
 			$filename = basename($photo);
-			$img_str = Network::fetchUrl($photo, true);
-			// guess mimetype from headers or filename
-			$type = Images::guessType($photo, true);
+			$curlResult = Network::curl($photo, true);
+			if ($curlResult->isSuccess()) {
+				$img_str = $curlResult->getBody();
+				$type = $curlResult->getContentType();
+			} else {
+				$img_str = '';
+				$type = '';
+			}
+
+			$type = Images::getMimeTypeByData($img_str, $photo, $type);
 
 			$Image = new Image($img_str, $type);
 			if ($Image->isValid()) {
@@ -1171,7 +1162,7 @@ class User
 		// unique), so it cannot be re-registered in the future.
 		DBA::insert('userd', ['username' => $user['nickname']]);
 
-		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
+		// The user and related data will be deleted in Friendica\Worker\CronJobs::expireAndRemoveUsers()
 		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc('now + 7 day')], ['uid' => $uid]);
 		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::REMOVAL, $uid);
 
@@ -1283,17 +1274,10 @@ class User
 			'active_users_monthly'  => 0,
 		];
 
-		$userStmt = DBA::p("SELECT `user`.`uid`, `user`.`login_date`, `contact`.`last-item`
-			FROM `user`
-			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
-			WHERE `user`.`verified`
-				AND `user`.`login_date` > ?
-				AND NOT `user`.`blocked`
-				AND NOT `user`.`account_removed`
-				AND NOT `user`.`account_expired`",
-				DBA::NULL_DATETIME
-		);
-
+		$userStmt = DBA::select('owner-view', ['uid', 'login_date', 'last-item'],
+			["`verified` AND `login_date` > ? AND NOT `blocked`
+			AND NOT `account_removed` AND NOT `account_expired`",
+			DBA::NULL_DATETIME]);
 		if (!DBA::isResult($userStmt)) {
 			return $statistics;
 		}
@@ -1314,6 +1298,7 @@ class User
 				$statistics['active_users_monthly']++;
 			}
 		}
+		DBA::close($userStmt);
 
 		return $statistics;
 	}
@@ -1325,39 +1310,28 @@ class User
 	 * @param int    $count Count of the items per page (Default is @see Pager::ITEMS_PER_PAGE)
 	 * @param string $type  The type of users, which should get (all, bocked, removed)
 	 * @param string $order Order of the user list (Default is 'contact.name')
-	 * @param string $order_direction Order direction (Default is ASC)
+	 * @param bool   $descending Order direction (Default is ascending)
 	 *
 	 * @return array The list of the users
 	 * @throws Exception
 	 */
-	public static function getList($start = 0, $count = Pager::ITEMS_PER_PAGE, $type = 'all', $order = 'contact.name', $order_direction = '+')
+	public static function getList($start = 0, $count = Pager::ITEMS_PER_PAGE, $type = 'all', $order = 'name', bool $descending = false)
 	{
-		$sql_order           = '`' . str_replace('.', '`.`', $order) . '`';
-		$sql_order_direction = ($order_direction === '+') ? 'ASC' : 'DESC';
-
+		$param = ['limit' => [$start, $count], 'order' => [$order => $descending]];
+		$condition = [];
 		switch ($type) {
 			case 'active':
-				$sql_extra = 'AND `user`.`blocked` = 0';
+				$condition['account_removed'] = false;
+				$condition['blocked'] = false;
 				break;
 			case 'blocked':
-				$sql_extra = 'AND `user`.`blocked` = 1';
+				$condition['blocked'] = true;
 				break;
 			case 'removed':
-				$sql_extra = 'AND `user`.`account_removed` = 1';
-				break;
-			case 'all':
-			default:
-				$sql_extra = '';
+				$condition['account_removed'] = true;
 				break;
 		}
 
-		$usersStmt = DBA::p("SELECT `user`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`account_expired`, `contact`.`last-item` AS `lastitem_date`, `contact`.`nick`, `contact`.`created`
-				FROM `user`
-				INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
-				WHERE `user`.`verified` $sql_extra
-				ORDER BY $sql_order $sql_order_direction LIMIT ?, ?", $start, $count
-		);
-
-		return DBA::toArray($usersStmt);
+		return DBA::selectToArray('owner-view', [], $condition, $param);
 	}
 }

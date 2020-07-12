@@ -40,7 +40,7 @@
 		</dl>
 	{{/if}}
 
-	{{if $profile.pubkey}}<div class="key u-key" style="display:none;">{{$profile.pubkey}}</div>{{/if}}
+	{{if $profile.upubkey}}<div class="key u-key" style="display:none;">{{$profile.upubkey}}</div>{{/if}}
 
 	{{if $contacts}}<div class="contacts" style="display:none;">{{$contacts}}</div>{{/if}}
 

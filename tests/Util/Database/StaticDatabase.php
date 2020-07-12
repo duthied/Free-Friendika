@@ -56,6 +56,8 @@ class StaticDatabase extends Database
 		$this->driver = 'pdo';
 		$this->connection = self::$staticConnection;
 		$this->connected = true;
+		$this->emulate_prepares = false;
+		$this->pdo_emulate_prepares = false;
 
 		return $this->connected;
 	}

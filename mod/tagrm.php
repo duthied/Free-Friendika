@@ -24,7 +24,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Util\Strings;
 
 function tagrm_post(App $a)
@@ -57,29 +57,24 @@ function tagrm_post(App $a)
  * @param $tags array
  * @throws Exception
  */
-function update_tags($item_id, $tags){
-	if (empty($item_id) || empty($tags)){
+function update_tags($item_id, $tags)
+{
+	if (empty($item_id) || empty($tags)) {
 		return;
 	}
 
-	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
+	$item = Item::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => local_user()]);
 	if (!DBA::isResult($item)) {
 		return;
 	}
 
-	$old_tags = explode(',', $item['tag']);
-
 	foreach ($tags as $new_tag) {
-		foreach ($old_tags as $index => $old_tag) {
-			if (strcmp($old_tag, $new_tag) == 0) {
-				unset($old_tags[$index]);
-				break;
+		if (preg_match_all('/([#@!])\[url\=([^\[\]]*)\]([^\[\]]*)\[\/url\]/ism', $new_tag, $results, PREG_SET_ORDER)) {
+			foreach ($results as $tag) {
+				Tag::removeByHash($item['uri-id'], $tag[1], $tag[3], $tag[2]);
 			}
 		}
 	}
-
-	$tag_str = implode(',', $old_tags);
-	Term::insertFromTagFieldByItemId($item_id, $tag_str);
 }
 
 function tagrm_content(App $a)
@@ -102,15 +97,16 @@ function tagrm_content(App $a)
 		// NOTREACHED
 	}
 
-	$item = Item::selectFirst(['tag'], ['id' => $item_id, 'uid' => local_user()]);
+	$item = Item::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => local_user()]);
 	if (!DBA::isResult($item)) {
 		DI::baseUrl()->redirect($_SESSION['photo_return']);
 	}
 
-	$arr = explode(',', $item['tag']);
+	$tag_text = Tag::getCSVByURIId($item['uri-id']);
 
+	$arr = explode(',', $tag_text);
 
-	if (empty($item['tag'])) {
+	if (empty($arr)) {
 		DI::baseUrl()->redirect($_SESSION['photo_return']);
 	}
 

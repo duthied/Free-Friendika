@@ -31,7 +31,6 @@ use Friendica\Util\Strings;
  */
 class Hashtag extends BaseModule
 {
-
 	public static function content(array $parameters = [])
 	{
 		$result = [];
@@ -41,12 +40,9 @@ class Hashtag extends BaseModule
 			System::jsonExit($result);
 		}
 
-		$taglist = DBA::p("SELECT DISTINCT(`term`) FROM `term` WHERE `term` LIKE ? AND `type` = ? ORDER BY `term`",
-			$t . '%',
-			intval(TERM_HASHTAG)
-		);
+		$taglist = DBA::select('tag', ['name'], ["`name` LIKE ?", $t . "%"], ['order' => ['name'], 'limit' => 100]);
 		while ($tag = DBA::fetch($taglist)) {
-			$result[] = ['text' => $tag['term']];
+			$result[] = ['text' => $tag['name']];
 		}
 		DBA::close($taglist);
 

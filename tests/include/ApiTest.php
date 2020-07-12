@@ -5,20 +5,12 @@
 
 namespace Friendica\Test;
 
-use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\PConfig\IPConfig;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
-use Friendica\Core\Session\ISession;
-use Friendica\Core\System;
-use Friendica\Database\Database;
-use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
-use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Util\Temporal;
 use Monolog\Handler\TestHandler;
 
@@ -30,7 +22,7 @@ require_once __DIR__ . '/../../include/api.php';
  * Functions that use header() need to be tested in a separate process.
  * @see https://phpunit.de/manual/5.7/en/appendixes.annotations.html#appendixes.annotations.runTestsInSeparateProcesses
  */
-class ApiTest extends DatabaseTest
+class ApiTest extends FixtureTest
 {
 	/**
 	 * @var TestHandler Can handle log-outputs
@@ -52,24 +44,12 @@ class ApiTest extends DatabaseTest
 	/** @var IConfig */
 	protected $config;
 
-	/** @var Dice */
-	protected $dice;
-
 	/**
 	 * Create variables used by tests.
 	 */
 	protected function setUp()
 	{
 		parent::setUp();
-
-		$this->dice = (new Dice())
-			->addRules(include __DIR__ . '/../../static/dependencies.config.php')
-			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
-			->addRule(ISession::class, ['instanceOf' => Session\Memory::class, 'shared' => true, 'call' => null]);
-		DI::init($this->dice);
-
-		/** @var Database $dba */
-		$dba = $this->dice->create(Database::class);
 
 		/** @var IConfig $config */
 		$this->config = $this->dice->create(IConfig::class);
@@ -85,8 +65,6 @@ class ApiTest extends DatabaseTest
 		$this->config->set('system', 'throttle_limit_month', 100);
 		$this->config->set('system', 'theme', 'system_theme');
 
-		// Load the API dataset for the whole API
-		$this->loadFixture(__DIR__ . '/../datasets/api.fixture.php', $dba);
 
 		/** @var App app */
 		$this->app = DI::app();
@@ -839,6 +817,22 @@ class ApiTest extends DatabaseTest
 	}
 
 	/**
+	 * Test the api_get_user() function with an empty Frio schema.
+	 *
+	 * @return void
+	 */
+	public function testApiGetUserWithEmptyFrioSchema()
+	{
+		$pConfig = $this->dice->create(IPConfig::class);
+		$pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
+		$user = api_get_user($this->app);
+		$this->assertSelfUser($user);
+		$this->assertEquals('708fa0', $user['profile_sidebar_fill_color']);
+		$this->assertEquals('6fdbe8', $user['profile_link_color']);
+		$this->assertEquals('ededed', $user['profile_background_color']);
+	}
+
+	/**
 	 * Test the api_get_user() function with a custom Frio schema.
 	 *
 	 * @return void
@@ -855,22 +849,6 @@ class ApiTest extends DatabaseTest
 		$this->assertEquals('123456', $user['profile_sidebar_fill_color']);
 		$this->assertEquals('123456', $user['profile_link_color']);
 		$this->assertEquals('123456', $user['profile_background_color']);
-	}
-
-	/**
-	 * Test the api_get_user() function with an empty Frio schema.
-	 *
-	 * @return void
-	 */
-	public function testApiGetUserWithEmptyFrioSchema()
-	{
-		$pConfig = $this->dice->create(IPConfig::class);
-		$pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
-		$user = api_get_user($this->app);
-		$this->assertSelfUser($user);
-		$this->assertEquals('708fa0', $user['profile_sidebar_fill_color']);
-		$this->assertEquals('6fdbe8', $user['profile_link_color']);
-		$this->assertEquals('ededed', $user['profile_background_color']);
 	}
 
 	/**
@@ -2849,61 +2827,6 @@ class ApiTest extends DatabaseTest
 	}
 
 	/**
-	 * Test the api_ff_ids() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFfIds()
-	{
-		$result = api_ff_ids('json', Contact::FOLLOWER);
-		$this->assertEquals(['id' => []], $result);
-	}
-
-	/**
-	 * Test the api_ff_ids() function with a result.
-	 *
-	 * @return void
-	 */
-	public function testApiFfIdsWithResult()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
-	 * Test the api_ff_ids() function without an authenticated user.
-	 *
-	 * @return void
-	 * @expectedException Friendica\Network\HTTPException\ForbiddenException
-	 */
-	public function testApiFfIdsWithoutAuthenticatedUser()
-	{
-		$_SESSION['authenticated'] = false;
-		api_ff_ids('json', Contact::FOLLOWER);
-	}
-
-	/**
-	 * Test the api_friends_ids() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFriendsIds()
-	{
-		$result = api_friends_ids('json');
-		$this->assertEquals(['id' => []], $result);
-	}
-
-	/**
-	 * Test the api_followers_ids() function.
-	 *
-	 * @return void
-	 */
-	public function testApiFollowersIds()
-	{
-		$result = api_followers_ids('json');
-		$this->assertEquals(['id' => []], $result);
-	}
-
-	/**
 	 * Test the api_direct_messages_new() function.
 	 *
 	 * @return void
@@ -3849,7 +3772,7 @@ class ApiTest extends DatabaseTest
 		$assertXml=<<<XML
 <?xml version="1.0"?>
 <notes>
-  <note id="1" hash="" type="8" name="Reply to" url="http://localhost/display/1" photo="http://localhost/" date="2020-01-01 12:12:02" msg="A test reply from an item" uid="42" link="http://localhost/notification/1" iid="4" parent="0" seen="0" verb="" otype="item" name_cache="" msg_cache="A test reply from an item" timestamp="1577880722" date_rel="{$dateRel}" msg_html="A test reply from an item" msg_plain="A test reply from an item"/>
+  <note id="1" hash="" type="8" name="Reply to" url="http://localhost/display/1" photo="http://localhost/" date="2020-01-01 12:12:02" msg="A test reply from an item" uid="42" uri-id="" link="http://localhost/notification/1" iid="4" parent="0" parent-uri-id="" seen="0" verb="" otype="item" name_cache="Reply to" msg_cache="A test reply from an item" timestamp="1577880722" date_rel="{$dateRel}" msg_html="A test reply from an item" msg_plain="A test reply from an item"/>
 </notes>
 XML;
 		$this->assertXmlStringEqualsXmlString($assertXml, $result);

@@ -72,7 +72,7 @@ This makes the software much easier to update.
 
 The Linux commands to clone the repository into a directory "mywebsite" would be
 
-    git clone https://github.com/friendica/friendica.git -b master mywebsite
+    git clone https://github.com/friendica/friendica.git -b stable mywebsite
     cd mywebsite
     bin/composer.phar install --no-dev
 
@@ -88,7 +88,7 @@ Get the addons by going into your website folder.
 
 Clone the addon repository (separately):
 
-    git clone https://github.com/friendica/friendica-addons.git -b master addon
+    git clone https://github.com/friendica/friendica-addons.git -b stable addon
 
 If you want to use the development version of Friendica you can switch to the develop branch in the repository by running
 
@@ -435,7 +435,7 @@ provided by one of our members.
 > 
 > This is obvious as soon as you notice that the friendica-cron uses `proc_open`
 > to execute PHP scripts that also use `proc_open`, but it took me quite some time to find that out.
-> I hope this saves some time for other people using suhosin with function blacklists.
+> I hope this saves some time for other people using suhosin with function blocklists.
 
 ### Unable to create all mysql tables on MySQL 5.7.17 or newer
 

@@ -43,7 +43,7 @@ At first you have to get the current version. You can either pull it from [Githu
 
     $> cd /var/www/virtual/YOURSPACE/html/addon; git pull
 
-Or you can download a tar archive here: [jappixmini.tgz](https://github.com/friendica/friendica-addons/blob/master/jappixmini.tgz) (click at „view raw“).
+Or you can download a tar archive here: [jappixmini.tgz](https://github.com/friendica/friendica-addons/blob/stable/jappixmini.tgz) (click at „view raw“).
 
 Just unpack the file and rename the directory to „jappixmini“.
 Next, upload this directory and the .tgz-file into your addon directory of your friendica installation.

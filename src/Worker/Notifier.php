@@ -32,8 +32,9 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
-use Friendica\Model\ItemDeliveryData;
+use Friendica\Model\Post;
 use Friendica\Model\PushSubscriber;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityPub;
@@ -165,7 +166,7 @@ class Notifier
 		if (!empty($target_item) && !empty($items)) {
 			$parent = $items[0];
 
-			$fields = ['network', 'author-id', 'author-link', 'owner-id'];
+			$fields = ['network', 'author-id', 'author-link', 'author-network', 'owner-id'];
 			$condition = ['uri' => $target_item["thr-parent"], 'uid' => $target_item["uid"]];
 			$thr_parent = Item::selectFirst($fields, $condition);
 			if (empty($thr_parent)) {
@@ -367,16 +368,11 @@ class Notifier
 				}
 
 				// Send a salmon notification to every person we mentioned in the post
-				$arr = explode(',',$target_item['tag']);
-				foreach ($arr as $x) {
-					//Logger::log('Checking tag '.$x, Logger::DEBUG);
-					$matches = null;
-					if (preg_match('/@\[url=([^\]]*)\]/',$x,$matches)) {
-							$probed_contact = Probe::uri($matches[1]);
-						if ($probed_contact["notify"] != "") {
-							Logger::log('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
-							$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
-						}
+				foreach (Tag::getByURIId($target_item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION]) as $tag) {
+					$probed_contact = Probe::uri($tag['url']);
+					if ($probed_contact["notify"] != "") {
+						Logger::log('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
+						$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 					}
 				}
 
@@ -441,7 +437,7 @@ class Notifier
 
 				// Fetch the participation list
 				// The function will ensure that there are no duplicates
-				$relay_list = Diaspora::participantsForThread($target_id, $relay_list);
+				$relay_list = Diaspora::participantsForThread($target_item, $relay_list);
 
 				// Add the relay to the list, avoid duplicates.
 				// Don't send community posts to the relay. Forum posts via the Diaspora protocol are looking ugly.
@@ -465,22 +461,27 @@ class Notifier
 					}
 
 					if (!empty($rr['addr']) && ($rr['network'] == Protocol::ACTIVITYPUB) && !DBA::exists('fcontact', ['addr' => $rr['addr']])) {
-						Logger::info('Contact is AP omly', ['target' => $target_id, 'contact' => $rr['url']]);
+						Logger::info('Contact is AP omly, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'contact' => $rr['url']]);
 						continue;
 					}
 
 					if (!empty($rr['id']) && Contact::isArchived($rr['id'])) {
-						Logger::info('Contact is archived', ['target' => $target_id, 'contact' => $rr['url']]);
+						Logger::info('Contact is archived, so skip delivery', ['target' => $target_id, 'contact' => $rr['url']]);
 						continue;
 					}
 
 					if (self::isRemovalActivity($cmd, $owner, $rr['network'])) {
-						Logger::log('Skipping dropping for ' . $rr['url'] . ' since the network supports account removal commands.', Logger::DEBUG);
+						Logger::info('Contact does no supports account removal commands, so skip delivery', ['target' => $target_id, 'contact' => $rr['url']]);
 						continue;
 					}
 
 					if (self::skipDFRN($rr, $target_item, $parent, $thr_parent, $cmd)) {
 						Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['id' => $target_id, 'url' => $rr['url']]);
+						continue;
+					}
+
+					if (self::skipActivityPubForDiaspora($rr, $target_item, $thr_parent)) {
+						Logger::info('Contact is from Diaspora, but the replied author is from ActivityPub, so skip delivery via Diaspora', ['id' => $target_id, 'url' => $rr['url']]);
 						continue;
 					}
 
@@ -515,22 +516,27 @@ class Notifier
 			}
 
 			if (!empty($contact['addr']) && ($contact['network'] == Protocol::ACTIVITYPUB) && !DBA::exists('fcontact', ['addr' => $contact['addr']])) {
-				Logger::info('Contact is AP omly', ['target' => $target_id, 'contact' => $contact['url']]);
+				Logger::info('Contact is AP omly, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'contact' => $contact['url']]);
 				continue;
 			}
 
 			if (!empty($contact['id']) && Contact::isArchived($contact['id'])) {
-				Logger::info('Contact is archived', ['target' => $target_id, 'contact' => $contact['url']]);
+				Logger::info('Contact is archived, so skip delivery', ['target' => $target_id, 'contact' => $contact['url']]);
 				continue;
 			}
 
 			if (self::isRemovalActivity($cmd, $owner, $contact['network'])) {
-				Logger::log('Skipping dropping for ' . $contact['url'] . ' since the network supports account removal commands.', Logger::DEBUG);
+				Logger::info('Contact does no supports account removal commands, so skip delivery', ['target' => $target_id, 'contact' => $contact['url']]);
 				continue;
 			}
 
 			if (self::skipDFRN($contact, $target_item, $parent, $thr_parent, $cmd)) {
 				Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'url' => $contact['url']]);
+				continue;
+			}
+
+			if (self::skipActivityPubForDiaspora($contact, $target_item, $thr_parent)) {
+				Logger::info('Contact is from Diaspora, but the replied author is from ActivityPub, so skip delivery via Diaspora', ['id' => $target_id, 'url' => $rr['url']]);
 				continue;
 			}
 
@@ -573,7 +579,7 @@ class Notifier
 				/// @TODO Redeliver/queue these items on failure, though there is no contact record
 				$delivery_queue_count++;
 				Salmon::slapper($owner, $url, $slap);
-				ItemDeliveryData::incrementQueueDone($target_id, ItemDeliveryData::OSTATUS);
+				Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Post\DeliveryData::OSTATUS);
 			}
 		}
 
@@ -595,15 +601,44 @@ class Notifier
 			// Workaround for pure connector posts
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				if ($delivery_queue_count == 0) {
-					ItemDeliveryData::incrementQueueDone($target_item['id']);
+					Post\DeliveryData::incrementQueueDone($target_item['uri-id']);
 					$delivery_queue_count = 1;
 				}
 
-				ItemDeliveryData::incrementQueueCount($target_item['id'], $delivery_queue_count);
+				Post\DeliveryData::incrementQueueCount($target_item['uri-id'], $delivery_queue_count);
 			}
 		}
 
 		return;
+	}
+
+	/**
+	 * Checks if the current delivery shouldn't be transported to Diaspora.
+	 * This is done for posts from AP authors or posts that are comments to AP authors.
+	 *
+	 * @param array  $contact    Receiver of the post
+	 * @param array  $item       The post
+	 * @param array  $thr_parent The thread parent
+	 * @return bool
+	 */
+	private static function skipActivityPubForDiaspora(array $contact, array $item, array $thr_parent)
+	{
+		// No skipping needs to be done when delivery isn't done to Diaspora
+		if ($contact['network'] != Protocol::DIASPORA) {
+			return false;
+		}
+
+		// Skip the delivery to Diaspora if the item is from an ActivityPub author
+		if ($item['author-network'] == Protocol::ACTIVITYPUB) {
+			return true;
+		}
+		
+		// Skip the delivery to Diaspora if the thread parent is from an ActivityPub author
+		if ($thr_parent['author-network'] == Protocol::ACTIVITYPUB) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

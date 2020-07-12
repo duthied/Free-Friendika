@@ -31,7 +31,9 @@ use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Register;
 use Friendica\Module\BaseAdmin;
+use Friendica\Module\Update\Profile;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Render\FriendicaSmarty;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -46,12 +48,35 @@ class Summary extends BaseAdmin
 
 		// are there MyISAM tables in the DB? If so, trigger a warning message
 		$warningtext = [];
+
+		$templateEngine = Renderer::getTemplateEngine();
+		$errors = [];
+		$templateEngine->testInstall($errors);
+		foreach ($errors as $error) {
+			$warningtext[] = DI::l10n()->t('Template engine (%s) error: %s', $templateEngine::$name, $error);
+		}
+
 		if (DBA::count(['information_schema' => 'tables'], ['engine' => 'myisam', 'table_schema' => DBA::databaseName()])) {
 			$warningtext[] = DI::l10n()->t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 		}
 
-		// Check if github.com/friendica/master/VERSION is higher then
-		// the local version of Friendica. Check is opt-in, source may be master or devel branch
+		// are there InnoDB tables in Antelope in the DB? If so, trigger a warning message
+		if (DBA::count(['information_schema' => 'tables'], ['ENGINE' => 'InnoDB', 'ROW_FORMAT' => ['COMPACT', 'REDUNDANT'], 'table_schema' => DBA::databaseName()])) {
+			$warningtext[] = DI::l10n()->t('Your DB still runs with InnoDB tables in the Antelope file format. You should change the file format to Barracuda. Friendica is using features that are not provided by the Antelope format. See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/innodb-file-format.html');
+		}
+
+		// Avoid the database error 1615 "Prepared statement needs to be re-prepared", see https://github.com/friendica/friendica/issues/8550
+		$table_definition_cache = DBA::getVariable('table_definition_cache');
+		$table_open_cache = DBA::getVariable('table_open_cache');
+		if (!empty($table_definition_cache) && !empty($table_open_cache)) {
+			$suggested_definition_cache = min(400 + round($table_open_cache / 2, 1), 2000);
+			if ($suggested_definition_cache > $table_definition_cache) {
+				$warningtext[] = DI::l10n()->t('Your table_definition_cache is too low (%d). This can lead to the database error "Prepared statement needs to be re-prepared". Please set it at least to %d (or -1 for autosizing). See <a href="%s">here</a> for more information.<br />', $table_definition_cache, $suggested_definition_cache, 'https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_table_definition_cache');
+			}
+		}
+
+		// Check if github.com/friendica/stable/VERSION is higher then
+		// the local version of Friendica. Check is opt-in, source may be stable or develop branch
 		if (DI::config()->get('system', 'check_new_version_url', 'none') != 'none') {
 			$gitversion = DI::config()->get('system', 'git_friendica_version');
 			if (version_compare(FRIENDICA_VERSION, $gitversion) < 0) {
@@ -121,7 +146,6 @@ class Summary extends BaseAdmin
 						throw new InternalServerErrorException('Stream is null.');
 					}
 				}
-
 			} catch (\Throwable $exception) {
 				$warningtext[] = DI::l10n()->t('The debug logfile \'%s\' is not usable. No logging possible (error: \'%s\')', $file, $exception->getMessage());
 			}
@@ -178,7 +202,7 @@ class Summary extends BaseAdmin
 		}
 		DBA::close($pageFlagsCountStmt);
 
-		Logger::log('accounts: ' . print_r($accounts, true), Logger::DATA);
+		Logger::debug('accounts', ['accounts' => $accounts]);
 
 		$pending = Register::getPendingCount();
 

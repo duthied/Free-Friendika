@@ -19,13 +19,20 @@
  *
  */
 
-namespace Friendica\Render;
+namespace Friendica\Test\src\Content;
 
 /**
- * Interface for template engines
+ * Class PageInfoMock
+ *
+ * Exposes protected methods for test in the inherited class
+ *
+ * @method static string|null getRelevantUrlFromBody(string $body, $searchNakedUrls = false)
+ * @method static string stripTrailingUrlFromBody(string $body, string $url)
  */
-interface ITemplateEngine
+class PageInfoMock extends \Friendica\Content\PageInfo
 {
-	public function replaceMacros($s, $v);
-	public function getTemplateFile($file, $root = '');
+	public static function __callStatic($name, $arguments)
+	{
+		return self::$name(...$arguments);
+	}
 }

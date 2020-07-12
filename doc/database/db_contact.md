@@ -67,6 +67,6 @@ Table contact
 | bd                        |                                                           | date         | NO   |     | 0001-01-01          |                |
 | notify_new_posts          |                                                           | tinyint(1)   | NO   |     | 0                   |                |
 | fetch_further_information |                                                           | tinyint(1)   | NO   |     | 0                   |                |
-| ffi_keyword_blacklist     |                                                           | mediumtext   | NO   |     | NULL                |                |
+| ffi_keyword_denylist     |                                                            | mediumtext   | NO   |     | NULL                |                |
 
 Return to [database documentation](help/database)

@@ -50,7 +50,7 @@ class GlobalCommunitySilence extends \Asika\SimpleConsole\Console
 	protected function getHelp()
 	{
 		$help = <<<HELP
-console globalcommunitysilence - Silence remote profile from global community page
+console globalcommunitysilence - Silence a profile from the global community page
 Usage
 	bin/console globalcommunitysilence <profile_url> [-h|--help|-?] [-v]
 

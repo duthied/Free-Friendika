@@ -33,7 +33,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
@@ -214,7 +214,7 @@ class Post
 			$pinned = DI::l10n()->t('pinned item');
 		}
 
-		if ($origin && ($item['id'] != $item['parent']) && ($item['network'] == Protocol::ACTIVITYPUB)) {
+		if ($origin && ($item['gravity'] != GRAVITY_PARENT) && ($item['network'] == Protocol::ACTIVITYPUB)) {
 			// ActivityPub doesn't allow removal of remote comments
 			$delete = DI::l10n()->t('Delete locally');
 		} else {
@@ -380,8 +380,11 @@ class Post
 		}
 
 		// Disable features that aren't available in several networks
-		if ($buttons["dislike"] && !in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
-			$buttons["dislike"] = false;
+		if (!in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
+			if ($buttons["dislike"]) {
+				$buttons["dislike"] = false;
+			}
+
 			$isevent = false;
 			$tagger = '';
 		}
@@ -390,7 +393,7 @@ class Post
 			$buttons["like"] = false;
 		}
 
-		$tags = Term::populateTagsFromItem($item);
+		$tags = Tag::populateFromItem($item);
 
 		$ago = Temporal::getRelativeDate($item['created']);
 		$ago_received = Temporal::getRelativeDate($item['received']);
@@ -860,7 +863,7 @@ class Post
 			return '';
 		}
 
-		$item = Item::selectFirst(['author-addr'], ['id' => $this->getId()]);
+		$item = Item::selectFirst(['author-addr', 'uri-id'], ['id' => $this->getId()]);
 		if (!DBA::isResult($item) || empty($item['author-addr'])) {
 			// Should not happen
 			return '';
@@ -872,7 +875,7 @@ class Post
 			$text = '';
 		}
 
-		$terms = Term::tagArrayFromItemId($this->getId(), [Term::MENTION, Term::IMPLICIT_MENTION]);
+		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 		foreach ($terms as $term) {
 			$profile = Contact::getDetailsByURL($term['url']);
 			if (!empty($profile['addr']) && ((($profile['contact-type'] ?? '') ?: Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&

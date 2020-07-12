@@ -117,7 +117,7 @@ function frio_item_photo_links(App $a, &$body_info)
 function frio_item_photo_menu(App $a, &$arr)
 {
 	foreach ($arr['menu'] as $k => $v) {
-		if (strpos($v, 'poke?c=') === 0 || strpos($v, 'message/new/') === 0) {
+		if (strpos($v, '/poke') === 0 || strpos($v, 'message/new/') === 0) {
 			$v = 'javascript:addToModal(\'' . $v . '\'); return false;';
 			$arr['menu'][$k] = $v;
 		}
@@ -171,7 +171,7 @@ function frio_contact_photo_menu(App $a, &$args)
 	// Add to pm and poke links a new key with the value 'modal'.
 	// Later we can make conditions in the corresponing templates (e.g.
 	// contact_template.tpl)
-	if (strpos($pokelink, 'poke?c=' . $cid) !== false) {
+	if (strpos($pokelink, $cid . '/poke') !== false) {
 		$args['menu']['poke'][3] = 'modal';
 	}
 
@@ -224,7 +224,7 @@ function frio_remote_nav($a, &$nav)
 
 	// since $userinfo isn't available for the hook we write it to the nav array
 	// this isn't optimal because the contact query will be done now twice
-	if (local_user()) {
+	if (local_user() && !empty($a->user['uid'])) {
 		// empty the server url for local user because we won't need it
 		$server_url = '';
 		// user info
@@ -346,7 +346,7 @@ function frio_display_item(App $a, &$arr)
 	if (
 		local_user()
 		&& local_user() == $arr['item']['uid']
-		&& $arr['item']['parent'] == $arr['item']['id']
+		&& $arr['item']['gravity'] == GRAVITY_PARENT
 		&& !$arr['item']['self'])
 	{
 		$subthread = [

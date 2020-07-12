@@ -85,7 +85,7 @@ class Process
 				self::deleteByPid($process['pid']);
 			}
 		}
-
+		DBA::close($processes);
 		DBA::commit();
 	}
 }

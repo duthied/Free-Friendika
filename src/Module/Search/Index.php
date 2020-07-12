@@ -28,12 +28,13 @@ use Friendica\Content\Widget;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Module\BaseSearch;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
@@ -80,7 +81,7 @@ class Index extends BaseSearch
 		}
 
 		if (local_user()) {
-			DI::page()['aside'] .= Widget\SavedSearches::getHTML('search?q=' . urlencode($search), $search);
+			DI::page()['aside'] .= Widget\SavedSearches::getHTML(Search::getSearchPath($search), $search);
 		}
 
 		Nav::setSelected('search');
@@ -149,28 +150,11 @@ class Index extends BaseSearch
 
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);
+			$uriids = Tag::getURIIdListByTag($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
 
-			$condition = [
-				"(`uid` = 0 OR (`uid` = ? AND NOT `global`))
-				AND `otype` = ? AND `type` = ? AND `term` = ?",
-				local_user(), Term::OBJECT_TYPE_POST, Term::HASHTAG, $search
-			];
-			$params = [
-				'order' => ['received' => true],
-				'limit' => [$pager->getStart(), $pager->getItemsPerPage()]
-			];
-			$terms = DBA::select('term', ['oid'], $condition, $params);
-
-			$itemids = [];
-			while ($term = DBA::fetch($terms)) {
-				$itemids[] = $term['oid'];
-			}
-
-			DBA::close($terms);
-
-			if (!empty($itemids)) {
-				$params = ['order' => ['id' => true]];
-				$items = Item::selectForUser(local_user(), [], ['id' => $itemids], $params);
+			if (!empty($uriids)) {
+				$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
+				$items = Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params);
 				$r = Item::inArray($items);
 			} else {
 				$r = [];

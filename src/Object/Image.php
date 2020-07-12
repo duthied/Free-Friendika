@@ -456,7 +456,6 @@ class Image
 				break;
 		}
 
-		//	Logger::log('exif: ' . print_r($exif,true));
 		return $exif;
 	}
 
@@ -706,22 +705,6 @@ class Image
 	public static function getFormatsMap()
 	{
 		return Images::getFormatsMap();
-	}
-
-	/**
-	 * Guess image mimetype from filename or from Content-Type header
-	 *
-	 * @param string  $filename Image filename
-	 * @param boolean $fromcurl Check Content-Type header from curl request
-	 * @param string  $header   passed headers to take into account
-	 *
-	 * @return string|null
-	 * @throws Exception
-	 * @deprecated in version 2019.12 please use Util\Images::guessType() instead.
-	 */
-	public static function guessType($filename, $fromcurl = false, $header = '')
-	{
-		return Images::guessType($filename, $fromcurl, $header);
 	}
 
 	/**

@@ -157,15 +157,15 @@ class Users extends BaseAdmin
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 100);
 
 		$valid_orders = [
-			'contact.name',
-			'user.email',
-			'user.register_date',
-			'user.login_date',
-			'lastitem_date',
-			'user.page-flags'
+			'name',
+			'email',
+			'register_date',
+			'login_date',
+			'last-item',
+			'page-flags'
 		];
 
-		$order = 'contact.name';
+		$order = 'name';
 		$order_direction = '+';
 		if (!empty($_GET['o'])) {
 			$new_order = $_GET['o'];
@@ -179,7 +179,7 @@ class Users extends BaseAdmin
 			}
 		}
 
-		$users = User::getList($pager->getStart(), $pager->getItemsPerPage(), 'all', $order, $order_direction);
+		$users = User::getList($pager->getStart(), $pager->getItemsPerPage(), 'all', $order, ($order_direction == '-'));
 
 		$adminlist = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
 		$_setup_users = function ($e) use ($adminlist) {
@@ -206,7 +206,7 @@ class Users extends BaseAdmin
 
 			$e['register_date'] = Temporal::getRelativeDate($e['register_date']);
 			$e['login_date'] = Temporal::getRelativeDate($e['login_date']);
-			$e['lastitem_date'] = Temporal::getRelativeDate($e['lastitem_date']);
+			$e['lastitem_date'] = Temporal::getRelativeDate($e['last-item']);
 			$e['is_admin'] = in_array($e['email'], $adminlist);
 			$e['is_deletable'] = (intval($e['uid']) != local_user());
 			$e['deleted'] = ($e['account_removed'] ? Temporal::getRelativeDate($e['account_expires_on']) : False);

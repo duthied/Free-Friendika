@@ -51,7 +51,7 @@ Commands:
 	docbloxerrorchecker    Check the file tree for DocBlox errors
 	extract                Generate translation string file for the Friendica project (deprecated)
 	globalcommunityblock   Block remote profile from interacting with this node
-	globalcommunitysilence Silence remote profile from global community page
+	globalcommunitysilence Silence a profile from the global community page
 	archivecontact         Archive a contact when you know that it isn't existing anymore
 	help                   Show help about a command, e.g (bin/console help config)
 	autoinstall            Starts automatic installation of friendica based on values from htconfig.php

@@ -8,7 +8,13 @@ Updating Friendica
 If you installed Friendica in the ``path/to/friendica`` folder:
 
 1. Unpack the new Friendica archive in ``path/to/friendica_new``.
-2. Copy ``config/local.config.php``, ``photo/`` and ``proxy/`` from ``path/to/friendica`` to ``path/to/friendica_new``.
+2. Copy  the following items from ``path/to/friendica`` to ``path/to/friendica_new``:
+   * ``config/local.config.php``
+   * ``proxy/``   
+The following items only need to be copied if they are located inside your friendica path:
+   * your storage folder as set in **Admin -> Site -> File Upload -> Storage base path** 
+   * your item cache as set in **Admin -> Site -> Performance -> Path to item cache**
+   * your temp folder as set in **Admin -> Site -> Advanced -> Temp path**
 3. Rename the ``path/to/friendica`` folder to ``path/to/friendica_old``.
 4. Rename the ``path/to/friendica_new`` folder to ``path/to/friendica``.
 5. Check your site. Note: it may go into maintenance mode to update the database schema.
@@ -30,11 +36,11 @@ The addon tree has to be updated separately like so:
     git pull
 
 For both repositories:
-The default branch to use is the ``master`` branch, which is the stable version of Friendica.
+The default branch to use is the ``stable`` branch, which is the stable version of Friendica.
 It is updated about four times a year on a fixed schedule.
 
 If you want to use and test bleeding edge code please checkout the ``develop`` branch.
-The new features and fixes will be merged from ``develop`` into ``master`` after a release candidate period before each release.
+The new features and fixes will be merged from ``develop`` into ``stable`` after a release candidate period before each release.
 
 Warning: The ``develop`` branch is unstable, and breaks on average once a month for at most 24 hours until a patch is submitted and merged.
 Be sure to pull frequently if you choose the ``develop`` branch.

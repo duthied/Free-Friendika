@@ -29,10 +29,12 @@ use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post\Category;
 use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
+use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
@@ -48,14 +50,18 @@ class Status extends BaseProfile
 
 		ProfileModel::load($a, $parameters['nickname']);
 
+		if (empty($a->profile)) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		}
+
 		if (!$a->profile['net-publish']) {
 			DI::page()['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 		}
 
-		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/dfrn_poll/' . $parameters['nickname'] . '" title="DFRN: ' . DI::l10n()->t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
-		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/" title="' . DI::l10n()->t('%s\'s posts', $a->profile['username']) . '"/>' . "\n";
-		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/comments" title="' . DI::l10n()->t('%s\'s comments', $a->profile['username']) . '"/>' . "\n";
-		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/activity" title="' . DI::l10n()->t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
+		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/dfrn_poll/' . $parameters['nickname'] . '" title="DFRN: ' . DI::l10n()->t('%s\'s timeline', $a->profile['name']) . '"/>' . "\n";
+		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/" title="' . DI::l10n()->t('%s\'s posts', $a->profile['name']) . '"/>' . "\n";
+		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/comments" title="' . DI::l10n()->t('%s\'s comments', $a->profile['name']) . '"/>' . "\n";
+		DI::page()['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . $parameters['nickname'] . '/activity" title="' . DI::l10n()->t('%s\'s timeline', $a->profile['name']) . '"/>' . "\n";
 
 		$category = $datequery = $datequery2 = '';
 
@@ -141,13 +147,13 @@ class Status extends BaseProfile
 		$sql_post_table = "";
 
 		if (!empty($category)) {
-			$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				DBA::escape(Strings::protectSprintf($category)), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), intval($a->profile['uid']));
+			$sql_post_table = sprintf("INNER JOIN (SELECT `uri-id` FROM `category-view` WHERE `name` = '%s' AND `type` = %d AND `uid` = %d ORDER BY `uri-id` DESC) AS `category` ON `item`.`uri-id` = `category`.`uri-id` ",
+				DBA::escape(Strings::protectSprintf($category)), intval(Category::CATEGORY), intval($a->profile['uid']));
 		}
 
 		if (!empty($hashtags)) {
-			$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-				DBA::escape(Strings::protectSprintf($hashtags)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval($a->profile['uid']));
+			$sql_post_table .= sprintf("INNER JOIN (SELECT `uri-id` FROM `tag-search-view` WHERE `name` = '%s' AND `uid` = %d ORDER BY `uri-id` DESC) AS `tag-search` ON `item`.`uri-id` = `tag-search`.`uri-id` ",
+				DBA::escape(Strings::protectSprintf($hashtags)), intval($a->profile['uid']));
 		}
 
 		if (!empty($datequery)) {
@@ -161,7 +167,7 @@ class Status extends BaseProfile
 		// If not then we can improve the performance with an additional condition
 		$condition = ['uid' => $a->profile['uid'], 'page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]];
 		if (!DBA::exists('user', $condition)) {
-			$sql_extra3 = sprintf(" AND `thread`.`contact-id` = %d ", intval(intval($a->profile['contact_id'])));
+			$sql_extra3 = sprintf(" AND `thread`.`contact-id` = %d ", intval(intval($a->profile['id'])));
 		} else {
 			$sql_extra3 = "";
 		}

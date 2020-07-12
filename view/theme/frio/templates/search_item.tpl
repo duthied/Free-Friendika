@@ -92,11 +92,6 @@
 
 			{{* item content *}}
 			<div class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
-				{{* insert some space if it's an top-level post *}}
-				{{if $item.thread_level==1}}
-				<div style="height:10px;">&nbsp;</div> <!-- use padding/margin instead-->
-				{{/if}}
-
 				{{if $item.title}}
 				<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h4><br /></span>
 				{{/if}}
@@ -144,14 +139,14 @@
 					{{* Buttons for like and dislike *}}
 					{{if $item.vote}}
 						{{if $item.vote.like}}
-					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}}, 'like');">{{$item.vote.like.0}}</button>
+					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}});">{{$item.vote.like.0}}</button>
 						{{/if}}
 						{{if $item.vote.like AND $item.vote.dislike}}
 					<span role="presentation" class="separator">•</span>
 						{{/if}}
 
 						{{if $item.vote.dislike}}
-					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}}, 'dislike');">{{$item.vote.dislike.0}}</button>
+					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});">{{$item.vote.dislike.0}}</button>
 						{{/if}}
 						{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment}}
 					<span role="presentation" class="separator">•</span>
@@ -249,9 +244,9 @@
 					{{* Event attendance buttons *}}
 				{{if $item.isevent}}
 					<span class="vote-event">
-						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}}, 'attendyes');"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
-						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}}, 'attendno');"><i class="fa fa-times" aria-hidden="true"><span class="sr-only">{{$item.attend.1}}</span></i></button>
-						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}}, 'attendmaybe');"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
+						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}});"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
+						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}}, 'attendno'{{if $item.responses.attendno.self}}, true{{/if}});"><i class="fa fa-times" aria-hidden="true"><span class="sr-only">{{$item.attend.1}}</span></i></button>
+						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}});"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
 					</span>
 				{{/if}}
 

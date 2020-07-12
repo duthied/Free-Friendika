@@ -27,7 +27,7 @@ function vier_init(App $a)
 
 	Renderer::setActiveTemplateEngine('smarty3');
 
-	if (!empty($a->argv[0]) && ($a->argv[0] . ($a->argv[1] ?? '')) === ('profile' . $a->user['nickname']) || $a->argv[0] === 'network' && local_user()) {
+	if (!empty($a->argv[0]) && ($a->argv[0] . ($a->argv[1] ?? '')) === ('profile' . ($a->user['nickname'] ?? '')) || $a->argv[0] === 'network' && local_user()) {
 		vier_community_info();
 
 		DI::page()['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
@@ -140,29 +140,26 @@ function vier_community_info()
 
 	// last 9 users
 	if ($show_lastusers) {
-		$publish = (DI::config()->get('system', 'publish_all') ? '' : "`publish` = 1");
-		$order = " ORDER BY `register_date` DESC ";
+		$condition = ['blocked' => false];
+		if (!DI::config()->get('system', 'publish_all')) {
+			$condition['publish'] = true;
+		}
 
 		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
 
-		$r = q("SELECT `profile`.*, `user`.`nickname`
-				FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE $publish AND `user`.`blocked` = 0 $order LIMIT %d , %d ",
-			0,
-			9
-		);
+		$profiles = DBA::selectToArray('owner-view', [], $condition, ['order' => ['register_date' => true], 'limit' => [0, 9]]);
 
-		if (DBA::isResult($r)) {
+		if (DBA::isResult($profiles)) {
 			$aside['$lastusers_title'] = DI::l10n()->t('Last users');
 			$aside['$lastusers_items'] = [];
 
-			foreach ($r as $rr) {
-				$profile_link = 'profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['uid']);
+			foreach ($profiles as $profile) {
+				$profile_link = 'profile/' . ((strlen($profile['nickname'])) ? $profile['nickname'] : $profile['uid']);
 				$entry = Renderer::replaceMacros($tpl, [
-					'$id' => $rr['id'],
+					'$id' => $profile['id'],
 					'$profile_link' => $profile_link,
-					'$photo' => DI::baseUrl()->remove($rr['thumb']),
-					'$alt_text' => $rr['name']]);
+					'$photo' => DI::baseUrl()->remove($profile['thumb']),
+					'$alt_text' => $profile['name']]);
 				$aside['$lastusers_items'][] = $entry;
 			}
 		}
@@ -205,7 +202,7 @@ function vier_community_info()
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
 				$entry = [
-					'url'          => 'network?cid=' . $contact['id'],
+					'url'          => 'network?contactid=' . $contact['id'],
 					'external_url' => Contact::magicLink($contact['url']),
 					'name'         => $contact['name'],
 					'cid'          => $contact['id'],

@@ -35,20 +35,20 @@ class Markdown
 	 * compatibility with Diaspora in spite of the Markdown standard.
 	 *
 	 * @param string $text
-	 * @param bool   $hardwrap
+	 * @param bool   $hardwrap Enables line breaks on \n without two trailing spaces
+	 * @param string $baseuri  Optional. Prepend anchor links with this URL
 	 * @return string
-	 * @throws \Exception
 	 */
-	public static function convert($text, $hardwrap = true) {
+	public static function convert($text, $hardwrap = true, $baseuri = null) {
 		$stamp1 = microtime(true);
 
 		$MarkdownParser = new MarkdownParser();
 		$MarkdownParser->code_class_prefix  = 'language-';
 		$MarkdownParser->hard_wrap          = $hardwrap;
 		$MarkdownParser->hashtag_protection = true;
-		$MarkdownParser->url_filter_func    = function ($url) {
-			if (strpos($url, '#') === 0) {
-				$url = ltrim($_SERVER['REQUEST_URI'], '/') . $url;
+		$MarkdownParser->url_filter_func    = function ($url) use ($baseuri) {
+			if (!empty($baseuri) && strpos($url, '#') === 0) {
+				$url = ltrim($baseuri, '/') . $url;
 			}
 			return  $url;
 		};
@@ -121,9 +121,6 @@ class Markdown
 
 		// protect the recycle symbol from turning into a tag, but without unescaping angles and naked ampersands
 		$s = str_replace('&#x2672;', html_entity_decode('&#x2672;', ENT_QUOTES, 'UTF-8'), $s);
-
-		// Convert everything that looks like a link to a link
-		$s = preg_replace('/([^\]=]|^)(https?\:\/\/)([a-zA-Z0-9:\/\-?&;.=_~#%$!+,@]+(?<!,))/ism', '$1[url=$2$3]$2$3[/url]', $s);
 
 		//$s = preg_replace("/([^\]\=]|^)(https?\:\/\/)(vimeo|youtu|www\.youtube|soundcloud)([a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism", '$1[url=$2$3$4]$2$3$4[/url]',$s);
 		$s = BBCode::pregReplaceInTag('/\[url\=?(.*?)\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/url\]/ism', '[youtube]$2[/youtube]', 'url', $s);

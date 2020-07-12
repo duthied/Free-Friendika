@@ -116,7 +116,7 @@ class PortableContact
 
 		$j = json_decode($s, true);
 
-		Logger::log('load: json: ' . print_r($j, true), Logger::DATA);
+		Logger::debug('load', ['json'  => $j]);
 
 		if (!isset($j['entry'])) {
 			return;

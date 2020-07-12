@@ -466,6 +466,19 @@ Hook data is a `\FastRoute\RouterCollector` object that should be used to add ad
 
 **Notice**: The class whose name is provided in the route handler must be reachable via auto-loader.
 
+### probe_detect
+
+Called before trying to detect the target network of a URL.
+If any registered hook function sets the `result` key of the hook data array, it will be returned immediately.
+Hook functions should also return immediately if the hook data contains an existing result. 
+
+Hook data:
+
+- **uri** (input): the profile URI.
+- **network** (input): the target network (can be empty for auto-detection).
+- **uid** (input): the user to return the contact data for (can be empty for public contacts).
+- **result** (output): Set by the hook function to indicate a successful detection.
+
 ## Complete list of hook callbacks
 
 Here is a complete list of all hook callbacks with file locations (as of 24-Sep-2018). Please see the source for details of any hooks not documented above.

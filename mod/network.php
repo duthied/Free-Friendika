@@ -37,8 +37,8 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
+use Friendica\Model\Post\Category;
 use Friendica\Model\Profile;
-use Friendica\Model\Term;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -58,8 +58,8 @@ function network_init(App $a)
 	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
 
 	$cid = 0;
-	if (!empty($_GET['cid'])) {
-		$cid = $_GET['cid'];
+	if (!empty($_GET['contactid'])) {
+		$cid = $_GET['contactid'];
 		$_GET['nets'] = '';
 		$group_id = 0;
 	}
@@ -379,25 +379,25 @@ function networkFlatView(App $a, $update = 0)
 
 	networkPager($a, $pager, $update);
 
-	$item_params = ['order' => ['id' => true]];
 
 	if (strlen($file)) {
-		$term_condition = ["`term` = ? AND `otype` = ? AND `type` = ? AND `uid` = ?",
-			$file, Term::OBJECT_TYPE_POST, Term::FILE, local_user()];
-		$term_params = ['order' => ['tid' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
-		$result = DBA::select('term', ['oid'], $term_condition, $term_params);
+		$item_params = ['order' => ['uri-id' => true]];
+		$term_condition = ['name' => $file, 'type' => Category::FILE, 'uid' => local_user()];
+		$term_params = ['order' => ['uri-id' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+		$result = DBA::select('category-view', ['uri-id'], $term_condition, $term_params);
 
 		$posts = [];
 		while ($term = DBA::fetch($result)) {
-			$posts[] = $term['oid'];
+			$posts[] = $term['uri-id'];
 		}
 		DBA::close($result);
 
 		if (count($posts) == 0) {
 			return '';
 		}
-		$item_condition = ['uid' => local_user(), 'id' => $posts];
+		$item_condition = ['uid' => local_user(), 'uri-id' => $posts];
 	} else {
+		$item_params = ['order' => ['id' => true]];
 		$item_condition = ['uid' => local_user()];
 		$item_params['limit'] = [$pager->getStart(), $pager->getItemsPerPage()];
 
@@ -466,12 +466,12 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$o = '';
 
-	$cid   = intval($_GET['cid']   ?? 0);
-	$star  = intval($_GET['star']  ?? 0);
-	$bmark = intval($_GET['bmark'] ?? 0);
-	$conv  = intval($_GET['conv']  ?? 0);
+	$cid   = intval($_GET['contactid'] ?? 0);
+	$star  = intval($_GET['star']      ?? 0);
+	$bmark = intval($_GET['bmark']     ?? 0);
+	$conv  = intval($_GET['conv']      ?? 0);
 	$order = Strings::escapeTags(($_GET['order'] ?? '') ?: 'activity');
-	$nets  =        $_GET['nets']  ?? '';
+	$nets  =        $_GET['nets']      ?? '';
 
 	$allowedCids = [];
 	if ($cid) {
@@ -709,7 +709,7 @@ function networkThreadedView(App $a, $update, $parent)
 			}
 			if ($order === 'post') {
 				// Only show toplevel posts when updating posts in this order mode
-				$sql_extra4 .= " AND `item`.`id` = `item`.`parent`";
+				$sql_extra4 .= " AND `item`.`gravity` = " . GRAVITY_PARENT;
 			}
 		}
 
@@ -786,15 +786,21 @@ function networkThreadedView(App $a, $update, $parent)
 			$top_limit = DateTimeFormat::utcNow();
 		}
 
+		// Handle bad performance situations when the distance between top and bottom is too high
+		// See issue https://github.com/friendica/friendica/issues/8619
+		if (strtotime($top_limit) - strtotime($bottom_limit) > 86400) {
+			// Set the bottom limit to one day in the past at maximum
+			$bottom_limit = DateTimeFormat::utc(date('c', strtotime($top_limit) - 86400));
+		}
+
 		$items = DBA::p("SELECT `item`.`parent-uri` AS `uri`, 0 AS `item_id`, `item`.$ordering AS `order_date`, `author`.`url` AS `author-link` FROM `item`
-			STRAIGHT_JOIN (SELECT `oid` FROM `term` WHERE `term` IN
-				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `otype` = ? AND `type` = ? AND `uid` = 0) AS `term`
-			ON `item`.`id` = `term`.`oid`
+			STRAIGHT_JOIN (SELECT `uri-id` FROM `tag-search-view` WHERE `name` IN
+				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `uid` = 0) AS `tag-search`
+			ON `item`.`uri-id` = `tag-search`.`uri-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
 			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ? AND `item`.`gravity` = ?
 				AND NOT `author`.`hidden` AND NOT `author`.`blocked`" . $sql_tag_nets,
-			local_user(), TERM_OBJ_POST, TERM_HASHTAG,
-			$top_limit, $bottom_limit, GRAVITY_PARENT);
+			local_user(), $top_limit, $bottom_limit, GRAVITY_PARENT);
 
 		$data = DBA::toArray($items);
 
@@ -892,8 +898,8 @@ function network_tabs(App $a)
 	$cmd = DI::args()->getCommand();
 
 	$def_param = [];
-	if (!empty($_GET['cid'])) {
-		$def_param['cid'] = $_GET['cid'];
+	if (!empty($_GET['contactid'])) {
+		$def_param['contactid'] = $_GET['contactid'];
 	}
 
 	// tabs

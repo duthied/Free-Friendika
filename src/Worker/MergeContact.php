@@ -26,31 +26,41 @@ use Friendica\Database\DBA;
 
 class MergeContact
 {
-	public static function execute($first, $dup_id, $uid)
+	/**
+	 * Replace all occurences of the given contact id and replace it
+	 *
+	 * @param integer $new_cid
+	 * @param integer $old_cid
+	 * @param integer $uid
+	 */
+	public static function execute(int $new_cid, int $old_cid, int $uid)
 	{
-		if (empty($first) || empty($dup_id) || ($first == $dup_id)) {
+		if (empty($new_cid) || empty($old_cid) || ($new_cid == $old_cid)) {
 			// Invalid request
 			return;
 		}
 
-		Logger::info('Handling duplicate', ['search' => $dup_id, 'replace' => $first]);
+		Logger::info('Handling duplicate', ['search' => $old_cid, 'replace' => $new_cid]);
 
 		// Search and replace
-		DBA::update('item', ['contact-id' => $first], ['contact-id' => $dup_id]);
-		DBA::update('thread', ['contact-id' => $first], ['contact-id' => $dup_id]);
-		DBA::update('mail', ['contact-id' => $first], ['contact-id' => $dup_id]);
-		DBA::update('photo', ['contact-id' => $first], ['contact-id' => $dup_id]);
-		DBA::update('event', ['cid' => $first], ['cid' => $dup_id]);
+		DBA::update('item', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
+		DBA::update('thread', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
+		DBA::update('mail', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
+		DBA::update('photo', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
+		DBA::update('event', ['cid' => $new_cid], ['cid' => $old_cid]);
+
+		// These fields only contain public contact entries (uid = 0)
 		if ($uid == 0) {
-			DBA::update('item', ['author-id' => $first], ['author-id' => $dup_id]);
-			DBA::update('item', ['owner-id' => $first], ['owner-id' => $dup_id]);
-			DBA::update('thread', ['author-id' => $first], ['author-id' => $dup_id]);
-			DBA::update('thread', ['owner-id' => $first], ['owner-id' => $dup_id]);
+			DBA::update('post-tag', ['cid' => $new_cid], ['cid' => $old_cid]);
+			DBA::update('item', ['author-id' => $new_cid], ['author-id' => $old_cid]);
+			DBA::update('item', ['owner-id' => $new_cid], ['owner-id' => $old_cid]);
+			DBA::update('thread', ['author-id' => $new_cid], ['author-id' => $old_cid]);
+			DBA::update('thread', ['owner-id' => $new_cid], ['owner-id' => $old_cid]);
 		} else {
 			/// @todo Check if some other data needs to be adjusted as well, possibly the "rel" status?
 		}
 
 		// Remove the duplicate
-		DBA::delete('contact', ['id' => $dup_id]);
+		DBA::delete('contact', ['id' => $old_cid]);
 	}
 }

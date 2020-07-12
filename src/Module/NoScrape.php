@@ -46,13 +46,16 @@ class NoScrape extends BaseModule
 			$which = $parameters['nick'];
 		} elseif (local_user() && isset($parameters['profile']) && DI::args()->get(2) == 'view') {
 			// view infos about a known profile (needs a login)
-			$which   = $a->user['nickname'];
+			$which = $a->user['nickname'];
 		} else {
 			System::jsonError(403, 'Authentication required');
-			exit();
 		}
 
 		Profile::load($a, $which);
+
+		if (empty($a->profile['uid'])) {
+			System::jsonError(404, 'Profile not found');
+		}
 
 		$json_info = [
 			'addr'         => $a->profile['addr'],
@@ -85,22 +88,11 @@ class NoScrape extends BaseModule
 		$json_info['tags']     = $keywords;
 		$json_info['language'] = $a->profile['language'];
 
-		if (!($a->profile['hide-friends'] ?? false)) {
-			$stmt = DBA::p(
-				"SELECT `gcontact`.`updated`
-				FROM `contact`
-				INNER JOIN `gcontact`
-				WHERE `gcontact`.`nurl` = `contact`.`nurl`
-				  AND `self`
-				  AND `uid` = ?
-				LIMIT 1",
-				intval($a->profile['uid'])
-			);
-			if ($gcontact = DBA::fetch($stmt)) {
-				$json_info["updated"] = date("c", strtotime($gcontact['updated']));
-			}
-			DBA::close($stmt);
+		if (!empty($a->profile['last-item'])) {
+			$json_info['updated'] = date("c", strtotime($a->profile['last-item']));
+		}
 
+		if (!($a->profile['hide-friends'] ?? false)) {
 			$json_info['contacts'] = DBA::count('contact',
 				[
 					'uid'     => $a->profile['uid'],

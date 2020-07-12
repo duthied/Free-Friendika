@@ -23,6 +23,7 @@ namespace Friendica\Model;
 
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Post\Category;
 
 /**
  * This class handles FileTag related functions
@@ -195,11 +196,11 @@ class FileTag
 			if ($type == 'file') {
 				$lbracket = '[';
 				$rbracket = ']';
-				$termtype = TERM_FILE;
+				$termtype = Category::FILE;
 			} else {
 				$lbracket = '<';
 				$rbracket = '>';
-				$termtype = TERM_CATEGORY;
+				$termtype = Category::CATEGORY;
 			}
 
 			$filetags_updated = $saved;
@@ -223,13 +224,7 @@ class FileTag
 			}
 
 			foreach ($deleted_tags as $key => $tag) {
-				$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
-					DBA::escape($tag),
-					intval(Term::OBJECT_TYPE_POST),
-					intval($termtype),
-					intval($uid));
-
-				if (DBA::isResult($r)) {
+				if (DBA::exists('category-view', ['name' => $tag, 'type' => $termtype, 'uid' => $uid])) {
 					unset($deleted_tags[$key]);
 				} else {
 					$filetags_updated = str_replace($lbracket . self::encode($tag) . $rbracket, '', $filetags_updated);
@@ -302,10 +297,10 @@ class FileTag
 
 		if ($cat == true) {
 			$pattern = '<' . self::encode($file) . '>';
-			$termtype = Term::CATEGORY;
+			$termtype = Category::CATEGORY;
 		} else {
 			$pattern = '[' . self::encode($file) . ']';
-			$termtype = Term::FILE;
+			$termtype = Category::FILE;
 		}
 
 		$item = Item::selectFirst(['file'], ['id' => $item_id, 'uid' => $uid]);
@@ -318,14 +313,7 @@ class FileTag
 
 		Item::update($fields, ['id' => $item_id]);
 
-		$r = q("SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d",
-			DBA::escape($file),
-			intval(Term::OBJECT_TYPE_POST),
-			intval($termtype),
-			intval($uid)
-		);
-
-		if (!DBA::isResult($r)) {
+		if (!DBA::exists('category-view', ['name' => $file, 'type' => $termtype, 'uid' => $uid])) {
 			$saved = DI::pConfig()->get($uid, 'system', 'filetags');
 			DI::pConfig()->set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
 		}

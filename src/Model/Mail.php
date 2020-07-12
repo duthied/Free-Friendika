@@ -92,7 +92,7 @@ class Mail
 			'to_email' => $user['email'],
 			'uid' => $user['uid'],
 			'item' => $msg,
-			'parent' => 0,
+			'parent' => $msg['id'],
 			'source_name' => $msg['from-name'],
 			'source_link' => $msg['from-url'],
 			'source_photo' => $msg['from-photo'],
@@ -268,7 +268,6 @@ class Mail
 		$uri = Item::newURI(local_user(), $guid);
 
 		$me = Probe::uri($replyto);
-
 		if (!$me['name']) {
 			return -2;
 		}
@@ -277,10 +276,7 @@ class Mail
 
 		$recip_handle = $recipient['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
 
-		$sender_nick = basename($replyto);
-		$sender_host = substr($replyto, strpos($replyto, '://') + 3);
-		$sender_host = substr($sender_host, 0, strpos($sender_host, '/'));
-		$sender_handle = $sender_nick . '@' . $sender_host;
+		$sender_handle = $me['addr'];
 
 		$handles = $recip_handle . ';' . $sender_handle;
 
@@ -313,7 +309,7 @@ class Mail
 				'reply' => 0,
 				'replied' => 0,
 				'uri' => $uri,
-				'parent-uri' => $replyto,
+				'parent-uri' => $me['url'],
 				'created' => DateTimeFormat::utcNow(),
 				'unknown' => 1
 			]

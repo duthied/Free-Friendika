@@ -45,8 +45,23 @@ return [
 		'database' => '',
 
 		// charset (String)
-		// Database connexion charset. Changing this value will likely corrupt special characters.
+		// Database connection charset. Changing this value will likely corrupt special characters.
 		'charset' => 'utf8mb4',
+
+		// emulate_prepares (Boolean) (Experimental)
+		// If enabled, prepared statements will be emulated.
+		// In combination with MySQLi this will cast all return values to strings.
+		'emulate_prepares' => false,
+
+		// pdo_emulate_prepares (Boolean) (Experimental)
+		// If enabled, the builtin emulation for prepared statements is used.
+		// Due to limitations of that emulation (all return values are casted as strings)
+		// this will most likely cause issues and should not be used on production systems.
+		'pdo_emulate_prepares' => false,
+
+		// disable_pdo (Boolean)
+		// PDO is used by default (if available). Otherwise MySQLi will be used.
+		'disable_pdo' => false,
 	],
 	'config' => [
 		// admin_email (Comma-separated list)
@@ -88,6 +103,10 @@ return [
 		// chose "Remember me" when logging in is considered logged out.
 		'auth_cookie_lifetime' => 7,
 
+		// big_emojis (Boolean)
+		// Display "Emoji Only" posts in big.
+		'big_emojis' => false,
+
 		// block_local_dir (Boolean)
 		// Deny public access to the local user directory.
 		'block_local_dir' => false,
@@ -124,9 +143,9 @@ return [
 		// Watchlist of indexes to watch.
 		'db_log_index_watch' => '',
 
-		// db_log_index_blacklist (Comma-separated list)
-		// Blacklist of indexes that shouldn't be watched.
-		'db_log_index_blacklist' => '',
+		// db_log_index_denylist (Comma-separated list)
+		// Deny list of indexes that shouldn't be watched.
+		'db_log_index_denylist' => '',
 
 		// db_loglimit (Integer)
 		// If a database call lasts longer than this value in seconds it is logged.

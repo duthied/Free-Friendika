@@ -57,6 +57,10 @@ return [
 			'/profile/show'                      => [Module\Api\Friendica\Profile\Show::class , [R::GET         ]],
 			'/events'                            => [Module\Api\Friendica\Events\Index::class , [R::GET         ]],
 		],
+		'/followers/ids'                         => [Module\Api\Twitter\FollowersIds::class   , [R::GET         ]],
+		'/followers/list'                        => [Module\Api\Twitter\FollowersList::class  , [R::GET         ]],
+		'/friends/ids'                           => [Module\Api\Twitter\FriendsIds::class     , [R::GET         ]],
+		'/friends/list'                          => [Module\Api\Twitter\FriendsList::class    , [R::GET         ]],
 	],
 
 	'/admin'               => [
@@ -117,6 +121,7 @@ return [
 		'/{id:\d+}/conversations' => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/drop'          => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/ignore'        => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/poke'          => [Module\Contact\Poke::class,      [R::GET, R::POST]],
 		'/{id:\d+}/posts'         => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/update'        => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/updateprofile' => [Module\Contact::class,           [R::GET]],
@@ -217,7 +222,7 @@ return [
 		'/mark/all' => [Module\Notifications\Notification::class, [R::GET]],
 		'/{id:\d+}' => [Module\Notifications\Notification::class, [R::GET, R::POST]],
 	],
-	'/objects/{guid}' => [Module\Objects::class, [R::GET]],
+	'/objects/{guid}[/{activity}]' => [Module\Objects::class, [R::GET]],
 
 	'/oembed'         => [
 		'/b2h'    => [Module\Oembed::class, [R::GET]],

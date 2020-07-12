@@ -22,10 +22,12 @@
 namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Tag;
 use Friendica\Util\XML;
 
 /**
@@ -101,19 +103,31 @@ class Babel extends BaseModule
 						'content' => visible_whitespace($bbcode4)
 					];
 
-					$item = [
-						'body' => $bbcode,
-						'tag'  => '',
-					];
+					$tags = Text\BBCode::getTags($bbcode);
 
-					Item::setHashtags($item);
+					$body = Item::setHashtags($bbcode);
 					$results[] = [
 						'title'   => DI::l10n()->t('Item Body'),
-						'content' => visible_whitespace($item['body'])
+						'content' => visible_whitespace($body)
 					];
 					$results[] = [
 						'title'   => DI::l10n()->t('Item Tags'),
-						'content' => $item['tag']
+						'content' => visible_whitespace(var_export($tags, true)),
+					];
+
+					$body2 = PageInfo::appendToBody($bbcode, true);
+					$results[] = [
+						'title'   => DI::l10n()->t('PageInfo::appendToBody'),
+						'content' => visible_whitespace($body2)
+					];
+					$html3 = Text\BBCode::convert($body2);
+					$results[] = [
+						'title'   => DI::l10n()->t('PageInfo::appendToBody => BBCode::convert (raw HTML)'),
+						'content' => visible_whitespace($html3)
+					];
+					$results[] = [
+						'title'   => DI::l10n()->t('PageInfo::appendToBody => BBCode::convert'),
+						'content' => $html3
 					];
 					break;
 				case 'diaspora':
@@ -125,9 +139,7 @@ class Babel extends BaseModule
 
 					$markdown = XML::unescape($diaspora);
 				case 'markdown':
-					if (!isset($markdown)) {
-						$markdown = trim($_REQUEST['text']);
-					}
+					$markdown = $markdown ?? trim($_REQUEST['text']);
 
 					$results[] = [
 						'title'   => DI::l10n()->t('Source input (Markdown)'),

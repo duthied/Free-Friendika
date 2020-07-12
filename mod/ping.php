@@ -30,6 +30,8 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Notify\Type;
+use Friendica\Model\Verb;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -134,9 +136,10 @@ function ping_init(App $a)
 
 		$notifs = ping_get_notifications(local_user());
 
-		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ?", local_user(), local_user()];
+		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ? AND (`vid` != ? OR `vid` IS NULL)",
+			local_user(), local_user(), Verb::getID(Activity::FOLLOW)];
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
-			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'wall'];
+			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'wall', 'activity'];
 		$params = ['order' => ['received' => true]];
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
@@ -464,13 +467,13 @@ function ping_get_notifications($uid)
 
 			if ($notification["visible"]
 				&& !$notification["deleted"]
-				&& empty($result[$notification["parent"]])
+				&& empty($result[$notification['parent']])
 			) {
 				// Should we condense the notifications or show them all?
 				if (DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
 					$result[$notification["id"]] = $notification;
 				} else {
-					$result[$notification["parent"]] = $notification;
+					$result[$notification['parent']] = $notification;
 				}
 			}
 		}

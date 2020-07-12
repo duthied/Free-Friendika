@@ -23,76 +23,105 @@ namespace Friendica\Render;
 
 use Friendica\Core\Hook;
 use Friendica\DI;
+use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\Strings;
 
 /**
- * Smarty implementation of the Friendica template engine interface
+ * Smarty implementation of the Friendica template abstraction
  */
-class FriendicaSmartyEngine implements ITemplateEngine
+final class FriendicaSmartyEngine extends TemplateEngine
 {
 	static $name = "smarty3";
 
-	public function __construct()
+	const FILE_PREFIX = 'file:';
+	const STRING_PREFIX = 'string:';
+
+	/** @var FriendicaSmarty */
+	private $smarty;
+
+	/**
+	 * @inheritDoc
+	 */
+	public function __construct(string $theme, array $theme_info)
 	{
-		if (!is_writable(__DIR__ . '/../../view/smarty3/')) {
-			echo "<b>ERROR:</b> folder <tt>view/smarty3/</tt> must be writable by webserver.";
-			exit();
+		$this->theme = $theme;
+		$this->theme_info = $theme_info;
+		$this->smarty = new FriendicaSmarty($this->theme, $this->theme_info);
+
+		if (!is_writable(DI::basePath() . '/view/smarty3')) {
+			$admin_message = DI::l10n()->t('The folder view/smarty3/ must be writable by webserver.');
+			DI::logger()->critical($admin_message);
+			$message = is_site_admin() ?
+				$admin_message :
+				DI::l10n()->t('Friendica can\'t display this page at the moment, please contact the administrator.');
+			throw new InternalServerErrorException($message);
 		}
 	}
 
-	// ITemplateEngine interface
-	public function replaceMacros($s, $r)
+	/**
+	 * @inheritDoc
+	 */
+	public function testInstall(array &$errors = null)
 	{
-		$template = '';
-		if (gettype($s) === 'string') {
-			$template = $s;
-			$s = new FriendicaSmarty();
-		}
+		$this->smarty->testInstall($errors);
+	}
 
-		$r['$APP'] = DI::app();
+	/**
+	 * @inheritDoc
+	 */
+	public function replaceMacros(string $template, array $vars)
+	{
+		if (!Strings::startsWith($template, self::FILE_PREFIX)) {
+			$template = self::STRING_PREFIX . $template;
+		}
 
 		// "middleware": inject variables into templates
 		$arr = [
-			"template" => basename($s->filename),
-			"vars" => $r
+			'template' => basename($this->smarty->filename),
+			'vars' => $vars
 		];
-		Hook::callAll("template_vars", $arr);
-		$r = $arr['vars'];
+		Hook::callAll('template_vars', $arr);
+		$vars = $arr['vars'];
 
-		foreach ($r as $key => $value) {
+		$this->smarty->clearAllAssign();
+
+		foreach ($vars as $key => $value) {
 			if ($key[0] === '$') {
 				$key = substr($key, 1);
 			}
 
-			$s->assign($key, $value);
+			$this->smarty->assign($key, $value);
 		}
-		return $s->parsed($template);
+
+		return $this->smarty->fetch($template);
 	}
 
-	public function getTemplateFile($file, $root = '')
+	/**
+	 * @inheritDoc
+	 */
+	public function getTemplateFile(string $file, string $subDir = '')
 	{
-		$a = DI::app();
-		$template = new FriendicaSmarty();
-
 		// Make sure $root ends with a slash /
-		if ($root !== '' && substr($root, -1, 1) !== '/') {
-			$root = $root . '/';
+		if ($subDir !== '' && substr($subDir, -1, 1) !== '/') {
+			$subDir = $subDir . '/';
 		}
 
-		$theme = $a->getCurrentTheme();
-		$filename = $template::SMARTY3_TEMPLATE_FOLDER . '/' . $file;
+		$root = DI::basePath() . '/' . $subDir;
 
-		if (file_exists("{$root}view/theme/$theme/$filename")) {
-			$template_file = "{$root}view/theme/$theme/$filename";
-		} elseif (!empty($a->theme_info['extends']) && file_exists(sprintf('%sview/theme/%s}/%s', $root, $a->theme_info['extends'], $filename))) {
-			$template_file = sprintf('%sview/theme/%s}/%s', $root, $a->theme_info['extends'], $filename);
+		$filename = $this->smarty::SMARTY3_TEMPLATE_FOLDER . '/' . $file;
+
+		if (file_exists("{$root}view/theme/$this->theme/$filename")) {
+			$template_file = "{$root}view/theme/$this->theme/$filename";
+		} elseif (!empty($this->theme_info['extends']) && file_exists(sprintf('%sview/theme/%s}/%s', $root, $this->theme_info['extends'], $filename))) {
+			$template_file = sprintf('%sview/theme/%s}/%s', $root, $this->theme_info['extends'], $filename);
 		} elseif (file_exists("{$root}/$filename")) {
 			$template_file = "{$root}/$filename";
 		} else {
 			$template_file = "{$root}view/$filename";
 		}
 
-		$template->filename = $template_file;
+		$this->smarty->filename = $template_file;
 
-		return $template;
+		return self::FILE_PREFIX . $template_file;
 	}
 }

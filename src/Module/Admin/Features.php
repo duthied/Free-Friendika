@@ -64,15 +64,14 @@ class Features extends BaseAdmin
 	{
 		parent::content($parameters);
 
-		$arr = [];
-		$features = Feature::get(false);
+		$features = [];
 
-		foreach ($features as $fname => $fdata) {
-			$arr[$fname] = [];
-			$arr[$fname][0] = $fdata[0];
+		foreach (Feature::get(false) as $fname => $fdata) {
+			$features[$fname] = [];
+			$features[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata, 1) as $f) {
 				$set = DI::config()->get('feature', $f[0], $f[3]);
-				$arr[$fname][1][] = [
+				$features[$fname][1][] = [
 					['feature_' . $f[0], $f[1], $set, $f[2]],
 					['featurelock_' . $f[0], DI::l10n()->t('Lock feature %s', $f[1]), $f[4], '']
 				];
@@ -82,9 +81,10 @@ class Features extends BaseAdmin
 		$tpl = Renderer::getMarkupTemplate('admin/features.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$form_security_token' => parent::getFormSecurityToken("admin_manage_features"),
-			'$title' => DI::l10n()->t('Manage Additional Features'),
-			'$features' => $arr,
-			'$submit' => DI::l10n()->t('Save Settings'),
+			'$baseurl'             => DI::baseUrl()->get(true),
+			'$title'               => DI::l10n()->t('Manage Additional Features'),
+			'$features'            => $features,
+			'$submit'              => DI::l10n()->t('Save Settings'),
 		]);
 
 		return $o;

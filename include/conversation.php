@@ -22,7 +22,6 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
-use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
@@ -34,7 +33,8 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
+use Friendica\Model\Verb;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Protocol\Activity;
@@ -144,222 +144,106 @@ function localize_item(&$item)
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 	}
 
-	/*
-	heluecht 2018-06-19: from my point of view this whole code part is useless.
-	It just renders the body message of technical posts (Like, dislike, ...).
-	But: The body isn't visible at all. So we do this stuff just because we can.
-	Even if these messages were visible, this would only mean that something went wrong.
-	During the further steps of the database restructuring I would like to address this issue.
-	*/
-
-	$activity = DI::activity();
-
-	$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
-	if ($activity->match($item['verb'], Activity::LIKE)
-		|| $activity->match($item['verb'], Activity::DISLIKE)
-		|| $activity->match($item['verb'], Activity::ATTEND)
-		|| $activity->match($item['verb'], Activity::ATTENDNO)
-		|| $activity->match($item['verb'], Activity::ATTENDMAYBE)) {
-
-		$fields = ['author-link', 'author-name', 'verb', 'object-type', 'resource-id', 'body', 'plink'];
-		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
-		if (!DBA::isResult($obj)) {
-			return;
-		}
-
-		$author  = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
-		$objauthor =  '[url=' . $obj['author-link'] . ']' . $obj['author-name'] . '[/url]';
-
-		switch ($obj['verb']) {
-			case Activity::POST:
-				switch ($obj['object-type']) {
-					case Activity\ObjectType::EVENT:
-						$post_type = DI::l10n()->t('event');
-						break;
-					default:
-						$post_type = DI::l10n()->t('status');
-				}
-				break;
-			default:
-				if ($obj['resource-id']) {
-					$post_type = DI::l10n()->t('photo');
-					$m = [];
-					preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
-					$rr['plink'] = $m[1];
-				} else {
-					$post_type = DI::l10n()->t('status');
-				}
-		}
-
-		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
-
-		$bodyverb = '';
-		if ($activity->match($item['verb'], Activity::LIKE)) {
-			$bodyverb = DI::l10n()->t('%1$s likes %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], Activity::DISLIKE)) {
-			$bodyverb = DI::l10n()->t('%1$s doesn\'t like %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], Activity::ATTEND)) {
-			$bodyverb = DI::l10n()->t('%1$s attends %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], Activity::ATTENDNO)) {
-			$bodyverb = DI::l10n()->t('%1$s doesn\'t attend %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], Activity::ATTENDMAYBE)) {
-			$bodyverb = DI::l10n()->t('%1$s attends maybe %2$s\'s %3$s');
-		}
-
-		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
-	}
-
-	if ($activity->match($item['verb'], Activity::FRIEND)) {
-
-		if ($item['object-type']=="" || $item['object-type']!== Activity\ObjectType::PERSON) return;
-
-		$Aname = $item['author-name'];
-		$Alink = $item['author-link'];
-
-		$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
-
-		$obj = XML::parseString($xmlhead.$item['object']);
-		$links = XML::parseString($xmlhead."<links>".XML::unescape($obj->link)."</links>");
-
-		$Bname = $obj->title;
-		$Blink = "";
-		$Bphoto = "";
-		foreach ($links->link as $l) {
-			$atts = $l->attributes();
-			switch ($atts['rel']) {
-				case "alternate": $Blink = $atts['href']; break;
-				case "photo": $Bphoto = $atts['href']; break;
-			}
-		}
-
-		$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
-		if ($Bphoto != "") {
-			$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img]' . $Bphoto . '[/img][/url]';
-		}
-
-		$item['body'] = DI::l10n()->t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$Bphoto;
-
-	}
-	if (stristr($item['verb'], Activity::POKE)) {
-		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
-		if (!$verb) {
-			return;
-		}
-		if ($item['object-type']=="" || $item['object-type']!== Activity\ObjectType::PERSON) {
-			return;
-		}
-
-		$Aname = $item['author-name'];
-		$Alink = $item['author-link'];
+	/// @todo The following functionality needs to be cleaned up. 
+	if (!empty($item['verb'])) {
+		$activity = DI::activity();
 
 		$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 
-		$obj = XML::parseString($xmlhead.$item['object']);
-
-		$Bname = $obj->title;
-		$Blink = $obj->id;
-		$Bphoto = "";
-
-		foreach ($obj->link as $l) {
-			$atts = $l->attributes();
-			switch ($atts['rel']) {
-				case "alternate": $Blink = $atts['href'];
-				case "photo": $Bphoto = $atts['href'];
+		if (stristr($item['verb'], Activity::POKE)) {
+			$verb = urldecode(substr($item['verb'], strpos($item['verb'],'#') + 1));
+			if (!$verb) {
+				return;
 			}
+			if ($item['object-type'] == "" || $item['object-type'] !== Activity\ObjectType::PERSON) {
+				return;
+			}
+
+			$Aname = $item['author-name'];
+			$Alink = $item['author-link'];
+
+			$obj = XML::parseString($xmlhead . $item['object']);
+
+			$Bname = $obj->title;
+			$Blink = $obj->id;
+			$Bphoto = "";
+
+			foreach ($obj->link as $l) {
+				$atts = $l->attributes();
+				switch ($atts['rel']) {
+					case "alternate": $Blink = $atts['href'];
+					case "photo": $Bphoto = $atts['href'];
+				}
+			}
+
+			$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
+			$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
+			if ($Bphoto != "") {
+				$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
+			}
+
+			/*
+			 * we can't have a translation string with three positions but no distinguishable text
+			 * So here is the translate string.
+			 */
+			$txt = DI::l10n()->t('%1$s poked %2$s');
+
+			// now translate the verb
+			$poked_t = trim(sprintf($txt, '', ''));
+			$txt = str_replace($poked_t, DI::l10n()->t($verb), $txt);
+
+			// then do the sprintf on the translation string
+
+			$item['body'] = sprintf($txt, $A, $B) . "\n\n\n" . $Bphoto;
+
 		}
 
-		$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
-		$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
-		if ($Bphoto != "") {
-			$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
-		}
+		if ($activity->match($item['verb'], Activity::TAG)) {
+			$fields = ['author-id', 'author-link', 'author-name', 'author-network',
+				'verb', 'object-type', 'resource-id', 'body', 'plink'];
+			$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
+			if (!DBA::isResult($obj)) {
+				return;
+			}
 
-		/*
-		 * we can't have a translation string with three positions but no distinguishable text
-		 * So here is the translate string.
-		 */
-		$txt = DI::l10n()->t('%1$s poked %2$s');
+			$author_arr = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
+			$author  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $item['author-name'] . '[/url]';
 
-		// now translate the verb
-		$poked_t = trim(sprintf($txt, "", ""));
-		$txt = str_replace($poked_t, DI::l10n()->t($verb), $txt);
+			$author_arr = ['uid' => 0, 'id' => $obj['author-id'],
+				'network' => $obj['author-network'], 'url' => $obj['author-link']];
+			$objauthor  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $obj['author-name'] . '[/url]';
 
-		// then do the sprintf on the translation string
-
-		$item['body'] = sprintf($txt, $A, $B). "\n\n\n" . $Bphoto;
-
-	}
-
-	if ($activity->match($item['verb'],  Activity::TAG)) {
-		$fields = ['author-id', 'author-link', 'author-name', 'author-network',
-			'verb', 'object-type', 'resource-id', 'body', 'plink'];
-		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
-		if (!DBA::isResult($obj)) {
-			return;
-		}
-
-		$author_arr = ['uid' => 0, 'id' => $item['author-id'],
-			'network' => $item['author-network'], 'url' => $item['author-link']];
-		$author  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $item['author-name'] . '[/url]';
-
-		$author_arr = ['uid' => 0, 'id' => $obj['author-id'],
-			'network' => $obj['author-network'], 'url' => $obj['author-link']];
-		$objauthor  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $obj['author-name'] . '[/url]';
-
-		switch ($obj['verb']) {
-			case Activity::POST:
-				switch ($obj['object-type']) {
-					case Activity\ObjectType::EVENT:
-						$post_type = DI::l10n()->t('event');
-						break;
-					default:
+			switch ($obj['verb']) {
+				case Activity::POST:
+					switch ($obj['object-type']) {
+						case Activity\ObjectType::EVENT:
+							$post_type = DI::l10n()->t('event');
+							break;
+						default:
+							$post_type = DI::l10n()->t('status');
+					}
+					break;
+				default:
+					if ($obj['resource-id']) {
+						$post_type = DI::l10n()->t('photo');
+						$m=[]; preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
+						$rr['plink'] = $m[1];
+					} else {
 						$post_type = DI::l10n()->t('status');
-				}
-				break;
-			default:
-				if ($obj['resource-id']) {
-					$post_type = DI::l10n()->t('photo');
-					$m=[]; preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
-					$rr['plink'] = $m[1];
-				} else {
-					$post_type = DI::l10n()->t('status');
-				}
-				// Let's break everthing ... ;-)
-				break;
-		}
-		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
-
-		$parsedobj = XML::parseString($xmlhead.$item['object']);
-
-		$tag = sprintf('#[url=%s]%s[/url]', $parsedobj->id, $parsedobj->content);
-		$item['body'] = DI::l10n()->t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
-	}
-
-	if ($activity->match($item['verb'], Activity::FAVORITE)) {
-		if ($item['object-type'] == "") {
-			return;
-		}
-
-		$Aname = $item['author-name'];
-		$Alink = $item['author-link'];
-
-		$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
-
-		$obj = XML::parseString($xmlhead.$item['object']);
-		if (strlen($obj->id)) {
-			$fields = ['author-link', 'author-name', 'plink'];
-			$target = Item::selectFirst($fields, ['uri' => $obj->id, 'uid' => $item['uid']]);
-			if (DBA::isResult($target) && $target['plink']) {
-				$Bname = $target['author-name'];
-				$Blink = $target['author-link'];
-				$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
-				$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
-				$P = '[url=' . $target['plink'] . ']' . DI::l10n()->t('post/item') . '[/url]';
-				$item['body'] = DI::l10n()->t('%1$s marked %2$s\'s %3$s as favorite', $A, $B, $P)."\n";
+					}
+					// Let's break everthing ... ;-)
+					break;
 			}
+			$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
+
+			$parsedobj = XML::parseString($xmlhead . $item['object']);
+
+			$tag = sprintf('#[url=%s]%s[/url]', $parsedobj->id, $parsedobj->content);
+			$item['body'] = DI::l10n()->t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
 		}
 	}
+
 	$matches = null;
 	if (preg_match_all('/@\[url=(.*?)\]/is', $item['body'], $matches, PREG_SET_ORDER)) {
 		foreach ($matches as $mtch) {
@@ -493,17 +377,17 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 				. "<script> var profile_uid = " . $_SESSION['uid']
 				. "; var netargs = '" . substr(DI::args()->getCommand(), 8)
 				. '?f='
-				. (!empty($_GET['cid'])    ? '&cid='    . rawurlencode($_GET['cid'])    : '')
-				. (!empty($_GET['search']) ? '&search=' . rawurlencode($_GET['search']) : '')
-				. (!empty($_GET['star'])   ? '&star='   . rawurlencode($_GET['star'])   : '')
-				. (!empty($_GET['order'])  ? '&order='  . rawurlencode($_GET['order'])  : '')
-				. (!empty($_GET['bmark'])  ? '&bmark='  . rawurlencode($_GET['bmark'])  : '')
-				. (!empty($_GET['liked'])  ? '&liked='  . rawurlencode($_GET['liked'])  : '')
-				. (!empty($_GET['conv'])   ? '&conv='   . rawurlencode($_GET['conv'])   : '')
-				. (!empty($_GET['nets'])   ? '&nets='   . rawurlencode($_GET['nets'])   : '')
-				. (!empty($_GET['cmin'])   ? '&cmin='   . rawurlencode($_GET['cmin'])   : '')
-				. (!empty($_GET['cmax'])   ? '&cmax='   . rawurlencode($_GET['cmax'])   : '')
-				. (!empty($_GET['file'])   ? '&file='   . rawurlencode($_GET['file'])   : '')
+				. (!empty($_GET['contactid']) ? '&contactid=' . rawurlencode($_GET['contactid']) : '')
+				. (!empty($_GET['search'])    ? '&search='    . rawurlencode($_GET['search'])    : '')
+				. (!empty($_GET['star'])      ? '&star='      . rawurlencode($_GET['star'])      : '')
+				. (!empty($_GET['order'])     ? '&order='     . rawurlencode($_GET['order'])     : '')
+				. (!empty($_GET['bmark'])     ? '&bmark='     . rawurlencode($_GET['bmark'])     : '')
+				. (!empty($_GET['liked'])     ? '&liked='     . rawurlencode($_GET['liked'])     : '')
+				. (!empty($_GET['conv'])      ? '&conv='      . rawurlencode($_GET['conv'])      : '')
+				. (!empty($_GET['nets'])      ? '&nets='      . rawurlencode($_GET['nets'])      : '')
+				. (!empty($_GET['cmin'])      ? '&cmin='      . rawurlencode($_GET['cmin'])      : '')
+				. (!empty($_GET['cmax'])      ? '&cmax='      . rawurlencode($_GET['cmax'])      : '')
+				. (!empty($_GET['file'])      ? '&file='      . rawurlencode($_GET['file'])      : '')
 
 				. "'; </script>\r\n";
 		}
@@ -643,7 +527,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					$profile_name = $item['author-link'];
 				}
 
-				$tags = Term::populateTagsFromItem($item);
+				$tags = Tag::populateFromItem($item);
 
 				$author = ['uid' => 0, 'id' => $item['author-id'],
 					'network' => $item['author-network'], 'url' => $item['author-link']];
@@ -787,7 +671,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 
 				$item['pagedrop'] = $page_dropping;
 
-				if ($item['id'] == $item['parent']) {
+				if ($item['gravity'] == GRAVITY_PARENT) {
 					$item_object = new Post($item);
 					$conv->addParent($item_object);
 				}
@@ -876,7 +760,11 @@ function conversation_fetch_comments($thread_items, $pinned) {
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function conversation_add_children(array $parents, $block_authors, $order, $uid) {
-	$max_comments = DI::config()->get('system', 'max_comments', 100);
+	if (count($parents) > 1) {
+		$max_comments = DI::config()->get('system', 'max_comments', 100);
+	} else {
+		$max_comments = DI::config()->get('system', 'max_display_comments', 1000);
+	}
 
 	$params = ['order' => ['uid', 'commented' => true]];
 
@@ -887,19 +775,9 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 	$items = [];
 
 	foreach ($parents AS $parent) {
-		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) ",
-			$parent['uri'], $uid];
-		if ($block_authors) {
-			$condition[0] .= "AND NOT `author`.`hidden`";
-		}
-
-		$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity']), $condition, $params);
-
-		$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false);
-
-		if (count($comments) != 0) {
-			$items = array_merge($items, $comments);
-		}
+		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
+			$parent['uri'], $uid, Verb::getID(Activity::FOLLOW)];
+		$items = conversation_fetch_items($parent, $items, $condition, $block_authors, $params);
 	}
 
 	foreach ($items as $index => $item) {
@@ -910,6 +788,31 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	$items = conv_sort($items, $order);
 
+	return $items;
+}
+
+/**
+ * Fetch conversation items
+ *
+ * @param array $parent
+ * @param array $items
+ * @param array $condition
+ * @param boolean $block_authors
+ * @param array $params
+ * @return array
+ */
+function conversation_fetch_items(array $parent, array $items, array $condition, bool $block_authors, array $params) {
+	if ($block_authors) {
+		$condition[0] .= " AND NOT `author`.`hidden`";
+	}
+
+	$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity']), $condition, $params);
+
+	$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false);
+
+	if (count($comments) != 0) {
+		$items = array_merge($items, $comments);
+	}
 	return $items;
 }
 
@@ -924,7 +827,7 @@ function item_photo_menu($item) {
 	$block_link = '';
 	$ignore_link = '';
 
-	if (local_user() && local_user() == $item['uid'] && $item['parent'] == $item['id'] && !$item['self']) {
+	if (local_user() && local_user() == $item['uid'] && $item['gravity'] == GRAVITY_PARENT && !$item['self']) {
 		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
 	}
 
@@ -953,15 +856,15 @@ function item_photo_menu($item) {
 
 	if (!empty($pcid)) {
 		$contact_url = 'contact/' . $pcid;
-		$posts_link = 'contact/' . $pcid . '/posts';
-		$block_link = 'contact/' . $pcid . '/block';
-		$ignore_link = 'contact/' . $pcid . '/ignore';
+		$posts_link  = $contact_url . '/posts';
+		$block_link  = $contact_url . '/block';
+		$ignore_link = $contact_url . '/ignore';
 	}
 
 	if ($cid && !$item['self']) {
-		$poke_link = 'poke?c=' . $cid;
 		$contact_url = 'contact/' . $cid;
-		$posts_link = 'contact/' . $cid . '/posts';
+		$poke_link   = $contact_url . '/poke';
+		$posts_link  = $contact_url . '/posts';
 
 		if (in_array($network, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
 			$pm_url = 'message/new/' . $cid;
@@ -1049,7 +952,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 				return;
 		}
 
-		if (!empty($item['verb']) && DI::activity()->match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
+		if (!empty($item['verb']) && DI::activity()->match($item['verb'], $verb) && ($item['gravity'] != GRAVITY_PARENT)) {
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
 			$url = Contact::magicLinkByContact($author);
@@ -1295,6 +1198,8 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		//jot nav tab (used in some themes)
 		'$message' => DI::l10n()->t('Message'),
 		'$browser' => DI::l10n()->t('Browser'),
+
+		'$compose_link_title' => DI::l10n()->t('Open Compose page'),
 	]);
 
 
@@ -1317,7 +1222,7 @@ function get_item_children(array &$item_list, array $parent, $recursive = true)
 {
 	$children = [];
 	foreach ($item_list as $i => $item) {
-		if ($item['id'] != $item['parent']) {
+		if ($item['gravity'] != GRAVITY_PARENT) {
 			if ($recursive) {
 				// Fallback to parent-uri if thr-parent is not set
 				$thr_parent = $item['thr-parent'];
@@ -1465,7 +1370,7 @@ function conv_sort(array $item_list, $order)
 
 	// Extract the top level items
 	foreach ($item_array as $item) {
-		if ($item['id'] == $item['parent']) {
+		if ($item['gravity'] == GRAVITY_PARENT) {
 			$parents[] = $item;
 		}
 	}

@@ -134,6 +134,7 @@ var commentBusy = false;
 var last_popup_menu = null;
 var last_popup_button = null;
 var lockLoadContent = false;
+var originalTitle = document.title;
 
 const urlRegex = /^(?:https?:\/\/|\s)[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})(?:\/+[a-z0-9_.:;-]*)*(?:\?[&%|+a-z0-9_=,.:;-]*)?(?:[&%|+&a-z0-9_=,:;.-]*)(?:[!#\/&%|+a-z0-9_=,:;.-]*)}*$/i;
 
@@ -240,6 +241,13 @@ $(function() {
 		var invalid = data.invalid || 0;
 		if (invalid == 1) {
 			window.location.href=window.location.href
+		}
+
+		let tabNotifications = data.mail + data.notification;
+		if (tabNotifications > 0) {
+			document.title = '(' + tabNotifications + ') ' + originalTitle;
+		} else {
+			document.title = originalTitle;
 		}
 
 		['net', 'home', 'intro', 'mail', 'events', 'birthdays', 'notification'].forEach(function(type) {
@@ -586,15 +594,17 @@ function liveUpdate(src) {
 
 	in_progress = true;
 
-	if ($(document).scrollTop() == 0) {
-		force_update = true;
-	}
+	let force = force_update || $(document).scrollTop() === 0;
 
 	var orgHeight = $("section").height();
 
 	var udargs = ((netargs.length) ? '/' + netargs : '');
 
-	var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&force=' + ((force_update) ? 1 : 0) + '&item=' + update_item;
+	var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&force=' + (force ? 1 : 0) + '&item=' + update_item;
+
+	if (force_update) {
+		force_update = false;
+	}
 
 	if (getUrlParameter('page')) {
 		update_url += '&page=' + getUrlParameter('page');
@@ -606,9 +616,8 @@ function liveUpdate(src) {
 		update_url += '&max_id=' + getUrlParameter('max_id');
 	}
 
-	$.get(update_url,function(data) {
+	$.get(update_url, function(data) {
 		in_progress = false;
-		force_update = false;
 		update_item = 0;
 
 		$('.wall-item-body', data).imagesLoaded(function() {
@@ -640,9 +649,15 @@ function imgdull(node) {
 // trickery. This still could cause confusion if the "like" ajax call
 // is delayed and NavUpdate runs before it completes.
 
-function dolike(ident,verb) {
+/**
+ * @param {int}     ident The id of the relevant item
+ * @param {string}  verb  The verb of the action
+ * @param {boolean} un    Whether to perform an activity removal instead of creation
+ */
+function dolike(ident, verb, un) {
 	unpause();
 	$('#like-rotator-' + ident.toString()).show();
+	verb = un ? 'un' + verb : verb;
 	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate);
 	liking = 1;
 	force_update = true;

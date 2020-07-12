@@ -626,6 +626,26 @@ class Network
 	}
 
 	/**
+	 * Add a missing base path (scheme and host) to a given url
+	 *
+	 * @param string $url
+	 * @param string $basepath
+	 * @return string url
+	 */
+	public static function addBasePath(string $url, string $basepath)
+	{
+		if (!empty(parse_url($url, PHP_URL_SCHEME)) || empty(parse_url($basepath, PHP_URL_SCHEME)) || empty($url) || empty(parse_url($url))) {
+			return $url;
+		}
+
+		$base = ['scheme' => parse_url($basepath, PHP_URL_SCHEME),
+			'host' => parse_url($basepath, PHP_URL_HOST)];
+
+		$parts = array_merge($base, parse_url('/' . ltrim($url, '/')));
+		return self::unparseURL($parts);
+	}
+
+	/**
 	 * Returns the original URL of the provided URL
 	 *
 	 * This function strips tracking query params and follows redirections, either
@@ -909,5 +929,47 @@ class Network
 		$parsed['query'] = http_build_query($params);
 
 		return self::unparseURL($parsed);
+	}
+
+	/**
+	 * Generates ETag and Last-Modified response headers and checks them against
+	 * If-None-Match and If-Modified-Since request headers if present.
+	 *
+	 * Blocking function, sends 304 headers and exits if check passes.
+	 *
+	 * @param string $etag          The page etag
+	 * @param string $last_modified The page last modification UTC date
+	 * @throws \Exception
+	 */
+	public static function checkEtagModified(string $etag, string $last_modified)
+	{
+		$last_modified = DateTimeFormat::utc($last_modified, 'D, d M Y H:i:s') . ' GMT';
+
+		/**
+		 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.26
+		 */
+		$if_none_match     = filter_input(INPUT_SERVER, 'HTTP_IF_NONE_MATCH');
+		$if_modified_since = filter_input(INPUT_SERVER, 'HTTP_IF_MODIFIED_SINCE');
+		$flag_not_modified = null;
+		if ($if_none_match) {
+			$result = [];
+			preg_match('/^(?:W\/")?([^"]+)"?$/i', $etag, $result);
+			$etagTrimmed = $result[1];
+			// Lazy exact ETag match, could check weak/strong ETags
+			$flag_not_modified = $if_none_match == '*' || strpos($if_none_match, $etagTrimmed) !== false;
+		}
+
+		if ($if_modified_since && (!$if_none_match || $flag_not_modified)) {
+			// Lazy exact Last-Modified match, could check If-Modified-Since validity
+			$flag_not_modified = $if_modified_since == $last_modified;
+		}
+
+		header('Etag: ' . $etag);
+		header('Last-Modified: ' . $last_modified);
+
+		if ($flag_not_modified) {
+			header("HTTP/1.1 304 Not Modified");
+			exit;
+		}
 	}
 }

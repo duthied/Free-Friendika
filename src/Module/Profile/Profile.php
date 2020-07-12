@@ -35,7 +35,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile as ProfileModel;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
@@ -54,6 +54,8 @@ class Profile extends BaseProfile
 				// The function returns an empty array when the account is removed, expired or blocked
 				$data = ActivityPub\Transmitter::getProfile($user['uid']);
 				if (!empty($data)) {
+					header('Access-Control-Allow-Origin: *');
+					header('Cache-Control: max-age=23200, stale-while-revalidate=23200');
 					System::jsonExit($data, 'application/activity+json');
 				}
 			}
@@ -182,7 +184,7 @@ class Profile extends BaseProfile
 			foreach (explode(',', $a->profile['pub_keywords']) as $tag_label) {
 				$tags[] = [
 					'url' => '/search?tag=' . $tag_label,
-					'label' => Term::TAG_CHARACTER[Term::HASHTAG] . $tag_label,
+					'label' => Tag::TAG_CHARACTER[Tag::HASHTAG] . $tag_label,
 				];
 			}
 
@@ -297,10 +299,10 @@ class Profile extends BaseProfile
 			$htmlhead .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 		}
 
-		$htmlhead .= '<link rel="alternate" type="application/atom+xml" href="' . $baseUrl . '/dfrn_poll/' . $nickname . '" title="DFRN: ' . DI::l10n()->t('%s\'s timeline', $profile['username']) . '"/>' . "\n";
-		$htmlhead .= '<link rel="alternate" type="application/atom+xml" href="' . $baseUrl . '/feed/' . $nickname . '/" title="' . DI::l10n()->t('%s\'s posts', $profile['username']) . '"/>' . "\n";
-		$htmlhead .= '<link rel="alternate" type="application/atom+xml" href="' . $baseUrl . '/feed/' . $nickname . '/comments" title="' . DI::l10n()->t('%s\'s comments', $profile['username']) . '"/>' . "\n";
-		$htmlhead .= '<link rel="alternate" type="application/atom+xml" href="' . $baseUrl . '/feed/' . $nickname . '/activity" title="' . DI::l10n()->t('%s\'s timeline', $profile['username']) . '"/>' . "\n";
+		$htmlhead .= '<link rel="alternate" type="application/atom+xml" href="' . $baseUrl . '/dfrn_poll/' . $nickname . '" title="DFRN: ' . DI::l10n()->t('%s\'s timeline', $profile['name']) . '"/>' . "\n";
+		$htmlhead .= '<link rel="alternate" type="application/atom+xml" href="' . $baseUrl . '/feed/' . $nickname . '/" title="' . DI::l10n()->t('%s\'s posts', $profile['name']) . '"/>' . "\n";
+		$htmlhead .= '<link rel="alternate" type="application/atom+xml" href="' . $baseUrl . '/feed/' . $nickname . '/comments" title="' . DI::l10n()->t('%s\'s comments', $profile['name']) . '"/>' . "\n";
+		$htmlhead .= '<link rel="alternate" type="application/atom+xml" href="' . $baseUrl . '/feed/' . $nickname . '/activity" title="' . DI::l10n()->t('%s\'s timeline', $profile['name']) . '"/>' . "\n";
 		$uri = urlencode('acct:' . $profile['nickname'] . '@' . $baseUrl->getHostname() . ($baseUrl->getUrlPath() ? '/' . $baseUrl->getUrlPath() : ''));
 		$htmlhead .= '<link rel="lrdd" type="application/xrd+xml" href="' . $baseUrl . '/xrd/?uri=' . $uri . '" />' . "\n";
 		header('Link: <' . $baseUrl . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);

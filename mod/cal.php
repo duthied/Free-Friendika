@@ -37,17 +37,18 @@ use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Module\BaseProfile;
+use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
 function cal_init(App $a)
 {
 	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
-		throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 	}
 
 	if ($a->argc < 2) {
-		throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 	}
 
 	Nav::setSelected('events');
@@ -55,7 +56,7 @@ function cal_init(App $a)
 	$nick = $a->argv[1];
 	$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'blocked' => false]);
 	if (!DBA::isResult($user)) {
-		throw new \Friendica\Network\HTTPException\NotFoundException();
+		throw new HTTPException\NotFoundException();
 	}
 
 	$a->data['user'] = $user;
@@ -67,18 +68,22 @@ function cal_init(App $a)
 		return;
 	}
 
-	$profile = Profile::getByNickname($nick, $a->profile_uid);
+	$a->profile = Profile::getByNickname($nick, $a->profile_uid);
 
-	$account_type = Contact::getAccountType($profile);
+	if (empty($a->profile)) {
+		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+	}
+
+	$account_type = Contact::getAccountType($a->profile);
 
 	$tpl = Renderer::getMarkupTemplate('widget/vcard.tpl');
 
 	$vcard_widget = Renderer::replaceMacros($tpl, [
-		'$name' => $profile['name'],
-		'$photo' => $profile['photo'],
-		'$addr' => $profile['addr'] ?: '',
+		'$name' => $a->profile['name'],
+		'$photo' => $a->profile['photo'],
+		'$addr' => $a->profile['addr'] ?: '',
 		'$account_type' => $account_type,
-		'$about' => BBCode::convert($profile['about'] ?: ''),
+		'$about' => BBCode::convert($a->profile['about']),
 	]);
 
 	$cal_widget = Widget\CalendarExport::getHTML();

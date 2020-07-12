@@ -58,14 +58,12 @@ class Delivery
 		if ($cmd == self::MAIL) {
 			$target_item = DBA::selectFirst('mail', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
-				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::SUGGESTION) {
 			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
-				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 			$uid = $target_item['uid'];
@@ -75,7 +73,6 @@ class Delivery
 		} else {
 			$item = Model\Item::selectFirst(['parent'], ['id' => $target_id]);
 			if (!DBA::isResult($item) || empty($item['parent'])) {
-				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 			$parent_id = intval($item['parent']);
@@ -97,13 +94,12 @@ class Delivery
 
 			if (empty($target_item)) {
 				Logger::log('Item ' . $target_id . "wasn't found. Quitting here.");
-				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 
 			if (empty($parent)) {
 				Logger::log('Parent ' . $parent_id . ' for item ' . $target_id . "wasn't found. Quitting here.");
-				self::setFailedQueue($cmd, $target_id);
+				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
 
@@ -113,7 +109,7 @@ class Delivery
 				$uid = $target_item['uid'];
 			} else {
 				Logger::log('Only public users for item ' . $target_id, Logger::DEBUG);
-				self::setFailedQueue($cmd, $target_id);
+				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
 
@@ -127,7 +123,7 @@ class Delivery
 
 			if (!empty($contact_id) && Model\Contact::isArchived($contact_id)) {
 				Logger::info('Contact is archived', ['id' => $contact_id, 'cmd' => $cmd, 'item' => $target_item['id']]);
-				self::setFailedQueue($cmd, $target_id);
+				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
 
@@ -187,7 +183,7 @@ class Delivery
 
 		$owner = Model\User::getOwnerDataById($uid);
 		if (!DBA::isResult($owner)) {
-			self::setFailedQueue($cmd, $target_id);
+			self::setFailedQueue($cmd, $target_item);
 			return;
 		}
 
@@ -196,12 +192,12 @@ class Delivery
 			['id' => $contact_id, 'blocked' => false, 'pending' => false, 'self' => false]
 		);
 		if (!DBA::isResult($contact)) {
-			self::setFailedQueue($cmd, $target_id);
+			self::setFailedQueue($cmd, $target_item);
 			return;
 		}
 
 		if (Network::isUrlBlocked($contact['url'])) {
-			self::setFailedQueue($cmd, $target_id);
+			self::setFailedQueue($cmd, $target_item);
 			return;
 		}
 
@@ -242,16 +238,16 @@ class Delivery
 	/**
 	 * Increased the "failed" counter in the item delivery data
 	 *
-	 * @param string  $cmd Command
-	 * @param integer $id  Item id
+	 * @param string $cmd  Command
+	 * @param array  $item Item array
 	 */
-	private static function setFailedQueue(string $cmd, int $id)
+	private static function setFailedQueue(string $cmd, array $item)
 	{
 		if (!in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 			return;
 		}
 
-		Model\ItemDeliveryData::incrementQueueFailed($id);
+		Model\Post\DeliveryData::incrementQueueFailed($item['uri-id'] ?? $item['id']);
 	}
 
 	/**
@@ -335,13 +331,13 @@ class Delivery
 			DFRN::import($atom, $target_importer);
 
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::DFRN);
+				Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::DFRN);
 			}
 
 			return;
 		}
 
-		$protocol = Model\ItemDeliveryData::DFRN;
+		$protocol = Model\Post\DeliveryData::DFRN;
 
 		// We don't have a relationship with contacts on a public post.
 		// Se we transmit with the new method and via Diaspora as a fallback
@@ -357,9 +353,9 @@ class Delivery
 
 				if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 					if (($deliver_status >= 200) && ($deliver_status <= 299)) {
-						Model\ItemDeliveryData::incrementQueueDone($target_item['id'], $protocol);
+						Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], $protocol);
 					} else {
-						Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+						Model\Post\DeliveryData::incrementQueueFailed($target_item['uri-id']);
 					}
 				}
 				return;
@@ -376,11 +372,11 @@ class Delivery
 			if ($deliver_status < 200) {
 				// Legacy DFRN
 				$deliver_status = DFRN::deliver($owner, $contact, $atom);
-				$protocol = Model\ItemDeliveryData::LEGACY_DFRN;
+				$protocol = Model\Post\DeliveryData::LEGACY_DFRN;
 			}
 		} else {
 			$deliver_status = DFRN::deliver($owner, $contact, $atom);
-			$protocol = Model\ItemDeliveryData::LEGACY_DFRN;
+			$protocol = Model\Post\DeliveryData::LEGACY_DFRN;
 		}
 
 		Logger::info('DFRN Delivery', ['cmd' => $cmd, 'url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id'], 'return' => $deliver_status]);
@@ -390,7 +386,7 @@ class Delivery
 			Model\Contact::unmarkForArchival($contact);
 
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], $protocol);
+				Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], $protocol);
 			}
 		} else {
 			// The message could not be delivered. We mark the contact as "dead"
@@ -398,7 +394,7 @@ class Delivery
 
 			Logger::info('Delivery failed: defer message', ['id' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
 			if (!Worker::defer() && in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+				Model\Post\DeliveryData::incrementQueueFailed($target_item['uri-id']);
 			}
 		}
 	}
@@ -475,7 +471,7 @@ class Delivery
 			Model\Contact::unmarkForArchival($contact);
 
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::DIASPORA);
+				Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::DIASPORA);
 			}
 		} else {
 			// The message could not be delivered. We mark the contact as "dead"
@@ -490,10 +486,10 @@ class Delivery
 				Logger::info('Delivery failed: defer message', ['id' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
 				// defer message for redelivery
 				if (!Worker::defer() && in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-					Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+					Model\Post\DeliveryData::incrementQueueFailed($target_item['uri-id']);
 				}
 			} elseif (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+				Model\Post\DeliveryData::incrementQueueFailed($target_item['uri-id']);
 			}
 		}
 	}
@@ -564,7 +560,8 @@ class Delivery
 				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $local_user['email'] . '>' . "\n";
 			}
 		} else {
-			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <noreply@' . DI::baseUrl()->getHostname() . '>' . "\n";
+			$sender = DI::config()->get('config', 'sender_email', 'noreply@' . DI::baseUrl()->getHostname());
+			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <' . $sender . '>' . "\n";
 		}
 
 		$headers .= 'Message-Id: <' . Email::iri2msgid($target_item['uri']) . '>' . "\n";
@@ -602,7 +599,7 @@ class Delivery
 
 		Email::send($addr, $subject, $headers, $target_item);
 
-		Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::MAIL);
+		Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::MAIL);
 
 		Logger::info('Delivered via mail', ['guid' => $target_item['guid'], 'to' => $addr, 'subject' => $subject]);
 	}

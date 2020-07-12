@@ -34,9 +34,10 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Profile;
 use Friendica\Model\Photo;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -61,24 +62,42 @@ require_once 'mod/share.php';
 class Transmitter
 {
 	/**
-	 * collects the lost of followers of the given owner
+	 * Collects a list of contacts of the given owner
 	 *
-	 * @param array   $owner Owner array
-	 * @param integer $page  Page number
+	 * @param array     $owner  Owner array
+	 * @param int|array $rel    The relevant value(s) contact.rel should match
+	 * @param string    $module The name of the relevant AP endpoint module (followers|following)
+	 * @param integer   $page   Page number
 	 *
 	 * @return array of owners
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function getFollowers($owner, $page = null)
+	public static function getContacts($owner, $rel, $module, $page = null)
 	{
-		$condition = ['rel' => [Contact::FOLLOWER, Contact::FRIEND], 'network' => Protocol::FEDERATED, 'uid' => $owner['uid'],
-			'self' => false, 'deleted' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
-		$count = DBA::count('contact', $condition);
+		$parameters = [
+			'rel' => $rel,
+			'uid' => $owner['uid'],
+			'self' => false,
+			'deleted' => false,
+			'hidden' => false,
+			'archive' => false,
+			'pending' => false
+		];
+		$condition = DBA::buildCondition($parameters);
+
+		$sql = "SELECT COUNT(*) as `count`
+			FROM `contact`
+			JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
+			" . $condition;
+
+		$contacts = DBA::fetchFirst($sql, ...$parameters);
+
+		$modulePath = '/' . $module . '/';
 
 		$data = ['@context' => ActivityPub::CONTEXT];
-		$data['id'] = DI::baseUrl() . '/followers/' . $owner['nickname'];
+		$data['id'] = DI::baseUrl() . $modulePath . $owner['nickname'];
 		$data['type'] = 'OrderedCollection';
-		$data['totalItems'] = $count;
+		$data['totalItems'] = $contacts['count'];
 
 		// When we hide our friends we will only show the pure number but don't allow more.
 		$profile = Profile::getByUID($owner['uid']);
@@ -87,70 +106,31 @@ class Transmitter
 		}
 
 		if (empty($page)) {
-			$data['first'] = DI::baseUrl() . '/followers/' . $owner['nickname'] . '?page=1';
+			$data['first'] = DI::baseUrl() . $modulePath . $owner['nickname'] . '?page=1';
 		} else {
 			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
 
-			$contacts = DBA::select('contact', ['url'], $condition, ['limit' => [($page - 1) * 100, 100]]);
+			$sql = "SELECT `contact`.`url`
+				FROM `contact`
+				JOIN `apcontact` ON `apcontact`.`url` = `contact`.`url`
+				" . $condition . "
+				LIMIT ?, ?";
+
+			$parameters[] = ($page - 1) * 100;
+			$parameters[] = 100;
+
+			$contacts = DBA::p($sql, ...$parameters);
 			while ($contact = DBA::fetch($contacts)) {
 				$list[] = $contact['url'];
 			}
+			DBA::close($contacts);
 
 			if (!empty($list)) {
-				$data['next'] = DI::baseUrl() . '/followers/' . $owner['nickname'] . '?page=' . ($page + 1);
+				$data['next'] = DI::baseUrl() . $modulePath . $owner['nickname'] . '?page=' . ($page + 1);
 			}
 
-			$data['partOf'] = DI::baseUrl() . '/followers/' . $owner['nickname'];
-
-			$data['orderedItems'] = $list;
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Create list of following contacts
-	 *
-	 * @param array   $owner Owner array
-	 * @param integer $page  Page numbe
-	 *
-	 * @return array of following contacts
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function getFollowing($owner, $page = null)
-	{
-		$condition = ['rel' => [Contact::SHARING, Contact::FRIEND], 'network' => Protocol::FEDERATED, 'uid' => $owner['uid'],
-			'self' => false, 'deleted' => false, 'hidden' => false, 'archive' => false, 'pending' => false];
-		$count = DBA::count('contact', $condition);
-
-		$data = ['@context' => ActivityPub::CONTEXT];
-		$data['id'] = DI::baseUrl() . '/following/' . $owner['nickname'];
-		$data['type'] = 'OrderedCollection';
-		$data['totalItems'] = $count;
-
-		// When we hide our friends we will only show the pure number but don't allow more.
-		$profile = Profile::getByUID($owner['uid']);
-		if (!empty($profile['hide-friends'])) {
-			return $data;
-		}
-
-		if (empty($page)) {
-			$data['first'] = DI::baseUrl() . '/following/' . $owner['nickname'] . '?page=1';
-		} else {
-			$data['type'] = 'OrderedCollectionPage';
-			$list = [];
-
-			$contacts = DBA::select('contact', ['url'], $condition, ['limit' => [($page - 1) * 100, 100]]);
-			while ($contact = DBA::fetch($contacts)) {
-				$list[] = $contact['url'];
-			}
-
-			if (!empty($list)) {
-				$data['next'] = DI::baseUrl() . '/following/' . $owner['nickname'] . '?page=' . ($page + 1);
-			}
-
-			$data['partOf'] = DI::baseUrl() . '/following/' . $owner['nickname'];
+			$data['partOf'] = DI::baseUrl() . $modulePath . $owner['nickname'];
 
 			$data['orderedItems'] = $list;
 		}
@@ -405,7 +385,7 @@ class Transmitter
 			$actor_profile = APContact::getByURL($item['author-link']);
 		}
 
-		$terms = Term::tagArrayFromItemId($item['id'], [Term::MENTION, Term::IMPLICIT_MENTION]);
+		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
 		if ($item['private'] != Item::PRIVATE) {
 			// Directly mention the original author upon a quoted reshare.
@@ -478,7 +458,7 @@ class Transmitter
 								$data['to'][] = $profile['url'];
 							} else {
 								$data['cc'][] = $profile['url'];
-								if (($item['private'] != Item::PRIVATE) && $item['private'] && !empty($actor_profile['followers'])) {
+								if (($item['private'] != Item::PRIVATE) && !empty($actor_profile['followers'])) {
 									$data['cc'][] = $actor_profile['followers'];
 								}
 							}
@@ -659,7 +639,7 @@ class Transmitter
 					continue;
 				}
 
-				if ($receiver == $item_profile['followers']) {
+				if ($item_profile && $receiver == $item_profile['followers']) {
 					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal));
 				} else {
 					if (Contact::isLocal($receiver)) {
@@ -698,6 +678,8 @@ class Transmitter
 		if (!DBA::isResult($mail)) {
 			return [];
 		}
+
+		$mail['uri-id'] = ItemURI::insert(['uri' => $mail['uri'], 'guid' => $mail['guid']]);
 
 		$reply = DBA::selectFirst('mail', ['uri'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
 
@@ -747,7 +729,7 @@ class Transmitter
 			$data = [];
 		}
 
-		$data['id'] = $mail['uri'] . '#Create';
+		$data['id'] = $mail['uri'] . '/Create';
 		$data['type'] = 'Create';
 		$data['actor'] = $mail['author-link'];
 		$data['published'] = DateTimeFormat::utc($mail['created'] . '+00:00', DateTimeFormat::ATOM);
@@ -852,7 +834,7 @@ class Transmitter
 			}
 		}
 
-		$data = ActivityPub\Transmitter::createActivityFromItem($item_id);
+		$data = self::createActivityFromItem($item_id);
 
 		DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
 		return $data;
@@ -881,8 +863,8 @@ class Transmitter
 				$type = 'Announce';
 
 				// Disguise forum posts as reshares. Will later be converted to a real announce
-				$item['body'] = share_header($item['author-name'], $item['author-link'], $item['author-avatar'],
-					$item['guid'], $item['created'], $item['plink']) . $item['body'] . '[/share]';
+				$item['body'] = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'],
+					$item['plink'], $item['created'], $item['guid']) . $item['body'] . '[/share]';
 			}
 		}
 
@@ -891,8 +873,21 @@ class Transmitter
 			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
 			if (DBA::isResult($conversation)) {
 				$data = json_decode($conversation['source'], true);
-				if (!empty($data)) {
-					return $data;
+				if (!empty($data['type'])) {
+					if (in_array($data['type'], ['Create', 'Update'])) {
+						if ($object_mode) {
+							unset($data['@context']);
+							unset($data['signature']);
+						}
+						return $data;
+					} elseif (in_array('as:' . $data['type'], Receiver::CONTENT_TYPES)) {
+						if (!empty($data['@context'])) {
+							$context = $data['@context'];
+							unset($data['@context']);
+						}
+						unset($data['actor']);
+						$object = $data;
+					}
 				}
 			}
 
@@ -900,7 +895,7 @@ class Transmitter
 		}
 
 		if (!$object_mode) {
-			$data = ['@context' => ActivityPub::CONTEXT];
+			$data = ['@context' => $context ?? ActivityPub::CONTEXT];
 
 			if ($item['deleted'] && ($item['gravity'] == GRAVITY_ACTIVITY)) {
 				$type = 'Undo';
@@ -911,7 +906,7 @@ class Transmitter
 			$data = [];
 		}
 
-		$data['id'] = $item['uri'] . '#' . $type;
+		$data['id'] = $item['uri'] . '/' . $type;
 		$data['type'] = $type;
 
 		if (Item::isForumPost($item) && ($type != 'Announce')) {
@@ -927,7 +922,7 @@ class Transmitter
 		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
-			$data['object'] = self::createNote($item);
+			$data['object'] = $object ?? self::createNote($item);
 		} elseif ($data['type'] == 'Add') {
 			$data = self::createAddTag($item, $data);
 		} elseif ($data['type'] == 'Announce') {
@@ -1007,12 +1002,12 @@ class Transmitter
 	{
 		$tags = [];
 
-		$terms = Term::tagArrayFromItemId($item['id'], [Term::HASHTAG, Term::MENTION, Term::IMPLICIT_MENTION]);
+		$terms = Tag::getByURIId($item['uri-id'], [Tag::HASHTAG, Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 		foreach ($terms as $term) {
-			if ($term['type'] == Term::HASHTAG) {
-				$url = DI::baseUrl() . '/search?tag=' . urlencode($term['term']);
-				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['term']];
-			} elseif ($term['type'] == Term::MENTION || $term['type'] == Term::IMPLICIT_MENTION) {
+			if ($term['type'] == Tag::HASHTAG) {
+				$url = DI::baseUrl() . '/search?tag=' . urlencode($term['name']);
+				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['name']];
+			} else {
 				$contact = Contact::getDetailsByURL($term['url']);
 				if (!empty($contact['addr'])) {
 					$mention = '@' . $contact['addr'];
@@ -1211,15 +1206,14 @@ class Transmitter
 	/**
 	 * Returns if the post contains sensitive content ("nsfw")
 	 *
-	 * @param integer $item_id
+	 * @param integer $uri_id
 	 *
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	private static function isSensitive($item_id)
+	private static function isSensitive($uri_id)
 	{
-		$condition = ['otype' => TERM_OBJ_POST, 'oid' => $item_id, 'type' => TERM_HASHTAG, 'term' => 'nsfw'];
-		return DBA::exists('term', $condition);
+		return DBA::exists('tag-view', ['uri-id' => $uri_id, 'name' => 'nsfw']);
 	}
 
 	/**
@@ -1234,7 +1228,7 @@ class Transmitter
 	{
 		$event = [];
 		$event['name'] = $item['event-summary'];
-		$event['content'] = BBCode::convert($item['event-desc'], false, 9);
+		$event['content'] = BBCode::convert($item['event-desc'], false, BBCode::ACTIVITYPUB);
 		$event['startTime'] = DateTimeFormat::utc($item['event-start'] . '+00:00', DateTimeFormat::ATOM);
 
 		if (!$item['event-nofinish']) {
@@ -1301,7 +1295,7 @@ class Transmitter
 
 		$data['url'] = $item['plink'];
 		$data['attributedTo'] = $item['author-link'];
-		$data['sensitive'] = self::isSensitive($item['id']);
+		$data['sensitive'] = self::isSensitive($item['uri-id']);
 		$data['context'] = self::fetchContextURLForItem($item);
 
 		if (!empty($item['title'])) {
@@ -1313,7 +1307,7 @@ class Transmitter
 		$body = $item['body'];
 
 		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions')) {
-			$body = self::prependMentions($body, $permission_block);
+			$body = self::prependMentions($body, $item['uri-id']);
 		}
 
 		if ($type == 'Note') {
@@ -1328,7 +1322,7 @@ class Transmitter
 			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
 			$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
 
-			$data['content'] = BBCode::convert($body, false, 9);
+			$data['content'] = BBCode::convert($body, false, BBCode::ACTIVITYPUB);
 		}
 
 		// The regular "content" field does contain a minimized HTML. This is done since systems like
@@ -1406,8 +1400,8 @@ class Transmitter
 	 */
 	private static function createAddTag($item, $data)
 	{
-		$object = XML::parseString($item['object'], false);
-		$target = XML::parseString($item["target"], false);
+		$object = XML::parseString($item['object']);
+		$target = XML::parseString($item["target"]);
 
 		$data['diaspora:guid'] = $item['guid'];
 		$data['actor'] = $item['author-link'];
@@ -1862,22 +1856,18 @@ class Transmitter
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
-	private static function prependMentions($body, array $permission_block)
+	private static function prependMentions($body, int $uriid)
 	{
-		if (DI::config()->get('system', 'disable_implicit_mentions')) {
-			return $body;
-		}
-
 		$mentions = [];
 
-		foreach ($permission_block['to'] as $profile_url) {
-			$profile = Contact::getDetailsByURL($profile_url);
+		foreach (Tag::getByURIId($uriid, [Tag::IMPLICIT_MENTION]) as $tag) {
+			$profile = Contact::getDetailsByURL($tag['url']);
 			if (!empty($profile['addr'])
 				&& $profile['contact-type'] != Contact::TYPE_COMMUNITY
 				&& !strstr($body, $profile['addr'])
-				&& !strstr($body, $profile_url)
+				&& !strstr($body, $tag['url'])
 			) {
-				$mentions[] = '@[url=' . $profile_url . ']' . $profile['nick'] . '[/url]';
+				$mentions[] = '@[url=' . $tag['url'] . ']' . $profile['nick'] . '[/url]';
 			}
 		}
 

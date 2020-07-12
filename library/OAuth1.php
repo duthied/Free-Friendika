@@ -96,7 +96,7 @@ abstract class OAuthSignatureMethod
 	 * @param OAuthToken    $token
 	 * @return string
 	 */
-	abstract public function build_signature(OAuthRequest $request, OAuthConsumer $consumer, OAuthToken $token);
+	abstract public function build_signature(OAuthRequest $request, OAuthConsumer $consumer, OAuthToken $token = null);
 
 	/**
 	 * Verifies that a given signature is correct
@@ -107,7 +107,7 @@ abstract class OAuthSignatureMethod
 	 * @param string        $signature
 	 * @return bool
 	 */
-	public function check_signature($request, $consumer, $token, $signature)
+	public function check_signature(OAuthRequest $request, OAuthConsumer $consumer, $signature, OAuthToken $token = null)
 	{
 		$built = $this->build_signature($request, $consumer, $token);
 		return ($built == $signature);
@@ -134,7 +134,7 @@ class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod
 	 * @param OAuthToken    $token
 	 * @return string
 	 */
-	public function build_signature(OAuthRequest $request, OAuthConsumer $consumer, OAuthToken $token)
+	public function build_signature(OAuthRequest $request, OAuthConsumer $consumer, OAuthToken $token = null)
 	{
 		$base_string = $request->get_signature_base_string();
 		$request->base_string = $base_string;
@@ -179,7 +179,7 @@ class OAuthSignatureMethod_PLAINTEXT extends OAuthSignatureMethod
 	 * @param $token
 	 * @return string
 	 */
-	public function build_signature(OAuthRequest $request, OAuthConsumer $consumer, OAuthToken $token)
+	public function build_signature(OAuthRequest $request, OAuthConsumer $consumer, OAuthToken $token = null)
 	{
 		$key_parts = array(
 			$consumer->secret,
@@ -223,7 +223,7 @@ abstract class OAuthSignatureMethod_RSA_SHA1 extends OAuthSignatureMethod
 	// Either way should return a string representation of the certificate
 	protected abstract function fetch_private_cert(&$request);
 
-	public function build_signature(OAuthRequest $request, OAuthConsumer $consumer, OAuthToken $token)
+	public function build_signature(OAuthRequest $request, OAuthConsumer $consumer, OAuthToken $token = null)
 	{
 		$base_string = $request->get_signature_base_string();
 		$request->base_string = $base_string;
@@ -243,7 +243,7 @@ abstract class OAuthSignatureMethod_RSA_SHA1 extends OAuthSignatureMethod
 		return base64_encode($signature);
 	}
 
-	public function check_signature($request, $consumer, $token, $signature)
+	public function check_signature(OAuthRequest $request, OAuthConsumer $consumer, $signature, OAuthToken $token = null)
 	{
 		$decoded_sig = base64_decode($signature);
 
@@ -358,7 +358,7 @@ class OAuthRequest
 	 * @param array|null    $parameters
 	 * @return OAuthRequest
 	 */
-	public static function from_consumer_and_token(OAuthConsumer $consumer, OAuthToken $token, $http_method, $http_url, array $parameters = NULL)
+	public static function from_consumer_and_token(OAuthConsumer $consumer, $http_method, $http_url, array $parameters = null, OAuthToken $token = null)
 	{
 		@$parameters or $parameters = array();
 		$defaults = array(
@@ -788,10 +788,9 @@ class OAuthServer
 		$valid_sig = $signature_method->check_signature(
 			$request,
 			$consumer,
-			$token,
-			$signature
+			$signature,
+			$token
 		);
-
 
 		if (!$valid_sig) {
 			throw new OAuthException("Invalid signature");

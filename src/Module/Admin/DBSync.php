@@ -102,6 +102,7 @@ class DBSync extends BaseAdmin
 				$failed[] = $upd;
 			}
 		}
+		DBA::close($configStmt);
 
 		if (!count($failed)) {
 			$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('admin/dbsync/structure_check.tpl'), [

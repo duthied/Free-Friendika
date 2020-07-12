@@ -145,7 +145,7 @@ class ActivityPub
 	{
 		$apcontact = APContact::getByURL($url, $update);
 		if (empty($apcontact)) {
-			return false;
+			return [];
 		}
 
 		$profile = ['network' => Protocol::ACTIVITYPUB];
@@ -170,7 +170,9 @@ class ActivityPub
 		$profile['notify'] = $apcontact['inbox'];
 		$profile['poll'] = $apcontact['outbox'];
 		$profile['pubkey'] = $apcontact['pubkey'];
+		$profile['subscribe'] = $apcontact['subscribe'];
 		$profile['baseurl'] = $apcontact['baseurl'];
+		$profile['gsid'] = $apcontact['gsid'];
 
 		// Remove all "null" fields
 		foreach ($profile as $field => $content) {

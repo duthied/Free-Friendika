@@ -125,7 +125,7 @@ class Contact extends BaseModule
 
 		$fetch_further_information = intval($_POST['fetch_further_information'] ?? 0);
 
-		$ffi_keyword_blacklist = Strings::escapeHtml(trim($_POST['ffi_keyword_blacklist'] ?? ''));
+		$ffi_keyword_denylist = Strings::escapeHtml(trim($_POST['ffi_keyword_denylist'] ?? ''));
 
 		$priority = intval($_POST['poll'] ?? 0);
 		if ($priority > 5 || $priority < 0) {
@@ -140,7 +140,7 @@ class Contact extends BaseModule
 			'hidden'     => $hidden,
 			'notify_new_posts' => $notify,
 			'fetch_further_information' => $fetch_further_information,
-			'ffi_keyword_blacklist'     => $ffi_keyword_blacklist],
+			'ffi_keyword_denylist'     => $ffi_keyword_denylist],
 			['id' => $contact_id, 'uid' => local_user()]
 		);
 
@@ -167,10 +167,9 @@ class Contact extends BaseModule
 			return;
 		}
 
-		$uid = $contact['uid'];
-
 		if ($contact['network'] == Protocol::OSTATUS) {
-			$result = Model\Contact::createFromProbe($uid, $contact['url'], false, $contact['network']);
+			$user = Model\User::getById($contact['uid']);
+			$result = Model\Contact::createFromProbe($user, $contact['url'], false, $contact['network']);
 
 			if ($result['success']) {
 				DBA::update('contact', ['subhub' => 1], ['id' => $contact_id]);
@@ -613,7 +612,7 @@ class Contact extends BaseModule
 				'$hidden'         => ['hidden', DI::l10n()->t('Hide this contact from others'), ($contact['hidden'] == 1), DI::l10n()->t('Replies/likes to your public posts <strong>may</strong> still be visible')],
 				'$notify'         => ['notify', DI::l10n()->t('Notification for new posts'), ($contact['notify_new_posts'] == 1), DI::l10n()->t('Send a notification of every new post of this contact')],
 				'$fetch_further_information' => $fetch_further_information,
-				'$ffi_keyword_blacklist' => ['ffi_keyword_blacklist', DI::l10n()->t('Blacklisted keywords'), $contact['ffi_keyword_blacklist'], DI::l10n()->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
+				'$ffi_keyword_denylist' => ['ffi_keyword_denylist', DI::l10n()->t('Keyword Deny List'), $contact['ffi_keyword_denylist'], DI::l10n()->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
 				'$photo'          => $contact['photo'],
 				'$name'           => $contact['name'],
 				'$dir_icon'       => $dir_icon,
@@ -715,15 +714,14 @@ class Contact extends BaseModule
 			$sql_values[] = $group;
 		}
 
-		$sql_extra .= Widget::unavailableNetworks();
-
 		$total = 0;
 		$stmt = DBA::p("SELECT COUNT(*) AS `total`
 			FROM `contact`
 			WHERE `uid` = ?
 			AND `self` = 0
 			AND NOT `deleted`
-			$sql_extra",
+			$sql_extra
+			" . Widget::unavailableNetworks(),
 			$sql_values
 		);
 		if (DBA::isResult($stmt)) {
@@ -976,7 +974,12 @@ class Contact extends BaseModule
 			$profiledata = Model\Contact::getDetailsByURL($contact['url']);
 
 			Model\Profile::load($a, '', $profiledata, true);
-			$o .= Model\Contact::getPostsFromUrl($contact['url'], true, $update);
+
+			if ($contact['uid'] == 0) {
+				$o .= Model\Contact::getPostsFromId($contact['id'], true, $update);
+			} else {
+				$o .= Model\Contact::getPostsFromUrl($contact['url'], true, $update);
+			}
 		}
 
 		return $o;
@@ -998,7 +1001,12 @@ class Contact extends BaseModule
 			}
 
 			Model\Profile::load($a, '', $profiledata, true);
-			$o .= Model\Contact::getPostsFromUrl($contact['url']);
+
+			if ($contact['uid'] == 0) {
+				$o .= Model\Contact::getPostsFromId($contact['id']);
+			} else {
+				$o .= Model\Contact::getPostsFromUrl($contact['url']);
+			}
 		}
 
 		return $o;

@@ -23,7 +23,8 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
-use Friendica\Model\ItemDeliveryData;
+use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
 
@@ -67,10 +68,14 @@ class APDelivery
 			}
 		}
 
+		// This should never fail and is temporariy (until the move to the "post" structure)
+		$item = Item::selectFirst(['uri-id'], ['id' => $target_id]);
+		$uriid = $item['uri-id'] ?? 0;
+
 		if (!$success && !Worker::defer() && in_array($cmd, [Delivery::POST])) {
-			ItemDeliveryData::incrementQueueFailed($target_id);
+			Post\DeliveryData::incrementQueueFailed($uriid);
 		} elseif ($success && in_array($cmd, [Delivery::POST])) {
-			ItemDeliveryData::incrementQueueDone($target_id, ItemDeliveryData::ACTIVITYPUB);
+			Post\DeliveryData::incrementQueueDone($uriid, Post\DeliveryData::ACTIVITYPUB);
 		}
 	}
 }

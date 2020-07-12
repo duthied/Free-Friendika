@@ -29,23 +29,23 @@ Don't blame me too much for ugly code and hacks. Fix it ;-)
 
 #### Screenshots
 **Default**
-![Default - Stream](https://git.friendi.ca/friendica/friendica/raw/branch/master/view/theme/frio/img/screenshots/screenshot.png)
+![Default - Stream](https://git.friendi.ca/friendica/friendica/raw/branch/stable/view/theme/frio/img/screenshots/screenshot.png)
 
 **Modals**
-![Modals](https://git.friendi.ca/friendica/friendica/raw/branch/master/view/theme/frio/img/screenshots/screenshot-jot-modal.png)
+![Modals](https://git.friendi.ca/friendica/friendica/raw/branch/stable/view/theme/frio/img/screenshots/screenshot-jot-modal.png)
 
 **Theme - Settings**
-![Theme - Settings](https://git.friendi.ca/friendica/friendica/raw/branch/master/view/theme/frio/img/screenshots/screenshot-settings.png)
+![Theme - Settings](https://git.friendi.ca/friendica/friendica/raw/branch/stable/view/theme/frio/img/screenshots/screenshot-settings.png)
 
 **Red scheme**
-![Red scheme](https://git.friendi.ca/friendica/friendica/raw/branch/master/view/theme/frio/img/screenshots/screenshot-scheme-red.png)
+![Red scheme](https://git.friendi.ca/friendica/friendica/raw/branch/stable/view/theme/frio/img/screenshots/screenshot-scheme-red.png)
 
 **Love Music scheme**
-![Love Music scheme](https://git.friendi.ca/friendica/friendica/raw/branch/master/view/theme/frio/img/screenshots/screenshot-scheme-love-music.png)
+![Love Music scheme](https://git.friendi.ca/friendica/friendica/raw/branch/stable/view/theme/frio/img/screenshots/screenshot-scheme-love-music.png)
 
 **frio on mobile**
 
-![frio on mobile](https://git.friendi.ca/friendica/friendica/raw/branch/master/view/theme/frio/img/screenshots/screenshot-mobile.png)
+![frio on mobile](https://git.friendi.ca/friendica/friendica/raw/branch/stable/view/theme/frio/img/screenshots/screenshot-mobile.png)
 
 #### Credits:
 HumHub - Social Network Kit - <https://github.com/humhub/humhub>

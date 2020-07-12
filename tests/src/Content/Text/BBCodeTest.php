@@ -58,6 +58,9 @@ class BBCodeTest extends MockedTest
 		$this->configMock->shouldReceive('get')
 			->with('system', 'no_smilies')
 			->andReturn(false);
+		$this->configMock->shouldReceive('get')
+			->with('system', 'big_emojis')
+			->andReturn(false);
 
 		$l10nMock = \Mockery::mock(L10n::class);
 		$l10nMock->shouldReceive('t')->withAnyArgs()->andReturnUsing(function ($args) { return $args; });
@@ -233,7 +236,15 @@ class BBCodeTest extends MockedTest
 			'bug-7808-code-amp' => [
 				'expectedHtml' => '<code>&amp;</code>',
 				'text' => '[code]&[/code]',
-			]
+			],
+			'task-8800-pre-spaces-notag' => [
+				'expectedHtml' => '[test] Space',
+				'text' => '[test] Space',
+			],
+			'task-8800-pre-spaces' => [
+				'expectedHtml' => '&nbsp;&nbsp;&nbsp;&nbsp;Spaces',
+				'text' => '[pre]    Spaces[/pre]',
+			],
 		];
 	}
 

@@ -29,11 +29,12 @@
  */
 
 use Friendica\App;
-use Friendica\Content\Pager;
+use Friendica\Content\Item as ItemHelper;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -46,7 +47,7 @@ use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\Photo;
-use Friendica\Model\Term;
+use Friendica\Model\Tag;
 use Friendica\Network\HTTPException;
 use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
@@ -67,7 +68,10 @@ function item_post(App $a) {
 
 	if (!empty($_REQUEST['dropitems'])) {
 		$arr_drop = explode(',', $_REQUEST['dropitems']);
-		drop_items($arr_drop);
+		foreach ($arr_drop as $item) {
+			Item::deleteForUser(['id' => $item], $uid);
+		}
+
 		$json = ['success' => 1];
 		System::jsonExit($json);
 	}
@@ -101,13 +105,8 @@ function item_post(App $a) {
 	$toplevel_item_id = intval($_REQUEST['parent'] ?? 0);
 	$thr_parent_uri = trim($_REQUEST['parent_uri'] ?? '');
 
-	$thread_parent_id = 0;
-	$thread_parent_contact = null;
-
 	$toplevel_item = null;
 	$parent_user = null;
-
-	$parent_contact = null;
 
 	$objecttype = null;
 	$profile_uid = ($_REQUEST['profile_uid'] ?? 0) ?: local_user();
@@ -123,11 +122,9 @@ function item_post(App $a) {
 		// if this isn't the top-level parent of the conversation, find it
 		if (DBA::isResult($toplevel_item)) {
 			// The URI and the contact is taken from the direct parent which needn't to be the top parent
-			$thread_parent_id = $toplevel_item['id'];
 			$thr_parent_uri = $toplevel_item['uri'];
-			$thread_parent_contact = Contact::getDetailsByURL($toplevel_item["author-link"]);
 
-			if ($toplevel_item['id'] != $toplevel_item['parent']) {
+			if ($toplevel_item['gravity'] != GRAVITY_PARENT) {
 				$toplevel_item = Item::selectFirst([], ['id' => $toplevel_item['parent']]);
 			}
 		}
@@ -253,7 +250,7 @@ function item_post(App $a) {
 		$verb              = $orig_post['verb'];
 		$objecttype        = $orig_post['object-type'];
 		$app               = $orig_post['app'];
-		$categories        = $orig_post['file'];
+		$categories        = $orig_post['file'] ?? '';
 		$title             = Strings::escapeTags(trim($_REQUEST['title']));
 		$body              = trim($body);
 		$private           = $orig_post['private'];
@@ -370,74 +367,63 @@ function item_post(App $a) {
 
 	// get contact info for owner
 	if ($profile_uid == local_user() || $allow_comment) {
-		$contact_record = $author;
+		$contact_record = $author ?: [];
 	} else {
-		$contact_record = DBA::selectFirst('contact', [], ['uid' => $profile_uid, 'self' => true]);
+		$contact_record = DBA::selectFirst('contact', [], ['uid' => $profile_uid, 'self' => true]) ?: [];
 	}
 
 	// Look for any tags and linkify them
-	$str_tags = '';
 	$inform   = '';
-
-	$tags = BBCode::getTags($body);
-
-	if ($thread_parent_id && !\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions')) {
-		$tags = item_add_implicit_mentions($tags, $thread_parent_contact, $thread_parent_id);
-	}
-
-	$tagged = [];
-
 	$private_forum = false;
+	$private_id = null;
 	$only_to_forum = false;
 	$forum_contact = [];
 
-	if (count($tags)) {
+	$body = BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) use ($profile_uid, $network, $str_contact_allow, &$inform, &$private_forum, &$private_id, &$only_to_forum, &$forum_contact) {
+		$tags = BBCode::getTags($body);
+
+		$tagged = [];
+
 		foreach ($tags as $tag) {
 			$tag_type = substr($tag, 0, 1);
 
-			if ($tag_type == Term::TAG_CHARACTER[Term::HASHTAG]) {
+			if ($tag_type == Tag::TAG_CHARACTER[Tag::HASHTAG]) {
 				continue;
 			}
 
-			/*
-			 * If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
+			/* If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
 			 * Robert Johnson should be first in the $tags array
 			 */
-			$fullnametagged = false;
-			/// @TODO $tagged is initialized above if () block and is not filled, maybe old-lost code?
 			foreach ($tagged as $nextTag) {
 				if (stristr($nextTag, $tag . ' ')) {
-					$fullnametagged = true;
-					break;
+					continue 2;
 				}
 			}
-			if ($fullnametagged) {
-				continue;
-			}
 
-			$success = handle_tag($body, $inform, $str_tags, local_user() ? local_user() : $profile_uid, $tag, $network);
+			$success = ItemHelper::replaceTag($body, $inform, local_user() ? local_user() : $profile_uid, $tag, $network);
 			if ($success['replaced']) {
 				$tagged[] = $tag;
 			}
 			// When the forum is private or the forum is addressed with a "!" make the post private
-			if (is_array($success['contact']) && (!empty($success['contact']['prv']) || ($tag_type == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]))) {
+			if (!empty($success['contact']['prv']) || ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
 				$private_forum = $success['contact']['prv'];
-				$only_to_forum = ($tag_type == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]);
+				$only_to_forum = ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
 				$private_id = $success['contact']['id'];
 				$forum_contact = $success['contact'];
-			} elseif (is_array($success['contact']) && !empty($success['contact']['forum']) &&
-				($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
+			} elseif (!empty($success['contact']['forum']) && ($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
 				$private_forum = false;
 				$only_to_forum = true;
 				$private_id = $success['contact']['id'];
 				$forum_contact = $success['contact'];
 			}
 		}
-	}
+
+		return $body;
+	});
 
 	$original_contact_id = $contact_id;
 
-	if (!$toplevel_item_id && count($forum_contact) && ($private_forum || $only_to_forum)) {
+	if (!$toplevel_item_id && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
 		// we tagged a forum in a top level post. Now we change the post
 		$private = $private_forum;
 
@@ -578,9 +564,9 @@ function item_post(App $a) {
 	$datarray['gravity']       = $gravity;
 	$datarray['network']       = $network;
 	$datarray['contact-id']    = $contact_id;
-	$datarray['owner-name']    = $contact_record['name'];
-	$datarray['owner-link']    = $contact_record['url'];
-	$datarray['owner-avatar']  = $contact_record['thumb'];
+	$datarray['owner-name']    = $contact_record['name'] ?? '';
+	$datarray['owner-link']    = $contact_record['url'] ?? '';
+	$datarray['owner-avatar']  = $contact_record['thumb'] ?? '';
 	$datarray['owner-id']      = Contact::getIdForURL($datarray['owner-link']);
 	$datarray['author-name']   = $author['name'];
 	$datarray['author-link']   = $author['url'];
@@ -599,7 +585,6 @@ function item_post(App $a) {
 	$datarray['app']           = $app;
 	$datarray['location']      = $location;
 	$datarray['coord']         = $coord;
-	$datarray['tag']           = $str_tags;
 	$datarray['file']          = $categories;
 	$datarray['inform']        = $inform;
 	$datarray['verb']          = $verb;
@@ -656,7 +641,7 @@ function item_post(App $a) {
 
 	// Check for hashtags in the body and repair or add hashtag links
 	if ($preview || $orig_post) {
-		Item::setHashtags($datarray);
+		$datarray['body'] = Item::setHashtags($datarray['body']);
 	}
 
 	// preview mode - prepare the body for display and send it via json
@@ -664,6 +649,7 @@ function item_post(App $a) {
 		// We set the datarray ID to -1 because in preview mode the dataray
 		// doesn't have an ID.
 		$datarray["id"] = -1;
+		$datarray["uri-id"] = -1;
 		$datarray["item_id"] = -1;
 		$datarray["author-network"] = Protocol::DFRN;
 
@@ -696,7 +682,6 @@ function item_post(App $a) {
 		$fields = [
 			'title' => $datarray['title'],
 			'body' => $datarray['body'],
-			'tag' => $datarray['tag'],
 			'attach' => $datarray['attach'],
 			'file' => $datarray['file'],
 			'rendered-html' => $datarray['rendered-html'],
@@ -750,12 +735,18 @@ function item_post(App $a) {
 		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item couldn\'t be fetched.'));
 	}
 
+	Tag::storeFromBody($datarray['uri-id'], $datarray['body']);
+
+	if (!\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions') && ($datarray['gravity'] == GRAVITY_COMMENT)) {
+		Tag::createImplicitMentions($datarray['uri-id'], $datarray['thr-parent-id']);
+	}
+
 	// update filetags in pconfig
 	FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
 	// These notifications are sent if someone else is commenting other your wall
-	if ($toplevel_item_id) {
-		if ($contact_record != $author) {
+	if ($contact_record != $author) {
+		if ($toplevel_item_id) {
 			notification([
 				'type'         => Type::COMMENT,
 				'notify_flags' => $user['notify-flags'],
@@ -773,9 +764,7 @@ function item_post(App $a) {
 				'parent'       => $toplevel_item_id,
 				'parent_uri'   => $toplevel_item['uri']
 			]);
-		}
-	} else {
-		if (($contact_record != $author) && !count($forum_contact)) {
+		} elseif (empty($forum_contact)) {
 			notification([
 				'type'         => Type::WALL,
 				'notify_flags' => $user['notify-flags'],
@@ -863,7 +852,9 @@ function item_content(App $a)
 
 	if (($a->argc >= 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
 		if (DI::mode()->isAjax()) {
-			$o = Item::deleteForUser(['id' => $a->argv[2]], local_user());
+			Item::deleteForUser(['id' => $a->argv[2]], local_user());
+			// ajax return: [<item id>, 0 (no perm) | <owner id>]
+			System::jsonExit([intval($a->argv[2]), local_user()]);
 		} else {
 			if (!empty($a->argv[3])) {
 				$o = drop_item($a->argv[2], $a->argv[3]);
@@ -872,203 +863,110 @@ function item_content(App $a)
 				$o = drop_item($a->argv[2]);
 			}
 		}
-
-		if (DI::mode()->isAjax()) {
-			// ajax return: [<item id>, 0 (no perm) | <owner id>]
-			System::jsonExit([intval($a->argv[2]), intval($o)]);
-		}
 	}
 
 	return $o;
 }
 
 /**
- * This function removes the tag $tag from the text $body and replaces it with
- * the appropriate link.
- *
- * @param App     $a
- * @param string  $body     the text to replace the tag in
- * @param string  $inform   a comma-seperated string containing everybody to inform
- * @param string  $str_tags string to add the tag to
- * @param integer $profile_uid
- * @param string  $tag      the tag to replace
- * @param string  $network  The network of the post
- *
- * @return array|bool ['replaced' => $replaced, 'contact' => $contact];
- * @throws ImagickException
+ * @param int    $id
+ * @param string $return
+ * @return string
  * @throws HTTPException\InternalServerErrorException
  */
-function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "")
+function drop_item(int $id, string $return = '')
 {
-	$replaced = false;
-	$r = null;
+	// locate item to be deleted
+	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', 'parent'];
+	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
-	//is it a person tag?
-	if (Term::isType($tag, Term::MENTION, Term::IMPLICIT_MENTION, Term::EXCLUSIVE_MENTION)) {
-		$tag_type = substr($tag, 0, 1);
-		//is it already replaced?
-		if (strpos($tag, '[url=')) {
-			//append tag to str_tags
-			if (!stristr($str_tags, $tag)) {
-				if (strlen($str_tags)) {
-					$str_tags .= ',';
-				}
-				$str_tags .= $tag;
-			}
-
-			// Checking for the alias that is used for OStatus
-			$pattern = "/[@!]\[url\=(.*?)\](.*?)\[\/url\]/ism";
-			if (preg_match($pattern, $tag, $matches)) {
-				$data = Contact::getDetailsByURL($matches[1]);
-
-				if ($data["alias"] != "") {
-					$newtag = '@[url=' . $data["alias"] . ']' . $data["nick"] . '[/url]';
-
-					if (!stripos($str_tags, '[url=' . $data["alias"] . ']')) {
-						if (strlen($str_tags)) {
-							$str_tags .= ',';
-						}
-
-						$str_tags .= $newtag;
-					}
-				}
-			}
-
-			return $replaced;
-		}
-
-		//get the person's name
-		$name = substr($tag, 1);
-
-		// Sometimes the tag detection doesn't seem to work right
-		// This is some workaround
-		$nameparts = explode(" ", $name);
-		$name = $nameparts[0];
-
-		// Try to detect the contact in various ways
-		if (strpos($name, 'http://')) {
-			// At first we have to ensure that the contact exists
-			Contact::getIdForURL($name);
-
-			// Now we should have something
-			$contact = Contact::getDetailsByURL($name);
-		} elseif (strpos($name, '@')) {
-			// This function automatically probes when no entry was found
-			$contact = Contact::getDetailsByAddr($name);
-		} else {
-			$contact = false;
-			$fields = ['id', 'url', 'nick', 'name', 'alias', 'network', 'forum', 'prv'];
-
-			if (strrpos($name, '+')) {
-				// Is it in format @nick+number?
-				$tagcid = intval(substr($name, strrpos($name, '+') + 1));
-				$contact = DBA::selectFirst('contact', $fields, ['id' => $tagcid, 'uid' => $profile_uid]);
-			}
-
-			// select someone by nick or attag in the current network
-			if (!DBA::isResult($contact) && ($network != "")) {
-				$condition = ["(`nick` = ? OR `attag` = ?) AND `network` = ? AND `uid` = ?",
-						$name, $name, $network, $profile_uid];
-				$contact = DBA::selectFirst('contact', $fields, $condition);
-			}
-
-			//select someone by name in the current network
-			if (!DBA::isResult($contact) && ($network != "")) {
-				$condition = ['name' => $name, 'network' => $network, 'uid' => $profile_uid];
-				$contact = DBA::selectFirst('contact', $fields, $condition);
-			}
-
-			// select someone by nick or attag in any network
-			if (!DBA::isResult($contact)) {
-				$condition = ["(`nick` = ? OR `attag` = ?) AND `uid` = ?", $name, $name, $profile_uid];
-				$contact = DBA::selectFirst('contact', $fields, $condition);
-			}
-
-			// select someone by name in any network
-			if (!DBA::isResult($contact)) {
-				$condition = ['name' => $name, 'uid' => $profile_uid];
-				$contact = DBA::selectFirst('contact', $fields, $condition);
-			}
-		}
-
-		// Check if $contact has been successfully loaded
-		if (DBA::isResult($contact)) {
-			if (strlen($inform) && (isset($contact["notify"]) || isset($contact["id"]))) {
-				$inform .= ',';
-			}
-
-			if (isset($contact["id"])) {
-				$inform .= 'cid:' . $contact["id"];
-			} elseif (isset($contact["notify"])) {
-				$inform  .= $contact["notify"];
-			}
-
-			$profile = $contact["url"];
-			$alias   = $contact["alias"];
-			$newname = ($contact["name"] ?? '') ?: $contact["nick"];
-		}
-
-		//if there is an url for this persons profile
-		if (isset($profile) && ($newname != "")) {
-			$replaced = true;
-			// create profile link
-			$profile = str_replace(',', '%2c', $profile);
-			$newtag = $tag_type.'[url=' . $profile . ']' . $newname . '[/url]';
-			$body = str_replace($tag_type . $name, $newtag, $body);
-			// append tag to str_tags
-			if (!stristr($str_tags, $newtag)) {
-				if (strlen($str_tags)) {
-					$str_tags .= ',';
-				}
-				$str_tags .= $newtag;
-			}
-
-			/*
-			 * Status.Net seems to require the numeric ID URL in a mention if the person isn't
-			 * subscribed to you. But the nickname URL is OK if they are. Grrr. We'll tag both.
-			 */
-			if (!empty($alias)) {
-				$newtag = '@[url=' . $alias . ']' . $newname . '[/url]';
-				if (!stripos($str_tags, '[url=' . $alias . ']')) {
-					if (strlen($str_tags)) {
-						$str_tags .= ',';
-					}
-					$str_tags .= $newtag;
-				}
-			}
-		}
+	if (!DBA::isResult($item)) {
+		notice(DI::l10n()->t('Item not found.') . EOL);
+		DI::baseUrl()->redirect('network');
 	}
 
-	return ['replaced' => $replaced, 'contact' => $contact];
-}
+	if ($item['deleted']) {
+		return '';
+	}
 
-function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $thread_parent_id)
-{
-	if (DI::config()->get('system', 'disable_implicit_mentions')) {
-		// Add a tag if the parent contact is from ActivityPub or OStatus (This will notify them)
-		if (in_array($thread_parent_contact['network'], [Protocol::OSTATUS, Protocol::ACTIVITYPUB])) {
-			$contact = Term::TAG_CHARACTER[Term::MENTION] . '[url=' . $thread_parent_contact['url'] . ']' . $thread_parent_contact['nick'] . '[/url]';
-			if (!stripos(implode($tags), '[url=' . $thread_parent_contact['url'] . ']')) {
-				$tags[] = $contact;
+	$contact_id = 0;
+
+	// check if logged in user is either the author or owner of this item
+	if (Session::getRemoteContactID($item['uid']) == $item['contact-id']) {
+		$contact_id = $item['contact-id'];
+	}
+
+	if ((local_user() == $item['uid']) || $contact_id) {
+		// Check if we should do HTML-based delete confirmation
+		if (!empty($_REQUEST['confirm'])) {
+			// <form> can't take arguments in its "action" parameter
+			// so add any arguments as hidden inputs
+			$query = explode_querystring(DI::args()->getQueryString());
+			$inputs = [];
+
+			foreach ($query['args'] as $arg) {
+				if (strpos($arg, 'confirm=') === false) {
+					$arg_parts = explode('=', $arg);
+					$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
+				}
+			}
+
+			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
+				'$method' => 'get',
+				'$message' => DI::l10n()->t('Do you really want to delete this item?'),
+				'$extra_inputs' => $inputs,
+				'$confirm' => DI::l10n()->t('Yes'),
+				'$confirm_url' => $query['base'],
+				'$confirm_name' => 'confirmed',
+				'$cancel' => DI::l10n()->t('Cancel'),
+			]);
+		}
+		// Now check how the user responded to the confirmation query
+		if (!empty($_REQUEST['canceled'])) {
+			DI::baseUrl()->redirect('display/' . $item['guid']);
+		}
+
+		$is_comment = $item['gravity'] == GRAVITY_COMMENT;
+		$parentitem = null;
+		if (!empty($item['parent'])) {
+			$fields = ['guid'];
+			$parentitem = Item::selectFirstForUser(local_user(), $fields, ['id' => $item['parent']]);
+		}
+
+		// delete the item
+		Item::deleteForUser(['id' => $item['id']], local_user());
+
+		$return_url = hex2bin($return);
+
+		// removes update_* from return_url to ignore Ajax refresh
+		$return_url = str_replace("update_", "", $return_url);
+
+		// Check if delete a comment
+		if ($is_comment) {
+			// Return to parent guid
+			if (!empty($parentitem)) {
+				DI::baseUrl()->redirect('display/' . $parentitem['guid']);
+				//NOTREACHED
+			} // In case something goes wrong
+			else {
+				DI::baseUrl()->redirect('network');
+				//NOTREACHED
+			}
+		} else {
+			// if unknown location or deleting top level post called from display
+			if (empty($return_url) || strpos($return_url, 'display') !== false) {
+				DI::baseUrl()->redirect('network');
+				//NOTREACHED
+			} else {
+				DI::baseUrl()->redirect($return_url);
+				//NOTREACHED
 			}
 		}
 	} else {
-		$implicit_mentions = [
-			$thread_parent_contact['url'] => $thread_parent_contact['nick']
-		];
-
-		$parent_terms = Term::tagArrayFromItemId($thread_parent_id, [Term::MENTION, Term::IMPLICIT_MENTION]);
-
-		foreach ($parent_terms as $parent_term) {
-			$implicit_mentions[$parent_term['url']] = $parent_term['term'];
-		}
-
-		foreach ($implicit_mentions as $url => $label) {
-			if ($url != \Friendica\Model\Profile::getMyURL() && !stripos(implode($tags), '[url=' . $url . ']')) {
-				$tags[] = Term::TAG_CHARACTER[Term::IMPLICIT_MENTION] . '[url=' . $url . ']' . $label . '[/url]';
-			}
-		}
+		notice(DI::l10n()->t('Permission denied.'));
+		DI::baseUrl()->redirect('display/' . $item['guid']);
+		//NOTREACHED
 	}
 
-	return $tags;
+	return '';
 }

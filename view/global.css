@@ -180,11 +180,6 @@ span.connector {
   margin-right: 9px;
 }
 
-.shared_header span {
-  display: table-cell;
-  float: none;
-}
-
 blockquote.shared_content {
   margin-left: 32px;
   color: #000;
@@ -405,22 +400,6 @@ a {
 
 .selected-identity img {
   border: 2px solid #ff0000;
-}
-/* poke */
-#poke-desc {
-  margin: 5px 0 10px;
-}
-
-#poke-wrapper  {
-  padding: 10px 0 0px;
-}
-
-#poke-recipient, #poke-action, #poke-privacy-settings {
-  margin: 10px 0 30px;
-}
-
-#poke-recip-label, #poke-action-label, #prvmail-message-label {
-  margin: 10px 0 10px;
 }
 .version-match {
   font-weight: bold;

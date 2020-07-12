@@ -183,7 +183,7 @@ function settings_post(App $a)
 					intval($mail_pubmail),
 					intval(local_user())
 				);
-				Logger::log("mail: updating mailaccount. Response: ".print_r($r, true));
+				Logger::notice('updating mailaccount', ['response' => $r]);
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
@@ -823,43 +823,10 @@ function settings_content(App $a)
 		]);
 	}
 
+	$net_pub_desc = '';
 	if (strlen(DI::config()->get('system', 'directory'))) {
 		$net_pub_desc = ' ' . DI::l10n()->t('Your profile will also be published in the global friendica directories (e.g. <a href="%s">%s</a>).', DI::config()->get('system', 'directory'), DI::config()->get('system', 'directory'));
-	} else {
-		$net_pub_desc = '';
 	}
-
-	$profile_in_net_dir = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['profile_in_netdirectory', DI::l10n()->t('Allow your profile to be searchable globally?'), $profile['net-publish'], DI::l10n()->t("Activate this setting if you want others to easily find and follow you. Your profile will be searchable on remote systems. This setting also determines whether Friendica will inform search engines that your profile should be indexed or not.") . $net_pub_desc]
-	]);
-
-	$hide_friends = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['hide-friends', DI::l10n()->t('Hide your contact/friend list from viewers of your profile?'), $profile['hide-friends'], DI::l10n()->t('A list of your contacts is displayed on your profile page. Activate this option to disable the display of your contact list.')],
-	]);
-
-	$hide_wall = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['hidewall', DI::l10n()->t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], DI::l10n()->t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.')],
-	]);
-
-	$unlisted = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['unlisted', DI::l10n()->t('Make public posts unlisted'), DI::pConfig()->get(local_user(), 'system', 'unlisted'), DI::l10n()->t('Your public posts will not appear on the community pages or in search results, nor be sent to relay servers. However they can still appear on public feeds on remote servers.')],
-	]);
-
-	$accessiblephotos = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['accessible-photos', DI::l10n()->t('Make all posted pictures accessible'), DI::pConfig()->get(local_user(), 'system', 'accessible-photos'), DI::l10n()->t("This option makes every posted picture accessible via the direct link. This is a workaround for the problem that most other networks can't handle permissions on pictures. Non public pictures still won't be visible for the public on your photo albums though.")],
-	]);
-
-	$blockwall = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['blockwall', DI::l10n()->t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), DI::l10n()->t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts')],
-	]);
-
-	$blocktags = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['blocktags', DI::l10n()->t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), DI::l10n()->t('Your contacts can add additional tags to your posts.')],
-	]);
-
-	$unkmail = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['unkmail', DI::l10n()->t('Permit unknown people to send you private mail?'), $unkmail, DI::l10n()->t('Friendica network users may send you private messages even if they are not in your contact list.')],
-	]);
 
 	$tpl_addr = Renderer::getMarkupTemplate('settings/nick_set.tpl');
 
@@ -869,18 +836,6 @@ function settings_content(App $a)
 	]);
 
 	$stpl = Renderer::getMarkupTemplate('settings/settings.tpl');
-
-	$expire_arr = [
-		'days' => ['expire',  DI::l10n()->t("Automatically expire posts after this many days:"), $expire, DI::l10n()->t('If empty, posts will not expire. Expired posts will be deleted')],
-		'label' => DI::l10n()->t('Expiration settings'),
-		'items' => ['expire_items', DI::l10n()->t('Expire posts'), $expire_items, DI::l10n()->t('When activated, posts and comments will be expired.')],
-		'notes' => ['expire_notes', DI::l10n()->t('Expire personal notes'), $expire_notes, DI::l10n()->t('When activated, the personal notes on your profile page will be expired.')],
-		'starred' => ['expire_starred', DI::l10n()->t('Expire starred posts'), $expire_starred, DI::l10n()->t('Starring posts keeps them from being expired. That behaviour is overwritten by this setting.')],
-		'photos' => ['expire_photos', DI::l10n()->t('Expire photos'), $expire_photos, DI::l10n()->t('When activated, photos will be expired.')],
-		'network_only' => ['expire_network_only', DI::l10n()->t('Only expire posts by others'), $expire_network_only, DI::l10n()->t('When activated, your own posts never expire. Then the settings above are only valid for posts you received.')],
-	];
-
-	$group_select = Group::displayGroupSelection(local_user(), $a->user['def_gid']);
 
 	// Private/public post links for the non-JS ACL form
 	$private_post = 1;
@@ -932,41 +887,32 @@ function settings_content(App $a)
 		'$defloc'	=> ['defloc', DI::l10n()->t('Default Post Location:'), $defloc, ''],
 		'$allowloc' => ['allow_location', DI::l10n()->t('Use Browser Location:'), ($a->user['allow_location'] == 1), ''],
 
+		'$h_prv' 	          => DI::l10n()->t('Security and Privacy Settings'),
+		'$visibility'         => $profile['net-publish'],
+		'$maxreq' 	          => ['maxreq', DI::l10n()->t('Maximum Friend Requests/Day:'), $maxreq , DI::l10n()->t("\x28to prevent spam abuse\x29")],
+		'$profile_in_dir'     => $profile_in_dir,
+		'$profile_in_net_dir' => ['profile_in_netdirectory', DI::l10n()->t('Allow your profile to be searchable globally?'), $profile['net-publish'], DI::l10n()->t("Activate this setting if you want others to easily find and follow you. Your profile will be searchable on remote systems. This setting also determines whether Friendica will inform search engines that your profile should be indexed or not.") . $net_pub_desc],
+		'$hide_friends'       => ['hide-friends', DI::l10n()->t('Hide your contact/friend list from viewers of your profile?'), $profile['hide-friends'], DI::l10n()->t('A list of your contacts is displayed on your profile page. Activate this option to disable the display of your contact list.')],
+		'$hide_wall'          => ['hidewall', DI::l10n()->t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], DI::l10n()->t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.')],
+		'$unlisted'           => ['unlisted', DI::l10n()->t('Make public posts unlisted'), DI::pConfig()->get(local_user(), 'system', 'unlisted'), DI::l10n()->t('Your public posts will not appear on the community pages or in search results, nor be sent to relay servers. However they can still appear on public feeds on remote servers.')],
+		'$accessiblephotos'   => ['accessible-photos', DI::l10n()->t('Make all posted pictures accessible'), DI::pConfig()->get(local_user(), 'system', 'accessible-photos'), DI::l10n()->t("This option makes every posted picture accessible via the direct link. This is a workaround for the problem that most other networks can't handle permissions on pictures. Non public pictures still won't be visible for the public on your photo albums though.")],
+		'$blockwall'          => ['blockwall', DI::l10n()->t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), DI::l10n()->t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts')], // array('blockwall', DI::l10n()->t('Allow friends to post to your profile page:'), !$blockwall, ''),
+		'$blocktags'          => ['blocktags', DI::l10n()->t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), DI::l10n()->t('Your contacts can add additional tags to your posts.')], // array('blocktags', DI::l10n()->t('Allow friends to tag your posts:'), !$blocktags, ''),
+		'$unkmail'            => ['unkmail', DI::l10n()->t('Permit unknown people to send you private mail?'), $unkmail, DI::l10n()->t('Friendica network users may send you private messages even if they are not in your contact list.')],
+		'$cntunkmail' 	      => ['cntunkmail', DI::l10n()->t('Maximum private messages per day from unknown people:'), $cntunkmail , DI::l10n()->t("\x28to prevent spam abuse\x29")],
+		'$group_select'       => Group::displayGroupSelection(local_user(), $a->user['def_gid']),
+		'$permissions'        => DI::l10n()->t('Default Post Permissions'),
+		'$aclselect'          => ACL::getFullSelectorHTML(DI::page(), $a->user),
 
-		'$h_prv' 	=> DI::l10n()->t('Security and Privacy Settings'),
-
-		'$maxreq' 	=> ['maxreq', DI::l10n()->t('Maximum Friend Requests/Day:'), $maxreq , DI::l10n()->t("\x28to prevent spam abuse\x29")],
-		'$permissions' => DI::l10n()->t('Default Post Permissions'),
-		'$permdesc' => DI::l10n()->t("\x28click to open/close\x29"),
-		'$visibility' => $profile['net-publish'],
-		'$aclselect' => ACL::getFullSelectorHTML(DI::page(), $a->user),
-		'$blockwall'=> $blockwall, // array('blockwall', DI::l10n()->t('Allow friends to post to your profile page:'), !$blockwall, ''),
-		'$blocktags'=> $blocktags, // array('blocktags', DI::l10n()->t('Allow friends to tag your posts:'), !$blocktags, ''),
-
-		// ACL permissions box
-		'$group_perms' => DI::l10n()->t('Show to Groups'),
-		'$contact_perms' => DI::l10n()->t('Show to Contacts'),
-		'$private' => DI::l10n()->t('Default Private Post'),
-		'$public' => DI::l10n()->t('Default Public Post'),
-		'$is_private' => $private_post,
-		'$return_path' => $query_str,
-		'$public_link' => $public_post_link,
-		'$settings_perms' => DI::l10n()->t('Default Permissions for New Posts'),
-
-		'$group_select' => $group_select,
-
-
-		'$expire'	=> $expire_arr,
-
-		'$profile_in_dir' => $profile_in_dir,
-		'$profile_in_net_dir' => $profile_in_net_dir,
-		'$hide_friends' => $hide_friends,
-		'$hide_wall' => $hide_wall,
-		'$unlisted' => $unlisted,
-		'$accessiblephotos' => $accessiblephotos,
-		'$unkmail' => $unkmail,
-		'$cntunkmail' 	=> ['cntunkmail', DI::l10n()->t('Maximum private messages per day from unknown people:'), $cntunkmail , DI::l10n()->t("\x28to prevent spam abuse\x29")],
-
+		'$expire' => [
+			'label'        => DI::l10n()->t('Expiration settings'),
+			'days'         => ['expire',  DI::l10n()->t("Automatically expire posts after this many days:"), $expire, DI::l10n()->t('If empty, posts will not expire. Expired posts will be deleted')],
+			'items'        => ['expire_items', DI::l10n()->t('Expire posts'), $expire_items, DI::l10n()->t('When activated, posts and comments will be expired.')],
+			'notes'        => ['expire_notes', DI::l10n()->t('Expire personal notes'), $expire_notes, DI::l10n()->t('When activated, the personal notes on your profile page will be expired.')],
+			'starred'      => ['expire_starred', DI::l10n()->t('Expire starred posts'), $expire_starred, DI::l10n()->t('Starring posts keeps them from being expired. That behaviour is overwritten by this setting.')],
+			'photos'       => ['expire_photos', DI::l10n()->t('Expire photos'), $expire_photos, DI::l10n()->t('When activated, photos will be expired.')],
+			'network_only' => ['expire_network_only', DI::l10n()->t('Only expire posts by others'), $expire_network_only, DI::l10n()->t('When activated, your own posts never expire. Then the settings above are only valid for posts you received.')],
+		],
 
 		'$h_not' 	=> DI::l10n()->t('Notification Settings'),
 		'$lbl_not' 	=> DI::l10n()->t('Send a notification email when:'),

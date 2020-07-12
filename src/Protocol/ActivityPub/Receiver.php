@@ -21,6 +21,7 @@
 
 namespace Friendica\Protocol\ActivityPub;
 
+use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
@@ -273,7 +274,7 @@ class Receiver
 			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
 
 			// An Undo is done on the object of an object, so we need that type as well
-			if ($type == 'as:Undo') {
+			if (($type == 'as:Undo') && !empty($object_data['object_object'])) {
 				$object_data['object_object_type'] = self::fetchObjectType([], $object_data['object_object'], $uid);
 			}
 		}
@@ -820,13 +821,9 @@ class Receiver
 	 *
 	 * @return array with tags in a simplified format
 	 */
-	private static function processTags($tags)
+	private static function processTags(array $tags)
 	{
 		$taglist = [];
-
-		if (empty($tags)) {
-			return [];
-		}
 
 		foreach ($tags as $tag) {
 			if (empty($tag)) {
@@ -853,16 +850,12 @@ class Receiver
 	/**
 	 * Convert emojis from JSON-LD format into a simplified format
 	 *
-	 * @param $emojis
+	 * @param array $emojis
 	 * @return array with emojis in a simplified format
 	 */
-	private static function processEmojis($emojis)
+	private static function processEmojis(array $emojis)
 	{
 		$emojilist = [];
-
-		if (empty($emojis)) {
-			return [];
-		}
 
 		foreach ($emojis as $emoji) {
 			if (empty($emoji) || (JsonLD::fetchElement($emoji, '@type') != 'toot:Emoji') || empty($emoji['as:icon'])) {
@@ -875,6 +868,7 @@ class Receiver
 
 			$emojilist[] = $element;
 		}
+
 		return $emojilist;
 	}
 
@@ -885,24 +879,62 @@ class Receiver
 	 *
 	 * @return array with attachmants in a simplified format
 	 */
-	private static function processAttachments($attachments)
+	private static function processAttachments(array $attachments)
 	{
 		$attachlist = [];
 
-		if (empty($attachments)) {
-			return [];
-		}
+		// Removes empty values
+		$attachments = array_filter($attachments);
 
 		foreach ($attachments as $attachment) {
-			if (empty($attachment)) {
-				continue;
-			}
+			switch (JsonLD::fetchElement($attachment, '@type')) {
+				case 'as:Page':
+					$pageUrl = null;
+					$pageImage = null;
 
-			$attachlist[] = ['type' => str_replace('as:', '', JsonLD::fetchElement($attachment, '@type')),
-				'mediaType' => JsonLD::fetchElement($attachment, 'as:mediaType', '@value'),
-				'name' => JsonLD::fetchElement($attachment, 'as:name', '@value'),
-				'url' => JsonLD::fetchElement($attachment, 'as:url', '@id')];
+					$urls = JsonLD::fetchElementArray($attachment, 'as:url');
+					foreach ($urls as $url) {
+						// Single scalar URL case
+						if (is_string($url)) {
+							$pageUrl = $url;
+							continue;
+						}
+
+						$href = JsonLD::fetchElement($url, 'as:href', '@id');
+						$mediaType = JsonLD::fetchElement($url, 'as:mediaType', '@value');
+						if (Strings::startsWith($mediaType, 'image')) {
+							$pageImage = $href;
+						} else {
+							$pageUrl = $href;
+						}
+					}
+
+					$attachlist[] = [
+						'type'  => 'link',
+						'title' => JsonLD::fetchElement($attachment, 'as:name', '@value'),
+						'desc'  => JsonLD::fetchElement($attachment, 'as:summary', '@value'),
+						'url'   => $pageUrl,
+						'image' => $pageImage,
+					];
+					break;
+				case 'as:Link':
+					$attachlist[] = [
+						'type' => str_replace('as:', '', JsonLD::fetchElement($attachment, '@type')),
+						'mediaType' => JsonLD::fetchElement($attachment, 'as:mediaType', '@value'),
+						'name' => JsonLD::fetchElement($attachment, 'as:name', '@value'),
+						'url' => JsonLD::fetchElement($attachment, 'as:href', '@id')
+					];
+					break;
+				default:
+					$attachlist[] = [
+						'type' => str_replace('as:', '', JsonLD::fetchElement($attachment, '@type')),
+						'mediaType' => JsonLD::fetchElement($attachment, 'as:mediaType', '@value'),
+						'name' => JsonLD::fetchElement($attachment, 'as:name', '@value'),
+						'url' => JsonLD::fetchElement($attachment, 'as:url', '@id')
+					];
+			}
 		}
+
 		return $attachlist;
 	}
 
@@ -1056,6 +1088,16 @@ class Receiver
 			$actor = JsonLD::fetchElement($object, 'as:actor', '@id');
 		}
 
+		$location = JsonLD::fetchElement($object, 'as:location', 'as:name', '@type', 'as:Place');
+		$location = JsonLD::fetchElement($location, 'location', '@value');
+		if ($location) {
+			// Some AP software allow formatted text in post location, so we run all the text converters we have to boil
+			// down to HTML and then finally format to plaintext.
+			$location = Markdown::convert($location);
+			$location = BBCode::convert($location);
+			$location = HTML::toPlaintext($location);
+		}
+
 		$object_data['sc:identifier'] = JsonLD::fetchElement($object, 'sc:identifier', '@value');
 		$object_data['diaspora:guid'] = JsonLD::fetchElement($object, 'diaspora:guid', '@value');
 		$object_data['diaspora:comment'] = JsonLD::fetchElement($object, 'diaspora:comment', '@value');
@@ -1070,15 +1112,14 @@ class Receiver
 		$object_data = self::getSource($object, $object_data);
 		$object_data['start-time'] = JsonLD::fetchElement($object, 'as:startTime', '@value');
 		$object_data['end-time'] = JsonLD::fetchElement($object, 'as:endTime', '@value');
-		$object_data['location'] = JsonLD::fetchElement($object, 'as:location', 'as:name', '@type', 'as:Place');
-		$object_data['location'] = JsonLD::fetchElement($object_data, 'location', '@value');
+		$object_data['location'] = $location;
 		$object_data['latitude'] = JsonLD::fetchElement($object, 'as:location', 'as:latitude', '@type', 'as:Place');
 		$object_data['latitude'] = JsonLD::fetchElement($object_data, 'latitude', '@value');
 		$object_data['longitude'] = JsonLD::fetchElement($object, 'as:location', 'as:longitude', '@type', 'as:Place');
 		$object_data['longitude'] = JsonLD::fetchElement($object_data, 'longitude', '@value');
-		$object_data['attachments'] = self::processAttachments(JsonLD::fetchElementArray($object, 'as:attachment'));
-		$object_data['tags'] = self::processTags(JsonLD::fetchElementArray($object, 'as:tag'));
-		$object_data['emojis'] = self::processEmojis(JsonLD::fetchElementArray($object, 'as:tag', 'toot:Emoji'));
+		$object_data['attachments'] = self::processAttachments(JsonLD::fetchElementArray($object, 'as:attachment') ?? []);
+		$object_data['tags'] = self::processTags(JsonLD::fetchElementArray($object, 'as:tag') ?? []);
+		$object_data['emojis'] = self::processEmojis(JsonLD::fetchElementArray($object, 'as:tag', 'toot:Emoji') ?? []);
 		$object_data['generator'] = JsonLD::fetchElement($object, 'as:generator', 'as:name', '@type', 'as:Application');
 		$object_data['generator'] = JsonLD::fetchElement($object_data, 'generator', '@value');
 		$object_data['alternate-url'] = JsonLD::fetchElement($object, 'as:url', '@id');

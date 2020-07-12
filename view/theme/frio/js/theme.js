@@ -89,7 +89,7 @@ $(document).ready(function(){
 	let $body = $('body');
 
 	// show bulk deletion button at network page if checkbox is checked
-	$("body").change("input.item-select", function(){
+	$body.change("input.item-select", function(){
 		var checked = false;
 
 		// We need to get all checked items, so it would close the delete button
@@ -112,10 +112,8 @@ $(document).ready(function(){
 		}
 	});
 
-	//$('ul.flex-nav').flexMenu();
-
 	// initialize the bootstrap tooltips
-	$('body').tooltip({
+	$body.tooltip({
 		selector: '[data-toggle="tooltip"]',
 		container: 'body',
 		animation: true,
@@ -230,7 +228,7 @@ $(document).ready(function(){
 
 	// Dropdown menus with the class "dropdown-head" will display the active tab
 	// as button text
-	$("body").on('click', '.dropdown-head .dropdown-menu li a, .dropdown-head .dropdown-menu li button', function(){
+	$body.on('click', '.dropdown-head .dropdown-menu li a, .dropdown-head .dropdown-menu li button', function(){
 		toggleDropdownText(this);
 	});
 
@@ -264,7 +262,7 @@ $(document).ready(function(){
 	// to the input element where the padding value would be at least the width
 	// of the button. Otherwise long user input would be invisible because it is
 	// behind the button.
-	$("body").on('click', '.form-group-search > input', function() {
+	$body.on('click', '.form-group-search > input', function() {
 		// Get the width of the button (if the button isn't available
 		// buttonWidth will be null
 		var buttonWidth = $(this).next('.form-button-search').outerWidth();
@@ -351,23 +349,29 @@ $(document).ready(function(){
 	 */
 	$("aside")
 		.on("shown.bs.offcanvas", function() {
-			$("body").addClass("aside-out");
+			$body.addClass("aside-out");
 		})
 		.on("hidden.bs.offcanvas", function() {
-			$("body").removeClass("aside-out");
+			$body.removeClass("aside-out");
 		});
 
 	// Event listener for 'Show & hide event map' button in the network stream.
-	$("body").on("click", ".event-map-btn", function() {
+	$body.on("click", ".event-map-btn", function() {
 		showHideEventMap(this);
 	});
 
 	// Comment form submit
 	$body.on('submit', '.comment-edit-form', function(e) {
-		e.preventDefault();
-
 		let $form = $(this);
 		let id = $form.data('item-id');
+
+		// Compose page form exception: id is always 0 and form must not be submitted asynchronously
+		if (id === 0) {
+			return;
+		}
+
+		e.preventDefault();
+
 		let $commentSubmit = $form.find('.comment-edit-submit').button('loading');
 
 		unpause();
@@ -399,6 +403,27 @@ $(document).ready(function(){
 		})
 		.always(function() {
 			$commentSubmit.button('reset');
+		});
+	});
+
+	$body.on('submit', '.modal-body #poke-wrapper', function(e) {
+		e.preventDefault();
+
+		let $form = $(this);
+		let $pokeSubmit = $form.find('button[type=submit]').button('loading');
+
+		$.post(
+			$form.attr('action'),
+			$form.serialize(),
+			'json'
+		)
+		.then(function(data) {
+			if (data.success) {
+				$('#modal').modal('hide');
+			}
+		})
+		.always(function() {
+			$pokeSubmit.button('reset');
 		});
 	})
 });
@@ -695,22 +720,17 @@ function htmlToText(htmlString) {
  * Sends a /like API call and updates the display of the relevant action button
  * before the update reloads the item.
  *
- * @param {string} ident The id of the relevant item
- * @param {string} verb The verb of the action
- * @returns {undefined}
+ * @param {int}     ident The id of the relevant item
+ * @param {string}  verb  The verb of the action
+ * @param {boolean} un    Whether to perform an activity removal instead of creation
  */
-function doLikeAction(ident, verb) {
-	unpause();
-
+function doLikeAction(ident, verb, un) {
 	if (verb.indexOf('attend') === 0) {
 		$('.item-' + ident + ' .button-event:not(#' + verb + '-' + ident + ')').removeClass('active');
 	}
 	$('#' + verb + '-' + ident).toggleClass('active');
-	$('#like-rotator-' + ident.toString()).show();
-	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate );
-	liking = 1;
-	force_update = true;
-	update_item = ident.toString();
+
+	dolike(ident, verb, un);
 }
 
 // Decodes a hexadecimally encoded binary string

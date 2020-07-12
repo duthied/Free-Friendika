@@ -19,9 +19,9 @@
  *
  *Handles communication associated with the issuance of friend requests.
  *
- * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
+ * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/stable/spec/dfrn2.pdf
  *    You also find a graphic which describes the confirmation process at
- *    https://github.com/friendica/friendica/blob/master/spec/dfrn2_contact_request.png
+ *    https://github.com/friendica/friendica/blob/stable/spec/dfrn2_contact_request.png
  */
 
 use Friendica\App;
@@ -297,8 +297,8 @@ function dfrn_request_post(App $a)
 		$data = Probe::uri($url);
 		$network = $data["network"];
 
-		// Canonicalise email-style profile locator
-		$url = Probe::webfingerDfrn($url, $hcard);
+		// Canonicalize email-style profile locator
+		$url = Probe::webfingerDfrn($data['url'], $hcard);
 
 		if (substr($url, 0, 5) === 'stat:') {
 			// Every time we detect the remote subscription we define this as OStatus.
