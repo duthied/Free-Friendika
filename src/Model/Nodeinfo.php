@@ -55,6 +55,7 @@ class Nodeinfo
 		$config->set('nodeinfo', 'total_users', $userStats['total_users']);
 		$config->set('nodeinfo', 'active_users_halfyear', $userStats['active_users_halfyear']);
 		$config->set('nodeinfo', 'active_users_monthly', $userStats['active_users_monthly']);
+		$config->set('nodeinfo', 'active_users_weekly', $userStats['active_users_weekly']);
 
 		$logger->debug('user statistics', $userStats);
 

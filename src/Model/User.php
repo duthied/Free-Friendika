@@ -1272,6 +1272,7 @@ class User
 			'total_users'           => 0,
 			'active_users_halfyear' => 0,
 			'active_users_monthly'  => 0,
+			'active_users_weekly'   => 0,
 		];
 
 		$userStmt = DBA::select('owner-view', ['uid', 'login_date', 'last-item'],
@@ -1284,6 +1285,7 @@ class User
 
 		$halfyear = time() - (180 * 24 * 60 * 60);
 		$month = time() - (30 * 24 * 60 * 60);
+		$week = time() - (7 * 24 * 60 * 60);
 
 		while ($user = DBA::fetch($userStmt)) {
 			$statistics['total_users']++;
@@ -1296,6 +1298,11 @@ class User
 			if ((strtotime($user['login_date']) > $month) || (strtotime($user['last-item']) > $month)
 			) {
 				$statistics['active_users_monthly']++;
+			}
+
+			if ((strtotime($user['login_date']) > $week) || (strtotime($user['last-item']) > $week)
+			) {
+				$statistics['active_users_weekly']++;
 			}
 		}
 		DBA::close($userStmt);

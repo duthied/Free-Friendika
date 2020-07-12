@@ -24,6 +24,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\DI;
+use Friendica\Model\User;
 use stdClass;
 
 /**
@@ -34,10 +35,12 @@ class NodeInfo extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		if ($parameters['version'] == '1.0') {
+		if (empty($parameters['version'])) {
+			self::printNodeInfo2();
+		} elseif ($parameters['version'] == '1.0') {
 			self::printNodeInfo1();
 		} elseif ($parameters['version'] == '2.0') {
-			self::printNodeInfo2();
+			self::printNodeInfo20();
 		} else {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
@@ -48,7 +51,7 @@ class NodeInfo extends BaseModule
 	 *
 	 * @return Object with supported services
 	*/
-	private static function getUsage()
+	private static function getUsage(bool $version2 = false)
 	{
 		$config = DI::config();
 
@@ -62,6 +65,10 @@ class NodeInfo extends BaseModule
 			];
 			$usage->localPosts = intval($config->get('nodeinfo', 'local_posts'));
 			$usage->localComments = intval($config->get('nodeinfo', 'local_comments'));
+
+			if ($version2) {
+				$usage->users['activeWeek'] = intval($config->get('nodeinfo', 'active_users_weekly'));
+			}
 		}
 
 		return $usage;
@@ -189,9 +196,9 @@ class NodeInfo extends BaseModule
 	}
 
 	/**
-	 * Print the nodeinfo version 2
+	 * Print the nodeinfo version 2.0
 	 */
-	private static function printNodeInfo2()
+	private static function printNodeInfo20()
 	{
 		$config = DI::config();
 
@@ -241,5 +248,75 @@ class NodeInfo extends BaseModule
 		header('Content-type: application/json; charset=utf-8');
 		echo json_encode($nodeinfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		exit;
+	}
+
+	/**
+	 * Print the nodeinfo version 2
+	 */
+	private static function printNodeInfo2()
+	{
+		$config = DI::config();
+
+		$imap = (function_exists('imap_open') && !$config->get('system', 'imap_disabled') && !$config->get('system', 'dfrn_only'));
+
+		$nodeinfo = [
+			'version'           => '1.0',
+			'server'          => [
+				'baseUrl'  => DI::baseUrl()->get(),
+				'name'     => $config->get('config', 'sitename'),
+				'software' => 'friendica',
+				'version'  => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
+			],
+			'organization'      => self::getOrganization($config),
+			'protocols'         => ['dfrn', 'activitypub'],
+			'services'          => [],
+			'openRegistrations' => intval($config->get('config', 'register_policy')) !== Register::CLOSED,
+			'usage'             => [],
+		];
+
+		if (!empty($config->get('system', 'diaspora_enabled'))) {
+			$nodeinfo['protocols'][] = 'diaspora';
+		}
+
+		if (empty($config->get('system', 'ostatus_disabled'))) {
+			$nodeinfo['protocols'][] = 'ostatus';
+		}
+
+		$nodeinfo['usage'] = self::getUsage(true);
+
+		$nodeinfo['services'] = self::getServices();
+
+		if (Addon::isEnabled('twitter')) {
+			$nodeinfo['services']['inbound'][] = 'twitter';
+		}
+
+		$nodeinfo['services']['inbound'][]  = 'atom1.0';
+		$nodeinfo['services']['inbound'][]  = 'rss2.0';
+		$nodeinfo['services']['outbound'][] = 'atom1.0';
+
+		if ($imap) {
+			$nodeinfo['services']['inbound'][] = 'imap';
+		}
+
+		header('Content-type: application/json; charset=utf-8');
+		echo json_encode($nodeinfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		exit;
+	}
+
+	private static function getOrganization($config)
+	{
+		$organization = ['name' => null, 'contact' => null, 'account' => null];
+
+		if (!empty($config->get('config', 'admin_email'))) {
+			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));
+			$organization['contact'] = $adminList[0];
+			$administrator = User::getByEmail($adminList[0], ['username', 'nickname']);
+			if (!empty($administrator)) {
+				$organization['name'] = $administrator['username'];
+				$organization['account'] = DI::baseUrl()->get() . '/profile/' . $administrator['nickname'];
+			}
+		}
+
+		return $organization;
 	}
 }

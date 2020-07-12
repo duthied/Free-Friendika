@@ -37,6 +37,7 @@ return [
 		'/host-meta'      => [Module\WellKnown\HostMeta::class,     [R::GET]],
 		'/nodeinfo'       => [Module\WellKnown\NodeInfo::class,     [R::GET]],
 		'/webfinger'      => [Module\Xrd::class,                    [R::GET]],
+		'/x-nodeinfo2'    => [Module\NodeInfo::class,               [R::GET]],
 		'/x-social-relay' => [Module\WellKnown\XSocialRelay::class, [R::GET]],
 	],
 
