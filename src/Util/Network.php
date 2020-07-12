@@ -626,6 +626,26 @@ class Network
 	}
 
 	/**
+	 * Add a missing base path (scheme and host) to a given url
+	 *
+	 * @param string $url
+	 * @param string $basepath
+	 * @return string url
+	 */
+	public static function addBasePath(string $url, string $basepath)
+	{
+		if (!empty(parse_url($url, PHP_URL_SCHEME)) || empty(parse_url($basepath, PHP_URL_SCHEME)) || empty($url) || empty(parse_url($url))) {
+			return $url;
+		}
+
+		$base = ['scheme' => parse_url($basepath, PHP_URL_SCHEME),
+			'host' => parse_url($basepath, PHP_URL_HOST)];
+
+		$parts = array_merge($base, parse_url('/' . ltrim($url, '/')));
+		return self::unparseURL($parts);
+	}
+
+	/**
 	 * Returns the original URL of the provided URL
 	 *
 	 * This function strips tracking query params and follows redirections, either
