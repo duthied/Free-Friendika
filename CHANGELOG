@@ -1,11 +1,60 @@
-Version 2020.06 (unreleased)
+Version 2020.07 (2020-07-12)
   Friendica Core:
+    Update to the translations: DE, EN GB, EN US, FR, ET, NL, PL, RU, ZH-CN [translation teams]
+    Updates to the themes (frio, vier) [MrPetovan]
+    Updated the shipped composer version, and the dependency list [annando, MrPetovan, tobiasd]
+    Updates to the documentation [MrPetovan]
+    General code refactoring and enhancements [AlfredSK, annando, MrPetovan]
+    Replace charged terms with "allowlist", "denylist" and "blocklist" [MrPetovan]
+    Enhanced the comment distribution in threads that involve diaspora*, AP and DFRN actors [annando]
+    Enhanced the profile probing mechanism [annando, MrPetovan]
+    Enhanced the post update process of the database [annando]
+    Enhanced the database performance [annando]
+    Enhanced ActivityPub attachment handling [MrPetovan]
+    Enhanced security of redirections [annando]
+    Enhanced database performance [annando]
+    Enhanced the handling of BBCode [pre] tags [MrPetovan]
+    Enhanced Markdown to BBCode conversion [MrPetovan]
+    Enhanced the speed of the network page [annando]
+    Fixed a problem recognising logins via the API [MrPetovan]
+    Fixed a problem with handling local diaspora* URLs [MrPetovan]
+    Fixed a problem with implicit mentions [annando]
+    Fixed a problem with the password reset token security [lynn-stephenson]
+    Fixed a problem with receiving non-public posts via ActivityPub [annando]
+    Fixed a problem with the photo endpoint of the API [MrPetovan]
+    Fixed a problem with pressing the ESC key in the frio-theme [MrPetovan]
+    Fixed a problem with the display if post categories [annando]
+    Fixed a problem with validation of feeds [annando]
+    Fixed a problem that prevented AP activities being fetched sometimes [annando]
+    Renamed the -q option of the console user delete command to -y [MrPetovan]
+    Added notification count to page title [MrPetovan]
+    Added handling of relative URLs during feed detection [MrPetovan]
+    Added entities [nupplaphil]
 
   Friendica Addons:
+    Update to the translations (EN GB, NB NO, NL, PL, RU, ZH CN) [translation teams]
+    blockbot:
+      The list of accepted user agents was enhanced [annando]
+    Diaspora*:
+      Enhanced conntector settings [MrPetovan]
+    PHP Mailer SMTP:
+      Updated phpmailer version [dependabot]
     showmore_dyn:
       New addon to collapse long post depending on their actual height [wiwie]
+    twitter:
+      Enhaceed the handling of mobile twitter URLs [annando]
+      Enhanced the handling of quoted tweets [MrPetovan]
+      added HTML error code handling [MrPetovan]
+    various:
+      enhancements to the probe mechanism [MrPetovan]
 
   Closed Issues:
+    3084, 3884, 8287, 8314, 8374, 8400, 8425, 8432, 8458, 8470, 8477,
+    8482, 8488, 8489, 8490, 8493, 8495, 8498, 8511, 8517, 8523, 8527,
+    8551, 8553, 8560, 8564, 8565, 8568, 8578, 8586, 8593, 8606, 8610,
+    8612, 8626, 8664, 8672, 8683, 8685, 8691, 8694, 8702, 8709, 8714,
+    8717, 8722, 8726, 8732, 8736, 8743, 8744, 8746, 8756, 8766, 8769,
+    8781, 8800, 8807, 8808, 8827, 8829, 8836, 8844, 8846, 8857, 8866
 
 Version 2020.03 "Red Hot Poker"  (2020-03-30)
   Friendica Core:
