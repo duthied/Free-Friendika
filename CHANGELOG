@@ -1,6 +1,6 @@
-Version 2020.06 (unreleased)
+Version 2020.07 (2020-07-12)
   Friendica Core:
-    Update to the translations: DE, FR, ET, NL, PL, RU, ZH-CN [translation teams]
+    Update to the translations: DE, EN GB, EN US, FR, ET, NL, PL, RU, ZH-CN [translation teams]
     Updates to the themes (frio, vier) [MrPetovan]
     Updated the shipped composer version, and the dependency list [annando, MrPetovan, tobiasd]
     Updates to the documentation [MrPetovan]
@@ -15,6 +15,7 @@ Version 2020.06 (unreleased)
     Enhanced database performance [annando]
     Enhanced the handling of BBCode [pre] tags [MrPetovan]
     Enhanced Markdown to BBCode conversion [MrPetovan]
+    Enhanced the speed of the network page [annando]
     Fixed a problem recognising logins via the API [MrPetovan]
     Fixed a problem with handling local diaspora* URLs [MrPetovan]
     Fixed a problem with implicit mentions [annando]
@@ -23,12 +24,17 @@ Version 2020.06 (unreleased)
     Fixed a problem with the photo endpoint of the API [MrPetovan]
     Fixed a problem with pressing the ESC key in the frio-theme [MrPetovan]
     Fixed a problem with the display if post categories [annando]
+    Fixed a problem with validation of feeds [annando]
+    Fixed a problem that prevented AP activities being fetched sometimes [annando]
+    Renamed the -q option of the console user delete command to -y [MrPetovan]
     Added notification count to page title [MrPetovan]
     Added handling of relative URLs during feed detection [MrPetovan]
     Added entities [nupplaphil]
 
   Friendica Addons:
-    Update to the translations (NB NO, NL, PL, RU, ZH CN) [translation teams]
+    Update to the translations (EN GB, NB NO, NL, PL, RU, ZH CN) [translation teams]
+    blockbot:
+      The list of accepted user agents was enhanced [annando]
     Diaspora*:
       Enhanced conntector settings [MrPetovan]
     PHP Mailer SMTP:
