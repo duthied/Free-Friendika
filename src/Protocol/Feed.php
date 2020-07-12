@@ -337,6 +337,10 @@ class Feed
 				$item["uri"] = $item["plink"];
 			}
 
+			// Add the base path if missing
+			$item["uri"] = Network::addBasePath($item["uri"], $basepath);
+			$item["plink"] = Network::addBasePath($item["plink"], $basepath);
+
 			$orig_plink = $item["plink"];
 
 			$item["plink"] = Network::finalUrl($item["plink"]);
