@@ -24,6 +24,7 @@ namespace Friendica\Model;
 use Friendica\Core\Addon;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use stdClass;
 
 /**
  * Model interaction for the nodeinfo
@@ -69,5 +70,110 @@ class Nodeinfo
 			}
 		}
 		DBA::close($items);
+	}
+
+	/**
+	 * Return the supported services
+	 *
+	 * @return Object with supported services
+	*/
+	public static function getUsage(bool $version2 = false)
+	{
+		$config = DI::config();
+
+		$usage = new stdClass();
+
+		if (!empty($config->get('system', 'nodeinfo'))) {
+			$usage->users = [
+				'total'          => intval($config->get('nodeinfo', 'total_users')),
+				'activeHalfyear' => intval($config->get('nodeinfo', 'active_users_halfyear')),
+				'activeMonth'    => intval($config->get('nodeinfo', 'active_users_monthly'))
+			];
+			$usage->localPosts = intval($config->get('nodeinfo', 'local_posts'));
+			$usage->localComments = intval($config->get('nodeinfo', 'local_comments'));
+
+			if ($version2) {
+				$usage->users['activeWeek'] = intval($config->get('nodeinfo', 'active_users_weekly'));
+			}
+		}
+
+		return $usage;
+	}
+
+	/**
+	 * Return the supported services
+	 *
+	 * @return array with supported services
+	*/
+	public static function getServices()
+	{
+		$services = [
+			'inbound'  => [],
+			'outbound' => [],
+		];
+
+		if (Addon::isEnabled('blogger')) {
+			$services['outbound'][] = 'blogger';
+		}
+		if (Addon::isEnabled('dwpost')) {
+			$services['outbound'][] = 'dreamwidth';
+		}
+		if (Addon::isEnabled('statusnet')) {
+			$services['inbound'][] = 'gnusocial';
+			$services['outbound'][] = 'gnusocial';
+		}
+		if (Addon::isEnabled('ijpost')) {
+			$services['outbound'][] = 'insanejournal';
+		}
+		if (Addon::isEnabled('libertree')) {
+			$services['outbound'][] = 'libertree';
+		}
+		if (Addon::isEnabled('buffer')) {
+			$services['outbound'][] = 'linkedin';
+		}
+		if (Addon::isEnabled('ljpost')) {
+			$services['outbound'][] = 'livejournal';
+		}
+		if (Addon::isEnabled('buffer')) {
+			$services['outbound'][] = 'pinterest';
+		}
+		if (Addon::isEnabled('posterous')) {
+			$services['outbound'][] = 'posterous';
+		}
+		if (Addon::isEnabled('pumpio')) {
+			$services['inbound'][] = 'pumpio';
+			$services['outbound'][] = 'pumpio';
+		}
+
+		$services['outbound'][] = 'smtp';
+
+		if (Addon::isEnabled('tumblr')) {
+			$services['outbound'][] = 'tumblr';
+		}
+		if (Addon::isEnabled('twitter') || Addon::isEnabled('buffer')) {
+			$services['outbound'][] = 'twitter';
+		}
+		if (Addon::isEnabled('wppost')) {
+			$services['outbound'][] = 'wordpress';
+		}
+
+		return $services;
+	}
+
+	public static function getOrganization($config)
+	{
+		$organization = ['name' => null, 'contact' => null, 'account' => null];
+
+		if (!empty($config->get('config', 'admin_email'))) {
+			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));
+			$organization['contact'] = $adminList[0];
+			$administrator = User::getByEmail($adminList[0], ['username', 'nickname']);
+			if (!empty($administrator)) {
+				$organization['name'] = $administrator['username'];
+				$organization['account'] = DI::baseUrl()->get() . '/profile/' . $administrator['nickname'];
+			}
+		}
+
+		return $organization;
 	}
 }
