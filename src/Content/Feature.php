@@ -114,13 +114,6 @@ class Feature
 				['networks',         DI::l10n()->t('Protocol Filter'), DI::l10n()->t('Enable widget to display Network posts only from selected protocols'), false, DI::config()->get('feature_lock', 'networks', false)],
 			],
 
-			// Network tabs
-			'net_tabs' => [
-				DI::l10n()->t('Network Tabs'),
-				['new_tab',      DI::l10n()->t('Network New Tab'),          DI::l10n()->t("Enable tab to display only new Network posts \x28from the last 12 hours\x29"), false, DI::config()->get('feature_lock', 'new_tab', false)],
-				['link_tab',     DI::l10n()->t('Network Shared Links Tab'), DI::l10n()->t('Enable tab to display only Network posts with links in them'), false, DI::config()->get('feature_lock', 'link_tab', false)],
-			],
-
 			// Item tools
 			'tools' => [
 				DI::l10n()->t('Post/Comment Tools'),
