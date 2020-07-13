@@ -127,7 +127,7 @@ class Update
 
 					// run the pre_update_nnnn functions in update.php
 					for ($x = $stored + 1; $x <= $current; $x++) {
-						$r = self::runUpdateFunction($x, 'pre_update');
+						$r = self::runUpdateFunction($x, 'pre_update', $sendMail);
 						if (!$r) {
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
@@ -156,7 +156,7 @@ class Update
 
 					// run the update_nnnn functions in update.php
 					for ($x = $stored + 1; $x <= $current; $x++) {
-						$r = self::runUpdateFunction($x, 'update');
+						$r = self::runUpdateFunction($x, 'update', $sendMail);
 						if (!$r) {
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
@@ -181,13 +181,14 @@ class Update
 	/**
 	 * Executes a specific update function
 	 *
-	 * @param int    $x      the DB version number of the function
-	 * @param string $prefix the prefix of the function (update, pre_update)
-	 *
+	 * @param int    $x        the DB version number of the function
+	 * @param string $prefix   the prefix of the function (update, pre_update)
+	 * @param bool   $sendMail whether to send emails on success/failure
+
 	 * @return bool true, if the update function worked
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function runUpdateFunction($x, $prefix)
+	public static function runUpdateFunction($x, $prefix, bool $sendMail = true)
 	{
 		$funcname = $prefix . '_' . $x;
 
@@ -207,11 +208,13 @@ class Update
 				$retval = $funcname();
 
 				if ($retval) {
-					//send the administrator an e-mail
-					self::updateFailed(
-						$x,
-						DI::l10n()->t('Update %s failed. See error logs.', $x)
-					);
+					if ($sendMail) {
+						//send the administrator an e-mail
+						self::updateFailed(
+							$x,
+							DI::l10n()->t('Update %s failed. See error logs.', $x)
+						);
+					}
 					Logger::error('Update function ERROR.', ['function' => $funcname, 'retval' => $retval]);
 					DI::lock()->release('dbupdate_function');
 					return false;
