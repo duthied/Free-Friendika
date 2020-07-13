@@ -140,7 +140,7 @@ class System
 	 * @param string  $content_type Type of the input (Default: 'application/json').
 	 * @param integer $options JSON options
 	 */
-	public static function jsonExit($x, $content_type = 'application/json', int $options = null) {
+	public static function jsonExit($x, $content_type = 'application/json', int $options = 0) {
 		header("Content-type: $content_type");
 		echo json_encode($x, $options);
 		exit();
