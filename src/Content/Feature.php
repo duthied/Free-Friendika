@@ -107,13 +107,6 @@ class Feature
 				['explicit_mentions', DI::l10n()->t('Explicit Mentions'), DI::l10n()->t('Add explicit mentions to comment box for manual control over who gets mentioned in replies.'), false, DI::config()->get('feature_lock', 'explicit_mentions', false)],
 			],
 
-			// Network sidebar widgets
-			'widgets' => [
-				DI::l10n()->t('Network Sidebar'),
-				['archives',         DI::l10n()->t('Archives'), DI::l10n()->t('Ability to select posts by date ranges'), false, DI::config()->get('feature_lock', 'archives', false)],
-				['networks',         DI::l10n()->t('Protocol Filter'), DI::l10n()->t('Enable widget to display Network posts only from selected protocols'), false, DI::config()->get('feature_lock', 'networks', false)],
-			],
-
 			// Item tools
 			'tools' => [
 				DI::l10n()->t('Post/Comment Tools'),
