@@ -54,22 +54,6 @@ class CalendarExport
 			return;
 		}
 
-		/*
-		 * If it's a kind of profile page (intval($owner_uid)) return if the user not logged in and
-		 * export feature isn't enabled.
-		 */
-		/*
-		 * Cal logged in user (test permission at foreign profile page).
-		 * If the $owner uid is available we know it is part of one of the profile pages (like /cal).
-		 * So we have to test if if it's the own profile page of the logged in user
-		 * or a foreign one. For foreign profile pages we need to check if the feature
-		 * for exporting the cal is enabled (otherwise the widget would appear for logged in users
-		 * on foreigen profile pages even if the widget is disabled).
-		 */
-		if (local_user() != $owner_uid && !Feature::isEnabled($owner_uid, "export_calendar")) {
-			return;
-		}
-
 		// $a->data is only available if the profile page is visited. If the visited page is not part
 		// of the profile page it should be the personal /events page. So we can use $a->user.
 		$user = ($a->data['user']['nickname'] ?? '') ?: $a->user['nickname'];
