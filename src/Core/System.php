@@ -136,12 +136,13 @@ class System
 	 * and adds an application/json HTTP header to the output.
 	 * After finishing the process is getting killed.
 	 *
-	 * @param mixed  $x The input content.
-	 * @param string $content_type Type of the input (Default: 'application/json').
+	 * @param mixed   $x The input content.
+	 * @param string  $content_type Type of the input (Default: 'application/json').
+	 * @param integer $options JSON options
 	 */
-	public static function jsonExit($x, $content_type = 'application/json') {
+	public static function jsonExit($x, $content_type = 'application/json', int $options = null) {
 		header("Content-type: $content_type");
-		echo json_encode($x);
+		echo json_encode($x, $options);
 		exit();
 	}
 

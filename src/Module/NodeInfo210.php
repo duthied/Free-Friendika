@@ -23,6 +23,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Nodeinfo;
 
@@ -77,8 +78,6 @@ class NodeInfo210 extends BaseModule
 			$nodeinfo['services']['inbound'][] = 'imap';
 		}
 
-		header('Content-type: application/json; charset=utf-8');
-		echo json_encode($nodeinfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		exit;
+		System::jsonExit($nodeinfo, 'application/json; charset=utf-8', JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 	}
 }
