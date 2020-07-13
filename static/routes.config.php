@@ -37,6 +37,7 @@ return [
 		'/host-meta'      => [Module\WellKnown\HostMeta::class,     [R::GET]],
 		'/nodeinfo'       => [Module\WellKnown\NodeInfo::class,     [R::GET]],
 		'/webfinger'      => [Module\Xrd::class,                    [R::GET]],
+		'/x-nodeinfo2'    => [Module\NodeInfo210::class,            [R::GET]],
 		'/x-social-relay' => [Module\WellKnown\XSocialRelay::class, [R::GET]],
 	],
 
@@ -199,7 +200,8 @@ return [
 	'/manifest'           => [Module\Manifest::class,        [R::GET]],
 	'/modexp/{nick}'      => [Module\PublicRSAKey::class,    [R::GET]],
 	'/newmember'          => [Module\Welcome::class,         [R::GET]],
-	'/nodeinfo/{version}' => [Module\NodeInfo::class,        [R::GET]],
+	'/nodeinfo/1.0'       => [Module\NodeInfo110::class,     [R::GET]],
+	'/nodeinfo/2.0'       => [Module\NodeInfo120::class,     [R::GET]],
 	'/nogroup'            => [Module\Group::class,           [R::GET]],
 
 	'/noscrape' => [
