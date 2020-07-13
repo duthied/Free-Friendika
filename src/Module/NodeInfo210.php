@@ -37,8 +37,6 @@ class NodeInfo210 extends BaseModule
 	{
 		$config = DI::config();
 
-		$imap = (function_exists('imap_open') && !$config->get('system', 'imap_disabled') && !$config->get('system', 'dfrn_only'));
-
 		$nodeinfo = [
 			'version'           => '1.0',
 			'server'          => [
@@ -74,7 +72,7 @@ class NodeInfo210 extends BaseModule
 		$nodeinfo['services']['inbound'][]  = 'rss2.0';
 		$nodeinfo['services']['outbound'][] = 'atom1.0';
 
-		if ($imap) {
+		if (function_exists('imap_open') && !$config->get('system', 'imap_disabled') && !$config->get('system', 'dfrn_only')) {
 			$nodeinfo['services']['inbound'][] = 'imap';
 		}
 
