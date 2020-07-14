@@ -23,6 +23,7 @@ namespace Friendica\Protocol;
 
 use DOMDocument;
 use DOMXPath;
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -532,8 +533,8 @@ class Feed
 
 				// We always strip the title since it will be added in the page information
 				$item["title"] = "";
-				$item["body"] = $item["body"] . add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_denylist"] ?? '');
-				$taglist = get_page_keywords($item["plink"], $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_denylist"]);
+				$item["body"] = $item["body"] . "\n" . PageInfo::getFooterFromUrl($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_denylist"] ?? '');
+				$taglist = $contact["fetch_further_information"] == 2 ? PageInfo::getTagsFromUrl($item["plink"], $preview, $contact["ffi_keyword_denylist"]) : [];
 				$item["object-type"] = Activity\ObjectType::BOOKMARK;
 				unset($item["attach"]);
 			} else {
@@ -543,7 +544,7 @@ class Feed
 
 				if (!empty($contact["fetch_further_information"]) && ($contact["fetch_further_information"] == 3)) {
 					if (empty($taglist)) {
-						$taglist = get_page_keywords($item["plink"], $preview, true, $contact["ffi_keyword_denylist"]);
+						$taglist = PageInfo::getTagsFromUrl($item["plink"], $preview, $contact["ffi_keyword_denylist"]);
 					}
 					$item["body"] .= "\n" . self::tagToString($taglist);
 				} else {

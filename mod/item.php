@@ -30,6 +30,7 @@
 
 use Friendica\App;
 use Friendica\Content\Item as ItemHelper;
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
@@ -233,7 +234,7 @@ function item_post(App $a) {
 			];
 		}
 
-		$att_bbcode = add_page_info_data($attachment);
+		$att_bbcode = "\n" . PageInfo::getFooterFromData($attachment);
 		$body .= $att_bbcode;
 	}
 

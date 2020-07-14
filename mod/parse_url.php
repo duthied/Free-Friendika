@@ -24,6 +24,7 @@
  */
 
 use Friendica\App;
+use Friendica\Content\PageInfo;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
@@ -177,7 +178,7 @@ function parse_url_content(App $a)
 	}
 
 	// Format it as BBCode attachment
-	$info = add_page_info_data($siteinfo);
+	$info = "\n" . PageInfo::getFooterFromData($siteinfo);
 
 	echo $info;
 
