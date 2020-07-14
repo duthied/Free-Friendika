@@ -23,6 +23,7 @@ namespace Friendica\Protocol;
 
 use DOMDocument;
 use DOMXPath;
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache\Duration;
@@ -697,7 +698,7 @@ class OStatus
 
 		// Only add additional data when there is no picture in the post
 		if (!strstr($item["body"], '[/img]')) {
-			$item["body"] = add_page_info_to_body($item["body"]);
+			$item["body"] = PageInfo::appendToBody($item["body"]);
 		}
 
 		Tag::storeFromBody($item['uri-id'], $item['body']);
@@ -1120,7 +1121,7 @@ class OStatus
 						if (($item["object-type"] == Activity\ObjectType::QUESTION)
 							|| ($item["object-type"] == Activity\ObjectType::EVENT)
 						) {
-							$item["body"] .= add_page_info($attribute['href']);
+							$item["body"] .= "\n" . PageInfo::getFooterFromUrl($attribute['href']);
 						}
 						break;
 					case "ostatus:conversation":
@@ -1153,7 +1154,7 @@ class OStatus
 							}
 							$link_data['related'] = $attribute['href'];
 						} else {
-							$item["body"] .= add_page_info($attribute['href']);
+							$item["body"] .= "\n" . PageInfo::getFooterFromUrl($attribute['href']);
 						}
 						break;
 					case "self":

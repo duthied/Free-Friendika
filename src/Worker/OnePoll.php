@@ -31,6 +31,7 @@ use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
+use Friendica\Protocol\Feed;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -173,11 +174,11 @@ class OnePoll
 
 			Logger::log("Consume feed of contact ".$contact['id']);
 
-			consume_feed($xml, $importer, $contact, $hub);
+			Feed::consume($xml, $importer, $contact, $hub);
 
 			// do it a second time for DFRN so that any children find their parents.
 			if ($protocol === Protocol::DFRN) {
-				consume_feed($xml, $importer, $contact, $hub);
+				Feed::consume($xml, $importer, $contact, $hub);
 			}
 
 			$hubmode = 'subscribe';

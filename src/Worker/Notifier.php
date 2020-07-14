@@ -42,8 +42,6 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 
-require_once 'include/items.php';
-
 /*
  * The notifier is typically called with:
  *

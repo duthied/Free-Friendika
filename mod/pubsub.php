@@ -25,6 +25,7 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Protocol\Feed;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Strings;
 use Friendica\Util\Network;
@@ -146,11 +147,11 @@ function pubsub_post(App $a)
 
 	Logger::log('Import item for ' . $nick . ' from ' . $contact['nick'] . ' (' . $contact['id'] . ')');
 	$feedhub = '';
-	consume_feed($xml, $importer, $contact, $feedhub);
+	Feed::consume($xml, $importer, $contact, $feedhub);
 
 	// do it a second time for DFRN so that any children find their parents.
 	if ($contact['network'] === Protocol::DFRN) {
-		consume_feed($xml, $importer, $contact, $feedhub);
+		Feed::consume($xml, $importer, $contact, $feedhub);
 	}
 
 	hub_post_return();

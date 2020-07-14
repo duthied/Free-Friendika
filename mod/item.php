@@ -30,6 +30,7 @@
 
 use Friendica\App;
 use Friendica\Content\Item as ItemHelper;
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
@@ -56,8 +57,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
-
-require_once __DIR__ . '/../include/items.php';
 
 function item_post(App $a) {
 	if (!Session::isAuthenticated()) {
@@ -233,7 +232,7 @@ function item_post(App $a) {
 			];
 		}
 
-		$att_bbcode = add_page_info_data($attachment);
+		$att_bbcode = "\n" . PageInfo::getFooterFromData($attachment);
 		$body .= $att_bbcode;
 	}
 

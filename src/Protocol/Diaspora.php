@@ -22,6 +22,7 @@
 namespace Friendica\Protocol;
 
 use Friendica\Content\Feature;
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Cache\Duration;
@@ -2621,7 +2622,7 @@ class Diaspora
 				$item["body"] = self::replacePeopleGuid($item["body"], $item["author-link"]);
 
 				// Add OEmbed and other information to the body
-				$item["body"] = add_page_info_to_body($item["body"], false, true);
+				$item["body"] = PageInfo::appendToBody($item["body"], false, true);
 
 				return $item;
 			} else {
@@ -2985,7 +2986,7 @@ class Diaspora
 
 			// Add OEmbed and other information to the body
 			if (!self::isHubzilla($contact["url"])) {
-				$body = add_page_info_to_body($body, false, true);
+				$body = PageInfo::appendToBody($body, false, true);
 			}
 		}
 

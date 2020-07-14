@@ -82,7 +82,6 @@
 			"include/conversation.php",
 			"include/dba.php",
 			"include/enotify.php",
-			"include/items.php",
 			"boot.php"
 		]
 	},
