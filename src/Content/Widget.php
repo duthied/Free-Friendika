@@ -269,10 +269,6 @@ class Widget
 			return '';
 		}
 
-		if (!Feature::isEnabled(local_user(), 'networks')) {
-			return '';
-		}
-
 		$extra_sql = self::unavailableNetworks();
 
 		$r = DBA::p("SELECT DISTINCT(`network`) FROM `contact` WHERE `uid` = ? AND NOT `deleted` AND `network` != '' $extra_sql ORDER BY `network`",
@@ -496,10 +492,6 @@ class Widget
 	public static function postedByYear(string $url, int $uid, bool $wall)
 	{
 		$o = '';
-
-		if (!Feature::isEnabled($uid, 'archives')) {
-			return $o;
-		}
 
 		$visible_years = DI::pConfig()->get($uid, 'system', 'archive_visible_years', 5);
 

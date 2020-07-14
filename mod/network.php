@@ -102,9 +102,7 @@ function network_init(App $a)
 				'order=activity', //all
 				'order=post',     //postord
 				'conv=1',         //conv
-				'new=1',          //new
 				'star=1',         //starred
-				'bmark=1',        //bookmarked
 			];
 
 			$k = array_search('active', $last_sel_tabs);
@@ -154,40 +152,28 @@ function network_init(App $a)
  *        '/network?order=activity' => $activity_active = 'active'
  *        '/network?order=post'     => $postord_active = 'active'
  *        '/network?conv=1',        => $conv_active = 'active'
- *        '/network?new=1',         => $new_active = 'active'
  *        '/network?star=1',        => $starred_active = 'active'
- *        '/network?bmark=1',       => $bookmarked_active = 'active'
  *
  * @param App $a
- * @return array ($no_active, $activity_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
+ * @return array ($no_active, $activity_active, $postord_active, $conv_active, $starred_active);
  */
 function network_query_get_sel_tab(App $a)
 {
 	$no_active = '';
 	$starred_active = '';
-	$new_active = '';
-	$bookmarked_active = '';
 	$all_active = '';
 	$conv_active = '';
 	$postord_active = '';
 
-	if (!empty($_GET['new'])) {
-		$new_active = 'active';
-	}
-
 	if (!empty($_GET['star'])) {
 		$starred_active = 'active';
-	}
-
-	if (!empty($_GET['bmark'])) {
-		$bookmarked_active = 'active';
 	}
 
 	if (!empty($_GET['conv'])) {
 		$conv_active = 'active';
 	}
 
-	if (($new_active == '') && ($starred_active == '') && ($bookmarked_active == '') && ($conv_active == '')) {
+	if (($starred_active == '') && ($conv_active == '')) {
 		$no_active = 'active';
 	}
 
@@ -198,7 +184,7 @@ function network_query_get_sel_tab(App $a)
 		}
 	}
 
-	return [$no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active];
+	return [$no_active, $all_active, $postord_active, $conv_active, $starred_active];
 }
 
 function network_query_get_sel_group(App $a)
@@ -312,7 +298,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 	$arr = ['query' => DI::args()->getQueryString()];
 	Hook::callAll('network_content_init', $arr);
 
-	if (!empty($_GET['new']) || !empty($_GET['file'])) {
+	if (!empty($_GET['file'])) {
 		$o = networkFlatView($a, $update);
 	} else {
 		$o = networkThreadedView($a, $update, $parent);
@@ -468,7 +454,6 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$cid   = intval($_GET['contactid'] ?? 0);
 	$star  = intval($_GET['star']      ?? 0);
-	$bmark = intval($_GET['bmark']     ?? 0);
 	$conv  = intval($_GET['conv']      ?? 0);
 	$order = Strings::escapeTags(($_GET['order'] ?? '') ?: 'activity');
 	$nets  =        $_GET['nets']      ?? '';
@@ -543,7 +528,6 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$sql_post_table = '';
 	$sql_options = ($star ? " AND `thread`.`starred` " : '');
-	$sql_options .= ($bmark ? sprintf(" AND `thread`.`post-type` = %d ", Item::PT_PAGE) : '');
 	$sql_extra = $sql_options;
 	$sql_extra2 = '';
 	$sql_extra3 = '';
@@ -888,7 +872,7 @@ function network_tabs(App $a)
 	// item filter tabs
 	/// @TODO fix this logic, reduce duplication
 	/// DI::page()['content'] .= '<div class="tabs-wrapper">';
-	list($no_active, $all_active, $post_active, $conv_active, $new_active, $starred_active, $bookmarked_active) = network_query_get_sel_tab($a);
+	list($no_active, $all_active, $post_active, $conv_active, $starred_active) = network_query_get_sel_tab($a);
 
 	// if no tabs are selected, defaults to activitys
 	if ($no_active == 'active') {
@@ -931,28 +915,6 @@ function network_tabs(App $a)
 		'accesskey' => 'r',
 	];
 
-	if (Feature::isEnabled(local_user(), 'new_tab')) {
-		$tabs[] = [
-			'label'	=> DI::l10n()->t('New'),
-			'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['new' => true])),
-			'sel'	=> $new_active,
-			'title'	=> DI::l10n()->t('Activity Stream - by date'),
-			'id'	=> 'activitiy-by-date-tab',
-			'accesskey' => 'w',
-		];
-	}
-
-	if (Feature::isEnabled(local_user(), 'link_tab')) {
-		$tabs[] = [
-			'label'	=> DI::l10n()->t('Shared Links'),
-			'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['bmark' => true])),
-			'sel'	=> $bookmarked_active,
-			'title'	=> DI::l10n()->t('Interesting Links'),
-			'id'	=> 'shared-links-tab',
-			'accesskey' => 'b',
-		];
-	}
-
 	$tabs[] = [
 		'label'	=> DI::l10n()->t('Starred'),
 		'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['star' => true])),
@@ -965,7 +927,7 @@ function network_tabs(App $a)
 	// save selected tab, but only if not in file mode
 	if (empty($_GET['file'])) {
 		DI::pConfig()->set(local_user(), 'network.view', 'tab.selected', [
-			$all_active, $post_active, $conv_active, $new_active, $starred_active, $bookmarked_active
+			$all_active, $post_active, $conv_active, $starred_active
 		]);
 	}
 
