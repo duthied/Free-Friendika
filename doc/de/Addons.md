@@ -226,10 +226,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('item_photo_menu', $args);
     Hook::callAll('jot_tool', $jotplugins);
 
-### include/items.php
-
-    Hook::callAll('page_info_data', $data);
-
 ### mod/directory.php
 
     Hook::callAll('directory_item', $arr);

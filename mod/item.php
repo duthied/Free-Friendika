@@ -58,8 +58,6 @@ use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 
-require_once __DIR__ . '/../include/items.php';
-
 function item_post(App $a) {
 	if (!Session::isAuthenticated()) {
 		throw new HTTPException\ForbiddenException();
