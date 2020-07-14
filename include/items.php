@@ -63,12 +63,3 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false)
 {
 	return \Friendica\Content\PageInfo::appendToBody($body, $texturl, $no_photos);
 }
-
-/**
- * @deprecated since 2020.06
- * @see \Friendica\Protocol\Feed::consume
- */
-function consume_feed($xml, array $importer, array $contact, &$hub)
-{
-	\Friendica\Protocol\Feed::consume($xml, $importer, $contact, $hub);
-}
