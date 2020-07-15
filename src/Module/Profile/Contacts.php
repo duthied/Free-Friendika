@@ -103,7 +103,7 @@ class Contacts extends BaseProfile
 				continue;
 			}
 
-			$contact_details = Contact::getDetailsByURL($contact['url'], $a->profile['uid'], $contact);
+			$contact_details = array_merge($contact, Contact::getByURLForUser($contact['url'], $a->profile['uid']));
 
 			$contacts[] = [
 				'id'           => $contact['id'],

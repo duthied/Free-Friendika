@@ -177,7 +177,7 @@ class Profiler implements ContainerInterface
 			$output .= "\nDatabase Read:\n";
 			foreach ($this->callstack["database"] as $func => $time) {
 				$time = round($time, 3);
-				if ($time > 0) {
+				if ($time > 0.001) {
 					$output .= $func . ": " . $time . "\n";
 				}
 			}

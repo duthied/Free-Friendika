@@ -138,7 +138,7 @@ class Poke extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		Model\Profile::load(DI::app(), '', Model\Contact::getDetailsByURL($contact["url"]));
+		Model\Profile::load(DI::app(), '', Model\Contact::getByURL($contact["url"], false));
 
 		$verbs = [];
 		foreach (DI::l10n()->getPokeVerbs() as $verb => $translations) {

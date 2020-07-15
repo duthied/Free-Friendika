@@ -396,7 +396,7 @@ function message_content(App $a)
 			$body_e = BBCode::convert($message['body']);
 			$to_name_e = $message['name'];
 
-			$contact = Contact::getDetailsByURL($message['from-url']);
+			$contact = Contact::getByURL($message['from-url'], false, ['thumb', 'addr']);
 			if (isset($contact["thumb"])) {
 				$from_photo = $contact["thumb"];
 			} else {
@@ -528,7 +528,7 @@ function render_messages(array $msg, $t)
 		$body_e = $rr['body'];
 		$to_name_e = $rr['name'];
 
-		$contact = Contact::getDetailsByURL($rr['url']);
+		$contact = Contact::getByURL($rr['url'], false, ['thumb', 'addr']);
 		if (isset($contact["thumb"])) {
 			$from_photo = $contact["thumb"];
 		} else {

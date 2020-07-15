@@ -199,7 +199,7 @@ class Contact
 	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
 	 * @return array contact array
 	 */
-	public static function getByURL(string $url, int $uid = 0, array $fields = [], $update = null)
+	public static function getByURL(string $url, $update = null, array $fields = [], int $uid = 0)
 	{
 		if ($update || is_null($update)) {
 			$cid = self::getIdForURL($url, $uid, !($update ?? false));
@@ -224,6 +224,37 @@ class Contact
 			$ssl_url = str_replace('http://', 'https://', $url);
 			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, $uid];
 			$contact = DBA::selectFirst('contact', $fields, $condition, $options);
+		}
+		return $contact;
+	}
+
+	/**
+	 * Fetches a contact for a given user by a given url.
+	 * In difference to "getByURL" the function will fetch a public contact when no user contact had been found.
+	 *
+	 * @param string  $url    profile url
+	 * @param integer $uid    User ID of the contact
+	 * @param array   $fields Field list
+	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
+	 * @return array contact array
+	 */
+	public static function getByURLForUser(string $url, int $uid = 0, $update = false, array $fields = [])
+	{
+		if ($uid != 0) {
+			$contact = self::getByURL($url, $update, $fields, $uid);
+			if (!empty($contact)) {
+				if (!empty($contact['id'])) {
+					$contact['cid'] = $contact['id'];
+					$contact['zid'] = 0;
+				}
+				return $contact;
+			}
+		}
+
+		$contact = self::getByURL($url, $update, $fields);
+		if (!empty($contact['id'])) {		
+			$contact['cid'] = 0;
+			$contact['zid'] = $contact['id'];
 		}
 		return $contact;
 	}
@@ -1006,218 +1037,6 @@ class Contact
 	}
 
 	/**
-	 * Get contact data for a given profile link
-	 *
-	 * The function looks at several places (contact table and gcontact table) for the contact
-	 * It caches its result for the same script execution to prevent duplicate calls
-	 *
-	 * @param string $url     The profile link
-	 * @param int    $uid     User id
-	 * @param array  $default If not data was found take this data as default value
-	 *
-	 * @return array Contact data
-	 * @throws HTTPException\InternalServerErrorException
-	 */
-	public static function getDetailsByURL($url, $uid = -1, array $default = [])
-	{
-		static $cache = [];
-
-		if ($url == '') {
-			return $default;
-		}
-
-		if ($uid == -1) {
-			$uid = local_user();
-		}
-
-		if (isset($cache[$url][$uid])) {
-			return $cache[$url][$uid];
-		}
-
-		$ssl_url = str_replace('http://', 'https://', $url);
-
-		$nurl = Strings::normaliseLink($url);
-
-		// Fetch contact data from the contact table for the given user
-		$s = DBA::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`
-		FROM `contact` WHERE `nurl` = ? AND `uid` = ?", $nurl, $uid);
-		$r = DBA::toArray($s);
-
-		// Fetch contact data from the contact table for the given user, checking with the alias
-		if (!DBA::isResult($r)) {
-			$s = DBA::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-				`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`
-			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = ?", $nurl, $url, $ssl_url, $uid);
-			$r = DBA::toArray($s);
-		}
-
-		// Fetch the data from the contact table with "uid=0" (which is filled automatically)
-		if (!DBA::isResult($r)) {
-			$s = DBA::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`
-			FROM `contact` WHERE `nurl` = ? AND `uid` = 0", $nurl);
-			$r = DBA::toArray($s);
-		}
-
-		// Fetch the data from the contact table with "uid=0" (which is filled automatically) - checked with the alias
-		if (!DBA::isResult($r)) {
-			$s = DBA::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`
-			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = 0", $nurl, $url, $ssl_url);
-			$r = DBA::toArray($s);
-		}
-
-		// Fetch the data from the gcontact table
-		if (!DBA::isResult($r)) {
-			$s = DBA::p("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
-			`keywords`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, 0 AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`, 2 AS `rel`, 0 AS `pending`
-			FROM `gcontact` WHERE `nurl` = ?", $nurl);
-			$r = DBA::toArray($s);
-		}
-
-		if (DBA::isResult($r)) {
-			// If there is more than one entry we filter out the connector networks
-			if (count($r) > 1) {
-				foreach ($r as $id => $result) {
-					if (!in_array($result["network"], Protocol::NATIVE_SUPPORT)) {
-						unset($r[$id]);
-					}
-				}
-			}
-
-			$profile = array_shift($r);
-		}
-
-		if (!empty($profile)) {
-			$authoritativeResult = true;
-			// "bd" always contains the upcoming birthday of a contact.
-			// "birthday" might contain the birthday including the year of birth.
-			if ($profile["birthday"] > DBA::NULL_DATE) {
-				$bd_timestamp = strtotime($profile["birthday"]);
-				$month = date("m", $bd_timestamp);
-				$day = date("d", $bd_timestamp);
-
-				$current_timestamp = time();
-				$current_year = date("Y", $current_timestamp);
-				$current_month = date("m", $current_timestamp);
-				$current_day = date("d", $current_timestamp);
-
-				$profile["bd"] = $current_year . "-" . $month . "-" . $day;
-				$current = $current_year . "-" . $current_month . "-" . $current_day;
-
-				if ($profile["bd"] < $current) {
-					$profile["bd"] = ( ++$current_year) . "-" . $month . "-" . $day;
-				}
-			} else {
-				$profile["bd"] = DBA::NULL_DATE;
-			}
-		} else {
-			$authoritativeResult = false;
-			$profile = $default;
-		}
-
-		if (empty($profile["photo"]) && isset($default["photo"])) {
-			$profile["photo"] = $default["photo"];
-		}
-
-		if (empty($profile["name"]) && isset($default["name"])) {
-			$profile["name"] = $default["name"];
-		}
-
-		if (empty($profile["network"]) && isset($default["network"])) {
-			$profile["network"] = $default["network"];
-		}
-
-		if (empty($profile["thumb"]) && isset($profile["photo"])) {
-			$profile["thumb"] = $profile["photo"];
-		}
-
-		if (empty($profile["micro"]) && isset($profile["thumb"])) {
-			$profile["micro"] = $profile["thumb"];
-		}
-
-		if ((empty($profile["addr"]) || empty($profile["name"])) && !empty($profile["gid"])
-			&& in_array($profile["network"], Protocol::FEDERATED)
-		) {
-			Worker::add(PRIORITY_LOW, "UpdateGContact", $url);
-		}
-
-		// Show contact details of Diaspora contacts only if connected
-		if (empty($profile["cid"]) && ($profile["network"] ?? "") == Protocol::DIASPORA) {
-			$profile["location"] = "";
-			$profile["about"] = "";
-			$profile["birthday"] = DBA::NULL_DATE;
-		}
-
-		// Only cache the result if it came from the DB since this method is used in widely different contexts
-		// @see display_fetch_author for an example of $default parameter diverging from the DB result
-		if ($authoritativeResult) {
-			$cache[$url][$uid] = $profile;
-		}
-
-		return $profile;
-	}
-
-	/**
-	 * Get contact data for a given address
-	 *
-	 * The function looks at several places (contact table and gcontact table) for the contact
-	 *
-	 * @param string $addr The profile link
-	 * @param int    $uid  User id
-	 *
-	 * @return array Contact data
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function getDetailsByAddr($addr, $uid = -1)
-	{
-		if ($addr == '') {
-			return [];
-		}
-
-		if ($uid == -1) {
-			$uid = local_user();
-		}
-
-		// Fetch contact data from the contact table for the given user
-		$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`,`baseurl`
-			FROM `contact` WHERE `addr` = '%s' AND `uid` = %d AND NOT `deleted`",
-			DBA::escape($addr),
-			intval($uid)
-		);
-		// Fetch the data from the contact table with "uid=0" (which is filled automatically)
-		if (!DBA::isResult($r)) {
-			$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-				`keywords`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`, `baseurl`
-				FROM `contact` WHERE `addr` = '%s' AND `uid` = 0 AND NOT `deleted`",
-				DBA::escape($addr)
-			);
-		}
-
-		// Fetch the data from the gcontact table
-		if (!DBA::isResult($r)) {
-			$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
-				`keywords`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`, 2 AS `rel`, 0 AS `pending`, `server_url` AS `baseurl`
-				FROM `gcontact` WHERE `addr` = '%s'",
-				DBA::escape($addr)
-			);
-		}
-
-		if (!DBA::isResult($r)) {
-			$data = Probe::uri($addr);
-
-			$profile = self::getDetailsByURL($data['url'], $uid, $data);
-		} else {
-			$profile = $r[0];
-		}
-
-		return $profile;
-	}
-
-	/**
 	 * Returns the data array for the photo menu of a given contact
 	 *
 	 * @param array $contact contact
@@ -1499,7 +1318,7 @@ class Contact
 			return 0;
 		}
 
-		$contact = self::getByURL($url, $uid, ['id', 'avatar', 'updated', 'network'], false);
+		$contact = self::getByURL($url, false, ['id', 'avatar', 'updated', 'network'], $uid);
 
 		if (!empty($contact)) {
 			$contact_id = $contact["id"];

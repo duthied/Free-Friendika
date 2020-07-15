@@ -58,31 +58,16 @@ class Hovercard extends BaseModule
 		$contact = [];
 
 		// if it's the url containing https it should be converted to http
-		$contact_nurl = Strings::normaliseLink(GContact::cleanContactUrl($contact_url));
-		if (!$contact_nurl) {
+		if (!$contact_url) {
 			throw new HTTPException\BadRequestException();
 		}
 
 		// Search for contact data
 		// Look if the local user has got the contact
 		if (Session::isAuthenticated()) {
-			$contact = Contact::getDetailsByURL($contact_nurl, local_user());
-		}
-
-		// If not then check the global user
-		if (!count($contact)) {
-			$contact = Contact::getDetailsByURL($contact_nurl);
-		}
-
-		// Feeds url could have been destroyed through "cleanContactUrl", so we now use the original url
-		if (!count($contact) && Session::isAuthenticated()) {
-			$contact_nurl = Strings::normaliseLink($contact_url);
-			$contact = Contact::getDetailsByURL($contact_nurl, local_user());
-		}
-
-		if (!count($contact)) {
-			$contact_nurl = Strings::normaliseLink($contact_url);
-			$contact = Contact::getDetailsByURL($contact_nurl);
+			$contact = Contact::getByURLForUser($contact_url, local_user());
+		} else {
+			$contact = Contact::getByURL($contact_url, false);
 		}
 
 		if (!count($contact)) {
@@ -110,7 +95,7 @@ class Hovercard extends BaseModule
 				'about'        => $contact['about'],
 				'network_link' => Strings::formatNetworkName($contact['network'], $contact['url']),
 				'tags'         => $contact['keywords'],
-				'bd'           => $contact['birthday'] <= DBA::NULL_DATE ? '' : $contact['birthday'],
+				'bd'           => $contact['bd'] <= DBA::NULL_DATE ? '' : $contact['bd'],
 				'account_type' => Contact::getAccountType($contact),
 				'actions'      => $actions,
 			],

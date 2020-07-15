@@ -237,13 +237,13 @@ class Index extends BaseSearch
 		} else {
 			// Cheaper local lookup for anonymous users, no probe
 			if ($isAddr) {
-				$contact = Contact::selectFirst(['id' => 'cid'], ['addr' => $search, 'uid' => 0]);
+				$contact = Contact::selectFirst(['id'], ['addr' => $search, 'uid' => 0]);
 			} else {
-				$contact = Contact::getDetailsByURL($search, 0, ['cid' => 0]);
+				$contact = array_merge(['id' => 0], Contact::getByURL($search, null, ['id']));
 			}
 
 			if (DBA::isResult($contact)) {
-				$contact_id = $contact['cid'];
+				$contact_id = $contact['id'];
 			}
 		}
 
