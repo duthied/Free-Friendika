@@ -245,14 +245,14 @@ class PostUpdate
 				$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 					'photo' => $item['author-avatar'], 'network' => $item['network']];
 
-				$item['author-id'] = Contact::getIdForURL($item["author-link"], 0, false, $default);
+				$item['author-id'] = Contact::getIdForURL($item["author-link"], 0, null, $default);
 			}
 
 			if (empty($item['owner-id'])) {
 				$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 					'photo' => $item['owner-avatar'], 'network' => $item['network']];
 
-				$item['owner-id'] = Contact::getIdForURL($item["owner-link"], 0, false, $default);
+				$item['owner-id'] = Contact::getIdForURL($item["owner-link"], 0, null, $default);
 			}
 
 			if (empty($item['psid'])) {

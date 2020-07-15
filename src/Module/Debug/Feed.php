@@ -47,8 +47,7 @@ class Feed extends BaseModule
 		if (!empty($_REQUEST['url'])) {
 			$url = $_REQUEST['url'];
 
-			$contact_id = Model\Contact::getIdForURL($url, local_user(), true);
-			$contact = Model\Contact::getById($contact_id);
+			$contact = Model\Contact::getByURLForUser($url, local_user(), false);
 
 			$xml = Network::fetchUrl($contact['poll']);
 

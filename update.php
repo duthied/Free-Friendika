@@ -203,7 +203,7 @@ function update_1260()
 	while ($item = DBA::fetch($items)) {
 		$contact = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
-		$cid = Contact::getIdForURL($item['owner-link'], 0, false, $contact);
+		$cid = Contact::getIdForURL($item['owner-link'], 0, null, $contact);
 		if (empty($cid)) {
 			continue;
 		}
@@ -219,7 +219,7 @@ function update_1260()
 	while ($item = DBA::fetch($items)) {
 		$contact = ['url' => $item['author-link'], 'name' => $item['author-name'],
 			'photo' => $item['author-avatar'], 'network' => $item['network']];
-		$cid = Contact::getIdForURL($item['author-link'], 0, false, $contact);
+		$cid = Contact::getIdForURL($item['author-link'], 0, null, $contact);
 		if (empty($cid)) {
 			continue;
 		}

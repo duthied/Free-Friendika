@@ -445,9 +445,9 @@ class Processor
 
 		$item['network'] = Protocol::ACTIVITYPUB;
 		$item['author-link'] = $activity['author'];
-		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
+		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, false);
 		$item['owner-link'] = $activity['actor'];
-		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
+		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, false);
 
 		if (in_array(0, $activity['receiver']) && !empty($activity['unlisted'])) {
 			$item['private'] = Item::UNLISTED;
@@ -511,13 +511,13 @@ class Processor
 			$item['uid'] = $receiver;
 
 			if ($isForum) {
-				$item['contact-id'] = Contact::getIdForURL($activity['actor'], $receiver, true);
+				$item['contact-id'] = Contact::getIdForURL($activity['actor'], $receiver, false);
 			} else {
-				$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver, true);
+				$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver, false);
 			}
 
 			if (($receiver != 0) && empty($item['contact-id'])) {
-				$item['contact-id'] = Contact::getIdForURL($activity['author'], 0, true);
+				$item['contact-id'] = Contact::getIdForURL($activity['author'], 0, false);
 			}
 
 			if (!empty($activity['directmessage'])) {

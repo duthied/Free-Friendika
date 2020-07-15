@@ -471,7 +471,7 @@ class Widget
 		}
 
 		if (Feature::isEnabled($uid, 'tagadelic')) {
-			$owner_id = Contact::getIdForURL($a->profile['url'], 0, true);
+			$owner_id = Contact::getIdForURL($a->profile['url'], 0, false);
 
 			if (!$owner_id) {
 				return '';
