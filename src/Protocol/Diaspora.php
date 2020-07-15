@@ -3729,7 +3729,7 @@ class Diaspora
 
 	private static function prependParentAuthorMention($body, $profile_url)
 	{
-		$profile = Contact::getByURL($profile_url, 0, ['addr', 'name', 'contact-type'], false);
+		$profile = Contact::getByURL($profile_url, false, ['addr', 'name', 'contact-type']);
 		if (!empty($profile['addr'])
 			&& $profile['contact-type'] != Contact::TYPE_COMMUNITY
 			&& !strstr($body, $profile['addr'])

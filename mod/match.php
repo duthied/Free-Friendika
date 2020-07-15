@@ -102,7 +102,7 @@ function match_content(App $a)
 				'follow' => [DI::l10n()->t("Connect/Follow"), $connlnk]
 			];
 
-			$contact_details = Contact::getByURL($profile->url, 0, [], false);
+			$contact_details = Contact::getByURL($profile->url, false);
 
 			$entry = [
 				'url'          => Contact::magicLink($profile->url),

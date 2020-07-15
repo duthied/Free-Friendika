@@ -971,7 +971,7 @@ class Contact extends BaseModule
 		if (DBA::isResult($contact)) {
 			DI::page()['aside'] = '';
 
-			$profiledata = Model\Contact::getByURL($contact['url'], 0, [], false);
+			$profiledata = Model\Contact::getByURL($contact['url'], false);
 
 			Model\Profile::load($a, '', $profiledata, true);
 
@@ -994,7 +994,7 @@ class Contact extends BaseModule
 		if (DBA::isResult($contact)) {
 			DI::page()['aside'] = '';
 
-			$profiledata = Model\Contact::getByURL($contact['url'], 0, [], false);
+			$profiledata = Model\Contact::getByURL($contact['url'], false);
 
 			if (local_user() && in_array($profiledata['network'], Protocol::FEDERATED)) {
 				$profiledata['remoteconnect'] = DI::baseUrl() . '/follow?url=' . urlencode($profiledata['url']);

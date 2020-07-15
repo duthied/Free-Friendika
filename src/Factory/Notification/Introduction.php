@@ -213,7 +213,7 @@ class Introduction extends BaseFactory
 		// If the network and addr is still not available
 		// get the missing data data from other sources
 		if (empty($intro['gnetwork']) || empty($intro['gaddr'])) {
-			$ret = Contact::getByURL($intro['url'], 0, ['network', 'addr'], false);
+			$ret = Contact::getByURL($intro['url'], false, ['network', 'addr']);
 
 			if (empty($intro['gnetwork']) && !empty($ret['network'])) {
 				$intro['gnetwork'] = $ret['network'];

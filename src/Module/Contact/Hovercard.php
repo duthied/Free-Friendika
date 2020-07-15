@@ -67,7 +67,7 @@ class Hovercard extends BaseModule
 		if (Session::isAuthenticated()) {
 			$contact = Contact::getByURLForUser($contact_url, local_user(), [], false);
 		} else {
-			$contact = Contact::getByURL($contact_url, 0, [], false);
+			$contact = Contact::getByURL($contact_url, false);
 		}
 
 		if (!count($contact)) {

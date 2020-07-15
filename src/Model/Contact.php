@@ -199,7 +199,7 @@ class Contact
 	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
 	 * @return array contact array
 	 */
-	public static function getByURL(string $url, int $uid = 0, array $fields = [], $update = null)
+	public static function getByURL(string $url, $update = null, array $fields = [], int $uid = 0)
 	{
 		if ($update || is_null($update)) {
 			$cid = self::getIdForURL($url, $uid, !($update ?? false));
@@ -241,7 +241,7 @@ class Contact
 	public static function getByURLForUser(string $url, int $uid = 0, array $fields = [], $update = null)
 	{
 		if ($uid != 0) {
-			$contact = self::getByURL($url, $uid, $fields, $update);
+			$contact = self::getByURL($url, $update, $fields, $uid);
 			if (!empty($contact)) {
 				if (!empty($contact['id'])) {
 					$contact['cid'] = $contact['id'];
@@ -251,7 +251,7 @@ class Contact
 			}
 		}
 
-		$contact = self::getByURL($url, 0, $fields, $update);
+		$contact = self::getByURL($url, $update, $fields);
 		if (!empty($contact['id'])) {		
 			$contact['cid'] = 0;
 			$contact['zid'] = $contact['id'];
@@ -1318,7 +1318,7 @@ class Contact
 			return 0;
 		}
 
-		$contact = self::getByURL($url, $uid, ['id', 'avatar', 'updated', 'network'], false);
+		$contact = self::getByURL($url, false, ['id', 'avatar', 'updated', 'network'], $uid);
 
 		if (!empty($contact)) {
 			$contact_id = $contact["id"];

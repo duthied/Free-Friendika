@@ -239,7 +239,7 @@ class Index extends BaseSearch
 			if ($isAddr) {
 				$contact = Contact::selectFirst(['id'], ['addr' => $search, 'uid' => 0]);
 			} else {
-				$contact = array_merge(['id' => 0], Contact::getByURL($search, 0, ['id']));
+				$contact = array_merge(['id' => 0], Contact::getByURL($search, null, ['id']));
 			}
 
 			if (DBA::isResult($contact)) {

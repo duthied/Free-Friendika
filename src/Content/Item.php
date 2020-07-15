@@ -130,7 +130,7 @@ class Item
 				// Checking for the alias that is used for OStatus
 				$pattern = '/[@!]\[url\=(.*?)\](.*?)\[\/url\]/ism';
 				if (preg_match($pattern, $tag, $matches)) {
-					$data = Contact::getByURL($matches[1], 0, ['alias', 'nick'], false);
+					$data = Contact::getByURL($matches[1], false, ['alias', 'nick']);
 
 					if ($data['alias'] != '') {
 						$newtag = '@[url=' . $data['alias'] . ']' . $data['nick'] . '[/url]';

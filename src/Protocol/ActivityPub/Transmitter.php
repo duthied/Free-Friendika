@@ -1008,7 +1008,7 @@ class Transmitter
 				$url = DI::baseUrl() . '/search?tag=' . urlencode($term['name']);
 				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['name']];
 			} else {
-				$contact = Contact::getByURL($term['url'], 0, ['addr'], false);
+				$contact = Contact::getByURL($term['url'], false, ['addr']);
 				if (!empty($contact['addr'])) {
 					$mention = '@' . $contact['addr'];
 				} else {
@@ -1141,7 +1141,7 @@ class Transmitter
 			return '';
 		}
 
-		$data = Contact::getByURL($match[1], 0, ['url', 'nick'], false);
+		$data = Contact::getByURL($match[1], false, ['url', 'nick']);
 		if (empty($data['nick'])) {
 			return $match[0];
 		}
@@ -1861,7 +1861,7 @@ class Transmitter
 		$mentions = [];
 
 		foreach (Tag::getByURIId($uriid, [Tag::IMPLICIT_MENTION]) as $tag) {
-			$profile = Contact::getByURL($tag['url'], 0, ['addr', 'contact-type', 'nick'], false);
+			$profile = Contact::getByURL($tag['url'], false, ['addr', 'contact-type', 'nick']);
 			if (!empty($profile['addr'])
 				&& $profile['contact-type'] != Contact::TYPE_COMMUNITY
 				&& !strstr($body, $profile['addr'])

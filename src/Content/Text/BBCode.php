@@ -983,7 +983,7 @@ class BBCode
 					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}
 
-				$author_contact = Contact::getByURL($attributes['profile'], 0, ['url', 'addr', 'name', 'micro'], false);
+				$author_contact = Contact::getByURL($attributes['profile'], false, ['url', 'addr', 'name', 'micro']);
 				$author_contact['url'] = ($author_contact['url'] ?? $attributes['profile']);
 				$author_contact['addr'] = ($author_contact['addr'] ?? '') ?: Protocol::getAddrFromProfileUrl($attributes['profile']);
 
@@ -1061,7 +1061,7 @@ class BBCode
 			default:
 				$text = ($is_quote_share? "\n" : '');
 
-				$contact = Contact::getByURL($attributes['profile'], 0, ['network'], false);
+				$contact = Contact::getByURL($attributes['profile'], false, ['network']);
 				$network = $contact['network'] ?? Protocol::PHANTOM;
 
 				$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
@@ -1975,7 +1975,7 @@ class BBCode
 	 */
 	private static function bbCodeMention2DiasporaCallback($match)
 	{
-		$contact = Contact::getByURL($match[3], 0, ['addr']);
+		$contact = Contact::getByURL($match[3], null, ['addr']);
 
 		if (empty($contact['addr'])) {
 			return $match[0];

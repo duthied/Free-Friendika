@@ -2105,7 +2105,7 @@ class OStatus
 			$mentioned = $newmentions;
 
 			foreach ($mentioned as $mention) {
-				$contact = Contact::getByURL($mention, 0, ['contact-type']);
+				$contact = Contact::getByURL($mention, ['contact-type']);
 				if (!empty($contact) && ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
 					XML::addElement($doc, $entry, "link", "",
 						[

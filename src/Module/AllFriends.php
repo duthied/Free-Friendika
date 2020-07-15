@@ -63,7 +63,7 @@ class AllFriends extends BaseModule
 		}
 
 		DI::page()['aside'] = "";
-		Model\Profile::load($app, "", Model\Contact::getByURL($contact["url"], 0, [], false));
+		Model\Profile::load($app, "", Model\Contact::getByURL($contact["url"], false));
 
 		$total = Model\GContact::countAllFriends(local_user(), $cid);
 

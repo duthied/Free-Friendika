@@ -107,7 +107,7 @@ function follow_content(App $a)
 		}
 	}
 
-	$contact = Contact::getByURL($url, 0, [], true);
+	$contact = Contact::getByURL($url, true);
 	if (empty($contact)) {
 		// Possibly it is a remote item and not an account
 		follow_remote_item($url);
