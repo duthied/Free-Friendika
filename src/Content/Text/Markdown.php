@@ -83,7 +83,7 @@ class Markdown
 					return '';
 				}
 
-				$data = Contact::getDetailsByAddr($matches[3]);
+				$data = Contact::getByURL($matches[3]);
 
 				if (empty($data)) {
 					return '';

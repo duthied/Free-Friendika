@@ -130,7 +130,7 @@ class Item
 				// Checking for the alias that is used for OStatus
 				$pattern = '/[@!]\[url\=(.*?)\](.*?)\[\/url\]/ism';
 				if (preg_match($pattern, $tag, $matches)) {
-					$data = Contact::getDetailsByURL($matches[1]);
+					$data = Contact::getByURL($matches[1], 0, ['alias', 'nick'], false);
 
 					if ($data['alias'] != '') {
 						$newtag = '@[url=' . $data['alias'] . ']' . $data['nick'] . '[/url]';
@@ -149,15 +149,8 @@ class Item
 			$name = $nameparts[0];
 
 			// Try to detect the contact in various ways
-			if (strpos($name, 'http://')) {
-				// At first we have to ensure that the contact exists
-				Contact::getIdForURL($name);
-
-				// Now we should have something
-				$contact = Contact::getDetailsByURL($name, $profile_uid);
-			} elseif (strpos($name, '@')) {
-				// This function automatically probes when no entry was found
-				$contact = Contact::getDetailsByAddr($name, $profile_uid);
+			if (strpos($name, 'http://') || strpos($name, '@')) {
+				$contact = Contact::getByURLForUser($name, $profile_uid, []);
 			} else {
 				$contact = false;
 				$fields = ['id', 'url', 'nick', 'name', 'alias', 'network', 'forum', 'prv'];

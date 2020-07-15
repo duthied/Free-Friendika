@@ -145,7 +145,7 @@ function undo_post_tagging($s) {
 	if ($cnt) {
 		foreach ($matches as $mtch) {
 			if (in_array($mtch[1], ['!', '@'])) {
-				$contact = Contact::getDetailsByURL($mtch[2]);
+				$contact = Contact::getByURL($mtch[2], 0, ['addr'], false);
 				$mtch[3] = empty($contact['addr']) ? $mtch[2] : $contact['addr'];
 			}
 			$s = str_replace($mtch[0], $mtch[1] . $mtch[3],$s);

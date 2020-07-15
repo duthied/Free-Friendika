@@ -57,7 +57,7 @@ function common_content(App $a)
 
 		if (DBA::isResult($contact)) {
 			DI::page()['aside'] = "";
-			Model\Profile::load($a, "", Model\Contact::getDetailsByURL($contact["url"]));
+			Model\Profile::load($a, "", Model\Contact::getByURLForUser($contact["url"], 0, [], false));
 		}
 	} else {
 		$contact = DBA::selectFirst('contact', ['name', 'url', 'photo', 'uid', 'id'], ['self' => true, 'uid' => $uid]);
@@ -124,7 +124,7 @@ function common_content(App $a)
 	$entries = [];
 	foreach ($common_friends as $common_friend) {
 		//get further details of the contact
-		$contact_details = Model\Contact::getDetailsByURL($common_friend['url'], $uid);
+		$contact_details = Model\Contact::getByURLForUser($common_friend['url'], $uid, [], false);
 
 		// $rr['id'] is needed to use contact_photo_menu()
 		/// @TODO Adding '/" here avoids E_NOTICE on missing constants

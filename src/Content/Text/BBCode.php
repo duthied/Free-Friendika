@@ -1975,11 +1975,7 @@ class BBCode
 	 */
 	private static function bbCodeMention2DiasporaCallback($match)
 	{
-		$contact = Contact::getDetailsByURL($match[3]);
-
-		if (empty($contact['addr'])) {
-			$contact = Probe::uri($match[3]);
-		}
+		$contact = Contact::getByURL($match[3], 0, ['addr']);
 
 		if (empty($contact['addr'])) {
 			return $match[0];

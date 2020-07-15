@@ -350,7 +350,7 @@ class Acl extends BaseModule
 					continue;
 				}
 
-				$contact = Contact::getDetailsByURL($author);
+				$contact = Contact::getByURL($author, 0, ['micro', 'name', 'id', 'network', 'nick', 'addr', 'url', 'forum'], false);
 
 				if (count($contact) > 0) {
 					$unknown_contacts[] = [

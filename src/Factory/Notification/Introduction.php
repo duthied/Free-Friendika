@@ -99,7 +99,7 @@ class Introduction extends BaseFactory
 		$formattedNotifications = [];
 
 		try {
-			/// @todo Fetch contact details by "Contact::getDetailsByUrl" instead of queries to contact, fcontact and gcontact
+			/// @todo Fetch contact details by "Contact::getByUrl" instead of queries to contact, fcontact and gcontact
 			$stmtNotifications = $this->dba->p(
 				"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
 				`fcontact`.`name` AS `fname`, `fcontact`.`url` AS `furl`, `fcontact`.`addr` AS `faddr`,
@@ -213,7 +213,7 @@ class Introduction extends BaseFactory
 		// If the network and addr is still not available
 		// get the missing data data from other sources
 		if (empty($intro['gnetwork']) || empty($intro['gaddr'])) {
-			$ret = Contact::getDetailsByURL($intro['url']);
+			$ret = Contact::getByURL($intro['url'], 0, ['network', 'addr'], false);
 
 			if (empty($intro['gnetwork']) && !empty($ret['network'])) {
 				$intro['gnetwork'] = $ret['network'];

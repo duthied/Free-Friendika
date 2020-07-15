@@ -1568,7 +1568,7 @@ class Diaspora
 	 */
 	private static function plink($addr, $guid, $parent_guid = '')
 	{
-		$contact = Contact::getDetailsByAddr($addr);
+		$contact = Contact::getByURL($addr);
 		if (empty($contact)) {
 			Logger::info('No contact data for address', ['addr' => $addr]);
 			return '';
@@ -3729,7 +3729,7 @@ class Diaspora
 
 	private static function prependParentAuthorMention($body, $profile_url)
 	{
-		$profile = Contact::getDetailsByURL($profile_url);
+		$profile = Contact::getByURL($profile_url, 0, ['addr', 'name', 'contact-type'], false);
 		if (!empty($profile['addr'])
 			&& $profile['contact-type'] != Contact::TYPE_COMMUNITY
 			&& !strstr($body, $profile['addr'])

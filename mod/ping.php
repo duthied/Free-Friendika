@@ -331,7 +331,7 @@ function ping_init(App $a)
 
 		if (DBA::isResult($notifs)) {
 			foreach ($notifs as $notif) {
-				$contact = Contact::getDetailsByURL($notif['url']);
+				$contact = Contact::getByURL($notif['url'], 0, ['micro'], false);
 				if (isset($contact['micro'])) {
 					$notif['photo'] = ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO);
 				} else {

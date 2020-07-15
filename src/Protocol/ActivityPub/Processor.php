@@ -987,7 +987,7 @@ class Processor
 	{
 		$parent_terms = Tag::getByURIId($parent['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
-		$parent_author = Contact::getDetailsByURL($parent['author-link'], 0);
+		$parent_author = Contact::getByURL($parent['author-link'], 0, ['url', 'nurl', 'alias'], false);
 
 		$implicit_mentions = [];
 		if (empty($parent_author['url'])) {
@@ -1003,7 +1003,7 @@ class Processor
 		}
 
 		foreach ($parent_terms as $term) {
-			$contact = Contact::getDetailsByURL($term['url'], 0);
+			$contact = Contact::getByURL($term['url'], 0, ['url', 'nurl', 'alias'], false);
 			if (!empty($contact['url'])) {
 				$implicit_mentions[] = $contact['url'];
 				$implicit_mentions[] = $contact['nurl'];

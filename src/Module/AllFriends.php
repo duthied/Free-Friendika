@@ -63,7 +63,7 @@ class AllFriends extends BaseModule
 		}
 
 		DI::page()['aside'] = "";
-		Model\Profile::load($app, "", Model\Contact::getDetailsByURL($contact["url"]));
+		Model\Profile::load($app, "", Model\Contact::getByURL($contact["url"], 0, [], false));
 
 		$total = Model\GContact::countAllFriends(local_user(), $cid);
 
@@ -79,7 +79,7 @@ class AllFriends extends BaseModule
 		$entries = [];
 		foreach ($friends as $friend) {
 			//get further details of the contact
-			$contactDetails = Model\Contact::getDetailsByURL($friend['url'], $uid, $friend);
+			$contactDetails = array_merge($friend, Model\Contact::getByURLForUser($friend['url'], $uid, [], false));
 
 			$connlnk = '';
 			// $friend[cid] is only available for common contacts. So if the contact is a common one, use contact_photo_menu to generate the photoMenu
