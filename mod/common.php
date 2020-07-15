@@ -124,7 +124,7 @@ function common_content(App $a)
 	$entries = [];
 	foreach ($common_friends as $common_friend) {
 		//get further details of the contact
-		$contact_details = Model\Contact::getByURLForUser($common_friend['url'], $uid, false);
+		$contact_details = Model\Contact::getByURLForUser($common_friend['url'], $uid);
 
 		// $rr['id'] is needed to use contact_photo_menu()
 		/// @TODO Adding '/" here avoids E_NOTICE on missing constants

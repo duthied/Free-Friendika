@@ -79,7 +79,7 @@ class AllFriends extends BaseModule
 		$entries = [];
 		foreach ($friends as $friend) {
 			//get further details of the contact
-			$contactDetails = array_merge($friend, Model\Contact::getByURLForUser($friend['url'], $uid, false));
+			$contactDetails = array_merge($friend, Model\Contact::getByURLForUser($friend['url'], $uid));
 
 			$connlnk = '';
 			// $friend[cid] is only available for common contacts. So if the contact is a common one, use contact_photo_menu to generate the photoMenu

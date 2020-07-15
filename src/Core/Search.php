@@ -77,7 +77,7 @@ class Search
 			// Ensure that we do have a contact entry
 			Contact::getIdForURL($user_data['url'] ?? '');
 
-			$contactDetails = Contact::getByURLForUser($user_data['url'] ?? '', local_user(), false);
+			$contactDetails = Contact::getByURLForUser($user_data['url'] ?? '', local_user());
 
 			$result = new ContactResult(
 				$user_data['name'] ?? '',
@@ -143,7 +143,7 @@ class Search
 
 		foreach ($profiles as $profile) {
 			$profile_url = $profile['url'] ?? '';
-			$contactDetails = Contact::getByURLForUser($profile_url, local_user(), false);
+			$contactDetails = Contact::getByURLForUser($profile_url, local_user());
 
 			$result = new ContactResult(
 				$profile['name'] ?? '',
@@ -232,7 +232,7 @@ class Search
 				continue;
 			}
 
-			$contact = Contact::getByURLForUser($row["nurl"], local_user(), false);
+			$contact = Contact::getByURLForUser($row["nurl"], local_user());
 
 			if ($contact["name"] == "") {
 				$contact["name"] = end(explode("/", $urlParts["path"]));
