@@ -238,7 +238,7 @@ class Contact
 	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
 	 * @return array contact array
 	 */
-	public static function getByURLForUser(string $url, int $uid = 0, array $fields = [], $update = null)
+	public static function getByURLForUser(string $url, int $uid = 0, $update = null, array $fields = [])
 	{
 		if ($uid != 0) {
 			$contact = self::getByURL($url, $update, $fields, $uid);

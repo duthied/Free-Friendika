@@ -164,7 +164,7 @@ function display_fetchauthor($a, $item)
 		$profiledata["about"] = "";
 	}
 
-	$profiledata = array_merge($profiledata, Contact::getByURLForUser($profiledata["url"], local_user(), [], false));
+	$profiledata = array_merge($profiledata, Contact::getByURLForUser($profiledata["url"], local_user(), false));
 
 	if (!empty($profiledata["photo"])) {
 		$profiledata["photo"] = DI::baseUrl()->remove($profiledata["photo"]);

@@ -150,7 +150,7 @@ class Item
 
 			// Try to detect the contact in various ways
 			if (strpos($name, 'http://') || strpos($name, '@')) {
-				$contact = Contact::getByURLForUser($name, $profile_uid, []);
+				$contact = Contact::getByURLForUser($name, $profile_uid);
 			} else {
 				$contact = false;
 				$fields = ['id', 'url', 'nick', 'name', 'alias', 'network', 'forum', 'prv'];

@@ -755,7 +755,7 @@ class DFRN
 	{
 		$author = $doc->createElement($element);
 
-		$contact = Contact::getByURLForUser($contact_url, $item["uid"], ['url', 'name', 'addr', 'photo']);
+		$contact = Contact::getByURLForUser($contact_url, $item["uid"], null, ['url', 'name', 'addr', 'photo']);
 		if (!empty($contact)) {
 			XML::addElement($doc, $author, "name", $contact["name"]);
 			XML::addElement($doc, $author, "uri", $contact["url"]);

@@ -111,7 +111,7 @@ class GContact
 				continue;
 			}
 
-			$gcontacts[] = Contact::getByURLForUser($result['nurl'], local_user(), [], false);
+			$gcontacts[] = Contact::getByURLForUser($result['nurl'], local_user(), false);
 		}
 		DBA::close($results);
 		return $gcontacts;
