@@ -513,6 +513,7 @@ function update_1351()
 function pre_update_1354()
 {
 	if (DBStructure::existsColumn('contact', ['ffi_keyword_blacklist'])
+		&& !DBStructure::existsColumn('contact', ['ffi_keyword_denylist'])
 		&& !DBA::e("ALTER TABLE `contact` CHANGE `ffi_keyword_blacklist` `ffi_keyword_denylist` text null")) {
 		return Update::FAILED;
 	}
