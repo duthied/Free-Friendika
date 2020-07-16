@@ -202,7 +202,7 @@ class Search
 			return $resultList;
 		}
 
-		$data = DBA::select('gcontact', ['nurl'], [
+		$data = DBA::select('gcontact', ['nurl', 'name', 'addr', 'url', 'photo', 'network', 'keywords'], [
 			'NOT `hide`
 			AND `network` IN (?, ?, ?, ?)
 			AND ((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`))
@@ -232,7 +232,7 @@ class Search
 				continue;
 			}
 
-			$contact = Contact::getByURLForUser($row["nurl"], local_user());
+			$contact = Contact::getByURLForUser($row["nurl"], local_user()) ?: $row;
 
 			if ($contact["name"] == "") {
 				$contact["name"] = end(explode("/", $urlParts["path"]));
@@ -245,8 +245,8 @@ class Search
 				$contact["url"],
 				$contact["photo"],
 				$contact["network"],
-				$contact["cid"],
-				$contact["zid"],
+				$contact["cid"] ?? 0,
+				$contact["zid"] ?? 0,
 				$contact["keywords"]
 			);
 
