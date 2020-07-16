@@ -513,9 +513,25 @@ function update_1351()
 function pre_update_1354()
 {
 	if (DBStructure::existsColumn('contact', ['ffi_keyword_blacklist'])
+		&& !DBStructure::existsColumn('contact', ['ffi_keyword_denylist'])
 		&& !DBA::e("ALTER TABLE `contact` CHANGE `ffi_keyword_blacklist` `ffi_keyword_denylist` text null")) {
 		return Update::FAILED;
 	}
+	return Update::SUCCESS;
+}
 
+function update_1354()
+{
+	if (DBStructure::existsColumn('contact', ['ffi_keyword_blacklist'])
+		&& DBStructure::existsColumn('contact', ['ffi_keyword_denylist'])) {
+		if (!DBA::e("UPDATE `contact` SET `ffi_keyword_denylist` = `ffi_keyword_blacklist`")) {
+			return Update::FAILED;
+		}
+
+		// When the data had been copied then the main task is done.
+		// Having the old field removed is only beauty but not crucial.
+		// So we don't care if this was successful or not.
+		DBA::e("ALTER TABLE `contact` DROP `ffi_keyword_blacklist`");
+	}
 	return Update::SUCCESS;
 }
