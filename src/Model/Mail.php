@@ -27,7 +27,6 @@ use Friendica\Core\Worker;
 use Friendica\DI;
 use Friendica\Database\DBA;
 use Friendica\Model\Notify\Type;
-use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Worker\Delivery;
@@ -267,7 +266,7 @@ class Mail
 		$guid = System::createUUID();
 		$uri = Item::newURI(local_user(), $guid);
 
-		$me = Probe::uri($replyto);
+		$me = Contact::getByURL($replyto);
 		if (!$me['name']) {
 			return -2;
 		}

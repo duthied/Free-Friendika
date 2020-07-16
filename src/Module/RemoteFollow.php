@@ -28,6 +28,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\Core\System;
+use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 
@@ -61,8 +62,8 @@ class RemoteFollow extends BaseModule
 		}
 
 		// Detect the network, make sure the provided URL is valid
-		$data = Probe::uri($url);
-		if ($data['network'] == Protocol::PHANTOM) {
+		$data = Contact::getByURL($url);
+		if (!$data) {
 			notice(DI::l10n()->t("The provided profile link doesn't seem to be valid"));
 			return;
 		}
