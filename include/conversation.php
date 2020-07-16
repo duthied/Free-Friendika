@@ -325,7 +325,7 @@ function conv_get_blocklist()
 
 	foreach (explode(',', $str_blocked) as $entry) {
 		// The 4th parameter guarantees that there always will be a public contact entry
-		$cid = Contact::getIdForURL(trim($entry), 0, true, ['url' => trim($entry)]);
+		$cid = Contact::getIdForURL(trim($entry), 0, false, ['url' => trim($entry)]);
 		if (!empty($cid)) {
 			$blocklist[] = $cid;
 		}
@@ -837,7 +837,7 @@ function item_photo_menu($item) {
 	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
-	$pcid = Contact::getIdForURL($item['author-link'], 0, true);
+	$pcid = Contact::getIdForURL($item['author-link'], 0, false);
 	$network = '';
 	$rel = 0;
 	$condition = ['uid' => local_user(), 'nurl' => Strings::normaliseLink($item['author-link'])];

@@ -294,7 +294,7 @@ function dfrn_request_post(App $a)
 		$hcard = '';
 
 		// Detect the network
-		$data = Probe::uri($url);
+		$data = Contact::getByURL($url);
 		$network = $data["network"];
 
 		// Canonicalize email-style profile locator

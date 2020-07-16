@@ -354,23 +354,23 @@ class Notifier
 				// Send a salmon to the parent author
 				$probed_contact = DBA::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['author-id']]);
 				if (DBA::isResult($probed_contact) && !empty($probed_contact["notify"])) {
-					Logger::log('Notify parent author '.$probed_contact["url"].': '.$probed_contact["notify"]);
+					Logger::notice('Notify parent author', ['url' => $probed_contact["url"], 'notify' => $probed_contact["notify"]]);
 					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 				}
 
 				// Send a salmon to the parent owner
 				$probed_contact = DBA::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['owner-id']]);
 				if (DBA::isResult($probed_contact) && !empty($probed_contact["notify"])) {
-					Logger::log('Notify parent owner '.$probed_contact["url"].': '.$probed_contact["notify"]);
+					Logger::notice('Notify parent owner', ['url' => $probed_contact["url"], 'notify' => $probed_contact["notify"]]);
 					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 				}
 
 				// Send a salmon notification to every person we mentioned in the post
 				foreach (Tag::getByURIId($target_item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION]) as $tag) {
-					$probed_contact = Probe::uri($tag['url']);
-					if ($probed_contact["notify"] != "") {
-						Logger::log('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
-						$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+					$probed_contact = Contact::getByURL($tag['url']);
+					if (!empty($probed_contact['notify'])) {
+						Logger::notice('Notify mentioned user', ['url' => $probed_contact["url"], 'notify' => $probed_contact["notify"]]);
+						$url_recipients[$probed_contact['notify']] = $probed_contact['notify'];
 					}
 				}
 

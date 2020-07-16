@@ -194,19 +194,30 @@ class Contact
 	 * Fetches a contact by a given url
 	 *
 	 * @param string  $url    profile url
-	 * @param integer $uid    User ID of the contact
-	 * @param array   $fields Field list
 	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
+	 * @param array   $fields Field list
+	 * @param integer $uid    User ID of the contact
 	 * @return array contact array
 	 */
 	public static function getByURL(string $url, $update = null, array $fields = [], int $uid = 0)
 	{
 		if ($update || is_null($update)) {
-			$cid = self::getIdForURL($url, $uid, !($update ?? false));
+			$cid = self::getIdForURL($url, $uid, $update);
 			if (empty($cid)) {
 				return [];
 			}
 			return self::getById($cid, $fields);
+		}
+
+		// Add internal fields
+		$removal = [];
+		if (!empty($fields)) {
+			foreach (['id', 'updated', 'network'] as $internal) {
+				if (!in_array($internal, $fields)) {
+					$fields[] = $internal;
+					$removal[] = $internal;
+				}
+			}
 		}
 
 		// We first try the nurl (http://server.tld/nick), most common case
@@ -225,6 +236,18 @@ class Contact
 			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, $uid];
 			$contact = DBA::selectFirst('contact', $fields, $condition, $options);
 		}
+		
+		// Update the contact in the background if needed
+		if ((($contact['updated'] < DateTimeFormat::utc('now -7 days')) || empty($contact['avatar'])) &&
+			in_array($contact['network'], Protocol::FEDERATED)) {
+			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id'], ($uid == 0 ? 'force' : ''));
+		}
+
+		// Remove the internal fields
+		foreach ($removal as $internal) {
+			unset($contact[$internal]);
+		}
+
 		return $contact;
 	}
 
@@ -234,8 +257,8 @@ class Contact
 	 *
 	 * @param string  $url    profile url
 	 * @param integer $uid    User ID of the contact
-	 * @param array   $fields Field list
 	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
+	 * @param array   $fields Field list
 	 * @return array contact array
 	 */
 	public static function getByURLForUser(string $url, int $uid = 0, $update = false, array $fields = [])
@@ -296,7 +319,7 @@ class Contact
 	 */
 	public static function isFollowerByURL($url, $uid)
 	{
-		$cid = self::getIdForURL($url, $uid, true);
+		$cid = self::getIdForURL($url, $uid, false);
 
 		if (empty($cid)) {
 			return false;
@@ -342,7 +365,7 @@ class Contact
 	 */
 	public static function isSharingByURL($url, $uid)
 	{
-		$cid = self::getIdForURL($url, $uid, true);
+		$cid = self::getIdForURL($url, $uid, false);
 
 		if (empty($cid)) {
 			return false;
@@ -437,7 +460,7 @@ class Contact
 		if (!DBA::isResult($self)) {
 			return false;
 		}
-		return self::getIdForURL($self['url'], 0, true);
+		return self::getIdForURL($self['url'], 0, false);
 	}
 
 	/**
@@ -467,14 +490,14 @@ class Contact
 		}
 
 		if ($contact['uid'] != 0) {
-			$pcid = Contact::getIdForURL($contact['url'], 0, true, ['url' => $contact['url']]);
+			$pcid = Contact::getIdForURL($contact['url'], 0, false, ['url' => $contact['url']]);
 			if (empty($pcid)) {
 				return [];
 			}
 			$ucid = $contact['id'];
 		} else {
 			$pcid = $contact['id'];
-			$ucid = Contact::getIdForURL($contact['url'], $uid, true);
+			$ucid = Contact::getIdForURL($contact['url'], $uid, false);
 		}
 
 		return ['public' => $pcid, 'user' => $ucid];
@@ -1300,7 +1323,7 @@ class Contact
 	 *
 	 * @param string  $url       Contact URL
 	 * @param integer $uid       The user id for the contact (0 = public contact)
-	 * @param boolean $no_update Don't update the contact
+	 * @param boolean $update    true = always update, false = never update, null = update when not found or outdated
 	 * @param array   $default   Default value for creating the contact when every else fails
 	 * @param boolean $in_loop   Internally used variable to prevent an endless loop
 	 *
@@ -1308,7 +1331,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getIdForURL($url, $uid = 0, $no_update = false, $default = [], $in_loop = false)
+	public static function getIdForURL($url, $uid = 0, $update = null, $default = [], $in_loop = false)
 	{
 		Logger::info('Get contact data', ['url' => $url, 'user' => $uid]);
 
@@ -1322,17 +1345,8 @@ class Contact
 
 		if (!empty($contact)) {
 			$contact_id = $contact["id"];
-			$update_contact = false;
 
-			// Update the contact every 7 days (Don't update mail or feed contacts)
-			if (in_array($contact['network'], Protocol::FEDERATED)) {
-				$update_contact = ($contact['updated'] < DateTimeFormat::utc('now -7 days'));
-
-				// We force the update if the avatar is empty
-				if (empty($contact['avatar'])) {
-					$update_contact = true;
-				}
-			} elseif (empty($default) && in_array($contact['network'], [Protocol::MAIL, Protocol::PHANTOM]) && ($uid == 0)) {
+			if (empty($default) && in_array($contact['network'], [Protocol::MAIL, Protocol::PHANTOM]) && ($uid == 0)) {
 				// Update public mail accounts via their user's accounts
 				$fields = ['network', 'addr', 'name', 'nick', 'avatar', 'photo', 'thumb', 'micro'];
 				$mailcontact = DBA::selectFirst('contact', $fields, ["`addr` = ? AND `network` = ? AND `uid` != 0", $url, Protocol::MAIL]);
@@ -1345,12 +1359,7 @@ class Contact
 				}
 			}
 
-			// Update the contact in the background if needed but it is called by the frontend
-			if ($update_contact && $no_update && in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
-			}
-
-			if (!$update_contact || $no_update) {
+			if (empty($update)) {
 				return $contact_id;
 			}
 		} elseif ($uid != 0) {
@@ -1358,11 +1367,11 @@ class Contact
 			return 0;
 		}
 
-		if ($no_update && empty($default)) {
+		if (!$update && empty($default)) {
 			// When we don't want to update, we look if we know this contact in any way
 			$data = self::getProbeDataFromDatabase($url, $contact_id);
 			$background_update = true;
-		} elseif ($no_update && !empty($default['network'])) {
+		} elseif (!$update && !empty($default['network'])) {
 			// If there are default values, take these
 			$data = $default;
 			$background_update = false;
@@ -1371,7 +1380,7 @@ class Contact
 			$background_update = false;
 		}
 
-		if (empty($data)) {
+		if ((empty($data) && is_null($update)) || $update) {
 			$data = Probe::uri($url, "", $uid);
 		}
 
@@ -1394,7 +1403,7 @@ class Contact
 		}
 
 		if (!$contact_id && !empty($data['alias']) && ($data['alias'] != $data['url']) && !$in_loop) {
-			$contact_id = self::getIdForURL($data["alias"], $uid, true, $default, true);
+			$contact_id = self::getIdForURL($data["alias"], $uid, false, $default, true);
 		}
 
 		if (!$contact_id) {

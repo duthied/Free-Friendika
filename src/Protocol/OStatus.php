@@ -221,7 +221,7 @@ class OStatus
 			}
 
 			// Ensure that we are having this contact (with uid=0)
-			$cid = Contact::getIdForURL($aliaslink, 0, true);
+			$cid = Contact::getIdForURL($aliaslink, 0, false);
 
 			if ($cid) {
 				$fields = ['url', 'nurl', 'name', 'nick', 'alias', 'about', 'location'];
@@ -2220,7 +2220,7 @@ class OStatus
 		}
 
 		$check_date = $feed_mode ? '' : DateTimeFormat::utc($last_update);
-		$authorid = Contact::getIdForURL($owner["url"], 0, true);
+		$authorid = Contact::getIdForURL($owner["url"], 0, false);
 
 		$condition = ["`uid` = ? AND `received` > ? AND NOT `deleted`
 			AND `private` != ? AND `visible` AND `wall` AND `parent-network` IN (?, ?)",

@@ -37,7 +37,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Diaspora;
-use Friendica\Network\Probe;
 
 /**
  * This class handles GServer related functions
@@ -980,8 +979,8 @@ class GServer
 		}
 
 		foreach ($contacts as $contact) {
-			$probed = Probe::uri($contact);
-			if (in_array($probed['network'], Protocol::FEDERATED)) {
+			$probed = Contact::getByURL($contact);
+			if (!empty($probed) && in_array($probed['network'], Protocol::FEDERATED)) {
 				$serverdata['network'] = $probed['network'];
 				break;
 			}

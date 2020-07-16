@@ -111,7 +111,7 @@ class Tag
 					}
 				}
 			} else {
-				$cid = Contact::getIdForURL($url, 0, true);
+				$cid = Contact::getIdForURL($url, 0, false);
 				Logger::info('Got id by probing', ['cid' => $cid, 'url' => $url]);
 			}
 

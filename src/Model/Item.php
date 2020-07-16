@@ -1680,11 +1680,11 @@ class Item
 
 		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 			'photo' => $item['author-avatar'], 'network' => $item['network']];
-		$item['author-id'] = ($item['author-id'] ?? 0) ?: Contact::getIdForURL($item['author-link'], 0, false, $default);
+		$item['author-id'] = ($item['author-id'] ?? 0) ?: Contact::getIdForURL($item['author-link'], 0, null, $default);
 
 		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
-		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, false, $default);
+		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, null, $default);
 
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
 		$item["contact-id"] = self::contactId($item);
@@ -2976,7 +2976,7 @@ class Item
 		if (local_user() == $uid) {
 			$item_contact_id = $owner_self_contact['id'];
 		} else {
-			$item_contact_id = Contact::getIdForURL($author_contact['url'], $uid, true);
+			$item_contact_id = Contact::getIdForURL($author_contact['url'], $uid, false);
 			$item_contact = DBA::selectFirst('contact', [], ['id' => $item_contact_id]);
 			if (!DBA::isResult($item_contact)) {
 				Logger::log('like: unknown item contact ' . $item_contact_id);

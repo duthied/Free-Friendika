@@ -654,8 +654,8 @@ function api_get_user(App $a, $contact_id = null)
 				'notifications' => false,
 				'statusnet_profile_url' => $contact["url"],
 				'uid' => 0,
-				'cid' => Contact::getIdForURL($contact["url"], api_user(), true),
-				'pid' => Contact::getIdForURL($contact["url"], 0, true),
+				'cid' => Contact::getIdForURL($contact["url"], api_user(), false),
+				'pid' => Contact::getIdForURL($contact["url"], 0, false),
 				'self' => 0,
 				'network' => $contact["network"],
 			];
@@ -679,7 +679,7 @@ function api_get_user(App $a, $contact_id = null)
 	$countfollowers = 0;
 	$starred = 0;
 
-	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
+	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, false);
 
 	if (!empty($profile['about'])) {
 		$description = $profile['about'];
@@ -731,7 +731,7 @@ function api_get_user(App $a, $contact_id = null)
 		'statusnet_profile_url' => $uinfo[0]['url'],
 		'uid' => intval($uinfo[0]['uid']),
 		'cid' => intval($uinfo[0]['cid']),
-		'pid' => Contact::getIdForURL($uinfo[0]["url"], 0, true),
+		'pid' => Contact::getIdForURL($uinfo[0]["url"], 0, false),
 		'self' => $uinfo[0]['self'],
 		'network' => $uinfo[0]['network'],
 	];
@@ -5052,7 +5052,7 @@ function api_share_as_retweet(&$item)
 
 	$reshared_item["share-pre-body"] = $reshared['comment'];
 	$reshared_item["body"] = $reshared['shared'];
-	$reshared_item["author-id"] = Contact::getIdForURL($reshared['profile'], 0, true);
+	$reshared_item["author-id"] = Contact::getIdForURL($reshared['profile'], 0, false);
 	$reshared_item["author-name"] = $reshared['author'];
 	$reshared_item["author-link"] = $reshared['profile'];
 	$reshared_item["author-avatar"] = $reshared['avatar'];

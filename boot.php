@@ -253,10 +253,10 @@ function public_contact()
 	if (!$public_contact_id && !empty($_SESSION['authenticated'])) {
 		if (!empty($_SESSION['my_address'])) {
 			// Local user
-			$public_contact_id = intval(Contact::getIdForURL($_SESSION['my_address'], 0, true));
+			$public_contact_id = intval(Contact::getIdForURL($_SESSION['my_address'], 0, false));
 		} elseif (!empty($_SESSION['visitor_home'])) {
 			// Remote user
-			$public_contact_id = intval(Contact::getIdForURL($_SESSION['visitor_home'], 0, true));
+			$public_contact_id = intval(Contact::getIdForURL($_SESSION['visitor_home'], 0, false));
 		}
 	} elseif (empty($_SESSION['authenticated'])) {
 		$public_contact_id = false;

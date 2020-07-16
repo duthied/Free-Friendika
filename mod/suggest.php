@@ -104,7 +104,7 @@ function suggest_content(App $a)
 			'hide' => [DI::l10n()->t('Ignore/Hide'), $ignlnk]
 		];
 
-		$contact_details = array_merge($rr, Contact::getByURLForUser($rr["url"], local_user()));
+		$contact_details = Contact::getByURLForUser($rr["url"], local_user()) ?: $rr;
 
 		$entry = [
 			'url' => Contact::magicLink($rr['url']),
