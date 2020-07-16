@@ -211,11 +211,13 @@ class Contact
 
 		// Add internal fields
 		$removal = [];
-		foreach (['id', 'updated', 'network'] as $internal) {
-			if (!in_array($internal, $fields)) {
-				$fields[] = $internal;
-				$removal[] = $internal;
-			}	
+		if (!empty($fields)) {
+			foreach (['id', 'updated', 'network'] as $internal) {
+				if (!in_array($internal, $fields)) {
+					$fields[] = $internal;
+					$removal[] = $internal;
+				}
+			}
 		}
 
 		// We first try the nurl (http://server.tld/nick), most common case
