@@ -544,7 +544,7 @@ class Feed
 
 				if (!empty($contact["fetch_further_information"]) && ($contact["fetch_further_information"] == 3)) {
 					if (empty($taglist)) {
-						$taglist = PageInfo::getTagsFromUrl($item["plink"], $preview, $contact["ffi_keyword_denylist"]);
+						$taglist = PageInfo::getTagsFromUrl($item["plink"], $preview, $contact["ffi_keyword_denylist"] ?? '');
 					}
 					$item["body"] .= "\n" . self::tagToString($taglist);
 				} else {
