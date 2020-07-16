@@ -27,9 +27,9 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\GServer;
-use Friendica\Network\Probe;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
@@ -81,7 +81,7 @@ class SearchDirectory
 					Logger::info('Friendica server seems to be okay.', ['server' => $server_url]);
 				}
 
-				$data = Probe::uri($jj->url);
+				$data = Contact::getByURL($jj->url);
 				if ($data['network'] == Protocol::DFRN) {
 					Logger::info('Add profile to local directory', ['profile' => $jj->url]);
 

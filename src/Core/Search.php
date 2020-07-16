@@ -26,10 +26,8 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Network\HTTPException;
-use Friendica\Network\Probe;
 use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
-use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
@@ -64,8 +62,7 @@ class Search
 		if ((filter_var($user, FILTER_VALIDATE_EMAIL) && Network::isEmailDomainValid($user)) ||
 		    (substr(Strings::normaliseLink($user), 0, 7) == "http://")) {
 
-			/// @todo Possibly use "getIdForURL" instead?
-			$user_data = Probe::uri($user);
+			$user_data = Contact::getByURL($user);
 			if (empty($user_data)) {
 				return $emptyResultList;
 			}
@@ -73,9 +70,6 @@ class Search
 			if (!in_array($user_data["network"], Protocol::FEDERATED)) {
 				return $emptyResultList;
 			}
-
-			// Ensure that we do have a contact entry
-			Contact::getIdForURL($user_data['url'] ?? '');
 
 			$contactDetails = Contact::getByURLForUser($user_data['url'] ?? '', local_user());
 
@@ -87,7 +81,7 @@ class Search
 				$user_data['photo'] ?? '',
 				$user_data['network'] ?? '',
 				$contactDetails['id'] ?? 0,
-				0,
+				$user_data['id'] ?? 0,
 				$user_data['tags'] ?? ''
 			);
 
