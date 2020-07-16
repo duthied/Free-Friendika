@@ -1618,59 +1618,6 @@ class OStatus
 	}
 
 	/**
-	 * Fetches contact data from the contact or the gcontact table
-	 *
-	 * @param string $url   URL of the contact
-	 * @param array  $owner Contact data of the poster
-	 *
-	 * @return array Contact array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	private static function contactEntry($url, array $owner)
-	{
-		$r = q(
-			"SELECT * FROM `contact` WHERE `nurl` = '%s' AND `uid` IN (0, %d) ORDER BY `uid` DESC LIMIT 1",
-			DBA::escape(Strings::normaliseLink($url)),
-			intval($owner["uid"])
-		);
-		if (DBA::isResult($r)) {
-			$contact = $r[0];
-			$contact["uid"] = -1;
-		}
-
-		if (!DBA::isResult($r)) {
-			$gcontact = DBA::selectFirst('gcontact', [], ['nurl' => Strings::normaliseLink($url)]);
-			if (DBA::isResult($r)) {
-				$contact = $gcontact;
-				$contact["uid"] = -1;
-				$contact["success_update"] = $contact["updated"];
-			}
-		}
-
-		if (!DBA::isResult($r)) {
-			$contact = $owner;
-		}
-
-		if (!isset($contact["poll"])) {
-			$data = Probe::uri($url);
-			$contact["poll"] = $data["poll"];
-
-			if (!$contact["alias"]) {
-				$contact["alias"] = $data["alias"];
-			}
-		}
-
-		if (!isset($contact["alias"])) {
-			$contact["alias"] = $contact["url"];
-		}
-
-		$contact['account-type'] = $owner['account-type'];
-
-		return $contact;
-	}
-
-	/**
 	 * Adds an entry element with reshared content
 	 *
 	 * @param DOMDocument $doc           XML document
@@ -1699,7 +1646,7 @@ class OStatus
 			return false;
 		}
 
-		$contact = self::contactEntry($repeated_item['author-link'], $owner);
+		$contact = Contact::getByURL($repeated_item['author-link']) ?: $owner;
 
 		$title = $owner["nick"]." repeated a notice by ".$contact["nick"];
 
@@ -1841,7 +1788,7 @@ class OStatus
 		$item["created"] = $item["edited"] = date("c");
 		$item["private"] = Item::PRIVATE;
 
-		$contact = Probe::uri($item['follow']);
+		$contact = Contact::getByURL($item['follow']);
 		$item['follow'] = $contact['url'];
 
 		if ($contact['alias']) {
@@ -1948,7 +1895,7 @@ class OStatus
 			$entry = $doc->createElement("entry");
 
 			if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-				$contact = self::contactEntry($item['author-link'], $owner);
+				$contact = Contact::getByURL($item['author-link']) ?: $owner;
 				$author = self::addAuthor($doc, $contact, false);
 				$entry->appendChild($author);
 			}
