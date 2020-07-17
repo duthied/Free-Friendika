@@ -870,11 +870,7 @@ class Feed
 			return false;
 		}
 
-		$contact = Contact::getByURL($repeated_item['author-link']) ?: $owner;
-
-		$title = $owner["nick"]." repeated a notice by ".$contact["nick"];
-
-		self::entryContent($doc, $entry, $item, $owner, $title, Activity::SHARE, false);
+		self::entryContent($doc, $entry, $item, self::getTitle($repeated_item), Activity::SHARE, false);
 
 		self::entryFooter($doc, $entry, $item, $owner);
 
@@ -899,15 +895,9 @@ class Feed
 			Logger::info('Feed entry author does not match feed owner', ['owner' => $owner["url"], 'author' => $item["author-link"]]);
 		}
 
-		if (!empty($item['title'])) {
-			$title = BBCode::convert($item['title'], false, BBCode::OSTATUS);
-		} else {
-			$title = sprintf("New note by %s", $owner["nick"]);
-		}
-
 		$entry = OStatus::entryHeader($doc, $owner, $item, false);
 
-		self::entryContent($doc, $entry, $item, $title, '', true);
+		self::entryContent($doc, $entry, $item, self::getTitle($item), '', true);
 
 		self::entryFooter($doc, $entry, $item, $owner);
 
@@ -1006,5 +996,38 @@ class Feed
 		}
 
 		OStatus::getAttachment($doc, $entry, $item);
+	}
+
+	/**
+	 * Fetch or create title for feed entry
+	 *
+	 * @param array $item
+	 * @return string title
+	 */
+	private static function getTitle(array $item)
+	{
+		if ($item['title'] != '') {
+			return BBCode::convert($item['title'], false, BBCode::OSTATUS);
+		}
+
+		// Fetch information about the post
+		$siteinfo = BBCode::getAttachedData($item["body"]);
+		if (isset($siteinfo["title"])) {
+			return $siteinfo["title"];
+		}
+
+		// If no bookmark is found then take the first line
+		// Remove the share element before fetching the first line
+		$title = trim(preg_replace("/\[share.*?\](.*?)\[\/share\]/ism","\n$1\n",$item['body']));
+
+		$title = HTML::toPlaintext(BBCode::convert($title, false), 0, true)."\n";
+		$pos = strpos($title, "\n");
+		$trailer = "";
+		if (($pos == 0) || ($pos > 100)) {
+			$pos = 100;
+			$trailer = "...";
+		}
+
+		return substr($title, 0, $pos) . $trailer;
 	}
 }
