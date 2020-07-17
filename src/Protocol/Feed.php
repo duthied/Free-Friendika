@@ -645,7 +645,7 @@ class Feed
 		return ($title == $body);
 	}
 
-		/**
+	/**
 	 * Creates the Atom feed for a given nickname
 	 *
 	 * Supported filters:
