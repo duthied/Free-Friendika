@@ -24,9 +24,12 @@ namespace Friendica\Module\Debug;
 use Friendica\BaseModule;
 use Friendica\Content\PageInfo;
 use Friendica\Content\Text;
+use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\DI;
+use Friendica\Model\Conversation;
 use Friendica\Model\Item;
+use Friendica\Protocol\Activity;
 use Friendica\Model\Tag;
 use Friendica\Util\XML;
 
@@ -215,6 +218,60 @@ class Babel extends BaseModule
 						'title'   => DI::l10n()->t('HTML::toPlaintext (compact)'),
 						'content' => visible_whitespace($text),
 					];
+					break;
+				case 'twitter':
+					$json = trim($_REQUEST['text']);
+
+					$status = json_decode($json);
+
+					$results[] = [
+						'title'   => DI::l10n()->t('Decoded post'),
+						'content' => visible_whitespace(var_export($status, true)),
+					];
+
+					$postarray = [];
+					$postarray['object-type'] = Activity\ObjectType::NOTE;
+
+					if (!empty($status->full_text)) {
+						$postarray['body'] = $status->full_text;
+					} else {
+						$postarray['body'] = $status->text;
+					}
+
+					// When the post contains links then use the correct object type
+					if (count($status->entities->urls) > 0) {
+						$postarray['object-type'] = Activity\ObjectType::BOOKMARK;
+					}
+
+					if (file_exists('addon/twitter/twitter.php')) {
+						require_once 'addon/twitter/twitter.php';
+
+						$picture = \twitter_media_entities($status, $postarray);
+
+						$results[] = [
+							'title'   => DI::l10n()->t('Post array before expand entities'),
+							'content' => visible_whitespace(var_export($postarray, true)),
+						];
+
+						$converted = \twitter_expand_entities($postarray['body'], $status, $picture);
+
+						$results[] = [
+							'title'   => DI::l10n()->t('Post converted'),
+							'content' => visible_whitespace(var_export($converted, true)),
+						];
+
+						$results[] = [
+							'title'   => DI::l10n()->t('Converted body'),
+							'content' => visible_whitespace($converted['body']),
+						];
+					} else {
+						$results[] = [
+							'title'   => DI::l10n()->t('Error'),
+							'content' => DI::l10n()->t('Twitter addon is absent from the addon/ folder.'),
+						];
+					}
+
+					break;
 			}
 		}
 
@@ -225,6 +282,8 @@ class Babel extends BaseModule
 			'$type_diaspora' => ['type', DI::l10n()->t('Diaspora'), 'diaspora', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'diaspora'],
 			'$type_markdown' => ['type', DI::l10n()->t('Markdown'), 'markdown', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'markdown'],
 			'$type_html'     => ['type', DI::l10n()->t('HTML'), 'html', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'html'],
+			'$flag_twitter'  => file_exists('addon/twitter/twitter.php'),
+			'$type_twitter'  => ['type', DI::l10n()->t('Twitter Source'), 'twitter', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'twitter'],
 			'$results'       => $results
 		]);
 
