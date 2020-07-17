@@ -49,14 +49,34 @@ class PageInfo
 			return $body;
 		}
 
-		$footer = self::getFooterFromUrl($url, $no_photos);
-		if (!$footer) {
+		$data = self::queryUrl($url);
+		if (!$data) {
 			return $body;
 		}
 
-		$body = self::stripTrailingUrlFromBody($body, $url);
+		return self::appendDataToBody($body, $data, $no_photos);
+	}
 
-		$body .= "\n" . $footer;
+	/**
+	 * @param string $body
+	 * @param array  $data
+	 * @param bool   $no_photos
+	 * @return string
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function appendDataToBody(string $body, array $data, bool $no_photos = false)
+	{
+		// Only one [attachment] tag per body is allowed
+		$existingAttachmentPos = strpos($body, '[attachment');
+		if ($existingAttachmentPos !== false) {
+			$linkTitle = $data['title'] ?: $data['url'];
+			// Additional link attachments are prepended before the existing [attachment] tag
+			$body = substr_replace($body, "\n[bookmark=" . $data['url'] . ']' . $linkTitle . "[/bookmark]\n", $existingAttachmentPos, 0);
+		} else {
+			$footer = PageInfo::getFooterFromData($data, $no_photos);
+			$body = self::stripTrailingUrlFromBody($body, $data['url']);
+			$body .= "\n" . $footer;
+		}
 
 		return $body;
 	}
