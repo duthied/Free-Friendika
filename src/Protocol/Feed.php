@@ -24,15 +24,21 @@ namespace Friendica\Protocol;
 use DOMDocument;
 use DOMXPath;
 use Friendica\Content\PageInfo;
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Tag;
+use Friendica\Model\User;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 /**
@@ -637,5 +643,391 @@ class Feed
 			}
 		}
 		return ($title == $body);
+	}
+
+	/**
+	 * Creates the Atom feed for a given nickname
+	 *
+	 * Supported filters:
+	 * - activity (default): all the public posts
+	 * - posts: all the public top-level posts
+	 * - comments: all the public replies
+	 *
+	 * Updates the provided last_update parameter if the result comes from the
+	 * cache or it is empty
+	 *
+	 * @param string  $owner_nick  Nickname of the feed owner
+	 * @param string  $last_update Date of the last update
+	 * @param integer $max_items   Number of maximum items to fetch
+	 * @param string  $filter      Feed items filter (activity, posts or comments)
+	 * @param boolean $nocache     Wether to bypass caching
+	 *
+	 * @return string Atom feed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function atom($owner_nick, $last_update, $max_items = 300, $filter = 'activity', $nocache = false)
+	{
+		$stamp = microtime(true);
+
+		$owner = User::getOwnerDataByNick($owner_nick);
+		if (!$owner) {
+			return;
+		}
+
+		$cachekey = "feed:feed:" . $owner_nick . ":" . $filter . ":" . $last_update;
+
+		$previous_created = $last_update;
+
+		// Don't cache when the last item was posted less then 15 minutes ago (Cache duration)
+		if ((time() - strtotime($owner['last-item'])) < 15*60) {
+			$result = DI::cache()->get($cachekey);
+			if (!$nocache && !is_null($result)) {
+				Logger::info('Cached feed duration', ['seconds' => number_format(microtime(true) - $stamp, 3), 'nick' => $owner_nick, 'filter' => $filter, 'created' => $previous_created]);
+				return $result['feed'];
+			}
+		}
+
+		$check_date = empty($last_update) ? '' : DateTimeFormat::utc($last_update);
+		$authorid = Contact::getIdForURL($owner["url"], 0, false);
+
+		$condition = ["`uid` = ? AND `received` > ? AND NOT `deleted` AND `gravity` IN (?, ?)
+			AND `private` != ? AND `visible` AND `wall` AND `parent-network` IN (?, ?, ?, ?)",
+			$owner["uid"], $check_date, GRAVITY_PARENT, GRAVITY_COMMENT,
+			Item::PRIVATE, Protocol::ACTIVITYPUB,
+			Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA];
+
+		if ($filter === 'comments') {
+			$condition[0] .= " AND `object-type` = ? ";
+			$condition[] = Activity\ObjectType::COMMENT;
+		}
+
+		if ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
+			$condition[0] .= " AND `contact-id` = ? AND `author-id` = ?";
+			$condition[] = $owner["id"];
+			$condition[] = $authorid;
+		}
+
+		$params = ['order' => ['received' => true], 'limit' => $max_items];
+
+		if ($filter === 'posts') {
+			$ret = Item::selectThread([], $condition, $params);
+		} else {
+			$ret = Item::select([], $condition, $params);
+		}
+
+		$items = Item::inArray($ret);
+
+		$doc = new DOMDocument('1.0', 'utf-8');
+		$doc->formatOutput = true;
+
+		$root = self::addHeader($doc, $owner, $filter);
+
+		foreach ($items as $item) {
+			$entry = self::entry($doc, $item, $owner);
+			$root->appendChild($entry);
+
+			if ($last_update < $item['created']) {
+				$last_update = $item['created'];
+			}
+		}
+
+		$feeddata = trim($doc->saveXML());
+
+		$msg = ['feed' => $feeddata, 'last_update' => $last_update];
+		DI::cache()->set($cachekey, $msg, Duration::QUARTER_HOUR);
+
+		Logger::info('Feed duration', ['seconds' => number_format(microtime(true) - $stamp, 3), 'nick' => $owner_nick, 'filter' => $filter, 'created' => $previous_created]);
+
+		return $feeddata;
+	}
+
+	/**
+	 * Adds the header elements to the XML document
+	 *
+	 * @param DOMDocument $doc       XML document
+	 * @param array       $owner     Contact data of the poster
+	 * @param string      $filter    The related feed filter (activity, posts or comments)
+	 *
+	 * @return object header root element
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function addHeader(DOMDocument $doc, array $owner, $filter)
+	{
+		$root = $doc->createElementNS(ActivityNamespace::ATOM1, 'feed');
+		$doc->appendChild($root);
+
+		$title = '';
+		$selfUri = '/feed/' . $owner["nick"] . '/';
+		switch ($filter) {
+			case 'activity':
+				$title = DI::l10n()->t('%s\'s timeline', $owner['name']);
+				$selfUri .= $filter;
+				break;
+			case 'posts':
+				$title = DI::l10n()->t('%s\'s posts', $owner['name']);
+				break;
+			case 'comments':
+				$title = DI::l10n()->t('%s\'s comments', $owner['name']);
+				$selfUri .= $filter;
+				break;
+		}
+
+		$attributes = ["uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION];
+		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
+		XML::addElement($doc, $root, "id", DI::baseUrl() . "/profile/" . $owner["nick"]);
+		XML::addElement($doc, $root, "title", $title);
+		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], DI::config()->get('config', 'sitename')));
+		XML::addElement($doc, $root, "logo", $owner["photo"]);
+		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
+
+		$author = self::addAuthor($doc, $owner);
+		$root->appendChild($author);
+
+		$attributes = ["href" => $owner["url"], "rel" => "alternate", "type" => "text/html"];
+		XML::addElement($doc, $root, "link", "", $attributes);
+
+		OStatus::hublinks($doc, $root, $owner["nick"]);
+
+		$attributes = ["href" => DI::baseUrl() . $selfUri, "rel" => "self", "type" => "application/atom+xml"];
+		XML::addElement($doc, $root, "link", "", $attributes);
+
+		return $root;
+	}
+
+	/**
+	 * Adds the author element to the XML document
+	 *
+	 * @param DOMDocument $doc          XML document
+	 * @param array       $owner        Contact data of the poster
+	 *
+	 * @return \DOMElement author element
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function addAuthor(DOMDocument $doc, array $owner)
+	{
+		$author = $doc->createElement("author");
+		XML::addElement($doc, $author, "uri", $owner["url"]);
+		XML::addElement($doc, $author, "name", $owner["nick"]);
+		XML::addElement($doc, $author, "email", $owner["addr"]);
+
+		return $author;
+	}
+
+	/**
+	 * Adds an entry element to the XML document
+	 *
+	 * @param DOMDocument $doc       XML document
+	 * @param array       $item      Data of the item that is to be posted
+	 * @param array       $owner     Contact data of the poster
+	 * @param bool        $toplevel  optional default false
+	 *
+	 * @return \DOMElement Entry element
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function entry(DOMDocument $doc, array $item, array $owner)
+	{
+		$xml = null;
+
+		$repeated_guid = OStatus::getResharedGuid($item);
+		if ($repeated_guid != "") {
+			$xml = self::reshareEntry($doc, $item, $owner, $repeated_guid);
+		}
+
+		if ($xml) {
+			return $xml;
+		}
+
+		return self::noteEntry($doc, $item, $owner);
+	}
+
+		/**
+	 * Adds an entry element with reshared content
+	 *
+	 * @param DOMDocument $doc           XML document
+	 * @param array       $item          Data of the item that is to be posted
+	 * @param array       $owner         Contact data of the poster
+	 * @param string      $repeated_guid guid
+	 * @param bool        $toplevel      Is it for en entry element (false) or a feed entry (true)?
+	 *
+	 * @return bool Entry element
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function reshareEntry(DOMDocument $doc, array $item, array $owner, $repeated_guid)
+	{
+		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
+			Logger::info('Feed entry author does not match feed owner', ['owner' => $owner["url"], 'author' => $item["author-link"]]);
+		}
+
+		$entry = OStatus::entryHeader($doc, $owner, $item, false);
+
+		$condition = ['uid' => $owner["uid"], 'guid' => $repeated_guid, 'private' => [Item::PUBLIC, Item::UNLISTED],
+			'network' => Protocol::FEDERATED];
+		$repeated_item = Item::selectFirst([], $condition);
+		if (!DBA::isResult($repeated_item)) {
+			return false;
+		}
+
+		self::entryContent($doc, $entry, $item, self::getTitle($repeated_item), Activity::SHARE, false);
+
+		self::entryFooter($doc, $entry, $item, $owner);
+
+		return $entry;
+	}
+
+	/**
+	 * Adds a regular entry element
+	 *
+	 * @param DOMDocument $doc       XML document
+	 * @param array       $item      Data of the item that is to be posted
+	 * @param array       $owner     Contact data of the poster
+	 * @param bool        $toplevel  Is it for en entry element (false) or a feed entry (true)?
+	 *
+	 * @return \DOMElement Entry element
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function noteEntry(DOMDocument $doc, array $item, array $owner)
+	{
+		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
+			Logger::info('Feed entry author does not match feed owner', ['owner' => $owner["url"], 'author' => $item["author-link"]]);
+		}
+
+		$entry = OStatus::entryHeader($doc, $owner, $item, false);
+
+		self::entryContent($doc, $entry, $item, self::getTitle($item), '', true);
+
+		self::entryFooter($doc, $entry, $item, $owner);
+
+		return $entry;
+	}
+
+	/**
+	 * Adds elements to the XML document
+	 *
+	 * @param DOMDocument $doc       XML document
+	 * @param \DOMElement $entry     Entry element where the content is added
+	 * @param array       $item      Data of the item that is to be posted
+	 * @param array       $owner     Contact data of the poster
+	 * @param string      $title     Title for the post
+	 * @param string      $verb      The activity verb
+	 * @param bool        $complete  Add the "status_net" element?
+	 * @param bool        $feed_mode Behave like a regular feed for users if true
+	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function entryContent(DOMDocument $doc, \DOMElement $entry, array $item, $title, $verb = "", $complete = true)
+	{
+		if ($verb == "") {
+			$verb = OStatus::constructVerb($item);
+		}
+
+		XML::addElement($doc, $entry, "id", $item["uri"]);
+		XML::addElement($doc, $entry, "title", html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
+
+		$body = OStatus::formatPicturePost($item['body']);
+
+		$body = BBCode::convert($body, false, BBCode::OSTATUS);
+
+		XML::addElement($doc, $entry, "content", $body, ["type" => "html"]);
+
+		XML::addElement($doc, $entry, "link", "", ["rel" => "alternate", "type" => "text/html",
+								"href" => DI::baseUrl()."/display/".$item["guid"]]
+		);
+
+		XML::addElement($doc, $entry, "published", DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM));
+		XML::addElement($doc, $entry, "updated", DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM));
+	}
+
+	/**
+	 * Adds the elements at the foot of an entry to the XML document
+	 *
+	 * @param DOMDocument $doc       XML document
+	 * @param object      $entry     The entry element where the elements are added
+	 * @param array       $item      Data of the item that is to be posted
+	 * @param array       $owner     Contact data of the poster
+	 * @param bool        $complete  default true
+	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function entryFooter(DOMDocument $doc, $entry, array $item, array $owner)
+	{
+		$mentioned = [];
+
+		if ($item['gravity'] != GRAVITY_PARENT) {
+			$parent = Item::selectFirst(['guid', 'author-link', 'owner-link'], ['id' => $item['parent']]);
+			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
+
+			$thrparent = Item::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner["uid"], 'uri' => $parent_item]);
+
+			if (DBA::isResult($thrparent)) {
+				$mentioned[$thrparent["author-link"]] = $thrparent["author-link"];
+				$mentioned[$thrparent["owner-link"]] = $thrparent["owner-link"];
+				$parent_plink = $thrparent["plink"];
+			} else {
+				$mentioned[$parent["author-link"]] = $parent["author-link"];
+				$mentioned[$parent["owner-link"]] = $parent["owner-link"];
+				$parent_plink = DI::baseUrl()."/display/".$parent["guid"];
+			}
+
+			$attributes = [
+					"ref" => $parent_item,
+					"href" => $parent_plink];
+			XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
+
+			$attributes = [
+					"rel" => "related",
+					"href" => $parent_plink];
+			XML::addElement($doc, $entry, "link", "", $attributes);
+		}
+
+		// uri-id isn't present for follow entry pseudo-items
+		$tags = Tag::getByURIId($item['uri-id'] ?? 0);
+		foreach ($tags as $tag) {
+			$mentioned[$tag['url']] = $tag['url'];
+		}
+
+		foreach ($tags as $tag) {
+			if ($tag['type'] == Tag::HASHTAG) {
+				XML::addElement($doc, $entry, "category", "", ["term" => $tag['name']]);
+			}
+		}
+
+		OStatus::getAttachment($doc, $entry, $item);
+	}
+
+	/**
+	 * Fetch or create title for feed entry
+	 *
+	 * @param array $item
+	 * @return string title
+	 */
+	private static function getTitle(array $item)
+	{
+		if ($item['title'] != '') {
+			return BBCode::convert($item['title'], false, BBCode::OSTATUS);
+		}
+
+		// Fetch information about the post
+		$siteinfo = BBCode::getAttachedData($item["body"]);
+		if (isset($siteinfo["title"])) {
+			return $siteinfo["title"];
+		}
+
+		// If no bookmark is found then take the first line
+		// Remove the share element before fetching the first line
+		$title = trim(preg_replace("/\[share.*?\](.*?)\[\/share\]/ism","\n$1\n",$item['body']));
+
+		$title = HTML::toPlaintext(BBCode::convert($title, false), 0, true)."\n";
+		$pos = strpos($title, "\n");
+		$trailer = "";
+		if (($pos == 0) || ($pos > 100)) {
+			$pos = 100;
+			$trailer = "...";
+		}
+
+		return substr($title, 0, $pos) . $trailer;
 	}
 }
