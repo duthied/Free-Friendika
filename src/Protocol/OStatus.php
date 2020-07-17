@@ -698,7 +698,7 @@ class OStatus
 
 		// Only add additional data when there is no picture in the post
 		if (!strstr($item["body"], '[/img]')) {
-			$item["body"] = PageInfo::appendToBody($item["body"]);
+			$item["body"] = PageInfo::searchAndAppendToBody($item["body"]);
 		}
 
 		Tag::storeFromBody($item['uri-id'], $item['body']);

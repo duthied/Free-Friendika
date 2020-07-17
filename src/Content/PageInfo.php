@@ -40,7 +40,7 @@ class PageInfo
 	 * @return string
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function appendToBody(string $body, bool $searchNakedUrls = false, bool $no_photos = false)
+	public static function searchAndAppendToBody(string $body, bool $searchNakedUrls = false, bool $no_photos = false)
 	{
 		Logger::info('add_page_info_to_body: fetch page info for body', ['body' => $body]);
 
