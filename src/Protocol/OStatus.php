@@ -1332,7 +1332,7 @@ class OStatus
 		$attributes = ["href" => DI::baseUrl() . $selfUri, "rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		if ($owner['account-type'] == Contact::TYPE_COMMUNITY) {
+		if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
 			$condition = ['uid' => $owner['uid'], 'self' => false, 'pending' => false,
 					'archive' => false, 'hidden' => false, 'blocked' => false];
 			$members = DBA::count('contact', $condition);
@@ -1445,7 +1445,7 @@ class OStatus
 		$profile = DBA::selectFirst('profile', ['homepage', 'publish'], ['uid' => $owner['uid']]);
 		$author = $doc->createElement("author");
 		XML::addElement($doc, $author, "id", $owner["url"]);
-		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
 			XML::addElement($doc, $author, "activity:object-type", Activity\ObjectType::GROUP);
 		} else {
 			XML::addElement($doc, $author, "activity:object-type", Activity\ObjectType::PERSON);
@@ -1876,7 +1876,7 @@ class OStatus
 		if (!$toplevel) {
 			$entry = $doc->createElement("entry");
 
-			if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
+			if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
 				$contact = Contact::getByURL($item['author-link']) ?: $owner;
 				$author = self::addAuthor($doc, $contact, false);
 				$entry->appendChild($author);
@@ -2046,7 +2046,7 @@ class OStatus
 			}
 		}
 
-		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
 			XML::addElement($doc, $entry, "link", "", [
 				"rel" => "mentioned",
 				"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/group",
@@ -2151,7 +2151,7 @@ class OStatus
 			$condition[] = Activity\ObjectType::COMMENT;
 		}
 
-		if ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['contact-type'] != Contact::TYPE_COMMUNITY) {
 			$condition[0] .= " AND `contact-id` = ? AND `author-id` = ?";
 			$condition[] = $owner["id"];
 			$condition[] = $authorid;
