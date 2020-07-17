@@ -21,6 +21,7 @@
 
 namespace Friendica\Protocol\ActivityPub;
 
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
@@ -96,18 +97,16 @@ class Processor
 		foreach ($activity['attachments'] as $attach) {
 			switch ($attach['type']) {
 				case 'link':
-					// Only one [attachment] tag is allowed
-					$existingAttachmentPos = strpos($item['body'], '[attachment');
-					if ($existingAttachmentPos !== false) {
-						$linkTitle = $attach['title'] ?: $attach['url'];
-						// Additional link attachments are prepended before the existing [attachment] tag
-						$item['body'] = substr_replace($item['body'], "\n[bookmark=" . $attach['url'] . ']' . $linkTitle . "[/bookmark]\n", $existingAttachmentPos, 0);
-					} else {
-						// Strip the link preview URL from the end of the body if any
-						$quotedUrl = preg_quote($attach['url'], '#');
-						$item['body'] = preg_replace("#\s*(?:\[bookmark={$quotedUrl}].+?\[/bookmark]|\[url={$quotedUrl}].+?\[/url]|\[url]{$quotedUrl}\[/url]|{$quotedUrl})\s*$#", '', $item['body']);
-						$item['body'] .= "\n[attachment type='link' url='" . $attach['url'] . "' title='" . htmlspecialchars($attach['title'] ?? '', ENT_QUOTES) . "' image='" . ($attach['image'] ?? '') . "']" . ($attach['desc'] ?? '') . '[/attachment]';
-					}
+					$data = [
+						'url'      => $attach['url'],
+						'type'     => $attach['type'],
+						'title'    => $attach['title'] ?? '',
+						'text'     => $attach['desc']  ?? '',
+						'image'    => $attach['image'] ?? '',
+						'images'   => [],
+						'keywords' => [],
+					];
+					$item['body'] = PageInfo::appendDataToBody($item['body'], $data);
 					break;
 				default:
 					$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
