@@ -272,22 +272,35 @@ class PageInfo
 
 	/**
 	 * Remove the provided URL from the body if it is at the end of it.
-	 * Keep the link label if it isn't the full URL.
+	 * Keep the link label if it isn't the full URL or a shortened version of it.
 	 *
 	 * @param string $body
 	 * @param string $url
-	 * @return string|string[]|null
+	 * @return string
 	 */
 	protected static function stripTrailingUrlFromBody(string $body, string $url)
 	{
 		$quotedUrl = preg_quote($url, '#');
-		$body = preg_replace("#(?:
+		$body = preg_replace_callback("#(?:
 			\[url]$quotedUrl\[/url]|
 			\[url=$quotedUrl]$quotedUrl\[/url]|
 			\[url=$quotedUrl]([^[]*?)\[/url]|
 			$quotedUrl
-		)$#isx", '$1', $body);
+		)$#isx", function ($match) use ($url) {
+			// Stripping URLs with no label
+			if (!isset($match[1])) {
+				return '';
+			}
 
-		return $body;
+			// Stripping link labels that include a shortened version of the URL
+			if (strpos($url, trim($match[1], '.…')) !== false) {
+				return '';
+			}
+
+			// Keep all other labels
+			return $match[1];
+		}, $body);
+
+		return rtrim($body);
 	}
 }
