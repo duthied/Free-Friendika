@@ -138,7 +138,7 @@ function ping_init(App $a)
 
 		$condition = ["`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
 			local_user(), Verb::getID(Activity::FOLLOW)];
-		$items = Item::selectForUser(local_user(), ['wall'], $condition);
+		$items = Item::selectForUser(local_user(), ['wall', 'uid', 'uri-id'], $condition);
 		if (DBA::isResult($items)) {
 			$items_unseen = Item::inArray($items);
 			$arr = ['items' => $items_unseen];
