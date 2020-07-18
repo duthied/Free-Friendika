@@ -136,13 +136,9 @@ function ping_init(App $a)
 
 		$notifs = ping_get_notifications(local_user());
 
-		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ? AND (`vid` != ? OR `vid` IS NULL)",
-			local_user(), local_user(), Verb::getID(Activity::FOLLOW)];
-		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
-			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'wall', 'activity'];
-		$params = ['order' => ['received' => true]];
-		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
-
+		$condition = ["`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
+			local_user(), Verb::getID(Activity::FOLLOW)];
+		$items = Item::selectForUser(local_user(), ['wall'], $condition);
 		if (DBA::isResult($items)) {
 			$items_unseen = Item::inArray($items);
 			$arr = ['items' => $items_unseen];
@@ -156,6 +152,7 @@ function ping_init(App $a)
 				}
 			}
 		}
+		DBA::close($items);
 
 		if ($network_count) {
 			// Find out how unseen network posts are spread across groups
