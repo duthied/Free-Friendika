@@ -115,7 +115,7 @@ class Babel extends BaseModule
 						'content' => visible_whitespace(var_export($tags, true)),
 					];
 
-					$body2 = PageInfo::appendToBody($bbcode, true);
+					$body2 = PageInfo::searchAndAppendToBody($bbcode, true);
 					$results[] = [
 						'title'   => DI::l10n()->t('PageInfo::appendToBody'),
 						'content' => visible_whitespace($body2)
