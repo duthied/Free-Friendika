@@ -316,7 +316,7 @@ function conv_get_blocklist()
 		return [];
 	}
 
-	$str_blocked = DI::pConfig()->get(local_user(), 'system', 'blocked');
+	$str_blocked = str_replace(["\n", "\r"], ",", DI::pConfig()->get(local_user(), 'system', 'blocked'));
 	if (empty($str_blocked)) {
 		return [];
 	}
