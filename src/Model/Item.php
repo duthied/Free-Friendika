@@ -2391,7 +2391,7 @@ class Item
 		}
 
 		/// @todo On private posts we could obfuscate the date
-		$update = ($arr['private'] != self::PRIVATE);
+		$update = ($arr['private'] != self::PRIVATE) || in_array($arr['network'], Protocol::FEDERATED);
 
 		// Is it a forum? Then we don't care about the rules from above
 		if (!$update && in_array($arr["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN]) && ($arr["parent-uri"] === $arr["uri"])) {
@@ -2409,15 +2409,15 @@ class Item
 			} else { 
 				$condition = ['id' => $arr['contact-id'], 'self' => false];
 			}
-			DBA::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']], $condition);
+			DBA::update('contact', ['failed' => false, 'success_update' => $arr['received'], 'last-item' => $arr['received']], $condition);
 		}
 		// Now do the same for the system wide contacts with uid=0
 		if ($arr['private'] != self::PRIVATE) {
-			DBA::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']],
+			DBA::update('contact', ['failed' => false, 'success_update' => $arr['received'], 'last-item' => $arr['received']],
 				['id' => $arr['owner-id']]);
 
 			if ($arr['owner-id'] != $arr['author-id']) {
-				DBA::update('contact', ['success_update' => $arr['received'], 'last-item' => $arr['received']],
+				DBA::update('contact', ['failed' => false, 'success_update' => $arr['received'], 'last-item' => $arr['received']],
 					['id' => $arr['author-id']]);
 			}
 		}
