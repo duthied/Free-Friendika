@@ -31,6 +31,7 @@ use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Post\Category;
 use Friendica\Protocol\Activity;
@@ -118,7 +119,21 @@ class Item
 	const PRIVATE = 1;
 	const UNLISTED = 2;
 
+	const TABLES = ['item', 'user-item', 'item-content', 'post-delivery-data', 'diaspora-interaction'];
+
 	private static $legacy_mode = null;
+
+	private static function getItemFields()
+	{
+		$definition = DBStructure::definition('', false);
+
+		$postfields = [];
+		foreach (self::TABLES as $table) {
+			$postfields[$table] = array_keys($definition[$table]['fields']);
+		}
+
+		return $postfields;
+	}
 
 	public static function isLegacyMode()
 	{
@@ -1572,6 +1587,8 @@ class Item
 
 	public static function insert($item, $notify = false, $dontcache = false)
 	{
+		$structure = self::getItemFields();
+
 		$orig_item = $item;
 
 		$priority = PRIORITY_HIGH;
@@ -1837,6 +1854,13 @@ class Item
 		// Store tags from the body if this hadn't been handled previously in the protocol classes
 		if (!Tag::existsForPost($item['uri-id'])) {
 			Tag::storeFromBody($item['uri-id'], $body);
+		}
+
+		// Remove all fields that aren't part of the item table
+		foreach ($item as $field => $value) {
+			if (!in_array($field, $structure['item'])) {
+				unset($item[$field]);
+			}
 		}
 
 		$ret = DBA::insert('item', $item);
