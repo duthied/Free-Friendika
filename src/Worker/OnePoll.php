@@ -97,7 +97,7 @@ class OnePoll
 		}
 
 		// load current friends if possible.
-		if (!empty($contact['poco']) && ($contact['success_update'] > $contact['failure_update'])) {
+		if (!empty($contact['poco']) && !$contact['failed']) {
 			if (!DBA::exists('glink', ["`cid` = ? AND updated > UTC_TIMESTAMP() - INTERVAL 1 DAY", $contact['id']])) {
 				PortableContact::loadWorker($contact['id'], $importer_uid, 0, $contact['poco']);
 			}
@@ -165,7 +165,7 @@ class OnePoll
 			if (!strstr($xml, '<')) {
 				Logger::log('post_handshake: response from ' . $url . ' did not contain XML.');
 
-				$fields = ['last-update' => $updated, 'failure_update' => $updated];
+				$fields = ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated];
 				self::updateContact($contact, $fields);
 				Contact::markForArchival($contact);
 				return;
@@ -213,10 +213,10 @@ class OnePoll
 				}
 			}
 
-			self::updateContact($contact, ['last-update' => $updated, 'success_update' => $updated]);
+			self::updateContact($contact, ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
 			Contact::unmarkForArchival($contact);
 		} elseif (in_array($contact["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED])) {
-			self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
+			self::updateContact($contact, ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
 			Contact::markForArchival($contact);
 		} else {
 			self::updateContact($contact, ['last-update' => $updated]);
@@ -244,8 +244,14 @@ class OnePoll
 	 */
 	private static function updateContact(array $contact, array $fields)
 	{
+		// Update the user's contact
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
+
+		// Update the public contact
 		DBA::update('contact', $fields, ['uid' => 0, 'nurl' => $contact['nurl']]);
+
+		// Update the rest of the contacts that aren't polled
+		DBA::update('contact', $fields, ['rel' => Contact::FOLLOWER, 'nurl' => $contact['nurl']]);
 	}
 
 	/**
@@ -289,7 +295,7 @@ class OnePoll
 
 		if (!$curlResult->isSuccess() && ($curlResult->getErrorNumber() == CURLE_OPERATION_TIMEDOUT)) {
 			// set the last-update so we don't keep polling
-			self::updateContact($contact, ['last-update' => $updated]);
+			self::updateContact($contact, ['failed' => true, 'last-update' => $updated]);
 			Contact::markForArchival($contact);
 			Logger::log('Contact archived');
 			return false;
@@ -307,7 +313,7 @@ class OnePoll
 			Logger::log("$url appears to be dead - marking for death ");
 
 			// set the last-update so we don't keep polling
-			$fields = ['last-update' => $updated, 'failure_update' => $updated];
+			$fields = ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated];
 			self::updateContact($contact, $fields);
 			Contact::markForArchival($contact);
 			return false;
@@ -316,7 +322,7 @@ class OnePoll
 		if (!strstr($handshake_xml, '<')) {
 			Logger::log('response from ' . $url . ' did not contain XML.');
 
-			$fields = ['last-update' => $updated, 'failure_update' => $updated];
+			$fields = ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated];
 			self::updateContact($contact, $fields);
 			Contact::markForArchival($contact);
 			return false;
@@ -327,7 +333,7 @@ class OnePoll
 		if (!is_object($res)) {
 			Logger::info('Unparseable response', ['url' => $url]);
 
-			$fields = ['last-update' => $updated, 'failure_update' => $updated];
+			$fields = ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated];
 			self::updateContact($contact, $fields);
 			Contact::markForArchival($contact);
 			return false;
@@ -338,7 +344,7 @@ class OnePoll
 			Logger::log("$url replied status 1 - marking for death ");
 
 			// set the last-update so we don't keep polling
-			$fields = ['last-update' => $updated, 'failure_update' => $updated];
+			$fields = ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated];
 			self::updateContact($contact, $fields);
 			Contact::markForArchival($contact);
 		} elseif ($contact['term-date'] > DBA::NULL_DATETIME) {
@@ -417,7 +423,7 @@ class OnePoll
 		// Will only do this once per notify-enabled OStatus contact
 		// or if relationship changes
 
-		$stat_writeable = ((($contact['notify']) && ($contact['rel'] == Contact::FOLLOWER || $contact['rel'] == Contact::FRIEND)) ? 1 : 0);
+		$stat_writeable = $contact['notify'] && ($contact['rel'] == Contact::FOLLOWER || $contact['rel'] == Contact::FRIEND);
 
 		// Contacts from OStatus are always writable
 		if ($protocol === Protocol::OSTATUS) {
@@ -443,7 +449,7 @@ class OnePoll
 
 		if ($curlResult->isTimeout()) {
 			// set the last-update so we don't keep polling
-			self::updateContact($contact, ['last-update' => $updated]);
+			self::updateContact($contact, ['failed' => true, 'last-update' => $updated]);
 			Contact::markForArchival($contact);
 			Logger::log('Contact archived');
 			return false;
@@ -467,7 +473,7 @@ class OnePoll
 		$mail_disabled = ((function_exists('imap_open') && !DI::config()->get('system', 'imap_disabled')) ? 0 : 1);
 		if ($mail_disabled) {
 			// set the last-update so we don't keep polling
-			self::updateContact($contact, ['last-update' => $updated]);
+			self::updateContact($contact, ['failed' => true, 'last-update' => $updated]);
 			Contact::markForArchival($contact);
 			Logger::log('Contact archived');
 			return;

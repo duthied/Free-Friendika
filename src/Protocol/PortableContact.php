@@ -228,7 +228,7 @@ class PortableContact
 	{
 		$r = q(
 			"SELECT `url`, `site_name` AS `displayName`, `network`, `platform`, `version` FROM `gserver`
-			WHERE `network` IN ('%s', '%s', '%s') AND `last_contact` > `last_failure`
+			WHERE `network` IN ('%s', '%s', '%s') AND NOT `failed`
 			ORDER BY `last_contact`
 			LIMIT 1000",
 			DBA::escape(Protocol::DFRN),

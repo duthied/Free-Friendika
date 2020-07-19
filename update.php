@@ -535,3 +535,43 @@ function update_1354()
 	}
 	return Update::SUCCESS;
 }
+
+function update_1357()
+{
+	if (!DBA::e("UPDATE `contact` SET `failed` = true WHERE `success_update` < `failure_update` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `contact` SET `failed` = false WHERE `success_update` > `failure_update` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `contact` SET `failed` = false WHERE `updated` > `failure_update` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `contact` SET `failed` = false WHERE `last-item` > `failure_update` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `gserver` SET `failed` = true WHERE `last_contact` < `last_failure` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `gserver` SET `failed` = false WHERE `last_contact` > `last_failure` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `gcontact` SET `failed` = true WHERE `last_contact` < `last_failure` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `gcontact` SET `failed` = false WHERE `last_contact` > `last_failure` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `gcontact` SET `failed` = false WHERE `updated` > `last_failure` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+	return Update::SUCCESS;
+}
