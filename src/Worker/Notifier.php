@@ -534,7 +534,7 @@ class Notifier
 			}
 
 			if (self::skipActivityPubForDiaspora($contact, $target_item, $thr_parent)) {
-				Logger::info('Contact is from Diaspora, but the replied author is from ActivityPub, so skip delivery via Diaspora', ['id' => $target_id, 'url' => $rr['url']]);
+				Logger::info('Contact is from Diaspora, but the replied author is from ActivityPub, so skip delivery via Diaspora', ['id' => $target_id, 'url' => $contact['url']]);
 				continue;
 			}
 
