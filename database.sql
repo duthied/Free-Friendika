@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2020.06-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1353
+-- Friendica 2020.09-dev (Red Hot Poker)
+-- DB_UPDATE_VERSION 1357
 -- ------------------------------------------
 
 
@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`last_poco_query` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`failed` boolean COMMENT 'Connection failed',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `nurl` (`nurl`(190))
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Global servers';
@@ -95,6 +96,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`last-update` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last try to update the contact info',
 	`success_update` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last successful contact update',
 	`failure_update` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last failed update',
+	`failed` boolean COMMENT 'Connection failed',
 	`name-date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`uri-date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`avatar-date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
@@ -137,8 +139,10 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `addr_uid` (`addr`(32),`uid`),
 	 INDEX `nurl_uid` (`nurl`(32),`uid`),
 	 INDEX `nick_uid` (`nick`(32),`uid`),
+	 INDEX `attag_uid` (`attag`(32),`uid`),
 	 INDEX `dfrn-id` (`dfrn-id`(64)),
 	 INDEX `issued-id` (`issued-id`(64)),
+	 INDEX `network_uid_lastupdate` (`network`,`uid`,`last-update`),
 	 INDEX `gsid` (`gsid`),
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='contact table';
@@ -253,6 +257,7 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	 INDEX `addr` (`addr`(32)),
 	 INDEX `alias` (`alias`(190)),
 	 INDEX `followers` (`followers`(190)),
+	 INDEX `baseurl` (`baseurl`(190)),
 	 INDEX `gsid` (`gsid`),
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='ActivityPub compatible contacts - used in the ActivityPub implementation';
@@ -482,6 +487,7 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_discovery` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last contact discovery',
+	`failed` boolean COMMENT 'Connection failed',
 	`archive_date` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`archived` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`location` varchar(255) NOT NULL DEFAULT '' COMMENT '',
