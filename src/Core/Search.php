@@ -180,7 +180,7 @@ class Search
 		$count = DBA::count('gcontact', [
 			'NOT `hide`
 			AND `network` IN (?, ?, ?, ?)
-			AND ((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`))
+			AND NOT `failed`
 			AND (`url` LIKE ? OR `name` LIKE ? OR `location` LIKE ? 
 				OR `addr` LIKE ? OR `about` LIKE ? OR `keywords` LIKE ?)
 			AND `community` = ?',
@@ -199,7 +199,7 @@ class Search
 		$data = DBA::select('gcontact', ['nurl', 'name', 'addr', 'url', 'photo', 'network', 'keywords'], [
 			'NOT `hide`
 			AND `network` IN (?, ?, ?, ?)
-			AND ((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`))
+			AND NOT `failed`
 			AND (`url` LIKE ? OR `name` LIKE ? OR `location` LIKE ? 
 				OR `addr` LIKE ? OR `about` LIKE ? OR `keywords` LIKE ?)
 			AND `community` = ?',

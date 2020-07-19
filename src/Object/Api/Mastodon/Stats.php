@@ -51,7 +51,7 @@ class Stats extends BaseEntity
 		if (!empty(DI::config()->get('system', 'nodeinfo'))) {
 			$stats->user_count = intval(DI::config()->get('nodeinfo', 'total_users'));
 			$stats->status_count = DI::config()->get('nodeinfo', 'local_posts') + DI::config()->get('nodeinfo', 'local_comments');
-			$stats->domain_count = DBA::count('gserver', ["`network` in (?, ?) AND `last_contact` >= `last_failure`", Protocol::DFRN, Protocol::ACTIVITYPUB]);
+			$stats->domain_count = DBA::count('gserver', ["`network` in (?, ?) AND NOT `failed`", Protocol::DFRN, Protocol::ACTIVITYPUB]);
 		}
 		return $stats;
 	}

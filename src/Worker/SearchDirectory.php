@@ -58,12 +58,11 @@ class SearchDirectory
 		if (!empty($j->results)) {
 			foreach ($j->results as $jj) {
 				// Check if the contact already exists
-				$gcontact = DBA::selectFirst('gcontact', ['id', 'last_contact', 'last_failure', 'updated'], ['nurl' => Strings::normaliseLink($jj->url)]);
+				$gcontact = DBA::selectFirst('gcontact', ['failed'], ['nurl' => Strings::normaliseLink($jj->url)]);
 				if (DBA::isResult($gcontact)) {
 					Logger::info('Profile already exists', ['profile' => $jj->url, 'search' => $search]);
 
-					if (($gcontact['last_contact'] < $gcontact['last_failure']) &&
-						($gcontact['updated'] < $gcontact['last_failure'])) {
+					if ($gcontact['failed']) {
 						continue;
 					}
 

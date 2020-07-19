@@ -110,7 +110,7 @@ function poco_init(App $a) {
 		$totalResults = DBA::count('profile', ['net-publish' => true]);
 	} else {
 		$contacts = q("SELECT count(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
+			AND NOT `failed`
 			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra",
 			intval($user['uid']),
 			DBA::escape(Protocol::DFRN),
@@ -148,7 +148,7 @@ function poco_init(App $a) {
 	} else {
 		Logger::log("Start query for user " . $user['nickname'], Logger::DEBUG);
 		$contacts = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
+			AND NOT `failed`
 			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),
 			DBA::escape(Protocol::DFRN),

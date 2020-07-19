@@ -95,7 +95,7 @@ class GContact
 
 		$results = DBA::p("SELECT `nurl` FROM `gcontact`
 			WHERE NOT `hide` AND `network` IN (?, ?, ?, ?) AND
-				((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`)) AND
+				NOT `failed` AND
 				(`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?) $extra_sql
 				GROUP BY `nurl` ORDER BY `nurl` DESC LIMIT 1000",
 			Protocol::DFRN, Protocol::ACTIVITYPUB, $ostatus, $diaspora, $search, $search, $search
@@ -274,8 +274,7 @@ class GContact
 			"SELECT count(*) as `total`
 			FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 			WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d AND
-			((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR
-			(`gcontact`.`updated` >= `gcontact`.`last_failure`))
+			NOT `gcontact`.`failed`
 			AND `gcontact`.`nurl` IN (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d) ",
 			intval($cid),
 			intval($uid),
@@ -338,7 +337,7 @@ class GContact
 			WHERE `glink`.`cid` = %d and `glink`.`uid` = %d
 				AND `contact`.`uid` = %d AND `contact`.`self` = 0 AND `contact`.`blocked` = 0
 				AND `contact`.`hidden` = 0 AND `contact`.`id` != %d
-				AND ((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`))
+				AND NOT `gcontact`.`failed`
 				$sql_extra LIMIT %d, %d",
 			intval($cid),
 			intval($uid),
@@ -397,7 +396,7 @@ class GContact
 			"SELECT count(*) as `total`
 			FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 			where `glink`.`cid` = %d and `glink`.`uid` = %d AND
-			((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`))",
+			NOT `gcontact`.`failed`",
 			intval($cid),
 			intval($uid)
 		);
@@ -425,7 +424,7 @@ class GContact
 			INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 			LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = %d
 			WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d AND
-			((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR (`gcontact`.`updated` >= `gcontact`.`last_failure`))
+			NOT `gcontact`.`failed`
 			ORDER BY `gcontact`.`name` ASC LIMIT %d, %d ",
 			intval($uid),
 			intval($cid),
@@ -472,7 +471,7 @@ class GContact
 			AND NOT `gcontact`.`name` IN (SELECT `name` FROM `contact` WHERE `uid` = %d)
 			AND NOT `gcontact`.`id` IN (SELECT `gcid` FROM `gcign` WHERE `uid` = %d)
 			AND `gcontact`.`updated` >= '%s' AND NOT `gcontact`.`hide`
-			AND `gcontact`.`last_contact` >= `gcontact`.`last_failure`
+			AND NOT `gcontact`.`failed`
 			AND `gcontact`.`network` IN (%s)
 			GROUP BY `glink`.`gcid` ORDER BY `gcontact`.`updated` DESC,`total` DESC LIMIT %d, %d",
 			intval($uid),
@@ -496,7 +495,7 @@ class GContact
 			AND NOT `gcontact`.`name` IN (SELECT `name` FROM `contact` WHERE `uid` = %d)
 			AND NOT `gcontact`.`id` IN (SELECT `gcid` FROM `gcign` WHERE `uid` = %d)
 			AND `gcontact`.`updated` >= '%s'
-			AND `gcontact`.`last_contact` >= `gcontact`.`last_failure`
+			AND NOT `gcontact`.`failed`
 			AND `gcontact`.`network` IN (%s)
 			ORDER BY rand() LIMIT %d, %d",
 			intval($uid),
@@ -1270,7 +1269,7 @@ class GContact
 
 		$r = DBA::select('gserver', ['nurl', 'url'], [
 			'`network` = ?
-			AND `last_contact` >= `last_failure`
+			AND NOT `failed`
 			AND `last_poco_query` < ?',
 			Protocol::OSTATUS,
 			$last_update
@@ -1421,8 +1420,8 @@ class GContact
 	public static function getRandomUrl()
 	{
 		$r = DBA::selectFirst('gcontact', ['url'], [
-			'`network` = ? 
-			AND `last_contact` >= `last_failure`  
+			'`network` = ?
+			AND NOT `failed`
 			AND `updated` > ?',
 			Protocol::DFRN,
 			DateTimeFormat::utc('now - 1 month'),

@@ -1587,7 +1587,7 @@ class GServer
 
 		$gservers = DBA::p("SELECT `id`, `url`, `nurl`, `network`, `poco`
 			FROM `gserver`
-			WHERE `last_contact` >= `last_failure`
+			WHERE NOT `failed`
 			AND `poco` != ''
 			AND `last_poco_query` < ?
 			ORDER BY RAND()", $last_update
