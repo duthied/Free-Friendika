@@ -343,7 +343,7 @@ class Database
 				                                                                      $row['key'] . "\t" . $row['rows'] . "\t" . $row['Extra'] . "\t" .
 				                                                                      basename($backtrace[1]["file"]) . "\t" .
 				                                                                      $backtrace[1]["line"] . "\t" . $backtrace[2]["function"] . "\t" .
-				                                                                      substr($query, 0, 2000) . "\n", FILE_APPEND);
+				                                                                      substr($query, 0, 4000) . "\n", FILE_APPEND);
 			}
 		}
 	}
@@ -712,7 +712,7 @@ class Database
 				@file_put_contents($this->configCache->get('system', 'db_log'), DateTimeFormat::utcNow() . "\t" . $duration . "\t" .
 				                                                                basename($backtrace[1]["file"]) . "\t" .
 				                                                                $backtrace[1]["line"] . "\t" . $backtrace[2]["function"] . "\t" .
-				                                                                substr($this->replaceParameters($sql, $args), 0, 2000) . "\n", FILE_APPEND);
+				                                                                substr($this->replaceParameters($sql, $args), 0, 4000) . "\n", FILE_APPEND);
 			}
 		}
 		return $retval;

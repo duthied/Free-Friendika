@@ -40,7 +40,7 @@ class PageInfo
 	 * @return string
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function appendToBody(string $body, bool $searchNakedUrls = false, bool $no_photos = false)
+	public static function searchAndAppendToBody(string $body, bool $searchNakedUrls = false, bool $no_photos = false)
 	{
 		Logger::info('add_page_info_to_body: fetch page info for body', ['body' => $body]);
 
@@ -49,14 +49,34 @@ class PageInfo
 			return $body;
 		}
 
-		$footer = self::getFooterFromUrl($url, $no_photos);
-		if (!$footer) {
+		$data = self::queryUrl($url);
+		if (!$data) {
 			return $body;
 		}
 
-		$body = self::stripTrailingUrlFromBody($body, $url);
+		return self::appendDataToBody($body, $data, $no_photos);
+	}
 
-		$body .= "\n" . $footer;
+	/**
+	 * @param string $body
+	 * @param array  $data
+	 * @param bool   $no_photos
+	 * @return string
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function appendDataToBody(string $body, array $data, bool $no_photos = false)
+	{
+		// Only one [attachment] tag per body is allowed
+		$existingAttachmentPos = strpos($body, '[attachment');
+		if ($existingAttachmentPos !== false) {
+			$linkTitle = $data['title'] ?: $data['url'];
+			// Additional link attachments are prepended before the existing [attachment] tag
+			$body = substr_replace($body, "\n[bookmark=" . $data['url'] . ']' . $linkTitle . "[/bookmark]\n", $existingAttachmentPos, 0);
+		} else {
+			$footer = PageInfo::getFooterFromData($data, $no_photos);
+			$body = self::stripTrailingUrlFromBody($body, $data['url']);
+			$body .= "\n" . $footer;
+		}
 
 		return $body;
 	}
@@ -252,22 +272,35 @@ class PageInfo
 
 	/**
 	 * Remove the provided URL from the body if it is at the end of it.
-	 * Keep the link label if it isn't the full URL.
+	 * Keep the link label if it isn't the full URL or a shortened version of it.
 	 *
 	 * @param string $body
 	 * @param string $url
-	 * @return string|string[]|null
+	 * @return string
 	 */
 	protected static function stripTrailingUrlFromBody(string $body, string $url)
 	{
 		$quotedUrl = preg_quote($url, '#');
-		$body = preg_replace("#(?:
+		$body = preg_replace_callback("#(?:
 			\[url]$quotedUrl\[/url]|
 			\[url=$quotedUrl]$quotedUrl\[/url]|
 			\[url=$quotedUrl]([^[]*?)\[/url]|
 			$quotedUrl
-		)$#isx", '$1', $body);
+		)$#isx", function ($match) use ($url) {
+			// Stripping URLs with no label
+			if (!isset($match[1])) {
+				return '';
+			}
 
-		return $body;
+			// Stripping link labels that include a shortened version of the URL
+			if (strpos($url, trim($match[1], '.…')) !== false) {
+				return '';
+			}
+
+			// Keep all other labels
+			return $match[1];
+		}, $body);
+
+		return rtrim($body);
 	}
 }
