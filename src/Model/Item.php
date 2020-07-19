@@ -2093,7 +2093,7 @@ class Item
 		DBA::close($contacts);
 
 		if (!empty($owner['alias'])) {
-			$condition = ['url' => $owner['alias'], 'rel' => [Contact::SHARING, Contact::FRIEND]];
+			$condition = ['nurl' => Strings::normaliseLink($owner['alias']), 'rel' => [Contact::SHARING, Contact::FRIEND]];
 			$contacts = DBA::select('contact', ['uid'], $condition);
 			while ($contact = DBA::fetch($contacts)) {
 				if ($contact['uid'] == 0) {

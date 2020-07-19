@@ -160,7 +160,6 @@ class Cron
 		$condition = ["`network` IN (?, ?, ?, ?) AND `uid` = ? AND NOT `self` AND `last-update` < ?",
 			Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, 0, $last_updated];
 
-		$total = DBA::count('contact', $condition);
 		$oldest_date = '';
 		$oldest_id = '';
 		$contacts = DBA::select('contact', ['id', 'last-update'], $condition, ['limit' => 100, 'order' => ['last-update']]);
@@ -172,7 +171,7 @@ class Cron
 			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id'], 'force');
 			++$count;
 		}
-		Logger::info('Initiated update for public contacts', ['interval' => $count, 'total' => $total, 'id' => $oldest_id, 'oldest' => $oldest_date]);
+		Logger::info('Initiated update for public contacts', ['interval' => $count, 'id' => $oldest_id, 'oldest' => $oldest_date]);
 		DBA::close($contacts);
 	}
 
