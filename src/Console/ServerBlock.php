@@ -51,19 +51,23 @@ Usage
 	bin/console serverblock [-h|--help|-?] [-v]
 	bin/console serverblock add <pattern> <reason> [-h|--help|-?] [-v]
 	bin/console serverblock remove <pattern> [-h|--help|-?] [-v]
+	bin/console serverblock export <filename>
+	bin/console serverblock import <filename>
 
 Description
 	With this tool, you can list the current blocked server domain patterns
-    or you can add / remove a blocked server domain pattern from the list.
-    
-    Patterns are case-insensitive shell wildcard comprising the following special characters:
-    - * : Any number of characters
-    - ? : Any single character
-    - [<char1><char2>...] : char1 or char2 or...
+	or you can add / remove a blocked server domain pattern from the list.
+	Using the export and import options you can share your server blocklist
+	with other node admins by CSV files.
+	
+	Patterns are case-insensitive shell wildcard comprising the following special characters:
+	- * : Any number of characters
+	- ? : Any single character
+	- [<char1><char2>...] : char1 or char2 or...
 
 Options
-    -h|--help|-? Show help information
-    -v           Show more debug information.
+	-h|--help|-? Show help information
+	-v		   Show more debug information.
 HELP;
 		return $help;
 	}
@@ -87,6 +91,10 @@ HELP;
 				return $this->addBlockedServer($this->config);
 			case 'remove':
 				return $this->removeBlockedServer($this->config);
+			case 'export':
+				return $this->exportBlockedServers($this->config);
+			case 'import':
+				return $this->importBlockedServers($this->config);
 			default:
 				throw new CommandArgsException('Unknown command.');
 				break;
@@ -94,9 +102,65 @@ HELP;
 	}
 
 	/**
-	 * Prints the whole list of blocked domains including the reason
+	 * Exports the list of blocked domains including the reason for the
+	 * block to a CSV file.
 	 *
 	 * @param IConfig $config
+	 */
+	private function exportBlockedServers(IConfig $config)
+	{
+		$filename = $this->getArgument(1);
+		$blocklist = $config->get('system', 'blocklist', []);
+		$fp = fopen($filename, 'w');
+		foreach ($blocklist as $domain) {
+			fputcsv($fp, $domain);
+		}
+	}
+	/**
+	 * Imports a list of domains and a reason for the block from a CSV
+	 * file, e.g. created with the export function.
+	 *
+	 * @param IConfig $config
+	 */
+	private function importBlockedServers(IConfig $config)
+	{
+		$filename = $this->getArgument(1);
+		$currBlockList = $config->get('system', 'blocklist', []);
+		$newBlockList = [];
+		if (($fp = fopen($filename, 'r')) !== FALSE) {
+			while (($data = fgetcsv($fp, 1000, ',')) !== FALSE) {
+				$domain = $data[0];
+				if (count($data)  == 0) {
+					$reason = self::DEFAULT_REASON;
+				} else {
+					$reason = $data[1];
+				}
+				$data = [
+					'domain' => $domain,
+					'reason' => $reason
+				];
+				if (!in_array($data, $newBlockList))
+					$newBlockList[] = $data;
+			}
+			foreach ($currBlockList as $blocked) {
+				if (!in_array($blocked, $newBlockList))
+					$newBlockList[] = $blocked;
+			}
+			if ($config->set('system', 'blocklist', $newBlockList)) {
+				$this->out(sprintf("Entries from %s that were not blocked before are now blocked", $filename));
+				return 0;
+			} else {
+				$this->out(sprintf("Couldn't save '%s' as blocked server", $domain));
+				return 1;
+			}
+
+		}
+	}
+
+	/**
+	 * Prints the whole list of blocked domains including the reason
+	 *
+	 /* @param IConfig $config
 	 */
 	private function printBlockedServers(IConfig $config)
 	{
@@ -127,9 +191,9 @@ HELP;
 
 		$update = false;
 
-		$currBlocklist = $config->get('system', 'blocklist', []);
+		$currBlockList = $config->get('system', 'blocklist', []);
 		$newBlockList = [];
-		foreach ($currBlocklist  as $blocked) {
+		foreach ($currBlockList  as $blocked) {
 			if ($blocked['domain'] === $domain) {
 				$update = true;
 				$newBlockList[] = [
@@ -178,9 +242,9 @@ HELP;
 
 		$found = false;
 
-		$currBlocklist = $config->get('system', 'blocklist', []);
+		$currBlockList = $config->get('system', 'blocklist', []);
 		$newBlockList = [];
-		foreach ($currBlocklist as $blocked) {
+		foreach ($currBlockList as $blocked) {
 			if ($blocked['domain'] === $domain) {
 				$found = true;
 			} else {
