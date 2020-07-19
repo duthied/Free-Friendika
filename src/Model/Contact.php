@@ -1029,7 +1029,7 @@ class Contact
 	{
 		// Always unarchive the relay contact entry
 		if (!empty($contact['batch']) && !empty($contact['term-date']) && ($contact['term-date'] > DBA::NULL_DATETIME)) {
-			$fields = ['term-date' => DBA::NULL_DATETIME, 'archive' => false];
+			$fields = ['failed' => false, 'term-date' => DBA::NULL_DATETIME, 'archive' => false];
 			$condition = ['uid' => 0, 'network' => Protocol::FEDERATED, 'batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
 			DBA::update('contact', $fields, $condition);
 		}
@@ -1053,7 +1053,7 @@ class Contact
 		}
 
 		// It's a miracle. Our dead contact has inexplicably come back to life.
-		$fields = ['term-date' => DBA::NULL_DATETIME, 'archive' => false];
+		$fields = ['failed' => false, 'term-date' => DBA::NULL_DATETIME, 'archive' => false];
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
 		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
 		GContact::updateFromPublicContactURL($contact['url']);
@@ -1495,7 +1495,8 @@ class Contact
 			$updated = [
 				'url' => $data['url'],
 				'nurl' => Strings::normaliseLink($data['url']),
-				'updated' => DateTimeFormat::utcNow()
+				'updated' => DateTimeFormat::utcNow(),
+				'failed' => false
 			];
 
 			$fields = ['addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'baseurl', 'gsid'];
@@ -1973,7 +1974,7 @@ class Contact
 		// We check after the probing to be able to correct falsely detected contact types.
 		if (($contact['contact-type'] == self::TYPE_RELAY) &&
 			(!Strings::compareLink($ret['url'], $contact['url']) || in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]))) {
-			self::updateContact($id, $uid, $contact['url'], ['last-update' => $updated, 'success_update' => $updated]);
+			self::updateContact($id, $uid, $contact['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
 			Logger::info('Not updating relais', ['id' => $id, 'url' => $contact['url']]);
 			return true;
 		}
@@ -1981,7 +1982,7 @@ class Contact
 		// If Probe::uri fails the network code will be different ("feed" or "unkn")
 		if (in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network'])) {
 			if ($force && ($uid == 0)) {
-				self::updateContact($id, $uid, $ret['url'], ['last-update' => $updated, 'failure_update' => $updated]);
+				self::updateContact($id, $uid, $ret['url'], ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
 			}
 			return false;
 		}
@@ -2025,7 +2026,7 @@ class Contact
 
 		if (!$update) {
 			if ($force) {
-				self::updateContact($id, $uid, $ret['url'], ['last-update' => $updated, 'success_update' => $updated]);
+				self::updateContact($id, $uid, $ret['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
 			}
 
 			// Update the public contact
@@ -2055,6 +2056,7 @@ class Contact
 		if ($force && ($uid == 0)) {
 			$ret['last-update'] = $updated;
 			$ret['success_update'] = $updated;
+			$ret['failed'] = false;
 		}
 
 		unset($ret['photo']);

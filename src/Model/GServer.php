@@ -235,14 +235,14 @@ class GServer
 	private static function setFailure(string $url)
 	{
 		if (DBA::exists('gserver', ['nurl' => Strings::normaliseLink($url)])) {
-			DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow(), 'detection-method' => null],
+			DBA::update('gserver', ['failed' => true, 'last_failure' => DateTimeFormat::utcNow(), 'detection-method' => null],
 			['nurl' => Strings::normaliseLink($url)]);
 			Logger::info('Set failed status for existing server', ['url' => $url]);
 			return;
 		}
 		DBA::insert('gserver', ['url' => $url, 'nurl' => Strings::normaliseLink($url),
 			'network' => Protocol::PHANTOM, 'created' => DateTimeFormat::utcNow(),
-			'last_failure' => DateTimeFormat::utcNow()]);
+			'failed' => true, 'last_failure' => DateTimeFormat::utcNow()]);
 		Logger::info('Set failed status for new server', ['url' => $url]);
 	}
 
@@ -303,7 +303,8 @@ class GServer
 
 		// If the URL missmatches, then we mark the old entry as failure
 		if ($url != $original_url) {
-			DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($original_url)]);
+			DBA::update('gserver', ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()],
+				['nurl' => Strings::normaliseLink($original_url)]);
 		}
 
 		// When a nodeinfo is present, we don't need to dig further
@@ -449,6 +450,7 @@ class GServer
 		}
 
 		$serverdata['last_contact'] = DateTimeFormat::utcNow();
+		$serverdata['failed'] = false;
 
 		$gserver = DBA::selectFirst('gserver', ['network'], ['nurl' => Strings::normaliseLink($url)]);
 		if (!DBA::isResult($gserver)) {

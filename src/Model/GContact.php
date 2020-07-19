@@ -231,6 +231,7 @@ class GContact
 			}
 
 			$gcontact['server_url'] = $data['baseurl'];
+			$gcontact['failed'] = false;
 
 			$gcontact = array_merge($gcontact, $data);
 		}
@@ -642,7 +643,7 @@ class GContact
 		$fields = ['name' => $contact['name'], 'nick' => $contact['nick'] ?? '', 'addr' => $contact['addr'] ?? '', 'network' => $contact['network'],
 			'url' => $contact['url'], 'nurl' => Strings::normaliseLink($contact['url']), 'photo' => $contact['photo'],
 			'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(), 'location' => $contact['location'],
-			'about' => $contact['about'], 'hide' => $contact['hide'], 'generation' => $contact['generation']];
+			'about' => $contact['about'], 'hide' => $contact['hide'], 'generation' => $contact['generation'], 'failed' => false];
 
 		DBA::insert('gcontact', $fields);
 
@@ -681,7 +682,7 @@ class GContact
 		}
 
 		$public_contact = DBA::selectFirst('gcontact', [
-			'name', 'nick', 'photo', 'location', 'about', 'addr', 'generation', 'birthday', 'keywords', 'gsid',
+			'name', 'nick', 'photo', 'location', 'about', 'addr', 'generation', 'birthday', 'keywords', 'gsid', 'failed',
 			'contact-type', 'hide', 'nsfw', 'network', 'alias', 'notify', 'server_url', 'connect', 'updated', 'url'
 		], ['id' => $gcontact_id]);
 
@@ -787,7 +788,7 @@ class GContact
 				'location' => $contact['location'], 'about' => $contact['about'],
 				'generation' => $contact['generation'], 'updated' => $contact['updated'],
 				'server_url' => $contact['server_url'], 'connect' => $contact['connect'],
-				'gsid' => $contact['gsid']
+				'failed' => $contact['failed'], 'gsid' => $contact['gsid']
 			];
 
 			DBA::update('gcontact', $updated, $condition, $fields);
@@ -851,13 +852,13 @@ class GContact
 			$noscrape = json_decode($curlResult->getBody(), true);
 			if (!empty($noscrape) && !empty($noscrape['updated'])) {
 				$noscrape['updated'] = DateTimeFormat::utc($noscrape['updated'], DateTimeFormat::MYSQL);
-				$fields = ['last_contact' => DateTimeFormat::utcNow(), 'updated' => $noscrape['updated']];
+				$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow(), 'updated' => $noscrape['updated']];
 				DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
 				return true;
 			}
 		} elseif ($curlResult->isTimeout()) {
 			// On a timeout return the existing value, but mark the contact as failure
-			$fields = ['last_failure' => DateTimeFormat::utcNow()];
+			$fields = ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()];
 			DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
 			return true;
 		}
@@ -915,7 +916,7 @@ class GContact
 			return;
 		}
 
-		$fields = ['last_contact' => DateTimeFormat::utcNow(), 'updated' => $last_updated];
+		$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow(), 'updated' => $last_updated];
 		DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
 	}
 
@@ -929,7 +930,7 @@ class GContact
 		// Search for the newest entry in the feed
 		$curlResult = Network::curl($data['poll']);
 		if (!$curlResult->isSuccess()) {
-			$fields = ['last_failure' => DateTimeFormat::utcNow()];
+			$fields = ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()];
 			DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
 
 			Logger::info("Profile wasn't reachable (no feed)", ['url' => $data['url']]);
@@ -970,7 +971,7 @@ class GContact
 			return;
 		}
 
-		$fields = ['last_contact' => DateTimeFormat::utcNow(), 'updated' => $last_updated];
+		$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow(), 'updated' => $last_updated];
 		DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
 	}
 	/**
@@ -1012,7 +1013,7 @@ class GContact
 		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords',
 			'bd', 'contact-type', 'network', 'addr', 'notify', 'alias', 'archive', 'term-date',
 			'created', 'updated', 'avatar', 'success_update', 'failure_update', 'forum', 'prv',
-			'baseurl', 'gsid', 'sensitive', 'unsearchable'];
+			'baseurl', 'gsid', 'sensitive', 'unsearchable', 'failed'];
 
 		$contact = DBA::selectFirst('contact', $fields, array_merge($condition, ['uid' => 0, 'network' => Protocol::FEDERATED]));
 		if (!DBA::isResult($contact)) {
@@ -1022,7 +1023,7 @@ class GContact
 		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'generation',
 			'birthday', 'contact-type', 'network', 'addr', 'notify', 'alias', 'archived', 'archive_date',
 			'created', 'updated', 'photo', 'last_contact', 'last_failure', 'community', 'connect',
-			'server_url', 'gsid', 'nsfw', 'hide', 'id'];
+			'server_url', 'gsid', 'nsfw', 'hide', 'id', 'failed'];
 
 		$old_gcontact = DBA::selectFirst('gcontact', $fields, ['nurl' => $contact['nurl']]);
 		$do_insert = !DBA::isResult($old_gcontact);
@@ -1034,7 +1035,7 @@ class GContact
 
 		// These fields are identical in both contact and gcontact
 		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'gsid',
-			'contact-type', 'network', 'addr', 'notify', 'alias', 'created', 'updated'];
+			'contact-type', 'network', 'addr', 'notify', 'alias', 'created', 'updated', 'failed'];
 
 		foreach ($fields as $field) {
 			$gcontact[$field] = $contact[$field];
@@ -1100,13 +1101,14 @@ class GContact
 		$data = Probe::uri($url, $force);
 
 		if (in_array($data['network'], [Protocol::PHANTOM])) {
-			$fields = ['last_failure' => DateTimeFormat::utcNow()];
+			$fields = ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()];
 			DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($url)]);
 			Logger::info('Invalid network for contact', ['url' => $data['url'], 'callstack' => System::callstack()]);
 			return false;
 		}
 
 		$data['server_url'] = $data['baseurl'];
+		$data['failed'] = false;
 
 		self::update($data);
 
