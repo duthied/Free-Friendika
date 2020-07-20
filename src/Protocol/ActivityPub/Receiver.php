@@ -227,6 +227,7 @@ class Receiver
 			if ($type == 'as:Announce') {
 				$trust_source = false;
 			}
+
 			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source, $uid);
 			if (empty($object_data)) {
 				Logger::log("Object data couldn't be processed", Logger::DEBUG);
@@ -337,7 +338,6 @@ class Receiver
 		if (!JsonLD::fetchElement($activity, 'as:actor', '@id')) {
 			Logger::log('Empty actor', Logger::DEBUG);
 			return;
-
 		}
 
 		// Don't trust the source if "actor" differs from "attributedTo". The content could be forged.
@@ -374,7 +374,8 @@ class Receiver
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($object_data);
+					ActivityPub\Processor::postItem($object_data, $item);
 				}
 				break;
 
@@ -391,7 +392,8 @@ class Receiver
 					// If this isn't set, then a single reshare appears on top. This is used for groups.
 					$object_data['thread-completion'] = ($profile['type'] != 'Group');
 
-					ActivityPub\Processor::createItem($object_data);
+					$item = ActivityPub\Processor::createItem($object_data);
+					ActivityPub\Processor::postItem($object_data, $item);
 
 					// Add the bottom reshare information only for persons
 					if ($profile['type'] != 'Group') {
