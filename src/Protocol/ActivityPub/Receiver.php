@@ -184,7 +184,7 @@ class Receiver
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function prepareObjectData($activity, $uid, $push, &$trust_source)
+	public static function prepareObjectData($activity, $uid, $push, &$trust_source)
 	{
 		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
 		if (empty($actor)) {
