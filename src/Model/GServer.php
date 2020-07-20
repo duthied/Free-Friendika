@@ -1637,7 +1637,6 @@ class GServer
 				if (!empty($data['data']['nodes'])) {
 					foreach ($data['data']['nodes'] as $server) {
 						// Using "only_nodeinfo" since servers that are listed on that page should always have it.
-						echo $server['host']."\n";
 						Worker::add(PRIORITY_LOW, 'UpdateGServer', 'https://' . $server['host'], true);
 					}
 				}
