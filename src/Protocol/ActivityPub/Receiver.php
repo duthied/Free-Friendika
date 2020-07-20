@@ -877,7 +877,7 @@ class Receiver
 	 *
 	 * @param array $attachments Attachments in JSON-LD format
 	 *
-	 * @return array with attachmants in a simplified format
+	 * @return array Attachments in a simplified format
 	 */
 	private static function processAttachments(array $attachments)
 	{
@@ -923,6 +923,62 @@ class Receiver
 						'mediaType' => JsonLD::fetchElement($attachment, 'as:mediaType', '@value'),
 						'name' => JsonLD::fetchElement($attachment, 'as:name', '@value'),
 						'url' => JsonLD::fetchElement($attachment, 'as:href', '@id')
+					];
+					break;
+				case 'as:Image':
+					$mediaType = JsonLD::fetchElement($attachment, 'as:mediaType', '@value');
+					$imageFullUrl = JsonLD::fetchElement($attachment, 'as:url', '@id');
+					$imagePreviewUrl = null;
+					// Multiple URLs?
+					if (!$imageFullUrl && ($urls = JsonLD::fetchElementArray($attachment, 'as:url'))) {
+						$imageVariants = [];
+						$previewVariants = [];
+						foreach ($urls as $url) {
+							// Scalar URL, no discrimination possible
+							if (is_string($url)) {
+								$imageFullUrl = $url;
+								continue;
+							}
+
+							// Not sure what to do with a different Link media type than the base Image, we skip
+							if ($mediaType != JsonLD::fetchElement($url, 'as:mediaType', '@value')) {
+								continue;
+							}
+
+							$href = JsonLD::fetchElement($url, 'as:href', '@id');
+
+							// Default URL choice if no discriminating width is provided
+							$imageFullUrl = $href ?? $imageFullUrl;
+
+							$width = intval(JsonLD::fetchElement($url, 'as:width', '@value') ?? 1);
+
+							if ($href && $width) {
+								$imageVariants[$width] = $href;
+								// 632 is the ideal width for full screen frio posts, we compute the absolute distance to it
+								$previewVariants[abs(632 - $width)] = $href;
+							}
+						}
+
+						if ($imageVariants) {
+							// Taking the maximum size image
+							ksort($imageVariants);
+							$imageFullUrl = array_pop($imageVariants);
+
+							// Taking the minimum number distance to the target distance
+							ksort($previewVariants);
+							$imagePreviewUrl = array_shift($previewVariants);
+						}
+
+						unset($imageVariants);
+						unset($previewVariants);
+					}
+
+					$attachlist[] = [
+						'type' => str_replace('as:', '', JsonLD::fetchElement($attachment, '@type')),
+						'mediaType' => $mediaType,
+						'name'  => JsonLD::fetchElement($attachment, 'as:name', '@value'),
+						'url'   => $imageFullUrl,
+						'image' => $imagePreviewUrl !== $imageFullUrl ? $imagePreviewUrl : null,
 					];
 					break;
 				default:
