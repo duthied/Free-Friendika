@@ -121,6 +121,7 @@ abstract class BaseAdmin extends BaseModule
 				'webfinger'    => ['webfinger'         , DI::l10n()->t('check webfinger')         , 'webfinger'],
 				'itemsource'   => ['admin/item/source' , DI::l10n()->t('Item Source')             , 'itemsource'],
 				'babel'        => ['babel'             , DI::l10n()->t('Babel')                   , 'babel'],
+				'debug/ap'     => ['debug/ap'          , DI::l10n()->t('ActivityPub Conversion')  , 'debug/ap'],
 			]],
 		];
 
