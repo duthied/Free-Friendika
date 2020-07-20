@@ -115,10 +115,22 @@ class Processor
 							continue 2;
 						}
 
+						$item['body'] .= "\n";
+
+						// image is the preview/thumbnail URL
+						if (!empty($attach['image'])) {
+							$item['body'] .= '[url=' . $attach['url'] . ']';
+							$attach['url'] = $attach['image'];
+						}
+
 						if (empty($attach['name'])) {
-							$item['body'] .= "\n[img]" . $attach['url'] . '[/img]';
+							$item['body'] .= '[img]' . $attach['url'] . '[/img]';
 						} else {
-							$item['body'] .= "\n[img=" . $attach['url'] . ']' . $attach['name'] . '[/img]';
+							$item['body'] .= '[img=' . $attach['url'] . ']' . $attach['name'] . '[/img]';
+						}
+
+						if (!empty($attach['image'])) {
+							$item['body'] .= '[/url]';
 						}
 					} elseif ($filetype == 'audio') {
 						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
