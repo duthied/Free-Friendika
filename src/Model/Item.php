@@ -1964,6 +1964,9 @@ class Item
 
 		check_user_notification($current_post);
 
+		// Distribute items to users who subscribed to their tags
+		self::distributeByTags($item, $orig_item);
+
 		$transmit = $notify || ($item['visible'] && ($parent_origin || $item['origin']));
 
 		if ($transmit) {
@@ -1981,6 +1984,26 @@ class Item
 		}
 
 		return $current_post;
+	}
+
+	/**
+	 * Distribute the given item to users who subscribed to their tags
+	 *
+	 * @param array $item     Processed item
+	 * @param array $original Original item
+	 */
+	private static function distributeByTags(array $item, array $original)
+	{
+		if (($item['uid'] != 0) || ($item['gravity'] != GRAVITY_PARENT) || !in_array($item['network'], Protocol::FEDERATED)) {
+			return;
+		}
+
+		$uids = Tag::getUIDListByURIId($item['uri-id']);
+		foreach ($uids as $uid) {
+			$original['uri-id'] = $item['uri-id'];
+			$stored = self::storeForUser($original, $uid);
+			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
+		}
 	}
 
 	/**
@@ -2079,13 +2102,6 @@ class Item
 
 		$origin = $item['origin'];
 
-		unset($item['id']);
-		unset($item['parent']);
-		unset($item['mention']);
-		unset($item['wall']);
-		unset($item['origin']);
-		unset($item['starred']);
-
 		$users = [];
 
 		/// @todo add a field "pcid" in the contact table that referrs to the public contact id.
@@ -2145,33 +2161,50 @@ class Item
 			if ($origin_uid == $uid) {
 				$item['diaspora_signed_text'] = $signed_text;
 			}
-			self::storeForUser($itemid, $item, $uid);
+			self::storeForUser($item, $uid);
 		}
 	}
 
 	/**
 	 * Store public items for the receivers
 	 *
-	 * @param integer $itemid Item ID that should be added
 	 * @param array   $item   The item entry that will be stored
 	 * @param integer $uid    The user that will receive the item entry
+	 * @return integer stored item id
 	 * @throws \Exception
 	 */
-	private static function storeForUser($itemid, $item, $uid)
+	private static function storeForUser(array $item, int $uid)
 	{
+		if (self::exists(['uri-id' => $item['uri-id'], 'uid' => $uid])) {
+			Logger::info('Item already exists', ['uri-id' => $item['uri-id'], 'uid' => $uid]);
+			return 0;
+		}
+
+		unset($item['id']);
+		unset($item['parent']);
+		unset($item['mention']);
+		unset($item['starred']);
+
 		$item['uid'] = $uid;
 		$item['origin'] = 0;
 		$item['wall'] = 0;
+
 		if ($item['uri'] == $item['parent-uri']) {
-			$item['contact-id'] = Contact::getIdForURL($item['owner-link'], $uid);
+			$contact = Contact::getByURLForUser($item['owner-link'], $uid, false, ['id']);
 		} else {
-			$item['contact-id'] = Contact::getIdForURL($item['author-link'], $uid);
+			$contact = Contact::getByURLForUser($item['author-link'], $uid, false, ['id']);
 		}
 
-		if (empty($item['contact-id'])) {
+		if (!empty($contact['id'])) {
+			$item['contact-id'] = $contact['id'];
+		} else {
+			// Shouldn't happen at all
+			Logger::warning('contact-id could not be fetched', ['uid' => $uid, 'item' => $item]);
 			$self = DBA::selectFirst('contact', ['id'], ['self' => true, 'uid' => $uid]);
 			if (!DBA::isResult($self)) {
-				return;
+				// Shouldn't happen even less
+				Logger::warning('self contact could not be fetched', ['uid' => $uid, 'item' => $item]);
+				return 0;
 			}
 			$item['contact-id'] = $self['id'];
 		}
@@ -2189,10 +2222,11 @@ class Item
 		$distributed = self::insert($item, $notify, true);
 
 		if (!$distributed) {
-			Logger::info("Distributed public item wasn't stored", ['id' => $itemid, 'user' => $uid]);
+			Logger::info("Distributed public item wasn't stored", ['uri-id' => $item['uri-id'], 'user' => $uid]);
 		} else {
-			Logger::info('Distributed public item was stored', ['id' => $itemid, 'user' => $uid, 'stored' => $distributed]);
+			Logger::info('Distributed public item was stored', ['uri-id' => $item['uri-id'], 'user' => $uid, 'stored' => $distributed]);
 		}
+		return $distributed;
 	}
 
 	/**

@@ -536,5 +536,41 @@ class Tag
 		}
 
 		return Strings::startsWithChars($tag, $tag_chars);
-	}	
+	}
+
+	/**
+	 * Fetch user who subscribed to the given tag
+	 *
+	 * @param string $tag
+	 * @return array User list
+	 */
+	private static function getUIDListByTag(string $tag)
+	{
+		$uids = [];
+		$searches = DBA::select('search', ['uid'], ['term' => $tag]);
+		while ($search = DBA::fetch($searches)) {
+			$uids[] = $search['uid'];
+		}
+		DBA::close($searches);
+
+		return $uids;
+	}
+
+	/**
+	 * Fetch user who subscribed to the tags of the given item
+	 *
+	 * @param integer $uri_id
+	 * @return array User list
+	 */
+	public static function getUIDListByURIId(int $uri_id)
+	{
+		$uids = [];
+		$tags = self::getByURIId($uri_id, [self::HASHTAG]);
+
+		foreach ($tags as $tag) {
+			$uids = array_merge($uids, self::getUIDListByTag(self::TAG_CHARACTER[self::HASHTAG] . $tag['name']));
+		}
+
+		return array_unique($uids);
+	}
 }

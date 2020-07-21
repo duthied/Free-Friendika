@@ -271,7 +271,7 @@ function networkConversation(App $a, $items, Pager $pager, $mode, $update, $orde
 	$a->page_contact = $a->contact;
 
 	if (!is_array($items)) {
-		Logger::log("Expecting items to be an array. Got " . print_r($items, true));
+		Logger::info('Expecting items to be an array.', ['items' => $items]);
 		$items = [];
 	}
 
@@ -541,7 +541,6 @@ function networkThreadedView(App $a, $update, $parent)
 	}
 
 	$sql_nets = (($nets) ? sprintf(" AND $sql_table.`network` = '%s' ", DBA::escape($nets)) : '');
-	$sql_tag_nets = (($nets) ? sprintf(" AND `item`.`network` = '%s' ", DBA::escape($nets)) : '');
 
 	if ($gid) {
 		$group = DBA::selectFirst('group', ['name'], ['id' => $gid, 'uid' => local_user()]);
@@ -737,78 +736,6 @@ function networkThreadedView(App $a, $update, $parent)
 			intval(local_user()),
 			intval(local_user())
 		);
-	}
-
-	// Only show it when unfiltered (no groups, no networks, ...)
-	if (in_array($nets, ['', Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]) && (strlen($sql_extra . $sql_extra2 . $sql_extra3) == 0)) {
-		if (DBA::isResult($r)) {
-			$top_limit = current($r)['order_date'];
-			$bottom_limit = end($r)['order_date'];
-			if (empty($_SESSION['network_last_top_limit']) || ($_SESSION['network_last_top_limit'] < $top_limit)) {
-				$_SESSION['network_last_top_limit'] = $top_limit;
-			}
-		} else {
-			$top_limit = $bottom_limit = DateTimeFormat::utcNow();
-		}
-
-		// When checking for updates we need to fetch from the newest date to the newest date before
-		// Only do this, when the last stored date isn't too long ago (10 times the update interval)
-		$browser_update = DI::pConfig()->get(local_user(), 'system', 'update_interval', 40000) / 1000;
-
-		if (($browser_update > 0) && $update && !empty($_SESSION['network_last_date']) &&
-			(($bottom_limit < $_SESSION['network_last_date']) || ($top_limit == $bottom_limit)) &&
-			((time() - $_SESSION['network_last_date_timestamp']) < ($browser_update * 10))) {
-			$bottom_limit = $_SESSION['network_last_date'];
-		}
-		$_SESSION['network_last_date'] = Session::get('network_last_top_limit', $top_limit);
-		$_SESSION['network_last_date_timestamp'] = time();
-
-		if ($last_date > $top_limit) {
-			$top_limit = $last_date;
-		} elseif ($pager->getPage() == 1) {
-			// Highest possible top limit when we are on the first page
-			$top_limit = DateTimeFormat::utcNow();
-		}
-
-		// Handle bad performance situations when the distance between top and bottom is too high
-		// See issue https://github.com/friendica/friendica/issues/8619
-		if (strtotime($top_limit) - strtotime($bottom_limit) > 86400) {
-			// Set the bottom limit to one day in the past at maximum
-			$bottom_limit = DateTimeFormat::utc(date('c', strtotime($top_limit) - 86400));
-		}
-
-		$items = DBA::p("SELECT `item`.`parent-uri` AS `uri`, 0 AS `item_id`, `item`.$ordering AS `order_date`, `author`.`url` AS `author-link` FROM `item`
-			STRAIGHT_JOIN (SELECT `uri-id` FROM `tag-search-view` WHERE `name` IN
-				(SELECT SUBSTR(`term`, 2) FROM `search` WHERE `uid` = ? AND `term` LIKE '#%') AND `uid` = 0) AS `tag-search`
-			ON `item`.`uri-id` = `tag-search`.`uri-id`
-			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
-			WHERE `item`.`uid` = 0 AND `item`.$ordering < ? AND `item`.$ordering > ? AND `item`.`gravity` = ?
-				AND NOT `author`.`hidden` AND NOT `author`.`blocked`" . $sql_tag_nets,
-			local_user(), $top_limit, $bottom_limit, GRAVITY_PARENT);
-
-		$data = DBA::toArray($items);
-
-		if (count($data) > 0) {
-			$tag_top_limit = current($data)['order_date'];
-			if ($_SESSION['network_last_date'] < $tag_top_limit) {
-				$_SESSION['network_last_date'] = $tag_top_limit;
-			}
-
-			Logger::log('Tagged items: ' . count($data) . ' - ' . $bottom_limit . ' - ' . $top_limit . ' - ' . local_user().' - '.(int)$update);
-			$s = [];
-			foreach ($r as $item) {
-				$s[$item['uri']] = $item;
-			}
-			foreach ($data as $item) {
-				// Don't show hash tag posts from blocked or ignored contacts
-				$condition = ["`nurl` = ? AND `uid` = ? AND (`blocked` OR `readonly`)",
-					Strings::normaliseLink($item['author-link']), local_user()];
-				if (!DBA::exists('contact', $condition)) {
-					$s[$item['uri']] = $item;
-				}
-			}
-			$r = $s;
-		}
 	}
 
 	$parents_str = '';
