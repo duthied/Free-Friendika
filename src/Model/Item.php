@@ -2195,7 +2195,7 @@ class Item
 			$contact = Contact::getByURLForUser($item['author-link'], $uid, false, ['id']);
 		}
 
-		if (!empty($item['contact-id'])) {
+		if (!empty($contact['id'])) {
 			$item['contact-id'] = $contact['id'];
 		} else {
 			// Shouldn't happen at all
