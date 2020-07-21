@@ -170,7 +170,8 @@ class Processor
 		$item = Item::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
-			self::createItem($activity);
+			$item = self::createItem($activity);
+			self::postItem($activity, $item);
 			return;
 		}
 
@@ -189,6 +190,7 @@ class Processor
 	 * Prepares data for a message
 	 *
 	 * @param array $activity Activity array
+	 * @return array Internal item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -216,7 +218,71 @@ class Processor
 
 		$item['diaspora_signed_text'] = $activity['diaspora:comment'] ?? '';
 
-		self::postItem($activity, $item);
+		/// @todo What to do with $activity['context']?
+		if (empty($activity['directmessage']) && ($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['thr-parent']])) {
+			Logger::info('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
+			return [];
+		}
+
+		$item['network'] = Protocol::ACTIVITYPUB;
+		$item['author-link'] = $activity['author'];
+		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, false);
+		$item['owner-link'] = $activity['actor'];
+		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, false);
+
+		if (in_array(0, $activity['receiver']) && !empty($activity['unlisted'])) {
+			$item['private'] = Item::UNLISTED;
+		} elseif (in_array(0, $activity['receiver'])) {
+			$item['private'] = Item::PUBLIC;
+		} else {
+			$item['private'] = Item::PRIVATE;
+		}
+
+		if (!empty($activity['raw'])) {
+			$item['source'] = $activity['raw'];
+			$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
+			$item['conversation-href'] = $activity['context'] ?? '';
+			$item['conversation-uri'] = $activity['conversation'] ?? '';
+
+			if (isset($activity['push'])) {
+				$item['direction'] = $activity['push'] ? Conversation::PUSH : Conversation::PULL;
+			}
+		}
+
+		$item['isForum'] = false;
+
+		if (!empty($activity['thread-completion'])) {
+			// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
+			$item['causer-link'] = $item['owner-link'];
+			$item['causer-id'] = $item['owner-id'];
+
+			Logger::info('Ignoring actor because of thread completion.', ['actor' => $item['owner-link']]);
+			$item['owner-link'] = $item['author-link'];
+			$item['owner-id'] = $item['author-id'];
+		} else {
+			$actor = APContact::getByURL($item['owner-link'], false);
+			$item['isForum'] = ($actor['type'] == 'Group');
+		}
+
+		$item['uri'] = $activity['id'];
+
+		$item['created'] = DateTimeFormat::utc($activity['published']);
+		$item['edited'] = DateTimeFormat::utc($activity['updated']);
+		$guid = $activity['sc:identifier'] ?: self::getGUIDByURL($item['uri']);
+		$item['guid'] = $activity['diaspora:guid'] ?: $guid;
+
+		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
+
+		$item = self::processContent($activity, $item);
+		if (empty($item)) {
+			return [];
+		}
+
+		$item['plink'] = $activity['alternate-url'] ?? $item['uri'];
+
+		$item = self::constructAttachList($activity, $item);
+
+		return $item;
 	}
 
 	/**
@@ -303,7 +369,7 @@ class Processor
 	 */
 	public static function createActivity($activity, $verb)
 	{
-		$item = [];
+		$item = self::createItem($activity);
 		$item['verb'] = $verb;
 		$item['thr-parent'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
@@ -446,72 +512,8 @@ class Processor
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function postItem($activity, $item)
+	public static function postItem(array $activity, array $item)
 	{
-		/// @todo What to do with $activity['context']?
-		if (empty($activity['directmessage']) && ($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['thr-parent']])) {
-			Logger::info('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
-			return;
-		}
-
-		$item['network'] = Protocol::ACTIVITYPUB;
-		$item['author-link'] = $activity['author'];
-		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, false);
-		$item['owner-link'] = $activity['actor'];
-		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, false);
-
-		if (in_array(0, $activity['receiver']) && !empty($activity['unlisted'])) {
-			$item['private'] = Item::UNLISTED;
-		} elseif (in_array(0, $activity['receiver'])) {
-			$item['private'] = Item::PUBLIC;
-		} else {
-			$item['private'] = Item::PRIVATE;
-		}
-
-		if (!empty($activity['raw'])) {
-			$item['source'] = $activity['raw'];
-			$item['protocol'] = Conversation::PARCEL_ACTIVITYPUB;
-			$item['conversation-href'] = $activity['context'] ?? '';
-			$item['conversation-uri'] = $activity['conversation'] ?? '';
-
-			if (isset($activity['push'])) {
-				$item['direction'] = $activity['push'] ? Conversation::PUSH : Conversation::PULL;
-			}
-		}
-
-		$isForum = false;
-
-		if (!empty($activity['thread-completion'])) {
-			// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
-			$item['causer-link'] = $item['owner-link'];
-			$item['causer-id'] = $item['owner-id'];
-
-			Logger::info('Ignoring actor because of thread completion.', ['actor' => $item['owner-link']]);
-			$item['owner-link'] = $item['author-link'];
-			$item['owner-id'] = $item['author-id'];
-		} else {
-			$actor = APContact::getByURL($item['owner-link'], false);
-			$isForum = ($actor['type'] == 'Group');
-		}
-
-		$item['uri'] = $activity['id'];
-
-		$item['created'] = DateTimeFormat::utc($activity['published']);
-		$item['edited'] = DateTimeFormat::utc($activity['updated']);
-		$guid = $activity['sc:identifier'] ?: self::getGUIDByURL($item['uri']);
-		$item['guid'] = $activity['diaspora:guid'] ?: $guid;
-
-		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
-
-		$item = self::processContent($activity, $item);
-		if (empty($item)) {
-			return;
-		}
-
-		$item['plink'] = $activity['alternate-url'] ?? $item['uri'];
-
-		$item = self::constructAttachList($activity, $item);
-
 		$stored = false;
 
 		foreach ($activity['receiver'] as $receiver) {
@@ -521,7 +523,7 @@ class Processor
 
 			$item['uid'] = $receiver;
 
-			if ($isForum) {
+			if ($item['isForum'] ?? false) {
 				$item['contact-id'] = Contact::getIdForURL($activity['actor'], $receiver, false);
 			} else {
 				$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver, false);
@@ -539,7 +541,7 @@ class Processor
 			if (DI::pConfig()->get($receiver, 'system', 'accept_only_sharer', false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
 				$skip = !Contact::isSharingByURL($activity['author'], $receiver);
 
-				if ($skip && (($activity['type'] == 'as:Announce') || $isForum)) {
+				if ($skip && (($activity['type'] == 'as:Announce') || ($item['isForum'] ?? false))) {
 					$skip = !Contact::isSharingByURL($activity['actor'], $receiver);
 				}
 
