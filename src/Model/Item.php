@@ -2199,9 +2199,11 @@ class Item
 			$item['contact-id'] = $contact['id'];
 		} else {
 			// Shouldn't happen at all
+			Logger::warning('contact-id could not be fetched', ['uid' => $uid, 'item' => $item]);
 			$self = DBA::selectFirst('contact', ['id'], ['self' => true, 'uid' => $uid]);
 			if (!DBA::isResult($self)) {
 				// Shouldn't happen even less
+				Logger::warning('self contact could not be fetched', ['uid' => $uid, 'item' => $item]);
 				return 0;
 			}
 			$item['contact-id'] = $self['id'];
