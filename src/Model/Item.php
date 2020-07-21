@@ -2001,6 +2001,7 @@ class Item
 		$uids = Tag::getUIDListByURIId($item['uri-id']);
 		foreach ($uids as $uid) {
 			$original['uri-id'] = $item['uri-id'];
+			$original['gravity'] = $item['gravity'];
 			$stored = self::storeForUser($original, $uid);
 			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
 		}
@@ -2189,7 +2190,7 @@ class Item
 		$item['origin'] = 0;
 		$item['wall'] = 0;
 
-		if ($item['uri'] == $item['parent-uri']) {
+		if ($item['gravity'] == GRAVITY_PARENT) {
 			$contact = Contact::getByURLForUser($item['owner-link'], $uid, false, ['id']);
 		} else {
 			$contact = Contact::getByURLForUser($item['author-link'], $uid, false, ['id']);
@@ -2212,7 +2213,7 @@ class Item
 		/// @todo Handling of "event-id"
 
 		$notify = false;
-		if ($item['uri'] == $item['parent-uri']) {
+		if ($item['gravity'] == GRAVITY_PARENT) {
 			$contact = DBA::selectFirst('contact', [], ['id' => $item['contact-id'], 'self' => false]);
 			if (DBA::isResult($contact)) {
 				$notify = self::isRemoteSelf($contact, $item);

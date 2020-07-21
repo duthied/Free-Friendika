@@ -514,6 +514,10 @@ class Processor
 	 */
 	public static function postItem(array $activity, array $item)
 	{
+		if (empty($item)) {
+			return;
+		}
+
 		$stored = false;
 
 		foreach ($activity['receiver'] as $receiver) {
