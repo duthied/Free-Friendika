@@ -2174,7 +2174,7 @@ class Item
 	 * @return integer stored item id
 	 * @throws \Exception
 	 */
-	private static function storeForUser(array $item, int $uid)
+	public static function storeForUser(array $item, int $uid)
 	{
 		if (self::exists(['uri-id' => $item['uri-id'], 'uid' => $uid])) {
 			Logger::info('Item already exists', ['uri-id' => $item['uri-id'], 'uid' => $uid]);
