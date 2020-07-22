@@ -3015,6 +3015,14 @@ class Item
 			return false;
 		}
 
+		if (!Item::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $uid])) {
+			$parent_item = self::selectFirst(self::ITEM_FIELDLIST, ['uri-id' => $item['parent-uri-id'], 'uid' => 0]);
+			if (!empty($parent_item) && ($parent_item['private'] =! self::PRIVATE)) {
+				$stored = self::storeForUser($parent_item, $uid);
+				Logger::info('Public item stored for user', ['uri-id' => $parent_item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
+			}
+		}
+
 		// Retrieves the local post owner
 		$owner_self_contact = DBA::selectFirst('contact', [], ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($owner_self_contact)) {
