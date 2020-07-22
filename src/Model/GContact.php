@@ -35,6 +35,7 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
@@ -1377,7 +1378,7 @@ class GContact
 			return;
 		}
 
-		$curlResult = Network::curl($data['poco']);
+		$curlResult = DI::httpRequest()->get($data['poco']);
 		if (!$curlResult->isSuccess()) {
 			return;
 		}
