@@ -136,6 +136,16 @@ function item_post(App $a) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Unable to locate original post.'));
 		}
 
+		// When commenting on a public post then store the post for the current user
+		// This enables interaction like starring and saving into folders
+		if ($toplevel_item['uid'] == 0) {
+			$stored = Item::storeForUser($toplevel_item, local_user());
+			Logger::info('Public item stored for user', ['uri-id' => $toplevel_item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
+			if ($stored) {
+				$toplevel_item = Item::selectFirst([], ['id' => $stored]);
+			}
+		}
+
 		$toplevel_item_id = $toplevel_item['id'];
 		$parent_user = $toplevel_item['uid'];
 

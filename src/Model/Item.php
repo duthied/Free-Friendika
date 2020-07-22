@@ -2174,7 +2174,7 @@ class Item
 	 * @return integer stored item id
 	 * @throws \Exception
 	 */
-	private static function storeForUser(array $item, int $uid)
+	public static function storeForUser(array $item, int $uid)
 	{
 		if (self::exists(['uri-id' => $item['uri-id'], 'uid' => $uid])) {
 			Logger::info('Item already exists', ['uri-id' => $item['uri-id'], 'uid' => $uid]);
@@ -3013,6 +3013,14 @@ class Item
 		if (!Security::canWriteToUserWall($uid)) {
 			Logger::log('like: unable to write on wall ' . $uid);
 			return false;
+		}
+
+		if (!Item::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $uid])) {
+			$parent_item = self::selectFirst(self::ITEM_FIELDLIST, ['uri-id' => $item['parent-uri-id'], 'uid' => 0]);
+			if (!empty($parent_item) && ($parent_item['private'] != self::PRIVATE)) {
+				$stored = self::storeForUser($parent_item, $uid);
+				Logger::info('Public item stored for user', ['uri-id' => $parent_item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
+			}
 		}
 
 		// Retrieves the local post owner
