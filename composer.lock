@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ded67f7e680a122d0cd3512c2738be97",
+    "content-hash": "7d1fe40c28d815b56d0b5cb323860b26",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -1277,6 +1277,63 @@
             "time": "2017-07-06T13:46:38+00:00"
         },
         {
+            "name": "npm-asset/eventemitter3",
+            "version": "2.0.3",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/eventemitter3/-/eventemitter3-2.0.3.tgz",
+                "shasum": "b5e1079b59fb5e1ba2771c0a993be060a58c99ba"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/primus/eventemitter3/issues"
+                },
+                "npm-asset-main": "index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git://github.com/primus/eventemitter3.git"
+                },
+                "npm-asset-scripts": {
+                    "build": "mkdir -p umd && browserify index.js -s EventEmitter3 | uglifyjs -m -o umd/eventemitter3.min.js",
+                    "benchmark": "find benchmarks/run -name '*.js' -exec benchmarks/start.sh {} \\;",
+                    "test": "nyc --reporter=html --reporter=text mocha",
+                    "test-browser": "zuul -- test.js",
+                    "prepublish": "npm run build",
+                    "sync": "node versions.js"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnout Kazemier"
+                }
+            ],
+            "description": "EventEmitter3 focuses on performance while maintaining a Node.js AND browser compatible interface.",
+            "homepage": "https://github.com/primus/eventemitter3#readme",
+            "keywords": [
+                "EventEmitter",
+                "EventEmitter2",
+                "EventEmitter3",
+                "Events",
+                "addEventListener",
+                "addListener",
+                "emit",
+                "emits",
+                "emitter",
+                "event",
+                "once",
+                "pub/sub",
+                "publish",
+                "reactor",
+                "subscribe"
+            ],
+            "time": "2017-03-31T14:51:09+00:00"
+        },
+        {
             "name": "npm-asset/fullcalendar",
             "version": "3.10.2",
             "dist": {
@@ -1793,64 +1850,6 @@
             "time": "2017-01-10T01:03:05+00:00"
         },
         {
-            "name": "npm-asset/perfect-scrollbar",
-            "version": "0.6.16",
-            "dist": {
-                "type": "tar",
-                "url": "https://registry.npmjs.org/perfect-scrollbar/-/perfect-scrollbar-0.6.16.tgz",
-                "shasum": "b1d61a5245cf3962bb9a8407a3fc669d923212fc"
-            },
-            "type": "npm-asset-library",
-            "extra": {
-                "npm-asset-bugs": {
-                    "url": "https://github.com/noraesae/perfect-scrollbar/issues"
-                },
-                "npm-asset-files": [
-                    "dist",
-                    "src",
-                    "index.js",
-                    "jquery.js",
-                    "perfect-scrollbar.d.ts"
-                ],
-                "npm-asset-main": "./index.js",
-                "npm-asset-directories": [],
-                "npm-asset-repository": {
-                    "type": "git",
-                    "url": "git+https://github.com/noraesae/perfect-scrollbar.git"
-                },
-                "npm-asset-scripts": {
-                    "test": "gulp",
-                    "before-deploy": "gulp && gulp compress",
-                    "release": "rm -rf dist && gulp && npm publish"
-                },
-                "npm-asset-engines": {
-                    "node": ">= 0.12.0"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Hyunje Jun",
-                    "email": "me@noraesae.net"
-                },
-                {
-                    "name": "Hyunje Jun",
-                    "email": "me@noraesae.net"
-                }
-            ],
-            "description": "Minimalistic but perfect custom scrollbar plugin",
-            "homepage": "https://github.com/noraesae/perfect-scrollbar#readme",
-            "keywords": [
-                "frontend",
-                "jquery-plugin",
-                "scroll",
-                "scrollbar"
-            ],
-            "time": "2017-01-10T01:03:05+00:00"
-        },
-        {
             "name": "npm-asset/php-date-formatter",
             "version": "v1.3.6",
             "source": {
@@ -1887,6 +1886,100 @@
             "description": "A Javascript datetime formatting and manipulation library using PHP date-time formats.",
             "homepage": "https://github.com/kartik-v/php-date-formatter",
             "time": "2020-04-14T10:16:32+00:00"
+        },
+        {
+            "name": "npm-asset/textarea-caret",
+            "version": "3.1.0",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/textarea-caret/-/textarea-caret-3.1.0.tgz",
+                "shasum": "5d5a35bb035fd06b2ff0e25d5359e97f2655087f"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/component/textarea-caret-position/issues"
+                },
+                "npm-asset-files": [
+                    "index.js"
+                ],
+                "npm-asset-main": "index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/component/textarea-caret-position.git"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "(x, y) coordinates of the caret in a textarea or input type='text'",
+            "homepage": "https://github.com/component/textarea-caret-position#readme",
+            "keywords": [
+                "caret",
+                "position",
+                "textarea"
+            ],
+            "time": "2018-02-20T06:11:03+00:00"
+        },
+        {
+            "name": "npm-asset/textcomplete",
+            "version": "0.18.2",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/textcomplete/-/textcomplete-0.18.2.tgz",
+                "shasum": "de0d806567102f7e32daffcbcc3db05af1515eb5"
+            },
+            "require": {
+                "npm-asset/eventemitter3": ">=2.0.3,<3.0.0",
+                "npm-asset/textarea-caret": ">=3.0.1,<4.0.0",
+                "npm-asset/undate": ">=0.2.3,<0.3.0"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/yuku-t/textcomplete/issues"
+                },
+                "npm-asset-main": "lib/index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+ssh://git@github.com/yuku-t/textcomplete.git"
+                },
+                "npm-asset-scripts": {
+                    "build": "yarn run clean && run-p build:*",
+                    "build:dist": "webpack && webpack --env=min && run-p print-dist-gz-size",
+                    "build:docs": "run-p build:docs:*",
+                    "build:docs:html": "webpack --config webpack.doc.config.js && pug -o docs src/doc/index.pug",
+                    "build:docs:md": "documentation build src/*.js -f md -o doc/api.md",
+                    "build:lib": "babel src -d lib -s && for js in src/*.js; do cp $js lib/${js##*/}.flow; done",
+                    "clean": "rm -fr dist docs lib",
+                    "format": "prettier --no-semi --trailing-comma all --write 'src/*.js' 'test/**/*.js'",
+                    "gh-release": "npm pack textcomplete && gh-release -a textcomplete-$(cat package.json|jq -r .version).tgz",
+                    "opener": "wait-on http://localhost:8082 && opener http://localhost:8082",
+                    "print-dist-gz-size": "printf 'dist/textcomplete.min.js.gz: %d bytes\\n' \"$(gzip -9kc dist/textcomplete.min.js | wc -c)\"",
+                    "start": "run-p watch opener",
+                    "test": "run-p test:*",
+                    "test:bundlesize": "yarn run build:dist && bundlesize",
+                    "test:e2e": "NODE_ENV=test karma start --single-run",
+                    "test:lint": "eslint src/*.js test/**/*.js",
+                    "test:typecheck": "flow check",
+                    "watch": "run-p watch:*",
+                    "watch:webpack": "webpack-dev-server --config webpack.doc.config.js",
+                    "watch:pug": "pug -o docs --watch src/doc/index.pug"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yuku Takahashi"
+                }
+            ],
+            "description": "Autocomplete for textarea elements",
+            "homepage": "https://github.com/yuku-t/textcomplete#readme",
+            "time": "2020-06-10T06:11:00+00:00"
         },
         {
             "name": "npm-asset/typeahead.js",
@@ -1939,6 +2032,48 @@
                 "typeahead"
             ],
             "time": "2015-04-27T04:03:42+00:00"
+        },
+        {
+            "name": "npm-asset/undate",
+            "version": "0.2.4",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/undate/-/undate-0.2.4.tgz",
+                "shasum": "ccb2a8cf38edc035d1006fcb2909c4c6024a8400"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/yuku-t/undate/issues"
+                },
+                "npm-asset-main": "lib/index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/yuku-t/undate.git"
+                },
+                "npm-asset-scripts": {
+                    "build": "babel src -d lib && for js in src/*.js; do cp $js lib/${js##*/}.flow; done",
+                    "test": "run-p test:*",
+                    "test:eslint": "eslint src/*.js test/*.js",
+                    "test:flow": "flow check",
+                    "test:karma": "karma start --single-run"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yuku Takahashi"
+                }
+            ],
+            "description": "Undoable update for HTMLTextAreaElement",
+            "homepage": "https://github.com/yuku-t/undate#readme",
+            "keywords": [
+                "textarea"
+            ],
+            "time": "2018-01-24T10:49:39+00:00"
         },
         {
             "name": "paragonie/certainty",
@@ -4669,6 +4804,20 @@
                 "polyfill",
                 "portable"
             ],
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
             "time": "2020-05-12T16:14:59+00:00"
         },
         {
@@ -4801,5 +4950,6 @@
     "platform-dev": [],
     "platform-overrides": {
         "php": "7.0"
-    }
+    },
+    "plugin-api-version": "1.1.0"
 }
