@@ -40,7 +40,7 @@ function common_content(App $a)
 	$zcid = 0;
 
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -103,7 +103,7 @@ function common_content(App $a)
 	}
 
 	if ($total < 1) {
-		notice(DI::l10n()->t('No contacts in common.') . EOL);
+		notice(DI::l10n()->t('No contacts in common.'));
 		return $o;
 	}
 

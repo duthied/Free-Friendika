@@ -110,9 +110,7 @@ class Poke extends BaseModule
 	 */
 	private static function postReturn(bool $success)
 	{
-		if ($success) {
-			info(DI::l10n()->t('Poke successfully sent.'));
-		} else {
+		if (!$success) {
 			notice(DI::l10n()->t('Error while sending poke, please retry.'));
 		}
 

@@ -134,9 +134,7 @@ class Index extends BaseSettings
 			['uid' => local_user()]
 		);
 
-		if ($result) {
-			info(DI::l10n()->t('Profile updated.'));
-		} else {
+		if (!$result) {
 			notice(DI::l10n()->t('Profile couldn\'t be updated.'));
 			return;
 		}

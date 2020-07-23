@@ -62,7 +62,7 @@ function follow_post(App $a)
 		DI::baseUrl()->redirect('contact/' . $result['cid']);
 	}
 
-	info(DI::l10n()->t('The contact could not be added.'));
+	notice(DI::l10n()->t('The contact could not be added.'));
 
 	DI::baseUrl()->redirect($return_path);
 	// NOTREACHED

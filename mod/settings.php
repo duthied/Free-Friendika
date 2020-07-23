@@ -63,7 +63,7 @@ function settings_post(App $a)
 	}
 
 	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -198,12 +198,9 @@ function settings_post(App $a)
 						unset($dcrpass);
 						if (!$mbox) {
 							$failed = true;
-							notice(DI::l10n()->t('Failed to connect with email account using the settings provided.') . EOL);
+							notice(DI::l10n()->t('Failed to connect with email account using the settings provided.'));
 						}
 					}
-				}
-				if (!$failed) {
-					info(DI::l10n()->t('Email settings updated.') . EOL);
 				}
 			}
 		}
@@ -219,7 +216,6 @@ function settings_post(App $a)
 				DI::pConfig()->set(local_user(), 'feature', substr($k, 8), ((intval($v)) ? 1 : 0));
 			}
 		}
-		info(DI::l10n()->t('Features updated') . EOL);
 		return;
 	}
 
@@ -231,7 +227,7 @@ function settings_post(App $a)
 			// was there an error
 			if ($_FILES['importcontact-filename']['error'] > 0) {
 				Logger::notice('Contact CSV file upload error');
-				info(DI::l10n()->t('Contact CSV file upload error'));
+				notice(DI::l10n()->t('Contact CSV file upload error'));
 			} else {
 				$csvArray = array_map('str_getcsv', file($_FILES['importcontact-filename']['tmp_name']));
 				// import contacts
@@ -424,10 +420,10 @@ function settings_post(App $a)
 		$hidewall = 1;
 		if (!$str_contact_allow && !$str_group_allow && !$str_contact_deny && !$str_group_deny) {
 			if ($def_gid) {
-				info(DI::l10n()->t('Private forum has no privacy permissions. Using default privacy group.'). EOL);
+				info(DI::l10n()->t('Private forum has no privacy permissions. Using default privacy group.'));
 				$str_group_allow = '<' . $def_gid . '>';
 			} else {
-				notice(DI::l10n()->t('Private forum has no privacy permissions and no default privacy group.') . EOL);
+				notice(DI::l10n()->t('Private forum has no privacy permissions and no default privacy group.'));
 			}
 		}
 	}
@@ -443,8 +439,8 @@ function settings_post(App $a)
 		$fields['openidserver'] = '';
 	}
 
-	if (DBA::update('user', $fields, ['uid' => local_user()])) {
-		info(DI::l10n()->t('Settings updated.') . EOL);
+	if (!DBA::update('user', $fields, ['uid' => local_user()])) {
+		notice(DI::l10n()->t('Settings were not updated.'));
 	}
 
 	// clear session language
@@ -489,12 +485,12 @@ function settings_content(App $a)
 	Nav::setSelected('settings');
 
 	if (!local_user()) {
-		//notice(DI::l10n()->t('Permission denied.') . EOL);
+		//notice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
 
 	if (!empty($_SESSION['submanage'])) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -722,7 +718,7 @@ function settings_content(App $a)
 
 	$profile = DBA::selectFirst('profile', [], ['uid' => local_user()]);
 	if (!DBA::isResult($profile)) {
-		notice(DI::l10n()->t('Unable to find your profile. Please contact your admin.') . EOL);
+		notice(DI::l10n()->t('Unable to find your profile. Please contact your admin.'));
 		return;
 	}
 

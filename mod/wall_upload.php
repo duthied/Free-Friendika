@@ -99,7 +99,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			echo json_encode(['error' => DI::l10n()->t('Permission denied.')]);
 			exit();
 		}
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		exit();
 	}
 
@@ -159,7 +159,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
 			exit();
 		}
-		notice(DI::l10n()->t('Invalid request.').EOL);
+		notice(DI::l10n()->t('Invalid request.'));
 		exit();
 	}
 

@@ -133,7 +133,7 @@ function dfrn_poll_init(App $a)
 					Session::setVisitorsContacts();
 
 					if (!$quiet) {
-						info(DI::l10n()->t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
+						info(DI::l10n()->t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']));
 					}
 
 					// Visitors get 1 day session.
@@ -536,7 +536,7 @@ function dfrn_poll_content(App $a)
 					Session::setVisitorsContacts();
 
 					if (!$quiet) {
-						info(DI::l10n()->t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
+						info(DI::l10n()->t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']));
 					}
 
 					// Visitors get 1 day session.

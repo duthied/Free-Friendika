@@ -90,10 +90,8 @@ class Advanced extends BaseModule
 			Model\Contact::updateAvatar($photo, local_user(), $contact['id'], true);
 		}
 
-		if ($r) {
-			info(DI::l10n()->t('Contact settings applied.') . EOL);
-		} else {
-			notice(DI::l10n()->t('Contact update failed.') . EOL);
+		if (!$r) {
+			notice(DI::l10n()->t('Contact update failed.'));
 		}
 
 		return;

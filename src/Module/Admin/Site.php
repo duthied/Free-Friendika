@@ -122,7 +122,7 @@ class Site extends BaseAdmin
 			}
 			DBA::close($usersStmt);
 
-			info("Relocation started. Could take a while to complete.");
+			info(DI::l10n()->t("Relocation started. Could take a while to complete."));
 
 			DI::baseUrl()->redirect('admin/site');
 		}
@@ -250,7 +250,7 @@ class Site extends BaseAdmin
 				DI::baseUrl()->redirect('admin/site' . $active_panel);
 			}
 		} else {
-			info(DI::l10n()->t('Invalid storage backend setting value.'));
+			notice(DI::l10n()->t('Invalid storage backend setting value.'));
 		}
 
 		// Has the directory url changed? If yes, then resubmit the existing profiles there
@@ -432,8 +432,6 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'relay_user_tags'  , $relay_user_tags);
 
 		DI::config()->set('system', 'rino_encrypt'     , $rino);
-
-		info(DI::l10n()->t('Site settings updated.') . EOL);
 
 		DI::baseUrl()->redirect('admin/site' . $active_panel);
 	}

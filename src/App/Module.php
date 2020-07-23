@@ -237,7 +237,7 @@ class Module
 	public function run(Core\L10n $l10n, App\BaseURL $baseUrl, LoggerInterface $logger, array $server, array $post)
 	{
 		if ($this->printNotAllowedAddon) {
-			info($l10n->t("You must be logged in to use addons. "));
+			notice($l10n->t("You must be logged in to use addons. "));
 		}
 
 		/* The URL provided does not resolve to a valid module.

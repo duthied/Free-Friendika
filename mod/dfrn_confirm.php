@@ -76,13 +76,13 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 	if (empty($_POST['source_url'])) {
 		$uid = ($handsfree['uid'] ?? 0) ?: local_user();
 		if (!$uid) {
-			notice(DI::l10n()->t('Permission denied.') . EOL);
+			notice(DI::l10n()->t('Permission denied.'));
 			return;
 		}
 
 		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
-			notice(DI::l10n()->t('Profile not found.') . EOL);
+			notice(DI::l10n()->t('Profile not found.'));
 			return;
 		}
 
@@ -137,8 +137,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		);
 		if (!DBA::isResult($r)) {
 			Logger::log('Contact not found in DB.');
-			notice(DI::l10n()->t('Contact not found.') . EOL);
-			notice(DI::l10n()->t('This may occasionally happen if contact was requested by both persons and it has already been approved.') . EOL);
+			notice(DI::l10n()->t('Contact not found.'));
+			notice(DI::l10n()->t('This may occasionally happen if contact was requested by both persons and it has already been approved.'));
 			return;
 		}
 
@@ -239,20 +239,20 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			// We shouldn't proceed, because the xml parser might choke,
 			// and $status is going to be zero, which indicates success.
 			// We can hardly call this a success.
-			notice(DI::l10n()->t('Response from remote site was not understood.') . EOL);
+			notice(DI::l10n()->t('Response from remote site was not understood.'));
 			return;
 		}
 
 		if (strlen($leading_junk) && DI::config()->get('system', 'debugging')) {
 			// This might be more common. Mixed error text and some XML.
 			// If we're configured for debugging, show the text. Proceed in either case.
-			notice(DI::l10n()->t('Unexpected response from remote site: ') . EOL . $leading_junk . EOL);
+			notice(DI::l10n()->t('Unexpected response from remote site: ') . $leading_junk);
 		}
 
 		if (stristr($res, "<status") === false) {
 			// wrong xml! stop here!
 			Logger::log('Unexpected response posting to ' . $dfrn_confirm);
-			notice(DI::l10n()->t('Unexpected response from remote site: ') . EOL . htmlspecialchars($res) . EOL);
+			notice(DI::l10n()->t('Unexpected response from remote site: ') . EOL . htmlspecialchars($res));
 			return;
 		}
 
@@ -261,7 +261,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		$message = XML::unescape($xml->message);   // human readable text of what may have gone wrong.
 		switch ($status) {
 			case 0:
-				info(DI::l10n()->t("Confirmation completed successfully.") . EOL);
+				info(DI::l10n()->t("Confirmation completed successfully."));
 				break;
 			case 1:
 				// birthday paradox - generate new dfrn-id and fall through.
@@ -273,15 +273,15 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				);
 
 			case 2:
-				notice(DI::l10n()->t("Temporary failure. Please wait and try again.") . EOL);
+				notice(DI::l10n()->t("Temporary failure. Please wait and try again."));
 				break;
 			case 3:
-				notice(DI::l10n()->t("Introduction failed or was revoked.") . EOL);
+				notice(DI::l10n()->t("Introduction failed or was revoked."));
 				break;
 		}
 
 		if (strlen($message)) {
-			notice(DI::l10n()->t('Remote site reported: ') . $message . EOL);
+			notice(DI::l10n()->t('Remote site reported: ') . $message);
 		}
 
 		if (($status == 0) && $intro_id) {

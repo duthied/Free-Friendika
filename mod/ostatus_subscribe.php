@@ -28,7 +28,7 @@ use Friendica\Util\Network;
 function ostatus_subscribe_content(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('ostatus_subscribe');
 		// NOTREACHED
 	}

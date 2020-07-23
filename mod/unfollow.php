@@ -79,7 +79,6 @@ function unfollow_post(App $a)
 		$return_path = $base_return_path . '/' . $contact['id'];
 	}
 
-	info(DI::l10n()->t('Contact unfollowed'));
 	DI::baseUrl()->redirect($return_path);
 	// NOTREACHED
 }

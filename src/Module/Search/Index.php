@@ -176,7 +176,7 @@ class Index extends BaseSearch
 		}
 
 		if (!DBA::isResult($r)) {
-			info(DI::l10n()->t('No results.'));
+			notice(DI::l10n()->t('No results.'));
 			return $o;
 		}
 

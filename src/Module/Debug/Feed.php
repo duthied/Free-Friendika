@@ -36,7 +36,7 @@ class Feed extends BaseModule
 	public static function init(array $parameters = [])
 	{
 		if (!local_user()) {
-			info(DI::l10n()->t('You must be logged in to use this module'));
+			notice(DI::l10n()->t('You must be logged in to use this module'));
 			DI::baseUrl()->redirect();
 		}
 	}

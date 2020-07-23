@@ -134,7 +134,7 @@ function cal_content(App $a)
 	$is_owner = local_user() == $a->profile['uid'];
 
 	if ($a->profile['hidewall'] && !$is_owner && !$remote_contact) {
-		notice(DI::l10n()->t('Access to this profile has been restricted.') . EOL);
+		notice(DI::l10n()->t('Access to this profile has been restricted.'));
 		return;
 	}
 

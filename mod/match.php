@@ -60,7 +60,7 @@ function match_content(App $a)
 		return '';
 	}
 	if (!$profile['pub_keywords'] && (!$profile['prv_keywords'])) {
-		notice(DI::l10n()->t('No keywords to match. Please add keywords to your profile.') . EOL);
+		notice(DI::l10n()->t('No keywords to match. Please add keywords to your profile.'));
 		return '';
 	}
 
@@ -141,7 +141,7 @@ function match_content(App $a)
 	}
 
 	if (empty($entries)) {
-		info(DI::l10n()->t('No matches') . EOL);
+		info(DI::l10n()->t('No matches'));
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');

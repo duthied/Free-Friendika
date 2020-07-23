@@ -53,7 +53,6 @@ class Group extends BaseModule
 			$name = Strings::escapeTags(trim($_POST['groupname']));
 			$r = Model\Group::create(local_user(), $name);
 			if ($r) {
-				info(DI::l10n()->t('Group created.'));
 				$r = Model\Group::getIdByName(local_user(), $name);
 				if ($r) {
 					DI::baseUrl()->redirect('group/' . $r);
@@ -75,8 +74,8 @@ class Group extends BaseModule
 			}
 			$groupname = Strings::escapeTags(trim($_POST['groupname']));
 			if (strlen($groupname) && ($groupname != $group['name'])) {
-				if (Model\Group::update($group['id'], $groupname)) {
-					info(DI::l10n()->t('Group name changed.'));
+				if (!Model\Group::update($group['id'], $groupname)) {
+					notice(DI::l10n()->t('Group name was not changed.'));
 				}
 			}
 		}
@@ -216,9 +215,7 @@ class Group extends BaseModule
 					DI::baseUrl()->redirect('contact');
 				}
 
-				if (Model\Group::remove($a->argv[2])) {
-					info(DI::l10n()->t('Group removed.'));
-				} else {
+				if (!Model\Group::remove($a->argv[2])) {
 					notice(DI::l10n()->t('Unable to remove group.'));
 				}
 			}
