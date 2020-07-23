@@ -1965,7 +1965,7 @@ class Item
 		check_user_notification($current_post);
 
 		// Distribute items to users who subscribed to their tags
-		self::distributeByTags($item, $orig_item);
+		self::distributeByTags($item);
 
 		$transmit = $notify || ($item['visible'] && ($parent_origin || $item['origin']));
 
@@ -1990,9 +1990,8 @@ class Item
 	 * Distribute the given item to users who subscribed to their tags
 	 *
 	 * @param array $item     Processed item
-	 * @param array $original Original item
 	 */
-	private static function distributeByTags(array $item, array $original)
+	private static function distributeByTags(array $item)
 	{
 		if (($item['uid'] != 0) || ($item['gravity'] != GRAVITY_PARENT) || !in_array($item['network'], Protocol::FEDERATED)) {
 			return;
@@ -2000,9 +1999,7 @@ class Item
 
 		$uids = Tag::getUIDListByURIId($item['uri-id']);
 		foreach ($uids as $uid) {
-			$original['uri-id'] = $item['uri-id'];
-			$original['gravity'] = $item['gravity'];
-			$stored = self::storeForUser($original, $uid);
+			$stored = self::storeForUserByUriId($item['uri-id'], $uid);
 			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
 		}
 	}
@@ -2167,14 +2164,33 @@ class Item
 	}
 
 	/**
-	 * Store public items for the receivers
+	 * Store a public item defined by their URI-ID for the given users
+	 *
+	 * @param integer $uri_id URI-ID of the given item
+	 * @param integer $uid    The user that will receive the item entry
+	 * @return integer stored item id
+	 */
+	public static function storeForUserByUriId(int $uri_id, int $uid)
+	{
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['uri-id' => $uri_id, 'uid' => 0]);
+		if (empty($item) || ($item['private'] != self::PRIVATE)) {
+			return 0;
+		}
+
+		$stored = self::storeForUser($item, $uid);
+		Logger::info('Public item stored for user', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
+		return $stored;
+	}
+
+	/**
+	 * Store a public item array for the given users
 	 *
 	 * @param array   $item   The item entry that will be stored
 	 * @param integer $uid    The user that will receive the item entry
 	 * @return integer stored item id
 	 * @throws \Exception
 	 */
-	public static function storeForUser(array $item, int $uid)
+	private static function storeForUser(array $item, int $uid)
 	{
 		if (self::exists(['uri-id' => $item['uri-id'], 'uid' => $uid])) {
 			Logger::info('Item already exists', ['uri-id' => $item['uri-id'], 'uid' => $uid]);
@@ -2185,6 +2201,8 @@ class Item
 		unset($item['parent']);
 		unset($item['mention']);
 		unset($item['starred']);
+		unset($item['unseen']);
+		unset($item['psid']);
 
 		$item['uid'] = $uid;
 		$item['origin'] = 0;
@@ -3016,11 +3034,7 @@ class Item
 		}
 
 		if (!Item::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $uid])) {
-			$parent_item = self::selectFirst(self::ITEM_FIELDLIST, ['uri-id' => $item['parent-uri-id'], 'uid' => 0]);
-			if (!empty($parent_item) && ($parent_item['private'] != self::PRIVATE)) {
-				$stored = self::storeForUser($parent_item, $uid);
-				Logger::info('Public item stored for user', ['uri-id' => $parent_item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
-			}
+			$stored = self::storeForUserByUriId($item['parent-uri-id'], $uid);
 		}
 
 		// Retrieves the local post owner
