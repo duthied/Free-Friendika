@@ -47,7 +47,7 @@ class DBSync extends BaseAdmin
 				if (intval($curr) == $update) {
 					DI::config()->set('system', 'build', intval($curr) + 1);
 				}
-				info(DI::l10n()->t('Update has been marked successful') . EOL);
+				info(DI::l10n()->t('Update has been marked successful'));
 			}
 			DI::baseUrl()->redirect('admin/dbsync');
 		}

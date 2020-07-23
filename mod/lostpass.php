@@ -37,7 +37,7 @@ function lostpass_post(App $a)
 	$condition = ['(`email` = ? OR `nickname` = ?) AND `verified` = 1 AND `blocked` = 0', $loginame, $loginame];
 	$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'email', 'language'], $condition);
 	if (!DBA::isResult($user)) {
-		notice(DI::l10n()->t('No valid account found.') . EOL);
+		notice(DI::l10n()->t('No valid account found.'));
 		DI::baseUrl()->redirect();
 	}
 
@@ -49,7 +49,7 @@ function lostpass_post(App $a)
 	];
 	$result = DBA::update('user', $fields, ['uid' => $user['uid']]);
 	if ($result) {
-		info(DI::l10n()->t('Password reset request issued. Check your email.') . EOL);
+		info(DI::l10n()->t('Password reset request issued. Check your email.'));
 	}
 
 	$sitename = DI::config()->get('config', 'sitename');
@@ -152,7 +152,7 @@ function lostpass_generate_password($user)
 			'$newpass' => $new_password,
 		]);
 
-		info("Your password has been reset." . EOL);
+		info("Your password has been reset.");
 
 		$sitename = DI::config()->get('config', 'sitename');
 		$preamble = Strings::deindent(DI::l10n()->t('

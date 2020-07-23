@@ -46,7 +46,7 @@ class Server extends BaseAdmin
 				'reason' => Strings::escapeTags(trim($_POST['newentry_reason']))
 			];
 			DI::config()->set('system', 'blocklist', $blocklist);
-			info(DI::l10n()->t('Server domain pattern added to blocklist.') . EOL);
+			info(DI::l10n()->t('Server domain pattern added to blocklist.'));
 		} else {
 			// Edit the entries from blocklist
 			$blocklist = [];

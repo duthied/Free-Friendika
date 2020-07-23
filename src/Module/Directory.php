@@ -75,7 +75,7 @@ class Directory extends BaseModule
 		$profiles = Profile::searchProfiles($pager->getStart(), $pager->getItemsPerPage(), $search);
 
 		if ($profiles['total'] === 0) {
-			notice(DI::l10n()->t('No entries (some entries may be hidden).') . EOL);
+			notice(DI::l10n()->t('No entries (some entries may be hidden).'));
 		} else {
 			if (in_array('small', $app->argv)) {
 				$photo = 'thumb';

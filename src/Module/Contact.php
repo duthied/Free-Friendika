@@ -112,7 +112,7 @@ class Contact extends BaseModule
 		}
 
 		if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false])) {
-			notice(DI::l10n()->t('Could not access contact record.') . EOL);
+			notice(DI::l10n()->t('Could not access contact record.'));
 			DI::baseUrl()->redirect('contact');
 			return; // NOTREACHED
 		}
@@ -145,7 +145,7 @@ class Contact extends BaseModule
 		);
 
 		if (!DBA::isResult($r)) {
-			notice(DI::l10n()->t('Failed to update contact record.') . EOL);
+			notice(DI::l10n()->t('Failed to update contact record.'));
 		}
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
@@ -364,7 +364,7 @@ class Contact extends BaseModule
 		Nav::setSelected('contact');
 
 		if (!local_user()) {
-			notice(DI::l10n()->t('Permission denied.') . EOL);
+			notice(DI::l10n()->t('Permission denied.'));
 			return Login::form();
 		}
 
@@ -398,7 +398,7 @@ class Contact extends BaseModule
 				self::blockContact($contact_id);
 
 				$blocked = Model\Contact::isBlockedByUser($contact_id, local_user());
-				info(($blocked ? DI::l10n()->t('Contact has been blocked') : DI::l10n()->t('Contact has been unblocked')) . EOL);
+				info(($blocked ? DI::l10n()->t('Contact has been blocked') : DI::l10n()->t('Contact has been unblocked')));
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
@@ -408,7 +408,7 @@ class Contact extends BaseModule
 				self::ignoreContact($contact_id);
 
 				$ignored = Model\Contact::isIgnoredByUser($contact_id, local_user());
-				info(($ignored ? DI::l10n()->t('Contact has been ignored') : DI::l10n()->t('Contact has been unignored')) . EOL);
+				info(($ignored ? DI::l10n()->t('Contact has been ignored') : DI::l10n()->t('Contact has been unignored')));
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
@@ -418,7 +418,7 @@ class Contact extends BaseModule
 				$r = self::archiveContact($contact_id, $orig_record);
 				if ($r) {
 					$archived = (($orig_record['archive']) ? 0 : 1);
-					info((($archived) ? DI::l10n()->t('Contact has been archived') : DI::l10n()->t('Contact has been unarchived')) . EOL);
+					info((($archived) ? DI::l10n()->t('Contact has been archived') : DI::l10n()->t('Contact has been unarchived')));
 				}
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
@@ -459,7 +459,7 @@ class Contact extends BaseModule
 				}
 
 				self::dropContact($orig_record);
-				info(DI::l10n()->t('Contact has been removed.') . EOL);
+				info(DI::l10n()->t('Contact has been removed.'));
 
 				DI::baseUrl()->redirect('contact');
 				// NOTREACHED

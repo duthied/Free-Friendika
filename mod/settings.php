@@ -63,7 +63,7 @@ function settings_post(App $a)
 	}
 
 	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -198,7 +198,7 @@ function settings_post(App $a)
 						unset($dcrpass);
 						if (!$mbox) {
 							$failed = true;
-							notice(DI::l10n()->t('Failed to connect with email account using the settings provided.') . EOL);
+							notice(DI::l10n()->t('Failed to connect with email account using the settings provided.'));
 						}
 					}
 				}
@@ -420,10 +420,10 @@ function settings_post(App $a)
 		$hidewall = 1;
 		if (!$str_contact_allow && !$str_group_allow && !$str_contact_deny && !$str_group_deny) {
 			if ($def_gid) {
-				info(DI::l10n()->t('Private forum has no privacy permissions. Using default privacy group.'). EOL);
+				info(DI::l10n()->t('Private forum has no privacy permissions. Using default privacy group.'));
 				$str_group_allow = '<' . $def_gid . '>';
 			} else {
-				notice(DI::l10n()->t('Private forum has no privacy permissions and no default privacy group.') . EOL);
+				notice(DI::l10n()->t('Private forum has no privacy permissions and no default privacy group.'));
 			}
 		}
 	}
@@ -440,7 +440,7 @@ function settings_post(App $a)
 	}
 
 	if (!DBA::update('user', $fields, ['uid' => local_user()])) {
-		notice(DI::l10n()->t('Settings were not updated.') . EOL);
+		notice(DI::l10n()->t('Settings were not updated.'));
 	}
 
 	// clear session language
@@ -485,12 +485,12 @@ function settings_content(App $a)
 	Nav::setSelected('settings');
 
 	if (!local_user()) {
-		//notice(DI::l10n()->t('Permission denied.') . EOL);
+		//notice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
 
 	if (!empty($_SESSION['submanage'])) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -718,7 +718,7 @@ function settings_content(App $a)
 
 	$profile = DBA::selectFirst('profile', [], ['uid' => local_user()]);
 	if (!DBA::isResult($profile)) {
-		notice(DI::l10n()->t('Unable to find your profile. Please contact your admin.') . EOL);
+		notice(DI::l10n()->t('Unable to find your profile. Please contact your admin.'));
 		return;
 	}
 

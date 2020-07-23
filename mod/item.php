@@ -888,7 +888,7 @@ function drop_item(int $id, string $return = '')
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
-		notice(DI::l10n()->t('Item not found.') . EOL);
+		notice(DI::l10n()->t('Item not found.'));
 		DI::baseUrl()->redirect('network');
 	}
 

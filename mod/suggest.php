@@ -51,7 +51,7 @@ function suggest_content(App $a)
 	$o = '';
 
 	if (! local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 

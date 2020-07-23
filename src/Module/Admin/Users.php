@@ -109,7 +109,7 @@ class Users extends BaseAdmin
 			$uid = $a->argv[3];
 			$user = User::getById($uid, ['username', 'blocked']);
 			if (!DBA::isResult($user)) {
-				notice('User not found' . EOL);
+				notice(DI::l10n()->t('User not found'));
 				DI::baseUrl()->redirect('admin/users');
 				return ''; // NOTREACHED
 			}

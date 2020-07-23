@@ -91,7 +91,7 @@ class Advanced extends BaseModule
 		}
 
 		if (!$r) {
-			notice(DI::l10n()->t('Contact update failed.') . EOL);
+			notice(DI::l10n()->t('Contact update failed.'));
 		}
 
 		return;

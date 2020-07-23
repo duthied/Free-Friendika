@@ -47,12 +47,12 @@ function oauth_get_client(OAuthRequest $request)
 function api_post(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 }
@@ -107,7 +107,7 @@ function api_content(App $a)
 
 		if (!local_user()) {
 			/// @TODO We need login form to redirect to this page
-			notice(DI::l10n()->t('Please login to continue.') . EOL);
+			notice(DI::l10n()->t('Please login to continue.'));
 			return Login::form(DI::args()->getQueryString(), false, $request->get_parameters());
 		}
 		//FKOAuth1::loginUser(4);

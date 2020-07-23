@@ -47,7 +47,7 @@ use Friendica\Util\Strings;
 function network_init(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -548,7 +548,7 @@ function networkThreadedView(App $a, $update, $parent)
 			if ($update) {
 				exit();
 			}
-			notice(DI::l10n()->t('No such group') . EOL);
+			notice(DI::l10n()->t('No such group'));
 			DI::baseUrl()->redirect('network/0');
 			// NOTREACHED
 		}
@@ -598,7 +598,7 @@ function networkThreadedView(App $a, $update, $parent)
 				'id' => 'network',
 			]) . $o;
 		} else {
-			notice(DI::l10n()->t('Invalid contact.') . EOL);
+			notice(DI::l10n()->t('Invalid contact.'));
 			DI::baseUrl()->redirect('network');
 			// NOTREACHED
 		}

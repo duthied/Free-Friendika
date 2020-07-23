@@ -207,7 +207,7 @@ class Authentication
 
 		// if it's an email address or doesn't resolve to a URL, fail.
 		if ($noid || strpos($openid_url, '@') || !Network::isUrlValid($openid_url)) {
-			notice($this->l10n->t('Login failed.') . EOL);
+			notice($this->l10n->t('Login failed.'));
 			$this->baseUrl->redirect();
 		}
 
@@ -270,7 +270,7 @@ class Authentication
 			}
 		} catch (Exception $e) {
 			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => Strings::escapeTags($username), 'ip' => $_SERVER['REMOTE_ADDR']]);
-			notice($this->l10n->t('Login failed. Please check your credentials.' . EOL));
+			notice($this->l10n->t('Login failed. Please check your credentials.'));
 			$this->baseUrl->redirect();
 		}
 

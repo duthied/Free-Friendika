@@ -29,7 +29,7 @@ use Friendica\DI;
 function uimport_post(App $a)
 {
 	if ((DI::config()->get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -42,7 +42,7 @@ function uimport_post(App $a)
 function uimport_content(App $a)
 {
 	if ((DI::config()->get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
-		notice(DI::l10n()->t('User imports on closed servers can only be done by an administrator.') . EOL);
+		notice(DI::l10n()->t('User imports on closed servers can only be done by an administrator.'));
 		return;
 	}
 
@@ -51,7 +51,7 @@ function uimport_content(App $a)
 		$r = q("select count(*) as total from user where register_date > UTC_TIMESTAMP - INTERVAL 1 day");
 		if ($r && $r[0]['total'] >= $max_dailies) {
 			Logger::log('max daily registrations exceeded.');
-			notice(DI::l10n()->t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.') . EOL);
+			notice(DI::l10n()->t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'));
 			return;
 		}
 	}
