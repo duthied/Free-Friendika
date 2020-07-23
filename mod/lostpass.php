@@ -152,7 +152,7 @@ function lostpass_generate_password($user)
 			'$newpass' => $new_password,
 		]);
 
-		info("Your password has been reset.");
+		info(DI::l10n()->t("Your password has been reset."));
 
 		$sitename = DI::config()->get('config', 'sitename');
 		$preamble = Strings::deindent(DI::l10n()->t('

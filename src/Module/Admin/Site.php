@@ -122,7 +122,7 @@ class Site extends BaseAdmin
 			}
 			DBA::close($usersStmt);
 
-			info("Relocation started. Could take a while to complete.");
+			info(DI::l10n()->t("Relocation started. Could take a while to complete."));
 
 			DI::baseUrl()->redirect('admin/site');
 		}

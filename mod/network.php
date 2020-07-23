@@ -305,7 +305,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 	}
 
 	if ($o === '') {
-		notice("No items found");
+		notice(DI::l10n()->t("No items found"));
 	}
 
 	return $o;

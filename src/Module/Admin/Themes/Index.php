@@ -48,7 +48,7 @@ class Index extends BaseAdmin
 					}
 					Theme::setAllowedList($allowed_themes);
 
-					info('Themes reloaded');
+					info(DI::l10n()->t('Themes reloaded'));
 					break;
 
 				case 'toggle' :

@@ -39,7 +39,7 @@ class Index extends BaseAdmin
 			switch ($_GET['action']) {
 				case 'reload':
 					Addon::reload();
-					info('Addons reloaded');
+					info(DI::l10n()->t('Addons reloaded'));
 					break;
 
 				case 'toggle' :
