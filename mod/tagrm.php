@@ -44,7 +44,6 @@ function tagrm_post(App $a)
 
 	$item_id = $_POST['item'] ?? 0;
 	update_tags($item_id, $tags);
-	info(DI::l10n()->t('Tag(s) removed') . EOL);
 
 	DI::baseUrl()->redirect($_SESSION['photo_return']);
 	// NOTREACHED

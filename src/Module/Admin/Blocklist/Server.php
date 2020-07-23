@@ -62,7 +62,6 @@ class Server extends BaseAdmin
 				}
 			}
 			DI::config()->set('system', 'blocklist', $blocklist);
-			info(DI::l10n()->t('Site blocklist updated.') . EOL);
 		}
 
 		DI::baseUrl()->redirect('admin/blocklist/server');

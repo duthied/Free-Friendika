@@ -202,9 +202,6 @@ function settings_post(App $a)
 						}
 					}
 				}
-				if (!$failed) {
-					info(DI::l10n()->t('Email settings updated.') . EOL);
-				}
 			}
 		}
 
@@ -219,7 +216,6 @@ function settings_post(App $a)
 				DI::pConfig()->set(local_user(), 'feature', substr($k, 8), ((intval($v)) ? 1 : 0));
 			}
 		}
-		info(DI::l10n()->t('Features updated') . EOL);
 		return;
 	}
 
@@ -231,7 +227,7 @@ function settings_post(App $a)
 			// was there an error
 			if ($_FILES['importcontact-filename']['error'] > 0) {
 				Logger::notice('Contact CSV file upload error');
-				info(DI::l10n()->t('Contact CSV file upload error'));
+				notice(DI::l10n()->t('Contact CSV file upload error'));
 			} else {
 				$csvArray = array_map('str_getcsv', file($_FILES['importcontact-filename']['tmp_name']));
 				// import contacts
@@ -443,8 +439,8 @@ function settings_post(App $a)
 		$fields['openidserver'] = '';
 	}
 
-	if (DBA::update('user', $fields, ['uid' => local_user()])) {
-		info(DI::l10n()->t('Settings updated.') . EOL);
+	if (!DBA::update('user', $fields, ['uid' => local_user()])) {
+		notice(DI::l10n()->t('Settings were not updated.') . EOL);
 	}
 
 	// clear session language

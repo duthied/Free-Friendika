@@ -144,9 +144,7 @@ class Contact extends BaseModule
 			['id' => $contact_id, 'uid' => local_user()]
 		);
 
-		if (DBA::isResult($r)) {
-			info(DI::l10n()->t('Contact updated.') . EOL);
-		} else {
+		if (!DBA::isResult($r)) {
 			notice(DI::l10n()->t('Failed to update contact record.') . EOL);
 		}
 

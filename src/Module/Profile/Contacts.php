@@ -92,7 +92,7 @@ class Contacts extends BaseProfile
 		$contacts_stmt = DBA::select('contact', [], $condition, $params);
 
 		if (!DBA::isResult($contacts_stmt)) {
-			info(DI::l10n()->t('No contacts.') . EOL);
+			notice(DI::l10n()->t('No contacts.') . EOL);
 			return $o;
 		}
 

@@ -333,7 +333,7 @@ function item_post(App $a) {
 				System::jsonExit(['preview' => '']);
 			}
 
-			info(DI::l10n()->t('Empty post discarded.'));
+			notice(DI::l10n()->t('Empty post discarded.'));
 			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
@@ -703,7 +703,6 @@ function item_post(App $a) {
 		// update filetags in pconfig
 		FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
-		info(DI::l10n()->t('Post updated.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -725,7 +724,7 @@ function item_post(App $a) {
 	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {
-		info(DI::l10n()->t('Item wasn\'t stored.'));
+		notice(DI::l10n()->t('Item wasn\'t stored.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -826,7 +825,6 @@ function item_post(App $a) {
 		return $post_id;
 	}
 
-	info(DI::l10n()->t('Post published.'));
 	item_post_return(DI::baseUrl(), $api_source, $return_path);
 	// NOTREACHED
 }

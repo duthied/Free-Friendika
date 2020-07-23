@@ -51,7 +51,6 @@ class Settings extends BaseAdmin
 			DI::config()->set('system', 'loglevel', $loglevel);
 		}
 
-		info(DI::l10n()->t("Log settings updated."));
 		DI::baseUrl()->redirect('admin/logs');
 	}
 

@@ -50,7 +50,7 @@ class Index extends BaseAdmin
 					} elseif (Addon::install($addon)) {
 						info(DI::l10n()->t('Addon %s enabled.', $addon));
 					} else {
-						info(DI::l10n()->t('Addon %s failed to install.', $addon));
+						notice(DI::l10n()->t('Addon %s failed to install.', $addon));
 					}
 
 					break;

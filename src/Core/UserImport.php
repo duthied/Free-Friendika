@@ -271,7 +271,7 @@ class UserImport
 
 				if ($r === false) {
 					Logger::log("uimport:insert profile: ERROR : " . DBA::errorMessage(), Logger::INFO);
-					info(DI::l10n()->t("User profile creation error"));
+					notice(DI::l10n()->t("User profile creation error"));
 					DBA::delete('user', ['uid' => $newuid]);
 					DBA::delete('profile_field', ['uid' => $newuid]);
 					return;

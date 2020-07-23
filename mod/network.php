@@ -305,7 +305,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 	}
 
 	if ($o === '') {
-		info("No items found");
+		notice("No items found");
 	}
 
 	return $o;
@@ -569,7 +569,7 @@ function networkThreadedView(App $a, $update, $parent)
 			$sql_extra3 .= " OR (`thread`.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '" . Strings::protectSprintf('%<' . intval($gid) . '>%') . "' AND `temp1`.`private`))";
 		} else {
 			$sql_extra3 .= " AND false ";
-			info(DI::l10n()->t('Group is empty'));
+			notice(DI::l10n()->t('Group is empty'));
 		}
 
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [

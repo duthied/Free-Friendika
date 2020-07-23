@@ -270,7 +270,7 @@ class Authentication
 			}
 		} catch (Exception $e) {
 			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => Strings::escapeTags($username), 'ip' => $_SERVER['REMOTE_ADDR']]);
-			info($this->l10n->t('Login failed. Please check your credentials.' . EOL));
+			notice($this->l10n->t('Login failed. Please check your credentials.' . EOL));
 			$this->baseUrl->redirect();
 		}
 
@@ -389,8 +389,6 @@ class Authentication
 				info($this->l10n->t('Welcome %s', $user_record['username']));
 				info($this->l10n->t('Please upload a profile photo.'));
 				$this->baseUrl->redirect('settings/profile/photo/new');
-			} else {
-				info($this->l10n->t("Welcome back %s", $user_record['username']));
 			}
 		}
 

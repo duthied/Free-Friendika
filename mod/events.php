@@ -584,8 +584,6 @@ function events_content(App $a)
 
 		if (Item::exists(['id' => $ev[0]['itemid']])) {
 			notice(DI::l10n()->t('Failed to remove event') . EOL);
-		} else {
-			info(DI::l10n()->t('Event removed') . EOL);
 		}
 
 		DI::baseUrl()->redirect('events');

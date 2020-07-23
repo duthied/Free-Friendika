@@ -84,8 +84,6 @@ function wallmessage_post(App $a) {
 		case -4:
 			notice(DI::l10n()->t('Message collection failure.') . EOL);
 			break;
-		default:
-			info(DI::l10n()->t('Message sent.') . EOL);
 	}
 
 	DI::baseUrl()->redirect('profile/'.$user['nickname']);

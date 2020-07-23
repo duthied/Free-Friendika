@@ -59,11 +59,11 @@ class RemoveTag extends BaseModule
 		]);
 
 		if ($item_id && strlen($term)) {
-			if (FileTag::unsaveFile(local_user(), $item_id, $term, $category)) {
-				info('Item removed');
+			if (!FileTag::unsaveFile(local_user(), $item_id, $term, $category)) {
+				notice(DI::l10n()->t('Item was not removed'));
 			}
 		} else {
-			info('Item was not deleted');
+			notice(DI::l10n()->t('Item was not deleted'));
 		}
 
 		DI::baseUrl()->redirect('network?file=' . rawurlencode($term));

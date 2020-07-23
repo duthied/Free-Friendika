@@ -45,7 +45,6 @@ function oexchange_content(App $a) {
 	}
 
 	if (($a->argc > 1) && $a->argv[1] === 'done') {
-		info(DI::l10n()->t('Post successful.') . EOL);
 		return;
 	}
 

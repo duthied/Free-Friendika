@@ -295,7 +295,6 @@ function photos_post(App $a)
 
 				// Update the photo albums cache
 				Photo::clearAlbumCache($page_owner_uid);
-				notice('Successfully deleted the photo.');
 			} else {
 				notice('Failed to delete the photo.');
 				DI::baseUrl()->redirect('photos/' . $a->argv[1] . '/image/' . $a->argv[3]);

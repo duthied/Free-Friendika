@@ -48,8 +48,6 @@ class Details extends BaseAdmin
 				}
 			}
 
-			info(DI::l10n()->t('Theme settings updated.'));
-
 			if (DI::mode()->isAjax()) {
 				return;
 			}
@@ -91,7 +89,7 @@ class Details extends BaseAdmin
 				} elseif (Theme::install($theme)) {
 					info(DI::l10n()->t('Theme %s successfully enabled.', $theme));
 				} else {
-					info(DI::l10n()->t('Theme %s failed to install.', $theme));
+					notice(DI::l10n()->t('Theme %s failed to install.', $theme));
 				}
 
 				DI::baseUrl()->redirect('admin/themes/' . $theme);

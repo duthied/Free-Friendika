@@ -41,16 +41,18 @@ class Saved extends BaseModule
 				case 'add':
 					$fields = ['uid' => local_user(), 'term' => $search];
 					if (!DBA::exists('search', $fields)) {
-						DBA::insert('search', $fields);
-						info(DI::l10n()->t('Search term successfully saved.'));
+						if (!DBA::insert('search', $fields)) {
+							notice(DI::l10n()->t('Search term was not saved.'));
+						}
 					} else {
-						info(DI::l10n()->t('Search term already saved.'));
+						notice(DI::l10n()->t('Search term already saved.'));
 					}
 					break;
 
 				case 'remove':
-					DBA::delete('search', ['uid' => local_user(), 'term' => $search]);
-					info(DI::l10n()->t('Search term successfully removed.'));
+					if (!DBA::delete('search', ['uid' => local_user(), 'term' => $search])) {
+						notice(DI::l10n()->t('Search term was not removed.'));
+					}
 					break;
 			}
 		}
