@@ -1784,6 +1784,9 @@ class Probe
 		$base = $xpath->evaluate('string(/html/head/base/@href)') ?: $base;
 
 		$baseParts = parse_url($base);
+		if (empty($baseParts['host'])) {
+			return $href;
+		}
 
 		// Naked domain case (scheme://basehost)
 		$path = $baseParts['path'] ?? '/';
