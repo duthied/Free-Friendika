@@ -3682,7 +3682,7 @@ class Item
 	 *
 	 * @return integer item id
 	 */
-	public static function fetchByLink($uri, $uid = 0)
+	public static function fetchByLink(string $uri, int $uid = 0)
 	{
 		$item_id = self::searchByLink($uri, $uid);
 		if (!empty($item_id)) {
@@ -3735,7 +3735,7 @@ class Item
 	 *
 	 * @return array item array with data from the original item
 	 */
-	public static function addShareDataFromOriginal($item)
+	public static function addShareDataFromOriginal(array $item)
 	{
 		$shared = self::getShareArray($item);
 		if (empty($shared)) {
@@ -3757,9 +3757,9 @@ class Item
 			}
 
 			// Otherwhise try to find (and possibly fetch) the item via the link. This should work for Diaspora and ActivityPub posts
-			$id = self::fetchByLink($shared['link'], $uid);
+			$id = self::fetchByLink($shared['link'] ?? '', $uid);
 			if (empty($id)) {
-				Logger::info('Original item not found', ['url' => $shared['link'], 'callstack' => System::callstack()]);
+				Logger::info('Original item not found', ['url' => $shared['link'] ?? '', 'callstack' => System::callstack()]);
 				return $item;
 			}
 

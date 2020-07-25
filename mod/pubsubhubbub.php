@@ -24,7 +24,6 @@ use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\PushSubscriber;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 function post_var($name) {
@@ -126,7 +125,7 @@ function pubsubhubbub_init(App $a) {
 		$hub_callback = rtrim($hub_callback, ' ?&#');
 		$separator = parse_url($hub_callback, PHP_URL_QUERY) === null ? '?' : '&';
 
-		$fetchResult = Network::fetchUrlFull($hub_callback . $separator . $params);
+		$fetchResult = DI::httpRequest()->fetchFull($hub_callback . $separator . $params);
 		$body = $fetchResult->getBody();
 		$ret = $fetchResult->getReturnCode();
 

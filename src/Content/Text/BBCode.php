@@ -38,12 +38,10 @@ use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Photo;
 use Friendica\Model\Tag;
-use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Images;
 use Friendica\Util\Map;
-use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
@@ -487,7 +485,7 @@ class BBCode
 					continue;
 				}
 
-				$curlResult = Network::curl($mtch[1], true);
+				$curlResult = DI::httpRequest()->get($mtch[1], true);
 				if (!$curlResult->isSuccess()) {
 					continue;
 				}
@@ -1096,7 +1094,7 @@ class BBCode
 			$ch = @curl_init($match[1]);
 			@curl_setopt($ch, CURLOPT_NOBODY, true);
 			@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
+			@curl_setopt($ch, CURLOPT_USERAGENT, DI::httpRequest()->getUserAgent());
 			@curl_exec($ch);
 			$curl_info = @curl_getinfo($ch);
 
@@ -1108,7 +1106,7 @@ class BBCode
 				$text = "[url=" . $match[2] . ']' . $match[2] . "[/url]";
 
 				// if its not a picture then look if its a page that contains a picture link
-				$body = Network::fetchUrl($match[1]);
+				$body = DI::httpRequest()->fetch($match[1]);
 
 				$doc = new DOMDocument();
 				@$doc->loadHTML($body);
@@ -1170,7 +1168,7 @@ class BBCode
 		$ch = @curl_init($match[1]);
 		@curl_setopt($ch, CURLOPT_NOBODY, true);
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
+		@curl_setopt($ch, CURLOPT_USERAGENT, DI::httpRequest()->getUserAgent());
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
 
@@ -1187,7 +1185,7 @@ class BBCode
 			}
 
 			// if its not a picture then look if its a page that contains a picture link
-			$body = Network::fetchUrl($match[1]);
+			$body = DI::httpRequest()->fetch($match[1]);
 
 			$doc = new DOMDocument();
 			@$doc->loadHTML($body);

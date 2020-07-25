@@ -1194,7 +1194,7 @@ class DFRN
 
 		Logger::log('dfrn_deliver: ' . $url);
 
-		$curlResult = Network::curl($url);
+		$curlResult = DI::httpRequest()->get($url);
 
 		if ($curlResult->isTimeout()) {
 			return -2; // timed out
@@ -1343,7 +1343,7 @@ class DFRN
 
 		Logger::debug('dfrn_deliver', ['post' => $postvars]);
 
-		$postResult = Network::post($contact['notify'], $postvars);
+		$postResult = DI::httpRequest()->post($contact['notify'], $postvars);
 
 		$xml = $postResult->getBody();
 
@@ -1440,7 +1440,7 @@ class DFRN
 
 		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
 
-		$postResult = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
+		$postResult = DI::httpRequest()->post($dest_url, $envelope, ["Content-Type: " . $content_type]);
 		$xml = $postResult->getBody();
 
 		$curl_stat = $postResult->getReturnCode();

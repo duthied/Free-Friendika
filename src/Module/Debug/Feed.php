@@ -26,7 +26,6 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Protocol;
-use Friendica\Util\Network;
 
 /**
  * Tests a given feed of a contact
@@ -49,7 +48,7 @@ class Feed extends BaseModule
 
 			$contact = Model\Contact::getByURLForUser($url, local_user(), false);
 
-			$xml = Network::fetchUrl($contact['poll']);
+			$xml = DI::httpRequest()->fetch($contact['poll']);
 
 			$import_result = Protocol\Feed::import($xml);
 

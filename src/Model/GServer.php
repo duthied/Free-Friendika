@@ -23,20 +23,20 @@ namespace Friendica\Model;
 
 use DOMDocument;
 use DOMXPath;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\Register;
 use Friendica\Network\CurlResult;
-use Friendica\Util\Network;
+use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
-use Friendica\Core\Logger;
-use Friendica\Core\System;
-use Friendica\Protocol\PortableContact;
-use Friendica\Protocol\Diaspora;
 
 /**
  * This class handles GServer related functions
@@ -309,7 +309,7 @@ class GServer
 
 		// When a nodeinfo is present, we don't need to dig further
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-		$curlResult = Network::curl($url . '/.well-known/nodeinfo', false, ['timeout' => $xrd_timeout]);
+		$curlResult = DI::httpRequest()->get($url . '/.well-known/nodeinfo', false, ['timeout' => $xrd_timeout]);
 		if ($curlResult->isTimeout()) {
 			self::setFailure($url);
 			return false;
@@ -342,7 +342,7 @@ class GServer
 					$basedata = ['detection-method' => self::DETECT_MANUAL];
 				}
 
-				$curlResult = Network::curl($baseurl, false, ['timeout' => $xrd_timeout]);
+				$curlResult = DI::httpRequest()->get($baseurl, false, ['timeout' => $xrd_timeout]);
 				if ($curlResult->isSuccess()) {
 					$basedata = self::analyseRootHeader($curlResult, $basedata);
 					$basedata = self::analyseRootBody($curlResult, $basedata, $baseurl);
@@ -359,7 +359,7 @@ class GServer
 					// When the base path doesn't seem to contain a social network we try the complete path.
 					// Most detectable system have to be installed in the root directory.
 					// We checked the base to avoid false positives.
-					$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout]);
+					$curlResult = DI::httpRequest()->get($url, false, ['timeout' => $xrd_timeout]);
 					if ($curlResult->isSuccess()) {
 						$urldata = self::analyseRootHeader($curlResult, $serverdata);
 						$urldata = self::analyseRootBody($curlResult, $urldata, $url);
@@ -498,7 +498,7 @@ class GServer
 	{
 		Logger::info('Discover relay data', ['server' => $server_url]);
 
-		$curlResult = Network::curl($server_url . '/.well-known/x-social-relay');
+		$curlResult = DI::httpRequest()->get($server_url . '/.well-known/x-social-relay');
 		if (!$curlResult->isSuccess()) {
 			return;
 		}
@@ -579,7 +579,7 @@ class GServer
 	 */
 	private static function fetchStatistics(string $url)
 	{
-		$curlResult = Network::curl($url . '/statistics.json');
+		$curlResult = DI::httpRequest()->get($url . '/statistics.json');
 		if (!$curlResult->isSuccess()) {
 			return [];
 		}
@@ -689,7 +689,8 @@ class GServer
 	 */
 	private static function parseNodeinfo1(string $nodeinfo_url)
 	{
-		$curlResult = Network::curl($nodeinfo_url);
+		$curlResult = DI::httpRequest()->get($nodeinfo_url);
+
 		if (!$curlResult->isSuccess()) {
 			return [];
 		}
@@ -765,7 +766,7 @@ class GServer
 	 */
 	private static function parseNodeinfo2(string $nodeinfo_url)
 	{
-		$curlResult = Network::curl($nodeinfo_url);
+		$curlResult = DI::httpRequest()->get($nodeinfo_url);
 		if (!$curlResult->isSuccess()) {
 			return [];
 		}
@@ -842,7 +843,7 @@ class GServer
 	 */
 	private static function fetchSiteinfo(string $url, array $serverdata)
 	{
-		$curlResult = Network::curl($url . '/siteinfo.json');
+		$curlResult = DI::httpRequest()->get($url . '/siteinfo.json');
 		if (!$curlResult->isSuccess()) {
 			return $serverdata;
 		}
@@ -911,7 +912,7 @@ class GServer
 	private static function validHostMeta(string $url)
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-		$curlResult = Network::curl($url . '/.well-known/host-meta', false, ['timeout' => $xrd_timeout]);
+		$curlResult = DI::httpRequest()->get($url . '/.well-known/host-meta', false, ['timeout' => $xrd_timeout]);
 		if (!$curlResult->isSuccess()) {
 			return false;
 		}
@@ -1007,7 +1008,7 @@ class GServer
 	{
 		$serverdata['poco'] = '';
 
-		$curlResult = Network::curl($url. '/poco');
+		$curlResult = DI::httpRequest()->get($url . '/poco');
 		if (!$curlResult->isSuccess()) {
 			return $serverdata;
 		}
@@ -1037,7 +1038,7 @@ class GServer
 	 */
 	public static function checkMastodonDirectory(string $url, array $serverdata)
 	{
-		$curlResult = Network::curl($url . '/api/v1/directory?limit=1');
+		$curlResult = DI::httpRequest()->get($url . '/api/v1/directory?limit=1');
 		if (!$curlResult->isSuccess()) {
 			return $serverdata;
 		}
@@ -1064,7 +1065,8 @@ class GServer
 	 */
 	private static function detectNextcloud(string $url, array $serverdata)
 	{
-		$curlResult = Network::curl($url . '/status.php');
+		$curlResult = DI::httpRequest()->get($url . '/status.php');
+
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
 			return $serverdata;
 		}
@@ -1097,7 +1099,8 @@ class GServer
 	 */
 	private static function detectMastodonAlikes(string $url, array $serverdata)
 	{
-		$curlResult = Network::curl($url . '/api/v1/instance');
+		$curlResult = DI::httpRequest()->get($url . '/api/v1/instance');
+
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
 			return $serverdata;
 		}
@@ -1162,7 +1165,7 @@ class GServer
 	 */
 	private static function detectHubzilla(string $url, array $serverdata)
 	{
-		$curlResult = Network::curl($url . '/api/statusnet/config.json');
+		$curlResult = DI::httpRequest()->get($url . '/api/statusnet/config.json');
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
 			return $serverdata;
 		}
@@ -1260,7 +1263,7 @@ class GServer
 	private static function detectGNUSocial(string $url, array $serverdata)
 	{
 		// Test for GNU Social
-		$curlResult = Network::curl($url . '/api/gnusocial/version.json');
+		$curlResult = DI::httpRequest()->get($url . '/api/gnusocial/version.json');
 		if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
 			($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
 			$serverdata['platform'] = 'gnusocial';
@@ -1278,7 +1281,7 @@ class GServer
 		}
 
 		// Test for Statusnet
-		$curlResult = Network::curl($url . '/api/statusnet/version.json');
+		$curlResult = DI::httpRequest()->get($url . '/api/statusnet/version.json');
 		if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
 			($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
 
@@ -1314,9 +1317,9 @@ class GServer
 	 */
 	private static function detectFriendica(string $url, array $serverdata)
 	{
-		$curlResult = Network::curl($url . '/friendica/json');
+		$curlResult = DI::httpRequest()->get($url . '/friendica/json');
 		if (!$curlResult->isSuccess()) {
-			$curlResult = Network::curl($url . '/friendika/json');
+			$curlResult = DI::httpRequest()->get($url . '/friendika/json');
 			$friendika = true;
 			$platform = 'Friendika';
 		} else {
@@ -1631,7 +1634,7 @@ class GServer
 		$protocols = ['activitypub', 'diaspora', 'dfrn', 'ostatus'];
 		foreach ($protocols as $protocol) {
 			$query = '{nodes(protocol:"' . $protocol . '"){host}}';
-			$curlResult = Network::fetchUrl('https://the-federation.info/graphql?query=' . urlencode($query));
+			$curlResult = DI::httpRequest()->fetch('https://the-federation.info/graphql?query=' . urlencode($query));
 			if (!empty($curlResult)) {
 				$data = json_decode($curlResult, true);
 				if (!empty($data['data']['nodes'])) {
@@ -1649,7 +1652,8 @@ class GServer
 		if (!empty($accesstoken)) {
 			$api = 'https://instances.social/api/1.0/instances/list?count=0';
 			$header = ['Authorization: Bearer '.$accesstoken];
-			$curlResult = Network::curl($api, false, ['headers' => $header]);
+			$curlResult = DI::httpRequest()->get($api, false, ['headers' => $header]);
+
 			if ($curlResult->isSuccess()) {
 				$servers = json_decode($curlResult->getBody(), true);
 

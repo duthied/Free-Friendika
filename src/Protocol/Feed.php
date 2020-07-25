@@ -35,6 +35,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
+use Friendica\Network\HTTPRequest;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
@@ -350,7 +351,7 @@ class Feed
 
 			$orig_plink = $item["plink"];
 
-			$item["plink"] = Network::finalUrl($item["plink"]);
+			$item["plink"] = DI::httpRequest()->finalUrl($item["plink"]);
 
 			$item["parent-uri"] = $item["uri"];
 

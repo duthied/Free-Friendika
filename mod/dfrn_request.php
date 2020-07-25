@@ -29,8 +29,8 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\System;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -203,7 +203,7 @@ function dfrn_request_post(App $a)
 				}
 
 				if (!empty($dfrn_request) && strlen($confirm_key)) {
-					Network::fetchUrl($dfrn_request . '?confirm_key=' . $confirm_key);
+					DI::httpRequest()->fetch($dfrn_request . '?confirm_key=' . $confirm_key);
 				}
 
 				// (ignore reply, nothing we can do it failed)
