@@ -2410,7 +2410,7 @@ class Diaspora
 			$image_url = "http://".$handle_parts[1].$image_url;
 		}
 
-		Contact::updateAvatar($image_url, $importer["uid"], $contact["id"]);
+		Contact::updateAvatar($contact["id"], $image_url);
 
 		// Generic birthday. We don't know the timezone. The year is irrelevant.
 

@@ -1680,11 +1680,11 @@ class DFRN
 			$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($contact_old['url'])];
 			DBA::update('contact', $fields, $condition, true);
 
-			Contact::updateAvatar($author['avatar'], $importer['importer_uid'], $contact['id']);
+			Contact::updateAvatar($contact['id'], $author['avatar']);
 
 			$pcid = Contact::getIdForURL($contact_old['url']);
 			if (!empty($pcid)) {
-				Contact::updateAvatar($author['avatar'], 0, $pcid);
+				Contact::updateAvatar($pcid, $author['avatar']);
 			}
 
 			/*
@@ -1962,7 +1962,7 @@ class DFRN
 
 		DBA::update('contact', $fields, $condition);
 
-		Contact::updateAvatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
+		Contact::updateAvatar($importer["id"], $relocate["avatar"], true);
 
 		Logger::log('Contacts are updated.');
 

@@ -189,7 +189,7 @@ function dfrn_request_post(App $a)
 					Group::addMember(User::getDefaultGroup(local_user(), $r[0]["network"]), $r[0]['id']);
 
 					if (isset($photo)) {
-						Contact::updateAvatar($photo, local_user(), $r[0]["id"], true);
+						Contact::updateAvatar($r[0]["id"], $photo, true);
 					}
 
 					$forward_path = "contact/" . $r[0]['id'];
@@ -420,7 +420,7 @@ function dfrn_request_post(App $a)
 					);
 					if (DBA::isResult($r)) {
 						$contact_record = $r[0];
-						Contact::updateAvatar($photo, $uid, $contact_record["id"], true);
+						Contact::updateAvatar($contact_record["id"], $photo, true);
 					}
 				}
 			}

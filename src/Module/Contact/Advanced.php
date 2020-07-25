@@ -87,7 +87,7 @@ class Advanced extends BaseModule
 		if ($photo) {
 			DI::logger()->notice('Updating photo.', ['photo' => $photo]);
 
-			Model\Contact::updateAvatar($photo, local_user(), $contact['id'], true);
+			Model\Contact::updateAvatar($contact['id'], $photo, true);
 		}
 
 		if (!$r) {

@@ -1464,7 +1464,7 @@ class Contact
 		}
 
 		if (!empty($data['photo']) && ($data['network'] != Protocol::FEED)) {
-			self::updateAvatar($data['photo'], $uid, $contact_id);
+			self::updateAvatar($contact_id, $data['photo']);
 		}
 
 		if (in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
@@ -1776,11 +1776,31 @@ class Contact
 	}
 
 	/**
+	 * Ensure that cached avatar exist
+	 *
+	 * @param integer $cid
+	 */
+	public static function checkAvatarCache(int $cid)
+	{
+		$contact = DBA::selectFirst('contact', ['url', 'avatar', 'photo', 'thumb', 'micro'], ['id' => $cid, 'uid' => 0, 'self' => false]);
+		if (!DBA::isResult($contact)) {
+			return;
+		}
+
+		if (empty($contact['avatar']) || (!empty($contact['photo']) && !empty($contact['thumb']) && !empty($contact['micro']))) {
+			return;
+		}
+
+		Logger::info('Adding avatar cache', ['id' => $cid, 'contact' => $contact]);
+
+		self::updateAvatar($cid, $contact['avatar'], true);
+	}
+
+	/**
 	 * Updates the avatar links in a contact only if needed
 	 *
-	 * @param string $avatar Link to avatar picture
-	 * @param int    $uid    User id of contact owner
 	 * @param int    $cid    Contact id
+	 * @param string $avatar Link to avatar picture
 	 * @param bool   $force  force picture update
 	 *
 	 * @return void
@@ -1788,10 +1808,19 @@ class Contact
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public static function updateAvatar($avatar, $uid, $cid, $force = false)
+	public static function updateAvatar(int $cid, string $avatar, bool $force = false)
 	{
-		$contact = DBA::selectFirst('contact', ['avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid, 'self' => false]);
+		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
+			return;
+		}
+
+		$uid = $contact['uid'];
+
+		// Only update the cached photo links of public contacts when they already are cached
+		if (($uid == 0) && !$force && empty($contact['photo']) && empty($contact['thumb']) && empty($contact['micro'])) {
+			DBA::update('contact', ['avatar' => $avatar], ['id' => $cid]);
+			Logger::info('Only update the avatar', ['id' => $cid, 'avatar' => $avatar, 'contact' => $contact]);
 			return;
 		}
 
@@ -2021,7 +2050,7 @@ class Contact
 		}
 
 		if (!empty($ret['photo']) && ($ret['network'] != Protocol::FEED)) {
-			self::updateAvatar($ret['photo'], $uid, $id, $update || $force);
+			self::updateAvatar($id, $ret['photo'], $update || $force);
 		}
 
 		if (!$update) {
@@ -2311,7 +2340,7 @@ class Contact
 		Group::addMember(User::getDefaultGroup($user['uid'], $contact["network"]), $contact_id);
 
 		// Update the avatar
-		self::updateAvatar($ret['photo'], $user['uid'], $contact_id);
+		self::updateAvatar($contact_id, $ret['photo']);
 
 		// pull feed and consume it, which should subscribe to the hub.
 
@@ -2493,7 +2522,7 @@ class Contact
 			// Ensure to always have the correct network type, independent from the connection request method
 			self::updateFromProbe($contact_id, '', true);
 
-			Contact::updateAvatar($photo, $importer["uid"], $contact_id, true);
+			self::updateAvatar($contact_id, $photo, true);
 
 			$contact_record = DBA::selectFirst('contact', ['id', 'network', 'name', 'url', 'photo'], ['id' => $contact_id]);
 
