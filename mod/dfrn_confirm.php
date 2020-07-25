@@ -304,7 +304,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		 *
 		 * We will also update the contact record with the nature and scope of the relationship.
 		 */
-		Contact::updateAvatar($contact['photo'], $uid, $contact_id);
+		Contact::updateAvatar($contact_id, $contact['photo']);
 
 		Logger::log('dfrn_confirm: confirm - imported photos');
 
@@ -484,7 +484,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$photo = DI::baseUrl() . '/images/person-300.jpg';
 		}
 
-		Contact::updateAvatar($photo, $local_uid, $dfrn_record);
+		Contact::updateAvatar($dfrn_record, $photo);
 
 		Logger::log('dfrn_confirm: request - photos imported');
 

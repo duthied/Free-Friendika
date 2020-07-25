@@ -216,7 +216,7 @@ class OStatus
 
 			if (!empty($author["author-avatar"]) && ($author["author-avatar"] != $current['avatar'])) {
 				Logger::log("Update profile picture for contact ".$contact["id"], Logger::DEBUG);
-				Contact::updateAvatar($author["author-avatar"], $importer["uid"], $contact["id"]);
+				Contact::updateAvatar($contact["id"], $author["author-avatar"]);
 			}
 
 			// Ensure that we are having this contact (with uid=0)
@@ -237,7 +237,7 @@ class OStatus
 
 				// Update the avatar
 				if (!empty($author["author-avatar"])) {
-					Contact::updateAvatar($author["author-avatar"], 0, $cid);
+					Contact::updateAvatar($cid, $author["author-avatar"]);
 				}
 			}
 

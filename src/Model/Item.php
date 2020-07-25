@@ -1703,6 +1703,10 @@ class Item
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, null, $default);
 
+		// Ensure that there is an avatar cache
+		Contact::checkAvatarCache($item['author-id']);
+		Contact::checkAvatarCache($item['owner-id']);
+
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
 		$item["contact-id"] = self::contactId($item);
 
