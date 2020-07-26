@@ -95,7 +95,8 @@ class ContactRelation
 				}
 			}
 		} elseif ($contact['created'] > DateTimeFormat::utc('now - 1 day')) {
-			Logger::info('Newly created contacs are not discovered to avoid DDoS attacks.', ['id' => $contact['id'], 'url' => $url, 'discovery' => $contact['created']]);
+			// Newly created contacts are not discovered to avoid DDoS attacks
+			Logger::info('No discovery - Contact record is less than a day old.', ['id' => $contact['id'], 'url' => $url, 'discovery' => $contact['created']]);
 			return;
 		}
 
