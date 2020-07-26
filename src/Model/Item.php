@@ -1554,9 +1554,7 @@ class Item
 			}
 
 			// Update the contact relations
-			if ($item['author-id'] != $parent['author-id']) {
-				DBA::update('contact-relation', ['last-interaction' => $item['created']], ['cid' => $parent['author-id'], 'relation-cid' => $item['author-id']], true);
-			}
+			ContactRelation::store($parent['author-id'], $item['author-id'], $item['created']);
 		}
 
 		return $item;

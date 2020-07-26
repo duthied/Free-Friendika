@@ -40,9 +40,5 @@ class UpdateGContact
 		$success = GContact::updateFromProbe($url, $force);
 
 		Logger::info('Updated from probe', ['url' => $url, 'force' => $force, 'success' => $success]);
-
-		if ($success && !$nodiscover && (DI::config()->get('system', 'gcontact_discovery') == GContact::DISCOVERY_RECURSIVE)) {
-			GContact::discoverFollowers($url);
-		}
 	}
 }
