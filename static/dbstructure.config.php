@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1357);
+	define('DB_UPDATE_VERSION', 1358);
 }
 
 return [
@@ -158,6 +158,7 @@ return [
 			"avatar-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"term-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last-item" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "date of the last post"],
+			"last-discovery" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "date of the last follower discovery"],
 			"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "Node-wide block status"],
 			"block_reason" => ["type" => "text", "comment" => "Node-wide block reason"],
@@ -407,9 +408,11 @@ return [
 	"contact-relation" => [
 		"comment" => "Contact relations",
 		"fields" => [
-			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "primary" => "1", "comment" => "contact the related contact had interacted with"],
-			"relation-cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "primary" => "1", "comment" => "related contact who had interacted with the contact"],
+			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "primary" => "1", "comment" => "contact the related contact had interacted with"],
+			"relation-cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "primary" => "1", "comment" => "related contact who had interacted with the contact"],
 			"last-interaction" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last interaction"],
+			"follow-updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last update of the contact relationship"],
+			"follows" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 		],
 		"indexes" => [
 			"PRIMARY" => ["cid", "relation-cid"],
@@ -591,18 +594,6 @@ return [
 			"hide_network_updated" => ["hide", "network", "updated"],
 			"updated" => ["updated"],
 			"gsid" => ["gsid"]
-		]
-	],
-	"gfollower" => [
-		"comment" => "Followers of global contacts",
-		"fields" => [
-			"gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["gcontact" => "id"], "comment" => "global contact"],
-			"follower-gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["gcontact" => "id"], "comment" => "global contact of the follower"],
-			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 indicates that the connection has been deleted"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["gcid", "follower-gcid"],
-			"follower-gcid" => ["follower-gcid"],
 		]
 	],
 	"glink" => [
