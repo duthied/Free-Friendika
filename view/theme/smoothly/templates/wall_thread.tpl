@@ -42,7 +42,7 @@
 		<div class="wall-item-lock-wrapper">
 			{{if $item.lock}}
 			<div class="wall-item-lock">
-			<img src="images/lock_icon.gif" class="lockview" alt="{{$item.lock}}" onclick="lockview(event,{{$item.id}});" />
+			<img src="images/lock_icon.gif" class="lockview" alt="{{$item.lock}}" onclick="lockview(event, 'item', {{$item.id}});" />
 			</div>
 			{{else}}
 			<div class="wall-item-lock"></div>

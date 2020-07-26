@@ -750,24 +750,21 @@ function getPosition(e) {
 
 var lockvisible = false;
 
-function lockview(event,id) {
+function lockview(event, type, id) {
 	event = event || window.event;
 	cursor = getPosition(event);
 	if (lockvisible) {
-		lockviewhide();
+		lockvisible = false;
+		$('#panel').hide();
 	} else {
 		lockvisible = true;
-		$.get('lockview/' + id, function(data) {
-			$('#panel').html(data);
-			$('#panel').css({'left': cursor.x + 5 , 'top': cursor.y + 5});
-			$('#panel').show();
+		$.get('permission/tooltip/' + type + '/' + id, function(data) {
+			$('#panel')
+				.html(data)
+				.css({'left': cursor.x + 5 , 'top': cursor.y + 5})
+				.show();
 		});
 	}
-}
-
-function lockviewhide() {
-	lockvisible = false;
-	$('#panel').hide();
 }
 
 function post_comment(id) {
@@ -936,14 +933,6 @@ function groupChangeMember(gid, cid, sec_token) {
 	$('body .fakelink').css('cursor', 'wait');
 	$.get('group/' + gid + '/' + cid + "?t=" + sec_token, function(data) {
 			$('#group-update-wrapper').html(data);
-			$('body .fakelink').css('cursor', 'auto');
-	});
-}
-
-function profChangeMember(gid,cid) {
-	$('body .fakelink').css('cursor', 'wait');
-	$.get('profperm/' + gid + '/' + cid, function(data) {
-			$('#prof-update-wrapper').html(data);
 			$('body .fakelink').css('cursor', 'auto');
 	});
 }

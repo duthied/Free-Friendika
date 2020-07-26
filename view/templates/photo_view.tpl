@@ -17,7 +17,7 @@
 		| <a id="photo-toprofile-link" href="{{$tools.profile.0}}">{{$tools.profile.1}}</a>
 	{{/if}}
 	{{if $tools.lock}}
-		| <img src="images/lock_icon.gif" class="lockview" alt="{{$tools.lock}}" onclick="lockview(event,'photo/{{$id}}');" />
+		| <img src="images/lock_icon.gif" class="lockview" alt="{{$tools.lock}}" onclick="lockview(event, 'photo', {{$id}});" />
 	{{/if}}
 {{/if}}
 </div>

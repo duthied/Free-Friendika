@@ -11,7 +11,7 @@
 			<a href="{{$profile_url}}" target="redir" title="{{$linktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$sparkle}}">{{$name}}</span></a>
 			<span class="wall-item-ago">
 				{{if $plink}}<a class="link" title="{{$plink.title}}" href="{{$plink.href}}" style="color: #999">{{$ago}}</a>{{else}} {{$ago}} {{/if}}
-				{{if $lock}}<span class="fakelink" style="color: #999" onclick="lockview(event,{{$id}});">{{$lock}}</span> {{/if}}
+				{{if $lock}}<span class="fakelink" style="color: #999" onclick="lockview(event, 'item', {{$id}});">{{$lock}}</span> {{/if}}
 			</span>
 		</div>
 		<div class="wall-item-content">
