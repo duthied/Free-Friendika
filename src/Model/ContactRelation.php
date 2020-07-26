@@ -76,7 +76,7 @@ class ContactRelation
 		}
 
 		if ($contact['last-discovery'] > DateTimeFormat::utc('now - 1 month')) {
-			Logger::info('Last discovery was less then a month before.', ['id' => $contact['id'], 'url' => $url, 'discovery' => $contact['last-discovery']]);
+			Logger::info('No discovery - Last was less than a month ago.', ['id' => $contact['id'], 'url' => $url, 'discovery' => $contact['last-discovery']]);
 			return;
 		}
 
