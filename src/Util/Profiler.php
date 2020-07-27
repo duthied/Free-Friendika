@@ -23,6 +23,7 @@ namespace Friendica\Util;
 
 use Friendica\Core\Config\Cache;
 use Friendica\Core\Config\IConfig;
+use Friendica\Core\System;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -88,15 +89,17 @@ class Profiler implements ContainerInterface
 	 * Saves a timestamp for a value - f.e. a call
 	 * Necessary for profiling Friendica
 	 *
-	 * @param int $timestamp the Timestamp
-	 * @param string $value A value to profile
-	 * @param string $callstack The callstack of the current profiling data
+	 * @param int    $timestamp the Timestamp
+	 * @param string $value     A value to profile
+	 * @param string $callstack A callstack string, generated if absent
 	 */
 	public function saveTimestamp($timestamp, $value, $callstack = '')
 	{
 		if (!$this->enabled) {
 			return;
 		}
+
+		$callstack = $callstack ?: System::callstack(4, 1);
 
 		$duration = floatval(microtime(true) - $timestamp);
 

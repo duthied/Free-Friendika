@@ -256,7 +256,7 @@ class Addon
 
 		$stamp1 = microtime(true);
 		$f = file_get_contents("addon/$addon/$addon.php");
-		DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "file");
 
 		$r = preg_match("|/\*.*\*/|msU", $f, $m);
 

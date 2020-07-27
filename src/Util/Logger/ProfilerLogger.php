@@ -61,7 +61,7 @@ class ProfilerLogger implements LoggerInterface
 	{
 		$stamp1 = microtime(true);
 		$this->logger->emergency($message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'file');
 	}
 
 	/**
@@ -71,7 +71,7 @@ class ProfilerLogger implements LoggerInterface
 	{
 		$stamp1 = microtime(true);
 		$this->logger->alert($message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'file');
 	}
 
 	/**
@@ -81,7 +81,7 @@ class ProfilerLogger implements LoggerInterface
 	{
 		$stamp1 = microtime(true);
 		$this->logger->critical($message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'file');
 	}
 
 	/**
@@ -91,7 +91,7 @@ class ProfilerLogger implements LoggerInterface
 	{
 		$stamp1 = microtime(true);
 		$this->logger->error($message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'file');
 	}
 
 	/**
@@ -101,7 +101,7 @@ class ProfilerLogger implements LoggerInterface
 	{
 		$stamp1 = microtime(true);
 		$this->logger->warning($message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'file');
 	}
 
 	/**
@@ -111,7 +111,7 @@ class ProfilerLogger implements LoggerInterface
 	{
 		$stamp1 = microtime(true);
 		$this->logger->notice($message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'file');
 	}
 
 	/**
@@ -121,7 +121,7 @@ class ProfilerLogger implements LoggerInterface
 	{
 		$stamp1 = microtime(true);
 		$this->logger->info($message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'file');
 	}
 
 	/**
@@ -131,7 +131,7 @@ class ProfilerLogger implements LoggerInterface
 	{
 		$stamp1 = microtime(true);
 		$this->logger->debug($message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'file');
 	}
 
 	/**
@@ -141,6 +141,6 @@ class ProfilerLogger implements LoggerInterface
 	{
 		$stamp1 = microtime(true);
 		$this->logger->log($level, $message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'file');
 	}
 }

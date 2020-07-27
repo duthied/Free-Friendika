@@ -199,7 +199,7 @@ class HTTPRequest implements IHTTPRequest
 
 		@curl_close($ch);
 
-		$this->profiler->saveTimestamp($stamp1, 'network', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'network');
 
 		return $curlResponse;
 	}
@@ -285,7 +285,7 @@ class HTTPRequest implements IHTTPRequest
 
 		curl_close($ch);
 
-		$this->profiler->saveTimestamp($stamp1, 'network', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'network');
 
 		// Very old versions of Lighttpd don't like the "Expect" header, so we remove it when needed
 		if ($curlResponse->getReturnCode() == 417) {
@@ -335,7 +335,7 @@ class HTTPRequest implements IHTTPRequest
 		$http_code = $curl_info['http_code'];
 		curl_close($ch);
 
-		$this->profiler->saveTimestamp($stamp1, "network", System::callstack());
+		$this->profiler->saveTimestamp($stamp1, "network");
 
 		if ($http_code == 0) {
 			return $url;
@@ -377,7 +377,7 @@ class HTTPRequest implements IHTTPRequest
 		$body = curl_exec($ch);
 		curl_close($ch);
 
-		$this->profiler->saveTimestamp($stamp1, "network", System::callstack());
+		$this->profiler->saveTimestamp($stamp1, "network");
 
 		if (trim($body) == "") {
 			return $url;

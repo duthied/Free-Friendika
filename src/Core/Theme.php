@@ -90,7 +90,7 @@ class Theme
 
 		$stamp1 = microtime(true);
 		$theme_file = file_get_contents("view/theme/$theme/theme.php");
-		DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "file");
 
 		$result = preg_match("|/\*.*\*/|msU", $theme_file, $matches);
 
