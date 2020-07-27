@@ -158,6 +158,8 @@ class Theme
 			if (function_exists($func)) {
 				$func();
 			}
+
+			Hook::delete(['file' => "view/theme/$theme/theme.php"]);
 		}
 
 		$allowed_themes = Theme::getAllowedList();
