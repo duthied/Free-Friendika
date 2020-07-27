@@ -26,6 +26,8 @@ use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
+use Friendica\Core\Cache\Duration;
+use Friendica\Core\Cache\ICache;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Network\HTTPException;
@@ -66,14 +68,24 @@ class Router
 	/** @var L10n */
 	private $l10n;
 
+	/** @var ICache */
+	private $cache;
+
+	/** @var string */
+	private $baseRoutesFilepath;
+
 	/**
-	 * @param array $server The $_SERVER variable
-	 * @param L10n  $l10n
-	 * @param RouteCollector|null $routeCollector Optional the loaded Route collector
+	 * @param array               $server             The $_SERVER variable
+	 * @param string              $baseRoutesFilepath The path to a base routes file to leverage cache, can be empty
+	 * @param L10n                $l10n
+	 * @param ICache              $cache
+	 * @param RouteCollector|null $routeCollector
 	 */
-	public function __construct(array $server, L10n $l10n, RouteCollector $routeCollector = null)
+	public function __construct(array $server, string $baseRoutesFilepath, L10n $l10n, ICache $cache, RouteCollector $routeCollector = null)
 	{
+		$this->baseRoutesFilepath = $baseRoutesFilepath;
 		$this->l10n = $l10n;
+		$this->cache = $cache;
 
 		$httpMethod = $server['REQUEST_METHOD'] ?? self::GET;
 		$this->httpMethod = in_array($httpMethod, self::ALLOWED_METHODS) ? $httpMethod : self::GET;
@@ -84,6 +96,9 @@ class Router
 	}
 
 	/**
+	 * This will be called either automatically if a base routes file path was submitted,
+	 * or can be called manually with a custom route array.
+	 *
 	 * @param array $routes The routes to add to the Router
 	 *
 	 * @return self The router instance with the loaded routes
@@ -99,6 +114,9 @@ class Router
 		$this->addRoutes($routeCollector, $routes);
 
 		$this->routeCollector = $routeCollector;
+
+		// Add routes from addons
+		Hook::callAll('route_collection', $this->routeCollector);
 
 		return $this;
 	}
@@ -191,12 +209,9 @@ class Router
 	 */
 	public function getModuleClass($cmd)
 	{
-		// Add routes from addons
-		Hook::callAll('route_collection', $this->routeCollector);
-
 		$cmd = '/' . ltrim($cmd, '/');
 
-		$dispatcher = new Dispatcher\GroupCountBased($this->routeCollector->getData());
+		$dispatcher = new Dispatcher\GroupCountBased($this->getCachedDispatchData());
 
 		$moduleClass = null;
 		$this->parameters = [];
@@ -222,5 +237,52 @@ class Router
 	public function getModuleParameters()
 	{
 		return $this->parameters;
+	}
+
+	/**
+	 * If a base routes file path has been provided, we can load routes from it if the cache misses.
+	 *
+	 * @return array
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	private function getDispatchData()
+	{
+		$dispatchData = [];
+
+		if ($this->baseRoutesFilepath && file_exists($this->baseRoutesFilepath)) {
+			$dispatchData = require $this->baseRoutesFilepath;
+			if (!is_array($dispatchData)) {
+				throw new HTTPException\InternalServerErrorException('Invalid base routes file');
+			}
+		}
+
+		$this->loadRoutes($dispatchData);
+
+		return $this->routeCollector->getData();
+	}
+
+	/**
+	 * We cache the dispatch data for speed, as computing the current routes (version 2020.09)
+	 * takes about 850ms for each requests.
+	 *
+	 * The cached "routerDispatchData" lasts for a day, and must be cleared manually when there
+	 * is any changes in the enabled addons list.
+	 *
+	 * @return array|mixed
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	private function getCachedDispatchData()
+	{
+		$routerDispatchData = $this->cache->get('routerDispatchData');
+
+		if ($routerDispatchData) {
+			return $routerDispatchData;
+		}
+
+		$routerDispatchData = $this->getDispatchData();
+
+		$this->cache->set('routerDispatchData', $routerDispatchData, Duration::DAY);
+
+		return $routerDispatchData;
 	}
 }

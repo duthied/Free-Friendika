@@ -247,6 +247,8 @@ class Hook
 	/**
 	 * Deletes one or more hook records
 	 *
+	 * We have to clear the cached routerDispatchData because addons can provide routes
+	 *
 	 * @param array $condition
 	 * @param array $options
 	 * @return bool
@@ -256,11 +258,17 @@ class Hook
 	{
 		$result = DBA::delete('hook', $condition, $options);
 
+		if ($result) {
+			DI::cache()->delete('routerDispatchData');
+		}
+
 		return $result;
 	}
 
 	/**
 	 * Inserts a hook record
+	 *
+	 * We have to clear the cached routerDispatchData because addons can provide routes
 	 *
 	 * @param array $condition
 	 * @return bool
@@ -269,6 +277,10 @@ class Hook
 	private static function insert(array $condition)
 	{
 		$result = DBA::insert('hook', $condition);
+
+		if ($result) {
+			DI::cache()->delete('routerDispatchData');
+		}
 
 		return $result;
 	}
