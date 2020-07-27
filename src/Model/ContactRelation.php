@@ -22,6 +22,7 @@
 namespace Friendica\Model;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Protocol\ActivityPub;
@@ -100,7 +101,13 @@ class ContactRelation
 			return;
 		}
 
-		$apcontact = APContact::getByURL($url);
+		if (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS])) {
+			// The contact is (most likely) speaking AP, so updating is allowed
+			$apcontact = APContact::getByURL($url);
+		} else {
+			// The contact isn't obviously speaking AP, so we don't allow updating
+			$apcontact = APContact::getByURL($url, false);
+		}
 
 		if (!empty($apcontact['followers']) && is_string($apcontact['followers'])) {
 			$followers = ActivityPub::fetchItems($apcontact['followers']);
