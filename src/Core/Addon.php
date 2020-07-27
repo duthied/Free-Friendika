@@ -136,7 +136,7 @@ class Addon
 			$func();
 		}
 
-		DBA::delete('hook', ['file' => 'addon/' . $addon . '/' . $addon . '.php']);
+		Hook::delete(['file' => 'addon/' . $addon . '/' . $addon . '.php']);
 
 		unset(self::$addons[array_search($addon, self::$addons)]);
 	}
@@ -204,17 +204,9 @@ class Addon
 			}
 
 			Logger::notice("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $addon['name']]);
-			@include_once($fname);
 
-			if (function_exists($addonname . '_uninstall')) {
-				$func = $addonname . '_uninstall';
-				$func(DI::app());
-			}
-			if (function_exists($addonname . '_install')) {
-				$func = $addonname . '_install';
-				$func(DI::app());
-			}
-			DBA::update('addon', ['timestamp' => $t], ['id' => $addon['id']]);
+			self::uninstall($fname);
+			self::install($fname);
 		}
 	}
 
