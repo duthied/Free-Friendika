@@ -101,7 +101,7 @@ class ContactRelation
 			return;
 		}
 
-		if (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+		if (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS])) {
 			// The contact is (most likely) speaking AP, so updating is allowed
 			$apcontact = APContact::getByURL($url);
 		} else {
