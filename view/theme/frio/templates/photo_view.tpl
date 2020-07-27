@@ -37,7 +37,7 @@
 	{{/if}}
 	{{if $tools.lock}}
 		<span class="icon-padding"> </span>
-		<a id="photo-lock-link" onclick="lockview(event,'photo/{{$id}}');" title="{{$tools.lock}}" data-toggle="tooltip">
+		<a id="photo-lock-link" onclick="lockview(event, 'photo', {{$id}});" title="{{$tools.lock}}" data-toggle="tooltip">
 			<i class="page-action faded-icon fa fa-lock"></i>
 		</a>
 	{{/if}}

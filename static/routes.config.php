@@ -237,6 +237,8 @@ return [
 	'/openid'         => [Module\Security\OpenID::class, [R::GET]],
 	'/opensearch'     => [Module\OpenSearch::class,      [R::GET]],
 
+	'/permission/tooltip/{type}/{id:\d+}' => [Module\PermissionTooltip::class, [R::GET]],
+
 	'/photo' => [
 		'/{name}'                    => [Module\Photo::class, [R::GET]],
 		'/{type}/{name}'             => [Module\Photo::class, [R::GET]],

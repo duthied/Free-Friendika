@@ -1,7 +1,7 @@
 <!-- TODO => Unknow block -->
 <div class="wall-item-decor" style="display:none;">
 	<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>
-	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event, {{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock" aria-hidden="true"></span>{{/if}}
+	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock" aria-hidden="true"></span>{{/if}}
 </div>
 <!-- ./TODO => Unknow block -->
 
@@ -56,7 +56,7 @@
 					</a>
 				{{/if}}
 				{{if $item.lock}}
-					<span class="navicon lock fakelink" onClick="lockview(event, {{$item.id}});" title="{{$item.lock}}">
+					<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}">
 						&nbsp;<small><i class="fa fa-lock" aria-hidden="true"></i></small>
 					</span>
 				{{/if}}

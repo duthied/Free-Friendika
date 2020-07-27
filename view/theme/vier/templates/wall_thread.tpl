@@ -65,7 +65,7 @@
 				{{/if}}
 				<span class="pinned">{{$item.pinned}}</span>
 			</span>
-			{{if $item.lock}}<span class="icon s10 lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
+			{{if $item.lock}}<span class="icon s10 lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
 			<span class="wall-item-network" title="{{$item.app}}">
 				{{$item.network_name}}
 			</span>
