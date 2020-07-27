@@ -36,6 +36,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\Contact as ModelContact;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\NotFoundException;
@@ -278,6 +279,8 @@ class Contact extends BaseModule
 			if ($contact['network'] == Protocol::PHANTOM) {
 				$contact = false;
 			}
+
+			$contact = ModelContact::checkAvatarCacheByArray($contact);
 		}
 
 		if (DBA::isResult($contact)) {

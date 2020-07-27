@@ -1788,6 +1788,54 @@ class Contact
 	}
 
 	/**
+	 * Check the given contact array for avatar cache fields
+	 *
+	 * @param array $contact
+	 * @return array contact array with avatar cache fields
+	 */
+	public static function checkAvatarCacheByArray(array $contact)
+	{
+		$update = false;
+		$contact_fields = [];
+		$fields = ['photo', 'thumb', 'micro'];
+		foreach ($fields as $field) {
+			if (isset($contact[$field])) {
+				$contact_fields[] = $field;
+			}
+			if (isset($contact[$field]) && empty($contact[$field])) {
+				$update = true;
+			}
+		}
+
+		if (!$update) {
+			return $contact;
+		}
+
+		if (!empty($contact['id']) && !empty($contact['avatar'])) {
+			self::updateAvatar($contact['id'], $contact['avatar'], true);
+
+			$new_contact = self::getById($contact['id'], $contact_fields);
+			if (DBA::isResult($new_contact)) {
+				// We only update the cache fields
+				$contact = array_merge($contact, $new_contact);
+			}
+		}
+
+		/// add the default avatars if the fields aren't filled
+		if (isset($contact['photo']) && empty($contact['photo'])) {
+			$contact['photo'] = DI::baseUrl() . '/images/person-300.jpg';
+		}
+		if (isset($contact['thumb']) && empty($contact['thumb'])) {
+			$contact['thumb'] = DI::baseUrl() . '/images/person-80.jpg';
+		}
+		if (isset($contact['micro']) && empty($contact['micro'])) {
+			$contact['micro'] = DI::baseUrl() . '/images/person-48.jpg';
+		}
+
+		return $contact;
+	}
+
+	/**
 	 * Updates the avatar links in a contact only if needed
 	 *
 	 * @param int    $cid    Contact id
