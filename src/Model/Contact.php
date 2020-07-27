@@ -1793,7 +1793,7 @@ class Contact
 	 * @param array $contact
 	 * @return array contact array with avatar cache fields
 	 */
-	public static function checkAvatarCacheArray(array $contact)
+	public static function checkAvatarCacheByArray(array $contact)
 	{
 		$update = false;
 		$contact_fields = [];

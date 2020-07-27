@@ -280,7 +280,7 @@ class Contact extends BaseModule
 				$contact = false;
 			}
 
-			$contact = ModelContact::checkAvatarCacheArray($contact);
+			$contact = ModelContact::checkAvatarCacheByArray($contact);
 		}
 
 		if (DBA::isResult($contact)) {
