@@ -572,7 +572,7 @@ function networkThreadedView(App $a, $update, $parent)
 			'$title' => DI::l10n()->t('Group: %s', $group['name'])
 		]) . $o;
 	} elseif ($cid) {
-		$fields = ['id', 'name', 'network', 'writable', 'nurl',
+		$fields = ['id', 'name', 'network', 'writable', 'nurl', 'avatar',
 			'forum', 'prv', 'contact-type', 'addr', 'thumb', 'location'];
 		$condition = ["`id` = ? AND (NOT `blocked` OR `pending`)", $cid];
 		$contact = DBA::selectFirst('contact', $fields, $condition);

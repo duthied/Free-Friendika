@@ -40,7 +40,6 @@ use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
 /**
@@ -1067,7 +1066,7 @@ class Contact extends BaseModule
 			'id'        => $rr['id'],
 			'alt_text'  => $alt_text,
 			'dir_icon'  => $dir_icon,
-			'thumb'     => ProxyUtils::proxifyUrl($rr['thumb'], false, ProxyUtils::SIZE_THUMB),
+			'thumb'     => Model\Contact::getThumb($rr),
 			'name'      => $rr['name'],
 			'username'  => $rr['name'],
 			'account_type' => Model\Contact::getAccountType($rr),

@@ -32,7 +32,6 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Network\HTTPException;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
 /**
@@ -83,14 +82,14 @@ class Acl extends BaseModule
 				DI::logger()->warning('Wrong result item from Search::searchGlobalContact', ['$g' => $g, '$search' => $search, '$mode' => $mode, '$page' => $page]);
 				continue;
 			}
-
+			$contact = Contact::getByURL($g['url']);
 			$contacts[] = [
-				'photo'   => ProxyUtils::proxifyUrl($g['photo'], false, ProxyUtils::SIZE_MICRO),
-				'name'    => htmlspecialchars($g['name']),
-				'nick'    => $g['addr'] ?: $g['url'],
-				'network' => $g['network'],
+				'photo'   => Contact::getMicro($contact, $g['photo']),
+				'name'    => htmlspecialchars($contact['name'] ?? $g['name']),
+				'nick'    => $contact['nick'] ?? ($g['addr'] ?: $g['url']),
+				'network' => $contact['network'] ?? $g['network'],
 				'link'    => $g['url'],
-				'forum'   => !empty($g['community']) ? 1 : 0,
+				'forum'   => !empty($g['community']),
 			];
 		}
 
@@ -231,7 +230,7 @@ class Acl extends BaseModule
 		$r = [];
 		switch ($type) {
 			case self::TYPE_MENTION_CONTACT_GROUP:
-				$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv`, (`prv` OR `forum`) AS `frm` FROM `contact`
+				$r = q("SELECT `id`, `name`, `nick`, `avatar`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv`, (`prv` OR `forum`) AS `frm` FROM `contact`
 					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 					AND NOT (`network` IN ('%s', '%s'))
 					$sql_extra2
@@ -243,7 +242,7 @@ class Acl extends BaseModule
 				break;
 
 			case self::TYPE_MENTION_CONTACT:
-				$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
+				$r = q("SELECT `id`, `name`, `nick`, `avatar`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
 					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 					AND NOT (`network` IN ('%s'))
 					$sql_extra2
@@ -254,7 +253,7 @@ class Acl extends BaseModule
 				break;
 
 			case self::TYPE_MENTION_FORUM:
-				$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
+				$r = q("SELECT `id`, `name`, `nick`, `avatar`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
 					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 					AND NOT (`network` IN ('%s'))
 					AND (`forum` OR `prv`)
@@ -266,7 +265,7 @@ class Acl extends BaseModule
 				break;
 
 			case self::TYPE_PRIVATE_MESSAGE:
-				$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
+				$r = q("SELECT `id`, `name`, `nick`, `avatar`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
 					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 					AND `network` IN ('%s', '%s', '%s')
 					$sql_extra2
@@ -280,7 +279,7 @@ class Acl extends BaseModule
 
 			case self::TYPE_ANY_CONTACT:
 			default:
-				$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
+				$r = q("SELECT `id`, `name`, `nick`, `avatar`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv`, `avatar` FROM `contact`
 					WHERE `uid` = %d AND NOT `deleted` AND NOT `pending` AND NOT `archive`
 					$sql_extra2
 					ORDER BY `name`",
@@ -350,7 +349,7 @@ class Acl extends BaseModule
 					continue;
 				}
 
-				$contact = Contact::getByURL($author, false, ['micro', 'name', 'id', 'network', 'nick', 'addr', 'url', 'forum']);
+				$contact = Contact::getByURL($author, false, ['micro', 'name', 'id', 'network', 'nick', 'addr', 'url', 'forum', 'avatar']);
 
 				if (count($contact) > 0) {
 					$unknown_contacts[] = [

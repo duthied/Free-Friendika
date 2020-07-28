@@ -97,7 +97,7 @@ class Notification extends BaseFactory
 
 		$item['label'] = (($item['gravity'] == GRAVITY_PARENT) ? 'post' : 'comment');
 		$item['link']  = $this->baseUrl->get(true) . '/display/' . $item['parent-guid'];
-		$item['image'] = Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO);
+		$item['image'] = $item['author-avatar'];
 		$item['url']   = $item['author-link'];
 		$item['text']  = (($item['gravity'] == GRAVITY_PARENT)
 			? $this->l10n->t("%s created a new post", $item['author-name'])
@@ -125,7 +125,7 @@ class Notification extends BaseFactory
 				return new \Friendica\Object\Notification\Notification([
 					'label' => 'like',
 					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'image' => $item['author-avatar'],
 					'url'   => $item['author-link'],
 					'text'  => $this->l10n->t("%s liked %s's post", $item['author-name'], $item['parent-author-name']),
 					'when'  => $item['when'],
@@ -136,7 +136,7 @@ class Notification extends BaseFactory
 				return new \Friendica\Object\Notification\Notification([
 					'label' => 'dislike',
 					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'image' => $item['author-avatar'],
 					'url'   => $item['author-link'],
 					'text'  => $this->l10n->t("%s disliked %s's post", $item['author-name'], $item['parent-author-name']),
 					'when'  => $item['when'],
@@ -147,7 +147,7 @@ class Notification extends BaseFactory
 				return new \Friendica\Object\Notification\Notification([
 					'label' => 'attend',
 					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'image' => $item['author-avatar'],
 					'url'   => $item['author-link'],
 					'text'  => $this->l10n->t("%s is attending %s's event", $item['author-name'], $item['parent-author-name']),
 					'when'  => $item['when'],
@@ -158,7 +158,7 @@ class Notification extends BaseFactory
 				return new \Friendica\Object\Notification\Notification([
 					'label' => 'attendno',
 					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'image' => $item['author-avatar'],
 					'url'   => $item['author-link'],
 					'text'  => $this->l10n->t("%s is not attending %s's event", $item['author-name'], $item['parent-author-name']),
 					'when'  => $item['when'],
@@ -169,7 +169,7 @@ class Notification extends BaseFactory
 				return new \Friendica\Object\Notification\Notification([
 					'label' => 'attendmaybe',
 					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'image' => $item['author-avatar'],
 					'url'   => $item['author-link'],
 					'text'  => $this->l10n->t("%s may attending %s's event", $item['author-name'], $item['parent-author-name']),
 					'when'  => $item['when'],
@@ -196,7 +196,7 @@ class Notification extends BaseFactory
 				return new \Friendica\Object\Notification\Notification([
 					'label' => 'friend',
 					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'image' => $item['author-avatar'],
 					'url'   => $item['author-link'],
 					'text'  => $this->l10n->t("%s is now friends with %s", $item['author-name'], $item['fname']),
 					'when'  => $item['when'],

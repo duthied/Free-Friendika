@@ -40,7 +40,6 @@ use Friendica\Object\Thread;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
@@ -593,7 +592,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'name' => $profile_name,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
-					'thumb' => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
+					'thumb' => DI::baseUrl()->remove($item['author-avatar']),
 					'title' => $title,
 					'body' => $body,
 					'tags' => $tags['tags'],
@@ -613,7 +612,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'indent' => '',
 					'owner_name' => $owner_name,
 					'owner_url' => $owner_url,
-					'owner_photo' => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
+					'owner_photo' => DI::baseUrl()->remove($item['owner-avatar']),
 					'plink' => Item::getPlink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,

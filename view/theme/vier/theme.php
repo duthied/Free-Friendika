@@ -18,7 +18,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
 function vier_init(App $a)
@@ -127,11 +126,12 @@ function vier_community_info()
 			$aside['$comunity_profiles_items'] = [];
 
 			foreach ($r as $rr) {
+				$contact = Contact::getByURL($rr['url']);
 				$entry = Renderer::replaceMacros($tpl, [
 					'$id' => $rr['id'],
 					'$profile_link' => 'follow/?url='.urlencode($rr['url']),
-					'$photo' => ProxyUtils::proxifyUrl($rr['photo'], false, ProxyUtils::SIZE_MICRO),
-					'$alt_text' => $rr['name'],
+					'$photo' => Contact::getMicro($contact, $rr['photo']),
+					'$alt_text' => $contact['name'] ?? $rr['name'],
 				]);
 				$aside['$comunity_profiles_items'][] = $entry;
 			}
@@ -207,7 +207,7 @@ function vier_community_info()
 					'name'         => $contact['name'],
 					'cid'          => $contact['id'],
 					'selected'     => $selected,
-					'micro'        => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO)),
+					'micro'        => Contact::getMicro($contact),
 					'id'           => ++$id,
 				];
 				$entries[] = $entry;

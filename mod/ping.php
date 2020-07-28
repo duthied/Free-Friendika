@@ -327,7 +327,7 @@ function ping_init(App $a)
 
 		if (DBA::isResult($notifs)) {
 			foreach ($notifs as $notif) {
-				$contact = Contact::getByURL($notif['url'], false, ['micro']);
+				$contact = Contact::getByURL($notif['url'], false, ['micro', 'id', 'avatar']);
 				$notif['photo'] = Contact::getMicro($contact, $notif['photo']);
 
 				$local_time = DateTimeFormat::local($notif['date']);

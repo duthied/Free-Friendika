@@ -31,7 +31,6 @@ use Friendica\Model;
 use Friendica\Network\HTTPException;
 use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
-use Friendica\Util\Proxy as ProxyUtils;
 
 /**
  * Base class for search modules
@@ -160,13 +159,14 @@ class BaseSearch extends BaseModule
 				}
 
 				$photo = str_replace("http:///photo/", Search::getGlobalDirectory() . "/photo/", $result->getPhoto());
+				$contact = Model\Contact::getByURL($result->getUrl());
 
 				$entry     = [
 					'alt_text'     => $alt_text,
 					'url'          => Model\Contact::magicLink($result->getUrl()),
 					'itemurl'      => $result->getItem(),
-					'name'         => $result->getName(),
-					'thumb'        => ProxyUtils::proxifyUrl($photo, false, ProxyUtils::SIZE_THUMB),
+					'name'         => $contact['name'] ?? $result->getName(),
+					'thumb'        => Model\Contact::getThumb($contact, $photo),
 					'img_hover'    => $result->getTags(),
 					'conntxt'      => $connTxt,
 					'connlnk'      => $connLink,
