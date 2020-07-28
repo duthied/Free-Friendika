@@ -2175,7 +2175,12 @@ class Item
 	public static function storeForUserByUriId(int $uri_id, int $uid)
 	{
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['uri-id' => $uri_id, 'uid' => 0]);
-		if (empty($item) || ($item['private'] != self::PRIVATE)) {
+		if (!DBA::isResult($item)) {
+			return 0;
+		}
+
+		if (($item['private'] == self::PRIVATE) || !in_array($item['network'], Protocol::FEDERATED)) {
+			Logger::notice('Item is private or not from a federated network. It will not be stored for the user.', ['uri-id' => $uri_id, 'uid' => $uid, 'private' => $item['private'], 'network' => $item['network']]);
 			return 0;
 		}
 
