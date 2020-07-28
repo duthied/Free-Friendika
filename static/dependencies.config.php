@@ -191,10 +191,9 @@ return [
 	],
 	App\Router::class => [
 		'constructParams' => [
-			$_SERVER, null
-		],
-		'call' => [
-			['loadRoutes', [include __DIR__ . '/routes.config.php'], Dice::CHAIN_CALL],
+			$_SERVER,
+			__DIR__ . '/routes.config.php',
+			null
 		],
 	],
 	L10n::class => [

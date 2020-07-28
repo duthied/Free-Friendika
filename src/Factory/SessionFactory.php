@@ -85,7 +85,7 @@ class SessionFactory
 				$session = new Session\Native($baseURL, $handler);
 			}
 		} finally {
-			$profiler->saveTimestamp($stamp1, 'parser', System::callstack());
+			$profiler->saveTimestamp($stamp1, 'parser');
 			return $session;
 		}
 	}

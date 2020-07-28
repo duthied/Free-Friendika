@@ -54,18 +54,6 @@ function frio_install()
 	Logger::log('installed theme frio');
 }
 
-function frio_uninstall()
-{
-	Hook::unregister('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
-	Hook::unregister('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
-	Hook::unregister('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
-	Hook::unregister('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
-	Hook::unregister('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
-	Hook::unregister('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
-
-	Logger::log('uninstalled theme frio');
-}
-
 /**
  * Replace friendica photo links hook
  *

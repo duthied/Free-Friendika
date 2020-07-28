@@ -200,7 +200,7 @@ class Images
 
 				$stamp1 = microtime(true);
 				file_put_contents($tempfile, $img_str);
-				DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
+				DI::profiler()->saveTimestamp($stamp1, "file");
 
 				$data = getimagesize($tempfile);
 				unlink($tempfile);
