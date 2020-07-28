@@ -27,7 +27,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
-use Friendica\Util\Proxy as ProxyUtils;
 
 function suggest_init(App $a)
 {
@@ -111,7 +110,7 @@ function suggest_content(App $a)
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 			'img_hover' => $rr['url'],
 			'name' => $contact_details['name'],
-			'thumb' => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
+			'thumb' => Contact::getThumb($contact_details),
 			'details'       => $contact_details['location'],
 			'tags'          => $contact_details['keywords'],
 			'about'         => $contact_details['about'],

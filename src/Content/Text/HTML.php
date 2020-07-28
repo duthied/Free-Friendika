@@ -30,7 +30,6 @@ use Friendica\Core\Search;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Util\Network;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use League\HTMLToMarkdown\HtmlConverter;
@@ -868,7 +867,7 @@ class HTML
 			'$click' => $contact['click'] ?? '',
 			'$class' => $class,
 			'$url' => $url,
-			'$photo' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
+			'$photo' => Contact::getThumb($contact),
 			'$name' => $contact['name'],
 			'title' => $contact['name'] . ' [' . $contact['addr'] . ']',
 			'$parkle' => $sparkle,

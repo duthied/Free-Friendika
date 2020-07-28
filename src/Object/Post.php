@@ -38,7 +38,6 @@ use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
@@ -447,7 +446,7 @@ class Post
 			'profile_url'     => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
 			'name'            => $name_e,
-			'thumb'           => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
+			'thumb'           => DI::baseUrl()->remove($item['author-avatar']),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
 			'title'           => $title_e,
@@ -461,7 +460,7 @@ class Post
 			'shiny'           => $shiny,
 			'owner_self'      => $item['author-link'] == Session::get('my_url'),
 			'owner_url'       => $this->getOwnerUrl(),
-			'owner_photo'     => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
+			'owner_photo'     => DI::baseUrl()->remove($item['owner-avatar']),
 			'owner_name'      => $owner_name_e,
 			'plink'           => Item::getPlink($item),
 			'edpost'          => $edpost,

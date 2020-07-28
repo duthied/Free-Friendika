@@ -32,7 +32,6 @@ use Friendica\Model\Mail;
 use Friendica\Model\Notify\Type;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
@@ -393,12 +392,8 @@ function message_content(App $a)
 			$body_e = BBCode::convert($message['body']);
 			$to_name_e = $message['name'];
 
-			$contact = Contact::getByURL($message['from-url'], false, ['thumb', 'addr']);
-			if (isset($contact["thumb"])) {
-				$from_photo = $contact["thumb"];
-			} else {
-				$from_photo = $message['from-photo'];
-			}
+			$contact = Contact::getByURL($message['from-url'], false, ['thumb', 'addr', 'id', 'avatar']);
+			$from_photo = Contact::getThumb($contact, $message['from-photo']);
 
 			$mails[] = [
 				'id' => $message['id'],
@@ -406,7 +401,7 @@ function message_content(App $a)
 				'from_url' => $from_url,
 				'from_addr' => $contact['addr'],
 				'sparkle' => $sparkle,
-				'from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
+				'from_photo' => $from_photo,
 				'subject' => $subject_e,
 				'body' => $body_e,
 				'delete' => DI::l10n()->t('Delete message'),
@@ -525,12 +520,8 @@ function render_messages(array $msg, $t)
 		$body_e = $rr['body'];
 		$to_name_e = $rr['name'];
 
-		$contact = Contact::getByURL($rr['url'], false, ['thumb', 'addr']);
-		if (isset($contact["thumb"])) {
-			$from_photo = $contact["thumb"];
-		} else {
-			$from_photo = (($rr['thumb']) ? $rr['thumb'] : $rr['from-photo']);
-		}
+		$contact = Contact::getByURL($rr['url'], false, ['thumb', 'addr', 'id', 'avatar']);
+		$from_photo = Contact::getThumb($contact, $rr['thumb'] ?: $rr['from-photo']);
 
 		$rslt .= Renderer::replaceMacros($tpl, [
 			'$id' => $rr['id'],
@@ -538,7 +529,7 @@ function render_messages(array $msg, $t)
 			'$from_url' => Contact::magicLink($rr['url']),
 			'$from_addr' => $contact['addr'] ?? '',
 			'$sparkle' => ' sparkle',
-			'$from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
+			'$from_photo' => $from_photo,
 			'$subject' => $rr['title'],
 			'$delete' => DI::l10n()->t('Delete conversation'),
 			'$body' => $body_e,

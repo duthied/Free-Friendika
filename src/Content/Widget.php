@@ -34,7 +34,6 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
@@ -432,10 +431,11 @@ class Widget
 
 		$entries = [];
 		foreach ($r as $rr) {
+			$contact = Contact::getByURL($rr['url']);
 			$entry = [
 				'url'   => Contact::magicLink($rr['url']),
-				'name'  => $rr['name'],
-				'photo' => ProxyUtils::proxifyUrl($rr['photo'], false, ProxyUtils::SIZE_THUMB),
+				'name'  => $contact['name'] ?? $rr['name'],
+				'photo' => Contact::getThumb($contact, $rr['photo']),
 			];
 			$entries[] = $entry;
 		}
