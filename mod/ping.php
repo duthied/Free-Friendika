@@ -34,7 +34,6 @@ use Friendica\Model\Verb;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\XML;
 
 /**
@@ -329,11 +328,7 @@ function ping_init(App $a)
 		if (DBA::isResult($notifs)) {
 			foreach ($notifs as $notif) {
 				$contact = Contact::getByURL($notif['url'], false, ['micro']);
-				if (isset($contact['micro'])) {
-					$notif['photo'] = ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO);
-				} else {
-					$notif['photo'] = ProxyUtils::proxifyUrl($notif['photo'], false, ProxyUtils::SIZE_MICRO);
-				}
+				$notif['photo'] = Contact::getMicro($contact, $notif['photo']);
 
 				$local_time = DateTimeFormat::local($notif['date']);
 

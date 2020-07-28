@@ -32,7 +32,6 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Network\HTTPException;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
 /**
@@ -168,7 +167,7 @@ class Directory extends BaseModule
 			'id'           => $contact['id'],
 			'url'          => Contact::magicLink($profile_link),
 			'itemurl'      => $itemurl,
-			'thumb'        => ProxyUtils::proxifyUrl($contact[$photo_size], false, ProxyUtils::SIZE_THUMB),
+			'thumb'        => Contact::getThumb($contact),
 			'img_hover'    => $contact['name'],
 			'name'         => $contact['name'],
 			'details'      => $details,

@@ -32,7 +32,6 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Module\BaseProfile;
-use Friendica\Util\Proxy as ProxyUtils;
 
 class Contacts extends BaseProfile
 {
@@ -109,7 +108,7 @@ class Contacts extends BaseProfile
 				'id'           => $contact['id'],
 				'img_hover'    => DI::l10n()->t('Visit %s\'s profile [%s]', $contact_details['name'], $contact['url']),
 				'photo_menu'   => Contact::photoMenu($contact),
-				'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
+				'thumb'        => Contact::getThumb($contact_details),
 				'name'         => substr($contact_details['name'], 0, 20),
 				'username'     => $contact_details['name'],
 				'details'      => $contact_details['location'],

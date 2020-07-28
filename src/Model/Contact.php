@@ -43,6 +43,7 @@ use Friendica\Protocol\Salmon;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 /**
@@ -1788,12 +1789,78 @@ class Contact
 	}
 
 	/**
+	 * Return the photo path for a given contact array in the given size
+	 *
+	 * @param array $contact  contact array
+	 * @param string $field   Fieldname of the photo in the contact array
+	 * @param string $default Default path when no picture had been found
+	 * @param string $size    Size of the avatar picture
+	 * @param string $avatar  Avatar path that is displayed when no photo had been found
+	 * @return string photo path
+	 */
+	private static function getAvatarPath(array $contact, string $field, string $default, string $size, string $avatar)
+	{
+		if (!empty($contact)) {
+			$contact = self::checkAvatarCacheByArray($contact);
+			if (!empty($contact[$field])) {
+				$avatar = $contact[$field];
+			}
+		}
+
+		if (empty($avatar)) {
+			return $default;
+		}
+
+		if (Proxy::isLocalImage($avatar)) {
+			return $avatar;
+		} else {
+			return Proxy::proxifyUrl($avatar, false, $size);
+		}
+	}
+
+	/**
+	 * Return the photo path for a given contact array
+	 *
+	 * @param array $contact Contact array
+	 * @param string $avatar  Avatar path that is displayed when no photo had been found
+	 * @return string photo path
+	 */
+	public static function getPhoto(array $contact, string $avatar = '')
+	{
+		return self::getAvatarPath($contact, 'photo', DI::baseUrl() . '/images/person-300.jpg', Proxy::SIZE_SMALL, $avatar);
+	}
+
+	/**
+	 * Return the photo path (thumb size) for a given contact array
+	 *
+	 * @param array $contact Contact array
+	 * @param string $avatar  Avatar path that is displayed when no photo had been found
+	 * @return string photo path
+	 */
+	public static function getThumb(array $contact, string $avatar = '')
+	{
+		return self::getAvatarPath($contact, 'thumb', DI::baseUrl() . '/images/person-80.jpg', Proxy::SIZE_THUMB, $avatar);
+	}
+
+	/**
+	 * Return the photo path (micro size) for a given contact array
+	 *
+	 * @param array $contact Contact array
+	 * @param string $avatar  Avatar path that is displayed when no photo had been found
+	 * @return string photo path
+	 */
+	public static function getMicro(array $contact, string $avatar = '')
+	{
+		return self::getAvatarPath($contact, 'micro', DI::baseUrl() . '/images/person-48.jpg', Proxy::SIZE_MICRO, $avatar);
+	}
+
+	/**
 	 * Check the given contact array for avatar cache fields
 	 *
 	 * @param array $contact
 	 * @return array contact array with avatar cache fields
 	 */
-	public static function checkAvatarCacheByArray(array $contact)
+	private static function checkAvatarCacheByArray(array $contact)
 	{
 		$update = false;
 		$contact_fields = [];
