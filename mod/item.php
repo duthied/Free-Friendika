@@ -139,7 +139,7 @@ function item_post(App $a) {
 		// When commenting on a public post then store the post for the current user
 		// This enables interaction like starring and saving into folders
 		if ($toplevel_item['uid'] == 0) {
-			$stored = Item::storeForUser($toplevel_item, local_user());
+			$stored = Item::storeForUserByUriId($toplevel_item['uri-id'], local_user());
 			Logger::info('Public item stored for user', ['uri-id' => $toplevel_item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
 			if ($stored) {
 				$toplevel_item = Item::selectFirst([], ['id' => $stored]);
