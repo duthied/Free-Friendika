@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.09-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1357
+-- DB_UPDATE_VERSION 1358
 -- ------------------------------------------
 
 
@@ -102,6 +102,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`avatar-date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`term-date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last-item` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'date of the last post',
+	`last-discovery` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'date of the last follower discovery',
 	`priority` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`blocked` boolean NOT NULL DEFAULT '1' COMMENT 'Node-wide block status',
 	`block_reason` text COMMENT 'Node-wide block reason',
@@ -342,8 +343,12 @@ CREATE TABLE IF NOT EXISTS `contact-relation` (
 	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact the related contact had interacted with',
 	`relation-cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'related contact who had interacted with the contact',
 	`last-interaction` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last interaction',
+	`follow-updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last update of the contact relationship',
+	`follows` boolean NOT NULL DEFAULT '0' COMMENT '',
 	 PRIMARY KEY(`cid`,`relation-cid`),
-	 INDEX `relation-cid` (`relation-cid`)
+	 INDEX `relation-cid` (`relation-cid`),
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`relation-cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Contact relations';
 
 --
@@ -516,17 +521,6 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	 INDEX `gsid` (`gsid`),
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='global contacts';
-
---
--- TABLE gfollower
---
-CREATE TABLE IF NOT EXISTS `gfollower` (
-	`gcid` int unsigned NOT NULL DEFAULT 0 COMMENT 'global contact',
-	`follower-gcid` int unsigned NOT NULL DEFAULT 0 COMMENT 'global contact of the follower',
-	`deleted` boolean NOT NULL DEFAULT '0' COMMENT '1 indicates that the connection has been deleted',
-	 PRIMARY KEY(`gcid`,`follower-gcid`),
-	 INDEX `follower-gcid` (`follower-gcid`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Followers of global contacts';
 
 --
 -- TABLE glink

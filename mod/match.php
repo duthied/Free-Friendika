@@ -27,7 +27,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
-use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 
 /**
@@ -60,7 +59,7 @@ function match_content(App $a)
 		return '';
 	}
 	if (!$profile['pub_keywords'] && (!$profile['prv_keywords'])) {
-		notice(DI::l10n()->t('No keywords to match. Please add keywords to your profile.') . EOL);
+		notice(DI::l10n()->t('No keywords to match. Please add keywords to your profile.'));
 		return '';
 	}
 
@@ -76,7 +75,7 @@ function match_content(App $a)
 		$host = DI::baseUrl();
 	}
 
-	$msearch_json = Network::post($host . '/msearch', $params)->getBody();
+	$msearch_json = DI::httpRequest()->post($host . '/msearch', $params)->getBody();
 
 	$msearch = json_decode($msearch_json);
 
@@ -141,7 +140,7 @@ function match_content(App $a)
 	}
 
 	if (empty($entries)) {
-		info(DI::l10n()->t('No matches') . EOL);
+		info(DI::l10n()->t('No matches'));
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');

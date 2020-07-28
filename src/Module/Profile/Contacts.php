@@ -64,7 +64,7 @@ class Contacts extends BaseProfile
 		$o = self::getTabsHTML($a, 'contacts', $is_owner, $nickname);
 
 		if (!count($a->profile) || $a->profile['hide-friends']) {
-			notice(DI::l10n()->t('Permission denied.') . EOL);
+			notice(DI::l10n()->t('Permission denied.'));
 			return $o;
 		}
 
@@ -92,7 +92,7 @@ class Contacts extends BaseProfile
 		$contacts_stmt = DBA::select('contact', [], $condition, $params);
 
 		if (!DBA::isResult($contacts_stmt)) {
-			info(DI::l10n()->t('No contacts.') . EOL);
+			notice(DI::l10n()->t('No contacts.'));
 			return $o;
 		}
 

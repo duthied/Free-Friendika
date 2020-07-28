@@ -23,12 +23,11 @@ use Friendica\App;
 use Friendica\Core\Protocol;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Util\Network;
 
 function ostatus_subscribe_content(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('ostatus_subscribe');
 		// NOTREACHED
 	}
@@ -55,7 +54,7 @@ function ostatus_subscribe_content(App $a)
 		$api = $contact['baseurl'] . '/api/';
 
 		// Fetching friends
-		$curlResult = Network::curl($api . 'statuses/friends.json?screen_name=' . $contact['nick']);
+		$curlResult = DI::httpRequest()->get($api . 'statuses/friends.json?screen_name=' . $contact['nick']);
 
 		if (!$curlResult->isSuccess()) {
 			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');

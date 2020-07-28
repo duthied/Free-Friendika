@@ -90,7 +90,7 @@ class Theme
 
 		$stamp1 = microtime(true);
 		$theme_file = file_get_contents("view/theme/$theme/theme.php");
-		DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "file");
 
 		$result = preg_match("|/\*.*\*/|msU", $theme_file, $matches);
 
@@ -158,6 +158,8 @@ class Theme
 			if (function_exists($func)) {
 				$func();
 			}
+
+			Hook::delete(['file' => "view/theme/$theme/theme.php"]);
 		}
 
 		$allowed_themes = Theme::getAllowedList();

@@ -21,12 +21,12 @@
 
 namespace Friendica\Protocol;
 
-use Friendica\Util\JsonLD;
-use Friendica\Util\Network;
 use Friendica\Core\Protocol;
+use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\User;
 use Friendica\Util\HTTPSignature;
+use Friendica\Util\JsonLD;
 
 /**
  * ActivityPub Protocol class
@@ -87,13 +87,13 @@ class ActivityPub
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchContent($url, $uid = 0)
+	public static function fetchContent(string $url, int $uid = 0)
 	{
 		if (!empty($uid)) {
 			return HTTPSignature::fetch($url, $uid);
 		}
 
-		$curlResult = Network::curl($url, false, ['accept_content' => 'application/activity+json, application/ld+json']);
+		$curlResult = DI::httpRequest()->get($url, false, ['accept_content' => 'application/activity+json, application/ld+json']);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return false;
 		}

@@ -166,7 +166,7 @@ class Probe
 		Logger::info('Probing', ['host' => $host, 'ssl_url' => $ssl_url, 'url' => $url, 'callstack' => System::callstack(20)]);
 		$xrd = null;
 
-		$curlResult = Network::curl($ssl_url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+		$curlResult = DI::httpRequest()->get($ssl_url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 		$ssl_connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 		if ($curlResult->isSuccess()) {
 			$xml = $curlResult->getBody();
@@ -183,7 +183,7 @@ class Probe
 		}
 
 		if (!is_object($xrd) && !empty($url)) {
-			$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+			$curlResult = DI::httpRequest()->get($url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			$connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 			if ($curlResult->isTimeout()) {
 				Logger::info('Probing timeout', ['url' => $url]);
@@ -427,7 +427,7 @@ class Probe
 	 */
 	private static function getHideStatus($url)
 	{
-		$curlResult = Network::curl($url);
+		$curlResult = DI::httpRequest()->get($url);
 		if (!$curlResult->isSuccess()) {
 			return false;
 		}
@@ -841,7 +841,7 @@ class Probe
 
 	public static function pollZot($url, $data)
 	{
-		$curlResult = Network::curl($url);
+		$curlResult = DI::httpRequest()->get($url);
 		if ($curlResult->isTimeout()) {
 			return $data;
 		}
@@ -938,7 +938,7 @@ class Probe
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 
-		$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
+		$curlResult = DI::httpRequest()->get($url, false, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];
@@ -1007,7 +1007,7 @@ class Probe
 	 */
 	private static function pollNoscrape($noscrape_url, $data)
 	{
-		$curlResult = Network::curl($noscrape_url);
+		$curlResult = DI::httpRequest()->get($noscrape_url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];
@@ -1265,7 +1265,7 @@ class Probe
 	 */
 	private static function pollHcard($hcard_url, $data, $dfrn = false)
 	{
-		$curlResult = Network::curl($hcard_url);
+		$curlResult = DI::httpRequest()->get($hcard_url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];
@@ -1519,7 +1519,7 @@ class Probe
 							$pubkey = substr($pubkey, 5);
 						}
 					} elseif (Strings::normaliseLink($pubkey) == 'http://') {
-						$curlResult = Network::curl($pubkey);
+						$curlResult = DI::httpRequest()->get($pubkey);
 						if ($curlResult->isTimeout()) {
 							self::$istimeout = true;
 							return $short ? false : [];
@@ -1552,7 +1552,7 @@ class Probe
 		}
 
 		// Fetch all additional data from the feed
-		$curlResult = Network::curl($data["poll"]);
+		$curlResult = DI::httpRequest()->get($data["poll"]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];
@@ -1604,7 +1604,7 @@ class Probe
 	 */
 	private static function pumpioProfileData($profile_link)
 	{
-		$curlResult = Network::curl($profile_link);
+		$curlResult = DI::httpRequest()->get($profile_link);
 		if (!$curlResult->isSuccess()) {
 			return [];
 		}
@@ -1784,6 +1784,9 @@ class Probe
 		$base = $xpath->evaluate('string(/html/head/base/@href)') ?: $base;
 
 		$baseParts = parse_url($base);
+		if (empty($baseParts['host'])) {
+			return $href;
+		}
 
 		// Naked domain case (scheme://basehost)
 		$path = $baseParts['path'] ?? '/';
@@ -1835,7 +1838,7 @@ class Probe
 	 */
 	private static function feed($url, $probe = true)
 	{
-		$curlResult = Network::curl($url);
+		$curlResult = DI::httpRequest()->get($url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return [];

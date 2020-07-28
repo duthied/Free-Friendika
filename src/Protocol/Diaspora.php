@@ -1379,7 +1379,7 @@ class Diaspora
 
 		Logger::log("Fetch post from ".$source_url, Logger::DEBUG);
 
-		$envelope = Network::fetchUrl($source_url);
+		$envelope = DI::httpRequest()->fetch($source_url);
 		if ($envelope) {
 			Logger::log("Envelope was fetched.", Logger::DEBUG);
 			$x = self::verifyMagicEnvelope($envelope);
@@ -2410,7 +2410,7 @@ class Diaspora
 			$image_url = "http://".$handle_parts[1].$image_url;
 		}
 
-		Contact::updateAvatar($image_url, $importer["uid"], $contact["id"]);
+		Contact::updateAvatar($contact["id"], $image_url);
 
 		// Generic birthday. We don't know the timezone. The year is irrelevant.
 
@@ -3260,7 +3260,7 @@ class Diaspora
 		if (!intval(DI::config()->get("system", "diaspora_test"))) {
 			$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
-			$postResult = Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
+			$postResult = DI::httpRequest()->post($dest_url . "/", $envelope, ["Content-Type: " . $content_type]);
 			$return_code = $postResult->getReturnCode();
 		} else {
 			Logger::log("test_mode");

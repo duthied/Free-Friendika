@@ -34,7 +34,6 @@ use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
@@ -291,7 +290,7 @@ class OnePoll
 			. '&type=data&last_update=' . $last_update
 			. '&perm=' . $perm;
 
-		$curlResult = Network::curl($url);
+		$curlResult = DI::httpRequest()->get($url);
 
 		if (!$curlResult->isSuccess() && ($curlResult->getErrorNumber() == CURLE_OPERATION_TIMEDOUT)) {
 			// set the last-update so we don't keep polling
@@ -405,7 +404,7 @@ class OnePoll
 		$postvars['dfrn_version'] = DFRN_PROTOCOL_VERSION;
 		$postvars['perm'] = 'rw';
 
-		return Network::post($contact['poll'], $postvars)->getBody();
+		return DI::httpRequest()->post($contact['poll'], $postvars)->getBody();
 	}
 
 	/**
@@ -444,7 +443,7 @@ class OnePoll
 		}
 
 		$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
-		$curlResult = Network::curl($contact['poll'], false, ['cookiejar' => $cookiejar]);
+		$curlResult = DI::httpRequest()->get($contact['poll'], false, ['cookiejar' => $cookiejar]);
 		unlink($cookiejar);
 
 		if ($curlResult->isTimeout()) {
@@ -756,7 +755,7 @@ class OnePoll
 			DBA::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
 		}
 
-		$postResult = Network::post($url, $params);
+		$postResult = DI::httpRequest()->post($url, $params);
 
 		Logger::log('subscribe_to_hub: returns: ' . $postResult->getReturnCode(), Logger::DEBUG);
 

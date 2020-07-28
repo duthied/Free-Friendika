@@ -132,7 +132,7 @@ function events_post(App $a)
 	$onerror_path = 'events/' . $action . '?' . http_build_query($params, null, null, PHP_QUERY_RFC3986);
 
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
-		notice(DI::l10n()->t('Event can not end before it has started.') . EOL);
+		notice(DI::l10n()->t('Event can not end before it has started.'));
 		if (intval($_REQUEST['preview'])) {
 			echo DI::l10n()->t('Event can not end before it has started.');
 			exit();
@@ -141,7 +141,7 @@ function events_post(App $a)
 	}
 
 	if (!$summary || ($start === DBA::NULL_DATETIME)) {
-		notice(DI::l10n()->t('Event title and start time are required.') . EOL);
+		notice(DI::l10n()->t('Event title and start time are required.'));
 		if (intval($_REQUEST['preview'])) {
 			echo DI::l10n()->t('Event title and start time are required.');
 			exit();
@@ -225,7 +225,7 @@ function events_post(App $a)
 function events_content(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
 
@@ -583,9 +583,7 @@ function events_content(App $a)
 		}
 
 		if (Item::exists(['id' => $ev[0]['itemid']])) {
-			notice(DI::l10n()->t('Failed to remove event') . EOL);
-		} else {
-			info(DI::l10n()->t('Event removed') . EOL);
+			notice(DI::l10n()->t('Failed to remove event'));
 		}
 
 		DI::baseUrl()->redirect('events');

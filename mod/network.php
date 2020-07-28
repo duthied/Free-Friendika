@@ -47,7 +47,7 @@ use Friendica\Util\Strings;
 function network_init(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -305,7 +305,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 	}
 
 	if ($o === '') {
-		info("No items found");
+		notice(DI::l10n()->t("No items found"));
 	}
 
 	return $o;
@@ -548,7 +548,7 @@ function networkThreadedView(App $a, $update, $parent)
 			if ($update) {
 				exit();
 			}
-			notice(DI::l10n()->t('No such group') . EOL);
+			notice(DI::l10n()->t('No such group'));
 			DI::baseUrl()->redirect('network/0');
 			// NOTREACHED
 		}
@@ -569,7 +569,7 @@ function networkThreadedView(App $a, $update, $parent)
 			$sql_extra3 .= " OR (`thread`.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '" . Strings::protectSprintf('%<' . intval($gid) . '>%') . "' AND `temp1`.`private`))";
 		} else {
 			$sql_extra3 .= " AND false ";
-			info(DI::l10n()->t('Group is empty'));
+			notice(DI::l10n()->t('Group is empty'));
 		}
 
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
@@ -598,7 +598,7 @@ function networkThreadedView(App $a, $update, $parent)
 				'id' => 'network',
 			]) . $o;
 		} else {
-			notice(DI::l10n()->t('Invalid contact.') . EOL);
+			notice(DI::l10n()->t('Invalid contact.'));
 			DI::baseUrl()->redirect('network');
 			// NOTREACHED
 		}

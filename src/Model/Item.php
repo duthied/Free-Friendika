@@ -1554,9 +1554,7 @@ class Item
 			}
 
 			// Update the contact relations
-			if ($item['author-id'] != $parent['author-id']) {
-				DBA::update('contact-relation', ['last-interaction' => $item['created']], ['cid' => $parent['author-id'], 'relation-cid' => $item['author-id']], true);
-			}
+			ContactRelation::store($parent['author-id'], $item['author-id'], $item['created']);
 		}
 
 		return $item;
@@ -1702,6 +1700,10 @@ class Item
 		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, null, $default);
+
+		// Ensure that there is an avatar cache
+		Contact::checkAvatarCache($item['author-id']);
+		Contact::checkAvatarCache($item['owner-id']);
 
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
 		$item["contact-id"] = self::contactId($item);
@@ -3696,7 +3698,7 @@ class Item
 	 *
 	 * @return integer item id
 	 */
-	public static function fetchByLink($uri, $uid = 0)
+	public static function fetchByLink(string $uri, int $uid = 0)
 	{
 		$item_id = self::searchByLink($uri, $uid);
 		if (!empty($item_id)) {
@@ -3749,7 +3751,7 @@ class Item
 	 *
 	 * @return array item array with data from the original item
 	 */
-	public static function addShareDataFromOriginal($item)
+	public static function addShareDataFromOriginal(array $item)
 	{
 		$shared = self::getShareArray($item);
 		if (empty($shared)) {
@@ -3771,9 +3773,9 @@ class Item
 			}
 
 			// Otherwhise try to find (and possibly fetch) the item via the link. This should work for Diaspora and ActivityPub posts
-			$id = self::fetchByLink($shared['link'], $uid);
+			$id = self::fetchByLink($shared['link'] ?? '', $uid);
 			if (empty($id)) {
-				Logger::info('Original item not found', ['url' => $shared['link'], 'callstack' => System::callstack()]);
+				Logger::info('Original item not found', ['url' => $shared['link'] ?? '', 'callstack' => System::callstack()]);
 				return $item;
 			}
 

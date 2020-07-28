@@ -24,15 +24,13 @@ namespace Friendica\Model;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Crypto;
-use Friendica\Util\Network;
-use Friendica\Util\JsonLD;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Strings;
+use Friendica\Util\JsonLD;
+use Friendica\Util\Network;
 
 class APContact
 {

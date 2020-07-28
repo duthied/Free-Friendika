@@ -62,8 +62,6 @@ class Embed extends BaseAdmin
 				}
 			}
 
-			info(DI::l10n()->t('Theme settings updated.'));
-
 			if (DI::mode()->isAjax()) {
 				return;
 			}

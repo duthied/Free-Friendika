@@ -312,10 +312,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 
     Hook::callAll('post_local_end', $arr);
 
-### mod/lockview.php
-
-    Hook::callAll('lockview_content', $item);
-
 ### mod/uexport.php
 
     Hook::callAll('uexport_options', $options);
@@ -421,6 +417,10 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 ### src/Core/StorageManager
 
     Hook::callAll('storage_instance', $data);
+
+### src/Module/PermissionTooltip.php
+
+    Hook::callAll('lockview_content', $item);
 
 ### src/Worker/Directory.php
 

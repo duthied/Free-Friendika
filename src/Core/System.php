@@ -33,22 +33,23 @@ class System
 	/**
 	 * Returns a string with a callstack. Can be used for logging.
 	 *
-	 * @param integer $depth optional, default 4
+	 * @param integer $depth  How many calls to include in the stacks after filtering
+	 * @param int     $offset How many calls to shave off the top of the stack, for example if
+	 *                        this is called from a centralized method that isn't relevant to the callstack
 	 * @return string
 	 */
-	public static function callstack($depth = 4)
+	public static function callstack(int $depth = 4, int $offset = 0)
 	{
 		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-		// We remove the first two items from the list since they contain data that we don't need.
-		array_shift($trace);
-		array_shift($trace);
+		// We remove at least the first two items from the list since they contain data that we don't need.
+		$trace = array_slice($trace, 2 + $offset);
 
 		$callstack = [];
 		$previous = ['class' => '', 'function' => '', 'database' => false];
 
 		// The ignore list contains all functions that are only wrapper functions
-		$ignore = ['fetchUrl', 'call_user_func_array'];
+		$ignore = ['call_user_func_array'];
 
 		while ($func = array_pop($trace)) {
 			if (!empty($func['class'])) {

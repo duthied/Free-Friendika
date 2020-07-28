@@ -40,7 +40,7 @@ function notes_init(App $a)
 function notes_content(App $a, $update = false)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 

@@ -21,11 +21,11 @@
 
 namespace Friendica\Util;
 
-use Friendica\Database\DBA;
 use Friendica\Core\Logger;
+use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\User;
 use Friendica\Model\APContact;
+use Friendica\Model\User;
 
 /**
  * Implements HTTP Signatures per draft-cavage-http-signatures-07.
@@ -297,7 +297,7 @@ class HTTPSignature
 
 		$headers[] = 'Content-Type: application/activity+json';
 
-		$postResult = Network::post($target, $content, $headers);
+		$postResult = DI::httpRequest()->post($target, $content, $headers);
 		$return_code = $postResult->getReturnCode();
 
 		Logger::log('Transmit to ' . $target . ' returned ' . $return_code, Logger::DEBUG);
@@ -442,7 +442,7 @@ class HTTPSignature
 		$curl_opts = $opts;
 		$curl_opts['header'] = $headers;
 
-		$curlResult = Network::curl($request, false, $curl_opts);
+		$curlResult = DI::httpRequest()->get($request, false, $curl_opts);
 		$return_code = $curlResult->getReturnCode();
 
 		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);

@@ -1194,7 +1194,7 @@ class DFRN
 
 		Logger::log('dfrn_deliver: ' . $url);
 
-		$curlResult = Network::curl($url);
+		$curlResult = DI::httpRequest()->get($url);
 
 		if ($curlResult->isTimeout()) {
 			return -2; // timed out
@@ -1343,7 +1343,7 @@ class DFRN
 
 		Logger::debug('dfrn_deliver', ['post' => $postvars]);
 
-		$postResult = Network::post($contact['notify'], $postvars);
+		$postResult = DI::httpRequest()->post($contact['notify'], $postvars);
 
 		$xml = $postResult->getBody();
 
@@ -1440,7 +1440,7 @@ class DFRN
 
 		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
 
-		$postResult = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
+		$postResult = DI::httpRequest()->post($dest_url, $envelope, ["Content-Type: " . $content_type]);
 		$xml = $postResult->getBody();
 
 		$curl_stat = $postResult->getReturnCode();
@@ -1680,11 +1680,11 @@ class DFRN
 			$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($contact_old['url'])];
 			DBA::update('contact', $fields, $condition, true);
 
-			Contact::updateAvatar($author['avatar'], $importer['importer_uid'], $contact['id']);
+			Contact::updateAvatar($contact['id'], $author['avatar']);
 
 			$pcid = Contact::getIdForURL($contact_old['url']);
 			if (!empty($pcid)) {
-				Contact::updateAvatar($author['avatar'], 0, $pcid);
+				Contact::updateAvatar($pcid, $author['avatar']);
 			}
 
 			/*
@@ -1962,7 +1962,7 @@ class DFRN
 
 		DBA::update('contact', $fields, $condition);
 
-		Contact::updateAvatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
+		Contact::updateAvatar($importer["id"], $relocate["avatar"], true);
 
 		Logger::log('Contacts are updated.');
 

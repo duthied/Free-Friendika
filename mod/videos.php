@@ -126,7 +126,7 @@ function videos_content(App $a)
 
 
 	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
-		notice(DI::l10n()->t('Public access denied.') . EOL);
+		notice(DI::l10n()->t('Public access denied.'));
 		return;
 	}
 
@@ -179,7 +179,7 @@ function videos_content(App $a)
 	}
 
 	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && !$remote_contact) {
-		notice(DI::l10n()->t('Access to this item is restricted.') . EOL);
+		notice(DI::l10n()->t('Access to this item is restricted.'));
 		return;
 	}
 

@@ -823,7 +823,7 @@ class User
 			$photo_failure = false;
 
 			$filename = basename($photo);
-			$curlResult = Network::curl($photo, true);
+			$curlResult = DI::httpRequest()->get($photo, true);
 			if ($curlResult->isSuccess()) {
 				$img_str = $curlResult->getBody();
 				$type = $curlResult->getContentType();

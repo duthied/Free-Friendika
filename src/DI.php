@@ -324,6 +324,18 @@ abstract class DI
 	}
 
 	//
+	// "Network" namespace
+	//
+
+	/**
+	 * @return Network\IHTTPRequest
+	 */
+	public static function httpRequest()
+	{
+		return self::$dice->create(Network\IHTTPRequest::class);
+	}
+
+	//
 	// "Repository" namespace
 	//
 

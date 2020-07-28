@@ -87,13 +87,11 @@ class Advanced extends BaseModule
 		if ($photo) {
 			DI::logger()->notice('Updating photo.', ['photo' => $photo]);
 
-			Model\Contact::updateAvatar($photo, local_user(), $contact['id'], true);
+			Model\Contact::updateAvatar($contact['id'], $photo, true);
 		}
 
-		if ($r) {
-			info(DI::l10n()->t('Contact settings applied.') . EOL);
-		} else {
-			notice(DI::l10n()->t('Contact update failed.') . EOL);
+		if (!$r) {
+			notice(DI::l10n()->t('Contact update failed.'));
 		}
 
 		return;

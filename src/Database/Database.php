@@ -699,7 +699,7 @@ class Database
 			$this->errorno = $errorno;
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'database');
 
 		if ($this->configCache->get('system', 'db_log')) {
 			$stamp2   = microtime(true);
@@ -783,7 +783,7 @@ class Database
 			$this->errorno = $errorno;
 		}
 
-		$this->profiler->saveTimestamp($stamp, "database_write", System::callstack());
+		$this->profiler->saveTimestamp($stamp, "database_write");
 
 		return $retval;
 	}
@@ -964,7 +964,7 @@ class Database
 				}
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'database');
 
 		return $columns;
 	}
@@ -1644,7 +1644,7 @@ class Database
 				break;
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'database');
 
 		return $ret;
 	}

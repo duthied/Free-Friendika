@@ -13,7 +13,7 @@ class FollowConfirm extends BaseModule
 	{
 		$uid = local_user();
 		if (!$uid) {
-			notice(DI::l10n()->t('Permission denied.') . EOL);
+			notice(DI::l10n()->t('Permission denied.'));
 			return;
 		}
 

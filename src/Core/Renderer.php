@@ -92,7 +92,7 @@ class Renderer
 			throw new InternalServerErrorException($message);
 		}
 
-		DI::profiler()->saveTimestamp($stamp1, "rendering", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "rendering");
 
 		return $output;
 	}
@@ -121,7 +121,7 @@ class Renderer
 			throw new InternalServerErrorException($message);
 		}
 
-		DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "file");
 
 		return $template;
 	}

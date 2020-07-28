@@ -35,14 +35,14 @@ function editpost_content(App $a)
 	$o = '';
 
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
 	if (!$post_id) {
-		notice(DI::l10n()->t('Item not found') . EOL);
+		notice(DI::l10n()->t('Item not found'));
 		return;
 	}
 
@@ -52,7 +52,7 @@ function editpost_content(App $a)
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
 
 	if (!DBA::isResult($item)) {
-		notice(DI::l10n()->t('Item not found') . EOL);
+		notice(DI::l10n()->t('Item not found'));
 		return;
 	}
 

@@ -1418,7 +1418,6 @@ class Contact
 				'poll'      => $data['poll'] ?? '',
 				'name'      => $data['name'] ?? '',
 				'nick'      => $data['nick'] ?? '',
-				'photo'     => $data['photo'] ?? '',
 				'keywords'  => $data['keywords'] ?? '',
 				'location'  => $data['location'] ?? '',
 				'about'     => $data['about'] ?? '',
@@ -1464,7 +1463,7 @@ class Contact
 		}
 
 		if (!empty($data['photo']) && ($data['network'] != Protocol::FEED)) {
-			self::updateAvatar($data['photo'], $uid, $contact_id);
+			self::updateAvatar($contact_id, $data['photo']);
 		}
 
 		if (in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
@@ -1474,14 +1473,6 @@ class Contact
 			} else {
 				// Else do a direct update
 				self::updateFromProbe($contact_id, '', false);
-
-				// Update the gcontact entry
-				if ($uid == 0) {
-					GContact::updateFromPublicContactID($contact_id);
-					if (($data['network'] == Protocol::ACTIVITYPUB) && in_array(DI::config()->get('system', 'gcontact_discovery'), [GContact::DISCOVERY_DIRECT, GContact::DISCOVERY_RECURSIVE])) {
-						GContact::discoverFollowers($data['url']);
-					}
-				}
 			}
 		} else {
 			$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'baseurl', 'gsid'];
@@ -1776,11 +1767,79 @@ class Contact
 	}
 
 	/**
+	 * Ensure that cached avatar exist
+	 *
+	 * @param integer $cid
+	 */
+	public static function checkAvatarCache(int $cid)
+	{
+		$contact = DBA::selectFirst('contact', ['url', 'avatar', 'photo', 'thumb', 'micro'], ['id' => $cid, 'uid' => 0, 'self' => false]);
+		if (!DBA::isResult($contact)) {
+			return;
+		}
+
+		if (empty($contact['avatar']) || (!empty($contact['photo']) && !empty($contact['thumb']) && !empty($contact['micro']))) {
+			return;
+		}
+
+		Logger::info('Adding avatar cache', ['id' => $cid, 'contact' => $contact]);
+
+		self::updateAvatar($cid, $contact['avatar'], true);
+	}
+
+	/**
+	 * Check the given contact array for avatar cache fields
+	 *
+	 * @param array $contact
+	 * @return array contact array with avatar cache fields
+	 */
+	public static function checkAvatarCacheByArray(array $contact)
+	{
+		$update = false;
+		$contact_fields = [];
+		$fields = ['photo', 'thumb', 'micro'];
+		foreach ($fields as $field) {
+			if (isset($contact[$field])) {
+				$contact_fields[] = $field;
+			}
+			if (isset($contact[$field]) && empty($contact[$field])) {
+				$update = true;
+			}
+		}
+
+		if (!$update) {
+			return $contact;
+		}
+
+		if (!empty($contact['id']) && !empty($contact['avatar'])) {
+			self::updateAvatar($contact['id'], $contact['avatar'], true);
+
+			$new_contact = self::getById($contact['id'], $contact_fields);
+			if (DBA::isResult($new_contact)) {
+				// We only update the cache fields
+				$contact = array_merge($contact, $new_contact);
+			}
+		}
+
+		/// add the default avatars if the fields aren't filled
+		if (isset($contact['photo']) && empty($contact['photo'])) {
+			$contact['photo'] = DI::baseUrl() . '/images/person-300.jpg';
+		}
+		if (isset($contact['thumb']) && empty($contact['thumb'])) {
+			$contact['thumb'] = DI::baseUrl() . '/images/person-80.jpg';
+		}
+		if (isset($contact['micro']) && empty($contact['micro'])) {
+			$contact['micro'] = DI::baseUrl() . '/images/person-48.jpg';
+		}
+
+		return $contact;
+	}
+
+	/**
 	 * Updates the avatar links in a contact only if needed
 	 *
-	 * @param string $avatar Link to avatar picture
-	 * @param int    $uid    User id of contact owner
 	 * @param int    $cid    Contact id
+	 * @param string $avatar Link to avatar picture
 	 * @param bool   $force  force picture update
 	 *
 	 * @return void
@@ -1788,10 +1847,21 @@ class Contact
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public static function updateAvatar($avatar, $uid, $cid, $force = false)
+	public static function updateAvatar(int $cid, string $avatar, bool $force = false)
 	{
-		$contact = DBA::selectFirst('contact', ['avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid, 'self' => false]);
+		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
+			return;
+		}
+
+		$uid = $contact['uid'];
+
+		// Only update the cached photo links of public contacts when they already are cached
+		if (($uid == 0) && !$force && empty($contact['thumb']) && empty($contact['micro'])) {
+			if ($contact['avatar'] != $avatar) {
+				DBA::update('contact', ['avatar' => $avatar], ['id' => $cid]);
+				Logger::info('Only update the avatar', ['id' => $cid, 'avatar' => $avatar, 'contact' => $contact]);
+			}
 			return;
 		}
 
@@ -1801,28 +1871,27 @@ class Contact
 			$contact['micro'] ?? '',
 		];
 
-		foreach ($data as $image_uri) {
-			$image_rid = Photo::ridFromURI($image_uri);
-			if ($image_rid && !Photo::exists(['resource-id' => $image_rid, 'uid' => $uid])) {
-				Logger::info('Regenerating avatar', ['contact uid' => $uid, 'cid' => $cid, 'missing photo' => $image_rid, 'avatar' => $contact['avatar']]);
-				$force = true;
+		$update = ($contact['avatar'] != $avatar) || $force;
+
+		if (!$update) {
+			foreach ($data as $image_uri) {
+				$image_rid = Photo::ridFromURI($image_uri);
+				if ($image_rid && !Photo::exists(['resource-id' => $image_rid, 'uid' => $uid])) {
+					Logger::info('Regenerating avatar', ['contact uid' => $uid, 'cid' => $cid, 'missing photo' => $image_rid, 'avatar' => $contact['avatar']]);
+					$update = true;
+				}
 			}
 		}
 
-		if (($contact["avatar"] != $avatar) || $force) {
+		if ($update) {
 			$photos = Photo::importProfilePhoto($avatar, $uid, $cid, true);
-
 			if ($photos) {
 				$fields = ['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => DateTimeFormat::utcNow()];
 				DBA::update('contact', $fields, ['id' => $cid]);
-
-				// Update the public contact (contact id = 0)
-				if ($uid != 0) {
-					$pcontact = DBA::selectFirst('contact', ['id'], ['nurl' => $contact['nurl'], 'uid' => 0]);
-					if (DBA::isResult($pcontact)) {
-						DBA::update('contact', $fields, ['id' => $pcontact['id']]);
-					}
-				}
+			} elseif (empty($contact['avatar'])) {
+				// Ensure that the avatar field is set
+				DBA::update('contact', ['avatar' => $avatar], ['id' => $cid]);				
+				Logger::info('Failed profile import', ['id' => $cid, 'force' => $force, 'avatar' => $avatar, 'contact' => $contact]);
 			}
 		}
 	}
@@ -2006,6 +2075,13 @@ class Contact
 
 		$new_pubkey = $ret['pubkey'];
 
+		// Update the gcontact entry
+		if ($uid == 0) {
+			GContact::updateFromPublicContactID($id);
+		}
+
+		ContactRelation::discoverByUrl($ret['url']);
+
 		$update = false;
 
 		// make sure to not overwrite existing values with blank entries except some technical fields
@@ -2021,7 +2097,7 @@ class Contact
 		}
 
 		if (!empty($ret['photo']) && ($ret['network'] != Protocol::FEED)) {
-			self::updateAvatar($ret['photo'], $uid, $id, $update || $force);
+			self::updateAvatar($id, $ret['photo'], $update || $force);
 		}
 
 		if (!$update) {
@@ -2311,7 +2387,7 @@ class Contact
 		Group::addMember(User::getDefaultGroup($user['uid'], $contact["network"]), $contact_id);
 
 		// Update the avatar
-		self::updateAvatar($ret['photo'], $user['uid'], $contact_id);
+		self::updateAvatar($contact_id, $ret['photo']);
 
 		// pull feed and consume it, which should subscribe to the hub.
 
@@ -2479,7 +2555,6 @@ class Contact
 				'nurl'     => Strings::normaliseLink($url),
 				'name'     => $name,
 				'nick'     => $nick,
-				'photo'    => $photo,
 				'network'  => $network,
 				'rel'      => self::FOLLOWER,
 				'blocked'  => 0,
@@ -2493,7 +2568,7 @@ class Contact
 			// Ensure to always have the correct network type, independent from the connection request method
 			self::updateFromProbe($contact_id, '', true);
 
-			Contact::updateAvatar($photo, $importer["uid"], $contact_id, true);
+			self::updateAvatar($contact_id, $photo, true);
 
 			$contact_record = DBA::selectFirst('contact', ['id', 'network', 'name', 'url', 'photo'], ['id' => $contact_id]);
 
