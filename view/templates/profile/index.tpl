@@ -1,3 +1,8 @@
+{{if $view_as_contact_alert}}
+<div class="alert alert-info" role="alert">
+	{{$view_as_contact_alert nofilter}}
+</div>
+{{/if}}
 <div id="profile-page" class="generic-page-wrapper">
     {{include file="section_title.tpl"}}
 
@@ -10,20 +15,11 @@
 					<i class="fa fa-pencil-square-o" aria-hidden="true"></i>&nbsp;{{$edit_link.label}}
 				</a>
 			</li>
-		{{if count($view_as_contacts)}}
 			<li class="pull-right">
-				<form action="{{$query_string}}" method="get">
-					<button type="submit" class="btn btn-sm">{{$view_as}}</button>
-					<select name="viewas" class="input-sm">
-						<option value="0">Yourself</option>
-				{{foreach $view_as_contacts as $contact}}
-						<option value="{{$contact.id}}"{{if $contact.id == $view_as_contact_id}} selected{{/if}}>{{$contact.name}}</option>
-				{{/foreach}}
-					</select>
-
-				</form>
+				<a class="btn btn-link btn-sm" type="button" id="profile-viewas-link" href="{{$viewas_link.url}}" title="{{$viewas_link.title}}">
+					<i class="fa fa-eye" aria-hidden="true"></i>&nbsp;{{$viewas_link.label}}
+				</a>
 			</li>
-		{{/if}}
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -101,3 +97,17 @@
 	</dl>
 {{/foreach}}
 </div>
+{{if $is_owner}}
+<form action="{{$query_string}}" method="get" id="viewas" class="panel panel-default form-inline">
+	<fieldset class="panel-body">
+		<label for="viewas-select">{{$view_as}}</label>
+		<select name="viewas" id="viewas-select" class="form-control">
+			<option value="0">Yourself</option>
+			{{foreach $view_as_contacts as $contact}}
+				<option value="{{$contact.id}}"{{if $contact.id == $view_as_contact_id}} selected{{/if}}>{{$contact.name}}</option>
+			{{/foreach}}
+		</select>
+		<button type="submit" class="btn btn-primary">{{$submit}}</button>
+	</fieldset>
+</form>
+{{/if}}
