@@ -27,10 +27,8 @@ use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
-use Friendica\Util\Proxy;
 
 /**
  * Asynchronous HTML fragment provider for frio contact hovercards
@@ -88,7 +86,7 @@ class Hovercard extends BaseModule
 				'name'         => $contact['name'],
 				'nick'         => $contact['nick'],
 				'addr'         => $contact['addr'] ?: $contact['url'],
-				'thumb'        => Proxy::proxifyUrl($contact['thumb'], false, Proxy::SIZE_THUMB),
+				'thumb'        => Contact::getThumb($contact),
 				'url'          => Contact::magicLink($contact['url']),
 				'nurl'         => $contact['nurl'],
 				'location'     => $contact['location'],

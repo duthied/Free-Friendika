@@ -26,8 +26,8 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\Contact;
 use Friendica\Module;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
 function common_content(App $a)
@@ -136,7 +136,7 @@ function common_content(App $a)
 			'url'          => Model\Contact::magicLink($common_friend['url']),
 			'itemurl'      => ($contact_details['addr'] ?? '') ?: $common_friend['url'],
 			'name'         => $contact_details['name'],
-			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
+			'thumb'        => Contact::getThumb($contact_details),
 			'img_hover'    => $contact_details['name'],
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],

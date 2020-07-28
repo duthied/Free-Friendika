@@ -28,7 +28,6 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Network\HTTPException;
-use Friendica\Util\Proxy as ProxyUtils;
 
 /**
  * This module shows all public friends of the selected contact
@@ -99,7 +98,7 @@ class AllFriends extends BaseModule
 				'url'          => Model\Contact::magicLinkbyId($friend['id'], $friend['url']),
 				'itemurl'      => ($contactDetails['addr'] ?? '') ?: $friend['url'],
 				'name'         => $contactDetails['name'],
-				'thumb'        => ProxyUtils::proxifyUrl($contactDetails['thumb'], false, ProxyUtils::SIZE_THUMB),
+				'thumb'        => Model\Contact::getThumb($contactDetails),
 				'img_hover'    => $contactDetails['name'],
 				'details'      => $contactDetails['location'],
 				'tags'         => $contactDetails['keywords'],

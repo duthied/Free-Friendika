@@ -294,7 +294,7 @@ class Acl extends BaseModule
 			foreach ($r as $g) {
 				$entry = [
 					'type'    => 'c',
-					'photo'   => ProxyUtils::proxifyUrl($g['micro'], false, ProxyUtils::SIZE_MICRO),
+					'photo'   => Contact::getMicro($g),
 					'name'    => htmlspecialchars($g['name']),
 					'id'      => intval($g['id']),
 					'network' => $g['network'],
@@ -355,7 +355,7 @@ class Acl extends BaseModule
 				if (count($contact) > 0) {
 					$unknown_contacts[] = [
 						'type'    => 'c',
-						'photo'   => ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO),
+						'photo'   => Contact::getMicro($contact),
 						'name'    => htmlspecialchars($contact['name']),
 						'id'      => intval($contact['cid']),
 						'network' => $contact['network'],

@@ -279,8 +279,6 @@ class Contact extends BaseModule
 			if ($contact['network'] == Protocol::PHANTOM) {
 				$contact = false;
 			}
-
-			$contact = ModelContact::checkAvatarCacheByArray($contact);
 		}
 
 		if (DBA::isResult($contact)) {
@@ -318,7 +316,7 @@ class Contact extends BaseModule
 
 			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/vcard.tpl'), [
 				'$name'         => $contact['name'],
-				'$photo'        => $contact['photo'],
+				'$photo'        => Model\Contact::getPhoto($contact),
 				'$url'          => Model\Contact::magicLinkByContact($contact, $contact['url']),
 				'$addr'         => $contact['addr'] ?? '',
 				'$network_link' => $network_link,
@@ -614,7 +612,7 @@ class Contact extends BaseModule
 				'$notify'         => ['notify', DI::l10n()->t('Notification for new posts'), ($contact['notify_new_posts'] == 1), DI::l10n()->t('Send a notification of every new post of this contact')],
 				'$fetch_further_information' => $fetch_further_information,
 				'$ffi_keyword_denylist' => ['ffi_keyword_denylist', DI::l10n()->t('Keyword Deny List'), $contact['ffi_keyword_denylist'], DI::l10n()->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
-				'$photo'          => $contact['photo'],
+				'$photo'          => Model\Contact::getPhoto($contact),
 				'$name'           => $contact['name'],
 				'$dir_icon'       => $dir_icon,
 				'$sparkle'        => $sparkle,

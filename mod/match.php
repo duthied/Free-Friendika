@@ -27,7 +27,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
-use Friendica\Util\Proxy as ProxyUtils;
 
 /**
  * Controller for /match.
@@ -111,7 +110,7 @@ function match_content(App $a)
 				'tags'         => $contact_details['keywords'] ?? '',
 				'about'        => $contact_details['about'] ?? '',
 				'account_type' => Contact::getAccountType($contact_details),
-				'thumb'        => ProxyUtils::proxifyUrl($profile->photo, false, ProxyUtils::SIZE_THUMB),
+				'thumb'        => Contact::getThumb($contact_details, $profile->photo),
 				'conntxt'      => DI::l10n()->t('Connect'),
 				'connlnk'      => $connlnk,
 				'img_hover'    => $profile->tags,

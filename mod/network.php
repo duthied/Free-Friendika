@@ -20,7 +20,6 @@
  */
 
 use Friendica\App;
-use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
@@ -29,9 +28,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -41,7 +38,6 @@ use Friendica\Model\Post\Category;
 use Friendica\Model\Profile;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
 function network_init(App $a)
@@ -587,7 +583,7 @@ function networkThreadedView(App $a, $update, $parent)
 				'id' => 'network',
 				'name' => $contact['name'],
 				'itemurl' => ($contact['addr'] ?? '') ?: $contact['nurl'],
-				'thumb' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
+				'thumb' => Contact::getThumb($contact),
 				'details' => $contact['location'],
 			];
 

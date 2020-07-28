@@ -170,7 +170,7 @@ class Proxy
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function isLocalImage($url)
+	public static function isLocalImage($url)
 	{
 		if (substr($url, 0, 1) == '/') {
 			return true;
