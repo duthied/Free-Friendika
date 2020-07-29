@@ -207,7 +207,12 @@ class Contact
 			if (empty($cid)) {
 				return [];
 			}
-			return self::getById($cid, $fields);
+
+			$contact = self::getById($cid, $fields);
+			if (empty($contact)) {
+				return [];
+			}
+			return $contact;
 		}
 
 		// Add internal fields
@@ -238,6 +243,10 @@ class Contact
 			$contact = DBA::selectFirst('contact', $fields, $condition, $options);
 		}
 		
+		if (!DBA::isResult($contact)) {
+			return [];
+		}
+
 		// Update the contact in the background if needed
 		if ((($contact['updated'] < DateTimeFormat::utc('now -7 days')) || empty($contact['avatar'])) &&
 			in_array($contact['network'], Protocol::FEDERATED)) {
