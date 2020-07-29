@@ -3705,8 +3705,10 @@ class Item
 	 */
 	public static function fetchByLink(string $uri, int $uid = 0)
 	{
+		Logger::info('Trying to fetch link', ['uid' => $uid, 'uri' => $uri]);
 		$item_id = self::searchByLink($uri, $uid);
 		if (!empty($item_id)) {
+			Logger::info('Link found', ['uid' => $uid, 'uri' => $uri, 'id' => $item_id]);
 			return $item_id;
 		}
 
@@ -3717,9 +3719,11 @@ class Item
 		}
 
 		if (!empty($item_id)) {
+			Logger::info('Link fetched', ['uid' => $uid, 'uri' => $uri, 'id' => $item_id]);
 			return $item_id;
 		}
 
+		Logger::info('Link not found', ['uid' => $uid, 'uri' => $uri]);
 		return 0;
 	}
 

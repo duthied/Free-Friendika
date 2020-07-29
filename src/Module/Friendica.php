@@ -130,21 +130,13 @@ class Friendica extends BaseModule
 			$register_policy = $register_policies[$register_policy_int];
 		}
 
-		$condition = [];
-		$admin = false;
-		if (!empty($config->get('config', 'admin_nickname'))) {
-			$condition['nickname'] = $config->get('config', 'admin_nickname');
-		}
-		if (!empty($config->get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));
-			$condition['email'] = $adminList[0];
-			$administrator = User::getByEmail($adminList[0], ['username', 'nickname']);
-			if (!empty($administrator)) {
-				$admin = [
-					'name'    => $administrator['username'],
-					'profile' => DI::baseUrl()->get() . '/profile/' . $administrator['nickname'],
-				];
-			}
+		$admin = [];
+		$administrator = User::getFirstAdmin(['username', 'nickname']);
+		if (!empty($administrator)) {
+			$admin = [
+				'name'    => $administrator['username'],
+				'profile' => DI::baseUrl()->get() . '/profile/' . $administrator['nickname'],
+			];
 		}
 
 		$visible_addons = Addon::getVisibleList();
