@@ -143,7 +143,7 @@ abstract class ContactEndpoint extends BaseApi
 		$previous_cursor = 0;
 		$total_count = 0;
 		if (!$hide_friends) {
-			$condition = DBA::collapseCondition([
+			$condition = [
 				'rel' => $rel,
 				'uid' => $uid,
 				'self' => false,
@@ -151,17 +151,15 @@ abstract class ContactEndpoint extends BaseApi
 				'hidden' => false,
 				'archive' => false,
 				'pending' => false
-			]);
+			];
 
 			$total_count = DBA::count('contact', $condition);
 
 			if ($cursor !== -1) {
 				if ($cursor > 0) {
-					$condition[0] .= " AND `id` > ?";
-					$condition[] = $cursor;
+					$condition = DBA::mergeConditions($condition, ['`id` > ?', $cursor]);
 				} else {
-					$condition[0] .= " AND `id` < ?";
-					$condition[] = -$cursor;
+					$condition = DBA::mergeConditions($condition, ['`id` < ?', -$cursor]);
 				}
 			}
 

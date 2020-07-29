@@ -39,22 +39,16 @@ class GContact
 	 */
 	public static function countCommonFriends($uid, $cid)
 	{
-		$r = q(
-			"SELECT count(*) as `total`
-			FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-			WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d AND
-			NOT `gcontact`.`failed`
-			AND `gcontact`.`nurl` IN (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d) ",
-			intval($cid),
-			intval($uid),
-			intval($uid),
-			intval($cid)
-		);
+		$sourceId = Contact::getPublicIdByUserId($uid);
 
-		if (DBA::isResult($r)) {
-			return $r[0]['total'];
-		}
-		return 0;
+		$targetIds = Contact::getPublicAndUserContacID($cid, $uid);
+
+		$condition = [
+			'NOT `self` AND NOT `blocked` AND NOT `hidden` AND `id` != ?',
+			$sourceId,
+		];
+
+		return ContactRelation::countCommonFollows($sourceId, $targetIds['public'] ?? 0, $condition);
 	}
 
 	/**
@@ -65,92 +59,74 @@ class GContact
 	 */
 	public static function countCommonFriendsZcid($uid, $zcid)
 	{
-		$r = q(
-			"SELECT count(*) as `total`
-			FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-			where `glink`.`zcid` = %d
-			and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0) ",
-			intval($zcid),
-			intval($uid)
+		$sourceId = Contact::getPublicIdByUserId($uid);
+
+		$targetPublicContact = DI::dba()->fetchFirst("
+SELECT `id`
+FROM `contact` c 
+JOIN `gcontact` z ON z.`nurl` = c.`nurl`
+AND z.`id` = ?
+AND c.`uid` = 0
+LIMIT 1",
+			$zcid
 		);
 
-		if (DBA::isResult($r)) {
-			return $r[0]['total'];
-		}
-
-		return 0;
+		return ContactRelation::countCommonFollowers($sourceId, $targetPublicContact['id'] ?? 0);
 	}
 
 	/**
-	 * @param integer $uid     user
-	 * @param integer $cid     cid
+	 * Returns the cross-section between the local user contacts and one of their contact's own relationships
+	 * as known by the local node.
+	 *
+	 * @param integer $uid     local user id
+	 * @param integer $cid     user contact id to compare friends with
 	 * @param integer $start   optional, default 0
 	 * @param integer $limit   optional, default 9999
 	 * @param boolean $shuffle optional, default false
-	 * @return object
+	 * @return array
 	 * @throws Exception
 	 */
 	public static function commonFriends($uid, $cid, $start = 0, $limit = 9999, $shuffle = false)
 	{
-		if ($shuffle) {
-			$sql_extra = " order by rand() ";
-		} else {
-			$sql_extra = " order by `gcontact`.`name` asc ";
-		}
+		$sourceId = Contact::getPublicIdByUserId($uid);
 
-		$r = q(
-			"SELECT `gcontact`.*, `contact`.`id` AS `cid`
-			FROM `glink`
-			INNER JOIN `gcontact` ON `glink`.`gcid` = `gcontact`.`id`
-			INNER JOIN `contact` ON `gcontact`.`nurl` = `contact`.`nurl`
-			WHERE `glink`.`cid` = %d and `glink`.`uid` = %d
-				AND `contact`.`uid` = %d AND `contact`.`self` = 0 AND `contact`.`blocked` = 0
-				AND `contact`.`hidden` = 0 AND `contact`.`id` != %d
-				AND NOT `gcontact`.`failed`
-				$sql_extra LIMIT %d, %d",
-			intval($cid),
-			intval($uid),
-			intval($uid),
-			intval($cid),
-			intval($start),
-			intval($limit)
-		);
+		$targetIds = Contact::getPublicAndUserContacID($cid, $uid);
 
-		/// @TODO Check all calling-findings of this function if they properly use DBA::isResult()
-		return $r;
+		$condition = [
+			'NOT `self` AND NOT `blocked` AND NOT `hidden` AND `id` != ?',
+			$sourceId,
+		];
+
+		return ContactRelation::listCommonFollows($sourceId, $targetIds['public'] ?? 0, $condition, $limit, $start, $shuffle);
 	}
 
 	/**
-	 * @param integer $uid     user
-	 * @param integer $zcid    zcid
+	 * Returns the cross-section between a local user and a remote visitor contact's own relationships
+	 * as known by the local node.
+	 *
+	 * @param integer $uid     local user id
+	 * @param integer $zcid    remote visitor contact zcid
 	 * @param integer $start   optional, default 0
 	 * @param integer $limit   optional, default 9999
 	 * @param boolean $shuffle optional, default false
-	 * @return object
+	 * @return array
 	 * @throws Exception
 	 */
 	public static function commonFriendsZcid($uid, $zcid, $start = 0, $limit = 9999, $shuffle = false)
 	{
-		if ($shuffle) {
-			$sql_extra = " order by rand() ";
-		} else {
-			$sql_extra = " order by `gcontact`.`name` asc ";
-		}
+		$sourceId = Contact::getPublicIdByUserId($uid);
 
-		$r = q(
-			"SELECT `gcontact`.*
-			FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-			where `glink`.`zcid` = %d
-			and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0)
-			$sql_extra limit %d, %d",
-			intval($zcid),
-			intval($uid),
-			intval($start),
-			intval($limit)
+		$targetPublicContact = DI::dba()->fetchFirst("
+SELECT c.`id`
+FROM `contact` c 
+JOIN `gcontact` z ON z.`nurl` = c.`nurl`
+AND z.`id` = ?
+AND c.`uid` = 0
+LIMIT 1",
+			$zcid
 		);
 
-		/// @TODO Check all calling-findings of this function if they properly use DBA::isResult()
-		return $r;
+		return ContactRelation::listCommonFollows($sourceId, $targetPublicContact['id'] ?? 0, [], $limit, $start, $shuffle);
 	}
 
 	/**
@@ -161,20 +137,9 @@ class GContact
 	 */
 	public static function countAllFriends($uid, $cid)
 	{
-		$r = q(
-			"SELECT count(*) as `total`
-			FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-			where `glink`.`cid` = %d and `glink`.`uid` = %d AND
-			NOT `gcontact`.`failed`",
-			intval($cid),
-			intval($uid)
-		);
+		$cids = Contact::getPublicAndUserContacID($cid, $uid);
 
-		if (DBA::isResult($r)) {
-			return $r[0]['total'];
-		}
-
-		return 0;
+		return ContactRelation::countFollows($cids['public'] ?? 0);
 	}
 
 	/**
@@ -187,22 +152,8 @@ class GContact
 	 */
 	public static function allFriends($uid, $cid, $start = 0, $limit = 80)
 	{
-		$r = q(
-			"SELECT `gcontact`.*, `contact`.`id` AS `cid`
-			FROM `glink`
-			INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-			LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = %d
-			WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d AND
-			NOT `gcontact`.`failed`
-			ORDER BY `gcontact`.`name` ASC LIMIT %d, %d ",
-			intval($uid),
-			intval($cid),
-			intval($uid),
-			intval($start),
-			intval($limit)
-		);
+		$cids = Contact::getPublicAndUserContacID($cid, $uid);
 
-		/// @TODO Check all calling-findings of this function if they properly use DBA::isResult()
-		return $r;
+		return ContactRelation::listFollows($cids['public'] ?? 0, [], $limit, $start);
 	}
 }
