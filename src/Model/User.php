@@ -193,17 +193,14 @@ class User
 	 */
 	public static function getFirstAdmin(array $fields = [])
 	{
-		$condition = [];
 		if (!empty(DI::config()->get('config', 'admin_nickname'))) {
-			$condition['nickname'] = DI::config()->get('config', 'admin_nickname');
-		}
-		if (!empty(DI::config()->get('config', 'admin_email'))) {
+			$administrator = self::getByNickname(DI::config()->get('config', 'admin_nickname'), $fields);
+		} elseif (!empty(DI::config()->get('config', 'admin_email'))) {
 			$adminList = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
-			$condition['email'] = $adminList[0];
 			$administrator = self::getByEmail($adminList[0], $fields);
-			if (!empty($administrator)) {
-				return $administrator;
-			}
+		}
+		if (!empty($administrator)) {
+			return $administrator;
 		}
 		return [];
 	}
