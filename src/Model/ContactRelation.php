@@ -65,49 +65,16 @@ class ContactRelation
 	 */
 	public static function discoverByUrl(string $url)
 	{
-		$contact_discovery = DI::config()->get('system', 'contact_discovery');
-
-		if ($contact_discovery == self::DISCOVERY_NONE) {
-			return;
-		}
-
 		$contact = Contact::getByURL($url);
 		if (empty($contact)) {
 			return;
 		}
 
-		if ($contact['last-discovery'] > DateTimeFormat::utc('now - 1 month')) {
-			Logger::info('No discovery - Last was less than a month ago.', ['id' => $contact['id'], 'url' => $url, 'discovery' => $contact['last-discovery']]);
+		if (!self::isDiscoverable($url, $contact)) {
 			return;
 		}
 
-		if ($contact_discovery != self::DISCOVERY_ALL) {
-			$local = DBA::exists('contact', ["`nurl` = ? AND `uid` != ?", Strings::normaliseLink($url), 0]);
-			if (($contact_discovery == self::DISCOVERY_LOCAL) && !$local) {
-				Logger::info('No discovery - This contact is not followed/following locally.', ['id' => $contact['id'], 'url' => $url]);
-				return;
-			}
-
-			if ($contact_discovery == self::DISCOVERY_INTERACTOR) {
-				$interactor = DBA::exists('contact-relation', ["`relation-cid` = ? AND `last-interaction` > ?", $contact['id'], DBA::NULL_DATETIME]);
-				if (!$local && !$interactor) {
-					Logger::info('No discovery - This contact is not interacting locally.', ['id' => $contact['id'], 'url' => $url]);
-					return;
-				}
-			}
-		} elseif ($contact['created'] > DateTimeFormat::utc('now - 1 day')) {
-			// Newly created contacts are not discovered to avoid DDoS attacks
-			Logger::info('No discovery - Contact record is less than a day old.', ['id' => $contact['id'], 'url' => $url, 'discovery' => $contact['created']]);
-			return;
-		}
-
-		if (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS])) {
-			// The contact is (most likely) speaking AP, so updating is allowed
-			$apcontact = APContact::getByURL($url);
-		} else {
-			// The contact isn't obviously speaking AP, so we don't allow updating
-			$apcontact = APContact::getByURL($url, false);
-		}
+		$apcontact = APContact::getByURL($url, false);
 
 		if (!empty($apcontact['followers']) && is_string($apcontact['followers'])) {
 			$followers = ActivityPub::fetchItems($apcontact['followers']);
@@ -122,6 +89,8 @@ class ContactRelation
 		}
 
 		if (empty($followers) && empty($followings)) {
+			DBA::update('contact', ['last-discovery' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+			Logger::info('The contact does not offer discoverable data', ['id' => $contact['id'], 'url' => $url, 'network' => $contact['network']]);
 			return;
 		}
 
@@ -142,20 +111,24 @@ class ContactRelation
 		}
 		$contacts = array_unique($contacts);
 
+		$follower_counter = 0;
+		$following_counter = 0;
+
 		Logger::info('Discover contacts', ['id' => $target, 'url' => $url, 'contacts' => count($contacts)]);
 		foreach ($contacts as $contact) {
 			$actor = Contact::getIdForURL($contact);
 			if (!empty($actor)) {
-				$fields = [];
 				if (in_array($contact, $followers)) {
 					$fields = ['cid' => $target, 'relation-cid' => $actor];
-				} elseif (in_array($contact, $followings)) {
-					$fields = ['cid' => $actor, 'relation-cid' => $target];
-				} else {
-					continue;
+					DBA::update('contact-relation', ['follows' => true, 'follow-updated' => DateTimeFormat::utcNow()], $fields, true);
+					$follower_counter++;
 				}
 
-				DBA::update('contact-relation', ['follows' => true, 'follow-updated' => DateTimeFormat::utcNow()], $fields, true);
+				if (in_array($contact, $followings)) {
+					$fields = ['cid' => $actor, 'relation-cid' => $target];
+					DBA::update('contact-relation', ['follows' => true, 'follow-updated' => DateTimeFormat::utcNow()], $fields, true);
+					$following_counter++;
+				}
 			}
 		}
 
@@ -165,7 +138,66 @@ class ContactRelation
 		}
 
 		DBA::update('contact', ['last-discovery' => DateTimeFormat::utcNow()], ['id' => $target]);
-		Logger::info('Contacts discovery finished, "last-discovery" set', ['id' => $target, 'url' => $url]);
+		Logger::info('Contacts discovery finished', ['id' => $target, 'url' => $url, 'follower' => $follower_counter, 'following' => $following_counter]);
 		return;
+	}
+
+	/**
+	 * Tests if a given contact url is discoverable
+	 *
+	 * @param string $url     Contact url
+	 * @param array  $contact Contact array
+	 * @return boolean True if contact is discoverable
+	 */
+	public static function isDiscoverable(string $url, array $contact = [])
+	{
+		$contact_discovery = DI::config()->get('system', 'contact_discovery');
+
+		if ($contact_discovery == self::DISCOVERY_NONE) {
+			return false;
+		}
+
+		if (empty($contact)) {
+			$contact = Contact::getByURL($url);
+		}
+
+		if (empty($contact)) {
+			return false;
+		}
+
+		if ($contact['last-discovery'] > DateTimeFormat::utc('now - 1 month')) {
+			Logger::info('No discovery - Last was less than a month ago.', ['id' => $contact['id'], 'url' => $url, 'discovery' => $contact['last-discovery']]);
+			return false;
+		}
+
+		if ($contact_discovery != self::DISCOVERY_ALL) {
+			$local = DBA::exists('contact', ["`nurl` = ? AND `uid` != ?", Strings::normaliseLink($url), 0]);
+			if (($contact_discovery == self::DISCOVERY_LOCAL) && !$local) {
+				Logger::info('No discovery - This contact is not followed/following locally.', ['id' => $contact['id'], 'url' => $url]);
+				return false;
+			}
+
+			if ($contact_discovery == self::DISCOVERY_INTERACTOR) {
+				$interactor = DBA::exists('contact-relation', ["`relation-cid` = ? AND `last-interaction` > ?", $contact['id'], DBA::NULL_DATETIME]);
+				if (!$local && !$interactor) {
+					Logger::info('No discovery - This contact is not interacting locally.', ['id' => $contact['id'], 'url' => $url]);
+					return false;
+				}
+			}
+		} elseif ($contact['created'] > DateTimeFormat::utc('now - 1 day')) {
+			// Newly created contacts are not discovered to avoid DDoS attacks
+			Logger::info('No discovery - Contact record is less than a day old.', ['id' => $contact['id'], 'url' => $url, 'discovery' => $contact['created']]);
+			return false;
+		}
+
+		if (!in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS])) {
+			$apcontact = APContact::getByURL($url, false);
+			if (empty($apcontact)) {
+				Logger::info('No discovery - The contact does not seem to speak ActivityPub.', ['id' => $contact['id'], 'url' => $url, 'network' => $contact['network']]);
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

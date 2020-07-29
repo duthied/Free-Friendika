@@ -2075,7 +2075,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function updateFromProbe($id, $network = '', $force = false)
+	public static function updateFromProbe(int $id, string $network = '', bool $force = false)
 	{
 		/*
 		  Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
@@ -2123,6 +2123,10 @@ class Contact
 			return false;
 		}
 
+		if (ContactRelation::isDiscoverable($ret['url'])) {
+			Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
+		}
+
 		if (isset($ret['hide']) && is_bool($ret['hide'])) {
 			$ret['unsearchable'] = $ret['hide'];
 		}
@@ -2146,8 +2150,6 @@ class Contact
 		if ($uid == 0) {
 			GContact::updateFromPublicContactID($id);
 		}
-
-		ContactRelation::discoverByUrl($ret['url']);
 
 		$update = false;
 
