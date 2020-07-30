@@ -74,22 +74,17 @@ class Acl extends BaseModule
 		$mode = $_REQUEST['smode'];
 		$page = $_REQUEST['page'] ?? 1;
 
-		$r = Search::searchGlobalContact($search, $mode, $page);
+		$result = Search::searchContact($search, $mode, $page);
 
 		$contacts = [];
-		foreach ($r as $g) {
-			if (empty($g['name'])) {
-				DI::logger()->warning('Wrong result item from Search::searchGlobalContact', ['$g' => $g, '$search' => $search, '$mode' => $mode, '$page' => $page]);
-				continue;
-			}
-			$contact = Contact::getByURL($g['url']);
+		foreach ($result as $contact) {
 			$contacts[] = [
-				'photo'   => Contact::getMicro($contact, $g['photo']),
-				'name'    => htmlspecialchars($contact['name'] ?? $g['name']),
-				'nick'    => $contact['nick'] ?? ($g['addr'] ?: $g['url']),
-				'network' => $contact['network'] ?? $g['network'],
-				'link'    => $g['url'],
-				'forum'   => !empty($g['community']),
+				'photo'   => Contact::getMicro($contact),
+				'name'    => htmlspecialchars($contact['name']),
+				'nick'    => $contact['nick'],
+				'network' => $contact['network'],
+				'link'    => $contact['url'],
+				'forum'   => $contact['contact-type'] == Contact::TYPE_COMMUNITY,
 			];
 		}
 

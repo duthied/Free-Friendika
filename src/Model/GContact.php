@@ -28,14 +28,12 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Search;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
@@ -43,67 +41,6 @@ use Friendica\Util\Strings;
  */
 class GContact
 {
-	/**
-	 * Search global contact table by nick or name
-	 *
-	 * @param string $search Name or nick
-	 * @param string $mode   Search mode (e.g. "community")
-	 *
-	 * @return array with search results
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function searchByName($search, $mode = '')
-	{
-		if (empty($search)) {
-			return [];
-		}
-
-		// check supported networks
-		if (DI::config()->get('system', 'diaspora_enabled')) {
-			$diaspora = Protocol::DIASPORA;
-		} else {
-			$diaspora = Protocol::DFRN;
-		}
-
-		if (!DI::config()->get('system', 'ostatus_disabled')) {
-			$ostatus = Protocol::OSTATUS;
-		} else {
-			$ostatus = Protocol::DFRN;
-		}
-
-		// check if we search only communities or every contact
-		if ($mode === 'community') {
-			$extra_sql = ' AND `community`';
-		} else {
-			$extra_sql = '';
-		}
-
-		$search .= '%';
-
-		$results = DBA::p("SELECT `nurl` FROM `gcontact`
-			WHERE NOT `hide` AND `network` IN (?, ?, ?, ?) AND
-				NOT `failed` AND
-				(`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?) $extra_sql
-				GROUP BY `nurl` ORDER BY `nurl` DESC LIMIT 1000",
-			Protocol::DFRN, Protocol::ACTIVITYPUB, $ostatus, $diaspora, $search, $search, $search
-		);
-
-		$gcontacts = [];
-		while ($result = DBA::fetch($results)) {
-			$urlparts = parse_url($result['nurl']);
-
-			// Ignore results that look strange.
-			// For historic reasons the gcontact table does contain some garbage.
-			if (empty($result['nurl']) || !empty($urlparts['query']) || !empty($urlparts['fragment'])) {
-				continue;
-			}
-
-			$gcontacts[] = Contact::getByURLForUser($result['nurl'], local_user());
-		}
-		DBA::close($results);
-		return $gcontacts;
-	}
-
 	/**
 	 * Link the gcontact entry with user, contact and global contact
 	 *
@@ -422,92 +359,6 @@ class GContact
 
 		/// @TODO Check all calling-findings of this function if they properly use DBA::isResult()
 		return $r;
-	}
-
-	/**
-	 * @param int     $uid   user
-	 * @param integer $start optional, default 0
-	 * @param integer $limit optional, default 80
-	 * @return array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function suggestionQuery($uid, $start = 0, $limit = 80)
-	{
-		if (!$uid) {
-			return [];
-		}
-
-		$network = [Protocol::DFRN, Protocol::ACTIVITYPUB];
-
-		if (DI::config()->get('system', 'diaspora_enabled')) {
-			$network[] = Protocol::DIASPORA;
-		}
-
-		if (!DI::config()->get('system', 'ostatus_disabled')) {
-			$network[] = Protocol::OSTATUS;
-		}
-
-		$sql_network = "'" . implode("', '", $network) . "'";
-
-		/// @todo This query is really slow
-		// By now we cache the data for five minutes
-		$r = q(
-			"SELECT count(glink.gcid) as `total`, gcontact.* from gcontact
-			INNER JOIN `glink` ON `glink`.`gcid` = `gcontact`.`id`
-			where uid = %d and not gcontact.nurl in ( select nurl from contact where uid = %d )
-			AND NOT `gcontact`.`name` IN (SELECT `name` FROM `contact` WHERE `uid` = %d)
-			AND NOT `gcontact`.`id` IN (SELECT `gcid` FROM `gcign` WHERE `uid` = %d)
-			AND `gcontact`.`updated` >= '%s' AND NOT `gcontact`.`hide`
-			AND NOT `gcontact`.`failed`
-			AND `gcontact`.`network` IN (%s)
-			GROUP BY `glink`.`gcid` ORDER BY `gcontact`.`updated` DESC,`total` DESC LIMIT %d, %d",
-			intval($uid),
-			intval($uid),
-			intval($uid),
-			intval($uid),
-			DBA::NULL_DATETIME,
-			$sql_network,
-			intval($start),
-			intval($limit)
-		);
-
-		if (DBA::isResult($r) && count($r) >= ($limit -1)) {
-			return $r;
-		}
-
-		$r2 = q(
-			"SELECT gcontact.* FROM gcontact
-			INNER JOIN `glink` ON `glink`.`gcid` = `gcontact`.`id`
-			WHERE `glink`.`uid` = 0 AND `glink`.`cid` = 0 AND `glink`.`zcid` = 0 AND NOT `gcontact`.`nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` = %d)
-			AND NOT `gcontact`.`name` IN (SELECT `name` FROM `contact` WHERE `uid` = %d)
-			AND NOT `gcontact`.`id` IN (SELECT `gcid` FROM `gcign` WHERE `uid` = %d)
-			AND `gcontact`.`updated` >= '%s'
-			AND NOT `gcontact`.`failed`
-			AND `gcontact`.`network` IN (%s)
-			ORDER BY rand() LIMIT %d, %d",
-			intval($uid),
-			intval($uid),
-			intval($uid),
-			DBA::NULL_DATETIME,
-			$sql_network,
-			intval($start),
-			intval($limit)
-		);
-
-		$list = [];
-		foreach ($r2 as $suggestion) {
-			$list[$suggestion['nurl']] = $suggestion;
-		}
-
-		foreach ($r as $suggestion) {
-			$list[$suggestion['nurl']] = $suggestion;
-		}
-
-		while (sizeof($list) > ($limit)) {
-			array_pop($list);
-		}
-
-		return $list;
 	}
 
 	/**

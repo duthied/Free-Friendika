@@ -202,6 +202,7 @@ return [
 			"dfrn-id" => ["dfrn-id(64)"],
 			"issued-id" => ["issued-id(64)"],
 			"network_uid_lastupdate" => ["network", "uid", "last-update"],
+			"uid_lastitem" => ["uid", "last-item"],			
 			"gsid" => ["gsid"]
 		]
 	],
