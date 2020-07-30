@@ -3006,7 +3006,7 @@ class Contact
 			return array_slice($contacts, $start, $limit);
 		}
 
-		// The query returns contacts where contacts interacted with who also interacted with the given user.
+		// The query returns contacts where contacts interacted with whom also interacted with the given user.
 		// Contacts who already are in the user's contact table are ignored.
 		$results = DBA::select('contact', [],
 			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
