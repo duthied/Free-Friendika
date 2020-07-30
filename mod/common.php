@@ -123,30 +123,10 @@ function common_content(App $a)
 
 	$entries = [];
 	foreach ($common_friends as $common_friend) {
-		//get further details of the contact
-		$contact_details = Model\Contact::getByURLForUser($common_friend['url'], $uid);
-
-		// $rr['id'] is needed to use contact_photo_menu()
-		/// @TODO Adding '/" here avoids E_NOTICE on missing constants
-		$common_friend['id'] = $common_friend['cid'];
-
-		$photo_menu = Model\Contact::photoMenu($common_friend);
-
-		$entry = [
-			'url'          => Model\Contact::magicLink($common_friend['url']),
-			'itemurl'      => ($contact_details['addr'] ?? '') ?: $common_friend['url'],
-			'name'         => $contact_details['name'],
-			'thumb'        => Contact::getThumb($contact_details),
-			'img_hover'    => $contact_details['name'],
-			'details'      => $contact_details['location'],
-			'tags'         => $contact_details['keywords'],
-			'about'        => $contact_details['about'],
-			'account_type' => Model\Contact::getAccountType($contact_details),
-			'network'      => ContactSelector::networkToName($contact_details['network'], $contact_details['url']),
-			'photo_menu'   => $photo_menu,
-			'id'           => ++$id,
-		];
-		$entries[] = $entry;
+		$contact = Model\Contact::getByURL($common_friend['url']);
+		if (!empty($contact)) {
+			$entries[] = Model\Contact::getTemplateData($contact, ++$id);
+		}
 	}
 
 	$title = '';

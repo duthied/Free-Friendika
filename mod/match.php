@@ -91,33 +91,10 @@ function match_content(App $a)
 				continue;
 			}
 
-			// Workaround for wrong directory photo URL
-			$profile->photo = str_replace('http:///photo/', Search::getGlobalDirectory() . '/photo/', $profile->photo);
-
-			$connlnk = DI::baseUrl() . '/follow/?url=' . $profile->url;
-			$photo_menu = [
-				'profile' => [DI::l10n()->t("View Profile"), Contact::magicLink($profile->url)],
-				'follow' => [DI::l10n()->t("Connect/Follow"), $connlnk]
-			];
-
-			$contact_details = Contact::getByURL($profile->url, false);
-
-			$entry = [
-				'url'          => Contact::magicLink($profile->url),
-				'itemurl'      => $contact_details['addr'] ?? $profile->url,
-				'name'         => $profile->name,
-				'details'      => $contact_details['location'] ?? '',
-				'tags'         => $contact_details['keywords'] ?? '',
-				'about'        => $contact_details['about'] ?? '',
-				'account_type' => Contact::getAccountType($contact_details),
-				'thumb'        => Contact::getThumb($contact_details, $profile->photo),
-				'conntxt'      => DI::l10n()->t('Connect'),
-				'connlnk'      => $connlnk,
-				'img_hover'    => $profile->tags,
-				'photo_menu'   => $photo_menu,
-				'id'           => $i,
-			];
-			$entries[] = $entry;
+			$contact = Contact::getByURL($profile->url);
+			if (!empty($contact)) {
+				$entries[] = Contact::getTemplateData($contact, $i);
+			}
 		}
 
 		$data = [

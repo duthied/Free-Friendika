@@ -93,21 +93,7 @@ function suggest_content(App $a)
 	$entries = [];
 
 	foreach ($contacts as $contact) {
-		$entry = [
-			'url'          => Contact::magicLink($contact['url']),
-			'itemurl'      => $contact['addr'] ?: $contact['url'],
-			'name'         => $contact['name'],
-			'thumb'        => Contact::getThumb($contact),
-			'img_hover'    => $contact['url'],
-			'details'      => $contact['location'],
-			'tags'         => $contact['keywords'],
-			'about'        => $contact['about'],
-			'account_type' => Contact::getAccountType($contact),
-			'network'      => ContactSelector::networkToName($contact['network'], $contact['url']),
-			'photo_menu'   => Contact::photoMenu($contact),
-			'id'           => ++$id,
-		];
-		$entries[] = $entry;
+		$entries[] = Contact::getTemplateData($contact, ++$id);
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');

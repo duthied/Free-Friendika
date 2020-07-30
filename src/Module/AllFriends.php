@@ -77,40 +77,10 @@ class AllFriends extends BaseModule
 
 		$entries = [];
 		foreach ($friends as $friend) {
-			//get further details of the contact
-			$contactDetails = Model\Contact::getByURLForUser($friend['url'], $uid) ?: $friend;
-
-			$connlnk = '';
-			// $friend[cid] is only available for common contacts. So if the contact is a common one, use contact_photo_menu to generate the photoMenu
-			// If the contact is not common to the user, Connect/Follow' will be added to the photo menu
-			if ($friend['cid']) {
-				$friend['id'] = $friend['cid'];
-				$photoMenu = Model\Contact::photoMenu($friend);
-			} else {
-				$connlnk = DI::baseUrl()->get() . '/follow/?url=' . $friend['url'];
-				$photoMenu = [
-					'profile' => [DI::l10n()->t('View Profile'), Model\Contact::magicLinkbyId($friend['id'], $friend['url'])],
-					'follow'  => [DI::l10n()->t('Connect/Follow'), $connlnk]
-				];
+			$contact = Model\Contact::getByURL($friend['url']);
+			if (!empty($contact)) {
+				$entries[] = Model\Contact::getTemplateData($contact, ++$id);
 			}
-
-			$entry = [
-				'url'          => Model\Contact::magicLinkbyId($friend['id'], $friend['url']),
-				'itemurl'      => ($contactDetails['addr'] ?? '') ?: $friend['url'],
-				'name'         => $contactDetails['name'],
-				'thumb'        => Model\Contact::getThumb($contactDetails),
-				'img_hover'    => $contactDetails['name'],
-				'details'      => $contactDetails['location'],
-				'tags'         => $contactDetails['keywords'],
-				'about'        => $contactDetails['about'],
-				'account_type' => Model\Contact::getAccountType($contactDetails),
-				'network'      => ContactSelector::networkToName($contactDetails['network'], $contactDetails['url']),
-				'photoMenu'    => $photoMenu,
-				'conntxt'      => DI::l10n()->t('Connect'),
-				'connlnk'      => $connlnk,
-				'id'           => ++$id,
-			];
-			$entries[] = $entry;
 		}
 
 		$tab_str = Contact::getTabsHTML($app, $contact, 4);

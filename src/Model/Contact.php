@@ -22,6 +22,7 @@
 namespace Friendica\Model;
 
 use Friendica\App\BaseURL;
+use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
@@ -3067,5 +3068,23 @@ class Contact
 		Logger::info('Any contact', ['uid' => $uid, 'cid' => $cid, 'count' => count($contacts)]);
 
 		return array_slice($contacts, $start, $limit);
+	}
+
+	public static function getTemplateData(array $contact, int $id)
+	{
+		return [
+			'url'          => self::magicLink($contact['url']),
+			'itemurl'      => $contact['addr'] ?: $contact['url'],
+			'name'         => $contact['name'],
+			'thumb'        => self::getThumb($contact),
+			'img_hover'    => $contact['url'],
+			'details'      => $contact['location'],
+			'tags'         => $contact['keywords'],
+			'about'        => $contact['about'],
+			'account_type' => self::getAccountType($contact),
+			'network'      => ContactSelector::networkToName($contact['network'], $contact['url']),
+			'photo_menu'   => self::photoMenu($contact),
+			'id'           => $id,
+		];
 	}
 }
