@@ -2982,7 +2982,7 @@ class Contact
 		$diaspora = DI::config()->get('system', 'diaspora_enabled') ? Protocol::DIASPORA : Protocol::ACTIVITYPUB;
 		$ostatus = !DI::config()->get('system', 'ostatus_disabled') ? Protocol::OSTATUS : Protocol::ACTIVITYPUB;
 
-		// The query returns contacts where contacts interacted with who the given user follows.
+		// The query returns contacts where contacts interacted with whom the given user follows.
 		// Contacts who already are in the user's contact table are ignored.
 		$results = DBA::select('contact', [],
 			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
