@@ -2987,8 +2987,8 @@ class Contact
 		$results = DBA::select('contact', [],
 			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
 				(SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ?)
-				AND NOT `cid` IN (SELECT `id` FROM `contact` WHERE `uid` = ? AND `nurl` IN
-					(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))))
+					AND NOT `cid` IN (SELECT `id` FROM `contact` WHERE `uid` = ? AND `nurl` IN
+						(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))))
 			AND NOT `hidden` AND `network` IN (?, ?, ?, ?)",
 			$cid, 0, $uid, Contact::FRIEND, Contact::SHARING,
 			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
@@ -3011,8 +3011,8 @@ class Contact
 		$results = DBA::select('contact', [],
 			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
 				(SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ?)
-				AND NOT `cid` IN (SELECT `id` FROM `contact` WHERE `uid` = ? AND `nurl` IN
-					(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))))
+					AND NOT `cid` IN (SELECT `id` FROM `contact` WHERE `uid` = ? AND `nurl` IN
+						(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))))
 			AND NOT `hidden` AND `network` IN (?, ?, ?, ?)",
 			$cid, 0, $uid, Contact::FRIEND, Contact::SHARING,
 			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
