@@ -22,6 +22,7 @@
 namespace Friendica\Protocol;
 
 use Friendica\Core\Protocol;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\User;
@@ -89,22 +90,21 @@ class ActivityPub
 	 */
 	public static function fetchContent(string $url, int $uid = 0)
 	{
-		if (!empty($uid)) {
-			return HTTPSignature::fetch($url, $uid);
+		if (empty($uid)) {
+			$user = User::getFirstAdmin(['uid']);
+		
+			if (empty($user['uid'])) {
+				// When the system setup is missing an admin we just take the first user
+				$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
+				$user = DBA::selectFirst('user', ['uid'], $condition);
+			}
+
+			if (!empty($user['uid'])) {
+				$uid = $user['uid'];
+			}
 		}
 
-		$curlResult = DI::httpRequest()->get($url, false, ['accept_content' => 'application/activity+json, application/ld+json']);
-		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-			return false;
-		}
-
-		$content = json_decode($curlResult->getBody(), true);
-
-		if (empty($content) || !is_array($content)) {
-			return false;
-		}
-
-		return $content;
+		return HTTPSignature::fetch($url, $uid);
 	}
 
 	private static function getAccountType($apcontact)

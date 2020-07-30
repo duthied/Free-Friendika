@@ -186,6 +186,24 @@ class User
 	}
 
 	/**
+	 * Fetch the user array of the administrator. The first one if there are several.
+	 *
+	 * @param array $fields
+	 * @return array user
+	 */
+	public static function getFirstAdmin(array $fields = [])
+	{
+		if (!empty(DI::config()->get('config', 'admin_nickname'))) {
+			return self::getByNickname(DI::config()->get('config', 'admin_nickname'), $fields);
+		} elseif (!empty(DI::config()->get('config', 'admin_email'))) {
+			$adminList = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
+			return self::getByEmail($adminList[0], $fields);
+		} else {
+			return [];
+		}
+	}
+
+	/**
 	 * Get owner data by user id
 	 *
 	 * @param int $uid
