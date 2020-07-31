@@ -29,7 +29,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Session;
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Model\Contact;
+use Friendica\Model;
 use Friendica\Model\Profile;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
@@ -83,7 +83,10 @@ class Directory extends BaseModule
 			}
 
 			foreach ($profiles['entries'] as $entry) {
-				$entries[] = self::formatEntry($entry, $photo);
+				$contact = Model\Contact::getByURLForUser($entry['url'], local_user());
+				if (!empty($contact)) {
+					$entries[] = Contact::getContactTemplateVars($contact);
+				}
 			}
 		}
 
@@ -160,18 +163,18 @@ class Directory extends BaseModule
 		$location_e = $location;
 
 		$photo_menu = [
-			'profile' => [DI::l10n()->t("View Profile"), Contact::magicLink($profile_link)]
+			'profile' => [DI::l10n()->t("View Profile"), Model\Contact::magicLink($profile_link)]
 		];
 
 		$entry = [
 			'id'           => $contact['id'],
-			'url'          => Contact::magicLink($profile_link),
+			'url'          => Model\Contact::magicLink($profile_link),
 			'itemurl'      => $itemurl,
-			'thumb'        => Contact::getThumb($contact),
+			'thumb'        => Model\Contact::getThumb($contact),
 			'img_hover'    => $contact['name'],
 			'name'         => $contact['name'],
 			'details'      => $details,
-			'account_type' => Contact::getAccountType($contact),
+			'account_type' => Model\Contact::getAccountType($contact),
 			'profile'      => $profile,
 			'location'     => $location_e,
 			'tags'         => $contact['pub_keywords'],
