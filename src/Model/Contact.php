@@ -22,7 +22,6 @@
 namespace Friendica\Model;
 
 use Friendica\App\BaseURL;
-use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
