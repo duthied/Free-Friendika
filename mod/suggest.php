@@ -89,11 +89,9 @@ function suggest_content(App $a)
 		]);
 	}
 
-	$id = 0;
 	$entries = [];
-
 	foreach ($contacts as $contact) {
-		$entries[] = ModuleContact::getContactTemplateVars($contact, ++$id);
+		$entries[] = ModuleContact::getContactTemplateVars($contact);
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');

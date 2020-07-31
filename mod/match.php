@@ -94,7 +94,7 @@ function match_content(App $a)
 
 			$contact = Contact::getByURLForUser($profile->url, local_user());
 			if (!empty($contact)) {
-				$entries[] = ModuleContact::getContactTemplateVars($contact, $i);
+				$entries[] = ModuleContact::getContactTemplateVars($contact);
 			}
 		}
 

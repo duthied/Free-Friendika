@@ -117,13 +117,11 @@ function common_content(App $a)
 		return $o;
 	}
 
-	$id = 0;
-
 	$entries = [];
 	foreach ($common_friends as $common_friend) {
 		$contact = Model\Contact::getByURLForUser($common_friend['url'], local_user());
 		if (!empty($contact)) {
-			$entries[] = Module\Contact::getContactTemplateVars($contact, ++$id);
+			$entries[] = Module\Contact::getContactTemplateVars($contact);
 		}
 	}
 

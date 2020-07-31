@@ -72,13 +72,11 @@ class AllFriends extends BaseModule
 			return DI::l10n()->t('No friends to display.');
 		}
 
-		$id = 0;
-
 		$entries = [];
 		foreach ($friends as $friend) {
 			$contact = Model\Contact::getByURLForUser($friend['url'], local_user());
 			if (!empty($contact)) {
-				$entries[] = Contact::getContactTemplateVars($contact, ++$id);
+				$entries[] = Contact::getContactTemplateVars($contact);
 			}
 		}
 

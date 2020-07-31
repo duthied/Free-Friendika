@@ -118,7 +118,6 @@ class BaseSearch extends BaseModule
 			return '';
 		}
 
-		$id      = 0;
 		$entries = [];
 		foreach ($results->getResults() as $result) {
 
@@ -126,7 +125,7 @@ class BaseSearch extends BaseModule
 			if ($result instanceof ContactResult) {
 				$contact = Model\Contact::getByURLForUser($result->getUrl(), local_user());
 				if (!empty($contact)) {
-					$entries[] = Contact::getContactTemplateVars($contact, ++$id);
+					$entries[] = Contact::getContactTemplateVars($contact);
 				}
 			}
 		}

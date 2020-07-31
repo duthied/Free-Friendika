@@ -1016,7 +1016,7 @@ class Contact extends BaseModule
 	 * @param integer $id
 	 * @return array Template fields
 	 */
-	public static function getContactTemplateVars(array $rr, int $id = 0)
+	public static function getContactTemplateVars(array $rr)
 	{
 		$dir_icon = '';
 		$alt_text = '';
@@ -1085,7 +1085,6 @@ class Contact extends BaseModule
 			'url'       => $url,
 			'network'   => ContactSelector::networkToName($rr['network'], $rr['url'], $rr['protocol']),
 			'nick'      => $rr['nick'],
-			'id'        => $id,
 		];
 	}
 
