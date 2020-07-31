@@ -34,6 +34,13 @@ class AddContact
 	 */
 	public static function execute(int $uid, string $url)
 	{
+		if ($uid == 0) {
+			// Adding public contact
+			$result = Contact::getIdForURL($url);
+			Logger::info('Added public contact', ['url' => $url, 'result' => $result]);
+			return;
+		}
+
 		$user = User::getById($uid);
 		if (empty($user)) {
 			return;

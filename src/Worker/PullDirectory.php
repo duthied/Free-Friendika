@@ -1,0 +1,76 @@
+<?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+namespace Friendica\Worker;
+
+use Friendica\Core\Logger;
+use Friendica\Core\Worker;
+use Friendica\DI;
+use Friendica\Model\Contact;
+
+class PullDirectory
+{
+	/**
+	 * Pull contacts from a directory server
+	 */
+	public static function execute()
+	{
+		if (!DI::config()->get('system', 'synchronize_directory')) {
+			Logger::info('Synchronization deactivated');
+			return;
+		}
+
+		$directory = DI::config()->get('system', 'directory');
+		if (empty($directory)) {
+			Logger::info('No directory configured');
+			return;
+		}
+
+		$now = (int)DI::config()->get('system', 'last-directory-sync', 0);
+
+		Logger::info('Synchronization started.', ['now' => $now, 'directory' => $directory]);
+
+		$result = DI::httpRequest()->fetch($directory . '/sync/pull/since/' . $now);
+		if (empty($result)) {
+			Logger::info('Directory server return empty result.', ['directory' => $directory]);
+			return;
+		}
+
+		$contacts = json_decode($result, true);
+		if (empty($contacts['results'])) {
+			Logger::info('No results fetched.', ['directory' => $directory]);
+			return;
+		}
+
+		$now = $contacts['now'] ?? 0;
+		$count = $contacts['count'] ?? 0;
+		$added = 0;
+		foreach ($contacts['results'] as $url) {
+			if (empty(Contact::getByURL($url, false, ['id']))) {
+				Worker::add(PRIORITY_LOW, 'AddContact', 0, $url);
+				++$added;
+			}
+		}
+		DI::config()->set('system', 'last-directory-sync', $now);
+
+		Logger::info('Synchronization ended.', ['now' => $now, 'count' => $count, 'added' => $added, 'directory' => $directory]);
+	}
+}
