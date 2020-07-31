@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1358);
+	define('DB_UPDATE_VERSION', 1359);
 }
 
 return [
@@ -536,19 +536,6 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-		]
-	],
-	"gcign" => [
-		"comment" => "contacts ignored by friend suggestions",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Local User id"],
-			"gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => "gcontact.id of ignored contact"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"uid" => ["uid"],
-			"gcid" => ["gcid"],
 		]
 	],
 	"gcontact" => [
