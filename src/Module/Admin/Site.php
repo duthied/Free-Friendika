@@ -179,6 +179,7 @@ class Site extends BaseAdmin
 		$optimize_max_tablesize = (!empty($_POST['optimize_max_tablesize']) ? intval(trim($_POST['optimize_max_tablesize'])) : 100);
 		$optimize_fragmentation = (!empty($_POST['optimize_fragmentation']) ? intval(trim($_POST['optimize_fragmentation'])) : 30);
 		$contact_discovery      = (!empty($_POST['contact_discovery'])      ? intval(trim($_POST['contact_discovery']))      : ContactRelation::DISCOVERY_NONE);
+		$synchronize_directory  = (!empty($_POST['synchronize_directory'])  ? intval(trim($_POST['synchronize_directory']))  : false);
 		$poco_completion        = (!empty($_POST['poco_completion'])        ? intval(trim($_POST['poco_completion']))        : false);
 		$poco_requery_days      = (!empty($_POST['poco_requery_days'])      ? intval(trim($_POST['poco_requery_days']))      : 7);
 		$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : PortableContact::DISABLED);
@@ -309,6 +310,7 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'optimize_fragmentation', $optimize_fragmentation);
 		DI::config()->set('system', 'poco_completion'       , $poco_completion);
 		DI::config()->set('system', 'contact_discovery'     , $contact_discovery);
+		DI::config()->set('system', 'synchronize_directory' , $synchronize_directory);
 		DI::config()->set('system', 'poco_requery_days'     , $poco_requery_days);
 		DI::config()->set('system', 'poco_discovery'        , $poco_discovery);
 		DI::config()->set('system', 'poco_discovery_since'  , $poco_discovery_since);
@@ -684,6 +686,7 @@ class Site extends BaseAdmin
 				'<li>' . DI::l10n()->t('Local contacts - contacts of our local contacts are discovered for their followers/followings.') . '</li>' .
 				'<li>' . DI::l10n()->t('Interactors - contacts of our local contacts and contacts who interacted on locally visible postings are discovered for their followers/followings.') . '</li></ul>',
 				$discovery_choices],
+			'$synchronize_directory'  => ['synchronize_directory', DI::l10n()->t('Synchronize the contacts with the directory server'), DI::config()->get('system', 'synchronize_directory'), DI::l10n()->t('if enabled, the system will check periodically for new contacts on the defined directory server.')],
 
 			'$poco_completion'        => ['poco_completion', DI::l10n()->t('Periodical check of global contacts'), DI::config()->get('system', 'poco_completion'), DI::l10n()->t('If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.')],
 			'$poco_requery_days'      => ['poco_requery_days', DI::l10n()->t('Days between requery'), DI::config()->get('system', 'poco_requery_days'), DI::l10n()->t('Number of days after which a server is requeried for his contacts.')],

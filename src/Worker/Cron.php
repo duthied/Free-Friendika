@@ -105,6 +105,11 @@ class Cron
 		// Hourly cron calls
 		if (DI::config()->get('system', 'last_cron_hourly', 0) + 3600 < time()) {
 
+			// Search for new contacts in the directory
+			if (DI::config()->get('system', 'synchronize_directory')) {
+				Worker::add(PRIORITY_LOW, 'PullDirectory');
+			}
+
 			// Delete all done workerqueue entries
 			DBA::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 1 HOUR']);
 
