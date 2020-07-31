@@ -22,7 +22,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
@@ -119,66 +118,15 @@ class BaseSearch extends BaseModule
 			return '';
 		}
 
-		$id      = 0;
 		$entries = [];
 		foreach ($results->getResults() as $result) {
 
 			// in case the result is a contact result, add a contact-specific entry
 			if ($result instanceof ContactResult) {
-
-				$alt_text    = '';
-				$location    = '';
-				$about       = '';
-				$accountType = '';
-				$photo_menu  = [];
-
-				// If We already know this contact then don't show the "connect" button
-				if ($result->getCid() > 0 || $result->getPCid() > 0) {
-					$connLink = "";
-					$connTxt  = "";
-					$contact  = Model\Contact::getById(
-						($result->getCid() > 0) ? $result->getCid() : $result->getPCid()
-					);
-
-					if (!empty($contact)) {
-						$photo_menu  = Model\Contact::photoMenu($contact);
-						$details     = Contact::getContactTemplateVars($contact);
-						$alt_text    = $details['alt_text'];
-						$location    = $contact['location'];
-						$about       = $contact['about'];
-						$accountType = Model\Contact::getAccountType($contact);
-					} else {
-						$photo_menu = [];
-					}
-				} else {
-					$connLink = DI::baseUrl()->get() . '/follow/?url=' . $result->getUrl();
-					$connTxt  = DI::l10n()->t('Connect');
-
-					$photo_menu['profile'] = [DI::l10n()->t("View Profile"), Model\Contact::magicLink($result->getUrl())];
-					$photo_menu['follow']  = [DI::l10n()->t("Connect/Follow"), $connLink];
+				$contact = Model\Contact::getByURLForUser($result->getUrl(), local_user());
+				if (!empty($contact)) {
+					$entries[] = Contact::getContactTemplateVars($contact);
 				}
-
-				$photo = str_replace("http:///photo/", Search::getGlobalDirectory() . "/photo/", $result->getPhoto());
-				$contact = Model\Contact::getByURL($result->getUrl());
-
-				$entry     = [
-					'alt_text'     => $alt_text,
-					'url'          => Model\Contact::magicLink($result->getUrl()),
-					'itemurl'      => $result->getItem(),
-					'name'         => $contact['name'] ?? $result->getName(),
-					'thumb'        => Model\Contact::getThumb($contact, $photo),
-					'img_hover'    => $result->getTags(),
-					'conntxt'      => $connTxt,
-					'connlnk'      => $connLink,
-					'photo_menu'   => $photo_menu,
-					'details'      => $location,
-					'tags'         => $result->getTags(),
-					'about'        => $about,
-					'account_type' => $accountType,
-					'network'      => ContactSelector::networkToName($result->getNetwork(), $result->getUrl()),
-					'id'           => ++$id,
-				];
-				$entries[] = $entry;
 			}
 		}
 

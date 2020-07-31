@@ -483,21 +483,17 @@ class Contact extends BaseModule
 			$contact['blocked']  = Model\Contact::isBlockedByUser($contact['id'], local_user());
 			$contact['readonly'] = Model\Contact::isIgnoredByUser($contact['id'], local_user());
 
-			$dir_icon = '';
 			$relation_text = '';
 			switch ($contact['rel']) {
 				case Model\Contact::FRIEND:
-					$dir_icon = 'images/lrarrow.gif';
 					$relation_text = DI::l10n()->t('You are mutual friends with %s');
 					break;
 
 				case Model\Contact::FOLLOWER;
-					$dir_icon = 'images/larrow.gif';
 					$relation_text = DI::l10n()->t('You are sharing with %s');
 					break;
 
 				case Model\Contact::SHARING;
-					$dir_icon = 'images/rarrow.gif';
 					$relation_text = DI::l10n()->t('%s is sharing with you');
 					break;
 
@@ -612,7 +608,6 @@ class Contact extends BaseModule
 				'$ffi_keyword_denylist' => ['ffi_keyword_denylist', DI::l10n()->t('Keyword Deny List'), $contact['ffi_keyword_denylist'], DI::l10n()->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
 				'$photo'          => Model\Contact::getPhoto($contact),
 				'$name'           => $contact['name'],
-				'$dir_icon'       => $dir_icon,
 				'$sparkle'        => $sparkle,
 				'$url'            => $url,
 				'$profileurllabel'=> DI::l10n()->t('Profile URL'),
@@ -1009,25 +1004,27 @@ class Contact extends BaseModule
 		return $o;
 	}
 
-	public static function getContactTemplateVars(array $rr)
+	/**
+	 * Return the fields for the contact template
+	 *
+	 * @param array $contact Contact array
+	 * @return array Template fields
+	 */
+	public static function getContactTemplateVars(array $contact)
 	{
-		$dir_icon = '';
 		$alt_text = '';
 
-		if (!empty($rr['uid']) && !empty($rr['rel'])) {
-			switch ($rr['rel']) {
+		if (!empty($contact['uid']) && !empty($contact['rel'])) {
+			switch ($contact['rel']) {
 				case Model\Contact::FRIEND:
-					$dir_icon = 'images/lrarrow.gif';
 					$alt_text = DI::l10n()->t('Mutual Friendship');
 					break;
 
 				case Model\Contact::FOLLOWER;
-					$dir_icon = 'images/larrow.gif';
 					$alt_text = DI::l10n()->t('is a fan of yours');
 					break;
 
 				case Model\Contact::SHARING;
-					$dir_icon = 'images/rarrow.gif';
 					$alt_text = DI::l10n()->t('you are a fan of');
 					break;
 
@@ -1036,7 +1033,7 @@ class Contact extends BaseModule
 			}
 		}
 
-		$url = Model\Contact::magicLink($rr['url']);
+		$url = Model\Contact::magicLink($contact['url']);
 
 		if (strpos($url, 'redir/') === 0) {
 			$sparkle = ' class="sparkle" ';
@@ -1044,37 +1041,36 @@ class Contact extends BaseModule
 			$sparkle = '';
 		}
 
-		if ($rr['pending']) {
-			if (in_array($rr['rel'], [Model\Contact::FRIEND, Model\Contact::SHARING])) {
+		if ($contact['pending']) {
+			if (in_array($contact['rel'], [Model\Contact::FRIEND, Model\Contact::SHARING])) {
 				$alt_text = DI::l10n()->t('Pending outgoing contact request');
 			} else {
 				$alt_text = DI::l10n()->t('Pending incoming contact request');
 			}
 		}
 
-		if ($rr['self']) {
-			$dir_icon = 'images/larrow.gif';
+		if ($contact['self']) {
 			$alt_text = DI::l10n()->t('This is you');
-			$url = $rr['url'];
+			$url = $contact['url'];
 			$sparkle = '';
 		}
 
 		return [
-			'img_hover' => DI::l10n()->t('Visit %s\'s profile [%s]', $rr['name'], $rr['url']),
-			'edit_hover'=> DI::l10n()->t('Edit contact'),
-			'photo_menu'=> Model\Contact::photoMenu($rr),
-			'id'        => $rr['id'],
-			'alt_text'  => $alt_text,
-			'dir_icon'  => $dir_icon,
-			'thumb'     => Model\Contact::getThumb($rr),
-			'name'      => $rr['name'],
-			'username'  => $rr['name'],
-			'account_type' => Model\Contact::getAccountType($rr),
-			'sparkle'   => $sparkle,
-			'itemurl'   => ($rr['addr'] ?? '') ?: $rr['url'],
-			'url'       => $url,
-			'network'   => ContactSelector::networkToName($rr['network'], $rr['url'], $rr['protocol']),
-			'nick'      => $rr['nick'],
+			'id'           => $contact['id'],
+			'url'          => $url,
+			'img_hover'    => DI::l10n()->t('Visit %s\'s profile [%s]', $contact['name'], $contact['url']),
+			'photo_menu'   => Model\Contact::photoMenu($contact),
+			'thumb'        => Model\Contact::getThumb($contact),
+			'alt_text'     => $alt_text,
+			'name'         => $contact['name'],
+			'nick'         => $contact['nick'],
+			'details'      => $contact['location'], 
+			'tags'         => $contact['keywords'],
+			'about'        => $contact['about'],
+			'account_type' => Model\Contact::getAccountType($contact),
+			'sparkle'      => $sparkle,
+			'itemurl'      => ($contact['addr'] ?? '') ?: $contact['url'],
+			'network'      => ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']),
 		];
 	}
 

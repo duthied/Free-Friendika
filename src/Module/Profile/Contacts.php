@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Profile;
 
-use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Core\Protocol;
@@ -29,9 +28,9 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Module\BaseProfile;
+use Friendica\Module\Contact as ModuleContact;
 
 class Contacts extends BaseProfile
 {
@@ -101,25 +100,7 @@ class Contacts extends BaseProfile
 			if ($contact['self']) {
 				continue;
 			}
-
-			$contact_details = Contact::getByURLForUser($contact['url'], $a->profile['uid']) ?: $contact;
-
-			$contacts[] = [
-				'id'           => $contact['id'],
-				'img_hover'    => DI::l10n()->t('Visit %s\'s profile [%s]', $contact_details['name'], $contact['url']),
-				'photo_menu'   => Contact::photoMenu($contact),
-				'thumb'        => Contact::getThumb($contact_details),
-				'name'         => substr($contact_details['name'], 0, 20),
-				'username'     => $contact_details['name'],
-				'details'      => $contact_details['location'],
-				'tags'         => $contact_details['keywords'],
-				'about'        => $contact_details['about'],
-				'account_type' => Contact::getAccountType($contact_details),
-				'url'          => Contact::magicLink($contact['url']),
-				'sparkle'      => '',
-				'itemurl'      => $contact_details['addr'] ? : $contact['url'],
-				'network'      => ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']),
-			];
+			$contacts[] = ModuleContact::getContactTemplateVars($contact);
 		}
 
 		DBA::close($contacts_stmt);

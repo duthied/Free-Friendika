@@ -20,12 +20,12 @@
  */
 
 use Friendica\App;
-use Friendica\Content\ContactSelector;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Module\Contact as ModuleContact;
 
 function suggest_init(App $a)
 {
@@ -89,25 +89,9 @@ function suggest_content(App $a)
 		]);
 	}
 
-	$id = 0;
 	$entries = [];
-
 	foreach ($contacts as $contact) {
-		$entry = [
-			'url'          => Contact::magicLink($contact['url']),
-			'itemurl'      => $contact['addr'] ?: $contact['url'],
-			'name'         => $contact['name'],
-			'thumb'        => Contact::getThumb($contact),
-			'img_hover'    => $contact['url'],
-			'details'      => $contact['location'],
-			'tags'         => $contact['keywords'],
-			'about'        => $contact['about'],
-			'account_type' => Contact::getAccountType($contact),
-			'network'      => ContactSelector::networkToName($contact['network'], $contact['url']),
-			'photo_menu'   => Contact::photoMenu($contact),
-			'id'           => ++$id,
-		];
-		$entries[] = $entry;
+		$entries[] = ModuleContact::getContactTemplateVars($contact);
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
