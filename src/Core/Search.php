@@ -24,7 +24,6 @@ namespace Friendica\Core;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use Friendica\Network\HTTPException;
 use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
@@ -170,6 +169,8 @@ class Search
 	 */
 	public static function getContactsFromLocalDirectory($search, $type = self::TYPE_ALL, $start = 0, $itemPage = 80)
 	{
+		Logger::info('Searching', ['search' => $search, 'type' => $type, 'start' => $start, 'itempage' => $itemPage]);
+
 		$config = DI::config();
 
 		$diaspora = $config->get('system', 'diaspora_enabled') ? Protocol::DIASPORA : Protocol::DFRN;
@@ -177,18 +178,20 @@ class Search
 
 		$wildcard = Strings::escapeHtml('%' . $search . '%');
 
-		$count = DBA::count('gcontact', [
-			'NOT `hide`
+		$condition = [
+			'NOT `unsearchable`
 			AND `network` IN (?, ?, ?, ?)
-			AND NOT `failed`
+			AND NOT `failed` AND `uid` = ?
 			AND (`url` LIKE ? OR `name` LIKE ? OR `location` LIKE ? 
 				OR `addr` LIKE ? OR `about` LIKE ? OR `keywords` LIKE ?)
-			AND `community` = ?',
-			Protocol::ACTIVITYPUB, Protocol::DFRN, $ostatus, $diaspora,
+			AND `forum` = ?',
+			Protocol::ACTIVITYPUB, Protocol::DFRN, $ostatus, $diaspora, 0,
 			$wildcard, $wildcard, $wildcard,
 			$wildcard, $wildcard, $wildcard,
 			($type === self::TYPE_FORUM),
-		]);
+		];
+
+		$count = DBA::count('contact', $condition);
 
 		$resultList = new ResultList($start, $itemPage, $count);
 
@@ -196,18 +199,7 @@ class Search
 			return $resultList;
 		}
 
-		$data = DBA::select('gcontact', ['nurl', 'name', 'addr', 'url', 'photo', 'network', 'keywords'], [
-			'NOT `hide`
-			AND `network` IN (?, ?, ?, ?)
-			AND NOT `failed`
-			AND (`url` LIKE ? OR `name` LIKE ? OR `location` LIKE ? 
-				OR `addr` LIKE ? OR `about` LIKE ? OR `keywords` LIKE ?)
-			AND `community` = ?',
-			Protocol::ACTIVITYPUB, Protocol::DFRN, $ostatus, $diaspora,
-			$wildcard, $wildcard, $wildcard,
-			$wildcard, $wildcard, $wildcard,
-			($type === self::TYPE_FORUM),
-		], [
+		$data = DBA::select('contact', [], $condition, [
 			'group_by' => ['nurl', 'updated'],
 			'limit'    => [$start, $itemPage],
 			'order'    => ['updated' => 'DESC']
@@ -217,21 +209,7 @@ class Search
 			return $resultList;
 		}
 
-		while ($row = DBA::fetch($data)) {
-			$urlParts = parse_url($row["nurl"]);
-
-			// Ignore results that look strange.
-			// For historic reasons the gcontact table does contain some garbage.
-			if (!empty($urlParts['query']) || !empty($urlParts['fragment'])) {
-				continue;
-			}
-
-			$contact = Contact::getByURLForUser($row["nurl"], local_user()) ?: $row;
-
-			if ($contact["name"] == "") {
-				$contact["name"] = end(explode("/", $urlParts["path"]));
-			}
-
+		while ($contact = DBA::fetch($data)) {
 			$result = new ContactResult(
 				$contact["name"],
 				$contact["addr"],
@@ -256,7 +234,7 @@ class Search
 	}
 
 	/**
-	 * Searching for global contacts for autocompletion
+	 * Searching for contacts for autocompletion
 	 *
 	 * @param string $search Name or part of a name or nick
 	 * @param string $mode   Search mode (e.g. "community")
@@ -264,8 +242,10 @@ class Search
 	 * @return array with the search results
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function searchGlobalContact($search, $mode, int $page = 1)
+	public static function searchContact($search, $mode, int $page = 1)
 	{
+		Logger::info('Searching', ['search' => $search, 'mode' => $mode, 'page' => $page]);
+
 		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			return [];
 		}
@@ -281,7 +261,7 @@ class Search
 
 		// check if searching in the local global contact table is enabled
 		if (DI::config()->get('system', 'poco_local_search')) {
-			$return = GContact::searchByName($search, $mode);
+			$return = Contact::searchByName($search, $mode);
 		} else {
 			$p = $page > 1 ? 'p=' . $page : '';
 			$curlResult = DI::httpRequest()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), false, ['accept_content' => 'application/json']);

@@ -118,20 +118,19 @@ function vier_community_info()
 
 	// comunity_profiles
 	if ($show_profiles) {
-		$r = GContact::suggestionQuery(local_user(), 0, 9);
+		$contacts = Contact::getSuggestions(local_user(), 0, 9);
 
 		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
-		if (DBA::isResult($r)) {
+		if (DBA::isResult($contacts)) {
 			$aside['$comunity_profiles_title'] = DI::l10n()->t('Community Profiles');
 			$aside['$comunity_profiles_items'] = [];
 
-			foreach ($r as $rr) {
-				$contact = Contact::getByURL($rr['url']);
+			foreach ($contacts as $contact) {
 				$entry = Renderer::replaceMacros($tpl, [
-					'$id' => $rr['id'],
-					'$profile_link' => 'follow/?url='.urlencode($rr['url']),
-					'$photo' => Contact::getMicro($contact, $rr['photo']),
-					'$alt_text' => $contact['name'] ?? $rr['name'],
+					'$id' => $contact['id'],
+					'$profile_link' => 'follow/?url='.urlencode($contact['url']),
+					'$photo' => Contact::getMicro($contact),
+					'$alt_text' => $contact['name'],
 				]);
 				$aside['$comunity_profiles_items'][] = $entry;
 			}

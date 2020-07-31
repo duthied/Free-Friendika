@@ -26,7 +26,6 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 
 function suggest_init(App $a)
 {
@@ -60,9 +59,8 @@ function suggest_content(App $a)
 	DI::page()['aside'] .= Widget::follow();
 
 
-	$r = GContact::suggestionQuery(local_user());
-
-	if (! DBA::isResult($r)) {
+	$contacts = Contact::getSuggestions(local_user());
+	if (!DBA::isResult($contacts)) {
 		$o .= DI::l10n()->t('No suggestions available. If this is a new site, please try again in 24 hours.');
 		return $o;
 	}
@@ -94,35 +92,20 @@ function suggest_content(App $a)
 	$id = 0;
 	$entries = [];
 
-	foreach ($r as $rr) {
-		$connlnk = DI::baseUrl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
-		$ignlnk = DI::baseUrl() . '/suggest?ignore=' . $rr['id'];
-		$photo_menu = [
-			'profile' => [DI::l10n()->t("View Profile"), Contact::magicLink($rr["url"])],
-			'follow' => [DI::l10n()->t("Connect/Follow"), $connlnk],
-			'hide' => [DI::l10n()->t('Ignore/Hide'), $ignlnk]
-		];
-
-		$contact_details = Contact::getByURLForUser($rr["url"], local_user()) ?: $rr;
-
+	foreach ($contacts as $contact) {
 		$entry = [
-			'url' => Contact::magicLink($rr['url']),
-			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
-			'img_hover' => $rr['url'],
-			'name' => $contact_details['name'],
-			'thumb' => Contact::getThumb($contact_details),
-			'details'       => $contact_details['location'],
-			'tags'          => $contact_details['keywords'],
-			'about'         => $contact_details['about'],
-			'account_type'  => Contact::getAccountType($contact_details),
-			'ignlnk' => $ignlnk,
-			'ignid' => $rr['id'],
-			'conntxt' => DI::l10n()->t('Connect'),
-			'connlnk' => $connlnk,
-			'photo_menu' => $photo_menu,
-			'ignore' => DI::l10n()->t('Ignore/Hide'),
-			'network' => ContactSelector::networkToName($rr['network'], $rr['url']),
-			'id' => ++$id,
+			'url'          => Contact::magicLink($contact['url']),
+			'itemurl'      => $contact['addr'] ?: $contact['url'],
+			'name'         => $contact['name'],
+			'thumb'        => Contact::getThumb($contact),
+			'img_hover'    => $contact['url'],
+			'details'      => $contact['location'],
+			'tags'         => $contact['keywords'],
+			'about'        => $contact['about'],
+			'account_type' => Contact::getAccountType($contact),
+			'network'      => ContactSelector::networkToName($contact['network'], $contact['url']),
+			'photo_menu'   => Contact::photoMenu($contact),
+			'id'           => ++$id,
 		];
 		$entries[] = $entry;
 	}
