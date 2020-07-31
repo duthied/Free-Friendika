@@ -21,7 +21,6 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Core\Logger;
 use Friendica\Model\GServer;
 
 class UpdateServerDirectory
@@ -33,6 +32,5 @@ class UpdateServerDirectory
 	public static function execute(array $gserver)
 	{
 		GServer::updateDirectory($gserver);
-		return;
 	}
 }
