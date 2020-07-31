@@ -22,7 +22,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
 use Friendica\DI;
@@ -77,9 +76,9 @@ class AllFriends extends BaseModule
 
 		$entries = [];
 		foreach ($friends as $friend) {
-			$contact = Model\Contact::getByURL($friend['url']);
+			$contact = Model\Contact::getByURLForUser($friend['url'], local_user());
 			if (!empty($contact)) {
-				$entries[] = Model\Contact::getTemplateData($contact, ++$id);
+				$entries[] = Contact::getContactTemplateVars($contact, ++$id);
 			}
 		}
 

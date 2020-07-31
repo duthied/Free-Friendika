@@ -22,7 +22,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
@@ -125,9 +124,9 @@ class BaseSearch extends BaseModule
 
 			// in case the result is a contact result, add a contact-specific entry
 			if ($result instanceof ContactResult) {
-				$contact = Model\Contact::getByURL($result->getUrl());
+				$contact = Model\Contact::getByURLForUser($result->getUrl(), local_user());
 				if (!empty($contact)) {
-					$entries[] = Model\Contact::getTemplateData($contact, ++$id);
+					$entries[] = Contact::getContactTemplateVars($contact, ++$id);
 				}
 			}
 		}

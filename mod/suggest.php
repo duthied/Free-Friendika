@@ -20,12 +20,12 @@
  */
 
 use Friendica\App;
-use Friendica\Content\ContactSelector;
 use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Module\Contact as ModuleContact;
 
 function suggest_init(App $a)
 {
@@ -93,7 +93,7 @@ function suggest_content(App $a)
 	$entries = [];
 
 	foreach ($contacts as $contact) {
-		$entries[] = Contact::getTemplateData($contact, ++$id);
+		$entries[] = ModuleContact::getContactTemplateVars($contact, ++$id);
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');

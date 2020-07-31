@@ -20,13 +20,11 @@
  */
 
 use Friendica\App;
-use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
-use Friendica\Model\Contact;
 use Friendica\Module;
 use Friendica\Util\Strings;
 
@@ -123,9 +121,9 @@ function common_content(App $a)
 
 	$entries = [];
 	foreach ($common_friends as $common_friend) {
-		$contact = Model\Contact::getByURL($common_friend['url']);
+		$contact = Model\Contact::getByURLForUser($common_friend['url'], local_user());
 		if (!empty($contact)) {
-			$entries[] = Model\Contact::getTemplateData($contact, ++$id);
+			$entries[] = Module\Contact::getContactTemplateVars($contact, ++$id);
 		}
 	}
 

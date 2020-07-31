@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Module\Contact as ModuleContact;
 
 /**
  * Controller for /match.
@@ -91,9 +92,9 @@ function match_content(App $a)
 				continue;
 			}
 
-			$contact = Contact::getByURL($profile->url);
+			$contact = Contact::getByURLForUser($profile->url, local_user());
 			if (!empty($contact)) {
-				$entries[] = Contact::getTemplateData($contact, $i);
+				$entries[] = ModuleContact::getContactTemplateVars($contact, $i);
 			}
 		}
 

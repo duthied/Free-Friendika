@@ -1009,7 +1009,14 @@ class Contact extends BaseModule
 		return $o;
 	}
 
-	public static function getContactTemplateVars(array $rr)
+	/**
+	 * Return the fields for the contact template
+	 *
+	 * @param array $rr Contact array
+	 * @param integer $id
+	 * @return array Template fields
+	 */
+	public static function getContactTemplateVars(array $rr, int $id = 0)
 	{
 		$dir_icon = '';
 		$alt_text = '';
@@ -1069,12 +1076,16 @@ class Contact extends BaseModule
 			'thumb'     => Model\Contact::getThumb($rr),
 			'name'      => $rr['name'],
 			'username'  => $rr['name'],
+			'details'   => $rr['location'],
+			'tags'      => $rr['keywords'],
+			'about'     => $rr['about'],
 			'account_type' => Model\Contact::getAccountType($rr),
 			'sparkle'   => $sparkle,
 			'itemurl'   => ($rr['addr'] ?? '') ?: $rr['url'],
 			'url'       => $url,
 			'network'   => ContactSelector::networkToName($rr['network'], $rr['url'], $rr['protocol']),
 			'nick'      => $rr['nick'],
+			'id'        => $id,
 		];
 	}
 
