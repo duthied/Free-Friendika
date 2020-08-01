@@ -330,17 +330,10 @@ class PortableContact
 				}
 			}
 
-			$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
-			DBA::update('gserver', $fields, ['nurl' => $server["nurl"]]);
-
 			return true;
 		} else {
 			// If the server hadn't replied correctly, then force a sanity check
 			GServer::check($server["url"], $server["network"], true);
-
-			// If we couldn't reach the server, we will try it some time later
-			$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
-			DBA::update('gserver', $fields, ['nurl' => $server["nurl"]]);
 
 			return false;
 		}

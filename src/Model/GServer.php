@@ -1591,9 +1591,9 @@ class GServer
 		$gservers = DBA::p("SELECT `id`, `url`, `nurl`, `network`, `poco`
 			FROM `gserver`
 			WHERE NOT `failed`
-			AND `poco` != ''
+			AND `directory-type` != ?
 			AND `last_poco_query` < ?
-			ORDER BY RAND()", $last_update
+			ORDER BY RAND()", self::DT_NONE, $last_update
 		);
 
 		while ($gserver = DBA::fetch($gservers)) {
@@ -1604,9 +1604,15 @@ class GServer
 				continue;
 			}
 
+			Logger::info('Update peer list', ['server' => $gserver['url'], 'id' => $gserver['id']]);
+			Worker::add(PRIORITY_LOW, 'UpdateServerPeers', $gserver['url']);
+
 			Logger::info('Update directory', ['server' => $gserver['url'], 'id' => $gserver['id']]);
 			Worker::add(PRIORITY_LOW, 'UpdateServerDirectory', $gserver);
 
+			$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
+			DBA::update('gserver', $fields, ['nurl' => $gserver['nurl']]);
+	
 			if (--$no_of_queries == 0) {
 				break;
 			}
