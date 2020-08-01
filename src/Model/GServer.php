@@ -1607,11 +1607,12 @@ class GServer
 			Logger::info('Update peer list', ['server' => $gserver['url'], 'id' => $gserver['id']]);
 			Worker::add(PRIORITY_LOW, 'UpdateServerPeers', $gserver['url']);
 
-			if ($gserver['directory-type'] == self::DT_POCO) {
-				Logger::info('Update directory', ['server' => $gserver['url'], 'id' => $gserver['id']]);
-				Worker::add(PRIORITY_LOW, 'UpdateServerDirectory', $gserver);
-			}
+			Logger::info('Update directory', ['server' => $gserver['url'], 'id' => $gserver['id']]);
+			Worker::add(PRIORITY_LOW, 'UpdateServerDirectory', $gserver);
 
+			$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
+			DBA::update('gserver', $fields, ['nurl' => $gserver['nurl']]);
+	
 			if (--$no_of_queries == 0) {
 				break;
 			}
