@@ -27,7 +27,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Protocol\PortableContact;
+use Friendica\Model\GServer;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
@@ -56,16 +56,15 @@ function poco_init(App $a) {
 
 	if ($a->argc > 1 && $a->argv[1] === '@server') {
 		// List of all servers that this server knows
-		$ret = PortableContact::serverlist();
+		$ret = GServer::getActive();
 		header('Content-type: application/json');
 		echo json_encode($ret);
 		exit();
 	}
 
 	if ($a->argc > 1 && $a->argv[1] === '@global') {
-		// List of all profiles that this server recently had data from
-		$global = true;
-		$update_limit = date(DateTimeFormat::MYSQL, time() - 30 * 86400);
+		// Global is not supported anymore
+		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
 	if ($a->argc > 2 && $a->argv[2] === '@me') {
 		$justme = true;
@@ -99,17 +98,10 @@ function poco_init(App $a) {
 	if (!empty($_GET['updatedSince'])) {
 		$update_limit = date(DateTimeFormat::MYSQL, strtotime($_GET['updatedSince']));
 	}
-	if ($global) {
-		$contacts = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `updated` >= `last_failure` AND NOT `hide` AND `network` IN ('%s', '%s', '%s')",
-			DBA::escape($update_limit),
-			DBA::escape(Protocol::DFRN),
-			DBA::escape(Protocol::DIASPORA),
-			DBA::escape(Protocol::OSTATUS)
-		);
-	} elseif ($system_mode) {
+	if ($system_mode) {
 		$totalResults = DBA::count('profile', ['net-publish' => true]);
 	} else {
-		$contacts = q("SELECT count(*) AS `total` FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
+		$contacts = q("SELECT count(*) AS `total` FROM `contact` WHERE `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `unsearchable` AND NOT `archive`
 			AND NOT `failed`
 			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra",
 			intval($user['uid']),
@@ -131,24 +123,13 @@ function poco_init(App $a) {
 	}
 	$itemsPerPage = ((!empty($_GET['count'])) ? intval($_GET['count']) : $totalResults);
 
-	if ($global) {
-		Logger::log("Start global query", Logger::DEBUG);
-		$contacts = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND NOT `hide` AND `network` IN ('%s', '%s', '%s') AND `updated` > `last_failure`
-			ORDER BY `updated` DESC LIMIT %d, %d",
-			DBA::escape($update_limit),
-			DBA::escape(Protocol::DFRN),
-			DBA::escape(Protocol::DIASPORA),
-			DBA::escape(Protocol::OSTATUS),
-			intval($startIndex),
-			intval($itemsPerPage)
-		);
-	} elseif ($system_mode) {
+	if ($system_mode) {
 		Logger::log("Start system mode query", Logger::DEBUG);
 		$contacts = DBA::selectToArray('owner-view', [], ['net-publish' => true], ['limit' => [$startIndex, $itemsPerPage]]);
 	} else {
 		Logger::log("Start query for user " . $user['nickname'], Logger::DEBUG);
-		$contacts = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
-			AND NOT `failed`
+		$contacts = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `hiddden` AND NOT `archive`
+			AND NOT `failed` AND NOT `unsearchable`
 			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),
 			DBA::escape(Protocol::DFRN),

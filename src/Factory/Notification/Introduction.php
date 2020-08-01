@@ -99,17 +99,13 @@ class Introduction extends BaseFactory
 		$formattedNotifications = [];
 
 		try {
-			/// @todo Fetch contact details by "Contact::getByUrl" instead of queries to contact, fcontact and gcontact
+			/// @todo Fetch contact details by "Contact::getByUrl" instead of queries to contact and fcontact
 			$stmtNotifications = $this->dba->p(
 				"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
 				`fcontact`.`name` AS `fname`, `fcontact`.`url` AS `furl`, `fcontact`.`addr` AS `faddr`,
-				`fcontact`.`photo` AS `fphoto`, `fcontact`.`request` AS `frequest`,
-				`gcontact`.`location` AS `glocation`, `gcontact`.`about` AS `gabout`,
-				`gcontact`.`keywords` AS `gkeywords`,
-				`gcontact`.`network` AS `gnetwork`, `gcontact`.`addr` AS `gaddr`
+				`fcontact`.`photo` AS `fphoto`, `fcontact`.`request` AS `frequest`
 			FROM `intro`
 				LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id`
-				LEFT JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
 				LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
 			WHERE `intro`.`uid` = ? $sql_extra
 			LIMIT ?, ?",
@@ -147,16 +143,14 @@ class Introduction extends BaseFactory
 
 					// Normal connection requests
 				} else {
-					$notification = $this->getMissingData($notification);
-
 					if (empty($notification['url'])) {
 						continue;
 					}
 
 					// Don't show these data until you are connected. Diaspora is doing the same.
-					if ($notification['gnetwork'] === Protocol::DIASPORA) {
-						$notification['glocation'] = "";
-						$notification['gabout']    = "";
+					if ($notification['network'] === Protocol::DIASPORA) {
+						$notification['location'] = "";
+						$notification['about']    = "";
 					}
 
 					$formattedNotifications[] = new Notification\Introduction([
@@ -166,17 +160,17 @@ class Introduction extends BaseFactory
 						'uid'            => $this->session->get('uid'),
 						'intro_id'       => $notification['intro_id'],
 						'contact_id'     => $notification['contact-id'],
-						'photo'          => (!empty($notification['photo']) ? Proxy::proxifyUrl($notification['photo'], false, Proxy::SIZE_SMALL) : "images/person-300.jpg"),
+						'photo'          => Contact::getPhoto($notification),
 						'name'           => $notification['name'],
-						'location'       => BBCode::convert($notification['glocation'], false),
-						'about'          => BBCode::convert($notification['gabout'], false),
-						'keywords'       => $notification['gkeywords'],
+						'location'       => BBCode::convert($notification['location'], false),
+						'about'          => BBCode::convert($notification['about'], false),
+						'keywords'       => $notification['keywords'],
 						'hidden'         => $notification['hidden'] == 1,
 						'post_newfriend' => (intval($this->pConfig->get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
 						'url'            => $notification['url'],
 						'zrl'            => Contact::magicLink($notification['url']),
-						'addr'           => $notification['gaddr'],
-						'network'        => $notification['gnetwork'],
+						'addr'           => $notification['addr'],
+						'network'        => $notification['network'],
 						'knowyou'        => $notification['knowyou'],
 						'note'           => $notification['note'],
 					]);
@@ -187,42 +181,5 @@ class Introduction extends BaseFactory
 		}
 
 		return $formattedNotifications;
-	}
-
-	/**
-	 * Check for missing contact data and try to fetch the data from
-	 * from other sources
-	 *
-	 * @param array $intro The input array with the intro data
-	 *
-	 * @return array The array with the intro data
-	 *
-	 * @throws InternalServerErrorException
-	 */
-	private function getMissingData(array $intro)
-	{
-		// If the network and the addr isn't available from the gcontact
-		// table entry, take the one of the contact table entry
-		if (empty($intro['gnetwork']) && !empty($intro['network'])) {
-			$intro['gnetwork'] = $intro['network'];
-		}
-		if (empty($intro['gaddr']) && !empty($intro['addr'])) {
-			$intro['gaddr'] = $intro['addr'];
-		}
-
-		// If the network and addr is still not available
-		// get the missing data data from other sources
-		if (empty($intro['gnetwork']) || empty($intro['gaddr'])) {
-			$ret = Contact::getByURL($intro['url'], false, ['network', 'addr']);
-
-			if (empty($intro['gnetwork']) && !empty($ret['network'])) {
-				$intro['gnetwork'] = $ret['network'];
-			}
-			if (empty($intro['gaddr']) && !empty($ret['addr'])) {
-				$intro['gaddr'] = $ret['addr'];
-			}
-		}
-
-		return $intro;
 	}
 }

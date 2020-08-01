@@ -186,9 +186,6 @@ class Contact extends BaseModule
 
 		// Update the entry in the contact table
 		Model\Contact::updateFromProbe($contact_id, '', true);
-
-		// Update the entry in the gcontact table
-		Model\GContact::updateFromProbe($contact['url']);
 	}
 
 	/**

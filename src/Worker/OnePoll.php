@@ -32,7 +32,6 @@ use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
-use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
@@ -93,13 +92,6 @@ class OnePoll
 		if ($protocol === Protocol::OSTATUS) {
 			ActivityPub\Receiver::switchContact($contact['id'], $importer_uid, $contact['url']);
 			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
-		}
-
-		// load current friends if possible.
-		if (!empty($contact['poco']) && !$contact['failed']) {
-			if (!DBA::exists('glink', ["`cid` = ? AND updated > UTC_TIMESTAMP() - INTERVAL 1 DAY", $contact['id']])) {
-				PortableContact::loadWorker($contact['id'], $importer_uid, 0, $contact['poco']);
-			}
 		}
 
 		// Don't poll if polling is deactivated (But we poll feeds and mails anyway)

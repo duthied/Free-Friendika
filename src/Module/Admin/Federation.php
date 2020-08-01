@@ -132,7 +132,6 @@ class Federation extends BaseAdmin
 
 		// some helpful text
 		$intro = DI::l10n()->t('This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of.');
-		$hint = DI::l10n()->t('The <em>Auto Discovered Contact Directory</em> feature is not enabled, it will improve the data displayed here.');
 
 		// load the template, replace the macros and return the page content
 		$t = Renderer::getMarkupTemplate('admin/federation.tpl');
@@ -140,8 +139,6 @@ class Federation extends BaseAdmin
 			'$title' => DI::l10n()->t('Administration'),
 			'$page' => DI::l10n()->t('Federation Statistics'),
 			'$intro' => $intro,
-			'$hint' => $hint,
-			'$autoactive' => DI::config()->get('system', 'poco_completion'),
 			'$counts' => $counts,
 			'$version' => FRIENDICA_VERSION,
 			'$legendtext' => DI::l10n()->t('Currently this node is aware of %d nodes with %d registered users from the following platforms:', $total, $users),

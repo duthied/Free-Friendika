@@ -31,7 +31,6 @@ use Friendica\DI;
 use Friendica\Model\ContactRelation;
 use Friendica\Module\BaseAdmin;
 use Friendica\Module\Register;
-use Friendica\Protocol\PortableContact;
 use Friendica\Util\BasePath;
 use Friendica\Util\EMailer\MailBuilder;
 use Friendica\Util\Strings;
@@ -104,12 +103,10 @@ class Site extends BaseAdmin
 			// update profile links in the format "http://server.tld"
 			update_table($a, "profile", ['photo', 'thumb'], $old_url, $new_url);
 			update_table($a, "contact", ['photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'], $old_url, $new_url);
-			update_table($a, "gcontact", ['url', 'nurl', 'photo', 'server_url', 'notify', 'alias'], $old_url, $new_url);
 			update_table($a, "item", ['owner-link', 'author-link', 'body', 'plink', 'tag'], $old_url, $new_url);
 
 			// update profile addresses in the format "user@server.tld"
 			update_table($a, "contact", ['addr'], $old_host, $new_host);
-			update_table($a, "gcontact", ['connect', 'addr'], $old_host, $new_host);
 
 			// update config
 			DI::config()->set('system', 'url', $new_url);
@@ -180,10 +177,8 @@ class Site extends BaseAdmin
 		$optimize_fragmentation = (!empty($_POST['optimize_fragmentation']) ? intval(trim($_POST['optimize_fragmentation'])) : 30);
 		$contact_discovery      = (!empty($_POST['contact_discovery'])      ? intval(trim($_POST['contact_discovery']))      : ContactRelation::DISCOVERY_NONE);
 		$synchronize_directory  = (!empty($_POST['synchronize_directory'])  ? intval(trim($_POST['synchronize_directory']))  : false);
-		$poco_completion        = (!empty($_POST['poco_completion'])        ? intval(trim($_POST['poco_completion']))        : false);
 		$poco_requery_days      = (!empty($_POST['poco_requery_days'])      ? intval(trim($_POST['poco_requery_days']))      : 7);
-		$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : PortableContact::DISABLED);
-		$poco_discovery_since   = (!empty($_POST['poco_discovery_since'])   ? intval(trim($_POST['poco_discovery_since']))   : 30);
+		$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : false);
 		$poco_local_search      = !empty($_POST['poco_local_search']);
 		$nodeinfo               = !empty($_POST['nodeinfo']);
 		$dfrn_only              = !empty($_POST['dfrn_only']);
@@ -308,12 +303,10 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'min_memory'            , $min_memory);
 		DI::config()->set('system', 'optimize_max_tablesize', $optimize_max_tablesize);
 		DI::config()->set('system', 'optimize_fragmentation', $optimize_fragmentation);
-		DI::config()->set('system', 'poco_completion'       , $poco_completion);
 		DI::config()->set('system', 'contact_discovery'     , $contact_discovery);
 		DI::config()->set('system', 'synchronize_directory' , $synchronize_directory);
 		DI::config()->set('system', 'poco_requery_days'     , $poco_requery_days);
 		DI::config()->set('system', 'poco_discovery'        , $poco_discovery);
-		DI::config()->set('system', 'poco_discovery_since'  , $poco_discovery_since);
 		DI::config()->set('system', 'poco_local_search'     , $poco_local_search);
 		DI::config()->set('system', 'nodeinfo'              , $nodeinfo);
 		DI::config()->set('config', 'sitename'              , $sitename);
@@ -488,20 +481,6 @@ class Site extends BaseAdmin
 			CP_USERS_ON_SERVER => DI::l10n()->t('Public postings from users of this site'),
 			CP_GLOBAL_COMMUNITY => DI::l10n()->t('Public postings from the federated network'),
 			CP_USERS_AND_GLOBAL => DI::l10n()->t('Public postings from local users and the federated network')
-		];
-
-		$poco_discovery_choices = [
-			PortableContact::DISABLED => DI::l10n()->t('Disabled'),
-			PortableContact::USERS => DI::l10n()->t('Users'),
-			PortableContact::USERS_GCONTACTS => DI::l10n()->t('Users, Global Contacts'),
-			PortableContact::USERS_GCONTACTS_FALLBACK => DI::l10n()->t('Users, Global Contacts/fallback'),
-		];
-
-		$poco_discovery_since_choices = [
-			'30' => DI::l10n()->t('One month'),
-			'91' => DI::l10n()->t('Three months'),
-			'182' => DI::l10n()->t('Half a year'),
-			'365' => DI::l10n()->t('One year'),
 		];
 
 		/* get user names to make the install a personal install of X */
@@ -688,10 +667,8 @@ class Site extends BaseAdmin
 				$discovery_choices],
 			'$synchronize_directory'  => ['synchronize_directory', DI::l10n()->t('Synchronize the contacts with the directory server'), DI::config()->get('system', 'synchronize_directory'), DI::l10n()->t('if enabled, the system will check periodically for new contacts on the defined directory server.')],
 
-			'$poco_completion'        => ['poco_completion', DI::l10n()->t('Periodical check of global contacts'), DI::config()->get('system', 'poco_completion'), DI::l10n()->t('If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.')],
 			'$poco_requery_days'      => ['poco_requery_days', DI::l10n()->t('Days between requery'), DI::config()->get('system', 'poco_requery_days'), DI::l10n()->t('Number of days after which a server is requeried for his contacts.')],
-			'$poco_discovery'         => ['poco_discovery', DI::l10n()->t('Discover contacts from other servers'), DI::config()->get('system', 'poco_discovery'), DI::l10n()->t('Periodically query other servers for contacts. You can choose between "Users": the users on the remote system, "Global Contacts": active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren\'t available. The fallback increases the server load, so the recommended setting is "Users, Global Contacts".'), $poco_discovery_choices],
-			'$poco_discovery_since'   => ['poco_discovery_since', DI::l10n()->t('Timeframe for fetching global contacts'), DI::config()->get('system', 'poco_discovery_since'), DI::l10n()->t('When the discovery is activated, this value defines the timeframe for the activity of the global contacts that are fetched from other servers.'), $poco_discovery_since_choices],
+			'$poco_discovery'         => ['poco_discovery', DI::l10n()->t('Discover contacts from other servers'), DI::config()->get('system', 'poco_discovery'), DI::l10n()->t('Periodically query other servers for contacts. The system queries Friendica, Mastodon and Hubzilla servers.')],
 			'$poco_local_search'      => ['poco_local_search', DI::l10n()->t('Search the local directory'), DI::config()->get('system', 'poco_local_search'), DI::l10n()->t('Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.')],
 
 			'$nodeinfo'               => ['nodeinfo', DI::l10n()->t('Publish server information'), DI::config()->get('system', 'nodeinfo'), DI::l10n()->t('If enabled, general server and usage data will be published. The data contains the name and version of the server, number of users with public profiles, number of posts and the activated protocols and connectors. See <a href="http://the-federation.info/">the-federation.info</a> for details.')],

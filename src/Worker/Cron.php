@@ -57,9 +57,6 @@ class Cron
 		// run the process to update server directories in the background
 		Worker::add(PRIORITY_LOW, 'UpdateServerDirectories');
 
-		// run the process to update locally stored global contacts in the background
-		Worker::add(PRIORITY_LOW, 'UpdateGContacts');
-
 		// Expire and remove user entries
 		Worker::add(PRIORITY_MEDIUM, "CronJobs", "expire_and_remove_users");
 
@@ -87,8 +84,6 @@ class Cron
 			Worker::add(PRIORITY_LOW, "CronJobs", "nodeinfo");
 
 			Worker::add(PRIORITY_LOW, 'UpdateGServers');
-
-			Worker::add(PRIORITY_LOW, 'UpdateSuggestions');
 
 			Worker::add(PRIORITY_LOW, 'Expire');
 

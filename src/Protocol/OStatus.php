@@ -34,7 +34,6 @@ use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
-use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Tag;
@@ -240,15 +239,6 @@ class OStatus
 					Contact::updateAvatar($cid, $author["author-avatar"]);
 				}
 			}
-
-			$contact["generation"] = 2;
-			$contact["hide"] = false; // OStatus contacts are never hidden
-			if (!empty($author["author-avatar"])) {
-				$contact["photo"] = $author["author-avatar"];
-			}
-			$gcid = GContact::update($contact);
-
-			GContact::link($gcid, $contact["uid"], $contact["id"]);
 		} elseif (empty($contact["network"]) || ($contact["network"] != Protocol::DFRN)) {
 			$contact = [];
 		}

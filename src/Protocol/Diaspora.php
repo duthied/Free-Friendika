@@ -34,7 +34,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
-use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
@@ -1656,7 +1655,7 @@ class Diaspora
 		// Update the profile
 		self::receiveProfile($importer, $data->profile);
 
-		// change the technical stuff in contact and gcontact
+		// change the technical stuff in contact
 		$data = Probe::uri($new_handle);
 		if ($data['network'] == Protocol::PHANTOM) {
 			Logger::log('Account for '.$new_handle." couldn't be probed.");
@@ -1670,14 +1669,6 @@ class Diaspora
 				'network' => $data['network']];
 
 		DBA::update('contact', $fields, ['addr' => $old_handle]);
-
-		$fields = ['url' => $data['url'], 'nurl' => Strings::normaliseLink($data['url']),
-				'name' => $data['name'], 'nick' => $data['nick'],
-				'addr' => $data['addr'], 'connect' => $data['addr'],
-				'notify' => $data['notify'], 'photo' => $data['photo'],
-				'server_url' => $data['baseurl'], 'network' => $data['network']];
-
-		DBA::update('gcontact', $fields, ['addr' => $old_handle]);
 
 		Logger::log('Contacts are updated.');
 
@@ -1701,8 +1692,6 @@ class Diaspora
 			Contact::remove($contact["id"]);
 		}
 		DBA::close($contacts);
-
-		DBA::delete('gcontact', ['addr' => $author]);
 
 		Logger::log('Removed contacts for ' . $author);
 
@@ -2437,18 +2426,6 @@ class Diaspora
 		}
 
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
-
-		// @todo Update the public contact, then update the gcontact from that
-
-		$gcontact = ["url" => $contact["url"], "network" => Protocol::DIASPORA, "generation" => 2,
-					"photo" => $image_url, "name" => $name, "location" => $location,
-					"about" => $about, "birthday" => $birthday,
-					"addr" => $author, "nick" => $nick, "keywords" => $keywords,
-					"hide" => !$searchable, "nsfw" => $nsfw];
-
-		$gcid = GContact::update($gcontact);
-
-		GContact::link($gcid, $importer["uid"], $contact["id"]);
 
 		Logger::log("Profile of contact ".$contact["id"]." stored for user ".$importer["uid"], Logger::DEBUG);
 

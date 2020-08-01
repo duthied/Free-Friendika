@@ -22,17 +22,86 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
+use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 
 class UpdateServerDirectory
 {
 	/**
 	 * Query the given server for their users
-	 * @param string $gserver Server URL
+	 * 
+	 * @param array $gserver Server record
 	 */
-	public static function execute($gserver)
+	public static function execute(array $gserver)
 	{
-		GServer::updateDirectory($gserver);
-		return;
+		$gserver = DBA::selectFirst('gserver', [], ['url' => $gserver['url']]);
+		if ($gserver['directory-type'] == GServer::DT_MASTODON) {
+			self::discoverMastodonDirectory($gserver);
+		} elseif (!empty($gserver['poco'])) {
+			self::discoverPoCo($gserver);
+		}
+	}
+
+	private static function discoverPoCo(array $gserver)
+	{
+		$result = DI::httpRequest()->fetch($gserver['poco'] . '?fields=urls');
+		if (empty($result)) {
+			Logger::info('Empty result', ['url' => $gserver['url']]);
+			return;
+		}
+
+		$contacts = json_decode($result, true);
+		if (empty($contacts['entry'])) {
+			Logger::info('No contacts', ['url' => $gserver['url']]);
+			return;
+		}
+
+		Logger::info('PoCo discovery started', ['poco' => $gserver['poco']]);
+
+		$urls = [];
+		foreach ($contacts['entry'] as $entry) {
+			foreach ($entry['urls'] as $url_entry) {
+				if (empty($url_entry['type']) || empty($url_entry['value'])) {
+					continue;
+				}
+				if ($url_entry['type'] == 'profile') {
+					$urls[] = $url_entry['value'];
+				}
+			}
+		}
+
+		$result = Contact::addContactsByArray($urls);
+
+		Logger::info('PoCo discovery ended', ['count' => $result['count'], 'added' => $result['added'], 'updated' => $result['updated'], 'poco' => $gserver['poco']]);
+	}
+
+	private static function discoverMastodonDirectory(array $gserver)
+	{		
+		$result = DI::httpRequest()->fetch($gserver['url'] . '/api/v1/directory?order=new&local=true&limit=200&offset=0');
+		if (empty($result)) {
+			Logger::info('Empty result', ['url' => $gserver['url']]);
+			return;
+		}
+
+		$accounts = json_decode($result, true);
+		if (empty($accounts)) {
+			Logger::info('No contacts', ['url' => $gserver['url']]);
+			return;
+		}
+
+		Logger::info('Account discovery started', ['url' => $gserver['url']]);
+
+		$urls = [];
+		foreach ($accounts as $account) {
+			if (!empty($account['url'])) {
+				$urls[] = $account['url'];
+			}
+		}
+
+		$result = Contact::addContactsByArray($urls);
+
+		Logger::info('Account discovery ended', ['count' => $result['count'], 'added' => $result['added'], 'updated' => $result['updated'], 'url' => $gserver['url']]);
 	}
 }

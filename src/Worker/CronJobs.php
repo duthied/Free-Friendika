@@ -29,7 +29,6 @@ use Friendica\Database\DBA;
 use Friendica\Database\PostUpdate;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use Friendica\Model\Nodeinfo;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
@@ -257,14 +256,6 @@ class CronJobs
 
 		// There was an issue where the nick vanishes from the contact table
 		q("UPDATE `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid` SET `nick` = `nickname` WHERE `self` AND `nick`=''");
-
-		// Update the global contacts for local users
-		$r = q("SELECT `uid` FROM `user` WHERE `verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`");
-		if (DBA::isResult($r)) {
-			foreach ($r AS $user) {
-				GContact::updateForUser($user["uid"]);
-			}
-		}
 
 		/// @todo
 		/// - remove thread entries without item
