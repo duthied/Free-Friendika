@@ -42,6 +42,7 @@ class Federation extends BaseAdmin
 			'hubzilla'    => ['name' => 'Hubzilla/Red Matrix', 'color' => '#43488a'], // blue from the logo
 			'mastodon'    => ['name' => 'Mastodon', 'color' => '#1a9df9'], // blue from the Mastodon logo
 			'misskey'     => ['name' => 'Misskey', 'color' => '#ccfefd'], // Font color of the homepage
+			'nextcloud'   => ['name' => 'Nextcloud', 'color' => '#1cafff'], // Logo color
 			'peertube'    => ['name' => 'Peertube', 'color' => '#ffad5c'], // One of the logo colors
 			'pixelfed'    => ['name' => 'Pixelfed', 'color' => '#11da47'], // One of the logo colors
 			'pleroma'     => ['name' => 'Pleroma', 'color' => '#E46F0F'], // Orange from the text that is used on Pleroma instances
