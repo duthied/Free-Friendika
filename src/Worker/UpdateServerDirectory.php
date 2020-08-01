@@ -21,18 +21,16 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Core\Logger;
 use Friendica\Model\GServer;
 
 class UpdateServerDirectory
 {
 	/**
 	 * Query the given server for their users
-	 * @param string $gserver Server URL
+	 * @param array $gserver Server record
 	 */
-	public static function execute($gserver)
+	public static function execute(array $gserver)
 	{
 		GServer::updateDirectory($gserver);
-		return;
 	}
 }
