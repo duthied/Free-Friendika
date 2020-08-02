@@ -3259,4 +3259,24 @@ class Contact
 		$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow(), 'updated' => $last_updated];
 		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
 	}
+
+	/**
+	 * Returns a random, global contact of the current node
+	 *
+	 * @return string The profile URL
+	 * @throws Exception
+	 */
+	public static function getRandomUrl()
+	{
+		$r = DBA::selectFirst('contact', ['url'], [
+			"`uid` = ? AND `network` = ? AND NOT `failed` AND `last-item` > ?",
+			0, Protocol::DFRN, DateTimeFormat::utc('now - 1 month'),
+		], ['order' => ['RAND()']]);
+
+		if (DBA::isResult($r)) {
+			return $r['url'];
+		}
+
+		return '';
+	}
 }

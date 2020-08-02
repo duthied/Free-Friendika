@@ -24,7 +24,6 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 
 /**
  * Redirects to a random Friendica profile this node knows about
@@ -35,7 +34,7 @@ class RandomProfile extends BaseModule
 	{
 		$a = DI::app();
 
-		$contactUrl = GContact::getRandomUrl();
+		$contactUrl = Contact::getRandomUrl();
 
 		if ($contactUrl) {
 			$link = Contact::magicLink($contactUrl);

@@ -205,27 +205,4 @@ class GContact
 		/// @TODO Check all calling-findings of this function if they properly use DBA::isResult()
 		return $r;
 	}
-
-	/**
-	 * Returns a random, global contact of the current node
-	 *
-	 * @return string The profile URL
-	 * @throws Exception
-	 */
-	public static function getRandomUrl()
-	{
-		$r = DBA::selectFirst('gcontact', ['url'], [
-			'`network` = ?
-			AND NOT `failed`
-			AND `updated` > ?',
-			Protocol::DFRN,
-			DateTimeFormat::utc('now - 1 month'),
-		], ['order' => ['RAND()']]);
-
-		if (DBA::isResult($r)) {
-			return $r['url'];
-		}
-
-		return '';
-	}
 }

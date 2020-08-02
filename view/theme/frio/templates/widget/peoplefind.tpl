@@ -16,6 +16,7 @@
 	{{* Additional links *}}
 	<div class="side-link" id="side-match-link"><a href="match" >{{$nv.similar}}</a></div>
 	<div class="side-link" id="side-suggest-link"><a href="suggest" >{{$nv.suggest}}</a></div>
+	<div class="side-link" id="side-random-profile-link" ><a href="randprof" target="extlink" >{{$nv.random}}</a></div>
 
 	{{if $nv.inv}} 
 	<div class="side-link" id="side-invite-link" ><button type="button" class="btn-link" onclick="addToModal('invite'); return false;">{{$nv.inv}}</button></div>
