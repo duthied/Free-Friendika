@@ -22,9 +22,7 @@
 namespace Friendica\Model;
 
 use Exception;
-use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
-use Friendica\Util\DateTimeFormat;
 
 /**
  * This class handles GlobalContact related functions
@@ -144,59 +142,6 @@ class GContact
 			and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0)
 			$sql_extra limit %d, %d",
 			intval($zcid),
-			intval($uid),
-			intval($start),
-			intval($limit)
-		);
-
-		/// @TODO Check all calling-findings of this function if they properly use DBA::isResult()
-		return $r;
-	}
-
-	/**
-	 * @param integer $uid user
-	 * @param integer $cid cid
-	 * @return integer
-	 * @throws Exception
-	 */
-	public static function countAllFriends($uid, $cid)
-	{
-		$r = q(
-			"SELECT count(*) as `total`
-			FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-			where `glink`.`cid` = %d and `glink`.`uid` = %d AND
-			NOT `gcontact`.`failed`",
-			intval($cid),
-			intval($uid)
-		);
-
-		if (DBA::isResult($r)) {
-			return $r[0]['total'];
-		}
-
-		return 0;
-	}
-
-	/**
-	 * @param integer $uid   user
-	 * @param integer $cid   cid
-	 * @param integer $start optional, default 0
-	 * @param integer $limit optional, default 80
-	 * @return array
-	 * @throws Exception
-	 */
-	public static function allFriends($uid, $cid, $start = 0, $limit = 80)
-	{
-		$r = q(
-			"SELECT `gcontact`.*, `contact`.`id` AS `cid`
-			FROM `glink`
-			INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
-			LEFT JOIN `contact` ON `contact`.`nurl` = `gcontact`.`nurl` AND `contact`.`uid` = %d
-			WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d AND
-			NOT `gcontact`.`failed`
-			ORDER BY `gcontact`.`name` ASC LIMIT %d, %d ",
-			intval($uid),
-			intval($cid),
 			intval($uid),
 			intval($start),
 			intval($limit)
