@@ -71,7 +71,7 @@ class UpdateServerDirectory
 			}
 		}
 
-		$result = Contact::addContactsByArray($urls);
+		$result = Contact::addByUrls($urls);
 
 		Logger::info('PoCo discovery ended', ['count' => $result['count'], 'added' => $result['added'], 'updated' => $result['updated'], 'poco' => $gserver['poco']]);
 	}
@@ -99,7 +99,7 @@ class UpdateServerDirectory
 			}
 		}
 
-		$result = Contact::addContactsByArray($urls);
+		$result = Contact::addByUrls($urls);
 
 		Logger::info('Account discovery ended', ['count' => $result['count'], 'added' => $result['added'], 'updated' => $result['updated'], 'url' => $gserver['url']]);
 	}
