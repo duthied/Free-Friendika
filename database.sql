@@ -144,6 +144,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `dfrn-id` (`dfrn-id`(64)),
 	 INDEX `issued-id` (`issued-id`(64)),
 	 INDEX `network_uid_lastupdate` (`network`,`uid`,`last-update`),
+	 INDEX `uid_lastitem` (`uid`,`last-item`),
 	 INDEX `gsid` (`gsid`),
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='contact table';
@@ -463,18 +464,6 @@ CREATE TABLE IF NOT EXISTS `fsuggest` (
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='friend suggestion stuff';
-
---
--- TABLE gcign
---
-CREATE TABLE IF NOT EXISTS `gcign` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Local User id',
-	`gcid` int unsigned NOT NULL DEFAULT 0 COMMENT 'gcontact.id of ignored contact',
-	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`),
-	 INDEX `gcid` (`gcid`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='contacts ignored by friend suggestions';
 
 --
 -- TABLE gcontact
