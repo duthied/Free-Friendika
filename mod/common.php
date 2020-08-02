@@ -117,20 +117,20 @@ function common_content(App $a)
 		return $o;
 	}
 
-	$entries = [];
-	foreach ($common_friends as $common_friend) {
-		$contact = Model\Contact::getByURLForUser($common_friend['url'], local_user());
-		if (!empty($contact)) {
-			$entries[] = Module\Contact::getContactTemplateVars($contact);
-		}
-	}
-
 	$title = '';
 	$tab_str = '';
 	if ($cmd === 'loc' && $cid && local_user() == $uid) {
 		$tab_str = Module\Contact::getTabsHTML($a, $contact, 5);
 	} else {
 		$title = DI::l10n()->t('Common Friends');
+	}
+
+	$entries = [];
+	foreach ($common_friends as $common_friend) {
+		$contact = Model\Contact::getByURLForUser($common_friend['url'], local_user());
+		if (!empty($contact)) {
+			$entries[] = Module\Contact::getContactTemplateVars($contact);
+		}
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');

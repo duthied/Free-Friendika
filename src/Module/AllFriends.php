@@ -54,7 +54,7 @@ class AllFriends extends BaseModule
 
 		$uid = $app->user['uid'];
 
-		$contact = Model\Contact::getContactForUser($cid, local_user(), ['name', 'url', 'photo', 'uid', 'id']);
+		$contact = Model\Contact::getById($cid, ['name', 'url', 'photo', 'uid', 'id']);
 
 		if (empty($contact)) {
 			throw new HTTPException\BadRequestException(DI::l10n()->t('Invalid contact.'));
@@ -63,24 +63,21 @@ class AllFriends extends BaseModule
 		DI::page()['aside'] = "";
 		Model\Profile::load($app, "", Model\Contact::getByURL($contact["url"], false));
 
-		$total = Model\GContact::countAllFriends(local_user(), $cid);
+		$total = Model\Contact::countContactsOfContact($cid);
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
-		$friends = Model\GContact::allFriends(local_user(), $cid, $pager->getStart(), $pager->getItemsPerPage());
+		$friends = Model\Contact::getContactsOfContact($cid, $pager->getStart(), $pager->getItemsPerPage());
 		if (empty($friends)) {
 			return DI::l10n()->t('No friends to display.');
 		}
 
+		$tab_str = Contact::getTabsHTML($app, $contact, 4);
+
 		$entries = [];
 		foreach ($friends as $friend) {
-			$contact = Model\Contact::getByURLForUser($friend['url'], local_user());
-			if (!empty($contact)) {
-				$entries[] = Contact::getContactTemplateVars($contact);
-			}
+			$entries[] = Contact::getContactTemplateVars($friend);
 		}
-
-		$tab_str = Contact::getTabsHTML($app, $contact, 4);
 
 		$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
 		return Renderer::replaceMacros($tpl, [
