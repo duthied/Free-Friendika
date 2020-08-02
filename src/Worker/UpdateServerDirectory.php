@@ -36,7 +36,6 @@ class UpdateServerDirectory
 	 */
 	public static function execute(array $gserver)
 	{
-		$gserver = DBA::selectFirst('gserver', [], ['url' => $gserver['url']]);
 		if ($gserver['directory-type'] == GServer::DT_MASTODON) {
 			self::discoverMastodonDirectory($gserver);
 		} elseif (!empty($gserver['poco'])) {
