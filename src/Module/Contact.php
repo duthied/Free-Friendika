@@ -876,7 +876,7 @@ class Contact extends BaseModule
 		$tabs = [
 			[
 				'label' => DI::l10n()->t('Status'),
-				'url'   => "contact/" . $cid . "/conversations",
+				'url'   => "contact/" . $pcid . "/conversations",
 				'sel'   => (($active_tab == 1) ? 'active' : ''),
 				'title' => DI::l10n()->t('Conversations started by this contact'),
 				'id'    => 'status-tab',
@@ -884,7 +884,7 @@ class Contact extends BaseModule
 			],
 			[
 				'label' => DI::l10n()->t('Posts and Comments'),
-				'url'   => "contact/" . $cid . "/posts",
+				'url'   => "contact/" . $pcid . "/posts",
 				'sel'   => (($active_tab == 2) ? 'active' : ''),
 				'title' => DI::l10n()->t('Status Messages and Posts'),
 				'id'    => 'posts-tab',
