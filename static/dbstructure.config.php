@@ -538,68 +538,6 @@ return [
 			"PRIMARY" => ["id"],
 		]
 	],
-	"gcontact" => [
-		"comment" => "global contacts",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Name that this contact is known by"],
-			"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Nick- and user name of the contact"],
-			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Link to the contacts profile page"],
-			"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Link to the profile photo"],
-			"connect" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"updated" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"last_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"last_failure" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"last_discovery" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last contact discovery"],
-			"failed" => ["type" => "boolean", "comment" => "Connection failed"],
-			"archive_date" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"archived" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"about" => ["type" => "text", "comment" => ""],
-			"keywords" => ["type" => "text", "comment" => "puplic keywords (interests)"],
-			"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Deprecated"],
-			"birthday" => ["type" => "varchar(32)", "not null" => "1", "default" => DBA::NULL_DATE, "comment" => ""],
-			"community" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 if contact is forum account"],
-			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "-1", "comment" => ""],
-			"hide" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 = should be hidden from search"],
-			"nsfw" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 = contact posts nsfw content"],
-			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "social network protocol"],
-			"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"notify" => ["type" => "varchar(255)", "comment" => ""],
-			"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"generation" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"server_url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "baseurl of the contacts server"],
-			"gsid" => ["type" => "int unsigned", "foreign" => ["gserver" => "id", "on delete" => "restrict"], "comment" => "Global Server ID"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"nurl" => ["UNIQUE", "nurl(190)"],
-			"name" => ["name(64)"],
-			"nick" => ["nick(32)"],
-			"addr" => ["addr(64)"],
-			"hide_network_updated" => ["hide", "network", "updated"],
-			"updated" => ["updated"],
-			"gsid" => ["gsid"]
-		]
-	],
-	"glink" => [
-		"comment" => "'friends of friends' linkages derived from poco",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-			"gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
-			"zcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
-			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"cid_uid_gcid_zcid" => ["UNIQUE", "cid", "uid", "gcid", "zcid"],
-			"gcid" => ["gcid"],
-		]
-	],
 	"group" => [
 		"comment" => "privacy groups, group info",
 		"fields" => [

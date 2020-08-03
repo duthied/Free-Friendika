@@ -179,7 +179,7 @@ class Contact extends BaseModule
 
 	private static function updateContactFromProbe($contact_id)
 	{
-		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
+		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => [0, local_user()], 'deleted' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
@@ -257,18 +257,20 @@ class Contact extends BaseModule
 			DI::page()['aside'] = '';
 		}
 
-		$contact_id = null;
 		$contact = null;
 		// @TODO: Replace with parameter from router
 		if ($a->argc == 2 && intval($a->argv[1])
 			|| $a->argc == 3 && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])
 		) {
 			$contact_id = intval($a->argv[1]);
-			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
 
-			if (!DBA::isResult($contact)) {
-				$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => 0, 'deleted' => false]);
+			// Ensure to use the user contact when the public contact was provided
+			$data = Model\Contact::getPublicAndUserContacID($contact_id, local_user());
+			if (!empty($data['user']) && ($contact_id == $data['public'])) {
+				$contact_id = $data['user'];
 			}
+
+			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'deleted' => false]);
 
 			// Don't display contacts that are about to be deleted
 			if ($contact['network'] == Protocol::PHANTOM) {
@@ -384,9 +386,9 @@ class Contact extends BaseModule
 				// NOTREACHED
 			}
 
-			if ($cmd === 'updateprofile' && ($orig_record['uid'] != 0)) {
+			if ($cmd === 'updateprofile') {
 				self::updateContactFromProbe($contact_id);
-				DI::baseUrl()->redirect('contact/' . $contact_id . '/advanced/');
+				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
 			}
 
@@ -862,11 +864,19 @@ class Contact extends BaseModule
 	 */
 	public static function getTabsHTML($a, $contact, $active_tab)
 	{
+		$cid = $pcid = $contact['id'];
+		$data = Model\Contact::getPublicAndUserContacID($contact['id'], local_user());
+		if (!empty($data['user']) && ($contact['id'] == $data['public'])) {
+			$cid = $data['user'];
+		} elseif (!empty($data['public'])) {
+			$pcid = $data['public'];
+		}
+
 		// tabs
 		$tabs = [
 			[
 				'label' => DI::l10n()->t('Status'),
-				'url'   => "contact/" . $contact['id'] . "/conversations",
+				'url'   => "contact/" . $pcid . "/conversations",
 				'sel'   => (($active_tab == 1) ? 'active' : ''),
 				'title' => DI::l10n()->t('Conversations started by this contact'),
 				'id'    => 'status-tab',
@@ -874,7 +884,7 @@ class Contact extends BaseModule
 			],
 			[
 				'label' => DI::l10n()->t('Posts and Comments'),
-				'url'   => "contact/" . $contact['id'] . "/posts",
+				'url'   => "contact/" . $pcid . "/posts",
 				'sel'   => (($active_tab == 2) ? 'active' : ''),
 				'title' => DI::l10n()->t('Status Messages and Posts'),
 				'id'    => 'posts-tab',
@@ -882,7 +892,7 @@ class Contact extends BaseModule
 			],
 			[
 				'label' => DI::l10n()->t('Profile'),
-				'url'   => "contact/" . $contact['id'],
+				'url'   => "contact/" . $cid,
 				'sel'   => (($active_tab == 3) ? 'active' : ''),
 				'title' => DI::l10n()->t('Profile Details'),
 				'id'    => 'profile-tab',
@@ -891,10 +901,10 @@ class Contact extends BaseModule
 		];
 
 		// Show this tab only if there is visible friend list
-		$x = Model\GContact::countAllFriends(local_user(), $contact['id']);
+		$x = Model\Contact\Relation::countFollows($pcid);
 		if ($x) {
 			$tabs[] = ['label' => DI::l10n()->t('Contacts'),
-				'url'   => "allfriends/" . $contact['id'],
+				'url'   => "allfriends/" . $pcid,
 				'sel'   => (($active_tab == 4) ? 'active' : ''),
 				'title' => DI::l10n()->t('View all contacts'),
 				'id'    => 'allfriends-tab',
@@ -902,10 +912,10 @@ class Contact extends BaseModule
 		}
 
 		// Show this tab only if there is visible common friend list
-		$common = Model\GContact::countCommonFriends(local_user(), $contact['id']);
+		$common = Model\GContact::countCommonFriends(local_user(), $cid);
 		if ($common) {
 			$tabs[] = ['label' => DI::l10n()->t('Common Friends'),
-				'url'   => "common/loc/" . local_user() . "/" . $contact['id'],
+				'url'   => "common/loc/" . local_user() . "/" . $cid,
 				'sel'   => (($active_tab == 5) ? 'active' : ''),
 				'title' => DI::l10n()->t('View all common friends'),
 				'id'    => 'common-loc-tab',
@@ -913,9 +923,9 @@ class Contact extends BaseModule
 			];
 		}
 
-		if (!empty($contact['uid'])) {
+		if ($cid != $pcid) {
 			$tabs[] = ['label' => DI::l10n()->t('Advanced'),
-				'url'   => 'contact/' . $contact['id'] . '/advanced/',
+				'url'   => 'contact/' . $cid . '/advanced/',
 				'sel'   => (($active_tab == 6) ? 'active' : ''),
 				'title' => DI::l10n()->t('Advanced Contact Settings'),
 				'id'    => 'advanced-tab',
@@ -1011,6 +1021,15 @@ class Contact extends BaseModule
 	{
 		$alt_text = '';
 
+		if (!empty($contact['url']) && isset($contact['uid']) && ($contact['uid'] == 0) && local_user()) {
+			$personal = Model\Contact::getByURL($contact['url'], false, ['uid', 'rel', 'self'], local_user());
+			if (!empty($personal)) {
+				$contact['uid'] = $personal['uid'];
+				$contact['rel'] = $personal['rel'];
+				$contact['self'] = $personal['self'];
+			}
+		}
+
 		if (!empty($contact['uid']) && !empty($contact['rel'])) {
 			switch ($contact['rel']) {
 				case Model\Contact::FRIEND:
@@ -1102,6 +1121,16 @@ class Contact extends BaseModule
 				'title' => '',
 				'sel'   => '',
 				'id'    => 'update',
+			];
+		}
+
+		if (in_array($contact['network'], Protocol::FEDERATED)) {
+			$contact_actions['updateprofile'] = [
+				'label' => DI::l10n()->t('Refetch contact data'),
+				'url'   => 'contact/' . $contact['id'] . '/updateprofile',
+				'title' => '',
+				'sel'   => '',
+				'id'    => 'updateprofile',
 			];
 		}
 

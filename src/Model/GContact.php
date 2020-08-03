@@ -22,10 +22,7 @@
 namespace Friendica\Model;
 
 use Exception;
-use Friendica\Core\Protocol;
-use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Util\DateTimeFormat;
 
 /**
  * This class handles GlobalContact related functions
@@ -49,7 +46,7 @@ class GContact
 			$sourceId,
 		];
 
-		return Contact\Relation::countCommonFollows($sourceId, $targetIds['public'] ?? 0, $condition);
+		return Contact\Relation::countCommonFollows($sourceId, $targetIds['public'] ?? 0, [], $condition);
 	}
 
 	/**
@@ -77,7 +74,7 @@ LIMIT 1",
 			$sourceId,
 		];
 
-		return Contact\Relation::countCommonFollowers($sourceId, $targetPublicContact['id'] ?? 0, $condition);
+		return Contact\Relation::countCommonFollowers($sourceId, $targetPublicContact['id'] ?? 0, [], $condition);
 	}
 
 	/**
@@ -103,7 +100,7 @@ LIMIT 1",
 			$sourceId,
 		];
 
-		return Contact\Relation::listCommonFollows($sourceId, $targetIds['public'] ?? 0, $condition, $limit, $start, $shuffle);
+		return Contact\Relation::listCommonFollows($sourceId, $targetIds['public'] ?? 0, [], $condition, $limit, $start, $shuffle);
 	}
 
 	/**
@@ -137,34 +134,6 @@ LIMIT 1",
 			$sourceId,
 		];
 
-		return Contact\Relation::listCommonFollows($sourceId, $targetPublicContact['id'] ?? 0, $condition, $limit, $start, $shuffle);
-	}
-
-	/**
-	 * @param integer $uid user
-	 * @param integer $cid cid
-	 * @return integer
-	 * @throws Exception
-	 */
-	public static function countAllFriends($uid, $cid)
-	{
-		$cids = Contact::getPublicAndUserContacID($cid, $uid);
-
-		return Contact\Relation::countFollows($cids['public'] ?? 0);
-	}
-
-	/**
-	 * @param integer $uid   user
-	 * @param integer $cid   cid
-	 * @param integer $start optional, default 0
-	 * @param integer $limit optional, default 80
-	 * @return array
-	 * @throws Exception
-	 */
-	public static function allFriends($uid, $cid, $start = 0, $limit = 80)
-	{
-		$cids = Contact::getPublicAndUserContacID($cid, $uid);
-
-		return Contact\Relation::listFollows($cids['public'] ?? 0, [], $limit, $start);
+		return Contact\Relation::listCommonFollows($sourceId, $targetPublicContact['id'] ?? 0, [], $condition, $limit, $start, $shuffle);
 	}
 }

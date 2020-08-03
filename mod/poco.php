@@ -128,7 +128,7 @@ function poco_init(App $a) {
 		$contacts = DBA::selectToArray('owner-view', [], ['net-publish' => true], ['limit' => [$startIndex, $itemsPerPage]]);
 	} else {
 		Logger::log("Start query for user " . $user['nickname'], Logger::DEBUG);
-		$contacts = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `hiddden` AND NOT `archive`
+		$contacts = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `blocked` AND NOT `pending` AND NOT `hidden` AND NOT `archive`
 			AND NOT `failed` AND NOT `unsearchable`
 			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),

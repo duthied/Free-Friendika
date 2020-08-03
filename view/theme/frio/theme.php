@@ -193,15 +193,15 @@ function frio_remote_nav($a, &$nav)
 
 	// since $userinfo isn't available for the hook we write it to the nav array
 	// this isn't optimal because the contact query will be done now twice
+	$fields = ['id', 'url', 'avatar', 'micro', 'name', 'nick', 'baseurl'];
 	if (local_user() && !empty($a->user['uid'])) {
-
-		$remoteUser = Contact::getById($a->user['uid'], ['id', 'url', 'avatar', 'micro', 'name', 'nick']);
+		$remoteUser = Contact::getById($a->user['uid'], $fields);
 		$remoteUser['name'] = $a->user['username'];
 	} elseif (!local_user() && remote_user()) {
-		$remoteUser = Contact::getById(remote_user(), ['id', 'url', 'avatar', 'micro', 'name', 'nick']);
+		$remoteUser = Contact::getById(remote_user(), $fields);
 		$nav['remote'] = DI::l10n()->t('Guest');
 	} elseif (Model\Profile::getMyURL()) {
-		$remoteUser = Contact::getByURL($homelink, ['id', 'url', 'avatar', 'micro', 'name', 'nick']);
+		$remoteUser = Contact::getByURL($homelink, $fields);
 		$nav['remote'] = DI::l10n()->t('Visitor');
 	} else {
 		$remoteUser = null;
