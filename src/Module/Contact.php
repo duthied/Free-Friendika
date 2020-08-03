@@ -901,7 +901,7 @@ class Contact extends BaseModule
 		];
 
 		// Show this tab only if there is visible friend list
-		$x = Model\Contact::countContactsOfContact($pcid);
+		$x = Model\Contact\Relation::countFollows($pcid);
 		if ($x) {
 			$tabs[] = ['label' => DI::l10n()->t('Contacts'),
 				'url'   => "allfriends/" . $pcid,

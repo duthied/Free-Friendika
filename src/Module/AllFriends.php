@@ -63,11 +63,11 @@ class AllFriends extends BaseModule
 		DI::page()['aside'] = "";
 		Model\Profile::load($app, "", Model\Contact::getByURL($contact["url"], false));
 
-		$total = Model\Contact::countContactsOfContact($cid);
+		$total = Model\Contact\Relation::countFollows($cid);
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
-		$friends = Model\Contact::getContactsOfContact($cid, $pager->getStart(), $pager->getItemsPerPage());
+		$friends = Model\Contact\Relation::listFollows($cid, [], $pager->getStart(), $pager->getItemsPerPage());
 		if (empty($friends)) {
 			return DI::l10n()->t('No friends to display.');
 		}
