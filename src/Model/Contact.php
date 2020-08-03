@@ -3096,7 +3096,7 @@ class Contact
 	 * @param array $urls
 	 * @return array result "count", "added" and "updated"
 	 */
-	public static function addContactsByArray(array $urls)
+	public static function addByUrls(array $urls)
 	{
 		$added = 0;
 		$updated = 0;

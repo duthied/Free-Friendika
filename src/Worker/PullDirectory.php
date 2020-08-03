@@ -60,7 +60,7 @@ class PullDirectory
 			return;
 		}
 
-		$result = Contact::addContactsByArray($contacts['results']);
+		$result = Contact::addByUrls($contacts['results']);
 
 		$now = $contacts['now'] ?? 0;
 		DI::config()->set('system', 'last-directory-sync', $now);
