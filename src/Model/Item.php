@@ -1554,7 +1554,7 @@ class Item
 			}
 
 			// Update the contact relations
-			ContactRelation::store($parent['author-id'], $item['author-id'], $item['created']);
+			Contact\Relation::store($parent['author-id'], $item['author-id'], $item['created']);
 		}
 
 		return $item;
