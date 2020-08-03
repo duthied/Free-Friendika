@@ -32,7 +32,6 @@ use Friendica\DI;
 use Friendica\Module\Register;
 use Friendica\Network\CurlResult;
 use Friendica\Protocol\Diaspora;
-use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -111,7 +110,10 @@ class GServer
 	public static function reachable(string $profile, string $server = '', string $network = '', bool $force = false)
 	{
 		if ($server == '') {
-			$server = GContact::getBasepath($profile);
+			$contact = Contact::getByURL($profile, null, ['baseurl']);
+			if (!empty($contact['baseurl'])) {
+				$server = $contact['baseurl'];
+			}
 		}
 
 		if ($server == '') {
@@ -471,10 +473,9 @@ class GServer
 		}
 
 		if (!empty($serverdata['network']) && !empty($id) && ($serverdata['network'] != Protocol::PHANTOM)) {
-			$gcontacts = DBA::count('gcontact', ['gsid' => $id]);
 			$apcontacts = DBA::count('apcontact', ['gsid' => $id]);
 			$contacts = DBA::count('contact', ['uid' => 0, 'gsid' => $id]);
-			$max_users = max($gcontacts, $apcontacts, $contacts, $registeredUsers);
+			$max_users = max($apcontacts, $contacts, $registeredUsers);
 			if ($max_users > $registeredUsers) {
 				Logger::info('Update registered users', ['id' => $id, 'url' => $serverdata['nurl'], 'registered-users' => $max_users]);
 				DBA::update('gserver', ['registered-users' => $max_users], ['id' => $id]);
@@ -958,12 +959,6 @@ class GServer
 	private static function detectNetworkViaContacts(string $url, array $serverdata)
 	{
 		$contacts = [];
-
-		$gcontacts = DBA::select('gcontact', ['url', 'nurl'], ['server_url' => [$url, $serverdata['nurl']]]);
-		while ($gcontact = DBA::fetch($gcontacts)) {
-			$contacts[$gcontact['nurl']] = $gcontact['url'];
-		}
-		DBA::close($gcontacts);
 
 		$apcontacts = DBA::select('apcontact', ['url'], ['baseurl' => [$url, $serverdata['nurl']]]);
 		while ($apcontact = DBA::fetch($apcontacts)) {
@@ -1557,20 +1552,6 @@ class GServer
 	}
 
 	/**
-	 * Update the user directory of a given gserver record
-	 *
-	 * @param array $gserver gserver record
-	 */
-	public static function updateDirectory(array $gserver)
-	{
-		/// @todo Add Mastodon API directory
-
-		if (!empty($gserver['poco'])) {
-			PortableContact::discoverSingleServer($gserver['id']);
-		}
-	}
-
-	/**
 	 * Update GServer entries
 	 */
 	public static function discover()
@@ -1588,7 +1569,7 @@ class GServer
 
 		$last_update = date('c', time() - (60 * 60 * 24 * $requery_days));
 
-		$gservers = DBA::p("SELECT `id`, `url`, `nurl`, `network`, `poco`
+		$gservers = DBA::p("SELECT `id`, `url`, `nurl`, `network`, `poco`, `directory-type`
 			FROM `gserver`
 			WHERE NOT `failed`
 			AND `directory-type` != ?
@@ -1671,5 +1652,19 @@ class GServer
 		}
 
 		DI::config()->set('poco', 'last_federation_discovery', time());
+	}
+
+	/**
+	 * Returns a list of 1,000 active servers order by the last contact
+	 *
+	 * @return array List of server urls
+	 * @throws Exception
+	 */
+	public static function getActive()
+	{
+		$result = DBA::p("SELECT `url`, `site_name` AS `displayName`, `network`, `platform`, `version` FROM `gserver`
+			WHERE `network` IN (?, ?, ?, ?) AND NOT `failed` ORDER BY `last_contact` LIMIT ?",
+			Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::ACTIVITYPUB, 1000);
+		return DBA::toArray($result);
 	}
 }

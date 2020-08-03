@@ -17,7 +17,6 @@ use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use Friendica\Util\Strings;
 
 function vier_init(App $a)
@@ -240,16 +239,10 @@ function vier_community_info()
 		$helpers = explode(",", $helperlist);
 
 		if ($helpers) {
-			$query = "";
-			foreach ($helpers as $index => $helper) {
-				if ($query != "") {
-					$query .= ",";
-				}
-
-				$query .= "'".DBA::escape(Strings::normaliseLink(trim($helper)))."'";
+			foreach ($helpers as $helper) {
+				$urls[] = Strings::normaliseLink(trim($helper));
 			}
-
-			$r = q("SELECT `url`, `name` FROM `gcontact` WHERE `nurl` IN (%s)", $query);
+			$r = DBA::selectToArray('contact', ['url', 'name'], ['uid' => 0, 'nurl' => $urls]);
 		}
 
 		foreach ($r as $index => $helper) {

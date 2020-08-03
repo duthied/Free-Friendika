@@ -21,6 +21,8 @@
 
 namespace Friendica\Model;
 
+use DOMDocument;
+use DOMXPath;
 use Friendica\App\BaseURL;
 use Friendica\Content\Pager;
 use Friendica\Core\Hook;
@@ -88,7 +90,7 @@ class Contact
 	/**
 	 * Account types
 	 *
-	 * TYPE_UNKNOWN - the account has been imported from gcontact where this is the default type value
+	 * TYPE_UNKNOWN - unknown type
 	 *
 	 * TYPE_PERSON - the account belongs to a person
 	 *	Associated page types: PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE
@@ -1021,7 +1023,6 @@ class Contact
 				 */
 				DBA::update('contact', ['archive' => true], ['id' => $contact['id']]);
 				DBA::update('contact', ['archive' => true], ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
-				GContact::updateFromPublicContactURL($contact['url']);
 			}
 		}
 	}
@@ -1066,7 +1067,6 @@ class Contact
 		$fields = ['failed' => false, 'term-date' => DBA::NULL_DATETIME, 'archive' => false];
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
 		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
-		GContact::updateFromPublicContactURL($contact['url']);
 	}
 
 	/**
@@ -1269,12 +1269,8 @@ class Contact
 
 		$fields = ['url', 'addr', 'alias', 'notify', 'name', 'nick',
 			'photo', 'keywords', 'location', 'about', 'network'];
-		$data = DBA::selectFirst('gcontact', $fields, ['nurl' => Strings::normaliseLink($url)]);
-
-		if (!DBA::isResult($data)) {
-			$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
-			$data = DBA::selectFirst('contact', $fields, $condition);
-		}
+		$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
+		$data = DBA::selectFirst('contact', $fields, $condition);
 
 		if (DBA::isResult($data)) {
 			$data["pubkey"] = '';
@@ -1706,7 +1702,6 @@ class Contact
 		// There are several fields that indicate that the contact or user is a forum
 		// "page-flags" is a field in the user table,
 		// "forum" and "prv" are used in the contact table. They stand for User::PAGE_FLAGS_COMMUNITY and User::PAGE_FLAGS_PRVGROUP.
-		// "community" is used in the gcontact table and is true if the contact is User::PAGE_FLAGS_COMMUNITY or User::PAGE_FLAGS_PRVGROUP.
 		if ((isset($contact['page-flags']) && (intval($contact['page-flags']) == User::PAGE_FLAGS_COMMUNITY))
 			|| (isset($contact['page-flags']) && (intval($contact['page-flags']) == User::PAGE_FLAGS_PRVGROUP))
 			|| (isset($contact['forum']) && intval($contact['forum']))
@@ -1994,9 +1989,6 @@ class Contact
 			return;
 		}
 
-		// Update the corresponding gcontact entry
-		GContact::updateFromPublicContactID($id);
-
 		// Archive or unarchive the contact. We only need to do this for the public contact.
 		// The archive/unarchive function will update the personal contacts by themselves.
 		$contact = DBA::selectFirst('contact', [], ['id' => $id]);
@@ -2154,11 +2146,6 @@ class Contact
 		}
 
 		$new_pubkey = $ret['pubkey'];
-
-		// Update the gcontact entry
-		if ($uid == 0) {
-			GContact::updateFromPublicContactID($id);
-		}
 
 		$update = false;
 
@@ -3067,5 +3054,229 @@ class Contact
 		Logger::info('Any contact', ['uid' => $uid, 'cid' => $cid, 'count' => count($contacts)]);
 
 		return array_slice($contacts, $start, $limit);
+	}
+
+	/**
+	 * Add public contacts from an array
+	 *
+	 * @param array $urls
+	 * @return array result "count", "added" and "updated"
+	 */
+	public static function addByUrls(array $urls)
+	{
+		$added = 0;
+		$updated = 0;
+		$count = 0;
+
+		foreach ($urls as $url) {
+			$contact = Contact::getByURL($url, false, ['id']); 
+			if (empty($contact['id'])) {
+				Worker::add(PRIORITY_LOW, 'AddContact', 0, $url);
+				++$added;
+			} else {
+				Worker::add(PRIORITY_LOW, 'UpdateContact', $contact['id']);
+				++$updated;
+			}
+			++$count;
+		}
+
+		return ['count' => $count, 'added' => $added, 'updated' => $updated];
+	}
+
+	/**
+	 * Set the last date that the contact had posted something
+	 *
+	 * This functionality is currently unused
+	 *
+	 * @param string $data  probing result
+	 * @param bool   $force force updating
+	 */
+	private static function setLastUpdate(array $data, bool $force = false)
+	{
+		$contact = self::getByURL($data['url'], false, []);
+		if (empty($contact)) {
+			return;
+		}
+		if (!$force && !GServer::updateNeeded($contact['created'], $contact['updated'], $contact['last_failure'], $contact['last_contact'])) {
+			Logger::info("Don't update profile", ['url' => $data['url'], 'updated' => $contact['updated']]);
+			return;
+		}
+
+		if (self::updateFromNoScrape($data)) {
+			return;
+		}
+
+		if (!empty($data['outbox'])) {
+			self::updateFromOutbox($data['outbox'], $data);
+		} elseif (!empty($data['poll']) && ($data['network'] == Protocol::ACTIVITYPUB)) {
+			self::updateFromOutbox($data['poll'], $data);
+		} elseif (!empty($data['poll'])) {
+			self::updateFromFeed($data);
+		}
+	}
+
+	/**
+	 * Update a global contact via the "noscrape" endpoint
+	 *
+	 * @param string $data Probing result
+	 *
+	 * @return bool 'true' if update was successful or the server was unreachable
+	 */
+	private static function updateFromNoScrape(array $data)
+	{
+		// Check the 'noscrape' endpoint when it is a Friendica server
+		$gserver = DBA::selectFirst('gserver', ['noscrape'], ["`nurl` = ? AND `noscrape` != ''",
+		Strings::normaliseLink($data['baseurl'])]);
+		if (!DBA::isResult($gserver)) {
+			return false;
+		}
+
+		$curlResult = DI::httpRequest()->get($gserver['noscrape'] . '/' . $data['nick']);
+
+		if ($curlResult->isSuccess() && !empty($curlResult->getBody())) {
+			$noscrape = json_decode($curlResult->getBody(), true);
+			if (!empty($noscrape) && !empty($noscrape['updated'])) {
+				$noscrape['updated'] = DateTimeFormat::utc($noscrape['updated'], DateTimeFormat::MYSQL);
+				$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow(), 'updated' => $noscrape['updated']];
+				DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
+				return true;
+			}
+		} elseif ($curlResult->isTimeout()) {
+			// On a timeout return the existing value, but mark the contact as failure
+			$fields = ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()];
+			DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Update a global contact via an ActivityPub Outbox
+	 *
+	 * @param string $feed
+	 * @param array  $data Probing result
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function updateFromOutbox(string $feed, array $data)
+	{
+		$outbox = ActivityPub::fetchContent($feed);
+		if (empty($outbox)) {
+			return;
+		}
+
+		if (!empty($outbox['orderedItems'])) {
+			$items = $outbox['orderedItems'];
+		} elseif (!empty($outbox['first']['orderedItems'])) {
+			$items = $outbox['first']['orderedItems'];
+		} elseif (!empty($outbox['first']['href']) && ($outbox['first']['href'] != $feed)) {
+			self::updateFromOutbox($outbox['first']['href'], $data);
+			return;
+		} elseif (!empty($outbox['first'])) {
+			if (is_string($outbox['first']) && ($outbox['first'] != $feed)) {
+				self::updateFromOutbox($outbox['first'], $data);
+			} else {
+				Logger::warning('Unexpected data', ['outbox' => $outbox]);
+			}
+			return;
+		} else {
+			$items = [];
+		}
+
+		$last_updated = '';
+		foreach ($items as $activity) {
+			if (!empty($activity['published'])) {
+				$published =  DateTimeFormat::utc($activity['published']);
+			} elseif (!empty($activity['object']['published'])) {
+				$published =  DateTimeFormat::utc($activity['object']['published']);
+			} else {
+				continue;
+			}
+
+			if ($last_updated < $published) {
+				$last_updated = $published;
+			}
+		}
+
+		if (empty($last_updated)) {
+			return;
+		}
+
+		$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow(), 'updated' => $last_updated];
+		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
+	}
+
+	/**
+	 * Update a global contact via an XML feed
+	 *
+	 * @param string $data Probing result
+	 */
+	private static function updateFromFeed(array $data)
+	{
+		// Search for the newest entry in the feed
+		$curlResult = DI::httpRequest()->get($data['poll']);
+		if (!$curlResult->isSuccess()) {
+			$fields = ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()];
+			DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
+
+			Logger::info("Profile wasn't reachable (no feed)", ['url' => $data['url']]);
+			return;
+		}
+
+		$doc = new DOMDocument();
+		@$doc->loadXML($curlResult->getBody());
+
+		$xpath = new DOMXPath($doc);
+		$xpath->registerNamespace('atom', 'http://www.w3.org/2005/Atom');
+
+		$entries = $xpath->query('/atom:feed/atom:entry');
+
+		$last_updated = '';
+
+		foreach ($entries as $entry) {
+			$published_item = $xpath->query('atom:published/text()', $entry)->item(0);
+			$updated_item   = $xpath->query('atom:updated/text()'  , $entry)->item(0);
+			$published      = !empty($published_item->nodeValue) ? DateTimeFormat::utc($published_item->nodeValue) : null;
+			$updated        = !empty($updated_item->nodeValue) ? DateTimeFormat::utc($updated_item->nodeValue) : null;
+
+			if (empty($published) || empty($updated)) {
+				Logger::notice('Invalid entry for XPath.', ['entry' => $entry, 'url' => $data['url']]);
+				continue;
+			}
+
+			if ($last_updated < $published) {
+				$last_updated = $published;
+			}
+
+			if ($last_updated < $updated) {
+				$last_updated = $updated;
+			}
+		}
+
+		if (empty($last_updated)) {
+			return;
+		}
+
+		$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow(), 'updated' => $last_updated];
+		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
+	}
+
+	/**
+	 * Returns a random, global contact of the current node
+	 *
+	 * @return string The profile URL
+	 * @throws Exception
+	 */
+	public static function getRandomUrl()
+	{
+		$r = DBA::selectFirst('contact', ['url'], [
+			"`uid` = ? AND `network` = ? AND NOT `failed` AND `last-item` > ?",
+			0, Protocol::DFRN, DateTimeFormat::utc('now - 1 month'),
+		], ['order' => ['RAND()']]);
+
+		if (DBA::isResult($r)) {
+			return $r['url'];
+		}
+
+		return '';
 	}
 }

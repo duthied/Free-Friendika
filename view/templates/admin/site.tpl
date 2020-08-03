@@ -99,10 +99,8 @@
 		<h2>{{$portable_contacts}}</h2>
 		{{include file="field_select.tpl" field=$contact_discovery}}
 		{{include file="field_checkbox.tpl" field=$synchronize_directory}}
-		{{include file="field_checkbox.tpl" field=$poco_completion}}
 		{{include file="field_input.tpl" field=$poco_requery_days}}
-		{{include file="field_select.tpl" field=$poco_discovery}}
-		{{include file="field_select.tpl" field=$poco_discovery_since}}
+		{{include file="field_checkbox.tpl" field=$poco_discovery}}
 		{{include file="field_checkbox.tpl" field=$poco_local_search}}
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 

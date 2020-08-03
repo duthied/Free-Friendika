@@ -48,7 +48,6 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Model\Storage;
@@ -315,7 +314,6 @@ function update_1298()
 						'was' => $data[$translateKey]]);
 					Worker::add(PRIORITY_LOW, 'ProfileUpdate', $data['id']);
 					Contact::updateSelfFromUserID($data['id']);
-					GContact::updateForUser($data['id']);
 					$success++;
 				}
 			}
@@ -562,16 +560,5 @@ function update_1357()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("UPDATE `gcontact` SET `failed` = true WHERE `last_contact` < `last_failure` AND `failed` IS NULL")) {
-		return Update::FAILED;
-	}
-
-	if (!DBA::e("UPDATE `gcontact` SET `failed` = false WHERE `last_contact` > `last_failure` AND `failed` IS NULL")) {
-		return Update::FAILED;
-	}
-
-	if (!DBA::e("UPDATE `gcontact` SET `failed` = false WHERE `updated` > `last_failure` AND `failed` IS NULL")) {
-		return Update::FAILED;
-	}
 	return Update::SUCCESS;
 }

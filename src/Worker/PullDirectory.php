@@ -60,22 +60,11 @@ class PullDirectory
 			return;
 		}
 
+		$result = Contact::addByUrls($contacts['results']);
+
 		$now = $contacts['now'] ?? 0;
-		$count = $contacts['count'] ?? 0;
-		$added = 0;
-		$updated = 0;
-		foreach ($contacts['results'] as $url) {
-			$contact = Contact::getByURL($url, false, ['id']); 
-			if (empty($contact['id'])) {
-				Worker::add(PRIORITY_LOW, 'AddContact', 0, $url);
-				++$added;
-			} else {
-				Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id']);
-				++$updated;
-			}
-		}
 		DI::config()->set('system', 'last-directory-sync', $now);
 
-		Logger::info('Synchronization ended.', ['now' => $now, 'count' => $count, 'added' => $added, 'updated' => $updated, 'directory' => $directory]);
+		Logger::info('Synchronization ended', ['now' => $now, 'count' => $result['count'], 'added' => $result['added'], 'updated' => $result['updated'], 'directory' => $directory]);
 	}
 }

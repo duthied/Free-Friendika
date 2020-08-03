@@ -33,7 +33,6 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Event;
-use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
@@ -1686,21 +1685,6 @@ class DFRN
 			if (!empty($pcid)) {
 				Contact::updateAvatar($pcid, $author['avatar']);
 			}
-
-			/*
-			 * The generation is a sign for the reliability of the provided data.
-			 * It is used in the socgraph.php to prevent that old contact data
-			 * that was relayed over several servers can overwrite contact
-			 * data that we received directly.
-			 */
-
-			$poco["generation"] = 2;
-			$poco["photo"] = $author["avatar"];
-			$poco["hide"] = $hide;
-			$poco["contact-type"] = $contact["contact-type"];
-			$gcid = GContact::update($poco);
-
-			GContact::link($gcid, $importer["importer_uid"], $contact["id"]);
 		}
 
 		return $author;
@@ -1942,15 +1926,6 @@ class DFRN
 		}
 
 		$old = $r[0];
-
-		// Update the gcontact entry
-		$relocate["server_url"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $relocate["url"]);
-
-		$fields = ['name' => $relocate["name"], 'photo' => $relocate["avatar"],
-			'url' => $relocate["url"], 'nurl' => Strings::normaliseLink($relocate["url"]),
-			'addr' => $relocate["addr"], 'connect' => $relocate["addr"],
-			'notify' => $relocate["notify"], 'server_url' => $relocate["server_url"]];
-		DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($old["url"])]);
 
 		// Update the contact table. We try to find every entry.
 		$fields = ['name' => $relocate["name"], 'avatar' => $relocate["avatar"],

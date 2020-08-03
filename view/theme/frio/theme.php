@@ -17,6 +17,7 @@ use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\Contact;
 use Friendica\Module;
 use Friendica\Util\Strings;
 
@@ -190,55 +191,28 @@ function frio_remote_nav($a, &$nav)
 		$homelink = Session::get('visitor_home', '');
 	}
 
-	// split up the url in it's parts (protocol,domain/directory, /profile/, nickname
-	// I'm not familiar with regex, so someone might find a better solutionen
-	//
-	// E.g $homelink = 'https://friendica.domain.com/profile/mickey' should result in an array
-	// with 0 => 'https://friendica.domain.com/profile/mickey' 1 => 'https://',
-	// 2 => 'friendica.domain.com' 3 => '/profile/' 4 => 'mickey'
-	//
-	//$server_url = preg_match('/^(https?:\/\/.*?)\/profile\//2', $homelink);
-	preg_match('/^(https?:\/\/)?(.*?)(\/profile\/)(.*)/', $homelink, $url_parts);
-
-	// Construct the server url of the visitor. So we could link back to his/her own menu.
-	// And construct a webbie (e.g. mickey@friendica.domain.com for the search in gcontact
-	// We use the webbie for search in gcontact because we don't know if gcontact table stores
-	// the right value if its http or https protocol
-	$webbie = '';
-	if (count($url_parts)) {
-		$server_url = $url_parts[1] . $url_parts[2];
-		$webbie = $url_parts[4] . '@' . $url_parts[2];
-	}
-
 	// since $userinfo isn't available for the hook we write it to the nav array
 	// this isn't optimal because the contact query will be done now twice
 	if (local_user() && !empty($a->user['uid'])) {
-		// empty the server url for local user because we won't need it
-		$server_url = '';
-		// user info
-		$r = q("SELECT `micro` FROM `contact` WHERE `uid` = %d AND `self`", intval($a->user['uid']));
 
-		$r[0]['photo'] = (DBA::isResult($r) ? DI::baseUrl()->remove($r[0]['micro']) : 'images/person-48.jpg');
-		$r[0]['name'] = $a->user['username'];
+		$remoteUser = Contact::getById($a->user['uid'], ['id', 'url', 'avatar', 'micro', 'name', 'nick']);
+		$remoteUser['name'] = $a->user['username'];
 	} elseif (!local_user() && remote_user()) {
-		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
+		$remoteUser = Contact::getById(remote_user(), ['id', 'url', 'avatar', 'micro', 'name', 'nick']);
 		$nav['remote'] = DI::l10n()->t('Guest');
 	} elseif (Model\Profile::getMyURL()) {
-		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
-				WHERE `addr` = '%s' AND `network` = 'dfrn'",
-			DBA::escape($webbie));
+		$remoteUser = Contact::getByURL($homelink, ['id', 'url', 'avatar', 'micro', 'name', 'nick']);
 		$nav['remote'] = DI::l10n()->t('Visitor');
 	} else {
-		$r = false;
+		$remoteUser = null;
 	}
 
-	$remoteUser = null;
-	if (DBA::isResult($r)) {
+	if (DBA::isResult($remoteUser)) {
 		$nav['userinfo'] = [
-			'icon' => (DBA::isResult($r) ? $r[0]['photo'] : 'images/person-48.jpg'),
-			'name' => $r[0]['name'],
+			'icon' => Contact::getMicro($remoteUser),
+			'name' => $remoteUser['name'],
 		];
-		$remoteUser = $r[0];
+		$server_url = $remoteUser['baseurl'];
 	}
 
 	if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {

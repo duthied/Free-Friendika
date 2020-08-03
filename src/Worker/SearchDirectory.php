@@ -23,14 +23,9 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
-use Friendica\Core\Protocol;
 use Friendica\Core\Search;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
-use Friendica\Model\GServer;
-use Friendica\Util\Strings;
 
 class SearchDirectory
 {
@@ -56,43 +51,7 @@ class SearchDirectory
 
 		if (!empty($j->results)) {
 			foreach ($j->results as $jj) {
-				// Check if the contact already exists
-				$gcontact = DBA::selectFirst('gcontact', ['failed'], ['nurl' => Strings::normaliseLink($jj->url)]);
-				if (DBA::isResult($gcontact)) {
-					Logger::info('Profile already exists', ['profile' => $jj->url, 'search' => $search]);
-
-					if ($gcontact['failed']) {
-						continue;
-					}
-
-					// Update the contact
-					GContact::updateFromProbe($jj->url);
-					continue;
-				}
-
-				$server_url = GContact::getBasepath($jj->url, true);
-				if ($server_url != '') {
-					if (!GServer::check($server_url)) {
-						Logger::info("Friendica server doesn't answer.", ['server' => $server_url]);
-						continue;
-					}
-					Logger::info('Friendica server seems to be okay.', ['server' => $server_url]);
-				}
-
-				$data = Contact::getByURL($jj->url);
-				if ($data['network'] == Protocol::DFRN) {
-					Logger::info('Add profile to local directory', ['profile' => $jj->url]);
-
-					if ($jj->tags != '') {
-						$data['keywords'] = $jj->tags;
-					}
-
-					$data['server_url'] = $data['baseurl'];
-
-					GContact::update($data);
-				} else {
-					Logger::info('Profile is not responding or no Friendica contact', ['profile' => $jj->url, 'network' => $data['network']]);
-				}
+				Contact::getByURL($jj->url);
 			}
 		}
 		DI::cache()->set('SearchDirectory:' . $search, time(), Duration::DAY);
