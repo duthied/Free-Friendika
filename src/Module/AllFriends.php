@@ -54,20 +54,20 @@ class AllFriends extends BaseModule
 
 		$uid = $app->user['uid'];
 
-		$contact = Model\Contact::getById($cid, ['name', 'url', 'photo', 'uid', 'id']);
+		$contact = Model\Contact::getById($cid, []);
 
 		if (empty($contact)) {
 			throw new HTTPException\BadRequestException(DI::l10n()->t('Invalid contact.'));
 		}
 
 		DI::page()['aside'] = "";
-		Model\Profile::load($app, "", Model\Contact::getByURL($contact["url"], false));
+		Model\Profile::load($app, "", $contact);
 
 		$total = Model\Contact\Relation::countFollows($cid);
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
-		$friends = Model\Contact\Relation::listFollows($cid, [], $pager->getStart(), $pager->getItemsPerPage());
+		$friends = Model\Contact\Relation::listFollows($cid, [], $pager->getItemsPerPage(), $pager->getStart());
 		if (empty($friends)) {
 			return DI::l10n()->t('No friends to display.');
 		}
