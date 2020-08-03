@@ -21,7 +21,7 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Model\ContactRelation;
+use Friendica\Model\Contact;
 
 class ContactDiscovery
 {
@@ -31,6 +31,6 @@ class ContactDiscovery
 	 */
 	public static function execute(string $url)
 	{
-		ContactRelation::discoverByUrl($url);
+		Contact\Relation::discoverByUrl($url);
 	}
 }

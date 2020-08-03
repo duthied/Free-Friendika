@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Model;
+namespace Friendica\Model\Contact;
 
 use Exception;
 use Friendica\Core\Logger;
@@ -35,7 +35,7 @@ use Friendica\Util\Strings;
  * This table is directional (cid = source, relation-cid = target), references public contacts (with uid=0) and records both
  * follows and the last interaction (likes/comments) on public posts.
  */
-class ContactRelation
+class Relation
 {
 	/**
 	 * No discovery of followers/followings

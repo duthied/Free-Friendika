@@ -2124,7 +2124,7 @@ class Contact
 			return false;
 		}
 
-		if (ContactRelation::isDiscoverable($ret['url'])) {
+		if (Contact\Relation::isDiscoverable($ret['url'])) {
 			Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
 		}
 

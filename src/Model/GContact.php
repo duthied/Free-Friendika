@@ -24,6 +24,7 @@ namespace Friendica\Model;
 use Exception;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -48,7 +49,7 @@ class GContact
 			$sourceId,
 		];
 
-		return ContactRelation::countCommonFollows($sourceId, $targetIds['public'] ?? 0, $condition);
+		return Contact\Relation::countCommonFollows($sourceId, $targetIds['public'] ?? 0, $condition);
 	}
 
 	/**
@@ -71,7 +72,12 @@ LIMIT 1",
 			$zcid
 		);
 
-		return ContactRelation::countCommonFollowers($sourceId, $targetPublicContact['id'] ?? 0);
+		$condition = [
+			'NOT `self` AND NOT `blocked` AND NOT `hidden` AND `id` != ?',
+			$sourceId,
+		];
+
+		return Contact\Relation::countCommonFollowers($sourceId, $targetPublicContact['id'] ?? 0, $condition);
 	}
 
 	/**
@@ -97,7 +103,7 @@ LIMIT 1",
 			$sourceId,
 		];
 
-		return ContactRelation::listCommonFollows($sourceId, $targetIds['public'] ?? 0, $condition, $limit, $start, $shuffle);
+		return Contact\Relation::listCommonFollows($sourceId, $targetIds['public'] ?? 0, $condition, $limit, $start, $shuffle);
 	}
 
 	/**
@@ -126,7 +132,12 @@ LIMIT 1",
 			$zcid
 		);
 
-		return ContactRelation::listCommonFollows($sourceId, $targetPublicContact['id'] ?? 0, [], $limit, $start, $shuffle);
+		$condition = [
+			'NOT `self` AND NOT `blocked` AND NOT `hidden` AND `id` != ?',
+			$sourceId,
+		];
+
+		return Contact\Relation::listCommonFollows($sourceId, $targetPublicContact['id'] ?? 0, $condition, $limit, $start, $shuffle);
 	}
 
 	/**
@@ -139,7 +150,7 @@ LIMIT 1",
 	{
 		$cids = Contact::getPublicAndUserContacID($cid, $uid);
 
-		return ContactRelation::countFollows($cids['public'] ?? 0);
+		return Contact\Relation::countFollows($cids['public'] ?? 0);
 	}
 
 	/**
@@ -154,6 +165,6 @@ LIMIT 1",
 	{
 		$cids = Contact::getPublicAndUserContacID($cid, $uid);
 
-		return ContactRelation::listFollows($cids['public'] ?? 0, [], $limit, $start);
+		return Contact\Relation::listFollows($cids['public'] ?? 0, [], $limit, $start);
 	}
 }
