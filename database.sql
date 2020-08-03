@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.09-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1358
+-- DB_UPDATE_VERSION 1359
 -- ------------------------------------------
 
 
@@ -464,67 +464,6 @@ CREATE TABLE IF NOT EXISTS `fsuggest` (
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='friend suggestion stuff';
-
---
--- TABLE gcontact
---
-CREATE TABLE IF NOT EXISTS `gcontact` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name that this contact is known by',
-	`nick` varchar(255) NOT NULL DEFAULT '' COMMENT 'Nick- and user name of the contact',
-	`url` varchar(255) NOT NULL DEFAULT '' COMMENT 'Link to the contacts profile page',
-	`nurl` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`photo` varchar(255) NOT NULL DEFAULT '' COMMENT 'Link to the profile photo',
-	`connect` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`updated` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last_discovery` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last contact discovery',
-	`failed` boolean COMMENT 'Connection failed',
-	`archive_date` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`archived` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`location` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`about` text COMMENT '',
-	`keywords` text COMMENT 'puplic keywords (interests)',
-	`gender` varchar(32) NOT NULL DEFAULT '' COMMENT 'Deprecated',
-	`birthday` varchar(32) NOT NULL DEFAULT '0001-01-01' COMMENT '',
-	`community` boolean NOT NULL DEFAULT '0' COMMENT '1 if contact is forum account',
-	`contact-type` tinyint NOT NULL DEFAULT -1 COMMENT '',
-	`hide` boolean NOT NULL DEFAULT '0' COMMENT '1 = should be hidden from search',
-	`nsfw` boolean NOT NULL DEFAULT '0' COMMENT '1 = contact posts nsfw content',
-	`network` char(4) NOT NULL DEFAULT '' COMMENT 'social network protocol',
-	`addr` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`notify` varchar(255) COMMENT '',
-	`alias` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`generation` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`server_url` varchar(255) NOT NULL DEFAULT '' COMMENT 'baseurl of the contacts server',
-	`gsid` int unsigned COMMENT 'Global Server ID',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `nurl` (`nurl`(190)),
-	 INDEX `name` (`name`(64)),
-	 INDEX `nick` (`nick`(32)),
-	 INDEX `addr` (`addr`(64)),
-	 INDEX `hide_network_updated` (`hide`,`network`,`updated`),
-	 INDEX `updated` (`updated`),
-	 INDEX `gsid` (`gsid`),
-	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='global contacts';
-
---
--- TABLE glink
---
-CREATE TABLE IF NOT EXISTS `glink` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	`gcid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`zcid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `cid_uid_gcid_zcid` (`cid`,`uid`,`gcid`,`zcid`),
-	 INDEX `gcid` (`gcid`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='\'friends of friends\' linkages derived from poco';
 
 --
 -- TABLE group
