@@ -109,25 +109,21 @@ abstract class BaseRepository extends BaseFactory
 	 */
 	public function selectByBoundaries(array $condition = [], array $params = [], int $max_id = null, int $since_id = null, int $limit = self::LIMIT)
 	{
-		$condition = DBA::collapseCondition($condition);
+		$totalCount = DBA::count(static::$table_name, $condition);
 
 		$boundCondition = $condition;
 
 		if (isset($max_id)) {
-			$boundCondition[0] .= " AND `id` < ?";
-			$boundCondition[] = $max_id;
+			$boundCondition = DBA::mergeConditions($boundCondition, ['`id` < ?', $max_id]);
 		}
 
 		if (isset($since_id)) {
-			$boundCondition[0] .= " AND `id` > ?";
-			$boundCondition[] = $since_id;
+			$boundCondition = DBA::mergeConditions($boundCondition, ['`id` > ?', $since_id]);
 		}
 
 		$params['limit'] = $limit;
 
 		$models = $this->selectModels($boundCondition, $params);
-
-		$totalCount = DBA::count(static::$table_name, $condition);
 
 		return new static::$collection_class($models, $totalCount);
 	}

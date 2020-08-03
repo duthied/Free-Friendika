@@ -28,7 +28,7 @@ use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\ContactRelation;
+use Friendica\Model\Contact;
 use Friendica\Module\BaseAdmin;
 use Friendica\Module\Register;
 use Friendica\Util\BasePath;
@@ -175,7 +175,7 @@ class Site extends BaseAdmin
 		$min_memory             = (!empty($_POST['min_memory'])             ? intval(trim($_POST['min_memory']))             : 0);
 		$optimize_max_tablesize = (!empty($_POST['optimize_max_tablesize']) ? intval(trim($_POST['optimize_max_tablesize'])) : 100);
 		$optimize_fragmentation = (!empty($_POST['optimize_fragmentation']) ? intval(trim($_POST['optimize_fragmentation'])) : 30);
-		$contact_discovery      = (!empty($_POST['contact_discovery'])      ? intval(trim($_POST['contact_discovery']))      : ContactRelation::DISCOVERY_NONE);
+		$contact_discovery      = (!empty($_POST['contact_discovery'])      ? intval(trim($_POST['contact_discovery']))      : Contact\Relation::DISCOVERY_NONE);
 		$synchronize_directory  = (!empty($_POST['synchronize_directory'])  ? intval(trim($_POST['synchronize_directory']))  : false);
 		$poco_requery_days      = (!empty($_POST['poco_requery_days'])      ? intval(trim($_POST['poco_requery_days']))      : 7);
 		$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : false);
@@ -532,9 +532,9 @@ class Site extends BaseAdmin
 		];
 
 		$discovery_choices = [
-			ContactRelation::DISCOVERY_NONE => DI::l10n()->t('none'),
-			ContactRelation::DISCOVERY_LOCAL => DI::l10n()->t('Local contacts'),
-			ContactRelation::DISCOVERY_INTERACTOR => DI::l10n()->t('Interactors'),
+			Contact\Relation::DISCOVERY_NONE => DI::l10n()->t('none'),
+			Contact\Relation::DISCOVERY_LOCAL => DI::l10n()->t('Local contacts'),
+			Contact\Relation::DISCOVERY_INTERACTOR => DI::l10n()->t('Interactors'),
 			// "All" is deactivated until we are sure not to put too much stress on the fediverse with this
 			// ContactRelation::DISCOVERY_ALL => DI::l10n()->t('All'),
 		];
