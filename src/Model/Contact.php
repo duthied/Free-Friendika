@@ -3057,40 +3057,6 @@ class Contact
 	}
 
 	/**
-	 * Returns a list of all common friends between two given public contact ids.
-	 *
-	 * @param int $cid1  first public contact id
-	 * @param int $cid2  second public contact id
-	 * @return int
-	 */
-	public static function countContactsOfContact(int $cid)
-	{
-		return DBA::count('contact',
-			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ?)
-			OR `id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ?)",
-			$cid, $cid]
-		);
-	}
-
-	/**
-	 * Returns a list of all contacts of a given public contact id.
-	 *
-	 * @param int $cid   public contact id
-	 * @param int $start optional, default 0
-	 * @param int $limit optional, default 80
-	 * @return array
-	 */
-	public static function getContactsOfContact(int $cid, int $start = 0, int $limit = 80)
-	{
-		return DBA::selectToArray('contact', [],
-			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ?)
-			OR `id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ?)",
-			$cid, $cid],
-			['limit' => [$start, $limit]]
-		);
-	}
-
-	/**
 	 * Add public contacts from an array
 	 *
 	 * @param array $urls
