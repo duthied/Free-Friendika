@@ -231,6 +231,7 @@ class Relation
 	 * Returns a paginated list of contacts that are followed the provided public contact.
 	 *
 	 * @param int   $cid       Public contact id
+	 * @param array $field     Field list
 	 * @param array $condition Additional condition on the contact table
 	 * @param int   $count
 	 * @param int   $offset
@@ -238,14 +239,14 @@ class Relation
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function listFollows(int $cid, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
+	public static function listFollows(int $cid, array $fields = [], array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
 	{
 		$condition = DBA::mergeConditions($condition,
 			['`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`)', 
 			$cid]
 		);
 
-		return DI::dba()->selectToArray('contact', [], $condition,
+		return DI::dba()->selectToArray('contact', $fields, $condition,
 			['limit' => [$offset, $count], 'order' => [$shuffle ? 'RAND()' : 'name']]
 		);
 	}
@@ -272,6 +273,7 @@ class Relation
 	 * Returns a paginated list of contacts that follow the provided public contact.
 	 *
 	 * @param int   $cid       Public contact id
+	 * @param array $field     Field list
 	 * @param array $condition Additional condition on the contact table
 	 * @param int   $count
 	 * @param int   $offset
@@ -279,17 +281,15 @@ class Relation
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function listFollowers(int $cid, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
+	public static function listFollowers(int $cid, array $fields = [], array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
 	{
 		$condition = DBA::mergeConditions($condition,
 			['`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`)', $cid]
 		);
 
-		$followers = DI::dba()->selectToArray('contact', [], $condition,
+		return DI::dba()->selectToArray('contact', $fields, $condition,
 			['limit' => [$offset, $count], 'order' => [$shuffle ? 'RAND()' : 'name']]
 		);
-
-		return $followers;
 	}
 
 	/**
@@ -310,9 +310,7 @@ class Relation
 			$sourceId, $targetId]
 		);
 
-		$total = DI::dba()->count('contact', $condition);
-
-		return $total;
+		return DI::dba()->count('contact', $condition);
 	}
 
 	/**
@@ -321,6 +319,7 @@ class Relation
 	 *
 	 * @param int   $sourceId  Public contact id
 	 * @param int   $targetId  Public contact id
+	 * @param array $field     Field list
 	 * @param array $condition Additional condition on the contact table
 	 * @param int   $count
 	 * @param int   $offset
@@ -328,7 +327,7 @@ class Relation
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function listCommon(int $sourceId, int $targetId, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
+	public static function listCommon(int $sourceId, int $targetId, array $fields = [], array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
 	{
 		$condition = DBA::mergeConditions($condition,
 			["`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`) 
@@ -336,11 +335,9 @@ class Relation
 			$sourceId, $targetId]
 		);
 
-		$contacts = DI::dba()->selectToArray('contact', [], $condition,
+		return DI::dba()->selectToArray('contact', $fields, $condition,
 			['limit' => [$offset, $count], 'order' => [$shuffle ? 'name' : 'RAND()']]
 		);
-
-		return $contacts;
 	}
 
 
@@ -361,9 +358,7 @@ class Relation
 			$sourceId, $targetId]
 		);
 
-		$total = DI::dba()->count('contact', $condition);
-
-		return $total;
+		return DI::dba()->count('contact', $condition);
 	}
 
 	/**
@@ -371,6 +366,7 @@ class Relation
 	 *
 	 * @param int   $sourceId  Public contact id
 	 * @param int   $targetId  Public contact id
+	 * @param array $field     Field list
 	 * @param array $condition Additional condition array on the contact table
 	 * @param int   $count
 	 * @param int   $offset
@@ -378,7 +374,7 @@ class Relation
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function listCommonFollows(int $sourceId, int $targetId, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
+	public static function listCommonFollows(int $sourceId, int $targetId, array $fields = [], array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
 	{
 		$condition = DBA::mergeConditions($condition,
 			["`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`) 
@@ -386,11 +382,9 @@ class Relation
 			$sourceId, $targetId]
 		);
 
-		$contacts = DI::dba()->selectToArray('contact', [], $condition,
+		return DI::dba()->selectToArray('contact', $fields, $condition,
 			['limit' => [$offset, $count], 'order' => [$shuffle ? 'name' : 'RAND()']]
 		);
-
-		return $contacts;
 	}
 
 	/**
@@ -418,6 +412,7 @@ class Relation
 	 *
 	 * @param int   $sourceId  Public contact id
 	 * @param int   $targetId  Public contact id
+	 * @param array $field     Field list
 	 * @param array $condition Additional condition on the contact table
 	 * @param int   $count
 	 * @param int   $offset
@@ -425,7 +420,7 @@ class Relation
 	 * @return array
 	 * @throws Exception
 	 */
-	public static function listCommonFollowers(int $sourceId, int $targetId, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
+	public static function listCommonFollowers(int $sourceId, int $targetId, array $fields = [], array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
 	{
 		$condition = DBA::mergeConditions($condition,
 			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`) 
@@ -433,7 +428,7 @@ class Relation
 			$sourceId, $targetId]
 		);
 
-		return DI::dba()->selectToArray('contact', [], $condition,
+		return DI::dba()->selectToArray('contact', $fields, $condition,
 			['limit' => [$offset, $count], 	'order' => [$shuffle ? 'name' : 'RAND()']]
 		);
 	}

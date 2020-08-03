@@ -67,7 +67,7 @@ class AllFriends extends BaseModule
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
-		$friends = Model\Contact\Relation::listFollows($cid, [], $pager->getItemsPerPage(), $pager->getStart());
+		$friends = Model\Contact\Relation::listFollows($cid, [], [], $pager->getItemsPerPage(), $pager->getStart());
 		if (empty($friends)) {
 			return DI::l10n()->t('No friends to display.');
 		}
