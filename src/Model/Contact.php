@@ -306,7 +306,7 @@ class Contact
 	 */
 	public static function isFollower($cid, $uid)
 	{
-		if (self::isBlockedByUser($cid, $uid)) {
+		if (Contact\User::isBlocked($cid, $uid)) {
 			return false;
 		}
 
@@ -352,7 +352,7 @@ class Contact
 	 */
 	public static function isSharing($cid, $uid)
 	{
-		if (self::isBlockedByUser($cid, $uid)) {
+		if (Contact\User::isBlocked($cid, $uid)) {
 			return false;
 		}
 
@@ -535,179 +535,6 @@ class Contact
 		} else {
 			return $contact;
 		}
-	}
-
-	/**
-	 * Block contact id for user id
-	 *
-	 * @param int     $cid     Either public contact id or user's contact id
-	 * @param int     $uid     User ID
-	 * @param boolean $blocked Is the contact blocked or unblocked?
-	 * @throws \Exception
-	 */
-	public static function setBlockedForUser($cid, $uid, $blocked)
-	{
-		$cdata = self::getPublicAndUserContacID($cid, $uid);
-		if (empty($cdata)) {
-			return;
-		}
-
-		if ($cdata['user'] != 0) {
-			DBA::update('contact', ['blocked' => $blocked], ['id' => $cdata['user'], 'pending' => false]);
-		}
-
-		DBA::update('user-contact', ['blocked' => $blocked], ['cid' => $cdata['public'], 'uid' => $uid], true);
-	}
-
-	/**
-	 * Returns "block" state for contact id and user id
-	 *
-	 * @param int $cid Either public contact id or user's contact id
-	 * @param int $uid User ID
-	 *
-	 * @return boolean is the contact id blocked for the given user?
-	 * @throws \Exception
-	 */
-	public static function isBlockedByUser($cid, $uid)
-	{
-		$cdata = self::getPublicAndUserContacID($cid, $uid);
-		if (empty($cdata)) {
-			return;
-		}
-
-		$public_blocked = false;
-
-		if (!empty($cdata['public'])) {
-			$public_contact = DBA::selectFirst('user-contact', ['blocked'], ['cid' => $cdata['public'], 'uid' => $uid]);
-			if (DBA::isResult($public_contact)) {
-				$public_blocked = $public_contact['blocked'];
-			}
-		}
-
-		$user_blocked = $public_blocked;
-
-		if (!empty($cdata['user'])) {
-			$user_contact = DBA::selectFirst('contact', ['blocked'], ['id' => $cdata['user'], 'pending' => false]);
-			if (DBA::isResult($user_contact)) {
-				$user_blocked = $user_contact['blocked'];
-			}
-		}
-
-		if ($user_blocked != $public_blocked) {
-			DBA::update('user-contact', ['blocked' => $user_blocked], ['cid' => $cdata['public'], 'uid' => $uid], true);
-		}
-
-		return $user_blocked;
-	}
-
-	/**
-	 * Ignore contact id for user id
-	 *
-	 * @param int     $cid     Either public contact id or user's contact id
-	 * @param int     $uid     User ID
-	 * @param boolean $ignored Is the contact ignored or unignored?
-	 * @throws \Exception
-	 */
-	public static function setIgnoredForUser($cid, $uid, $ignored)
-	{
-		$cdata = self::getPublicAndUserContacID($cid, $uid);
-		if (empty($cdata)) {
-			return;
-		}
-
-		if ($cdata['user'] != 0) {
-			DBA::update('contact', ['readonly' => $ignored], ['id' => $cdata['user'], 'pending' => false]);
-		}
-
-		DBA::update('user-contact', ['ignored' => $ignored], ['cid' => $cdata['public'], 'uid' => $uid], true);
-	}
-
-	/**
-	 * Returns "ignore" state for contact id and user id
-	 *
-	 * @param int $cid Either public contact id or user's contact id
-	 * @param int $uid User ID
-	 *
-	 * @return boolean is the contact id ignored for the given user?
-	 * @throws \Exception
-	 */
-	public static function isIgnoredByUser($cid, $uid)
-	{
-		$cdata = self::getPublicAndUserContacID($cid, $uid);
-		if (empty($cdata)) {
-			return;
-		}
-
-		$public_ignored = false;
-
-		if (!empty($cdata['public'])) {
-			$public_contact = DBA::selectFirst('user-contact', ['ignored'], ['cid' => $cdata['public'], 'uid' => $uid]);
-			if (DBA::isResult($public_contact)) {
-				$public_ignored = $public_contact['ignored'];
-			}
-		}
-
-		$user_ignored = $public_ignored;
-
-		if (!empty($cdata['user'])) {
-			$user_contact = DBA::selectFirst('contact', ['readonly'], ['id' => $cdata['user'], 'pending' => false]);
-			if (DBA::isResult($user_contact)) {
-				$user_ignored = $user_contact['readonly'];
-			}
-		}
-
-		if ($user_ignored != $public_ignored) {
-			DBA::update('user-contact', ['ignored' => $user_ignored], ['cid' => $cdata['public'], 'uid' => $uid], true);
-		}
-
-		return $user_ignored;
-	}
-
-	/**
-	 * Set "collapsed" for contact id and user id
-	 *
-	 * @param int     $cid       Either public contact id or user's contact id
-	 * @param int     $uid       User ID
-	 * @param boolean $collapsed are the contact's posts collapsed or uncollapsed?
-	 * @throws \Exception
-	 */
-	public static function setCollapsedForUser($cid, $uid, $collapsed)
-	{
-		$cdata = self::getPublicAndUserContacID($cid, $uid);
-		if (empty($cdata)) {
-			return;
-		}
-
-		DBA::update('user-contact', ['collapsed' => $collapsed], ['cid' => $cdata['public'], 'uid' => $uid], true);
-	}
-
-	/**
-	 * Returns "collapsed" state for contact id and user id
-	 *
-	 * @param int $cid Either public contact id or user's contact id
-	 * @param int $uid User ID
-	 *
-	 * @return boolean is the contact id blocked for the given user?
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function isCollapsedByUser($cid, $uid)
-	{
-		$cdata = self::getPublicAndUserContacID($cid, $uid);
-		if (empty($cdata)) {
-			return;
-		}
-
-		$collapsed = false;
-
-		if (!empty($cdata['public'])) {
-			$public_contact = DBA::selectFirst('user-contact', ['collapsed'], ['cid' => $cdata['public'], 'uid' => $uid]);
-			if (DBA::isResult($public_contact)) {
-				$collapsed = $public_contact['collapsed'];
-			}
-		}
-
-		return $collapsed;
 	}
 
 	/**
@@ -2588,7 +2415,7 @@ class Contact
 
 			// Contact is blocked at user-level
 			if (!empty($contact['id']) && !empty($importer['id']) &&
-				self::isBlockedByUser($contact['id'], $importer['id'])) {
+				Contact\User::isBlocked($contact['id'], $importer['id'])) {
 				return false;
 			}
 
@@ -2950,110 +2777,6 @@ class Contact
 
 		$contacts = DBA::toArray($results);
 		return $contacts;
-	}
-
-	/**
-	 * @param int $uid   user
-	 * @param int $start optional, default 0
-	 * @param int $limit optional, default 80
-	 * @return array
-	 */
-	static public function getSuggestions(int $uid, int $start = 0, int $limit = 80)
-	{
-		$cid = self::getPublicIdByUserId($uid);
-		$totallimit = $start + $limit;
-		$contacts = [];
-
-		Logger::info('Collecting suggestions', ['uid' => $uid, 'cid' => $cid, 'start' => $start, 'limit' => $limit]);
-
-		$diaspora = DI::config()->get('system', 'diaspora_enabled') ? Protocol::DIASPORA : Protocol::ACTIVITYPUB;
-		$ostatus = !DI::config()->get('system', 'ostatus_disabled') ? Protocol::OSTATUS : Protocol::ACTIVITYPUB;
-
-		// The query returns contacts where contacts interacted with whom the given user follows.
-		// Contacts who already are in the user's contact table are ignored.
-		$results = DBA::select('contact', [],
-			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
-				(SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ?)
-					AND NOT `cid` IN (SELECT `id` FROM `contact` WHERE `uid` = ? AND `nurl` IN
-						(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))))
-			AND NOT `hidden` AND `network` IN (?, ?, ?, ?)",
-			$cid, 0, $uid, Contact::FRIEND, Contact::SHARING,
-			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
-			['order' => ['last-item' => true], 'limit' => $totallimit]
-		);
-
-		while ($contact = DBA::fetch($results)) {
-			$contacts[$contact['id']] = $contact;
-		}
-		DBA::close($results);
-
-		Logger::info('Contacts of contacts who are followed by the given user', ['uid' => $uid, 'cid' => $cid, 'count' => count($contacts)]);
-
-		if (count($contacts) >= $totallimit) {
-			return array_slice($contacts, $start, $limit);
-		}
-
-		// The query returns contacts where contacts interacted with whom also interacted with the given user.
-		// Contacts who already are in the user's contact table are ignored.
-		$results = DBA::select('contact', [],
-			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
-				(SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ?)
-					AND NOT `cid` IN (SELECT `id` FROM `contact` WHERE `uid` = ? AND `nurl` IN
-						(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))))
-			AND NOT `hidden` AND `network` IN (?, ?, ?, ?)",
-			$cid, 0, $uid, Contact::FRIEND, Contact::SHARING,
-			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
-			['order' => ['last-item' => true], 'limit' => $totallimit]
-		);
-
-		while ($contact = DBA::fetch($results)) {
-			$contacts[$contact['id']] = $contact;
-		}
-		DBA::close($results);
-
-		Logger::info('Contacts of contacts who are following the given user', ['uid' => $uid, 'cid' => $cid, 'count' => count($contacts)]);
-
-		if (count($contacts) >= $totallimit) {
-			return array_slice($contacts, $start, $limit);
-		}
-
-		// The query returns contacts that follow the given user but aren't followed by that user.
-		$results = DBA::select('contact', [],
-			["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` = ?)
-			AND NOT `hidden` AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
-			$uid, Contact::FOLLOWER, 0, 
-			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
-			['order' => ['last-item' => true], 'limit' => $totallimit]
-		);
-
-		while ($contact = DBA::fetch($results)) {
-			$contacts[$contact['id']] = $contact;
-		}
-		DBA::close($results);
-
-		Logger::info('Followers that are not followed by the given user', ['uid' => $uid, 'cid' => $cid, 'count' => count($contacts)]);
-
-		if (count($contacts) >= $totallimit) {
-			return array_slice($contacts, $start, $limit);
-		}
-
-		// The query returns any contact that isn't followed by that user.
-		$results = DBA::select('contact', [],
-			["NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))
-			AND NOT `hidden` AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
-			$uid, Contact::FRIEND, Contact::SHARING, 0, 
-			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
-			['order' => ['last-item' => true], 'limit' => $totallimit]
-		);
-
-		while ($contact = DBA::fetch($results)) {
-			$contacts[$contact['id']] = $contact;
-		}
-		DBA::close($results);
-
-		Logger::info('Any contact', ['uid' => $uid, 'cid' => $cid, 'count' => count($contacts)]);
-
-		return array_slice($contacts, $start, $limit);
 	}
 
 	/**

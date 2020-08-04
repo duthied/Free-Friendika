@@ -1394,7 +1394,7 @@ class Item
 			return false;
 		}
 
-		if (!empty($item['uid']) && Contact::isBlockedByUser($item['author-id'], $item['uid'])) {
+		if (!empty($item['uid']) && Contact\User::isBlocked($item['author-id'], $item['uid'])) {
 			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
 			return false;
 		}
@@ -1409,18 +1409,18 @@ class Item
 			return false;
 		}
 
-		if (!empty($item['uid']) && Contact::isBlockedByUser($item['owner-id'], $item['uid'])) {
+		if (!empty($item['uid']) && Contact\User::isBlocked($item['owner-id'], $item['uid'])) {
 			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
 			return false;
 		}
 
 		// The causer is set during a thread completion, for example because of a reshare. It countains the responsible actor.
-		if (!empty($item['uid']) && !empty($item['causer-id']) && Contact::isBlockedByUser($item['causer-id'], $item['uid'])) {
+		if (!empty($item['uid']) && !empty($item['causer-id']) && Contact\User::isBlocked($item['causer-id'], $item['uid'])) {
 			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
 			return false;
 		}
 
-		if (!empty($item['uid']) && !empty($item['causer-id']) && ($item['parent-uri'] == $item['uri']) && Contact::isIgnoredByUser($item['causer-id'], $item['uid'])) {
+		if (!empty($item['uid']) && !empty($item['causer-id']) && ($item['parent-uri'] == $item['uri']) && Contact\User::isIgnored($item['causer-id'], $item['uid'])) {
 			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
 			return false;
 		}
