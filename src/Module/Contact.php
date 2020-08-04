@@ -196,8 +196,8 @@ class Contact extends BaseModule
 	 */
 	private static function blockContact($contact_id)
 	{
-		$blocked = !Model\Contact::isBlockedByUser($contact_id, local_user());
-		Model\Contact::setBlockedForUser($contact_id, local_user(), $blocked);
+		$blocked = !Model\Contact\User::isBlocked($contact_id, local_user());
+		Model\Contact\User::setBlocked($contact_id, local_user(), $blocked);
 	}
 
 	/**
@@ -208,8 +208,8 @@ class Contact extends BaseModule
 	 */
 	private static function ignoreContact($contact_id)
 	{
-		$ignored = !Model\Contact::isIgnoredByUser($contact_id, local_user());
-		Model\Contact::setIgnoredForUser($contact_id, local_user(), $ignored);
+		$ignored = !Model\Contact\User::isIgnored($contact_id, local_user());
+		Model\Contact\User::setIgnored($contact_id, local_user(), $ignored);
 	}
 
 	/**
@@ -395,7 +395,7 @@ class Contact extends BaseModule
 			if ($cmd === 'block') {
 				self::blockContact($contact_id);
 
-				$blocked = Model\Contact::isBlockedByUser($contact_id, local_user());
+				$blocked = Model\Contact\User::isBlocked($contact_id, local_user());
 				info(($blocked ? DI::l10n()->t('Contact has been blocked') : DI::l10n()->t('Contact has been unblocked')));
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
@@ -405,7 +405,7 @@ class Contact extends BaseModule
 			if ($cmd === 'ignore') {
 				self::ignoreContact($contact_id);
 
-				$ignored = Model\Contact::isIgnoredByUser($contact_id, local_user());
+				$ignored = Model\Contact\User::isIgnored($contact_id, local_user());
 				info(($ignored ? DI::l10n()->t('Contact has been ignored') : DI::l10n()->t('Contact has been unignored')));
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
@@ -479,8 +479,8 @@ class Contact extends BaseModule
 				'$baseurl' => DI::baseUrl()->get(true),
 			]);
 
-			$contact['blocked']  = Model\Contact::isBlockedByUser($contact['id'], local_user());
-			$contact['readonly'] = Model\Contact::isIgnoredByUser($contact['id'], local_user());
+			$contact['blocked']  = Model\Contact\User::isBlocked($contact['id'], local_user());
+			$contact['readonly'] = Model\Contact\User::isIgnored($contact['id'], local_user());
 
 			$relation_text = '';
 			switch ($contact['rel']) {
@@ -738,8 +738,8 @@ class Contact extends BaseModule
 			$sql_values
 		);
 		while ($contact = DBA::fetch($stmt)) {
-			$contact['blocked'] = Model\Contact::isBlockedByUser($contact['id'], local_user());
-			$contact['readonly'] = Model\Contact::isIgnoredByUser($contact['id'], local_user());
+			$contact['blocked'] = Model\Contact\User::isBlocked($contact['id'], local_user());
+			$contact['readonly'] = Model\Contact\User::isIgnored($contact['id'], local_user());
 			$contacts[] = self::getContactTemplateVars($contact);
 		}
 		DBA::close($stmt);

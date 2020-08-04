@@ -376,8 +376,8 @@ function update_1327()
 {
 	$contacts = DBA::select('contact', ['uid', 'id', 'blocked', 'readonly'], ["`uid` != ? AND (`blocked` OR `readonly`) AND NOT `pending`", 0]);
 	while ($contact = DBA::fetch($contacts)) {
-		Contact::setBlockedForUser($contact['id'], $contact['uid'], $contact['blocked']);
-		Contact::setIgnoredForUser($contact['id'], $contact['uid'], $contact['readonly']);
+		Contact\User::setBlocked($contact['id'], $contact['uid'], $contact['blocked']);
+		Contact\User::setIgnored($contact['id'], $contact['uid'], $contact['readonly']);
 	}
 	DBA::close($contacts);
 

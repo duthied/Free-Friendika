@@ -39,7 +39,7 @@ function suggest_content(App $a)
 	DI::page()['aside'] .= Widget::findPeople();
 	DI::page()['aside'] .= Widget::follow();
 
-	$contacts = Contact::getSuggestions(local_user());
+	$contacts = Contact\Relation::getSuggestions(local_user());
 	if (!DBA::isResult($contacts)) {
 		return DI::l10n()->t('No suggestions available. If this is a new site, please try again in 24 hours.');
 	}

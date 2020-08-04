@@ -210,6 +210,110 @@ class Relation
 	}
 
 	/**
+	 * @param int $uid   user
+	 * @param int $start optional, default 0
+	 * @param int $limit optional, default 80
+	 * @return array
+	 */
+	static public function getSuggestions(int $uid, int $start = 0, int $limit = 80)
+	{
+		$cid = Contact::getPublicIdByUserId($uid);
+		$totallimit = $start + $limit;
+		$contacts = [];
+
+		Logger::info('Collecting suggestions', ['uid' => $uid, 'cid' => $cid, 'start' => $start, 'limit' => $limit]);
+
+		$diaspora = DI::config()->get('system', 'diaspora_enabled') ? Protocol::DIASPORA : Protocol::ACTIVITYPUB;
+		$ostatus = !DI::config()->get('system', 'ostatus_disabled') ? Protocol::OSTATUS : Protocol::ACTIVITYPUB;
+
+		// The query returns contacts where contacts interacted with whom the given user follows.
+		// Contacts who already are in the user's contact table are ignored.
+		$results = DBA::select('contact', [],
+			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
+				(SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ?)
+					AND NOT `cid` IN (SELECT `id` FROM `contact` WHERE `uid` = ? AND `nurl` IN
+						(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))))
+			AND NOT `hidden` AND `network` IN (?, ?, ?, ?)",
+			$cid, 0, $uid, Contact::FRIEND, Contact::SHARING,
+			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
+			['order' => ['last-item' => true], 'limit' => $totallimit]
+		);
+
+		while ($contact = DBA::fetch($results)) {
+			$contacts[$contact['id']] = $contact;
+		}
+		DBA::close($results);
+
+		Logger::info('Contacts of contacts who are followed by the given user', ['uid' => $uid, 'cid' => $cid, 'count' => count($contacts)]);
+
+		if (count($contacts) >= $totallimit) {
+			return array_slice($contacts, $start, $limit);
+		}
+
+		// The query returns contacts where contacts interacted with whom also interacted with the given user.
+		// Contacts who already are in the user's contact table are ignored.
+		$results = DBA::select('contact', [],
+			["`id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` IN
+				(SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ?)
+					AND NOT `cid` IN (SELECT `id` FROM `contact` WHERE `uid` = ? AND `nurl` IN
+						(SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))))
+			AND NOT `hidden` AND `network` IN (?, ?, ?, ?)",
+			$cid, 0, $uid, Contact::FRIEND, Contact::SHARING,
+			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
+			['order' => ['last-item' => true], 'limit' => $totallimit]
+		);
+
+		while ($contact = DBA::fetch($results)) {
+			$contacts[$contact['id']] = $contact;
+		}
+		DBA::close($results);
+
+		Logger::info('Contacts of contacts who are following the given user', ['uid' => $uid, 'cid' => $cid, 'count' => count($contacts)]);
+
+		if (count($contacts) >= $totallimit) {
+			return array_slice($contacts, $start, $limit);
+		}
+
+		// The query returns contacts that follow the given user but aren't followed by that user.
+		$results = DBA::select('contact', [],
+			["`nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` = ?)
+			AND NOT `hidden` AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
+			$uid, Contact::FOLLOWER, 0, 
+			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
+			['order' => ['last-item' => true], 'limit' => $totallimit]
+		);
+
+		while ($contact = DBA::fetch($results)) {
+			$contacts[$contact['id']] = $contact;
+		}
+		DBA::close($results);
+
+		Logger::info('Followers that are not followed by the given user', ['uid' => $uid, 'cid' => $cid, 'count' => count($contacts)]);
+
+		if (count($contacts) >= $totallimit) {
+			return array_slice($contacts, $start, $limit);
+		}
+
+		// The query returns any contact that isn't followed by that user.
+		$results = DBA::select('contact', [],
+			["NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))
+			AND NOT `hidden` AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
+			$uid, Contact::FRIEND, Contact::SHARING, 0, 
+			Protocol::ACTIVITYPUB, Protocol::DFRN, $diaspora, $ostatus],
+			['order' => ['last-item' => true], 'limit' => $totallimit]
+		);
+
+		while ($contact = DBA::fetch($results)) {
+			$contacts[$contact['id']] = $contact;
+		}
+		DBA::close($results);
+
+		Logger::info('Any contact', ['uid' => $uid, 'cid' => $cid, 'count' => count($contacts)]);
+
+		return array_slice($contacts, $start, $limit);
+	}
+
+	/**
 	 * Counts all the known follows of the provided public contact
 	 *
 	 * @param int   $cid       Public contact id
