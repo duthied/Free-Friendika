@@ -109,7 +109,7 @@ class Cron
 			DBA::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 1 HOUR']);
 
 			// Optimizing this table only last seconds
-			if (DI::config()->get('system', 'optimize_workerqueue', false)) {
+			if (DI::config()->get('system', 'optimize_tables')) {
 				DBA::e("OPTIMIZE TABLE `workerqueue`");
 			}
 

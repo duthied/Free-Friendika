@@ -173,8 +173,7 @@ class Site extends BaseAdmin
 		$maxloadavg             = (!empty($_POST['maxloadavg'])             ? intval(trim($_POST['maxloadavg']))             : 20);
 		$maxloadavg_frontend    = (!empty($_POST['maxloadavg_frontend'])    ? intval(trim($_POST['maxloadavg_frontend']))    : 50);
 		$min_memory             = (!empty($_POST['min_memory'])             ? intval(trim($_POST['min_memory']))             : 0);
-		$optimize_max_tablesize = (!empty($_POST['optimize_max_tablesize']) ? intval(trim($_POST['optimize_max_tablesize'])) : 100);
-		$optimize_fragmentation = (!empty($_POST['optimize_fragmentation']) ? intval(trim($_POST['optimize_fragmentation'])) : 30);
+		$optimize_tables        = (!empty($_POST['optimize_tables'])        ? intval(trim($_POST['optimize_tables']))        : false);
 		$contact_discovery      = (!empty($_POST['contact_discovery'])      ? intval(trim($_POST['contact_discovery']))      : Contact\Relation::DISCOVERY_NONE);
 		$synchronize_directory  = (!empty($_POST['synchronize_directory'])  ? intval(trim($_POST['synchronize_directory']))  : false);
 		$poco_requery_days      = (!empty($_POST['poco_requery_days'])      ? intval(trim($_POST['poco_requery_days']))      : 7);
@@ -301,8 +300,7 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'maxloadavg'            , $maxloadavg);
 		DI::config()->set('system', 'maxloadavg_frontend'   , $maxloadavg_frontend);
 		DI::config()->set('system', 'min_memory'            , $min_memory);
-		DI::config()->set('system', 'optimize_max_tablesize', $optimize_max_tablesize);
-		DI::config()->set('system', 'optimize_fragmentation', $optimize_fragmentation);
+		DI::config()->set('system', 'optimize_tables'       , $optimize_tables);
 		DI::config()->set('system', 'contact_discovery'     , $contact_discovery);
 		DI::config()->set('system', 'synchronize_directory' , $synchronize_directory);
 		DI::config()->set('system', 'poco_requery_days'     , $poco_requery_days);
@@ -657,8 +655,7 @@ class Site extends BaseAdmin
 			'$maxloadavg'             => ['maxloadavg', DI::l10n()->t('Maximum Load Average'), DI::config()->get('system', 'maxloadavg', 20), DI::l10n()->t('Maximum system load before delivery and poll processes are deferred - default %d.', 20)],
 			'$maxloadavg_frontend'    => ['maxloadavg_frontend', DI::l10n()->t('Maximum Load Average (Frontend)'), DI::config()->get('system', 'maxloadavg_frontend', 50), DI::l10n()->t('Maximum system load before the frontend quits service - default 50.')],
 			'$min_memory'             => ['min_memory', DI::l10n()->t('Minimal Memory'), DI::config()->get('system', 'min_memory', 0), DI::l10n()->t('Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).')],
-			'$optimize_max_tablesize' => ['optimize_max_tablesize', DI::l10n()->t('Maximum table size for optimization'), $optimize_max_tablesize, DI::l10n()->t('Maximum table size (in MB) for the automatic optimization. Enter -1 to disable it.')],
-			'$optimize_fragmentation' => ['optimize_fragmentation', DI::l10n()->t('Minimum level of fragmentation'), DI::config()->get('system', 'optimize_fragmentation', 30), DI::l10n()->t('Minimum fragmenation level to start the automatic optimization - default value is 30%.')],
+			'$optimize_tables'        => ['optimize_tables', DI::l10n()->t('Periodically optimize tables'), DI::config()->get('system', 'optimize_tables', false), DI::l10n()->t('Periodically optimize tables like the cache and the workerqueue')],
 
 			'$contact_discovery'      => ['contact_discovery', DI::l10n()->t('Discover followers/followings from contacts'), DI::config()->get('system', 'contact_discovery'), DI::l10n()->t('If enabled, contacts are checked for their followers and following contacts.') . '<ul>' .
 				'<li>' . DI::l10n()->t('None - deactivated') . '</li>' .

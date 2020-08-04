@@ -193,46 +193,18 @@ class CronJobs
 		// Delete the cached "parse_url" entries that are older than three month
 		DBA::delete('parsed_url', ["`created` < NOW() - INTERVAL 3 MONTH"]);
 
-		// Maximum table size in megabyte
-		$max_tablesize = intval(DI::config()->get('system', 'optimize_max_tablesize')) * 1000000;
-		if ($max_tablesize == 0) {
-			$max_tablesize = 100 * 1000000; // Default are 100 MB
-		}
-		if ($max_tablesize > 0) {
-			// Minimum fragmentation level in percent
-			$fragmentation_level = intval(DI::config()->get('system', 'optimize_fragmentation')) / 100;
-			if ($fragmentation_level == 0) {
-				$fragmentation_level = 0.3; // Default value is 30%
-			}
-
-			// Optimize some tables that need to be optimized
-			$r = q("SHOW TABLE STATUS");
-			foreach ($r as $table) {
-
-				// Don't optimize tables that are too large
-				if ($table["Data_length"] > $max_tablesize) {
-					continue;
-				}
-
-				// Don't optimize empty tables
-				if ($table["Data_length"] == 0) {
-					continue;
-				}
-
-				// Calculate fragmentation
-				$fragmentation = $table["Data_free"] / ($table["Data_length"] + $table["Index_length"]);
-
-				Logger::log("Table " . $table["Name"] . " - Fragmentation level: " . round($fragmentation * 100, 2), Logger::DEBUG);
-
-				// Don't optimize tables that needn't to be optimized
-				if ($fragmentation < $fragmentation_level) {
-					continue;
-				}
-
-				// So optimize it
-				Logger::log("Optimize Table " . $table["Name"], Logger::DEBUG);
-				q("OPTIMIZE TABLE `%s`", DBA::escape($table["Name"]));
-			}
+		if (DI::config()->get('system', 'optimize_tables')) {
+			Logger::info('Optimize start');
+			DBA::e("OPTIMIZE TABLE `auth_codes`");
+			DBA::e("OPTIMIZE TABLE `cache`");
+			DBA::e("OPTIMIZE TABLE `challenge`");
+			DBA::e("OPTIMIZE TABLE `locks`");
+			DBA::e("OPTIMIZE TABLE `oembed`");
+			DBA::e("OPTIMIZE TABLE `parsed_url`");
+			DBA::e("OPTIMIZE TABLE `profile_check`");
+			DBA::e("OPTIMIZE TABLE `session`");
+			DBA::e("OPTIMIZE TABLE `tokens`");
+			Logger::info('Optimize finished');			
 		}
 
 		DI::config()->set('system', 'cache_last_cleared', time());
