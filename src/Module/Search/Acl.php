@@ -56,7 +56,6 @@ class Acl extends BaseModule
 		}
 
 		$type = $_REQUEST['type'] ?? self::TYPE_MENTION_CONTACT_GROUP;
-Logger::info('Blubb', ['parameters' => $parameters]);
 		if ($type === self::TYPE_GLOBAL_CONTACT) {
 			$o = self::globalContactSearch();
 		} else {
