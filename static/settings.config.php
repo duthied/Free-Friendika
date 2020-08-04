@@ -146,6 +146,10 @@ return [
 		// in the user settings, this controls the maximum file
 		// size of the upload file.
 		'max_csv_file_size' => 30720,
+
+		// optimize_tables (Boolean)
+		// Periodically (once an hour) run an "optimize table" command for cache tables
+		'optimize_tables' => false,
 	],
 
 	// Used in the admin settings to lock certain features

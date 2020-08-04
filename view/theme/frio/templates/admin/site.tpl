@@ -190,8 +190,6 @@
 						{{include file="field_input.tpl" field=$proxyuser}}
 						{{include file="field_input.tpl" field=$timeout}}
 						{{include file="field_input.tpl" field=$maxloadavg_frontend}}
-						{{include file="field_input.tpl" field=$optimize_max_tablesize}}
-						{{include file="field_input.tpl" field=$optimize_fragmentation}}
 						{{include file="field_input.tpl" field=$abandon_days}}
 						{{include file="field_input.tpl" field=$temppath}}
 						{{include file="field_checkbox.tpl" field=$suppress_tags}}
@@ -254,6 +252,7 @@
 						{{include file="field_input.tpl" field=$dbclean_expire_days}}
 						{{include file="field_input.tpl" field=$dbclean_unclaimed}}
 						{{include file="field_input.tpl" field=$dbclean_expire_conv}}
+						{{include file="field_checkbox.tpl" field=$optimize_tables}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
