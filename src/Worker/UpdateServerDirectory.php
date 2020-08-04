@@ -60,8 +60,8 @@ class UpdateServerDirectory
 		Logger::info('PoCo discovery started', ['poco' => $gserver['poco']]);
 
 		$urls = [];
-		foreach (array_column($contacts['entry'], 'urls') as $urls) {
-			foreach ($urls as $url_entry) {
+		foreach (array_column($contacts['entry'], 'urls') as $url_entries) {
+			foreach ($url_entries as $url_entry) {
 				if (empty($url_entry['type']) || empty($url_entry['value'])) {
 					continue;
 				}
