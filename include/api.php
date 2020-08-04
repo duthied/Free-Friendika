@@ -5271,7 +5271,7 @@ function api_friendica_group_show($type)
 	// loop through all groups and retrieve all members for adding data in the user array
 	$grps = [];
 	foreach ($r as $rr) {
-		$members = Contact::getByGroupId($rr['id']);
+		$members = Contact\Group::getById($rr['id']);
 		$users = [];
 
 		if ($type == "xml") {
@@ -5596,7 +5596,7 @@ function api_friendica_group_update($type)
 	}
 
 	// remove members
-	$members = Contact::getByGroupId($gid);
+	$members = Contact\Group::getById($gid);
 	foreach ($members as $member) {
 		$cid = $member['id'];
 		foreach ($users as $user) {

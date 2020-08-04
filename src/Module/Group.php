@@ -239,7 +239,7 @@ class Group extends BaseModule
 				DI::baseUrl()->redirect('contact');
 			}
 
-			$members = Model\Contact::getByGroupId($group['id']);
+			$members = Model\Contact\Group::getById($group['id']);
 			$preselected = [];
 
 			if (count($members)) {
@@ -255,7 +255,7 @@ class Group extends BaseModule
 					Model\Group::addMember($group['id'], $change);
 				}
 
-				$members = Model\Contact::getByGroupId($group['id']);
+				$members = Model\Contact\Group::getById($group['id']);
 				$preselected = [];
 				if (count($members)) {
 					foreach ($members as $member) {
@@ -316,7 +316,7 @@ class Group extends BaseModule
 		}
 
 		if ($nogroup) {
-			$contacts = Model\Contact::getUngroupedList(local_user());
+			$contacts = Model\Contact\Group::getUngrouped(local_user());
 		} else {
 			$contacts_stmt = DBA::select('contact', [],
 				['uid' => local_user(), 'pending' => false, 'blocked' => false, 'self' => false],

@@ -538,41 +538,6 @@ class Contact
 	}
 
 	/**
-	 * Returns a list of contacts belonging in a group
-	 *
-	 * @param int $gid
-	 * @return array
-	 * @throws \Exception
-	 */
-	public static function getByGroupId($gid)
-	{
-		$return = [];
-
-		if (intval($gid)) {
-			$stmt = DBA::p('SELECT `group_member`.`contact-id`, `contact`.*
-				FROM `contact`
-				INNER JOIN `group_member`
-					ON `contact`.`id` = `group_member`.`contact-id`
-				WHERE `gid` = ?
-				AND `contact`.`uid` = ?
-				AND NOT `contact`.`self`
-				AND NOT `contact`.`deleted`
-				AND NOT `contact`.`blocked`
-				AND NOT `contact`.`pending`
-				ORDER BY `contact`.`name` ASC',
-				$gid,
-				local_user()
-			);
-
-			if (DBA::isResult($stmt)) {
-				$return = DBA::toArray($stmt);
-			}
-		}
-
-		return $return;
-	}
-
-	/**
 	 * Creates the self-contact for the provided user id
 	 *
 	 * @param int $uid
@@ -1027,33 +992,6 @@ class Contact
 		}
 
 		return $menucondensed;
-	}
-
-	/**
-	 * Returns ungrouped contact count or list for user
-	 *
-	 * Returns either the total number of ungrouped contacts for the given user
-	 * id or a paginated list of ungrouped contacts.
-	 *
-	 * @param int $uid uid
-	 * @return array
-	 * @throws \Exception
-	 */
-	public static function getUngroupedList($uid)
-	{
-		return q("SELECT *
-			   FROM `contact`
-			   WHERE `uid` = %d
-			   AND NOT `self`
-			   AND NOT `deleted`
-			   AND NOT `blocked`
-			   AND NOT `pending`
-			   AND `id` NOT IN (
-			   	SELECT DISTINCT(`contact-id`)
-			   	FROM `group_member`
-			   	INNER JOIN `group` ON `group`.`id` = `group_member`.`gid`
-			   	WHERE `group`.`uid` = %d
-			   )", intval($uid), intval($uid));
 	}
 
 	/**
@@ -2682,18 +2620,6 @@ class Contact
 		}
 
 		return $redirect;
-	}
-
-	/**
-	 * Remove a contact from all groups
-	 *
-	 * @param integer $contact_id
-	 *
-	 * @return boolean Success
-	 */
-	public static function removeFromGroups($contact_id)
-	{
-		return DBA::delete('group_member', ['contact-id' => $contact_id]);
 	}
 
 	/**
