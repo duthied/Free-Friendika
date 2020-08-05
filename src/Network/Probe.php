@@ -38,6 +38,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
 use Friendica\Util\Crypto;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
@@ -2008,5 +2009,166 @@ class Probe
 		Logger::debug('Avatar fixed', ['base' => $base, 'avatar' => $avatar, 'fixed' => $fixed]);
 
 		return $fixed;
+	}
+
+	/**
+	 * Fetch the last date that the contact had posted something (publically)
+	 *
+	 * @param string $data  probing result
+	 * @return string last activity
+	 */
+	public static function getLastUpdate(array $data)
+	{
+		if ($lastUpdate = self::updateFromNoScrape($data)) {
+			return $lastUpdate;
+		}
+
+		if (!empty($data['outbox'])) {
+			return self::updateFromOutbox($data['outbox'], $data);
+		} elseif (!empty($data['poll']) && ($data['network'] == Protocol::ACTIVITYPUB)) {
+			return self::updateFromOutbox($data['poll'], $data);
+		} elseif (!empty($data['poll'])) {
+			return self::updateFromFeed($data);
+		}
+
+		return '';
+	}
+
+	/**
+	 * Fetch the last activity date from the "noscrape" endpoint
+	 *
+	 * @param array $data Probing result
+	 * @return string last activity
+	 *
+	 * @return bool 'true' if update was successful or the server was unreachable
+	 */
+	private static function updateFromNoScrape(array $data)
+	{
+		if (empty($data['baseurl'])) {
+			return '';
+		}
+
+		// Check the 'noscrape' endpoint when it is a Friendica server
+		$gserver = DBA::selectFirst('gserver', ['noscrape'], ["`nurl` = ? AND `noscrape` != ''",
+			Strings::normaliseLink($data['baseurl'])]);
+		if (!DBA::isResult($gserver)) {
+			return '';
+		}
+
+		$curlResult = DI::httpRequest()->get($gserver['noscrape'] . '/' . $data['nick']);
+
+		if ($curlResult->isSuccess() && !empty($curlResult->getBody())) {
+			$noscrape = json_decode($curlResult->getBody(), true);
+			if (!empty($noscrape) && !empty($noscrape['updated'])) {
+				return DateTimeFormat::utc($noscrape['updated'], DateTimeFormat::MYSQL);
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Fetch the last activity date from an ActivityPub Outbox
+	 *
+	 * @param string $feed
+	 * @param array  $data Probing result
+	 * @return string last activity
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function updateFromOutbox(string $feed, array $data)
+	{
+		$outbox = ActivityPub::fetchContent($feed);
+		if (empty($outbox)) {
+			return '';
+		}
+
+		if (!empty($outbox['orderedItems'])) {
+			$items = $outbox['orderedItems'];
+		} elseif (!empty($outbox['first']['orderedItems'])) {
+			$items = $outbox['first']['orderedItems'];
+		} elseif (!empty($outbox['first']['href']) && ($outbox['first']['href'] != $feed)) {
+			return self::updateFromOutbox($outbox['first']['href'], $data);
+		} elseif (!empty($outbox['first'])) {
+			if (is_string($outbox['first']) && ($outbox['first'] != $feed)) {
+				return self::updateFromOutbox($outbox['first'], $data);
+			} else {
+				Logger::warning('Unexpected data', ['outbox' => $outbox]);
+			}
+			return '';
+		} else {
+			$items = [];
+		}
+
+		$last_updated = '';
+		foreach ($items as $activity) {
+			if (!empty($activity['published'])) {
+				$published =  DateTimeFormat::utc($activity['published']);
+			} elseif (!empty($activity['object']['published'])) {
+				$published =  DateTimeFormat::utc($activity['object']['published']);
+			} else {
+				continue;
+			}
+
+			if ($last_updated < $published) {
+				$last_updated = $published;
+			}
+		}
+
+		if (!empty($last_updated)) {
+			return $last_updated;
+		}
+
+		return '';
+	}
+
+	/**
+	 * Fetch the last activity date from an XML feed
+	 *
+	 * @param array $data Probing result
+	 * @return string last activity
+	 */
+	private static function updateFromFeed(array $data)
+	{
+		// Search for the newest entry in the feed
+		$curlResult = DI::httpRequest()->get($data['poll']);
+		if (!$curlResult->isSuccess()) {
+			return '';
+		}
+
+		$doc = new DOMDocument();
+		@$doc->loadXML($curlResult->getBody());
+
+		$xpath = new DOMXPath($doc);
+		$xpath->registerNamespace('atom', 'http://www.w3.org/2005/Atom');
+
+		$entries = $xpath->query('/atom:feed/atom:entry');
+
+		$last_updated = '';
+
+		foreach ($entries as $entry) {
+			$published_item = $xpath->query('atom:published/text()', $entry)->item(0);
+			$updated_item   = $xpath->query('atom:updated/text()'  , $entry)->item(0);
+			$published      = !empty($published_item->nodeValue) ? DateTimeFormat::utc($published_item->nodeValue) : null;
+			$updated        = !empty($updated_item->nodeValue) ? DateTimeFormat::utc($updated_item->nodeValue) : null;
+
+			if (empty($published) || empty($updated)) {
+				Logger::notice('Invalid entry for XPath.', ['entry' => $entry, 'url' => $data['url']]);
+				continue;
+			}
+
+			if ($last_updated < $published) {
+				$last_updated = $published;
+			}
+
+			if ($last_updated < $updated) {
+				$last_updated = $updated;
+			}
+		}
+
+		if (!empty($last_updated)) {
+			return $last_updated;
+		}
+
+		return '';
 	}
 }
