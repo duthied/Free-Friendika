@@ -28,43 +28,38 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Profile;
-use Friendica\Module\BaseProfile;
-use Friendica\Module\Contact as ModuleContact;
+use Friendica\Model;
+use Friendica\Module;
+use Friendica\Network\HTTPException;
 
-class Contacts extends BaseProfile
+class Contacts extends Module\BaseProfile
 {
 	public static function content(array $parameters = [])
 	{
 		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
-			throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
 		$a = DI::app();
 
-		//@TODO: Get value from router parameters
-		$nickname = $a->argv[1];
-		$type = ($a->argv[3] ?? '') ?: 'all';
+		$nickname = $parameters['nickname'];
+		$type = $parameters['type'] ?? 'all';
 
-		Nav::setSelected('home');
+		Model\Profile::load($a, $nickname);
 
-		$user = DBA::selectFirst('user', [], ['nickname' => $nickname, 'blocked' => false]);
-		if (!DBA::isResult($user)) {
-			throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		if (empty($a->profile)) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		$a->profile_uid  = $user['uid'];
+		if (!empty($a->profile['hide-friends'])) {
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		}
 
-		Profile::load($a, $nickname);
+		Nav::setSelected('home');
 
 		$is_owner = $a->profile['uid'] == local_user();
 
 		$o = self::getTabsHTML($a, 'contacts', $is_owner, $nickname);
-
-		if (!count($a->profile) || $a->profile['hide-friends']) {
-			notice(DI::l10n()->t('Permission denied.'));
-			return $o;
-		}
 
 		$condition = [
 			'uid'     => $a->profile['uid'],
@@ -72,13 +67,14 @@ class Contacts extends BaseProfile
 			'pending' => false,
 			'hidden'  => false,
 			'archive' => false,
+			'self'    => false,
 			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED]
 		];
 
 		switch ($type) {
-			case 'followers': $condition['rel'] = [1, 3]; break;
-			case 'following': $condition['rel'] = [2, 3]; break;
-			case 'mutuals': $condition['rel'] = 3; break;
+			case 'followers': $condition['rel'] = [Model\Contact::FOLLOWER, Model\Contact::FRIEND]; break;
+			case 'following': $condition['rel'] = [Model\Contact::SHARING,  Model\Contact::FRIEND]; break;
+			case 'mutuals':   $condition['rel'] = Model\Contact::FRIEND; break;
 		}
 
 		$total = DBA::count('contact', $condition);
@@ -87,42 +83,44 @@ class Contacts extends BaseProfile
 
 		$params = ['order' => ['name' => false], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 
-		$contacts_stmt = DBA::select('contact', [], $condition, $params);
+		$contacts = array_map(
+			[Module\Contact::class, 'getContactTemplateVars'],
+			Model\Contact::selectToArray([], $condition, $params)
+		);
 
-		if (!DBA::isResult($contacts_stmt)) {
-			notice(DI::l10n()->t('No contacts.'));
-			return $o;
-		}
-
-		$contacts = [];
-
-		while ($contact = DBA::fetch($contacts_stmt)) {
-			if ($contact['self']) {
-				continue;
-			}
-			$contacts[] = ModuleContact::getContactTemplateVars($contact);
-		}
-
-		DBA::close($contacts_stmt);
-
+		$desc = '';
 		switch ($type) {
-			case 'followers':    $title = DI::l10n()->tt('Follower (%s)', 'Followers (%s)', $total); break;
-			case 'following':    $title = DI::l10n()->tt('Following (%s)', 'Following (%s)', $total); break;
-			case 'mutuals':      $title = DI::l10n()->tt('Mutual friend (%s)', 'Mutual friends (%s)', $total); break;
-
-			case 'all': default: $title = DI::l10n()->tt('Contact (%s)', 'Contacts (%s)', $total); break;
+			case 'followers':
+				$title = DI::l10n()->tt('Follower (%s)', 'Followers (%s)', $total);
+				break;
+			case 'following':
+				$title = DI::l10n()->tt('Following (%s)', 'Following (%s)', $total);
+				break;
+			case 'mutuals':
+				$title = DI::l10n()->tt('Mutual friend (%s)', 'Mutual friends (%s)', $total);
+				$desc = DI::l10n()->t(
+					'These contacts both follow and are followed by <strong>%s</strong>.',
+					htmlentities($a->profile['name'], ENT_COMPAT, 'UTF-8')
+				);
+				break;
+			case 'all':
+			default:
+				$title = DI::l10n()->tt('Contact (%s)', 'Contacts (%s)', $total);
+				break;
 		}
 
 		$tpl = Renderer::getMarkupTemplate('profile/contacts.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$title'    => $title,
+			'$desc'     => $desc,
 			'$nickname' => $nickname,
 			'$type'     => $type,
 
-			'$all_label' => DI::l10n()->t('All contacts'),
+			'$all_label'       => DI::l10n()->t('All contacts'),
 			'$followers_label' => DI::l10n()->t('Followers'),
 			'$following_label' => DI::l10n()->t('Following'),
-			'$mutuals_label' => DI::l10n()->t('Mutual friends'),
+			'$mutuals_label'   => DI::l10n()->t('Mutual friends'),
+			'$noresult_label'  => DI::l10n()->t('No contacts.'),
 
 			'$contacts' => $contacts,
 			'$paginate' => $pager->renderFull($total),
