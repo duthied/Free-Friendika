@@ -374,81 +374,59 @@ class Widget
 	}
 
 	/**
-	 * Return common friends visitor widget
+	 * Show a random selection of five common contacts between the visitor and the viewed profile user.
 	 *
-	 * @param string $profile_uid uid
+	 * @param int    $uid      Viewed profile user ID
+	 * @param string $nickname Viewed profile user nickname
 	 * @return string|void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function commonFriendsVisitor($profile_uid)
+	public static function commonFriendsVisitor(int $uid, string $nickname)
 	{
-		if (local_user() == $profile_uid) {
-			return;
+		if (local_user() == $uid) {
+			return '';
 		}
 
-		$zcid = 0;
-
-		$cid = Session::getRemoteContactID($profile_uid);
-
-		if (!$cid) {
-			if (Profile::getMyURL()) {
-				$contact = DBA::selectFirst('contact', ['id'],
-						['nurl' => Strings::normaliseLink(Profile::getMyURL()), 'uid' => $profile_uid]);
-				if (DBA::isResult($contact)) {
-					$cid = $contact['id'];
-				} else {
-					$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(Profile::getMyURL())]);
-					if (DBA::isResult($gcontact)) {
-						$zcid = $gcontact['id'];
-					}
-				}
-			}
+		$visitorPCid = local_user() ? Contact::getPublicIdByUserId(local_user()) : remote_user();
+		if (!$visitorPCid) {
+			return '';
 		}
 
-		if ($cid == 0 && $zcid == 0) {
-			return;
+		$localPCid = Contact::getPublicIdByUserId($uid);
+
+		$condition = [
+			'NOT `self` AND NOT `blocked` AND NOT `hidden` AND `id` != ?',
+			$localPCid,
+		];
+
+		$total = Contact\Relation::countCommon($localPCid, $visitorPCid, $condition);
+		if (!$total) {
+			return '';
 		}
 
-		if ($cid) {
-			$t = GContact::countCommonFriends($profile_uid, $cid);
-		} else {
-			$t = GContact::countCommonFriendsZcid($profile_uid, $zcid);
-		}
-
-		if (!$t) {
-			return;
-		}
-
-		if ($cid) {
-			$r = GContact::commonFriends($profile_uid, $cid, 0, 5, true);
-		} else {
-			$r = GContact::commonFriendsZcid($profile_uid, $zcid, 0, 5, true);
-		}
-
-		if (!DBA::isResult($r)) {
-			return;
+		$commonContacts = Contact\Relation::listCommon($localPCid, $visitorPCid, $condition, 0, 5, true);
+		if (!DBA::isResult($commonContacts)) {
+			return '';
 		}
 
 		$entries = [];
-		foreach ($r as $rr) {
-			$contact = Contact::getByURL($rr['url']);
-			$entry = [
-				'url'   => Contact::magicLink($rr['url']),
-				'name'  => $contact['name'] ?? $rr['name'],
-				'photo' => Contact::getThumb($contact, $rr['photo']),
+		foreach ($commonContacts as $contact) {
+			$entries[] = [
+				'url'   => Contact::magicLink($contact['url']),
+				'name'  => $contact['name'],
+				'photo' => Contact::getThumb($contact),
 			];
-			$entries[] = $entry;
 		}
 
 		$tpl = Renderer::getMarkupTemplate('widget/remote_friends_common.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$desc'     => DI::l10n()->tt("%d contact in common", "%d contacts in common", $t),
+			'$desc'     => DI::l10n()->tt("%d contact in common", "%d contacts in common", $total),
 			'$base'     => DI::baseUrl(),
-			'$uid'      => $profile_uid,
-			'$cid'      => (($cid) ? $cid : '0'),
-			'$linkmore' => (($t > 5) ? 'true' : ''),
+			'$nickname' => $nickname,
+			'$linkmore' => $total > 5 ? 'true' : '',
 			'$more'     => DI::l10n()->t('show more'),
-			'$items'    => $entries
+			'$contacts' => $entries
 		]);
 	}
 
