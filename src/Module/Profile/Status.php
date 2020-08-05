@@ -108,7 +108,7 @@ class Status extends BaseProfile
 
 		$o .= self::getTabsHTML($a, 'status', $is_owner, $a->profile['nickname']);
 
-		$o .= Widget::commonFriendsVisitor($a->profile['uid']);
+		$o .= Widget::commonFriendsVisitor($a->profile['uid'], $a->profile['nickname']);
 
 		$commpage = $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$commvisitor = $commpage && $remote_contact;

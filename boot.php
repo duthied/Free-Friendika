@@ -266,7 +266,7 @@ function public_contact()
 }
 
 /**
- * Returns contact id of authenticated site visitor or false
+ * Returns public contact id of authenticated site visitor or false
  *
  * @return int|bool visitor_id or false
  */

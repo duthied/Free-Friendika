@@ -1030,7 +1030,7 @@ class Contact extends BaseModule
 			}
 		}
 
-		if (!empty($contact['uid']) && !empty($contact['rel'])) {
+		if (!empty($contact['uid']) && !empty($contact['rel']) && local_user() == $contact['uid']) {
 			switch ($contact['rel']) {
 				case Model\Contact::FRIEND:
 					$alt_text = DI::l10n()->t('Mutual Friendship');
