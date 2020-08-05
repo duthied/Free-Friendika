@@ -201,7 +201,7 @@ function frio_remote_nav($a, &$nav)
 		$remoteUser = Contact::getById(remote_user(), $fields);
 		$nav['remote'] = DI::l10n()->t('Guest');
 	} elseif (Model\Profile::getMyURL()) {
-		$remoteUser = Contact::getByURL($homelink, $fields);
+		$remoteUser = Contact::getByURL($homelink, null, $fields);
 		$nav['remote'] = DI::l10n()->t('Visitor');
 	} else {
 		$remoteUser = null;
