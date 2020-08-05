@@ -1158,13 +1158,12 @@ class Contact
 	 * @param integer $uid       The user id for the contact (0 = public contact)
 	 * @param boolean $update    true = always update, false = never update, null = update when not found or outdated
 	 * @param array   $default   Default value for creating the contact when every else fails
-	 * @param boolean $in_loop   Internally used variable to prevent an endless loop
 	 *
 	 * @return integer Contact ID
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getIdForURL($url, $uid = 0, $update = null, $default = [], $in_loop = false)
+	public static function getIdForURL($url, $uid = 0, $update = null, $default = [])
 	{
 		Logger::info('Get contact data', ['url' => $url, 'user' => $uid]);
 
@@ -1235,13 +1234,16 @@ class Contact
 			$data['gsid'] = GServer::getID($data['baseurl']);
 		}
 
-		if ($uid == 0) {
-			$data['last-item'] = Probe::getLastUpdate($data);
-			Logger::info('Fetched last item', ['url' => $data['url'], 'last-item' => $data['last-item']]);
+		if (!$contact_id && !empty($data['alias']) && ($data['alias'] != $data['url'])) {
+			$contact = self::getByURL($data['alias'], false, ['id']);
+			if (!empty($contact['id'])) {
+				$contact_id = $contact['id'];
+			}
 		}
 
-		if (!$contact_id && !empty($data['alias']) && ($data['alias'] != $data['url']) && !$in_loop) {
-			$contact_id = self::getIdForURL($data["alias"], $uid, false, $default, true);
+		if ($uid == 0) {
+			$data['last-item'] = Probe::getLastUpdate($data);
+			Logger::info('Fetched last item', ['url' => $url, 'probed_url' => $data['url'], 'last-item' => $data['last-item'], 'callstack' => System::callstack(20)]);
 		}
 
 		if (!$contact_id) {
