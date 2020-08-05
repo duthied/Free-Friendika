@@ -195,7 +195,7 @@ function frio_remote_nav($a, &$nav)
 	// this isn't optimal because the contact query will be done now twice
 	$fields = ['id', 'url', 'avatar', 'micro', 'name', 'nick', 'baseurl'];
 	if (local_user() && !empty($a->user['uid'])) {
-		$remoteUser = DBA::selectFirst('contact', $fields, ['uid' => $a->user['uid'], 'self' => true]);
+		$remoteUser = Contact::selectFirst($fields, ['uid' => $a->user['uid'], 'self' => true]);
 	} elseif (!local_user() && remote_user()) {
 		$remoteUser = Contact::getById(remote_user(), $fields);
 		$nav['remote'] = DI::l10n()->t('Guest');
