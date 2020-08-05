@@ -46,7 +46,7 @@ class GContact
 			$sourceId,
 		];
 
-		return Contact\Relation::countCommonFollows($sourceId, $targetIds['public'] ?? 0, [], $condition);
+		return Contact\Relation::countCommonFollows($sourceId, $targetIds['public'] ?? 0, $condition);
 	}
 
 	/**
@@ -74,7 +74,7 @@ LIMIT 1",
 			$sourceId,
 		];
 
-		return Contact\Relation::countCommonFollowers($sourceId, $targetPublicContact['id'] ?? 0, [], $condition);
+		return Contact\Relation::countCommonFollowers($sourceId, $targetPublicContact['id'] ?? 0, $condition);
 	}
 
 	/**
@@ -100,7 +100,7 @@ LIMIT 1",
 			$sourceId,
 		];
 
-		return Contact\Relation::listCommonFollows($sourceId, $targetIds['public'] ?? 0, [], $condition, $limit, $start, $shuffle);
+		return Contact\Relation::listCommonFollows($sourceId, $targetIds['public'] ?? 0, $condition, $limit, $start, $shuffle);
 	}
 
 	/**
@@ -134,6 +134,6 @@ LIMIT 1",
 			$sourceId,
 		];
 
-		return Contact\Relation::listCommonFollows($sourceId, $targetPublicContact['id'] ?? 0, [], $condition, $limit, $start, $shuffle);
+		return Contact\Relation::listCommonFollows($sourceId, $targetPublicContact['id'] ?? 0, $condition, $limit, $start, $shuffle);
 	}
 }
