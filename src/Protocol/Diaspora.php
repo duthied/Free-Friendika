@@ -1106,20 +1106,7 @@ class Diaspora
 	 */
 	private static function contactByHandle($uid, $handle)
 	{
-		$cid = Contact::getIdForURL($handle, $uid);
-		if (!$cid) {
-			Logger::log("Haven't found a contact for user " . $uid . " and handle " . $handle, Logger::DEBUG);
-			return false;
-		}
-
-		$contact = DBA::selectFirst('contact', [], ['id' => $cid]);
-		if (!DBA::isResult($contact)) {
-			// This here shouldn't happen at all
-			Logger::log("Haven't found a contact for user " . $uid . " and handle " . $handle, Logger::DEBUG);
-			return false;
-		}
-
-		return $contact;
+		return Contact::getByURL($handle, null, [], $uid);
 	}
 
 	/**
