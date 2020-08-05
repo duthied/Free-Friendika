@@ -26,13 +26,14 @@ use Friendica\Content\Pager;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
-use Friendica\Database\DBA;
-use Friendica\DI;
-use Friendica\Model;
 use Friendica\Module;
+use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Model\Profile;
+use Friendica\Module\BaseProfile;
 use Friendica\Network\HTTPException;
 
-class Contacts extends Module\BaseProfile
+class Common extends BaseProfile
 {
 	public static function content(array $parameters = [])
 	{
@@ -42,87 +43,65 @@ class Contacts extends Module\BaseProfile
 
 		$a = DI::app();
 
-		$nickname = $parameters['nickname'];
-		$type = $parameters['type'] ?? 'all';
+		Nav::setSelected('home');
 
-		Model\Profile::load($a, $nickname);
+		$nickname = $parameters['nickname'];
+
+		Profile::load($a, $nickname);
 
 		if (empty($a->profile)) {
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
+		$o = self::getTabsHTML($a, 'contacts', false, $nickname);
+
 		if (!empty($a->profile['hide-friends'])) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
-		Nav::setSelected('home');
+		$displayCommonTab = Session::isAuthenticated() && $a->profile['uid'] != local_user();
 
-		$is_owner = $a->profile['uid'] == local_user();
+		if (!$displayCommonTab) {
+			$a->redirect('profile/' . $nickname . '/contacts');
+		};
 
-		$o = self::getTabsHTML($a, 'contacts', $is_owner, $nickname);
+		$sourceId = Contact::getIdForURL(Profile::getMyURL());
+		$targetId = Contact::getPublicIdByUserId($a->profile['uid']);
 
 		$condition = [
-			'uid'     => $a->profile['uid'],
 			'blocked' => false,
-			'pending' => false,
-			'hidden'  => false,
-			'archive' => false,
-			'self'    => false,
-			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED]
+			'deleted' => false,
+			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED],
 		];
 
-		switch ($type) {
-			case 'followers': $condition['rel'] = [Model\Contact::FOLLOWER, Model\Contact::FRIEND]; break;
-			case 'following': $condition['rel'] = [Model\Contact::SHARING,  Model\Contact::FRIEND]; break;
-			case 'mutuals':   $condition['rel'] = Model\Contact::FRIEND; break;
-		}
-
-		$total = DBA::count('contact', $condition);
+		$total = Contact\Relation::countCommon($sourceId, $targetId, $condition);
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
-		$params = ['order' => ['name' => false], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+		$commonFollows = Contact\Relation::listCommon($sourceId, $targetId, $condition, $pager->getItemsPerPage(), $pager->getStart());
 
-		$contacts = array_map(
-			[Module\Contact::class, 'getContactTemplateVars'],
-			Model\Contact::selectToArray([], $condition, $params)
+		$contacts = array_map([Module\Contact::class, 'getContactTemplateVars'], $commonFollows);
+
+		$title = DI::l10n()->tt('Common contact (%s)', 'Common contacts (%s)', $total);
+		$desc = DI::l10n()->t(
+			'Both <strong>%s</strong> and yourself have publicly interacted with these contacts (follow, comment or likes on public posts).',
+			htmlentities($a->profile['name'], ENT_COMPAT, 'UTF-8')
 		);
-
-		$desc = '';
-		switch ($type) {
-			case 'followers':
-				$title = DI::l10n()->tt('Follower (%s)', 'Followers (%s)', $total);
-				break;
-			case 'following':
-				$title = DI::l10n()->tt('Following (%s)', 'Following (%s)', $total);
-				break;
-			case 'mutuals':
-				$title = DI::l10n()->tt('Mutual friend (%s)', 'Mutual friends (%s)', $total);
-				$desc = DI::l10n()->t(
-					'These contacts both follow and are followed by <strong>%s</strong>.',
-					htmlentities($a->profile['name'], ENT_COMPAT, 'UTF-8')
-				);
-				break;
-			case 'all':
-			default:
-				$title = DI::l10n()->tt('Contact (%s)', 'Contacts (%s)', $total);
-				break;
-		}
 
 		$tpl = Renderer::getMarkupTemplate('profile/contacts.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$title'    => $title,
 			'$desc'     => $desc,
 			'$nickname' => $nickname,
-			'$type'     => $type,
-			'$displayCommonTab' => Session::isAuthenticated() && $a->profile['uid'] != local_user(),
+			'$type'     => 'common',
+			'$displayCommonTab' => $displayCommonTab,
 
 			'$all_label'       => DI::l10n()->t('All contacts'),
 			'$followers_label' => DI::l10n()->t('Followers'),
 			'$following_label' => DI::l10n()->t('Following'),
 			'$mutuals_label'   => DI::l10n()->t('Mutual friends'),
 			'$common_label'    => DI::l10n()->t('Common'),
-			'$noresult_label'  => DI::l10n()->t('No contacts.'),
+			'$noresult_label'  => DI::l10n()->t('No common contacts.'),
 
 			'$contacts' => $contacts,
 			'$paginate' => $pager->renderFull($total),

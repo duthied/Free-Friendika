@@ -18,6 +18,11 @@
 		<li role="presentation"{{if $type == 'mutuals'}} class="active"{{/if}}>
 			<a href="profile/{{$nickname}}/contacts/mutuals">{{$mutuals_label}}</a>
 		</li>
+	{{if $displayCommonTab}}
+		<li role="presentation"{{if $type == 'common'}} class="active"{{/if}}>
+			<a href="profile/{{$nickname}}/contacts/common" class="tab button">{{$common_label}}</a>
+		</li>
+	{{/if}}
 	</ul>
 {{if $contacts}}
 	<ul id="viewcontact_wrapper{{if $id}}-{{$id}}{{/if}}" class="viewcontact_wrapper media-list">

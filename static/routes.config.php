@@ -252,6 +252,7 @@ return [
 	'/profile' => [
 		'/{nickname}'                                         => [Module\Profile\Index::class,    [R::GET]],
 		'/{nickname}/profile'                                 => [Module\Profile\Profile::class,  [R::GET]],
+		'/{nickname}/contacts/common'                         => [Module\Profile\Common::class,   [R::GET]],
 		'/{nickname}/contacts[/{type}]'                       => [Module\Profile\Contacts::class, [R::GET]],
 		'/{nickname}/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,   [R::GET]],
 	],

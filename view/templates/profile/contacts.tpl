@@ -10,6 +10,9 @@
 		<li role="menuitem"><a href="profile/{{$nickname}}/contacts/followers" class="tab button{{if $type == 'followers'}} active{{/if}}">{{$followers_label}}</a></li>
 		<li role="menuitem"><a href="profile/{{$nickname}}/contacts/following" class="tab button{{if $type == 'following'}} active{{/if}}">{{$following_label}}</a></li>
 		<li role="menuitem"><a href="profile/{{$nickname}}/contacts/mutuals" class="tab button{{if $type == 'mutuals'}} active{{/if}}">{{$mutuals_label}}</a></li>
+	{{if $displayCommonTab}}
+		<li role="menuitem"><a href="profile/{{$nickname}}/contacts/common" class="tab button{{if $type == 'common'}} active{{/if}}{{if !$common_count}} disabled{{/if}}">{{$common_label}}</a></li>
+	{{/if}}
 	</ul>
 {{if $contacts}}
 	<div id="viewcontact_wrapper-{{$id}}">
