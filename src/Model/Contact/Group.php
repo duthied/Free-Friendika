@@ -73,7 +73,7 @@ class Group
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getUngrouped(int $uid)
+	public static function listUngrouped(int $uid)
 	{
 		return q("SELECT *
 			   FROM `contact`

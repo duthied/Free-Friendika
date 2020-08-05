@@ -316,7 +316,7 @@ class Group extends BaseModule
 		}
 
 		if ($nogroup) {
-			$contacts = Model\Contact\Group::getUngrouped(local_user());
+			$contacts = Model\Contact\Group::listUngrouped(local_user());
 		} else {
 			$contacts_stmt = DBA::select('contact', [],
 				['uid' => local_user(), 'pending' => false, 'blocked' => false, 'self' => false],
