@@ -1218,11 +1218,11 @@ class Contact
 		}
 
 		// Take the default values when probing failed
-		if (!empty($default) && !in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
+		if (!empty($default) && (empty($data['network']) || !in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO])))) {
 			$data = array_merge($data, $default);
 		}
 
-		if (empty($data) || ($data['network'] == Protocol::PHANTOM)) {
+		if (empty($data['network']) || ($data['network'] == Protocol::PHANTOM)) {
 			Logger::info('No valid network found', ['url' => $url, 'data' => $data, 'callstack' => System::callstack(20)]);
 			return 0;
 		}
@@ -1267,7 +1267,7 @@ class Contact
 				'poco'      => $data['poco'] ?? '',
 				'baseurl'   => $data['baseurl'] ?? '',
 				'gsid'      => $data['gsid'] ?? null,
-				'last-item' => $data['last-item'],
+				'last-item' => $data['last-item'] ?: DBA::NULL_DATETIME,
 				'name-date' => DateTimeFormat::utcNow(),
 				'uri-date'  => DateTimeFormat::utcNow(),
 				'avatar-date' => DateTimeFormat::utcNow(),
