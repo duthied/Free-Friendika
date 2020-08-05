@@ -1172,17 +1172,12 @@ class Contact
 			$data['gsid'] = GServer::getID($data['baseurl']);
 		}
 
-		if (!$contact_id && !empty($data['alias']) && ($data['alias'] != $data['url'])) {
-			$contact = self::getByURL($data['alias'], false, ['id']);
-			if (!empty($contact['id'])) {
-				$contact_id = $contact['id'];
-				Logger::info('Fetched id by alias', ['cid' => $contact_id, 'url' => $url, 'probed_url' => $data['url'], 'alias' => $data['alias']]);
+		if (!$contact_id) {
+			$urls = [Strings::normaliseLink($url), Strings::normaliseLink($data['url'])];
+			if (!empty($data['alias'])) {
+				$urls[] = Strings::normaliseLink($data['alias']);
 			}
-		}
-
-		// Possibly there is a contact entry with the probed URL
-		if (!$contact_id  && ($url != $data['url']) && ($url != $data['alias'])) {
-			$contact = self::getByURL($data['url'], false, ['id']);
+			$contact = self::selectFirst(['id'], ['nurl' => $urls, 'uid' => $uid]);
 			if (!empty($contact['id'])) {
 				$contact_id = $contact['id'];
 				Logger::info('Fetched id by url', ['cid' => $contact_id, 'url' => $url, 'probed_url' => $data['url'], 'alias' => $data['alias']]);
