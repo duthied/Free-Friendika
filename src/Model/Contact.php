@@ -1235,6 +1235,9 @@ class Contact
 			$data['gsid'] = GServer::getID($data['baseurl']);
 		}
 
+		$data['last-item'] = Probe::getLastUpdate($data);
+		Logger::info('Fetched last item', ['url' => $data['url'], 'last-item' => $data['last-item']]);
+
 		if (!$contact_id && !empty($data['alias']) && ($data['alias'] != $data['url']) && !$in_loop) {
 			$contact_id = self::getIdForURL($data["alias"], $uid, false, $default, true);
 		}
@@ -1264,6 +1267,7 @@ class Contact
 				'poco'      => $data['poco'] ?? '',
 				'baseurl'   => $data['baseurl'] ?? '',
 				'gsid'      => $data['gsid'] ?? null,
+				'last-item' => $data['last-item'],
 				'name-date' => DateTimeFormat::utcNow(),
 				'uri-date'  => DateTimeFormat::utcNow(),
 				'avatar-date' => DateTimeFormat::utcNow(),
@@ -1308,7 +1312,7 @@ class Contact
 				self::updateFromProbe($contact_id, '', false);
 			}
 		} else {
-			$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'baseurl', 'gsid'];
+			$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'baseurl', 'gsid', 'last-item'];
 			$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
 
 			// This condition should always be true
@@ -1327,6 +1331,10 @@ class Contact
 
 			foreach ($fields as $field) {
 				$updated[$field] = ($data[$field] ?? '') ?: $contact[$field];
+			}
+
+			if ($contact['last-item'] < $data['last-item']) {
+				$updated['last-item'] = $data['last-item'];
 			}
 
 			if (($updated['addr'] != $contact['addr']) || (!empty($data['alias']) && ($data['alias'] != $contact['alias']))) {
@@ -2804,183 +2812,6 @@ class Contact
 		}
 
 		return ['count' => $count, 'added' => $added, 'updated' => $updated];
-	}
-
-	/**
-	 * Set the last date that the contact had posted something
-	 *
-	 * This functionality is currently unused
-	 *
-	 * @param string $data  probing result
-	 * @param bool   $force force updating
-	 */
-	private static function setLastUpdate(array $data, bool $force = false)
-	{
-		$contact = self::getByURL($data['url'], false, []);
-		if (empty($contact)) {
-			return;
-		}
-		if (!$force && !GServer::updateNeeded($contact['created'], $contact['updated'], $contact['last_failure'], $contact['last_contact'])) {
-			Logger::info("Don't update profile", ['url' => $data['url'], 'updated' => $contact['updated']]);
-			return;
-		}
-
-		if (self::updateFromNoScrape($data)) {
-			return;
-		}
-
-		if (!empty($data['outbox'])) {
-			self::updateFromOutbox($data['outbox'], $data);
-		} elseif (!empty($data['poll']) && ($data['network'] == Protocol::ACTIVITYPUB)) {
-			self::updateFromOutbox($data['poll'], $data);
-		} elseif (!empty($data['poll'])) {
-			self::updateFromFeed($data);
-		}
-	}
-
-	/**
-	 * Update a global contact via the "noscrape" endpoint
-	 *
-	 * @param string $data Probing result
-	 *
-	 * @return bool 'true' if update was successful or the server was unreachable
-	 */
-	private static function updateFromNoScrape(array $data)
-	{
-		// Check the 'noscrape' endpoint when it is a Friendica server
-		$gserver = DBA::selectFirst('gserver', ['noscrape'], ["`nurl` = ? AND `noscrape` != ''",
-		Strings::normaliseLink($data['baseurl'])]);
-		if (!DBA::isResult($gserver)) {
-			return false;
-		}
-
-		$curlResult = DI::httpRequest()->get($gserver['noscrape'] . '/' . $data['nick']);
-
-		if ($curlResult->isSuccess() && !empty($curlResult->getBody())) {
-			$noscrape = json_decode($curlResult->getBody(), true);
-			if (!empty($noscrape) && !empty($noscrape['updated'])) {
-				$noscrape['updated'] = DateTimeFormat::utc($noscrape['updated'], DateTimeFormat::MYSQL);
-				$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow(), 'updated' => $noscrape['updated']];
-				DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
-				return true;
-			}
-		} elseif ($curlResult->isTimeout()) {
-			// On a timeout return the existing value, but mark the contact as failure
-			$fields = ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()];
-			DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Update a global contact via an ActivityPub Outbox
-	 *
-	 * @param string $feed
-	 * @param array  $data Probing result
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	private static function updateFromOutbox(string $feed, array $data)
-	{
-		$outbox = ActivityPub::fetchContent($feed);
-		if (empty($outbox)) {
-			return;
-		}
-
-		if (!empty($outbox['orderedItems'])) {
-			$items = $outbox['orderedItems'];
-		} elseif (!empty($outbox['first']['orderedItems'])) {
-			$items = $outbox['first']['orderedItems'];
-		} elseif (!empty($outbox['first']['href']) && ($outbox['first']['href'] != $feed)) {
-			self::updateFromOutbox($outbox['first']['href'], $data);
-			return;
-		} elseif (!empty($outbox['first'])) {
-			if (is_string($outbox['first']) && ($outbox['first'] != $feed)) {
-				self::updateFromOutbox($outbox['first'], $data);
-			} else {
-				Logger::warning('Unexpected data', ['outbox' => $outbox]);
-			}
-			return;
-		} else {
-			$items = [];
-		}
-
-		$last_updated = '';
-		foreach ($items as $activity) {
-			if (!empty($activity['published'])) {
-				$published =  DateTimeFormat::utc($activity['published']);
-			} elseif (!empty($activity['object']['published'])) {
-				$published =  DateTimeFormat::utc($activity['object']['published']);
-			} else {
-				continue;
-			}
-
-			if ($last_updated < $published) {
-				$last_updated = $published;
-			}
-		}
-
-		if (empty($last_updated)) {
-			return;
-		}
-
-		$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow(), 'updated' => $last_updated];
-		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
-	}
-
-	/**
-	 * Update a global contact via an XML feed
-	 *
-	 * @param string $data Probing result
-	 */
-	private static function updateFromFeed(array $data)
-	{
-		// Search for the newest entry in the feed
-		$curlResult = DI::httpRequest()->get($data['poll']);
-		if (!$curlResult->isSuccess()) {
-			$fields = ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()];
-			DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
-
-			Logger::info("Profile wasn't reachable (no feed)", ['url' => $data['url']]);
-			return;
-		}
-
-		$doc = new DOMDocument();
-		@$doc->loadXML($curlResult->getBody());
-
-		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', 'http://www.w3.org/2005/Atom');
-
-		$entries = $xpath->query('/atom:feed/atom:entry');
-
-		$last_updated = '';
-
-		foreach ($entries as $entry) {
-			$published_item = $xpath->query('atom:published/text()', $entry)->item(0);
-			$updated_item   = $xpath->query('atom:updated/text()'  , $entry)->item(0);
-			$published      = !empty($published_item->nodeValue) ? DateTimeFormat::utc($published_item->nodeValue) : null;
-			$updated        = !empty($updated_item->nodeValue) ? DateTimeFormat::utc($updated_item->nodeValue) : null;
-
-			if (empty($published) || empty($updated)) {
-				Logger::notice('Invalid entry for XPath.', ['entry' => $entry, 'url' => $data['url']]);
-				continue;
-			}
-
-			if ($last_updated < $published) {
-				$last_updated = $published;
-			}
-
-			if ($last_updated < $updated) {
-				$last_updated = $updated;
-			}
-		}
-
-		if (empty($last_updated)) {
-			return;
-		}
-
-		$fields = ['failed' => false, 'last_contact' => DateTimeFormat::utcNow(), 'updated' => $last_updated];
-		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
 	}
 
 	/**
