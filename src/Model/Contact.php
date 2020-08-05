@@ -1238,6 +1238,16 @@ class Contact
 			$contact = self::getByURL($data['alias'], false, ['id']);
 			if (!empty($contact['id'])) {
 				$contact_id = $contact['id'];
+				Logger::info('Fetched id by alias', ['cid' => $contact_id, 'url' => $url, 'probed_url' => $data['url'], 'alias' => $data['alias']]);
+			}
+		}
+
+		// Possibly there is a contact entry with the probed URL
+		if (!$contact_id  && ($url != $data['url']) && ($url != $data['alias'])) {
+			$contact = self::getByURL($data['url'], false, ['id']);
+			if (!empty($contact['id'])) {
+				$contact_id = $contact['id'];
+				Logger::info('Fetched id by url', ['cid' => $contact_id, 'url' => $url, 'probed_url' => $data['url'], 'alias' => $data['alias']]);
 			}
 		}
 
