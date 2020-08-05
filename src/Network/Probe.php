@@ -2044,9 +2044,13 @@ class Probe
 	 */
 	private static function updateFromNoScrape(array $data)
 	{
+		if (empty($data['baseurl'])) {
+			return '';
+		}
+
 		// Check the 'noscrape' endpoint when it is a Friendica server
 		$gserver = DBA::selectFirst('gserver', ['noscrape'], ["`nurl` = ? AND `noscrape` != ''",
-		Strings::normaliseLink($data['baseurl'])]);
+			Strings::normaliseLink($data['baseurl'])]);
 		if (!DBA::isResult($gserver)) {
 			return '';
 		}
