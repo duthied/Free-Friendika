@@ -65,10 +65,10 @@ class Session
 	}
 
 	/**
-	 * Returns contact ID for given user ID
+	 * Return the user contact ID of a visitor for the given user ID they are visiting
 	 *
 	 * @param integer $uid User ID
-	 * @return integer Contact ID of visitor for given user ID
+	 * @return integer
 	 */
 	public static function getRemoteContactID($uid)
 	{
