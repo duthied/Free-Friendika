@@ -1235,8 +1235,10 @@ class Contact
 			$data['gsid'] = GServer::getID($data['baseurl']);
 		}
 
-		$data['last-item'] = Probe::getLastUpdate($data);
-		Logger::info('Fetched last item', ['url' => $data['url'], 'last-item' => $data['last-item']]);
+		if ($uid == 0) {
+			$data['last-item'] = Probe::getLastUpdate($data);
+			Logger::info('Fetched last item', ['url' => $data['url'], 'last-item' => $data['last-item']]);
+		}
 
 		if (!$contact_id && !empty($data['alias']) && ($data['alias'] != $data['url']) && !$in_loop) {
 			$contact_id = self::getIdForURL($data["alias"], $uid, false, $default, true);
@@ -1267,7 +1269,6 @@ class Contact
 				'poco'      => $data['poco'] ?? '',
 				'baseurl'   => $data['baseurl'] ?? '',
 				'gsid'      => $data['gsid'] ?? null,
-				'last-item' => $data['last-item'] ?: DBA::NULL_DATETIME,
 				'name-date' => DateTimeFormat::utcNow(),
 				'uri-date'  => DateTimeFormat::utcNow(),
 				'avatar-date' => DateTimeFormat::utcNow(),
@@ -1275,6 +1276,10 @@ class Contact
 				'blocked'   => 0,
 				'readonly'  => 0,
 				'pending'   => 0];
+
+			if (!empty($data['last-item'])) {
+				$fields['last-item'] = $data['last-item'];
+			}
 
 			$condition = ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid, 'deleted' => false];
 
@@ -1333,7 +1338,7 @@ class Contact
 				$updated[$field] = ($data[$field] ?? '') ?: $contact[$field];
 			}
 
-			if ($contact['last-item'] < $data['last-item']) {
+			if (!empty($data['last-item']) && ($contact['last-item'] < $data['last-item'])) {
 				$updated['last-item'] = $data['last-item'];
 			}
 
