@@ -185,7 +185,7 @@ class Contact extends BaseModule
 		}
 
 		// Update the entry in the contact table
-		Model\Contact::updateFromProbe($contact_id, '', true);
+		Model\Contact::updateFromProbe($contact_id);
 	}
 
 	/**
