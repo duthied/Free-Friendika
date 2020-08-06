@@ -53,4 +53,9 @@ class Native extends AbstractSession implements ISession
 		session_start();
 		return $this;
 	}
+
+	public function clear()
+	{
+		session_destroy();
+	}
 }
