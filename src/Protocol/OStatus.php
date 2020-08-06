@@ -544,15 +544,8 @@ class OStatus
 						} elseif ($item['contact-id'] < 0) {
 							Logger::log("Item with uri ".$item["uri"]." is from a blocked contact.", Logger::DEBUG);
 						} else {
-							// We are having duplicated entries. Hopefully this solves it.
-							if (DI::lock()->acquire('ostatus_process_item_insert')) {
-								$ret = Item::insert($item);
-								DI::lock()->release('ostatus_process_item_insert');
-								Logger::log("Item with uri ".$item["uri"]." for user ".$importer["uid"].' stored. Return value: '.$ret);
-							} else {
-								$ret = Item::insert($item);
-								Logger::log("We couldn't lock - but tried to store the item anyway. Return value is ".$ret);
-							}
+							$ret = Item::insert($item);
+							Logger::log("Item with uri ".$item["uri"]." for user ".$importer["uid"].' stored. Return value: '.$ret);
 						}
 					}
 				}
@@ -2218,14 +2211,13 @@ class OStatus
 	 * Checks if the given contact url does support OStatus
 	 *
 	 * @param string  $url    profile url
-	 * @param boolean $update Update the profile
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSupportedByContactUrl($url, $update = false)
+	public static function isSupportedByContactUrl($url)
 	{
-		$probe = Probe::uri($url, Protocol::OSTATUS, 0, !$update);
+		$probe = Probe::uri($url, Protocol::OSTATUS);
 		return $probe['network'] == Protocol::OSTATUS;
 	}
 }

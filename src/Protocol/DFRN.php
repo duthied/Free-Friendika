@@ -2878,14 +2878,13 @@ class DFRN
 	 * Checks if the given contact url does support DFRN
 	 *
 	 * @param string  $url    profile url
-	 * @param boolean $update Update the profile
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSupportedByContactUrl($url, $update = false)
+	public static function isSupportedByContactUrl($url)
 	{
-		$probe = Probe::uri($url, Protocol::DFRN, 0, !$update);
+		$probe = Probe::uri($url, Protocol::DFRN);
 		return $probe['network'] == Protocol::DFRN;
 	}
 }
