@@ -72,7 +72,7 @@ class AllFriends extends BaseModule
 			return DI::l10n()->t('No friends to display.');
 		}
 
-		$tab_str = Contact::getTabsHTML($app, $contact, 4);
+		$tab_str = Contact::getTabsHTML($contact, 4);
 
 		$entries = [];
 		foreach ($friends as $friend) {

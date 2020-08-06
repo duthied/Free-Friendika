@@ -531,7 +531,7 @@ class Contact extends BaseModule
 			$nettype = DI::l10n()->t('Network type: %s', ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']));
 
 			// tabs
-			$tab_str = self::getTabsHTML($a, $contact, 3);
+			$tab_str = self::getTabsHTML($contact, 3);
 
 			$lost_contact = (($contact['archive'] && $contact['term-date'] > DBA::NULL_DATETIME && $contact['term-date'] < DateTimeFormat::utcNow()) ? DI::l10n()->t('Communications lost with this contact!') : '');
 
@@ -855,14 +855,14 @@ class Contact extends BaseModule
 	 *
 	 * Available Pages are 'Status', 'Profile', 'Contacts' and 'Common Friends'
 	 *
-	 * @param App   $a
 	 * @param array $contact    The contact array
 	 * @param int   $active_tab 1 if tab should be marked as active
 	 *
 	 * @return string HTML string of the contact page tabs buttons.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function getTabsHTML($a, $contact, $active_tab)
+	public static function getTabsHTML(array $contact, int $active_tab)
 	{
 		$cid = $pcid = $contact['id'];
 		$data = Model\Contact::getPublicAndUserContacID($contact['id'], local_user());
@@ -964,7 +964,7 @@ class Contact extends BaseModule
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
 
 		if (!$update) {
-			$o .= self::getTabsHTML($a, $contact, 1);
+			$o .= self::getTabsHTML($contact, 1);
 		}
 
 		if (DBA::isResult($contact)) {
@@ -988,7 +988,7 @@ class Contact extends BaseModule
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
 
-		$o = self::getTabsHTML($a, $contact, 2);
+		$o = self::getTabsHTML($contact, 2);
 
 		if (DBA::isResult($contact)) {
 			DI::page()['aside'] = '';

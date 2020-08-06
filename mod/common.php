@@ -120,7 +120,7 @@ function common_content(App $a)
 	$title = '';
 	$tab_str = '';
 	if ($cmd === 'loc' && $cid && local_user() == $uid) {
-		$tab_str = Module\Contact::getTabsHTML($a, $contact, 5);
+		$tab_str = Module\Contact::getTabsHTML($contact, 5);
 	} else {
 		$title = DI::l10n()->t('Common Friends');
 	}
