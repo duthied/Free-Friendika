@@ -251,7 +251,7 @@ class Contact
 		$updated = max($contact['success_update'], $contact['updated'], $contact['last-update'], $contact['failure_update']);
 		if ((($updated < DateTimeFormat::utc('now -7 days')) || empty($contact['avatar'])) &&
 			in_array($contact['network'], Protocol::FEDERATED)) {
-			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id'], ($uid == 0 ? 'force' : ''));
+			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id']);
 		}
 
 		// Remove the internal fields
@@ -409,7 +409,7 @@ class Contact
 		}
 
 		// Update the existing contact
-		self::updateFromProbe($contact['id'], '', true);
+		self::updateFromProbe($contact['id']);
 
 		// And fetch the result
 		$contact = DBA::selectFirst('contact', ['baseurl'], ['id' => $contact['id']]);
@@ -1249,9 +1249,9 @@ class Contact
 
 		if ($background_update && !$probed && in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
 			// Update in the background when we fetched the data solely from the database
-			Worker::add(PRIORITY_MEDIUM, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
+			Worker::add(PRIORITY_MEDIUM, "UpdateContact", $contact_id);
 		} elseif (!empty($data['network'])) {
-			self::updateFromProbeArray($contact_id, $data, false);
+			self::updateFromProbeArray($contact_id, $data);
 		} else {
 			Logger::info('Invalid data', ['url' => $url, 'data' => $data]);
 		}
@@ -1814,31 +1814,29 @@ class Contact
 	/**
 	 * @param integer $id      contact id
 	 * @param string  $network Optional network we are probing for
-	 * @param boolean $force   Optional forcing of network probing (otherwise we use the cached data)
 	 * @return boolean
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function updateFromProbe(int $id, string $network = '', bool $force = false)
+	public static function updateFromProbe(int $id, string $network = '')
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url'], ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
 		}
 
-		$ret = Probe::uri($contact['url'], $network, $contact['uid'], !$force);
-		return self::updateFromProbeArray($id, $ret, $force);
+		$ret = Probe::uri($contact['url'], $network, $contact['uid']);
+		return self::updateFromProbeArray($id, $ret);
 	}
 
 	/**
 	 * @param integer $id      contact id
 	 * @param array   $ret     Probed data
-	 * @param boolean $force   Optional forcing of network probing (otherwise we use the cached data)
 	 * @return boolean
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function updateFromProbeArray(int $id, array $ret, bool $force = false)
+	private static function updateFromProbeArray(int $id, array $ret)
 	{
 		/*
 		  Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
@@ -1878,7 +1876,7 @@ class Contact
 
 		// If Probe::uri fails the network code will be different ("feed" or "unkn")
 		if (in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network'])) {
-			if ($force && ($uid == 0)) {
+			if ($uid == 0) {
 				self::updateContact($id, $uid, $ret['url'], ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
 			}
 			return false;
@@ -1933,7 +1931,7 @@ class Contact
 		}
 
 		if (!empty($ret['photo']) && ($ret['network'] != Protocol::FEED)) {
-			self::updateAvatar($id, $ret['photo'], $update || $force);
+			self::updateAvatar($id, $ret['photo'], $update);
 		}
 
 		if (!$update) {
@@ -1941,7 +1939,10 @@ class Contact
 
 			// Update the public contact
 			if ($uid != 0) {
-				self::updateFromProbeByURL($ret['url']);
+				$contact = self::getByURL($ret['url'], false, ['id']);
+				if (!empty($contact['id'])) {
+					self::updateFromProbeArray($contact['id'], $ret);
+				}
 			}
 
 			return true;
@@ -1963,7 +1964,7 @@ class Contact
 			$ret['name-date'] = $updated;
 		}
 
-		if ($force && ($uid == 0)) {
+		if ($uid == 0) {
 			$ret['last-update'] = $updated;
 			$ret['success_update'] = $updated;
 			$ret['failed'] = false;
@@ -1976,7 +1977,13 @@ class Contact
 		return true;
 	}
 
-	public static function updateFromProbeByURL($url, $force = false)
+	/**
+	 * @param integer $url contact url
+	 * @return integer Contact id
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function updateFromProbeByURL($url)
 	{
 		$id = self::getIdForURL($url);
 
@@ -1984,7 +1991,7 @@ class Contact
 			return $id;
 		}
 
-		self::updateFromProbe($id, '', $force);
+		self::updateFromProbe($id);
 
 		return $id;
 	}
@@ -2080,7 +2087,7 @@ class Contact
 		if (!empty($arr['contact']['name'])) {
 			$ret = $arr['contact'];
 		} else {
-			$ret = Probe::uri($url, $network, $user['uid'], false);
+			$ret = Probe::uri($url, $network, $user['uid']);
 		}
 
 		if (($network != '') && ($ret['network'] != $network)) {
@@ -2371,7 +2378,7 @@ class Contact
 			}
 
 			// Ensure to always have the correct network type, independent from the connection request method
-			self::updateFromProbe($contact['id'], '', true);
+			self::updateFromProbe($contact['id']);
 
 			return true;
 		} else {
@@ -2400,7 +2407,7 @@ class Contact
 			$contact_id = DBA::lastInsertId();
 
 			// Ensure to always have the correct network type, independent from the connection request method
-			self::updateFromProbe($contact_id, '', true);
+			self::updateFromProbe($contact_id);
 
 			self::updateAvatar($contact_id, $photo, true);
 

@@ -61,12 +61,12 @@ class OnePoll
 		}
 
 		if (($contact['network'] != Protocol::MAIL) || $force) {
-			Contact::updateFromProbe($contact_id, '', $force);
+			Contact::updateFromProbe($contact_id);
 		}
 
 		// Special treatment for wrongly detected local contacts
 		if (!$force && ($contact['network'] != Protocol::DFRN) && Contact::isLocalById($contact_id)) {
-			Contact::updateFromProbe($contact_id, Protocol::DFRN, true);
+			Contact::updateFromProbe($contact_id, Protocol::DFRN);
 			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 		}
 

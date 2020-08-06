@@ -822,7 +822,7 @@ class Processor
 		}
 
 		Logger::info('Updating profile', ['object' => $activity['object_id']]);
-		Contact::updateFromProbeByURL($activity['object_id'], true);
+		Contact::updateFromProbeByURL($activity['object_id']);
 	}
 
 	/**

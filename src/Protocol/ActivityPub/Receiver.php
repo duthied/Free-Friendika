@@ -679,7 +679,7 @@ class Receiver
 			return;
 		}
 
-		if (Contact::updateFromProbe($cid, '', true)) {
+		if (Contact::updateFromProbe($cid)) {
 			Logger::info('Update was successful', ['id' => $cid, 'uid' => $uid, 'url' => $url]);
 		}
 

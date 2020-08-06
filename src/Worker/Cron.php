@@ -168,7 +168,7 @@ class Cron
 				$oldest_id = $contact['id'];
 				$oldest_date = $contact['last-update'];
 			}
-			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id'], 'force');
+			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id']);
 			++$count;
 		}
 		Logger::info('Initiated update for public contacts', ['interval' => $count, 'id' => $oldest_id, 'oldest' => $oldest_date]);

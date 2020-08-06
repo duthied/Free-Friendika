@@ -328,16 +328,8 @@ class Probe
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function uri($uri, $network = '', $uid = -1, $cache = true)
+	public static function uri($uri, $network = '', $uid = -1)
 	{
-		$cachekey = 'Probe::uri:' . $network . ':' . $uri;
-		if ($cache) {
-			$result = DI::cache()->get($cachekey);
-			if (!is_null($result)) {
-				return $result;
-			}
-		}
-
 		if ($uid == -1) {
 			$uid = local_user();
 		}
@@ -408,14 +400,7 @@ class Probe
 			$data['hide'] = self::getHideStatus($data['url']);
 		}
 
-		$data = self::rearrangeData($data);
-
-		// Only store into the cache if the value seems to be valid
-		if (!in_array($data['network'], [Protocol::PHANTOM, Protocol::MAIL])) {
-			DI::cache()->set($cachekey, $data, Duration::DAY);
-		}
-
-		return $data;
+		return self::rearrangeData($data);
 	}
 
 
