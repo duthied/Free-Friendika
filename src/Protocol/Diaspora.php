@@ -937,7 +937,7 @@ class Diaspora
 
 		Logger::log("Fetching diaspora key for: ".$handle);
 
-		$r = FContact::getByUrl($handle);
+		$r = FContact::getByURL($handle);
 		if ($r) {
 			return $r["pubkey"];
 		}
@@ -1020,7 +1020,7 @@ class Diaspora
 	 */
 	public static function isSupportedByContactUrl($url, $update = null)
 	{
-		return !empty(FContact::getByUrl($url, $update));
+		return !empty(FContact::getByURL($url, $update));
 	}
 
 	/**
@@ -1379,7 +1379,7 @@ class Diaspora
 		$item = Item::selectFirst($fields, $condition);
 
 		if (!DBA::isResult($item)) {
-			$person = FContact::getByUrl($author);
+			$person = FContact::getByURL($author);
 			$result = self::storeByGuid($guid, $person["url"], $uid);
 
 			// We don't have an url for items that arrived at the public dispatcher
@@ -1602,7 +1602,7 @@ class Diaspora
 		if (DBA::isResult($item)) {
 			return $item["uri"];
 		} elseif (!$onlyfound) {
-			$person = FContact::getByUrl($author);
+			$person = FContact::getByURL($author);
 
 			$parts = parse_url($person['url']);
 			unset($parts['path']);
@@ -1658,7 +1658,7 @@ class Diaspora
 				continue;
 			}
 
-			$person = FContact::getByUrl($match[3]);
+			$person = FContact::getByURL($match[3]);
 			if (empty($person)) {
 				continue;
 			}
@@ -1714,7 +1714,7 @@ class Diaspora
 			return false;
 		}
 
-		$person = FContact::getByUrl($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("unable to find author details");
 			return false;
@@ -1829,7 +1829,7 @@ class Diaspora
 		$body = Markdown::toBBCode($msg_text);
 		$message_uri = $msg_author.":".$msg_guid;
 
-		$person = FContact::getByUrl($msg_author);
+		$person = FContact::getByURL($msg_author);
 
 		return Mail::insert([
 			'uid'        => $importer['uid'],
@@ -1946,7 +1946,7 @@ class Diaspora
 			return false;
 		}
 
-		$person = FContact::getByUrl($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("unable to find author details");
 			return false;
@@ -2052,7 +2052,7 @@ class Diaspora
 
 		$message_uri = $author.":".$guid;
 
-		$person = FContact::getByUrl($author);
+		$person = FContact::getByURL($author);
 		if (!$person) {
 			Logger::log("unable to find author details");
 			return false;
@@ -2118,7 +2118,7 @@ class Diaspora
 			return false;
 		}
 
-		$person = FContact::getByUrl($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("Person not found: ".$author);
 			return false;
@@ -2392,7 +2392,7 @@ class Diaspora
 			Logger::log("Author ".$author." wants to listen to us.", Logger::DEBUG);
 		}
 
-		$ret = FContact::getByUrl($author);
+		$ret = FContact::getByURL($author);
 
 		if (!$ret || ($ret["network"] != Protocol::DIASPORA)) {
 			Logger::log("Cannot resolve diaspora handle ".$author." for ".$recipient);
@@ -2680,7 +2680,7 @@ class Diaspora
 		$target_guid = Strings::escapeTags(XML::unescape($data->target_guid));
 		$target_type = Strings::escapeTags(XML::unescape($data->target_type));
 
-		$person = FContact::getByUrl($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("unable to find author detail for ".$author);
 			return false;
@@ -3083,7 +3083,7 @@ class Diaspora
 		// We always try to use the data from the fcontact table.
 		// This is important for transmitting data to Friendica servers.
 		if (!empty($contact['addr'])) {
-			$fcontact = FContact::getByUrl($contact['addr']);
+			$fcontact = FContact::getByURL($contact['addr']);
 			if (!empty($fcontact)) {
 				$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
 			}

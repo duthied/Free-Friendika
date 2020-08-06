@@ -1410,7 +1410,7 @@ class DFRN
 				}
 			}
 
-			$fcontact = FContact::getByUrl($contact['addr']);
+			$fcontact = FContact::getByURL($contact['addr']);
 			if (empty($fcontact)) {
 				Logger::log('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
 				return -22;

@@ -40,7 +40,7 @@ class FContact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getByUrl($handle, $update = null)
+	public static function getByURL($handle, $update = null)
 	{
 		$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
 		if (!DBA::isResult($person)) {
@@ -77,7 +77,7 @@ class FContact
 			if ($r && ($r["network"] === Protocol::DIASPORA)) {
 				self::updateFContact($r);
 
-				$person = self::getByUrl($handle, false);
+				$person = self::getByURL($handle, false);
 			}
 		}
 
