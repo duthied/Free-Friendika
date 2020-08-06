@@ -21,8 +21,6 @@
 
 namespace Friendica\Model;
 
-use DOMDocument;
-use DOMXPath;
 use Friendica\App\BaseURL;
 use Friendica\Content\Pager;
 use Friendica\Core\Hook;
@@ -220,7 +218,7 @@ class Contact
 		// Add internal fields
 		$removal = [];
 		if (!empty($fields)) {
-			foreach (['id', 'updated', 'network'] as $internal) {
+			foreach (['id', 'avatar', 'updated', 'last-update', 'success_update', 'failure_update', 'network'] as $internal) {
 				if (!in_array($internal, $fields)) {
 					$fields[] = $internal;
 					$removal[] = $internal;
@@ -250,7 +248,8 @@ class Contact
 		}
 
 		// Update the contact in the background if needed
-		if ((($contact['updated'] < DateTimeFormat::utc('now -7 days')) || empty($contact['avatar'])) &&
+		$updated = max($contact['success_update'], $contact['updated'], $contact['last-update'], $contact['failure_update']);
+		if ((($updated < DateTimeFormat::utc('now -7 days')) || empty($contact['avatar'])) &&
 			in_array($contact['network'], Protocol::FEDERATED)) {
 			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id'], ($uid == 0 ? 'force' : ''));
 		}
@@ -1152,6 +1151,9 @@ class Contact
 
 		if ((empty($data) && is_null($update)) || $update) {
 			$data = Probe::uri($url, "", $uid);
+			$probed = !empty($data['network']) && ($data['network'] != Protocol::PHANTOM);
+		} else {
+			$probed = false;
 		}
 
 		// Take the default values when probing failed
@@ -1180,13 +1182,8 @@ class Contact
 			$contact = self::selectFirst(['id'], ['nurl' => $urls, 'uid' => $uid]);
 			if (!empty($contact['id'])) {
 				$contact_id = $contact['id'];
-				Logger::info('Fetched id by url', ['cid' => $contact_id, 'url' => $url, 'probed_url' => $data['url'], 'alias' => $data['alias']]);
+				Logger::info('Fetched id by url', ['cid' => $contact_id, 'uid' => $uid, 'url' => $url, 'probed_url' => $data['url'], 'alias' => $data['alias'], 'addr' => $data['addr']]);
 			}
-		}
-
-		if ($uid == 0) {
-			$data['last-item'] = Probe::getLastUpdate($data);
-			Logger::info('Fetched last item', ['url' => $url, 'probed_url' => $data['url'], 'last-item' => $data['last-item'], 'callstack' => System::callstack(20)]);
 		}
 
 		if (!$contact_id) {
@@ -1222,8 +1219,9 @@ class Contact
 				'readonly'  => 0,
 				'pending'   => 0];
 
-			if (!empty($data['last-item'])) {
-				$fields['last-item'] = $data['last-item'];
+			if (($uid == 0) && $probed) {
+				$fields['last-item'] = Probe::getLastUpdate($data);
+				Logger::info('Fetched last item', ['url' => $url, 'probed_url' => $data['url'], 'last-item' => $fields['last-item'], 'callstack' => System::callstack(20)]);
 			}
 
 			$condition = ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid, 'deleted' => false];
@@ -1249,53 +1247,13 @@ class Contact
 			$contact_id = $contact["id"];
 		}
 
-		if (!empty($data['photo']) && ($data['network'] != Protocol::FEED)) {
-			self::updateAvatar($contact_id, $data['photo']);
-		}
-
-		if (in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
-			if ($background_update) {
-				// Update in the background when we fetched the data solely from the database
-				Worker::add(PRIORITY_MEDIUM, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
-			} else {
-				// Else do a direct update
-				self::updateFromProbe($contact_id, '', false);
-			}
+		if ($background_update && !$probed && in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
+			// Update in the background when we fetched the data solely from the database
+			Worker::add(PRIORITY_MEDIUM, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
+		} elseif (!empty($data['network'])) {
+			self::updateFromProbeArray($contact_id, $data, false);
 		} else {
-			$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'baseurl', 'gsid', 'last-item'];
-			$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
-
-			// This condition should always be true
-			if (!DBA::isResult($contact)) {
-				return $contact_id;
-			}
-
-			$updated = [
-				'url' => $data['url'],
-				'nurl' => Strings::normaliseLink($data['url']),
-				'updated' => DateTimeFormat::utcNow(),
-				'failed' => false
-			];
-
-			$fields = ['addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'baseurl', 'gsid'];
-
-			foreach ($fields as $field) {
-				$updated[$field] = ($data[$field] ?? '') ?: $contact[$field];
-			}
-
-			if (!empty($data['last-item']) && ($contact['last-item'] < $data['last-item'])) {
-				$updated['last-item'] = $data['last-item'];
-			}
-
-			if (($updated['addr'] != $contact['addr']) || (!empty($data['alias']) && ($data['alias'] != $contact['alias']))) {
-				$updated['uri-date'] = DateTimeFormat::utcNow();
-			}
-
-			if (($data['name'] != $contact['name']) || ($data['nick'] != $contact['nick'])) {
-				$updated['name-date'] = DateTimeFormat::utcNow();
-			}
-
-			DBA::update('contact', $updated, ['id' => $contact_id], $contact);
+			Logger::info('Invalid data', ['url' => $url, 'data' => $data]);
 		}
 
 		return $contact_id;
@@ -1863,6 +1821,25 @@ class Contact
 	 */
 	public static function updateFromProbe(int $id, string $network = '', bool $force = false)
 	{
+		$contact = DBA::selectFirst('contact', ['uid', 'url'], ['id' => $id]);
+		if (!DBA::isResult($contact)) {
+			return false;
+		}
+
+		$ret = Probe::uri($contact['url'], $network, $contact['uid'], !$force);
+		return self::updateFromProbeArray($id, $ret, $force);
+	}
+
+	/**
+	 * @param integer $id      contact id
+	 * @param array   $ret     Probed data
+	 * @param boolean $force   Optional forcing of network probing (otherwise we use the cached data)
+	 * @return boolean
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function updateFromProbeArray(int $id, array $ret, bool $force = false)
+	{
 		/*
 		  Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
 		  This will reliably kill your communication with old Friendica contacts.
@@ -1873,7 +1850,7 @@ class Contact
 
 		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
 			'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
-			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey'];
+			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey', 'last-item'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
@@ -1887,8 +1864,6 @@ class Contact
 
 		$contact['photo'] = $contact['avatar'];
 		unset($contact['avatar']);
-
-		$ret = Probe::uri($contact['url'], $network, $uid, !$force);
 
 		$updated = DateTimeFormat::utcNow();
 
@@ -1930,7 +1905,12 @@ class Contact
 			}
 		}
 
-		$new_pubkey = $ret['pubkey'];
+		$new_pubkey = $ret['pubkey'] ?? '';
+
+		if ($uid == 0) {
+			$ret['last-item'] = Probe::getLastUpdate($ret);
+			Logger::info('Fetched last item', ['id' => $id, 'probed_url' => $ret['url'], 'last-item' => $ret['last-item'], 'callstack' => System::callstack(20)]);
+		}
 
 		$update = false;
 
@@ -1946,14 +1926,18 @@ class Contact
 			}
 		}
 
+		if (!empty($ret['last-item']) && ($contact['last-item'] < $ret['last-item'])) {
+			$update = true;
+		} else {
+			unset($ret['last-item']);
+		}
+
 		if (!empty($ret['photo']) && ($ret['network'] != Protocol::FEED)) {
 			self::updateAvatar($id, $ret['photo'], $update || $force);
 		}
 
 		if (!$update) {
-			if ($force) {
-				self::updateContact($id, $uid, $ret['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
-			}
+			self::updateContact($id, $uid, $ret['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
 
 			// Update the public contact
 			if ($uid != 0) {
