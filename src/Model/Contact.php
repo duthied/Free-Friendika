@@ -21,8 +21,6 @@
 
 namespace Friendica\Model;
 
-use DOMDocument;
-use DOMXPath;
 use Friendica\App\BaseURL;
 use Friendica\Content\Pager;
 use Friendica\Core\Hook;
