@@ -33,6 +33,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Event;
+use Friendica\Model\FContact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
@@ -1409,7 +1410,7 @@ class DFRN
 				}
 			}
 
-			$fcontact = Diaspora::personByHandle($contact['addr']);
+			$fcontact = FContact::getByUrl($contact['addr']);
 			if (empty($fcontact)) {
 				Logger::log('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
 				return -22;
