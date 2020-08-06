@@ -171,4 +171,40 @@ abstract class BaseModule
 			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 	}
+
+	protected static function getContactFilterTabs(string $baseUrl, string $current, bool $displayCommonTab)
+	{
+		$tabs = [
+			[
+				'label' => DI::l10n()->t('All contacts'),
+				'url'   => $baseUrl . '/contacts',
+				'sel'   => !$current || $current == 'all' ? 'active' : '',
+			],
+			[
+				'label' => DI::l10n()->t('Followers'),
+				'url'   => $baseUrl . '/contacts/followers',
+				'sel'   => $current == 'followers' ? 'active' : '',
+			],
+			[
+				'label' => DI::l10n()->t('Following'),
+				'url'   => $baseUrl . '/contacts/following',
+				'sel'   => $current == 'following' ? 'active' : '',
+			],
+			[
+				'label' => DI::l10n()->t('Mutual friends'),
+				'url'   => $baseUrl . '/contacts/mutuals',
+				'sel'   => $current == 'mutuals' ? 'active' : '',
+			],
+		];
+
+		if ($displayCommonTab) {
+			$tabs[] = [
+				'label' => DI::l10n()->t('Common'),
+				'url'   => $baseUrl . '/contacts/common',
+				'sel'   => $current == 'common' ? 'active' : '',
+			];
+		}
+
+		return $tabs;
+	}
 }

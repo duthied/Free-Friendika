@@ -5,25 +5,8 @@
 	<p>{{$desc nofilter}}</p>
 {{/if}}
 
-	<ul class="nav nav-tabs">
-		<li role="presentation"{{if !$type || $type == 'all'}} class="active"{{/if}}>
-			<a href="profile/{{$nickname}}/contacts">{{$all_label}}</a>
-		</li>
-		<li role="presentation"{{if $type == 'followers'}} class="active"{{/if}}>
-			<a href="profile/{{$nickname}}/contacts/followers">{{$followers_label}}</a>
-		</li>
-		<li role="presentation"{{if $type == 'following'}} class="active"{{/if}}>
-			<a href="profile/{{$nickname}}/contacts/following">{{$following_label}}</a>
-		</li>
-		<li role="presentation"{{if $type == 'mutuals'}} class="active"{{/if}}>
-			<a href="profile/{{$nickname}}/contacts/mutuals">{{$mutuals_label}}</a>
-		</li>
-	{{if $displayCommonTab}}
-		<li role="presentation"{{if $type == 'common'}} class="active"{{/if}}>
-			<a href="profile/{{$nickname}}/contacts/common" class="tab button">{{$common_label}}</a>
-		</li>
-	{{/if}}
-	</ul>
+	{{include file="page_tabs.tpl" tabs=$tabs}}
+
 {{if $contacts}}
 	<ul id="viewcontact_wrapper{{if $id}}-{{$id}}{{/if}}" class="viewcontact_wrapper media-list">
 	{{foreach $contacts as $contact}}
