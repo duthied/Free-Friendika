@@ -34,6 +34,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
+use Friendica\Model\FContact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
@@ -936,87 +937,12 @@ class Diaspora
 
 		Logger::log("Fetching diaspora key for: ".$handle);
 
-		$r = self::personByHandle($handle);
+		$r = FContact::getByURL($handle);
 		if ($r) {
 			return $r["pubkey"];
 		}
 
 		return "";
-	}
-
-	/**
-	 * Fetches data for a given handle
-	 *
-	 * @param string $handle The handle
-	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
-	 *
-	 * @return array the queried data
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function personByHandle($handle, $update = null)
-	{
-		$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
-		if (!DBA::isResult($person)) {
-			$urls = [$handle, str_replace('http://', 'https://', $handle), Strings::normaliseLink($handle)];
-			$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'url' => $urls]);
-		}
-
-		if (DBA::isResult($person)) {
-			Logger::debug('In cache', ['person' => $person]);
-
-			if (is_null($update)) {
-				// update record occasionally so it doesn't get stale
-				$d = strtotime($person["updated"]." +00:00");
-				if ($d < strtotime("now - 14 days")) {
-					$update = true;
-				}
-
-				if ($person["guid"] == "") {
-					$update = true;
-				}
-			}
-		} elseif (is_null($update)) {
-			$update = !DBA::isResult($person);
-		} else {
-			$person = [];
-		}
-
-		if ($update) {
-			Logger::log("create or refresh", Logger::DEBUG);
-			$r = Probe::uri($handle, Protocol::DIASPORA);
-
-			// Note that Friendica contacts will return a "Diaspora person"
-			// if Diaspora connectivity is enabled on their server
-			if ($r && ($r["network"] === Protocol::DIASPORA)) {
-				self::updateFContact($r);
-
-				$person = self::personByHandle($handle, false);
-			}
-		}
-
-		return $person;
-	}
-
-	/**
-	 * Updates the fcontact table
-	 *
-	 * @param array $arr The fcontact data
-	 * @throws \Exception
-	 */
-	private static function updateFContact($arr)
-	{
-		$fields = ['name' => $arr["name"], 'photo' => $arr["photo"],
-			'request' => $arr["request"], 'nick' => $arr["nick"],
-			'addr' => strtolower($arr["addr"]), 'guid' => $arr["guid"],
-			'batch' => $arr["batch"], 'notify' => $arr["notify"],
-			'poll' => $arr["poll"], 'confirm' => $arr["confirm"],
-			'alias' => $arr["alias"], 'pubkey' => $arr["pubkey"],
-			'updated' => DateTimeFormat::utcNow()];
-
-		$condition = ['url' => $arr["url"], 'network' => $arr["network"]];
-
-		DBA::update('fcontact', $fields, $condition, true);
 	}
 
 	/**
@@ -1067,32 +993,6 @@ class Diaspora
 	}
 
 	/**
-	 * get a url (scheme://domain.tld/u/user) from a given Diaspora*
-	 * fcontact guid
-	 *
-	 * @param mixed $fcontact_guid Hexadecimal string guid
-	 *
-	 * @return string the contact url or null
-	 * @throws \Exception
-	 */
-	public static function urlFromContactGuid($fcontact_guid)
-	{
-		Logger::info('fcontact', ['guid' => $fcontact_guid]);
-
-		$r = q(
-			"SELECT `url` FROM `fcontact` WHERE `url` != '' AND `network` = '%s' AND `guid` = '%s'",
-			DBA::escape(Protocol::DIASPORA),
-			DBA::escape($fcontact_guid)
-		);
-
-		if (DBA::isResult($r)) {
-			return $r[0]['url'];
-		}
-
-		return null;
-	}
-
-	/**
 	 * Get a contact id for a given handle
 	 *
 	 * @todo  Move to Friendica\Model\Contact
@@ -1120,7 +1020,7 @@ class Diaspora
 	 */
 	public static function isSupportedByContactUrl($url, $update = null)
 	{
-		return !empty(self::personByHandle($url, $update));
+		return !empty(FContact::getByURL($url, $update));
 	}
 
 	/**
@@ -1272,7 +1172,7 @@ class Diaspora
 				// 0 => '[url=/people/0123456789abcdef]Foo Bar[/url]'
 				// 1 => '0123456789abcdef'
 				// 2 => 'Foo Bar'
-				$handle = self::urlFromContactGuid($match[1]);
+				$handle = FContact::getUrlByGuid($match[1]);
 
 				if ($handle) {
 					$return = '@[url='.$handle.']'.$match[2].'[/url]';
@@ -1479,7 +1379,7 @@ class Diaspora
 		$item = Item::selectFirst($fields, $condition);
 
 		if (!DBA::isResult($item)) {
-			$person = self::personByHandle($author);
+			$person = FContact::getByURL($author);
 			$result = self::storeByGuid($guid, $person["url"], $uid);
 
 			// We don't have an url for items that arrived at the public dispatcher
@@ -1702,7 +1602,7 @@ class Diaspora
 		if (DBA::isResult($item)) {
 			return $item["uri"];
 		} elseif (!$onlyfound) {
-			$person = self::personByHandle($author);
+			$person = FContact::getByURL($author);
 
 			$parts = parse_url($person['url']);
 			unset($parts['path']);
@@ -1734,27 +1634,6 @@ class Diaspora
 	}
 
 	/**
-	 * Find the best importer for a comment, like, ...
-	 *
-	 * @param string $guid The guid of the item
-	 *
-	 * @return array|boolean the origin owner of that post - or false
-	 * @throws \Exception
-	 */
-	private static function importerForGuid($guid)
-	{
-		$item = Item::selectFirst(['uid'], ['origin' => true, 'guid' => $guid]);
-		if (DBA::isResult($item)) {
-			Logger::log("Found user ".$item['uid']." as owner of item ".$guid, Logger::DEBUG);
-			$contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $item['uid']]);
-			if (DBA::isResult($contact)) {
-				return $contact;
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Store the mentions in the tag table
 	 *
 	 * @param integer $uriid
@@ -1779,7 +1658,7 @@ class Diaspora
 				continue;
 			}
 
-			$person = self::personByHandle($match[3]);
+			$person = FContact::getByURL($match[3]);
 			if (empty($person)) {
 				continue;
 			}
@@ -1835,7 +1714,7 @@ class Diaspora
 			return false;
 		}
 
-		$person = self::personByHandle($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("unable to find author details");
 			return false;
@@ -1950,7 +1829,7 @@ class Diaspora
 		$body = Markdown::toBBCode($msg_text);
 		$message_uri = $msg_author.":".$msg_guid;
 
-		$person = self::personByHandle($msg_author);
+		$person = FContact::getByURL($msg_author);
 
 		return Mail::insert([
 			'uid'        => $importer['uid'],
@@ -2067,7 +1946,7 @@ class Diaspora
 			return false;
 		}
 
-		$person = self::personByHandle($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("unable to find author details");
 			return false;
@@ -2173,7 +2052,7 @@ class Diaspora
 
 		$message_uri = $author.":".$guid;
 
-		$person = self::personByHandle($author);
+		$person = FContact::getByURL($author);
 		if (!$person) {
 			Logger::log("unable to find author details");
 			return false;
@@ -2239,7 +2118,7 @@ class Diaspora
 			return false;
 		}
 
-		$person = self::personByHandle($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("Person not found: ".$author);
 			return false;
@@ -2513,7 +2392,7 @@ class Diaspora
 			Logger::log("Author ".$author." wants to listen to us.", Logger::DEBUG);
 		}
 
-		$ret = self::personByHandle($author);
+		$ret = FContact::getByURL($author);
 
 		if (!$ret || ($ret["network"] != Protocol::DIASPORA)) {
 			Logger::log("Cannot resolve diaspora handle ".$author." for ".$recipient);
@@ -2801,7 +2680,7 @@ class Diaspora
 		$target_guid = Strings::escapeTags(XML::unescape($data->target_guid));
 		$target_type = Strings::escapeTags(XML::unescape($data->target_type));
 
-		$person = self::personByHandle($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("unable to find author detail for ".$author);
 			return false;
@@ -3204,7 +3083,7 @@ class Diaspora
 		// We always try to use the data from the fcontact table.
 		// This is important for transmitting data to Friendica servers.
 		if (!empty($contact['addr'])) {
-			$fcontact = self::personByHandle($contact['addr']);
+			$fcontact = FContact::getByURL($contact['addr']);
 			if (!empty($fcontact)) {
 				$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
 			}
