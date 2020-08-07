@@ -103,7 +103,6 @@ return [
 	],
 	'/amcd'                => [Module\AccountManagementControlDocument::class, [R::GET]],
 	'/acctlink'            => [Module\Acctlink::class,     [R::GET]],
-	'/allfriends/{id:\d+}' => [Module\AllFriends::class,   [R::GET]],
 	'/apps'                => [Module\Apps::class,         [R::GET]],
 	'/attach/{item:\d+}'   => [Module\Attach::class,       [R::GET]],
 	'/babel'               => [Module\Debug\Babel::class,  [R::GET, R::POST]],
