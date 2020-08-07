@@ -88,7 +88,7 @@ function match_content(App $a)
 			$profile = $msearch->results[$i];
 
 			// Already known contact
-			if (!$profile || Contact::getIdForURL($profile->url, local_user(), false)) {
+			if (!$profile || Contact::getIdForURL($profile->url, local_user())) {
 				continue;
 			}
 

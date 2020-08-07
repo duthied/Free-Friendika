@@ -3064,7 +3064,7 @@ class Item
 		if (local_user() == $uid) {
 			$item_contact_id = $owner_self_contact['id'];
 		} else {
-			$item_contact_id = Contact::getIdForURL($author_contact['url'], $uid, false);
+			$item_contact_id = Contact::getIdForURL($author_contact['url'], $uid);
 			$item_contact = DBA::selectFirst('contact', [], ['id' => $item_contact_id]);
 			if (!DBA::isResult($item_contact)) {
 				Logger::log('like: unknown item contact ' . $item_contact_id);

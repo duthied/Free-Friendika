@@ -690,7 +690,7 @@ class Feed
 		}
 
 		$check_date = empty($last_update) ? '' : DateTimeFormat::utc($last_update);
-		$authorid = Contact::getIdForURL($owner["url"], 0, false);
+		$authorid = Contact::getIdForURL($owner["url"]);
 
 		$condition = ["`uid` = ? AND `received` > ? AND NOT `deleted` AND `gravity` IN (?, ?)
 			AND `private` != ? AND `visible` AND `wall` AND `parent-network` IN (?, ?, ?, ?)",
