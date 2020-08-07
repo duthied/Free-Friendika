@@ -413,26 +413,28 @@ class HTTPSignature
 	 */
 	public static function fetchRaw($request, $uid = 0, $binary = false, $opts = [])
 	{
+		$headers = [];
+
 		if (!empty($uid)) {
 			$owner = User::getOwnerDataById($uid);
 			if (!$owner) {
 				return;
 			}
 
-			// Header data that is about to be signed.
-			$host = parse_url($request, PHP_URL_HOST);
-			$path = parse_url($request, PHP_URL_PATH);
-			$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
+			if (!empty($owner['uprvkey'])) {
+				// Header data that is about to be signed.
+				$host = parse_url($request, PHP_URL_HOST);
+				$path = parse_url($request, PHP_URL_PATH);
+				$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
 
-			$headers = ['Date: ' . $date, 'Host: ' . $host];
+				$headers = ['Date: ' . $date, 'Host: ' . $host];
 
-			$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
+				$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
 
-			$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
+				$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
 
-			$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
-		} else {
-			$headers = [];
+				$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
+			}
 		}
 
 		if (!empty($opts['accept_content'])) {
