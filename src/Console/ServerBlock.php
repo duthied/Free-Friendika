@@ -68,7 +68,6 @@ Description
 Options
     -h|--help|-? Show help information
     -v           Show more debug information.
-
 HELP;
 		return $help;
 	}
