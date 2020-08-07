@@ -48,26 +48,27 @@ class ServerBlock extends Console
 		$help = <<<HELP
 console serverblock - Manage blocked server domain patterns
 Usage
-	bin/console serverblock [-h|--help|-?] [-v]
-	bin/console serverblock add <pattern> <reason> [-h|--help|-?] [-v]
-	bin/console serverblock remove <pattern> [-h|--help|-?] [-v]
-	bin/console serverblock export <filename>
-	bin/console serverblock import <filename>
+    bin/console serverblock [-h|--help|-?] [-v]
+    bin/console serverblock add <pattern> <reason> [-h|--help|-?] [-v]
+    bin/console serverblock remove <pattern> [-h|--help|-?] [-v]
+    bin/console serverblock export <filename>
+    bin/console serverblock import <filename>
 
 Description
-	With this tool, you can list the current blocked server domain patterns
-	or you can add / remove a blocked server domain pattern from the list.
-	Using the export and import options you can share your server blocklist
-	with other node admins by CSV files.
-	
-	Patterns are case-insensitive shell wildcard comprising the following special characters:
-	- * : Any number of characters
-	- ? : Any single character
-	- [<char1><char2>...] : char1 or char2 or...
+    With this tool, you can list the current blocked server domain patterns
+    or you can add / remove a blocked server domain pattern from the list.
+    Using the export and import options you can share your server blocklist
+    with other node admins by CSV files.
+
+    Patterns are case-insensitive shell wildcard comprising the following special characters:
+    - * : Any number of characters
+    - ? : Any single character
+    - [<char1><char2>...] : char1 or char2 or...
 
 Options
-	-h|--help|-? Show help information
-	-v           Show more debug information.
+    -h|--help|-? Show help information
+    -v           Show more debug information.
+
 HELP;
 		return $help;
 	}
