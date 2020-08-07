@@ -5,15 +5,8 @@
 	<p>{{$desc nofilter}}</p>
 {{/if}}
 
-	<ul role="menubar" class="tabs">
-		<li role="menuitem"><a href="profile/{{$nickname}}/contacts" class="tab button{{if !$type || $type == 'all'}} active{{/if}}">{{$all_label}}</a></li>
-		<li role="menuitem"><a href="profile/{{$nickname}}/contacts/followers" class="tab button{{if $type == 'followers'}} active{{/if}}">{{$followers_label}}</a></li>
-		<li role="menuitem"><a href="profile/{{$nickname}}/contacts/following" class="tab button{{if $type == 'following'}} active{{/if}}">{{$following_label}}</a></li>
-		<li role="menuitem"><a href="profile/{{$nickname}}/contacts/mutuals" class="tab button{{if $type == 'mutuals'}} active{{/if}}">{{$mutuals_label}}</a></li>
-	{{if $displayCommonTab}}
-		<li role="menuitem"><a href="profile/{{$nickname}}/contacts/common" class="tab button{{if $type == 'common'}} active{{/if}}{{if !$common_count}} disabled{{/if}}">{{$common_label}}</a></li>
-	{{/if}}
-	</ul>
+	{{include file="page_tabs.tpl" tabs=$tabs}}
+
 {{if $contacts}}
 	<div id="viewcontact_wrapper-{{$id}}">
 	{{foreach $contacts as $contact}}

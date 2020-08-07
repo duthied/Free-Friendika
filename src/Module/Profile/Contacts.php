@@ -61,6 +61,8 @@ class Contacts extends Module\BaseProfile
 
 		$o = self::getTabsHTML($a, 'contacts', $is_owner, $nickname);
 
+		$tabs = self::getContactFilterTabs('profile/' . $nickname, $type, Session::isAuthenticated() && $a->profile['uid'] != local_user());
+
 		$condition = [
 			'uid'     => $a->profile['uid'],
 			'blocked' => false,
@@ -113,15 +115,8 @@ class Contacts extends Module\BaseProfile
 		$o .= Renderer::replaceMacros($tpl, [
 			'$title'    => $title,
 			'$desc'     => $desc,
-			'$nickname' => $nickname,
-			'$type'     => $type,
-			'$displayCommonTab' => Session::isAuthenticated() && $a->profile['uid'] != local_user(),
+			'$tabs'     => $tabs,
 
-			'$all_label'       => DI::l10n()->t('All contacts'),
-			'$followers_label' => DI::l10n()->t('Followers'),
-			'$following_label' => DI::l10n()->t('Following'),
-			'$mutuals_label'   => DI::l10n()->t('Mutual friends'),
-			'$common_label'    => DI::l10n()->t('Common'),
 			'$noresult_label'  => DI::l10n()->t('No contacts.'),
 
 			'$contacts' => $contacts,

@@ -2248,8 +2248,8 @@ ul.dropdown-menu li:hover {
  *********/
 
 section > .generic-page-wrapper, .videos-content-wrapper,
- .suggest-content-wrapper, .common-content-wrapper, .help-content-wrapper,
-.allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
+.suggest-content-wrapper, .help-content-wrapper,
+.match-content-wrapper, .dirfind-content-wrapper,
 .delegation-content-wrapper, .notes-content-wrapper,
 .message-content-wrapper, .apps-content-wrapper,
 #adminpage, .delegate-content-wrapper, .uexport-content-wrapper,
@@ -3487,7 +3487,7 @@ section .profile-match-wrapper {
 		right: 10px;
 	}
 
-	.generic-page-wrapper, .videos-content-wrapper, .suggest-content-wrapper, .common-content-wrapper, .help-content-wrapper, .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper, .directory-content-wrapper, .delegation-content-wrapper, .notes-content-wrapper, .message-content-wrapper, .apps-content-wrapper, #adminpage, .delegate-content-wrapper, .uexport-content-wrapper, .dfrn_request-content-wrapper, .friendica-content-wrapper, .credits-content-wrapper, .nogroup-content-wrapper, .profperm-content-wrapper, .invite-content-wrapper, .tos-content-wrapper, .fsuggest-content-wrapper {
+	.generic-page-wrapper, .videos-content-wrapper, .suggest-content-wrapper, .help-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper, .directory-content-wrapper, .delegation-content-wrapper, .notes-content-wrapper, .message-content-wrapper, .apps-content-wrapper, #adminpage, .delegate-content-wrapper, .uexport-content-wrapper, .dfrn_request-content-wrapper, .friendica-content-wrapper, .credits-content-wrapper, .nogroup-content-wrapper, .profperm-content-wrapper, .invite-content-wrapper, .tos-content-wrapper, .fsuggest-content-wrapper {
 		border-radius: 0;
 		padding: 10px;
 	}

@@ -125,7 +125,7 @@ class Advanced extends BaseModule
 			$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '2' => DI::l10n()->t('Mirror as my own posting')];
 		}
 
-		$tab_str = Contact::getTabsHTML(DI::app(), $contact, 6);
+		$tab_str = Contact::getTabsHTML($contact, Contact::TAB_ADVANCED);
 
 		$tpl = Renderer::getMarkupTemplate('contact/advanced.tpl');
 		return Renderer::replaceMacros($tpl, [

@@ -53,8 +53,6 @@ class Common extends BaseProfile
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		$o = self::getTabsHTML($a, 'contacts', false, $nickname);
-
 		if (!empty($a->profile['hide-friends'])) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
@@ -64,6 +62,10 @@ class Common extends BaseProfile
 		if (!$displayCommonTab) {
 			$a->redirect('profile/' . $nickname . '/contacts');
 		};
+
+		$o = self::getTabsHTML($a, 'contacts', false, $nickname);
+
+		$tabs = self::getContactFilterTabs('profile/' . $nickname, 'common', $displayCommonTab);
 
 		$sourceId = Contact::getIdForURL(Profile::getMyURL());
 		$targetId = Contact::getPublicIdByUserId($a->profile['uid']);
@@ -92,15 +94,8 @@ class Common extends BaseProfile
 		$o .= Renderer::replaceMacros($tpl, [
 			'$title'    => $title,
 			'$desc'     => $desc,
-			'$nickname' => $nickname,
-			'$type'     => 'common',
-			'$displayCommonTab' => $displayCommonTab,
+			'$tabs'     => $tabs,
 
-			'$all_label'       => DI::l10n()->t('All contacts'),
-			'$followers_label' => DI::l10n()->t('Followers'),
-			'$following_label' => DI::l10n()->t('Following'),
-			'$mutuals_label'   => DI::l10n()->t('Mutual friends'),
-			'$common_label'    => DI::l10n()->t('Common'),
 			'$noresult_label'  => DI::l10n()->t('No common contacts.'),
 
 			'$contacts' => $contacts,
