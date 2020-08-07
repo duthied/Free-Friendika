@@ -47,6 +47,12 @@ use Friendica\Util\Strings;
  */
 class Contact extends BaseModule
 {
+	const TAB_CONVERSATIONS = 1;
+	const TAB_POSTS = 2;
+	const TAB_PROFILE = 3;
+	const TAB_CONTACTS = 4;
+	const TAB_ADVANCED = 5;
+
 	private static function batchActions()
 	{
 		if (empty($_POST['contact_batch']) || !is_array($_POST['contact_batch'])) {
@@ -531,7 +537,7 @@ class Contact extends BaseModule
 			$nettype = DI::l10n()->t('Network type: %s', ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']));
 
 			// tabs
-			$tab_str = self::getTabsHTML($contact, 3);
+			$tab_str = self::getTabsHTML($contact, self::TAB_PROFILE);
 
 			$lost_contact = (($contact['archive'] && $contact['term-date'] > DBA::NULL_DATETIME && $contact['term-date'] < DateTimeFormat::utcNow()) ? DI::l10n()->t('Communications lost with this contact!') : '');
 
@@ -576,7 +582,7 @@ class Contact extends BaseModule
 				'$lbl_info2'      => DI::l10n()->t('Their personal note'),
 				'$reason'         => trim(Strings::escapeTags($contact['reason'])),
 				'$infedit'        => DI::l10n()->t('Edit contact notes'),
-				'$common_link'    => 'common/loc/' . local_user() . '/' . $contact['id'],
+				'$common_link'    => 'contact/' . $contact['id'] . '/contacts/common',
 				'$relation_text'  => $relation_text,
 				'$visit'          => DI::l10n()->t('Visit %s\'s profile [%s]', $contact['name'], $contact['url']),
 				'$blockunblock'   => DI::l10n()->t('Block/Unblock contact'),
@@ -876,57 +882,41 @@ class Contact extends BaseModule
 		$tabs = [
 			[
 				'label' => DI::l10n()->t('Status'),
-				'url'   => "contact/" . $pcid . "/conversations",
-				'sel'   => (($active_tab == 1) ? 'active' : ''),
+				'url'   => 'contact/' . $pcid . '/conversations',
+				'sel'   => (($active_tab == self::TAB_CONVERSATIONS) ? 'active' : ''),
 				'title' => DI::l10n()->t('Conversations started by this contact'),
 				'id'    => 'status-tab',
 				'accesskey' => 'm',
 			],
 			[
 				'label' => DI::l10n()->t('Posts and Comments'),
-				'url'   => "contact/" . $pcid . "/posts",
-				'sel'   => (($active_tab == 2) ? 'active' : ''),
+				'url'   => 'contact/' . $pcid . '/posts',
+				'sel'   => (($active_tab == self::TAB_POSTS) ? 'active' : ''),
 				'title' => DI::l10n()->t('Status Messages and Posts'),
 				'id'    => 'posts-tab',
 				'accesskey' => 'p',
 			],
 			[
 				'label' => DI::l10n()->t('Profile'),
-				'url'   => "contact/" . $cid,
-				'sel'   => (($active_tab == 3) ? 'active' : ''),
+				'url'   => 'contact/' . $cid,
+				'sel'   => (($active_tab == self::TAB_PROFILE) ? 'active' : ''),
 				'title' => DI::l10n()->t('Profile Details'),
 				'id'    => 'profile-tab',
 				'accesskey' => 'o',
-			]
+			],
+			['label' => DI::l10n()->t('Contacts'),
+				'url'   => 'contact/' . $pcid . '/contacts',
+				'sel'   => (($active_tab == self::TAB_CONTACTS) ? 'active' : ''),
+				'title' => DI::l10n()->t('View all known contacts'),
+				'id'    => 'contacts-tab',
+				'accesskey' => 't'
+			],
 		];
-
-		// Show this tab only if there is visible friend list
-		$x = Model\Contact\Relation::countFollows($pcid);
-		if ($x) {
-			$tabs[] = ['label' => DI::l10n()->t('Contacts'),
-				'url'   => "allfriends/" . $pcid,
-				'sel'   => (($active_tab == 4) ? 'active' : ''),
-				'title' => DI::l10n()->t('View all contacts'),
-				'id'    => 'allfriends-tab',
-				'accesskey' => 't'];
-		}
-
-		// Show this tab only if there is visible common friend list
-		$common = Model\GContact::countCommonFriends(local_user(), $cid);
-		if ($common) {
-			$tabs[] = ['label' => DI::l10n()->t('Common Friends'),
-				'url'   => "common/loc/" . local_user() . "/" . $cid,
-				'sel'   => (($active_tab == 5) ? 'active' : ''),
-				'title' => DI::l10n()->t('View all common friends'),
-				'id'    => 'common-loc-tab',
-				'accesskey' => 'd'
-			];
-		}
 
 		if ($cid != $pcid) {
 			$tabs[] = ['label' => DI::l10n()->t('Advanced'),
 				'url'   => 'contact/' . $cid . '/advanced/',
-				'sel'   => (($active_tab == 6) ? 'active' : ''),
+				'sel'   => (($active_tab == self::TAB_ADVANCED) ? 'active' : ''),
 				'title' => DI::l10n()->t('Advanced Contact Settings'),
 				'id'    => 'advanced-tab',
 				'accesskey' => 'r'
@@ -964,7 +954,7 @@ class Contact extends BaseModule
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
 
 		if (!$update) {
-			$o .= self::getTabsHTML($contact, 1);
+			$o .= self::getTabsHTML($contact, self::TAB_CONVERSATIONS);
 		}
 
 		if (DBA::isResult($contact)) {
@@ -988,7 +978,7 @@ class Contact extends BaseModule
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
 
-		$o = self::getTabsHTML($contact, 2);
+		$o = self::getTabsHTML($contact, self::TAB_POSTS);
 
 		if (DBA::isResult($contact)) {
 			DI::page()['aside'] = '';
