@@ -312,6 +312,11 @@ class HTTPRequest implements IHTTPRequest
 	 */
 	public function finalUrl(string $url, int $depth = 1, bool $fetchbody = false)
 	{
+		if (Network::isUrlBlocked($url)) {
+			$this->logger->info('Domain is blocked.', ['url' => $url]);
+			return $url;
+		}
+
 		$url = Network::stripTrackingQueryParams($url);
 
 		if ($depth > 10) {
