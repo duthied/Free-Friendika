@@ -127,10 +127,10 @@ HELP;
 		$filename = $this->getArgument(1);
 		$currBlockList = $config->get('system', 'blocklist', []);
 		$newBlockList = [];
-		if (($fp = fopen($filename, 'r')) !== FALSE) {
-			while (($data = fgetcsv($fp, 1000, ',')) !== FALSE) {
+		if (($fp = fopen($filename, 'r')) !== false) {
+			while (($data = fgetcsv($fp, 1000, ',')) !== false) {
 				$domain = $data[0];
-				if (count($data)  == 0) {
+				if (count($data) == 0) {
 					$reason = self::DEFAULT_REASON;
 				} else {
 					$reason = $data[1];
@@ -139,12 +139,14 @@ HELP;
 					'domain' => $domain,
 					'reason' => $reason
 				];
-				if (!in_array($data, $newBlockList))
+				if (!in_array($data, $newBlockList)) {
 					$newBlockList[] = $data;
+                }
 			}
 			foreach ($currBlockList as $blocked) {
-				if (!in_array($blocked, $newBlockList))
+				if (!in_array($blocked, $newBlockList)) {
 					$newBlockList[] = $blocked;
+                }
 			}
 			if ($config->set('system', 'blocklist', $newBlockList)) {
 				$this->out(sprintf("Entries from %s that were not blocked before are now blocked", $filename));
