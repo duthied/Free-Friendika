@@ -112,6 +112,9 @@ HELP;
 		$filename = $this->getArgument(1);
 		$blocklist = $config->get('system', 'blocklist', []);
 		$fp = fopen($filename, 'w');
+		if (!$fp) {
+			throw new Exception(sprintf('The file "%s" could not be created.', $filename));
+		}
 		foreach ($blocklist as $domain) {
 			fputcsv($fp, $domain);
 		}
@@ -156,6 +159,8 @@ HELP;
 				return 1;
 			}
 
+		} else {
+			throw new Exception(sprintf('The file "%s" could not be opened for importing', $filename));
 		}
 	}
 
