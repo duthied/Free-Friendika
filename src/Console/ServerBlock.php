@@ -144,12 +144,12 @@ HELP;
 				];
 				if (!in_array($data, $newBlockList)) {
 					$newBlockList[] = $data;
-                }
+				}
 			}
 			foreach ($currBlockList as $blocked) {
 				if (!in_array($blocked, $newBlockList)) {
 					$newBlockList[] = $blocked;
-                }
+				}
 			}
 			if ($config->set('system', 'blocklist', $newBlockList)) {
 				$this->out(sprintf("Entries from %s that were not blocked before are now blocked", $filename));
