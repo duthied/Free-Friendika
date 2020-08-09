@@ -202,16 +202,17 @@ function string2bb(element) {
 	// jQuery wrapper for yuku/old-textcomplete
 	// uses a local object directory to avoid recreating Textcomplete objects
 	$.fn.textcomplete = function (strategies, options) {
-		if (!(this.data('textcompleteId') in textcompleteObjects)) {
-			let editor = new Textcomplete.editors.Textarea(this.get(0));
+		return this.each(function () {
+			let $this = $(this);
+			if (!($this.data('textcompleteId') in textcompleteObjects)) {
+				let editor = new Textcomplete.editors.Textarea($this.get(0));
 
-			this.data('textcompleteId', textcompleteObjects.length);
-			textcompleteObjects.push(new Textcomplete(editor, options));
-		}
+				$this.data('textcompleteId', textcompleteObjects.length);
+				textcompleteObjects.push(new Textcomplete(editor, options));
+			}
 
-		textcompleteObjects[this.data('textcompleteId')].register(strategies);
-
-		return this;
+			textcompleteObjects[$this.data('textcompleteId')].register(strategies);
+		});
 	};
 
 	/**
