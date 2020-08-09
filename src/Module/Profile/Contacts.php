@@ -51,13 +51,13 @@ class Contacts extends Module\BaseProfile
 			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		if (!empty($a->profile['hide-friends'])) {
+		$is_owner = $a->profile['uid'] == local_user();
+
+		if (!empty($a->profile['hide-friends']) && !$is_owner) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
 		Nav::setSelected('home');
-
-		$is_owner = $a->profile['uid'] == local_user();
 
 		$o = self::getTabsHTML($a, 'contacts', $is_owner, $nickname);
 
