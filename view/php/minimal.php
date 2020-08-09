@@ -7,7 +7,9 @@
 </head>
 <body class="minimal">
 	<section><?php if(!empty($page['content'])) echo $page['content']; ?>
-		<div id="page-footer"></div>
+		<div id="page-footer">
+			<?php echo $page['footer'] ?? ''; ?>
+		</div>
 	</section>
 </body>
 </html>

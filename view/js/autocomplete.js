@@ -293,7 +293,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		this.textcomplete([contacts, forums, smilies, tags], {className:'acpopup', zIndex:10000});
+		this.textcomplete([contacts, forums, smilies, tags], {dropdown: {className:'acpopup'}});
 		this.fixTextcompleteEscape();
 
 		return this;
@@ -328,7 +328,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete', 'off');
-		this.textcomplete([contacts, community, tags], {className:'acpopup', maxCount:100, zIndex: 10000, appendTo:'nav'});
+		this.textcomplete([contacts, community, tags], {dropdown: {className:'acpopup', maxCount:100}});
 		this.fixTextcompleteEscape();
 		this.on('textComplete:select', function(e, value, strategy) { submit_form(this); });
 
@@ -349,7 +349,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		this.textcomplete([names], {className:'acpopup', zIndex:10000});
+		this.textcomplete([names], {dropdown: {className:'acpopup'}});
 		this.fixTextcompleteEscape();
 
 		if(autosubmit) {
@@ -399,7 +399,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		this.textcomplete([bbco], {className:'acpopup', zIndex:10000});
+		this.textcomplete([bbco], {dropdown: {className:'acpopup'}});
 		this.fixTextcompleteEscape();
 
 		this.on('textComplete:select', function(e, value, strategy) { value; });
