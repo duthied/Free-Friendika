@@ -1800,6 +1800,7 @@ class Item
 		// It is mainly used in the "post_local" hook.
 		unset($item['api_source']);
 
+		self::transformToForumPost($item);
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
@@ -1988,6 +1989,31 @@ class Item
 		}
 
 		return $current_post;
+	}
+
+	/**
+	 * Convert items to forum posts
+	 *
+	 * @param array $item
+	 * @return void
+	 */
+	private static function transformToForumPost(array $item)
+	{
+		if ($item["verb"] != Activity::ANNOUNCE) {
+			return;
+		}
+
+		$pcontact = Contact::selectFirst(['nurl'], ['id' => $item['author-id'], 'contact-type' => Contact::TYPE_COMMUNITY]);
+		if (empty($pcontact['nurl'])) {
+			return;
+		}
+
+		$contact = Contact::selectFirst(['id'], ['nurl' => $pcontact['nurl'], 'uid' => $item['uid']]);
+		if (!empty($contact['id'])) {
+			Item::update(['owner-id' => $item['author-id'], 'contact-id' => $contact['id']],
+				['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
+			LOgger::info('Convert message into a forum message', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $item['uid'], 'owner-id' => $item['author-id'], 'contact-id' => $contact['id']]);
+		}
 	}
 
 	/**
