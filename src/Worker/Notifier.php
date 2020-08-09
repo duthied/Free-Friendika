@@ -36,7 +36,7 @@ use Friendica\Model\Post;
 use Friendica\Model\PushSubscriber;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
-use Friendica\Network\Probe;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
@@ -301,8 +301,10 @@ class Notifier
 
 				// if our parent is a public forum (forum_mode == 1), uplink to the origional author causing
 				// a delivery fork. private groups (forum_mode == 2) do not uplink
+				/// @todo Possibly we should not uplink when the author is the forum itself?
 
-				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)) {
+				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)
+					&& ($target_item['verb'] != Activity::ANNOUNCE)) {
 					Worker::add($a->queue['priority'], 'Notifier', Delivery::UPLINK, $target_id);
 				}
 
@@ -393,7 +395,7 @@ class Notifier
 			if ($followup) {
 				$recipients = $recipients_followup;
 			}
-			$condition = ['id' => $recipients, 'self' => false,
+			$condition = ['id' => $recipients, 'self' => false, 'uid' => [0, $uid],
 				'blocked' => false, 'pending' => false, 'archive' => false];
 			if (!empty($networks)) {
 				$condition['network'] = $networks;
@@ -439,7 +441,7 @@ class Notifier
 
 				// Add the relay to the list, avoid duplicates.
 				// Don't send community posts to the relay. Forum posts via the Diaspora protocol are looking ugly.
-				if (!$followup && !Item::isForumPost($target_item, $owner)) {
+				if (!$followup && !Item::isForumPost($target_item, $owner) && !self::isForumPost($target_item)) {
 					$relay_list = Diaspora::relayList($target_id, $relay_list);
 				}
 			}
@@ -811,5 +813,16 @@ class Notifier
 		}
 
 		return $delivery_queue_count;
+	}
+
+	/**
+	 * Check if the delivered item is a forum post
+	 *
+	 * @param array $item
+	 * @return boolean
+	 */
+	public static function isForumPost(array $item)
+	{
+		return !empty($item['forum_mode']);
 	}
 }

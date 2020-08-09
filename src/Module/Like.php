@@ -51,7 +51,7 @@ class Like extends BaseModule
 		// @TODO: Replace with parameter from router
 		$itemId = (($app->argc > 1) ? Strings::escapeTags(trim($app->argv[1])) : 0);
 
-		if (!Item::performActivity($itemId, $verb)) {
+		if (!Item::performActivity($itemId, $verb, local_user())) {
 			throw new HTTPException\BadRequestException();
 		}
 
