@@ -356,12 +356,14 @@ class Transmitter
 		}
 
 		$always_bcc = false;
+		$isforum = false;
 
 		// Check if we should always deliver our stuff via BCC
 		if (!empty($item['uid'])) {
-			$profile = Profile::getByUID($item['uid']);
+			$profile = User::getOwnerDataById($item['uid']);
 			if (!empty($profile)) {
 				$always_bcc = $profile['hide-friends'];
+				$isforum = $profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY;
 			}
 		}
 
@@ -369,7 +371,7 @@ class Transmitter
 			$always_bcc = true;
 		}
 
-		if (self::isAnnounce($item) || DI::config()->get('debug', 'total_ap_delivery')) {
+		if ((self::isAnnounce($item) && !$isforum) || DI::config()->get('debug', 'total_ap_delivery')) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
 		} else {
@@ -423,6 +425,10 @@ class Transmitter
 						continue;
 					}
 
+					if ($isforum && DBA::isResult($contact) && ($contact['dfrn'] == Protocol::DFRN)) {
+						continue;
+					}
+
 					if (!empty($profile = APContact::getByURL($contact['url'], false))) {
 						$data['to'][] = $profile['url'];
 					}
@@ -432,6 +438,10 @@ class Transmitter
 			foreach ($receiver_list as $receiver) {
 				$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol'], ['id' => $receiver]);
 				if (!DBA::isResult($contact) || (!in_array($contact['network'], $networks) && ($contact['protocol'] != Protocol::ACTIVITYPUB))) {
+					continue;
+				}
+
+				if ($isforum && DBA::isResult($contact) && ($contact['dfrn'] == Protocol::DFRN)) {
 					continue;
 				}
 
@@ -557,6 +567,15 @@ class Transmitter
 	{
 		$inboxes = [];
 
+		$isforum = false;
+
+		if (!empty($item['uid'])) {
+			$profile = User::getOwnerDataById($item['uid']);
+			if (!empty($profile)) {
+				$isforum = $profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY;
+			}
+		}
+
 		if (DI::config()->get('debug', 'total_ap_delivery')) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
@@ -578,6 +597,10 @@ class Transmitter
 			}
 
 			if (!in_array($contact['network'], $networks) && ($contact['protocol'] != Protocol::ACTIVITYPUB)) {
+				continue;
+			}
+
+			if ($isforum && ($contact['dfrn'] == Protocol::DFRN)) {
 				continue;
 			}
 

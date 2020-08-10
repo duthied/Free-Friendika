@@ -475,7 +475,7 @@ class Notifier
 						continue;
 					}
 
-					if (self::skipDFRN($rr, $target_item, $parent, $thr_parent, $cmd)) {
+					if (self::skipDFRN($rr, $target_item, $parent, $thr_parent, $owner, $cmd)) {
 						Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['id' => $target_id, 'url' => $rr['url']]);
 						continue;
 					}
@@ -530,7 +530,7 @@ class Notifier
 				continue;
 			}
 
-			if (self::skipDFRN($contact, $target_item, $parent, $thr_parent, $cmd)) {
+			if (self::skipDFRN($contact, $target_item, $parent, $thr_parent, $owner, $cmd)) {
 				Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'url' => $contact['url']]);
 				continue;
 			}
@@ -648,12 +648,13 @@ class Notifier
 	 * @param array  $item       The post
 	 * @param array  $parent     The parent
 	 * @param array  $thr_parent The thread parent
+	 * @param array  $owner      Owner array
 	 * @param string $cmd        Notifier command
 	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function skipDFRN($contact, $item, $parent, $thr_parent, $cmd)
+	private static function skipDFRN($contact, $item, $parent, $thr_parent, $owner, $cmd)
 	{
 		if (empty($parent['network'])) {
 			return false;
@@ -681,6 +682,12 @@ class Notifier
 
 		// Don't skip DFRN delivery for these commands
 		if (in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION, Delivery::POKE])) {
+			return false;
+		}
+
+		// For the time being we always deliver forum post via DFRN if possible
+		// This can be removed possible at the end of 2020 when hopefully most system can process AP forum posts
+		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 			return false;
 		}
 
