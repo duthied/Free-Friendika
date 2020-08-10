@@ -712,8 +712,13 @@ function conversation_fetch_comments($thread_items, $pinned) {
 	$lineno = 0;
 	$actor = [];
 	$received = '';
+	$owner = '';
 
 	while ($row = Item::fetch($thread_items)) {
+		if (($row['verb'] == Activity::ANNOUNCE) && ($row['author-link'] == $owner)) {
+			continue;
+		}
+
 		if (($row['verb'] == Activity::ANNOUNCE) && !empty($row['contact-uid']) && ($row['received'] > $received) && ($row['thr-parent'] == $row['parent-uri'])) {
 			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
 			$received = $row['received'];
@@ -722,6 +727,10 @@ function conversation_fetch_comments($thread_items, $pinned) {
 		if ((($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && !in_array($row['network'], [Protocol::DIASPORA])) &&
 			(empty($row['contact-uid']) || !in_array($row['network'], Protocol::NATIVE_SUPPORT))) {
 			$parentlines[] = $lineno;
+		}
+
+		if (($row['gravity'] == GRAVITY_PARENT) && ($row['author-link'] != $row['owner-link'])) {
+			$owner = $row['owner-link'];
 		}
 
 		if ($row['gravity'] == GRAVITY_PARENT) {
@@ -765,7 +774,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 		$max_comments = DI::config()->get('system', 'max_display_comments', 1000);
 	}
 
-	$params = ['order' => ['uid', 'commented' => true]];
+	$params = ['order' => ['gravity', 'uid', 'commented' => true]];
 
 	if ($max_comments > 0) {
 		$params['limit'] = $max_comments;
