@@ -2701,7 +2701,9 @@ class Item
 
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, $item_id);
 
-		Item::performActivity($item_id, 'announce', $uid);
+		/// @todo This code should be activated by the end of the year 2020
+		// See also "createActivityFromItem"
+		//Item::performActivity($item_id, 'announce', $uid);
 
 		return false;
 	}
