@@ -139,7 +139,9 @@ class RedisCache extends BaseCache implements IMemoryCache
 	public function delete($key)
 	{
 		$cachekey = $this->getCacheKey($key);
-		return ($this->redis->del($cachekey) > 0);
+		$this->redis->del($cachekey);
+		// Redis doesn't have an error state for del()
+		return true;
 	}
 
 	/**
