@@ -2010,8 +2010,12 @@ class Item
 
 		$contact = Contact::selectFirst(['id'], ['nurl' => $pcontact['nurl'], 'uid' => $item['uid']]);
 		if (!empty($contact['id'])) {
-			Item::update(['owner-id' => $item['author-id'], 'contact-id' => $contact['id']],
-				['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
+			$condition = ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']];
+			Item::update(['owner-id' => $item['author-id'], 'contact-id' => $contact['id']], $condition);
+			$forum_item = Item::selectFirst(['id'], $condition);
+			if (!empty($forum_item['id'])) {
+				UserItem::setNotification($forum_item['id']);
+			}
 			LOgger::info('Convert message into a forum message', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $item['uid'], 'owner-id' => $item['author-id'], 'contact-id' => $contact['id']]);
 		}
 	}
