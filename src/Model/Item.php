@@ -1994,17 +1994,23 @@ class Item
 	/**
 	 * Convert items to forum posts
 	 *
+	 * (public) forum posts in the new format consist of the regular post by the author
+	 * followed by an announce message sent from the forum account.
+	 * This means we have to look out for an announce message send by a forum account.
+	 *
 	 * @param array $item
 	 * @return void
 	 */
 	private static function transformToForumPost(array $item)
 	{
 		if ($item["verb"] != Activity::ANNOUNCE) {
+			// No announce message, so don't do anything
 			return;
 		}
 
 		$pcontact = Contact::selectFirst(['nurl'], ['id' => $item['author-id'], 'contact-type' => Contact::TYPE_COMMUNITY]);
 		if (empty($pcontact['nurl'])) {
+			// The announce message wasn't created by a forum account, so we don't need to continue
 			return;
 		}
 
@@ -2014,6 +2020,7 @@ class Item
 			Item::update(['owner-id' => $item['author-id'], 'contact-id' => $contact['id']], $condition);
 			$forum_item = Item::selectFirst(['id'], $condition);
 			if (!empty($forum_item['id'])) {
+				// This will trigger notifications like "X shared a new post"
 				UserItem::setNotification($forum_item['id']);
 			}
 			LOgger::info('Convert message into a forum message', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $item['uid'], 'owner-id' => $item['author-id'], 'contact-id' => $contact['id']]);
