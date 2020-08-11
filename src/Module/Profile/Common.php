@@ -78,7 +78,7 @@ class Common extends BaseProfile
 
 		$total = Contact\Relation::countCommon($sourceId, $targetId, $condition);
 
-		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 30);
 
 		$commonFollows = Contact\Relation::listCommon($sourceId, $targetId, $condition, $pager->getItemsPerPage(), $pager->getStart());
 

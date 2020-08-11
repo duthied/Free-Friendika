@@ -67,7 +67,7 @@ class Contacts extends BaseModule
 				$total = Model\Contact\Relation::countAll($cid, $condition);
 		}
 
-		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 30);
 		$desc = '';
 
 		switch ($type) {
