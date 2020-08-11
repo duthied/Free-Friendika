@@ -387,29 +387,23 @@ class Receiver
 
 			case 'as:Announce':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					$profile = APContact::getByURL($object_data['actor']);
-					// Reshared posts from persons appear as summary at the bottom
-					// If this isn't set, then a single reshare appears on top. This is used for groups.
-					$object_data['thread-completion'] = ($profile['type'] != 'Group');
+					$object_data['thread-completion'] = true;
 
 					$item = ActivityPub\Processor::createItem($object_data);
 					ActivityPub\Processor::postItem($object_data, $item);
 
-					// Add the bottom reshare information only for persons
-					if ($profile['type'] != 'Group') {
-						$announce_object_data = self::processObject($activity);
-						$announce_object_data['name'] = $type;
-						$announce_object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
-						$announce_object_data['object_id'] = $object_data['object_id'];
-						$announce_object_data['object_type'] = $object_data['object_type'];
-						$announce_object_data['push'] = $push;
+					$announce_object_data = self::processObject($activity);
+					$announce_object_data['name'] = $type;
+					$announce_object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
+					$announce_object_data['object_id'] = $object_data['object_id'];
+					$announce_object_data['object_type'] = $object_data['object_type'];
+					$announce_object_data['push'] = $push;
 
-						if (!empty($body)) {
-							$announce_object_data['raw'] = $body;
-						}
-
-						ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
+					if (!empty($body)) {
+						$announce_object_data['raw'] = $body;
 					}
+
+					ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
 				}
 				break;
 

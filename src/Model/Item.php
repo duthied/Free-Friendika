@@ -1578,6 +1578,8 @@ class Item
 			return GRAVITY_COMMENT;
 		} elseif ($activity->match($item['verb'], Activity::FOLLOW)) {
 			return GRAVITY_ACTIVITY;
+		} elseif ($activity->match($item['verb'], Activity::ANNOUNCE)) {
+			return GRAVITY_ACTIVITY;
 		}
 		Logger::info('Unknown gravity for verb', ['verb' => $item['verb']]);
 		return GRAVITY_UNKNOWN;   // Should not happen
@@ -1798,6 +1800,7 @@ class Item
 		// It is mainly used in the "post_local" hook.
 		unset($item['api_source']);
 
+		self::transformToForumPost($item);
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
@@ -1986,6 +1989,44 @@ class Item
 		}
 
 		return $current_post;
+	}
+
+	/**
+	 * Convert items to forum posts
+	 *
+	 * (public) forum posts in the new format consist of the regular post by the author
+	 * followed by an announce message sent from the forum account.
+	 * This means we have to look out for an announce message send by a forum account.
+	 *
+	 * @param array $item
+	 * @return void
+	 */
+	private static function transformToForumPost(array $item)
+	{
+		if ($item["verb"] != Activity::ANNOUNCE) {
+			// No announce message, so don't do anything
+			return;
+		}
+
+		$pcontact = Contact::selectFirst(['nurl'], ['id' => $item['author-id'], 'contact-type' => Contact::TYPE_COMMUNITY]);
+		if (empty($pcontact['nurl'])) {
+			// The announce message wasn't created by a forum account, so we don't need to continue
+			return;
+		}
+
+		$contact = Contact::selectFirst(['id'], ['nurl' => $pcontact['nurl'], 'uid' => $item['uid']]);
+		if (!empty($contact['id'])) {
+			$condition = ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']];
+			Item::update(['owner-id' => $item['author-id'], 'contact-id' => $contact['id']], $condition);
+			$forum_item = Item::selectFirst(['id'], $condition);
+			if (!empty($forum_item['id'])) {
+				// This will trigger notifications like "X shared a new post"
+				UserItem::setNotification($forum_item['id']);
+
+				check_user_notification($forum_item['id']);
+			}
+			LOgger::info('Convert message into a forum message', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $item['uid'], 'owner-id' => $item['author-id'], 'contact-id' => $contact['id']]);
+		}
 	}
 
 	/**
@@ -2673,6 +2714,10 @@ class Item
 
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, $item_id);
 
+		/// @todo This code should be activated by the end of the year 2020
+		// See also "createActivityFromItem"
+		//Item::performActivity($item_id, 'announce', $uid);
+
 		return false;
 	}
 
@@ -3002,11 +3047,12 @@ class Item
 	 *
 	 * Toggle activities as like,dislike,attend of an item
 	 *
-	 * @param string $item_id
+	 * @param int $item_id
 	 * @param string $verb
 	 *            Activity verb. One of
 	 *            like, unlike, dislike, undislike, attendyes, unattendyes,
-	 *            attendno, unattendno, attendmaybe, unattendmaybe
+	 *            attendno, unattendno, attendmaybe, unattendmaybe,
+	 *            announce, unannouce
 	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -3014,15 +3060,15 @@ class Item
 	 *            array $arr
 	 *            'post_id' => ID of posted item
 	 */
-	public static function performActivity($item_id, $verb)
+	public static function performActivity(int $item_id, string $verb, int $uid)
 	{
-		if (!Session::isAuthenticated()) {
+		if (empty($uid)) {
 			return false;
 		}
 
-		Logger::log('like: verb ' . $verb . ' item ' . $item_id);
+		Logger::notice('Start create activity', ['verb' => $verb, 'item' => $item_id, 'user' => $uid]);
 
-		$item = self::selectFirst(self::ITEM_FIELDLIST, ['`id` = ? OR `uri` = ?', $item_id, $item_id]);
+		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id]);
 		if (!DBA::isResult($item)) {
 			Logger::log('like: unknown item ' . $item_id);
 			return false;
@@ -3030,46 +3076,33 @@ class Item
 
 		$item_uri = $item['uri'];
 
-		$uid = $item['uid'];
-		if (($uid == 0) && local_user()) {
-			$uid = local_user();
-		}
-
-		if (!Security::canWriteToUserWall($uid)) {
-			Logger::log('like: unable to write on wall ' . $uid);
+		if (!in_array($item['uid'], [0, $uid])) {
 			return false;
 		}
 
 		if (!Item::exists(['uri-id' => $item['parent-uri-id'], 'uid' => $uid])) {
 			$stored = self::storeForUserByUriId($item['parent-uri-id'], $uid);
+			if (($item['parent-uri-id'] == $item['uri-id']) && !empty($stored)) {
+				$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $stored]);
+				if (!DBA::isResult($item)) {
+					Logger::info('Could not fetch just created item - should not happen', ['stored' => $stored, 'uid' => $uid, 'item-uri' => $item_uri]);
+					return false;
+				}
+			}
 		}
 
 		// Retrieves the local post owner
-		$owner_self_contact = DBA::selectFirst('contact', [], ['uid' => $uid, 'self' => true]);
-		if (!DBA::isResult($owner_self_contact)) {
-			Logger::log('like: unknown owner ' . $uid);
+		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			Logger::info('Empty owner for user', ['uid' => $uid]);
 			return false;
 		}
 
 		// Retrieve the current logged in user's public contact
-		$author_id = public_contact();
-
-		$author_contact = DBA::selectFirst('contact', ['url'], ['id' => $author_id]);
-		if (!DBA::isResult($author_contact)) {
-			Logger::log('like: unknown author ' . $author_id);
+		$author_id = Contact::getIdForURL($owner['url']);
+		if (empty($author_id)) {
+			Logger::info('Empty public contact');
 			return false;
-		}
-
-		// Contact-id is the uid-dependant author contact
-		if (local_user() == $uid) {
-			$item_contact_id = $owner_self_contact['id'];
-		} else {
-			$item_contact_id = Contact::getIdForURL($author_contact['url'], $uid);
-			$item_contact = DBA::selectFirst('contact', [], ['id' => $item_contact_id]);
-			if (!DBA::isResult($item_contact)) {
-				Logger::log('like: unknown item contact ' . $item_contact_id);
-				return false;
-			}
 		}
 
 		$activity = null;
@@ -3098,8 +3131,12 @@ class Item
 			case 'unfollow':
 				$activity = Activity::FOLLOW;
 				break;
+			case 'announce':
+			case 'unannounce':
+				$activity = Activity::ANNOUNCE;
+				break;
 			default:
-				Logger::log('like: unknown verb ' . $verb . ' for item ' . $item_id);
+				Logger::notice('unknown verb', ['verb' => $verb, 'item' => $item_id]);
 				return false;
 		}
 
@@ -3170,7 +3207,7 @@ class Item
 			'guid'          => System::createUUID(),
 			'uri'           => self::newURI($item['uid']),
 			'uid'           => $item['uid'],
-			'contact-id'    => $item_contact_id,
+			'contact-id'    => $owner['id'],
 			'wall'          => $item['wall'],
 			'origin'        => 1,
 			'network'       => Protocol::DFRN,

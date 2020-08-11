@@ -34,7 +34,7 @@ function subthread_content(App $a)
 
 	$item_id = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : 0);
 
-	if (!Item::performActivity($item_id, 'follow')) {
+	if (!Item::performActivity($item_id, 'follow', local_user())) {
 		Logger::info('Following item failed', ['item' => $item_id]);
 		throw new HTTPException\BadRequestException();
 	}

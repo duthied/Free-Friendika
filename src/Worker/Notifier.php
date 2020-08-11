@@ -36,7 +36,7 @@ use Friendica\Model\Post;
 use Friendica\Model\PushSubscriber;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
-use Friendica\Network\Probe;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
@@ -301,8 +301,10 @@ class Notifier
 
 				// if our parent is a public forum (forum_mode == 1), uplink to the origional author causing
 				// a delivery fork. private groups (forum_mode == 2) do not uplink
+				/// @todo Possibly we should not uplink when the author is the forum itself?
 
-				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)) {
+				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)
+					&& ($target_item['verb'] != Activity::ANNOUNCE)) {
 					Worker::add($a->queue['priority'], 'Notifier', Delivery::UPLINK, $target_id);
 				}
 
@@ -393,7 +395,7 @@ class Notifier
 			if ($followup) {
 				$recipients = $recipients_followup;
 			}
-			$condition = ['id' => $recipients, 'self' => false,
+			$condition = ['id' => $recipients, 'self' => false, 'uid' => [0, $uid],
 				'blocked' => false, 'pending' => false, 'archive' => false];
 			if (!empty($networks)) {
 				$condition['network'] = $networks;
@@ -439,7 +441,7 @@ class Notifier
 
 				// Add the relay to the list, avoid duplicates.
 				// Don't send community posts to the relay. Forum posts via the Diaspora protocol are looking ugly.
-				if (!$followup && !Item::isForumPost($target_item, $owner)) {
+				if (!$followup && !Item::isForumPost($target_item, $owner) && !self::isForumPost($target_item)) {
 					$relay_list = Diaspora::relayList($target_id, $relay_list);
 				}
 			}
@@ -473,7 +475,7 @@ class Notifier
 						continue;
 					}
 
-					if (self::skipDFRN($rr, $target_item, $parent, $thr_parent, $cmd)) {
+					if (self::skipDFRN($rr, $target_item, $parent, $thr_parent, $owner, $cmd)) {
 						Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['id' => $target_id, 'url' => $rr['url']]);
 						continue;
 					}
@@ -528,7 +530,7 @@ class Notifier
 				continue;
 			}
 
-			if (self::skipDFRN($contact, $target_item, $parent, $thr_parent, $cmd)) {
+			if (self::skipDFRN($contact, $target_item, $parent, $thr_parent, $owner, $cmd)) {
 				Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'url' => $contact['url']]);
 				continue;
 			}
@@ -646,12 +648,13 @@ class Notifier
 	 * @param array  $item       The post
 	 * @param array  $parent     The parent
 	 * @param array  $thr_parent The thread parent
+	 * @param array  $owner      Owner array
 	 * @param string $cmd        Notifier command
 	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function skipDFRN($contact, $item, $parent, $thr_parent, $cmd)
+	private static function skipDFRN($contact, $item, $parent, $thr_parent, $owner, $cmd)
 	{
 		if (empty($parent['network'])) {
 			return false;
@@ -679,6 +682,12 @@ class Notifier
 
 		// Don't skip DFRN delivery for these commands
 		if (in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION, Delivery::POKE])) {
+			return false;
+		}
+
+		// For the time being we always deliver forum post via DFRN if possible
+		// This can be removed possible at the end of 2020 when hopefully most system can process AP forum posts
+		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 			return false;
 		}
 
@@ -811,5 +820,16 @@ class Notifier
 		}
 
 		return $delivery_queue_count;
+	}
+
+	/**
+	 * Check if the delivered item is a forum post
+	 *
+	 * @param array $item
+	 * @return boolean
+	 */
+	public static function isForumPost(array $item)
+	{
+		return !empty($item['forum_mode']);
 	}
 }

@@ -356,12 +356,14 @@ class Transmitter
 		}
 
 		$always_bcc = false;
+		$isforum = false;
 
 		// Check if we should always deliver our stuff via BCC
 		if (!empty($item['uid'])) {
-			$profile = Profile::getByUID($item['uid']);
+			$profile = User::getOwnerDataById($item['uid']);
 			if (!empty($profile)) {
 				$always_bcc = $profile['hide-friends'];
+				$isforum = $profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY;
 			}
 		}
 
@@ -369,7 +371,7 @@ class Transmitter
 			$always_bcc = true;
 		}
 
-		if (self::isAnnounce($item) || DI::config()->get('debug', 'total_ap_delivery')) {
+		if ((self::isAnnounce($item) && !$isforum) || DI::config()->get('debug', 'total_ap_delivery')) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
 		} else {
@@ -423,6 +425,10 @@ class Transmitter
 						continue;
 					}
 
+					if ($isforum && DBA::isResult($contact) && ($contact['dfrn'] == Protocol::DFRN)) {
+						continue;
+					}
+
 					if (!empty($profile = APContact::getByURL($contact['url'], false))) {
 						$data['to'][] = $profile['url'];
 					}
@@ -432,6 +438,10 @@ class Transmitter
 			foreach ($receiver_list as $receiver) {
 				$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol'], ['id' => $receiver]);
 				if (!DBA::isResult($contact) || (!in_array($contact['network'], $networks) && ($contact['protocol'] != Protocol::ACTIVITYPUB))) {
+					continue;
+				}
+
+				if ($isforum && DBA::isResult($contact) && ($contact['dfrn'] == Protocol::DFRN)) {
 					continue;
 				}
 
@@ -454,7 +464,9 @@ class Transmitter
 						if ($item['gravity'] != GRAVITY_PARENT) {
 							// Comments to forums are directed to the forum
 							// But comments to forums aren't directed to the followers collection
-							if ($profile['type'] == 'Group') {
+							// This rule is only valid when the actor isn't the forum.
+							// The forum needs to transmit their content to their followers.
+							if (($profile['type'] == 'Group') && ($profile['url'] != $actor_profile['url'])) {
 								$data['to'][] = $profile['url'];
 							} else {
 								$data['cc'][] = $profile['url'];
@@ -555,6 +567,15 @@ class Transmitter
 	{
 		$inboxes = [];
 
+		$isforum = false;
+
+		if (!empty($item['uid'])) {
+			$profile = User::getOwnerDataById($item['uid']);
+			if (!empty($profile)) {
+				$isforum = $profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY;
+			}
+		}
+
 		if (DI::config()->get('debug', 'total_ap_delivery')) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
@@ -576,6 +597,10 @@ class Transmitter
 			}
 
 			if (!in_array($contact['network'], $networks) && ($contact['protocol'] != Protocol::ACTIVITYPUB)) {
+				continue;
+			}
+
+			if ($isforum && ($contact['dfrn'] == Protocol::DFRN)) {
 				continue;
 			}
 
@@ -627,6 +652,8 @@ class Transmitter
 			$item_profile = APContact::getByURL($item['owner-link'], false);
 		}
 
+		$profile_uid = User::getIdForURL($item_profile['url']);
+
 		foreach (['to', 'cc', 'bto', 'bcc'] as $element) {
 			if (empty($permissions[$element])) {
 				continue;
@@ -639,7 +666,7 @@ class Transmitter
 					continue;
 				}
 
-				if ($item_profile && $receiver == $item_profile['followers']) {
+				if ($item_profile && ($receiver == $item_profile['followers']) && ($uid == $profile_uid)) {
 					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal));
 				} else {
 					if (Contact::isLocal($receiver)) {
@@ -807,6 +834,8 @@ class Transmitter
 			$type = 'Follow';
 		} elseif ($item['verb'] == Activity::TAG) {
 			$type = 'Add';
+		} elseif ($item['verb'] == Activity::ANNOUNCE) {
+			$type = 'Announce';
 		} else {
 			$type = '';
 		}
@@ -851,12 +880,13 @@ class Transmitter
 	 */
 	public static function createActivityFromItem($item_id, $object_mode = false)
 	{
+		Logger::info('Fetching activity', ['item' => $item_id]);
 		$item = Item::selectFirst([], ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);
-
 		if (!DBA::isResult($item)) {
 			return false;
 		}
 
+		/// @todo This code should be removed by the end of the year 2020
 		if ($item['wall'] && ($item['uri'] == $item['parent-uri'])) {
 			$owner = User::getOwnerDataById($item['uid']);
 			if (($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) && ($item['author-link'] != $owner['url'])) {
@@ -867,6 +897,21 @@ class Transmitter
 					$item['plink'], $item['created'], $item['guid']) . $item['body'] . '[/share]';
 			}
 		}
+
+		/*
+		/// @todo This code should be activated by the end of the year 2020		
+		// See also "tagDeliver";
+		// In case of a forum post ensure to return the original post if author and forum are on the same machine
+		if (!empty($item['forum_mode'])) {
+			$author = Contact::getById($item['author-id'], ['nurl']);
+			if (!empty($author['nurl'])) {
+				$self = Contact::selectFirst(['uid'], ['nurl' => $author['nurl'], 'self' => true]);
+				if (!empty($self['uid'])) {
+					$item = Item::selectFirst([], ['uri-id' => $item['uri-id'], 'uid' => $self['uid']]);
+				}
+			}
+		}
+		*/
 
 		if (empty($type)) {
 			$condition = ['item-uri' => $item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
@@ -879,6 +924,7 @@ class Transmitter
 							unset($data['@context']);
 							unset($data['signature']);
 						}
+						Logger::info('Return stored conversation', ['item' => $item_id]);
 						return $data;
 					} elseif (in_array('as:' . $data['type'], Receiver::CONTENT_TYPES)) {
 						if (!empty($data['@context'])) {
@@ -909,7 +955,7 @@ class Transmitter
 		$data['id'] = $item['uri'] . '/' . $type;
 		$data['type'] = $type;
 
-		if (Item::isForumPost($item) && ($type != 'Announce')) {
+		if (($type != 'Announce') || ($item['gravity'] != GRAVITY_PARENT)) {
 			$data['actor'] = $item['author-link'];
 		} else {
 			$data['actor'] = $item['owner-link'];
@@ -926,7 +972,11 @@ class Transmitter
 		} elseif ($data['type'] == 'Add') {
 			$data = self::createAddTag($item, $data);
 		} elseif ($data['type'] == 'Announce') {
-			$data = self::createAnnounce($item, $data);
+			if ($item['verb'] == ACTIVITY::ANNOUNCE) {
+				$data['object'] = $item['thr-parent'];
+			} else {
+				$data = self::createAnnounce($item, $data);
+			}
 		} elseif ($data['type'] == 'Follow') {
 			$data['object'] = $item['parent-uri'];
 		} elseif ($data['type'] == 'Undo') {
@@ -947,7 +997,10 @@ class Transmitter
 
 		$owner = User::getOwnerDataById($uid);
 
-		if (!$object_mode && !empty($owner)) {
+		Logger::info('Fetched activity', ['item' => $item_id, 'uid' => $uid]);
+
+		// We don't sign if we aren't the actor. This is important for relaying content especially for forums
+		if (!$object_mode && !empty($owner) && ($data['actor'] == $owner['url'])) {
 			return LDSignature::sign($data, $owner);
 		} else {
 			return $data;
@@ -1009,6 +1062,9 @@ class Transmitter
 				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['name']];
 			} else {
 				$contact = Contact::getByURL($term['url'], false, ['addr']);
+				if (empty($contact)) {
+					continue;
+				}
 				if (!empty($contact['addr'])) {
 					$mention = '@' . $contact['addr'];
 				} else {
@@ -1491,6 +1547,10 @@ class Transmitter
 	 */
 	public static function isAnnounce($item)
 	{
+		if ($item['verb'] == Activity::ANNOUNCE) {
+			return true;
+		}
+
 		$announce = self::getAnnounceArray($item);
 		if (empty($announce)) {
 			return false;

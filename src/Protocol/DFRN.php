@@ -2162,6 +2162,7 @@ class DFRN
 				|| ($item["verb"] == Activity::ATTEND)
 				|| ($item["verb"] == Activity::ATTENDNO)
 				|| ($item["verb"] == Activity::ATTENDMAYBE)
+				|| ($item["verb"] == Activity::ANNOUNCE)
 			) {
 				$is_like = true;
 				$item["gravity"] = GRAVITY_ACTIVITY;
