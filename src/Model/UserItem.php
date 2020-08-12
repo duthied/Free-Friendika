@@ -212,7 +212,7 @@ class UserItem
 			return false;
 		}
 
-		// Check if the contact had posted or shared something directly
+		// Check if the contact posted or shared something directly
 		if (DBA::exists('contact', ['id' => $item['contact-id'], 'notify_new_posts' => true])) {
 			return true;
 		}
