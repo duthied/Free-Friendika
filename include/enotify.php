@@ -603,10 +603,6 @@ function check_item_notification($itemid, $uid, $notification_type) {
 		return false;
 	}
 
-	if (!in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]) && ($item['verb'] != Activity::ANNOUNCE)) {
-		return false;
-	}
-
 	// Generate the notification array
 	$params = [];
 	$params['uid'] = $uid;

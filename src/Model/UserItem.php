@@ -58,6 +58,11 @@ class UserItem
 			return;
 		}
 
+		// "Activity::FOLLOW" is an automated activity, so we ignore it here
+		if ($item['verb'] == Activity::FOLLOW) {
+			return;
+		}
+
 		// fetch all users in the thread
 		$users = DBA::p("SELECT DISTINCT(`contact`.`uid`) FROM `item`
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` != 0
@@ -102,32 +107,35 @@ class UserItem
 			return;
 		}
 
-		if (self::checkImplicitMention($item, $profiles)) {
-			$notification_type = $notification_type | self::NOTIF_IMPLICIT_TAGGED;
-		}
+		// Only create notifications for posts and comments, not for activities
+		if (in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT])) {
+			if (self::checkImplicitMention($item, $profiles)) {
+				$notification_type = $notification_type | self::NOTIF_IMPLICIT_TAGGED;
+			}
 
-		if (self::checkExplicitMention($item, $profiles)) {
-			$notification_type = $notification_type | self::NOTIF_EXPLICIT_TAGGED;
-		}
+			if (self::checkExplicitMention($item, $profiles)) {
+				$notification_type = $notification_type | self::NOTIF_EXPLICIT_TAGGED;
+			}
 
-		if (self::checkCommentedThread($item, $contacts)) {
-			$notification_type = $notification_type | self::NOTIF_THREAD_COMMENT;
-		}
+			if (self::checkCommentedThread($item, $contacts)) {
+				$notification_type = $notification_type | self::NOTIF_THREAD_COMMENT;
+			}
 
-		if (self::checkDirectComment($item, $contacts)) {
-			$notification_type = $notification_type | self::NOTIF_DIRECT_COMMENT;
-		}
+			if (self::checkDirectComment($item, $contacts)) {
+				$notification_type = $notification_type | self::NOTIF_DIRECT_COMMENT;
+			}
 
-		if (self::checkDirectCommentedThread($item, $contacts)) {
-			$notification_type = $notification_type | self::NOTIF_DIRECT_THREAD_COMMENT;
-		}
+			if (self::checkDirectCommentedThread($item, $contacts)) {
+				$notification_type = $notification_type | self::NOTIF_DIRECT_THREAD_COMMENT;
+			}
 
-		if (self::checkCommentedParticipation($item, $contacts)) {
-			$notification_type = $notification_type | self::NOTIF_COMMENT_PARTICIPATION;
-		}
+			if (self::checkCommentedParticipation($item, $contacts)) {
+				$notification_type = $notification_type | self::NOTIF_COMMENT_PARTICIPATION;
+			}
 
-		if (self::checkActivityParticipation($item, $contacts)) {
-			$notification_type = $notification_type | self::NOTIF_ACTIVITY_PARTICIPATION;
+			if (self::checkActivityParticipation($item, $contacts)) {
+				$notification_type = $notification_type | self::NOTIF_ACTIVITY_PARTICIPATION;
+			}
 		}
 
 		if (empty($notification_type)) {
