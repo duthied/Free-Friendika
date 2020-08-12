@@ -40,3 +40,7 @@ Have a look at the [installation documentation](doc/Install.md) for further info
 |*Vier theme, desktop browser. Public timeline view.*|
 |![Vier theme in desktop browser](images/screenshots/friendica-vier-community.png?raw=true "Vier theme in desktop browser")
 |*Vier theme, desktop browser. Community post displayed.*|
+
+## Endorsements
+
+- [![Awesome Humane Tech](images/humane-tech-badge.svg)](https://github.com/humanetech-community/awesome-humane-tech) On August 12th 2020, Friendica was added to [the curated Awesome Humane Tech directory](https://github.com/humanetech-community/awesome-humane-tech) in [the "Fediverse" category](https://github.com/humanetech-community/awesome-humane-tech#fediverse).
