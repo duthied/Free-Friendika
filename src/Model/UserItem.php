@@ -207,7 +207,7 @@ class UserItem
 	 */
 	private static function checkShared(array $item, int $uid)
 	{
-		// Only sheck on starting posts and reshare ("announce") activities, otherwise return
+		// Only check on original posts and reshare ("announce") activities, otherwise return
 		if (($item['gravity'] != GRAVITY_PARENT) && ($item['verb'] != Activity::ANNOUNCE)) {
 			return false;
 		}
