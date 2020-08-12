@@ -207,20 +207,22 @@ class UserItem
 	 */
 	private static function checkShared(array $item, int $uid)
 	{
+		// Only sheck on starting posts and reshare ("announce") activities, otherwise return
 		if (($item['gravity'] != GRAVITY_PARENT) && ($item['verb'] != Activity::ANNOUNCE)) {
 			return false;
 		}
 
-		// Either the contact had posted something directly
+		// Check if the contact had posted or shared something directly
 		if (DBA::exists('contact', ['id' => $item['contact-id'], 'notify_new_posts' => true])) {
 			return true;
 		}
 
-		if ($item['gravity'] != GRAVITY_PARENT) {
+		// Don't continue when the item had been an announce activity
+		if ($item['verb'] == Activity::ANNOUNCE) {
 			return false;
 		}
 
-		// Or the contact is a mentioned forum
+		// Check if the contact is a mentioned forum
 		$tags = DBA::select('tag-view', ['url'], ['uri-id' => $item['uri-id'], 'type' => [Tag::MENTION, Tag::EXCLUSIVE_MENTION]]);
 		while ($tag = DBA::fetch($tags)) {
 			$condition = ['nurl' => Strings::normaliseLink($tag['url']), 'uid' => $uid, 'notify_new_posts' => true, 'contact-type' => Contact::TYPE_COMMUNITY];
