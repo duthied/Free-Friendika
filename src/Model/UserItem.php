@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Strings;
 use Friendica\Model\Tag;
+use Friendica\Protocol\Activity;
 
 class UserItem
 {
@@ -50,7 +51,8 @@ class UserItem
 	 */
 	public static function setNotification(int $iid)
 	{
-		$fields = ['id', 'uri-id', 'uid', 'body', 'parent', 'gravity', 'tag', 'contact-id', 'thr-parent', 'parent-uri', 'author-id'];
+		$fields = ['id', 'uri-id', 'uid', 'body', 'parent', 'gravity', 'tag',
+			'contact-id', 'thr-parent', 'parent-uri', 'author-id', 'verb'];
 		$item = Item::selectFirst($fields, ['id' => $iid, 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			return;
@@ -197,13 +199,17 @@ class UserItem
 	 */
 	private static function checkShared(array $item, int $uid)
 	{
-		if ($item['gravity'] != GRAVITY_PARENT) {
+		if (($item['gravity'] != GRAVITY_PARENT) && ($item['verb'] != Activity::ANNOUNCE)) {
 			return false;
 		}
 
 		// Either the contact had posted something directly
 		if (DBA::exists('contact', ['id' => $item['contact-id'], 'notify_new_posts' => true])) {
 			return true;
+		}
+
+		if ($item['gravity'] != GRAVITY_PARENT) {
+			return false;
 		}
 
 		// Or the contact is a mentioned forum
