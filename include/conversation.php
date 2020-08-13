@@ -708,48 +708,17 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
  */
 function conversation_fetch_comments($thread_items, $pinned) {
 	$comments = [];
-	$parentlines = [];
-	$lineno = 0;
-	$actor = [];
-	$received = '';
-	$owner = '';
 
 	while ($row = Item::fetch($thread_items)) {
-		if (($row['verb'] == Activity::ANNOUNCE) && ($row['author-link'] == $owner)) {
-			continue;
-		}
-
-		if (($row['verb'] == Activity::ANNOUNCE) && !empty($row['contact-uid']) && ($row['received'] > $received) && ($row['thr-parent'] == $row['parent-uri'])) {
-			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
-			$received = $row['received'];
-		}
-
-		if ((($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && !in_array($row['network'], [Protocol::DIASPORA])) &&
-			(empty($row['contact-uid']) || !in_array($row['network'], Protocol::NATIVE_SUPPORT))) {
-			$parentlines[] = $lineno;
-		}
-
-		if (($row['gravity'] == GRAVITY_PARENT) && ($row['author-link'] != $row['owner-link'])) {
-			$owner = $row['owner-link'];
-		}
-
 		if ($row['gravity'] == GRAVITY_PARENT) {
 			$row['pinned'] = $pinned;
 		}
 
 		$comments[] = $row;
-		$lineno++;
 	}
 
 	DBA::close($thread_items);
 
-	if (!empty($actor)) {
-		foreach ($parentlines as $line) {
-			$comments[$line]['owner-link'] = $actor['link'];
-			$comments[$line]['owner-avatar'] = $actor['avatar'];
-			$comments[$line]['owner-name'] = $actor['name'];
-		}
-	}
 	return $comments;
 }
 
