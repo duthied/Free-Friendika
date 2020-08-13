@@ -1800,7 +1800,9 @@ class Item
 		// It is mainly used in the "post_local" hook.
 		unset($item['api_source']);
 
-		self::transformToForumPost($item);
+		if ($item['verb'] == Activity::ANNOUNCE) {
+			self::setOwnerforResharedItem($item);
+		}
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
@@ -1992,34 +1994,51 @@ class Item
 	}
 
 	/**
-	 * Convert items to forum posts
+	 * Change the owner of a parent item if it had been shared by a forum or a user contact
 	 *
 	 * (public) forum posts in the new format consist of the regular post by the author
 	 * followed by an announce message sent from the forum account.
-	 * This means we have to look out for an announce message send by a forum account.
+	 * Changing the owner helps in grouping forum posts.
+	 *
+	 * For other reshared posts this function changes the owner of that post
+	 * if the author is not a user contact but the post had been shared by one.
+	 * This helps in detecting why this post appeared in the timeline.
 	 *
 	 * @param array $item
 	 * @return void
 	 */
-	private static function transformToForumPost(array $item)
+	private static function setOwnerforResharedItem(array $item)
 	{
-		if ($item["verb"] != Activity::ANNOUNCE) {
-			// No announce message, so don't do anything
+		$parent = self::selectFirst(['id', 'owner-id', 'author-id', 'author-link'], ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
+		if (!DBA::isResult($parent)) {
+			Logger::error('Parent not found', ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
 			return;
 		}
 
-		$pcontact = Contact::selectFirst(['nurl'], ['id' => $item['author-id'], 'contact-type' => Contact::TYPE_COMMUNITY]);
-		if (empty($pcontact['nurl'])) {
-			// The announce message wasn't created by a forum account, so we don't need to continue
+		$author = Contact::selectFirst(['url', 'contact-type'], ['id' => $item['author-id']]);
+		if (!DBA::isResult($author)) {
+			Logger::error('Author not found', ['id' => $item['author-id']]);
 			return;
 		}
 
-		$contact = Contact::selectFirst(['id'], ['nurl' => $pcontact['nurl'], 'uid' => $item['uid']]);
-		if (!empty($contact['id'])) {
-			$condition = ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']];
-			Item::update(['owner-id' => $item['author-id'], 'contact-id' => $contact['id']], $condition);
-			Logger::info('Convert message into a forum message', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $item['uid'], 'owner-id' => $item['author-id'], 'contact-id' => $contact['id']]);
+		if (($author['contact-type'] != Contact::TYPE_COMMUNITY) && (($parent['owner-id'] != $parent['author-id']) || ($item['uid'] == 0))) {
+			logger::info('The resharer is no forum and the parent is reshared or not a personal post: quit', ['resharer' => $item['author-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
+			return;
 		}
+
+		if (Contact::getIdForURL($parent['author-link'], $item['uid'])) {
+			logger::info('The parent author is a user contact: quit', ['author' => $parent['author-link'], 'uid' => $item['uid']]);
+			return;
+		}
+
+		$cid = Contact::getIdForURL($author['url'], $item['uid']);
+		if (empty($cid)) {
+			logger::info('The resharer is not a user contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid']]);
+			return;
+		}
+
+		Item::update(['owner-id' => $item['author-id'], 'contact-id' => $cid], ['id' => $parent['id']]);
+		Logger::info('Change owner of the parent', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $item['uid'], 'owner-id' => $item['author-id'], 'contact-id' => $cid]);
 	}
 
 	/**
