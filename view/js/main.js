@@ -884,16 +884,16 @@ function loadScrollContent() {
 		commented = "0000-00-00 00:00:00";
 	}
 
-	match = $("span.id").last();
+	match = $("span.uriid").last();
 	if (match.length > 0) {
-		id = match[0].innerHTML;
+		uriid = match[0].innerHTML;
 	} else {
-		id = "0";
+		uriid = "0";
 	}
 
 	// get the raw content from the next page and insert this content
 	// right before "#conversation-end"
-	$.get(infinite_scroll.reload_uri + '&mode=raw&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_id=' + id + '&page=' + infinite_scroll.pageno, function(data) {
+	$.get(infinite_scroll.reload_uri + '&mode=raw&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_uriid=' + uriid + '&page=' + infinite_scroll.pageno, function(data) {
 		$("#scroll-loader").hide();
 		if ($(data).length > 0) {
 			$(data).insertBefore('#conversation-end');
