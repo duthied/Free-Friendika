@@ -217,7 +217,7 @@ class UserItem
 			return true;
 		}
 
-		// Don't continue when the item had been an announce activity
+		// The following check doesn't make sense on activities, so quit here
 		if ($item['verb'] == Activity::ANNOUNCE) {
 			return false;
 		}
