@@ -597,7 +597,7 @@ function check_item_notification($itemid, $uid, $notification_type) {
 	$fields = ['id', 'uri-id', 'mention', 'parent', 'parent-uri-id', 'title', 'body',
 		'author-link', 'author-name', 'author-avatar', 'author-id',
 		'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
-	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'deleted' => false];
+	$condition = ['id' => $itemid, 'deleted' => false];
 	$item = Item::selectFirstForUser($uid, $fields, $condition);
 	if (!DBA::isResult($item)) {
 		return false;
