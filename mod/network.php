@@ -293,7 +293,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 		$o = networkThreadedView($a, $update, $parent);
 	}
 
-	if ($o === '') {
+	if (!$update && ($o === '')) {
 		notice(DI::l10n()->t("No items found"));
 	}
 
@@ -600,13 +600,6 @@ function networkThreadedView(App $a, $update, $parent)
 		} else {
 			// Load all unseen items
 			$sql_extra2 = "`item`.`unseen`";
-			if (DI::config()->get("system", "like_no_comment")) {
-				$sql_extra2 .= " AND `item`.`gravity` IN (" . GRAVITY_PARENT . "," . GRAVITY_COMMENT . ")";
-			}
-			if ($order === 'post') {
-				// Only show toplevel posts when updating posts in this order mode
-				$sql_extra2 .= " AND `item`.`gravity` = " . GRAVITY_PARENT;
-			}
 		}
 
 		$r = q("SELECT `item`.`parent-uri` AS `uri`, `item`.`parent` AS `item_id`, $sql_order AS `order_date`
