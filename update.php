@@ -562,3 +562,12 @@ function update_1357()
 
 	return Update::SUCCESS;
 }
+
+function pre_update_1358()
+{
+	if (!DBA::e("DELETE FROM `contact-relation` WHERE NOT `relation-cid` IN (SELECT `id` FROM `contact`) OR NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
