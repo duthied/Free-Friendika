@@ -492,6 +492,7 @@ class Post
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
+			'uriid'           => $item['uri-id'],
 			'return'          => (DI::args()->getCommand()) ? bin2hex(DI::args()->getCommand()) : '',
 			'direction'       => $direction,
 			'delivery'        => [
