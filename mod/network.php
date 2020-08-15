@@ -499,19 +499,24 @@ function networkThreadedView(App $a, $update, $parent)
 		$o .= status_editor($a, $x);
 	}
 
-	$sql_table = $update ? '`item`' : '`thread`';
+	$condition1 = ['uid' => local_user()];
+	$condition2 = [];
 
-	$sql_extra = ($star ? " AND `thread`.`starred` " : '') .
-		($conv ? " AND $sql_table.`mention`" : '') .
-		($nets ? sprintf(" AND $sql_table.`network` = '%s' ", DBA::escape($nets)) : '');
+	if ($star) {
+		$condition1['starred'] = true;
+	}
+	if ($conv) {
+		$condition1['mention'] = true;
+	}
+	if ($nets) {
+		$condition1['network'] = $nets;
+	}
 
 	if ($datequery) {
-		$sql_extra .= Strings::protectSprintf(sprintf(" AND $sql_table.received <= '%s' ",
-				DBA::escape(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
+		$condition2 = DBA::mergeConditions($condition2, ["`received` <= ? ", DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get())]);
 	}
 	if ($datequery2) {
-		$sql_extra .= Strings::protectSprintf(sprintf(" AND $sql_table.received >= '%s' ",
-				DBA::escape(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
+		$condition2 = DBA::mergeConditions($condition2, ["`received` >= ? ", DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get())]);
 	}
 
 	if ($gid) {
@@ -525,7 +530,7 @@ function networkThreadedView(App $a, $update, $parent)
 			// NOTREACHED
 		}
 
-		$sql_extra .= sprintf(" AND `thread`.`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = %d) ", intval($gid));
+		$condition2 = DBA::mergeConditions($condition2, ["`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)", $gid]);
 
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
 			'$title' => DI::l10n()->t('Group: %s', $group['name'])
@@ -533,7 +538,7 @@ function networkThreadedView(App $a, $update, $parent)
 	} elseif ($cid) {
 		$contact = Contact::getById($cid);
 		if (DBA::isResult($contact)) {
-			$sql_extra .= " AND " . $sql_table . ".`contact-id` = " . intval($cid);
+			$condition1['contact-id'] = $cid;
 
 			$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('viewcontact_template.tpl'), [
 				'contacts' => [ModuleContact::getContactTemplateVars($contact)],
@@ -558,8 +563,6 @@ function networkThreadedView(App $a, $update, $parent)
 		$order_mode = 'commented';
 	}
 
-	$sql_order = "$sql_table.$ordering";
-
 	$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 	networkPager($a, $pager);
@@ -572,22 +575,22 @@ function networkThreadedView(App $a, $update, $parent)
 	switch ($order_mode) {
 		case 'received':
 			if ($last_received != '') {
-				$sql_extra .= sprintf(" AND $sql_table.`received` < '%s'", DBA::escape($last_received));
+				$condition2 = DBA::mergeConditions($condition2, ["`received` < ?", $last_received]);
 			}
 			break;
 		case 'commented':
 			if ($last_commented != '') {
-				$sql_extra .= sprintf(" AND $sql_table.`commented` < '%s'", DBA::escape($last_commented));
+				$condition2 = DBA::mergeConditions($condition2, ["`commented` < ?", $last_commented]);
 			}
 			break;
 		case 'created':
 			if ($last_created != '') {
-				$sql_extra .= sprintf(" AND $sql_table.`created` < '%s'", DBA::escape($last_created));
+				$condition2 = DBA::mergeConditions($condition2, ["`created` < ?", $last_created]);
 			}
 			break;
 		case 'uriid':
 			if ($last_uriid > 0) {
-				$sql_extra .= sprintf(" AND $sql_table.`uri-id` < '%s'", DBA::escape($last_uriid));
+				$condition2 = DBA::mergeConditions($condition2, ["`uri-id` < ?", $last_uriid]);
 			}
 			break;
 	}
@@ -596,46 +599,23 @@ function networkThreadedView(App $a, $update, $parent)
 	if ($update) {
 		if (!empty($parent)) {
 			// Load only a single thread
-			$sql_extra2 = "`item`.`id` = ".intval($parent);
+			$condition1['id'] = $parent;
 		} elseif ($order === 'post') {
 			// Only load new toplevel posts
-			$sql_extra2 = "`item`.`unseen` AND `item`.`gravity` = " . GRAVITY_PARENT;
+			$condition1['unseen'] = true;
+			$condition1['gravity'] = GRAVITY_PARENT;
 		} else {
 			// Load all unseen items
-			$sql_extra2 = "`item`.`unseen`";
+			$condition1['unseen'] = true;
 		}
 
-		$r = q("SELECT `item`.`parent-uri` AS `uri`, `item`.`parent` AS `item_id`, $sql_order AS `order_date`
-			FROM `item`
-			INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = %d
-			WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
-			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
-			AND NOT `thread`.`moderated` AND $sql_extra2
-			$sql_extra
-			ORDER BY `order_date` DESC LIMIT 100",
-			intval(local_user()),
-			intval(local_user())
-		);
+		$condition = DBA::mergeConditions($condition1, $condition2);
+		$params = ['order' => [$order_mode => true], 'limit' => 100];
+		$r = DBA::selectToArray('network-item-view', [], $condition, $params);
 	} else {
-		$r = q("SELECT `item`.`uri`, `thread`.`iid` AS `item_id`, $sql_order AS `order_date`
-			FROM `thread`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-				AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = %d
-			WHERE `thread`.`uid` = %d AND `thread`.`visible` AND NOT `thread`.`deleted`
-			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
-			AND NOT `thread`.`moderated`
-			$sql_extra
-			ORDER BY `order_date` DESC LIMIT %d, %d",
-			intval(local_user()),
-			intval(local_user()),
-			intval($pager->getStart()),
-			intval($pager->getItemsPerPage())
-		);
+		$condition = DBA::mergeConditions($condition1, $condition2);
+		$params = ['order' => [$order_mode => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+		$r = DBA::selectToArray('network-thread-view', [], $condition, $params);
 	}
 
 	return $o . network_display_post($a, $pager, (!$gid && !$cid && !$star), $update, $ordering, $r);
