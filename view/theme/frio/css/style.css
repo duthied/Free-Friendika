@@ -8,20 +8,6 @@ and open the template in the editor.
     Author     : rabuzarus
 */
 
-/* Imports */
-/*@import url("frameworks/bootstrap/css/bootstrap.min.css");
-@import url("frameworks/bootstrap/css/bootstrap-theme.min.css");
-@import url("frameworks/font-awesome/css/font-awesome.min.css");
-@import url("frameworks/jasny/css/jasny-bootstrap.min.css");
-@import url("frameworks/bootstrap-select/css/bootstrap-select.min.css");
-@import url("frameworks/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css");
-@import url("frameworks/ekko-lightbox/ekko-lightbox.min.css");
-@import url("frameworks/justifiedGallery/justifiedGallery.min.css");
-@import url("frameworks/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css");
-@import url("font/open_sans/open-sans.css");
-@import url("css/hovercard.css");*/
-
-
 body {
     padding-top: 110px;
     background-color: $background_color;
@@ -3386,6 +3372,117 @@ section .profile-match-wrapper {
     border: black 1px dashed !important;
     margin-bottom: 5px !important;
     margin-top: 15px !important;
+}
+
+/**
+ * The different views of js fullcalendar
+ */
+#fc-header {
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+#fc-header-left,
+#fc-header-right,
+#event-calendar-title {
+	display: inline-block;
+}
+#fc-title {
+	margin: 0;
+	padding-left: 20px;
+
+}
+#fc-header-right {
+	margin-top: -4px;
+}
+#fc-header-right .dropdown > button {
+	color: inherit;
+}
+#event-calendar-title {
+	vertical-align: middle;
+}
+#event-calendar-views {
+	padding: 6px 9px;
+	font-size: 14px
+}
+.fc .fc-toolbar {
+	display: none;
+}
+.fc .fc-month-view td.fc-widget-content,
+.fc .fc-list-view,
+.fc .fc-list-view .fc-list-table td,
+.fc .fc-body td {
+	border-style: none;
+}
+.fc td.fc-widget-header,
+.fc th.fc-widget-header {
+	border-left: none;
+	border-right: none;
+	border-top: none;
+}
+.fc .fc-month-view td.fc-day {
+	border-left: none;
+	border-right: none;
+	border-bottom: 1px solid;
+	padding: 0 6px;
+}
+.fc .fc-day-grid-container .fc-row {
+	border-bottom: 1px solid;
+	border-color: #ddd;
+}
+.fc tr td.fc-today {
+	border-style: none;
+}
+.fc .fc-month-view .fc-content .fc-title .item-desc {
+	font-size: 11px;
+}
+.fc .fc-view-container {
+	margin-top: 25px;
+}
+.fc .fc-list-view td {
+	padding: 0;
+}
+#events-calendar.fc-ltr .fc-basic-view .fc-day-top .fc-day-number {
+	float: left;
+	font-size: 12px;
+}
+.fc .fc-event {
+	background-color: #E3F2FD;
+	border: 1px solid #BBDEFB;
+	color: #555;
+}
+.fc .fc-month-view .fc-time,
+.fc .fc-listMonth-view .fc-list-item-time,
+.fc .fc-listMonth-view .fc-list-item-marker,
+.fc .fc-listMonth-view .fc-widget-header {
+	display: none;
+}
+.fc .fc-listMonth-view .fc-list-item:hover td {
+	background: transparent;
+	cursor: pointer;
+}
+.fc .fc-listMonth-view .seperator {
+	margin-left: 30px;
+	width: 60px;
+}
+
+/**
+ * The event-card
+ */
+.event-card {
+	width: auto;
+}
+.event-card .event-label,
+.event-card .location-label {
+	font-weight: bold;
+}
+.popover.event-card .event-card-basic-content {
+	margin-top: 0;
+	padding: 9px;
+	padding-left: 0px;
+}
+.event-card .event-hover-location .location {
+	color: $font_color;
+	font-size: 13px;
 }
 
 /* Medium devices (desktops, 992px and up) */
