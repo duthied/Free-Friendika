@@ -1355,7 +1355,7 @@ class Item
 	 * @param array $item
 	 * @return boolean item is valid
 	 */
-	private static function isValid(array $item)
+	public static function isValid(array $item)
 	{
 		// When there is no content then we don't post it
 		if ($item['body'].$item['title'] == '') {
@@ -1384,7 +1384,7 @@ class Item
 			}
 		}
 
-		if (Contact::isBlocked($item['author-id'])) {
+		if (!empty($item['author-id']) && Contact::isBlocked($item['author-id'])) {
 			Logger::notice('Author is blocked node-wide', ['author-link' => $item['author-link'], 'item-uri' => $item['uri']]);
 			return false;
 		}
@@ -1394,12 +1394,12 @@ class Item
 			return false;
 		}
 
-		if (!empty($item['uid']) && Contact\User::isBlocked($item['author-id'], $item['uid'])) {
+		if (!empty($item['uid']) && !empty($item['author-id']) && Contact\User::isBlocked($item['author-id'], $item['uid'])) {
 			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
 			return false;
 		}
 
-		if (Contact::isBlocked($item['owner-id'])) {
+		if (!empty($item['owner-id']) && Contact::isBlocked($item['owner-id'])) {
 			Logger::notice('Owner is blocked node-wide', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
 			return false;
 		}
@@ -1409,7 +1409,7 @@ class Item
 			return false;
 		}
 
-		if (!empty($item['uid']) && Contact\User::isBlocked($item['owner-id'], $item['uid'])) {
+		if (!empty($item['uid']) && !empty($item['owner-id']) && Contact\User::isBlocked($item['owner-id'], $item['uid'])) {
 			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
 			return false;
 		}

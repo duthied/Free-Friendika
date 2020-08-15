@@ -181,7 +181,7 @@ class Cron
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function pollContacts() {
-		$min_poll_interval = DI::config()->get('system', 'min_poll_interval', 1);
+		$min_poll_interval = DI::config()->get('system', 'min_poll_interval');
 
 		Addon::reload();
 
