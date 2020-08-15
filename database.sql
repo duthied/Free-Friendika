@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.09-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1359
+-- DB_UPDATE_VERSION 1360
 -- ------------------------------------------
 
 
@@ -1387,6 +1387,63 @@ CREATE VIEW `tag-view` AS SELECT
 			INNER JOIN `item-uri` ON `item-uri`.id = `post-tag`.`uri-id`
 			LEFT JOIN `tag` ON `post-tag`.`tid` = `tag`.`id`
 			LEFT JOIN `contact` ON `post-tag`.`cid` = `contact`.`id`;
+
+--
+-- VIEW network-item-view
+--
+DROP VIEW IF EXISTS `network-item-view`;
+CREATE VIEW `network-item-view` AS SELECT 
+	`item`.`parent-uri-id` AS `uri-id`,
+	`item`.`parent-uri` AS `uri`,
+	`item`.`parent` AS `parent`,
+	`item`.`received` AS `received`,
+	`item`.`commented` AS `commented`,
+	`item`.`created` AS `created`,
+	`item`.`uid` AS `uid`,
+	`item`.`starred` AS `starred`,
+	`item`.`mention` AS `mention`,
+	`item`.`network` AS `network`,
+	`item`.`unseen` AS `unseen`,
+	`item`.`gravity` AS `gravity`,
+	`item`.`contact-id` AS `contact-id`
+	FROM `item`
+			INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id` AND (NOT `contact`.`blocked` OR `contact`.`pending`)
+			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
+			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
+			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
+			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
+			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
+			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
+
+--
+-- VIEW network-thread-view
+--
+DROP VIEW IF EXISTS `network-thread-view`;
+CREATE VIEW `network-thread-view` AS SELECT 
+	`item`.`uri-id` AS `uri-id`,
+	`item`.`uri` AS `uri`,
+	`item`.`parent-uri-id` AS `parent-uri-id`,
+	`thread`.`iid` AS `parent`,
+	`thread`.`received` AS `received`,
+	`thread`.`commented` AS `commented`,
+	`thread`.`created` AS `created`,
+	`thread`.`uid` AS `uid`,
+	`thread`.`starred` AS `starred`,
+	`thread`.`mention` AS `mention`,
+	`thread`.`network` AS `network`,
+	`thread`.`contact-id` AS `contact-id`
+	FROM `thread`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id` AND (NOT `contact`.`blocked` OR `contact`.`pending`)
+			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
+			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
+			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
+			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
+			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
+			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
+			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
 
 --
 -- VIEW owner-view
