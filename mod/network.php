@@ -597,6 +597,9 @@ function networkThreadedView(App $a, $update, $parent)
 		if (!empty($parent)) {
 			// Load only a single thread
 			$sql_extra2 = "`item`.`id` = ".intval($parent);
+		} elseif ($order === 'post') {
+			// Only load new toplevel posts
+			$sql_extra2 = "`item`.`unseen` AND `item`.`gravity` = " . GRAVITY_PARENT;
 		} else {
 			// Load all unseen items
 			$sql_extra2 = "`item`.`unseen`";
