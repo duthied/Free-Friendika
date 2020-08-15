@@ -68,39 +68,11 @@ return [
 			LEFT JOIN `tag` ON `post-tag`.`tid` = `tag`.`id`
 			LEFT JOIN `contact` ON `post-tag`.`cid` = `contact`.`id`"
 	],
-	"network-thread-view" => [
-		"fields" => [
-			"uri-id" => ["item", "uri-id"],
-			"uri" => ["item", "uri"],
-			"parent-uri-id" => ["item", "parent-uri-id"],
-			"parent" => ["thread", "iid"],
-			"item_id" => ["thread", "iid"],
-			"received" => ["thread", "received"],
-			"commented" => ["thread", "commented"],
-			"created" => ["thread", "created"],
-			"uid" => ["thread", "uid"],
-			"starred" => ["thread", "starred"],
-			"mention" => ["thread", "mention"],
-			"network" => ["thread", "network"],
-			"contact-id" => ["thread", "contact-id"],
-		],
-		"query" => "FROM `thread`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id` AND (NOT `contact`.`blocked` OR `contact`.`pending`)
-			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
-			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
-			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
-			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
-			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
-			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
-			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`)"
-	],
 	"network-item-view" => [
 		"fields" => [
 			"uri-id" => ["item", "parent-uri-id"],
 			"uri" => ["item", "parent-uri"],
 			"parent" => ["item", "parent"],
-			"item_id" => ["item", "parent"],
 			"received" => ["item", "received"],
 			"commented" => ["item", "commented"],
 			"created" => ["item", "created"],
@@ -115,6 +87,32 @@ return [
 		"query" => "FROM `item`
 			INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id` AND (NOT `contact`.`blocked` OR `contact`.`pending`)
+			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
+			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
+			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
+			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
+			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
+			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`)"
+	],
+	"network-thread-view" => [
+		"fields" => [
+			"uri-id" => ["item", "uri-id"],
+			"uri" => ["item", "uri"],
+			"parent-uri-id" => ["item", "parent-uri-id"],
+			"parent" => ["thread", "iid"],
+			"received" => ["thread", "received"],
+			"commented" => ["thread", "commented"],
+			"created" => ["thread", "created"],
+			"uid" => ["thread", "uid"],
+			"starred" => ["thread", "starred"],
+			"mention" => ["thread", "mention"],
+			"network" => ["thread", "network"],
+			"contact-id" => ["thread", "contact-id"],
+		],
+		"query" => "FROM `thread`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id` AND (NOT `contact`.`blocked` OR `contact`.`pending`)
+			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
 			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`

@@ -628,8 +628,8 @@ function network_display_post($a, $pager, $mark_all, $update, $ordering, $items)
 		$parents_arr = [];
 
 		foreach ($items as $item) {
-			if (!in_array($item['item_id'], $parents_arr) && ($item['item_id'] > 0)) {
-				$parents_arr[] = $item['item_id'];
+			if (!in_array($item['parent'], $parents_arr) && ($item['parent'] > 0)) {
+				$parents_arr[] = $item['parent'];
 			}
 		}
 		$parents_str = implode(', ', $parents_arr);
