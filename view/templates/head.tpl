@@ -8,8 +8,8 @@
 <link rel="stylesheet" href="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
 <link rel="stylesheet" href="view/asset/perfect-scrollbar/dist/css/perfect-scrollbar.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
 
-{{foreach $stylesheets as $stylesheetUrl}}
-<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
+{{foreach $stylesheets as $stylesheetUrl => $media}}
+	<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="{{$media}}" />
 {{/foreach}}
 
 <link rel="shortcut icon" href="{{$shortcut_icon}}" />

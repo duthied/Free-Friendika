@@ -165,11 +165,10 @@ class Page implements ArrayAccess
 	 * The path can be absolute or relative to the Friendica installation base folder.
 	 *
 	 * @param string $path
-	 *
+	 * @param string $media
 	 * @see Page::initHead()
-	 *
 	 */
-	public function registerStylesheet($path)
+	public function registerStylesheet($path, string $media = 'screen')
 	{
 		$path = Network::appendQueryParam($path, ['v' => FRIENDICA_VERSION]);
 
@@ -177,7 +176,7 @@ class Page implements ArrayAccess
 			$path = mb_substr($path, mb_strlen($this->basePath . DIRECTORY_SEPARATOR));
 		}
 
-		$this->stylesheets[] = trim($path, '/');
+		$this->stylesheets[trim($path, '/')] = $media;
 	}
 
 	/**
@@ -252,7 +251,7 @@ class Page implements ArrayAccess
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,
 			'$block_public'    => intval($config->get('system', 'block_public')),
-			'$stylesheets'     => array_unique($this->stylesheets),
+			'$stylesheets'     => $this->stylesheets,
 		]) . $this->page['htmlhead'];
 	}
 
