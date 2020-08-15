@@ -32,14 +32,24 @@ function theme_post(App $a)
 	}
 
 	if (isset($_POST['frio-settings-submit'])) {
-		DI::pConfig()->set(local_user(), 'frio', 'scheme',           $_POST['frio_scheme']           ?? '');
-		DI::pConfig()->set(local_user(), 'frio', 'nav_bg',           $_POST['frio_nav_bg']           ?? '');
-		DI::pConfig()->set(local_user(), 'frio', 'nav_icon_color',   $_POST['frio_nav_icon_color']   ?? '');
-		DI::pConfig()->set(local_user(), 'frio', 'link_color',       $_POST['frio_link_color']       ?? '');
-		DI::pConfig()->set(local_user(), 'frio', 'background_color', $_POST['frio_background_color'] ?? '');
-		DI::pConfig()->set(local_user(), 'frio', 'contentbg_transp', $_POST['frio_contentbg_transp'] ?? '');
-		DI::pConfig()->set(local_user(), 'frio', 'background_image', $_POST['frio_background_image'] ?? '');
-		DI::pConfig()->set(local_user(), 'frio', 'bg_image_option',  $_POST['frio_bg_image_option']  ?? '');
+		foreach ([
+			'scheme',
+			'nav_bg',
+			'nav_icon_color',
+			'link_color',
+			'background_color',
+			'contentbg_transp',
+			'background_image',
+			'bg_image_option',
+			'login_bg_image',
+			'login_bg_color'
+		] as $field) {
+			if (isset($_POST['frio_' . $field])) {
+				DI::pConfig()->set(local_user(), 'frio', $field, $_POST['frio_' . $field]);
+			}
+
+		}
+
 		DI::pConfig()->set(local_user(), 'frio', 'css_modified',     time());
 	}
 }
@@ -51,16 +61,23 @@ function theme_admin_post(App $a)
 	}
 
 	if (isset($_POST['frio-settings-submit'])) {
-		DI::config()->set('frio', 'scheme',           $_POST['frio_scheme']           ?? '');
-		DI::config()->set('frio', 'nav_bg',           $_POST['frio_nav_bg']           ?? '');
-		DI::config()->set('frio', 'nav_icon_color',   $_POST['frio_nav_icon_color']   ?? '');
-		DI::config()->set('frio', 'link_color',       $_POST['frio_link_color']       ?? '');
-		DI::config()->set('frio', 'background_color', $_POST['frio_background_color'] ?? '');
-		DI::config()->set('frio', 'contentbg_transp', $_POST['frio_contentbg_transp'] ?? '');
-		DI::config()->set('frio', 'background_image', $_POST['frio_background_image'] ?? '');
-		DI::config()->set('frio', 'bg_image_option',  $_POST['frio_bg_image_option']  ?? '');
-		DI::config()->set('frio', 'login_bg_image',   $_POST['frio_login_bg_image']   ?? '');
-		DI::config()->set('frio', 'login_bg_color',   $_POST['frio_login_bg_color']   ?? '');
+		foreach ([
+			'scheme',
+			'nav_bg',
+			'nav_icon_color',
+			'link_color',
+			'background_color',
+			'contentbg_transp',
+			'background_image',
+			'bg_image_option',
+			'login_bg_image',
+			'login_bg_color'
+		] as $field) {
+			if (isset($_POST['frio_' . $field])) {
+				DI::config()->set('frio', $field, $_POST['frio_' . $field]);
+			}
+		}
+
 		DI::config()->set('frio', 'css_modified',     time());
 	}
 }
@@ -115,9 +132,6 @@ function frio_form($arr)
 
 	$scheme_info = get_scheme_info($arr['scheme']);
 	$disable = $scheme_info['overwrites'];
-	if (!is_array($disable)) {
-		$disable = [];
-	}
 
 	$scheme_choices = [];
 	$scheme_choices['---'] = DI::l10n()->t('Custom');
@@ -139,7 +153,7 @@ function frio_form($arr)
 		'$submit'           => DI::l10n()->t('Submit'),
 		'$title'            => DI::l10n()->t('Theme settings'),
 		'$scheme'           => ['frio_scheme', DI::l10n()->t('Select color scheme'), $arr['scheme'], '', $scheme_choices],
-		'$share_string'     => ['frio_share_string', DI::l10n()->t('Copy or paste schemestring'), $arr['share_string'], DI::l10n()->t('You can copy this string to share your theme with others. Pasting here applies the schemestring'), false, false],
+		'$share_string'     => $arr['scheme'] != '---' ? '' : ['frio_share_string', DI::l10n()->t('Copy or paste schemestring'), $arr['share_string'], DI::l10n()->t('You can copy this string to share your theme with others. Pasting here applies the schemestring'), false, false],
 		'$nav_bg'           => array_key_exists('nav_bg', $disable) ? '' : ['frio_nav_bg', DI::l10n()->t('Navigation bar background color'), $arr['nav_bg'], '', false],
 		'$nav_icon_color'   => array_key_exists('nav_icon_color', $disable) ? '' : ['frio_nav_icon_color', DI::l10n()->t('Navigation bar icon color '), $arr['nav_icon_color'], '', false],
 		'$link_color'       => array_key_exists('link_color', $disable) ? '' : ['frio_link_color', DI::l10n()->t('Link color'), $arr['link_color'], '', false],
