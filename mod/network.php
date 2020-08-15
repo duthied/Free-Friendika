@@ -499,24 +499,24 @@ function networkThreadedView(App $a, $update, $parent)
 		$o .= status_editor($a, $x);
 	}
 
-	$condition1 = ['uid' => local_user()];
-	$condition2 = [];
+	$conditionFields = ['uid' => local_user()];
+	$conditionStrings = [];
 
 	if ($star) {
-		$condition1['starred'] = true;
+		$conditionFields['starred'] = true;
 	}
 	if ($conv) {
-		$condition1['mention'] = true;
+		$conditionFields['mention'] = true;
 	}
 	if ($nets) {
-		$condition1['network'] = $nets;
+		$conditionFields['network'] = $nets;
 	}
 
 	if ($datequery) {
-		$condition2 = DBA::mergeConditions($condition2, ["`received` <= ? ", DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get())]);
+		$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` <= ? ", DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get())]);
 	}
 	if ($datequery2) {
-		$condition2 = DBA::mergeConditions($condition2, ["`received` >= ? ", DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get())]);
+		$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` >= ? ", DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get())]);
 	}
 
 	if ($gid) {
@@ -530,7 +530,7 @@ function networkThreadedView(App $a, $update, $parent)
 			// NOTREACHED
 		}
 
-		$condition2 = DBA::mergeConditions($condition2, ["`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)", $gid]);
+		$conditionStrings = DBA::mergeConditions($conditionStrings, ["`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)", $gid]);
 
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
 			'$title' => DI::l10n()->t('Group: %s', $group['name'])
@@ -538,7 +538,7 @@ function networkThreadedView(App $a, $update, $parent)
 	} elseif ($cid) {
 		$contact = Contact::getById($cid);
 		if (DBA::isResult($contact)) {
-			$condition1['contact-id'] = $cid;
+			$conditionFields['contact-id'] = $cid;
 
 			$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('viewcontact_template.tpl'), [
 				'contacts' => [ModuleContact::getContactTemplateVars($contact)],
@@ -575,22 +575,22 @@ function networkThreadedView(App $a, $update, $parent)
 	switch ($order_mode) {
 		case 'received':
 			if ($last_received != '') {
-				$condition2 = DBA::mergeConditions($condition2, ["`received` < ?", $last_received]);
+				$conditionStrings = DBA::mergeConditions($conditionStrings, ["`received` < ?", $last_received]);
 			}
 			break;
 		case 'commented':
 			if ($last_commented != '') {
-				$condition2 = DBA::mergeConditions($condition2, ["`commented` < ?", $last_commented]);
+				$conditionStrings = DBA::mergeConditions($conditionStrings, ["`commented` < ?", $last_commented]);
 			}
 			break;
 		case 'created':
 			if ($last_created != '') {
-				$condition2 = DBA::mergeConditions($condition2, ["`created` < ?", $last_created]);
+				$conditionStrings = DBA::mergeConditions($conditionStrings, ["`created` < ?", $last_created]);
 			}
 			break;
 		case 'uriid':
 			if ($last_uriid > 0) {
-				$condition2 = DBA::mergeConditions($condition2, ["`uri-id` < ?", $last_uriid]);
+				$conditionStrings = DBA::mergeConditions($conditionStrings, ["`uri-id` < ?", $last_uriid]);
 			}
 			break;
 	}
@@ -599,14 +599,14 @@ function networkThreadedView(App $a, $update, $parent)
 	if ($update) {
 		if (!empty($parent)) {
 			// Load only a single thread
-			$condition1['id'] = $parent;
+			$conditionFields['id'] = $parent;
 		} elseif ($order === 'post') {
 			// Only load new toplevel posts
-			$condition1['unseen'] = true;
-			$condition1['gravity'] = GRAVITY_PARENT;
+			$conditionFields['unseen'] = true;
+			$conditionFields['gravity'] = GRAVITY_PARENT;
 		} else {
 			// Load all unseen items
-			$condition1['unseen'] = true;
+			$conditionFields['unseen'] = true;
 		}
 
 		$params = ['order' => [$order_mode => true], 'limit' => 100];
@@ -615,7 +615,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$params = ['order' => [$order_mode => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 		$table = 'network-thread-view';
 	}
-	$r = DBA::selectToArray($table, [], DBA::mergeConditions($condition1, $condition2), $params);
+	$r = DBA::selectToArray($table, [], DBA::mergeConditions($conditionFields, $conditionStrings), $params);
 
 	return $o . network_display_post($a, $pager, (!$gid && !$cid && !$star), $update, $ordering, $r);
 }
