@@ -609,14 +609,11 @@ function networkThreadedView(App $a, $update, $parent)
 			$condition1['unseen'] = true;
 		}
 
-		$condition = DBA::mergeConditions($condition1, $condition2);
 		$params = ['order' => [$order_mode => true], 'limit' => 100];
-		$r = DBA::selectToArray('network-item-view', [], $condition, $params);
 	} else {
-		$condition = DBA::mergeConditions($condition1, $condition2);
 		$params = ['order' => [$order_mode => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
-		$r = DBA::selectToArray('network-thread-view', [], $condition, $params);
 	}
+	$r = DBA::selectToArray('network-item-view', [], DBA::mergeConditions($condition1, $condition2), $params);
 
 	return $o . network_display_post($a, $pager, (!$gid && !$cid && !$star), $update, $ordering, $r);
 }
