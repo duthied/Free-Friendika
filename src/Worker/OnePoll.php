@@ -60,7 +60,7 @@ class OnePoll
 			return;
 		}
 
-		if (($contact['network'] != Protocol::MAIL) || $force) {
+		if (($contact['network'] != Protocol::MAIL) && $force) {
 			Contact::updateFromProbe($contact_id);
 		}
 

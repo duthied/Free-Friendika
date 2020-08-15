@@ -35,7 +35,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
-use Friendica\Network\HTTPRequest;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
@@ -496,6 +495,14 @@ class Feed
 				$item["title"] = '';
 			}
 
+			if ($dryRun) {
+				$items[] = $item;
+				break;
+			} elseif (!Item::isValid($item)) {
+				Logger::info('Feed is invalid', ['created' => $item['created'], 'uid' => $item['uid'], 'uri' => $item['uri']]);
+				continue;
+			}
+
 			$preview = '';
 			if (!empty($contact["fetch_further_information"]) && ($contact["fetch_further_information"] < 3)) {
 				// Handle enclosures and treat them as preview picture
@@ -564,34 +571,29 @@ class Feed
 				}
 			}
 
-			if ($dryRun) {
-				$items[] = $item;
-				break;
-			} else {
-				Logger::info('Stored feed', ['item' => $item]);
+			Logger::info('Stored feed', ['item' => $item]);
 
-				$notify = Item::isRemoteSelf($contact, $item);
+			$notify = Item::isRemoteSelf($contact, $item);
 
-				// Distributed items should have a well formatted URI.
-				// Additionally we have to avoid conflicts with identical URI between imported feeds and these items.
-				if ($notify) {
-					$item['guid'] = Item::guidFromUri($orig_plink, DI::baseUrl()->getHostname());
-					unset($item['uri']);
-					unset($item['parent-uri']);
+			// Distributed items should have a well formatted URI.
+			// Additionally we have to avoid conflicts with identical URI between imported feeds and these items.
+			if ($notify) {
+				$item['guid'] = Item::guidFromUri($orig_plink, DI::baseUrl()->getHostname());
+				unset($item['uri']);
+				unset($item['parent-uri']);
 
-					// Set the delivery priority for "remote self" to "medium"
-					$notify = PRIORITY_MEDIUM;
-				}
+				// Set the delivery priority for "remote self" to "medium"
+				$notify = PRIORITY_MEDIUM;
+			}
 
-				$id = Item::insert($item, $notify);
+			$id = Item::insert($item, $notify);
 
-				Logger::info("Feed for contact " . $contact["url"] . " stored under id " . $id);
+			Logger::info("Feed for contact " . $contact["url"] . " stored under id " . $id);
 
-				if (!empty($id) && !empty($taglist)) {
-					$feeditem = Item::selectFirst(['uri-id'], ['id' => $id]);
-					foreach ($taglist as $tag) {
-						Tag::store($feeditem['uri-id'], Tag::HASHTAG, $tag);
-					}					
+			if (!empty($id) && !empty($taglist)) {
+				$feeditem = Item::selectFirst(['uri-id'], ['id' => $id]);
+				foreach ($taglist as $tag) {
+					Tag::store($feeditem['uri-id'], Tag::HASHTAG, $tag);
 				}
 			}
 		}

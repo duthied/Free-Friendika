@@ -331,7 +331,7 @@ return [
 
 		// min_poll_interval (Integer)
 		// minimal distance in minutes between two polls for a contact. Reasonable values are between 1 and 59.
-		'min_poll_interval' => 1,
+		'min_poll_interval' => 15,
 
 		// no_count (Boolean)
 		// Don't do count calculations (currently only when showing photo albums).

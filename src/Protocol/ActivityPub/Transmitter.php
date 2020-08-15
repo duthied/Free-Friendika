@@ -1547,7 +1547,7 @@ class Transmitter
 	 */
 	public static function isAnnounce($item)
 	{
-		if ($item['verb'] == Activity::ANNOUNCE) {
+		if (!empty($item['verb']) && ($item['verb'] == Activity::ANNOUNCE)) {
 			return true;
 		}
 
