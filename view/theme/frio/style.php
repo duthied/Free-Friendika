@@ -37,7 +37,7 @@ $nav_bg           = DI::config()->get('frio', 'nav_bg')           ?: '#708fa0';
 $nav_icon_color   = DI::config()->get('frio', 'nav_icon_color')   ?: '#ffffff';
 $link_color       = DI::config()->get('frio', 'link_color')       ?: '#6fdbe8';
 $background_color = DI::config()->get('frio', 'background_color') ?: '#ededed';
-$contentbg_transp = DI::config()->get('frio', 'contentbg_transp') ?: '';
+$contentbg_transp = DI::config()->get('frio', 'contentbg_transp') ?? 100;
 $background_image = DI::config()->get('frio', 'background_image') ?: 'img/none.png';
 $bg_image_option  = DI::config()->get('frio', 'bg_image_option')  ?: '';
 $login_bg_image   = DI::config()->get('frio', 'login_bg_image')   ?: '';
@@ -60,7 +60,7 @@ if ($uid) {
 	$nav_icon_color   = DI::pConfig()->get($uid, 'frio', 'nav_icon_color')   ?: $nav_icon_color;
 	$link_color       = DI::pConfig()->get($uid, 'frio', 'link_color')       ?: $link_color;
 	$background_color = DI::pConfig()->get($uid, 'frio', 'background_color') ?: $background_color;
-	$contentbg_transp = DI::pConfig()->get($uid, 'frio', 'contentbg_transp') ?: $contentbg_transp;
+	$contentbg_transp = DI::pConfig()->get($uid, 'frio', 'contentbg_transp') ?? $contentbg_transp;
 	$background_image = DI::pConfig()->get($uid, 'frio', 'background_image') ?: $background_image;
 	$bg_image_option  = DI::pConfig()->get($uid, 'frio', 'bg_image_option')  ?: $bg_image_option;
 	$modified         = DI::pConfig()->get($uid, 'frio', 'css_modified')     ?: $modified;
