@@ -58,16 +58,16 @@ class Cron
 		Worker::add(PRIORITY_LOW, 'UpdateServerDirectories');
 
 		// Expire and remove user entries
-		Worker::add(PRIORITY_MEDIUM, "CronJobs", "expire_and_remove_users");
+		Worker::add(PRIORITY_MEDIUM, 'ExpireAndRemoveUsers');
 
 		// Call possible post update functions
-		Worker::add(PRIORITY_LOW, "CronJobs", "post_update");
+		Worker::add(PRIORITY_LOW, 'PostUpdate');
 
 		// Clear cache entries
-		Worker::add(PRIORITY_LOW, "CronJobs", "clear_cache");
+		Worker::add(PRIORITY_LOW, 'ClearCache');
 
 		// Repair entries in the database
-		Worker::add(PRIORITY_LOW, "CronJobs", "repair_database");
+		Worker::add(PRIORITY_LOW, 'RepairDatabase');
 
 		// once daily run birthday_updates and then expire in background
 		$d1 = DI::config()->get('system', 'last_expire_day');
@@ -76,12 +76,12 @@ class Cron
 		// Daily cron calls
 		if ($d2 != intval($d1)) {
 
-			Worker::add(PRIORITY_LOW, "CronJobs", "update_contact_birthdays");
+			Worker::add(PRIORITY_LOW, 'UpdateContactBirthdays');
 
-			Worker::add(PRIORITY_LOW, "CronJobs", "update_photo_albums");
+			Worker::add(PRIORITY_LOW, 'UpdatePhotoAlbums');
 
 			// update nodeinfo data
-			Worker::add(PRIORITY_LOW, "CronJobs", "nodeinfo");
+			Worker::add(PRIORITY_LOW, 'NodeInfo');
 
 			Worker::add(PRIORITY_LOW, 'UpdateGServers');
 
