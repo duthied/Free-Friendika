@@ -717,7 +717,7 @@ class Feed
 		}
 
 		if ($contact['priority'] != $priority) {
-			Logger::info('Adjusting priority', ['old' => $contact['priority'], 'new' => $priority, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+			Logger::notice('Adjusting priority', ['old' => $contact['priority'], 'new' => $priority, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
 		}
 	}
 
