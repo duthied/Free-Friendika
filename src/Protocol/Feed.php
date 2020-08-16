@@ -300,6 +300,7 @@ class Feed
 		}
 
 		$items = [];
+		$creation_dates = [];
 
 		// Limit the number of items that are about to be fetched
 		$total_items = ($entries->length - 1);
@@ -354,16 +355,6 @@ class Feed
 
 			$item["parent-uri"] = $item["uri"];
 
-			if (!$dryRun) {
-				$condition = ["`uid` = ? AND `uri` = ? AND `network` IN (?, ?)",
-					$importer["uid"], $item["uri"], Protocol::FEED, Protocol::DFRN];
-				$previous = Item::selectFirst(['id'], $condition);
-				if (DBA::isResult($previous)) {
-					Logger::info("Item with uri " . $item["uri"] . " for user " . $importer["uid"] . " already existed under id " . $previous["id"]);
-					continue;
-				}
-			}
-
 			$item["title"] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
 
 			if (empty($item["title"])) {
@@ -401,6 +392,19 @@ class Feed
 
 			if ($updated != "") {
 				$item["edited"] = $updated;
+			}
+
+			if (!$dryRun) {
+				$condition = ["`uid` = ? AND `uri` = ? AND `network` IN (?, ?)",
+					$importer["uid"], $item["uri"], Protocol::FEED, Protocol::DFRN];
+				$previous = Item::selectFirst(['id', 'created'], $condition);
+				if (DBA::isResult($previous)) {
+					// Use the creation date when the post had been stored. It can happen this date changes in the feed.
+					$creation_dates[] = $previous['created'];
+					Logger::info("Item with uri " . $item["uri"] . " for user " . $importer["uid"] . " already existed under id " . $previous["id"]);
+					continue;
+				}
+				$creation_dates[] = DateTimeFormat::utc($item['created']);
 			}
 
 			$creator = XML::getFirstNodeValue($xpath, 'author/text()', $entry);
@@ -598,7 +602,123 @@ class Feed
 			}
 		}
 
+		if (!$dryRun) {
+			self::adjustPollFrequency($contact, $creation_dates);
+		}
+
 		return ["header" => $author, "items" => $items];
+	}
+
+	/**
+	 * Automatically adjust the poll frequency according to the post frequency
+	 *
+	 * @param array $contact
+	 * @param array $creation_dates
+	 * @return void
+	 */
+	private static function adjustPollFrequency(array $contact, array $creation_dates)
+	{
+		if (($contact['priority'] > 3) || ($contact['network'] != Protocol::FEED)) {
+			Logger::info('Contact is no feed or has a low priority, skip.', ['id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url'], 'priority' => $contact['priority'], 'network' => $contact['network']]);
+			return;
+		}
+
+		if (!empty($creation_dates)) {
+			// Count the post frequency and the earliest and latest post date
+			$frequency = [];
+			$oldest = time();
+			$newest = 0;
+			$oldest_date = $newest_date = '';
+
+			foreach ($creation_dates as $date) {
+				$timestamp = strtotime($date);
+				$day = intdiv($timestamp, 86400);
+				$hour = $timestamp % 86400;
+
+				// Only have a look at values from the last seven days
+				if (((time() / 86400) - $day) < 7) {
+					if (empty($frequency[$day])) {
+						$frequency[$day] = ['count' => 1, 'low' => $hour, 'high' => $hour];
+					} else {
+						++$frequency[$day]['count'];
+						if ($frequency[$day]['low'] > $hour) {
+							$frequency[$day]['low'] = $hour;
+						}
+						if ($frequency[$day]['high'] < $hour) {
+							$frequency[$day]['high'] = $hour;
+						}
+					}
+				}
+				if ($oldest > $day) {
+					$oldest = $day;
+					$oldest_date = $date;
+				}
+			
+				if ($newest < $day) {
+					$newest = $day;
+					$newest_date = $date;
+				}
+			}
+
+			if (($newest == $oldest) && count($creation_dates) > 1) {
+				Logger::info('Feed has no different creation dates, quitting', ['date' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+				return;				
+			}
+
+			if (((time() / 86400) - $newest) > 30) {
+				Logger::info('Feed had not posted for a month, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+				$priority = 3; // Poll once a day
+			}
+
+			if (count($creation_dates) == 1) {
+				Logger::info('Feed had posted a single time, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+				$priority = 3; // Poll once a day
+			}
+
+			if (empty($priority) && (($newest - $oldest) > count($creation_dates))) {
+				Logger::info('Less than a post per day, switching to daily polling', ['posts' => count($creation_dates), 'oldest' => $oldest_date, 'newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+				$priority = 3; // Poll once a day
+			}
+
+			if (empty($priority)) {
+				// Calculate the highest "posts per day" value
+				$max = 1;
+				foreach ($frequency as $entry) {
+					if (($entry['count'] == 1) || ($entry['high'] == $entry['low'])) {
+						continue;
+					}
+
+					// We take the earliest and latest post day and interpolate the number of post per day
+					// that would had been created with this post frequency
+
+					// Assume at least four hours between oldest and newest post per day - should be okay for news outlets
+					$duration = max($entry['high'] - $entry['low'], 14400);
+					$ppd = (86400 / $duration) * $entry['count'];
+					if ($ppd > $max) {
+						$max = $ppd;
+					}
+				}
+
+				if ($max >= 24) {
+					$priority = 0; // Poll with the minimum poll intervall
+				} elseif ($max >= 12) {
+					$priority = 1; // Poll hourly
+				} elseif ($max > 1) {
+					$priority = 2; // Poll twice a day
+				} else {
+					/// @todo In the future we could calculate the days between the posts to set even lower priorities
+					$priority = 3; // Poll once a day
+				}
+				Logger::info('Calculated priority by the posts per day', ['priority' => $priority, 'max' => round($max, 2), 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+			}
+		} else {
+			Logger::info('No posts, switching to daily polling', ['id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+			$priority = 3; // Poll once a day
+		}
+
+		if ($contact['priority'] != $priority) {
+			Logger::info('Adjusting priority', ['old' => $contact['priority'], 'new' => $priority, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+		}
 	}
 
 	/**
