@@ -17,7 +17,7 @@
 
 	<div class="row">
 		<div class="col-xs-9">
-			<input type="range" class="form-control color" id="{{$contentbg_transp.0}}_range" min="0" max="100" step="1" value="{{$contentbg_transp.2}}" onchange="{{$contentbg_transp.0}}.value = this.value" oninput="{{$contentbg_transp.0}}.value = this.value">
+			<input type="range" class="form-control" id="{{$contentbg_transp.0}}_range" min="0" max="100" step="1" value="{{$contentbg_transp.2}}" onchange="{{$contentbg_transp.0}}.value = this.value" oninput="{{$contentbg_transp.0}}.value = this.value">
 		</div>
 		<div class="col-xs-3">
 			<div class="input-group">
@@ -183,7 +183,7 @@
 	});
 </script>
 
-<div class="settings-submit-wrapper form-group pull-right">
+<div class="settings-submit-wrapper pull-right">
 	<button type="submit" value="{{$submit}}" class="settings-submit btn btn-primary" name="frio-settings-submit">{{$submit}}</button>
 </div>
 <div class="clearfix"></div>

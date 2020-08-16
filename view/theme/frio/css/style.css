@@ -1,9 +1,4 @@
 /*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
-/*
     Created on : 17.02.2016, 23:55:45
     Author     : rabuzarus
 */
@@ -16,7 +11,6 @@ body {
     background-repeat: $background_repeat;
     background-attachment: fixed;
     color: #777;
-    /*color: #555;*/
     font-family: 'Open Sans',sans-serif;
 }
 body.minimal {
@@ -24,8 +18,6 @@ body.minimal {
 }
 
 body a {
-    /*color: #555;*/
-    /*color: #6fdbe8;*/
     color: $link_color;
     text-decoration: none;
 }
@@ -275,7 +267,6 @@ blockquote {
 }
 .form-control-sm, .input-group-sm>.form-control, .input-group-sm>.input-group-addon, .input-group-sm>.input-group-btn>.btn {
     padding: .275rem .75rem;
-    /*font-size: .875rem;*/
     line-height: 1.5;
     height: 30px;
     border-radius: .2rem;
@@ -404,7 +395,6 @@ header #banner #logo-img,
 }
 .topbar .dropdown-header .dropdown-header-link a,
 .topbar .dropdown-header .dropdown-header-link .btn-link {
-    /*color: #6fdbe8!important;*/
     color: $link_color !important;
     font-size: 12px;
     font-weight: 400
@@ -428,10 +418,8 @@ nav.navbar .nav > li > button
 }
 #topbar-first .nav > li > a:hover,
 #topbar-first .nav > li > a:focus,
-#topbar-first .nav > li > button:hover,
-#topbar-first .nav > li > button:focus,
-#topbar-first .nav > .open > a,
-#topbar-first .nav > .open > button,
+#topbar-first .nav > li > button:not(#main-menu):hover,
+#topbar-first .nav > li > button:not(#main-menu):focus,
 nav.navbar .nav > li > a:hover,
 nav.navbar .nav > li > a:focus
 nav.navbar .nav > li > button:hover,
@@ -600,22 +588,10 @@ nav.navbar .nav > li > button:focus
 }
 #topbar-first #nav-notifications-menu li.notif-entry:hover {
     background-color: #f7f7f7;
-    /*border-left: 3px solid #6fdbe8;*/
     border-left: 3px solid $link_color;
 }
-/*#topbar-first #nav-notifications-menu i.accepted {
-    color: #6fdbe8!important
-}
-#topbar-first #nav-notifications-menu i.declined {
-    color: #ff8989!important
-}*/
 #topbar-first #nav-notifications-menu li.placeholder {
     border-bottom: none
-}
-#topbar-first #nav-notifications-menu .media .media-body {
-    font-size: 13px!important;
-    font-weight: 600!important;
-    cursor: pointer;
 }
 #topbar-first #nav-notifications-menu .media .media-body .contactname {
     font-weight: bold;
@@ -649,14 +625,6 @@ nav.navbar .nav > li > button:focus
 }
 #myNavmenu li.nav-sitename {
     font-weight: bold;
-}
-#topbar-first .dropdown.account > a,
-#topbar-first .dropdown.account.open > a,
-#topbar-first .dropdown.account > button,
-#topbar-first .dropdown.account.open > button,
-#topbar-first .dropdown.account > :hover,
-#topbar-first .dropdown.account.open > :hover {
-    background-color: $nav_bg;
 }
 #topbar-first .dropdown.account li#nav-sitename {
     padding-left: 15px;
@@ -696,7 +664,7 @@ nav.navbar .nav > li > button:focus
     -webkit-box-shadow: 0 1px 10px rgba(0, 0, 0, .1);
     -moz-box-shadow: 0 1px 10px rgba(0, 0, 0, .1);
     box-shadow: 0 1px 10px rgba(0, 0, 0, .1);
-    border-bottom: 1px solid #d4d4d4
+    border-bottom: 1px solid #d4d4d4;
 }
 #topbar-second > .container {
     height: 100%;
@@ -742,64 +710,6 @@ nav.navbar .nav > li > button:focus
     right: 10px;
     display: none;
     cursor: pointer
-}
-#topbar-second .nav>li>a {
-    padding: 6px 13px 0;
-    text-decoration: none;
-    text-shadow: none;
-    font-weight: 600;
-    font-size: 10px;
-    text-transform: uppercase;
-    text-align: center;
-    min-height: 49px
-}
-#topbar-second .nav>li>a:hover,
-#topbar-second .nav>li>a:active,
-#topbar-second .nav>li>a:focus {
-    /*border-bottom: 3px solid #6fdbe8;*/
-    border-bottom: 3px solid $link_color;
-    background-color: #f7f7f7;
-    color: #555;
-    text-decoration: none
-}
-#topbar-second .nav>li>a i {
-    font-size: 14px
-}
-#topbar-second .nav>li>a .caret {
-    border-top-color: #7a7a7a
-}
-#topbar-second .nav>li>ul>li>a {
-    border-left: 3px solid #fff;
-    background-color: #fff;
-    color: #555
-}
-#topbar-second .nav>li>ul>li>a:hover,
-#topbar-second .nav>li>ul>li>a.active {
-    /*border-left: 3px solid #6fdbe8;*/
-    border-left: 3px solid $link_color;
-    background-color: #f7f7f7;
-    color: #555
-}
-#topbar-second .nav>li.active>a {
-    min-height: 46px
-}
-#topbar-second .nav>li>a#space-menu {
-    padding-right: 13px;
-    border-right: 1px solid #ededed
-}
-#topbar-second .nav>li>a#search-menu {
-    padding-top: 15px
-}
-#topbar-second .nav>li>a:hover,
-#topbar-second .nav .open>a,
-#topbar-second .nav>li.active {
-    /*border-bottom: 3px solid #6fdbe8;*/
-    border-left: 3px solid $link_color;
-    background-color: #f7f7f7;
-    color: #555
-}
-#topbar-second .nav>li.active>a:hover {
-    border-bottom: none
 }
 #topbar-second #space-menu-dropdown li>ul>li>a>.media .media-body p {
     color: #bebebe;
@@ -850,10 +760,10 @@ nav.navbar .nav > li > button:focus
     border-bottom: none;
     margin: 9px 1px!important
 }
-.nav-pills .dropdown-menu li,
-.nav-tabs .dropdown-menu li,
-.account .dropdown-menu li,
-.contact-photo-wrapper .dropdown-menu li {
+.nav-pills .dropdown-menu li > a,
+.nav-tabs .dropdown-menu li > a,
+.account .dropdown-menu li > a,
+.contact-photo-wrapper .dropdown-menu li > a {
     border-left: 3px solid $nav_bg;
 }
 .nav-pills .dropdown-menu li a, .nav-pills .dropdown-menu li .btn-link,
@@ -877,36 +787,17 @@ nav.navbar .nav > li > button:focus
     display: inline-block;
     width: 14px
 }
-.nav-pills .dropdown-menu li a:hover, .nav-pills .dropdown-menu li .btn-link:hover,
-.nav-tabs .dropdown-menu li a:hover, .nav-tabs .dropdown-menu li .btn-link:hover,
-.account .dropdown-menu li a:hover, .account .dropdown-menu li .btn-link:hover,
-.contact-photo-wrapper .dropdown-menu li a:hover, .contact-photo-wrapper .dropdown-menu li .btn-link:hover,
-.nav-pills .dropdown-menu li a:visited, .nav-pills .dropdown-menu li .btn-link:visited,
-.nav-tabs .dropdown-menu li a:visited, .nav-tabs .dropdown-menu li .btn-link:visited,
-.account .dropdown-menu li a:visited, .account .dropdown-menu li .btn-link:visited,
-.contact-photo-wrapper .dropdown-menu li a:visited, .contact-photo-wrapper .dropdown-menu li .btn-link:visited,
-.nav-pills .dropdown-menu li a:hover, .nav-pills .dropdown-menu li .btn-link:hover,
-.nav-tabs .dropdown-menu li a:hover, .nav-tabs .dropdown-menu li .btn-link:hover,
-.account .dropdown-menu li a:hover, .account .dropdown-menu li .btn-link:hover,
-.contact-photo-wrapper .dropdown-menu li a:hover, .contact-photo-wrapper .dropdown-menu li .btn-link:hover,
-.nav-pills .dropdown-menu li a:focus, .nav-pills .dropdown-menu li .btn-link:focus,
-.nav-tabs .dropdown-menu li a:focus, .nav-tabs .dropdown-menu li .btn-link:focus,
-.account .dropdown-menu li a:focus, .account .dropdown-menu li .btn-link:focus,
-.contact-photo-wrapper .dropdown-menu li a:focus, .contact-photo-wrapper .dropdown-menu li .btn-link:focus {
-    background: 0 0
-}
-.nav-pills .dropdown-menu li:hover,
-.nav-tabs .dropdown-menu li:hover,
-.account .dropdown-menu li:hover,
-.contact-photo-wrapper .dropdown-menu li:hover,
-.nav-pills .dropdown-menu li.selected,
-.nav-tabs .dropdown-menu li.selected,
-.account .dropdown-menu li.selected,
-.contact-photo-wrapper .dropdown-menu li.selected {
-    /*border-left: 3px solid #6fdbe8;*/
+.nav-pills .dropdown-menu li > a:hover,
+.nav-tabs .dropdown-menu li > a:hover,
+.account .dropdown-menu li > a:hover,
+.contact-photo-wrapper .dropdown-menu li > a:hover,
+.nav-pills .dropdown-menu li.selected a,
+.nav-tabs .dropdown-menu li.selected a,
+.account .dropdown-menu li.selected a,
+.contact-photo-wrapper .dropdown-menu li.selected a {
     border-left: 3px solid $link_color;
-    color: #fff!important;
-    background-color: $menu_background_hover_color !important;
+    color: #fff;
+    background: $menu_background_hover_color;
 }
 #photo-edit-link-wrap {
     color: #555;
@@ -927,8 +818,7 @@ aside .widget,
 .nav-container .widget {
     border: none;
     color: #777;
-    /*background-color: #fff;*/
-    background-color: rgba(255,255,255,$contentbg_transp);
+    background-color: rgba(255, 255, 255, $contentbg_transp);
     box-shadow: 0 0 3px #dadada;
     -webkit-box-shadow: 0 0 3px #dadada;
     -moz-box-shadow: 0 0 3px #dadada;
@@ -954,7 +844,6 @@ aside .widget ul,
     margin-bottom: 0px;
     margin-left: -10px;
     margin-right: -10px;
-    /*padding-left: 10px;*/
     list-style: none;
 }
 
@@ -970,9 +859,7 @@ aside .widget li.selected,
 .nav-container .widget li:hover {
     z-index: 2;
     color: #555;
-    /*background-color: #f7f7f7;*/
     background-color: rgba(247, 247, 247, $contentbg_transp);
-    /*border-left: 3px solid #6fdbe8!important;*/
     border-left: 3px solid $link_color !important;
     padding-left: 17px;
 }
@@ -1239,8 +1126,6 @@ aside #group-sidebar li .group-edit-tool:first-child {
 .contact-block-div {
     float: left;
     margin: 0px 5px 5px 0px;
-/*    height: 90px;
-    width: 90px;*/
 }
 .contact-block-link {
 
@@ -1271,9 +1156,6 @@ section #jotOpen {
 #jot-content {
     display: none;
 }
-.jothidden {
-    /*display: none;*/
-}
 .modal #jot-sections {
     max-height: calc(100vh - 22px);
 }
@@ -1292,7 +1174,6 @@ section #jotOpen {
 #jot-modal #item-Q0,
 #jot-modal #profile-jot-acl-wrapper,
 #jot-modal #acl-wrapper {
-    overflow: hidden;
     display: flex;
     flex: auto;
     flex-direction: column;
@@ -1320,9 +1201,6 @@ section #jotOpen {
     overflow-y: auto !important;
     overflow-y: overlay !important;
 }
-/*#jot-attachment-preview {
-    display: none;
-}*/
 #jot-text-wrap .preview textarea {
     width: 100%;
 }
@@ -1450,7 +1328,7 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
     z-index: 2;
     color: #555;
     background-color: rgba(247, 247, 247, $contentbg_transp);
-    border-left: 3px solid $link_color !important;
+    border-left: 3px solid $link_color;
     padding-left: 17px;
 }
 .fbrowser .folders li a,
@@ -1492,7 +1370,6 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
 */
 .panel {
     border: none;
-    /*background-color: #fff;*/
     background-color: rgba(255,255,255,$contentbg_transp);
     box-shadow: 0 0 3px #dadada;
     -webkit-box-shadow: 0 0 3px #dadada;
@@ -1509,9 +1386,6 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
 .panel .panel-body {
     word-wrap: break-word;
 }
-.panel .panel-body .wall-item-content {
-    color: #555;
-}
 .tread-wrapper .media {
     overflow: visible;
     word-wrap: break-word;
@@ -1522,7 +1396,7 @@ aside .panel-body {
 
 /* Thread hover effects */
 .desktop-view .wall-item-container .wall-item-content a,
-.desktop-view .wall-item-container a,
+.desktop-view .wall-item-name,
 .desktop-view .wall-item-container .fakelink,
 .desktop-view .toplevel_item .fakelink,
 .desktop-view .toplevel_item .wall-item-container .wall-item-responses a {
@@ -1541,7 +1415,6 @@ aside .panel-body {
 .wall-item-container:hover .wall-item-content a,
 .wall-item-container:hover .wall-item-name,
 .wall-item-container:hover .wall-item-location a {
-    /*color: #6fdbe8;*/
     color: $link_color;
     -webkit-transition: all 0.25s ease-in-out;
     -moz-transition: all 0.25s ease-in-out;
@@ -1909,7 +1782,6 @@ code > .hl-main {
 wall-item-comment-wrapper.well {
     border: none;
     box-shadow: none;
-    /*background-color: #ededed;*/
     background-color: rgba(237, 237, 237, $contentbg_transp);
     background-image: none;
     margin-bottom: 1px;
@@ -1953,7 +1825,8 @@ wall-item-comment-wrapper.well hr {
     padding: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.8);
     background-color: rgba(0, 0, 0, 0.03);
-    border-radius: 0 0 10px 10px;
+    border-radius: 0 0 4px 4px;
+	margin-bottom: 0;
 }
 
 .comment-fake-form {
@@ -1982,7 +1855,6 @@ wall-item-comment-wrapper.well hr {
 
 /* acpopup  + textcompletion*/
 .acpopup {
-    /* max-height: 150px; */
     background-color: #ffffff;
     border-radius: 4px;
     overflow: auto;
@@ -1990,7 +1862,6 @@ wall-item-comment-wrapper.well hr {
     box-shadow: 0 6px 12px rgba(0,0,0,.175);
 }
 nav .acpopup {
-    /*top: 35px !important;*/
     margin-left: -23px;
 }
 /** @todo: we schould consider the possebility to overwrite bootstrap dropdowns
@@ -2014,27 +1885,6 @@ img.acpopup-img {
 
 
 /* The wall-item thread levels */
-/*.wall-item-container.thread_level_3 {
-  margin-left: 80px;
-  width: calc(100% - 90px);
-}
-.wall-item-container.thread_level_4 {
-  margin-left: 95px;
-  width: calc(100% - 105px);
-}
-.wall-item-container.thread_level_5 {
-  margin-left: 110px;
-  width: calc(100% - 120px);
-}
-.wall-item-container.thread_level_6 {
-  margin-left: 125px;
-  width: calc(100% - 135px);
-}
-.wall-item-container.thread_level_7 {
-  margin-left: 140px;
-  width: calc(100% - 150px);
-}*/
-
 .wall-item-container.thread_level_3,
 .wall-item-container.thread_level_4,
 .wall-item-container.thread_level_5,
@@ -2067,7 +1917,6 @@ moved it to the nav through js */
 .tabbar,
 .tabbar > li {
     height: 100%;
-    /*margin-left: -15px;*/
     padding: 0;
 }
 #tabmenu .search-heading {
@@ -2086,20 +1935,14 @@ ul.tabs li {
     float: left;
     margin: 0;
     padding: 0;
-    /*border-bottom: 0 solid #6fdbe8;*/
     border-bottom: 0 solid $link_color;
     font-size: 13px;
     height: 102%;
     transition: all .15s ease;
 }
-/*ul.tabs.visible-xs > li.active {
-    min-width: 150px;  This is a workaround to make the topbar-second dropdown better visible on mobile. We need something better here
-}*/
 ul.tabs li a {
     margin-left: 10px;
     margin-right: 10px;
-    /*color: #6fdbe8;*/
-    color: $link_color !important;
 }
 ul.tabs li:hover, ul.tabs li.active {
     border-bottom-width: 4px;
@@ -2150,7 +1993,6 @@ ul.dropdown-menu li:hover {
     padding: 10px;
     border-bottom: 1px solid rgba(238, 238, 238, $contentbg_transp);
     position: relative;
-/*    border-left: 3px solid rgba(255,255,255,$contentbg_transp);*/
     border-left: 3px solid rgba(255,255,255,0);
     font-size: 12px;
 }
@@ -2163,7 +2005,6 @@ ul.dropdown-menu li:hover {
 
 /* Forms */
 .form-control {
-    border: 2px solid #ededed;
     box-shadow: none;
 }
 .form-control:focus {
@@ -2174,6 +2015,11 @@ ul.dropdown-menu li:hover {
 .checkbox input[type="checkbox"]:focus + label::before,
 .radio input[type="radio"]:focus + label::before {
 	outline-color: $link_hover_color;
+}
+
+input[type=range].form-control {
+	padding-left: 0;
+	padding-right: 0;
 }
 
 /* Search form */
@@ -2218,11 +2064,9 @@ ul.dropdown-menu li:hover {
     padding-bottom: 20px;
     margin-bottom: 20px;
     border: none;
-    /*background-color: #fff;*/
     background-color: rgba(255,255,255,$contentbg_transp);
     border-radius: 4px;
     position: relative;
-    /*overflow: hidden;*/
     color: #555;
     box-shadow: 0 0 3px #dadada;
     -webkit-box-shadow: 0 0 3px #dadada;
@@ -2248,11 +2092,9 @@ section > .generic-page-wrapper, .videos-content-wrapper,
     padding-bottom: 20px;
     margin-bottom: 20px;
     border: none;
-    /*background-color: #fff;*/
     background-color: rgba(255,255,255,$contentbg_transp);
     border-radius: 4px;
     position: relative;
-    /*overflow: hidden;*/
     color: #555;
     box-shadow: 0 0 3px #dadada;
     -webkit-box-shadow: 0 0 3px #dadada;
@@ -2297,12 +2139,6 @@ ul.viewcontact_wrapper {
 }
 ul.viewcontact_wrapper > li {
     padding-left: 15px;
-}
-.contact-wrapper {
-/*    padding: 10px;
-    border-bottom: 1px solid rgba(238, 238, 238, $contentbg_transp);;
-    position: relative;*/
-    /*border-left: 3px solid white;*/
 }
 .contact-wrapper .contact-photo-wrapper button {
     padding: 0;
@@ -2395,17 +2231,8 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     background-color: #E1F5FE;
     margin: 15px -15px;
 }
-#contact-edit-tools {
-    margin-left: -15px;
-    margin-right: -15px;
-}
-#contact-edit-tools > .panel {
-    padding-left: 15px;
-    padding-right: 15px;
-}
 #contact-edit-settings {
     display: block;
-    margin: 0;
 }
 
 /* directory page */
@@ -2490,13 +2317,8 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     overflow-y: auto;
     max-height: calc(100vh - 400px);
     max-height: auto;
-    /*height: 500px;*/
     margin-bottom: 0px;
     padding: 0 15px;
-}
-#mail-conversation.can-reply {
-/*    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;*/
 }
 .mail-conv-wrapper .media .contact-photo-wrapper img {
     height: 48px;
@@ -2510,10 +2332,6 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     display:none;
 }
 .mail-thread #prvmail-message-label textarea {
-/*    border-top: none;
-    margin-top: -10px;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;*/
     max-height: 120px;
 }
 .mail-conv-wrapper {
@@ -2524,7 +2342,6 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     height: calc(100vh - 150px);
 }
 #message-preview {
-    /*padding: 0 10px;*/
     height: calc(100% - 20px);
 }
 #message-preview ul {
@@ -2581,9 +2398,6 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     color: $link_hover_color;
     text-decoration: none;
 }
-/*.event-date-wrapper.medium .event-hover-short-month {
-    color: $link_color;
-}*/
 .event-wrapper .event-owner {
   margin-bottom: 15px;
 }
@@ -2724,7 +2538,6 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     top: 50%;
     transform: translateZ(0);
     transition: opacity .2s;
-    /*width: 27px;*/
     width: 100px;
     z-index: 11;
     font-size: 64px;
@@ -2827,7 +2640,6 @@ details.profile-jot-net[open] summary:before {
 /* Emulates Bootstrap display */
 .settings-block {
     margin: 0 0 5px;
-    color: #333;
     background-color: rgba(255,255,255,0.95);
     border-radius: 4px;
     padding: 10px 15px;
@@ -2924,13 +2736,11 @@ ul li:hover .intro-wrapper button.intro-action-link:hover {
 }
 .intro-action-buttons {
     margin-top: 15px;
-    /*display: none;*/
     max-height: 0px;
     overflow: hidden;
     transition: max-height 0.1s ease-out;
 }
 ul.notif-network-list > li:hover .intro-action-buttons {
-    /*display: block;*/
     max-height: 30px;
     transition: max-height 0.1s ease-in;
 }
@@ -2980,11 +2790,9 @@ little modifications to emulate a standard page template */
     margin: 0;
     margin-bottom: 20px;
     border: none;
-    /*background-color: #fff;*/
     background-color: rgba(255,255,255,$contentbg_transp);
     border-radius: 4px;
     position: relative;
-    /*overflow: hidden;*/
     color: #555;
     box-shadow: 0 0 3px #dadada;
     -webkit-box-shadow: 0 0 3px #dadada;

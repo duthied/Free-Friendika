@@ -44,9 +44,6 @@
 					{{/if}}
 
 					</div>
-					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
-					</div>
 				</div>
 			</div>
 

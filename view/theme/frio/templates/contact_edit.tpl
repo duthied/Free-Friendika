@@ -67,14 +67,14 @@
 
 					{{* Some information about the contact from the profile *}}
 					<div class="panel">
-						<div class="section-subtitle-wrapper" role="tab" id="contact-edit-profile">
+						<div class="section-subtitle-wrapper panel-heading" role="tab" id="contact-edit-profile">
 							<h4>
 								<a class="accordion-toggle" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-profile-collapse" aria-expanded="true" aria-controls="contact-edit-profile-collapse">
 									{{$contact_profile_label}}
 								</a>
 							</h4>
 						</div>
-						<div id="contact-edit-profile-collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="contact-edit-profile">
+						<div id="contact-edit-profile-collapse" class="panel-body panel-collapse collapse in" role="tabpanel" aria-labelledby="contact-edit-profile">
 							<div class="section-content-tools-wrapper">
 								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-muted">{{$profileurllabel}}</div><a target="blank" href="{{$url}}">{{$profileurl}}</a>
@@ -118,14 +118,14 @@
 
 					{{if $contact_settings_label}}
 					<div class="panel">
-						<div class="section-subtitle-wrapper" role="tab" id="contact-edit-settings">
+						<div class="section-subtitle-wrapper panel-heading" role="tab" id="contact-edit-settings">
 							<h4>
 								<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-settings-collapse" aria-expanded="false" aria-controls="contact-edit-settings-collapse">
 									{{$contact_settings_label}}
 								</a>
 							</h4>
 						</div>
-						<div id="contact-edit-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="contact-edit-settings">
+						<div id="contact-edit-settings-collapse" class="panel-body panel-collapse collapse" role="tabpanel" aria-labelledby="contact-edit-settings">
 							<div class="section-content-tools-wrapper">
 
 								<input type="hidden" name="contact_id" value="{{$contact_id}}">
@@ -137,7 +137,7 @@
 								{{/if}}
 								{{include file="field_checkbox.tpl" field=$hidden}}
 
-								<div class="form-group pull-right settings-submit-wrapper" >
+								<div class="pull-right settings-submit-wrapper" >
 									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 								</div>
 								<div class="clear"></div>
@@ -148,19 +148,19 @@
 
 					{{if $lbl_info1}}
 					<div class="panel">
-						<div class="section-subtitle-wrapper" role="tab" id="contact-edit-info">
+						<div class="section-subtitle-wrapper panel-heading" role="tab" id="contact-edit-info">
 							<h4>
 								<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-info-collapse" aria-expanded="false" aria-controls="contact-edit-info-collapse">
 									{{$lbl_info1}}
 								</a>
 							</h4>
 						</div>
-						<div id="contact-edit-info-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="contact-edit-info">
+						<div id="contact-edit-info-collapse" class="panel-body panel-collapse collapse" role="tabpanel" aria-labelledby="contact-edit-info">
 							<div class="section-content-tools-wrapper">
 
 								{{include file="field_textarea.tpl" field=$cinfo}}
 
-								<div class="form-group pull-right settings-submit-wrapper" >
+								<div class="pull-right settings-submit-wrapper" >
 									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 								</div>
 								<div class="clear"></div>
