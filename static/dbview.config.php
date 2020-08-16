@@ -186,7 +186,6 @@ return [
 			"archive" => ["contact", "archive"],
 			"pending" => ["contact", "pending"],
 			"deleted" => ["contact", "deleted"],
-			"rating" => ["contact", "rating"],
 			"unsearchable" => ["contact", "unsearchable"],
 			"sensitive" => ["contact", "sensitive"],
 			"baseurl" => ["contact", "baseurl"],
