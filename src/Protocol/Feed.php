@@ -665,12 +665,12 @@ class Feed
 				return;				
 			}
 
-			if (((time() / 86400) - $newest) > 30) {
-				Logger::info('Feed had not posted for a month, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+			if (empty($frequency)) {
+				Logger::info('Feed had not posted for at least a week, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
 				$priority = 3; // Poll once a day
 			}
 
-			if (count($creation_dates) == 1) {
+			if (empty($priority) && (count($creation_dates) == 1)) {
 				Logger::info('Feed had posted a single time, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
 				$priority = 3; // Poll once a day
 			}
