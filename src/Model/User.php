@@ -97,6 +97,8 @@ class User
 	 * @}
 	 */
 
+	private static $owner;
+
 	/**
 	 * Returns true if a user record exists with the provided id
 	 *
@@ -211,8 +213,12 @@ class User
 	 * @return boolean|array
 	 * @throws Exception
 	 */
-	public static function getOwnerDataById($uid, $check_valid = true)
+	public static function getOwnerDataById(int $uid, bool $check_valid = true)
 	{
+		if (!empty(self::$owner[$uid])) {
+			return self::$owner[$uid];
+		}
+
 		$owner = DBA::selectFirst('owner-view', [], ['uid' => $uid]);
 		if (!DBA::isResult($owner)) {
 			if (!DBA::exists('user', ['uid' => $uid]) || !$check_valid) {
@@ -256,6 +262,7 @@ class User
 			$owner = self::getOwnerDataById($uid, false);
 		}
 
+		self::$owner[$uid] = $owner;
 		return $owner;
 	}
 

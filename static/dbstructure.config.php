@@ -202,7 +202,7 @@ return [
 			"dfrn-id" => ["dfrn-id(64)"],
 			"issued-id" => ["issued-id(64)"],
 			"network_uid_lastupdate" => ["network", "uid", "last-update"],
-			"uid_lastitem" => ["uid", "last-item"],			
+			"uid_lastitem" => ["uid", "last-item"],
 			"gsid" => ["gsid"]
 		]
 	],
@@ -729,6 +729,7 @@ return [
 			"resource-id" => ["resource-id"],
 			"deleted_changed" => ["deleted", "changed"],
 			"uid_wall_changed" => ["uid", "wall", "changed"],
+			"uid_unseen_wall" => ["uid", "unseen", "wall"],
 			"mention_uid_id" => ["mention", "uid", "id"],
 			"uid_eventid" => ["uid", "event-id"],
 			"icid" => ["icid"],

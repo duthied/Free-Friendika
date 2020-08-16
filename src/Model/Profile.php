@@ -166,7 +166,7 @@ class Profile
 			}
 		}
 
-		$profile = self::getByNickname($nickname, $user['uid']);
+		$profile = User::getOwnerDataById($user['uid'], false);
 
 		if (empty($profile) && empty($profiledata)) {
 			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);

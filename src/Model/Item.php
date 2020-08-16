@@ -2722,8 +2722,6 @@ class Item
 			'owner-id' => $owner_id, 'private' => $private, 'psid' => $psid];
 		self::update($fields, ['id' => $item_id]);
 
-		self::updateThread($item_id);
-
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, $item_id);
 
 		/// @todo This code should be activated by the end of the year 2020
@@ -3285,9 +3283,8 @@ class Item
 		$fields = ['uid', 'guid', 'created', 'edited', 'commented', 'received', 'changed', 'post-type',
 			'wall', 'private', 'pubmail', 'moderated', 'visible', 'starred', 'contact-id', 'uri-id',
 			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id'];
-		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
 
-		$item = self::selectFirst($fields, $condition);
+		$item = self::selectFirst($fields, ['id' => $itemid, 'gravity' => GRAVITY_PARENT]);
 		if (!DBA::isResult($item)) {
 			return;
 		}

@@ -230,7 +230,7 @@ return [
 			"account_removed" => ["user", "account_removed"],
 			"account_expired" => ["user", "account_expired"],
 			"account_expires_on" => ["user", "account_expires_on"],
-			"expire_notification_sent" => ["user", "expire_notification_sent"],			
+			"expire_notification_sent" => ["user", "expire_notification_sent"],
 			"def_gid" => ["user", "def_gid"],
 			"allow_cid" => ["user", "allow_cid"],
 			"allow_gid" => ["user", "allow_gid"],
