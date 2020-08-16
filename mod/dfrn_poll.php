@@ -239,7 +239,6 @@ function dfrn_poll_post(App $a)
 {
 	$dfrn_id      =  $_POST['dfrn_id']   ?? '';
 	$challenge    =  $_POST['challenge'] ?? '';
-	$url          =  $_POST['url']       ?? '';
 	$sec          =  $_POST['sec']       ?? '';
 	$ptype        =  $_POST['type']      ?? '';
 	$perm         = ($_POST['perm']      ?? '') ?: 'r';
@@ -319,7 +318,6 @@ function dfrn_poll_post(App $a)
 		exit();
 	}
 
-	$type = $r[0]['type'];
 	$last_update = $r[0]['last_update'];
 
 	DBA::delete('challenge', ['dfrn-id' => $dfrn_id, 'challenge' => $challenge]);
@@ -346,59 +344,29 @@ function dfrn_poll_post(App $a)
 	}
 
 	$contact = $r[0];
-	$owner_uid = $r[0]['uid'];
 	$contact_id = $r[0]['id'];
 
-	if ($type === 'reputation' && strlen($url)) {
-		$r = q("SELECT * FROM `contact` WHERE `url` = '%s' AND `uid` = %d LIMIT 1",
-			DBA::escape($url),
-			intval($owner_uid)
-		);
-		$reputation = 0;
-		$text = '';
-
-		if (DBA::isResult($r)) {
-			$reputation = $r[0]['rating'];
-			$text = $r[0]['reason'];
-
-			if ($r[0]['id'] == $contact_id) { // inquiring about own reputation not allowed
-				$reputation = 0;
-				$text = '';
-			}
+	// Update the writable flag if it changed
+	Logger::debug('post request feed', ['post' => $_POST]);
+	if ($dfrn_version >= 2.21) {
+		if ($perm === 'rw') {
+			$writable = 1;
+		} else {
+			$writable = 0;
 		}
 
-		echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-		<reputation>
-			<url>$url</url>
-			<rating>$reputation</rating>
-			<description>$text</description>
-		</reputation>
-		";
-		exit();
-		// NOTREACHED
-	} else {
-		// Update the writable flag if it changed
-		Logger::debug('post request feed', ['post' => $_POST]);
-		if ($dfrn_version >= 2.21) {
-			if ($perm === 'rw') {
-				$writable = 1;
-			} else {
-				$writable = 0;
-			}
-
-			if ($writable != $contact['writable']) {
-				q("UPDATE `contact` SET `writable` = %d WHERE `id` = %d",
-					intval($writable),
-					intval($contact_id)
-				);
-			}
+		if ($writable != $contact['writable']) {
+			q("UPDATE `contact` SET `writable` = %d WHERE `id` = %d",
+				intval($writable),
+				intval($contact_id)
+			);
 		}
-
-		header("Content-type: application/atom+xml");
-		$o = DFRN::feed($dfrn_id, $a->argv[1], $last_update, $direction);
-		echo $o;
-		exit();
 	}
+
+	header("Content-type: application/atom+xml");
+	$o = DFRN::feed($dfrn_id, $a->argv[1], $last_update, $direction);
+	echo $o;
+	exit();
 }
 
 function dfrn_poll_content(App $a)
