@@ -186,7 +186,7 @@ class Cron
 		Addon::reload();
 
 		$sql = "SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`, `contact`.`archive`,
-					`contact`.`last-update`, `contact`.`priority`, `contact`.`rel`, `contact`.`subhub`
+					`contact`.`last-update`, `contact`.`priority`, `contact`.`rating`, `contact`.`rel`, `contact`.`subhub`
 				FROM `user`
 				STRAIGHT_JOIN `contact`
 				ON `contact`.`uid` = `user`.`uid` AND `contact`.`poll` != ''
@@ -217,6 +217,11 @@ class Cron
 		}
 
 		while ($contact = DBA::fetch($contacts)) {
+			// Use the "rating" field when auto adjusting the poll intervall
+			if (DI::config()->get('system', 'adjust_poll_frequency') && ($contact['network'] == Protocol::FEED)) {
+				$contact['priority'] = max($contact['rating'], $contact['priority']);
+			}
+
 			// Friendica and OStatus are checked once a day
 			if (in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
 				$contact['priority'] = 3;

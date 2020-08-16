@@ -602,7 +602,7 @@ class Feed
 			}
 		}
 
-		if (!$dryRun) {
+		if (!$dryRun && DI::config()->get('system', 'adjust_poll_frequency')) {
 			self::adjustPollFrequency($contact, $creation_dates);
 		}
 
@@ -716,8 +716,9 @@ class Feed
 			$priority = 3; // Poll once a day
 		}
 
-		if ($contact['priority'] != $priority) {
-			Logger::notice('Adjusting priority', ['old' => $contact['priority'], 'new' => $priority, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+		if ($contact['rating'] != $priority) {
+			Logger::notice('Adjusting priority', ['old' => $contact['rating'], 'new' => $priority, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+			DBA::update('contact', ['rating' => $priority], ['id' => $contact['id']]);
 		}
 	}
 

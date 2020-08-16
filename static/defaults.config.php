@@ -82,6 +82,10 @@ return [
 		'php_path' => 'php',
 	],
 	'system' => [
+		// adjust_poll_frequency (Boolean)
+		// Automatically detect and set the best feed poll frequency.
+		'adjust_poll_frequency' => false,
+
 		// allowed_link_protocols (Array)
 		// Allowed protocols in links URLs, add at your own risk. http(s) is always allowed.
 		'allowed_link_protocols' => ['ftp://', 'ftps://', 'mailto:', 'cid:', 'gopher://'],
