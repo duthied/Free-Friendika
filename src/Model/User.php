@@ -213,10 +213,10 @@ class User
 	 * @return boolean|array
 	 * @throws Exception
 	 */
-	public static function getOwnerDataById($uid, $check_valid = true)
+	public static function getOwnerDataById(int $uid, bool $check_valid = true)
 	{
-		if (!empty(self::$owner)) {
-			return self::$owner;
+		if (!empty(self::$owner[$uid])) {
+			return self::$owner[$uid];
 		}
 
 		$owner = DBA::selectFirst('owner-view', [], ['uid' => $uid]);
@@ -262,7 +262,7 @@ class User
 			$owner = self::getOwnerDataById($uid, false);
 		}
 
-		self::$owner = $owner;
+		self::$owner[$uid] = $owner;
 		return $owner;
 	}
 
