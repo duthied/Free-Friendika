@@ -123,7 +123,7 @@ if (!isset($nav_icon_hover_color)) {
 	if ($nihc->isLight()) {
 		$nav_icon_hover_color = '#' . $nihc->darken(10);
 	} else {
-		$nav_icon_hover_color = '#' . $nihc->lighten(10);
+		$nav_icon_hover_color = '#' . $nihc->lighten(20);
 	}
 }
 if (!isset($link_hover_color)) {
@@ -184,7 +184,9 @@ $options = [
 	'$background_size_img'         => $background_size_img,
 	'$background_repeat'           => $background_repeat,
 	'$login_bg_image'              => $login_bg_image,
-	'$login_bg_color'              => $login_bg_color
+	'$login_bg_color'              => $login_bg_color,
+	'$font_color_darker'           => $font_color_darker ?? '#555',
+	'$font_color'                  => $font_color ?? '#777',
 ];
 
 $css_tpl = file_get_contents('view/theme/frio/css/style.css');

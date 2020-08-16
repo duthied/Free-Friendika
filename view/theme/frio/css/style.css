@@ -10,7 +10,7 @@ body {
     background-size: $background_size_img;
     background-repeat: $background_repeat;
     background-attachment: fixed;
-    color: #777;
+    color: $font_color;
     font-family: 'Open Sans',sans-serif;
 }
 body.minimal {
@@ -181,7 +181,7 @@ blockquote {
 
 .btn-default {
     background: #ededed;
-    color: #7a7a7a;
+    color: $font_color;
 }
 .btn-sm {
     padding: 4px 8px;
@@ -416,6 +416,11 @@ nav.navbar .nav > li > button
 {
 	color: $nav_icon_color;
 }
+#topbar-first .nav > .open > a,
+#topbar-first .nav > .open > button
+{
+	background-color: $nav_bg;
+}
 #topbar-first .nav > li > a:hover,
 #topbar-first .nav > li > a:focus,
 #topbar-first .nav > li > button:not(#main-menu):hover,
@@ -570,11 +575,11 @@ nav.navbar .nav > li > button:focus
     max-height: 400px;
 }
 #topbar-first #nav-notifications-menu a {
-    color: #555;
+    color: $font_color_darker;
     padding: 0;
 }
 #topbar-first #nav-notifications-menu li.notif-entry {
-    color: #555;
+    color: $font_color_darker;
     padding: 10px;
     border-bottom: 1px solid #eee;
     position: relative;
@@ -800,7 +805,7 @@ nav.navbar .nav > li > button:focus
     background: $menu_background_hover_color;
 }
 #photo-edit-link-wrap {
-    color: #555;
+    color: $font_color_darker;
     margin-bottom: 15px;
 }
 
@@ -817,7 +822,7 @@ nav.navbar .nav > li > button:focus
 aside .widget,
 .nav-container .widget {
     border: none;
-    color: #777;
+    color: $font_color;
     background-color: rgba(255, 255, 255, $contentbg_transp);
     box-shadow: 0 0 3px #dadada;
     -webkit-box-shadow: 0 0 3px #dadada;
@@ -858,14 +863,14 @@ aside .widget li:hover,
 aside .widget li.selected,
 .nav-container .widget li:hover {
     z-index: 2;
-    color: #555;
+    color: $font_color_darker;
     background-color: rgba(247, 247, 247, $contentbg_transp);
     border-left: 3px solid $link_color !important;
     padding-left: 17px;
 }
 aside .widget li a,
 aside .widget li a:hover {
-    color: #555;
+    color: $font_color_darker;
 }
 
 /* forumlist widget */
@@ -1039,12 +1044,12 @@ aside .vcard #wallmessage-link {
     font-weight: bold;
 }
 #nav-short-info .contact-wrapper .media-heading a {
-    color: #555;
+    color: $font_color_darker;
     font-size: 14px !important;
 }
 #vcard-short-desc > .vcard-short-addr,
 #nav-short-info .contact-wrapper #contact-entry-url-network {
-    color: #777;
+    color: $font_color;
     font-size: 12px;
 }
 .network-content-wrapper > #viewcontact_wrapper-network,
@@ -1080,16 +1085,16 @@ div#sidebar-group-list {
 }
 
 .group-edit-tool {
-    color: #555;
+    color: $font_color_darker;
 }
 
 .faded-icon {
-    color: #555;
+    color: $font_color_darker;
     opacity: 0.3;
     transition: all 0.1s ease-in-out;
 }
 .faded-icon:hover {
-    color: #555;
+    color: $font_color_darker;
     opacity: 1;
 }
 .icon-padding {
@@ -1180,7 +1185,7 @@ section #jotOpen {
 }
 #jot-modal .modal-header a, #jot-modal .modal-header .btn-link,
 #profile-jot-submit-wrapper a, #profile-jot-submit-wrapper .btn-link {
-    color: #555;
+    color: $font_color_darker;
     text-transform: capitalize;
 }
 #jot-modal .modal-header {
@@ -1214,7 +1219,7 @@ section #jotOpen {
     box-shadow: none;
     border-radius: 0 0 4px 4px;
     background: #fff;
-    color: #555;
+    color: $font_color_darker;
 }
 textarea#profile-jot-text:focus + #preview_profile-jot-text,
 textarea.comment-edit-text:focus + .comment-edit-form .preview {
@@ -1296,7 +1301,7 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
     padding: 0;
 }
 .fbrowser .breadcrumb > li:last-of-type a{
-    color: #777;
+    color: $font_color;
     pointer-events: none;
     cursor: default;
 }
@@ -1326,14 +1331,14 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
 }
 .fbrowser .folders li:hover {
     z-index: 2;
-    color: #555;
+    color: $font_color_darker;
     background-color: rgba(247, 247, 247, $contentbg_transp);
     border-left: 3px solid $link_color;
     padding-left: 17px;
 }
 .fbrowser .folders li a,
 .fbrowser .folders li a:hover {
-    color: #555;
+    color: $font_color_darker;
     font-size: 13px;
 }
 .fbrowser .folders + .list {
@@ -1400,7 +1405,7 @@ aside .panel-body {
 .desktop-view .wall-item-container .fakelink,
 .desktop-view .toplevel_item .fakelink,
 .desktop-view .toplevel_item .wall-item-container .wall-item-responses a {
-    color: #555;
+    color: $font_color;
     -webkit-transition: all 0.25s ease-in-out;
     -moz-transition: all 0.25s ease-in-out;
     -o-transition: all 0.25s ease-in-out;
@@ -1514,7 +1519,7 @@ aside .panel-body {
 .media .media-body h4.media-heading {
     font-size: 14px;
     font-weight: 500;
-    color: #555;
+    color: $font_color_darker;
 }
 .media .media-body .addional-info a, .media .media-body h5.media-heading > a {
     display: block;
@@ -1597,11 +1602,11 @@ aside .panel-body {
     border-radius: 3px;
 }
 .wall-item-body .body-attach > a {
-    color: #555;
+    color: $font_color_darker;
     display: inline-block;
 }
 .wall-item-body .body-attach > a div {
-    color: #555;
+    color: $font_color_darker;
     width: 20px;
 }
 
@@ -1691,7 +1696,7 @@ code > .hl-main {
 }
 
 .wall-item-tags a {
-    color: #555;
+    color: $font_color_darker;
 }
 
 .wall-item-tags a:hover {
@@ -1714,7 +1719,7 @@ code > .hl-main {
 }
 .wall-item-actions a, .wall-item-actions button {
     font-size: 13px;
-    color: #555;
+    color: $font_color_darker;
 }
 .wall-item-actions .active {
     font-weight: bold;
@@ -1737,7 +1742,7 @@ code > .hl-main {
     text-transform: capitalize;
 }
 .wall-item-actions button:hover {
-    color: #555;
+    color: $font_color_darker;
     text-decoration: underline;
 }
 .wall-item-actions .separator {
@@ -1867,7 +1872,7 @@ nav .acpopup {
 /** @todo: we schould consider the possebility to overwrite bootstrap dropdowns
  at the beginning of this file to get rid of the !important */
 .textcomplete-item > a {
-    color: #555 !important;
+    color: $font_color_darker !important;
     padding: 5px 20px !important;
 }
 .textcomplete-item.active > a {
@@ -1987,7 +1992,7 @@ ul.dropdown-menu li:hover {
 .media .location,
 .media .location a {
     font-size: 11px;
-    color: #bebebe;
+    color: $font_color_darker;
 }
 .media-list > li {
     padding: 10px;
@@ -2012,9 +2017,24 @@ ul.dropdown-menu li:hover {
     box-shadow: none;
 }
 
+.radio label::before,
+.checkbox label::before {
+	background-color: $background_color;
+}
+.radio label::after {
+	background-color: $link_color;
+}
+.checkbox label::after {
+	color: $link_color;
+}
+
 .checkbox input[type="checkbox"]:focus + label::before,
 .radio input[type="radio"]:focus + label::before {
 	outline-color: $link_hover_color;
+}
+
+.help-block {
+	color: $font_color_darker;
 }
 
 input[type=range].form-control {
@@ -2067,7 +2087,7 @@ input[type=range].form-control {
     background-color: rgba(255,255,255,$contentbg_transp);
     border-radius: 4px;
     position: relative;
-    color: #555;
+    color: $font_color_darker;
     box-shadow: 0 0 3px #dadada;
     -webkit-box-shadow: 0 0 3px #dadada;
     -moz-box-shadow: 0 0 3px #dadada;
@@ -2095,7 +2115,7 @@ section > .generic-page-wrapper, .videos-content-wrapper,
     background-color: rgba(255,255,255,$contentbg_transp);
     border-radius: 4px;
     position: relative;
-    color: #555;
+    color: $font_color_darker;
     box-shadow: 0 0 3px #dadada;
     -webkit-box-shadow: 0 0 3px #dadada;
     -moz-box-shadow: 0 0 3px #dadada;
@@ -2178,7 +2198,7 @@ ul.viewcontact_wrapper > li {
 }
 
 .contact-entry-desc {
-    color: #555;
+    color: $font_color_darker;
 }
 .contact-entry-checkbox {
     margin-top: -20px;
@@ -2195,7 +2215,7 @@ ul.viewcontact_wrapper > li {
 .contact-wrapper .contact-action-link:hover,
 .textcomplete-item .contact-wrapper .contact-action-link {
     padding: 0 5px;
-    color: #555;
+    color: $font_color_darker;
     border: 0;
 }
 .contact-wrapper .contact-action-link {
@@ -2228,7 +2248,7 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 }
 #contact-edit-status-wrapper {
     border: none;
-    background-color: #E1F5FE;
+    background-color: rgba(225, 245, 254, $contentbg_transp);
     margin: 15px -15px;
 }
 #contact-edit-settings {
@@ -2425,7 +2445,7 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     padding-top: 15px;
 }
 #event-nav a {
-    color: #555;
+    color: $font_color_darker;
 }
 #event-edit-form-wrapper #event-edit-time {
     padding: 10px 0;
@@ -2482,7 +2502,7 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     width: 100%;
     padding: 0 5px 0 15px;
     box-shadow: 1.5px 0 0 0 rgba(0, 0, 0, .1) inset;
-    color: #777;
+    color: $font_color;
     position: relative;
 }
 .event-card .event-card-content .event-map-btn {
@@ -2493,7 +2513,7 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 }
 .event-card .event-card-title {
     font-size: 14px;
-    color: #555;
+    color: $font_color_darker;
     line-height: 15px;
     font-weight: bold;
     margin: 0;
@@ -2573,7 +2593,7 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     position: relative;
 }
 .photo-comment-wrapper .wall-item-content {
-    color: #555;
+    color: $font_color_darker;
     font-size: 13px;
 }
 .photo-comment-wrapper .comment-wwedit-wrapper,
@@ -2640,7 +2660,7 @@ details.profile-jot-net[open] summary:before {
 /* Emulates Bootstrap display */
 .settings-block {
     margin: 0 0 5px;
-    background-color: rgba(255,255,255,0.95);
+    background-color: rgba(255, 255, 255, $contentbg_transp);
     border-radius: 4px;
     padding: 10px 15px;
     box-shadow: 0 0 3px #dadada;
@@ -2725,7 +2745,7 @@ ul.notif-network-list > li {
 .intro-wrapper button.intro-action-link:hover {
     padding-right: 5px;
     padding-left: 5px;
-    color: #555;
+    color: $font_color_darker;
 }
 ul li:hover .intro-wrapper button.intro-action-link {
     opacity: 0.8;
@@ -2772,7 +2792,7 @@ ul.notif-network-list li.unseen {
 .notif-item .notif-desc-wrapper a {
     height: 100%;
     display: block;
-    color: #555;
+    color: $font_color_darker;
     font-size: 13px;
     font-weight: 600;
 }
@@ -2793,7 +2813,7 @@ little modifications to emulate a standard page template */
     background-color: rgba(255,255,255,$contentbg_transp);
     border-radius: 4px;
     position: relative;
-    color: #555;
+    color: $font_color_darker;
     box-shadow: 0 0 3px #dadada;
     -webkit-box-shadow: 0 0 3px #dadada;
     -moz-box-shadow: 0 0 3px #dadada;
@@ -2867,7 +2887,7 @@ section.help-content-wrapper li {
     margin-top: 2px;
     border: 1px solid #cccccc;
     border-radius: 3px;
-    background-color: #fff;
+	background-color: $background_color;
     -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
     -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
     transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
@@ -2886,14 +2906,14 @@ section.help-content-wrapper li {
     padding-left: 3px;
     padding-top: 1px;
     font-size: 11px;
-    color: #555555;
+    color: $link_color;
 }
 #adminpage .addon .desc {
     padding-left: 10px;
 }
 .adminpage .admin-settings-action-link,
 .adminpage .admin-settings-action-link:hover {
-    color: #555;
+    color: $font_color_darker;
 }
 .adminpage .admin-settings-action-link:hover {
     opacity: 1;
@@ -3064,6 +3084,11 @@ body .tread-wrapper .hovercard:hover .hover-card-content a {
 .pagination .disabled > a,
 .pager .disabled > a {
     display: none;
+}
+
+.pagination li > a,
+.pager li > a {
+	background-color: rgba(255, 255, 255, $contentbg_transp);
 }
 
 /*
@@ -3256,7 +3281,7 @@ section .profile-match-wrapper {
 .fc .fc-event {
 	background-color: #E3F2FD;
 	border: 1px solid #BBDEFB;
-	color: #555;
+	color: $font_color_darker;
 }
 .fc .fc-month-view .fc-time,
 .fc .fc-listMonth-view .fc-list-item-time,
