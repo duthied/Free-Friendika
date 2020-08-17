@@ -558,7 +558,7 @@ class Contact extends BaseModule
 			}
 
 			$poll_interval = null;
-			if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
+			if ((($contact['network'] == Protocol::FEED) && !DI::config()->get('system', 'adjust_poll_frequency')) || ($contact['network']== Protocol::MAIL)) {
 				$poll_interval = ContactSelector::pollInterval($contact['priority'], !$poll_enabled);
 			}
 
