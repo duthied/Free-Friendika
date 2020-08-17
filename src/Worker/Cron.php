@@ -186,7 +186,7 @@ class Cron
 		Addon::reload();
 
 		$sql = "SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`, `contact`.`archive`,
-					`contact`.`last-update`, `contact`.`priority`, `contact`.`rel`, `contact`.`subhub`
+					`contact`.`last-update`, `contact`.`priority`, `contact`.`rating`, `contact`.`rel`, `contact`.`subhub`
 				FROM `user`
 				STRAIGHT_JOIN `contact`
 				ON `contact`.`uid` = `user`.`uid` AND `contact`.`poll` != ''
@@ -217,65 +217,43 @@ class Cron
 		}
 
 		while ($contact = DBA::fetch($contacts)) {
+			$ratings = [0, 3, 7, 8, 9, 10];
+			if (DI::config()->get('system', 'adjust_poll_frequency') && ($contact['network'] == Protocol::FEED)) {
+				$rating = $contact['rating'];
+			} elseif (array_key_exists($contact['priority'], $ratings)) {
+				$rating = $ratings[$contact['priority']];
+			} else {
+				$rating = -1;
+			}
+
 			// Friendica and OStatus are checked once a day
 			if (in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
-				$contact['priority'] = 3;
+				$rating = 8;
 			}
 
 			// ActivityPub is checked once a week
 			if ($contact['network'] == Protocol::ACTIVITYPUB) {
-				$contact['priority'] = 4;
+				$rating = 9;
 			}
 
 			// Check archived contacts once a month
 			if ($contact['archive']) {
-				$contact['priority'] = 5;
+				$rating = 10;
 			}
 
-			if ($contact['priority'] >= 0) {
-				$update = false;
+			if ($rating < 0) {
+				continue;
+			}
+			/*
+			 * Based on $contact['priority'], should we poll this site now? Or later?
+			 */
+			$t = $contact['last-update'];
 
-				$t = $contact['last-update'];
+			$poll_intervals = [$min_poll_interval . ' minute', '15 minute', '30 minute',
+				'1 hour', '2 hour', '3 hour', '6 hour', '12 hour' ,'1 day', '1 week', '1 month'];
 
-				/*
-				 * Based on $contact['priority'], should we poll this site now? Or later?
-				 */
-				switch ($contact['priority']) {
-					case 5:
-						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + 1 month")) {
-							$update = true;
-						}
-						break;
-					case 4:
-						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + 1 week")) {
-							$update = true;
-						}
-						break;
-					case 3:
-						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + 1 day")) {
-							$update = true;
-						}
-						break;
-					case 2:
-						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + 12 hour")) {
-							$update = true;
-						}
-						break;
-					case 1:
-						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + 1 hour")) {
-							$update = true;
-						}
-						break;
-					case 0:
-					default:
-						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + " . $min_poll_interval . " minute")) {
-							$update = true;
-						}
-						break;
-				}
-				if (!$update) {
-					continue;
-				}
+			if (empty($poll_intervals[$rating]) || (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . ' + ' . $poll_intervals[$rating])))  {
+				continue;
 			}
 
 			if ((($contact['network'] == Protocol::FEED) && ($contact['priority'] <= 3)) || ($contact['network'] == Protocol::MAIL)) {
