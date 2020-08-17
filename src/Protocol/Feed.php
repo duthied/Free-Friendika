@@ -660,13 +660,23 @@ class Feed
 				}
 			}
 
-			if (empty($frequency)) {
-				Logger::info('Feed had not posted for at least a week, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+			if (count($creation_dates) == 1) {
+				Logger::info('Feed had posted a single time, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
 				$priority = 8; // Poll once a day
 			}
 
-			if (empty($priority) && (count($creation_dates) == 1)) {
-				Logger::info('Feed had posted a single time, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+			if (empty($priority) && (((time() / 86400) - $newest) > 730)) {
+				Logger::info('Feed had not posted for two years, switching to monthly polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+				$priority = 10; // Poll every month
+			}
+
+			if (empty($priority) && (((time() / 86400) - $newest) > 365)) {
+				Logger::info('Feed had not posted for a year, switching to weekly polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
+				$priority = 9; // Poll every week
+			}
+
+			if (empty($priority) && empty($frequency)) {
+				Logger::info('Feed had not posted for at least a week, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
 				$priority = 8; // Poll once a day
 			}
 
@@ -700,11 +710,8 @@ class Feed
 					$priority = 5; // Poll every three hours
 				} elseif ($max > 2) {
 					$priority = 6; // Poll every six hours
-				} elseif ($max > 0) {
-					$priority = 7; // Poll twice a day
 				} else {
-					/// @todo In the future we could calculate the days between the posts to set even lower priorities
-					$priority = 8; // Poll once a day
+					$priority = 7; // Poll twice a day
 				}
 				Logger::info('Calculated priority by the posts per day', ['priority' => $priority, 'max' => round($max, 2), 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
 			}
