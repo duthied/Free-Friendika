@@ -220,7 +220,7 @@ class Cron
 			$ratings = [0, 3, 7, 8, 9, 10];
 			if (DI::config()->get('system', 'adjust_poll_frequency') && ($contact['network'] == Protocol::FEED)) {
 				$rating = $contact['rating'];
-			} elseif (array_key_exists($ratings, $contact['priority'])) {
+			} elseif (array_key_exists($contact['priority'], $ratings)) {
 				$rating = $ratings[$contact['priority']];
 			} else {
 				$rating = -1;
