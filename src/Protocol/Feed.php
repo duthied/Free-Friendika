@@ -672,7 +672,7 @@ class Feed
 
 			if (empty($priority)) {
 				// Calculate the highest "posts per day" value
-				$max = 1;
+				$max = 0;
 				foreach ($frequency as $entry) {
 					if (($entry['count'] == 1) || ($entry['high'] == $entry['low'])) {
 						continue;
@@ -700,7 +700,7 @@ class Feed
 					$priority = 5; // Poll every three hours
 				} elseif ($max > 2) {
 					$priority = 6; // Poll every six hours
-				} elseif ($max > 1) {
+				} elseif ($max > 0) {
 					$priority = 7; // Poll twice a day
 				} else {
 					/// @todo In the future we could calculate the days between the posts to set even lower priorities
