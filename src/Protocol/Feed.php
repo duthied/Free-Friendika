@@ -667,12 +667,12 @@ class Feed
 
 			if (empty($frequency)) {
 				Logger::info('Feed had not posted for at least a week, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
-				$priority = 3; // Poll once a day
+				$priority = 8; // Poll once a day
 			}
 
 			if (empty($priority) && (count($creation_dates) == 1)) {
 				Logger::info('Feed had posted a single time, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
-				$priority = 3; // Poll once a day
+				$priority = 8; // Poll once a day
 			}
 
 			if (empty($priority)) {
@@ -715,7 +715,7 @@ class Feed
 			}
 		} else {
 			Logger::info('No posts, switching to daily polling', ['id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
-			$priority = 3; // Poll once a day
+			$priority = 8; // Poll once a day
 		}
 
 		if ($contact['rating'] != $priority) {
