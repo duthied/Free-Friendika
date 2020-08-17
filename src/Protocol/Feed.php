@@ -675,11 +675,6 @@ class Feed
 				$priority = 3; // Poll once a day
 			}
 
-			if (empty($priority) && (($newest - $oldest) > count($creation_dates))) {
-				Logger::info('Less than a post per day, switching to daily polling', ['posts' => count($creation_dates), 'oldest' => $oldest_date, 'newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
-				$priority = 3; // Poll once a day
-			}
-
 			if (empty($priority)) {
 				// Calculate the highest "posts per day" value
 				$max = 1;
