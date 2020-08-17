@@ -660,11 +660,6 @@ class Feed
 				}
 			}
 
-			if (($newest == $oldest) && count($creation_dates) > 1) {
-				Logger::info('Feed has no different creation dates, quitting', ['date' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
-				return;				
-			}
-
 			if (empty($frequency)) {
 				Logger::info('Feed had not posted for at least a week, switching to daily polling', ['newest' => $newest_date, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
 				$priority = 8; // Poll once a day
