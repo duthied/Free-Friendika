@@ -18,8 +18,12 @@
 
 <form id="install-form" action="{{$baseurl}}/install" method="post">
 
-	<input type="hidden" name="phpath" value="{{$phpath}}" />
-	<input type="hidden" name="pass" value="3" />
+	<input type="hidden" name="config-php_path" value="{{$php_path}}" />
+	<input type="hidden" name="config-hostname" value="{{$hostname}}" />
+	<input type="hidden" name="system-ssl_policy" value="{{$ssl_policy}}" />
+	<input type="hidden" name="system-basepath" value="{{$basepath}}" />
+	<input type="hidden" name="system-urlpath" value="{{$urlpath}}" />
+	<input type="hidden" name="pass" value="4" />
 
 	{{include file="field_input.tpl" field=$dbhost}}
 	{{include file="field_input.tpl" field=$dbuser}}

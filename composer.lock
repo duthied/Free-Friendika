@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b944adfb6ede89430ba3b7e9ebb45acb",
+    "content-hash": "7d1fe40c28d815b56d0b5cb323860b26",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -40,17 +40,63 @@
             "time": "2018-03-08T12:05:40+00:00"
         },
         {
-            "name": "bower-asset/Chart-js",
-            "version": "v2.7.2",
+            "name": "bacon/bacon-qr-code",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/chartjs/Chart.js.git",
-                "reference": "98f104cdd03617f1300b417b3d60c23d4e3e3403"
+                "url": "https://github.com/Bacon/BaconQrCode.git",
+                "reference": "5a91b62b9d37cee635bbf8d553f4546057250bee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/chartjs/Chart.js/zipball/98f104cdd03617f1300b417b3d60c23d4e3e3403",
-                "reference": "98f104cdd03617f1300b417b3d60c23d4e3e3403",
+                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/5a91b62b9d37cee635bbf8d553f4546057250bee",
+                "reference": "5a91b62b9d37cee635bbf8d553f4546057250bee",
+                "shasum": ""
+            },
+            "require": {
+                "ext-iconv": "*",
+                "php": "^5.4|^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8"
+            },
+            "suggest": {
+                "ext-gd": "to generate QR code images"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "BaconQrCode": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Scholzen 'DASPRiD'",
+                    "email": "mail@dasprids.de",
+                    "homepage": "http://www.dasprids.de",
+                    "role": "Developer"
+                }
+            ],
+            "description": "BaconQrCode is a QR code generator for PHP.",
+            "homepage": "https://github.com/Bacon/BaconQrCode",
+            "time": "2017-10-17T09:59:25+00:00"
+        },
+        {
+            "name": "bower-asset/Chart-js",
+            "version": "v2.9.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/chartjs/Chart.js.git",
+                "reference": "06f73dc3590084b2c464bf08189c7aee2b6b92d2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/chartjs/Chart.js/zipball/06f73dc3590084b2c464bf08189c7aee2b6b92d2",
+                "reference": "06f73dc3590084b2c464bf08189c7aee2b6b92d2",
                 "shasum": ""
             },
             "type": "bower-asset-library",
@@ -69,20 +115,20 @@
                 "MIT"
             ],
             "description": "Simple HTML5 charts using the canvas element.",
-            "time": "2018-03-01T21:45:21+00:00"
+            "time": "2019-11-14T18:37:30+00:00"
         },
         {
             "name": "bower-asset/base64",
-            "version": "1.0.1",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/davidchambers/Base64.js.git",
-                "reference": "b2d49f347ed1bce61000a82769bffc837b7c79dc"
+                "reference": "660b299aa4854843fd35d42b30eda9273125b9da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/davidchambers/Base64.js/zipball/b2d49f347ed1bce61000a82769bffc837b7c79dc",
-                "reference": "b2d49f347ed1bce61000a82769bffc837b7c79dc",
+                "url": "https://api.github.com/repos/davidchambers/Base64.js/zipball/660b299aa4854843fd35d42b30eda9273125b9da",
+                "reference": "660b299aa4854843fd35d42b30eda9273125b9da",
                 "shasum": ""
             },
             "type": "bower-asset-library",
@@ -100,70 +146,130 @@
                 "WTFPL"
             ],
             "description": "Base64 encoding and decoding",
-            "time": "2017-03-25T21:16:21+00:00"
+            "time": "2019-11-02T20:07:47+00:00"
         },
         {
-            "name": "bower-asset/perfect-scrollbar",
-            "version": "0.6.16",
+            "name": "bower-asset/dompurify",
+            "version": "1.0.11",
             "source": {
                 "type": "git",
-                "url": "https://github.com/utatti/perfect-scrollbar-bower.git",
-                "reference": "3049129e5dbb403295ce8507a461cdd0f200938c"
+                "url": "https://github.com/cure53/DOMPurify.git",
+                "reference": "3c1c0d7e11cda896b0c69cf82e0ca6e0c0e7dd38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/utatti/perfect-scrollbar-bower/zipball/3049129e5dbb403295ce8507a461cdd0f200938c",
-                "reference": "3049129e5dbb403295ce8507a461cdd0f200938c",
+                "url": "https://api.github.com/repos/cure53/DOMPurify/zipball/3c1c0d7e11cda896b0c69cf82e0ca6e0c0e7dd38",
+                "reference": "3c1c0d7e11cda896b0c69cf82e0ca6e0c0e7dd38",
+                "shasum": ""
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": "src/purify.js",
+                "bower-asset-ignore": [
+                    "**/.*",
+                    "demos",
+                    "scripts",
+                    "test",
+                    "website"
+                ]
+            },
+            "license": [
+                "MPL-2.0",
+                "Apache-2.0"
+            ],
+            "description": "A DOM-only, super-fast, uber-tolerant XSS sanitizer for HTML, MathML and SVG",
+            "keywords": [
+                "cross site scripting",
+                "dom",
+                "filter",
+                "html",
+                "mathml",
+                "sanitize",
+                "sanitizer",
+                "secure",
+                "security",
+                "svg",
+                "xss"
+            ],
+            "time": "2019-06-18T13:33:05+00:00"
+        },
+        {
+            "name": "bower-asset/fork-awesome",
+            "version": "1.1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ForkAwesome/Fork-Awesome.git",
+                "reference": "326af9c8bee0c80ff4c00cb2fadd4f1edd2a08c3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ForkAwesome/Fork-Awesome/zipball/326af9c8bee0c80ff4c00cb2fadd4f1edd2a08c3",
+                "reference": "326af9c8bee0c80ff4c00cb2fadd4f1edd2a08c3",
                 "shasum": ""
             },
             "type": "bower-asset-library",
             "extra": {
                 "bower-asset-main": [
-                    "css/perfect-scrollbar.css",
-                    "js/perfect-scrollbar.js"
+                    "less/fork-awesome.less",
+                    "scss/fork-awesome.scss"
                 ],
                 "bower-asset-ignore": [
-                    "**/.*",
-                    "bower_components"
+                    "*/.*",
+                    "*.json",
+                    "src",
+                    "*.yml",
+                    "Gemfile",
+                    "Gemfile.lock",
+                    "*.md"
                 ]
             },
             "license": [
-                "MIT"
+                "OFL-1.1",
+                "MIT",
+                "CC-BY-3.0"
             ],
-            "description": "Minimalistic but perfect custom scrollbar plugin",
-            "time": "2017-01-10T01:04:09+00:00"
+            "description": "Fork Awesome",
+            "keywords": [
+                "awesome",
+                "font",
+                "fork",
+                "icon"
+            ],
+            "time": "2019-02-28T15:21:34+00:00"
         },
         {
             "name": "bower-asset/vue",
-            "version": "v2.5.17",
+            "version": "v2.6.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vuejs/vue.git",
-                "reference": "636c9b4ef17f2062720b677cbbe613f146f4d4db"
+                "reference": "ec78fc8b6d03e59da669be1adf4b4b5abf670a34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vuejs/vue/zipball/636c9b4ef17f2062720b677cbbe613f146f4d4db",
-                "reference": "636c9b4ef17f2062720b677cbbe613f146f4d4db",
+                "url": "https://api.github.com/repos/vuejs/vue/zipball/ec78fc8b6d03e59da669be1adf4b4b5abf670a34",
+                "reference": "ec78fc8b6d03e59da669be1adf4b4b5abf670a34",
                 "shasum": ""
             },
             "type": "bower-asset-library"
         },
         {
             "name": "divineomega/do-file-cache",
-            "version": "v2.0.2",
+            "version": "v2.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DivineOmega/DO-File-Cache.git",
-                "reference": "261c6e30a0de8cd325f826d08b2e51b2e367a1a3"
+                "reference": "23696a8a4c3ebe2ab3d68a35b2698fa103f69334"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DivineOmega/DO-File-Cache/zipball/261c6e30a0de8cd325f826d08b2e51b2e367a1a3",
-                "reference": "261c6e30a0de8cd325f826d08b2e51b2e367a1a3",
+                "url": "https://api.github.com/repos/DivineOmega/DO-File-Cache/zipball/23696a8a4c3ebe2ab3d68a35b2698fa103f69334",
+                "reference": "23696a8a4c3ebe2ab3d68a35b2698fa103f69334",
                 "shasum": ""
             },
             "require": {
+                "ext-json": "*",
+                "ext-zlib": "*",
                 "php": ">=5.6"
             },
             "require-dev": {
@@ -194,7 +300,7 @@
                 "library",
                 "php"
             ],
-            "time": "2018-09-12T23:08:34+00:00"
+            "time": "2018-12-31T09:36:51+00:00"
         },
         {
             "name": "divineomega/do-file-cache-psr-6",
@@ -240,28 +346,28 @@
         },
         {
             "name": "divineomega/password_exposed",
-            "version": "v2.5.3",
+            "version": "v2.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DivineOmega/password_exposed.git",
-                "reference": "1f1b49e3ec55b0f07115d342b145091368b081c4"
+                "reference": "908ed8e62ef95411bd0f866e29c69cef2bbca880"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DivineOmega/password_exposed/zipball/1f1b49e3ec55b0f07115d342b145091368b081c4",
-                "reference": "1f1b49e3ec55b0f07115d342b145091368b081c4",
+                "url": "https://api.github.com/repos/DivineOmega/password_exposed/zipball/908ed8e62ef95411bd0f866e29c69cef2bbca880",
+                "reference": "908ed8e62ef95411bd0f866e29c69cef2bbca880",
                 "shasum": ""
             },
             "require": {
                 "divineomega/do-file-cache-psr-6": "^2.0",
                 "guzzlehttp/guzzle": "^6.3",
-                "paragonie/certainty": "^1",
+                "paragonie/certainty": "^1|^2",
                 "php": ">=5.6"
             },
             "require-dev": {
                 "fzaninotto/faker": "^1.7",
                 "php-coveralls/php-coveralls": "^2.1",
-                "phpunit/phpunit": "^5.7",
+                "phpunit/phpunit": "^6.5",
                 "vimeo/psalm": "^1"
             },
             "type": "library",
@@ -284,24 +390,27 @@
                 }
             ],
             "description": "This PHP package provides a `password_exposed` helper function, that uses the haveibeenpwned.com API to check if a password has been exposed in a data breach.",
-            "time": "2018-07-12T22:09:43+00:00"
+            "time": "2019-01-25T12:00:28+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",
-            "version": "v4.7.0",
+            "version": "v4.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ezyang/htmlpurifier.git",
-                "reference": "ae1828d955112356f7677c465f94f7deb7d27a40"
+                "reference": "a617e55bc62a87eec73bd456d146d134ad716f03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/ae1828d955112356f7677c465f94f7deb7d27a40",
-                "reference": "ae1828d955112356f7677c465f94f7deb7d27a40",
+                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/a617e55bc62a87eec73bd456d146d134ad716f03",
+                "reference": "a617e55bc62a87eec73bd456d146d134ad716f03",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.2"
+            },
+            "require-dev": {
+                "simpletest/simpletest": "dev-master#72de02a7b80c6bb8864ef9bf66d41d2f58f826bd"
             },
             "type": "library",
             "autoload": {
@@ -314,7 +423,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL"
+                "LGPL-2.1-or-later"
             ],
             "authors": [
                 {
@@ -328,7 +437,7 @@
             "keywords": [
                 "html"
             ],
-            "time": "2015-08-05T01:03:42+00:00"
+            "time": "2019-10-28T03:44:26+00:00"
         },
         {
             "name": "friendica/json-ld",
@@ -376,16 +485,16 @@
         },
         {
             "name": "fxp/composer-asset-plugin",
-            "version": "v1.4.4",
+            "version": "v1.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fxpio/composer-asset-plugin.git",
-                "reference": "0d07328eef6e6f3753aa835fd2faef7fed1717bf"
+                "reference": "886ece037849d3935c5a34cdcd984e46f2de5fae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fxpio/composer-asset-plugin/zipball/0d07328eef6e6f3753aa835fd2faef7fed1717bf",
-                "reference": "0d07328eef6e6f3753aa835fd2faef7fed1717bf",
+                "url": "https://api.github.com/repos/fxpio/composer-asset-plugin/zipball/886ece037849d3935c5a34cdcd984e46f2de5fae",
+                "reference": "886ece037849d3935c5a34cdcd984e46f2de5fae",
                 "shasum": ""
             },
             "require": {
@@ -431,31 +540,33 @@
                 "npm",
                 "package"
             ],
-            "time": "2018-07-02T11:37:17+00:00"
+            "time": "2019-08-08T18:36:07+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "6.3.3",
+            "version": "6.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "407b0cb880ace85c9b63c5f9551db498cb2d50ba"
+                "reference": "9d4290de1cfd701f38099ef7e183b64b4b7b0c5e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/407b0cb880ace85c9b63c5f9551db498cb2d50ba",
-                "reference": "407b0cb880ace85c9b63c5f9551db498cb2d50ba",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/9d4290de1cfd701f38099ef7e183b64b4b7b0c5e",
+                "reference": "9d4290de1cfd701f38099ef7e183b64b4b7b0c5e",
                 "shasum": ""
             },
             "require": {
+                "ext-json": "*",
                 "guzzlehttp/promises": "^1.0",
-                "guzzlehttp/psr7": "^1.4",
-                "php": ">=5.5"
+                "guzzlehttp/psr7": "^1.6.1",
+                "php": ">=5.5",
+                "symfony/polyfill-intl-idn": "^1.17.0"
             },
             "require-dev": {
                 "ext-curl": "*",
                 "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.4 || ^7.0",
-                "psr/log": "^1.0"
+                "psr/log": "^1.1"
             },
             "suggest": {
                 "psr/log": "Required for using the Log middleware"
@@ -463,16 +574,16 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "6.3-dev"
+                    "dev-master": "6.5-dev"
                 }
             },
             "autoload": {
-                "files": [
-                    "src/functions_include.php"
-                ],
                 "psr-4": {
                     "GuzzleHttp\\": "src/"
-                }
+                },
+                "files": [
+                    "src/functions_include.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -496,7 +607,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2018-04-22T15:46:56+00:00"
+            "time": "2020-06-16T21:01:06+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -551,32 +662,37 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "1.4.2",
+            "version": "1.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c"
+                "reference": "239400de7a173fe9901b9ac7c06497751f00727a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
-                "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/239400de7a173fe9901b9ac7c06497751f00727a",
+                "reference": "239400de7a173fe9901b9ac7c06497751f00727a",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4.0",
-                "psr/http-message": "~1.0"
+                "psr/http-message": "~1.0",
+                "ralouphie/getallheaders": "^2.0.5 || ^3.0.0"
             },
             "provide": {
                 "psr/http-message-implementation": "1.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0"
+                "ext-zlib": "*",
+                "phpunit/phpunit": "~4.8.36 || ^5.7.27 || ^6.5.8"
+            },
+            "suggest": {
+                "zendframework/zend-httphandlerrunner": "Emit PSR-7 responses"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.4-dev"
+                    "dev-master": "1.6-dev"
                 }
             },
             "autoload": {
@@ -606,26 +722,27 @@
             "keywords": [
                 "http",
                 "message",
+                "psr-7",
                 "request",
                 "response",
                 "stream",
                 "uri",
                 "url"
             ],
-            "time": "2017-03-20T17:10:46+00:00"
+            "time": "2019-07-01T23:21:34+00:00"
         },
         {
             "name": "league/html-to-markdown",
-            "version": "4.8.0",
+            "version": "4.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/html-to-markdown.git",
-                "reference": "f9a879a068c68ff47b722de63f58bec79e448f9d"
+                "reference": "1dcd0f85de786f46a7f224a27cc3d709ddd2a68c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/f9a879a068c68ff47b722de63f58bec79e448f9d",
-                "reference": "f9a879a068c68ff47b722de63f58bec79e448f9d",
+                "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/1dcd0f85de786f46a7f224a27cc3d709ddd2a68c",
+                "reference": "1dcd0f85de786f46a7f224a27cc3d709ddd2a68c",
                 "shasum": ""
             },
             "require": {
@@ -635,7 +752,7 @@
             },
             "require-dev": {
                 "mikehaertl/php-shellcommand": "~1.1.0",
-                "phpunit/phpunit": "4.*",
+                "phpunit/phpunit": "^4.8|^5.7",
                 "scrutinizer/ocular": "~1.1"
             },
             "bin": [
@@ -644,7 +761,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.9-dev"
+                    "dev-master": "4.10-dev"
                 }
             },
             "autoload": {
@@ -658,16 +775,16 @@
             ],
             "authors": [
                 {
-                    "name": "Nick Cernis",
-                    "email": "nick@cern.is",
-                    "homepage": "http://modernnerd.net",
-                    "role": "Original Author"
-                },
-                {
                     "name": "Colin O'Dell",
                     "email": "colinodell@gmail.com",
                     "homepage": "https://www.colinodell.com",
                     "role": "Lead Developer"
+                },
+                {
+                    "name": "Nick Cernis",
+                    "email": "nick@cern.is",
+                    "homepage": "http://modernnerd.net",
+                    "role": "Original Author"
                 }
             ],
             "description": "An HTML-to-markdown conversion helper for PHP",
@@ -676,7 +793,53 @@
                 "html",
                 "markdown"
             ],
-            "time": "2018-09-18T12:18:08+00:00"
+            "time": "2019-12-28T01:32:28+00:00"
+        },
+        {
+            "name": "level-2/dice",
+            "version": "4.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Level-2/Dice.git",
+                "reference": "b9336d9200d0165c31e982374dc5d8d2552807bc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Level-2/Dice/zipball/b9336d9200d0165c31e982374dc5d8d2552807bc",
+                "reference": "b9336d9200d0165c31e982374dc5d8d2552807bc",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Dice\\": "./"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Tom Butler",
+                    "email": "tom@r.je"
+                }
+            ],
+            "description": "A minimalist Dependency injection container (DIC) for PHP. Please note: 3.0+ is only compatible with PHP 7.0. The 2.0 branch is compatbile with PHP 5.6.",
+            "homepage": "http://r.je/dice.html",
+            "keywords": [
+                "dependency injection",
+                "dependency injection container",
+                "di",
+                "ioc"
+            ],
+            "time": "2020-01-28T13:47:49+00:00"
         },
         {
             "name": "lightopenid/lightopenid",
@@ -713,20 +876,23 @@
         },
         {
             "name": "michelf/php-markdown",
-            "version": "1.8.0",
+            "version": "1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/michelf/php-markdown.git",
-                "reference": "01ab082b355bf188d907b9929cd99b2923053495"
+                "reference": "c83178d49e372ca967d1a8c77ae4e051b3a3c75c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/michelf/php-markdown/zipball/01ab082b355bf188d907b9929cd99b2923053495",
-                "reference": "01ab082b355bf188d907b9929cd99b2923053495",
+                "url": "https://api.github.com/repos/michelf/php-markdown/zipball/c83178d49e372ca967d1a8c77ae4e051b3a3c75c",
+                "reference": "c83178d49e372ca967d1a8c77ae4e051b3a3c75c",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=4.3 <5.8"
             },
             "type": "library",
             "autoload": {
@@ -755,20 +921,20 @@
             "keywords": [
                 "markdown"
             ],
-            "time": "2018-01-15T00:49:33+00:00"
+            "time": "2019-12-02T02:32:27+00:00"
         },
         {
             "name": "mobiledetect/mobiledetectlib",
-            "version": "2.8.33",
+            "version": "2.8.34",
             "source": {
                 "type": "git",
                 "url": "https://github.com/serbanghita/Mobile-Detect.git",
-                "reference": "cd385290f9a0d609d2eddd165a1e44ec1bf12102"
+                "reference": "6f8113f57a508494ca36acbcfa2dc2d923c7ed5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/serbanghita/Mobile-Detect/zipball/cd385290f9a0d609d2eddd165a1e44ec1bf12102",
-                "reference": "cd385290f9a0d609d2eddd165a1e44ec1bf12102",
+                "url": "https://api.github.com/repos/serbanghita/Mobile-Detect/zipball/6f8113f57a508494ca36acbcfa2dc2d923c7ed5b",
+                "reference": "6f8113f57a508494ca36acbcfa2dc2d923c7ed5b",
                 "shasum": ""
             },
             "require": {
@@ -807,20 +973,20 @@
                 "mobile detector",
                 "php mobile detect"
             ],
-            "time": "2018-09-01T15:05:15+00:00"
+            "time": "2019-09-18T18:44:20+00:00"
         },
         {
             "name": "monolog/monolog",
-            "version": "1.24.0",
+            "version": "1.25.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "bfc9ebb28f97e7a24c45bdc3f0ff482e47bb0266"
+                "reference": "3022efff205e2448b560c833c6fbbf91c3139168"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/bfc9ebb28f97e7a24c45bdc3f0ff482e47bb0266",
-                "reference": "bfc9ebb28f97e7a24c45bdc3f0ff482e47bb0266",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/3022efff205e2448b560c833c6fbbf91c3139168",
+                "reference": "3022efff205e2448b560c833c6fbbf91c3139168",
                 "shasum": ""
             },
             "require": {
@@ -834,11 +1000,10 @@
                 "aws/aws-sdk-php": "^2.4.9 || ^3.0",
                 "doctrine/couchdb": "~1.0@dev",
                 "graylog2/gelf-php": "~1.0",
-                "jakub-onderka/php-parallel-lint": "0.9",
                 "php-amqplib/php-amqplib": "~2.4",
                 "php-console/php-console": "^3.1.3",
+                "php-parallel-lint/php-parallel-lint": "^1.0",
                 "phpunit/phpunit": "~4.5",
-                "phpunit/phpunit-mock-objects": "2.3.0",
                 "ruflin/elastica": ">=0.90 <3.0",
                 "sentry/sentry": "^0.13",
                 "swiftmailer/swiftmailer": "^5.3|^6.0"
@@ -885,7 +1050,53 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2018-11-05T09:00:11+00:00"
+            "time": "2020-05-22T07:31:27+00:00"
+        },
+        {
+            "name": "nikic/fast-route",
+            "version": "v1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nikic/FastRoute.git",
+                "reference": "181d480e08d9476e61381e04a71b34dc0432e812"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nikic/FastRoute/zipball/181d480e08d9476e61381e04a71b34dc0432e812",
+                "reference": "181d480e08d9476e61381e04a71b34dc0432e812",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35|~5.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "FastRoute\\": "src/"
+                },
+                "files": [
+                    "src/functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Nikita Popov",
+                    "email": "nikic@php.net"
+                }
+            ],
+            "description": "Fast request router for PHP",
+            "keywords": [
+                "router",
+                "routing"
+            ],
+            "time": "2018-02-13T20:26:39+00:00"
         },
         {
             "name": "npm-asset/cropperjs",
@@ -893,7 +1104,6 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/cropperjs/-/cropperjs-1.2.2.tgz",
-                "reference": null,
                 "shasum": "30dc7a7ce872155b23a33bd10ad4c76c0d613f55"
             },
             "require-dev": {
@@ -982,12 +1192,54 @@
             "time": "2018-01-03T13:39:39+00:00"
         },
         {
+            "name": "npm-asset/es-jquery-sortable",
+            "version": "0.9.13-patch2",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/es-jquery-sortable/-/es-jquery-sortable-0.9.13-patch2.tgz",
+                "shasum": "a4db16d133fbce1bcd1543c98279902a6b0812a3"
+            },
+            "require": {
+                "npm-asset/jquery": ">=2.1.2,<3.0.0"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/johnny/jquery-sortable/issues"
+                },
+                "npm-asset-main": "./source/js/jquery-sortable.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/johnny/jquery-sortable.git"
+                },
+                "npm-asset-scripts": {
+                    "test": "echo \"Error: no test specified\" && exit 1"
+                }
+            },
+            "license": [
+                "BSD-3"
+            ],
+            "authors": [
+                ""
+            ],
+            "description": "jquery plugin for sortable, nestable lists",
+            "homepage": "https://github.com/johnny/jquery-sortable",
+            "keywords": [
+                "drag",
+                "dragging",
+                "sort",
+                "sortable",
+                "sorting"
+            ],
+            "time": "2019-11-20T03:55:51+00:00"
+        },
+        {
             "name": "npm-asset/ev-emitter",
             "version": "1.1.1",
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/ev-emitter/-/ev-emitter-1.1.1.tgz",
-                "reference": null,
                 "shasum": "8f18b0ce5c76a5d18017f71c0a795c65b9138f2a"
             },
             "type": "npm-asset-library",
@@ -1025,33 +1277,75 @@
             "time": "2017-07-06T13:46:38+00:00"
         },
         {
-            "name": "npm-asset/fullcalendar",
-            "version": "3.9.0",
+            "name": "npm-asset/eventemitter3",
+            "version": "2.0.3",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/fullcalendar/-/fullcalendar-3.9.0.tgz",
-                "reference": null,
-                "shasum": "b608a9989f3416f0b1d526c6bdfeeaf2ac79eda5"
+                "url": "https://registry.npmjs.org/eventemitter3/-/eventemitter3-2.0.3.tgz",
+                "shasum": "b5e1079b59fb5e1ba2771c0a993be060a58c99ba"
             },
-            "require": {
-                "npm-asset/jquery": ">=2,<4.0",
-                "npm-asset/moment": ">=2.20.1,<3.0.0"
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/primus/eventemitter3/issues"
+                },
+                "npm-asset-main": "index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git://github.com/primus/eventemitter3.git"
+                },
+                "npm-asset-scripts": {
+                    "build": "mkdir -p umd && browserify index.js -s EventEmitter3 | uglifyjs -m -o umd/eventemitter3.min.js",
+                    "benchmark": "find benchmarks/run -name '*.js' -exec benchmarks/start.sh {} \\;",
+                    "test": "nyc --reporter=html --reporter=text mocha",
+                    "test-browser": "zuul -- test.js",
+                    "prepublish": "npm run build",
+                    "sync": "node versions.js"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnout Kazemier"
+                }
+            ],
+            "description": "EventEmitter3 focuses on performance while maintaining a Node.js AND browser compatible interface.",
+            "homepage": "https://github.com/primus/eventemitter3#readme",
+            "keywords": [
+                "EventEmitter",
+                "EventEmitter2",
+                "EventEmitter3",
+                "Events",
+                "addEventListener",
+                "addListener",
+                "emit",
+                "emits",
+                "emitter",
+                "event",
+                "once",
+                "pub/sub",
+                "publish",
+                "reactor",
+                "subscribe"
+            ],
+            "time": "2017-03-31T14:51:09+00:00"
+        },
+        {
+            "name": "npm-asset/fullcalendar",
+            "version": "3.10.2",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/fullcalendar/-/fullcalendar-3.10.2.tgz",
+                "shasum": "9b1ba84bb02803621b761d1bba91a4f18affafb7"
             },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
                     "url": "https://fullcalendar.io/wiki/Reporting-Bugs/"
                 },
-                "npm-asset-files": [
-                    "dist/*.js",
-                    "dist/*.css",
-                    "dist/*.d.ts",
-                    "dist/locale/*.js",
-                    "README.*",
-                    "LICENSE.*",
-                    "CHANGELOG.*",
-                    "CONTRIBUTING.*"
-                ],
                 "npm-asset-main": "dist/fullcalendar.js",
                 "npm-asset-directories": [],
                 "npm-asset-repository": {
@@ -1061,7 +1355,7 @@
                 "npm-asset-scripts": {
                     "clean": "gulp clean",
                     "dist": "gulp dist",
-                    "lint": "gulp lint",
+                    "lint": "gulp lint-and-example-repos",
                     "test": "gulp test:single"
                 }
             },
@@ -1083,7 +1377,7 @@
                 "full-sized",
                 "jquery-plugin"
             ],
-            "time": "2018-03-05T03:30:23+00:00"
+            "time": "2020-05-19T03:44:55+00:00"
         },
         {
             "name": "npm-asset/imagesloaded",
@@ -1091,7 +1385,6 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/imagesloaded/-/imagesloaded-4.1.4.tgz",
-                "reference": null,
                 "shasum": "1376efcd162bb768c34c3727ac89cc04051f3cc7"
             },
             "require": {
@@ -1155,7 +1448,6 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jgrowl/-/jgrowl-1.4.6.tgz",
-                "reference": null,
                 "shasum": "2736e332aaee73ccf0a14a5f0066391a0a13f4a3"
             },
             "require-dev": {
@@ -1196,7 +1488,6 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jquery/-/jquery-2.2.4.tgz",
-                "reference": null,
                 "shasum": "2c89d6889b5eac522a7eea32c14521559c6cbf02"
             },
             "require-dev": {
@@ -1267,7 +1558,6 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jquery-colorbox/-/jquery-colorbox-1.6.4.tgz",
-                "reference": null,
                 "shasum": "799452523a6c494839224ef702e807deb9c06cc5"
             },
             "require": {
@@ -1310,12 +1600,11 @@
         },
         {
             "name": "npm-asset/jquery-datetimepicker",
-            "version": "2.5.20",
+            "version": "2.5.21",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/jquery-datetimepicker/-/jquery-datetimepicker-2.5.20.tgz",
-                "reference": null,
-                "shasum": "687d6204b90b03dc93f725f8df036e1d061f37ac"
+                "url": "https://registry.npmjs.org/jquery-datetimepicker/-/jquery-datetimepicker-2.5.21.tgz",
+                "shasum": "00c388a78df2732fedfdb5c6529b6e84d53e0235"
             },
             "require": {
                 "npm-asset/jquery": ">=1.7.2",
@@ -1364,7 +1653,7 @@
                 "time",
                 "timepicker"
             ],
-            "time": "2018-03-21T16:26:39+00:00"
+            "time": "2019-02-23T11:25:30+00:00"
         },
         {
             "name": "npm-asset/jquery-mousewheel",
@@ -1372,7 +1661,6 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jquery-mousewheel/-/jquery-mousewheel-3.1.13.tgz",
-                "reference": null,
                 "shasum": "06f0335f16e353a695e7206bf50503cb523a6ee5"
             },
             "require-dev": {
@@ -1423,12 +1711,11 @@
         },
         {
             "name": "npm-asset/moment",
-            "version": "2.22.2",
+            "version": "2.26.0",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/moment/-/moment-2.22.2.tgz",
-                "reference": null,
-                "shasum": "3c257f9839fc0e93ff53149632239eb90783ff66"
+                "url": "https://registry.npmjs.org/moment/-/moment-2.26.0.tgz",
+                "shasum": "5e1f82c6bafca6e83e808b30c8705eed0dcbd39a"
             },
             "type": "npm-asset-library",
             "extra": {
@@ -1442,8 +1729,12 @@
                     "url": "git+https://github.com/moment/moment.git"
                 },
                 "npm-asset-scripts": {
-                    "typescript-test": "tsc --project typing-tests",
+                    "ts3.1-typescript-test": "cross-env node_modules/typescript3/bin/tsc --project ts3.1-typing-tests",
+                    "typescript-test": "cross-env node_modules/typescript/bin/tsc --project typing-tests",
                     "test": "grunt test",
+                    "eslint": "eslint Gruntfile.js tasks src",
+                    "prettier-check": "prettier --check Gruntfile.js tasks src",
+                    "prettier-fmt": "prettier --write Gruntfile.js tasks src",
                     "coverage": "nyc npm test && nyc report",
                     "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
                 },
@@ -1486,7 +1777,7 @@
                 }
             ],
             "description": "Parse, validate, manipulate, and display dates",
-            "homepage": "http://momentjs.com",
+            "homepage": "https://momentjs.com",
             "keywords": [
                 "date",
                 "ender",
@@ -1498,20 +1789,78 @@
                 "time",
                 "validate"
             ],
-            "time": "2018-06-01T06:58:41+00:00"
+            "time": "2020-05-20T06:46:22+00:00"
+        },
+        {
+            "name": "npm-asset/perfect-scrollbar",
+            "version": "0.6.16",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/perfect-scrollbar/-/perfect-scrollbar-0.6.16.tgz",
+                "shasum": "b1d61a5245cf3962bb9a8407a3fc669d923212fc"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/noraesae/perfect-scrollbar/issues"
+                },
+                "npm-asset-files": [
+                    "dist",
+                    "src",
+                    "index.js",
+                    "jquery.js",
+                    "perfect-scrollbar.d.ts"
+                ],
+                "npm-asset-main": "./index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/noraesae/perfect-scrollbar.git"
+                },
+                "npm-asset-scripts": {
+                    "test": "gulp",
+                    "before-deploy": "gulp && gulp compress",
+                    "release": "rm -rf dist && gulp && npm publish"
+                },
+                "npm-asset-engines": {
+                    "node": ">= 0.12.0"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hyunje Jun",
+                    "email": "me@noraesae.net"
+                },
+                {
+                    "name": "Hyunje Jun",
+                    "email": "me@noraesae.net"
+                }
+            ],
+            "description": "Minimalistic but perfect custom scrollbar plugin",
+            "homepage": "https://github.com/noraesae/perfect-scrollbar#readme",
+            "keywords": [
+                "frontend",
+                "jquery-plugin",
+                "scroll",
+                "scrollbar"
+            ],
+            "time": "2017-01-10T01:03:05+00:00"
         },
         {
             "name": "npm-asset/php-date-formatter",
-            "version": "v1.3.5",
+            "version": "v1.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kartik-v/php-date-formatter.git",
-                "reference": "d842e1c4e6a8d6108017b726321c305bb5ae4fb5"
+                "reference": "514a53660b0d69439236fd3cbc3f41512adb00a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kartik-v/php-date-formatter/zipball/d842e1c4e6a8d6108017b726321c305bb5ae4fb5",
-                "reference": "d842e1c4e6a8d6108017b726321c305bb5ae4fb5",
+                "url": "https://api.github.com/repos/kartik-v/php-date-formatter/zipball/514a53660b0d69439236fd3cbc3f41512adb00a0",
+                "reference": "514a53660b0d69439236fd3cbc3f41512adb00a0",
                 "shasum": ""
             },
             "type": "npm-asset-library",
@@ -1536,31 +1885,221 @@
             ],
             "description": "A Javascript datetime formatting and manipulation library using PHP date-time formats.",
             "homepage": "https://github.com/kartik-v/php-date-formatter",
-            "time": "2018-07-13T06:56:46+00:00"
+            "time": "2020-04-14T10:16:32+00:00"
+        },
+        {
+            "name": "npm-asset/textarea-caret",
+            "version": "3.1.0",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/textarea-caret/-/textarea-caret-3.1.0.tgz",
+                "shasum": "5d5a35bb035fd06b2ff0e25d5359e97f2655087f"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/component/textarea-caret-position/issues"
+                },
+                "npm-asset-files": [
+                    "index.js"
+                ],
+                "npm-asset-main": "index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/component/textarea-caret-position.git"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "(x, y) coordinates of the caret in a textarea or input type='text'",
+            "homepage": "https://github.com/component/textarea-caret-position#readme",
+            "keywords": [
+                "caret",
+                "position",
+                "textarea"
+            ],
+            "time": "2018-02-20T06:11:03+00:00"
+        },
+        {
+            "name": "npm-asset/textcomplete",
+            "version": "0.18.2",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/textcomplete/-/textcomplete-0.18.2.tgz",
+                "shasum": "de0d806567102f7e32daffcbcc3db05af1515eb5"
+            },
+            "require": {
+                "npm-asset/eventemitter3": ">=2.0.3,<3.0.0",
+                "npm-asset/textarea-caret": ">=3.0.1,<4.0.0",
+                "npm-asset/undate": ">=0.2.3,<0.3.0"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/yuku-t/textcomplete/issues"
+                },
+                "npm-asset-main": "lib/index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+ssh://git@github.com/yuku-t/textcomplete.git"
+                },
+                "npm-asset-scripts": {
+                    "build": "yarn run clean && run-p build:*",
+                    "build:dist": "webpack && webpack --env=min && run-p print-dist-gz-size",
+                    "build:docs": "run-p build:docs:*",
+                    "build:docs:html": "webpack --config webpack.doc.config.js && pug -o docs src/doc/index.pug",
+                    "build:docs:md": "documentation build src/*.js -f md -o doc/api.md",
+                    "build:lib": "babel src -d lib -s && for js in src/*.js; do cp $js lib/${js##*/}.flow; done",
+                    "clean": "rm -fr dist docs lib",
+                    "format": "prettier --no-semi --trailing-comma all --write 'src/*.js' 'test/**/*.js'",
+                    "gh-release": "npm pack textcomplete && gh-release -a textcomplete-$(cat package.json|jq -r .version).tgz",
+                    "opener": "wait-on http://localhost:8082 && opener http://localhost:8082",
+                    "print-dist-gz-size": "printf 'dist/textcomplete.min.js.gz: %d bytes\\n' \"$(gzip -9kc dist/textcomplete.min.js | wc -c)\"",
+                    "start": "run-p watch opener",
+                    "test": "run-p test:*",
+                    "test:bundlesize": "yarn run build:dist && bundlesize",
+                    "test:e2e": "NODE_ENV=test karma start --single-run",
+                    "test:lint": "eslint src/*.js test/**/*.js",
+                    "test:typecheck": "flow check",
+                    "watch": "run-p watch:*",
+                    "watch:webpack": "webpack-dev-server --config webpack.doc.config.js",
+                    "watch:pug": "pug -o docs --watch src/doc/index.pug"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yuku Takahashi"
+                }
+            ],
+            "description": "Autocomplete for textarea elements",
+            "homepage": "https://github.com/yuku-t/textcomplete#readme",
+            "time": "2020-06-10T06:11:00+00:00"
+        },
+        {
+            "name": "npm-asset/typeahead.js",
+            "version": "0.11.1",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/typeahead.js/-/typeahead.js-0.11.1.tgz",
+                "shasum": "4e64e671b22310a8606f4aec805924ba84b015b8"
+            },
+            "require": {
+                "npm-asset/jquery": ">=1.7"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/twitter/typeahead.js/issues"
+                },
+                "npm-asset-main": "dist/typeahead.bundle.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "https://github.com/twitter/typeahead.js.git"
+                },
+                "npm-asset-scripts": {
+                    "test": "./node_modules/karma/bin/karma start --single-run --browsers PhantomJS"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Twitter, Inc.",
+                    "url": "https://twitter.com/twitteross"
+                },
+                {
+                    "name": "Jake Harding",
+                    "url": "https://twitter.com/JakeHarding"
+                },
+                {
+                    "name": "Tim Trueman",
+                    "url": "https://twitter.com/timtrueman"
+                },
+                {
+                    "name": "Veljko Skarich",
+                    "url": "https://twitter.com/vskarich"
+                }
+            ],
+            "description": "fast and fully-featured autocomplete library",
+            "homepage": "http://twitter.github.com/typeahead.js",
+            "keywords": [
+                "autocomplete",
+                "typeahead"
+            ],
+            "time": "2015-04-27T04:03:42+00:00"
+        },
+        {
+            "name": "npm-asset/undate",
+            "version": "0.2.4",
+            "dist": {
+                "type": "tar",
+                "url": "https://registry.npmjs.org/undate/-/undate-0.2.4.tgz",
+                "shasum": "ccb2a8cf38edc035d1006fcb2909c4c6024a8400"
+            },
+            "type": "npm-asset-library",
+            "extra": {
+                "npm-asset-bugs": {
+                    "url": "https://github.com/yuku-t/undate/issues"
+                },
+                "npm-asset-main": "lib/index.js",
+                "npm-asset-directories": [],
+                "npm-asset-repository": {
+                    "type": "git",
+                    "url": "git+https://github.com/yuku-t/undate.git"
+                },
+                "npm-asset-scripts": {
+                    "build": "babel src -d lib && for js in src/*.js; do cp $js lib/${js##*/}.flow; done",
+                    "test": "run-p test:*",
+                    "test:eslint": "eslint src/*.js test/*.js",
+                    "test:flow": "flow check",
+                    "test:karma": "karma start --single-run"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yuku Takahashi"
+                }
+            ],
+            "description": "Undoable update for HTMLTextAreaElement",
+            "homepage": "https://github.com/yuku-t/undate#readme",
+            "keywords": [
+                "textarea"
+            ],
+            "time": "2018-01-24T10:49:39+00:00"
         },
         {
             "name": "paragonie/certainty",
-            "version": "v1.0.4",
+            "version": "v2.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/certainty.git",
-                "reference": "d0f22c0fe579cf0e4f8ee301de5bc97ab124faac"
+                "reference": "b0068bc1e5605bd2ebe1ba906f2426d5df123944"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/certainty/zipball/d0f22c0fe579cf0e4f8ee301de5bc97ab124faac",
-                "reference": "d0f22c0fe579cf0e4f8ee301de5bc97ab124faac",
+                "url": "https://api.github.com/repos/paragonie/certainty/zipball/b0068bc1e5605bd2ebe1ba906f2426d5df123944",
+                "reference": "b0068bc1e5605bd2ebe1ba906f2426d5df123944",
                 "shasum": ""
             },
             "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
                 "guzzlehttp/guzzle": "^6",
                 "paragonie/constant_time_encoding": "^1|^2",
-                "paragonie/sodium_compat": "^1.6",
-                "php": "^5.6|^7"
+                "paragonie/sodium_compat": "^1.11",
+                "php": "^5.5|^7|^8"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5|^6",
-                "vimeo/psalm": "^1"
+                "composer/composer": "^1",
+                "phpunit/phpunit": "^4|^5|^6"
             },
             "bin": [
                 "bin/certainty-cert-symlink"
@@ -1596,29 +2135,28 @@
                 "ssl",
                 "tls"
             ],
-            "time": "2018-04-09T07:21:55+00:00"
+            "time": "2020-01-02T00:55:01+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
-            "version": "v1.0.4",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/constant_time_encoding.git",
-                "reference": "2132f0f293d856026d7d11bd81b9f4a23a1dc1f6"
+                "reference": "47a1cedd2e4d52688eb8c96469c05ebc8fd28fa2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/2132f0f293d856026d7d11bd81b9f4a23a1dc1f6",
-                "reference": "2132f0f293d856026d7d11bd81b9f4a23a1dc1f6",
+                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/47a1cedd2e4d52688eb8c96469c05ebc8fd28fa2",
+                "reference": "47a1cedd2e4d52688eb8c96469c05ebc8fd28fa2",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3|^7"
+                "php": "^7|^8"
             },
             "require-dev": {
-                "paragonie/random_compat": "^1.4|^2",
-                "phpunit/phpunit": "4.*|5.*",
-                "vimeo/psalm": "^0.3|^1"
+                "phpunit/phpunit": "^6|^7",
+                "vimeo/psalm": "^1|^2|^3"
             },
             "type": "library",
             "autoload": {
@@ -1659,37 +2197,82 @@
                 "hex2bin",
                 "rfc4648"
             ],
-            "time": "2018-04-30T17:57:16+00:00"
+            "time": "2019-11-06T19:20:29+00:00"
         },
         {
-            "name": "paragonie/random_compat",
-            "version": "v2.0.17",
+            "name": "paragonie/hidden-string",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/paragonie/random_compat.git",
-                "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d"
+                "url": "https://github.com/paragonie/hidden-string.git",
+                "reference": "0bbb00be0e33b8e1d48fa79ea35cd42d3091a936"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/29af24f25bab834fcbb38ad2a69fa93b867e070d",
-                "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d",
+                "url": "https://api.github.com/repos/paragonie/hidden-string/zipball/0bbb00be0e33b8e1d48fa79ea35cd42d3091a936",
+                "reference": "0bbb00be0e33b8e1d48fa79ea35cd42d3091a936",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.2.0"
+                "paragonie/constant_time_encoding": "^2",
+                "paragonie/sodium_compat": "^1.6",
+                "php": "^7"
             },
             "require-dev": {
-                "phpunit/phpunit": "4.*|5.*"
+                "phpunit/phpunit": "^6|^7",
+                "vimeo/psalm": "^1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ParagonIE\\HiddenString\\": "./src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MPL-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Paragon Initiative Enterprises",
+                    "email": "info@paragonie.com",
+                    "homepage": "https://paragonie.com"
+                }
+            ],
+            "description": "Encapsulate strings in an object to hide them from stack traces",
+            "homepage": "https://github.com/paragonie/hidden-string",
+            "keywords": [
+                "hidden",
+                "stack trace",
+                "string"
+            ],
+            "time": "2018-05-07T20:28:06+00:00"
+        },
+        {
+            "name": "paragonie/random_compat",
+            "version": "v9.99.99",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/paragonie/random_compat.git",
+                "reference": "84b4dfb120c6f9b4ff7b3685f9b8f1aa365a0c95"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/84b4dfb120c6f9b4ff7b3685f9b8f1aa365a0c95",
+                "reference": "84b4dfb120c6f9b4ff7b3685f9b8f1aa365a0c95",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.*|5.*",
+                "vimeo/psalm": "^1"
             },
             "suggest": {
                 "ext-libsodium": "Provides a modern crypto API that can be used to generate random bytes."
             },
             "type": "library",
-            "autoload": {
-                "files": [
-                    "lib/random.php"
-                ]
-            },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
@@ -1708,28 +2291,28 @@
                 "pseudorandom",
                 "random"
             ],
-            "time": "2018-07-04T16:31:37+00:00"
+            "time": "2018-07-02T15:55:56+00:00"
         },
         {
             "name": "paragonie/sodium_compat",
-            "version": "v1.7.0",
+            "version": "v1.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/sodium_compat.git",
-                "reference": "7b73005be3c224f12c47bd75a23ce24b762e47e8"
+                "reference": "bbade402cbe84c69b718120911506a3aa2bae653"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/7b73005be3c224f12c47bd75a23ce24b762e47e8",
-                "reference": "7b73005be3c224f12c47bd75a23ce24b762e47e8",
+                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/bbade402cbe84c69b718120911506a3aa2bae653",
+                "reference": "bbade402cbe84c69b718120911506a3aa2bae653",
                 "shasum": ""
             },
             "require": {
                 "paragonie/random_compat": ">=1",
-                "php": "^5.2.4|^5.3|^5.4|^5.5|^5.6|^7"
+                "php": "^5.2.4|^5.3|^5.4|^5.5|^5.6|^7|^8"
             },
             "require-dev": {
-                "phpunit/phpunit": "^3|^4|^5"
+                "phpunit/phpunit": "^3|^4|^5|^6|^7"
             },
             "suggest": {
                 "ext-libsodium": "PHP < 7.0: Better performance, password hashing (Argon2i), secure memory management (memzero), and better security.",
@@ -1790,24 +2373,79 @@
                 "secret-key cryptography",
                 "side-channel resistant"
             ],
-            "time": "2018-09-22T03:59:58+00:00"
+            "time": "2020-03-20T21:48:09+00:00"
         },
         {
-            "name": "pear/text_languagedetect",
-            "version": "v1.0.0",
+            "name": "pear/console_table",
+            "version": "v1.3.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/pear/Text_LanguageDetect.git",
-                "reference": "bb9ff6f4970f686fac59081e916b456021fe7ba6"
+                "url": "https://github.com/pear/Console_Table.git",
+                "reference": "1930c11897ca61fd24b95f2f785e99e0f36dcdea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pear/Text_LanguageDetect/zipball/bb9ff6f4970f686fac59081e916b456021fe7ba6",
-                "reference": "bb9ff6f4970f686fac59081e916b456021fe7ba6",
+                "url": "https://api.github.com/repos/pear/Console_Table/zipball/1930c11897ca61fd24b95f2f785e99e0f36dcdea",
+                "reference": "1930c11897ca61fd24b95f2f785e99e0f36dcdea",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.0"
+            },
+            "suggest": {
+                "pear/Console_Color2": ">=0.1.2"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "Table.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Jan Schneider",
+                    "homepage": "http://pear.php.net/user/yunosh"
+                },
+                {
+                    "name": "Tal Peer",
+                    "homepage": "http://pear.php.net/user/tal"
+                },
+                {
+                    "name": "Xavier Noguer",
+                    "homepage": "http://pear.php.net/user/xnoguer"
+                },
+                {
+                    "name": "Richard Heyes",
+                    "homepage": "http://pear.php.net/user/richard"
+                }
+            ],
+            "description": "Library that makes it easy to build console style tables.",
+            "homepage": "http://pear.php.net/package/Console_Table/",
+            "keywords": [
+                "console"
+            ],
+            "time": "2018-01-25T20:47:17+00:00"
+        },
+        {
+            "name": "pear/text_languagedetect",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/Text_LanguageDetect.git",
+                "reference": "9e253f26cef9a9066f53f200cc3e0684018cb5b5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/Text_LanguageDetect/zipball/9e253f26cef9a9066f53f200cc3e0684018cb5b5",
+                "reference": "9e253f26cef9a9066f53f200cc3e0684018cb5b5",
                 "shasum": ""
             },
             "require-dev": {
-                "phpunit/phpunit": "*"
+                "phpunit/phpunit": "8.*|9.*"
             },
             "suggest": {
                 "ext-mbstring": "May require the mbstring PHP extension"
@@ -1834,7 +2472,190 @@
             ],
             "description": "Identify human languages from text samples",
             "homepage": "http://pear.php.net/package/Text_LanguageDetect",
-            "time": "2017-03-02T16:14:08+00:00"
+            "time": "2020-05-17T12:19:40+00:00"
+        },
+        {
+            "name": "pragmarx/google2fa",
+            "version": "v5.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/antonioribeiro/google2fa.git",
+                "reference": "17c969c82f427dd916afe4be50bafc6299aef1b4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/antonioribeiro/google2fa/zipball/17c969c82f427dd916afe4be50bafc6299aef1b4",
+                "reference": "17c969c82f427dd916afe4be50bafc6299aef1b4",
+                "shasum": ""
+            },
+            "require": {
+                "paragonie/constant_time_encoding": "~1.0|~2.0",
+                "paragonie/random_compat": ">=1",
+                "php": ">=5.4",
+                "symfony/polyfill-php56": "~1.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4|~5|~6"
+            },
+            "type": "library",
+            "extra": {
+                "component": "package",
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PragmaRX\\Google2FA\\": "src/",
+                    "PragmaRX\\Google2FA\\Tests\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Antonio Carlos Ribeiro",
+                    "email": "acr@antoniocarlosribeiro.com",
+                    "role": "Creator & Designer"
+                }
+            ],
+            "description": "A One Time Password Authentication package, compatible with Google Authenticator.",
+            "keywords": [
+                "2fa",
+                "Authentication",
+                "Two Factor Authentication",
+                "google2fa"
+            ],
+            "time": "2019-03-19T22:44:16+00:00"
+        },
+        {
+            "name": "pragmarx/random",
+            "version": "v0.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/antonioribeiro/random.git",
+                "reference": "daf08a189c5d2d40d1a827db46364d3a741a51b7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/antonioribeiro/random/zipball/daf08a189c5d2d40d1a827db46364d3a741a51b7",
+                "reference": "daf08a189c5d2d40d1a827db46364d3a741a51b7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "fzaninotto/faker": "~1.7",
+                "phpunit/phpunit": "~6.4",
+                "pragmarx/trivia": "~0.1",
+                "squizlabs/php_codesniffer": "^2.3"
+            },
+            "suggest": {
+                "fzaninotto/faker": "Allows you to get dozens of randomized types",
+                "pragmarx/trivia": "For the trivia database"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PragmaRX\\Random\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Antonio Carlos Ribeiro",
+                    "email": "acr@antoniocarlosribeiro.com",
+                    "homepage": "https://antoniocarlosribeiro.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Create random chars, numbers, strings",
+            "homepage": "https://github.com/antonioribeiro/random",
+            "keywords": [
+                "Randomize",
+                "faker",
+                "pragmarx",
+                "random",
+                "random number",
+                "random pattern",
+                "random string"
+            ],
+            "time": "2017-11-21T05:26:22+00:00"
+        },
+        {
+            "name": "pragmarx/recovery",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/antonioribeiro/recovery.git",
+                "reference": "e16573a1ae5345cc3b100eec6d0296a1a15a90fe"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/antonioribeiro/recovery/zipball/e16573a1ae5345cc3b100eec6d0296a1a15a90fe",
+                "reference": "e16573a1ae5345cc3b100eec6d0296a1a15a90fe",
+                "shasum": ""
+            },
+            "require": {
+                "php": "~7.0",
+                "pragmarx/random": "~0.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=5.4.3",
+                "squizlabs/php_codesniffer": "^2.3",
+                "tightenco/collect": "^5"
+            },
+            "suggest": {
+                "tightenco/collect": "Allows to generate recovery codes as collections"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PragmaRX\\Recovery\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Antonio Carlos Ribeiro",
+                    "email": "acr@antoniocarlosribeiro.com",
+                    "homepage": "https://antoniocarlosribeiro.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Create recovery codes for two factor auth",
+            "homepage": "https://github.com/antonioribeiro/recovery",
+            "keywords": [
+                "2fa",
+                "account recovery",
+                "auth",
+                "backup codes",
+                "google2fa",
+                "pragmarx",
+                "recovery",
+                "recovery codes",
+                "two factor auth"
+            ],
+            "time": "2017-09-19T16:58:00+00:00"
         },
         {
             "name": "psr/cache",
@@ -1881,6 +2702,55 @@
                 "psr-6"
             ],
             "time": "2016-08-06T20:24:11+00:00"
+        },
+        {
+            "name": "psr/container",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/container.git",
+                "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+                "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Container\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common Container Interface (PHP FIG PSR-11)",
+            "homepage": "https://github.com/php-fig/container",
+            "keywords": [
+                "PSR-11",
+                "container",
+                "container-interface",
+                "container-interop",
+                "psr"
+            ],
+            "time": "2017-02-14T16:28:37+00:00"
         },
         {
             "name": "psr/http-message",
@@ -1934,16 +2804,16 @@
         },
         {
             "name": "psr/log",
-            "version": "1.1.0",
+            "version": "1.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd"
+                "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
-                "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/0f73288fd15629204f9d42b7055f72dacbe811fc",
+                "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc",
                 "shasum": ""
             },
             "require": {
@@ -1952,7 +2822,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -1977,7 +2847,47 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2018-11-20T15:27:04+00:00"
+            "time": "2020-03-23T09:12:05+00:00"
+        },
+        {
+            "name": "ralouphie/getallheaders",
+            "version": "3.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ralouphie/getallheaders.git",
+                "reference": "120b605dfeb996808c31b6477290a714d356e822"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ralouphie/getallheaders/zipball/120b605dfeb996808c31b6477290a714d356e822",
+                "reference": "120b605dfeb996808c31b6477290a714d356e822",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "php-coveralls/php-coveralls": "^2.1",
+                "phpunit/phpunit": "^5 || ^6.5"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/getallheaders.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ralph Khattar",
+                    "email": "ralph.khattar@gmail.com"
+                }
+            ],
+            "description": "A polyfill for getallheaders.",
+            "time": "2019-03-08T08:55:37+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -2029,20 +2939,24 @@
         },
         {
             "name": "smarty/smarty",
-            "version": "v3.1.33",
+            "version": "v3.1.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/smarty-php/smarty.git",
-                "reference": "dd55b23121e55a3b4f1af90a707a6c4e5969530f"
+                "reference": "fd148f7ade295014fff77f89ee3d5b20d9d55451"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/dd55b23121e55a3b4f1af90a707a6c4e5969530f",
-                "reference": "dd55b23121e55a3b4f1af90a707a6c4e5969530f",
+                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/fd148f7ade295014fff77f89ee3d5b20d9d55451",
+                "reference": "fd148f7ade295014fff77f89ee3d5b20d9d55451",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "6.4.1",
+                "smarty/smarty-lexer": "^3.1"
             },
             "type": "library",
             "extra": {
@@ -2051,8 +2965,8 @@
                 }
             },
             "autoload": {
-                "files": [
-                    "libs/bootstrap.php"
+                "classmap": [
+                    "libs/"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -2078,7 +2992,291 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2018-09-12T20:54:16+00:00"
+            "time": "2020-04-14T14:44:26+00:00"
+        },
+        {
+            "name": "symfony/polyfill-intl-idn",
+            "version": "v1.17.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-intl-idn.git",
+                "reference": "3bff59ea7047e925be6b7f2059d60af31bb46d6a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/3bff59ea7047e925be6b7f2059d60af31bb46d6a",
+                "reference": "3bff59ea7047e925be6b7f2059d60af31bb46d6a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3",
+                "symfony/polyfill-mbstring": "^1.3",
+                "symfony/polyfill-php72": "^1.10"
+            },
+            "suggest": {
+                "ext-intl": "For best performance"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.17-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Intl\\Idn\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Laurent Bassin",
+                    "email": "laurent@bassin.info"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill for intl's idn_to_ascii and idn_to_utf8 functions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "idn",
+                "intl",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "time": "2020-05-12T16:47:27+00:00"
+        },
+        {
+            "name": "symfony/polyfill-mbstring",
+            "version": "v1.17.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-mbstring.git",
+                "reference": "fa79b11539418b02fc5e1897267673ba2c19419c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/fa79b11539418b02fc5e1897267673ba2c19419c",
+                "reference": "fa79b11539418b02fc5e1897267673ba2c19419c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "suggest": {
+                "ext-mbstring": "For best performance"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.17-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Mbstring\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill for the Mbstring extension",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "mbstring",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "time": "2020-05-12T16:47:27+00:00"
+        },
+        {
+            "name": "symfony/polyfill-php56",
+            "version": "v1.17.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php56.git",
+                "reference": "e3c8c138280cdfe4b81488441555583aa1984e23"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php56/zipball/e3c8c138280cdfe4b81488441555583aa1984e23",
+                "reference": "e3c8c138280cdfe4b81488441555583aa1984e23",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3",
+                "symfony/polyfill-util": "~1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.17-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php56\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 5.6+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "time": "2020-05-12T16:47:27+00:00"
+        },
+        {
+            "name": "symfony/polyfill-php72",
+            "version": "v1.17.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php72.git",
+                "reference": "f048e612a3905f34931127360bdd2def19a5e582"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php72/zipball/f048e612a3905f34931127360bdd2def19a5e582",
+                "reference": "f048e612a3905f34931127360bdd2def19a5e582",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.17-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php72\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 7.2+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "time": "2020-05-12T16:47:27+00:00"
+        },
+        {
+            "name": "symfony/polyfill-util",
+            "version": "v1.17.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-util.git",
+                "reference": "4afb4110fc037752cf0ce9869f9ab8162c4e20d7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-util/zipball/4afb4110fc037752cf0ce9869f9ab8162c4e20d7",
+                "reference": "4afb4110fc037752cf0ce9869f9ab8162c4e20d7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.17-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Util\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony utilities for portability of PHP codes",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compat",
+                "compatibility",
+                "polyfill",
+                "shim"
+            ],
+            "time": "2020-05-12T16:14:59+00:00"
         }
     ],
     "packages-dev": [
@@ -2185,6 +3383,55 @@
             "time": "2016-01-20T08:20:44+00:00"
         },
         {
+            "name": "jakub-onderka/php-parallel-lint",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JakubOnderka/PHP-Parallel-Lint.git",
+                "reference": "04fbd3f5fb1c83f08724aa58a23db90bd9086ee8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JakubOnderka/PHP-Parallel-Lint/zipball/04fbd3f5fb1c83f08724aa58a23db90bd9086ee8",
+                "reference": "04fbd3f5fb1c83f08724aa58a23db90bd9086ee8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "jakub-onderka/php-console-highlighter": "~0.3",
+                "nette/tester": "~1.3",
+                "squizlabs/php_codesniffer": "~2.7"
+            },
+            "suggest": {
+                "jakub-onderka/php-console-highlighter": "Highlight syntax in code snippet"
+            },
+            "bin": [
+                "parallel-lint"
+            ],
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "./"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Jakub Onderka",
+                    "email": "ahoj@jakubonderka.cz"
+                }
+            ],
+            "description": "This tool check syntax of PHP files about 20x faster than serial check.",
+            "homepage": "https://github.com/JakubOnderka/PHP-Parallel-Lint",
+            "abandoned": "php-parallel-lint/php-parallel-lint",
+            "time": "2018-02-24T15:31:20+00:00"
+        },
+        {
             "name": "johnkary/phpunit-speedtrap",
             "version": "v1.1.0",
             "source": {
@@ -2233,24 +3480,24 @@
             "time": "2017-03-25T17:14:26+00:00"
         },
         {
-            "name": "mikey179/vfsStream",
-            "version": "v1.6.5",
+            "name": "mikey179/vfsstream",
+            "version": "v1.6.8",
             "source": {
                 "type": "git",
-                "url": "https://github.com/mikey179/vfsStream.git",
-                "reference": "d5fec95f541d4d71c4823bb5e30cf9b9e5b96145"
+                "url": "https://github.com/bovigo/vfsStream.git",
+                "reference": "231c73783ebb7dd9ec77916c10037eff5a2b6efe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mikey179/vfsStream/zipball/d5fec95f541d4d71c4823bb5e30cf9b9e5b96145",
-                "reference": "d5fec95f541d4d71c4823bb5e30cf9b9e5b96145",
+                "url": "https://api.github.com/repos/bovigo/vfsStream/zipball/231c73783ebb7dd9ec77916c10037eff5a2b6efe",
+                "reference": "231c73783ebb7dd9ec77916c10037eff5a2b6efe",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.5"
+                "phpunit/phpunit": "^4.5|^5.0"
             },
             "type": "library",
             "extra": {
@@ -2276,20 +3523,20 @@
             ],
             "description": "Virtual file system to mock the real file system in unit tests.",
             "homepage": "http://vfs.bovigo.org/",
-            "time": "2017-08-01T08:02:14+00:00"
+            "time": "2019-10-30T15:31:00+00:00"
         },
         {
             "name": "mockery/mockery",
-            "version": "1.2.0",
+            "version": "1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mockery/mockery.git",
-                "reference": "100633629bf76d57430b86b7098cd6beb996a35a"
+                "reference": "f69bbde7d7a75d6b2862d9ca8fab1cd28014b4be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/100633629bf76d57430b86b7098cd6beb996a35a",
-                "reference": "100633629bf76d57430b86b7098cd6beb996a35a",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/f69bbde7d7a75d6b2862d9ca8fab1cd28014b4be",
+                "reference": "f69bbde7d7a75d6b2862d9ca8fab1cd28014b4be",
                 "shasum": ""
             },
             "require": {
@@ -2298,12 +3545,12 @@
                 "php": ">=5.6.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~5.7.10|~6.5|~7.0"
+                "phpunit/phpunit": "~5.7.10|~6.5|~7.0|~8.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.3.x-dev"
                 }
             },
             "autoload": {
@@ -2341,7 +3588,7 @@
                 "test double",
                 "testing"
             ],
-            "time": "2018-10-02T21:52:37+00:00"
+            "time": "2019-12-26T09:49:15+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -2536,38 +3783,38 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.8.0",
+            "version": "v1.10.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "4ba436b55987b4bf311cb7c6ba82aa528aac0a06"
+                "reference": "451c3cd1418cf640de218914901e51b064abb093"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/4ba436b55987b4bf311cb7c6ba82aa528aac0a06",
-                "reference": "4ba436b55987b4bf311cb7c6ba82aa528aac0a06",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/451c3cd1418cf640de218914901e51b064abb093",
+                "reference": "451c3cd1418cf640de218914901e51b064abb093",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "^1.0.2",
                 "php": "^5.3|^7.0",
-                "phpdocumentor/reflection-docblock": "^2.0|^3.0.2|^4.0",
-                "sebastian/comparator": "^1.1|^2.0|^3.0",
-                "sebastian/recursion-context": "^1.0|^2.0|^3.0"
+                "phpdocumentor/reflection-docblock": "^2.0|^3.0.2|^4.0|^5.0",
+                "sebastian/comparator": "^1.2.3|^2.0|^3.0|^4.0",
+                "sebastian/recursion-context": "^1.0|^2.0|^3.0|^4.0"
             },
             "require-dev": {
-                "phpspec/phpspec": "^2.5|^3.2",
+                "phpspec/phpspec": "^2.5 || ^3.2",
                 "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.5 || ^7.1"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.8.x-dev"
+                    "dev-master": "1.10.x-dev"
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Prophecy\\": "src/"
+                "psr-4": {
+                    "Prophecy\\": "src/Prophecy"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -2595,62 +3842,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2018-08-05T17:53:17+00:00"
-        },
-        {
-            "name": "phpunit/dbunit",
-            "version": "2.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sebastianbergmann/dbunit.git",
-                "reference": "5c35d74549c21ba55d0ea74ba89d191a51f8cf25"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/dbunit/zipball/5c35d74549c21ba55d0ea74ba89d191a51f8cf25",
-                "reference": "5c35d74549c21ba55d0ea74ba89d191a51f8cf25",
-                "shasum": ""
-            },
-            "require": {
-                "ext-pdo": "*",
-                "ext-simplexml": "*",
-                "php": "^5.4 || ^7.0",
-                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0",
-                "symfony/yaml": "^2.1 || ^3.0"
-            },
-            "bin": [
-                "dbunit"
-            ],
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Sebastian Bergmann",
-                    "email": "sb@sebastian-bergmann.de",
-                    "role": "lead"
-                }
-            ],
-            "description": "DbUnit port for PHP/PHPUnit to support database interaction testing.",
-            "homepage": "https://github.com/sebastianbergmann/dbunit/",
-            "keywords": [
-                "database",
-                "testing",
-                "xunit"
-            ],
-            "time": "2016-12-02T14:39:14+00:00"
+            "time": "2020-03-05T15:02:03+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -3040,6 +4232,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2017-06-30T09:13:00+00:00"
         },
         {
@@ -3143,7 +4336,7 @@
                 }
             ],
             "description": "Provides the functionality to compare PHP values for equality",
-            "homepage": "https://github.com/sebastianbergmann/comparator",
+            "homepage": "http://www.github.com/sebastianbergmann/comparator",
             "keywords": [
                 "comparator",
                 "compare",
@@ -3245,7 +4438,7 @@
                 }
             ],
             "description": "Provides functionality to handle HHVM/PHP environments",
-            "homepage": "https://github.com/sebastianbergmann/environment",
+            "homepage": "http://www.github.com/sebastianbergmann/environment",
             "keywords": [
                 "Xdebug",
                 "environment",
@@ -3313,7 +4506,7 @@
                 }
             ],
             "description": "Provides the functionality to export PHP variables for visualization",
-            "homepage": "https://github.com/sebastianbergmann/exporter",
+            "homepage": "http://www.github.com/sebastianbergmann/exporter",
             "keywords": [
                 "export",
                 "exporter"
@@ -3365,7 +4558,7 @@
                 }
             ],
             "description": "Snapshotting of global state",
-            "homepage": "https://github.com/sebastianbergmann/global-state",
+            "homepage": "http://www.github.com/sebastianbergmann/global-state",
             "keywords": [
                 "global state"
             ],
@@ -3467,7 +4660,7 @@
                 }
             ],
             "description": "Provides functionality to recursively process PHP variables",
-            "homepage": "https://github.com/sebastianbergmann/recursion-context",
+            "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
             "time": "2016-11-19T07:33:16+00:00"
         },
         {
@@ -3557,16 +4750,16 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.9.0",
+            "version": "v1.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19"
+                "reference": "e94c8b1bbe2bc77507a1056cdb06451c75b427f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/e3d826245268269cd66f8326bd8bc066687b4a19",
-                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/e94c8b1bbe2bc77507a1056cdb06451c75b427f9",
+                "reference": "e94c8b1bbe2bc77507a1056cdb06451c75b427f9",
                 "shasum": ""
             },
             "require": {
@@ -3578,7 +4771,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.9-dev"
+                    "dev-master": "1.17-dev"
                 }
             },
             "autoload": {
@@ -3595,12 +4788,12 @@
             ],
             "authors": [
                 {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                },
-                {
                     "name": "Gert de Pagter",
                     "email": "BackEndTea@gmail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
@@ -3611,31 +4804,41 @@
                 "polyfill",
                 "portable"
             ],
-            "time": "2018-08-06T14:22:27+00:00"
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2020-05-12T16:14:59+00:00"
         },
         {
             "name": "symfony/yaml",
-            "version": "v3.4.16",
+            "version": "v3.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "61973ecda60e9f3561e929e19c07d4878b960fc1"
+                "reference": "ddc23324e6cfe066f3dd34a37ff494fa80b617ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/61973ecda60e9f3561e929e19c07d4878b960fc1",
-                "reference": "61973ecda60e9f3561e929e19c07d4878b960fc1",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/ddc23324e6cfe066f3dd34a37ff494fa80b617ed",
+                "reference": "ddc23324e6cfe066f3dd34a37ff494fa80b617ed",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.5.9|>=7.0.8",
-                "symfony/polyfill-ctype": "~1.8"
-            },
-            "conflict": {
-                "symfony/console": "<3.4"
+                "php": ">=5.5.9"
             },
             "require-dev": {
-                "symfony/console": "~3.4|~4.0"
+                "symfony/console": "~2.8|~3.0"
             },
             "suggest": {
                 "symfony/console": "For validating YAML files using the lint command"
@@ -3643,7 +4846,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.4-dev"
+                    "dev-master": "3.3-dev"
                 }
             },
             "autoload": {
@@ -3670,35 +4873,34 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2018-09-24T08:15:45+00:00"
+            "time": "2017-07-23T12:43:26+00:00"
         },
         {
             "name": "webmozart/assert",
-            "version": "1.3.0",
+            "version": "1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozart/assert.git",
-                "reference": "0df1908962e7a3071564e857d86874dad1ef204a"
+                "reference": "9dc4f203e36f2b486149058bade43c851dd97451"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozart/assert/zipball/0df1908962e7a3071564e857d86874dad1ef204a",
-                "reference": "0df1908962e7a3071564e857d86874dad1ef204a",
+                "url": "https://api.github.com/repos/webmozart/assert/zipball/9dc4f203e36f2b486149058bade43c851dd97451",
+                "reference": "9dc4f203e36f2b486149058bade43c851dd97451",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3.3 || ^7.0"
+                "php": "^5.3.3 || ^7.0",
+                "symfony/polyfill-ctype": "^1.8"
+            },
+            "conflict": {
+                "phpstan/phpstan": "<0.12.20",
+                "vimeo/psalm": "<3.9.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.6",
-                "sebastian/version": "^1.0.1"
+                "phpunit/phpunit": "^4.8.36 || ^7.5.13"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.3-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "Webmozart\\Assert\\": "src/"
@@ -3720,7 +4922,7 @@
                 "check",
                 "validate"
             ],
-            "time": "2018-01-29T19:49:41+00:00"
+            "time": "2020-06-16T10:16:42+00:00"
         }
     ],
     "aliases": [],
@@ -3731,7 +4933,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.6.1",
+        "php": ">=7.0",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-dom": "*",
@@ -3745,5 +4947,9 @@
         "ext-simplexml": "*",
         "ext-xml": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "platform-overrides": {
+        "php": "7.0"
+    },
+    "plugin-api-version": "1.1.0"
 }

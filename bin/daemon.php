@@ -1,18 +1,34 @@
 #!/usr/bin/env php
 <?php
 /**
- * @file bin/daemon.php
- * @brief Run the worker from a daemon.
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Run the worker from a daemon.
  *
  * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
  */
 
-use Friendica\App;
-use Friendica\Core\Config;
+use Dice\Dice;
+use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Factory;
-use Friendica\Util\BasePath;
+use Friendica\DI;
+use Psr\Log\LoggerInterface;
 
 // Get options
 $shortopts = 'f';
@@ -33,20 +49,19 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$basedir = BasePath::create(dirname(__DIR__), $_SERVER);
-$configLoader = new Config\ConfigCacheLoader($basedir);
-$config = Factory\ConfigFactory::createCache($configLoader);
-$logger = Factory\LoggerFactory::create('daemon', $config);
+$dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
+$dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['daemon']]);
 
-$a = new App($config, $logger);
+DI::init($dice);
+$a = DI::app();
 
-if ($a->getMode()->isInstall()) {
+if (DI::mode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");
 }
 
-Config::load();
+DI::config()->load();
 
-if (empty(Config::get('system', 'pidfile'))) {
+if (empty(DI::config()->get('system', 'pidfile'))) {
 	die(<<<TXT
 Please set system.pidfile in config/local.config.php. For example:
     
@@ -57,7 +72,7 @@ TXT
     );
 }
 
-$pidfile = Config::get('system', 'pidfile');
+$pidfile = DI::config()->get('system', 'pidfile');
 
 if (in_array("start", $_SERVER["argv"])) {
 	$mode = "start";
@@ -88,7 +103,7 @@ if (is_readable($pidfile)) {
 }
 
 if (empty($pid) && in_array($mode, ["stop", "status"])) {
-	Config::set('system', 'worker_daemon_mode', false);
+	DI::config()->set('system', 'worker_daemon_mode', false);
 	die("Pidfile wasn't found. Is the daemon running?\n");
 }
 
@@ -99,7 +114,7 @@ if ($mode == "status") {
 
 	unlink($pidfile);
 
-	Config::set('system', 'worker_daemon_mode', false);
+	DI::config()->set('system', 'worker_daemon_mode', false);
 	die("Daemon process $pid isn't running.\n");
 }
 
@@ -108,9 +123,9 @@ if ($mode == "stop") {
 
 	unlink($pidfile);
 
-	$logger->notice("Worker daemon process was killed", ["pid" => $pid]);
+	Logger::notice("Worker daemon process was killed", ["pid" => $pid]);
 
-	Config::set('system', 'worker_daemon_mode', false);
+	DI::config()->set('system', 'worker_daemon_mode', false);
 	die("Worker daemon process $pid was killed.\n");
 }
 
@@ -118,7 +133,7 @@ if (!empty($pid) && posix_kill($pid, 0)) {
 	die("Daemon process $pid is already running.\n");
 }
 
-$logger->notice('Starting worker daemon.', ["pid" => $pid]);
+Logger::notice('Starting worker daemon.', ["pid" => $pid]);
 
 if (!$foreground) {
 	echo "Starting worker daemon.\n";
@@ -150,15 +165,15 @@ if (!$foreground) {
 	file_put_contents($pidfile, $pid);
 
 	// We lose the database connection upon forking
-	$a->loadDatabase();
+	DBA::reconnect();
 }
 
-Config::set('system', 'worker_daemon_mode', true);
+DI::config()->set('system', 'worker_daemon_mode', true);
 
 // Just to be sure that this script really runs endlessly
 set_time_limit(0);
 
-$wait_interval = intval(Config::get('system', 'cron_interval', 5)) * 60;
+$wait_interval = intval(DI::config()->get('system', 'cron_interval', 5)) * 60;
 
 $do_cron = true;
 $last_cron = 0;
@@ -166,7 +181,7 @@ $last_cron = 0;
 // Now running as a daemon.
 while (true) {
 	if (!$do_cron && ($last_cron + $wait_interval) < time()) {
-		$logger->info('Forcing cron worker call.', ["pid" => $pid]);
+		Logger::info('Forcing cron worker call.', ["pid" => $pid]);
 		$do_cron = true;
 	}
 
@@ -180,7 +195,7 @@ while (true) {
 		$last_cron = time();
 	}
 
-	$logger->info("Sleeping", ["pid" => $pid]);
+	Logger::info("Sleeping", ["pid" => $pid]);
 	$start = time();
 	do {
 		$seconds = (time() - $start);
@@ -197,10 +212,10 @@ while (true) {
 
 	if ($timeout) {
 		$do_cron = true;
-		$logger->info("Woke up after $wait_interval seconds.", ["pid" => $pid, 'sleep' => $wait_interval]);
+		Logger::info("Woke up after $wait_interval seconds.", ["pid" => $pid, 'sleep' => $wait_interval]);
 	} else {
 		$do_cron = false;
-		$logger->info("Worker jobs are calling to be forked.", ["pid" => $pid]);
+		Logger::info("Worker jobs are calling to be forked.", ["pid" => $pid]);
 	}
 }
 

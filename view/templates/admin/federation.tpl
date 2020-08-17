@@ -1,13 +1,9 @@
-<script src="{{$baseurl}}/view/asset/Chart-js/dist/Chart.min.js"></script>
+<script src="{{$baseurl}}/view/asset/Chart-js/dist/Chart.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
 
 	<canvas id="FederationChart" class="federation-graph" width="320" height="320"></canvas>
 	<p>{{$intro}}</p>
-
-	{{if not $autoactive}}
-	<p class="error-message">{{$hint nofilter}}</p>
-	{{/if}}
 
 	<p>{{$legendtext}}</p>
 

@@ -1,6 +1,22 @@
 <?php
 /**
- * @file src/Module/Photo.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Module;
@@ -8,25 +24,26 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Model\Photo as MPhoto;
-use Friendica\Object\Image;
 
 /**
- * @brief Photo Module
+ * Photo Module
  */
 class Photo extends BaseModule
 {
 	/**
-	 * @brief Module initializer
+	 * Module initializer
 	 *
 	 * Fetch a photo or an avatar, in optional size, check for permissions and
 	 * return the image
 	 */
-	public static function init()
+	public static function init(array $parameters = [])
 	{
-		$a = self::getApp();
+		$a = DI::app();
+		// @TODO: Replace with parameter from router
 		if ($a->argc <= 1 || $a->argc > 4) {
-			System::httpExit(400, "Bad Request");
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
@@ -47,18 +64,19 @@ class Photo extends BaseModule
 
 		$customsize = 0;
 		$photo = false;
+		// @TODO: Replace with parameter from router
 		switch($a->argc) {
 			case 4:
 				$customsize = intval($a->argv[2]);
-				$uid = self::stripExtension($a->argv[3]);
+				$uid = MPhoto::stripExtension($a->argv[3]);
 				$photo = self::getAvatar($uid, $a->argv[1]);
 				break;
 			case 3:
-				$uid = self::stripExtension($a->argv[2]);
+				$uid = MPhoto::stripExtension($a->argv[2]);
 				$photo = self::getAvatar($uid, $a->argv[1]);
 				break;
 			case 2:
-				$photoid = self::stripExtension($a->argv[1]);
+				$photoid = MPhoto::stripExtension($a->argv[1]);
 				$scale = 0;
 				if (substr($photoid, -2, 1) == "-") {
 					$scale = intval(substr($photoid, -1, 1));
@@ -66,15 +84,13 @@ class Photo extends BaseModule
 				}
 				$photo = MPhoto::getPhoto($photoid, $scale);
 				if ($photo === false) {
-					$photo = MPhoto::createPhotoForSystemResource("images/nosign.jpg");
+					throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('The Photo with id %s is not available.', $photoid));
 				}
 				break;
 		}
 
 		if ($photo === false) {
-			// not using System::httpExit() because we don't want html here.
-			header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found" , true, 404);
-			exit();
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$cacheable = ($photo["allow_cid"] . $photo["allow_gid"] . $photo["deny_cid"] . $photo["deny_gid"] === "") && (isset($photo["cacheable"]) ? $photo["cacheable"] : true);
@@ -83,7 +99,7 @@ class Photo extends BaseModule
 
 		if (is_null($img) || !$img->isValid()) {
 			Logger::log("Invalid photo with id {$photo["id"]}.");
-			System::httpExit(500, ["description" => "Invalid photo with id {$photo["id"]}."]);
+			throw new \Friendica\Network\HTTPException\InternalServerErrorException(DI::l10n()->t('Invalid photo with id %s.', $photo["id"]));
 		}
 
 		// if customsize is set and image is not a gif, resize it
@@ -114,15 +130,6 @@ class Photo extends BaseModule
 		echo $img->asString();
 
 		exit();
-	}
-
-	private static function stripExtension($name)
-	{
-		$name = str_replace([".jpg", ".png", ".gif"], ["", "", ""], $name);
-		foreach (Image::supportedTypes() as $m => $e) {
-			$name = str_replace("." . $e, "", $name);
-		}
-		return $name;
 	}
 
 	private static function getAvatar($uid, $type="avatar")

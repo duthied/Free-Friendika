@@ -1,16 +1,32 @@
 #!/usr/bin/env php
 <?php
 /**
- * @file bin/worker.php
- * @brief Starts the background processing
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Starts the background processing
  */
 
+use Dice\Dice;
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
-use Friendica\Factory;
-use Friendica\Util\BasePath;
+use Friendica\DI;
+use Psr\Log\LoggerInterface;
 
 // Get options
 $shortopts = 'sn';
@@ -31,22 +47,21 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$basedir = BasePath::create(dirname(__DIR__), $_SERVER);
-$configLoader = new Config\ConfigCacheLoader($basedir);
-$config = Factory\ConfigFactory::createCache($configLoader);
-$logger = Factory\LoggerFactory::create('worker', $config);
+$dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
+$dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['worker']]);
 
-$a = new App($config, $logger);
+DI::init($dice);
+$a = DI::app();
 
 // Check the database structure and possibly fixes it
-Update::check($a->getBasePath(), true);
+Update::check($a->getBasePath(), true, DI::mode());
 
 // Quit when in maintenance
-if (!$a->getMode()->has(App\Mode::MAINTENANCEDISABLED)) {
+if (!DI::mode()->has(App\Mode::MAINTENANCEDISABLED)) {
 	return;
 }
 
-$a->setBaseURL(Config::get('system', 'url'));
+DI::baseUrl()->saveByURL(DI::config()->get('system', 'url'));
 
 $spawn = array_key_exists('s', $options) || array_key_exists('spawn', $options);
 

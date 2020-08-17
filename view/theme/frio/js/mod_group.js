@@ -1,7 +1,7 @@
 
 /**
  * @file view/theme/frio/js/mod_group.js
- * @brief The javascript for the group module
+ * The javascript for the group module
  */
 
 
@@ -13,7 +13,7 @@ $(document).ready(function() {
 });
 
 /**
- * @brief Change the group membership of the contacts and fetch the new grup list
+ * Change the group membership of the contacts and fetch the new grup list
  * as html
  *
  * @param {int} gid The group ID
@@ -41,7 +41,7 @@ function groupChangeMember(gid, cid, sec_token) {
 }
 
 /**
- * @brief Change the group list view mode
+ * Change the group list view mode
  *
  * @param {object} elm The button element of the view mode switcher
  * @returns {undefined}
@@ -61,7 +61,7 @@ function switchGroupViewMode(elm) {
 }
 
 /**
- * @brief Filter the group member list for contacts
+ * Filter the group member list for contacts
  *
  * @returns {undefined}
  */

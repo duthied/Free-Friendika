@@ -1,5 +1,5 @@
 /**
- * @brief Javascript for the display module
+ * Javascript for the display module
  */
 
 // Catch the GUID from the URL

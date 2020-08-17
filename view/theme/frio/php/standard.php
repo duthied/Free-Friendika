@@ -1,8 +1,25 @@
 <?php
 /**
- * @file view/theme/frio/php/modes/default.php
- * @brief The default site template
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * The default site template
  */
+
 ?>
 <!DOCTYPE html >
 <html>
@@ -10,19 +27,19 @@
 	<title><?php if(!empty($page['title'])) echo $page['title'] ?></title>
 	<meta name="viewport" content="initial-scale=1.0">
 	<meta request="<?php echo htmlspecialchars($_REQUEST['pagename']) ?>">
-	<script type="text/javascript">var baseurl="<?php echo Friendica\Core\System::baseUrl() ?>";</script>
+	<script type="text/javascript">var baseurl="<?php echo Friendica\DI::baseUrl() ?>";</script>
 	<script type="text/javascript">var frio="<?php echo "view/theme/frio"; ?>";</script>
-	<?php $baseurl = Friendica\Core\System::baseUrl(); ?>
+	<?php $baseurl = Friendica\DI::baseUrl(); ?>
 	<?php $frio = "view/theme/frio"; ?>
 	<?php if(!empty($page['htmlhead'])) echo $page['htmlhead']; ?>
 </head>
 <body id="top">
 <?php if($_SERVER['REQUEST_URI'] == "/"){header('Location: /login');} ?>
-<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+<a href="#content" class="sr-only sr-only-focusable"><?php echo DI::l10n()->t('Skip to main content'); ?></a>
 <?php
 	if(!empty($page['nav'])) {
-	echo	str_replace("~config.sitename~",Friendica\Core\Config::get('config','sitename'),
-			str_replace("~system.banner~",Friendica\Core\Config::get('system','banner'),
+	echo	str_replace("~config.sitename~",Friendica\DI::config()->get('config','sitename'),
+			str_replace("~system.banner~",Friendica\DI::config()->get('system','banner'),
 			$page['nav']
 	));};
 ?>
@@ -98,7 +115,6 @@ $("nav").bind('nav-update', function(e,data)
 });
 </script>
 <script src="<?=$frio?>/js/theme.js"></script>
-<script src="<?=$frio?>/js/acl.js"></script>
 <script src="<?=$frio?>/frameworks/bootstrap/js/bootstrap.min.js"></script>
 <script src="<?=$frio?>/frameworks/jasny/js/jasny-bootstrap.min.js"></script>
 <script src="<?=$frio?>/frameworks/bootstrap-select/js/bootstrap-select.min.js"></script>
@@ -106,11 +122,11 @@ $("nav").bind('nav-update', function(e,data)
 <script src="<?=$frio?>/frameworks/justifiedGallery/jquery.justifiedGallery.min.js"></script>
 
 <!-- Modal  -->
-<div id="modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+<div id="modal" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-full-screen">
 		<div class="modal-content">
 			<div id="modal-header" class="modal-header">
-				<button id="modal-cloase" type="button" class="close" data-dismiss="modal" aria-hidden="true">
+				<button id="modal-cloase" type="button" class="close" data-dismiss="modal">
 					&times;
 				</button>
 				<h4 id="modal-title" class="modal-title"></h4>

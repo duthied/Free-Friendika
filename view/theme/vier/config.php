@@ -4,11 +4,10 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Config;
-use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\DI;
+
+require_once __DIR__ . '/theme.php';
 
 function theme_content(App $a)
 {
@@ -20,10 +19,10 @@ function theme_content(App $a)
 		return;
 	}
 
-	$style = PConfig::get(local_user(), 'vier', 'style');
+	$style = DI::pConfig()->get(local_user(), 'vier', 'style');
 
 	if ($style == "") {
-		$style = Config::get('vier', 'style');
+		$style = DI::config()->get('vier', 'style');
 	}
 
 	if ($style == "") {
@@ -48,13 +47,13 @@ function theme_post(App $a)
 	}
 
 	if (isset($_POST['vier-settings-submit'])) {
-		PConfig::set(local_user(), 'vier', 'style', $_POST['vier_style']);
-		PConfig::set(local_user(), 'vier', 'show_pages', $_POST['vier_show_pages']);
-		PConfig::set(local_user(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
-		PConfig::set(local_user(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
-		PConfig::set(local_user(), 'vier', 'show_services', $_POST['vier_show_services']);
-		PConfig::set(local_user(), 'vier', 'show_friends', $_POST['vier_show_friends']);
-		PConfig::set(local_user(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
+		DI::pConfig()->set(local_user(), 'vier', 'style', $_POST['vier_style']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_pages', $_POST['vier_show_pages']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_services', $_POST['vier_show_services']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_friends', $_POST['vier_show_friends']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
 	}
 }
 
@@ -64,16 +63,16 @@ function theme_admin(App $a) {
 	if (!function_exists('get_vier_config'))
 		return;
 
-	$style = Config::get('vier', 'style');
+	$style = DI::config()->get('vier', 'style');
 
-	$helperlist = Config::get('vier', 'helperlist');
+	$helperlist = DI::config()->get('vier', 'helperlist');
 
 	if ($helperlist == "")
 		$helperlist = "https://forum.friendi.ca/profile/helpers";
 
 	$t = Renderer::getMarkupTemplate("theme_admin_settings.tpl");
 	$o = Renderer::replaceMacros($t, [
-		'$helperlist' => ['vier_helperlist', L10n::t('Comma separated list of helper forums'), $helperlist, '', ''],
+		'$helperlist' => ['vier_helperlist', DI::l10n()->t('Comma separated list of helper forums'), $helperlist, '', ''],
 		]);
 
 	$show_pages = get_vier_config('show_pages', true, true);
@@ -90,14 +89,14 @@ function theme_admin(App $a) {
 
 function theme_admin_post(App $a) {
 	if (isset($_POST['vier-settings-submit'])){
-		Config::set('vier', 'style', $_POST['vier_style']);
-		Config::set('vier', 'show_pages', $_POST['vier_show_pages']);
-		Config::set('vier', 'show_profiles', $_POST['vier_show_profiles']);
-		Config::set('vier', 'show_helpers', $_POST['vier_show_helpers']);
-		Config::set('vier', 'show_services', $_POST['vier_show_services']);
-		Config::set('vier', 'show_friends', $_POST['vier_show_friends']);
-		Config::set('vier', 'show_lastusers', $_POST['vier_show_lastusers']);
-		Config::set('vier', 'helperlist', $_POST['vier_helperlist']);
+		DI::config()->set('vier', 'style', $_POST['vier_style']);
+		DI::config()->set('vier', 'show_pages', $_POST['vier_show_pages']);
+		DI::config()->set('vier', 'show_profiles', $_POST['vier_show_profiles']);
+		DI::config()->set('vier', 'show_helpers', $_POST['vier_show_helpers']);
+		DI::config()->set('vier', 'show_services', $_POST['vier_show_services']);
+		DI::config()->set('vier', 'show_friends', $_POST['vier_show_friends']);
+		DI::config()->set('vier', 'show_lastusers', $_POST['vier_show_lastusers']);
+		DI::config()->set('vier', 'helperlist', $_POST['vier_helperlist']);
 	}
 }
 
@@ -113,20 +112,19 @@ function vier_form(App $a, $style, $show_pages, $show_profiles, $show_helpers, $
 		"shadow"=>"Shadow"
 	];
 
-	$show_or_not = ['0' => L10n::t("don't show"), '1' => L10n::t("show"),];
+	$show_or_not = ['0' => DI::l10n()->t("don't show"), '1' => DI::l10n()->t("show"),];
 
 	$t = Renderer::getMarkupTemplate("theme_settings.tpl");
 	$o = Renderer::replaceMacros($t, [
-		'$submit' => L10n::t('Submit'),
-		'$baseurl' => System::baseUrl(),
-		'$title' => L10n::t("Theme settings"),
-		'$style' => ['vier_style', L10n::t('Set style'), $style, '', $styles],
-		'$show_pages' => ['vier_show_pages', L10n::t('Community Pages'), $show_pages, '', $show_or_not],
-		'$show_profiles' => ['vier_show_profiles', L10n::t('Community Profiles'), $show_profiles, '', $show_or_not],
-		'$show_helpers' => ['vier_show_helpers', L10n::t('Help or @NewHere ?'), $show_helpers, '', $show_or_not],
-		'$show_services' => ['vier_show_services', L10n::t('Connect Services'), $show_services, '', $show_or_not],
-		'$show_friends' => ['vier_show_friends', L10n::t('Find Friends'), $show_friends, '', $show_or_not],
-		'$show_lastusers' => ['vier_show_lastusers', L10n::t('Last users'), $show_lastusers, '', $show_or_not]
+		'$submit' => DI::l10n()->t('Submit'),
+		'$title' => DI::l10n()->t("Theme settings"),
+		'$style' => ['vier_style', DI::l10n()->t('Set style'), $style, '', $styles],
+		'$show_pages' => ['vier_show_pages', DI::l10n()->t('Community Pages'), $show_pages, '', $show_or_not],
+		'$show_profiles' => ['vier_show_profiles', DI::l10n()->t('Community Profiles'), $show_profiles, '', $show_or_not],
+		'$show_helpers' => ['vier_show_helpers', DI::l10n()->t('Help or @NewHere ?'), $show_helpers, '', $show_or_not],
+		'$show_services' => ['vier_show_services', DI::l10n()->t('Connect Services'), $show_services, '', $show_or_not],
+		'$show_friends' => ['vier_show_friends', DI::l10n()->t('Find Friends'), $show_friends, '', $show_or_not],
+		'$show_lastusers' => ['vier_show_lastusers', DI::l10n()->t('Last users'), $show_lastusers, '', $show_or_not]
 	]);
 	return $o;
 }

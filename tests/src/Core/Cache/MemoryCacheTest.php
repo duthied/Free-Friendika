@@ -1,20 +1,40 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Core\Cache\IMemoryCacheDriver;
+use Friendica\Core\Cache\IMemoryCache;
 
 abstract class MemoryCacheTest extends CacheTest
 {
 	/**
-	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
+	 * @var \Friendica\Core\Cache\IMemoryCache
 	 */
 	protected $instance;
 
 	protected function setUp()
 	{
 		parent::setUp();
-		if (!($this->instance instanceof IMemoryCacheDriver)) {
+
+		if (!($this->instance instanceof IMemoryCache)) {
 			throw new \Exception('MemoryCacheTest unsupported');
 		}
 	}
@@ -23,7 +43,8 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testCompareSet($value1, $value2) {
+	function testCompareSet($value1, $value2)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $value1);
@@ -39,7 +60,8 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testNegativeCompareSet($value1, $value2) {
+	function testNegativeCompareSet($value1, $value2)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $value1);
@@ -56,7 +78,8 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testCompareDelete($data) {
+	function testCompareDelete($data)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $data);
@@ -70,7 +93,8 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testNegativeCompareDelete($data) {
+	function testNegativeCompareDelete($data)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $data);
@@ -87,7 +111,8 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testAdd($value1, $value2) {
+	function testAdd($value1, $value2)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $value1);

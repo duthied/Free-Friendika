@@ -1,24 +1,17 @@
-	<!--
-		This is the template used by mod/fbrowser.php
-	-->
-<style>
-	#buglink_wrapper{display:none;} /* hide buglink. only in this page */
-</style>
-{{*<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>*}}
-{{*<script type="text/javascript" src="view/theme/frio/js/filebrowser.js"></script>*}}
-
-<div class="fbrowser {{$type}}">
+<!--
+	This is the template used by mod/fbrowser.php
+-->
+<div id="filebrowser" class="fbrowser {{$type}}" data-nickname="{{$nickname}}" data-type="{{$type}}">
 	<div class="fbrowser-content">
-		<input id="fb-nickname" type="hidden" name="type" value="{{$nickname}}" />
-		<input id="fb-type" type="hidden" name="type" value="{{$type}}" />
-
 		<div class="error hidden">
-			<span></span> <button type="button" class="btn btn-link close" aria-label="Close">X</a>
+			<span></span> <button type="button" class="btn btn-link close" aria-label="Close">X</button>
 		</div>
 
 		{{* The breadcrumb navigation *}}
 		<ol class="path breadcrumb" aria-label="Breadcrumb" role="navigation">
-			{{foreach $path as $p}}<li role="presentation"><a href="#" data-folder="{{$p.0}}">{{$p.1}}</a></li>{{/foreach}}
+		{{foreach $path as $folder => $name}}
+			<li role="presentation"><a href="#" data-folder="{{$folder}}">{{$name}}</a></li>
+		{{/foreach}}
 
 			{{* Switch between image and file mode *}}
 			<div class="fbswitcher btn-group btn-group-xs pull-right" aria-label="Switch between image and file mode">
@@ -33,9 +26,9 @@
 			{{if $folders }}
 			<div class="folders media-left" role="navigation" aria-label="Album Navigation">
 				<ul role="menu">
-					{{foreach $folders as $f}}
+					{{foreach $folders as $folder}}
 					<li role="presentation">
-						<a href="#" data-folder="{{$f.0}}" role="menuitem">{{$f.1}}</a>
+						<a href="#" data-folder="{{$folder}}" role="menuitem">{{$folder}}</a>
 					</li>
 					{{/foreach}}
 				</ul>

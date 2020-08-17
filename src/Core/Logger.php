@@ -1,44 +1,79 @@
 <?php
 /**
- * @file src/Core/Logger.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Core;
 
-use Friendica\BaseObject;
-use Friendica\Factory\LoggerFactory;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\DI;
+use Friendica\Util\Logger\WorkerLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 /**
- * @brief Logger functions
+ * Logger functions
  */
-class Logger extends BaseObject
+class Logger
 {
 	/**
 	 * @see Logger::error()
+	 * @deprecated since 2019.01
 	 */
 	const WARNING = LogLevel::ERROR;
 	/**
 	 * @see Logger::warning()
+	 * @deprecated since 2019.01
 	 */
 	const INFO = LogLevel::WARNING;
 	/**
 	 * @see Logger::notice()
+	 * @deprecated since 2019.01
 	 */
 	const TRACE = LogLevel::NOTICE;
 	/**
 	 * @see Logger::info()
+	 * @deprecated since 2019.01
 	 */
 	const DEBUG = LogLevel::INFO;
 	/**
 	 * @see Logger::debug()
+	 * @deprecated since 2019.01
 	 */
 	const DATA = LogLevel::DEBUG;
 	/**
 	 * @see Logger::debug()
+	 * @deprecated since 2019.01
 	 */
 	const ALL = LogLevel::DEBUG;
+
+	/**
+	 * @var LoggerInterface The default Logger type
+	 */
+	const TYPE_LOGGER = LoggerInterface::class;
+	/**
+	 * @var WorkerLogger A specific worker logger type, which can be anabled
+	 */
+	const TYPE_WORKER = WorkerLogger::class;
+	/**
+	 * @var LoggerInterface The current logger type
+	 */
+	private static $type = self::TYPE_LOGGER;
 
 	/**
 	 * @var array the legacy loglevels
@@ -52,88 +87,39 @@ class Logger extends BaseObject
 		self::TRACE => 'Trace',
 		self::DEBUG => 'Debug',
 		self::DATA => 'Data',
-		self::ALL => 'All',
 	];
 
 	/**
-	 * @var LoggerInterface A PSR-3 compliant logger instance
+	 * @return LoggerInterface
 	 */
-	private static $logger;
-
-	/**
-	 * @var LoggerInterface A PSR-3 compliant logger instance for developing only
-	 */
-	private static $devLogger;
-
-	/**
-	 * Sets the default logging handler for Friendica.
-	 * @todo Can be combined with other handlers too if necessary, could be configurable.
-	 *
-	 * @param LoggerInterface $logger The Logger instance of this Application
-	 *
-	 * @throws InternalServerErrorException if the logger factory is incompatible to this logger
-	 */
-	public static function setLogger($logger)
+	private static function getWorker()
 	{
-		$debugging = Config::get('system', 'debugging');
-		$logfile = Config::get('system', 'logfile');
-		$loglevel = Config::get('system', 'loglevel');
-
-		if (!$debugging || !$logfile) {
-			return;
+		if (self::$type === self::TYPE_LOGGER) {
+			return DI::logger();
+		} else {
+			return DI::workerLogger();
 		}
-
-		$loglevel = self::mapLegacyConfigDebugLevel((string)$loglevel);
-
-		LoggerFactory::addStreamHandler($logger, $logfile, $loglevel);
-
-		self::$logger = $logger;
-
-		$logfile = Config::get('system', 'dlogfile');
-
-		if (!$logfile) {
-			return;
-		}
-
-		$developIp = Config::get('system', 'dlogip');
-
-		self::$devLogger = LoggerFactory::createDev('develop', $developIp);
-		LoggerFactory::addStreamHandler(self::$devLogger, $logfile, LogLevel::DEBUG);
 	}
 
 	/**
-	 * Mapping a legacy level to the PSR-3 compliant levels
-	 * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#5-psrlogloglevel
+	 * Enable additional logging for worker usage
 	 *
-	 * @param string $level the level to be mapped
+	 * @param string $functionName The worker function, which got called
 	 *
-	 * @return string the PSR-3 compliant level
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function mapLegacyConfigDebugLevel($level)
+	public static function enableWorker(string $functionName)
 	{
-		switch ($level) {
-			// legacy WARNING
-			case "0":
-				return LogLevel::ERROR;
-			// legacy INFO
-			case "1":
-				return LogLevel::WARNING;
-			// legacy TRACE
-			case "2":
-				return LogLevel::NOTICE;
-			// legacy DEBUG
-			case "3":
-				return LogLevel::INFO;
-			// legacy DATA
-			case "4":
-				return LogLevel::DEBUG;
-			// legacy ALL
-			case "5":
-				return LogLevel::DEBUG;
-			// default if nothing set
-			default:
-				return $level;
-		}
+		self::$type = self::TYPE_WORKER;
+		self::getWorker()->setFunctionName($functionName);
+	}
+
+	/**
+	 * Disable additional logging for worker usage
+	 */
+	public static function disableWorker()
+	{
+		self::$type = self::TYPE_LOGGER;
 	}
 
 	/**
@@ -149,13 +135,7 @@ class Logger extends BaseObject
 	 */
 	public static function emergency($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
-		self::$logger->emergency($message, $context);
-		self::getApp()->saveTimestamp($stamp1, 'file');
+		self::getWorker()->emergency($message, $context);
 	}
 
 	/**
@@ -173,13 +153,7 @@ class Logger extends BaseObject
 	 */
 	public static function alert($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
-		self::$logger->alert($message, $context);
-		self::getApp()->saveTimestamp($stamp1, 'file');
+		self::getWorker()->alert($message, $context);
 	}
 
 	/**
@@ -196,13 +170,7 @@ class Logger extends BaseObject
 	 */
 	public static function critical($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
-		self::$logger->critical($message, $context);
-		self::getApp()->saveTimestamp($stamp1, 'file');
+		self::getWorker()->critical($message, $context);
 	}
 
 	/**
@@ -218,14 +186,7 @@ class Logger extends BaseObject
 	 */
 	public static function error($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			echo "not set!?\n";
-			return;
-		}
-
-		$stamp1 = microtime(true);
-		self::$logger->error($message, $context);
-		self::getApp()->saveTimestamp($stamp1, 'file');
+		self::getWorker()->error($message, $context);
 	}
 
 	/**
@@ -243,13 +204,7 @@ class Logger extends BaseObject
 	 */
 	public static function warning($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
-		self::$logger->warning($message, $context);
-		self::getApp()->saveTimestamp($stamp1, 'file');
+		self::getWorker()->warning($message, $context);
 	}
 
 	/**
@@ -264,13 +219,7 @@ class Logger extends BaseObject
 	 */
 	public static function notice($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
-		self::$logger->notice($message, $context);
-		self::getApp()->saveTimestamp($stamp1, 'file');
+		self::getWorker()->notice($message, $context);
 	}
 
 	/**
@@ -287,13 +236,7 @@ class Logger extends BaseObject
 	 */
 	public static function info($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
-		self::$logger->info($message, $context);
-		self::getApp()->saveTimestamp($stamp1, 'file');
+		self::getWorker()->info($message, $context);
 	}
 
 	/**
@@ -308,37 +251,26 @@ class Logger extends BaseObject
 	 */
 	public static function debug($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
-		self::$logger->debug($message, $context);
-		self::getApp()->saveTimestamp($stamp1, 'file');
+		self::getWorker()->debug($message, $context);
 	}
 
-    /**
-     * @brief Logs the given message at the given log level
-     *
-     * @param string $msg
-     * @param string $level
+	/**
+	 * Logs the given message at the given log level
+	 *
+	 * @param string $msg
+	 * @param string $level
 	 *
 	 * @throws \Exception
 	 * @deprecated since 2019.03 Use Logger::debug() Logger::info() , ... instead
-     */
-    public static function log($msg, $level = LogLevel::INFO)
-    {
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-        $stamp1 = microtime(true);
-		self::$logger->log($level, $msg);
-        self::getApp()->saveTimestamp($stamp1, "file");
-    }
+	 */
+	public static function log($msg, $level = LogLevel::INFO)
+	{
+		self::getWorker()->log($level, $msg);
+	}
 
 	/**
-	 * @brief An alternative logger for development.
+	 * An alternative logger for development.
+	 *
 	 * Works largely as log() but allows developers
 	 * to isolate particular elements they are targetting
 	 * personally without background noise
@@ -347,14 +279,8 @@ class Logger extends BaseObject
 	 * @param string $level
 	 * @throws \Exception
 	 */
-    public static function devLog($msg, $level = LogLevel::DEBUG)
-    {
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-        $stamp1 = microtime(true);
-        self::$devLogger->log($level, $msg);
-        self::getApp()->saveTimestamp($stamp1, "file");
-    }
+	public static function devLog($msg, $level = LogLevel::DEBUG)
+	{
+		DI::devLogger()->log($level, $msg);
+	}
 }

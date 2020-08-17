@@ -1,20 +1,35 @@
 <?php
-
 /**
- * @file src/Model/ItemContent.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Model;
 
-use Friendica\BaseObject;
 use Friendica\Content\Text;
-use Friendica\Core\PConfig;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Protocol;
+use Friendica\DI;
 
-class ItemContent extends BaseObject
+class ItemContent
 {
 	/**
-	 * @brief Convert a message into plaintext for connectors to other networks
+	 * Convert a message into plaintext for connectors to other networks
 	 *
 	 * @param array  $item           The message array that is about to be posted
 	 * @param int    $limit          The maximum number of characters when posting to that network
@@ -27,7 +42,7 @@ class ItemContent extends BaseObject
 	 * @see   \Friendica\Content\Text\BBCode::getAttachedData
 	 *
 	 */
-	public static function getPlaintextPost($item, $limit = 0, $includedlinks = false, $htmlmode = 2, $target_network = '')
+	public static function getPlaintextPost($item, $limit = 0, $includedlinks = false, $htmlmode = BBCode::API, $target_network = '')
 	{
 		// Remove hashtags
 		$URLSearchString = '^\[\]';
@@ -65,11 +80,11 @@ class ItemContent extends BaseObject
 			}
 		} else {// Try to guess the correct target network
 			switch ($htmlmode) {
-				case 8:
+				case BBCode::TWITTER:
 					$abstract = Text\BBCode::getAbstract($item['body'], Protocol::TWITTER);
 					break;
 
-				case 7:
+				case BBCode::OSTATUS:
 					$abstract = Text\BBCode::getAbstract($item['body'], Protocol::STATUSNET);
 					break;
 
@@ -90,7 +105,7 @@ class ItemContent extends BaseObject
 			}
 		}
 
-		$html = Text\BBCode::convert($post['text'] . defaults($post, 'after', ''), false, $htmlmode);
+		$html = Text\BBCode::convert($post['text'] . ($post['after'] ?? ''), false, $htmlmode);
 		$msg = Text\HTML::toPlaintext($html, 0, true);
 		$msg = trim(html_entity_decode($msg, ENT_QUOTES, 'UTF-8'));
 
@@ -99,7 +114,7 @@ class ItemContent extends BaseObject
 			if ($post['type'] == 'link') {
 				$link = $post['url'];
 			} elseif ($post['type'] == 'text') {
-				$link = defaults($post, 'url', '');
+				$link = $post['url'] ?? '';
 			} elseif ($post['type'] == 'video') {
 				$link = $post['url'];
 			} elseif ($post['type'] == 'photo') {
@@ -125,8 +140,8 @@ class ItemContent extends BaseObject
 					$msg = trim(str_replace($link, '', $msg));
 				} elseif (($limit == 0) || ($pos < $limit)) {
 					// The limit has to be increased since it will be shortened - but not now
-					// Only do it with Twitter (htmlmode = 8)
-					if (($limit > 0) && (strlen($link) > 23) && ($htmlmode == 8)) {
+					// Only do it with Twitter
+					if (($limit > 0) && (strlen($link) > 23) && ($htmlmode == BBCode::TWITTER)) {
 						$limit = $limit - 23 + strlen($link);
 					}
 
@@ -159,7 +174,7 @@ class ItemContent extends BaseObject
 					$post['url'] = $item['plink'];
 				} elseif (strpos($item['body'], '[share') !== false) {
 					$post['url'] = $item['plink'];
-				} elseif (PConfig::get($item['uid'], 'system', 'no_intelligent_shortening')) {
+				} elseif (DI::pConfig()->get($item['uid'], 'system', 'no_intelligent_shortening')) {
 					$post['url'] = $item['plink'];
 				}
 				$msg = Text\Plaintext::shorten($msg, $limit);

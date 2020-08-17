@@ -1,5 +1,5 @@
 
-<script type="text/javascript" src="{{$baseurl}}/view/theme/frio/js/event_edit.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/view/theme/frio/js/event_edit.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
 <div id="event-form-wrapper">
 	<h3 class="heading">{{$title}}</h3>
@@ -30,7 +30,7 @@
 	</ul>
 
 	<div id="event-edit-form-wrapper">
-	<form id="event-edit-form" action="{{$post}}" method="post" data-allow_cid="{{$allow_cid}}" data-allow_gid="{{$allow_gid}}" data-deny_cid="{{$deny_cid}}" data-deny_gid="{{$deny_gid}}">
+	<form id="event-edit-form" action="{{$post}}" method="post">
 
 		<input type="hidden" name="event_id" value="{{$eid}}" />
 		<input type="hidden" name="cid" value="{{$cid}}" />

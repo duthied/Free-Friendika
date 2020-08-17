@@ -45,11 +45,6 @@
 						{{if $ignored}}<li><div id="ignore-message">{{$ignored}}</div></li>{{/if}}
 						{{if $archived}}<li><div id="archive-message">{{$archived}}</div></li>{{/if}}
 					</ul>
-
-					<ul>
-						<!-- <li><a href="network/?cid={{$contact_id}}" id="contact-edit-view-recent">{{$lblrecent}}</a></li> -->
-						{{if $follow}}<li><div id="contact-edit-follow"><a href="{{$follow}}">{{$follow_text}}</a></div></li>{{/if}}
-					</ul>
 				</div> {{* End of contact-edit-status-wrapper *}}
 
 				{{* Some information about the contact from the profile *}}
@@ -73,7 +68,7 @@
 					{{include file="field_checkbox.tpl" field=$notify}}
 					{{if $fetch_further_information}}
 						{{include file="field_select.tpl" field=$fetch_further_information}}
-						{{if $fetch_further_information.2 == 2 || $fetch_further_information.2 == 3}} {{include file="field_textarea.tpl" field=$ffi_keyword_blacklist}} {{/if}}
+						{{if $fetch_further_information.2 == 2 || $fetch_further_information.2 == 3}} {{include file="field_textarea.tpl" field=$ffi_keyword_denylist}} {{/if}}
 					{{/if}}
 					{{include file="field_checkbox.tpl" field=$hidden}}
 
@@ -89,15 +84,6 @@
 					<p>{{$reason}}</p>
 				</div>
 				<div id="contact-info-end"></div>
-				{{/if}}
-
-				{{if $profile_select}}
-					<div id="contact-edit-profile-select-text">
-					<h4>{{$lbl_vis1}}</h4>
-					<p>{{$lbl_vis2}}</p> 
-					</div>
-					{{$profile_select nofilter}}
-					<div id="contact-edit-profile-select-end"></div>
 				{{/if}}
 			</div>
 			<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit}}" />

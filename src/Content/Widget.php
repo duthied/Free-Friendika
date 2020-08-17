@@ -1,24 +1,41 @@
 <?php
 /**
- * @file src/Content/Widget.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Content;
 
 use Friendica\Core\Addon;
-use Friendica\Core\Config;
-use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\GContact;
+use Friendica\Model\Group;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
-use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
-use Friendica\Util\XML;
+use Friendica\Util\Temporal;
 
 class Widget
 {
@@ -31,12 +48,12 @@ class Widget
 	 */
 	public static function follow($value = "")
 	{
-		return Renderer::replaceMacros(Renderer::getMarkupTemplate('follow.tpl'), array(
-			'$connect' => L10n::t('Add New Contact'),
-			'$desc' => L10n::t('Enter address or web location'),
-			'$hint' => L10n::t('Example: bob@example.com, http://example.com/barbara'),
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/follow.tpl'), array(
+			'$connect' => DI::l10n()->t('Add New Contact'),
+			'$desc' => DI::l10n()->t('Enter address or web location'),
+			'$hint' => DI::l10n()->t('Example: bob@example.com, http://example.com/barbara'),
 			'$value' => $value,
-			'$follow' => L10n::t('Connect')
+			'$follow' => DI::l10n()->t('Connect')
 		));
 	}
 
@@ -45,36 +62,35 @@ class Widget
 	 */
 	public static function findPeople()
 	{
-		$a = \get_app();
-		$global_dir = Config::get('system', 'directory');
+		$global_dir = DI::config()->get('system', 'directory');
 
-		if (Config::get('system', 'invitation_only')) {
-			$x = PConfig::get(local_user(), 'system', 'invites_remaining');
+		if (DI::config()->get('system', 'invitation_only')) {
+			$x = intval(DI::pConfig()->get(local_user(), 'system', 'invites_remaining'));
 			if ($x || is_site_admin()) {
-				$a->page['aside'] .= '<div class="side-link widget" id="side-invite-remain">'
-					. L10n::tt('%d invitation available', '%d invitations available', $x)
+				DI::page()['aside'] .= '<div class="side-link widget" id="side-invite-remain">'
+					. DI::l10n()->tt('%d invitation available', '%d invitations available', $x)
 					. '</div>';
 			}
 		}
 
 		$nv = [];
-		$nv['findpeople'] = L10n::t('Find People');
-		$nv['desc'] = L10n::t('Enter name or interest');
-		$nv['label'] = L10n::t('Connect/Follow');
-		$nv['hint'] = L10n::t('Examples: Robert Morgenstein, Fishing');
-		$nv['findthem'] = L10n::t('Find');
-		$nv['suggest'] = L10n::t('Friend Suggestions');
-		$nv['similar'] = L10n::t('Similar Interests');
-		$nv['random'] = L10n::t('Random Profile');
-		$nv['inv'] = L10n::t('Invite Friends');
-		$nv['directory'] = L10n::t('Global Directory');
+		$nv['findpeople'] = DI::l10n()->t('Find People');
+		$nv['desc'] = DI::l10n()->t('Enter name or interest');
+		$nv['label'] = DI::l10n()->t('Connect/Follow');
+		$nv['hint'] = DI::l10n()->t('Examples: Robert Morgenstein, Fishing');
+		$nv['findthem'] = DI::l10n()->t('Find');
+		$nv['suggest'] = DI::l10n()->t('Friend Suggestions');
+		$nv['similar'] = DI::l10n()->t('Similar Interests');
+		$nv['random'] = DI::l10n()->t('Random Profile');
+		$nv['inv'] = DI::l10n()->t('Invite Friends');
+		$nv['directory'] = DI::l10n()->t('Global Directory');
 		$nv['global_dir'] = $global_dir;
-		$nv['local_directory'] = L10n::t('Local Directory');
+		$nv['local_directory'] = DI::l10n()->t('Local Directory');
 
 		$aside = [];
 		$aside['$nv'] = $nv;
 
-		return Renderer::replaceMacros(Renderer::getMarkupTemplate('peoplefind.tpl'), $aside);
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/peoplefind.tpl'), $aside);
 	}
 
 	/**
@@ -83,7 +99,11 @@ class Widget
 	public static function unavailableNetworks()
 	{
 		// Always hide content from these networks
-		$networks = ['face', 'apdn'];
+		$networks = [Protocol::PHANTOM, Protocol::FACEBOOK, Protocol::APPNET];
+
+		if (!Addon::isEnabled("discourse")) {
+			$networks[] = Protocol::DISCOURSE;
+		}
 
 		if (!Addon::isEnabled("statusnet")) {
 			$networks[] = Protocol::STATUSNET;
@@ -97,11 +117,11 @@ class Widget
 			$networks[] = Protocol::TWITTER;
 		}
 
-		if (Config::get("system", "ostatus_disabled")) {
+		if (DI::config()->get("system", "ostatus_disabled")) {
 			$networks[] = Protocol::OSTATUS;
 		}
 
-		if (!Config::get("system", "diaspora_enabled")) {
+		if (!DI::config()->get("system", "diaspora_enabled")) {
 			$networks[] = Protocol::DIASPORA;
 		}
 
@@ -121,6 +141,120 @@ class Widget
 	}
 
 	/**
+	 * Display a generic filter widget based on a list of options
+	 *
+	 * The options array must be the following format:
+	 * [
+	 *    [
+	 *      'ref' => {filter value},
+	 *      'name' => {option name}
+	 *    ],
+	 *    ...
+	 * ]
+	 *
+	 * @param string $type The filter query string key
+	 * @param string $title
+	 * @param string $desc
+	 * @param string $all The no filter label
+	 * @param string $baseUrl The full page request URI
+	 * @param array  $options
+	 * @param string $selected The currently selected filter option value
+	 * @return string
+	 * @throws \Exception
+	 */
+	private static function filter($type, $title, $desc, $all, $baseUrl, array $options, $selected = null)
+	{
+		$queryString = parse_url($baseUrl, PHP_URL_QUERY);
+		$queryArray = [];
+
+		if ($queryString) {
+			parse_str($queryString, $queryArray);
+			unset($queryArray[$type]);
+
+			if (count($queryArray)) {
+				$baseUrl = substr($baseUrl, 0, strpos($baseUrl, '?')) . '?' . http_build_query($queryArray) . '&';
+			} else {
+				$baseUrl = substr($baseUrl, 0, strpos($baseUrl, '?')) . '?';
+			}
+		} else {
+			$baseUrl = trim($baseUrl, '?') . '?';
+		}
+
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/filter.tpl'), [
+			'$type'      => $type,
+			'$title'     => $title,
+			'$desc'      => $desc,
+			'$selected'  => $selected,
+			'$all_label' => $all,
+			'$options'   => $options,
+			'$base'      => $baseUrl,
+		]);
+	}
+
+	/**
+	 * Return group membership widget
+	 *
+	 * @param string $baseurl
+	 * @param string $selected
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function groups($baseurl, $selected = '')
+	{
+		if (!local_user()) {
+			return '';
+		}
+
+		$options = array_map(function ($group) {
+			return [
+				'ref'  => $group['id'],
+				'name' => $group['name']
+			];
+		}, Group::getByUserId(local_user()));
+
+		return self::filter(
+			'group',
+			DI::l10n()->t('Groups'),
+			'',
+			DI::l10n()->t('Everyone'),
+			$baseurl,
+			$options,
+			$selected
+		);
+	}
+
+	/**
+	 * Return contact relationship widget
+	 *
+	 * @param string $baseurl  baseurl
+	 * @param string $selected optional, default empty
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function contactRels($baseurl, $selected = '')
+	{
+		if (!local_user()) {
+			return '';
+		}
+
+		$options = [
+			['ref' => 'followers', 'name' => DI::l10n()->t('Followers')],
+			['ref' => 'following', 'name' => DI::l10n()->t('Following')],
+			['ref' => 'mutuals', 'name' => DI::l10n()->t('Mutual friends')],
+		];
+
+		return self::filter(
+			'rel',
+			DI::l10n()->t('Relationships'),
+			'',
+			DI::l10n()->t('All Contacts'),
+			$baseurl,
+			$options,
+			$selected
+		);
+	}
+
+	/**
 	 * Return networks widget
 	 *
 	 * @param string $baseurl  baseurl
@@ -134,10 +268,6 @@ class Widget
 			return '';
 		}
 
-		if (!Feature::isEnabled(local_user(), 'networks')) {
-			return '';
-		}
-
 		$extra_sql = self::unavailableNetworks();
 
 		$r = DBA::p("SELECT DISTINCT(`network`) FROM `contact` WHERE `uid` = ? AND NOT `deleted` AND `network` != '' $extra_sql ORDER BY `network`",
@@ -146,7 +276,7 @@ class Widget
 
 		$nets = array();
 		while ($rr = DBA::fetch($r)) {
-			$nets[] = array('ref' => $rr['network'], 'name' => ContactSelector::networkToName($rr['network']), 'selected' => (($selected == $rr['network']) ? 'selected' : '' ));
+			$nets[] = ['ref' => $rr['network'], 'name' => ContactSelector::networkToName($rr['network'])];
 		}
 		DBA::close($r);
 
@@ -154,14 +284,15 @@ class Widget
 			return '';
 		}
 
-		return Renderer::replaceMacros(Renderer::getMarkupTemplate('nets.tpl'), array(
-			'$title' => L10n::t('Protocols'),
-			'$desc' => '',
-			'$sel_all' => (($selected == '') ? 'selected' : ''),
-			'$all' => L10n::t('All Protocols'),
-			'$nets' => $nets,
-			'$base' => $baseurl,
-		));
+		return self::filter(
+			'nets',
+			DI::l10n()->t('Protocols'),
+			'',
+			DI::l10n()->t('All Protocols'),
+			$baseurl,
+			$nets,
+			$selected
+		);
 	}
 
 	/**
@@ -170,7 +301,7 @@ class Widget
 	 * @param string $baseurl  baseurl
 	 * @param string $selected optional, default empty
 	 * @return string|void
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	public static function fileAs($baseurl, $selected = '')
 	{
@@ -178,30 +309,29 @@ class Widget
 			return '';
 		}
 
-		$saved = PConfig::get(local_user(), 'system', 'filetags');
+		$saved = DI::pConfig()->get(local_user(), 'system', 'filetags');
 		if (!strlen($saved)) {
 			return;
 		}
 
-		$matches = false;
-		$terms = array();
-		$cnt = preg_match_all('/\[(.*?)\]/', $saved, $matches, PREG_SET_ORDER);
-		if ($cnt) {
-			foreach ($matches as $mtch)
-			{
-				$unescaped = XML::escape(FileTag::decode($mtch[1]));
-				$terms[] = array('name' => $unescaped, 'selected' => (($selected == $unescaped) ? 'selected' : ''));
-			}
+		$terms = [];
+		foreach (FileTag::fileToArray($saved) as $savedFolderName) {
+			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}
+		
+		usort($terms, function ($a, $b) {
+			return strcmp($a['name'], $b['name']);
+		});
 
-		return Renderer::replaceMacros(Renderer::getMarkupTemplate('fileas_widget.tpl'), array(
-			'$title' => L10n::t('Saved Folders'),
-			'$desc' => '',
-			'$sel_all' => (($selected == '') ? 'selected' : ''),
-			'$all' => L10n::t('Everything'),
-			'$terms' => $terms,
-			'$base' => $baseurl,
-		));
+		return self::filter(
+			'file',
+			DI::l10n()->t('Saved Folders'),
+			'',
+			DI::l10n()->t('Everything'),
+			$baseurl,
+			$terms,
+			$selected
+		);
 	}
 
 	/**
@@ -214,127 +344,95 @@ class Widget
 	 */
 	public static function categories($baseurl, $selected = '')
 	{
-		$a = \get_app();
+		$a = DI::app();
 
-		if (!Feature::isEnabled($a->profile['profile_uid'], 'categories')) {
+		$uid = intval($a->profile['uid']);
+
+		if (!Feature::isEnabled($uid, 'categories')) {
 			return '';
 		}
 
-		$saved = PConfig::get($a->profile['profile_uid'], 'system', 'filetags');
+		$saved = DI::pConfig()->get($uid, 'system', 'filetags');
 		if (!strlen($saved)) {
 			return;
 		}
 
-		$matches = false;
 		$terms = array();
-		$cnt = preg_match_all('/<(.*?)>/', $saved, $matches, PREG_SET_ORDER);
-
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				$unescaped = XML::escape(FileTag::decode($mtch[1]));
-				$terms[] = array('name' => $unescaped, 'selected' => (($selected == $unescaped) ? 'selected' : ''));
-			}
+		foreach (FileTag::fileToArray($saved, 'category') as $savedFolderName) {
+			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}
 
-		return Renderer::replaceMacros(Renderer::getMarkupTemplate('categories_widget.tpl'), array(
-			'$title' => L10n::t('Categories'),
-			'$desc' => '',
-			'$sel_all' => (($selected == '') ? 'selected' : ''),
-			'$all' => L10n::t('Everything'),
-			'$terms' => $terms,
-			'$base' => $baseurl,
-		));
+		return self::filter(
+			'category',
+			DI::l10n()->t('Categories'),
+			'',
+			DI::l10n()->t('Everything'),
+			$baseurl,
+			$terms,
+			$selected
+		);
 	}
 
 	/**
-	 * Return common friends visitor widget
+	 * Show a random selection of five common contacts between the visitor and the viewed profile user.
 	 *
-	 * @param string $profile_uid uid
+	 * @param int    $uid      Viewed profile user ID
+	 * @param string $nickname Viewed profile user nickname
 	 * @return string|void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function commonFriendsVisitor($profile_uid)
+	public static function commonFriendsVisitor(int $uid, string $nickname)
 	{
-		if (local_user() == $profile_uid) {
-			return;
+		if (local_user() == $uid) {
+			return '';
 		}
 
-		$cid = $zcid = 0;
-
-		if (!empty($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $visitor) {
-				if ($visitor['uid'] == $profile_uid) {
-					$cid = $visitor['cid'];
-					break;
-				}
-			}
+		$visitorPCid = local_user() ? Contact::getPublicIdByUserId(local_user()) : remote_user();
+		if (!$visitorPCid) {
+			return '';
 		}
 
-		if (!$cid) {
-			if (Profile::getMyURL()) {
-				$contact = DBA::selectFirst('contact', ['id'],
-						['nurl' => Strings::normaliseLink(Profile::getMyURL()), 'uid' => $profile_uid]);
-				if (DBA::isResult($contact)) {
-					$cid = $contact['id'];
-				} else {
-					$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(Profile::getMyURL())]);
-					if (DBA::isResult($gcontact)) {
-						$zcid = $gcontact['id'];
-					}
-				}
-			}
+		$localPCid = Contact::getPublicIdByUserId($uid);
+
+		$condition = [
+			'NOT `self` AND NOT `blocked` AND NOT `hidden` AND `id` != ?',
+			$localPCid,
+		];
+
+		$total = Contact\Relation::countCommon($localPCid, $visitorPCid, $condition);
+		if (!$total) {
+			return '';
 		}
 
-		if ($cid == 0 && $zcid == 0) {
-			return;
-		}
-
-		if ($cid) {
-			$t = GContact::countCommonFriends($profile_uid, $cid);
-		} else {
-			$t = GContact::countCommonFriendsZcid($profile_uid, $zcid);
-		}
-
-		if (!$t) {
-			return;
-		}
-
-		if ($cid) {
-			$r = GContact::commonFriends($profile_uid, $cid, 0, 5, true);
-		} else {
-			$r = GContact::commonFriendsZcid($profile_uid, $zcid, 0, 5, true);
-		}
-
-		if (!DBA::isResult($r)) {
-			return;
+		$commonContacts = Contact\Relation::listCommon($localPCid, $visitorPCid, $condition, 0, 5, true);
+		if (!DBA::isResult($commonContacts)) {
+			return '';
 		}
 
 		$entries = [];
-		foreach ($r as $rr) {
-			$entry = [
-				'url'   => Contact::magicLink($rr['url']),
-				'name'  => $rr['name'],
-				'photo' => ProxyUtils::proxifyUrl($rr['photo'], false, ProxyUtils::SIZE_THUMB),
+		foreach ($commonContacts as $contact) {
+			$entries[] = [
+				'url'   => Contact::magicLink($contact['url']),
+				'name'  => $contact['name'],
+				'photo' => Contact::getThumb($contact),
 			];
-			$entries[] = $entry;
 		}
 
-		$tpl = Renderer::getMarkupTemplate('remote_friends_common.tpl');
+		$tpl = Renderer::getMarkupTemplate('widget/remote_friends_common.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$desc'     => L10n::tt("%d contact in common", "%d contacts in common", $t),
-			'$base'     => System::baseUrl(),
-			'$uid'      => $profile_uid,
-			'$cid'      => (($cid) ? $cid : '0'),
-			'$linkmore' => (($t > 5) ? 'true' : ''),
-			'$more'     => L10n::t('show more'),
-			'$items'    => $entries
+			'$desc'     => DI::l10n()->tt("%d contact in common", "%d contacts in common", $total),
+			'$base'     => DI::baseUrl(),
+			'$nickname' => $nickname,
+			'$linkmore' => $total > 5 ? 'true' : '',
+			'$more'     => DI::l10n()->t('show more'),
+			'$contacts' => $entries
 		]);
 	}
 
 	/**
 	 * Insert a tag cloud widget for the present profile.
 	 *
-	 * @brief Insert a tag cloud widget for the present profile.
 	 * @param int $limit Max number of displayed tags.
 	 * @return string HTML formatted output.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -342,21 +440,89 @@ class Widget
 	 */
 	public static function tagCloud($limit = 50)
 	{
-		$a = \get_app();
+		$a = DI::app();
 
-		if (!$a->profile['profile_uid'] || !$a->profile['url']) {
+		$uid = intval($a->profile['uid']);
+
+		if (!$uid || !$a->profile['url']) {
 			return '';
 		}
 
-		if (Feature::isEnabled($a->profile['profile_uid'], 'tagadelic')) {
-			$owner_id = Contact::getIdForURL($a->profile['url'], 0, true);
+		if (Feature::isEnabled($uid, 'tagadelic')) {
+			$owner_id = Contact::getIdForURL($a->profile['url'], 0, false);
 
 			if (!$owner_id) {
 				return '';
 			}
-			return Widget\TagCloud::getHTML($a->profile['profile_uid'], $limit, $owner_id, 'wall');
+			return Widget\TagCloud::getHTML($uid, $limit, $owner_id, 'wall');
 		}
 
 		return '';
+	}
+
+	/**
+	 * @param string $url Base page URL
+	 * @param int    $uid User ID consulting/publishing posts
+	 * @param bool   $wall True: Posted by User; False: Posted to User (network timeline)
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function postedByYear(string $url, int $uid, bool $wall)
+	{
+		$o = '';
+
+		$visible_years = DI::pConfig()->get($uid, 'system', 'archive_visible_years', 5);
+
+		/* arrange the list in years */
+		$dnow = DateTimeFormat::localNow('Y-m-d');
+
+		$ret = [];
+
+		$dthen = Item::firstPostDate($uid, $wall);
+		if ($dthen) {
+			// Set the start and end date to the beginning of the month
+			$dnow = substr($dnow, 0, 8) . '01';
+			$dthen = substr($dthen, 0, 8) . '01';
+
+			/*
+			 * Starting with the current month, get the first and last days of every
+			 * month down to and including the month of the first post
+			 */
+			while (substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
+				$dyear = intval(substr($dnow, 0, 4));
+				$dstart = substr($dnow, 0, 8) . '01';
+				$dend = substr($dnow, 0, 8) . Temporal::getDaysInMonth(intval($dnow), intval(substr($dnow, 5)));
+				$start_month = DateTimeFormat::utc($dstart, 'Y-m-d');
+				$end_month = DateTimeFormat::utc($dend, 'Y-m-d');
+				$str = DI::l10n()->getDay(DateTimeFormat::utc($dnow, 'F'));
+
+				if (empty($ret[$dyear])) {
+					$ret[$dyear] = [];
+				}
+
+				$ret[$dyear][] = [$str, $end_month, $start_month];
+				$dnow = DateTimeFormat::utc($dnow . ' -1 month', 'Y-m-d');
+			}
+		}
+
+		if (!DBA::isResult($ret)) {
+			return $o;
+		}
+
+
+		$cutoff_year = intval(DateTimeFormat::localNow('Y')) - $visible_years;
+		$cutoff = array_key_exists($cutoff_year, $ret);
+
+		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/posted_date.tpl'),[
+			'$title' => DI::l10n()->t('Archives'),
+			'$size' => $visible_years,
+			'$cutoff_year' => $cutoff_year,
+			'$cutoff' => $cutoff,
+			'$url' => $url,
+			'$dates' => $ret,
+			'$showmore' => DI::l10n()->t('show more')
+		]);
+
+		return $o;
 	}
 }

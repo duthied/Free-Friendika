@@ -3,11 +3,21 @@ var jotcache = ''; //The jot cache. We use it as cache to restore old/original j
 
 $(document).ready(function(){
 	//fade in/out based on scrollTop value
+	var scrollStart;
+
 	$(window).scroll(function () {
-		if ($(this).scrollTop() > 1000) {
-			$("#back-to-top").fadeIn();
-		} else {
+		let currentScroll = $(this).scrollTop();
+
+		// Top of the page or going down = hide the button
+		if (!scrollStart || !currentScroll || currentScroll > scrollStart) {
 			$("#back-to-top").fadeOut();
+			scrollStart = currentScroll;
+		}
+
+		// Going up enough = show the button
+		if (scrollStart - currentScroll > 100) {
+			$("#back-to-top").fadeIn();
+			scrollStart = currentScroll;
 		}
 	});
 
@@ -63,14 +73,23 @@ $(document).ready(function(){
 		'target': ".flex-target"
 	});
 
-	// add Jot botton to the scecond navbar
-	if( $("section #jotOpen").length ) {
-		$("section #jotOpen").appendTo("#topbar-second > .container > #navbar-button");
-		if( $("#jot-popup").is(":hidden")) $("#topbar-second > .container > #navbar-button #jotOpen").hide();
+	// add Jot button to the second navbar
+	let $jotButton = $("#jotOpen");
+	if ($jotButton.length) {
+		$jotButton.appendTo("#topbar-second > .container > #navbar-button");
+		if ($("#jot-popup").is(":hidden")) {
+			$jotButton.hide();
+		}
+		$jotButton.on('click', function (e) {
+			e.preventDefault();
+			jotShow();
+		});
 	}
 
+	let $body = $('body');
+
 	// show bulk deletion button at network page if checkbox is checked
-	$("body").change("input.item-select", function(){
+	$body.change("input.item-select", function(){
 		var checked = false;
 
 		// We need to get all checked items, so it would close the delete button
@@ -93,10 +112,8 @@ $(document).ready(function(){
 		}
 	});
 
-	//$('ul.flex-nav').flexMenu();
-
 	// initialize the bootstrap tooltips
-	$('body').tooltip({
+	$body.tooltip({
 		selector: '[data-toggle="tooltip"]',
 		container: 'body',
 		animation: true,
@@ -106,7 +123,10 @@ $(document).ready(function(){
 		delay: {
 			show: 500,
 			hide: 100
-		}
+		},
+		sanitizeFn: function (content) {
+			return DOMPurify.sanitize(content)
+		},
 	});
 
 	// initialize the bootstrap-select
@@ -151,7 +171,7 @@ $(document).ready(function(){
 	}
 
 	// move the "Save the search" button to the second navbar
-	$(".search-content-wrapper #search-save-form ").appendTo("#topbar-second > .container > #navbar-button");
+	$(".search-content-wrapper #search-save").appendTo("#topbar-second > .container > #navbar-button");
 
 	// append the vcard-short-info to the second nav after passing the element
 	// with .fn (vcard username). Use scrollspy to get the scroll position.
@@ -208,26 +228,8 @@ $(document).ready(function(){
 
 	// Dropdown menus with the class "dropdown-head" will display the active tab
 	// as button text
-	$("body").on('click', '.dropdown-head .dropdown-menu li a, .dropdown-head .dropdown-menu li button', function(){
+	$body.on('click', '.dropdown-head .dropdown-menu li a, .dropdown-head .dropdown-menu li button', function(){
 		toggleDropdownText(this);
-	});
-
-	/* setup onoff widgets */
-	// Add the correct class to the switcher according to the input
-	// value (On/Off)
-	$(".toggle input").each(function(){
-		// Get the value of the input element
-		val = $(this).val();
-		id = $(this).attr("id");
-
-		// The css classes for "on" and "off"
-		onstyle = "btn-primary";
-		offstyle = "btn-default off";
-
-		// Add the correct class in dependence of input value (On/Off)
-		toggleclass = (val == 0 ? offstyle : onstyle);
-		$("#"+id+"_onoff").addClass(toggleclass);
-
 	});
 
 	// Change the css class while clicking on the switcher elements
@@ -260,7 +262,7 @@ $(document).ready(function(){
 	// to the input element where the padding value would be at least the width
 	// of the button. Otherwise long user input would be invisible because it is
 	// behind the button.
-	$("body").on('click', '.form-group-search > input', function() {
+	$body.on('click', '.form-group-search > input', function() {
 		// Get the width of the button (if the button isn't available
 		// buttonWidth will be null
 		var buttonWidth = $(this).next('.form-button-search').outerWidth();
@@ -282,7 +284,7 @@ $(document).ready(function(){
 	 * We are making an exception for buttons because of a race condition with the
 	 * comment opening button that results in an already closed comment UI.
 	 */
-	$(document).on('click', function(event) {
+	$(document).on('mousedown', function(event) {
 		if (event.target.type === 'button') {
 			return true;
 		}
@@ -347,17 +349,83 @@ $(document).ready(function(){
 	 */
 	$("aside")
 		.on("shown.bs.offcanvas", function() {
-			$("body").addClass("aside-out");
+			$body.addClass("aside-out");
 		})
 		.on("hidden.bs.offcanvas", function() {
-			$("body").removeClass("aside-out");
+			$body.removeClass("aside-out");
 		});
 
 	// Event listener for 'Show & hide event map' button in the network stream.
-	$("body").on("click", ".event-map-btn", function() {
+	$body.on("click", ".event-map-btn", function() {
 		showHideEventMap(this);
 	});
 
+	// Comment form submit
+	$body.on('submit', '.comment-edit-form', function(e) {
+		let $form = $(this);
+		let id = $form.data('item-id');
+
+		// Compose page form exception: id is always 0 and form must not be submitted asynchronously
+		if (id === 0) {
+			return;
+		}
+
+		e.preventDefault();
+
+		let $commentSubmit = $form.find('.comment-edit-submit').button('loading');
+
+		unpause();
+		commentBusy = true;
+
+		$.post(
+			'item',
+			$form.serialize(),
+			'json'
+		)
+		.then(function(data) {
+			if (data.success) {
+				$('#comment-edit-wrapper-' + id).hide();
+				let $textarea = $('#comment-edit-text-' + id);
+				$textarea.val('');
+				if ($textarea.get(0)) {
+					commentClose($textarea.get(0), id);
+				}
+				if (timer) {
+					clearTimeout(timer);
+				}
+				timer = setTimeout(NavUpdate,10);
+				force_update = true;
+				update_item = id;
+			}
+			if (data.reload) {
+				window.location.href = data.reload;
+			}
+		})
+		.always(function() {
+			$commentSubmit.button('reset');
+		});
+	});
+
+	$body.on('submit', '.modal-body #poke-wrapper', function(e) {
+		e.preventDefault();
+
+		let $form = $(this);
+		let $pokeSubmit = $form.find('button[type=submit]').button('loading');
+
+		$.post(
+			$form.attr('action'),
+			$form.serialize(),
+			'json'
+		)
+		.then(function(data) {
+			if (data.success) {
+				$('#modal').modal('hide');
+			}
+		})
+		.always(function() {
+			$pokeSubmit.button('reset');
+		});
+	})
 });
 
 function openClose(theID) {
@@ -385,19 +453,6 @@ function showHide(theID) {
 	}
 	else {
 		elem.style.display = "block";
-	}
-}
-
-function showHideComments(id) {
-	if( $('#collapsed-comments-' + id).is(':visible')) {
-		$('#collapsed-comments-' + id).slideUp();
-		$('#hide-comments-' + id).html(window.showMore);
-		$('#hide-comments-total-' + id).show();
-	}
-	else {
-		$('#collapsed-comments-' + id).slideDown();
-		$('#hide-comments-' + id).html(window.showFewer);
-		$('#hide-comments-total-' + id).hide();
 	}
 }
 
@@ -449,11 +504,6 @@ function justifyPhotos() {
 	}).on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
-function justifyPhotosAjax() {
-	justifiedGalleryActive = true;
-	$('#photo-album-contents').justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
-}
-
 // Load a js script to the html head.
 function loadScript(url, callback) {
 	// Check if the script is already in the html head.
@@ -478,18 +528,6 @@ function loadScript(url, callback) {
 	head.appendChild(script);
 }
 
-function random_digits(digits) {
-	var rn = "";
-	var rnd = "";
-
-	for(var i = 0; i < digits; i++) {
-		var rn = Math.round(Math.random() * (9));
-		rnd += rn;
-	}
-
-	return rnd;
-}
-
 // Does we need a ? or a & to append values to a url
 function qOrAmp(url) {
 	if(url.search('\\?') < 0) {
@@ -497,81 +535,6 @@ function qOrAmp(url) {
 	} else {
 		return '&';
 	}
-}
-
-function contact_filter(item) {
-	// get the html content from the js template of the contact-wrapper
-	contact_tpl = unescape($(".javascript-template[rel=contact-template]").html());
-
-	var variables = {
-			id:		item.id,
-			name:		item.name,
-			username:	item.username,
-			thumb:		item.thumb,
-			img_hover:	item.img_hover,
-			edit_hover:	item.edit_hover,
-			account_type:	item.account_type,
-			photo_menu:	item.photo_menu,
-			alt_text:	item.alt_text,
-			dir_icon:	item.dir_icon,
-			sparkle:	item.sparkle,
-			itemurl:	item.itemurl,
-			url:		item.url,
-			network:	item.network,
-			tags:		item.tags,
-			details:	item.details,
-	};
-
-	// open a new jSmart instance with the template
-	var tpl = new jSmart (contact_tpl);
-
-	// replace the variable with the values
-	var html = tpl.fetch(variables);
-
-	return html;
-}
-
-function filter_replace(item) {
-
-	return item.name;
-}
-
-(function($) {
-	$.fn.contact_filter = function(backend_url, typ, autosubmit, onselect) {
-		if (typeof typ === 'undefined') {
-			typ = '';
-		}
-
-		if (typeof autosubmit === 'undefined') {
-			autosubmit = false;
-		}
-
-		// Autocomplete contacts
-		contacts = {
-			match: /(^)([^\n]+)$/,
-			index: 2,
-			search: function(term, callback) {contact_search(term, callback, backend_url, typ);},
-			replace: filter_replace,
-			template: contact_filter
-		};
-
-		this.attr('autocomplete','off');
-		var a = this.textcomplete([contacts], {className:'accontacts', appendTo: '#contact-list'});
-
-		if(autosubmit) {
-			a.on('textComplete:select', function(e,value,strategy) {submit_form(this);});
-		}
-
-		a.on('textComplete:select', function(e, value, strategy) {
-			$(".dropdown-menu.textcomplete-dropdown.media-list").show();
-		});
-	};
-})( jQuery );
-
-// current time in milliseconds, to send each request to make sure
-// we 're not getting 304 response
-function timeNow() {
-	return new Date().getTime();
 }
 
 String.prototype.normalizeLink = function () {
@@ -721,7 +684,7 @@ function scrollToItem(elementId) {
 		return;
 	}
 
-	var $el = $(document.getElementById(elementId));
+	var $el = $('#' + elementId +  ' > .media');
 	// Test if the Item exists
 	if (!$el.length) {
 		return;
@@ -737,7 +700,7 @@ function scrollToItem(elementId) {
 	// Scroll to the DIV with the ID (GUID)
 	$('html, body').animate({
 		scrollTop: itemPos
-	}, 400, function() {
+	}, 400).promise().done( function() {
 		// Highlight post/commenent with ID  (GUID)
 		$el.animate(colWhite, 1000).animate(colShiny).animate(colWhite, 600);
 	});
@@ -757,22 +720,17 @@ function htmlToText(htmlString) {
  * Sends a /like API call and updates the display of the relevant action button
  * before the update reloads the item.
  *
- * @param {string} ident The id of the relevant item
- * @param {string} verb The verb of the action
- * @returns {undefined}
+ * @param {int}     ident The id of the relevant item
+ * @param {string}  verb  The verb of the action
+ * @param {boolean} un    Whether to perform an activity removal instead of creation
  */
-function doLikeAction(ident, verb) {
-	unpause();
-
+function doLikeAction(ident, verb, un) {
 	if (verb.indexOf('attend') === 0) {
 		$('.item-' + ident + ' .button-event:not(#' + verb + '-' + ident + ')').removeClass('active');
 	}
 	$('#' + verb + '-' + ident).toggleClass('active');
-	$('#like-rotator-' + ident.toString()).show();
-	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate );
-	liking = 1;
-	force_update = true;
-	update_item = ident.toString();
+
+	dolike(ident, verb, un);
 }
 
 // Decodes a hexadecimally encoded binary string

@@ -21,6 +21,7 @@ Friendica Documentation and Resources
 	* [Chats](help/Chats)
 * Further information
 	* [Move your account](help/Move-Account)
+	* [Export / Import of followed Contacts](help/Export-Import-Contacts)
 	* [Delete your account](help/Remove-Account)
 	* [Frequently asked questions (FAQ)](help/FAQ)
 
@@ -44,6 +45,7 @@ Friendica Documentation and Resources
 	* [Help on Vagrant](help/Vagrant)
 	* [Bugs and Issues](help/Bugs-and-Issues)
 * Code structure
+    * [Domain-Driven-Design](help/Developer-Domain-Driven-Design)
 	* [Addon Development](help/Addons)
 	* [Theme Development](help/themes)
 	* [Smarty 3 Templates](help/smarty3-templates)
@@ -54,7 +56,7 @@ Friendica Documentation and Resources
 	* [Move classes to `src`](help/Developer-How-To-Move-Classes-to-src)
 	* [Run tests](help/Tests)
 * Reference
-	* [Twitter/GNU Social API Functions](help/api)
+	* [API endpoints](help/api)
 	* [Code (Doxygen generated - sets cookies)](doc/html/)
 	* [Protocol Documentation](help/Protocol)
 	* [Database schema documentation](help/database)

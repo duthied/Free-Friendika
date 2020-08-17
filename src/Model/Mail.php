@@ -1,23 +1,111 @@
 <?php
-
 /**
- * @file src/Model/Mail.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Model;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\DI;
 use Friendica\Database\DBA;
-use Friendica\Network\Probe;
+use Friendica\Model\Notify\Type;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Worker\Delivery;
 
 /**
  * Class to handle private messages
  */
 class Mail
 {
+	/**
+	 * Insert received private message
+	 *
+	 * @param array $msg
+	 * @return int|boolean Message ID or false on error
+	 */
+	public static function insert($msg)
+	{
+		$user = User::getById($msg['uid']);
+
+		if (!isset($msg['reply'])) {
+			$msg['reply'] = DBA::exists('mail', ['parent-uri' => $msg['parent-uri']]);
+		}
+
+		if (empty($msg['convid'])) {
+			$mail = DBA::selectFirst('mail', ['convid'], ["`convid` != 0 AND `parent-uri` = ?", $msg['parent-uri']]);
+			if (DBA::isResult($mail)) {
+				$msg['convid'] = $mail['convid'];
+			}
+		}
+
+		if (empty($msg['guid'])) {
+			$host = parse_url($msg['from-url'], PHP_URL_HOST);
+			$msg['guid'] = Item::guidFromUri($msg['uri'], $host);
+		}
+
+		$msg['created'] = (!empty($msg['created']) ? DateTimeFormat::utc($msg['created']) : DateTimeFormat::utcNow());
+
+		DBA::lock('mail');
+
+		if (DBA::exists('mail', ['uri' => $msg['uri'], 'uid' => $msg['uid']])) {
+			DBA::unlock();
+			Logger::info('duplicate message already delivered.');
+			return false;
+		}
+
+		DBA::insert('mail', $msg);
+
+		$msg['id'] = DBA::lastInsertId();
+
+		DBA::unlock();
+
+		if (!empty($msg['convid'])) {
+			DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $msg['convid']]);
+		}
+
+		// send notifications.
+		$notif_params = [
+			'type' => Type::MAIL,
+			'notify_flags' => $user['notify-flags'],
+			'language' => $user['language'],
+			'to_name' => $user['username'],
+			'to_email' => $user['email'],
+			'uid' => $user['uid'],
+			'item' => $msg,
+			'parent' => $msg['id'],
+			'source_name' => $msg['from-name'],
+			'source_link' => $msg['from-url'],
+			'source_photo' => $msg['from-photo'],
+			'verb' => Activity::POST,
+			'otype' => 'mail'
+		];
+
+		notification($notif_params);
+
+		Logger::info('Mail is processed, notification was sent.', ['id' => $msg['id'], 'uri' => $msg['uri']]);
+
+		return $msg['id'];
+	}
+
 	/**
 	 * Send private message
 	 *
@@ -30,14 +118,14 @@ class Mail
 	 */
 	public static function send($recipient = 0, $body = '', $subject = '', $replyto = '')
 	{
-		$a = \get_app();
+		$a = DI::app();
 
 		if (!$recipient) {
 			return -1;
 		}
 
 		if (!strlen($subject)) {
-			$subject = L10n::t('[no subject]');
+			$subject = DI::l10n()->t('[no subject]');
 		}
 
 		$me = DBA::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
@@ -47,8 +135,10 @@ class Mail
 			return -2;
 		}
 
+		Photo::setPermissionFromBody($body, local_user(), $me['id'],  '<' . $contact['id'] . '>', '', '', '');
+
 		$guid = System::createUUID();
-		$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
+		$uri = Item::newURI(local_user(), $guid);
 
 		$convid = 0;
 		$reply = false;
@@ -72,7 +162,7 @@ class Mail
 			$recip_host = substr($recip_host, 0, strpos($recip_host, '/'));
 
 			$recip_handle = (($contact['addr']) ? $contact['addr'] : $contact['nick'] . '@' . $recip_host);
-			$sender_handle = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+			$sender_handle = $a->user['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
 
 			$conv_guid = System::createUUID();
 			$convuri = $recip_handle . ':' . $conv_guid;
@@ -138,18 +228,16 @@ class Mail
 			$images = $match[1];
 			if (count($images)) {
 				foreach ($images as $image) {
-					if (!stristr($image, System::baseUrl() . '/photo/')) {
-						continue;
+					$image_rid = Photo::ridFromURI($image);
+					if (!empty($image_rid)) {
+						Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_rid, 'album' => 'Wall Photos', 'uid' => local_user()]);
 					}
-					$image_uri = substr($image, strrpos($image, '/') + 1);
-					$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
-					Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_uri, 'album' => 'Wall Photos', 'uid' => local_user()]);
 				}
 			}
 		}
 
 		if ($post_id) {
-			Worker::add(PRIORITY_HIGH, "Notifier", "mail", $post_id);
+			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::MAIL, $post_id);
 			return intval($post_id);
 		} else {
 			return -3;
@@ -172,26 +260,22 @@ class Mail
 		}
 
 		if (!strlen($subject)) {
-			$subject = L10n::t('[no subject]');
+			$subject = DI::l10n()->t('[no subject]');
 		}
 
 		$guid = System::createUUID();
-		$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
+		$uri = Item::newURI(local_user(), $guid);
 
-		$me = Probe::uri($replyto);
-
+		$me = Contact::getByURL($replyto);
 		if (!$me['name']) {
 			return -2;
 		}
 
 		$conv_guid = System::createUUID();
 
-		$recip_handle = $recipient['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+		$recip_handle = $recipient['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
 
-		$sender_nick = basename($replyto);
-		$sender_host = substr($replyto, strpos($replyto, '://') + 3);
-		$sender_host = substr($sender_host, 0, strpos($sender_host, '/'));
-		$sender_handle = $sender_nick . '@' . $sender_host;
+		$sender_handle = $me['addr'];
 
 		$handles = $recip_handle . ';' . $sender_handle;
 
@@ -224,7 +308,7 @@ class Mail
 				'reply' => 0,
 				'replied' => 0,
 				'uri' => $uri,
-				'parent-uri' => $replyto,
+				'parent-uri' => $me['url'],
 				'created' => DateTimeFormat::utcNow(),
 				'unknown' => 1
 			]

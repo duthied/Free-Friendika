@@ -50,9 +50,10 @@ nav #banner #logo-text a { color: #ffffff; }
 .photo-album-image-wrapper .caption { background-color: rgba(51, 51, 51, 0.8); color: #FFFFFF; }
 
 .nav-selected.nav-link { color: #ffffff!important; border-bottom: 0px}
-.nav-commlink, .nav-login-link {background-color: #b7bab3;}
+.nav-commlink, .nav-login-link, .nav-logout-link {background-color: #b7bab3;}
 .nav-commlink:link, .nav-commlink:visited,
-.nav-login-link:link, .nav-login-link:visited{
+.nav-login-link:link, .nav-login-link:visited,
+.nav-logout-link:link, .nav-logout-link:visited {
 	color: #ffffff;
 }
 
@@ -125,19 +126,14 @@ input#dfrn-url {
 	border: 1px solid #cccccc; 
 }
 
-.acl-list-item p, #profile-jot-email-label, div#jot-preview-content, div.profile-jot-net {
+#profile-jot-email-label, div#jot-preview-content, div.profile-jot-net {
         color: #eec;
 }
 #fancybox-content{
   background:#444;
 }
 
-input#acl-search {
-        background-color: #aaa;
-}
-
-
-.notify-seen {
+.notification-seen {
   background:#111;
 }
 
@@ -153,7 +149,7 @@ input#acl-search {
   background:#2e2f2e;
 }
 
-.group-selected, .nets-selected, .fileas-selected, .categories-selected{
+.widget .selected, .group-selected {
   background:#2e2f2e;
 }
 

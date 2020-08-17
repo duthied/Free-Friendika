@@ -1,41 +1,55 @@
 <?php
 /**
- * @file mod/salmon.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 use Friendica\App;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
+use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 function salmon_post(App $a, $xml = '') {
 
 	if (empty($xml)) {
-		$xml = file_get_contents('php://input');
+		$xml = Network::postdata();
 	}
 
 	Logger::log('new salmon ' . $xml, Logger::DATA);
 
 	$nick       = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : '');
 
-	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
-		DBA::escape($nick)
-	);
-	if (! DBA::isResult($r)) {
-		System::httpExit(500);
+	$importer = DBA::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
+	if (! DBA::isResult($importer)) {
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}
-
-	$importer = $r[0];
 
 	// parse the xml
 
-	$dom = simplexml_load_string($xml,'SimpleXMLElement',0,NAMESPACE_SALMON_ME);
+	$dom = simplexml_load_string($xml,'SimpleXMLElement',0, ActivityNamespace::SALMON_ME);
 
 	$base = null;
 
@@ -49,7 +63,7 @@ function salmon_post(App $a, $xml = '') {
 
 	if (empty($base)) {
 		Logger::log('unable to locate salmon data in xml ');
-		System::httpExit(400);
+		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
 	// Stash the signature away for now. We have to find their key or it won't be good for anything.
@@ -65,7 +79,7 @@ function salmon_post(App $a, $xml = '') {
 	// stash away some other stuff for later
 
 	$type = $base->data[0]->attributes()->type[0];
-	$keyhash = $base->sig[0]->attributes()->keyhash[0];
+	$keyhash = $base->sig[0]->attributes()->keyhash[0] ?? '';
 	$encoding = $base->encoding;
 	$alg = $base->alg;
 
@@ -87,7 +101,7 @@ function salmon_post(App $a, $xml = '') {
 
 	if(! $author_link) {
 		Logger::log('Could not retrieve author URI.');
-		System::httpExit(400);
+		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
 	// Once we have the author URI, go to the web and try to find their public key
@@ -98,7 +112,7 @@ function salmon_post(App $a, $xml = '') {
 
 	if(! $key) {
 		Logger::log('Could not retrieve author key.');
-		System::httpExit(400);
+		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
 	$key_info = explode('.',$key);
@@ -106,7 +120,7 @@ function salmon_post(App $a, $xml = '') {
 	$m = Strings::base64UrlDecode($key_info[1]);
 	$e = Strings::base64UrlDecode($key_info[2]);
 
-	Logger::log('key details: ' . print_r($key_info,true), Logger::DEBUG);
+	Logger::info('key details', ['info' => $key_info]);
 
 	$pubkey = Crypto::meToPem($m, $e);
 
@@ -130,7 +144,7 @@ function salmon_post(App $a, $xml = '') {
 
 	if (! $verify) {
 		Logger::log('Message did not verify. Discarding.');
-		System::httpExit(400);
+		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
 	Logger::log('Message verified with mode '.$mode);
@@ -156,8 +170,8 @@ function salmon_post(App $a, $xml = '') {
 	if (!DBA::isResult($r)) {
 		Logger::log('Author ' . $author_link . ' unknown to user ' . $importer['uid'] . '.');
 
-		if (PConfig::get($importer['uid'], 'system', 'ostatus_autofriend')) {
-			$result = Contact::createFromProbe($importer['uid'], $author_link);
+		if (DI::pConfig()->get($importer['uid'], 'system', 'ostatus_autofriend')) {
+			$result = Contact::createFromProbe($importer, $author_link);
 
 			if ($result['success']) {
 				$r = q("SELECT * FROM `contact` WHERE `network` = '%s' AND ( `url` = '%s' OR `alias` = '%s')
@@ -177,8 +191,7 @@ function salmon_post(App $a, $xml = '') {
 	//if((DBA::isResult($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == Contact::FOLLOWER) || ($r[0]['blocked']))) {
 	if (DBA::isResult($r) && $r[0]['blocked']) {
 		Logger::log('Ignoring this author.');
-		System::httpExit(202);
-		// NOTREACHED
+		throw new \Friendica\Network\HTTPException\AcceptedException();
 	}
 
 	// Placeholder for hub discovery.
@@ -188,5 +201,5 @@ function salmon_post(App $a, $xml = '') {
 
 	OStatus::import($data, $importer, $contact_rec, $hub);
 
-	System::httpExit(200);
+	throw new \Friendica\Network\HTTPException\OKException();
 }

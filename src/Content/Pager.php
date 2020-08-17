@@ -1,4 +1,23 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\Content;
 
@@ -8,38 +27,38 @@ use Friendica\Util\Strings;
 
 /**
  * The Pager has two very different output, Minimal and Full, see renderMinimal() and renderFull() for more details.
- *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
 class Pager
 {
-	/**
-	 * @var integer
-	 */
-	private $page = 1;
-	/**
-	 * @var integer
-	 */
-	private $itemsPerPage = 50;
+	/** @var int Default count of items per page */
+	const ITEMS_PER_PAGE = 50;
 
-	/**
-	 * @var string
-	 */
-	private $baseQueryString = '';
+	/** @var integer */
+	private $page = 1;
+	/** @var integer */
+	protected $itemsPerPage = self::ITEMS_PER_PAGE;
+	/** @var string */
+	protected $baseQueryString = '';
+
+	/** @var L10n */
+	protected $l10n;
 
 	/**
 	 * Instantiates a new Pager with the base parameters.
 	 *
 	 * Guesses the page number from the GET parameter 'page'.
 	 *
+	 * @param L10n    $l10n
 	 * @param string  $queryString  The query string of the current page
 	 * @param integer $itemsPerPage An optional number of items per page to override the default value
 	 */
-	public function __construct($queryString, $itemsPerPage = 50)
+	public function __construct(L10n $l10n, $queryString, $itemsPerPage = 50)
 	{
+		$this->l10n = $l10n;
+
 		$this->setQueryString($queryString);
 		$this->setItemsPerPage($itemsPerPage);
-		$this->setPage(defaults($_GET, 'page', 1));
+		$this->setPage(($_GET['page'] ?? 0) ?: 1);
 	}
 
 	/**
@@ -117,14 +136,13 @@ class Pager
 	{
 		$stripped = preg_replace('/([&?]page=[0-9]*)/', '', $queryString);
 
-		$stripped = str_replace('q=', '', $stripped);
 		$stripped = trim($stripped, '/');
 
 		$this->baseQueryString = $stripped;
 	}
 
 	/**
-	 * @brief Minimal pager (newer/older)
+	 * Minimal pager (newer/older)
 	 *
 	 * This mode is intended for reverse chronological pages and presents only two links, newer (previous) and older (next).
 	 * The itemCount is the number of displayed items. If no items are displayed, the older button is disabled.
@@ -138,11 +156,11 @@ class Pager
 	 *
 	 * $html = $pager->renderMinimal(count($items));
 	 *
-	 * @param integer $itemCount The number of displayed items on the page
+	 * @param int $itemCount The number of displayed items on the page
 	 * @return string HTML string of the pager
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public function renderMinimal($itemCount)
+	public function renderMinimal(int $itemCount)
 	{
 		$displayedItemCount = max(0, intval($itemCount));
 
@@ -150,12 +168,12 @@ class Pager
 			'class' => 'pager',
 			'prev'  => [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
-				'text'  => L10n::t('newer'),
+				'text'  => $this->l10n->t('newer'),
 				'class' => 'previous' . ($this->getPage() == 1 ? ' disabled' : '')
 			],
 			'next'  => [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
-				'text'  => L10n::t('older'),
+				'text'  => $this->l10n->t('older'),
 				'class' =>  'next' . ($displayedItemCount < $this->getItemsPerPage() ? ' disabled' : '')
 			]
 		];
@@ -165,7 +183,7 @@ class Pager
 	}
 
 	/**
-	 * @brief Full pager (first / prev / 1 / 2 / ... / 14 / 15 / next / last)
+	 * Full pager (first / prev / 1 / 2 / ... / 14 / 15 / next / last)
 	 *
 	 * This mode presents page numbers as well as first, previous, next and last links.
 	 * The itemCount is the total number of items including those not displayed.
@@ -195,12 +213,12 @@ class Pager
 		if ($totalItemCount > $this->getItemsPerPage()) {
 			$data['first'] = [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=1'),
-				'text'  => L10n::t('first'),
+				'text'  => $this->l10n->t('first'),
 				'class' => $this->getPage() == 1 ? 'disabled' : ''
 			];
 			$data['prev'] = [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
-				'text'  => L10n::t('prev'),
+				'text'  => $this->l10n->t('prev'),
 				'class' => $this->getPage() == 1 ? 'disabled' : ''
 			];
 
@@ -255,12 +273,12 @@ class Pager
 
 			$data['next'] = [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
-				'text'  => L10n::t('next'),
+				'text'  => $this->l10n->t('next'),
 				'class' => $this->getPage() == $lastpage ? 'disabled' : ''
 			];
 			$data['last'] = [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . $lastpage),
-				'text'  => L10n::t('last'),
+				'text'  => $this->l10n->t('last'),
 				'class' => $this->getPage() == $lastpage ? 'disabled' : ''
 			];
 		}

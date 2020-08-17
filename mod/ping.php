@@ -1,28 +1,43 @@
 <?php
 /**
- * @file include/ping.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 use Friendica\App;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Cache;
-use Friendica\Core\Config;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
+use Friendica\Model\Notify\Type;
+use Friendica\Model\Verb;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\XML;
 
 /**
- * @brief Outputs the counts and the lists of various notifications
+ * Outputs the counts and the lists of various notifications
  *
  * The output format can be controlled via the GET parameter 'format'. It can be
  * - xml (deprecated legacy default)
@@ -44,7 +59,7 @@ use Friendica\Util\XML;
  *            "birthdays-today": 0,
  *            "groups": [ ],
  *            "forums": [ ],
- *            "notify": 0,
+ *            "notification": 0,
  *            "notifications": [ ],
  *            "sysmsgs": {
  *                "notice": [ ],
@@ -120,12 +135,9 @@ function ping_init(App $a)
 
 		$notifs = ping_get_notifications(local_user());
 
-		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ?", local_user(), local_user()];
-		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
-			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'wall'];
-		$params = ['order' => ['created' => true]];
-		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
-
+		$condition = ["`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
+			local_user(), Verb::getID(Activity::FOLLOW)];
+		$items = Item::selectForUser(local_user(), ['wall', 'uid', 'uri-id'], $condition);
 		if (DBA::isResult($items)) {
 			$items_unseen = Item::inArray($items);
 			$arr = ['items' => $items_unseen];
@@ -139,6 +151,7 @@ function ping_init(App $a)
 				}
 			}
 		}
+		DBA::close($items);
 
 		if ($network_count) {
 			// Find out how unseen network posts are spread across groups
@@ -179,7 +192,7 @@ function ping_init(App $a)
 		$intro_count = count($intros1) + count($intros2);
 		$intros = $intros1 + $intros2;
 
-		$myurl = System::baseUrl() . '/profile/' . $a->user['nickname'];
+		$myurl = DI::baseUrl() . '/profile/' . $a->user['nickname'];
 		$mails = q(
 			"SELECT `id`, `from-name`, `from-url`, `from-photo`, `created` FROM `mail`
 			WHERE `uid` = %d AND `seen` = 0 AND `from-url` != '%s' ",
@@ -188,7 +201,7 @@ function ping_init(App $a)
 		);
 		$mail_count = count($mails);
 
-		if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::APPROVE && is_site_admin()) {
+		if (intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::APPROVE && is_site_admin()) {
 			$regs = Friendica\Model\Register::getPending();
 
 			if (DBA::isResult($regs)) {
@@ -197,7 +210,7 @@ function ping_init(App $a)
 		}
 
 		$cachekey = "ping_init:".local_user();
-		$ev = Cache::get($cachekey);
+		$ev = DI::cache()->get($cachekey);
 		if (is_null($ev)) {
 			$ev = q(
 				"SELECT type, start, adjust FROM `event`
@@ -208,7 +221,7 @@ function ping_init(App $a)
 				DBA::escape(DateTimeFormat::utcNow())
 			);
 			if (DBA::isResult($ev)) {
-				Cache::set($cachekey, $ev, Cache::HOUR);
+				DI::cache()->set($cachekey, $ev, Duration::HOUR);
 			}
 		}
 
@@ -263,13 +276,13 @@ function ping_init(App $a)
 			foreach ($intros as $intro) {
 				$notif = [
 					'id'      => 0,
-					'href'    => System::baseUrl() . '/notifications/intros/' . $intro['id'],
+					'href'    => DI::baseUrl() . '/notifications/intros/' . $intro['id'],
 					'name'    => $intro['name'],
 					'url'     => $intro['url'],
 					'photo'   => $intro['photo'],
 					'date'    => $intro['datetime'],
 					'seen'    => false,
-					'message' => L10n::t('{0} wants to be your friend'),
+					'message' => DI::l10n()->t('{0} wants to be your friend'),
 				];
 				$notifs[] = $notif;
 			}
@@ -279,13 +292,13 @@ function ping_init(App $a)
 			foreach ($regs as $reg) {
 				$notif = [
 					'id'      => 0,
-					'href'    => System::baseUrl() . '/admin/users/',
+					'href'    => DI::baseUrl() . '/admin/users/',
 					'name'    => $reg['name'],
 					'url'     => $reg['url'],
 					'photo'   => $reg['micro'],
 					'date'    => $reg['created'],
 					'seen'    => false,
-					'message' => L10n::t('{0} requested registration'),
+					'message' => DI::l10n()->t('{0} requested registration'),
 				];
 				$notifs[] = $notif;
 			}
@@ -313,20 +326,9 @@ function ping_init(App $a)
 		usort($notifs, $sort_function);
 
 		if (DBA::isResult($notifs)) {
-			// Are the nofications called from the regular process or via the friendica app?
-			$regularnotifications = (!empty($_GET['uid']) && !empty($_GET['_']));
-
 			foreach ($notifs as $notif) {
-				if ($a->isFriendicaApp() || !$regularnotifications) {
-					$notif['message'] = str_replace("{0}", $notif['name'], $notif['message']);
-				}
-
-				$contact = Contact::getDetailsByURL($notif['url']);
-				if (isset($contact['micro'])) {
-					$notif['photo'] = ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO);
-				} else {
-					$notif['photo'] = ProxyUtils::proxifyUrl($notif['photo'], false, ProxyUtils::SIZE_MICRO);
-				}
+				$contact = Contact::getByURL($notif['url'], false, ['micro', 'id', 'avatar']);
+				$notif['photo'] = Contact::getMicro($contact, $notif['photo']);
 
 				$local_time = DateTimeFormat::local($notif['date']);
 
@@ -361,7 +363,7 @@ function ping_init(App $a)
 	if ($format == 'json') {
 		$data['groups'] = $groups_unseen;
 		$data['forums'] = $forums_unseen;
-		$data['notify'] = $sysnotify_count + $intro_count + $register_count;
+		$data['notification'] = $sysnotify_count + $intro_count + $register_count;
 		$data['notifications'] = $notifications;
 		$data['sysmsgs'] = [
 			'notice' => $sysmsgs,
@@ -390,7 +392,7 @@ function ping_init(App $a)
 }
 
 /**
- * @brief Retrieves the notifications array for the given user ID
+ * Retrieves the notifications array for the given user ID
  *
  * @param int $uid User id
  * @return array Associative array of notifications
@@ -413,8 +415,8 @@ function ping_get_notifications($uid)
 			AND NOT (`notify`.`type` IN (%d, %d))
 			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` $order LIMIT %d, 50",
 			intval($uid),
-			intval(NOTIFY_INTRO),
-			intval(NOTIFY_MAIL),
+			intval(Type::INTRO),
+			intval(Type::MAIL),
 			intval($offset)
 		);
 
@@ -443,7 +445,7 @@ function ping_get_notifications($uid)
 				$notification["message"] = $notification["msg_cache"];
 			} else {
 				$notification["name"] = strip_tags(BBCode::convert($notification["name"]));
-				$notification["message"] = format_notification_message($notification["name"], strip_tags(BBCode::convert($notification["msg"])));
+				$notification["message"] = Friendica\Model\Notify::formatMessage($notification["name"], strip_tags(BBCode::convert($notification["msg"])));
 
 				q(
 					"UPDATE `notify` SET `name_cache` = '%s', `msg_cache` = '%s' WHERE `id` = %d",
@@ -453,17 +455,17 @@ function ping_get_notifications($uid)
 				);
 			}
 
-			$notification["href"] = System::baseUrl() . "/notify/view/" . $notification["id"];
+			$notification["href"] = DI::baseUrl() . "/notification/" . $notification["id"];
 
 			if ($notification["visible"]
 				&& !$notification["deleted"]
-				&& empty($result[$notification["parent"]])
+				&& empty($result[$notification['parent']])
 			) {
 				// Should we condense the notifications or show them all?
-				if (PConfig::get(local_user(), 'system', 'detailed_notif')) {
+				if (DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
 					$result[$notification["id"]] = $notification;
 				} else {
-					$result[$notification["parent"]] = $notification;
+					$result[$notification['parent']] = $notification;
 				}
 			}
 		}
@@ -473,7 +475,7 @@ function ping_get_notifications($uid)
 }
 
 /**
- * @brief Backward-compatible XML formatting for ping.php output
+ * Backward-compatible XML formatting for ping.php output
  * @deprecated
  *
  * @param array $data            The initial ping data array

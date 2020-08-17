@@ -1,11 +1,39 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\Factory;
 
-use Friendica\Core\Config\ConfigCache;
+use Friendica\Core\Config\IConfig;
+use Friendica\Core\Logger;
+use Friendica\Database\Database;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Util\Logger\FriendicaDevelopHandler;
-use Friendica\Util\Logger\FriendicaIntrospectionProcessor;
+use Friendica\Util\FileSystem;
+use Friendica\Util\Introspection;
+use Friendica\Util\Logger\Monolog\DevelopHandler;
+use Friendica\Util\Logger\Monolog\IntrospectionProcessor;
+use Friendica\Util\Logger\ProfilerLogger;
+use Friendica\Util\Logger\StreamLogger;
+use Friendica\Util\Logger\SyslogLogger;
+use Friendica\Util\Logger\VoidLogger;
+use Friendica\Util\Profiler;
 use Monolog;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -17,32 +45,106 @@ use Psr\Log\LogLevel;
  */
 class LoggerFactory
 {
+	const DEV_CHANNEL = 'dev';
+
+	/**
+	 * A list of classes, which shouldn't get logged
+	 *
+	 * @var array
+	 */
+	private static $ignoreClassList = [
+		Logger::class,
+		Profiler::class,
+		'Friendica\\Util\\Logger',
+	];
+
+	private $channel;
+
+	public function __construct(string $channel)
+	{
+		$this->channel = $channel;
+	}
+
 	/**
 	 * Creates a new PSR-3 compliant logger instances
 	 *
-	 * @param string      $channel The channel of the logger instance
-	 * @param ConfigCache $config  The config
+	 * @param Database   $database   The Friendica Database instance
+	 * @param IConfig    $config     The config
+	 * @param Profiler   $profiler   The profiler of the app
+	 * @param FileSystem $fileSystem FileSystem utils
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 */
-	public static function create($channel, ConfigCache $config = null)
+	public function create(Database $database, IConfig $config, Profiler $profiler, FileSystem $fileSystem)
 	{
-		$logger = new Monolog\Logger($channel);
-		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
-		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
-		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, ['Friendica\\Core\\Logger']));
-
-		if (isset($config)) {
-			$debugging = $config->get('system', 'debugging');
-			$stream = $config->get('system', 'logfile');
-			$level = $config->get('system', 'loglevel');
-
-			if ($debugging) {
-				static::addStreamHandler($logger, $stream, $level);
-			}
+		if (empty($config->get('system', 'debugging', false))) {
+			$logger = new VoidLogger();
+			$database->setLogger($logger);
+			return $logger;
 		}
 
+		$introspection = new Introspection(self::$ignoreClassList);
+		$level         = $config->get('system', 'loglevel');
+		$loglevel      = self::mapLegacyConfigDebugLevel((string)$level);
+
+		switch ($config->get('system', 'logger_config', 'stream')) {
+			case 'monolog':
+				$loggerTimeZone = new \DateTimeZone('UTC');
+				Monolog\Logger::setTimezone($loggerTimeZone);
+
+				$logger = new Monolog\Logger($this->channel);
+				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
+				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
+				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
+				$logger->pushProcessor(new IntrospectionProcessor($introspection, LogLevel::DEBUG));
+
+				$stream = $config->get('system', 'logfile');
+
+				// just add a stream in case it's either writable or not file
+				if (!is_file($stream) || is_writable($stream)) {
+					try {
+						static::addStreamHandler($logger, $stream, $loglevel);
+					} catch (\Throwable $e) {
+						// No Logger ..
+						$logger = new VoidLogger();
+					}
+				}
+				break;
+
+			case 'syslog':
+				try {
+					$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
+				} catch (\Throwable $e) {
+					// No logger ...
+					$logger = new VoidLogger();
+				}
+				break;
+
+			case 'stream':
+			default:
+				$stream = $config->get('system', 'logfile');
+				// just add a stream in case it's either writable or not file
+				if (!is_file($stream) || is_writable($stream)) {
+					try {
+						$logger = new StreamLogger($this->channel, $stream, $introspection, $fileSystem, $loglevel);
+					} catch (\Throwable $t) {
+						// No logger ...
+						$logger = new VoidLogger();
+					}
+				} else {
+					$logger = new VoidLogger();
+				}
+				break;
+		}
+
+		$profiling = $config->get('system', 'profiling', false);
+
+		// In case profiling is enabled, wrap the ProfilerLogger around the current logger
+		if (isset($profiling) && $profiling !== false) {
+			$logger = new ProfilerLogger($logger, $profiler);
+		}
+
+		$database->setLogger($logger);
 		return $logger;
 	}
 
@@ -54,35 +156,113 @@ class LoggerFactory
 	 *
 	 * It should never get filled during normal usage of Friendica
 	 *
-	 * @param string $channel      The channel of the logger instance
-	 * @param string $developerIp  The IP of the developer who wants to use the logger
+	 * @param IConfig    $config     The config
+	 * @param Profiler   $profiler   The profiler of the app
+	 * @param FileSystem $fileSystem FileSystem utils
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
+	 *
+	 * @throws InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function createDev($channel, $developerIp)
+	public static function createDev(IConfig $config, Profiler $profiler, FileSystem $fileSystem)
 	{
-		$logger = new Monolog\Logger($channel);
-		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
-		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
-		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, ['Friendica\\Core\\Logger']));
+		$debugging   = $config->get('system', 'debugging');
+		$stream      = $config->get('system', 'dlogfile');
+		$developerIp = $config->get('system', 'dlogip');
 
+		if ((!isset($developerIp) || !$debugging) &&
+		    (!is_file($stream) || is_writable($stream))) {
+			$logger = new VoidLogger();
+			return $logger;
+		}
 
-		$logger->pushHandler(new FriendicaDevelopHandler($developerIp));
+		$loggerTimeZone = new \DateTimeZone('UTC');
+		Monolog\Logger::setTimezone($loggerTimeZone);
+
+		$introspection = new Introspection(self::$ignoreClassList);
+
+		switch ($config->get('system', 'logger_config', 'stream')) {
+
+			case 'monolog':
+				$loggerTimeZone = new \DateTimeZone('UTC');
+				Monolog\Logger::setTimezone($loggerTimeZone);
+
+				$logger = new Monolog\Logger(self::DEV_CHANNEL);
+				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
+				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
+				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
+				$logger->pushProcessor(new IntrospectionProcessor($introspection, LogLevel::DEBUG));
+
+				$logger->pushHandler(new DevelopHandler($developerIp));
+
+				static::addStreamHandler($logger, $stream, LogLevel::DEBUG);
+				break;
+
+			case 'syslog':
+				$logger = new SyslogLogger(self::DEV_CHANNEL, $introspection, LogLevel::DEBUG);
+				break;
+
+			case 'stream':
+			default:
+				$logger = new StreamLogger(self::DEV_CHANNEL, $stream, $introspection, $fileSystem, LogLevel::DEBUG);
+				break;
+		}
+
+		$profiling = $config->get('system', 'profiling', false);
+
+		// In case profiling is enabled, wrap the ProfilerLogger around the current logger
+		if (isset($profiling) && $profiling !== false) {
+			$logger = new ProfilerLogger($logger, $profiler);
+		}
 
 		return $logger;
 	}
 
 	/**
+	 * Mapping a legacy level to the PSR-3 compliant levels
+	 *
+	 * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#5-psrlogloglevel
+	 *
+	 * @param string $level the level to be mapped
+	 *
+	 * @return string the PSR-3 compliant level
+	 */
+	private static function mapLegacyConfigDebugLevel($level)
+	{
+		switch ($level) {
+			// legacy WARNING
+			case "0":
+				return LogLevel::ERROR;
+			// legacy INFO
+			case "1":
+				return LogLevel::WARNING;
+			// legacy TRACE
+			case "2":
+				return LogLevel::NOTICE;
+			// legacy DEBUG
+			case "3":
+				return LogLevel::INFO;
+			// legacy DATA
+			case "4":
+			// legacy ALL
+			case "5":
+				return LogLevel::DEBUG;
+			// default if nothing set
+			default:
+				return $level;
+		}
+	}
+
+	/**
 	 * Adding a handler to a given logger instance
 	 *
-	 * @param LoggerInterface $logger  The logger instance
-	 * @param mixed           $stream  The stream which handles the logger output
-	 * @param string          $level   The level, for which this handler at least should handle logging
+	 * @param LoggerInterface $logger The logger instance
+	 * @param mixed           $stream The stream which handles the logger output
+	 * @param string          $level  The level, for which this handler at least should handle logging
 	 *
 	 * @return void
 	 *
-	 * @throws InternalServerErrorException if the logger is incompatible to the logger factory
 	 * @throws \Exception in case of general failures
 	 */
 	public static function addStreamHandler($logger, $stream, $level = LogLevel::NOTICE)
@@ -94,42 +274,20 @@ class LoggerFactory
 			if (!is_int($loglevel)) {
 				$loglevel = LogLevel::NOTICE;
 			}
+
 			$fileHandler = new Monolog\Handler\StreamHandler($stream, $loglevel);
 
 			$formatter = new Monolog\Formatter\LineFormatter("%datetime% %channel% [%level_name%]: %message% %context% %extra%\n");
 			$fileHandler->setFormatter($formatter);
 
 			$logger->pushHandler($fileHandler);
-		} else {
-			throw new InternalServerErrorException('Logger instance incompatible for MonologFactory');
 		}
 	}
 
-	/**
-	 * This method enables the test mode of a given logger
-	 *
-	 * @param LoggerInterface $logger The logger
-	 *
-	 * @return Monolog\Handler\TestHandler the Handling for tests
-	 *
-	 * @throws InternalServerErrorException if the logger is incompatible to the logger factory
-	 */
-	public static function enableTest($logger)
+	public static function addVoidHandler($logger)
 	{
 		if ($logger instanceof Monolog\Logger) {
-			// disable every handler so far
 			$logger->pushHandler(new Monolog\Handler\NullHandler());
-
-			// enable the test handler
-			$fileHandler = new Monolog\Handler\TestHandler();
-			$formatter = new Monolog\Formatter\LineFormatter("%datetime% %channel% [%level_name%]: %message% %context% %extra%\n");
-			$fileHandler->setFormatter($formatter);
-
-			$logger->pushHandler($fileHandler);
-
-			return $fileHandler;
-		} else {
-			throw new InternalServerErrorException('Logger instance incompatible for MonologFactory');
 		}
 	}
 }

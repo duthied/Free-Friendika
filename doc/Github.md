@@ -22,7 +22,7 @@ Our Git Branches
 
 There are two relevant branches in the main repo on GitHub:
 
-1. master: This branch contains stable releases only.
+1. stable: This branch contains stable releases only.
 2. develop: This branch contains the latest code.
 This is what you want to work with.
 
@@ -43,7 +43,7 @@ Release branches
 A release branch is created when the develop branch contains all features it should have.
 A release branch is used for a few things.
 
-1. It allows last-minute bug fixing before the release goes to master branch.
+1. It allows last-minute bug fixing before the release goes to stable branch.
 2. It allows meta-data changes (README, CHANGELOG, etc.) for version bumps and documentation changes.
 3. It makes sure the develop branch can receive new features that are **not** part of this release.
 

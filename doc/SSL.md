@@ -73,7 +73,7 @@ With Apache, enable the modules rewrite and ssl (with a shared hosting provider,
 
         sudo a2enmod rewrite ssl
 
-Add the following lines to the .htaccess file in the root folder of your Friendica instance (thanks to [url=https://github.com/AlfredSK]AlfredSK[/url]):
+Add the following lines to the .htaccess file in the root folder of your Friendica instance (thanks to [AlfredSK](https://github.com/AlfredSK)):
 
         RewriteEngine On
         RewriteCond %{SERVER_PORT} 80

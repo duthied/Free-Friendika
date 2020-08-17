@@ -1,11 +1,38 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\Test\Util;
 
+use Friendica\Core\Cache\Duration;
+
 trait DbaCacheMockTrait
 {
-	use DBAMockTrait;
-	use DateTimeFormatMockTrait;
+	/**
+	 * @var
+	 */
+	protected $dba;
+
+	public function __construct()
+	{
+	}
 
 	protected function mockDelete($key, $return = true, $times = null)
 	{
@@ -24,7 +51,7 @@ trait DbaCacheMockTrait
 		$this->mockIsResult(['v' => $value], isset($return), $times);
 	}
 
-	protected function mockSet($key, $value, $ttl = Cache::FIVE_MINUTES, $time = null, $return = true, $times = null)
+	protected function mockSet($key, $value, $ttl = Duration::FIVE_MINUTES, $time = null, $return = true, $times = null)
 	{
 		if ($time === null) {
 			$time = time();

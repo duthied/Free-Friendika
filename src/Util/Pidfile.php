@@ -1,16 +1,33 @@
 <?php
 /**
- * @file src/Util/Pidfile.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Util;
 
 /**
- * @brief Pidfile class
+ * Pidfile class
  */
 class PidFile
 {
 	/**
-	 * @brief Read the pid from a given pid file
+	 * Read the pid from a given pid file
 	 *
 	 * @param string $file Filename of pid file
 	 *
@@ -25,7 +42,7 @@ class PidFile
 	}
 
 	/**
-	 * @brief Is there a running process with the given pid file
+	 * Is there a running process with the given pid file
 	 *
 	 * @param string $file Filename of pid file
 	 *
@@ -49,7 +66,7 @@ class PidFile
 	}
 
 	/**
-	 * @brief Kills a process from a given pid file
+	 * Kills a process from a given pid file
 	 *
 	 * @param string $file Filename of pid file
 	 *
@@ -74,7 +91,7 @@ class PidFile
 	}
 
 	/**
-	 * @brief Creates a pid file
+	 * Creates a pid file
 	 *
 	 * @param string $file Filename of pid file
 	 *
@@ -96,7 +113,7 @@ class PidFile
 	}
 
 	/**
-	 * @brief Deletes a given pid file
+	 * Deletes a given pid file
 	 *
 	 * @param string $file Filename of pid file
 	 *

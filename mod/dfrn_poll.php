@@ -1,37 +1,50 @@
 <?php
-
 /**
- * @file mod/dfrn_poll.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 use Friendica\App;
-use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Module\Login;
+use Friendica\DI;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 function dfrn_poll_init(App $a)
 {
-	Login::sessionAuth();
+	DI::auth()->withSession($a);
 
-	$dfrn_id         = defaults($_GET, 'dfrn_id'        , '');
-	$type            = defaults($_GET, 'type'           , 'data');
-	$last_update     = defaults($_GET, 'last_update'    , '');
-	$destination_url = defaults($_GET, 'destination_url', '');
-	$challenge       = defaults($_GET, 'challenge'      , '');
-	$sec             = defaults($_GET, 'sec'            , '');
-	$dfrn_version    = (float) defaults($_GET, 'dfrn_version'   , 2.0);
+	$dfrn_id         =  $_GET['dfrn_id']         ?? '';
+	$type            = ($_GET['type']            ?? '') ?: 'data';
+	$last_update     =  $_GET['last_update']     ?? '';
+	$destination_url =  $_GET['destination_url'] ?? '';
+	$challenge       =  $_GET['challenge']       ?? '';
+	$sec             =  $_GET['sec']             ?? '';
+	$dfrn_version    = floatval(($_GET['dfrn_version'] ?? 0.0) ?: 2.0);
 	$quiet			 = !empty($_GET['quiet']);
 
 	// Possibly it is an OStatus compatible server that requests a user feed
-	$user_agent = defaults($_SERVER, 'HTTP_USER_AGENT', '');
+	$user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 	if (($a->argc > 1) && ($dfrn_id == '') && !strstr($user_agent, 'Friendica')) {
 		$nickname = $a->argv[1];
 		header("Content-type: application/atom+xml");
@@ -49,8 +62,8 @@ function dfrn_poll_init(App $a)
 	$hidewall = false;
 
 	if (($dfrn_id === '') && empty($_POST['dfrn_id'])) {
-		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-			System::httpExit(403);
+		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 
 		$user = '';
@@ -59,7 +72,7 @@ function dfrn_poll_init(App $a)
 				DBA::escape($a->argv[1])
 			);
 			if (!$r) {
-				System::httpExit(404);
+				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}
 
 			$hidewall = ($r[0]['hidewall'] && !local_user());
@@ -89,7 +102,7 @@ function dfrn_poll_init(App $a)
 				$my_id = '0:' . $dfrn_id;
 				break;
 			default:
-				$a->internalRedirect();
+				DI::baseUrl()->redirect();
 				break; // NOTREACHED
 		}
 
@@ -101,7 +114,7 @@ function dfrn_poll_init(App $a)
 		);
 
 		if (DBA::isResult($r)) {
-			$s = Network::fetchUrl($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
+			$s = DI::httpRequest()->fetch($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
 
 			Logger::log("dfrn_poll: old profile returns " . $s, Logger::DATA);
 
@@ -110,19 +123,16 @@ function dfrn_poll_init(App $a)
 
 				if ((int)$xml->status === 1) {
 					$_SESSION['authenticated'] = 1;
-					if (empty($_SESSION['remote'])) {
-						$_SESSION['remote'] = [];
-					}
-
-					$_SESSION['remote'][] = ['cid' => $r[0]['id'], 'uid' => $r[0]['uid'], 'url' => $r[0]['url']];
-
 					$_SESSION['visitor_id'] = $r[0]['id'];
 					$_SESSION['visitor_home'] = $r[0]['url'];
 					$_SESSION['visitor_handle'] = $r[0]['addr'];
 					$_SESSION['visitor_visiting'] = $r[0]['uid'];
 					$_SESSION['my_url'] = $r[0]['url'];
+
+					Session::setVisitorsContacts();
+
 					if (!$quiet) {
-						info(L10n::t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
+						info(DI::l10n()->t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']));
 					}
 
 					// Visitors get 1 day session.
@@ -139,10 +149,10 @@ function dfrn_poll_init(App $a)
 			if (!empty($destination_url)) {
 				System::externalRedirect($destination_url);
 			} else {
-				$a->internalRedirect('profile/' . $profile);
+				DI::baseUrl()->redirect('profile/' . $profile);
 			}
 		}
-		$a->internalRedirect();
+		DI::baseUrl()->redirect();
 	}
 
 	if ($type === 'profile-check' && $dfrn_version < 2.2) {
@@ -227,13 +237,12 @@ function dfrn_poll_init(App $a)
 
 function dfrn_poll_post(App $a)
 {
-	$dfrn_id      = defaults($_POST, 'dfrn_id'  , '');
-	$challenge    = defaults($_POST, 'challenge', '');
-	$url          = defaults($_POST, 'url'      , '');
-	$sec          = defaults($_POST, 'sec'      , '');
-	$ptype        = defaults($_POST, 'type'     , '');
-	$perm         = defaults($_POST, 'perm'     , 'r');
-	$dfrn_version = !empty($_POST['dfrn_version']) ? (float) $_POST['dfrn_version'] : 2.0;
+	$dfrn_id      =  $_POST['dfrn_id']   ?? '';
+	$challenge    =  $_POST['challenge'] ?? '';
+	$sec          =  $_POST['sec']       ?? '';
+	$ptype        =  $_POST['type']      ?? '';
+	$perm         = ($_POST['perm']      ?? '') ?: 'r';
+	$dfrn_version = floatval(($_GET['dfrn_version'] ?? 0.0) ?: 2.0);
 
 	if ($ptype === 'profile-check') {
 		if (strlen($challenge) && strlen($sec)) {
@@ -309,7 +318,6 @@ function dfrn_poll_post(App $a)
 		exit();
 	}
 
-	$type = $r[0]['type'];
 	$last_update = $r[0]['last_update'];
 
 	DBA::delete('challenge', ['dfrn-id' => $dfrn_id, 'challenge' => $challenge]);
@@ -326,7 +334,7 @@ function dfrn_poll_post(App $a)
 			$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
 			break;
 		default:
-			$a->internalRedirect();
+			DI::baseUrl()->redirect();
 			break; // NOTREACHED
 	}
 
@@ -336,69 +344,39 @@ function dfrn_poll_post(App $a)
 	}
 
 	$contact = $r[0];
-	$owner_uid = $r[0]['uid'];
 	$contact_id = $r[0]['id'];
 
-	if ($type === 'reputation' && strlen($url)) {
-		$r = q("SELECT * FROM `contact` WHERE `url` = '%s' AND `uid` = %d LIMIT 1",
-			DBA::escape($url),
-			intval($owner_uid)
-		);
-		$reputation = 0;
-		$text = '';
-
-		if (DBA::isResult($r)) {
-			$reputation = $r[0]['rating'];
-			$text = $r[0]['reason'];
-
-			if ($r[0]['id'] == $contact_id) { // inquiring about own reputation not allowed
-				$reputation = 0;
-				$text = '';
-			}
+	// Update the writable flag if it changed
+	Logger::debug('post request feed', ['post' => $_POST]);
+	if ($dfrn_version >= 2.21) {
+		if ($perm === 'rw') {
+			$writable = 1;
+		} else {
+			$writable = 0;
 		}
 
-		echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-		<reputation>
-			<url>$url</url>
-			<rating>$reputation</rating>
-			<description>$text</description>
-		</reputation>
-		";
-		exit();
-		// NOTREACHED
-	} else {
-		// Update the writable flag if it changed
-		Logger::log('dfrn_poll: post request feed: ' . print_r($_POST, true), Logger::DATA);
-		if ($dfrn_version >= 2.21) {
-			if ($perm === 'rw') {
-				$writable = 1;
-			} else {
-				$writable = 0;
-			}
-
-			if ($writable != $contact['writable']) {
-				q("UPDATE `contact` SET `writable` = %d WHERE `id` = %d",
-					intval($writable),
-					intval($contact_id)
-				);
-			}
+		if ($writable != $contact['writable']) {
+			q("UPDATE `contact` SET `writable` = %d WHERE `id` = %d",
+				intval($writable),
+				intval($contact_id)
+			);
 		}
-
-		header("Content-type: application/atom+xml");
-		$o = DFRN::feed($dfrn_id, $a->argv[1], $last_update, $direction);
-		echo $o;
-		exit();
 	}
+
+	header("Content-type: application/atom+xml");
+	$o = DFRN::feed($dfrn_id, $a->argv[1], $last_update, $direction);
+	echo $o;
+	exit();
 }
 
 function dfrn_poll_content(App $a)
 {
-	$dfrn_id         = defaults($_GET, 'dfrn_id'        , '');
-	$type            = defaults($_GET, 'type'           , 'data');
-	$last_update     = defaults($_GET, 'last_update'    , '');
-	$destination_url = defaults($_GET, 'destination_url', '');
-	$sec             = defaults($_GET, 'sec'            , '');
-	$dfrn_version    = !empty($_GET['dfrn_version'])    ? (float) $_GET['dfrn_version'] : 2.0;
+	$dfrn_id         =  $_GET['dfrn_id']         ?? '';
+	$type            = ($_GET['type']            ?? '') ?: 'data';
+	$last_update     =  $_GET['last_update']     ?? '';
+	$destination_url =  $_GET['destination_url'] ?? '';
+	$sec             =  $_GET['sec']             ?? '';
+	$dfrn_version    = floatval(($_GET['dfrn_version'] ?? 0.0) ?: 2.0);
 	$quiet           = !empty($_GET['quiet']);
 
 	$direction = -1;
@@ -446,7 +424,7 @@ function dfrn_poll_content(App $a)
 				$my_id = '0:' . $dfrn_id;
 				break;
 			default:
-				$a->internalRedirect();
+				DI::baseUrl()->redirect();
 				break; // NOTREACHED
 		}
 
@@ -483,25 +461,25 @@ function dfrn_poll_content(App $a)
 			// heluecht: I don't know why we don't fail immediately when the user or contact hadn't been found.
 			// Since it doesn't make sense to continue from this point on, we now fail here. This should be safe.
 			if (!DBA::isResult($r)) {
-				System::httpExit(404, ["title" => L10n::t('Page not found.')]);
+				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}
 
 			// URL reply
 			if ($dfrn_version < 2.2) {
-				$s = Network::fetchUrl($r[0]['poll']
-					. '?dfrn_id=' . $encrypted_id
-					. '&type=profile-check'
-					. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
-					. '&challenge=' . $challenge
-					. '&sec=' . $sec
+				$s = DI::httpRequest()->fetch($r[0]['poll']
+				                              . '?dfrn_id=' . $encrypted_id
+				                              . '&type=profile-check'
+				                              . '&dfrn_version=' . DFRN_PROTOCOL_VERSION
+				                              . '&challenge=' . $challenge
+				                              . '&sec=' . $sec
 				);
 			} else {
-				$s = Network::post($r[0]['poll'], [
-					'dfrn_id' => $encrypted_id,
-					'type' => 'profile-check',
+				$s = DI::httpRequest()->post($r[0]['poll'], [
+					'dfrn_id'      => $encrypted_id,
+					'type'         => 'profile-check',
 					'dfrn_version' => DFRN_PROTOCOL_VERSION,
-					'challenge' => $challenge,
-					'sec' => $sec
+					'challenge'    => $challenge,
+					'sec'          => $sec
 				])->getBody();
 			}
 
@@ -510,24 +488,22 @@ function dfrn_poll_content(App $a)
 			if (strlen($s) && strstr($s, '<?xml')) {
 				$xml = XML::parseString($s);
 
-				Logger::log('dfrn_poll: profile: parsed xml: ' . print_r($xml, true), Logger::DATA);
+				Logger::debug(' profile: parsed', ['xml' => $xml]);
 
 				Logger::log('dfrn_poll: secure profile: challenge: ' . $xml->challenge . ' expecting ' . $hash);
 				Logger::log('dfrn_poll: secure profile: sec: ' . $xml->sec . ' expecting ' . $sec);
 
 				if (((int) $xml->status == 0) && ($xml->challenge == $hash) && ($xml->sec == $sec)) {
 					$_SESSION['authenticated'] = 1;
-					if (empty($_SESSION['remote'])) {
-						$_SESSION['remote'] = [];
-					}
-
-					$_SESSION['remote'][] = ['cid' => $r[0]['id'], 'uid' => $r[0]['uid'], 'url' => $r[0]['url']];
 					$_SESSION['visitor_id'] = $r[0]['id'];
 					$_SESSION['visitor_home'] = $r[0]['url'];
 					$_SESSION['visitor_visiting'] = $r[0]['uid'];
 					$_SESSION['my_url'] = $r[0]['url'];
+
+					Session::setVisitorsContacts();
+
 					if (!$quiet) {
-						info(L10n::t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
+						info(DI::l10n()->t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']));
 					}
 
 					// Visitors get 1 day session.
@@ -544,18 +520,18 @@ function dfrn_poll_content(App $a)
 
 			switch ($destination_url) {
 				case 'profile':
-					$a->internalRedirect('profile/' . $profile . '?f=&tab=profile');
+					DI::baseUrl()->redirect('profile/' . $profile . '/profile');
 					break;
 				case 'photos':
-					$a->internalRedirect('photos/' . $profile);
+					DI::baseUrl()->redirect('photos/' . $profile);
 					break;
 				case 'status':
 				case '':
-					$a->internalRedirect('profile/' . $profile);
+					DI::baseUrl()->redirect('profile/' . $profile);
 					break;
 				default:
-					$appendix = (strstr($destination_url, '?') ? '&f=&redir=1' : '?f=&redir=1');
-					$a->redirect($destination_url . $appendix);
+					$appendix = (strstr($destination_url, '?') ? '&redir=1' : '?redir=1');
+					DI::baseUrl()->redirect($destination_url . $appendix);
 					break;
 			}
 			// NOTREACHED

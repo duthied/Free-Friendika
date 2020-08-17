@@ -1,72 +1,134 @@
 <?php
-
 /**
- * @file src/Core/Session.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Core;
 
-use Friendica\Core\Session\CacheSessionHandler;
-use Friendica\Core\Session\DatabaseSessionHandler;
+use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Util\Strings;
 
 /**
  * High-level Session service class
- *
- * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Session
 {
 	public static $exists = false;
 	public static $expire = 180000;
 
-	public static function init()
-	{
-		ini_set('session.gc_probability', 50);
-		ini_set('session.use_only_cookies', 1);
-		ini_set('session.cookie_httponly', 1);
-
-		if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL) {
-			ini_set('session.cookie_secure', 1);
-		}
-
-		$session_handler = Config::get('system', 'session_handler', 'database');
-		if ($session_handler != 'native') {
-			if ($session_handler == 'cache' && Config::get('system', 'cache_driver', 'database') != 'database') {
-				$SessionHandler = new CacheSessionHandler();
-			} else {
-				$SessionHandler = new DatabaseSessionHandler();
-			}
-
-			session_set_save_handler($SessionHandler);
-		}
-	}
-
 	public static function exists($name)
 	{
-		return isset($_SESSION[$name]);
+		return DI::session()->exists($name);
 	}
 
-	/**
-	 * Retrieves a key from the session super global or the defaults if the key is missing or the value is falsy.
-	 * 
-	 * Handle the case where session_start() hasn't been called and the super global isn't available.
-	 *
-	 * @param string $name
-	 * @param mixed $defaults
-	 * @return mixed
-	 */
 	public static function get($name, $defaults = null)
 	{
-		if (isset($_SESSION)) {
-			$return = defaults($_SESSION, $name, $defaults);
-		} else {
-			$return = $defaults;
-		}
-
-		return $return;
+		return DI::session()->get($name, $defaults);
 	}
 
 	public static function set($name, $value)
 	{
-		$_SESSION[$name] = $value;
+		DI::session()->set($name, $value);
+	}
+
+	public static function setMultiple(array $values)
+	{
+		DI::session()->setMultiple($values);
+	}
+
+	public static function remove($name)
+	{
+		DI::session()->remove($name);
+	}
+
+	public static function clear()
+	{
+		DI::session()->clear();
+	}
+
+	/**
+	 * Return the user contact ID of a visitor for the given user ID they are visiting
+	 *
+	 * @param integer $uid User ID
+	 * @return integer
+	 */
+	public static function getRemoteContactID($uid)
+	{
+		$session = DI::session();
+
+		if (empty($session->get('remote')[$uid])) {
+			return 0;
+		}
+
+		return $session->get('remote')[$uid];
+	}
+
+	/**
+	 * Returns User ID for given contact ID of the visitor
+	 *
+	 * @param integer $cid Contact ID
+	 * @return integer User ID for given contact ID of the visitor
+	 */
+	public static function getUserIDForVisitorContactID($cid)
+	{
+		$session = DI::session();
+
+		if (empty($session->get('remote'))) {
+			return false;
+		}
+
+		return array_search($cid, $session->get('remote'));
+	}
+
+	/**
+	 * Set the session variable that contains the contact IDs for the visitor's contact URL
+	 *
+	 * @param string $url Contact URL
+	 */
+	public static function setVisitorsContacts()
+	{
+		$session = DI::session();
+
+		$session->set('remote', []);
+
+		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($session->get('my_url')), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
+		while ($contact = DBA::fetch($remote_contacts)) {
+			if (($contact['uid'] == 0) || Contact\User::isBlocked($contact['id'], $contact['uid'])) {
+				continue;
+			}
+
+			$session->set('remote', [$contact['uid'] => $contact['id']]);
+		}
+		DBA::close($remote_contacts);
+	}
+
+	/**
+	 * Returns if the current visitor is authenticated
+	 *
+	 * @return boolean "true" when visitor is either a local or remote user
+	 */
+	public static function isAuthenticated()
+	{
+		$session = DI::session();
+
+		return $session->get('authenticated', false);
 	}
 }

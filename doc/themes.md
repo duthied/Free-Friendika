@@ -3,7 +3,7 @@
 * [Home](help)
 
 To change the look of friendica you have to touch the themes.
-The current default theme is [Vier](https://github.com/friendica/friendica/tree/master/view/theme/vier) but there are numerous others.
+The current default theme is [Vier](https://github.com/friendica/friendica/tree/stable/view/theme/vier) but there are numerous others.
 Have a look at [friendica-themes.com](http://friendica-themes.com) for an overview of the existing themes.
 In case none of them suits your needs, there are several ways to change a theme.
 
@@ -108,17 +108,17 @@ The _post functions handle the processing of the send form, in this case they sa
 To make your own variation appear in the menu, all you need to do is to create a new CSS file in the deriv directoy and include it in the array in the config.php:
 
     $colorset = array(
-        'default'=>L10n::t('default'),
-        'greenzero'=>L10n::t('greenzero'),
-        'purplezero'=>L10n::t('purplezero'),
-        'easterbunny'=>L10n::t('easterbunny'),
-        'darkzero'=>L10n::t('darkzero'),
-        'comix'=>L10n::t('comix'),
-        'slackr'=>L10n::t('slackr'),
+        'default'=>DI::l10n()->t('default'),
+        'greenzero'=>DI::l10n()->t('greenzero'),
+        'purplezero'=>DI::l10n()->t('purplezero'),
+        'easterbunny'=>DI::l10n()->t('easterbunny'),
+        'darkzero'=>DI::l10n()->t('darkzero'),
+        'comix'=>DI::l10n()->t('comix'),
+        'slackr'=>DI::l10n()->t('slackr'),
     );
 
 the 1st part of the line is the name of the CSS file (without the .css) the 2nd part is the common name of the variant.
-Calling the L10n::t() function with the common name makes the string translateable.
+Calling the DI::l10n()->t() function with the common name makes the string translateable.
 The selected 1st part will be saved in the database by the theme_post function.
 
     function theme_post(App $a){
@@ -129,7 +129,7 @@ The selected 1st part will be saved in the database by the theme_post function.
         // if the one specific submit button was pressed then proceed
         if (isset($_POST['duepuntozero-settings-submit'])){
             // and save the selection key into the personal config of the user
-            PConfig::set(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
+            DI::pConfig()->set(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
         }
     }
 
@@ -137,12 +137,12 @@ Now that this information is set in the database, what should friendica do with 
 For this, have a look at the theme.php file of the *duepunto zero*.
 There you'll find somethink alike
 
-        $colorset = PConfig::get( local_user(), 'duepuntozero','colorset');
+        $colorset = DI::pConfig()->get( local_user(), 'duepuntozero','colorset');
         if (!$colorset)
-            $colorset = Config::get('duepuntozero', 'colorset');
+            $colorset = DI::config()->get('duepuntozero', 'colorset');
         if ($colorset) {
             if ($colorset == 'greenzero')
-                $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/greenzero.css" type="text/css" media="screen" />'."\n";
+                DI::page()['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/greenzero.css" type="text/css" media="screen" />'."\n";
             /* some more variants */
         }
 
@@ -281,7 +281,7 @@ which declares *duepuntozero* as parent of the theme.
 If you want to add something to the HTML header of the theme, one way to do so is by adding it to the theme.php file.
 To do so, add something alike
 
-    $a->page['htmlhead'] .= <<< EOT
+    DI::page()['htmlhead'] .= <<< EOT
     /* stuff you want to add to the header */
     EOT;
 

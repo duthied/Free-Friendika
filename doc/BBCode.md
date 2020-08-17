@@ -65,17 +65,17 @@ table.bbcodes > * > tr > th {
   <td><a href="http://friendi.ca" target="external-link">Friendica</a></td>
 </tr>
 <tr>
-  <td>[img]https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg[/img]</td>
-  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="Immagine/foto"></td>
+  <td>[img]https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg[/img]</td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg" alt="Immagine/foto"></td>
 </tr>
 <tr>
-  <td>[img=https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg]The Friendica Logo[/img]</td>
-  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="The Friendica Logo"></td>
+  <td>[img=https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg]The Friendica Logo[/img]</td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg" alt="The Friendica Logo"></td>
 </tr>
 <tr>
-  <td>[img=64x32]https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg[/img]<br>
+  <td>[img=64x32]https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg[/img]<br>
 <br>Note: provided height is simply discarded.</td>
-  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" style="width: 64px;"></td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg" style="width: 64px;"></td>
 </tr>
 <tr>
   <td>[size=xx-small]small text[/size]</td>
@@ -113,17 +113,17 @@ table.bbcodes > * > tr > th {
 <tr>
   <td>[bookmark]http://friendi.ca[/bookmark]<br><br>
 #^[url]http://friendi.ca[/url]</td>
-  <td><span class="oembed link"><h4>Friendica: <a href="http://friendi.ca" rel="oembed"></a><a href="http://friendi.ca" target="_blank">http://friendi.ca</a></h4></span></td>
+  <td><span class="oembed link"><h4>Friendica: <a href="http://friendi.ca" rel="oembed"></a><a href="http://friendi.ca" target="_blank" rel="noopener noreferrer">http://friendi.ca</a></h4></span></td>
 </tr>
 <tr>
   <td>[bookmark=http://friendi.ca]Bookmark[/bookmark]<br><br>
 #^[url=http://friendi.ca]Bookmark[/url]<br><br>
 #[url=http://friendi.ca]^[/url][url=http://friendi.ca]Bookmark[/url]</td>
-  <td><span class="oembed link"><h4>Friendica: <a href="http://friendi.ca" rel="oembed"></a><a href="http://friendi.ca" target="_blank">Bookmark</a></h4></span></td>
+  <td><span class="oembed link"><h4>Friendica: <a href="http://friendi.ca" rel="oembed"></a><a href="http://friendi.ca" target="_blank" rel="noopener noreferrer">Bookmark</a></h4></span></td>
 </tr>
 <tr>
   <td>[url=/posts/f16d77b0630f0134740c0cc47a0ea02a]Diaspora post with GUID[/url]</td>
-  <td><a href="/display/f16d77b0630f0134740c0cc47a0ea02a" target="_blank">Diaspora post with GUID</a></td>
+  <td><a href="/display/f16d77b0630f0134740c0cc47a0ea02a" target="_blank" rel="noopener noreferrer">Diaspora post with GUID</a></td>
 </tr>
 <tr>
   <td>#Friendica</td>
@@ -602,6 +602,9 @@ While taking pictures in the woods I had a really strange encounter...</td>
 The [abstract] element is not working with connectors where we post HTML directly, like Tumblr, Wordpress or Pump.io.
 For the native connections--that is to e.g. Friendica, Hubzilla, Diaspora or GNU Social--the full posting is used and the contacts instance will display the posting as desired.
 
+For postings that are delivered via ActivityPub, the text from the abstract is placed in the summary field.
+On Mastodon this field is used for the content warning.
+
 ## Special
 
 <table class="bbcodes">
@@ -610,14 +613,33 @@ For the native connections--that is to e.g. Friendica, Hubzilla, Diaspora or GNU
   <th>Result</th>
 </tr>
 <tr>
-  <td>If you need to put literal bbcode in a message, [noparse], [nobb] or [pre] are used to escape bbcode:
+  <td>If you need to put literal BBCode in a message, [noparse], [nobb] or [pre] blocks prevent BBCode conversion:
     <ul>
       <li>[noparse][b]bold[/b][/noparse]</li>
       <li>[nobb][b]bold[/b][/nobb]</li>
       <li>[pre][b]bold[/b][/pre]</li>
     </ul>
+    Note: [code] has priority over [noparse], [nobb] and [pre] which makes them display as BBCode tags in code blocks instead of being removed.
+    [code] blocks inside [noparse] will still be converted to a code block.
   </td>
   <td>[b]bold[/b]</td>
+</tr>
+<tr>
+  <td>Additionally, [noparse] and [pre] blocks prevent mention and hashtag conversion to links:
+    <ul>
+      <li>[noparse]@user@domain.tld #hashtag[/noparse]</li>
+      <li>[pre]@user@domain.tld #hashtag[/pre]</li>
+    </ul>
+  </td>
+  <td>@user@domain.tld #hashtag</td>
+</tr>
+<tr>
+  <td>Additionally, [pre] blocks preserve spaces:
+    <ul>
+      <li>[pre]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Spaces[/pre]</li>
+    </ul>
+  </td>
+  <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Spaces</td>
 </tr>
 <tr>
   <td>[nosmile] is used to disable smilies on a post by post basis<br>

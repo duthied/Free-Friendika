@@ -1,23 +1,39 @@
 <?php
 /**
- * @file mod/wall_upload.php
- * @brief Module for uploading a picture to the profile wall
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Module for uploading a picture to the profile wall
  *
  * By default the picture will be stored in the photo album with the name Wall Photos.
  * You can specify a different album by adding an optional query string "album="
  * to the url
+ *
  */
 
 use Friendica\App;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
-use Friendica\Core\Config;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
+use Friendica\DI;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Object\Image;
+use Friendica\Util\Images;
 use Friendica\Util\Strings;
 
 function wall_upload_post(App $a, $desktopmode = true)
@@ -25,37 +41,26 @@ function wall_upload_post(App $a, $desktopmode = true)
 	Logger::log("wall upload: starting new upload", Logger::DEBUG);
 
 	$r_json = (!empty($_GET['response']) && $_GET['response'] == 'json');
-	$album = (!empty($_GET['album']) ? Strings::escapeTags(trim($_GET['album'])) : '');
+	$album = trim($_GET['album'] ?? '');
 
 	if ($a->argc > 1) {
 		if (empty($_FILES['media'])) {
-			$nick = $a->argv[1];
-			$r = q("SELECT `user`.*, `contact`.`id` FROM `user`
-				INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
-				WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0
-				AND `contact`.`self` = 1 LIMIT 1",
-				DBA::escape($nick)
-			);
-
-			if (!DBA::isResult($r)) {
+			$nick = $a->argv[1];			
+			$user = DBA::selectFirst('owner-view', ['id', 'uid', 'nickname', 'page-flags'], ['nickname' => $nick, 'blocked' => false]);
+			if (!DBA::isResult($user)) {
 				if ($r_json) {
-					echo json_encode(['error' => L10n::t('Invalid request.')]);
+					echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
 					exit();
 				}
 				return;
 			}
 		} else {
 			$user_info = api_get_user($a);
-			$r = q("SELECT `user`.*, `contact`.`id` FROM `user`
-				INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
-				WHERE `user`.`nickname` = '%s' AND `user`.`blocked` = 0
-				AND `contact`.`self` = 1 LIMIT 1",
-				DBA::escape($user_info['screen_name'])
-			);
+			$user = DBA::selectFirst('owner-view', ['id', 'uid', 'nickname', 'page-flags'], ['nickname' => $user_info['screen_name'], 'blocked' => false]);
 		}
 	} else {
 		if ($r_json) {
-			echo json_encode(['error' => L10n::t('Invalid request.')]);
+			echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
 			exit();
 		}
 		return;
@@ -67,53 +72,40 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$can_post  = false;
 	$visitor   = 0;
 
-	$page_owner_uid   = $r[0]['uid'];
-	$default_cid      = $r[0]['id'];
-	$page_owner_nick  = $r[0]['nickname'];
-	$community_page   = (($r[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
+	$page_owner_uid   = $user['uid'];
+	$default_cid      = $user['id'];
+	$page_owner_nick  = $user['nickname'];
+	$community_page   = (($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
 	if ((local_user()) && (local_user() == $page_owner_uid)) {
 		$can_post = true;
-	} else {
-		if ($community_page && remote_user()) {
-			$contact_id = 0;
-			if (is_array($_SESSION['remote'])) {
-				foreach ($_SESSION['remote'] as $v) {
-					if ($v['uid'] == $page_owner_uid) {
-						$contact_id = $v['cid'];
-						break;
-					}
-				}
-			}
+	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
+		$contact_id = Session::getRemoteContactID($page_owner_uid);
 
-			if ($contact_id) {
-				$r = q("SELECT `uid` FROM `contact`
-					WHERE `blocked` = 0 AND `pending` = 0
-					AND `id` = %d AND `uid` = %d LIMIT 1",
-					intval($contact_id),
-					intval($page_owner_uid)
-				);
-				if (DBA::isResult($r)) {
-					$can_post = true;
-					$visitor = $contact_id;
-				}
-			}
+		$r = q("SELECT `uid` FROM `contact`
+			WHERE `blocked` = 0 AND `pending` = 0
+			AND `id` = %d AND `uid` = %d LIMIT 1",
+			intval($contact_id),
+			intval($page_owner_uid)
+		);
+		if (DBA::isResult($r)) {
+			$can_post = true;
+			$visitor = $contact_id;
 		}
 	}
 
-
 	if (!$can_post) {
 		if ($r_json) {
-			echo json_encode(['error' => L10n::t('Permission denied.')]);
+			echo json_encode(['error' => DI::l10n()->t('Permission denied.')]);
 			exit();
 		}
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		exit();
 	}
 
 	if (empty($_FILES['userfile']) && empty($_FILES['media'])) {
 		if ($r_json) {
-			echo json_encode(['error' => L10n::t('Invalid request.')]);
+			echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
 		}
 		exit();
 	}
@@ -164,38 +156,22 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ($src == "") {
 		if ($r_json) {
-			echo json_encode(['error' => L10n::t('Invalid request.')]);
+			echo json_encode(['error' => DI::l10n()->t('Invalid request.')]);
 			exit();
 		}
-		notice(L10n::t('Invalid request.').EOL);
+		notice(DI::l10n()->t('Invalid request.'));
 		exit();
 	}
 
-	// This is a special treatment for picture upload from Twidere
-	if (($filename == "octet-stream") && ($filetype != "")) {
-		$filename = $filetype;
-		$filetype = "";
-	}
-
-	if ($filetype == "") {
-		$filetype = Image::guessType($filename);
-	}
-
-	// If there is a temp name, then do a manual check
-	// This is more reliable than the provided value
-
-	$imagedata = getimagesize($src);
-	if ($imagedata) {
-		$filetype = $imagedata['mime'];
-	}
+	$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
 
 	Logger::log("File upload src: " . $src . " - filename: " . $filename .
 		" - size: " . $filesize . " - type: " . $filetype, Logger::DEBUG);
 
-	$maximagesize = Config::get('system', 'maximagesize');
+	$maximagesize = DI::config()->get('system', 'maximagesize');
 
 	if (($maximagesize) && ($filesize > $maximagesize)) {
-		$msg = L10n::t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize));
+		$msg = DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize));
 		if ($r_json) {
 			echo json_encode(['error' => $msg]);
 		} else {
@@ -209,7 +185,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$Image = new Image($imagedata, $filetype);
 
 	if (!$Image->isValid()) {
-		$msg = L10n::t('Unable to process image.');
+		$msg = DI::l10n()->t('Unable to process image.');
 		if ($r_json) {
 			echo json_encode(['error' => $msg]);
 		} else {
@@ -222,7 +198,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$Image->orient($src);
 	@unlink($src);
 
-	$max_length = Config::get('system', 'max_image_length');
+	$max_length = DI::config()->get('system', 'max_image_length');
 	if (!$max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
@@ -234,21 +210,21 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$width = $Image->getWidth();
 	$height = $Image->getHeight();
 
-	$hash = Photo::newResource();
+	$resource_id = Photo::newResource();
 
 	$smallest = 0;
 
 	// If we don't have an album name use the Wall Photos album
 	if (!strlen($album)) {
-		$album = L10n::t('Wall Photos');
+		$album = DI::l10n()->t('Wall Photos');
 	}
 
 	$defperm = '<' . $default_cid . '>';
 
-	$r = Photo::store($Image, $page_owner_uid, $visitor, $hash, $filename, $album, 0, 0, $defperm);
+	$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0, 0, $defperm);
 
 	if (!$r) {
-		$msg = L10n::t('Image upload failed.');
+		$msg = DI::l10n()->t('Image upload failed.');
 		if ($r_json) {
 			echo json_encode(['error' => $msg]);
 		} else {
@@ -259,7 +235,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ($width > 640 || $height > 640) {
 		$Image->scaleDown(640);
-		$r = Photo::store($Image, $page_owner_uid, $visitor, $hash, $filename, $album, 1, 0, $defperm);
+		$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 1, 0, $defperm);
 		if ($r) {
 			$smallest = 1;
 		}
@@ -267,7 +243,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ($width > 320 || $height > 320) {
 		$Image->scaleDown(320);
-		$r = Photo::store($Image, $page_owner_uid, $visitor, $hash, $filename, $album, 2, 0, $defperm);
+		$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 2, 0, $defperm);
 		if ($r && ($smallest == 0)) {
 			$smallest = 2;
 		}
@@ -277,7 +253,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		$r = q("SELECT `id`, `datasize`, `width`, `height`, `type` FROM `photo`
 			WHERE `resource-id` = '%s'
 			ORDER BY `width` DESC LIMIT 1",
-			$hash
+			$resource_id
 		);
 		if (!$r) {
 			if ($r_json) {
@@ -293,9 +269,9 @@ function wall_upload_post(App $a, $desktopmode = true)
 		$picture["width"]     = $r[0]["width"];
 		$picture["height"]    = $r[0]["height"];
 		$picture["type"]      = $r[0]["type"];
-		$picture["albumpage"] = System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $hash;
-		$picture["picture"]   = System::baseUrl() . "/photo/{$hash}-0." . $Image->getExt();
-		$picture["preview"]   = System::baseUrl() . "/photo/{$hash}-{$smallest}." . $Image->getExt();
+		$picture["albumpage"] = DI::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id;
+		$picture["picture"]   = DI::baseUrl() . "/photo/{$resource_id}-0." . $Image->getExt();
+		$picture["preview"]   = DI::baseUrl() . "/photo/{$resource_id}-{$smallest}." . $Image->getExt();
 
 		if ($r_json) {
 			echo json_encode(['picture' => $picture]);
@@ -312,7 +288,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		exit();
 	}
 
-	echo  "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $hash . '][img]' . System::baseUrl() . "/photo/{$hash}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";
+	echo  "\n\n" . '[url=' . DI::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id . '][img]' . DI::baseUrl() . "/photo/{$resource_id}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";
 	exit();
 	// NOTREACHED
 }

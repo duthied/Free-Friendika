@@ -25,13 +25,13 @@ In den ersten Zeilen wird Dir Dein Name und Deine aktuelle IP-Adresse angezeigt.
 Rechts im Fenster siehst Du alle Teilnehmer des Chats.
 Unten hast Du ein Eingabefeld, um Beiträge zu schreiben.
 
-Weiter Informationen zu IRC findest Du zum Beispiel auf <a href="http://wiki.ubuntuusers.de/IRC" target="_blank">ubuntuusers.de</a>, in <a href="https://de.wikipedia.org/wiki/Internet_Relay_Chat" target="_blank">Wikipedia</a> oder bei <a href="http://www.irchelp.org/" target="_blank">icrhelp.org</a> (in Englisch).
+Weiter Informationen zu IRC findest Du zum Beispiel auf <a href="http://wiki.ubuntuusers.de/IRC" target="_blank" rel="noopener noreferrer">ubuntuusers.de</a>, in <a href="https://de.wikipedia.org/wiki/Internet_Relay_Chat" target="_blank" rel="noopener noreferrer">Wikipedia</a> oder bei <a href="http://www.irchelp.org/" target="_blank" rel="noopener noreferrer">icrhelp.org</a> (in Englisch).
 
 ## Jappix Mini
 
 Das Jappix Mini Addon erlaubt das Erstellen einer Chatbox für Jabber/XMPP-Kontakte.
 Ein Jabber/XMPP Account sollte vor der Installation bereits vorhanden sein.
-Die ausführliche Anleitung dazu und eine Kontrolle, ob Du nicht sogar schon über Deinen E-Mail Anbieter einen Jabber-Account hast, findest Du unter <a href="http://einfachjabber.de" target="_blank">einfachjabber.de</a>.
+Die ausführliche Anleitung dazu und eine Kontrolle, ob Du nicht sogar schon über Deinen E-Mail Anbieter einen Jabber-Account hast, findest Du unter <a href="http://einfachjabber.de" target="_blank" rel="noopener noreferrer">einfachjabber.de</a>.
 
 Einige Server zum Anmelden eines neuen Accounts:
 
@@ -49,7 +49,7 @@ Per Git:
 cd /var/www/&lt;Pfad zu Deiner friendica-Installation&gt;/addon; git pull
 </p>
 
-oder als normaler Download von hier: https://github.com/friendica/friendica-addons/blob/master/jappixmini.tgz (auf „view raw“ klicken)
+oder als normaler Download von hier: https://github.com/friendica/friendica-addons/blob/stable/jappixmini.tgz (auf „view raw“ klicken)
 
 Entpacke diese Datei (ggf. den entpackten Ordner in „jappixmini“ umbenennen) und lade sowohl den entpackten Ordner komplett als auch die .tgz Datei in den Addon Ordner Deiner Friendica Installation hoch.
 

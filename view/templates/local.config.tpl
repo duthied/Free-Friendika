@@ -2,15 +2,15 @@
 
 // Local configuration
 
-// If you're unsure about what any of the config keys below do, please check the config/defaults.config.php for detailed
+// If you're unsure about what any of the config keys below do, please check the static/defaults.config.php for detailed
 // documentation of their data type and behavior.
 
 return [
 	'database' => [
-		'hostname' => '{{$dbhost}}',
-		'username' => '{{$dbuser}}',
-		'password' => '{{$dbpass}}',
-		'database' => '{{$dbdata}}',
+		'hostname' => '{{$dbhost|escape:'quotes' nofilter}}',
+		'username' => '{{$dbuser|escape:'quotes' nofilter}}',
+		'password' => '{{$dbpass|escape:'quotes' nofilter}}',
+		'database' => '{{$dbdata|escape:'quotes' nofilter}}',
 		'charset' => 'utf8mb4',
 	],
 
@@ -21,15 +21,19 @@ return [
 	// ****************************************************************
 
 	'config' => [
-		'php_path' => '{{$phpath}}',
-		'admin_email' => '{{$adminmail}}',
+		'php_path' => '{{$phpath|escape:'quotes' nofilter}}',
+		'admin_email' => '{{$adminmail|escape:'quotes' nofilter}}',
 		'sitename' => 'Friendica Social Network',
+		'hostname' => '{{$hostname|escape:'quotes' nofilter}}',
 		'register_policy' => \Friendica\Module\Register::OPEN,
 		'max_import_size' => 200000,
 	],
 	'system' => [
-		'urlpath' => '{{$urlpath}}',
-		'default_timezone' => '{{$timezone}}',
-		'language' => '{{$language}}',
+		'urlpath' => '{{$urlpath|escape:'quotes' nofilter}}',
+		'url' => '{{$baseurl|escape:'quotes' nofilter}}',
+		'ssl_policy' => {{$sslpolicy|escape:'quotes' nofilter}},
+		'basepath' => '{{$basepath|escape:'quotes' nofilter}}',
+		'default_timezone' => '{{$timezone|escape:'quotes' nofilter}}',
+		'language' => '{{$language|escape:'quotes' nofilter}}',
 	],
 ];

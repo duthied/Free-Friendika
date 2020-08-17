@@ -1,7 +1,24 @@
 <?php
 /**
- * @file src/Model/PushSubscriber.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Model;
 
 use Friendica\Core\Logger;
@@ -12,7 +29,7 @@ use Friendica\Util\DateTimeFormat;
 class PushSubscriber
 {
 	/**
-	 * @brief Send subscription notifications for the given user
+	 * Send subscription notifications for the given user
 	 *
 	 * @param integer $uid User ID
 	 * @param int     $default_priority
@@ -27,7 +44,7 @@ class PushSubscriber
 	}
 
 	/**
-	 * @brief start workers to transmit the feed data
+	 * start workers to transmit the feed data
 	 *
 	 * @param int $default_priority
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -54,7 +71,7 @@ class PushSubscriber
 	}
 
 	/**
-	 * @brief Renew the feed subscription
+	 * Renew the feed subscription
 	 *
 	 * @param integer $uid          User ID
 	 * @param string  $nick         Priority for push workers
@@ -98,7 +115,7 @@ class PushSubscriber
 	}
 
 	/**
-	 * @brief Delay the push subscriber
+	 * Delay the push subscriber
 	 *
 	 * @param integer $id Subscriber ID
 	 * @throws \Exception
@@ -136,7 +153,7 @@ class PushSubscriber
 	}
 
 	/**
-	 * @brief Reset the push subscriber
+	 * Reset the push subscriber
 	 *
 	 * @param integer $id          Subscriber ID
 	 * @param string  $last_update Date of last transmitted item

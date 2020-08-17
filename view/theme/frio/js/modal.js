@@ -1,5 +1,5 @@
 /**
- * @brief Contains functions for bootstrap modal handling.
+ * Contains functions for bootstrap modal handling.
  */
 $(document).ready(function(){
 	// Clear bs modal on close.
@@ -93,6 +93,21 @@ $(document).ready(function(){
 		input.val(img);
 		
 	});
+
+	// Generic delegated event to open an anchor URL in a modal.
+	// Used in the hovercard.
+	document.getElementsByTagName('body')[0].addEventListener('click', function(e) {
+		var target = e.target;
+		while (target) {
+			if (target.matches && target.matches('a.add-to-modal')) {
+				addToModal(target.href);
+				e.preventDefault();
+				return false;
+			}
+
+			target = target.parentNode || null;
+		}
+	});
 });
 
 // Overwrite Dialog.show from main js to load the filebrowser into a bs modal.
@@ -120,7 +135,7 @@ Dialog.show = function(url, title) {
 Dialog._get_url = function(type, name, id) {
 	var hash = name;
 	if (id !== undefined) hash = hash + "-" + id;
-	return "fbrowser/"+type+"/?mode=none#"+hash;
+	return "fbrowser/"+type+"/?mode=none&theme=frio#"+hash;
 };
 
 // Does load the filebrowser into the jot modal.
@@ -144,24 +159,23 @@ Dialog.showJot = function() {
 // Init the filebrowser after page load.
 Dialog._load = function(url) {
 	// Get nickname & filebrowser type from the modal content.
-	var nickname = $("#fb-nickname").attr("value");
-	var type = $("#fb-type").attr("value");
+	let filebrowser = document.getElementById('filebrowser');
 
 	// Try to fetch the hash form the url.
-	var match = url.match(/fbrowser\/[a-z]+\/\?mode=none(.*)/);
-	if (match===null) return; //not fbrowser
-	var hash = match[1];
+	let match = url.match(/fbrowser\/[a-z]+\/.*(#.*)/);
+	if (!filebrowser || match === null) {
+		return; //not fbrowser
+	}
 
 	// Initialize the filebrowser.
-	var jsbrowser = function() {
-		FileBrowser.init(nickname, type, hash);
-	};
 	loadScript("view/js/ajaxupload.js");
-	loadScript("view/theme/frio/js/filebrowser.js", jsbrowser);
+	loadScript("view/theme/frio/js/filebrowser.js", function() {
+		FileBrowser.init(filebrowser.dataset.nickname, filebrowser.dataset.type, match[1]);
+	});
 };
 
 /**
- * @brief Add first element with the class "heading" as modal title
+ * Add first element with the class "heading" as modal title
  * 
  * Note: this should be really done in the template
  * and is the solution where we havent done it until this
@@ -262,7 +276,6 @@ function editpost(url) {
 	var modal = $('#jot-modal').modal();
 	url = url + " #jot-sections";
 
-	//var rand_num = random_digits(12);
 	$(".jot-nav .jot-perms-lnk").parent("li").addClass("hidden");
 
 	// For editpost we load the modal html of "jot-sections" of the edit page. So we would have two jot forms in
@@ -311,14 +324,6 @@ function jotreset() {
 		$("#profile-jot-form #jot-title-wrap").show();
 		$("#profile-jot-form #jot-category-wrap").show();
 
-		// the following was commented out because it is needed anymore
-		// because we changed the behavior at an other place.
-	//		var rand_num = random_digits(12);
-	//		$('#jot-title, #jot-category, #profile-jot-text').val("");
-	//		$( "#profile-jot-form input[name='type']" ).val("wall");
-	//		$( "#profile-jot-form input[name='post_id']" ).val("");
-	//		$( "#profile-jot-form input[name='post_id_random']" ).val(rand_num);
-
 		// Remove the "edit-jot" class so we can the standard behavior on close.
 		$("#jot-modal.edit-jot").removeClass("edit-jot");
 		$("#jot-modal-content").empty();
@@ -338,11 +343,11 @@ function toggleJotNav (elm) {
 
 	// Minimize all tab content wrapper and activate only the selected
 	// tab panel.
-	$('#jot-modal [role=tabpanel]').addClass("minimize").attr("aria-hidden" ,"true");
-	$('#jot-modal #' + tabpanel).removeClass("minimize").attr("aria-hidden" ,"false");
+	$('#profile-jot-form > [role=tabpanel]').addClass("minimize").attr("aria-hidden" ,"true");
+	$('#' + tabpanel).removeClass("minimize").attr("aria-hidden" ,"false");
 
 	// Set the aria-selected states
-	$("#jot-modal .nav-tabs .jot-nav-lnk").attr("aria-selected", "false");
+	$("#jot-modal .modal-header .nav-tabs .jot-nav-lnk").attr("aria-selected", "false");
 	elm.setAttribute("aria-selected", "true");
 
 	// For some some tab panels we need to execute other js functions.

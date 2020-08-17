@@ -1,20 +1,36 @@
 <?php
 /**
- * @file src/Module/Proxy.php
- * @brief Based upon "Privacy Image Cache" by Tobias Hößl <https://github.com/CatoTH/>
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
-use Friendica\Core\System;
+use Friendica\Core\Logger;
+use Friendica\DI;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
-use Friendica\Util\Network;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\Proxy as ProxyUtils;
 
 /**
- * @brief Module Proxy
+ * Module Proxy
  *
  * urls:
  * /proxy/[sub1/[sub2/]]<base64url image url>[.ext][:size]
@@ -24,15 +40,15 @@ class Proxy extends BaseModule
 {
 
 	/**
-	 * @brief Initializer method for this class.
+	 * Initializer method for this class.
 	 *
 	 * Sets application instance and checks if /proxy/ path is writable.
 	 *
 	 */
-	public static function init()
+	public static function init(array $parameters = [])
 	{
 		// Set application instance here
-		$a = self::getApp();
+		$a = DI::app();
 
 		/*
 		 * Pictures are stored in one of the following ways:
@@ -70,7 +86,7 @@ class Proxy extends BaseModule
 		$request = self::getRequestInfo();
 
 		if (empty($request['url'])) {
-			System::httpExit(400, ['title' => L10n::t('Bad Request.')]);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		// Webserver already tried direct cache...
@@ -81,38 +97,37 @@ class Proxy extends BaseModule
 		// Try to use photo from db
 		self::responseFromDB($request);
 
-
 		//
 		// If script is here, the requested url has never cached before.
 		// Let's fetch it, scale it if required, then save it in cache.
 		//
 
-
 		// It shouldn't happen but it does - spaces in URL
 		$request['url'] = str_replace(' ', '+', $request['url']);
-		$redirects = 0;
-		$fetchResult = Network::fetchUrlFull($request['url'], true, $redirects, 10);
+		$fetchResult = HTTPSignature::fetchRaw($request['url'], local_user(), true, ['timeout' => 10]);
 		$img_str = $fetchResult->getBody();
+
+		// If there is an error then return a blank image
+		if ((substr($fetchResult->getReturnCode(), 0, 1) == '4') || empty($img_str)) {
+			Logger::info('Error fetching image', ['image' => $request['url'], 'return' => $fetchResult->getReturnCode(), 'empty' => empty($img_str)]);
+			self::responseError();
+			// stop.
+		}
 
 		$tempfile = tempnam(get_temppath(), 'cache');
 		file_put_contents($tempfile, $img_str);
 		$mime = mime_content_type($tempfile);
 		unlink($tempfile);
 
-		// If there is an error then return a blank image
-		if ((substr($fetchResult->getReturnCode(), 0, 1) == '4') || (!$img_str)) {
+		$image = new Image($img_str, $mime);
+		if (!$image->isValid()) {
+			Logger::info('The image is invalid', ['image' => $request['url'], 'mime' => $mime]);
 			self::responseError();
 			// stop.
 		}
 
-		$image = new Image($img_str, $mime);
-		if (!$image->isValid()) {
-			self::responseError();
-			// stop.
-		}
-		
 		$basepath = $a->getBasePath();
-		
+
 		// Store original image
 		if ($direct_cache) {
 			// direct cache , store under ./proxy/
@@ -143,7 +158,7 @@ class Proxy extends BaseModule
 
 
 	/**
-	 * @brief Build info about requested image to be proxied
+	 * Build info about requested image to be proxied
 	 *
 	 * @return array
 	 *    [
@@ -156,12 +171,12 @@ class Proxy extends BaseModule
 	 */
 	private static function getRequestInfo()
 	{
-		$a = self::getApp();
+		$a = DI::app();
 		$size = 1024;
 		$sizetype = '';
-		
-		
+
 		// Look for filename in the arguments
+		// @TODO: Replace with parameter from router
 		if (($a->argc > 1) && !isset($_REQUEST['url'])) {
 			if (isset($a->argv[3])) {
 				$url = $a->argv[3];
@@ -172,6 +187,7 @@ class Proxy extends BaseModule
 			}
 
 			/// @TODO: Why? And what about $url in this case?
+			/// @TODO: Replace with parameter from router
 			if (isset($a->argv[3]) && ($a->argv[3] == 'thumb')) {
 				$size = 200;
 			}
@@ -209,9 +225,9 @@ class Proxy extends BaseModule
 			$url = base64_decode(strtr($url, '-_', '+/'), true);
 
 		} else {
-			$url = defaults($_REQUEST, 'url', '');
+			$url = $_REQUEST['url'] ?? '';
 		}
-		
+
 		return [
 			'url' => $url,
 			'urlhash' => 'pic:' . sha1($url),
@@ -222,14 +238,14 @@ class Proxy extends BaseModule
 
 
 	/**
-	 * @brief setup ./proxy folder for direct cache
+	 * setup ./proxy folder for direct cache
 	 *
 	 * @return bool  False if direct cache can't be used.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function setupDirectCache()
 	{
-		$a = self::getApp();
+		$a = DI::app();
 		$basepath = $a->getBasePath();
 
 		// If the cache path isn't there, try to create it
@@ -239,15 +255,15 @@ class Proxy extends BaseModule
 
 		// Checking if caching into a folder in the webroot is activated and working
 		$direct_cache = (is_dir($basepath . '/proxy') && is_writable($basepath . '/proxy'));
-		// we don't use direct cache if image url is passed in args and not in querystring 
+		// we don't use direct cache if image url is passed in args and not in querystring
 		$direct_cache = $direct_cache && ($a->argc > 1) && !isset($_REQUEST['url']);
-		
+
 		return $direct_cache;
 	}
 
 
 	/**
-	 * @brief Try to reply with image in cachefile
+	 * Try to reply with image in cachefile
 	 *
 	 * @param array $request Array from getRequestInfo
 	 *
@@ -269,7 +285,7 @@ class Proxy extends BaseModule
 	}
 
 	/**
-	 * @brief Try to reply with image in database
+	 * Try to reply with image in database
 	 *
 	 * @param array $request Array from getRequestInfo
 	 *
@@ -277,8 +293,8 @@ class Proxy extends BaseModule
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function responseFromDB(&$request) {
-	
+	private static function responseFromDB(&$request)
+	{
 		$photo = Photo::getPhoto($request['urlhash']);
 
 		if ($photo !== false) {
@@ -287,19 +303,19 @@ class Proxy extends BaseModule
 			// stop.
 		}
 	}
-	
+
 	/**
-	 * @brief Output a blank image, without cache headers, in case of errors
+	 * In case of an error just stop. We don't return content to avoid caching problems
 	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function responseError() {
-		header('Content-type: image/png');
-		echo file_get_contents('images/blank.png');
-		exit();
+	private static function responseError()
+	{
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}
 
 	/**
-	 * @brief Output the image with cache headers
+	 * Output the image with cache headers
 	 *
 	 * @param Image $img
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -307,6 +323,7 @@ class Proxy extends BaseModule
 	private static function responseImageHttpCache(Image $img)
 	{
 		if (is_null($img) || !$img->isValid()) {
+			Logger::info('The cached image is invalid');
 			self::responseError();
 			// stop.
 		}
@@ -319,5 +336,3 @@ class Proxy extends BaseModule
 		exit();
 	}
 }
-
-

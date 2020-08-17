@@ -1,17 +1,35 @@
 <?php
 /**
- * @file src/Core/Hook.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Core;
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Util\Strings;
 
 /**
  * Some functions to handle hooks
  */
-class Hook extends BaseObject
+class Hook
 {
 	/**
 	 * Array of registered hooks
@@ -44,7 +62,7 @@ class Hook extends BaseObject
 	}
 
 	/**
-	 * @brief Adds a new hook to the hooks array.
+	 * Adds a new hook to the hooks array.
 	 *
 	 * This function is meant to be called by modules on each page load as it works after loadHooks has been called.
 	 *
@@ -61,7 +79,7 @@ class Hook extends BaseObject
 	}
 
 	/**
-	 * @brief Registers a hook.
+	 * Registers a hook.
 	 *
 	 * This function is meant to be called once when an addon is enabled for example as it doesn't add to the current hooks.
 	 *
@@ -74,16 +92,14 @@ class Hook extends BaseObject
 	 */
 	public static function register($hook, $file, $function, $priority = 0)
 	{
-		$file = str_replace(self::getApp()->getBasePath() . DIRECTORY_SEPARATOR, '', $file);
+		$file = str_replace(DI::app()->getBasePath() . DIRECTORY_SEPARATOR, '', $file);
 
 		$condition = ['hook' => $hook, 'file' => $file, 'function' => $function];
 		if (DBA::exists('hook', $condition)) {
 			return true;
 		}
 
-		$result = DBA::insert('hook', ['hook' => $hook, 'file' => $file, 'function' => $function, 'priority' => $priority]);
-
-		return $result;
+		return self::insert(['hook' => $hook, 'file' => $file, 'function' => $function, 'priority' => $priority]);
 	}
 
 	/**
@@ -97,14 +113,14 @@ class Hook extends BaseObject
 	 */
 	public static function unregister($hook, $file, $function)
 	{
-		$relative_file = str_replace(self::getApp()->getBasePath() . DIRECTORY_SEPARATOR, '', $file);
+		$relative_file = str_replace(DI::app()->getBasePath() . DIRECTORY_SEPARATOR, '', $file);
 
 		// This here is only needed for fixing a problem that existed on the develop branch
 		$condition = ['hook' => $hook, 'file' => $file, 'function' => $function];
-		DBA::delete('hook', $condition);
+		self::delete($condition);
 
 		$condition = ['hook' => $hook, 'file' => $relative_file, 'function' => $function];
-		$result = DBA::delete('hook', $condition);
+		$result = self::delete($condition);
 		return $result;
 	}
 
@@ -126,7 +142,7 @@ class Hook extends BaseObject
 	}
 
 	/**
-	 * @brief Forks a hook.
+	 * Forks a hook.
 	 *
 	 * Use this function when you want to fork a hook via the worker.
 	 *
@@ -147,7 +163,7 @@ class Hook extends BaseObject
 						if ($hook[0] != $fork_hook[0]) {
 							continue;
 						}
-						self::callSingle(self::getApp(), 'hook_fork', $fork_hook, $hookdata);
+						self::callSingle(DI::app(), 'hook_fork', $fork_hook, $hookdata);
 					}
 
 					if (!$hookdata['execute']) {
@@ -161,7 +177,7 @@ class Hook extends BaseObject
 	}
 
 	/**
-	 * @brief Calls a hook.
+	 * Calls a hook.
 	 *
 	 * Use this function when you want to be able to allow a hook to manipulate
 	 * the provided data.
@@ -174,13 +190,13 @@ class Hook extends BaseObject
 	{
 		if (array_key_exists($name, self::$hooks)) {
 			foreach (self::$hooks[$name] as $hook) {
-				self::callSingle(self::getApp(), $name, $hook, $data);
+				self::callSingle(DI::app(), $name, $hook, $data);
 			}
 		}
 	}
 
 	/**
-	 * @brief Calls a single hook.
+	 * Calls a single hook.
 	 *
 	 * @param App             $a
 	 * @param string          $name of the hook to call
@@ -202,7 +218,7 @@ class Hook extends BaseObject
 		} else {
 			// remove orphan hooks
 			$condition = ['hook' => $name, 'file' => $hook[0], 'function' => $hook[1]];
-			DBA::delete('hook', $condition, ['cascade' => false]);
+			self::delete($condition, ['cascade' => false]);
 		}
 	}
 
@@ -215,6 +231,8 @@ class Hook extends BaseObject
 	 */
 	public static function isAddonApp($name)
 	{
+		$name = Strings::sanitizeFilePathItem($name);
+
 		if (array_key_exists('app_menu', self::$hooks)) {
 			foreach (self::$hooks['app_menu'] as $hook) {
 				if ($hook[0] == 'addon/' . $name . '/' . $name . '.php') {
@@ -224,5 +242,46 @@ class Hook extends BaseObject
 		}
 
 		return false;
+	}
+
+	/**
+	 * Deletes one or more hook records
+	 *
+	 * We have to clear the cached routerDispatchData because addons can provide routes
+	 *
+	 * @param array $condition
+	 * @param array $options
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public static function delete(array $condition, array $options = [])
+	{
+		$result = DBA::delete('hook', $condition, $options);
+
+		if ($result) {
+			DI::cache()->delete('routerDispatchData');
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Inserts a hook record
+	 *
+	 * We have to clear the cached routerDispatchData because addons can provide routes
+	 *
+	 * @param array $condition
+	 * @return bool
+	 * @throws \Exception
+	 */
+	private static function insert(array $condition)
+	{
+		$result = DBA::insert('hook', $condition);
+
+		if ($result) {
+			DI::cache()->delete('routerDispatchData');
+		}
+
+		return $result;
 	}
 }

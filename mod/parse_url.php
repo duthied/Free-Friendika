@@ -1,20 +1,36 @@
 <?php
-
 /**
- * @file mod/parse_url.php
- * @brief The parse_url module
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * This module does parse an url for embeddable content (audio, video, image files or link)
  * information and does format this information to BBCode
  *
  * @see ParseUrl::getSiteinfo() for more information about scraping embeddable content
  */
+
 use Friendica\App;
+use Friendica\Content\PageInfo;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
-use Friendica\Util\Network;
+use Friendica\DI;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Strings;
 
 function parse_url_content(App $a)
 {
@@ -25,10 +41,14 @@ function parse_url_content(App $a)
 
 	$br = "\n";
 
-	if (!empty($_GET['binurl'])) {
+	if (!empty($_GET['binurl']) && Strings::isHex($_GET['binurl'])) {
 		$url = trim(hex2bin($_GET['binurl']));
-	} else {
+	} elseif (!empty($_GET['url'])) {
 		$url = trim($_GET['url']);
+	// fallback in case no url is valid
+	} else {
+		Logger::info('No url given');
+		exit();
 	}
 
 	if (!empty($_GET['title'])) {
@@ -64,9 +84,8 @@ function parse_url_content(App $a)
 
 	// Check if the URL is an image, video or audio file. If so format
 	// the URL with the corresponding BBCode media tag
-	$redirects = 0;
 	// Fetch the header of the URL
-	$curlResponse = Network::curl($url, false, $redirects, ['novalidate' => true, 'nobody' => true]);
+	$curlResponse = DI::httpRequest()->get($url, false, ['novalidate' => true, 'nobody' => true]);
 
 	if ($curlResponse->isSuccess()) {
 		// Convert the header fields into an array
@@ -159,7 +178,7 @@ function parse_url_content(App $a)
 	}
 
 	// Format it as BBCode attachment
-	$info = add_page_info_data($siteinfo);
+	$info = "\n" . PageInfo::getFooterFromData($siteinfo);
 
 	echo $info;
 
@@ -167,7 +186,7 @@ function parse_url_content(App $a)
 }
 
 /**
- * @brief Legacy function to call ParseUrl::getSiteinfoCached
+ * Legacy function to call ParseUrl::getSiteinfoCached
  *
  * Note: We have moved the function to ParseUrl.php. This function is only for
  * legacy support and will be remove in the future

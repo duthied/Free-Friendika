@@ -1,10 +1,22 @@
 <?php
-
 /**
+ * @copyright Copyright (C) 2020, Friendica
  *
- * File: testargs.php
+ * @license GNU AGPL version 3 or any later version
  *
- * Purpose:
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  * During installation we need to check if register_argc_argv is
  * enabled for the command line PHP processor, because otherwise
  * deliveries will fail. So we will do a shell exec of php and

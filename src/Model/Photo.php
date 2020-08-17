@@ -1,34 +1,48 @@
 <?php
-
 /**
- * @file src/Model/Photo.php
- * @brief This file contains the Photo class for database interface
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Model;
 
-use Friendica\BaseObject;
-use Friendica\Core\Cache;
-use Friendica\Core\Config;
-use Friendica\Core\L10n;
+use Friendica\Core\Cache\Duration;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
-use Friendica\Core\StorageManager;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
-use Friendica\Model\Storage\IStorage;
+use Friendica\DI;
+use Friendica\Model\Storage\SystemResource;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
+use Friendica\Util\Images;
 use Friendica\Util\Security;
+use Friendica\Util\Strings;
 
 require_once "include/dba.php";
 
 /**
  * Class to handle photo dabatase table
  */
-class Photo extends BaseObject
+class Photo
 {
 	/**
-	 * @brief Select rows from the photo table
+	 * Select rows from the photo table and returns them as array
 	 *
 	 * @param array $fields     Array of selected fields, empty for all
 	 * @param array $conditions Array of fields for conditions
@@ -37,20 +51,19 @@ class Photo extends BaseObject
 	 * @return boolean|array
 	 *
 	 * @throws \Exception
-	 * @see   \Friendica\Database\DBA::select
+	 * @see   \Friendica\Database\DBA::selectToArray
 	 */
-	public static function select(array $fields = [], array $conditions = [], array $params = [])
+	public static function selectToArray(array $fields = [], array $conditions = [], array $params = [])
 	{
 		if (empty($fields)) {
 			$fields = self::getFields();
 		}
 
-		$r = DBA::select("photo", $fields, $conditions, $params);
-		return DBA::toArray($r);
+		return DBA::selectToArray('photo', $fields, $conditions, $params);
 	}
 
 	/**
-	 * @brief Retrieve a single record from the photo table
+	 * Retrieve a single record from the photo table
 	 *
 	 * @param array $fields     Array of selected fields, empty for all
 	 * @param array $conditions Array of fields for conditions
@@ -71,7 +84,7 @@ class Photo extends BaseObject
 	}
 
 	/**
-	 * @brief Get photos for user id
+	 * Get photos for user id
 	 *
 	 * @param integer $uid        User id
 	 * @param string  $resourceid Rescource ID of the photo
@@ -88,11 +101,11 @@ class Photo extends BaseObject
 		$conditions["resource-id"] = $resourceid;
 		$conditions["uid"] = $uid;
 
-		return self::select([], $conditions, $params);
+		return self::selectToArray([], $conditions, $params);
 	}
 
 	/**
-	 * @brief Get a photo for user id
+	 * Get a photo for user id
 	 *
 	 * @param integer $uid        User id
 	 * @param string  $resourceid Rescource ID of the photo
@@ -115,7 +128,7 @@ class Photo extends BaseObject
 	}
 
 	/**
-	 * @brief Get a single photo given resource id and scale
+	 * Get a single photo given resource id and scale
 	 *
 	 * This method checks for permissions. Returns associative array
 	 * on success, "no sign" image info, if user has no permission,
@@ -127,29 +140,28 @@ class Photo extends BaseObject
 	 * @return boolean|array
 	 * @throws \Exception
 	 */
-	public static function getPhoto($resourceid, $scale = 0)
+	public static function getPhoto(string $resourceid, int $scale = 0)
 	{
 		$r = self::selectFirst(["uid"], ["resource-id" => $resourceid]);
-		if ($r === false) {
+		if (!DBA::isResult($r)) {
 			return false;
 		}
 
-		$sql_acl = Security::getPermissionsSQLByUserId($r["uid"]);
+		$uid = $r["uid"];
 
-		$conditions = [
-			"`resource-id` = ? AND `scale` <= ? " . $sql_acl,
-			$resourceid, $scale
-		];
+		$accessible = $uid ? (bool)DI::pConfig()->get($uid, 'system', 'accessible-photos', false) : false;
 
+		$sql_acl = Security::getPermissionsSQLByUserId($uid, $accessible);
+
+		$conditions = ["`resource-id` = ? AND `scale` <= ? " . $sql_acl, $resourceid, $scale];
 		$params = ["order" => ["scale" => true]];
-
 		$photo = self::selectFirst([], $conditions, $params);
 
 		return $photo;
 	}
 
 	/**
-	 * @brief Check if photo with given conditions exists
+	 * Check if photo with given conditions exists
 	 *
 	 * @param array $conditions Array of extra conditions
 	 *
@@ -163,7 +175,7 @@ class Photo extends BaseObject
 
 
 	/**
-	 * @brief Get Image object for given row id. null if row id does not exist
+	 * Get Image object for given row id. null if row id does not exist
 	 *
 	 * @param array $photo Photo data. Needs at least 'id', 'type', 'backend-class', 'backend-ref'
 	 *
@@ -173,41 +185,42 @@ class Photo extends BaseObject
 	 */
 	public static function getImageForPhoto(array $photo)
 	{
-		if ($photo["backend-class"] == "") {
+		$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+		if ($backendClass === null) {
 			// legacy data storage in "data" column
-			$i = self::selectFirst(["data"], ["id" => $photo["id"]]);
+			$i = self::selectFirst(['data'], ['id' => $photo['id']]);
 			if ($i === false) {
 				return null;
 			}
-			$data = $i["data"];
+			$data = $i['data'];
 		} else {
-			$backendClass = $photo["backend-class"];
-			$backendRef = $photo["backend-ref"];
-			$data = $backendClass::get($backendRef);
+			$backendRef = $photo['backend-ref'] ?? '';
+			$data = $backendClass->get($backendRef);
 		}
 
-		if ($data === "") {
+		if (empty($data)) {
 			return null;
 		}
-		return new Image($data, $photo["type"]);
+
+		return new Image($data, $photo['type']);
 	}
 
 	/**
-	 * @brief Return a list of fields that are associated with the photo table
+	 * Return a list of fields that are associated with the photo table
 	 *
 	 * @return array field list
 	 * @throws \Exception
 	 */
 	private static function getFields()
 	{
-		$allfields = DBStructure::definition(false);
+		$allfields = DBStructure::definition(DI::app()->getBasePath(), false);
 		$fields = array_keys($allfields["photo"]["fields"]);
 		array_splice($fields, array_search("data", $fields), 1);
 		return $fields;
 	}
 
 	/**
-	 * @brief Construct a photo array for a system resource image
+	 * Construct a photo array for a system resource image
 	 *
 	 * @param string $filename Image file name relative to code root
 	 * @param string $mimetype Image mime type. Defaults to "image/jpeg"
@@ -219,17 +232,19 @@ class Photo extends BaseObject
 	{
 		$fields = self::getFields();
 		$values = array_fill(0, count($fields), "");
-		$photo = array_combine($fields, $values);
-		$photo["backend-class"] = Storage\SystemResource::class;
-		$photo["backend-ref"] = $filename;
-		$photo["type"] = $mimetype;
-		$photo["cacheable"] = false;
+
+		$photo                  = array_combine($fields, $values);
+		$photo['backend-class'] = SystemResource::NAME;
+		$photo['backend-ref']   = $filename;
+		$photo['type']          = $mimetype;
+		$photo['cacheable']     = false;
+
 		return $photo;
 	}
 
 
 	/**
-	 * @brief store photo metadata in db and binary in default backend
+	 * store photo metadata in db and binary in default backend
 	 *
 	 * @param Image   $Image     Image object with data
 	 * @param integer $uid       User ID
@@ -269,20 +284,18 @@ class Photo extends BaseObject
 		$data = "";
 		$backend_ref = "";
 
-		/** @var IStorage $backend_class */
 		if (DBA::isResult($existing_photo)) {
 			$backend_ref = (string)$existing_photo["backend-ref"];
-			$backend_class = (string)$existing_photo["backend-class"];
+			$storage = DI::storageManager()->getByName($existing_photo["backend-class"] ?? '');
 		} else {
-			$backend_class = StorageManager::getBackend();
+			$storage = DI::storage();
 		}
 
-		if ($backend_class === "") {
+		if ($storage === null) {
 			$data = $Image->asString();
 		} else {
-			$backend_ref = $backend_class::put($Image->asString(), $backend_ref);
+			$backend_ref = $storage->put($Image->asString(), $backend_ref);
 		}
-
 
 		$fields = [
 			"uid" => $uid,
@@ -305,7 +318,7 @@ class Photo extends BaseObject
 			"deny_cid" => $deny_cid,
 			"deny_gid" => $deny_gid,
 			"desc" => $desc,
-			"backend-class" => $backend_class,
+			"backend-class" => (string)$storage,
 			"backend-ref" => $backend_ref
 		];
 
@@ -320,7 +333,7 @@ class Photo extends BaseObject
 
 
 	/**
-	 * @brief Delete info from table and data from storage
+	 * Delete info from table and data from storage
 	 *
 	 * @param array $conditions Field condition(s)
 	 * @param array $options    Options array, Optional
@@ -333,13 +346,12 @@ class Photo extends BaseObject
 	public static function delete(array $conditions, array $options = [])
 	{
 		// get photo to delete data info
-		$photos = self::select(["backend-class","backend-ref"], $conditions);
+		$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 		foreach($photos as $photo) {
-			/** @var IStorage $backend_class */
-			$backend_class = (string)$photo["backend-class"];
-			if ($backend_class !== "") {
-				$backend_class::delete($photo["backend-ref"]);
+			$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+			if ($backend_class !== null) {
+				$backend_class->delete($photo["backend-ref"] ?? '');
 			}
 		}
 
@@ -347,7 +359,7 @@ class Photo extends BaseObject
 	}
 
 	/**
-	 * @brief Update a photo
+	 * Update a photo
 	 *
 	 * @param array         $fields     Contains the fields that are updated
 	 * @param array         $conditions Condition array with the key values
@@ -363,13 +375,12 @@ class Photo extends BaseObject
 	{
 		if (!is_null($img)) {
 			// get photo to update
-			$photos = self::select(["backend-class","backend-ref"], $conditions);
+			$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 			foreach($photos as $photo) {
-				/** @var IStorage $backend_class */
-				$backend_class = (string)$photo["backend-class"];
-				if ($backend_class !== "") {
-					$fields["backend-ref"] = $backend_class::put($img->asString(), $photo["backend-ref"]);
+				$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+				if ($backend_class !== null) {
+					$fields["backend-ref"] = $backend_class->put($img->asString(), $photo['backend-ref']);
 				} else {
 					$fields["data"] = $img->asString();
 				}
@@ -400,26 +411,33 @@ class Photo extends BaseObject
 			"photo", ["resource-id"], ["uid" => $uid, "contact-id" => $cid, "scale" => 4, "album" => "Contact Photos"]
 		);
 		if (!empty($photo['resource-id'])) {
-			$hash = $photo["resource-id"];
+			$resource_id = $photo["resource-id"];
 		} else {
-			$hash = self::newResource();
+			$resource_id = self::newResource();
 		}
 
 		$photo_failure = false;
 
 		$filename = basename($image_url);
-		$img_str = Network::fetchUrl($image_url, true);
+		if (!empty($image_url)) {
+			$ret = DI::httpRequest()->get($image_url, true);
+			$img_str = $ret->getBody();
+			$type = $ret->getContentType();
+		} else {
+			$img_str = '';
+		}
 
 		if ($quit_on_error && ($img_str == "")) {
 			return false;
 		}
 
-		$type = Image::guessType($image_url, true);
+		$type = Images::getMimeTypeByData($img_str, $image_url, $type);
+
 		$Image = new Image($img_str, $type);
 		if ($Image->isValid()) {
 			$Image->scaleToSquare(300);
 
-			$r = self::store($Image, $uid, $cid, $hash, $filename, "Contact Photos", 4);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, "Contact Photos", 4);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -427,7 +445,7 @@ class Photo extends BaseObject
 
 			$Image->scaleDown(80);
 
-			$r = self::store($Image, $uid, $cid, $hash, $filename, "Contact Photos", 5);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, "Contact Photos", 5);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -435,7 +453,7 @@ class Photo extends BaseObject
 
 			$Image->scaleDown(48);
 
-			$r = self::store($Image, $uid, $cid, $hash, $filename, "Contact Photos", 6);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, "Contact Photos", 6);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -443,24 +461,24 @@ class Photo extends BaseObject
 
 			$suffix = "?ts=" . time();
 
-			$image_url = System::baseUrl() . "/photo/" . $hash . "-4." . $Image->getExt() . $suffix;
-			$thumb = System::baseUrl() . "/photo/" . $hash . "-5." . $Image->getExt() . $suffix;
-			$micro = System::baseUrl() . "/photo/" . $hash . "-6." . $Image->getExt() . $suffix;
+			$image_url = DI::baseUrl() . "/photo/" . $resource_id . "-4." . $Image->getExt() . $suffix;
+			$thumb = DI::baseUrl() . "/photo/" . $resource_id . "-5." . $Image->getExt() . $suffix;
+			$micro = DI::baseUrl() . "/photo/" . $resource_id . "-6." . $Image->getExt() . $suffix;
 
 			// Remove the cached photo
-			$a = \get_app();
+			$a = DI::app();
 			$basepath = $a->getBasePath();
 
 			if (is_dir($basepath . "/photo")) {
-				$filename = $basepath . "/photo/" . $hash . "-4." . $Image->getExt();
+				$filename = $basepath . "/photo/" . $resource_id . "-4." . $Image->getExt();
 				if (file_exists($filename)) {
 					unlink($filename);
 				}
-				$filename = $basepath . "/photo/" . $hash . "-5." . $Image->getExt();
+				$filename = $basepath . "/photo/" . $resource_id . "-5." . $Image->getExt();
 				if (file_exists($filename)) {
 					unlink($filename);
 				}
-				$filename = $basepath . "/photo/" . $hash . "-6." . $Image->getExt();
+				$filename = $basepath . "/photo/" . $resource_id . "-6." . $Image->getExt();
 				if (file_exists($filename)) {
 					unlink($filename);
 				}
@@ -474,9 +492,9 @@ class Photo extends BaseObject
 		}
 
 		if ($photo_failure) {
-			$image_url = System::baseUrl() . "/images/person-300.jpg";
-			$thumb = System::baseUrl() . "/images/person-80.jpg";
-			$micro = System::baseUrl() . "/images/person-48.jpg";
+			$image_url = DI::baseUrl() . "/images/person-300.jpg";
+			$thumb = DI::baseUrl() . "/images/person-80.jpg";
+			$micro = DI::baseUrl() . "/images/person-48.jpg";
 		}
 
 		return [$image_url, $thumb, $micro];
@@ -518,7 +536,7 @@ class Photo extends BaseObject
 	}
 
 	/**
-	 * @brief Fetch the photo albums that are available for a viewer
+	 * Fetch the photo albums that are available for a viewer
 	 *
 	 * The query in this function is cost intensive, so it is cached.
 	 *
@@ -533,9 +551,9 @@ class Photo extends BaseObject
 		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
-		$albums = Cache::get($key);
+		$albums = DI::cache()->get($key);
 		if (is_null($albums) || $update) {
-			if (!Config::get("system", "no_count", false)) {
+			if (!DI::config()->get("system", "no_count", false)) {
 				/// @todo This query needs to be renewed. It is really slow
 				// At this time we just store the data in the cache
 				$albums = q("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
@@ -544,7 +562,7 @@ class Photo extends BaseObject
 					GROUP BY `album` ORDER BY `created` DESC",
 					intval($uid),
 					DBA::escape("Contact Photos"),
-					DBA::escape(L10n::t("Contact Photos"))
+					DBA::escape(DI::l10n()->t("Contact Photos"))
 				);
 			} else {
 				// This query doesn't do the count and is much faster
@@ -553,10 +571,10 @@ class Photo extends BaseObject
 					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra",
 					intval($uid),
 					DBA::escape("Contact Photos"),
-					DBA::escape(L10n::t("Contact Photos"))
+					DBA::escape(DI::l10n()->t("Contact Photos"))
 				);
 			}
-			Cache::set($key, $albums, Cache::DAY);
+			DI::cache()->set($key, $albums, Duration::DAY);
 		}
 		return $albums;
 	}
@@ -569,7 +587,7 @@ class Photo extends BaseObject
 	public static function clearAlbumCache($uid)
 	{
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
-		Cache::set($key, null, Cache::DAY);
+		DI::cache()->set($key, null, Duration::DAY);
 	}
 
 	/**
@@ -581,5 +599,172 @@ class Photo extends BaseObject
 	public static function newResource()
 	{
 		return System::createGUID(32, false);
+	}
+
+	/**
+	 * Extracts the rid from a local photo URI
+	 *
+	 * @param string $image_uri The URI of the photo
+	 * @return string The rid of the photo, or an empty string if the URI is not local
+	 */
+	public static function ridFromURI(string $image_uri)
+	{
+		if (!stristr($image_uri, DI::baseUrl() . '/photo/')) {
+			return '';
+		}
+		$image_uri = substr($image_uri, strrpos($image_uri, '/') + 1);
+		$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
+		if (!strlen($image_uri)) {
+			return '';
+		}
+		return $image_uri;
+	}
+
+	/**
+	 * Changes photo permissions that had been embedded in a post
+	 *
+	 * @todo This function currently does have some flaws:
+	 * - Sharing a post with a forum will create a photo that only the forum can see.
+	 * - Sharing a photo again that been shared non public before doesn't alter the permissions.
+	 *
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function setPermissionFromBody($body, $uid, $original_contact_id, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny)
+	{
+		// Simplify image codes
+		$img_body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+		$img_body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $img_body);
+
+		// Search for images
+		if (!preg_match_all("/\[img\](.*?)\[\/img\]/", $img_body, $match)) {
+			return false;
+		}
+		$images = $match[1];
+		if (empty($images)) {
+			return false;
+		}
+
+		foreach ($images as $image) {
+			$image_rid = self::ridFromURI($image);
+			if (empty($image_rid)) {
+				continue;
+			}
+
+			// Ensure to only modify photos that you own
+			$srch = '<' . intval($original_contact_id) . '>';
+
+			$condition = [
+				'allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
+				'resource-id' => $image_rid, 'uid' => $uid
+			];
+			if (!Photo::exists($condition)) {
+				$photo = self::selectFirst(['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'uid'], ['resource-id' => $image_rid]);
+				if (!DBA::isResult($photo)) {
+					Logger::info('Image not found', ['resource-id' => $image_rid]);
+				} else {
+					Logger::info('Mismatching permissions', ['condition' => $condition, 'photo' => $photo]);
+				}
+				continue;
+			}
+
+			/**
+			 * @todo Existing permissions need to be mixed with the new ones.
+			 * Otherwise this creates problems with sharing the same picture multiple times
+			 * Also check if $str_contact_allow does contain a public forum.
+			 * Then set the permissions to public.
+			 */
+
+			$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
+					'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny,
+					'accessible' => DI::pConfig()->get($uid, 'system', 'accessible-photos', false)];
+
+			$condition = ['resource-id' => $image_rid, 'uid' => $uid];
+			Logger::info('Set permissions', ['condition' => $condition, 'permissions' => $fields]);
+			Photo::update($fields, $condition);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Strips known picture extensions from picture links
+	 *
+	 * @param string $name Picture link
+	 * @return string stripped picture link
+	 * @throws \Exception
+	 */
+	public static function stripExtension($name)
+	{
+		$name = str_replace([".jpg", ".png", ".gif"], ["", "", ""], $name);
+		foreach (Images::supportedTypes() as $m => $e) {
+			$name = str_replace("." . $e, "", $name);
+		}
+		return $name;
+	}
+
+	/**
+	 * Returns the GUID from picture links
+	 *
+	 * @param string $name Picture link
+	 * @return string GUID
+	 * @throws \Exception
+	 */
+	public static function getGUID($name)
+	{
+		$base = DI::baseUrl()->get();
+
+		$guid = str_replace([Strings::normaliseLink($base), '/photo/'], '', Strings::normaliseLink($name));
+
+		$guid = self::stripExtension($guid);
+		if (substr($guid, -2, 1) != "-") {
+			return '';
+		}
+
+		$scale = intval(substr($guid, -1, 1));
+		if (!is_numeric($scale)) {
+			return '';
+		}
+
+		$guid = substr($guid, 0, -2);
+		return $guid;
+	}
+
+	/**
+	 * Tests if the picture link points to a locally stored picture
+	 *
+	 * @param string $name Picture link
+	 * @return boolean
+	 * @throws \Exception
+	 */
+	public static function isLocal($name)
+	{
+		$guid = self::getGUID($name);
+
+		if (empty($guid)) {
+			return false;
+		}
+
+		return DBA::exists('photo', ['resource-id' => $guid]);
+	}
+
+	/**
+	 * Tests if the link points to a locally stored picture page
+	 *
+	 * @param string $name Page link
+	 * @return boolean
+	 * @throws \Exception
+	 */
+	public static function isLocalPage($name)
+	{
+		$base = DI::baseUrl()->get();
+
+		$guid = str_replace(Strings::normaliseLink($base), '', Strings::normaliseLink($name));
+		$guid = preg_replace("=/photos/.*/image/(.*)=ism", '$1', $guid);
+		if (empty($guid)) {
+			return false;
+		}
+
+		return DBA::exists('photo', ['resource-id' => $guid]);
 	}
 }

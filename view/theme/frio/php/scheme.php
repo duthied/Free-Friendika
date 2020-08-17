@@ -1,7 +1,23 @@
 <?php
-
 /**
- * @brief: Get info header of the scheme
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Get info header of the scheme
  *
  * This function parses the header of the schemename.php file for informations like
  * Author, Description and Overwrites. Most of the code comes from the Addon::getInfo()
@@ -17,13 +33,19 @@
  *    'version' => Scheme version
  *    'overwrites' => Variables which overwriting custom settings
  */
-use Friendica\Core\PConfig;
+
+use Friendica\DI;
+use Friendica\Util\Strings;
 
 function get_scheme_info($scheme)
 {
-	$theme = \get_app()->getCurrentTheme();
+	$theme = DI::app()->getCurrentTheme();
 	$themepath = 'view/theme/' . $theme . '/';
-	$scheme = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'scheme'));
+	if (empty($scheme)) {
+		$scheme = DI::pConfig()->get(local_user(), 'frio', 'scheme', DI::pConfig()->get(local_user(), 'frio', 'schema'));
+	}
+
+	$scheme = Strings::sanitizeFilePathItem($scheme);
 
 	$info = [
 		'name' => $scheme,

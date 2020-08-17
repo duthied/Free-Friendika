@@ -1,7 +1,24 @@
 <?php
 /**
- * @file src/Module/Owa.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
@@ -14,7 +31,7 @@ use Friendica\Util\HTTPSignature;
 use Friendica\Util\Strings;
 
 /**
- * @brief OpenWebAuth verifier and token generator
+ * OpenWebAuth verifier and token generator
  *
  * See https://macgirvin.com/wiki/mike/OpenWebAuth/Home
  * Requests to this endpoint should be signed using HTTP Signatures
@@ -27,7 +44,7 @@ use Friendica\Util\Strings;
  */
 class Owa extends BaseModule
 {
-	public static function init()
+	public static function init(array $parameters = [])
 	{
 
 		$ret = [ 'success' => false ];
@@ -59,8 +76,7 @@ class Owa extends BaseModule
 							$verified = HTTPSignature::verifyMagic($contact['pubkey']);
 
 							if ($verified && $verified['header_signed'] && $verified['header_valid']) {
-								Logger::log('OWA header: ' . print_r($verified, true), Logger::DATA);
-								Logger::log('OWA success: ' . $contact['addr'], Logger::DATA);
+								Logger::debug('OWA header', ['addr' => $contact['addr'], 'data' => $verified]);
 
 								$ret['success'] = true;
 								$token = Strings::getRandomHex(32);
@@ -77,10 +93,10 @@ class Owa extends BaseModule
 								openssl_public_encrypt($token, $result, $contact['pubkey']);
 								$ret['encrypted_token'] = Strings::base64UrlEncode($result);
 							} else {
-								Logger::log('OWA fail: ' . $contact['id'] . ' ' . $contact['addr'] . ' ' . $contact['url'], Logger::DEBUG);
+								Logger::info('OWA fail', ['id' => $contact['id'], 'addr' => $contact['addr'], 'url' => $contact['url']]);
 							}
 						} else {
-							Logger::log('Contact not found: ' . $handle, Logger::DEBUG);
+							Logger::info('Contact not found', ['handle' => $handle]);
 						}
 					}
 				}

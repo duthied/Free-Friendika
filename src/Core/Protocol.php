@@ -1,15 +1,30 @@
 <?php
-/*
- * @file src/Core/Protocol.php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Core;
 
-use Friendica\Util\Network;
+use Friendica\DI;
 
 /**
  * Manage compatibility with federated networks
- *
- * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Protocol
 {
@@ -23,12 +38,17 @@ class Protocol
 
 	const NATIVE_SUPPORT = [self::DFRN, self::DIASPORA, self::OSTATUS, self::FEED, self::MAIL, self::ACTIVITYPUB];
 
+	const FEDERATED = [self::DFRN, self::DIASPORA, self::OSTATUS, self::ACTIVITYPUB];
+
+	const SUPPORT_PRIVATE = [self::DFRN, self::DIASPORA, self::MAIL, self::ACTIVITYPUB, self::PUMPIO];
+
 	// Supported through a connector
 	const DIASPORA2 = 'dspc';    // Diaspora connector
 	const LINKEDIN  = 'lnkd';    // LinkedIn
 	const PUMPIO    = 'pump';    // pump.io
 	const STATUSNET = 'stac';    // Statusnet connector
 	const TWITTER   = 'twit';    // Twitter
+	const DISCOURSE = 'dscs';    // Discourse
 
 	// Dead protocols
 	const APPNET    = 'apdn';    // app.net - Dead protocol
@@ -71,7 +91,6 @@ class Protocol
 	 * @param string $profile_url
 	 * @param array  $matches preg_match return array: [0] => Full match [1] => hostname [2] => username
 	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function matchByProfileUrl($profile_url, &$matches = [])
 	{
@@ -103,7 +122,7 @@ class Protocol
 		if (preg_match('=https?://(.*)/user/(.*)=ism', $profile_url, $matches)) {
 			$statusnet_host = $matches[1];
 			$statusnet_user = $matches[2];
-			$UserData = Network::fetchUrl('http://' . $statusnet_host . '/api/users/show.json?user_id=' . $statusnet_user);
+			$UserData = DI::httpRequest()->fetch('http://' . $statusnet_host . '/api/users/show.json?user_id=' . $statusnet_user);
 			$user = json_decode($UserData);
 			if ($user) {
 				$matches[2] = $user->screen_name;

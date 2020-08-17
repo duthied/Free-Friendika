@@ -6,11 +6,11 @@
  */
 
 use Friendica\App;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Object\Image;
+use Friendica\DI;
+use Friendica\Util\Images;
+use Friendica\Util\Strings;
 
 /**
  * @param App $a
@@ -27,37 +27,38 @@ function fbrowser_content(App $a)
 		exit();
 	}
 
+	// Needed to match the correct template in a module that uses a different theme than the user/site/default
+	$theme = Strings::sanitizeFilePathItem($_GET['theme'] ?? null);
+	if ($theme && is_file("view/theme/$theme/config.php")) {
+		$a->setCurrentTheme($theme);
+	}
+
 	$template_file = "filebrowser.tpl";
 
 	$o = '';
 
 	switch ($a->argv[1]) {
 		case "image":
-			$path = [["", L10n::t("Photos")]];
+			$path = ['' => DI::l10n()->t('Photos')];
 			$albums = false;
 			$sql_extra = "";
 			$sql_extra2 = " ORDER BY created DESC LIMIT 0, 10";
 
 			if ($a->argc==2) {
-				$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' ",
+				$photos = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' ",
 					intval(local_user()),
 					DBA::escape('Contact Photos'),
-					DBA::escape(L10n::t('Contact Photos'))
+					DBA::escape(DI::l10n()->t('Contact Photos'))
 				);
 
-				function _map_folder1($el)
-				{
-					return [bin2hex($el['album']),$el['album']];
-				};
-
-				$albums = array_map("_map_folder1", $albums);
+				$albums = array_column($photos, 'album');
 			}
 
 			if ($a->argc == 3) {
-				$album = hex2bin($a->argv[2]);
+				$album = $a->argv[2];
 				$sql_extra = sprintf("AND `album` = '%s' ", DBA::escape($album));
 				$sql_extra2 = "";
-				$path[] = [$a->argv[2], $album];
+				$path[$album] = $album;
 			}
 
 			$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
@@ -66,13 +67,13 @@ function fbrowser_content(App $a)
 					GROUP BY `resource-id` $sql_extra2",
 				intval(local_user()),
 				DBA::escape('Contact Photos'),
-				DBA::escape(L10n::t('Contact Photos'))
+				DBA::escape(DI::l10n()->t('Contact Photos'))
 			);
 
 			function _map_files1($rr)
 			{
-				$a = \get_app();
-				$types = Image::supportedTypes();
+				$a = DI::app();
+				$types = Images::supportedTypes();
 				$ext = $types[$rr['type']];
 				$filename_e = $rr['filename'];
 
@@ -86,9 +87,9 @@ function fbrowser_content(App $a)
 				}
 
 				return [
-					System::baseUrl() . '/photos/' . $a->user['nickname'] . '/image/' . $rr['resource-id'],
+					DI::baseUrl() . '/photos/' . $a->user['nickname'] . '/image/' . $rr['resource-id'],
 					$filename_e,
-					System::baseUrl() . '/photo/' . $rr['resource-id'] . '-' . $scale . '.'. $ext
+					DI::baseUrl() . '/photo/' . $rr['resource-id'] . '-' . $scale . '.'. $ext
 				];
 			}
 			$files = array_map("_map_files1", $r);
@@ -97,13 +98,12 @@ function fbrowser_content(App $a)
 
 			$o =  Renderer::replaceMacros($tpl, [
 				'$type'     => 'image',
-				'$baseurl'  => System::baseUrl(),
 				'$path'     => $path,
 				'$folders'  => $albums,
 				'$files'    => $files,
-				'$cancel'   => L10n::t('Cancel'),
+				'$cancel'   => DI::l10n()->t('Cancel'),
 				'$nickname' => $a->user['nickname'],
-				'$upload'   => L10n::t('Upload')
+				'$upload'   => DI::l10n()->t('Upload')
 			]);
 
 			break;
@@ -119,7 +119,7 @@ function fbrowser_content(App $a)
 					$filetype = ( (file_exists("images/icons/$m1.png"))?$m1:"zip");
 					$filename_e = $rr['filename'];
 
-					return [System::baseUrl() . '/attach/' . $rr['id'], $filename_e, System::baseUrl() . '/images/icons/16/' . $filetype . '.png'];
+					return [DI::baseUrl() . '/attach/' . $rr['id'], $filename_e, DI::baseUrl() . '/images/icons/16/' . $filetype . '.png'];
 				}
 				$files = array_map("_map_files2", $files);
 
@@ -127,13 +127,12 @@ function fbrowser_content(App $a)
 				$tpl = Renderer::getMarkupTemplate($template_file);
 				$o = Renderer::replaceMacros($tpl, [
 					'$type'     => 'file',
-					'$baseurl'  => System::baseUrl(),
-					'$path'     => [ [ "", L10n::t("Files")] ],
+					'$path'     => [ [ "", DI::l10n()->t("Files")] ],
 					'$folders'  => false,
 					'$files'    => $files,
-					'$cancel'   => L10n::t('Cancel'),
+					'$cancel'   => DI::l10n()->t('Cancel'),
 					'$nickname' => $a->user['nickname'],
-					'$upload'   => L10n::t('Upload')
+					'$upload'   => DI::l10n()->t('Upload')
 				]);
 			}
 

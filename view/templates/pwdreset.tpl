@@ -11,8 +11,8 @@
 {{$newpass}}
 </p>
 <p>
-{{$lbl4}} {{$lbl5}}
+{{$lbl4 nofilter}} {{$lbl5 nofilter}}
 </p>
 <p>
-{{$lbl6}}
+{{$lbl6 nofilter}}
 </p>

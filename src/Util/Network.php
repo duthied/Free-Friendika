@@ -1,348 +1,45 @@
 <?php
 /**
- * @file src/Util/Network.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Util;
 
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
-use Friendica\Core\Config;
-use Friendica\Network\CurlResult;
-use DOMDocument;
-use DomXPath;
+use Friendica\DI;
 
 class Network
 {
-	/**
-	 * Curl wrapper
-	 *
-	 * If binary flag is true, return binary results.
-	 * Set the cookiejar argument to a string (e.g. "/tmp/friendica-cookies.txt")
-	 * to preserve cookies from one request to the next.
-	 *
-	 * @brief Curl wrapper
-	 * @param string  $url            URL to fetch
-	 * @param boolean $binary         default false
-	 *                                TRUE if asked to return binary results (file download)
-	 * @param integer $redirects      The recursion counter for internal use - default 0
-	 * @param integer $timeout        Timeout in seconds, default system config value or 60 seconds
-	 * @param string  $accept_content supply Accept: header with 'accept_content' as the value
-	 * @param string  $cookiejar      Path to cookie jar file
-	 *
-	 * @return string The fetched content
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function fetchUrl($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = '')
-	{
-		$ret = self::fetchUrlFull($url, $binary, $redirects, $timeout, $accept_content, $cookiejar);
 
-		return $ret->getBody();
+	/**
+	 * Return raw post data from a post request
+	 *
+	 * @return string post data
+	 */
+	public static function postdata()
+	{
+		return file_get_contents('php://input');
 	}
 
 	/**
-	 * Curl wrapper with array of return values.
-	 *
-	 * Inner workings and parameters are the same as @ref fetchUrl but returns an array with
-	 * all the information collected during the fetch.
-	 *
-	 * @brief Curl wrapper with array of return values.
-	 * @param string  $url            URL to fetch
-	 * @param boolean $binary         default false
-	 *                                TRUE if asked to return binary results (file download)
-	 * @param integer $redirects      The recursion counter for internal use - default 0
-	 * @param integer $timeout        Timeout in seconds, default system config value or 60 seconds
-	 * @param string  $accept_content supply Accept: header with 'accept_content' as the value
-	 * @param string  $cookiejar      Path to cookie jar file
-	 *
-	 * @return CurlResult With all relevant information, 'body' contains the actual fetched content.
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function fetchUrlFull($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = '')
-	{
-		return self::curl(
-			$url,
-			$binary,
-			$redirects,
-			['timeout'=>$timeout,
-			'accept_content'=>$accept_content,
-			'cookiejar'=>$cookiejar
-			]
-		);
-	}
-
-	/**
-	 * @brief fetches an URL.
-	 *
-	 * @param string  $url       URL to fetch
-	 * @param boolean $binary    default false
-	 *                           TRUE if asked to return binary results (file download)
-	 * @param int     $redirects The recursion counter for internal use - default 0
-	 * @param array   $opts      (optional parameters) assoziative array with:
-	 *                           'accept_content' => supply Accept: header with 'accept_content' as the value
-	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
-	 *                           'http_auth' => username:password
-	 *                           'novalidate' => do not validate SSL certs, default is to validate using our CA list
-	 *                           'nobody' => only return the header
-	 *                           'cookiejar' => path to cookie jar file
-	 *                           'header' => header array
-	 *
-	 * @return CurlResult
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function curl($url, $binary = false, &$redirects = 0, $opts = [])
-	{
-		$stamp1 = microtime(true);
-
-		$a = \get_app();
-
-		if (strlen($url) > 1000) {
-			Logger::log('URL is longer than 1000 characters. Callstack: ' . System::callstack(20), Logger::DEBUG);
-			return CurlResult::createErrorCurl(substr($url, 0, 200));
-		}
-
-		$parts2 = [];
-		$parts = parse_url($url);
-		$path_parts = explode('/', defaults($parts, 'path', ''));
-		foreach ($path_parts as $part) {
-			if (strlen($part) <> mb_strlen($part)) {
-				$parts2[] = rawurlencode($part);
-			} else {
-				$parts2[] = $part;
-			}
-		}
-		$parts['path'] = implode('/', $parts2);
-		$url = self::unparseURL($parts);
-
-		if (self::isUrlBlocked($url)) {
-			Logger::log('domain of ' . $url . ' is blocked', Logger::DATA);
-			return CurlResult::createErrorCurl($url);
-		}
-
-		$ch = @curl_init($url);
-
-		if (($redirects > 8) || (!$ch)) {
-			return CurlResult::createErrorCurl($url);
-		}
-
-		@curl_setopt($ch, CURLOPT_HEADER, true);
-
-		if (!empty($opts['cookiejar'])) {
-			curl_setopt($ch, CURLOPT_COOKIEJAR, $opts["cookiejar"]);
-			curl_setopt($ch, CURLOPT_COOKIEFILE, $opts["cookiejar"]);
-		}
-
-		// These settings aren't needed. We're following the location already.
-		//	@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		//	@curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
-
-		if (!empty($opts['accept_content'])) {
-			curl_setopt(
-				$ch,
-				CURLOPT_HTTPHEADER,
-				['Accept: ' . $opts['accept_content']]
-			);
-		}
-
-		if (!empty($opts['header'])) {
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['header']);
-		}
-
-		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
-
-		$range = intval(Config::get('system', 'curl_range_bytes', 0));
-
-		if ($range > 0) {
-			@curl_setopt($ch, CURLOPT_RANGE, '0-' . $range);
-		}
-
-		// Without this setting it seems as if some webservers send compressed content
-		// This seems to confuse curl so that it shows this uncompressed.
-		/// @todo  We could possibly set this value to "gzip" or something similar
-		curl_setopt($ch, CURLOPT_ENCODING, '');
-
-		if (!empty($opts['headers'])) {
-			@curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['headers']);
-		}
-
-		if (!empty($opts['nobody'])) {
-			@curl_setopt($ch, CURLOPT_NOBODY, $opts['nobody']);
-		}
-
-		if (!empty($opts['timeout'])) {
-			@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
-		} else {
-			$curl_time = Config::get('system', 'curl_timeout', 60);
-			@curl_setopt($ch, CURLOPT_TIMEOUT, intval($curl_time));
-		}
-
-		// by default we will allow self-signed certs
-		// but you can override this
-
-		$check_cert = Config::get('system', 'verifyssl');
-		@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
-
-		if ($check_cert) {
-			@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-		}
-
-		$proxy = Config::get('system', 'proxy');
-
-		if (strlen($proxy)) {
-			@curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
-			@curl_setopt($ch, CURLOPT_PROXY, $proxy);
-			$proxyuser = @Config::get('system', 'proxyuser');
-
-			if (strlen($proxyuser)) {
-				@curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyuser);
-			}
-		}
-
-		if (Config::get('system', 'ipv4_resolve', false)) {
-			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-		}
-
-		if ($binary) {
-			@curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
-		}
-
-		// don't let curl abort the entire application
-		// if it throws any errors.
-
-		$s = @curl_exec($ch);
-		$curl_info = @curl_getinfo($ch);
-
-		// Special treatment for HTTP Code 416
-		// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/416
-		if (($curl_info['http_code'] == 416) && ($range > 0)) {
-			@curl_setopt($ch, CURLOPT_RANGE, '');
-			$s = @curl_exec($ch);
-			$curl_info = @curl_getinfo($ch);
-		}
-
-		$curlResponse = new CurlResult($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
-
-		if ($curlResponse->isRedirectUrl()) {
-			$redirects++;
-			Logger::log('curl: redirect ' . $url . ' to ' . $curlResponse->getRedirectUrl());
-			@curl_close($ch);
-			return self::curl($curlResponse->getRedirectUrl(), $binary, $redirects, $opts);
-		}
-
-		@curl_close($ch);
-
-		$a->saveTimestamp($stamp1, 'network');
-
-		return $curlResponse;
-	}
-
-	/**
-	 * @brief Send POST request to $url
-	 *
-	 * @param string  $url       URL to post
-	 * @param mixed   $params    array of POST variables
-	 * @param string  $headers   HTTP headers
-	 * @param integer $redirects Recursion counter for internal use - default = 0
-	 * @param integer $timeout   The timeout in seconds, default system config value or 60 seconds
-	 *
-	 * @return CurlResult The content
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function post($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
-	{
-		$stamp1 = microtime(true);
-
-		if (self::isUrlBlocked($url)) {
-			Logger::log('post_url: domain of ' . $url . ' is blocked', Logger::DATA);
-			return CurlResult::createErrorCurl($url);
-		}
-
-		$a = \get_app();
-		$ch = curl_init($url);
-
-		if (($redirects > 8) || (!$ch)) {
-			return CurlResult::createErrorCurl($url);
-		}
-
-		Logger::log('post_url: start ' . $url, Logger::DATA);
-
-		curl_setopt($ch, CURLOPT_HEADER, true);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-		curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
-
-		if (Config::get('system', 'ipv4_resolve', false)) {
-			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-		}
-
-		if (intval($timeout)) {
-			curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-		} else {
-			$curl_time = Config::get('system', 'curl_timeout', 60);
-			curl_setopt($ch, CURLOPT_TIMEOUT, intval($curl_time));
-		}
-
-		if (defined('LIGHTTPD')) {
-			if (!is_array($headers)) {
-				$headers = ['Expect:'];
-			} else {
-				if (!in_array('Expect:', $headers)) {
-					array_push($headers, 'Expect:');
-				}
-			}
-		}
-
-		if ($headers) {
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-		}
-
-		$check_cert = Config::get('system', 'verifyssl');
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
-
-		if ($check_cert) {
-			@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-		}
-
-		$proxy = Config::get('system', 'proxy');
-
-		if (strlen($proxy)) {
-			curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
-			curl_setopt($ch, CURLOPT_PROXY, $proxy);
-			$proxyuser = Config::get('system', 'proxyuser');
-			if (strlen($proxyuser)) {
-				curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyuser);
-			}
-		}
-
-		// don't let curl abort the entire application
-		// if it throws any errors.
-
-		$s = @curl_exec($ch);
-
-		$curl_info = curl_getinfo($ch);
-
-		$curlResponse = new CurlResult($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
-
-		if ($curlResponse->isRedirectUrl()) {
-			$redirects++;
-			Logger::log('post_url: redirect ' . $url . ' to ' . $curlResponse->getRedirectUrl());
-			curl_close($ch);
-			return self::post($curlResponse->getRedirectUrl(), $params, $headers, $redirects, $timeout);
-		}
-
-		curl_close($ch);
-
-		$a->saveTimestamp($stamp1, 'network');
-
-		Logger::log('post_url: end ' . $url, Logger::DATA);
-
-		return $curlResponse;
-	}
-
-	/**
-	 * @brief Check URL to see if it's real
+	 * Check URL to see if it's real
 	 *
 	 * Take a URL from the wild, prepend http:// if necessary
 	 * and check DNS to see if it's real (or check if is a valid IP address)
@@ -351,9 +48,9 @@ class Network
 	 * @return string|boolean The actual working URL, false else
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isUrlValid($url)
+	public static function isUrlValid(string $url)
 	{
-		if (Config::get('system', 'disable_url_validation')) {
+		if (DI::config()->get('system', 'disable_url_validation')) {
 			return $url;
 		}
 
@@ -369,7 +66,7 @@ class Network
 		/// @TODO Really suppress function outcomes? Why not find them + debug them?
 		$h = @parse_url($url);
 
-		if (!empty($h['host']) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+		if (!empty($h['host']) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME) || filter_var($h['host'], FILTER_VALIDATE_IP))) {
 			return $url;
 		}
 
@@ -377,15 +74,14 @@ class Network
 	}
 
 	/**
-	 * @brief Checks that email is an actual resolvable internet address
+	 * Checks that email is an actual resolvable internet address
 	 *
 	 * @param string $addr The email address
 	 * @return boolean True if it's a valid email address, false if it's not
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isEmailDomainValid($addr)
+	public static function isEmailDomainValid(string $addr)
 	{
-		if (Config::get('system', 'disable_email_validation')) {
+		if (DI::config()->get('system', 'disable_email_validation')) {
 			return true;
 		}
 
@@ -396,7 +92,7 @@ class Network
 		$h = substr($addr, strpos($addr, '@') + 1);
 
 		// Concerning the @ see here: https://stackoverflow.com/questions/36280957/dns-get-record-a-temporary-server-error-occurred
-		if ($h && (@dns_get_record($h, DNS_A + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
+		if ($h && (@dns_get_record($h, DNS_A + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP))) {
 			return true;
 		}
 		if ($h && @dns_get_record($h, DNS_CNAME + DNS_MX)) {
@@ -406,16 +102,15 @@ class Network
 	}
 
 	/**
-	 * @brief Check if URL is allowed
+	 * Check if URL is allowed
 	 *
 	 * Check $url against our list of allowed sites,
 	 * wildcards allowed. If allowed_sites is unset return true;
 	 *
 	 * @param string $url URL which get tested
 	 * @return boolean True if url is allowed otherwise return false
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isUrlAllowed($url)
+	public static function isUrlAllowed(string $url)
 	{
 		$h = @parse_url($url);
 
@@ -423,7 +118,7 @@ class Network
 			return false;
 		}
 
-		$str_allowed = Config::get('system', 'allowed_sites');
+		$str_allowed = DI::config()->get('system', 'allowed_sites');
 		if (! $str_allowed) {
 			return true;
 		}
@@ -459,22 +154,21 @@ class Network
 	 * @param string $url The url to check the domain from
 	 *
 	 * @return boolean
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isUrlBlocked($url)
+	public static function isUrlBlocked(string $url)
 	{
 		$host = @parse_url($url, PHP_URL_HOST);
 		if (!$host) {
 			return false;
 		}
 
-		$domain_blocklist = Config::get('system', 'blocklist', []);
+		$domain_blocklist = DI::config()->get('system', 'blocklist', []);
 		if (!$domain_blocklist) {
 			return false;
 		}
 
 		foreach ($domain_blocklist as $domain_block) {
-			if (strcasecmp($domain_block['domain'], $host) === 0) {
+			if (fnmatch(strtolower($domain_block['domain']), strtolower($host))) {
 				return true;
 			}
 		}
@@ -483,7 +177,7 @@ class Network
 	}
 
 	/**
-	 * @brief Check if email address is allowed to register here.
+	 * Check if email address is allowed to register here.
 	 *
 	 * Compare against our list (wildcards allowed).
 	 *
@@ -492,14 +186,14 @@ class Network
 	 *                       or if allowed list is not configured
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isEmailDomainAllowed($email)
+	public static function isEmailDomainAllowed(string $email)
 	{
 		$domain = strtolower(substr($email, strpos($email, '@') + 1));
 		if (!$domain) {
 			return false;
 		}
 
-		$str_allowed = Config::get('system', 'allowed_email', '');
+		$str_allowed = DI::config()->get('system', 'allowed_email', '');
 		if (empty($str_allowed)) {
 			return true;
 		}
@@ -512,12 +206,11 @@ class Network
 	/**
 	 * Checks for the existence of a domain in a domain list
 	 *
-	 * @brief Checks for the existence of a domain in a domain list
 	 * @param string $domain
 	 * @param array  $domain_list
 	 * @return boolean
 	 */
-	public static function isDomainAllowed($domain, array $domain_list)
+	public static function isDomainAllowed(string $domain, array $domain_list)
 	{
 		$found = false;
 
@@ -532,7 +225,7 @@ class Network
 		return $found;
 	}
 
-	public static function lookupAvatarByEmail($email)
+	public static function lookupAvatarByEmail(string $email)
 	{
 		$avatar['size'] = 300;
 		$avatar['email'] = $email;
@@ -542,7 +235,7 @@ class Network
 		Hook::callAll('avatar_lookup', $avatar);
 
 		if (! $avatar['success']) {
-			$avatar['url'] = System::baseUrl() . '/images/person-300.jpg';
+			$avatar['url'] = DI::baseUrl() . '/images/person-300.jpg';
 		}
 
 		Logger::log('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], Logger::DEBUG);
@@ -550,12 +243,12 @@ class Network
 	}
 
 	/**
-	 * @brief Remove Google Analytics and other tracking platforms params from URL
+	 * Remove Google Analytics and other tracking platforms params from URL
 	 *
 	 * @param string $url Any user-submitted URL that may contain tracking params
 	 * @return string The same URL stripped of tracking parameters
 	 */
-	public static function stripTrackingQueryParams($url)
+	public static function stripTrackingQueryParams(string $url)
 	{
 		$urldata = parse_url($url);
 		if (!empty($urldata["query"])) {
@@ -599,133 +292,33 @@ class Network
 	}
 
 	/**
-	 * @brief Returns the original URL of the provided URL
+	 * Add a missing base path (scheme and host) to a given url
 	 *
-	 * This function strips tracking query params and follows redirections, either
-	 * through HTTP code or meta refresh tags. Stops after 10 redirections.
-	 *
-	 * @todo  Remove the $fetchbody parameter that generates an extraneous HEAD request
-	 *
-	 * @see   ParseUrl::getSiteinfo
-	 *
-	 * @param string $url       A user-submitted URL
-	 * @param int    $depth     The current redirection recursion level (internal)
-	 * @param bool   $fetchbody Wether to fetch the body or not after the HEAD requests
-	 * @return string A canonical URL
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param string $url
+	 * @param string $basepath
+	 * @return string url
 	 */
-	public static function finalUrl($url, $depth = 1, $fetchbody = false)
+	public static function addBasePath(string $url, string $basepath)
 	{
-		$a = \get_app();
-
-		$url = self::stripTrackingQueryParams($url);
-
-		if ($depth > 10) {
+		if (!empty(parse_url($url, PHP_URL_SCHEME)) || empty(parse_url($basepath, PHP_URL_SCHEME)) || empty($url) || empty(parse_url($url))) {
 			return $url;
 		}
 
-		$url = trim($url, "'");
+		$base = ['scheme' => parse_url($basepath, PHP_URL_SCHEME),
+			'host' => parse_url($basepath, PHP_URL_HOST)];
 
-		$stamp1 = microtime(true);
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HEADER, 1);
-		curl_setopt($ch, CURLOPT_NOBODY, 1);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
-
-		curl_exec($ch);
-		$curl_info = @curl_getinfo($ch);
-		$http_code = $curl_info['http_code'];
-		curl_close($ch);
-
-		$a->saveTimestamp($stamp1, "network");
-
-		if ($http_code == 0) {
-			return $url;
-		}
-
-		if (in_array($http_code, ['301', '302'])) {
-			if (!empty($curl_info['redirect_url'])) {
-				return self::finalUrl($curl_info['redirect_url'], ++$depth, $fetchbody);
-			} elseif (!empty($curl_info['location'])) {
-				return self::finalUrl($curl_info['location'], ++$depth, $fetchbody);
-			}
-		}
-
-		// Check for redirects in the meta elements of the body if there are no redirects in the header.
-		if (!$fetchbody) {
-			return(self::finalUrl($url, ++$depth, true));
-		}
-
-		// if the file is too large then exit
-		if ($curl_info["download_content_length"] > 1000000) {
-			return $url;
-		}
-
-		// if it isn't a HTML file then exit
-		if (!empty($curl_info["content_type"]) && !strstr(strtolower($curl_info["content_type"]), "html")) {
-			return $url;
-		}
-
-		$stamp1 = microtime(true);
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_NOBODY, 0);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
-
-		$body = curl_exec($ch);
-		curl_close($ch);
-
-		$a->saveTimestamp($stamp1, "network");
-
-		if (trim($body) == "") {
-			return $url;
-		}
-
-		// Check for redirect in meta elements
-		$doc = new DOMDocument();
-		@$doc->loadHTML($body);
-
-		$xpath = new DomXPath($doc);
-
-		$list = $xpath->query("//meta[@content]");
-		foreach ($list as $node) {
-			$attr = [];
-			if ($node->attributes->length) {
-				foreach ($node->attributes as $attribute) {
-					$attr[$attribute->name] = $attribute->value;
-				}
-			}
-
-			if (@$attr["http-equiv"] == 'refresh') {
-				$path = $attr["content"];
-				$pathinfo = explode(";", $path);
-				foreach ($pathinfo as $value) {
-					if (substr(strtolower($value), 0, 4) == "url=") {
-						return self::finalUrl(substr($value, 4), ++$depth);
-					}
-				}
-			}
-		}
-
-		return $url;
+		$parts = array_merge($base, parse_url('/' . ltrim($url, '/')));
+		return self::unparseURL($parts);
 	}
 
 	/**
-	 * @brief Find the matching part between two url
+	 * Find the matching part between two url
 	 *
 	 * @param string $url1
 	 * @param string $url2
 	 * @return string The matching part
 	 */
-	public static function getUrlMatch($url1, $url2)
+	public static function getUrlMatch(string $url1, string $url2)
 	{
 		if (($url1 == "") || ($url2 == "")) {
 			return "";
@@ -793,8 +386,8 @@ class Network
 		$i = 0;
 		$path = "";
 		do {
-			$path1 = defaults($pathparts1, $i, '');
-			$path2 = defaults($pathparts2, $i, '');
+			$path1 = $pathparts1[$i] ?? '';
+			$path2 = $pathparts2[$i] ?? '';
 
 			if ($path1 == $path2) {
 				$path .= $path1."/";
@@ -807,13 +400,13 @@ class Network
 	}
 
 	/**
-	 * @brief Glue url parts together
+	 * Glue url parts together
 	 *
 	 * @param array $parsed URL parts
 	 *
 	 * @return string The glued URL
 	 */
-	public static function unparseURL($parsed)
+	public static function unparseURL(array $parsed)
 	{
 		$get = function ($key) use ($parsed) {
 			return isset($parsed[$key]) ? $parsed[$key] : null;
@@ -835,5 +428,94 @@ class Network
 			$get('path') .
 			(strlen($query) ? "?".$query : '') .
 			(strlen($fragment) ? "#".$fragment : '');
+	}
+
+
+	/**
+	 * Switch the scheme of an url between http and https
+	 *
+	 * @param string $url URL
+	 *
+	 * @return string switched URL
+	 */
+	public static function switchScheme(string $url)
+	{
+		$scheme = parse_url($url, PHP_URL_SCHEME);
+		if (empty($scheme)) {
+			return $url;
+		}
+
+		if ($scheme === 'http') {
+			$url = str_replace('http://', 'https://', $url);
+		} elseif ($scheme === 'https') {
+			$url = str_replace('https://', 'http://', $url);
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Adds query string parameters to the provided URI. Replace the value of existing keys.
+	 *
+	 * @param string $path
+	 * @param array  $additionalParams Associative array of parameters
+	 * @return string
+	 */
+	public static function appendQueryParam(string $path, array $additionalParams)
+	{
+		$parsed = parse_url($path);
+
+		$params = [];
+		if (!empty($parsed['query'])) {
+			parse_str($parsed['query'], $params);
+		}
+
+		$params = array_merge($params, $additionalParams);
+
+		$parsed['query'] = http_build_query($params);
+
+		return self::unparseURL($parsed);
+	}
+
+	/**
+	 * Generates ETag and Last-Modified response headers and checks them against
+	 * If-None-Match and If-Modified-Since request headers if present.
+	 *
+	 * Blocking function, sends 304 headers and exits if check passes.
+	 *
+	 * @param string $etag          The page etag
+	 * @param string $last_modified The page last modification UTC date
+	 * @throws \Exception
+	 */
+	public static function checkEtagModified(string $etag, string $last_modified)
+	{
+		$last_modified = DateTimeFormat::utc($last_modified, 'D, d M Y H:i:s') . ' GMT';
+
+		/**
+		 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.26
+		 */
+		$if_none_match     = filter_input(INPUT_SERVER, 'HTTP_IF_NONE_MATCH');
+		$if_modified_since = filter_input(INPUT_SERVER, 'HTTP_IF_MODIFIED_SINCE');
+		$flag_not_modified = null;
+		if ($if_none_match) {
+			$result = [];
+			preg_match('/^(?:W\/")?([^"]+)"?$/i', $etag, $result);
+			$etagTrimmed = $result[1];
+			// Lazy exact ETag match, could check weak/strong ETags
+			$flag_not_modified = $if_none_match == '*' || strpos($if_none_match, $etagTrimmed) !== false;
+		}
+
+		if ($if_modified_since && (!$if_none_match || $flag_not_modified)) {
+			// Lazy exact Last-Modified match, could check If-Modified-Since validity
+			$flag_not_modified = $if_modified_since == $last_modified;
+		}
+
+		header('Etag: ' . $etag);
+		header('Last-Modified: ' . $last_modified);
+
+		if ($flag_not_modified) {
+			header("HTTP/1.1 304 Not Modified");
+			exit;
+		}
 	}
 }

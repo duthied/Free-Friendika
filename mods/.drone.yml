@@ -1,0 +1,495 @@
+# Drone.io test YML-File, currently disabled
+# See https://github.com/friendica/friendica/pull/7643 for further infos
+kind: pipeline
+name: mysql8.0-php7.1
+
+steps:
+- name: mysql8.0-php7.1
+  image: friendicaci/php7.1:php7.1.32
+  commands:
+      - NOCOVERAGE=true ./autotest.sh mysql
+  environment:
+    MYSQL_USERNAME: friendica
+    MYSQL_PASSWORD: friendica
+    MYSQL_DATABASE: friendica
+    MYSQL_HOST: mysql
+
+node:
+  test: db
+
+services:
+- name: mysql
+  image: mysql:8.0
+  command: [ "--default-authentication-plugin=mysql_native_password" ]
+  environment:
+    MYSQL_ROOT_PASSWORD: friendica
+    MYSQL_USER: friendica
+    MYSQL_PASSWORD: friendica
+    MYSQL_DATABASE: friendica
+  volumes:
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+- name: cache
+  temp: {}
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: mysql8.0-php7.2
+
+steps:
+- name: mysql8.0-php7.2
+  image: friendicaci/php7.2:php7.2.22
+  commands:
+    - NOCOVERAGE=true ./autotest.sh mysql
+  environment:
+    MYSQL_USERNAME: friendica
+    MYSQL_PASSWORD: friendica
+    MYSQL_DATABASE: friendica
+    MYSQL_HOST: mysql
+
+node:
+  test: db
+
+services:
+- name: mysql
+  image: mysql:8.0
+  command: [ "--default-authentication-plugin=mysql_native_password" ]
+  environment:
+    MYSQL_ROOT_PASSWORD: friendica
+    MYSQL_USER: friendica
+    MYSQL_PASSWORD: friendica
+    MYSQL_DATABASE: friendica
+  volumes:
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+  - name: cache
+    temp: {}
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: mysql8.0-php7.3
+
+steps:
+- name: mysql8.0-php7.3
+  image: friendicaci/php7.3:php7.3.9
+  commands:
+      - NOCOVERAGE=true ./autotest.sh mysql
+  environment:
+      MYSQL_USERNAME: friendica
+      MYSQL_PASSWORD: friendica
+      MYSQL_DATABASE: friendica
+      MYSQL_HOST: mysql
+
+node:
+  test: db
+
+services:
+- name: mysql
+  image: mysql:8.0
+  command: [ "--default-authentication-plugin=mysql_native_password" ]
+  environment:
+      MYSQL_ROOT_PASSWORD: friendica
+      MYSQL_USER: friendica
+      MYSQL_PASSWORD: friendica
+      MYSQL_DATABASE: friendica
+  volumes:
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+  - name: cache
+    temp: {}
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: mariadb10.1-php7.1
+
+steps:
+- name: mariadb10.1-php7.1
+  image: friendicaci/php7.1:php7.1.32
+  commands:
+      - phpenmod xdebug
+      - sleep 20
+      - ./autotest.sh mariadb
+      - wget https://codecov.io/bash -O codecov.sh
+      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+  environment:
+      MYSQL_USER: friendica
+      MYSQL_PASSWORD: friendica
+      MYSQL_DATABASE: friendica
+      MYSQL_HOST: mariadb
+
+node:
+  test: db
+
+services:
+- name: mariadb
+  image: mariadb:10.1
+  environment:
+      MYSQL_ROOT_PASSWORD: friendica
+      MYSQL_USER: friendica
+      MYSQL_PASSWORD: friendica
+      MYSQL_DATABASE: friendica
+  volumes:
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+  - name: cache
+    temp: {}
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: mariadb10.1-php7.2
+
+steps:
+- name: mariadb10.1-php7.2
+  image: friendicaci/php7.2:php7.2.22
+  commands:
+      - NOCOVERAGE=true ./autotest.sh mariadb
+  environment:
+      MYSQL_USER: friendica
+      MYSQL_PASSWORD: friendica
+      MYSQL_DATABASE: friendica
+      MYSQL_HOST: mariadb
+
+node:
+  test: db
+
+services:
+- name: mariadb
+  image: mariadb:10.1
+  environment:
+      MYSQL_ROOT_PASSWORD: friendica
+      MYSQL_USER: friendica
+      MYSQL_PASSWORD: friendica
+      MYSQL_DATABASE: friendica
+  volumes:
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+  - name: cache
+    temp: {}
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: mariadb10.1-php7.3
+
+steps:
+- name: mariadb10.1-php7.3
+  image: friendicaci/php7.3:php7.3.9
+  commands:
+      - NOCOVERAGE=true ./autotest.sh mariadb
+  environment:
+      MYSQL_USER: friendica
+      MYSQL_PASSWORD: friendica
+      MYSQL_DATABASE: friendica
+      MYSQL_HOST: mariadb
+
+node:
+  test: db
+
+services:
+- name: mariadb
+  image: mariadb:10.1
+  environment:
+      MYSQL_ROOT_PASSWORD: friendica
+      MYSQL_USER: friendica
+      MYSQL_PASSWORD: friendica
+      MYSQL_DATABASE: friendica
+  volumes:
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+  - name: cache
+    temp: {}
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: redis-php7.1
+
+steps:
+- name: redis-php7.1
+  image: friendicaci/php7.1:php7.1.32
+  commands:
+    - phpenmod xdebug
+    - sleep 20
+    - NOINSTALL=true TEST_SELECTION=REDIS ./autotest.sh mysql
+    - wget https://codecov.io/bash -O codecov.sh
+    - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+    - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+  environment:
+      REDIS_HOST: redis
+
+services:
+- name: redis
+  image: redis
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: redis-php7.2
+
+steps:
+- name: redis-php7.2
+  image: friendicaci/php7.2:php7.2.22
+  commands:
+      - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=REDIS ./autotest.sh mysql
+  environment:
+    REDIS_HOST: redis
+
+services:
+- name: redis
+  image: redis
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: redis-php7.3
+
+steps:
+- name: redis-php7.3
+  image: friendicaci/php7.3:php7.3.9
+  commands:
+      - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=REDIS ./autotest.sh mysql
+  environment:
+    REDIS_HOST: redis
+
+services:
+- name: redis
+  image: redis
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+
+---
+kind: pipeline
+name: memcache-php7.1
+
+steps:
+- name: memcache-php7.1
+  image: friendicaci/php7.1:php7.1.32
+  commands:
+      - phpenmod xdebug
+      - sleep 20
+      - NOINSTALL=true TEST_SELECTION=MEMCACHE ./autotest.sh mysql
+      - wget https://codecov.io/bash -O codecov.sh
+      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+  environment:
+      MEMCACHE_HOST: memcached
+
+services:
+- name: memcached
+  image: memcached
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: memcache-php7.2
+
+steps:
+- name: memcache-php7.2
+  image: friendicaci/php7.2:php7.2.22
+  commands:
+      - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=MEMCACHE ./autotest.sh mysql
+  environment:
+      MEMCACHE_HOST: memcached
+
+services:
+- name: memcached
+  image: memcached
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: memcache-php7.3
+
+steps:
+- name: memcache-php7.3
+  image: friendicaci/php7.3:php7.3.9
+  commands:
+      - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=MEMCACHE ./autotest.sh mysql
+  environment:
+      MEMCACHE_HOST: memcached
+
+services:
+- name: memcached
+  image: memcached
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+
+
+---
+kind: pipeline
+name: memcached-php7.1
+
+steps:
+- name: memcached-php7.1
+  image: friendicaci/php7.1:php7.1.32
+  commands:
+      - phpenmod xdebug
+      - sleep 20
+      - NOINSTALL=true TEST_SELECTION=MEMCACHED ./autotest.sh mysql
+      - wget https://codecov.io/bash -O codecov.sh
+      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+  environment:
+      MEMCACHED_HOST: memcached
+
+services:
+- name: memcached
+  image: memcached
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: memcached-php7.2
+
+steps:
+- name: memcached-php7.2
+  image: friendicaci/php7.2:php7.2.22
+  commands:
+      - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=MEMCACHED ./autotest.sh mysql
+  environment:
+      MEMCACHED_HOST: memcached
+
+services:
+- name: memcached
+  image: memcached
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: memcached-php7.3
+
+steps:
+- name: memcached-php7.3
+  image: friendicaci/php7.3:php7.3.9
+  commands:
+      - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=MEMCACHED ./autotest.sh mysql
+  environment:
+      MEMCACHED_HOST: memcached
+
+services:
+- name: memcached
+  image: memcached
+
+trigger:
+  branch:
+#    - stable
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push

@@ -1,5 +1,10 @@
-<div class="widget" id="group-sidebar">
+<span id="group-sidebar-inflated" class="widget fakelink" onclick="openCloseWidget('group-sidebar', 'group-sidebar-inflated');">
 	<h3>{{$title}}</h3>
+</span>
+<div class="widget" id="group-sidebar">
+	<span class="fakelink" onclick="openCloseWidget('group-sidebar', 'group-sidebar-inflated');">
+		<h3>{{$title}}</h3>
+	</span>
 
 	<div id="sidebar-group-list">
 		<ul role="menu" id="sidebar-group-ul">
@@ -9,7 +14,7 @@
 					{{if $group.cid}}
 						<input type="checkbox"
 							class="{{if $group.selected}}ticked{{else}}unticked {{/if}} action"
-							onclick="contactgroupChangeMember('{{$group.id}}','{{$group.cid}}');return true;"
+							onclick="return contactgroupChangeMember(this, '{{$group.id}}','{{$group.cid}}');"
 							{{if $group.ismember}}checked="checked"{{/if}}
 						/>
 					{{/if}}
@@ -38,5 +43,6 @@
 
 	{{if $ungrouped}}<div id="sidebar-ungrouped"><a class="{{if $ungrouped_selected}}group-selected{{/if}}" href="nogroup">{{$ungrouped}}</a></div>{{/if}}
 </div>
-
-
+<script>
+initWidget('group-sidebar', 'group-sidebar-inflated');
+</script>

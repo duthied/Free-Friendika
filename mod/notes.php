@@ -1,15 +1,31 @@
 <?php
 /**
- * @file mod/notes.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
-use Friendica\Core\L10n;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Model\Profile;
+use Friendica\Module\BaseProfile;
 
 function notes_init(App $a)
 {
@@ -24,14 +40,14 @@ function notes_init(App $a)
 function notes_content(App $a, $update = false)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
-	$o = Profile::getTabs($a, true);
+	$o = BaseProfile::getTabsHTML($a, 'notes', true);
 
 	if (!$update) {
-		$o .= '<h3>' . L10n::t('Personal Notes') . '</h3>';
+		$o .= '<h3>' . DI::l10n()->t('Personal Notes') . '</h3>';
 
 		$x = [
 			'is_owner' => true,
@@ -43,7 +59,7 @@ function notes_content(App $a, $update = false)
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
-			'button' => L10n::t('Save'),
+			'button' => DI::l10n()->t('Save'),
 			'acl_data' => '',
 		];
 
@@ -53,7 +69,15 @@ function notes_content(App $a, $update = false)
 	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
 		'contact-id'=> $a->contact['id']];
 
-	$pager = new Pager($a->query_string, 40);
+	if (DI::mode()->isMobile()) {
+		$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+			DI::config()->get('system', 'itemspage_network_mobile'));
+	} else {
+		$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+			DI::config()->get('system', 'itemspage_network'));
+	}
+
+	$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
 	$params = ['order' => ['created' => true],
 		'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
@@ -66,7 +90,7 @@ function notes_content(App $a, $update = false)
 
 		$count = count($notes);
 
-		$o .= conversation($a, $notes, $pager, 'notes', $update);
+		$o .= conversation($a, $notes, 'notes', $update);
 	}
 
 	$o .= $pager->renderMinimal($count);

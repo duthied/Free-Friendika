@@ -1,8 +1,12 @@
 
 {{if $item.comment_firstcollapsed}}
-	<div class="hide-comments-outer">
-		<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">{{$item.num_comments}}</span>
-		<span id="hide-comments-{{$item.id}}" class="hide-comments fakelink" onclick="showHideComments({{$item.id}});">{{$item.hide_text}}</span>
+	<div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
+		<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">
+			{{$item.num_comments}} - {{$item.show_text}}
+		</span>
+		<span id="hide-comments-{{$item.id}}" class="hide-comments" style="display: none">
+			{{$item.num_comments}} - {{$item.hide_text}}
+		</span>
 	</div>
 	<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 {{/if}}
@@ -38,7 +42,7 @@
 		<div class="wall-item-lock-wrapper">
 			{{if $item.lock}}
 			<div class="wall-item-lock">
-			<img src="images/lock_icon.gif" class="lockview" alt="{{$item.lock}}" onclick="lockview(event,{{$item.id}});" />
+			<img src="images/lock_icon.gif" class="lockview" alt="{{$item.lock}}" onclick="lockview(event, 'item', {{$item.id}});" />
 			</div>
 			{{else}}
 			<div class="wall-item-lock"></div>
@@ -50,7 +54,7 @@
 			<span class="wall-item-name{{$item.sparkle}}" id="wall-item-name-{{$item.id}}" >{{$item.name}}</span>
 			</a>
 			<div class="wall-item-ago">&bull;</div>
-			<div class="wall-item-ago" id="wall-item-ago-{{$item.id}}" title="{{$item.localtime}}"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></div>
+			<div class="wall-item-ago" id="wall-item-ago-{{$item.id}}" title="{{$item.localtime}}"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time><span class="pinned">{{$item.pinned}}</span></div>
 		</div>
 
 		<div>
@@ -68,7 +72,7 @@
 				</div>
 
 				{{if $item.has_cats}}
-				<div class="categorytags"><span>{{$item.txt_cats}} {{foreach $item.categories as $cat}}<span class="p-category">{{$cat.name}}</span>
+				<div class="categorytags"><span>{{$item.txt_cats}} {{foreach $item.categories as $cat}}<span class="p-category"><a href="{{$cat.url}}">{{$cat.name}}</a></span>
 				<a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a>
 				{{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
 				</div>
@@ -87,9 +91,9 @@
 
 			{{if $item.vote}}
 			<div class="wall-item-like-buttons" id="wall-item-like-buttons-{{$item.id}}">
-				<a href="#" class="icon like{{if $item.responses.like.self}} self{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false"></a>
+				<a href="#" class="icon like{{if $item.responses.like.self}} self{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false"></a>
 				{{if $item.vote.dislike}}
-				<a href="#" class="icon dislike{{if $item.responses.dislike.self}} self{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false"></a>
+				<a href="#" class="icon dislike{{if $item.responses.dislike.self}} self{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false"></a>
 				{{/if}}
 				{{if $item.vote.share}}
 				<a href="#" class="icon recycle wall-item-share-buttons" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"></a>				{{/if}}
@@ -103,6 +107,9 @@
 			</div>
 			{{/if}}
 
+			{{if $item.pin}}
+			<a href="#" id="pinned-{{$item.id}}" onclick="dopin({{$item.id}}); return false;" class="pin-item icon {{$item.ispinned}}" title="{{$item.pin.toggle}}"></a>
+			{{/if}}
 			{{if $item.star}}
 			<a href="#" id="starred-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="star-item icon {{$item.isstarred}}" title="{{$item.star.toggle}}"></a>
 			{{/if}}

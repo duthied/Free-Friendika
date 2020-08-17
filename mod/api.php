@@ -1,15 +1,31 @@
 <?php
 /**
- * @file mod/api.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 use Friendica\App;
-use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
-use Friendica\Module\Login;
+use Friendica\DI;
+use Friendica\Module\Security\Login;
 
-require_once 'include/api.php';
+require_once __DIR__ . '/../include/api.php';
 
 function oauth_get_client(OAuthRequest $request)
 {
@@ -31,24 +47,24 @@ function oauth_get_client(OAuthRequest $request)
 function api_post(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 }
 
 function api_content(App $a)
 {
-	if ($a->cmd == 'api/oauth/authorize') {
+	if (DI::args()->getCommand() == 'api/oauth/authorize') {
 		/*
 		 * api/oauth/authorize interact with the user. return a standard page
 		 */
 
-		$a->page['template'] = "minimal";
+		DI::page()['template'] = "minimal";
 
 		// get consumer/client from request token
 		try {
@@ -67,7 +83,7 @@ function api_content(App $a)
 			$consumer = new OAuthConsumer($app['client_id'], $app['pw'], $app['redirect_uri']);
 
 			$verifier = md5($app['secret'] . local_user());
-			Config::set("oauth", $verifier, local_user());
+			DI::config()->set("oauth", $verifier, local_user());
 
 			if ($consumer->callback_url != null) {
 				$params = $request->get_parameters();
@@ -75,14 +91,14 @@ function api_content(App $a)
 				if (strstr($consumer->callback_url, $glue)) {
 					$glue = "?";
 				}
-				$a->internalRedirect($consumer->callback_url . $glue . 'oauth_token=' . OAuthUtil::urlencode_rfc3986($params['oauth_token']) . '&oauth_verifier=' . OAuthUtil::urlencode_rfc3986($verifier));
+				DI::baseUrl()->redirect($consumer->callback_url . $glue . 'oauth_token=' . OAuthUtil::urlencode_rfc3986($params['oauth_token']) . '&oauth_verifier=' . OAuthUtil::urlencode_rfc3986($verifier));
 				exit();
 			}
 
 			$tpl = Renderer::getMarkupTemplate("oauth_authorize_done.tpl");
 			$o = Renderer::replaceMacros($tpl, [
-				'$title' => L10n::t('Authorize application connection'),
-				'$info' => L10n::t('Return to your app and insert this Securty Code:'),
+				'$title' => DI::l10n()->t('Authorize application connection'),
+				'$info' => DI::l10n()->t('Return to your app and insert this Securty Code:'),
 				'$code' => $verifier,
 			]);
 
@@ -91,8 +107,8 @@ function api_content(App $a)
 
 		if (!local_user()) {
 			/// @TODO We need login form to redirect to this page
-			notice(L10n::t('Please login to continue.') . EOL);
-			return Login::form($a->query_string, false, $request->get_parameters());
+			notice(DI::l10n()->t('Please login to continue.'));
+			return Login::form(DI::args()->getQueryString(), false, $request->get_parameters());
 		}
 		//FKOAuth1::loginUser(4);
 
@@ -103,11 +119,11 @@ function api_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('oauth_authorize.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$title' => L10n::t('Authorize application connection'),
+			'$title' => DI::l10n()->t('Authorize application connection'),
 			'$app' => $app,
-			'$authorize' => L10n::t('Do you want to authorize this application to access your posts and contacts, and/or create new posts for you?'),
-			'$yes' => L10n::t('Yes'),
-			'$no' => L10n::t('No'),
+			'$authorize' => DI::l10n()->t('Do you want to authorize this application to access your posts and contacts, and/or create new posts for you?'),
+			'$yes' => DI::l10n()->t('Yes'),
+			'$no' => DI::l10n()->t('No'),
 		]);
 
 		return $o;

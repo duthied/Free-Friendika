@@ -16,14 +16,12 @@ DOMAIN="*.xip.io"
 EXTRADOMAIN="friendica.local"
 PASSPHRASE="vaprobash"
 SUBJ="
-C=US
-ST=Connecticut
-O=Vaprobash
-localityName=New Haven
-commonName=$DOMAIN
+C=US/
+ST=Connecticut/
+O=Vaprobash/
+localityName=New Haven/
+commonName=$DOMAIN/
 subjectAltName=DNS:$EXTRADOMAIN
-organizationalUnitName=
-emailAddress=
 "
 sudo mkdir -p "$SSL_DIR"
 sudo openssl genrsa -out "$SSL_DIR/xip.io.key" 4096
@@ -37,9 +35,9 @@ sudo apt-get install -y apache2
 sudo a2enmod rewrite actions ssl
 sudo cp /vagrant/bin/dev/vagrant_vhost.sh /usr/local/bin/vhost
 sudo chmod guo+x /usr/local/bin/vhost
-    sudo vhost -s 192.168.22.10.xip.io -d /var/www -p /etc/ssl/xip.io -c xip.io -a friendica.local
-    sudo a2dissite 000-default
-    sudo service apache2 restart
+sudo vhost -s 192.168.22.10.xip.io -d /var/www -p /etc/ssl/xip.io -c xip.io -a friendica.local
+sudo a2dissite 000-default
+sudo service apache2 restart
 
 #Install php
 echo ">>> Installing PHP7"
@@ -48,9 +46,9 @@ sudo systemctl restart apache2
 
 #Install mysql
 echo ">>> Installing Mysql"
-sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password root"
-sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password root"
-sudo apt-get install -qq mysql-server
+sudo debconf-set-selections <<< "mariadb-server mariadb-server/root_password password root"
+sudo debconf-set-selections <<< "mariadb-server mariadb-server/root_password_again password root"
+sudo apt-get install -qq mariadb-server
 # enable remote access
 # setting the mysql bind-address to allow connections from everywhere
 sed -i "s/bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
@@ -76,6 +74,9 @@ debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local Only'
 sudo apt-get install -y postfix mailutils libmailutils-dev
 sudo echo -e "friendica1:	vagrant\nfriendica2:	vagrant\nfriendica3:	vagrant\nfriendica4:	vagrant\nfriendica5:	vagrant" >> /etc/aliases && sudo newaliases
 
+# Friendica needs git for fetching some dependencies
+sudo apt-get install -y git
+
 #make the vagrant directory the docroot
 sudo rm -rf /var/www/
 sudo ln -fs /vagrant /var/www
@@ -83,7 +84,7 @@ sudo ln -fs /vagrant /var/www
 # install deps with composer
 sudo apt install unzip
 cd /var/www
-php bin/composer.phar install
+sudo -u www-data php bin/composer.phar install
 
 # initial config file for friendica in vagrant
 cp /vagrant/mods/local.config.vagrant.php /vagrant/config/local.config.php

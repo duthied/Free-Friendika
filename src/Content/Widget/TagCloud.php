@@ -1,16 +1,31 @@
 <?php
-
-/*
- * @file src/Content/Widget/TagCloud.php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Content\Widget;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Tag;
 
 /**
  * TagCloud widget
@@ -22,7 +37,6 @@ class TagCloud
 	/**
 	 * Construct a tag/term cloud block for an user.
 	 *
-	 * @brief Construct a tag/term cloud block for an user.
 	 * @param int    $uid      The user ID.
 	 * @param int    $count    Max number of displayed tags/terms.
 	 * @param int    $owner_id The contact ID of the owner of the tagged items.
@@ -32,13 +46,13 @@ class TagCloud
 	 * @return string       HTML formatted output.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getHTML($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HASHTAG)
+	public static function getHTML($uid, $count = 0, $owner_id = 0, $flags = '', $type = Tag::HASHTAG)
 	{
 		$o = '';
 		$r = self::tagadelic($uid, $count, $owner_id, $flags, $type);
 		if (count($r)) {
 			$contact = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
-			$url = System::removedBaseUrl($contact['url']);
+			$url = DI::baseUrl()->remove($contact['url']);
 
 			$tags = [];
 			foreach ($r as $rr) {
@@ -49,9 +63,9 @@ class TagCloud
 				$tags[] = $tag;
 			}
 
-			$tpl = Renderer::getMarkupTemplate('tagblock_widget.tpl');
+			$tpl = Renderer::getMarkupTemplate('widget/tagcloud.tpl');
 			$o = Renderer::replaceMacros($tpl, [
-				'$title' => L10n::t('Tags'),
+				'$title' => DI::l10n()->t('Tags'),
 				'$tags' => $tags
 			]);
 		}
@@ -62,8 +76,6 @@ class TagCloud
 	 * Get alphabetical sorted array of used tags/terms of an user including
 	 * a weighting by frequency of use.
 	 *
-	 * @brief Get alphabetical sorted array of used tags/terms of an user including
-	 * a weighting by frequency of use.
 	 * @param int    $uid      The user ID.
 	 * @param int    $count    Max number of displayed tags/terms.
 	 * @param int    $owner_id The contact id of the owner of the tagged items.
@@ -73,7 +85,7 @@ class TagCloud
 	 * @return array        Alphabetical sorted array of used tags of an user.
 	 * @throws \Exception
 	 */
-	private static function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = TERM_HASHTAG)
+	private static function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = Tag::HASHTAG)
 	{
 		$sql_options = Item::getPermissionsSQLByUserId($uid);
 		$limit = $count ? sprintf('LIMIT %d', intval($count)) : '';
@@ -89,16 +101,13 @@ class TagCloud
 		}
 
 		// Fetch tags
-		$tag_stmt = DBA::p("SELECT `term`, COUNT(`term`) AS `total` FROM `term`
-			LEFT JOIN `item` ON `term`.`oid` = `item`.`id`
-			WHERE `term`.`uid` = ? AND `term`.`type` = ?
-			AND `term`.`otype` = ?
+		$tag_stmt = DBA::p("SELECT `name`, COUNT(`name`) AS `total` FROM `tag-search-view`
+			LEFT JOIN `item` ON `tag-search-view`.`uri-id` = `item`.`uri-id`
+			WHERE `tag-search-view`.`uid` = ?
 			AND `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 			$sql_options
-			GROUP BY `term` ORDER BY `total` DESC $limit",
-			$uid,
-			$type,
-			TERM_OBJ_POST
+			GROUP BY `name` ORDER BY `total` DESC $limit",
+			$uid
 		);
 		if (!DBA::isResult($tag_stmt)) {
 			return [];
@@ -112,7 +121,6 @@ class TagCloud
 	/**
 	 * Calculate weighting of tags according to the frequency of use.
 	 *
-	 * @brief Calculate weighting of tags according to the frequency of use.
 	 * @param array $arr Array of tags/terms with tag/term name and total count of use.
 	 * @return array     Alphabetical sorted array of used tags/terms of an user.
 	 */
@@ -128,7 +136,7 @@ class TagCloud
 		}
 
 		foreach ($arr as $rr) {
-			$tags[$x][0] = $rr['term'];
+			$tags[$x][0] = $rr['name'];
 			$tags[$x][1] = log($rr['total']);
 			$tags[$x][2] = 0;
 			$min = min($min, $tags[$x][1]);
@@ -149,7 +157,6 @@ class TagCloud
 	/**
 	 * Compare function to sort tags/terms alphabetically.
 	 *
-	 * @brief Compare function to sort tags/terms alphabetically.
 	 * @param string $a
 	 * @param string $b
 	 *

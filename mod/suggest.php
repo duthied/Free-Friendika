@@ -1,124 +1,58 @@
 <?php
 /**
- * @file mod/suggest.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 use Friendica\App;
-use Friendica\Content\ContactSelector;
 use Friendica\Content\Widget;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
-use Friendica\Util\Proxy as ProxyUtils;
-
-function suggest_init(App $a)
-{
-	if (! local_user()) {
-		return;
-	}
-
-	if (!empty($_GET['ignore'])) {
-		// Check if we should do HTML-based delete confirmation
-		if ($_REQUEST['confirm']) {
-			// <form> can't take arguments in its "action" parameter
-			// so add any arguments as hidden inputs
-			$query = explode_querystring($a->query_string);
-			$inputs = [];
-			foreach ($query['args'] as $arg) {
-				if (strpos($arg, 'confirm=') === false) {
-					$arg_parts = explode('=', $arg);
-					$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
-				}
-			}
-
-			$a->page['content'] = Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-				'$method' => 'get',
-				'$message' => L10n::t('Do you really want to delete this suggestion?'),
-				'$extra_inputs' => $inputs,
-				'$confirm' => L10n::t('Yes'),
-				'$confirm_url' => $query['base'],
-				'$confirm_name' => 'confirmed',
-				'$cancel' => L10n::t('Cancel'),
-			]);
-			$a->error = 1; // Set $a->error so the other module functions don't execute
-			return;
-		}
-		// Now check how the user responded to the confirmation query
-		if (!$_REQUEST['canceled']) {
-			DBA::insert('gcign', ['uid' => local_user(), 'gcid' => $_GET['ignore']]);
-		}
-	}
-
-}
+use Friendica\Module\Contact as ModuleContact;
+use Friendica\Network\HTTPException;
 
 function suggest_content(App $a)
 {
-	$o = '';
-
-	if (! local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
-		return;
+	if (!local_user()) {
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 	}
 
-	$_SESSION['return_path'] = $a->cmd;
+	$_SESSION['return_path'] = DI::args()->getCommand();
 
-	$a->page['aside'] .= Widget::findPeople();
-	$a->page['aside'] .= Widget::follow();
+	DI::page()['aside'] .= Widget::findPeople();
+	DI::page()['aside'] .= Widget::follow();
 
-
-	$r = GContact::suggestionQuery(local_user());
-
-	if (! DBA::isResult($r)) {
-		$o .= L10n::t('No suggestions available. If this is a new site, please try again in 24 hours.');
-		return $o;
+	$contacts = Contact\Relation::getSuggestions(local_user());
+	if (!DBA::isResult($contacts)) {
+		return DI::l10n()->t('No suggestions available. If this is a new site, please try again in 24 hours.');
 	}
 
-	$id = 0;
 	$entries = [];
-
-	foreach ($r as $rr) {
-
-		$connlnk = System::baseUrl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
-		$ignlnk = System::baseUrl() . '/suggest?ignore=' . $rr['id'];
-		$photo_menu = [
-			'profile' => [L10n::t("View Profile"), Contact::magicLink($rr["url"])],
-			'follow' => [L10n::t("Connect/Follow"), $connlnk],
-			'hide' => [L10n::t('Ignore/Hide'), $ignlnk]
-		];
-
-		$contact_details = Contact::getDetailsByURL($rr["url"], local_user(), $rr);
-
-		$entry = [
-			'url' => Contact::magicLink($rr['url']),
-			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
-			'img_hover' => $rr['url'],
-			'name' => $contact_details['name'],
-			'thumb' => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
-			'details'       => $contact_details['location'],
-			'tags'          => $contact_details['keywords'],
-			'about'         => $contact_details['about'],
-			'account_type'  => Contact::getAccountType($contact_details),
-			'ignlnk' => $ignlnk,
-			'ignid' => $rr['id'],
-			'conntxt' => L10n::t('Connect'),
-			'connlnk' => $connlnk,
-			'photo_menu' => $photo_menu,
-			'ignore' => L10n::t('Ignore/Hide'),
-			'network' => ContactSelector::networkToName($rr['network'], $rr['url']),
-			'id' => ++$id,
-		];
-		$entries[] = $entry;
+	foreach ($contacts as $contact) {
+		$entries[] = ModuleContact::getContactTemplateVars($contact);
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
 
-	$o .= Renderer::replaceMacros($tpl,[
-		'$title' => L10n::t('Friend Suggestions'),
+	return Renderer::replaceMacros($tpl,[
+		'$title' => DI::l10n()->t('Friend Suggestions'),
 		'$contacts' => $entries,
 	]);
-
-	return $o;
 }

@@ -1,8 +1,28 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\Network;
 
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Network;
 
@@ -25,6 +45,11 @@ class CurlResult
 	 * @var string the HTTP headers of the Curl call
 	 */
 	private $header;
+
+	/**
+	 * @var array the HTTP headers of the Curl call
+	 */
+	private $header_fields;
 
 	/**
 	 * @var boolean true (if HTTP 2xx result) or false
@@ -106,7 +131,7 @@ class CurlResult
 		$this->errorNumber = $errorNumber;
 		$this->error = $error;
 
-		Logger::log($url . ': ' . $this->returnCode . " " . $result, Logger::DATA);
+		Logger::debug('construct', ['url' => $url, 'returncode' => $this->returnCode, 'result' => $result]);
 
 		$this->parseBodyHeader($result);
 		$this->checkSuccess();
@@ -129,6 +154,7 @@ class CurlResult
 
 		$this->body = substr($result, strlen($header));
 		$this->header = $header;
+		$this->header_fields = []; // Is filled on demand
 	}
 
 	private function checkSuccess()
@@ -141,8 +167,8 @@ class CurlResult
 		}
 
 		if (!$this->isSuccess) {
-			Logger::log('error: ' . $this->url . ': ' . $this->returnCode . ' - ' . $this->error, Logger::INFO);
-			Logger::log('debug: ' . print_r($this->info, true), Logger::DATA);
+			Logger::notice('http error', ['url' => $this->url, 'code' => $this->returnCode, 'error'  => $this->error, 'callstack' => System::callstack(20)]);
+			Logger::debug('debug', ['info' => $this->info]);
 		}
 
 		if (!$this->isSuccess && $this->errorNumber == CURLE_OPERATION_TIMEDOUT) {
@@ -161,7 +187,7 @@ class CurlResult
 		}
 
 		if ($this->returnCode == 301 || $this->returnCode == 302 || $this->returnCode == 303 || $this->returnCode== 307) {
-			$redirect_parts = parse_url(defaults($this->info, 'redirect_url', ''));
+			$redirect_parts = parse_url($this->info['redirect_url'] ?? '');
 			if (empty($redirect_parts)) {
 				$redirect_parts = [];
 			}
@@ -173,7 +199,7 @@ class CurlResult
 				}
 			}
 
-			$parts = parse_url(defaults($this->info, 'url', ''));
+			$parts = parse_url($this->info['url'] ?? '');
 			if (empty($parts)) {
 				$parts = [];
 			}
@@ -226,11 +252,65 @@ class CurlResult
 	/**
 	 * Returns the Curl headers
 	 *
-	 * @return string the Curl headers
+	 * @param string $field optional header field. Return all fields if empty
+	 *
+	 * @return string the Curl headers or the specified content of the header variable
 	 */
-	public function getHeader()
+	public function getHeader(string $field = '')
 	{
-		return $this->header;
+		if (empty($field)) {
+			return $this->header;
+		}
+
+		$field = strtolower(trim($field));
+
+		$headers = $this->getHeaderArray();
+
+		if (isset($headers[$field])) {
+			return $headers[$field];
+		}
+
+		return '';
+	}
+
+	/**
+	 * Check if a specified header exists
+	 *
+	 * @param string $field header field
+	 *
+	 * @return boolean "true" if header exists
+	 */
+	public function inHeader(string $field)
+	{
+		$field = strtolower(trim($field));
+
+		$headers = $this->getHeaderArray();
+
+		return array_key_exists($field, $headers);
+	}
+
+	/**
+	 * Returns the Curl headers as an associated array
+	 *
+	 * @return array associated header array
+	 */
+	public function getHeaderArray()
+	{
+		if (!empty($this->header_fields)) {
+			return $this->header_fields;
+		}
+
+		$this->header_fields = [];
+
+		$lines = explode("\n", trim($this->header));
+		foreach ($lines as $line) {
+			$parts = explode(':', $line);
+			$headerfield = strtolower(trim(array_shift($parts)));
+			$headerdata = trim(implode(':', $parts));
+			$this->header_fields[$headerfield] = $headerdata;
+		}
+
+		return $this->header_fields;
 	}
 
 	/**

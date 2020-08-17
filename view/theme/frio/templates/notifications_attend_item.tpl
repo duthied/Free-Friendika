@@ -1,2 +1,0 @@
-
-{{include file="notify.tpl"}}

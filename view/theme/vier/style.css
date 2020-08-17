@@ -448,7 +448,7 @@ pre code {
 	/* color: #000; */
 }
 
-.group-selected, .nets-selected, .fileas-selected, .forum-selected {
+.widget .selected, .forum-selected {
 	font-weight: bold;
 }
 
@@ -687,8 +687,8 @@ nav .nav-menu img {
 	margin-right: 4px;
 }
 
-nav .nav-menu > a > .nav-notify,
-nav .nav-menu-icon > a > .nav-notify {
+nav .nav-menu > a > .nav-notification,
+nav .nav-menu-icon > a > .nav-notification {
 	position: absolute;
 	top: 3px;
 	right: -5px;
@@ -725,7 +725,7 @@ nav .nav-menu:hover {
 	text-decoration: none;
 }
 
-.manage-notify {
+.delegation-notify {
 	 background-color: #F80;
 	-moz-border-radius: 5px 5px 5px 5px;
 	-webkit-border-radius: 5px 5px 5px 5px;
@@ -741,7 +741,7 @@ nav .nav-menu:hover {
 	margin-right: -20px;
 }
 
-nav .nav-notify {
+nav .nav-notification {
 	display: none;
 	background-color: #F80;
 	-moz-border-radius: 5px 5px 5px 5px;
@@ -753,7 +753,7 @@ nav .nav-notify {
 	text-align: center;
 	color: white;
 }
-nav .nav-notify.show {
+nav .nav-notification.show {
 	display: inline-block;
 }
 
@@ -763,6 +763,7 @@ nav #nav-directory-link,
 nav #nav-apps-link,
 nav #nav-apps-link,
 nav #nav-login-link,
+nav #nav-logout-link,
 nav #nav-messages-linkmenu,
 nav #nav-notifications-linkmenu,
 nav #nav-site-linkmenu,
@@ -844,9 +845,9 @@ nav #nav-user-linkmenu {
 	padding: 5px 10px; */
 }
 
-.notify-unseen {background-color: #FFF; }
+.notification-unseen {background-color: #FFF; }
 
-.notify-seen {
+.notification-seen {
 	background: none repeat scroll 0 0 #EEE;
 }
 
@@ -2122,100 +2123,9 @@ table.smiley-preview {
 	width: 690px;
 	float: left;
 }
-#acl-search {
-	float: right;
-	background: #ffffff url("../../../images/search_18.png") no-repeat right center;
-	padding-right: 20px;
-}
-#acl-showall {
-	float: left;
-	display: block;
-	width: auto;
-	height: 18px;
-	background-color: #cccccc;
-	background-image: url("../../../images/show_all_off.png");
-	background-position: 7px 7px;
-	background-repeat: no-repeat;
-	padding: 7px 5px 0px 30px;
-	color: #999999;
-	-moz-border-radius: 5px 5px 5px 5px;
-	-webkit-border-radius: 5px 5px 5px 5px;
-	border-radius: 5px 5px 5px 5px;
-}
-#acl-showall.selected {
-	color: #000000;
-	background-color: #ff9900;
-	background-image: url("../../../images/show_all_on.png");
-}
-#acl-list {
-	height: 210px;
-	border: 1px solid #cccccc;
-	clear: both;
-	margin-top: 30px;
-	overflow: auto;
-}
-.acl-list-item {
-	display: block;
-	width: 150px;
-	height: 30px;
-	border: 1px solid #cccccc;
-	margin: 5px;
-	float: left;
-}
-.acl-list-item img {
-	width: 22px;
-	height: 22px;
-	float: left;
-	margin: 4px;
-}
-.acl-list-item p {
-	height: 12px;
-	font-size: 10px;
-	margin: 0px;
-	padding: 2px 0px 1px;
-	overflow: hidden;
-}
-.acl-list-item a {
-	font-size: 8px;
-	display: block;
-	width: 40px;
-	height: 10px;
-	float: left;
-	color: #999999;
-	background-color: #cccccc;
-	background-position: 3px 3px;
-	background-repeat: no-repeat;
-	margin-right: 5px;
-	-webkit-border-radius: 2px ;
-	-moz-border-radius: 2px;
-	border-radius: 2px;
-	padding-left: 15px;
-}
 #acl-wrapper a:hover {
 	text-decoration: none;
 	color: #000000;
-}
-.acl-button-show {
-	background-image: url("../../../images/show_off.png");
-}
-.acl-button-hide {
-	background-image: url("../../../images/hide_off.png");
-}
-.acl-button-show.selected {
-	color: #000000;
-	background-color: #9ade00;
-	background-image: url("../../../images/show_on.png");
-}
-.acl-button-hide.selected {
-	color: #000000;
-	background-color: #ff4141;
-	background-image: url("../../../images/hide_on.png");
-}
-.acl-list-item.groupshow {
-	border-color: #9ade00;
-}
-.acl-list-item.grouphide {
-	border-color: #ff4141;
 }
 /** /acl **/
 /** tab buttons **/
@@ -2362,40 +2272,6 @@ ul.tabs li .active, span.pager_current a {
 	margin-left: 200px;
 	color: #666666;
 }
-.field .onoff {
-	float: left;
-	width: 80px;
-	margin-right:1em;
-}
-.field .onoff a {
-	display: block;
-	border: 1px solid #666666;
-	background-image: url("../../../images/onoff.jpg");
-	background-repeat: no-repeat;
-	padding: 4px 2px 2px 2px;
-	font-size:14px;
-	height: 16px;
-	line-height:16px;
-	text-decoration: none;
-	text-align: center;
-	text-transform: uppercase;
-	border-radius:4px;
-}
-.field .onoff .off {
-	border-color: #B0B0B0;
-	padding-left: 36px;
-	background-position: left center;
-	background-color: #cccccc;
-	color: #9C9C9C;
-}
-.field .onoff .on {
-	font-weight:bold;
-	border-color: #8EB8EE;
-	padding-right: 36px;
-	background-position: right center;
-	background-color: #D7E3F1;
-	color: #36c;
-}
 .field .hidden {
 	display: none!important;
 }
@@ -2496,6 +2372,10 @@ aside #id_password {
 	list-style: none;
 }
 
+#profile-menu {
+	display: none;
+}
+
 .profile-edit-side-div {
 /*  display: none; */
 	float: right;
@@ -2514,6 +2394,7 @@ aside #id_password {
 
 #register-name-end,
 #register-email-end,
+#register-repeat-end,
 #register-nickname-end {
 	clear: both;
 }
@@ -2922,12 +2803,12 @@ a.mail-list-link {
 	margin: 0px;
 }
 
-#identity-manage-desc {
+#identity-delegation-desc {
 	margin-top:15px;
 	margin-bottom: 15px;
 }
 
-#identity-manage-choose {
+#identity-delegation-choose {
 	margin-bottom: 15px;
 }
 
@@ -3325,7 +3206,6 @@ img.photo-album-photo {
 }
 #profile-edit-wrapper .toggle-section-content {
 	background:#ededed;
-	max-width:599px;
 	padding:5px;
 }
 

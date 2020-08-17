@@ -6,8 +6,8 @@ server_timezone = "UTC"
 public_folder = "/vagrant"
 
 Vagrant.configure(2) do |config|
-  # Set server to Ubuntu 16.04
-  config.vm.box = "ubuntu/xenial64"
+  # Set server to Debian 10 / Buster 64bit
+  config.vm.box = "debian/buster64"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs

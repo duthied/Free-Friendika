@@ -1,6 +1,22 @@
 <?php
 /**
- * @file mod/display.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 use Friendica\App;
@@ -8,52 +24,37 @@ use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
-use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Module\Objects;
+use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\Strings;
-use Friendica\Module\Objects;
 
 function display_init(App $a)
 {
 	if (ActivityPub::isRequest()) {
-		Objects::rawContent();
+		Objects::rawContent(['guid' => $a->argv[1] ?? null]);
 	}
 
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
 	$nick = (($a->argc > 1) ? $a->argv[1] : '');
 
-	if ($a->argc == 3) {
-		if (substr($a->argv[2], -5) == '.atom') {
-			$item_id = substr($a->argv[2], 0, -5);
-			displayShowFeed($item_id, false);
-		}
-	}
-
-	if ($a->argc == 4) {
-		if ($a->argv[3] == 'conversation.atom') {
-			$item_id = $a->argv[2];
-			displayShowFeed($item_id, true);
-		}
-	}
-
 	$item = null;
 	$item_user = local_user();
 
-	$fields = ['id', 'parent', 'author-id', 'body', 'uid', 'guid'];
+	$fields = ['id', 'parent', 'author-id', 'body', 'uid', 'guid', 'gravity'];
 
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
@@ -65,9 +66,11 @@ function display_init(App $a)
 			if (DBA::isResult($item)) {
 				$nick = $a->user["nickname"];
 			}
+		}
+
 		// Is this item private but could be visible to the remove visitor?
-		} elseif (remote_user()) {
-			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
+		if (!DBA::isResult($item) && remote_user()) {
+			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
 			if (DBA::isResult($item)) {
 				if (!Contact::isFollower(remote_user(), $item['uid'])) {
 					$item = null;
@@ -79,36 +82,41 @@ function display_init(App $a)
 
 		// Is it an item with uid=0?
 		if (!DBA::isResult($item)) {
-			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [0, 2], 'uid' => 0]);
+			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 		}
-	} elseif (($a->argc == 3) && ($nick == 'feed-item')) {
-		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $a->argv[2], 'private' => [0, 2], 'uid' => 0]);
+	} elseif ($a->argc >= 3 && $nick == 'feed-item') {
+		$item_id = $a->argv[2];
+		if (substr($item_id, -5) == '.atom') {
+			$item_id = substr($item_id, 0, -5);
+		}
+		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $item_id, 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 	}
 
 	if (!DBA::isResult($item)) {
-		System::httpExit(404);
+		return;
+	}
+
+	if ($a->argc >= 3 && $nick == 'feed-item') {
+		displayShowFeed($item['id'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
 	}
 
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
-		Logger::log('Directly serving XML for id '.$item["id"], Logger::DEBUG);
-		displayShowFeed($item["id"], false);
+		Logger::log('Directly serving XML for id '.$item['id'], Logger::DEBUG);
+		displayShowFeed($item['id'], false);
 	}
 
-	if ($item["id"] != $item["parent"]) {
-		$item = Item::selectFirstForUser($item_user, $fields, ['id' => $item["parent"]]);
+	if ($item['gravity'] != GRAVITY_PARENT) {
+		$parent = Item::selectFirstForUser($item_user, $fields, ['id' => $item['parent']]);
+		$item = $parent ?: $item;
 	}
 
 	$profiledata = display_fetchauthor($a, $item);
 
-	if (strstr(Strings::normaliseLink($profiledata["url"]), Strings::normaliseLink(System::baseUrl()))) {
-		$nickname = str_replace(Strings::normaliseLink(System::baseUrl())."/profile/", "", Strings::normaliseLink($profiledata["url"]));
+	if (strstr(Strings::normaliseLink($profiledata['url']), Strings::normaliseLink(DI::baseUrl()))) {
+		$nickname = str_replace(Strings::normaliseLink(DI::baseUrl()) . '/profile/', '', Strings::normaliseLink($profiledata['url']));
 
-		if (($nickname != $a->user["nickname"])) {
-			$profile = DBA::fetchFirst("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
-				INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-				WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
-				$nickname
-			);
+		if (!empty($a->user['nickname']) && $nickname != $a->user['nickname']) {
+			$profile = DBA::selectFirst('owner-view', [], ['nickname' => $nickname]);
 			if (DBA::isResult($profile)) {
 				$profiledata = $profile;
 			}
@@ -118,7 +126,7 @@ function display_init(App $a)
 		}
 	}
 
-	Profile::load($a, $nick, 0, $profiledata);
+	Profile::load($a, $nick, $profiledata);
 }
 
 function display_fetchauthor($a, $item)
@@ -135,51 +143,20 @@ function display_fetchauthor($a, $item)
 	$profiledata['network'] = $author['network'];
 
 	// Check for a repeated message
-	$skip = false;
-	$body = trim($item["body"]);
+	$shared = Item::getShareArray($item);
+	if (!empty($shared) && empty($shared['comment'])) {
+		if (!empty($shared['author'])) {
+			$profiledata['name'] = $shared['author'];
+		}
 
-	// Skip if it isn't a pure repeated messages
-	// Does it start with a share?
-	if (!$skip && strpos($body, "[share") > 0) {
-		$skip = true;
-	}
-	// Does it end with a share?
-	if (!$skip && (strlen($body) > (strrpos($body, "[/share]") + 8))) {
-		$skip = true;
-	}
-	if (!$skip) {
-		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
-		// Skip if there is no shared message in there
-		if ($body == $attributes) {
-			$skip = true;
+		if (!empty($shared['profile'])) {
+			$profiledata['url'] = $shared['profile'];
 		}
-	}
 
-	if (!$skip) {
-		preg_match("/author='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+		if (!empty($shared['avatar'])) {
+			$profiledata['photo'] = $shared['avatar'];
 		}
-		preg_match('/author="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
-		}
-		preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["url"] = $matches[1];
-		}
-		preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["url"] = $matches[1];
-		}
-		preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["photo"] = $matches[1];
-		}
-		preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["photo"] = $matches[1];
-		}
+
 		$profiledata["nickname"] = $profiledata["name"];
 		$profiledata["network"] = Protocol::matchByProfileUrl($profiledata["url"]);
 
@@ -187,38 +164,34 @@ function display_fetchauthor($a, $item)
 		$profiledata["about"] = "";
 	}
 
-	$profiledata = Contact::getDetailsByURL($profiledata["url"], local_user(), $profiledata);
+	$profiledata = Contact::getByURLForUser($profiledata["url"], local_user()) ?: $profiledata;
 
-	$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
-
-	if (local_user()) {
-		if (in_array($profiledata["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
-			$profiledata["remoteconnect"] = System::baseUrl()."/follow?url=".urlencode($profiledata["url"]);
-		}
-	} elseif ($profiledata["network"] == Protocol::DFRN) {
-		$connect = str_replace("/profile/", "/dfrn_request/", $profiledata["url"]);
-		$profiledata["remoteconnect"] = $connect;
+	if (!empty($profiledata["photo"])) {
+		$profiledata["photo"] = DI::baseUrl()->remove($profiledata["photo"]);
 	}
 
-	return($profiledata);
+	return $profiledata;
 }
 
 function display_content(App $a, $update = false, $update_uid = 0)
 {
-	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
-		notice(L10n::t('Public access denied.') . EOL);
-		return;
+	if (DI::config()->get('system','block_public') && !Session::isAuthenticated()) {
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Public access denied.'));
 	}
 
 	$o = '';
+
+	$item = null;
+
+	$force = (bool)($_REQUEST['force'] ?? false);
 
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
 		$item = Item::selectFirst(['uid', 'parent', 'parent-uri'], ['id' => $item_id]);
 		if ($item['uid'] != 0) {
-			$a->profile = ['uid' => intval($item['uid']), 'profile_uid' => intval($item['uid'])];
+			$a->profile = ['uid' => intval($item['uid'])];
 		} else {
-			$a->profile = ['uid' => intval($update_uid), 'profile_uid' => intval($update_uid)];
+			$a->profile = ['uid' => intval($update_uid)];
 		}
 		$item_parent = $item['parent'];
 		$item_parent_uri = $item['parent-uri'];
@@ -234,116 +207,115 @@ function display_content(App $a, $update = false, $update_uid = 0)
 				$condition = ['guid' => $a->argv[1], 'uid' => local_user()];
 				$item = Item::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
-					$item_id = $item["id"];
-					$item_parent = $item["parent"];
+					$item_id = $item['id'];
+					$item_parent = $item['parent'];
 					$item_parent_uri = $item['parent-uri'];
 				}
-			} elseif (remote_user()) {
-				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
+			}
+
+			if (($item_parent == 0) && remote_user()) {
+				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
 				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
-					$item_id = $item["id"];
-					$item_parent = $item["parent"];
+					$item_id = $item['id'];
+					$item_parent = $item['parent'];
 					$item_parent_uri = $item['parent-uri'];
 				}
 			}
 
 			if ($item_parent == 0) {
-				$condition = ['private' => [0, 2], 'guid' => $a->argv[1], 'uid' => 0];
+				$condition = ['private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $a->argv[1], 'uid' => 0];
 				$item = Item::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
-					$item_id = $item["id"];
-					$item_parent = $item["parent"];
+					$item_id = $item['id'];
+					$item_parent = $item['parent'];
 					$item_parent_uri = $item['parent-uri'];
 				}
 			}
 		}
 	}
 
-	if (!$item_id) {
-		System::httpExit(404);
+	if (empty($item)) {
+		throw new HTTPException\NotFoundException(DI::l10n()->t('The requested item doesn\'t exist or has been deleted.'));
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
-	$is_public = Item::exists(['id' => $item_id, 'private' => [0, 2]]);
+	$is_public = Item::exists(['id' => $item_id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 	if ($is_public) {
 		// For the atom feed the nickname doesn't matter at all, we only need the item id.
-		$alternate = System::baseUrl().'/display/feed-item/'.$item_id.'.atom';
-		$conversation = System::baseUrl().'/display/feed-item/'.$item_parent.'/conversation.atom';
+		$alternate = DI::baseUrl().'/display/feed-item/'.$item_id.'.atom';
+		$conversation = DI::baseUrl().'/display/feed-item/'.$item_parent.'/conversation.atom';
 	} else {
 		$alternate = '';
 		$conversation = '';
 	}
 
-	$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('display-head.tpl'),
+	DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('display-head.tpl'),
 				['$alternate' => $alternate,
 					'$conversation' => $conversation]);
 
-	$groups = [];
-	$remote_cid = null;
 	$is_remote_contact = false;
 	$item_uid = local_user();
 
-	$parent = Item::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
-	if (DBA::isResult($parent)) {
-		$a->profile['uid'] = defaults($a->profile, 'uid', $parent['uid']);
-		$a->profile['profile_uid'] = defaults($a->profile, 'profile_uid', $parent['uid']);
-		$is_remote_contact = Contact::isFollower(remote_user(), $a->profile['profile_uid']);
+	$parent = null;
+	if (!empty($item_parent_uri)) {
+		$parent = Item::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
 	}
 
-	if ($is_remote_contact) {
-		$cdata = Contact::getPublicAndUserContacID(remote_user(), $a->profile['profile_uid']);
-		if (!empty($cdata['user'])) {
-			$groups = Group::getIdsByContactId($cdata['user']);
-			$remote_cid = $cdata['user'];
+	if (DBA::isResult($parent)) {
+		$a->profile['uid'] = ($a->profile['uid'] ?? 0) ?: $parent['uid'];
+		$is_remote_contact = Session::getRemoteContactID($a->profile['uid']);
+		if ($is_remote_contact) {
 			$item_uid = $parent['uid'];
 		}
+	} else {
+		$a->profile = ['uid' => intval($item['uid'])];
 	}
 
 	$page_contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $a->profile['uid']]);
 	if (DBA::isResult($page_contact)) {
 		$a->page_contact = $page_contact;
 	}
-	$is_owner = (local_user() && (in_array($a->profile['profile_uid'], [local_user(), 0])) ? true : false);
+
+	$is_owner = (local_user() && (in_array($a->profile['uid'], [local_user(), 0])) ? true : false);
 
 	if (!empty($a->profile['hidewall']) && !$is_owner && !$is_remote_contact) {
-		notice(L10n::t('Access to this profile has been restricted.') . EOL);
-		return;
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
 	}
 
 	// We need the editor here to be able to reshare an item.
-	if ($is_owner) {
+	if ($is_owner && !$update) {
 		$x = [
 			'is_owner' => true,
 			'allow_location' => $a->user['allow_location'],
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
 			'lockstate' => (is_array($a->user) && (strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) || strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
-			'acl' => ACL::getFullSelectorHTML($a->user, true),
+			'acl' => ACL::getFullSelectorHTML(DI::page(), $a->user, true),
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
 		];
 		$o .= status_editor($a, $x, 0, true);
 	}
-	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $is_remote_contact, $groups, $remote_cid);
+	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['uid']);
 
-	if (local_user() && (local_user() == $a->profile['profile_uid'])) {
+	if (local_user() && (local_user() == $a->profile['uid'])) {
 		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];
 		$unseen = Item::exists($condition);
 	} else {
 		$unseen = false;
 	}
 
-	if ($update && !$unseen) {
+	if ($update && !$unseen && !$force) {
 		return '';
 	}
 
 	$condition = ["`id` = ? AND `item`.`uid` IN (0, ?) " . $sql_extra, $item_id, $item_uid];
-	$fields = ['parent-uri', 'body', 'title', 'author-name', 'author-avatar', 'plink'];
-	$item = Item::selectFirstForUser(local_user(), $fields, $condition);
+	$fields = ['parent-uri', 'body', 'title', 'author-name', 'author-avatar', 'plink', 'author-id', 'owner-id', 'contact-id'];
+	$item = Item::selectFirstForUser($a->profile['uid'], $fields, $condition);
 
 	if (!DBA::isResult($item)) {
-		System::httpExit(404);
+		throw new HTTPException\NotFoundException(DI::l10n()->t('The requested item doesn\'t exist or has been deleted.'));
 	}
 
 	$item['uri'] = $item['parent-uri'];
@@ -354,17 +326,17 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	if (!$update) {
-		$o .= "<script> var netargs = '?f=&item_id=" . $item_id . "'; </script>";
+		$o .= "<script> var netargs = '?item_id=" . $item_id . "'; </script>";
 	}
 
-	$o .= conversation($a, [$item], new Pager($a->query_string), 'display', $update_uid, false, 'commented', $item_uid);
+	$o .= conversation($a, [$item], 'display', $update_uid, false, 'commented', $item_uid);
 
 	// Preparing the meta header
 	$description = trim(HTML::toPlaintext(BBCode::convert($item["body"], false), 0, true));
 	$title = trim(HTML::toPlaintext(BBCode::convert($item["title"], false), 0, true));
 	$author_name = $item["author-name"];
 
-	$image = $a->removeBaseURL($item["author-avatar"]);
+	$image = DI::baseUrl()->remove($item["author-avatar"]);
 
 	if ($title == "") {
 		$title = $author_name;
@@ -379,36 +351,41 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$title = htmlspecialchars($title, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
 	$author_name = htmlspecialchars($author_name, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
 
-	//<meta name="keywords" content="">
-	$a->page['htmlhead'] .= '<meta name="author" content="'.$author_name.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="title" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="fulltitle" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="description" content="'.$description.'" />'."\n";
+	$page = DI::page();
+
+	if (DBA::exists('contact', ['unsearchable' => true, 'id' => [$item['contact-id'], $item['author-id'], $item['owner-id']]])) {
+		$page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
+	}
+
+	DI::page()['htmlhead'] .= '<meta name="author" content="'.$author_name.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="title" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="fulltitle" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="description" content="'.$description.'" />'."\n";
 
 	// Schema.org microdata
-	$a->page['htmlhead'] .= '<meta itemprop="name" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta itemprop="description" content="'.$description.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta itemprop="image" content="'.$image.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta itemprop="author" content="'.$author_name.'" />'."\n";
+	$page['htmlhead'] .= '<meta itemprop="name" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta itemprop="description" content="'.$description.'" />'."\n";
+	$page['htmlhead'] .= '<meta itemprop="image" content="'.$image.'" />'."\n";
+	$page['htmlhead'] .= '<meta itemprop="author" content="'.$author_name.'" />'."\n";
 
 	// Twitter cards
-	$a->page['htmlhead'] .= '<meta name="twitter:card" content="summary" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$item["plink"].'" />'."\n";
+	$page['htmlhead'] .= '<meta name="twitter:card" content="summary" />'."\n";
+	$page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="twitter:image" content="'.DI::baseUrl().'/'.$image.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="twitter:url" content="'.$item["plink"].'" />'."\n";
 
 	// Dublin Core
-	$a->page['htmlhead'] .= '<meta name="DC.title" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="DC.description" content="'.$description.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="DC.title" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="DC.description" content="'.$description.'" />'."\n";
 
 	// Open Graph
-	$a->page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
-	$a->page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta property="og:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta property="og:url" content="'.$item["plink"].'" />'."\n";
-	$a->page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";
+	$page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
+	$page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta property="og:image" content="'.DI::baseUrl().'/'.$image.'" />'."\n";
+	$page['htmlhead'] .= '<meta property="og:url" content="'.$item["plink"].'" />'."\n";
+	$page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";
 	// article:tag
 
 	return $o;
@@ -418,7 +395,7 @@ function displayShowFeed($item_id, $conversation)
 {
 	$xml = DFRN::itemFeed($item_id, $conversation);
 	if ($xml == '') {
-		System::httpExit(500);
+		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('The feed for this item is unavailable.'));
 	}
 	header("Content-type: application/atom+xml");
 	echo $xml;

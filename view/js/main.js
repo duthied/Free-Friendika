@@ -1,4 +1,21 @@
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPLv3-or-later
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/matches#Polyfill
+if (!Element.prototype.matches) {
+	Element.prototype.matches =
+		Element.prototype.matchesSelector ||
+		Element.prototype.mozMatchesSelector ||
+		Element.prototype.msMatchesSelector ||
+		Element.prototype.oMatchesSelector ||
+		Element.prototype.webkitMatchesSelector ||
+		function(s) {
+			var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+				i = matches.length;
+			while (--i >= 0 && matches.item(i) !== this) {}
+			return i > -1;
+		};
+}
+
 function resizeIframe(obj) {
 	_resizeIframe(obj, 0);
 }
@@ -16,26 +33,66 @@ function _resizeIframe(obj, desth) {
 	setTimeout(_resizeIframe, 100, obj, ch);
 }
 
-function openClose(theID) {
-	if (document.getElementById(theID).style.display == "block") {
-		document.getElementById(theID).style.display = "none"
+function initWidget(inflated, deflated) {
+	var elInf = document.getElementById(inflated);
+	var elDef = document.getElementById(deflated);
+
+	if (!elInf || !elDef) {
+		return;
+	}
+	if (localStorage.getItem(window.location.pathname.split("/")[1] + ":" + inflated) != "none") {
+		elInf.style.display = "block";
+		elDef.style.display = "none";
 	} else {
-		document.getElementById(theID).style.display = "block"
+		elInf.style.display = "none";
+		elDef.style.display = "block";
+	}
+}
+
+function openCloseWidget(inflated, deflated) {
+	var elInf = document.getElementById(inflated);
+	var elDef = document.getElementById(deflated);
+
+	if (!elInf || !elDef) {
+		return;
+	}
+
+	if (window.getComputedStyle(elInf).display === "none") {
+		elInf.style.display = "block";
+		elDef.style.display = "none";
+		localStorage.setItem(window.location.pathname.split("/")[1] + ":" + inflated, "block");
+	} else {
+		elInf.style.display = "none";
+		elDef.style.display = "block";
+		localStorage.setItem(window.location.pathname.split("/")[1] + ":" + inflated, "none");
+	}
+}
+
+function openClose(theID) {
+	var el = document.getElementById(theID);
+	if (el) {
+		if (window.getComputedStyle(el).display === "none") {
+			openMenu(theID);
+		} else {
+			closeMenu(theID);
+		}
 	}
 }
 
 function openMenu(theID) {
 	var el = document.getElementById(theID);
-
 	if (el) {
-		el.style.display = "block";
+		if (!el.dataset.display) {
+			el.dataset.display = 'block';
+		}
+		el.style.display = el.dataset.display;
 	}
 }
 
 function closeMenu(theID) {
-	var el = document.getElementById(theID)
-
+	var el = document.getElementById(theID);
 	if (el) {
+		el.dataset.display = window.getComputedStyle(el).display;
 		el.style.display = "none";
 	}
 }
@@ -46,6 +103,20 @@ function decodeHtml(html) {
 	txt.innerHTML = html;
 	return txt.value;
 }
+
+/**
+ * Retrieves a single named query string parameter
+ *
+ * @param {string} name
+ * @returns {string}
+ * @see https://davidwalsh.name/query-string-javascript
+ */
+function getUrlParameter(name) {
+	name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+	var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+	var results = regex.exec(location.search);
+	return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+};
 
 var src = null;
 var prev = null;
@@ -63,6 +134,9 @@ var commentBusy = false;
 var last_popup_menu = null;
 var last_popup_button = null;
 var lockLoadContent = false;
+var originalTitle = document.title;
+
+const urlRegex = /^(?:https?:\/\/|\s)[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})(?:\/+[a-z0-9_.:;-]*)*(?:\?[&%|+a-z0-9_=,.:;-]*)?(?:[&%|+&a-z0-9_=,:;.-]*)(?:[!#\/&%|+a-z0-9_=,:;.-]*)}*$/i;
 
 $(function() {
 	$.ajaxSetup({cache: false});
@@ -99,23 +173,6 @@ $(function() {
 		var end = textarea.selectionEnd;
 		textarea.value = textarea.value.substring(0, start) + bbcode + textarea.value.substring(end, textarea.value.length);
 		$(textarea).trigger('change');
-	});
-
-	/* setup onoff widgets */
-	$(".onoff input").each(function() {
-		val = $(this).val();
-		id = $(this).attr("id");
-		$("#"+id+"_onoff ." + (val == 0 ? "on":"off")).addClass("hidden");
-	});
-
-	$(".onoff > a").click(function(event) {
-		event.preventDefault();
-		var input = $(this).siblings("input");
-		var val = 1-input.val();
-		var id = input.attr("id");
-		$("#"+id+"_onoff ." + (val == 0 ? "on":"off")).addClass("hidden");
-		$("#"+id+"_onoff ." + (val == 1 ? "on":"off")).removeClass("hidden");
-		input.val(val);
 	});
 
 	/* popup menus */
@@ -186,7 +243,14 @@ $(function() {
 			window.location.href=window.location.href
 		}
 
-		['net', 'home', 'intro', 'mail', 'events', 'birthdays', 'notify'].forEach(function(type) {
+		let tabNotifications = data.mail + data.notification;
+		if (tabNotifications > 0) {
+			document.title = '(' + tabNotifications + ') ' + originalTitle;
+		} else {
+			document.title = originalTitle;
+		}
+
+		['net', 'home', 'intro', 'mail', 'events', 'birthdays', 'notification'].forEach(function(type) {
 			var number = data[type];
 			if (number == 0) {
 				number = '';
@@ -240,19 +304,19 @@ $(function() {
 			var notification_id = 0;
 
 			// Insert notifs into the notifications-menu
-			$(data.notifications).each(function(key, notif) {
-				var text = notif.message.format('<span class="contactname">' + notif.name + '</span>');
-				var contact = ('<a href="' + notif.url + '"><span class="contactname">' + notif.name + '</span></a>');
-				var seenclass = (notif.seen == 1) ? "notify-seen" : "notify-unseen";
+			$(data.notifications).each(function(key, notification) {
+				var text = notification.message.format('<span class="contactname">' + notification.name + '</span>');
+				var contact = ('<a href="' + notification.url + '"><span class="contactname">' + notification.name + '</span></a>');
+				var seenclass = (notification.seen == 1) ? "notification-seen" : "notification-unseen";
 				var html = notifications_tpl.format(
-					notif.href,                     // {0}  // link to the source
-					notif.photo,                    // {1}  // photo of the contact
+					notification.href,                     // {0}  // link to the source
+					notification.photo,                    // {1}  // photo of the contact
 					text,                           // {2}  // preformatted text (autor + text)
-					notif.date,                     // {3}  // date of notification (time ago)
+					notification.date,                     // {3}  // date of notification (time ago)
 					seenclass,                      // {4}  // visited status of the notification
-					new Date(notif.timestamp*1000), // {5}  // date of notification
-					notif.url,                      // {6}  // profile url of the contact
-					notif.message.format(contact),  // {7}  // preformatted html (text including author profile url)
+					new Date(notification.timestamp*1000), // {5}  // date of notification
+					notification.url,                      // {6}  // profile url of the contact
+					notification.message.format(contact),  // {7}  // preformatted html (text including author profile url)
 					''                              // {8}  // Deprecated
 				);
 				nnm.append(html);
@@ -290,7 +354,7 @@ $(function() {
 			});
 		}
 
-		var notif = data['notify'];
+		var notif = data['notification'];
 		if (notif > 0) {
 			$("#nav-notifications-linkmenu").addClass("on");
 		} else {
@@ -382,9 +446,64 @@ $(function() {
 	}
 });
 
+/**
+ * Inserts a BBCode tag in the comment textarea identified by id
+ *
+ * @param {string} BBCode
+ * @param {int} id
+ * @returns {boolean}
+ */
+function insertFormatting(BBCode, id) {
+	let textarea = document.getElementById('comment-edit-text-' + id);
+
+	if (textarea.value === '') {
+		$(textarea)
+			.addClass("comment-edit-text-full")
+			.removeClass("comment-edit-text-empty");
+		closeMenu("comment-fake-form-" + id);
+		openMenu("item-comments-" + id);
+	}
+
+	insertBBCodeInTextarea(BBCode, textarea);
+
+	return true;
+}
+
+/**
+ * Inserts a BBCode tag in the provided textarea element, wrapping the currently selected text.
+ * For URL BBCode, it discriminates between link text and non-link text to determine where to insert the selected text.
+ *
+ * @param {string} BBCode
+ * @param {HTMLTextAreaElement} textarea
+ */
+function insertBBCodeInTextarea(BBCode, textarea) {
+	let selectionStart = textarea.selectionStart;
+	let selectionEnd = textarea.selectionEnd;
+	let selectedText = textarea.value.substring(selectionStart, selectionEnd);
+	let openingTag = '[' + BBCode + ']';
+	let closingTag = '[/' + BBCode + ']';
+	let cursorPosition = selectionStart + openingTag.length + selectedText.length;
+
+	if (BBCode === 'url') {
+		if (urlRegex.test(selectedText)) {
+			openingTag = '[' + BBCode + '=' + selectedText + ']';
+			selectedText = '';
+			cursorPosition = selectionStart + openingTag.length;
+		} else {
+			openingTag = '[' + BBCode + '=]';
+			cursorPosition = selectionStart + openingTag.length - 1;
+		}
+	}
+
+	textarea.value = textarea.value.substring(0, selectionStart) + openingTag + selectedText + closingTag + textarea.value.substring(selectionEnd, textarea.value.length);
+	textarea.setSelectionRange(cursorPosition, cursorPosition);
+	textarea.dispatchEvent(new Event('change'));
+	textarea.focus();
+}
+
 function NavUpdate() {
 	if (!stopped) {
-		var pingCmd = 'ping?format=json' + ((localUser != 0) ? '&f=&uid=' + localUser : '');
+		var pingCmd = 'ping?format=json' + ((localUser != 0) ? '&uid=' + localUser : '');
 		$.get(pingCmd, function(data) {
 			if (data.result) {
 				// send nav-update event
@@ -414,7 +533,13 @@ function updateConvItems(data) {
 		var ident = $(this).attr('id');
 
 		// Add new top-level item.
-		if ($('#' + ident).length == 0 && profile_page == 1) {
+		if ($('#' + ident).length === 0
+			&& (!getUrlParameter('page')
+				&& !getUrlParameter('max_id')
+				&& !getUrlParameter('since_id')
+				|| getUrlParameter('page') === '1'
+			)
+		) {
 			$('#' + prev).after($(this));
 
 		// Replace already existing thread.
@@ -444,7 +569,7 @@ function updateConvItems(data) {
 		$('body').css('cursor', 'auto');
 	}
 	/* autocomplete @nicknames */
-	$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl");
+	$(".comment-edit-form  textarea").editor_autocomplete(baseurl + '/search/acl');
 	/* autocomplete bbcode */
 	$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
 }
@@ -469,18 +594,30 @@ function liveUpdate(src) {
 
 	in_progress = true;
 
-	if ($(document).scrollTop() == 0) {
-		force_update = true;
-	}
+	let force = force_update || $(document).scrollTop() === 0;
 
 	var orgHeight = $("section").height();
 
 	var udargs = ((netargs.length) ? '/' + netargs : '');
-	var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&force=' + ((force_update) ? 1 : 0) + '&item=' + update_item;
 
-	$.get(update_url,function(data) {
-		in_progress = false;
+	var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&force=' + (force ? 1 : 0) + '&item=' + update_item;
+
+	if (force_update) {
 		force_update = false;
+	}
+
+	if (getUrlParameter('page')) {
+		update_url += '&page=' + getUrlParameter('page');
+	}
+	if (getUrlParameter('since_id')) {
+		update_url += '&since_id=' + getUrlParameter('since_id');
+	}
+	if (getUrlParameter('max_id')) {
+		update_url += '&max_id=' + getUrlParameter('max_id');
+	}
+
+	$.get(update_url, function(data) {
+		in_progress = false;
 		update_item = 0;
 
 		$('.wall-item-body', data).imagesLoaded(function() {
@@ -512,9 +649,15 @@ function imgdull(node) {
 // trickery. This still could cause confusion if the "like" ajax call
 // is delayed and NavUpdate runs before it completes.
 
-function dolike(ident,verb) {
+/**
+ * @param {int}     ident The id of the relevant item
+ * @param {string}  verb  The verb of the action
+ * @param {boolean} un    Whether to perform an activity removal instead of creation
+ */
+function dolike(ident, verb, un) {
 	unpause();
 	$('#like-rotator-' + ident.toString()).show();
+	verb = un ? 'un' + verb : verb;
 	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate);
 	liking = 1;
 	force_update = true;
@@ -547,18 +690,39 @@ function dostar(ident) {
 	});
 }
 
+function dopin(ident) {
+	ident = ident.toString();
+	$('#like-rotator-' + ident).show();
+	$.get('pinned/' + ident, function(data) {
+		if (data.match(/1/)) {
+			$('#pinned-' + ident).addClass('pinned');
+			$('#pinned-' + ident).removeClass('unpinned');
+			$('#pin-' + ident).addClass('hidden');
+			$('#unpin-' + ident).removeClass('hidden');
+		} else {
+			$('#pinned-' + ident).addClass('unpinned');
+			$('#pinned-' + ident).removeClass('pinned');
+			$('#pin-' + ident).removeClass('hidden');
+			$('#unpin-' + ident).addClass('hidden');
+		}
+		$('#like-rotator-' + ident).hide();
+	});
+}
+
 function doignore(ident) {
 	ident = ident.toString();
 	$('#like-rotator-' + ident).show();
-	$.get('ignored/' + ident, function(data) {
-		if (data.match(/1/)) {
-			$('#ignored-' + ident).addClass('ignored');
-			$('#ignored-' + ident).removeClass('unignored');
+	$.get('item/ignore/' + ident, function(data) {
+		if (data === 1) {
+			$('#ignored-' + ident)
+				.addClass('ignored')
+				.removeClass('unignored');
 			$('#ignore-' + ident).addClass('hidden');
 			$('#unignore-' + ident).removeClass('hidden');
 		} else {
-			$('#ignored-' + ident).addClass('unignored');
-			$('#ignored-' + ident).removeClass('ignored');
+			$('#ignored-' + ident)
+				.addClass('unignored')
+				.removeClass('ignored');
 			$('#ignore-' + ident).removeClass('hidden');
 			$('#unignore-' + ident).addClass('hidden');
 		}
@@ -586,31 +750,27 @@ function getPosition(e) {
 
 var lockvisible = false;
 
-function lockview(event,id) {
+function lockview(event, type, id) {
 	event = event || window.event;
 	cursor = getPosition(event);
 	if (lockvisible) {
-		lockviewhide();
+		lockvisible = false;
+		$('#panel').hide();
 	} else {
 		lockvisible = true;
-		$.get('lockview/' + id, function(data) {
-			$('#panel').html(data);
-			$('#panel').css({'left': cursor.x + 5 , 'top': cursor.y + 5});
-			$('#panel').show();
+		$.get('permission/tooltip/' + type + '/' + id, function(data) {
+			$('#panel')
+				.html(data)
+				.css({'left': cursor.x + 5 , 'top': cursor.y + 5})
+				.show();
 		});
 	}
-}
-
-function lockviewhide() {
-	lockvisible = false;
-	$('#panel').hide();
 }
 
 function post_comment(id) {
 	unpause();
 	commentBusy = true;
 	$('body').css('cursor', 'wait');
-	$("#comment-preview-inp-" + id).val("0");
 	$.post(
 		"item",
 		$("#comment-edit-form-" + id).serialize(),
@@ -639,11 +799,10 @@ function post_comment(id) {
 }
 
 function preview_comment(id) {
-	$("#comment-preview-inp-" + id).val("1");
 	$("#comment-edit-preview-" + id).show();
 	$.post(
 		"item",
-		$("#comment-edit-form-" + id).serialize(),
+		$("#comment-edit-form-" + id).serialize() + '&preview=1',
 		function(data) {
 			if (data.preview) {
 				$("#comment-edit-preview-" + id).html(data.preview);
@@ -656,21 +815,22 @@ function preview_comment(id) {
 }
 
 function showHideComments(id) {
-	if ($("#collapsed-comments-" + id).is(":visible")) {
-		$("#collapsed-comments-" + id).hide();
-		$("#hide-comments-" + id).html(window.showMore);
+	if ($('#collapsed-comments-' + id).is(':visible')) {
+		$('#collapsed-comments-' + id).slideUp();
+		$('#hide-comments-' + id).hide();
+		$('#hide-comments-total-' + id).show();
 	} else {
-		$("#collapsed-comments-" + id).show();
-		$("#hide-comments-" + id).html(window.showFewer);
+		$('#collapsed-comments-' + id).slideDown();
+		$('#hide-comments-' + id).show();
+		$('#hide-comments-total-' + id).hide();
 	}
 }
 
 function preview_post() {
-	$("#jot-preview").val("1");
 	$("#jot-preview-content").show();
 	$.post(
 		"item",
-		$("#profile-jot-form").serialize(),
+		$("#profile-jot-form").serialize() + '&preview=1',
 		function(data) {
 			if (data.preview) {
 				$("#jot-preview-content").html(data.preview);
@@ -680,7 +840,6 @@ function preview_post() {
 		},
 		"json"
 	);
-	$("#jot-preview").val("0");
 	return true;
 }
 
@@ -725,16 +884,16 @@ function loadScrollContent() {
 		commented = "0000-00-00 00:00:00";
 	}
 
-	match = $("span.id").last();
+	match = $("span.uriid").last();
 	if (match.length > 0) {
-		id = match[0].innerHTML;
+		uriid = match[0].innerHTML;
 	} else {
-		id = "0";
+		uriid = "0";
 	}
 
 	// get the raw content from the next page and insert this content
 	// right before "#conversation-end"
-	$.get(infinite_scroll.reload_uri + '&mode=raw&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_id=' + id + '&page=' + infinite_scroll.pageno, function(data) {
+	$.get(infinite_scroll.reload_uri + '&mode=raw&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_uriid=' + uriid + '&page=' + infinite_scroll.pageno, function(data) {
 		$("#scroll-loader").hide();
 		if ($(data).length > 0) {
 			$(data).insertBefore('#conversation-end');
@@ -778,19 +937,25 @@ function groupChangeMember(gid, cid, sec_token) {
 	});
 }
 
-function profChangeMember(gid,cid) {
-	$('body .fakelink').css('cursor', 'wait');
-	$.get('profperm/' + gid + '/' + cid, function(data) {
-			$('#prof-update-wrapper').html(data);
-			$('body .fakelink').css('cursor', 'auto');
-	});
-}
-
-function contactgroupChangeMember(gid,cid) {
+function contactgroupChangeMember(checkbox, gid, cid) {
+	let url;
+	// checkbox.checked is the checkbox state after the click
+	if (checkbox.checked) {
+		url = 'group/' + gid + '/add/' + cid;
+	} else {
+		url = 'group/' + gid + '/remove/' + cid;
+	}
 	$('body').css('cursor', 'wait');
-	$.get('contactgroup/' + gid + '/' + cid, function(data) {
-			$('body').css('cursor', 'auto');
+	$.post(url)
+	.error(function () {
+		// Restores previous state in case of error
+		checkbox.checked = !checkbox.checked;
+	})
+	.always(function() {
+		$('body').css('cursor', 'auto');
 	});
+
+	return true;
 }
 
 function checkboxhighlight(box) {
@@ -801,8 +966,8 @@ function checkboxhighlight(box) {
 	}
 }
 
-function notifyMarkAll() {
-	$.get('notify/mark/all', function(data) {
+function notificationMarkAll() {
+	$.get('notification/mark/all', function(data) {
 		if (timer) {
 			clearTimeout(timer);
 		}
@@ -833,7 +998,7 @@ Array.prototype.remove = function(item) {
 
 function previewTheme(elm) {
 	theme = $(elm).val();
-	$.getJSON('pretheme?f=&theme=' + theme,function(data) {
+	$.getJSON('pretheme?theme=' + theme,function(data) {
 			$('#theme-preview').html('<div id="theme-desc">' + data.desc + '</div><div id="theme-version">' + data.version + '</div><div id="theme-credits">' + data.credits + '</div><a href="' + data.img + '"><img src="' + data.img + '" width="320" height="240" alt="' + theme + '" /></a>');
 	});
 

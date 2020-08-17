@@ -1,61 +1,70 @@
 <?php
 /**
- * @file mod/ostatus_subscribe.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 use Friendica\App;
-use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Network\Probe;
-use Friendica\Util\Network;
 
 function ostatus_subscribe_content(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
-		$a->internalRedirect('ostatus_subscribe');
+		notice(DI::l10n()->t('Permission denied.'));
+		DI::baseUrl()->redirect('ostatus_subscribe');
 		// NOTREACHED
 	}
 
-	$o = '<h2>' . L10n::t('Subscribing to OStatus contacts') . '</h2>';
+	$o = '<h2>' . DI::l10n()->t('Subscribing to OStatus contacts') . '</h2>';
 
 	$uid = local_user();
 
-	$a = \get_app();
-
 	$counter = intval($_REQUEST['counter']);
 
-	if (PConfig::get($uid, 'ostatus', 'legacy_friends') == '') {
+	if (DI::pConfig()->get($uid, 'ostatus', 'legacy_friends') == '') {
 
 		if ($_REQUEST['url'] == '') {
-			PConfig::delete($uid, 'ostatus', 'legacy_contact');
-			return $o . L10n::t('No contact provided.');
+			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
+			return $o . DI::l10n()->t('No contact provided.');
 		}
 
-		$contact = Probe::uri($_REQUEST['url']);
-
+		$contact = Contact::getByURL($_REQUEST['url']);
 		if (!$contact) {
-			PConfig::delete($uid, 'ostatus', 'legacy_contact');
-			return $o . L10n::t('Couldn\'t fetch information for contact.');
+			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
+			return $o . DI::l10n()->t('Couldn\'t fetch information for contact.');
 		}
 
 		$api = $contact['baseurl'] . '/api/';
 
 		// Fetching friends
-		$curlResult = Network::curl($api . 'statuses/friends.json?screen_name=' . $contact['nick']);
+		$curlResult = DI::httpRequest()->get($api . 'statuses/friends.json?screen_name=' . $contact['nick']);
 
 		if (!$curlResult->isSuccess()) {
-			PConfig::delete($uid, 'ostatus', 'legacy_contact');
-			return $o . L10n::t('Couldn\'t fetch friends for contact.');
+			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
+			return $o . DI::l10n()->t('Couldn\'t fetch friends for contact.');
 		}
 
-		PConfig::set($uid, 'ostatus', 'legacy_friends', $curlResult->getBody());
+		DI::pConfig()->set($uid, 'ostatus', 'legacy_friends', $curlResult->getBody());
 	}
 
-	$friends = json_decode(PConfig::get($uid, 'ostatus', 'legacy_friends'));
+	$friends = json_decode(DI::pConfig()->get($uid, 'ostatus', 'legacy_friends'));
 
 	if (empty($friends)) {
 		$friends = [];
@@ -64,10 +73,10 @@ function ostatus_subscribe_content(App $a)
 	$total = sizeof($friends);
 
 	if ($counter >= $total) {
-		$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl() . '/settings/connectors">';
-		PConfig::delete($uid, 'ostatus', 'legacy_friends');
-		PConfig::delete($uid, 'ostatus', 'legacy_contact');
-		$o .= L10n::t('Done');
+		DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . DI::baseUrl() . '/settings/connectors">';
+		DI::pConfig()->delete($uid, 'ostatus', 'legacy_friends');
+		DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
+		$o .= DI::l10n()->t('Done');
 		return $o;
 	}
 
@@ -77,23 +86,23 @@ function ostatus_subscribe_content(App $a)
 
 	$o .= '<p>' . $counter . '/' . $total . ': ' . $url;
 
-	$probed = Probe::uri($url);
+	$probed = Contact::getByURL($url);
 	if ($probed['network'] == Protocol::OSTATUS) {
-		$result = Contact::createFromProbe($uid, $url, true, Protocol::OSTATUS);
+		$result = Contact::createFromProbe($a->user, $probed['url'], true, Protocol::OSTATUS);
 		if ($result['success']) {
-			$o .= ' - ' . L10n::t('success');
+			$o .= ' - ' . DI::l10n()->t('success');
 		} else {
-			$o .= ' - ' . L10n::t('failed');
+			$o .= ' - ' . DI::l10n()->t('failed');
 		}
 	} else {
-		$o .= ' - ' . L10n::t('ignored');
+		$o .= ' - ' . DI::l10n()->t('ignored');
 	}
 
 	$o .= '</p>';
 
-	$o .= '<p>' . L10n::t('Keep this window open until done.') . '</p>';
+	$o .= '<p>' . DI::l10n()->t('Keep this window open until done.') . '</p>';
 
-	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl() . '/ostatus_subscribe?counter=' . $counter . '">';
+	DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . DI::baseUrl() . '/ostatus_subscribe?counter=' . $counter . '">';
 
 	return $o;
 }

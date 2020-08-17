@@ -18,7 +18,7 @@
 			<div class="wall-item-location" id="wall-item-location-{{$item.id}}">{{if $item.location}}<span class="icon globe"></span>{{$item.location nofilter}} {{/if}}</div>
 		</div>
 		<div class="wall-item-lock-wrapper">
-				{{if $item.lock}}<div class="wall-item-lock"><img src="images/lock_icon.gif" class="lockview" alt="{{$item.lock}}" onclick="lockview(event,{{$item.id}});" /></div>
+				{{if $item.lock}}<div class="wall-item-lock"><img src="images/lock_icon.gif" class="lockview" alt="{{$item.lock}}" onclick="lockview(event, 'item', {{$item.id}});" /></div>
 				{{else}}<div class="wall-item-lock"></div>{{/if}}			
 		</div>
 		<div class="wall-item-tools" id="wall-item-tools-{{$item.id}}">

@@ -1,13 +1,30 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\Util;
 
-use Friendica\BaseObject;
-use Friendica\Core\Config;
-use Friendica\Core\System;
+use Friendica\DI;
 
 /**
- * @brief Proxy utilities class
+ * Proxy utilities class
  */
 class Proxy
 {
@@ -40,14 +57,14 @@ class Proxy
 	];
 
 	/**
-	 * @brief Private constructor
+	 * Private constructor
 	 */
 	private function __construct () {
 		// No instances from utilities classes
 	}
 
 	/**
-	 * @brief Transform a remote URL into a local one.
+	 * Transform a remote URL into a local one.
 	 *
 	 * This function only performs the URL replacement on http URL and if the
 	 * provided URL isn't local, "the isn't deactivated" (sic) and if the config
@@ -63,7 +80,7 @@ class Proxy
 	public static function proxifyUrl($url, $writemode = false, $size = '')
 	{
 		// Get application instance
-		$a = BaseObject::getApp();
+		$a = DI::app();
 
 		// Trim URL first
 		$url = trim($url);
@@ -76,12 +93,12 @@ class Proxy
 
 		// Only continue if it isn't a local image and the isn't deactivated
 		if (self::isLocalImage($url)) {
-			$url = str_replace(Strings::normaliseLink(System::baseUrl()) . '/', System::baseUrl() . '/', $url);
+			$url = str_replace(Strings::normaliseLink(DI::baseUrl()) . '/', DI::baseUrl() . '/', $url);
 			return $url;
 		}
 
 		// Is the proxy disabled?
-		if (Config::get('system', 'proxy_disabled')) {
+		if (DI::config()->get('system', 'proxy_disabled')) {
 			return $url;
 		}
 
@@ -109,7 +126,7 @@ class Proxy
 			$longpath .= '.' . $extension;
 		}
 
-		$proxypath = System::baseUrl() . '/proxy/' . $longpath;
+		$proxypath = DI::baseUrl() . '/proxy/' . $longpath;
 
 		if ($size != '') {
 			$size = ':' . $size;
@@ -120,7 +137,7 @@ class Proxy
 		if ((strlen($proxypath) > 250) && $writemode) {
 			return $shortpath;
 		} elseif (strlen($proxypath) > 250) {
-			return System::baseUrl() . '/proxy/' . $shortpath . '?url=' . urlencode($url);
+			return DI::baseUrl() . '/proxy/' . $shortpath . '?url=' . urlencode($url);
 		} elseif ($writemode) {
 			return $longpath;
 		} else {
@@ -129,7 +146,7 @@ class Proxy
 	}
 
 	/**
-	 * @brief "Proxifies" HTML code's image tags
+	 * "Proxifies" HTML code's image tags
 	 *
 	 * "Proxifies", means replaces image URLs in given HTML code with those from
 	 * proxy storage directory.
@@ -141,19 +158,19 @@ class Proxy
 	 */
 	public static function proxifyHtml($html)
 	{
-		$html = str_replace(Strings::normaliseLink(System::baseUrl()) . '/', System::baseUrl() . '/', $html);
+		$html = str_replace(Strings::normaliseLink(DI::baseUrl()) . '/', DI::baseUrl() . '/', $html);
 
 		return preg_replace_callback('/(<img [^>]*src *= *["\'])([^"\']+)(["\'][^>]*>)/siU', 'self::replaceUrl', $html);
 	}
 
 	/**
-	 * @brief Checks if the URL is a local URL.
+	 * Checks if the URL is a local URL.
 	 *
 	 * @param string $url
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function isLocalImage($url)
+	public static function isLocalImage($url)
 	{
 		if (substr($url, 0, 1) == '/') {
 			return true;
@@ -164,14 +181,14 @@ class Proxy
 		}
 
 		// links normalised - bug #431
-		$baseurl = Strings::normaliseLink(System::baseUrl());
+		$baseurl = Strings::normaliseLink(DI::baseUrl());
 		$url = Strings::normaliseLink($url);
 
 		return (substr($url, 0, strlen($baseurl)) == $baseurl);
 	}
 
 	/**
-	 * @brief Return the array of query string parameters from a URL
+	 * Return the array of query string parameters from a URL
 	 *
 	 * @param string $url URL to parse
 	 * @return array Associative array of query string parameters
@@ -187,7 +204,7 @@ class Proxy
 	}
 
 	/**
-	 * @brief Call-back method to replace the UR
+	 * Call-back method to replace the UR
 	 *
 	 * @param array $matches Matches from preg_replace_callback()
 	 * @return string Proxified HTML image tag

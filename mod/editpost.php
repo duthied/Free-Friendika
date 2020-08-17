@@ -1,17 +1,33 @@
 <?php
 /**
- * @file mod/editpost.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\Item;
-use Friendica\Database\DBA;
 use Friendica\Util\Crypto;
 
 function editpost_content(App $a)
@@ -19,14 +35,14 @@ function editpost_content(App $a)
 	$o = '';
 
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
 	if (!$post_id) {
-		notice(L10n::t('Item not found') . EOL);
+		notice(DI::l10n()->t('Item not found'));
 		return;
 	}
 
@@ -36,20 +52,19 @@ function editpost_content(App $a)
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
 
 	if (!DBA::isResult($item)) {
-		notice(L10n::t('Item not found') . EOL);
+		notice(DI::l10n()->t('Item not found'));
 		return;
 	}
 
 	$geotag = '';
 
 	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate("section_title.tpl"), [
-		'$title' => L10n::t('Edit post')
+		'$title' => DI::l10n()->t('Edit post')
 	]);
 
 	$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
-	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
-		'$baseurl' => System::baseUrl(),
-		'$ispublic' => '&nbsp;', // L10n::t('Visible to <strong>everybody</strong>'),
+	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
+		'$ispublic' => '&nbsp;', // DI::l10n()->t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $a->user['nickname']
 	]);
@@ -70,54 +85,71 @@ function editpost_content(App $a)
 		'$is_edit' => true,
 		'$return_path' => '/display/' . $item['guid'],
 		'$action' => 'item',
-		'$share' => L10n::t('Save'),
-		'$upload' => L10n::t('Upload photo'),
-		'$shortupload' => L10n::t('upload photo'),
-		'$attach' => L10n::t('Attach file'),
-		'$shortattach' => L10n::t('attach file'),
-		'$weblink' => L10n::t('Insert web link'),
-		'$shortweblink' => L10n::t('web link'),
-		'$video' => L10n::t('Insert video link'),
-		'$shortvideo' => L10n::t('video link'),
-		'$audio' => L10n::t('Insert audio link'),
-		'$shortaudio' => L10n::t('audio link'),
-		'$setloc' => L10n::t('Set your location'),
-		'$shortsetloc' => L10n::t('set location'),
-		'$noloc' => L10n::t('Clear browser location'),
-		'$shortnoloc' => L10n::t('clear location'),
-		'$wait' => L10n::t('Please wait'),
-		'$permset' => L10n::t('Permission settings'),
+		'$share' => DI::l10n()->t('Save'),
+		'$loading' => DI::l10n()->t('Loading...'),
+		'$upload' => DI::l10n()->t('Upload photo'),
+		'$shortupload' => DI::l10n()->t('upload photo'),
+		'$attach' => DI::l10n()->t('Attach file'),
+		'$shortattach' => DI::l10n()->t('attach file'),
+		'$weblink' => DI::l10n()->t('Insert web link'),
+		'$shortweblink' => DI::l10n()->t('web link'),
+		'$video' => DI::l10n()->t('Insert video link'),
+		'$shortvideo' => DI::l10n()->t('video link'),
+		'$audio' => DI::l10n()->t('Insert audio link'),
+		'$shortaudio' => DI::l10n()->t('audio link'),
+		'$setloc' => DI::l10n()->t('Set your location'),
+		'$shortsetloc' => DI::l10n()->t('set location'),
+		'$noloc' => DI::l10n()->t('Clear browser location'),
+		'$shortnoloc' => DI::l10n()->t('clear location'),
+		'$wait' => DI::l10n()->t('Please wait'),
+		'$permset' => DI::l10n()->t('Permission settings'),
 		'$wall' => $item['wall'],
 		'$posttype' => $item['post-type'],
 		'$content' => undo_post_tagging($item['body']),
 		'$post_id' => $post_id,
-		'$baseurl' => System::baseUrl(),
 		'$defloc' => $a->user['default-location'],
 		'$visitor' => 'none',
 		'$pvisit' => 'none',
-		'$emailcc' => L10n::t('CC: email addresses'),
-		'$public' => L10n::t('Public post'),
+		'$emailcc' => DI::l10n()->t('CC: email addresses'),
+		'$public' => DI::l10n()->t('Public post'),
 		'$jotnets' => $jotnets,
 		'$title' => $item['title'],
-		'$placeholdertitle' => L10n::t('Set title'),
+		'$placeholdertitle' => DI::l10n()->t('Set title'),
 		'$category' => FileTag::fileToList($item['file'], 'category'),
-		'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? L10n::t("Categories \x28comma-separated list\x29") : ''),
-		'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
+		'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : ''),
+		'$emtitle' => DI::l10n()->t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,
 		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user)),
 		'$bang' => ($lockstate === 'lock' ? '!' : ''),
 		'$profile_uid' => $_SESSION['uid'],
-		'$preview' => L10n::t('Preview'),
+		'$preview' => DI::l10n()->t('Preview'),
 		'$jotplugins' => $jotplugins,
-		'$sourceapp' => L10n::t($a->sourcename),
-		'$cancel' => L10n::t('Cancel'),
+		'$sourceapp' => DI::l10n()->t($a->sourcename),
+		'$cancel' => DI::l10n()->t('Cancel'),
 		'$rand_num' => Crypto::randomDigits(12),
 
 		//jot nav tab (used in some themes)
-		'$message' => L10n::t('Message'),
-		'$browser' => L10n::t('Browser'),
-		'$shortpermset' => L10n::t('permissions'),
+		'$message' => DI::l10n()->t('Message'),
+		'$browser' => DI::l10n()->t('Browser'),
+		'$shortpermset' => DI::l10n()->t('permissions'),
+
+		'$compose_link_title' => DI::l10n()->t('Open Compose page'),
 	]);
 
 	return $o;
+}
+
+function undo_post_tagging($s) {
+	$matches = null;
+	$cnt = preg_match_all('/([!#@])\[url=(.*?)\](.*?)\[\/url\]/ism', $s, $matches, PREG_SET_ORDER);
+	if ($cnt) {
+		foreach ($matches as $mtch) {
+			if (in_array($mtch[1], ['!', '@'])) {
+				$contact = Contact::getByURL($mtch[2], false, ['addr']);
+				$mtch[3] = empty($contact['addr']) ? $mtch[2] : $contact['addr'];
+			}
+			$s = str_replace($mtch[0], $mtch[1] . $mtch[3],$s);
+		}
+	}
+	return $s;
 }

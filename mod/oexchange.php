@@ -1,13 +1,28 @@
 <?php
 /**
- * @file mod/oexchange.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 use Friendica\App;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
-use Friendica\Module\Login;
-use Friendica\Util\Network;
+use Friendica\DI;
+use Friendica\Module\Security\Login;
 use Friendica\Util\Strings;
 
 function oexchange_init(App $a) {
@@ -15,7 +30,7 @@ function oexchange_init(App $a) {
 	if (($a->argc > 1) && ($a->argv[1] === 'xrd')) {
 		$tpl = Renderer::getMarkupTemplate('oexchange_xrd.tpl');
 
-		$o = Renderer::replaceMacros($tpl, ['$base' => System::baseUrl()]);
+		$o = Renderer::replaceMacros($tpl, ['$base' => DI::baseUrl()]);
 		echo $o;
 		exit();
 	}
@@ -29,7 +44,6 @@ function oexchange_content(App $a) {
 	}
 
 	if (($a->argc > 1) && $a->argv[1] === 'done') {
-		info(L10n::t('Post successful.') . EOL);
 		return;
 	}
 
@@ -42,7 +56,7 @@ function oexchange_content(App $a) {
 	$tags = ((!empty($_REQUEST['tags']))
 		? '&tags=' . urlencode(Strings::escapeTags(trim($_REQUEST['tags']))) : '');
 
-	$s = Network::fetchUrl(System::baseUrl() . '/parse_url?f=&url=' . $url . $title . $description . $tags);
+	$s = DI::httpRequest()->fetch(DI::baseUrl() . '/parse_url?url=' . $url . $title . $description . $tags);
 
 	if (!strlen($s)) {
 		return;

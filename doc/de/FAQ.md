@@ -106,16 +106,6 @@ auf Deutsch:
 
      https://social.example.com/profile/example?lang=de.
 
-Wenn das Fragezeichen bereits in der URL verwendet wird, werden die einzelnen URL Parameter mit einem kaufmännischen Und getrennt werden.
-
-Ein Beispiel:
-
-    https://social.example.com/profile/example?tab=profile
-
-auf Deutsch:
-
-    https://social.example.com/profile/example?tab=profile&lang=de.
-
 <a name="contacts"></a>
 ### Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?
 
@@ -188,7 +178,9 @@ Das bedeutet, dass du jeden Twitter/GNU Social Client verwenden kannst in dem du
 Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell für Friendica entwickelt werden:
 
 * Android
-  * [Friendiqa](https://github.com/lubuwest/friendiqa) (Gibt es im Google Playstore oder als [binary Repository](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854) für F-Droid)
+  * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) (Gibt es im Google Playstore oder als [binary Repository](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854) für F-Droid)
+  * [Fedilab](https://gitlab.com/tom79/mastalab) (Gibt es im F-Droid und dem Google Play Store)
+  * [DiCa](https://dica.mixi.cool/) (Gibt es bei Google Play)
   * AndStatus
   * Twidere
   * Mustard and Mustard-Mod

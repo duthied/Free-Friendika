@@ -1,6 +1,5 @@
 
-
-<form action="photos/{{$nickname}}/{{$resource_id}}" method="post" id="photo_edit_form" >
+<form action="photos/{{$nickname}}/image/{{$resource_id}}/edit" method="post" id="photo_edit_form" >
 
 	<input type="hidden" name="item_id" value="{{$item_id}}" />
 	<input type="hidden" name="origaname" value="{{$album.2}}" />
@@ -28,9 +27,6 @@
 	<div id="photo-edit-perms-end"></div>
 
 	<input id="photo-edit-submit-button" type="submit" name="submit" value="{{$submit}}" />
-	<input id="photo-edit-delete-button" type="submit" name="delete" value="{{$delete}}" onclick="return confirmDelete();" />
 
 	<div id="photo-edit-end"></div>
 </form>
-
-

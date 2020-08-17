@@ -1,17 +1,34 @@
 <?php
-
 /**
- * @file src/Util/HTTPSignature.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Util;
 
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
-use Friendica\Model\User;
+use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\APContact;
+use Friendica\Model\User;
 
 /**
- * @brief Implements HTTP Signatures per draft-cavage-http-signatures-07.
+ * Implements HTTP Signatures per draft-cavage-http-signatures-07.
  *
  * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/Zotlabs/Web/HTTPSig.php
  *
@@ -25,7 +42,7 @@ class HTTPSignature
 {
 	// See draft-cavage-http-signatures-08
 	/**
-	 * @brief Verifies a magic request
+	 * Verifies a magic request
 	 *
 	 * @param $key
 	 *
@@ -110,8 +127,6 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief
-	 *
 	 * @param array   $head
 	 * @param string  $prvkey
 	 * @param string  $keyid (optional, default 'Key')
@@ -144,8 +159,6 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief
-	 *
 	 * @param array  $head
 	 * @param string $prvkey
 	 * @param string $alg (optional) default 'sha256'
@@ -177,11 +190,11 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief
-	 *
 	 * @param string $header
-	 * @return array associate array with
+	 * @return array associative array with
 	 *   - \e string \b keyID
+	 *   - \e string \b created
+	 *   - \e string \b expires
 	 *   - \e string \b algorithm
 	 *   - \e array  \b headers
 	 *   - \e string \b signature
@@ -189,80 +202,55 @@ class HTTPSignature
 	 */
 	public static function parseSigheader($header)
 	{
-		$ret = [];
+		// Remove obsolete folds
+		$header = preg_replace('/\n\s+/', ' ', $header);
+
+		$token = "[!#$%&'*+.^_`|~0-9A-Za-z-]";
+
+		$quotedString = '"(?:\\\\.|[^"\\\\])*"';
+
+		$regex = "/($token+)=($quotedString|$token+)/ism";
+
 		$matches = [];
+		preg_match_all($regex, $header, $matches, PREG_SET_ORDER);
+
+		$headers = [];
+		foreach ($matches as $match) {
+			$headers[$match[1]] = trim($match[2] ?: $match[3], '"');
+		}
 
 		// if the header is encrypted, decrypt with (default) site private key and continue
-		if (preg_match('/iv="(.*?)"/ism', $header, $matches)) {
-			$header = self::decryptSigheader($header);
+		if (!empty($headers['iv'])) {
+			$header = self::decryptSigheader($headers, DI::config()->get('system', 'prvkey'));
+			return self::parseSigheader($header);
 		}
 
-		if (preg_match('/keyId="(.*?)"/ism', $header, $matches)) {
-			$ret['keyId'] = $matches[1];
+		$return = [
+			'keyId'     => $headers['keyId'] ?? '',
+			'algorithm' => $headers['algorithm'] ?? 'rsa-sha256',
+			'created'   => $headers['created'] ?? null,
+			'expires'   => $headers['expires'] ?? null,
+			'headers'   => explode(' ', $headers['headers'] ?? ''),
+			'signature' => base64_decode(preg_replace('/\s+/', '', $headers['signature'] ?? '')),
+		];
+
+		if (!empty($return['signature']) && !empty($return['algorithm']) && empty($return['headers'])) {
+			$return['headers'] = ['date'];
 		}
 
-		if (preg_match('/algorithm="(.*?)"/ism', $header, $matches)) {
-			$ret['algorithm'] = $matches[1];
-		} else {
-			$ret['algorithm'] = 'rsa-sha256';
-		}
-
-		if (preg_match('/headers="(.*?)"/ism', $header, $matches)) {
-			$ret['headers'] = explode(' ', $matches[1]);
-		}
-
-		if (preg_match('/signature="(.*?)"/ism', $header, $matches)) {
-			$ret['signature'] = base64_decode(preg_replace('/\s+/', '', $matches[1]));
-		}
-
-		if (!empty($ret['signature']) && !empty($ret['algorithm']) && empty($ret['headers'])) {
-			$ret['headers'] = ['date'];
-		}
-
-		return $ret;
+		return $return;
 	}
 
 	/**
-	 * @brief
-	 *
-	 * @param string $header
-	 * @param string $prvkey (optional), if not set use site private key
-	 *
-	 * @return array|string associative array, empty string if failue
-	 *   - \e string \b iv
-	 *   - \e string \b key
-	 *   - \e string \b alg
-	 *   - \e string \b data
+	 * @param array  $headers Signature headers
+	 * @param string $prvkey  The site private key
+	 * @return string Decrypted signature string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function decryptSigheader($header, $prvkey = null)
+	private static function decryptSigheader(array $headers, string $prvkey)
 	{
-		$iv = $key = $alg = $data = null;
-
-		if (!$prvkey) {
-			$prvkey = Config::get('system', 'prvkey');
-		}
-
-		$matches = [];
-
-		if (preg_match('/iv="(.*?)"/ism', $header, $matches)) {
-			$iv = $matches[1];
-		}
-
-		if (preg_match('/key="(.*?)"/ism', $header, $matches)) {
-			$key = $matches[1];
-		}
-
-		if (preg_match('/alg="(.*?)"/ism', $header, $matches)) {
-			$alg = $matches[1];
-		}
-
-		if (preg_match('/data="(.*?)"/ism', $header, $matches)) {
-			$data = $matches[1];
-		}
-
-		if ($iv && $key && $alg && $data) {
-			return Crypto::unencapsulate(['iv' => $iv, 'key' => $key, 'alg' => $alg, 'data' => $data], $prvkey);
+		if (!empty($headers['iv']) && !empty($headers['key']) && !empty($headers['data'])) {
+			return Crypto::unencapsulate($headers, $prvkey);
 		}
 
 		return '';
@@ -273,7 +261,7 @@ class HTTPSignature
 	 */
 
 	/**
-	 * @brief Transmit given data to a target for a user
+	 * Transmit given data to a target for a user
 	 *
 	 * @param array   $data   Data that is about to be send
 	 * @param string  $target The URL of the inbox
@@ -309,16 +297,75 @@ class HTTPSignature
 
 		$headers[] = 'Content-Type: application/activity+json';
 
-		$postResult = Network::post($target, $content, $headers);
+		$postResult = DI::httpRequest()->post($target, $content, $headers);
 		$return_code = $postResult->getReturnCode();
 
 		Logger::log('Transmit to ' . $target . ' returned ' . $return_code, Logger::DEBUG);
 
-		return ($return_code >= 200) && ($return_code <= 299);
+		$success = ($return_code >= 200) && ($return_code <= 299);
+
+		self::setInboxStatus($target, $success);
+
+		return $success;
 	}
 
 	/**
-	 * @brief Fetches JSON data for a user
+	 * Set the delivery status for a given inbox
+	 *
+	 * @param string  $url     The URL of the inbox
+	 * @param boolean $success Transmission status
+	 */
+	static private function setInboxStatus($url, $success)
+	{
+		$now = DateTimeFormat::utcNow();
+
+		$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
+		if (!DBA::isResult($status)) {
+			DBA::insert('inbox-status', ['url' => $url, 'created' => $now]);
+			$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
+		}
+
+		if ($success) {
+			$fields = ['success' => $now];
+		} else {
+			$fields = ['failure' => $now];
+		}
+
+		if ($status['failure'] > DBA::NULL_DATETIME) {
+			$new_previous_stamp = strtotime($status['failure']);
+			$old_previous_stamp = strtotime($status['previous']);
+
+			// Only set "previous" with at least one day difference.
+			// We use this to assure to not accidentally archive too soon.
+			if (($new_previous_stamp - $old_previous_stamp) >= 86400) {
+				$fields['previous'] = $status['failure'];
+			}
+		}
+
+		if (!$success) {
+			if ($status['success'] <= DBA::NULL_DATETIME) {
+				$stamp1 = strtotime($status['created']);
+			} else {
+				$stamp1 = strtotime($status['success']);
+			}
+
+			$stamp2 = strtotime($now);
+			$previous_stamp = strtotime($status['previous']);
+
+			// Archive the inbox when there had been failures for five days.
+			// Additionally ensure that at least one previous attempt has to be in between.
+			if ((($stamp2 - $stamp1) >= 86400 * 5) && ($previous_stamp > $stamp1)) {
+				$fields['archive'] = true;
+			}
+		} else {
+			$fields['archive'] = false;
+		}
+
+		DBA::update('inbox-status', $fields, ['url' => $url]);
+	}
+
+	/**
+	 * Fetches JSON data for a user
 	 *
 	 * @param string  $request request url
 	 * @param integer $uid     User id of the requester
@@ -328,38 +375,18 @@ class HTTPSignature
 	 */
 	public static function fetch($request, $uid)
 	{
-		$owner = User::getOwnerDataById($uid);
+		$opts = ['accept_content' => 'application/activity+json, application/ld+json'];
+		$curlResult = self::fetchRaw($request, $uid, false, $opts);
 
-		if (!$owner) {
-			return;
+		if (empty($curlResult)) {
+			return false;
 		}
-
-		// Header data that is about to be signed.
-		$host = parse_url($request, PHP_URL_HOST);
-		$path = parse_url($request, PHP_URL_PATH);
-		$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
-
-		$headers = ['Date: ' . $date, 'Host: ' . $host];
-
-		$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
-
-		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
-
-		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
-
-		$headers[] = 'Accept: application/activity+json, application/ld+json';
-
-		$curlResult = Network::curl($request, false, $redirects, ['header' => $headers]);
-		$return_code = $curlResult->getReturnCode();
-
-		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);
 
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return false;
 		}
 
 		$content = json_decode($curlResult->getBody(), true);
-
 		if (empty($content) || !is_array($content)) {
 			return false;
 		}
@@ -368,7 +395,65 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief Gets a signer from a given HTTP request
+	 * Fetches raw data for a user
+	 *
+	 * @param string  $request request url
+	 * @param integer $uid     User id of the requester
+	 * @param boolean $binary  TRUE if asked to return binary results (file download) (default is "false")
+	 * @param array   $opts    (optional parameters) assoziative array with:
+	 *                         'accept_content' => supply Accept: header with 'accept_content' as the value
+	 *                         'timeout' => int Timeout in seconds, default system config value or 60 seconds
+	 *                         'http_auth' => username:password
+	 *                         'novalidate' => do not validate SSL certs, default is to validate using our CA list
+	 *                         'nobody' => only return the header
+	 *                         'cookiejar' => path to cookie jar file
+	 *
+	 * @return object CurlResult
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function fetchRaw($request, $uid = 0, $binary = false, $opts = [])
+	{
+		$headers = [];
+
+		if (!empty($uid)) {
+			$owner = User::getOwnerDataById($uid);
+			if (!$owner) {
+				return;
+			}
+
+			if (!empty($owner['uprvkey'])) {
+				// Header data that is about to be signed.
+				$host = parse_url($request, PHP_URL_HOST);
+				$path = parse_url($request, PHP_URL_PATH);
+				$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
+
+				$headers = ['Date: ' . $date, 'Host: ' . $host];
+
+				$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
+
+				$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
+
+				$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
+			}
+		}
+
+		if (!empty($opts['accept_content'])) {
+			$headers[] = 'Accept: ' . $opts['accept_content'];
+		}
+
+		$curl_opts = $opts;
+		$curl_opts['header'] = $headers;
+
+		$curlResult = DI::httpRequest()->get($request, false, $curl_opts);
+		$return_code = $curlResult->getReturnCode();
+
+		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);
+
+		return $curlResult;
+	}
+
+	/**
+	 * Gets a signer from a given HTTP request
 	 *
 	 * @param $content
 	 * @param $http_headers
@@ -430,6 +515,14 @@ class HTTPSignature
 
 		$algorithm = null;
 
+		// Wildcard value where signing algorithm should be derived from keyId
+		// @see https://tools.ietf.org/html/draft-ietf-httpbis-message-signatures-00#section-4.1
+		// Defaulting to SHA256 as it seems to be the prevalent implementation
+		// @see https://arewehs2019yet.vpzom.click
+		if ($sig_block['algorithm'] === 'hs2019') {
+			$algorithm = 'sha256';
+		}
+
 		if ($sig_block['algorithm'] === 'rsa-sha256') {
 			$algorithm = 'sha256';
 		}
@@ -452,8 +545,10 @@ class HTTPSignature
 			return false;
 		}
 
+		$hasGoodSignedContent = false;
+
 		// Check the digest when it is part of the signed data
-		if (in_array('digest', $sig_block['headers'])) {
+		if (!empty($content) && in_array('digest', $sig_block['headers'])) {
 			$digest = explode('=', $headers['digest'], 2);
 			if ($digest[0] === 'SHA-256') {
 				$hashalg = 'sha256';
@@ -467,6 +562,8 @@ class HTTPSignature
 			if (!empty($hashalg) && base64_encode(hash($hashalg, $content, true)) != $digest[1]) {
 				return false;
 			}
+
+			$hasGoodSignedContent = true;
 		}
 
 		//  Check if the signed date field is in an acceptable range
@@ -476,6 +573,7 @@ class HTTPSignature
 				Logger::log("Header date '" . $headers['date'] . "' is with " . $diff . " seconds out of the 300 second frame. The signature is invalid.");
 				return false;
 			}
+			$hasGoodSignedContent = true;
 		}
 
 		// Check the content-length when it is part of the signed data
@@ -485,11 +583,17 @@ class HTTPSignature
 			}
 		}
 
+		// Ensure that the authentication had been done with some content
+		// Without this check someone could authenticate with fakeable data
+		if (!$hasGoodSignedContent) {
+			return false;
+		}
+
 		return $key['url'];
 	}
 
 	/**
-	 * @brief fetches a key for a given id and actor
+	 * fetches a key for a given id and actor
 	 *
 	 * @param $id
 	 * @param $actor

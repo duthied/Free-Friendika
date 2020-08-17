@@ -1,13 +1,29 @@
 <?php
 /**
- * @file mod/wallmessage.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 use Friendica\App;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
 use Friendica\Util\Strings;
@@ -16,7 +32,7 @@ function wallmessage_post(App $a) {
 
 	$replyto = Profile::getMyURL();
 	if (!$replyto) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -40,7 +56,7 @@ function wallmessage_post(App $a) {
 	$user = $r[0];
 
 	if (! intval($user['unkmail'])) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -49,7 +65,7 @@ function wallmessage_post(App $a) {
 	);
 
 	if ($r[0]['total'] > $user['cntunkmail']) {
-		notice(L10n::t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
+		notice(DI::l10n()->t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
 		return;
 	}
 
@@ -57,36 +73,34 @@ function wallmessage_post(App $a) {
 
 	switch ($ret) {
 		case -1:
-			notice(L10n::t('No recipient selected.') . EOL);
+			notice(DI::l10n()->t('No recipient selected.'));
 			break;
 		case -2:
-			notice(L10n::t('Unable to check your home location.') . EOL);
+			notice(DI::l10n()->t('Unable to check your home location.'));
 			break;
 		case -3:
-			notice(L10n::t('Message could not be sent.') . EOL);
+			notice(DI::l10n()->t('Message could not be sent.'));
 			break;
 		case -4:
-			notice(L10n::t('Message collection failure.') . EOL);
+			notice(DI::l10n()->t('Message collection failure.'));
 			break;
-		default:
-			info(L10n::t('Message sent.') . EOL);
 	}
 
-	$a->internalRedirect('profile/'.$user['nickname']);
+	DI::baseUrl()->redirect('profile/'.$user['nickname']);
 }
 
 
 function wallmessage_content(App $a) {
 
 	if (!Profile::getMyURL()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	$recipient = (($a->argc > 1) ? $a->argv[1] : '');
 
 	if (!$recipient) {
-		notice(L10n::t('No recipient.') . EOL);
+		notice(DI::l10n()->t('No recipient.'));
 		return;
 	}
 
@@ -95,7 +109,7 @@ function wallmessage_content(App $a) {
 	);
 
 	if (! DBA::isResult($r)) {
-		notice(L10n::t('No recipient.') . EOL);
+		notice(DI::l10n()->t('No recipient.'));
 		Logger::log('wallmessage: no recipient');
 		return;
 	}
@@ -103,7 +117,7 @@ function wallmessage_content(App $a) {
 	$user = $r[0];
 
 	if (!intval($user['unkmail'])) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -112,33 +126,33 @@ function wallmessage_content(App $a) {
 	);
 
 	if ($r[0]['total'] > $user['cntunkmail']) {
-		notice(L10n::t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
+		notice(DI::l10n()->t('Number of daily wall messages for %s exceeded. Message failed.', $user['username']));
 		return;
 	}
 
 	$tpl = Renderer::getMarkupTemplate('wallmsg-header.tpl');
-	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
-		'$baseurl' => System::baseUrl(true),
+	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
+		'$baseurl' => DI::baseUrl()->get(true),
 		'$nickname' => $user['nickname'],
-		'$linkurl' => L10n::t('Please enter a link URL:')
+		'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 	]);
 
 	$tpl = Renderer::getMarkupTemplate('wallmessage.tpl');
 	$o = Renderer::replaceMacros($tpl, [
-		'$header'     => L10n::t('Send Private Message'),
-		'$subheader'  => L10n::t('If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.', $user['username']),
-		'$to'         => L10n::t('To:'),
-		'$subject'    => L10n::t('Subject:'),
+		'$header'     => DI::l10n()->t('Send Private Message'),
+		'$subheader'  => DI::l10n()->t('If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.', $user['username']),
+		'$to'         => DI::l10n()->t('To:'),
+		'$subject'    => DI::l10n()->t('Subject:'),
 		'$recipname'  => $user['username'],
 		'$nickname'   => $user['nickname'],
-		'$subjtxt'    => defaults($_REQUEST, 'subject', ''),
-		'$text'       => defaults($_REQUEST, 'body', ''),
+		'$subjtxt'    => $_REQUEST['subject'] ?? '',
+		'$text'       => $_REQUEST['body'] ?? '',
 		'$readonly'   => '',
-		'$yourmessage'=> L10n::t('Your message:'),
+		'$yourmessage'=> DI::l10n()->t('Your message:'),
 		'$parent'     => '',
-		'$upload'     => L10n::t('Upload photo'),
-		'$insert'     => L10n::t('Insert web link'),
-		'$wait'       => L10n::t('Please wait')
+		'$upload'     => DI::l10n()->t('Upload photo'),
+		'$insert'     => DI::l10n()->t('Insert web link'),
+		'$wait'       => DI::l10n()->t('Please wait')
 	]);
 
 	return $o;

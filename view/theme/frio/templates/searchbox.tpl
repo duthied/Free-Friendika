@@ -4,34 +4,32 @@ Some parts of this template will be moved by js to other places (see theme.js) -
 
 <div id="{{$id}}" {{* class="input-group" *}}>
 	<div id="search-wrapper">
-		<form action="{{$action_url}}" method="get" >
+		<form action="search" method="get">
 			<div class="row">
 				<div class="col-md-2"></div>
 				<div class="col-md-8 ">
 
 					<div class="form-group form-group-search">
-						<input type="text" name="search" id="search-text" class="search-input form-control form-search" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$search_label}}" value="{{$s}}" />
+						<input type="text" name="q" id="search-text" class="search-input form-control form-search" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$search_label}}" value="{{$s}}" />
 						<button id="search-submit" class="btn btn-default btn-sm form-button-search" type="submit">{{$search_label}}</button>
 					</div>
 
 					<div class="col-md-4"></div>
 					<div class="col-md-8">
 						{{* The button to save searches *}}
-						{{if $savedsearch}}
-						<button class="btn btn-primary btn-small pull-right" type="submit" name="save" value="{{$save_label}}">{{$save_label}}</button>
+						{{if $s}}
+						<a href="search/saved/add?term={{$q}}&amp;return_url={{$return_url}}" class="btn btn-primary btn-small pull-right">{{$save_label}}</a>
 						{{/if}}
 
 						{{* The select popup menu to select what kind of results the user would like to search for *}}
-						{{if $searchoption}}
+						{{if $search_options}}
 						<div class="col-md-6 pull-right">
 							<div class="form-group field select">
 								<select name="search-option" id="search-options" class="form-control form-control-sm">
-									<option value="fulltext">{{$searchoption.0}}</option>
-									<option value="tags">{{$searchoption.1}}</option>
-									<option value="contacts">{{$searchoption.2}}</option>
-									{{if $searchoption.3}}<option value="forums">{{$searchoption.3}}</option>{{/if}}
+                                {{foreach $search_options as $value => $label}}
+									<option value="{{$value}}">{{$label}}</option>
+                                {{/foreach}}
 								</select>
-
 							</div>
 						</div>
 						{{/if}}
@@ -46,16 +44,15 @@ Some parts of this template will be moved by js to other places (see theme.js) -
 			
 		</form>
 	</div>
-	{{* This form is inserted as experiment to move the search-save button to the second navbar with js *}}
-	{{if $savedsearch}}
-	<form id="search-save-form" action="{{$action_url}}" method="get" >
-		<input type="hidden" name="search" value="{{$s}}" />
-		{{* In dependence of the search content we show different buttons *}}
-		{{if $mode == "tag"}}
-		<button class="btn btn-primary btn-sm btn-main pull-right" type="submit" name="save" id="search-save" title="{{$save_label}}" value="{{$save_label}}" data-toggle="tooltip"><i class="fa fa-plus fa-2x" aria-hidden="true"></i></button>
-		{{else}}
-		<button class="btn btn-primary btn-sm btn-main pull-right" type="submit" name="save" id="search-save" title="{{$save_label}}" value="{{$save_label}}" data-toggle="tooltip"><i class="fa fa-floppy-o fa-2x" aria-hidden="true"></i></button>
-		{{/if}}
-	</form>
+
+{{if $s}}
+	<a href="search/saved/add?term={{$q}}&amp;return_url={{$return_url}}" class="btn btn-sm btn-primary pull-right" id="search-save" title="{{$save_label}}" aria-label="{{$save_label}}" value="{{$save_label}}" data-toggle="tooltip">
+	{{if $mode == "tag"}}
+		<i class="fa fa-plus fa-2x" aria-hidden="true"></i>
+	{{else}}
+		<i class="fa fa-floppy-o fa-2x" aria-hidden="true"></i>
 	{{/if}}
+		<span class="sr-only">{{$save_label}}</span>
+	</a>
+{{/if}}
 </div>

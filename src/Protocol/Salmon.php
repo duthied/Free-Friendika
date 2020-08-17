@@ -1,18 +1,36 @@
 <?php
 /**
- * @file src/Protocol/Salmon.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Protocol;
 
 use Friendica\Core\Logger;
+use Friendica\DI;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 /**
- * @brief Salmon Protocol class
+ * Salmon Protocol class
+ *
  * The Salmon Protocol is a message exchange protocol running over HTTP designed to decentralize commentary
  * and annotations made against newsfeed articles such as blog posts.
  */
@@ -54,13 +72,13 @@ class Salmon
 						$ret[$x] = substr($ret[$x], 5);
 					}
 				} elseif (Strings::normaliseLink($ret[$x]) == 'http://') {
-					$ret[$x] = Network::fetchUrl($ret[$x]);
+					$ret[$x] = DI::httpRequest()->fetch($ret[$x]);
 				}
 			}
 		}
 
 
-		Logger::log('Key located: ' . print_r($ret, true));
+		Logger::notice('Key located', ['ret' => $ret]);
 
 		if (count($ret) == 1) {
 			// We only found one one key so we don't care if the hash matches.
@@ -93,13 +111,13 @@ class Salmon
 	{
 		// does contact have a salmon endpoint?
 
-		if (! strlen($url)) {
+		if (!strlen($url)) {
 			return;
 		}
 
-		if (! $owner['sprvkey']) {
+		if (!$owner['sprvkey']) {
 			Logger::log(sprintf("user '%s' (%d) does not have a salmon private key. Send failed.",
-			$owner['username'], $owner['uid']));
+			$owner['name'], $owner['uid']));
 			return;
 		}
 
@@ -137,7 +155,7 @@ class Salmon
 		$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 		// slap them
-		$postResult = Network::post($url, $salmon, [
+		$postResult = DI::httpRequest()->post($url, $salmon, [
 			'Content-type: application/magic-envelope+xml',
 			'Content-length: ' . strlen($salmon)
 		]);
@@ -162,7 +180,7 @@ class Salmon
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 			// slap them
-			$postResult = Network::post($url, $salmon, [
+			$postResult = DI::httpRequest()->post($url, $salmon, [
 				'Content-type: application/magic-envelope+xml',
 				'Content-length: ' . strlen($salmon)
 			]);
@@ -185,7 +203,7 @@ class Salmon
 			$salmon = XML::fromArray($xmldata, $xml, false, $namespaces);
 
 			// slap them
-			$postResult = Network::post($url, $salmon, [
+			$postResult = DI::httpRequest()->post($url, $salmon, [
 				'Content-type: application/magic-envelope+xml',
 				'Content-length: ' . strlen($salmon)]);
 			$return_code = $postResult->getReturnCode();

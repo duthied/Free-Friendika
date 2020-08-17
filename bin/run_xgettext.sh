@@ -32,7 +32,7 @@ case "$MODE" in
 		mkdir -p "$FULLPATH/../addon/$ADDONNAME/lang/C"
 		OUTFILE="$FULLPATH/../addon/$ADDONNAME/lang/C/messages.po"
 		FINDSTARTDIR="."
-		FINDOPTS=
+		FINDOPTS="-path ./vendor -prune -or"
 	;;
 	'single')
 		FULLPATH=$PWD
@@ -40,7 +40,7 @@ case "$MODE" in
 		mkdir -p "$FULLPATH/lang/C"
 		OUTFILE="$FULLPATH/lang/C/messages.po"
 		FINDSTARTDIR="."
-		FINDOPTS=		
+		FINDOPTS="-path ./vendor -prune -or"
 		echo "Extract strings for single addon '$ADDONNAME'"
 	;;
 	'default')
@@ -48,9 +48,9 @@ case "$MODE" in
 		OUTFILE="$FULLPATH/../view/lang/C/messages.po"
 		FINDSTARTDIR="."
 		# skip addon folder
-		FINDOPTS="( -wholename */addon -or -wholename */addons -or -wholename */addons-extra -or -wholename */smarty3 ) -prune -o"
+		FINDOPTS="( -path ./addon -or -path ./addons -or -path ./addons-extra -or -path ./tests -or -path ./view/lang -or -path ./view/smarty3 -or -path ./vendor ) -prune -or"
 		
-		F9KVERSION=$(sed -n "s/.*'FRIENDICA_VERSION'.*'\([0-9.]*\)'.*/\1/p" ./boot.php);
+		F9KVERSION=$(cat ./VERSION);
 		echo "Friendica version $F9KVERSION"
 	;;
 esac
@@ -58,44 +58,54 @@ esac
 
 KEYWORDS="-k -kt -ktt:1,2"
 
-echo "extract strings to $OUTFILE.."
+echo "Extract strings to $OUTFILE.."
 rm "$OUTFILE"; touch "$OUTFILE"
-for f in $(find "$FINDSTARTDIR" $FINDOPTS -name "*.php" -type f)
+
+find_result=$(find "$FINDSTARTDIR" $FINDOPTS -name "*.php" -type f)
+
+total_files=$(wc -l <<< "${find_result}")
+
+for file in $find_result
 do
-	if [ ! -d "$f" ]
+	((count++))
+	echo -ne "                                            \r"
+	echo -ne "Reading file $count/$total_files..."
+
+	# On Windows, find still outputs the name of pruned folders
+	if [ ! -d "$file" ]
 	then
-		xgettext $KEYWORDS -j -o "$OUTFILE" --from-code=UTF-8 "$f"
+		xgettext $KEYWORDS -j -o "$OUTFILE" --from-code=UTF-8 "$file" || exit 1
 		sed -i "s/CHARSET/UTF-8/g" "$OUTFILE"
 	fi
 done
+echo -ne "\n"
 
-echo "setup base info.."
-case "$MODE" in 
+echo "Interpolate metadata.."
+
+sed -i "s/^\"Plural-Forms.*$//g" "$OUTFILE"
+
+case "$MODE" in
 	'addon'|'single')
 		sed -i "s/SOME DESCRIPTIVE TITLE./ADDON $ADDONNAME/g" "$OUTFILE"
 		sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER//g" "$OUTFILE"
 		sed -i "s/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.//g" "$OUTFILE"
 		sed -i "s/PACKAGE VERSION//g" "$OUTFILE"
 		sed -i "s/PACKAGE/Friendica $ADDONNAME addon/g" "$OUTFILE"
-		sed -i "s/CHARSET/UTF-8/g" "$OUTFILE"
-		sed -i "s/^\"Plural-Forms.*$//g" "$OUTFILE"
 	;;
 	'default')
 		sed -i "s/SOME DESCRIPTIVE TITLE./FRIENDICA Distributed Social Network/g" "$OUTFILE"
-		sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER/2010, 2011, 2012, 2013 the Friendica Project/g" "$OUTFILE"
+		sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER/2010-$(date +%Y) the Friendica Project/g" "$OUTFILE"
 		sed -i "s/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR./Mike Macgirvin, 2010/g" "$OUTFILE"
 		sed -i "s/PACKAGE VERSION/$F9KVERSION/g" "$OUTFILE"
 		sed -i "s/PACKAGE/Friendica/g" "$OUTFILE"
-		sed -i "s/CHARSET/UTF-8/g" "$OUTFILE"
-		sed -i "s/^\"Plural-Forms.*$//g" "$OUTFILE"
 	;;
 esac
 
 if [ "" != "$1" -a "$MODE" == "default" ]
 then
 	UPDATEFILE="$(readlink -f ${FULLPATH}/$1)"
-	echo "merging new strings to $UPDATEFILE.."
+	echo "Merging new strings to $UPDATEFILE.."
 	msgmerge -U $OUTFILE $UPDATEFILE
 fi
 
-echo "done."
+echo "Done."

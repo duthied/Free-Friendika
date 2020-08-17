@@ -1,0 +1,73 @@
+<div class="vcard h-card">
+
+	<div class="tool">
+		<div class="fn p-name">{{$profile.name}}</div>
+		{{if $profile.edit}}
+			<div class="action">
+				<a class="icon s16 edit ttright" href="{{$profile.edit.0}}" title="{{$profile.edit.3}}"><span>{{$profile.edit.1}}</span></a>
+			</div>
+		{{/if}}
+	</div>
+
+	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
+
+	{{if $profile.picdate}}
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></a></div>
+	{{else}}
+		<div id="profile-photo-wrapper"><a href="{{$profile.url}}"><img class="photo u-photo" src="{{$profile.photo}}" alt="{{$profile.name}}"></a></div>
+	{{/if}}
+
+	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
+	{{if $profile.network_link}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_link nofilter}}</dd></dl>{{/if}}
+	{{if $location}}
+		<dl class="location"><dt class="location-label">{{$location}}</dt> 
+		<dd class="adr h-adr">
+			{{if $profile.address}}<div class="street-address p-street-address">{{$profile.address nofilter}}</div>{{/if}}
+			<span class="city-state-zip">
+				<span class="locality p-locality">{{$profile.locality}}</span>{{if $profile.locality}}, {{/if}}
+				<span class="region p-region">{{$profile.region}}</span>
+				<span class="postal-code p-postal-code">{{$profile.postal_code}}</span>
+			</span>
+			{{if $profile.country_name}}<span class="country-name p-country-name">{{$profile.country_name}}</span>{{/if}}
+		</dd>
+		</dl>
+	{{/if}}
+
+	{{if $profile.xmpp}}
+		<dl class="xmpp">
+			<dt class="xmpp-label">{{$xmpp}}</dt>
+			<dd class="xmpp-data">{{$profile.xmpp}}</dd>
+		</dl>
+	{{/if}}
+
+	{{if $profile.upubkey}}<div class="key u-key" style="display:none;">{{$profile.upubkey}}</div>{{/if}}
+
+	{{if $contacts}}<div class="contacts" style="display:none;">{{$contacts}}</div>{{/if}}
+
+	{{if $updated}}<div class="updated" style="display:none;">{{$updated}}</div>{{/if}}
+
+	{{if $homepage}}<dl class="homepage"><dt class="homepage-label">{{$homepage}}</dt><dd class="homepage-url"><a href="{{$profile.homepage}}" class="u-url" rel="me" target="_blank" rel="noopener noreferrer">{{$profile.homepage}}</a></dd></dl>{{/if}}
+
+	{{if $about}}<dl class="about"><dt class="about-label">{{$about}}</dt><dd class="x-network">{{$profile.about nofilter}}</dd></dl>{{/if}}
+
+	{{include file="diaspora_vcard.tpl"}}
+
+	<div id="profile-extra-links">
+		<ul>
+			{{if $unfollow_link}}
+				<li><a id="dfrn-request-link" href="{{$unfollow_link}}">{{$unfollow}}</a></li>
+			{{/if}}
+			{{if $follow_link}}
+				<li><a id="dfrn-request-link" href="{{$follow_link}}">{{$follow}}</a></li>
+			{{/if}}
+			{{if $wallmessage_link}}
+				<li><a id="wallmessage-link" href="{{$wallmessage_link}}">{{$wallmessage}}</a></li>
+			{{/if}}
+			{{if $subscribe_feed_link}}
+				<li><a id="subscribe-feed-link" href="{{$subscribe_feed_link}}">{{$subscribe_feed}}</a></li>
+			{{/if}}
+		</ul>
+	</div>
+</div>
+
+{{$contact_block nofilter}}

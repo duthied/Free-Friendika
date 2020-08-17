@@ -1,6 +1,6 @@
 /**
  * @file view/theme/frio/js/mod_events.js
- * @brief Initialization of the fullCalendar and format the output.
+ * Initialization of the fullCalendar and format the output.
  */
 
 $(document).ready(function() {
@@ -82,6 +82,9 @@ $(document).ready(function() {
 				trigger: "hover",
 				placement: "auto",
 				template: '<div class="popover hovercard event-card"><div class="arrow"></div><div class="popover-content hovercard-content"></div></div>',
+				sanitizeFn: function (content) {
+					return DOMPurify.sanitize(content)
+				},
 			});
 
 		}

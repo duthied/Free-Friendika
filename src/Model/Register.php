@@ -1,37 +1,62 @@
 <?php
-
 /**
- * @file src/Model/Register.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Model;
 
+use Friendica\Content\Pager;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
 /**
  * Class interacting with the register database table
- *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
 class Register
 {
 	/**
 	 * Return the list of pending registrations
 	 *
+	 * @param int    $start Start count (Default is 0)
+	 * @param int $count Count of the items per page (Default is @see Pager::ITEMS_PER_PAGE)
+	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getPending()
+	public static function getPending($start = 0, $count = Pager::ITEMS_PER_PAGE)
 	{
-		$stmt = DBA::p(
-			"SELECT `register`.*, `contact`.`name`, `user`.`email`
-			FROM `register`
-			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
-			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`"
-		);
+		return DBA::selectToArray('pending-view', [], [], ['limit' => [$start, $count]]);
+	}
 
-		return DBA::toArray($stmt);
+	/**
+	 * Returns the pending user based on a given user id
+	 *
+	 * @param int $uid The user id
+	 *
+	 * @return array The pending user information
+	 *
+	 * @throws \Exception
+	 */
+	public static function getPendingForUser(int $uid)
+	{
+		return DBA::selectFirst('pending-view', [], ['uid' => $uid, 'self' => true]);
 	}
 
 	/**
@@ -42,13 +67,7 @@ class Register
 	 */
 	public static function getPendingCount()
 	{
-		$register = DBA::fetchFirst(
-			"SELECT COUNT(*) AS `count`
-			FROM `register`
-			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid` AND `contact`.`self`"
-		);
-
-		return $register['count'];
+		return DBA::count('pending-view', ['self' => true]);
 	}
 
 	/**
@@ -83,7 +102,7 @@ class Register
 	 */
 	public static function createForInvitation()
 	{
-		$code = Strings::getRandomName(8) . srand(1000, 9999);
+		$code = Strings::getRandomName(8) . random_int(1000, 9999);
 
 		$fields = [
 			'hash' => $code,

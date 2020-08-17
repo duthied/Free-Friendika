@@ -1,13 +1,32 @@
 <?php
 /**
- * @file src/Worker/SpoolPost.php
- * @brief Posts items that wer spooled because they couldn't be posted.
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Model\Item;
 
+/**
+ * Posts items that where spooled because they couldn't be posted.
+ */
 class SpoolPost {
 	public static function execute() {
 		$path = get_spoolpath();
@@ -18,6 +37,7 @@ class SpoolPost {
 
 					// It is not named like a spool file, so we don't care.
 					if (substr($file, 0, 5) != "item-") {
+						Logger::notice('Spool file does does not start with "item-"', ['file' => $file]);
 						continue;
 					}
 
@@ -25,11 +45,13 @@ class SpoolPost {
 
 					// We don't care about directories either
 					if (filetype($fullfile) != "file") {
+						Logger::notice('Spool file is no file', ['file' => $file]);
 						continue;
 					}
 
 					// We can't read or write the file? So we don't care about it.
 					if (!is_writable($fullfile) || !is_readable($fullfile)) {
+						Logger::notice('Spool file has insufficent permissions', ['file' => $file, 'writable' => is_writable($fullfile), 'readable' => is_readable($fullfile)]);
 						continue;
 					}
 
@@ -37,17 +59,19 @@ class SpoolPost {
 
 					// If it isn't an array then it is no spool file
 					if (!is_array($arr)) {
+						Logger::notice('Spool file is no array', ['file' => $file]);
 						continue;
 					}
 
 					// Skip if it doesn't seem to be an item array
 					if (!isset($arr['uid']) && !isset($arr['uri']) && !isset($arr['network'])) {
+						Logger::notice('Spool file does not contain the needed fields', ['file' => $file]);
 						continue;
 					}
 
 					$result = Item::insert($arr);
 
-					Logger::log("Spool file ".$file." stored: ".$result, Logger::DEBUG);
+					Logger::notice('Spool file is stored', ['file' => $file, 'result' => $result]);
 					unlink($fullfile);
 				}
 				closedir($dh);

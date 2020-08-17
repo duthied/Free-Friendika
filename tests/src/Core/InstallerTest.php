@@ -1,30 +1,75 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 // this is in the same namespace as Install for mocking 'function_exists'
 namespace Friendica\Core;
 
+use Dice\Dice;
+use Friendica\Core\Config\Cache;
+use Friendica\DI;
+use Friendica\Network\CurlResult;
+use Friendica\Network\IHTTPRequest;
 use Friendica\Test\MockedTest;
-use Friendica\Test\Util\L10nMockTrait;
 use Friendica\Test\Util\VFSTrait;
+use Mockery\MockInterface;
 
-/**
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
- */
 class InstallerTest extends MockedTest
 {
 	use VFSTrait;
-	use L10nMockTrait;
+
+	/**
+	 * @var \Friendica\Core\L10n|MockInterface
+	 */
+	private $l10nMock;
+	/**
+	 * @var Dice|MockInterface
+	 */
+	private $dice;
 
 	public function setUp()
 	{
 		parent::setUp();
 
 		$this->setUpVfsDir();
+
+		$this->l10nMock = \Mockery::mock(\Friendica\Core\L10n::class);
+
+		/** @var Dice|MockInterface $dice */
+		$this->dice = \Mockery::mock(Dice::class)->makePartial();
+		$this->dice = $this->dice->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
+
+		$this->dice->shouldReceive('create')
+		           ->with(\Friendica\Core\L10n::class)
+		           ->andReturn($this->l10nMock);
+
+		DI::init($this->dice);
+	}
+
+	private function mockL10nT(string $text, $times = null)
+	{
+		$this->l10nMock->shouldReceive('t')->with($text)->andReturn($text)->times($times);
 	}
 
 	/**
-	 * Mocking the L10n::t() calls for the function checks
+	 * Mocking the DI::l10n()->t() calls for the function checks
 	 */
 	private function mockFunctionL10TCalls()
 	{
@@ -45,17 +90,21 @@ class InstallerTest extends MockedTest
 		$this->mockL10nT('Error: POSIX PHP module required but not installed.', 1);
 		$this->mockL10nT('JSON PHP module', 1);
 		$this->mockL10nT('Error: JSON PHP module required but not installed.', 1);
+		$this->mockL10nT('File Information PHP module', 1);
+		$this->mockL10nT('Error: File Information PHP module required but not installed.', 1);
 	}
 
 	private function assertCheckExist($position, $title, $help, $status, $required, $assertionArray)
 	{
-		$this->assertArraySubset([$position => [
+		$subSet = [$position => [
 			'title' => $title,
 			'status' => $status,
 			'required' => $required,
 			'error_msg' => null,
 			'help' => $help]
-		], $assertionArray);
+		];
+
+		$this->assertArraySubset($subSet, $assertionArray, false, "expected subset: " . PHP_EOL . print_r($subSet, true) . PHP_EOL . "current subset: " . print_r($assertionArray, true));
 	}
 
 	/**
@@ -99,7 +148,7 @@ class InstallerTest extends MockedTest
 	 */
 	public function testCheckKeys()
 	{
-		$this->mockL10nT();
+		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		$this->setFunctions(['openssl_pkey_new' => false]);
 		$install = new Installer();
@@ -193,6 +242,17 @@ class InstallerTest extends MockedTest
 			$install->getChecks());
 
 		$this->mockFunctionL10TCalls();
+		$this->setFunctions(['finfo_open' => false]);
+		$install = new Installer();
+		$this->assertFalse($install->checkFunctions());
+		$this->assertCheckExist(10,
+			'File Information PHP module',
+			'Error: File Information PHP module required but not installed.',
+			false,
+			true,
+			$install->getChecks());
+
+		$this->mockFunctionL10TCalls();
 		$this->setFunctions([
 			'curl_init' => true,
 			'imagecreatefromjpeg' => true,
@@ -200,7 +260,8 @@ class InstallerTest extends MockedTest
 			'mb_strlen' => true,
 			'iconv_strlen' => true,
 			'posix_kill' => true,
-			'json_encode' => true
+			'json_encode' => true,
+			'finfo_open' => true,
 		]);
 		$install = new Installer();
 		$this->assertTrue($install->checkFunctions());
@@ -211,7 +272,7 @@ class InstallerTest extends MockedTest
 	 */
 	public function testCheckLocalIni()
 	{
-		$this->mockL10nT();
+		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		$this->assertTrue($this->root->hasChild('config/local.config.php'));
 
@@ -228,13 +289,15 @@ class InstallerTest extends MockedTest
 
 	/**
 	 * @small
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testCheckHtAccessFail()
 	{
-		$this->mockL10nT();
+		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		// Mocking the CURL Response
-		$curlResult = \Mockery::mock('Friendica\Network\CurlResult');
+		$curlResult = \Mockery::mock(CurlResult::class);
 		$curlResult
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
@@ -246,15 +309,21 @@ class InstallerTest extends MockedTest
 			->andReturn('test Error');
 
 		// Mocking the CURL Request
-		$networkMock = \Mockery::mock('alias:Friendica\Util\Network');
+		$networkMock = \Mockery::mock(IHTTPRequest::class);
 		$networkMock
-			->shouldReceive('fetchUrlFull')
+			->shouldReceive('fetchFull')
 			->with('https://test/install/testrewrite')
 			->andReturn($curlResult);
 		$networkMock
-			->shouldReceive('fetchUrlFull')
+			->shouldReceive('fetchFull')
 			->with('http://test/install/testrewrite')
 			->andReturn($curlResult);
+
+		$this->dice->shouldReceive('create')
+		     ->with(IHTTPRequest::class)
+		     ->andReturn($networkMock);
+
+		DI::init($this->dice);
 
 		// Mocking that we can use CURL
 		$this->setFunctions(['curl_init' => true]);
@@ -267,39 +336,44 @@ class InstallerTest extends MockedTest
 
 	/**
 	 * @small
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testCheckHtAccessWork()
 	{
-		$this->mockL10nT();
+		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		// Mocking the failed CURL Response
-		$curlResultF = \Mockery::mock('Friendica\Network\CurlResult');
+		$curlResultF = \Mockery::mock(CurlResult::class);
 		$curlResultF
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
 
 		// Mocking the working CURL Response
-		$curlResultW = \Mockery::mock('Friendica\Network\CurlResult');
+		$curlResultW = \Mockery::mock(CurlResult::class);
 		$curlResultW
 			->shouldReceive('getReturnCode')
 			->andReturn('204');
 
 		// Mocking the CURL Request
-		$networkMock = \Mockery::mock('alias:Friendica\Util\Network');
+		$networkMock = \Mockery::mock(IHTTPRequest::class);
 		$networkMock
-			->shouldReceive('fetchUrlFull')
+			->shouldReceive('fetchFull')
 			->with('https://test/install/testrewrite')
 			->andReturn($curlResultF);
 		$networkMock
-			->shouldReceive('fetchUrlFull')
+			->shouldReceive('fetchFull')
 			->with('http://test/install/testrewrite')
 			->andReturn($curlResultW);
 
+		$this->dice->shouldReceive('create')
+		           ->with(IHTTPRequest::class)
+		           ->andReturn($networkMock);
+
+		DI::init($this->dice);
+
 		// Mocking that we can use CURL
 		$this->setFunctions(['curl_init' => true]);
-
-		// needed because of "normalise_link"
-		require_once __DIR__ . '/../../../include/text.php';
 
 		$install = new Installer();
 
@@ -308,15 +382,14 @@ class InstallerTest extends MockedTest
 
 	/**
 	 * @small
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testImagick()
 	{
-		$this->mockL10nT();
+		$this->markTestIncomplete('needs adapted class_exists() mock');
 
-		$imageMock = \Mockery::mock('alias:Friendica\Object\Image');
-		$imageMock
-			->shouldReceive('supportedTypes')
-			->andReturn(['image/gif' => 'gif']);
+		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		$this->setClasses(['Imagick' => true]);
 
@@ -326,7 +399,7 @@ class InstallerTest extends MockedTest
 		$this->assertTrue($install->checkImagick());
 
 		$this->assertCheckExist(1,
-			L10n::t('ImageMagick supports GIF'),
+			$this->l10nMock->t('ImageMagick supports GIF'),
 			'',
 			true,
 			false,
@@ -335,15 +408,12 @@ class InstallerTest extends MockedTest
 
 	/**
 	 * @small
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testImagickNotFound()
 	{
-		$this->mockL10nT();
-
-		$imageMock = \Mockery::mock('alias:Friendica\Object\Image');
-		$imageMock
-			->shouldReceive('supportedTypes')
-			->andReturn([]);
+		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		$this->setClasses(['Imagick' => true]);
 
@@ -352,7 +422,7 @@ class InstallerTest extends MockedTest
 		// even there is no supported type, Imagick should return true (because it is not required)
 		$this->assertTrue($install->checkImagick());
 		$this->assertCheckExist(1,
-			L10n::t('ImageMagick supports GIF'),
+			$this->l10nMock->t('ImageMagick supports GIF'),
 			'',
 			false,
 			false,
@@ -374,6 +444,21 @@ class InstallerTest extends MockedTest
 			false,
 			false,
 			$install->getChecks());
+	}
+
+	/**
+	 * Test the setup of the config cache for installation
+	 */
+	public function testSetUpCache()
+	{
+		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
+
+		$install = new Installer();
+		$configCache = \Mockery::mock(Cache::class);
+		$configCache->shouldReceive('set')->with('config', 'php_path', \Mockery::any())->once();
+		$configCache->shouldReceive('set')->with('system', 'basepath', '/test/')->once();
+
+		$install->setUpCache($configCache, '/test/');
 	}
 }
 

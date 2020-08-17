@@ -1,21 +1,36 @@
 <?php
 /**
- * @file view/theme/quattro/style.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
-use Friendica\Core\Config;
-use Friendica\Core\PConfig;
-use Friendica\Model\Profile;
 
-$uid = defaults($_REQUEST, 'puid', 0);
+use Friendica\DI;
+
+$uid = $_REQUEST['puid'] ?? 0;
 
 $color = false;
 $quattro_align = false;
-$site_color = Config::get("quattro", "color", "dark");
-$site_quattro_align = Config::get("quattro", "align", false);
+$site_color = DI::config()->get("quattro", "color", "dark");
+$site_quattro_align = DI::config()->get("quattro", "align", false);
 
 if ($uid) {
-	$color = PConfig::get($uid, "quattro", "color", false);
-	$quattro_align = PConfig::get($uid, 'quattro', 'align', false);
+	$color = DI::pConfig()->get($uid, "quattro", "color", false);
+	$quattro_align = DI::pConfig()->get($uid, 'quattro', 'align', false);
 }
 
 if ($color === false) {
@@ -25,6 +40,8 @@ if ($color === false) {
 if ($quattro_align === false) {
 	$quattro_align = $site_quattro_align;
 }
+
+$color = \Friendica\Util\Strings::sanitizeFilePathItem($color);
 
 if (file_exists("$THEMEPATH/$color/style.css")) {
 	echo file_get_contents("$THEMEPATH/$color/style.css");
@@ -45,12 +62,12 @@ if ($quattro_align == "center") {
 $textarea_font_size = false;
 $post_font_size = false;
 
-$site_textarea_font_size = Config::get("quattro", "tfs", "20");
-$site_post_font_size = Config::get("quattro", "pfs", "12");
+$site_textarea_font_size = DI::config()->get("quattro", "tfs", "20");
+$site_post_font_size = DI::config()->get("quattro", "pfs", "12");
 
 if ($uid) {
-	$textarea_font_size = PConfig::get($uid, "quattro", "tfs", false);
-	$post_font_size = PConfig::get($uid, "quattro", "pfs", false);
+	$textarea_font_size = DI::pConfig()->get($uid, "quattro", "tfs", false);
+	$post_font_size = DI::pConfig()->get($uid, "quattro", "pfs", false);
 }
 
 if ($textarea_font_size === false) {

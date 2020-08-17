@@ -1,16 +1,33 @@
 <?php
 /**
- * @file src/Module/Magic.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Util\HTTPSignature;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
@@ -20,44 +37,42 @@ use Friendica\Util\Strings;
  */
 class Magic extends BaseModule
 {
-	public static function init()
+	public static function init(array $parameters = [])
 	{
-		$a = self::getApp();
+		$a = DI::app();
 		$ret = ['success' => false, 'url' => '', 'message' => ''];
-		Logger::log('magic mdule: invoked', Logger::DEBUG);
+		Logger::info('magic mdule: invoked');
 
-		Logger::log('args: ' . print_r($_REQUEST, true), Logger::DATA);
+		Logger::debug('args', ['request' => $_REQUEST]);
 
-		$addr = defaults($_REQUEST, 'addr', '');
-		$dest = defaults($_REQUEST, 'dest', '');
+		$addr = $_REQUEST['addr'] ?? '';
+		$dest = $_REQUEST['dest'] ?? '';
 		$test = (!empty($_REQUEST['test']) ? intval($_REQUEST['test']) : 0);
 		$owa  = (!empty($_REQUEST['owa'])  ? intval($_REQUEST['owa'])  : 0);
+		$cid  = 0;
 
-		// NOTE: I guess $dest isn't just the profile url (could be also
-		// other profile pages e.g. photo). We need to find a solution
-		// to be able to redirct to other pages than the contact profile.
-		$cid = Contact::getIdForURL($dest);
-
-		if (!$cid && !empty($addr)) {
+		if (!empty($addr)) {
 			$cid = Contact::getIdForURL($addr);
+		} elseif (!empty($dest)) {
+			$cid = Contact::getIdForURL($dest);
 		}
 
 		if (!$cid) {
-			Logger::log('No contact record found: ' . json_encode($_REQUEST), Logger::DEBUG);
+			Logger::info('No contact record found', $_REQUEST);
 			// @TODO Finding a more elegant possibility to redirect to either internal or external URL
 			$a->redirect($dest);
 		}
 		$contact = DBA::selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
 
 		// Redirect if the contact is already authenticated on this site.
-		if (!empty($a->contact) && array_key_exists('id', $a->contact) && strpos($contact['nurl'], Strings::normaliseLink(self::getApp()->getBaseURL())) !== false) {
+		if (!empty($a->contact) && array_key_exists('id', $a->contact) && strpos($contact['nurl'], Strings::normaliseLink(DI::baseUrl()->get())) !== false) {
 			if ($test) {
 				$ret['success'] = true;
 				$ret['message'] .= 'Local site - you are already authenticated.' . EOL;
 				return $ret;
 			}
 
-			Logger::log('Contact is already authenticated', Logger::DEBUG);
+			Logger::info('Contact is already authenticated');
 			System::externalRedirect($dest);
 		}
 
@@ -81,11 +96,11 @@ class Magic extends BaseModule
 				$headers = HTTPSignature::createSig(
 					$headers,
 					$user['prvkey'],
-					'acct:' . $user['nickname'] . '@' . $a->getHostName() . ($a->getURLPath() ? '/' . $a->getURLPath() : '')
+					'acct:' . $user['nickname'] . '@' . DI::baseUrl()->getHostname() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : '')
 				);
 
 				// Try to get an authentication token from the other instance.
-				$curlResult = Network::curl($basepath . '/owa', false, $redirects, ['headers' => $headers]);
+				$curlResult = DI::httpRequest()->get($basepath . '/owa', false, ['headers' => $headers]);
 
 				if ($curlResult->isSuccess()) {
 					$j = json_decode($curlResult->getBody(), true);
@@ -99,9 +114,9 @@ class Magic extends BaseModule
 						} else {
 							$token = $j['token'];
 						}
-						$x = strpbrk($dest, '?&');
-						$args = (($x) ? '&owt=' . $token : '?f=&owt=' . $token);
+						$args = (strpbrk($dest, '?&') ? '&' : '?') . 'owt=' . $token;
 
+						Logger::info('Redirecting', ['path' => $dest . $args]);
 						System::externalRedirect($dest . $args);
 					}
 				}

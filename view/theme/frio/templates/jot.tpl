@@ -1,34 +1,46 @@
 {{* The button to open the jot - in This theme we move the button with js to the second nav bar *}}
-<button class="btn btn-sm btn-main pull-right" id="jotOpen" aria-label="{{$new_post}}" title="{{$new_post}}" onclick="jotShow();"><i class="fa fa-pencil-square-o fa-2x"></i></button>
-
+<a class="btn btn-sm btn-primary pull-right" id="jotOpen" href="compose/{{$posttype}}{{if $content}}?body={{$content}}{{/if}}" aria-label="{{$new_post}}" title="{{$new_post}}"><i class="fa fa-pencil-square-o fa-2x"></i></a>
 
 <div id="jot-content">
 	<div id="jot-sections">
 		<div class="modal-header">
-			{{* Note: We need 2 modal close buttons here to bypass a bug in bootstrap.
-			The second is for mobile view. The first one doesnt work with dropdowns. To get a working close button
-			in with dropdows the close button needs to be inserted after the dropdown. *}}
-			<button type="button" class="close hidden-xs" data-dismiss="modal" aria-label="Close" style="float: right;">&times;</button>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="float: right;">&times;</button>
+
+			<a href="/compose" class="btn compose-link" title="{{$compose_link_title}}" aria-label="{{$compose_link_title}}">
+				<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+			</a>
 
 			{{* The Jot navigation menu for desktop user (text input, permissions, preview, filebrowser) *}}
 			<ul class="nav nav-tabs hidden-xs jot-nav" role="tablist" data-tabs="tabs">
 				{{* Mark the first list entry as active because it is the first which is active after opening
 					the modal. Changing of the activity status is done by js in jot.tpl-header *}}
 				<li class="active" role="presentation">
-					<a href="#profile-jot-wrapper" class="jot-text-lnk jot-nav-lnk" id="jot-text-lnk" role="tab" aria-controls="profile-jot-wrapper">{{$message}}</a>
+					<a href="#profile-jot-wrapper" class="jot-text-lnk jot-nav-lnk" id="jot-text-lnk" role="tab" aria-controls="profile-jot-wrapper">
+						<i class="fa fa-file-text-o" aria-hidden="true"></i>
+						{{$message}}
+					</a>
 				</li>
 				{{if $acl}}
 				<li role="presentation">
-					<a href="#profile-jot-acl-wrapper" class="jot-perms-lnk jot-nav-lnk" id="jot-perms-lnk" role="tab" aria-controls="profile-jot-acl-wrapper">{{$shortpermset}}</a>
+					<a href="#profile-jot-acl-wrapper" class="jot-perms-lnk jot-nav-lnk" id="jot-perms-lnk" role="tab" aria-controls="profile-jot-acl-wrapper">
+						<i class="fa fa-shield" aria-hidden="true"></i>
+						{{$shortpermset}}
+					</a>
 				</li>
 				{{/if}}
 				{{if $preview}}
 				<li role="presentation">
-					<a href="#jot-preview-content" class="jot-preview-lnk jot-nav-lnk" id="jot-preview-lnk" role="tab" aria-controls="jot-preview-content">{{$preview}}</a>
+					<a href="#jot-preview-content" class="jot-preview-lnk jot-nav-lnk" id="jot-preview-lnk" role="tab" aria-controls="jot-preview-content">
+						<i class="fa fa-eye" aria-hidden="true"></i>
+						{{$preview}}
+					</a>
 				</li>
 				{{/if}}
 				<li role="presentation">
-					<a href="#jot-fbrowser-wrapper" class="jot-browser-lnk jot-nav-lnk" id="jot-browser-link" role="tab" aria-controls="jot-fbrowser-wrapper">{{$browser}}</a>
+					<a href="#jot-fbrowser-wrapper" class="jot-browser-lnk jot-nav-lnk" id="jot-browser-link" role="tab" aria-controls="jot-fbrowser-wrapper">
+						<i class="fa fa-picture-o" aria-hidden="true"></i>
+						{{$browser}}
+					</a>
 				</li>
 			</ul>
 
@@ -56,7 +68,6 @@
 					</li>
 				</ul>
 			</div>
-			<button type="button" class="close hidden-lg hidden-md hidden-sm" data-dismiss="modal" style="float: right;">&times;</button>
 		</div>
 
 		<div id="jot-modal-body" class="modal-body">
@@ -104,7 +115,11 @@
 						<li><button type="button" class="btn-link" id="profile-nolocation" onclick="jotClearLocation();" title="{{$noloc}}">{{$shortnoloc}}</button></li>
 						-->
 
-						<li role="presentation" class="pull-right"><button class="btn btn-primary" type="submit" id="profile-jot-submit" name="submit" ><i class="fa fa-slideshare fa-fw" aria-hidden="true"></i> {{$share}}</button></li>
+						<li role="presentation" class="pull-right">
+							<button class="btn btn-primary" type="submit" id="profile-jot-submit" name="submit" data-loading-text="{{$loading}}">
+								<i class="fa fa-paper-plane fa-fw" aria-hidden="true"></i> {{$share}}
+							</button>
+						</li>
 						<li role="presentation" id="character-counter" class="grey jothidden text-info pull-right"></li>
 						<li role="presentation" id="profile-rotator-wrapper" class="pull-right" style="display: {{$visitor}};" >
 							<img role="presentation" id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
@@ -124,13 +139,17 @@
 
 				<div id="jot-preview-share" class="minimize" aria-labelledby="jot-preview-lnk" role="tabpanel" aria-hidden="true">
 					<ul id="profile-jot-preview-submit-wrapper" class="jothidden nav nav-pills">
-						<li role="presentation" class="pull-right"><button class="btn btn-primary" type="submit" id="profile-jot-peview-submit" name="submit" ><i class="fa fa-slideshare fa-fw" aria-hidden="true"></i> {{$share}}</button></li>
+						<li role="presentation" class="pull-right">
+							<button class="btn btn-primary" type="submit" id="profile-jot-preview-submit" name="submit" data-loading-text="{{$loading}}">
+								<i class="fa fa-paper-plane fa-fw" aria-hidden="true"></i> {{$share}}
+							</button>
+						</li>
 					</ul>
 				</div>
 
-			</form>
+				<div id="jot-fbrowser-wrapper" class="minimize" aria-labelledby="jot-browser-link" role="tabpanel" aria-hidden="true"></div>
 
-			<div id="jot-fbrowser-wrapper" class="minimize" aria-labelledby="jot-browser-link" role="tabpanel" aria-hidden="true"></div>
+			</form>
 
 			{{if $content}}<script type="text/javascript">initEditor();</script>{{/if}}
 		</div>

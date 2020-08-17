@@ -180,7 +180,7 @@ nav {
 			}
 
 				img { width: 22px; height: 22px; }
-				.nav-notify { top: 3px; }
+				.nav-notification { top: 3px; }
 		}
 
 		.nav-menu {
@@ -196,7 +196,7 @@ nav {
 
 		}
 
-		.nav-notify {
+		.nav-notification {
 			display: none;
 			position: absolute;
 			background-color: @NavbarNotifBg;
@@ -1134,96 +1134,14 @@ h2 > .actionbutton { float: right; }
 	display:block!important;
 }
 
-
-
 #acl-wrapper {
 	width: 690px;
 	float:left;
-}
-#acl-search {
-	float:right;
-	background: #ffffff url("../../../images/search_18.png") no-repeat right center;
-	padding-right:20px;
-}
-#acl-showall {
-	float: left;
-	display: block;
-	width: auto;
-	height: 18px;
-	background-color: #cccccc;
-	background-image: url("../../../images/show_all_off.png");
-	background-position: 7px 7px;
-	background-repeat: no-repeat;
-	padding: 7px 5px 0 30px;
-	color: #999999;
-	.rounded(5px);
-}
-#acl-showall.selected {
-	color: #000000;
-	background-color: #ff9900;
-	background-image: url("../../../images/show_all_on.png");
-}
-
-#acl-list {
-	height: 210px;
-	border: 1px solid #cccccc;
-	clear: both;
-	margin-top: 30px;
-	overflow: auto;
-}
-#acl-list-content {
-
-}
-.acl-list-item {
-	display: block;
-	width: 150px;
-	height: 30px;
-	border: 1px solid #cccccc;
-	margin: 5px;
-	float: left;
-}
-.acl-list-item img{
-	width:22px;
-	height: 22px;
-	float: left;
-	margin: 4px;
-}
-.acl-list-item p { height: 12px; font-size: 10px; margin: 0; padding: 2px 0 1px; overflow: hidden;}
-.acl-list-item a {
-	font-size: 8px;
-	display: block;
-	width: 40px;
-	height: 10px;
-	float: left;
-	color: #999999;
-	background-color: #cccccc;
-	background-position: 3px 3px;
-	background-repeat: no-repeat;
-	margin-right: 5px;
-	-webkit-border-radius: 2px ;
-	-moz-border-radius: 2px;
-	border-radius: 2px;
-	padding-left: 15px;
 }
 #acl-wrapper a:hover {
 	text-decoration: none;
 	color:#000000;
 }
-.acl-button-show { background-image: url("../../../images/show_off.png"); }
-.acl-button-hide { background-image: url("../../../images/hide_off.png"); }
-
-.acl-button-show.selected {
-	color: #000000;
-	background-color: #9ade00;
-	background-image: url("../../../images/show_on.png");
-}
-.acl-button-hide.selected {
-	color: #000000;
-	background-color: #ff4141;
-	background-image: url("../../../images/hide_on.png");
-}
-.acl-list-item.groupshow { border-color: #9ade00; }
-.acl-list-item.grouphide { border-color: #ff4141; }
 /** /acl **/
 
 /** tab buttons **/
@@ -1298,36 +1216,6 @@ ul.tabs {
 		color: @FieldHelpColor;
 	}
 
-
-	.onoff {
-		float: left;
-		width: 80px;
-	}
-	.onoff a {
-		display: block;
-		border:1px solid #666666;
-		background-image:url("../../../images/onoff.jpg");
-		background-repeat: no-repeat;
-		padding: 4px 2px 2px 2px;
-		height: 16px;
-		text-decoration: none;
-	}
-	.onoff .off {
-		border-color:#666666;
-		padding-left: 40px;
-		background-position: left center;
-		background-color: #cccccc;
-		color: #666666;
-		text-align: right;
-	}
-	.onoff .on {
-		border-color:#204A87;
-		padding-right: 40px;
-		background-position: right center;
-		background-color: #D7E3F1;
-		color: #204A87;
-		text-align: left;
-	}
 	.hidden { display: none!important; }
 
 	&.radio .field_help { margin-left: 0; }
@@ -1339,51 +1227,39 @@ ul.tabs {
         margin-top: 10px;
 }
 
+#profile-menu {
+	display: none;
+}
+
 #profile-edit-default-desc {
 	color: #FF0000;
 	border: 1px solid #FF8888;
 	background-color: #FFEEEE;
 	padding: 7px;
 }
-#profile-edit-profile-name-label,
 #profile-edit-name-label,
-#profile-edit-pdesc-label,
-#profile-edit-gender-label,
+#profile-edit-about-label,
 #profile-edit-dob-label,
 #profile-edit-address-label,
 #profile-edit-locality-label,
 #profile-edit-region-label,
 #profile-edit-postal-code-label,
 #profile-edit-country-name-label,
-#profile-edit-marital-label,
-#profile-edit-with-label,
-#profile-edit-sexual-label,
-#profile-edit-politic-label,
-#profile-edit-religion-label,
 #profile-edit-pubkeywords-label,
 #profile-edit-prvkeywords-label,
-#profile-edit-gender-select,
 #profile-edit-homepage-label {
 	float: left;
 	width: 175px;
         padding-top: 7px;
 }
-#profile-edit-profile-name,
 #profile-edit-name,
-#gender-select,
-#profile-edit-pdesc,
-#profile-edit-gender,
+#profile-edit-about,
 #profile-edit-dob,
 #profile-edit-address,
 #profile-edit-locality,
 #profile-edit-region,
 #profile-edit-postal-code,
 #profile-edit-country-name,
-#profile-edit-marital,
-#profile-edit-with,
-#profile-edit-sexual,
-#profile-edit-politic,
-#profile-edit-religion,
 #profile-edit-pubkeywords,
 #profile-edit-prvkeywords,
 #profile-edit-homepage {
@@ -1419,7 +1295,7 @@ ul.tabs {
 /* manage page */
 .identity-match-photo {
 	position: relative;
-	.manage-notify {
+	.delegation-notify {
 		background-color: #19AEFF;
 		border-radius: 5px;
 		font-size: 10px;

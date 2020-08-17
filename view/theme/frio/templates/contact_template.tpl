@@ -6,7 +6,9 @@
 			<div class="contact-entry-photo mframe" id="contact-entry-photo-{{$contact.id}}">
 
 				<div class="contact-photo-image-wrapper hidden-xs">
-					<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+					<a href="{{$contact.url}}">
+						<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+					</a>
 				</div>
 
 				{{* For very small displays we use a dropdown menu for contact relating actions *}}
@@ -71,6 +73,11 @@
 				{{if $contact.photo_menu.follow}}
 				<a class="contact-action-link btn-link" href="{{$contact.photo_menu.follow.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.follow.0}}">
 					<i class="fa fa-user-plus" aria-hidden="true"></i>
+				</a>
+				{{/if}}
+				{{if $contact.photo_menu.unfollow}}
+				<a class="contact-action-link btn-link" href="{{$contact.photo_menu.unfollow.1}}" data-toggle="tooltip" title="{{$contact.photo_menu.unfollow.0}}">
+					<i class="fa fa-user-times" aria-hidden="true"></i>
 				</a>
 				{{/if}}
 				{{if $contact.photo_menu.hide}}

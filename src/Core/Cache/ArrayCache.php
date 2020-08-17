@@ -1,18 +1,32 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\Core\Cache;
 
-
-use Friendica\Core\Cache;
+use Friendica\Core\BaseCache;
 
 /**
- * Implementation of the IMemoryCacheDriver mainly for testing purpose
- *
- * Class ArrayCache
- *
- * @package Friendica\Core\Cache
+ * Implementation of the IMemoryCache mainly for testing purpose
  */
-class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
+class ArrayCache extends BaseCache implements IMemoryCache
 {
 	use TraitCompareDelete;
 
@@ -24,7 +38,7 @@ class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
 	 */
 	public function getAllKeys($prefix = null)
 	{
-		return $this->filterArrayKeysByPrefix($this->cachedData, $prefix);
+		return $this->filterArrayKeysByPrefix(array_keys($this->cachedData), $prefix);
 	}
 
 	/**
@@ -41,7 +55,7 @@ class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		$this->cachedData[$key] = $value;
 		return true;
@@ -73,7 +87,7 @@ class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		if (isset($this->cachedData[$key])) {
 			return false;
@@ -85,12 +99,20 @@ class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function compareSet($key, $oldValue, $newValue, $ttl = Cache::FIVE_MINUTES)
+	public function compareSet($key, $oldValue, $newValue, $ttl = Duration::FIVE_MINUTES)
 	{
 		if ($this->get($key) === $oldValue) {
 			return $this->set($key, $newValue);
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
+	{
+		return Type::ARRAY;
 	}
 }

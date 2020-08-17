@@ -1,18 +1,21 @@
 23n
 Abinoam P. Marques Jr.
+Abraham Pérez Hernández
 Abrax
 Adam Clark
 Adam Jurkiewicz
 Adam Magness
 Aditoo
-Aditoo17
 AgnesElisa
 Albert
 Alberto Díaz Tormo
+Aleksandr "M.O.Z.G" Dikov
 Alex
+Alexander An
 Alexander Fortin
 Alexander Kampmann
 Alexandre Alapetite
+Alexey Adamov
 AlfredSK
 Andi
 Andi Stadler
@@ -23,10 +26,11 @@ André Alves
 André Lohan
 Andy
 Andy Hee
-AndyHee
 Angristan
 Anthronaut
+Antron Samurai
 Arian - Cazare Muncitori
+Asher Pen
 Athalbert
 aweiher
 axelt
@@ -38,10 +42,14 @@ Beluga
 Ben
 Ben Roberts
 ben-utzer
+BinkaDroid
+Bjoessi
 bufalo1973
+ButterflyOfFire
 Calango Jr
 Carlos Solís
 Carsten Pfeiffer
+Casper
 Cat Gray
 Chris Case
 Christian González
@@ -61,6 +69,7 @@ David Martín Miranda
 David Rabel
 Dean Townsley
 Denis Chenu
+dependabot[bot]
 Devlon Duthie
 Diego Souza
 Domovoy
@@ -75,6 +84,7 @@ emilia.krawczyk
 Eric Côté
 erik
 Erkan Yilmaz
+Eugene Veresk
 Fabian Dost
 Fabio Comuni
 felixgilles
@@ -91,13 +101,13 @@ Gert Cauwenberg
 GLComo
 greeneyedred
 Gregory Smith
+guzzisti
 Haakon Meland Eriksen
 Hans Meine
-hauke
 Hauke
 Hauke Altmann
-Hauke Zühl
 Herbert Thielen
+hlad
 hoergen
 Hubert Kościański
 Hypolite Petovan
@@ -110,6 +120,8 @@ Jens Tautenhahn
 jensp
 Jeroen De Meerleer
 jeroenpraat
+Joan Bar
+JOduMonT
 Johannes Schwab
 John Brazil
 Jonatan Nyberg
@@ -117,18 +129,24 @@ Jonny Tischbein
 Josef Moravek
 juanman
 julia.domagalska
+Julio Cova
 Karel
 Karolina
+Keenan Pepper
 Keith Fernie
 Klaus Weidenbach
 Koyu Berteon
+kPherox
 Kris
 Lea1995polish
 Leberwurscht
 Leonard Lausen
 Lionel Triay
+loma-one
+loma1
 Lorem Ipsum
 Ludovic Grossard
+Lynn Stephenson
 maase2
 Magdalena Gazda
 Mai Anh Nguyen
@@ -156,18 +174,23 @@ Michalina
 Mike Macgirvin
 miqrogroove
 mytbk
+nathilia-peirce
 Nicola Spanti
 Olaf Conradi
 Oliver
 Olivier
 Olivier Mehani
 Olivier Migeot
+ozero dien
 Paolo Wave
 Pascal
 Pascal Deklerck
 Pavel Morozov
 PerigGouanvic
+peter
+Peter Liebetrau
 peturisfeld
+Phigger Phigger
 Philipp
 Philipp Holzer
 Pierre Rudloff
@@ -177,17 +200,21 @@ R C
 Rabuzarus
 Radek
 Rafael Garau
+Rain Hawk
 Rainulf Pineda
 Ralf Thees
 Ralph
 Ratten
 rcmaniac
 rebeka-catalina
+René Wagner
 repat
 Ricardo Pereira
+Rik 4
 RJ Madsen
 Roland Häder
 Rui Andrada
+rwa
 RyDroid
 S.Krumbholz
 Sakałoŭ Alaksiej
@@ -201,13 +228,17 @@ Seth
 Silke Meyer
 Simon L'nu
 Simó Albert i Beltran
+softmetz
 soko1
+SpencerDub
 St John Karp
 Stanislav N.
 Steffen K9
 StefOfficiel
+steve jobs
 Sveinn í Felli
 Sven Anders
+Sylke Vicious
 Sylvain Lagacé
 szymon.filip
 Sérgio Lima
@@ -219,13 +250,15 @@ Thomas
 Thomas Willingham
 thorsten23
 Tim Stahel
+TiMESPLiNTER
 Tino
 Tobias Diekershoff
 Tobias Hößl
-tomacat
+Tom
 tomamplius
 tomtom84
 Tony Baldwin
+Torbjörn Andersson
 TORminator
 trebor
 tschlotfeldt
@@ -233,12 +266,16 @@ Tubuntu
 Tupambae.org
 U-SOUND\mike
 ufic
+Ulf Rompe
 Unknown
+Valvin
+Valvin A
 Vasudev Kamath
 Vasya Novikov
 Vinzenz Vietzke
 vislav
 vladimir N
+Vladimir Núñez
 VVelox
 Vít Šesták 'v6ak'
 Waldemar Stoczkowski

@@ -1,17 +1,30 @@
 <?php
-
 /**
- * @file src/Model/Attach.php
- * @brief This file contains the Attach class for database interface
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Model;
 
-use Friendica\BaseObject;
-use Friendica\Core\StorageManager;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
-use Friendica\Model\Storage\IStorage;
+use Friendica\DI;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
@@ -20,47 +33,46 @@ use Friendica\Util\Security;
 /**
  * Class to handle attach dabatase table
  */
-class Attach extends BaseObject
+class Attach
 {
 
 	/**
-	 * @brief Return a list of fields that are associated with the attach table
+	 * Return a list of fields that are associated with the attach table
 	 *
 	 * @return array field list
 	 * @throws \Exception
 	 */
 	private static function getFields()
 	{
-		$allfields = DBStructure::definition(self::getApp()->getBasePath(), false);
+		$allfields = DBStructure::definition(DI::app()->getBasePath(), false);
 		$fields = array_keys($allfields['attach']['fields']);
 		array_splice($fields, array_search('data', $fields), 1);
 		return $fields;
 	}
 
 	/**
-	 * @brief Select rows from the attach table
+	 * Select rows from the attach table and return them as array
 	 *
 	 * @param array $fields     Array of selected fields, empty for all
 	 * @param array $conditions Array of fields for conditions
 	 * @param array $params     Array of several parameters
 	 *
-	 * @return boolean|array
+	 * @return array
 	 *
 	 * @throws \Exception
-	 * @see   \Friendica\Database\DBA::select
+	 * @see   \Friendica\Database\DBA::selectToArray
 	 */
-	public static function select(array $fields = [], array $conditions = [], array $params = [])
+	public static function selectToArray(array $fields = [], array $conditions = [], array $params = [])
 	{
 		if (empty($fields)) {
 			$fields = self::getFields();
 		}
 
-		$r = DBA::select('attach', $fields, $conditions, $params);
-		return DBA::toArray($r);
+		return DBA::selectToArray('attach', $fields, $conditions, $params);
 	}
 
 	/**
-	 * @brief Retrieve a single record from the attach table
+	 * Retrieve a single record from the attach table
 	 *
 	 * @param array $fields     Array of selected fields, empty for all
 	 * @param array $conditions Array of fields for conditions
@@ -81,7 +93,7 @@ class Attach extends BaseObject
 	}
 
 	/**
-	 * @brief Check if attachment with given conditions exists
+	 * Check if attachment with given conditions exists
 	 *
 	 * @param array $conditions Array of extra conditions
 	 *
@@ -94,7 +106,7 @@ class Attach extends BaseObject
 	}
 
 	/**
-	 * @brief Retrive a single record given the ID
+	 * Retrive a single record given the ID
 	 *
 	 * @param int $id Row id of the record
 	 *
@@ -109,7 +121,7 @@ class Attach extends BaseObject
 	}
 
 	/**
-	 * @brief Retrive a single record given the ID
+	 * Retrive a single record given the ID
 	 *
 	 * @param int $id Row id of the record
 	 *
@@ -138,7 +150,7 @@ class Attach extends BaseObject
 	}
 
 	/**
-	 * @brief Get file data for given row id. null if row id does not exist
+	 * Get file data for given row id. null if row id does not exist
 	 *
 	 * @param array $item Attachment data. Needs at least 'id', 'backend-class', 'backend-ref'
 	 *
@@ -147,7 +159,8 @@ class Attach extends BaseObject
 	 */
 	public static function getData($item)
 	{
-		if ($item['backend-class'] == '') {
+		$backendClass = DI::storageManager()->getByName($item['backend-class'] ?? '');
+		if ($backendClass === null) {
 			// legacy data storage in 'data' column
 			$i = self::selectFirst(['data'], ['id' => $item['id']]);
 			if ($i === false) {
@@ -155,14 +168,13 @@ class Attach extends BaseObject
 			}
 			return $i['data'];
 		} else {
-			$backendClass = $item['backend-class'];
 			$backendRef = $item['backend-ref'];
-			return $backendClass::get($backendRef);
+			return $backendClass->get($backendRef);
 		}
 	}
 
 	/**
-	 * @brief Store new file metadata in db and binary in default backend
+	 * Store new file metadata in db and binary in default backend
 	 *
 	 * @param string  $data      Binary data
 	 * @param integer $uid       User ID
@@ -187,13 +199,8 @@ class Attach extends BaseObject
 			$filesize = strlen($data);
 		}
 
-		/** @var IStorage $backend_class */
-		$backend_class = StorageManager::getBackend();
-		$backend_ref = '';
-		if ($backend_class !== '') {
-			$backend_ref = $backend_class::put($data);
-			$data = '';
-		}
+		$backend_ref = DI::storage()->put($data);
+		$data = '';
 
 		$hash = System::createGUID(64);
 		$created = DateTimeFormat::utcNow();
@@ -211,7 +218,7 @@ class Attach extends BaseObject
 			'allow_gid' => $allow_gid,
 			'deny_cid' => $deny_cid,
 			'deny_gid' => $deny_gid,
-			'backend-class' => $backend_class,
+			'backend-class' => (string)DI::storage(),
 			'backend-ref' => $backend_ref
 		];
 
@@ -223,7 +230,7 @@ class Attach extends BaseObject
 	}
 
 	/**
-	 * @brief Store new file metadata in db and binary in default backend from existing file
+	 * Store new file metadata in db and binary in default backend from existing file
 	 *
 	 * @param        $src
 	 * @param        $uid
@@ -248,7 +255,7 @@ class Attach extends BaseObject
 
 
 	/**
-	 * @brief Update an attached file
+	 * Update an attached file
 	 *
 	 * @param array         $fields     Contains the fields that are updated
 	 * @param array         $conditions Condition array with the key values
@@ -264,13 +271,12 @@ class Attach extends BaseObject
 	{
 		if (!is_null($img)) {
 			// get items to update
-			$items = self::select(['backend-class','backend-ref'], $conditions);
+			$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 			foreach($items as $item) {
-				/** @var IStorage $backend_class */
-				$backend_class = (string)$item['backend-class'];
-				if ($backend_class !== '') {
-					$fields['backend-ref'] = $backend_class::put($img->asString(), $item['backend-ref']);
+				$backend_class = DI::storageManager()->getByName($item['backend-class'] ?? '');
+				if ($backend_class !== null) {
+					$fields['backend-ref'] = $backend_class->put($img->asString(), $item['backend-ref'] ?? '');
 				} else {
 					$fields['data'] = $img->asString();
 				}
@@ -284,7 +290,7 @@ class Attach extends BaseObject
 
 
 	/**
-	 * @brief Delete info from table and data from storage
+	 * Delete info from table and data from storage
 	 *
 	 * @param array $conditions Field condition(s)
 	 * @param array $options    Options array, Optional
@@ -297,13 +303,12 @@ class Attach extends BaseObject
 	public static function delete(array $conditions, array $options = [])
 	{
 		// get items to delete data info
-		$items = self::select(['backend-class','backend-ref'], $conditions);
+		$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 		foreach($items as $item) {
-			/** @var IStorage $backend_class */
-			$backend_class = (string)$item['backend-class'];
-			if ($backend_class !== '') {
-				$backend_class::delete($item['backend-ref']);
+			$backend_class = DI::storageManager()->getByName($item['backend-class'] ?? '');
+			if ($backend_class !== null) {
+				$backend_class->delete($item['backend-ref'] ?? '');
 			}
 		}
 

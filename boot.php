@@ -1,11 +1,21 @@
 <?php
 /**
- * @file boot.php
- * This file defines some global constants and includes the central App class.
- */
-
-/**
- * Friendica
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * Friendica is a communications platform for integrated social communications
  * utilising decentralised communications and linkage to several indie social
@@ -17,25 +27,23 @@
  * easily as email does today.
  */
 
-use Friendica\App;
-use Friendica\BaseObject;
-use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Notify;
 use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
-define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
-define('FRIENDICA_VERSION',      '2019.03-dev');
+define('FRIENDICA_CODENAME',     'Red Hot Poker');
+define('FRIENDICA_VERSION',      '2020.09-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
- * @brief Constant with a HTML line break.
+ * Constant with a HTML line break.
  *
  * Contains a HTML line break (br) element and a real carriage return with line
  * feed for the source.
@@ -44,7 +52,7 @@ define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 define('EOL',                    "<br />\r\n");
 
 /**
- * @brief Image storage quality.
+ * Image storage quality.
  *
  * Lower numbers save space at cost of image detail.
  * For ease of upgrade, please do not change here. Set system.jpegquality = n in config/local.config.php,
@@ -80,17 +88,6 @@ define('MAX_IMAGE_LENGTH',        -1);
  * Not yet used
  */
 define('DEFAULT_DB_ENGINE',  'InnoDB');
-
-/**
- * @name SSL Policy
- *
- * SSL redirection policies
- * @{
- */
-define('SSL_POLICY_NONE',         0);
-define('SSL_POLICY_FULL',         1);
-define('SSL_POLICY_SELFSIGN',     2);
-/* @}*/
 
 /** @deprecated since version 2019.03, please use \Friendica\Module\Register::CLOSED instead */
 define('REGISTER_CLOSED',        \Friendica\Module\Register::CLOSED);
@@ -153,111 +150,31 @@ define('MAX_LIKERS',    75);
  * Email notification options
  * @{
  */
-define('NOTIFY_INTRO',        1);
-define('NOTIFY_CONFIRM',      2);
-define('NOTIFY_WALL',         4);
-define('NOTIFY_COMMENT',      8);
-define('NOTIFY_MAIL',        16);
-define('NOTIFY_SUGGEST',     32);
-define('NOTIFY_PROFILE',     64);
-define('NOTIFY_TAGSELF',    128);
-define('NOTIFY_TAGSHARE',   256);
-define('NOTIFY_POKE',       512);
-define('NOTIFY_SHARE',     1024);
+/** @deprecated since 2020.03, use Notify\Type::INTRO instead */
+define('NOTIFY_INTRO',        Notify\Type::INTRO);
+/** @deprecated since 2020.03, use Notify\Type::CONFIRM instead */
+define('NOTIFY_CONFIRM',      Notify\Type::CONFIRM);
+/** @deprecated since 2020.03, use Notify\Type::WALL instead */
+define('NOTIFY_WALL',         Notify\Type::WALL);
+/** @deprecated since 2020.03, use Notify\Type::COMMENT instead */
+define('NOTIFY_COMMENT',      Notify\Type::COMMENT);
+/** @deprecated since 2020.03, use Notify\Type::MAIL instead */
+define('NOTIFY_MAIL',        Notify\Type::MAIL);
+/** @deprecated since 2020.03, use Notify\Type::SUGGEST instead */
+define('NOTIFY_SUGGEST',     Notify\Type::SUGGEST);
+/** @deprecated since 2020.03, use Notify\Type::PROFILE instead */
+define('NOTIFY_PROFILE',     Notify\Type::PROFILE);
+/** @deprecated since 2020.03, use Notify\Type::TAG_SELF instead */
+define('NOTIFY_TAGSELF',     Notify\Type::TAG_SELF);
+/** @deprecated since 2020.03, use Notify\Type::TAG_SHARE instead */
+define('NOTIFY_TAGSHARE',    Notify\Type::TAG_SHARE);
+/** @deprecated since 2020.03, use Notify\Type::POKE instead */
+define('NOTIFY_POKE',        Notify\Type::POKE);
+/** @deprecated since 2020.03, use Notify\Type::SHARE instead */
+define('NOTIFY_SHARE',       Notify\Type::SHARE);
 
-define('SYSTEM_EMAIL',    16384);
-
-define('NOTIFY_SYSTEM',   32768);
-/* @}*/
-
-
-/**
- * @name Term
- *
- * Tag/term types
- * @{
- */
-define('TERM_UNKNOWN',   0);
-define('TERM_HASHTAG',   1);
-define('TERM_MENTION',   2);
-define('TERM_CATEGORY',  3);
-define('TERM_PCATEGORY', 4);
-define('TERM_FILE',      5);
-define('TERM_SAVEDSEARCH', 6);
-define('TERM_CONVERSATION', 7);
-
-define('TERM_OBJ_POST',  1);
-define('TERM_OBJ_PHOTO', 2);
-
-/**
- * @name Namespaces
- *
- * Various namespaces we may need to parse
- * @{
- */
-define('NAMESPACE_ZOT',             'http://purl.org/zot');
-define('NAMESPACE_DFRN',            'http://purl.org/macgirvin/dfrn/1.0');
-define('NAMESPACE_THREAD',          'http://purl.org/syndication/thread/1.0');
-define('NAMESPACE_TOMB',            'http://purl.org/atompub/tombstones/1.0');
-define('NAMESPACE_ACTIVITY',        'http://activitystrea.ms/spec/1.0/');
-define('NAMESPACE_ACTIVITY_SCHEMA', 'http://activitystrea.ms/schema/1.0/');
-define('NAMESPACE_MEDIA',           'http://purl.org/syndication/atommedia');
-define('NAMESPACE_SALMON_ME',       'http://salmon-protocol.org/ns/magic-env');
-define('NAMESPACE_OSTATUSSUB',      'http://ostatus.org/schema/1.0/subscribe');
-define('NAMESPACE_GEORSS',          'http://www.georss.org/georss');
-define('NAMESPACE_POCO',            'http://portablecontacts.net/spec/1.0');
-define('NAMESPACE_FEED',            'http://schemas.google.com/g/2010#updates-from');
-define('NAMESPACE_OSTATUS',         'http://ostatus.org/schema/1.0');
-define('NAMESPACE_STATUSNET',       'http://status.net/schema/api/1/');
-define('NAMESPACE_ATOM1',           'http://www.w3.org/2005/Atom');
-define('NAMESPACE_MASTODON',        'http://mastodon.social/schema/1.0');
-/* @}*/
-
-/**
- * @name Activity
- *
- * Activity stream defines
- * @{
- */
-define('ACTIVITY_LIKE',        NAMESPACE_ACTIVITY_SCHEMA . 'like');
-define('ACTIVITY_DISLIKE',     NAMESPACE_DFRN            . '/dislike');
-define('ACTIVITY_ATTEND',      NAMESPACE_ZOT             . '/activity/attendyes');
-define('ACTIVITY_ATTENDNO',    NAMESPACE_ZOT             . '/activity/attendno');
-define('ACTIVITY_ATTENDMAYBE', NAMESPACE_ZOT             . '/activity/attendmaybe');
-
-define('ACTIVITY_OBJ_HEART',   NAMESPACE_DFRN            . '/heart');
-
-define('ACTIVITY_FRIEND',      NAMESPACE_ACTIVITY_SCHEMA . 'make-friend');
-define('ACTIVITY_REQ_FRIEND',  NAMESPACE_ACTIVITY_SCHEMA . 'request-friend');
-define('ACTIVITY_UNFRIEND',    NAMESPACE_ACTIVITY_SCHEMA . 'remove-friend');
-define('ACTIVITY_FOLLOW',      NAMESPACE_ACTIVITY_SCHEMA . 'follow');
-define('ACTIVITY_UNFOLLOW',    NAMESPACE_ACTIVITY_SCHEMA . 'stop-following');
-define('ACTIVITY_JOIN',        NAMESPACE_ACTIVITY_SCHEMA . 'join');
-
-define('ACTIVITY_POST',        NAMESPACE_ACTIVITY_SCHEMA . 'post');
-define('ACTIVITY_UPDATE',      NAMESPACE_ACTIVITY_SCHEMA . 'update');
-define('ACTIVITY_TAG',         NAMESPACE_ACTIVITY_SCHEMA . 'tag');
-define('ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite');
-define('ACTIVITY_UNFAVORITE',  NAMESPACE_ACTIVITY_SCHEMA . 'unfavorite');
-define('ACTIVITY_SHARE',       NAMESPACE_ACTIVITY_SCHEMA . 'share');
-define('ACTIVITY_DELETE',      NAMESPACE_ACTIVITY_SCHEMA . 'delete');
-
-define('ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke');
-
-define('ACTIVITY_OBJ_BOOKMARK', NAMESPACE_ACTIVITY_SCHEMA . 'bookmark');
-define('ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment');
-define('ACTIVITY_OBJ_NOTE',    NAMESPACE_ACTIVITY_SCHEMA . 'note');
-define('ACTIVITY_OBJ_PERSON',  NAMESPACE_ACTIVITY_SCHEMA . 'person');
-define('ACTIVITY_OBJ_IMAGE',   NAMESPACE_ACTIVITY_SCHEMA . 'image');
-define('ACTIVITY_OBJ_PHOTO',   NAMESPACE_ACTIVITY_SCHEMA . 'photo');
-define('ACTIVITY_OBJ_VIDEO',   NAMESPACE_ACTIVITY_SCHEMA . 'video');
-define('ACTIVITY_OBJ_P_PHOTO', NAMESPACE_ACTIVITY_SCHEMA . 'profile-photo');
-define('ACTIVITY_OBJ_ALBUM',   NAMESPACE_ACTIVITY_SCHEMA . 'photo-album');
-define('ACTIVITY_OBJ_EVENT',   NAMESPACE_ACTIVITY_SCHEMA . 'event');
-define('ACTIVITY_OBJ_GROUP',   NAMESPACE_ACTIVITY_SCHEMA . 'group');
-define('ACTIVITY_OBJ_TAGTERM', NAMESPACE_DFRN            . '/tagterm');
-define('ACTIVITY_OBJ_PROFILE', NAMESPACE_DFRN            . '/profile');
-define('ACTIVITY_OBJ_QUESTION', 'http://activityschema.org/object/question');
+/** @deprecated since 2020.12, use Notify\Type::SYSTEM instead */
+define('NOTIFY_SYSTEM',      Notify\Type::SYSTEM);
 /* @}*/
 
 /**
@@ -312,70 +229,7 @@ if (!defined('CURLE_OPERATION_TIMEDOUT')) {
 }
 
 /**
- * @brief Retrieve the App structure
- *
- * Useful in functions which require it but don't get it passed to them
- *
- * @deprecated since version 2018.09
- * @see BaseObject::getApp()
- * @return App
- */
-function get_app()
-{
-	return BaseObject::getApp();
-}
-
-/**
- * Return the provided variable value if it exists and is truthy or the provided
- * default value instead.
- *
- * Works with initialized variables and potentially uninitialized array keys
- *
- * Usages:
- * - defaults($var, $default)
- * - defaults($array, 'key', $default)
- *
- * @param array $args
- * @brief Returns a defaut value if the provided variable or array key is falsy
- * @return mixed
- */
-function defaults(...$args)
-{
-	if (count($args) < 2) {
-		throw new BadFunctionCallException('defaults() requires at least 2 parameters');
-	}
-	if (count($args) > 3) {
-		throw new BadFunctionCallException('defaults() cannot use more than 3 parameters');
-	}
-	if (count($args) === 3 && is_null($args[1])) {
-		throw new BadFunctionCallException('defaults($arr, $key, $def) $key is null');
-	}
-
-	// The default value always is the last argument
-	$return = array_pop($args);
-
-	if (count($args) == 2 && is_array($args[0]) && !empty($args[0][$args[1]])) {
-		$return = $args[0][$args[1]];
-	}
-
-	if (count($args) == 1 && !empty($args[0])) {
-		$return = $args[0];
-	}
-
-	return $return;
-}
-
-/**
- * @brief Used to end the current process, after saving session state.
- * @deprecated
- */
-function killme()
-{
-	exit();
-}
-
-/**
- * @brief Returns the user id of locally logged in user or false.
+ * Returns the user id of locally logged in user or false.
  *
  * @return int|bool user id or false
  */
@@ -388,7 +242,7 @@ function local_user()
 }
 
 /**
- * @brief Returns the public contact id of logged in user or false.
+ * Returns the public contact id of logged in user or false.
  *
  * @return int|bool public contact id or false
  */
@@ -399,10 +253,10 @@ function public_contact()
 	if (!$public_contact_id && !empty($_SESSION['authenticated'])) {
 		if (!empty($_SESSION['my_address'])) {
 			// Local user
-			$public_contact_id = intval(Contact::getIdForURL($_SESSION['my_address'], 0, true));
+			$public_contact_id = intval(Contact::getIdForURL($_SESSION['my_address'], 0, false));
 		} elseif (!empty($_SESSION['visitor_home'])) {
 			// Remote user
-			$public_contact_id = intval(Contact::getIdForURL($_SESSION['visitor_home'], 0, true));
+			$public_contact_id = intval(Contact::getIdForURL($_SESSION['visitor_home'], 0, false));
 		}
 	} elseif (empty($_SESSION['authenticated'])) {
 		$public_contact_id = false;
@@ -412,31 +266,25 @@ function public_contact()
 }
 
 /**
- * @brief Returns contact id of authenticated site visitor or false
+ * Returns public contact id of authenticated site visitor or false
  *
  * @return int|bool visitor_id or false
  */
 function remote_user()
 {
-	// You cannot be both local and remote.
-	// Unncommented by rabuzarus because remote authentication to local
-	// profiles wasn't possible anymore (2018-04-12).
-//	if (local_user()) {
-//		return false;
-//	}
-
-	if (empty($_SESSION)) {
+	if (empty($_SESSION['authenticated'])) {
 		return false;
 	}
 
-	if (!empty($_SESSION['authenticated']) && !empty($_SESSION['visitor_id'])) {
+	if (!empty($_SESSION['visitor_id'])) {
 		return intval($_SESSION['visitor_id']);
 	}
+
 	return false;
 }
 
 /**
- * @brief Show an error message to user.
+ * Show an error message to user.
  *
  * This function save text in session, to be shown to the user at next page load
  *
@@ -448,7 +296,7 @@ function notice($s)
 		return;
 	}
 
-	$a = \get_app();
+	$a = DI::app();
 	if (empty($_SESSION['sysmsg'])) {
 		$_SESSION['sysmsg'] = [];
 	}
@@ -458,7 +306,7 @@ function notice($s)
 }
 
 /**
- * @brief Show an info message to user.
+ * Show an info message to user.
  *
  * This function save text in session, to be shown to the user at next page load
  *
@@ -466,11 +314,7 @@ function notice($s)
  */
 function info($s)
 {
-	$a = \get_app();
-
-	if (local_user() && PConfig::get(local_user(), 'system', 'ignore_info')) {
-		return;
-	}
+	$a = DI::app();
 
 	if (empty($_SESSION['sysmsg_info'])) {
 		$_SESSION['sysmsg_info'] = [];
@@ -504,7 +348,7 @@ function feed_birthday($uid, $tz)
 		$tz = 'UTC';
 	}
 
-	$profile = DBA::selectFirst('profile', ['dob'], ['is-default' => true, 'uid' => $uid]);
+	$profile = DBA::selectFirst('profile', ['dob'], ['uid' => $uid]);
 	if (DBA::isResult($profile)) {
 		$tmp_dob = substr($profile['dob'], 5);
 		if (intval($tmp_dob)) {
@@ -523,52 +367,19 @@ function feed_birthday($uid, $tz)
 }
 
 /**
- * @brief Check if current user has admin role.
+ * Check if current user has admin role.
  *
  * @return bool true if user is an admin
  */
 function is_site_admin()
 {
-	$a = \get_app();
+	$a = DI::app();
 
-	$admin_email = Config::get('config', 'admin_email');
+	$admin_email = DI::config()->get('config', 'admin_email');
 
 	$adminlist = explode(',', str_replace(' ', '', $admin_email));
 
-	return local_user() && $admin_email && in_array(defaults($a->user, 'email', ''), $adminlist);
-}
-
-/**
- * @brief Returns querystring as string from a mapped array.
- *
- * @param array  $params mapped array with query parameters
- * @param string $name   of parameter, default null
- *
- * @return string
- */
-function build_querystring($params, $name = null)
-{
-	$ret = "";
-	foreach ($params as $key => $val) {
-		if (is_array($val)) {
-			/// @TODO maybe not compare against null, use is_null()
-			if ($name == null) {
-				$ret .= build_querystring($val, $key);
-			} else {
-				$ret .= build_querystring($val, $name . "[$key]");
-			}
-		} else {
-			$val = urlencode($val);
-			/// @TODO maybe not compare against null, use is_null()
-			if ($name != null) {
-				/// @TODO two string concated, can be merged to one
-				$ret .= $name . "[$key]" . "=$val&";
-			} else {
-				$ret .= "$key=$val&";
-			}
-		}
-	}
-	return $ret;
+	return local_user() && $admin_email && in_array($a->user['email'] ?? '', $adminlist);
 }
 
 function explode_querystring($query)
@@ -625,22 +436,9 @@ function curPageURL()
 	return $pageURL;
 }
 
-function get_server()
-{
-	$server = Config::get("system", "directory");
-
-	if ($server == "") {
-		$server = "https://dir.friendica.social";
-	}
-
-	return $server;
-}
-
 function get_temppath()
 {
-	$a = \get_app();
-
-	$temppath = Config::get("system", "temppath");
+	$temppath = DI::config()->get("system", "temppath");
 
 	if (($temppath != "") && System::isDirectoryUsable($temppath)) {
 		// We have a temp path and it is usable
@@ -656,7 +454,7 @@ function get_temppath()
 		$temppath = BasePath::getRealPath($temppath);
 
 		// To avoid any interferences with other systems we create our own directory
-		$new_temppath = $temppath . "/" . $a->getHostName();
+		$new_temppath = $temppath . "/" . DI::baseUrl()->getHostname();
 		if (!is_dir($new_temppath)) {
 			/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
 			mkdir($new_temppath);
@@ -664,7 +462,7 @@ function get_temppath()
 
 		if (System::isDirectoryUsable($new_temppath)) {
 			// The new path is usable, we are happy
-			Config::set("system", "temppath", $new_temppath);
+			DI::config()->set("system", "temppath", $new_temppath);
 			return $new_temppath;
 		} else {
 			// We can't create a subdirectory, strange.
@@ -714,7 +512,7 @@ function clear_cache($basepath = "", $path = "")
 		return;
 	}
 
-	$cachetime = (int) Config::get('system', 'itemcache_duration');
+	$cachetime = (int) DI::config()->get('system', 'itemcache_duration');
 	if ($cachetime == 0) {
 		$cachetime = 86400;
 	}
@@ -738,12 +536,12 @@ function clear_cache($basepath = "", $path = "")
 function get_itemcachepath()
 {
 	// Checking, if the cache is deactivated
-	$cachetime = (int) Config::get('system', 'itemcache_duration');
+	$cachetime = (int) DI::config()->get('system', 'itemcache_duration');
 	if ($cachetime < 0) {
 		return "";
 	}
 
-	$itemcache = Config::get('system', 'itemcache');
+	$itemcache = DI::config()->get('system', 'itemcache');
 	if (($itemcache != "") && System::isDirectoryUsable($itemcache)) {
 		return BasePath::getRealPath($itemcache);
 	}
@@ -757,7 +555,7 @@ function get_itemcachepath()
 		}
 
 		if (System::isDirectoryUsable($itemcache)) {
-			Config::set("system", "itemcache", $itemcache);
+			DI::config()->set("system", "itemcache", $itemcache);
 			return $itemcache;
 		}
 	}
@@ -765,13 +563,13 @@ function get_itemcachepath()
 }
 
 /**
- * @brief Returns the path where spool files are stored
+ * Returns the path where spool files are stored
  *
  * @return string Spool path
  */
 function get_spoolpath()
 {
-	$spoolpath = Config::get('system', 'spoolpath');
+	$spoolpath = DI::config()->get('system', 'spoolpath');
 	if (($spoolpath != "") && System::isDirectoryUsable($spoolpath)) {
 		// We have a spool path and it is usable
 		return $spoolpath;
@@ -789,7 +587,7 @@ function get_spoolpath()
 
 		if (System::isDirectoryUsable($spoolpath)) {
 			// The new path is usable, we are happy
-			Config::set("system", "spoolpath", $spoolpath);
+			DI::config()->set("system", "spoolpath", $spoolpath);
 			return $spoolpath;
 		} else {
 			// We can't create a subdirectory, strange.
@@ -840,23 +638,4 @@ function validate_include(&$file)
 
 	// Simply return flag
 	return $valid;
-}
-
-/**
- * PHP 5 compatible dirname() with count parameter
- *
- * @see http://php.net/manual/en/function.dirname.php#113193
- *
- * @deprecated with PHP 7
- * @param string $path
- * @param int    $levels
- * @return string
- */
-function rdirname($path, $levels = 1)
-{
-	if ($levels > 1) {
-		return dirname(rdirname($path, --$levels));
-	} else {
-		return dirname($path);
-	}
 }

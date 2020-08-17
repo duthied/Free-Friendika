@@ -1,52 +1,42 @@
 <?php
 /**
- * @file src/Content/ContactSelector.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Content;
 
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
- * @brief ContactSelector class
+ * ContactSelector class
  */
 class ContactSelector
 {
 	/**
-	 * @param string $current     current
-	 * @param string $foreign_net network
-	 * @return string
-	 * @throws \Exception
-	 */
-	public static function profileAssign($current, $foreign_net)
-	{
-		$o = '';
-
-		$disabled = (($foreign_net) ? ' disabled="true" ' : '');
-
-		$o .= "<select id=\"contact-profile-selector\" class=\"form-control\" $disabled name=\"profile-assign\" >\r\n";
-
-		$s = DBA::select('profile', ['id', 'profile-name', 'is-default'], ['uid' => $_SESSION['uid']]);
-		$r = DBA::toArray($s);
-
-		if (DBA::isResult($r)) {
-			foreach ($r as $rr) {
-				$selected = (($rr['id'] == $current || ($current == 0 && $rr['is-default'] == 1)) ? " selected=\"selected\" " : "");
-				$o .= "<option value=\"{$rr['id']}\" $selected >{$rr['profile-name']}</option>\r\n";
-			}
-		}
-		$o .= "</select>\r\n";
-		return $o;
-	}
-
-	/**
 	 * @param string  $current  current
 	 * @param boolean $disabled optional, default false
-	 * @return object
+	 * @return string
 	 */
 	public static function pollInterval($current, $disabled = false)
 	{
@@ -55,12 +45,12 @@ class ContactSelector
 		$o .= "<select id=\"contact-poll-interval\" name=\"poll\" $dis />" . "\r\n";
 
 		$rep = [
-			0 => L10n::t('Frequently'),
-			1 => L10n::t('Hourly'),
-			2 => L10n::t('Twice daily'),
-			3 => L10n::t('Daily'),
-			4 => L10n::t('Weekly'),
-			5 => L10n::t('Monthly')
+			0 => DI::l10n()->t('Frequently'),
+			1 => DI::l10n()->t('Hourly'),
+			2 => DI::l10n()->t('Twice daily'),
+			3 => DI::l10n()->t('Daily'),
+			4 => DI::l10n()->t('Weekly'),
+			5 => DI::l10n()->t('Monthly')
 		];
 
 		foreach ($rep as $k => $v) {
@@ -72,30 +62,57 @@ class ContactSelector
 	}
 
 	/**
-	 * @param string $network network
-	 * @param string $profile optional, default empty
+	 * @param string $profile Profile URL
+	 * @return string Server URL
+	 * @throws \Exception
+	 */
+	private static function getServerURLForProfile($profile)
+	{
+		$server_url = '';
+
+		// Fetch the server url from the contact table
+		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($profile)]);
+		if (DBA::isResult($contact) && !empty($contact['baseurl'])) {
+			$server_url = Strings::normaliseLink($contact['baseurl']);
+		}
+
+		if (empty($server_url)) {
+			// Create the server url out of the profile url
+			$parts = parse_url($profile);
+			unset($parts['path']);
+			$server_url = Strings::normaliseLink(Network::unparseURL($parts));
+		}
+
+		return $server_url;
+	}
+
+	/**
+	 * @param string $network  network of the contact
+	 * @param string $profile  optional, default empty
+	 * @param string $protocol (Optional) Protocol that is used for the transmission
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function networkToName($network, $profile = "")
+	public static function networkToName($network, $profile = '', $protocol = '')
 	{
 		$nets = [
-			Protocol::DFRN      =>   L10n::t('DFRN'),
-			Protocol::OSTATUS   =>   L10n::t('OStatus'),
-			Protocol::FEED      =>   L10n::t('RSS/Atom'),
-			Protocol::MAIL      =>   L10n::t('Email'),
-			Protocol::DIASPORA  =>   L10n::t('Diaspora'),
-			Protocol::ZOT       =>   L10n::t('Zot!'),
-			Protocol::LINKEDIN  =>   L10n::t('LinkedIn'),
-			Protocol::XMPP      =>   L10n::t('XMPP/IM'),
-			Protocol::MYSPACE   =>   L10n::t('MySpace'),
-			Protocol::GPLUS     =>   L10n::t('Google+'),
-			Protocol::PUMPIO    =>   L10n::t('pump.io'),
-			Protocol::TWITTER   =>   L10n::t('Twitter'),
-			Protocol::DIASPORA2 =>   L10n::t('Diaspora Connector'),
-			Protocol::STATUSNET =>   L10n::t('GNU Social Connector'),
-			Protocol::ACTIVITYPUB => L10n::t('ActivityPub'),
-			Protocol::PNUT      =>   L10n::t('pnut'),
+			Protocol::DFRN      =>   DI::l10n()->t('DFRN'),
+			Protocol::OSTATUS   =>   DI::l10n()->t('OStatus'),
+			Protocol::FEED      =>   DI::l10n()->t('RSS/Atom'),
+			Protocol::MAIL      =>   DI::l10n()->t('Email'),
+			Protocol::DIASPORA  =>   DI::l10n()->t('Diaspora'),
+			Protocol::ZOT       =>   DI::l10n()->t('Zot!'),
+			Protocol::LINKEDIN  =>   DI::l10n()->t('LinkedIn'),
+			Protocol::XMPP      =>   DI::l10n()->t('XMPP/IM'),
+			Protocol::MYSPACE   =>   DI::l10n()->t('MySpace'),
+			Protocol::GPLUS     =>   DI::l10n()->t('Google+'),
+			Protocol::PUMPIO    =>   DI::l10n()->t('pump.io'),
+			Protocol::TWITTER   =>   DI::l10n()->t('Twitter'),
+			Protocol::DISCOURSE =>   DI::l10n()->t('Discourse'),
+			Protocol::DIASPORA2 =>   DI::l10n()->t('Diaspora Connector'),
+			Protocol::STATUSNET =>   DI::l10n()->t('GNU Social Connector'),
+			Protocol::ACTIVITYPUB => DI::l10n()->t('ActivityPub'),
+			Protocol::PNUT      =>   DI::l10n()->t('pnut'),
 		];
 
 		Hook::callAll('network_to_name', $nets);
@@ -105,17 +122,8 @@ class ContactSelector
 
 		$networkname = str_replace($search, $replace, $network);
 
-		if ((in_array($network, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) && ($profile != "")) {
-			// Create the server url out of the profile url
-			$parts = parse_url($profile);
-			unset($parts['path']);
-			$server_url = [Strings::normaliseLink(Network::unparseURL($parts))];
-
-			// Fetch the server url
-			$gcontact = DBA::selectFirst('gcontact', ['server_url'], ['nurl' => Strings::normaliseLink($profile)]);
-			if (!empty($gcontact) && !empty($gcontact['server_url'])) {
-				$server_url[] = Strings::normaliseLink($gcontact['server_url']);
-			}
+		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
+			$server_url = self::getServerURLForProfile($profile);
 
 			// Now query the GServer for the platform name
 			$gserver = DBA::selectFirst('gserver', ['platform', 'network'], ['nurl' => $server_url]);
@@ -137,141 +145,63 @@ class ContactSelector
 			}
 		}
 
+		if (!empty($protocol) && ($protocol != $network)) {
+			$networkname = DI::l10n()->t('%s (via %s)', $networkname, self::networkToName($protocol));
+		}
+
 		return $networkname;
 	}
 
 	/**
-	 * @param string $current optional, default empty
-	 * @param string $suffix  optionsl, default empty
+	 * @param string $network network
+	 * @param string $profile optional, default empty
 	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function gender($current = "", $suffix = "")
+	public static function networkToIcon($network, $profile = "")
 	{
-		$o = '';
-		$select = [
-			'EMPTY'            => '',
-			'Male'             => L10n::t('Male'),
-			'Female'           => L10n::t('Female'),
-			'Currently Male'   => L10n::t('Currently Male'),
-			'Currently Female' => L10n::t('Currently Female'),
-			'Mostly Male'      => L10n::t('Mostly Male'),
-			'Mostly Female'    => L10n::t('Mostly Female'),
-			'Transgender'      => L10n::t('Transgender'),
-			'Intersex'         => L10n::t('Intersex'),
-			'Transsexual'      => L10n::t('Transsexual'),
-			'Hermaphrodite'    => L10n::t('Hermaphrodite'),
-			'Neuter'           => L10n::t('Neuter'),
-			'Non-specific'     => L10n::t('Non-specific'),
-			'Other'            => L10n::t('Other'),
-			'Undecided'        => L10n::t('Undecided'),
+		$nets = [
+			Protocol::DFRN      =>   'friendica',
+			Protocol::OSTATUS   =>   'gnu-social', // There is no generic OStatus icon
+			Protocol::FEED      =>   'rss',
+			Protocol::MAIL      =>   'inbox',
+			Protocol::DIASPORA  =>   'diaspora',
+			Protocol::ZOT       =>   'hubzilla',
+			Protocol::LINKEDIN  =>   'linkedin',
+			Protocol::XMPP      =>   'xmpp',
+			Protocol::MYSPACE   =>   'file-text-o', /// @todo
+			Protocol::GPLUS     =>   'google-plus',
+			Protocol::PUMPIO    =>   'file-text-o', /// @todo
+			Protocol::TWITTER   =>   'twitter',
+			Protocol::DISCOURSE =>   'dot-circle-o', /// @todo
+			Protocol::DIASPORA2 =>   'diaspora',
+			Protocol::STATUSNET =>   'gnu-social',
+			Protocol::ACTIVITYPUB => 'activitypub',
+			Protocol::PNUT      =>   'file-text-o', /// @todo
 		];
 
-		Hook::callAll('gender_selector', $select);
+		$platform_icons = ['diaspora' => 'diaspora', 'friendica' => 'friendica', 'friendika' => 'friendica',
+			'GNU Social' => 'gnu-social', 'gnusocial' => 'gnu-social', 'hubzilla' => 'hubzilla',
+			'mastodon' => 'mastodon', 'peertube' => 'peertube', 'pixelfed' => 'pixelfed',
+			'pleroma' => 'pleroma', 'red' => 'hubzilla', 'redmatrix' => 'hubzilla',
+			'socialhome' => 'social-home', 'wordpress' => 'wordpress'];
 
-		$o .= "<select name=\"gender$suffix\" id=\"gender-select$suffix\" size=\"1\" >";
-		foreach ($select as $neutral => $selection) {
-			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
+		$search  = array_keys($nets);
+		$replace = array_values($nets);
+
+		$network_icon = str_replace($search, $replace, $network);
+
+		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
+			$server_url = self::getServerURLForProfile($profile);
+
+			// Now query the GServer for the platform name
+			$gserver = DBA::selectFirst('gserver', ['platform'], ['nurl' => $server_url]);
+
+			if (DBA::isResult($gserver) && !empty($gserver['platform'])) {
+				$network_icon = $platform_icons[strtolower($gserver['platform'])] ?? $network_icon;
 			}
 		}
-		$o .= '</select>';
-		return $o;
-	}
 
-	/**
-	 * @param string $current optional, default empty
-	 * @param string $suffix  optionsl, default empty
-	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function sexualPreference($current = "", $suffix = "")
-	{
-		$o = '';
-		$select = [
-			'EMPTY'         => '',
-			'Males'         => L10n::t('Males'),
-			'Females'       => L10n::t('Females'),
-			'Gay'           => L10n::t('Gay'),
-			'Lesbian'       => L10n::t('Lesbian'),
-			'No Preference' => L10n::t('No Preference'),
-			'Bisexual'      => L10n::t('Bisexual'),
-			'Autosexual'    => L10n::t('Autosexual'),
-			'Abstinent'     => L10n::t('Abstinent'),
-			'Virgin'        => L10n::t('Virgin'),
-			'Deviant'       => L10n::t('Deviant'),
-			'Fetish'        => L10n::t('Fetish'),
-			'Oodles'        => L10n::t('Oodles'),
-			'Nonsexual'     => L10n::t('Nonsexual'),
-		];
-
-		Hook::callAll('sexpref_selector', $select);
-
-		$o .= "<select name=\"sexual$suffix\" id=\"sexual-select$suffix\" size=\"1\" >";
-		foreach ($select as $neutral => $selection) {
-			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
-			}
-		}
-		$o .= '</select>';
-		return $o;
-	}
-
-	/**
-	 * @param string $current optional, default empty
-	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function maritalStatus($current = "")
-	{
-		$o = '';
-		$select = [
-			'EMPTY'                => '',
-			'Single'               => L10n::t('Single'),
-			'Lonely'               => L10n::t('Lonely'),
-			'Available'            => L10n::t('Available'),
-			'Unavailable'          => L10n::t('Unavailable'),
-			'Has crush'            => L10n::t('Has crush'),
-			'Infatuated'           => L10n::t('Infatuated'),
-			'Dating'               => L10n::t('Dating'),
-			'Unfaithful'           => L10n::t('Unfaithful'),
-			'Sex Addict'           => L10n::t('Sex Addict'),
-			'Friends'              => L10n::t('Friends'),
-			'Friends/Benefits'     => L10n::t('Friends/Benefits'),
-			'Casual'               => L10n::t('Casual'),
-			'Engaged'              => L10n::t('Engaged'),
-			'Married'              => L10n::t('Married'),
-			'Imaginarily married'  => L10n::t('Imaginarily married'),
-			'Partners'             => L10n::t('Partners'),
-			'Cohabiting'           => L10n::t('Cohabiting'),
-			'Common law'           => L10n::t('Common law'),
-			'Happy'                => L10n::t('Happy'),
-			'Not looking'          => L10n::t('Not looking'),
-			'Swinger'              => L10n::t('Swinger'),
-			'Betrayed'             => L10n::t('Betrayed'),
-			'Separated'            => L10n::t('Separated'),
-			'Unstable'             => L10n::t('Unstable'),
-			'Divorced'             => L10n::t('Divorced'),
-			'Imaginarily divorced' => L10n::t('Imaginarily divorced'),
-			'Widowed'              => L10n::t('Widowed'),
-			'Uncertain'            => L10n::t('Uncertain'),
-			'It\'s complicated'    => L10n::t('It\'s complicated'),
-			'Don\'t care'          => L10n::t('Don\'t care'),
-			'Ask me'               => L10n::t('Ask me'),
-		];
-
-		Hook::callAll('marital_selector', $select);
-
-		$o .= '<select name="marital" id="marital-select" size="1" >';
-		foreach ($select as $neutral => $selection) {
-			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
-			}
-		}
-		$o .= '</select>';
-		return $o;
+		return $network_icon;
 	}
 }

@@ -9,7 +9,6 @@
 <div id="photo-album-edit-name-end"></div>
 
 <input id="photo-album-edit-submit" type="submit" name="submit" value="{{$submit}}" />
-<input id="photo-album-edit-drop" type="submit" name="dropalbum" value="{{$dropsubmit}}" onclick="return confirmDelete();" />
 
 </form>
 </div>

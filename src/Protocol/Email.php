@@ -1,15 +1,35 @@
 <?php
 /**
- * @file src/Protocol/Email.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Protocol;
 
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Model\Item;
+use Friendica\Util\Strings;
 
 /**
- * @brief Email class
+ * Email class
  */
 class Email
 {
@@ -53,21 +73,21 @@ class Email
 			return [];
 		}
 
-		$search1 = @imap_search($mbox, 'FROM "' . $email_addr . '"', SE_UID);
+		$search1 = @imap_search($mbox, 'UNDELETED FROM "' . $email_addr . '"', SE_UID);
 		if (!$search1) {
 			$search1 = [];
 		} else {
 			Logger::log("Found mails from ".$email_addr, Logger::DEBUG);
 		}
 
-		$search2 = @imap_search($mbox, 'TO "' . $email_addr . '"', SE_UID);
+		$search2 = @imap_search($mbox, 'UNDELETED TO "' . $email_addr . '"', SE_UID);
 		if (!$search2) {
 			$search2 = [];
 		} else {
 			Logger::log("Found mails to ".$email_addr, Logger::DEBUG);
 		}
 
-		$search3 = @imap_search($mbox, 'CC "' . $email_addr . '"', SE_UID);
+		$search3 = @imap_search($mbox, 'UNDELETED CC "' . $email_addr . '"', SE_UID);
 		if (!$search3) {
 			$search3 = [];
 		} else {
@@ -109,24 +129,36 @@ class Email
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getMessage($mbox, $uid, $reply)
+	public static function getMessage($mbox, $uid, $reply, $item)
 	{
-		$ret = [];
+		$ret = $item;
 
 		$struc = (($mbox && $uid) ? @imap_fetchstructure($mbox, $uid, FT_UID) : null);
 
 		if (!$struc) {
+			Logger::notice("IMAP structure couldn't be fetched", ['uid' => $uid]);
 			return $ret;
 		}
 
 		if (empty($struc->parts)) {
-			$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'html');
-			$html = $ret['body'];
+			$html = trim(self::messageGetPart($mbox, $uid, $struc, 0, 'html'));
 
-			if (trim($ret['body']) == '') {
-				$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'plain');
-			} else {
-				$ret['body'] = HTML::toBBCode($ret['body']);
+			if (!empty($html)) {
+				$message = ['text' => '', 'html' => $html, 'item' => $ret];
+				Hook::callAll('email_getmessage', $message);
+				$ret = $message['item'];
+				if (empty($ret['body'])) {
+					$ret['body'] = HTML::toBBCode($message['html']);
+				}
+			}
+
+			if (empty($ret['body'])) {
+				$text = self::messageGetPart($mbox, $uid, $struc, 0, 'plain');
+
+				$message = ['text' => $text, 'html' => '', 'item' => $ret];
+				Hook::callAll('email_getmessage', $message);
+				$ret = $message['item'];
+				$ret['body'] = $message['text'];
 			}
 		} else {
 			$text = '';
@@ -142,10 +174,17 @@ class Email
 					$html .= $x;
 				}
 			}
-			if (trim($html) != '') {
-				$ret['body'] = HTML::toBBCode($html);
-			} else {
-				$ret['body'] = $text;
+
+			$message = ['text' => trim($text), 'html' => trim($html), 'item' => $ret];
+			Hook::callAll('email_getmessage', $message);
+			$ret = $message['item'];
+
+			if (empty($ret['body']) && !empty($message['html'])) {
+				$ret['body'] = HTML::toBBCode($message['html']);
+			}
+
+			if (empty($ret['body'])) {
+				$ret['body'] = $message['text'];
 			}
 		}
 
@@ -160,12 +199,17 @@ class Email
 
 		$ret['body'] = self::unifyAttributionLine($ret['body']);
 
+		$ret['body'] = Strings::escapeHtml($ret['body']);
+		$ret['body'] = BBCode::limitBodySize($ret['body']);
+
+		Hook::callAll('email_getmessage_end', $ret);
+
 		return $ret;
 	}
 
-	// At the moment - only return plain/text.
-	// Later we'll repackage inline images as data url's and make the HTML safe
 	/**
+	 * fetch the specified message part number with the specified subtype
+	 *
 	 * @param resource $mbox    mailbox
 	 * @param integer  $uid     user id
 	 * @param object   $p       parts
@@ -308,7 +352,7 @@ class Email
 	}
 
 	/**
-	 * Function send is used by Protocol::EMAIL and Protocol::EMAIL2 code
+	 * Function send is used by Protocol::EMAIL code
 	 * (not to notify the user, but to send items to email contacts)
 	 *
 	 * @param string $addr    address
@@ -544,7 +588,7 @@ class Email
 			}
 
 			$quotelevel = 0;
-			$nextline = trim(defaults($arrbody, $i + 1, ''));
+			$nextline = trim($arrbody[$i + 1] ?? '');
 			while ((strlen($nextline)>0) && ((substr($nextline, 0, 1) == '>')
 				|| (substr($nextline, 0, 1) == ' '))) {
 				if (substr($nextline, 0, 1) == '>') {

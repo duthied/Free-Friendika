@@ -1,52 +1,83 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\Factory;
 
+use Exception;
 use Friendica\Core\Config;
+use Friendica\Core\Config\Cache;
+use Friendica\Model\Config\Config as ConfigModel;
+use Friendica\Model\Config\PConfig as PConfigModel;
+use Friendica\Util\ConfigFileLoader;
 
 class ConfigFactory
 {
 	/**
-	 * @param Config\ConfigCacheLoader $loader The Config Cache loader (INI/config/.htconfig)
+	 * @param ConfigFileLoader $loader The Config Cache loader (INI/config/.htconfig)
 	 *
-	 * @return Config\ConfigCache
+	 * @return Cache
+	 *
+	 * @throws Exception
 	 */
-	public static function createCache(Config\ConfigCacheLoader $loader)
+	public function createCache(ConfigFileLoader $loader)
 	{
-		$configCache = new Config\ConfigCache();
-		$loader->loadConfigFiles($configCache);
+		$configCache = new Cache();
+		$loader->setupCache($configCache);
 
 		return $configCache;
 	}
 
 	/**
-	 * @param string              $type   The adapter type
-	 * @param Config\IConfigCache $config The config cache of this adapter
+	 * @param Cache       $configCache The config cache of this adapter
+	 * @param ConfigModel $configModel The configuration model
 	 *
-	 * @return Config\IConfigAdapter
+	 * @return Config\IConfig
 	 */
-	public static function createConfig($type, Config\IConfigCache $config)
+	public function createConfig(Cache $configCache, ConfigModel $configModel)
 	{
-		if ($type == 'preload') {
-			return new Config\PreloadConfigAdapter($config);
+		if ($configCache->get('system', 'config_adapter') === 'preload') {
+			$configuration = new Config\PreloadConfig($configCache, $configModel);
 		} else {
-			return new Config\JITConfigAdapter($config);
+			$configuration = new Config\JitConfig($configCache, $configModel);
 		}
+
+
+		return $configuration;
 	}
 
 	/**
-	 * @param string               $type   The adapter type
-	 * @param Config\IPConfigCache $config The config cache of this adapter
-	 * @param int                  $uid    The UID of the current user
+	 * @param Cache                         $configCache  The config cache
+	 * @param \Friendica\Core\PConfig\Cache $pConfigCache The personal config cache
+	 * @param PConfigModel                  $configModel  The configuration model
 	 *
-	 * @return Config\IPConfigAdapter
+	 * @return \Friendica\Core\PConfig\IPConfig
 	 */
-	public static function createPConfig($type, Config\IPConfigCache $config, $uid = null)
+	public function createPConfig(Cache $configCache, \Friendica\Core\PConfig\Cache $pConfigCache, PConfigModel $configModel)
 	{
-		if ($type == 'preload') {
-			return new Config\PreloadPConfigAdapter($config, $uid);
+		if ($configCache->get('system', 'config_adapter') === 'preload') {
+			$configuration = new \Friendica\Core\PConfig\PreloadPConfig($pConfigCache, $configModel);
 		} else {
-			return new Config\JITPConfigAdapter($config);
+			$configuration = new \Friendica\Core\PConfig\JitPConfig($pConfigCache, $configModel);
 		}
+
+		return $configuration;
 	}
 }

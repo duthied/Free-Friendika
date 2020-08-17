@@ -10,15 +10,14 @@
 use Friendica\App;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Content\Widget;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\Contact;
 use Friendica\Module;
 use Friendica\Util\Strings;
 
@@ -35,8 +34,8 @@ function frio_init(App $a)
 
 	// if the device is a mobile device set js is_mobile
 	// variable so the js scripts can use this information
-	if ($a->is_mobile || $a->is_tablet) {
-		$a->page['htmlhead'] .= <<< EOT
+	if (DI::mode()->isMobile() || DI::mode()->isMobile()) {
+		DI::page()['htmlhead'] .= <<< EOT
 			<script type="text/javascript">
 				var is_mobile = 1;
 			</script>
@@ -56,20 +55,8 @@ function frio_install()
 	Logger::log('installed theme frio');
 }
 
-function frio_uninstall()
-{
-	Hook::unregister('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
-	Hook::unregister('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
-	Hook::unregister('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
-	Hook::unregister('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
-	Hook::unregister('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
-	Hook::unregister('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
-
-	Logger::log('uninstalled theme frio');
-}
-
 /**
- * @brief Replace friendica photo links hook
+ * Replace friendica photo links hook
  *
  *  This function does replace the links to photos
  *  of other friendica users. Original the photos are
@@ -107,7 +94,7 @@ function frio_item_photo_links(App $a, &$body_info)
 }
 
 /**
- * @brief Replace links of the item_photo_menu hook
+ * Replace links of the item_photo_menu hook
  *
  *  This function replaces the original poke and the message links
  *  to call the addToModal javascript function so this pages can
@@ -119,7 +106,7 @@ function frio_item_photo_links(App $a, &$body_info)
 function frio_item_photo_menu(App $a, &$arr)
 {
 	foreach ($arr['menu'] as $k => $v) {
-		if (strpos($v, 'poke/?f=&c=') === 0 || strpos($v, 'message/new/') === 0) {
+		if (strpos($v, '/poke') === 0 || strpos($v, 'message/new/') === 0) {
 			$v = 'javascript:addToModal(\'' . $v . '\'); return false;';
 			$arr['menu'][$k] = $v;
 		}
@@ -127,7 +114,7 @@ function frio_item_photo_menu(App $a, &$arr)
 }
 
 /**
- * @brief Replace links of the contact_photo_menu
+ * Replace links of the contact_photo_menu
  *
  *  This function replaces the original poke and the message links
  *  to call the addToModal javascript function so this pages can
@@ -173,7 +160,7 @@ function frio_contact_photo_menu(App $a, &$args)
 	// Add to pm and poke links a new key with the value 'modal'.
 	// Later we can make conditions in the corresponing templates (e.g.
 	// contact_template.tpl)
-	if (strpos($pokelink, 'poke/?f=&c=' . $cid) !== false) {
+	if (strpos($pokelink, $cid . '/poke') !== false) {
 		$args['menu']['poke'][3] = 'modal';
 	}
 
@@ -183,7 +170,7 @@ function frio_contact_photo_menu(App $a, &$args)
 }
 
 /**
- * @brief Construct remote nav menu
+ * Construct remote nav menu
  *
  *  It creates a remote baseurl form $_SESSION for remote users and friendica
  *  visitors. This url will be added to some of the nav links. With this behaviour
@@ -201,82 +188,52 @@ function frio_remote_nav($a, &$nav)
 	// get the homelink from $_XSESSION
 	$homelink = Model\Profile::getMyURL();
 	if (!$homelink) {
-		$homelink = defaults($_SESSION, 'visitor_home', '');
-	}
-
-	// split up the url in it's parts (protocol,domain/directory, /profile/, nickname
-	// I'm not familiar with regex, so someone might find a better solutionen
-	//
-	// E.g $homelink = 'https://friendica.domain.com/profile/mickey' should result in an array
-	// with 0 => 'https://friendica.domain.com/profile/mickey' 1 => 'https://',
-	// 2 => 'friendica.domain.com' 3 => '/profile/' 4 => 'mickey'
-	//
-	//$server_url = preg_match('/^(https?:\/\/.*?)\/profile\//2', $homelink);
-	preg_match('/^(https?:\/\/)?(.*?)(\/profile\/)(.*)/', $homelink, $url_parts);
-
-	// Construct the server url of the visitor. So we could link back to his/her own menu.
-	// And construct a webbie (e.g. mickey@friendica.domain.com for the search in gcontact
-	// We use the webbie for search in gcontact because we don't know if gcontact table stores
-	// the right value if its http or https protocol
-	$webbie = '';
-	if (count($url_parts)) {
-		$server_url = $url_parts[1] . $url_parts[2];
-		$webbie = $url_parts[4] . '@' . $url_parts[2];
+		$homelink = Session::get('visitor_home', '');
 	}
 
 	// since $userinfo isn't available for the hook we write it to the nav array
 	// this isn't optimal because the contact query will be done now twice
-	if (local_user()) {
-		// empty the server url for local user because we won't need it
-		$server_url = '';
-		// user info
-		$r = q("SELECT `micro` FROM `contact` WHERE `uid` = %d AND `self`", intval($a->user['uid']));
-
-		$r[0]['photo'] = (DBA::isResult($r) ? $a->removeBaseURL($r[0]['micro']) : 'images/person-48.jpg');
-		$r[0]['name'] = $a->user['username'];
+	$fields = ['id', 'url', 'avatar', 'micro', 'name', 'nick', 'baseurl'];
+	if (local_user() && !empty($a->user['uid'])) {
+		$remoteUser = Contact::selectFirst($fields, ['uid' => $a->user['uid'], 'self' => true]);
 	} elseif (!local_user() && remote_user()) {
-		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
-		$nav['remote'] = L10n::t('Guest');
+		$remoteUser = Contact::getById(remote_user(), $fields);
+		$nav['remote'] = DI::l10n()->t('Guest');
 	} elseif (Model\Profile::getMyURL()) {
-		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
-				WHERE `addr` = '%s' AND `network` = 'dfrn'",
-			DBA::escape($webbie));
-		$nav['remote'] = L10n::t('Visitor');
+		$remoteUser = Contact::getByURL($homelink, null, $fields);
+		$nav['remote'] = DI::l10n()->t('Visitor');
 	} else {
-		$r = false;
+		$remoteUser = null;
 	}
 
-	$remoteUser = null;
-	if (DBA::isResult($r)) {
+	if (DBA::isResult($remoteUser)) {
 		$nav['userinfo'] = [
-			'icon' => (DBA::isResult($r) ? $r[0]['photo'] : 'images/person-48.jpg'),
-			'name' => $r[0]['name'],
+			'icon' => Contact::getMicro($remoteUser),
+			'name' => $remoteUser['name'],
 		];
-		$remoteUser = $r[0];
+		$server_url = $remoteUser['baseurl'];
 	}
 
 	if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
-		$nav['logout'] = [$server_url . '/logout', L10n::t('Logout'), '', L10n::t('End this session')];
-
 		// user menu
-		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], L10n::t('Status'), '', L10n::t('Your posts and conversations')];
-		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '?tab=profile', L10n::t('Profile'), '', L10n::t('Your profile page')];
-		$nav['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], L10n::t('Photos'), '', L10n::t('Your photos')];
-		$nav['usermenu'][] = [$server_url . '/videos/' . $remoteUser['nick'], L10n::t('Videos'), '', L10n::t('Your videos')];
-		$nav['usermenu'][] = [$server_url . '/events/', L10n::t('Events'), '', L10n::t('Your events')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
+		$nav['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
+		$nav['usermenu'][] = [$server_url . '/videos/' . $remoteUser['nick'], DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
+		$nav['usermenu'][] = [$server_url . '/events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
 
 		// navbar links
-		$nav['network'] = [$server_url . '/network', L10n::t('Network'), '', L10n::t('Conversations from your friends')];
-		$nav['events'] = [$server_url . '/events', L10n::t('Events'), '', L10n::t('Events and Calendar')];
-		$nav['messages'] = [$server_url . '/message', L10n::t('Messages'), '', L10n::t('Private mail')];
-		$nav['settings'] = [$server_url . '/settings', L10n::t('Settings'), '', L10n::t('Account settings')];
-		$nav['contacts'] = [$server_url . '/contact', L10n::t('Contacts'), '', L10n::t('Manage/edit friends and contacts')];
-		$nav['sitename'] = Config::get('config', 'sitename');
+		$nav['network'] = [$server_url . '/network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
+		$nav['events'] = [$server_url . '/events', DI::l10n()->t('Events'), '', DI::l10n()->t('Events and Calendar')];
+		$nav['messages'] = [$server_url . '/message', DI::l10n()->t('Messages'), '', DI::l10n()->t('Private mail')];
+		$nav['settings'] = [$server_url . '/settings', DI::l10n()->t('Settings'), '', DI::l10n()->t('Account settings')];
+		$nav['contacts'] = [$server_url . '/contact', DI::l10n()->t('Contacts'), '', DI::l10n()->t('Manage/edit friends and contacts')];
+		$nav['sitename'] = DI::config()->get('config', 'sitename');
 	}
 }
 
 /**
- * @brief: Search for contacts
+ * Search for contacts
  *
  * This function search for a users contacts. The code is copied from contact search
  * in /src/Module/Contact.php. With this function the contacts will permitted to acl_lookup()
@@ -334,7 +291,7 @@ function frio_acl_lookup(App $a, &$results)
 }
 
 /**
- * @brief Manipulate the data of the item
+ * Manipulate the data of the item
  *
  * At the moment we use this function to add some own stuff to the item menu
  *
@@ -350,15 +307,63 @@ function frio_display_item(App $a, &$arr)
 	if (
 		local_user()
 		&& local_user() == $arr['item']['uid']
-		&& $arr['item']['parent'] == $arr['item']['id']
+		&& $arr['item']['gravity'] == GRAVITY_PARENT
 		&& !$arr['item']['self'])
 	{
 		$subthread = [
 			'menu'   => 'follow_thread',
-			'title'  => L10n::t('Follow Thread'),
-			'action' => 'dosubthread(' . $arr['item']['id'] . '); return false;',
+			'title'  => DI::l10n()->t('Follow Thread'),
+			'action' => 'dosubthread(' . $arr['item']['id'] . ');',
 			'href'   => '#'
 		];
 	}
 	$arr['output']['subthread'] = $subthread;
+}
+
+/**
+ * @param int|null $uid
+ * @return string
+ * @see \Friendica\Core\Theme::getBackgroundColor()
+ */
+function frio_get_background_color(int $uid = null)
+{
+	$background_color = DI::config()->get('frio', 'background_color') ?: '#ededed';
+
+	if ($uid) {
+		$background_color = DI::pConfig()->get($uid, 'frio', 'background_color') ?: $background_color;
+	}
+
+	$scheme = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
+	$scheme = Strings::sanitizeFilePathItem($scheme);
+
+	if ($scheme && ($scheme != '---') && file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
+		$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
+		require_once $schemefile;
+	}
+
+	return $background_color;
+}
+
+/**
+ * @param int|null $uid
+ * @return string
+ * @see \Friendica\Core\Theme::getThemeColor()
+ */
+function frio_get_theme_color(int $uid = null)
+{
+	$nav_bg = DI::config()->get('frio', 'nav_bg') ?: '#708fa0';
+
+	if ($uid) {
+		$nav_bg = DI::pConfig()->get($uid, 'frio', 'background_color') ?: $nav_bg;
+	}
+
+	$scheme = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
+	$scheme = Strings::sanitizeFilePathItem($scheme);
+
+	if ($scheme && ($scheme != '---') && file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
+		$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
+		require_once $schemefile;
+	}
+
+	return $nav_bg;
 }

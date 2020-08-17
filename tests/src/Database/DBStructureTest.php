@@ -1,26 +1,43 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
-namespace Friendica\Test\Database;
+namespace Friendica\Test\src\Database;
 
-use Friendica\App;
-use Friendica\Core\Config;
+use Dice\Dice;
+use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
-use Friendica\Factory;
+use Friendica\DI;
 use Friendica\Test\DatabaseTest;
-use Friendica\Util\BasePath;
+use Friendica\Test\Util\Database\StaticDatabase;
 
 class DBStructureTest extends DatabaseTest
 {
-	public function setUp()
+	protected function setUp()
 	{
-		$basedir = BasePath::create(dirname(__DIR__) . '/../../');
-		$configLoader = new Config\ConfigCacheLoader($basedir);
-		$config = Factory\ConfigFactory::createCache($configLoader);
-		$logger = Factory\LoggerFactory::create('test', $config);
-		$this->app = new App($config, $logger, false);
-		$this->logOutput = FActory\LoggerFactory::enableTest($this->app->getLogger());
-
 		parent::setUp();
+
+		$dice = (new Dice())
+			->addRules(include __DIR__ . '/../../../static/dependencies.config.php')
+			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
+		DI::init($dice);
 	}
 
 	/**
@@ -58,6 +75,7 @@ class DBStructureTest extends DatabaseTest
 	 * @small
 	 */
 	public function testChangePrimaryKey() {
+		$this->markTestSkipped('rename primary key with autoincrement and foreign key support necessary first');
 		$oldID = 'client_id';
 		$newID = 'pw';
 

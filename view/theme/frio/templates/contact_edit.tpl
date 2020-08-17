@@ -21,7 +21,8 @@
 						<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="contact-edit-actions-button" aria-haspopup="true" id="contact-actions-menu" >
 							{{if $lblsuggest}}<li role="presentation"><a role="menuitem" href="{{$contact_actions.suggest.url}}" title="{{$contact_actions.suggest.title}}">{{$contact_actions.suggest.label}}</a></li>{{/if}}
 							{{if $poll_enabled}}<li role="presentation"><a role="menuitem" href="{{$contact_actions.update.url}}" title="{{$contact_actions.update.title}}">{{$contact_actions.update.label}}</a></li>{{/if}}
-							{{if $lblsuggest || $poll_enabled}}
+							{{if $contact_actions.updateprofile}}<li role="presentation"><a role="menuitem" href="{{$contact_actions.updateprofile.url}}" title="{{$contact_actions.updateprofile.title}}">{{$contact_actions.updateprofile.label}}</a></li>{{/if}}
+							{{if $lblsuggest || $poll_enabled || $contact_actions.updateprofile}}
 							<li role="presentation" class="divider"></li>
 							{{/if}}
 							<li role="presentation"><a role="menuitem" href="{{$contact_actions.block.url}}" title="{{$contact_actions.block.title}}">{{$contact_actions.block.label}}</a></li>
@@ -57,11 +58,6 @@
 						{{if $pending}}<li><div id="pending-message">{{$pending}}</div></li>{{/if}}
 						{{if $ignored}}<li><div id="ignore-message">{{$ignored}}</div></li>{{/if}}
 						{{if $archived}}<li><div id="archive-message">{{$archived}}</div></li>{{/if}}
-					</ul>
-
-					<ul>
-						<!-- <li><a href="network/?cid={{$contact_id}}" id="contact-edit-view-recent">{{$lblrecent}}</a></li> -->
-						{{if $follow}}<li><div id="contact-edit-follow"><a href="{{$follow}}">{{$follow_text}}</a></div></li>{{/if}}
 					</ul>
 				</div> {{* End of contact-edit-status-wrapper *}}
 
@@ -137,7 +133,7 @@
 								{{include file="field_checkbox.tpl" field=$notify}}
 								{{if $fetch_further_information}}
 									{{include file="field_select.tpl" field=$fetch_further_information}}
-									{{if $fetch_further_information.2 == 2 || $fetch_further_information.2 == 3}} {{include file="field_textarea.tpl" field=$ffi_keyword_blacklist}} {{/if}}
+									{{if $fetch_further_information.2 == 2 || $fetch_further_information.2 == 3}} {{include file="field_textarea.tpl" field=$ffi_keyword_denylist}} {{/if}}
 								{{/if}}
 								{{include file="field_checkbox.tpl" field=$hidden}}
 
@@ -173,35 +169,6 @@
 								<p>{{$reason}}</p>
 								<div class="clear"></div>
 								{{/if}}
-							</div>
-						</div>
-					</div>
-					{{/if}}
-					{{if $lbl_vis1}}
-					<div class="panel">
-						<div class="section-subtitle-wrapper" role="tab" id="contact-edit-profile-select">
-							<h4>
-								<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-profile-select-collapse" aria-expanded="false" aria-controls="contact-edit-profile-select-collapse">
-									{{$lbl_vis1}}
-								</a>
-							</h4>
-						</div>
-						<div id="contact-edit-profile-select-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="contact-edit-profile-select">
-							<div class="section-content-tools-wrapper">
-								{{if $profile_select}}
-									<div id="contact-edit-profile-select-text">
-										<p>{{$lbl_vis2}}</p>
-									</div>
-									<div class="form-group">
-									{{$profile_select nofilter}}
-									</div>
-									<div class="clear"></div>
-								{{/if}}
-
-								<div class="form-group pull-right settings-submit-wrapper" >
-									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
-								</div>
-								<div class="clear"></div>
 							</div>
 						</div>
 					</div>

@@ -9,7 +9,6 @@ Friendica - Dokumentation und Ressourcen
 	* [Beiträge erstellen](help/Text_editor)
 	* [Referenz der BBCode Elemente](help/BBCode)
 	* [Beiträge kommentieren, einordnen und löschen](help/Text_comment)
-	* [Profile](help/Profiles)
 	* [Referenz der Accesskeys](help/Accesskeys)
     * [Veranstaltungen](help/events)
 * Du und andere Nutzer
@@ -21,6 +20,7 @@ Friendica - Dokumentation und Ressourcen
 	* [Chats](help/Chats)
 * Weiterführende Informationen
 	* [Account umziehen](help/Move-Account)
+	* [Export / Import gefolgter Kontakte](help/Export-Import-Contacts)
 	* [Account löschen](help/Remove-Account)
 	* [Bugs und Probleme](help/Bugs-and-Issues)
 	* [Häufig gestellte Fragen (FAQ)](help/FAQ)

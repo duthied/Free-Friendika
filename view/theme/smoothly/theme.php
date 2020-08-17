@@ -12,39 +12,17 @@
 
 use Friendica\App;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\DI;
 
 function smoothly_init(App $a) {
 	Renderer::setActiveTemplateEngine('smarty3');
 
 	$cssFile = null;
 	$ssl_state = null;
-	$baseurl = System::baseUrl($ssl_state);
-	$a->page['htmlhead'] .= <<< EOT
+	$baseurl = DI::baseUrl()->get($ssl_state);
+	DI::page()['htmlhead'] .= <<< EOT
 
 <script>
-function insertFormatting(BBcode, id) {
-	var tmpStr = $("#comment-edit-text-" + id).val();
-	if (tmpStr == "") {
-		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
-		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-		openMenu("comment-edit-submit-wrapper-" + id);
-	}
-
-	textarea = document.getElementById("comment-edit-text-" +id);
-	if (document.selection) {
-		textarea.focus();
-		selected = document.selection.createRange();
-		selected.text = "["+BBcode+"]" + selected.text + "[/"+BBcode+"]";
-	} else if (textarea.selectionStart || textarea.selectionStart == "0") {
-		var start = textarea.selectionStart;
-		var end = textarea.selectionEnd;
-		textarea.value = textarea.value.substring(0, start) + "["+BBcode+"]" + textarea.value.substring(start, end) + "[/"+BBcode+"]" + textarea.value.substring(end, textarea.value.length);
-	}
-
-	return true;
-}
-
 function cmtBbOpen(id) {
 	$(".comment-edit-bb-" + id).show();
 }
@@ -97,7 +75,7 @@ EOT;
 
 	/** custom css **/
 	if (!is_null($cssFile)) {
-        $a->page['htmlhead'] .= sprintf('<link rel="stylesheet" type="text/css" href="%s" />', $cssFile);
+		DI::page()['htmlhead'] .= sprintf('<link rel="stylesheet" type="text/css" href="%s" />', $cssFile);
 	}
 
 	_js_in_foot();
@@ -107,12 +85,33 @@ if (! function_exists('_js_in_foot')) {
 	function _js_in_foot() {
 		/** @purpose insert stuff in bottom of page
 		*/
-		$a = \get_app();
 		$ssl_state = null;
-		$baseurl = System::baseUrl($ssl_state);
+		$baseurl = DI::baseUrl()->get($ssl_state);
 		$bottom['$baseurl'] = $baseurl;
 		$tpl = Renderer::getMarkupTemplate('bottom.tpl');
 
-		return $a->page['bottom'] = Renderer::replaceMacros($tpl, $bottom);
+		return DI::page()['bottom'] = Renderer::replaceMacros($tpl, $bottom);
 	}
+}
+
+/**
+ * @param int|null $uid
+ * @return null
+ * @see \Friendica\Core\Theme::getBackgroundColor()
+ * @TODO Implement this function
+ */
+function smoothly_get_background_color(int $uid = null)
+{
+	return null;
+}
+
+/**
+ * @param int|null $uid
+ * @return null
+ * @see \Friendica\Core\Theme::getThemeColor()
+ * @TODO Implement this function
+ */
+function smoothly_get_theme_color(int $uid = null)
+{
+	return null;
 }

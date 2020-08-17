@@ -7,7 +7,6 @@
 
 		<div class="pull-right">
 			<input class="btn-primary btn btn-small" id="photo-album-edit-submit" type="submit" name="submit" value="{{$submit}}" />
-			<input class="btn-primary btn btn-small" id="photo-album-edit-drop" type="submit" name="dropalbum" value="{{$dropsubmit}}" onclick="return confirmDelete();" />
 		</div>
 	</form>
 	<div class="clear"></div>

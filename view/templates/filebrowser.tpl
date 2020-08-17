@@ -1,11 +1,8 @@
-	<!--
-		This is the template used by mod/fbrowser.php
-	-->
-<style>
-	#buglink_wrapper{display:none;} /* hide buglink. only in this page */
-</style>
-<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/view/js/filebrowser.js"></script>
+<!--
+	This is the template used by mod/fbrowser.php
+-->
+<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
+<script type="text/javascript" src="{{$baseurl}}/view/js/filebrowser.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script>
 	$(function() {
 		FileBrowser.init("{{$nickname}}", "{{$type}}");
@@ -17,13 +14,17 @@
 	</div>
 
 	<div class="path">
-		{{foreach $path as $p}}<a href="#" data-folder="{{$p.0}}">{{$p.1}}</a>{{/foreach}}
+		{{foreach $path as $folder => $name}}
+			<a href="#" data-folder="{{$folder}}">{{$name}}</a>
+		{{/foreach}}
 	</div>
 
 	{{if $folders }}
 	<div class="folders">
 		<ul>
-			{{foreach $folders as $f}}<li><a href="#" data-folder="{{$f.0}}">{{$f.1}}</a></li>{{/foreach}}
+		{{foreach $folders as $folder}}
+			<li><a href="#" data-folder="{{$folder}}">{{$folder}}</a></li>
+		{{/foreach}}
 		</ul>
 	</div>
 	{{/if}}

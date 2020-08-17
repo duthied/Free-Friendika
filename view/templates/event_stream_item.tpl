@@ -1,6 +1,6 @@
 
 <div class="vevent">
-	<div class="summary event-summary">{{$title}}</div>
+	<div class="summary event-summary">{{$title nofilter}}</div>
 
 	<div class="event-start">
 		<span class="event-label">{{$dtstart_label}}</span>&nbsp;

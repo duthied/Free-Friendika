@@ -1,17 +1,35 @@
 <?php
 /**
- * @file src/Util/Crypto.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Util;
 
-use Friendica\Core\Config;
-use Friendica\Core\Hook;
-use Friendica\Core\Logger;
 use ASN_BASE;
 use ASNValue;
+use Friendica\Core\Hook;
+use Friendica\Core\Logger;
+use Friendica\Core\System;
+use Friendica\DI;
 
 /**
- * @brief Crypto class
+ * Crypto class
  */
 class Crypto
 {
@@ -24,6 +42,9 @@ class Crypto
 	 */
 	public static function rsaSign($data, $key, $alg = 'sha256')
 	{
+		if (empty($key)) {
+			Logger::warning('Empty key parameter', ['callstack' => System::callstack()]);
+		}
 		openssl_sign($data, $sig, $key, (($alg == 'sha1') ? OPENSSL_ALGO_SHA1 : $alg));
 		return $sig;
 	}
@@ -37,6 +58,9 @@ class Crypto
 	 */
 	public static function rsaVerify($data, $sig, $key, $alg = 'sha256')
 	{
+		if (empty($key)) {
+			Logger::warning('Empty key parameter', ['callstack' => System::callstack()]);
+		}
 		return openssl_verify($data, $sig, $key, (($alg == 'sha1') ? OPENSSL_ALGO_SHA1 : $alg));
 	}
 
@@ -202,8 +226,10 @@ class Crypto
 
 		$r = ASN_BASE::parseASNString($x);
 
-		$m = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[0]->asnData);
-		$e = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);
+		if (isset($r[0])) {
+			$m = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[0]->asnData);
+			$e = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);
+		}
 	}
 
 	/**
@@ -231,7 +257,7 @@ class Crypto
 			'encrypt_key'      => false
 		];
 
-		$conf = Config::get('system', 'openssl_conf_file');
+		$conf = DI::config()->get('system', 'openssl_conf_file');
 		if ($conf) {
 			$openssl_options['config'] = $conf;
 		}
@@ -367,7 +393,7 @@ class Crypto
 			// log the offending call so we can track it down
 			if (!openssl_public_encrypt($key, $k, $pubkey)) {
 				$x = debug_backtrace();
-				Logger::log('RSA failed. ' . print_r($x[0], true));
+				Logger::notice('RSA failed', ['trace' => $x[0]]);
 			}
 
 			$result['alg'] = $alg;
@@ -435,11 +461,12 @@ class Crypto
 			return;
 		}
 
-		$alg = ((array_key_exists('alg', $data)) ? $data['alg'] : 'aes256cbc');
+		$alg = $data['alg'] ?? 'aes256cbc';
 		if ($alg === 'aes256cbc') {
-			return self::encapsulateAes($data['data'], $prvkey);
+			return self::unencapsulateAes($data['data'], $prvkey);
 		}
-		return self::encapsulateOther($data['data'], $prvkey, $alg);
+
+		return self::unencapsulateOther($data, $prvkey, $alg);
 	}
 
 	/**

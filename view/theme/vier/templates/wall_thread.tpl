@@ -2,12 +2,13 @@
 {{else}}
 {{if $item.comment_firstcollapsed}}
 	{{if $item.thread_level<3}}
-		<div class="hide-comments-outer">
-			<span id="hide-comments-total-{{$item.id}}"
-				class="hide-comments-total">{{$item.num_comments}}</span>
-			<span id="hide-comments-{{$item.id}}"
-				class="hide-comments fakelink"
-				onclick="showHideComments({{$item.id}});">{{$item.hide_text}}</span>
+		<div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
+			<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">
+				{{$item.num_comments}} - {{$item.show_text}}
+			</span>
+			<span id="hide-comments-{{$item.id}}" class="hide-comments" style="display: none">
+				{{$item.num_comments}} - {{$item.hide_text}}
+			</span>
 		</div>
 		<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 	{{else}}
@@ -31,7 +32,7 @@
 <span class="commented" style="display: none;">{{$item.commented}}</span>
 <span class="received" style="display: none;">{{$item.received}}</span>
 <span class="created" style="display: none;">{{$item.created_date}}</span>
-<span class="id" style="display: none;">{{$item.id}}</span>
+<span class="uriid" style="display: none;">{{$item.uriid}}</span>
 {{/if}}
 	<div class="wall-item-item">
 		<div class="wall-item-info">
@@ -59,8 +60,12 @@
 				{{if $item.owner_self}}
 					{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 				{{/if}}
+				{{if $item.direction}}
+					{{include file="sub/direction.tpl" direction=$item.direction}}
+				{{/if}}
+				<span class="pinned">{{$item.pinned}}</span>
 			</span>
-			{{if $item.lock}}<span class="icon s10 lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
+			{{if $item.lock}}<span class="icon s10 lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
 			<span class="wall-item-network" title="{{$item.app}}">
 				{{$item.network_name}}
 			</span>
@@ -88,7 +93,7 @@
 				<span class="folder p-category">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 			{{/foreach}}
 			{{foreach $item.categories as $cat}}
-				<span class="category p-category">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+				<span class="category p-category"><a href="{{$cat.url}}">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 			{{/foreach}}
 		</div>
 	</div>
@@ -100,27 +105,35 @@
 			<div class="wall-item-actions-social">
 			{{if $item.threaded}}
 			{{/if}}
+			{{if $item.remote_comment}}
+				<a role="button" title="{{$item.remote_comment.0}}" href="{{$item.remote_comment.2}}"><i class="icon-commenting"><span class="sr-only">{{$item.remote_comment.1}}</span></i></a>
+			{{/if}}
+
 			{{if $item.comment}}
 				<a role="button" id="comment-{{$item.id}}" class="fakelink togglecomment" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" title="{{$item.switchcomment}}"><i class="icon-commenting"><span class="sr-only">{{$item.switchcomment}}</span></i></a>
 			{{/if}}
 
 			{{if $item.isevent}}
-				<a role="button" id="attendyes-{{$item.id}}"{{if $item.responses.attendyes.self}} class="active"{{/if}} title="{{$item.attend.0}}" onclick="dolike({{$item.id}},'attendyes'); return false;"><i class="icon-ok icon-large"><span class="sr-only">{{$item.attend.0}}</span></i></a>
-				<a role="button" id="attendno-{{$item.id}}"{{if $item.responses.attendno.self}} class="active"{{/if}} title="{{$item.attend.1}}" onclick="dolike({{$item.id}},'attendno'); return false;"><i class="icon-remove icon-large"><span class="sr-only">{{$item.attend.1}}</span></i></a>
-				<a role="button" id="attendmaybe-{{$item.id}}"{{if $item.responses.attendmaybe.self}} class="active"{{/if}} title="{{$item.attend.2}}" onclick="dolike({{$item.id}},'attendmaybe'); return false;"><i class="icon-question icon-large"><span class="sr-only">{{$item.attend.2}}</span></i></a>
+				<a role="button" id="attendyes-{{$item.id}}"{{if $item.responses.attendyes.self}} class="active"{{/if}} title="{{$item.attend.0}}" onclick="dolike({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}}); return false;"><i class="icon-ok icon-large"><span class="sr-only">{{$item.attend.0}}</span></i></a>
+				<a role="button" id="attendno-{{$item.id}}"{{if $item.responses.attendno.self}} class="active"{{/if}} title="{{$item.attend.1}}" onclick="dolike({{$item.id}}, 'attendno'{{if $item.responses.attendno.self}}, true{{/if}}); return false;"><i class="icon-remove icon-large"><span class="sr-only">{{$item.attend.1}}</span></i></a>
+				<a role="button" id="attendmaybe-{{$item.id}}"{{if $item.responses.attendmaybe.self}} class="active"{{/if}} title="{{$item.attend.2}}" onclick="dolike({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}}); return false;"><i class="icon-question icon-large"><span class="sr-only">{{$item.attend.2}}</span></i></a>
 			{{/if}}
 
 			{{if $item.vote}}
 				{{if $item.vote.like}}
-				<a role="button" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active"{{/if}} title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false"><i class="icon-thumbs-up icon-large"><span class="sr-only">{{$item.vote.like.0}}</span></i></a>
+				<a role="button" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active"{{/if}} title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false"><i class="icon-thumbs-up icon-large"><span class="sr-only">{{$item.vote.like.0}}</span></i></a>
 				{{/if}}{{if $item.vote.dislike}}
-				<a role="button" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active"{{/if}} title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false"><i class="icon-thumbs-down icon-large"><span class="sr-only">{{$item.vote.dislike.0}}</span></i></a>
+				<a role="button" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active"{{/if}} title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false"><i class="icon-thumbs-down icon-large"><span class="sr-only">{{$item.vote.dislike.0}}</span></i></a>
 				{{/if}}
 			    {{if $item.vote.share}}
 				    <a role="button" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"><i class="icon-retweet icon-large"><span class="sr-only">{{$item.vote.share.0}}</span></i></a>
 			    {{/if}}
 			{{/if}}
 
+			{{if $item.pin}}
+				<a role="button" id="pin-{{$item.id}}" onclick="dopin({{$item.id}}); return false;"  class="{{$item.pin.classdo}}" title="{{$item.pin.do}}"><i class="icon-circle icon-large"><span class="sr-only">{{$item.pin.do}}</span></i></a>
+				<a role="button" id="unpin-{{$item.id}}" onclick="dopin({{$item.id}}); return false;"  class="{{$item.pin.classundo}}"  title="{{$item.pin.undo}}"><i class="icon-remove-circle icon-large"><span class="sr-only">{{$item.pin.undo}}</span></i></a>
+			{{/if}}
 			{{if $item.star}}
 				<a role="button" id="star-{{$item.id}}" onclick="dostar({{$item.id}}); return false;"  class="{{$item.star.classdo}}" title="{{$item.star.do}}"><i class="icon-star icon-large"><span class="sr-only">{{$item.star.do}}</span></i></a>
 				<a role="button" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}}); return false;"  class="{{$item.star.classundo}}"  title="{{$item.star.undo}}"><i class="icon-star-empty icon-large"><span class="sr-only">{{$item.star.undo}}</span></i></a>

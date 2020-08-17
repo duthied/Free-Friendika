@@ -1,6 +1,6 @@
 <div class="wall-item-decor">
 	{{if $item.star}}<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>{{/if}}
-	{{if $item.lock}}<span class="icon s22 lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
+	{{if $item.lock}}<span class="icon s22 lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
 	<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 </div>
 
@@ -53,9 +53,11 @@
 				<a href="#" id="tagger-{{$item.id}}" onclick="itemTag({{$item.id}}); return false;" class="{{$item.star.classtagger}}" title="{{$item.star.tagger}}">{{$item.star.tagger}}</a>
 			{{/if}}
 
-			{{if $item.vote}}
-				<a href="#" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false">{{$item.vote.like.1}}</a>
-				<a href="#" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false">{{$item.vote.dislike.1}}</a>
+			{{if $item.vote.like}}
+				<a href="#" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false">{{$item.vote.like.1}}</a>
+			{{/if}}
+			{{if $item.vote.dislike}}
+				<a href="#" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false">{{$item.vote.dislike.1}}</a>
 			{{/if}}
 
 			{{if $item.vote.share}}

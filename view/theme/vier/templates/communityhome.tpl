@@ -39,7 +39,7 @@
 {{/if}}
 
 {{if $nv}}
-{{include file='peoplefind.tpl' nv=$nv}}
+{{include file='widget/peoplefind.tpl' nv=$nv}}
 {{/if}}
 
 {{if $lastusers_title}}

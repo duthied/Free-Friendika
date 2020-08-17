@@ -1,22 +1,35 @@
 <?php
 /**
- * @file src/Database/DBStructure.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Database;
 
 use Exception;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\DI;
+use Friendica\Model\Item;
+use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 
-require_once 'include/dba.php';
-
 /**
- * @brief This class contain functions for the database management
- *
  * This class contains functions that doesn't need to know if pdo, mysqli or whatever is used.
  */
 class DBStructure
@@ -35,21 +48,30 @@ class DBStructure
 	 */
 	private static $definition = [];
 
-	/*
-	 * Converts all tables from MyISAM to InnoDB
+	/**
+	 * Converts all tables from MyISAM/InnoDB Antelope to InnoDB Barracuda
 	 */
 	public static function convertToInnoDB()
 	{
-		$r = q("SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `engine` = 'MyISAM' AND `table_schema` = '%s'",
-			DBA::escape(DBA::databaseName()));
+		$tables = DBA::selectToArray(
+			['information_schema' => 'tables'],
+			['table_name'],
+			['engine' => 'MyISAM', 'table_schema' => DBA::databaseName()]
+		);
 
-		if (!DBA::isResult($r)) {
-			echo L10n::t('There are no tables on MyISAM.') . "\n";
+		$tables = array_merge($tables, DBA::selectToArray(
+			['information_schema' => 'tables'],
+			['table_name'],
+			['engine' => 'InnoDB', 'ROW_FORMAT' => ['COMPACT', 'REDUNDANT'], 'table_schema' => DBA::databaseName()]
+		));
+
+		if (!DBA::isResult($tables)) {
+			echo DI::l10n()->t('There are no tables on MyISAM or InnoDB with the Antelope file format.') . "\n";
 			return;
 		}
 
-		foreach ($r AS $table) {
-			$sql = sprintf("ALTER TABLE `%s` engine=InnoDB;", DBA::escape($table['TABLE_NAME']));
+		foreach ($tables AS $table) {
+			$sql = "ALTER TABLE " . DBA::quoteIdentifier($table['table_name']) . " ENGINE=InnoDB ROW_FORMAT=DYNAMIC;";
 			echo $sql . "\n";
 
 			$result = DBA::e($sql);
@@ -60,7 +82,7 @@ class DBStructure
 	}
 
 	/**
-	 * @brief Print out database error messages
+	 * Print out database error messages
 	 *
 	 * @param string $message Message to be added to the error message
 	 *
@@ -68,10 +90,10 @@ class DBStructure
 	 */
 	private static function printUpdateError($message)
 	{
-		echo L10n::t("\nError %d occurred during database update:\n%s\n",
+		echo DI::l10n()->t("\nError %d occurred during database update:\n%s\n",
 			DBA::errorNo(), DBA::errorMessage());
 
-		return L10n::t('Errors encountered performing database changes: ') . $message . EOL;
+		return DI::l10n()->t('Errors encountered performing database changes: ') . $message . EOL;
 	}
 
 	public static function printStructure($basePath)
@@ -90,13 +112,15 @@ class DBStructure
 
 			echo "\n";
 		}
+
+		View::printStructure($basePath);
 	}
 
 	/**
-	 * Loads the database structure definition from the config/dbstructure.config.php file.
+	 * Loads the database structure definition from the static/dbstructure.config.php file.
 	 * On first pass, defines DB_UPDATE_VERSION constant.
 	 *
-	 * @see config/dbstructure.config.php
+	 * @see static/dbstructure.config.php
 	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
 	 * @param string  $basePath              The base path of this application
 	 * @return array
@@ -106,16 +130,16 @@ class DBStructure
 	{
 		if (!self::$definition) {
 
-			$filename = $basePath . '/config/dbstructure.config.php';
+			$filename = $basePath . '/static/dbstructure.config.php';
 
 			if (!is_readable($filename)) {
-				throw new Exception('Missing database structure config file config/dbstructure.config.php');
+				throw new Exception('Missing database structure config file static/dbstructure.config.php');
 			}
 
 			$definition = require $filename;
 
 			if (!$definition) {
-				throw new Exception('Corrupted database structure config file config/dbstructure.config.php');
+				throw new Exception('Corrupted database structure config file static/dbstructure.config.php');
 			}
 
 			self::$definition = $definition;
@@ -138,10 +162,15 @@ class DBStructure
 		$comment = "";
 		$sql_rows = [];
 		$primary_keys = [];
+		$foreign_keys = [];
+
 		foreach ($structure["fields"] AS $fieldname => $field) {
 			$sql_rows[] = "`" . DBA::escape($fieldname) . "` " . self::FieldCommand($field);
 			if (!empty($field['primary'])) {
 				$primary_keys[] = $fieldname;
+			}
+			if (!empty($field['foreign'])) {
+				$foreign_keys[$fieldname] = $field;
 			}
 		}
 
@@ -152,6 +181,10 @@ class DBStructure
 					$sql_rows[] = $sql_index;
 				}
 			}
+		}
+
+		foreach ($foreign_keys AS $fieldname => $parameters) {
+			$sql_rows[] = self::foreignCommand($name, $fieldname, $parameters);
 		}
 
 		if (isset($structure["engine"])) {
@@ -259,9 +292,17 @@ class DBStructure
 	public static function update($basePath, $verbose, $action, $install = false, array $tables = null, array $definition = null)
 	{
 		if ($action && !$install) {
-			Config::set('system', 'maintenance', 1);
-			Config::set('system', 'maintenance_reason', L10n::t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
+			if (self::isUpdating()) {
+				return DI::l10n()->t('Another database update is currently running.');
+			}
+
+			DI::config()->set('system', 'maintenance', 1);
+			DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
 		}
+
+		// ensure that all initial values exist. This test has to be done prior and after the structure check.
+		// Prior is needed if the specific tables already exists - after is needed when they had been created.
+		self::checkInitialValues();
 
 		$errors = '';
 
@@ -271,7 +312,7 @@ class DBStructure
 		$database = [];
 
 		if (is_null($tables)) {
-			$tables = q("SHOW TABLES");
+			$tables = DBA::toArray(DBA::p("SHOW TABLES"));
 		}
 
 		if (DBA::isResult($tables)) {
@@ -363,6 +404,7 @@ class DBStructure
 
 						// Remove the relation data that is used for the referential integrity
 						unset($parameters['relation']);
+						unset($parameters['foreign']);
 
 						// We change the collation after the indexes had been changed.
 						// This is done to avoid index length problems.
@@ -417,9 +459,43 @@ class DBStructure
 					}
 				}
 
-				if (isset($database[$name]["table_status"]["Comment"])) {
-					$structurecomment = defaults($structure, "comment", "");
-					if ($database[$name]["table_status"]["Comment"] != $structurecomment) {
+				$existing_foreign_keys = $database[$name]['foreign_keys'];
+
+				// Foreign keys
+				// Compare the field structure field by field
+				foreach ($structure["fields"] AS $fieldname => $parameters) {
+					if (empty($parameters['foreign'])) {
+						continue;
+					}
+
+					$constraint = self::getConstraintName($name, $fieldname, $parameters);
+
+					unset($existing_foreign_keys[$constraint]);
+
+					if (empty($database[$name]['foreign_keys'][$constraint])) {
+						$sql2 = self::addForeignKey($name, $fieldname, $parameters);
+
+						if ($sql3 == "") {
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+						} else {
+							$sql3 .= ", " . $sql2;
+						}
+					}
+				}
+
+				foreach ($existing_foreign_keys as $param) {
+					$sql2 = self::dropForeignKey($param['CONSTRAINT_NAME']);
+
+					if ($sql3 == "") {
+						$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+					} else {
+						$sql3 .= ", " . $sql2;
+					}
+				}
+
+				if (isset($database[$name]["table_status"]["TABLE_COMMENT"])) {
+					$structurecomment = $structure["comment"] ?? '';
+					if ($database[$name]["table_status"]["TABLE_COMMENT"] != $structurecomment) {
 						$sql2 = "COMMENT = '" . DBA::escape($structurecomment) . "'";
 
 						if ($sql3 == "") {
@@ -430,8 +506,8 @@ class DBStructure
 					}
 				}
 
-				if (isset($database[$name]["table_status"]["Engine"]) && isset($structure['engine'])) {
-					if ($database[$name]["table_status"]["Engine"] != $structure['engine']) {
+				if (isset($database[$name]["table_status"]["ENGINE"]) && isset($structure['engine'])) {
+					if ($database[$name]["table_status"]["ENGINE"] != $structure['engine']) {
 						$sql2 = "ENGINE = '" . DBA::escape($structure['engine']) . "'";
 
 						if ($sql3 == "") {
@@ -442,8 +518,8 @@ class DBStructure
 					}
 				}
 
-				if (isset($database[$name]["table_status"]["Collation"])) {
-					if ($database[$name]["table_status"]["Collation"] != 'utf8mb4_general_ci') {
+				if (isset($database[$name]["table_status"]["TABLE_COLLATION"])) {
+					if ($database[$name]["table_status"]["TABLE_COLLATION"] != 'utf8mb4_general_ci') {
 						$sql2 = "DEFAULT COLLATE utf8mb4_general_ci";
 
 						if ($sql3 == "") {
@@ -462,7 +538,7 @@ class DBStructure
 				// Compare the field structure field by field
 				foreach ($structure["fields"] AS $fieldname => $parameters) {
 					// Compare the field definition
-					$field_definition = defaults($database[$name]["fields"], $fieldname, ['Collation' => '']);
+					$field_definition = ($database[$name]["fields"][$fieldname] ?? '') ?: ['Collation' => ''];
 
 					// Define the default collation if not given
 					if (!isset($parameters['Collation']) && !empty($field_definition['Collation'])) {
@@ -521,7 +597,7 @@ class DBStructure
 
 				if ($action) {
 					if (!$install) {
-						Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DateTimeFormat::utcNow() . ' ' . date('e'), $name));
+						DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: updating %s table.', DateTimeFormat::utcNow() . ' ' . date('e'), $name));
 					}
 
 					// Ensure index conversion to unique removes duplicates
@@ -572,14 +648,18 @@ class DBStructure
 			}
 		}
 
+		View::create(false, $action);
+
+		self::checkInitialValues();
+
 		if ($action && !$install) {
-			Config::set('system', 'maintenance', 0);
-			Config::set('system', 'maintenance_reason', '');
+			DI::config()->set('system', 'maintenance', 0);
+			DI::config()->set('system', 'maintenance_reason', '');
 
 			if ($errors) {
-				Config::set('system', 'dbupdate', self::UPDATE_FAILED);
+				DI::config()->set('system', 'dbupdate', self::UPDATE_FAILED);
 			} else {
-				Config::set('system', 'dbupdate', self::UPDATE_SUCCESSFUL);
+				DI::config()->set('system', 'dbupdate', self::UPDATE_SUCCESSFUL);
 			}
 		}
 
@@ -588,22 +668,36 @@ class DBStructure
 
 	private static function tableStructure($table)
 	{
-		$structures = q("DESCRIBE `%s`", $table);
+		// This query doesn't seem to be executable as a prepared statement
+		$indexes = DBA::toArray(DBA::p("SHOW INDEX FROM " . DBA::quoteIdentifier($table)));
 
-		$full_columns = q("SHOW FULL COLUMNS FROM `%s`", $table);
+		$fields = DBA::selectToArray(['INFORMATION_SCHEMA' => 'COLUMNS'],
+			['COLUMN_NAME', 'COLUMN_TYPE', 'IS_NULLABLE', 'COLUMN_DEFAULT', 'EXTRA',
+			'COLUMN_KEY', 'COLLATION_NAME', 'COLUMN_COMMENT'],
+			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?",
+			DBA::databaseName(), $table]);
 
-		$indexes = q("SHOW INDEX FROM `%s`", $table);
+		$foreign_keys = DBA::selectToArray(['INFORMATION_SCHEMA' => 'KEY_COLUMN_USAGE'],
+			['COLUMN_NAME', 'CONSTRAINT_NAME', 'REFERENCED_TABLE_NAME', 'REFERENCED_COLUMN_NAME'],
+			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL",
+			DBA::databaseName(), $table]);
 
-		$table_status = q("SHOW TABLE STATUS WHERE `name` = '%s'", $table);
-
-		if (DBA::isResult($table_status)) {
-			$table_status = $table_status[0];
-		} else {
-			$table_status = [];
-		}
+		$table_status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'],
+			['ENGINE', 'TABLE_COLLATION', 'TABLE_COMMENT'],
+			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?",
+			DBA::databaseName(), $table]);
 
 		$fielddata = [];
 		$indexdata = [];
+		$foreigndata = [];
+
+		if (DBA::isResult($foreign_keys)) {
+			foreach ($foreign_keys as $foreign_key) {
+				$parameters = ['foreign' => [$foreign_key['REFERENCED_TABLE_NAME'] => $foreign_key['REFERENCED_COLUMN_NAME']]];
+				$constraint = self::getConstraintName($table, $foreign_key['COLUMN_NAME'], $parameters);
+				$foreigndata[$constraint] = $foreign_key;
+			}
+		}
 
 		if (DBA::isResult($indexes)) {
 			foreach ($indexes AS $index) {
@@ -624,39 +718,39 @@ class DBStructure
 				$indexdata[$index["Key_name"]][] = $column;
 			}
 		}
-		if (DBA::isResult($structures)) {
-			foreach ($structures AS $field) {
-				// Replace the default size values so that we don't have to define them
+
+		$fielddata = [];
+		if (DBA::isResult($fields)) {
+			foreach ($fields AS $field) {
 				$search = ['tinyint(1)', 'tinyint(3) unsigned', 'tinyint(4)', 'smallint(5) unsigned', 'smallint(6)', 'mediumint(8) unsigned', 'mediumint(9)', 'bigint(20)', 'int(10) unsigned', 'int(11)'];
 				$replace = ['boolean', 'tinyint unsigned', 'tinyint', 'smallint unsigned', 'smallint', 'mediumint unsigned', 'mediumint', 'bigint', 'int unsigned', 'int'];
-				$field["Type"] = str_replace($search, $replace, $field["Type"]);
+				$field['COLUMN_TYPE'] = str_replace($search, $replace, $field['COLUMN_TYPE']);
 
-				$fielddata[$field["Field"]]["type"] = $field["Type"];
-				if ($field["Null"] == "NO") {
-					$fielddata[$field["Field"]]["not null"] = true;
+				$fielddata[$field['COLUMN_NAME']]['type'] = $field['COLUMN_TYPE'];
+
+				if ($field['IS_NULLABLE'] == 'NO') {
+					$fielddata[$field['COLUMN_NAME']]['not null'] = true;
 				}
 
-				if (isset($field["Default"])) {
-					$fielddata[$field["Field"]]["default"] = $field["Default"];
+				if (isset($field['COLUMN_DEFAULT']) && ($field['COLUMN_DEFAULT'] != 'NULL')) {
+					$fielddata[$field['COLUMN_NAME']]['default'] = trim($field['COLUMN_DEFAULT'], "'");
 				}
 
-				if ($field["Extra"] != "") {
-					$fielddata[$field["Field"]]["extra"] = $field["Extra"];
+				if (!empty($field['EXTRA'])) {
+					$fielddata[$field['COLUMN_NAME']]['extra'] = $field['EXTRA'];
 				}
 
-				if ($field["Key"] == "PRI") {
-					$fielddata[$field["Field"]]["primary"] = true;
+				if ($field['COLUMN_KEY'] == 'PRI') {
+					$fielddata[$field['COLUMN_NAME']]['primary'] = true;
 				}
+
+				$fielddata[$field['COLUMN_NAME']]['Collation'] = $field['COLLATION_NAME'];
+				$fielddata[$field['COLUMN_NAME']]['comment'] = $field['COLUMN_COMMENT'];
 			}
 		}
-		if (DBA::isResult($full_columns)) {
-			foreach ($full_columns AS $column) {
-				$fielddata[$column["Field"]]["Collation"] = $column["Collation"];
-				$fielddata[$column["Field"]]["comment"] = $column["Comment"];
-			}
-		}
 
-		return ["fields" => $fielddata, "indexes" => $indexdata, "table_status" => $table_status];
+		return ["fields" => $fielddata, "indexes" => $indexdata,
+			"foreign_keys" => $foreigndata, "table_status" => $table_status];
 	}
 
 	private static function dropIndex($indexname)
@@ -675,6 +769,45 @@ class DBStructure
 	{
 		$sql = sprintf("MODIFY `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters, false));
 		return ($sql);
+	}
+
+	private static function getConstraintName(string $tablename, string $fieldname, array $parameters)
+	{
+		$foreign_table = array_keys($parameters['foreign'])[0];
+		$foreign_field = array_values($parameters['foreign'])[0];
+
+		return $tablename . "-" . $fieldname. "-" . $foreign_table. "-" . $foreign_field;
+	}
+
+	private static function foreignCommand(string $tablename, string $fieldname, array $parameters) {
+		$foreign_table = array_keys($parameters['foreign'])[0];
+		$foreign_field = array_values($parameters['foreign'])[0];
+
+		$sql = "FOREIGN KEY (`" . $fieldname . "`) REFERENCES `" . $foreign_table . "` (`" . $foreign_field . "`)";
+
+		if (!empty($parameters['foreign']['on update'])) {
+			$sql .= " ON UPDATE " . strtoupper($parameters['foreign']['on update']);
+		} else {
+			$sql .= " ON UPDATE RESTRICT";
+		}
+
+		if (!empty($parameters['foreign']['on delete'])) {
+			$sql .= " ON DELETE " . strtoupper($parameters['foreign']['on delete']);
+		} else {
+			$sql .= " ON DELETE CASCADE";
+		}
+
+		return $sql;
+	}
+
+	private static function addForeignKey(string $tablename, string $fieldname, array $parameters)
+	{
+		return sprintf("ADD %s", self::foreignCommand($tablename, $fieldname, $parameters));
+	}
+
+	private static function dropForeignKey(string $constraint)
+	{
+		return sprintf("DROP FOREIGN KEY `%s`", $constraint);
 	}
 
 	/**
@@ -714,8 +847,8 @@ class DBStructure
 	 * @todo You cannot rename a primary key if "auto increment" is set
 	 *
 	 * @param string $table            Table name
-	 * @param array  $columns          Columns Syntax for Rename: [ $old1 => [ $new1, $type1 ], $old2 => [ $new2, $type2 ], ... ] )
-	 *                                 Syntax for Primary Key: [ $col1, $col2, ...] )
+	 * @param array  $columns          Columns Syntax for Rename: [ $old1 => [ $new1, $type1 ], $old2 => [ $new2, $type2 ], ... ]
+	 *                                 Syntax for Primary Key: [ $col1, $col2, ...]
 	 * @param int    $type             The type of renaming (Default is Column)
 	 *
 	 * @return boolean Was the renaming successful?
@@ -815,9 +948,22 @@ class DBStructure
 	}
 
 	/**
+	 * Check if a foreign key exists for the given table field
+	 *
+	 * @param string $table
+	 * @param string $field
+	 * @return boolean
+	 */
+	public static function existsForeignKeyForField(string $table, string $field)
+	{
+		return DBA::exists(['INFORMATION_SCHEMA' => 'KEY_COLUMN_USAGE'],
+			["`TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? AND `COLUMN_NAME` = ? AND `REFERENCED_TABLE_SCHEMA` IS NOT NULL",
+			DBA::databaseName(), $table, $field]);
+	}
+	/**
 	 *    Check if a table exists
 	 *
-	 * @param string $table Table name
+	 * @param string|array $table Table name
 	 *
 	 * @return boolean Does the table exist?
 	 * @throws Exception
@@ -828,20 +974,121 @@ class DBStructure
 			return false;
 		}
 
-		$table = DBA::escape($table);
-
-		$sql = "SHOW TABLES LIKE '" . $table . "';";
-
-		$stmt = DBA::p($sql);
-
-		if (is_bool($stmt)) {
-			$retval = $stmt;
+		if (is_array($table)) {
+			$condition = ['table_schema' => key($table), 'table_name' => current($table)];
 		} else {
-			$retval = (DBA::numRows($stmt) > 0);
+			$condition = ['table_schema' => DBA::databaseName(), 'table_name' => $table];
 		}
 
-		DBA::close($stmt);
+		$result = DBA::exists(['information_schema' => 'tables'], $condition);
 
-		return $retval;
+		return $result;
+	}
+
+	/**
+	 * Returns the columns of a table
+	 *
+	 * @param string $table Table name
+	 *
+	 * @return array An array of the table columns
+	 * @throws Exception
+	 */
+	public static function getColumns($table)
+	{
+		$stmtColumns = DBA::p("SHOW COLUMNS FROM `" . $table . "`");
+		return DBA::toArray($stmtColumns);
+	}
+
+	/**
+	 * Check if initial database values do exist - or create them
+	 */
+	public static function checkInitialValues()
+	{
+		if (self::existsTable('verb') && !DBA::exists('verb', ['id' => 1])) {
+			foreach (Item::ACTIVITIES as $index => $activity) {
+				DBA::insert('verb', ['id' => $index + 1, 'name' => $activity], true);
+			}
+		}
+
+		if (self::existsTable('contact') && !DBA::exists('contact', ['id' => 0])) {
+			DBA::insert('contact', ['nurl' => '']);
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('contact', ['id' => 0], ['id' => $lastid]);
+			}		
+		}
+
+		if (self::existsTable('permissionset')) {
+			if (!DBA::exists('permissionset', ['id' => 0])) {
+				DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
+				$lastid = DBA::lastInsertId();
+				if ($lastid != 0) {
+					DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
+				}
+			}
+			if (!self::existsForeignKeyForField('item', 'psid')) {
+				$sets = DBA::p("SELECT `psid`, `item`.`uid`, `item`.`private` FROM `item`
+					LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
+					WHERE `permissionset`.`id` IS NULL AND NOT `psid` IS NULL");
+				while ($set = DBA::fetch($sets)) {
+					if (($set['private'] == Item::PRIVATE) && ($set['uid'] != 0)) {
+						$owner = User::getOwnerDataById($set['uid']);
+						if ($owner) {
+							$permission = '<' . $owner['id'] . '>';
+						} else {
+							$permission = '<>';
+						}
+					} else {
+						$permission = '';
+					}
+					$fields = ['id' => $set['psid'], 'uid' => $set['uid'], 'allow_cid' => $permission,
+						'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => ''];
+					DBA::insert('permissionset', $fields);
+				}
+				DBA::close($sets);
+			}
+		}
+	
+		if (self::existsTable('tag') && !DBA::exists('tag', ['id' => 0])) {
+			DBA::insert('tag', ['name' => '']);
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('tag', ['id' => 0], ['id' => $lastid]);
+			}
+		}
+
+		if (!self::existsForeignKeyForField('tokens', 'client_id')) {
+			$tokens = DBA::p("SELECT `tokens`.`id` FROM `tokens`
+				LEFT JOIN `clients` ON `clients`.`client_id` = `tokens`.`client_id`
+				WHERE `clients`.`client_id` IS NULL");
+			while ($token = DBA::fetch($tokens)) {
+				DBA::delete('tokens', ['id' => $token['id']]);
+			}
+			DBA::close($tokens);
+		}
+	}
+
+	/**
+	 * Checks if a database update is currently running
+	 *
+	 * @return boolean
+	 */
+	private static function isUpdating()
+	{
+		$isUpdate = false;
+
+		$processes = DBA::select(['information_schema' => 'processlist'], ['info'],
+			['db' => DBA::databaseName(), 'command' => ['Query', 'Execute']]);
+
+		while ($process = DBA::fetch($processes)) {
+			$parts = explode(' ', $process['info']);
+			if (in_array(strtolower(array_shift($parts)), ['alter', 'create', 'drop', 'rename'])) {
+				$isUpdate = true;
+			}
+		}
+
+		DBA::close($processes);
+
+		return $isUpdate;
 	}
 }

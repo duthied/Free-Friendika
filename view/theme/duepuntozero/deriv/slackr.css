@@ -126,7 +126,7 @@ nav #site-location {
 
 }
 
-.contact-entry-photo img, .profile-match-photo img, #photo-photo img, .directory-photo-img, .photo-album-photo, .photo-top-photo, .profile-jot-text, .group-selected, .nets-selected, .fileas-selected, #profile-jot-submit, .categories-selected {
+.contact-entry-photo img, .profile-match-photo img, #photo-photo img, .directory-photo-img, .photo-album-photo, .photo-top-photo, .profile-jot-text, .group-selected, .widget .selected, #profile-jot-submit {
 	border-radius: 3px;
 	-moz-border-radius: 3px;
 	box-shadow: 4px 4px 3px 0 #444444;

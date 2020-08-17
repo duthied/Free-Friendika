@@ -1,9 +1,30 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\App;
 
-use Friendica\Core\Config;
-use Friendica\Database\DBA;
+use Detection\MobileDetect;
+use Friendica\Core\Config\Cache;
+use Friendica\Database\Database;
+use Friendica\Util\BasePath;
 
 /**
  * Mode of the current Friendica Node
@@ -12,26 +33,44 @@ use Friendica\Database\DBA;
  */
 class Mode
 {
-	const LOCALCONFIGPRESENT = 1;
-	const DBAVAILABLE = 2;
-	const DBCONFIGAVAILABLE = 4;
+	const LOCALCONFIGPRESENT  = 1;
+	const DBAVAILABLE         = 2;
+	const DBCONFIGAVAILABLE   = 4;
 	const MAINTENANCEDISABLED = 8;
 
 	/***
-	 * @var int the mode of this Application
+	 * @var int The mode of this Application
 	 *
 	 */
 	private $mode;
 
 	/**
-	 * @var string the basepath of the application
+	 * @var bool True, if the call is a backend call
 	 */
-	private $basepath;
+	private $isBackend;
 
-	public function __construct($basepath = '')
+	/**
+	 * @var bool True, if the call is a ajax call
+	 */
+	private $isAjax;
+
+	/**
+	 * @var bool True, if the call is from a mobile device
+	 */
+	private $isMobile;
+
+	/**
+	 * @var bool True, if the call is from a tablet device
+	 */
+	private $isTablet;
+
+	public function __construct(int $mode = 0, bool $isBackend = false, bool $isAjax = false, bool $isMobile = false, bool $isTablet = false)
 	{
-		$this->basepath = $basepath;
-		$this->mode = 0;
+		$this->mode      = $mode;
+		$this->isBackend = $isBackend;
+		$this->isAjax    = $isAjax;
+		$this->isMobile  = $isMobile;
+		$this->isTablet  = $isTablet;
 	}
 
 	/**
@@ -41,42 +80,67 @@ class Mode
 	 * - App::MODE_MAINTENANCE: The maintenance mode has been set
 	 * - App::MODE_NORMAL     : Normal run with all features enabled
 	 *
-	 * @param string $basepath the Basepath of the Application
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @return Mode returns the determined mode
+	 *
+	 * @throws \Exception
 	 */
-	public function determine($basepath = null)
+	public function determine(BasePath $basepath, Database $database, Cache $configCache)
 	{
-		if (!empty($basepath)) {
-			$this->basepath = $basepath;
+		$mode = 0;
+
+		$basepathName = $basepath->getPath();
+
+		if (!file_exists($basepathName . '/config/local.config.php')
+		    && !file_exists($basepathName . '/config/local.ini.php')
+		    && !file_exists($basepathName . '/.htconfig.php')) {
+			return new Mode($mode);
 		}
 
-		$this->mode = 0;
+		$mode |= Mode::LOCALCONFIGPRESENT;
 
-		if (!file_exists($this->basepath . '/config/local.config.php')
-			&& !file_exists($this->basepath . '/config/local.ini.php')
-			&& !file_exists($this->basepath . '/.htconfig.php')) {
-			return;
+		if (!$database->connected()) {
+			return new Mode($mode);
 		}
 
-		$this->mode |= Mode::LOCALCONFIGPRESENT;
+		$mode |= Mode::DBAVAILABLE;
 
-		if (!DBA::connected()) {
-			return;
+		if ($database->fetchFirst("SHOW TABLES LIKE 'config'") === false) {
+			return new Mode($mode);
 		}
 
-		$this->mode |= Mode::DBAVAILABLE;
+		$mode |= Mode::DBCONFIGAVAILABLE;
 
-		if (DBA::fetchFirst("SHOW TABLES LIKE 'config'") === false) {
-			return;
+		if (!empty($configCache->get('system', 'maintenance')) ||
+		    // Don't use Config or Configuration here because we're possibly BEFORE initializing the Configuration,
+		    // so this could lead to a dependency circle
+		    !empty($database->selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])['v'])) {
+			return new Mode($mode);
 		}
 
-		$this->mode |= Mode::DBCONFIGAVAILABLE;
+		$mode |= Mode::MAINTENANCEDISABLED;
 
-		if (Config::get('system', 'maintenance')) {
-			return;
-		}
+		return new Mode($mode, $this->isBackend, $this->isAjax, $this->isMobile, $this->isTablet);
+	}
 
-		$this->mode |= Mode::MAINTENANCEDISABLED;
+	/**
+	 * Checks if the site is called via a backend process
+	 *
+	 * @param bool         $isBackend    True, if the call is from a backend script (daemon, worker, ...)
+	 * @param Module       $module       The pre-loaded module (just name, not class!)
+	 * @param array        $server       The $_SERVER variable
+	 * @param MobileDetect $mobileDetect The mobile detection library
+	 *
+	 * @return Mode returns the determined mode
+	 */
+	public function determineRunMode(bool $isBackend, Module $module, array $server, MobileDetect $mobileDetect)
+	{
+		$isBackend = $isBackend ||
+		             $module->isBackend();
+		$isMobile  = $mobileDetect->isMobile();
+		$isTablet  = $mobileDetect->isTablet();
+		$isAjax    = strtolower($server['HTTP_X_REQUESTED_WITH'] ?? '') == 'xmlhttprequest';
+
+		return new Mode($this->mode, $isBackend, $isAjax, $isMobile, $isTablet);
 	}
 
 	/**
@@ -100,7 +164,7 @@ class Mode
 	public function isInstall()
 	{
 		return !$this->has(Mode::LOCALCONFIGPRESENT) ||
-			!$this->has(MODE::DBCONFIGAVAILABLE);
+		       !$this->has(MODE::DBCONFIGAVAILABLE);
 	}
 
 	/**
@@ -111,8 +175,48 @@ class Mode
 	public function isNormal()
 	{
 		return $this->has(Mode::LOCALCONFIGPRESENT) &&
-			$this->has(Mode::DBAVAILABLE) &&
-			$this->has(Mode::DBCONFIGAVAILABLE) &&
-			$this->has(Mode::MAINTENANCEDISABLED);
+		       $this->has(Mode::DBAVAILABLE) &&
+		       $this->has(Mode::DBCONFIGAVAILABLE) &&
+		       $this->has(Mode::MAINTENANCEDISABLED);
+	}
+
+	/**
+	 * Returns true, if the call is from a backend node (f.e. from a worker)
+	 *
+	 * @return bool Is it a backend call
+	 */
+	public function isBackend()
+	{
+		return $this->isBackend;
+	}
+
+	/**
+	 * Check if request was an AJAX (xmlhttprequest) request.
+	 *
+	 * @return bool true if it was an AJAX request
+	 */
+	public function isAjax()
+	{
+		return $this->isAjax;
+	}
+
+	/**
+	 * Check if request was a mobile request.
+	 *
+	 * @return bool true if it was an mobile request
+	 */
+	public function isMobile()
+	{
+		return $this->isMobile;
+	}
+
+	/**
+	 * Check if request was a tablet request.
+	 *
+	 * @return bool true if it was an tablet request
+	 */
+	public function isTablet()
+	{
+		return $this->isTablet;
 	}
 }

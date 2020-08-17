@@ -10,7 +10,7 @@ function initEditor(callback) {
 		$("#profile-jot-text-loading").show();
 		$("#profile-jot-text-loading").hide();
 		$("#profile-jot-text").css({ 'height': 200, 'color': '#000' });
-		$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
+		$("#profile-jot-text").editor_autocomplete(baseurl + '/search/acl');
 		$("#profile-jot-text").bbco_autocomplete('bbcode');
 		$(".jothidden").show();
 		$("a#jot-perms-icon").colorbox({
@@ -48,11 +48,11 @@ function enableOnUser(){
 
 </script>
 
-<script type="text/javascript" src="view/js/ajaxupload.js" >
+<script type="text/javascript" src="view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}" >
 </script>
 
 <script>
-	var ispublic = '{{$ispublic}}';
+	var ispublic = '{{$ispublic nofilter}}';
 
 	$(document).ready(function() {
 

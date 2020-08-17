@@ -1,18 +1,32 @@
 <?php
-
 /**
- * @file src/Model/ItemURI.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Model;
 
-use Friendica\BaseObject;
 use Friendica\Database\DBA;
 
-class ItemURI extends BaseObject
+class ItemURI
 {
 	/**
-	 * @brief Insert an item-uri record and return its id
+	 * Insert an item-uri record and return its id
 	 *
 	 * @param array $fields Item-uri fields
 	 *
@@ -28,18 +42,22 @@ class ItemURI extends BaseObject
 			DBA::insert('item-uri', $fields, true);
 		}
 
-		$itemuri = DBA::selectFirst('item-uri', ['id'], ['uri' => $uri]);
+		$itemuri = DBA::selectFirst('item-uri', ['id', 'guid'], ['uri' => $uri]);
 
 		if (!DBA::isResult($itemuri)) {
 			// This shouldn't happen
 			return null;
 		}
 
+		if (empty($itemuri['guid']) && !empty($fields['guid'])) {
+			DBA::update('item-uri', ['guid' => $fields['guid']], ['id' => $itemuri['id']]);
+		}
+
 		return $itemuri['id'];
 	}
 
 	/**
-	 * @brief Searched for an id of a given uri. Adds it, if not existing yet.
+	 * Searched for an id of a given uri. Adds it, if not existing yet.
 	 *
 	 * @param string $uri
 	 *

@@ -1,96 +1,201 @@
 <?php
 /**
- * @file src/Util/Emailer.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Util;
 
-use Friendica\Core\Config;
+use Friendica\App;
+use Friendica\Core\Config\IConfig;
 use Friendica\Core\Hook;
-use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
+use Friendica\Core\L10n;
+use Friendica\Core\PConfig\IPConfig;
+use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Object\EMail\IEmail;
 use Friendica\Protocol\Email;
+use Friendica\Util\EMailer\NotifyMailBuilder;
+use Friendica\Util\EMailer\SystemMailBuilder;
+use Psr\Log\LoggerInterface;
 
 /**
- * @brief class to handle emailing
+ * class to handle emailing
  */
 class Emailer
 {
+	/** @var IConfig */
+	private $config;
+	/** @var IPConfig */
+	private $pConfig;
+	/** @var LoggerInterface */
+	private $logger;
+	/** @var App\BaseURL */
+	private $baseUrl;
+	/** @var L10n */
+	private $l10n;
+
+	/** @var string */
+	private $siteEmailAddress;
+	/** @var string */
+	private $siteEmailName;
+
+	public function __construct(IConfig $config, IPConfig $pConfig, App\BaseURL $baseURL, LoggerInterface $logger,
+	                            L10n $defaultLang)
+	{
+		$this->config      = $config;
+		$this->pConfig     = $pConfig;
+		$this->logger      = $logger;
+		$this->baseUrl     = $baseURL;
+		$this->l10n        = $defaultLang;
+
+		$this->siteEmailAddress = $this->config->get('config', 'sender_email');
+		if (empty($this->siteEmailAddress)) {
+			$hostname = $this->baseUrl->getHostname();
+			if (strpos($hostname, ':')) {
+				$hostname = substr($hostname, 0, strpos($hostname, ':'));
+			}
+
+			$this->siteEmailAddress = 'noreply@' . $hostname;
+		}
+
+		$this->siteEmailName = $this->config->get('config', 'sitename', 'Friendica Social Network');
+	}
+
+	/**
+	 * Gets the site's default sender email address
+	 *
+	 * @return string
+	 */
+	public function getSiteEmailAddress()
+	{
+		return $this->siteEmailAddress;
+	}
+
+	/**
+	 * Gets the site's default sender name
+	 *
+	 * @return string
+	 */
+	public function getSiteEmailName()
+	{
+		return $this->siteEmailName;
+	}
+
+	/**
+	 * Creates a new system email
+	 *
+	 * @return SystemMailBuilder
+	 */
+	public function newSystemMail()
+	{
+		return new SystemMailBuilder($this->l10n, $this->baseUrl, $this->config, $this->logger,
+			$this->getSiteEmailAddress(), $this->getSiteEmailName());
+	}
+
+	/**
+	 * Creates a new mail for notifications
+	 *
+	 * @return NotifyMailBuilder
+	 */
+	public function newNotifyMail()
+	{
+		return new NotifyMailBuilder($this->l10n, $this->baseUrl, $this->config, $this->logger,
+			$this->getSiteEmailAddress(), $this->getSiteEmailName());
+	}
+
 	/**
 	 * Send a multipart/alternative message with Text and HTML versions
 	 *
-	 * @param array $params parameters
-	 *                      fromName             name of the sender
-	 *                      fromEmail            email of the sender
-	 *                      replyTo              address to direct responses
-	 *                      toEmail              destination email address
-	 *                      messageSubject       subject of the message
-	 *                      htmlVersion          html version of the message
-	 *                      textVersion          text only version of the message
-	 *                      additionalMailHeader additions to the SMTP mail header
-	 *                      optional             uid user id of the destination user
+	 * @param IEmail $email The email to send
 	 *
 	 * @return bool
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 */
-	public static function send($params)
+	public function send(IEmail $email)
 	{
-		Hook::callAll('emailer_send_prepare', $params);
+		Hook::callAll('emailer_send_prepare', $email);
 
-		$email_textonly = false;
-		if (!empty($params['uid'])) {
-			$email_textonly = PConfig::get($params['uid'], "system", "email_textonly");
+		if (empty($email)) {
+			return true;
 		}
 
-		$fromName = Email::encodeHeader(html_entity_decode($params['fromName'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
-		$messageSubject = Email::encodeHeader(html_entity_decode($params['messageSubject'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
+		$email_textonly = false;
+		if (!empty($email->getRecipientUid())) {
+			$email_textonly = $this->pConfig->get($email->getRecipientUid(), 'system', 'email_textonly');
+		}
+
+		$fromName       = Email::encodeHeader(html_entity_decode($email->getFromName(), ENT_QUOTES, 'UTF-8'), 'UTF-8');
+		$fromAddress      = $email->getFromAddress();
+		$replyTo        = $email->getReplyTo();
+		$messageSubject = Email::encodeHeader(html_entity_decode($email->getSubject(), ENT_QUOTES, 'UTF-8'), 'UTF-8');
 
 		// generate a mime boundary
-		$mimeBoundary   =rand(0, 9)."-"
-				.rand(100000000, 999999999)."-"
-				.rand(100000000, 999999999)."=:"
-				.rand(10000, 99999);
+		$mimeBoundary = rand(0, 9) . '-'
+		                . rand(100000000, 999999999) . '-'
+		                . rand(100000000, 999999999) . '=:'
+		                . rand(10000, 99999);
 
 		// generate a multipart/alternative message header
-		$messageHeader = defaults($params, 'additionalMailHeader', '') .
-						"From: $fromName <{$params['fromEmail']}>\n" .
-						"Reply-To: $fromName <{$params['replyTo']}>\n" .
-						"MIME-Version: 1.0\n" .
-						"Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
+		$messageHeader = $email->getAdditionalMailHeader() .
+		                 "From: $fromName <{$fromAddress}>\n" .
+		                 "Reply-To: $fromName <{$replyTo}>\n" .
+		                 "MIME-Version: 1.0\n" .
+		                 "Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
 
 		// assemble the final multipart message body with the text and html types included
-		$textBody	=	chunk_split(base64_encode($params['textVersion']));
-		$htmlBody	=	chunk_split(base64_encode($params['htmlVersion']));
-		$multipartMessageBody =	"--" . $mimeBoundary . "\n" .					// plain text section
-								"Content-Type: text/plain; charset=UTF-8\n" .
-								"Content-Transfer-Encoding: base64\n\n" .
-								$textBody . "\n";
+		$textBody             = chunk_split(base64_encode($email->getMessage(true)));
+		$htmlBody             = chunk_split(base64_encode($email->getMessage()));
+		$multipartMessageBody = "--" . $mimeBoundary . "\n" .                    // plain text section
+		                        "Content-Type: text/plain; charset=UTF-8\n" .
+		                        "Content-Transfer-Encoding: base64\n\n" .
+		                        $textBody . "\n";
 
-		if (!$email_textonly && !is_null($params['htmlVersion'])) {
+		if (!$email_textonly && !is_null($email->getMessage())) {
 			$multipartMessageBody .=
-				"--" . $mimeBoundary . "\n" .				// text/html section
+				"--" . $mimeBoundary . "\n" .                // text/html section
 				"Content-Type: text/html; charset=UTF-8\n" .
 				"Content-Transfer-Encoding: base64\n\n" .
 				$htmlBody . "\n";
 		}
 		$multipartMessageBody .=
-			"--" . $mimeBoundary . "--\n";					// message ending
+			"--" . $mimeBoundary . "--\n";                    // message ending
 
-		if (Config::get("system", "sendmail_params", true)) {
-			$sendmail_params = '-f ' . $params['fromEmail'];
+		if ($this->config->get('system', 'sendmail_params', true)) {
+			$sendmail_params = '-f ' . $fromAddress;
 		} else {
 			$sendmail_params = null;
 		}
 
 		// send the message
 		$hookdata = [
-			'to' => $params['toEmail'],
-			'subject' => $messageSubject,
-			'body' => $multipartMessageBody,
-			'headers' => $messageHeader,
-			'parameters' => $sendmail_params
+			'to'         => $email->getToAddress(),
+			'subject'    => $messageSubject,
+			'body'       => $multipartMessageBody,
+			'headers'    => $messageHeader,
+			'parameters' => $sendmail_params,
+			'sent'       => false,
 		];
 
-		Hook::callAll("emailer_send", $hookdata);
+		Hook::callAll('emailer_send', $hookdata);
+
+		if ($hookdata['sent']) {
+			return true;
+		}
 
 		$res = mail(
 			$hookdata['to'],
@@ -99,8 +204,8 @@ class Emailer
 			$hookdata['headers'],
 			$hookdata['parameters']
 		);
-		Logger::log("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, Logger::DEBUG);
-		Logger::log("return value " . (($res)?"true":"false"), Logger::DEBUG);
+		$this->logger->debug('header ' . 'To: ' . $email->getToAddress() . '\n' . $messageHeader);
+		$this->logger->debug('return value ' . (($res) ? 'true' : 'false'));
 		return $res;
 	}
 }

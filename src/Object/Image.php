@@ -1,20 +1,30 @@
 <?php
 /**
- * @file src/Object/Image.php
- * @brief This file contains the Image class for image processing
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Object;
 
-use Friendica\App;
-use Friendica\Core\Cache;
-use Friendica\Core\Config;
-use Friendica\Core\L10n;
-use Friendica\Core\Logger;
-use Friendica\Core\System;
-use Friendica\Database\DBA;
-use Friendica\Model\Photo;
-use Friendica\Util\Network;
 use Exception;
+use Friendica\Core\System;
+use Friendica\DI;
+use Friendica\Util\Images;
 use Imagick;
 use ImagickPixel;
 
@@ -37,32 +47,7 @@ class Image
 	private $types;
 
 	/**
-	 * @brief supported mimetypes and corresponding file extensions
-	 * @return array
-	 */
-	public static function supportedTypes()
-	{
-		if (class_exists('Imagick')) {
-			// Imagick::queryFormats won't help us a lot there...
-			// At least, not yet, other parts of friendica uses this array
-			$t = [
-				'image/jpeg' => 'jpg',
-				'image/png' => 'png',
-				'image/gif' => 'gif'
-			];
-		} else {
-			$t = [];
-			$t['image/jpeg'] ='jpg';
-			if (imagetypes() & IMG_PNG) {
-				$t['image/png'] = 'png';
-			}
-		}
-
-		return $t;
-	}
-
-	/**
-	 * @brief Constructor
+	 * Constructor
 	 * @param string  $data
 	 * @param boolean $type optional, default null
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -71,9 +56,9 @@ class Image
 	public function __construct($data, $type = null)
 	{
 		$this->imagick = class_exists('Imagick');
-		$this->types = static::supportedTypes();
+		$this->types = Images::supportedTypes();
 		if (!array_key_exists($type, $this->types)) {
-			$type='image/jpeg';
+			$type = 'image/jpeg';
 		}
 		$this->type = $type;
 
@@ -87,7 +72,8 @@ class Image
 	}
 
 	/**
-	 * @brief Destructor
+	 * Destructor
+	 *
 	 * @return void
 	 */
 	public function __destruct()
@@ -113,20 +99,6 @@ class Image
 	}
 
 	/**
-	 * @brief Maps Mime types to Imagick formats
-	 * @return array With with image formats (mime type as key)
-	 */
-	public static function getFormatsMap()
-	{
-		$m = [
-			'image/jpeg' => 'JPG',
-			'image/png' => 'PNG',
-			'image/gif' => 'GIF'
-		];
-		return $m;
-	}
-
-	/**
 	 * @param string $data data
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -146,7 +118,7 @@ class Image
 			/*
 			 * Setup the image to the format it will be saved to
 			 */
-			$map = self::getFormatsMap();
+			$map = Images::getFormatsMap();
 			$format = $map[$this->type];
 			$this->image->setFormat($format);
 
@@ -158,7 +130,7 @@ class Image
 			 */
 			switch ($this->getType()) {
 				case "image/png":
-					$quality = Config::get('system', 'png_quality');
+					$quality = DI::config()->get('system', 'png_quality');
 					if ((! $quality) || ($quality > 9)) {
 						$quality = PNG_QUALITY;
 					}
@@ -174,7 +146,7 @@ class Image
 					$this->image->setCompressionQuality($quality);
 					break;
 				case "image/jpeg":
-					$quality = Config::get('system', 'jpeg_quality');
+					$quality = DI::config()->get('system', 'jpeg_quality');
 					if ((! $quality) || ($quality > 100)) {
 						$quality = JPEG_QUALITY;
 					}
@@ -447,7 +419,7 @@ class Image
 			return;
 		}
 
-		$ort = $exif['IFD0']['Orientation'];
+		$ort = isset($exif['IFD0']['Orientation']) ? $exif['IFD0']['Orientation'] : 1;
 
 		switch ($ort) {
 			case 1: // nothing
@@ -484,7 +456,6 @@ class Image
 				break;
 		}
 
-		//	Logger::log('exif: ' . print_r($exif,true));
 		return $exif;
 	}
 
@@ -545,7 +516,7 @@ class Image
 	}
 
 	/**
-	 * @brief Scale image to target dimensions
+	 * Scale image to target dimensions
 	 *
 	 * @param int $dest_width
 	 * @param int $dest_height
@@ -652,15 +623,13 @@ class Image
 
 		$string = $this->asString();
 
-		$a = \get_app();
-
 		$stamp1 = microtime(true);
 		file_put_contents($path, $string);
-		$a->saveTimestamp($stamp1, "file");
+		DI::profiler()->saveTimestamp($stamp1, "file");
 	}
 
 	/**
-	 * @brief Magic method allowing string casting of an Image object
+	 * Magic method allowing string casting of an Image object
 	 *
 	 * Ex: $data = $Image->asString();
 	 * can be replaced by
@@ -697,14 +666,14 @@ class Image
 
 		switch ($this->getType()) {
 			case "image/png":
-				$quality = Config::get('system', 'png_quality');
+				$quality = DI::config()->get('system', 'png_quality');
 				if ((!$quality) || ($quality > 9)) {
 					$quality = PNG_QUALITY;
 				}
 				imagepng($this->image, null, $quality);
 				break;
 			case "image/jpeg":
-				$quality = Config::get('system', 'jpeg_quality');
+				$quality = DI::config()->get('system', 'jpeg_quality');
 				if ((!$quality) || ($quality > 100)) {
 					$quality = JPEG_QUALITY;
 				}
@@ -717,108 +686,36 @@ class Image
 	}
 
 	/**
-	 * Guess image mimetype from filename or from Content-Type header
+	 * supported mimetypes and corresponding file extensions
 	 *
-	 * @param string  $filename Image filename
-	 * @param boolean $fromcurl Check Content-Type header from curl request
-	 * @param string  $header   passed headers to take into account
-	 *
-	 * @return object
-	 * @throws \ImagickException
+	 * @return array
+	 * @deprecated in version 2019.12 please use Util\Images::supportedTypes() instead.
 	 */
-	public static function guessType($filename, $fromcurl = false, $header = '')
+	public static function supportedTypes()
 	{
-		Logger::log('Image: guessType: '.$filename . ($fromcurl?' from curl headers':''), Logger::DEBUG);
-		$type = null;
-		if ($fromcurl) {
-			$headers=[];
-			$h = explode("\n", $header);
-			foreach ($h as $l) {
-				$data = array_map("trim", explode(":", trim($l), 2));
-				if (count($data) > 1) {
-					list($k,$v) = $data;
-					$headers[$k] = $v;
-				}
-			}
-			if (array_key_exists('Content-Type', $headers))
-				$type = $headers['Content-Type'];
-		}
-		if (is_null($type)) {
-			// Guessing from extension? Isn't that... dangerous?
-			if (class_exists('Imagick') && file_exists($filename) && is_readable($filename)) {
-				/**
-				 * Well, this not much better,
-				 * but at least it comes from the data inside the image,
-				 * we won't be tricked by a manipulated extension
-				 */
-				$image = new Imagick($filename);
-				$type = $image->getImageMimeType();
-				$image->setInterlaceScheme(Imagick::INTERLACE_PLANE);
-			} else {
-				$ext = pathinfo($filename, PATHINFO_EXTENSION);
-				$types = self::supportedTypes();
-				$type = "image/jpeg";
-				foreach ($types as $m => $e) {
-					if ($ext == $e) {
-						$type = $m;
-					}
-				}
-			}
-		}
-		Logger::log('Image: guessType: type='.$type, Logger::DEBUG);
-		return $type;
+		return Images::supportedTypes();
+	}
+
+	/**
+	 * Maps Mime types to Imagick formats
+	 *
+	 * @return array With with image formats (mime type as key)
+	 * @deprecated in version 2019.12 please use Util\Images::getFormatsMap() instead.
+	 */
+	public static function getFormatsMap()
+	{
+		return Images::getFormatsMap();
 	}
 
 	/**
 	 * @param string $url url
-	 * @return object
+	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @deprecated in version 2019.12 please use Util\Images::getInfoFromURLCached() instead.
 	 */
 	public static function getInfoFromURL($url)
 	{
-		$data = [];
-
-		if (empty($url)) {
-			return $data;
-		}
-
-		$data = Cache::get($url);
-
-		if (is_null($data) || !$data || !is_array($data)) {
-			$img_str = Network::fetchUrl($url, true, $redirects, 4);
-
-			if (!$img_str) {
-				return false;
-			}
-
-			$filesize = strlen($img_str);
-
-			try {
-				if (function_exists("getimagesizefromstring")) {
-					$data = @getimagesizefromstring($img_str);
-				} else {
-					$tempfile = tempnam(get_temppath(), "cache");
-
-					$a = \get_app();
-					$stamp1 = microtime(true);
-					file_put_contents($tempfile, $img_str);
-					$a->saveTimestamp($stamp1, "file");
-
-					$data = getimagesize($tempfile);
-					unlink($tempfile);
-				}
-			} catch (Exception $e) {
-				return false;
-			}
-
-			if ($data) {
-				$data["size"] = $filesize;
-			}
-
-			Cache::set($url, $data);
-		}
-
-		return $data;
+		return Images::getInfoFromURLCached($url);
 	}
 
 	/**
@@ -826,214 +723,10 @@ class Image
 	 * @param integer $height height
 	 * @param integer $max    max
 	 * @return array
+	 * @deprecated in version 2019.12 please use Util\Images::getScalingDimensions() instead.
 	 */
 	public static function getScalingDimensions($width, $height, $max)
 	{
-		if ((!$width) || (!$height)) {
-			return false;
-		}
-
-		if ($width > $max && $height > $max) {
-			// very tall image (greater than 16:9)
-			// constrain the width - let the height float.
-
-			if ((($height * 9) / 16) > $width) {
-				$dest_width = $max;
-				$dest_height = intval(($height * $max) / $width);
-			} elseif ($width > $height) {
-				// else constrain both dimensions
-				$dest_width = $max;
-				$dest_height = intval(($height * $max) / $width);
-			} else {
-				$dest_width = intval(($width * $max) / $height);
-				$dest_height = $max;
-			}
-		} else {
-			if ($width > $max) {
-				$dest_width = $max;
-				$dest_height = intval(($height * $max) / $width);
-			} else {
-				if ($height > $max) {
-					// very tall image (greater than 16:9)
-					// but width is OK - don't do anything
-
-					if ((($height * 9) / 16) > $width) {
-						$dest_width = $width;
-						$dest_height = $height;
-					} else {
-						$dest_width = intval(($width * $max) / $height);
-						$dest_height = $max;
-					}
-				} else {
-					$dest_width = $width;
-					$dest_height = $height;
-				}
-			}
-		}
-		return ["width" => $dest_width, "height" => $dest_height];
-	}
-
-	/**
-	 * @brief This function is used by the fromgplus addon
-	 * @param App     $a         App
-	 * @param integer $uid       user id
-	 * @param string  $imagedata optional, default empty
-	 * @param string  $url       optional, default empty
-	 * @return array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function storePhoto(App $a, $uid, $imagedata = "", $url = "")
-	{
-		$r = q(
-			"SELECT `user`.`nickname`, `user`.`page-flags`, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
-			WHERE `user`.`uid` = %d AND `user`.`blocked` = 0 AND `contact`.`self` = 1 LIMIT 1",
-			intval($uid)
-		);
-
-		if (!DBA::isResult($r)) {
-			Logger::log("Can't detect user data for uid ".$uid, Logger::DEBUG);
-			return([]);
-		}
-
-		$page_owner_nick  = $r[0]['nickname'];
-
-		/// @TODO
-		/// $default_cid      = $r[0]['id'];
-		/// $community_page   = (($r[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
-
-		if ((strlen($imagedata) == 0) && ($url == "")) {
-			Logger::log("No image data and no url provided", Logger::DEBUG);
-			return([]);
-		} elseif (strlen($imagedata) == 0) {
-			Logger::log("Uploading picture from ".$url, Logger::DEBUG);
-
-			$stamp1 = microtime(true);
-			$imagedata = @file_get_contents($url);
-			$a->saveTimestamp($stamp1, "file");
-		}
-
-		$maximagesize = Config::get('system', 'maximagesize');
-
-		if (($maximagesize) && (strlen($imagedata) > $maximagesize)) {
-			Logger::log("Image exceeds size limit of ".$maximagesize, Logger::DEBUG);
-			return([]);
-		}
-
-		$tempfile = tempnam(get_temppath(), "cache");
-
-		$stamp1 = microtime(true);
-		file_put_contents($tempfile, $imagedata);
-		$a->saveTimestamp($stamp1, "file");
-
-		$data = getimagesize($tempfile);
-
-		if (!isset($data["mime"])) {
-			unlink($tempfile);
-			Logger::log("File is no picture", Logger::DEBUG);
-			return([]);
-		}
-
-		$Image = new Image($imagedata, $data["mime"]);
-
-		if (!$Image->isValid()) {
-			unlink($tempfile);
-			Logger::log("Picture is no valid picture", Logger::DEBUG);
-			return([]);
-		}
-
-		$Image->orient($tempfile);
-		unlink($tempfile);
-
-		$max_length = Config::get('system', 'max_image_length');
-		if (! $max_length) {
-			$max_length = MAX_IMAGE_LENGTH;
-		}
-
-		if ($max_length > 0) {
-			$Image->scaleDown($max_length);
-		}
-
-		$width = $Image->getWidth();
-		$height = $Image->getHeight();
-
-		$hash = Photo::newResource();
-
-		// Pictures are always public by now
-		//$defperm = '<'.$default_cid.'>';
-		$defperm = "";
-		$visitor = 0;
-
-		$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 0, 0, $defperm);
-
-		if (!$r) {
-			Logger::log("Picture couldn't be stored", Logger::DEBUG);
-			return([]);
-		}
-
-		$image = ["page" => System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash,
-			"full" => System::baseUrl()."/photo/{$hash}-0.".$Image->getExt()];
-
-		if ($width > 800 || $height > 800) {
-			$image["large"] = System::baseUrl()."/photo/{$hash}-0.".$Image->getExt();
-		}
-
-		if ($width > 640 || $height > 640) {
-			$Image->scaleDown(640);
-			$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 1, 0, $defperm);
-			if ($r) {
-				$image["medium"] = System::baseUrl()."/photo/{$hash}-1.".$Image->getExt();
-			}
-		}
-
-		if ($width > 320 || $height > 320) {
-			$Image->scaleDown(320);
-			$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 2, 0, $defperm);
-			if ($r) {
-				$image["small"] = System::baseUrl()."/photo/{$hash}-2.".$Image->getExt();
-			}
-		}
-
-		if ($width > 160 && $height > 160) {
-			$x = 0;
-			$y = 0;
-
-			$min = $Image->getWidth();
-			if ($min > 160) {
-				$x = ($min - 160) / 2;
-			}
-
-			if ($Image->getHeight() < $min) {
-				$min = $Image->getHeight();
-				if ($min > 160) {
-					$y = ($min - 160) / 2;
-				}
-			}
-
-			$min = 160;
-			$Image->crop(160, $x, $y, $min, $min);
-
-			$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 3, 0, $defperm);
-			if ($r) {
-				$image["thumb"] = System::baseUrl()."/photo/{$hash}-3.".$Image->getExt();
-			}
-		}
-
-		// Set the full image as preview image. This will be overwritten, if the picture is larger than 640.
-		$image["preview"] = $image["full"];
-
-		// Deactivated, since that would result in a cropped preview, if the picture wasn't larger than 320
-		//if (isset($image["thumb"]))
-		//  $image["preview"] = $image["thumb"];
-
-		// Unsure, if this should be activated or deactivated
-		//if (isset($image["small"]))
-		//  $image["preview"] = $image["small"];
-
-		if (isset($image["medium"])) {
-			$image["preview"] = $image["medium"];
-		}
-
-		return($image);
+		return Images::getScalingDimensions($width, $height, $max);
 	}
 }

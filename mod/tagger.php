@@ -1,21 +1,42 @@
 <?php
 /**
- * @file mod/tagger.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 use Friendica\App;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Tag;
+use Friendica\Protocol\Activity;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
+use Friendica\Worker\Delivery;
 
 function tagger_content(App $a) {
 
-	if (!local_user() && !remote_user()) {
+	if (!Session::isAuthenticated()) {
 		return;
 	}
 
@@ -40,14 +61,12 @@ function tagger_content(App $a) {
 	}
 
 	$owner_uid = $item['uid'];
-	$owner_nick = '';
 	$blocktags = 0;
 
-	$r = q("select `nickname`,`blocktags` from user where uid = %d limit 1",
+	$r = q("select `blocktags` from user where uid = %d limit 1",
 		intval($owner_uid)
 	);
 	if (DBA::isResult($r)) {
-		$owner_nick = $r[0]['nickname'];
 		$blocktags = $r[0]['blocktags'];
 	}
 
@@ -67,14 +86,9 @@ function tagger_content(App $a) {
 
 	$uri = Item::newURI($owner_uid);
 	$xterm = XML::escape($term);
-	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
-	$targettype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
-
-	if ($owner_nick) {
-		$href = System::baseUrl() . '/display/' . $owner_nick . '/' . $item['id'];
-	} else {
-		$href = System::baseUrl() . '/display/' . $item['guid'];
-	}
+	$post_type = (($item['resource-id']) ? DI::l10n()->t('photo') : DI::l10n()->t('status'));
+	$targettype = (($item['resource-id']) ? Activity\ObjectType::IMAGE : Activity\ObjectType::NOTE );
+	$href = DI::baseUrl() . '/display/' . $item['guid'];
 
 	$link = XML::escape('<link rel="alternate" type="text/html" href="'. $href . '" />' . "\n");
 
@@ -91,8 +105,8 @@ function tagger_content(App $a) {
 	</target>
 EOT;
 
-	$tagid = System::baseUrl() . '/search?tag=' . $xterm;
-	$objtype = ACTIVITY_OBJ_TAGTERM;
+	$tagid = DI::baseUrl() . '/search?tag=' . $xterm;
+	$objtype = Activity\ObjectType::TAGTERM;
 
 	$obj = <<< EOT
 	<object>
@@ -105,13 +119,13 @@ EOT;
 	</object>
 EOT;
 
-	$bodyverb = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s');
+	$bodyverb = DI::l10n()->t('%1$s tagged %2$s\'s %3$s with %4$s');
 
 	if (!isset($bodyverb)) {
 		return;
 	}
 
-	$termlink = html_entity_decode('&#x2317;') . '[url=' . System::baseUrl() . '/search?tag=' . $term . ']'. $term . '[/url]';
+	$termlink = html_entity_decode('&#x2317;') . '[url=' . DI::baseUrl() . '/search?tag=' . $term . ']'. $term . '[/url]';
 
 	$arr = [];
 
@@ -135,7 +149,7 @@ EOT;
 	$plink = '[url=' . $item['plink'] . ']' . $post_type . '[/url]';
 	$arr['body'] =  sprintf( $bodyverb, $ulink, $alink, $plink, $termlink );
 
-	$arr['verb'] = ACTIVITY_TAG;
+	$arr['verb'] = Activity::TAG;
 	$arr['target-type'] = $targettype;
 	$arr['target'] = $target;
 	$arr['object-type'] = $objtype;
@@ -155,53 +169,13 @@ EOT;
 		Item::update(['visible' => true], ['id' => $item['id']]);
 	}
 
-	$term_objtype = ($item['resource-id'] ? TERM_OBJ_PHOTO : TERM_OBJ_POST);
-
-	$t = q("SELECT count(tid) as tcount FROM term WHERE oid=%d AND term='%s'",
-		intval($item['id']),
-		DBA::escape($term)
-	);
-
-	if (!$blocktags && $t[0]['tcount'] == 0) {
-		q("INSERT INTO term (oid, otype, type, term, url, uid) VALUE (%d, %d, %d, '%s', '%s', %d)",
-		   intval($item['id']),
-		   $term_objtype,
-		   TERM_HASHTAG,
-		   DBA::escape($term),
-		   '',
-		   intval($owner_uid)
-		);
-	}
-
-	// if the original post is on this site, update it.
-	$original_item = Item::selectFirst(['tag', 'id', 'uid'], ['origin' => true, 'uri' => $item['uri']]);
-	if (DBA::isResult($original_item)) {
-		$x = q("SELECT `blocktags` FROM `user` WHERE `uid`=%d LIMIT 1",
-			intval($original_item['uid'])
-		);
-		$t = q("SELECT COUNT(`tid`) AS `tcount` FROM `term` WHERE `oid`=%d AND `term`='%s'",
-			intval($original_item['id']),
-			DBA::escape($term)
-		);
-
-		if (DBA::isResult($x) && !$x[0]['blocktags'] && $t[0]['tcount'] == 0){
-			q("INSERT INTO term (`oid`, `otype`, `type`, `term`, `url`, `uid`) VALUE (%d, %d, %d, '%s', '%s', %d)",
-				intval($original_item['id']),
-				$term_objtype,
-				TERM_HASHTAG,
-				DBA::escape($term),
-				'',
-				intval($owner_uid)
-			);
-		}
-	}
-
+	Tag::store($item['uri-id'], Tag::HASHTAG, $term);
 
 	$arr['id'] = $post_id;
 
 	Hook::callAll('post_local_end', $arr);
 
-	Worker::add(PRIORITY_HIGH, "Notifier", "tag", $post_id);
+	Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $post_id);
 
 	exit();
 }

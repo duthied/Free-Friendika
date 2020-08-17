@@ -1,12 +1,11 @@
 favicon.*
-.htconfig.php
-.htpreconfig.php
+/.htconfig.php
+/.htpreconfig.php
 \#*
 *.log
 *.out
 *.version*
 home.html
-
 *~
 robots.txt
 
@@ -33,6 +32,9 @@ report/
 
 #ignore NetBeans IDE's private files (at least)
 /nbproject/private/
+
+Ignore config files from VSCode
+/.vscode/
 
 #ignore smarty cache
 /view/smarty3/compiled/
@@ -74,3 +76,6 @@ venv/
 
 #ignore filesystem storage default path
 /storage
+
+#Ignore log folder
+/log

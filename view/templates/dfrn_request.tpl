@@ -1,90 +1,38 @@
 <h1>{{$header}}</h1>
 
-{{if $myaddr}}
-{{else}}
+{{if !$myaddr}}
 <p id="dfrn-request-intro">
-{{$page_desc}}<br />
-<ul id="dfrn-request-networks">
-<li><a href="http://friendi.ca" title="{{$friendica}}">{{$friendica}}</a></li>
-<li><a href="https://diasporafoundation.org" title="{{$diaspora}}">{{$diaspora}}</a> {{$diasnote}}</li>
-<li><a href="https://gnu.io/social/" title="{{$statusnet}}" >{{$statusnet}}</a></li>
-</ul>
-{{$invite_desc nofilter}}
+	{{$page_desc nofilter}}
 </p>
 <p>
-{{$desc nofilter}}
+	{{$invite_desc nofilter}}
 </p>
 {{/if}}
 
-{{if $request}}
 <form action="{{$request}}" method="post">
-{{else}}
-<form action="dfrn_request/{{$nickname}}" method="post">
-{{/if}}
-
-{{if $photo}}
-<img src="{{$photo}}" alt="" id="dfrn-request-photo" />
-{{/if}}
-
-{{if $url}}<dl><dt>{{$url_label}}</dt><dd><a target="blank" href="{{$zrl}}">{{$url}}</a></dd></dl>{{/if}}
-{{if $location}}<dl><dt>{{$location_label}}</dt><dd>{{$location}}</dd></dl>{{/if}}
-{{if $keywords}}<dl><dt>{{$keywords_label}}</dt><dd>{{$keywords}}</dd></dl>{{/if}}
-{{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about nofilter}}</dd></dl>{{/if}}
-
-<div id="dfrn-request-url-wrapper" >
-	<label id="dfrn-url-label" for="dfrn-url" >{{$your_address}}</label>
-	{{if $myaddr}}
+	<div id="dfrn-request-url-wrapper">
+		<label id="dfrn-url-label" for="dfrn-url">{{$your_address}}</label>
+{{if $myaddr}}
 		{{$myaddr}}
-		<input type="hidden" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr}}" />
-	{{else}}
-	<input type="text" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr}}" />
-	{{/if}}
-	{{if $url}}
-		<input type="hidden" name="url" id="url" value="{{$url}}" />
-	{{/if}}
-	<div id="dfrn-request-url-end"></div>
-</div>
-
-<p id="dfrn-request-options">
-{{$pls_answer}}
-</p>
-
-<div id="dfrn-request-info-wrapper" >
-
-{{include file="field_yesno.tpl" field=$does_know_you}}
-<!--
-<p id="doiknowyou">
-{{$does_know}}
-</p>
-
-		<div id="dfrn-request-know-yes-wrapper">
-		<label id="dfrn-request-knowyou-yes-label" for="dfrn-request-knowyouyes">{{$yes}}</label>
-		<input type="radio" name="knowyou" id="knowyouyes" value="1" />
-
-		<div id="dfrn-request-knowyou-break" ></div>	
-		</div>
-		<div id="dfrn-request-know-no-wrapper">
-		<label id="dfrn-request-knowyou-no-label" for="dfrn-request-knowyouno">{{$no}}</label>
-		<input type="radio" name="knowyou" id="knowyouno" value="0" checked="checked" />
-
-		<div id="dfrn-request-knowyou-end"></div>
-		</div>
--->
-
-<p id="dfrn-request-message-desc">
-{{$add_note}}
-</p>
-	<div id="dfrn-request-message-wrapper">
-	<textarea name="dfrn-request-message" rows="4" cols="64" ></textarea>
+		<input type="hidden" name="dfrn_url" id="dfrn-url" value="{{$myaddr}}">
+{{else}}
+		<input type="text" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr}}">
+{{/if}}
+		<div id="dfrn-request-url-end"></div>
 	</div>
 
+	<p id="dfrn-request-options">
+		{{$pls_answer}}
+	</p>
 
-</div>
+	<div id="dfrn-request-info-wrapper">
+		{{include file="field_checkbox.tpl" field=$does_know_you}}
+
+		{{include file="field_textarea.tpl" field=$addnote_field}}
+	</div>
 
 	<div id="dfrn-request-submit-wrapper">
-		{{if $submit}}
-			<input type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit}}" />
-		{{/if}}
-		<input type="submit" name="cancel" id="dfrn-request-cancel-button" value="{{$cancel}}" />
+		<input type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit}}">
+		<input type="submit" name="cancel" id="dfrn-request-cancel-button" value="{{$cancel}}">
 	</div>
 </form>

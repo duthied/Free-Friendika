@@ -33,7 +33,7 @@ aside {	background-image: url('imgeasterbunny/border.jpg'); }
 div.wall-item-content-wrapper.shiny {  background-image: url('imgeasterbunny/shiny.png'); }
 
 
-.nav-commlink, .nav-login-link {
+.nav-commlink, .nav-login-link, .nav-logout-link {
 	background-color: #aed3b2;
 
 }

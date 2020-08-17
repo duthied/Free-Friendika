@@ -25,8 +25,8 @@ aside .widget, .form-control, .panel, .nav-container, .wall-item-content, .e-con
     font-family: ".SFNSText-Regular","San Francisco","Roboto","Segoe UI","Helvetica Neue","Lucida Grande",Helvetica,Arial,sans-serif;
 }
 
-#topbar-first #nav-notifications-menu li.notify-unseen {
-    border-left: 3px solid #f3fcfd;
+#topbar-first #nav-notifications-menu li.notification-unseen {
+    border-left: 3px solid #e3eff3;
     background-color: antiquewhite;
 }
 
@@ -106,3 +106,35 @@ aside .widget, .form-control, .panel, .nav-container, .wall-item-content, .e-con
     height: 0px;
 }
 
+/* Contact-page */
+#connect-desc {
+    color: grey;
+}
+
+.search-input.form-control.form-search {
+    background-color: #ebebeb;
+    border-color:lightgrey;
+}
+
+.search-input.form-control.form-search:focus {
+    background-color: white;
+    border-color:grey;
+}
+
+/* Addon-Showmore*/
+.showmore-wrap {
+    background-color:lightgrey;
+    text-decoration: underline;
+    text-decoration-color: black;
+    text-decoration-style: wavy;
+}
+
+/* New compose popup */
+.profile-jot-net {
+    background: #dff0d8;
+}
+
+.profile-jot-net summary {
+    color: #3c763d;
+    font-weight: bold;
+}

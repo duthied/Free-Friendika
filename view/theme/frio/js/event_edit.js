@@ -49,24 +49,6 @@ $(document).ready(function() {
 		$("#event-preview").empty();
 		e.preventDefault();
 	});
-
-	// Construct a new ACL. We need this everytime the 'event-edit-form' is loaded
-	// without page reloading (e.g. closing an old modal and open a new modal).
-	// Otherwise we wouldn't get the ACL data.
-	/// @todo: Try to implement some kind of ACL reloading in acl.js.
-
-	var eventPerms = document.getElementById('event-edit-form');
-
-	acl = new ACL(
-		baseurl + "/acl",
-		[
-			JSON.parse(eventPerms.dataset.allow_cid),
-			JSON.parse(eventPerms.dataset.allow_gid),
-			JSON.parse(eventPerms.dataset.deny_cid),
-			JSON.parse(eventPerms.dataset.deny_gid)
-		]
-	);
-	acl.get(0, 100);
 });
 
 // Load the html of the actual event and incect the output to the

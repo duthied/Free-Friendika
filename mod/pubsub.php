@@ -1,21 +1,42 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 use Friendica\App;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Protocol\Feed;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Strings;
+use Friendica\Util\Network;
 use Friendica\Core\System;
 
 function hub_return($valid, $body)
 {
 	if ($valid) {
-		header($_SERVER["SERVER_PROTOCOL"] . ' 200 OK');
 		echo $body;
 	} else {
-		System::httpExit(404);
+		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
 	exit();
 }
@@ -24,7 +45,7 @@ function hub_return($valid, $body)
 
 function hub_post_return()
 {
-	System::httpExit(200);
+	throw new \Friendica\Network\HTTPException\OKException();
 }
 
 function pubsub_init(App $a)
@@ -33,10 +54,10 @@ function pubsub_init(App $a)
 	$contact_id = (($a->argc > 2) ? intval($a->argv[2])       : 0 );
 
 	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-		$hub_mode      = Strings::escapeTags(trim(defaults($_GET, 'hub_mode', '')));
-		$hub_topic     = Strings::escapeTags(trim(defaults($_GET, 'hub_topic', '')));
-		$hub_challenge = Strings::escapeTags(trim(defaults($_GET, 'hub_challenge', '')));
-		$hub_verify    = Strings::escapeTags(trim(defaults($_GET, 'hub_verify_token', '')));
+		$hub_mode      = Strings::escapeTags(trim($_GET['hub_mode'] ?? ''));
+		$hub_topic     = Strings::escapeTags(trim($_GET['hub_topic'] ?? ''));
+		$hub_challenge = Strings::escapeTags(trim($_GET['hub_challenge'] ?? ''));
+		$hub_verify    = Strings::escapeTags(trim($_GET['hub_verify_token'] ?? ''));
 
 		Logger::log('Subscription from ' . $_SERVER['REMOTE_ADDR'] . ' Mode: ' . $hub_mode . ' Nick: ' . $nick);
 		Logger::log('Data: ' . print_r($_GET,true), Logger::DATA);
@@ -84,9 +105,9 @@ function pubsub_init(App $a)
 
 function pubsub_post(App $a)
 {
-	$xml = file_get_contents('php://input');
+	$xml = Network::postdata();
 
-	Logger::log('Feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  $a->cmd . ' with user-agent: ' . $_SERVER['HTTP_USER_AGENT']);
+	Logger::log('Feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  DI::args()->getCommand() . ' with user-agent: ' . $_SERVER['HTTP_USER_AGENT']);
 	Logger::log('Data: ' . $xml, Logger::DATA);
 
 	$nick       = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : '');
@@ -126,11 +147,11 @@ function pubsub_post(App $a)
 
 	Logger::log('Import item for ' . $nick . ' from ' . $contact['nick'] . ' (' . $contact['id'] . ')');
 	$feedhub = '';
-	consume_feed($xml, $importer, $contact, $feedhub);
+	Feed::consume($xml, $importer, $contact, $feedhub);
 
 	// do it a second time for DFRN so that any children find their parents.
 	if ($contact['network'] === Protocol::DFRN) {
-		consume_feed($xml, $importer, $contact, $feedhub);
+		Feed::consume($xml, $importer, $contact, $feedhub);
 	}
 
 	hub_post_return();

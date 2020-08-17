@@ -74,7 +74,7 @@ You can chose between the following modes:
 ##### Invitation based registry
 
 Additionally to the setting in the admin panel, you can decide if registrations are only possible using an invitation code or not.
-To enable invitation based registration, you have to set the `invitation_only` setting in the [config/local.config.php](/help/Config) file.
+To enable invitation based registration, you have to set the `invitation_only` setting to `true` in the `system` section of the [config/local.config.php](/help/Config) file.
 If you want to use this method, the registration policy has to be set to either *open* or *requires approval*.
 
 #### Check Full Names
@@ -169,7 +169,6 @@ Your local users will always have access to both pages.
 
 Comma separated list of domains which are allowed to establish friendships with this site.
 Wildcards are accepted.
-(Wildcard support on Windows platforms requires PHP5.3).
 By default, any (valid) domain may establish friendships with this site.
 
 This is useful if you want to setup a closed network for educational groups, cooperatives and similar communities that don't want to communicate with the rest of the network.
@@ -179,7 +178,6 @@ This is useful if you want to setup a closed network for educational groups, coo
 Comma separated list of domains which are allowed in email addresses for registrations to this site.
 This can lockout those who are not part of this organisation from registering here.
 Wildcards are accepted.
-(Wildcard support on Windows platforms requires PHP5.3).
 By default, any (valid) email address is allowed in registrations.
 
 #### Allow Users to set remote_self

@@ -1,18 +1,33 @@
 <?php
 /**
- * @file src/Model/Storage/Filesystem.php
- * @brief Storage backend system
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Model\Storage;
 
-use Friendica\Core\Config;
+use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
-use Friendica\Core\Logger;
 use Friendica\Util\Strings;
+use Psr\Log\LoggerInterface;
 
 /**
- * @brief Filesystem based storage backend
+ * Filesystem based storage backend
  *
  * This class manage data on filesystem.
  * Base folder for storage is set in storage.filesystem_path.
@@ -21,52 +36,72 @@ use Friendica\Util\Strings;
  * Each new resource gets a value as reference and is saved in a
  * folder tree stucture created from that value.
  */
-class Filesystem implements IStorage
+class Filesystem extends AbstractStorage
 {
+	const NAME = 'Filesystem';
+
 	// Default base folder
 	const DEFAULT_BASE_FOLDER = 'storage';
 
-	private static function getBasePath()
+	/** @var IConfig */
+	private $config;
+
+	/** @var string */
+	private $basePath;
+
+	/**
+	 * Filesystem constructor.
+	 *
+	 * @param IConfig         $config
+	 * @param LoggerInterface $logger
+	 * @param L10n            $l10n
+	 */
+	public function __construct(IConfig $config, LoggerInterface $logger, L10n $l10n)
 	{
-		$path = Config::get('storage', 'filesystem_path', self::DEFAULT_BASE_FOLDER);
-		return rtrim($path, '/');
+		parent::__construct($l10n, $logger);
+
+		$this->config = $config;
+
+		$path           = $this->config->get('storage', 'filesystem_path', self::DEFAULT_BASE_FOLDER);
+		$this->basePath = rtrim($path, '/');
 	}
 
 	/**
-	 * @brief Split data ref and return file path
-	 * @param string  $ref  Data reference
+	 * Split data ref and return file path
+	 *
+	 * @param string $reference Data reference
+	 *
 	 * @return string
 	 */
-	private static function pathForRef($ref)
+	private function pathForRef(string $reference)
 	{
-		$base = self::getBasePath();
-		$fold1 = substr($ref, 0, 2);
-		$fold2 = substr($ref, 2, 2);
-		$file = substr($ref, 4);
+		$fold1 = substr($reference, 0, 2);
+		$fold2 = substr($reference, 2, 2);
+		$file  = substr($reference, 4);
 
-		return implode('/', [$base, $fold1, $fold2, $file]);
+		return implode('/', [$this->basePath, $fold1, $fold2, $file]);
 	}
 
 
 	/**
-	 * @brief Create dirctory tree to store file, with .htaccess and index.html files
+	 * Create dirctory tree to store file, with .htaccess and index.html files
+	 *
 	 * @param string $file Path and filename
+	 *
 	 * @throws StorageException
 	 */
-	private static function createFoldersForFile($file)
+	private function createFoldersForFile(string $file)
 	{
 		$path = dirname($file);
 
 		if (!is_dir($path)) {
 			if (!mkdir($path, 0770, true)) {
-				Logger::log('Failed to create dirs ' . $path);
-				throw new StorageException(L10n::t('Filesystem storage failed to create "%s". Check you write permissions.', $path));
+				$this->logger->warning('Failed to create dir.', ['path' => $path]);
+				throw new StorageException($this->l10n->t('Filesystem storage failed to create "%s". Check you write permissions.', $path));
 			}
 		}
 
-		$base = self::getBasePath();
-
-		while ($path !== $base) {
+		while ($path !== $this->basePath) {
 			if (!is_file($path . '/index.html')) {
 				file_put_contents($path . '/index.html', '');
 			}
@@ -80,9 +115,12 @@ class Filesystem implements IStorage
 		}
 	}
 
-	public static function get($ref)
+	/**
+	 * @inheritDoc
+	 */
+	public function get(string $reference)
 	{
-		$file = self::pathForRef($ref);
+		$file = $this->pathForRef($reference);
 		if (!is_file($file)) {
 			return '';
 		}
@@ -90,27 +128,36 @@ class Filesystem implements IStorage
 		return file_get_contents($file);
 	}
 
-	public static function put($data, $ref = '')
+	/**
+	 * @inheritDoc
+	 */
+	public function put(string $data, string $reference = '')
 	{
-		if ($ref === '') {
-			$ref = Strings::getRandomHex();
+		if ($reference === '') {
+			$reference = Strings::getRandomHex();
 		}
-		$file = self::pathForRef($ref);
+		$file = $this->pathForRef($reference);
 
-		self::createFoldersForFile($file);
+		$this->createFoldersForFile($file);
 
-		$r = file_put_contents($file, $data);
-		if ($r === FALSE) {
-			Logger::log('Failed to write data to ' . $file);
-			throw new StorageException(L10n::t('Filesystem storage failed to save data to "%s". Check your write permissions', $file));
+		$result = file_put_contents($file, $data);
+
+		// just in case the result is REALLY false, not zero or empty or anything else, throw the exception
+		if ($result === false) {
+			$this->logger->warning('Failed to write data.', ['file' => $file]);
+			throw new StorageException($this->l10n->t('Filesystem storage failed to save data to "%s". Check your write permissions', $file));
 		}
+
 		chmod($file, 0660);
-		return $ref;
+		return $reference;
 	}
 
-	public static function delete($ref)
+	/**
+	 * @inheritDoc
+	 */
+	public function delete(string $reference)
 	{
-		$file = self::pathForRef($ref);
+		$file = $this->pathForRef($reference);
 		// return true if file doesn't exists. we want to delete it: success with zero work!
 		if (!is_file($file)) {
 			return true;
@@ -118,28 +165,42 @@ class Filesystem implements IStorage
 		return unlink($file);
 	}
 
-	public static function getOptions()
+	/**
+	 * @inheritDoc
+	 */
+	public function getOptions()
 	{
 		return [
 			'storagepath' => [
 				'input',
-				L10n::t('Storage base path'),
-				self::getBasePath(),
-				L10n::t('Folder where uploaded files are saved. For maximum security, This should be a path outside web server folder tree')
+				$this->l10n->t('Storage base path'),
+				$this->basePath,
+				$this->l10n->t('Folder where uploaded files are saved. For maximum security, This should be a path outside web server folder tree')
 			]
 		];
 	}
-	
-	public static function saveOptions($data)
+
+	/**
+	 * @inheritDoc
+	 */
+	public function saveOptions(array $data)
 	{
-		$storagepath = defaults($data, 'storagepath', '');
-		if ($storagepath === '' || !is_dir($storagepath)) {
+		$storagePath = $data['storagepath'] ?? '';
+		if ($storagePath === '' || !is_dir($storagePath)) {
 			return [
-				'storagepath' => L10n::t('Enter a valid existing folder')
+				'storagepath' => $this->l10n->t('Enter a valid existing folder')
 			];
 		};
-		Config::set('storage', 'filesystem_path', $storagepath);
+		$this->config->set('storage', 'filesystem_path', $storagePath);
+		$this->basePath = $storagePath;
 		return [];
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public static function getName()
+	{
+		return self::NAME;
+	}
 }

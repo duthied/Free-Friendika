@@ -1,34 +1,50 @@
 <?php
 /**
- * @file src/Module/Inbox.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
-use Friendica\Protocol\ActivityPub;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
-use Friendica\Core\Config;
+use Friendica\Util\Network;
 
 /**
  * ActivityPub Inbox
  */
 class Inbox extends BaseModule
 {
-	public static function rawContent()
+	public static function rawContent(array $parameters = [])
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
-		$postdata = file_get_contents('php://input');
+		$postdata = Network::postdata();
 
 		if (empty($postdata)) {
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
-		if (Config::get('debug', 'ap_inbox_log')) {
+		if (DI::config()->get('debug', 'ap_inbox_log')) {
 			if (HTTPSignature::getSigner($postdata, $_SERVER)) {
 				$filename = 'signed-activitypub';
 			} else {
@@ -39,10 +55,11 @@ class Inbox extends BaseModule
 			Logger::log('Incoming message stored under ' . $tempfile);
 		}
 
+		// @TODO: Replace with parameter from router
 		if (!empty($a->argv[1])) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $a->argv[1]]);
 			if (!DBA::isResult($user)) {
-				System::httpExit(404);
+				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}
 			$uid = $user['uid'];
 		} else {
@@ -51,6 +68,6 @@ class Inbox extends BaseModule
 
 		ActivityPub\Receiver::processInbox($postdata, $_SERVER, $uid);
 
-		System::httpExit(202);
+		throw new \Friendica\Network\HTTPException\AcceptedException();
 	}
 }

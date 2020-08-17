@@ -1,16 +1,31 @@
 <?php
-
 /**
- * @file view/theme/frio/php/frio_boot.php
+ * @copyright Copyright (C) 2020, Friendica
  *
- * @brief This file contains functions for page construction
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * This file contains functions for page construction
  *
  */
 
 use Friendica\App;
+use Friendica\DI;
 
 /**
- * @brief Load page template in dependence of the template mode
+ * Load page template in dependence of the template mode
  *
  * @todo Check if this is really needed.
  */
@@ -22,7 +37,7 @@ function load_page(App $a)
 		require 'view/theme/frio/none.php';
 	} else {
 		$template = 'view/theme/' . $a->getCurrentTheme() . '/'
-			. defaults($a->page, 'template', 'default' ) . '.php';
+			. ((DI::page()['template'] ?? '') ?: 'default' ) . '.php';
 		if (file_exists($template)) {
 			require_once $template;
 		} else {
@@ -32,7 +47,7 @@ function load_page(App $a)
 }
 
 /**
- * @brief Check if page is a modal page
+ * Check if page is a modal page
  *
  * This function checks if $_REQUEST['pagename'] is
  * a defined in a $modalpages
@@ -53,7 +68,7 @@ function is_modal() {
 }
 
 /**
- * @brief Array with modalpages
+ * Array with modalpages
  *
  * The array contains the page names of the pages
  * which should displayed as modals
@@ -73,7 +88,7 @@ function get_modalpage_list() {
 }
 
 /**
- * @brief Array with standard pages
+ * Array with standard pages
  *
  * The array contains the page names of the pages
  * which should displayed as standard-page
@@ -90,7 +105,7 @@ function get_standard_page_list() {
 }
 
 /**
- * @brief Check if page is standard page
+ * Check if page is standard page
  *
  * This function checks if $_REQUEST['pagename'] is
  * a defined $standardpages
@@ -111,7 +126,7 @@ function is_standard_page($pagetitle) {
 	return $is_standard_page;
 }
 /**
- * @brief Get the typ of the page
+ * Get the typ of the page
  *
  * @param type $pagetitle
  * @return string

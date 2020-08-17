@@ -1,32 +1,30 @@
 <?php
-namespace Friendica\Test\Database;
+namespace Friendica\Test\src\Database;
 
-use Friendica\App;
-use Friendica\Core\Config;
+use Dice\Dice;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\Factory;
+use Friendica\DI;
 use Friendica\Test\DatabaseTest;
-use Friendica\Util\BasePath;
+use Friendica\Test\Util\Database\StaticDatabase;
 
 class DBATest extends DatabaseTest
 {
 	public function setUp()
 	{
-		$basedir = BasePath::create(dirname(__DIR__) . '/../../');
-		$configLoader = new Config\ConfigCacheLoader($basedir);
-		$config = Factory\ConfigFactory::createCache($configLoader);
-		$logger = Factory\LoggerFactory::create('test', $config);
-		$this->app = new App($config, $logger, false);
-		$this->logOutput = FActory\LoggerFactory::enableTest($this->app->getLogger());
-
 		parent::setUp();
 
+		$dice = (new Dice())
+			->addRules(include __DIR__ . '/../../../static/dependencies.config.php')
+			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
+		DI::init($dice);
+
 		// Default config
-		Config::set('config', 'hostname', 'localhost');
-		Config::set('system', 'throttle_limit_day', 100);
-		Config::set('system', 'throttle_limit_week', 100);
-		Config::set('system', 'throttle_limit_month', 100);
-		Config::set('system', 'theme', 'system_theme');
+		DI::config()->set('config', 'hostname', 'localhost');
+		DI::config()->set('system', 'throttle_limit_day', 100);
+		DI::config()->set('system', 'throttle_limit_week', 100);
+		DI::config()->set('system', 'throttle_limit_month', 100);
+		DI::config()->set('system', 'theme', 'system_theme');
 	}
 
 	/**

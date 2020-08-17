@@ -1,19 +1,13 @@
 {{if $mode == display}}
 {{else}}
 {{if $item.comment_firstcollapsed}}
-	<div class="hide-comments-outer">
-		<span id="hide-comments-total-{{$item.id}}"
-			class="hide-comments-total">{{$item.num_comments}}</span>
-			<span id="hide-comments-{{$item.id}}"
-				class="hide-comments fakelink"
-				onclick="showHideComments({{$item.id}});">{{$item.hide_text}}</span>
-			{{if $item.thread_level==3}} -
-			<span id="hide-thread-{{$item}}-id"
-				class="fakelink"
-				onclick="showThread({{$item.id}});">expand</span> /
-			<span id="hide-thread-{{$item}}-id"
-				class="fakelink"
-				onclick="hideThread({{$item.id}});">collapse</span> thread{{/if}}
+	<div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
+		<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">
+			{{$item.num_comments}} - {{$item.show_text}}
+		</span>
+		<span id="hide-comments-{{$item.id}}" class="hide-comments" style="display: none">
+			{{$item.num_comments}} - {{$item.hide_text}}
+		</span>
 	</div>
 	<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 {{/if}}
@@ -25,12 +19,12 @@
 <span class="commented" style="display: none;">{{$item.commented}}</span>
 <span class="received" style="display: none;">{{$item.received}}</span>
 <span class="created" style="display: none;">{{$item.created_date}}</span>
-<span class="id" style="display: none;">{{$item.id}}</span>
+<span class="uriid" style="display: none;">{{$item.uriid}}</span>
 {{/if}}
 
 <div class="wall-item-decor">
 	{{if $item.star}}<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>{{/if}}
-	{{if $item.lock}}<span class="icon s22 lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
+	{{if $item.lock}}<span class="icon s22 lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
 	<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 </div>
 
@@ -78,7 +72,7 @@
 				<span class="folder p-category">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 			{{/foreach}}
 			{{foreach $item.categories as $cat}}
-				<span class="category p-category">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+				<span class="category p-category"><a href="{{$cat.url}}">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 			{{/foreach}}
 		{{/if}}
 		</div>
@@ -94,11 +88,16 @@
                                 class="wall-item-name-link"><span
                                 class="wall-item-name{{$item.sparkle}}">{{$item.name}}</span></a>
                                 <span class="wall-item-ago" title="{{$item.localtime}}"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></span>
+				<span class="pinned">{{$item.pinned}}</span>
 				 {{if $item.owner_url}}<br/>{{$item.to}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a> {{$item.vwall}}
 				 {{/if}}
 			</div>
 
 			<div class="wall-item-actions-social">
+			{{if $item.pin}}
+				<a href="#" id="pin-{{$item.id}}" onclick="dopin({{$item.id}}); return false;"  class="{{$item.pin.classdo}}"  title="{{$item.pin.do}}">{{$item.pin.do}}</a>
+				<a href="#" id="unpin-{{$item.id}}" onclick="dopin({{$item.id}}); return false;"  class="{{$item.pin.classundo}}"  title="{{$item.pin.undo}}">{{$item.pin.undo}}</a>
+			{{/if}}
 			{{if $item.star}}
 				<a href="#" id="star-{{$item.id}}" onclick="dostar({{$item.id}}); return false;"  class="{{$item.star.classdo}}"  title="{{$item.star.do}}">{{$item.star.do}}</a>
 				<a href="#" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}}); return false;"  class="{{$item.star.classundo}}"  title="{{$item.star.undo}}">{{$item.star.undo}}</a>
@@ -114,10 +113,14 @@
                                 <a href="#" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}}); return false;" class="filer-item filer-icon" title="{{$item.filer}}">{{$item.filer}}</a>
 			{{/if}}
 
+			{{if $item.remote_comment}}
+				<a title="{{$item.remote_comment.0}}" href="{{$item.remote_comment.2}}">{{$item.remote_comment.1}}</a>
+			{{/if}}
+
 			{{if $item.vote}}
-				<a href="#" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false">{{$item.vote.like.1}}</a>
+				<a href="#" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false">{{$item.vote.like.1}}</a>
 				{{if $item.vote.dislike}}
-				<a href="#" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false">{{$item.vote.dislike.1}}</a>
+				<a href="#" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false">{{$item.vote.dislike.1}}</a>
 				{{/if}}
 			    {{if $item.vote.share}}
 				    <a href="#" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false">{{$item.vote.share.1}}</a>
@@ -126,9 +129,9 @@
 			{{if $item.isevent}}
 			<div class="clear"></div>
 			<div class="wall-item-actions-isevent">
-				<a href="#" id="attendyes-{{$item.id}}"{{if $item.responses.attendyes.self}} class="active{{/if}}" title="{{$item.attend.0}}" onclick="dolike({{$item.id}},'attendyes'); return false;">{{$item.attend.0}}</a>
-				<a href="#" id="attendno-{{$item.id}}"{{if $item.responses.attendno.self}} class="active{{/if}}" title="{{$item.attend.1}}" onclick="dolike({{$item.id}},'attendno'); return false;">{{$item.attend.1}}</a>
-				<a href="#" id="attendmaybe-{{$item.id}}"{{if $item.responses.attendmaybe.self}} class="active{{/if}}" title="{{$item.attend.2}}" onclick="dolike({{$item.id}},'attendmaybe'); return false;">{{$item.attend.2}}</a>
+				<a href="#" id="attendyes-{{$item.id}}"{{if $item.responses.attendyes.self}} class="active{{/if}}" title="{{$item.attend.0}}" onclick="dolike({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}}); return false;">{{$item.attend.0}}</a>
+				<a href="#" id="attendno-{{$item.id}}"{{if $item.responses.attendno.self}} class="active{{/if}}" title="{{$item.attend.1}}" onclick="dolike({{$item.id}}, 'attendno'{{if $item.responses.attendno.self}}, true{{/if}}); return false;">{{$item.attend.1}}</a>
+				<a href="#" id="attendmaybe-{{$item.id}}"{{if $item.responses.attendmaybe.self}} class="active{{/if}}" title="{{$item.attend.2}}" onclick="dolike({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}}); return false;">{{$item.attend.2}}</a>
 			</div>
 			{{/if}}
 

@@ -14,7 +14,7 @@
 
 {{if $oidlabel}}
 	<div id="register-openid-wrapper" >
-    	<label for="register-openid" id="label-register-openid" >{{$oidlabel}}</label><input type="text" maxlength="60" size="32" name="openid_url" class="openid" id="register-openid" value="{{$openid}}" >
+	<label for="register-openid" id="label-register-openid" >{{$oidlabel}}</label><input type="text" maxlength="60" size="32" name="openid_url" class="openid" id="register-openid" value="{{$openid}}" >
 	</div>
 	<div id="register-openid-end" ></div>
 {{/if}}
@@ -30,16 +30,24 @@
 
 	<div id="register-name-wrapper" >
 		<label for="register-name" id="label-register-name" >{{$namelabel}}</label>
-		<input type="text" maxlength="60" size="32" name="username" id="register-name" value="{{$username}}" >
+		<input type="text" maxlength="60" size="32" name="username" id="register-name" value="{{$username}}" required>
 	</div>
 	<div id="register-name-end" ></div>
 
 
-	<div id="register-email-wrapper" >
-		<label for="register-email" id="label-register-email" >{{$addrlabel}}</label>
-		<input type="text" maxlength="60" size="32" name="email" id="register-email" value="{{$email}}" >
-	</div>
-	<div id="register-email-end" ></div>
+	{{if !$additional}}
+		<div id="register-email-wrapper" >
+			<label for="register-email" id="label-register-email" >{{$addrlabel}}</label>
+			<input type="text" maxlength="60" size="32" name="field1" id="register-email" value="{{$email}}" required>
+		</div>
+		<div id="register-email-end" ></div>
+
+		<div id="register-repeat-wrapper" >
+			<label for="register-repeat" id="label-register-repeat" >{{$addrlabel2}}</label>
+			<input type="text" maxlength="60" size="32" name="repeat" id="register-repeat" value="" required>
+		</div>
+		<div id="register-repeat-end" ></div>
+	{{/if}}
 
 {{if $ask_password}}
 	{{include file="field_password.tpl" field=$password1}}
@@ -50,12 +58,18 @@
 
 	<div id="register-nickname-wrapper" >
 		<label for="register-nickname" id="label-register-nickname" >{{$nicklabel}}</label>
-		<input type="text" maxlength="60" size="32" name="nickname" id="register-nickname" value="{{$nickname}}" ><div id="register-sitename">@{{$sitename}}</div>
+		<input type="text" maxlength="60" size="32" name="nickname" id="register-nickname" value="{{$nickname}}" required><div id="register-sitename">@{{$sitename}}</div>
 	</div>
 	<div id="register-nickname-end" ></div>
 
+	<input type="input" id=tarpit" name="email" style="display: none;" placeholder="Don't enter anything here"/>
+
+	{{if $additional}}
+		{{include file="field_password.tpl" field=$parent_password}}
+	{{/if}}
+
 {{if $permonly}}
-    {{include file="field_textarea.tpl" field=$permonlybox}}
+	{{include file="field_textarea.tpl" field=$permonlybox}}
 {{/if}}
 
 	{{$publish nofilter}}
@@ -75,8 +89,10 @@
 	</div>
 	<div id="register-submit-end" ></div>
 
-	<h3>{{$importh}}</h3>
-	<div id ="import-profile">
-		<a href="uimport">{{$importt}}</a>
-	</div>
+	{{if !$additional}}
+		<h3>{{$importh}}</h3>
+		<div id ="import-profile">
+			<a href="uimport">{{$importt}}</a>
+		</div>
+	{{/if}}
 </form>

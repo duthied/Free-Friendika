@@ -1,40 +1,61 @@
 <?php
 /**
- * @file src/Model/Storage/IStorage.php
- * @brief Storage backend system
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Model\Storage;
 
 /**
- * @brief Interface for storage backends
+ * Interface for storage backends
  */
 interface IStorage
 {
 	/**
-	 * @brief Get data from backend
-	 * @param string  $ref  Data reference
+	 * Get data from backend
+	 *
+	 * @param string $reference Data reference
+	 *
 	 * @return string
-     */
-	public static function get($ref);
-
-	/**
-	 * @brief Put data in backend as $ref. If $ref is not defined a new reference is created.
-	 * @param string  $data  Data to save
-	 * @param string  $ref   Data referece. Optional.
-	 * @return string Saved data referece
 	 */
-	public static function put($data, $ref = "");
+	public function get(string $reference);
 
 	/**
-	 * @brief Remove data from backend
-	 * @param string  $ref  Data referece
+	 * Put data in backend as $ref. If $ref is not defined a new reference is created.
+	 *
+	 * @param string $data      Data to save
+	 * @param string $reference Data reference. Optional.
+	 *
+	 * @return string Saved data reference
+	 */
+	public function put(string $data, string $reference = "");
+
+	/**
+	 * Remove data from backend
+	 *
+	 * @param string $reference Data reference
+	 *
 	 * @return boolean  True on success
 	 */
-	public static function delete($ref);
-	
+	public function delete(string $reference);
+
 	/**
-	 * @brief Get info about storage options
+	 * Get info about storage options
 	 *
 	 * @return array
 	 *
@@ -57,7 +78,7 @@ interface IStorage
 	 *      'type',      // define the field used in form, and the type of data.
 	 *                   // one of 'checkbox', 'combobox', 'custom', 'datetime',
 	 *                   // 'input', 'intcheckbox', 'password', 'radio', 'richtext'
-	 *                   // 'select', 'select_raw', 'textarea', 'yesno'
+	 *                   // 'select', 'select_raw', 'textarea'
 	 *
 	 *      'label',     // Translatable label of the field
 	 *      'value',     // Current value
@@ -66,24 +87,34 @@ interface IStorage
 	 *                   // select: array [ value => label ] of choices
 	 *                   // intcheckbox: value of input element
 	 *                   // select_raw: prebuild html string of < option > tags
-	 *                   // yesno: array [ 'label no', 'label yes']
 	 *    ]
 	 *
 	 * See https://github.com/friendica/friendica/wiki/Quick-Template-Guide
 	 */
-	public static function getOptions();
-	
+	public function getOptions();
+
 	/**
-	 * @brief Validate and save options
+	 * Validate and save options
 	 *
-	 * @param array  $data  Array [optionname => value] to be saved
+	 * @param array $data Array [optionname => value] to be saved
 	 *
 	 * @return array  Validation errors: [optionname => error message]
 	 *
 	 * Return array must be empty if no error.
 	 */
-	public static function saveOptions($data);
-	
+	public function saveOptions(array $data);
+
+	/**
+	 * The name of the backend
+	 *
+	 * @return string
+	 */
+	public function __toString();
+
+	/**
+	 * The name of the backend
+	 *
+	 * @return string
+	 */
+	public static function getName();
 }
-
-

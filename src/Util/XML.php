@@ -1,20 +1,38 @@
 <?php
 /**
- * @file src/Util/XML.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Util;
 
-use Friendica\Core\Logger;
 use DOMXPath;
+use Friendica\Core\Logger;
+use Friendica\Core\System;
 use SimpleXMLElement;
 
 /**
- * @brief This class contain methods to work with XML data
+ * This class contain methods to work with XML data
  */
 class XML
 {
 	/**
-	 * @brief Creates an XML structure out of a given array
+	 * Creates an XML structure out of a given array
 	 *
 	 * @param array  $array         The array of the XML structure that will be generated
 	 * @param object $xml           The createdXML will be returned by reference
@@ -113,7 +131,7 @@ class XML
 	}
 
 	/**
-	 * @brief Copies an XML object
+	 * Copies an XML object
 	 *
 	 * @param object $source      The XML source
 	 * @param object $target      The XML target
@@ -133,7 +151,7 @@ class XML
 	}
 
 	/**
-	 * @brief Create an XML element
+	 * Create an XML element
 	 *
 	 * @param \DOMDocument $doc        XML root
 	 * @param string       $element    XML element name
@@ -155,7 +173,7 @@ class XML
 	}
 
 	/**
-	 * @brief Create an XML and append it to the parent object
+	 * Create an XML and append it to the parent object
 	 *
 	 * @param \DOMDocument $doc        XML root
 	 * @param object $parent     parent object
@@ -171,7 +189,7 @@ class XML
 	}
 
 	/**
-	 * @brief Convert an XML document to a normalised, case-corrected array
+	 * Convert an XML document to a normalised, case-corrected array
 	 *   used by webfinger
 	 *
 	 * @param object  $xml_element     The XML document
@@ -222,7 +240,7 @@ class XML
 	}
 
 	/**
-	 * @brief Convert the given XML text to an array in the XML structure.
+	 * Convert the given XML text to an array in the XML structure.
 	 *
 	 * Xml::toArray() will convert the given XML text to an array in the XML structure.
 	 * Link: http://www.bin-co.com/php/scripts/xml2array/
@@ -400,7 +418,7 @@ class XML
 	}
 
 	/**
-	 * @brief Delete a node in a XML object
+	 * Delete a node in a XML object
 	 *
 	 * @param \DOMDocument $doc  XML document
 	 * @param string $node Node name
@@ -415,16 +433,25 @@ class XML
 		}
 	}
 
-	public static function parseString($s, $strict = true)
+	/**
+	 * Parse XML string
+	 *
+	 * @param string  $s
+	 * @param boolean $suppress_log
+	 * @return Object
+	 */
+	public static function parseString(string $s, bool $suppress_log = false)
 	{
-		// the "strict" parameter is deactivated
 		libxml_use_internal_errors(true);
 
 		$x = @simplexml_load_string($s);
 		if (!$x) {
-			Logger::log('libxml: parse: error: ' . $s, Logger::DATA);
-			foreach (libxml_get_errors() as $err) {
-				Logger::log('libxml: parse: ' . $err->code." at ".$err->line.":".$err->column." : ".$err->message, Logger::DATA);
+			if (!$suppress_log) {
+				Logger::error('Error(s) while parsing XML string.', ['callstack' => System::callstack()]);
+				foreach (libxml_get_errors() as $err) {
+					Logger::info('libxml error', ['code' => $err->code, 'position' => $err->line . ":" . $err->column, 'message' => $err->message]);
+				}
+				Logger::debug('Erroring XML string', ['xml' => $s]);
 			}
 			libxml_clear_errors();
 		}
@@ -463,12 +490,13 @@ class XML
 
 	/**
 	 * escape text ($str) for XML transport
+	 *
 	 * @param string $str
 	 * @return string Escaped text.
 	 */
 	public static function escape($str)
 	{
-		$buffer = htmlspecialchars($str, ENT_QUOTES, "UTF-8");
+		$buffer = htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
 		$buffer = trim($buffer);
 
 		return $buffer;
@@ -476,6 +504,7 @@ class XML
 
 	/**
 	 * undo an escape
+	 *
 	 * @param string $s xml escaped text
 	 * @return string unescaped text
 	 */
@@ -487,16 +516,18 @@ class XML
 
 	/**
 	 * apply escape() to all values of array $val, recursively
+	 *
 	 * @param array $val
-	 * @return array
+	 * @return array|string
 	 */
 	public static function arrayEscape($val)
 	{
 		if (is_bool($val)) {
-			return $val?"true":"false";
+			return $val ? 'true' : 'false';
 		} elseif (is_array($val)) {
 			return array_map('XML::arrayEscape', $val);
 		}
+
 		return self::escape((string) $val);
 	}
 }

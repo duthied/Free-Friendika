@@ -1,23 +1,37 @@
 <?php
 /**
- * @file mod/message.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
-use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\ACL;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Mail;
-use Friendica\Module\Login;
+use Friendica\Model\Notify\Type;
+use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
@@ -30,22 +44,22 @@ function message_init(App $a)
 	}
 
 	$new = [
-		'label' => L10n::t('New Message'),
+		'label' => DI::l10n()->t('New Message'),
 		'url' => 'message/new',
 		'sel' => $a->argc > 1 && $a->argv[1] == 'new',
 		'accesskey' => 'm',
 	];
 
 	$tpl = Renderer::getMarkupTemplate('message_side.tpl');
-	$a->page['aside'] = Renderer::replaceMacros($tpl, [
+	DI::page()['aside'] = Renderer::replaceMacros($tpl, [
 		'$tabs' => $tabs,
 		'$new' => $new,
 	]);
-	$base = System::baseUrl();
+	$base = DI::baseUrl();
 
 	$head_tpl = Renderer::getMarkupTemplate('message-head.tpl');
-	$a->page['htmlhead'] .= Renderer::replaceMacros($head_tpl, [
-		'$baseurl' => System::baseUrl(true),
+	DI::page()['htmlhead'] .= Renderer::replaceMacros($head_tpl, [
+		'$baseurl' => DI::baseUrl()->get(true),
 		'$base' => $base
 	]);
 }
@@ -53,7 +67,7 @@ function message_init(App $a)
 function message_post(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -67,20 +81,18 @@ function message_post(App $a)
 
 	switch ($ret) {
 		case -1:
-			notice(L10n::t('No recipient selected.') . EOL);
+			notice(DI::l10n()->t('No recipient selected.'));
 			$norecip = true;
 			break;
 		case -2:
-			notice(L10n::t('Unable to locate contact information.') . EOL);
+			notice(DI::l10n()->t('Unable to locate contact information.'));
 			break;
 		case -3:
-			notice(L10n::t('Message could not be sent.') . EOL);
+			notice(DI::l10n()->t('Message could not be sent.'));
 			break;
 		case -4:
-			notice(L10n::t('Message collection failure.') . EOL);
+			notice(DI::l10n()->t('Message collection failure.'));
 			break;
-		default:
-			info(L10n::t('Message sent.') . EOL);
 	}
 
 	// fake it to go back to the input form if no recipient listed
@@ -88,7 +100,7 @@ function message_post(App $a)
 		$a->argc = 2;
 		$a->argv[1] = 'new';
 	} else {
-		$a->internalRedirect($a->cmd . '/' . $ret);
+		DI::baseUrl()->redirect(DI::args()->getCommand() . '/' . $ret);
 	}
 }
 
@@ -98,29 +110,29 @@ function message_content(App $a)
 	Nav::setSelected('messages');
 
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
 
-	$myprofile = System::baseUrl() . '/profile/' . $a->user['nickname'];
+	$myprofile = DI::baseUrl() . '/profile/' . $a->user['nickname'];
 
 	$tpl = Renderer::getMarkupTemplate('mail_head.tpl');
 	if ($a->argc > 1 && $a->argv[1] == 'new') {
 		$button = [
-			'label' => L10n::t('Discard'),
+			'label' => DI::l10n()->t('Discard'),
 			'url' => '/message',
 			'sel' => 'close',
 		];
 	} else {
 		$button = [
-			'label' => L10n::t('New Message'),
+			'label' => DI::l10n()->t('New Message'),
 			'url' => '/message/new',
 			'sel' => 'new',
 			'accesskey' => 'm',
 		];
 	}
 	$header = Renderer::replaceMacros($tpl, [
-		'$messages' => L10n::t('Messages'),
+		'$messages' => DI::l10n()->t('Messages'),
 		'$button' => $button,
 	]);
 
@@ -133,7 +145,7 @@ function message_content(App $a)
 		if (!empty($_REQUEST['confirm'])) {
 			// <form> can't take arguments in its "action" parameter
 			// so add any arguments as hidden inputs
-			$query = explode_querystring($a->query_string);
+			$query = explode_querystring(DI::args()->getQueryString());
 			$inputs = [];
 			foreach ($query['args'] as $arg) {
 				if (strpos($arg, 'confirm=') === false) {
@@ -142,42 +154,41 @@ function message_content(App $a)
 				}
 			}
 
-			//$a->page['aside'] = '';
+			//DI::page()['aside'] = '';
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'get',
-				'$message' => L10n::t('Do you really want to delete this message?'),
+				'$message' => DI::l10n()->t('Do you really want to delete this message?'),
 				'$extra_inputs' => $inputs,
-				'$confirm' => L10n::t('Yes'),
+				'$confirm' => DI::l10n()->t('Yes'),
 				'$confirm_url' => $query['base'],
 				'$confirm_name' => 'confirmed',
-				'$cancel' => L10n::t('Cancel'),
+				'$cancel' => DI::l10n()->t('Cancel'),
 			]);
 		}
 
 		// Now check how the user responded to the confirmation query
 		if (!empty($_REQUEST['canceled'])) {
-			$a->internalRedirect('message');
+			DI::baseUrl()->redirect('message');
 		}
 
 		$cmd = $a->argv[1];
 		if ($cmd === 'drop') {
 			$message = DBA::selectFirst('mail', ['convid'], ['id' => $a->argv[2], 'uid' => local_user()]);
 			if(!DBA::isResult($message)){
-				info(L10n::t('Conversation not found.') . EOL);
-				$a->internalRedirect('message');
+				notice(DI::l10n()->t('Conversation not found.'));
+				DI::baseUrl()->redirect('message');
 			}
 
-			if (DBA::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
-				info(L10n::t('Message deleted.') . EOL);
+			if (!DBA::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
+				notice(DI::l10n()->t('Message was not deleted.'));
 			}
 
 			$conversation = DBA::selectFirst('mail', ['id'], ['convid' => $message['convid'], 'uid' => local_user()]);
 			if(!DBA::isResult($conversation)){
-				info(L10n::t('Conversation removed.') . EOL);
-				$a->internalRedirect('message');
+				DI::baseUrl()->redirect('message');
 			}
 
-			$a->internalRedirect('message/' . $conversation['id'] );
+			DI::baseUrl()->redirect('message/' . $conversation['id'] );
 		} else {
 			$r = q("SELECT `parent-uri`,`convid` FROM `mail` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 				intval($a->argv[2]),
@@ -186,11 +197,11 @@ function message_content(App $a)
 			if (DBA::isResult($r)) {
 				$parent = $r[0]['parent-uri'];
 
-				if (DBA::delete('mail', ['parent-uri' => $parent, 'uid' => local_user()])) {
-					info(L10n::t('Conversation removed.') . EOL);
+				if (!DBA::delete('mail', ['parent-uri' => $parent, 'uid' => local_user()])) {
+					notice(DI::l10n()->t('Conversation was not removed.'));
 				}
 			}
-			$a->internalRedirect('message');
+			DI::baseUrl()->redirect('message');
 		}
 	}
 
@@ -198,10 +209,10 @@ function message_content(App $a)
 		$o .= $header;
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
-		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => System::baseUrl(true),
+		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
+			'$baseurl' => DI::baseUrl()->get(true),
 			'$nickname' => $a->user['nickname'],
-			'$linkurl' => L10n::t('Please enter a link URL:')
+			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
 
 		$preselect = isset($a->argv[2]) ? [$a->argv[2]] : [];
@@ -243,28 +254,28 @@ function message_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('prv_message.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
-			'$header'     => L10n::t('Send Private Message'),
-			'$to'         => L10n::t('To:'),
+			'$header'     => DI::l10n()->t('Send Private Message'),
+			'$to'         => DI::l10n()->t('To:'),
 			'$showinputs' => 'true',
 			'$prefill'    => $prefill,
 			'$preid'      => $preid,
-			'$subject'    => L10n::t('Subject:'),
-			'$subjtxt'    => defaults($_REQUEST, 'subject', ''),
-			'$text'       => defaults($_REQUEST, 'body', ''),
+			'$subject'    => DI::l10n()->t('Subject:'),
+			'$subjtxt'    => $_REQUEST['subject'] ?? '',
+			'$text'       => $_REQUEST['body'] ?? '',
 			'$readonly'   => '',
-			'$yourmessage'=> L10n::t('Your message:'),
+			'$yourmessage'=> DI::l10n()->t('Your message:'),
 			'$select'     => $select,
 			'$parent'     => '',
-			'$upload'     => L10n::t('Upload photo'),
-			'$insert'     => L10n::t('Insert web link'),
-			'$wait'       => L10n::t('Please wait'),
-			'$submit'     => L10n::t('Submit')
+			'$upload'     => DI::l10n()->t('Upload photo'),
+			'$insert'     => DI::l10n()->t('Insert web link'),
+			'$wait'       => DI::l10n()->t('Please wait'),
+			'$submit'     => DI::l10n()->t('Submit')
 		]);
 		return $o;
 	}
 
 
-	$_SESSION['return_path'] = $a->query_string;
+	$_SESSION['return_path'] = DI::args()->getQueryString();
 
 	if ($a->argc == 1) {
 
@@ -281,12 +292,12 @@ function message_content(App $a)
 			$total = $r[0]['total'];
 		}
 
-		$pager = new Pager($a->query_string);
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 		$r = get_messages(local_user(), $pager->getStart(), $pager->getItemsPerPage());
 
 		if (!DBA::isResult($r)) {
-			info(L10n::t('No messages.') . EOL);
+			notice(DI::l10n()->t('No messages.'));
 			return $o;
 		}
 
@@ -337,27 +348,21 @@ function message_content(App $a)
 			$messages = DBA::toArray($messages_stmt);
 
 			DBA::update('mail', ['seen' => 1], ['parent-uri' => $message['parent-uri'], 'uid' => local_user()]);
-
-			if ($message['convid']) {
-				// Clear Diaspora private message notifications
-				DBA::update('notify', ['seen' => 1], ['type' => NOTIFY_MAIL, 'parent' => $message['convid'], 'uid' => local_user()]);
-			}
-			// Clear DFRN private message notifications
-			DBA::update('notify', ['seen' => 1], ['type' => NOTIFY_MAIL, 'parent' => $message['parent-uri'], 'uid' => local_user()]);
+			DBA::update('notify', ['seen' => 1], ['type' => Type::MAIL, 'parent' => $message['id'], 'uid' => local_user()]);
 		} else {
 			$messages = false;
 		}
 
 		if (!DBA::isResult($messages)) {
-			notice(L10n::t('Message not available.') . EOL);
+			notice(DI::l10n()->t('Message not available.'));
 			return $o;
 		}
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
-		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => System::baseUrl(true),
+		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
+			'$baseurl' => DI::baseUrl()->get(true),
 			'$nickname' => $a->user['nickname'],
-			'$linkurl' => L10n::t('Please enter a link URL:')
+			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
 
 		$mails = [];
@@ -384,15 +389,11 @@ function message_content(App $a)
 
 			$from_name_e = $message['from-name'];
 			$subject_e = $message['title'];
-			$body_e = Smilies::replace(BBCode::convert($message['body']));
+			$body_e = BBCode::convert($message['body']);
 			$to_name_e = $message['name'];
 
-			$contact = Contact::getDetailsByURL($message['from-url']);
-			if (isset($contact["thumb"])) {
-				$from_photo = $contact["thumb"];
-			} else {
-				$from_photo = $message['from-photo'];
-			}
+			$contact = Contact::getByURL($message['from-url'], false, ['thumb', 'addr', 'id', 'avatar']);
+			$from_photo = Contact::getThumb($contact, $message['from-photo']);
 
 			$mails[] = [
 				'id' => $message['id'],
@@ -400,12 +401,12 @@ function message_content(App $a)
 				'from_url' => $from_url,
 				'from_addr' => $contact['addr'],
 				'sparkle' => $sparkle,
-				'from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
+				'from_photo' => $from_photo,
 				'subject' => $subject_e,
 				'body' => $body_e,
-				'delete' => L10n::t('Delete message'),
+				'delete' => DI::l10n()->t('Delete message'),
 				'to_name' => $to_name_e,
-				'date' => DateTimeFormat::local($message['created'], L10n::t('D, d M Y - g:i A')),
+				'date' => DateTimeFormat::local($message['created'], DI::l10n()->t('D, d M Y - g:i A')),
 				'ago' => Temporal::getRelativeDate($message['created']),
 			];
 
@@ -420,26 +421,26 @@ function message_content(App $a)
 			'$thread_id' => $a->argv[1],
 			'$thread_subject' => $message['title'],
 			'$thread_seen' => $seen,
-			'$delete' => L10n::t('Delete conversation'),
+			'$delete' => DI::l10n()->t('Delete conversation'),
 			'$canreply' => (($unknown) ? false : '1'),
-			'$unknown_text' => L10n::t("No secure communications available. You <strong>may</strong> be able to respond from the sender's profile page."),
+			'$unknown_text' => DI::l10n()->t("No secure communications available. You <strong>may</strong> be able to respond from the sender's profile page."),
 			'$mails' => $mails,
 
 			// reply
-			'$header' => L10n::t('Send Reply'),
-			'$to' => L10n::t('To:'),
+			'$header' => DI::l10n()->t('Send Reply'),
+			'$to' => DI::l10n()->t('To:'),
 			'$showinputs' => '',
-			'$subject' => L10n::t('Subject:'),
+			'$subject' => DI::l10n()->t('Subject:'),
 			'$subjtxt' => $message['title'],
 			'$readonly' => ' readonly="readonly" style="background: #BBBBBB;" ',
-			'$yourmessage' => L10n::t('Your message:'),
+			'$yourmessage' => DI::l10n()->t('Your message:'),
 			'$text' => '',
 			'$select' => $select,
 			'$parent' => $parent,
-			'$upload' => L10n::t('Upload photo'),
-			'$insert' => L10n::t('Insert web link'),
-			'$submit' => L10n::t('Submit'),
-			'$wait' => L10n::t('Please wait')
+			'$upload' => DI::l10n()->t('Upload photo'),
+			'$insert' => DI::l10n()->t('Insert web link'),
+			'$submit' => DI::l10n()->t('Submit'),
+			'$wait' => DI::l10n()->t('Please wait')
 		]);
 
 		return $o;
@@ -500,47 +501,43 @@ function get_messages($uid, $start, $limit)
 
 function render_messages(array $msg, $t)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	$tpl = Renderer::getMarkupTemplate($t);
 	$rslt = '';
 
-	$myprofile = System::baseUrl() . '/profile/' . $a->user['nickname'];
+	$myprofile = DI::baseUrl() . '/profile/' . $a->user['nickname'];
 
 	foreach ($msg as $rr) {
 		if ($rr['unknown']) {
-			$participants = L10n::t("Unknown sender - %s", $rr['from-name']);
+			$participants = DI::l10n()->t("Unknown sender - %s", $rr['from-name']);
 		} elseif (Strings::compareLink($rr['from-url'], $myprofile)) {
-			$participants = L10n::t("You and %s", $rr['name']);
+			$participants = DI::l10n()->t("You and %s", $rr['name']);
 		} else {
-			$participants = L10n::t("%s and You", $rr['from-name']);
+			$participants = DI::l10n()->t("%s and You", $rr['from-name']);
 		}
 
 		$body_e = $rr['body'];
 		$to_name_e = $rr['name'];
 
-		$contact = Contact::getDetailsByURL($rr['url']);
-		if (isset($contact["thumb"])) {
-			$from_photo = $contact["thumb"];
-		} else {
-			$from_photo = (($rr['thumb']) ? $rr['thumb'] : $rr['from-photo']);
-		}
+		$contact = Contact::getByURL($rr['url'], false, ['thumb', 'addr', 'id', 'avatar']);
+		$from_photo = Contact::getThumb($contact, $rr['thumb'] ?: $rr['from-photo']);
 
 		$rslt .= Renderer::replaceMacros($tpl, [
 			'$id' => $rr['id'],
 			'$from_name' => $participants,
 			'$from_url' => Contact::magicLink($rr['url']),
-			'$from_addr' => defaults($contact, 'addr', ''),
+			'$from_addr' => $contact['addr'] ?? '',
 			'$sparkle' => ' sparkle',
-			'$from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
+			'$from_photo' => $from_photo,
 			'$subject' => $rr['title'],
-			'$delete' => L10n::t('Delete conversation'),
+			'$delete' => DI::l10n()->t('Delete conversation'),
 			'$body' => $body_e,
 			'$to_name' => $to_name_e,
-			'$date' => DateTimeFormat::local($rr['mailcreated'], L10n::t('D, d M Y - g:i A')),
+			'$date' => DateTimeFormat::local($rr['mailcreated'], DI::l10n()->t('D, d M Y - g:i A')),
 			'$ago' => Temporal::getRelativeDate($rr['mailcreated']),
 			'$seen' => $rr['mailseen'],
-			'$count' => L10n::tt('%d message', '%d messages', $rr['count']),
+			'$count' => DI::l10n()->tt('%d message', '%d messages', $rr['count']),
 		]);
 	}
 

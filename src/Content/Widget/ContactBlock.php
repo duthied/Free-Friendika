@@ -1,18 +1,32 @@
 <?php
-
-/*
- * @file src/Content/Widget/ContactBlock.php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Content\Widget;
 
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 
@@ -26,7 +40,7 @@ class ContactBlock
 	/**
 	 * Get HTML for contact block
 	 *
-	 * @template contact_block.tpl
+	 * @template widget/contacts.tpl
 	 * @hook contact_block_end (contacts=>array, output=>string)
 	 * @return string
 	 */
@@ -34,7 +48,7 @@ class ContactBlock
 	{
 		$o = '';
 
-		$shown = PConfig::get($profile['uid'], 'system', 'display_friend_count', 24);
+		$shown = DI::pConfig()->get($profile['uid'], 'system', 'display_friend_count', 24);
 		if ($shown == 0) {
 			return $o;
 		}
@@ -52,19 +66,19 @@ class ContactBlock
 			'pending' => false,
 			'hidden' => false,
 			'archive' => false,
-			'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA],
+			'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::FEED],
 		]);
 
-		$contacts_title = L10n::t('No contacts');
+		$contacts_title = DI::l10n()->t('No contacts');
 
 		$micropro = [];
 
 		if ($total) {
 			// Only show followed for personal accounts, followers for pages
-			if (defaults($profile, 'account-type', User::ACCOUNT_TYPE_PERSON) == User::ACCOUNT_TYPE_PERSON) {
-				$rel = [Contact::FOLLOWER, Contact::FRIEND];
-			} else {
+			if ((($profile['account-type'] ?? '') ?: User::ACCOUNT_TYPE_PERSON) == User::ACCOUNT_TYPE_PERSON) {
 				$rel = [Contact::SHARING, Contact::FRIEND];
+			} else {
+				$rel = [Contact::FOLLOWER, Contact::FRIEND];
 			}
 
 			$contact_ids_stmt = DBA::select('contact', ['id'], [
@@ -75,7 +89,7 @@ class ContactBlock
 				'hidden' => false,
 				'archive' => false,
 				'rel' => $rel,
-				'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA],
+				'network' => Protocol::FEDERATED,
 			], ['limit' => $shown]);
 
 			if (DBA::isResult($contact_ids_stmt)) {
@@ -84,10 +98,10 @@ class ContactBlock
 					$contact_ids[] = $contact["id"];
 				}
 
-				$contacts_stmt = DBA::select('contact', ['id', 'uid', 'addr', 'url', 'name', 'thumb', 'network'], ['id' => $contact_ids]);
+				$contacts_stmt = DBA::select('contact', ['id', 'uid', 'addr', 'url', 'name', 'thumb', 'avatar', 'network'], ['id' => $contact_ids]);
 
 				if (DBA::isResult($contacts_stmt)) {
-					$contacts_title = L10n::tt('%d Contact', '%d Contacts', $total);
+					$contacts_title = DI::l10n()->tt('%d Contact', '%d Contacts', $total);
 					$micropro = [];
 
 					while ($contact = DBA::fetch($contacts_stmt)) {
@@ -102,11 +116,11 @@ class ContactBlock
 			DBA::close($contact_ids_stmt);
 		}
 
-		$tpl = Renderer::getMarkupTemplate('contact_block.tpl');
+		$tpl = Renderer::getMarkupTemplate('widget/contacts.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$contacts' => $contacts_title,
 			'$nickname' => $profile['nickname'],
-			'$viewcontacts' => L10n::t('View Contacts'),
+			'$viewcontacts' => DI::l10n()->t('View Contacts'),
 			'$micropro' => $micropro,
 		]);
 

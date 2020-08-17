@@ -1,25 +1,39 @@
 <?php
-
 /**
- * @file src/Util/Temporal.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Util;
 
 use DateTime;
 use DateTimeZone;
-use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 /**
- * @brief Temporal class
+ * Temporal class
  */
 class Temporal
 {
 	/**
-	 * @brief Two-level sort for timezones.
+	 * Two-level sort for timezones.
 	 *
 	 * @param string $a
 	 * @param string $b
@@ -28,25 +42,25 @@ class Temporal
 	private static function timezoneCompareCallback($a, $b)
 	{
 		if (strstr($a, '/') && strstr($b, '/')) {
-			if (L10n::t($a) == L10n::t($b)) {
+			if (DI::l10n()->t($a) == DI::l10n()->t($b)) {
 				return 0;
 			}
-			return (L10n::t($a) < L10n::t($b)) ? -1 : 1;
+			return (DI::l10n()->t($a) < DI::l10n()->t($b)) ? -1 : 1;
 		}
 
 		if (strstr($a, '/')) {
 			return -1;
 		} elseif (strstr($b, '/')) {
 			return 1;
-		} elseif (L10n::t($a) == L10n::t($b)) {
+		} elseif (DI::l10n()->t($a) == DI::l10n()->t($b)) {
 			return 0;
 		}
 
-		return (L10n::t($a) < L10n::t($b)) ? -1 : 1;
+		return (DI::l10n()->t($a) < DI::l10n()->t($b)) ? -1 : 1;
 	}
 
 	/**
-	 * @brief Emit a timezone selector grouped (primarily) by continent
+	 * Emit a timezone selector grouped (primarily) by continent
 	 *
 	 * @param string $current Timezone
 	 * @return string Parsed HTML output
@@ -67,7 +81,7 @@ class Temporal
 						$o .= '</optgroup>';
 					}
 					$continent = $ex[0];
-					$o .= '<optgroup label="' . L10n::t($continent) . '">';
+					$o .= '<optgroup label="' . DI::l10n()->t($continent) . '">';
 				}
 				if (count($ex) > 2) {
 					$city = substr($value, strpos($value, '/') + 1);
@@ -76,13 +90,13 @@ class Temporal
 				}
 			} else {
 				$city = $ex[0];
-				if ($continent != L10n::t('Miscellaneous')) {
+				if ($continent != DI::l10n()->t('Miscellaneous')) {
 					$o .= '</optgroup>';
-					$continent = L10n::t('Miscellaneous');
-					$o .= '<optgroup label="' . L10n::t($continent) . '">';
+					$continent = DI::l10n()->t('Miscellaneous');
+					$o .= '<optgroup label="' . DI::l10n()->t($continent) . '">';
 				}
 			}
-			$city = str_replace('_', ' ', L10n::t($city));
+			$city = str_replace('_', ' ', DI::l10n()->t($city));
 			$selected = (($value == $current) ? " selected=\"selected\" " : "");
 			$o .= "<option value=\"$value\" $selected >$city</option>";
 		}
@@ -91,7 +105,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Generating a Timezone selector
+	 * Generating a Timezone selector
 	 *
 	 * Return a select using 'field_select_raw' template, with timezones
 	 * grouped (primarily) by continent
@@ -119,36 +133,38 @@ class Temporal
 	}
 
 	/**
-	 * @brief Wrapper for date selector, tailored for use in birthday fields.
+	 * Wrapper for date selector, tailored for use in birthday fields.
 	 *
 	 * @param string $dob Date of Birth
+	 * @param string $timezone
 	 * @return string Formatted HTML
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function getDateofBirthField($dob)
+	public static function getDateofBirthField(string $dob, string $timezone = 'UTC')
 	{
-		$a = \get_app();
-
 		list($year, $month, $day) = sscanf($dob, '%4d-%2d-%2d');
 
 		if ($dob < '0000-01-01') {
 			$value = '';
+			$age = 0;
+		} elseif ($dob < '0001-00-00') {
+			$value = substr($dob, 5);
+			$age = 0;
 		} else {
-			$value = DateTimeFormat::utc(($year > 1000) ? $dob : '1000-' . $month . '-' . $day, 'Y-m-d');
+			$value = DateTimeFormat::utc($dob, 'Y-m-d');
+			$age = self::getAgeByTimezone($value, $timezone);
 		}
-
-		$age = (intval($value) ? self::getAgeByTimezone($value, $a->user["timezone"], $a->user["timezone"]) : "");
 
 		$tpl = Renderer::getMarkupTemplate("field_input.tpl");
 		$o = Renderer::replaceMacros($tpl,
 			[
 			'$field' => [
 				'dob',
-				L10n::t('Birthday:'),
+				DI::l10n()->t('Birthday:'),
 				$value,
-				intval($age) > 0 ? L10n::t('Age: ') . $age : "",
+				intval($age) > 0 ? DI::l10n()->t('Age: ') . DI::l10n()->tt('%d year old', '%d years old', $age) : '',
 				'',
-				'placeholder="' . L10n::t('YYYY-MM-DD or MM-DD') . '"'
+				'placeholder="' . DI::l10n()->t('YYYY-MM-DD or MM-DD') . '"'
 			]
 		]);
 
@@ -156,7 +172,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns a date selector
+	 * Returns a date selector
 	 *
 	 * @param DateTime $min     Minimum date
 	 * @param DateTime $max     Maximum date
@@ -172,7 +188,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns a time selector
+	 * Returns a time selector
 	 *
 	 * @param string $h  Already selected hour
 	 * @param string $m  Already selected minute
@@ -187,7 +203,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns a datetime selector.
+	 * Returns a datetime selector.
 	 *
 	 * @param DateTime $minDate     Minimum date
 	 * @param DateTime $maxDate     Maximum date
@@ -219,9 +235,9 @@ class Temporal
 		$required = false)
 	{
 		// First day of the week (0 = Sunday)
-		$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
+		$firstDay = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
 
-		$lang = substr(L10n::getCurrentLang(), 0, 2);
+		$lang = substr(DI::l10n()->getCurrentLang(), 0, 2);
 
 		// Check if the detected language is supported by the picker
 		if (!in_array($lang,
@@ -275,7 +291,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns a relative date string.
+	 * Returns a relative date string.
 	 *
 	 * Implements "3 seconds ago" etc.
 	 * Based on $posted_date, (UTC).
@@ -295,14 +311,14 @@ class Temporal
 		$abs = strtotime($localtime);
 
 		if (is_null($posted_date) || $posted_date <= DBA::NULL_DATETIME || $abs === false) {
-			return L10n::t('never');
+			return DI::l10n()->t('never');
 		}
 
 		$isfuture = false;
 		$etime = time() - $abs;
 
 		if ($etime < 1 && $etime >= 0) {
-			return L10n::t('less than a second ago');
+			return DI::l10n()->t('less than a second ago');
 		}
 
 		if ($etime < 0){
@@ -310,13 +326,13 @@ class Temporal
 			$isfuture = true;
 		}
 
-		$a = [12 * 30 * 24 * 60 * 60 => [L10n::t('year'), L10n::t('years')],
-			30 * 24 * 60 * 60 => [L10n::t('month'), L10n::t('months')],
-			7 * 24 * 60 * 60 => [L10n::t('week'), L10n::t('weeks')],
-			24 * 60 * 60 => [L10n::t('day'), L10n::t('days')],
-			60 * 60 => [L10n::t('hour'), L10n::t('hours')],
-			60 => [L10n::t('minute'), L10n::t('minutes')],
-			1 => [L10n::t('second'), L10n::t('seconds')]
+		$a = [12 * 30 * 24 * 60 * 60 => [DI::l10n()->t('year'), DI::l10n()->t('years')],
+			30 * 24 * 60 * 60 => [DI::l10n()->t('month'), DI::l10n()->t('months')],
+			7 * 24 * 60 * 60 => [DI::l10n()->t('week'), DI::l10n()->t('weeks')],
+			24 * 60 * 60 => [DI::l10n()->t('day'), DI::l10n()->t('days')],
+			60 * 60 => [DI::l10n()->t('hour'), DI::l10n()->t('hours')],
+			60 => [DI::l10n()->t('minute'), DI::l10n()->t('minutes')],
+			1 => [DI::l10n()->t('second'), DI::l10n()->t('seconds')]
 		];
 
 		foreach ($a as $secs => $str) {
@@ -326,10 +342,10 @@ class Temporal
 				// translators - e.g. 22 hours ago, 1 minute ago
 				if (!$format) {
 					if($isfuture){
-						$format = L10n::t('in %1$d %2$s');
+						$format = DI::l10n()->t('in %1$d %2$s');
 					}
 					else {
-						$format = L10n::t('%1$d %2$s ago');
+						$format = DI::l10n()->t('%1$d %2$s ago');
 					}
 				}
 
@@ -339,54 +355,37 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns timezone correct age in years.
+	 * Returns timezone correct age in years.
 	 *
-	 * Returns the age in years, given a date of birth, the timezone of the person
-	 * whose date of birth is provided, and the timezone of the person viewing the
-	 * result.
-	 *
-	 * Why? Bear with me. Let's say I live in Mittagong, Australia, and my birthday
-	 * is on New Year's. You live in San Bruno, California.
-	 * When exactly are you going to see my age increase?
-	 *
-	 * A: 5:00 AM Dec 31 San Bruno time. That's precisely when I start celebrating
-	 * and become a year older. If you wish me happy birthday on January 1
-	 * (San Bruno time), you'll be a day late.
+	 * Returns the age in years, given a date of birth and the timezone of the person
+	 * whose date of birth is provided.
 	 *
 	 * @param string $dob       Date of Birth
 	 * @param string $owner_tz  (optional) Timezone of the person of interest
-	 * @param string $viewer_tz (optional) Timezone of the person viewing
 	 *
 	 * @return int Age in years
 	 * @throws \Exception
 	 */
-	public static function getAgeByTimezone($dob, $owner_tz = '', $viewer_tz = '')
+	public static function getAgeByTimezone($dob, $owner_tz = '')
 	{
 		if (!intval($dob)) {
 			return 0;
 		}
+
 		if (!$owner_tz) {
 			$owner_tz = date_default_timezone_get();
 		}
-		if (!$viewer_tz) {
-			$viewer_tz = date_default_timezone_get();
-		}
 
-		$birthdate = DateTimeFormat::convert($dob . ' 00:00:00+00:00', $owner_tz, 'UTC', 'Y-m-d');
-		list($year, $month, $day) = explode("-", $birthdate);
-		$year_diff  = DateTimeFormat::timezoneNow($viewer_tz, 'Y') - $year;
-		$curr_month = DateTimeFormat::timezoneNow($viewer_tz, 'm');
-		$curr_day   = DateTimeFormat::timezoneNow($viewer_tz, 'd');
+		$birthdate = new DateTime($dob . ' 00:00:00', new DateTimeZone($owner_tz));
+		$currentDate = new DateTime('now', new DateTimeZone('UTC'));
 
-		if (($curr_month < $month) || (($curr_month == $month) && ($curr_day < $day))) {
-			$year_diff--;
-		}
+		$interval = $birthdate->diff($currentDate);
 
-		return $year_diff;
+		return $interval->format('%y');
 	}
 
 	/**
-	 * @brief Get days of a month in a given year.
+	 * Get days of a month in a given year.
 	 *
 	 * Returns number of days in the month of the given year.
 	 * $m = 1 is 'January' to match human usage.
@@ -402,7 +401,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns the first day in month for a given month, year.
+	 * Returns the first day in month for a given month, year.
 	 *
 	 * Months start at 1.
 	 *
@@ -420,7 +419,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Output a calendar for the given month, year.
+	 * Output a calendar for the given month, year.
 	 *
 	 * If $links are provided (array), e.g. $links[12] => 'http://mylink' ,
 	 * date 12 will be linked appropriately. Today's date is also noted by
@@ -468,11 +467,11 @@ class Temporal
 			$tddate = intval(DateTimeFormat::localNow('j'));
 		}
 
-		$str_month = L10n::getDay($mtab[$m]);
+		$str_month = DI::l10n()->getDay($mtab[$m]);
 		$o = '<table class="calendar' . $class . '">';
 		$o .= "<caption>$str_month $y</caption><tr>";
 		for ($a = 0; $a < 7; $a ++) {
-			$o .= '<th>' . mb_substr(L10n::getDay($dn[$a]), 0, 3, 'UTF-8') . '</th>';
+			$o .= '<th>' . mb_substr(DI::l10n()->getDay($dn[$a]), 0, 3, 'UTF-8') . '</th>';
 		}
 
 		$o .= '</tr><tr>';

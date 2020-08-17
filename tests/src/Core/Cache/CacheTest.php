@@ -1,35 +1,49 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Core\Cache\MemcachedCacheDriver;
 use Friendica\Test\MockedTest;
-use Friendica\Test\Util\AppMockTrait;
-use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\PidFile;
 
 abstract class CacheTest extends MockedTest
 {
-	use VFSTrait;
-	use AppMockTrait;
-
 	/**
 	 * @var int Start time of the mock (used for time operations)
 	 */
 	protected $startTime = 1417011228;
 
 	/**
-	 * @var \Friendica\Core\Cache\ICacheDriver
+	 * @var \Friendica\Core\Cache\ICache
 	 */
 	protected $instance;
 
 	/**
-	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
+	 * @var \Friendica\Core\Cache\IMemoryCache
 	 */
 	protected $cache;
 
 	/**
 	 * Dataset for test setting different types in the cache
+	 *
 	 * @return array
 	 */
 	public function dataTypesInCache()
@@ -48,6 +62,7 @@ abstract class CacheTest extends MockedTest
 
 	/**
 	 * Dataset for simple value sets/gets
+	 *
 	 * @return array
 	 */
 	public function dataSimple()
@@ -66,13 +81,6 @@ abstract class CacheTest extends MockedTest
 
 	protected function setUp()
 	{
-		$this->setUpVfsDir();
-		$configMock = \Mockery::mock('Friendica\Core\Config\ConfigCache');
-		$this->mockApp($this->root, $configMock);
-		$this->app
-			->shouldReceive('getHostname')
-			->andReturn('friendica.local');
-
 		parent::setUp();
 
 		$this->instance = $this->getInstance();
@@ -83,10 +91,12 @@ abstract class CacheTest extends MockedTest
 	/**
 	 * @small
 	 * @dataProvider dataSimple
+	 *
 	 * @param mixed $value1 a first
 	 * @param mixed $value2 a second
 	 */
-	function testSimple($value1, $value2) {
+	function testSimple($value1, $value2)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
 		$this->instance->set('value1', $value1);
@@ -111,12 +121,14 @@ abstract class CacheTest extends MockedTest
 	/**
 	 * @small
 	 * @dataProvider dataSimple
+	 *
 	 * @param mixed $value1 a first
 	 * @param mixed $value2 a second
 	 * @param mixed $value3 a third
 	 * @param mixed $value4 a fourth
 	 */
-	function testClear($value1, $value2, $value3, $value4) {
+	function testClear($value1, $value2, $value3, $value4)
+	{
 		$value = 'ipsum lorum';
 		$this->instance->set('1_value1', $value1);
 		$this->instance->set('1_value2', $value2);
@@ -167,7 +179,8 @@ abstract class CacheTest extends MockedTest
 	/**
 	 * @medium
 	 */
-	function testTTL() {
+	function testTTL()
+	{
 		$this->markTestSkipped('taking too much time without mocking');
 
 		$this->assertNull($this->instance->get('value1'));
@@ -184,10 +197,13 @@ abstract class CacheTest extends MockedTest
 
 	/**
 	 * @small
+	 *
 	 * @param $data mixed the data to store in the cache
+	 *
 	 * @dataProvider dataTypesInCache
 	 */
-	function testDifferentTypesInCache($data) {
+	function testDifferentTypesInCache($data)
+	{
 		$this->instance->set('val', $data);
 		$received = $this->instance->get('val');
 		$this->assertEquals($data, $received, 'Value type changed from ' . gettype($data) . ' to ' . gettype($received));
@@ -195,16 +211,15 @@ abstract class CacheTest extends MockedTest
 
 	/**
 	 * @small
+	 *
 	 * @param mixed $value1 a first
 	 * @param mixed $value2 a second
 	 * @param mixed $value3 a third
+	 *
 	 * @dataProvider dataSimple
 	 */
-	public function testGetAllKeys($value1, $value2, $value3) {
-		if ($this->cache instanceof MemcachedCacheDriver) {
-			$this->markTestSkipped('Memcached doesn\'t support getAllKeys anymore');
-		}
-
+	public function testGetAllKeys($value1, $value2, $value3)
+	{
 		$this->assertTrue($this->instance->set('value1', $value1));
 		$this->assertTrue($this->instance->set('value2', $value2));
 		$this->assertTrue($this->instance->set('test_value3', $value3));
@@ -218,5 +233,7 @@ abstract class CacheTest extends MockedTest
 		$list = $this->instance->getAllKeys('test');
 
 		$this->assertContains('test_value3', $list);
+		$this->assertNotContains('value1', $list);
+		$this->assertNotContains('value2', $list);
 	}
 }

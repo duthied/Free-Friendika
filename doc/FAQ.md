@@ -91,16 +91,6 @@ in German:
 
     https://social.example.com/profile/example?lang=de.
 
-If the question mark is already in the url you need to do it using a ampersand.
-
-Example:
-
-    https://social.example.com/profile/example?tab=profile
-
-in German:
-
-    https://social.example.com/profile/example?tab=profile&lang=de.
-
 When a certain language is forced, the language remains until session is closed.
 
 <a name="contacts"></a>
@@ -126,16 +116,15 @@ A **hidden contact** will not be displayed in any "friend list" (except to you).
 However a hidden contact will appear normally in conversations and this may expose his/her hidden status to anybody who can see the conversation.
 
 <a name="removed"></a>
-### What happens when an account is removed? Is it truly deleted?
+### What happens when an account is removed?
 
-If you delete your account, we will immediately remove all your content on **your** server.
+If you remove your account, it will be scheduled for permanent deletion in *seven days*. 
+As soon as you activate the deletion process you won't be able to login any more. 
+Only the administrator of your node can halt this process prior to permanent deletion.
 
-Then Friendica issues requests to all your contacts to remove you.
-This will also remove you from the global directory.
-Doing this requires your account and profile still to be "partially" available for up to 24 hours in order to establish contact with all your friends.
-We can block it in several ways so that it appears empty and all profile information erased, but will then wait for 24 hours (or after all of your contacts have been notified) before we can physically remove it.
-
-After that, your account is deleted.
+After the elapsed time of seven days, all your posts, messages, photos, and personal information stored on your node will be deleted. 
+Your node will also issue removal requests to all your contacts; this will also remove your profile from the global directory if you are listed. 
+Your username cannot be reissued for future sign-ups for security reasons.
 
 <a name="hashtag"></a>
 ### Can I follow a hashtag?
@@ -172,7 +161,9 @@ Friendica is using a [Twitter/GNU Social compatible API](help/api), which means 
 Here is a list of known working clients:
 
 * Android
-  * [Friendiqa](https://github.com/lubuwest/friendiqa) (available in Google Playstore or from a binary repository you can add to [F-Droid](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854))
+  * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) (available in Google Playstore or from a binary repository you can add to [F-Droid](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854))
+  * [Fedilab](https://fedilab.app/) (available in F-Droid and Google stores)
+  * [DiCa](https://dica.mixi.cool/)
   * AndStatus
   * Twidere
   * Mustard and Mustard-Mod

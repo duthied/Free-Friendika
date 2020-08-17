@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * ejabberd extauth script for the integration with friendica
  *
  * Originally written for joomla by Dalibor Karlovic <dado@krizevci.info>
@@ -34,9 +34,8 @@
 
 namespace Friendica\Util;
 
-use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\User;
 
 class ExAuth
@@ -45,12 +44,12 @@ class ExAuth
 	private $host;
 
 	/**
-	 * @brief Create the class
+	 * Create the class
 	 *
 	 */
 	public function __construct()
 	{
-		$this->bDebug = (int) Config::get('jabber', 'debug');
+		$this->bDebug = (int) DI::config()->get('jabber', 'debug');
 
 		openlog('auth_ejabberd', LOG_PID, LOG_USER);
 
@@ -58,7 +57,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Standard input reading function, executes the auth with the provided
+	 * Standard input reading function, executes the auth with the provided
 	 * parameters
 	 *
 	 * @return null
@@ -74,6 +73,11 @@ class ExAuth
 			}
 
 			$iHeader = fgets(STDIN, 3);
+			if (empty($iHeader)) {
+				$this->writeLog(LOG_ERR, 'empty stdin');
+				return;
+			}
+
 			$aLength = unpack('n', $iHeader);
 			$iLength = $aLength['1'];
 
@@ -116,15 +120,13 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Check if the given username exists
+	 * Check if the given username exists
 	 *
 	 * @param array $aCommand The command array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function isUser(array $aCommand)
 	{
-		$a = \get_app();
-
 		// Check if there is a username
 		if (!isset($aCommand[1])) {
 			$this->writeLog(LOG_NOTICE, 'invalid isuser command, no username given');
@@ -140,7 +142,7 @@ class ExAuth
 		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
 		// Does the hostname match? So we try directly
-		if ($a->getHostName() == $aCommand[2]) {
+		if (DI::baseUrl()->getHostname() == $aCommand[2]) {
 			$this->writeLog(LOG_INFO, 'internal user check for ' . $sUser . '@' . $aCommand[2]);
 			$found = DBA::exists('user', ['nickname' => $sUser]);
 		} else {
@@ -164,7 +166,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Check remote user existance via HTTP(S)
+	 * Check remote user existance via HTTP(S)
 	 *
 	 * @param string  $host The hostname
 	 * @param string  $user Username
@@ -179,7 +181,7 @@ class ExAuth
 
 		$url = ($ssl ? 'https' : 'http') . '://' . $host . '/noscrape/' . $user;
 
-		$curlResult = Network::curl($url);
+		$curlResult = DI::httpRequest()->get($url);
 
 		if (!$curlResult->isSuccess()) {
 			return false;
@@ -198,15 +200,13 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Authenticate the given user and password
+	 * Authenticate the given user and password
 	 *
 	 * @param array $aCommand The command array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function auth(array $aCommand)
 	{
-		$a = \get_app();
-
 		// check user authentication
 		if (sizeof($aCommand) != 4) {
 			$this->writeLog(LOG_NOTICE, 'invalid auth command, data missing');
@@ -222,13 +222,13 @@ class ExAuth
 		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
 		// Does the hostname match? So we try directly
-		if ($a->getHostName() == $aCommand[2]) {
+		if (DI::baseUrl()->getHostname() == $aCommand[2]) {
 			$this->writeLog(LOG_INFO, 'internal auth for ' . $sUser . '@' . $aCommand[2]);
 
 			$aUser = DBA::selectFirst('user', ['uid', 'password', 'legacy_password'], ['nickname' => $sUser]);
 			if (DBA::isResult($aUser)) {
 				$uid = $aUser['uid'];
-				$success = User::authenticate($aUser, $aCommand[3]);
+				$success = User::authenticate($aUser, $aCommand[3], true);
 				$Error = $success === false;
 			} else {
 				$this->writeLog(LOG_WARNING, 'user not found: ' . $sUser);
@@ -237,7 +237,7 @@ class ExAuth
 			}
 			if ($Error) {
 				$this->writeLog(LOG_INFO, 'check against alternate password for ' . $sUser . '@' . $aCommand[2]);
-				$sPassword = PConfig::get($uid, 'xmpp', 'password', null, true);
+				$sPassword = DI::pConfig()->get($uid, 'xmpp', 'password', null, true);
 				$Error = ($aCommand[3] != $sPassword);
 			}
 		} else {
@@ -259,7 +259,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Check remote credentials via HTTP(S)
+	 * Check remote credentials via HTTP(S)
 	 *
 	 * @param string $host The hostname
 	 * @param string $user Username
@@ -294,7 +294,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Set the hostname for this process
+	 * Set the hostname for this process
 	 *
 	 * @param string $host The hostname
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -309,7 +309,7 @@ class ExAuth
 
 		$this->host = $host;
 
-		$lockpath = Config::get('jabber', 'lockpath');
+		$lockpath = DI::config()->get('jabber', 'lockpath');
 		if (is_null($lockpath)) {
 			$this->writeLog(LOG_INFO, 'No lockpath defined.');
 			return;
@@ -333,7 +333,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief write data to the syslog
+	 * write data to the syslog
 	 *
 	 * @param integer $loglevel The syslog loglevel
 	 * @param string $sMessage The syslog message
@@ -347,7 +347,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief destroy the class, close the syslog connection.
+	 * destroy the class, close the syslog connection.
 	 */
 	public function __destruct()
 	{

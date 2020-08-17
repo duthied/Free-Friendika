@@ -1,7 +1,11 @@
 /* General style rules .*/
 .pull-right { float: right }
 
-/* General designing elements */
+details > summary {
+  cursor: pointer;
+}
+
+/* General design elements */
 .btn {
   outline: none;
   -moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
@@ -83,11 +87,19 @@ span.connector {
 
 .wall-item-container .wall-item-content .type-link img.attachment-image,
 .type-link img.attachment-image, .type-video img.attachment-image  {
-  /* max-width: 640px; */
   max-width: 100%;
   max-height: initial;
   float: initial;
   margin-right: 0px;
+}
+
+
+.wall-item-like-expanded,
+.wall-item-dislike-expanded,
+.wall-item-attendyes-expanded,
+.wall-item-attendno-expanded,
+.wall-item-attendmaybe-expanded {
+  margin: 0;
 }
 
 .type-link blockquote, .type-video blockquote {
@@ -166,11 +178,6 @@ span.connector {
   border-radius: 4px;
   float: left;
   margin-right: 9px;
-}
-
-.shared_header span {
-  display: table-cell;
-  float: none;
 }
 
 blockquote.shared_content {
@@ -262,7 +269,7 @@ code, key {
 }
 
 /* notifications unseen */
-.notify-unseen { background-color: #cceeFF; }
+.notification-unseen { background-color: #cceeFF; }
 
 /* autocomplete popup */
 ul.acpopup {
@@ -394,22 +401,6 @@ a {
 .selected-identity img {
   border: 2px solid #ff0000;
 }
-/* poke */
-#poke-desc {
-  margin: 5px 0 10px;
-}
-
-#poke-wrapper  {
-  padding: 10px 0 0px;
-}
-
-#poke-recipient, #poke-action, #poke-privacy-settings {
-  margin: 10px 0 30px;
-}
-
-#poke-recip-label, #poke-action-label, #prvmail-message-label {
-  margin: 10px 0 10px;
-}
 .version-match {
   font-weight: bold;
   color: #00a700;
@@ -474,13 +465,13 @@ aside .help-aside-wrapper h1 {
   opacity: 1.0;
 }
 
-.crepair-label {
+.contact-advanced-label {
   margin-top: 10px;
   float: left;
   width: 250px;
 }
 
-.crepair-input {
+.contact-advanced-input {
   margin-top: 10px;
   float: left;
   width: 200px;
@@ -537,7 +528,7 @@ td.pendingnote > p > span {
 }
 
 /* warning message */
-.crepair-error-message,
+.contact-advanced-error-message,
 .warning-message {
   padding: 10px;
   margin: 5px;
@@ -607,4 +598,57 @@ img.invalid-src:after { vertical-align: top;}
 span.emoji.mastodon img {
   height: 1.2em;
   vertical-align: middle;
+}
+
+/* Exception page */
+
+#exception {
+  overflow: hidden;
+  background-image: url('../images/friendica-404_svg_hare-bottom-light-inside.png');
+  background-position: 50px bottom;
+  background-repeat: no-repeat;
+}
+
+#exception .hare {
+  float: right;
+}
+
+@media screen and (max-width: 600px) {
+  #exception .hare {
+    display: none;
+  }
+}
+
+/* Profile Settings Custom Fields */
+body.dragging, body.dragging * {
+	cursor: ns-resize !important;
+}
+
+.dragged {
+	position: absolute;
+	opacity: 0.5;
+	z-index: 2000;
+}
+
+#profile-custom-fields > fieldset > legend {
+	cursor: ns-resize;
+}
+
+#profile-custom-fields div.placeholder {
+	position: relative;
+	margin: 0;
+	padding: 0;
+	border-top: 1px dotted black;
+}
+#profile-custom-fields div.placeholder:before {
+	position: absolute;
+	content: "";
+	width: 0;
+	height: 0;
+	margin-top: -7px;
+	left: -7px;
+	top: -1px;
+	border: 7px solid transparent;
+	border-left-color: black;
+	border-right: none;
 }
