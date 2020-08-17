@@ -599,7 +599,7 @@ function networkThreadedView(App $a, $update, $parent)
 	if ($update) {
 		if (!empty($parent)) {
 			// Load only a single thread
-			$conditionFields['id'] = $parent;
+			$conditionFields['parent'] = $parent;
 		} elseif ($order === 'post') {
 			// Only load new toplevel posts
 			$conditionFields['unseen'] = true;
