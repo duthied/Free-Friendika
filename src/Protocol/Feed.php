@@ -693,16 +693,23 @@ class Feed
 						$max = $ppd;
 					}
 				}
-
-				if ($max >= 24) {
-					$priority = 0; // Poll with the minimum poll intervall
-				} elseif ($max >= 12) {
-					$priority = 1; // Poll hourly
+				if ($max > 48) {
+					$priority = 1; // Poll every quarter hour
+				} elseif ($max > 24) {
+					$priority = 2; // Poll half an hour
+				} elseif ($max > 12) {
+					$priority = 3; // Poll hourly
+				} elseif ($max > 8) {
+					$priority = 4; // Poll every two hours
+				} elseif ($max > 4) {
+					$priority = 5; // Poll every three hours
+				} elseif ($max > 2) {
+					$priority = 6; // Poll every six hours
 				} elseif ($max > 1) {
-					$priority = 2; // Poll twice a day
+					$priority = 7; // Poll twice a day
 				} else {
 					/// @todo In the future we could calculate the days between the posts to set even lower priorities
-					$priority = 3; // Poll once a day
+					$priority = 8; // Poll once a day
 				}
 				Logger::info('Calculated priority by the posts per day', ['priority' => $priority, 'max' => round($max, 2), 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
 			}
