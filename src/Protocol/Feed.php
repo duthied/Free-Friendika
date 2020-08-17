@@ -618,8 +618,8 @@ class Feed
 	 */
 	private static function adjustPollFrequency(array $contact, array $creation_dates)
 	{
-		if (($contact['priority'] > 3) || ($contact['network'] != Protocol::FEED)) {
-			Logger::info('Contact is no feed or has a low priority, skip.', ['id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url'], 'priority' => $contact['priority'], 'network' => $contact['network']]);
+		if ($contact['network'] != Protocol::FEED) {
+			Logger::info('Contact is no feed, skip.', ['id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url'], 'network' => $contact['network']]);
 			return;
 		}
 
