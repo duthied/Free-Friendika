@@ -29,7 +29,6 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -2165,25 +2164,25 @@ class Probe
 		return '';
 	}
 
-	public static function localProbe($url)
+	/**
+	 * Probe data from local profiles without network traffic
+	 *
+	 * @param string $url
+	 * @return array probed data
+	 */
+	public static function localProbe(string $url)
 	{
-		$self = Contact::selectFirst(['uid'], ['self' => true, 'nurl' => Strings::normaliseLink($url)]);
-		if (empty($self['uid'])) {
-			$self = Contact::selectFirst(['uid'], ['self' => true, 'addr' => $url]);
-		}
-		if (empty($self['uid'])) {
-			$self = Contact::selectFirst(['uid'], ['self' => true, 'alias' => [$url, Strings::normaliseLink($url)]]);
-		}
-		if (empty($self['uid'])) {
+		$uid = User::getIdForURL($url);
+		if (empty($uid)) {
 			return [];
 		}
 
-		$profile = User::getOwnerDataById($self['uid']);
+		$profile = User::getOwnerDataById($uid);
 		if (empty($profile)) {
 			return [];
 		}
 
-		$approfile = ActivityPub\Transmitter::getProfile($self['uid']);
+		$approfile = ActivityPub\Transmitter::getProfile($uid);
 		if (empty($approfile)) {
 			return [];
 		}
@@ -2195,7 +2194,7 @@ class Probe
 		$data = ['name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'],
 			'url' => $profile['url'], 'addr' => $profile['addr'], 'alias' => $profile['alias'],
 			'photo' => $profile['photo'], 'account-type' => $profile['contact-type'],
-			'community' => ($profile['contact-type'] == Contact::TYPE_COMMUNITY),
+			'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
 			'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'], 
 			'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $profile['notify'],
 			'poll' => $profile['poll'], 'request' => $profile['request'], 'confirm' => $profile['confirm'],
