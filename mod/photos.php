@@ -193,7 +193,7 @@ function photos_post(App $a)
 		}
 		$album = hex2bin($a->argv[3]);
 
-		if ($album === DI::l10n()->t('Profile Photos') || $album === 'Contact Photos' || $album === DI::l10n()->t('Contact Photos')) {
+		if ($album === DI::l10n()->t('Profile Photos') || $album === Photo::CONTACT_PHOTOS || $album === DI::l10n()->t(Photo::CONTACT_PHOTOS)) {
 			DI::baseUrl()->redirect($_SESSION['photo_return']);
 			return; // NOTREACHED
 		}
@@ -937,7 +937,7 @@ function photos_content(App $a)
 		$albumselect .= '<option value="" ' . (!$selname ? ' selected="selected" ' : '') . '>&lt;current year&gt;</option>';
 		if (!empty($a->data['albums'])) {
 			foreach ($a->data['albums'] as $album) {
-				if (($album['album'] === '') || ($album['album'] === 'Contact Photos') || ($album['album'] === DI::l10n()->t('Contact Photos'))) {
+				if (($album['album'] === '') || ($album['album'] === Photo::CONTACT_PHOTOS) || ($album['album'] === DI::l10n()->t(Photo::CONTACT_PHOTOS))) {
 					continue;
 				}
 				$selected = (($selname === $album['album']) ? ' selected="selected" ' : '');
@@ -1050,7 +1050,7 @@ function photos_content(App $a)
 
 		// edit album name
 		if ($cmd === 'edit') {
-			if (($album !== DI::l10n()->t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== DI::l10n()->t('Contact Photos'))) {
+			if (($album !== DI::l10n()->t('Profile Photos')) && ($album !== Photo::CONTACT_PHOTOS) && ($album !== DI::l10n()->t(Photo::CONTACT_PHOTOS))) {
 				if ($can_post) {
 					$edit_tpl = Renderer::getMarkupTemplate('album_edit.tpl');
 
@@ -1067,7 +1067,7 @@ function photos_content(App $a)
 				}
 			}
 		} else {
-			if (($album !== DI::l10n()->t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== DI::l10n()->t('Contact Photos')) && $can_post) {
+			if (($album !== DI::l10n()->t('Profile Photos')) && ($album !== Photo::CONTACT_PHOTOS) && ($album !== DI::l10n()->t(Photo::CONTACT_PHOTOS)) && $can_post) {
 				$edit = [DI::l10n()->t('Edit Album'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/edit'];
 				$drop = [DI::l10n()->t('Drop Album'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/drop'];
 			}
@@ -1550,8 +1550,8 @@ function photos_content(App $a)
 	$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id`",
 		intval($a->data['user']['uid']),
-		DBA::escape('Contact Photos'),
-		DBA::escape(DI::l10n()->t('Contact Photos'))
+		DBA::escape(Photo::CONTACT_PHOTOS),
+		DBA::escape(DI::l10n()->t(Photo::CONTACT_PHOTOS))
 	);
 	if (DBA::isResult($r)) {
 		$total = count($r);
@@ -1565,8 +1565,8 @@ function photos_content(App $a)
 		WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT %d , %d",
 		intval($a->data['user']['uid']),
-		DBA::escape('Contact Photos'),
-		DBA::escape(DI::l10n()->t('Contact Photos')),
+		DBA::escape(Photo::CONTACT_PHOTOS),
+		DBA::escape(DI::l10n()->t(Photo::CONTACT_PHOTOS)),
 		$pager->getStart(),
 		$pager->getItemsPerPage()
 	);
