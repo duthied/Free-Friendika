@@ -2170,7 +2170,7 @@ class Probe
 	 * @param string $url
 	 * @return array probed data
 	 */
-	public static function localProbe(string $url)
+	private static function localProbe(string $url)
 	{
 		$uid = User::getIdForURL($url);
 		if (empty($uid)) {
