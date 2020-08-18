@@ -492,9 +492,9 @@ class Photo
 		}
 
 		if ($photo_failure) {
-			$image_url = DI::baseUrl() . "/images/person-300.jpg";
-			$thumb = DI::baseUrl() . "/images/person-80.jpg";
-			$micro = DI::baseUrl() . "/images/person-48.jpg";
+			$image_url = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
+			$thumb = DI::baseUrl() . Contact::DEFAULT_AVATAR_THUMB;
+			$micro = DI::baseUrl() . Contact::DEFAULT_AVATAR_MICRO;
 		}
 
 		return [$image_url, $thumb, $micro];

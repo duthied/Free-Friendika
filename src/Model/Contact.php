@@ -51,6 +51,10 @@ use Friendica\Util\Strings;
  */
 class Contact
 {
+	const DEFAULT_AVATAR_PHOTO = '/images/person-300.jpg';
+	const DEFAULT_AVATAR_THUMB = '/images/person-80.jpg';
+	const DEFAULT_AVATAR_MICRO = '/images/person-48.jpg';
+
 	/**
 	 * @deprecated since version 2019.03
 	 * @see User::PAGE_FLAGS_NORMAL
@@ -644,9 +648,9 @@ class Contact
 			$fields['micro'] = $prefix . '6' . $suffix;
 		} else {
 			// We hadn't found a photo entry, so we use the default avatar
-			$fields['photo'] = DI::baseUrl() . '/images/person-300.jpg';
-			$fields['thumb'] = DI::baseUrl() . '/images/person-80.jpg';
-			$fields['micro'] = DI::baseUrl() . '/images/person-48.jpg';
+			$fields['photo'] = DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO;
+			$fields['thumb'] = DI::baseUrl() . self::DEFAULT_AVATAR_THUMB;
+			$fields['micro'] = DI::baseUrl() . self::DEFAULT_AVATAR_MICRO;
 		}
 
 		$fields['avatar'] = DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
@@ -1467,7 +1471,7 @@ class Contact
 	 */
 	public static function getPhoto(array $contact, string $avatar = '')
 	{
-		return self::getAvatarPath($contact, 'photo', DI::baseUrl() . '/images/person-300.jpg', Proxy::SIZE_SMALL, $avatar);
+		return self::getAvatarPath($contact, 'photo', DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO, Proxy::SIZE_SMALL, $avatar);
 	}
 
 	/**
@@ -1479,7 +1483,7 @@ class Contact
 	 */
 	public static function getThumb(array $contact, string $avatar = '')
 	{
-		return self::getAvatarPath($contact, 'thumb', DI::baseUrl() . '/images/person-80.jpg', Proxy::SIZE_THUMB, $avatar);
+		return self::getAvatarPath($contact, 'thumb', DI::baseUrl() . self::DEFAULT_AVATAR_THUMB, Proxy::SIZE_THUMB, $avatar);
 	}
 
 	/**
@@ -1491,7 +1495,7 @@ class Contact
 	 */
 	public static function getMicro(array $contact, string $avatar = '')
 	{
-		return self::getAvatarPath($contact, 'micro', DI::baseUrl() . '/images/person-48.jpg', Proxy::SIZE_MICRO, $avatar);
+		return self::getAvatarPath($contact, 'micro', DI::baseUrl() . self::DEFAULT_AVATAR_MICRO, Proxy::SIZE_MICRO, $avatar);
 	}
 
 	/**
@@ -1530,13 +1534,13 @@ class Contact
 
 		/// add the default avatars if the fields aren't filled
 		if (isset($contact['photo']) && empty($contact['photo'])) {
-			$contact['photo'] = DI::baseUrl() . '/images/person-300.jpg';
+			$contact['photo'] = DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO;
 		}
 		if (isset($contact['thumb']) && empty($contact['thumb'])) {
-			$contact['thumb'] = DI::baseUrl() . '/images/person-80.jpg';
+			$contact['thumb'] = DI::baseUrl() . self::DEFAULT_AVATAR_THUMB;
 		}
 		if (isset($contact['micro']) && empty($contact['micro'])) {
-			$contact['micro'] = DI::baseUrl() . '/images/person-48.jpg';
+			$contact['micro'] = DI::baseUrl() . self::DEFAULT_AVATAR_MICRO;
 		}
 
 		return $contact;
