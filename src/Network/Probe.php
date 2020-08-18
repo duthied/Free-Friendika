@@ -23,13 +23,13 @@ namespace Friendica\Network;
 
 use DOMDocument;
 use DomXPath;
-use Friendica\Core\Cache\Duration;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -330,6 +330,14 @@ class Probe
 	 */
 	public static function uri($uri, $network = '', $uid = -1)
 	{
+		// Local profiles aren't probed via network
+		if (empty($network) && strpos($uri, DI::baseUrl()->getHostname())) {
+			$data = self::localProbe($uri);
+			if (!empty($data)) {
+				return $data;
+			}
+		}
+
 		if ($uid == -1) {
 			$uid = local_user();
 		}
@@ -2155,5 +2163,49 @@ class Probe
 		}
 
 		return '';
+	}
+
+	public static function localProbe($url)
+	{
+		$fields = ['uid', 'url', 'name', 'nick', 'addr', 'alias', 'photo', 'contact-type', 'keywords',
+			'location', 'about', 'notify', 'poll', 'request', 'confirm', 'poco', 'pubkey', 'gsid'];
+		$self = Contact::selectFirst($fields, ['self' => true, 'nurl' => Strings::normaliseLink($url)]);
+		if (empty($self)) {
+			$self = Contact::selectFirst($fields, ['self' => true, 'addr' => $url]);
+		}
+		if (empty($self)) {
+			$self = Contact::selectFirst($fields, ['self' => true, 'alias' => [$url, Strings::normaliseLink($url)]]);
+		}
+		if (empty($self)) {
+			return [];
+		}
+
+		$profile = Profile::getByUID($self['uid']);
+		if (empty($profile)) {
+			return [];
+		}
+
+		$approfile = ActivityPub\Transmitter::getProfile($self['uid']);
+		if (empty($approfile)) {
+			return [];
+		}
+
+		if (empty($self['gsid'])) {
+			$self['gsid'] = GServer::getID($approfile['generator']['url']);
+		}
+
+		$data = ['name' => $self['name'], 'nick' => $self['nick'], 'guid' => $approfile['diaspora:guid'],
+			'url' => $self['url'], 'addr' => $self['addr'], 'alias' => $self['alias'],
+			'photo' => $self['photo'], 'account-type' => $self['contact-type'],
+			'community' => ($self['contact-type'] == Contact::TYPE_COMMUNITY),
+			'keywords' => $self['keywords'], 'location' => $self['location'], 'about' => $self['about'], 
+			'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $self['notify'],
+			'poll' => $self['poll'], 'request' => $self['request'], 'confirm' => $self['confirm'],
+			'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $self['poco'], 
+			'following' => $approfile['following'], 'followers' => $approfile['followers'],
+			'inbox' => $approfile['inbox'], 'outbox' => $approfile['outbox'],
+			'sharedinbox' => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN, 
+			'pubkey' => $self['pubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $self['gsid']];
+		return self::rearrangeData($data);		
 	}
 }
