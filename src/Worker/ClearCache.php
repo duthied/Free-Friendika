@@ -91,7 +91,8 @@ class ClearCache
 			DBA::e("OPTIMIZE TABLE `profile_check`");
 			DBA::e("OPTIMIZE TABLE `session`");
 			DBA::e("OPTIMIZE TABLE `tokens`");
-			Logger::info('Optimize finished');			
+			DBA::e("OPTIMIZE TABLE `process`");
+			Logger::info('Optimize finished');
 		}
 
 		DI::config()->set('system', 'cache_last_cleared', time());
