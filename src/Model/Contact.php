@@ -1584,6 +1584,16 @@ class Contact
 
 		$update = ($contact['avatar'] != $avatar) || $force;
 
+		if (strpos($avatar, self::DEFAULT_AVATAR_PHOTO)) {
+			$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
+				'photo' => DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO,
+				'thumb' => DI::baseUrl() . self::DEFAULT_AVATAR_THUMB,
+				'micro' => DI::baseUrl() . self::DEFAULT_AVATAR_MICRO];
+			DBA::update('contact', $fields, ['id' => $cid]);
+			Photo::delete(['uid' => $uid, 'contact-id' => $cid, 'album' => Photo::CONTACT_PHOTOS]);
+			return;
+		}
+
 		if (!$update) {
 			foreach ($data as $image_uri) {
 				$image_rid = Photo::ridFromURI($image_uri);
