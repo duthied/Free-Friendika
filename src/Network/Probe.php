@@ -29,6 +29,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -369,7 +370,7 @@ class Probe
 		}
 
 		if (empty($data['photo'])) {
-			$data['photo'] = DI::baseUrl() . '/images/person-300.jpg';
+			$data['photo'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
 		}
 
 		if (empty($data['name'])) {
