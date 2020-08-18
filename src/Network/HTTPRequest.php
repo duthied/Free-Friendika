@@ -137,6 +137,8 @@ class HTTPRequest implements IHTTPRequest
 			@curl_setopt($ch, CURLOPT_NOBODY, $opts['nobody']);
 		}
 
+		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+
 		if (!empty($opts['timeout'])) {
 			@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
 		} else {
@@ -238,6 +240,8 @@ class HTTPRequest implements IHTTPRequest
 			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		}
 
+		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+
 		if (intval($timeout)) {
 			curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		} else {
@@ -331,6 +335,7 @@ class HTTPRequest implements IHTTPRequest
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		curl_setopt($ch, CURLOPT_NOBODY, 1);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
@@ -375,6 +380,7 @@ class HTTPRequest implements IHTTPRequest
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_NOBODY, 0);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
