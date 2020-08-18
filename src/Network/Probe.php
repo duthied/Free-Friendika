@@ -2167,20 +2167,18 @@ class Probe
 
 	public static function localProbe($url)
 	{
-		$fields = ['uid', 'url', 'name', 'nick', 'addr', 'alias', 'photo', 'contact-type', 'keywords',
-			'location', 'about', 'notify', 'poll', 'request', 'confirm', 'poco', 'pubkey', 'gsid'];
-		$self = Contact::selectFirst($fields, ['self' => true, 'nurl' => Strings::normaliseLink($url)]);
-		if (empty($self)) {
-			$self = Contact::selectFirst($fields, ['self' => true, 'addr' => $url]);
+		$self = Contact::selectFirst(['uid'], ['self' => true, 'nurl' => Strings::normaliseLink($url)]);
+		if (empty($self['uid'])) {
+			$self = Contact::selectFirst(['uid'], ['self' => true, 'addr' => $url]);
 		}
-		if (empty($self)) {
-			$self = Contact::selectFirst($fields, ['self' => true, 'alias' => [$url, Strings::normaliseLink($url)]]);
+		if (empty($self['uid'])) {
+			$self = Contact::selectFirst(['uid'], ['self' => true, 'alias' => [$url, Strings::normaliseLink($url)]]);
 		}
-		if (empty($self)) {
+		if (empty($self['uid'])) {
 			return [];
 		}
 
-		$profile = Profile::getByUID($self['uid']);
+		$profile = User::getOwnerDataById($self['uid']);
 		if (empty($profile)) {
 			return [];
 		}
@@ -2190,22 +2188,22 @@ class Probe
 			return [];
 		}
 
-		if (empty($self['gsid'])) {
-			$self['gsid'] = GServer::getID($approfile['generator']['url']);
+		if (empty($profile['gsid'])) {
+			$profile['gsid'] = GServer::getID($approfile['generator']['url']);
 		}
 
-		$data = ['name' => $self['name'], 'nick' => $self['nick'], 'guid' => $approfile['diaspora:guid'],
-			'url' => $self['url'], 'addr' => $self['addr'], 'alias' => $self['alias'],
-			'photo' => $self['photo'], 'account-type' => $self['contact-type'],
-			'community' => ($self['contact-type'] == Contact::TYPE_COMMUNITY),
-			'keywords' => $self['keywords'], 'location' => $self['location'], 'about' => $self['about'], 
-			'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $self['notify'],
-			'poll' => $self['poll'], 'request' => $self['request'], 'confirm' => $self['confirm'],
-			'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $self['poco'], 
+		$data = ['name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'],
+			'url' => $profile['url'], 'addr' => $profile['addr'], 'alias' => $profile['alias'],
+			'photo' => $profile['photo'], 'account-type' => $profile['contact-type'],
+			'community' => ($profile['contact-type'] == Contact::TYPE_COMMUNITY),
+			'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'], 
+			'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $profile['notify'],
+			'poll' => $profile['poll'], 'request' => $profile['request'], 'confirm' => $profile['confirm'],
+			'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $profile['poco'], 
 			'following' => $approfile['following'], 'followers' => $approfile['followers'],
 			'inbox' => $approfile['inbox'], 'outbox' => $approfile['outbox'],
 			'sharedinbox' => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN, 
-			'pubkey' => $self['pubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $self['gsid']];
+			'pubkey' => $profile['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $profile['gsid']];
 		return self::rearrangeData($data);		
 	}
 }
