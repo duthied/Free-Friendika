@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1360);
+	define('DB_UPDATE_VERSION', 1361);
 }
 
 return [
@@ -190,18 +190,19 @@ return [
 			"PRIMARY" => ["id"],
 			"uid_name" => ["uid", "name(190)"],
 			"self_uid" => ["self", "uid"],
-			"alias_uid" => ["alias(32)", "uid"],
+			"alias_uid" => ["alias(96)", "uid"],
 			"pending_uid" => ["pending", "uid"],
 			"blocked_uid" => ["blocked", "uid"],
 			"uid_rel_network_poll" => ["uid", "rel", "network", "poll(64)", "archive"],
 			"uid_network_batch" => ["uid", "network", "batch(64)"],
-			"addr_uid" => ["addr(32)", "uid"],
-			"nurl_uid" => ["nurl(32)", "uid"],
+			"addr_uid" => ["addr(96)", "uid"],
+			"nurl_uid" => ["nurl(96)", "uid"],
 			"nick_uid" => ["nick(32)", "uid"],
-			"attag_uid" => ["attag(32)", "uid"],
+			"attag_uid" => ["attag(96)", "uid"],
 			"dfrn-id" => ["dfrn-id(64)"],
 			"issued-id" => ["issued-id(64)"],
 			"network_uid_lastupdate" => ["network", "uid", "last-update"],
+			"uid_network_self_lastupdate" => ["uid", "network", "self", "last-update"],
 			"uid_lastitem" => ["uid", "last-item"],
 			"gsid" => ["gsid"]
 		]
@@ -1462,6 +1463,7 @@ return [
 			"done_priority_created" => ["done", "priority", "created"],
 			"done_priority_next_try" => ["done", "priority", "next_try"],
 			"done_pid_next_try" => ["done", "pid", "next_try"],
+			"done_pid_retrial" => ["done", "pid", "retrial"],
 			"done_pid_priority_created" => ["done", "pid", "priority", "created"]
 		]
 	],
