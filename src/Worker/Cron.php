@@ -91,7 +91,7 @@ class Cron
 
 			self::checkdeletedContacts();
 
-			if (!DI::config()->get('system', 'optimize_tables')) {
+			if (DI::config()->get('system', 'optimize_tables')) {
 				self::optimizeTables();
 			}
 	

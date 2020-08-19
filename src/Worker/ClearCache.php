@@ -37,7 +37,7 @@ class ClearCache
 
 		// clear old cache
 		DI::cache()->clear();
-		if (!DI::config()->get('system', 'optimize_tables')) {
+		if (DI::config()->get('system', 'optimize_tables')) {
 			DBA::e("OPTIMIZE TABLE `cache`");
 		}
 
@@ -66,13 +66,13 @@ class ClearCache
 
 		// Delete the cached OEmbed entries that are older than three month
 		DBA::delete('oembed', ["`created` < NOW() - INTERVAL 3 MONTH"]);
-		if (!DI::config()->get('system', 'optimize_tables')) {
+		if (DI::config()->get('system', 'optimize_tables')) {
 			DBA::e("OPTIMIZE TABLE `oembed`");
 		}
 
 		// Delete the cached "parse_url" entries that are older than three month
 		DBA::delete('parsed_url', ["`created` < NOW() - INTERVAL 3 MONTH"]);
-		if (!DI::config()->get('system', 'optimize_tables')) {
+		if (DI::config()->get('system', 'optimize_tables')) {
 			DBA::e("OPTIMIZE TABLE `parsed_url`");
 		}
 	}
