@@ -1560,7 +1560,7 @@ class Contact
 	 */
 	public static function updateAvatar(int $cid, string $avatar, bool $force = false)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid, 'self' => false]);
+		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'nurl', 'url'], ['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
