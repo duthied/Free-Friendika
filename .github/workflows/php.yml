@@ -38,7 +38,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           tools: pecl
-          extensions: pdo_mysql, gd, zip, opcache, ctype, pcntl, ldap, apcu, memcached, redis, imagick
+          extensions: pdo_mysql, gd, zip, opcache, ctype, pcntl, ldap, apcu, memcached, redis, imagick, memcache
           coverage: xdebug
           ini-values: apc.enabled=1, apc.enable_cli=1
 
@@ -90,6 +90,9 @@ jobs:
           MYSQL_DATABASE: test
           MYSQL_PASSWORD: test
           MYSQL_USER: test
+          REDIS_PORT: ${{ job.services.redis.ports[6379] }}
+          MEMCACHED_PORT: ${{ job.services.memcached.ports[11211] }}
+          MEMCACHE_PORT: ${{ job.services.memcached.ports[11211] }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1

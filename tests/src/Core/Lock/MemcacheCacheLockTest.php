@@ -36,6 +36,7 @@ class MemcacheCacheLockTest extends LockTest
 		$configMock = \Mockery::mock(IConfig::class);
 
 		$host = $_SERVER['MEMCACHE_HOST'] ?? 'localhost';
+		$port = $_SERVER['MEMCACHE_PORT'] ?? '11211';
 
 		$configMock
 			->shouldReceive('get')
@@ -44,7 +45,7 @@ class MemcacheCacheLockTest extends LockTest
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'memcache_port')
-			->andReturn(11211);
+			->andReturn($port);
 
 		$lock = null;
 
