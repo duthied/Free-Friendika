@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.09-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1361
+-- DB_UPDATE_VERSION 1362
 -- ------------------------------------------
 
 
@@ -1411,11 +1411,12 @@ CREATE VIEW `network-item-view` AS SELECT
 	`item`.`contact-id` AS `contact-id`
 	FROM `item`
 			INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id` AND (NOT `contact`.`blocked` OR `contact`.`pending`)
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
 			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
@@ -1438,12 +1439,13 @@ CREATE VIEW `network-thread-view` AS SELECT
 	`thread`.`network` AS `network`,
 	`thread`.`contact-id` AS `contact-id`
 	FROM `thread`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id` AND (NOT `contact`.`blocked` OR `contact`.`pending`)
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
 			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
 			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
