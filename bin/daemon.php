@@ -185,7 +185,12 @@ while (true) {
 		$do_cron = true;
 	}
 
-	Worker::spawnWorker($do_cron);
+	if ($do_cron || (!DI::process()->isMaxLoadReached() && Worker::entriesExists() && Worker::isReady())) {
+		Worker::spawnWorker($do_cron);
+	} else {
+		Logger::info('Cool down', ['pid' => $pid]);
+		sleep(10);
+	}
 
 	if ($do_cron) {
 		// We force a reconnect of the database connection.
