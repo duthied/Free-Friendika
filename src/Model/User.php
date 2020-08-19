@@ -164,6 +164,11 @@ class User
 	 */
 	public static function getIdForURL(string $url)
 	{
+		// Avoid any database requests when the hostname isn't even part of the url.
+		if (!strpos($url, DI::baseUrl()->getHostname())) {
+			return 0;
+		}
+
 		$self = Contact::selectFirst(['uid'], ['self' => true, 'nurl' => Strings::normaliseLink($url)]);
 		if (!empty($self['uid'])) {
 			return $self['uid'];
