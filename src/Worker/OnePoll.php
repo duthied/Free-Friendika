@@ -104,7 +104,7 @@ class OnePoll
 		}
 
 		// Don't poll local contacts
-		if (Contact::isLocalById($contact['id'])) {
+		if (User::getIdForURL($contact['url'])) {
 			Logger::info('Local contacts are not polled', ['id' => $contact['id']]);
 
 			// set the last-update so we don't keep polling
