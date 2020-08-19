@@ -5,20 +5,14 @@ jobs:
   friendica:
     name: Friendica (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
-    env:
-      MYSQL_HOST: localhost
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: test
-      MYSQL_PASSWORD: ""
-      MYSQL_USERNAME: travis
     services:
       mariadb:
         image: mariadb:latest
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_DATABASE: test
-          MYSQL_PASSWORD: ""
-          MYSQL_USERNAME: travis
+          MYSQL_PASSWORD: test
+          MYSQL_USER: test
         ports:
           - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -83,8 +77,7 @@ jobs:
         env:
           PORT: ${{ job.services.mariadb.ports[3306] }}
         run: |
-          mysql -h"127.0.0.1" -P"$PORT" -uroot -e 'CREATE DATABASE IF NOT EXISTS test;'
-          mysql -h"127.0.0.1" -P"$PORT" -uroot test < database.sql
+          mysql -h"127.0.0.1" -P"$PORT" -utest -ptest test < database.sql
 
       - name: Test with Parallel-lint
         run: vendor/bin/parallel-lint --exclude vendor/ --exclude view/asset/ .
@@ -92,11 +85,11 @@ jobs:
       - name: Test with phpunit
         run: vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
         env:
-          MYSQL_HOST: localhost
-          MYSQL_PORT: 3306
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_PORT: ${{ job.services.mariadb.ports[3306] }}
           MYSQL_DATABASE: test
-          MYSQL_PASSWORD: ""
-          MYSQL_USERNAME: root
+          MYSQL_PASSWORD: test
+          MYSQL_USER: test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
