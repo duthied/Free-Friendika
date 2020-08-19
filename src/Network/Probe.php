@@ -2012,6 +2012,14 @@ class Probe
 	 */
 	public static function getLastUpdate(array $data)
 	{
+		$uid = User::getIdForURL($data['url']);
+		if (!empty($uid)) {
+			$contact = Contact::selectFirst(['url', 'last-item'], ['self' => true, 'uid' => $uid]);
+			if (!empty($contact['last-item'])) {
+				return $contact['last-item'];
+			}
+		}
+
 		if ($lastUpdate = self::updateFromNoScrape($data)) {
 			return $lastUpdate;
 		}
