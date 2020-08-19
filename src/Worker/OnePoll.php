@@ -103,6 +103,15 @@ class OnePoll
 			return;
 		}
 
+		// Don't poll local contacts
+		if (Contact::isLocalById($contact['id'])) {
+			Logger::info('Local contacts are not polled', ['id' => $contact['id']]);
+
+			// set the last-update so we don't keep polling
+			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
+			return;
+		}		
+		
 		// We don't poll AP contacts by now
 		if ($protocol === Protocol::ACTIVITYPUB) {
 			Logger::log("Don't poll AP contact");

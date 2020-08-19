@@ -1576,12 +1576,20 @@ class Contact
 			return;
 		}
 
+		$local_uid = User::getIdForURL($contact['url']);
+		if (!empty($local_uid)) {
+			$fields = self::selectFirst(['avatar', 'avatar-date', 'photo', 'thumb', 'micro'], ['self' => true, 'uid' => $local_uid]);
+		}
+
 		// Replace cached avatar pictures from the default avatar with the default avatars in different sizes
 		if (strpos($avatar, self::DEFAULT_AVATAR_PHOTO)) {
 			$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
 				'photo' => DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO,
 				'thumb' => DI::baseUrl() . self::DEFAULT_AVATAR_THUMB,
 				'micro' => DI::baseUrl() . self::DEFAULT_AVATAR_MICRO];
+		}
+
+		if (!empty($fields)) {
 			if ($fields['photo'] . $fields['thumb'] . $fields['micro'] != $contact['photo'] . $contact['thumb'] . $contact['micro']) {
 				DBA::update('contact', $fields, ['id' => $cid]);
 				Photo::delete(['uid' => $uid, 'contact-id' => $cid, 'album' => Photo::CONTACT_PHOTOS]);
