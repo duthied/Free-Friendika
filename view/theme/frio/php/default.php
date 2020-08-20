@@ -71,7 +71,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 			}
 		}
 
-		$nav_bg = $nav_bg ?: DI::pConfig()->get($uid, 'frio', 'nav_bg', DI::config()->get('frio', 'nav_bg', '#708fa0'));
+		$nav_bg = $nav_bg ?? DI::pConfig()->get($uid, 'frio', 'nav_bg', DI::config()->get('frio', 'nav_bg', '#708fa0'));
 
 		echo '<meta name="theme-color" content="' . $nav_bg . '" />';
 ?>
