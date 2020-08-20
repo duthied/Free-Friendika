@@ -22,6 +22,11 @@ use Friendica\Module;
 use Friendica\Util\Strings;
 
 const FRIO_SCHEME_ACCENT_BLUE   = '#1e87c2';
+const FRIO_SCHEME_ACCENT_RED    = '#b50404';
+const FRIO_SCHEME_ACCENT_PURPLE = '#a54bad';
+const FRIO_SCHEME_ACCENT_GREEN  = '#218f39';
+const FRIO_SCHEME_ACCENT_PINK   = '#d900a9';
+
 function frio_init(App $a)
 {
 	global $frio;

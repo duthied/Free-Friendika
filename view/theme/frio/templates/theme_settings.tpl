@@ -26,6 +26,26 @@
 		<span style="border-radius: 10px; background-color: {{$smarty.const.FRIO_SCHEME_ACCENT_BLUE}}; width: 20px; display: inline-block">&nbsp;</span>
 		{{$scheme_accent.3.blue}}
 	</label>
+	<label class="radio-inline">
+		<input type="radio" name="{{$scheme_accent.0}}" value="{{$smarty.const.FRIO_SCHEME_ACCENT_RED}}" {{if $scheme_accent.2 == $smarty.const.FRIO_SCHEME_ACCENT_RED}} checked{{/if}}>
+		<span style="border-radius: 10px; background-color: {{$smarty.const.FRIO_SCHEME_ACCENT_RED}}; width: 20px; display: inline-block">&nbsp;</span>
+		{{$scheme_accent.3.red}}
+	</label>
+	<label class="radio-inline">
+		<input type="radio" name="{{$scheme_accent.0}}" value="{{$smarty.const.FRIO_SCHEME_ACCENT_PURPLE}}" {{if $scheme_accent.2 == $smarty.const.FRIO_SCHEME_ACCENT_PURPLE}} checked{{/if}}>
+		<span style="border-radius: 10px; background-color: {{$smarty.const.FRIO_SCHEME_ACCENT_PURPLE}}; width: 20px; display: inline-block">&nbsp;</span>
+		{{$scheme_accent.3.purple}}
+	</label>
+	<label class="radio-inline">
+		<input type="radio" name="{{$scheme_accent.0}}" value="{{$smarty.const.FRIO_SCHEME_ACCENT_GREEN}}" {{if $scheme_accent.2 == $smarty.const.FRIO_SCHEME_ACCENT_GREEN}} checked{{/if}}>
+		<span style="border-radius: 10px; background-color: {{$smarty.const.FRIO_SCHEME_ACCENT_GREEN}}; width: 20px; display: inline-block">&nbsp;</span>
+		{{$scheme_accent.3.green}}
+	</label>
+	<label class="radio-inline">
+		<input type="radio" name="{{$scheme_accent.0}}" value="{{$smarty.const.FRIO_SCHEME_ACCENT_PINK}}" {{if $scheme_accent.2 == $smarty.const.FRIO_SCHEME_ACCENT_PINK}} checked{{/if}}>
+		<span style="border-radius: 10px; background-color: {{$smarty.const.FRIO_SCHEME_ACCENT_PINK}}; width: 20px; display: inline-block">&nbsp;</span>
+		{{$scheme_accent.3.pink}}
+	</label>
 </div>
 {{/if}}
 
