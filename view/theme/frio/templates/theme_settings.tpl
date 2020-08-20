@@ -1,7 +1,33 @@
 <script src="{{$baseurl}}/view/theme/quattro/jquery.tools.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
 
-{{include file="field_select.tpl" field=$scheme}}
+<div class="form-group field select">
+	<label for="id_{{$scheme.0}}">{{$scheme.1}}</label>
+	<select name="{{$scheme.0}}" id="id_{{$scheme.0}}" class="form-control">
+		<option value="---" {{if '---' == $scheme.2}}selected="selected"{{/if}}>{{$custom}}</option>
+		<optgroup label="{{$accented}}">
+	{{foreach $scheme.3 as $value => $label}}
+			<option value="{{$value}}" {{if $value == $scheme.2}}selected="selected"{{/if}}>{{$label}}</option>
+	{{/foreach}}
+		</optgroup>
+		<optgroup label="{{$legacy}}">
+	{{foreach $scheme.4 as $value => $label}}
+			<option value="{{$value}}" {{if $value == $scheme.2}}selected="selected"{{/if}}>{{$label}}</option>
+	{{/foreach}}
+		</optgroup>
+	</select>
+</div>
+
+{{if $scheme_accent}}
+<div class="form-group">
+	<p><label>{{$scheme_accent.1}}</label></p>
+	<label class="radio-inline">
+		<input type="radio" name="{{$scheme_accent.0}}" value="{{$smarty.const.FRIO_SCHEME_ACCENT_BLUE}}" {{if $scheme_accent.2 == $smarty.const.FRIO_SCHEME_ACCENT_BLUE}} checked{{/if}}>
+		<span style="border-radius: 10px; background-color: {{$smarty.const.FRIO_SCHEME_ACCENT_BLUE}}; width: 20px; display: inline-block">&nbsp;</span>
+		{{$scheme_accent.3.blue}}
+	</label>
+</div>
+{{/if}}
 
 {{if $share_string}}{{include file="field_input.tpl" field=$share_string}}{{/if}}
 {{if $nav_bg}}{{include file="field_colorinput.tpl" field=$nav_bg}}{{/if}}

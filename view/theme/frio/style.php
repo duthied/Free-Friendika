@@ -34,6 +34,7 @@ DI::config()->load('frio');
 
 // Default to hard-coded values for empty settings
 $scheme           = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
+$scheme_accent    = DI::config()->get('frio', 'scheme_accent')    ?: FRIO_SCHEME_ACCENT_BLUE;
 $nav_bg           = DI::config()->get('frio', 'nav_bg')           ?: '#708fa0';
 $nav_icon_color   = DI::config()->get('frio', 'nav_icon_color')   ?: '#ffffff';
 $link_color       = DI::config()->get('frio', 'link_color')       ?: '#6fdbe8';
@@ -57,6 +58,7 @@ if ($uid) {
 
 	// Only override display settings that have actually been set
 	$scheme           = DI::pConfig()->get($uid, 'frio', 'scheme', DI::pConfig()->get($uid, 'frio', 'schema')) ?: $scheme;
+	$scheme_accent    = DI::pConfig()->get($uid, 'frio', 'scheme_accent')    ?: $scheme_accent;
 	$nav_bg           = DI::pConfig()->get($uid, 'frio', 'nav_bg')           ?: $nav_bg;
 	$nav_icon_color   = DI::pConfig()->get($uid, 'frio', 'nav_icon_color')   ?: $nav_icon_color;
 	$link_color       = DI::pConfig()->get($uid, 'frio', 'link_color')       ?: $link_color;

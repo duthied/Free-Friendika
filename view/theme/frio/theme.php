@@ -21,6 +21,7 @@ use Friendica\Model\Contact;
 use Friendica\Module;
 use Friendica\Util\Strings;
 
+const FRIO_SCHEME_ACCENT_BLUE   = '#1e87c2';
 function frio_init(App $a)
 {
 	global $frio;
