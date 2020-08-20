@@ -114,14 +114,11 @@ class UserExport extends BaseSettings
 		$rows = DBA::p($query);
 		while ($row = DBA::fetch($rows)) {
 			$p = [];
-			foreach ($row as $k => $v) {
-				switch ($dbStructure[$table]['fields'][$k]['type']) {
-					case 'datetime':
-						$p[$k] = $v ?? DBA::NULL_DATETIME;
-						break;
-					default:
-						$p[$k] = $v;
-						break;
+			foreach ($dbStructure[$table]['fields'] as $column => $field) {
+				if ($field['type'] == 'datetime') {
+					$p[$column] = $v ?? DBA::NULL_DATETIME;
+				} else {
+					$p[$column] = $v;
 				}
 			}
 			$result[] = $p;

@@ -350,7 +350,7 @@ class Acl extends BaseModule
 						'type'    => 'c',
 						'photo'   => Contact::getMicro($contact),
 						'name'    => htmlspecialchars($contact['name']),
-						'id'      => intval($contact['cid']),
+						'id'      => intval($contact['id']),
 						'network' => $contact['network'],
 						'link'    => $contact['url'],
 						'nick'    => htmlentities(($contact['nick'] ?? '') ?: $contact['addr']),
