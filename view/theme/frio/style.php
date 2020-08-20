@@ -22,6 +22,7 @@
 use Friendica\DI;
 use Friendica\Util\Strings;
 
+require_once 'view/theme/frio/theme.php';
 require_once 'view/theme/frio/php/PHPColors/Color.php';
 
 $scheme = '';
@@ -33,11 +34,12 @@ DI::config()->load('frio');
 
 // Default to hard-coded values for empty settings
 $scheme           = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
+$scheme_accent    = DI::config()->get('frio', 'scheme_accent')    ?: FRIO_SCHEME_ACCENT_BLUE;
 $nav_bg           = DI::config()->get('frio', 'nav_bg')           ?: '#708fa0';
 $nav_icon_color   = DI::config()->get('frio', 'nav_icon_color')   ?: '#ffffff';
 $link_color       = DI::config()->get('frio', 'link_color')       ?: '#6fdbe8';
 $background_color = DI::config()->get('frio', 'background_color') ?: '#ededed';
-$contentbg_transp = DI::config()->get('frio', 'contentbg_transp') ?: '';
+$contentbg_transp = DI::config()->get('frio', 'contentbg_transp') ?? 100;
 $background_image = DI::config()->get('frio', 'background_image') ?: 'img/none.png';
 $bg_image_option  = DI::config()->get('frio', 'bg_image_option')  ?: '';
 $login_bg_image   = DI::config()->get('frio', 'login_bg_image')   ?: '';
@@ -56,11 +58,12 @@ if ($uid) {
 
 	// Only override display settings that have actually been set
 	$scheme           = DI::pConfig()->get($uid, 'frio', 'scheme', DI::pConfig()->get($uid, 'frio', 'schema')) ?: $scheme;
+	$scheme_accent    = DI::pConfig()->get($uid, 'frio', 'scheme_accent')    ?: $scheme_accent;
 	$nav_bg           = DI::pConfig()->get($uid, 'frio', 'nav_bg')           ?: $nav_bg;
 	$nav_icon_color   = DI::pConfig()->get($uid, 'frio', 'nav_icon_color')   ?: $nav_icon_color;
 	$link_color       = DI::pConfig()->get($uid, 'frio', 'link_color')       ?: $link_color;
 	$background_color = DI::pConfig()->get($uid, 'frio', 'background_color') ?: $background_color;
-	$contentbg_transp = DI::pConfig()->get($uid, 'frio', 'contentbg_transp') ?: $contentbg_transp;
+	$contentbg_transp = DI::pConfig()->get($uid, 'frio', 'contentbg_transp') ?? $contentbg_transp;
 	$background_image = DI::pConfig()->get($uid, 'frio', 'background_image') ?: $background_image;
 	$bg_image_option  = DI::pConfig()->get($uid, 'frio', 'bg_image_option')  ?: $bg_image_option;
 	$modified         = DI::pConfig()->get($uid, 'frio', 'css_modified')     ?: $modified;
@@ -123,7 +126,7 @@ if (!isset($nav_icon_hover_color)) {
 	if ($nihc->isLight()) {
 		$nav_icon_hover_color = '#' . $nihc->darken(10);
 	} else {
-		$nav_icon_hover_color = '#' . $nihc->lighten(10);
+		$nav_icon_hover_color = '#' . $nihc->lighten(20);
 	}
 }
 if (!isset($link_hover_color)) {
@@ -184,7 +187,9 @@ $options = [
 	'$background_size_img'         => $background_size_img,
 	'$background_repeat'           => $background_repeat,
 	'$login_bg_image'              => $login_bg_image,
-	'$login_bg_color'              => $login_bg_color
+	'$login_bg_color'              => $login_bg_color,
+	'$font_color_darker'           => $font_color_darker ?? '#555',
+	'$font_color'                  => $font_color ?? '#777',
 ];
 
 $css_tpl = file_get_contents('view/theme/frio/css/style.css');

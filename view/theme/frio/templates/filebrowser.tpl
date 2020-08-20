@@ -51,7 +51,7 @@
 		</div>
 
 		<div class="upload">
-			<button id="upload-{{$type}}">{{$upload}}</button>
+			<button id="upload-{{$type}}" type="button" class="btn btn-primary">{{$upload}}</button>
 		</div>
 	</div>
 

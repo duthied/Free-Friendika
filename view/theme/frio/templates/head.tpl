@@ -25,13 +25,13 @@
 <link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap-toggle/css/bootstrap-toggle.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/font/open_sans/open-sans.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
 
-{{foreach $stylesheets as $stylesheetUrl}}
-<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
-{{/foreach}}
-
 {{* own css files *}}
 <link rel="stylesheet" href="view/theme/frio/css/hovercard.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/css/font-awesome.custom.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+
+{{foreach $stylesheets as $stylesheetUrl => $media}}
+<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="{{$media}}" />
+{{/foreach}}
 
 <link rel="shortcut icon" href="{{$shortcut_icon}}" />
 <link rel="apple-touch-icon" href="{{$touch_icon}}"/>

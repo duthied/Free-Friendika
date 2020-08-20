@@ -9,7 +9,7 @@
 	<div class="panel-group panel-group-settings" id="admin-settings" role="tablist" aria-multiselectable="true">
 		{{* The form for entering user profile which should be blocked *}}
 		<div class="panel">
-			<div class="section-subtitle-wrapper" role="tab" id="admin-settings-contactblock-block">
+			<div class="panel-heading section-subtitle-wrapper" role="tab" id="admin-settings-contactblock-block">
 				<h4>
 					<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-contactblock-block-collapse" aria-expanded="false" aria-controls="admin-settings-contactblock-block-collapse">
 						{{$h_newblock}}
@@ -17,7 +17,7 @@
 				</h4>
 			</div>
 
-			<div id="admin-settings-contactblock-block-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-contactblock-block">
+			<div id="admin-settings-contactblock-block-collapse" class="panel-body panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-contactblock-block">
 				<form action="{{$baseurl}}/admin/blocklist/contact" method="post">
 					<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
@@ -34,7 +34,7 @@
 
 		{{* The list of blocked user profiles with the possibility to unblock them *}}
 		<div class="panel">
-			<div class="section-subtitle-wrapper" role="tab" id="admin-settings-contactblock-blocked">
+			<div class="panel-heading section-subtitle-wrapper" role="tab" id="admin-settings-contactblock-blocked">
 				<h4>
 					<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-contactblock-blocked-collapse" aria-expanded="{{if count($contacts) > 0}}true{{else}}false{{/if}}" aria-controls="admin-settings-contactblock-blocked-collapse">
 						{{$h_contacts}} ({{$total_contacts}})
@@ -42,7 +42,7 @@
 				</h4>
 			</div>
 
-			<div id="admin-settings-contactblock-blocked-collapse" class="panel-collapse collapse {{if count($contacts) > 0}}in{{/if}}" role="tabpanel" aria-labelledby="admin-settings-contactblock-blocked">
+			<div id="admin-settings-contactblock-blocked-collapse" class="panel-body panel-collapse collapse {{if count($contacts) > 0}}in{{/if}}" role="tabpanel" aria-labelledby="admin-settings-contactblock-blocked">
 				<form action="{{$baseurl}}/admin/blocklist/contact" method="post">
 					<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
