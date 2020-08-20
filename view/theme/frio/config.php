@@ -141,6 +141,7 @@ function frio_form($arr)
 	$schemes = [
 		'light' => DI::l10n()->t('Light (Accented)'),
 		'dark'  => DI::l10n()->t('Dark (Accented)'),
+		'black' => DI::l10n()->t('Black (Accented)'),
 	];
 
 	$legacy_schemes = [];
