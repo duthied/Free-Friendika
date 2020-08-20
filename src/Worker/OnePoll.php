@@ -111,7 +111,7 @@ class OnePoll
 			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
 			return;
 		}		
-		
+
 		// We don't poll AP contacts by now
 		if ($protocol === Protocol::ACTIVITYPUB) {
 			Logger::log("Don't poll AP contact");
@@ -707,6 +707,9 @@ class OnePoll
 		} else {
 			Logger::log("Mail: no mails for ".$mailconf['user']);
 		}
+
+		self::updateContact($contact, ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
+		Contact::unmarkForArchival($contact);
 
 		Logger::log("Mail: closing connection for ".$mailconf['user']);
 		imap_close($mbox);
