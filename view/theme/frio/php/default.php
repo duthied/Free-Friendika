@@ -27,6 +27,7 @@
 use Friendica\DI;
 use Friendica\Model\Profile;
 
+require_once 'view/theme/frio/theme.php';
 require_once 'view/theme/frio/php/frio_boot.php';
 
 //	$minimal = is_modal();

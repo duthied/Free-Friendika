@@ -22,6 +22,7 @@
 use Friendica\DI;
 use Friendica\Util\Strings;
 
+require_once 'view/theme/frio/theme.php';
 require_once 'view/theme/frio/php/PHPColors/Color.php';
 
 $scheme = '';

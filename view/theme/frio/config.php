@@ -129,6 +129,7 @@ function theme_admin(App $a)
 function frio_form($arr)
 {
 	require_once 'view/theme/frio/php/scheme.php';
+	require_once 'view/theme/frio/theme.php';
 
 	$scheme_info = get_scheme_info($arr['scheme']);
 	$disable = $scheme_info['overwrites'];
