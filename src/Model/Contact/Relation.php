@@ -166,7 +166,7 @@ class Relation
 		}
 
 		if (empty($contact)) {
-			$contact = Contact::getByURL($url);
+			$contact = Contact::getByURL($url, false);
 		}
 
 		if (empty($contact)) {

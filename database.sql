@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.09-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1360
+-- DB_UPDATE_VERSION 1362
 -- ------------------------------------------
 
 
@@ -132,18 +132,19 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_name` (`uid`,`name`(190)),
 	 INDEX `self_uid` (`self`,`uid`),
-	 INDEX `alias_uid` (`alias`(32),`uid`),
+	 INDEX `alias_uid` (`alias`(96),`uid`),
 	 INDEX `pending_uid` (`pending`,`uid`),
 	 INDEX `blocked_uid` (`blocked`,`uid`),
 	 INDEX `uid_rel_network_poll` (`uid`,`rel`,`network`,`poll`(64),`archive`),
 	 INDEX `uid_network_batch` (`uid`,`network`,`batch`(64)),
-	 INDEX `addr_uid` (`addr`(32),`uid`),
-	 INDEX `nurl_uid` (`nurl`(32),`uid`),
+	 INDEX `addr_uid` (`addr`(96),`uid`),
+	 INDEX `nurl_uid` (`nurl`(96),`uid`),
 	 INDEX `nick_uid` (`nick`(32),`uid`),
-	 INDEX `attag_uid` (`attag`(32),`uid`),
+	 INDEX `attag_uid` (`attag`(96),`uid`),
 	 INDEX `dfrn-id` (`dfrn-id`(64)),
 	 INDEX `issued-id` (`issued-id`(64)),
 	 INDEX `network_uid_lastupdate` (`network`,`uid`,`last-update`),
+	 INDEX `uid_network_self_lastupdate` (`uid`,`network`,`self`,`last-update`),
 	 INDEX `uid_lastitem` (`uid`,`last-item`),
 	 INDEX `gsid` (`gsid`),
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
@@ -644,6 +645,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `resource-id` (`resource-id`),
 	 INDEX `deleted_changed` (`deleted`,`changed`),
 	 INDEX `uid_wall_changed` (`uid`,`wall`,`changed`),
+	 INDEX `uid_unseen_wall` (`uid`,`unseen`,`wall`),
 	 INDEX `mention_uid_id` (`mention`,`uid`,`id`),
 	 INDEX `uid_eventid` (`uid`,`event-id`),
 	 INDEX `icid` (`icid`),
@@ -1350,6 +1352,7 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	 INDEX `done_priority_created` (`done`,`priority`,`created`),
 	 INDEX `done_priority_next_try` (`done`,`priority`,`next_try`),
 	 INDEX `done_pid_next_try` (`done`,`pid`,`next_try`),
+	 INDEX `done_pid_retrial` (`done`,`pid`,`retrial`),
 	 INDEX `done_pid_priority_created` (`done`,`pid`,`priority`,`created`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Background tasks queue entries';
 
@@ -1408,11 +1411,12 @@ CREATE VIEW `network-item-view` AS SELECT
 	`item`.`contact-id` AS `contact-id`
 	FROM `item`
 			INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id` AND (NOT `contact`.`blocked` OR `contact`.`pending`)
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
 			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
@@ -1435,12 +1439,13 @@ CREATE VIEW `network-thread-view` AS SELECT
 	`thread`.`network` AS `network`,
 	`thread`.`contact-id` AS `contact-id`
 	FROM `thread`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id` AND (NOT `contact`.`blocked` OR `contact`.`pending`)
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
 			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
 			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
@@ -1513,7 +1518,6 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`archive` AS `archive`,
 	`contact`.`pending` AS `pending`,
 	`contact`.`deleted` AS `deleted`,
-	`contact`.`rating` AS `rating`,
 	`contact`.`unsearchable` AS `unsearchable`,
 	`contact`.`sensitive` AS `sensitive`,
 	`contact`.`baseurl` AS `baseurl`,

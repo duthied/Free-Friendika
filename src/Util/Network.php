@@ -24,6 +24,7 @@ namespace Friendica\Util;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\DI;
+use Friendica\Model\Contact;
 
 class Network
 {
@@ -235,7 +236,7 @@ class Network
 		Hook::callAll('avatar_lookup', $avatar);
 
 		if (! $avatar['success']) {
-			$avatar['url'] = DI::baseUrl() . '/images/person-300.jpg';
+			$avatar['url'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
 		}
 
 		Logger::log('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], Logger::DEBUG);

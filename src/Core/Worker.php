@@ -81,27 +81,8 @@ class Worker
 			self::killStaleWorkers();
 		}
 
-		// Count active workers and compare them with a maximum value that depends on the load
-		if (self::tooMuchWorkers()) {
-			Logger::info('Pre check: Active worker limit reached, quitting.');
-			return;
-		}
-
-		// Do we have too few memory?
-		if (DI::process()->isMinMemoryReached()) {
-			Logger::info('Pre check: Memory limit reached, quitting.');
-			return;
-		}
-
-		// Possibly there are too much database connections
-		if (self::maxConnectionsReached()) {
-			Logger::info('Pre check: maximum connections reached, quitting.');
-			return;
-		}
-
-		// Possibly there are too much database processes that block the system
-		if (DI::process()->isMaxProcessesReached()) {
-			Logger::info('Pre check: maximum processes reached, quitting.');
+		// Check if the system is ready
+		if (!self::isReady()) {
 			return;
 		}
 
@@ -175,12 +156,48 @@ class Worker
 	}
 
 	/**
+	 * Checks if the system is ready.
+	 *
+	 * Several system parameters like memory, connections and processes are checked.
+	 *
+	 * @return boolean
+	 */
+	public static function isReady()
+	{
+		// Count active workers and compare them with a maximum value that depends on the load
+		if (self::tooMuchWorkers()) {
+			Logger::info('Active worker limit reached, quitting.');
+			return false;
+		}
+
+		// Do we have too few memory?
+		if (DI::process()->isMinMemoryReached()) {
+			Logger::info('Memory limit reached, quitting.');
+			return false;
+		}
+
+		// Possibly there are too much database connections
+		if (self::maxConnectionsReached()) {
+			Logger::info('Maximum connections reached, quitting.');
+			return false;
+		}
+
+		// Possibly there are too much database processes that block the system
+		if (DI::process()->isMaxProcessesReached()) {
+			Logger::info('Maximum processes reached, quitting.');
+			return false;
+		}
+		
+		return true;
+	}
+
+	/**
 	 * Check if non executed tasks do exist in the worker queue
 	 *
 	 * @return boolean Returns "true" if tasks are existing
 	 * @throws \Exception
 	 */
-	private static function entriesExists()
+	public static function entriesExists()
 	{
 		$stamp = (float)microtime(true);
 		$exists = DBA::exists('workerqueue', ["NOT `done` AND `pid` = 0 AND `next_try` < ?", DateTimeFormat::utcNow()]);
@@ -733,7 +750,7 @@ class Worker
 				}
 			}
 
-			Logger::log("Load: " . $load ."/" . $maxsysload . " - processes: " . $deferred . "/" . $active . "/" . $waiting_processes . $processlist . " - maximum: " . $queues . "/" . $maxqueues, Logger::DEBUG);
+			Logger::notice("Load: " . $load ."/" . $maxsysload . " - processes: " . $deferred . "/" . $active . "/" . $waiting_processes . $processlist . " - maximum: " . $queues . "/" . $maxqueues);
 
 			// Are there fewer workers running as possible? Then fork a new one.
 			if (!DI::config()->get("system", "worker_dont_fork", false) && ($queues > ($active + 1)) && self::entriesExists()) {

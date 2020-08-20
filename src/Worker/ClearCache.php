@@ -21,7 +21,6 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Photo;
@@ -35,21 +34,12 @@ class ClearCache
 	public static function execute()
 	{
 		$a = DI::app();
-		$last = DI::config()->get('system', 'cache_last_cleared');
-
-		if ($last) {
-			$next = $last + (3600); // Once per hour
-			$clear_cache = ($next <= time());
-		} else {
-			$clear_cache = true;
-		}
-
-		if (!$clear_cache) {
-			return;
-		}
 
 		// clear old cache
 		DI::cache()->clear();
+		if (DI::config()->get('system', 'optimize_tables')) {
+			DBA::e("OPTIMIZE TABLE `cache`");
+		}
 
 		// clear old item cache files
 		clear_cache();
@@ -76,24 +66,14 @@ class ClearCache
 
 		// Delete the cached OEmbed entries that are older than three month
 		DBA::delete('oembed', ["`created` < NOW() - INTERVAL 3 MONTH"]);
+		if (DI::config()->get('system', 'optimize_tables')) {
+			DBA::e("OPTIMIZE TABLE `oembed`");
+		}
 
 		// Delete the cached "parse_url" entries that are older than three month
 		DBA::delete('parsed_url', ["`created` < NOW() - INTERVAL 3 MONTH"]);
-
 		if (DI::config()->get('system', 'optimize_tables')) {
-			Logger::info('Optimize start');
-			DBA::e("OPTIMIZE TABLE `auth_codes`");
-			DBA::e("OPTIMIZE TABLE `cache`");
-			DBA::e("OPTIMIZE TABLE `challenge`");
-			DBA::e("OPTIMIZE TABLE `locks`");
-			DBA::e("OPTIMIZE TABLE `oembed`");
 			DBA::e("OPTIMIZE TABLE `parsed_url`");
-			DBA::e("OPTIMIZE TABLE `profile_check`");
-			DBA::e("OPTIMIZE TABLE `session`");
-			DBA::e("OPTIMIZE TABLE `tokens`");
-			Logger::info('Optimize finished');			
 		}
-
-		DI::config()->set('system', 'cache_last_cleared', time());
 	}
 }

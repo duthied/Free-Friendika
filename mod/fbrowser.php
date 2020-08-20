@@ -9,6 +9,7 @@ use Friendica\App;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Photo;
 use Friendica\Util\Images;
 use Friendica\Util\Strings;
 
@@ -47,8 +48,8 @@ function fbrowser_content(App $a)
 			if ($a->argc==2) {
 				$photos = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' ",
 					intval(local_user()),
-					DBA::escape('Contact Photos'),
-					DBA::escape(DI::l10n()->t('Contact Photos'))
+					DBA::escape(Photo::CONTACT_PHOTOS),
+					DBA::escape(DI::l10n()->t(Photo::CONTACT_PHOTOS))
 				);
 
 				$albums = array_column($photos, 'album');
@@ -66,8 +67,8 @@ function fbrowser_content(App $a)
 					FROM `photo` WHERE `uid` = %d $sql_extra AND `album` != '%s' AND `album` != '%s'
 					GROUP BY `resource-id` $sql_extra2",
 				intval(local_user()),
-				DBA::escape('Contact Photos'),
-				DBA::escape(DI::l10n()->t('Contact Photos'))
+				DBA::escape(Photo::CONTACT_PHOTOS),
+				DBA::escape(DI::l10n()->t(Photo::CONTACT_PHOTOS))
 			);
 
 			function _map_files1($rr)

@@ -2026,13 +2026,13 @@ class Item
 			return;
 		}
 
-		if (Contact::getIdForURL($parent['author-link'], $item['uid'])) {
+		if (($author['contact-type'] != Contact::TYPE_COMMUNITY) && Contact::isSharing($parent['author-link'], $item['uid'])) {
 			logger::info('The parent author is a user contact: quit', ['author' => $parent['author-link'], 'uid' => $item['uid']]);
 			return;
 		}
 
 		$cid = Contact::getIdForURL($author['url'], $item['uid']);
-		if (empty($cid)) {
+		if (empty($cid) || !Contact::isSharing($cid, $item['uid'])) {
 			logger::info('The resharer is not a user contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid']]);
 			return;
 		}

@@ -27,6 +27,7 @@
 use Friendica\DI;
 use Friendica\Model\Profile;
 
+require_once 'view/theme/frio/theme.php';
 require_once 'view/theme/frio/php/frio_boot.php';
 
 //	$minimal = is_modal();
@@ -62,19 +63,15 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 		if ($scheme && is_string($scheme) && $scheme != '---') {
 			if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
 				$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
+				$scheme_accent =
+					DI::pConfig()->get($uid, 'frio', 'scheme_accent') ?:
+						DI::config()->get('frio', 'scheme_accent') ?: FRIO_SCHEME_ACCENT_BLUE;
+
 				require_once $schemefile;
 			}
-		} else {
-			$nav_bg = DI::pConfig()->get($uid, 'frio', 'nav_bg');
 		}
 
-		if (empty($nav_bg)) {
-			$nav_bg = DI::config()->get('frio', 'nav_bg');
-		}
-
-		if (empty($nav_bg) || !is_string($nav_bg)) {
-			$nav_bg = "#708fa0";
-		}
+		$nav_bg = $nav_bg ?? DI::pConfig()->get($uid, 'frio', 'nav_bg', DI::config()->get('frio', 'nav_bg', '#708fa0'));
 
 		echo '<meta name="theme-color" content="' . $nav_bg . '" />';
 ?>

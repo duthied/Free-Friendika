@@ -63,9 +63,6 @@ class Cron
 		// Call possible post update functions
 		Worker::add(PRIORITY_LOW, 'PostUpdate');
 
-		// Clear cache entries
-		Worker::add(PRIORITY_LOW, 'ClearCache');
-
 		// Repair entries in the database
 		Worker::add(PRIORITY_LOW, 'RepairDatabase');
 
@@ -94,6 +91,10 @@ class Cron
 
 			self::checkdeletedContacts();
 
+			if (DI::config()->get('system', 'optimize_tables')) {
+				self::optimizeTables();
+			}
+	
 			DI::config()->set('system', 'last_expire_day', $d2);
 		}
 
@@ -110,8 +111,19 @@ class Cron
 
 			// Optimizing this table only last seconds
 			if (DI::config()->get('system', 'optimize_tables')) {
-				DBA::e("OPTIMIZE TABLE `workerqueue`");
+				// We are acquiring the two locks from the worker to avoid locking problems
+				if (DI::lock()->acquire(Worker::LOCK_PROCESS, 10)) {
+					if (DI::lock()->acquire(Worker::LOCK_WORKER, 10)) {
+						DBA::e("OPTIMIZE TABLE `workerqueue`");
+						DBA::e("OPTIMIZE TABLE `process`");			
+						DI::lock()->release(Worker::LOCK_WORKER);
+					}
+					DI::lock()->release(Worker::LOCK_PROCESS);
+				}
 			}
+
+			// Clear cache entries
+			Worker::add(PRIORITY_LOW, 'ClearCache');
 
 			DI::config()->set('system', 'last_cron_hourly', time());
 		}
@@ -134,6 +146,25 @@ class Cron
 		DI::config()->set('system', 'last_cron', time());
 
 		return;
+	}
+
+	/**
+	 * Optimize tables that are known to grow and shrink all the time
+	 *
+	 * @return void
+	 */
+	private static function optimizeTables()
+	{
+		Logger::info('Optimize start');
+
+		DBA::e("OPTIMIZE TABLE `auth_codes`");
+		DBA::e("OPTIMIZE TABLE `challenge`");
+		DBA::e("OPTIMIZE TABLE `locks`");
+		DBA::e("OPTIMIZE TABLE `profile_check`");
+		DBA::e("OPTIMIZE TABLE `session`");
+		DBA::e("OPTIMIZE TABLE `tokens`");
+
+		DI::lock()->release('optimize_tables');
 	}
 
 	/**
@@ -181,8 +212,6 @@ class Cron
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function pollContacts() {
-		$min_poll_interval = DI::config()->get('system', 'min_poll_interval');
-
 		Addon::reload();
 
 		$sql = "SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`, `contact`.`archive`,
@@ -247,12 +276,17 @@ class Cron
 			/*
 			 * Based on $contact['priority'], should we poll this site now? Or later?
 			 */
-			$t = $contact['last-update'];
+
+			$min_poll_interval = DI::config()->get('system', 'min_poll_interval');
 
 			$poll_intervals = [$min_poll_interval . ' minute', '15 minute', '30 minute',
 				'1 hour', '2 hour', '3 hour', '6 hour', '12 hour' ,'1 day', '1 week', '1 month'];
 
-			if (empty($poll_intervals[$rating]) || (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . ' + ' . $poll_intervals[$rating])))  {
+			$now = DateTimeFormat::utcNow();
+			$next_update = DateTimeFormat::utc($contact['last-update'] . ' + ' . $poll_intervals[$rating]);
+
+			if (empty($poll_intervals[$rating]) || ($now < $next_update))  {
+				Logger::debug('No update', ['cid' => $contact['id'], 'rating' => $rating, 'next' => $next_update, 'now' => $now]);
 				continue;
 			}
 

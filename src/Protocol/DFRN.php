@@ -963,10 +963,12 @@ class DFRN
 		if ($item['gravity'] != GRAVITY_PARENT) {
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 			$parent = Item::selectFirst(['guid', 'plink'], ['uri' => $parent_item, 'uid' => $item['uid']]);
-			$attributes = ["ref" => $parent_item, "type" => "text/html",
-						"href" => $parent['plink'],
-						"dfrn:diaspora_guid" => $parent['guid']];
-			XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
+			if (DBA::isResult($parent)) {
+				$attributes = ["ref" => $parent_item, "type" => "text/html",
+					"href" => $parent['plink'],
+					"dfrn:diaspora_guid" => $parent['guid']];
+				XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
+			}
 		}
 
 		// Add conversation data. This is used for OStatus

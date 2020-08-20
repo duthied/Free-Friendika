@@ -162,14 +162,29 @@ class User
 	 * @return integer user id
 	 * @throws Exception
 	 */
-	public static function getIdForURL($url)
+	public static function getIdForURL(string $url)
 	{
-		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => Strings::normaliseLink($url), 'self' => true]);
-		if (!DBA::isResult($self)) {
-			return false;
-		} else {
+		// Avoid any database requests when the hostname isn't even part of the url.
+		if (!strpos($url, DI::baseUrl()->getHostname())) {
+			return 0;
+		}
+
+		$self = Contact::selectFirst(['uid'], ['self' => true, 'nurl' => Strings::normaliseLink($url)]);
+		if (!empty($self['uid'])) {
 			return $self['uid'];
 		}
+
+		$self = Contact::selectFirst(['uid'], ['self' => true, 'addr' => $url]);
+		if (!empty($self['uid'])) {
+			return $self['uid'];
+		}
+
+		$self = Contact::selectFirst(['uid'], ['self' => true, 'alias' => [$url, Strings::normaliseLink($url)]]);
+		if (!empty($self['uid'])) {
+			return $self['uid'];
+		}
+
+		return 0;
 	}
 
 	/**

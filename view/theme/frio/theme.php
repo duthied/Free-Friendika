@@ -21,6 +21,12 @@ use Friendica\Model\Contact;
 use Friendica\Module;
 use Friendica\Util\Strings;
 
+const FRIO_SCHEME_ACCENT_BLUE   = '#1e87c2';
+const FRIO_SCHEME_ACCENT_RED    = '#b50404';
+const FRIO_SCHEME_ACCENT_PURPLE = '#a54bad';
+const FRIO_SCHEME_ACCENT_GREEN  = '#218f39';
+const FRIO_SCHEME_ACCENT_PINK   = '#d900a9';
+
 function frio_init(App $a)
 {
 	global $frio;
@@ -318,52 +324,4 @@ function frio_display_item(App $a, &$arr)
 		];
 	}
 	$arr['output']['subthread'] = $subthread;
-}
-
-/**
- * @param int|null $uid
- * @return string
- * @see \Friendica\Core\Theme::getBackgroundColor()
- */
-function frio_get_background_color(int $uid = null)
-{
-	$background_color = DI::config()->get('frio', 'background_color') ?: '#ededed';
-
-	if ($uid) {
-		$background_color = DI::pConfig()->get($uid, 'frio', 'background_color') ?: $background_color;
-	}
-
-	$scheme = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
-	$scheme = Strings::sanitizeFilePathItem($scheme);
-
-	if ($scheme && ($scheme != '---') && file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
-		$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
-		require_once $schemefile;
-	}
-
-	return $background_color;
-}
-
-/**
- * @param int|null $uid
- * @return string
- * @see \Friendica\Core\Theme::getThemeColor()
- */
-function frio_get_theme_color(int $uid = null)
-{
-	$nav_bg = DI::config()->get('frio', 'nav_bg') ?: '#708fa0';
-
-	if ($uid) {
-		$nav_bg = DI::pConfig()->get($uid, 'frio', 'background_color') ?: $nav_bg;
-	}
-
-	$scheme = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
-	$scheme = Strings::sanitizeFilePathItem($scheme);
-
-	if ($scheme && ($scheme != '---') && file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
-		$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
-		require_once $schemefile;
-	}
-
-	return $nav_bg;
 }

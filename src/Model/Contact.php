@@ -51,6 +51,10 @@ use Friendica\Util\Strings;
  */
 class Contact
 {
+	const DEFAULT_AVATAR_PHOTO = '/images/person-300.jpg';
+	const DEFAULT_AVATAR_THUMB = '/images/person-80.jpg';
+	const DEFAULT_AVATAR_MICRO = '/images/person-48.jpg';
+
 	/**
 	 * @deprecated since version 2019.03
 	 * @see User::PAGE_FLAGS_NORMAL
@@ -644,9 +648,9 @@ class Contact
 			$fields['micro'] = $prefix . '6' . $suffix;
 		} else {
 			// We hadn't found a photo entry, so we use the default avatar
-			$fields['photo'] = DI::baseUrl() . '/images/person-300.jpg';
-			$fields['thumb'] = DI::baseUrl() . '/images/person-80.jpg';
-			$fields['micro'] = DI::baseUrl() . '/images/person-48.jpg';
+			$fields['photo'] = DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO;
+			$fields['thumb'] = DI::baseUrl() . self::DEFAULT_AVATAR_THUMB;
+			$fields['micro'] = DI::baseUrl() . self::DEFAULT_AVATAR_MICRO;
 		}
 
 		$fields['avatar'] = DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
@@ -1467,7 +1471,7 @@ class Contact
 	 */
 	public static function getPhoto(array $contact, string $avatar = '')
 	{
-		return self::getAvatarPath($contact, 'photo', DI::baseUrl() . '/images/person-300.jpg', Proxy::SIZE_SMALL, $avatar);
+		return self::getAvatarPath($contact, 'photo', DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO, Proxy::SIZE_SMALL, $avatar);
 	}
 
 	/**
@@ -1479,7 +1483,7 @@ class Contact
 	 */
 	public static function getThumb(array $contact, string $avatar = '')
 	{
-		return self::getAvatarPath($contact, 'thumb', DI::baseUrl() . '/images/person-80.jpg', Proxy::SIZE_THUMB, $avatar);
+		return self::getAvatarPath($contact, 'thumb', DI::baseUrl() . self::DEFAULT_AVATAR_THUMB, Proxy::SIZE_THUMB, $avatar);
 	}
 
 	/**
@@ -1491,7 +1495,7 @@ class Contact
 	 */
 	public static function getMicro(array $contact, string $avatar = '')
 	{
-		return self::getAvatarPath($contact, 'micro', DI::baseUrl() . '/images/person-48.jpg', Proxy::SIZE_MICRO, $avatar);
+		return self::getAvatarPath($contact, 'micro', DI::baseUrl() . self::DEFAULT_AVATAR_MICRO, Proxy::SIZE_MICRO, $avatar);
 	}
 
 	/**
@@ -1530,13 +1534,13 @@ class Contact
 
 		/// add the default avatars if the fields aren't filled
 		if (isset($contact['photo']) && empty($contact['photo'])) {
-			$contact['photo'] = DI::baseUrl() . '/images/person-300.jpg';
+			$contact['photo'] = DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO;
 		}
 		if (isset($contact['thumb']) && empty($contact['thumb'])) {
-			$contact['thumb'] = DI::baseUrl() . '/images/person-80.jpg';
+			$contact['thumb'] = DI::baseUrl() . self::DEFAULT_AVATAR_THUMB;
 		}
 		if (isset($contact['micro']) && empty($contact['micro'])) {
-			$contact['micro'] = DI::baseUrl() . '/images/person-48.jpg';
+			$contact['micro'] = DI::baseUrl() . self::DEFAULT_AVATAR_MICRO;
 		}
 
 		return $contact;
@@ -1556,7 +1560,7 @@ class Contact
 	 */
 	public static function updateAvatar(int $cid, string $avatar, bool $force = false)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid, 'self' => false]);
+		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'nurl', 'url'], ['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
@@ -1568,6 +1572,27 @@ class Contact
 			if ($contact['avatar'] != $avatar) {
 				DBA::update('contact', ['avatar' => $avatar], ['id' => $cid]);
 				Logger::info('Only update the avatar', ['id' => $cid, 'avatar' => $avatar, 'contact' => $contact]);
+			}
+			return;
+		}
+
+		$local_uid = User::getIdForURL($contact['url']);
+		if (!empty($local_uid)) {
+			$fields = self::selectFirst(['avatar', 'avatar-date', 'photo', 'thumb', 'micro'], ['self' => true, 'uid' => $local_uid]);
+		}
+
+		// Replace cached avatar pictures from the default avatar with the default avatars in different sizes
+		if (strpos($avatar, self::DEFAULT_AVATAR_PHOTO)) {
+			$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
+				'photo' => DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO,
+				'thumb' => DI::baseUrl() . self::DEFAULT_AVATAR_THUMB,
+				'micro' => DI::baseUrl() . self::DEFAULT_AVATAR_MICRO];
+		}
+
+		if (!empty($fields)) {
+			if ($fields['photo'] . $fields['thumb'] . $fields['micro'] != $contact['photo'] . $contact['thumb'] . $contact['micro']) {
+				DBA::update('contact', $fields, ['id' => $cid]);
+				Photo::delete(['uid' => $uid, 'contact-id' => $cid, 'album' => Photo::CONTACT_PHOTOS]);
 			}
 			return;
 		}

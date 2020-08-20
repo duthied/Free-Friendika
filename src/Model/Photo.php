@@ -41,6 +41,8 @@ require_once "include/dba.php";
  */
 class Photo
 {
+	const CONTACT_PHOTOS = 'Contact Photos';
+
 	/**
 	 * Select rows from the photo table and returns them as array
 	 *
@@ -408,7 +410,7 @@ class Photo
 		$micro = "";
 
 		$photo = DBA::selectFirst(
-			"photo", ["resource-id"], ["uid" => $uid, "contact-id" => $cid, "scale" => 4, "album" => "Contact Photos"]
+			"photo", ["resource-id"], ["uid" => $uid, "contact-id" => $cid, "scale" => 4, "album" => self::CONTACT_PHOTOS]
 		);
 		if (!empty($photo['resource-id'])) {
 			$resource_id = $photo["resource-id"];
@@ -437,7 +439,7 @@ class Photo
 		if ($Image->isValid()) {
 			$Image->scaleToSquare(300);
 
-			$r = self::store($Image, $uid, $cid, $resource_id, $filename, "Contact Photos", 4);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, self::CONTACT_PHOTOS, 4);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -445,7 +447,7 @@ class Photo
 
 			$Image->scaleDown(80);
 
-			$r = self::store($Image, $uid, $cid, $resource_id, $filename, "Contact Photos", 5);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, self::CONTACT_PHOTOS, 5);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -453,7 +455,7 @@ class Photo
 
 			$Image->scaleDown(48);
 
-			$r = self::store($Image, $uid, $cid, $resource_id, $filename, "Contact Photos", 6);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, self::CONTACT_PHOTOS, 6);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -492,9 +494,9 @@ class Photo
 		}
 
 		if ($photo_failure) {
-			$image_url = DI::baseUrl() . "/images/person-300.jpg";
-			$thumb = DI::baseUrl() . "/images/person-80.jpg";
-			$micro = DI::baseUrl() . "/images/person-48.jpg";
+			$image_url = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
+			$thumb = DI::baseUrl() . Contact::DEFAULT_AVATAR_THUMB;
+			$micro = DI::baseUrl() . Contact::DEFAULT_AVATAR_MICRO;
 		}
 
 		return [$image_url, $thumb, $micro];
@@ -561,8 +563,8 @@ class Photo
 					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra
 					GROUP BY `album` ORDER BY `created` DESC",
 					intval($uid),
-					DBA::escape("Contact Photos"),
-					DBA::escape(DI::l10n()->t("Contact Photos"))
+					DBA::escape(self::CONTACT_PHOTOS),
+					DBA::escape(DI::l10n()->t(self::CONTACT_PHOTOS))
 				);
 			} else {
 				// This query doesn't do the count and is much faster
@@ -570,8 +572,8 @@ class Photo
 					FROM `photo` USE INDEX (`uid_album_scale_created`)
 					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra",
 					intval($uid),
-					DBA::escape("Contact Photos"),
-					DBA::escape(DI::l10n()->t("Contact Photos"))
+					DBA::escape(self::CONTACT_PHOTOS),
+					DBA::escape(DI::l10n()->t(self::CONTACT_PHOTOS))
 				);
 			}
 			DI::cache()->set($key, $albums, Duration::DAY);

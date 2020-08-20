@@ -23,13 +23,13 @@ namespace Friendica\Network;
 
 use DOMDocument;
 use DomXPath;
-use Friendica\Core\Cache\Duration;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -330,6 +330,14 @@ class Probe
 	 */
 	public static function uri($uri, $network = '', $uid = -1)
 	{
+		// Local profiles aren't probed via network
+		if (empty($network) && strpos($uri, DI::baseUrl()->getHostname())) {
+			$data = self::localProbe($uri);
+			if (!empty($data)) {
+				return $data;
+			}
+		}
+
 		if ($uid == -1) {
 			$uid = local_user();
 		}
@@ -362,7 +370,7 @@ class Probe
 		}
 
 		if (empty($data['photo'])) {
-			$data['photo'] = DI::baseUrl() . '/images/person-300.jpg';
+			$data['photo'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
 		}
 
 		if (empty($data['name'])) {
@@ -2004,6 +2012,14 @@ class Probe
 	 */
 	public static function getLastUpdate(array $data)
 	{
+		$uid = User::getIdForURL($data['url']);
+		if (!empty($uid)) {
+			$contact = Contact::selectFirst(['url', 'last-item'], ['self' => true, 'uid' => $uid]);
+			if (!empty($contact['last-item'])) {
+				return $contact['last-item'];
+			}
+		}
+
 		if ($lastUpdate = self::updateFromNoScrape($data)) {
 			return $lastUpdate;
 		}
@@ -2155,5 +2171,47 @@ class Probe
 		}
 
 		return '';
+	}
+
+	/**
+	 * Probe data from local profiles without network traffic
+	 *
+	 * @param string $url
+	 * @return array probed data
+	 */
+	private static function localProbe(string $url)
+	{
+		$uid = User::getIdForURL($url);
+		if (empty($uid)) {
+			return [];
+		}
+
+		$profile = User::getOwnerDataById($uid);
+		if (empty($profile)) {
+			return [];
+		}
+
+		$approfile = ActivityPub\Transmitter::getProfile($uid);
+		if (empty($approfile)) {
+			return [];
+		}
+
+		if (empty($profile['gsid'])) {
+			$profile['gsid'] = GServer::getID($approfile['generator']['url']);
+		}
+
+		$data = ['name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'],
+			'url' => $profile['url'], 'addr' => $profile['addr'], 'alias' => $profile['alias'],
+			'photo' => $profile['photo'], 'account-type' => $profile['contact-type'],
+			'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),
+			'keywords' => $profile['keywords'], 'location' => $profile['location'], 'about' => $profile['about'], 
+			'hide' => !$profile['net-publish'], 'batch' => '', 'notify' => $profile['notify'],
+			'poll' => $profile['poll'], 'request' => $profile['request'], 'confirm' => $profile['confirm'],
+			'subscribe' => $approfile['generator']['url'] . '/follow?url={uri}', 'poco' => $profile['poco'], 
+			'following' => $approfile['following'], 'followers' => $approfile['followers'],
+			'inbox' => $approfile['inbox'], 'outbox' => $approfile['outbox'],
+			'sharedinbox' => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN, 
+			'pubkey' => $profile['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $profile['gsid']];
+		return self::rearrangeData($data);		
 	}
 }
