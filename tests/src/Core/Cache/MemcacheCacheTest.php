@@ -35,6 +35,7 @@ class MemcacheCacheTest extends MemoryCacheTest
 		$configMock = \Mockery::mock(IConfig::class);
 
 		$host = $_SERVER['MEMCACHE_HOST'] ?? 'localhost';
+		$port = $_SERVER['MEMCACHE_PORT'] ?? '11211';
 
 		$configMock
 			->shouldReceive('get')
@@ -43,7 +44,7 @@ class MemcacheCacheTest extends MemoryCacheTest
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'memcache_port')
-			->andReturn(11211);
+			->andReturn($port);
 
 		try {
 			$this->cache = new MemcacheCache($host, $configMock);
