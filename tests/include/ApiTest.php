@@ -2869,6 +2869,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDirectMessagesNewWithScreenName()
 	{
+		$this->app->user    = ['nickname' => $this->selfUser['nick']];
 		$_POST['text']        = 'message_text';
 		$_POST['screen_name'] = $this->friendUser['nick'];
 		$result               = api_direct_messages_new('json');
@@ -2884,6 +2885,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDirectMessagesNewWithTitle()
 	{
+		$this->app->user    = ['nickname' => $this->selfUser['nick']];
 		$_POST['text']        = 'message_text';
 		$_POST['screen_name'] = $this->friendUser['nick'];
 		$_REQUEST['title']    = 'message_title';
@@ -2901,6 +2903,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDirectMessagesNewWithRss()
 	{
+		$this->app->user    = ['nickname' => $this->selfUser['nick']];
 		$_POST['text']        = 'message_text';
 		$_POST['screen_name'] = $this->friendUser['nick'];
 		$result               = api_direct_messages_new('rss');

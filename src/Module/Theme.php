@@ -41,6 +41,7 @@ class Theme extends BaseModule
 		}
 
 		// set the path for later use in the theme styles
+		$THEMEPATH = "view/theme/$theme";
 		if (file_exists("view/theme/$theme/style.php")) {
 			require_once "view/theme/$theme/style.php";
 		}

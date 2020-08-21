@@ -70,6 +70,7 @@ return [
 			'blocked' => 0,
 			'rel'     => 1,
 			'network' => 'dfrn',
+			'location' => 'DFRN',
 		],
 		// Having the same name and nick allows us to test
 		// the fallback to api_get_nick() in api_get_user()
@@ -85,6 +86,7 @@ return [
 			'blocked' => 0,
 			'rel'     => 0,
 			'network' => 'dfrn',
+			'location' => 'DFRN',
 		],
 		[
 			'id'      => 44,
@@ -98,6 +100,7 @@ return [
 			'blocked' => 0,
 			'rel'     => 2,
 			'network' => 'dfrn',
+			'location' => 'DFRN',
 		],
 		[
 			'id'      => 45,
@@ -111,6 +114,7 @@ return [
 			'blocked' => 0,
 			'rel'     => 2,
 			'network' => 'dfrn',
+			'location' => 'DFRN',
 		],
 		[
 			'id'      => 46,
@@ -124,6 +128,7 @@ return [
 			'blocked' => 0,
 			'rel'     => 3,
 			'network' => 'dfrn',
+			'location' => 'DFRN',
 		],
 		[
 			'id'      => 47,
@@ -137,6 +142,7 @@ return [
 			'blocked' => 0,
 			'rel'     => 2,
 			'network' => 'dfrn',
+			'location' => 'DFRN',
 		],
 	],
 	'item-uri'    => [
