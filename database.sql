@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.09-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1362
+-- DB_UPDATE_VERSION 1363
 -- ------------------------------------------
 
 
@@ -922,7 +922,8 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	 INDEX `uid_profile` (`uid`,`profile`),
 	 INDEX `uid_album_scale_created` (`uid`,`album`(32),`scale`,`created`),
 	 INDEX `uid_album_resource-id_created` (`uid`,`album`(32),`resource-id`,`created`),
-	 INDEX `resource-id` (`resource-id`)
+	 INDEX `resource-id` (`resource-id`),
+	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='photo storage';
 
 --
