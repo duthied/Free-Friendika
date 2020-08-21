@@ -28,6 +28,8 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
+use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
@@ -82,18 +84,25 @@ class Relation
 			return;
 		}
 
-		$apcontact = APContact::getByURL($url, false);
-
-		if (!empty($apcontact['followers']) && is_string($apcontact['followers'])) {
-			$followers = ActivityPub::fetchItems($apcontact['followers']);
+		$uid = User::getIdForURL($url);
+		if (!empty($uid)) {
+			// Fetch the followers/followings locally
+			$followers = self::getContacts($uid, [Contact::FOLLOWER, Contact::FRIEND]);
+			$followings = self::getContacts($uid, [Contact::SHARING, Contact::FRIEND]);
 		} else {
-			$followers = [];
-		}
+			$apcontact = APContact::getByURL($url, false);
 
-		if (!empty($apcontact['following']) && is_string($apcontact['following'])) {
-			$followings = ActivityPub::fetchItems($apcontact['following']);
-		} else {
-			$followings = [];
+			if (!empty($apcontact['followers']) && is_string($apcontact['followers'])) {
+				$followers = ActivityPub::fetchItems($apcontact['followers']);
+			} else {
+				$followers = [];
+			}
+
+			if (!empty($apcontact['following']) && is_string($apcontact['following'])) {
+				$followings = ActivityPub::fetchItems($apcontact['following']);
+			} else {
+				$followings = [];
+			}
 		}
 
 		if (empty($followers) && empty($followings)) {
@@ -148,6 +157,33 @@ class Relation
 		DBA::update('contact', ['last-discovery' => DateTimeFormat::utcNow()], ['id' => $target]);
 		Logger::info('Contacts discovery finished', ['id' => $target, 'url' => $url, 'follower' => $follower_counter, 'following' => $following_counter]);
 		return;
+	}
+
+	/**
+	 * Fetch contact list from the given local user
+	 *
+	 * @param integer $uid
+	 * @param array $rel
+	 * @return void
+	 */
+	private static function getContacts(int $uid, array $rel)
+	{
+		$list = [];
+		$profile = Profile::getByUID($uid);
+		if (!empty($profile['hide-friends'])) {
+			return $list;
+		}
+
+		$condition = ['rel' => $rel, 'uid' => $uid, 'self' => false, 'deleted' => false,
+			'hidden' => false, 'archive' => false, 'pending' => false];
+		$condition = DBA::mergeConditions($condition, ["`url` IN (SELECT `url` FROM `apcontact`)"]);
+		$contacts = DBA::select('contact', ['url'], $condition);
+		while ($contact = DBA::fetch($contacts)) {
+			$list[] = $contact['url'];
+		}
+		DBA::close($contacts);
+
+		return $list;
 	}
 
 	/**
