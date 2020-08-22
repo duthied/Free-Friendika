@@ -2408,7 +2408,7 @@ class DFRN
 					$parts = explode(":", $scheme);
 					if ((count($parts) >= 4) && (array_shift($parts) == "X-DFRN")) {
 						$termurl = array_pop($parts);
-						$termurl = array_pop($parts) . $termurl;
+						$termurl = array_pop($parts) . ':' . $termurl;
 						Tag::store($item['uri-id'], Tag::IMPLICIT_MENTION, $term, $termurl);
 					}
 				}
