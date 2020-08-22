@@ -160,11 +160,11 @@ class Relation
 	}
 
 	/**
-	 * Fetch contact list from the given local user
+	 * Fetch contact url list from the given local user
 	 *
 	 * @param integer $uid
 	 * @param array $rel
-	 * @return void
+	 * @return array contact list
 	 */
 	private static function getContacts(int $uid, array $rel)
 	{
