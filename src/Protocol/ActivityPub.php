@@ -90,20 +90,6 @@ class ActivityPub
 	 */
 	public static function fetchContent(string $url, int $uid = 0)
 	{
-		if (empty($uid)) {
-			$user = User::getFirstAdmin(['uid']);
-		
-			if (empty($user['uid'])) {
-				// When the system setup is missing an admin we just take the first user
-				$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
-				$user = DBA::selectFirst('user', ['uid'], $condition);
-			}
-
-			if (!empty($user['uid'])) {
-				$uid = $user['uid'];
-			}
-		}
-
 		return HTTPSignature::fetch($url, $uid);
 	}
 

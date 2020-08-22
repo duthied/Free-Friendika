@@ -214,39 +214,63 @@ class Transmitter
 	 */
 	public static function getProfile($uid)
 	{
-		$condition = ['uid' => $uid, 'blocked' => false, 'account_expired' => false,
-			'account_removed' => false, 'verified' => true];
-		$fields = ['guid', 'nickname', 'pubkey', 'account-type', 'page-flags'];
-		$user = DBA::selectFirst('user', $fields, $condition);
-		if (!DBA::isResult($user)) {
-			return [];
-		}
+		if ($uid != 0) {
+			$condition = ['uid' => $uid, 'blocked' => false, 'account_expired' => false,
+				'account_removed' => false, 'verified' => true];
+			$fields = ['guid', 'nickname', 'pubkey', 'account-type', 'page-flags'];
+			$user = DBA::selectFirst('user', $fields, $condition);
+			if (!DBA::isResult($user)) {
+				return [];
+			}
 
-		$fields = ['locality', 'region', 'country-name'];
-		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid]);
-		if (!DBA::isResult($profile)) {
-			return [];
-		}
+			$fields = ['locality', 'region', 'country-name'];
+			$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid]);
+			if (!DBA::isResult($profile)) {
+				return [];
+			}
 
-		$fields = ['name', 'url', 'location', 'about', 'avatar', 'photo'];
-		$contact = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
-		if (!DBA::isResult($contact)) {
-			return [];
+			$fields = ['name', 'url', 'location', 'about', 'avatar', 'photo'];
+			$contact = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
+			if (!DBA::isResult($contact)) {
+				return [];
+			}
+		} else {
+			$contact = User::getSystemAccount();
+			$user = ['guid' => '', 'nickname' => $contact['nick'], 'pubkey' => $contact['pubkey'],
+				'account-type' => $contact['contact-type'], 'page-flags' => User::PAGE_FLAGS_NORMAL];
+			$profile = ['locality' => '', 'region' => '', 'country-name' => ''];
 		}
 
 		$data = ['@context' => ActivityPub::CONTEXT];
 		$data['id'] = $contact['url'];
-		$data['diaspora:guid'] = $user['guid'];
+
+		if (!empty($user['guid'])) {
+			$data['diaspora:guid'] = $user['guid'];
+		}
+
 		$data['type'] = ActivityPub::ACCOUNT_TYPES[$user['account-type']];
-		$data['following'] = DI::baseUrl() . '/following/' . $user['nickname'];
-		$data['followers'] = DI::baseUrl() . '/followers/' . $user['nickname'];
-		$data['inbox'] = DI::baseUrl() . '/inbox/' . $user['nickname'];
-		$data['outbox'] = DI::baseUrl() . '/outbox/' . $user['nickname'];
+		
+		if ($uid != 0) {
+			$data['following'] = DI::baseUrl() . '/following/' . $user['nickname'];
+			$data['followers'] = DI::baseUrl() . '/followers/' . $user['nickname'];
+			$data['inbox'] = DI::baseUrl() . '/inbox/' . $user['nickname'];
+			$data['outbox'] = DI::baseUrl() . '/outbox/' . $user['nickname'];
+		} else {
+			$data['inbox'] = DI::baseUrl() . '/friendica/inbox';
+		}
+
 		$data['preferredUsername'] = $user['nickname'];
 		$data['name'] = $contact['name'];
-		$data['vcard:hasAddress'] = ['@type' => 'vcard:Home', 'vcard:country-name' => $profile['country-name'],
-			'vcard:region' => $profile['region'], 'vcard:locality' => $profile['locality']];
-		$data['summary'] = BBCode::convert($contact['about'], false);
+
+		if (!empty($profile['country-name'] . $profile['region'] . $profile['locality'])) {
+			$data['vcard:hasAddress'] = ['@type' => 'vcard:Home', 'vcard:country-name' => $profile['country-name'],
+				'vcard:region' => $profile['region'], 'vcard:locality' => $profile['locality']];
+		}
+
+		if (!empty($contact['about'])) {
+			$data['summary'] = BBCode::convert($contact['about'], false);
+		}
+
 		$data['url'] = $contact['url'];
 		$data['manuallyApprovesFollowers'] = in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
 		$data['publicKey'] = ['id' => $contact['url'] . '#main-key',
@@ -650,6 +674,10 @@ class Transmitter
 			$item_profile = APContact::getByURL($item['author-link'], false);
 		} else {
 			$item_profile = APContact::getByURL($item['owner-link'], false);
+		}
+
+		if (empty($item_profile)) {
+			return [];
 		}
 
 		$profile_uid = User::getIdForURL($item_profile['url']);

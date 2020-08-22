@@ -25,8 +25,10 @@ use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\User;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * Prints information about the current node
@@ -108,6 +110,15 @@ class Friendica extends BaseModule
 
 	public static function rawContent(array $parameters = [])
 	{
+		if (ActivityPub::isRequest()) {
+			$data = ActivityPub\Transmitter::getProfile(0);
+			if (!empty($data)) {
+				header('Access-Control-Allow-Origin: *');
+				header('Cache-Control: max-age=23200, stale-while-revalidate=23200');
+				System::jsonExit($data, 'application/activity+json');
+			}
+		}
+
 		$app = DI::app();
 
 		// @TODO: Replace with parameter from router

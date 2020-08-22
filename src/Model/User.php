@@ -100,6 +100,95 @@ class User
 	private static $owner;
 
 	/**
+	 * Fetch the system account
+	 *
+	 * @return return system account
+	 */
+	public static function getSystemAccount()
+	{
+		$system = Contact::selectFirst([], ['self' => true, 'uid' => 0]);
+		if (!DBA::isResult($system)) {
+			self::createSystemAccount();
+			$system = Contact::selectFirst([], ['self' => true, 'uid' => 0]);
+			if (!DBA::isResult($system)) {
+				return [];
+			}
+		}
+
+		$system['spubkey'] = $system['uprvkey'] = $system['prvkey'];
+		$system['username'] = $system['name'];
+		$system['nickname'] = $system['nick'];
+		return $system;
+	}
+
+	/**
+	 * Create the system account
+	 *
+	 * @return void
+	 */
+	private static function createSystemAccount()
+	{
+		$system_actor_name = DI::config()->get('system', 'actor_name');
+		if (empty($system_actor_name)) {
+			$system_actor_name = self::getActorName();
+			if (empty($system_actor_name)) {
+				return;
+			}
+		}
+
+		$keys = Crypto::newKeypair(4096);
+		if ($keys === false) {
+			throw new Exception(DI::l10n()->t('SERIOUS ERROR: Generation of security keys failed.'));
+		}
+
+		$system = [];
+		$system['uid'] = 0;
+		$system['created'] = DateTimeFormat::utcNow();
+		$system['self'] = true;
+		$system['network'] = Protocol::ACTIVITYPUB;
+		$system['name'] = 'System Account';
+		$system['addr'] = $system_actor_name . '@' . DI::baseUrl()->getHostname();
+		$system['nick'] = $system_actor_name;
+		$system['avatar'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
+		$system['photo'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
+		$system['thumb'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_THUMB;
+		$system['micro'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_MICRO;
+		$system['url'] = DI::baseUrl() . '/friendica';
+		$system['nurl'] = Strings::normaliseLink($system['url']);
+		$system['pubkey'] = $keys['pubkey'];
+		$system['prvkey'] = $keys['prvkey'];
+		$system['blocked'] = 0;
+		$system['pending'] = 0;
+		$system['contact-type'] = Contact::TYPE_RELAY; // In AP this is translated to 'Application'
+		$system['name-date'] = DateTimeFormat::utcNow();
+		$system['uri-date'] = DateTimeFormat::utcNow();
+		$system['avatar-date'] = DateTimeFormat::utcNow();
+		$system['closeness'] = 0;
+		$system['baseurl'] = DI::baseUrl();
+		$system['gsid'] = GServer::getID($system['baseurl']);
+		DBA::insert('contact', $system);
+	}
+
+	/**
+	 * Detect a usable actor name
+	 *
+	 * @return string actor account name
+	 */
+	public static function getActorName()
+	{
+		// List of possible actor names
+		$possible_accounts = ['friendica', 'actor', 'system', 'internal'];
+		foreach ($possible_accounts as $name) {
+			if (!DBA::exists('user', ['nickname' => $name, 'account_removed' => false, 'expire']) &&
+				!DBA::exists('userd', ['username' => $name])) {
+				DI::config()->set('system', 'actor_name', $name);
+				return $name;
+			}
+		}
+		return '';
+	}
+
+	/**
 	 * Returns true if a user record exists with the provided id
 	 *
 	 * @param  integer $uid
@@ -588,15 +677,24 @@ class User
 	public static function isNicknameBlocked($nickname)
 	{
 		$forbidden_nicknames = DI::config()->get('system', 'forbidden_nicknames', '');
+		if (!empty($forbidden_nicknames)) {
+			// check if the nickname is in the list of blocked nicknames
+			$forbidden = explode(',', $forbidden_nicknames);
+			$forbidden = array_map('trim', $forbidden);
+		} else {
+			$forbidden = [];
+		}
 
-		// if the config variable is empty return false
-		if (empty($forbidden_nicknames)) {
+		// Add the name of the internal actor to the "forbidden" list
+		$actor_name = DI::config()->get('system', 'actor_name');
+		if (!empty($actor_name)) {
+			$forbidden[] = $actor_name;
+		}
+
+		if (empty($forbidden)) {
 			return false;
 		}
 
-		// check if the nickname is in the list of blocked nicknames
-		$forbidden = explode(',', $forbidden_nicknames);
-		$forbidden = array_map('trim', $forbidden);
 		if (in_array(strtolower($nickname), $forbidden)) {
 			return true;
 		}
