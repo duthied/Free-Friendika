@@ -456,6 +456,11 @@ class PostUpdate
 			return true;
 		}
 
+		if (!DBStructure::existsTable('item-delivery-data')) {
+			DI::config()->set('system', 'post_update_version', 1297);
+			return true;
+		}
+
 		$max_item_delivery_data = DBA::selectFirst('item-delivery-data', ['iid'], ['queue_count > 0 OR queue_done > 0'], ['order' => ['iid']]);
 		$max_iid = $max_item_delivery_data['iid'];
 
@@ -697,6 +702,11 @@ class PostUpdate
 	{
 		// Was the script completed?
 		if (DI::config()->get('system', 'post_update_version') >= 1345) {
+			return true;
+		}
+
+		if (!DBStructure::existsTable('item-delivery-data')) {
+			DI::config()->set('system', 'post_update_version', 1345);
 			return true;
 		}
 
