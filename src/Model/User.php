@@ -175,6 +175,14 @@ class User
 	{
 		$system_actor_name = DI::config()->get('system', 'actor_name');
 		if (!empty($system_actor_name)) {
+			$self = Contact::selectFirst(['nick'], ['uid' => 0, 'self' => true]);
+			if (!empty($self['nick'])) {
+				if ($self['nick'] != $system_actor_name) {
+					// Reset the actor name to the already used name
+					DI::config()->set('system', 'actor_name', $self['nick']);
+					$system_actor_name = $self['nick'];
+				}
+			}
 			return $system_actor_name;
 		}
 
@@ -680,7 +688,6 @@ class User
 	{
 		$forbidden_nicknames = DI::config()->get('system', 'forbidden_nicknames', '');
 		if (!empty($forbidden_nicknames)) {
-			// check if the nickname is in the list of blocked nicknames
 			$forbidden = explode(',', $forbidden_nicknames);
 			$forbidden = array_map('trim', $forbidden);
 		} else {
@@ -697,6 +704,7 @@ class User
 			return false;
 		}
 
+		// check if the nickname is in the list of blocked nicknames
 		if (in_array(strtolower($nickname), $forbidden)) {
 			return true;
 		}
