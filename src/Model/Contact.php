@@ -1549,18 +1549,19 @@ class Contact
 	/**
 	 * Updates the avatar links in a contact only if needed
 	 *
-	 * @param int    $cid    Contact id
-	 * @param string $avatar Link to avatar picture
-	 * @param bool   $force  force picture update
+	 * @param int    $cid          Contact id
+	 * @param string $avatar       Link to avatar picture
+	 * @param bool   $force        force picture update
+	 * @param bool   $create_cache Enforces the creation of cached avatar fields
 	 *
 	 * @return void
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws HTTPException\NotFoundException
 	 * @throws \ImagickException
 	 */
-	public static function updateAvatar(int $cid, string $avatar, bool $force = false)
+	public static function updateAvatar(int $cid, string $avatar, bool $force = false, bool $create_cache = false)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'nurl', 'url'], ['id' => $cid, 'self' => false]);
+		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'nurl', 'url', 'network'], ['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
@@ -1568,7 +1569,7 @@ class Contact
 		$uid = $contact['uid'];
 
 		// Only update the cached photo links of public contacts when they already are cached
-		if (($uid == 0) && !$force && empty($contact['thumb']) && empty($contact['micro'])) {
+		if (($uid == 0) && !$force && empty($contact['thumb']) && empty($contact['micro']) && !$create_cache) {
 			if ($contact['avatar'] != $avatar) {
 				DBA::update('contact', ['avatar' => $avatar], ['id' => $cid]);
 				Logger::info('Only update the avatar', ['id' => $cid, 'avatar' => $avatar, 'contact' => $contact]);
@@ -1576,56 +1577,93 @@ class Contact
 			return;
 		}
 
-		$local_uid = User::getIdForURL($contact['url']);
-		if (!empty($local_uid)) {
-			$fields = self::selectFirst(['avatar', 'avatar-date', 'photo', 'thumb', 'micro'], ['self' => true, 'uid' => $local_uid]);
+		// User contacts use are updated through the public contacts
+		if (($uid != 0) && !in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
+			$pcid = self::getIdForURL($contact['url'], false);
+			if (!empty($pcid)) {
+				Logger::debug('Update the private contact via the public contact', ['id' => $cid, 'uid' => $uid, 'public' => $pcid]);
+				self::updateAvatar($pcid, $avatar, $force, true);
+				return;
+			}
 		}
-
+		
 		// Replace cached avatar pictures from the default avatar with the default avatars in different sizes
 		if (strpos($avatar, self::DEFAULT_AVATAR_PHOTO)) {
 			$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
 				'photo' => DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO,
 				'thumb' => DI::baseUrl() . self::DEFAULT_AVATAR_THUMB,
 				'micro' => DI::baseUrl() . self::DEFAULT_AVATAR_MICRO];
+			Logger::debug('Use default avatar', ['id' => $cid, 'uid' => $uid]);
 		}
 
-		if (!empty($fields)) {
-			if ($fields['photo'] . $fields['thumb'] . $fields['micro'] != $contact['photo'] . $contact['thumb'] . $contact['micro']) {
-				DBA::update('contact', $fields, ['id' => $cid]);
-				Photo::delete(['uid' => $uid, 'contact-id' => $cid, 'album' => Photo::CONTACT_PHOTOS]);
+		// Use the data from the self account
+		if (empty($fields)) {
+			$local_uid = User::getIdForURL($contact['url']);
+			if (!empty($local_uid)) {
+				$fields = self::selectFirst(['avatar', 'avatar-date', 'photo', 'thumb', 'micro'], ['self' => true, 'uid' => $local_uid]);
+				Logger::debug('Use owner data', ['id' => $cid, 'uid' => $uid, 'owner-uid' => $local_uid]);
 			}
+		}
+
+		if (empty($fields)) {
+			$update = ($contact['avatar'] != $avatar) || $force;
+
+			if (!$update) {
+				$data = [
+					$contact['photo'] ?? '',
+					$contact['thumb'] ?? '',
+					$contact['micro'] ?? '',
+				];
+		
+				foreach ($data as $image_uri) {
+					$image_rid = Photo::ridFromURI($image_uri);
+					if ($image_rid && !Photo::exists(['resource-id' => $image_rid, 'uid' => $uid])) {
+						Logger::debug('Regenerating avatar', ['contact uid' => $uid, 'cid' => $cid, 'missing photo' => $image_rid, 'avatar' => $contact['avatar']]);
+						$update = true;
+					}
+				}
+			}
+
+			if ($update) {
+				$photos = Photo::importProfilePhoto($avatar, $uid, $cid, true);
+				if ($photos) {
+					$fields = ['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => DateTimeFormat::utcNow()];
+					$update = !empty($fields);
+					Logger::debug('Created new cached avatars', ['id' => $cid, 'uid' => $uid, 'owner-uid' => $local_uid]);
+				} else {
+					$update = false;
+				}
+			}
+		} else {
+			$update = ($fields['photo'] . $fields['thumb'] . $fields['micro'] != $contact['photo'] . $contact['thumb'] . $contact['micro']) || $force;
+		}
+
+		if (!$update) {
 			return;
 		}
 
-		$data = [
-			$contact['photo'] ?? '',
-			$contact['thumb'] ?? '',
-			$contact['micro'] ?? '',
-		];
+		$cids = [];
+		$uids = [];
+		if (($uid == 0) && !in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
+			// Collect all user contacts of the given public contact
+			$personal_contacts = DBA::select('contact', ['id', 'uid'],
+				["`nurl` = ? AND `id` != ? AND NOT `self`", $contact['nurl'], $cid]);
+			while ($personal_contact = DBA::fetch($personal_contacts)) {
+				$cids[] = $personal_contact['id'];
+				$uids[] = $personal_contact['uid'];
+			}
+			DBA::close($personal_contacts);
 
-		$update = ($contact['avatar'] != $avatar) || $force;
-
-		if (!$update) {
-			foreach ($data as $image_uri) {
-				$image_rid = Photo::ridFromURI($image_uri);
-				if ($image_rid && !Photo::exists(['resource-id' => $image_rid, 'uid' => $uid])) {
-					Logger::info('Regenerating avatar', ['contact uid' => $uid, 'cid' => $cid, 'missing photo' => $image_rid, 'avatar' => $contact['avatar']]);
-					$update = true;
-				}
+			if (!empty($cids)) {
+				// Delete possibly existing cached user contact avatars
+				Photo::delete(['uid' => $uids, 'contact-id' => $cids, 'album' => Photo::CONTACT_PHOTOS]);
 			}
 		}
 
-		if ($update) {
-			$photos = Photo::importProfilePhoto($avatar, $uid, $cid, true);
-			if ($photos) {
-				$fields = ['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => DateTimeFormat::utcNow()];
-				DBA::update('contact', $fields, ['id' => $cid]);
-			} elseif (empty($contact['avatar'])) {
-				// Ensure that the avatar field is set
-				DBA::update('contact', ['avatar' => $avatar], ['id' => $cid]);				
-				Logger::info('Failed profile import', ['id' => $cid, 'force' => $force, 'avatar' => $avatar, 'contact' => $contact]);
-			}
-		}
+		$cids[] = $cid;
+		$uids[] = $uid;
+		Logger::info('Updating cached contact avatars', ['cid' => $cids, 'uid' => $uids, 'fields' => $fields]);
+		DBA::update('contact', $fields, ['id' => $cids]);
 	}
 
 	/**

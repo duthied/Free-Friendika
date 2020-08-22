@@ -22,6 +22,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Database\DBA;
+use Friendica\Model\Photo;
 use Friendica\Model\User;
 
 /**
@@ -50,6 +51,8 @@ class ExpireAndRemoveUsers
 			if (DBA::isResult($self)) {
 				DBA::delete('contact', ['nurl' => $self['nurl'], 'self' => false]);
 			}
+
+			Photo::delete(['uid' => $user['uid']]);
 
 			DBA::delete('user', ['uid' => $user['uid']]);
 		}

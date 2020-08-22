@@ -49,6 +49,7 @@ use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Model\Storage;
 use Friendica\Util\DateTimeFormat;
@@ -571,5 +572,11 @@ function pre_update_1358()
 		return Update::FAILED;
 	}
 
+	return Update::SUCCESS;
+}
+
+function pre_update_1363()
+{
+	Photo::delete(["`contact-id` != ? AND NOT `contact-id` IN (SELECT `id` FROM `contact`)", 0]);
 	return Update::SUCCESS;
 }

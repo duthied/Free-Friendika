@@ -23,8 +23,8 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
-use Friendica\Core\Protocol;
 use Friendica\Model\Item;
+use Friendica\Model\Photo;
 
 /**
  * Removes orphaned data from deleted contacts
@@ -33,7 +33,7 @@ class RemoveContact {
 	public static function execute($id) {
 
 		// Only delete if the contact is to be deleted
-		$contact = DBA::selectFirst('contact', ['uid'], ['deleted' => true]);
+		$contact = DBA::selectFirst('contact', ['uid'], ['deleted' => true, 'id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
@@ -49,6 +49,7 @@ class RemoveContact {
 			DBA::close($items);
 		} while (Item::exists($condition));
 
+		Photo::delete(['uid' => $contact['uid'], 'contact-id' => $id]);
 		DBA::delete('contact', ['id' => $id]);
 	}
 }
