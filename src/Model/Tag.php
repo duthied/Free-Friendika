@@ -93,6 +93,10 @@ class Tag
 				return;
 			}
 
+			if ((substr($url, 0, 7) == 'https//') || (substr($url, 0, 6) == 'http//')) {
+				Logger::notice('Wrong scheme in url', ['url' => $url, 'callstack' => System::callstack(20)]);
+			}
+
 			if (!$probing) {
 				$condition = ['nurl' => Strings::normaliseLink($url), 'uid' => 0, 'deleted' => false];
 				$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
