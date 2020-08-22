@@ -119,8 +119,8 @@ return [
 		// Minimal period in minutes between two calls of the "Cron" worker job.
 		'cron_interval' => 5,
 
-		// cache_driver (database|memcache|memcached|redis)
-		// Whether to use Memcache or Memcached or Redis to store temporary cache.
+		// cache_driver (database|memcache|memcached|redis|apcu)
+		// Whether to use Memcache, Memcached, Redis or APCu to store temporary cache.
 		'cache_driver' => 'database',
 
 		// config_adapter (jit|preload)
