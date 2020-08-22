@@ -21,7 +21,9 @@
 
 namespace Friendica\Model;
 
+use DivineOmega\DOFileCachePSR6\CacheItemPool;
 use DivineOmega\PasswordExposed;
+use ErrorException;
 use Exception;
 use Friendica\Content\Pager;
 use Friendica\Core\Hook;
@@ -33,7 +35,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\TwoFactor\AppSpecificPassword;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -41,6 +43,7 @@ use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
+use ImagickException;
 use LightOpenID;
 
 /**
@@ -401,11 +404,11 @@ class User
 	/**
 	 * Returns the default group for a given user and network
 	 *
-	 * @param int $uid User id
+	 * @param int    $uid     User id
 	 * @param string $network network name
 	 *
 	 * @return int group id
-	 * @throws InternalServerErrorException
+	 * @throws Exception
 	 */
 	public static function getDefaultGroup($uid, $network = '')
 	{
@@ -457,7 +460,8 @@ class User
 	 * @param string $password
 	 * @param bool   $third_party
 	 * @return int User Id if authentication is successful
-	 * @throws Exception
+	 * @throws HTTPException\ForbiddenException
+	 * @throws HTTPException\NotFoundException
 	 */
 	public static function getIdFromPasswordAuthentication($user_info, $password, $third_party = false)
 	{
@@ -492,7 +496,7 @@ class User
 			return $user['uid'];
 		}
 
-		throw new Exception(DI::l10n()->t('Login failed'));
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Login failed'));
 	}
 
 	/**
@@ -506,7 +510,7 @@ class User
 	 *
 	 * @param mixed $user_info
 	 * @return array
-	 * @throws Exception
+	 * @throws HTTPException\NotFoundException
 	 */
 	private static function getAuthenticationInfo($user_info)
 	{
@@ -550,7 +554,7 @@ class User
 			}
 
 			if (!DBA::isResult($user)) {
-				throw new Exception(DI::l10n()->t('User not found'));
+				throw new HTTPException\NotFoundException(DI::l10n()->t('User not found'));
 			}
 		}
 
@@ -561,6 +565,7 @@ class User
 	 * Generates a human-readable random password
 	 *
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function generateNewPassword()
 	{
@@ -576,7 +581,7 @@ class User
 	 */
 	public static function isPasswordExposed($password)
 	{
-		$cache = new \DivineOmega\DOFileCachePSR6\CacheItemPool();
+		$cache = new CacheItemPool();
 		$cache->changeConfig([
 			'cacheDirectory' => get_temppath() . '/password-exposed-cache/',
 		]);
@@ -585,7 +590,7 @@ class User
 			$passwordExposedChecker = new PasswordExposed\PasswordExposedChecker(null, $cache);
 
 			return $passwordExposedChecker->passwordExposed($password) === PasswordExposed\PasswordStatus::EXPOSED;
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			Logger::error('Password Exposed Exception: ' . $e->getMessage(), [
 				'code' => $e->getCode(),
 				'file' => $e->getFile(),
@@ -682,7 +687,6 @@ class User
 	 *
 	 * @param string $nickname The nickname that should be checked
 	 * @return boolean True is the nickname is blocked on the node
-	 * @throws InternalServerErrorException
 	 */
 	public static function isNicknameBlocked($nickname)
 	{
@@ -727,9 +731,9 @@ class User
 	 *
 	 * @param  array $data
 	 * @return array
-	 * @throws \ErrorException
-	 * @throws InternalServerErrorException
-	 * @throws \ImagickException
+	 * @throws ErrorException
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws ImagickException
 	 * @throws Exception
 	 */
 	public static function create(array $data)
@@ -855,7 +859,7 @@ class User
 
 		$nickname = $data['nickname'] = strtolower($nickname);
 
-		if (!preg_match('/^[a-z0-9][a-z0-9\_]*$/', $nickname)) {
+		if (!preg_match('/^[a-z0-9][a-z0-9_]*$/', $nickname)) {
 			throw new Exception(DI::l10n()->t('Your nickname can only contain a-z, 0-9 and _.'));
 		}
 
@@ -1044,7 +1048,7 @@ class User
 	 *
 	 * @return bool True, if the allow was successful
 	 *
-	 * @throws InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws Exception
 	 */
 	public static function allow(string $hash)
@@ -1118,16 +1122,16 @@ class User
 	 * @param string $lang  The user's language (default is english)
 	 *
 	 * @return bool True, if the user was created successfully
-	 * @throws InternalServerErrorException
-	 * @throws \ErrorException
-	 * @throws \ImagickException
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws ErrorException
+	 * @throws ImagickException
 	 */
 	public static function createMinimal(string $name, string $email, string $nick, string $lang = L10n::DEFAULT)
 	{
 		if (empty($name) ||
 		    empty($email) ||
 		    empty($nick)) {
-			throw new InternalServerErrorException('Invalid arguments.');
+			throw new HTTPException\InternalServerErrorException('Invalid arguments.');
 		}
 
 		$result = self::create([
@@ -1190,7 +1194,7 @@ class User
 	 * @param string $siteurl
 	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
-	 * @throws InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function sendRegisterPendingEmail($user, $sitename, $siteurl, $password)
 	{
@@ -1226,16 +1230,16 @@ class User
 	 *
 	 * It's here as a function because the mail is sent from different parts
 	 *
-	 * @param \Friendica\Core\L10n $l10n     The used language
-	 * @param array                $user     User record array
-	 * @param string               $sitename
-	 * @param string               $siteurl
-	 * @param string               $password Plaintext password
+	 * @param L10n   $l10n     The used language
+	 * @param array  $user     User record array
+	 * @param string $sitename
+	 * @param string $siteurl
+	 * @param string $password Plaintext password
 	 *
 	 * @return NULL|boolean from notification() and email() inherited
-	 * @throws InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function sendRegisterOpenEmail(\Friendica\Core\L10n $l10n, $user, $sitename, $siteurl, $password)
+	public static function sendRegisterOpenEmail(L10n $l10n, $user, $sitename, $siteurl, $password)
 	{
 		$preamble = Strings::deindent($l10n->t(
 			'
@@ -1292,7 +1296,7 @@ class User
 	/**
 	 * @param int $uid user to remove
 	 * @return bool
-	 * @throws InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function remove(int $uid)
 	{

@@ -80,6 +80,7 @@ $dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['auth_ejabb
 $appMode = $dice->create(Mode::class);
 
 if ($appMode->isNormal()) {
-	$oAuth = new ExAuth();
+	/** @var ExAuth $oAuth */
+	$oAuth = $dice->create(ExAuth::class);
 	$oAuth->readStdin();
 }
