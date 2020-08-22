@@ -1,5 +1,5 @@
 name: Testing Friendica
-on: [push, pull_request, pull_request_review]
+on: [push, pull_request]
 
 jobs:
   friendica:
