@@ -774,6 +774,9 @@ class Processor
 		}
 
 		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			return;
+		}
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (!empty($cid)) {
@@ -956,6 +959,9 @@ class Processor
 		}
 
 		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			return;
+		}
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
