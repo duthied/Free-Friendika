@@ -102,7 +102,7 @@ class User
 	/**
 	 * Fetch the system account
 	 *
-	 * @return return system account
+	 * @return array system account
 	 */
 	public static function getSystemAccount()
 	{
@@ -128,12 +128,9 @@ class User
 	 */
 	private static function createSystemAccount()
 	{
-		$system_actor_name = DI::config()->get('system', 'actor_name');
+		$system_actor_name = self::getActorName();
 		if (empty($system_actor_name)) {
-			$system_actor_name = self::getActorName();
-			if (empty($system_actor_name)) {
-				return;
-			}
+			return;
 		}
 
 		$keys = Crypto::newKeypair(4096);
@@ -176,6 +173,11 @@ class User
 	 */
 	public static function getActorName()
 	{
+		$system_actor_name = DI::config()->get('system', 'actor_name');
+		if (!empty($system_actor_name)) {
+			return $system_actor_name;
+		}
+
 		// List of possible actor names
 		$possible_accounts = ['friendica', 'actor', 'system', 'internal'];
 		foreach ($possible_accounts as $name) {
@@ -686,7 +688,7 @@ class User
 		}
 
 		// Add the name of the internal actor to the "forbidden" list
-		$actor_name = DI::config()->get('system', 'actor_name');
+		$actor_name = self::getActorName();
 		if (!empty($actor_name)) {
 			$forbidden[] = $actor_name;
 		}

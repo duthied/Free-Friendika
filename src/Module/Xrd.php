@@ -78,7 +78,7 @@ class Xrd extends BaseModule
 			$name = substr($local, 0, strpos($local, '@'));
 		}
 
-		if ($name == DI::config()->get('system', 'actor_name')) {
+		if ($name == User::getActorName()) {
 			$owner = User::getSystemAccount();
 			if (empty($owner)) {
 				throw new \Friendica\Network\HTTPException\NotFoundException();
