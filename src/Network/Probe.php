@@ -2200,7 +2200,7 @@ class Probe
 			$profile['gsid'] = GServer::getID($approfile['generator']['url']);
 		}
 
-		$data = ['name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'],
+		$data = ['name' => $profile['name'], 'nick' => $profile['nick'], 'guid' => $approfile['diaspora:guid'] ?? '',
 			'url' => $profile['url'], 'addr' => $profile['addr'], 'alias' => $profile['alias'],
 			'photo' => $profile['photo'], 'account-type' => $profile['contact-type'],
 			'community' => ($profile['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY),

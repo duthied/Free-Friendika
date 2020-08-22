@@ -24,6 +24,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Photo;
@@ -77,24 +78,30 @@ class Xrd extends BaseModule
 			$name = substr($local, 0, strpos($local, '@'));
 		}
 
-		$user = User::getByNickname($name);
+		if ($name == User::getActorName()) {
+			$owner = User::getSystemAccount();
+			if (empty($owner)) {
+				throw new \Friendica\Network\HTTPException\NotFoundException();
+			}
+			self::printSystemJSON($owner);
+		} else {
+			$user = User::getByNickname($name);
+			if (empty($user)) {
+				throw new \Friendica\Network\HTTPException\NotFoundException();
+			}
 
-		if (empty($user)) {
-			throw new \Friendica\Network\HTTPException\NotFoundException();
+			$owner = User::getOwnerDataById($user['uid']);
+			if (empty($owner)) {
+				DI::logger()->warning('No owner data for user id', ['uri' => $uri, 'name' => $name, 'user' => $user]);
+				throw new \Friendica\Network\HTTPException\NotFoundException();
+			}
+
+			$alias = str_replace('/profile/', '/~', $owner['url']);
+
+			$avatar = Photo::selectFirst(['type'], ['uid' => $owner['uid'], 'profile' => true]);
 		}
 
-		$owner = User::getOwnerDataById($user['uid']);
-
-		if (empty($owner)) {
-			DI::logger()->warning('No owner data for user id', ['uri' => $uri, 'name' => $name, 'user' => $user]);
-			throw new \Friendica\Network\HTTPException\NotFoundException();
-		}
-
-		$alias = str_replace('/profile/', '/~', $owner['url']);
-
-		$avatar = Photo::selectFirst(['type'], ['uid' => $owner['uid'], 'profile' => true]);
-
-		if (!DBA::isResult($avatar)) {
+		if (empty($avatar)) {
 			$avatar = ['type' => 'image/jpeg'];
 		}
 
@@ -103,6 +110,32 @@ class Xrd extends BaseModule
 		} else {
 			self::printJSON($alias, DI::baseUrl()->get(), $owner, $avatar);
 		}
+	}
+
+	private static function printSystemJSON(array $owner)
+	{
+		$json = [
+			'subject' => 'acct:' . $owner['addr'],
+			'aliases' => [$owner['url']],
+			'links'   => [
+				[
+					'rel'  => 'http://webfinger.net/rel/profile-page',
+					'type' => 'text/html',
+					'href' => $owner['url'],
+				],
+				[
+					'rel'  => 'self',
+					'type' => 'application/activity+json',
+					'href' => $owner['url'],
+				],
+				[
+					'rel'      => 'http://ostatus.org/schema/1.0/subscribe',
+					'template' => DI::baseUrl()->get() . '/follow?url={uri}',
+				],
+			]
+		];
+		header('Access-Control-Allow-Origin: *');
+		System::jsonExit($json, 'application/jrd+json; charset=utf-8');
 	}
 
 	private static function printJSON($alias, $baseURL, $owner, $avatar)

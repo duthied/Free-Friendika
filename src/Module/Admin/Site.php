@@ -29,6 +29,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\User;
 use Friendica\Module\BaseAdmin;
 use Friendica\Module\Register;
 use Friendica\Util\BasePath;
@@ -148,6 +149,7 @@ class Site extends BaseAdmin
 		$allowed_sites          = (!empty($_POST['allowed_sites'])           ? Strings::escapeTags(trim($_POST['allowed_sites']))  : '');
 		$allowed_email          = (!empty($_POST['allowed_email'])           ? Strings::escapeTags(trim($_POST['allowed_email']))  : '');
 		$forbidden_nicknames    = (!empty($_POST['forbidden_nicknames'])     ? strtolower(Strings::escapeTags(trim($_POST['forbidden_nicknames']))) : '');
+		$system_actor_name      = (!empty($_POST['system_actor_name'])       ? Strings::escapeTags(trim($_POST['system_actor_name'])) : '');
 		$no_oembed_rich_content = !empty($_POST['no_oembed_rich_content']);
 		$allowed_oembed         = (!empty($_POST['allowed_oembed'])          ? Strings::escapeTags(trim($_POST['allowed_oembed'])) : '');
 		$block_public           = !empty($_POST['block_public']);
@@ -355,6 +357,7 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'allowed_sites'          , $allowed_sites);
 		DI::config()->set('system', 'allowed_email'          , $allowed_email);
 		DI::config()->set('system', 'forbidden_nicknames'    , $forbidden_nicknames);
+		DI::config()->set('system', 'system_actor_name'      , $system_actor_name);
 		DI::config()->set('system', 'no_oembed_rich_content' , $no_oembed_rich_content);
 		DI::config()->set('system', 'allowed_oembed'         , $allowed_oembed);
 		DI::config()->set('system', 'block_public'           , $block_public);
@@ -600,6 +603,7 @@ class Site extends BaseAdmin
 			// name, label, value, help string, extra data...
 			'$sitename'         => ['sitename', DI::l10n()->t('Site name'), DI::config()->get('config', 'sitename'), ''],
 			'$sender_email'     => ['sender_email', DI::l10n()->t('Sender Email'), DI::config()->get('config', 'sender_email'), DI::l10n()->t('The email address your server shall use to send notification emails from.'), '', '', 'email'],
+			'$system_actor_name' => ['system_actor_name', DI::l10n()->t('Name of the system actor'), User::getActorName(), DI::l10n()->t("Name of the internal system account that is used to perform ActivityPub requests. This must be an unused username. If set, this can't be changed again.")],
 			'$banner'           => ['banner', DI::l10n()->t('Banner/Logo'), $banner, ''],
 			'$email_banner'     => ['email_banner', DI::l10n()->t('Email Banner/Logo'), $email_banner, ''],
 			'$shortcut_icon'    => ['shortcut_icon', DI::l10n()->t('Shortcut icon'), DI::config()->get('system', 'shortcut_icon'), DI::l10n()->t('Link to an icon that will be used for browsers.')],
