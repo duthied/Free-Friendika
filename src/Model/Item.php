@@ -2009,7 +2009,8 @@ class Item
 	 */
 	private static function setOwnerforResharedItem(array $item)
 	{
-		$parent = self::selectFirst(['id', 'owner-id', 'author-id', 'author-link'], ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
+		$parent = self::selectFirst(['id', 'owner-id', 'author-id', 'author-link', 'origin'],
+			['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
 		if (!DBA::isResult($parent)) {
 			Logger::error('Parent not found', ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
 			return;
@@ -2026,14 +2027,14 @@ class Item
 			return;
 		}
 
-		if (($author['contact-type'] != Contact::TYPE_COMMUNITY) && Contact::isSharing($parent['author-link'], $item['uid'])) {
-			logger::info('The parent author is a user contact: quit', ['author' => $parent['author-link'], 'uid' => $item['uid']]);
+		if (($author['contact-type'] != Contact::TYPE_COMMUNITY) && (Contact::isSharing($parent['author-link'], $item['uid']) || $item['origin'])) {
+			logger::info('The parent author is a following contact: quit', ['author' => $parent['author-link'], 'uid' => $item['uid']]);
 			return;
 		}
 
 		$cid = Contact::getIdForURL($author['url'], $item['uid']);
 		if (empty($cid) || !Contact::isSharing($cid, $item['uid'])) {
-			logger::info('The resharer is not a user contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid']]);
+			logger::info('The resharer is not a following contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid']]);
 			return;
 		}
 
