@@ -348,7 +348,9 @@ function update_1309()
 
 function update_1315()
 {
-	DBA::delete('item-delivery-data', ['postopts' => '', 'inform' => '', 'queue_count' => 0, 'queue_done' => 0]);
+	if (DBStructure::existsTable('item-delivery-data')) {
+		DBA::delete('item-delivery-data', ['postopts' => '', 'inform' => '', 'queue_count' => 0, 'queue_done' => 0]);
+	}
 	return Update::SUCCESS;
 }
 
