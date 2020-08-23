@@ -409,7 +409,9 @@ class Post
 		}
 
 		$direction = [];
-		if (DI::config()->get('debug', 'show_direction')) {
+		if (!empty($item['direction'])) {
+			$direction = $item['direction'];
+		} elseif (DI::config()->get('debug', 'show_direction')) {
 			$conversation = DBA::selectFirst('conversation', ['direction'], ['item-uri' => $item['uri']]);
 			if (!empty($conversation['direction']) && in_array($conversation['direction'], [1, 2])) {
 				$title = [1 => DI::l10n()->t('Pushed'), 2 => DI::l10n()->t('Pulled')];

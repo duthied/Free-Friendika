@@ -708,17 +708,48 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
  */
 function conversation_fetch_comments($thread_items, $pinned) {
 	$comments = [];
+	$parentlines = [];
+	$lineno = 0;
+	$direction = [];
+	$received = '';
 
 	while ($row = Item::fetch($thread_items)) {
+		if (!empty($parentlines) && ($row['verb'] == Activity::ANNOUNCE)
+			&& ($row['thr-parent'] == $row['parent-uri']) && ($row['received'] > $received)
+			&& Contact::isSharing($row['author-id'], $row['uid'])) {
+			$direction = ['direction' => 3, 'title' => DI::l10n()->t('%s reshared this.', $row['author-name'])];
+			$received = $row['received'];
+		}
+
+		if (!empty($parentlines) && empty($direction) && ($row['gravity'] == GRAVITY_COMMENT)
+			&& Contact::isSharing($row['author-id'], $row['uid'])) {
+			$direction = ['direction' => 2, 'title' => DI::l10n()->t('%s commented this.', $row['author-name'])];
+		}
+
+		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id'])
+			&& !Contact::isSharing($row['author-id'], $row['uid'])) {
+			if ($row['post-type'] == Item::PT_TAG) {
+				$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
+			}
+		
+			$parentlines[] = $lineno;
+		}
+
 		if ($row['gravity'] == GRAVITY_PARENT) {
 			$row['pinned'] = $pinned;
 		}
 
 		$comments[] = $row;
+		$lineno++;
 	}
 
 	DBA::close($thread_items);
 
+	if (!empty($direction)) {
+		foreach ($parentlines as $line) {
+			$comments[$line]['direction'] = $direction;
+		}
+	}
 	return $comments;
 }
 
@@ -783,7 +814,7 @@ function conversation_fetch_items(array $parent, array $items, array $condition,
 		$condition[0] .= " AND NOT `author`.`hidden`";
 	}
 
-	$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity']), $condition, $params);
+	$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity', 'post-type']), $condition, $params);
 
 	$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false);
 
