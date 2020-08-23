@@ -5,6 +5,8 @@
 		<i class="fa fa-inbox" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{elseif $direction.direction == 2}}
 		<i class="fa fa-download" aria-hidden="true" title="{{$direction.title}}"></i>
+	{{elseif $direction.direction == 3}}
+		<i class="fa fa-share-alt" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{/if}}
 </span>
 {{/if}}

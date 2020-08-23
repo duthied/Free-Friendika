@@ -708,17 +708,36 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
  */
 function conversation_fetch_comments($thread_items, $pinned) {
 	$comments = [];
+	$parentlines = [];
+	$lineno = 0;
+	$direction = [];
 
 	while ($row = Item::fetch($thread_items)) {
+		if (($row['verb'] == Activity::ANNOUNCE) && ($row['thr-parent'] == $row['parent-uri'])
+			&& Contact::isSharing($row['author-id'], $row['uid'])) {
+			$direction = ['direction' => 3, 'title' => DI::l10n()->t('Reshared')];
+		}
+
+		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id'])
+			&& !Contact::isSharing($row['author-id'], $row['uid'])) {
+			$parentlines[] = $lineno;
+		}
+
 		if ($row['gravity'] == GRAVITY_PARENT) {
 			$row['pinned'] = $pinned;
 		}
 
 		$comments[] = $row;
+		$lineno++;
 	}
 
 	DBA::close($thread_items);
 
+	if (!empty($direction)) {
+		foreach ($parentlines as $line) {
+			$comments[$line]['direction'] = $direction;
+		}
+	}
 	return $comments;
 }
 
