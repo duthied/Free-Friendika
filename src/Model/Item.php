@@ -40,7 +40,6 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
-use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 use Text_LanguageDetect;
@@ -57,6 +56,7 @@ class Item
 	const PT_VIDEO = 18;
 	const PT_DOCUMENT = 19;
 	const PT_EVENT = 32;
+	const PT_TAG = 64;
 	const PT_PERSONAL_NOTE = 128;
 
 	// Field list that is used to display the items
@@ -2046,7 +2046,13 @@ class Item
 
 		$uids = Tag::getUIDListByURIId($item['uri-id']);
 		foreach ($uids as $uid) {
-			$stored = self::storeForUserByUriId($item['uri-id'], $uid);
+			if (Contact::isSharing($item['author-id'], $uid)) {
+				$fields = [];
+			} else {
+				$fields = ['post-type' => self::PT_TAG];
+			}
+
+			$stored = self::storeForUserByUriId($item['uri-id'], $uid, $fields);
 			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
 		}
 	}
@@ -2215,9 +2221,10 @@ class Item
 	 *
 	 * @param integer $uri_id URI-ID of the given item
 	 * @param integer $uid    The user that will receive the item entry
+	 * @param array   $fields Additional fields to be stored
 	 * @return integer stored item id
 	 */
-	public static function storeForUserByUriId(int $uri_id, int $uid)
+	public static function storeForUserByUriId(int $uri_id, int $uid, array $fields = [])
 	{
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['uri-id' => $uri_id, 'uid' => 0]);
 		if (!DBA::isResult($item)) {
@@ -2228,6 +2235,8 @@ class Item
 			Logger::notice('Item is private or not from a federated network. It will not be stored for the user.', ['uri-id' => $uri_id, 'uid' => $uid, 'private' => $item['private'], 'network' => $item['network']]);
 			return 0;
 		}
+
+		$item = array_merge($item, $fields);
 
 		$stored = self::storeForUser($item, $uid);
 		Logger::info('Public item stored for user', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);

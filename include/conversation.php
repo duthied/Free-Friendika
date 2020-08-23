@@ -728,6 +728,10 @@ function conversation_fetch_comments($thread_items, $pinned) {
 
 		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id'])
 			&& !Contact::isSharing($row['author-id'], $row['uid'])) {
+			if ($row['post-type'] == Item::PT_TAG) {
+				$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
+			}
+		
 			$parentlines[] = $lineno;
 		}
 
@@ -810,7 +814,7 @@ function conversation_fetch_items(array $parent, array $items, array $condition,
 		$condition[0] .= " AND NOT `author`.`hidden`";
 	}
 
-	$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity']), $condition, $params);
+	$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity', 'post-type']), $condition, $params);
 
 	$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false);
 
