@@ -715,7 +715,7 @@ function conversation_fetch_comments($thread_items, $pinned) {
 	while ($row = Item::fetch($thread_items)) {
 		if (($row['verb'] == Activity::ANNOUNCE) && ($row['thr-parent'] == $row['parent-uri'])
 			&& Contact::isSharing($row['author-id'], $row['uid'])) {
-			$direction = ['direction' => 3, 'title' => DI::l10n()->t('Reshared')];
+			$direction = ['direction' => 3, 'title' => DI::l10n()->t('%s reshared this.', $row['author-name'])];
 		}
 
 		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id'])
