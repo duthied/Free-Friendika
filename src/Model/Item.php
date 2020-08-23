@@ -2053,7 +2053,7 @@ class Item
 			}
 
 			$stored = self::storeForUserByUriId($item['uri-id'], $uid, $fields);
-			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
+			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'fields' => $fields, 'stored' => $stored]);
 		}
 	}
 
