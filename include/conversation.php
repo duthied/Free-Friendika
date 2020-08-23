@@ -714,13 +714,15 @@ function conversation_fetch_comments($thread_items, $pinned) {
 	$received = '';
 
 	while ($row = Item::fetch($thread_items)) {
-		if (($row['verb'] == Activity::ANNOUNCE) && ($row['thr-parent'] == $row['parent-uri'])
-			&& ($row['received'] > $received) && Contact::isSharing($row['author-id'], $row['uid'])) {
+		if (!empty($parentlines) && ($row['verb'] == Activity::ANNOUNCE)
+			&& ($row['thr-parent'] == $row['parent-uri']) && ($row['received'] > $received)
+			&& Contact::isSharing($row['author-id'], $row['uid'])) {
 			$direction = ['direction' => 3, 'title' => DI::l10n()->t('%s reshared this.', $row['author-name'])];
 			$received = $row['received'];
 		}
 
-		if (empty($direction) && ($row['gravity'] == GRAVITY_COMMENT) && Contact::isSharing($row['author-id'], $row['uid'])) {
+		if (!empty($parentlines) && empty($direction) && ($row['gravity'] == GRAVITY_COMMENT)
+			&& Contact::isSharing($row['author-id'], $row['uid'])) {
 			$direction = ['direction' => 2, 'title' => DI::l10n()->t('%s commented this.', $row['author-name'])];
 		}
 
