@@ -162,6 +162,7 @@ return [
 	'/followers/{owner}' => [Module\Followers::class,       [R::GET]],
 	'/following/{owner}' => [Module\Following::class,       [R::GET]],
 	'/friendica[/json]'  => [Module\Friendica::class,       [R::GET]],
+	'/friendica/inbox'   => [Module\Inbox::class,           [R::GET, R::POST]],
 
 	'/fsuggest/{contact:\d+}' => [Module\FriendSuggest::class,  [R::GET, R::POST]],
 
