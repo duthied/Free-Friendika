@@ -451,6 +451,9 @@ function pre_update_1348()
 
 	update_1348();
 
+	DBA::e("DELETE FROM `auth_codes` WHERE NOT `client_id` IN (SELECT `client_id` FROM `clients`)");
+	DBA::e("DELETE FROM `tokens` WHERE NOT `client_id` IN (SELECT `client_id` FROM `clients`)");
+
 	return Update::SUCCESS;
 }
 
@@ -578,5 +581,158 @@ function pre_update_1358()
 function pre_update_1363()
 {
 	Photo::delete(["`contact-id` != ? AND NOT `contact-id` IN (SELECT `id` FROM `contact`)", 0]);
+	return Update::SUCCESS;
+}
+
+function pre_update_1364()
+{
+	if (!DBA::e("DELETE FROM `2fa_recovery_codes` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `2fa_app_specific_password` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `attach` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `clients` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `conv` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `fsuggest` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `group` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `intro` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `manage` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `manage` WHERE NOT `mid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `mail` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `mailacct` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `notify` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `openwebauth-token` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `pconfig` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `profile` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `profile_check` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `profile_field` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `push_subscriber` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `register` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `search` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `tokens` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `user-contact` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `user-item` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `notify-threads` WHERE NOT `receiver-uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `event` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `fsuggest` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `group_member` WHERE NOT `contact-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `intro` WHERE NOT `contact-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `participation` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `profile_check` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `user-contact` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `participation` WHERE NOT `fid` IN (SELECT `id` FROM `fcontact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `group_member` WHERE NOT `gid` IN (SELECT `id` FROM `group`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `gserver-tag` WHERE NOT `gserver-id` IN (SELECT `id` FROM `gserver`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `participation` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `user-item` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
+		return Update::FAILED;
+	}
+
 	return Update::SUCCESS;
 }
