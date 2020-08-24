@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.09-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1363
+-- DB_UPDATE_VERSION 1364
 -- ------------------------------------------
 
 
@@ -32,19 +32,6 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `nurl` (`nurl`(190))
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Global servers';
-
---
--- TABLE clients
---
-CREATE TABLE IF NOT EXISTS `clients` (
-	`client_id` varchar(20) NOT NULL COMMENT '',
-	`pw` varchar(20) NOT NULL DEFAULT '' COMMENT '',
-	`redirect_uri` varchar(200) NOT NULL DEFAULT '' COMMENT '',
-	`name` text COMMENT '',
-	`icon` text COMMENT '',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	 PRIMARY KEY(`client_id`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
 
 --
 -- TABLE contact
@@ -163,6 +150,86 @@ CREATE TABLE IF NOT EXISTS `item-uri` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='URI and GUID for items';
 
 --
+-- TABLE tag
+--
+CREATE TABLE IF NOT EXISTS `tag` (
+	`id` int unsigned NOT NULL auto_increment COMMENT '',
+	`name` varchar(96) NOT NULL DEFAULT '' COMMENT '',
+	`url` varbinary(255) NOT NULL DEFAULT '' COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `type_name_url` (`name`,`url`),
+	 INDEX `url` (`url`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='tags and mentions';
+
+--
+-- TABLE user
+--
+CREATE TABLE IF NOT EXISTS `user` (
+	`uid` mediumint unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`parent-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'The parent user that has full control about this user',
+	`guid` varchar(64) NOT NULL DEFAULT '' COMMENT 'A unique identifier for this user',
+	`username` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name that this user is known by',
+	`password` varchar(255) NOT NULL DEFAULT '' COMMENT 'encrypted password',
+	`legacy_password` boolean NOT NULL DEFAULT '0' COMMENT 'Is the password hash double-hashed?',
+	`nickname` varchar(255) NOT NULL DEFAULT '' COMMENT 'nick- and user name',
+	`email` varchar(255) NOT NULL DEFAULT '' COMMENT 'the users email address',
+	`openid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`timezone` varchar(128) NOT NULL DEFAULT '' COMMENT 'PHP-legal timezone',
+	`language` varchar(32) NOT NULL DEFAULT 'en' COMMENT 'default language',
+	`register_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of registration',
+	`login_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of last login',
+	`default-location` varchar(255) NOT NULL DEFAULT '' COMMENT 'Default for item.location',
+	`allow_location` boolean NOT NULL DEFAULT '0' COMMENT '1 allows to display the location',
+	`theme` varchar(255) NOT NULL DEFAULT '' COMMENT 'user theme preference',
+	`pubkey` text COMMENT 'RSA public key 4096 bit',
+	`prvkey` text COMMENT 'RSA private key 4096 bit',
+	`spubkey` text COMMENT '',
+	`sprvkey` text COMMENT '',
+	`verified` boolean NOT NULL DEFAULT '0' COMMENT 'user is verified through email',
+	`blocked` boolean NOT NULL DEFAULT '0' COMMENT '1 for user is blocked',
+	`blockwall` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to post to the profile page of the user',
+	`hidewall` boolean NOT NULL DEFAULT '0' COMMENT 'Hide profile details from unkown viewers',
+	`blocktags` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to tag the post of this user',
+	`unkmail` boolean NOT NULL DEFAULT '0' COMMENT 'Permit unknown people to send private mails to this user',
+	`cntunkmail` int unsigned NOT NULL DEFAULT 10 COMMENT '',
+	`notify-flags` smallint unsigned NOT NULL DEFAULT 65535 COMMENT 'email notification options',
+	`page-flags` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'page/profile type',
+	`account-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`prvnets` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`pwdreset` varchar(255) COMMENT 'Password reset request token',
+	`pwdreset_time` datetime COMMENT 'Timestamp of the last password reset request',
+	`maxreq` int unsigned NOT NULL DEFAULT 10 COMMENT '',
+	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`account_removed` boolean NOT NULL DEFAULT '0' COMMENT 'if 1 the account is removed',
+	`account_expired` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`account_expires_on` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp when account expires and will be deleted',
+	`expire_notification_sent` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of last warning of account expiration',
+	`def_gid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`allow_cid` mediumtext COMMENT 'default permission for this user',
+	`allow_gid` mediumtext COMMENT 'default permission for this user',
+	`deny_cid` mediumtext COMMENT 'default permission for this user',
+	`deny_gid` mediumtext COMMENT 'default permission for this user',
+	`openidserver` text COMMENT '',
+	 PRIMARY KEY(`uid`),
+	 INDEX `nickname` (`nickname`(32))
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
+
+--
+-- TABLE clients
+--
+CREATE TABLE IF NOT EXISTS `clients` (
+	`client_id` varchar(20) NOT NULL COMMENT '',
+	`pw` varchar(20) NOT NULL DEFAULT '' COMMENT '',
+	`redirect_uri` varchar(200) NOT NULL DEFAULT '' COMMENT '',
+	`name` text COMMENT '',
+	`icon` text COMMENT '',
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
+	 PRIMARY KEY(`client_id`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
+
+--
 -- TABLE permissionset
 --
 CREATE TABLE IF NOT EXISTS `permissionset` (
@@ -177,18 +244,6 @@ CREATE TABLE IF NOT EXISTS `permissionset` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
--- TABLE tag
---
-CREATE TABLE IF NOT EXISTS `tag` (
-	`id` int unsigned NOT NULL auto_increment COMMENT '',
-	`name` varchar(96) NOT NULL DEFAULT '' COMMENT '',
-	`url` varbinary(255) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `type_name_url` (`name`,`url`),
-	 INDEX `url` (`url`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='tags and mentions';
-
---
 -- TABLE 2fa_app_specific_password
 --
 CREATE TABLE IF NOT EXISTS `2fa_app_specific_password` (
@@ -199,7 +254,8 @@ CREATE TABLE IF NOT EXISTS `2fa_app_specific_password` (
 	`generated` datetime NOT NULL COMMENT 'Datetime the password was generated',
 	`last_used` datetime COMMENT 'Datetime the password was last used',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid_description` (`uid`,`description`(190))
+	 INDEX `uid_description` (`uid`,`description`(190)),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor app-specific _password';
 
 --
@@ -210,7 +266,8 @@ CREATE TABLE IF NOT EXISTS `2fa_recovery_codes` (
 	`code` varchar(50) NOT NULL COMMENT 'Recovery code string',
 	`generated` datetime NOT NULL COMMENT 'Datetime the code was generated',
 	`used` datetime COMMENT 'Datetime the code was used',
-	 PRIMARY KEY(`uid`,`code`)
+	 PRIMARY KEY(`uid`,`code`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor authentication recovery codes';
 
 --
@@ -284,7 +341,9 @@ CREATE TABLE IF NOT EXISTS `attach` (
 	`deny_gid` mediumtext COMMENT 'Access Control - list of denied groups',
 	`backend-class` tinytext COMMENT 'Storage backend class',
 	`backend-ref` text COMMENT 'Storage backend data reference',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='file attachments';
 
 --
@@ -366,7 +425,8 @@ CREATE TABLE IF NOT EXISTS `conv` (
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'edited timestamp',
 	`subject` text COMMENT 'subject of initial message',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`)
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='private messages';
 
 --
@@ -421,7 +481,9 @@ CREATE TABLE IF NOT EXISTS `event` (
 	`deny_cid` mediumtext COMMENT 'Access Control - list of denied contact.id',
 	`deny_gid` mediumtext COMMENT 'Access Control - list of denied groups',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid_start` (`uid`,`start`)
+	 INDEX `uid_start` (`uid`,`start`),
+	 INDEX `cid` (`cid`),
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Events';
 
 --
@@ -463,7 +525,11 @@ CREATE TABLE IF NOT EXISTS `fsuggest` (
 	`photo` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`note` text COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `cid` (`cid`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='friend suggestion stuff';
 
 --
@@ -476,7 +542,8 @@ CREATE TABLE IF NOT EXISTS `group` (
 	`deleted` boolean NOT NULL DEFAULT '0' COMMENT '1 indicates the group has been deleted',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT 'human readable name of group',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`)
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy groups, group info';
 
 --
@@ -488,7 +555,9 @@ CREATE TABLE IF NOT EXISTS `group_member` (
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id of the member assigned to the associated group',
 	 PRIMARY KEY(`id`),
 	 INDEX `contactid` (`contact-id`),
-	 UNIQUE INDEX `gid_contactid` (`gid`,`contact-id`)
+	 UNIQUE INDEX `gid_contactid` (`gid`,`contact-id`),
+	FOREIGN KEY (`gid`) REFERENCES `group` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='privacy groups, member info';
 
 --
@@ -498,7 +567,8 @@ CREATE TABLE IF NOT EXISTS `gserver-tag` (
 	`gserver-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'The id of the gserver',
 	`tag` varchar(100) NOT NULL DEFAULT '' COMMENT 'Tag that the server has subscribed',
 	 PRIMARY KEY(`gserver-id`,`tag`),
-	 INDEX `tag` (`tag`)
+	 INDEX `tag` (`tag`),
+	FOREIGN KEY (`gserver-id`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Tags that the server has subscribed';
 
 --
@@ -543,7 +613,10 @@ CREATE TABLE IF NOT EXISTS `intro` (
 	`datetime` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`blocked` boolean NOT NULL DEFAULT '1' COMMENT '',
 	`ignore` boolean NOT NULL DEFAULT '0' COMMENT '',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `contact-id` (`contact-id`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
@@ -746,7 +819,8 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	 INDEX `convid` (`convid`),
 	 INDEX `uri` (`uri`(64)),
 	 INDEX `parent-uri` (`parent-uri`(64)),
-	 INDEX `contactid` (`contact-id`(32))
+	 INDEX `contactid` (`contact-id`(32)),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='private messages';
 
 --
@@ -766,7 +840,9 @@ CREATE TABLE IF NOT EXISTS `mailacct` (
 	`movetofolder` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`last_check` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Mail account data for fetching mails';
 
 --
@@ -777,7 +853,10 @@ CREATE TABLE IF NOT EXISTS `manage` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	`mid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `uid_mid` (`uid`,`mid`)
+	 UNIQUE INDEX `uid_mid` (`uid`,`mid`),
+	 INDEX `mid` (`mid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`mid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='table of accounts that can manage each other';
 
 --
@@ -805,7 +884,8 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	 PRIMARY KEY(`id`),
 	 INDEX `seen_uid_date` (`seen`,`uid`,`date`),
 	 INDEX `uid_date` (`uid`,`date`),
-	 INDEX `uid_type_link` (`uid`,`type`,`link`(190))
+	 INDEX `uid_type_link` (`uid`,`type`,`link`(190)),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='notifications';
 
 --
@@ -819,7 +899,9 @@ CREATE TABLE IF NOT EXISTS `notify-threads` (
 	`parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`receiver-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`),
-	 INDEX `master-parent-uri-id` (`master-parent-uri-id`)
+	 INDEX `master-parent-uri-id` (`master-parent-uri-id`),
+	 INDEX `receiver-uid` (`receiver-uid`),
+	FOREIGN KEY (`receiver-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
@@ -844,7 +926,9 @@ CREATE TABLE IF NOT EXISTS `openwebauth-token` (
 	`token` varchar(255) NOT NULL DEFAULT '' COMMENT 'A generated token',
 	`meta` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of creation',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Store OpenWebAuth token to verify contacts';
 
 --
@@ -870,7 +954,10 @@ CREATE TABLE IF NOT EXISTS `participation` (
 	`fid` int unsigned NOT NULL COMMENT '',
 	 PRIMARY KEY(`iid`,`server`),
 	 INDEX `cid` (`cid`),
-	 INDEX `fid` (`fid`)
+	 INDEX `fid` (`fid`),
+	FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`fid`) REFERENCES `fcontact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Storage for participation messages from Diaspora';
 
 --
@@ -883,7 +970,8 @@ CREATE TABLE IF NOT EXISTS `pconfig` (
 	`k` varbinary(100) NOT NULL DEFAULT '' COMMENT '',
 	`v` mediumtext COMMENT '',
 	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `uid_cat_k` (`uid`,`cat`,`k`)
+	 UNIQUE INDEX `uid_cat_k` (`uid`,`cat`,`k`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='personal (per user) configuration storage';
 
 --
@@ -925,37 +1013,6 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	 INDEX `resource-id` (`resource-id`),
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='photo storage';
-
---
--- TABLE poll
---
-CREATE TABLE IF NOT EXISTS `poll` (
-	`id` int unsigned NOT NULL auto_increment COMMENT '',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	`q0` text COMMENT '',
-	`q1` text COMMENT '',
-	`q2` text COMMENT '',
-	`q3` text COMMENT '',
-	`q4` text COMMENT '',
-	`q5` text COMMENT '',
-	`q6` text COMMENT '',
-	`q7` text COMMENT '',
-	`q8` text COMMENT '',
-	`q9` text COMMENT '',
-	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Currently unused table for storing poll results';
-
---
--- TABLE poll_result
---
-CREATE TABLE IF NOT EXISTS `poll_result` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`poll_id` int unsigned NOT NULL DEFAULT 0,
-	`choice` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	 PRIMARY KEY(`id`),
-	 INDEX `poll_id` (`poll_id`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='data for polls - currently unused';
 
 --
 -- TABLE post-category
@@ -1065,7 +1122,8 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`net-publish` boolean NOT NULL DEFAULT '0' COMMENT 'publish profile in global directory',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_is-default` (`uid`,`is-default`),
-	 FULLTEXT INDEX `pub_keywords` (`pub_keywords`)
+	 FULLTEXT INDEX `pub_keywords` (`pub_keywords`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='user profiles data';
 
 --
@@ -1078,7 +1136,11 @@ CREATE TABLE IF NOT EXISTS `profile_check` (
 	`dfrn_id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`sec` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `uid` (`uid`),
+	 INDEX `cid` (`cid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='DFRN remote auth use';
 
 --
@@ -1097,6 +1159,7 @@ CREATE TABLE IF NOT EXISTS `profile_field` (
 	 INDEX `uid` (`uid`),
 	 INDEX `order` (`order`),
 	 INDEX `psid` (`psid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Custom profile fields';
 
@@ -1115,7 +1178,9 @@ CREATE TABLE IF NOT EXISTS `push_subscriber` (
 	`renewed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last subscription renewal',
 	`secret` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`),
-	 INDEX `next_try` (`next_try`)
+	 INDEX `next_try` (`next_try`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Used for OStatus: Contains feed subscribers';
 
 --
@@ -1129,7 +1194,9 @@ CREATE TABLE IF NOT EXISTS `register` (
 	`password` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`language` varchar(16) NOT NULL DEFAULT '' COMMENT '',
 	`note` text COMMENT '',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='registrations requiring admin approval';
 
 --
@@ -1140,7 +1207,8 @@ CREATE TABLE IF NOT EXISTS `search` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	`term` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`)
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
@@ -1223,61 +1291,10 @@ CREATE TABLE IF NOT EXISTS `tokens` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`),
 	 INDEX `client_id` (`client_id`),
-	FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth usage';
-
---
--- TABLE user
---
-CREATE TABLE IF NOT EXISTS `user` (
-	`uid` mediumint unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`parent-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'The parent user that has full control about this user',
-	`guid` varchar(64) NOT NULL DEFAULT '' COMMENT 'A unique identifier for this user',
-	`username` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name that this user is known by',
-	`password` varchar(255) NOT NULL DEFAULT '' COMMENT 'encrypted password',
-	`legacy_password` boolean NOT NULL DEFAULT '0' COMMENT 'Is the password hash double-hashed?',
-	`nickname` varchar(255) NOT NULL DEFAULT '' COMMENT 'nick- and user name',
-	`email` varchar(255) NOT NULL DEFAULT '' COMMENT 'the users email address',
-	`openid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`timezone` varchar(128) NOT NULL DEFAULT '' COMMENT 'PHP-legal timezone',
-	`language` varchar(32) NOT NULL DEFAULT 'en' COMMENT 'default language',
-	`register_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of registration',
-	`login_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of last login',
-	`default-location` varchar(255) NOT NULL DEFAULT '' COMMENT 'Default for item.location',
-	`allow_location` boolean NOT NULL DEFAULT '0' COMMENT '1 allows to display the location',
-	`theme` varchar(255) NOT NULL DEFAULT '' COMMENT 'user theme preference',
-	`pubkey` text COMMENT 'RSA public key 4096 bit',
-	`prvkey` text COMMENT 'RSA private key 4096 bit',
-	`spubkey` text COMMENT '',
-	`sprvkey` text COMMENT '',
-	`verified` boolean NOT NULL DEFAULT '0' COMMENT 'user is verified through email',
-	`blocked` boolean NOT NULL DEFAULT '0' COMMENT '1 for user is blocked',
-	`blockwall` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to post to the profile page of the user',
-	`hidewall` boolean NOT NULL DEFAULT '0' COMMENT 'Hide profile details from unkown viewers',
-	`blocktags` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to tag the post of this user',
-	`unkmail` boolean NOT NULL DEFAULT '0' COMMENT 'Permit unknown people to send private mails to this user',
-	`cntunkmail` int unsigned NOT NULL DEFAULT 10 COMMENT '',
-	`notify-flags` smallint unsigned NOT NULL DEFAULT 65535 COMMENT 'email notification options',
-	`page-flags` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'page/profile type',
-	`account-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`prvnets` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`pwdreset` varchar(255) COMMENT 'Password reset request token',
-	`pwdreset_time` datetime COMMENT 'Timestamp of the last password reset request',
-	`maxreq` int unsigned NOT NULL DEFAULT 10 COMMENT '',
-	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`account_removed` boolean NOT NULL DEFAULT '0' COMMENT 'if 1 the account is removed',
-	`account_expired` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`account_expires_on` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp when account expires and will be deleted',
-	`expire_notification_sent` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of last warning of account expiration',
-	`def_gid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`allow_cid` mediumtext COMMENT 'default permission for this user',
-	`allow_gid` mediumtext COMMENT 'default permission for this user',
-	`deny_cid` mediumtext COMMENT 'default permission for this user',
-	`deny_gid` mediumtext COMMENT 'default permission for this user',
-	`openidserver` text COMMENT '',
-	 PRIMARY KEY(`uid`),
-	 INDEX `nickname` (`nickname`(32))
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
 
 --
 -- TABLE userd
@@ -1298,7 +1315,10 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	`blocked` boolean COMMENT 'Contact is completely blocked for this user',
 	`ignored` boolean COMMENT 'Posts from this contact are ignored',
 	`collapsed` boolean COMMENT 'Posts from this contact are collapsed',
-	 PRIMARY KEY(`uid`,`cid`)
+	 PRIMARY KEY(`uid`,`cid`),
+	 INDEX `cid` (`cid`),
+	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific public contact data';
 
 --
@@ -1313,7 +1333,9 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`uid`,`iid`),
 	 INDEX `uid_pinned` (`uid`,`pinned`),
-	 INDEX `iid_uid` (`iid`,`uid`)
+	 INDEX `iid_uid` (`iid`,`uid`),
+	FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
 
 --
