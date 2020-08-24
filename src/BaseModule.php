@@ -140,11 +140,7 @@ abstract class BaseModule
 			return false;
 		}
 
-		if (empty($a->user)) {
-			return false;
-		}
-
-		$sec_hash = hash('whirlpool', $a->user['guid'] . $a->user['prvkey'] . session_id() . $x[0] . $typename);
+		$sec_hash = hash('whirlpool', ($a->user['guid'] ?? '') . ($a->user['prvkey'] ?? '') . session_id() . $x[0] . $typename);
 
 		return ($sec_hash == $x[1]);
 	}
