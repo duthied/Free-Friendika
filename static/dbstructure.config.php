@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1363);
+	define('DB_UPDATE_VERSION', 1364);
 }
 
 return [
@@ -87,20 +87,6 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"nurl" => ["UNIQUE", "nurl(190)"],
-		]
-	],
-	"clients" => [
-		"comment" => "OAuth usage",
-		"fields" => [
-			"client_id" => ["type" => "varchar(20)", "not null" => "1", "primary" => "1", "comment" => ""],
-			"pw" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""],
-			"redirect_uri" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
-			"name" => ["type" => "text", "comment" => ""],
-			"icon" => ["type" => "text", "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["client_id"],
 		]
 	],
 	"contact" => [
@@ -220,6 +206,89 @@ return [
 			"guid" => ["guid"]
 		]
 	],
+	"tag" => [
+		"comment" => "tags and mentions",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+			"name" => ["type" => "varchar(96)", "not null" => "1", "default" => "", "comment" => ""],
+			"url" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""]
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"type_name_url" => ["UNIQUE", "name", "url"],
+			"url" => ["url"]
+		]
+	],
+	"user" => [
+		"comment" => "The local users",
+		"fields" => [
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"parent-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"],
+				"comment" => "The parent user that has full control about this user"],
+			"guid" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => "A unique identifier for this user"],
+			"username" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Name that this user is known by"],
+			"password" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "encrypted password"],
+			"legacy_password" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Is the password hash double-hashed?"],
+			"nickname" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "nick- and user name"],
+			"email" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "the users email address"],
+			"openid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"timezone" => ["type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => "PHP-legal timezone"],
+			"language" => ["type" => "varchar(32)", "not null" => "1", "default" => "en", "comment" => "default language"],
+			"register_date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp of registration"],
+			"login_date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp of last login"],
+			"default-location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Default for item.location"],
+			"allow_location" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 allows to display the location"],
+			"theme" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "user theme preference"],
+			"pubkey" => ["type" => "text", "comment" => "RSA public key 4096 bit"],
+			"prvkey" => ["type" => "text", "comment" => "RSA private key 4096 bit"],
+			"spubkey" => ["type" => "text", "comment" => ""],
+			"sprvkey" => ["type" => "text", "comment" => ""],
+			"verified" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "user is verified through email"],
+			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 for user is blocked"],
+			"blockwall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Prohibit contacts to post to the profile page of the user"],
+			"hidewall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Hide profile details from unkown viewers"],
+			"blocktags" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Prohibit contacts to tag the post of this user"],
+			"unkmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Permit unknown people to send private mails to this user"],
+			"cntunkmail" => ["type" => "int unsigned", "not null" => "1", "default" => "10", "comment" => ""],
+			"notify-flags" => ["type" => "smallint unsigned", "not null" => "1", "default" => "65535", "comment" => "email notification options"],
+			"page-flags" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "page/profile type"],
+			"account-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"prvnets" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"pwdreset" => ["type" => "varchar(255)", "comment" => "Password reset request token"],
+			"pwdreset_time" => ["type" => "datetime", "comment" => "Timestamp of the last password reset request"],
+			"maxreq" => ["type" => "int unsigned", "not null" => "1", "default" => "10", "comment" => ""],
+			"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"account_removed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "if 1 the account is removed"],
+			"account_expired" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"account_expires_on" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp when account expires and will be deleted"],
+			"expire_notification_sent" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp of last warning of account expiration"],
+			"def_gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"allow_cid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
+			"allow_gid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
+			"deny_cid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
+			"deny_gid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
+			"openidserver" => ["type" => "text", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uid"],
+			"nickname" => ["nickname(32)"],
+		]
+	],
+	"clients" => [
+		"comment" => "OAuth usage",
+		"fields" => [
+			"client_id" => ["type" => "varchar(20)", "not null" => "1", "primary" => "1", "comment" => ""],
+			"pw" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""],
+			"redirect_uri" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
+			"name" => ["type" => "text", "comment" => ""],
+			"icon" => ["type" => "text", "comment" => ""],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["client_id"],
+			"uid" => ["uid"],
+		]
+	],
 	"permissionset" => [
 		"comment" => "",
 		"fields" => [
@@ -235,25 +304,12 @@ return [
 			"uid_allow_cid_allow_gid_deny_cid_deny_gid" => ["allow_cid(50)", "allow_gid(30)", "deny_cid(50)", "deny_gid(30)"],
 		]
 	],
-	"tag" => [
-		"comment" => "tags and mentions",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-			"name" => ["type" => "varchar(96)", "not null" => "1", "default" => "", "comment" => ""],
-			"url" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""]
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"type_name_url" => ["UNIQUE", "name", "url"],
-			"url" => ["url"]
-		]
-	],
 	// Main tables
 	"2fa_app_specific_password" => [
 		"comment" => "Two-factor app-specific _password",
 		"fields" => [
 			"id" => ["type" => "mediumint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Password ID for revocation"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "relation" => ["user" => "uid"], "comment" => "User ID"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "User ID"],
 			"description" => ["type" => "varchar(255)", "comment" => "Description of the usage of the password"],
 			"hashed_password" => ["type" => "varchar(255)", "not null" => "1", "comment" => "Hashed password"],
 			"generated" => ["type" => "datetime", "not null" => "1", "comment" => "Datetime the password was generated"],
@@ -267,7 +323,7 @@ return [
 	"2fa_recovery_codes" => [
 		"comment" => "Two-factor authentication recovery codes",
 		"fields" => [
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "relation" => ["user" => "uid"], "comment" => "User ID"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User ID"],
 			"code" => ["type" => "varchar(50)", "not null" => "1", "primary" => "1", "comment" => "Recovery code string"],
 			"generated" => ["type" => "datetime", "not null" => "1", "comment" => "Datetime the code was generated"],
 			"used" => ["type" => "datetime", "comment" => "Datetime the code was used"],
@@ -333,7 +389,7 @@ return [
 		"comment" => "file attachments",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "generated index"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"hash" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => "hash"],
 			"filename" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "filename of original"],
 			"filetype" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => "mimetype"],
@@ -350,6 +406,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"uid" => ["uid"],
 		]
 	],
 	"auth_codes" => [
@@ -427,7 +484,7 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "A unique identifier for this conversation"],
 			"recips" => ["type" => "text", "comment" => "sender_handle;recipient_handle"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"creator" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "handle of creator"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "creation timestamp"],
 			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "edited timestamp"],
@@ -472,7 +529,7 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner User id"],
-			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "contact_id (ID of the contact in contact table)"],
+			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact_id (ID of the contact in contact table)"],
 			"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "creation time"],
 			"edited" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "last edit time"],
@@ -493,6 +550,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid_start" => ["uid", "start"],
+			"cid" => ["cid"],
 		]
 	],
 	"fcontact" => [
@@ -526,8 +584,8 @@ return [
 		"comment" => "friend suggestion stuff",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
+			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => ""],
 			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"request" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -537,13 +595,15 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"cid" => ["cid"],
+			"uid" => ["uid"],
 		]
 	],
 	"group" => [
 		"comment" => "privacy groups, group info",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 indicates the member list is not private"],
 			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 indicates the group has been deleted"],
 			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "human readable name of group"],
@@ -557,8 +617,8 @@ return [
 		"comment" => "privacy groups, member info",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["group" => "id"], "comment" => "groups.id of the associated group"],
-			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "contact.id of the member assigned to the associated group"],
+			"gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["group" => "id"], "comment" => "groups.id of the associated group"],
+			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id of the member assigned to the associated group"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -569,7 +629,7 @@ return [
 	"gserver-tag" => [
 		"comment" => "Tags that the server has subscribed",
 		"fields" => [
-			"gserver-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gserver" => "id"], "primary" => "1",
+			"gserver-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["gserver" => "id"], "primary" => "1",
 				"comment" => "The id of the gserver"],
 			"tag" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "primary" => "1", "comment" => "Tag that the server has subscribed"],
 		],
@@ -613,7 +673,7 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
 			"fid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["fcontact" => "id"], "comment" => ""],
-			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
+			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => ""],
 			"knowyou" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"note" => ["type" => "text", "comment" => ""],
@@ -624,6 +684,8 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"contact-id" => ["contact-id"],
+			"uid" => ["uid"],
 		]
 	],
 	"item" => [
@@ -806,7 +868,7 @@ return [
 		"comment" => "private messages",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "A unique identifier for this private message"],
 			"from-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "name of the sender"],
 			"from-photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "contact photo link of the sender"],
@@ -836,7 +898,7 @@ return [
 		"comment" => "Mail account data for fetching mails",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"server" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"port" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"ssltype" => ["type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""],
@@ -851,18 +913,20 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"uid" => ["uid"],
 		]
 	],
 	"manage" => [
 		"comment" => "table of accounts that can manage each other",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-			"mid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
+			"mid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid_mid" => ["UNIQUE", "uid", "mid"],
+			"mid" => ["mid"],
 		]
 	],
 	"notify" => [
@@ -875,7 +939,7 @@ return [
 			"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"msg" => ["type" => "mediumtext", "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => "item.id"],
 			"parent" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
@@ -902,12 +966,13 @@ return [
 			"master-parent-item" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
 			"master-parent-uri-id" => ["type" => "int unsigned", "relation" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related post"],
 			"parent-item" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"receiver-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"],
+			"receiver-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"],
 				"comment" => "User id"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"master-parent-uri-id" => ["master-parent-uri-id"],
+			"receiver-uid" => ["receiver-uid"],
 		]
 	],
 	"oembed" => [
@@ -927,7 +992,7 @@ return [
 		"comment" => "Store OpenWebAuth token to verify contacts",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"type" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Verify type"],
 			"token" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "A generated token"],
 			"meta" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -935,6 +1000,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"uid" => ["uid"],
 		]
 	],
 	"parsed_url" => [
@@ -954,10 +1020,10 @@ return [
 	"participation" => [
 		"comment" => "Storage for participation messages from Diaspora",
 		"fields" => [
-			"iid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "relation" => ["item" => "id"], "comment" => ""],
+			"iid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item" => "id"], "comment" => ""],
 			"server" => ["type" => "varchar(60)", "not null" => "1", "primary" => "1", "comment" => ""],
-			"cid" => ["type" => "int unsigned", "not null" => "1", "relation" => ["contact" => "id"], "comment" => ""],
-			"fid" => ["type" => "int unsigned", "not null" => "1", "relation" => ["fcontact" => "id"], "comment" => ""],
+			"cid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["contact" => "id"], "comment" => ""],
+			"fid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["fcontact" => "id"], "comment" => ""],
 		],
 		"indexes" => [
 			"PRIMARY" => ["iid", "server"],
@@ -969,7 +1035,7 @@ return [
 		"comment" => "personal (per user) configuration storage",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"cat" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => ""],
 			"k" => ["type" => "varbinary(100)", "not null" => "1", "default" => "", "comment" => ""],
 			"v" => ["type" => "mediumtext", "comment" => ""],
@@ -1017,39 +1083,6 @@ return [
 			"uid_album_scale_created" => ["uid", "album(32)", "scale", "created"],
 			"uid_album_resource-id_created" => ["uid", "album(32)", "resource-id", "created"],
 			"resource-id" => ["resource-id"],
-		]
-	],
-	"poll" => [
-		"comment" => "Currently unused table for storing poll results",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-			"q0" => ["type" => "text", "comment" => ""],
-			"q1" => ["type" => "text", "comment" => ""],
-			"q2" => ["type" => "text", "comment" => ""],
-			"q3" => ["type" => "text", "comment" => ""],
-			"q4" => ["type" => "text", "comment" => ""],
-			"q5" => ["type" => "text", "comment" => ""],
-			"q6" => ["type" => "text", "comment" => ""],
-			"q7" => ["type" => "text", "comment" => ""],
-			"q8" => ["type" => "text", "comment" => ""],
-			"q9" => ["type" => "text", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"uid" => ["uid"],
-		]
-	],
-	"poll_result" => [
-		"comment" => "data for polls - currently unused",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"poll_id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["poll" => "id"]],
-			"choice" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"poll_id" => ["poll_id"],
 		]
 	],
 	"post-category" => [
@@ -1114,7 +1147,7 @@ return [
 		"comment" => "user profiles data",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"profile-name" => ["type" => "varchar(255)", "comment" => "Deprecated"],
 			"is-default" => ["type" => "boolean", "comment" => "Deprecated"],
 			"hide-friends" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Hide friend list from viewers of this profile"],
@@ -1166,21 +1199,23 @@ return [
 		"comment" => "DFRN remote auth use",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "contact.id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
+			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id"],
 			"dfrn_id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"sec" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"uid" => ["uid"],
+			"cid" => ["cid"],
 		]
 	],
 	"profile_field" => [
 		"comment" => "Custom profile fields",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner user id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner user id"],
 			"order" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "1", "comment" => "Field ordering per user"],
 			"psid" => ["type" => "int unsigned", "foreign" => ["permissionset" => "id", "on delete" => "restrict"], "comment" => "ID of the permission set of this profile field - 0 = public"],
 			"label" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Label of the field"],
@@ -1199,7 +1234,7 @@ return [
 		"comment" => "Used for OStatus: Contains feed subscribers",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"callback_url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"topic" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"nickname" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -1212,6 +1247,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"next_try" => ["next_try"],
+			"uid" => ["uid"]
 		]
 	],
 	"register" => [
@@ -1220,20 +1256,21 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"hash" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"password" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"language" => ["type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""],
 			"note" => ["type" => "text", "comment" => ""],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"uid" => ["uid"],
 		]
 	],
 	"search" => [
 		"comment" => "",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"term" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 		],
 		"indexes" => [
@@ -1320,66 +1357,12 @@ return [
 			"client_id" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "foreign" => ["clients" => "client_id"]],
 			"expires" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
 			"scope" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"client_id" => ["client_id"]
-		]
-	],
-	"user" => [
-		"comment" => "The local users",
-		"fields" => [
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"parent-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"],
-				"comment" => "The parent user that has full control about this user"],
-			"guid" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => "A unique identifier for this user"],
-			"username" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Name that this user is known by"],
-			"password" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "encrypted password"],
-			"legacy_password" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Is the password hash double-hashed?"],
-			"nickname" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "nick- and user name"],
-			"email" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "the users email address"],
-			"openid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"timezone" => ["type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => "PHP-legal timezone"],
-			"language" => ["type" => "varchar(32)", "not null" => "1", "default" => "en", "comment" => "default language"],
-			"register_date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp of registration"],
-			"login_date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp of last login"],
-			"default-location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Default for item.location"],
-			"allow_location" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 allows to display the location"],
-			"theme" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "user theme preference"],
-			"pubkey" => ["type" => "text", "comment" => "RSA public key 4096 bit"],
-			"prvkey" => ["type" => "text", "comment" => "RSA private key 4096 bit"],
-			"spubkey" => ["type" => "text", "comment" => ""],
-			"sprvkey" => ["type" => "text", "comment" => ""],
-			"verified" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "user is verified through email"],
-			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 for user is blocked"],
-			"blockwall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Prohibit contacts to post to the profile page of the user"],
-			"hidewall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Hide profile details from unkown viewers"],
-			"blocktags" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Prohibit contacts to tag the post of this user"],
-			"unkmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Permit unknown people to send private mails to this user"],
-			"cntunkmail" => ["type" => "int unsigned", "not null" => "1", "default" => "10", "comment" => ""],
-			"notify-flags" => ["type" => "smallint unsigned", "not null" => "1", "default" => "65535", "comment" => "email notification options"],
-			"page-flags" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "page/profile type"],
-			"account-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"prvnets" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"pwdreset" => ["type" => "varchar(255)", "comment" => "Password reset request token"],
-			"pwdreset_time" => ["type" => "datetime", "comment" => "Timestamp of the last password reset request"],
-			"maxreq" => ["type" => "int unsigned", "not null" => "1", "default" => "10", "comment" => ""],
-			"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"account_removed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "if 1 the account is removed"],
-			"account_expired" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"account_expires_on" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp when account expires and will be deleted"],
-			"expire_notification_sent" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp of last warning of account expiration"],
-			"def_gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"allow_cid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
-			"deny_cid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
-			"openidserver" => ["type" => "text", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["uid"],
-			"nickname" => ["nickname(32)"],
+			"client_id" => ["client_id"],
+			"uid" => ["uid"]
 		]
 	],
 	"userd" => [
@@ -1396,21 +1379,22 @@ return [
 	"user-contact" => [
 		"comment" => "User specific public contact data",
 		"fields" => [
-			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["contact" => "id"], "comment" => "Contact id of the linked public contact"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["contact" => "id"], "comment" => "Contact id of the linked public contact"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"blocked" => ["type" => "boolean", "comment" => "Contact is completely blocked for this user"],
 			"ignored" => ["type" => "boolean", "comment" => "Posts from this contact are ignored"],
 			"collapsed" => ["type" => "boolean", "comment" => "Posts from this contact are collapsed"]
 		],
 		"indexes" => [
-			"PRIMARY" => ["uid", "cid"]
+			"PRIMARY" => ["uid", "cid"],
+			"cid" => ["cid"],
 		]
 	],
 	"user-item" => [
 		"comment" => "User specific item data",
 		"fields" => [
-			"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["item" => "id"], "comment" => "Item id"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["item" => "id"], "comment" => "Item id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide an item from the user"],
 			"ignored" => ["type" => "boolean", "comment" => "Ignore this thread if set"],
 			"pinned" => ["type" => "boolean", "comment" => "The item is pinned on the profile page"],
