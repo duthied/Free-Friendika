@@ -671,7 +671,7 @@ return [
 		"comment" => "",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"fid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["fcontact" => "id"], "comment" => ""],
 			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => ""],
 			"knowyou" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],

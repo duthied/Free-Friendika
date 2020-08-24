@@ -57,9 +57,9 @@ class RepairDatabase
 		// Add intro entries for pending contacts
 		// We don't do this for DFRN entries since such revived contact requests seem to mostly fail.
 		$pending_contacts = DBA::p("SELECT `uid`, `id`, `url`, `network`, `created` FROM `contact`
-			WHERE `pending` AND `rel` IN (?, ?) AND `network` != ?
+			WHERE `pending` AND `rel` IN (?, ?) AND `network` != ? AND `uid` != ?
 				AND NOT EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id`)",
-			0, Contact::FOLLOWER, Protocol::DFRN);
+			0, Contact::FOLLOWER, Protocol::DFRN, 0);
 		while ($contact = DBA::fetch($pending_contacts)) {
 			DBA::insert('intro', ['uid' => $contact['uid'], 'contact-id' => $contact['id'], 'blocked' => false,
 				'hash' => Strings::getRandomHex(), 'datetime' => $contact['created']]);

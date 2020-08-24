@@ -614,6 +614,10 @@ function pre_update_1364()
 		return Update::FAILED;
 	}
 
+	if (!DBA::e("DELETE FROM `intro` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
 	if (!DBA::e("DELETE FROM `manage` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
 		return Update::FAILED;
 	}
