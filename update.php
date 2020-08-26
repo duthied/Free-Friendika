@@ -736,3 +736,15 @@ function pre_update_1364()
 
 	return Update::SUCCESS;
 }
+
+function pre_update_1365()
+{
+	if (!DBA::e("DELETE FROM `notify-threads` WHERE NOT `notify-id` IN (SELECT `id` FROM `notify`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `thread` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
+		return Update::FAILED;
+	}
+
+}

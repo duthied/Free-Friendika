@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.09-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1364
+-- DB_UPDATE_VERSION 1365
 -- ------------------------------------------
 
 
@@ -616,6 +616,7 @@ CREATE TABLE IF NOT EXISTS `intro` (
 	 PRIMARY KEY(`id`),
 	 INDEX `contact-id` (`contact-id`),
 	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
@@ -901,6 +902,8 @@ CREATE TABLE IF NOT EXISTS `notify-threads` (
 	 PRIMARY KEY(`id`),
 	 INDEX `master-parent-uri-id` (`master-parent-uri-id`),
 	 INDEX `receiver-uid` (`receiver-uid`),
+	 INDEX `notify-id` (`notify-id`),
+	FOREIGN KEY (`notify-id`) REFERENCES `notify` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`receiver-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
@@ -921,14 +924,13 @@ CREATE TABLE IF NOT EXISTS `oembed` (
 --
 CREATE TABLE IF NOT EXISTS `openwebauth-token` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id - currently unused',
 	`type` varchar(32) NOT NULL DEFAULT '' COMMENT 'Verify type',
 	`token` varchar(255) NOT NULL DEFAULT '' COMMENT 'A generated token',
 	`meta` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of creation',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`),
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `uid` (`uid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Store OpenWebAuth token to verify contacts';
 
 --
@@ -1276,6 +1278,7 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
 	 INDEX `private_wall_origin_commented` (`private`,`wall`,`origin`,`commented`),
 	 INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data';
 
