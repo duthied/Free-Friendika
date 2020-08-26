@@ -65,6 +65,7 @@
 						{{include file="field_checkbox.tpl" field=$infinite_scroll}}
 						{{include file="field_checkbox.tpl" field=$no_smart_threading}}
 						{{include file="field_checkbox.tpl" field=$hide_dislike}}
+						{{include file="field_checkbox.tpl" field=$display_resharer}}
 					</div>
 					<div class="panel-footer">
 						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>

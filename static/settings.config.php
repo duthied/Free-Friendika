@@ -150,6 +150,10 @@ return [
 		// optimize_tables (Boolean)
 		// Periodically (once an hour) run an "optimize table" command for cache tables
 		'optimize_tables' => false,
+
+		// display_resharer (Boolean)
+		// Display the first resharer as icon and text on a reshared item.
+		'display_resharer' => false,
 	],
 
 	// Used in the admin settings to lock certain features
