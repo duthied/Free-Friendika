@@ -86,6 +86,10 @@ class Cron
 
 			Worker::add(PRIORITY_MEDIUM, 'DBClean');
 
+			Worker::add(PRIORITY_LOW, 'ExpireConversations');
+
+			Worker::add(PRIORITY_LOW, 'CleanItemUri');
+
 			// check upstream version?
 			Worker::add(PRIORITY_LOW, 'CheckVersion');
 
