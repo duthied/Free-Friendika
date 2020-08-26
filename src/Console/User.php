@@ -409,7 +409,7 @@ HELP;
 			case 'guid':
 				$user = UserModel::getByGuid($param, $fields);
 				break;
-			case 'email':
+			case 'mail':
 				$user = UserModel::getByEmail($param, $fields);
 				break;
 			case 'nick':
