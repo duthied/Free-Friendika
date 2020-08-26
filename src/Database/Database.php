@@ -1007,6 +1007,34 @@ class Database
 	}
 
 	/**
+	 * Inserts a row with the provided data in the provided table.
+	 * If the data corresponds to an existing row through a UNIQUE or PRIMARY index constraints, it updates the row instead.
+	 *
+	 * @param string|array $table Table name or array [schema => table]
+	 * @param array        $param parameter array
+	 *
+	 * @return boolean was the insert successful?
+	 * @throws \Exception
+	 */
+	public function replace($table, array $param)
+	{
+		if (empty($table) || empty($param)) {
+			$this->logger->info('Table and fields have to be set');
+			return false;
+		}
+
+		$table_string = DBA::buildTableString($table);
+
+		$fields_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], array_keys($param)));
+
+		$values_string = substr(str_repeat("?, ", count($param)), 0, -2);
+
+		$sql = "REPLACE " . $table_string . " (" . $fields_string . ") VALUES (" . $values_string . ")";
+
+		return $this->e($sql, $param);
+	}
+
+	/**
 	 * Fetch the id of the last insert command
 	 *
 	 * @return integer Last inserted id

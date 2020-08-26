@@ -293,6 +293,21 @@ class DBA
 	}
 
 	/**
+	 * Inserts a row with the provided data in the provided table.
+	 * If the data corresponds to an existing row through a UNIQUE or PRIMARY index constraints, it updates the row instead.
+	 *
+	 * @param string|array $table Table name or array [schema => table]
+	 * @param array        $param parameter array
+	 *
+	 * @return boolean was the insert successful?
+	 * @throws \Exception
+	 */
+	public static function replace($table, $param)
+	{
+		return DI::dba()->replace($table, $param);
+	}
+
+	/**
 	 * Fetch the id of the last insert command
 	 *
 	 * @return integer Last inserted id
