@@ -293,6 +293,20 @@ class DBA
 	}
 
 	/**
+	 * Replace a row of a table
+	 *
+	 * @param string|array $table Table name or array [schema => table]
+	 * @param array        $param parameter array
+	 *
+	 * @return boolean was the insert successful?
+	 * @throws \Exception
+	 */
+	public static function replace($table, $param)
+	{
+		return DI::dba()->replace($table, $param);
+	}
+
+	/**
 	 * Fetch the id of the last insert command
 	 *
 	 * @return integer Last inserted id
