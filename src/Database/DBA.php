@@ -293,7 +293,8 @@ class DBA
 	}
 
 	/**
-	 * Replace a row of a table
+	 * Inserts a row with the provided data in the provided table.
+	 * If the data corresponds to an existing row through a UNIQUE or PRIMARY index constraints, it updates the row instead.
 	 *
 	 * @param string|array $table Table name or array [schema => table]
 	 * @param array        $param parameter array
