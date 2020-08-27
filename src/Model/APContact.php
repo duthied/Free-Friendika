@@ -349,7 +349,7 @@ class APContact
 
 		if (!DBA::exists('inbox-status', ['url' => $url])) {
 			$fields = array_merge($fields, ['url' => $url, 'created' => $now]);
-			DBA::insert('inbox-status', $fields);
+			DBA::replace('inbox-status', $fields);
 		} else {
 			DBA::update('inbox-status', $fields, ['url' => $url]);
 		}
