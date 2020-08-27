@@ -134,6 +134,8 @@ class Database
 			return false;
 		}
 
+		$persistent = (bool)$this->configCache->get('database', 'persistent');
+
 		$this->emulate_prepares = (bool)$this->configCache->get('database', 'emulate_prepares');
 		$this->pdo_emulate_prepares = (bool)$this->configCache->get('database', 'pdo_emulate_prepares');
 
@@ -150,7 +152,7 @@ class Database
 			}
 
 			try {
-				$this->connection = @new PDO($connect, $user, $pass);
+				$this->connection = @new PDO($connect, $user, $pass, [PDO::ATTR_PERSISTENT => $persistent]);
 				$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 				$this->connected = true;
 			} catch (PDOException $e) {
