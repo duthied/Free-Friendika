@@ -62,6 +62,13 @@ return [
 		// disable_pdo (Boolean)
 		// PDO is used by default (if available). Otherwise MySQLi will be used.
 		'disable_pdo' => false,
+
+		// persistent (Boolean)
+		// This controls if the system should use persistent connections or not.
+		// Persistent connections increase the performance.
+		// On the other hand the number of open connections are higher,
+		// this will most likely increase the system load.
+		'persistent' => false,
 	],
 	'config' => [
 		// admin_email (Comma-separated list)
