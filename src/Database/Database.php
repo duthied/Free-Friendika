@@ -1421,7 +1421,7 @@ class Database
 			if (is_bool($old_fields)) {
 				if ($do_insert) {
 					$values = array_merge($condition, $fields);
-					return $this->insert($table, $values, $do_insert);
+					return $this->replace($table, $values);
 				}
 				$old_fields = [];
 			}
