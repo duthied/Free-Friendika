@@ -91,7 +91,7 @@ class Worker
 			self::runCron();
 		}
 
-		$starttime = time();
+		$last_check = $starttime = time();
 		self::$state = self::STATE_STARTUP;
 
 		// We fetch the next queue entry that is about to be executed
@@ -120,7 +120,7 @@ class Worker
 			}
 
 			// To avoid the quitting of multiple workers only one worker at a time will execute the check
-			if (!self::getWaitingJobForPID()) {
+			if ((time() > $last_check + 5) && !self::getWaitingJobForPID()) {
 				self::$state = self::STATE_LONG_LOOP;
 
 				if (DI::lock()->acquire(self::LOCK_WORKER, 0)) {
@@ -139,6 +139,7 @@ class Worker
 					}
 					DI::lock()->release(self::LOCK_WORKER);
 				}
+				$last_check = time();
 			}
 
 			// Quit the worker once every cron interval
@@ -784,6 +785,7 @@ class Worker
 		$stamp = (float)microtime(true);
 		$count = DBA::count('process', ['command' => 'Worker.php']);
 		self::$db_duration += (microtime(true) - $stamp);
+		self::$db_duration_count += (microtime(true) - $stamp);
 		return $count;
 	}
 
@@ -807,6 +809,7 @@ class Worker
 		DBA::close($queues);
 
 		self::$db_duration += (microtime(true) - $stamp);
+		self::$db_duration_count += (microtime(true) - $stamp);
 		return $ids;
 	}
 
