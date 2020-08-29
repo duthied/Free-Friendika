@@ -167,7 +167,7 @@ HELP;
 	/**
 	 * Prints the whole list of blocked domains including the reason
 	 *
-	 /* @param IConfig $config
+	 * @param IConfig $config
 	 */
 	private function printBlockedServers(IConfig $config)
 	{
