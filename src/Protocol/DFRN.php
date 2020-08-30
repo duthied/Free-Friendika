@@ -43,6 +43,7 @@ use Friendica\Model\Post\Category;
 use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
+use Friendica\Model\Verb;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -256,10 +257,11 @@ class DFRN
 			FROM `item` USE INDEX (`uid_wall_changed`) $sql_post_table
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `item`.`uid` = %d AND `item`.`wall` AND `item`.`changed` > '%s'
-			AND `item`.`visible` $sql_extra
+			AND `vid` != %d AND `item`.`visible` $sql_extra
 			ORDER BY `item`.`parent` ".$sort.", `item`.`received` ASC LIMIT 0, 300",
 			intval($owner_id),
 			DBA::escape($check_date),
+			Verb::getID(Activity::ANNOUNCE),
 			DBA::escape($sort)
 		);
 
