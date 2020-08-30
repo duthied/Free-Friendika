@@ -188,7 +188,7 @@ class Install extends BaseModule
 					'$pass'        => DI::l10n()->t('System check'),
 					'$checks'      => self::$installer->getChecks(),
 					'$passed'      => $status,
-					'$see_install' => DI::l10n()->t('Please see the file "INSTALL.txt".'),
+					'$see_install' => DI::l10n()->t('Please see the file "doc/INSTALL.md".'),
 					'$next'        => DI::l10n()->t('Next'),
 					'$reload'      => DI::l10n()->t('Check again'),
 					'$php_path'    => $php_path,
