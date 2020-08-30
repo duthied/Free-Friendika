@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2020.09-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-30 10:10+0200\n"
+"POT-Creation-Date: 2020-08-30 17:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1304,9 +1304,9 @@ msgstr ""
 #: src/Module/Profile/Profile.php:241 src/Module/Settings/Profile/Index.php:237
 #: src/Module/Contact/Advanced.php:140 src/Module/Contact/Poke.php:156
 #: src/Module/Delegation.php:151 src/Module/FriendSuggest.php:129
+#: src/Module/Contact.php:580 src/Module/Invite.php:175
 #: src/Module/Install.php:230 src/Module/Install.php:270
-#: src/Module/Install.php:306 src/Module/Contact.php:580
-#: src/Module/Invite.php:175 src/Object/Post.php:949
+#: src/Module/Install.php:306 src/Object/Post.php:949
 msgid "Submit"
 msgstr ""
 
@@ -3622,6 +3622,88 @@ msgstr ""
 msgid "rebuffed"
 msgstr ""
 
+#: src/Core/Renderer.php:91 src/Core/Renderer.php:120 src/Core/Renderer.php:147
+#: src/Core/Renderer.php:181 src/Render/FriendicaSmartyEngine.php:56
+msgid ""
+"Friendica can't display this page at the moment, please contact the "
+"administrator."
+msgstr ""
+
+#: src/Core/Renderer.php:143
+msgid "template engine cannot be registered without a name."
+msgstr ""
+
+#: src/Core/Renderer.php:177
+msgid "template engine is not registered!"
+msgstr ""
+
+#: src/Core/Update.php:215
+#, php-format
+msgid "Update %s failed. See error logs."
+msgstr ""
+
+#: src/Core/Update.php:280
+#, php-format
+msgid ""
+"\n"
+"\t\t\t\tThe friendica developers released update %s recently,\n"
+"\t\t\t\tbut when I tried to install it, something went terribly wrong.\n"
+"\t\t\t\tThis needs to be fixed soon and I can't do it alone. Please contact "
+"a\n"
+"\t\t\t\tfriendica developer if you can not help me on your own. My database "
+"might be invalid."
+msgstr ""
+
+#: src/Core/Update.php:286
+#, php-format
+msgid ""
+"The error message is\n"
+"[pre]%s[/pre]"
+msgstr ""
+
+#: src/Core/Update.php:290 src/Core/Update.php:326
+msgid "[Friendica Notify] Database update"
+msgstr ""
+
+#: src/Core/Update.php:320
+#, php-format
+msgid ""
+"\n"
+"\t\t\t\t\tThe friendica database was successfully updated from %s to %s."
+msgstr ""
+
+#: src/Core/UserImport.php:126
+msgid "Error decoding account file"
+msgstr ""
+
+#: src/Core/UserImport.php:132
+msgid "Error! No version data in file! This is not a Friendica account file?"
+msgstr ""
+
+#: src/Core/UserImport.php:140
+#, php-format
+msgid "User '%s' already exists on this server!"
+msgstr ""
+
+#: src/Core/UserImport.php:176
+msgid "User creation error"
+msgstr ""
+
+#: src/Core/UserImport.php:221
+#, php-format
+msgid "%d contact not imported"
+msgid_plural "%d contacts not imported"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Core/UserImport.php:274
+msgid "User profile creation error"
+msgstr ""
+
+#: src/Core/UserImport.php:330
+msgid "Done. You can now login with your username and password"
+msgstr ""
+
 #: src/Core/Installer.php:179
 msgid ""
 "The database configuration file \"config/local.config.php\" could not be "
@@ -3890,88 +3972,6 @@ msgstr ""
 
 #: src/Core/Installer.php:626
 msgid "Could not connect to database."
-msgstr ""
-
-#: src/Core/Renderer.php:91 src/Core/Renderer.php:120 src/Core/Renderer.php:147
-#: src/Core/Renderer.php:181 src/Render/FriendicaSmartyEngine.php:56
-msgid ""
-"Friendica can't display this page at the moment, please contact the "
-"administrator."
-msgstr ""
-
-#: src/Core/Renderer.php:143
-msgid "template engine cannot be registered without a name."
-msgstr ""
-
-#: src/Core/Renderer.php:177
-msgid "template engine is not registered!"
-msgstr ""
-
-#: src/Core/Update.php:215
-#, php-format
-msgid "Update %s failed. See error logs."
-msgstr ""
-
-#: src/Core/Update.php:280
-#, php-format
-msgid ""
-"\n"
-"\t\t\t\tThe friendica developers released update %s recently,\n"
-"\t\t\t\tbut when I tried to install it, something went terribly wrong.\n"
-"\t\t\t\tThis needs to be fixed soon and I can't do it alone. Please contact "
-"a\n"
-"\t\t\t\tfriendica developer if you can not help me on your own. My database "
-"might be invalid."
-msgstr ""
-
-#: src/Core/Update.php:286
-#, php-format
-msgid ""
-"The error message is\n"
-"[pre]%s[/pre]"
-msgstr ""
-
-#: src/Core/Update.php:290 src/Core/Update.php:326
-msgid "[Friendica Notify] Database update"
-msgstr ""
-
-#: src/Core/Update.php:320
-#, php-format
-msgid ""
-"\n"
-"\t\t\t\t\tThe friendica database was successfully updated from %s to %s."
-msgstr ""
-
-#: src/Core/UserImport.php:126
-msgid "Error decoding account file"
-msgstr ""
-
-#: src/Core/UserImport.php:132
-msgid "Error! No version data in file! This is not a Friendica account file?"
-msgstr ""
-
-#: src/Core/UserImport.php:140
-#, php-format
-msgid "User '%s' already exists on this server!"
-msgstr ""
-
-#: src/Core/UserImport.php:176
-msgid "User creation error"
-msgstr ""
-
-#: src/Core/UserImport.php:221
-#, php-format
-msgid "%d contact not imported"
-msgid_plural "%d contacts not imported"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Core/UserImport.php:274
-msgid "User profile creation error"
-msgstr ""
-
-#: src/Core/UserImport.php:330
-msgid "Done. You can now login with your username and password"
 msgstr ""
 
 #: src/Util/EMailer/MailBuilder.php:212
@@ -8810,153 +8810,6 @@ msgstr ""
 msgid "Welcome to %s"
 msgstr ""
 
-#: src/Module/Install.php:177
-msgid "Friendica Communications Server - Setup"
-msgstr ""
-
-#: src/Module/Install.php:188
-msgid "System check"
-msgstr ""
-
-#: src/Module/Install.php:193
-msgid "Check again"
-msgstr ""
-
-#: src/Module/Install.php:208
-msgid "Base settings"
-msgstr ""
-
-#: src/Module/Install.php:215
-msgid "Host name"
-msgstr ""
-
-#: src/Module/Install.php:217
-msgid ""
-"Overwrite this field in case the determinated hostname isn't right, "
-"otherweise leave it as is."
-msgstr ""
-
-#: src/Module/Install.php:220
-msgid "Base path to installation"
-msgstr ""
-
-#: src/Module/Install.php:222
-msgid ""
-"If the system cannot detect the correct path to your installation, enter the "
-"correct path here. This setting should only be set if you are using a "
-"restricted system and symbolic links to your webroot."
-msgstr ""
-
-#: src/Module/Install.php:225
-msgid "Sub path of the URL"
-msgstr ""
-
-#: src/Module/Install.php:227
-msgid ""
-"Overwrite this field in case the sub path determination isn't right, "
-"otherwise leave it as is. Leaving this field blank means the installation is "
-"at the base URL without sub path."
-msgstr ""
-
-#: src/Module/Install.php:238
-msgid "Database connection"
-msgstr ""
-
-#: src/Module/Install.php:239
-msgid ""
-"In order to install Friendica we need to know how to connect to your "
-"database."
-msgstr ""
-
-#: src/Module/Install.php:240
-msgid ""
-"Please contact your hosting provider or site administrator if you have "
-"questions about these settings."
-msgstr ""
-
-#: src/Module/Install.php:241
-msgid ""
-"The database you specify below should already exist. If it does not, please "
-"create it before continuing."
-msgstr ""
-
-#: src/Module/Install.php:248
-msgid "Database Server Name"
-msgstr ""
-
-#: src/Module/Install.php:253
-msgid "Database Login Name"
-msgstr ""
-
-#: src/Module/Install.php:259
-msgid "Database Login Password"
-msgstr ""
-
-#: src/Module/Install.php:261
-msgid "For security reasons the password must not be empty"
-msgstr ""
-
-#: src/Module/Install.php:264
-msgid "Database Name"
-msgstr ""
-
-#: src/Module/Install.php:268 src/Module/Install.php:297
-msgid "Please select a default timezone for your website"
-msgstr ""
-
-#: src/Module/Install.php:282
-msgid "Site settings"
-msgstr ""
-
-#: src/Module/Install.php:292
-msgid "Site administrator email address"
-msgstr ""
-
-#: src/Module/Install.php:294
-msgid ""
-"Your account email address must match this in order to use the web admin "
-"panel."
-msgstr ""
-
-#: src/Module/Install.php:301
-msgid "System Language:"
-msgstr ""
-
-#: src/Module/Install.php:303
-msgid ""
-"Set the default language for your Friendica installation interface and to "
-"send emails."
-msgstr ""
-
-#: src/Module/Install.php:315
-msgid "Your Friendica site database has been installed."
-msgstr ""
-
-#: src/Module/Install.php:323
-msgid "Installation finished"
-msgstr ""
-
-#: src/Module/Install.php:343
-msgid "<h1>What next</h1>"
-msgstr ""
-
-#: src/Module/Install.php:344
-msgid ""
-"IMPORTANT: You will need to [manually] setup a scheduled task for the worker."
-msgstr ""
-
-#: src/Module/Install.php:345
-msgid "Please see the file \"INSTALL.txt\"."
-msgstr ""
-
-#: src/Module/Install.php:347
-#, php-format
-msgid ""
-"Go to your new Friendica node <a href=\"%s/register\">registration page</a> "
-"and register as new user. Remember to use the same email you have entered as "
-"administrator email. This will allow you to enter the site admin panel."
-msgstr ""
-
 #: src/Module/Maintenance.php:46
 msgid "System down for maintenance"
 msgstr ""
@@ -10008,6 +9861,153 @@ msgstr ""
 msgid ""
 "Our <strong>help</strong> pages may be consulted for detail on other program "
 "features and resources."
+msgstr ""
+
+#: src/Module/Install.php:177
+msgid "Friendica Communications Server - Setup"
+msgstr ""
+
+#: src/Module/Install.php:188
+msgid "System check"
+msgstr ""
+
+#: src/Module/Install.php:193
+msgid "Check again"
+msgstr ""
+
+#: src/Module/Install.php:208
+msgid "Base settings"
+msgstr ""
+
+#: src/Module/Install.php:215
+msgid "Host name"
+msgstr ""
+
+#: src/Module/Install.php:217
+msgid ""
+"Overwrite this field in case the determinated hostname isn't right, "
+"otherweise leave it as is."
+msgstr ""
+
+#: src/Module/Install.php:220
+msgid "Base path to installation"
+msgstr ""
+
+#: src/Module/Install.php:222
+msgid ""
+"If the system cannot detect the correct path to your installation, enter the "
+"correct path here. This setting should only be set if you are using a "
+"restricted system and symbolic links to your webroot."
+msgstr ""
+
+#: src/Module/Install.php:225
+msgid "Sub path of the URL"
+msgstr ""
+
+#: src/Module/Install.php:227
+msgid ""
+"Overwrite this field in case the sub path determination isn't right, "
+"otherwise leave it as is. Leaving this field blank means the installation is "
+"at the base URL without sub path."
+msgstr ""
+
+#: src/Module/Install.php:238
+msgid "Database connection"
+msgstr ""
+
+#: src/Module/Install.php:239
+msgid ""
+"In order to install Friendica we need to know how to connect to your "
+"database."
+msgstr ""
+
+#: src/Module/Install.php:240
+msgid ""
+"Please contact your hosting provider or site administrator if you have "
+"questions about these settings."
+msgstr ""
+
+#: src/Module/Install.php:241
+msgid ""
+"The database you specify below should already exist. If it does not, please "
+"create it before continuing."
+msgstr ""
+
+#: src/Module/Install.php:248
+msgid "Database Server Name"
+msgstr ""
+
+#: src/Module/Install.php:253
+msgid "Database Login Name"
+msgstr ""
+
+#: src/Module/Install.php:259
+msgid "Database Login Password"
+msgstr ""
+
+#: src/Module/Install.php:261
+msgid "For security reasons the password must not be empty"
+msgstr ""
+
+#: src/Module/Install.php:264
+msgid "Database Name"
+msgstr ""
+
+#: src/Module/Install.php:268 src/Module/Install.php:297
+msgid "Please select a default timezone for your website"
+msgstr ""
+
+#: src/Module/Install.php:282
+msgid "Site settings"
+msgstr ""
+
+#: src/Module/Install.php:292
+msgid "Site administrator email address"
+msgstr ""
+
+#: src/Module/Install.php:294
+msgid ""
+"Your account email address must match this in order to use the web admin "
+"panel."
+msgstr ""
+
+#: src/Module/Install.php:301
+msgid "System Language:"
+msgstr ""
+
+#: src/Module/Install.php:303
+msgid ""
+"Set the default language for your Friendica installation interface and to "
+"send emails."
+msgstr ""
+
+#: src/Module/Install.php:315
+msgid "Your Friendica site database has been installed."
+msgstr ""
+
+#: src/Module/Install.php:323
+msgid "Installation finished"
+msgstr ""
+
+#: src/Module/Install.php:343
+msgid "<h1>What next</h1>"
+msgstr ""
+
+#: src/Module/Install.php:344
+msgid ""
+"IMPORTANT: You will need to [manually] setup a scheduled task for the worker."
+msgstr ""
+
+#: src/Module/Install.php:345
+msgid "Please see the file \"INSTALL.txt\"."
+msgstr ""
+
+#: src/Module/Install.php:347
+#, php-format
+msgid ""
+"Go to your new Friendica node <a href=\"%s/register\">registration page</a> "
+"and register as new user. Remember to use the same email you have entered as "
+"administrator email. This will allow you to enter the site admin panel."
 msgstr ""
 
 #: src/Object/EMail/ItemCCEMail.php:39
