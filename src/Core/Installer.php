@@ -196,7 +196,7 @@ class Installer
 
 		if ($result) {
 			$txt = DI::l10n()->t('You may need to import the file "database.sql" manually using phpmyadmin or mysql.') . EOL;
-			$txt .= DI::l10n()->t('Please see the file "INSTALL.txt".');
+			$txt .= DI::l10n()->t('Please see the file "doc/INSTALL.md".');
 
 			$this->addCheck($txt, false, true, htmlentities($result, ENT_COMPAT, 'UTF-8'));
 
