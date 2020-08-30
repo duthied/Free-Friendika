@@ -12,7 +12,7 @@
 # David Rabel <david.rabel@noresoft.com>, 2016
 # Erkan Yilmaz <erkan77@gmail.com>, 2011
 # Fabian Dost <friends@dostmusik.de>, 2012
-# foss <foss@openmailbox.org>, 2014,2016-2017
+# foss <foss@openmailbox.org>, 2014,2016-2017,2020
 # Frank Dieckmann <frank@lumina-verte.org>, 2015
 # Fabian Dost <friends@dostmusik.de>, 2012
 # greeneyedred <greeneyedred@googlemail.com>, 2012
@@ -50,8 +50,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-08-26 16:59+0000\n"
-"PO-Revision-Date: 2020-08-27 14:08+0000\n"
-"Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
+"PO-Revision-Date: 2020-08-29 11:15+0000\n"
+"Last-Translator: foss <foss@openmailbox.org>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -4690,18 +4690,18 @@ msgstr "Zwei-Faktor Authentifizierung"
 msgid ""
 "<p>Open the two-factor authentication app on your device to get an "
 "authentication code and verify your identity.</p>"
-msgstr "<p>Öffnen Sie die Zwei-Faktor-Authentifizierungs-App auf Ihrem Gerät, um einen Authentifizierungscode abzurufen und Ihre Identität zu überprüfen.</p>"
+msgstr "<p>Öffne die Zwei-Faktor-Authentifizierungs-App auf deinem Gerät, um einen Authentifizierungscode abzurufen und deine Identität zu überprüfen.</p>"
 
 #: src/Module/Security/TwoFactor/Verify.php:84
 #: src/Module/Security/TwoFactor/Recovery.php:85
 #, php-format
 msgid "Don’t have your phone? <a href=\"%s\">Enter a two-factor recovery code</a>"
-msgstr "Hast du dein Handy nicht? <a href=\"%s\">Geben Sie einen Zwei-Faktor-Wiederherstellungscode ein</a>"
+msgstr "Hast du dein Handy nicht? <a href=\"%s\">Gib einen Zwei-Faktor-Wiederherstellungscode ein</a>"
 
 #: src/Module/Security/TwoFactor/Verify.php:85
 #: src/Module/Settings/TwoFactor/Verify.php:141
 msgid "Please enter a code from your authentication app"
-msgstr "Bitte geben Sie einen Code aus Ihrer Authentifizierungs-App ein"
+msgstr "Bitte gebe einen Code aus Ihrer Authentifizierungs-App ein"
 
 #: src/Module/Security/TwoFactor/Verify.php:86
 msgid "Verify code and complete login"
@@ -4720,15 +4720,15 @@ msgstr "Zwei-Faktor-Wiederherstellung"
 msgid ""
 "<p>You can enter one of your one-time recovery codes in case you lost access"
 " to your mobile device.</p>"
-msgstr "<p>Sie können einen Ihrer einmaligen Wiederherstellungscodes eingeben, falls Sie den Zugriff auf Ihr Mobilgerät verloren haben.</p>"
+msgstr "Du kannst einen deiner einmaligen Wiederherstellungscodes eingeben, falls du den Zugriff auf dein Mobilgerät verloren hast.</p>"
 
 #: src/Module/Security/TwoFactor/Recovery.php:86
 msgid "Please enter a recovery code"
-msgstr "Bitte geben Sie einen Wiederherstellungscode ein"
+msgstr "Bitte gib einen Wiederherstellungscode ein"
 
 #: src/Module/Security/TwoFactor/Recovery.php:87
 msgid "Submit recovery code and complete login"
-msgstr "Senden Sie den Wiederherstellungscode und schließen Sie die Anmeldung ab"
+msgstr "Sende den Wiederherstellungscode und schließe die Anmeldung ab"
 
 #: src/Module/Security/Login.php:101
 msgid "Create a New Account"
@@ -8005,7 +8005,7 @@ msgstr "Die Logdatei '%s' ist nicht beschreibbar. Derzeit ist keine Aufzeichnung
 msgid ""
 "Friendica's system.basepath was updated from '%s' to '%s'. Please remove the"
 " system.basepath from your db to avoid differences."
-msgstr "Friendica's system.basepath würde aktualisiert '%s' von '%s'. Bitte entfernen Sie system.basepath aus der Datenbank um Unterschiede zu vermeiden."
+msgstr "Friendica's system.basepath wurde aktualisiert '%s' von '%s'. Bitte entferne system.basepath aus der Datenbank um Unterschiede zu vermeiden."
 
 #: src/Module/Admin/Summary.php:171
 #, php-format
@@ -8019,7 +8019,7 @@ msgstr "Friendica's aktueller system.basepath '%s' ist verkehrt und die config f
 msgid ""
 "Friendica's current system.basepath '%s' is not equal to the config file "
 "'%s'. Please fix your configuration."
-msgstr "Friendica's aktueller system.basepath '%s' ist nicht gleich wie die config file '%s'. Bitte korrigieren Sie Ihre Konfiguration."
+msgstr "Friendica's aktueller system.basepath '%s' ist nicht gleich wie die config file '%s'. Bitte korrigiere deine Konfiguration."
 
 #: src/Module/Admin/Summary.php:186
 msgid "Normal Account"
@@ -8377,7 +8377,7 @@ msgstr "Ortungsdienste sind auf Ihrem Gerät nicht verfügbar"
 msgid ""
 "Location services are disabled. Please check the website's permissions on "
 "your device"
-msgstr "Ortungsdienste sind deaktiviert. Bitte überprüfen Sie die Berechtigungen der Website auf Ihrem Gerät"
+msgstr "Ortungsdienste sind deaktiviert. Bitte überprüfe die Berechtigungen der Website auf deinem Gerät"
 
 #: src/Module/Friendica.php:60
 msgid "Installed addons/apps:"
@@ -9044,7 +9044,7 @@ msgstr "Verbleibende Wiederherstellungsschlüssel"
 msgid ""
 "<p>These one-use codes can replace an authenticator app code in case you "
 "have lost access to it.</p>"
-msgstr "<p>Diese Einmalcodes können einen Authentifikator-App-Code ersetzen, falls Sie den Zugriff darauf verloren haben.</p>"
+msgstr "<p>Diese Einmalcodes können einen Authentifikator-App-Code ersetzen, falls du den Zugriff darauf verloren hast.</p>"
 
 #: src/Module/Settings/TwoFactor/Index.php:122
 msgid "App-specific passwords"
@@ -9088,13 +9088,13 @@ msgstr "App spezifische Passwörter verwalten"
 
 #: src/Module/Settings/TwoFactor/Index.php:133
 msgid "Finish app configuration"
-msgstr "Beenden Sie die App-Konfiguration"
+msgstr "Beende die App-Konfiguration"
 
 #: src/Module/Settings/TwoFactor/Verify.php:56
 #: src/Module/Settings/TwoFactor/Recovery.php:50
 #: src/Module/Settings/TwoFactor/AppSpecific.php:52
 msgid "Please enter your password to access this page."
-msgstr "Bitte geben Sie Ihr Passwort ein, um auf diese Seite zuzugreifen."
+msgstr "Bitte gib dein Passwort ein, um auf diese Seite zuzugreifen."
 
 #: src/Module/Settings/TwoFactor/Verify.php:78
 msgid "Two-factor authentication successfully activated."
@@ -9118,7 +9118,7 @@ msgid ""
 "\t<dt>Hashing algorithm</dt>\n"
 "\t<dd>SHA-1</dd>\n"
 "</dl>"
-msgstr "<p>Oder Sie können die Authentifizierungseinstellungen manuell übermitteln:</p>\n<dl>\n\tVerursacher\n\t<dd>%s</dd>\n\t<dt>Kontoname</dt>\n\t<dd>%s</dd>\n\t<dt>Geheimer Schlüssel</dt>\n\t<dd>%s</dd>\n\t<dt>Typ</dt>\n\t<dd>Zeitbasiert</dd>\n\t<dt>Anzahl an Ziffern</dt>\n\t<dd>6</dd>\n\t<dt>Hashing-Algorithmus</dt>\n\t<dd>SHA-1</dd>\n</dl>"
+msgstr "<p>Oder du kannst die Authentifizierungseinstellungen manuell übermitteln:</p>\n<dl>\n\tVerursacher\n\t<dd>%s</dd>\n\t<dt>Kontoname</dt>\n\t<dd>%s</dd>\n\t<dt>Geheimer Schlüssel</dt>\n\t<dd>%s</dd>\n\t<dt>Typ</dt>\n\t<dd>Zeitbasiert</dd>\n\t<dt>Anzahl an Ziffern</dt>\n\t<dd>6</dd>\n\t<dt>Hashing-Algorithmus</dt>\n\t<dd>SHA-1</dd>\n</dl>"
 
 #: src/Module/Settings/TwoFactor/Verify.php:131
 msgid "Two-factor code verification"
@@ -9128,18 +9128,18 @@ msgstr "Überprüfung des Zwei-Faktor-Codes"
 msgid ""
 "<p>Please scan this QR Code with your authenticator app and submit the "
 "provided code.</p>"
-msgstr "<p>Bitte scannen Sie diesen QR-Code mit Ihrer Authentifikator-App und übermitteln Sie den bereitgestellten Code.</p>"
+msgstr "<p>Bitte scanne diesen QR-Code mit deiner Authentifikator-App und übermittele den bereitgestellten Code.</p>"
 
 #: src/Module/Settings/TwoFactor/Verify.php:135
 #, php-format
 msgid ""
 "<p>Or you can open the following URL in your mobile devicde:</p><p><a "
 "href=\"%s\">%s</a></p>"
-msgstr "<p>Oder Sie können die folgende URL in Ihrem Mobilgerät öffnen:</p><p><a href=\"%s\">%s</a></p>"
+msgstr "<p>Oder du kannst die folgende URL in deinem Mobilgerät öffnen:</p><p><a href=\"%s\">%s</a></p>"
 
 #: src/Module/Settings/TwoFactor/Verify.php:142
 msgid "Verify code and enable two-factor authentication"
-msgstr "Überprüfen Sie den Code und aktivieren Sie die Zwei-Faktor-Authentifizierung"
+msgstr "Überprüfe den Code und aktiviere die Zwei-Faktor-Authentifizierung"
 
 #: src/Module/Settings/TwoFactor/Recovery.php:66
 msgid "New recovery codes successfully generated."
@@ -9156,17 +9156,17 @@ msgid ""
 "codes.</p><p><strong>Put these in a safe spot!</strong> If you lose your "
 "device and don’t have the recovery codes you will lose access to your "
 "account.</p>"
-msgstr "<p>Wiederherstellungscodes können verwendet werden, um auf Ihr Konto zuzugreifen, falls Sie den Zugriff auf Ihr Gerät verlieren und keine Zwei-Faktor-Authentifizierungscodes erhalten können.</p><p><strong>Bewahren Sie diese an einem sicheren Ort auf!</strong> Wenn Sie Ihr Gerät verlieren und nicht über die Wiederherstellungscodes verfügen, verlieren Sie den Zugriff auf Ihr Konto.</p>"
+msgstr "<p>Wiederherstellungscodes können verwendet werden, um auf dein Konto zuzugreifen, falls du den Zugriff auf dein Gerät verlieren und keine Zwei-Faktor-Authentifizierungscodes erhalten kannst.</p><p><strong>Bewahre diese an einem sicheren Ort auf!</strong> Wenn du dein Gerät verlierst und nicht über die Wiederherstellungscodes verfügst, verlierst du den Zugriff auf dein Konto.</p>"
 
 #: src/Module/Settings/TwoFactor/Recovery.php:96
 msgid ""
 "When you generate new recovery codes, you must copy the new codes. Your old "
 "codes won’t work anymore."
-msgstr "Wenn Sie neue Wiederherstellungscodes generieren, müssen Sie die neuen Codes kopieren. Ihre alten Codes funktionieren nicht mehr."
+msgstr "Wenn du neue Wiederherstellungscodes generierst, mußt du die neuen Codes kopieren. Deine alten Codes funktionieren nicht mehr."
 
 #: src/Module/Settings/TwoFactor/Recovery.php:97
 msgid "Generate new recovery codes"
-msgstr "Generieren Sie neue Wiederherstellungscodes"
+msgstr "Generiere neue Wiederherstellungscodes"
 
 #: src/Module/Settings/TwoFactor/Recovery.php:99
 msgid "Next: Verification"
