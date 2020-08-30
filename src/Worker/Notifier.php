@@ -685,15 +685,15 @@ class Notifier
 			return false;
 		}
 
+		// We deliver reshares via AP whenever possible
+		if (ActivityPub\Transmitter::isAnnounce($item)) {
+			return true;
+		}
+
 		// For the time being we always deliver forum post via DFRN if possible
 		// This can be removed possible at the end of 2020 when hopefully most system can process AP forum posts
 		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 			return false;
-		}
-
-		// We deliver reshares via AP whenever possible
-		if (ActivityPub\Transmitter::isAnnounce($item)) {
-			return true;
 		}
 
 		// Skip DFRN when the item will be (forcefully) delivered via AP
