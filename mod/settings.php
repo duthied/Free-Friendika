@@ -866,7 +866,7 @@ function settings_content(App $a)
 		'$password1'=> ['password', DI::l10n()->t('New Password:'), '', DI::l10n()->t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).')],
 		'$password2'=> ['confirm', DI::l10n()->t('Confirm:'), '', DI::l10n()->t('Leave password fields blank unless changing')],
 		'$password3'=> ['opassword', DI::l10n()->t('Current Password:'), '', DI::l10n()->t('Your current password to confirm the changes')],
-		'$password4'=> ['mpassword', DI::l10n()->t('Password:'), '', DI::l10n()->t('Your current password to confirm the changes')],
+		'$password4'=> ['mpassword', DI::l10n()->t('Password:'), '', DI::l10n()->t('Your current password to confirm the changes of the email address')],
 		'$oid_enable' => (!DI::config()->get('system', 'no_openid')),
 		'$openid'	=> $openid_field,
 		'$delete_openid' => ['delete_openid', DI::l10n()->t('Delete OpenID URL'), false, ''],
