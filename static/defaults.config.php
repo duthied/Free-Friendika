@@ -499,6 +499,11 @@ return [
 		// Setting 0 would allow maximum worker queues at all times, which is not recommended.
 		'worker_load_exponent' => 3,
 
+		// worker_multiple_fetch (Boolean)
+		// When activated, the worker fetches jobs for multiple workers (not only for itself).
+		// This is an experimental setting without knowing the performance impact.
+		'worker_multiple_fetch' => false,
+		
 		// worker_defer_limit (Integer)
 		// Per default the systems tries delivering for 15 times before dropping it.
 		'worker_defer_limit' => 15,
