@@ -83,6 +83,10 @@ class Delivery
 			$itemdata = Model\Item::select([], $condition, $params);
 
 			while ($item = Model\Item::fetch($itemdata)) {
+				if ($item['verb'] == Activity::ANNOUNCE) {
+					continue;
+				}
+	
 				if ($item['id'] == $parent_id) {
 					$parent = $item;
 				}
