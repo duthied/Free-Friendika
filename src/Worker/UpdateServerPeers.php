@@ -63,41 +63,4 @@ class UpdateServerPeers
 		}
 		Logger::info('Server peer update ended', ['total' => $total, 'added' => $added, 'url' => $url]);
 	}
-
-	/**
-	 * Fetch server list from remote servers and adds them when they are new.
-	 *
-	 * @param string $poco URL to the POCO endpoint
-	 */
-	private static function fetchServerlist($poco)
-	{
-		$curlResult = DI::httpRequest()->get($poco . '/@server');
-		if (!$curlResult->isSuccess()) {
-			Logger::info('Server is not reachable or does not offer the "poco" endpoint', ['poco' => $poco]);
-			return;
-		}
-
-		$serverlist = json_decode($curlResult->getBody(), true);
-		if (!is_array($serverlist)) {
-			Logger::info('Server does not have any servers listed', ['poco' => $poco]);
-			return;
-		}
-
-		Logger::info('PoCo Server update start', ['poco' => $poco]);
-
-		$total = 0;
-		$added = 0;
-		foreach ($serverlist as $server) {
-			++$total;
-			if (DBA::exists('gserver', ['nurl' => Strings::normaliseLink($server['url'])])) {
-				// We already know this server
-				continue;
-			}
-			// This endpoint doesn't offer the schema. So we assume that it is HTTPS.
-			Worker::add(PRIORITY_LOW, 'UpdateGServer', $server['url']);
-			++$added;
-		}
-
-		Logger::info('PoCo Server update ended', ['total' => $total, 'added' => $added, 'poco' => $poco]);
-	}
 }
