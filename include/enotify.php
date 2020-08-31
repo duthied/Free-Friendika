@@ -645,6 +645,11 @@ function check_item_notification($itemid, $uid, $notification_type) {
 		if ($item['gravity'] == GRAVITY_ACTIVITY) {
 			$parent_item = Item::selectFirst($fields, ['uri-id' => $item['thr-parent-id'], 'uid' => [$uid, 0]]);
 			if (DBA::isResult($parent_item)) {
+				// Don't notify on own entries
+				if (User::getIdForURL($parent_item['author-link']) == $uid) {
+					return false;
+				}
+
 				$params['origin_name'] = $parent_item['author-name'];
 				$params['origin_link'] = $parent_item['author-link'];
 				$params['origin_photo'] = $parent_item['author-avatar'];
