@@ -1653,18 +1653,4 @@ class GServer
 
 		DI::config()->set('poco', 'last_federation_discovery', time());
 	}
-
-	/**
-	 * Returns a list of 1,000 active servers order by the last contact
-	 *
-	 * @return array List of server urls
-	 * @throws Exception
-	 */
-	public static function getActive()
-	{
-		$result = DBA::p("SELECT `url`, `site_name` AS `displayName`, `network`, `platform`, `version` FROM `gserver`
-			WHERE `network` IN (?, ?, ?, ?) AND NOT `failed` ORDER BY `last_contact` LIMIT ?",
-			Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::ACTIVITYPUB, 1000);
-		return DBA::toArray($result);
-	}
 }
