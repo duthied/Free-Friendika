@@ -111,7 +111,7 @@ class Update
 			if ($stored < $current || $force) {
 				DI::config()->load('database');
 
-				Logger::info('Update starting.', ['from' => $stored, 'to' => $current]);
+				Logger::notice('Update starting.', ['from' => $stored, 'to' => $current]);
 
 				// Compare the current structure with the defined structure
 				// If the Lock is acquired, never release it automatically to avoid double updates
@@ -120,7 +120,7 @@ class Update
 					// Checks if the build changed during Lock acquiring (so no double update occurs)
 					$retryBuild = DI::config()->get('system', 'build', null, true);
 					if ($retryBuild !== $build) {
-						Logger::info('Update already done.', ['from' => $stored, 'to' => $current]);
+						Logger::notice('Update already done.', ['from' => $stored, 'to' => $current]);
 						DI::lock()->release('dbupdate');
 						return '';
 					}
@@ -129,6 +129,7 @@ class Update
 					for ($x = $stored + 1; $x <= $current; $x++) {
 						$r = self::runUpdateFunction($x, 'pre_update', $sendMail);
 						if (!$r) {
+							Logger::warning('Pre update failed', ['version' => $x]);
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
 							return $r;
@@ -158,6 +159,7 @@ class Update
 					for ($x = $stored + 1; $x <= $current; $x++) {
 						$r = self::runUpdateFunction($x, 'update', $sendMail);
 						if (!$r) {
+							Logger::warning('Post update failed', ['version' => $x]);
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
 							return $r;
@@ -205,7 +207,9 @@ class Update
 			if (DI::lock()->acquire('dbupdate_function', 120, Cache\Duration::INFINITE)) {
 
 				// call the specific update
+				Logger::info('Pre update function start.', ['function' => $funcname]);
 				$retval = $funcname();
+				Logger::info('Update function done.', ['function' => $funcname]);
 
 				if ($retval) {
 					if ($sendMail) {
@@ -230,6 +234,8 @@ class Update
 					Logger::info('Update function finished.', ['function' => $funcname]);
 					return true;
 				}
+			} else {
+				Logger::error('Locking failed.', ['function' => $funcname]);
 			}
 		} else {
 			Logger::info('Update function skipped.', ['function' => $funcname]);
