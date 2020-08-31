@@ -484,7 +484,7 @@ class HTTPSignature
 		}
 
 		$headers = [];
-		$headers['(request-target)'] = strtolower($http_headers['REQUEST_METHOD']) . ' ' . $http_headers['REQUEST_URI'];
+		$headers['(request-target)'] = strtolower($http_headers['REQUEST_METHOD']) . ' ' . parse_url($http_headers['REQUEST_URI'], PHP_URL_PATH);
 
 		// First take every header
 		foreach ($http_headers as $k => $v) {

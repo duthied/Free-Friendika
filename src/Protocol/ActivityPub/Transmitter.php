@@ -141,20 +141,37 @@ class Transmitter
 	/**
 	 * Public posts for the given owner
 	 *
-	 * @param array   $owner Owner array
-	 * @param integer $page  Page numbe
+	 * @param array   $owner     Owner array
+	 * @param integer $page      Page number
+	 * @param string  $requester URL of requesting account
 	 *
 	 * @return array of posts
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getOutbox($owner, $page = null)
+	public static function getOutbox($owner, $page = null, $requester = '')
 	{
 		$public_contact = Contact::getIdForURL($owner['url']);
+		$condition = ['uid' => 0, 'contact-id' => $public_contact,
+			'private' => [Item::PUBLIC, Item::UNLISTED]];
 
-		$condition = ['uid' => 0, 'contact-id' => $public_contact, 'author-id' => $public_contact,
-			'private' => [Item::PUBLIC, Item::UNLISTED], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
-			'deleted' => false, 'visible' => true, 'moderated' => false];
+		if (!empty($requester)) {
+			$requester_id = Contact::getIdForURL($requester, $owner['uid']);
+			if (!empty($requester_id)) {
+				$permissionSets = DI::permissionSet()->selectByContactId($requester_id, $owner['uid']);
+				if (!empty($permissionSets)) {
+					$condition = ['uid' => $owner['uid'], 'origin' => true,
+						'psid' => array_merge($permissionSets->column('id'),
+							[DI::permissionSet()->getIdFromACL($owner['uid'], '', '', '', '')])];
+				}
+			}
+		}
+
+		$condition = array_merge($condition,
+			['author-id' => $public_contact,
+			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'deleted' => false, 'visible' => true, 'moderated' => false]);
+
 		$count = DBA::count('item', $condition);
 
 		$data = ['@context' => ActivityPub::CONTEXT];
