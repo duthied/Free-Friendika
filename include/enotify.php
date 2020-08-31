@@ -259,13 +259,23 @@ function notification($params)
 	}
 
 	if ($params['type'] == Notify\Type::SHARE) {
-		$subject = $l10n->t('%s %s shared a new post', $subjectPrefix, $params['source_name']);
+		if ($params['origin_link'] == $params['source_link']) {
+			$subject = $l10n->t('%s %s shared a new post', $subjectPrefix, $params['source_name']);
 
-		$preamble = $l10n->t('%1$s shared a new post at %2$s', $params['source_name'], $sitename);
-		$epreamble = $l10n->t('%1$s [url=%2$s]shared a post[/url].',
-			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
-			$params['link']
-		);
+			$preamble = $l10n->t('%1$s shared a new post at %2$s', $params['source_name'], $sitename);
+			$epreamble = $l10n->t('%1$s [url=%2$s]shared a post[/url].',
+				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
+				$params['link']
+			);
+		} else {
+			$subject = $l10n->t('%s %s shared a post from %s', $subjectPrefix, $params['source_name'], $params['origin_name']);
+
+			$preamble = $l10n->t('%1$s shared a post from %2$s at %3$s', $params['source_name'], $params['origin_name'], $sitename);
+			$epreamble = $l10n->t('%1$s [url=%2$s]shared a post[/url] from %3$s.',
+				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
+				$params['link'], '[url='.$params['origin_link'].']'.$params['origin_name'].'[/url]'
+			);			
+		}
 
 		$sitelink = $l10n->t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
@@ -594,9 +604,9 @@ function check_user_notification($itemid) {
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function check_item_notification($itemid, $uid, $notification_type) {
-	$fields = ['id', 'uri-id', 'mention', 'parent', 'parent-uri-id', 'title', 'body',
-		'author-link', 'author-name', 'author-avatar', 'author-id',
-		'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
+	$fields = ['id', 'uri-id', 'mention', 'parent', 'parent-uri-id', 'thr-parent-id',
+		'title', 'body', 'author-link', 'author-name', 'author-avatar', 'author-id',
+		'gravity', 'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
 	$condition = ['id' => $itemid, 'deleted' => false];
 	$item = Item::selectFirstForUser($uid, $fields, $condition);
 	if (!DBA::isResult($item)) {
@@ -610,9 +620,9 @@ function check_item_notification($itemid, $uid, $notification_type) {
 	$params['parent'] = $item['parent'];
 	$params['link'] = DI::baseUrl() . '/display/' . urlencode($item['guid']);
 	$params['otype'] = 'item';
-	$params['source_name'] = $item['author-name'];
-	$params['source_link'] = $item['author-link'];
-	$params['source_photo'] = $item['author-avatar'];
+	$params['origin_name'] = $params['source_name'] = $item['author-name'];
+	$params['origin_link'] = $params['source_link'] = $item['author-link'];
+	$params['origin_photo'] = $params['source_photo'] = $item['author-avatar'];
 
 	// Set the activity flags
 	$params['activity']['explicit_tagged'] = ($notification_type & UserItem::NOTIF_EXPLICIT_TAGGED);
@@ -630,6 +640,22 @@ function check_item_notification($itemid, $uid, $notification_type) {
 	if ($notification_type & UserItem::NOTIF_SHARED) {
 		$params['type'] = Notify\Type::SHARE;
 		$params['verb'] = Activity::POST;
+
+		// Special treatment for posts that had been shared via "announce"
+		if ($item['gravity'] == GRAVITY_ACTIVITY) {
+			$parent_item = Item::selectFirst($fields, ['uri-id' => $item['thr-parent-id'], 'uid' => [$uid, 0]]);
+			if (DBA::isResult($parent_item)) {
+				// Don't notify on own entries
+				if (User::getIdForURL($parent_item['author-link']) == $uid) {
+					return false;
+				}
+
+				$params['origin_name'] = $parent_item['author-name'];
+				$params['origin_link'] = $parent_item['author-link'];
+				$params['origin_photo'] = $parent_item['author-avatar'];
+				$params['item'] = $parent_item;
+			}
+		}
 	} elseif ($notification_type & UserItem::NOTIF_EXPLICIT_TAGGED) {
 		$params['type'] = Notify\Type::TAG_SELF;
 		$params['verb'] = Activity::TAG;
