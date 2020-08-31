@@ -50,26 +50,29 @@ class Objects extends BaseModule
 		$item = Item::selectFirst(['id', 'uid', 'origin', 'author-link', 'changed', 'private', 'psid'],
 			['guid' => $parameters['guid']], ['order' => ['origin' => true]]);
 
-		$validated = false;
-		$requester = HTTPSignature::getSigner('', $_SERVER);
-		if (!empty($requester) && $item['origin']) {
-			$requester_id = Contact::getIdForURL($requester, $item['uid']);
-			if (!empty($requester_id)) {
-				$permissionSets = DI::permissionSet()->selectByContactId($requester_id, $item['uid']);
-				if (!empty($permissionSets)) {
-					$psid = array_merge($permissionSets->column('id'),
-						[DI::permissionSet()->getIdFromACL($item['uid'], '', '', '', '')]);
-					$validated = in_array($item['psid'], $psid);
+		if (!DBA::isResult($item)) {
+			throw new HTTPException\NotFoundException();
+		}
+
+		$validated = in_array($item['private'], [Item::PUBLIC, Item::UNLISTED]);
+
+		if (!$validated) {
+			$requester = HTTPSignature::getSigner('', $_SERVER);
+			if (!empty($requester) && $item['origin']) {
+				$requester_id = Contact::getIdForURL($requester, $item['uid']);
+				if (!empty($requester_id)) {
+					$permissionSets = DI::permissionSet()->selectByContactId($requester_id, $item['uid']);
+					if (!empty($permissionSets)) {
+						$psid = array_merge($permissionSets->column('id'),
+							[DI::permissionSet()->getIdFromACL($item['uid'], '', '', '', '')]);
+						$validated = in_array($item['psid'], $psid);
+					}
 				}
 			}
 		}
 
-		if (!$validated && !in_array($item['private'], [Item::PUBLIC, Item::UNLISTED])) {
-			unset($item);
-		}
-
 		// Valid items are original post or posted from this node (including in the case of a forum)
-		if (!DBA::isResult($item) || !$item['origin'] && (parse_url($item['author-link'], PHP_URL_HOST) != parse_url(DI::baseUrl()->get(), PHP_URL_HOST))) {
+		if (!$validated || !$item['origin'] && (parse_url($item['author-link'], PHP_URL_HOST) != parse_url(DI::baseUrl()->get(), PHP_URL_HOST))) {
 			throw new HTTPException\NotFoundException();
 		}
 
