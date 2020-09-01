@@ -47,7 +47,7 @@ class Objects extends BaseModule
 			DI::baseUrl()->redirect(str_replace('objects/', 'display/', DI::args()->getQueryString()));
 		}
 
-		$item = Item::selectFirst(['id', 'uid', 'origin', 'author-link', 'changed', 'private', 'psid'],
+		$item = Item::selectFirst(['id', 'uid', 'origin', 'author-link', 'changed', 'private', 'psid', 'gravity'],
 			['guid' => $parameters['guid']], ['order' => ['origin' => true]]);
 
 		if (!DBA::isResult($item)) {
@@ -80,7 +80,7 @@ class Objects extends BaseModule
 		$last_modified = $item['changed'];
 		Network::checkEtagModified($etag, $last_modified);
 
-		if (empty($parameters['activity'])) {
+		if (empty($parameters['activity']) && ($item['gravity'] != GRAVITY_ACTIVITY)) {
 			$activity = ActivityPub\Transmitter::createActivityFromItem($item['id'], true);
 			$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
 
@@ -92,12 +92,12 @@ class Objects extends BaseModule
 			$data = ['@context' => ActivityPub::CONTEXT];
 			$data = array_merge($data, $activity['object']);
 		} elseif (in_array($parameters['activity'], ['Create', 'Announce', 'Update', 
-			'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'Follow', 'Add'])) {
+			'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'Follow', 'Add', ''])) {
 			$data = ActivityPub\Transmitter::createActivityFromItem($item['id']);
 			if (empty($data)) {
 				throw new HTTPException\NotFoundException();
 			}
-			if ($parameters['activity'] != 'Create') {
+			if (!in_array($parameters['activity'], ['Create', ''])) {
 				$data['type'] = $parameters['activity'];
 				$data['id'] = str_replace('/Create', '/' . $parameters['activity'], $data['id']);
 			}

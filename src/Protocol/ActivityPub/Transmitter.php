@@ -981,7 +981,12 @@ class Transmitter
 			$data = [];
 		}
 
-		$data['id'] = $item['uri'] . '/' . $type;
+		if (($item['gravity'] == GRAVITY_ACTIVITY) && ($type != 'Undo')) {
+			$data['id'] = $item['uri'];
+		} else {
+			$data['id'] = $item['uri'] . '/' . $type;
+		}
+
 		$data['type'] = $type;
 
 		if (($type != 'Announce') || ($item['gravity'] != GRAVITY_PARENT)) {
