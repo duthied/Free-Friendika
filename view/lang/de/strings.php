@@ -217,6 +217,9 @@ $a->strings["%1\$s posted to [url=%2\$s]your wall[/url]"] = "%1\$s hat etwas auf
 $a->strings["%s %s shared a new post"] = "%s%shat einen Beitrag geteilt";
 $a->strings["%1\$s shared a new post at %2\$s"] = "%1\$s hat einen neuen Beitrag auf %2\$s geteilt";
 $a->strings["%1\$s [url=%2\$s]shared a post[/url]."] = "%1\$s [url=%2\$s]hat einen Beitrag geteilt[/url].";
+$a->strings["%s %s shared a post from %s"] = "%s%s hat einen Beitrag von %s geteilt";
+$a->strings["%1\$s shared a post from %2\$s at %3\$s"] = "%1\$s hat einen Beitrag von %2\$s auf %3\$s geteilt";
+$a->strings["%1\$s [url=%2\$s]shared a post[/url] from %3\$s."] = "%1\$s [url=%2\$s]teilte einen Beitrag[/url] von %3\$s.";
 $a->strings["%1\$s %2\$s poked you"] = "%1\$s%2\$shat dich angestubst";
 $a->strings["%1\$s poked you at %2\$s"] = "%1\$s hat dich auf %2\$s angestupst";
 $a->strings["%1\$s [url=%2\$s]poked you[/url]."] = "%1\$s [url=%2\$s]hat dich angestupst[/url].";
@@ -416,6 +419,7 @@ $a->strings["Leave password fields blank unless changing"] = "Lass die Passwort-
 $a->strings["Current Password:"] = "Aktuelles Passwort:";
 $a->strings["Your current password to confirm the changes"] = "Dein aktuelles Passwort um die Änderungen zu bestätigen";
 $a->strings["Password:"] = "Passwort:";
+$a->strings["Your current password to confirm the changes of the email address"] = "Dein aktuelles Passwort um die Änderungen deiner E-Mail Adresse zu bestätigen";
 $a->strings["Delete OpenID URL"] = "OpenID URL löschen";
 $a->strings["Basic Settings"] = "Grundeinstellungen";
 $a->strings["Full Name:"] = "Kompletter Name:";
@@ -783,7 +787,7 @@ $a->strings["Except to:"] = "Ausgenommen:";
 $a->strings["Connectors"] = "Connectoren";
 $a->strings["The database configuration file \"config/local.config.php\" could not be written. Please use the enclosed text to create a configuration file in your web server root."] = "Die Datenbankkonfigurationsdatei \"config/local.config.php\" konnte nicht erstellt werden. Um eine Konfigurationsdatei in Ihrem Webserver-Verzeichnis zu erstellen, gehe wie folgt vor.";
 $a->strings["You may need to import the file \"database.sql\" manually using phpmyadmin or mysql."] = "Möglicherweise musst du die Datei \"database.sql\" manuell mit phpmyadmin oder mysql importieren.";
-$a->strings["Please see the file \"INSTALL.txt\"."] = "Lies bitte die \"INSTALL.txt\".";
+$a->strings["Please see the file \"doc/INSTALL.md\"."] = "Lies bitte die \"doc/INSTALL.md\".";
 $a->strings["Could not find a command line version of PHP in the web server PATH."] = "Konnte keine Kommandozeilenversion von PHP im PATH des Servers finden.";
 $a->strings["If you don't have a command line version of PHP installed on your server, you will not be able to run the background processing. See <a href='https://github.com/friendica/friendica/blob/stable/doc/Install.md#set-up-the-worker'>'Setup the worker'</a>"] = "Wenn auf deinem Server keine Kommandozeilenversion von PHP installiert ist, kannst du den Hintergrundprozess nicht einrichten. Hier findest du alternative Möglichkeiten<a href='https://github.com/friendica/friendica/blob/stable/doc/Install.md#set-up-the-worker'>'für das Worker-Setup'</a>";
 $a->strings["PHP executable path"] = "Pfad zu PHP";
@@ -1247,6 +1251,7 @@ $a->strings["Your Friendica site database has been installed."] = "Die Datenbank
 $a->strings["Installation finished"] = "Installation abgeschlossen";
 $a->strings["<h1>What next</h1>"] = "<h1>Wie geht es weiter?</h1>";
 $a->strings["IMPORTANT: You will need to [manually] setup a scheduled task for the worker."] = "Wichtig: du musst [manuell] einen Cronjob (o.ä.) für den Worker einrichten.";
+$a->strings["Please see the file \"INSTALL.txt\"."] = "Lies bitte die \"INSTALL.txt\".";
 $a->strings["Go to your new Friendica node <a href=\"%s/register\">registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel."] = "Du solltest nun die Seite zur <a href=\"%s/register\">Nutzerregistrierung</a> deiner neuen Friendica Instanz besuchen und einen neuen Nutzer einrichten. Bitte denke daran, dieselbe E-Mail Adresse anzugeben, die du auch als Administrator-E-Mail angegeben hast, damit du das Admin-Panel verwenden kannst.";
 $a->strings["- select -"] = "- auswählen -";
 $a->strings["Item was not removed"] = "Item wurde nicht entfernt";
