@@ -54,7 +54,7 @@ class Cron
 		}
 
 		// Fork the cron jobs in separate parts to avoid problems when one of them is crashing
-		Hook::fork($a->queue['priority'], "cron");
+		Hook::fork($a->queue['priority'], 'cron');
 
 		// Poll contacts
 		Worker::add(PRIORITY_HIGH, 'PollContacts');
@@ -126,7 +126,5 @@ class Cron
 		Logger::notice('end');
 
 		DI::config()->set('system', 'last_cron', time());
-
-		return;
 	}
 }
