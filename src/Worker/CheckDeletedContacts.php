@@ -28,7 +28,7 @@ use Friendica\Database\DBA;
  * Checks for contacts that are about to be deleted and ensures that they are removed.
  * This should be done automatically in the "remove" function. This here is a cleanup job.
  */
-class CheckdeletedContacts
+class CheckDeletedContacts
 {
 	public static function execute()
 	{

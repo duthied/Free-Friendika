@@ -83,7 +83,7 @@ class Cron
 			}
 
 			// Delete all done workerqueue entries			
-			Worker::add(PRIORITY_LOW, 'ClearWorkerqueue');
+			Worker::add(PRIORITY_LOW, 'CleanWorkerQueue');
 
 			// Clear cache entries
 			Worker::add(PRIORITY_LOW, 'ClearCache');
@@ -114,7 +114,7 @@ class Cron
 			// check upstream version?
 			Worker::add(PRIORITY_LOW, 'CheckVersion');
 
-			Worker::add(PRIORITY_LOW, 'CheckdeletedContacts');
+			Worker::add(PRIORITY_LOW, 'CheckDeletedContacts');
 
 			if (DI::config()->get('system', 'optimize_tables')) {
 				Worker::add(PRIORITY_LOW, 'OptimizeTables');

@@ -28,7 +28,7 @@ use Friendica\DI;
 /**
  * Delete all done workerqueue entries
  */
-class ClearWorkerqueue
+class CleanWorkerQueue
 {
 	public static function execute()
 	{
