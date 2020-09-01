@@ -24,9 +24,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
-use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Util\DateTimeFormat;
 
 class Cron
 {
@@ -46,10 +44,23 @@ class Cron
 			}
 		}
 
-		Logger::notice('cron: start');
+		Logger::notice('start');
+
+		// Ensure to have a .htaccess file.
+		// this is a precaution for systems that update automatically
+		$basepath = $a->getBasePath();
+		if (!file_exists($basepath . '/.htaccess') && is_writable($basepath)) {
+			copy($basepath . '/.htaccess-dist', $basepath . '/.htaccess');
+		}
 
 		// Fork the cron jobs in separate parts to avoid problems when one of them is crashing
 		Hook::fork($a->queue['priority'], "cron");
+
+		// Poll contacts
+		Worker::add(PRIORITY_HIGH, 'PollContacts');
+
+		// Update contact information
+		Worker::add(PRIORITY_LOW, 'UpdatePublicContacts');		
 
 		// run the process to update server directories in the background
 		Worker::add(PRIORITY_LOW, 'UpdateServerDirectories');
@@ -63,12 +74,25 @@ class Cron
 		// Repair entries in the database
 		Worker::add(PRIORITY_LOW, 'RepairDatabase');
 
-		// once daily run birthday_updates and then expire in background
-		$d1 = DI::config()->get('system', 'last_expire_day');
-		$d2 = intval(DateTimeFormat::utcNow('d'));
+		// Hourly cron calls
+		if (DI::config()->get('system', 'last_cron_hourly', 0) + 3600 < time()) {
+
+			// Search for new contacts in the directory
+			if (DI::config()->get('system', 'synchronize_directory')) {
+				Worker::add(PRIORITY_LOW, 'PullDirectory');
+			}
+
+			// Delete all done workerqueue entries			
+			Worker::add(PRIORITY_LOW, 'ClearWorkerqueue');
+
+			// Clear cache entries
+			Worker::add(PRIORITY_LOW, 'ClearCache');
+
+			DI::config()->set('system', 'last_cron_hourly', time());
+		}
 
 		// Daily cron calls
-		if ($d2 != intval($d1)) {
+		if (DI::config()->get('system', 'last_cron_daily', 0) + 86400 < time()) {
 
 			Worker::add(PRIORITY_LOW, 'UpdateContactBirthdays');
 
@@ -96,53 +120,10 @@ class Cron
 				Worker::add(PRIORITY_LOW, 'OptimizeTables');
 			}
 	
-			DI::config()->set('system', 'last_expire_day', $d2);
+			DI::config()->set('system', 'last_cron_daily', time());
 		}
 
-		// Hourly cron calls
-		if (DI::config()->get('system', 'last_cron_hourly', 0) + 3600 < time()) {
-
-			// Search for new contacts in the directory
-			if (DI::config()->get('system', 'synchronize_directory')) {
-				Worker::add(PRIORITY_LOW, 'PullDirectory');
-			}
-
-			// Delete all done workerqueue entries
-			DBA::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 1 HOUR']);
-
-			// Optimizing this table only last seconds
-			if (DI::config()->get('system', 'optimize_tables')) {
-				// We are acquiring the two locks from the worker to avoid locking problems
-				if (DI::lock()->acquire(Worker::LOCK_PROCESS, 10)) {
-					if (DI::lock()->acquire(Worker::LOCK_WORKER, 10)) {
-						DBA::e("OPTIMIZE TABLE `workerqueue`");
-						DBA::e("OPTIMIZE TABLE `process`");			
-						DI::lock()->release(Worker::LOCK_WORKER);
-					}
-					DI::lock()->release(Worker::LOCK_PROCESS);
-				}
-			}
-
-			// Clear cache entries
-			Worker::add(PRIORITY_LOW, 'ClearCache');
-
-			DI::config()->set('system', 'last_cron_hourly', time());
-		}
-
-		// Ensure to have a .htaccess file.
-		// this is a precaution for systems that update automatically
-		$basepath = $a->getBasePath();
-		if (!file_exists($basepath . '/.htaccess') && is_writable($basepath)) {
-			copy($basepath . '/.htaccess-dist', $basepath . '/.htaccess');
-		}
-
-		// Poll contacts
-		Worker::add(PRIORITY_HIGH, 'PollContacts');
-
-		// Update contact information
-		Worker::add(PRIORITY_LOW, 'UpdatePublicContacts');		
-
-		Logger::notice('cron: end');
+		Logger::notice('end');
 
 		DI::config()->set('system', 'last_cron', time());
 
