@@ -57,7 +57,7 @@ class Cron
 		Hook::fork($a->queue['priority'], 'cron');
 
 		// Poll contacts
-		Worker::add(PRIORITY_HIGH, 'PollContacts');
+		Worker::add(PRIORITY_MEDIUM, 'PollContacts');
 
 		// Update contact information
 		Worker::add(PRIORITY_LOW, 'UpdatePublicContacts');		
