@@ -49,9 +49,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-26 16:59+0000\n"
-"PO-Revision-Date: 2020-08-29 11:15+0000\n"
-"Last-Translator: foss <foss@openmailbox.org>\n"
+"POT-Creation-Date: 2020-08-31 18:51+0000\n"
+"PO-Revision-Date: 2020-09-01 12:19+0000\n"
+"Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -186,7 +186,7 @@ msgid "Enter name or interest"
 msgstr "Name oder Interessen eingeben"
 
 #: view/theme/vier/theme.php:171 include/conversation.php:908
-#: mod/follow.php:157 src/Model/Contact.php:960 src/Model/Contact.php:973
+#: mod/follow.php:163 src/Model/Contact.php:960 src/Model/Contact.php:973
 #: src/Content/Widget.php:79
 msgid "Connect/Follow"
 msgstr "Verbinden/Folgen"
@@ -880,7 +880,7 @@ msgstr "Vorschau"
 #: include/conversation.php:1202 mod/settings.php:500 mod/settings.php:526
 #: mod/unfollow.php:137 mod/message.php:165 mod/tagrm.php:36 mod/tagrm.php:126
 #: mod/dfrn_request.php:648 mod/item.php:928 mod/editpost.php:128
-#: mod/follow.php:163 mod/fbrowser.php:105 mod/fbrowser.php:134
+#: mod/follow.php:169 mod/fbrowser.php:105 mod/fbrowser.php:134
 #: mod/photos.php:1047 mod/photos.php:1154 src/Module/Contact.php:457
 #: src/Module/RemoteFollow.php:110
 msgid "Cancel"
@@ -1004,8 +1004,8 @@ msgstr "%1$sKommentar von %3$s auf Unterhaltung %2$d"
 msgid "%s commented on an item/conversation you have been following."
 msgstr "%s hat einen Beitrag kommentiert, dem du folgst."
 
-#: include/enotify.php:240 include/enotify.php:255 include/enotify.php:270
-#: include/enotify.php:289 include/enotify.php:305
+#: include/enotify.php:240 include/enotify.php:255 include/enotify.php:280
+#: include/enotify.php:299 include/enotify.php:315
 #, php-format
 msgid "Please visit %s to view and/or reply to the conversation."
 msgstr "Bitte besuche %s, um die Konversation anzusehen und/oder zu kommentieren."
@@ -1025,152 +1025,167 @@ msgstr "%1$s schrieb um %2$s auf Deine Pinnwand"
 msgid "%1$s posted to [url=%2$s]your wall[/url]"
 msgstr "%1$s hat etwas auf [url=%2$s]Deiner Pinnwand[/url] gepostet"
 
-#: include/enotify.php:262
+#: include/enotify.php:263
 #, php-format
 msgid "%s %s shared a new post"
 msgstr "%s%shat einen Beitrag geteilt"
 
-#: include/enotify.php:264
+#: include/enotify.php:265
 #, php-format
 msgid "%1$s shared a new post at %2$s"
 msgstr "%1$s hat einen neuen Beitrag auf %2$s geteilt"
 
-#: include/enotify.php:265
+#: include/enotify.php:266
 #, php-format
 msgid "%1$s [url=%2$s]shared a post[/url]."
 msgstr "%1$s [url=%2$s]hat einen Beitrag geteilt[/url]."
 
-#: include/enotify.php:277
+#: include/enotify.php:271
+#, php-format
+msgid "%s %s shared a post from %s"
+msgstr "%s%s hat einen Beitrag von %s geteilt"
+
+#: include/enotify.php:273
+#, php-format
+msgid "%1$s shared a post from %2$s at %3$s"
+msgstr "%1$s hat einen Beitrag von %2$s auf %3$s geteilt"
+
+#: include/enotify.php:274
+#, php-format
+msgid "%1$s [url=%2$s]shared a post[/url] from %3$s."
+msgstr "%1$s [url=%2$s]teilte einen Beitrag[/url] von %3$s."
+
+#: include/enotify.php:287
 #, php-format
 msgid "%1$s %2$s poked you"
 msgstr "%1$s%2$shat dich angestubst"
 
-#: include/enotify.php:279
+#: include/enotify.php:289
 #, php-format
 msgid "%1$s poked you at %2$s"
 msgstr "%1$s hat dich auf %2$s angestupst"
 
-#: include/enotify.php:280
+#: include/enotify.php:290
 #, php-format
 msgid "%1$s [url=%2$s]poked you[/url]."
 msgstr "%1$s [url=%2$s]hat dich angestupst[/url]."
 
-#: include/enotify.php:297
+#: include/enotify.php:307
 #, php-format
 msgid "%s %s tagged your post"
 msgstr "%s%s hat deinen Beitrag verschlagwortet"
 
-#: include/enotify.php:299
+#: include/enotify.php:309
 #, php-format
 msgid "%1$s tagged your post at %2$s"
 msgstr "%1$s erwähnte Deinen Beitrag auf %2$s"
 
-#: include/enotify.php:300
+#: include/enotify.php:310
 #, php-format
 msgid "%1$s tagged [url=%2$s]your post[/url]"
 msgstr "%1$s erwähnte [url=%2$s]Deinen Beitrag[/url]"
 
-#: include/enotify.php:312
+#: include/enotify.php:322
 #, php-format
 msgid "%s Introduction received"
 msgstr "%sVorstellung erhalten"
 
-#: include/enotify.php:314
+#: include/enotify.php:324
 #, php-format
 msgid "You've received an introduction from '%1$s' at %2$s"
 msgstr "Du hast eine Kontaktanfrage von '%1$s' auf %2$s erhalten"
 
-#: include/enotify.php:315
+#: include/enotify.php:325
 #, php-format
 msgid "You've received [url=%1$s]an introduction[/url] from %2$s."
 msgstr "Du hast eine [url=%1$s]Kontaktanfrage[/url] von %2$s erhalten."
 
-#: include/enotify.php:320 include/enotify.php:366
+#: include/enotify.php:330 include/enotify.php:376
 #, php-format
 msgid "You may visit their profile at %s"
 msgstr "Hier kannst du das Profil betrachten: %s"
 
-#: include/enotify.php:322
+#: include/enotify.php:332
 #, php-format
 msgid "Please visit %s to approve or reject the introduction."
 msgstr "Bitte besuche %s, um die Kontaktanfrage anzunehmen oder abzulehnen."
 
-#: include/enotify.php:329
+#: include/enotify.php:339
 #, php-format
 msgid "%s A new person is sharing with you"
 msgstr "%sEine neue Person teilt nun mit dir"
 
-#: include/enotify.php:331 include/enotify.php:332
+#: include/enotify.php:341 include/enotify.php:342
 #, php-format
 msgid "%1$s is sharing with you at %2$s"
 msgstr "%1$s teilt mit dir auf %2$s"
 
-#: include/enotify.php:339
+#: include/enotify.php:349
 #, php-format
 msgid "%s You have a new follower"
 msgstr "%sDu hast einen neuen Kontakt"
 
-#: include/enotify.php:341 include/enotify.php:342
+#: include/enotify.php:351 include/enotify.php:352
 #, php-format
 msgid "You have a new follower at %2$s : %1$s"
 msgstr "Du hast einen neuen Kontakt auf %2$s: %1$s"
 
-#: include/enotify.php:355
+#: include/enotify.php:365
 #, php-format
 msgid "%s Friend suggestion received"
 msgstr "%sKontaktvorschlag erhalten"
 
-#: include/enotify.php:357
+#: include/enotify.php:367
 #, php-format
 msgid "You've received a friend suggestion from '%1$s' at %2$s"
 msgstr "Du hast einen Kontakt-Vorschlag von '%1$s' auf %2$s erhalten"
 
-#: include/enotify.php:358
+#: include/enotify.php:368
 #, php-format
 msgid ""
 "You've received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s."
 msgstr "Du hast einen [url=%1$s]Kontakt-Vorschlag[/url] %2$s von %3$s erhalten."
 
-#: include/enotify.php:364
+#: include/enotify.php:374
 msgid "Name:"
 msgstr "Name:"
 
-#: include/enotify.php:365
+#: include/enotify.php:375
 msgid "Photo:"
 msgstr "Foto:"
 
-#: include/enotify.php:368
+#: include/enotify.php:378
 #, php-format
 msgid "Please visit %s to approve or reject the suggestion."
 msgstr "Bitte besuche %s, um den Vorschlag zu akzeptieren oder abzulehnen."
 
-#: include/enotify.php:376 include/enotify.php:391
+#: include/enotify.php:386 include/enotify.php:401
 #, php-format
 msgid "%s Connection accepted"
 msgstr "%sKontaktanfrage bestätigt"
 
-#: include/enotify.php:378 include/enotify.php:393
+#: include/enotify.php:388 include/enotify.php:403
 #, php-format
 msgid "'%1$s' has accepted your connection request at %2$s"
 msgstr "'%1$s' hat Deine Kontaktanfrage auf  %2$s bestätigt"
 
-#: include/enotify.php:379 include/enotify.php:394
+#: include/enotify.php:389 include/enotify.php:404
 #, php-format
 msgid "%2$s has accepted your [url=%1$s]connection request[/url]."
 msgstr "%2$s hat Deine [url=%1$s]Kontaktanfrage[/url] akzeptiert."
 
-#: include/enotify.php:384
+#: include/enotify.php:394
 msgid ""
 "You are now mutual friends and may exchange status updates, photos, and "
 "email without restriction."
 msgstr "Ihr seid nun beidseitige Kontakte und könnt Statusmitteilungen, Bilder und E-Mails ohne Einschränkungen austauschen."
 
-#: include/enotify.php:386
+#: include/enotify.php:396
 #, php-format
 msgid "Please visit %s if you wish to make any changes to this relationship."
 msgstr "Bitte besuche %s, wenn du Änderungen an eurer Beziehung vornehmen willst."
 
-#: include/enotify.php:399
+#: include/enotify.php:409
 #, php-format
 msgid ""
 "'%1$s' has chosen to accept you a fan, which restricts some forms of "
@@ -1179,37 +1194,37 @@ msgid ""
 "automatically."
 msgstr "'%1$s' hat sich entschieden dich als Fan zu akzeptieren, dies schränkt einige Kommunikationswege - wie private Nachrichten und einige Interaktionsmöglichkeiten auf der Profilseite - ein. Wenn dies eine Berühmtheiten- oder Gemeinschaftsseite ist, werden diese Einstellungen automatisch vorgenommen."
 
-#: include/enotify.php:401
+#: include/enotify.php:411
 #, php-format
 msgid ""
 "'%1$s' may choose to extend this into a two-way or more permissive "
 "relationship in the future."
 msgstr "'%1$s' kann den Kontaktstatus zu einem späteren Zeitpunkt erweitern und diese Einschränkungen aufheben. "
 
-#: include/enotify.php:403
+#: include/enotify.php:413
 #, php-format
 msgid "Please visit %s  if you wish to make any changes to this relationship."
 msgstr "Bitte besuche %s, wenn du Änderungen an eurer Beziehung vornehmen willst."
 
-#: include/enotify.php:413 mod/removeme.php:63
+#: include/enotify.php:423 mod/removeme.php:63
 msgid "[Friendica System Notify]"
 msgstr "[Friendica-Systembenachrichtigung]"
 
-#: include/enotify.php:413
+#: include/enotify.php:423
 msgid "registration request"
 msgstr "Registrierungsanfrage"
 
-#: include/enotify.php:415
+#: include/enotify.php:425
 #, php-format
 msgid "You've received a registration request from '%1$s' at %2$s"
 msgstr "Du hast eine Registrierungsanfrage von %2$s auf '%1$s' erhalten"
 
-#: include/enotify.php:416
+#: include/enotify.php:426
 #, php-format
 msgid "You've received a [url=%1$s]registration request[/url] from %2$s."
 msgstr "Du hast eine [url=%1$s]Registrierungsanfrage[/url] von %2$s erhalten."
 
-#: include/enotify.php:421
+#: include/enotify.php:431
 #, php-format
 msgid ""
 "Full Name:\t%s\n"
@@ -1217,7 +1232,7 @@ msgid ""
 "Login Name:\t%s (%s)"
 msgstr "Kompletter Name: %s\nURL der Seite: %s\nLogin Name: %s(%s)"
 
-#: include/enotify.php:427
+#: include/enotify.php:437
 #, php-format
 msgid "Please visit %s to approve or reject the request."
 msgstr "Bitte besuche %s, um die Anfrage zu bearbeiten."
@@ -1281,7 +1296,7 @@ msgstr "Kontakt nicht gefunden."
 #: mod/wall_upload.php:102 mod/api.php:50 mod/api.php:55
 #: mod/wall_attach.php:78 mod/wall_attach.php:81 mod/item.php:189
 #: mod/item.php:194 mod/item.php:973 mod/uimport.php:32 mod/editpost.php:38
-#: mod/events.php:228 mod/follow.php:76 mod/follow.php:146 mod/notes.php:43
+#: mod/events.php:228 mod/follow.php:76 mod/follow.php:152 mod/notes.php:43
 #: mod/photos.php:178 mod/photos.php:929
 #: src/Module/Notifications/Notification.php:47
 #: src/Module/Notifications/Notification.php:76
@@ -1963,13 +1978,17 @@ msgstr "Lass die Passwort-Felder leer, außer du willst das Passwort ändern"
 msgid "Current Password:"
 msgstr "Aktuelles Passwort:"
 
-#: mod/settings.php:868 mod/settings.php:869
+#: mod/settings.php:868
 msgid "Your current password to confirm the changes"
 msgstr "Dein aktuelles Passwort um die Änderungen zu bestätigen"
 
 #: mod/settings.php:869
 msgid "Password:"
 msgstr "Passwort:"
+
+#: mod/settings.php:869
+msgid "Your current password to confirm the changes of the email address"
+msgstr "Dein aktuelles Passwort um die Änderungen deiner E-Mail Adresse zu bestätigen"
 
 #: mod/settings.php:872
 msgid "Delete OpenID URL"
@@ -2361,7 +2380,7 @@ msgstr "Bei diesem Netzwerk wird das Entfolgen derzeit nicht unterstützt."
 msgid "Disconnect/Unfollow"
 msgstr "Verbindung lösen/Nicht mehr folgen"
 
-#: mod/unfollow.php:134 mod/follow.php:159
+#: mod/unfollow.php:134 mod/follow.php:165
 msgid "Your Identity Address:"
 msgstr "Adresse Deines Profils:"
 
@@ -2370,14 +2389,14 @@ msgstr "Adresse Deines Profils:"
 msgid "Submit Request"
 msgstr "Anfrage abschicken"
 
-#: mod/unfollow.php:140 mod/follow.php:160
+#: mod/unfollow.php:140 mod/follow.php:166
 #: src/Module/Notifications/Introductions.php:103
 #: src/Module/Notifications/Introductions.php:177 src/Module/Contact.php:618
 #: src/Module/Admin/Blocklist/Contact.php:100
 msgid "Profile URL"
 msgstr "Profil URL"
 
-#: mod/unfollow.php:150 mod/follow.php:182 src/Module/Contact.php:895
+#: mod/unfollow.php:150 mod/follow.php:188 src/Module/Contact.php:895
 #: src/Module/BaseProfile.php:63
 msgid "Status Messages and Posts"
 msgstr "Statusnachrichten und Beiträge"
@@ -2863,16 +2882,16 @@ msgstr "Solltest du das freie Soziale Netzwerk noch nicht benutzen, kannst du <a
 msgid "Your Webfinger address or profile URL:"
 msgstr "Deine Webfinger Adresse oder Profil-URL"
 
-#: mod/dfrn_request.php:646 mod/follow.php:158 src/Module/RemoteFollow.php:108
+#: mod/dfrn_request.php:646 mod/follow.php:164 src/Module/RemoteFollow.php:108
 msgid "Please answer the following:"
 msgstr "Bitte beantworte folgendes:"
 
-#: mod/dfrn_request.php:654 mod/follow.php:172
+#: mod/dfrn_request.php:654 mod/follow.php:178
 #, php-format
 msgid "%s knows you"
 msgstr "%skennt dich"
 
-#: mod/dfrn_request.php:655 mod/follow.php:173
+#: mod/dfrn_request.php:655 mod/follow.php:179
 msgid "Add a personal note:"
 msgstr "Eine persönliche Notiz beifügen:"
 
@@ -3178,19 +3197,19 @@ msgstr "Der Kontakt konnte nicht hinzugefügt werden."
 msgid "You already added this contact."
 msgstr "Du hast den Kontakt bereits hinzugefügt."
 
-#: mod/follow.php:115
+#: mod/follow.php:121
 msgid "The network type couldn't be detected. Contact can't be added."
 msgstr "Der Netzwerktyp wurde nicht erkannt. Der Kontakt kann nicht hinzugefügt werden."
 
-#: mod/follow.php:123
+#: mod/follow.php:129
 msgid "Diaspora support isn't enabled. Contact can't be added."
 msgstr "Diaspora-Unterstützung ist nicht aktiviert. Der Kontakt kann nicht zugefügt werden."
 
-#: mod/follow.php:128
+#: mod/follow.php:134
 msgid "OStatus support is disabled. Contact can't be added."
 msgstr "OStatus-Unterstützung ist nicht aktiviert. Der Kontakt kann nicht zugefügt werden."
 
-#: mod/follow.php:161 src/Module/Notifications/Introductions.php:170
+#: mod/follow.php:167 src/Module/Notifications/Introductions.php:170
 #: src/Module/Profile/Profile.php:202 src/Module/Contact.php:628
 msgid "Tags:"
 msgstr "Tags:"
@@ -3505,7 +3524,7 @@ msgstr "%s: Datenbank Aktualisierung"
 msgid "%s: updating %s table."
 msgstr "%s: aktualisiere Tabelle %s"
 
-#: src/Database/Database.php:659 src/Database/Database.php:762
+#: src/Database/Database.php:661 src/Database/Database.php:764
 #, php-format
 msgid "Database error %d \"%s\" at \"%s\""
 msgstr "Datenbank Fehler %d \"%s\" auf \"%s\""
@@ -3526,12 +3545,12 @@ msgstr "Die Template Engine kann nicht ohne einen Namen registriert werden."
 msgid "template engine is not registered!"
 msgstr "Template Engine wurde nicht registriert!"
 
-#: src/Core/Update.php:215
+#: src/Core/Update.php:219
 #, php-format
 msgid "Update %s failed. See error logs."
 msgstr "Update %s fehlgeschlagen. Bitte Fehlerprotokoll überprüfen."
 
-#: src/Core/Update.php:280
+#: src/Core/Update.php:286
 #, php-format
 msgid ""
 "\n"
@@ -3541,18 +3560,18 @@ msgid ""
 "\t\t\t\tfriendica developer if you can not help me on your own. My database might be invalid."
 msgstr "\nDie Friendica-Entwickler haben vor kurzem das Update %s veröffentlicht, aber bei der Installation ging etwas schrecklich schief.\n\nDas Problem sollte so schnell wie möglich gelöst werden, aber ich schaffe es nicht alleine. Bitte kontaktiere einen Friendica-Entwickler, falls du mir nicht alleine helfen kannst. Meine Datenbank könnte ungültig sein."
 
-#: src/Core/Update.php:286
+#: src/Core/Update.php:292
 #, php-format
 msgid ""
 "The error message is\n"
 "[pre]%s[/pre]"
 msgstr "Die Fehlermeldung lautet\n[pre]%s[/pre]"
 
-#: src/Core/Update.php:290 src/Core/Update.php:326
+#: src/Core/Update.php:296 src/Core/Update.php:332
 msgid "[Friendica Notify] Database update"
 msgstr "[Friendica-Benachrichtigung]: Datenbank Update"
 
-#: src/Core/Update.php:320
+#: src/Core/Update.php:326
 #, php-format
 msgid ""
 "\n"
@@ -3625,9 +3644,8 @@ msgid ""
 msgstr "Möglicherweise musst du die Datei \"database.sql\" manuell mit phpmyadmin oder mysql importieren."
 
 #: src/Core/Installer.php:199 src/Module/Install.php:191
-#: src/Module/Install.php:345
-msgid "Please see the file \"INSTALL.txt\"."
-msgstr "Lies bitte die \"INSTALL.txt\"."
+msgid "Please see the file \"doc/INSTALL.md\"."
+msgstr "Lies bitte die \"doc/INSTALL.md\"."
 
 #: src/Core/Installer.php:260
 msgid "Could not find a command line version of PHP in the web server PATH."
@@ -4118,7 +4136,7 @@ msgstr "Erledigt. Du kannst dich jetzt mit deinem Nutzernamen und Passwort anmel
 msgid "Legacy module file not found: %s"
 msgstr "Legacy-Moduldatei nicht gefunden: %s"
 
-#: src/Worker/Delivery.php:552
+#: src/Worker/Delivery.php:556
 msgid "(no subject)"
 msgstr "(kein Betreff)"
 
@@ -5572,6 +5590,10 @@ msgid ""
 "IMPORTANT: You will need to [manually] setup a scheduled task for the "
 "worker."
 msgstr "Wichtig: du musst [manuell] einen Cronjob (o.ä.) für den Worker einrichten."
+
+#: src/Module/Install.php:345
+msgid "Please see the file \"INSTALL.txt\"."
+msgstr "Lies bitte die \"INSTALL.txt\"."
 
 #: src/Module/Install.php:347
 #, php-format
