@@ -41,12 +41,12 @@ class Cron
 		if ($last) {
 			$next = $last + ($poll_interval * 60);
 			if ($next > time()) {
-				Logger::log('cron intervall not reached');
+				Logger::notice('cron intervall not reached');
 				return;
 			}
 		}
 
-		Logger::log('cron: start');
+		Logger::notice('cron: start');
 
 		// Fork the cron jobs in separate parts to avoid problems when one of them is crashing
 		Hook::fork($a->queue['priority'], "cron");
@@ -142,7 +142,7 @@ class Cron
 		// Update contact information
 		Worker::add(PRIORITY_LOW, 'UpdatePublicContacts');		
 
-		Logger::log('cron: end');
+		Logger::notice('cron: end');
 
 		DI::config()->set('system', 'last_cron', time());
 
