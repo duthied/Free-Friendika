@@ -21,14 +21,11 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Core\Addon;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 
 class Cron
@@ -93,10 +90,10 @@ class Cron
 			// check upstream version?
 			Worker::add(PRIORITY_LOW, 'CheckVersion');
 
-			self::checkdeletedContacts();
+			Worker::add(PRIORITY_LOW, 'CheckdeletedContacts');
 
 			if (DI::config()->get('system', 'optimize_tables')) {
-				self::optimizeTables();
+				Worker::add(PRIORITY_LOW, 'OptimizeTables');
 			}
 	
 			DI::config()->set('system', 'last_expire_day', $d2);
@@ -140,172 +137,15 @@ class Cron
 		}
 
 		// Poll contacts
-		self::pollContacts();
+		Worker::add(PRIORITY_HIGH, 'PollContacts');
 
 		// Update contact information
-		self::updatePublicContacts();
+		Worker::add(PRIORITY_LOW, 'UpdatePublicContacts');		
 
 		Logger::log('cron: end');
 
 		DI::config()->set('system', 'last_cron', time());
 
 		return;
-	}
-
-	/**
-	 * Optimize tables that are known to grow and shrink all the time
-	 *
-	 * @return void
-	 */
-	private static function optimizeTables()
-	{
-		Logger::info('Optimize start');
-
-		DBA::e("OPTIMIZE TABLE `auth_codes`");
-		DBA::e("OPTIMIZE TABLE `challenge`");
-		DBA::e("OPTIMIZE TABLE `locks`");
-		DBA::e("OPTIMIZE TABLE `profile_check`");
-		DBA::e("OPTIMIZE TABLE `session`");
-		DBA::e("OPTIMIZE TABLE `tokens`");
-
-		DI::lock()->release('optimize_tables');
-	}
-
-	/**
-	 * Checks for contacts that are about to be deleted and ensures that they are removed.
-	 * This should be done automatically in the "remove" function. This here is a cleanup job.
-	 */
-	private static function checkdeletedContacts()
-	{
-		$contacts = DBA::select('contact', ['id'], ['deleted' => true]);
-		while ($contact = DBA::fetch($contacts)) {
-			Worker::add(PRIORITY_MEDIUM, 'RemoveContact', $contact['id']);
-		}
-		DBA::close($contacts);
-	}
-
-	/**
-	 * Update public contacts
-	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	private static function updatePublicContacts() {
-		$count = 0;
-		$last_updated = DateTimeFormat::utc('now - 1 week');
-		$condition = ["`network` IN (?, ?, ?, ?) AND `uid` = ? AND NOT `self` AND `last-update` < ?",
-			Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, 0, $last_updated];
-
-		$oldest_date = '';
-		$oldest_id = '';
-		$contacts = DBA::select('contact', ['id', 'last-update'], $condition, ['limit' => 100, 'order' => ['last-update']]);
-		while ($contact = DBA::fetch($contacts)) {
-			if (empty($oldest_id)) {
-				$oldest_id = $contact['id'];
-				$oldest_date = $contact['last-update'];
-			}
-			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id']);
-			++$count;
-		}
-		Logger::info('Initiated update for public contacts', ['interval' => $count, 'id' => $oldest_id, 'oldest' => $oldest_date]);
-		DBA::close($contacts);
-	}
-
-	/**
-	 * Poll contacts for unreceived messages
-	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	private static function pollContacts() {
-		Addon::reload();
-
-		$sql = "SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`, `contact`.`archive`,
-					`contact`.`last-update`, `contact`.`priority`, `contact`.`rating`, `contact`.`rel`, `contact`.`subhub`
-				FROM `user`
-				STRAIGHT_JOIN `contact`
-				ON `contact`.`uid` = `user`.`uid` AND `contact`.`poll` != ''
-					AND `contact`.`network` IN (?, ?, ?, ?, ?)
-					AND NOT `contact`.`self` AND NOT `contact`.`blocked`
-					AND `contact`.`rel` != ?
-				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed`";
-
-		$parameters = [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Contact::FOLLOWER];
-
-		// Only poll from those with suitable relationships,
-		// and which have a polling address and ignore Diaspora since
-		// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
-		$abandon_days = intval(DI::config()->get('system', 'account_abandon_days'));
-		if ($abandon_days < 1) {
-			$abandon_days = 0;
-		}
-
-		if (!empty($abandon_days)) {
-			$sql .= " AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL ? DAY";
-			$parameters[] = $abandon_days;
-		}
-
-		$contacts = DBA::p($sql, $parameters);
-
-		if (!DBA::isResult($contacts)) {
-			return;
-		}
-
-		while ($contact = DBA::fetch($contacts)) {
-			$ratings = [0, 3, 7, 8, 9, 10];
-			if (DI::config()->get('system', 'adjust_poll_frequency') && ($contact['network'] == Protocol::FEED)) {
-				$rating = $contact['rating'];
-			} elseif (array_key_exists($contact['priority'], $ratings)) {
-				$rating = $ratings[$contact['priority']];
-			} else {
-				$rating = -1;
-			}
-
-			// Friendica and OStatus are checked once a day
-			if (in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
-				$rating = 8;
-			}
-
-			// ActivityPub is checked once a week
-			if ($contact['network'] == Protocol::ACTIVITYPUB) {
-				$rating = 9;
-			}
-
-			// Check archived contacts once a month
-			if ($contact['archive']) {
-				$rating = 10;
-			}
-
-			if ($rating < 0) {
-				continue;
-			}
-			/*
-			 * Based on $contact['priority'], should we poll this site now? Or later?
-			 */
-
-			$min_poll_interval = DI::config()->get('system', 'min_poll_interval');
-
-			$poll_intervals = [$min_poll_interval . ' minute', '15 minute', '30 minute',
-				'1 hour', '2 hour', '3 hour', '6 hour', '12 hour' ,'1 day', '1 week', '1 month'];
-
-			$now = DateTimeFormat::utcNow();
-			$next_update = DateTimeFormat::utc($contact['last-update'] . ' + ' . $poll_intervals[$rating]);
-
-			if (empty($poll_intervals[$rating]) || ($now < $next_update))  {
-				Logger::debug('No update', ['cid' => $contact['id'], 'rating' => $rating, 'next' => $next_update, 'now' => $now]);
-				continue;
-			}
-
-			if ((($contact['network'] == Protocol::FEED) && ($contact['priority'] <= 3)) || ($contact['network'] == Protocol::MAIL)) {
-				$priority = PRIORITY_MEDIUM;
-			} elseif ($contact['archive']) {
-				$priority = PRIORITY_NEGLIGIBLE;
-			} else {
-				$priority = PRIORITY_LOW;
-			}
-
-			Logger::log("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact['priority'] . " " . $contact["nick"] . " " . $contact["name"]);
-
-			Worker::add(['priority' => $priority, 'dont_fork' => true, 'force_priority' => true], 'OnePoll', (int)$contact['id']);
-		}
-		DBA::close($contacts);
 	}
 }
