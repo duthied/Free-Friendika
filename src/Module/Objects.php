@@ -91,13 +91,14 @@ class Objects extends BaseModule
 
 			$data = ['@context' => ActivityPub::CONTEXT];
 			$data = array_merge($data, $activity['object']);
-		} elseif (in_array($parameters['activity'], ['Create', 'Announce', 'Update', 
-			'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'Follow', 'Add', ''])) {
+		} elseif (empty($parameters['activity']) || in_array($parameters['activity'],
+			['Create', 'Announce', 'Update', 'Like', 'Dislike', 'Accept', 'Reject',
+			'TentativeAccept', 'Follow', 'Add'])) {
 			$data = ActivityPub\Transmitter::createActivityFromItem($item['id']);
 			if (empty($data)) {
 				throw new HTTPException\NotFoundException();
 			}
-			if (!in_array($parameters['activity'], ['Create', ''])) {
+			if (!empty($parameters['activity']) && ($parameters['activity'] != 'Create')) {
 				$data['type'] = $parameters['activity'];
 				$data['id'] = str_replace('/Create', '/' . $parameters['activity'], $data['id']);
 			}
