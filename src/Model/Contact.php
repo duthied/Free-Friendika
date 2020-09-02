@@ -2122,9 +2122,8 @@ class Contact
 
 		$pending = false;
 		if ($protocol == Protocol::ACTIVITYPUB) {
-			$apcontact = APContact::getByURL($ret['url'], false);
-			if (isset($apcontact['manually-approve'])) {
-				$pending = (bool)$apcontact['manually-approve'];
+			if (isset($ret['manually-approve'])) {
+				$pending = (bool)$ret['manually-approve'];
 			}
 		}
 
