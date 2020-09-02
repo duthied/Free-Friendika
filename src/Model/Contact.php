@@ -1802,7 +1802,7 @@ class Contact
 		// These fields aren't updated by this routine:
 		// 'xmpp', 'sensitive'
 
-		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
+		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe', 'manually-approve',
 			'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
 			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey', 'last-item'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
@@ -1850,12 +1850,9 @@ class Contact
 			$ret['forum'] = false;
 			$ret['prv'] = false;
 			$ret['contact-type'] = $ret['account-type'];
-			if ($ret['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-				$apcontact = APContact::getByURL($ret['url'], false);
-				if (isset($apcontact['manually-approve'])) {
-					$ret['forum'] = (bool)!$apcontact['manually-approve'];
-					$ret['prv'] = (bool)!$ret['forum'];
-				}
+			if (($ret['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY) && isset($ret['manually-approve'])) {
+				$ret['forum'] = (bool)!$ret['manually-approve'];
+				$ret['prv'] = (bool)!$ret['forum'];
 			}
 		}
 
@@ -2122,11 +2119,8 @@ class Contact
 		$hidden = (($protocol === Protocol::MAIL) ? 1 : 0);
 
 		$pending = false;
-		if ($protocol == Protocol::ACTIVITYPUB) {
-			$apcontact = APContact::getByURL($ret['url'], false);
-			if (isset($apcontact['manually-approve'])) {
-				$pending = (bool)$apcontact['manually-approve'];
-			}
+		if (($protocol == Protocol::ACTIVITYPUB) && isset($ret['manually-approve'])) {
+			$pending = (bool)$ret['manually-approve'];
 		}
 
 		if (in_array($protocol, [Protocol::MAIL, Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {

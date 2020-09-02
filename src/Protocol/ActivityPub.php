@@ -157,6 +157,7 @@ class ActivityPub
 		$profile['poll'] = $apcontact['outbox'];
 		$profile['pubkey'] = $apcontact['pubkey'];
 		$profile['subscribe'] = $apcontact['subscribe'];
+		$profile['manually-approve'] = $apcontact['manually-approve'];
 		$profile['baseurl'] = $apcontact['baseurl'];
 		$profile['gsid'] = $apcontact['gsid'];
 

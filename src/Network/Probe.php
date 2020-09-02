@@ -91,12 +91,12 @@ class Probe
 				"community", "keywords", "location", "about", "hide",
 				"batch", "notify", "poll", "request", "confirm", "subscribe", "poco",
 				"following", "followers", "inbox", "outbox", "sharedinbox",
-				"priority", "network", "pubkey", "baseurl", "gsid"];
+				"priority", "network", "pubkey", "manually-approve", "baseurl", "gsid"];
 
 		$newdata = [];
 		foreach ($fields as $field) {
 			if (isset($data[$field])) {
-				if (in_array($field, ["gsid", "hide", "account-type"])) {
+				if (in_array($field, ["gsid", "hide", "account-type", "manually-approve"])) {
 					$newdata[$field] = (int)$data[$field];
 				} else {	
 					$newdata[$field] = $data[$field];
@@ -1454,6 +1454,7 @@ class Probe
 			&& !empty($hcard_url)
 		) {
 			$data["network"] = Protocol::DIASPORA;
+			$data["manually-approve"] = false;
 
 			// The Diaspora handle must always be lowercase
 			if (!empty($data["addr"])) {
@@ -1544,6 +1545,7 @@ class Probe
 			&& isset($data["url"])
 		) {
 			$data["network"] = Protocol::OSTATUS;
+			$data["manually-approve"] = false;
 		} else {
 			return $short ? false : [];
 		}
@@ -2218,7 +2220,8 @@ class Probe
 			'following' => $approfile['following'], 'followers' => $approfile['followers'],
 			'inbox' => $approfile['inbox'], 'outbox' => $approfile['outbox'],
 			'sharedinbox' => $approfile['endpoints']['sharedInbox'], 'network' => Protocol::DFRN, 
-			'pubkey' => $profile['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $profile['gsid']];
+			'pubkey' => $profile['upubkey'], 'baseurl' => $approfile['generator']['url'], 'gsid' => $profile['gsid'],
+			'manually-approve' => in_array($profile['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])];
 		return self::rearrangeData($data);		
 	}
 }

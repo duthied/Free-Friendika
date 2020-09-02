@@ -99,11 +99,17 @@ class Account extends BaseEntity
 				$publicContact['nick'] :
 				$publicContact['addr'];
 		$this->display_name    = $publicContact['name'];
-		$this->locked          = !empty($apcontact['manually-approve']);
+		$this->locked          = $publicContact['manually-approve'] ?? !empty($apcontact['manually-approve']);
 		$this->bot             = ($publicContact['contact-type'] == Contact::TYPE_NEWS);
 		$this->discoverable    = !$publicContact['unsearchable'];
 		$this->group           = ($publicContact['contact-type'] == Contact::TYPE_COMMUNITY);
-		$this->created_at      = DateTimeFormat::utc($publicContact['created'], DateTimeFormat::ATOM);
+
+		$publicContactCreated = $publicContact['created'] ?: DBA::NULL_DATETIME;
+		$userContactCreated = $userContact['created'] ?? DBA::NULL_DATETIME;
+
+		$created = $userContactCreated < $publicContactCreated && ($userContactCreated != DBA::NULL_DATETIME) ? $userContactCreated : $publicContactCreated;
+		$this->created_at      = DateTimeFormat::utc($created, DateTimeFormat::ATOM);
+
 		$this->note            = BBCode::convert($publicContact['about'], false);
 		$this->url             = $publicContact['url'];
 		$this->avatar          = $userContact['avatar'] ?? $publicContact['avatar'];
