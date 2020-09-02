@@ -1541,6 +1541,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`forum` AS `forum`,
 	`contact`.`prv` AS `prv`,
 	`contact`.`contact-type` AS `contact-type`,
+	`contact`.`manually-approve` AS `manually-approve`,
 	`contact`.`hidden` AS `hidden`,
 	`contact`.`archive` AS `archive`,
 	`contact`.`pending` AS `pending`,

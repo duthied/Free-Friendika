@@ -184,6 +184,7 @@ return [
 			"forum" => ["contact", "forum"],
 			"prv" => ["contact", "prv"],
 			"contact-type" => ["contact", "contact-type"],
+			"manually-approve" => ["contact", "manually-approve"],
 			"hidden" => ["contact", "hidden"],
 			"archive" => ["contact", "archive"],
 			"pending" => ["contact", "pending"],
