@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.09-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1365
+-- DB_UPDATE_VERSION 1366
 -- ------------------------------------------
 
 
@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`forum` boolean NOT NULL DEFAULT '0' COMMENT 'contact is a forum',
 	`prv` boolean NOT NULL DEFAULT '0' COMMENT 'contact is a private group',
 	`contact-type` tinyint NOT NULL DEFAULT 0 COMMENT '',
+	`manually-approve` boolean COMMENT '',
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`archive` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`pending` boolean NOT NULL DEFAULT '1' COMMENT '',
