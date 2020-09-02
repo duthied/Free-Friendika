@@ -1802,7 +1802,7 @@ class Contact
 		// These fields aren't updated by this routine:
 		// 'xmpp', 'sensitive'
 
-		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
+		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe', 'manually-approve',
 			'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
 			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey', 'last-item'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
@@ -1851,9 +1851,8 @@ class Contact
 			$ret['prv'] = false;
 			$ret['contact-type'] = $ret['account-type'];
 			if ($ret['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-				$apcontact = APContact::getByURL($ret['url'], false);
-				if (isset($apcontact['manually-approve'])) {
-					$ret['forum'] = (bool)!$apcontact['manually-approve'];
+				if (isset($ret['manually-approve'])) {
+					$ret['forum'] = (bool)!$ret['manually-approve'];
 					$ret['prv'] = (bool)!$ret['forum'];
 				}
 			}

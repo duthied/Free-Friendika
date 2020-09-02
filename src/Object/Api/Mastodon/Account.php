@@ -99,7 +99,7 @@ class Account extends BaseEntity
 				$publicContact['nick'] :
 				$publicContact['addr'];
 		$this->display_name    = $publicContact['name'];
-		$this->locked          = !empty($apcontact['manually-approve']);
+		$this->locked          = $publicContact['manually-approve'] ?? !empty($apcontact['manually-approve']);
 		$this->bot             = ($publicContact['contact-type'] == Contact::TYPE_NEWS);
 		$this->discoverable    = !$publicContact['unsearchable'];
 		$this->group           = ($publicContact['contact-type'] == Contact::TYPE_COMMUNITY);

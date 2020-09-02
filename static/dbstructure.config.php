@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1365);
+	define('DB_UPDATE_VERSION', 1366);
 }
 
 return [
@@ -153,6 +153,7 @@ return [
 			"forum" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "contact is a forum"],
 			"prv" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "contact is a private group"],
 			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+			"manually-approve" => ["type" => "boolean", "comment" => ""],
 			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"archive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"pending" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
