@@ -123,7 +123,6 @@ class Account extends BaseEntity
 
 		// No custom emojis per account in Friendica
 		$this->emojis          = [];
-		// No metadata fields in Friendica
 		$this->fields          = $fields->getArrayCopy();
 
 	}
