@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.09-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1366
+-- DB_UPDATE_VERSION 1367
 -- ------------------------------------------
 
 
@@ -584,6 +584,16 @@ CREATE TABLE IF NOT EXISTS `hook` (
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `hook_file_function` (`hook`,`file`,`function`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='addon hook registry';
+
+--
+-- TABLE host
+--
+CREATE TABLE IF NOT EXISTS `host` (
+	`id` tinyint unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`name` varchar(128) NOT NULL DEFAULT '' COMMENT 'The hostname',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `name` (`name`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Hostname';
 
 --
 -- TABLE inbox-status

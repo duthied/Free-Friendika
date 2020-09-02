@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1366);
+	define('DB_UPDATE_VERSION', 1367);
 }
 
 return [
@@ -651,6 +651,17 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"hook_file_function" => ["UNIQUE", "hook", "file", "function"],
+		]
+	],
+	"host" => [
+		"comment" => "Hostname",
+		"fields" => [
+			"id" => ["type" => "tinyint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"name" => ["type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => "The hostname"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"name" => ["UNIQUE", "name"],
 		]
 	],
 	"inbox-status" => [
