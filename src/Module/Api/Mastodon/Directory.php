@@ -61,9 +61,9 @@ class Directory extends BaseApi
 			'order' => [($order == 'active') ? 'last-item' : 'created' => true]];
 
 		$accounts = [];
-		$contacts = DBA::select($table, ['id'], $condition, $params);
+		$contacts = DBA::select($table, ['id', 'uid'], $condition, $params);
 		while ($contact = DBA::fetch($contacts)) {
-			$accounts[] = DI::mstdnAccount()->createFromContactId($contact['id']);
+			$accounts[] = DI::mstdnAccount()->createFromContactId($contact['id'], $contact['uid']);
 		}
 		DBA::close($contacts);
 
