@@ -1850,11 +1850,9 @@ class Contact
 			$ret['forum'] = false;
 			$ret['prv'] = false;
 			$ret['contact-type'] = $ret['account-type'];
-			if ($ret['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-				if (isset($ret['manually-approve'])) {
-					$ret['forum'] = (bool)!$ret['manually-approve'];
-					$ret['prv'] = (bool)!$ret['forum'];
-				}
+			if (($ret['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY) && isset($ret['manually-approve'])) {
+				$ret['forum'] = (bool)!$ret['manually-approve'];
+				$ret['prv'] = (bool)!$ret['forum'];
 			}
 		}
 
@@ -2121,10 +2119,8 @@ class Contact
 		$hidden = (($protocol === Protocol::MAIL) ? 1 : 0);
 
 		$pending = false;
-		if ($protocol == Protocol::ACTIVITYPUB) {
-			if (isset($ret['manually-approve'])) {
-				$pending = (bool)$ret['manually-approve'];
-			}
+		if (($protocol == Protocol::ACTIVITYPUB) && isset($ret['manually-approve'])) {
+			$pending = (bool)$ret['manually-approve'];
 		}
 
 		if (in_array($protocol, [Protocol::MAIL, Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
