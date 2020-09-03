@@ -32,6 +32,7 @@ use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -259,9 +260,12 @@ class Contact extends BaseModule
 		$rel    = Strings::escapeTags(trim($_GET['rel']    ?? ''));
 		$group  = Strings::escapeTags(trim($_GET['group']  ?? ''));
 
-		if (empty(DI::page()['aside'])) {
-			DI::page()['aside'] = '';
-		}
+		$page = DI::page();
+
+		$page->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
+		$page->registerFooterScript(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.js'));
+		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
+		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
 		$contact = null;
 		// @TODO: Replace with parameter from router

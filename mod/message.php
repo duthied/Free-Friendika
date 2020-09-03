@@ -74,7 +74,7 @@ function message_post(App $a)
 	$replyto   = !empty($_REQUEST['replyto'])   ? Strings::escapeTags(trim($_REQUEST['replyto'])) : '';
 	$subject   = !empty($_REQUEST['subject'])   ? Strings::escapeTags(trim($_REQUEST['subject'])) : '';
 	$body      = !empty($_REQUEST['body'])      ? Strings::escapeHtml(trim($_REQUEST['body']))    : '';
-	$recipient = !empty($_REQUEST['messageto']) ? intval($_REQUEST['messageto'])                  : 0;
+	$recipient = !empty($_REQUEST['recipient']) ? intval($_REQUEST['recipient'])                  : 0;
 
 	$ret = Mail::send($recipient, $body, $subject, $replyto);
 	$norecip = false;
@@ -215,50 +215,14 @@ function message_content(App $a)
 			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
 
-		$preselect = isset($a->argv[2]) ? [$a->argv[2]] : [];
+		$recipientId = $a->argv[2] ?? null;
 
-		$prename = $preurl = $preid = '';
-
-		if ($preselect) {
-			$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `id` = %d LIMIT 1",
-				intval(local_user()),
-				intval($a->argv[2])
-			);
-			if (!DBA::isResult($r)) {
-				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
-					intval(local_user()),
-					DBA::escape(Strings::normaliseLink(base64_decode($a->argv[2])))
-				);
-			}
-
-			if (!DBA::isResult($r)) {
-				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
-					intval(local_user()),
-					DBA::escape(base64_decode($a->argv[2]))
-				);
-			}
-
-			if (DBA::isResult($r)) {
-				$prename = $r[0]['name'];
-				$preid = $r[0]['id'];
-				$preselect = [$preid];
-			} else {
-				$preselect = [];
-			}
-		}
-
-		$prefill = $preselect ? $prename : '';
-
-		// the ugly select box
-		$select = ACL::getMessageContactSelectHTML('messageto', 'message-to-select', $preselect, 4, 10);
+		$select = ACL::getMessageContactSelectHTML($recipientId);
 
 		$tpl = Renderer::getMarkupTemplate('prv_message.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$header'     => DI::l10n()->t('Send Private Message'),
 			'$to'         => DI::l10n()->t('To:'),
-			'$showinputs' => 'true',
-			'$prefill'    => $prefill,
-			'$preid'      => $preid,
 			'$subject'    => DI::l10n()->t('Subject:'),
 			'$subjtxt'    => $_REQUEST['subject'] ?? '',
 			'$text'       => $_REQUEST['body'] ?? '',
@@ -413,7 +377,7 @@ function message_content(App $a)
 			$seen = $message['seen'];
 		}
 
-		$select = $message['name'] . '<input type="hidden" name="messageto" value="' . $contact_id . '" />';
+		$select = $message['name'] . '<input type="hidden" name="recipient" value="' . $contact_id . '" />';
 		$parent = '<input type="hidden" name="replyto" value="' . $message['parent-uri'] . '" />';
 
 		$tpl = Renderer::getMarkupTemplate('mail_display.tpl');
@@ -429,7 +393,6 @@ function message_content(App $a)
 			// reply
 			'$header' => DI::l10n()->t('Send Reply'),
 			'$to' => DI::l10n()->t('To:'),
-			'$showinputs' => '',
 			'$subject' => DI::l10n()->t('Subject:'),
 			'$subjtxt' => $message['title'],
 			'$readonly' => ' readonly="readonly" style="background: #BBBBBB;" ',

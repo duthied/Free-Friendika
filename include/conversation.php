@@ -28,6 +28,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
+use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -354,6 +355,13 @@ function conv_get_blocklist()
  */
 function conversation(App $a, array $items, $mode, $update, $preview = false, $order = 'commented', $uid = 0)
 {
+	$page = DI::page();
+
+	$page->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
+	$page->registerFooterScript(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.js'));
+	$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
+	$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
+
 	$ssl_state = (local_user() ? true : false);
 
 	$profile_owner = 0;

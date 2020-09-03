@@ -33,75 +33,52 @@ use Friendica\Model\Group;
 class ACL
 {
 	/**
-	 * Returns a select input tag with all the contact of the local user
+	 * Returns a select input tag for private message recipient
 	 *
-	 * @param string $selname     Name attribute of the select input tag
-	 * @param string $selclass    Class attribute of the select input tag
-	 * @param array  $preselected Contact IDs that should be already selected
-	 * @param int    $size        Length of the select box
-	 * @param int    $tabindex    Select input tag tabindex attribute
+	 * @param int  $selected Existing recipien contact ID
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function getMessageContactSelectHTML($selname, $selclass, array $preselected = [], $size = 4, $tabindex = null)
+	public static function getMessageContactSelectHTML(int $selected = null)
 	{
-		$a = DI::app();
-
 		$o = '';
+
+		$page = DI::page();
+
+		$page->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
+		$page->registerFooterScript(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.js'));
+		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
+		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
 		// When used for private messages, we limit correspondence to mutual DFRN/Friendica friends and the selector
 		// to one recipient. By default our selector allows multiple selects amongst all contacts.
-		$sql_extra = sprintf(" AND `rel` = %d ", intval(Contact::FRIEND));
-		$sql_extra .= sprintf(" AND `network` IN ('%s' , '%s') ", Protocol::DFRN, Protocol::DIASPORA);
+		$condition = [
+			'uid' => local_user(),
+			'self' => false,
+			'blocked' => false,
+			'pending' => false,
+			'archive' => false,
+			'deleted' => false,
+			'rel' => [Contact::FOLLOWER, Contact::SHARING, Contact::FRIEND],
+			'network' => Protocol::FEDERATED,
+		];
 
-		$tabindex_attr = !empty($tabindex) ? ' tabindex="' . intval($tabindex) . '"' : '';
-
-		$hidepreselected = '';
-		if ($preselected) {
-			$sql_extra .= " AND `id` IN (" . implode(",", $preselected) . ")";
-			$hidepreselected = ' style="display: none;"';
-		}
-
-		$o .= "<select name=\"$selname\" id=\"$selclass\" class=\"$selclass\" size=\"$size\"$tabindex_attr$hidepreselected>\r\n";
-
-		$stmt = DBA::p("SELECT `id`, `name`, `url`, `network` FROM `contact`
-			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND NOT `deleted` AND `notify` != ''
-			$sql_extra
-			ORDER BY `name` ASC ", intval(local_user())
+		$contacts = Contact::selectToArray(
+			['id', 'name', 'addr', 'micro'],
+			DBA::mergeConditions($condition, ["`notify` != ''"])
 		);
-
-		$contacts = DBA::toArray($stmt);
 
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
-		// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
-		Hook::callAll(DI::module()->getName() . '_pre_' . $selname, $arr);
+		Hook::callAll(DI::module()->getName() . '_pre_recipient', $arr);
 
-		$receiverlist = [];
+		$tpl = Renderer::getMarkupTemplate('acl/message_recipient.tpl');
+		$o = Renderer::replaceMacros($tpl, [
+			'$contacts' => $contacts,
+			'$selected' => $selected,
+		]);
 
-		if (DBA::isResult($contacts)) {
-			foreach ($contacts as $contact) {
-				if (in_array($contact['id'], $preselected)) {
-					$selected = ' selected="selected"';
-				} else {
-					$selected = '';
-				}
-
-				$trimmed = Protocol::formatMention($contact['url'], $contact['name']);
-
-				$receiverlist[] = $trimmed;
-
-				$o .= "<option value=\"{$contact['id']}\"$selected title=\"{$contact['name']}|{$contact['url']}\" >$trimmed</option>\r\n";
-			}
-		}
-
-		$o .= '</select>' . PHP_EOL;
-
-		if ($preselected) {
-			$o .= implode(', ', $receiverlist);
-		}
-
-		Hook::callAll(DI::module()->getName() . '_post_' . $selname, $o);
+		Hook::callAll(DI::module()->getName() . '_post_recipient', $o);
 
 		return $o;
 	}
@@ -303,7 +280,7 @@ class ACL
 			'emailcc'       => $form_prefix ? $form_prefix . '[emailcc]'       : 'emailcc',
 		];
 
-		$tpl = Renderer::getMarkupTemplate('acl_selector.tpl');
+		$tpl = Renderer::getMarkupTemplate('acl/full_selector.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$public_title'   => DI::l10n()->t('Public'),
 			'$public_desc'    => DI::l10n()->t('This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'),
