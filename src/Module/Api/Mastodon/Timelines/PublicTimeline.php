@@ -56,7 +56,6 @@ class PublicTimeline extends BaseApi
 
 		$condition = ['gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'private' => Item::PUBLIC];
 		if ($local) {
-			$condition['wall'] = true;
 			$condition['origin'] = true;
 		} else {
 			$condition['uid'] = 0;

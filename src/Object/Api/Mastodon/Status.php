@@ -22,6 +22,7 @@
 namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\BaseEntity;
+use Friendica\Content\Text\BBCode;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -96,8 +97,8 @@ class Status extends BaseEntity
 	 */
 	public function __construct(array $item, Account $account)
 	{
-		$this->id              = (string)$item['uri-id'];
-		$this->created_at      = DateTimeFormat::utc($item['created'], DateTimeFormat::ATOM);
+		$this->id         = (string)$item['uri-id'];
+		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::ATOM);
 
 		if ($item['gravity'] == GRAVITY_COMMENT) {
 			$this->in_reply_to_id         = (string)$item['thr-parent-id'];
@@ -105,7 +106,7 @@ class Status extends BaseEntity
 		}
 
 		$this->sensitive = false;
-		$this->spoiler_text = "";
+		$this->spoiler_text = $item['title'];
 
 		$visibility = ['public', 'private', 'unlisted'];
 		$this->visibility = $visibility[$item['private']];
@@ -121,10 +122,10 @@ class Status extends BaseEntity
 		$this->muted = false;
 		$this->bookmarked = false;
 		$this->pinned = false;
-		$this->content;
+		$this->content = BBCode::convert($item['body'], false);
 		$this->reblog = null;
 		$this->application = null;
-		$this->account         = $account->toArray();
+		$this->account = $account->toArray();
 		$this->media_attachments = [];
 		$this->mentions = [];
 		$this->tags = [];
