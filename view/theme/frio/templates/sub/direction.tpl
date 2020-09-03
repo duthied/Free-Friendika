@@ -9,6 +9,8 @@
 		<i class="fa fa-share-alt" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{elseif $direction.direction == 4}}
 		<i class="fa fa-hashtag" aria-hidden="true" title="{{$direction.title}}"></i>
+	{{elseif $direction.direction == 5}}
+		<i class="fa fa-comment-o" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{/if}}
 </span>
 {{/if}}

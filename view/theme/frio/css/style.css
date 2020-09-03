@@ -1499,14 +1499,14 @@ aside .panel-body {
 }
 
 /* wall items action dropdown menu */
+.media [role=heading] {
+	position: relative;
+}
+
 .preferences {
     position: absolute;
-    right: 15px;
-    top: 10px;
-}
-.comment .preferences {
-    right: 10px;
-    top: 5px;
+    right: 0;
+    top: 0;
 }
 .wall-item-network {
     font-size: 13px;
@@ -3411,10 +3411,6 @@ section .profile-match-wrapper {
 
 	.media {
 		margin-top: 0;
-	}
-
-	.preferences {
-		right: 10px;
 	}
 
 	.generic-page-wrapper, .videos-content-wrapper, .suggest-content-wrapper, .help-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper, .directory-content-wrapper, .delegation-content-wrapper, .notes-content-wrapper, .message-content-wrapper, .apps-content-wrapper, #adminpage, .delegate-content-wrapper, .uexport-content-wrapper, .dfrn_request-content-wrapper, .friendica-content-wrapper, .credits-content-wrapper, .nogroup-content-wrapper, .profperm-content-wrapper, .invite-content-wrapper, .tos-content-wrapper, .fsuggest-content-wrapper {

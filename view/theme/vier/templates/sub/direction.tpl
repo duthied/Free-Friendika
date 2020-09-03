@@ -9,6 +9,8 @@
 		<i class="icon-share" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{elseif $direction.direction == 4}}
 		<i class="icon-tag" aria-hidden="true" title="{{$direction.title}}"></i>
+	{{elseif $direction.direction == 5}}
+		<i class="icon-commenting" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{/if}}
 </span>
 {{/if}}
