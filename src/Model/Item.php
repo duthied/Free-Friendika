@@ -685,7 +685,7 @@ class Item
 			'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
 			'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id'];
 
-		$fields['parent-item'] = ['guid' => 'parent-guid', 'network' => 'parent-network'];
+		$fields['parent-item'] = ['guid' => 'parent-guid', 'network' => 'parent-network', 'author-id' => 'parent-author-id'];
 
 		$fields['parent-item-author'] = ['url' => 'parent-author-link', 'name' => 'parent-author-name',
 			'network' => 'parent-author-network'];
