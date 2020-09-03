@@ -37,57 +37,57 @@ class Status extends BaseEntity
 	/** @var string (Datetime) */
 	protected $created_at;
 	/** @var string|null */
-    protected $in_reply_to_id = null;
+	protected $in_reply_to_id = null;
 	/** @var string|null */
-    protected $in_reply_to_account_id = null;
+	protected $in_reply_to_account_id = null;
 	/** @var bool */
-    protected $sensitive = false;
+	protected $sensitive = false;
 	/** @var string */
-    protected $spoiler_text = "";
+	protected $spoiler_text = "";
 	/** @var string (Enum of public, unlisted, private, direct)*/
-    protected $visibility;
+	protected $visibility;
 	/** @var string|null */
-    protected $language = null;
+	protected $language = null;
 	/** @var string */
-    protected $uri;
+	protected $uri;
 	/** @var string|null (URL)*/
 	protected $url = null;
 	/** @var int */
-    protected $replies_count = 0;
+	protected $replies_count = 0;
 	/** @var int */
-    protected $reblogs_count = 0;
+	protected $reblogs_count = 0;
 	/** @var int */
-    protected $favourites_count = 0;
+	protected $favourites_count = 0;
 	/** @var bool */
-    protected $favourited = false;
+	protected $favourited = false;
 	/** @var bool */
-    protected $reblogged = false;
+	protected $reblogged = false;
 	/** @var bool */
-    protected $muted = false;
+	protected $muted = false;
 	/** @var bool */
-    protected $bookmarked = false;
+	protected $bookmarked = false;
 	/** @var bool */
-    protected $pinned = false;
+	protected $pinned = false;
 	/** @var string */
-    protected $content;
+	protected $content;
 	/** @var Status|null */
-    protected $reblog = null;
+	protected $reblog = null;
 	/** @var Application */
 	protected $application = null;
 	/** @var Account */
-    protected $account;
+	protected $account;
 	/** @var Attachment */
 	protected $media_attachments = [];
 	/** @var Mention */
-    protected $mentions = [];
+	protected $mentions = [];
 	/** @var Tag */
-    protected $tags = [];
+	protected $tags = [];
 	/** @var Emoji[] */
 	protected $emojis = [];
 	/** @var Card|null */
-    protected $card = null;
+	protected $card = null;
 	/** @var Poll|null */
-    protected $poll = null;
+	protected $poll = null;
 
 	/**
 	 * Creates a status record from an item record.
