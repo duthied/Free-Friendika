@@ -35,7 +35,7 @@ class Status extends BaseEntity
 	/** @var string */
 	protected $id;
 	/** @var string (Datetime) */
-    protected $created_at;
+	protected $created_at;
 	/** @var string|null */
     protected $in_reply_to_id = null;
 	/** @var string|null */
