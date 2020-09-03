@@ -725,7 +725,7 @@ function conversation_fetch_comments($thread_items, $pinned) {
 
 		if (!empty($parentlines) && empty($direction) && ($row['gravity'] == GRAVITY_COMMENT)
 			&& Contact::isSharing($row['author-id'], $row['uid'])) {
-			$direction = ['direction' => 2, 'title' => DI::l10n()->t('%s commented this.', $row['author-name'])];
+			$direction = ['direction' => 5, 'title' => DI::l10n()->t('%s commented on this.', $row['author-name'])];
 		}
 
 		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id'])
