@@ -48,12 +48,13 @@ return [
 
 	'/api' => [
 		'/v1' => [
-			'/custom_emojis'                     => [Module\Api\Mastodon\CustomEmojis::class,   [R::GET         ]],
-			'/directory'                         => [Module\Api\Mastodon\Directory::class,      [R::GET         ]],
-			'/follow_requests'                   => [Module\Api\Mastodon\FollowRequests::class, [R::GET         ]],
-			'/follow_requests/{id:\d+}/{action}' => [Module\Api\Mastodon\FollowRequests::class, [        R::POST]],
-			'/instance'                          => [Module\Api\Mastodon\Instance::class,       [R::GET         ]],
-			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class, [R::GET         ]],
+			'/custom_emojis'                     => [Module\Api\Mastodon\CustomEmojis::class,             [R::GET         ]],
+			'/directory'                         => [Module\Api\Mastodon\Directory::class,                [R::GET         ]],
+			'/follow_requests'                   => [Module\Api\Mastodon\FollowRequests::class,           [R::GET         ]],
+			'/follow_requests/{id:\d+}/{action}' => [Module\Api\Mastodon\FollowRequests::class,           [        R::POST]],
+			'/instance'                          => [Module\Api\Mastodon\Instance::class,                 [R::GET         ]],
+			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class,           [R::GET         ]],
+			'/timelines/public'                  => [Module\Api\Mastodon\Timelines\PublicTimeline::class, [R::GET         ]],
 		],
 		'/friendica' => [
 			'/profile/show'                      => [Module\Api\Friendica\Profile\Show::class , [R::GET         ]],

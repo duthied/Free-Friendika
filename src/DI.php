@@ -280,6 +280,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Status
+	 */
+	public static function mstdnStatus()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Status::class);
+	}
+
+	/**
 	 * @return Factory\Api\Twitter\User
 	 */
 	public static function twitterUser()
