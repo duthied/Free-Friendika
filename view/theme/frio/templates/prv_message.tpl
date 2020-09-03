@@ -2,21 +2,12 @@
 <div id="prvmail-wrapper">
 <form id="prvmail-form" action="message" method="post" >
 
-	{{* Disable the header. We will see if we will need it
-	<h3>{{$header}}</h3>
-	*}}
-
 	{{$parent nofilter}}
 
 	{{* The To: form-group which contains the message recipient *}}
 	<div id="prvmail-to-label" class="form-group">
-		<label for="recip">{{$to}}</label><br>
-		{{if $showinputs}}
-		<input type="text" id="recip" class="form-control" name="messagerecip" value="{{$prefill}}" tabindex="10" {{if $prefill}}disabled{{else}}aria-required="true"{{/if}} />
-		<input type="hidden" id="recip-complete" name="messageto" value="{{$preid}}">
-		{{else}}
+		<label for="recipient">{{$to}}</label><br>
 		{{$select nofilter}}
-		{{/if}}
 	</div>
 
 	{{* The subject input field *}}
