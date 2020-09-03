@@ -155,7 +155,7 @@
 		acl.initialize();
 
 		let suggestionTemplate = function (item) {
-			return '<div><img src="' + item.micro + '" alt="" style="float: left; width: auto; height: 2.8em; margin-right: 0.5em;"> <strong>' + item.name + '</strong><br /><em>' + item.addr + '</em></div>';
+			return '<div><img src="' + item.micro + '" alt="" style="float: left; width: auto; height: 2.8em; margin-right: 0.5em;"><p style="margin-left: 3.3em;"><strong>' + item.name + '</strong><br /><em>' + item.addr + '</em></p></div>';
 		};
 
 		$acl_allow_input.tagsinput({

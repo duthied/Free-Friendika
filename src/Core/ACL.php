@@ -303,7 +303,7 @@ class ACL
 			'emailcc'       => $form_prefix ? $form_prefix . '[emailcc]'       : 'emailcc',
 		];
 
-		$tpl = Renderer::getMarkupTemplate('acl_selector.tpl');
+		$tpl = Renderer::getMarkupTemplate('acl/full_selector.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$public_title'   => DI::l10n()->t('Public'),
 			'$public_desc'    => DI::l10n()->t('This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'),
