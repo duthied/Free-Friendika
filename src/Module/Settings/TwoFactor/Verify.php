@@ -132,7 +132,7 @@ class Verify extends BaseSettings
 			'$help_label'         => DI::l10n()->t('Help'),
 			'$message'            => DI::l10n()->t('<p>Please scan this QR Code with your authenticator app and submit the provided code.</p>'),
 			'$qrcode_image'       => $qrcode_image,
-			'$qrcode_url_message' => DI::l10n()->t('<p>Or you can open the following URL in your mobile devicde:</p><p><a href="%s">%s</a></p>', $otpauthUrl, $shortOtpauthUrl),
+			'$qrcode_url_message' => DI::l10n()->t('<p>Or you can open the following URL in your mobile device:</p><p><a href="%s">%s</a></p>', $otpauthUrl, $shortOtpauthUrl),
 			'$manual_message'     => $manual_message,
 			'$company'            => $company,
 			'$holder'             => $holder,
