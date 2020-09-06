@@ -1,49 +1,49 @@
 Version 2020.09 (unreleased)
   Friendica Core:
-	  Updates to the tranlations: DE, EN GB, EN US, ES, FR, IT, NL, PL, RU, ZH_CN [tranlation teams]
-		Updates to the themes (all) [MrPetovan, tobiasd]
-		Updates to the documentation [annando, realkinetix]
-		General code cleanup and refactoring [annando, MrPetovan, nupplaphil]
-		Enhanced the API [annando]
-		Enhanced the processing of background jobs [annando]
-		Enhanced federation of activities [annando, vpzomtrrfrt]
-		Enhanced the user notifications[annando]
-		Enhanced database usage [annando]
-		Enhanced ActivityPub support for forums [annando]
-		Enhanced the utilization of the cache [annando, MrPetovan]
-		Enhanced the performance of the daemon [annando]
-		Enhanced the communication with the directory servers [annando]
-		Enhaceed the resharing of items [annando]
-		Replaced library used for text completion [MrPetovan]
-		Fixed a problem that prevented recipients of direct messages to be selected [MrPetovan]
-		Fixed a problem that prevented new email contacts from being added [annando]
-		Fixed a problem with the console command search [tobiasd]
-		Fixed a problem during the search for contacts [annando]
-	  Added nodeinfo2 support [annando]
-		Added CSV export and import of blocked servers to the console [tobiasd]
-		Added new admin debug module for ActivityPub [MrPetovan]
-		Added the automatic determination of frequency to pull feeds [annando]
-		Added fetching from system users [annando]
-		Added the discovery of new peers from contacts [annando]
-		Added the directory API endpoint [anndno]
-		Added support for signed outbox requests [annando]
-		By default display of resharer information is now flattened [annando]
-		Removed some unused POCO functionality [annando]
-		Removed the unused rating functionality [annando]
-		Removed unneded network request for local stuff [annando]
-		Removed some useless info messages [annando]
+    Updates to the tranlations: DE, EN GB, EN US, ES, FR, IT, NL, PL, RU, ZH_CN [tranlation teams]
+    Updates to the themes (all) [MrPetovan, tobiasd]
+    Updates to the documentation [annando, realkinetix]
+    General code cleanup and refactoring [annando, MrPetovan, nupplaphil]
+    Enhanced the API [annando]
+    Enhanced the processing of background jobs [annando]
+    Enhanced federation of activities [annando, vpzomtrrfrt]
+    Enhanced the user notifications[annando]
+    Enhanced database usage [annando]
+    Enhanced ActivityPub support for forums [annando]
+    Enhanced the utilization of the cache [annando, MrPetovan]
+    Enhanced the performance of the daemon [annando]
+    Enhanced the communication with the directory servers [annando]
+    Enhaceed the resharing of items [annando]
+    Replaced library used for text completion [MrPetovan]
+    Fixed a problem that prevented recipients of direct messages to be selected [MrPetovan]
+    Fixed a problem that prevented new email contacts from being added [annando]
+    Fixed a problem with the console command search [tobiasd]
+    Fixed a problem during the search for contacts [annando]
+    Added nodeinfo2 support [annando]
+    Added CSV export and import of blocked servers to the console [tobiasd]
+    Added new admin debug module for ActivityPub [MrPetovan]
+    Added the automatic determination of frequency to pull feeds [annando]
+    Added fetching from system users [annando]
+    Added the discovery of new peers from contacts [annando]
+    Added the directory API endpoint [anndno]
+    Added support for signed outbox requests [annando]
+    By default display of resharer information is now flattened [annando]
+    Removed some unused POCO functionality [annando]
+    Removed the unused rating functionality [annando]
+    Removed unneded network request for local stuff [annando]
+    Removed some useless info messages [annando]
 
-	Friendica Addons:
-	  Updates to the translations: DE, EN GB, EN US, IT, NL, RU, ZH_CN [translation teams]
-		Updates to the docs [SpencerDub]
-		General code cleanup and maintenance [annando, MrPetovan]
-		blockbot:
-		  added some "good" bots [annando]
+  Friendica Addons:
+    Updates to the translations: DE, EN GB, EN US, IT, NL, RU, ZH_CN [translation teams]
+    Updates to the docs [SpencerDub]
+    General code cleanup and maintenance [annando, MrPetovan]
+    blockbot:
+      added some "good" bots [annando]
 
-	Closed Issues:
-	  4606, 5742, 5782, 7660, 8676, 8788, 8797, 8798, 8847, 8860, 8906,
-		8914, 8928, 8929, 8935, 8941, 8967, 8989, 8993, 8994, 8995, 8997,
-		8999, 9000, 9004, 9013, 9015, 9051, 9064, 9065, 9072, 9107
+  Closed Issues:
+    4606, 5742, 5782, 7660, 8676, 8788, 8797, 8798, 8847, 8860, 8906,
+    8914, 8928, 8929, 8935, 8941, 8967, 8989, 8993, 8994, 8995, 8997,
+    8999, 9000, 9004, 9013, 9015, 9051, 9064, 9065, 9072, 9107
 
 Version 2020.07 (2020-07-12)
   Friendica Core:
