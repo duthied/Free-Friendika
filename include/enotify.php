@@ -509,7 +509,8 @@ function notification($params)
 		Logger::log('sending notification email');
 
 		if (isset($params['parent']) && (intval($params['parent']) != 0)) {
-			$id_for_parent = $params['parent'] . "@" . $hostname;
+			$parent = Item::selectFirst(['guid'], ['id' => $params['parent']]);
+			$message_id = "<" . $parent['guid'] . "@" . gethostname() . ">";
 
 			// Is this the first email notification for this parent item and user?
 			if (!DBA::exists('notify-threads', ['master-parent-item' => $params['parent'], 'receiver-uid' => $params['uid']])) {
@@ -520,13 +521,13 @@ function notification($params)
 					'receiver-uid' => $params['uid'], 'parent-item' => 0];
 				DBA::insert('notify-threads', $fields);
 
-				$additional_mail_header .= "Message-ID: <${id_for_parent}>\n";
+				$additional_mail_header .= "Message-ID: " . $message_id . "\n";
 				$log_msg                = "include/enotify: No previous notification found for this parent:\n" .
 				                          "  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
 				Logger::log($log_msg, Logger::DEBUG);
 			} else {
 				// If not, just "follow" the thread.
-				$additional_mail_header .= "References: <${id_for_parent}>\nIn-Reply-To: <${id_for_parent}>\n";
+				$additional_mail_header .= "References: " . $message_id . "\nIn-Reply-To: " . $message_id . "\n";
 				Logger::log("There's already a notification for this parent.", Logger::DEBUG);
 			}
 		}
