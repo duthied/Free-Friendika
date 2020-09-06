@@ -93,15 +93,17 @@ class Probe
 				"following", "followers", "inbox", "outbox", "sharedinbox",
 				"priority", "network", "pubkey", "manually-approve", "baseurl", "gsid"];
 
+		$numeric_fields = ["gsid", "hide", "account-type", "manually-approve"];
+
 		$newdata = [];
 		foreach ($fields as $field) {
 			if (isset($data[$field])) {
-				if (in_array($field, ["gsid", "hide", "account-type", "manually-approve"])) {
+				if (in_array($field, $numeric_fields)) {
 					$newdata[$field] = (int)$data[$field];
 				} else {	
 					$newdata[$field] = $data[$field];
 				}
-			} elseif ($field != "gsid") {
+			} elseif (!in_array($field, $numeric_fields)) {
 				$newdata[$field] = "";
 			} else {
 				$newdata[$field] = null;
