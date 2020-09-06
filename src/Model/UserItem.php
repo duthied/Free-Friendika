@@ -51,8 +51,8 @@ class UserItem
 	 */
 	public static function setNotification(int $iid)
 	{
-		$fields = ['id', 'uri-id', 'uid', 'body', 'parent', 'gravity', 'tag',
-			'contact-id', 'thr-parent', 'parent-uri', 'author-id', 'verb'];
+		$fields = ['id', 'uri-id', 'parent-uri-id', 'uid', 'body', 'parent', 'gravity', 'tag',
+			'private', 'contact-id', 'thr-parent', 'parent-uri', 'author-id', 'verb'];
 		$item = Item::selectFirst($fields, ['id' => $iid, 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			return;
@@ -64,13 +64,36 @@ class UserItem
 		}
 
 		// fetch all users in the thread
+		$uids = [];
 		$users = DBA::p("SELECT DISTINCT(`contact`.`uid`) FROM `item`
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` != 0
 			WHERE `parent` IN (SELECT `parent` FROM `item` WHERE `id`=?)", $iid);
 		while ($user = DBA::fetch($users)) {
-			self::setNotificationForUser($item, $user['uid']);
+			$uids[$user['uid']] = $user['uid'];
 		}
 		DBA::close($users);
+
+		// Add item users
+		$users = Item::select(['uid'], ["`parent-uri-id` = ? AND `uid` != ?", $item['parent-uri-id'], 0], ['group_by' => ['uid']]);
+		while ($user = DBA::fetch($users)) {
+			$uids[$user['uid']] = $user['uid'];
+		}
+		DBA::close($users);
+
+		// Check for mentions to local users
+		if (in_array($item['private'], [Item::PUBLIC, Item::UNLISTED])) {
+			$mentions = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
+			foreach ($mentions as $mention) {
+				$uid = User::getIdForURL($mention['url']);
+				if (!empty($uid)) {
+					$uids[$uid] = $uid;
+				}
+			}
+		}
+
+		foreach ($uids as $uid) {
+			self::setNotificationForUser($item, $uid);
+		}
 	}
 
 	/**
