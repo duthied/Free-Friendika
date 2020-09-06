@@ -201,11 +201,7 @@ class Item
 			return [];
 		}
 
-		if (!empty($condition)) {
-			$condition = DBA::mergeConditions(['iid' => $pinned], $condition);
-		} else {
-			$condition = ['iid' => $pinned];
-		}
+		$condition = DBA::mergeConditions(['iid' => $pinned], $condition);
 
 		return self::selectThreadForUser($uid, $selected, $condition, $params);
 	}
