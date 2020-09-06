@@ -69,14 +69,14 @@ class UserItem
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` != 0
 			WHERE `parent` IN (SELECT `parent` FROM `item` WHERE `id`=?)", $iid);
 		while ($user = DBA::fetch($users)) {
-			$uids[$user['uid']] = $user['uid'];
+			$uids[] = $user['uid'];
 		}
 		DBA::close($users);
 
 		// Add item users
 		$users = Item::select(['uid'], ["`parent-uri-id` = ? AND `uid` != ?", $item['parent-uri-id'], 0], ['group_by' => ['uid']]);
 		while ($user = DBA::fetch($users)) {
-			$uids[$user['uid']] = $user['uid'];
+			$uids[] = $user['uid'];
 		}
 		DBA::close($users);
 
@@ -86,12 +86,12 @@ class UserItem
 			foreach ($mentions as $mention) {
 				$uid = User::getIdForURL($mention['url']);
 				if (!empty($uid)) {
-					$uids[$uid] = $uid;
+					$uids[] = $uid;
 				}
 			}
 		}
 
-		foreach ($uids as $uid) {
+		foreach (array_unique($uids) as $uid) {
 			self::setNotificationForUser($item, $uid);
 		}
 	}
