@@ -63,7 +63,7 @@ class Recovery extends BaseSettings
 
 			if ($_POST['action'] == 'regenerate') {
 				RecoveryCode::regenerateForUser(local_user());
-				notice(DI::l10n()->t('New recovery codes successfully generated.'));
+				info(DI::l10n()->t('New recovery codes successfully generated.'));
 				DI::baseUrl()->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 			}
 		}
