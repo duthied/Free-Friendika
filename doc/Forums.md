@@ -11,22 +11,39 @@ Every page in Friendica has a nickname and these must all be unique. This applie
 Managing Accounts
 ---
 
-To create a new linked account that can be used as a forum, log in to your normal account and go to Settings > Manage Accounts. Here you can register additional accounts with new nicknames that will be linked to your primary account. 
+To create a new linked account that can be used as a forum, log in to your normal account and go to Settings > Manage Accounts.
+Here you can register additional accounts with new nicknames that will be linked to your primary account. 
 
-You may appoint a delegate to manage your new account (e.g. forum page). The Delegates section of Manage Accounts page will provide you with a list of contacts on this instance under "Potential Delegates". Selecting one or more persons will give them access to manage your forum. They will be able to edit contacts, profiles, and all content for this account/page. Please use this facility wisely. Delegated managers will not be able to alter basic account settings, such as passwords or page types, or remove the account.
+You may appoint a delegate to manage your new account (e.g. forum page).
+The Delegates section of Manage Accounts page will provide you with a list of contacts on this instance under "Potential Delegates".
+Selecting one or more persons will give them access to manage your forum.
+They will be able to edit contacts, profiles, and all content for this account/page.
+Please use this facility wisely.
+Delegated managers will not be able to alter basic account settings, such as passwords or page types, or remove the account.
 
-Additionally, this page is also where you can choose to designate an account as a parent user. If your primary account is designated as the parent user, you will be able to easily toggle identities and manage your forums or other types of accounts.
+Additionally, this page is also where you can choose to designate an account as a parent user.
+If your primary account is designated as the parent user, you will be able to easily toggle identities and manage your forums or other types of accounts.
 
 Types of Accounts
 ---
 
-On the new account, visit the Settings > Account page. Towards the end of the page is a section for "Advanced account types". Typically you would use "Personal Page - Standard" for a normal personal account with manual approval of “friends” and “followers.” This is the default selection. On this page you can change the type of account if desired.
+On the new account, visit the Settings > Account page.
+Towards the end of the page is a section for "Advanced account types".
+Typically you would use "Personal Page - Standard" for a normal personal account with manual approval of “friends” and “followers.”
+This is the default selection.
+On this page you can change the type of account if desired.
 
-The other subtypes of a Personal Page are “Soapbox” and “Love-all.” A Soapbox account is an announcement channel that automatically approvals follower requests. Everything posted by the account will go out to the followers, but there will be no opportunity for interaction. This setting would typically be used for announcements or corporate communications. “Love-all” automatically approves contacts as friends.
+The other subtypes of a Personal Page are “Soapbox” and “Love-all.”
+A Soapbox account is an announcement channel that automatically approvals follower requests.
+Everything posted by the account will go out to the followers, but there will be no opportunity for interaction.
+This setting would typically be used for announcements or corporate communications.
+“Love-all” automatically approves contacts as friends.
 
-In addition to Personal Page, there are options for Organization Page, News Page, and Community Forum. Organization and New Pages automatically approve contact requests as followers.
+In addition to Personal Page, there are options for Organization Page, News Page, and Community Forum.
+Organization and New Pages automatically approve contact requests as followers.
 
-Community Forum provide the ability for people to become friends/fans of the forum without requiring approval. This creates a forum page where all members can freely interact.
+Community Forum provide the ability for people to become friends/fans of the forum without requiring approval.
+This creates a forum page where all members can freely interact.
 
 Posting to Community forums
 ---
