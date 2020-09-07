@@ -201,19 +201,7 @@ class Item
 			return [];
 		}
 
-		if (empty($condition) || !is_array($condition)) {
-			$condition = ['iid' => $pinned];
-		} else {
-			reset($condition);
-			$first_key = key($condition);
-			if (!is_int($first_key)) {
-				$condition['iid'] = $pinned;
-			} else {
-				$values_string = substr(str_repeat("?, ", count($pinned)), 0, -2);
-				$condition[0] = '(' . $condition[0] . ") AND `iid` IN (" . $values_string . ")";
-				$condition = array_merge($condition, $pinned);
-			}
-		}
+		$condition = DBA::mergeConditions(['iid' => $pinned], $condition);
 
 		return self::selectThreadForUser($uid, $selected, $condition, $params);
 	}
