@@ -987,8 +987,6 @@ function photos_content(App $a)
 			'$uploadurl' => $ret['post_url'],
 
 			// ACL permissions box
-			'$group_perms' => DI::l10n()->t('Show to Groups'),
-			'$contact_perms' => DI::l10n()->t('Show to Contacts'),
 			'$return_path' => DI::args()->getQueryString(),
 		]);
 
@@ -1352,8 +1350,6 @@ function photos_content(App $a)
 				'$delete' => DI::l10n()->t('Delete Photo'),
 
 				// ACL permissions box
-				'$group_perms' => DI::l10n()->t('Show to Groups'),
-				'$contact_perms' => DI::l10n()->t('Show to Contacts'),
 				'$return_path' => DI::args()->getQueryString(),
 			]);
 		}

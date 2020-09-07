@@ -1137,26 +1137,9 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	$jotplugins = '';
 	Hook::callAll('jot_tool', $jotplugins);
 
-	// Private/public post links for the non-JS ACL form
-	$private_post = 1;
-	if (!empty($_REQUEST['public'])) {
-		$private_post = 0;
-	}
-
 	$query_str = DI::args()->getQueryString();
 	if (strpos($query_str, 'public=1') !== false) {
 		$query_str = str_replace(['?public=1', '&public=1'], ['', ''], $query_str);
-	}
-
-	/*
-	 * I think $a->query_string may never have ? in it, but I could be wrong
-	 * It looks like it's from the index.php?q=[etc] rewrite that the web
-	 * server does, which converts any ? to &, e.g. suggest&ignore=61 for suggest?ignore=61
-	 */
-	if (strpos($query_str, '?') === false) {
-		$public_post_link = '?public=1';
-	} else {
-		$public_post_link = '&public=1';
 	}
 
 	// $tpl = Renderer::replaceMacros($tpl,array('$jotplugins' => $jotplugins));
@@ -1212,11 +1195,6 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 
 		// ACL permissions box
 		'$acl'           => $x['acl'],
-		'$group_perms'   => DI::l10n()->t('Post to Groups'),
-		'$contact_perms' => DI::l10n()->t('Post to Contacts'),
-		'$private'       => DI::l10n()->t('Private post'),
-		'$is_private'    => $private_post,
-		'$public_link'   => $public_post_link,
 
 		//jot nav tab (used in some themes)
 		'$message' => DI::l10n()->t('Message'),
