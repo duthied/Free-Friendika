@@ -677,6 +677,10 @@ class DBA
 		$result = [];
 
 		foreach ($conditions as $key => $condition) {
+			if (!$condition) {
+				continue;
+			}
+
 			$condition = self::collapseCondition($condition);
 
 			$conditionStrings[] = array_shift($condition);
