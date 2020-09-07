@@ -14,6 +14,7 @@ Version 2020.09 (unreleased)
     Enhanced the performance of the daemon [annando]
     Enhanced the communication with the directory servers [annando]
     Enhaceed the resharing of items [annando]
+    Enhanced sample lighttpd and nginx configs [MrTetovan, tobiasd]
     Replaced library used for text completion [MrPetovan]
     Fixed a problem that prevented recipients of direct messages to be selected [MrPetovan]
     Fixed a problem that prevented new email contacts from being added [annando]
@@ -23,7 +24,7 @@ Version 2020.09 (unreleased)
     Added CSV export and import of blocked servers to the console [tobiasd]
     Added new admin debug module for ActivityPub [MrPetovan]
     Added the automatic determination of frequency to pull feeds [annando]
-    Added fetching from system users [annando]
+    Added signed fetching from system users for ActivityPub [annando]
     Added the discovery of new peers from contacts [annando]
     Added the directory API endpoint [anndno]
     Added support for signed outbox requests [annando]
@@ -42,8 +43,8 @@ Version 2020.09 (unreleased)
 
   Closed Issues:
     4606, 5742, 5782, 7660, 8676, 8788, 8797, 8798, 8847, 8860, 8906,
-    8914, 8928, 8929, 8935, 8941, 8967, 8989, 8993, 8994, 8995, 8997,
-    8999, 9000, 9004, 9013, 9015, 9051, 9064, 9065, 9072, 9107
+    8914, 8928, 8929, 8935, 8940, 8941, 8967, 8989, 8993, 8994, 8995,
+    8997, 8999, 9000, 9004, 9013, 9015, 9051, 9064, 9065, 9072, 9107
 
 Version 2020.07 (2020-07-12)
   Friendica Core:
