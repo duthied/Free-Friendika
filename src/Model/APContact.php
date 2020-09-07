@@ -320,11 +320,16 @@ class APContact
 
 		$apcontact['updated'] = DateTimeFormat::utcNow();
 
-		DBA::update('apcontact', $apcontact, ['url' => $url], true);
-
 		// We delete the old entry when the URL is changed
-		if (($url != $apcontact['url']) && DBA::exists('apcontact', ['url' => $url]) && DBA::exists('apcontact', ['url' => $apcontact['url']])) {
+		if ($url != $apcontact['url']) {
+			Logger::info('Delete changed profile url', ['old' => $url, 'new' => $apcontact['url']]);
 			DBA::delete('apcontact', ['url' => $url]);
+		}
+
+		if (DBA::exists('apcontact', ['url' => $apcontact['url']])) {
+			DBA::update('apcontact', $apcontact, ['url' => $apcontact['url']]);
+		} else {
+			DBA::replace('apcontact', $apcontact);
 		}
 
 		Logger::info('Updated profile', ['url' => $url]);
