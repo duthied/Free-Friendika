@@ -14,7 +14,7 @@ Version 2020.09 (unreleased)
     Enhanced the performance of the daemon [annando]
     Enhanced the communication with the directory servers [annando]
     Enhaceed the resharing of items [annando]
-    Enhanced sample lighttpd and nginx configs [MrTetovan, tobiasd]
+    Enhanced sample lighttpd and nginx configs [MrPetovan, tobiasd]
     Replaced library used for text completion [MrPetovan]
     Fixed a problem that prevented recipients of direct messages to be selected [MrPetovan]
     Fixed a problem that prevented new email contacts from being added [annando]
