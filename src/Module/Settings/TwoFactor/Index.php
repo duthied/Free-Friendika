@@ -64,7 +64,7 @@ class Index extends BaseSettings
 						DI::pConfig()->delete(local_user(), '2fa', 'verified');
 						Session::remove('2fa');
 
-						notice(DI::l10n()->t('Two-factor authentication successfully disabled.'));
+						info(DI::l10n()->t('Two-factor authentication successfully disabled.'));
 						DI::baseUrl()->redirect('settings/2fa');
 					}
 					break;

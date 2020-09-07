@@ -57,7 +57,7 @@ class Recovery extends BaseModule
 			if (RecoveryCode::existsForUser(local_user(), $recovery_code)) {
 				RecoveryCode::markUsedForUser(local_user(), $recovery_code);
 				Session::set('2fa', true);
-				notice(DI::l10n()->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
+				info(DI::l10n()->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
 
 				DI::auth()->setForUser($a, $a->user, true, true);
 			} else {

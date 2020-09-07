@@ -75,7 +75,7 @@ class Verify extends BaseSettings
 				DI::pConfig()->set(local_user(), '2fa', 'verified', true);
 				Session::set('2fa', true);
 
-				notice(DI::l10n()->t('Two-factor authentication successfully activated.'));
+				info(DI::l10n()->t('Two-factor authentication successfully activated.'));
 
 				DI::baseUrl()->redirect('settings/2fa');
 			} else {
