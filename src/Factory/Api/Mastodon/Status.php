@@ -31,7 +31,6 @@ use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Repository\ProfileField;
 use Psr\Log\LoggerInterface;
-use stdClass;
 
 class Status extends BaseFactory
 {
@@ -63,10 +62,10 @@ class Status extends BaseFactory
 		$item = Item::selectFirst([], ['uri-id' => $uriId, 'uid' => $uid]);
 		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
 
-		$count = new stdClass;
-		$count->replies = DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_COMMENT]);
-		$count->reblogs = DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]);
-		$count->favourites = DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)]);
+		$count = new \Friendica\Object\Api\Mastodon\Status\StatusCounts(
+			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_COMMENT]),
+			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]),
+			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)]));
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $count);
 	}
