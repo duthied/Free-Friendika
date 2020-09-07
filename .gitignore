@@ -71,8 +71,8 @@ venv/
 /addons
 /addon
 
-#ignore .htaccess
-.htaccess
+#ignore base .htaccess
+/.htaccess
 
 #ignore filesystem storage default path
 /storage
