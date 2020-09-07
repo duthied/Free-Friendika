@@ -24,6 +24,11 @@
  * Usage: php bin/wait-for-connection {HOST} {PORT} [{TIMEOUT}]
  */
 
+if (php_sapi_name() !== 'cli') {
+	header($_SERVER["SERVER_PROTOCOL"] . ' 403 Forbidden');
+	exit();
+}
+
 $timeout = 60;
 switch ($argc) {
 	case 4:
