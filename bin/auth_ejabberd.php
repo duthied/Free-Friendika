@@ -51,6 +51,11 @@
  *
  */
 
+if (php_sapi_name() !== 'cli') {
+	header($_SERVER["SERVER_PROTOCOL"] . ' 403 Forbidden');
+	exit();
+}
+
 use Dice\Dice;
 use Friendica\App\Mode;
 use Friendica\Util\ExAuth;
