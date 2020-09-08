@@ -62,11 +62,12 @@ class Status extends BaseFactory
 		$item = Item::selectFirst([], ['uri-id' => $uriId, 'uid' => $uid]);
 		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
 
-		$count = new \Friendica\Object\Api\Mastodon\Status\StatusCounts(
+		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(
 			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_COMMENT]),
 			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]),
-			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)]));
+			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)])
+		);
 
-		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $count);
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts);
 	}
 }

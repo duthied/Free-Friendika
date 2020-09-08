@@ -26,7 +26,7 @@ namespace Friendica\Object\Api\Mastodon\Status;
  *
  * @see https://docs.joinmastodon.org/entities/status
  */
-class StatusCounts
+class Counts
 {
 	/** @var int */
 	protected $replies;

@@ -23,7 +23,7 @@ namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\BaseEntity;
 use Friendica\Content\Text\BBCode;
-use Friendica\Object\Api\Mastodon\Status\StatusCounts;
+use Friendica\Object\Api\Mastodon\Status\Counts;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -96,7 +96,7 @@ class Status extends BaseEntity
 	 * @param array   $item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(array $item, Account $account, StatusCounts $count)
+	public function __construct(array $item, Account $account, Counts $counts)
 	{
 		$this->id         = (string)$item['uri-id'];
 		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::ATOM);
@@ -115,9 +115,9 @@ class Status extends BaseEntity
 		$this->language = null;
 		$this->uri = $item['uri'];
 		$this->url = $item['plink'] ?? null;
-		$this->replies_count = $count->__get('replies');
-		$this->reblogs_count = $count->__get('reblogs');
-		$this->favourites_count = $count->__get('favourites');
+		$this->replies_count = $counts->replies;
+		$this->reblogs_count = $counts->reblogs;
+		$this->favourites_count = $counts->favourites;
 		$this->favourited = false;
 		$this->reblogged = false;
 		$this->muted = false;
