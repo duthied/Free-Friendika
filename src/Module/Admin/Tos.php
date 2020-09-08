@@ -29,13 +29,13 @@ class Tos extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
-
-		parent::checkFormSecurityTokenRedirectOnError('/admin/tos', 'admin_tos');
+		self::checkAdminAccess();
 
 		if (empty($_POST['page_tos'])) {
 			return;
 		}
+
+		self::checkFormSecurityTokenRedirectOnError('/admin/tos', 'admin_tos');
 
 		$displaytos = !empty($_POST['displaytos']);
 		$displayprivstatement = !empty($_POST['displayprivstatement']);
@@ -64,7 +64,7 @@ class Tos extends BaseAdmin
 			'$preview' => DI::l10n()->t('Privacy Statement Preview'),
 			'$privtext' => $tos->privacy_complete,
 			'$tostext' => ['tostext', DI::l10n()->t('The Terms of Service'), DI::config()->get('system', 'tostext'), DI::l10n()->t('Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.')],
-			'$form_security_token' => parent::getFormSecurityToken('admin_tos'),
+			'$form_security_token' => self::getFormSecurityToken('admin_tos'),
 			'$submit' => DI::l10n()->t('Save Settings'),
 		]);
 	}

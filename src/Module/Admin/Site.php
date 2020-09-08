@@ -43,7 +43,7 @@ class Site extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/site', 'admin_site');
 
@@ -718,7 +718,7 @@ class Site extends BaseAdmin
 			'$relay_server_tags'      => ['relay_server_tags', DI::l10n()->t('Server tags'), DI::config()->get('system', 'relay_server_tags'), DI::l10n()->t('Comma separated list of tags for the "tags" subscription.')],
 			'$relay_user_tags'        => ['relay_user_tags', DI::l10n()->t('Allow user tags'), DI::config()->get('system', 'relay_user_tags', true), DI::l10n()->t('If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".')],
 
-			'$form_security_token'    => parent::getFormSecurityToken('admin_site'),
+			'$form_security_token'    => self::getFormSecurityToken('admin_site'),
 			'$relocate_button'        => DI::l10n()->t('Start Relocation'),
 		]);
 	}

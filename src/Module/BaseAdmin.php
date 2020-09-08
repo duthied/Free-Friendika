@@ -26,7 +26,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
-use Friendica\Network\HTTPException\ForbiddenException;
+use Friendica\Network\HTTPException;
 
 require_once 'boot.php';
 
@@ -42,42 +42,35 @@ require_once 'boot.php';
  */
 abstract class BaseAdmin extends BaseModule
 {
-	public static function post(array $parameters = [])
+	/**
+	 * @param bool $interactive
+	 * @throws HTTPException\ForbiddenException
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function checkAdminAccess(bool $interactive = false)
 	{
-		if (!is_site_admin()) {
-			return;
+		if (!local_user()) {
+			if ($interactive) {
+				notice(DI::l10n()->t('Please login to continue.'));
+				Session::set('return_path', DI::args()->getQueryString());
+				DI::baseUrl()->redirect('login');
+			} else {
+				throw new HTTPException\UnauthorizedException(DI::l10n()->t('Please login to continue.'));
+			}
 		}
 
-		// do not allow a page manager to access the admin panel at all.
-		if (!empty($_SESSION['submanage'])) {
-			return;
-		}
-	}
-
-	public static function rawContent(array $parameters = [])
-	{
 		if (!is_site_admin()) {
-			return '';
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('You don\'t have access to administration pages.'));
 		}
 
 		if (!empty($_SESSION['submanage'])) {
-			return '';
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Submanaged account can\'t access the administation pages. Please log back in as the main account.'));
 		}
-
-		return '';
 	}
 
 	public static function content(array $parameters = [])
 	{
-		if (!is_site_admin()) {
-			notice(DI::l10n()->t('Please login to continue.'));
-			Session::set('return_path', DI::args()->getQueryString());
-			DI::baseUrl()->redirect('login');
-		}
-
-		if (!empty($_SESSION['submanage'])) {
-			throw new ForbiddenException(DI::l10n()->t('Submanaged account can\'t access the administation pages. Please log back in as the main account.'));
-		}
+		self::checkAdminAccess(true);
 
 		// Header stuff
 		DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('admin/settings_head.tpl'), []);
