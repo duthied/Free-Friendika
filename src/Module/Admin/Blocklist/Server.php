@@ -30,13 +30,13 @@ class Server extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		if (empty($_POST['page_blocklist_save']) && empty($_POST['page_blocklist_edit'])) {
 			return;
 		}
 
-		parent::checkFormSecurityTokenRedirectOnError('/admin/blocklist/server', 'admin_blocklist');
+		self::checkFormSecurityTokenRedirectOnError('/admin/blocklist/server', 'admin_blocklist');
 
 		if (!empty($_POST['page_blocklist_save'])) {
 			//  Add new item to blocklist
@@ -107,7 +107,7 @@ class Server extends BaseAdmin
 			'$entries' => $blocklistform,
 			'$baseurl' => DI::baseUrl()->get(true),
 			'$confirm_delete' => DI::l10n()->t('Delete entry from blocklist?'),
-			'$form_security_token' => parent::getFormSecurityToken("admin_blocklist")
+			'$form_security_token' => self::getFormSecurityToken("admin_blocklist")
 		]);
 	}
 }
