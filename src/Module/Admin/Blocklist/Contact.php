@@ -34,11 +34,11 @@ class Contact extends BaseAdmin
 	{
 		parent::post($parameters);
 
+		self::checkFormSecurityTokenRedirectOnError('/admin/blocklist/contact', 'admin_contactblock');
+
 		$contact_url  = $_POST['contact_url'] ?? '';
 		$block_reason = $_POST['contact_block_reason'] ?? '';
 		$contacts     = $_POST['contacts'] ?? [];
-
-		parent::checkFormSecurityTokenRedirectOnError('/admin/blocklist/contact', 'admin_contactblock');
 
 		if (!empty($_POST['page_contactblock_block'])) {
 			$contact_id = Model\Contact::getIdForURL($contact_url);
@@ -89,7 +89,7 @@ class Contact extends BaseAdmin
 			'$h_newblock'  => DI::l10n()->t('Block New Remote Contact'),
 			'$th_contacts' => [DI::l10n()->t('Photo'), DI::l10n()->t('Name'), DI::l10n()->t('Reason')],
 
-			'$form_security_token' => parent::getFormSecurityToken('admin_contactblock'),
+			'$form_security_token' => self::getFormSecurityToken('admin_contactblock'),
 
 			// values //
 			'$baseurl'    => DI::baseUrl()->get(true),

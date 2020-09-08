@@ -42,6 +42,8 @@ class Details extends BaseAdmin
 			include_once 'addon/' . $addon . '/' . $addon . '.php';
 
 			if (function_exists($addon . '_addon_admin_post')) {
+				self::checkFormSecurityTokenRedirectOnError($redirect, 'admin_addons_details');
+
 				$func = $addon . '_addon_admin_post';
 				$func(DI::app());
 			}
@@ -66,7 +68,7 @@ class Details extends BaseAdmin
 		}
 
 		if (($_GET['action'] ?? '') == 'toggle') {
-			self::checkFormSecurityTokenRedirectOnError('/admin/addons', 'admin_addons', 't');
+			self::checkFormSecurityTokenRedirectOnError('/admin/addons', 'admin_addons_details', 't');
 
 			// Toggle addon status
 			if (Addon::isEnabled($addon)) {
@@ -124,7 +126,7 @@ class Details extends BaseAdmin
 			'$screenshot' => '',
 			'$readme' => $readme,
 
-			'$form_security_token' => self::getFormSecurityToken('admin_addons'),
+			'$form_security_token' => self::getFormSecurityToken('admin_addons_details'),
 		]);
 	}
 }

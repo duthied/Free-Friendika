@@ -34,7 +34,7 @@ class Index extends BaseAdmin
 
 		// reload active themes
 		if (!empty($_GET['action'])) {
-			parent::checkFormSecurityTokenRedirectOnError('/admin/addons', 'admin_addons', 't');
+			self::checkFormSecurityTokenRedirectOnError('/admin/addons', 'admin_addons', 't');
 
 			switch ($_GET['action']) {
 				case 'reload':
@@ -73,7 +73,7 @@ class Index extends BaseAdmin
 			'$addons' => $addons,
 			'$pcount' => count($addons),
 			'$noplugshint' => DI::l10n()->t('There are currently no addons available on your node. You can find the official addon repository at %1$s and might find other interesting addons in the open addon registry at %2$s', 'https://github.com/friendica/friendica-addons', 'http://addons.friendi.ca'),
-			'$form_security_token' => parent::getFormSecurityToken('admin_addons'),
+			'$form_security_token' => self::getFormSecurityToken('admin_addons'),
 		]);
 	}
 }

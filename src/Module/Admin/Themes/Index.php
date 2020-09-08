@@ -37,7 +37,7 @@ class Index extends BaseAdmin
 
 		// reload active themes
 		if (!empty($_GET['action'])) {
-			parent::checkFormSecurityTokenRedirectOnError(DI::baseUrl()->get() . '/admin/themes', 'admin_themes', 't');
+			self::checkFormSecurityTokenRedirectOnError(DI::baseUrl()->get() . '/admin/themes', 'admin_themes', 't');
 
 			switch ($_GET['action']) {
 				case 'reload':
@@ -119,7 +119,7 @@ class Index extends BaseAdmin
 			'$noplugshint'         => DI::l10n()->t('No themes found on the system. They should be placed in %1$s', '<code>/view/themes</code>'),
 			'$experimental'        => DI::l10n()->t('[Experimental]'),
 			'$unsupported'         => DI::l10n()->t('[Unsupported]'),
-			'$form_security_token' => parent::getFormSecurityToken('admin_themes'),
+			'$form_security_token' => self::getFormSecurityToken('admin_themes'),
 		]);
 	}
 }

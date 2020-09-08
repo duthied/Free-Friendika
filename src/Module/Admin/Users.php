@@ -36,14 +36,14 @@ class Users extends BaseAdmin
 	{
 		parent::post($parameters);
 
+		self::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users');
+
 		$pending     = $_POST['pending']           ?? [];
 		$users       = $_POST['user']              ?? [];
 		$nu_name     = $_POST['new_user_name']     ?? '';
 		$nu_nickname = $_POST['new_user_nickname'] ?? '';
 		$nu_email    = $_POST['new_user_email']    ?? '';
 		$nu_language = DI::config()->get('system', 'language');
-
-		parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users');
 
 		if ($nu_name !== '' && $nu_email !== '' && $nu_nickname !== '') {
 			try {

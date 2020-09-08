@@ -32,7 +32,7 @@ class Features extends BaseAdmin
 	{
 		parent::post($parameters);
 
-		parent::checkFormSecurityTokenRedirectOnError('/admin/features', 'admin_manage_features');
+		self::checkFormSecurityTokenRedirectOnError('/admin/features', 'admin_manage_features');
 
 		$features = Feature::get(false);
 
@@ -80,7 +80,7 @@ class Features extends BaseAdmin
 
 		$tpl = Renderer::getMarkupTemplate('admin/features.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$form_security_token' => parent::getFormSecurityToken("admin_manage_features"),
+			'$form_security_token' => self::getFormSecurityToken("admin_manage_features"),
 			'$baseurl'             => DI::baseUrl()->get(true),
 			'$title'               => DI::l10n()->t('Manage Additional Features'),
 			'$features'            => $features,
