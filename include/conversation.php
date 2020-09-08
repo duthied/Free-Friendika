@@ -758,6 +758,7 @@ function conversation_fetch_comments($thread_items, $pinned) {
 	if (!empty($direction)) {
 		foreach ($parentlines as $line) {
 			$comments[$line]['direction'] = $direction;
+			$comments[$line]['reshared'] = DI::l10n()->t('%s reshared this.', $actor['name']);
 			if (!empty($actor) && DI::pConfig()->get(local_user(), 'system', 'display_resharer')  ) {
 				$comments[$line]['owner-link'] = $actor['link'];
 				$comments[$line]['owner-avatar'] = $actor['avatar'];
