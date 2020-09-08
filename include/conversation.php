@@ -1190,7 +1190,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : '',
 		'$wait'         => DI::l10n()->t('Please wait'),
 		'$permset'      => DI::l10n()->t('Permission settings'),
-		'$shortpermset' => DI::l10n()->t('permissions'),
+		'$shortpermset' => DI::l10n()->t('Permissions'),
 		'$wall'         => $notes_cid ? 0 : 1,
 		'$posttype'     => $notes_cid ? Item::PT_PERSONAL_NOTE : Item::PT_ARTICLE,
 		'$content'      => $x['content'] ?? '',
