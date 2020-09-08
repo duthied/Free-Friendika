@@ -42,13 +42,10 @@ class Queue extends BaseAdmin
 	{
 		parent::content($parameters);
 
-		$a = DI::app();
-
-		// @TODO: Replace with parameter from router
-		$deferred = $a->argc > 2 && $a->argv[2] == 'deferred';
+		$status = $parameters['status'] ?? '';
 
 		// get jobs from the workerqueue table
-		if ($deferred) {
+		if ($status == 'deferred') {
 			$condition = ["NOT `done` AND `retrial` > ?", 0];
 			$sub_title = DI::l10n()->t('Inspect Deferred Worker Queue');
 			$info = DI::l10n()->t("This page lists the deferred worker jobs. This are jobs that couldn't be executed at the first time.");

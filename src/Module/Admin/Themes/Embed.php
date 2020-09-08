@@ -30,15 +30,9 @@ class Embed extends BaseAdmin
 {
 	public static function init(array $parameters = [])
 	{
-		$a = DI::app();
-
-		if ($a->argc > 2) {
-			// @TODO: Replace with parameter from router
-			$theme = $a->argv[2];
-			$theme = Strings::sanitizeFilePathItem($theme);
-			if (is_file("view/theme/$theme/config.php")) {
-				$a->setCurrentTheme($theme);
-			}
+		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
+		if (is_file("view/theme/$theme/config.php")) {
+			DI::app()->setCurrentTheme($theme);
 		}
 	}
 
@@ -46,67 +40,49 @@ class Embed extends BaseAdmin
 	{
 		parent::post($parameters);
 
-		$a = DI::app();
-
-		if ($a->argc > 2) {
-			// @TODO: Replace with parameter from router
-			$theme = $a->argv[2];
-			$theme = Strings::sanitizeFilePathItem($theme);
-			if (is_file("view/theme/$theme/config.php")) {
+		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
+		if (is_file("view/theme/$theme/config.php")) {
+			require_once "view/theme/$theme/config.php";
+			if (function_exists('theme_admin_post')) {
 				self::checkFormSecurityTokenRedirectOnError('/admin/themes/' . $theme . '/embed?mode=minimal', 'admin_theme_settings');
-
-				require_once "view/theme/$theme/config.php";
-
-				if (function_exists('theme_admin_post')) {
-					theme_admin_post($a);
-				}
+				theme_admin_post(DI::app());
 			}
-
-			info(DI::l10n()->t('Theme settings updated.'));
-
-			if (DI::mode()->isAjax()) {
-				return;
-			}
-
-			DI::baseUrl()->redirect('admin/themes/' . $theme . '/embed?mode=minimal');
 		}
+
+		if (DI::mode()->isAjax()) {
+			return;
+		}
+
+		DI::baseUrl()->redirect('admin/themes/' . $theme . '/embed?mode=minimal');
 	}
 
 	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 
-		$a = DI::app();
-
-		if ($a->argc > 2) {
-			// @TODO: Replace with parameter from router
-			$theme = $a->argv[2];
-			$theme = Strings::sanitizeFilePathItem($theme);
-			if (!is_dir("view/theme/$theme")) {
-				notice(DI::l10n()->t('Unknown theme.'));
-				return '';
-			}
-
-			$admin_form = '';
-			if (is_file("view/theme/$theme/config.php")) {
-				require_once "view/theme/$theme/config.php";
-
-				if (function_exists('theme_admin')) {
-					$admin_form = theme_admin($a);
-				}
-			}
-
-			// Overrides normal theme style include to strip user param to show embedded theme settings
-			Renderer::$theme['stylesheet'] = 'view/theme/' . $theme . '/style.pcss';
-
-			$t = Renderer::getMarkupTemplate('admin/addons/embed.tpl');
-			return Renderer::replaceMacros($t, [
-				'$action' => '/admin/themes/' . $theme . '/embed?mode=minimal',
-				'$form' => $admin_form,
-				'$form_security_token' => parent::getFormSecurityToken("admin_theme_settings"),
-			]);
+		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
+		if (!is_dir("view/theme/$theme")) {
+			notice(DI::l10n()->t('Unknown theme.'));
+			return '';
 		}
 
-		return '';
+		$admin_form = '';
+		if (is_file("view/theme/$theme/config.php")) {
+			require_once "view/theme/$theme/config.php";
+
+			if (function_exists('theme_admin')) {
+				$admin_form = theme_admin(DI::app());
+			}
+		}
+
+		// Overrides normal theme style include to strip user param to show embedded theme settings
+		Renderer::$theme['stylesheet'] = 'view/theme/' . $theme . '/style.pcss';
+
+		$t = Renderer::getMarkupTemplate('admin/addons/embed.tpl');
+		return Renderer::replaceMacros($t, [
+			'$action' => '/admin/themes/' . $theme . '/embed?mode=minimal',
+			'$form' => $admin_form,
+			'$form_security_token' => self::getFormSecurityToken("admin_theme_settings"),
+		]);
 	}
 }
