@@ -84,6 +84,27 @@ class ACL
 	}
 
 	/**
+	 * Returns a minimal ACL block for self-only permissions
+	 *
+	 * @param int    $localUserId
+	 * @param string $explanation
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function getSelfOnlyHTML(int $localUserId, string $explanation)
+	{
+		$selfPublicContactId = Contact::getPublicIdByUserId($localUserId);
+
+		$tpl = Renderer::getMarkupTemplate('acl/self_only.tpl');
+		$o = Renderer::replaceMacros($tpl, [
+			'$selfPublicContactId' => $selfPublicContactId,
+			'$explanation' => $explanation,
+		]);
+
+		return $o;
+	}
+
+	/**
 	 * Return the default permission of the provided user array
 	 *
 	 * @param array $user
