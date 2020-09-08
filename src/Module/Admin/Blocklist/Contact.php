@@ -32,7 +32,7 @@ class Contact extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/blocklist/contact', 'admin_contactblock');
 

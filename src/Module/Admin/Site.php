@@ -43,7 +43,7 @@ class Site extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/site', 'admin_site');
 

@@ -30,7 +30,7 @@ class Features extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/features', 'admin_manage_features');
 

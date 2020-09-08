@@ -34,7 +34,7 @@ class Users extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users');
 

@@ -30,7 +30,7 @@ class Server extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		if (empty($_POST['page_blocklist_save']) && empty($_POST['page_blocklist_edit'])) {
 			return;

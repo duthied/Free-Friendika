@@ -27,7 +27,7 @@ class PhpInfo extends BaseAdmin
 {
 	public static function rawContent(array $parameters = [])
 	{
-		parent::rawContent($parameters);
+		self::checkAdminAccess();
 
 		phpinfo();
 		exit();

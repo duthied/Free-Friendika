@@ -38,7 +38,7 @@ class Embed extends BaseAdmin
 
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
 		if (is_file("view/theme/$theme/config.php")) {

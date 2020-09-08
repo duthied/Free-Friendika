@@ -32,7 +32,7 @@ class Details extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		$addon = Strings::sanitizeFilePathItem($parameters['addon']);
 

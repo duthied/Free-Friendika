@@ -31,7 +31,7 @@ class Settings extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		if (empty($_POST['page_logs'])) {
 			return;
