@@ -31,7 +31,7 @@ class Counts
 	/** @var int */
 	protected $replies;
 	/** @var int */
-    protected $reblogs;
+	protected $reblogs;
 	/** @var int */
 	protected $favourites;
 
