@@ -1,3 +1,7 @@
+Version 2020.07-1 (2020-09-08)
+  Friendica Core
+    Fixed a problem that leakted sensitive information [Roger Meyer, MrPetovan]
+
 Version 2020.07 (2020-07-12)
   Friendica Core:
     Update to the translations: DE, EN GB, EN US, FR, ET, NL, PL, RU, ZH-CN [translation teams]
