@@ -1186,7 +1186,6 @@ section #jotOpen {
 #jot-modal .modal-header a, #jot-modal .modal-header .btn-link,
 #profile-jot-submit-wrapper a, #profile-jot-submit-wrapper .btn-link {
     color: $font_color_darker;
-    text-transform: capitalize;
 }
 #jot-modal .modal-header {
     border-bottom: none;
