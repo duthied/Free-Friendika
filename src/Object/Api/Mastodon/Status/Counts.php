@@ -22,7 +22,7 @@
 namespace Friendica\Object\Api\Mastodon\Status;
 
 /**
- * Class StatusCounts
+ * Class Counts
  *
  * @see https://docs.joinmastodon.org/entities/status
  */
