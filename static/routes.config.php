@@ -76,9 +76,7 @@ return [
 		'/blocklist/contact' => [Module\Admin\Blocklist\Contact::class, [R::GET, R::POST]],
 		'/blocklist/server'  => [Module\Admin\Blocklist\Server::class,  [R::GET, R::POST]],
 
-		'/dbsync[/check]'           => [Module\Admin\DBSync::class, [R::GET]],
-		'/dbsync/{update:\d+}'      => [Module\Admin\DBSync::class, [R::GET]],
-		'/dbsync/mark/{update:\d+}' => [Module\Admin\DBSync::class, [R::GET]],
+		'/dbsync[/{action}[/{update:\d+}]]' => [Module\Admin\DBSync::class, [R::GET]],
 
 		'/features'   => [Module\Admin\Features::class,   [R::GET, R::POST]],
 		'/federation' => [Module\Admin\Federation::class, [R::GET]],
@@ -91,7 +89,7 @@ return [
 
 		'/phpinfo' => [Module\Admin\PhpInfo::class, [R::GET]],
 
-		'/queue[/deferred]' => [Module\Admin\Queue::class, [R::GET]],
+		'/queue[/{status}]' => [Module\Admin\Queue::class, [R::GET]],
 
 		'/site' => [Module\Admin\Site::class, [R::GET, R::POST]],
 

@@ -10,7 +10,7 @@
 
 		<ul>
 			<li><a href="{{$baseurl}}/admin/dbsync/mark/{{$f}}">{{$mark}}</a></li>
-			<li><a href="{{$baseurl}}/admin/dbsync/{{$f}}">{{$apply}}</a></li>
+			<li><a href="{{$baseurl}}/admin/dbsync/update/{{$f}}">{{$apply}}</a></li>
 		</ul>
 
 		<hr />
