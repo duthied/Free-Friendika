@@ -45,8 +45,8 @@ class ArgumentsTest extends TestCase
 		$this->assertArguments([
 			'queryString' => '',
 			'command'     => '',
-			'argv'        => ['home'],
-			'argc'        => 1,
+			'argv'        => [],
+			'argc'        => 0,
 		],
 			$arguments);
 	}
@@ -55,34 +55,6 @@ class ArgumentsTest extends TestCase
 	{
 		return [
 			'withPagename'         => [
-				'assert' => [
-					'queryString' => 'profile/test/it?arg1=value1&arg2=value2',
-					'command'     => 'profile/test/it',
-					'argv'        => ['profile', 'test', 'it'],
-					'argc'        => 3,
-				],
-				'server' => [
-					'QUERY_STRING' => 'pagename=profile/test/it?arg1=value1&arg2=value2',
-				],
-				'get'    => [
-					'pagename' => 'profile/test/it',
-				],
-			],
-			'withQ'                => [
-				'assert' => [
-					'queryString' => 'profile/test/it?arg1=value1&arg2=value2',
-					'command'     => 'profile/test/it',
-					'argv'        => ['profile', 'test', 'it'],
-					'argc'        => 3,
-				],
-				'server' => [
-					'QUERY_STRING' => 'q=profile/test/it?arg1=value1&arg2=value2',
-				],
-				'get'    => [
-					'q' => 'profile/test/it',
-				],
-			],
-			'withWrongDelimiter'   => [
 				'assert' => [
 					'queryString' => 'profile/test/it?arg1=value1&arg2=value2',
 					'command'     => 'profile/test/it',
@@ -99,12 +71,12 @@ class ArgumentsTest extends TestCase
 			'withUnixHomeDir'      => [
 				'assert' => [
 					'queryString' => '~test/it?arg1=value1&arg2=value2',
-					'command'     => 'profile/test/it',
-					'argv'        => ['profile', 'test', 'it'],
-					'argc'        => 3,
+					'command'     => '~test/it',
+					'argv'        => ['~test', 'it'],
+					'argc'        => 2,
 				],
 				'server' => [
-					'QUERY_STRING' => 'pagename=~test/it?arg1=value1&arg2=value2',
+					'QUERY_STRING' => 'pagename=~test/it&arg1=value1&arg2=value2',
 				],
 				'get'    => [
 					'pagename' => '~test/it',
@@ -113,12 +85,12 @@ class ArgumentsTest extends TestCase
 			'withDiasporaHomeDir'  => [
 				'assert' => [
 					'queryString' => 'u/test/it?arg1=value1&arg2=value2',
-					'command'     => 'profile/test/it',
-					'argv'        => ['profile', 'test', 'it'],
+					'command'     => 'u/test/it',
+					'argv'        => ['u', 'test', 'it'],
 					'argc'        => 3,
 				],
 				'server' => [
-					'QUERY_STRING' => 'pagename=u/test/it?arg1=value1&arg2=value2',
+					'QUERY_STRING' => 'pagename=u/test/it&arg1=value1&arg2=value2',
 				],
 				'get'    => [
 					'pagename' => 'u/test/it',
@@ -126,13 +98,13 @@ class ArgumentsTest extends TestCase
 			],
 			'withTrailingSlash'    => [
 				'assert' => [
-					'queryString' => 'profile/test/it?arg1=value1&arg2=value2/',
+					'queryString' => 'profile/test/it?arg1=value1&arg2=value2%2F',
 					'command'     => 'profile/test/it',
 					'argv'        => ['profile', 'test', 'it'],
 					'argc'        => 3,
 				],
 				'server' => [
-					'QUERY_STRING' => 'pagename=profile/test/it?arg1=value1&arg2=value2/',
+					'QUERY_STRING' => 'pagename=profile/test/it&arg1=value1&arg2=value2/',
 				],
 				'get'    => [
 					'pagename' => 'profile/test/it',
@@ -140,14 +112,13 @@ class ArgumentsTest extends TestCase
 			],
 			'withWrongQueryString' => [
 				'assert' => [
-					// empty query string?!
-					'queryString' => '',
+					'queryString' => 'profile/test/it?wrong=profile%2Ftest%2Fit&arg1=value1&arg2=value2%2F',
 					'command'     => 'profile/test/it',
 					'argv'        => ['profile', 'test', 'it'],
 					'argc'        => 3,
 				],
 				'server' => [
-					'QUERY_STRING' => 'wrong=profile/test/it?arg1=value1&arg2=value2/',
+					'QUERY_STRING' => 'wrong=profile/test/it&arg1=value1&arg2=value2/',
 				],
 				'get'    => [
 					'pagename' => 'profile/test/it',
@@ -155,15 +126,42 @@ class ArgumentsTest extends TestCase
 			],
 			'withMissingPageName'  => [
 				'assert' => [
-					'queryString' => 'notvalid/it?arg1=value1&arg2=value2/',
-					'command'     => App\Module::DEFAULT,
-					'argv'        => [App\Module::DEFAULT],
-					'argc'        => 1,
+					'queryString' => 'notvalid/it?arg1=value1&arg2=value2%2F',
+					'command'     => 'notvalid/it',
+					'argv'        => ['notvalid', 'it'],
+					'argc'        => 2,
 				],
 				'server' => [
-					'QUERY_STRING' => 'pagename=notvalid/it?arg1=value1&arg2=value2/',
+					'QUERY_STRING' => 'pagename=notvalid/it&arg1=value1&arg2=value2/',
 				],
 				'get'    => [
+				],
+			],
+			'withNothing'  => [
+				'assert' => [
+					'queryString' => '?arg1=value1&arg2=value2%2F',
+					'command'     => '',
+					'argv'        => [],
+					'argc'        => 0,
+				],
+				'server' => [
+					'QUERY_STRING' => 'arg1=value1&arg2=value2/',
+				],
+				'get'    => [
+				],
+			],
+			'withFileExtension'  => [
+				'assert' => [
+					'queryString' => 'api/call.json',
+					'command'     => 'api/call.json',
+					'argv'        => ['api', 'call.json'],
+					'argc'        => 2,
+				],
+				'server' => [
+					'QUERY_STRING' => 'pagename=api/call.json',
+				],
+				'get'    => [
+					'pagename' => 'api/call.json'
 				],
 			],
 		];
@@ -207,27 +205,27 @@ class ArgumentsTest extends TestCase
 		return [
 			'strippedZRLFirst'  => [
 				'assert' => '?arg1=value1',
-				'input'  => '?zrl=nope&arg1=value1',
+				'input'  => '&zrl=nope&arg1=value1',
 			],
 			'strippedZRLLast'   => [
 				'assert' => '?arg1=value1',
-				'input'  => '?arg1=value1&zrl=nope',
+				'input'  => '&arg1=value1&zrl=nope',
 			],
 			'strippedZTLMiddle' => [
 				'assert' => '?arg1=value1&arg2=value2',
-				'input'  => '?arg1=value1&zrl=nope&arg2=value2',
+				'input'  => '&arg1=value1&zrl=nope&arg2=value2',
 			],
 			'strippedOWTFirst'  => [
 				'assert' => '?arg1=value1',
-				'input'  => '?owt=test&arg1=value1',
+				'input'  => '&owt=test&arg1=value1',
 			],
 			'strippedOWTLast'   => [
 				'assert' => '?arg1=value1',
-				'input'  => '?arg1=value1&owt=test',
+				'input'  => '&arg1=value1&owt=test',
 			],
 			'strippedOWTMiddle' => [
 				'assert' => '?arg1=value1&arg2=value2',
-				'input'  => '?arg1=value1&owt=test&arg2=value2',
+				'input'  => '&arg1=value1&owt=test&arg2=value2',
 			],
 		];
 	}
@@ -242,7 +240,7 @@ class ArgumentsTest extends TestCase
 		$command = 'test/it';
 
 		$arguments = (new App\Arguments())
-			->determine(['QUERY_STRING' => 'q=' . $command . $input,], ['pagename' => $command]);
+			->determine(['QUERY_STRING' => 'pagename=' . $command . $input,], ['pagename' => $command]);
 
 		$this->assertEquals($command . $assert, $arguments->getQueryString());
 	}

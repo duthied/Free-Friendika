@@ -75,7 +75,7 @@ class ApiTest extends FixtureTest
 		$this->app = DI::app();
 
 		$this->app->argc = 1;
-		$this->app->argv = ['home'];
+		$this->app->argv = [''];
 
 		// User data that the test database is populated with
 		$this->selfUser   = [
