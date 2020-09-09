@@ -12,16 +12,12 @@
 	{{if $profile.network_link}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_link nofilter}}</dd></dl>{{/if}}
 
 	{{if $location}}
-		<dl class="location"><dt class="location-label">{{$location}}</dt> 
-		<dd class="adr h-adr">
-			{{if $profile.address}}<div class="street-address p-street-address">{{$profile.address nofilter}}</div>{{/if}}
-			<span class="city-state-zip">
-				<span class="locality p-locality">{{$profile.locality}}</span>{{if $profile.locality}}, {{/if}}
-				<span class="region p-region">{{$profile.region}}</span>
-				<span class="postal-code p-postal-code">{{$profile.postal_code}}</span>
-			</span>
-			{{if $profile.country_name}}<span class="country-name p-country-name">{{$profile.country_name}}</span>{{/if}}
-		</dd>
+		<dl class="location">
+			<dt class="location-label">{{$location}}</dt>
+			<dd class="adr h-adr">
+				{{if $profile.address}}<p class="street-address p-street-address">{{$profile.address nofilter}}</p>{{/if}}
+				{{if $profile.location}}<p class="p-location">{{$profile.location}}</p>{{/if}}
+			</dd>
 		</dl>
 	{{/if}}
 

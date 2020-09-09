@@ -354,13 +354,7 @@ class Profile
 		// Fetch the account type
 		$account_type = Contact::getAccountType($profile);
 
-		if (!empty($profile['address'])
-			|| !empty($profile['location'])
-			|| !empty($profile['locality'])
-			|| !empty($profile['region'])
-			|| !empty($profile['postal-code'])
-			|| !empty($profile['country-name'])
-		) {
+		if (!empty($profile['address'])	|| !empty($profile['location'])) {
 			$location = DI::l10n()->t('Location:');
 		}
 
@@ -425,10 +419,6 @@ class Profile
 
 		if (isset($p['about'])) {
 			$p['about'] = BBCode::convert($p['about']);
-		}
-
-		if (empty($p['address']) && !empty($p['location'])) {
-			$p['address'] = $p['location'];
 		}
 
 		if (isset($p['address'])) {
