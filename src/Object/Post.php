@@ -497,6 +497,7 @@ class Post
 			'uriid'           => $item['uri-id'],
 			'return'          => (DI::args()->getCommand()) ? bin2hex(DI::args()->getCommand()) : '',
 			'direction'       => $direction,
+			'reshared'        => $item['reshared'] ?? '',
 			'delivery'        => [
 				'queue_count'       => $item['delivery_queue_count'],
 				'queue_done'        => $item['delivery_queue_done'] + $item['delivery_queue_failed'], /// @todo Possibly display it separately in the future

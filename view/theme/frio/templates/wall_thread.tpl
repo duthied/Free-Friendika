@@ -81,8 +81,8 @@ as the value of $top_child_total (this is done at the end of this file)
 <span class="uriid" style="display: none;">{{$item.uriid}}</span>
 {{/if}}
 	<div class="media {{$item.shiny}}">
-	{{if $item.responses.announce && $mode != 'display'}}
-		<div class="wall-item-ammounce wall-item-responses" id="wall-item-ammounce-{{$item.id}}">{{$item.responses.announce.output nofilter}}</div>
+	{{if $item.reshared}}
+		<div class="wall-item-ammounce wall-item-responses" id="wall-item-ammounce-{{$item.id}}"><i class="fa fa-retweet" aria-hidden="true"></i> {{$item.reshared nofilter}}</div>
 	{{/if}}
 		{{* The avatar picture and the photo-menu *}}
 		<div class="dropdown pull-left"><!-- Dropdown -->
@@ -530,9 +530,7 @@ as the value of $top_child_total (this is done at the end of this file)
 	{{if $item.responses}}
 		<div class="wall-item-responses">
 			{{foreach $item.responses as $verb=>$response}}
-				{{if $verb != 'announce' || $mode == 'display'}}
 			<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output nofilter}}</div>
-				{{/if}}
 			{{/foreach}}
 		</div>
 	{{/if}}
