@@ -741,13 +741,16 @@ function conversation_fetch_comments($thread_items, $pinned) {
 			$direction = ['direction' => 5, 'title' => DI::l10n()->t('%s commented on this.', $row['author-name'])];
 		}
 
-		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id'])
-			&& !Contact::isSharing($row['author-id'], $row['uid'])) {
-			if ($row['post-type'] == Item::PT_TAG) {
-				$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
+		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id'])) {
+			if (Contact::isSharing($row['author-id'], $row['uid'])) {
+				$row['direction'] = ['direction' => 6, 'title' => DI::l10n()->t('You are following %s.', $row['author-name'])];
+			} else {
+				if ($row['post-type'] == Item::PT_TAG) {
+					$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
+				}
+				$parentlines[] = $lineno;
+				
 			}
-		
-			$parentlines[] = $lineno;
 		}
 
 		if ($row['gravity'] == GRAVITY_PARENT) {

@@ -11,6 +11,10 @@
 		<i class="fa fa-hashtag" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{elseif $direction.direction == 5}}
 		<i class="fa fa-comment-o" aria-hidden="true" title="{{$direction.title}}"></i>
+	{{elseif $direction.direction == 6}}
+		<i class="fa fa-check" aria-hidden="true" title="{{$direction.title}}"></i>
+	{{elseif $direction.direction == 7}}
+		<i class="fa fa-at" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{/if}}
 </span>
 {{/if}}

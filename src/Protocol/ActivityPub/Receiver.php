@@ -207,8 +207,6 @@ class Receiver
 			$uid = self::getFirstUserFromReceivers($receivers);
 		}
 
-		Logger::log('Receivers: ' . $uid . ' - ' . json_encode($receivers), Logger::DEBUG);
-
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
 		if (empty($object_id)) {
 			Logger::log('No object found', Logger::DEBUG);
@@ -539,19 +537,7 @@ class Receiver
 					$receivers['uid:-1'] = -1;
 				}
 
-				if (($receiver == self::PUBLIC_COLLECTION) && !empty($actor)) {
-					// This will most likely catch all OStatus connections to Mastodon
-					$condition = ['alias' => [$actor, Strings::normaliseLink($actor)], 'rel' => [Contact::SHARING, Contact::FRIEND]
-						, 'archive' => false, 'pending' => false];
-					$contacts = DBA::select('contact', ['uid'], $condition);
-					while ($contact = DBA::fetch($contacts)) {
-						if ($contact['uid'] != 0) {
-							$receivers['uid:' . $contact['uid']] = $contact['uid'];
-						}
-					}
-					DBA::close($contacts);
-				}
-
+				// Fetch the receivers for the public and the followers collection
 				if (in_array($receiver, [$followers, self::PUBLIC_COLLECTION]) && !empty($actor)) {
 					$receivers = array_merge($receivers, self::getReceiverForActor($actor, $tags));
 					continue;
@@ -599,12 +585,23 @@ class Receiver
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	public static function getReceiverForActor($actor, $tags)
+	private static function getReceiverForActor($actor, $tags)
 	{
 		$receivers = [];
-		$networks = Protocol::FEDERATED;
-		$condition = ['nurl' => Strings::normaliseLink($actor), 'rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
-			'network' => $networks, 'archive' => false, 'pending' => false];
+		$basecondition = ['rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
+			'network' => Protocol::FEDERATED, 'archive' => false, 'pending' => false];
+
+		$condition = DBA::mergeConditions($basecondition, ['nurl' => Strings::normaliseLink($actor)]);
+		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
+		while ($contact = DBA::fetch($contacts)) {
+			if (self::isValidReceiverForActor($contact, $actor, $tags)) {
+				$receivers['uid:' . $contact['uid']] = $contact['uid'];
+			}
+		}
+		DBA::close($contacts);
+
+		// The queries are split because of performance issues
+		$condition = DBA::mergeConditions($basecondition, ["`alias` IN (?, ?)", Strings::normaliseLink($actor), $actor]);
 		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
 			if (self::isValidReceiverForActor($contact, $actor, $tags)) {
