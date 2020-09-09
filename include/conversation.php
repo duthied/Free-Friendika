@@ -730,7 +730,7 @@ function conversation_fetch_comments($thread_items, $pinned) {
 
 			$author = ['uid' => 0, 'id' => $row['author-id'],
 				'network' => $row['author-network'], 'url' => $row['author-link']];
-			$url = '<a href="'. Contact::magicLinkByContact($author) .'">' . htmlentities($row['author-name']) . '</a>';
+			$url = '<a href="'. htmlentities(Contact::magicLinkByContact($author)) .'">' . htmlentities($row['author-name']) . '</a>';
 
 			$actor = ['url' => $url, 'link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
 			$received = $row['received'];
