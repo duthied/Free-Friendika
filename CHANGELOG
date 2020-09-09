@@ -2,7 +2,7 @@ Version 2020.09 (unreleased)
   Friendica Core:
     Updates to the tranlations: DE, EN GB, EN US, ES, FR, IT, NL, PL, RU, ZH_CN [tranlation teams]
     Updates to the themes (all) [MrPetovan, tobiasd]
-    Updates to the documentation [annando, realkinetix]
+    Updates to the documentation [annando, mpanhans, realkinetix, tobiasd]
     General code cleanup and refactoring [annando, MrPetovan, nupplaphil]
     Enhanced the API [annando]
     Enhanced the processing of background jobs [annando]
@@ -20,6 +20,8 @@ Version 2020.09 (unreleased)
     Fixed a problem that prevented new email contacts from being added [annando]
     Fixed a problem with the console command search [tobiasd]
     Fixed a problem during the search for contacts [annando]
+    Fixed a problem with the JOT of private notes [MrPetovan]
+    Fixed missing HTML encoding [MrPetovan]
     Added nodeinfo2 support [annando]
     Added CSV export and import of blocked servers to the console [tobiasd]
     Added new admin debug module for ActivityPub [MrPetovan]
@@ -45,6 +47,10 @@ Version 2020.09 (unreleased)
     4606, 5742, 5782, 7660, 8676, 8788, 8797, 8798, 8847, 8860, 8906,
     8914, 8928, 8929, 8935, 8940, 8941, 8967, 8989, 8993, 8994, 8995,
     8997, 8999, 9000, 9004, 9013, 9015, 9051, 9064, 9065, 9072, 9107
+
+Version 2020.07-1 (2020-09-08)
+  Friendica Core
+    Fixed a problem that leakted sensitive information [Roger Meyer, MrPetovan]
 
 Version 2020.07 (2020-07-12)
   Friendica Core:
