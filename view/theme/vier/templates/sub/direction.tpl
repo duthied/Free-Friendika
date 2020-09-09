@@ -11,6 +11,10 @@
 		<i class="icon-tag" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{elseif $direction.direction == 5}}
 		<i class="icon-commenting" aria-hidden="true" title="{{$direction.title}}"></i>
+	{{elseif $direction.direction == 6}}
+		<i class="icon-ok-sign" aria-hidden="true" title="{{$direction.title}}"></i>
+	{{elseif $direction.direction == 7}}
+		<i class="icon-forward" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{/if}}
 </span>
 {{/if}}
