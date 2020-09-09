@@ -905,21 +905,16 @@ class Post
 
 		$comment_box = '';
 		$conv = $this->getThread();
-		$ww = '';
-		if (($conv->getMode() === 'network') && $this->isWallToWall()) {
-			$ww = 'ww';
-		}
 
 		if ($conv->isWritable() && $this->isWritable()) {
-			$qcomment = null;
-
 			/*
 			 * Hmmm, code depending on the presence of a particular addon?
 			 * This should be better if done by a hook
 			 */
+			$qcomment = null;
 			if (Addon::isEnabled('qcomment')) {
-				$qc = ((local_user()) ? DI::pConfig()->get(local_user(), 'qcomment', 'words') : null);
-				$qcomment = (($qc) ? explode("\n", $qc) : null);
+				$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+				$qcomment = $words ? explode("\n", $words) : [];
 			}
 
 			// Fetch the user id from the parent when the owner user is empty
@@ -961,7 +956,6 @@ class Post
 				'$preview'     => DI::l10n()->t('Preview'),
 				'$indent'      => $indent,
 				'$sourceapp'   => DI::l10n()->t($a->sourcename),
-				'$ww'          => $conv->getMode() === 'network' ? $ww : '',
 				'$rand_num'    => Crypto::randomDigits(12)
 			]);
 		}
