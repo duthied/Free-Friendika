@@ -419,12 +419,6 @@ class Post
 			}
 		}
 
-		if (!empty($item['reshared'])) {
-			$reshared = $item['reshared'];
-		} else {
-			$reshared = '';
-		}
-
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
@@ -503,7 +497,7 @@ class Post
 			'uriid'           => $item['uri-id'],
 			'return'          => (DI::args()->getCommand()) ? bin2hex(DI::args()->getCommand()) : '',
 			'direction'       => $direction,
-			'reshared'        => $reshared,
+			'reshared'        => $item['reshared'] ?? '',
 			'delivery'        => [
 				'queue_count'       => $item['delivery_queue_count'],
 				'queue_done'        => $item['delivery_queue_done'] + $item['delivery_queue_failed'], /// @todo Possibly display it separately in the future

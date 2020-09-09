@@ -727,7 +727,12 @@ function conversation_fetch_comments($thread_items, $pinned) {
 			&& ($row['thr-parent'] == $row['parent-uri']) && ($row['received'] > $received)
 			&& Contact::isSharing($row['author-id'], $row['uid'])) {
 			$direction = ['direction' => 3, 'title' => DI::l10n()->t('%s reshared this.', $row['author-name'])];
-			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
+
+			$author = ['uid' => 0, 'id' => $row['author-id'],
+				'network' => $row['author-network'], 'url' => $row['author-link']];
+			$url = '<a href="'. Contact::magicLinkByContact($author) .'">' . htmlentities($row['author-name']) . '</a>';
+
+			$actor = ['url' => $url, 'link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
 			$received = $row['received'];
 		}
 
@@ -758,11 +763,13 @@ function conversation_fetch_comments($thread_items, $pinned) {
 	if (!empty($direction)) {
 		foreach ($parentlines as $line) {
 			$comments[$line]['direction'] = $direction;
-			$comments[$line]['reshared'] = DI::l10n()->t('%s reshared this.', $actor['name']);
-			if (!empty($actor) && DI::pConfig()->get(local_user(), 'system', 'display_resharer')  ) {
-				$comments[$line]['owner-link'] = $actor['link'];
-				$comments[$line]['owner-avatar'] = $actor['avatar'];
-				$comments[$line]['owner-name'] = $actor['name'];
+			if (!empty($actor)) {
+				$comments[$line]['reshared'] = DI::l10n()->t('%s reshared this.', $actor['url']);
+				if (DI::pConfig()->get(local_user(), 'system', 'display_resharer')  ) {
+					$comments[$line]['owner-link'] = $actor['link'];
+					$comments[$line]['owner-avatar'] = $actor['avatar'];
+					$comments[$line]['owner-name'] = $actor['name'];
+				}
 			}
 		}
 	}

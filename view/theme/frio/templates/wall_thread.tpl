@@ -82,7 +82,7 @@ as the value of $top_child_total (this is done at the end of this file)
 {{/if}}
 	<div class="media {{$item.shiny}}">
 	{{if $item.reshared}}
-		<div class="wall-item-ammounce wall-item-responses" id="wall-item-ammounce-{{$item.id}}">{{$item.responses.announce.output nofilter}}</div>
+		<div class="wall-item-ammounce wall-item-responses" id="wall-item-ammounce-{{$item.id}}">{{$item.reshared nofilter}}</div>
 	{{/if}}
 		{{* The avatar picture and the photo-menu *}}
 		<div class="dropdown pull-left"><!-- Dropdown -->
