@@ -635,9 +635,7 @@ function network_display_post($a, $pager, $mark_all, $update, $ordering, $items)
 		$parents_str = implode(', ', $parents_arr);
 	}
 
-	$query_string = DI::args()->getQueryString();
-
-	$pager->setQueryString($query_string);
+	$pager->setQueryString(DI::args()->getQueryString());
 
 	// We aren't going to try and figure out at the item, group, and page
 	// level which items you've seen and which you haven't. If you're looking
