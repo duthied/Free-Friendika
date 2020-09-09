@@ -1039,7 +1039,6 @@ function photos_content(App $a)
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'post',
 				'$message' => DI::l10n()->t('Do you really want to delete this photo album and all its photos?'),
-				'$extra_inputs' => [],
 				'$confirm' => DI::l10n()->t('Delete Album'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'dropalbum',
@@ -1146,7 +1145,6 @@ function photos_content(App $a)
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'post',
 				'$message' => DI::l10n()->t('Do you really want to delete this photo?'),
-				'$extra_inputs' => [],
 				'$confirm' => DI::l10n()->t('Delete Photo'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'delete',

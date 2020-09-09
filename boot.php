@@ -382,38 +382,6 @@ function is_site_admin()
 	return local_user() && $admin_email && in_array($a->user['email'] ?? '', $adminlist);
 }
 
-function explode_querystring($query)
-{
-	$arg_st = strpos($query, '?');
-	if ($arg_st !== false) {
-		$base = substr($query, 0, $arg_st);
-		$arg_st += 1;
-	} else {
-		$base = '';
-		$arg_st = 0;
-	}
-
-	$args = explode('&', substr($query, $arg_st));
-	foreach ($args as $k => $arg) {
-		/// @TODO really compare type-safe here?
-		if ($arg === '') {
-			unset($args[$k]);
-		}
-	}
-	$args = array_values($args);
-
-	if (!$base) {
-		$base = $args[0];
-		unset($args[0]);
-		$args = array_values($args);
-	}
-
-	return [
-		'base' => $base,
-		'args' => $args,
-	];
-}
-
 /**
  * Returns the complete URL of the current page, e.g.: http(s)://something.com/network
  *
