@@ -25,6 +25,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\ACL;
+use Friendica\Core\Addon;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -1378,6 +1379,16 @@ function photos_content(App $a)
 
 			if (!DBA::isResult($items)) {
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
+					/*
+					 * Hmmm, code depending on the presence of a particular addon?
+					 * This should be better if done by a hook
+					 */
+					$qcomment = null;
+					if (Addon::isEnabled('qcomment')) {
+						$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+						$qcomment = $words ? explode("\n", $words) : [];
+					}
+
 					$comments .= Renderer::replaceMacros($cmnt_tpl, [
 						'$return_path' => '',
 						'$jsreload' => $return_path,
@@ -1392,7 +1403,7 @@ function photos_content(App $a)
 						'$preview' => DI::l10n()->t('Preview'),
 						'$loading' => DI::l10n()->t('Loading...'),
 						'$sourceapp' => DI::l10n()->t($a->sourcename),
-						'$ww' => '',
+						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12)
 					]);
 				}
@@ -1425,6 +1436,16 @@ function photos_content(App $a)
 				}
 
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
+					/*
+					 * Hmmm, code depending on the presence of a particular addon?
+					 * This should be better if done by a hook
+					 */
+					$qcomment = null;
+					if (Addon::isEnabled('qcomment')) {
+						$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+						$qcomment = $words ? explode("\n", $words) : [];
+					}
+
 					$comments .= Renderer::replaceMacros($cmnt_tpl,[
 						'$return_path' => '',
 						'$jsreload' => $return_path,
@@ -1438,7 +1459,7 @@ function photos_content(App $a)
 						'$submit' => DI::l10n()->t('Submit'),
 						'$preview' => DI::l10n()->t('Preview'),
 						'$sourceapp' => DI::l10n()->t($a->sourcename),
-						'$ww' => '',
+						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12)
 					]);
 				}
@@ -1488,6 +1509,16 @@ function photos_content(App $a)
 					]);
 
 					if (($can_post || Security::canWriteToUserWall($owner_uid))) {
+						/*
+						 * Hmmm, code depending on the presence of a particular addon?
+						 * This should be better if done by a hook
+						 */
+						$qcomment = null;
+						if (Addon::isEnabled('qcomment')) {
+							$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+							$qcomment = $words ? explode("\n", $words) : [];
+						}
+
 						$comments .= Renderer::replaceMacros($cmnt_tpl, [
 							'$return_path' => '',
 							'$jsreload' => $return_path,
@@ -1501,7 +1532,7 @@ function photos_content(App $a)
 							'$submit' => DI::l10n()->t('Submit'),
 							'$preview' => DI::l10n()->t('Preview'),
 							'$sourceapp' => DI::l10n()->t($a->sourcename),
-							'$ww' => '',
+							'$qcomment' => $qcomment,
 							'$rand_num' => Crypto::randomDigits(12)
 						]);
 					}
