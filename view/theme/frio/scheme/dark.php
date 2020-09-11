@@ -3,7 +3,7 @@
  * Name: Dark
  * Licence: AGPL
  * Author: Hypolite Petovan <hypolite@friendica.mrpetovan.com>
- * Overwrites: nav_bg, nav_icon_color, link_color, background_color, contentbg_transp
+ * Overwrites: nav_bg, nav_icon_color, link_color, background_color, background_image, contentbg_transp
  * Accented: yes
  */
 
@@ -32,3 +32,4 @@ switch ($scheme_accent) {
 $contentbg_transp = 4;
 $font_color = '#e4e4e4';
 $font_color_darker = '#dcdcdc';
+$background_image = '';

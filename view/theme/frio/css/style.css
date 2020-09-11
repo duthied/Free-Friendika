@@ -1507,6 +1507,10 @@ aside .panel-body {
     right: 0;
     top: 0;
 }
+.shared_header .preferences {
+	top: 7px;
+	right: 9px;
+}
 .wall-item-network {
     font-size: 13px;
 }
@@ -1966,8 +1970,7 @@ ul.dropdown-menu li:hover {
 /* Dropdown Menu */
 .dropdown-menu li a,
 .dropdown-menu li .btn-link {
-    font-size: 13px!important;
-    font-weight: 600!important;
+	color: $link_color;
 }
 .dropdown-menu li > :hover,
 .dropdown-menu li > :visited,
