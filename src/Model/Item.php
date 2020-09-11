@@ -29,7 +29,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
-use Friendica\Core\Tag;
+use Friendica\Model\Tag;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
