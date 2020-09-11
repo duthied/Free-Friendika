@@ -1966,8 +1966,7 @@ ul.dropdown-menu li:hover {
 /* Dropdown Menu */
 .dropdown-menu li a,
 .dropdown-menu li .btn-link {
-    font-size: 13px!important;
-    font-weight: 600!important;
+	color: $link_color;
 }
 .dropdown-menu li > :hover,
 .dropdown-menu li > :visited,
