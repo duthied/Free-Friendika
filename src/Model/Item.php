@@ -2676,7 +2676,7 @@ class Item
 			foreach ($tags as $tag) {
 				if (Strings::compareLink($link, $tag['url']) || Strings::compareLink($dlink, $tag['url'])) {
 					$mention = true;
-					Logger::log('mention found in tag: ' . $tag['url']);
+					DI::logger()->info('mention found in tag.', ['url' => $tag['url']]);
 				}
 			}
 		}
