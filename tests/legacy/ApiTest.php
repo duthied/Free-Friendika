@@ -3,7 +3,7 @@
  * ApiTest class.
  */
 
-namespace Friendica\Test;
+namespace Friendica\Test\legacy;
 
 use Friendica\App;
 use Friendica\Core\Config\IConfig;
@@ -11,6 +11,7 @@ use Friendica\Core\PConfig\IPConfig;
 use Friendica\Core\Protocol;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
+use Friendica\Test\FixtureTest;
 use Friendica\Util\Temporal;
 use Monolog\Handler\TestHandler;
 

@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Test\Content\Text\BBCode;
+namespace Friendica\Test\src\Content\Text\BBCode;
 
 use Friendica\Content\Text\BBCode\Video;
 use Friendica\Test\MockedTest;
