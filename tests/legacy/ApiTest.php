@@ -50,6 +50,10 @@ class ApiTest extends FixtureTest
 	 */
 	protected function setUp()
 	{
+		global $API, $called_api;
+		$API = [];
+		$called_api = [];
+
 		parent::setUp();
 
 		/** @var IConfig $config */
