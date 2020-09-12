@@ -21,12 +21,12 @@
 
 namespace Friendica\Util;
 
-use ASNValue;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
 use phpseclib\Crypt\RSA;
+use phpseclib\Math\BigInteger;
 
 /**
  * Crypto class
@@ -65,56 +65,6 @@ class Crypto
 	}
 
 	/**
-	 * @param string $Der     der formatted string
-	 * @param bool   $Private key type optional, default false
-	 * @return string
-	 */
-	private static function DerToPem($Der, $Private = false)
-	{
-		//Encode:
-		$Der = base64_encode($Der);
-		//Split lines:
-		$lines = str_split($Der, 65);
-		$body = implode("\n", $lines);
-		//Get title:
-		$title = $Private ? 'RSA PRIVATE KEY' : 'PUBLIC KEY';
-		//Add wrapping:
-		$result = "-----BEGIN {$title}-----\n";
-		$result .= $body . "\n";
-		$result .= "-----END {$title}-----\n";
-
-		return $result;
-	}
-
-	/**
-	 * @param string $Modulus        modulo
-	 * @param string $PublicExponent exponent
-	 * @return string
-	 */
-	private static function pkcs8Encode($Modulus, $PublicExponent)
-	{
-		//Encode key sequence
-		$modulus = new ASNValue(ASNValue::TAG_INTEGER);
-		$modulus->SetIntBuffer($Modulus);
-		$publicExponent = new ASNValue(ASNValue::TAG_INTEGER);
-		$publicExponent->SetIntBuffer($PublicExponent);
-		$keySequenceItems = [$modulus, $publicExponent];
-		$keySequence = new ASNValue(ASNValue::TAG_SEQUENCE);
-		$keySequence->SetSequence($keySequenceItems);
-		//Encode bit string
-		$bitStringValue = $keySequence->Encode();
-		$bitStringValue = chr(0x00) . $bitStringValue; //Add unused bits byte
-		$bitString = new ASNValue(ASNValue::TAG_BITSTRING);
-		$bitString->Value = $bitStringValue;
-		//Encode body
-		$bodyValue = "\x30\x0d\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01\x05\x00" . $bitString->Encode();
-		$body = new ASNValue(ASNValue::TAG_SEQUENCE);
-		$body->Value = $bodyValue;
-		//Get DER encoded public key:
-		$PublicDER = $body->Encode();
-		return $PublicDER;
-	}
-
 	/**
 	 * @param string $m modulo
 	 * @param string $e exponent
@@ -122,9 +72,12 @@ class Crypto
 	 */
 	public static function meToPem($m, $e)
 	{
-		$der = self::pkcs8Encode($m, $e);
-		$key = self::DerToPem($der, false);
-		return $key;
+		$rsa = new RSA();
+		$rsa->loadKey([
+								  'e' => new BigInteger($e, 256),
+								  'n' => new BigInteger($m, 256)
+							  ]);
+		return $rsa->getPublicKey();
 	}
 
 	/**
@@ -151,7 +104,7 @@ class Crypto
 	 *
 	 * @return void
 	 */
-	public static function pemToMe(string $key, string &$modulus, string &$exponent)
+	public static function pemToMe(string $key, &$modulus, &$exponent)
 	{
 		$publicKey = new RSA();
 		$publicKey->loadKey($key);

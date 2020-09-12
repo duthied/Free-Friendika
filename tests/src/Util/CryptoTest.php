@@ -73,7 +73,7 @@ class CryptoTest extends TestCase
 	}
 
 
-	public function datePem()
+	public function dataPEM()
 	{
 		return [
 			'diaspora' => [
@@ -83,7 +83,7 @@ class CryptoTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider datePem
+	 * @dataProvider dataPEM
 	 */
 	public function testPemToMe(string $key)
 	{
@@ -96,6 +96,18 @@ class CryptoTest extends TestCase
 							  ]);
 
 		$this->assertEquals($expectedRSA->getPublicKey(), $key);
+	}
+
+	/**
+	 * @dataProvider dataPEM
+	 */
+	public function testMeToPem(string $key)
+	{
+		Crypto::pemToMe($key, $m, $e);
+
+		$checkKey = Crypto::meToPem($m, $e);
+
+		$this->assertEquals($key, $checkKey);
 	}
 }
 
