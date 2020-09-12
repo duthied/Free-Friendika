@@ -57,6 +57,11 @@ class Item
 	const PT_DOCUMENT = 19;
 	const PT_EVENT = 32;
 	const PT_TAG = 64;
+	const PT_TO = 65;
+	const PT_CC = 66;
+	const PT_BTO = 67;
+	const PT_BCC = 68;
+	const PT_FOLLOWER = 69;
 	const PT_PERSONAL_NOTE = 128;
 
 	// Field list that is used to display the items
