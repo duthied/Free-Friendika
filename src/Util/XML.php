@@ -488,6 +488,15 @@ class XML
 		return $first_item->attributes;
 	}
 
+	public static function queryValue($xpath, $search, $context)
+	{
+		$result = $xpath->query($search, $context)->item(0)->nodeValue;
+		if (!is_object($result)) {
+			return '';
+		}
+		return $result->nodeValue;
+	}
+
 	/**
 	 * escape text ($str) for XML transport
 	 *
