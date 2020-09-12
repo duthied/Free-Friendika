@@ -33,7 +33,6 @@ use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
-use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
@@ -58,6 +57,12 @@ class Receiver
 	const ACCOUNT_TYPES = ['as:Person', 'as:Organization', 'as:Service', 'as:Group', 'as:Application'];
 	const CONTENT_TYPES = ['as:Note', 'as:Article', 'as:Video', 'as:Image', 'as:Event', 'as:Audio'];
 	const ACTIVITY_TYPES = ['as:Like', 'as:Dislike', 'as:Accept', 'as:Reject', 'as:TentativeAccept'];
+
+	const TARGET_UNKNOWN = 0;
+	const TARGET_TO = 1;
+	const TARGET_CC = 2;
+	const TARGET_BCC = 3;
+	const TARGET_FOLLOWER = 4;
 
 	/**
 	 * Checks if the web request is done for the AP protocol
@@ -88,6 +93,7 @@ class Receiver
 			Logger::info('Valid HTTP signature', ['signer' => $http_signer]);
 		}
 
+		$signer = [$http_signer];
 		$activity = json_decode($body, true);
 
 		if (empty($activity)) {
@@ -105,6 +111,8 @@ class Receiver
 			$ld_signer = LDSignature::getSigner($activity);
 			if (empty($ld_signer)) {
 				Logger::log('Invalid JSON-LD signature from ' . $actor, Logger::DEBUG);
+			} elseif ($ld_signer != $http_signer) {
+				$signer[] = $ld_signer;
 			}
 			if (!empty($ld_signer && ($actor == $http_signer))) {
 				Logger::log('The HTTP and the JSON-LD signature belong to ' . $ld_signer, Logger::DEBUG);
@@ -127,7 +135,7 @@ class Receiver
 			$trust_source = false;
 		}
 
-		self::processActivity($ldactivity, $body, $uid, $trust_source, true);
+		self::processActivity($ldactivity, $body, $uid, $trust_source, true, $signer);
 	}
 
 	/**
@@ -186,9 +194,27 @@ class Receiver
 	 */
 	public static function prepareObjectData($activity, $uid, $push, &$trust_source)
 	{
+		$id = JsonLD::fetchElement($activity, '@id');
+		if (!empty($id) && !$trust_source) {
+			$fetched_activity = ActivityPub::fetchContent($id, $uid ?? 0);
+			if (!empty($fetched_activity)) {
+				$object = JsonLD::compact($fetched_activity);
+				$fetched_id = JsonLD::fetchElement($object, '@id');
+				if ($fetched_id == $id) {
+					Logger::info('Activity had been fetched successfully', ['id' => $id]);
+					$trust_source = true;
+					$activity = $object;
+				} else {
+					Logger::info('Activity id is not equal', ['id' => $id, 'fetched' => $fetched_id]);
+				}
+			} else {
+				Logger::info('Activity could not been fetched', ['id' => $id]);
+			}
+		}
+
 		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
 		if (empty($actor)) {
-			Logger::log('Empty actor', Logger::DEBUG);
+			Logger::info('Empty actor', ['activity' => $activity]);
 			return [];
 		}
 
@@ -196,9 +222,11 @@ class Receiver
 
 		// Fetch all receivers from to, cc, bto and bcc
 		$receivers = self::getReceivers($activity, $actor);
+		$reception_type = [];
 
 		// When it is a delivery to a personal inbox we add that user to the receivers
 		if (!empty($uid)) {
+			$reception_type[$uid] = self::TARGET_BCC;
 			$additional = ['uid:' . $uid => $uid];
 			$receivers = array_merge($receivers, $additional);
 		} else {
@@ -222,11 +250,8 @@ class Receiver
 
 		// Fetch the content only on activities where this matters
 		if (in_array($type, ['as:Create', 'as:Update', 'as:Announce'])) {
-			if ($type == 'as:Announce') {
-				$trust_source = false;
-			}
-
-			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source, $uid);
+			// Always fetch on "Announce"
+			$object_data = self::fetchObject($object_id, $activity['as:object'], $trust_source && ($type != 'as:Announce'), $uid);
 			if (empty($object_data)) {
 				Logger::log("Object data couldn't be processed", Logger::DEBUG);
 				return [];
@@ -246,9 +271,6 @@ class Receiver
 			} else {
 				$object_data['directmessage'] = JsonLD::fetchElement($activity, 'litepub:directMessage');
 			}
-
-			// We had been able to retrieve the object data - so we can trust the source
-			$trust_source = true;
 		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of ech individual array element.
@@ -288,6 +310,19 @@ class Receiver
 		$object_data['actor'] = $actor;
 		$object_data['item_receiver'] = $receivers;
 		$object_data['receiver'] = array_merge($object_data['receiver'] ?? [], $receivers);
+		$object_data['reception_type'] = $reception_type;
+
+		$author = $object_data['author'] ?? $actor;
+		if (!empty($author) && !empty($object_data['id'])) {
+			$author_host = parse_url($author, PHP_URL_HOST);
+			$id_host = parse_url($object_data['id'], PHP_URL_HOST);
+			if ($author_host == $id_host) {
+				Logger::info('Valid hosts', ['type' => $type, 'host' => $id_host]);
+			} else {
+				Logger::notice('Differing hosts on author and id', ['type' => $type, 'author' => $author_host, 'id' => $id_host]);
+				$trust_source = false;
+			}
+		}
 
 		Logger::log('Processing ' . $object_data['type'] . ' ' . $object_data['object_type'] . ' ' . $object_data['id'], Logger::DEBUG);
 
@@ -320,43 +355,49 @@ class Receiver
 	 * @param boolean $push         Message had been pushed to our system
 	 * @throws \Exception
 	 */
-	public static function processActivity($activity, $body = '', $uid = null, $trust_source = false, $push = false)
+	public static function processActivity($activity, string $body = '', int $uid = null, bool $trust_source = false, bool $push = false, array $signer = [])
 	{
 		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
-			Logger::log('Empty type', Logger::DEBUG);
+			Logger::info('Empty type', ['activity' => $activity]);
 			return;
 		}
 
 		if (!JsonLD::fetchElement($activity, 'as:object', '@id')) {
-			Logger::log('Empty object', Logger::DEBUG);
+			Logger::info('Empty object', ['activity' => $activity]);
 			return;
 		}
 
-		if (!JsonLD::fetchElement($activity, 'as:actor', '@id')) {
-			Logger::log('Empty actor', Logger::DEBUG);
+		$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
+		if (empty($actor)) {
+			Logger::info('Empty actor', ['activity' => $activity]);
 			return;
 		}
 
-		// Don't trust the source if "actor" differs from "attributedTo". The content could be forged.
-		if ($trust_source && ($type == 'as:Create') && is_array($activity['as:object'])) {
-			$actor = JsonLD::fetchElement($activity, 'as:actor', '@id');
+		if (is_array($activity['as:object'])) {
 			$attributed_to = JsonLD::fetchElement($activity['as:object'], 'as:attributedTo', '@id');
-			$trust_source = ($actor == $attributed_to);
-			if (!$trust_source) {
-				Logger::log('Not trusting actor: ' . $actor . '. It differs from attributedTo: ' . $attributed_to, Logger::DEBUG);
+		} else {
+			$attributed_to = '';
+		}
+
+		// Test the provided signatures against the actor and "attributedTo"
+		if ($trust_source) {
+			if (!empty($attributed_to) && !empty($actor)) {
+				$trust_source = (in_array($actor, $signer) && in_array($attributed_to, $signer));
+			} else {
+				$trust_source = in_array($actor, $signer);
 			}
 		}
 
 		// $trust_source is called by reference and is set to true if the content was retrieved successfully
 		$object_data = self::prepareObjectData($activity, $uid, $push, $trust_source);
 		if (empty($object_data)) {
-			Logger::log('No object data found', Logger::DEBUG);
+			Logger::info('No object data found', ['activity' => $activity]);
 			return;
 		}
 
 		if (!$trust_source) {
-			Logger::log('No trust for activity type "' . $type . '", so we quit now.', Logger::DEBUG);
+			Logger::info('Activity trust could not be achieved.',  ['id' => $object_data['object_id'], 'type' => $type, 'signer' => $signer, 'actor' => $actor, 'attributedTo' => $attributed_to]);
 			return;
 		}
 
@@ -517,7 +558,7 @@ class Receiver
 
 			Logger::log('Actor: ' . $actor . ' - Followers: ' . $followers, Logger::DEBUG);
 		} else {
-			Logger::log('Empty actor', Logger::DEBUG);
+			Logger::info('Empty actor', ['activity' => $activity]);
 			$followers = '';
 		}
 
@@ -775,18 +816,29 @@ class Receiver
 				$data = ActivityPub\Transmitter::createNote($item);
 				$object = JsonLD::compact($data);
 			}
+
+			$id = JsonLD::fetchElement($object, '@id');
+			if (empty($id)) {
+				Logger::info('Empty id');
+				return false;
+			}
+	
+			if ($id != $object_id) {
+				Logger::info('Fetched id differs from provided id', ['provided' => $object_id, 'fetched' => $id]);
+				return false;
+			}
 		} else {
 			Logger::log('Using original object for url ' . $object_id, Logger::DEBUG);
 		}
 
 		$type = JsonLD::fetchElement($object, '@type');
-
 		if (empty($type)) {
-			Logger::log('Empty type', Logger::DEBUG);
+			Logger::info('Empty type');
 			return false;
 		}
 
-		if (in_array($type, self::CONTENT_TYPES)) {
+		// We currently don't handle 'pt:CacheFile', but with this step we avoid logging
+		if (in_array($type, self::CONTENT_TYPES) || ($type == 'pt:CacheFile')) {
 			$object_data = self::processObject($object);
 
 			if (!empty($data)) {
