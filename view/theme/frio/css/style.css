@@ -1202,6 +1202,7 @@ section #jotOpen {
 }
 #jot-text-wrap textarea {
     min-height: 100px;
+	max-height: 440px;
     overflow-y: auto !important;
     overflow-y: overlay !important;
 }
