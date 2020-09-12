@@ -436,17 +436,6 @@ class Contact extends BaseModule
 			if ($cmd === 'drop' && ($orig_record['uid'] != 0)) {
 				// Check if we should do HTML-based delete confirmation
 				if (!empty($_REQUEST['confirm'])) {
-					// <form> can't take arguments in its 'action' parameter
-					// so add any arguments as hidden inputs
-					$query = explode_querystring(DI::args()->getQueryString());
-					$inputs = [];
-					foreach ($query['args'] as $arg) {
-						if (strpos($arg, 'confirm=') === false) {
-							$arg_parts = explode('=', $arg);
-							$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
-						}
-					}
-
 					DI::page()['aside'] = '';
 
 					return Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_drop_confirm.tpl'), [
@@ -454,9 +443,8 @@ class Contact extends BaseModule
 						'$contact' => self::getContactTemplateVars($orig_record),
 						'$method' => 'get',
 						'$message' => DI::l10n()->t('Do you really want to delete this contact?'),
-						'$extra_inputs' => $inputs,
 						'$confirm' => DI::l10n()->t('Yes'),
-						'$confirm_url' => $query['base'],
+						'$confirm_url' => DI::args()->getCommand(),
 						'$confirm_name' => 'confirmed',
 						'$cancel' => DI::l10n()->t('Cancel'),
 					]);

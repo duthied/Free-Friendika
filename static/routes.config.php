@@ -30,6 +30,14 @@
 use Friendica\App\Router as R;
 use Friendica\Module;
 
+$profileRoutes = [
+	''                                         => [Module\Profile\Index::class,    [R::GET]],
+	'/profile'                                 => [Module\Profile\Profile::class,  [R::GET]],
+	'/contacts/common'                         => [Module\Profile\Common::class,   [R::GET]],
+	'/contacts[/{type}]'                       => [Module\Profile\Contacts::class, [R::GET]],
+	'/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,   [R::GET]],
+];
+
 return [
 	'/' => [Module\Home::class, [R::GET]],
 
@@ -250,13 +258,9 @@ return [
 	'/pretheme'          => [Module\ThemeDetails::class, [R::GET]],
 	'/probe'             => [Module\Debug\Probe::class,  [R::GET]],
 
-	'/profile' => [
-		'/{nickname}'                                         => [Module\Profile\Index::class,    [R::GET]],
-		'/{nickname}/profile'                                 => [Module\Profile\Profile::class,  [R::GET]],
-		'/{nickname}/contacts/common'                         => [Module\Profile\Common::class,   [R::GET]],
-		'/{nickname}/contacts[/{type}]'                       => [Module\Profile\Contacts::class, [R::GET]],
-		'/{nickname}/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,   [R::GET]],
-	],
+	'/profile/{nickname}' => $profileRoutes,
+	'/u/{nickname}'       => $profileRoutes,
+	'/~{nickname}'        => $profileRoutes,
 
 	'/proxy' => [
 		'[/]'                  => [Module\Proxy::class, [R::GET]],

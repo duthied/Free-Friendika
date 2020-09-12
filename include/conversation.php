@@ -1148,17 +1148,12 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	$jotplugins = '';
 	Hook::callAll('jot_tool', $jotplugins);
 
-	$query_str = DI::args()->getQueryString();
-	if (strpos($query_str, 'public=1') !== false) {
-		$query_str = str_replace(['?public=1', '&public=1'], ['', ''], $query_str);
-	}
-
 	// $tpl = Renderer::replaceMacros($tpl,array('$jotplugins' => $jotplugins));
 	$tpl = Renderer::getMarkupTemplate("jot.tpl");
 
 	$o .= Renderer::replaceMacros($tpl,[
 		'$new_post' => DI::l10n()->t('New Post'),
-		'$return_path'  => $query_str,
+		'$return_path'  => DI::args()->getQueryString(),
 		'$action'       => 'item',
 		'$share'        => ($x['button'] ?? '') ?: DI::l10n()->t('Share'),
 		'$loading'      => DI::l10n()->t('Loading...'),

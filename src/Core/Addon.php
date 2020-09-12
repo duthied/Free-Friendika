@@ -229,8 +229,6 @@ class Addon
 	 */
 	public static function getInfo($addon)
 	{
-		$a = DI::app();
-
 		$addon = Strings::sanitizeFilePathItem($addon);
 
 		$info = [

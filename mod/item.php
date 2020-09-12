@@ -904,40 +904,8 @@ function drop_item(int $id, string $return = '')
 	}
 
 	if ((local_user() == $item['uid']) || $contact_id) {
-		// Check if we should do HTML-based delete confirmation
-		if (!empty($_REQUEST['confirm'])) {
-			// <form> can't take arguments in its "action" parameter
-			// so add any arguments as hidden inputs
-			$query = explode_querystring(DI::args()->getQueryString());
-			$inputs = [];
-
-			foreach ($query['args'] as $arg) {
-				if (strpos($arg, 'confirm=') === false) {
-					$arg_parts = explode('=', $arg);
-					$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
-				}
-			}
-
-			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-				'$method' => 'get',
-				'$message' => DI::l10n()->t('Do you really want to delete this item?'),
-				'$extra_inputs' => $inputs,
-				'$confirm' => DI::l10n()->t('Yes'),
-				'$confirm_url' => $query['base'],
-				'$confirm_name' => 'confirmed',
-				'$cancel' => DI::l10n()->t('Cancel'),
-			]);
-		}
-		// Now check how the user responded to the confirmation query
-		if (!empty($_REQUEST['canceled'])) {
-			DI::baseUrl()->redirect('display/' . $item['guid']);
-		}
-
-		$is_comment = $item['gravity'] == GRAVITY_COMMENT;
-		$parentitem = null;
 		if (!empty($item['parent'])) {
-			$fields = ['guid'];
-			$parentitem = Item::selectFirstForUser(local_user(), $fields, ['id' => $item['parent']]);
+			$parentitem = Item::selectFirstForUser(local_user(), ['guid'], ['id' => $item['parent']]);
 		}
 
 		// delete the item
@@ -949,7 +917,7 @@ function drop_item(int $id, string $return = '')
 		$return_url = str_replace("update_", "", $return_url);
 
 		// Check if delete a comment
-		if ($is_comment) {
+		if ($item['gravity'] == GRAVITY_COMMENT) {
 			// Return to parent guid
 			if (!empty($parentitem)) {
 				DI::baseUrl()->redirect('display/' . $parentitem['guid']);
