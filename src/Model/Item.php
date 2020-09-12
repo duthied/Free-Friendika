@@ -29,6 +29,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
+use Friendica\Model\Tag;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
@@ -2670,6 +2671,16 @@ class Item
 			}
 		}
 
+		if (!$mention) {
+			$tags = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
+			foreach ($tags as $tag) {
+				if (Strings::compareLink($link, $tag['url']) || Strings::compareLink($dlink, $tag['url'])) {
+					$mention = true;
+					DI::logger()->info('mention found in tag.', ['url' => $tag['url']]);
+				}
+			}
+		}
+		
 		if (!$mention) {
 			if (($community_page || $prvgroup) &&
 				  !$item['wall'] && !$item['origin'] && ($item['gravity'] == GRAVITY_PARENT)) {
