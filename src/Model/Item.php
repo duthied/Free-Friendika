@@ -2672,7 +2672,7 @@ class Item
 		}
 
 		if (!$mention) {
-			$tags = Tag::getByURIId($item_id, [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
+			$tags = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION]);
 			foreach ($tags as $tag) {
 				if (Strings::compareLink($link, $tag['url']) || Strings::compareLink($dlink, $tag['url'])) {
 					$mention = true;
