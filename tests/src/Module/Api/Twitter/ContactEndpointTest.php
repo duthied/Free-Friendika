@@ -234,7 +234,7 @@ class ContactEndpointTest extends FixtureTest
 			'uid' => 42,
 			'cid' => 44,
 			'pid' => 45,
-			'self' => 0,
+			'self' => false,
 			'network' => 'dfrn',
 			'statusnet_profile_url' => 'http://localhost/profile/friendcontact',
 		];
