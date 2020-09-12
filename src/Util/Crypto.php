@@ -21,12 +21,12 @@
 
 namespace Friendica\Util;
 
-use ASN_BASE;
 use ASNValue;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
+use phpseclib\Crypt\RSA;
 
 /**
  * Crypto class
@@ -87,27 +87,6 @@ class Crypto
 	}
 
 	/**
-	 * @param string $Der der formatted string
-	 * @return string
-	 */
-	private static function DerToRsa($Der)
-	{
-		//Encode:
-		$Der = base64_encode($Der);
-		//Split lines:
-		$lines = str_split($Der, 64);
-		$body = implode("\n", $lines);
-		//Get title:
-		$title = 'RSA PUBLIC KEY';
-		//Add wrapping:
-		$result = "-----BEGIN {$title}-----\n";
-		$result .= $body . "\n";
-		$result .= "-----END {$title}-----\n";
-
-		return $result;
-	}
-
-	/**
 	 * @param string $Modulus        modulo
 	 * @param string $PublicExponent exponent
 	 * @return string
@@ -137,26 +116,6 @@ class Crypto
 	}
 
 	/**
-	 * @param string $Modulus        modulo
-	 * @param string $PublicExponent exponent
-	 * @return string
-	 */
-	private static function pkcs1Encode($Modulus, $PublicExponent)
-	{
-		//Encode key sequence
-		$modulus = new ASNValue(ASNValue::TAG_INTEGER);
-		$modulus->SetIntBuffer($Modulus);
-		$publicExponent = new ASNValue(ASNValue::TAG_INTEGER);
-		$publicExponent->SetIntBuffer($PublicExponent);
-		$keySequenceItems = [$modulus, $publicExponent];
-		$keySequence = new ASNValue(ASNValue::TAG_SEQUENCE);
-		$keySequence->SetSequence($keySequenceItems);
-		//Encode bit string
-		$bitStringValue = $keySequence->Encode();
-		return $bitStringValue;
-	}
-
-	/**
 	 * @param string $m modulo
 	 * @param string $e exponent
 	 * @return string
@@ -169,79 +128,37 @@ class Crypto
 	}
 
 	/**
-	 * @param string $key key
-	 * @param string $m   modulo reference
-	 * @param object $e   exponent reference
+	 * Transform RSA public keys to standard PEM output
+	 *
+	 * @param string $key A RSA public key
+	 *
+	 * @return string The PEM output of this key
+	 */
+	public static function rsaToPem(string $key)
+	{
+		$publicKey = new RSA();
+		$publicKey->setPublicKey($key);
+
+		return $publicKey->getPublicKey(RSA::PUBLIC_FORMAT_PKCS8);
+	}
+
+	/**
+	 * Extracts the modulo and exponent reference from a public PEM key
+	 *
+	 * @param string $key      public PEM key
+	 * @param string $modulus  (ref) modulo reference
+	 * @param string $exponent (ref) exponent reference
+	 *
 	 * @return void
-	 * @throws \Exception
 	 */
-	private static function pubRsaToMe($key, &$m, &$e)
+	public static function pemToMe(string $key, string &$modulus, string &$exponent)
 	{
-		$lines = explode("\n", $key);
-		unset($lines[0]);
-		unset($lines[count($lines)]);
-		$x = base64_decode(implode('', $lines));
+		$publicKey = new RSA();
+		$publicKey->loadKey($key);
+		$publicKey->setPublicKey();
 
-		$r = ASN_BASE::parseASNString($x);
-
-		$m = Strings::base64UrlDecode($r[0]->asnData[0]->asnData);
-		$e = Strings::base64UrlDecode($r[0]->asnData[1]->asnData);
-	}
-
-	/**
-	 * @param string $key key
-	 * @return string
-	 * @throws \Exception
-	 */
-	public static function rsaToPem($key)
-	{
-		self::pubRsaToMe($key, $m, $e);
-		return self::meToPem($m, $e);
-	}
-
-	/**
-	 * @param string $key key
-	 * @return string
-	 * @throws \Exception
-	 */
-	private static function pemToRsa($key)
-	{
-		self::pemToMe($key, $m, $e);
-		return self::meToRsa($m, $e);
-	}
-
-	/**
-	 * @param string $key key
-	 * @param string $m   modulo reference
-	 * @param string $e   exponent reference
-	 * @return void
-	 * @throws \Exception
-	 */
-	public static function pemToMe($key, &$m, &$e)
-	{
-		$lines = explode("\n", $key);
-		unset($lines[0]);
-		unset($lines[count($lines)]);
-		$x = base64_decode(implode('', $lines));
-
-		$r = ASN_BASE::parseASNString($x);
-
-		if (isset($r[0])) {
-			$m = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[0]->asnData);
-			$e = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);
-		}
-	}
-
-	/**
-	 * @param string $m modulo
-	 * @param string $e exponent
-	 * @return string
-	 */
-	private static function meToRsa($m, $e)
-	{
-		$der = self::pkcs1Encode($m, $e);
-		$key = self::DerToRsa($der);
-		return $key;
+		$modulus  = $publicKey->modulus->toBytes();
+		$exponent = $publicKey->exponent->toBytes();
 	}
 
 	/**
@@ -310,42 +227,6 @@ class Crypto
 	private static function decryptAES256CBC($data, $key, $iv)
 	{
 		return openssl_decrypt($data, 'aes-256-cbc', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
-	}
-
-	/**
-	 * Encrypt a string with 'aes-256-ctr' cipher method.
-	 * 
-	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
-	 * 
-	 * @param string $data
-	 * @param string $key   The key used for encryption.
-	 * @param string $iv    A non-NULL Initialization Vector.
-	 * 
-	 * @return string|boolean Encrypted string or false on failure.
-	 */
-	private static function encryptAES256CTR($data, $key, $iv)
-	{
-		$key = substr($key, 0, 32);
-		$iv = substr($iv, 0, 16);
-		return openssl_encrypt($data, 'aes-256-ctr', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
-	}
-
-	/**
-	 * Decrypt a string with 'aes-256-ctr' cipher method.
-	 * 
-	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
-	 * 
-	 * @param string $data
-	 * @param string $key   The key used for decryption.
-	 * @param string $iv    A non-NULL Initialization Vector.
-	 * 
-	 * @return string|boolean Decrypted string or false on failure.
-	 */
-	private static function decryptAES256CTR($data, $key, $iv)
-	{
-		$key = substr($key, 0, 32);
-		$iv = substr($iv, 0, 16);
-		return openssl_decrypt($data, 'aes-256-ctr', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
 	}
 
 	/**
