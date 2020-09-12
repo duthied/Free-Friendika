@@ -2994,6 +2994,12 @@ main .nav-tabs>li.active>a:hover {
     border-color: #eee;
 }
 
+@media (min-width: 768px) {
+	.modal-dialog {
+		width: 650px;
+	}
+}
+
 /*
  * Framework overwrite
  */
