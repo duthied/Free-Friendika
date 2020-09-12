@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Test\Protocol;
+namespace Friendica\Test\src\Protocol;
 
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityNamespace;

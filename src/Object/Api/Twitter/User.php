@@ -89,7 +89,7 @@ class User extends BaseEntity
 	 */
 	public function __construct(array $publicContact, array $apcontact = [], array $userContact = [], $skip_status = false, $include_user_entities = true)
 	{
-		$this->id                      = $publicContact['id'];
+		$this->id                      = (int)$publicContact['id'];
 		$this->id_str                  = (string) $publicContact['id'];
 		$this->name                    = $publicContact['name'];
 		$this->screen_name             = $publicContact['nick'] ?: $publicContact['name'];
@@ -143,10 +143,10 @@ class User extends BaseEntity
 		$this->notifications                  = false;
 
 		// Friendica-specific
-		$this->uid                   = $userContact['uid'] ?? 0;
-		$this->cid                   = $userContact['id'] ?? 0;
-		$this->pid                   = $publicContact['id'];
-		$this->self                  = $userContact['self'] ?? false;
+		$this->uid                   = (int)$userContact['uid'] ?? 0;
+		$this->cid                   = (int)$userContact['id'] ?? 0;
+		$this->pid                   = (int)$publicContact['id'];
+		$this->self                  = (boolean)$userContact['self'] ?? false;
 		$this->network               = $publicContact['network'];
 		$this->statusnet_profile_url = $publicContact['url'];
 	}
