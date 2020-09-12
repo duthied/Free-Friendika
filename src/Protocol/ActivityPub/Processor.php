@@ -527,6 +527,27 @@ class Processor
 
 			$item['uid'] = $receiver;
 
+			$type = $activity['reception_type'][$receiver] ?? Receiver::TARGET_UNKNOWN;
+			switch($type) {
+				case Receiver::TARGET_TO:
+					$item['post-type'] = Item::PT_TO;
+					break;
+				case Receiver::TARGET_CC:
+					$item['post-type'] = Item::PT_CC;
+					break;
+				case Receiver::TARGET_BTO:
+					$item['post-type'] = Item::PT_BTO;
+					break;
+				case Receiver::TARGET_BCC:
+					$item['post-type'] = Item::PT_BCC;
+					break;
+				case Receiver::TARGET_FOLLOWER:
+					$item['post-type'] = Item::PT_FOLLOWER;
+					break;
+				default:
+					$item['post-type'] = Item::PT_ARTICLE;
+			}
+
 			if ($item['isForum'] ?? false) {
 				$item['contact-id'] = Contact::getIdForURL($activity['actor'], $receiver);
 			} else {

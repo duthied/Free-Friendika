@@ -749,7 +749,23 @@ function conversation_fetch_comments($thread_items, $pinned) {
 					$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
 				}
 				$parentlines[] = $lineno;
-				
+			}
+
+			switch ($row['post-type']) {
+				case Item::PT_TO:
+					$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'to')];
+					break;
+				case Item::PT_CC:
+					$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'cc')];
+					break;
+				case Item::PT_BTO:
+					$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bto')];
+					break;
+				case Item::PT_BCC:
+					$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bcc')];
+					break;
+				case Item::PT_FOLLOWER:
+					$row['direction'] = ['direction' => 6, 'title' => DI::l10n()->t('You are following %s.', $row['author-name'])];
 			}
 		}
 

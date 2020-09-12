@@ -61,8 +61,9 @@ class Receiver
 	const TARGET_UNKNOWN = 0;
 	const TARGET_TO = 1;
 	const TARGET_CC = 2;
-	const TARGET_BCC = 3;
-	const TARGET_FOLLOWER = 4;
+	const TARGET_BTO = 3;
+	const TARGET_BCC = 4;
+	const TARGET_FOLLOWER = 5;
 
 	/**
 	 * Checks if the web request is done for the AP protocol
@@ -221,14 +222,20 @@ class Receiver
 		$type = JsonLD::fetchElement($activity, '@type');
 
 		// Fetch all receivers from to, cc, bto and bcc
-		$receivers = self::getReceivers($activity, $actor);
-		$reception_type = [];
+		$receiverdata = self::getReceivers($activity, $actor);
+		$receivers = $reception_types = [];
+		foreach ($receiverdata as $key => $data) {
+			$receivers[$key] = $data['uid'];
+			$reception_types[$data['uid']] = $data['type'] ?? 0;
+		}
 
 		// When it is a delivery to a personal inbox we add that user to the receivers
 		if (!empty($uid)) {
-			$reception_type[$uid] = self::TARGET_BCC;
 			$additional = ['uid:' . $uid => $uid];
 			$receivers = array_merge($receivers, $additional);
+			if (empty($reception_types[$uid]) || in_array($reception_types[$uid], [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER])) {
+				$reception_types[$uid] = self::TARGET_BCC;
+			}
 		} else {
 			// We possibly need some user to fetch private content,
 			// so we fetch the first out ot the list.
@@ -310,7 +317,7 @@ class Receiver
 		$object_data['actor'] = $actor;
 		$object_data['item_receiver'] = $receivers;
 		$object_data['receiver'] = array_merge($object_data['receiver'] ?? [], $receivers);
-		$object_data['reception_type'] = $reception_type;
+		$object_data['reception_type'] = $reception_types;
 
 		$author = $object_data['author'] ?? $actor;
 		if (!empty($author) && !empty($object_data['id'])) {
@@ -548,7 +555,7 @@ class Receiver
 
 			$parents = Item::select(['uid'], ['uri' => $replyto]);
 			while ($parent = Item::fetch($parents)) {
-				$receivers['uid:' . $parent['uid']] = $parent['uid'];
+				$receivers['uid:' . $parent['uid']] = ['uid' => $parent['uid']];
 			}
 		}
 
@@ -570,17 +577,17 @@ class Receiver
 
 			foreach ($receiver_list as $receiver) {
 				if ($receiver == self::PUBLIC_COLLECTION) {
-					$receivers['uid:0'] = 0;
+					$receivers['uid:0'] = ['uid' => 0, 'type' => self::TARGET_UNKNOWN];
 				}
 
 				// Add receiver "-1" for unlisted posts 
 				if ($fetch_unlisted && ($receiver == self::PUBLIC_COLLECTION) && ($element == 'as:cc')) {
-					$receivers['uid:-1'] = -1;
+					$receivers['uid:-1'] = ['uid' => -1, 'type' => self::TARGET_UNKNOWN];
 				}
 
 				// Fetch the receivers for the public and the followers collection
 				if (in_array($receiver, [$followers, self::PUBLIC_COLLECTION]) && !empty($actor)) {
-					$receivers = array_merge($receivers, self::getReceiverForActor($actor, $tags));
+					$receivers = self::getReceiverForActor($actor, $tags, $receivers);
 					continue;
 				}
 
@@ -608,7 +615,25 @@ class Receiver
 					}
 				}
 
-				$receivers['uid:' . $contact['uid']] = $contact['uid'];
+				$type = $receivers['uid:' . $contact['uid']]['type'] ?? self::TARGET_UNKNOWN;
+				if (in_array($type, [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER])) {
+					switch ($element) {
+						case 'as:to':
+							$type = self::TARGET_TO;
+							break;
+						case 'as:cc':
+							$type = self::TARGET_CC;
+							break;
+						case 'as:bto':
+							$type = self::TARGET_BTO;
+							break;
+						case 'as:bcc':
+							$type = self::TARGET_BCC;
+							break;
+					}
+
+					$receivers['uid:' . $contact['uid']] = ['uid' => $contact['uid'], 'type' => $type];
+				}
 			}
 		}
 
@@ -626,17 +651,16 @@ class Receiver
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function getReceiverForActor($actor, $tags)
+	private static function getReceiverForActor($actor, $tags, $receivers)
 	{
-		$receivers = [];
 		$basecondition = ['rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
 			'network' => Protocol::FEDERATED, 'archive' => false, 'pending' => false];
 
 		$condition = DBA::mergeConditions($basecondition, ['nurl' => Strings::normaliseLink($actor)]);
 		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
-			if (self::isValidReceiverForActor($contact, $actor, $tags)) {
-				$receivers['uid:' . $contact['uid']] = $contact['uid'];
+			if (empty($receivers['uid:' . $contact['uid']]) && self::isValidReceiverForActor($contact, $actor, $tags)) {
+				$receivers['uid:' . $contact['uid']] = ['uid' => $contact['uid'], 'type' => self::TARGET_FOLLOWER];
 			}
 		}
 		DBA::close($contacts);
@@ -645,8 +669,8 @@ class Receiver
 		$condition = DBA::mergeConditions($basecondition, ["`alias` IN (?, ?)", Strings::normaliseLink($actor), $actor]);
 		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
-			if (self::isValidReceiverForActor($contact, $actor, $tags)) {
-				$receivers['uid:' . $contact['uid']] = $contact['uid'];
+			if (empty($receivers['uid:' . $contact['uid']]) && self::isValidReceiverForActor($contact, $actor, $tags)) {
+				$receivers['uid:' . $contact['uid']] = ['uid' => $contact['uid'], 'type' => self::TARGET_FOLLOWER];
 			}
 		}
 		DBA::close($contacts);
@@ -737,14 +761,14 @@ class Receiver
 		}
 
 		foreach ($receivers as $receiver) {
-			$contact = DBA::selectFirst('contact', ['id'], ['uid' => $receiver, 'network' => Protocol::OSTATUS, 'nurl' => Strings::normaliseLink($actor)]);
+			$contact = DBA::selectFirst('contact', ['id'], ['uid' => $receiver['uid'], 'network' => Protocol::OSTATUS, 'nurl' => Strings::normaliseLink($actor)]);
 			if (DBA::isResult($contact)) {
-				self::switchContact($contact['id'], $receiver, $actor);
+				self::switchContact($contact['id'], $receiver['uid'], $actor);
 			}
 
-			$contact = DBA::selectFirst('contact', ['id'], ['uid' => $receiver, 'network' => Protocol::OSTATUS, 'alias' => [Strings::normaliseLink($actor), $actor]]);
+			$contact = DBA::selectFirst('contact', ['id'], ['uid' => $receiver['uid'], 'network' => Protocol::OSTATUS, 'alias' => [Strings::normaliseLink($actor), $actor]]);
 			if (DBA::isResult($contact)) {
-				self::switchContact($contact['id'], $receiver, $actor);
+				self::switchContact($contact['id'], $receiver['uid'], $actor);
 			}
 		}
 	}
@@ -1238,7 +1262,14 @@ class Receiver
 			$object_data = self::processAttachmentUrls($object, $object_data);
 		}
 
-		$object_data['receiver'] = self::getReceivers($object, $object_data['actor'], $object_data['tags'], true);
+		$receiverdata = self::getReceivers($object, $object_data['actor'], $object_data['tags'], true);
+		$receivers = [];
+		foreach ($receiverdata as $key => $data) {
+			$receivers[$key] = $data['uid'];
+		}
+
+		$object_data['receiver'] = $receivers;
+
 		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
 		unset($object_data['receiver']['uid:-1']);
 
