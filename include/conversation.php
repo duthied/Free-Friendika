@@ -741,32 +741,39 @@ function conversation_fetch_comments($thread_items, $pinned) {
 			$direction = ['direction' => 5, 'title' => DI::l10n()->t('%s commented on this.', $row['author-name'])];
 		}
 
-		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id'])) {
-			if (Contact::isSharing($row['author-id'], $row['uid'])) {
+		switch ($row['post-type']) {
+			case Item::PT_TO:
+				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'to')];
+				break;
+			case Item::PT_CC:
+				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'cc')];
+				break;
+			case Item::PT_BTO:
+				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bto')];
+				break;
+			case Item::PT_BCC:
+				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bcc')];
+				break;
+			case Item::PT_FOLLOWER:
 				$row['direction'] = ['direction' => 6, 'title' => DI::l10n()->t('You are following %s.', $row['author-name'])];
-			} else {
-				if ($row['post-type'] == Item::PT_TAG) {
-					$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
-				}
-				$parentlines[] = $lineno;
-			}
+				break;
+			case Item::PT_TAG:
+				$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
+				break;
+			case Item::PT_ANNOUNCEMENT:
+				$row['direction'] = ['direction' => 3, 'title' => DI::l10n()->t('Reshared')];
+				break;
+			case Item::PT_COMMENT:
+				$row['direction'] = ['direction' => 5, 'title' => DI::l10n()->t('%s is participating in this thread.', $row['author-name'])];
+				break;
+			case Item::PT_STORED:
+				$row['direction'] = ['direction' => 8, 'title' => DI::l10n()->t('Stored')];
+				break;
+		}
 
-			switch ($row['post-type']) {
-				case Item::PT_TO:
-					$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'to')];
-					break;
-				case Item::PT_CC:
-					$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'cc')];
-					break;
-				case Item::PT_BTO:
-					$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bto')];
-					break;
-				case Item::PT_BCC:
-					$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bcc')];
-					break;
-				case Item::PT_FOLLOWER:
-					$row['direction'] = ['direction' => 6, 'title' => DI::l10n()->t('You are following %s.', $row['author-name'])];
-			}
+		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id']) &&
+			!Contact::isSharing($row['author-id'], $row['uid'])) {
+			$parentlines[] = $lineno;
 		}
 
 		if ($row['gravity'] == GRAVITY_PARENT) {

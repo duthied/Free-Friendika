@@ -15,6 +15,8 @@
 		<i class="icon-ok-sign" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{elseif $direction.direction == 7}}
 		<i class="icon-forward" aria-hidden="true" title="{{$direction.title}}"></i>
+	{{elseif $direction.direction == 8}}
+		<i class="icon-share" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{/if}}
 </span>
 {{/if}}

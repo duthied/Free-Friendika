@@ -62,6 +62,9 @@ class Item
 	const PT_BTO = 67;
 	const PT_BCC = 68;
 	const PT_FOLLOWER = 69;
+	const PT_ANNOUNCEMENT = 70;
+	const PT_COMMENT = 71;
+	const PT_STORED = 72;
 	const PT_PERSONAL_NOTE = 128;
 
 	// Field list that is used to display the items
@@ -1696,6 +1699,11 @@ class Item
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, null, $default);
 
+		$actor = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
+		if (!$item['origin'] && in_array($item['post-type'], [self::PT_ARTICLE, self::PT_COMMENT]) && Contact::isSharing($actor, $item['uid'])) {
+			$item['post-type'] = self::PT_FOLLOWER;
+		}
+
 		// Ensure that there is an avatar cache
 		Contact::checkAvatarCache($item['author-id']);
 		Contact::checkAvatarCache($item['owner-id']);
@@ -1998,10 +2006,10 @@ class Item
 	 */
 	private static function setOwnerforResharedItem(array $item)
 	{
-		$parent = self::selectFirst(['id', 'owner-id', 'author-id', 'author-link', 'origin'],
-			['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
+		$parent = self::selectFirst(['id', 'owner-id', 'author-id', 'author-link', 'origin', 'post-type'],
+			['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
 		if (!DBA::isResult($parent)) {
-			Logger::error('Parent not found', ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
+			Logger::error('Parent not found', ['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
 			return;
 		}
 
@@ -2011,19 +2019,24 @@ class Item
 			return;
 		}
 
-		if ($author['contact-type'] != Contact::TYPE_COMMUNITY) {
-			logger::info('The resharer is no forum: quit', ['resharer' => $item['author-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
-			return;
-		}
-
 		$cid = Contact::getIdForURL($author['url'], $item['uid']);
 		if (empty($cid) || !Contact::isSharing($cid, $item['uid'])) {
-			logger::info('The resharer is not a following contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid']]);
+			Logger::info('The resharer is not a following contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid']]);
 			return;
 		}
 
-		Item::update(['owner-id' => $item['author-id'], 'contact-id' => $cid], ['id' => $parent['id']]);
-		Logger::info('Change owner of the parent', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $item['uid'], 'owner-id' => $item['author-id'], 'contact-id' => $cid]);
+		if ($author['contact-type'] != Contact::TYPE_COMMUNITY) {
+			if (!in_array($parent['post-type'], [self::PT_ARTICLE, self::PT_COMMENT]) || Contact::isSharing($parent['owner-id'], $item['uid'])) {
+				Logger::info('The resharer is no forum: quit', ['resharer' => $item['author-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
+				return;
+			}
+			self::update(['post-type' => self::PT_ANNOUNCEMENT], ['id' => $parent['id']]);
+			Logger::info('Set announcement post-type', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
+			return;
+		}
+
+		self::update(['owner-id' => $item['author-id'], 'contact-id' => $cid], ['id' => $parent['id']]);
+		Logger::info('Change owner of the parent', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid'], 'owner-id' => $item['author-id'], 'contact-id' => $cid]);
 	}
 
 	/**
@@ -2228,6 +2241,8 @@ class Item
 			Logger::notice('Item is private or not from a federated network. It will not be stored for the user.', ['uri-id' => $uri_id, 'uid' => $uid, 'private' => $item['private'], 'network' => $item['network']]);
 			return 0;
 		}
+
+		$item['post-type'] = self::PT_STORED;
 
 		$item = array_merge($item, $fields);
 
