@@ -260,7 +260,7 @@ function item_post(App $a) {
 		$objecttype        = $orig_post['object-type'];
 		$app               = $orig_post['app'];
 		$categories        = $orig_post['file'] ?? '';
-		$title             = Strings::escapeTags(trim($_REQUEST['title']));
+		$title             = trim($_REQUEST['title'] ?? '');
 		$body              = trim($body);
 		$private           = $orig_post['private'];
 		$pubmail_enabled   = $orig_post['pubmail'];
@@ -281,13 +281,13 @@ function item_post(App $a) {
 			$str_group_deny    = isset($_REQUEST['group_deny'])    ? $aclFormatter->toString($_REQUEST['group_deny'])    : $user['deny_gid']  ?? '';
 		}
 
-		$title             = Strings::escapeTags(trim($_REQUEST['title']    ?? ''));
-		$location          = Strings::escapeTags(trim($_REQUEST['location'] ?? ''));
-		$coord             = Strings::escapeTags(trim($_REQUEST['coord']    ?? ''));
-		$verb              = Strings::escapeTags(trim($_REQUEST['verb']     ?? ''));
-		$emailcc           = Strings::escapeTags(trim($_REQUEST['emailcc']  ?? ''));
+		$title             = trim($_REQUEST['title']    ?? '');
+		$location          = trim($_REQUEST['location'] ?? '');
+		$coord             = trim($_REQUEST['coord']    ?? '');
+		$verb              = trim($_REQUEST['verb']     ?? '');
+		$emailcc           = trim($_REQUEST['emailcc']  ?? '');
 		$body              = trim($body);
-		$network           = Strings::escapeTags(trim(($_REQUEST['network']  ?? '') ?: Protocol::DFRN));
+		$network           = trim(($_REQUEST['network']  ?? '') ?: Protocol::DFRN);
 		$guid              = System::createUUID();
 
 		$postopts = $_REQUEST['postopts'] ?? '';
