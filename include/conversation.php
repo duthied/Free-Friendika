@@ -576,7 +576,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					unset($likebuttons['dislike']);
 				}
 
-				$body = Item::prepareBody($item, true, $preview);
+				$body_html = Item::prepareBody($item, true, $preview);
 
 				list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
 
@@ -601,7 +601,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'lock' => $lock,
 					'thumb' => DI::baseUrl()->remove($item['author-avatar']),
 					'title' => $title,
-					'body' => $body,
+					'body_html' => $body_html,
 					'tags' => $tags['tags'],
 					'hashtags' => $tags['hashtags'],
 					'mentions' => $tags['mentions'],
@@ -612,7 +612,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'has_folders' => ((count($folders)) ? 'true' : ''),
 					'categories' => $categories,
 					'folders' => $folders,
-					'text' => strip_tags($body),
+					'text' => strip_tags($body_html),
 					'localtime' => DateTimeFormat::local($item['created'], 'r'),
 					'ago' => (($item['app']) ? DI::l10n()->t('%s from %s', Temporal::getRelativeDate($item['created']),$item['app']) : Temporal::getRelativeDate($item['created'])),
 					'location_html' => $location_html,

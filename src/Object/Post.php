@@ -357,13 +357,12 @@ class Post
 
 		localize_item($item);
 
-		$body = Item::prepareBody($item, true);
+		$body_html = Item::prepareBody($item, true);
 
 		list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
 
-		$body_e       = $body;
-		$text_e       = strip_tags($body);
 		$name_e       = $profile_name;
+		$text       = strip_tags($body_html);
 
 		if (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
 			$title_e = ucfirst($item['content-warning']);
@@ -432,8 +431,8 @@ class Post
 			'has_folders'     => ((count($folders)) ? 'true' : ''),
 			'categories'      => $categories,
 			'folders'         => $folders,
-			'body'            => $body_e,
-			'text'            => $text_e,
+			'body_html'       => $body_html,
+			'text'            => $text,
 			'id'              => $this->getId(),
 			'guid'            => urlencode($item['guid']),
 			'isevent'         => $isevent,

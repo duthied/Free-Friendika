@@ -31,7 +31,7 @@
 		<div class="wall-item-content" id="wall-item-content-{{$item.id}}" >
 			<div class="wall-item-title" id="wall-item-title-{{$item.id}}">{{$item.title}}</div>
 			<div class="wall-item-title-end"></div>
-			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" >{{$item.body nofilter}}</div>
+			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" >{{$item.body_html nofilter}}</div>
 		</div>
 		<div class="wall-item-author">
 				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.sparkle}}" id="wall-item-name-{{$item.id}}" >{{$item.name}}</span></a>

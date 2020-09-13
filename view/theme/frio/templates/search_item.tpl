@@ -96,7 +96,7 @@
 				<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h4><br /></span>
 				{{/if}}
 
-				<div class="wall-item-body" id="wall-item-body-{{$item.id}}">{{$item.body nofilter}}</div>
+				<div class="wall-item-body" id="wall-item-body-{{$item.id}}">{{$item.body_html nofilter}}</div>
 			</div>
 
 			<!-- TODO -->

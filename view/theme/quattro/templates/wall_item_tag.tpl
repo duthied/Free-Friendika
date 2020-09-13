@@ -37,7 +37,7 @@
 			<div class="wall-item-location">{{$item.location_html nofilter}}</div>
 		</div>
 		<div class="wall-item-content">
-			{{$item.ago}} {{$item.body nofilter}}
+			{{$item.ago}} {{$item.body_html nofilter}}
 		</div>
 			<div class="wall-item-tools">
 				{{if $item.drop.pagedrop}}
