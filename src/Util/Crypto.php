@@ -73,10 +73,11 @@ class Crypto
 	public static function meToPem($m, $e)
 	{
 		$rsa = new RSA();
-		$rsa->loadKey([
-								  'e' => new BigInteger($e, 256),
-								  'n' => new BigInteger($m, 256)
-							  ]);
+		$rsa->loadKey(
+			[
+				'e' => new BigInteger($e, 256),
+				'n' => new BigInteger($m, 256)
+			]);
 		return $rsa->getPublicKey();
 	}
 
@@ -89,10 +90,10 @@ class Crypto
 	 */
 	public static function rsaToPem(string $key)
 	{
-		$publicKey = new RSA();
-		$publicKey->setPublicKey($key);
+		$rsa = new RSA();
+		$rsa->setPublicKey($key);
 
-		return $publicKey->getPublicKey(RSA::PUBLIC_FORMAT_PKCS8);
+		return $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS8);
 	}
 
 	/**
@@ -106,12 +107,12 @@ class Crypto
 	 */
 	public static function pemToMe(string $key, &$modulus, &$exponent)
 	{
-		$publicKey = new RSA();
-		$publicKey->loadKey($key);
-		$publicKey->setPublicKey();
+		$rsa = new RSA();
+		$rsa->loadKey($key);
+		$rsa->setPublicKey();
 
-		$modulus  = $publicKey->modulus->toBytes();
-		$exponent = $publicKey->exponent->toBytes();
+		$modulus  = $rsa->modulus->toBytes();
+		$exponent = $rsa->exponent->toBytes();
 	}
 
 	/**
@@ -152,13 +153,13 @@ class Crypto
 
 	/**
 	 * Encrypt a string with 'aes-256-cbc' cipher method.
-	 * 
+	 *
 	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
-	 * 
+	 *
 	 * @param string $data
 	 * @param string $key   The key used for encryption.
 	 * @param string $iv    A non-NULL Initialization Vector.
-	 * 
+	 *
 	 * @return string|boolean Encrypted string or false on failure.
 	 */
 	private static function encryptAES256CBC($data, $key, $iv)
@@ -168,13 +169,13 @@ class Crypto
 
 	/**
 	 * Decrypt a string with 'aes-256-cbc' cipher method.
-	 * 
+	 *
 	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
-	 * 
+	 *
 	 * @param string $data
 	 * @param string $key   The key used for decryption.
 	 * @param string $iv    A non-NULL Initialization Vector.
-	 * 
+	 *
 	 * @return string|boolean Decrypted string or false on failure.
 	 */
 	private static function decryptAES256CBC($data, $key, $iv)
