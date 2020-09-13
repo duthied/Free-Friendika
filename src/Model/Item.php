@@ -2021,13 +2021,13 @@ class Item
 
 		$cid = Contact::getIdForURL($author['url'], $item['uid']);
 		if (empty($cid) || !Contact::isSharing($cid, $item['uid'])) {
-			logger::info('The resharer is not a following contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid']]);
+			Logger::info('The resharer is not a following contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid']]);
 			return;
 		}
 
 		if ($author['contact-type'] != Contact::TYPE_COMMUNITY) {
 			if (!in_array($parent['post-type'], [self::PT_ARTICLE, self::PT_COMMENT]) || Contact::isSharing($parent['owner-id'], $item['uid'])) {
-				logger::info('The resharer is no forum: quit', ['resharer' => $item['author-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
+				Logger::info('The resharer is no forum: quit', ['resharer' => $item['author-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
 				return;
 			}
 			self::update(['post-type' => self::PT_ANNOUNCEMENT], ['id' => $parent['id']]);
