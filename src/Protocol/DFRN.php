@@ -1768,15 +1768,15 @@ class DFRN
 
 		$msg = [];
 		$msg["uid"] = $importer["importer_uid"];
-		$msg["from-name"] = $xpath->query("dfrn:sender/dfrn:name/text()", $mail)->item(0)->nodeValue;
-		$msg["from-url"] = $xpath->query("dfrn:sender/dfrn:uri/text()", $mail)->item(0)->nodeValue;
-		$msg["from-photo"] = $xpath->query("dfrn:sender/dfrn:avatar/text()", $mail)->item(0)->nodeValue;
+		$msg["from-name"] = XML::getFirstValue($xpath, "dfrn:sender/dfrn:name/text()", $mail);
+		$msg["from-url"] = XML::getFirstValue($xpath, "dfrn:sender/dfrn:uri/text()", $mail);
+		$msg["from-photo"] = XML::getFirstValue($xpath, "dfrn:sender/dfrn:avatar/text()", $mail);
 		$msg["contact-id"] = $importer["id"];
-		$msg["uri"] = $xpath->query("dfrn:id/text()", $mail)->item(0)->nodeValue;
-		$msg["parent-uri"] = $xpath->query("dfrn:in-reply-to/text()", $mail)->item(0)->nodeValue;
-		$msg["created"] = DateTimeFormat::utc($xpath->query("dfrn:sentdate/text()", $mail)->item(0)->nodeValue);
-		$msg["title"] = $xpath->query("dfrn:subject/text()", $mail)->item(0)->nodeValue;
-		$msg["body"] = $xpath->query("dfrn:content/text()", $mail)->item(0)->nodeValue;
+		$msg["uri"] = XML::getFirstValue($xpath, "dfrn:id/text()", $mail);
+		$msg["parent-uri"] = XML::getFirstValue($xpath, "dfrn:in-reply-to/text()", $mail);
+		$msg["created"] = DateTimeFormat::utc(XML::getFirstValue($xpath, "dfrn:sentdate/text()", $mail));
+		$msg["title"] = XML::getFirstValue($xpath, "dfrn:subject/text()", $mail);
+		$msg["body"] = XML::getFirstValue($xpath, "dfrn:content/text()", $mail);
 
 		Mail::insert($msg);
 	}
