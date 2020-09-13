@@ -49,6 +49,22 @@ class DBStructure
 	private static $definition = [];
 
 	/**
+	 * Set a database version to trigger update functions
+	 *
+	 * @param string $version
+	 * @return void
+	 */
+	public static function setDatabaseVersion(string $version)
+	{
+		if (!is_numeric($version)) {
+			throw new \Asika\SimpleConsole\CommandArgsException('The version number must be numeric');
+		}
+
+		DI::config()->set('system', 'build', $version);
+		echo DI::l10n()->t('The database version had been set to %s.', $version);
+	}
+
+	/**
 	 * Converts all tables from MyISAM/InnoDB Antelope to InnoDB Barracuda
 	 */
 	public static function convertToInnoDB()
