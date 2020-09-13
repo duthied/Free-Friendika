@@ -488,13 +488,19 @@ class XML
 		return $first_item->attributes;
 	}
 
-	public static function queryValue($xpath, $search, $context)
+	public static function getFirstValue($xpath, $search, $context)
 	{
-		$result = $xpath->query($search, $context)->item(0)->nodeValue;
+		$result = $xpath->query($search, $context);
 		if (!is_object($result)) {
 			return '';
 		}
-		return $result->nodeValue;
+
+		$first_item = $result->item(0);
+		if (!is_object($first_item)) {
+			return '';
+		}
+
+		return $first_item->nodeValue;
 	}
 
 	/**
