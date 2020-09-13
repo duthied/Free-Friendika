@@ -1499,8 +1499,9 @@ class DFRN
 
 		$fields = ['id', 'uid', 'url', 'network', 'avatar-date', 'avatar', 'name-date', 'uri-date', 'addr',
 			'name', 'nick', 'about', 'location', 'keywords', 'xmpp', 'bdyear', 'bd', 'hidden', 'contact-type'];
-		$condition = ["`uid` = ? AND `nurl` = ? AND `network` != ?",
-			$importer["importer_uid"], Strings::normaliseLink($author["link"]), Protocol::STATUSNET];
+		$condition = ["`uid` = ? AND `nurl` = ? AND `network` != ? AND NOT `pending` AND NOT `blocked` AND `rel` IN (?, ?)",
+			$importer["importer_uid"], Strings::normaliseLink($author["link"]), Protocol::STATUSNET,
+			Contact::SHARING, Contact::FRIEND];
 		$contact_old = DBA::selectFirst('contact', $fields, $condition);
 
 		if (DBA::isResult($contact_old)) {
@@ -1512,8 +1513,9 @@ class DFRN
 			}
 
 			$author["contact-unknown"] = true;
-			$author["contact-id"] = $importer["id"];
-			$author["network"] = $importer["network"];
+			$contact = Contact::getByURL($author["link"], null, ["contact-id", "network"]);
+			$author["contact-id"] = $contact["id"] ?? $importer["id"];
+			$author["network"] = $contact["network"] ?? $importer["network"];
 			$onlyfetch = true;
 		}
 
@@ -2534,6 +2536,11 @@ class DFRN
 		}
 
 		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
+			// Will be overwritten for sharing accounts in Item::insert
+			if (empty($item['post-type']) && ($entrytype == DFRN::REPLY)) {
+				$item['post-type'] = Item::PT_COMMENT;
+			}
+
 			$posted_id = Item::insert($item);
 			if ($posted_id) {
 				Logger::log("Reply from contact ".$item["contact-id"]." was stored with id ".$posted_id, Logger::DEBUG);

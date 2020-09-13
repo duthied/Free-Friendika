@@ -1735,6 +1735,9 @@ class Diaspora
 		$datarray["owner-link"] = $contact["url"];
 		$datarray["owner-id"] = Contact::getIdForURL($contact["url"], 0);
 
+		// Will be overwritten for sharing accounts in Item::insert
+		$datarray['post-type'] = Item::PT_COMMENT;
+
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = self::getUriFromGuid($author, $guid);
 		$datarray['uri-id'] = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);

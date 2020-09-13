@@ -26,6 +26,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
@@ -353,7 +354,7 @@ class Processor
 		DBA::close($items);
 
 		if (count($original) != count($receivers)) {
-			Logger::info('Improved data', ['id' => $activity['id'], 'object' => $activity['object_id'], 'original' => $original, 'improved' => $receivers]);
+			Logger::info('Improved data', ['id' => $activity['id'], 'object' => $activity['object_id'], 'original' => $original, 'improved' => $receivers, 'callstack' => System::callstack()]);
 		}
 
 		return $receivers;
@@ -543,6 +544,9 @@ class Processor
 					break;
 				case Receiver::TARGET_FOLLOWER:
 					$item['post-type'] = Item::PT_FOLLOWER;
+					break;
+				case Receiver::TARGET_ANSWER:
+					$item['post-type'] = Item::PT_COMMENT;
 					break;
 				default:
 					$item['post-type'] = Item::PT_ARTICLE;

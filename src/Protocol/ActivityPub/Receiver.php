@@ -64,6 +64,7 @@ class Receiver
 	const TARGET_BTO = 3;
 	const TARGET_BCC = 4;
 	const TARGET_FOLLOWER = 5;
+	const TARGET_ANSWER = 6;
 
 	/**
 	 * Checks if the web request is done for the AP protocol
@@ -233,7 +234,7 @@ class Receiver
 		if (!empty($uid)) {
 			$additional = ['uid:' . $uid => $uid];
 			$receivers = array_merge($receivers, $additional);
-			if (empty($reception_types[$uid]) || in_array($reception_types[$uid], [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER])) {
+			if (empty($reception_types[$uid]) || in_array($reception_types[$uid], [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER])) {
 				$reception_types[$uid] = self::TARGET_BCC;
 			}
 		} else {
@@ -317,7 +318,7 @@ class Receiver
 		$object_data['actor'] = $actor;
 		$object_data['item_receiver'] = $receivers;
 		$object_data['receiver'] = array_merge($object_data['receiver'] ?? [], $receivers);
-		$object_data['reception_type'] = $reception_types;
+		$object_data['reception_type'] = array_merge($object_data['reception_type'] ?? [], $reception_types);
 
 		$author = $object_data['author'] ?? $actor;
 		if (!empty($author) && !empty($object_data['id'])) {
@@ -544,18 +545,30 @@ class Receiver
 	 */
 	private static function getReceivers($activity, $actor, $tags = [], $fetch_unlisted = false)
 	{
-		$receivers = [];
+		$reply = $receivers = [];
 
 		// When it is an answer, we inherite the receivers from the parent
 		$replyto = JsonLD::fetchElement($activity, 'as:inReplyTo', '@id');
 		if (!empty($replyto)) {
+			$reply = [$replyto];
+
 			// Fix possibly wrong item URI (could be an answer to a plink uri)
 			$fixedReplyTo = Item::getURIByLink($replyto);
-			$replyto = $fixedReplyTo ?: $replyto;
+			if (!empty($fixedReplyTo)) {
+				$reply[] = $fixedReplyTo;
+			}
+		}
 
-			$parents = Item::select(['uid'], ['uri' => $replyto]);
+		// Fetch all posts that refer to the object id
+		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
+		if (!empty($object_id)) {
+			$reply[] = $object_id;
+		}
+
+		if (!empty($reply)) {
+			$parents = Item::select(['uid'], ['uri' => $reply]);
 			while ($parent = Item::fetch($parents)) {
-				$receivers['uid:' . $parent['uid']] = ['uid' => $parent['uid']];
+				$receivers['uid:' . $parent['uid']] = ['uid' => $parent['uid'], 'type' => self::TARGET_ANSWER];
 			}
 		}
 
@@ -616,7 +629,7 @@ class Receiver
 				}
 
 				$type = $receivers['uid:' . $contact['uid']]['type'] ?? self::TARGET_UNKNOWN;
-				if (in_array($type, [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER])) {
+				if (in_array($type, [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER])) {
 					switch ($element) {
 						case 'as:to':
 							$type = self::TARGET_TO;
@@ -1263,12 +1276,14 @@ class Receiver
 		}
 
 		$receiverdata = self::getReceivers($object, $object_data['actor'], $object_data['tags'], true);
-		$receivers = [];
+		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {
 			$receivers[$key] = $data['uid'];
+			$reception_types[$data['uid']] = $data['type'] ?? 0;
 		}
 
 		$object_data['receiver'] = $receivers;
+		$object_data['reception_type'] = $reception_types;
 
 		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
 		unset($object_data['receiver']['uid:-1']);
