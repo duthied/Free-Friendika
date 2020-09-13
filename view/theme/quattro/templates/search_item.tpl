@@ -19,7 +19,7 @@
 				</ul>
 
 			</div>
-			<div class="wall-item-location">{{$item.location nofilter}}</div>
+			<div class="wall-item-location">{{$item.location_html nofilter}}</div>
 		</div>
 		<div class="wall-item-content">
 			{{if $item.title}}<h2><a href="{{$item.plink.href}}">{{$item.title}}</a></h2>{{/if}}

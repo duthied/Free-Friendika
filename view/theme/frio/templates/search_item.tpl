@@ -66,9 +66,9 @@
 							<small><a href="{{$item.plink.orig}}"><span class="time" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</span></a></small>
 						</div>
 
-						{{if $item.location}}
+						{{if $item.location_html}}
 						<div id="wall-item-location-{{$item.id}}" class="wall-item-location">
-							<small><span class="location">({{$item.location nofilter}})</span></small>
+							<small><span class="location">({{$item.location_html nofilter}})</span></small>
 						</div>
 						{{/if}}
 					</div>
@@ -81,7 +81,7 @@
 				<h5 class="media-heading">
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span>{{$item.name}}</span></a>
 					<p class="text-muted"><small>
-						<span class="wall-item-ago">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}</small>
+						<span class="wall-item-ago">{{$item.ago}}</span> {{if $item.location_html}}&nbsp;&mdash;&nbsp;({{$item.location_html nofilter}}){{/if}}</small>
 					</p>
 				</h5>
 			</div>

@@ -51,7 +51,7 @@
 		</div>
 		<div class="wall-item-actions">
 
-			<div class="wall-item-location">{{$item.location nofilter}}&nbsp;</div>
+			<div class="wall-item-location">{{$item.location_html nofilter}}&nbsp;</div>
 
 			<div class="wall-item-actions-social">
 			{{if $item.star}}

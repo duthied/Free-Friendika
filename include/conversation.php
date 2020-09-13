@@ -546,8 +546,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 
 				$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
 				Hook::callAll('render_location',$locate);
-
-				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
+				$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
 
 				localize_item($item);
 				if ($mode === 'network-new') {
@@ -616,7 +615,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'text' => strip_tags($body),
 					'localtime' => DateTimeFormat::local($item['created'], 'r'),
 					'ago' => (($item['app']) ? DI::l10n()->t('%s from %s', Temporal::getRelativeDate($item['created']),$item['app']) : Temporal::getRelativeDate($item['created'])),
-					'location' => $location,
+					'location_html' => $location_html,
 					'indent' => '',
 					'owner_name' => $owner_name,
 					'owner_url' => $owner_url,
@@ -1496,14 +1495,4 @@ function sort_thr_received_rev(array $a, array $b)
 function sort_thr_commented(array $a, array $b)
 {
 	return strcmp($b['commented'], $a['commented']);
-}
-
-function render_location_dummy(array $item) {
-	if (!empty($item['location']) && !empty($item['location'])) {
-		return $item['location'];
-	}
-
-	if (!empty($item['coord']) && !empty($item['coord'])) {
-		return $item['coord'];
-	}
 }

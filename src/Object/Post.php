@@ -254,7 +254,7 @@ class Post
 
 		$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
 		Hook::callAll('render_location', $locate);
-		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
+		$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
 
 		// process action responses - e.g. like/dislike/attend/agree/whatever
 		$response_verbs = ['like', 'dislike', 'announce'];
@@ -371,7 +371,6 @@ class Post
 			$title_e = $item['title'];
 		}
 
-		$location_e   = $location;
 		$owner_name_e = $this->getOwnerName();
 
 		if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
@@ -457,7 +456,7 @@ class Post
 			'app'             => $item['app'],
 			'created'         => $ago,
 			'lock'            => $lock,
-			'location'        => $location_e,
+			'location_html'   => $location_html,
 			'indent'          => $indent,
 			'shiny'           => $shiny,
 			'owner_self'      => $item['author-link'] == Session::get('my_url'),

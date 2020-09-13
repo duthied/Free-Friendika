@@ -186,9 +186,9 @@ as the value of $top_child_total (this is done at the end of this file)
 						</small>
 					</div>
 
-					{{if $item.location}}
+					{{if $item.location_html}}
 					<div id="wall-item-location-{{$item.id}}" class="wall-item-location">
-						<small><span class="location">({{$item.location nofilter}})</span></small>
+						<small><span class="location">({{$item.location_html nofilter}})</span></small>
 					</div>
 					{{/if}}
 				</div>
@@ -202,7 +202,7 @@ as the value of $top_child_total (this is done at the end of this file)
 					<p class="text-muted">
 						<small>
 							<a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a>
-							{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}
+							{{if $item.location_html}}&nbsp;&mdash;&nbsp;({{$item.location_html nofilter}}){{/if}}
 							{{if $item.owner_self}}
 								{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 							{{/if}}
@@ -221,7 +221,7 @@ as the value of $top_child_total (this is done at the end of this file)
 					<span class="text-muted">
 				<small>
 					<a class="time" href="{{$item.plink.orig}}" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</a>
-					{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}
+					{{if $item.location_html}}&nbsp;&mdash;&nbsp;({{$item.location_html nofilter}}){{/if}}
 					{{if $item.owner_self}}
 						{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 					{{/if}}
