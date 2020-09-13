@@ -11,7 +11,7 @@
 				<span onclick="openClose('wall-item-photo-menu-{{$item.id}}');" class="fakelink wall-item-photo-menu-button" id="wall-item-photo-menu-button-{{$item.id}}">menu</span>
 				<div class="wall-item-photo-menu" id="wall-item-photo-menu-{{$item.id}}">
 					<ul>
-						{{$item.item_photo_menu nofilter}}
+						{{$item.item_photo_menu_html nofilter}}
 					</ul>
 				</div>
 			</div>
