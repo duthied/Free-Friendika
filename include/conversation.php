@@ -520,10 +520,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 
 				$threadsid++;
 
-				$owner_url   = '';
-				$owner_name  = '';
-				$sparkle     = '';
-
 				// prevent private email from leaking.
 				if ($item['network'] === Protocol::MAIL && local_user() != $item['uid']) {
 					continue;
@@ -540,6 +536,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'network' => $item['author-network'], 'url' => $item['author-link']];
 				$profile_link = Contact::magicLinkByContact($author);
 
+				$sparkle = '';
 				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
 				}
@@ -562,10 +559,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'delete' => DI::l10n()->t('Delete'),
 				];
 
-				$star = false;
-				$isstarred = "unstarred";
-
-				$lock = false;
 				$likebuttons = [
 					'like'    => null,
 					'dislike' => null,
@@ -598,7 +591,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'item_photo_menu_html' => item_photo_menu($item),
 					'name' => $profile_name,
 					'sparkle' => $sparkle,
-					'lock' => $lock,
+					'lock' => false,
 					'thumb' => DI::baseUrl()->remove($item['author-avatar']),
 					'title' => $title,
 					'body_html' => $body_html,
@@ -617,13 +610,13 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'ago' => (($item['app']) ? DI::l10n()->t('%s from %s', Temporal::getRelativeDate($item['created']),$item['app']) : Temporal::getRelativeDate($item['created'])),
 					'location_html' => $location_html,
 					'indent' => '',
-					'owner_name' => $owner_name,
-					'owner_url' => $owner_url,
+					'owner_name' => '',
+					'owner_url' => '',
 					'owner_photo' => DI::baseUrl()->remove($item['owner-avatar']),
 					'plink' => Item::getPlink($item),
 					'edpost' => false,
-					'isstarred' => $isstarred,
-					'star' => $star,
+					'isstarred' => 'unstarred',
+					'star' => false,
 					'drop' => $drop,
 					'vote' => $likebuttons,
 					'like_html' => '',

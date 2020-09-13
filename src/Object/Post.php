@@ -221,15 +221,14 @@ class Post
 			$delete = $origin ? DI::l10n()->t('Delete globally') : DI::l10n()->t('Remove locally');
 		}
 
-		$drop = [
-			'dropping' => $dropping,
-			'pagedrop' => $item['pagedrop'],
-			'select'   => DI::l10n()->t('Select'),
-			'delete'   => $delete,
-		];
-
-		if (!local_user()) {
-			$drop = false;
+		$drop = false;
+		if (local_user()) {
+			$drop = [
+				'dropping' => $dropping,
+				'pagedrop' => $item['pagedrop'],
+				'select'   => DI::l10n()->t('Select'),
+				'delete'   => $delete,
+			];
 		}
 
 		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? DI::l10n()->t("save to folder") : false);
@@ -361,16 +360,11 @@ class Post
 
 		list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
 
-		$name_e       = $profile_name;
-		$text       = strip_tags($body_html);
-
 		if (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
-			$title_e = ucfirst($item['content-warning']);
+			$title = ucfirst($item['content-warning']);
 		} else {
-			$title_e = $item['title'];
+			$title = $item['title'];
 		}
-
-		$owner_name_e = $this->getOwnerName();
 
 		if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
 			$buttons['dislike'] = false;
@@ -412,8 +406,8 @@ class Post
 		} elseif (DI::config()->get('debug', 'show_direction')) {
 			$conversation = DBA::selectFirst('conversation', ['direction'], ['item-uri' => $item['uri']]);
 			if (!empty($conversation['direction']) && in_array($conversation['direction'], [1, 2])) {
-				$title = [1 => DI::l10n()->t('Pushed'), 2 => DI::l10n()->t('Pulled')];
-				$direction = ['direction' => $conversation['direction'], 'title' => $title[$conversation['direction']]];
+				$direction_title = [1 => DI::l10n()->t('Pushed'), 2 => DI::l10n()->t('Pulled')];
+				$direction = ['direction' => $conversation['direction'], 'title' => $direction_title[$conversation['direction']]];
 			}
 		}
 
@@ -432,7 +426,7 @@ class Post
 			'categories'      => $categories,
 			'folders'         => $folders,
 			'body_html'       => $body_html,
-			'text'            => $text,
+			'text'            => strip_tags($body_html),
 			'id'              => $this->getId(),
 			'guid'            => urlencode($item['guid']),
 			'isevent'         => $isevent,
@@ -444,12 +438,12 @@ class Post
 			'wall'            => DI::l10n()->t('Wall-to-Wall'),
 			'vwall'           => DI::l10n()->t('via Wall-To-Wall:'),
 			'profile_url'     => $profile_link,
-			'name'            => $name_e,
+			'name'            => $profile_name,
 			'item_photo_menu_html' => item_photo_menu($item),
 			'thumb'           => DI::baseUrl()->remove($item['author-avatar']),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
-			'title'           => $title_e,
+			'title'           => $title,
 			'localtime'       => DateTimeFormat::local($item['created'], 'r'),
 			'ago'             => $item['app'] ? DI::l10n()->t('%s from %s', $ago, $item['app']) : $ago,
 			'app'             => $item['app'],
@@ -461,7 +455,7 @@ class Post
 			'owner_self'      => $item['author-link'] == Session::get('my_url'),
 			'owner_url'       => $this->getOwnerUrl(),
 			'owner_photo'     => DI::baseUrl()->remove($item['owner-avatar']),
-			'owner_name'      => $owner_name_e,
+			'owner_name'      => $this->getOwnerName(),
 			'plink'           => Item::getPlink($item),
 			'edpost'          => $edpost,
 			'ispinned'        => $ispinned,
@@ -478,7 +472,7 @@ class Post
 			'dislike_html'    => $responses['dislike']['output'],
 			'responses'       => $responses,
 			'switchcomment'   => DI::l10n()->t('Comment'),
-			'reply_label'     => DI::l10n()->t('Reply to %s', $name_e),
+			'reply_label'     => DI::l10n()->t('Reply to %s', $profile_name),
 			'comment_html'    => $comment_html,
 			'remote_comment'  => $remote_comment,
 			'menu'            => DI::l10n()->t('More'),
