@@ -161,11 +161,11 @@
 		{{/if}}
 	</div>
 
-	{{if $item.threaded}}{{if $item.comment}}{{if $item.indent==comment}}
+	{{if $item.threaded}}{{if $item.comment_html}}{{if $item.indent==comment}}
 	<div class="wall-item-bottom commentbox">
 		<div class="wall-item-links"></div>
 		<div class="wall-item-comment-wrapper">
-					{{$item.comment nofilter}}
+					{{$item.comment_html nofilter}}
 		</div>
 	</div>
 	{{/if}}{{/if}}{{/if}}
@@ -189,11 +189,11 @@
 {{/if}}
 
 {{* top thread comment box *}}
-{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
+{{if $item.threaded}}{{if $item.comment_html}}{{if $item.thread_level==1}}
+<div class="wall-item-comment-wrapper" >{{$item.comment_html nofilter}}</div>
 {{/if}}{{/if}}{{/if}}
 
 
 {{if $item.flatten}}
-<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
+<div class="wall-item-comment-wrapper" >{{$item.comment_html nofilter}}</div>
 {{/if}}

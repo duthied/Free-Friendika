@@ -628,7 +628,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'vote' => $likebuttons,
 					'like' => '',
 					'dislike' => '',
-					'comment' => '',
+					'comment_html' => '',
 					'conv' => (($preview) ? '' : ['href'=> 'display/'.$item['guid'], 'title'=> DI::l10n()->t('View in context')]),
 					'previewing' => $previewing,
 					'wait' => DI::l10n()->t('Please wait'),

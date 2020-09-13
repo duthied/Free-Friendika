@@ -349,7 +349,7 @@ class Post
 			}
 		}
 
-		$comment = $this->getCommentBox($indent);
+		$comment_html = $this->getCommentBox($indent);
 
 		if (strcmp(DateTimeFormat::utc($item['created']), DateTimeFormat::utc('now - 12 hours')) > 0) {
 			$shiny = 'shiny';
@@ -479,7 +479,7 @@ class Post
 			'responses'       => $responses,
 			'switchcomment'   => DI::l10n()->t('Comment'),
 			'reply_label'     => DI::l10n()->t('Reply to %s', $name_e),
-			'comment'         => $comment,
+			'comment_html'    => $comment_html,
 			'remote_comment'  => $remote_comment,
 			'menu'            => DI::l10n()->t('More'),
 			'previewing'      => $conv->isPreview() ? ' preview ' : '',

@@ -58,10 +58,10 @@
 {{/if}}
 
 {{* top thread comment box *}}
-{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
+{{if $item.threaded}}{{if $item.comment_html}}{{if $item.thread_level==1}}
+<div class="wall-item-comment-wrapper" >{{$item.comment_html nofilter}}</div>
 {{/if}}{{/if}}{{/if}}
 
 {{if $item.flatten}}
-<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
+<div class="wall-item-comment-wrapper" >{{$item.comment_html nofilter}}</div>
 {{/if}}

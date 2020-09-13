@@ -147,9 +147,9 @@
 	<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike nofilter}}</div>
 
 	{{if $item.threaded}}
-	{{if $item.comment}}
+	{{if $item.comment_html}}
         <div class="wall-item-comment-wrapper {{$item.indent}} {{$item.shiny}}" >
-		{{$item.comment nofilter}}
+		{{$item.comment_html nofilter}}
 	</div>
 	{{/if}}
 	{{/if}}
@@ -163,7 +163,7 @@
 
 {{if $item.flatten}}
 <div class="wall-item-comment-wrapper" >
-	{{$item.comment nofilter}}
+	{{$item.comment_html nofilter}}
 </div>
 {{/if}}
 </div>

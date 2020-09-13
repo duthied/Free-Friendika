@@ -109,7 +109,7 @@
 				<a role="button" title="{{$item.remote_comment.0}}" href="{{$item.remote_comment.2}}"><i class="icon-commenting"><span class="sr-only">{{$item.remote_comment.1}}</span></i></a>
 			{{/if}}
 
-			{{if $item.comment}}
+			{{if $item.comment_html}}
 				<a role="button" id="comment-{{$item.id}}" class="fakelink togglecomment" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" title="{{$item.switchcomment}}"><i class="icon-commenting"><span class="sr-only">{{$item.switchcomment}}</span></i></a>
 			{{/if}}
 
@@ -181,12 +181,12 @@
 
 	</div>
 
-	{{if $item.threaded}}{{if $item.comment}}
+	{{if $item.threaded}}{{if $item.comment_html}}
 	<div class="wall-item-bottom">
 		<div class="wall-item-links">
 		</div>
 		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">
-					{{$item.comment nofilter}}
+					{{$item.comment_html nofilter}}
 		</div>
 	</div>
 	{{/if}}{{/if}}
@@ -210,19 +210,19 @@
 {{/if}}
 
 {{if $item.total_comments_num}}
-	{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}">{{$item.comment nofilter}}</div>
+	{{if $item.threaded}}{{if $item.comment_html}}{{if $item.thread_level==1}}
+		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}">{{$item.comment_html nofilter}}</div>
 	{{/if}}{{/if}}{{/if}}
 
 	{{if $item.flatten}}
-		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}">{{$item.comment nofilter}}</div>
+		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}">{{$item.comment_html nofilter}}</div>
 	{{/if}}
 {{else}}
-	{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment nofilter}}</div>
+	{{if $item.threaded}}{{if $item.comment_html}}{{if $item.thread_level==1}}
+		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment_html nofilter}}</div>
 	{{/if}}{{/if}}{{/if}}
 
 	{{if $item.flatten}}
-		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment nofilter}}</div>
+		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment_html nofilter}}</div>
 	{{/if}}
 {{/if}}
