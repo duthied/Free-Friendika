@@ -769,6 +769,10 @@ function conversation_fetch_comments($thread_items, $pinned) {
 			case Item::PT_STORED:
 				$row['direction'] = ['direction' => 8, 'title' => DI::l10n()->t('Stored')];
 				break;
+			default:
+				if ($row['uid'] == 0) {
+					$row['direction'] = ['direction' => 9, 'title' => DI::l10n()->t('Global')];
+				}
 		}
 
 		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id']) &&
