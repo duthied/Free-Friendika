@@ -65,6 +65,7 @@ class Receiver
 	const TARGET_BCC = 4;
 	const TARGET_FOLLOWER = 5;
 	const TARGET_ANSWER = 6;
+	const TARGET_GLOBAL = 7;
 
 	/**
 	 * Checks if the web request is done for the AP protocol
@@ -234,7 +235,7 @@ class Receiver
 		if (!empty($uid)) {
 			$additional = ['uid:' . $uid => $uid];
 			$receivers = array_merge($receivers, $additional);
-			if (empty($reception_types[$uid]) || in_array($reception_types[$uid], [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER])) {
+			if (empty($reception_types[$uid]) || in_array($reception_types[$uid], [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER, self::TARGET_GLOBAL])) {
 				$reception_types[$uid] = self::TARGET_BCC;
 			}
 		} else {
@@ -590,12 +591,12 @@ class Receiver
 
 			foreach ($receiver_list as $receiver) {
 				if ($receiver == self::PUBLIC_COLLECTION) {
-					$receivers['uid:0'] = ['uid' => 0, 'type' => self::TARGET_UNKNOWN];
+					$receivers['uid:0'] = ['uid' => 0, 'type' => self::TARGET_GLOBAL];
 				}
 
 				// Add receiver "-1" for unlisted posts 
 				if ($fetch_unlisted && ($receiver == self::PUBLIC_COLLECTION) && ($element == 'as:cc')) {
-					$receivers['uid:-1'] = ['uid' => -1, 'type' => self::TARGET_UNKNOWN];
+					$receivers['uid:-1'] = ['uid' => -1, 'type' => self::TARGET_GLOBAL];
 				}
 
 				// Fetch the receivers for the public and the followers collection
@@ -629,7 +630,7 @@ class Receiver
 				}
 
 				$type = $receivers['uid:' . $contact['uid']]['type'] ?? self::TARGET_UNKNOWN;
-				if (in_array($type, [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER])) {
+				if (in_array($type, [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER, self::TARGET_GLOBAL])) {
 					switch ($element) {
 						case 'as:to':
 							$type = self::TARGET_TO;

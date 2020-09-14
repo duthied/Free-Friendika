@@ -65,6 +65,7 @@ class Item
 	const PT_ANNOUNCEMENT = 70;
 	const PT_COMMENT = 71;
 	const PT_STORED = 72;
+	const PT_GLOBAL = 73;
 	const PT_PERSONAL_NOTE = 128;
 
 	// Field list that is used to display the items
@@ -1700,7 +1701,7 @@ class Item
 		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, null, $default);
 
 		$actor = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
-		if (!$item['origin'] && in_array($item['post-type'], [self::PT_ARTICLE, self::PT_COMMENT]) && Contact::isSharing($actor, $item['uid'])) {
+		if (!$item['origin'] && in_array($item['post-type'], [self::PT_ARTICLE, self::PT_COMMENT, self::PT_GLOBAL]) && Contact::isSharing($actor, $item['uid'])) {
 			$item['post-type'] = self::PT_FOLLOWER;
 		}
 

@@ -1736,7 +1736,7 @@ class Diaspora
 		$datarray["owner-id"] = Contact::getIdForURL($contact["url"], 0);
 
 		// Will be overwritten for sharing accounts in Item::insert
-		$datarray['post-type'] = Item::PT_COMMENT;
+		$datarray['post-type'] = ($datarray["uid"] == 0) ? Item::PT_GLOBAL : Item::PT_COMMENT;
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = self::getUriFromGuid($author, $guid);
@@ -2864,6 +2864,10 @@ class Diaspora
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
+
+		if ($datarray["uid"] == 0) {
+			$datarray["post-type"] = Item::PT_GLOBAL;
+		}
 
 		$datarray["body"] = self::replacePeopleGuid($body, $contact["url"]);
 
