@@ -1179,6 +1179,7 @@ section #jotOpen {
 #jot-modal #item-Q0,
 #jot-modal #profile-jot-acl-wrapper,
 #jot-modal #acl-wrapper {
+    overflow: hidden;
     display: flex;
     flex: auto;
     flex-direction: column;
@@ -1202,7 +1203,6 @@ section #jotOpen {
 }
 #jot-text-wrap textarea {
     min-height: 100px;
-	max-height: 440px;
     overflow-y: auto !important;
     overflow-y: overlay !important;
 }
