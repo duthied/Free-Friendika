@@ -345,3 +345,7 @@ aside .widget,
 	box-shadow: 0 0 3px $link_color;
 	-webkit-box-shadow: 0 0 3px $link_color;
 }
+
+input[type=text].tt-input {
+	box-shadow: none;
+}

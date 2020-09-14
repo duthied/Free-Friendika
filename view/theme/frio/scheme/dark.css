@@ -318,3 +318,7 @@ legend {
 .adminpage .table-hover > tbody > tr:hover + tr.details {
 	background-color: $nav_bg;
 }
+
+input[type=text].tt-input {
+	box-shadow: none;
+}
