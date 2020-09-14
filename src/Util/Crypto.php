@@ -73,11 +73,10 @@ class Crypto
 	public static function meToPem($m, $e)
 	{
 		$rsa = new RSA();
-		$rsa->loadKey(
-			[
-				'e' => new BigInteger($e, 256),
-				'n' => new BigInteger($m, 256)
-			]);
+		$rsa->loadKey([
+			'e' => new BigInteger($e, 256),
+			'n' => new BigInteger($m, 256)
+		]);
 		return $rsa->getPublicKey();
 	}
 

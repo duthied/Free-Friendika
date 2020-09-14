@@ -90,11 +90,10 @@ class CryptoTest extends TestCase
 		Crypto::pemToMe($key, $m, $e);
 
 		$expectedRSA = new RSA();
-		$expectedRSA->loadKey(
-			[
-				'e' => new BigInteger($e, 256),
-				'n' => new BigInteger($m, 256)
-			]);
+		$expectedRSA->loadKey([
+			'e' => new BigInteger($e, 256),
+			'n' => new BigInteger($m, 256)
+		]);
 
 		$this->assertEquals($expectedRSA->getPublicKey(), $key);
 	}
