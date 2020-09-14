@@ -21,11 +21,13 @@
 
 namespace Friendica\Module;
 
-use ASN_BASE;
 use Friendica\BaseModule;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Util\Crypto;
+use Friendica\Util\Strings;
+use phpseclib\File\ASN1;
 
 /**
  * prints the public RSA key of a user
@@ -49,18 +51,10 @@ class PublicRSAKey extends BaseModule
 			throw new BadRequestException();
 		}
 
-		$lines = explode("\n", $user['spubkey']);
-		unset($lines[0]);
-		unset($lines[count($lines)]);
-
-		$asnString = base64_decode(implode('', $lines));
-		$asnBase = ASN_BASE::parseASNString($asnString);
-
-		$m = $asnBase[0]->asnData[1]->asnData[0]->asnData[0]->asnData;
-		$e = $asnBase[0]->asnData[1]->asnData[0]->asnData[1]->asnData;
+		Crypto::pemToMe($user['spubkey'], $modulus, $exponent);
 
 		header('Content-type: application/magic-public-key');
-		echo 'RSA' . '.' . $m . '.' . $e;
+		echo 'RSA' . '.' . Strings::base64UrlEncode($modulus, true) . '.' . Strings::base64UrlEncode($exponent, true);
 
 		exit();
 	}

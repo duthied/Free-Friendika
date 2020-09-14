@@ -21,6 +21,8 @@
  */
 namespace Friendica\Util;
 
+use phpseclib\Crypt\RSA;
+use phpseclib\Math\BigInteger;
 use PHPUnit\Framework\TestCase;
 
 class CryptoTest extends TestCase
@@ -32,7 +34,7 @@ class CryptoTest extends TestCase
 	private function assertRandomInt($min, $max)
 	{
 		global $phpMock;
-		$phpMock['random_int'] = function($mMin, $mMax) use ($min, $max) {
+		$phpMock['random_int'] = function ($mMin, $mMax) use ($min, $max) {
 			$this->assertEquals($min, $mMin);
 			$this->assertEquals($max, $mMax);
 			return 1;
@@ -50,6 +52,62 @@ class CryptoTest extends TestCase
 		$test = Crypto::randomDigits(8);
 		$this->assertEquals(8, strlen($test));
 		$this->assertEquals(11111111, $test);
+	}
+
+	public function dataRsa()
+	{
+		return [
+			'diaspora' => [
+				'key' => file_get_contents(__DIR__ . '/../../datasets/crypto/rsa/diaspora-public-rsa-base64'),
+				'expected' => file_get_contents(__DIR__ . '/../../datasets/crypto/rsa/diaspora-public-pem'),
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataRsa
+	 */
+	public function testPubRsaToMe(string $key, string $expected)
+	{
+		$this->assertEquals($expected, Crypto::rsaToPem(base64_decode($key)));
+	}
+
+
+	public function dataPEM()
+	{
+		return [
+			'diaspora' => [
+				'key' => file_get_contents(__DIR__ . '/../../datasets/crypto/rsa/diaspora-public-pem'),
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataPEM
+	 */
+	public function testPemToMe(string $key)
+	{
+		Crypto::pemToMe($key, $m, $e);
+
+		$expectedRSA = new RSA();
+		$expectedRSA->loadKey([
+			'e' => new BigInteger($e, 256),
+			'n' => new BigInteger($m, 256)
+		]);
+
+		$this->assertEquals($expectedRSA->getPublicKey(), $key);
+	}
+
+	/**
+	 * @dataProvider dataPEM
+	 */
+	public function testMeToPem(string $key)
+	{
+		Crypto::pemToMe($key, $m, $e);
+
+		$checkKey = Crypto::meToPem($m, $e);
+
+		$this->assertEquals($key, $checkKey);
 	}
 }
 
