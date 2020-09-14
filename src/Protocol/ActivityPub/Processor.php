@@ -711,15 +711,22 @@ class Processor
 			return '';
 		}
 
-		if (!empty($child['author'])) {
-			$actor = $child['author'];
-		} elseif (!empty($object['actor'])) {
-			$actor = $object['actor'];
+		if (!empty($object['actor'])) {
+			$object_actor = $object['actor'];
 		} elseif (!empty($object['attributedTo'])) {
-			$actor = $object['attributedTo'];
+			$object_actor = $object['attributedTo'];
 		} else {
 			// Shouldn't happen
-			$actor = '';
+			$object_actor = '';
+		}
+
+		$signer = [$object_actor];
+
+		if (!empty($child['author'])) {
+			$actor = $child['author'];
+			$signer[] = $actor;
+		} else {
+			$actor = $object_actor;
 		}
 
 		if (!empty($object['published'])) {
@@ -745,7 +752,7 @@ class Processor
 
 		$ldactivity['thread-completion'] = true;
 
-		ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, [$actor]);
+		ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer);
 
 		Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'object' => $activity['id']]);
 

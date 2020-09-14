@@ -88,6 +88,22 @@ class Receiver
 	 */
 	public static function processInbox($body, $header, $uid)
 	{
+		$activity = json_decode($body, true);
+		if (empty($activity)) {
+			Logger::warning('Invalid body.');
+			return;
+		}
+
+		$ldactivity = JsonLD::compact($activity);
+
+		$actor = JsonLD::fetchElement($ldactivity, 'as:actor', '@id');
+
+		$apcontact = APContact::getByURL($actor);
+		if (!empty($apcontact) && ($apcontact['type'] == 'Application') && ($apcontact['nick'] == 'relay')) {
+			self::processRelayPost($ldactivity);
+			return;
+		}
+
 		$http_signer = HTTPSignature::getSigner($body, $header);
 		if (empty($http_signer)) {
 			Logger::warning('Invalid HTTP signature, message will be discarded.');
@@ -97,16 +113,6 @@ class Receiver
 		}
 
 		$signer = [$http_signer];
-		$activity = json_decode($body, true);
-
-		if (empty($activity)) {
-			Logger::warning('Invalid body.');
-			return;
-		}
-
-		$ldactivity = JsonLD::compact($activity);
-
-		$actor = JsonLD::fetchElement($ldactivity, 'as:actor', '@id');
 
 		Logger::info('Message for user ' . $uid . ' is from actor ' . $actor);
 
@@ -139,6 +145,40 @@ class Receiver
 		}
 
 		self::processActivity($ldactivity, $body, $uid, $trust_source, true, $signer);
+	}
+
+	/**
+	 * Process incoming posts from relays
+	 *
+	 * @param array $activity
+	 * @return void
+	 */
+	private static function processRelayPost(array $activity)
+	{
+		$type = JsonLD::fetchElement($activity, '@type');
+		if (!$type) {
+			Logger::info('Empty type', ['activity' => $activity]);
+			return;
+		}
+
+		if ($type != 'as:Announce') {
+			Logger::info('Not an announcement', ['activity' => $activity]);
+		}
+
+		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
+		if (empty($object_id)) {
+			Logger::info('No object id found', ['activity' => $activity]);
+		}
+
+		Logger::info('Got relayed message id', ['id' => $object_id]);
+
+		$item_id = Item::searchByLink($object_id);
+		if ($item_id) {
+			Logger::info('Relayed message already exists', ['id' => $object_id, 'item' => $item_id]);
+			return;
+		}
+
+		Processor::fetchMissingActivity($object_id);
 	}
 
 	/**
@@ -438,6 +478,7 @@ class Receiver
 					$object_data['thread-completion'] = true;
 
 					$item = ActivityPub\Processor::createItem($object_data);
+					$item['post-type'] = Item::PT_ANNOUNCEMENT;
 					ActivityPub\Processor::postItem($object_data, $item);
 
 					$announce_object_data = self::processObject($activity);
