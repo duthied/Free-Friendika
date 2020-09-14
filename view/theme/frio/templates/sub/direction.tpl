@@ -17,6 +17,8 @@
 		<i class="fa fa-at" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{elseif $direction.direction == 8}}
 		<i class="fa fa-share" aria-hidden="true" title="{{$direction.title}}"></i>
+	{{elseif $direction.direction == 9}}
+		<i class="fa fa-globe" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{/if}}
 </span>
 {{/if}}
