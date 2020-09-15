@@ -23,6 +23,7 @@ namespace Friendica\Core;
 
 use Friendica\App;
 use Friendica\Core\Config\IConfig;
+use Friendica\Model;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -56,12 +57,48 @@ class Process
 	 */
 	private $basePath;
 
-	public function __construct(LoggerInterface $logger, App\Mode $mode, IConfig $config, string $basepath)
+	/** @var Model\Process */
+	private $processModel;
+
+	/**
+	 * The Process ID of this process
+	 *
+	 * @var int
+	 */
+	private $pid;
+
+	public function __construct(LoggerInterface $logger, App\Mode $mode, IConfig $config, Model\Process $processModel, string $basepath)
 	{
-		$this->logger   = $logger;
-		$this->mode     = $mode;
-		$this->config   = $config;
+		$this->logger = $logger;
+		$this->mode = $mode;
+		$this->config = $config;
 		$this->basePath = $basepath;
+		$this->processModel = $processModel;
+		$this->pid = getmypid();
+	}
+
+	/**
+	 * Log active processes into the "process" table
+	 */
+	public function start()
+	{
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+
+		$command = basename($trace[0]['file']);
+
+		$this->processModel->deleteInactive();
+		$this->processModel->insert($command, $this->pid);
+	}
+
+	/**
+	 * Remove the active process from the "process" table
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function end()
+	{
+		return $this->processModel->deleteByPid($this->pid);
 	}
 
 	/**
