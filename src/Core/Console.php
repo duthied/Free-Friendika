@@ -64,6 +64,7 @@ Commands:
 	postupdate             Execute pending post update scripts (can last days)
 	serverblock            Manage blocked servers
 	storage                Manage storage backend
+	relay                  Manage ActivityPub relais
 
 Options:
 	-h|--help|-? Show help information
@@ -92,6 +93,7 @@ HELP;
 		'postupdate'             => Friendica\Console\PostUpdate::class,
 		'serverblock'            => Friendica\Console\ServerBlock::class,
 		'storage'                => Friendica\Console\Storage::class,
+		'relay'                  => Friendica\Console\Relay::class,
 	];
 
 	/**

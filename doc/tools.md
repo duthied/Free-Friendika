@@ -27,6 +27,7 @@ The console provides the following commands:
 * typo:                   Checks for parse errors in Friendica files
 * postupdate:             Execute pending post update scripts (can last days)
 * storage:                Manage storage backend
+* relay:                  Manage ActivityPub relais
 
 Please consult *bin/console help* on the command line interface of your server for details about the commands.
 

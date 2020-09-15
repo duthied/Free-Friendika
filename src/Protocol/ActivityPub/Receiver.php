@@ -163,11 +163,13 @@ class Receiver
 
 		if ($type != 'as:Announce') {
 			Logger::info('Not an announcement', ['activity' => $activity]);
+			return;
 		}
 
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
 		if (empty($object_id)) {
 			Logger::info('No object id found', ['activity' => $activity]);
+			return;
 		}
 
 		Logger::info('Got relayed message id', ['id' => $object_id]);
