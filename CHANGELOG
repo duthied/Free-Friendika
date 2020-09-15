@@ -15,6 +15,7 @@ Version 2020.09 (unreleased)
     Enhanced the communication with the directory servers [annando]
     Enhaceed the resharing of items [annando]
     Enhanced sample lighttpd and nginx configs [MrPetovan, tobiasd]
+    Enhanced the checks for incoming postings using ActivityPub [annando, Roger Meyer]
     Replaced library used for text completion [MrPetovan]
     Fixed a problem that prevented recipients of direct messages to be selected [MrPetovan]
     Fixed a problem that prevented new email contacts from being added [annando]
@@ -22,6 +23,8 @@ Version 2020.09 (unreleased)
     Fixed a problem during the search for contacts [annando]
     Fixed a problem with the JOT of private notes [MrPetovan]
     Fixed missing HTML encoding [MrPetovan]
+    Fixed a layout problem with the frio composer for new postings [MrPetovan]
+    Fixed some composer notices [nupplaphil]
     Added nodeinfo2 support [annando]
     Added CSV export and import of blocked servers to the console [tobiasd]
     Added new admin debug module for ActivityPub [MrPetovan]
@@ -30,6 +33,8 @@ Version 2020.09 (unreleased)
     Added the discovery of new peers from contacts [annando]
     Added the directory API endpoint [anndno]
     Added support for signed outbox requests [annando]
+    Added direction functionality for clarification of posting flow [annando]
+    Added the ability to set the database version [annando]
     By default display of resharer information is now flattened [annando]
     Removed some unused POCO functionality [annando]
     Removed the unused rating functionality [annando]
@@ -44,9 +49,11 @@ Version 2020.09 (unreleased)
       added some "good" bots [annando]
 
   Closed Issues:
-    4606, 5742, 5782, 7660, 8676, 8788, 8797, 8798, 8847, 8860, 8906,
-    8914, 8928, 8929, 8935, 8940, 8941, 8967, 8989, 8993, 8994, 8995,
-    8997, 8999, 9000, 9004, 9013, 9015, 9051, 9064, 9065, 9072, 9107
+    4606, 5742, 5782, 7660, 8676, 8788, 8797, 8798, 8847, 8860, 8874,
+    8882, 8885, 8906, 8914, 8922, 8928, 8929, 8935, 8940, 8941, 8967,
+    8989, 8993, 8994, 8995, 8997, 8999, 9000, 9004, 9013, 9015, 9051,
+    9064, 9065, 9072, 9081, 9090, 9091, 9099, 9107, 9135, 9137, 9138,
+    9140, 9150, 9153, 9154, 9163, 9164, 9172, 9182, 9193, 9204
 
 Version 2020.07-1 (2020-09-08)
   Friendica Core
