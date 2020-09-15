@@ -6,6 +6,7 @@ Adam Clark
 Adam Jurkiewicz
 Adam Magness
 Aditoo
+Aditoo17
 AgnesElisa
 Albert
 Alberto Díaz Tormo
@@ -55,6 +56,7 @@ Chris Case
 Christian González
 Christian M. Grube
 Christian Vogeley
+Christian Wiwie
 Cohan Robinson
 Copiis Praeesse
 CrystalStiletto
@@ -114,7 +116,6 @@ Hypolite Petovan
 Ilmari
 ImgBotApp
 irhen
-Jak
 Jakob
 Jens Tautenhahn
 jensp
@@ -122,6 +123,7 @@ Jeroen De Meerleer
 jeroenpraat
 Joan Bar
 JOduMonT
+joe slam
 Johannes Schwab
 John Brazil
 Jonatan Nyberg
@@ -143,7 +145,6 @@ Leberwurscht
 Leonard Lausen
 Lionel Triay
 loma-one
-loma1
 Lorem Ipsum
 Ludovic Grossard
 Lynn Stephenson
@@ -157,7 +158,6 @@ Marcus Müller
 Marie Olive
 Mariusz Pisz
 marmor
-Marquis_de_Carabas
 Martin Schmitt
 Mateusz Mikos
 Mats Sjöberg
@@ -173,6 +173,7 @@ Michal Šupler
 Michalina
 Mike Macgirvin
 miqrogroove
+mpanhans
 mytbk
 nathilia-peirce
 Nicola Spanti
@@ -224,14 +225,13 @@ Samuli Valavuo
 Sandro Santilli
 Sebastian Egbers
 sella
-Sennewood
 Seth
 Silke Meyer
 Simon L'nu
 Simó Albert i Beltran
 softmetz
 soko1
-SpencerDub
+Spencer Dub
 St John Karp
 Stanislav N.
 Steffen K9
@@ -269,7 +269,6 @@ U-SOUND\mike
 ufic
 Ulf Rompe
 Unknown
-Valvin
 Valvin A
 Vasudev Kamath
 Vasya Novikov
