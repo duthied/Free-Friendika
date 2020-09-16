@@ -520,10 +520,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 
 				$threadsid++;
 
-				$owner_url   = '';
-				$owner_name  = '';
-				$sparkle     = '';
-
 				// prevent private email from leaking.
 				if ($item['network'] === Protocol::MAIL && local_user() != $item['uid']) {
 					continue;
@@ -540,14 +536,14 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'network' => $item['author-network'], 'url' => $item['author-link']];
 				$profile_link = Contact::magicLinkByContact($author);
 
+				$sparkle = '';
 				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
 				}
 
 				$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
 				Hook::callAll('render_location',$locate);
-
-				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
+				$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
 
 				localize_item($item);
 				if ($mode === 'network-new') {
@@ -563,10 +559,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'delete' => DI::l10n()->t('Delete'),
 				];
 
-				$star = false;
-				$isstarred = "unstarred";
-
-				$lock = false;
 				$likebuttons = [
 					'like'    => null,
 					'dislike' => null,
@@ -577,7 +569,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					unset($likebuttons['dislike']);
 				}
 
-				$body = Item::prepareBody($item, true, $preview);
+				$body_html = Item::prepareBody($item, true, $preview);
 
 				list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
 
@@ -596,13 +588,13 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'network_icon' => ContactSelector::networkToIcon($item['network'], $item['author-link']),
 					'linktitle' => DI::l10n()->t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
 					'profile_url' => $profile_link,
-					'item_photo_menu' => item_photo_menu($item),
+					'item_photo_menu_html' => item_photo_menu($item),
 					'name' => $profile_name,
 					'sparkle' => $sparkle,
-					'lock' => $lock,
+					'lock' => false,
 					'thumb' => DI::baseUrl()->remove($item['author-avatar']),
 					'title' => $title,
-					'body' => $body,
+					'body_html' => $body_html,
 					'tags' => $tags['tags'],
 					'hashtags' => $tags['hashtags'],
 					'mentions' => $tags['mentions'],
@@ -613,23 +605,23 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'has_folders' => ((count($folders)) ? 'true' : ''),
 					'categories' => $categories,
 					'folders' => $folders,
-					'text' => strip_tags($body),
+					'text' => strip_tags($body_html),
 					'localtime' => DateTimeFormat::local($item['created'], 'r'),
 					'ago' => (($item['app']) ? DI::l10n()->t('%s from %s', Temporal::getRelativeDate($item['created']),$item['app']) : Temporal::getRelativeDate($item['created'])),
-					'location' => $location,
+					'location_html' => $location_html,
 					'indent' => '',
-					'owner_name' => $owner_name,
-					'owner_url' => $owner_url,
+					'owner_name' => '',
+					'owner_url' => '',
 					'owner_photo' => DI::baseUrl()->remove($item['owner-avatar']),
 					'plink' => Item::getPlink($item),
 					'edpost' => false,
-					'isstarred' => $isstarred,
-					'star' => $star,
+					'isstarred' => 'unstarred',
+					'star' => false,
 					'drop' => $drop,
 					'vote' => $likebuttons,
-					'like' => '',
-					'dislike' => '',
-					'comment' => '',
+					'like_html' => '',
+					'dislike_html' => '',
+					'comment_html' => '',
 					'conv' => (($preview) ? '' : ['href'=> 'display/'.$item['guid'], 'title'=> DI::l10n()->t('View in context')]),
 					'previewing' => $previewing,
 					'wait' => DI::l10n()->t('Please wait'),
@@ -1503,14 +1495,4 @@ function sort_thr_received_rev(array $a, array $b)
 function sort_thr_commented(array $a, array $b)
 {
 	return strcmp($b['commented'], $a['commented']);
-}
-
-function render_location_dummy(array $item) {
-	if (!empty($item['location']) && !empty($item['location'])) {
-		return $item['location'];
-	}
-
-	if (!empty($item['coord']) && !empty($item['coord'])) {
-		return $item['coord'];
-	}
 }

@@ -16,7 +16,7 @@
 					<img src="{{$item.thumb}}" class="contact-photo{{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 				<!-- <a rel="#wall-item-photo-menu-{{$item.id}}" class="contact-photo-menu-button icon s16 menu" id="wall-item-photo-menu-button-{{$item.id}}">menu</a> -->
 				<ul role="menu" aria-haspopup="true" class="wall-item-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
-				{{$item.item_photo_menu nofilter}}
+				{{$item.item_photo_menu_html nofilter}}
 				</ul>
 
 			</div>
@@ -30,7 +30,7 @@
 		</div>
 		<div class="wall-item-content">
 			{{if $item.title}}<h2><a href="{{$item.plink.href}}">{{$item.title}}</a></h2>{{/if}}
-			<div class="wall-item-body">{{$item.body nofilter}}</div>
+			<div class="wall-item-body">{{$item.body_html nofilter}}</div>
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -51,7 +51,7 @@
 		</div>
 		<div class="wall-item-actions">
 
-			<div class="wall-item-location">{{$item.location nofilter}}&nbsp;</div>
+			<div class="wall-item-location">{{$item.location_html nofilter}}&nbsp;</div>
 
 			<div class="wall-item-actions-social">
 			{{if $item.star}}
@@ -89,7 +89,7 @@
 	</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
-		<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like nofilter}}</div>
-		<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike nofilter}}</div>
+		<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like_html nofilter}}</div>
+		<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike_html nofilter}}</div>
 	</div>
 </div>

@@ -39,7 +39,7 @@
 				<span onclick="openClose('wall-item-photo-menu-{{$item.id}}');" class="fakelink wall-item-photo-menu-button" id="wall-item-photo-menu-button-{{$item.id}}">menu</span>
                 <div class="wall-item-photo-menu" id="wall-item-photo-menu-{{$item.id}}">
                     <ul>
-                        {{$item.item_photo_menu nofilter}}
+                        {{$item.item_photo_menu_html nofilter}}
                     </ul>
                 </div>
 
@@ -48,7 +48,7 @@
 			<div class="wall-item-wrapper" id="wall-item-wrapper-{{$item.id}}" >
 				{{if $item.lock}}<div class="wall-item-lock"><img src="images/lock_icon.gif" class="lockview" alt="{{$item.lock}}" onclick="lockview(event, 'item', {{$item.id}});" /></div>
 				{{else}}<div class="wall-item-lock"></div>{{/if}}
-				<div class="wall-item-location" id="wall-item-location-{{$item.id}}">{{$item.location nofilter}}</div>
+				<div class="wall-item-location" id="wall-item-location-{{$item.id}}">{{$item.location_html nofilter}}</div>
 			</div>
 		</div>
 		<div class="wall-item-author">
@@ -58,7 +58,7 @@
 		<div class="wall-item-content" id="wall-item-content-{{$item.id}}" >
 			<div class="wall-item-title p-name" id="wall-item-title-{{$item.id}}">{{$item.title}}</div>
 			<div class="wall-item-title-end"></div>
-			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" ><span class="e-content">{{$item.body nofilter}}<span>
+			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" ><span class="e-content">{{$item.body_html nofilter}}<span>
 			<div class="body-tag">
 			{{if !$item.suppress_tags}}
 				{{foreach $item.tags as $tag}}
@@ -129,9 +129,9 @@
 		{{/foreach}}
 	{{/if}}
 			{{if $item.threaded}}
-			{{if $item.comment}}
+			{{if $item.comment_html}}
 			<div class="wall-item-comment-wrapper {{$item.indent}}" >
-				{{$item.comment nofilter}}
+				{{$item.comment_html nofilter}}
 			</div>
 			{{/if}}
 			{{/if}}
@@ -144,7 +144,7 @@
 
 {{if $item.flatten}}
 <div class="wall-item-comment-wrapper" >
-	{{$item.comment nofilter}}
+	{{$item.comment_html nofilter}}
 </div>
 {{/if}}
 </div>

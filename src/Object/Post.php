@@ -221,15 +221,14 @@ class Post
 			$delete = $origin ? DI::l10n()->t('Delete globally') : DI::l10n()->t('Remove locally');
 		}
 
-		$drop = [
-			'dropping' => $dropping,
-			'pagedrop' => $item['pagedrop'],
-			'select'   => DI::l10n()->t('Select'),
-			'delete'   => $delete,
-		];
-
-		if (!local_user()) {
-			$drop = false;
+		$drop = false;
+		if (local_user()) {
+			$drop = [
+				'dropping' => $dropping,
+				'pagedrop' => $item['pagedrop'],
+				'select'   => DI::l10n()->t('Select'),
+				'delete'   => $delete,
+			];
 		}
 
 		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? DI::l10n()->t("save to folder") : false);
@@ -254,7 +253,7 @@ class Post
 
 		$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
 		Hook::callAll('render_location', $locate);
-		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
+		$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
 
 		// process action responses - e.g. like/dislike/attend/agree/whatever
 		$response_verbs = ['like', 'dislike', 'announce'];
@@ -349,7 +348,7 @@ class Post
 			}
 		}
 
-		$comment = $this->getCommentBox($indent);
+		$comment_html = $this->getCommentBox($indent);
 
 		if (strcmp(DateTimeFormat::utc($item['created']), DateTimeFormat::utc('now - 12 hours')) > 0) {
 			$shiny = 'shiny';
@@ -357,22 +356,15 @@ class Post
 
 		localize_item($item);
 
-		$body = Item::prepareBody($item, true);
+		$body_html = Item::prepareBody($item, true);
 
 		list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
 
-		$body_e       = $body;
-		$text_e       = strip_tags($body);
-		$name_e       = $profile_name;
-
 		if (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
-			$title_e = ucfirst($item['content-warning']);
+			$title = ucfirst($item['content-warning']);
 		} else {
-			$title_e = $item['title'];
+			$title = $item['title'];
 		}
-
-		$location_e   = $location;
-		$owner_name_e = $this->getOwnerName();
 
 		if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
 			$buttons['dislike'] = false;
@@ -414,8 +406,8 @@ class Post
 		} elseif (DI::config()->get('debug', 'show_direction')) {
 			$conversation = DBA::selectFirst('conversation', ['direction'], ['item-uri' => $item['uri']]);
 			if (!empty($conversation['direction']) && in_array($conversation['direction'], [1, 2])) {
-				$title = [1 => DI::l10n()->t('Pushed'), 2 => DI::l10n()->t('Pulled')];
-				$direction = ['direction' => $conversation['direction'], 'title' => $title[$conversation['direction']]];
+				$direction_title = [1 => DI::l10n()->t('Pushed'), 2 => DI::l10n()->t('Pulled')];
+				$direction = ['direction' => $conversation['direction'], 'title' => $direction_title[$conversation['direction']]];
 			}
 		}
 
@@ -433,8 +425,8 @@ class Post
 			'has_folders'     => ((count($folders)) ? 'true' : ''),
 			'categories'      => $categories,
 			'folders'         => $folders,
-			'body'            => $body_e,
-			'text'            => $text_e,
+			'body_html'       => $body_html,
+			'text'            => strip_tags($body_html),
 			'id'              => $this->getId(),
 			'guid'            => urlencode($item['guid']),
 			'isevent'         => $isevent,
@@ -446,24 +438,24 @@ class Post
 			'wall'            => DI::l10n()->t('Wall-to-Wall'),
 			'vwall'           => DI::l10n()->t('via Wall-To-Wall:'),
 			'profile_url'     => $profile_link,
-			'item_photo_menu' => item_photo_menu($item),
-			'name'            => $name_e,
+			'name'            => $profile_name,
+			'item_photo_menu_html' => item_photo_menu($item),
 			'thumb'           => DI::baseUrl()->remove($item['author-avatar']),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
-			'title'           => $title_e,
+			'title'           => $title,
 			'localtime'       => DateTimeFormat::local($item['created'], 'r'),
 			'ago'             => $item['app'] ? DI::l10n()->t('%s from %s', $ago, $item['app']) : $ago,
 			'app'             => $item['app'],
 			'created'         => $ago,
 			'lock'            => $lock,
-			'location'        => $location_e,
+			'location_html'   => $location_html,
 			'indent'          => $indent,
 			'shiny'           => $shiny,
 			'owner_self'      => $item['author-link'] == Session::get('my_url'),
 			'owner_url'       => $this->getOwnerUrl(),
 			'owner_photo'     => DI::baseUrl()->remove($item['owner-avatar']),
-			'owner_name'      => $owner_name_e,
+			'owner_name'      => $this->getOwnerName(),
 			'plink'           => Item::getPlink($item),
 			'edpost'          => $edpost,
 			'ispinned'        => $ispinned,
@@ -476,12 +468,12 @@ class Post
 			'filer'           => $filer,
 			'drop'            => $drop,
 			'vote'            => $buttons,
-			'like'            => $responses['like']['output'],
-			'dislike'         => $responses['dislike']['output'],
+			'like_html'       => $responses['like']['output'],
+			'dislike_html'    => $responses['dislike']['output'],
 			'responses'       => $responses,
 			'switchcomment'   => DI::l10n()->t('Comment'),
-			'reply_label'     => DI::l10n()->t('Reply to %s', $name_e),
-			'comment'         => $comment,
+			'reply_label'     => DI::l10n()->t('Reply to %s', $profile_name),
+			'comment_html'    => $comment_html,
 			'remote_comment'  => $remote_comment,
 			'menu'            => DI::l10n()->t('More'),
 			'previewing'      => $conv->isPreview() ? ' preview ' : '',
