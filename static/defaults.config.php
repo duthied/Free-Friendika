@@ -362,6 +362,10 @@ return [
 		// Don't use OEmbed to fetch more information about a link.
 		'no_oembed' => false,
 
+		// no_redirect_list (Array)
+		// List of domains where HTTP redirects should be ignored. 
+		'no_redirect_list' => [],
+
 		// no_smilies (Boolean)
 		// Don't show smilies.
 		'no_smilies' => false,

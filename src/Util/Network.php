@@ -178,6 +178,35 @@ class Network
 	}
 
 	/**
+	 * Checks if the provided url is on the list of domains where redirects are blocked.
+	 * Returns true if it is or malformed URL, false if not.
+	 *
+	 * @param string $url The url to check the domain from
+	 *
+	 * @return boolean
+	 */
+	public static function isRedirectBlocked(string $url)
+	{
+		$host = @parse_url($url, PHP_URL_HOST);
+		if (!$host) {
+			return false;
+		}
+
+		$no_redirect_list = DI::config()->get('system', 'no_redirect_list', []);
+		if (!$no_redirect_list) {
+			return false;
+		}
+
+		foreach ($no_redirect_list as $no_redirect) {
+			if (fnmatch(strtolower($no_redirect), strtolower($host))) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Check if email address is allowed to register here.
 	 *
 	 * Compare against our list (wildcards allowed).
