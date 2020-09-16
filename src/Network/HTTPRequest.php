@@ -475,14 +475,4 @@ class HTTPRequest implements IHTTPRequest
 			DB_UPDATE_VERSION . '; ' .
 			$this->baseUrl;
 	}
-
-	private function redirectBlocked(string $url = null)
-	{
-		$hosts = $this->config->get('system', 'no_redirect_hosts');
-		if (empty($hosts)) {
-			return false;
-		}
-
-		$hostlist = explode(',', $hosts);
-	}
 }
