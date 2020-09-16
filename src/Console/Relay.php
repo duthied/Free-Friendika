@@ -69,12 +69,12 @@ Synopsis
 
 Description
 	bin/console relay
-		Lists all active relais
+		Lists all active relay servers
 
 	bin/console relay add <actor>
 		Add a relay actor
 
-	bin/console relay remove <actoor>
+	bin/console relay remove <actor>
 		Remove a relay actor
 
 Options
@@ -84,11 +84,14 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, array $argv = null)
+	/** @var $dba Friendica\Database\Database */
+	private $dba;
+
+	public function __construct(Friendica\Database\Database $dba, array $argv = null)
 	{
 		parent::__construct($argv);
 
-		$this->appMode = $appMode;
+		$this->dba = $dba;
 	}
 
 	protected function doExecute()
@@ -109,13 +112,13 @@ HELP;
 		}
 
 		if (count($this->args) == 0) {
-			$contacts = DBA::select('apcontact', ['url'],
+			$contacts = $this->dba->select('apcontact', ['url'],
 			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))",
 				'Application', 0, Contact::FOLLOWER, Contact::FRIEND]);
-			while ($contact = DBA::fetch($contacts)) {
+			while ($contact = $this->dba->fetch($contacts)) {
 				$this->out($contact['url']);
 			}
-			DBA::close($contacts);
+			$this->dba->close($contacts);
 		}
 
 		if (count($this->args) == 2) {
