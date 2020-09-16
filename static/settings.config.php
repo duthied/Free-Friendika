@@ -122,6 +122,10 @@ return [
 		// Maximum system load before delivery and poll processes are deferred.
 		'maxloadavg' => 20,
 
+		// relay_server (String)
+		// Address of the relay server where public posts should be send to.
+		'relay_server' => 'https://social-relay.isurf.ca',
+
 		// rino_encrypt (Integer)
 		// Server-to-server private message encryption (RINO).
 		// Encryption will only be provided if this setting is set to a non zero value on both servers.
