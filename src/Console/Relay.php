@@ -22,41 +22,25 @@
 namespace Friendica\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
-use Friendica\App;
-use Friendica\Database\DBA;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Protocol\ActivityPub\Transmitter;
 
 /**
- * tool to access the system config from the CLI
+ * tool to control the list of ActivityPub relay servers from the CLI
  *
- * With this script you can access the system configuration of your node from
- * the CLI. You can do both, reading current values stored in the database and
- * set new values to config variables.
- *
- * Usage:
- *   If you specify no parameters at the CLI, the script will list all config
- *   variables defined.
- *
- *   If you specify one parameter, the script will list all config variables
- *   defined in this section of the configuration (e.g. "system").
- *
- *   If you specify two parameters, the script will show you the current value
- *   of the named configuration setting. (e.g. "system loglevel")
- *
- *   If you specify three parameters, the named configuration setting will be
- *   set to the value of the last parameter. (e.g. "system loglevel 0" will
- *   disable logging)
+ * With this script you can access the relay servers of your node from
+ * the CLI.
  */
 class Relay extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
 
 	/**
-	 * @var App\Mode
+	 * @var $dba Friendica\Database\Database
 	 */
-	private $appMode;
+	private $dba;
+
 
 	protected function getHelp()
 	{
@@ -84,10 +68,7 @@ HELP;
 		return $help;
 	}
 
-	/** @var $dba Friendica\Database\Database */
-	private $dba;
-
-	public function __construct(Friendica\Database\Database $dba, array $argv = null)
+	public function __construct(\Friendica\Database\Database $dba, array $argv = null)
 	{
 		parent::__construct($argv);
 
