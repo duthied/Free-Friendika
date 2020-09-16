@@ -192,7 +192,7 @@ class HTTPRequest implements IHTTPRequest
 
 		$curlResponse = new CurlResult($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
 
-		if ($curlResponse->isRedirectUrl()) {
+		if (!Network::isRedirectBlocked($url) && $curlResponse->isRedirectUrl()) {
 			$redirects++;
 			$this->logger->notice('Curl redirect.', ['url' => $url, 'to' => $curlResponse->getRedirectUrl()]);
 			@curl_close($ch);
@@ -280,7 +280,7 @@ class HTTPRequest implements IHTTPRequest
 
 		$curlResponse = new CurlResult($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
 
-		if ($curlResponse->isRedirectUrl()) {
+		if (!Network::isRedirectBlocked($url) && $curlResponse->isRedirectUrl()) {
 			$redirects++;
 			$this->logger->info('Post redirect.', ['url' => $url, 'to' => $curlResponse->getRedirectUrl()]);
 			curl_close($ch);
@@ -318,6 +318,11 @@ class HTTPRequest implements IHTTPRequest
 	{
 		if (Network::isUrlBlocked($url)) {
 			$this->logger->info('Domain is blocked.', ['url' => $url]);
+			return $url;
+		}
+
+		if (Network::isRedirectBlocked($url)) {
+			$this->logger->info('Domain should not be redirected.', ['url' => $url]);
 			return $url;
 		}
 
@@ -469,5 +474,15 @@ class HTTPRequest implements IHTTPRequest
 			FRIENDICA_VERSION . '-' .
 			DB_UPDATE_VERSION . '; ' .
 			$this->baseUrl;
+	}
+
+	private function redirectBlocked(string $url = null)
+	{
+		$hosts = $this->config->get('system', 'no_redirect_hosts');
+		if (empty($hosts)) {
+			return false;
+		}
+
+		$hostlist = explode(',', $hosts);
 	}
 }
