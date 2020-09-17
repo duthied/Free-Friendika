@@ -1513,7 +1513,7 @@ class DFRN
 			}
 
 			$author["contact-unknown"] = true;
-			$contact = Contact::getByURL($author["link"], null, ["contact-id", "network"]);
+			$contact = Contact::getByURL($author["link"], null, ["id", "network"]);
 			$author["contact-id"] = $contact["id"] ?? $importer["id"];
 			$author["network"] = $contact["network"] ?? $importer["network"];
 			$onlyfetch = true;
