@@ -554,7 +554,7 @@ class Feed
 
 				$data = PageInfo::queryUrl($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_denylist"] ?? '');
 
-				// Take the data that was provided by the feed if the query wasn't empty
+				// Take the data that was provided by the feed if the query is empty
 				if (($data['type'] == 'link') && empty($data['title']) && empty($data['text'])) {
 					$data['title'] = $saved_title;
 					$item["body"] = $saved_body;
