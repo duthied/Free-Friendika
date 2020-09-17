@@ -25,7 +25,7 @@ Version 2020.09 (unreleased)
     Fixed missing HTML encoding [MrPetovan]
     Fixed a layout problem with the frio composer for new postings [MrPetovan]
     Fixed some composer notices [nupplaphil]
-    Fixed a problem while displaying previews for empty feets [annando]
+    Fixed a problem for empty preview data when importing feed posts [annando]
     Added nodeinfo2 support [annando]
     Added CSV export and import of blocked servers to the console [tobiasd]
     Added new admin debug module for ActivityPub [MrPetovan]
