@@ -156,8 +156,9 @@ class Index extends BaseSearch
 				$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
 				$items = Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params);
 				$r = Item::inArray($items);
+				$count = Tag::countByTag($search, local_user());
 			} else {
-				$r = [];
+				$count = 0;
 			}
 		} else {
 			Logger::info('Start fulltext search.', ['q' => $search]);
@@ -173,6 +174,7 @@ class Index extends BaseSearch
 			];
 			$items = Item::selectForUser(local_user(), [], $condition, $params);
 			$r = Item::inArray($items);
+			$count = DBA::count('item', $condition);
 		}
 
 		if (!DBA::isResult($r)) {
@@ -194,7 +196,7 @@ class Index extends BaseSearch
 
 		$o .= conversation(DI::app(), $r, 'search', false, false, 'commented', local_user());
 
-		$o .= $pager->renderMinimal(count($r));
+		$o .= $pager->renderMinimal($count);
 
 		return $o;
 	}

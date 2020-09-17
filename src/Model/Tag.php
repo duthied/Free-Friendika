@@ -441,6 +441,21 @@ class Tag
 	}
 
 	/**
+	 * Counts posts for given tag
+	 *
+	 * @param string $search
+	 * @param integer $uid
+	 * @return integer number of posts
+	 */
+	public static function countByTag(string $search, int $uid = 0)
+	{
+		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
+		$params = ['group_by' => ['uri-id']];
+
+		return DBA::count('tag-search-view', $condition, $params);
+	}
+
+	/**
 	 * Search posts for given tag
 	 *
 	 * @param string $search
