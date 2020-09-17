@@ -163,11 +163,13 @@ class Receiver
 
 		if ($type != 'as:Announce') {
 			Logger::info('Not an announcement', ['activity' => $activity]);
+			return;
 		}
 
 		$object_id = JsonLD::fetchElement($activity, 'as:object', '@id');
 		if (empty($object_id)) {
 			Logger::info('No object id found', ['activity' => $activity]);
+			return;
 		}
 
 		Logger::info('Got relayed message id', ['id' => $object_id]);
@@ -179,6 +181,13 @@ class Receiver
 		}
 
 		Processor::fetchMissingActivity($object_id);
+
+		$item_id = Item::searchByLink($object_id);
+		if ($item_id) {
+			Logger::info('Relayed message had been fetched and stored', ['id' => $object_id, 'item' => $item_id]);
+		} else {
+			Logger::notice('Relayed message had not been stored', ['id' => $object_id]);
+		}
 	}
 
 	/**
