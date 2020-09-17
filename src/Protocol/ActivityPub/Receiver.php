@@ -181,6 +181,13 @@ class Receiver
 		}
 
 		Processor::fetchMissingActivity($object_id);
+
+		$item_id = Item::searchByLink($object_id);
+		if ($item_id) {
+			Logger::info('Relayed message had been fetched and stored', ['id' => $object_id, 'item' => $item_id]);
+		} else {
+			Logger::notice('Relayed message had not been stored', ['id' => $object_id]);
+		}
 	}
 
 	/**
