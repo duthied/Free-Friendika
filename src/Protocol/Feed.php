@@ -560,6 +560,13 @@ class Feed
 					$item["body"] = $saved_body;
 				}
 
+				$data_text = strip_tags(trim($data['text'] ?? ''));
+				$item_body = strip_tags(trim($item['body'] ?? ''));
+
+				if (!empty($data['text']) && (($data_text == $item_body) || strstr($item_body, $data_text))) {
+					$data['text'] = '';
+				}
+
 				// We always strip the title since it will be added in the page information
 				$item["title"] = "";
 				$item["body"] = $item["body"] . "\n" . PageInfo::getFooterFromData($data, false);
