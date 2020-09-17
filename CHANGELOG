@@ -8,7 +8,7 @@ Version 2020.09 (unreleased)
     Enhanced the processing of background jobs [annando]
     Enhanced federation of activities [annando, vpzomtrrfrt]
     Enhanced the user notifications[annando]
-    Enhanced database usage [annando]
+    Enhanced database usage [annando, MrPetovan]
     Enhanced ActivityPub support for forums [annando]
     Enhanced the utilization of the cache [annando, MrPetovan]
     Enhanced the performance of the daemon [annando]
@@ -25,6 +25,7 @@ Version 2020.09 (unreleased)
     Fixed missing HTML encoding [MrPetovan]
     Fixed a layout problem with the frio composer for new postings [MrPetovan]
     Fixed some composer notices [nupplaphil]
+    Fixed a problem while displaying previews for empty feets [annando]
     Added nodeinfo2 support [annando]
     Added CSV export and import of blocked servers to the console [tobiasd]
     Added new admin debug module for ActivityPub [MrPetovan]
@@ -35,6 +36,7 @@ Version 2020.09 (unreleased)
     Added support for signed outbox requests [annando]
     Added direction functionality for clarification of posting flow [annando]
     Added the ability to set the database version [annando]
+    Added support for Activity Pub relay server [annando]
     By default display of resharer information is now flattened [annando]
     Removed some unused POCO functionality [annando]
     Removed the unused rating functionality [annando]
@@ -47,6 +49,10 @@ Version 2020.09 (unreleased)
     General code cleanup and maintenance [annando, MrPetovan]
     blockbot:
       added some "good" bots [annando]
+    forumdirectory:
+      fixed some SQL queries [MrPetovan]
+    qcomment:
+      restructured the addon and fixed a bug preventing the addon from working [MrPetovan]
 
   Closed Issues:
     4606, 5742, 5782, 7660, 8676, 8788, 8797, 8798, 8847, 8860, 8874,
