@@ -52,6 +52,7 @@ class MergeContact
 		// These fields only contain public contact entries (uid = 0)
 		if ($uid == 0) {
 			DBA::update('post-tag', ['cid' => $new_cid], ['cid' => $old_cid]);
+			DBA::delete('post-tag', ['cid' => $old_cid]);
 			DBA::update('item', ['author-id' => $new_cid], ['author-id' => $old_cid]);
 			DBA::update('item', ['owner-id' => $new_cid], ['owner-id' => $old_cid]);
 			DBA::update('thread', ['author-id' => $new_cid], ['author-id' => $old_cid]);
