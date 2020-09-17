@@ -56,10 +56,10 @@ Description
 		Lists all active relay servers
 
 	bin/console relay add <actor>
-		Add a relay actor
+		Add a relay actor in the format https://relayserver.tld/actor
 
 	bin/console relay remove <actor>
-		Remove a relay actor
+		Remove a relay actor in the format https://relayserver.tld/actor
 
 Options
     -h|--help|-? Show help information
