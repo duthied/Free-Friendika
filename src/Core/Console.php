@@ -64,7 +64,7 @@ Commands:
 	postupdate             Execute pending post update scripts (can last days)
 	serverblock            Manage blocked servers
 	storage                Manage storage backend
-	relay                  Manage ActivityPub relais
+	relay                  Manage ActivityPub relay servers
 
 Options:
 	-h|--help|-? Show help information
