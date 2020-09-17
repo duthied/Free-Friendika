@@ -233,11 +233,6 @@ input[type=submit],
 	color: #f2dede;
 }
 
-.wall-item-actions a,
-.wall-item-actions button {
-	color: $link_color;
-}
-
 @media (min-width: 768px) {
 	.wall-item-container .wall-item-links,
 	.wall-item-container .wall-item-actions button,
@@ -248,7 +243,6 @@ input[type=submit],
 		-o-transition: all 0.25s ease-in-out;
 		-ms-transition: all 0.25s ease-in-out;
 		transition: all 0.25s ease-in-out;
-		color: $font_color;
 	}
 	.wall-item-container:hover .wall-item-links,
 	.wall-item-container:hover .wall-item-actions button,
@@ -259,7 +253,6 @@ input[type=submit],
 		-o-transition: all 0.25s ease-in-out;
 		-ms-transition: all 0.25s ease-in-out;
 		transition: all 0.25s ease-in-out;
-		color: $link_color;
 	}
 	.wall-item-container .wall-item-body .body-attach > a:hover {
 		opacity: 1;
