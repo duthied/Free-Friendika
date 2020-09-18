@@ -563,7 +563,7 @@ class Feed
 				$data_text = strip_tags(trim($data['text'] ?? ''));
 				$item_body = strip_tags(trim($item['body'] ?? ''));
 
-				if (($data_text == $item_body) || strstr($item_body, $data_text)) {
+				if (!empty($data_text) && (($data_text == $item_body) || strstr($item_body, $data_text))) {
 					$data['text'] = '';
 				}
 
