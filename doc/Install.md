@@ -60,7 +60,7 @@ If this is nothing for you, you might be interested in
 
 ### Get Friendica
 
-Download the full archive of the stable release of Friendica from [the project homepage](https://friendi.ca/resources/download-files/) and the addons archive from [github](https://github.com/friendica/friendica/releases].
+Download the full archive of the stable release of Friendica core and the addons from [the project homepage](https://friendi.ca/resources/download-files/).
 Make sure that the version of the Friendica archive and the addons match.
 Unpack the Friendica files into the root of your web server document area.
 
