@@ -18,8 +18,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-16 05:18+0000\n"
-"PO-Revision-Date: 2020-09-16 12:17+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2020-09-17 11:44+0000\n"
+"Last-Translator: Sylke Vicious <silkevicious@gmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/Friendica/friendica/language/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -99,7 +99,7 @@ msgstr "Schema colori"
 
 #: view/theme/quattro/config.php:75
 msgid "Posts font size"
-msgstr "Dimensione caratteri post"
+msgstr "Dimensione caratteri messaggi"
 
 #: view/theme/quattro/config.php:76
 msgid "Textareas font size"
@@ -135,7 +135,7 @@ msgstr "Serve aiuto? Sei nuovo?"
 
 #: view/theme/vier/config.php:125 view/theme/vier/theme.php:337
 msgid "Connect Services"
-msgstr "Servizi connessi"
+msgstr "Servizi Connessi"
 
 #: view/theme/vier/config.php:126
 msgid "Find Friends"
@@ -200,7 +200,7 @@ msgstr "Forum"
 
 #: view/theme/vier/theme.php:222 src/Content/ForumManager.php:146
 msgid "External link to forum"
-msgstr "Link esterno al forum"
+msgstr "Collegamento esterno al forum"
 
 #: view/theme/vier/theme.php:225 src/Content/Widget.php:428
 #: src/Content/Widget.php:523 src/Content/ForumManager.php:149
@@ -299,7 +299,7 @@ msgstr "Colore icona barra di navigazione"
 
 #: view/theme/frio/config.php:170
 msgid "Link color"
-msgstr "Colore link"
+msgstr "Colore collegamenti"
 
 #: view/theme/frio/config.php:171
 msgid "Set the background color"
@@ -570,12 +570,12 @@ msgstr "%s ha commentato su questo."
 #: include/conversation.php:752 include/conversation.php:755
 #, php-format
 msgid "You had been addressed (%s)."
-msgstr ""
+msgstr "Sei stato nominato (%s)."
 
 #: include/conversation.php:758
 #, php-format
 msgid "You are following %s."
-msgstr ""
+msgstr "Stai seguendo %s."
 
 #: include/conversation.php:761
 msgid "Tagged"
@@ -583,20 +583,20 @@ msgstr "Menzionato"
 
 #: include/conversation.php:764
 msgid "Reshared"
-msgstr ""
+msgstr "Ricondiviso"
 
 #: include/conversation.php:767
 #, php-format
 msgid "%s is participating in this thread."
-msgstr ""
+msgstr "%s partecipa in questa conversazione."
 
 #: include/conversation.php:770
 msgid "Stored"
-msgstr ""
+msgstr "Memorizzato"
 
 #: include/conversation.php:773 include/conversation.php:777
 msgid "Global"
-msgstr ""
+msgstr "Globale"
 
 #: include/conversation.php:941 src/Model/Contact.php:965
 msgid "View Status"
@@ -821,7 +821,7 @@ msgstr "Immagine"
 #: include/conversation.php:1200 src/Object/Post.php:953
 #: src/Module/Item/Compose.php:151
 msgid "Link"
-msgstr "Link"
+msgstr "Collegamento"
 
 #: include/conversation.php:1201 src/Object/Post.php:954
 #: src/Module/Item/Compose.php:152
@@ -1329,7 +1329,7 @@ msgstr "Nessun destinatario."
 
 #: mod/wallmessage.php:137 mod/message.php:185 mod/message.php:299
 msgid "Please enter a link URL:"
-msgstr "Inserisci l'indirizzo del link:"
+msgstr "Inserisci un collegamento URL:"
 
 #: mod/wallmessage.php:142 mod/message.php:194
 msgid "Send Private Message"
@@ -1358,7 +1358,7 @@ msgstr "Il tuo messaggio:"
 #: mod/wallmessage.php:154 mod/message.php:204 mod/message.php:374
 #: mod/editpost.php:94
 msgid "Insert web link"
-msgstr "Inserisci link"
+msgstr "Inserisci collegamento web"
 
 #: mod/dfrn_confirm.php:84 src/Module/Profile/Profile.php:82
 msgid "Profile not found."
@@ -1670,7 +1670,7 @@ msgstr "Impostazioni Media Sociali"
 
 #: mod/settings.php:678
 msgid "Accept only top level posts by contacts you follow"
-msgstr "Accetta solo post di primo livello dai contatti che segui"
+msgstr "Accetta solo messaggi di primo livello dai contatti che segui"
 
 #: mod/settings.php:678
 msgid ""
@@ -1702,7 +1702,7 @@ msgid ""
 "Normally the system tries to find the best link to add to shortened posts. "
 "If this option is enabled then every shortened post will always point to the"
 " original friendica post."
-msgstr "Normalmente il sistema tenta di trovare il migliore link da aggiungere a un post accorciato. Se questa opzione è abilitata, ogni post accorciato conterrà sempre un link al post originale su Friendica."
+msgstr "Normalmente il sistema tenta di trovare il migliore collegamento da aggiungere ad un messaggio accorciato. Se questa opzione è abilitata, ogni messaggio accorciato conterrà sempre un collegamento al messaggio originale su Friendica."
 
 #: mod/settings.php:681
 msgid "Attach the link title"
@@ -1789,7 +1789,7 @@ msgstr "Invia i messaggi pubblici ai contatti email:"
 
 #: mod/settings.php:702
 msgid "Action after import:"
-msgstr "Azione post importazione:"
+msgstr "Azione dopo importazione:"
 
 #: mod/settings.php:702 src/Content/Nav.php:270
 msgid "Mark as seen"
@@ -2056,7 +2056,7 @@ msgid ""
 "Anonymous visitors will only see your profile picture, your display name and"
 " the nickname you are using on your profile page. Your public posts and "
 "replies will still be accessible by other means."
-msgstr "I visitatori anonimi vedranno nella tua pagina profilo solo la tua foto del profilo, il tuo nome e il nome utente che stai usando. I tuoi post pubblici e le risposte saranno comunque accessibili in altre maniere."
+msgstr "I visitatori anonimi vedranno nella tua pagina profilo solo la tua foto del profilo, il tuo nome e il nome utente che stai usando. I tuoi messaggi pubblici e le risposte saranno comunque accessibili in altre maniere."
 
 #: mod/settings.php:869
 msgid "Make public posts unlisted"
@@ -2067,7 +2067,7 @@ msgid ""
 "Your public posts will not appear on the community pages or in search "
 "results, nor be sent to relay servers. However they can still appear on "
 "public feeds on remote servers."
-msgstr "I tuoi post pubblici non appariranno sulle pagine della comunità o nei risultati di ricerca, e non saranno inviati ai server relay. Comunque appariranno sui feed pubblici su server remoti."
+msgstr "I tuoi messaggi pubblici non appariranno sulle pagine della comunità o nei risultati di ricerca, e non saranno inviati ai server relay. Comunque appariranno sui feed pubblici su server remoti."
 
 #: mod/settings.php:870
 msgid "Make all posted pictures accessible"
@@ -2123,7 +2123,7 @@ msgstr "Impostazioni di scadenza"
 
 #: mod/settings.php:881
 msgid "Automatically expire posts after this many days:"
-msgstr "Fai scadere i post automaticamente dopo x giorni:"
+msgstr "Fai scadere i messaggi automaticamente dopo x giorni:"
 
 #: mod/settings.php:881
 msgid "If empty, posts will not expire. Expired posts will be deleted"
@@ -2208,11 +2208,11 @@ msgstr "Hai ricevuto un suggerimento di amicizia"
 
 #: mod/settings.php:897
 msgid "You are tagged in a post"
-msgstr "Sei stato taggato in un post"
+msgstr "Sei stato taggato in un messaggio"
 
 #: mod/settings.php:898
 msgid "You are poked/prodded/etc. in a post"
-msgstr "Sei 'toccato'/'spronato'/ecc. in un post"
+msgstr "Sei 'toccato'/'spronato'/ecc. in un messaggio"
 
 #: mod/settings.php:900
 msgid "Activate desktop notifications"
@@ -2384,7 +2384,7 @@ msgstr "URL Profilo"
 #: mod/unfollow.php:150 mod/follow.php:188 src/Module/Contact.php:887
 #: src/Module/BaseProfile.php:63
 msgid "Status Messages and Posts"
-msgstr "Messaggi di stato e post"
+msgstr "Messaggi di stato e messaggi"
 
 #: mod/message.php:47 mod/message.php:128 src/Content/Nav.php:276
 msgid "New Message"
@@ -2606,7 +2606,7 @@ msgid ""
 "\n"
 "\t\tYour password will not be changed unless we can verify that you\n"
 "\t\tissued this request."
-msgstr "\nGentile %1$s,\n\tabbiamo ricevuto su \"%2$s\" una richiesta di resettare la password del tuo account. Per confermare questa richiesta, selezionate il link di conferma qui sotto o incollatelo nella barra indirizzo del vostro browser.\n\nSe NON hai richiesto questa modifica, NON selezionare il link e ignora o cancella questa email.\n\nLa tua password non verrà modificata a meno che non possiamo verificare che tu abbia effettivamente richiesto la modifica."
+msgstr "\nGentile %1$s,\n\tabbiamo ricevuto su \"%2$s\" una richiesta di resettare la password del tuo account. Per confermare questa richiesta, selezionate il collegamento di conferma qui sotto o incollatelo nella barra indirizzo del vostro browser.\n\nSe NON hai richiesto questa modifica, NON selezionare il collegamento e ignora o cancella questa email.\n\nLa tua password non verrà modificata a meno che non possiamo verificare che tu abbia effettivamente richiesto la modifica."
 
 #: mod/lostpass.php:69
 #, php-format
@@ -2623,7 +2623,7 @@ msgid ""
 "\n"
 "\t\tSite Location:\t%2$s\n"
 "\t\tLogin Name:\t%3$s"
-msgstr "\nSegui questo link per verificare la tua identità:\n\n%1$s\n\nRiceverai in un successivo messaggio la nuova password.\nPotrai cambiarla dalla pagina \"Impostazioni\" del tuo account dopo esserti autenticato.\n\nI dettagli del tuo account sono:\n\tIndirizzo del sito: %2$s\n\tNome utente: %3$s"
+msgstr "\nSegui questo collegamento per verificare la tua identità:\n\n%1$s\n\nRiceverai in un successivo messaggio la nuova password.\nPotrai cambiarla dalla pagina \"Impostazioni\" del tuo account dopo esserti autenticato.\n\nI dettagli del tuo account sono:\n\tIndirizzo del sito: %2$s\n\tNome utente: %3$s"
 
 #: mod/lostpass.php:84
 #, php-format
@@ -2943,7 +2943,7 @@ msgstr "Elemento non trovato."
 
 #: mod/uimport.php:45
 msgid "User imports on closed servers can only be done by an administrator."
-msgstr "L'importazione di utenti su server chiusi puo' essere effettuata solo da un amministratore."
+msgstr "L'importazione di utenti su server chiusi può essere effettuata solo da un amministratore."
 
 #: mod/uimport.php:54 src/Module/Register.php:84
 msgid ""
@@ -3062,7 +3062,7 @@ msgstr "Salva"
 
 #: mod/editpost.php:95
 msgid "web link"
-msgstr "link web"
+msgstr "collegamento web"
 
 #: mod/editpost.php:96
 msgid "Insert video link"
@@ -3070,7 +3070,7 @@ msgstr "Inserire collegamento video"
 
 #: mod/editpost.php:97
 msgid "video link"
-msgstr "link video"
+msgstr "collegamento video"
 
 #: mod/editpost.php:98
 msgid "Insert audio link"
@@ -3078,7 +3078,7 @@ msgstr "Inserisci collegamento audio"
 
 #: mod/editpost.php:99
 msgid "audio link"
-msgstr "link audio"
+msgstr "collegamento audio"
 
 #: mod/editpost.php:113 src/Core/ACL.php:312
 msgid "CC: email addresses"
@@ -3201,7 +3201,7 @@ msgstr "Note personali"
 
 #: mod/notes.php:58
 msgid "Personal notes are visible only by yourself."
-msgstr ""
+msgstr "Le note personali sono visibili solo da te."
 
 #: mod/photos.php:128 src/Module/BaseProfile.php:71
 msgid "Photo Albums"
@@ -3284,7 +3284,7 @@ msgstr "o seleziona un album esistente:"
 
 #: mod/photos.php:975
 msgid "Do not show a status post for this upload"
-msgstr "Non creare un post per questo upload"
+msgstr "Non creare un messaggio per questo upload"
 
 #: mod/photos.php:1041
 msgid "Do you really want to delete this photo album and all its photos?"
@@ -3465,7 +3465,7 @@ msgstr "Pagina non trovata."
 #: src/Database/DBStructure.php:64
 #, php-format
 msgid "The database version had been set to %s."
-msgstr ""
+msgstr "La versione del database è stata impostata come %s."
 
 #: src/Database/DBStructure.php:85
 msgid "There are no tables on MyISAM or InnoDB with the Antelope file format."
@@ -3608,7 +3608,7 @@ msgid ""
 "The database configuration file \"config/local.config.php\" could not be "
 "written. Please use the enclosed text to create a configuration file in your"
 " web server root."
-msgstr "Il file di configurazione del database \"config/local.config.php\" non puo' essere scritto. Usa il testo allegato per creare un file di configurazione nell tuo server web."
+msgstr "Il file di configurazione del database \"config/local.config.php\" non può essere scritto. Usa il testo allegato per creare un file di configurazione nell tuo server web."
 
 #: src/Core/Installer.php:198
 msgid ""
@@ -4098,7 +4098,7 @@ msgstr[1] "%d contatti non importati"
 
 #: src/Core/UserImport.php:274
 msgid "User profile creation error"
-msgstr "Errore creando il profilo dell'utente"
+msgstr "Errore durante la creazione del profilo dell'utente"
 
 #: src/Core/UserImport.php:330
 msgid "Done. You can now login with your username and password"
@@ -4129,7 +4129,7 @@ msgstr "Puoi visitarli online su %s"
 msgid ""
 "Please contact the sender by replying to this post if you do not wish to "
 "receive these messages."
-msgstr "Contatta il mittente rispondendo a questo post se non vuoi ricevere questi messaggi."
+msgstr "Contatta il mittente rispondendo a questo messaggio se non vuoi ricevere questi messaggi."
 
 #: src/Object/EMail/ItemCCEMail.php:46
 #, php-format
@@ -4627,7 +4627,7 @@ msgstr "La connessione dovrà essere bidirezionale o no?"
 msgid ""
 "Accepting %s as a friend allows %s to subscribe to your posts, and you will "
 "also receive updates from them in your news feed."
-msgstr "Accettando %s come amico permette a %s di seguire i tuoi post, e a te di riceverne gli aggiornamenti."
+msgstr "Accettando %s come amico permette a %s di seguire i tuoi messaggi, e a te di riceverne gli aggiornamenti."
 
 #: src/Module/Notifications/Introductions.php:127
 #, php-format
@@ -5302,7 +5302,7 @@ msgstr "Registrazione completata."
 
 #: src/Module/Register.php:340 src/Module/Register.php:347
 msgid "Your registration can not be processed."
-msgstr "La tua registrazione non puo' essere elaborata."
+msgstr "La tua registrazione non può essere elaborata."
 
 #: src/Module/Register.php:346
 msgid "You have to leave a request note for the admin."
@@ -5340,7 +5340,7 @@ msgstr "Servizio non Disponibile"
 msgid ""
 "The server cannot or will not process the request due to an apparent client "
 "error."
-msgstr "Il server non puo' processare la richiesta a causa di un apparente errore client."
+msgstr "Il server non può processare la richiesta a causa di un apparente errore client."
 
 #: src/Module/Special/HTTPException.php:62
 msgid ""
@@ -5422,15 +5422,15 @@ msgstr "Controlla ancora"
 
 #: src/Module/Install.php:200 src/Module/Admin/Site.php:524
 msgid "No SSL policy, links will track page SSL state"
-msgstr "Nessuna gestione SSL, i link seguiranno lo stato SSL della pagina"
+msgstr "Nessuna gestione SSL, i collegamenti seguiranno lo stato SSL della pagina"
 
 #: src/Module/Install.php:201 src/Module/Admin/Site.php:525
 msgid "Force all links to use SSL"
-msgstr "Forza tutti i link ad usare SSL"
+msgstr "Forza tutti i collegamenti ad usare SSL"
 
 #: src/Module/Install.php:202 src/Module/Admin/Site.php:526
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
-msgstr "Certificato auto-firmato, usa SSL solo per i link locali (sconsigliato)"
+msgstr "Certificato auto-firmato, usa SSL solo per i collegamenti locali (sconsigliato)"
 
 #: src/Module/Install.php:208
 msgid "Base settings"
@@ -5438,11 +5438,11 @@ msgstr "Impostazioni base"
 
 #: src/Module/Install.php:210 src/Module/Admin/Site.php:615
 msgid "SSL link policy"
-msgstr "Gestione link SSL"
+msgstr "Gestione collegamenti SSL"
 
 #: src/Module/Install.php:212 src/Module/Admin/Site.php:615
 msgid "Determines whether generated links should be forced to use SSL"
-msgstr "Determina se i link generati devono essere forzati a usare SSL"
+msgstr "Determina se i collegamenti generati devono essere forzati a usare SSL"
 
 #: src/Module/Install.php:215
 msgid "Host name"
@@ -5512,7 +5512,7 @@ msgstr "Password utente database"
 
 #: src/Module/Install.php:261
 msgid "For security reasons the password must not be empty"
-msgstr "Per motivi di sicurezza la password non puo' essere vuota."
+msgstr "Per motivi di sicurezza la password non può essere vuota."
 
 #: src/Module/Install.php:264
 msgid "Database Name"
@@ -5643,7 +5643,7 @@ msgstr "Nessun risultato."
 msgid ""
 "This community stream shows all public posts received by this node. They may"
 " not reflect the opinions of this node’s users."
-msgstr "Questa pagina comunità mostra tutti i post pubblici ricevuti da questo nodo. Potrebbero non riflettere le opinioni degli utenti di questo nodo."
+msgstr "Questa pagina comunità mostra tutti i messaggi pubblici ricevuti da questo nodo. Potrebbero non riflettere le opinioni degli utenti di questo nodo."
 
 #: src/Module/Conversation/Community.php:178
 msgid "Community option not available."
@@ -5667,7 +5667,7 @@ msgid ""
 "enjoyable. Click any item to visit the relevant page. A link to this page "
 "will be visible from your home page for two weeks after your initial "
 "registration and then will quietly disappear."
-msgstr "Vorremmo offrirti qualche trucco e dei link alla guida per aiutarti ad avere un'esperienza divertente. Clicca su un qualsiasi elemento per visitare la relativa pagina. Un link a questa pagina sarà visibile nella tua home per due settimane dopo la tua registrazione."
+msgstr "Vorremmo offrirti qualche trucco e dei collegamenti alla guida per aiutarti ad avere un'esperienza divertente. Clicca su un qualsiasi elemento per visitare la relativa pagina. Un collegamento a questa pagina sarà visibile nella tua home per due settimane dopo la tua registrazione."
 
 #: src/Module/Welcome.php:48
 msgid "Getting Started"
@@ -5771,7 +5771,7 @@ msgid ""
 "The Directory page lets you find other people in this network or other "
 "federated sites. Look for a <em>Connect</em> or <em>Follow</em> link on "
 "their profile page. Provide your own Identity Address if requested."
-msgstr "La pagina Elenco ti permette di trovare altre persone in questa rete o in altri siti. Cerca un link <em>Connetti</em> o <em>Segui</em> nella loro pagina del profilo. Inserisci il tuo Indirizzo Identità, se richiesto."
+msgstr "La pagina Elenco ti permette di trovare altre persone in questa rete o in altri siti. Cerca un collegamento <em>Connetti</em> o <em>Segui</em> nella loro pagina del profilo. Inserisci il tuo Indirizzo Identità, se richiesto."
 
 #: src/Module/Welcome.php:73
 msgid "Finding New People"
@@ -5804,14 +5804,14 @@ msgstr "Quando avrai alcuni amici, organizzali in gruppi di conversazioni privat
 
 #: src/Module/Welcome.php:80
 msgid "Why Aren't My Posts Public?"
-msgstr "Perché i miei post non sono pubblici?"
+msgstr "Perchè i miei messaggi non sono pubblici?"
 
 #: src/Module/Welcome.php:81
 msgid ""
 "Friendica respects your privacy. By default, your posts will only show up to"
 " people you've added as friends. For more information, see the help section "
 "from the link above."
-msgstr "Friendica rispetta la tua privacy. Per impostazione predefinita, i tuoi post sono mostrati solo alle persone che hai aggiunto come amici. Per maggiori informazioni guarda la sezione della guida dal link qui sopra."
+msgstr "Friendica rispetta la tua privacy. Per impostazione predefinita, i tuoi messaggi sono mostrati solo alle persone che hai aggiunto come amici. Per maggiori informazioni guarda la sezione della guida dal collegamento qui sopra."
 
 #: src/Module/Welcome.php:83
 msgid "Getting Help"
@@ -5837,13 +5837,13 @@ msgstr "Il messaggio è stato creato"
 
 #: src/Module/BaseAdmin.php:63
 msgid "You don't have access to administration pages."
-msgstr ""
+msgstr "Non hai accesso alle pagine di amministrazione."
 
 #: src/Module/BaseAdmin.php:67
 msgid ""
 "Submanaged account can't access the administration pages. Please log back in"
 " as the main account."
-msgstr ""
+msgstr "Account sottogestiti non possono accedere alle pagine di amministrazione. Per favore autenticati con l'account principale."
 
 #: src/Module/BaseAdmin.php:85 src/Content/Nav.php:253
 msgid "Information"
@@ -6176,7 +6176,7 @@ msgstr "In attesa di conferma della connessione"
 #: src/Module/Contact.php:602
 msgid ""
 "Replies/likes to your public posts <strong>may</strong> still be visible"
-msgstr "Risposte ai tuoi post pubblici <strong>possono</strong> essere comunque visibili"
+msgstr "Risposte/Mi Piace ai tuoi messaggi pubblici <strong>possono</strong> essere comunque visibili"
 
 #: src/Module/Contact.php:603
 msgid "Notification for new posts"
@@ -6927,7 +6927,7 @@ msgstr "File di Log"
 msgid ""
 "Must be writable by web server. Relative to your Friendica top-level "
 "directory."
-msgstr "Il server web deve avere i permessi di scrittura. Relativo alla tua directory Friendica."
+msgstr "Il server web deve avere i permessi di scrittura. Relativo alla cartella di livello superiore di Friendica."
 
 #: src/Module/Admin/Logs/Settings.php:89
 msgid "Log level"
@@ -7107,7 +7107,7 @@ msgstr "Icona shortcut"
 
 #: src/Module/Admin/Site.php:609
 msgid "Link to an icon that will be used for browsers."
-msgstr "Link verso un'icona che verrà usata dai browser."
+msgstr "Collegamento ad un'icona che verrà usata dai browser."
 
 #: src/Module/Admin/Site.php:610
 msgid "Touch icon"
@@ -7115,7 +7115,7 @@ msgstr "Icona touch"
 
 #: src/Module/Admin/Site.php:610
 msgid "Link to an icon that will be used for tablets and mobiles."
-msgstr "Link verso un'icona che verrà usata dai tablet e i telefonini."
+msgstr "Collegamento ad un'icona che verrà usata dai tablet e i telefonini."
 
 #: src/Module/Admin/Site.php:611
 msgid "Additional Info"
@@ -7342,7 +7342,7 @@ msgstr "URL dell'elenco globale. Se vuoto, l'elenco globale sarà completamente 
 
 #: src/Module/Admin/Site.php:638
 msgid "Private posts by default for new users"
-msgstr "Post privati di default per i nuovi utenti"
+msgstr "Messaggi privati come impostazioni predefinita per i nuovi utenti"
 
 #: src/Module/Admin/Site.php:638
 msgid ""
@@ -7352,13 +7352,13 @@ msgstr "Imposta i permessi predefiniti dei post per tutti i nuovi utenti come pr
 
 #: src/Module/Admin/Site.php:639
 msgid "Don't include post content in email notifications"
-msgstr "Non includere il contenuto dei post nelle notifiche via email"
+msgstr "Non includere il contenuto dei messaggi nelle notifiche via email"
 
 #: src/Module/Admin/Site.php:639
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
-msgstr "Non include il contenuti del post/commento/messaggio privato/etc. nelle notifiche email che sono inviate da questo sito, per privacy"
+msgstr "Non include il contenuti del messaggio/commento/messaggio privato/etc. nelle notifiche email che sono inviate da questo sito, per privacy"
 
 #: src/Module/Admin/Site.php:640
 msgid "Disallow public access to addons listed in the apps menu."
@@ -7380,7 +7380,7 @@ msgid ""
 "of the image. This means that contacts who receive posts containing private "
 "photos will have to authenticate and load each image, which may take a "
 "while."
-msgstr "Non sostituire le foto locali nei post con una copia incorporata dell'immagine. Questo significa che i contatti che riceveranno i post contenenti foto private dovranno autenticarsi e caricare ogni immagine, cosa che può richiedere un po' di tempo."
+msgstr "Non sostituire le foto locali nei messaggi con una copia incorporata dell'immagine. Questo significa che i contatti che riceveranno i messaggi contenenti foto private dovranno autenticarsi e caricare ogni immagine, cosa che può richiedere un po' di tempo."
 
 #: src/Module/Admin/Site.php:642
 msgid "Explicit Content"
@@ -7471,7 +7471,7 @@ msgstr "Il supporto OStatus può essere abilitato solo se è abilitato il thread
 msgid ""
 "Diaspora support can't be enabled because Friendica was installed into a sub"
 " directory."
-msgstr "Il supporto a Diaspora non può essere abilitato perché Friendica è stato installato in una sotto directory."
+msgstr "Il supporto a Diaspora non può essere abilitato perché Friendica è stato installato in una sottocartella."
 
 #: src/Module/Admin/Site.php:653
 msgid "Enable Diaspora support"
@@ -7832,7 +7832,7 @@ msgstr "Inscrivi a un relay"
 msgid ""
 "Enables the receiving of public posts from the relay. They will be included "
 "in the search, subscribed tags and on the global community page."
-msgstr "Abilita la ricezione dei post pubblici dal relay. Saranno inclusi nelle ricerche, nei tag sottoscritti e nella pagina comunità globale."
+msgstr "Abilita la ricezione dei messaggi pubblici dal relay. Saranno inclusi nelle ricerche, nei tag sottoscritti e nella pagina comunità globale."
 
 #: src/Module/Admin/Site.php:701
 msgid "Relay server"
@@ -7843,7 +7843,7 @@ msgstr "Server relay"
 msgid ""
 "Address of the relay server where public posts should be send to. For "
 "example %s"
-msgstr ""
+msgstr "Indirizzo del server relay verso il quale i messaggi pubblici dovranno essere inviati. Per esempio %s"
 
 #: src/Module/Admin/Site.php:702
 msgid "Direct relay transfer"
@@ -7909,7 +7909,7 @@ msgid ""
 "converting the table engines. You may also use the command <tt>php "
 "bin/console.php dbstructure toinnodb</tt> of your Friendica installation for"
 " an automatic conversion.<br />"
-msgstr "Stai ancora usando tabelle MyISAM. Dovresti cambiare il tipo motore a InnoDB. Siccome Friendica userà funzionalità specifiche di InnoDB nel futuro, dovresti modificarlo. Vedi <a href=\"%s\">qui</a>nel per una guida che puo' esserti utile nel convertire il motore delle tabelle. Puoi anche usare il comando <tt>php bin/console.php dbstructure toinnodb</tt> della tua installazione di Friendica per eseguire una conversione automatica. <br />"
+msgstr "Stai ancora usando tabelle MyISAM. Dovresti cambiare il tipo motore a InnoDB. Siccome Friendica userà funzionalità specifiche di InnoDB nel futuro, dovresti modificarlo. Vedi <a href=\"%s\">qui</a>nel per una guida che può esserti utile nel convertire il motore delle tabelle. Puoi anche usare il comando <tt>php bin/console.php dbstructure toinnodb</tt> della tua installazione di Friendica per eseguire una conversione automatica. <br />"
 
 #: src/Module/Admin/Summary.php:62
 #, php-format
@@ -8077,7 +8077,7 @@ msgstr "Mostra i Termini di Servizio"
 msgid ""
 "Enable the Terms of Service page. If this is enabled a link to the terms "
 "will be added to the registration form and the general information page."
-msgstr "Abilita la pagina dei Termini di Servizio. Se abilitato, un link ai termini sarà aggiunto alla pagina di registrazione e nella pagina delle informazioni generali."
+msgstr "Abilita la pagina dei Termini di Servizio. Se abilitato, un collegamento ai termini sarà aggiunto alla pagina di registrazione e nella pagina delle informazioni generali."
 
 #: src/Module/Admin/Tos.php:61
 msgid "Display Privacy Statement"
@@ -8273,7 +8273,7 @@ msgstr "Rimuovi questo elemento"
 msgid ""
 "On this page you can delete an item from your node. If the item is a top "
 "level posting, the entire thread will be deleted."
-msgstr "Su questa pagina puoi cancellare un qualsiasi elemento dal tuo nodo. Se l'elemento è un post \"top\", l'intera discussione sarà cancellato."
+msgstr "Su questa pagina puoi cancellare un qualsiasi elemento dal tuo nodo. Se l'elemento è un messaggio di primo livello, l'intera discussione sarà cancellata."
 
 #: src/Module/Admin/Item/Delete.php:69
 msgid ""
@@ -8628,7 +8628,7 @@ msgstr "Scegli cosa vuoi fare al destinatario"
 
 #: src/Module/Contact/Poke.php:154
 msgid "Make this post private"
-msgstr "Rendi questo post privato"
+msgstr "Rendi questo messaggio privato"
 
 #: src/Module/Contact/Advanced.php:94
 msgid "Contact update failed."
@@ -9601,7 +9601,7 @@ msgstr "URL di connessione mancante."
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
-msgstr "Il contatto non puo' essere aggiunto. Controlla le credenziali della rete nella tua pagina Impostazioni -> Reti Sociali"
+msgstr "Il contatto non può essere aggiunto. Controlla le credenziali della rete nella tua pagina Impostazioni -> Reti Sociali"
 
 #: src/Model/Contact.php:2077
 msgid ""
@@ -9678,7 +9678,7 @@ msgstr "l j F"
 
 #: src/Model/Event.php:609
 msgid "Edit event"
-msgstr "Modifica l'evento"
+msgstr "Modifica evento"
 
 #: src/Model/Event.php:610
 msgid "Duplicate event"
@@ -9728,7 +9728,7 @@ msgstr "Informazioni insufficienti per l'autenticazione"
 
 #: src/Model/User.php:630
 msgid "Password can't be empty"
-msgstr "La password non puo' essere vuota"
+msgstr "La password non può essere vuota"
 
 #: src/Model/User.php:649
 msgid "Empty passwords are not allowed."
@@ -9755,7 +9755,7 @@ msgstr "E' richiesto un invito."
 
 #: src/Model/User.php:776
 msgid "Invitation could not be verified."
-msgstr "L'invito non puo' essere verificato."
+msgstr "L'invito non può essere verificato."
 
 #: src/Model/User.php:784
 msgid "Invalid OpenID url"
@@ -10198,7 +10198,7 @@ msgstr "Mostra un widget della pagina della comunità con un elenco delle etiche
 
 #: src/Content/Feature.php:104
 msgid "Post Composition Features"
-msgstr "Funzionalità di composizione dei post"
+msgstr "Funzionalità di composizione dei messaggi"
 
 #: src/Content/Feature.php:105
 msgid "Auto-mention Forums"
@@ -10225,11 +10225,11 @@ msgstr "Strumenti per messaggi/commenti"
 
 #: src/Content/Feature.php:112
 msgid "Post Categories"
-msgstr "Categorie post"
+msgstr "Categorie Messaggi"
 
 #: src/Content/Feature.php:112
 msgid "Add categories to your posts"
-msgstr "Aggiungi categorie ai tuoi post"
+msgstr "Aggiungi categorie ai tuoi messaggi"
 
 #: src/Content/Feature.php:117
 msgid "Advanced Profile Settings"
@@ -10498,13 +10498,13 @@ msgstr "Protocollo sorgente non valido"
 
 #: src/Content/Text/BBCode.php:1846
 msgid "Invalid link protocol"
-msgstr "Protocollo link non valido"
+msgstr "Protocollo collegamento non valido"
 
 #: src/BaseModule.php:150
 msgid ""
 "The form security token was not correct. This probably happened because the "
 "form has been opened for too long (>3 hours) before submitting it."
-msgstr "Il token di sicurezza della form non era corretto. Probabilmente la form è rimasta aperta troppo a lungo (più di tre ore) prima di inviarla."
+msgstr "Il token di sicurezza del modulo non era corretto. Probabilmente il modulo è rimasto aperto troppo a lungo (>3 ore) prima di inviarlo."
 
 #: src/BaseModule.php:179
 msgid "All contacts"
