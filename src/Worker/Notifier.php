@@ -179,7 +179,7 @@ class Notifier
 
 			// Only deliver threaded replies (comment to a comment) to Diaspora
 			// when the original comment author does support the Diaspora protocol.
-			if ($target_item['parent-uri'] != $target_item['thr-parent']) {
+			if ($thr_parent['author-link'] && $target_item['parent-uri'] != $target_item['thr-parent']) {
 				$diaspora_delivery = Diaspora::isSupportedByContactUrl($thr_parent['author-link']);
 				Logger::info('Threaded comment', ['diaspora_delivery' => (int)$diaspora_delivery]);
 			}
