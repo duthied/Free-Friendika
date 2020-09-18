@@ -855,6 +855,9 @@ class Transmitter
 	public static function createActivityFromMail($mail_id, $object_mode = false)
 	{
 		$mail = self::ItemArrayFromMail($mail_id);
+		if (empty($mail)) {
+			return [];
+		}
 		$object = self::createNote($mail);
 
 		if (!$object_mode) {
