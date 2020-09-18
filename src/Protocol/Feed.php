@@ -494,6 +494,9 @@ class Feed
 			}
 			$item["body"] = HTML::toBBCode($body, $basepath);
 
+			// Remove tracking pixels
+			$item["body"] = preg_replace("/\[img=1x1\]([^\[\]]*)\[\/img\]/Usi", '', $item["body"]);
+
 			if (($item["body"] == '') && ($item["title"] != '')) {
 				$item["body"] = $item["title"];
 				$item["title"] = '';
