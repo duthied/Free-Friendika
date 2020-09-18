@@ -1503,6 +1503,12 @@ aside .panel-body {
 	position: relative;
 }
 
+/* Workaround for Firefox where the post heading covers the avatar, preventing hovercard interaction,
+ 48px is the width of the avatar image and should be adjusted accordingly if it ever changes. */
+.media .dropdown.pull-left + [role=heading] {
+	margin-left: 48px;
+}
+
 .preferences {
     position: absolute;
     right: 0;
