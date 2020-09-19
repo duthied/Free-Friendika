@@ -187,6 +187,7 @@ return [
 	Process::class => [
 		'constructParams' => [
 			[Dice::INSTANCE => '$basepath'],
+			getmypid(),
 		],
 	],
 	App\Router::class => [

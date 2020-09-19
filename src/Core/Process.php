@@ -67,14 +67,14 @@ class Process
 	 */
 	private $pid;
 
-	public function __construct(LoggerInterface $logger, App\Mode $mode, IConfig $config, Model\Process $processModel, string $basepath)
+	public function __construct(LoggerInterface $logger, App\Mode $mode, IConfig $config, Model\Process $processModel, string $basepath, int $pid)
 	{
 		$this->logger = $logger;
 		$this->mode = $mode;
 		$this->config = $config;
 		$this->basePath = $basepath;
 		$this->processModel = $processModel;
-		$this->pid = getmypid();
+		$this->pid = $pid;
 	}
 
 	/**
