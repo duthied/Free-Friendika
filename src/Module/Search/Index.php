@@ -163,8 +163,6 @@ class Index extends BaseSearch
 			$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
 			$items = Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params);
 			$r = Item::inArray($items);
-		} else {
-			$count = 0;
 		}
 
 		if (!DBA::isResult($r)) {
