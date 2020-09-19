@@ -134,14 +134,6 @@ class PageInfo
 
 		$text = "[attachment type='" . $data['type'] . "'";
 
-		if (empty($data['text'])) {
-			$data['text'] = $data['title'];
-		}
-
-		if (empty($data['text'])) {
-			$data['text'] = $data['url'];
-		}
-
 		if (!empty($data['url'])) {
 			$text .= " url='" . $data['url'] . "'";
 		}
@@ -160,6 +152,14 @@ class PageInfo
 				$text .= " image='" . $preview . "'";
 			} else {
 				$text .= " preview='" . $preview . "'";
+
+				if (empty($data['text'])) {
+					$data['text'] = $data['title'];
+				}
+		
+				if (empty($data['text'])) {
+					$data['text'] = $data['url'];
+				}
 			}
 		}
 
