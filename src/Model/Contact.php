@@ -1909,7 +1909,7 @@ class Contact
 			$ret['pubkey'] = $new_pubkey;
 		}
 
-		if (($ret['addr'] != $contact['addr']) || (!empty($ret['alias']) && ($ret['alias'] != $contact['alias']))) {
+		if ((!empty($ret['addr']) && ($ret['addr'] != $contact['addr'])) || (!empty($ret['alias']) && ($ret['alias'] != $contact['alias']))) {
 			$ret['uri-date'] = DateTimeFormat::utcNow();
 		}
 
