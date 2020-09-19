@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Process;
 use Friendica\Core\System;
 use Friendica\Core\Worker as WorkerCore;
 use Friendica\Database\DBA;
@@ -57,7 +58,7 @@ class Worker extends BaseModule
 			return;
 		}
 
-		WorkerCore::startProcess();
+		DI::process()->start();
 
 		DI::logger()->notice('Front end worker started.', ['pid' => getmypid()]);
 
@@ -79,7 +80,7 @@ class Worker extends BaseModule
 
 		WorkerCore::unclaimProcess();
 
-		WorkerCore::endProcess();
+		DI::process()->end();
 
 		System::httpExit(200, 'Frontend worker stopped.');
 	}

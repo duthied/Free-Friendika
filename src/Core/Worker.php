@@ -22,6 +22,7 @@
 namespace Friendica\Core;
 
 use Friendica\Core;
+use Friendica\Core\Process as ProcessAlias;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Process;
@@ -72,7 +73,7 @@ class Worker
 		}
 
 		// We now start the process. This is done after the load check since this could increase the load.
-		self::startProcess();
+		DI::process()->start();
 
 		// Kill stale processes every 5 minutes
 		$last_cleanup = DI::config()->get('system', 'worker_last_cleaned', 0);
@@ -1092,7 +1093,7 @@ class Worker
 			if (self::tooMuchWorkers()) {
 				// Cleaning dead processes
 				self::killStaleWorkers();
-				Process::deleteInactive();
+				DI::modelProcess()->deleteInactive();
 
 				return;
 			}
@@ -1171,7 +1172,7 @@ class Worker
 		$args = ['no_cron' => !$do_cron];
 
 		$a = DI::app();
-		$process = new Core\Process(DI::logger(), DI::mode(), DI::config(), $a->getBasePath());
+		$process = new Core\Process(DI::logger(), DI::mode(), DI::config(), DI::modelProcess(), $a->getBasePath(), getmypid());
 		$process->run($command, $args);
 
 		// after spawning we have to remove the flag.
@@ -1358,31 +1359,6 @@ class Worker
 		self::$db_duration_write += (microtime(true) - $stamp);
 
 		return true;
-	}
-
-	/**
-	 * Log active processes into the "process" table
-	 */
-	public static function startProcess()
-	{
-		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-
-		$command = basename($trace[0]['file']);
-
-		Process::deleteInactive();
-
-		Process::insert($command);
-	}
-
-	/**
-	 * Remove the active process from the "process" table
-	 *
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public static function endProcess()
-	{
-		return Process::deleteByPid();
 	}
 
 	/**

@@ -314,6 +314,13 @@ abstract class DI
 	//
 	// "Model" namespace instances
 	//
+	/**
+	 * @return Model\Process
+	 */
+	public static function modelProcess()
+	{
+		return self::$dice->create(Model\Process::class);
+	}
 
 	/**
 	 * @return Model\User\Cookie

@@ -23,6 +23,7 @@
 
 use Dice\Dice;
 use Friendica\App;
+use Friendica\Core\Process;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\DI;
@@ -76,4 +77,4 @@ Worker::processQueue($run_cron);
 
 Worker::unclaimProcess();
 
-Worker::endProcess();
+DI::process()->end();

@@ -19,16 +19,16 @@
  *
  */
 
-namespace Friendica\Testsrc\Model\User;
+namespace Friendica\Test\src\Model\User;
 
 use Friendica\App\BaseURL;
 use Friendica\Core\Config\IConfig;
 use Friendica\Model\User\Cookie;
-use Friendica\Test\DatabaseTest;
+use Friendica\Test\MockedTest;
 use Friendica\Test\Util\StaticCookie;
 use Mockery\MockInterface;
 
-class CookieTest extends DatabaseTest
+class CookieTest extends MockedTest
 {
 	/** @var MockInterface|IConfig */
 	private $config;

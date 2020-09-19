@@ -21,7 +21,7 @@
 
 namespace Friendica\Model;
 
-use Friendica\Database\DBA;
+use Friendica\Database\Database;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -29,29 +29,33 @@ use Friendica\Util\DateTimeFormat;
  */
 class Process
 {
+	/** @var Database */
+	private $dba;
+
+	public function __construct(Database $dba)
+	{
+		$this->dba = $dba;
+	}
+
 	/**
 	 * Insert a new process row. If the pid parameter is omitted, we use the current pid
 	 *
 	 * @param string $command
-	 * @param string $pid
+	 * @param int $pid The process id to insert
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function insert($command, $pid = null)
+	public function insert(string $command, int $pid)
 	{
 		$return = true;
 
-		if (is_null($pid)) {
-			$pid = getmypid();
+		$this->dba->transaction();
+
+		if (!$this->dba->exists('process', ['pid' => $pid])) {
+			$return = $this->dba->insert('process', ['pid' => $pid, 'command' => $command, 'created' => DateTimeFormat::utcNow()]);
 		}
 
-		DBA::transaction();
-
-		if (!DBA::exists('process', ['pid' => $pid])) {
-			$return = DBA::insert('process', ['pid' => $pid, 'command' => $command, 'created' => DateTimeFormat::utcNow()]);
-		}
-
-		DBA::commit();
+		$this->dba->commit();
 
 		return $return;
 	}
@@ -59,33 +63,29 @@ class Process
 	/**
 	 * Remove a process row by pid. If the pid parameter is omitted, we use the current pid
 	 *
-	 * @param string $pid
+	 * @param int $pid The pid to delete
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function deleteByPid($pid = null)
+	public function deleteByPid(int $pid)
 	{
-		if ($pid === null) {
-			$pid = getmypid();
-		}
-
-		return DBA::delete('process', ['pid' => $pid]);
+		return $this->dba->delete('process', ['pid' => $pid]);
 	}
 
 	/**
 	 * Clean the process table of inactive physical processes
 	 */
-	public static function deleteInactive()
+	public function deleteInactive()
 	{
-		DBA::transaction();
+		$this->dba->transaction();
 
-		$processes = DBA::select('process', ['pid']);
-		while($process = DBA::fetch($processes)) {
+		$processes = $this->dba->select('process', ['pid']);
+		while($process = $this->dba->fetch($processes)) {
 			if (!posix_kill($process['pid'], 0)) {
-				self::deleteByPid($process['pid']);
+				$this->deleteByPid($process['pid']);
 			}
 		}
-		DBA::close($processes);
-		DBA::commit();
+		$this->dba->close($processes);
+		$this->dba->commit();
 	}
 }
