@@ -60,6 +60,30 @@ return [
 		// Themes users can change to in their settings.
 		'allowed_themes' => 'quattro,vier,duepuntozero,smoothly',
 
+		// curl_timeout (Integer)
+		// Value is in seconds. Set to 0 for unlimited (not recommended).
+		'curl_timeout' =>  60,
+
+		// dbclean (Boolean)
+		// Remove old remote items, orphaned database records and old content from some other helper tables.
+		'dbclean' => false,
+
+		// dbclean-expire-days (Integer)
+		// When the database cleanup is enabled, this defines the days after which remote items will be deleted.
+		// Own items, and marked or filed items are always kept. 0 disables this behaviour.
+		'dbclean-expire-days' => 0,
+
+		// dbclean-expire-unclaimed (Integer)
+		// When the database cleanup is enabled, this defines the days after which unclaimed remote items
+		// (mostly content from the relay) will be deleted. Default value is 90 days. Defaults to the general
+		// lifespan value of remote items if set to 0.
+		'dbclean-expire-unclaimed' => 90,
+
+		// dbclean_expire_conversation (Integer)
+		// The conversation data is used for ActivityPub and OStatus, as well as for debug purposes.
+		// It should be safe to remove it after 14 days, default is 90 days.
+		'dbclean_expire_conversation' => 90,
+
 		// debugging (boolean)
 		// Enable/Disable Debugging (logging)
 		'debugging' => false,
@@ -72,6 +96,10 @@ return [
 		// directory (String)
 		// URL of the global directory.
 		'directory' => 'https://dir.friendica.social',
+
+		// explicit_content (Boolean)
+		// Set this to announce that your node is used mostly for explicit content that might not be suited for minors.
+		'explicit_content' => false,
 
 		// forbidden_nicknames (Comma-separated list)
 		// Prevents users from registering the specified nicknames on this node.
@@ -108,23 +136,33 @@ return [
 		// Maximum size in bytes of an uploaded photo.
 		'maximagesize' => 800000,
 
-		// no_regfullname (Boolean)
-		// Allow pseudonyms (true) or enforce a space between first name and last name in Full name, as an anti spam measure (false).
-		'no_regfullname' => true,
-
-		// optimize_max_tablesize (Integer)
-		// Maximum table size (in MB) for the automatic optimization.
-		// -1 to disable automatic optimization.
-		//  0 to use internal default (100MB)
-		'optimize_max_tablesize' => -1,
-
 		// maxloadavg (Integer)
 		// Maximum system load before delivery and poll processes are deferred.
 		'maxloadavg' => 20,
 
+		// maxloadavg_frontend (Integer)
+		// Maximum system load before the frontend quits service - default 50.
+		'maxloadavg_frontend' => 50,
+
+		// min_memory (Integer)
+		// Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).
+		'min_memory' => 0,
+
+		// no_regfullname (Boolean)
+		// Allow pseudonyms (true) or enforce a space between first name and last name in Full name, as an anti spam measure (false).
+		'no_regfullname' => true,
+
+		// optimize_tables (Boolean)
+		// Periodically (once an hour) run an "optimize table" command for cache tables
+		'optimize_tables' => false,
+
 		// relay_server (String)
 		// Address of the relay server where public posts should be send to.
 		'relay_server' => 'https://social-relay.isurf.ca',
+
+		// relay_user_tags (Boolean)
+		// If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".
+		'relay_user_tags' => true,
 
 		// rino_encrypt (Integer)
 		// Server-to-server private message encryption (RINO).
@@ -144,10 +182,6 @@ return [
 		// The fully-qualified URL of this Friendica node.
 		// Used by the worker in a non-HTTP execution environment.
 		'url' => '',
-
-		// optimize_tables (Boolean)
-		// Periodically (once an hour) run an "optimize table" command for cache tables
-		'optimize_tables' => false,
 	],
 
 	// Used in the admin settings to lock certain features
