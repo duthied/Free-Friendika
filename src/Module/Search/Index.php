@@ -34,6 +34,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\ItemContent;
 use Friendica\Model\Tag;
 use Friendica\Module\BaseSearch;
 use Friendica\Network\HTTPException;
@@ -151,30 +152,18 @@ class Index extends BaseSearch
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);
 			$uriids = Tag::getURIIdListByTag($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
-
-			if (!empty($uriids)) {
-				$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
-				$items = Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params);
-				$r = Item::inArray($items);
-				$count = Tag::countByTag($search, local_user());
-			} else {
-				$count = 0;
-			}
 		} else {
 			Logger::info('Start fulltext search.', ['q' => $search]);
+			$uriids = ItemContent::getURIIdListBySearch($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
+		}
 
-			$condition = [
-				"(`uid` = 0 OR (`uid` = ? AND NOT `global`))
-				AND `body` LIKE CONCAT('%',?,'%')",
-				local_user(), $search
-			];
-			$params = [
-				'order' => ['id' => true],
-				'limit' => [$pager->getStart(), $pager->getItemsPerPage()]
-			];
-			$items = Item::selectForUser(local_user(), [], $condition, $params);
+		if (!empty($uriids)) {
+			$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
+			$items = Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params);
 			$r = Item::inArray($items);
-			$count = DBA::count('item', $condition);
+			$count = Tag::countByTag($search, local_user());
+		} else {
+			$count = 0;
 		}
 
 		if (!DBA::isResult($r)) {

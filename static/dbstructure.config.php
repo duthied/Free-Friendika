@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1367);
+	define('DB_UPDATE_VERSION', 1368);
 }
 
 return [
@@ -857,6 +857,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uri-plink-hash" => ["UNIQUE", "uri-plink-hash"],
+			"body" => ["FULLTEXT", "body"],
 			"uri" => ["uri(191)"],
 			"plink" => ["plink(191)"],
 			"uri-id" => ["uri-id"]
