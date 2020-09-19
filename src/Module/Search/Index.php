@@ -161,11 +161,10 @@ class Index extends BaseSearch
 
 		if (!empty($uriids)) {
 			$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
-			$items = Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params);
-			$r = Item::inArray($items);
+			$items = Item::inArray(Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params));
 		}
 
-		if (!DBA::isResult($r)) {
+		if (empty($items)) {
 			notice(DI::l10n()->t('No results.'));
 			return $o;
 		}
@@ -182,7 +181,7 @@ class Index extends BaseSearch
 
 		Logger::info('Start Conversation.', ['q' => $search]);
 
-		$o .= conversation(DI::app(), $r, 'search', false, false, 'commented', local_user());
+		$o .= conversation(DI::app(), $items, 'search', false, false, 'commented', local_user());
 
 		$o .= $pager->renderMinimal($count);
 
