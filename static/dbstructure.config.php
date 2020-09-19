@@ -857,7 +857,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uri-plink-hash" => ["UNIQUE", "uri-plink-hash"],
-			"body" => ["FULLTEXT", "body"],
+			"title-content-warning-body" => ["FULLTEXT", "title", "content-warning", "body"],
 			"uri" => ["uri(191)"],
 			"plink" => ["plink(191)"],
 			"uri-id" => ["uri-id"]

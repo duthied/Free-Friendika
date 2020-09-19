@@ -152,16 +152,17 @@ class Index extends BaseSearch
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);
 			$uriids = Tag::getURIIdListByTag($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
+			$count = Tag::countByTag($search, local_user());
 		} else {
 			Logger::info('Start fulltext search.', ['q' => $search]);
 			$uriids = ItemContent::getURIIdListBySearch($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
+			$count = ItemContent::countBySearch($search, local_user());
 		}
 
 		if (!empty($uriids)) {
 			$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
 			$items = Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params);
 			$r = Item::inArray($items);
-			$count = Tag::countByTag($search, local_user());
 		} else {
 			$count = 0;
 		}

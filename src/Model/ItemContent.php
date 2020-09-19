@@ -31,7 +31,7 @@ class ItemContent
 {
 	public static function getURIIdListBySearch(string $search, int $uid = 0, int $start = 0, int $limit = 100)
 	{
-		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `item-content` WHERE MATCH (`body`) AGAINST (? IN BOOLEAN MODE))
+		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `item-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
 			AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
 		$params = [
 			'order' => ['uri-id' => true],
@@ -48,6 +48,13 @@ class ItemContent
 		DBA::close($tags);
 
 		return $uriids;
+	}
+
+	public static function countBySearch(string $search, int $uid = 0)
+	{
+		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `item-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
+			AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
+		return DBA::count('item', $condition);
 	}
 
 	/**
