@@ -87,12 +87,15 @@ function notification($params)
 	}
 	$nickname = $user["nickname"];
 
+	// Creates a new email builder for the notification email
+	$emailBuilder = DI::emailer()->newNotifyMail();
+
 	// with $params['show_in_notification_page'] == false, the notification isn't inserted into
 	// the database, and an email is sent if applicable.
 	// default, if not specified: true
 	$show_in_notification_page = isset($params['show_in_notification_page']) ? $params['show_in_notification_page'] : true;
 
-	$additional_mail_header = "X-Friendica-Account: <".$nickname."@".$hostname.">\n";
+	$emailBuilder->setHeader('X-Friendica-Account', '<' . $nickname . '@' . $hostname . '>');
 
 	if (array_key_exists('item', $params)) {
 		$title = $params['item']['title'];
@@ -521,13 +524,14 @@ function notification($params)
 					'receiver-uid' => $params['uid'], 'parent-item' => 0];
 				DBA::insert('notify-threads', $fields);
 
-				$additional_mail_header .= "Message-ID: " . $message_id . "\n";
+				$emailBuilder->setHeader('Message-ID', $message_id);
 				$log_msg                = "include/enotify: No previous notification found for this parent:\n" .
 				                          "  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
 				Logger::log($log_msg, Logger::DEBUG);
 			} else {
 				// If not, just "follow" the thread.
-				$additional_mail_header .= "References: " . $message_id . "\nIn-Reply-To: " . $message_id . "\n";
+				$emailBuilder->setHeader('References', $message_id);
+				$emailBuilder->setHeader('In-Reply-To', $message_id);
 				Logger::log("There's already a notification for this parent.", Logger::DEBUG);
 			}
 		}
@@ -546,7 +550,6 @@ function notification($params)
 			'title'        => $title,
 			'body'         => $body,
 			'subject'      => $subject,
-			'headers'      => $additional_mail_header,
 		];
 
 		Hook::callAll('enotify_mail', $datarray);
@@ -565,13 +568,13 @@ function notification($params)
 
 		// If a photo is present, add it to the email
 		if (!empty($datarray['source_photo'])) {
-			$builder->withPhoto(
+			$emailBuilder->withPhoto(
 				$datarray['source_photo'],
 				$datarray['source_link'] ?? $sitelink,
 				$datarray['source_name'] ?? $sitename);
 		}
 
-		$email = $builder->build();
+		$email = $emailBuilder->build();
 
 		// use the Emailer class to send the message
 		return DI::emailer()->send($email);
