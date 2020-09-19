@@ -184,8 +184,7 @@ abstract class MailBuilder
 	 */
 	public function	setHeader(string $name, string $value)
 	{
-		$this->headers[$name] = [];
-		$this->headers[$name][] = $value;
+		$this->headers[$name] = [$value];
 
 		return $this;
 	}
