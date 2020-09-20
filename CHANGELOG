@@ -1,3 +1,9 @@
+Version 2020.12 (unreleased)
+  Friendica Core:
+    Enhanced forum delivery using attached mention tags [redmatrix]
+    Enhanced code testability [nupplaphil]
+    Added phpseclib dependency to replace standalone ASN1 library [nupplaphil]
+
 Version 2020.09 (2020-09-20)
   Friendica Core:
     Updates to the translations: DE, EN GB, EN US, ES, FR, IT, NL, PL, RU, ZH_CN [translation teams]

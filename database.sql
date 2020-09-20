@@ -1,5 +1,5 @@
 -- ------------------------------------------
--- Friendica 2020.09-rc (Red Hot Poker)
+-- Friendica 2020.12-dev (Red Hot Poker)
 -- DB_UPDATE_VERSION 1368
 -- ------------------------------------------
 
