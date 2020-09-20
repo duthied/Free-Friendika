@@ -272,6 +272,7 @@ class Processor
 
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
+			Logger::info('Message was not processed');
 			return [];
 		}
 

@@ -487,6 +487,10 @@ class Receiver
 					$object_data['thread-completion'] = true;
 
 					$item = ActivityPub\Processor::createItem($object_data);
+					if (empty($item)) {
+						return;
+					}
+
 					$item['post-type'] = Item::PT_ANNOUNCEMENT;
 					ActivityPub\Processor::postItem($object_data, $item);
 
