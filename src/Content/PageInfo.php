@@ -163,7 +163,7 @@ class PageInfo
 			}
 		}
 
-		$text .= ']' . $data['text'] . '[/attachment]';
+		$text .= ']' . $data['text'] ?? '' . '[/attachment]';
 
 		$hashtags = '';
 		if (!empty($data['keywords'])) {
