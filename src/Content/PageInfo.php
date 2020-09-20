@@ -142,6 +142,10 @@ class PageInfo
 			$text .= " title='" . $data['title'] . "'";
 		}
 
+		if (empty($data['text'])) {
+			$data['text'] = '';
+		}
+
 		// Only embedd a picture link when it seems to be a valid picture ("width" is set)
 		if (!empty($data['images']) && !empty($data['images'][0]['width'])) {
 			$preview = str_replace(['[', ']'], ['&#91;', '&#93;'], htmlentities($data['images'][0]['src'], ENT_QUOTES, 'UTF-8', false));
@@ -163,7 +167,7 @@ class PageInfo
 			}
 		}
 
-		$text .= ']' . $data['text'] ?? '' . '[/attachment]';
+		$text .= ']' . $data['text'] . '[/attachment]';
 
 		$hashtags = '';
 		if (!empty($data['keywords'])) {

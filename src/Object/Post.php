@@ -977,7 +977,7 @@ class Post
 
 		if ($this->isToplevel()) {
 			if ($conv->getMode() !== 'profile') {
-				if ($this->getDataValue('wall') && !$this->getDataValue('self')) {
+				if ($this->getDataValue('wall') && !$this->getDataValue('self') && !empty($a->page_contact)) {
 					// On the network page, I am the owner. On the display page it will be the profile owner.
 					// This will have been stored in $a->page_contact by our calling page.
 					// Put this person as the wall owner of the wall-to-wall notice.
