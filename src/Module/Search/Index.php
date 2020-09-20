@@ -132,6 +132,14 @@ class Index extends BaseSearch
 			}
 		}
 
+		// Don't perform a fulltext or tag search on fulltext or tag
+		// Tags don't look like an URL and the fulltext search does only work with natual words
+		if (parse_url($search, PHP_URL_SCHEME) && parse_url($search, PHP_URL_HOST)) {
+			Logger::info('Skipping tag and fulltext search since the search looks like an URL.', ['q' => $search]);
+			notice(DI::l10n()->t('No results.'));
+			return $o;
+		}
+
 		$tag = $tag || DI::config()->get('system', 'only_tag_search');
 
 		// Here is the way permissions work in the search module...
