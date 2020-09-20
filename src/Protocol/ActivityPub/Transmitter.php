@@ -62,6 +62,68 @@ require_once 'mod/share.php';
 class Transmitter
 {
 	/**
+	 * Add relay servers to the list of inboxes
+	 *
+	 * @param array $inboxes
+	 * @return array inboxes with added relay servers
+	 */
+	public static function addRelayServerInboxes(array $inboxes)
+	{
+		$contacts = DBA::select('apcontact', ['inbox'],
+			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))",
+				'Application', 0, Contact::FOLLOWER, Contact::FRIEND]);
+		while ($contact = DBA::fetch($contacts)) {
+			$inboxes[] = $contact['inbox'];
+		}
+		DBA::close($contacts);
+
+		return $inboxes;
+	}
+
+	/**
+	 * Subscribe to a relay
+	 *
+	 * @param string $url Subscribe actor url
+	 * @return bool success
+	 */
+	public static function sendRelayFollow(string $url)
+	{
+		$contact_id = Contact::getIdForURL($url);
+		if (!$contact_id) {
+			return false;
+		}
+
+		$activity_id = ActivityPub\Transmitter::activityIDFromContact($contact_id);
+		$success = ActivityPub\Transmitter::sendActivity('Follow', $url, 0, $activity_id);
+		if ($success) {
+			DBA::update('contact', ['rel' => Contact::FRIEND], ['id' => $contact_id]);
+		}
+
+		return $success;
+	}
+
+	/**
+	 * Unsubscribe from a relay
+	 *
+	 * @param string $url Subscribe actor url
+	 * @return bool success
+	 */
+	public static function sendRelayUndoFollow(string $url)
+	{
+		$contact_id = Contact::getIdForURL($url);
+		if (!$contact_id) {
+			return false;
+		}
+
+		$success = self::sendContactUndo($url, $contact_id, 0);
+		if ($success) {
+			DBA::update('contact', ['rel' => Contact::SHARING], ['id' => $contact_id]);
+		}
+
+		return $success;
+	}
+	
+	/**
 	 * Collects a list of contacts of the given owner
 	 *
 	 * @param array     $owner  Owner array
@@ -793,6 +855,9 @@ class Transmitter
 	public static function createActivityFromMail($mail_id, $object_mode = false)
 	{
 		$mail = self::ItemArrayFromMail($mail_id);
+		if (empty($mail)) {
+			return [];
+		}
 		$object = self::createNote($mail);
 
 		if (!$object_mode) {
@@ -1917,18 +1982,19 @@ class Transmitter
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @throws \Exception
+	 * @return bool success
 	 */
 	public static function sendContactUndo($target, $cid, $uid)
 	{
 		$profile = APContact::getByURL($target);
 		if (empty($profile['inbox'])) {
 			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
-			return;
+			return false;
 		}
 
 		$object_id = self::activityIDFromContact($cid);
 		if (empty($object_id)) {
-			return;
+			return false;
 		}
 
 		$id = DI::baseUrl() . '/activity/' . System::createGUID();
@@ -1947,7 +2013,7 @@ class Transmitter
 		Logger::log('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
 
 		$signed = LDSignature::sign($data, $owner);
-		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
+		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
 	private static function prependMentions($body, int $uriid)

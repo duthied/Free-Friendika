@@ -131,7 +131,7 @@ function editpost_content(App $a)
 		//jot nav tab (used in some themes)
 		'$message' => DI::l10n()->t('Message'),
 		'$browser' => DI::l10n()->t('Browser'),
-		'$shortpermset' => DI::l10n()->t('permissions'),
+		'$shortpermset' => DI::l10n()->t('Permissions'),
 
 		'$compose_link_title' => DI::l10n()->t('Open Compose page'),
 	]);

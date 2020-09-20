@@ -39,6 +39,7 @@ use Friendica\App;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\PConfig\IPConfig;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 

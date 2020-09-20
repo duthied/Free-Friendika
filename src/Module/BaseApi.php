@@ -42,13 +42,13 @@ class BaseApi extends BaseModule
 	{
 		$arguments = DI::args();
 
-		if (substr($arguments->getQueryString(), -4) === '.xml') {
+		if (substr($arguments->getCommand(), -4) === '.xml') {
 			self::$format = 'xml';
 		}
-		if (substr($arguments->getQueryString(), -4) === '.rss') {
+		if (substr($arguments->getCommand(), -4) === '.rss') {
 			self::$format = 'rss';
 		}
-		if (substr($arguments->getQueryString(), -4) === '.atom') {
+		if (substr($arguments->getCommand(), -4) === '.atom') {
 			self::$format = 'atom';
 		}
 	}

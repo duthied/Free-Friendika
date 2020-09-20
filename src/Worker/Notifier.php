@@ -179,7 +179,7 @@ class Notifier
 
 			// Only deliver threaded replies (comment to a comment) to Diaspora
 			// when the original comment author does support the Diaspora protocol.
-			if ($target_item['parent-uri'] != $target_item['thr-parent']) {
+			if ($thr_parent['author-link'] && $target_item['parent-uri'] != $target_item['thr-parent']) {
 				$diaspora_delivery = Diaspora::isSupportedByContactUrl($thr_parent['author-link']);
 				Logger::info('Threaded comment', ['diaspora_delivery' => (int)$diaspora_delivery]);
 			}
@@ -786,6 +786,11 @@ class Notifier
 
 		if ($target_item['origin']) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
+
+			if (in_array($target_item['private'], [Item::PUBLIC])) {
+				$inboxes = ActivityPub\Transmitter::addRelayServerInboxes($inboxes);
+			}
+
 			Logger::log('Origin item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
 		} elseif (Item::isForumPost($target_item, $owner)) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid, false, 0, true);

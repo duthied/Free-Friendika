@@ -68,7 +68,7 @@ class Worker
 
 		// At first check the maximum load. We shouldn't continue with a high load
 		if (DI::process()->isMaxLoadReached()) {
-			Logger::info('Pre check: maximum load reached, quitting.');
+			Logger::notice('Pre check: maximum load reached, quitting.');
 			return;
 		}
 
@@ -134,7 +134,7 @@ class Worker
 
 					// Check free memory
 					if (DI::process()->isMinMemoryReached()) {
-						Logger::info('Memory limit reached, quitting.');
+						Logger::notice('Memory limit reached, quitting.');
 						DI::lock()->release(self::LOCK_WORKER);
 						return;
 					}
@@ -176,19 +176,19 @@ class Worker
 
 		// Do we have too few memory?
 		if (DI::process()->isMinMemoryReached()) {
-			Logger::info('Memory limit reached, quitting.');
+			Logger::notice('Memory limit reached, quitting.');
 			return false;
 		}
 
 		// Possibly there are too much database connections
 		if (self::maxConnectionsReached()) {
-			Logger::info('Maximum connections reached, quitting.');
+			Logger::notice('Maximum connections reached, quitting.');
 			return false;
 		}
 
 		// Possibly there are too much database processes that block the system
 		if (DI::process()->isMaxProcessesReached()) {
-			Logger::info('Maximum processes reached, quitting.');
+			Logger::notice('Maximum processes reached, quitting.');
 			return false;
 		}
 		
@@ -286,25 +286,25 @@ class Worker
 
 		// Quit when in maintenance
 		if (DI::config()->get('system', 'maintenance', false, true)) {
-			Logger::info("Maintenance mode - quit process", ['pid' => $mypid]);
+			Logger::notice("Maintenance mode - quit process", ['pid' => $mypid]);
 			return false;
 		}
 
 		// Constantly check the number of parallel database processes
 		if (DI::process()->isMaxProcessesReached()) {
-			Logger::info("Max processes reached for process", ['pid' => $mypid]);
+			Logger::notice("Max processes reached for process", ['pid' => $mypid]);
 			return false;
 		}
 
 		// Constantly check the number of available database connections to let the frontend be accessible at any time
 		if (self::maxConnectionsReached()) {
-			Logger::info("Max connection reached for process", ['pid' => $mypid]);
+			Logger::notice("Max connection reached for process", ['pid' => $mypid]);
 			return false;
 		}
 
 		$argv = json_decode($queue["parameter"], true);
 		if (empty($argv)) {
-			Logger::error('Parameter is empty', ['queue' => $queue]);
+			Logger::warning('Parameter is empty', ['queue' => $queue]);
 			return false;
 		}
 
@@ -348,7 +348,7 @@ class Worker
 		}
 
 		if (!validate_include($include)) {
-			Logger::log("Include file ".$argv[0]." is not valid!");
+			Logger::warning("Include file is not valid", ['file' => $argv[0]]);
 			$stamp = (float)microtime(true);
 			DBA::delete('workerqueue', ['id' => $queue["id"]]);
 			self::$db_duration = (microtime(true) - $stamp);
@@ -385,7 +385,7 @@ class Worker
 			self::$db_duration = (microtime(true) - $stamp);
 			self::$db_duration_write += (microtime(true) - $stamp);
 		} else {
-			Logger::log("Function ".$funcname." does not exist");
+			Logger::warning("Function does not exist", ['function' => $funcname]);
 			$stamp = (float)microtime(true);
 			DBA::delete('workerqueue', ['id' => $queue["id"]]);
 			self::$db_duration = (microtime(true) - $stamp);
@@ -533,7 +533,7 @@ class Worker
 			$level = ($used / $max) * 100;
 
 			if ($level >= $maxlevel) {
-				Logger::log("Maximum level (".$maxlevel."%) of user connections reached: ".$used."/".$max);
+				Logger::notice("Maximum level (".$maxlevel."%) of user connections reached: ".$used."/".$max);
 				return true;
 			}
 		}
@@ -563,7 +563,7 @@ class Worker
 		if ($level < $maxlevel) {
 			return false;
 		}
-		Logger::log("Maximum level (".$level."%) of system connections reached: ".$used."/".$max);
+		Logger::notice("Maximum level (".$level."%) of system connections reached: ".$used."/".$max);
 		return true;
 	}
 
@@ -615,7 +615,7 @@ class Worker
 				// How long is the process already running?
 				$duration = (time() - strtotime($entry["executed"])) / 60;
 				if ($duration > $max_duration) {
-					Logger::log("Worker process ".$entry["pid"]." (".substr(json_encode($argv), 0, 50).") took more than ".$max_duration." minutes. It will be killed now.");
+					Logger::notice("Worker process ".$entry["pid"]." (".substr(json_encode($argv), 0, 50).") took more than ".$max_duration." minutes. It will be killed now.");
 					posix_kill($entry["pid"], SIGTERM);
 
 					// We killed the stale process.

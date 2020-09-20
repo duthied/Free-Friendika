@@ -131,7 +131,7 @@ class Group extends BaseModule
 				throw new \Exception(DI::l10n()->t('Bad request.'), 400);
 			}
 
-			notice($message);
+			info($message);
 			System::jsonExit(['status' => 'OK', 'message' => $message]);
 		} catch (\Exception $e) {
 			notice($e->getMessage());

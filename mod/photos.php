@@ -25,6 +25,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\ACL;
+use Friendica\Core\Addon;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -987,8 +988,6 @@ function photos_content(App $a)
 			'$uploadurl' => $ret['post_url'],
 
 			// ACL permissions box
-			'$group_perms' => DI::l10n()->t('Show to Groups'),
-			'$contact_perms' => DI::l10n()->t('Show to Contacts'),
 			'$return_path' => DI::args()->getQueryString(),
 		]);
 
@@ -1040,7 +1039,6 @@ function photos_content(App $a)
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'post',
 				'$message' => DI::l10n()->t('Do you really want to delete this photo album and all its photos?'),
-				'$extra_inputs' => [],
 				'$confirm' => DI::l10n()->t('Delete Album'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'dropalbum',
@@ -1147,7 +1145,6 @@ function photos_content(App $a)
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'post',
 				'$message' => DI::l10n()->t('Do you really want to delete this photo?'),
-				'$extra_inputs' => [],
 				'$confirm' => DI::l10n()->t('Delete Photo'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'delete',
@@ -1352,8 +1349,6 @@ function photos_content(App $a)
 				'$delete' => DI::l10n()->t('Delete Photo'),
 
 				// ACL permissions box
-				'$group_perms' => DI::l10n()->t('Show to Groups'),
-				'$contact_perms' => DI::l10n()->t('Show to Contacts'),
 				'$return_path' => DI::args()->getQueryString(),
 			]);
 		}
@@ -1382,6 +1377,16 @@ function photos_content(App $a)
 
 			if (!DBA::isResult($items)) {
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
+					/*
+					 * Hmmm, code depending on the presence of a particular addon?
+					 * This should be better if done by a hook
+					 */
+					$qcomment = null;
+					if (Addon::isEnabled('qcomment')) {
+						$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+						$qcomment = $words ? explode("\n", $words) : [];
+					}
+
 					$comments .= Renderer::replaceMacros($cmnt_tpl, [
 						'$return_path' => '',
 						'$jsreload' => $return_path,
@@ -1396,7 +1401,7 @@ function photos_content(App $a)
 						'$preview' => DI::l10n()->t('Preview'),
 						'$loading' => DI::l10n()->t('Loading...'),
 						'$sourceapp' => DI::l10n()->t($a->sourcename),
-						'$ww' => '',
+						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12)
 					]);
 				}
@@ -1429,6 +1434,16 @@ function photos_content(App $a)
 				}
 
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
+					/*
+					 * Hmmm, code depending on the presence of a particular addon?
+					 * This should be better if done by a hook
+					 */
+					$qcomment = null;
+					if (Addon::isEnabled('qcomment')) {
+						$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+						$qcomment = $words ? explode("\n", $words) : [];
+					}
+
 					$comments .= Renderer::replaceMacros($cmnt_tpl,[
 						'$return_path' => '',
 						'$jsreload' => $return_path,
@@ -1442,7 +1457,7 @@ function photos_content(App $a)
 						'$submit' => DI::l10n()->t('Submit'),
 						'$preview' => DI::l10n()->t('Preview'),
 						'$sourceapp' => DI::l10n()->t($a->sourcename),
-						'$ww' => '',
+						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12)
 					]);
 				}
@@ -1492,6 +1507,16 @@ function photos_content(App $a)
 					]);
 
 					if (($can_post || Security::canWriteToUserWall($owner_uid))) {
+						/*
+						 * Hmmm, code depending on the presence of a particular addon?
+						 * This should be better if done by a hook
+						 */
+						$qcomment = null;
+						if (Addon::isEnabled('qcomment')) {
+							$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+							$qcomment = $words ? explode("\n", $words) : [];
+						}
+
 						$comments .= Renderer::replaceMacros($cmnt_tpl, [
 							'$return_path' => '',
 							'$jsreload' => $return_path,
@@ -1505,7 +1530,7 @@ function photos_content(App $a)
 							'$submit' => DI::l10n()->t('Submit'),
 							'$preview' => DI::l10n()->t('Preview'),
 							'$sourceapp' => DI::l10n()->t($a->sourcename),
-							'$ww' => '',
+							'$qcomment' => $qcomment,
 							'$rand_num' => Crypto::randomDigits(12)
 						]);
 					}

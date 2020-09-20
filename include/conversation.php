@@ -520,10 +520,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 
 				$threadsid++;
 
-				$owner_url   = '';
-				$owner_name  = '';
-				$sparkle     = '';
-
 				// prevent private email from leaking.
 				if ($item['network'] === Protocol::MAIL && local_user() != $item['uid']) {
 					continue;
@@ -540,14 +536,14 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'network' => $item['author-network'], 'url' => $item['author-link']];
 				$profile_link = Contact::magicLinkByContact($author);
 
+				$sparkle = '';
 				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
 				}
 
 				$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
 				Hook::callAll('render_location',$locate);
-
-				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
+				$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
 
 				localize_item($item);
 				if ($mode === 'network-new') {
@@ -563,10 +559,6 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'delete' => DI::l10n()->t('Delete'),
 				];
 
-				$star = false;
-				$isstarred = "unstarred";
-
-				$lock = false;
 				$likebuttons = [
 					'like'    => null,
 					'dislike' => null,
@@ -577,7 +569,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					unset($likebuttons['dislike']);
 				}
 
-				$body = Item::prepareBody($item, true, $preview);
+				$body_html = Item::prepareBody($item, true, $preview);
 
 				list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
 
@@ -596,13 +588,13 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'network_icon' => ContactSelector::networkToIcon($item['network'], $item['author-link']),
 					'linktitle' => DI::l10n()->t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
 					'profile_url' => $profile_link,
-					'item_photo_menu' => item_photo_menu($item),
+					'item_photo_menu_html' => item_photo_menu($item),
 					'name' => $profile_name,
 					'sparkle' => $sparkle,
-					'lock' => $lock,
+					'lock' => false,
 					'thumb' => DI::baseUrl()->remove($item['author-avatar']),
 					'title' => $title,
-					'body' => $body,
+					'body_html' => $body_html,
 					'tags' => $tags['tags'],
 					'hashtags' => $tags['hashtags'],
 					'mentions' => $tags['mentions'],
@@ -613,23 +605,23 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'has_folders' => ((count($folders)) ? 'true' : ''),
 					'categories' => $categories,
 					'folders' => $folders,
-					'text' => strip_tags($body),
+					'text' => strip_tags($body_html),
 					'localtime' => DateTimeFormat::local($item['created'], 'r'),
 					'ago' => (($item['app']) ? DI::l10n()->t('%s from %s', Temporal::getRelativeDate($item['created']),$item['app']) : Temporal::getRelativeDate($item['created'])),
-					'location' => $location,
+					'location_html' => $location_html,
 					'indent' => '',
-					'owner_name' => $owner_name,
-					'owner_url' => $owner_url,
+					'owner_name' => '',
+					'owner_url' => '',
 					'owner_photo' => DI::baseUrl()->remove($item['owner-avatar']),
 					'plink' => Item::getPlink($item),
 					'edpost' => false,
-					'isstarred' => $isstarred,
-					'star' => $star,
+					'isstarred' => 'unstarred',
+					'star' => false,
 					'drop' => $drop,
 					'vote' => $likebuttons,
-					'like' => '',
-					'dislike' => '',
-					'comment' => '',
+					'like_html' => '',
+					'dislike_html' => '',
+					'comment_html' => '',
 					'conv' => (($preview) ? '' : ['href'=> 'display/'.$item['guid'], 'title'=> DI::l10n()->t('View in context')]),
 					'previewing' => $previewing,
 					'wait' => DI::l10n()->t('Please wait'),
@@ -727,7 +719,12 @@ function conversation_fetch_comments($thread_items, $pinned) {
 			&& ($row['thr-parent'] == $row['parent-uri']) && ($row['received'] > $received)
 			&& Contact::isSharing($row['author-id'], $row['uid'])) {
 			$direction = ['direction' => 3, 'title' => DI::l10n()->t('%s reshared this.', $row['author-name'])];
-			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
+
+			$author = ['uid' => 0, 'id' => $row['author-id'],
+				'network' => $row['author-network'], 'url' => $row['author-link']];
+			$url = '<a href="'. htmlentities(Contact::magicLinkByContact($author)) .'">' . htmlentities($row['author-name']) . '</a>';
+
+			$actor = ['url' => $url, 'link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
 			$received = $row['received'];
 		}
 
@@ -736,12 +733,45 @@ function conversation_fetch_comments($thread_items, $pinned) {
 			$direction = ['direction' => 5, 'title' => DI::l10n()->t('%s commented on this.', $row['author-name'])];
 		}
 
-		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id'])
-			&& !Contact::isSharing($row['author-id'], $row['uid'])) {
-			if ($row['post-type'] == Item::PT_TAG) {
+		switch ($row['post-type']) {
+			case Item::PT_TO:
+				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'to')];
+				break;
+			case Item::PT_CC:
+				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'cc')];
+				break;
+			case Item::PT_BTO:
+				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bto')];
+				break;
+			case Item::PT_BCC:
+				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bcc')];
+				break;
+			case Item::PT_FOLLOWER:
+				$row['direction'] = ['direction' => 6, 'title' => DI::l10n()->t('You are following %s.', $row['author-name'])];
+				break;
+			case Item::PT_TAG:
 				$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
-			}
-		
+				break;
+			case Item::PT_ANNOUNCEMENT:
+				$row['direction'] = ['direction' => 3, 'title' => DI::l10n()->t('Reshared')];
+				break;
+			case Item::PT_COMMENT:
+				$row['direction'] = ['direction' => 5, 'title' => DI::l10n()->t('%s is participating in this thread.', $row['author-name'])];
+				break;
+			case Item::PT_STORED:
+				$row['direction'] = ['direction' => 8, 'title' => DI::l10n()->t('Stored')];
+				break;
+			case Item::PT_GLOBAL:
+				$row['direction'] = ['direction' => 9, 'title' => DI::l10n()->t('Global')];
+				break;
+			default:
+				if ($row['uid'] == 0) {
+					$row['direction'] = ['direction' => 9, 'title' => DI::l10n()->t('Global')];
+				}
+		}
+
+		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id']) &&
+			!Contact::isSharing($row['author-id'], $row['uid'])) {
 			$parentlines[] = $lineno;
 		}
 
@@ -758,10 +788,13 @@ function conversation_fetch_comments($thread_items, $pinned) {
 	if (!empty($direction)) {
 		foreach ($parentlines as $line) {
 			$comments[$line]['direction'] = $direction;
-			if (!empty($actor) && DI::pConfig()->get(local_user(), 'system', 'display_resharer')  ) {
-				$comments[$line]['owner-link'] = $actor['link'];
-				$comments[$line]['owner-avatar'] = $actor['avatar'];
-				$comments[$line]['owner-name'] = $actor['name'];
+			if (!empty($actor)) {
+				$comments[$line]['reshared'] = DI::l10n()->t('%s reshared this.', $actor['url']);
+				if (DI::pConfig()->get(local_user(), 'system', 'display_resharer')  ) {
+					$comments[$line]['owner-link'] = $actor['link'];
+					$comments[$line]['owner-avatar'] = $actor['avatar'];
+					$comments[$line]['owner-name'] = $actor['name'];
+				}
 			}
 		}
 	}
@@ -1137,34 +1170,12 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	$jotplugins = '';
 	Hook::callAll('jot_tool', $jotplugins);
 
-	// Private/public post links for the non-JS ACL form
-	$private_post = 1;
-	if (!empty($_REQUEST['public'])) {
-		$private_post = 0;
-	}
-
-	$query_str = DI::args()->getQueryString();
-	if (strpos($query_str, 'public=1') !== false) {
-		$query_str = str_replace(['?public=1', '&public=1'], ['', ''], $query_str);
-	}
-
-	/*
-	 * I think $a->query_string may never have ? in it, but I could be wrong
-	 * It looks like it's from the index.php?q=[etc] rewrite that the web
-	 * server does, which converts any ? to &, e.g. suggest&ignore=61 for suggest?ignore=61
-	 */
-	if (strpos($query_str, '?') === false) {
-		$public_post_link = '?public=1';
-	} else {
-		$public_post_link = '&public=1';
-	}
-
 	// $tpl = Renderer::replaceMacros($tpl,array('$jotplugins' => $jotplugins));
 	$tpl = Renderer::getMarkupTemplate("jot.tpl");
 
 	$o .= Renderer::replaceMacros($tpl,[
 		'$new_post' => DI::l10n()->t('New Post'),
-		'$return_path'  => $query_str,
+		'$return_path'  => DI::args()->getQueryString(),
 		'$action'       => 'item',
 		'$share'        => ($x['button'] ?? '') ?: DI::l10n()->t('Share'),
 		'$loading'      => DI::l10n()->t('Loading...'),
@@ -1190,7 +1201,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : '',
 		'$wait'         => DI::l10n()->t('Please wait'),
 		'$permset'      => DI::l10n()->t('Permission settings'),
-		'$shortpermset' => DI::l10n()->t('permissions'),
+		'$shortpermset' => DI::l10n()->t('Permissions'),
 		'$wall'         => $notes_cid ? 0 : 1,
 		'$posttype'     => $notes_cid ? Item::PT_PERSONAL_NOTE : Item::PT_ARTICLE,
 		'$content'      => $x['content'] ?? '',
@@ -1212,11 +1223,6 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 
 		// ACL permissions box
 		'$acl'           => $x['acl'],
-		'$group_perms'   => DI::l10n()->t('Post to Groups'),
-		'$contact_perms' => DI::l10n()->t('Post to Contacts'),
-		'$private'       => DI::l10n()->t('Private post'),
-		'$is_private'    => $private_post,
-		'$public_link'   => $public_post_link,
 
 		//jot nav tab (used in some themes)
 		'$message' => DI::l10n()->t('Message'),
@@ -1489,14 +1495,4 @@ function sort_thr_received_rev(array $a, array $b)
 function sort_thr_commented(array $a, array $b)
 {
 	return strcmp($b['commented'], $a['commented']);
-}
-
-function render_location_dummy(array $item) {
-	if (!empty($item['location']) && !empty($item['location'])) {
-		return $item['location'];
-	}
-
-	if (!empty($item['coord']) && !empty($item['coord'])) {
-		return $item['coord'];
-	}
 }

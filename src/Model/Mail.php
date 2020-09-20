@@ -129,9 +129,12 @@ class Mail
 		}
 
 		$me = DBA::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
-		$contact = DBA::selectFirst('contact', [], ['id' => $recipient, 'uid' => local_user()]);
+		if (!DBA::isResult($me)) {
+			return -2;
+		}
 
-		if (!(count($me) && (count($contact)))) {
+		$contact = DBA::selectFirst('contact', [], ['id' => $recipient, 'uid' => local_user()]);
+		if (!DBA::isResult($contact)) {
 			return -2;
 		}
 

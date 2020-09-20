@@ -141,36 +141,6 @@ function message_content(App $a)
 			return;
 		}
 
-		// Check if we should do HTML-based delete confirmation
-		if (!empty($_REQUEST['confirm'])) {
-			// <form> can't take arguments in its "action" parameter
-			// so add any arguments as hidden inputs
-			$query = explode_querystring(DI::args()->getQueryString());
-			$inputs = [];
-			foreach ($query['args'] as $arg) {
-				if (strpos($arg, 'confirm=') === false) {
-					$arg_parts = explode('=', $arg);
-					$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
-				}
-			}
-
-			//DI::page()['aside'] = '';
-			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-				'$method' => 'get',
-				'$message' => DI::l10n()->t('Do you really want to delete this message?'),
-				'$extra_inputs' => $inputs,
-				'$confirm' => DI::l10n()->t('Yes'),
-				'$confirm_url' => $query['base'],
-				'$confirm_name' => 'confirmed',
-				'$cancel' => DI::l10n()->t('Cancel'),
-			]);
-		}
-
-		// Now check how the user responded to the confirmation query
-		if (!empty($_REQUEST['canceled'])) {
-			DI::baseUrl()->redirect('message');
-		}
-
 		$cmd = $a->argv[1];
 		if ($cmd === 'drop') {
 			$message = DBA::selectFirst('mail', ['convid'], ['id' => $a->argv[2], 'uid' => local_user()]);

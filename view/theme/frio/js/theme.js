@@ -2,6 +2,9 @@
 var jotcache = ''; //The jot cache. We use it as cache to restore old/original jot content
 
 $(document).ready(function(){
+	// Destroy unused perfect scrollbar in aside element
+	$('aside').perfectScrollbar('destroy');
+
 	//fade in/out based on scrollTop value
 	var scrollStart;
 

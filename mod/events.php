@@ -474,16 +474,16 @@ function events_content(App $a)
 		$t_orig = $orig_event['summary']  ?? '';
 		$d_orig = $orig_event['desc']     ?? '';
 		$l_orig = $orig_event['location'] ?? '';
-		$eid = !empty($orig_event) ? $orig_event['id']  : 0;
-		$cid = !empty($orig_event) ? $orig_event['cid'] : 0;
-		$uri = !empty($orig_event) ? $orig_event['uri'] : '';
+		$eid = $orig_event['id'] ?? 0;
+		$cid = $orig_event['cid'] ?? 0;
+		$uri = $orig_event['uri'] ?? '';
 
 		if ($cid || $mode === 'edit') {
 			$share_disabled = 'disabled="disabled"';
 		}
 
-		$sdt = !empty($orig_event) ? $orig_event['start']  : 'now';
-		$fdt = !empty($orig_event) ? $orig_event['finish'] : 'now';
+		$sdt = $orig_event['start'] ?? 'now';
+		$fdt = $orig_event['finish'] ?? 'now';
 
 		$tz = date_default_timezone_get();
 		if (!empty($orig_event)) {

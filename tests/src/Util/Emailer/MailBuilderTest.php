@@ -61,7 +61,7 @@ class MailBuilderTest extends MockedTest
 		$this->baseUrl->shouldReceive('getHostname')->andReturn('friendica.local');
 		$this->baseUrl->shouldReceive('get')->andReturn('http://friendica.local');
 
-		$this->defaultHeaders = "";
+		$this->defaultHeaders = [];
 	}
 
 	public function assertEmail(IEmail $email, array $asserts)

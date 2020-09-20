@@ -83,11 +83,18 @@ interface IEmail extends JsonSerializable
 	function getMessage(bool $plain = false);
 
 	/**
-	 * Gets any additional mail header
+	 * Gets the additional mail header array
+	 *
+	 * @return string[][]
+	 */
+	function getAdditionalMailHeader();
+
+	/**
+	 * Gets the additional mail header as string - EOL separated
 	 *
 	 * @return string
 	 */
-	function getAdditionalMailHeader();
+	function getAdditionalMailHeaderString();
 
 	/**
 	 * Returns the current email with a new recipient

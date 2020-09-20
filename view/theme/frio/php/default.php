@@ -125,7 +125,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 
 					<div class="col-lg-7 col-md-7 col-sm-12 col-xs-12" id="content">
 						<section class="sectiontop ';
-							echo $a->argv[0];
+							echo $a->argv[0] ?? '';
 							echo '-content-wrapper">';
 							if (!empty($page['content'])) {
 								echo $page['content'];

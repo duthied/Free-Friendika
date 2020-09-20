@@ -3,7 +3,7 @@
  * Name: Black
  * Licence: AGPL
  * Author: Hypolite Petovan <hypolite@friendica.mrpetovan.com>
- * Overwrites: nav_bg, nav_icon_color, link_color, background_color, contentbg_transp
+ * Overwrites: nav_bg, nav_icon_color, link_color, background_color, background_image, contentbg_transp
  * Accented: yes
  */
 
@@ -19,3 +19,4 @@ $background_color = '#000000';
 $contentbg_transp = '0';
 $font_color = '#cccccc';
 $font_color_darker = '#acacac';
+$background_image = '';

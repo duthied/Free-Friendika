@@ -151,7 +151,7 @@ class Emailer
 		                . rand(10000, 99999);
 
 		// generate a multipart/alternative message header
-		$messageHeader = $email->getAdditionalMailHeader() .
+		$messageHeader = $email->getAdditionalMailHeaderString() .
 		                 "From: $fromName <{$fromAddress}>\n" .
 		                 "Reply-To: $fromName <{$replyTo}>\n" .
 		                 "MIME-Version: 1.0\n" .

@@ -128,7 +128,7 @@ class Pager
 	/**
 	 * Sets the base query string from a full query string.
 	 *
-	 * Strips the 'page' parameter, and remove the 'q=' string for some reason.
+	 * Strips the 'page' parameter
 	 *
 	 * @param string $queryString
 	 */

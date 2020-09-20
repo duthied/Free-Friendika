@@ -51,8 +51,8 @@ class UserItem
 	 */
 	public static function setNotification(int $iid)
 	{
-		$fields = ['id', 'uri-id', 'uid', 'body', 'parent', 'gravity', 'tag',
-			'contact-id', 'thr-parent', 'parent-uri', 'author-id', 'verb'];
+		$fields = ['id', 'uri-id', 'parent-uri-id', 'uid', 'body', 'parent', 'gravity', 'tag',
+			'private', 'contact-id', 'thr-parent', 'parent-uri', 'author-id', 'verb'];
 		$item = Item::selectFirst($fields, ['id' => $iid, 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			return;
@@ -63,14 +63,26 @@ class UserItem
 			return;
 		}
 
-		// fetch all users in the thread
+		if ($item['uid'] == 0) {
+			$uids = [];
+		} else {
+			// Always include the item user
+			$uids = [$item['uid']];
+		}
+
+		// Add every user who participated so far in this thread
+		// This can only happen with participations on global items. (means: uid = 0) 
 		$users = DBA::p("SELECT DISTINCT(`contact`.`uid`) FROM `item`
 			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` != 0
 			WHERE `parent` IN (SELECT `parent` FROM `item` WHERE `id`=?)", $iid);
 		while ($user = DBA::fetch($users)) {
-			self::setNotificationForUser($item, $user['uid']);
+			$uids[] = $user['uid'];
 		}
 		DBA::close($users);
+
+		foreach (array_unique($uids) as $uid) {
+			self::setNotificationForUser($item, $uid);
+		}
 	}
 
 	/**

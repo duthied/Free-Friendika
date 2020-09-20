@@ -68,6 +68,7 @@ class Strings
 	 *
 	 * @param string $string Input string
 	 * @return string Filtered string
+	 * @deprecated since 2020.09 Please use Smarty default HTML escaping for templates or htmlspecialchars() otherwise
 	 */
 	public static function escapeTags($string)
 	{

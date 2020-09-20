@@ -23,9 +23,12 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
+use Friendica\Protocol\Activity;
 use Friendica\Repository\ProfileField;
 use Psr\Log\LoggerInterface;
 
@@ -59,6 +62,12 @@ class Status extends BaseFactory
 		$item = Item::selectFirst([], ['uri-id' => $uriId, 'uid' => $uid]);
 		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
 
-		return new \Friendica\Object\Api\Mastodon\Status($item, $account);
+		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(
+			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_COMMENT]),
+			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]),
+			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)])
+		);
+
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts);
 	}
 }

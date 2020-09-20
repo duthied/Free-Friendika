@@ -669,10 +669,18 @@ class DBA
 	 */
 	public static function mergeConditions(array ...$conditions)
 	{
+		if (count($conditions) == 1) {
+			return current($conditions);
+		}
+
 		$conditionStrings = [];
 		$result = [];
 
 		foreach ($conditions as $key => $condition) {
+			if (!$condition) {
+				continue;
+			}
+
 			$condition = self::collapseCondition($condition);
 
 			$conditionStrings[] = array_shift($condition);

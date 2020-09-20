@@ -1179,6 +1179,7 @@ section #jotOpen {
 #jot-modal #item-Q0,
 #jot-modal #profile-jot-acl-wrapper,
 #jot-modal #acl-wrapper {
+    overflow: hidden;
     display: flex;
     flex: auto;
     flex-direction: column;
@@ -1186,7 +1187,6 @@ section #jotOpen {
 #jot-modal .modal-header a, #jot-modal .modal-header .btn-link,
 #profile-jot-submit-wrapper a, #profile-jot-submit-wrapper .btn-link {
     color: $font_color_darker;
-    text-transform: capitalize;
 }
 #jot-modal .modal-header {
     border-bottom: none;
@@ -1503,10 +1503,20 @@ aside .panel-body {
 	position: relative;
 }
 
+/* Workaround for Firefox where the post heading covers the avatar, preventing hovercard interaction,
+ 48px is the width of the avatar image and should be adjusted accordingly if it ever changes. */
+.media .dropdown.pull-left + [role=heading] {
+	margin-left: 48px;
+}
+
 .preferences {
     position: absolute;
     right: 0;
     top: 0;
+}
+.shared_header .preferences {
+	top: 7px;
+	right: 9px;
 }
 .wall-item-network {
     font-size: 13px;
@@ -1967,8 +1977,7 @@ ul.dropdown-menu li:hover {
 /* Dropdown Menu */
 .dropdown-menu li a,
 .dropdown-menu li .btn-link {
-    font-size: 13px!important;
-    font-weight: 600!important;
+	color: $link_color;
 }
 .dropdown-menu li > :hover,
 .dropdown-menu li > :visited,
@@ -1986,6 +1995,7 @@ ul.dropdown-menu li:hover {
 }
 
 /* Media Classes */
+p.wall-item-announce,
 .media .time,
 .media .shared-time,
 .media .delivery,
@@ -2989,6 +2999,12 @@ main .nav-tabs>li.active>a:hover {
  */
 .modal hr {
     border-color: #eee;
+}
+
+@media (min-width: 768px) {
+	.modal-dialog {
+		width: 650px;
+	}
 }
 
 /*

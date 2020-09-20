@@ -119,7 +119,7 @@ class Invite extends BaseModule
 			}
 
 		}
-		notice(DI::l10n()->tt('%d message sent.', '%d messages sent.', $total));
+		info(DI::l10n()->tt('%d message sent.', '%d messages sent.', $total));
 	}
 
 	public static function content(array $parameters = [])

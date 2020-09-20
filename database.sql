@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2020.09-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1367
+-- Friendica 2020.09-rc (Red Hot Poker)
+-- DB_UPDATE_VERSION 1368
 -- ------------------------------------------
 
 
@@ -786,6 +786,7 @@ CREATE TABLE IF NOT EXISTS `item-content` (
 	`verb` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams verb',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-plink-hash` (`uri-plink-hash`),
+	 FULLTEXT INDEX `title-content-warning-body` (`title`,`content-warning`,`body`),
 	 INDEX `uri` (`uri`(191)),
 	 INDEX `plink` (`plink`(191)),
 	 INDEX `uri-id` (`uri-id`),

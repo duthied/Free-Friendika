@@ -80,13 +80,8 @@
 		<div class="location detail">
 			<span class="location-label icon"><i class="fa fa-map-marker"></i></span>
 			<span class="adr">
-				{{if $profile.address}}<span class="street-address p-street-address">{{$profile.address nofilter}}</span>{{/if}}
-				<span class="city-state-zip">
-					<span class="locality p-locality">{{$profile.locality}}</span>{{if $profile.locality}}, {{/if}}
-					<span class="region p-region">{{$profile.region}}</span>
-					<span class="postal-code p-postal-code">{{$profile.postal_code}}</span>
-				</span>
-				{{if $profile.country_name}}<span class="country-name p-country-name">{{$profile.country_name}}</span>{{/if}}
+				{{if $profile.address}}<p class="street-address p-street-address">{{$profile.address nofilter}}</p>{{/if}}
+				{{if $profile.location}}<p class="p-location">{{$profile.location}}</p>{{/if}}
 			</span>
 		</div>
 		{{/if}}

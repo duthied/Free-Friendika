@@ -39,7 +39,7 @@
 				</a>
 				<a href="#" rel="#wall-item-photo-menu-{{$item.id}}" class="contact-photo-menu-button icon s16 menu" id="wall-item-photo-menu-button-{{$item.id}}">menu</a>
 				<ul class="contact-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
-				{{$item.item_photo_menu nofilter}}
+				{{$item.item_photo_menu_html nofilter}}
 				</ul>
 
 			</div>
@@ -50,11 +50,11 @@
 				</a>
 			</div>
 			{{/if}}
-			<div class="wall-item-location">{{$item.location nofilter}}</div>
+			<div class="wall-item-location">{{$item.location_html nofilter}}</div>
 		</div>
 		<div class="wall-item-content">
 			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h2>{{/if}}
-			<span class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}">{{$item.body nofilter}}</span>
+			<span class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}">{{$item.body_html nofilter}}</span>
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -161,11 +161,11 @@
 		{{/if}}
 	</div>
 
-	{{if $item.threaded}}{{if $item.comment}}{{if $item.indent==comment}}
+	{{if $item.threaded}}{{if $item.comment_html}}{{if $item.indent==comment}}
 	<div class="wall-item-bottom commentbox">
 		<div class="wall-item-links"></div>
 		<div class="wall-item-comment-wrapper">
-					{{$item.comment nofilter}}
+					{{$item.comment_html nofilter}}
 		</div>
 	</div>
 	{{/if}}{{/if}}{{/if}}
@@ -189,11 +189,11 @@
 {{/if}}
 
 {{* top thread comment box *}}
-{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
+{{if $item.threaded}}{{if $item.comment_html}}{{if $item.thread_level==1}}
+<div class="wall-item-comment-wrapper" >{{$item.comment_html nofilter}}</div>
 {{/if}}{{/if}}{{/if}}
 
 
 {{if $item.flatten}}
-<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
+<div class="wall-item-comment-wrapper" >{{$item.comment_html nofilter}}</div>
 {{/if}}

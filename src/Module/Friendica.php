@@ -95,7 +95,7 @@ class Friendica extends BaseModule
 			'about'     => DI::l10n()->t('This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.',
 				'<strong>' . FRIENDICA_VERSION . '</strong>',
 				DI::baseUrl()->get(),
-				'<strong>' . DB_UPDATE_VERSION . '</strong>',
+				'<strong>' . DB_UPDATE_VERSION . '/' . $config->get('system', 'build') .'</strong>',
 				'<strong>' . $config->get('system', 'post_update_version') . '</strong>'),
 			'friendica' => DI::l10n()->t('Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'),
 			'bugs'      => DI::l10n()->t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">' . DI::l10n()->t('the bugtracker at github') . '</a>',

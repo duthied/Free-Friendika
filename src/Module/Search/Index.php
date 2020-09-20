@@ -34,6 +34,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\ItemContent;
 use Friendica\Model\Tag;
 use Friendica\Module\BaseSearch;
 use Friendica\Network\HTTPException;
@@ -131,6 +132,14 @@ class Index extends BaseSearch
 			}
 		}
 
+		// Don't perform a fulltext or tag search on search results that look like an URL
+		// Tags don't look like an URL and the fulltext search does only work with natural words
+		if (parse_url($search, PHP_URL_SCHEME) && parse_url($search, PHP_URL_HOST)) {
+			Logger::info('Skipping tag and fulltext search since the search looks like a URL.', ['q' => $search]);
+			notice(DI::l10n()->t('No results.'));
+			return $o;
+		}
+
 		$tag = $tag || DI::config()->get('system', 'only_tag_search');
 
 		// Here is the way permissions work in the search module...
@@ -151,31 +160,19 @@ class Index extends BaseSearch
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);
 			$uriids = Tag::getURIIdListByTag($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
-
-			if (!empty($uriids)) {
-				$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
-				$items = Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params);
-				$r = Item::inArray($items);
-			} else {
-				$r = [];
-			}
+			$count = Tag::countByTag($search, local_user());
 		} else {
 			Logger::info('Start fulltext search.', ['q' => $search]);
-
-			$condition = [
-				"(`uid` = 0 OR (`uid` = ? AND NOT `global`))
-				AND `body` LIKE CONCAT('%',?,'%')",
-				local_user(), $search
-			];
-			$params = [
-				'order' => ['id' => true],
-				'limit' => [$pager->getStart(), $pager->getItemsPerPage()]
-			];
-			$items = Item::selectForUser(local_user(), [], $condition, $params);
-			$r = Item::inArray($items);
+			$uriids = ItemContent::getURIIdListBySearch($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
+			$count = ItemContent::countBySearch($search, local_user());
 		}
 
-		if (!DBA::isResult($r)) {
+		if (!empty($uriids)) {
+			$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
+			$items = Item::inArray(Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params));
+		}
+
+		if (empty($items)) {
 			notice(DI::l10n()->t('No results.'));
 			return $o;
 		}
@@ -192,9 +189,9 @@ class Index extends BaseSearch
 
 		Logger::info('Start Conversation.', ['q' => $search]);
 
-		$o .= conversation(DI::app(), $r, 'search', false, false, 'commented', local_user());
+		$o .= conversation(DI::app(), $items, 'search', false, false, 'commented', local_user());
 
-		$o .= $pager->renderMinimal(count($r));
+		$o .= $pager->renderMinimal($count);
 
 		return $o;
 	}

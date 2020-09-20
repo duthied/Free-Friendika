@@ -187,7 +187,7 @@ class Crop extends BaseSettings
 				Worker::add(PRIORITY_LOW, 'Directory', Session::get('my_url'));
 			}
 
-			notice(DI::l10n()->t('Profile picture successfully updated.'));
+			info(DI::l10n()->t('Profile picture successfully updated.'));
 
 			DI::baseUrl()->redirect('profile/' . DI::app()->user['nickname']);
 		}

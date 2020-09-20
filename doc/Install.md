@@ -33,7 +33,7 @@ The account will expire after 7 days, but you can ask the server admin to keep y
 * Apache with mod-rewrite enabled and "Options All" so you can use a local `.htaccess` file
 * PHP 7+ (PHP 7.1+ is recommended for performance and official support)
   * PHP *command line* access with register_argc_argv set to true in the php.ini file
-  * Curl, GD, PDO, MySQLi, hash, xml, zip and OpenSSL extensions
+  * Curl, GD, PDO, mbstrings, MySQLi, hash, xml, zip and OpenSSL extensions
   * The POSIX module of PHP needs to be activated (e.g. [RHEL, CentOS](http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7) have disabled it)
   * some form of email server or email gateway such that PHP mail() works
 * MySQL 5.6+ or an equivalent alternative for MySQL (MariaDB, Percona Server etc.)
@@ -47,7 +47,6 @@ For alternative server configurations (such as Nginx server and MariaDB database
 ### Optional 
 
 * PHP ImageMagick extension (php-imagick) for animated GIF support.
-* [Composer](https://getcomposer.org/) for a git install
 
 ## Installation procedure
 
@@ -61,6 +60,8 @@ If this is nothing for you, you might be interested in
 
 ### Get Friendica
 
+Download the full archive of the stable release of Friendica core and the addons from [the project homepage](https://friendi.ca/resources/download-files/).
+Make sure that the version of the Friendica archive and the addons match.
 Unpack the Friendica files into the root of your web server document area.
 
 If you copy the directory tree to your webserver, make sure that you also copy `.htaccess-dist` - as "dot" files are often hidden and aren't normally copied.

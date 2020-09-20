@@ -311,22 +311,22 @@ function api_call(App $a, App\Arguments $args = null)
 	}
 
 	$type = "json";
-	if (strpos($args->getQueryString(), ".xml") > 0) {
+	if (strpos($args->getCommand(), ".xml") > 0) {
 		$type = "xml";
 	}
-	if (strpos($args->getQueryString(), ".json") > 0) {
+	if (strpos($args->getCommand(), ".json") > 0) {
 		$type = "json";
 	}
-	if (strpos($args->getQueryString(), ".rss") > 0) {
+	if (strpos($args->getCommand(), ".rss") > 0) {
 		$type = "rss";
 	}
-	if (strpos($args->getQueryString(), ".atom") > 0) {
+	if (strpos($args->getCommand(), ".atom") > 0) {
 		$type = "atom";
 	}
 
 	try {
 		foreach ($API as $p => $info) {
-			if (strpos($args->getQueryString(), $p) === 0) {
+			if (strpos($args->getCommand(), $p) === 0) {
 				if (!api_check_method($info['method'])) {
 					throw new MethodNotAllowedException();
 				}

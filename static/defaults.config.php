@@ -210,6 +210,10 @@ return [
 		// Disable the polling of DFRN and OStatus contacts through onepoll.php.
 		'disable_polling' => false,
 
+		// display_resharer (Boolean)
+		// Display the first resharer as icon and text on a reshared item.
+		'display_resharer' => false,
+
 		// dlogfile (Path)
 		// location of the developer log file.
 		'dlogfile' => '',
@@ -303,6 +307,12 @@ return [
 		// Maximum number of queue items for a single contact before subsequent messages are discarded.
 		'max_contact_queue' => 500,
 
+		// max_csv_file_size (Integer)
+		// When uploading a CSV with account addresses to follow
+		// in the user settings, this controls the maximum file
+		// size of the upload file.
+		'max_csv_file_size' => 30720,
+
 		// max_feed_items (Integer)
 		// Maximum number of feed items that are fetched and processed. For unlimited items set to 0.
 		'max_feed_items' => 20,
@@ -352,6 +362,10 @@ return [
 		// Don't use OEmbed to fetch more information about a link.
 		'no_oembed' => false,
 
+		// no_redirect_list (Array)
+		// List of domains where HTTP redirects should be ignored. 
+		'no_redirect_list' => [],
+
 		// no_smilies (Boolean)
 		// Don't show smilies.
 		'no_smilies' => false,
@@ -394,10 +408,6 @@ return [
 		// - 1 = every hour
 		// - 0 = every minute
 		'pushpoll_frequency' => 3,
-
-		// queue_no_dead_check (Boolean)
-		// Ignore if the target contact or server seems to be dead during queue delivery.
-		'queue_no_dead_check' => false,
 
 		// redis_host (String)
 		// Host name of the redis daemon.

@@ -73,7 +73,7 @@ abstract class ContactEndpoint extends BaseApi
 				throw new HTTPException\NotFoundException(DI::l10n()->t('User not found'));
 			}
 
-			$uid = $user['uid'];
+			$uid = (int)$user['uid'];
 		}
 
 		return $uid;
@@ -111,7 +111,7 @@ abstract class ContactEndpoint extends BaseApi
 			'next_cursor_str' => $return['next_cursor_str'],
 			'previous_cursor' => $return['previous_cursor'],
 			'previous_cursor_str' => $return['previous_cursor_str'],
-			'total_count' => $return['total_count'],
+			'total_count' => (int)$return['total_count'],
 		];
 
 		return $return;
@@ -153,7 +153,7 @@ abstract class ContactEndpoint extends BaseApi
 				'pending' => false
 			];
 
-			$total_count = DBA::count('contact', $condition);
+			$total_count = (int)DBA::count('contact', $condition);
 
 			if ($cursor !== -1) {
 				if ($cursor > 0) {
@@ -171,7 +171,7 @@ abstract class ContactEndpoint extends BaseApi
 			// Cursor is on the user-specific contact id since it's the sort field
 			if (count($ids)) {
 				$previous_cursor = -$ids[0];
-				$next_cursor = $ids[count($ids) -1];
+				$next_cursor = (int)$ids[count($ids) -1];
 			}
 
 			// No next page

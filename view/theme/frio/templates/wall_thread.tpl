@@ -81,8 +81,8 @@ as the value of $top_child_total (this is done at the end of this file)
 <span class="uriid" style="display: none;">{{$item.uriid}}</span>
 {{/if}}
 	<div class="media {{$item.shiny}}">
-	{{if $item.responses.announce && $mode != 'display'}}
-		<div class="wall-item-ammounce wall-item-responses" id="wall-item-ammounce-{{$item.id}}">{{$item.responses.announce.output nofilter}}</div>
+	{{if $item.reshared}}
+		<p class="wall-item-announce wall-item-responses" id="wall-item-announce-{{$item.id}}"><i class="fa fa-retweet" aria-hidden="true"></i> {{$item.reshared nofilter}}</p>
 	{{/if}}
 		{{* The avatar picture and the photo-menu *}}
 		<div class="dropdown pull-left"><!-- Dropdown -->
@@ -186,9 +186,9 @@ as the value of $top_child_total (this is done at the end of this file)
 						</small>
 					</div>
 
-					{{if $item.location}}
+					{{if $item.location_html}}
 					<div id="wall-item-location-{{$item.id}}" class="wall-item-location">
-						<small><span class="location">({{$item.location nofilter}})</span></small>
+						<small><span class="location">({{$item.location_html nofilter}})</span></small>
 					</div>
 					{{/if}}
 				</div>
@@ -202,7 +202,7 @@ as the value of $top_child_total (this is done at the end of this file)
 					<p class="text-muted">
 						<small>
 							<a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a>
-							{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}
+							{{if $item.location_html}}&nbsp;&mdash;&nbsp;({{$item.location_html nofilter}}){{/if}}
 							{{if $item.owner_self}}
 								{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 							{{/if}}
@@ -221,7 +221,7 @@ as the value of $top_child_total (this is done at the end of this file)
 					<span class="text-muted">
 				<small>
 					<a class="time" href="{{$item.plink.orig}}" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</a>
-					{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}
+					{{if $item.location_html}}&nbsp;&mdash;&nbsp;({{$item.location_html nofilter}}){{/if}}
 					{{if $item.owner_self}}
 						{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 					{{/if}}
@@ -246,7 +246,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h4><br /></span>
 			{{/if}}
 
-			<div class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}" id="wall-item-body-{{$item.id}}">{{$item.body nofilter}}</div>
+			<div class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}" id="wall-item-body-{{$item.id}}">{{$item.body_html nofilter}}</div>
 		</div>
 
 		<!-- TODO -->
@@ -295,7 +295,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				<button type="button" class="btn-link button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-thumbs-down" aria-hidden="true"></i>&nbsp;{{$item.vote.dislike.1}}</button>
 				{{/if}}
 
-				{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment}}
+				{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment_html}}
 				<span role="presentation" class="separator"></span>
 				{{/if}}
 			{{/if}}
@@ -305,14 +305,14 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{/if}}
 
 			{{* Button to open the comment text field *}}
-			{{if $item.comment}}
+			{{if $item.comment_html}}
 				<button type="button" class="btn-link button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i>&nbsp;{{$item.switchcomment}}</button>
 			{{/if}}
 
 			{{* Button for sharing the item *}}
 			{{if $item.vote}}
 				{{if $item.vote.share}}
-					{{if $item.vote.like OR $item.vote.dislike OR $item.comment}}
+					{{if $item.vote.like OR $item.vote.dislike OR $item.comment_html}}
 				<span role="presentation" class="separator"></span>
 					{{/if}}
 				<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp;{{$item.vote.share.1}}</button>
@@ -422,7 +422,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{/if}}
 
 			{{* Button to open the comment text field *}}
-			{{if $item.comment}}
+			{{if $item.comment_html}}
 				<div class="btn-group" role="group">
 					<button type="button" class="btn btn-sm button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i></button>
 				</div>
@@ -530,17 +530,15 @@ as the value of $top_child_total (this is done at the end of this file)
 	{{if $item.responses}}
 		<div class="wall-item-responses">
 			{{foreach $item.responses as $verb=>$response}}
-				{{if $verb != 'announce' || $mode == 'display'}}
 			<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output nofilter}}</div>
-				{{/if}}
 			{{/foreach}}
 		</div>
 	{{/if}}
 
 		{{* Insert comment box of threaded children *}}
-		{{if $item.threaded && $item.comment && $item.indent==comment}}
+		{{if $item.threaded && $item.comment_html && $item.indent==comment}}
 			<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" data-display="block" style="display: none;">
-				{{$item.comment nofilter}}
+				{{$item.comment_html nofilter}}
 			</div>
 		{{/if}}
 
@@ -555,13 +553,13 @@ as the value of $top_child_total (this is done at the end of this file)
 	{{* Insert the comment box of the top level post at the bottom of the thread.
 		Display this comment box if there are any comments. If not hide it. In this
 		case it could be opend with the "comment" button *}}
-	{{if $item.comment && $item.thread_level==1}}
+	{{if $item.comment_html && $item.thread_level==1}}
 		{{if $item.total_comments_num}}
 		<div class="comment-fake-form" id="comment-fake-form-{{$item.id}}">
 			<textarea id="comment-fake-text-{{$item.id}}" class="comment-fake-text-empty form-control" placeholder="{{$item.reply_label}}" onFocus="commentOpenUI(this, {{$item.id}});"  rows="1"></textarea>
 		</div>
 		{{/if}}
-		<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" data-display="block" style="display: none">{{$item.comment nofilter}}</div>
+		<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" data-display="block" style="display: none">{{$item.comment_html nofilter}}</div>
 	{{/if}}
 </div><!-- ./panel-body or ./wall-item-container -->
 

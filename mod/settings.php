@@ -829,26 +829,6 @@ function settings_content(App $a)
 
 	$stpl = Renderer::getMarkupTemplate('settings/settings.tpl');
 
-	// Private/public post links for the non-JS ACL form
-	$private_post = 1;
-	if (!empty($_REQUEST['public']) && !$_REQUEST['public']) {
-		$private_post = 0;
-	}
-
-	$query_str = DI::args()->getQueryString();
-	if (strpos($query_str, 'public=1') !== false) {
-		$query_str = str_replace(['?public=1', '&public=1'], ['', ''], $query_str);
-	}
-
-	// I think $a->query_string may never have ? in it, but I could be wrong
-	// It looks like it's from the index.php?q=[etc] rewrite that the web
-	// server does, which converts any ? to &, e.g. suggest&ignore=61 for suggest?ignore=61
-	if (strpos($query_str, '?') === false) {
-		$public_post_link = '?public=1';
-	} else {
-		$public_post_link = '&public=1';
-	}
-
 	/* Installed langs */
 	$lang_choices = DI::l10n()->getAvailableLanguages();
 

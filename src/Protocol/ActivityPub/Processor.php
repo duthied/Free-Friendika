@@ -206,9 +206,6 @@ class Processor
 		} else {
 			$item['gravity'] = GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
-
-			// Ensure that the comment reaches all receivers of the referring post
-			$activity['receiver'] = self::addReceivers($activity);
 		}
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Item::exists(['uri' => $activity['reply-to-id']])) {
@@ -275,6 +272,7 @@ class Processor
 
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
+			Logger::info('Message was not processed');
 			return [];
 		}
 
@@ -331,35 +329,6 @@ class Processor
 	}
 
 	/**
-	 * Add users to the receiver list of the given public activity.
-	 * This is used to ensure that the activity will be stored in every thread.
-	 *
-	 * @param array $activity Activity array
-	 * @return array Modified receiver list
-	 */
-	private static function addReceivers(array $activity)
-	{
-		if (!in_array(0, $activity['receiver'])) {
-			// Private activities will not be modified
-			return $activity['receiver'];
-		}
-
-		// Add all owners of the referring item to the receivers
-		$original = $receivers = $activity['receiver'];
-		$items = Item::select(['uid'], ['uri' => $activity['object_id']]);
-		while ($item = DBA::fetch($items)) {
-			$receivers['uid:' . $item['uid']] = $item['uid'];
-		}
-		DBA::close($items);
-
-		if (count($original) != count($receivers)) {
-			Logger::info('Improved data', ['id' => $activity['id'], 'object' => $activity['object_id'], 'original' => $original, 'improved' => $receivers]);
-		}
-
-		return $receivers;
-	}
-
-	/**
 	 * Prepare the item array for an activity
 	 *
 	 * @param array  $activity Activity array
@@ -376,8 +345,6 @@ class Processor
 		$item['object-type'] = Activity\ObjectType::NOTE;
 
 		$item['diaspora_signed_text'] = $activity['diaspora:like'] ?? '';
-
-		$activity['receiver'] = self::addReceivers($activity);
 
 		self::postItem($activity, $item);
 	}
@@ -526,6 +493,33 @@ class Processor
 			}
 
 			$item['uid'] = $receiver;
+
+			$type = $activity['reception_type'][$receiver] ?? Receiver::TARGET_UNKNOWN;
+			switch($type) {
+				case Receiver::TARGET_TO:
+					$item['post-type'] = Item::PT_TO;
+					break;
+				case Receiver::TARGET_CC:
+					$item['post-type'] = Item::PT_CC;
+					break;
+				case Receiver::TARGET_BTO:
+					$item['post-type'] = Item::PT_BTO;
+					break;
+				case Receiver::TARGET_BCC:
+					$item['post-type'] = Item::PT_BCC;
+					break;
+				case Receiver::TARGET_FOLLOWER:
+					$item['post-type'] = Item::PT_FOLLOWER;
+					break;
+				case Receiver::TARGET_ANSWER:
+					$item['post-type'] = Item::PT_COMMENT;
+					break;
+				case Receiver::TARGET_GLOBAL:
+					$item['post-type'] = Item::PT_GLOBAL;
+					break;
+				default:
+					$item['post-type'] = Item::PT_ARTICLE;
+			}
 
 			if ($item['isForum'] ?? false) {
 				$item['contact-id'] = Contact::getIdForURL($activity['actor'], $receiver);
@@ -718,15 +712,22 @@ class Processor
 			return '';
 		}
 
-		if (!empty($child['author'])) {
-			$actor = $child['author'];
-		} elseif (!empty($object['actor'])) {
-			$actor = $object['actor'];
+		if (!empty($object['actor'])) {
+			$object_actor = $object['actor'];
 		} elseif (!empty($object['attributedTo'])) {
-			$actor = $object['attributedTo'];
+			$object_actor = $object['attributedTo'];
 		} else {
 			// Shouldn't happen
-			$actor = '';
+			$object_actor = '';
+		}
+
+		$signer = [$object_actor];
+
+		if (!empty($child['author'])) {
+			$actor = $child['author'];
+			$signer[] = $actor;
+		} else {
+			$actor = $object_actor;
 		}
 
 		if (!empty($object['published'])) {
@@ -752,7 +753,7 @@ class Processor
 
 		$ldactivity['thread-completion'] = true;
 
-		ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity));
+		ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer);
 
 		Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'object' => $activity['id']]);
 
