@@ -1,6 +1,6 @@
-Version 2020.09 (unreleased)
+Version 2020.09 (2020-09-20)
   Friendica Core:
-    Updates to the tranlations: DE, EN GB, EN US, ES, FR, IT, NL, PL, RU, ZH_CN [tranlation teams]
+    Updates to the translations: DE, EN GB, EN US, ES, FR, IT, NL, PL, RU, ZH_CN [translation teams]
     Updates to the themes (all) [MrPetovan, tobiasd]
     Updates to the documentation [annando, mpanhans, realkinetix, tobiasd]
     General code cleanup and refactoring [annando, MrPetovan, nupplaphil]
@@ -13,7 +13,7 @@ Version 2020.09 (unreleased)
     Enhanced the utilization of the cache [annando, MrPetovan]
     Enhanced the performance of the daemon [annando]
     Enhanced the communication with the directory servers [annando]
-    Enhaceed the resharing of items [annando]
+    Enhanced the re-sharing of items [annando]
     Enhanced sample lighttpd and nginx configs [MrPetovan, tobiasd]
     Enhanced the checks for incoming postings using ActivityPub [annando, Roger Meyer]
     Enhanced the import of RSS feeds by removing tracking pixels [annando]
@@ -37,15 +37,15 @@ Version 2020.09 (unreleased)
     Added the automatic determination of frequency to pull feeds [annando]
     Added signed fetching from system users for ActivityPub [annando]
     Added the discovery of new peers from contacts [annando]
-    Added the directory API endpoint [anndno]
+    Added the directory API endpoint [annando]
     Added support for signed outbox requests [annando]
     Added direction functionality for clarification of posting flow [annando]
     Added the ability to set the database version [annando]
-    Added support for Activity Pub relay server [annando]
-    By default display of resharer information is now flattened [annando]
+    Added support for ActivityPub relay server [annando]
+    By default display of re-sharer information is now flattened [annando]
     Removed some unused POCO functionality [annando]
     Removed the unused rating functionality [annando]
-    Removed unneded network request for local stuff [annando]
+    Removed unneeded network request for local stuff [annando]
     Removed some useless info messages [annando]
     Reworked some additional features according to a user voting [MrPetovan]
 
