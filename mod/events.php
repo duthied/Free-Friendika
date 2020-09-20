@@ -132,7 +132,7 @@ function events_post(App $a)
 	$onerror_path = 'events/' . $action . '?' . http_build_query($params, null, null, PHP_QUERY_RFC3986);
 
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
-		notice(DI::l10n()->t('Event can not end before it has started.') . EOL);
+		notice(DI::l10n()->t('Event can not end before it has started.'));
 		if (intval($_REQUEST['preview'])) {
 			echo DI::l10n()->t('Event can not end before it has started.');
 			exit();
@@ -141,7 +141,7 @@ function events_post(App $a)
 	}
 
 	if (!$summary || ($start === DBA::NULL_DATETIME)) {
-		notice(DI::l10n()->t('Event title and start time are required.') . EOL);
+		notice(DI::l10n()->t('Event title and start time are required.'));
 		if (intval($_REQUEST['preview'])) {
 			echo DI::l10n()->t('Event title and start time are required.');
 			exit();
@@ -225,7 +225,7 @@ function events_post(App $a)
 function events_content(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
 
@@ -255,6 +255,11 @@ function events_content(App $a)
 
 	// get the translation strings for the callendar
 	$i18n = Event::getStrings();
+
+	DI::page()->registerStylesheet('view/asset/fullcalendar/dist/fullcalendar.min.css');
+	DI::page()->registerStylesheet('view/asset/fullcalendar/dist/fullcalendar.print.min.css', 'print');
+	DI::page()->registerFooterScript('view/asset/moment/min/moment-with-locales.min.js');
+	DI::page()->registerFooterScript('view/asset/fullcalendar/dist/fullcalendar.min.js');
 
 	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($htpl, [
@@ -469,16 +474,16 @@ function events_content(App $a)
 		$t_orig = $orig_event['summary']  ?? '';
 		$d_orig = $orig_event['desc']     ?? '';
 		$l_orig = $orig_event['location'] ?? '';
-		$eid = !empty($orig_event) ? $orig_event['id']  : 0;
-		$cid = !empty($orig_event) ? $orig_event['cid'] : 0;
-		$uri = !empty($orig_event) ? $orig_event['uri'] : '';
+		$eid = $orig_event['id'] ?? 0;
+		$cid = $orig_event['cid'] ?? 0;
+		$uri = $orig_event['uri'] ?? '';
 
 		if ($cid || $mode === 'edit') {
 			$share_disabled = 'disabled="disabled"';
 		}
 
-		$sdt = !empty($orig_event) ? $orig_event['start']  : 'now';
-		$fdt = !empty($orig_event) ? $orig_event['finish'] : 'now';
+		$sdt = $orig_event['start'] ?? 'now';
+		$fdt = $orig_event['finish'] ?? 'now';
 
 		$tz = date_default_timezone_get();
 		if (!empty($orig_event)) {
@@ -583,9 +588,7 @@ function events_content(App $a)
 		}
 
 		if (Item::exists(['id' => $ev[0]['itemid']])) {
-			notice(DI::l10n()->t('Failed to remove event') . EOL);
-		} else {
-			info(DI::l10n()->t('Event removed') . EOL);
+			notice(DI::l10n()->t('Failed to remove event'));
 		}
 
 		DI::baseUrl()->redirect('events');

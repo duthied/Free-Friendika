@@ -518,10 +518,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('item_photo_menu', $args);
     Hook::callAll('jot_tool', $jotplugins);
 
-### include/items.php
-
-    Hook::callAll('page_info_data', $data);
-
 ### mod/directory.php
 
     Hook::callAll('directory_item', $arr);
@@ -608,10 +604,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 
     Hook::callAll('post_local_end', $arr);
 
-### mod/lockview.php
-
-    Hook::callAll('lockview_content', $item);
-
 ### mod/uexport.php
 
     Hook::callAll('uexport_options', $options);
@@ -682,6 +674,10 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 
     Hook::callAll('register_account', $uid);
     Hook::callAll('remove_user', $user);
+
+### src/Module/PermissionTooltip.php
+
+    Hook::callAll('lockview_content', $item);
 
 ### src/Content/ContactBlock.php
 

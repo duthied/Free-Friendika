@@ -24,10 +24,11 @@
  */
 
 use Friendica\App;
+use Friendica\Content\PageInfo;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
-use Friendica\Util\Network;
+use Friendica\DI;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Strings;
 
@@ -84,7 +85,7 @@ function parse_url_content(App $a)
 	// Check if the URL is an image, video or audio file. If so format
 	// the URL with the corresponding BBCode media tag
 	// Fetch the header of the URL
-	$curlResponse = Network::curl($url, false, ['novalidate' => true, 'nobody' => true]);
+	$curlResponse = DI::httpRequest()->get($url, false, ['novalidate' => true, 'nobody' => true]);
 
 	if ($curlResponse->isSuccess()) {
 		// Convert the header fields into an array
@@ -177,7 +178,7 @@ function parse_url_content(App $a)
 	}
 
 	// Format it as BBCode attachment
-	$info = add_page_info_data($siteinfo);
+	$info = "\n" . PageInfo::getFooterFromData($siteinfo);
 
 	echo $info;
 

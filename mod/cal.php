@@ -105,6 +105,11 @@ function cal_content(App $a)
 	// get the translation strings for the callendar
 	$i18n = Event::getStrings();
 
+	DI::page()->registerStylesheet('view/asset/fullcalendar/dist/fullcalendar.min.css');
+	DI::page()->registerStylesheet('view/asset/fullcalendar/dist/fullcalendar.print.min.css', 'print');
+	DI::page()->registerFooterScript('view/asset/moment/min/moment-with-locales.min.js');
+	DI::page()->registerFooterScript('view/asset/fullcalendar/dist/fullcalendar.min.js');
+
 	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($htpl, [
 		'$module_url' => '/cal/' . $a->data['user']['nickname'],
@@ -134,7 +139,7 @@ function cal_content(App $a)
 	$is_owner = local_user() == $a->profile['uid'];
 
 	if ($a->profile['hidewall'] && !$is_owner && !$remote_contact) {
-		notice(DI::l10n()->t('Access to this profile has been restricted.') . EOL);
+		notice(DI::l10n()->t('Access to this profile has been restricted.'));
 		return;
 	}
 
@@ -290,13 +295,6 @@ function cal_content(App $a)
 		if (!$owner_uid) {
 			notice(DI::l10n()->t('User not found'));
 			return;
-		}
-
-		// Test permissions
-		// Respect the export feature setting for all other /cal pages if it's not the own profile
-		if ((local_user() !== $owner_uid) && !Feature::isEnabled($owner_uid, "export_calendar")) {
-			notice(DI::l10n()->t('Permission denied.') . EOL);
-			DI::baseUrl()->redirect('cal/' . $nick);
 		}
 
 		// Get the export data by uid

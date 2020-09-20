@@ -62,7 +62,7 @@ function follow_post(App $a)
 		DI::baseUrl()->redirect('contact/' . $result['cid']);
 	}
 
-	info(DI::l10n()->t('The contact could not be added.'));
+	notice(DI::l10n()->t('The contact could not be added.'));
 
 	DI::baseUrl()->redirect($return_path);
 	// NOTREACHED
@@ -107,8 +107,14 @@ function follow_content(App $a)
 		}
 	}
 
-	$contact = Contact::getByURL($url, 0, [], true);
+	$contact = Contact::getByURL($url, true);
+
+	// Possibly it is a mail contact
 	if (empty($contact)) {
+		$contact = Probe::uri($url, Protocol::MAIL, $uid);
+	}
+
+	if (empty($contact) || ($contact['network'] == Protocol::PHANTOM)) {
 		// Possibly it is a remote item and not an account
 		follow_remote_item($url);
 

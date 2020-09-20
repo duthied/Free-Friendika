@@ -26,14 +26,13 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 
 /**
  * Endpoint for getting current user infos
  *
- * @see GContact::updateFromNoScrape() for usage
+ * @see Contact::updateFromNoScrape() for usage
  */
 class NoScrape extends BaseModule
 {

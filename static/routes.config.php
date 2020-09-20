@@ -30,6 +30,14 @@
 use Friendica\App\Router as R;
 use Friendica\Module;
 
+$profileRoutes = [
+	''                                         => [Module\Profile\Index::class,    [R::GET]],
+	'/profile'                                 => [Module\Profile\Profile::class,  [R::GET]],
+	'/contacts/common'                         => [Module\Profile\Common::class,   [R::GET]],
+	'/contacts[/{type}]'                       => [Module\Profile\Contacts::class, [R::GET]],
+	'/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,   [R::GET]],
+];
+
 return [
 	'/' => [Module\Home::class, [R::GET]],
 
@@ -37,6 +45,7 @@ return [
 		'/host-meta'      => [Module\WellKnown\HostMeta::class,     [R::GET]],
 		'/nodeinfo'       => [Module\WellKnown\NodeInfo::class,     [R::GET]],
 		'/webfinger'      => [Module\Xrd::class,                    [R::GET]],
+		'/x-nodeinfo2'    => [Module\NodeInfo210::class,            [R::GET]],
 		'/x-social-relay' => [Module\WellKnown\XSocialRelay::class, [R::GET]],
 	],
 
@@ -47,11 +56,13 @@ return [
 
 	'/api' => [
 		'/v1' => [
-			'/custom_emojis'                     => [Module\Api\Mastodon\CustomEmojis::class,   [R::GET         ]],
-			'/follow_requests'                   => [Module\Api\Mastodon\FollowRequests::class, [R::GET         ]],
-			'/follow_requests/{id:\d+}/{action}' => [Module\Api\Mastodon\FollowRequests::class, [        R::POST]],
-			'/instance'                          => [Module\Api\Mastodon\Instance::class,       [R::GET         ]],
-			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class, [R::GET         ]],
+			'/custom_emojis'                     => [Module\Api\Mastodon\CustomEmojis::class,             [R::GET         ]],
+			'/directory'                         => [Module\Api\Mastodon\Directory::class,                [R::GET         ]],
+			'/follow_requests'                   => [Module\Api\Mastodon\FollowRequests::class,           [R::GET         ]],
+			'/follow_requests/{id:\d+}/{action}' => [Module\Api\Mastodon\FollowRequests::class,           [        R::POST]],
+			'/instance'                          => [Module\Api\Mastodon\Instance::class,                 [R::GET         ]],
+			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class,           [R::GET         ]],
+			'/timelines/public'                  => [Module\Api\Mastodon\Timelines\PublicTimeline::class, [R::GET         ]],
 		],
 		'/friendica' => [
 			'/profile/show'                      => [Module\Api\Friendica\Profile\Show::class , [R::GET         ]],
@@ -100,10 +111,10 @@ return [
 	],
 	'/amcd'                => [Module\AccountManagementControlDocument::class, [R::GET]],
 	'/acctlink'            => [Module\Acctlink::class,     [R::GET]],
-	'/allfriends/{id:\d+}' => [Module\AllFriends::class,   [R::GET]],
 	'/apps'                => [Module\Apps::class,         [R::GET]],
 	'/attach/{item:\d+}'   => [Module\Attach::class,       [R::GET]],
 	'/babel'               => [Module\Debug\Babel::class,  [R::GET, R::POST]],
+	'/debug/ap'            => [Module\Debug\ActivityPubConversion::class,  [R::GET, R::POST]],
 	'/bookmarklet'         => [Module\Bookmarklet::class,  [R::GET]],
 
 	'/community[/{content}[/{accounttype}]]' => [Module\Conversation\Community::class, [R::GET]],
@@ -111,25 +122,26 @@ return [
 	'/compose[/{type}]'    => [Module\Item\Compose::class, [R::GET, R::POST]],
 
 	'/contact'   => [
-		'[/]'                     => [Module\Contact::class,           [R::GET]],
-		'/{id:\d+}[/]'            => [Module\Contact::class,           [R::GET, R::POST]],
-		'/{id:\d+}/archive'       => [Module\Contact::class,           [R::GET]],
-		'/{id:\d+}/advanced'      => [Module\Contact\Advanced::class,  [R::GET, R::POST]],
-		'/{id:\d+}/block'         => [Module\Contact::class,           [R::GET]],
-		'/{id:\d+}/conversations' => [Module\Contact::class,           [R::GET]],
-		'/{id:\d+}/drop'          => [Module\Contact::class,           [R::GET]],
-		'/{id:\d+}/ignore'        => [Module\Contact::class,           [R::GET]],
-		'/{id:\d+}/poke'          => [Module\Contact\Poke::class,      [R::GET, R::POST]],
-		'/{id:\d+}/posts'         => [Module\Contact::class,           [R::GET]],
-		'/{id:\d+}/update'        => [Module\Contact::class,           [R::GET]],
-		'/{id:\d+}/updateprofile' => [Module\Contact::class,           [R::GET]],
-		'/archived'               => [Module\Contact::class,           [R::GET]],
-		'/batch'                  => [Module\Contact::class,           [R::GET, R::POST]],
-		'/pending'                => [Module\Contact::class,           [R::GET]],
-		'/blocked'                => [Module\Contact::class,           [R::GET]],
-		'/hidden'                 => [Module\Contact::class,           [R::GET]],
-		'/ignored'                => [Module\Contact::class,           [R::GET]],
-		'/hovercard'              => [Module\Contact\Hovercard::class, [R::GET]],
+		'[/]'                         => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}[/]'                => [Module\Contact::class,           [R::GET, R::POST]],
+		'/{id:\d+}/archive'           => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/advanced'          => [Module\Contact\Advanced::class,  [R::GET, R::POST]],
+		'/{id:\d+}/block'             => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/conversations'     => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/contacts[/{type}]' => [Module\Contact\Contacts::class,  [R::GET]],
+		'/{id:\d+}/drop'              => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/ignore'            => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/poke'              => [Module\Contact\Poke::class,      [R::GET, R::POST]],
+		'/{id:\d+}/posts'             => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/update'            => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/updateprofile'     => [Module\Contact::class,           [R::GET]],
+		'/archived'                   => [Module\Contact::class,           [R::GET]],
+		'/batch'                      => [Module\Contact::class,           [R::GET, R::POST]],
+		'/pending'                    => [Module\Contact::class,           [R::GET]],
+		'/blocked'                    => [Module\Contact::class,           [R::GET]],
+		'/hidden'                     => [Module\Contact::class,           [R::GET]],
+		'/ignored'                    => [Module\Contact::class,           [R::GET]],
+		'/hovercard'                  => [Module\Contact\Hovercard::class, [R::GET]],
 	],
 
 	'/credits'               => [Module\Credits::class,        [R::GET]],
@@ -158,6 +170,7 @@ return [
 	'/followers/{owner}' => [Module\Followers::class,       [R::GET]],
 	'/following/{owner}' => [Module\Following::class,       [R::GET]],
 	'/friendica[/json]'  => [Module\Friendica::class,       [R::GET]],
+	'/friendica/inbox'   => [Module\Inbox::class,           [R::GET, R::POST]],
 
 	'/fsuggest/{contact:\d+}' => [Module\FriendSuggest::class,  [R::GET, R::POST]],
 
@@ -197,7 +210,8 @@ return [
 	'/manifest'           => [Module\Manifest::class,        [R::GET]],
 	'/modexp/{nick}'      => [Module\PublicRSAKey::class,    [R::GET]],
 	'/newmember'          => [Module\Welcome::class,         [R::GET]],
-	'/nodeinfo/{version}' => [Module\NodeInfo::class,        [R::GET]],
+	'/nodeinfo/1.0'       => [Module\NodeInfo110::class,     [R::GET]],
+	'/nodeinfo/2.0'       => [Module\NodeInfo120::class,     [R::GET]],
 	'/nogroup'            => [Module\Group::class,           [R::GET]],
 
 	'/noscrape' => [
@@ -232,6 +246,8 @@ return [
 	'/openid'         => [Module\Security\OpenID::class, [R::GET]],
 	'/opensearch'     => [Module\OpenSearch::class,      [R::GET]],
 
+	'/permission/tooltip/{type}/{id:\d+}' => [Module\PermissionTooltip::class, [R::GET]],
+
 	'/photo' => [
 		'/{name}'                    => [Module\Photo::class, [R::GET]],
 		'/{type}/{name}'             => [Module\Photo::class, [R::GET]],
@@ -242,12 +258,9 @@ return [
 	'/pretheme'          => [Module\ThemeDetails::class, [R::GET]],
 	'/probe'             => [Module\Debug\Probe::class,  [R::GET]],
 
-	'/profile' => [
-		'/{nickname}'                                         => [Module\Profile\Index::class,    [R::GET]],
-		'/{nickname}/profile'                                 => [Module\Profile\Profile::class,  [R::GET]],
-		'/{nickname}/contacts[/{type}]'                       => [Module\Profile\Contacts::class, [R::GET]],
-		'/{nickname}/status[/{category}[/{date1}[/{date2}]]]' => [Module\Profile\Status::class,   [R::GET]],
-	],
+	'/profile/{nickname}' => $profileRoutes,
+	'/u/{nickname}'       => $profileRoutes,
+	'/~{nickname}'        => $profileRoutes,
 
 	'/proxy' => [
 		'[/]'                  => [Module\Proxy::class, [R::GET]],

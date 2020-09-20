@@ -23,8 +23,8 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Photo as MPhoto;
 
 /**
@@ -139,16 +139,16 @@ class Photo extends BaseModule
 		case "profile":
 		case "custom":
 			$scale = 4;
-			$default = "images/person-300.jpg";
+			$default = Contact::DEFAULT_AVATAR_PHOTO;
 			break;
 		case "micro":
 			$scale = 6;
-			$default = "images/person-48.jpg";
+			$default = Contact::DEFAULT_AVATAR_MICRO;
 			break;
 		case "avatar":
 		default:
 			$scale = 5;
-			$default = "images/person-80.jpg";
+			$default = Contact::DEFAULT_AVATAR_THUMB;
 		}
 
 		$photo = MPhoto::selectFirst([], ["scale" => $scale, "uid" => $uid, "profile" => 1]);

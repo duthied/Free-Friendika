@@ -64,7 +64,7 @@ abstract class BaseAdmin extends BaseModule
 		}
 
 		if (!empty($_SESSION['submanage'])) {
-			throw new HTTPException\ForbiddenException(DI::l10n()->t('Submanaged account can\'t access the administation pages. Please log back in as the main account.'));
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Submanaged account can\'t access the administration pages. Please log back in as the main account.'));
 		}
 	}
 
@@ -114,6 +114,7 @@ abstract class BaseAdmin extends BaseModule
 				'webfinger'    => ['webfinger'         , DI::l10n()->t('check webfinger')         , 'webfinger'],
 				'itemsource'   => ['admin/item/source' , DI::l10n()->t('Item Source')             , 'itemsource'],
 				'babel'        => ['babel'             , DI::l10n()->t('Babel')                   , 'babel'],
+				'debug/ap'     => ['debug/ap'          , DI::l10n()->t('ActivityPub Conversion')  , 'debug/ap'],
 			]],
 		];
 

@@ -23,6 +23,7 @@ namespace Friendica\Protocol;
 
 use DOMDocument;
 use DOMXPath;
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache\Duration;
@@ -33,7 +34,6 @@ use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
-use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Tag;
@@ -41,7 +41,6 @@ use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
-use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
@@ -216,11 +215,11 @@ class OStatus
 
 			if (!empty($author["author-avatar"]) && ($author["author-avatar"] != $current['avatar'])) {
 				Logger::log("Update profile picture for contact ".$contact["id"], Logger::DEBUG);
-				Contact::updateAvatar($author["author-avatar"], $importer["uid"], $contact["id"]);
+				Contact::updateAvatar($contact["id"], $author["author-avatar"]);
 			}
 
 			// Ensure that we are having this contact (with uid=0)
-			$cid = Contact::getIdForURL($aliaslink, 0, true);
+			$cid = Contact::getIdForURL($aliaslink);
 
 			if ($cid) {
 				$fields = ['url', 'nurl', 'name', 'nick', 'alias', 'about', 'location'];
@@ -237,18 +236,9 @@ class OStatus
 
 				// Update the avatar
 				if (!empty($author["author-avatar"])) {
-					Contact::updateAvatar($author["author-avatar"], 0, $cid);
+					Contact::updateAvatar($cid, $author["author-avatar"]);
 				}
 			}
-
-			$contact["generation"] = 2;
-			$contact["hide"] = false; // OStatus contacts are never hidden
-			if (!empty($author["author-avatar"])) {
-				$contact["photo"] = $author["author-avatar"];
-			}
-			$gcid = GContact::update($contact);
-
-			GContact::link($gcid, $contact["uid"], $contact["id"]);
 		} elseif (empty($contact["network"]) || ($contact["network"] != Protocol::DFRN)) {
 			$contact = [];
 		}
@@ -554,15 +544,8 @@ class OStatus
 						} elseif ($item['contact-id'] < 0) {
 							Logger::log("Item with uri ".$item["uri"]." is from a blocked contact.", Logger::DEBUG);
 						} else {
-							// We are having duplicated entries. Hopefully this solves it.
-							if (DI::lock()->acquire('ostatus_process_item_insert')) {
-								$ret = Item::insert($item);
-								DI::lock()->release('ostatus_process_item_insert');
-								Logger::log("Item with uri ".$item["uri"]." for user ".$importer["uid"].' stored. Return value: '.$ret);
-							} else {
-								$ret = Item::insert($item);
-								Logger::log("We couldn't lock - but tried to store the item anyway. Return value is ".$ret);
-							}
+							$ret = Item::insert($item);
+							Logger::log("Item with uri ".$item["uri"]." for user ".$importer["uid"].' stored. Return value: '.$ret);
 						}
 					}
 				}
@@ -697,7 +680,7 @@ class OStatus
 
 		// Only add additional data when there is no picture in the post
 		if (!strstr($item["body"], '[/img]')) {
-			$item["body"] = add_page_info_to_body($item["body"]);
+			$item["body"] = PageInfo::searchAndAppendToBody($item["body"]);
 		}
 
 		Tag::storeFromBody($item['uri-id'], $item['body']);
@@ -755,7 +738,7 @@ class OStatus
 
 		self::$conv_list[$conversation] = true;
 
-		$curlResult = Network::curl($conversation, false, ['accept_content' => 'application/atom+xml, text/html']);
+		$curlResult = DI::httpRequest()->get($conversation, false, ['accept_content' => 'application/atom+xml, text/html']);
 
 		if (!$curlResult->isSuccess()) {
 			return;
@@ -784,7 +767,7 @@ class OStatus
 					}
 				}
 				if ($file != '') {
-					$conversation_atom = Network::curl($attribute['href']);
+					$conversation_atom = DI::httpRequest()->get($attribute['href']);
 
 					if ($conversation_atom->isSuccess()) {
 						$xml = $conversation_atom->getBody();
@@ -901,7 +884,7 @@ class OStatus
 			return;
 		}
 
-		$curlResult = Network::curl($self);
+		$curlResult = DI::httpRequest()->get($self);
 
 		if (!$curlResult->isSuccess()) {
 			return;
@@ -948,7 +931,7 @@ class OStatus
 		}
 
 		$stored = false;
-		$curlResult = Network::curl($related, false, ['accept_content' => 'application/atom+xml, text/html']);
+		$curlResult = DI::httpRequest()->get($related, false, ['accept_content' => 'application/atom+xml, text/html']);
 
 		if (!$curlResult->isSuccess()) {
 			return;
@@ -979,7 +962,7 @@ class OStatus
 					}
 				}
 				if ($atom_file != '') {
-					$curlResult = Network::curl($atom_file);
+					$curlResult = DI::httpRequest()->get($atom_file);
 
 					if ($curlResult->isSuccess()) {
 						Logger::log('Fetched XML for URI ' . $related_uri, Logger::DEBUG);
@@ -991,7 +974,7 @@ class OStatus
 
 		// Workaround for older GNU Social servers
 		if (($xml == '') && strstr($related, '/notice/')) {
-			$curlResult = Network::curl(str_replace('/notice/', '/api/statuses/show/', $related).'.atom');
+			$curlResult = DI::httpRequest()->get(str_replace('/notice/', '/api/statuses/show/', $related) . '.atom');
 
 			if ($curlResult->isSuccess()) {
 				Logger::log('GNU Social workaround to fetch XML for URI ' . $related_uri, Logger::DEBUG);
@@ -1002,7 +985,7 @@ class OStatus
 		// Even more worse workaround for GNU Social ;-)
 		if ($xml == '') {
 			$related_guess = self::convertHref($related_uri);
-			$curlResult = Network::curl(str_replace('/notice/', '/api/statuses/show/', $related_guess).'.atom');
+			$curlResult = DI::httpRequest()->get(str_replace('/notice/', '/api/statuses/show/', $related_guess) . '.atom');
 
 			if ($curlResult->isSuccess()) {
 				Logger::log('GNU Social workaround 2 to fetch XML for URI ' . $related_uri, Logger::DEBUG);
@@ -1120,7 +1103,7 @@ class OStatus
 						if (($item["object-type"] == Activity\ObjectType::QUESTION)
 							|| ($item["object-type"] == Activity\ObjectType::EVENT)
 						) {
-							$item["body"] .= add_page_info($attribute['href']);
+							$item["body"] .= "\n" . PageInfo::getFooterFromUrl($attribute['href']);
 						}
 						break;
 					case "ostatus:conversation":
@@ -1153,7 +1136,7 @@ class OStatus
 							}
 							$link_data['related'] = $attribute['href'];
 						} else {
-							$item["body"] .= add_page_info($attribute['href']);
+							$item["body"] .= "\n" . PageInfo::getFooterFromUrl($attribute['href']);
 						}
 						break;
 					case "self":
@@ -1207,7 +1190,7 @@ class OStatus
 	 *
 	 * @return string The guid if the post is a reshare
 	 */
-	private static function getResharedGuid(array $item)
+	public static function getResharedGuid(array $item)
 	{
 		$reshared = Item::getShareArray($item);
 		if (empty($reshared['guid']) || !empty($reshared['comment'])) {
@@ -1225,7 +1208,7 @@ class OStatus
 	 * @return string The cleaned body
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function formatPicturePost($body)
+	public static function formatPicturePost($body)
 	{
 		$siteinfo = BBCode::getAttachedData($body);
 
@@ -1261,26 +1244,23 @@ class OStatus
 	 * @param DOMDocument $doc       XML document
 	 * @param array       $owner     Contact data of the poster
 	 * @param string      $filter    The related feed filter (activity, posts or comments)
-	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 *
 	 * @return object header root element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function addHeader(DOMDocument $doc, array $owner, $filter, $feed_mode = false)
+	private static function addHeader(DOMDocument $doc, array $owner, $filter)
 	{
 		$root = $doc->createElementNS(ActivityNamespace::ATOM1, 'feed');
 		$doc->appendChild($root);
 
-		if (!$feed_mode) {
-			$root->setAttribute("xmlns:thr", ActivityNamespace::THREAD);
-			$root->setAttribute("xmlns:georss", ActivityNamespace::GEORSS);
-			$root->setAttribute("xmlns:activity", ActivityNamespace::ACTIVITY);
-			$root->setAttribute("xmlns:media", ActivityNamespace::MEDIA);
-			$root->setAttribute("xmlns:poco", ActivityNamespace::POCO);
-			$root->setAttribute("xmlns:ostatus", ActivityNamespace::OSTATUS);
-			$root->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
-			$root->setAttribute("xmlns:mastodon", ActivityNamespace::MASTODON);
-		}
+		$root->setAttribute("xmlns:thr", ActivityNamespace::THREAD);
+		$root->setAttribute("xmlns:georss", ActivityNamespace::GEORSS);
+		$root->setAttribute("xmlns:activity", ActivityNamespace::ACTIVITY);
+		$root->setAttribute("xmlns:media", ActivityNamespace::MEDIA);
+		$root->setAttribute("xmlns:poco", ActivityNamespace::POCO);
+		$root->setAttribute("xmlns:ostatus", ActivityNamespace::OSTATUS);
+		$root->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
+		$root->setAttribute("xmlns:mastodon", ActivityNamespace::MASTODON);
 
 		$title = '';
 		$selfUri = '/feed/' . $owner["nick"] . '/';
@@ -1298,9 +1278,7 @@ class OStatus
 				break;
 		}
 
-		if (!$feed_mode) {
-			$selfUri = "/dfrn_poll/" . $owner["nick"];
-		}
+		$selfUri = "/dfrn_poll/" . $owner["nick"];
 
 		$attributes = ["uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION];
 		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
@@ -1310,7 +1288,7 @@ class OStatus
 		XML::addElement($doc, $root, "logo", $owner["photo"]);
 		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
 
-		$author = self::addAuthor($doc, $owner, true, $feed_mode);
+		$author = self::addAuthor($doc, $owner, true);
 		$root->appendChild($author);
 
 		$attributes = ["href" => $owner["url"], "rel" => "alternate", "type" => "text/html"];
@@ -1324,21 +1302,19 @@ class OStatus
 
 		self::hublinks($doc, $root, $owner["nick"]);
 
-		if (!$feed_mode) {
-			$attributes = ["href" => DI::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "salmon"];
-			XML::addElement($doc, $root, "link", "", $attributes);
+		$attributes = ["href" => DI::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "salmon"];
+		XML::addElement($doc, $root, "link", "", $attributes);
 
-			$attributes = ["href" => DI::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-replies"];
-			XML::addElement($doc, $root, "link", "", $attributes);
+		$attributes = ["href" => DI::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-replies"];
+		XML::addElement($doc, $root, "link", "", $attributes);
 
-			$attributes = ["href" => DI::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention"];
-			XML::addElement($doc, $root, "link", "", $attributes);
-		}
+		$attributes = ["href" => DI::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention"];
+		XML::addElement($doc, $root, "link", "", $attributes);
 
 		$attributes = ["href" => DI::baseUrl() . $selfUri, "rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		if ($owner['account-type'] == Contact::TYPE_COMMUNITY) {
+		if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
 			$condition = ['uid' => $owner['uid'], 'self' => false, 'pending' => false,
 					'archive' => false, 'hidden' => false, 'blocked' => false];
 			$members = DBA::count('contact', $condition);
@@ -1372,7 +1348,7 @@ class OStatus
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function getAttachment(DOMDocument $doc, $root, $item)
+	public static function getAttachment(DOMDocument $doc, $root, $item)
 	{
 		$siteinfo = BBCode::getAttachedData($item["body"]);
 
@@ -1442,79 +1418,75 @@ class OStatus
 	 * @param DOMDocument $doc          XML document
 	 * @param array       $owner        Contact data of the poster
 	 * @param bool        $show_profile Whether to show profile
-	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 *
 	 * @return \DOMElement author element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function addAuthor(DOMDocument $doc, array $owner, $show_profile = true, $feed_mode = false)
+	private static function addAuthor(DOMDocument $doc, array $owner, $show_profile = true)
 	{
 		$profile = DBA::selectFirst('profile', ['homepage', 'publish'], ['uid' => $owner['uid']]);
 		$author = $doc->createElement("author");
-		if (!$feed_mode) {
-			XML::addElement($doc, $author, "id", $owner["url"]);
-			if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-				XML::addElement($doc, $author, "activity:object-type", Activity\ObjectType::GROUP);
-			} else {
-				XML::addElement($doc, $author, "activity:object-type", Activity\ObjectType::PERSON);
-			}
+		XML::addElement($doc, $author, "id", $owner["url"]);
+		if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
+			XML::addElement($doc, $author, "activity:object-type", Activity\ObjectType::GROUP);
+		} else {
+			XML::addElement($doc, $author, "activity:object-type", Activity\ObjectType::PERSON);
 		}
+
 		XML::addElement($doc, $author, "uri", $owner["url"]);
 		XML::addElement($doc, $author, "name", $owner["nick"]);
 		XML::addElement($doc, $author, "email", $owner["addr"]);
-		if ($show_profile && !$feed_mode) {
+		if ($show_profile) {
 			XML::addElement($doc, $author, "summary", BBCode::convert($owner["about"], false, BBCode::OSTATUS));
 		}
 
-		if (!$feed_mode) {
-			$attributes = ["rel" => "alternate", "type" => "text/html", "href" => $owner["url"]];
-			XML::addElement($doc, $author, "link", "", $attributes);
+		$attributes = ["rel" => "alternate", "type" => "text/html", "href" => $owner["url"]];
+		XML::addElement($doc, $author, "link", "", $attributes);
 
+		$attributes = [
+				"rel" => "avatar",
+				"type" => "image/jpeg", // To-Do?
+				"media:width" => 300,
+				"media:height" => 300,
+				"href" => $owner["photo"]];
+		XML::addElement($doc, $author, "link", "", $attributes);
+
+		if (isset($owner["thumb"])) {
 			$attributes = [
 					"rel" => "avatar",
 					"type" => "image/jpeg", // To-Do?
-					"media:width" => 300,
-					"media:height" => 300,
-					"href" => $owner["photo"]];
+					"media:width" => 80,
+					"media:height" => 80,
+					"href" => $owner["thumb"]];
 			XML::addElement($doc, $author, "link", "", $attributes);
+		}
 
-			if (isset($owner["thumb"])) {
-				$attributes = [
-						"rel" => "avatar",
-						"type" => "image/jpeg", // To-Do?
-						"media:width" => 80,
-						"media:height" => 80,
-						"href" => $owner["thumb"]];
-				XML::addElement($doc, $author, "link", "", $attributes);
+		XML::addElement($doc, $author, "poco:preferredUsername", $owner["nick"]);
+		XML::addElement($doc, $author, "poco:displayName", $owner["name"]);
+		if ($show_profile) {
+			XML::addElement($doc, $author, "poco:note", BBCode::convert($owner["about"], false, BBCode::OSTATUS));
+
+			if (trim($owner["location"]) != "") {
+				$element = $doc->createElement("poco:address");
+				XML::addElement($doc, $element, "poco:formatted", $owner["location"]);
+				$author->appendChild($element);
+			}
+		}
+
+		if (DBA::isResult($profile) && !$show_profile) {
+			if (trim($profile["homepage"]) != "") {
+				$urls = $doc->createElement("poco:urls");
+				XML::addElement($doc, $urls, "poco:type", "homepage");
+				XML::addElement($doc, $urls, "poco:value", $profile["homepage"]);
+				XML::addElement($doc, $urls, "poco:primary", "true");
+				$author->appendChild($urls);
 			}
 
-			XML::addElement($doc, $author, "poco:preferredUsername", $owner["nick"]);
-			XML::addElement($doc, $author, "poco:displayName", $owner["name"]);
-			if ($show_profile) {
-				XML::addElement($doc, $author, "poco:note", BBCode::convert($owner["about"], false, BBCode::OSTATUS));
+			XML::addElement($doc, $author, "followers", "", ["url" => DI::baseUrl() . "/profile/" . $owner["nick"] . "/contacts/followers"]);
+			XML::addElement($doc, $author, "statusnet:profile_info", "", ["local_id" => $owner["uid"]]);
 
-				if (trim($owner["location"]) != "") {
-					$element = $doc->createElement("poco:address");
-					XML::addElement($doc, $element, "poco:formatted", $owner["location"]);
-					$author->appendChild($element);
-				}
-			}
-
-			if (DBA::isResult($profile) && !$show_profile) {
-				if (trim($profile["homepage"]) != "") {
-					$urls = $doc->createElement("poco:urls");
-					XML::addElement($doc, $urls, "poco:type", "homepage");
-					XML::addElement($doc, $urls, "poco:value", $profile["homepage"]);
-					XML::addElement($doc, $urls, "poco:primary", "true");
-					$author->appendChild($urls);
-				}
-
-				XML::addElement($doc, $author, "followers", "", ["url" => DI::baseUrl() . "/profile/" . $owner["nick"] . "/contacts/followers"]);
-				XML::addElement($doc, $author, "statusnet:profile_info", "", ["local_id" => $owner["uid"]]);
-
-				if ($profile["publish"]) {
-					XML::addElement($doc, $author, "mastodon:scope", "public");
-				}
+			if ($profile["publish"]) {
+				XML::addElement($doc, $author, "mastodon:scope", "public");
 			}
 		}
 
@@ -1534,7 +1506,7 @@ class OStatus
 	 *
 	 * @return string activity
 	 */
-	private static function constructVerb(array $item)
+	public static function constructVerb(array $item)
 	{
 		if (!empty($item['verb'])) {
 			return $item['verb'];
@@ -1566,19 +1538,18 @@ class OStatus
 	 * @param array       $item      Data of the item that is to be posted
 	 * @param array       $owner     Contact data of the poster
 	 * @param bool        $toplevel  optional default false
-	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 *
 	 * @return \DOMElement Entry element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function entry(DOMDocument $doc, array $item, array $owner, $toplevel = false, $feed_mode = false)
+	private static function entry(DOMDocument $doc, array $item, array $owner, $toplevel = false)
 	{
 		$xml = null;
 
 		$repeated_guid = self::getResharedGuid($item);
 		if ($repeated_guid != "") {
-			$xml = self::reshareEntry($doc, $item, $owner, $repeated_guid, $toplevel, $feed_mode);
+			$xml = self::reshareEntry($doc, $item, $owner, $repeated_guid, $toplevel);
 		}
 
 		if ($xml) {
@@ -1590,7 +1561,7 @@ class OStatus
 		} elseif (in_array($item["verb"], [Activity::FOLLOW, Activity::O_UNFOLLOW])) {
 			return self::followEntry($doc, $item, $owner, $toplevel);
 		} else {
-			return self::noteEntry($doc, $item, $owner, $toplevel, $feed_mode);
+			return self::noteEntry($doc, $item, $owner, $toplevel);
 		}
 	}
 
@@ -1617,59 +1588,6 @@ class OStatus
 	}
 
 	/**
-	 * Fetches contact data from the contact or the gcontact table
-	 *
-	 * @param string $url   URL of the contact
-	 * @param array  $owner Contact data of the poster
-	 *
-	 * @return array Contact array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	private static function contactEntry($url, array $owner)
-	{
-		$r = q(
-			"SELECT * FROM `contact` WHERE `nurl` = '%s' AND `uid` IN (0, %d) ORDER BY `uid` DESC LIMIT 1",
-			DBA::escape(Strings::normaliseLink($url)),
-			intval($owner["uid"])
-		);
-		if (DBA::isResult($r)) {
-			$contact = $r[0];
-			$contact["uid"] = -1;
-		}
-
-		if (!DBA::isResult($r)) {
-			$gcontact = DBA::selectFirst('gcontact', [], ['nurl' => Strings::normaliseLink($url)]);
-			if (DBA::isResult($r)) {
-				$contact = $gcontact;
-				$contact["uid"] = -1;
-				$contact["success_update"] = $contact["updated"];
-			}
-		}
-
-		if (!DBA::isResult($r)) {
-			$contact = $owner;
-		}
-
-		if (!isset($contact["poll"])) {
-			$data = Probe::uri($url);
-			$contact["poll"] = $data["poll"];
-
-			if (!$contact["alias"]) {
-				$contact["alias"] = $data["alias"];
-			}
-		}
-
-		if (!isset($contact["alias"])) {
-			$contact["alias"] = $contact["url"];
-		}
-
-		$contact['account-type'] = $owner['account-type'];
-
-		return $contact;
-	}
-
-	/**
 	 * Adds an entry element with reshared content
 	 *
 	 * @param DOMDocument $doc           XML document
@@ -1677,13 +1595,12 @@ class OStatus
 	 * @param array       $owner         Contact data of the poster
 	 * @param string      $repeated_guid guid
 	 * @param bool        $toplevel      Is it for en entry element (false) or a feed entry (true)?
-	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 *
 	 * @return bool Entry element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function reshareEntry(DOMDocument $doc, array $item, array $owner, $repeated_guid, $toplevel, $feed_mode = false)
+	private static function reshareEntry(DOMDocument $doc, array $item, array $owner, $repeated_guid, $toplevel)
 	{
 		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
@@ -1698,42 +1615,40 @@ class OStatus
 			return false;
 		}
 
-		$contact = self::contactEntry($repeated_item['author-link'], $owner);
+		$contact = Contact::getByURL($repeated_item['author-link']) ?: $owner;
 
 		$title = $owner["nick"]." repeated a notice by ".$contact["nick"];
 
-		self::entryContent($doc, $entry, $item, $owner, $title, Activity::SHARE, false, $feed_mode);
+		self::entryContent($doc, $entry, $item, $owner, $title, Activity::SHARE, false);
 
-		if (!$feed_mode) {
-			$as_object = $doc->createElement("activity:object");
+		$as_object = $doc->createElement("activity:object");
 
-			XML::addElement($doc, $as_object, "activity:object-type", ActivityNamespace::ACTIVITY_SCHEMA . "activity");
+		XML::addElement($doc, $as_object, "activity:object-type", ActivityNamespace::ACTIVITY_SCHEMA . "activity");
 
-			self::entryContent($doc, $as_object, $repeated_item, $owner, "", "", false);
+		self::entryContent($doc, $as_object, $repeated_item, $owner, "", "", false);
 
-			$author = self::addAuthor($doc, $contact, false);
-			$as_object->appendChild($author);
+		$author = self::addAuthor($doc, $contact, false);
+		$as_object->appendChild($author);
 
-			$as_object2 = $doc->createElement("activity:object");
+		$as_object2 = $doc->createElement("activity:object");
 
-			XML::addElement($doc, $as_object2, "activity:object-type", self::constructObjecttype($repeated_item));
+		XML::addElement($doc, $as_object2, "activity:object-type", self::constructObjecttype($repeated_item));
 
-			$title = sprintf("New comment by %s", $contact["nick"]);
+		$title = sprintf("New comment by %s", $contact["nick"]);
 
-			self::entryContent($doc, $as_object2, $repeated_item, $owner, $title);
+		self::entryContent($doc, $as_object2, $repeated_item, $owner, $title);
 
-			$as_object->appendChild($as_object2);
+		$as_object->appendChild($as_object2);
 
-			self::entryFooter($doc, $as_object, $item, $owner, false);
+		self::entryFooter($doc, $as_object, $item, $owner, false);
 
-			$source = self::sourceEntry($doc, $contact);
+		$source = self::sourceEntry($doc, $contact);
 
-			$as_object->appendChild($source);
+		$as_object->appendChild($source);
 
-			$entry->appendChild($as_object);
-		}
+		$entry->appendChild($as_object);
 
-		self::entryFooter($doc, $entry, $item, $owner, true, $feed_mode);
+		self::entryFooter($doc, $entry, $item, $owner, true);
 
 		return $entry;
 	}
@@ -1840,7 +1755,7 @@ class OStatus
 		$item["created"] = $item["edited"] = date("c");
 		$item["private"] = Item::PRIVATE;
 
-		$contact = Probe::uri($item['follow']);
+		$contact = Contact::getByURL($item['follow']);
 		$item['follow'] = $contact['url'];
 
 		if ($contact['alias']) {
@@ -1894,13 +1809,12 @@ class OStatus
 	 * @param array       $item      Data of the item that is to be posted
 	 * @param array       $owner     Contact data of the poster
 	 * @param bool        $toplevel  Is it for en entry element (false) or a feed entry (true)?
-	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 *
 	 * @return \DOMElement Entry element
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function noteEntry(DOMDocument $doc, array $item, array $owner, $toplevel, $feed_mode)
+	private static function noteEntry(DOMDocument $doc, array $item, array $owner, $toplevel)
 	{
 		if (($item['gravity'] != GRAVITY_PARENT) && (Strings::normaliseLink($item["author-link"]) != Strings::normaliseLink($owner["url"]))) {
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
@@ -1918,13 +1832,11 @@ class OStatus
 
 		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
-		if (!$feed_mode) {
-			XML::addElement($doc, $entry, "activity:object-type", Activity\ObjectType::NOTE);
-		}
+		XML::addElement($doc, $entry, "activity:object-type", Activity\ObjectType::NOTE);
 
-		self::entryContent($doc, $entry, $item, $owner, $title, '', true, $feed_mode);
+		self::entryContent($doc, $entry, $item, $owner, $title, '', true);
 
-		self::entryFooter($doc, $entry, $item, $owner, !$feed_mode, $feed_mode);
+		self::entryFooter($doc, $entry, $item, $owner, true);
 
 		return $entry;
 	}
@@ -1941,13 +1853,13 @@ class OStatus
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function entryHeader(DOMDocument $doc, array $owner, array $item, $toplevel)
+	public static function entryHeader(DOMDocument $doc, array $owner, array $item, $toplevel)
 	{
 		if (!$toplevel) {
 			$entry = $doc->createElement("entry");
 
-			if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-				$contact = self::contactEntry($item['author-link'], $owner);
+			if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
+				$contact = Contact::getByURL($item['author-link']) ?: $owner;
 				$author = self::addAuthor($doc, $contact, false);
 				$entry->appendChild($author);
 			}
@@ -1980,11 +1892,10 @@ class OStatus
 	 * @param string      $title     Title for the post
 	 * @param string      $verb      The activity verb
 	 * @param bool        $complete  Add the "status_net" element?
-	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function entryContent(DOMDocument $doc, \DOMElement $entry, array $item, array $owner, $title, $verb = "", $complete = true, $feed_mode = false)
+	private static function entryContent(DOMDocument $doc, \DOMElement $entry, array $item, array $owner, $title, $verb = "", $complete = true)
 	{
 		if ($verb == "") {
 			$verb = self::constructVerb($item);
@@ -1995,7 +1906,7 @@ class OStatus
 
 		$body = self::formatPicturePost($item['body']);
 
-		if (!empty($item['title']) && !$feed_mode) {
+		if (!empty($item['title'])) {
 			$body = "[b]".$item['title']."[/b]\n\n".$body;
 		}
 
@@ -2007,13 +1918,11 @@ class OStatus
 								"href" => DI::baseUrl()."/display/".$item["guid"]]
 		);
 
-		if (!$feed_mode && $complete && ($item["id"] > 0)) {
+		if ($complete && ($item["id"] > 0)) {
 			XML::addElement($doc, $entry, "status_net", "", ["notice_id" => $item["id"]]);
 		}
 
-		if (!$feed_mode) {
-			XML::addElement($doc, $entry, "activity:verb", $verb);
-		}
+		XML::addElement($doc, $entry, "activity:verb", $verb);
 
 		XML::addElement($doc, $entry, "published", DateTimeFormat::utc($item["created"]."+00:00", DateTimeFormat::ATOM));
 		XML::addElement($doc, $entry, "updated", DateTimeFormat::utc($item["edited"]."+00:00", DateTimeFormat::ATOM));
@@ -2027,11 +1936,10 @@ class OStatus
 	 * @param array       $item      Data of the item that is to be posted
 	 * @param array       $owner     Contact data of the poster
 	 * @param bool        $complete  default true
-	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function entryFooter(DOMDocument $doc, $entry, array $item, array $owner, $complete = true, $feed_mode = false)
+	private static function entryFooter(DOMDocument $doc, $entry, array $item, array $owner, $complete = true)
 	{
 		$mentioned = [];
 
@@ -2062,7 +1970,7 @@ class OStatus
 			XML::addElement($doc, $entry, "link", "", $attributes);
 		}
 
-		if (!$feed_mode && (intval($item['parent']) > 0)) {
+		if (intval($item['parent']) > 0) {
 			$conversation_href = $conversation_uri = str_replace('/objects/', '/context/', $item['parent-uri']);
 
 			if (isset($parent_item)) {
@@ -2077,16 +1985,14 @@ class OStatus
 				}
 			}
 
-			if (!$feed_mode) {
-				XML::addElement($doc, $entry, "link", "", ["rel" => "ostatus:conversation", "href" => $conversation_href]);
+			XML::addElement($doc, $entry, "link", "", ["rel" => "ostatus:conversation", "href" => $conversation_href]);
 
-				$attributes = [
-						"href" => $conversation_href,
-						"local_id" => $item['parent'],
-						"ref" => $conversation_uri];
+			$attributes = [
+					"href" => $conversation_href,
+					"local_id" => $item['parent'],
+					"ref" => $conversation_uri];
 
-				XML::addElement($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
-			}
+			XML::addElement($doc, $entry, "ostatus:conversation", $conversation_uri, $attributes);
 		}
 
 		// uri-id isn't present for follow entry pseudo-items
@@ -2095,50 +2001,48 @@ class OStatus
 			$mentioned[$tag['url']] = $tag['url'];
 		}
 
-		if (!$feed_mode) {
-			// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
-			$newmentions = [];
-			foreach ($mentioned as $mention) {
-				$newmentions[str_replace("http://", "https://", $mention)] = str_replace("http://", "https://", $mention);
-				$newmentions[str_replace("https://", "http://", $mention)] = str_replace("https://", "http://", $mention);
-			}
-			$mentioned = $newmentions;
+		// Make sure that mentions are accepted (GNU Social has problems with mixing HTTP and HTTPS)
+		$newmentions = [];
+		foreach ($mentioned as $mention) {
+			$newmentions[str_replace("http://", "https://", $mention)] = str_replace("http://", "https://", $mention);
+			$newmentions[str_replace("https://", "http://", $mention)] = str_replace("https://", "http://", $mention);
+		}
+		$mentioned = $newmentions;
 
-			foreach ($mentioned as $mention) {
-				$contact = Contact::getByURL($mention, 0, ['contact-type']);
-				if (!empty($contact) && ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
-					XML::addElement($doc, $entry, "link", "",
-						[
-							"rel" => "mentioned",
-							"ostatus:object-type" => Activity\ObjectType::GROUP,
-							"href" => $mention]
-					);
-				} else {
-					XML::addElement($doc, $entry, "link", "",
-						[
-							"rel" => "mentioned",
-							"ostatus:object-type" => Activity\ObjectType::PERSON,
-							"href" => $mention]
-					);
-				}
+		foreach ($mentioned as $mention) {
+			$contact = Contact::getByURL($mention, false, ['contact-type']);
+			if (!empty($contact) && ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
+				XML::addElement($doc, $entry, "link", "",
+					[
+						"rel" => "mentioned",
+						"ostatus:object-type" => Activity\ObjectType::GROUP,
+						"href" => $mention]
+				);
+			} else {
+				XML::addElement($doc, $entry, "link", "",
+					[
+						"rel" => "mentioned",
+						"ostatus:object-type" => Activity\ObjectType::PERSON,
+						"href" => $mention]
+				);
 			}
+		}
 
-			if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-				XML::addElement($doc, $entry, "link", "", [
-					"rel" => "mentioned",
-					"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/group",
-					"href" => $owner['url']
-				]);
-			}
+		if ($owner['contact-type'] == Contact::TYPE_COMMUNITY) {
+			XML::addElement($doc, $entry, "link", "", [
+				"rel" => "mentioned",
+				"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/group",
+				"href" => $owner['url']
+			]);
+		}
 
-			if ($item['private'] != Item::PRIVATE) {
-				XML::addElement($doc, $entry, "link", "", ["rel" => "ostatus:attention",
-										"href" => "http://activityschema.org/collection/public"]);
-				XML::addElement($doc, $entry, "link", "", ["rel" => "mentioned",
-										"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/collection",
-										"href" => "http://activityschema.org/collection/public"]);
-				XML::addElement($doc, $entry, "mastodon:scope", "public");
-			}
+		if ($item['private'] != Item::PRIVATE) {
+			XML::addElement($doc, $entry, "link", "", ["rel" => "ostatus:attention",
+									"href" => "http://activityschema.org/collection/public"]);
+			XML::addElement($doc, $entry, "link", "", ["rel" => "mentioned",
+									"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/collection",
+									"href" => "http://activityschema.org/collection/public"]);
+			XML::addElement($doc, $entry, "mastodon:scope", "public");
 		}
 
 		foreach ($tags as $tag) {
@@ -2149,7 +2053,7 @@ class OStatus
 
 		self::getAttachment($doc, $entry, $item);
 
-		if (!$feed_mode && $complete && ($item["id"] > 0)) {
+		if ($complete && ($item["id"] > 0)) {
 			$app = $item["app"];
 			if ($app == "") {
 				$app = "web";
@@ -2185,13 +2089,12 @@ class OStatus
 	 * @param integer $max_items   Number of maximum items to fetch
 	 * @param string  $filter      Feed items filter (activity, posts or comments)
 	 * @param boolean $nocache     Wether to bypass caching
-	 * @param boolean $feed_mode   Behave like a regular feed for users if true
 	 *
 	 * @return string XML feed
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function feed($owner_nick, &$last_update, $max_items = 300, $filter = 'activity', $nocache = false, $feed_mode = false)
+	public static function feed($owner_nick, &$last_update, $max_items = 300, $filter = 'activity', $nocache = false)
 	{
 		$stamp = microtime(true);
 
@@ -2218,8 +2121,8 @@ class OStatus
 			$last_update = 'now -30 days';
 		}
 
-		$check_date = $feed_mode ? '' : DateTimeFormat::utc($last_update);
-		$authorid = Contact::getIdForURL($owner["url"], 0, true);
+		$check_date = DateTimeFormat::utc($last_update);
+		$authorid = Contact::getIdForURL($owner["url"]);
 
 		$condition = ["`uid` = ? AND `received` > ? AND NOT `deleted`
 			AND `private` != ? AND `visible` AND `wall` AND `parent-network` IN (?, ?)",
@@ -2230,7 +2133,7 @@ class OStatus
 			$condition[] = Activity\ObjectType::COMMENT;
 		}
 
-		if ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['contact-type'] != Contact::TYPE_COMMUNITY) {
 			$condition[0] .= " AND `contact-id` = ? AND `author-id` = ?";
 			$condition[] = $owner["id"];
 			$condition[] = $authorid;
@@ -2249,7 +2152,7 @@ class OStatus
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
-		$root = self::addHeader($doc, $owner, $filter, $feed_mode);
+		$root = self::addHeader($doc, $owner, $filter);
 
 		foreach ($items as $item) {
 			if (DI::config()->get('system', 'ostatus_debug')) {
@@ -2260,7 +2163,7 @@ class OStatus
 				continue;
 			}
 
-			$entry = self::entry($doc, $item, $owner, false, $feed_mode);
+			$entry = self::entry($doc, $item, $owner, false);
 			$root->appendChild($entry);
 
 			if ($last_update < $item['created']) {
@@ -2308,14 +2211,13 @@ class OStatus
 	 * Checks if the given contact url does support OStatus
 	 *
 	 * @param string  $url    profile url
-	 * @param boolean $update Update the profile
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSupportedByContactUrl($url, $update = false)
+	public static function isSupportedByContactUrl($url)
 	{
-		$probe = Probe::uri($url, Protocol::OSTATUS, 0, !$update);
+		$probe = Probe::uri($url, Protocol::OSTATUS);
 		return $probe['network'] == Protocol::OSTATUS;
 	}
 }

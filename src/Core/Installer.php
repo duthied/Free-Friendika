@@ -28,7 +28,6 @@ use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Util\Images;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
@@ -197,7 +196,7 @@ class Installer
 
 		if ($result) {
 			$txt = DI::l10n()->t('You may need to import the file "database.sql" manually using phpmyadmin or mysql.') . EOL;
-			$txt .= DI::l10n()->t('Please see the file "INSTALL.txt".');
+			$txt .= DI::l10n()->t('Please see the file "doc/INSTALL.md".');
 
 			$this->addCheck($txt, false, true, htmlentities($result, ENT_COMPAT, 'UTF-8'));
 
@@ -548,11 +547,11 @@ class Installer
 		$help = "";
 		$error_msg = "";
 		if (function_exists('curl_init')) {
-			$fetchResult = Network::fetchUrlFull($baseurl . "/install/testrewrite");
+			$fetchResult = DI::httpRequest()->fetchFull($baseurl . "/install/testrewrite");
 
 			$url = Strings::normaliseLink($baseurl . "/install/testrewrite");
 			if ($fetchResult->getReturnCode() != 204) {
-				$fetchResult = Network::fetchUrlFull($url);
+				$fetchResult = DI::httpRequest()->fetchFull($url);
 			}
 
 			if ($fetchResult->getReturnCode() != 204) {

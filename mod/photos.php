@@ -25,6 +25,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\ACL;
+use Friendica\Core\Addon;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -175,14 +176,14 @@ function photos_post(App $a)
 	}
 
 	if (!$can_post) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		exit();
 	}
 
 	$owner_record = User::getOwnerDataById($page_owner_uid);
 
 	if (!$owner_record) {
-		notice(DI::l10n()->t('Contact information unavailable') . EOL);
+		notice(DI::l10n()->t('Contact information unavailable'));
 		Logger::log('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
 		exit();
 	}
@@ -193,7 +194,7 @@ function photos_post(App $a)
 		}
 		$album = hex2bin($a->argv[3]);
 
-		if ($album === DI::l10n()->t('Profile Photos') || $album === 'Contact Photos' || $album === DI::l10n()->t('Contact Photos')) {
+		if ($album === DI::l10n()->t('Profile Photos') || $album === Photo::CONTACT_PHOTOS || $album === DI::l10n()->t(Photo::CONTACT_PHOTOS)) {
 			DI::baseUrl()->redirect($_SESSION['photo_return']);
 			return; // NOTREACHED
 		}
@@ -204,7 +205,7 @@ function photos_post(App $a)
 		);
 
 		if (!DBA::isResult($r)) {
-			notice(DI::l10n()->t('Album not found.') . EOL);
+			notice(DI::l10n()->t('Album not found.'));
 			DI::baseUrl()->redirect('photos/' . $a->data['user']['nickname'] . '/album');
 			return; // NOTREACHED
 		}
@@ -295,9 +296,8 @@ function photos_post(App $a)
 
 				// Update the photo albums cache
 				Photo::clearAlbumCache($page_owner_uid);
-				notice('Successfully deleted the photo.');
 			} else {
-				notice('Failed to delete the photo.');
+				notice(DI::l10n()->t('Failed to delete the photo.'));
 				DI::baseUrl()->redirect('photos/' . $a->argv[1] . '/image/' . $a->argv[3]);
 			}
 
@@ -676,21 +676,21 @@ function photos_post(App $a)
 	if ($error !== UPLOAD_ERR_OK) {
 		switch ($error) {
 			case UPLOAD_ERR_INI_SIZE:
-				notice(DI::l10n()->t('Image exceeds size limit of %s', ini_get('upload_max_filesize')) . EOL);
+				notice(DI::l10n()->t('Image exceeds size limit of %s', ini_get('upload_max_filesize')));
 				break;
 			case UPLOAD_ERR_FORM_SIZE:
-				notice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($_REQUEST['MAX_FILE_SIZE'] ?? 0)) . EOL);
+				notice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($_REQUEST['MAX_FILE_SIZE'] ?? 0)));
 				break;
 			case UPLOAD_ERR_PARTIAL:
-				notice(DI::l10n()->t('Image upload didn\'t complete, please try again') . EOL);
+				notice(DI::l10n()->t('Image upload didn\'t complete, please try again'));
 				break;
 			case UPLOAD_ERR_NO_FILE:
-				notice(DI::l10n()->t('Image file is missing') . EOL);
+				notice(DI::l10n()->t('Image file is missing'));
 				break;
 			case UPLOAD_ERR_NO_TMP_DIR:
 			case UPLOAD_ERR_CANT_WRITE:
 			case UPLOAD_ERR_EXTENSION:
-				notice(DI::l10n()->t('Server can\'t accept new file upload at this time, please contact your administrator') . EOL);
+				notice(DI::l10n()->t('Server can\'t accept new file upload at this time, please contact your administrator'));
 				break;
 		}
 		@unlink($src);
@@ -706,7 +706,7 @@ function photos_post(App $a)
 	$maximagesize = DI::config()->get('system', 'maximagesize');
 
 	if ($maximagesize && ($filesize > $maximagesize)) {
-		notice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)) . EOL);
+		notice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
 		@unlink($src);
 		$foo = 0;
 		Hook::callAll('photo_post_end', $foo);
@@ -714,7 +714,7 @@ function photos_post(App $a)
 	}
 
 	if (!$filesize) {
-		notice(DI::l10n()->t('Image file is empty.') . EOL);
+		notice(DI::l10n()->t('Image file is empty.'));
 		@unlink($src);
 		$foo = 0;
 		Hook::callAll('photo_post_end', $foo);
@@ -729,7 +729,7 @@ function photos_post(App $a)
 
 	if (!$image->isValid()) {
 		Logger::log('mod/photos.php: photos_post(): unable to process image' , Logger::DEBUG);
-		notice(DI::l10n()->t('Unable to process image.') . EOL);
+		notice(DI::l10n()->t('Unable to process image.'));
 		@unlink($src);
 		$foo = 0;
 		Hook::callAll('photo_post_end',$foo);
@@ -758,7 +758,7 @@ function photos_post(App $a)
 
 	if (!$r) {
 		Logger::log('mod/photos.php: photos_post(): image store failed', Logger::DEBUG);
-		notice(DI::l10n()->t('Image upload failed.') . EOL);
+		notice(DI::l10n()->t('Image upload failed.'));
 		return;
 	}
 
@@ -841,12 +841,12 @@ function photos_content(App $a)
 	// photos/name/image/xxxxx/drop
 
 	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
-		notice(DI::l10n()->t('Public access denied.') . EOL);
+		notice(DI::l10n()->t('Public access denied.'));
 		return;
 	}
 
 	if (empty($a->data['user'])) {
-		notice(DI::l10n()->t('No photos selected') . EOL);
+		notice(DI::l10n()->t('No photos selected'));
 		return;
 	}
 
@@ -912,7 +912,7 @@ function photos_content(App $a)
 	}
 
 	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && !$remote_contact) {
-		notice(DI::l10n()->t('Access to this item is restricted.') . EOL);
+		notice(DI::l10n()->t('Access to this item is restricted.'));
 		return;
 	}
 
@@ -938,7 +938,7 @@ function photos_content(App $a)
 		$albumselect .= '<option value="" ' . (!$selname ? ' selected="selected" ' : '') . '>&lt;current year&gt;</option>';
 		if (!empty($a->data['albums'])) {
 			foreach ($a->data['albums'] as $album) {
-				if (($album['album'] === '') || ($album['album'] === 'Contact Photos') || ($album['album'] === DI::l10n()->t('Contact Photos'))) {
+				if (($album['album'] === '') || ($album['album'] === Photo::CONTACT_PHOTOS) || ($album['album'] === DI::l10n()->t(Photo::CONTACT_PHOTOS))) {
 					continue;
 				}
 				$selected = (($selname === $album['album']) ? ' selected="selected" ' : '');
@@ -988,8 +988,6 @@ function photos_content(App $a)
 			'$uploadurl' => $ret['post_url'],
 
 			// ACL permissions box
-			'$group_perms' => DI::l10n()->t('Show to Groups'),
-			'$contact_perms' => DI::l10n()->t('Show to Contacts'),
 			'$return_path' => DI::args()->getQueryString(),
 		]);
 
@@ -1041,7 +1039,6 @@ function photos_content(App $a)
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'post',
 				'$message' => DI::l10n()->t('Do you really want to delete this photo album and all its photos?'),
-				'$extra_inputs' => [],
 				'$confirm' => DI::l10n()->t('Delete Album'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'dropalbum',
@@ -1051,7 +1048,7 @@ function photos_content(App $a)
 
 		// edit album name
 		if ($cmd === 'edit') {
-			if (($album !== DI::l10n()->t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== DI::l10n()->t('Contact Photos'))) {
+			if (($album !== DI::l10n()->t('Profile Photos')) && ($album !== Photo::CONTACT_PHOTOS) && ($album !== DI::l10n()->t(Photo::CONTACT_PHOTOS))) {
 				if ($can_post) {
 					$edit_tpl = Renderer::getMarkupTemplate('album_edit.tpl');
 
@@ -1068,7 +1065,7 @@ function photos_content(App $a)
 				}
 			}
 		} else {
-			if (($album !== DI::l10n()->t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== DI::l10n()->t('Contact Photos')) && $can_post) {
+			if (($album !== DI::l10n()->t('Profile Photos')) && ($album !== Photo::CONTACT_PHOTOS) && ($album !== DI::l10n()->t(Photo::CONTACT_PHOTOS)) && $can_post) {
 				$edit = [DI::l10n()->t('Edit Album'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/edit'];
 				$drop = [DI::l10n()->t('Drop Album'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/drop'];
 			}
@@ -1137,7 +1134,7 @@ function photos_content(App $a)
 			if (DBA::exists('photo', ['resource-id' => $datum, 'uid' => $owner_uid])) {
 				notice(DI::l10n()->t('Permission denied. Access to this item may be restricted.'));
 			} else {
-				notice(DI::l10n()->t('Photo not available') . EOL);
+				notice(DI::l10n()->t('Photo not available'));
 			}
 			return;
 		}
@@ -1148,7 +1145,6 @@ function photos_content(App $a)
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'post',
 				'$message' => DI::l10n()->t('Do you really want to delete this photo?'),
-				'$extra_inputs' => [],
 				'$confirm' => DI::l10n()->t('Delete Photo'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'delete',
@@ -1353,8 +1349,6 @@ function photos_content(App $a)
 				'$delete' => DI::l10n()->t('Delete Photo'),
 
 				// ACL permissions box
-				'$group_perms' => DI::l10n()->t('Show to Groups'),
-				'$contact_perms' => DI::l10n()->t('Show to Contacts'),
 				'$return_path' => DI::args()->getQueryString(),
 			]);
 		}
@@ -1383,6 +1377,16 @@ function photos_content(App $a)
 
 			if (!DBA::isResult($items)) {
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
+					/*
+					 * Hmmm, code depending on the presence of a particular addon?
+					 * This should be better if done by a hook
+					 */
+					$qcomment = null;
+					if (Addon::isEnabled('qcomment')) {
+						$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+						$qcomment = $words ? explode("\n", $words) : [];
+					}
+
 					$comments .= Renderer::replaceMacros($cmnt_tpl, [
 						'$return_path' => '',
 						'$jsreload' => $return_path,
@@ -1397,7 +1401,7 @@ function photos_content(App $a)
 						'$preview' => DI::l10n()->t('Preview'),
 						'$loading' => DI::l10n()->t('Loading...'),
 						'$sourceapp' => DI::l10n()->t($a->sourcename),
-						'$ww' => '',
+						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12)
 					]);
 				}
@@ -1430,6 +1434,16 @@ function photos_content(App $a)
 				}
 
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
+					/*
+					 * Hmmm, code depending on the presence of a particular addon?
+					 * This should be better if done by a hook
+					 */
+					$qcomment = null;
+					if (Addon::isEnabled('qcomment')) {
+						$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+						$qcomment = $words ? explode("\n", $words) : [];
+					}
+
 					$comments .= Renderer::replaceMacros($cmnt_tpl,[
 						'$return_path' => '',
 						'$jsreload' => $return_path,
@@ -1443,7 +1457,7 @@ function photos_content(App $a)
 						'$submit' => DI::l10n()->t('Submit'),
 						'$preview' => DI::l10n()->t('Preview'),
 						'$sourceapp' => DI::l10n()->t($a->sourcename),
-						'$ww' => '',
+						'$qcomment' => $qcomment,
 						'$rand_num' => Crypto::randomDigits(12)
 					]);
 				}
@@ -1493,6 +1507,16 @@ function photos_content(App $a)
 					]);
 
 					if (($can_post || Security::canWriteToUserWall($owner_uid))) {
+						/*
+						 * Hmmm, code depending on the presence of a particular addon?
+						 * This should be better if done by a hook
+						 */
+						$qcomment = null;
+						if (Addon::isEnabled('qcomment')) {
+							$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+							$qcomment = $words ? explode("\n", $words) : [];
+						}
+
 						$comments .= Renderer::replaceMacros($cmnt_tpl, [
 							'$return_path' => '',
 							'$jsreload' => $return_path,
@@ -1506,7 +1530,7 @@ function photos_content(App $a)
 							'$submit' => DI::l10n()->t('Submit'),
 							'$preview' => DI::l10n()->t('Preview'),
 							'$sourceapp' => DI::l10n()->t($a->sourcename),
-							'$ww' => '',
+							'$qcomment' => $qcomment,
 							'$rand_num' => Crypto::randomDigits(12)
 						]);
 					}
@@ -1551,8 +1575,8 @@ function photos_content(App $a)
 	$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id`",
 		intval($a->data['user']['uid']),
-		DBA::escape('Contact Photos'),
-		DBA::escape(DI::l10n()->t('Contact Photos'))
+		DBA::escape(Photo::CONTACT_PHOTOS),
+		DBA::escape(DI::l10n()->t(Photo::CONTACT_PHOTOS))
 	);
 	if (DBA::isResult($r)) {
 		$total = count($r);
@@ -1566,8 +1590,8 @@ function photos_content(App $a)
 		WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'
 		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT %d , %d",
 		intval($a->data['user']['uid']),
-		DBA::escape('Contact Photos'),
-		DBA::escape(DI::l10n()->t('Contact Photos')),
+		DBA::escape(Photo::CONTACT_PHOTOS),
+		DBA::escape(DI::l10n()->t(Photo::CONTACT_PHOTOS)),
 		$pager->getStart(),
 		$pager->getItemsPerPage()
 	);

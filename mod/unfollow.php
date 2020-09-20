@@ -79,7 +79,6 @@ function unfollow_post(App $a)
 		$return_path = $base_return_path . '/' . $contact['id'];
 	}
 
-	info(DI::l10n()->t('Contact unfollowed'));
 	DI::baseUrl()->redirect($return_path);
 	// NOTREACHED
 }
@@ -146,7 +145,7 @@ function unfollow_content(App $a)
 	]);
 
 	DI::page()['aside'] = '';
-	Profile::load($a, '', Contact::getDetailsByURL($contact['url']));
+	Profile::load($a, '', Contact::getByURL($contact['url'], false));
 
 	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), ['$title' => DI::l10n()->t('Status Messages and Posts')]);
 

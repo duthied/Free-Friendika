@@ -57,7 +57,7 @@ class Markdown
 
 		$html = $MarkdownParser->transform($text);
 
-		DI::profiler()->saveTimestamp($stamp1, "parser", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "parser");
 
 		return $html;
 	}
@@ -83,7 +83,7 @@ class Markdown
 					return '';
 				}
 
-				$data = Contact::getDetailsByAddr($matches[3]);
+				$data = Contact::getByURL($matches[3]);
 
 				if (empty($data)) {
 					return '';

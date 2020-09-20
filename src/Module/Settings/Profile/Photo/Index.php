@@ -93,9 +93,7 @@ class Index extends BaseSettings
 
 		$filename = '';
 
-		if (Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t('Profile Photos'), 0)) {
-			info(DI::l10n()->t('Image uploaded successfully.'));
-		} else {
+		if (!Photo::store($Image, local_user(), 0, $resource_id, $filename, DI::l10n()->t('Profile Photos'), 0)) {
 			notice(DI::l10n()->t('Image upload failed.'));
 		}
 

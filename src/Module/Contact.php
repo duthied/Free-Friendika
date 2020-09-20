@@ -32,6 +32,7 @@ use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -40,7 +41,6 @@ use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
 /**
@@ -48,6 +48,12 @@ use Friendica\Util\Strings;
  */
 class Contact extends BaseModule
 {
+	const TAB_CONVERSATIONS = 1;
+	const TAB_POSTS = 2;
+	const TAB_PROFILE = 3;
+	const TAB_CONTACTS = 4;
+	const TAB_ADVANCED = 5;
+
 	private static function batchActions()
 	{
 		if (empty($_POST['contact_batch']) || !is_array($_POST['contact_batch'])) {
@@ -112,7 +118,7 @@ class Contact extends BaseModule
 		}
 
 		if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false])) {
-			notice(DI::l10n()->t('Could not access contact record.') . EOL);
+			notice(DI::l10n()->t('Could not access contact record.'));
 			DI::baseUrl()->redirect('contact');
 			return; // NOTREACHED
 		}
@@ -144,10 +150,8 @@ class Contact extends BaseModule
 			['id' => $contact_id, 'uid' => local_user()]
 		);
 
-		if (DBA::isResult($r)) {
-			info(DI::l10n()->t('Contact updated.') . EOL);
-		} else {
-			notice(DI::l10n()->t('Failed to update contact record.') . EOL);
+		if (!DBA::isResult($r)) {
+			notice(DI::l10n()->t('Failed to update contact record.'));
 		}
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
@@ -182,16 +186,13 @@ class Contact extends BaseModule
 
 	private static function updateContactFromProbe($contact_id)
 	{
-		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
+		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => [0, local_user()], 'deleted' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
 
 		// Update the entry in the contact table
-		Model\Contact::updateFromProbe($contact_id, '', true);
-
-		// Update the entry in the gcontact table
-		Model\GContact::updateFromProbe($contact['url']);
+		Model\Contact::updateFromProbe($contact_id);
 	}
 
 	/**
@@ -202,8 +203,8 @@ class Contact extends BaseModule
 	 */
 	private static function blockContact($contact_id)
 	{
-		$blocked = !Model\Contact::isBlockedByUser($contact_id, local_user());
-		Model\Contact::setBlockedForUser($contact_id, local_user(), $blocked);
+		$blocked = !Model\Contact\User::isBlocked($contact_id, local_user());
+		Model\Contact\User::setBlocked($contact_id, local_user(), $blocked);
 	}
 
 	/**
@@ -214,8 +215,8 @@ class Contact extends BaseModule
 	 */
 	private static function ignoreContact($contact_id)
 	{
-		$ignored = !Model\Contact::isIgnoredByUser($contact_id, local_user());
-		Model\Contact::setIgnoredForUser($contact_id, local_user(), $ignored);
+		$ignored = !Model\Contact\User::isIgnored($contact_id, local_user());
+		Model\Contact\User::setIgnored($contact_id, local_user(), $ignored);
 	}
 
 	/**
@@ -259,22 +260,27 @@ class Contact extends BaseModule
 		$rel    = Strings::escapeTags(trim($_GET['rel']    ?? ''));
 		$group  = Strings::escapeTags(trim($_GET['group']  ?? ''));
 
-		if (empty(DI::page()['aside'])) {
-			DI::page()['aside'] = '';
-		}
+		$page = DI::page();
 
-		$contact_id = null;
+		$page->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
+		$page->registerFooterScript(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.js'));
+		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
+		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
+
 		$contact = null;
 		// @TODO: Replace with parameter from router
 		if ($a->argc == 2 && intval($a->argv[1])
 			|| $a->argc == 3 && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])
 		) {
 			$contact_id = intval($a->argv[1]);
-			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
 
-			if (!DBA::isResult($contact)) {
-				$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => 0, 'deleted' => false]);
+			// Ensure to use the user contact when the public contact was provided
+			$data = Model\Contact::getPublicAndUserContacID($contact_id, local_user());
+			if (!empty($data['user']) && ($contact_id == $data['public'])) {
+				$contact_id = $data['user'];
 			}
+
+			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'deleted' => false]);
 
 			// Don't display contacts that are about to be deleted
 			if ($contact['network'] == Protocol::PHANTOM) {
@@ -317,7 +323,7 @@ class Contact extends BaseModule
 
 			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/vcard.tpl'), [
 				'$name'         => $contact['name'],
-				'$photo'        => $contact['photo'],
+				'$photo'        => Model\Contact::getPhoto($contact),
 				'$url'          => Model\Contact::magicLinkByContact($contact, $contact['url']),
 				'$addr'         => $contact['addr'] ?? '',
 				'$network_link' => $network_link,
@@ -366,7 +372,7 @@ class Contact extends BaseModule
 		Nav::setSelected('contact');
 
 		if (!local_user()) {
-			notice(DI::l10n()->t('Permission denied.') . EOL);
+			notice(DI::l10n()->t('Permission denied.'));
 			return Login::form();
 		}
 
@@ -390,17 +396,17 @@ class Contact extends BaseModule
 				// NOTREACHED
 			}
 
-			if ($cmd === 'updateprofile' && ($orig_record['uid'] != 0)) {
+			if ($cmd === 'updateprofile') {
 				self::updateContactFromProbe($contact_id);
-				DI::baseUrl()->redirect('contact/' . $contact_id . '/advanced/');
+				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
 			}
 
 			if ($cmd === 'block') {
 				self::blockContact($contact_id);
 
-				$blocked = Model\Contact::isBlockedByUser($contact_id, local_user());
-				info(($blocked ? DI::l10n()->t('Contact has been blocked') : DI::l10n()->t('Contact has been unblocked')) . EOL);
+				$blocked = Model\Contact\User::isBlocked($contact_id, local_user());
+				info(($blocked ? DI::l10n()->t('Contact has been blocked') : DI::l10n()->t('Contact has been unblocked')));
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
@@ -409,8 +415,8 @@ class Contact extends BaseModule
 			if ($cmd === 'ignore') {
 				self::ignoreContact($contact_id);
 
-				$ignored = Model\Contact::isIgnoredByUser($contact_id, local_user());
-				info(($ignored ? DI::l10n()->t('Contact has been ignored') : DI::l10n()->t('Contact has been unignored')) . EOL);
+				$ignored = Model\Contact\User::isIgnored($contact_id, local_user());
+				info(($ignored ? DI::l10n()->t('Contact has been ignored') : DI::l10n()->t('Contact has been unignored')));
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
@@ -420,7 +426,7 @@ class Contact extends BaseModule
 				$r = self::archiveContact($contact_id, $orig_record);
 				if ($r) {
 					$archived = (($orig_record['archive']) ? 0 : 1);
-					info((($archived) ? DI::l10n()->t('Contact has been archived') : DI::l10n()->t('Contact has been unarchived')) . EOL);
+					info((($archived) ? DI::l10n()->t('Contact has been archived') : DI::l10n()->t('Contact has been unarchived')));
 				}
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
@@ -430,17 +436,6 @@ class Contact extends BaseModule
 			if ($cmd === 'drop' && ($orig_record['uid'] != 0)) {
 				// Check if we should do HTML-based delete confirmation
 				if (!empty($_REQUEST['confirm'])) {
-					// <form> can't take arguments in its 'action' parameter
-					// so add any arguments as hidden inputs
-					$query = explode_querystring(DI::args()->getQueryString());
-					$inputs = [];
-					foreach ($query['args'] as $arg) {
-						if (strpos($arg, 'confirm=') === false) {
-							$arg_parts = explode('=', $arg);
-							$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
-						}
-					}
-
 					DI::page()['aside'] = '';
 
 					return Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_drop_confirm.tpl'), [
@@ -448,9 +443,8 @@ class Contact extends BaseModule
 						'$contact' => self::getContactTemplateVars($orig_record),
 						'$method' => 'get',
 						'$message' => DI::l10n()->t('Do you really want to delete this contact?'),
-						'$extra_inputs' => $inputs,
 						'$confirm' => DI::l10n()->t('Yes'),
-						'$confirm_url' => $query['base'],
+						'$confirm_url' => DI::args()->getCommand(),
 						'$confirm_name' => 'confirmed',
 						'$cancel' => DI::l10n()->t('Cancel'),
 					]);
@@ -461,7 +455,7 @@ class Contact extends BaseModule
 				}
 
 				self::dropContact($orig_record);
-				info(DI::l10n()->t('Contact has been removed.') . EOL);
+				info(DI::l10n()->t('Contact has been removed.'));
 
 				DI::baseUrl()->redirect('contact');
 				// NOTREACHED
@@ -483,24 +477,20 @@ class Contact extends BaseModule
 				'$baseurl' => DI::baseUrl()->get(true),
 			]);
 
-			$contact['blocked']  = Model\Contact::isBlockedByUser($contact['id'], local_user());
-			$contact['readonly'] = Model\Contact::isIgnoredByUser($contact['id'], local_user());
+			$contact['blocked']  = Model\Contact\User::isBlocked($contact['id'], local_user());
+			$contact['readonly'] = Model\Contact\User::isIgnored($contact['id'], local_user());
 
-			$dir_icon = '';
 			$relation_text = '';
 			switch ($contact['rel']) {
 				case Model\Contact::FRIEND:
-					$dir_icon = 'images/lrarrow.gif';
 					$relation_text = DI::l10n()->t('You are mutual friends with %s');
 					break;
 
 				case Model\Contact::FOLLOWER;
-					$dir_icon = 'images/larrow.gif';
 					$relation_text = DI::l10n()->t('You are sharing with %s');
 					break;
 
 				case Model\Contact::SHARING;
-					$dir_icon = 'images/rarrow.gif';
 					$relation_text = DI::l10n()->t('%s is sharing with you');
 					break;
 
@@ -539,7 +529,7 @@ class Contact extends BaseModule
 			$nettype = DI::l10n()->t('Network type: %s', ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']));
 
 			// tabs
-			$tab_str = self::getTabsHTML($a, $contact, 3);
+			$tab_str = self::getTabsHTML($contact, self::TAB_PROFILE);
 
 			$lost_contact = (($contact['archive'] && $contact['term-date'] > DBA::NULL_DATETIME && $contact['term-date'] < DateTimeFormat::utcNow()) ? DI::l10n()->t('Communications lost with this contact!') : '');
 
@@ -560,7 +550,7 @@ class Contact extends BaseModule
 			}
 
 			$poll_interval = null;
-			if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
+			if ((($contact['network'] == Protocol::FEED) && !DI::config()->get('system', 'adjust_poll_frequency')) || ($contact['network']== Protocol::MAIL)) {
 				$poll_interval = ContactSelector::pollInterval($contact['priority'], !$poll_enabled);
 			}
 
@@ -584,7 +574,7 @@ class Contact extends BaseModule
 				'$lbl_info2'      => DI::l10n()->t('Their personal note'),
 				'$reason'         => trim(Strings::escapeTags($contact['reason'])),
 				'$infedit'        => DI::l10n()->t('Edit contact notes'),
-				'$common_link'    => 'common/loc/' . local_user() . '/' . $contact['id'],
+				'$common_link'    => 'contact/' . $contact['id'] . '/contacts/common',
 				'$relation_text'  => $relation_text,
 				'$visit'          => DI::l10n()->t('Visit %s\'s profile [%s]', $contact['name'], $contact['url']),
 				'$blockunblock'   => DI::l10n()->t('Block/Unblock contact'),
@@ -613,9 +603,8 @@ class Contact extends BaseModule
 				'$notify'         => ['notify', DI::l10n()->t('Notification for new posts'), ($contact['notify_new_posts'] == 1), DI::l10n()->t('Send a notification of every new post of this contact')],
 				'$fetch_further_information' => $fetch_further_information,
 				'$ffi_keyword_denylist' => ['ffi_keyword_denylist', DI::l10n()->t('Keyword Deny List'), $contact['ffi_keyword_denylist'], DI::l10n()->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
-				'$photo'          => $contact['photo'],
+				'$photo'          => Model\Contact::getPhoto($contact),
 				'$name'           => $contact['name'],
-				'$dir_icon'       => $dir_icon,
 				'$sparkle'        => $sparkle,
 				'$url'            => $url,
 				'$profileurllabel'=> DI::l10n()->t('Profile URL'),
@@ -747,8 +736,8 @@ class Contact extends BaseModule
 			$sql_values
 		);
 		while ($contact = DBA::fetch($stmt)) {
-			$contact['blocked'] = Model\Contact::isBlockedByUser($contact['id'], local_user());
-			$contact['readonly'] = Model\Contact::isIgnoredByUser($contact['id'], local_user());
+			$contact['blocked'] = Model\Contact\User::isBlocked($contact['id'], local_user());
+			$contact['readonly'] = Model\Contact\User::isIgnored($contact['id'], local_user());
 			$contacts[] = self::getContactTemplateVars($contact);
 		}
 		DBA::close($stmt);
@@ -864,70 +853,62 @@ class Contact extends BaseModule
 	 *
 	 * Available Pages are 'Status', 'Profile', 'Contacts' and 'Common Friends'
 	 *
-	 * @param App   $a
 	 * @param array $contact    The contact array
 	 * @param int   $active_tab 1 if tab should be marked as active
 	 *
 	 * @return string HTML string of the contact page tabs buttons.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function getTabsHTML($a, $contact, $active_tab)
+	public static function getTabsHTML(array $contact, int $active_tab)
 	{
+		$cid = $pcid = $contact['id'];
+		$data = Model\Contact::getPublicAndUserContacID($contact['id'], local_user());
+		if (!empty($data['user']) && ($contact['id'] == $data['public'])) {
+			$cid = $data['user'];
+		} elseif (!empty($data['public'])) {
+			$pcid = $data['public'];
+		}
+
 		// tabs
 		$tabs = [
 			[
 				'label' => DI::l10n()->t('Status'),
-				'url'   => "contact/" . $contact['id'] . "/conversations",
-				'sel'   => (($active_tab == 1) ? 'active' : ''),
+				'url'   => 'contact/' . $pcid . '/conversations',
+				'sel'   => (($active_tab == self::TAB_CONVERSATIONS) ? 'active' : ''),
 				'title' => DI::l10n()->t('Conversations started by this contact'),
 				'id'    => 'status-tab',
 				'accesskey' => 'm',
 			],
 			[
 				'label' => DI::l10n()->t('Posts and Comments'),
-				'url'   => "contact/" . $contact['id'] . "/posts",
-				'sel'   => (($active_tab == 2) ? 'active' : ''),
+				'url'   => 'contact/' . $pcid . '/posts',
+				'sel'   => (($active_tab == self::TAB_POSTS) ? 'active' : ''),
 				'title' => DI::l10n()->t('Status Messages and Posts'),
 				'id'    => 'posts-tab',
 				'accesskey' => 'p',
 			],
 			[
 				'label' => DI::l10n()->t('Profile'),
-				'url'   => "contact/" . $contact['id'],
-				'sel'   => (($active_tab == 3) ? 'active' : ''),
+				'url'   => 'contact/' . $cid,
+				'sel'   => (($active_tab == self::TAB_PROFILE) ? 'active' : ''),
 				'title' => DI::l10n()->t('Profile Details'),
 				'id'    => 'profile-tab',
 				'accesskey' => 'o',
-			]
+			],
+			['label' => DI::l10n()->t('Contacts'),
+				'url'   => 'contact/' . $pcid . '/contacts',
+				'sel'   => (($active_tab == self::TAB_CONTACTS) ? 'active' : ''),
+				'title' => DI::l10n()->t('View all known contacts'),
+				'id'    => 'contacts-tab',
+				'accesskey' => 't'
+			],
 		];
 
-		// Show this tab only if there is visible friend list
-		$x = Model\GContact::countAllFriends(local_user(), $contact['id']);
-		if ($x) {
-			$tabs[] = ['label' => DI::l10n()->t('Contacts'),
-				'url'   => "allfriends/" . $contact['id'],
-				'sel'   => (($active_tab == 4) ? 'active' : ''),
-				'title' => DI::l10n()->t('View all contacts'),
-				'id'    => 'allfriends-tab',
-				'accesskey' => 't'];
-		}
-
-		// Show this tab only if there is visible common friend list
-		$common = Model\GContact::countCommonFriends(local_user(), $contact['id']);
-		if ($common) {
-			$tabs[] = ['label' => DI::l10n()->t('Common Friends'),
-				'url'   => "common/loc/" . local_user() . "/" . $contact['id'],
-				'sel'   => (($active_tab == 5) ? 'active' : ''),
-				'title' => DI::l10n()->t('View all common friends'),
-				'id'    => 'common-loc-tab',
-				'accesskey' => 'd'
-			];
-		}
-
-		if (!empty($contact['uid'])) {
+		if ($cid != $pcid) {
 			$tabs[] = ['label' => DI::l10n()->t('Advanced'),
-				'url'   => 'contact/' . $contact['id'] . '/advanced/',
-				'sel'   => (($active_tab == 6) ? 'active' : ''),
+				'url'   => 'contact/' . $cid . '/advanced/',
+				'sel'   => (($active_tab == self::TAB_ADVANCED) ? 'active' : ''),
 				'title' => DI::l10n()->t('Advanced Contact Settings'),
 				'id'    => 'advanced-tab',
 				'accesskey' => 'r'
@@ -965,13 +946,13 @@ class Contact extends BaseModule
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
 
 		if (!$update) {
-			$o .= self::getTabsHTML($a, $contact, 1);
+			$o .= self::getTabsHTML($contact, self::TAB_CONVERSATIONS);
 		}
 
 		if (DBA::isResult($contact)) {
 			DI::page()['aside'] = '';
 
-			$profiledata = Model\Contact::getDetailsByURL($contact['url']);
+			$profiledata = Model\Contact::getByURLForUser($contact['url'], local_user());
 
 			Model\Profile::load($a, '', $profiledata, true);
 
@@ -989,12 +970,12 @@ class Contact extends BaseModule
 	{
 		$contact = DBA::selectFirst('contact', ['uid', 'url', 'id'], ['id' => $contact_id, 'deleted' => false]);
 
-		$o = self::getTabsHTML($a, $contact, 2);
+		$o = self::getTabsHTML($contact, self::TAB_POSTS);
 
 		if (DBA::isResult($contact)) {
 			DI::page()['aside'] = '';
 
-			$profiledata = Model\Contact::getDetailsByURL($contact['url']);
+			$profiledata = Model\Contact::getByURLForUser($contact['url'], local_user());
 
 			if (local_user() && in_array($profiledata['network'], Protocol::FEDERATED)) {
 				$profiledata['remoteconnect'] = DI::baseUrl() . '/follow?url=' . urlencode($profiledata['url']);
@@ -1012,25 +993,36 @@ class Contact extends BaseModule
 		return $o;
 	}
 
-	public static function getContactTemplateVars(array $rr)
+	/**
+	 * Return the fields for the contact template
+	 *
+	 * @param array $contact Contact array
+	 * @return array Template fields
+	 */
+	public static function getContactTemplateVars(array $contact)
 	{
-		$dir_icon = '';
 		$alt_text = '';
 
-		if (!empty($rr['uid']) && !empty($rr['rel'])) {
-			switch ($rr['rel']) {
+		if (!empty($contact['url']) && isset($contact['uid']) && ($contact['uid'] == 0) && local_user()) {
+			$personal = Model\Contact::getByURL($contact['url'], false, ['uid', 'rel', 'self'], local_user());
+			if (!empty($personal)) {
+				$contact['uid'] = $personal['uid'];
+				$contact['rel'] = $personal['rel'];
+				$contact['self'] = $personal['self'];
+			}
+		}
+
+		if (!empty($contact['uid']) && !empty($contact['rel']) && local_user() == $contact['uid']) {
+			switch ($contact['rel']) {
 				case Model\Contact::FRIEND:
-					$dir_icon = 'images/lrarrow.gif';
 					$alt_text = DI::l10n()->t('Mutual Friendship');
 					break;
 
 				case Model\Contact::FOLLOWER;
-					$dir_icon = 'images/larrow.gif';
 					$alt_text = DI::l10n()->t('is a fan of yours');
 					break;
 
 				case Model\Contact::SHARING;
-					$dir_icon = 'images/rarrow.gif';
 					$alt_text = DI::l10n()->t('you are a fan of');
 					break;
 
@@ -1039,7 +1031,7 @@ class Contact extends BaseModule
 			}
 		}
 
-		$url = Model\Contact::magicLink($rr['url']);
+		$url = Model\Contact::magicLink($contact['url']);
 
 		if (strpos($url, 'redir/') === 0) {
 			$sparkle = ' class="sparkle" ';
@@ -1047,37 +1039,36 @@ class Contact extends BaseModule
 			$sparkle = '';
 		}
 
-		if ($rr['pending']) {
-			if (in_array($rr['rel'], [Model\Contact::FRIEND, Model\Contact::SHARING])) {
+		if ($contact['pending']) {
+			if (in_array($contact['rel'], [Model\Contact::FRIEND, Model\Contact::SHARING])) {
 				$alt_text = DI::l10n()->t('Pending outgoing contact request');
 			} else {
 				$alt_text = DI::l10n()->t('Pending incoming contact request');
 			}
 		}
 
-		if ($rr['self']) {
-			$dir_icon = 'images/larrow.gif';
+		if ($contact['self']) {
 			$alt_text = DI::l10n()->t('This is you');
-			$url = $rr['url'];
+			$url = $contact['url'];
 			$sparkle = '';
 		}
 
 		return [
-			'img_hover' => DI::l10n()->t('Visit %s\'s profile [%s]', $rr['name'], $rr['url']),
-			'edit_hover'=> DI::l10n()->t('Edit contact'),
-			'photo_menu'=> Model\Contact::photoMenu($rr),
-			'id'        => $rr['id'],
-			'alt_text'  => $alt_text,
-			'dir_icon'  => $dir_icon,
-			'thumb'     => ProxyUtils::proxifyUrl($rr['thumb'], false, ProxyUtils::SIZE_THUMB),
-			'name'      => $rr['name'],
-			'username'  => $rr['name'],
-			'account_type' => Model\Contact::getAccountType($rr),
-			'sparkle'   => $sparkle,
-			'itemurl'   => ($rr['addr'] ?? '') ?: $rr['url'],
-			'url'       => $url,
-			'network'   => ContactSelector::networkToName($rr['network'], $rr['url'], $rr['protocol']),
-			'nick'      => $rr['nick'],
+			'id'           => $contact['id'],
+			'url'          => $url,
+			'img_hover'    => DI::l10n()->t('Visit %s\'s profile [%s]', $contact['name'], $contact['url']),
+			'photo_menu'   => Model\Contact::photoMenu($contact),
+			'thumb'        => Model\Contact::getThumb($contact),
+			'alt_text'     => $alt_text,
+			'name'         => $contact['name'],
+			'nick'         => $contact['nick'],
+			'details'      => $contact['location'], 
+			'tags'         => $contact['keywords'],
+			'about'        => $contact['about'],
+			'account_type' => Model\Contact::getAccountType($contact),
+			'sparkle'      => $sparkle,
+			'itemurl'      => ($contact['addr'] ?? '') ?: $contact['url'],
+			'network'      => ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']),
 		];
 	}
 
@@ -1112,6 +1103,16 @@ class Contact extends BaseModule
 				'title' => '',
 				'sel'   => '',
 				'id'    => 'update',
+			];
+		}
+
+		if (in_array($contact['network'], Protocol::FEDERATED)) {
+			$contact_actions['updateprofile'] = [
+				'label' => DI::l10n()->t('Refetch contact data'),
+				'url'   => 'contact/' . $contact['id'] . '/updateprofile',
+				'title' => '',
+				'sel'   => '',
+				'id'    => 'updateprofile',
 			];
 		}
 

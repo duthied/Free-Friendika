@@ -41,6 +41,7 @@
 					<div class="panel-body">
 						{{include file="field_input.tpl" field=$sitename}}
 						{{include file="field_input.tpl" field=$sender_email}}
+						{{include file="field_input.tpl" field=$system_actor_name}}
 						{{include file="field_textarea.tpl" field=$banner}}
 						{{include file="field_input.tpl" field=$shortcut_icon}}
 						{{include file="field_input.tpl" field=$touch_icon}}
@@ -190,8 +191,6 @@
 						{{include file="field_input.tpl" field=$proxyuser}}
 						{{include file="field_input.tpl" field=$timeout}}
 						{{include file="field_input.tpl" field=$maxloadavg_frontend}}
-						{{include file="field_input.tpl" field=$optimize_max_tablesize}}
-						{{include file="field_input.tpl" field=$optimize_fragmentation}}
 						{{include file="field_input.tpl" field=$abandon_days}}
 						{{include file="field_input.tpl" field=$temppath}}
 						{{include file="field_checkbox.tpl" field=$suppress_tags}}
@@ -218,11 +217,10 @@
 				</div>
 				<div id="admin-settings-contacts-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-cocontactsrporate">
 					<div class="panel-body">
-						{{include file="field_checkbox.tpl" field=$poco_completion}}
-						{{include file="field_select.tpl" field=$gcontact_discovery}}
+						{{include file="field_select.tpl" field=$contact_discovery}}
+						{{include file="field_checkbox.tpl" field=$synchronize_directory}}
+						{{include file="field_checkbox.tpl" field=$poco_discovery}}
 						{{include file="field_input.tpl" field=$poco_requery_days}}
-						{{include file="field_select.tpl" field=$poco_discovery}}
-						{{include file="field_select.tpl" field=$poco_discovery_since}}
 						{{include file="field_checkbox.tpl" field=$poco_local_search}}
 					</div>
 					<div class="panel-footer">
@@ -255,6 +253,7 @@
 						{{include file="field_input.tpl" field=$dbclean_expire_days}}
 						{{include file="field_input.tpl" field=$dbclean_unclaimed}}
 						{{include file="field_input.tpl" field=$dbclean_expire_conv}}
+						{{include file="field_checkbox.tpl" field=$optimize_tables}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>

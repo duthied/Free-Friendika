@@ -488,6 +488,21 @@ class XML
 		return $first_item->attributes;
 	}
 
+	public static function getFirstValue($xpath, $search, $context)
+	{
+		$result = $xpath->query($search, $context);
+		if (!is_object($result)) {
+			return '';
+		}
+
+		$first_item = $result->item(0);
+		if (!is_object($first_item)) {
+			return '';
+		}
+
+		return $first_item->nodeValue;
+	}
+
 	/**
 	 * escape text ($str) for XML transport
 	 *

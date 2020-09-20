@@ -461,11 +461,12 @@ class Crypto
 			return;
 		}
 
-		$alg = ((array_key_exists('alg', $data)) ? $data['alg'] : 'aes256cbc');
+		$alg = $data['alg'] ?? 'aes256cbc';
 		if ($alg === 'aes256cbc') {
-			return self::encapsulateAes($data['data'], $prvkey);
+			return self::unencapsulateAes($data['data'], $prvkey);
 		}
-		return self::encapsulateOther($data['data'], $prvkey, $alg);
+
+		return self::unencapsulateOther($data, $prvkey, $alg);
 	}
 
 	/**

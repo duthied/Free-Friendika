@@ -87,12 +87,15 @@ function notification($params)
 	}
 	$nickname = $user["nickname"];
 
+	// Creates a new email builder for the notification email
+	$emailBuilder = DI::emailer()->newNotifyMail();
+
 	// with $params['show_in_notification_page'] == false, the notification isn't inserted into
 	// the database, and an email is sent if applicable.
 	// default, if not specified: true
 	$show_in_notification_page = isset($params['show_in_notification_page']) ? $params['show_in_notification_page'] : true;
 
-	$additional_mail_header = "X-Friendica-Account: <".$nickname."@".$hostname.">\n";
+	$emailBuilder->setHeader('X-Friendica-Account', '<' . $nickname . '@' . $hostname . '>');
 
 	if (array_key_exists('item', $params)) {
 		$title = $params['item']['title'];
@@ -259,13 +262,23 @@ function notification($params)
 	}
 
 	if ($params['type'] == Notify\Type::SHARE) {
-		$subject = $l10n->t('%s %s shared a new post', $subjectPrefix, $params['source_name']);
+		if ($params['origin_link'] == $params['source_link']) {
+			$subject = $l10n->t('%s %s shared a new post', $subjectPrefix, $params['source_name']);
 
-		$preamble = $l10n->t('%1$s shared a new post at %2$s', $params['source_name'], $sitename);
-		$epreamble = $l10n->t('%1$s [url=%2$s]shared a post[/url].',
-			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
-			$params['link']
-		);
+			$preamble = $l10n->t('%1$s shared a new post at %2$s', $params['source_name'], $sitename);
+			$epreamble = $l10n->t('%1$s [url=%2$s]shared a post[/url].',
+				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
+				$params['link']
+			);
+		} else {
+			$subject = $l10n->t('%s %s shared a post from %s', $subjectPrefix, $params['source_name'], $params['origin_name']);
+
+			$preamble = $l10n->t('%1$s shared a post from %2$s at %3$s', $params['source_name'], $params['origin_name'], $sitename);
+			$epreamble = $l10n->t('%1$s [url=%2$s]shared a post[/url] from %3$s.',
+				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
+				$params['link'], '[url='.$params['origin_link'].']'.$params['origin_name'].'[/url]'
+			);			
+		}
 
 		$sitelink = $l10n->t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
@@ -499,7 +512,8 @@ function notification($params)
 		Logger::log('sending notification email');
 
 		if (isset($params['parent']) && (intval($params['parent']) != 0)) {
-			$id_for_parent = $params['parent'] . "@" . $hostname;
+			$parent = Item::selectFirst(['guid'], ['id' => $params['parent']]);
+			$message_id = "<" . $parent['guid'] . "@" . gethostname() . ">";
 
 			// Is this the first email notification for this parent item and user?
 			if (!DBA::exists('notify-threads', ['master-parent-item' => $params['parent'], 'receiver-uid' => $params['uid']])) {
@@ -510,13 +524,14 @@ function notification($params)
 					'receiver-uid' => $params['uid'], 'parent-item' => 0];
 				DBA::insert('notify-threads', $fields);
 
-				$additional_mail_header .= "Message-ID: <${id_for_parent}>\n";
+				$emailBuilder->setHeader('Message-ID', $message_id);
 				$log_msg                = "include/enotify: No previous notification found for this parent:\n" .
 				                          "  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
 				Logger::log($log_msg, Logger::DEBUG);
 			} else {
 				// If not, just "follow" the thread.
-				$additional_mail_header .= "References: <${id_for_parent}>\nIn-Reply-To: <${id_for_parent}>\n";
+				$emailBuilder->setHeader('References', $message_id);
+				$emailBuilder->setHeader('In-Reply-To', $message_id);
 				Logger::log("There's already a notification for this parent.", Logger::DEBUG);
 			}
 		}
@@ -535,7 +550,6 @@ function notification($params)
 			'title'        => $title,
 			'body'         => $body,
 			'subject'      => $subject,
-			'headers'      => $additional_mail_header,
 		];
 
 		Hook::callAll('enotify_mail', $datarray);
@@ -554,13 +568,13 @@ function notification($params)
 
 		// If a photo is present, add it to the email
 		if (!empty($datarray['source_photo'])) {
-			$builder->withPhoto(
+			$emailBuilder->withPhoto(
 				$datarray['source_photo'],
 				$datarray['source_link'] ?? $sitelink,
 				$datarray['source_name'] ?? $sitename);
 		}
 
-		$email = $builder->build();
+		$email = $emailBuilder->build();
 
 		// use the Emailer class to send the message
 		return DI::emailer()->send($email);
@@ -594,10 +608,10 @@ function check_user_notification($itemid) {
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function check_item_notification($itemid, $uid, $notification_type) {
-	$fields = ['id', 'uri-id', 'mention', 'parent', 'parent-uri-id', 'title', 'body',
-		'author-link', 'author-name', 'author-avatar', 'author-id',
-		'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
-	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'deleted' => false];
+	$fields = ['id', 'uri-id', 'mention', 'parent', 'parent-uri-id', 'thr-parent-id',
+		'title', 'body', 'author-link', 'author-name', 'author-avatar', 'author-id',
+		'gravity', 'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
+	$condition = ['id' => $itemid, 'deleted' => false];
 	$item = Item::selectFirstForUser($uid, $fields, $condition);
 	if (!DBA::isResult($item)) {
 		return false;
@@ -610,9 +624,9 @@ function check_item_notification($itemid, $uid, $notification_type) {
 	$params['parent'] = $item['parent'];
 	$params['link'] = DI::baseUrl() . '/display/' . urlencode($item['guid']);
 	$params['otype'] = 'item';
-	$params['source_name'] = $item['author-name'];
-	$params['source_link'] = $item['author-link'];
-	$params['source_photo'] = $item['author-avatar'];
+	$params['origin_name'] = $params['source_name'] = $item['author-name'];
+	$params['origin_link'] = $params['source_link'] = $item['author-link'];
+	$params['origin_photo'] = $params['source_photo'] = $item['author-avatar'];
 
 	// Set the activity flags
 	$params['activity']['explicit_tagged'] = ($notification_type & UserItem::NOTIF_EXPLICIT_TAGGED);
@@ -630,6 +644,22 @@ function check_item_notification($itemid, $uid, $notification_type) {
 	if ($notification_type & UserItem::NOTIF_SHARED) {
 		$params['type'] = Notify\Type::SHARE;
 		$params['verb'] = Activity::POST;
+
+		// Special treatment for posts that had been shared via "announce"
+		if ($item['gravity'] == GRAVITY_ACTIVITY) {
+			$parent_item = Item::selectFirst($fields, ['uri-id' => $item['thr-parent-id'], 'uid' => [$uid, 0]]);
+			if (DBA::isResult($parent_item)) {
+				// Don't notify on own entries
+				if (User::getIdForURL($parent_item['author-link']) == $uid) {
+					return false;
+				}
+
+				$params['origin_name'] = $parent_item['author-name'];
+				$params['origin_link'] = $parent_item['author-link'];
+				$params['origin_photo'] = $parent_item['author-avatar'];
+				$params['item'] = $parent_item;
+			}
+		}
 	} elseif ($notification_type & UserItem::NOTIF_EXPLICIT_TAGGED) {
 		$params['type'] = Notify\Type::TAG_SELF;
 		$params['verb'] = Activity::TAG;

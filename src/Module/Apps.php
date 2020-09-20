@@ -44,7 +44,7 @@ class Apps extends BaseModule
 		$apps = Nav::getAppMenu();
 
 		if (count($apps) == 0) {
-			notice(DI::l10n()->t('No installed applications.') . EOL);
+			notice(DI::l10n()->t('No installed applications.'));
 		}
 
 		$tpl = Renderer::getMarkupTemplate('apps.tpl');

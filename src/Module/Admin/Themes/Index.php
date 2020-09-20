@@ -48,7 +48,7 @@ class Index extends BaseAdmin
 					}
 					Theme::setAllowedList($allowed_themes);
 
-					info('Themes reloaded');
+					info(DI::l10n()->t('Themes reloaded'));
 					break;
 
 				case 'toggle' :
@@ -66,7 +66,7 @@ class Index extends BaseAdmin
 						} elseif (Theme::install($theme)) {
 							info(DI::l10n()->t('Theme %s successfully enabled.', $theme));
 						} else {
-							info(DI::l10n()->t('Theme %s failed to install.', $theme));
+							notice(DI::l10n()->t('Theme %s failed to install.', $theme));
 						}
 					}
 

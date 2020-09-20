@@ -166,7 +166,7 @@ class Profile
 			}
 		}
 
-		$profile = self::getByNickname($nickname, $user['uid']);
+		$profile = User::getOwnerDataById($user['uid'], false);
 
 		if (empty($profile) && empty($profiledata)) {
 			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
@@ -304,7 +304,7 @@ class Profile
 
 		$profile_is_dfrn = $profile['network'] == Protocol::DFRN;
 		$profile_is_native = in_array($profile['network'], Protocol::NATIVE_SUPPORT);
-		$local_user_is_self = local_user() && local_user() == ($profile['uid'] ?? 0);
+		$local_user_is_self = $profile['self'] ?? false;
 		$visitor_is_authenticated = (bool)self::getMyURL();
 		$visitor_is_following =
 			in_array($visitor_contact['rel'] ?? 0, [Contact::FOLLOWER, Contact::FRIEND])
@@ -354,13 +354,7 @@ class Profile
 		// Fetch the account type
 		$account_type = Contact::getAccountType($profile);
 
-		if (!empty($profile['address'])
-			|| !empty($profile['location'])
-			|| !empty($profile['locality'])
-			|| !empty($profile['region'])
-			|| !empty($profile['postal-code'])
-			|| !empty($profile['country-name'])
-		) {
+		if (!empty($profile['address'])	|| !empty($profile['location'])) {
 			$location = DI::l10n()->t('Location:');
 		}
 
@@ -425,10 +419,6 @@ class Profile
 
 		if (isset($p['about'])) {
 			$p['about'] = BBCode::convert($p['about']);
-		}
-
-		if (empty($p['address']) && !empty($p['location'])) {
-			$p['address'] = $p['location'];
 		}
 
 		if (isset($p['address'])) {
@@ -737,7 +727,7 @@ class Profile
 			$magic_path = $basepath . '/magic' . '?owa=1&dest=' . $dest . '&' . $addr_request;
 
 			// We have to check if the remote server does understand /magic without invoking something
-			$serverret = Network::curl($basepath . '/magic');
+			$serverret = DI::httpRequest()->get($basepath . '/magic');
 			if ($serverret->isSuccess()) {
 				Logger::log('Doing magic auth for visitor ' . $my_url . ' to ' . $magic_path, Logger::DEBUG);
 				System::externalRedirect($magic_path);

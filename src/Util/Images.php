@@ -184,7 +184,7 @@ class Images
 			return $data;
 		}
 
-		$img_str = Network::fetchUrl($url, true, 4);
+		$img_str = DI::httpRequest()->fetch($url, true, 4);
 
 		if (!$img_str) {
 			return [];
@@ -200,7 +200,7 @@ class Images
 
 				$stamp1 = microtime(true);
 				file_put_contents($tempfile, $img_str);
-				DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
+				DI::profiler()->saveTimestamp($stamp1, "file");
 
 				$data = getimagesize($tempfile);
 				unlink($tempfile);

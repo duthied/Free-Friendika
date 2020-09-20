@@ -311,22 +311,22 @@ function api_call(App $a, App\Arguments $args = null)
 	}
 
 	$type = "json";
-	if (strpos($args->getQueryString(), ".xml") > 0) {
+	if (strpos($args->getCommand(), ".xml") > 0) {
 		$type = "xml";
 	}
-	if (strpos($args->getQueryString(), ".json") > 0) {
+	if (strpos($args->getCommand(), ".json") > 0) {
 		$type = "json";
 	}
-	if (strpos($args->getQueryString(), ".rss") > 0) {
+	if (strpos($args->getCommand(), ".rss") > 0) {
 		$type = "rss";
 	}
-	if (strpos($args->getQueryString(), ".atom") > 0) {
+	if (strpos($args->getCommand(), ".atom") > 0) {
 		$type = "atom";
 	}
 
 	try {
 		foreach ($API as $p => $info) {
-			if (strpos($args->getQueryString(), $p) === 0) {
+			if (strpos($args->getCommand(), $p) === 0) {
 				if (!api_check_method($info['method'])) {
 					throw new MethodNotAllowedException();
 				}
@@ -654,8 +654,8 @@ function api_get_user(App $a, $contact_id = null)
 				'notifications' => false,
 				'statusnet_profile_url' => $contact["url"],
 				'uid' => 0,
-				'cid' => Contact::getIdForURL($contact["url"], api_user(), true),
-				'pid' => Contact::getIdForURL($contact["url"], 0, true),
+				'cid' => Contact::getIdForURL($contact["url"], api_user(), false),
+				'pid' => Contact::getIdForURL($contact["url"], 0, false),
 				'self' => 0,
 				'network' => $contact["network"],
 			];
@@ -679,7 +679,7 @@ function api_get_user(App $a, $contact_id = null)
 	$countfollowers = 0;
 	$starred = 0;
 
-	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
+	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, false);
 
 	if (!empty($profile['about'])) {
 		$description = $profile['about'];
@@ -731,7 +731,7 @@ function api_get_user(App $a, $contact_id = null)
 		'statusnet_profile_url' => $uinfo[0]['url'],
 		'uid' => intval($uinfo[0]['uid']),
 		'cid' => intval($uinfo[0]['cid']),
-		'pid' => Contact::getIdForURL($uinfo[0]["url"], 0, true),
+		'pid' => Contact::getIdForURL($uinfo[0]["url"], 0, false),
 		'self' => $uinfo[0]['self'],
 		'network' => $uinfo[0]['network'],
 	];
@@ -5052,7 +5052,7 @@ function api_share_as_retweet(&$item)
 
 	$reshared_item["share-pre-body"] = $reshared['comment'];
 	$reshared_item["body"] = $reshared['shared'];
-	$reshared_item["author-id"] = Contact::getIdForURL($reshared['profile'], 0, true);
+	$reshared_item["author-id"] = Contact::getIdForURL($reshared['profile'], 0, false);
 	$reshared_item["author-name"] = $reshared['author'];
 	$reshared_item["author-link"] = $reshared['profile'];
 	$reshared_item["author-avatar"] = $reshared['avatar'];
@@ -5271,7 +5271,7 @@ function api_friendica_group_show($type)
 	// loop through all groups and retrieve all members for adding data in the user array
 	$grps = [];
 	foreach ($r as $rr) {
-		$members = Contact::getByGroupId($rr['id']);
+		$members = Contact\Group::getById($rr['id']);
 		$users = [];
 
 		if ($type == "xml") {
@@ -5596,7 +5596,7 @@ function api_friendica_group_update($type)
 	}
 
 	// remove members
-	$members = Contact::getByGroupId($gid);
+	$members = Contact\Group::getById($gid);
 	foreach ($members as $member) {
 		$cid = $member['id'];
 		foreach ($users as $user) {
@@ -5710,7 +5710,7 @@ function api_friendica_activity($type)
 
 	$id = $_REQUEST['id'] ?? 0;
 
-	$res = Item::performActivity($id, $verb);
+	$res = Item::performActivity($id, $verb, api_user());
 
 	if ($res) {
 		if ($type == "xml") {

@@ -37,6 +37,7 @@ class SpoolPost {
 
 					// It is not named like a spool file, so we don't care.
 					if (substr($file, 0, 5) != "item-") {
+						Logger::notice('Spool file does does not start with "item-"', ['file' => $file]);
 						continue;
 					}
 
@@ -44,11 +45,13 @@ class SpoolPost {
 
 					// We don't care about directories either
 					if (filetype($fullfile) != "file") {
+						Logger::notice('Spool file is no file', ['file' => $file]);
 						continue;
 					}
 
 					// We can't read or write the file? So we don't care about it.
 					if (!is_writable($fullfile) || !is_readable($fullfile)) {
+						Logger::notice('Spool file has insufficent permissions', ['file' => $file, 'writable' => is_writable($fullfile), 'readable' => is_readable($fullfile)]);
 						continue;
 					}
 
@@ -56,17 +59,19 @@ class SpoolPost {
 
 					// If it isn't an array then it is no spool file
 					if (!is_array($arr)) {
+						Logger::notice('Spool file is no array', ['file' => $file]);
 						continue;
 					}
 
 					// Skip if it doesn't seem to be an item array
 					if (!isset($arr['uid']) && !isset($arr['uri']) && !isset($arr['network'])) {
+						Logger::notice('Spool file does not contain the needed fields', ['file' => $file]);
 						continue;
 					}
 
 					$result = Item::insert($arr);
 
-					Logger::log("Spool file ".$file." stored: ".$result, Logger::DEBUG);
+					Logger::notice('Spool file is stored', ['file' => $file, 'result' => $result]);
 					unlink($fullfile);
 				}
 				closedir($dh);

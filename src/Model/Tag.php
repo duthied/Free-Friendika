@@ -93,6 +93,10 @@ class Tag
 				return;
 			}
 
+			if ((substr($url, 0, 7) == 'https//') || (substr($url, 0, 6) == 'http//')) {
+				Logger::notice('Wrong scheme in url', ['url' => $url, 'callstack' => System::callstack(20)]);
+			}
+
 			if (!$probing) {
 				$condition = ['nurl' => Strings::normaliseLink($url), 'uid' => 0, 'deleted' => false];
 				$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
@@ -111,7 +115,7 @@ class Tag
 					}
 				}
 			} else {
-				$cid = Contact::getIdForURL($url, 0, true);
+				$cid = Contact::getIdForURL($url, 0, false);
 				Logger::info('Got id by probing', ['cid' => $cid, 'url' => $url]);
 			}
 
@@ -437,6 +441,21 @@ class Tag
 	}
 
 	/**
+	 * Counts posts for given tag
+	 *
+	 * @param string $search
+	 * @param integer $uid
+	 * @return integer number of posts
+	 */
+	public static function countByTag(string $search, int $uid = 0)
+	{
+		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
+		$params = ['group_by' => ['uri-id']];
+
+		return DBA::count('tag-search-view', $condition, $params);
+	}
+
+	/**
 	 * Search posts for given tag
 	 *
 	 * @param string $search
@@ -536,5 +555,41 @@ class Tag
 		}
 
 		return Strings::startsWithChars($tag, $tag_chars);
-	}	
+	}
+
+	/**
+	 * Fetch user who subscribed to the given tag
+	 *
+	 * @param string $tag
+	 * @return array User list
+	 */
+	private static function getUIDListByTag(string $tag)
+	{
+		$uids = [];
+		$searches = DBA::select('search', ['uid'], ['term' => $tag]);
+		while ($search = DBA::fetch($searches)) {
+			$uids[] = $search['uid'];
+		}
+		DBA::close($searches);
+
+		return $uids;
+	}
+
+	/**
+	 * Fetch user who subscribed to the tags of the given item
+	 *
+	 * @param integer $uri_id
+	 * @return array User list
+	 */
+	public static function getUIDListByURIId(int $uri_id)
+	{
+		$uids = [];
+		$tags = self::getByURIId($uri_id, [self::HASHTAG]);
+
+		foreach ($tags as $tag) {
+			$uids = array_merge($uids, self::getUIDListByTag(self::TAG_CHARACTER[self::HASHTAG] . $tag['name']));
+		}
+
+		return array_unique($uids);
+	}
 }

@@ -106,7 +106,7 @@ function wall_attach_post(App $a) {
 		if ($r_json) {
 			echo json_encode(['error' => $msg]);
 		} else {
-			notice($msg . EOL);
+			notice($msg);
 		}
 		@unlink($src);
 		exit();

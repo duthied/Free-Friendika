@@ -23,7 +23,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\DI;
-use Friendica\Protocol\OStatus;
+use Friendica\Protocol\Feed as ProtocolFeed;
 
 /**
  * Provides public Atom feeds
@@ -75,7 +75,7 @@ class Feed extends BaseModule
 		// @TODO: Replace with parameter from router
 		$nickname = $a->argv[1];
 		header("Content-type: application/atom+xml; charset=utf-8");
-		echo OStatus::feed($nickname, $last_update, 10, $type, $nocache, true);
+		echo ProtocolFeed::atom($nickname, $last_update, 10, $type, $nocache, true);
 		exit();
 	}
 }

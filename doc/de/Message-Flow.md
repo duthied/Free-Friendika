@@ -8,8 +8,6 @@ Es gibt verschiedene Pfade, die verschiedene Protokolle und Nachrichtenformate n
 
 Diejenigen, die den Nachrichtenfluss genauer verstehen wollen, sollten sich mindestens mit dem DFRN-Protokoll ([Dokument mit den DFRN Spezifikationen](https://github.com/friendica/friendica/blob/stable/spec/dfrn2.pdf)) und den Elementen zur Nachrichtenverarbeitung des OStatus Stack informieren (salmon und Pubsubhubbub).
 
-Der Großteil der Nachrichtenverarbeitung nutzt die Datei include/items.php, welche Funktionen für verschiedene Feed-bezogene Import-/Exportaktivitäten liefert.
-
 Wenn eine Nachricht veröffentlicht wird, werden alle Übermittlungen an alle Netzwerke mit include/notifier.php durchgeführt, welche entscheidet, wie und an wen die Nachricht geliefert wird. 
 Diese Datei bindet dabei die lokale Bearbeitung aller Übertragungen ein inkl. dfrn-notify.
 

@@ -21,11 +21,11 @@
 
 namespace Friendica\Util;
 
-use Friendica\Database\DBA;
 use Friendica\Core\Logger;
+use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\User;
 use Friendica\Model\APContact;
+use Friendica\Model\User;
 
 /**
  * Implements HTTP Signatures per draft-cavage-http-signatures-07.
@@ -191,8 +191,10 @@ class HTTPSignature
 
 	/**
 	 * @param string $header
-	 * @return array associate array with
+	 * @return array associative array with
 	 *   - \e string \b keyID
+	 *   - \e string \b created
+	 *   - \e string \b expires
 	 *   - \e string \b algorithm
 	 *   - \e array  \b headers
 	 *   - \e string \b signature
@@ -200,78 +202,55 @@ class HTTPSignature
 	 */
 	public static function parseSigheader($header)
 	{
-		$ret = [];
+		// Remove obsolete folds
+		$header = preg_replace('/\n\s+/', ' ', $header);
+
+		$token = "[!#$%&'*+.^_`|~0-9A-Za-z-]";
+
+		$quotedString = '"(?:\\\\.|[^"\\\\])*"';
+
+		$regex = "/($token+)=($quotedString|$token+)/ism";
+
 		$matches = [];
+		preg_match_all($regex, $header, $matches, PREG_SET_ORDER);
+
+		$headers = [];
+		foreach ($matches as $match) {
+			$headers[$match[1]] = trim($match[2] ?: $match[3], '"');
+		}
 
 		// if the header is encrypted, decrypt with (default) site private key and continue
-		if (preg_match('/iv="(.*?)"/ism', $header, $matches)) {
-			$header = self::decryptSigheader($header);
+		if (!empty($headers['iv'])) {
+			$header = self::decryptSigheader($headers, DI::config()->get('system', 'prvkey'));
+			return self::parseSigheader($header);
 		}
 
-		if (preg_match('/keyId="(.*?)"/ism', $header, $matches)) {
-			$ret['keyId'] = $matches[1];
+		$return = [
+			'keyId'     => $headers['keyId'] ?? '',
+			'algorithm' => $headers['algorithm'] ?? 'rsa-sha256',
+			'created'   => $headers['created'] ?? null,
+			'expires'   => $headers['expires'] ?? null,
+			'headers'   => explode(' ', $headers['headers'] ?? ''),
+			'signature' => base64_decode(preg_replace('/\s+/', '', $headers['signature'] ?? '')),
+		];
+
+		if (!empty($return['signature']) && !empty($return['algorithm']) && empty($return['headers'])) {
+			$return['headers'] = ['date'];
 		}
 
-		if (preg_match('/algorithm="(.*?)"/ism', $header, $matches)) {
-			$ret['algorithm'] = $matches[1];
-		} else {
-			$ret['algorithm'] = 'rsa-sha256';
-		}
-
-		if (preg_match('/headers="(.*?)"/ism', $header, $matches)) {
-			$ret['headers'] = explode(' ', $matches[1]);
-		}
-
-		if (preg_match('/signature="(.*?)"/ism', $header, $matches)) {
-			$ret['signature'] = base64_decode(preg_replace('/\s+/', '', $matches[1]));
-		}
-
-		if (!empty($ret['signature']) && !empty($ret['algorithm']) && empty($ret['headers'])) {
-			$ret['headers'] = ['date'];
-		}
-
-		return $ret;
+		return $return;
 	}
 
 	/**
-	 * @param string $header
-	 * @param string $prvkey (optional), if not set use site private key
-	 *
-	 * @return array|string associative array, empty string if failue
-	 *   - \e string \b iv
-	 *   - \e string \b key
-	 *   - \e string \b alg
-	 *   - \e string \b data
+	 * @param array  $headers Signature headers
+	 * @param string $prvkey  The site private key
+	 * @return string Decrypted signature string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function decryptSigheader($header, $prvkey = null)
+	private static function decryptSigheader(array $headers, string $prvkey)
 	{
-		$iv = $key = $alg = $data = null;
-
-		if (!$prvkey) {
-			$prvkey = DI::config()->get('system', 'prvkey');
-		}
-
-		$matches = [];
-
-		if (preg_match('/iv="(.*?)"/ism', $header, $matches)) {
-			$iv = $matches[1];
-		}
-
-		if (preg_match('/key="(.*?)"/ism', $header, $matches)) {
-			$key = $matches[1];
-		}
-
-		if (preg_match('/alg="(.*?)"/ism', $header, $matches)) {
-			$alg = $matches[1];
-		}
-
-		if (preg_match('/data="(.*?)"/ism', $header, $matches)) {
-			$data = $matches[1];
-		}
-
-		if ($iv && $key && $alg && $data) {
-			return Crypto::unencapsulate(['iv' => $iv, 'key' => $key, 'alg' => $alg, 'data' => $data], $prvkey);
+		if (!empty($headers['iv']) && !empty($headers['key']) && !empty($headers['data'])) {
+			return Crypto::unencapsulate($headers, $prvkey);
 		}
 
 		return '';
@@ -318,7 +297,7 @@ class HTTPSignature
 
 		$headers[] = 'Content-Type: application/activity+json';
 
-		$postResult = Network::post($target, $content, $headers);
+		$postResult = DI::httpRequest()->post($target, $content, $headers);
 		$return_code = $postResult->getReturnCode();
 
 		Logger::log('Transmit to ' . $target . ' returned ' . $return_code, Logger::DEBUG);
@@ -434,12 +413,21 @@ class HTTPSignature
 	 */
 	public static function fetchRaw($request, $uid = 0, $binary = false, $opts = [])
 	{
+		$headers = [];
+
 		if (!empty($uid)) {
 			$owner = User::getOwnerDataById($uid);
 			if (!$owner) {
 				return;
 			}
+		} else {
+			$owner = User::getSystemAccount();
+			if (!$owner) {
+				return;
+			}
+		}
 
+		if (!empty($owner['uprvkey'])) {
 			// Header data that is about to be signed.
 			$host = parse_url($request, PHP_URL_HOST);
 			$path = parse_url($request, PHP_URL_PATH);
@@ -452,8 +440,6 @@ class HTTPSignature
 			$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
 
 			$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
-		} else {
-			$headers = [];
 		}
 
 		if (!empty($opts['accept_content'])) {
@@ -463,7 +449,7 @@ class HTTPSignature
 		$curl_opts = $opts;
 		$curl_opts['header'] = $headers;
 
-		$curlResult = Network::curl($request, false, $curl_opts);
+		$curlResult = DI::httpRequest()->get($request, false, $curl_opts);
 		$return_code = $curlResult->getReturnCode();
 
 		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);
@@ -498,7 +484,7 @@ class HTTPSignature
 		}
 
 		$headers = [];
-		$headers['(request-target)'] = strtolower($http_headers['REQUEST_METHOD']) . ' ' . $http_headers['REQUEST_URI'];
+		$headers['(request-target)'] = strtolower($http_headers['REQUEST_METHOD']) . ' ' . parse_url($http_headers['REQUEST_URI'], PHP_URL_PATH);
 
 		// First take every header
 		foreach ($http_headers as $k => $v) {

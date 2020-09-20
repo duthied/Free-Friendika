@@ -42,7 +42,7 @@ class Peers extends BaseApi
 		$return = [];
 
 		// We only select for Friendica and ActivityPub servers, since it is expected to only deliver AP compatible systems here.
-		$instances = DBA::select('gserver', ['url'], ["`network` in (?, ?) AND `last_contact` >= `last_failure`", Protocol::DFRN, Protocol::ACTIVITYPUB]);
+		$instances = DBA::select('gserver', ['url'], ["`network` in (?, ?) AND NOT `failed`", Protocol::DFRN, Protocol::ACTIVITYPUB]);
 		while ($instance = DBA::fetch($instances)) {
 			$urldata = parse_url($instance['url']);
 			unset($urldata['scheme']);

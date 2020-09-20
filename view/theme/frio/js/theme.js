@@ -2,6 +2,9 @@
 var jotcache = ''; //The jot cache. We use it as cache to restore old/original jot content
 
 $(document).ready(function(){
+	// Destroy unused perfect scrollbar in aside element
+	$('aside').perfectScrollbar('destroy');
+
 	//fade in/out based on scrollTop value
 	var scrollStart;
 
@@ -702,7 +705,7 @@ function scrollToItem(elementId) {
 		scrollTop: itemPos
 	}, 400).promise().done( function() {
 		// Highlight post/commenent with ID  (GUID)
-		$el.animate(colWhite, 1000).animate(colShiny).animate(colWhite, 600);
+		$el.animate(colWhite, 1000).animate(colShiny).animate({backgroundColor: 'transparent'}, 600);
 	});
 }
 

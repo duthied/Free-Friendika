@@ -58,14 +58,14 @@ class Users extends BaseAdmin
 			foreach ($users as $uid) {
 				User::block($uid);
 			}
-			notice(DI::l10n()->tt('%s user blocked', '%s users blocked', count($users)));
+			info(DI::l10n()->tt('%s user blocked', '%s users blocked', count($users)));
 		}
 
 		if (!empty($_POST['page_users_unblock'])) {
 			foreach ($users as $uid) {
 				User::block($uid, false);
 			}
-			notice(DI::l10n()->tt('%s user unblocked', '%s users unblocked', count($users)));
+			info(DI::l10n()->tt('%s user unblocked', '%s users unblocked', count($users)));
 		}
 
 		if (!empty($_POST['page_users_delete'])) {
@@ -77,21 +77,21 @@ class Users extends BaseAdmin
 				}
 			}
 
-			notice(DI::l10n()->tt('%s user deleted', '%s users deleted', count($users)));
+			info(DI::l10n()->tt('%s user deleted', '%s users deleted', count($users)));
 		}
 
 		if (!empty($_POST['page_users_approve'])) {
 			foreach ($pending as $hash) {
 				User::allow($hash);
 			}
-			notice(DI::l10n()->tt('%s user approved', '%s users approved', count($pending)));
+			info(DI::l10n()->tt('%s user approved', '%s users approved', count($pending)));
 		}
 
 		if (!empty($_POST['page_users_deny'])) {
 			foreach ($pending as $hash) {
 				User::deny($hash);
 			}
-			notice(DI::l10n()->tt('%s registration revoked', '%s registrations revoked', count($pending)));
+			info(DI::l10n()->tt('%s registration revoked', '%s registrations revoked', count($pending)));
 		}
 
 		DI::baseUrl()->redirect('admin/users');
@@ -107,7 +107,7 @@ class Users extends BaseAdmin
 		if ($uid) {
 			$user = User::getById($uid, ['username', 'blocked']);
 			if (!DBA::isResult($user)) {
-				notice('User not found' . EOL);
+				notice(DI::l10n()->t('User not found'));
 				DI::baseUrl()->redirect('admin/users');
 				return ''; // NOTREACHED
 			}

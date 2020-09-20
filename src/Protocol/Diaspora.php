@@ -22,6 +22,7 @@
 namespace Friendica\Protocol;
 
 use Friendica\Content\Feature;
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Cache\Duration;
@@ -33,7 +34,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
-use Friendica\Model\GContact;
+use Friendica\Model\FContact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
@@ -936,87 +937,12 @@ class Diaspora
 
 		Logger::log("Fetching diaspora key for: ".$handle);
 
-		$r = self::personByHandle($handle);
+		$r = FContact::getByURL($handle);
 		if ($r) {
 			return $r["pubkey"];
 		}
 
 		return "";
-	}
-
-	/**
-	 * Fetches data for a given handle
-	 *
-	 * @param string $handle The handle
-	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
-	 *
-	 * @return array the queried data
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function personByHandle($handle, $update = null)
-	{
-		$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
-		if (!DBA::isResult($person)) {
-			$urls = [$handle, str_replace('http://', 'https://', $handle), Strings::normaliseLink($handle)];
-			$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'url' => $urls]);
-		}
-
-		if (DBA::isResult($person)) {
-			Logger::debug('In cache', ['person' => $person]);
-
-			if (is_null($update)) {
-				// update record occasionally so it doesn't get stale
-				$d = strtotime($person["updated"]." +00:00");
-				if ($d < strtotime("now - 14 days")) {
-					$update = true;
-				}
-
-				if ($person["guid"] == "") {
-					$update = true;
-				}
-			}
-		} elseif (is_null($update)) {
-			$update = !DBA::isResult($person);
-		} else {
-			$person = [];
-		}
-
-		if ($update) {
-			Logger::log("create or refresh", Logger::DEBUG);
-			$r = Probe::uri($handle, Protocol::DIASPORA);
-
-			// Note that Friendica contacts will return a "Diaspora person"
-			// if Diaspora connectivity is enabled on their server
-			if ($r && ($r["network"] === Protocol::DIASPORA)) {
-				self::updateFContact($r);
-
-				$person = self::personByHandle($handle, false);
-			}
-		}
-
-		return $person;
-	}
-
-	/**
-	 * Updates the fcontact table
-	 *
-	 * @param array $arr The fcontact data
-	 * @throws \Exception
-	 */
-	private static function updateFContact($arr)
-	{
-		$fields = ['name' => $arr["name"], 'photo' => $arr["photo"],
-			'request' => $arr["request"], 'nick' => $arr["nick"],
-			'addr' => strtolower($arr["addr"]), 'guid' => $arr["guid"],
-			'batch' => $arr["batch"], 'notify' => $arr["notify"],
-			'poll' => $arr["poll"], 'confirm' => $arr["confirm"],
-			'alias' => $arr["alias"], 'pubkey' => $arr["pubkey"],
-			'updated' => DateTimeFormat::utcNow()];
-
-		$condition = ['url' => $arr["url"], 'network' => $arr["network"]];
-
-		DBA::update('fcontact', $fields, $condition, true);
 	}
 
 	/**
@@ -1067,32 +993,6 @@ class Diaspora
 	}
 
 	/**
-	 * get a url (scheme://domain.tld/u/user) from a given Diaspora*
-	 * fcontact guid
-	 *
-	 * @param mixed $fcontact_guid Hexadecimal string guid
-	 *
-	 * @return string the contact url or null
-	 * @throws \Exception
-	 */
-	public static function urlFromContactGuid($fcontact_guid)
-	{
-		Logger::info('fcontact', ['guid' => $fcontact_guid]);
-
-		$r = q(
-			"SELECT `url` FROM `fcontact` WHERE `url` != '' AND `network` = '%s' AND `guid` = '%s'",
-			DBA::escape(Protocol::DIASPORA),
-			DBA::escape($fcontact_guid)
-		);
-
-		if (DBA::isResult($r)) {
-			return $r[0]['url'];
-		}
-
-		return null;
-	}
-
-	/**
 	 * Get a contact id for a given handle
 	 *
 	 * @todo  Move to Friendica\Model\Contact
@@ -1106,20 +1006,7 @@ class Diaspora
 	 */
 	private static function contactByHandle($uid, $handle)
 	{
-		$cid = Contact::getIdForURL($handle, $uid);
-		if (!$cid) {
-			Logger::log("Haven't found a contact for user " . $uid . " and handle " . $handle, Logger::DEBUG);
-			return false;
-		}
-
-		$contact = DBA::selectFirst('contact', [], ['id' => $cid]);
-		if (!DBA::isResult($contact)) {
-			// This here shouldn't happen at all
-			Logger::log("Haven't found a contact for user " . $uid . " and handle " . $handle, Logger::DEBUG);
-			return false;
-		}
-
-		return $contact;
+		return Contact::getByURL($handle, null, [], $uid);
 	}
 
 	/**
@@ -1133,7 +1020,7 @@ class Diaspora
 	 */
 	public static function isSupportedByContactUrl($url, $update = null)
 	{
-		return !empty(self::personByHandle($url, $update));
+		return !empty(FContact::getByURL($url, $update));
 	}
 
 	/**
@@ -1285,7 +1172,7 @@ class Diaspora
 				// 0 => '[url=/people/0123456789abcdef]Foo Bar[/url]'
 				// 1 => '0123456789abcdef'
 				// 2 => 'Foo Bar'
-				$handle = self::urlFromContactGuid($match[1]);
+				$handle = FContact::getUrlByGuid($match[1]);
 
 				if ($handle) {
 					$return = '@[url='.$handle.']'.$match[2].'[/url]';
@@ -1378,7 +1265,7 @@ class Diaspora
 
 		Logger::log("Fetch post from ".$source_url, Logger::DEBUG);
 
-		$envelope = Network::fetchUrl($source_url);
+		$envelope = DI::httpRequest()->fetch($source_url);
 		if ($envelope) {
 			Logger::log("Envelope was fetched.", Logger::DEBUG);
 			$x = self::verifyMagicEnvelope($envelope);
@@ -1492,7 +1379,7 @@ class Diaspora
 		$item = Item::selectFirst($fields, $condition);
 
 		if (!DBA::isResult($item)) {
-			$person = self::personByHandle($author);
+			$person = FContact::getByURL($author);
 			$result = self::storeByGuid($guid, $person["url"], $uid);
 
 			// We don't have an url for items that arrived at the public dispatcher
@@ -1568,7 +1455,7 @@ class Diaspora
 	 */
 	private static function plink($addr, $guid, $parent_guid = '')
 	{
-		$contact = Contact::getDetailsByAddr($addr);
+		$contact = Contact::getByURL($addr);
 		if (empty($contact)) {
 			Logger::info('No contact data for address', ['addr' => $addr]);
 			return '';
@@ -1655,7 +1542,7 @@ class Diaspora
 		// Update the profile
 		self::receiveProfile($importer, $data->profile);
 
-		// change the technical stuff in contact and gcontact
+		// change the technical stuff in contact
 		$data = Probe::uri($new_handle);
 		if ($data['network'] == Protocol::PHANTOM) {
 			Logger::log('Account for '.$new_handle." couldn't be probed.");
@@ -1669,14 +1556,6 @@ class Diaspora
 				'network' => $data['network']];
 
 		DBA::update('contact', $fields, ['addr' => $old_handle]);
-
-		$fields = ['url' => $data['url'], 'nurl' => Strings::normaliseLink($data['url']),
-				'name' => $data['name'], 'nick' => $data['nick'],
-				'addr' => $data['addr'], 'connect' => $data['addr'],
-				'notify' => $data['notify'], 'photo' => $data['photo'],
-				'server_url' => $data['baseurl'], 'network' => $data['network']];
-
-		DBA::update('gcontact', $fields, ['addr' => $old_handle]);
 
 		Logger::log('Contacts are updated.');
 
@@ -1701,8 +1580,6 @@ class Diaspora
 		}
 		DBA::close($contacts);
 
-		DBA::delete('gcontact', ['addr' => $author]);
-
 		Logger::log('Removed contacts for ' . $author);
 
 		return true;
@@ -1725,7 +1602,7 @@ class Diaspora
 		if (DBA::isResult($item)) {
 			return $item["uri"];
 		} elseif (!$onlyfound) {
-			$person = self::personByHandle($author);
+			$person = FContact::getByURL($author);
 
 			$parts = parse_url($person['url']);
 			unset($parts['path']);
@@ -1757,27 +1634,6 @@ class Diaspora
 	}
 
 	/**
-	 * Find the best importer for a comment, like, ...
-	 *
-	 * @param string $guid The guid of the item
-	 *
-	 * @return array|boolean the origin owner of that post - or false
-	 * @throws \Exception
-	 */
-	private static function importerForGuid($guid)
-	{
-		$item = Item::selectFirst(['uid'], ['origin' => true, 'guid' => $guid]);
-		if (DBA::isResult($item)) {
-			Logger::log("Found user ".$item['uid']." as owner of item ".$guid, Logger::DEBUG);
-			$contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $item['uid']]);
-			if (DBA::isResult($contact)) {
-				return $contact;
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Store the mentions in the tag table
 	 *
 	 * @param integer $uriid
@@ -1802,7 +1658,7 @@ class Diaspora
 				continue;
 			}
 
-			$person = self::personByHandle($match[3]);
+			$person = FContact::getByURL($match[3]);
 			if (empty($person)) {
 				continue;
 			}
@@ -1858,7 +1714,7 @@ class Diaspora
 			return false;
 		}
 
-		$person = self::personByHandle($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("unable to find author details");
 			return false;
@@ -1878,6 +1734,9 @@ class Diaspora
 
 		$datarray["owner-link"] = $contact["url"];
 		$datarray["owner-id"] = Contact::getIdForURL($contact["url"], 0);
+
+		// Will be overwritten for sharing accounts in Item::insert
+		$datarray['post-type'] = ($datarray["uid"] == 0) ? Item::PT_GLOBAL : Item::PT_COMMENT;
 
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = self::getUriFromGuid($author, $guid);
@@ -1973,7 +1832,7 @@ class Diaspora
 		$body = Markdown::toBBCode($msg_text);
 		$message_uri = $msg_author.":".$msg_guid;
 
-		$person = self::personByHandle($msg_author);
+		$person = FContact::getByURL($msg_author);
 
 		return Mail::insert([
 			'uid'        => $importer['uid'],
@@ -2090,7 +1949,7 @@ class Diaspora
 			return false;
 		}
 
-		$person = self::personByHandle($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("unable to find author details");
 			return false;
@@ -2196,7 +2055,7 @@ class Diaspora
 
 		$message_uri = $author.":".$guid;
 
-		$person = self::personByHandle($author);
+		$person = FContact::getByURL($author);
 		if (!$person) {
 			Logger::log("unable to find author details");
 			return false;
@@ -2262,7 +2121,7 @@ class Diaspora
 			return false;
 		}
 
-		$person = self::personByHandle($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("Person not found: ".$author);
 			return false;
@@ -2409,7 +2268,7 @@ class Diaspora
 			$image_url = "http://".$handle_parts[1].$image_url;
 		}
 
-		Contact::updateAvatar($image_url, $importer["uid"], $contact["id"]);
+		Contact::updateAvatar($contact["id"], $image_url);
 
 		// Generic birthday. We don't know the timezone. The year is irrelevant.
 
@@ -2436,18 +2295,6 @@ class Diaspora
 		}
 
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
-
-		// @todo Update the public contact, then update the gcontact from that
-
-		$gcontact = ["url" => $contact["url"], "network" => Protocol::DIASPORA, "generation" => 2,
-					"photo" => $image_url, "name" => $name, "location" => $location,
-					"about" => $about, "birthday" => $birthday,
-					"addr" => $author, "nick" => $nick, "keywords" => $keywords,
-					"hide" => !$searchable, "nsfw" => $nsfw];
-
-		$gcid = GContact::update($gcontact);
-
-		GContact::link($gcid, $importer["uid"], $contact["id"]);
 
 		Logger::log("Profile of contact ".$contact["id"]." stored for user ".$importer["uid"], Logger::DEBUG);
 
@@ -2548,7 +2395,7 @@ class Diaspora
 			Logger::log("Author ".$author." wants to listen to us.", Logger::DEBUG);
 		}
 
-		$ret = self::personByHandle($author);
+		$ret = FContact::getByURL($author);
 
 		if (!$ret || ($ret["network"] != Protocol::DIASPORA)) {
 			Logger::log("Cannot resolve diaspora handle ".$author." for ".$recipient);
@@ -2621,7 +2468,7 @@ class Diaspora
 				$item["body"] = self::replacePeopleGuid($item["body"], $item["author-link"]);
 
 				// Add OEmbed and other information to the body
-				$item["body"] = add_page_info_to_body($item["body"], false, true);
+				$item["body"] = PageInfo::searchAndAppendToBody($item["body"], false, true);
 
 				return $item;
 			} else {
@@ -2836,7 +2683,7 @@ class Diaspora
 		$target_guid = Strings::escapeTags(XML::unescape($data->target_guid));
 		$target_type = Strings::escapeTags(XML::unescape($data->target_type));
 
-		$person = self::personByHandle($author);
+		$person = FContact::getByURL($author);
 		if (!is_array($person)) {
 			Logger::log("unable to find author detail for ".$author);
 			return false;
@@ -2985,7 +2832,7 @@ class Diaspora
 
 			// Add OEmbed and other information to the body
 			if (!self::isHubzilla($contact["url"])) {
-				$body = add_page_info_to_body($body, false, true);
+				$body = PageInfo::searchAndAppendToBody($body, false, true);
 			}
 		}
 
@@ -3017,6 +2864,10 @@ class Diaspora
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
+
+		if ($datarray["uid"] == 0) {
+			$datarray["post-type"] = Item::PT_GLOBAL;
+		}
 
 		$datarray["body"] = self::replacePeopleGuid($body, $contact["url"]);
 
@@ -3239,7 +3090,7 @@ class Diaspora
 		// We always try to use the data from the fcontact table.
 		// This is important for transmitting data to Friendica servers.
 		if (!empty($contact['addr'])) {
-			$fcontact = self::personByHandle($contact['addr']);
+			$fcontact = FContact::getByURL($contact['addr']);
 			if (!empty($fcontact)) {
 				$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
 			}
@@ -3259,7 +3110,7 @@ class Diaspora
 		if (!intval(DI::config()->get("system", "diaspora_test"))) {
 			$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
-			$postResult = Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
+			$postResult = DI::httpRequest()->post($dest_url . "/", $envelope, ["Content-Type: " . $content_type]);
 			$return_code = $postResult->getReturnCode();
 		} else {
 			Logger::log("test_mode");
@@ -3729,7 +3580,7 @@ class Diaspora
 
 	private static function prependParentAuthorMention($body, $profile_url)
 	{
-		$profile = Contact::getDetailsByURL($profile_url);
+		$profile = Contact::getByURL($profile_url, false, ['addr', 'name', 'contact-type']);
 		if (!empty($profile['addr'])
 			&& $profile['contact-type'] != Contact::TYPE_COMMUNITY
 			&& !strstr($body, $profile['addr'])

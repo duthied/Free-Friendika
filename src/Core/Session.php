@@ -65,10 +65,10 @@ class Session
 	}
 
 	/**
-	 * Returns contact ID for given user ID
+	 * Return the user contact ID of a visitor for the given user ID they are visiting
 	 *
 	 * @param integer $uid User ID
-	 * @return integer Contact ID of visitor for given user ID
+	 * @return integer
 	 */
 	public static function getRemoteContactID($uid)
 	{
@@ -111,7 +111,7 @@ class Session
 
 		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($session->get('my_url')), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
 		while ($contact = DBA::fetch($remote_contacts)) {
-			if (($contact['uid'] == 0) || Contact::isBlockedByUser($contact['id'], $contact['uid'])) {
+			if (($contact['uid'] == 0) || Contact\User::isBlocked($contact['id'], $contact['uid'])) {
 				continue;
 			}
 

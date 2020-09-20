@@ -63,7 +63,7 @@ as the value of $top_child_total (this is done at the end of this file)
 	{{if $item.star}}
 	<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>
 	{{/if}}
-	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock"></span>{{/if}}
+	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock"></span>{{/if}}
 </div>
 {{* /TODO => Unknown block *}}
 
@@ -78,9 +78,12 @@ as the value of $top_child_total (this is done at the end of this file)
 <span class="commented" style="display: none;">{{$item.commented}}</span>
 <span class="received" style="display: none;">{{$item.received}}</span>
 <span class="created" style="display: none;">{{$item.created_date}}</span>
-<span class="id" style="display: none;">{{$item.id}}</span>
+<span class="uriid" style="display: none;">{{$item.uriid}}</span>
 {{/if}}
 	<div class="media {{$item.shiny}}">
+	{{if $item.reshared}}
+		<p class="wall-item-announce wall-item-responses" id="wall-item-announce-{{$item.id}}"><i class="fa fa-retweet" aria-hidden="true"></i> {{$item.reshared nofilter}}</p>
+	{{/if}}
 		{{* The avatar picture and the photo-menu *}}
 		<div class="dropdown pull-left"><!-- Dropdown -->
 			{{if $item.thread_level==1}}
@@ -123,112 +126,113 @@ as the value of $top_child_total (this is done at the end of this file)
 		</div><!-- ./Dropdown -->
 
 
+	{{if $item.thread_level!=1}}
+		<div class="media-body">{{*this is the media body for comments - this div must be closed at the end of the file *}}
+	{{/if}}
 
-		{{* contact info header*}}
-		{{if $item.thread_level==1}}
-		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
-			<h4 class="media-heading">
-				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card">
-					<span class="wall-item-name {{$item.sparkle}}">{{$item.name}}</span>
-				</a>
-			{{if $item.owner_url}}
-				{{$item.via}}
-				<a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link userinfo hover-card">
-					<span class="wall-item-name {{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span>
-				</a>
-			{{/if}}
-			{{if $item.lock}}
-				<span class="navicon lock fakelink" onClick="lockview(event,{{$item.id}});" title="{{$item.lock}}" data-toggle="tooltip">
-					&nbsp;<small><i class="fa fa-lock" aria-hidden="true"></i></small>
-				</span>
-			{{/if}}
-			</h4>
-
-			<div class="additional-info text-muted">
-				<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
-					<small>
-						<a href="{{$item.plink.orig}}">
-							<span class="time" title="{{$item.localtime}}" data-toggle="tooltip">
-								<time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time>
-							</span>
-						</a>
-						{{if $item.owner_self}}
-							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
-						{{/if}}
-						{{if $item.direction}}
-							{{include file="sub/direction.tpl" direction=$item.direction}}
-						{{/if}}
-						{{if $item.pinned}}
-							&bull; <i class="fa fa-thumb-tack" aria-hidden="true" title="{{$item.pinned}}"></i>
-							<span class="sr-only">{{$item.pinned}}</span>
-						{{/if}}
-
-					</small>
-				</div>
-
-				{{if $item.location}}
-				<div id="wall-item-location-{{$item.id}}" class="wall-item-location">
-					<small><span class="location">({{$item.location nofilter}})</span></small>
-				</div>
+			{{* contact info header*}}
+		<div role="heading" aria-level="{{$item.thread_level}}">
+			<div class="preferences">
+				{{if $item.network_icon != ""}}
+					<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
+				{{else}}
+					<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
+				{{/if}}
+				{{if $item.plink}}	{{*link to the original source of the item *}}
+					&nbsp;
+					<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.plink.title}}">
+						<i class="fa fa-external-link"></i>
+					</a>
 				{{/if}}
 			</div>
-			{{* @todo $item.created have to be inserted *}}
-		</div>
+		{{if $item.thread_level==1}}
+			<div class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
+				<h4 class="media-heading">
+					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card">
+						<span class="wall-item-name {{$item.sparkle}}">{{$item.name}}</span>
+					</a>
+				{{if $item.owner_url}}
+					{{$item.via}}
+					<a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link userinfo hover-card">
+						<span class="wall-item-name {{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span>
+					</a>
+				{{/if}}
+				{{if $item.lock}}
+					<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}" data-toggle="tooltip">
+						&nbsp;<small><i class="fa fa-lock" aria-hidden="true"></i></small>
+					</span>
+				{{/if}}
+				</h4>
 
-		{{* contact info header for smartphones *}}
-		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info-xs hidden-lg hidden-md"><!-- <= For smartphone (responsive) -->
-			<h5 class="media-heading">
-				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span>{{$item.name}}</span></a>
-				<p class="text-muted">
-					<small>
-						<a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a>
-						{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}
-						{{if $item.owner_self}}
-							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
-						{{/if}}
-						{{if $item.direction}}
-							{{include file="sub/direction.tpl" direction=$item.direction}}
-						{{/if}}
-					</small>
-				</p>
-			</h5>
-		</div>
-		{{/if}} {{* End of if $item.thread_level==1 *}}
+				<div class="additional-info text-muted">
+					<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
+						<small>
+							<a href="{{$item.plink.orig}}">
+								<span class="time" title="{{$item.localtime}}" data-toggle="tooltip">
+									<time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time>
+								</span>
+							</a>
+							{{if $item.owner_self}}
+								{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
+							{{/if}}
+							{{if $item.direction}}
+								{{include file="sub/direction.tpl" direction=$item.direction}}
+							{{/if}}
+							{{if $item.pinned}}
+								&bull; <i class="fa fa-thumb-tack" aria-hidden="true" title="{{$item.pinned}}"></i>
+								<span class="sr-only">{{$item.pinned}}</span>
+							{{/if}}
 
-		{{* contact info header for comments *}}
-		{{if $item.thread_level!=1}}
-		<div class="media-body">{{*this is the media body for comments - this div must be closed at the end of the file *}}
-		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info-comment">
-			<h5 class="media-heading">
-				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span class="fakelink">{{$item.name}}</span></a>
-				<span class="text-muted">
-					<small>
-						<a class="time" href="{{$item.plink.orig}}" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</a>
-						{{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}
-						{{if $item.owner_self}}
-							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
-						{{/if}}
-						{{if $item.direction}}
-							{{include file="sub/direction.tpl" direction=$item.direction}}
-						{{/if}}
-					</small>
-				</span>
-			</h5>
-		</div>
-		{{/if}}
+						</small>
+					</div>
 
-		<div class="preferences">
-		{{if $item.network_icon != ""}}
-			<span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span>
-		{{else}}
-			<span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span>
-		{{/if}}
-		{{if $item.plink}}	{{*link to the original source of the item *}}
-			&nbsp;
-			<a href="{{$item.plink.href}}" class="plink u-url" aria-label="{{$item.plink.title}}" title="{{$item.plink.title}}">
-				<i class="fa fa-external-link"></i>
-			</a>
-		{{/if}}
+					{{if $item.location_html}}
+					<div id="wall-item-location-{{$item.id}}" class="wall-item-location">
+						<small><span class="location">({{$item.location_html nofilter}})</span></small>
+					</div>
+					{{/if}}
+				</div>
+				{{* @todo $item.created have to be inserted *}}
+			</div>
+
+			{{* contact info header for smartphones *}}
+			<div class="contact-info-xs hidden-lg hidden-md"><!-- <= For smartphone (responsive) -->
+				<h5 class="media-heading">
+					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span>{{$item.name}}</span></a>
+					<p class="text-muted">
+						<small>
+							<a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a>
+							{{if $item.location_html}}&nbsp;&mdash;&nbsp;({{$item.location_html nofilter}}){{/if}}
+							{{if $item.owner_self}}
+								{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
+							{{/if}}
+							{{if $item.direction}}
+								{{include file="sub/direction.tpl" direction=$item.direction}}
+							{{/if}}
+						</small>
+					</p>
+				</h5>
+			</div>
+		{{else}} {{* End of if $item.thread_level == 1 *}}
+			{{* contact info header for comments *}}
+			<div class="contact-info-comment">
+				<h5 class="media-heading">
+					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span class="fakelink">{{$item.name}}</span></a>
+					<span class="text-muted">
+				<small>
+					<a class="time" href="{{$item.plink.orig}}" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</a>
+					{{if $item.location_html}}&nbsp;&mdash;&nbsp;({{$item.location_html nofilter}}){{/if}}
+					{{if $item.owner_self}}
+						{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
+					{{/if}}
+					{{if $item.direction}}
+						{{include file="sub/direction.tpl" direction=$item.direction}}
+					{{/if}}
+				</small>
+			</span>
+				</h5>
+			</div>
+		{{/if}} {{* End of if $item.thread_level != 1 *}}
 		</div>
 
 		<div class="clearfix"></div>
@@ -242,7 +246,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h4><br /></span>
 			{{/if}}
 
-			<div class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}" id="wall-item-body-{{$item.id}}">{{$item.body nofilter}}</div>
+			<div class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}" id="wall-item-body-{{$item.id}}">{{$item.body_html nofilter}}</div>
 		</div>
 
 		<!-- TODO -->
@@ -291,7 +295,7 @@ as the value of $top_child_total (this is done at the end of this file)
 				<button type="button" class="btn-link button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-thumbs-down" aria-hidden="true"></i>&nbsp;{{$item.vote.dislike.1}}</button>
 				{{/if}}
 
-				{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment}}
+				{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment_html}}
 				<span role="presentation" class="separator"></span>
 				{{/if}}
 			{{/if}}
@@ -301,14 +305,14 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{/if}}
 
 			{{* Button to open the comment text field *}}
-			{{if $item.comment}}
+			{{if $item.comment_html}}
 				<button type="button" class="btn-link button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i>&nbsp;{{$item.switchcomment}}</button>
 			{{/if}}
 
 			{{* Button for sharing the item *}}
 			{{if $item.vote}}
 				{{if $item.vote.share}}
-					{{if $item.vote.like OR $item.vote.dislike OR $item.comment}}
+					{{if $item.vote.like OR $item.vote.dislike OR $item.comment_html}}
 				<span role="presentation" class="separator"></span>
 					{{/if}}
 				<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp;{{$item.vote.share.1}}</button>
@@ -418,7 +422,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{/if}}
 
 			{{* Button to open the comment text field *}}
-			{{if $item.comment}}
+			{{if $item.comment_html}}
 				<div class="btn-group" role="group">
 					<button type="button" class="btn btn-sm button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i></button>
 				</div>
@@ -523,18 +527,18 @@ as the value of $top_child_total (this is done at the end of this file)
 		<div class="wall-item-links"></div>
 
 		{{* Display likes, dislike and attendance stats *}}
-		{{if $item.responses}}
-			<div class="wall-item-responses">
-				{{foreach $item.responses as $verb=>$response}}
-				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output nofilter}}</div>
-				{{/foreach}}
-			</div>
-		{{/if}}
+	{{if $item.responses}}
+		<div class="wall-item-responses">
+			{{foreach $item.responses as $verb=>$response}}
+			<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output nofilter}}</div>
+			{{/foreach}}
+		</div>
+	{{/if}}
 
 		{{* Insert comment box of threaded children *}}
-		{{if $item.threaded && $item.comment && $item.indent==comment}}
+		{{if $item.threaded && $item.comment_html && $item.indent==comment}}
 			<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" data-display="block" style="display: none;">
-				{{$item.comment nofilter}}
+				{{$item.comment_html nofilter}}
 			</div>
 		{{/if}}
 
@@ -549,13 +553,13 @@ as the value of $top_child_total (this is done at the end of this file)
 	{{* Insert the comment box of the top level post at the bottom of the thread.
 		Display this comment box if there are any comments. If not hide it. In this
 		case it could be opend with the "comment" button *}}
-	{{if $item.comment && $item.thread_level==1}}
+	{{if $item.comment_html && $item.thread_level==1}}
 		{{if $item.total_comments_num}}
 		<div class="comment-fake-form" id="comment-fake-form-{{$item.id}}">
 			<textarea id="comment-fake-text-{{$item.id}}" class="comment-fake-text-empty form-control" placeholder="{{$item.reply_label}}" onFocus="commentOpenUI(this, {{$item.id}});"  rows="1"></textarea>
 		</div>
 		{{/if}}
-		<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" data-display="block" style="display: none">{{$item.comment nofilter}}</div>
+		<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" data-display="block" style="display: none">{{$item.comment_html nofilter}}</div>
 	{{/if}}
 </div><!-- ./panel-body or ./wall-item-container -->
 

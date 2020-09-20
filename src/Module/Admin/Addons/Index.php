@@ -39,7 +39,7 @@ class Index extends BaseAdmin
 			switch ($_GET['action']) {
 				case 'reload':
 					Addon::reload();
-					info('Addons reloaded');
+					info(DI::l10n()->t('Addons reloaded'));
 					break;
 
 				case 'toggle' :
@@ -50,7 +50,7 @@ class Index extends BaseAdmin
 					} elseif (Addon::install($addon)) {
 						info(DI::l10n()->t('Addon %s enabled.', $addon));
 					} else {
-						info(DI::l10n()->t('Addon %s failed to install.', $addon));
+						notice(DI::l10n()->t('Addon %s failed to install.', $addon));
 					}
 
 					break;

@@ -44,7 +44,7 @@ class Contact extends BaseAdmin
 			$contact_id = Model\Contact::getIdForURL($contact_url);
 			if ($contact_id) {
 				Model\Contact::block($contact_id, $block_reason);
-				notice(DI::l10n()->t('The contact has been blocked from the node'));
+				info(DI::l10n()->t('The contact has been blocked from the node'));
 			} else {
 				notice(DI::l10n()->t('Could not find any contact entry for this URL (%s)', $contact_url));
 			}
@@ -54,7 +54,7 @@ class Contact extends BaseAdmin
 			foreach ($contacts as $uid) {
 				Model\Contact::unblock($uid);
 			}
-			notice(DI::l10n()->tt('%s contact unblocked', '%s contacts unblocked', count($contacts)));
+			info(DI::l10n()->tt('%s contact unblocked', '%s contacts unblocked', count($contacts)));
 		}
 
 		DI::baseUrl()->redirect('admin/blocklist/contact');

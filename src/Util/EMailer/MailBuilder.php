@@ -49,7 +49,7 @@ abstract class MailBuilder
 	/** @var LoggerInterface */
 	protected $logger;
 
-	/** @var string */
+	/** @var string[][] */
 	protected $headers;
 
 	/** @var string */
@@ -76,13 +76,14 @@ abstract class MailBuilder
 			$hostname = substr($hostname, 0, strpos($hostname, ':'));
 		}
 
-		$this->headers = "";
-		$this->headers .= "Precedence: list\n";
-		$this->headers .= "X-Friendica-Host: " . $hostname . "\n";
-		$this->headers .= "X-Friendica-Platform: " . FRIENDICA_PLATFORM . "\n";
-		$this->headers .= "X-Friendica-Version: " . FRIENDICA_VERSION . "\n";
-		$this->headers .= "List-ID: <notification." . $hostname . ">\n";
-		$this->headers .= "List-Archive: <" . $baseUrl->get() . "/notifications/system>\n";
+		$this->headers = [
+			'Precedence'           => ['list'],
+			'X-Friendica-Host'     => [$hostname],
+			'X-Friendica-Platform' => [FRIENDICA_PLATFORM],
+			'X-Friendica-Version'  => [FRIENDICA_VERSION],
+			'List-ID'              => ['<notification.' . $hostname . '>'],
+			'List-Archive'         => ['<' . $baseUrl->get() . '/notifications/system>'],
+		];
 	}
 
 	/**
@@ -159,15 +160,31 @@ abstract class MailBuilder
 	}
 
 	/**
-	 * Adds new headers to the default headers
+	 * Adds a value to a header
 	 *
-	 * @param string $headers New headers
+	 * @param string $name The header name
+	 * @param string $value The value of the header to add
 	 *
 	 * @return static
 	 */
-	public function addHeaders(string $headers)
+	public function addHeader(string $name, string $value)
 	{
-		$this->headers .= $headers;
+		$this->headers[$name][] = $value;
+
+		return $this;
+	}
+
+	/**
+	 * Sets a value to a header (overwrites existing values)
+	 *
+	 * @param string $name The header name
+	 * @param string $value The value to set
+	 *
+	 * @return static
+	 */
+	public function	setHeader(string $name, string $value)
+	{
+		$this->headers[$name] = [$value];
 
 		return $this;
 	}

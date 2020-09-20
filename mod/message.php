@@ -32,7 +32,6 @@ use Friendica\Model\Mail;
 use Friendica\Model\Notify\Type;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
@@ -68,34 +67,32 @@ function message_init(App $a)
 function message_post(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	$replyto   = !empty($_REQUEST['replyto'])   ? Strings::escapeTags(trim($_REQUEST['replyto'])) : '';
 	$subject   = !empty($_REQUEST['subject'])   ? Strings::escapeTags(trim($_REQUEST['subject'])) : '';
 	$body      = !empty($_REQUEST['body'])      ? Strings::escapeHtml(trim($_REQUEST['body']))    : '';
-	$recipient = !empty($_REQUEST['messageto']) ? intval($_REQUEST['messageto'])                  : 0;
+	$recipient = !empty($_REQUEST['recipient']) ? intval($_REQUEST['recipient'])                  : 0;
 
 	$ret = Mail::send($recipient, $body, $subject, $replyto);
 	$norecip = false;
 
 	switch ($ret) {
 		case -1:
-			notice(DI::l10n()->t('No recipient selected.') . EOL);
+			notice(DI::l10n()->t('No recipient selected.'));
 			$norecip = true;
 			break;
 		case -2:
-			notice(DI::l10n()->t('Unable to locate contact information.') . EOL);
+			notice(DI::l10n()->t('Unable to locate contact information.'));
 			break;
 		case -3:
-			notice(DI::l10n()->t('Message could not be sent.') . EOL);
+			notice(DI::l10n()->t('Message could not be sent.'));
 			break;
 		case -4:
-			notice(DI::l10n()->t('Message collection failure.') . EOL);
+			notice(DI::l10n()->t('Message collection failure.'));
 			break;
-		default:
-			info(DI::l10n()->t('Message sent.') . EOL);
 	}
 
 	// fake it to go back to the input form if no recipient listed
@@ -113,7 +110,7 @@ function message_content(App $a)
 	Nav::setSelected('messages');
 
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
 
@@ -144,51 +141,20 @@ function message_content(App $a)
 			return;
 		}
 
-		// Check if we should do HTML-based delete confirmation
-		if (!empty($_REQUEST['confirm'])) {
-			// <form> can't take arguments in its "action" parameter
-			// so add any arguments as hidden inputs
-			$query = explode_querystring(DI::args()->getQueryString());
-			$inputs = [];
-			foreach ($query['args'] as $arg) {
-				if (strpos($arg, 'confirm=') === false) {
-					$arg_parts = explode('=', $arg);
-					$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
-				}
-			}
-
-			//DI::page()['aside'] = '';
-			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-				'$method' => 'get',
-				'$message' => DI::l10n()->t('Do you really want to delete this message?'),
-				'$extra_inputs' => $inputs,
-				'$confirm' => DI::l10n()->t('Yes'),
-				'$confirm_url' => $query['base'],
-				'$confirm_name' => 'confirmed',
-				'$cancel' => DI::l10n()->t('Cancel'),
-			]);
-		}
-
-		// Now check how the user responded to the confirmation query
-		if (!empty($_REQUEST['canceled'])) {
-			DI::baseUrl()->redirect('message');
-		}
-
 		$cmd = $a->argv[1];
 		if ($cmd === 'drop') {
 			$message = DBA::selectFirst('mail', ['convid'], ['id' => $a->argv[2], 'uid' => local_user()]);
 			if(!DBA::isResult($message)){
-				info(DI::l10n()->t('Conversation not found.') . EOL);
+				notice(DI::l10n()->t('Conversation not found.'));
 				DI::baseUrl()->redirect('message');
 			}
 
-			if (DBA::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
-				info(DI::l10n()->t('Message deleted.') . EOL);
+			if (!DBA::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
+				notice(DI::l10n()->t('Message was not deleted.'));
 			}
 
 			$conversation = DBA::selectFirst('mail', ['id'], ['convid' => $message['convid'], 'uid' => local_user()]);
 			if(!DBA::isResult($conversation)){
-				info(DI::l10n()->t('Conversation removed.') . EOL);
 				DI::baseUrl()->redirect('message');
 			}
 
@@ -201,8 +167,8 @@ function message_content(App $a)
 			if (DBA::isResult($r)) {
 				$parent = $r[0]['parent-uri'];
 
-				if (DBA::delete('mail', ['parent-uri' => $parent, 'uid' => local_user()])) {
-					info(DI::l10n()->t('Conversation removed.') . EOL);
+				if (!DBA::delete('mail', ['parent-uri' => $parent, 'uid' => local_user()])) {
+					notice(DI::l10n()->t('Conversation was not removed.'));
 				}
 			}
 			DI::baseUrl()->redirect('message');
@@ -219,50 +185,14 @@ function message_content(App $a)
 			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
 
-		$preselect = isset($a->argv[2]) ? [$a->argv[2]] : [];
+		$recipientId = $a->argv[2] ?? null;
 
-		$prename = $preurl = $preid = '';
-
-		if ($preselect) {
-			$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `id` = %d LIMIT 1",
-				intval(local_user()),
-				intval($a->argv[2])
-			);
-			if (!DBA::isResult($r)) {
-				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' LIMIT 1",
-					intval(local_user()),
-					DBA::escape(Strings::normaliseLink(base64_decode($a->argv[2])))
-				);
-			}
-
-			if (!DBA::isResult($r)) {
-				$r = q("SELECT `name`, `url`, `id` FROM `contact` WHERE `uid` = %d AND `addr` = '%s' LIMIT 1",
-					intval(local_user()),
-					DBA::escape(base64_decode($a->argv[2]))
-				);
-			}
-
-			if (DBA::isResult($r)) {
-				$prename = $r[0]['name'];
-				$preid = $r[0]['id'];
-				$preselect = [$preid];
-			} else {
-				$preselect = [];
-			}
-		}
-
-		$prefill = $preselect ? $prename : '';
-
-		// the ugly select box
-		$select = ACL::getMessageContactSelectHTML('messageto', 'message-to-select', $preselect, 4, 10);
+		$select = ACL::getMessageContactSelectHTML($recipientId);
 
 		$tpl = Renderer::getMarkupTemplate('prv_message.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$header'     => DI::l10n()->t('Send Private Message'),
 			'$to'         => DI::l10n()->t('To:'),
-			'$showinputs' => 'true',
-			'$prefill'    => $prefill,
-			'$preid'      => $preid,
 			'$subject'    => DI::l10n()->t('Subject:'),
 			'$subjtxt'    => $_REQUEST['subject'] ?? '',
 			'$text'       => $_REQUEST['body'] ?? '',
@@ -301,7 +231,7 @@ function message_content(App $a)
 		$r = get_messages(local_user(), $pager->getStart(), $pager->getItemsPerPage());
 
 		if (!DBA::isResult($r)) {
-			info(DI::l10n()->t('No messages.') . EOL);
+			notice(DI::l10n()->t('No messages.'));
 			return $o;
 		}
 
@@ -358,7 +288,7 @@ function message_content(App $a)
 		}
 
 		if (!DBA::isResult($messages)) {
-			notice(DI::l10n()->t('Message not available.') . EOL);
+			notice(DI::l10n()->t('Message not available.'));
 			return $o;
 		}
 
@@ -396,12 +326,8 @@ function message_content(App $a)
 			$body_e = BBCode::convert($message['body']);
 			$to_name_e = $message['name'];
 
-			$contact = Contact::getDetailsByURL($message['from-url']);
-			if (isset($contact["thumb"])) {
-				$from_photo = $contact["thumb"];
-			} else {
-				$from_photo = $message['from-photo'];
-			}
+			$contact = Contact::getByURL($message['from-url'], false, ['thumb', 'addr', 'id', 'avatar']);
+			$from_photo = Contact::getThumb($contact, $message['from-photo']);
 
 			$mails[] = [
 				'id' => $message['id'],
@@ -409,7 +335,7 @@ function message_content(App $a)
 				'from_url' => $from_url,
 				'from_addr' => $contact['addr'],
 				'sparkle' => $sparkle,
-				'from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
+				'from_photo' => $from_photo,
 				'subject' => $subject_e,
 				'body' => $body_e,
 				'delete' => DI::l10n()->t('Delete message'),
@@ -421,7 +347,7 @@ function message_content(App $a)
 			$seen = $message['seen'];
 		}
 
-		$select = $message['name'] . '<input type="hidden" name="messageto" value="' . $contact_id . '" />';
+		$select = $message['name'] . '<input type="hidden" name="recipient" value="' . $contact_id . '" />';
 		$parent = '<input type="hidden" name="replyto" value="' . $message['parent-uri'] . '" />';
 
 		$tpl = Renderer::getMarkupTemplate('mail_display.tpl');
@@ -437,7 +363,6 @@ function message_content(App $a)
 			// reply
 			'$header' => DI::l10n()->t('Send Reply'),
 			'$to' => DI::l10n()->t('To:'),
-			'$showinputs' => '',
 			'$subject' => DI::l10n()->t('Subject:'),
 			'$subjtxt' => $message['title'],
 			'$readonly' => ' readonly="readonly" style="background: #BBBBBB;" ',
@@ -528,12 +453,8 @@ function render_messages(array $msg, $t)
 		$body_e = $rr['body'];
 		$to_name_e = $rr['name'];
 
-		$contact = Contact::getDetailsByURL($rr['url']);
-		if (isset($contact["thumb"])) {
-			$from_photo = $contact["thumb"];
-		} else {
-			$from_photo = (($rr['thumb']) ? $rr['thumb'] : $rr['from-photo']);
-		}
+		$contact = Contact::getByURL($rr['url'], false, ['thumb', 'addr', 'id', 'avatar']);
+		$from_photo = Contact::getThumb($contact, $rr['thumb'] ?: $rr['from-photo']);
 
 		$rslt .= Renderer::replaceMacros($tpl, [
 			'$id' => $rr['id'],
@@ -541,7 +462,7 @@ function render_messages(array $msg, $t)
 			'$from_url' => Contact::magicLink($rr['url']),
 			'$from_addr' => $contact['addr'] ?? '',
 			'$sparkle' => ' sparkle',
-			'$from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
+			'$from_photo' => $from_photo,
 			'$subject' => $rr['title'],
 			'$delete' => DI::l10n()->t('Delete conversation'),
 			'$body' => $body_e,

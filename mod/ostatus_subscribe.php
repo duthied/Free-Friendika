@@ -23,13 +23,11 @@ use Friendica\App;
 use Friendica\Core\Protocol;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Network\Probe;
-use Friendica\Util\Network;
 
 function ostatus_subscribe_content(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('ostatus_subscribe');
 		// NOTREACHED
 	}
@@ -47,7 +45,7 @@ function ostatus_subscribe_content(App $a)
 			return $o . DI::l10n()->t('No contact provided.');
 		}
 
-		$contact = Probe::uri($_REQUEST['url']);
+		$contact = Contact::getByURL($_REQUEST['url']);
 		if (!$contact) {
 			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
 			return $o . DI::l10n()->t('Couldn\'t fetch information for contact.');
@@ -56,7 +54,7 @@ function ostatus_subscribe_content(App $a)
 		$api = $contact['baseurl'] . '/api/';
 
 		// Fetching friends
-		$curlResult = Network::curl($api . 'statuses/friends.json?screen_name=' . $contact['nick']);
+		$curlResult = DI::httpRequest()->get($api . 'statuses/friends.json?screen_name=' . $contact['nick']);
 
 		if (!$curlResult->isSuccess()) {
 			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
@@ -88,7 +86,7 @@ function ostatus_subscribe_content(App $a)
 
 	$o .= '<p>' . $counter . '/' . $total . ': ' . $url;
 
-	$probed = Probe::uri($url);
+	$probed = Contact::getByURL($url);
 	if ($probed['network'] == Protocol::OSTATUS) {
 		$result = Contact::createFromProbe($a->user, $probed['url'], true, Protocol::OSTATUS);
 		if ($result['success']) {

@@ -38,12 +38,10 @@ use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Photo;
 use Friendica\Model\Tag;
-use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Images;
 use Friendica\Util\Map;
-use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
@@ -487,7 +485,7 @@ class BBCode
 					continue;
 				}
 
-				$curlResult = Network::curl($mtch[1], true);
+				$curlResult = DI::httpRequest()->get($mtch[1], true);
 				if (!$curlResult->isSuccess()) {
 					continue;
 				}
@@ -983,7 +981,7 @@ class BBCode
 					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}
 
-				$author_contact = Contact::getByURL($attributes['profile'], 0, ['url', 'addr', 'name', 'micro'], false);
+				$author_contact = Contact::getByURL($attributes['profile'], false, ['url', 'addr', 'name', 'micro']);
 				$author_contact['url'] = ($author_contact['url'] ?? $attributes['profile']);
 				$author_contact['addr'] = ($author_contact['addr'] ?? '') ?: Protocol::getAddrFromProfileUrl($attributes['profile']);
 
@@ -1061,7 +1059,7 @@ class BBCode
 			default:
 				$text = ($is_quote_share? "\n" : '');
 
-				$contact = Contact::getByURL($attributes['profile'], 0, ['network'], false);
+				$contact = Contact::getByURL($attributes['profile'], false, ['network']);
 				$network = $contact['network'] ?? Protocol::PHANTOM;
 
 				$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
@@ -1096,11 +1094,11 @@ class BBCode
 			$ch = @curl_init($match[1]);
 			@curl_setopt($ch, CURLOPT_NOBODY, true);
 			@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
+			@curl_setopt($ch, CURLOPT_USERAGENT, DI::httpRequest()->getUserAgent());
 			@curl_exec($ch);
 			$curl_info = @curl_getinfo($ch);
 
-			DI::profiler()->saveTimestamp($stamp1, "network", System::callstack());
+			DI::profiler()->saveTimestamp($stamp1, "network");
 
 			if (substr($curl_info['content_type'], 0, 6) == 'image/') {
 				$text = "[url=" . $match[1] . ']' . $match[1] . "[/url]";
@@ -1108,7 +1106,7 @@ class BBCode
 				$text = "[url=" . $match[2] . ']' . $match[2] . "[/url]";
 
 				// if its not a picture then look if its a page that contains a picture link
-				$body = Network::fetchUrl($match[1]);
+				$body = DI::httpRequest()->fetch($match[1]);
 
 				$doc = new DOMDocument();
 				@$doc->loadHTML($body);
@@ -1170,11 +1168,11 @@ class BBCode
 		$ch = @curl_init($match[1]);
 		@curl_setopt($ch, CURLOPT_NOBODY, true);
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
+		@curl_setopt($ch, CURLOPT_USERAGENT, DI::httpRequest()->getUserAgent());
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
 
-		DI::profiler()->saveTimestamp($stamp1, "network", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "network");
 
 		// if its a link to a picture then embed this picture
 		if (substr($curl_info['content_type'], 0, 6) == 'image/') {
@@ -1187,7 +1185,7 @@ class BBCode
 			}
 
 			// if its not a picture then look if its a page that contains a picture link
-			$body = Network::fetchUrl($match[1]);
+			$body = DI::httpRequest()->fetch($match[1]);
 
 			$doc = new DOMDocument();
 			@$doc->loadHTML($body);
@@ -1975,12 +1973,7 @@ class BBCode
 	 */
 	private static function bbCodeMention2DiasporaCallback($match)
 	{
-		$contact = Contact::getDetailsByURL($match[3]);
-
-		if (empty($contact['addr'])) {
-			$contact = Probe::uri($match[3]);
-		}
-
+		$contact = Contact::getByURL($match[3], false, ['addr']);
 		if (empty($contact['addr'])) {
 			return $match[0];
 		}
@@ -2051,7 +2044,7 @@ class BBCode
 		// Now convert HTML to Markdown
 		$text = HTML::toMarkdown($text);
 
-		DI::profiler()->saveTimestamp($stamp1, "parser", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "parser");
 
 		// Libertree has a problem with escaped hashtags.
 		$text = str_replace(['\#'], ['#'], $text);

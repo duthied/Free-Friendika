@@ -51,7 +51,7 @@ class Delete extends BaseAdmin
 			Item::markForDeletion(['guid' => $guid]);
 		}
 
-		info(DI::l10n()->t('Item marked for deletion.') . EOL);
+		info(DI::l10n()->t('Item marked for deletion.'));
 		DI::baseUrl()->redirect('admin/item/delete');
 	}
 

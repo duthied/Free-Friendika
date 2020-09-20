@@ -111,7 +111,7 @@ class Update
 			if ($stored < $current || $force) {
 				DI::config()->load('database');
 
-				Logger::info('Update starting.', ['from' => $stored, 'to' => $current]);
+				Logger::notice('Update starting.', ['from' => $stored, 'to' => $current]);
 
 				// Compare the current structure with the defined structure
 				// If the Lock is acquired, never release it automatically to avoid double updates
@@ -120,15 +120,16 @@ class Update
 					// Checks if the build changed during Lock acquiring (so no double update occurs)
 					$retryBuild = DI::config()->get('system', 'build', null, true);
 					if ($retryBuild !== $build) {
-						Logger::info('Update already done.', ['from' => $stored, 'to' => $current]);
+						Logger::notice('Update already done.', ['from' => $stored, 'to' => $current]);
 						DI::lock()->release('dbupdate');
 						return '';
 					}
 
 					// run the pre_update_nnnn functions in update.php
 					for ($x = $stored + 1; $x <= $current; $x++) {
-						$r = self::runUpdateFunction($x, 'pre_update');
+						$r = self::runUpdateFunction($x, 'pre_update', $sendMail);
 						if (!$r) {
+							Logger::warning('Pre update failed', ['version' => $x]);
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
 							return $r;
@@ -156,8 +157,9 @@ class Update
 
 					// run the update_nnnn functions in update.php
 					for ($x = $stored + 1; $x <= $current; $x++) {
-						$r = self::runUpdateFunction($x, 'update');
+						$r = self::runUpdateFunction($x, 'update', $sendMail);
 						if (!$r) {
+							Logger::warning('Post update failed', ['version' => $x]);
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
 							return $r;
@@ -181,13 +183,14 @@ class Update
 	/**
 	 * Executes a specific update function
 	 *
-	 * @param int    $x      the DB version number of the function
-	 * @param string $prefix the prefix of the function (update, pre_update)
-	 *
+	 * @param int    $x        the DB version number of the function
+	 * @param string $prefix   the prefix of the function (update, pre_update)
+	 * @param bool   $sendMail whether to send emails on success/failure
+
 	 * @return bool true, if the update function worked
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function runUpdateFunction($x, $prefix)
+	public static function runUpdateFunction($x, $prefix, bool $sendMail = true)
 	{
 		$funcname = $prefix . '_' . $x;
 
@@ -204,14 +207,18 @@ class Update
 			if (DI::lock()->acquire('dbupdate_function', 120, Cache\Duration::INFINITE)) {
 
 				// call the specific update
+				Logger::info('Pre update function start.', ['function' => $funcname]);
 				$retval = $funcname();
+				Logger::info('Update function done.', ['function' => $funcname]);
 
 				if ($retval) {
-					//send the administrator an e-mail
-					self::updateFailed(
-						$x,
-						DI::l10n()->t('Update %s failed. See error logs.', $x)
-					);
+					if ($sendMail) {
+						//send the administrator an e-mail
+						self::updateFailed(
+							$x,
+							DI::l10n()->t('Update %s failed. See error logs.', $x)
+						);
+					}
 					Logger::error('Update function ERROR.', ['function' => $funcname, 'retval' => $retval]);
 					DI::lock()->release('dbupdate_function');
 					return false;
@@ -227,6 +234,8 @@ class Update
 					Logger::info('Update function finished.', ['function' => $funcname]);
 					return true;
 				}
+			} else {
+				Logger::error('Locking failed.', ['function' => $funcname]);
 			}
 		} else {
 			Logger::info('Update function skipped.', ['function' => $funcname]);

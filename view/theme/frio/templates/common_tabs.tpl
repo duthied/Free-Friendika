@@ -4,7 +4,7 @@
 	<ul role="menubar" class="tabbar list-inline visible-lg visible-md visible-sm hidden-xs">
 		{{* The normal tabbar *}}
 		<li>
-			<ul class="tabs  flex-nav" role="menu" >
+			<ul class="tabs flex-nav" role="menu" >
 			{{foreach $tabs as $tab}}
 				<li id="{{$tab.id}}" role="presentation" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a role="menuitem" href="{{$tab.url}}" {{if $tab.accesskey}}accesskey="{{$tab.accesskey}}"{{/if}} {{if $tab.title}} title="{{$tab.title}}"{{/if}}>{{$tab.label}}</a></li>
 			{{/foreach}}
@@ -36,8 +36,6 @@
 					{{$exttabs[]=$tab}}
 					{{/if}}
 				{{/foreach}}
-
-
 			</ul>
 		</li>
 

@@ -56,7 +56,7 @@ class ProfilerCache implements ICache, IMemoryCache
 
 		$return = $this->cache->getAllKeys($prefix);
 
-		$this->profiler->saveTimestamp($time, 'cache', System::callstack());
+		$this->profiler->saveTimestamp($time, 'cache');
 
 		return $return;
 	}
@@ -70,7 +70,7 @@ class ProfilerCache implements ICache, IMemoryCache
 
 		$return = $this->cache->get($key);
 
-		$this->profiler->saveTimestamp($time, 'cache', System::callstack());
+		$this->profiler->saveTimestamp($time, 'cache');
 
 		return $return;
 	}
@@ -84,7 +84,7 @@ class ProfilerCache implements ICache, IMemoryCache
 
 		$return = $this->cache->set($key, $value, $ttl);
 
-		$this->profiler->saveTimestamp($time, 'cache', System::callstack());
+		$this->profiler->saveTimestamp($time, 'cache');
 
 		return $return;
 	}
@@ -98,7 +98,7 @@ class ProfilerCache implements ICache, IMemoryCache
 
 		$return = $this->cache->delete($key);
 
-		$this->profiler->saveTimestamp($time, 'cache', System::callstack());
+		$this->profiler->saveTimestamp($time, 'cache');
 
 		return $return;
 	}
@@ -112,7 +112,7 @@ class ProfilerCache implements ICache, IMemoryCache
 
 		$return = $this->cache->clear($outdated);
 
-		$this->profiler->saveTimestamp($time, 'cache', System::callstack());
+		$this->profiler->saveTimestamp($time, 'cache');
 
 		return $return;
 	}
@@ -127,7 +127,7 @@ class ProfilerCache implements ICache, IMemoryCache
 
 			$return = $this->cache->add($key, $value, $ttl);
 
-			$this->profiler->saveTimestamp($time, 'cache', System::callstack());
+			$this->profiler->saveTimestamp($time, 'cache');
 
 			return $return;
 		} else {
@@ -145,7 +145,7 @@ class ProfilerCache implements ICache, IMemoryCache
 
 			$return = $this->cache->compareSet($key, $oldValue, $newValue, $ttl);
 
-			$this->profiler->saveTimestamp($time, 'cache', System::callstack());
+			$this->profiler->saveTimestamp($time, 'cache');
 
 			return $return;
 		} else {
@@ -163,7 +163,7 @@ class ProfilerCache implements ICache, IMemoryCache
 
 			$return = $this->cache->compareDelete($key, $value);
 
-			$this->profiler->saveTimestamp($time, 'cache', System::callstack());
+			$this->profiler->saveTimestamp($time, 'cache');
 
 			return $return;
 		} else {

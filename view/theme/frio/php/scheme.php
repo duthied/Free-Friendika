@@ -52,7 +52,8 @@ function get_scheme_info($scheme)
 		'description' => '',
 		'author' => [],
 		'version' => '',
-		'overwrites' => []
+		'overwrites' => [],
+		'accented' => false,
 	];
 
 	if (!is_file($themepath . 'scheme/' . $scheme . '.php')) return $info;
@@ -84,6 +85,8 @@ function get_scheme_info($scheme)
 					foreach ($theme_settings as $key => $value) {
 						$info['overwrites'][$value] = true;
 					}
+				} elseif ($k == 'accented') {
+					$info['accented'] = $v && $v != 'false' && $v != 'no';
 				} else {
 					if (array_key_exists($k, $info)) {
 						$info[$k] = $v;

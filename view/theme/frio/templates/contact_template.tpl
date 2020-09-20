@@ -6,7 +6,9 @@
 			<div class="contact-entry-photo mframe" id="contact-entry-photo-{{$contact.id}}">
 
 				<div class="contact-photo-image-wrapper hidden-xs">
-					<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+					<a href="{{$contact.url}}">
+						<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
+					</a>
 				</div>
 
 				{{* For very small displays we use a dropdown menu for contact relating actions *}}

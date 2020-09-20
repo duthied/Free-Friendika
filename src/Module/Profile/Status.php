@@ -102,13 +102,13 @@ class Status extends BaseProfile
 		$last_updated_key = "profile:" . $a->profile['uid'] . ":" . local_user() . ":" . $remote_contact;
 
 		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
-			notice(DI::l10n()->t('Access to this profile has been restricted.') . EOL);
+			notice(DI::l10n()->t('Access to this profile has been restricted.'));
 			return '';
 		}
 
 		$o .= self::getTabsHTML($a, 'status', $is_owner, $a->profile['nickname']);
 
-		$o .= Widget::commonFriendsVisitor($a->profile['uid']);
+		$o .= Widget::commonFriendsVisitor($a->profile['uid'], $a->profile['nickname']);
 
 		$commpage = $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$commvisitor = $commpage && $remote_contact;
@@ -232,7 +232,18 @@ class Status extends BaseProfile
 		$items = DBA::toArray($items_stmt);
 
 		if ($pager->getStart() == 0 && !empty($a->profile['uid'])) {
-			$pinned_items = Item::selectPinned($a->profile['uid'], ['uri', 'pinned']);
+			$condition = ['private' => [Item::PUBLIC, Item::UNLISTED]];
+			if (remote_user()) {
+				$permissionSets = DI::permissionSet()->selectByContactId(remote_user(), $a->profile['uid']);
+				if (!empty($permissionSets)) {
+					$condition = ['psid' => array_merge($permissionSets->column('id'),
+							[DI::permissionSet()->getIdFromACL($a->profile['uid'], '', '', '', '')])];
+				}
+			} elseif ($a->profile['uid'] == local_user()) {
+				$condition = [];
+			}
+	
+			$pinned_items = Item::selectPinned($a->profile['uid'], ['uri', 'pinned'], $condition);
 			$pinned = Item::inArray($pinned_items);
 			$items = array_merge($items, $pinned);
 		}

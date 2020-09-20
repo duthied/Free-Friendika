@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Content\PageInfo;
 use Friendica\Core\ACL;
 use Friendica\DI;
 use Friendica\Module\Security\Login;
@@ -55,7 +56,7 @@ class Bookmarklet extends BaseModule
 				throw new HTTPException\BadRequestException(DI::l10n()->t('This page is missing a url parameter.'));
 			}
 
-			$content = add_page_info($_REQUEST["url"]);
+			$content = "\n" . PageInfo::getFooterFromUrl($_REQUEST['url']);
 
 			$x = [
 				'is_owner'         => true,

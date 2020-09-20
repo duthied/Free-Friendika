@@ -101,7 +101,7 @@ class StaticDatabase extends Database
 	{
 		// Use environment variables for mysql if they are set beforehand
 		if (!empty($server['MYSQL_HOST'])
-		    && (!empty($server['MYSQL_USERNAME'] || !empty($server['MYSQL_USER'])))
+		    && (!empty($server['MYSQL_USERNAME']) || !empty($server['MYSQL_USER']))
 		    && $server['MYSQL_PASSWORD'] !== false
 		    && !empty($server['MYSQL_DATABASE']))
 		{

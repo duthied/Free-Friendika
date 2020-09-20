@@ -31,7 +31,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\User;
@@ -63,7 +62,7 @@ function settings_post(App $a)
 	}
 
 	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -198,12 +197,9 @@ function settings_post(App $a)
 						unset($dcrpass);
 						if (!$mbox) {
 							$failed = true;
-							notice(DI::l10n()->t('Failed to connect with email account using the settings provided.') . EOL);
+							notice(DI::l10n()->t('Failed to connect with email account using the settings provided.'));
 						}
 					}
-				}
-				if (!$failed) {
-					info(DI::l10n()->t('Email settings updated.') . EOL);
 				}
 			}
 		}
@@ -219,7 +215,6 @@ function settings_post(App $a)
 				DI::pConfig()->set(local_user(), 'feature', substr($k, 8), ((intval($v)) ? 1 : 0));
 			}
 		}
-		info(DI::l10n()->t('Features updated') . EOL);
 		return;
 	}
 
@@ -231,7 +226,7 @@ function settings_post(App $a)
 			// was there an error
 			if ($_FILES['importcontact-filename']['error'] > 0) {
 				Logger::notice('Contact CSV file upload error');
-				info(DI::l10n()->t('Contact CSV file upload error'));
+				notice(DI::l10n()->t('Contact CSV file upload error'));
 			} else {
 				$csvArray = array_map('str_getcsv', file($_FILES['importcontact-filename']['tmp_name']));
 				// import contacts
@@ -424,10 +419,10 @@ function settings_post(App $a)
 		$hidewall = 1;
 		if (!$str_contact_allow && !$str_group_allow && !$str_contact_deny && !$str_group_deny) {
 			if ($def_gid) {
-				info(DI::l10n()->t('Private forum has no privacy permissions. Using default privacy group.'). EOL);
+				info(DI::l10n()->t('Private forum has no privacy permissions. Using default privacy group.'));
 				$str_group_allow = '<' . $def_gid . '>';
 			} else {
-				notice(DI::l10n()->t('Private forum has no privacy permissions and no default privacy group.') . EOL);
+				notice(DI::l10n()->t('Private forum has no privacy permissions and no default privacy group.'));
 			}
 		}
 	}
@@ -443,8 +438,8 @@ function settings_post(App $a)
 		$fields['openidserver'] = '';
 	}
 
-	if (DBA::update('user', $fields, ['uid' => local_user()])) {
-		info(DI::l10n()->t('Settings updated.') . EOL);
+	if (!DBA::update('user', $fields, ['uid' => local_user()])) {
+		notice(DI::l10n()->t('Settings were not updated.'));
 	}
 
 	// clear session language
@@ -475,9 +470,6 @@ function settings_post(App $a)
 
 	Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 
-	// Update the global contact for the user
-	GContact::updateForUser(local_user());
-
 	DI::baseUrl()->redirect('settings');
 	return; // NOTREACHED
 }
@@ -489,12 +481,12 @@ function settings_content(App $a)
 	Nav::setSelected('settings');
 
 	if (!local_user()) {
-		//notice(DI::l10n()->t('Permission denied.') . EOL);
+		//notice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
 
 	if (!empty($_SESSION['submanage'])) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -722,7 +714,7 @@ function settings_content(App $a)
 
 	$profile = DBA::selectFirst('profile', [], ['uid' => local_user()]);
 	if (!DBA::isResult($profile)) {
-		notice(DI::l10n()->t('Unable to find your profile. Please contact your admin.') . EOL);
+		notice(DI::l10n()->t('Unable to find your profile. Please contact your admin.'));
 		return;
 	}
 
@@ -837,26 +829,6 @@ function settings_content(App $a)
 
 	$stpl = Renderer::getMarkupTemplate('settings/settings.tpl');
 
-	// Private/public post links for the non-JS ACL form
-	$private_post = 1;
-	if (!empty($_REQUEST['public']) && !$_REQUEST['public']) {
-		$private_post = 0;
-	}
-
-	$query_str = DI::args()->getQueryString();
-	if (strpos($query_str, 'public=1') !== false) {
-		$query_str = str_replace(['?public=1', '&public=1'], ['', ''], $query_str);
-	}
-
-	// I think $a->query_string may never have ? in it, but I could be wrong
-	// It looks like it's from the index.php?q=[etc] rewrite that the web
-	// server does, which converts any ? to &, e.g. suggest&ignore=61 for suggest?ignore=61
-	if (strpos($query_str, '?') === false) {
-		$public_post_link = '?public=1';
-	} else {
-		$public_post_link = '&public=1';
-	}
-
 	/* Installed langs */
 	$lang_choices = DI::l10n()->getAvailableLanguages();
 
@@ -874,7 +846,7 @@ function settings_content(App $a)
 		'$password1'=> ['password', DI::l10n()->t('New Password:'), '', DI::l10n()->t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).')],
 		'$password2'=> ['confirm', DI::l10n()->t('Confirm:'), '', DI::l10n()->t('Leave password fields blank unless changing')],
 		'$password3'=> ['opassword', DI::l10n()->t('Current Password:'), '', DI::l10n()->t('Your current password to confirm the changes')],
-		'$password4'=> ['mpassword', DI::l10n()->t('Password:'), '', DI::l10n()->t('Your current password to confirm the changes')],
+		'$password4'=> ['mpassword', DI::l10n()->t('Password:'), '', DI::l10n()->t('Your current password to confirm the changes of the email address')],
 		'$oid_enable' => (!DI::config()->get('system', 'no_openid')),
 		'$openid'	=> $openid_field,
 		'$delete_openid' => ['delete_openid', DI::l10n()->t('Delete OpenID URL'), false, ''],

@@ -17,8 +17,15 @@ use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\Contact;
 use Friendica\Module;
 use Friendica\Util\Strings;
+
+const FRIO_SCHEME_ACCENT_BLUE   = '#1e87c2';
+const FRIO_SCHEME_ACCENT_RED    = '#b50404';
+const FRIO_SCHEME_ACCENT_PURPLE = '#a54bad';
+const FRIO_SCHEME_ACCENT_GREEN  = '#218f39';
+const FRIO_SCHEME_ACCENT_PINK   = '#d900a9';
 
 function frio_init(App $a)
 {
@@ -52,18 +59,6 @@ function frio_install()
 	Hook::register('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
 	Logger::log('installed theme frio');
-}
-
-function frio_uninstall()
-{
-	Hook::unregister('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
-	Hook::unregister('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
-	Hook::unregister('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
-	Hook::unregister('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
-	Hook::unregister('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
-	Hook::unregister('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
-
-	Logger::log('uninstalled theme frio');
 }
 
 /**
@@ -202,55 +197,27 @@ function frio_remote_nav($a, &$nav)
 		$homelink = Session::get('visitor_home', '');
 	}
 
-	// split up the url in it's parts (protocol,domain/directory, /profile/, nickname
-	// I'm not familiar with regex, so someone might find a better solutionen
-	//
-	// E.g $homelink = 'https://friendica.domain.com/profile/mickey' should result in an array
-	// with 0 => 'https://friendica.domain.com/profile/mickey' 1 => 'https://',
-	// 2 => 'friendica.domain.com' 3 => '/profile/' 4 => 'mickey'
-	//
-	//$server_url = preg_match('/^(https?:\/\/.*?)\/profile\//2', $homelink);
-	preg_match('/^(https?:\/\/)?(.*?)(\/profile\/)(.*)/', $homelink, $url_parts);
-
-	// Construct the server url of the visitor. So we could link back to his/her own menu.
-	// And construct a webbie (e.g. mickey@friendica.domain.com for the search in gcontact
-	// We use the webbie for search in gcontact because we don't know if gcontact table stores
-	// the right value if its http or https protocol
-	$webbie = '';
-	if (count($url_parts)) {
-		$server_url = $url_parts[1] . $url_parts[2];
-		$webbie = $url_parts[4] . '@' . $url_parts[2];
-	}
-
 	// since $userinfo isn't available for the hook we write it to the nav array
 	// this isn't optimal because the contact query will be done now twice
+	$fields = ['id', 'url', 'avatar', 'micro', 'name', 'nick', 'baseurl'];
 	if (local_user() && !empty($a->user['uid'])) {
-		// empty the server url for local user because we won't need it
-		$server_url = '';
-		// user info
-		$r = q("SELECT `micro` FROM `contact` WHERE `uid` = %d AND `self`", intval($a->user['uid']));
-
-		$r[0]['photo'] = (DBA::isResult($r) ? DI::baseUrl()->remove($r[0]['micro']) : 'images/person-48.jpg');
-		$r[0]['name'] = $a->user['username'];
+		$remoteUser = Contact::selectFirst($fields, ['uid' => $a->user['uid'], 'self' => true]);
 	} elseif (!local_user() && remote_user()) {
-		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
+		$remoteUser = Contact::getById(remote_user(), $fields);
 		$nav['remote'] = DI::l10n()->t('Guest');
 	} elseif (Model\Profile::getMyURL()) {
-		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
-				WHERE `addr` = '%s' AND `network` = 'dfrn'",
-			DBA::escape($webbie));
+		$remoteUser = Contact::getByURL($homelink, null, $fields);
 		$nav['remote'] = DI::l10n()->t('Visitor');
 	} else {
-		$r = false;
+		$remoteUser = null;
 	}
 
-	$remoteUser = null;
-	if (DBA::isResult($r)) {
+	if (DBA::isResult($remoteUser)) {
 		$nav['userinfo'] = [
-			'icon' => (DBA::isResult($r) ? $r[0]['photo'] : 'images/person-48.jpg'),
-			'name' => $r[0]['name'],
+			'icon' => Contact::getMicro($remoteUser),
+			'name' => $remoteUser['name'],
 		];
-		$remoteUser = $r[0];
+		$server_url = $remoteUser['baseurl'];
 	}
 
 	if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
@@ -357,52 +324,4 @@ function frio_display_item(App $a, &$arr)
 		];
 	}
 	$arr['output']['subthread'] = $subthread;
-}
-
-/**
- * @param int|null $uid
- * @return string
- * @see \Friendica\Core\Theme::getBackgroundColor()
- */
-function frio_get_background_color(int $uid = null)
-{
-	$background_color = DI::config()->get('frio', 'background_color') ?: '#ededed';
-
-	if ($uid) {
-		$background_color = DI::pConfig()->get($uid, 'frio', 'background_color') ?: $background_color;
-	}
-
-	$scheme = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
-	$scheme = Strings::sanitizeFilePathItem($scheme);
-
-	if ($scheme && ($scheme != '---') && file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
-		$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
-		require_once $schemefile;
-	}
-
-	return $background_color;
-}
-
-/**
- * @param int|null $uid
- * @return string
- * @see \Friendica\Core\Theme::getThemeColor()
- */
-function frio_get_theme_color(int $uid = null)
-{
-	$nav_bg = DI::config()->get('frio', 'nav_bg') ?: '#708fa0';
-
-	if ($uid) {
-		$nav_bg = DI::pConfig()->get($uid, 'frio', 'background_color') ?: $nav_bg;
-	}
-
-	$scheme = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
-	$scheme = Strings::sanitizeFilePathItem($scheme);
-
-	if ($scheme && ($scheme != '---') && file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
-		$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
-		require_once $schemefile;
-	}
-
-	return $nav_bg;
 }

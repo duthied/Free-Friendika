@@ -108,6 +108,21 @@ class PageInfoTest extends MockedTest
 				'body' => '[url=https://example.com]link label[/url]',
 				'url' => 'https://example.com',
 			],
+			'task-8797-shortened-link-label' => [
+				'expected' => 'content',
+				'body' => 'content [url=https://example.com/page]example.com/[/url]',
+				'url' => 'https://example.com/page',
+			],
+			'task-8797-shortened-link-label-ellipsis' => [
+				'expected' => 'content',
+				'body' => 'content [url=https://example.com/page]example.com…[/url]',
+				'url' => 'https://example.com/page',
+			],
+			'task-8797-shortened-link-label-dots' => [
+				'expected' => 'content',
+				'body' => 'content [url=https://example.com/page]example.com...[/url]',
+				'url' => 'https://example.com/page',
+			],
 		];
 	}
 

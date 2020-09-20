@@ -27,6 +27,7 @@ use Friendica\Content\OEmbed;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 /**
  * Get information about a given URL
@@ -55,14 +56,13 @@ class ParseUrl
 	 *                            to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
-	 *    string 'url' => The url of the parsed page
-	 *    string 'type' => Content type
-	 *    string 'title' => The title of the content
-	 *    string 'text' => The description for the content
-	 *    string 'image' => A preview image of the content (only available
-	 *                if $no_geuessing = false
-	 *    array'images' = Array of preview pictures
-	 *    string 'keywords' => The tags which belong to the content
+	 *    string 'url'      => The url of the parsed page
+	 *    string 'type'     => Content type
+	 *    string 'title'    => (optional) The title of the content
+	 *    string 'text'     => (optional) The description for the content
+	 *    string 'image'    => (optional) A preview image of the content (only available if $no_geuessing = false)
+	 *    array  'images'   => (optional) Array of preview pictures
+	 *    string 'keywords' => (optional) The tags which belong to the content
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @see   ParseUrl::getSiteinfo() for more information about scraping
@@ -115,14 +115,13 @@ class ParseUrl
 	 * @param int    $count       Internal counter to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
-	 *    string 'url' => The url of the parsed page
-	 *    string 'type' => Content type
-	 *    string 'title' => The title of the content
-	 *    string 'text' => The description for the content
-	 *    string 'image' => A preview image of the content (only available
-	 *                if $no_geuessing = false
-	 *    array'images' = Array of preview pictures
-	 *    string 'keywords' => The tags which belong to the content
+	 *    string 'url'      => The url of the parsed page
+	 *    string 'type'     => Content type
+	 *    string 'title'    => (optional) The title of the content
+	 *    string 'text'     => (optional) The description for the content
+	 *    string 'image'    => (optional) A preview image of the content (only available if $no_guessing = false)
+	 *    array  'images'   => (optional) Array of preview pictures
+	 *    string 'keywords' => (optional) The tags which belong to the content
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  https://developers.google.com/+/plugins/snippet/
@@ -140,29 +139,28 @@ class ParseUrl
 	 */
 	public static function getSiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1)
 	{
-		$siteinfo = [];
-
 		// Check if the URL does contain a scheme
 		$scheme = parse_url($url, PHP_URL_SCHEME);
 
 		if ($scheme == '') {
-			$url = 'http://' . trim($url, '/');
+			$url = 'http://' . ltrim($url, '/');
 		}
+
+		$url = trim($url, "'\"");
+
+		$url = Network::stripTrackingQueryParams($url);
+
+		$siteinfo = [
+			'url' => $url,
+			'type' => 'link',
+		];
 
 		if ($count > 10) {
 			Logger::log('Endless loop detected for ' . $url, Logger::DEBUG);
 			return $siteinfo;
 		}
 
-		$url = trim($url, "'");
-		$url = trim($url, '"');
-
-		$url = Network::stripTrackingQueryParams($url);
-
-		$siteinfo['url'] = $url;
-		$siteinfo['type'] = 'link';
-
-		$curlResult = Network::curl($url);
+		$curlResult = DI::httpRequest()->get($url);
 		if (!$curlResult->isSuccess()) {
 			return $siteinfo;
 		}

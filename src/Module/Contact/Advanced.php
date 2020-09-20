@@ -87,13 +87,11 @@ class Advanced extends BaseModule
 		if ($photo) {
 			DI::logger()->notice('Updating photo.', ['photo' => $photo]);
 
-			Model\Contact::updateAvatar($photo, local_user(), $contact['id'], true);
+			Model\Contact::updateAvatar($contact['id'], $photo, true);
 		}
 
-		if ($r) {
-			info(DI::l10n()->t('Contact settings applied.') . EOL);
-		} else {
-			notice(DI::l10n()->t('Contact update failed.') . EOL);
+		if (!$r) {
+			notice(DI::l10n()->t('Contact update failed.'));
 		}
 
 		return;
@@ -108,7 +106,7 @@ class Advanced extends BaseModule
 			throw new BadRequestException(DI::l10n()->t('Contact not found.'));
 		}
 
-		Model\Profile::load(DI::app(), "", Model\Contact::getDetailsByURL($contact["url"]));
+		Model\Profile::load(DI::app(), "", Model\Contact::getByURL($contact["url"], false));
 
 		$warning = DI::l10n()->t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
 		$info    = DI::l10n()->t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
@@ -127,7 +125,7 @@ class Advanced extends BaseModule
 			$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '2' => DI::l10n()->t('Mirror as my own posting')];
 		}
 
-		$tab_str = Contact::getTabsHTML(DI::app(), $contact, 6);
+		$tab_str = Contact::getTabsHTML($contact, Contact::TAB_ADVANCED);
 
 		$tpl = Renderer::getMarkupTemplate('contact/advanced.tpl');
 		return Renderer::replaceMacros($tpl, [

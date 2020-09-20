@@ -25,13 +25,13 @@
 <link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap-toggle/css/bootstrap-toggle.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/font/open_sans/open-sans.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
 
-{{foreach $stylesheets as $stylesheetUrl}}
-<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
-{{/foreach}}
-
 {{* own css files *}}
 <link rel="stylesheet" href="view/theme/frio/css/hovercard.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/css/font-awesome.custom.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+
+{{foreach $stylesheets as $stylesheetUrl => $media}}
+<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="{{$media}}" />
+{{/foreach}}
 
 <link rel="shortcut icon" href="{{$shortcut_icon}}" />
 <link rel="apple-touch-icon" href="{{$touch_icon}}"/>
@@ -56,7 +56,7 @@
 <script type="text/javascript" src="view/js/modernizr.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/asset/jquery/dist/jquery.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/js/jquery.textinputs.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
-<script type="text/javascript" src="view/js/jquery-textcomplete/jquery.textcomplete.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/asset/textcomplete/dist/textcomplete.min.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
 <script type="text/javascript" src="view/js/autocomplete.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/asset/jquery-colorbox/jquery.colorbox-min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/asset/jgrowl/jquery.jgrowl.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>

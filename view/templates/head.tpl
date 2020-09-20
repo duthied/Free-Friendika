@@ -8,8 +8,8 @@
 <link rel="stylesheet" href="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
 <link rel="stylesheet" href="view/asset/perfect-scrollbar/dist/css/perfect-scrollbar.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
 
-{{foreach $stylesheets as $stylesheetUrl}}
-<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
+{{foreach $stylesheets as $stylesheetUrl => $media}}
+	<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="{{$media}}" />
 {{/foreach}}
 
 <link rel="shortcut icon" href="{{$shortcut_icon}}" />
@@ -35,7 +35,7 @@
 <script type="text/javascript" src="view/js/modernizr.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
 <script type="text/javascript" src="view/asset/jquery/dist/jquery.min.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
 <script type="text/javascript" src="view/js/jquery.textinputs.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
-<script type="text/javascript" src="view/js/jquery-textcomplete/jquery.textcomplete.min.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
+<script type="text/javascript" src="view/asset/textcomplete/dist/textcomplete.min.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
 <script type="text/javascript" src="view/js/autocomplete.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
 <script type="text/javascript" src="view/asset/jquery-colorbox/jquery.colorbox-min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/asset/jgrowl/jquery.jgrowl.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
@@ -127,22 +127,6 @@
 		ins = ins.replace("&amp;","&");
 		ins = ins.replace("&quot;","\"");
 		$("#comment-edit-text-" + id).val(tmpStr + ins);
-	}
-
-	function qCommentInsert(obj,id) {
-		var tmpStr = $("#comment-edit-text-" + id).val();
-		if (tmpStr == "") {
-			$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
-			$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-			openMenu("comment-edit-submit-wrapper-" + id);
-		}
-		var ins = $(obj).val();
-		ins = ins.replace("&lt;","<");
-		ins = ins.replace("&gt;",">");
-		ins = ins.replace("&amp;","&");
-		ins = ins.replace("&quot;","\"");
-		$("#comment-edit-text-" + id).val(tmpStr + ins);
-		$(obj).val("");
 	}
 
 	function showHideCommentBox(id) {

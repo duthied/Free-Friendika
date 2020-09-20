@@ -280,6 +280,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Status
+	 */
+	public static function mstdnStatus()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Status::class);
+	}
+
+	/**
 	 * @return Factory\Api\Twitter\User
 	 */
 	public static function twitterUser()
@@ -321,6 +329,18 @@ abstract class DI
 	public static function storage()
 	{
 		return self::$dice->create(Model\Storage\IStorage::class);
+	}
+
+	//
+	// "Network" namespace
+	//
+
+	/**
+	 * @return Network\IHTTPRequest
+	 */
+	public static function httpRequest()
+	{
+		return self::$dice->create(Network\IHTTPRequest::class);
 	}
 
 	//

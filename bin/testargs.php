@@ -26,6 +26,10 @@
  *
  */
 
+if (php_sapi_name() !== 'cli') {
+	header($_SERVER["SERVER_PROTOCOL"] . ' 403 Forbidden');
+	exit();
+}
 
 if (($_SERVER["argc"] > 1) && isset($_SERVER["argv"][1])) {
 	echo $_SERVER["argv"][1];

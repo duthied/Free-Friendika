@@ -191,7 +191,7 @@ class Introductions extends BaseNotifications
 		}
 
 		if (count($notifications['notifications']) == 0) {
-			info(DI::l10n()->t('No introductions.') . EOL);
+			notice(DI::l10n()->t('No introductions.'));
 			$notificationNoContent = DI::l10n()->t('No more %s notifications.', $notifications['ident']);
 		}
 

@@ -110,9 +110,7 @@ class Poke extends BaseModule
 	 */
 	private static function postReturn(bool $success)
 	{
-		if ($success) {
-			info(DI::l10n()->t('Poke successfully sent.'));
-		} else {
+		if (!$success) {
 			notice(DI::l10n()->t('Error while sending poke, please retry.'));
 		}
 
@@ -138,7 +136,7 @@ class Poke extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		Model\Profile::load(DI::app(), '', Model\Contact::getDetailsByURL($contact["url"]));
+		Model\Profile::load(DI::app(), '', Model\Contact::getByURL($contact["url"], false));
 
 		$verbs = [];
 		foreach (DI::l10n()->getPokeVerbs() as $verb => $translations) {

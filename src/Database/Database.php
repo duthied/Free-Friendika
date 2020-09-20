@@ -59,7 +59,7 @@ class Database
 	/** @var PDO|mysqli */
 	protected $connection;
 	protected $driver;
-	private $emulate_prepares = false;
+	protected $emulate_prepares = false;
 	private $error          = false;
 	private $errorno        = 0;
 	private $affected_rows  = 0;
@@ -88,7 +88,7 @@ class Database
 	{
 		// Use environment variables for mysql if they are set beforehand
 		if (!empty($server['MYSQL_HOST'])
-		    && (!empty($server['MYSQL_USERNAME'] || !empty($server['MYSQL_USER'])))
+		    && (!empty($server['MYSQL_USERNAME']) || !empty($server['MYSQL_USER']))
 		    && $server['MYSQL_PASSWORD'] !== false
 		    && !empty($server['MYSQL_DATABASE']))
 		{
@@ -134,6 +134,8 @@ class Database
 			return false;
 		}
 
+		$persistent = (bool)$this->configCache->get('database', 'persistent');
+
 		$this->emulate_prepares = (bool)$this->configCache->get('database', 'emulate_prepares');
 		$this->pdo_emulate_prepares = (bool)$this->configCache->get('database', 'pdo_emulate_prepares');
 
@@ -150,7 +152,7 @@ class Database
 			}
 
 			try {
-				$this->connection = @new PDO($connect, $user, $pass);
+				$this->connection = @new PDO($connect, $user, $pass, [PDO::ATTR_PERSISTENT => $persistent]);
 				$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 				$this->connected = true;
 			} catch (PDOException $e) {
@@ -343,7 +345,7 @@ class Database
 				                                                                      $row['key'] . "\t" . $row['rows'] . "\t" . $row['Extra'] . "\t" .
 				                                                                      basename($backtrace[1]["file"]) . "\t" .
 				                                                                      $backtrace[1]["line"] . "\t" . $backtrace[2]["function"] . "\t" .
-				                                                                      substr($query, 0, 2000) . "\n", FILE_APPEND);
+				                                                                      substr($query, 0, 4000) . "\n", FILE_APPEND);
 			}
 		}
 	}
@@ -699,7 +701,7 @@ class Database
 			$this->errorno = $errorno;
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'database');
 
 		if ($this->configCache->get('system', 'db_log')) {
 			$stamp2   = microtime(true);
@@ -712,7 +714,7 @@ class Database
 				@file_put_contents($this->configCache->get('system', 'db_log'), DateTimeFormat::utcNow() . "\t" . $duration . "\t" .
 				                                                                basename($backtrace[1]["file"]) . "\t" .
 				                                                                $backtrace[1]["line"] . "\t" . $backtrace[2]["function"] . "\t" .
-				                                                                substr($this->replaceParameters($sql, $args), 0, 2000) . "\n", FILE_APPEND);
+				                                                                substr($this->replaceParameters($sql, $args), 0, 4000) . "\n", FILE_APPEND);
 			}
 		}
 		return $retval;
@@ -783,7 +785,7 @@ class Database
 			$this->errorno = $errorno;
 		}
 
-		$this->profiler->saveTimestamp($stamp, "database_write", System::callstack());
+		$this->profiler->saveTimestamp($stamp, "database_write");
 
 		return $retval;
 	}
@@ -964,7 +966,7 @@ class Database
 				}
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'database');
 
 		return $columns;
 	}
@@ -1002,6 +1004,34 @@ class Database
 			$values = array_values($param);
 			$param  = array_merge_recursive($values, $values);
 		}
+
+		return $this->e($sql, $param);
+	}
+
+	/**
+	 * Inserts a row with the provided data in the provided table.
+	 * If the data corresponds to an existing row through a UNIQUE or PRIMARY index constraints, it updates the row instead.
+	 *
+	 * @param string|array $table Table name or array [schema => table]
+	 * @param array        $param parameter array
+	 *
+	 * @return boolean was the insert successful?
+	 * @throws \Exception
+	 */
+	public function replace($table, array $param)
+	{
+		if (empty($table) || empty($param)) {
+			$this->logger->info('Table and fields have to be set');
+			return false;
+		}
+
+		$table_string = DBA::buildTableString($table);
+
+		$fields_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], array_keys($param)));
+
+		$values_string = substr(str_repeat("?, ", count($param)), 0, -2);
+
+		$sql = "REPLACE " . $table_string . " (" . $fields_string . ") VALUES (" . $values_string . ")";
 
 		return $this->e($sql, $param);
 	}
@@ -1391,7 +1421,7 @@ class Database
 			if (is_bool($old_fields)) {
 				if ($do_insert) {
 					$values = array_merge($condition, $fields);
-					return $this->insert($table, $values, $do_insert);
+					return $this->replace($table, $values);
 				}
 				$old_fields = [];
 			}
@@ -1644,7 +1674,7 @@ class Database
 				break;
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'database');
 
 		return $ret;
 	}

@@ -30,6 +30,7 @@
 
 use Friendica\App;
 use Friendica\Content\Item as ItemHelper;
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
@@ -56,8 +57,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
-
-require_once __DIR__ . '/../include/items.php';
 
 function item_post(App $a) {
 	if (!Session::isAuthenticated()) {
@@ -135,6 +134,16 @@ function item_post(App $a) {
 				DI::baseUrl()->redirect($return_path);
 			}
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Unable to locate original post.'));
+		}
+
+		// When commenting on a public post then store the post for the current user
+		// This enables interaction like starring and saving into folders
+		if ($toplevel_item['uid'] == 0) {
+			$stored = Item::storeForUserByUriId($toplevel_item['uri-id'], local_user());
+			Logger::info('Public item stored for user', ['uri-id' => $toplevel_item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
+			if ($stored) {
+				$toplevel_item = Item::selectFirst([], ['id' => $stored]);
+			}
 		}
 
 		$toplevel_item_id = $toplevel_item['id'];
@@ -233,7 +242,7 @@ function item_post(App $a) {
 			];
 		}
 
-		$att_bbcode = add_page_info_data($attachment);
+		$att_bbcode = "\n" . PageInfo::getFooterFromData($attachment);
 		$body .= $att_bbcode;
 	}
 
@@ -251,7 +260,7 @@ function item_post(App $a) {
 		$objecttype        = $orig_post['object-type'];
 		$app               = $orig_post['app'];
 		$categories        = $orig_post['file'] ?? '';
-		$title             = Strings::escapeTags(trim($_REQUEST['title']));
+		$title             = trim($_REQUEST['title'] ?? '');
 		$body              = trim($body);
 		$private           = $orig_post['private'];
 		$pubmail_enabled   = $orig_post['pubmail'];
@@ -272,13 +281,13 @@ function item_post(App $a) {
 			$str_group_deny    = isset($_REQUEST['group_deny'])    ? $aclFormatter->toString($_REQUEST['group_deny'])    : $user['deny_gid']  ?? '';
 		}
 
-		$title             = Strings::escapeTags(trim($_REQUEST['title']    ?? ''));
-		$location          = Strings::escapeTags(trim($_REQUEST['location'] ?? ''));
-		$coord             = Strings::escapeTags(trim($_REQUEST['coord']    ?? ''));
-		$verb              = Strings::escapeTags(trim($_REQUEST['verb']     ?? ''));
-		$emailcc           = Strings::escapeTags(trim($_REQUEST['emailcc']  ?? ''));
+		$title             = trim($_REQUEST['title']    ?? '');
+		$location          = trim($_REQUEST['location'] ?? '');
+		$coord             = trim($_REQUEST['coord']    ?? '');
+		$verb              = trim($_REQUEST['verb']     ?? '');
+		$emailcc           = trim($_REQUEST['emailcc']  ?? '');
 		$body              = trim($body);
-		$network           = Strings::escapeTags(trim(($_REQUEST['network']  ?? '') ?: Protocol::DFRN));
+		$network           = trim(($_REQUEST['network']  ?? '') ?: Protocol::DFRN);
 		$guid              = System::createUUID();
 
 		$postopts = $_REQUEST['postopts'] ?? '';
@@ -324,7 +333,7 @@ function item_post(App $a) {
 				System::jsonExit(['preview' => '']);
 			}
 
-			info(DI::l10n()->t('Empty post discarded.'));
+			notice(DI::l10n()->t('Empty post discarded.'));
 			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
@@ -694,7 +703,6 @@ function item_post(App $a) {
 		// update filetags in pconfig
 		FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
-		info(DI::l10n()->t('Post updated.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -716,7 +724,7 @@ function item_post(App $a) {
 	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {
-		info(DI::l10n()->t('Item wasn\'t stored.'));
+		notice(DI::l10n()->t('Item wasn\'t stored.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -817,7 +825,6 @@ function item_post(App $a) {
 		return $post_id;
 	}
 
-	info(DI::l10n()->t('Post published.'));
 	item_post_return(DI::baseUrl(), $api_source, $return_path);
 	// NOTREACHED
 }
@@ -881,7 +888,7 @@ function drop_item(int $id, string $return = '')
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
-		notice(DI::l10n()->t('Item not found.') . EOL);
+		notice(DI::l10n()->t('Item not found.'));
 		DI::baseUrl()->redirect('network');
 	}
 
@@ -897,40 +904,8 @@ function drop_item(int $id, string $return = '')
 	}
 
 	if ((local_user() == $item['uid']) || $contact_id) {
-		// Check if we should do HTML-based delete confirmation
-		if (!empty($_REQUEST['confirm'])) {
-			// <form> can't take arguments in its "action" parameter
-			// so add any arguments as hidden inputs
-			$query = explode_querystring(DI::args()->getQueryString());
-			$inputs = [];
-
-			foreach ($query['args'] as $arg) {
-				if (strpos($arg, 'confirm=') === false) {
-					$arg_parts = explode('=', $arg);
-					$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
-				}
-			}
-
-			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-				'$method' => 'get',
-				'$message' => DI::l10n()->t('Do you really want to delete this item?'),
-				'$extra_inputs' => $inputs,
-				'$confirm' => DI::l10n()->t('Yes'),
-				'$confirm_url' => $query['base'],
-				'$confirm_name' => 'confirmed',
-				'$cancel' => DI::l10n()->t('Cancel'),
-			]);
-		}
-		// Now check how the user responded to the confirmation query
-		if (!empty($_REQUEST['canceled'])) {
-			DI::baseUrl()->redirect('display/' . $item['guid']);
-		}
-
-		$is_comment = $item['gravity'] == GRAVITY_COMMENT;
-		$parentitem = null;
 		if (!empty($item['parent'])) {
-			$fields = ['guid'];
-			$parentitem = Item::selectFirstForUser(local_user(), $fields, ['id' => $item['parent']]);
+			$parentitem = Item::selectFirstForUser(local_user(), ['guid'], ['id' => $item['parent']]);
 		}
 
 		// delete the item
@@ -942,7 +917,7 @@ function drop_item(int $id, string $return = '')
 		$return_url = str_replace("update_", "", $return_url);
 
 		// Check if delete a comment
-		if ($is_comment) {
+		if ($item['gravity'] == GRAVITY_COMMENT) {
 			// Return to parent guid
 			if (!empty($parentitem)) {
 				DI::baseUrl()->redirect('display/' . $parentitem['guid']);

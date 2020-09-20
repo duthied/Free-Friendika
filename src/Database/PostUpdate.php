@@ -93,9 +93,6 @@ class PostUpdate
 		if (!self::update1349()) {
 			return false;
 		}
-		if (!self::update1350()) {
-			return false;
-		}
 
 		return true;
 	}
@@ -245,14 +242,14 @@ class PostUpdate
 				$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 					'photo' => $item['author-avatar'], 'network' => $item['network']];
 
-				$item['author-id'] = Contact::getIdForURL($item["author-link"], 0, false, $default);
+				$item['author-id'] = Contact::getIdForURL($item["author-link"], 0, null, $default);
 			}
 
 			if (empty($item['owner-id'])) {
 				$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 					'photo' => $item['owner-avatar'], 'network' => $item['network']];
 
-				$item['owner-id'] = Contact::getIdForURL($item["owner-link"], 0, false, $default);
+				$item['owner-id'] = Contact::getIdForURL($item["owner-link"], 0, null, $default);
 			}
 
 			if (empty($item['psid'])) {
@@ -456,6 +453,11 @@ class PostUpdate
 	{
 		// Was the script completed?
 		if (DI::config()->get('system', 'post_update_version') >= 1297) {
+			return true;
+		}
+
+		if (!DBStructure::existsTable('item-delivery-data')) {
+			DI::config()->set('system', 'post_update_version', 1297);
 			return true;
 		}
 
@@ -700,6 +702,11 @@ class PostUpdate
 	{
 		// Was the script completed?
 		if (DI::config()->get('system', 'post_update_version') >= 1345) {
+			return true;
+		}
+
+		if (!DBStructure::existsTable('item-delivery-data')) {
+			DI::config()->set('system', 'post_update_version', 1345);
 			return true;
 		}
 
@@ -991,59 +998,6 @@ class PostUpdate
 
 		if ($start_id == $id) {
 			DI::config()->set("system", "post_update_version", 1349);
-			Logger::info('Done');
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * update the "gsid" (global server id) field in the gcontact table
-	 *
-	 * @return bool "true" when the job is done
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	private static function update1350()
-	{
-		// Was the script completed?
-		if (DI::config()->get("system", "post_update_version") >= 1350) {
-			return true;
-		}
-
-		$id = DI::config()->get("system", "post_update_version_1350_id", 0);
-
-		Logger::info('Start', ['gcontact' => $id]);
-
-		$start_id = $id;
-		$rows = 0;
-		$condition = ["`id` > ? AND `gsid` IS NULL AND `server_url` != '' AND NOT `server_url` IS NULL", $id];
-		$params = ['order' => ['id'], 'limit' => 10000];
-		$gcontacts = DBA::select('gcontact', ['id', 'server_url'], $condition, $params);
-
-		if (DBA::errorNo() != 0) {
-			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
-			return false;
-		}
-
-		while ($gcontact = DBA::fetch($gcontacts)) {
-			$id = $gcontact['id'];
-
-			DBA::update('gcontact',
-				['gsid' => GServer::getID($gcontact['server_url'], true), 'server_url' => GServer::cleanURL($gcontact['server_url'])],
-				['id' => $gcontact['id']]);
-
-			++$rows;
-		}
-		DBA::close($gcontacts);
-
-		DI::config()->set("system", "post_update_version_1350_id", $id);
-
-		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
-
-		if ($start_id == $id) {
-			DI::config()->set("system", "post_update_version", 1350);
 			Logger::info('Done');
 			return true;
 		}

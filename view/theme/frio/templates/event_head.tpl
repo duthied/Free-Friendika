@@ -1,9 +1,4 @@
 
-<link rel="stylesheet" type="text/css" href="{{$baseurl}}/view/asset/fullcalendar/dist/fullcalendar.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" />
-<link rel="stylesheet" type="text/css" href="{{$baseurl}}/view/asset/fullcalendar/dist/fullcalendar.print.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" media="print" />
-<link rel="stylesheet" type="text/css" href="view/theme/frio/css/mod_events.css?v={{$smarty.const.FRIENDICA_VERSION}}" />
-<script type="text/javascript" src="{{$baseurl}}/view/asset/moment/min/moment-with-locales.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
-<script type="text/javascript" src="{{$baseurl}}/view/asset/fullcalendar/dist/fullcalendar.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="view/theme/frio/js/mod_events.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
 <script type="text/javascript">

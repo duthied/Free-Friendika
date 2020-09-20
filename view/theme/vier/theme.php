@@ -17,8 +17,6 @@ use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
 function vier_init(App $a)
@@ -119,19 +117,19 @@ function vier_community_info()
 
 	// comunity_profiles
 	if ($show_profiles) {
-		$r = GContact::suggestionQuery(local_user(), 0, 9);
+		$contacts = Contact\Relation::getSuggestions(local_user(), 0, 9);
 
 		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
-		if (DBA::isResult($r)) {
+		if (DBA::isResult($contacts)) {
 			$aside['$comunity_profiles_title'] = DI::l10n()->t('Community Profiles');
 			$aside['$comunity_profiles_items'] = [];
 
-			foreach ($r as $rr) {
+			foreach ($contacts as $contact) {
 				$entry = Renderer::replaceMacros($tpl, [
-					'$id' => $rr['id'],
-					'$profile_link' => 'follow/?url='.urlencode($rr['url']),
-					'$photo' => ProxyUtils::proxifyUrl($rr['photo'], false, ProxyUtils::SIZE_MICRO),
-					'$alt_text' => $rr['name'],
+					'$id' => $contact['id'],
+					'$profile_link' => 'follow/?url='.urlencode($contact['url']),
+					'$photo' => Contact::getMicro($contact),
+					'$alt_text' => $contact['name'],
 				]);
 				$aside['$comunity_profiles_items'][] = $entry;
 			}
@@ -207,7 +205,7 @@ function vier_community_info()
 					'name'         => $contact['name'],
 					'cid'          => $contact['id'],
 					'selected'     => $selected,
-					'micro'        => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO)),
+					'micro'        => Contact::getMicro($contact),
 					'id'           => ++$id,
 				];
 				$entries[] = $entry;
@@ -241,16 +239,10 @@ function vier_community_info()
 		$helpers = explode(",", $helperlist);
 
 		if ($helpers) {
-			$query = "";
-			foreach ($helpers as $index => $helper) {
-				if ($query != "") {
-					$query .= ",";
-				}
-
-				$query .= "'".DBA::escape(Strings::normaliseLink(trim($helper)))."'";
+			foreach ($helpers as $helper) {
+				$urls[] = Strings::normaliseLink(trim($helper));
 			}
-
-			$r = q("SELECT `url`, `name` FROM `gcontact` WHERE `nurl` IN (%s)", $query);
+			$r = DBA::selectToArray('contact', ['url', 'name'], ['uid' => 0, 'nurl' => $urls]);
 		}
 
 		foreach ($r as $index => $helper) {

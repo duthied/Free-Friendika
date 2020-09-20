@@ -293,6 +293,21 @@ class DBA
 	}
 
 	/**
+	 * Inserts a row with the provided data in the provided table.
+	 * If the data corresponds to an existing row through a UNIQUE or PRIMARY index constraints, it updates the row instead.
+	 *
+	 * @param string|array $table Table name or array [schema => table]
+	 * @param array        $param parameter array
+	 *
+	 * @return boolean was the insert successful?
+	 * @throws \Exception
+	 */
+	public static function replace($table, $param)
+	{
+		return DI::dba()->replace($table, $param);
+	}
+
+	/**
 	 * Fetch the id of the last insert command
 	 *
 	 * @return integer Last inserted id
@@ -539,7 +554,7 @@ class DBA
 	 * Returns the SQL condition string built from the provided condition array
 	 *
 	 * This function operates with two modes.
-	 * - Supplied with a filed/value associative array, it builds simple strict
+	 * - Supplied with a field/value associative array, it builds simple strict
 	 *   equality conditions linked by AND.
 	 * - Supplied with a flat list, the first element is the condition string and
 	 *   the following arguments are the values to be interpolated
@@ -643,6 +658,42 @@ class DBA
 		$condition = array_merge([$condition_string], array_values($values));
 
 		return $condition;
+	}
+
+	/**
+	 * Merges the provided conditions into a single collapsed one
+	 *
+	 * @param array ...$conditions One or more condition arrays
+	 * @return array A collapsed condition
+	 * @see DBA::collapseCondition() for the condition array formats
+	 */
+	public static function mergeConditions(array ...$conditions)
+	{
+		if (count($conditions) == 1) {
+			return current($conditions);
+		}
+
+		$conditionStrings = [];
+		$result = [];
+
+		foreach ($conditions as $key => $condition) {
+			if (!$condition) {
+				continue;
+			}
+
+			$condition = self::collapseCondition($condition);
+
+			$conditionStrings[] = array_shift($condition);
+			// The result array holds the eventual parameter values
+			$result = array_merge($result, $condition);
+		}
+
+		if (count($conditionStrings)) {
+			// We prepend the condition string at the end to form a collapsed condition array again
+			array_unshift($result, implode(' AND ', $conditionStrings));
+		}
+
+		return $result;
 	}
 
 	/**

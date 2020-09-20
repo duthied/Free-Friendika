@@ -34,7 +34,6 @@ use Friendica\Model\Verb;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\XML;
 
 /**
@@ -136,13 +135,9 @@ function ping_init(App $a)
 
 		$notifs = ping_get_notifications(local_user());
 
-		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ? AND (`vid` != ? OR `vid` IS NULL)",
-			local_user(), local_user(), Verb::getID(Activity::FOLLOW)];
-		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
-			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'wall', 'activity'];
-		$params = ['order' => ['received' => true]];
-		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
-
+		$condition = ["`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
+			local_user(), Verb::getID(Activity::FOLLOW)];
+		$items = Item::selectForUser(local_user(), ['wall', 'uid', 'uri-id'], $condition);
 		if (DBA::isResult($items)) {
 			$items_unseen = Item::inArray($items);
 			$arr = ['items' => $items_unseen];
@@ -156,6 +151,7 @@ function ping_init(App $a)
 				}
 			}
 		}
+		DBA::close($items);
 
 		if ($network_count) {
 			// Find out how unseen network posts are spread across groups
@@ -331,12 +327,8 @@ function ping_init(App $a)
 
 		if (DBA::isResult($notifs)) {
 			foreach ($notifs as $notif) {
-				$contact = Contact::getDetailsByURL($notif['url']);
-				if (isset($contact['micro'])) {
-					$notif['photo'] = ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO);
-				} else {
-					$notif['photo'] = ProxyUtils::proxifyUrl($notif['photo'], false, ProxyUtils::SIZE_MICRO);
-				}
+				$contact = Contact::getByURL($notif['url'], false, ['micro', 'id', 'avatar']);
+				$notif['photo'] = Contact::getMicro($contact, $notif['photo']);
 
 				$local_time = DateTimeFormat::local($notif['date']);
 

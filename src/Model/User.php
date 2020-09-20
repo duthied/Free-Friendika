@@ -21,7 +21,9 @@
 
 namespace Friendica\Model;
 
+use DivineOmega\DOFileCachePSR6\CacheItemPool;
 use DivineOmega\PasswordExposed;
+use ErrorException;
 use Exception;
 use Friendica\Content\Pager;
 use Friendica\Core\Hook;
@@ -33,7 +35,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\TwoFactor\AppSpecificPassword;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Network\HTTPException;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -41,6 +43,7 @@ use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
+use ImagickException;
 use LightOpenID;
 
 /**
@@ -96,6 +99,107 @@ class User
 	/**
 	 * @}
 	 */
+
+	private static $owner;
+
+	/**
+	 * Fetch the system account
+	 *
+	 * @return array system account
+	 */
+	public static function getSystemAccount()
+	{
+		$system = Contact::selectFirst([], ['self' => true, 'uid' => 0]);
+		if (!DBA::isResult($system)) {
+			self::createSystemAccount();
+			$system = Contact::selectFirst([], ['self' => true, 'uid' => 0]);
+			if (!DBA::isResult($system)) {
+				return [];
+			}
+		}
+
+		$system['sprvkey'] = $system['uprvkey'] = $system['prvkey'];
+		$system['spubkey'] = $system['upubkey'] = $system['pubkey'];
+		$system['nickname'] = $system['nick'];
+		return $system;
+	}
+
+	/**
+	 * Create the system account
+	 *
+	 * @return void
+	 */
+	private static function createSystemAccount()
+	{
+		$system_actor_name = self::getActorName();
+		if (empty($system_actor_name)) {
+			return;
+		}
+
+		$keys = Crypto::newKeypair(4096);
+		if ($keys === false) {
+			throw new Exception(DI::l10n()->t('SERIOUS ERROR: Generation of security keys failed.'));
+		}
+
+		$system = [];
+		$system['uid'] = 0;
+		$system['created'] = DateTimeFormat::utcNow();
+		$system['self'] = true;
+		$system['network'] = Protocol::ACTIVITYPUB;
+		$system['name'] = 'System Account';
+		$system['addr'] = $system_actor_name . '@' . DI::baseUrl()->getHostname();
+		$system['nick'] = $system_actor_name;
+		$system['avatar'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
+		$system['photo'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
+		$system['thumb'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_THUMB;
+		$system['micro'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_MICRO;
+		$system['url'] = DI::baseUrl() . '/friendica';
+		$system['nurl'] = Strings::normaliseLink($system['url']);
+		$system['pubkey'] = $keys['pubkey'];
+		$system['prvkey'] = $keys['prvkey'];
+		$system['blocked'] = 0;
+		$system['pending'] = 0;
+		$system['contact-type'] = Contact::TYPE_RELAY; // In AP this is translated to 'Application'
+		$system['name-date'] = DateTimeFormat::utcNow();
+		$system['uri-date'] = DateTimeFormat::utcNow();
+		$system['avatar-date'] = DateTimeFormat::utcNow();
+		$system['closeness'] = 0;
+		$system['baseurl'] = DI::baseUrl();
+		$system['gsid'] = GServer::getID($system['baseurl']);
+		DBA::insert('contact', $system);
+	}
+
+	/**
+	 * Detect a usable actor name
+	 *
+	 * @return string actor account name
+	 */
+	public static function getActorName()
+	{
+		$system_actor_name = DI::config()->get('system', 'actor_name');
+		if (!empty($system_actor_name)) {
+			$self = Contact::selectFirst(['nick'], ['uid' => 0, 'self' => true]);
+			if (!empty($self['nick'])) {
+				if ($self['nick'] != $system_actor_name) {
+					// Reset the actor name to the already used name
+					DI::config()->set('system', 'actor_name', $self['nick']);
+					$system_actor_name = $self['nick'];
+				}
+			}
+			return $system_actor_name;
+		}
+
+		// List of possible actor names
+		$possible_accounts = ['friendica', 'actor', 'system', 'internal'];
+		foreach ($possible_accounts as $name) {
+			if (!DBA::exists('user', ['nickname' => $name, 'account_removed' => false, 'expire']) &&
+				!DBA::exists('userd', ['username' => $name])) {
+				DI::config()->set('system', 'actor_name', $name);
+				return $name;
+			}
+		}
+		return '';
+	}
 
 	/**
 	 * Returns true if a user record exists with the provided id
@@ -160,14 +264,29 @@ class User
 	 * @return integer user id
 	 * @throws Exception
 	 */
-	public static function getIdForURL($url)
+	public static function getIdForURL(string $url)
 	{
-		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => Strings::normaliseLink($url), 'self' => true]);
-		if (!DBA::isResult($self)) {
-			return false;
-		} else {
+		// Avoid any database requests when the hostname isn't even part of the url.
+		if (!strpos($url, DI::baseUrl()->getHostname())) {
+			return 0;
+		}
+
+		$self = Contact::selectFirst(['uid'], ['self' => true, 'nurl' => Strings::normaliseLink($url)]);
+		if (!empty($self['uid'])) {
 			return $self['uid'];
 		}
+
+		$self = Contact::selectFirst(['uid'], ['self' => true, 'addr' => $url]);
+		if (!empty($self['uid'])) {
+			return $self['uid'];
+		}
+
+		$self = Contact::selectFirst(['uid'], ['self' => true, 'alias' => [$url, Strings::normaliseLink($url)]]);
+		if (!empty($self['uid'])) {
+			return $self['uid'];
+		}
+
+		return 0;
 	}
 
 	/**
@@ -186,6 +305,24 @@ class User
 	}
 
 	/**
+	 * Fetch the user array of the administrator. The first one if there are several.
+	 *
+	 * @param array $fields
+	 * @return array user
+	 */
+	public static function getFirstAdmin(array $fields = [])
+	{
+		if (!empty(DI::config()->get('config', 'admin_nickname'))) {
+			return self::getByNickname(DI::config()->get('config', 'admin_nickname'), $fields);
+		} elseif (!empty(DI::config()->get('config', 'admin_email'))) {
+			$adminList = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
+			return self::getByEmail($adminList[0], $fields);
+		} else {
+			return [];
+		}
+	}
+
+	/**
 	 * Get owner data by user id
 	 *
 	 * @param int $uid
@@ -193,8 +330,16 @@ class User
 	 * @return boolean|array
 	 * @throws Exception
 	 */
-	public static function getOwnerDataById($uid, $check_valid = true)
+	public static function getOwnerDataById(int $uid, bool $check_valid = true)
 	{
+		if ($uid == 0) {
+			return self::getSystemAccount();
+		}
+
+		if (!empty(self::$owner[$uid])) {
+			return self::$owner[$uid];
+		}
+
 		$owner = DBA::selectFirst('owner-view', [], ['uid' => $uid]);
 		if (!DBA::isResult($owner)) {
 			if (!DBA::exists('user', ['uid' => $uid]) || !$check_valid) {
@@ -238,6 +383,7 @@ class User
 			$owner = self::getOwnerDataById($uid, false);
 		}
 
+		self::$owner[$uid] = $owner;
 		return $owner;
 	}
 
@@ -262,11 +408,11 @@ class User
 	/**
 	 * Returns the default group for a given user and network
 	 *
-	 * @param int $uid User id
+	 * @param int    $uid     User id
 	 * @param string $network network name
 	 *
 	 * @return int group id
-	 * @throws InternalServerErrorException
+	 * @throws Exception
 	 */
 	public static function getDefaultGroup($uid, $network = '')
 	{
@@ -318,7 +464,8 @@ class User
 	 * @param string $password
 	 * @param bool   $third_party
 	 * @return int User Id if authentication is successful
-	 * @throws Exception
+	 * @throws HTTPException\ForbiddenException
+	 * @throws HTTPException\NotFoundException
 	 */
 	public static function getIdFromPasswordAuthentication($user_info, $password, $third_party = false)
 	{
@@ -353,7 +500,7 @@ class User
 			return $user['uid'];
 		}
 
-		throw new Exception(DI::l10n()->t('Login failed'));
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Login failed'));
 	}
 
 	/**
@@ -367,7 +514,7 @@ class User
 	 *
 	 * @param mixed $user_info
 	 * @return array
-	 * @throws Exception
+	 * @throws HTTPException\NotFoundException
 	 */
 	private static function getAuthenticationInfo($user_info)
 	{
@@ -411,7 +558,7 @@ class User
 			}
 
 			if (!DBA::isResult($user)) {
-				throw new Exception(DI::l10n()->t('User not found'));
+				throw new HTTPException\NotFoundException(DI::l10n()->t('User not found'));
 			}
 		}
 
@@ -422,6 +569,7 @@ class User
 	 * Generates a human-readable random password
 	 *
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function generateNewPassword()
 	{
@@ -437,7 +585,7 @@ class User
 	 */
 	public static function isPasswordExposed($password)
 	{
-		$cache = new \DivineOmega\DOFileCachePSR6\CacheItemPool();
+		$cache = new CacheItemPool();
 		$cache->changeConfig([
 			'cacheDirectory' => get_temppath() . '/password-exposed-cache/',
 		]);
@@ -446,7 +594,7 @@ class User
 			$passwordExposedChecker = new PasswordExposed\PasswordExposedChecker(null, $cache);
 
 			return $passwordExposedChecker->passwordExposed($password) === PasswordExposed\PasswordStatus::EXPOSED;
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			Logger::error('Password Exposed Exception: ' . $e->getMessage(), [
 				'code' => $e->getCode(),
 				'file' => $e->getFile(),
@@ -543,20 +691,28 @@ class User
 	 *
 	 * @param string $nickname The nickname that should be checked
 	 * @return boolean True is the nickname is blocked on the node
-	 * @throws InternalServerErrorException
 	 */
 	public static function isNicknameBlocked($nickname)
 	{
 		$forbidden_nicknames = DI::config()->get('system', 'forbidden_nicknames', '');
+		if (!empty($forbidden_nicknames)) {
+			$forbidden = explode(',', $forbidden_nicknames);
+			$forbidden = array_map('trim', $forbidden);
+		} else {
+			$forbidden = [];
+		}
 
-		// if the config variable is empty return false
-		if (empty($forbidden_nicknames)) {
+		// Add the name of the internal actor to the "forbidden" list
+		$actor_name = self::getActorName();
+		if (!empty($actor_name)) {
+			$forbidden[] = $actor_name;
+		}
+
+		if (empty($forbidden)) {
 			return false;
 		}
 
 		// check if the nickname is in the list of blocked nicknames
-		$forbidden = explode(',', $forbidden_nicknames);
-		$forbidden = array_map('trim', $forbidden);
 		if (in_array(strtolower($nickname), $forbidden)) {
 			return true;
 		}
@@ -579,9 +735,9 @@ class User
 	 *
 	 * @param  array $data
 	 * @return array
-	 * @throws \ErrorException
-	 * @throws InternalServerErrorException
-	 * @throws \ImagickException
+	 * @throws ErrorException
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws ImagickException
 	 * @throws Exception
 	 */
 	public static function create(array $data)
@@ -707,7 +863,7 @@ class User
 
 		$nickname = $data['nickname'] = strtolower($nickname);
 
-		if (!preg_match('/^[a-z0-9][a-z0-9\_]*$/', $nickname)) {
+		if (!preg_match('/^[a-z0-9][a-z0-9_]*$/', $nickname)) {
 			throw new Exception(DI::l10n()->t('Your nickname can only contain a-z, 0-9 and _.'));
 		}
 
@@ -823,7 +979,7 @@ class User
 			$photo_failure = false;
 
 			$filename = basename($photo);
-			$curlResult = Network::curl($photo, true);
+			$curlResult = DI::httpRequest()->get($photo, true);
 			if ($curlResult->isSuccess()) {
 				$img_str = $curlResult->getBody();
 				$type = $curlResult->getContentType();
@@ -896,7 +1052,7 @@ class User
 	 *
 	 * @return bool True, if the allow was successful
 	 *
-	 * @throws InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws Exception
 	 */
 	public static function allow(string $hash)
@@ -970,16 +1126,16 @@ class User
 	 * @param string $lang  The user's language (default is english)
 	 *
 	 * @return bool True, if the user was created successfully
-	 * @throws InternalServerErrorException
-	 * @throws \ErrorException
-	 * @throws \ImagickException
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws ErrorException
+	 * @throws ImagickException
 	 */
 	public static function createMinimal(string $name, string $email, string $nick, string $lang = L10n::DEFAULT)
 	{
 		if (empty($name) ||
 		    empty($email) ||
 		    empty($nick)) {
-			throw new InternalServerErrorException('Invalid arguments.');
+			throw new HTTPException\InternalServerErrorException('Invalid arguments.');
 		}
 
 		$result = self::create([
@@ -1042,7 +1198,7 @@ class User
 	 * @param string $siteurl
 	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
-	 * @throws InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function sendRegisterPendingEmail($user, $sitename, $siteurl, $password)
 	{
@@ -1078,16 +1234,16 @@ class User
 	 *
 	 * It's here as a function because the mail is sent from different parts
 	 *
-	 * @param \Friendica\Core\L10n $l10n     The used language
-	 * @param array                $user     User record array
-	 * @param string               $sitename
-	 * @param string               $siteurl
-	 * @param string               $password Plaintext password
+	 * @param L10n   $l10n     The used language
+	 * @param array  $user     User record array
+	 * @param string $sitename
+	 * @param string $siteurl
+	 * @param string $password Plaintext password
 	 *
 	 * @return NULL|boolean from notification() and email() inherited
-	 * @throws InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function sendRegisterOpenEmail(\Friendica\Core\L10n $l10n, $user, $sitename, $siteurl, $password)
+	public static function sendRegisterOpenEmail(L10n $l10n, $user, $sitename, $siteurl, $password)
 	{
 		$preamble = Strings::deindent($l10n->t(
 			'
@@ -1144,7 +1300,7 @@ class User
 	/**
 	 * @param int $uid user to remove
 	 * @return bool
-	 * @throws InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function remove(int $uid)
 	{
@@ -1162,7 +1318,7 @@ class User
 		// unique), so it cannot be re-registered in the future.
 		DBA::insert('userd', ['username' => $user['nickname']]);
 
-		// The user and related data will be deleted in Friendica\Worker\CronJobs::expireAndRemoveUsers()
+		// The user and related data will be deleted in Friendica\Worker\ExpireAndRemoveUsers
 		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc('now + 7 day')], ['uid' => $uid]);
 		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::REMOVAL, $uid);
 
@@ -1272,6 +1428,7 @@ class User
 			'total_users'           => 0,
 			'active_users_halfyear' => 0,
 			'active_users_monthly'  => 0,
+			'active_users_weekly'   => 0,
 		];
 
 		$userStmt = DBA::select('owner-view', ['uid', 'login_date', 'last-item'],
@@ -1284,6 +1441,7 @@ class User
 
 		$halfyear = time() - (180 * 24 * 60 * 60);
 		$month = time() - (30 * 24 * 60 * 60);
+		$week = time() - (7 * 24 * 60 * 60);
 
 		while ($user = DBA::fetch($userStmt)) {
 			$statistics['total_users']++;
@@ -1296,6 +1454,11 @@ class User
 			if ((strtotime($user['login_date']) > $month) || (strtotime($user['last-item']) > $month)
 			) {
 				$statistics['active_users_monthly']++;
+			}
+
+			if ((strtotime($user['login_date']) > $week) || (strtotime($user['last-item']) > $week)
+			) {
+				$statistics['active_users_weekly']++;
 			}
 		}
 		DBA::close($userStmt);

@@ -32,19 +32,18 @@ class Theme extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		header("Content-Type: text/css");
+		header('Content-Type: text/css');
 
-		$a = DI::app();
+		$theme = Strings::sanitizeFilePathItem($parameters['theme']);
 
-		if ($a->argc == 4) {
-			$theme = $a->argv[2];
-			$theme = Strings::sanitizeFilePathItem($theme);
+		if (file_exists("view/theme/$theme/theme.php")) {
+			require_once "view/theme/$theme/theme.php";
+		}
 
-			// set the path for later use in the theme styles
-			$THEMEPATH = "view/theme/$theme";
-			if (file_exists("view/theme/$theme/style.php")) {
-				require_once("view/theme/$theme/style.php");
-			}
+		// set the path for later use in the theme styles
+		$THEMEPATH = "view/theme/$theme";
+		if (file_exists("view/theme/$theme/style.php")) {
+			require_once "view/theme/$theme/style.php";
 		}
 
 		exit();

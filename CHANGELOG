@@ -1,6 +1,78 @@
+Version 2020.09 (2020-09-20)
+  Friendica Core:
+    Updates to the translations: DE, EN GB, EN US, ES, FR, IT, NL, PL, RU, ZH_CN [translation teams]
+    Updates to the themes (all) [MrPetovan, tobiasd]
+    Updates to the documentation [annando, mpanhans, realkinetix, tobiasd]
+    General code cleanup and refactoring [annando, MrPetovan, nupplaphil]
+    Enhanced the API [annando]
+    Enhanced the processing of background jobs [annando]
+    Enhanced federation of activities [annando, vpzomtrrfrt]
+    Enhanced the user notifications[annando]
+    Enhanced database usage [annando, MrPetovan]
+    Enhanced ActivityPub support for forums [annando]
+    Enhanced the utilization of the cache [annando, MrPetovan]
+    Enhanced the performance of the daemon [annando]
+    Enhanced the communication with the directory servers [annando]
+    Enhanced the re-sharing of items [annando]
+    Enhanced sample lighttpd and nginx configs [MrPetovan, tobiasd]
+    Enhanced the checks for incoming postings using ActivityPub [annando, Roger Meyer]
+    Enhanced the import of RSS feeds by removing tracking pixels [annando]
+    Enhanced the speed of the full text search [annando]
+    Replaced library used for text completion [MrPetovan]
+    Fixed a problem that prevented recipients of direct messages to be selected [MrPetovan]
+    Fixed a problem that prevented new email contacts from being added [annando]
+    Fixed a problem with the console command search [tobiasd]
+    Fixed a problem during the search for contacts [annando]
+    Fixed a problem with the JOT of private notes [MrPetovan]
+    Fixed missing HTML encoding [MrPetovan]
+    Fixed a layout problem with the frio composer for new postings [MrPetovan]
+    Fixed some composer notices [nupplaphil]
+    Fixed a problem for empty preview data when importing feed posts [annando]
+    Fixed a problem with the pager on search result pages [annando]
+    Fixed some templates to show the correct un-/follow button for contacts [annando]
+    Fixed a problem with the generation of the Message-ID of notification emails [nupplaphil]
+    Added nodeinfo2 support [annando]
+    Added CSV export and import of blocked servers to the console [tobiasd]
+    Added new admin debug module for ActivityPub [MrPetovan]
+    Added the automatic determination of frequency to pull feeds [annando]
+    Added signed fetching from system users for ActivityPub [annando]
+    Added the discovery of new peers from contacts [annando]
+    Added the directory API endpoint [annando]
+    Added support for signed outbox requests [annando]
+    Added direction functionality for clarification of posting flow [annando]
+    Added the ability to set the database version [annando]
+    Added support for ActivityPub relay server [annando]
+    By default display of re-sharer information is now flattened [annando]
+    Removed some unused POCO functionality [annando]
+    Removed the unused rating functionality [annando]
+    Removed unneeded network request for local stuff [annando]
+    Removed some useless info messages [annando]
+    Reworked some additional features according to a user voting [MrPetovan]
+
+  Friendica Addons:
+    Updates to the translations: DE, EN GB, EN US, IT, NL, RU, ZH_CN [translation teams]
+    Updates to the docs [SpencerDub]
+    General code cleanup and maintenance [annando, MrPetovan]
+    blockbot:
+      added some "good" bots [annando]
+    forumdirectory:
+      fixed some SQL queries [MrPetovan]
+    phpmailer:
+      fixed a problem leading to double message ID headers [nupplaphil]
+    qcomment:
+      restructured the addon and fixed a bug preventing the addon from working [MrPetovan]
+
+  Closed Issues:
+    2811, 4606, 5742, 5782, 7660, 8676, 8788, 8797, 8798, 8847, 8860,
+    8874, 8882, 8885, 8906, 8914, 8922, 8928, 8929, 8935, 8940, 8941,
+    8956, 8958, 8961, 8967, 8989, 8993, 8994, 8995, 8997, 8999, 9000,
+    9004, 9013, 9015, 9051, 9064, 9065, 9072, 9081, 9090, 9091, 9099,
+    9107, 9135, 9136, 9137, 9138, 9140, 9142, 9150, 9153, 9154, 9163,
+    9164, 9172, 9182, 9192, 9193, 9204, 9210, 9229, 9231, 9246
+
 Version 2020.07-1 (2020-09-08)
   Friendica Core
-    Fixed a problem that leakted sensitive information [Roger Meyer, MrPetovan]
+    Fixed a problem that leaked sensitive information [Roger Meyer, MrPetovan]
 
 Version 2020.07 (2020-07-12)
   Friendica Core:
@@ -670,7 +742,7 @@ Version 2018.09 (2018-09-23)
 Version 2018.05 (2018-06-01)
   Friendica Core:
     Update to the translations (DE, EN-GB, EN-US, FI, IS, IT, NL, PL, RU, ZN CH) [translation teams]
-    Update to the documentation [andyhee, annando, fabrixxm, M-arcus, MrPedovan, rudloff, tobiasd]
+    Update to the documentation [andyhee, annando, fabrixxm, M-arcus, MrPetovan, rudloff, tobiasd]
     Enhancements to the DB handling [annando]
     Enhancements to the relay system [annando]
     Enhancements to the handling of URL that contain unicode characters [annando]

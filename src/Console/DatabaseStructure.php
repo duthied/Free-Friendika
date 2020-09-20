@@ -55,6 +55,7 @@ Commands
 	update   Update database schema
 	dumpsql  Dump database schema
 	toinnodb Convert all tables from MyISAM or InnoDB in the Antelope file format to InnoDB in the Barracuda file format
+	version  Set the database to a given number
 
 Options
     -h|--help|-?       Show help information
@@ -86,8 +87,10 @@ HELP;
 			return 0;
 		}
 
-		if (count($this->args) > 1) {
+		if ((count($this->args) > 1) && ($this->getArgument(0) != 'version')) {
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
+		} elseif ((count($this->args) != 2) && ($this->getArgument(0) == 'version')) {
+			throw new \Asika\SimpleConsole\CommandArgsException('This command needs two arguments');
 		}
 
 		if (!$this->dba->isConnected()) {
@@ -115,6 +118,12 @@ HELP;
 				DBStructure::convertToInnoDB();
 				$output = ob_get_clean();
 				break;
+			case "version":
+				ob_start();
+				DBStructure::setDatabaseVersion($this->getArgument(1));
+				$output = ob_get_clean();
+				break;
+					
 			default:
 				$output = 'Unknown command: ' . $this->getArgument(0);
 		}

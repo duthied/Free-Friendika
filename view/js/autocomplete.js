@@ -197,6 +197,24 @@ function string2bb(element) {
  * jQuery plugin 'editor_autocomplete'
  */
 (function( $ ) {
+	let textcompleteObjects = [];
+
+	// jQuery wrapper for yuku/old-textcomplete
+	// uses a local object directory to avoid recreating Textcomplete objects
+	$.fn.textcomplete = function (strategies, options) {
+		return this.each(function () {
+			let $this = $(this);
+			if (!($this.data('textcompleteId') in textcompleteObjects)) {
+				let editor = new Textcomplete.editors.Textarea($this.get(0));
+
+				$this.data('textcompleteId', textcompleteObjects.length);
+				textcompleteObjects.push(new Textcomplete(editor, options));
+			}
+
+			textcompleteObjects[$this.data('textcompleteId')].register(strategies);
+		});
+	};
+
 	/**
 	 * This function should be called immediately after $.textcomplete() to prevent the escape key press to propagate
 	 * after the autocompletion dropdown has closed.
@@ -276,15 +294,12 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		this.textcomplete([contacts, forums, smilies, tags], {className:'acpopup', zIndex:10000});
+		this.textcomplete([contacts, forums, smilies, tags], {dropdown: {className:'acpopup'}});
 		this.fixTextcompleteEscape();
-	};
-})( jQuery );
 
-/**
- * jQuery plugin 'search_autocomplete'
- */
-(function( $ ) {
+		return this;
+	};
+
 	$.fn.search_autocomplete = function(backend_url) {
 		// Autocomplete contacts
 		contacts = {
@@ -314,13 +329,13 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete', 'off');
-		this.textcomplete([contacts, community, tags], {className:'acpopup', maxCount:100, zIndex: 10000, appendTo:'nav'});
+		this.textcomplete([contacts, community, tags], {dropdown: {className:'acpopup', maxCount:100}});
 		this.fixTextcompleteEscape();
 		this.on('textComplete:select', function(e, value, strategy) { submit_form(this); });
-	};
-})( jQuery );
 
-(function( $ ) {
+		return this;
+	};
+
 	$.fn.name_autocomplete = function(backend_url, typ, autosubmit, onselect) {
 		if(typeof typ === 'undefined') typ = '';
 		if(typeof autosubmit === 'undefined') autosubmit = false;
@@ -335,7 +350,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		this.textcomplete([names], {className:'acpopup', zIndex:10000});
+		this.textcomplete([names], {dropdown: {className:'acpopup'}});
 		this.fixTextcompleteEscape();
 
 		if(autosubmit) {
@@ -345,10 +360,10 @@ function string2bb(element) {
 		if(typeof onselect !== 'undefined') {
 			this.on('textComplete:select', function(e, value, strategy) { onselect(value); });
 		}
-	};
-})( jQuery );
 
-(function( $ ) {
+		return this;
+	};
+
 	$.fn.bbco_autocomplete = function(type) {
 		if (type === 'bbcode') {
 			var open_close_elements = ['bold', 'italic', 'underline', 'overline', 'strike', 'quote', 'code', 'spoiler', 'map', 'img', 'url', 'audio', 'video', 'embed', 'youtube', 'vimeo', 'list', 'ul', 'ol', 'li', 'table', 'tr', 'th', 'td', 'center', 'color', 'font', 'size', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'nobb', 'noparse', 'pre', 'abstract'];
@@ -385,7 +400,7 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		this.textcomplete([bbco], {className:'acpopup', zIndex:10000});
+		this.textcomplete([bbco], {dropdown: {className:'acpopup'}});
 		this.fixTextcompleteEscape();
 
 		this.on('textComplete:select', function(e, value, strategy) { value; });
@@ -399,6 +414,8 @@ function string2bb(element) {
 				}
 			}
 		});
+
+		return this;
 	};
 })( jQuery );
 // @license-end

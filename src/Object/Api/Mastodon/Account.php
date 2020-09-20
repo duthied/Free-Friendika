@@ -46,14 +46,14 @@ class Account extends BaseEntity
 	protected $display_name;
 	/** @var bool */
 	protected $locked;
-	/** @var string (Datetime) */
+	/** @var bool|null */
+	protected $bot = null;
+	/** @var bool */
+	protected $discoverable;
+	/** @var bool */
+	protected $group;
+	/** @var string|null (Datetime) */
 	protected $created_at;
-	/** @var int */
-	protected $followers_count;
-	/** @var int */
-	protected $following_count;
-	/** @var int */
-	protected $statuses_count;
 	/** @var string */
 	protected $note;
 	/** @var string (URL)*/
@@ -66,20 +66,20 @@ class Account extends BaseEntity
 	protected $header;
 	/** @var string (URL) */
 	protected $header_static;
+	/** @var int */
+	protected $followers_count;
+	/** @var int */
+	protected $following_count;
+	/** @var int */
+	protected $statuses_count;
+	/** @var string|null (Datetime) */
+	protected $last_status_at = null;
 	/** @var Emoji[] */
 	protected $emojis;
 	/** @var Account|null */
 	protected $moved = null;
 	/** @var Field[]|null */
 	protected $fields = null;
-	/** @var bool|null */
-	protected $bot = null;
-	/** @var bool */
-	protected $group;
-	/** @var bool */
-	protected $discoverable;
-	/** @var string|null (Datetime) */
-	protected $last_status_at = null;
 
 	/**
 	 * Creates an account record from a public contact record. Expects all contact table fields to be set.
@@ -92,18 +92,24 @@ class Account extends BaseEntity
 	 */
 	public function __construct(BaseURL $baseUrl, array $publicContact, Fields $fields, array $apcontact = [], array $userContact = [])
 	{
-		$this->id              = $publicContact['id'];
+		$this->id              = (string)$publicContact['id'];
 		$this->username        = $publicContact['nick'];
 		$this->acct            =
 			strpos($publicContact['url'], $baseUrl->get() . '/') === 0 ?
 				$publicContact['nick'] :
 				$publicContact['addr'];
 		$this->display_name    = $publicContact['name'];
-		$this->locked          = !empty($apcontact['manually-approve']);
-		$this->created_at      = DateTimeFormat::utc($publicContact['created'], DateTimeFormat::ATOM);
-		$this->followers_count = $apcontact['followers_count'] ?? 0;
-		$this->following_count = $apcontact['following_count'] ?? 0;
-		$this->statuses_count  = $apcontact['statuses_count'] ?? 0;
+		$this->locked          = $publicContact['manually-approve'] ?? !empty($apcontact['manually-approve']);
+		$this->bot             = ($publicContact['contact-type'] == Contact::TYPE_NEWS);
+		$this->discoverable    = !$publicContact['unsearchable'];
+		$this->group           = ($publicContact['contact-type'] == Contact::TYPE_COMMUNITY);
+
+		$publicContactCreated = $publicContact['created'] ?: DBA::NULL_DATETIME;
+		$userContactCreated = $userContact['created'] ?? DBA::NULL_DATETIME;
+
+		$created = $userContactCreated < $publicContactCreated && ($userContactCreated != DBA::NULL_DATETIME) ? $userContactCreated : $publicContactCreated;
+		$this->created_at      = DateTimeFormat::utc($created, DateTimeFormat::ATOM);
+
 		$this->note            = BBCode::convert($publicContact['about'], false);
 		$this->url             = $publicContact['url'];
 		$this->avatar          = $userContact['avatar'] ?? $publicContact['avatar'];
@@ -111,18 +117,19 @@ class Account extends BaseEntity
 		// No header picture in Friendica
 		$this->header          = '';
 		$this->header_static   = '';
-		// No custom emojis per account in Friendica
-		$this->emojis          = [];
-		// No metadata fields in Friendica
-		$this->fields          = $fields->getArrayCopy();
-		$this->bot             = ($publicContact['contact-type'] == Contact::TYPE_NEWS);
-		$this->group           = ($publicContact['contact-type'] == Contact::TYPE_COMMUNITY);
-		$this->discoverable    = !$publicContact['unsearchable'];
+		$this->followers_count = $apcontact['followers_count'] ?? 0;
+		$this->following_count = $apcontact['following_count'] ?? 0;
+		$this->statuses_count  = $apcontact['statuses_count'] ?? 0;
 
 		$publicContactLastItem = $publicContact['last-item'] ?: DBA::NULL_DATETIME;
 		$userContactLastItem = $userContact['last-item'] ?? DBA::NULL_DATETIME;
 
 		$lastItem = $userContactLastItem > $publicContactLastItem ? $userContactLastItem : $publicContactLastItem;
-		$this->last_status_at  = $lastItem != DBA::NULL_DATETIME ? DateTimeFormat::utc($lastItem, DateTimeFormat::ATOM) : null;
+		$this->last_status_at  = $lastItem != DBA::NULL_DATETIME ? DateTimeFormat::utc($lastItem, 'Y-m-d') : null;
+
+		// No custom emojis per account in Friendica
+		$this->emojis          = [];
+		$this->fields          = $fields->getArrayCopy();
+
 	}
 }

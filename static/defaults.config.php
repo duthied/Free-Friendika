@@ -62,6 +62,13 @@ return [
 		// disable_pdo (Boolean)
 		// PDO is used by default (if available). Otherwise MySQLi will be used.
 		'disable_pdo' => false,
+
+		// persistent (Boolean)
+		// This controls if the system should use persistent connections or not.
+		// Persistent connections increase the performance.
+		// On the other hand the number of open connections are higher,
+		// this will most likely increase the system load.
+		'persistent' => false,
 	],
 	'config' => [
 		// admin_email (Comma-separated list)
@@ -82,6 +89,10 @@ return [
 		'php_path' => 'php',
 	],
 	'system' => [
+		// adjust_poll_frequency (Boolean)
+		// Automatically detect and set the best feed poll frequency.
+		'adjust_poll_frequency' => false,
+
 		// allowed_link_protocols (Array)
 		// Allowed protocols in links URLs, add at your own risk. http(s) is always allowed.
 		'allowed_link_protocols' => ['ftp://', 'ftps://', 'mailto:', 'cid:', 'gopher://'],
@@ -115,8 +126,8 @@ return [
 		// Minimal period in minutes between two calls of the "Cron" worker job.
 		'cron_interval' => 5,
 
-		// cache_driver (database|memcache|memcached|redis)
-		// Whether to use Memcache or Memcached or Redis to store temporary cache.
+		// cache_driver (database|memcache|memcached|redis|apcu)
+		// Whether to use Memcache, Memcached, Redis or APCu to store temporary cache.
 		'cache_driver' => 'database',
 
 		// config_adapter (jit|preload)
@@ -198,6 +209,10 @@ return [
 		// disable_polling (Boolean)
 		// Disable the polling of DFRN and OStatus contacts through onepoll.php.
 		'disable_polling' => false,
+
+		// display_resharer (Boolean)
+		// Display the first resharer as icon and text on a reshared item.
+		'display_resharer' => false,
 
 		// dlogfile (Path)
 		// location of the developer log file.
@@ -292,6 +307,12 @@ return [
 		// Maximum number of queue items for a single contact before subsequent messages are discarded.
 		'max_contact_queue' => 500,
 
+		// max_csv_file_size (Integer)
+		// When uploading a CSV with account addresses to follow
+		// in the user settings, this controls the maximum file
+		// size of the upload file.
+		'max_csv_file_size' => 30720,
+
 		// max_feed_items (Integer)
 		// Maximum number of feed items that are fetched and processed. For unlimited items set to 0.
 		'max_feed_items' => 20,
@@ -331,7 +352,7 @@ return [
 
 		// min_poll_interval (Integer)
 		// minimal distance in minutes between two polls for a contact. Reasonable values are between 1 and 59.
-		'min_poll_interval' => 1,
+		'min_poll_interval' => 15,
 
 		// no_count (Boolean)
 		// Don't do count calculations (currently only when showing photo albums).
@@ -340,6 +361,10 @@ return [
 		// no_oembed (Boolean)
 		// Don't use OEmbed to fetch more information about a link.
 		'no_oembed' => false,
+
+		// no_redirect_list (Array)
+		// List of domains where HTTP redirects should be ignored. 
+		'no_redirect_list' => [],
 
 		// no_smilies (Boolean)
 		// Don't show smilies.
@@ -383,10 +408,6 @@ return [
 		// - 1 = every hour
 		// - 0 = every minute
 		'pushpoll_frequency' => 3,
-
-		// queue_no_dead_check (Boolean)
-		// Ignore if the target contact or server seems to be dead during queue delivery.
-		'queue_no_dead_check' => false,
 
 		// redis_host (String)
 		// Host name of the redis daemon.
@@ -488,6 +509,11 @@ return [
 		// Setting 0 would allow maximum worker queues at all times, which is not recommended.
 		'worker_load_exponent' => 3,
 
+		// worker_multiple_fetch (Boolean)
+		// When activated, the worker fetches jobs for multiple workers (not only for itself).
+		// This is an experimental setting without knowing the performance impact.
+		'worker_multiple_fetch' => false,
+		
 		// worker_defer_limit (Integer)
 		// Per default the systems tries delivering for 15 times before dropping it.
 		'worker_defer_limit' => 15,

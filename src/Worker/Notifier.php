@@ -36,13 +36,11 @@ use Friendica\Model\Post;
 use Friendica\Model\PushSubscriber;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
-use Friendica\Network\Probe;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
-
-require_once 'include/items.php';
 
 /*
  * The notifier is typically called with:
@@ -181,7 +179,7 @@ class Notifier
 
 			// Only deliver threaded replies (comment to a comment) to Diaspora
 			// when the original comment author does support the Diaspora protocol.
-			if ($target_item['parent-uri'] != $target_item['thr-parent']) {
+			if ($thr_parent['author-link'] && $target_item['parent-uri'] != $target_item['thr-parent']) {
 				$diaspora_delivery = Diaspora::isSupportedByContactUrl($thr_parent['author-link']);
 				Logger::info('Threaded comment', ['diaspora_delivery' => (int)$diaspora_delivery]);
 			}
@@ -303,8 +301,10 @@ class Notifier
 
 				// if our parent is a public forum (forum_mode == 1), uplink to the origional author causing
 				// a delivery fork. private groups (forum_mode == 2) do not uplink
+				/// @todo Possibly we should not uplink when the author is the forum itself?
 
-				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)) {
+				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)
+					&& ($target_item['verb'] != Activity::ANNOUNCE)) {
 					Worker::add($a->queue['priority'], 'Notifier', Delivery::UPLINK, $target_id);
 				}
 
@@ -356,23 +356,23 @@ class Notifier
 				// Send a salmon to the parent author
 				$probed_contact = DBA::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['author-id']]);
 				if (DBA::isResult($probed_contact) && !empty($probed_contact["notify"])) {
-					Logger::log('Notify parent author '.$probed_contact["url"].': '.$probed_contact["notify"]);
+					Logger::notice('Notify parent author', ['url' => $probed_contact["url"], 'notify' => $probed_contact["notify"]]);
 					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 				}
 
 				// Send a salmon to the parent owner
 				$probed_contact = DBA::selectFirst('contact', ['url', 'notify'], ['id' => $thr_parent['owner-id']]);
 				if (DBA::isResult($probed_contact) && !empty($probed_contact["notify"])) {
-					Logger::log('Notify parent owner '.$probed_contact["url"].': '.$probed_contact["notify"]);
+					Logger::notice('Notify parent owner', ['url' => $probed_contact["url"], 'notify' => $probed_contact["notify"]]);
 					$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
 				}
 
 				// Send a salmon notification to every person we mentioned in the post
 				foreach (Tag::getByURIId($target_item['uri-id'], [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION]) as $tag) {
-					$probed_contact = Probe::uri($tag['url']);
-					if ($probed_contact["notify"] != "") {
-						Logger::log('Notify mentioned user '.$probed_contact["url"].': '.$probed_contact["notify"]);
-						$url_recipients[$probed_contact["notify"]] = $probed_contact["notify"];
+					$probed_contact = Contact::getByURL($tag['url']);
+					if (!empty($probed_contact['notify'])) {
+						Logger::notice('Notify mentioned user', ['url' => $probed_contact["url"], 'notify' => $probed_contact["notify"]]);
+						$url_recipients[$probed_contact['notify']] = $probed_contact['notify'];
 					}
 				}
 
@@ -395,7 +395,7 @@ class Notifier
 			if ($followup) {
 				$recipients = $recipients_followup;
 			}
-			$condition = ['id' => $recipients, 'self' => false,
+			$condition = ['id' => $recipients, 'self' => false, 'uid' => [0, $uid],
 				'blocked' => false, 'pending' => false, 'archive' => false];
 			if (!empty($networks)) {
 				$condition['network'] = $networks;
@@ -441,7 +441,7 @@ class Notifier
 
 				// Add the relay to the list, avoid duplicates.
 				// Don't send community posts to the relay. Forum posts via the Diaspora protocol are looking ugly.
-				if (!$followup && !Item::isForumPost($target_item, $owner)) {
+				if (!$followup && !Item::isForumPost($target_item, $owner) && !self::isForumPost($target_item)) {
 					$relay_list = Diaspora::relayList($target_id, $relay_list);
 				}
 			}
@@ -475,7 +475,7 @@ class Notifier
 						continue;
 					}
 
-					if (self::skipDFRN($rr, $target_item, $parent, $thr_parent, $cmd)) {
+					if (self::skipDFRN($rr, $target_item, $parent, $thr_parent, $owner, $cmd)) {
 						Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['id' => $target_id, 'url' => $rr['url']]);
 						continue;
 					}
@@ -530,13 +530,13 @@ class Notifier
 				continue;
 			}
 
-			if (self::skipDFRN($contact, $target_item, $parent, $thr_parent, $cmd)) {
+			if (self::skipDFRN($contact, $target_item, $parent, $thr_parent, $owner, $cmd)) {
 				Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'url' => $contact['url']]);
 				continue;
 			}
 
 			if (self::skipActivityPubForDiaspora($contact, $target_item, $thr_parent)) {
-				Logger::info('Contact is from Diaspora, but the replied author is from ActivityPub, so skip delivery via Diaspora', ['id' => $target_id, 'url' => $rr['url']]);
+				Logger::info('Contact is from Diaspora, but the replied author is from ActivityPub, so skip delivery via Diaspora', ['id' => $target_id, 'url' => $contact['url']]);
 				continue;
 			}
 
@@ -648,12 +648,13 @@ class Notifier
 	 * @param array  $item       The post
 	 * @param array  $parent     The parent
 	 * @param array  $thr_parent The thread parent
+	 * @param array  $owner      Owner array
 	 * @param string $cmd        Notifier command
 	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function skipDFRN($contact, $item, $parent, $thr_parent, $cmd)
+	private static function skipDFRN($contact, $item, $parent, $thr_parent, $owner, $cmd)
 	{
 		if (empty($parent['network'])) {
 			return false;
@@ -687,6 +688,12 @@ class Notifier
 		// We deliver reshares via AP whenever possible
 		if (ActivityPub\Transmitter::isAnnounce($item)) {
 			return true;
+		}
+
+		// For the time being we always deliver forum post via DFRN if possible
+		// This can be removed possible at the end of 2020 when hopefully most system can process AP forum posts
+		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
+			return false;
 		}
 
 		// Skip DFRN when the item will be (forcefully) delivered via AP
@@ -779,6 +786,11 @@ class Notifier
 
 		if ($target_item['origin']) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
+
+			if (in_array($target_item['private'], [Item::PUBLIC])) {
+				$inboxes = ActivityPub\Transmitter::addRelayServerInboxes($inboxes);
+			}
+
 			Logger::log('Origin item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
 		} elseif (Item::isForumPost($target_item, $owner)) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid, false, 0, true);
@@ -813,5 +825,16 @@ class Notifier
 		}
 
 		return $delivery_queue_count;
+	}
+
+	/**
+	 * Check if the delivered item is a forum post
+	 *
+	 * @param array $item
+	 * @return boolean
+	 */
+	public static function isForumPost(array $item)
+	{
+		return !empty($item['forum_mode']);
 	}
 }

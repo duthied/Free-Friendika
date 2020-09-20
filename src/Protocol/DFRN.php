@@ -33,7 +33,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Event;
-use Friendica\Model\GContact;
+use Friendica\Model\FContact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
@@ -43,6 +43,7 @@ use Friendica\Model\Post\Category;
 use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
+use Friendica\Model\Verb;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -256,10 +257,11 @@ class DFRN
 			FROM `item` USE INDEX (`uid_wall_changed`) $sql_post_table
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `item`.`uid` = %d AND `item`.`wall` AND `item`.`changed` > '%s'
-			AND `item`.`visible` $sql_extra
+			AND `vid` != %d AND `item`.`visible` $sql_extra
 			ORDER BY `item`.`parent` ".$sort.", `item`.`received` ASC LIMIT 0, 300",
 			intval($owner_id),
 			DBA::escape($check_date),
+			Verb::getID(Activity::ANNOUNCE),
 			DBA::escape($sort)
 		);
 
@@ -755,7 +757,7 @@ class DFRN
 	{
 		$author = $doc->createElement($element);
 
-		$contact = Contact::getDetailsByURL($contact_url, $item["uid"]);
+		$contact = Contact::getByURLForUser($contact_url, $item["uid"], false, ['url', 'name', 'addr', 'photo']);
 		if (!empty($contact)) {
 			XML::addElement($doc, $author, "name", $contact["name"]);
 			XML::addElement($doc, $author, "uri", $contact["url"]);
@@ -963,10 +965,12 @@ class DFRN
 		if ($item['gravity'] != GRAVITY_PARENT) {
 			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 			$parent = Item::selectFirst(['guid', 'plink'], ['uri' => $parent_item, 'uid' => $item['uid']]);
-			$attributes = ["ref" => $parent_item, "type" => "text/html",
-						"href" => $parent['plink'],
-						"dfrn:diaspora_guid" => $parent['guid']];
-			XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
+			if (DBA::isResult($parent)) {
+				$attributes = ["ref" => $parent_item, "type" => "text/html",
+					"href" => $parent['plink'],
+					"dfrn:diaspora_guid" => $parent['guid']];
+				XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
+			}
 		}
 
 		// Add conversation data. This is used for OStatus
@@ -1194,7 +1198,7 @@ class DFRN
 
 		Logger::log('dfrn_deliver: ' . $url);
 
-		$curlResult = Network::curl($url);
+		$curlResult = DI::httpRequest()->get($url);
 
 		if ($curlResult->isTimeout()) {
 			return -2; // timed out
@@ -1343,7 +1347,7 @@ class DFRN
 
 		Logger::debug('dfrn_deliver', ['post' => $postvars]);
 
-		$postResult = Network::post($contact['notify'], $postvars);
+		$postResult = DI::httpRequest()->post($contact['notify'], $postvars);
 
 		$xml = $postResult->getBody();
 
@@ -1410,7 +1414,7 @@ class DFRN
 				}
 			}
 
-			$fcontact = Diaspora::personByHandle($contact['addr']);
+			$fcontact = FContact::getByURL($contact['addr']);
 			if (empty($fcontact)) {
 				Logger::log('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
 				return -22;
@@ -1440,7 +1444,7 @@ class DFRN
 
 		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
 
-		$postResult = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
+		$postResult = DI::httpRequest()->post($dest_url, $envelope, ["Content-Type: " . $content_type]);
 		$xml = $postResult->getBody();
 
 		$curl_stat = $postResult->getReturnCode();
@@ -1495,8 +1499,9 @@ class DFRN
 
 		$fields = ['id', 'uid', 'url', 'network', 'avatar-date', 'avatar', 'name-date', 'uri-date', 'addr',
 			'name', 'nick', 'about', 'location', 'keywords', 'xmpp', 'bdyear', 'bd', 'hidden', 'contact-type'];
-		$condition = ["`uid` = ? AND `nurl` = ? AND `network` != ?",
-			$importer["importer_uid"], Strings::normaliseLink($author["link"]), Protocol::STATUSNET];
+		$condition = ["`uid` = ? AND `nurl` = ? AND `network` != ? AND NOT `pending` AND NOT `blocked` AND `rel` IN (?, ?)",
+			$importer["importer_uid"], Strings::normaliseLink($author["link"]), Protocol::STATUSNET,
+			Contact::SHARING, Contact::FRIEND];
 		$contact_old = DBA::selectFirst('contact', $fields, $condition);
 
 		if (DBA::isResult($contact_old)) {
@@ -1508,8 +1513,9 @@ class DFRN
 			}
 
 			$author["contact-unknown"] = true;
-			$author["contact-id"] = $importer["id"];
-			$author["network"] = $importer["network"];
+			$contact = Contact::getByURL($author["link"], null, ["id", "network"]);
+			$author["contact-id"] = $contact["id"] ?? $importer["id"];
+			$author["network"] = $contact["network"] ?? $importer["network"];
 			$onlyfetch = true;
 		}
 
@@ -1680,27 +1686,12 @@ class DFRN
 			$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($contact_old['url'])];
 			DBA::update('contact', $fields, $condition, true);
 
-			Contact::updateAvatar($author['avatar'], $importer['importer_uid'], $contact['id']);
+			Contact::updateAvatar($contact['id'], $author['avatar']);
 
 			$pcid = Contact::getIdForURL($contact_old['url']);
 			if (!empty($pcid)) {
-				Contact::updateAvatar($author['avatar'], 0, $pcid);
+				Contact::updateAvatar($pcid, $author['avatar']);
 			}
-
-			/*
-			 * The generation is a sign for the reliability of the provided data.
-			 * It is used in the socgraph.php to prevent that old contact data
-			 * that was relayed over several servers can overwrite contact
-			 * data that we received directly.
-			 */
-
-			$poco["generation"] = 2;
-			$poco["photo"] = $author["avatar"];
-			$poco["hide"] = $hide;
-			$poco["contact-type"] = $contact["contact-type"];
-			$gcid = GContact::update($poco);
-
-			GContact::link($gcid, $importer["importer_uid"], $contact["id"]);
 		}
 
 		return $author;
@@ -1777,15 +1768,15 @@ class DFRN
 
 		$msg = [];
 		$msg["uid"] = $importer["importer_uid"];
-		$msg["from-name"] = $xpath->query("dfrn:sender/dfrn:name/text()", $mail)->item(0)->nodeValue;
-		$msg["from-url"] = $xpath->query("dfrn:sender/dfrn:uri/text()", $mail)->item(0)->nodeValue;
-		$msg["from-photo"] = $xpath->query("dfrn:sender/dfrn:avatar/text()", $mail)->item(0)->nodeValue;
+		$msg["from-name"] = XML::getFirstValue($xpath, "dfrn:sender/dfrn:name/text()", $mail);
+		$msg["from-url"] = XML::getFirstValue($xpath, "dfrn:sender/dfrn:uri/text()", $mail);
+		$msg["from-photo"] = XML::getFirstValue($xpath, "dfrn:sender/dfrn:avatar/text()", $mail);
 		$msg["contact-id"] = $importer["id"];
-		$msg["uri"] = $xpath->query("dfrn:id/text()", $mail)->item(0)->nodeValue;
-		$msg["parent-uri"] = $xpath->query("dfrn:in-reply-to/text()", $mail)->item(0)->nodeValue;
-		$msg["created"] = DateTimeFormat::utc($xpath->query("dfrn:sentdate/text()", $mail)->item(0)->nodeValue);
-		$msg["title"] = $xpath->query("dfrn:subject/text()", $mail)->item(0)->nodeValue;
-		$msg["body"] = $xpath->query("dfrn:content/text()", $mail)->item(0)->nodeValue;
+		$msg["uri"] = XML::getFirstValue($xpath, "dfrn:id/text()", $mail);
+		$msg["parent-uri"] = XML::getFirstValue($xpath, "dfrn:in-reply-to/text()", $mail);
+		$msg["created"] = DateTimeFormat::utc(XML::getFirstValue($xpath, "dfrn:sentdate/text()", $mail));
+		$msg["title"] = XML::getFirstValue($xpath, "dfrn:subject/text()", $mail);
+		$msg["body"] = XML::getFirstValue($xpath, "dfrn:content/text()", $mail);
 
 		Mail::insert($msg);
 	}
@@ -1943,15 +1934,6 @@ class DFRN
 
 		$old = $r[0];
 
-		// Update the gcontact entry
-		$relocate["server_url"] = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $relocate["url"]);
-
-		$fields = ['name' => $relocate["name"], 'photo' => $relocate["avatar"],
-			'url' => $relocate["url"], 'nurl' => Strings::normaliseLink($relocate["url"]),
-			'addr' => $relocate["addr"], 'connect' => $relocate["addr"],
-			'notify' => $relocate["notify"], 'server_url' => $relocate["server_url"]];
-		DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($old["url"])]);
-
 		// Update the contact table. We try to find every entry.
 		$fields = ['name' => $relocate["name"], 'avatar' => $relocate["avatar"],
 			'url' => $relocate["url"], 'nurl' => Strings::normaliseLink($relocate["url"]),
@@ -1962,7 +1944,7 @@ class DFRN
 
 		DBA::update('contact', $fields, $condition);
 
-		Contact::updateAvatar($relocate["avatar"], $importer["importer_uid"], $importer["id"], true);
+		Contact::updateAvatar($importer["id"], $relocate["avatar"], true);
 
 		Logger::log('Contacts are updated.');
 
@@ -2186,6 +2168,7 @@ class DFRN
 				|| ($item["verb"] == Activity::ATTEND)
 				|| ($item["verb"] == Activity::ATTENDNO)
 				|| ($item["verb"] == Activity::ATTENDMAYBE)
+				|| ($item["verb"] == Activity::ANNOUNCE)
 			) {
 				$is_like = true;
 				$item["gravity"] = GRAVITY_ACTIVITY;
@@ -2429,7 +2412,7 @@ class DFRN
 					$parts = explode(":", $scheme);
 					if ((count($parts) >= 4) && (array_shift($parts) == "X-DFRN")) {
 						$termurl = array_pop($parts);
-						$termurl = array_pop($parts) . $termurl;
+						$termurl = array_pop($parts) . ':' . $termurl;
 						Tag::store($item['uri-id'], Tag::IMPLICIT_MENTION, $term, $termurl);
 					}
 				}
@@ -2553,6 +2536,11 @@ class DFRN
 		}
 
 		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
+			// Will be overwritten for sharing accounts in Item::insert
+			if (empty($item['post-type']) && ($entrytype == DFRN::REPLY)) {
+				$item['post-type'] = Item::PT_COMMENT;
+			}
+
 			$posted_id = Item::insert($item);
 			if ($posted_id) {
 				Logger::log("Reply from contact ".$item["contact-id"]." was stored with id ".$posted_id, Logger::DEBUG);
@@ -2902,14 +2890,13 @@ class DFRN
 	 * Checks if the given contact url does support DFRN
 	 *
 	 * @param string  $url    profile url
-	 * @param boolean $update Update the profile
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function isSupportedByContactUrl($url, $update = false)
+	public static function isSupportedByContactUrl($url)
 	{
-		$probe = Probe::uri($url, Protocol::DFRN, 0, !$update);
+		$probe = Probe::uri($url, Protocol::DFRN);
 		return $probe['network'] == Protocol::DFRN;
 	}
 }

@@ -22,6 +22,7 @@
 namespace Friendica\Test\src\App;
 
 use Friendica\App;
+use Friendica\Core\Cache\ICache;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
 use Friendica\LegacyModule;
@@ -175,7 +176,11 @@ class ModuleTest extends DatabaseTest
 		$l10n = \Mockery::mock(L10n::class);
 		$l10n->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
-		$router = (new App\Router([], $l10n))->loadRoutes(include __DIR__ . '/../../../static/routes.config.php');
+		$cache = \Mockery::mock(ICache::class);
+		$cache->shouldReceive('get')->with('routerDispatchData')->andReturn('')->atMost()->once();
+		$cache->shouldReceive('set')->withAnyArgs()->andReturn(false)->atMost()->once();
+
+		$router = (new App\Router([], __DIR__ . '/../../../static/routes.config.php', $l10n, $cache));
 
 		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), $router, $config);
 

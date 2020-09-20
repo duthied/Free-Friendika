@@ -31,7 +31,6 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Model\ProfileField;
 use Friendica\Model\User;
@@ -134,9 +133,7 @@ class Index extends BaseSettings
 			['uid' => local_user()]
 		);
 
-		if ($result) {
-			info(DI::l10n()->t('Profile updated.'));
-		} else {
+		if (!$result) {
 			notice(DI::l10n()->t('Profile couldn\'t be updated.'));
 			return;
 		}
@@ -153,9 +150,6 @@ class Index extends BaseSettings
 		}
 
 		Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
-
-		// Update the global contact for the user
-		GContact::updateForUser(local_user());
 	}
 
 	public static function content(array $parameters = [])

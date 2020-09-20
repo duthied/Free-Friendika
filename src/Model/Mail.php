@@ -27,7 +27,6 @@ use Friendica\Core\Worker;
 use Friendica\DI;
 use Friendica\Database\DBA;
 use Friendica\Model\Notify\Type;
-use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Worker\Delivery;
@@ -130,9 +129,12 @@ class Mail
 		}
 
 		$me = DBA::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
-		$contact = DBA::selectFirst('contact', [], ['id' => $recipient, 'uid' => local_user()]);
+		if (!DBA::isResult($me)) {
+			return -2;
+		}
 
-		if (!(count($me) && (count($contact)))) {
+		$contact = DBA::selectFirst('contact', [], ['id' => $recipient, 'uid' => local_user()]);
+		if (!DBA::isResult($contact)) {
 			return -2;
 		}
 
@@ -267,7 +269,7 @@ class Mail
 		$guid = System::createUUID();
 		$uri = Item::newURI(local_user(), $guid);
 
-		$me = Probe::uri($replyto);
+		$me = Contact::getByURL($replyto);
 		if (!$me['name']) {
 			return -2;
 		}

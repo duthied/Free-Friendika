@@ -28,10 +28,10 @@ use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\GContact;
+use Friendica\Model\Contact;
+use Friendica\Model\User;
 use Friendica\Module\BaseAdmin;
 use Friendica\Module\Register;
-use Friendica\Protocol\PortableContact;
 use Friendica\Util\BasePath;
 use Friendica\Util\EMailer\MailBuilder;
 use Friendica\Util\Strings;
@@ -104,12 +104,10 @@ class Site extends BaseAdmin
 			// update profile links in the format "http://server.tld"
 			update_table($a, "profile", ['photo', 'thumb'], $old_url, $new_url);
 			update_table($a, "contact", ['photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'], $old_url, $new_url);
-			update_table($a, "gcontact", ['url', 'nurl', 'photo', 'server_url', 'notify', 'alias'], $old_url, $new_url);
 			update_table($a, "item", ['owner-link', 'author-link', 'body', 'plink', 'tag'], $old_url, $new_url);
 
 			// update profile addresses in the format "user@server.tld"
 			update_table($a, "contact", ['addr'], $old_host, $new_host);
-			update_table($a, "gcontact", ['connect', 'addr'], $old_host, $new_host);
 
 			// update config
 			DI::config()->set('system', 'url', $new_url);
@@ -122,7 +120,7 @@ class Site extends BaseAdmin
 			}
 			DBA::close($usersStmt);
 
-			info("Relocation started. Could take a while to complete.");
+			info(DI::l10n()->t("Relocation started. Could take a while to complete."));
 
 			DI::baseUrl()->redirect('admin/site');
 		}
@@ -151,6 +149,7 @@ class Site extends BaseAdmin
 		$allowed_sites          = (!empty($_POST['allowed_sites'])           ? Strings::escapeTags(trim($_POST['allowed_sites']))  : '');
 		$allowed_email          = (!empty($_POST['allowed_email'])           ? Strings::escapeTags(trim($_POST['allowed_email']))  : '');
 		$forbidden_nicknames    = (!empty($_POST['forbidden_nicknames'])     ? strtolower(Strings::escapeTags(trim($_POST['forbidden_nicknames']))) : '');
+		$system_actor_name      = (!empty($_POST['system_actor_name'])       ? Strings::escapeTags(trim($_POST['system_actor_name'])) : '');
 		$no_oembed_rich_content = !empty($_POST['no_oembed_rich_content']);
 		$allowed_oembed         = (!empty($_POST['allowed_oembed'])          ? Strings::escapeTags(trim($_POST['allowed_oembed'])) : '');
 		$block_public           = !empty($_POST['block_public']);
@@ -176,13 +175,11 @@ class Site extends BaseAdmin
 		$maxloadavg             = (!empty($_POST['maxloadavg'])             ? intval(trim($_POST['maxloadavg']))             : 20);
 		$maxloadavg_frontend    = (!empty($_POST['maxloadavg_frontend'])    ? intval(trim($_POST['maxloadavg_frontend']))    : 50);
 		$min_memory             = (!empty($_POST['min_memory'])             ? intval(trim($_POST['min_memory']))             : 0);
-		$optimize_max_tablesize = (!empty($_POST['optimize_max_tablesize']) ? intval(trim($_POST['optimize_max_tablesize'])) : 100);
-		$optimize_fragmentation = (!empty($_POST['optimize_fragmentation']) ? intval(trim($_POST['optimize_fragmentation'])) : 30);
-		$poco_completion        = (!empty($_POST['poco_completion'])        ? intval(trim($_POST['poco_completion']))        : false);
-		$gcontact_discovery     = (!empty($_POST['gcontact_discovery'])     ? intval(trim($_POST['gcontact_discovery']))     : GContact::DISCOVERY_NONE);
+		$optimize_tables        = (!empty($_POST['optimize_tables'])        ? intval(trim($_POST['optimize_tables']))        : false);
+		$contact_discovery      = (!empty($_POST['contact_discovery'])      ? intval(trim($_POST['contact_discovery']))      : Contact\Relation::DISCOVERY_NONE);
+		$synchronize_directory  = (!empty($_POST['synchronize_directory'])  ? intval(trim($_POST['synchronize_directory']))  : false);
 		$poco_requery_days      = (!empty($_POST['poco_requery_days'])      ? intval(trim($_POST['poco_requery_days']))      : 7);
-		$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : PortableContact::DISABLED);
-		$poco_discovery_since   = (!empty($_POST['poco_discovery_since'])   ? intval(trim($_POST['poco_discovery_since']))   : 30);
+		$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : false);
 		$poco_local_search      = !empty($_POST['poco_local_search']);
 		$nodeinfo               = !empty($_POST['nodeinfo']);
 		$dfrn_only              = !empty($_POST['dfrn_only']);
@@ -250,7 +247,7 @@ class Site extends BaseAdmin
 				DI::baseUrl()->redirect('admin/site' . $active_panel);
 			}
 		} else {
-			info(DI::l10n()->t('Invalid storage backend setting value.'));
+			notice(DI::l10n()->t('Invalid storage backend setting value.'));
 		}
 
 		// Has the directory url changed? If yes, then resubmit the existing profiles there
@@ -305,13 +302,11 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'maxloadavg'            , $maxloadavg);
 		DI::config()->set('system', 'maxloadavg_frontend'   , $maxloadavg_frontend);
 		DI::config()->set('system', 'min_memory'            , $min_memory);
-		DI::config()->set('system', 'optimize_max_tablesize', $optimize_max_tablesize);
-		DI::config()->set('system', 'optimize_fragmentation', $optimize_fragmentation);
-		DI::config()->set('system', 'poco_completion'       , $poco_completion);
-		DI::config()->set('system', 'gcontact_discovery'    , $gcontact_discovery);
+		DI::config()->set('system', 'optimize_tables'       , $optimize_tables);
+		DI::config()->set('system', 'contact_discovery'     , $contact_discovery);
+		DI::config()->set('system', 'synchronize_directory' , $synchronize_directory);
 		DI::config()->set('system', 'poco_requery_days'     , $poco_requery_days);
 		DI::config()->set('system', 'poco_discovery'        , $poco_discovery);
-		DI::config()->set('system', 'poco_discovery_since'  , $poco_discovery_since);
 		DI::config()->set('system', 'poco_local_search'     , $poco_local_search);
 		DI::config()->set('system', 'nodeinfo'              , $nodeinfo);
 		DI::config()->set('config', 'sitename'              , $sitename);
@@ -362,6 +357,7 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'allowed_sites'          , $allowed_sites);
 		DI::config()->set('system', 'allowed_email'          , $allowed_email);
 		DI::config()->set('system', 'forbidden_nicknames'    , $forbidden_nicknames);
+		DI::config()->set('system', 'system_actor_name'      , $system_actor_name);
 		DI::config()->set('system', 'no_oembed_rich_content' , $no_oembed_rich_content);
 		DI::config()->set('system', 'allowed_oembed'         , $allowed_oembed);
 		DI::config()->set('system', 'block_public'           , $block_public);
@@ -433,8 +429,6 @@ class Site extends BaseAdmin
 
 		DI::config()->set('system', 'rino_encrypt'     , $rino);
 
-		info(DI::l10n()->t('Site settings updated.') . EOL);
-
 		DI::baseUrl()->redirect('admin/site' . $active_panel);
 	}
 
@@ -490,20 +484,6 @@ class Site extends BaseAdmin
 			CP_USERS_AND_GLOBAL => DI::l10n()->t('Public postings from local users and the federated network')
 		];
 
-		$poco_discovery_choices = [
-			PortableContact::DISABLED => DI::l10n()->t('Disabled'),
-			PortableContact::USERS => DI::l10n()->t('Users'),
-			PortableContact::USERS_GCONTACTS => DI::l10n()->t('Users, Global Contacts'),
-			PortableContact::USERS_GCONTACTS_FALLBACK => DI::l10n()->t('Users, Global Contacts/fallback'),
-		];
-
-		$poco_discovery_since_choices = [
-			'30' => DI::l10n()->t('One month'),
-			'91' => DI::l10n()->t('Three months'),
-			'182' => DI::l10n()->t('Half a year'),
-			'365' => DI::l10n()->t('One year'),
-		];
-
 		/* get user names to make the install a personal install of X */
 		// @TODO Move to Model\User::getNames()
 		$user_names = [];
@@ -553,18 +533,14 @@ class Site extends BaseAdmin
 		];
 
 		$discovery_choices = [
-			GContact::DISCOVERY_NONE => DI::l10n()->t('none'),
-			GContact::DISCOVERY_DIRECT => DI::l10n()->t('Direct contacts'),
-			GContact::DISCOVERY_RECURSIVE => DI::l10n()->t('Contacts of contacts')
+			Contact\Relation::DISCOVERY_NONE => DI::l10n()->t('none'),
+			Contact\Relation::DISCOVERY_LOCAL => DI::l10n()->t('Local contacts'),
+			Contact\Relation::DISCOVERY_INTERACTOR => DI::l10n()->t('Interactors'),
+			// "All" is deactivated until we are sure not to put too much stress on the fediverse with this
+			// ContactRelation::DISCOVERY_ALL => DI::l10n()->t('All'),
 		];
 
 		$diaspora_able = (DI::baseUrl()->getUrlPath() == '');
-
-		$optimize_max_tablesize = DI::config()->get('system', 'optimize_max_tablesize', -1);
-
-		if ($optimize_max_tablesize <= 0) {
-			$optimize_max_tablesize = -1;
-		}
 
 		$current_storage_backend = DI::storage();
 		$available_storage_backends = [];
@@ -621,6 +597,7 @@ class Site extends BaseAdmin
 			// name, label, value, help string, extra data...
 			'$sitename'         => ['sitename', DI::l10n()->t('Site name'), DI::config()->get('config', 'sitename'), ''],
 			'$sender_email'     => ['sender_email', DI::l10n()->t('Sender Email'), DI::config()->get('config', 'sender_email'), DI::l10n()->t('The email address your server shall use to send notification emails from.'), '', '', 'email'],
+			'$system_actor_name' => ['system_actor_name', DI::l10n()->t('Name of the system actor'), User::getActorName(), DI::l10n()->t("Name of the internal system account that is used to perform ActivityPub requests. This must be an unused username. If set, this can't be changed again.")],
 			'$banner'           => ['banner', DI::l10n()->t('Banner/Logo'), $banner, ''],
 			'$email_banner'     => ['email_banner', DI::l10n()->t('Email Banner/Logo'), $email_banner, ''],
 			'$shortcut_icon'    => ['shortcut_icon', DI::l10n()->t('Shortcut icon'), DI::config()->get('system', 'shortcut_icon'), DI::l10n()->t('Link to an icon that will be used for browsers.')],
@@ -651,12 +628,12 @@ class Site extends BaseAdmin
 			'$allowed_oembed'         => ['allowed_oembed', DI::l10n()->t('Allowed OEmbed domains'), DI::config()->get('system', 'allowed_oembed'), DI::l10n()->t('Comma separated list of domains which oembed content is allowed to be displayed. Wildcards are accepted.')],
 			'$block_public'           => ['block_public', DI::l10n()->t('Block public'), DI::config()->get('system', 'block_public'), DI::l10n()->t('Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.')],
 			'$force_publish'          => ['publish_all', DI::l10n()->t('Force publish'), DI::config()->get('system', 'publish_all'), DI::l10n()->t('Check to force all profiles on this site to be listed in the site directory.') . '<strong>' . DI::l10n()->t('Enabling this may violate privacy laws like the GDPR') . '</strong>'],
-			'$global_directory'       => ['directory', DI::l10n()->t('Global directory URL'), DI::config()->get('system', 'directory', 'https://dir.friendica.social'), DI::l10n()->t('URL to the global directory. If this is not set, the global directory is completely unavailable to the application.')],
+			'$global_directory'       => ['directory', DI::l10n()->t('Global directory URL'), DI::config()->get('system', 'directory'), DI::l10n()->t('URL to the global directory. If this is not set, the global directory is completely unavailable to the application.')],
 			'$newuser_private'        => ['newuser_private', DI::l10n()->t('Private posts by default for new users'), DI::config()->get('system', 'newuser_private'), DI::l10n()->t('Set default post permissions for all new members to the default privacy group rather than public.')],
 			'$enotify_no_content'     => ['enotify_no_content', DI::l10n()->t('Don\'t include post content in email notifications'), DI::config()->get('system', 'enotify_no_content'), DI::l10n()->t('Don\'t include the content of a post/comment/private message/etc. in the email notifications that are sent out from this site, as a privacy measure.')],
 			'$private_addons'         => ['private_addons', DI::l10n()->t('Disallow public access to addons listed in the apps menu.'), DI::config()->get('config', 'private_addons'), DI::l10n()->t('Checking this box will restrict addons listed in the apps menu to members only.')],
 			'$disable_embedded'       => ['disable_embedded', DI::l10n()->t('Don\'t embed private images in posts'), DI::config()->get('system', 'disable_embedded'), DI::l10n()->t('Don\'t replace locally-hosted private photos in posts with an embedded copy of the image. This means that contacts who receive posts containing private photos will have to authenticate and load each image, which may take a while.')],
-			'$explicit_content'       => ['explicit_content', DI::l10n()->t('Explicit Content'), DI::config()->get('system', 'explicit_content', false), DI::l10n()->t('Set this to announce that your node is used mostly for explicit content that might not be suited for minors. This information will be published in the node information and might be used, e.g. by the global directory, to filter your node from listings of nodes to join. Additionally a note about this will be shown at the user registration page.')],
+			'$explicit_content'       => ['explicit_content', DI::l10n()->t('Explicit Content'), DI::config()->get('system', 'explicit_content'), DI::l10n()->t('Set this to announce that your node is used mostly for explicit content that might not be suited for minors. This information will be published in the node information and might be used, e.g. by the global directory, to filter your node from listings of nodes to join. Additionally a note about this will be shown at the user registration page.')],
 			'$allow_users_remote_self'=> ['allow_users_remote_self', DI::l10n()->t('Allow Users to set remote_self'), DI::config()->get('system', 'allow_users_remote_self'), DI::l10n()->t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')],
 			'$no_multi_reg'           => ['no_multi_reg', DI::l10n()->t('Block multiple registrations'), DI::config()->get('system', 'block_extended_register'), DI::l10n()->t('Disallow users to register additional accounts for use as pages.')],
 			'$no_openid'              => ['no_openid', DI::l10n()->t('Disable OpenID'), DI::config()->get('system', 'no_openid'), DI::l10n()->t('Disable OpenID support for registration and logins.')],
@@ -672,28 +649,31 @@ class Site extends BaseAdmin
 			'$verifyssl'              => ['verifyssl', DI::l10n()->t('Verify SSL'), DI::config()->get('system', 'verifyssl'), DI::l10n()->t('If you wish, you can turn on strict certificate checking. This will mean you cannot connect (at all) to self-signed SSL sites.')],
 			'$proxyuser'              => ['proxyuser', DI::l10n()->t('Proxy user'), DI::config()->get('system', 'proxyuser'), ''],
 			'$proxy'                  => ['proxy', DI::l10n()->t('Proxy URL'), DI::config()->get('system', 'proxy'), ''],
-			'$timeout'                => ['timeout', DI::l10n()->t('Network timeout'), DI::config()->get('system', 'curl_timeout', 60), DI::l10n()->t('Value is in seconds. Set to 0 for unlimited (not recommended).')],
-			'$maxloadavg'             => ['maxloadavg', DI::l10n()->t('Maximum Load Average'), DI::config()->get('system', 'maxloadavg', 20), DI::l10n()->t('Maximum system load before delivery and poll processes are deferred - default %d.', 20)],
-			'$maxloadavg_frontend'    => ['maxloadavg_frontend', DI::l10n()->t('Maximum Load Average (Frontend)'), DI::config()->get('system', 'maxloadavg_frontend', 50), DI::l10n()->t('Maximum system load before the frontend quits service - default 50.')],
-			'$min_memory'             => ['min_memory', DI::l10n()->t('Minimal Memory'), DI::config()->get('system', 'min_memory', 0), DI::l10n()->t('Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).')],
-			'$optimize_max_tablesize' => ['optimize_max_tablesize', DI::l10n()->t('Maximum table size for optimization'), $optimize_max_tablesize, DI::l10n()->t('Maximum table size (in MB) for the automatic optimization. Enter -1 to disable it.')],
-			'$optimize_fragmentation' => ['optimize_fragmentation', DI::l10n()->t('Minimum level of fragmentation'), DI::config()->get('system', 'optimize_fragmentation', 30), DI::l10n()->t('Minimum fragmenation level to start the automatic optimization - default value is 30%.')],
+			'$timeout'                => ['timeout', DI::l10n()->t('Network timeout'), DI::config()->get('system', 'curl_timeout'), DI::l10n()->t('Value is in seconds. Set to 0 for unlimited (not recommended).')],
+			'$maxloadavg'             => ['maxloadavg', DI::l10n()->t('Maximum Load Average'), DI::config()->get('system', 'maxloadavg'), DI::l10n()->t('Maximum system load before delivery and poll processes are deferred - default %d.', 20)],
+			'$maxloadavg_frontend'    => ['maxloadavg_frontend', DI::l10n()->t('Maximum Load Average (Frontend)'), DI::config()->get('system', 'maxloadavg_frontend'), DI::l10n()->t('Maximum system load before the frontend quits service - default 50.')],
+			'$min_memory'             => ['min_memory', DI::l10n()->t('Minimal Memory'), DI::config()->get('system', 'min_memory'), DI::l10n()->t('Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 (deactivated).')],
+			'$optimize_tables'        => ['optimize_tables', DI::l10n()->t('Periodically optimize tables'), DI::config()->get('system', 'optimize_tables'), DI::l10n()->t('Periodically optimize tables like the cache and the workerqueue')],
 
-			'$poco_completion'        => ['poco_completion', DI::l10n()->t('Periodical check of global contacts'), DI::config()->get('system', 'poco_completion'), DI::l10n()->t('If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.')],
-			'$gcontact_discovery'     => ['gcontact_discovery', DI::l10n()->t('Discover followers/followings from global contacts'), DI::config()->get('system', 'gcontact_discovery'), DI::l10n()->t('If enabled, the global contacts are checked for new contacts among their followers and following contacts. This option will create huge masses of jobs, so it should only be activated on powerful machines.'), $discovery_choices],
+			'$contact_discovery'      => ['contact_discovery', DI::l10n()->t('Discover followers/followings from contacts'), DI::config()->get('system', 'contact_discovery'), DI::l10n()->t('If enabled, contacts are checked for their followers and following contacts.') . '<ul>' .
+				'<li>' . DI::l10n()->t('None - deactivated') . '</li>' .
+				'<li>' . DI::l10n()->t('Local contacts - contacts of our local contacts are discovered for their followers/followings.') . '</li>' .
+				'<li>' . DI::l10n()->t('Interactors - contacts of our local contacts and contacts who interacted on locally visible postings are discovered for their followers/followings.') . '</li></ul>',
+				$discovery_choices],
+			'$synchronize_directory'  => ['synchronize_directory', DI::l10n()->t('Synchronize the contacts with the directory server'), DI::config()->get('system', 'synchronize_directory'), DI::l10n()->t('if enabled, the system will check periodically for new contacts on the defined directory server.')],
+
 			'$poco_requery_days'      => ['poco_requery_days', DI::l10n()->t('Days between requery'), DI::config()->get('system', 'poco_requery_days'), DI::l10n()->t('Number of days after which a server is requeried for his contacts.')],
-			'$poco_discovery'         => ['poco_discovery', DI::l10n()->t('Discover contacts from other servers'), DI::config()->get('system', 'poco_discovery'), DI::l10n()->t('Periodically query other servers for contacts. You can choose between "Users": the users on the remote system, "Global Contacts": active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren\'t available. The fallback increases the server load, so the recommended setting is "Users, Global Contacts".'), $poco_discovery_choices],
-			'$poco_discovery_since'   => ['poco_discovery_since', DI::l10n()->t('Timeframe for fetching global contacts'), DI::config()->get('system', 'poco_discovery_since'), DI::l10n()->t('When the discovery is activated, this value defines the timeframe for the activity of the global contacts that are fetched from other servers.'), $poco_discovery_since_choices],
+			'$poco_discovery'         => ['poco_discovery', DI::l10n()->t('Discover contacts from other servers'), DI::config()->get('system', 'poco_discovery'), DI::l10n()->t('Periodically query other servers for contacts. The system queries Friendica, Mastodon and Hubzilla servers.')],
 			'$poco_local_search'      => ['poco_local_search', DI::l10n()->t('Search the local directory'), DI::config()->get('system', 'poco_local_search'), DI::l10n()->t('Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.')],
 
 			'$nodeinfo'               => ['nodeinfo', DI::l10n()->t('Publish server information'), DI::config()->get('system', 'nodeinfo'), DI::l10n()->t('If enabled, general server and usage data will be published. The data contains the name and version of the server, number of users with public profiles, number of posts and the activated protocols and connectors. See <a href="http://the-federation.info/">the-federation.info</a> for details.')],
 
 			'$check_new_version_url'  => ['check_new_version_url', DI::l10n()->t('Check upstream version'), DI::config()->get('system', 'check_new_version_url'), DI::l10n()->t('Enables checking for new Friendica versions at github. If there is a new version, you will be informed in the admin panel overview.'), $check_git_version_choices],
 			'$suppress_tags'          => ['suppress_tags', DI::l10n()->t('Suppress Tags'), DI::config()->get('system', 'suppress_tags'), DI::l10n()->t('Suppress showing a list of hashtags at the end of the posting.')],
-			'$dbclean'                => ['dbclean', DI::l10n()->t('Clean database'), DI::config()->get('system', 'dbclean', false), DI::l10n()->t('Remove old remote items, orphaned database records and old content from some other helper tables.')],
-			'$dbclean_expire_days'    => ['dbclean_expire_days', DI::l10n()->t('Lifespan of remote items'), DI::config()->get('system', 'dbclean-expire-days', 0), DI::l10n()->t('When the database cleanup is enabled, this defines the days after which remote items will be deleted. Own items, and marked or filed items are always kept. 0 disables this behaviour.')],
-			'$dbclean_unclaimed'      => ['dbclean_unclaimed', DI::l10n()->t('Lifespan of unclaimed items'), DI::config()->get('system', 'dbclean-expire-unclaimed', 90), DI::l10n()->t('When the database cleanup is enabled, this defines the days after which unclaimed remote items (mostly content from the relay) will be deleted. Default value is 90 days. Defaults to the general lifespan value of remote items if set to 0.')],
-			'$dbclean_expire_conv'    => ['dbclean_expire_conv', DI::l10n()->t('Lifespan of raw conversation data'), DI::config()->get('system', 'dbclean_expire_conversation', 90), DI::l10n()->t('The conversation data is used for ActivityPub and OStatus, as well as for debug purposes. It should be safe to remove it after 14 days, default is 90 days.')],
+			'$dbclean'                => ['dbclean', DI::l10n()->t('Clean database'), DI::config()->get('system', 'dbclean'), DI::l10n()->t('Remove old remote items, orphaned database records and old content from some other helper tables.')],
+			'$dbclean_expire_days'    => ['dbclean_expire_days', DI::l10n()->t('Lifespan of remote items'), DI::config()->get('system', 'dbclean-expire-days'), DI::l10n()->t('When the database cleanup is enabled, this defines the days after which remote items will be deleted. Own items, and marked or filed items are always kept. 0 disables this behaviour.')],
+			'$dbclean_unclaimed'      => ['dbclean_unclaimed', DI::l10n()->t('Lifespan of unclaimed items'), DI::config()->get('system', 'dbclean-expire-unclaimed'), DI::l10n()->t('When the database cleanup is enabled, this defines the days after which unclaimed remote items (mostly content from the relay) will be deleted. Default value is 90 days. Defaults to the general lifespan value of remote items if set to 0.')],
+			'$dbclean_expire_conv'    => ['dbclean_expire_conv', DI::l10n()->t('Lifespan of raw conversation data'), DI::config()->get('system', 'dbclean_expire_conversation'), DI::l10n()->t('The conversation data is used for ActivityPub and OStatus, as well as for debug purposes. It should be safe to remove it after 14 days, default is 90 days.')],
 			'$itemcache'              => ['itemcache', DI::l10n()->t('Path to item cache'), DI::config()->get('system', 'itemcache'), DI::l10n()->t('The item caches buffers generated bbcode and external images.')],
 			'$itemcache_duration'     => ['itemcache_duration', DI::l10n()->t('Cache duration in seconds'), DI::config()->get('system', 'itemcache_duration'), DI::l10n()->t('How long should the cache files be hold? Default value is 86400 seconds (One day). To disable the item cache, set the value to -1.')],
 			'$max_comments'           => ['max_comments', DI::l10n()->t('Maximum numbers of comments per post'), DI::config()->get('system', 'max_comments'), DI::l10n()->t('How much comments should be shown for each post? Default value is 100.')],
@@ -712,11 +692,11 @@ class Site extends BaseAdmin
 			'$worker_frontend'        => ['worker_frontend', DI::l10n()->t('Enable frontend worker'), DI::config()->get('system', 'frontend_worker'), DI::l10n()->t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', DI::baseUrl()->get())],
 
 			'$relay_subscribe'        => ['relay_subscribe', DI::l10n()->t('Subscribe to relay'), DI::config()->get('system', 'relay_subscribe'), DI::l10n()->t('Enables the receiving of public posts from the relay. They will be included in the search, subscribed tags and on the global community page.')],
-			'$relay_server'           => ['relay_server', DI::l10n()->t('Relay server'), DI::config()->get('system', 'relay_server', 'https://relay.diasp.org'), DI::l10n()->t('Address of the relay server where public posts should be send to. For example https://relay.diasp.org')],
+			'$relay_server'           => ['relay_server', DI::l10n()->t('Relay server'), DI::config()->get('system', 'relay_server'), DI::l10n()->t('Address of the relay server where public posts should be send to. For example %s', 'https://social-relay.isurf.ca')],
 			'$relay_directly'         => ['relay_directly', DI::l10n()->t('Direct relay transfer'), DI::config()->get('system', 'relay_directly'), DI::l10n()->t('Enables the direct transfer to other servers without using the relay servers')],
 			'$relay_scope'            => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), ['' => DI::l10n()->t('Disabled'), 'all' => DI::l10n()->t('all'), 'tags' => DI::l10n()->t('tags')]],
 			'$relay_server_tags'      => ['relay_server_tags', DI::l10n()->t('Server tags'), DI::config()->get('system', 'relay_server_tags'), DI::l10n()->t('Comma separated list of tags for the "tags" subscription.')],
-			'$relay_user_tags'        => ['relay_user_tags', DI::l10n()->t('Allow user tags'), DI::config()->get('system', 'relay_user_tags', true), DI::l10n()->t('If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".')],
+			'$relay_user_tags'        => ['relay_user_tags', DI::l10n()->t('Allow user tags'), DI::config()->get('system', 'relay_user_tags'), DI::l10n()->t('If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".')],
 
 			'$form_security_token'    => self::getFormSecurityToken('admin_site'),
 			'$relocate_button'        => DI::l10n()->t('Start Relocation'),

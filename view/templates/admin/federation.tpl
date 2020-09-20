@@ -5,10 +5,6 @@
 	<canvas id="FederationChart" class="federation-graph" width="320" height="320"></canvas>
 	<p>{{$intro}}</p>
 
-	{{if not $autoactive}}
-	<p class="error-message">{{$hint nofilter}}</p>
-	{{/if}}
-
 	<p>{{$legendtext}}</p>
 
 	<ul>

@@ -45,8 +45,6 @@ class Tos extends BaseAdmin
 		DI::config()->set('system', 'tosprivstatement', $displayprivstatement);
 		DI::config()->set('system', 'tostext', $tostext);
 
-		info(DI::l10n()->t('The Terms of Service settings have been updated.'));
-
 		DI::baseUrl()->redirect('admin/tos');
 	}
 
