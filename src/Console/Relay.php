@@ -47,12 +47,12 @@ class Relay extends \Asika\SimpleConsole\Console
 		$help = <<<HELP
 console relay - Manage ActivityPub relay configuration
 Synopsis
-	bin/console relay [-h|--help|-?] [-v]
+	bin/console relay list [-h|--help|-?] [-v]
 	bin/console relay add <actor> [-h|--help|-?] [-v]
-	bin/console relay remove <actoor> [-h|--help|-?] [-v]
+	bin/console relay remove <actor> [-h|--help|-?] [-v]
 
 Description
-	bin/console relay
+	bin/console relay list
 		Lists all active relay servers
 
 	bin/console relay add <actor>
@@ -88,11 +88,7 @@ HELP;
 			throw new CommandArgsException('Too many arguments');
 		}
 
-		if (count($this->args) == 1) {
-			throw new CommandArgsException('Too few arguments');
-		}
-
-		if (count($this->args) == 0) {
+		if ((count($this->args) == 1) && ($this->getArgument(0) == 'list')) {
 			$contacts = $this->dba->select('apcontact', ['url'],
 			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))",
 				'Application', 0, Contact::FOLLOWER, Contact::FRIEND]);
@@ -100,6 +96,10 @@ HELP;
 				$this->out($contact['url']);
 			}
 			$this->dba->close($contacts);
+		} elseif (count($this->args) == 0) {
+			throw new CommandArgsException('too few arguments');
+		} elseif (count($this->args) == 1) {
+			throw new CommandArgsException($this->getArgument(0) . ' is no valid command');
 		}
 
 		if (count($this->args) == 2) {
