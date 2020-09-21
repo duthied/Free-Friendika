@@ -767,7 +767,10 @@ function conversation_fetch_comments($thread_items, $pinned) {
 			case Item::PT_RELAY:
 				$row['direction'] = ['direction' => 10, 'title' => DI::l10n()->t('Relay')];
 				break;
-		}
+			case Item::PT_FETCHED:
+				$row['direction'] = ['direction' => 2, 'title' => DI::l10n()->t('Fetched')];
+				break;
+			}
 
 		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id']) &&
 			!Contact::isSharing($row['author-id'], $row['uid'])) {

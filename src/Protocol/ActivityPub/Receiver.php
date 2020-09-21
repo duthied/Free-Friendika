@@ -100,7 +100,7 @@ class Receiver
 
 		$apcontact = APContact::getByURL($actor);
 		if (!empty($apcontact) && ($apcontact['type'] == 'Application') && ($apcontact['nick'] == 'relay')) {
-			self::processRelayPost($ldactivity);
+			self::processRelayPost($ldactivity, $actor);
 			return;
 		}
 
@@ -150,10 +150,11 @@ class Receiver
 	/**
 	 * Process incoming posts from relays
 	 *
-	 * @param array $activity
+	 * @param array  $activity
+	 * @param string $actor
 	 * @return void
 	 */
-	private static function processRelayPost(array $activity)
+	private static function processRelayPost(array $activity, string $actor)
 	{
 		$type = JsonLD::fetchElement($activity, '@type');
 		if (!$type) {
@@ -180,7 +181,7 @@ class Receiver
 			return;
 		}
 
-		Processor::fetchMissingActivity($object_id, [], true);
+		Processor::fetchMissingActivity($object_id, [], $actor);
 
 		$item_id = Item::searchByLink($object_id);
 		if ($item_id) {
