@@ -160,6 +160,36 @@ abstract class MailBuilder
 	}
 
 	/**
+	 * Returns the current headers
+	 *
+	 * @return string[][]
+	 */
+	public function getHeaders()
+	{
+		return $this->headers;
+	}
+
+	/**
+	 * Sets the headers
+	 *
+	 * Expected format is
+	 * [
+	 *   'Header1' => ['value1', 'value2', ...],
+	 *   'Header2' => ['value3', 'value4', ...],
+	 *   ...
+	 * ]
+	 *
+	 * @param string[][] $headers
+	 * @return $this
+	 */
+	public function withHeaders(array $headers)
+	{
+		$this->headers = $headers;
+
+		return $this;
+	}
+
+	/**
 	 * Adds a value to a header
 	 *
 	 * @param string $name The header name
