@@ -180,7 +180,7 @@ class Receiver
 			return;
 		}
 
-		Processor::fetchMissingActivity($object_id);
+		Processor::fetchMissingActivity($object_id, [], true);
 
 		$item_id = Item::searchByLink($object_id);
 		if ($item_id) {
@@ -468,6 +468,11 @@ class Receiver
 			$object_data['thread-completion'] = $activity['thread-completion'];
 		}
 
+		// Internal flag for posts that arrived via relay
+		if (!empty($activity['from-relay'])) {
+			$object_data['from-relay'] = $activity['from-relay'];
+		}
+		
 		switch ($type) {
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {

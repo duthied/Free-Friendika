@@ -67,6 +67,7 @@ class Item
 	const PT_COMMENT = 71;
 	const PT_STORED = 72;
 	const PT_GLOBAL = 73;
+	const PT_RELAY = 74;
 	const PT_PERSONAL_NOTE = 128;
 
 	// Field list that is used to display the items

@@ -521,6 +521,10 @@ class Processor
 					$item['post-type'] = Item::PT_ARTICLE;
 			}
 
+			if (in_array($item['post-type'], [Item::PT_GLOBAL, Item::PT_ARTICLE]) && !empty($activity['from-relay'])) {
+				$item['post-type'] = Item::PT_RELAY;
+			}
+
 			if ($item['isForum'] ?? false) {
 				$item['contact-id'] = Contact::getIdForURL($activity['actor'], $receiver);
 			} else {
@@ -688,12 +692,13 @@ class Processor
 	/**
 	 * Fetches missing posts
 	 *
-	 * @param string $url message URL
-	 * @param array $child activity array with the child of this message
+	 * @param string $url       message URL
+	 * @param array  $child     activity array with the child of this message
+	 * @param bool   $relaymode Posts arrived via relay
 	 * @return string fetched message URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchMissingActivity(string $url, array $child = [])
+	public static function fetchMissingActivity(string $url, array $child = [], bool $relaymode = false)
 	{
 		if (!empty($child['receiver'])) {
 			$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
@@ -752,6 +757,7 @@ class Processor
 		$ldactivity = JsonLD::compact($activity);
 
 		$ldactivity['thread-completion'] = true;
+		$ldactivity['from-relay'] = $relaymode;
 
 		ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer);
 

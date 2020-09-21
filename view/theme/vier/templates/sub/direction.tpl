@@ -19,6 +19,8 @@
 		<i class="icon-share" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{elseif $direction.direction == 9}}
 		<i class="icon-globe" aria-hidden="true" title="{{$direction.title}}"></i>
+	{{elseif $direction.direction == 10}}
+		<i class="icon-inbox" aria-hidden="true" title="{{$direction.title}}"></i>
 	{{/if}}
 </span>
 {{/if}}
