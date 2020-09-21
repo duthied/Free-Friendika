@@ -550,13 +550,13 @@ function notification($params)
 			'title'        => $title,
 			'body'         => $body,
 			'subject'      => $subject,
+			'headers'      => $emailBuilder->getHeaders(),
 		];
 
 		Hook::callAll('enotify_mail', $datarray);
 
-		$builder = DI::emailer()
-			->newNotifyMail()
-			->addHeaders($datarray['headers'])
+		$emailBuilder
+			->withHeaders($datarray['headers'])
 			->withRecipient($params['to_email'])
 			->forUser([
 				'uid' => $datarray['uid'],
