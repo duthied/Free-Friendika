@@ -80,6 +80,7 @@ class Item
 		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id',
 		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network',
+		'causer-id', 'causer-link', 'causer-name', 'causer-avatar', 'causer-contact-type',
 		'contact-id', 'contact-uid', 'contact-link', 'contact-name', 'contact-avatar',
 		'writable', 'self', 'cid', 'alias', 'pinned',
 		'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
@@ -117,7 +118,7 @@ class Item
 			'title', 'content-warning', 'body', 'location', 'coord', 'app',
 			'rendered-hash', 'rendered-html', 'object-type', 'object', 'target-type', 'target',
 			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
-			'owner-id', 'owner-link', 'owner-name', 'owner-avatar'];
+			'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'causer-id'];
 
 	// List of all verbs that don't need additional content data.
 	// Never reorder or remove entries from this list. Just add new ones at the end, if needed.
@@ -653,7 +654,7 @@ class Item
 		$fields = [];
 
 		$fields['item'] = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
-			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'vid',
+			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'vid', 'causer-id',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
 			'created', 'edited', 'commented', 'received', 'changed', 'psid',
 			'resource-id', 'event-id', 'attach', 'post-type', 'file',
@@ -680,6 +681,10 @@ class Item
 
 		$fields['owner'] = ['url' => 'owner-link', 'name' => 'owner-name', 'addr' => 'owner-addr',
 			'thumb' => 'owner-avatar', 'nick' => 'owner-nick', 'network' => 'owner-network'];
+
+		$fields['causer'] = ['url' => 'causer-link', 'name' => 'causer-name', 'addr' => 'causer-addr',
+			'thumb' => 'causer-avatar', 'nick' => 'causer-nick', 'network' => 'causer-network',
+			'contact-type' => 'causer-contact-type'];
 
 		$fields['contact'] = ['url' => 'contact-link', 'name' => 'contact-name', 'thumb' => 'contact-avatar',
 			'writable', 'self', 'id' => 'cid', 'alias', 'uid' => 'contact-uid',
@@ -768,6 +773,9 @@ class Item
 			if (strpos($sql_commands, "`owner`.") !== false) {
 				$joins .= " LEFT JOIN `contact` AS `owner` ON `owner`.`id` = $master_table.`owner-id`";
 			}
+		}
+		if (strpos($sql_commands, "`causer`.") !== false) {
+			$joins .= " LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`";
 		}
 
 		if (strpos($sql_commands, "`group_member`.") !== false) {
@@ -1704,7 +1712,7 @@ class Item
 		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, null, $default);
 
 		$actor = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
-		if (!$item['origin'] && in_array($item['post-type'], [self::PT_ARTICLE, self::PT_COMMENT, self::PT_GLOBAL]) && Contact::isSharing($actor, $item['uid'])) {
+		if (!$item['origin'] && in_array($item['post-type'], [self::PT_ARTICLE, self::PT_COMMENT, self::PT_RELAY, self::PT_GLOBAL]) && Contact::isSharing($actor, $item['uid'])) {
 			$item['post-type'] = self::PT_FOLLOWER;
 		}
 
@@ -1719,8 +1727,7 @@ class Item
 			return 0;
 		}
 
-		// We don't store the causer, we only have it here for the checks in the function above
-		unset($item['causer-id']);
+		// We don't store the causer link, only the id
 		unset($item['causer-link']);
 
 		// We don't store these fields anymore in the item table
@@ -2030,11 +2037,12 @@ class Item
 		}
 
 		if ($author['contact-type'] != Contact::TYPE_COMMUNITY) {
-			if (!in_array($parent['post-type'], [self::PT_ARTICLE, self::PT_COMMENT]) || Contact::isSharing($parent['owner-id'], $item['uid'])) {
+			if (!in_array($parent['post-type'], [self::PT_ARTICLE, self::PT_COMMENT, self::PT_STORED, self::PT_GLOBAL, self::PT_RELAY, self::PT_FETCHED])
+				|| Contact::isSharing($parent['owner-id'], $item['uid'])) {
 				Logger::info('The resharer is no forum: quit', ['resharer' => $item['author-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
 				return;
 			}
-			self::update(['post-type' => self::PT_ANNOUNCEMENT], ['id' => $parent['id']]);
+			self::update(['post-type' => self::PT_ANNOUNCEMENT, 'causer-id' => $item['author-id']], ['id' => $parent['id']]);
 			Logger::info('Set announcement post-type', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
 			return;
 		}

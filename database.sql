@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.12-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1368
+-- DB_UPDATE_VERSION 1369
 -- ------------------------------------------
 
 
@@ -654,6 +654,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`network` char(4) NOT NULL DEFAULT '' COMMENT 'Network from where the item comes from',
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the owner of this item',
 	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
+	`causer-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
 	`icid` int unsigned COMMENT 'Id of the item-content table entry that contains the whole item content',
 	`iaid` int unsigned COMMENT 'Id of the item-activity table entry that contains the activity data',
 	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
@@ -739,9 +740,11 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uri-id` (`uri-id`),
 	 INDEX `parent-uri-id` (`parent-uri-id`),
 	 INDEX `thr-parent-id` (`thr-parent-id`),
+	 INDEX `causer-id` (`causer-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`causer-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
