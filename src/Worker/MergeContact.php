@@ -55,6 +55,7 @@ class MergeContact
 			DBA::delete('post-tag', ['cid' => $old_cid]);
 			DBA::update('item', ['author-id' => $new_cid], ['author-id' => $old_cid]);
 			DBA::update('item', ['owner-id' => $new_cid], ['owner-id' => $old_cid]);
+			DBA::update('item', ['causer-id' => $new_cid], ['causer-id' => $old_cid]);
 			DBA::update('thread', ['author-id' => $new_cid], ['author-id' => $old_cid]);
 			DBA::update('thread', ['owner-id' => $new_cid], ['owner-id' => $old_cid]);
 		} else {

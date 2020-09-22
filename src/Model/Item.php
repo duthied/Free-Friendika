@@ -775,7 +775,7 @@ class Item
 			}
 		}
 		if (strpos($sql_commands, "`causer`.") !== false) {
-			$joins .= " LEFT JOIN `contact` AS `causer` ON `causer`.`id` = $master_table.`causer-id`";
+			$joins .= " LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`";
 		}
 
 		if (strpos($sql_commands, "`group_member`.") !== false) {
