@@ -708,30 +708,9 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
  */
 function conversation_fetch_comments($thread_items, $pinned) {
 	$comments = [];
-	$parentlines = [];
-	$lineno = 0;
-	$direction = [];
-	$actor = [];
-	$received = '';
 
 	while ($row = Item::fetch($thread_items)) {
-		if (!empty($parentlines) && ($row['verb'] == Activity::ANNOUNCE)
-			&& ($row['thr-parent'] == $row['parent-uri']) && ($row['received'] > $received)
-			&& Contact::isSharing($row['author-id'], $row['uid'])) {
-			$direction = ['direction' => 3, 'title' => DI::l10n()->t('%s reshared this.', $row['author-name'])];
-
-			$author = ['uid' => 0, 'id' => $row['author-id'],
-				'network' => $row['author-network'], 'url' => $row['author-link']];
-			$url = '<a href="'. htmlentities(Contact::magicLinkByContact($author)) .'">' . htmlentities($row['author-name']) . '</a>';
-
-			$actor = ['url' => $url, 'link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
-			$received = $row['received'];
-		}
-
-		if (!empty($parentlines) && empty($direction) && ($row['gravity'] == GRAVITY_COMMENT)
-			&& Contact::isSharing($row['author-id'], $row['uid'])) {
-			$direction = ['direction' => 5, 'title' => DI::l10n()->t('%s commented on this.', $row['author-name'])];
-		}
+		$name = $row['causer-contact-type'] == Contact::TYPE_RELAY ? $row['causer-link'] : $row['causer-name'];
 
 		switch ($row['post-type']) {
 			case Item::PT_TO:
@@ -753,7 +732,16 @@ function conversation_fetch_comments($thread_items, $pinned) {
 				$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
 				break;
 			case Item::PT_ANNOUNCEMENT:
-				$row['direction'] = ['direction' => 3, 'title' => DI::l10n()->t('Reshared')];
+				if (!empty($row['causer-id']) && DI::pConfig()->get(local_user(), 'system', 'display_resharer')  ) {
+					$row['owner-link'] = $row['causer-link'];
+					$row['owner-avatar'] = $row['causer-avatar'];
+					$row['owner-name'] = $row['causer-name'];
+				}
+
+				if (($row['gravity'] == GRAVITY_PARENT) && !empty($row['causer-id'])) {
+					$row['reshared'] = DI::l10n()->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkbyId($row['causer-id'])) .'">' . htmlentities($name) . '</a>');
+				}
+				$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Reshared') : DI::l10n()->t('Reshared by %s', $name))];
 				break;
 			case Item::PT_COMMENT:
 				$row['direction'] = ['direction' => 5, 'title' => DI::l10n()->t('%s is participating in this thread.', $row['author-name'])];
@@ -765,41 +753,22 @@ function conversation_fetch_comments($thread_items, $pinned) {
 				$row['direction'] = ['direction' => 9, 'title' => DI::l10n()->t('Global')];
 				break;
 			case Item::PT_RELAY:
-				$row['direction'] = ['direction' => 10, 'title' => DI::l10n()->t('Relay')];
+				$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Relayed') : DI::l10n()->t('Relayed by %s.', $name))];
 				break;
 			case Item::PT_FETCHED:
-				$row['direction'] = ['direction' => 2, 'title' => DI::l10n()->t('Fetched')];
+				$row['direction'] = ['direction' => 2, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Fetched') : DI::l10n()->t('Fetched because of %s', $name))];
 				break;
 			}
-
-		if (($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && ($row['author-id'] == $row['owner-id']) &&
-			!Contact::isSharing($row['author-id'], $row['uid'])) {
-			$parentlines[] = $lineno;
-		}
 
 		if ($row['gravity'] == GRAVITY_PARENT) {
 			$row['pinned'] = $pinned;
 		}
 
 		$comments[] = $row;
-		$lineno++;
 	}
 
 	DBA::close($thread_items);
 
-	if (!empty($direction)) {
-		foreach ($parentlines as $line) {
-			$comments[$line]['direction'] = $direction;
-			if (!empty($actor)) {
-				$comments[$line]['reshared'] = DI::l10n()->t('%s reshared this.', $actor['url']);
-				if (DI::pConfig()->get(local_user(), 'system', 'display_resharer')  ) {
-					$comments[$line]['owner-link'] = $actor['link'];
-					$comments[$line]['owner-avatar'] = $actor['avatar'];
-					$comments[$line]['owner-name'] = $actor['name'];
-				}
-			}
-		}
-	}
 	return $comments;
 }
 
