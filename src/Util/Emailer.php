@@ -197,15 +197,34 @@ class Emailer
 			return true;
 		}
 
-		$res = mail(
+		$res = $this->mail(
 			$hookdata['to'],
 			$hookdata['subject'],
 			$hookdata['body'],
 			$hookdata['headers'],
 			$hookdata['parameters']
 		);
+
 		$this->logger->debug('header ' . 'To: ' . $email->getToAddress() . '\n' . $messageHeader);
 		$this->logger->debug('return value ' . (($res) ? 'true' : 'false'));
+
 		return $res;
+	}
+
+	/**
+	 * Wrapper around the mail() method (mainly used to overwrite for tests)
+	 * @see mail()
+	 *
+	 * @param string $to         Recipient of this mail
+	 * @param string $subject    Subject of this mail
+	 * @param string $body       Message body of this mail
+	 * @param string $headers    Headers of this mail
+	 * @param string $parameters Additional (sendmail) parameters of this mail
+	 *
+	 * @return boolean true if the mail was successfully accepted for delivery, false otherwise.
+	 */
+	protected function mail(string $to, string $subject, string $body, string $headers, string $parameters)
+	{
+		return mail($to, $subject, $body, $headers, $parameters);
 	}
 }
