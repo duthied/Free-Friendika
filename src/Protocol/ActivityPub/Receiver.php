@@ -181,7 +181,11 @@ class Receiver
 			return;
 		}
 
-		Processor::fetchMissingActivity($object_id, [], $actor);
+		$id = Processor::fetchMissingActivity($object_id, [], $actor);
+		if (empty($id)) {
+			Logger::notice('Relayed message had not been fetched', ['id' => $object_id]);
+			return;
+		}
 
 		$item_id = Item::searchByLink($object_id);
 		if ($item_id) {
@@ -964,7 +968,7 @@ class Receiver
 	 *
 	 * @return array with tags in a simplified format
 	 */
-	private static function processTags(array $tags)
+	public static function processTags(array $tags)
 	{
 		$taglist = [];
 
