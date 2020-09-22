@@ -134,6 +134,18 @@ class Emailer
 			return true;
 		}
 
+		// @see https://github.com/friendica/friendica/issues/9142
+		$countMessageId = 0;
+		foreach ($email->getAdditionalMailHeader() as $name => $value) {
+			if (strtolower($name) == 'message-id') {
+				$countMessageId += count($value);
+			}
+		}
+		if ($countMessageId > 0) {
+			$this->logger->warning('More than one Message-ID found - RFC violation', ['email' => $email]);
+			return false;
+		}
+
 		$email_textonly = false;
 		if (!empty($email->getRecipientUid())) {
 			$email_textonly = $this->pConfig->get($email->getRecipientUid(), 'system', 'email_textonly');
