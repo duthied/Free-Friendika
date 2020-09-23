@@ -19,7 +19,7 @@ use Psr\Log\NullLogger;
  * Annotation necessary because of Hook calls
  *
  * @runTestsInSeparateProcesses
- * @preserveGlobalState false
+ * @preserveGlobalState disabled
  */
 class EMailerTest extends MockedTest
 {
