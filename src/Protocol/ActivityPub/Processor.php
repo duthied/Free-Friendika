@@ -856,7 +856,7 @@ class Processor
 			}
 			// We check with "strpos" for performance issues. Only when this is true, the regular expression check is used
 			// RegExp is taken from here: https://medium.com/@shiba1014/regex-word-boundaries-with-unicode-207794f6e7ed
-			if ((strpos($content, $tag) !== false) && preg_match('/(?<=[\s,.:;"\']|^)' . preg_quote($tag) . '(?=[\s,.:;"\']|$)/', $content)) {
+			if ((strpos($content, $tag) !== false) && preg_match('/(?<=[\s,.:;"\']|^)' . preg_quote($tag, '/') . '(?=[\s,.:;"\']|$)/', $content)) {
 				Logger::info('Subscribed hashtag found in content - accepted', ['id' => $id, 'hashtag' => $tag]);
 				return true;
 			}
