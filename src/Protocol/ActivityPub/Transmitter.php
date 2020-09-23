@@ -67,7 +67,7 @@ class Transmitter
 	 * @param array $inboxes
 	 * @return array inboxes with added relay servers
 	 */
-	public static function addRelayServerInboxes(array $inboxes)
+	public static function addRelayServerInboxes(array $inboxes = [])
 	{
 		$contacts = DBA::select('apcontact', ['inbox'],
 			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))",
