@@ -789,7 +789,7 @@ class Notifier
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
 
 			if (in_array($target_item['private'], [Item::PUBLIC])) {
-				$relay_inboxes = ActivityPub\Transmitter::addRelayServerInboxes([]);
+				$relay_inboxes = ActivityPub\Transmitter::addRelayServerInboxes();
 			}
 
 			Logger::log('Origin item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
