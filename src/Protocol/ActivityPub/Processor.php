@@ -43,6 +43,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\JsonLD;
 use Friendica\Util\Strings;
+use Text_LanguageDetect;
 
 /**
  * ActivityPub Processor Protocol class
@@ -845,7 +846,7 @@ class Processor
 			}
 		}
 
-		$content = mb_strtolower(JsonLD::fetchElement($activity['as:object'], 'as:content', '@value'));
+		$content = mb_strtolower(BBCode::toPlaintext(HTML::toBBCode(JsonLD::fetchElement($activity['as:object'], 'as:content', '@value')), false));
 
 		$tagList = array_unique(array_merge($systemTags, $userTags));
 		foreach ($messageTags as $tag) {
