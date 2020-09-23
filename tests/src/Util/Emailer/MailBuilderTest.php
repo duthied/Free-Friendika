@@ -29,6 +29,7 @@ use Friendica\Test\MockedTest;
 use Friendica\Test\Util\SampleMailBuilder;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\EMailer\MailBuilder;
+use Mockery\MockInterface;
 use Psr\Log\NullLogger;
 
 /**
@@ -39,11 +40,11 @@ class MailBuilderTest extends MockedTest
 {
 	use VFSTrait;
 
-	/** @var IConfig */
+	/** @var IConfig|MockInterface */
 	private $config;
-	/** @var L10n */
+	/** @var L10n|MockInterface */
 	private $l10n;
-	/** @var BaseURL */
+	/** @var BaseURL|MockInterface */
 	private $baseUrl;
 
 	/** @var string */
