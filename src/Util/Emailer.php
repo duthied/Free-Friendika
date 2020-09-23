@@ -143,7 +143,6 @@ class Emailer
 		}
 		if ($countMessageId > 0) {
 			$this->logger->warning('More than one Message-ID found - RFC violation', ['email' => $email]);
-			return false;
 		}
 
 		$email_textonly = false;

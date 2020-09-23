@@ -74,7 +74,7 @@ class EMailerTest extends MockedTest
 		$testEmail = $builder
 			->withRecipient('recipient@friendica.local')
 			->withMessage('Test Subject', "Test Message<b>Bold</b>", 'Test Text')
-			->withSender('Sender', 'sender@friendica.loca')
+			->withSender('Sender', 'sender@friendica.local')
 			->forUser(['uid' => 1])
 			->addHeader('Message-ID', 'first Id')
 			->build(true);
@@ -87,7 +87,7 @@ class EMailerTest extends MockedTest
 		$this->assertContains("X-Friendica-Platform : Friendica", EmailerSpy::$MAIL_DATA['headers']);
 		$this->assertContains("List-ID : <notification.friendica.local>", EmailerSpy::$MAIL_DATA['headers']);
 		$this->assertContains("List-Archive : <http://friendica.local/notifications/system>", EmailerSpy::$MAIL_DATA['headers']);
-		$this->assertContains("Reply-To: Sender <sender@friendica.loca>", EmailerSpy::$MAIL_DATA['headers']);
+		$this->assertContains("Reply-To: Sender <sender@friendica.local>", EmailerSpy::$MAIL_DATA['headers']);
 		$this->assertContains("MIME-Version: 1.0", EmailerSpy::$MAIL_DATA['headers']);
 		// Base64 "Test Text"
 		$this->assertContains(chunk_split(base64_encode('Test Text')), EmailerSpy::$MAIL_DATA['body']);
@@ -98,12 +98,17 @@ class EMailerTest extends MockedTest
 		$this->assertEquals("-f sender@friendica.local", EmailerSpy::$MAIL_DATA['parameters']);
 	}
 
-	public function testWrongReturnTwoMessageIds()
+	public function testTwoMessageIds()
 	{
-		/** @var IEmail $returnMail */
-		$returnMail = null;
+		$this->pConfig->shouldReceive('get')->withArgs(['1', 'system', 'email_textonly'])->andReturn(false)->once();
 
-		$this->mockHookCallAll('emailer_send_prepare', $returnMail);
+		/** @var IEmail $preparedEmail */
+		$preparedEmail = null;
+		/** @var IEmail $sentEMail */
+		$sentEMail = null;
+
+		$this->mockHookCallAll('emailer_send_prepare', $preparedEmail);
+		$this->mockHookCallAll('emailer_send', $sentEMail);
 
 		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
@@ -118,7 +123,8 @@ class EMailerTest extends MockedTest
 
 		$emailer = new EmailerSpy($this->config, $this->pConfig, $this->baseUrl, new NullLogger(), $this->l10n);
 
-		$this->assertFalse($emailer->send($testEmail));
+		// even in case there are two message ids, send the mail anyway
+		$this->assertTrue($emailer->send($testEmail));
 
 		// check case sensitive key problem
 		$this->assertArrayHasKey('Message-ID', $testEmail->getAdditionalMailHeader());
