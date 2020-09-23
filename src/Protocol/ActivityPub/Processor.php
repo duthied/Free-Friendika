@@ -35,6 +35,7 @@ use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
+use Friendica\Model\Search;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
@@ -42,6 +43,7 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\JsonLD;
 use Friendica\Util\Strings;
+use Text_LanguageDetect;
 
 /**
  * ActivityPub Processor Protocol class
@@ -767,11 +769,101 @@ class Processor
 		$ldactivity['thread-completion'] = true;
 		$ldactivity['from-relay'] = Contact::getIdForURL($relay_actor);
 
+		if (!empty($relay_actor) && !self::acceptIncomingMessage($ldactivity, $object['id'])) {
+			return '';
+		}
+
 		ActivityPub\Receiver::processActivity($ldactivity, json_encode($activity), $uid, true, false, $signer);
 
 		Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'object' => $activity['id']]);
 
 		return $activity['id'];
+	}
+
+	/**
+	 * Test if incoming relay messages should be accepted
+	 *
+	 * @param array $activity activity array
+	 * @param string $id      object ID
+	 * @return boolean true if message is accepted
+	 */
+	private static function acceptIncomingMessage(array $activity, string $id)
+	{
+		if (empty($activity['as:object'])) {
+			Logger::info('No object field in activity - accepted', ['id' => $id]);
+			return true;
+		}
+
+		$config = DI::config();
+
+		$subscribe = $config->get('system', 'relay_subscribe', false);
+		if ($subscribe) {
+			$scope = $config->get('system', 'relay_scope', SR_SCOPE_ALL);
+		} else {
+			$scope = SR_SCOPE_NONE;
+		}
+
+		if ($scope == SR_SCOPE_ALL) {
+			Logger::info('Server accept all posts - accepted', ['id' => $id]);
+			return true;
+		}
+
+		$replyto = JsonLD::fetchElement($activity['as:object'], 'as:inReplyTo', '@id');
+		if (Item::exists(['uri' => $replyto])) {
+			Logger::info('Post is a reply to an existing post - accepted', ['id' => $id, 'replyto' => $replyto]);
+			return true;
+		}
+
+		if ($scope == SR_SCOPE_NONE) {
+			Logger::info('Server does not accept relay posts - rejected', ['id' => $id]);
+			return false;
+		}
+
+		$messageTags = [];
+		$tags = Receiver::processTags(JsonLD::fetchElementArray($activity['as:object'], 'as:tag') ?? []);
+		if (!empty($tags)) {
+			foreach ($tags as $tag) {
+				if ($tag['type'] != 'Hashtag') {
+					continue;
+				}
+				$messageTags[] = ltrim(mb_strtolower($tag['name']), '#');
+			}
+		}
+
+		$systemTags = [];
+		$userTags = [];
+
+		if ($scope == SR_SCOPE_TAGS) {
+			$server_tags = $config->get('system', 'relay_server_tags', []);
+			$tagitems = explode(',', mb_strtolower($server_tags));
+
+			foreach ($tagitems AS $tag) {
+				$systemTags[] = trim($tag, '# ');
+			}
+
+			if ($config->get('system', 'relay_user_tags')) {
+				$userTags = Search::getUserTags();
+			}
+		}
+
+		$content = mb_strtolower(BBCode::toPlaintext(HTML::toBBCode(JsonLD::fetchElement($activity['as:object'], 'as:content', '@value')), false));
+
+		$tagList = array_unique(array_merge($systemTags, $userTags));
+		foreach ($messageTags as $tag) {
+			if (in_array($tag, $tagList)) {
+				Logger::info('Subscribed hashtag found - accepted', ['id' => $id, 'hashtag' => $tag]);
+				return true;
+			}
+			// We check with "strpos" for performance issues. Only when this is true, the regular expression check is used
+			// RegExp is taken from here: https://medium.com/@shiba1014/regex-word-boundaries-with-unicode-207794f6e7ed
+			if ((strpos($content, $tag) !== false) && preg_match('/(?<=[\s,.:;"\']|^)' . preg_quote($tag, '/') . '(?=[\s,.:;"\']|$)/', $content)) {
+				Logger::info('Subscribed hashtag found in content - accepted', ['id' => $id, 'hashtag' => $tag]);
+				return true;
+			}
+		}
+
+		Logger::info('No matching hashtags found - rejected', ['id' => $id]);
+		return false;
 	}
 
 	/**

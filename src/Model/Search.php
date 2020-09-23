@@ -42,7 +42,7 @@ class Search
 		$tags = [];
 
 		while ($term = DBA::fetch($termsStmt)) {
-			$tags[] = trim($term['term'], '#');
+			$tags[] = trim(mb_strtolower($term['term']), '#');
 		}
 		DBA::close($termsStmt);
 		return $tags;
