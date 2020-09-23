@@ -201,9 +201,18 @@ class ParseUrl
 			}
 		}
 
-		// Fetch the first mentioned charset. Can be in body or header
 		$charset = '';
-		if (preg_match('/charset=(.*?)[\'"\s\n]/', $header, $matches)) {
+		// Look for a charset, first in headers
+		// Expected form: Content-Type: text/html; charset=ISO-8859-4
+		if (preg_match('/charset=(.+?)\s/', $header, $matches)) {
+			$charset = trim(trim(trim(array_pop($matches)), ';,'));
+		}
+
+		// Then in body that gets precedence
+		// Expected forms:
+		// - <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		// - <meta charset="utf-8">
+		if (preg_match('/charset=["\']?([^\'"]*?)[\'"]/', $body, $matches)) {
 			$charset = trim(trim(trim(array_pop($matches)), ';,'));
 		}
 
