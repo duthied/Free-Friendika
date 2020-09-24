@@ -2,7 +2,7 @@ Version 2020.09.1 (2020-09-24)
   Friendica Core:
     Updates to the translations: RU [translation teams]
     Enhanced forum delivery using attached mention tags [redmatrix]
-    Enhanced code testability [nupplaphil]
+    Enhanced code test-ability [nupplaphil]
     Enhanced the Activity Pub relay functionality [annando]
     Added phpseclib dependency to replace standalone ASN1 library [nupplaphil]
     Fixed a bug generating Message-IDs for notification mails [nupplaphil]
