@@ -734,20 +734,20 @@ class Receiver
 		$basecondition = ['rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
 			'network' => Protocol::FEDERATED, 'archive' => false, 'pending' => false];
 
-		$condition = DBA::mergeConditions($basecondition, ['nurl' => Strings::normaliseLink($actor)]);
+		$condition = DBA::mergeConditions($basecondition, ["`nurl` = ? AND `uid` != ?", Strings::normaliseLink($actor), 0]);
 		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
-			if (empty($receivers['uid:' . $contact['uid']]) && self::isValidReceiverForActor($contact, $actor, $tags)) {
+			if (empty($receivers['uid:' . $contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
 				$receivers['uid:' . $contact['uid']] = ['uid' => $contact['uid'], 'type' => self::TARGET_FOLLOWER];
 			}
 		}
 		DBA::close($contacts);
 
 		// The queries are split because of performance issues
-		$condition = DBA::mergeConditions($basecondition, ["`alias` IN (?, ?)", Strings::normaliseLink($actor), $actor]);
+		$condition = DBA::mergeConditions($basecondition, ["`alias` IN (?, ?) AND `uid` != ?", Strings::normaliseLink($actor), $actor, 0]);
 		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
-			if (empty($receivers['uid:' . $contact['uid']]) && self::isValidReceiverForActor($contact, $actor, $tags)) {
+			if (empty($receivers['uid:' . $contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
 				$receivers['uid:' . $contact['uid']] = ['uid' => $contact['uid'], 'type' => self::TARGET_FOLLOWER];
 			}
 		}
@@ -765,13 +765,8 @@ class Receiver
 	 * @return bool with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function isValidReceiverForActor($contact, $actor, $tags)
+	private static function isValidReceiverForActor($contact, $tags)
 	{
-		// Public contacts are no valid receiver
-		if ($contact['uid'] == 0) {
-			return false;
-		}
-
 		// Are we following the contact? Then this is a valid receiver
 		if (in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND])) {
 			return true;
@@ -789,7 +784,7 @@ class Receiver
 				continue;
 			}
 
-			if ($tag['href'] == $owner['url']) {
+			if (Strings::compareLink($tag['href'], $owner['url'])) {
 				return true;
 			}
 		}

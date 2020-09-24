@@ -1712,7 +1712,8 @@ class Item
 		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, null, $default);
 
 		$actor = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
-		if (!$item['origin'] && in_array($item['post-type'], [self::PT_ARTICLE, self::PT_COMMENT, self::PT_RELAY, self::PT_GLOBAL]) && Contact::isSharing($actor, $item['uid'])) {
+		if (in_array($item['post-type'], [self::PT_ARTICLE, self::PT_COMMENT, self::PT_RELAY, self::PT_GLOBAL])
+			&& !$item['origin'] && ($item['uid'] != 0) && Contact::isSharing($actor, $item['uid'])) {
 			$item['post-type'] = self::PT_FOLLOWER;
 		}
 
