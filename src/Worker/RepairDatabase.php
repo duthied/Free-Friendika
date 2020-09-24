@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\ItemURI;
 use Friendica\Util\Strings;
 
 /**
@@ -65,5 +66,27 @@ class RepairDatabase
 				'hash' => Strings::getRandomHex(), 'datetime' => $contact['created']]);
 		}
 		DBA::close($pending_contacts);
+
+		// Ensure that there are no "uri-id", "parent-uri-id" or "thr-parent-id" fields that are NULL
+		$items = DBA::select('item', ['id', 'uri', 'guid'], ["`uri-id` IS NULL"]);
+		while ($item = DBA::fetch($items)) {
+			$uriid = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
+			DBA::update('item', ['uri-id' => $uriid], ['id' => $item['id']]);
+		}
+		DBA::close($items);
+
+		$items = DBA::select('item', ['id', 'parent-uri'], ["`parent-uri-id` IS NULL"]);
+		while ($item = DBA::fetch($items)) {
+			$uriid = ItemURI::getIdByURI($item['parent-uri']);
+			DBA::update('item', ['parent-uri-id' => $uriid], ['id' => $item['id']]);
+		}
+		DBA::close($items);
+
+		$items = DBA::select('item', ['id', 'thr-parent'], ["`thr-parent-id` IS NULL"]);
+		while ($item = DBA::fetch($items)) {
+			$uriid = ItemURI::getIdByURI($item['thr-parent']);
+			DBA::update('item', ['thr-parent-id' => $uriid], ['id' => $item['id']]);
+		}
+		DBA::close($items);
 	}
 }
