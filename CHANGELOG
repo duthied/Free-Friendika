@@ -1,8 +1,18 @@
-Version 2020.12 (unreleased)
+Version 2020.09.1 (2020-09-24)
   Friendica Core:
+    Updates to the translations: RU [translation teams]
     Enhanced forum delivery using attached mention tags [redmatrix]
     Enhanced code testability [nupplaphil]
+    Enhanced the Activity Pub relay functionality [annando]
     Added phpseclib dependency to replace standalone ASN1 library [nupplaphil]
+    Fixed a bug generating Message-IDs for notification mails [nupplaphil]
+
+  Friendica Addons:
+    phpmailer:
+      Fixed a bug that prevented notification mails being send [nupplaphil]
+
+  Closed Issues:
+     9142
 
 Version 2020.09 (2020-09-20)
   Friendica Core:
