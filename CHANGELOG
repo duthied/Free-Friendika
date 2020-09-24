@@ -11,6 +11,8 @@ Version 2020.09-1 (2020-09-24)
     Fixed a display problem with the new re-shares [annando]
 
   Friendica Addons:
+    nominatim:
+      Added addon to resolve coordinates with OpenStreetmap [annando]
     phpmailer:
       Fixed a bug that prevented notification mails being send [nupplaphil]
 
