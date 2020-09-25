@@ -282,14 +282,14 @@ class Receiver
 		$receivers = $reception_types = [];
 		foreach ($receiverdata as $key => $data) {
 			$receivers[$key] = $data['uid'];
-			$reception_types[$data['uid']] = $data['type'] ?? 0;
+			$reception_types[$data['uid']] = $data['type'] ?? self::TARGET_UNKNOWN;
 		}
 
 		// When it is a delivery to a personal inbox we add that user to the receivers
 		if (!empty($uid)) {
-			$additional = ['uid:' . $uid => $uid];
-			$receivers = array_merge($receivers, $additional);
-			if (empty($reception_types[$uid]) || in_array($reception_types[$uid], [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER, self::TARGET_GLOBAL])) {
+			$additional = [$uid => $uid];
+			$receivers = array_replace($receivers, $additional);
+			if (empty($activity['thread-completion']) && (empty($reception_types[$uid]) || in_array($reception_types[$uid], [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER, self::TARGET_GLOBAL]))) {
 				$reception_types[$uid] = self::TARGET_BCC;
 			}
 		} else {
@@ -372,8 +372,8 @@ class Receiver
 		$object_data['type'] = $type;
 		$object_data['actor'] = $actor;
 		$object_data['item_receiver'] = $receivers;
-		$object_data['receiver'] = array_merge($object_data['receiver'] ?? [], $receivers);
-		$object_data['reception_type'] = array_merge($object_data['reception_type'] ?? [], $reception_types);
+		$object_data['receiver'] = array_replace($object_data['receiver'] ?? [], $receivers);
+		$object_data['reception_type'] = array_replace($object_data['reception_type'] ?? [], $reception_types);
 
 		$author = $object_data['author'] ?? $actor;
 		if (!empty($author) && !empty($object_data['id'])) {
@@ -633,7 +633,7 @@ class Receiver
 		if (!empty($reply)) {
 			$parents = Item::select(['uid'], ['uri' => $reply]);
 			while ($parent = Item::fetch($parents)) {
-				$receivers['uid:' . $parent['uid']] = ['uid' => $parent['uid'], 'type' => self::TARGET_ANSWER];
+				$receivers[$parent['uid']] = ['uid' => $parent['uid'], 'type' => self::TARGET_ANSWER];
 			}
 		}
 
@@ -647,6 +647,9 @@ class Receiver
 			$followers = '';
 		}
 
+		// We have to prevent false follower assumptions upon thread completions
+		$follower_target = empty($activity['thread-completion']) ? self::TARGET_FOLLOWER : self::TARGET_UNKNOWN;
+
 		foreach (['as:to', 'as:cc', 'as:bto', 'as:bcc'] as $element) {
 			$receiver_list = JsonLD::fetchElementArray($activity, $element, '@id');
 			if (empty($receiver_list)) {
@@ -655,17 +658,17 @@ class Receiver
 
 			foreach ($receiver_list as $receiver) {
 				if ($receiver == self::PUBLIC_COLLECTION) {
-					$receivers['uid:0'] = ['uid' => 0, 'type' => self::TARGET_GLOBAL];
+					$receivers[0] = ['uid' => 0, 'type' => self::TARGET_GLOBAL];
 				}
 
 				// Add receiver "-1" for unlisted posts 
 				if ($fetch_unlisted && ($receiver == self::PUBLIC_COLLECTION) && ($element == 'as:cc')) {
-					$receivers['uid:-1'] = ['uid' => -1, 'type' => self::TARGET_GLOBAL];
+					$receivers[-1] = ['uid' => -1, 'type' => self::TARGET_GLOBAL];
 				}
 
 				// Fetch the receivers for the public and the followers collection
 				if (in_array($receiver, [$followers, self::PUBLIC_COLLECTION]) && !empty($actor)) {
-					$receivers = self::getReceiverForActor($actor, $tags, $receivers);
+					$receivers = self::getReceiverForActor($actor, $tags, $receivers, $follower_target);
 					continue;
 				}
 
@@ -693,7 +696,7 @@ class Receiver
 					}
 				}
 
-				$type = $receivers['uid:' . $contact['uid']]['type'] ?? self::TARGET_UNKNOWN;
+				$type = $receivers[$contact['uid']]['type'] ?? self::TARGET_UNKNOWN;
 				if (in_array($type, [self::TARGET_UNKNOWN, self::TARGET_FOLLOWER, self::TARGET_ANSWER, self::TARGET_GLOBAL])) {
 					switch ($element) {
 						case 'as:to':
@@ -710,7 +713,7 @@ class Receiver
 							break;
 					}
 
-					$receivers['uid:' . $contact['uid']] = ['uid' => $contact['uid'], 'type' => $type];
+					$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $type];
 				}
 			}
 		}
@@ -723,13 +726,15 @@ class Receiver
 	/**
 	 * Fetch the receiver list of a given actor
 	 *
-	 * @param string $actor
-	 * @param array  $tags
+	 * @param string  $actor
+	 * @param array   $tags
+	 * @param array   $receivers
+	 * @param integer $target_type
 	 *
 	 * @return array with receivers (user id)
 	 * @throws \Exception
 	 */
-	private static function getReceiverForActor($actor, $tags, $receivers)
+	private static function getReceiverForActor($actor, $tags, $receivers, $target_type)
 	{
 		$basecondition = ['rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
 			'network' => Protocol::FEDERATED, 'archive' => false, 'pending' => false];
@@ -737,8 +742,8 @@ class Receiver
 		$condition = DBA::mergeConditions($basecondition, ["`nurl` = ? AND `uid` != ?", Strings::normaliseLink($actor), 0]);
 		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
-			if (empty($receivers['uid:' . $contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
-				$receivers['uid:' . $contact['uid']] = ['uid' => $contact['uid'], 'type' => self::TARGET_FOLLOWER];
+			if (empty($receivers[$contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
+				$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $target_type];
 			}
 		}
 		DBA::close($contacts);
@@ -747,8 +752,8 @@ class Receiver
 		$condition = DBA::mergeConditions($basecondition, ["`alias` IN (?, ?) AND `uid` != ?", Strings::normaliseLink($actor), $actor, 0]);
 		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
-			if (empty($receivers['uid:' . $contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
-				$receivers['uid:' . $contact['uid']] = ['uid' => $contact['uid'], 'type' => self::TARGET_FOLLOWER];
+			if (empty($receivers[$contact['uid']]) && self::isValidReceiverForActor($contact, $tags)) {
+				$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $target_type];
 			}
 		}
 		DBA::close($contacts);
@@ -1346,7 +1351,8 @@ class Receiver
 		$object_data['reception_type'] = $reception_types;
 
 		$object_data['unlisted'] = in_array(-1, $object_data['receiver']);
-		unset($object_data['receiver']['uid:-1']);
+		unset($object_data['receiver'][-1]);
+		unset($object_data['reception_type'][-1]);
 
 		// Common object data:
 

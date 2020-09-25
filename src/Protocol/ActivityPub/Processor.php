@@ -488,6 +488,7 @@ class Processor
 		}
 
 		$stored = false;
+		ksort($activity['receiver']);
 
 		foreach ($activity['receiver'] as $receiver) {
 			if ($receiver == -1) {
@@ -523,12 +524,10 @@ class Processor
 					$item['post-type'] = Item::PT_ARTICLE;
 			}
 
-			if (in_array($item['post-type'], [Item::PT_COMMENT, Item::PT_GLOBAL, Item::PT_ARTICLE])) {
-				if (!empty($activity['from-relay'])) {
-					$item['post-type'] = Item::PT_RELAY;
-				} elseif (!empty($activity['thread-completion'])) {
-					$item['post-type'] = Item::PT_FETCHED;
-				}
+			if (!empty($activity['from-relay'])) {
+				$item['post-type'] = Item::PT_RELAY;
+			} elseif (!empty($activity['thread-completion'])) {
+				$item['post-type'] = Item::PT_FETCHED;
 			}
 
 			if (!empty($activity['from-relay'])) {

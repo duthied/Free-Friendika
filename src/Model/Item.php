@@ -1712,8 +1712,7 @@ class Item
 		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, null, $default);
 
 		$actor = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
-		if (in_array($item['post-type'], [self::PT_ARTICLE, self::PT_COMMENT, self::PT_RELAY, self::PT_GLOBAL])
-			&& !$item['origin'] && ($item['uid'] != 0) && Contact::isSharing($actor, $item['uid'])) {
+		if (!$item['origin'] && ($item['uid'] != 0) && Contact::isSharing($actor, $item['uid'])) {
 			$item['post-type'] = self::PT_FOLLOWER;
 		}
 
@@ -2038,8 +2037,7 @@ class Item
 		}
 
 		if ($author['contact-type'] != Contact::TYPE_COMMUNITY) {
-			if (!in_array($parent['post-type'], [self::PT_ARTICLE, self::PT_COMMENT, self::PT_STORED, self::PT_GLOBAL, self::PT_RELAY, self::PT_FETCHED])
-				|| Contact::isSharing($parent['owner-id'], $item['uid'])) {
+			if (Contact::isSharing($parent['owner-id'], $item['uid'])) {
 				Logger::info('The resharer is no forum: quit', ['resharer' => $item['author-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
 				return;
 			}
@@ -2382,6 +2380,7 @@ class Item
 			unset($item['starred']);
 			unset($item['postopts']);
 			unset($item['inform']);
+			unset($item['post-type']);
 			if ($item['uri'] == $item['parent-uri']) {
 				$item['contact-id'] = $item['owner-id'];
 			} else {
@@ -2444,6 +2443,7 @@ class Item
 		unset($item['starred']);
 		unset($item['postopts']);
 		unset($item['inform']);
+		unset($item['post-type']);
 		$item['contact-id'] = Contact::getIdForURL($item['author-link']);
 
 		$public_shadow = self::insert($item, false, true);
