@@ -212,9 +212,13 @@ class ParseUrl
 		// Expected forms:
 		// - <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		// - <meta charset="utf-8">
-		if (preg_match('/charset=["\']?([^\'"]*?)[\'"]/', $body, $matches)) {
-			$charset = trim(trim(trim(array_pop($matches)), ';,'));
-		}
+		// We escape <style> and <script> tags since they can contain irrelevant charset information
+		// (see https://github.com/friendica/friendica/issues/9251#issuecomment-698636806)
+		Strings::performWithEscapedBlocks($body, '#<(?:style|script).*?</(?:style|script)>#ism', function ($body) use (&$charset) {
+			if (preg_match('/charset=["\']?([^\',"]*?)[\'"]/', $body, $matches)) {
+				$charset = trim(trim(trim(array_pop($matches)), ';,'));
+			}
+		});
 
 		if ($charset && strtoupper($charset) != 'UTF-8') {
 			// See https://github.com/friendica/friendica/issues/5470#issuecomment-418351211
