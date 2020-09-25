@@ -251,11 +251,18 @@ class Processor
 		$item['isForum'] = false;
 
 		if (!empty($activity['thread-completion'])) {
-			// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
-			$item['causer-link'] = $item['owner-link'];
-			$item['causer-id'] = $item['owner-id'];
+			if ($activity['thread-completion'] != $item['owner-id']) {
+				$actor = Contact::getById($activity['thread-completion'], ['url']);
+				$item['causer-link'] = $actor['url'];
+				$item['causer-id'] = $activity['thread-completion'];
+				Logger::info('Use inherited actor as causer.', ['id' => $item['owner-id'], 'activity' => $activity['thread-completion'], 'owner' => $item['owner-link'], 'actor' => $actor['url']]);
+			} else {
+				// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
+				$item['causer-link'] = $item['owner-link'];
+				$item['causer-id'] = $item['owner-id'];
+				Logger::info('Use actor as causer.', ['id' => $item['owner-id'], 'actor' => $item['owner-link']]);
+			}
 
-			Logger::info('Ignoring actor because of thread completion.', ['actor' => $item['owner-link']]);
 			$item['owner-link'] = $item['author-link'];
 			$item['owner-id'] = $item['author-id'];
 		} else {
@@ -530,10 +537,6 @@ class Processor
 				$item['post-type'] = Item::PT_FETCHED;
 			}
 
-			if (!empty($activity['from-relay'])) {
-				$item['causer-id'] = $activity['from-relay'];
-			}
-
 			if ($item['isForum'] ?? false) {
 				$item['contact-id'] = Contact::getIdForURL($activity['actor'], $receiver);
 			} else {
@@ -765,8 +768,13 @@ class Processor
 
 		$ldactivity = JsonLD::compact($activity);
 
-		$ldactivity['thread-completion'] = true;
-		$ldactivity['from-relay'] = Contact::getIdForURL($relay_actor);
+		if (!empty($relay_actor)) {
+			$ldactivity['thread-completion'] = $ldactivity['from-relay'] = Contact::getIdForURL($relay_actor);
+		} elseif (!empty($child['thread-completion'])) {
+			$ldactivity['thread-completion'] = $child['thread-completion'];
+		} else {
+			$ldactivity['thread-completion'] = Contact::getIdForURL($actor);
+		}
 
 		if (!empty($relay_actor) && !self::acceptIncomingMessage($ldactivity, $object['id'])) {
 			return '';

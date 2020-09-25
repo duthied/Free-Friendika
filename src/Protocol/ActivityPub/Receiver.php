@@ -494,7 +494,7 @@ class Receiver
 
 			case 'as:Announce':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					$object_data['thread-completion'] = true;
+					$object_data['thread-completion'] = Contact::getIdForURL($actor);
 
 					$item = ActivityPub\Processor::createItem($object_data);
 					if (empty($item)) {
