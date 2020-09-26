@@ -117,11 +117,11 @@ class Community extends BaseModule
 			'$title'        => DI::l10n()->t('Accounts'),
 			'$content'      => self::$content,
 			'$accounttype'  => $parameters['accounttype'],
-			'$all'          => DI::l10n()->t('All Accounts'),
-			'$person'       => DI::l10n()->t('Personal Accounts'),
-			'$organisation' => DI::l10n()->t('Organisation Accounts'),
-			'$news'         => DI::l10n()->t('News Accounts'),
-			'$community'    => DI::l10n()->t('Communities'),
+			'$all'          => DI::l10n()->t('All'),
+			'$person'       => DI::l10n()->t('Persons'),
+			'$organisation' => DI::l10n()->t('Organisations'),
+			'$news'         => DI::l10n()->t('News'),
+			'$community'    => DI::l10n()->t('Forums'),
 		]);
 
 		if (Feature::isEnabled(local_user(), 'trending_tags')) {
