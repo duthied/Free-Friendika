@@ -113,6 +113,17 @@ class Community extends BaseModule
 
 		$o .= $pager->renderMinimal(count($items));
 
+		DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_accounts.tpl'), [
+			'$title'        => DI::l10n()->t('Accounts'),
+			'$content'      => self::$content,
+			'$accounttype'  => $parameters['accounttype'],
+			'$all'          => DI::l10n()->t('All Accounts'),
+			'$person'       => DI::l10n()->t('Personal Accounts'),
+			'$organisation' => DI::l10n()->t('Organisation Accounts'),
+			'$news'         => DI::l10n()->t('News Accounts'),
+			'$community'    => DI::l10n()->t('Communities'),
+		]);
+
 		if (Feature::isEnabled(local_user(), 'trending_tags')) {
 			DI::page()['aside'] .= TrendingTags::getHTML(self::$content);
 		}
