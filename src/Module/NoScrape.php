@@ -60,7 +60,7 @@ class NoScrape extends BaseModule
 			'addr'         => $a->profile['addr'],
 			'nick'         => $which,
 			'guid'         => $a->profile['guid'],
-			'key'          => $a->profile['pubkey'],
+			'key'          => $a->profile['upubkey'],
 			'homepage'     => DI::baseUrl() . "/profile/{$which}",
 			'comm'         => ($a->profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY),
 			'account-type' => $a->profile['account-type'],
