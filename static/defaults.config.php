@@ -122,6 +122,10 @@ return [
 		// Deny public access to the local user directory.
 		'block_local_dir' => false,
 
+		// community_no_followers (Boolean)
+		// Don't display followers on the global community
+		'community_no_followers' => false,
+
 		// cron_interval (Integer)
 		// Minimal period in minutes between two calls of the "Cron" worker job.
 		'cron_interval' => 5,
