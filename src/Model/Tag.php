@@ -488,54 +488,86 @@ class Tag
 	 * Returns a list of the most frequent global hashtags over the given period
 	 *
 	 * @param int $period Period in hours to consider posts
+	 * @param int $limit  Number of returned tags
 	 * @return array
 	 * @throws \Exception
 	 */
 	public static function getGlobalTrendingHashtags(int $period, $limit = 10)
 	{
-		$tags = DI::cache()->get('global_trending_tags');
+		$tags = DI::cache()->get('global_trending_tags-' . $period . '-' . $limit);
+		if (!empty($tags)) {
+			return $tags;
+		} else {
+			return self::setGlobalTrendingHashtags($period, $limit);
+		}
+	}
 
-		if (empty($tags)) {
-			$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
-				FROM `tag-search-view`
-				WHERE `private` = ? AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
-				GROUP BY `term` ORDER BY `score` DESC LIMIT ?",
-				Item::PUBLIC, $period, $limit);
+	/**
+	 * Creates a list of the most frequent global hashtags over the given period
+	 *
+	 * @param int $period Period in hours to consider posts
+	 * @param int $limit  Number of returned tags
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function setGlobalTrendingHashtags(int $period, $limit = 10)
+	{
+		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
+			FROM `tag-search-view`
+			WHERE `private` = ? AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
+			GROUP BY `term` ORDER BY `score` DESC LIMIT ?",
+			Item::PUBLIC, $period, $limit);
 
-			if (DBA::isResult($tagsStmt)) {
-				$tags = DBA::toArray($tagsStmt);
-				DI::cache()->set('global_trending_tags', $tags, Duration::HOUR);
-			}
+		if (DBA::isResult($tagsStmt)) {
+			$tags = DBA::toArray($tagsStmt);
+			DI::cache()->set('global_trending_tags-' . $period . '-' . $limit, $tags, Duration::HOUR);
+			return $tags;
 		}
 
-		return $tags ?: [];
+		return [];
 	}
 
 	/**
 	 * Returns a list of the most frequent local hashtags over the given period
 	 *
 	 * @param int $period Period in hours to consider posts
+	 * @param int $limit  Number of returned tags
 	 * @return array
 	 * @throws \Exception
 	 */
 	public static function getLocalTrendingHashtags(int $period, $limit = 10)
 	{
 		$tags = DI::cache()->get('local_trending_tags');
+		if (!empty($tags)) {
+			return $tags;
+		} else {
+			return self::setLocalTrendingHashtags($period, $limit);
+		}
+	}
 
-		if (empty($tags)) {
-			$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
-				FROM `tag-search-view`
-				WHERE `private` = ? AND `wall` AND `origin` AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
-				GROUP BY `term` ORDER BY `score` DESC LIMIT ?",
-				Item::PUBLIC, $period, $limit);
+	/**
+	 * Returns a list of the most frequent local hashtags over the given period
+	 *
+	 * @param int $period Period in hours to consider posts
+	 * @param int $limit  Number of returned tags
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function setLocalTrendingHashtags(int $period, $limit = 10)
+	{
+		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
+			FROM `tag-search-view`
+			WHERE `private` = ? AND `wall` AND `origin` AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
+			GROUP BY `term` ORDER BY `score` DESC LIMIT ?",
+			Item::PUBLIC, $period, $limit);
 
-			if (DBA::isResult($tagsStmt)) {
-				$tags = DBA::toArray($tagsStmt);
-				DI::cache()->set('local_trending_tags', $tags, Duration::HOUR);
-			}
+		if (DBA::isResult($tagsStmt)) {
+			$tags = DBA::toArray($tagsStmt);
+			DI::cache()->set('local_trending_tags', $tags, Duration::HOUR);
+			return $tags;
 		}
 
-		return $tags ?: [];
+		return [];
 	}
 
 	/**
