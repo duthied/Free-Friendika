@@ -288,6 +288,8 @@ function network_content(App $a, $update = 0, $parent = 0)
 	if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll') && ($_GET['mode'] ?? '') != 'minimal') {
 		$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
 		$o = Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
+	} else {
+		$o = '';
 	}
 
 	if (!empty($_GET['file'])) {
