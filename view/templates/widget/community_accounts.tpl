@@ -2,10 +2,10 @@
 	<h3>{{$title}}</h3>
 
 	<ul class="sidebar-community-accounts-ul">
-		<li role="menuitem" class="sidebar-community-accounts-li {{$all_selected}}"><a href="community/{{$content}}">{{$all}}</a></li>
-		<li role="menuitem" class="sidebar-community-accounts-li {{$person_selected}}"><a href="community/{{$content}}/person">{{$person}}</a></li>
-		<li role="menuitem" class="sidebar-community-accounts-li {{$organisation_selected}}"><a href="community/{{$content}}/organisation">{{$organisation}}</a></li>
-		<li role="menuitem" class="sidebar-community-accounts-li {{$news_selected}}"><a href="community/{{$content}}/news">{{$news}}</a></li>
-		<li role="menuitem" class="sidebar-community-accounts-li {{$community_selected}}"><a href="community/{{$content}}/community">{{$community}}</a></li>
+		<li role="menuitem" class="sidebar-community-accounts-li{{if !$accounttype}} selected{{/if}}"><a href="community/{{$content}}">{{$all}}</a></li>
+		<li role="menuitem" class="sidebar-community-accounts-li{{if $accounttype eq 'person'}} selected{{/if}}"><a href="community/{{$content}}/person">{{$person}}</a></li>
+		<li role="menuitem" class="sidebar-community-accounts-li{{if $accounttype eq 'organisation'}} selected{{/if}}"><a href="community/{{$content}}/organisation">{{$organisation}}</a></li>
+		<li role="menuitem" class="sidebar-community-accounts-li{{if $accounttype eq 'news'}} selected{{/if}}"><a href="community/{{$content}}/news">{{$news}}</a></li>
+		<li role="menuitem" class="sidebar-community-accounts-li{{if $accounttype eq 'community'}} selected{{/if}}"><a href="community/{{$content}}/community">{{$community}}</a></li>
 	</ul>
 </div>
