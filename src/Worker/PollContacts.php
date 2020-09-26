@@ -21,7 +21,6 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Core\Addon;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
@@ -37,8 +36,6 @@ class PollContacts
 {
 	public static function execute()
 	{
-		Addon::reload();
-
 		$sql = "SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`, `contact`.`archive`,
 					`contact`.`last-update`, `contact`.`priority`, `contact`.`rating`, `contact`.`rel`, `contact`.`subhub`
 				FROM `user`
