@@ -116,7 +116,7 @@ class Community extends BaseModule
 		DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_accounts.tpl'), [
 			'$title'        => DI::l10n()->t('Accounts'),
 			'$content'      => self::$content,
-			'$accounttype'  => $parameters['accounttype'],
+			'$accounttype'  => ($parameters['accounttype'] ?? ''),
 			'$all'          => DI::l10n()->t('All'),
 			'$person'       => DI::l10n()->t('Persons'),
 			'$organisation' => DI::l10n()->t('Organisations'),
