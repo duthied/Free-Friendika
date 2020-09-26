@@ -48,8 +48,6 @@ function network_init(App $a)
 		return;
 	}
 
-	Hook::add('head', __FILE__, 'network_infinite_scroll_head');
-
 	$is_a_date_query = false;
 
 	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
@@ -287,10 +285,15 @@ function network_content(App $a, $update = 0, $parent = 0)
 	$arr = ['query' => DI::args()->getQueryString()];
 	Hook::callAll('network_content_init', $arr);
 
+	if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll') && ($_GET['mode'] ?? '') != 'minimal') {
+		$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
+		$o = Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
+	}
+
 	if (!empty($_GET['file'])) {
-		$o = networkFlatView($a, $update);
+		$o .= networkFlatView($a, $update);
 	} else {
-		$o = networkThreadedView($a, $update, $parent);
+		$o .= networkThreadedView($a, $update, $parent);
 	}
 
 	if (!$update && ($o === '')) {
@@ -731,34 +734,4 @@ function network_tabs(App $a)
 	return Renderer::replaceMacros($tpl, ['$tabs' => $arr['tabs']]);
 
 	// --- end item filter tabs
-}
-
-/**
- * Network hook into the HTML head to enable infinite scroll.
- *
- * Since the HTML head is built after the module content has been generated, we need to retrieve the base query string
- * of the page to make the correct asynchronous call. This is obtained through the Pager that was instantiated in
- * networkThreadedView or networkFlatView.
- *
- * @param App     $a
- * @param  string $htmlhead The head tag HTML string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- * @global Pager  $pager
- */
-function network_infinite_scroll_head(App $a, &$htmlhead)
-{
-	/// @TODO this will have to be converted to a static property of the converted Module\Network class
-	/**
-	 * @var $pager Pager
-	 */
-	global $pager;
-
-	if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')
-		&& ($_GET['mode'] ?? '') != 'minimal'
-	) {
-		$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
-		$htmlhead .= Renderer::replaceMacros($tpl, [
-			'$reload_uri' => $pager->getBaseQueryString()
-		]);
-	}
 }
