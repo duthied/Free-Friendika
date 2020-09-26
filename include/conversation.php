@@ -443,7 +443,9 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		if (!$update) {
 			$live_update_div = '<div id="live-community"></div>' . "\r\n"
 				. "<script> var profile_uid = -1; var netargs = '" . substr(DI::args()->getCommand(), 10)
-				."/?f='; </script>\r\n";
+				. '?f='
+				. (!empty($_GET['no_sharer']) ? '&no_sharer=' . rawurlencode($_GET['no_sharer']) : '')
+				. "'; </script>\r\n";
 		}
 	} elseif ($mode === 'contacts') {
 		$items = conversation_add_children($items, false, $order, $uid);

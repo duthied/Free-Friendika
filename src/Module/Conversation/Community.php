@@ -124,6 +124,29 @@ class Community extends BaseModule
 			'$community'    => DI::l10n()->t('Communities'),
 		]);
 
+		if (local_user() && DI::config()->get('system', 'community_no_sharer')) {
+			$path = self::$content . ($parameters['accounttype'] ? '/' . $parameters['accounttype'] : '');
+			$query_parameters = [];
+	
+			if (!empty($_GET['since_id'])) {
+				$query_parameters['since_id'] = $_GET['since_id'];
+			}
+			if (!empty($_GET['max_id'])) {
+				$query_parameters['max_id'] = $_GET['max_id'];
+			}
+	
+			$path_all = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
+			$path_no_sharer = $path . '?' . http_build_query(array_merge($query_parameters, ['no_sharer' => true]));
+			DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_sharer.tpl'), [
+				'$title'           => DI::l10n()->t('Own Contacts'),
+				'$path_all'        => $path_all,
+				'$path_no_sharer'  => $path_no_sharer,
+				'$no_sharer'       => !empty($_REQUEST['no_sharer']),
+				'$all'             => DI::l10n()->t('Include'),
+				'$no_sharer_label' => DI::l10n()->t('Hide'),
+			]);
+		}
+
 		if (Feature::isEnabled(local_user(), 'trending_tags')) {
 			DI::page()['aside'] .= TrendingTags::getHTML(self::$content);
 		}
@@ -294,7 +317,7 @@ class Community extends BaseModule
 			if (!is_null(self::$accounttype)) {
 				$condition = ["`wall` AND `origin` AND `private` = ? AND `owner`.`contact-type` = ?", Item::PUBLIC, self::$accounttype];
 			} else {
-				$condition = ["`wall` AND `origin` AND `private` = ?", Item::PUBLIC];
+ 				$condition = ["`wall` AND `origin` AND `private` = ?", Item::PUBLIC];
 			}
 		} elseif (self::$content == 'global') {
 			if (!is_null(self::$accounttype)) {
@@ -306,7 +329,7 @@ class Community extends BaseModule
 			return [];
 		}
 
-		if (local_user() && DI::config()->get('system', 'community_no_followers')) {
+		if (local_user() && !empty($_REQUEST['no_sharer'])) {
 			$condition[0] .= " AND NOT EXISTS (SELECT `uri-id` FROM `thread` AS t1 WHERE `t1`.`uri-id` = `thread`.`uri-id` AND `t1`.`uid` = ?)";
 			$condition[] = local_user();
 		}
