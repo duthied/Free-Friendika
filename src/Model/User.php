@@ -366,7 +366,7 @@ class User
 		if (!$repair) {
 			// Check if "addr" is present and correct
 			$addr = $owner['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
-			$repair = ($addr != $owner['addr']);
+			$repair = ($addr != $owner['addr']) || empty($owner['prvkey']) || empty($owner['pubkey']);
 		}
 
 		if (!$repair) {
