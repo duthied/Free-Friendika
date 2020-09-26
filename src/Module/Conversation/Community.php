@@ -295,6 +295,11 @@ class Community extends BaseModule
 			return [];
 		}
 
+		if (local_user() && DI::config()->get('system', 'community_no_followers')) {
+			$condition[0] .= " AND NOT EXISTS (SELECT `uri-id` FROM `thread` AS t1 WHERE `t1`.`uri-id` = `thread`.`uri-id` AND `t1`.`uid` = ?)";
+			$condition[] = local_user();
+		}
+
 		if (isset($max_id)) {
 			$condition[0] .= " AND `commented` < ?";
 			$condition[] = $max_id;
