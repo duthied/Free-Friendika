@@ -554,7 +554,7 @@ class Contact
 			return true;
 		}
 
-		$user = DBA::selectFirst('user', ['uid', 'username', 'nickname'], ['uid' => $uid]);
+		$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'pubkey', 'prvkey'], ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
 			return false;
 		}
@@ -565,6 +565,8 @@ class Contact
 			'self'        => 1,
 			'name'        => $user['username'],
 			'nick'        => $user['nickname'],
+			'pubkey'      => $user['pubkey'],
+			'prvkey'      => $user['prvkey'],
 			'photo'       => DI::baseUrl() . '/photo/profile/' . $user['uid'] . '.jpg',
 			'thumb'       => DI::baseUrl() . '/photo/avatar/'  . $user['uid'] . '.jpg',
 			'micro'       => DI::baseUrl() . '/photo/micro/'   . $user['uid'] . '.jpg',
@@ -596,7 +598,7 @@ class Contact
 	 */
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
-		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar',
+		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar', 'prvkey', 'pubkey',
 			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
 			'photo', 'thumb', 'micro', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
@@ -604,7 +606,7 @@ class Contact
 			return;
 		}
 
-		$fields = ['nickname', 'page-flags', 'account-type'];
+		$fields = ['nickname', 'page-flags', 'account-type', 'prvkey', 'pubkey'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
 			return;
@@ -622,8 +624,8 @@ class Contact
 		$fields = ['name' => $profile['name'], 'nick' => $user['nickname'],
 			'avatar-date' => $self['avatar-date'], 'location' => Profile::formatLocation($profile),
 			'about' => $profile['about'], 'keywords' => $profile['pub_keywords'],
-			'contact-type' => $user['account-type'],
-			'xmpp' => $profile['xmpp']];
+			'contact-type' => $user['account-type'], 'prvkey' => $user['prvkey'],
+			'pubkey' => $user['pubkey'], 'xmpp' => $profile['xmpp']];
 
 		$avatar = Photo::selectFirst(['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
 		if (DBA::isResult($avatar)) {
