@@ -758,7 +758,6 @@ function network_infinite_scroll_head(App $a, &$htmlhead)
 	) {
 		$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
 		$htmlhead .= Renderer::replaceMacros($tpl, [
-			'$pageno'     => $pager->getPage(),
 			'$reload_uri' => $pager->getBaseQueryString()
 		]);
 	}

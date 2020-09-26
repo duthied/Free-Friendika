@@ -859,10 +859,6 @@ function loadScrollContent() {
 
 	$("#scroll-loader").fadeIn('normal');
 
-	// the page number to load is one higher than the actual
-	// page number
-	infinite_scroll.pageno+=1;
-
 	match = $("span.received").last();
 	if (match.length > 0) {
 		received = match[0].innerHTML;
@@ -893,7 +889,7 @@ function loadScrollContent() {
 
 	// get the raw content from the next page and insert this content
 	// right before "#conversation-end"
-	$.get(infinite_scroll.reload_uri + '&mode=raw&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_uriid=' + uriid + '&page=' + infinite_scroll.pageno, function(data) {
+	$.get(infinite_scroll.reload_uri + '&mode=raw&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_uriid=' + uriid, function(data) {
 		$("#scroll-loader").hide();
 		if ($(data).length > 0) {
 			$(data).insertBefore('#conversation-end');
