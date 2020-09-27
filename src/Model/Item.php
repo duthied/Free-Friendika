@@ -1834,6 +1834,11 @@ class Item
 
 		if (!in_array($item['verb'], self::ACTIVITIES)) {
 			$item['icid'] = self::insertContent($item);
+			if (empty($item['icid'])) {
+				// This most likely happens when identical posts arrives from different sources at the same time
+				Logger::warning('No content stored, quitting', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'causer-id' => ($item['causer-id'] ?? 0), 'post-type' => $item['post-type'], 'network' => $item['network']]);
+				return 0;
+			}
 		}
 
 		$body = $item['body'];
