@@ -36,7 +36,6 @@ use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
-use Friendica\Util\DateTimeFormat;
 
 class Community extends BaseModule
 {
@@ -155,7 +154,7 @@ class Community extends BaseModule
 				$query_parameters['max_id'] = $_GET['max_id'];
 			}
 			if (!empty($_GET['last_commented'])) {
-				$query_parameters['max_id'] = DateTimeFormat::utc($_GET['last_commented']);
+				$query_parameters['max_id'] = $_GET['last_commented'];
 			}
 	
 			$path_all = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
