@@ -26,6 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
+use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget\TrendingTags;
 use Friendica\Core\ACL;
 use Friendica\Core\Renderer;
@@ -35,6 +36,7 @@ use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
+use Friendica\Util\DateTimeFormat;
 
 class Community extends BaseModule
 {
@@ -47,6 +49,9 @@ class Community extends BaseModule
 
 	public static function content(array $parameters = [])
 	{
+		// Rawmode is used for fetching new content at the end of the page
+		$rawmode = (isset($_GET['mode']) AND ($_GET['mode'] == 'raw'));
+
 		self::parseRequest($parameters);
 
 		$tabs = [];
@@ -73,8 +78,17 @@ class Community extends BaseModule
 			];
 		}
 
-		$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
-		$o = Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
+		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll') && ($_GET['mode'] ?? '') != 'minimal') {
+			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
+			$o = Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
+		} else {
+			$o = '';
+		}
+	
+		if (!$rawmode) {
+			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
+			$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
+		}
 
 		Nav::setSelected('community');
 
@@ -111,20 +125,26 @@ class Community extends BaseModule
 			self::$itemsPerPage
 		);
 
-		$o .= $pager->renderMinimal(count($items));
+		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+			$o .= HTML::scrollLoader();
+		} else {
+			$o .= $pager->renderMinimal(count($items));
+		}
 
-		DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_accounts.tpl'), [
-			'$title'        => DI::l10n()->t('Accounts'),
-			'$content'      => self::$content,
-			'$accounttype'  => ($parameters['accounttype'] ?? ''),
-			'$all'          => DI::l10n()->t('All'),
-			'$person'       => DI::l10n()->t('Persons'),
-			'$organisation' => DI::l10n()->t('Organisations'),
-			'$news'         => DI::l10n()->t('News'),
-			'$community'    => DI::l10n()->t('Forums'),
-		]);
+		if (!$rawmode) {
+			DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_accounts.tpl'), [
+				'$title'        => DI::l10n()->t('Accounts'),
+				'$content'      => self::$content,
+				'$accounttype'  => ($parameters['accounttype'] ?? ''),
+				'$all'          => DI::l10n()->t('All'),
+				'$person'       => DI::l10n()->t('Persons'),
+				'$organisation' => DI::l10n()->t('Organisations'),
+				'$news'         => DI::l10n()->t('News'),
+				'$community'    => DI::l10n()->t('Forums'),
+			]);
+		}
 
-		if (local_user() && DI::config()->get('system', 'community_no_sharer')) {
+		if (!$rawmode && local_user() && DI::config()->get('system', 'community_no_sharer')) {
 			$path = self::$content . ($parameters['accounttype'] ? '/' . $parameters['accounttype'] : '');
 			$query_parameters = [];
 	
@@ -133,6 +153,9 @@ class Community extends BaseModule
 			}
 			if (!empty($_GET['max_id'])) {
 				$query_parameters['max_id'] = $_GET['max_id'];
+			}
+			if (!empty($_GET['last_commented'])) {
+				$query_parameters['max_id'] = DateTimeFormat::utc($_GET['last_commented']);
 			}
 	
 			$path_all = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
@@ -147,7 +170,7 @@ class Community extends BaseModule
 			]);
 		}
 
-		if (Feature::isEnabled(local_user(), 'trending_tags')) {
+		if (!$rawmode && Feature::isEnabled(local_user(), 'trending_tags')) {
 			DI::page()['aside'] .= TrendingTags::getHTML(self::$content);
 		}
 
@@ -245,6 +268,7 @@ class Community extends BaseModule
 
 		self::$since_id = $_GET['since_id'] ?? null;
 		self::$max_id   = $_GET['max_id']   ?? null;
+		self::$max_id   = $_GET['last_commented'] ?? self::$max_id;
 	}
 
 	/**
