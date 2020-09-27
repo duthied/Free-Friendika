@@ -171,7 +171,7 @@ class UserExport extends BaseSettings
 		// get all the contacts
 		$contacts = DBA::select('contact', ['addr', 'url'], ['uid' => $_SESSION['uid'], 'self' => false, 'rel' => [1,3], 'deleted' => false]);
 		while ($contact = DBA::fetch($contacts)) {
-			echo ($contact['addr'] ? $contact['addr'] : $contact['url']) . ", true\n";
+			echo ($contact['addr'] ?: $contact['url']) . ", true\n";
 		}
 		DBA::close($contacts);
 	}
