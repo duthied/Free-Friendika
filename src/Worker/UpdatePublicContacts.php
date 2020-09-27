@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -38,6 +39,12 @@ class UpdatePublicContacts
 		$last_updated = DateTimeFormat::utc('now - 1 week');
 		$condition = ["`network` IN (?, ?, ?, ?) AND `uid` = ? AND NOT `self` AND `last-update` < ?",
 			Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, 0, $last_updated];
+
+		if (DI::config()->get('system', 'update_active_contacts')) {
+			$condition = DBA::mergeConditions($condition, ["(`id` IN (SELECT `author-id` FROM `item`) OR
+			`id` IN (SELECT `owner-id` FROM `item`) OR `id` IN (SELECT `causer-id` FROM `item`) OR
+			`id` IN (SELECT `cid` FROM `post-tag`) OR `id` IN (SELECT `cid` FROM `user-contact`))"]);
+		}
 
 		$oldest_date = '';
 		$oldest_id = '';

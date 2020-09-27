@@ -475,6 +475,10 @@ return [
 		// Maximum number of posts that a user can send per month with the API. 0 to disable monthly throttling.
 		'throttle_limit_month' => 0,
 
+		// update_active_contacts (Boolean)
+		// When activated, only public contacts will be activated regularly that are used for example in items or tags.
+		'update_active_contacts' => false,
+
 		// username_min_length (Integer)
 		// The minimum character length a username can be.
 		// This length is check once the username has been trimmed and multiple spaces have been collapsed into one.
