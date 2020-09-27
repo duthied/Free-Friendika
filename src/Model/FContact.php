@@ -24,7 +24,10 @@ namespace Friendica\Model;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Model\Notify\Type;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
@@ -129,5 +132,81 @@ class FContact
 		}
 
 		return null;
+	}
+
+	/**
+	 * Add suggestions for a given contact
+	 *
+	 * @param integer $uid
+	 * @param integer $cid
+	 * @return bool   Was the adding successful?
+	 */
+	public static function addSuggestion(int $uid, int $cid)
+	{
+		$owner = User::getOwnerDataById($uid);
+		$contact = Contact::getById($cid);
+
+		if (DBA::exists('contact', ['nurl' => Strings::normaliseLink($contact['url']), 'uid' => $uid])) {
+			return false;
+		}
+
+		$suggest = [];
+		$suggest['uid'] = $uid;
+		$suggest['cid'] = $contact['id'];
+		$suggest['url'] = $contact['url'];
+		$suggest['name'] = $contact['name'];
+		$suggest['photo'] = $contact['photo'];
+		$suggest['request'] = $contact['request'];
+		$suggest['title'] = '';
+		$suggest['body'] = '';
+
+		// Do we already have an fcontact record for this person?
+		$fid = 0;
+		$fcontact = DBA::selectFirst('fcontact', ['id'], ['url' => $suggest['url']]);
+		if (DBA::isResult($fcontact)) {
+			$fid = $fcontact['id'];
+
+			$fields = ['name' => $suggest['name'], 'photo' => $suggest['photo'], 'request' => $suggest['request']];
+			DBA::update('fcontact', $fields, ['id' => $fid]);
+
+			// Quit if we already have an introduction for this person
+			if (DBA::exists('intro', ['uid' => $suggest['uid'], 'fid' => $fid])) {
+				return false;
+			}
+		}
+
+		if (empty($fid)) {
+			$fields = ['name' => $suggest['name'], 'url' => $suggest['url'],
+				'photo' => $suggest['photo'], 'request' => $suggest['request']];
+			DBA::insert('fcontact', $fields);
+			$fid = DBA::lastInsertId();
+			if (empty($fid)) {
+				Logger::warning('FContact had not been created', ['fcontact' => $fields]);
+				return false;
+			}
+		}
+
+		$hash = Strings::getRandomHex();
+		$fields = ['uid' => $suggest['uid'], 'fid' => $fid, 'contact-id' => $suggest['cid'], 
+			'note' => $suggest['body'], 'hash' => $hash, 'datetime' => DateTimeFormat::utcNow(), 'blocked' => false];
+		DBA::insert('intro', $fields);
+
+		notification([
+			'type'         => Type::SUGGEST,
+			'notify_flags' => $owner['notify-flags'],
+			'language'     => $owner['language'],
+			'to_name'      => $owner['name'],
+			'to_email'     => $owner['email'],
+			'uid'          => $owner['uid'],
+			'item'         => $suggest,
+			'link'         => DI::baseUrl().'/notifications/intros',
+			'source_name'  => $contact['name'],
+			'source_link'  => $contact['url'],
+			'source_photo' => $contact['photo'],
+			'verb'         => Activity::REQ_FRIEND,
+			'otype'        => 'intro'
+		]);
+
+		return true;
 	}
 }
