@@ -81,6 +81,13 @@ class Introductions extends BaseNotifications
 		/** @var Introduction $notification */
 		foreach ($notifications['notifications'] as $notification) {
 
+			$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
+			$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification->getName(), $notification->getName());
+			$helptext3 = DI::l10n()->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification->getName());
+
+			$friend = ['duplex', DI::l10n()->t('Friend'), '1', $helptext2, true];
+			$follower = ['duplex', DI::l10n()->t('Subscriber'), '0', $helptext3, false];
+
 			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
 			// We have to distinguish between these two because they use different data.
 			switch ($notification->getLabel()) {
@@ -98,6 +105,9 @@ class Introductions extends BaseNotifications
 						'$contact_id'            => $notification->getContactId(),
 						'$photo'                 => $notification->getPhoto(),
 						'$fullname'              => $notification->getName(),
+						'$lbl_connection_type'   => $helptext,
+						'$friend'                => $friend,
+						'$follower'              => $follower,
 						'$url'                   => $notification->getUrl(),
 						'$zrl'                   => $notification->getZrl(),
 						'$lbl_url'               => DI::l10n()->t('Profile URL'),
@@ -121,13 +131,6 @@ class Introductions extends BaseNotifications
 						$lbl_knowyou = '';
 						$knowyou = '';
 					}
-
-					$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
-					$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification->getName(), $notification->getName());
-					$helptext3 = DI::l10n()->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification->getName());
-
-					$friend = ['duplex', DI::l10n()->t('Friend'), '1', $helptext2, true];
-					$follower = ['duplex', DI::l10n()->t('Subscriber'), '0', $helptext3, false];
 
 					$contact = DBA::selectFirst('contact', ['network', 'protocol'], ['id' => $notification->getContactId()]);
 
