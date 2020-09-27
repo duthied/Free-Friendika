@@ -2325,8 +2325,7 @@ aside input[type='text'] {
 }
 
 .adr, .homepage-url, .x-network {
-	float: left;
-	display: block;
+	display: inline-block;
 	margin-left: 8px;
 }
 
@@ -2375,6 +2374,7 @@ aside input[type='text'] {
 
 .vcard dl {
 	clear: both;
+	display: inline-block;
 }
 
 #birthday-title {
