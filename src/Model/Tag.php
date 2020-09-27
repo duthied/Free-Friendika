@@ -537,7 +537,7 @@ class Tag
 	 */
 	public static function getLocalTrendingHashtags(int $period, $limit = 10)
 	{
-		$tags = DI::cache()->get('local_trending_tags');
+		$tags = DI::cache()->get('local_trending_tags-' . $period . '-' . $limit);
 		if (!empty($tags)) {
 			return $tags;
 		} else {
@@ -563,7 +563,7 @@ class Tag
 
 		if (DBA::isResult($tagsStmt)) {
 			$tags = DBA::toArray($tagsStmt);
-			DI::cache()->set('local_trending_tags', $tags, Duration::HOUR);
+			DI::cache()->set('local_trending_tags-' . $period . '-' . $limit, $tags, Duration::HOUR);
 			return $tags;
 		}
 
