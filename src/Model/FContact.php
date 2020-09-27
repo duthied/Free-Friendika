@@ -191,22 +191,21 @@ class FContact
 			'note' => $suggest['body'], 'hash' => $hash, 'datetime' => DateTimeFormat::utcNow(), 'blocked' => false];
 		DBA::insert('intro', $fields);
 
-		notification(
-			[
-				'type'         => Type::SUGGEST,
-				'notify_flags' => $owner['notify-flags'],
-				'language'     => $owner['language'],
-				'to_name'      => $owner['name'],
-				'to_email'     => $owner['email'],
-				'uid'          => $owner['uid'],
-				'item'         => $suggest,
-				'link'         => DI::baseUrl().'/notifications/intros',
-				'source_name'  => $contact['name'],
-				'source_link'  => $contact['url'],
-				'source_photo' => $contact['photo'],
-				'verb'         => Activity::REQ_FRIEND,
-				'otype'        => 'intro']
-		);
+		notification([
+			'type'         => Type::SUGGEST,
+			'notify_flags' => $owner['notify-flags'],
+			'language'     => $owner['language'],
+			'to_name'      => $owner['name'],
+			'to_email'     => $owner['email'],
+			'uid'          => $owner['uid'],
+			'item'         => $suggest,
+			'link'         => DI::baseUrl().'/notifications/intros',
+			'source_name'  => $contact['name'],
+			'source_link'  => $contact['url'],
+			'source_photo' => $contact['photo'],
+			'verb'         => Activity::REQ_FRIEND,
+			'otype'        => 'intro'
+		]);
 
 		return true;
 	}
