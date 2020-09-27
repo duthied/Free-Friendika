@@ -27,6 +27,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Module\BaseSettings;
 
 /**
@@ -115,10 +116,13 @@ class UserExport extends BaseSettings
 		while ($row = DBA::fetch($rows)) {
 			$p = [];
 			foreach ($dbStructure[$table]['fields'] as $column => $field) {
+				if (!isset($row[$column])) {
+					continue;
+				}
 				if ($field['type'] == 'datetime') {
-					$p[$column] = $v ?? DBA::NULL_DATETIME;
+					$p[$column] = $row[$column] ?? DBA::NULL_DATETIME;
 				} else {
-					$p[$column] = $v;
+					$p[$column] = $row[$column];
 				}
 			}
 			$result[] = $p;
@@ -140,6 +144,9 @@ class UserExport extends BaseSettings
 
 			foreach ($r as $rr) {
 				foreach ($rr as $k => $v) {
+					if (empty($dbStructure[$table]['fields'][$k])) {
+						continue;
+					}
 					switch ($dbStructure[$table]['fields'][$k]['type']) {
 						case 'datetime':
 							$result[$k] = $v ?? DBA::NULL_DATETIME;
@@ -238,13 +245,8 @@ class UserExport extends BaseSettings
 		// chunk the output to avoid exhausting memory
 
 		for ($x = 0; $x < $total; $x += 500) {
-			$r = q("SELECT * FROM `item` WHERE `uid` = %d LIMIT %d, %d",
-				intval(local_user()),
-				intval($x),
-				intval(500)
-			);
-
-			$output = ['item' => $r];
+			$items = Item::selectToArray(Item::ITEM_FIELDLIST, ['uid' => local_user()], ['limit' => [$x, 500]]);
+			$output = ['item' => $items];
 			echo json_encode($output, JSON_PARTIAL_OUTPUT_ON_ERROR). "\n";
 		}
 	}
