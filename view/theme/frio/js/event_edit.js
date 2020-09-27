@@ -1,3 +1,4 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPLv3-or-later
 $(document).ready(function() {
 	// Go to the permissions tab if the checkbox is checked.
 	$('body').on("click", "#id_share", function() {
@@ -107,3 +108,4 @@ function enableDisableFinishDate() {
 	else
 		$('#id_finish_text').prop("disabled", false);
 }
+// @license-end
