@@ -26,6 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
+use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget\TrendingTags;
 use Friendica\Core\ACL;
 use Friendica\Core\Renderer;
@@ -49,56 +50,106 @@ class Community extends BaseModule
 	{
 		self::parseRequest($parameters);
 
-		$tabs = [];
-
-		if ((Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(DI::config()->get('system', 'singleuser'))) {
-			$tabs[] = [
-				'label' => DI::l10n()->t('Local Community'),
-				'url' => 'community/local',
-				'sel' => self::$content == 'local' ? 'active' : '',
-				'title' => DI::l10n()->t('Posts from local users on this server'),
-				'id' => 'community-local-tab',
-				'accesskey' => 'l'
-			];
+		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
+			$o = Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
+		} else {
+			$o = '';
 		}
 
-		if (Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
-			$tabs[] = [
-				'label' => DI::l10n()->t('Global Community'),
-				'url' => 'community/global',
-				'sel' => self::$content == 'global' ? 'active' : '',
-				'title' => DI::l10n()->t('Posts from users of the whole federated network'),
-				'id' => 'community-global-tab',
-				'accesskey' => 'g'
-			];
+		if (empty($_GET['mode']) || ($_GET['mode'] != 'raw')) {
+			$tabs = [];
+
+			if ((Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(DI::config()->get('system', 'singleuser'))) {
+				$tabs[] = [
+					'label' => DI::l10n()->t('Local Community'),
+					'url' => 'community/local',
+					'sel' => self::$content == 'local' ? 'active' : '',
+					'title' => DI::l10n()->t('Posts from local users on this server'),
+					'id' => 'community-local-tab',
+					'accesskey' => 'l'
+				];
+			}
+	
+			if (Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
+				$tabs[] = [
+					'label' => DI::l10n()->t('Global Community'),
+					'url' => 'community/global',
+					'sel' => self::$content == 'global' ? 'active' : '',
+					'title' => DI::l10n()->t('Posts from users of the whole federated network'),
+					'id' => 'community-global-tab',
+					'accesskey' => 'g'
+				];
+			}
+
+			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
+			$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
+
+			Nav::setSelected('community');
+
+			DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_accounts.tpl'), [
+				'$title'        => DI::l10n()->t('Accounts'),
+				'$content'      => self::$content,
+				'$accounttype'  => ($parameters['accounttype'] ?? ''),
+				'$all'          => DI::l10n()->t('All'),
+				'$person'       => DI::l10n()->t('Persons'),
+				'$organisation' => DI::l10n()->t('Organisations'),
+				'$news'         => DI::l10n()->t('News'),
+				'$community'    => DI::l10n()->t('Forums'),
+			]);
+	
+			if (local_user() && DI::config()->get('system', 'community_no_sharer')) {
+				$path = self::$content . ($parameters['accounttype'] ? '/' . $parameters['accounttype'] : '');
+				$query_parameters = [];
+		
+				if (!empty($_GET['since_id'])) {
+					$query_parameters['since_id'] = $_GET['since_id'];
+				}
+				if (!empty($_GET['max_id'])) {
+					$query_parameters['max_id'] = $_GET['max_id'];
+				}
+				if (!empty($_GET['last_commented'])) {
+					$query_parameters['max_id'] = $_GET['last_commented'];
+				}
+		
+				$path_all = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
+				$path_no_sharer = $path . '?' . http_build_query(array_merge($query_parameters, ['no_sharer' => true]));
+				DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_sharer.tpl'), [
+					'$title'           => DI::l10n()->t('Own Contacts'),
+					'$path_all'        => $path_all,
+					'$path_no_sharer'  => $path_no_sharer,
+					'$no_sharer'       => !empty($_REQUEST['no_sharer']),
+					'$all'             => DI::l10n()->t('Include'),
+					'$no_sharer_label' => DI::l10n()->t('Hide'),
+				]);
+			}
+	
+			if (Feature::isEnabled(local_user(), 'trending_tags')) {
+				DI::page()['aside'] .= TrendingTags::getHTML(self::$content);
+			}
+
+			// We need the editor here to be able to reshare an item.
+			if (Session::isAuthenticated()) {
+				$x = [
+					'is_owner' => true,
+					'allow_location' => DI::app()->user['allow_location'],
+					'default_location' => DI::app()->user['default-location'],
+					'nickname' => DI::app()->user['nickname'],
+					'lockstate' => (is_array(DI::app()->user) && (strlen(DI::app()->user['allow_cid']) || strlen(DI::app()->user['allow_gid']) || strlen(DI::app()->user['deny_cid']) || strlen(DI::app()->user['deny_gid'])) ? 'lock' : 'unlock'),
+					'acl' => ACL::getFullSelectorHTML(DI::page(), DI::app()->user, true),
+					'bang' => '',
+					'visitor' => 'block',
+					'profile_uid' => local_user(),
+				];
+				$o .= status_editor(DI::app(), $x, 0, true);
+			}
 		}
-
-		$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
-		$o = Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
-
-		Nav::setSelected('community');
 
 		$items = self::getItems();
 
 		if (!DBA::isResult($items)) {
 			notice(DI::l10n()->t('No results.'));
 			return $o;
-		}
-
-		// We need the editor here to be able to reshare an item.
-		if (Session::isAuthenticated()) {
-			$x = [
-				'is_owner' => true,
-				'allow_location' => DI::app()->user['allow_location'],
-				'default_location' => DI::app()->user['default-location'],
-				'nickname' => DI::app()->user['nickname'],
-				'lockstate' => (is_array(DI::app()->user) && (strlen(DI::app()->user['allow_cid']) || strlen(DI::app()->user['allow_gid']) || strlen(DI::app()->user['deny_cid']) || strlen(DI::app()->user['deny_gid'])) ? 'lock' : 'unlock'),
-				'acl' => ACL::getFullSelectorHTML(DI::page(), DI::app()->user, true),
-				'bang' => '',
-				'visitor' => 'block',
-				'profile_uid' => local_user(),
-			];
-			$o .= status_editor(DI::app(), $x, 0, true);
 		}
 
 		$o .= conversation(DI::app(), $items, 'community', false, false, 'commented', local_user());
@@ -111,44 +162,10 @@ class Community extends BaseModule
 			self::$itemsPerPage
 		);
 
-		$o .= $pager->renderMinimal(count($items));
-
-		DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_accounts.tpl'), [
-			'$title'        => DI::l10n()->t('Accounts'),
-			'$content'      => self::$content,
-			'$accounttype'  => ($parameters['accounttype'] ?? ''),
-			'$all'          => DI::l10n()->t('All'),
-			'$person'       => DI::l10n()->t('Persons'),
-			'$organisation' => DI::l10n()->t('Organisations'),
-			'$news'         => DI::l10n()->t('News'),
-			'$community'    => DI::l10n()->t('Forums'),
-		]);
-
-		if (local_user() && DI::config()->get('system', 'community_no_sharer')) {
-			$path = self::$content . ($parameters['accounttype'] ? '/' . $parameters['accounttype'] : '');
-			$query_parameters = [];
-	
-			if (!empty($_GET['since_id'])) {
-				$query_parameters['since_id'] = $_GET['since_id'];
-			}
-			if (!empty($_GET['max_id'])) {
-				$query_parameters['max_id'] = $_GET['max_id'];
-			}
-	
-			$path_all = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
-			$path_no_sharer = $path . '?' . http_build_query(array_merge($query_parameters, ['no_sharer' => true]));
-			DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_sharer.tpl'), [
-				'$title'           => DI::l10n()->t('Own Contacts'),
-				'$path_all'        => $path_all,
-				'$path_no_sharer'  => $path_no_sharer,
-				'$no_sharer'       => !empty($_REQUEST['no_sharer']),
-				'$all'             => DI::l10n()->t('Include'),
-				'$no_sharer_label' => DI::l10n()->t('Hide'),
-			]);
-		}
-
-		if (Feature::isEnabled(local_user(), 'trending_tags')) {
-			DI::page()['aside'] .= TrendingTags::getHTML(self::$content);
+		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+			$o .= HTML::scrollLoader();
+		} else {
+			$o .= $pager->renderMinimal(count($items));
 		}
 
 		$t = Renderer::getMarkupTemplate("community.tpl");
@@ -245,6 +262,7 @@ class Community extends BaseModule
 
 		self::$since_id = $_GET['since_id'] ?? null;
 		self::$max_id   = $_GET['max_id']   ?? null;
+		self::$max_id   = $_GET['last_commented'] ?? self::$max_id;
 	}
 
 	/**
