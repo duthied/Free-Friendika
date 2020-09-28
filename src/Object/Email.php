@@ -137,10 +137,10 @@ class Email implements IEmail
 		foreach ($this->additionalMailHeader as $name => $values) {
 			if (is_array($values)) {
 				foreach ($values as $value) {
-					$headerString .= "$name : $value\n";
+					$headerString .= "$name: $value\n";
 				}
 			} else {
-				$headerString .= "$name : $values\n";
+				$headerString .= "$name: $values\n";
 			}
 		}
 		return $headerString;
