@@ -27,6 +27,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\User;
 use Friendica\Module\BaseNotifications;
 use Friendica\Object\Notification\Introduction;
 
@@ -76,17 +77,12 @@ class Introductions extends BaseNotifications
 			'text' => (!$all ? DI::l10n()->t('Show Ignored Requests') : DI::l10n()->t('Hide Ignored Requests')),
 		];
 
+		$owner = User::getOwnerDataById(local_user());
+	
 		// Loop through all introduction notifications.This creates an array with the output html for each
 		// introduction
 		/** @var Introduction $notification */
 		foreach ($notifications['notifications'] as $notification) {
-
-			$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
-			$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification->getName(), $notification->getName());
-			$helptext3 = DI::l10n()->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification->getName());
-
-			$friend = ['duplex', DI::l10n()->t('Friend'), '1', $helptext2, true];
-			$follower = ['duplex', DI::l10n()->t('Subscriber'), '0', $helptext3, false];
 
 			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
 			// We have to distinguish between these two because they use different data.
@@ -105,18 +101,14 @@ class Introductions extends BaseNotifications
 						'$contact_id'            => $notification->getContactId(),
 						'$photo'                 => $notification->getPhoto(),
 						'$fullname'              => $notification->getName(),
-						'$lbl_connection_type'   => $helptext,
-						'$friend'                => $friend,
-						'$follower'              => $follower,
+						'$dfrn_url'              => $owner['url'],
 						'$url'                   => $notification->getUrl(),
 						'$zrl'                   => $notification->getZrl(),
 						'$lbl_url'               => DI::l10n()->t('Profile URL'),
 						'$addr'                  => $notification->getAddr(),
-						'$hidden'                => ['hidden', DI::l10n()->t('Hide this contact from others'), $notification->isHidden(), ''],
-						'$knowyou'               => $notification->getKnowYou(),
+						'$action'                => 'follow',
 						'$approve'               => DI::l10n()->t('Approve'),
 						'$note'                  => $notification->getNote(),
-						'$request'               => $notification->getRequest(),
 						'$ignore'                => DI::l10n()->t('Ignore'),
 						'$discard'               => DI::l10n()->t('Discard'),
 					]);
@@ -131,6 +123,13 @@ class Introductions extends BaseNotifications
 						$lbl_knowyou = '';
 						$knowyou = '';
 					}
+
+					$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
+					$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification->getName(), $notification->getName());
+					$helptext3 = DI::l10n()->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification->getName());
+		
+					$friend = ['duplex', DI::l10n()->t('Friend'), '1', $helptext2, true];
+					$follower = ['duplex', DI::l10n()->t('Subscriber'), '0', $helptext3, false];
 
 					$contact = DBA::selectFirst('contact', ['network', 'protocol'], ['id' => $notification->getContactId()]);
 

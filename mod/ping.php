@@ -177,15 +177,15 @@ function ping_init(App $a)
 		$intros1 = q(
 			"SELECT  `intro`.`id`, `intro`.`datetime`,
 			`fcontact`.`name`, `fcontact`.`url`, `fcontact`.`photo`
-			FROM `intro` LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
-			WHERE `intro`.`uid` = %d  AND `intro`.`blocked` = 0 AND `intro`.`ignore` = 0 AND `intro`.`fid` != 0",
+			FROM `intro` INNER JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
+			WHERE `intro`.`uid` = %d AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`fid` != 0",
 			intval(local_user())
 		);
 		$intros2 = q(
 			"SELECT `intro`.`id`, `intro`.`datetime`,
 			`contact`.`name`, `contact`.`url`, `contact`.`photo`
-			FROM `intro` LEFT JOIN `contact` ON `intro`.`contact-id` = `contact`.`id`
-			WHERE `intro`.`uid` = %d  AND `intro`.`blocked` = 0 AND `intro`.`ignore` = 0 AND `intro`.`contact-id` != 0",
+			FROM `intro` INNER JOIN `contact` ON `intro`.`contact-id` = `contact`.`id`
+			WHERE `intro`.`uid` = %d AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`contact-id` != 0 AND `intro`.`fid` = 0",
 			intval(local_user())
 		);
 

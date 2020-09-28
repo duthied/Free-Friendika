@@ -52,17 +52,20 @@
 
 			<h3 class="heading">{{$fullname}}{{if $addr}}&nbsp;({{$addr}}){{/if}}</h3>
 			<form class="intro-approve-form" {{if $request}}action="{{$request}}" method="get"{{else}}action="{{$action}}" method="post"{{/if}}>
+				{{if $type != "friend_suggestion"}}
 				{{include file="field_checkbox.tpl" field=$hidden}}
 				<div role="radiogroup" aria-labelledby="connection_type">
 					<label id="connection_type">{{$lbl_connection_type}}</label>
 					{{include file="field_radio.tpl" field=$friend}}
 					{{include file="field_radio.tpl" field=$follower}}
 				</div>
-
-				{{if $type != "friend_suggestion"}}
 				<input type="hidden" name="dfrn_id" value="{{$dfrn_id}}" >
 				<input type="hidden" name="intro_id" value="{{$intro_id}}" >
 				<input type="hidden" name="contact_id" value="{{$contact_id}}" >
+				{{else}}
+				{{if $note}}<div>{{$note}}</div>{{/if}}
+				<input type="hidden" name="url" value="{{$url}}" >
+				<input type="hidden" name="dfrn-url" value="{{$dfrn_url}}" >
 				{{/if}}
 				<div class="pull-right">
 					<button class="btn btn-primary intro-submit-approve" type="submit" name="submit" value="{{$approve}}">{{$approve}}</button>
