@@ -1007,8 +1007,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 			// Skip when the causer of the parent is the same than the author of the announce
 			if ($verb == Activity::ANNOUNCE) {
-				$parent = Item::selectFirst(['causer-id', 'gravity'], ['uri' => $item['thr-parent']]);
-				if (($parent['causer-id'] == $item['author-id']) && ($parent['gravity'] == GRAVITY_PARENT)) {
+				if (Item::exists(['uri' => $item['thr-parent'], 'uid' => $item['uid'], 'causer-id' => $item['author-id'], 'gravity' => GRAVITY_PARENT])) {
 					continue;
 				}
 			}
