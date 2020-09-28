@@ -83,10 +83,10 @@ class EMailerTest extends MockedTest
 
 		$this->assertTrue($emailer->send($testEmail));
 
-		$this->assertContains("X-Friendica-Host : friendica.local", EmailerSpy::$MAIL_DATA['headers']);
-		$this->assertContains("X-Friendica-Platform : Friendica", EmailerSpy::$MAIL_DATA['headers']);
-		$this->assertContains("List-ID : <notification.friendica.local>", EmailerSpy::$MAIL_DATA['headers']);
-		$this->assertContains("List-Archive : <http://friendica.local/notifications/system>", EmailerSpy::$MAIL_DATA['headers']);
+		$this->assertContains("X-Friendica-Host: friendica.local", EmailerSpy::$MAIL_DATA['headers']);
+		$this->assertContains("X-Friendica-Platform: Friendica", EmailerSpy::$MAIL_DATA['headers']);
+		$this->assertContains("List-ID: <notification.friendica.local>", EmailerSpy::$MAIL_DATA['headers']);
+		$this->assertContains("List-Archive: <http://friendica.local/notifications/system>", EmailerSpy::$MAIL_DATA['headers']);
 		$this->assertContains("Reply-To: Sender <sender@friendica.local>", EmailerSpy::$MAIL_DATA['headers']);
 		$this->assertContains("MIME-Version: 1.0", EmailerSpy::$MAIL_DATA['headers']);
 		// Base64 "Test Text"
