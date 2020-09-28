@@ -1273,7 +1273,7 @@ class Contact
 		}
 
 		if (empty($contact["network"]) || in_array($contact["network"], Protocol::FEDERATED)) {
-			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))";
+			$sql = "`item`.`uid` IN (0, ?)";
 		} else {
 			$sql = "`item`.`uid` = ?";
 		}
@@ -1281,8 +1281,8 @@ class Contact
 		$contact_field = ((($contact["contact-type"] == self::TYPE_COMMUNITY) || ($contact['network'] == Protocol::MAIL)) ? 'owner-id' : 'author-id');
 
 		if ($thread_mode) {
-			$condition = ["`$contact_field` = ? AND (`gravity` = ? OR (`gravity` = ? AND `vid` = ?)) AND " . $sql,
-				$cid, GRAVITY_PARENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), local_user()];
+			$condition = ["(`$contact_field` = ? OR (`causer-id` = ? AND `post-type` = ?)) AND `gravity` = ? AND " . $sql,
+				$cid, $cid, Item::PT_ANNOUNCEMENT, GRAVITY_PARENT, local_user()];
 		} else {
 			$condition = ["`$contact_field` = ? AND `gravity` IN (?, ?) AND " . $sql,
 				$cid, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
@@ -1298,7 +1298,7 @@ class Contact
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
-		$params = ['order' => ['received' => true],
+		$params = ['order' => ['received' => true], 'group_by' => ['uri-id'],
 			'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 
 		if ($thread_mode) {
