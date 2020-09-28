@@ -99,7 +99,10 @@ class Community extends BaseModule
 			]);
 	
 			if (local_user() && DI::config()->get('system', 'community_no_sharer')) {
-				$path = self::$content . ($parameters['accounttype'] ? '/' . $parameters['accounttype'] : '');
+				$path = self::$content;
+				if (!empty($parameters['accounttype'])) {
+					$path .= '/' . $parameters['accounttype'];
+				}
 				$query_parameters = [];
 		
 				if (!empty($_GET['since_id'])) {
