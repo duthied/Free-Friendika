@@ -88,15 +88,16 @@ class Transmitter
 	 */
 	public static function sendRelayFollow(string $url)
 	{
-		$contact_id = Contact::getIdForURL($url);
-		if (!$contact_id) {
+		$contact = Contact::getByURL($url);
+		if (empty($contact)) {
 			return false;
 		}
 
-		$activity_id = ActivityPub\Transmitter::activityIDFromContact($contact_id);
+		$activity_id = ActivityPub\Transmitter::activityIDFromContact($contact['id']);
 		$success = ActivityPub\Transmitter::sendActivity('Follow', $url, 0, $activity_id);
 		if ($success) {
-			DBA::update('contact', ['rel' => Contact::FRIEND], ['id' => $contact_id]);
+			$rel = $contact['rel'] == Contact::SHARING ? Contact::FRIEND : Contact::FOLLOWER;
+			DBA::update('contact', ['rel' => $rel], ['id' => $contact['id']]);
 		}
 
 		return $success;
@@ -105,19 +106,21 @@ class Transmitter
 	/**
 	 * Unsubscribe from a relay
 	 *
-	 * @param string $url Subscribe actor url
+	 * @param string $url   Subscribe actor url
+	 * @param bool   $force Set the relay status as non follower even if unsubscribe hadn't worked
 	 * @return bool success
 	 */
-	public static function sendRelayUndoFollow(string $url)
+	public static function sendRelayUndoFollow(string $url, bool $force = false)
 	{
-		$contact_id = Contact::getIdForURL($url);
-		if (!$contact_id) {
+		$contact = Contact::getByURL($url);
+		if (empty($contact)) {
 			return false;
 		}
 
-		$success = self::sendContactUndo($url, $contact_id, 0);
-		if ($success) {
-			DBA::update('contact', ['rel' => Contact::SHARING], ['id' => $contact_id]);
+		$success = self::sendContactUndo($url, $contact['id'], 0);
+		if ($success || $force) {
+			$rel = $contact['rel'] == Contact::FRIEND ? Contact::SHARING : Contact::NOTHING;
+			DBA::update('contact', ['rel' => $rel], ['id' => $contact['id']]);
 		}
 
 		return $success;
