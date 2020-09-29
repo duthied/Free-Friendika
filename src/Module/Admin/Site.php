@@ -214,6 +214,7 @@ class Site extends BaseAdmin
 		$relay_subscribe   = !empty($_POST['relay_subscribe']);
 		$relay_scope       = (!empty($_POST['relay_scope'])       ? Strings::escapeTags(trim($_POST['relay_scope']))        : '');
 		$relay_server_tags = (!empty($_POST['relay_server_tags']) ? Strings::escapeTags(trim($_POST['relay_server_tags']))  : '');
+		$relay_deny_tags   = (!empty($_POST['relay_deny_tags'])   ? Strings::escapeTags(trim($_POST['relay_deny_tags']))    : '');
 		$relay_user_tags   = !empty($_POST['relay_user_tags']);
 		$active_panel      = (!empty($_POST['active_panel'])      ? "#" . Strings::escapeTags(trim($_POST['active_panel'])) : '');
 
@@ -425,6 +426,7 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'relay_subscribe'  , $relay_subscribe);
 		DI::config()->set('system', 'relay_scope'      , $relay_scope);
 		DI::config()->set('system', 'relay_server_tags', $relay_server_tags);
+		DI::config()->set('system', 'relay_deny_tags'  , $relay_deny_tags);
 		DI::config()->set('system', 'relay_user_tags'  , $relay_user_tags);
 
 		DI::config()->set('system', 'rino_encrypt'     , $rino);
@@ -696,6 +698,7 @@ class Site extends BaseAdmin
 			'$relay_directly'         => ['relay_directly', DI::l10n()->t('Direct relay transfer'), DI::config()->get('system', 'relay_directly'), DI::l10n()->t('Enables the direct transfer to other servers without using the relay servers')],
 			'$relay_scope'            => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), ['' => DI::l10n()->t('Disabled'), 'all' => DI::l10n()->t('all'), 'tags' => DI::l10n()->t('tags')]],
 			'$relay_server_tags'      => ['relay_server_tags', DI::l10n()->t('Server tags'), DI::config()->get('system', 'relay_server_tags'), DI::l10n()->t('Comma separated list of tags for the "tags" subscription.')],
+			'$relay_deny_tags'        => ['relay_deny_tags', DI::l10n()->t('Deny Server tags'), DI::config()->get('system', 'relay_deny_tags'), DI::l10n()->t('Comma separated list of tags that are rejected.')],
 			'$relay_user_tags'        => ['relay_user_tags', DI::l10n()->t('Allow user tags'), DI::config()->get('system', 'relay_user_tags'), DI::l10n()->t('If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".')],
 
 			'$form_security_token'    => self::getFormSecurityToken('admin_site'),
