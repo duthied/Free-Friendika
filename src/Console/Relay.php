@@ -49,7 +49,7 @@ console relay - Manage ActivityPub relay configuration
 Synopsis
 	bin/console relay list [-h|--help|-?] [-v]
 	bin/console relay add <actor> [-h|--help|-?] [-v]
-	bin/console relay remove <actor> [-h|--help|-?] [-v]
+	bin/console relay remove <actor> [-f|--force] [-h|--help|-?] [-v]
 
 Description
 	bin/console relay list
@@ -62,6 +62,7 @@ Description
 		Remove a relay actor in the format https://relayserver.tld/actor
 
 Options
+    -f|--force   Change the relay status in the system even if the unsubscribe message failed
     -h|--help|-? Show help information
     -v           Show more debug information.
 HELP;
@@ -119,10 +120,14 @@ HELP;
 					$this->out($actor . " couldn't be added");
 				}
 			} elseif ($mode == 'remove') {
-				if (Transmitter::sendRelayUndoFollow($actor)) {
+				$force = $this->getOption(['f', 'force'], false);
+
+				if (Transmitter::sendRelayUndoFollow($actor, $force)) {
 					$this->out('Successfully removed ' . $actor);
-				} else {
+				} elseif (!$force) {
 					$this->out($actor . " couldn't be removed");
+				} else {
+					$this->out($actor . " is forcefully removed");
 				}
 			} else {
 				throw new CommandArgsException($mode . ' is no valid command');

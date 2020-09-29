@@ -173,6 +173,17 @@ class Receiver
 			return;
 		}
 
+		$contact = Contact::getByURL($actor);
+		if (empty($contact)) {
+			Logger::info('Relay contact not found', ['actor' => $actor]);
+			return;
+		}
+
+		if (!in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND])) {
+			Logger::notice('Relay is no sharer', ['actor' => $actor]);
+			return;
+		}
+
 		Logger::info('Got relayed message id', ['id' => $object_id]);
 
 		$item_id = Item::searchByLink($object_id);
