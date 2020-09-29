@@ -161,8 +161,9 @@ class Federation extends BaseAdmin
 			$newVC = $vv['total'];
 			$newVV = $vv['version'];
 			$lastDot = strrpos($newVV, '.');
+			$firstDash = strpos($newVV, '-');
 			$len = strlen($newVV) - 1;
-			if (($lastDot == $len - 4) && (!strrpos($newVV, '-rc') == $len - 3)) {
+			if (($lastDot == $len - 4) && (!strrpos($newVV, '-rc') == $len - 3) && (!$firstDash == $len - 1)) {
 				$newVV = substr($newVV, 0, $lastDot);
 			}
 			if (isset($newV[$newVV])) {
