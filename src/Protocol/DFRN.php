@@ -1795,9 +1795,9 @@ class DFRN
 	{
 		Logger::notice('Processing suggestions');
 
-		$url = $xpath->query('dfrn:url/text()', $suggestion)->item(0)->nodeValue;
+		$url = $xpath->evaluate('string(dfrn:url[1]/text())', $suggestion);
 		$cid = Contact::getIdForURL($url);
-		$note = $xpath->query('dfrn:note/text()', $suggestion)->item(0)->nodeValue;
+		$note = $xpath->evaluate('string(dfrn:note[1]/text())', $suggestion);
 
 		return FContact::addSuggestion($importer['importer_uid'], $cid, $importer['id'], $note);
 	}
