@@ -514,9 +514,9 @@ class Tag
 	{
 		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
 			FROM `tag-search-view`
-			WHERE `private` = ? AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
+			WHERE `private` = ? AND `uid` = ? AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
 			GROUP BY `term` ORDER BY `score` DESC LIMIT ?",
-			Item::PUBLIC, $period, $limit);
+			Item::PUBLIC, 0, $period, $limit);
 
 		if (DBA::isResult($tagsStmt)) {
 			$tags = DBA::toArray($tagsStmt);
