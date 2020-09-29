@@ -629,12 +629,12 @@ class Notifier
 		}
 
 		// Skip the delivery to Diaspora if the item is from an ActivityPub author
-		if ($item['author-network'] == Protocol::ACTIVITYPUB) {
+		if (!empty($item['author-network']) && ($item['author-network'] == Protocol::ACTIVITYPUB)) {
 			return true;
 		}
 
 		// Skip the delivery to Diaspora if the thread parent is from an ActivityPub author
-		if ($thr_parent['author-network'] == Protocol::ACTIVITYPUB) {
+		if (!empty($thr_parent['author-network']) && ($thr_parent['author-network'] == Protocol::ACTIVITYPUB)) {
 			return true;
 		}
 
