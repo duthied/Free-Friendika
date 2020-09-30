@@ -58,6 +58,8 @@ use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
+use Friendica\Security\OAuth1\OAuthRequest;
+use Friendica\Security\OAuth1\OAuthUtil;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;

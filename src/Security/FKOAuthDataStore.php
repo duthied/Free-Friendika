@@ -25,15 +25,15 @@ use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Strings;
-use OAuthConsumer;
-use OAuthDataStore;
-use OAuthToken;
+use Friendica\Security\OAuth1\OAuthConsumer;
+use Friendica\Security\OAuth1\OAuthDataStore;
+use Friendica\Security\OAuth1\OAuthToken;
 
 define('REQUEST_TOKEN_DURATION', 300);
 define('ACCESS_TOKEN_DURATION', 31536000);
 
 /**
- * OAuthDataStore class
+ * Friendica\Security\OAuth1\OAuthDataStore class
  */
 class FKOAuthDataStore extends OAuthDataStore
 {

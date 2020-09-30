@@ -77,9 +77,6 @@
 			"Friendica\\": "src/",
 			"Friendica\\Addon\\": "addon/"
 		},
-		"psr-0": {
-			"": "library/"
-		},
 		"files": [
 			"include/conversation.php",
 			"include/dba.php",

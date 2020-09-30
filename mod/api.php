@@ -24,6 +24,8 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\Security\Login;
+use Friendica\Security\OAuth1\OAuthRequest;
+use Friendica\Security\OAuth1\OAuthUtil;
 
 require_once __DIR__ . '/../include/api.php';
 
