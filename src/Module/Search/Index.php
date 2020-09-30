@@ -155,15 +155,17 @@ class Index extends BaseSearch
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
+		$last_uriid = isset($_GET['last_uriid']) ? intval($_GET['last_uriid']) : 0;
+Logger::info('Blubb', ['uri' => $last_uriid]);
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);
-			$uriids = Tag::getURIIdListByTag($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
+			$uriids = Tag::getURIIdListByTag($search, local_user(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
 			$count = Tag::countByTag($search, local_user());
 		} else {
 			Logger::info('Start fulltext search.', ['q' => $search]);
-			$uriids = ItemContent::getURIIdListBySearch($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
+			$uriids = ItemContent::getURIIdListBySearch($search, local_user(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
 			$count = ItemContent::countBySearch($search, local_user());
 		}
 
@@ -175,6 +177,11 @@ class Index extends BaseSearch
 		if (empty($items)) {
 			notice(DI::l10n()->t('No results.'));
 			return $o;
+		}
+
+		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
+			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		}
 
 		if ($tag) {
@@ -191,7 +198,12 @@ class Index extends BaseSearch
 
 		$o .= conversation(DI::app(), $items, 'search', false, false, 'commented', local_user());
 
-		$o .= $pager->renderMinimal($count);
+		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+			$o .= HTML::scrollLoader();
+		} else {
+			$o .= $pager->renderMinimal($count);
+		}
+
 
 		return $o;
 	}

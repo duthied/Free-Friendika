@@ -1,5 +1,9 @@
 
 <a name="{{$item.id}}" ></a>
+<span class="commented" style="display: none;">{{$item.commented}}</span>
+<span class="received" style="display: none;">{{$item.received}}</span>
+<span class="created" style="display: none;">{{$item.created_date}}</span>
+<span class="uriid" style="display: none;">{{$item.uriid}}</span>
 <div class="wall-item-outside-wrapper {{$item.indent}}{{$item.previewing}}" id="wall-item-outside-wrapper-{{$item.id}}" >
 	<div class="wall-item-content-wrapper {{$item.indent}}" id="wall-item-content-wrapper-{{$item.id}}" >
 		<div class="wall-item-info" id="wall-item-info-{{$item.id}}">
