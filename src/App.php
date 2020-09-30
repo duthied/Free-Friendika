@@ -24,7 +24,7 @@ namespace Friendica;
 use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
-use Friendica\App\Authentication;
+use Friendica\Security\Authentication;
 use Friendica\Core\Config\Cache;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\PConfig\IPConfig;
