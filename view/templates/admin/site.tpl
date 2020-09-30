@@ -133,6 +133,7 @@
 		{{include file="field_checkbox.tpl" field=$relay_directly}}
 		{{include file="field_select.tpl" field=$relay_scope}}
 		{{include file="field_input.tpl" field=$relay_server_tags}}
+		{{include file="field_input.tpl" field=$relay_deny_tags}}
 		{{include file="field_checkbox.tpl" field=$relay_user_tags}}
 
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
