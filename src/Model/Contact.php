@@ -2578,13 +2578,21 @@ class Contact
 	{
 		$destination = $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
 
-		if (!Session::isAuthenticated() || ($contact['network'] != Protocol::DFRN)) {
+		if (!Session::isAuthenticated()) {
 			return $destination;
 		}
 
 		// Only redirections to the same host do make sense
 		if (($url != '') && (parse_url($url, PHP_URL_HOST) != parse_url($contact['url'], PHP_URL_HOST))) {
 			return $url;
+		}
+
+		if (DI::pConfig()->get(local_user(), 'system', 'stay_local') && ($url == '')) {
+			return 'contact/' . $contact['id'] . '/conversations';
+		}
+
+		if ($contact['network'] != Protocol::DFRN) {
+			return $destination;
 		}
 
 		if (!empty($contact['uid'])) {
