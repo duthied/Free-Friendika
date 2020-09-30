@@ -2909,7 +2909,7 @@ class Diaspora
 		Tag::storeRawTagsFromBody($datarray['uri-id'], $datarray["body"]);
 
 		if (!$fetched && !self::isSolicitedMessage($datarray["uri"], $datarray['uri-id'], $author, $body)) {
-			DBA::delete('uri-id', ['uri' => $datarray['uri']]);
+			DBA::delete('item-uri', ['uri' => $datarray['uri']]);
 			return false;
 		}
 

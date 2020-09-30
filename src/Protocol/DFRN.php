@@ -2472,7 +2472,7 @@ class DFRN
 		// Check if the message is wanted
 		if (($importer["importer_uid"] == 0) && ($item['uri'] == $item['parent-uri'])) {
 			if (!self::isSolicitedMessage($item)) {
-				DBA::delete('uri-id', ['uri' => $item['uri']]);
+				DBA::delete('item-uri', ['uri' => $item['uri']]);
 				return 403;
 			}
 		}
