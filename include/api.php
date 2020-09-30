@@ -44,7 +44,7 @@ use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
 use Friendica\Model\Verb;
-use Friendica\Network\FKOAuth1;
+use Friendica\Security\FKOAuth1;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\ExpectationFailedException;
