@@ -2,8 +2,7 @@
 
 namespace Friendica\Security\OAuth1;
 
-use Friendica;
-use Friendica\Security\OAuth1\OAuthUtil;
+use Friendica\Util\Strings;
 
 class OAuthRequest
 {
@@ -92,15 +91,15 @@ class OAuthRequest
 	/**
 	 * pretty much a helper function to set up the request
 	 *
-	 * @param \Friendica\Security\OAuth1\OAuthConsumer $consumer
-	 * @param \Friendica\Security\OAuth1\OAuthToken    $token
-	 * @param string                                   $http_method
-	 * @param string                                   $http_url
-	 * @param array|null                               $parameters
+	 * @param OAuthConsumer $consumer
+	 * @param OAuthToken    $token
+	 * @param string        $http_method
+	 * @param string        $http_url
+	 * @param array|null    $parameters
 	 *
 	 * @return OAuthRequest
 	 */
-	public static function from_consumer_and_token(\Friendica\Security\OAuth1\OAuthConsumer $consumer, $http_method, $http_url, array $parameters = null, \Friendica\Security\OAuth1\OAuthToken $token = null)
+	public static function from_consumer_and_token(OAuthConsumer $consumer, $http_method, $http_url, array $parameters = null, OAuthToken $token = null)
 	{
 		@$parameters or $parameters = [];
 		$defaults = [
@@ -252,7 +251,7 @@ class OAuthRequest
 	 * @param string|null $realm
 	 *
 	 * @return string
-	 * @throws \Friendica\Security\OAuth1\OAuthException
+	 * @throws OAuthException
 	 */
 	public function to_header($realm = null)
 	{
@@ -266,7 +265,7 @@ class OAuthRequest
 		foreach ($this->parameters as $k => $v) {
 			if (substr($k, 0, 5) != "oauth") continue;
 			if (is_array($v)) {
-				throw new \Friendica\Security\OAuth1\OAuthException('Arrays not supported in headers');
+				throw new OAuthException('Arrays not supported in headers');
 			}
 			$out   .= ($first) ? ' ' : ',';
 			$out   .= OAuthUtil::urlencode_rfc3986($k) .
@@ -284,7 +283,7 @@ class OAuthRequest
 	}
 
 
-	public function sign_request(\Friendica\Security\OAuth1\OAuthSignatureMethod $signature_method, $consumer, $token)
+	public function sign_request(Signature\OAuthSignatureMethod $signature_method, $consumer, $token)
 	{
 		$this->set_parameter(
 			"oauth_signature_method",
@@ -295,7 +294,7 @@ class OAuthRequest
 		$this->set_parameter("oauth_signature", $signature, false);
 	}
 
-	public function build_signature(\Friendica\Security\OAuth1\OAuthSignatureMethod $signature_method, $consumer, $token)
+	public function build_signature(Signature\OAuthSignatureMethod $signature_method, $consumer, $token)
 	{
 		$signature = $signature_method->build_signature($this, $consumer, $token);
 		return $signature;
@@ -314,6 +313,6 @@ class OAuthRequest
 	 */
 	private static function generate_nonce()
 	{
-		return Friendica\Util\Strings::getRandomHex(32);
+		return Strings::getRandomHex(32);
 	}
 }

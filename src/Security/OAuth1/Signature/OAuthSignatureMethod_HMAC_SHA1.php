@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Security\OAuth1;
+namespace Friendica\Security\OAuth1\Signature;
 
 use Friendica\Security\OAuth1\OAuthRequest;
 use Friendica\Security\OAuth1\OAuthUtil;
@@ -12,7 +12,7 @@ use Friendica\Security\OAuth1\OAuthUtil;
  * character (ASCII code 38) even if empty.
  *   - Chapter 9.2 ("HMAC-SHA1")
  */
-class OAuthSignatureMethod_HMAC_SHA1 extends \Friendica\Security\OAuth1\OAuthSignatureMethod
+class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod
 {
 	function get_name()
 	{

@@ -25,8 +25,8 @@ use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Security\OAuth1\OAuthServer;
-use Friendica\Security\OAuth1\OAuthSignatureMethod_HMAC_SHA1;
-use Friendica\Security\OAuth1\OAuthSignatureMethod_PLAINTEXT;
+use Friendica\Security\OAuth1\Signature\OAuthSignatureMethod_HMAC_SHA1;
+use Friendica\Security\OAuth1\Signature\OAuthSignatureMethod_PLAINTEXT;
 
 /**
  * OAuth protocol

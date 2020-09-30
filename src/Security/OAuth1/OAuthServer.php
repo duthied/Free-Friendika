@@ -3,16 +3,13 @@
 namespace Friendica\Security\OAuth1;
 
 use Friendica\Security\FKOAuthDataStore;
-use OAuthConsumer;
-use OAuthRequest;
-use OAuthSignatureMethod;
-use OAuthToken;
+use Friendica\Security\OAuth1\Signature;
 
 class OAuthServer
 {
 	protected $timestamp_threshold = 300; // in seconds, five minutes
 	protected $version = '1.0';             // hi blaine
-	/** @var \Friendica\Security\OAuth1\OAuthSignatureMethod[] */
+	/** @var Signature\OAuthSignatureMethod[] */
 	protected $signature_methods = [];
 
 	/** @var FKOAuthDataStore */
@@ -23,7 +20,7 @@ class OAuthServer
 		$this->data_store = $data_store;
 	}
 
-	public function add_signature_method(\Friendica\Security\OAuth1\OAuthSignatureMethod $signature_method)
+	public function add_signature_method(Signature\OAuthSignatureMethod $signature_method)
 	{
 		$this->signature_methods[$signature_method->get_name()] =
 			$signature_method;
@@ -35,12 +32,12 @@ class OAuthServer
 	 * process a request_token request
 	 * returns the request token on success
 	 *
-	 * @param \Friendica\Security\OAuth1\OAuthRequest $request
+	 * @param OAuthRequest $request
 	 *
-	 * @return \Friendica\Security\OAuth1\OAuthToken|null
+	 * @return OAuthToken|null
 	 * @throws OAuthException
 	 */
-	public function fetch_request_token(\Friendica\Security\OAuth1\OAuthRequest $request)
+	public function fetch_request_token(OAuthRequest $request)
 	{
 		$this->get_version($request);
 
@@ -62,12 +59,12 @@ class OAuthServer
 	 * process an access_token request
 	 * returns the access token on success
 	 *
-	 * @param \Friendica\Security\OAuth1\OAuthRequest $request
+	 * @param OAuthRequest $request
 	 *
 	 * @return object
 	 * @throws OAuthException
 	 */
-	public function fetch_access_token(\Friendica\Security\OAuth1\OAuthRequest $request)
+	public function fetch_access_token(OAuthRequest $request)
 	{
 		$this->get_version($request);
 
@@ -88,12 +85,12 @@ class OAuthServer
 	/**
 	 * verify an api call, checks all the parameters
 	 *
-	 * @param \Friendica\Security\OAuth1\OAuthRequest $request
+	 * @param OAuthRequest $request
 	 *
 	 * @return array
 	 * @throws OAuthException
 	 */
-	public function verify_request(\Friendica\Security\OAuth1\OAuthRequest $request)
+	public function verify_request(OAuthRequest $request)
 	{
 		$this->get_version($request);
 		$consumer = $this->get_consumer($request);
@@ -107,12 +104,12 @@ class OAuthServer
 	/**
 	 * version 1
 	 *
-	 * @param \Friendica\Security\OAuth1\OAuthRequest $request
+	 * @param OAuthRequest $request
 	 *
 	 * @return string
 	 * @throws OAuthException
 	 */
-	private function get_version(\Friendica\Security\OAuth1\OAuthRequest $request)
+	private function get_version(OAuthRequest $request)
 	{
 		$version = $request->get_parameter("oauth_version");
 		if (!$version) {
@@ -129,12 +126,12 @@ class OAuthServer
 	/**
 	 * figure out the signature with some defaults
 	 *
-	 * @param \Friendica\Security\OAuth1\OAuthRequest $request
+	 * @param OAuthRequest $request
 	 *
-	 * @return \Friendica\Security\OAuth1\OAuthSignatureMethod
+	 * @return Signature\OAuthSignatureMethod
 	 * @throws OAuthException
 	 */
-	private function get_signature_method(\Friendica\Security\OAuth1\OAuthRequest $request)
+	private function get_signature_method(OAuthRequest $request)
 	{
 		$signature_method =
 			@$request->get_parameter("oauth_signature_method");
@@ -161,12 +158,12 @@ class OAuthServer
 	/**
 	 * try to find the consumer for the provided request's consumer key
 	 *
-	 * @param \Friendica\Security\OAuth1\OAuthRequest $request
+	 * @param OAuthRequest $request
 	 *
-	 * @return \Friendica\Security\OAuth1\OAuthConsumer
+	 * @return OAuthConsumer
 	 * @throws OAuthException
 	 */
-	private function get_consumer(\Friendica\Security\OAuth1\OAuthRequest $request)
+	private function get_consumer(OAuthRequest $request)
 	{
 		$consumer_key = @$request->get_parameter("oauth_consumer_key");
 		if (!$consumer_key) {
@@ -184,14 +181,14 @@ class OAuthServer
 	/**
 	 * try to find the token for the provided request's token key
 	 *
-	 * @param \Friendica\Security\OAuth1\OAuthRequest $request
+	 * @param OAuthRequest                            $request
 	 * @param                                         $consumer
 	 * @param string                                  $token_type
 	 *
-	 * @return \Friendica\Security\OAuth1\OAuthToken|null
+	 * @return OAuthToken|null
 	 * @throws OAuthException
 	 */
-	private function get_token(\Friendica\Security\OAuth1\OAuthRequest &$request, $consumer, $token_type = "access")
+	private function get_token(OAuthRequest &$request, $consumer, $token_type = "access")
 	{
 		$token_field = @$request->get_parameter('oauth_token');
 		$token       = $this->data_store->lookup_token(
@@ -209,13 +206,13 @@ class OAuthServer
 	 * all-in-one function to check the signature on a request
 	 * should guess the signature method appropriately
 	 *
-	 * @param \Friendica\Security\OAuth1\OAuthRequest    $request
-	 * @param \Friendica\Security\OAuth1\OAuthConsumer   $consumer
-	 * @param \Friendica\Security\OAuth1\OAuthToken|null $token
+	 * @param OAuthRequest    $request
+	 * @param OAuthConsumer   $consumer
+	 * @param OAuthToken|null $token
 	 *
 	 * @throws OAuthException
 	 */
-	private function check_signature(\Friendica\Security\OAuth1\OAuthRequest $request, \Friendica\Security\OAuth1\OAuthConsumer $consumer, \Friendica\Security\OAuth1\OAuthToken $token = null)
+	private function check_signature(OAuthRequest $request, OAuthConsumer $consumer, OAuthToken $token = null)
 	{
 		// this should probably be in a different method
 		$timestamp = @$request->get_parameter('oauth_timestamp');
@@ -265,14 +262,14 @@ class OAuthServer
 	/**
 	 * check that the nonce is not repeated
 	 *
-	 * @param \Friendica\Security\OAuth1\OAuthConsumer $consumer
-	 * @param \Friendica\Security\OAuth1\OAuthToken    $token
-	 * @param string                                   $nonce
-	 * @param int                                      $timestamp
+	 * @param OAuthConsumer $consumer
+	 * @param OAuthToken    $token
+	 * @param string        $nonce
+	 * @param int           $timestamp
 	 *
 	 * @throws OAuthException
 	 */
-	private function check_nonce(\Friendica\Security\OAuth1\OAuthConsumer $consumer, \Friendica\Security\OAuth1\OAuthToken $token, $nonce, int $timestamp)
+	private function check_nonce(OAuthConsumer $consumer, OAuthToken $token, $nonce, int $timestamp)
 	{
 		if (!$nonce)
 			throw new OAuthException(

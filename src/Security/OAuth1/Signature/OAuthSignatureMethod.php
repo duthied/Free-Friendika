@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Security\OAuth1;
+namespace Friendica\Security\OAuth1\Signature;
 
 use Friendica\Security\OAuth1\OAuthRequest;
 

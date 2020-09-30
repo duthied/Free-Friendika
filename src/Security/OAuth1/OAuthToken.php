@@ -2,8 +2,6 @@
 
 namespace Friendica\Security\OAuth1;
 
-use Friendica\Security\OAuth1\OAuthUtil;
-
 class OAuthToken
 {
 	// access tokens and request tokens
