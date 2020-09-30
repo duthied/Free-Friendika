@@ -4,7 +4,7 @@
 /* Generic exception class
  */
 
-use Friendica\Network\FKOAuthDataStore;
+use Friendica\Security\FKOAuthDataStore;
 
 if (!class_exists('OAuthException', false)) {
 	class OAuthException extends Exception

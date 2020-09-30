@@ -54,7 +54,7 @@ use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Security;
+use Friendica\Security\Security;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 

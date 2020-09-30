@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Network;
+namespace Friendica\Security;
 
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;

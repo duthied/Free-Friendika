@@ -31,7 +31,7 @@ use Friendica\Model\Storage\SystemResource;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
-use Friendica\Util\Security;
+use Friendica\Security\Security;
 use Friendica\Util\Strings;
 
 require_once "include/dba.php";
