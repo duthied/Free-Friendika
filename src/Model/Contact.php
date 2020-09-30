@@ -23,9 +23,11 @@ namespace Friendica\Model;
 
 use Friendica\App\BaseURL;
 use Friendica\Content\Pager;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -1284,6 +1286,11 @@ class Contact
 		if ($thread_mode) {
 			$condition = ["(`$contact_field` = ? OR (`causer-id` = ? AND `post-type` = ?)) AND `gravity` = ? AND " . $sql,
 				$cid, $cid, Item::PT_ANNOUNCEMENT, GRAVITY_PARENT, local_user()];
+
+			$last_received = isset($_GET['last_received']) ? DateTimeFormat::utc($_GET['last_received']) : '';
+			if (!empty($last_received)) {
+				$condition = DBA::mergeConditions($condition, ["`received` < ?", $last_received]);
+			}
 		} else {
 			$condition = ["`$contact_field` = ? AND `gravity` IN (?, ?) AND " . $sql,
 				$cid, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
@@ -1303,6 +1310,13 @@ class Contact
 			'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 
 		if ($thread_mode) {
+			if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+				$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
+				$o = Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
+			} else {
+				$o = '';
+			}
+		
 			$r = Item::selectForUser(local_user(), ['uri', 'gravity', 'parent-uri'], $condition, $params);
 			$items = [];
 			while ($item = DBA::fetch($r)) {
@@ -1316,7 +1330,7 @@ class Contact
 			}
 			DBA::close($r);
 
-			$o = conversation($a, $items, 'contacts', $update, false, 'commented', local_user());
+			$o .= conversation($a, $items, 'contacts', $update, false, 'commented', local_user());
 		} else {
 			$r = Item::selectForUser(local_user(), [], $condition, $params);
 
@@ -1326,7 +1340,11 @@ class Contact
 		}
 
 		if (!$update) {
-			$o .= $pager->renderMinimal(count($items));
+			if ($thread_mode && DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+				$o .= HTML::scrollLoader();
+			} else {
+				$o .= $pager->renderMinimal(count($items));
+			}
 		}
 
 		return $o;
