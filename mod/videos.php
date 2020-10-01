@@ -33,7 +33,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
-use Friendica\Util\Security;
+use Friendica\Security\Security;
 
 function videos_init(App $a)
 {

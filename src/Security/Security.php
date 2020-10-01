@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Util;
+namespace Friendica\Security;
 
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
