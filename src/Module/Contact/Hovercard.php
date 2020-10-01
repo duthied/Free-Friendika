@@ -49,6 +49,13 @@ class Hovercard extends BaseModule
 		// the real url (nurl)
 		if (strpos($contact_url, 'redir/') === 0) {
 			$cid = intval(substr($contact_url, 6));
+		}
+
+		if (strpos($contact_url, 'contact/') === 0) {
+			$cid = intval(substr($contact_url, 8));
+		}
+
+		if (!empty($cid)) {			
 			$remote_contact = Contact::selectFirst(['nurl'], ['id' => $cid]);
 			$contact_url = $remote_contact['nurl'] ?? '';
 		}

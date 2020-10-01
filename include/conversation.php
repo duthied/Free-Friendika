@@ -734,7 +734,7 @@ function conversation_fetch_comments($thread_items, $pinned) {
 				$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
 				break;
 			case Item::PT_ANNOUNCEMENT:
-				if (!empty($row['causer-id']) && DI::pConfig()->get(local_user(), 'system', 'display_resharer')  ) {
+				if (!empty($row['causer-id']) && DI::pConfig()->get(local_user(), 'system', 'display_resharer')) {
 					$row['owner-link'] = $row['causer-link'];
 					$row['owner-avatar'] = $row['causer-avatar'];
 					$row['owner-name'] = $row['causer-name'];
