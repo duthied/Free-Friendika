@@ -156,9 +156,17 @@ return [
 		// Periodically (once an hour) run an "optimize table" command for cache tables
 		'optimize_tables' => false,
 
+		// relay_deny_tags (String)
+		// Comma separated list of tags that are rejected.
+		'relay_deny_tags' => '',
+
 		// relay_server (String)
 		// Address of the relay server where public posts should be send to.
 		'relay_server' => 'https://social-relay.isurf.ca',
+
+		// relay_server_tags (String)
+		// Comma separated list of tags for the "tags" subscription.
+		'relay_server_tags' => '',
 
 		// relay_user_tags (Boolean)
 		// If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".

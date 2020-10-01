@@ -29,7 +29,7 @@ use Friendica\Model\Search;
 /**
  * Base class for relay handling
  */
-final class Relay
+class Relay
 {
 	/**
 	 * Check if a post is wanted
@@ -84,6 +84,7 @@ final class Relay
 			$content = mb_strtolower(BBCode::toPlaintext($body, false));
 
 			foreach ($tags as $tag) {
+				$tag = mb_strtolower($tag);
 				if (in_array($tag, $denyTags)) {
 					Logger::info('Unwanted hashtag found - rejected', ['hashtag' => $tag, 'network' => $network, 'url' => $url]);
 					return false;
