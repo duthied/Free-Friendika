@@ -25,7 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\DI;
 use Friendica\Protocol\Activity;
-use Friendica\Util\Security;
+use Friendica\Security\Security;
 
 /**
  * A list of threads

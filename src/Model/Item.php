@@ -3595,11 +3595,9 @@ class Item
 					DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('videos_head.tpl'));
 				}
 
-				$url_parts = explode('/', $the_url);
-				$id = end($url_parts);
 				$as .= Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
 					'$video' => [
-						'id'     => $id,
+						'id'     => $item['author-id'],
 						'title'  => DI::l10n()->t('View Video'),
 						'src'    => $the_url,
 						'mime'   => $mime,

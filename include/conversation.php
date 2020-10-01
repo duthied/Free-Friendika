@@ -585,6 +585,10 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'template' => $tpl,
 					'id' => ($preview ? 'P0' : $item['id']),
 					'guid' => ($preview ? 'Q0' : $item['guid']),
+					'commented' => $item['commented'],
+					'received' => $item['received'],
+					'created_date' => $item['created'],
+					'uriid' => $item['uri-id'],
 					'network' => $item['network'],
 					'network_name' => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']),
 					'network_icon' => ContactSelector::networkToIcon($item['network'], $item['author-link']),
@@ -734,7 +738,7 @@ function conversation_fetch_comments($thread_items, $pinned) {
 				$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
 				break;
 			case Item::PT_ANNOUNCEMENT:
-				if (!empty($row['causer-id']) && DI::pConfig()->get(local_user(), 'system', 'display_resharer')  ) {
+				if (!empty($row['causer-id']) && DI::pConfig()->get(local_user(), 'system', 'display_resharer')) {
 					$row['owner-link'] = $row['causer-link'];
 					$row['owner-avatar'] = $row['causer-avatar'];
 					$row['owner-name'] = $row['causer-name'];

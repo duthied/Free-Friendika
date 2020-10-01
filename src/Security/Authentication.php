@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\App;
+namespace Friendica\Security;
 
 use Exception;
 use Friendica\App;
@@ -41,7 +41,7 @@ use Friendica\Core\L10n;
 use Psr\Log\LoggerInterface;
 
 /**
- * Handle Authentification, Session and Cookies
+ * Handle Authentication, Session and Cookies
  */
 class Authentication
 {
@@ -374,7 +374,7 @@ class Authentication
 			 * that expires after one week (the default is when the browser is closed).
 			 * The cookie will be renewed automatically.
 			 * The week ensures that sessions will expire after some inactivity.
-			 */;
+			 */
 			if ($this->session->get('remember')) {
 				$this->logger->info('Injecting cookie for remembered user ' . $user_record['nickname']);
 				$this->cookie->set($user_record['uid'], $user_record['password'], $user_record['prvkey']);

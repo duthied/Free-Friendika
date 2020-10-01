@@ -58,7 +58,7 @@ if (php_sapi_name() !== 'cli') {
 
 use Dice\Dice;
 use Friendica\App\Mode;
-use Friendica\Util\ExAuth;
+use Friendica\Security\ExAuth;
 use Psr\Log\LoggerInterface;
 
 if (sizeof($_SERVER["argv"]) == 0) {

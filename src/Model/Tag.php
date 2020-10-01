@@ -462,11 +462,17 @@ class Tag
 	 * @param integer $uid
 	 * @param integer $start
 	 * @param integer $limit
+	 * @param integer $last_uriid
 	 * @return array with URI-ID
 	 */
-	public static function getURIIdListByTag(string $search, int $uid = 0, int $start = 0, int $limit = 100)
+	public static function getURIIdListByTag(string $search, int $uid = 0, int $start = 0, int $limit = 100, int $last_uriid = 0)
 	{
 		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
+
+		if (!empty($last_uriid)) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $last_uriid]);
+		}
+
 		$params = [
 			'order' => ['uri-id' => true],
 			'group_by' => ['uri-id'],

@@ -64,14 +64,6 @@ abstract class DI
 	//
 
 	/**
-	 * @return App\Authentication
-	 */
-	public static function auth()
-	{
-		return self::$dice->create(App\Authentication::class);
-	}
-
-	/**
 	 * @return App\Arguments
 	 */
 	public static function args()
@@ -404,6 +396,18 @@ abstract class DI
 	public static function activity()
 	{
 		return self::$dice->create(Protocol\Activity::class);
+	}
+
+	//
+	// "Security" namespace instances
+	//
+
+	/**
+	 * @return \Friendica\Security\Authentication
+	 */
+	public static function auth()
+	{
+		return self::$dice->create(Security\Authentication::class);
 	}
 
 	//

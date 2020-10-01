@@ -28,7 +28,7 @@ use Friendica\DI;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
-use Friendica\Util\Security;
+use Friendica\Security\Security;
 
 /**
  * Class to handle attach dabatase table

@@ -36,7 +36,7 @@ use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Security;
+use Friendica\Security\Security;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 

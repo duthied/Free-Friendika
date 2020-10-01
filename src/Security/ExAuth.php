@@ -32,7 +32,7 @@
  *
  */
 
-namespace Friendica\Util;
+namespace Friendica\Security;
 
 use Exception;
 use Friendica\App;
@@ -42,6 +42,7 @@ use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
+use Friendica\Util\PidFile;
 
 class ExAuth
 {
