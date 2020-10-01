@@ -29,10 +29,25 @@ use Friendica\DI;
 
 class ItemContent
 {
-	public static function getURIIdListBySearch(string $search, int $uid = 0, int $start = 0, int $limit = 100)
+	/**
+	 * Search posts for given content
+	 *
+	 * @param string $search
+	 * @param integer $uid
+	 * @param integer $start
+	 * @param integer $limit
+	 * @param integer $last_uriid
+	 * @return array
+	 */
+	public static function getURIIdListBySearch(string $search, int $uid = 0, int $start = 0, int $limit = 100, int $last_uriid = 0)
 	{
 		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `item-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
 			AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
+
+		if (!empty($last_uriid)) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $last_uriid]);
+		}
+
 		$params = [
 			'order' => ['uri-id' => true],
 			'group_by' => ['uri-id'],
