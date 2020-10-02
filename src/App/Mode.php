@@ -38,6 +38,9 @@ class Mode
 	const DBCONFIGAVAILABLE   = 4;
 	const MAINTENANCEDISABLED = 8;
 
+	const BACKEND_CONTENT_TYPES = ['application/jrd+json', 'application/xrd+xml', 'text/xml',
+		'application/rss+xml', 'application/atom+xml', 'application/activity+json'];
+
 	/***
 	 * @var int The mode of this Application
 	 *
@@ -134,9 +137,7 @@ class Mode
 	 */
 	public function determineRunMode(bool $isBackend, Module $module, array $server, MobileDetect $mobileDetect)
 	{
-		$contenttypes = ['application/jrd+json', 'application/xrd+xml', 'text/xml',
-			'application/rss+xml', 'application/atom+xml', 'application/activity+json'];
-		foreach ($contenttypes as $type) {
+		foreach (self::BACKEND_CONTENT_TYPES as $type) {
 			if (strpos(strtolower($server['HTTP_ACCEPT'] ?? ''), $type) !== false) {
 				$isBackend = true;
 			}
