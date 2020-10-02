@@ -22,7 +22,6 @@
 namespace Friendica\Object;
 
 use Exception;
-use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Util\Images;
 use Imagick;
@@ -123,7 +122,11 @@ class Image
 			$this->image->setFormat($format);
 
 			// Always coalesce, if it is not a multi-frame image it won't hurt anyway
-			$this->image = $this->image->coalesceImages();
+			try {
+				$this->image = $this->image->coalesceImages();
+			} catch (Exception $e) {
+				return false;
+			}
 
 			/*
 			 * setup the compression here, so we'll do it only once
