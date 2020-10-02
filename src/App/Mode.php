@@ -134,8 +134,15 @@ class Mode
 	 */
 	public function determineRunMode(bool $isBackend, Module $module, array $server, MobileDetect $mobileDetect)
 	{
-		$isBackend = $isBackend ||
-		             $module->isBackend();
+		$contenttypes = ['application/jrd+json', 'application/xrd+xml', 'text/xml',
+			'application/rss+xml', 'application/atom+xml', 'application/activity+json'];
+		foreach ($contenttypes as $type) {
+			if (strpos(strtolower($server['HTTP_ACCEPT'] ?? ''), $type) !== false) {
+				$isBackend = true;
+			}
+		}
+
+		$isBackend = $isBackend || $module->isBackend();
 		$isMobile  = $mobileDetect->isMobile();
 		$isTablet  = $mobileDetect->isTablet();
 		$isAjax    = strtolower($server['HTTP_X_REQUESTED_WITH'] ?? '') == 'xmlhttprequest';
