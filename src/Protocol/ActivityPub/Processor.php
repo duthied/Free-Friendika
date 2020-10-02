@@ -806,6 +806,9 @@ class Processor
 			return true;
 		}
 
+		$attributed_to = JsonLD::fetchElement($activity['as:object'], 'as:attributedTo', '@id');
+		$authorid = Contact::getIdForURL($attributed_to);
+
 		$body = HTML::toBBCode(JsonLD::fetchElement($activity['as:object'], 'as:content', '@value'));
 
 		$messageTags = [];
@@ -819,7 +822,7 @@ class Processor
 			}
 		}
 
-		return Relay::isSolicitedPost($messageTags, $body, $id, Protocol::ACTIVITYPUB);
+		return Relay::isSolicitedPost($messageTags, $body, $authorid, $id, Protocol::ACTIVITYPUB);
 	}
 
 	/**

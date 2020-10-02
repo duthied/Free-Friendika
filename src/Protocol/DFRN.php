@@ -2277,7 +2277,7 @@ class DFRN
 
 		$taglist = Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]);
 		$tags = array_column($taglist, 'name');
-		return Relay::isSolicitedPost($tags, $item['body'], $item['uri'], Protocol::DFRN);
+		return Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::DFRN);
 	}
 
 	/**

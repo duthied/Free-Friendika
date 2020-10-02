@@ -2807,7 +2807,7 @@ class Diaspora
 
 		$taglist = Tag::getByURIId($uriid, [Tag::HASHTAG]);
 		$tags = array_column($taglist, 'name');
-		return Relay::isSolicitedPost($tags, $body, $url, Protocol::DIASPORA);
+		return Relay::isSolicitedPost($tags, $body, $contact['id'], $url, Protocol::DIASPORA);
 	}
 
 	/**

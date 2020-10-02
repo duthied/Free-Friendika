@@ -24,6 +24,7 @@ namespace Friendica\Protocol;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Search;
 
 /**
@@ -36,10 +37,11 @@ class Relay
 	 *
 	 * @param array $tags
 	 * @param string $body
+	 * @param int $authorid
 	 * @param string $url
 	 * @return boolean "true" is the post is wanted by the system
 	 */
-	public static function isSolicitedPost(array $tags, string $body, string $url, string $network = '')
+	public static function isSolicitedPost(array $tags, string $body, int $authorid, string $url, string $network = '')
 	{
 		$config = DI::config();
 
@@ -52,6 +54,16 @@ class Relay
 
 		if ($scope == SR_SCOPE_NONE) {
 			Logger::info('Server does not accept relay posts - rejected', ['network' => $network, 'url' => $url]);
+			return false;
+		}
+
+		if (Contact::isBlocked($authorid)) {
+			Logger::info('Author is blocked - rejected', ['author' => $authorid, 'network' => $network, 'url' => $url]);
+			return false;
+		}
+
+		if (Contact::isHidden($authorid)) {
+			Logger::info('Author is hidden - rejected', ['author' => $authorid, 'network' => $network, 'url' => $url]);
 			return false;
 		}
 
