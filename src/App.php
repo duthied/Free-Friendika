@@ -448,7 +448,7 @@ class App
 				Core\Worker::executeIfIdle();
 			}
 
-			if ($this->mode->isNormal()) {
+			if ($this->mode->isNormal() && !$this->mode->isBackend()) {
 				$requester = HTTPSignature::getSigner('', $_SERVER);
 				if (!empty($requester)) {
 					Profile::addVisitorCookieForHandle($requester);
@@ -456,7 +456,7 @@ class App
 			}
 
 			// ZRL
-			if (!empty($_GET['zrl']) && $this->mode->isNormal()) {
+			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend()) {
 				if (!local_user()) {
 					// Only continue when the given profile link seems valid
 					// Valid profile links contain a path with "/profile/" and no query parameters

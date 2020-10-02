@@ -22,8 +22,11 @@
 namespace Friendica\Model;
 
 use Friendica\Content\Text\HTML;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
@@ -40,7 +43,7 @@ class APContact
 	 * @param string $addr Address
 	 * @return array webfinger data
 	 */
-	public static function fetchWebfingerData(string $addr)
+	private static function fetchWebfingerData(string $addr)
 	{
 		$addr_parts = explode('@', $addr);
 		if (count($addr_parts) != 2) {
@@ -152,6 +155,16 @@ class APContact
 
 		if (empty($compacted['@id'])) {
 			return $fetched_contact;
+		}
+
+		// Detect multiple fast repeating request to the same address
+		// See https://github.com/friendica/friendica/issues/9303
+		$cachekey = 'apcontact:getByURL:' . $url;
+		$result = DI::cache()->get($cachekey);
+		if (!is_null($result)) {
+			Logger::notice('Multiple requests for the address', ['url' => $url, 'update' => $update, 'callstack' => System::callstack(20), 'result' => $result]);
+		} else {
+			DI::cache()->set($cachekey, System::callstack(20), Duration::FIVE_MINUTES);
 		}
 
 		$apcontact['url'] = $compacted['@id'];
