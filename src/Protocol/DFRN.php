@@ -2262,6 +2262,25 @@ class DFRN
 	}
 
 	/**
+	 * Checks if an incoming message is wanted
+	 *
+	 * @param array $item
+	 * @return boolean Is the message wanted?
+	 */
+	private static function isSolicitedMessage(array $item)
+	{
+		if (DBA::exists('contact', ["`nurl` = ? AND `uid` != ? AND `rel` IN (?, ?)",
+			Strings::normaliseLink($item["author-link"]), 0, Contact::FRIEND, Contact::SHARING])) {
+			Logger::info('Author has got followers - accepted', ['uri' => $item['uri'], 'author' => $item["author-link"]]);
+			return true;
+		}
+
+		$taglist = Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]);
+		$tags = array_column($taglist, 'name');
+		return Relay::isSolicitedPost($tags, $item['body'], $item['author-id'], $item['uri'], Protocol::DFRN);
+	}
+
+	/**
 	 * Processes the entry elements which contain the items and comments
 	 *
 	 * @param array  $header   Array of the header elements that always stay the same
@@ -2450,6 +2469,14 @@ class DFRN
 			}
 		}
 
+		// Check if the message is wanted
+		if (($importer["importer_uid"] == 0) && ($item['uri'] == $item['parent-uri'])) {
+			if (!self::isSolicitedMessage($item)) {
+				DBA::delete('item-uri', ['uri' => $item['uri']]);
+				return 403;
+			}
+		}
+				
 		// Get the type of the item (Top level post, reply or remote reply)
 		$entrytype = self::getEntryType($importer, $item);
 
