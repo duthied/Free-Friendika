@@ -38,7 +38,7 @@ class Mode
 	const DBCONFIGAVAILABLE   = 4;
 	const MAINTENANCEDISABLED = 8;
 
-	const BACKEND_CONTENT_TYPES = ['application/jrd+json', 'application/xrd+xml', 'text/xml',
+	const BACKEND_CONTENT_TYPES = ['application/jrd+json', 'text/xml',
 		'application/rss+xml', 'application/atom+xml', 'application/activity+json'];
 
 	/***
