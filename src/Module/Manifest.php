@@ -31,7 +31,7 @@ class Manifest extends BaseModule
 	{
 		$config = DI::config();
 
-		$touch_icon = $config->get('system', 'touch_icon') ?: 'images/friendica-128.png';
+		$touch_icon = $config->get('system', 'touch_icon') ?: 'images/friendica-192.png';
 
 		$theme = DI::config()->get('system', 'theme');
 
@@ -44,7 +44,7 @@ class Manifest extends BaseModule
 			'icons'       => [
 				[
 					'src'   => DI::baseUrl()->get() . '/' . $touch_icon,
-					'sizes' => '128x128',
+					'sizes' => '192x192',
 					'type'  => 'image/png',
 				],
 			],
