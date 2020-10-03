@@ -2478,7 +2478,7 @@ class Item
 
 		$naked_body = BBCode::toPlaintext($item['body'], false);
 
-		$ld = new Language;
+		$ld = new Language();
 		$languages = $ld->detect($naked_body)->limit(0, 3)->close();
 		if (is_array($languages)) {
 			return json_encode($languages);
