@@ -75,12 +75,12 @@ class Cron
 		// Repair entries in the database
 		Worker::add(PRIORITY_LOW, 'RepairDatabase');
 
-		// Update trending tags cache for the community page
-		Tag::setLocalTrendingHashtags(24, 20);
-		Tag::setGlobalTrendingHashtags(24, 20);
-
 		// Hourly cron calls
 		if (DI::config()->get('system', 'last_cron_hourly', 0) + 3600 < time()) {
+
+			// Update trending tags cache for the community page
+			Tag::setLocalTrendingHashtags(24, 20);
+			Tag::setGlobalTrendingHashtags(24, 20);
 
 			// Search for new contacts in the directory
 			if (DI::config()->get('system', 'synchronize_directory')) {
