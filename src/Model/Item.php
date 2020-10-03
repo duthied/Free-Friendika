@@ -43,8 +43,8 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
-use Text_LanguageDetect;
 use Friendica\Repository\PermissionSet as RepPermissionSet;
+use LanguageDetection\Language;
 
 class Item
 {
@@ -1699,9 +1699,9 @@ class Item
 
 		$item['plink'] = ($item['plink'] ?? '') ?: DI::baseUrl() . '/display/' . urlencode($item['guid']);
 
-		$item['language'] = self::getLanguage($item);
-
 		$item['gravity'] = self::getGravity($item);
+
+		$item['language'] = self::getLanguage($item);
 
 		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 			'photo' => $item['author-avatar'], 'network' => $item['network']];
@@ -2472,11 +2472,14 @@ class Item
 	 */
 	private static function getLanguage(array $item)
 	{
+		if (!in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT])) {
+			return '';
+		}
+
 		$naked_body = BBCode::toPlaintext($item['body'], false);
 
-		$ld = new Text_LanguageDetect();
-		$ld->setNameMode(2);
-		$languages = $ld->detect($naked_body, 3);
+		$ld = new Language();
+		$languages = $ld->detect($naked_body)->limit(0, 3)->close();
 		if (is_array($languages)) {
 			return json_encode($languages);
 		}
