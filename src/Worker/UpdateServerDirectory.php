@@ -73,7 +73,7 @@ class UpdateServerDirectory
 
 		$result = Contact::addByUrls($urls);
 
-		Logger::info('PoCo discovery ended', ['count' => $result['count'], 'added' => $result['added'], 'updated' => $result['updated'], 'poco' => $gserver['poco']]);
+		Logger::info('PoCo discovery ended', ['count' => $result['count'], 'added' => $result['added'], 'updated' => $result['updated'], 'unchanged' => $result['unchanged'], 'poco' => $gserver['poco']]);
 	}
 
 	private static function discoverMastodonDirectory(array $gserver)
@@ -101,6 +101,6 @@ class UpdateServerDirectory
 
 		$result = Contact::addByUrls($urls);
 
-		Logger::info('Account discovery ended', ['count' => $result['count'], 'added' => $result['added'], 'updated' => $result['updated'], 'url' => $gserver['url']]);
+		Logger::info('Account discovery ended', ['count' => $result['count'], 'added' => $result['added'], 'updated' => $result['updated'], 'unchanged' => $result['unchanged'], 'url' => $gserver['url']]);
 	}
 }

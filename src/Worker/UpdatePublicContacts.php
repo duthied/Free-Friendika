@@ -36,28 +36,50 @@ class UpdatePublicContacts
 	public static function execute()
 	{
 		$count = 0;
-		$last_updated = DateTimeFormat::utc('now - 1 week');
-		$condition = ["`network` IN (?, ?, ?, ?) AND `uid` = ? AND NOT `self` AND `last-update` < ?",
-			Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, 0, $last_updated];
+		$ids = [];
+		$base_condition = ['network' => Protocol::FEDERATED, 'uid' => 0, 'self' => false];
 
-		if (DI::config()->get('system', 'update_active_contacts')) {
-			$condition = DBA::mergeConditions($condition, ["(`id` IN (SELECT `author-id` FROM `item`) OR
-			`id` IN (SELECT `owner-id` FROM `item`) OR `id` IN (SELECT `causer-id` FROM `item`) OR
-			`id` IN (SELECT `cid` FROM `post-tag`) OR `id` IN (SELECT `cid` FROM `user-contact`))"]);
+		if (!DI::config()->get('system', 'update_active_contacts')) {
+			// Add every contact (mostly failed ones) that hadn't been updated for six months
+			$condition = DBA::mergeConditions($base_condition,
+				["`last-update` < ?", DateTimeFormat::utc('now - 6 month')]);
+			$ids = self::getContactsToUpdate($condition, $ids);
+
+			// Add every non failed contact that hadn't been updated for a month
+			$condition = DBA::mergeConditions($base_condition,
+				["NOT `failed` AND `last-update` < ?", DateTimeFormat::utc('now - 1 month')]);
+			$ids = self::getContactsToUpdate($condition, $ids);
 		}
 
-		$oldest_date = '';
-		$oldest_id = '';
-		$contacts = DBA::select('contact', ['id', 'last-update'], $condition, ['limit' => 100, 'order' => ['last-update']]);
-		while ($contact = DBA::fetch($contacts)) {
-			if (empty($oldest_id)) {
-				$oldest_id = $contact['id'];
-				$oldest_date = $contact['last-update'];
-			}
-			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id']);
+		// Add every contact our system interacted with and hadn't been updated for a week
+		$condition = DBA::mergeConditions($base_condition, ["(`id` IN (SELECT `author-id` FROM `item`) OR
+			`id` IN (SELECT `owner-id` FROM `item`) OR `id` IN (SELECT `causer-id` FROM `item`) OR
+			`id` IN (SELECT `cid` FROM `post-tag`) OR `id` IN (SELECT `cid` FROM `user-contact`)) AND
+			`last-update` < ?", DateTimeFormat::utc('now - 1 week')]);
+		$ids = self::getContactsToUpdate($condition, $ids);
+
+		foreach ($ids as $id) {
+			Worker::add(PRIORITY_LOW, "UpdateContact", $id);
 			++$count;
 		}
-		Logger::info('Initiated update for public contacts', ['interval' => $count, 'id' => $oldest_id, 'oldest' => $oldest_date]);
+
+		Logger::info('Initiated update for public contacts', ['count' => $count]);
+	}
+
+	/**
+	 * Returns contact ids based on a given condition
+	 *
+	 * @param array $condition
+	 * @param array $ids
+	 * @return array contact ids
+	 */
+	private static function getContactsToUpdate(array $condition, array $ids = [])
+	{
+		$contacts = DBA::select('contact', ['id'], $condition, ['limit' => 100, 'order' => ['last-update']]);
+		while ($contact = DBA::fetch($contacts)) {
+			$ids[] = $contact['id'];
+		}
 		DBA::close($contacts);
+		return $ids;
 	}
 }

@@ -22,7 +22,6 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
-use Friendica\Core\Worker;
 use Friendica\DI;
 use Friendica\Model\Contact;
 
@@ -65,6 +64,6 @@ class PullDirectory
 		$now = $contacts['now'] ?? 0;
 		DI::config()->set('system', 'last-directory-sync', $now);
 
-		Logger::info('Synchronization ended', ['now' => $now, 'count' => $result['count'], 'added' => $result['added'], 'updated' => $result['updated'], 'directory' => $directory]);
+		Logger::info('Synchronization ended', ['now' => $now, 'count' => $result['count'], 'added' => $result['added'], 'updated' => $result['updated'], 'unchanged' => $result['unchanged'], 'directory' => $directory]);
 	}
 }
