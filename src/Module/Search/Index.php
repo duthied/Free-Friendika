@@ -156,7 +156,7 @@ class Index extends BaseSearch
 		}
 
 		$last_uriid = isset($_GET['last_uriid']) ? intval($_GET['last_uriid']) : 0;
-Logger::info('Blubb', ['uri' => $last_uriid]);
+
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
 		if ($tag) {

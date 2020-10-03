@@ -225,7 +225,7 @@ class Contact
 		// Add internal fields
 		$removal = [];
 		if (!empty($fields)) {
-			foreach (['id', 'avatar', 'updated', 'last-update', 'success_update', 'failure_update', 'network'] as $internal) {
+			foreach (['id', 'avatar', 'created', 'updated', 'last-update', 'success_update', 'failure_update', 'network'] as $internal) {
 				if (!in_array($internal, $fields)) {
 					$fields[] = $internal;
 					$removal[] = $internal;
@@ -255,9 +255,8 @@ class Contact
 		}
 
 		// Update the contact in the background if needed
-		$updated = max($contact['success_update'], $contact['updated'], $contact['last-update'], $contact['failure_update']);
-		if ((($updated < DateTimeFormat::utc('now -7 days')) || empty($contact['avatar'])) &&
-			in_array($contact['network'], Protocol::FEDERATED)) {
+		$updated = max($contact['success_update'], $contact['created'], $contact['updated'], $contact['last-update'], $contact['failure_update']);
+		if (($updated < DateTimeFormat::utc('now -7 days')) && in_array($contact['network'], Protocol::FEDERATED)) {
 			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id']);
 		}
 
@@ -1859,10 +1858,6 @@ class Contact
 			return false;
 		}
 
-		if (Contact\Relation::isDiscoverable($ret['url'])) {
-			Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
-		}
-
 		if (isset($ret['hide']) && is_bool($ret['hide'])) {
 			$ret['unsearchable'] = $ret['hide'];
 		}
@@ -1911,6 +1906,10 @@ class Contact
 		if (!$update) {
 			self::updateContact($id, $uid, $ret['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
 
+			if (Contact\Relation::isDiscoverable($ret['url'])) {
+				Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
+			}
+	
 			// Update the public contact
 			if ($uid != 0) {
 				$contact = self::getByURL($ret['url'], false, ['id']);
@@ -1947,6 +1946,10 @@ class Contact
 		unset($ret['photo']);
 
 		self::updateContact($id, $uid, $ret['url'], $ret);
+
+		if (Contact\Relation::isDiscoverable($ret['url'])) {
+			Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
+		}
 
 		return true;
 	}
@@ -2705,21 +2708,24 @@ class Contact
 	{
 		$added = 0;
 		$updated = 0;
+		$unchanged = 0;
 		$count = 0;
 
 		foreach ($urls as $url) {
-			$contact = Contact::getByURL($url, false, ['id']); 
+			$contact = Contact::getByURL($url, false, ['id', 'updated']);
 			if (empty($contact['id'])) {
 				Worker::add(PRIORITY_LOW, 'AddContact', 0, $url);
 				++$added;
-			} else {
+			} elseif ($contact['updated'] < DateTimeFormat::utc('now -7 days')) {
 				Worker::add(PRIORITY_LOW, 'UpdateContact', $contact['id']);
 				++$updated;
+			} else {
+				++$unchanged;
 			}
 			++$count;
 		}
 
-		return ['count' => $count, 'added' => $added, 'updated' => $updated];
+		return ['count' => $count, 'added' => $added, 'updated' => $updated, 'unchanged' => $unchanged];
 	}
 
 	/**
