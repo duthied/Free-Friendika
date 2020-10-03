@@ -47,6 +47,11 @@ class Manifest extends BaseModule
 					'sizes' => '192x192',
 					'type'  => 'image/png',
 				],
+				[
+					'src'   => DI::baseUrl()->get() . '/' . $touch_icon,
+					'sizes' => '512x512',
+					'type'  => 'image/png',
+				],
 			],
 		];
 

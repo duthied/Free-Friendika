@@ -233,7 +233,7 @@ class Page implements ArrayAccess
 
 		$touch_icon = $config->get('system', 'touch_icon');
 		if ($touch_icon == '') {
-			$touch_icon = 'images/friendica-128.png';
+			$touch_icon = 'images/friendica-192.png';
 		}
 
 		Hook::callAll('head', $this->page['htmlhead']);
