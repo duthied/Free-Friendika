@@ -526,7 +526,7 @@ class Tag
 
 		if (DBA::isResult($tagsStmt)) {
 			$tags = DBA::toArray($tagsStmt);
-			DI::cache()->set('global_trending_tags-' . $period . '-' . $limit, $tags, Duration::HOUR);
+			DI::cache()->set('global_trending_tags-' . $period . '-' . $limit, $tags, Duration::DAY);
 			return $tags;
 		}
 
@@ -569,7 +569,7 @@ class Tag
 
 		if (DBA::isResult($tagsStmt)) {
 			$tags = DBA::toArray($tagsStmt);
-			DI::cache()->set('local_trending_tags-' . $period . '-' . $limit, $tags, Duration::HOUR);
+			DI::cache()->set('local_trending_tags-' . $period . '-' . $limit, $tags, Duration::DAY);
 			return $tags;
 		}
 
