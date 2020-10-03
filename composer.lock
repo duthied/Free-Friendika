@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed9aa898eaf8a1f8a807f3be9eecc3d7",
+    "content-hash": "2cd2011a7e93f6f64524d1663651c016",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -460,7 +460,6 @@
                     "jsonld.php"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -478,11 +477,11 @@
             "description": "A JSON-LD Processor and API implementation in PHP.",
             "homepage": "https://git.friendi.ca/friendica/php-json-ld",
             "keywords": [
+                "JSON",
                 "JSON-LD",
                 "Linked Data",
                 "RDF",
                 "Semantic Web",
-                "json",
                 "jsonld"
             ],
             "time": "2018-10-08T20:41:00+00:00"
@@ -2380,6 +2379,52 @@
             "time": "2020-03-20T21:48:09+00:00"
         },
         {
+            "name": "patrickschur/language-detection",
+            "version": "v3.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/patrickschur/language-detection.git",
+                "reference": "95b55109177d5c4bd6b1bec6e8835cd0df36ef5f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/patrickschur/language-detection/zipball/95b55109177d5c4bd6b1bec6e8835cd0df36ef5f",
+                "reference": "95b55109177d5c4bd6b1bec6e8835cd0df36ef5f",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": "^7"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "LanguageDetection\\": "src/LanguageDetection"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Patrick Schur",
+                    "email": "patrick_schur@outlook.de"
+                }
+            ],
+            "description": "A language detection library for PHP. Detects the language from a given text string.",
+            "homepage": "https://github.com/patrickschur/language-detection",
+            "keywords": [
+                "detect",
+                "detection",
+                "language"
+            ],
+            "time": "2018-09-19T21:45:51+00:00"
+        },
+        {
             "name": "pear/console_table",
             "version": "v1.3.1",
             "source": {
@@ -2433,50 +2478,6 @@
                 "console"
             ],
             "time": "2018-01-25T20:47:17+00:00"
-        },
-        {
-            "name": "pear/text_languagedetect",
-            "version": "v1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pear/Text_LanguageDetect.git",
-                "reference": "9e253f26cef9a9066f53f200cc3e0684018cb5b5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pear/Text_LanguageDetect/zipball/9e253f26cef9a9066f53f200cc3e0684018cb5b5",
-                "reference": "9e253f26cef9a9066f53f200cc3e0684018cb5b5",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/phpunit": "8.*|9.*"
-            },
-            "suggest": {
-                "ext-mbstring": "May require the mbstring PHP extension"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Text": "./"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "./"
-            ],
-            "license": [
-                "BSD-2-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Nicholas Pisarro",
-                    "email": "taak@php.net",
-                    "role": "Lead"
-                }
-            ],
-            "description": "Identify human languages from text samples",
-            "homepage": "http://pear.php.net/package/Text_LanguageDetect",
-            "time": "2020-05-17T12:19:40+00:00"
         },
         {
             "name": "phpseclib/phpseclib",
@@ -4450,7 +4451,7 @@
                 }
             ],
             "description": "Provides the functionality to compare PHP values for equality",
-            "homepage": "https://github.com/sebastianbergmann/comparator",
+            "homepage": "http://www.github.com/sebastianbergmann/comparator",
             "keywords": [
                 "comparator",
                 "compare",
@@ -4552,7 +4553,7 @@
                 }
             ],
             "description": "Provides functionality to handle HHVM/PHP environments",
-            "homepage": "https://github.com/sebastianbergmann/environment",
+            "homepage": "http://www.github.com/sebastianbergmann/environment",
             "keywords": [
                 "Xdebug",
                 "environment",
@@ -4620,7 +4621,7 @@
                 }
             ],
             "description": "Provides the functionality to export PHP variables for visualization",
-            "homepage": "https://github.com/sebastianbergmann/exporter",
+            "homepage": "http://www.github.com/sebastianbergmann/exporter",
             "keywords": [
                 "export",
                 "exporter"
@@ -4672,7 +4673,7 @@
                 }
             ],
             "description": "Snapshotting of global state",
-            "homepage": "https://github.com/sebastianbergmann/global-state",
+            "homepage": "http://www.github.com/sebastianbergmann/global-state",
             "keywords": [
                 "global state"
             ],
@@ -4774,7 +4775,7 @@
                 }
             ],
             "description": "Provides functionality to recursively process PHP variables",
-            "homepage": "https://github.com/sebastianbergmann/recursion-context",
+            "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
             "time": "2016-11-19T07:33:16+00:00"
         },
         {
