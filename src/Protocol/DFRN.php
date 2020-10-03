@@ -1793,91 +1793,13 @@ class DFRN
 	 */
 	private static function processSuggestion($xpath, $suggestion, $importer)
 	{
-		Logger::log('Processing suggestions');
+		Logger::notice('Processing suggestions');
 
-		/// @TODO Rewrite this to one statement
-		$suggest = [];
-		$suggest['uid'] = $importer['importer_uid'];
-		$suggest['cid'] = $importer['id'];
-		$suggest['url'] = $xpath->query('dfrn:url/text()', $suggestion)->item(0)->nodeValue;
-		$suggest['name'] = $xpath->query('dfrn:name/text()', $suggestion)->item(0)->nodeValue;
-		$suggest['photo'] = $xpath->query('dfrn:photo/text()', $suggestion)->item(0)->nodeValue;
-		$suggest['request'] = $xpath->query('dfrn:request/text()', $suggestion)->item(0)->nodeValue;
-		$suggest['body'] = $xpath->query('dfrn:note/text()', $suggestion)->item(0)->nodeValue;
+		$url = $xpath->evaluate('string(dfrn:url[1]/text())', $suggestion);
+		$cid = Contact::getIdForURL($url);
+		$note = $xpath->evaluate('string(dfrn:note[1]/text())', $suggestion);
 
-		// Does our member already have a friend matching this description?
-
-		/*
-		 * The valid result means the friend we're about to send a friend
-		 * suggestion already has them in their contact, which means no further
-		 * action is required.
-		 *
-		 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
-		 */
-		$condition = ['nurl' => Strings::normaliseLink($suggest['url']), 'uid' => $suggest['uid']];
-		if (DBA::exists('contact', $condition)) {
-			return false;
-		}
-		// Do we already have an fcontact record for this person?
-
-		$fid = 0;
-		$fcontact = DBA::selectFirst('fcontact', ['id'], ['url' => $suggest['url']]);
-		if (DBA::isResult($fcontact)) {
-			$fid = $fcontact['id'];
-
-			// OK, we do. Do we already have an introduction for this person?
-			if (DBA::exists('intro', ['uid' => $suggest['uid'], 'fid' => $fid])) {
-				/*
-				 * The valid result means the friend we're about to send a friend
-				 * suggestion already has them in their contact, which means no further
-				 * action is required.
-				 *
-				 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
-				 */
-				return false;
-			}
-		}
-
-		if (!$fid) {
-			$fields = ['name' => $suggest['name'], 'url' => $suggest['url'],
-				'photo' => $suggest['photo'], 'request' => $suggest['request']];
-			DBA::insert('fcontact', $fields);
-			$fid = DBA::lastInsertId();
-		}
-
-		/*
-		 * If no record in fcontact is found, below INSERT statement will not
-		 * link an introduction to it.
-		 */
-		if (empty($fid)) {
-			// Database record did not get created. Quietly give up.
-			exit();
-		}
-
-		$hash = Strings::getRandomHex();
-
-		$fields = ['uid' => $suggest['uid'], 'fid' => $fid, 'contact-id' => $suggest['cid'],
-			'note' => $suggest['body'], 'hash' => $hash, 'datetime' => DateTimeFormat::utcNow(), 'blocked' => false];
-		DBA::insert('intro', $fields);
-
-		notification(
-			[
-				'type'         => Type::SUGGEST,
-				'notify_flags' => $importer['notify-flags'],
-				'language'     => $importer['language'],
-				'to_name'      => $importer['username'],
-				'to_email'     => $importer['email'],
-				'uid'          => $importer['importer_uid'],
-				'item'         => $suggest,
-				'link'         => DI::baseUrl().'/notifications/intros',
-				'source_name'  => $importer['name'],
-				'source_link'  => $importer['url'],
-				'source_photo' => $importer['photo'],
-				'verb'         => Activity::REQ_FRIEND,
-				'otype'        => 'intro']
-		);
-
-		return true;
+		return FContact::addSuggestion($importer['importer_uid'], $cid, $importer['id'], $note);
 	}
 
 	/**

@@ -43,12 +43,12 @@ class FContact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getByURL($handle, $update = null)
+	public static function getByURL($handle, $update = null, $network = Protocol::DIASPORA)
 	{
-		$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
+		$person = DBA::selectFirst('fcontact', [], ['network' => $network, 'addr' => $handle]);
 		if (!DBA::isResult($person)) {
 			$urls = [$handle, str_replace('http://', 'https://', $handle), Strings::normaliseLink($handle)];
-			$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'url' => $urls]);
+			$person = DBA::selectFirst('fcontact', [], ['network' => $network, 'url' => $urls]);
 		}
 
 		if (DBA::isResult($person)) {
@@ -73,14 +73,14 @@ class FContact
 
 		if ($update) {
 			Logger::info('create or refresh', ['handle' => $handle]);
-			$r = Probe::uri($handle, Protocol::DIASPORA);
+			$r = Probe::uri($handle, $network);
 
 			// Note that Friendica contacts will return a "Diaspora person"
 			// if Diaspora connectivity is enabled on their server
-			if ($r && ($r["network"] === Protocol::DIASPORA)) {
+			if ($r && ($r["network"] === $network)) {
 				self::updateFContact($r);
 
-				$person = self::getByURL($handle, false);
+				$person = self::getByURL($handle, false, $network);
 			}
 		}
 
@@ -135,56 +135,45 @@ class FContact
 	}
 
 	/**
-	 * Add suggestions for a given contact
+	 * Suggest a given contact to a given user from a given contact
 	 *
 	 * @param integer $uid
 	 * @param integer $cid
+	 * @param integer $from_cid
 	 * @return bool   Was the adding successful?
 	 */
-	public static function addSuggestion(int $uid, int $cid)
+	public static function addSuggestion(int $uid, int $cid, int $from_cid, string $note = '')
 	{
 		$owner = User::getOwnerDataById($uid);
 		$contact = Contact::getById($cid);
+		$from_contact = Contact::getById($from_cid);
 
 		if (DBA::exists('contact', ['nurl' => Strings::normaliseLink($contact['url']), 'uid' => $uid])) {
 			return false;
 		}
 
+		$fcontact = self::getByURL($contact['url'], null, $contact['network']);
+		if (empty($fcontact)) {
+			Logger::warning('FContact had not been found', ['fcontact' => $contact['url']]);
+			return false;
+		}
+
+		$fid = $fcontact['id'];
+
+		// Quit if we already have an introduction for this person
+		if (DBA::exists('intro', ['uid' => $uid, 'fid' => $fid])) {
+			return false;
+		}
+
 		$suggest = [];
 		$suggest['uid'] = $uid;
-		$suggest['cid'] = $contact['id'];
+		$suggest['cid'] = $from_cid;
 		$suggest['url'] = $contact['url'];
 		$suggest['name'] = $contact['name'];
 		$suggest['photo'] = $contact['photo'];
 		$suggest['request'] = $contact['request'];
 		$suggest['title'] = '';
-		$suggest['body'] = '';
-
-		// Do we already have an fcontact record for this person?
-		$fid = 0;
-		$fcontact = DBA::selectFirst('fcontact', ['id'], ['url' => $suggest['url']]);
-		if (DBA::isResult($fcontact)) {
-			$fid = $fcontact['id'];
-
-			$fields = ['name' => $suggest['name'], 'photo' => $suggest['photo'], 'request' => $suggest['request']];
-			DBA::update('fcontact', $fields, ['id' => $fid]);
-
-			// Quit if we already have an introduction for this person
-			if (DBA::exists('intro', ['uid' => $suggest['uid'], 'fid' => $fid])) {
-				return false;
-			}
-		}
-
-		if (empty($fid)) {
-			$fields = ['name' => $suggest['name'], 'url' => $suggest['url'],
-				'photo' => $suggest['photo'], 'request' => $suggest['request']];
-			DBA::insert('fcontact', $fields);
-			$fid = DBA::lastInsertId();
-			if (empty($fid)) {
-				Logger::warning('FContact had not been created', ['fcontact' => $fields]);
-				return false;
-			}
-		}
+		$suggest['body'] = $note;
 
 		$hash = Strings::getRandomHex();
 		$fields = ['uid' => $suggest['uid'], 'fid' => $fid, 'contact-id' => $suggest['cid'], 
@@ -200,9 +189,9 @@ class FContact
 			'uid'          => $owner['uid'],
 			'item'         => $suggest,
 			'link'         => DI::baseUrl().'/notifications/intros',
-			'source_name'  => $contact['name'],
-			'source_link'  => $contact['url'],
-			'source_photo' => $contact['photo'],
+			'source_name'  => $from_contact['name'],
+			'source_link'  => $from_contact['url'],
+			'source_photo' => $from_contact['photo'],
 			'verb'         => Activity::REQ_FRIEND,
 			'otype'        => 'intro'
 		]);
