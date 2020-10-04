@@ -304,7 +304,7 @@ class Profile
 
 		$profile_is_dfrn = $profile['network'] == Protocol::DFRN;
 		$profile_is_native = in_array($profile['network'], Protocol::NATIVE_SUPPORT);
-		$local_user_is_self = $profile['self'] ?? false;
+		$local_user_is_self = self::getMyURL() && ($profile['url'] == self::getMyURL());
 		$visitor_is_authenticated = (bool)self::getMyURL();
 		$visitor_is_following =
 			in_array($visitor_contact['rel'] ?? 0, [Contact::FOLLOWER, Contact::FRIEND])
