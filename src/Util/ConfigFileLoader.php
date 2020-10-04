@@ -104,12 +104,12 @@ class ConfigFileLoader
 	public function setupCache(Cache $config, $raw = false)
 	{
 		// Load static config files first, the order is important
-		$config->load($this->loadStaticConfig('defaults'));
-		$config->load($this->loadStaticConfig('settings'));
+		$config->load($this->loadStaticConfig('defaults'), Cache::SOURCE_FILE);
+		$config->load($this->loadStaticConfig('settings'), Cache::SOURCE_FILE);
 
 		// try to load the legacy config first
-		$config->load($this->loadLegacyConfig('htpreconfig'), true);
-		$config->load($this->loadLegacyConfig('htconfig'), true);
+		$config->load($this->loadLegacyConfig('htpreconfig'), Cache::SOURCE_FILE);
+		$config->load($this->loadLegacyConfig('htconfig'), Cache::SOURCE_FILE);
 
 		// Now load every other config you find inside the 'config/' directory
 		$this->loadCoreConfig($config);
@@ -157,12 +157,12 @@ class ConfigFileLoader
 	{
 		// try to load legacy ini-files first
 		foreach ($this->getConfigFiles(true) as $configFile) {
-			$config->load($this->loadINIConfigFile($configFile), true);
+			$config->load($this->loadINIConfigFile($configFile), Cache::SOURCE_FILE);
 		}
 
 		// try to load supported config at last to overwrite it
 		foreach ($this->getConfigFiles() as $configFile) {
-			$config->load($this->loadConfigFile($configFile), true);
+			$config->load($this->loadConfigFile($configFile), Cache::SOURCE_FILE);
 		}
 
 		return [];

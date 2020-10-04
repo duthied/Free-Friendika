@@ -30,10 +30,25 @@ use ParagonIE\HiddenString\HiddenString;
  */
 class Cache
 {
+	/** @var int Indicates that the cache entry is set by file - Low Priority */
+	const SOURCE_FILE = 0;
+	/** @var int Indicates that the cache entry is set by the DB config table - Middle Priority */
+	const SOURCE_DB = 1;
+	/** @var int Indicates that the cache entry is set by a server environment variable - High Priority */
+	const SOURCE_ENV = 3;
+
+	/** @var int Default value for a config source */
+	const SOURCE_DEFAULT = self::SOURCE_FILE;
+
 	/**
 	 * @var array
 	 */
 	private $config;
+
+	/**
+	 * @var int[][]
+	 */
+	private $source = [];
 
 	/**
 	 * @var bool
@@ -43,11 +58,12 @@ class Cache
 	/**
 	 * @param array $config             A initial config array
 	 * @param bool  $hidePasswordOutput True, if cache variables should take extra care of password values
+	 * @param int   $source             Sets a source of the initial config values
 	 */
-	public function __construct(array $config = [], bool $hidePasswordOutput = true)
+	public function __construct(array $config = [], bool $hidePasswordOutput = true, $source = self::SOURCE_DEFAULT)
 	{
 		$this->hidePasswordOutput = $hidePasswordOutput;
-		$this->load($config);
+		$this->load($config, $source);
 	}
 
 	/**
@@ -55,9 +71,9 @@ class Cache
 	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
 	 *
 	 * @param array $config
-	 * @param bool  $overwrite Force value overwrite if the config key already exists
+	 * @param int   $source Indicates the source of the config entry
 	 */
-	public function load(array $config, bool $overwrite = false)
+	public function load(array $config, int $source = self::SOURCE_DEFAULT)
 	{
 		$categories = array_keys($config);
 
@@ -68,11 +84,7 @@ class Cache
 				foreach ($keys as $key) {
 					$value = $config[$category][$key];
 					if (isset($value)) {
-						if ($overwrite) {
-							$this->set($category, $key, $value);
-						} else {
-							$this->setDefault($category, $key, $value);
-						}
+						$this->set($category, $key, $value, $source);
 					}
 				}
 			}
@@ -91,7 +103,7 @@ class Cache
 	{
 		if (isset($this->config[$cat][$key])) {
 			return $this->config[$cat][$key];
-		} elseif (!isset($key) && isset($this->config[$cat])) {
+		} else if (!isset($key) && isset($this->config[$cat])) {
 			return $this->config[$cat];
 		} else {
 			return null;
@@ -99,41 +111,37 @@ class Cache
 	}
 
 	/**
-	 * Sets a default value in the config cache. Ignores already existing keys.
-	 *
-	 * @param string $cat   Config category
-	 * @param string $key   Config key
-	 * @param mixed  $value Default value to set
-	 */
-	private function setDefault(string $cat, string $key, $value)
-	{
-		if (!isset($this->config[$cat][$key])) {
-			$this->set($cat, $key, $value);
-		}
-	}
-
-	/**
 	 * Sets a value in the config cache. Accepts raw output from the config table
 	 *
-	 * @param string $cat   Config category
-	 * @param string $key   Config key
-	 * @param mixed  $value Value to set
+	 * @param string $cat    Config category
+	 * @param string $key    Config key
+	 * @param mixed  $value  Value to set
+	 * @param int    $source The source of the current config key
 	 *
 	 * @return bool True, if the value is set
 	 */
-	public function set(string $cat, string $key, $value)
+	public function set(string $cat, string $key, $value, $source = self::SOURCE_DEFAULT)
 	{
 		if (!isset($this->config[$cat])) {
 			$this->config[$cat] = [];
+			$this->source[$cat] = [];
+		}
+
+		if (isset($this->source[$cat][$key]) &&
+			$source < $this->source[$cat][$key]) {
+			return false;
 		}
 
 		if ($this->hidePasswordOutput &&
-		    $key == 'password' &&
-		    is_string($value)) {
+			$key == 'password' &&
+			is_string($value)) {
 			$this->config[$cat][$key] = new HiddenString((string)$value);
 		} else {
 			$this->config[$cat][$key] = $value;
 		}
+
+		$this->source[$cat][$key] = $source;
+
 		return true;
 	}
 
@@ -149,8 +157,10 @@ class Cache
 	{
 		if (isset($this->config[$cat][$key])) {
 			unset($this->config[$cat][$key]);
+			unset($this->source[$cat][$key]);
 			if (count($this->config[$cat]) == 0) {
 				unset($this->config[$cat]);
+				unset($this->source[$cat]);
 			}
 			return true;
 		} else {
