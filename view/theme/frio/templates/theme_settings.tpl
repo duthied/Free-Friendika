@@ -56,27 +56,7 @@
 
 {{if $background_color}}{{include file="field_colorinput.tpl" field=$background_color}}{{/if}}
 
-{{* The slider for the content opacity - We use no template for this since it is only used at this page *}}
-{{if $contentbg_transp}}
-<div class="form-group field input color">
-	<label for="id_{{$contentbg_transp.0}}" id="label_{{$contentbg_transp.0}}">{{$contentbg_transp.1}}</label>
-
-	<div class="row">
-		<div class="col-xs-9">
-			<input type="range" class="form-control" id="{{$contentbg_transp.0}}_range" min="0" max="100" step="1" value="{{$contentbg_transp.2}}" onchange="{{$contentbg_transp.0}}.value = this.value" oninput="{{$contentbg_transp.0}}.value = this.value">
-		</div>
-		<div class="col-xs-3">
-			<div class="input-group">
-				<input type="text" class="form-control input-sm" name="{{$contentbg_transp.0}}" id="{{$contentbg_transp.0}}" value="{{$contentbg_transp.2}}" onchange="{{$contentbg_transp.0}}_range.value = this.value" oninput="{{$contentbg_transp.0}}_range.value = this.value" aria-describedby="{{$contentbg_transp.0}}_tip">
-				<span class="input-group-addon image-select">%</span>
-			</div>
-		</div>
-	</div>
-
-	<span id="{{$contentbg_transp.0}}_tip" class="help-block" role="tooltip">{{$contentbg_transp.3}}</span>
-	<div id="end_{{$contentbg_transp.0}}" class="field_end"></div>
-</div>
-{{/if}}
+{{if $contentbg_transp}}{{include file="field/range_percent.tpl" field=$contentbg_transp}}{{/if}}
 
 {{if $background_image}}{{include file="field_fileinput.tpl" field=$background_image}}{{/if}}
 
