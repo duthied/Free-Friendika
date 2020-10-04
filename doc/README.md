@@ -1,5 +1,7 @@
 # About the docs of the Friendica Project
 
+**Note**: It is expected that some of the links in these files wont work in the Friendica repository as they are supposed to work on an installed Friendica node.
+
 ## User and Admin documentation
 
 Every Friendica node has the _current_ version of the user and admin documentation avail-able in the `/help` location.
