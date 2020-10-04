@@ -26,6 +26,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Database\PostUpdate;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
@@ -96,7 +97,7 @@ class Friendica extends BaseModule
 				'<strong>' . FRIENDICA_VERSION . '</strong>',
 				DI::baseUrl()->get(),
 				'<strong>' . DB_UPDATE_VERSION . '/' . $config->get('system', 'build') .'</strong>',
-				'<strong>' . $config->get('system', 'post_update_version') . '</strong>'),
+				'<strong>' . PostUpdate::VERSION . '/' . $config->get('system', 'post_update_version') . '</strong>'),
 			'friendica' => DI::l10n()->t('Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'),
 			'bugs'      => DI::l10n()->t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">' . DI::l10n()->t('the bugtracker at github') . '</a>',
 			'info'      => DI::l10n()->t('Suggestions, praise, etc. - please email "info" at "friendi - dot - ca'),
