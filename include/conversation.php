@@ -917,6 +917,10 @@ function item_photo_menu($item) {
 			DI::l10n()->t('Ignore') => $ignore_link
 		];
 
+		if (!empty($item['language'])) {
+			$menu[DI::l10n()->t('Languages')] = 'javascript:alert(\'' . Item::getLanguageMessage($item) . '\');';
+		}
+
 		if ($network == Protocol::DFRN) {
 			$menu[DI::l10n()->t("Poke")] = $poke_link;
 		}

@@ -363,6 +363,12 @@ as the value of $top_child_total (this is done at the end of this file)
 						</li>
 						{{/if}}
 
+						{{if $item.language}}
+						<li role="menuitem">
+							<a id="language-{{$item.id}}" href="javascript:alert('{{$item.language.1}}');" class="btn-link filer-item language-icon" title="{{$item.language.0}}"><i class="fa fa-language" aria-hidden="true"></i>&nbsp;{{$item.language.0}}</a>
+						</li>
+						{{/if}}
+
 						{{if ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.subthread) && ($item.ignore || $item.drop.dropping)}}
 						<li role="separator" class="divider"></li>
 						{{/if}}
