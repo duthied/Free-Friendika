@@ -70,6 +70,10 @@ textarea,
 	box-shadow: 0 0 3px #dadada;
 	-webkit-box-shadow: 0 0 3px #dadada;
 }
+input[type=range] {
+	box-shadow: none;
+}
+
 .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
 	background-color: $background_color;
 	color: $font_color_darker;
