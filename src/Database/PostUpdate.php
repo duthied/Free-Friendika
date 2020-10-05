@@ -635,6 +635,11 @@ class PostUpdate
 			return true;
 		}
 
+		if (!DBStructure::existsTable('term')) {
+			DI::config()->set('system', 'post_update_version', 1342);
+			return true;
+		}
+
 		$id = DI::config()->get('system', 'post_update_version_1342_id', 0);
 
 		Logger::info('Start', ['item' => $id]);
@@ -786,6 +791,11 @@ class PostUpdate
 	{
 		// Was the script completed?
 		if (DI::config()->get('system', 'post_update_version') >= 1346) {
+			return true;
+		}
+
+		if (!DBStructure::existsTable('term')) {
+			DI::config()->set('system', 'post_update_version', 1346);
 			return true;
 		}
 
