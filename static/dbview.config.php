@@ -83,6 +83,7 @@ return [
 			"unseen" => ["item", "unseen"],
 			"gravity" => ["item", "gravity"],
 			"contact-id" => ["item", "contact-id"],
+			"contact-type" => ["ownercontact", "contact-type"],
 		],
 		"query" => "FROM `item`
 			INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
@@ -90,6 +91,7 @@ return [
 			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
+			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
@@ -110,6 +112,7 @@ return [
 			"mention" => ["thread", "mention"],
 			"network" => ["thread", "network"],
 			"contact-id" => ["thread", "contact-id"],
+			"contact-type" => ["ownercontact", "contact-type"],
 		],
 		"query" => "FROM `thread`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
@@ -117,6 +120,7 @@ return [
 			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
+			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)

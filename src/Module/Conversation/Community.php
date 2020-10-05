@@ -27,6 +27,7 @@ use Friendica\Content\BoundariesPager;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\HTML;
+use Friendica\Content\Widget;
 use Friendica\Content\Widget\TrendingTags;
 use Friendica\Core\ACL;
 use Friendica\Core\Renderer;
@@ -87,16 +88,7 @@ class Community extends BaseModule
 
 			Nav::setSelected('community');
 
-			DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_accounts.tpl'), [
-				'$title'        => DI::l10n()->t('Accounts'),
-				'$content'      => self::$content,
-				'$accounttype'  => ($parameters['accounttype'] ?? ''),
-				'$all'          => DI::l10n()->t('All'),
-				'$person'       => DI::l10n()->t('Persons'),
-				'$organisation' => DI::l10n()->t('Organisations'),
-				'$news'         => DI::l10n()->t('News'),
-				'$community'    => DI::l10n()->t('Forums'),
-			]);
+			DI::page()['aside'] .= Widget::accounts('community/' . self::$content, $parameters['accounttype'] ?? '');
 	
 			if (local_user() && DI::config()->get('system', 'community_no_sharer')) {
 				$path = self::$content;

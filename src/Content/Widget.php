@@ -525,4 +525,25 @@ class Widget
 
 		return $o;
 	}
+
+	/**
+	 * Display the accounts sidebar
+	 *
+	 * @param string $base        Basepath
+	 * @param string $accounttype Acount type (person, organisation, news, community)
+	 * @return string
+	 */
+	public static function accounts(string $base, string $accounttype)
+	{
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/accounts.tpl'), [
+			'$title'        => DI::l10n()->t('Accounts'),
+			'$content'      => $base,
+			'$accounttype'  => ($accounttype ?? ''),
+			'$all'          => DI::l10n()->t('All'),
+			'$person'       => DI::l10n()->t('Persons'),
+			'$organisation' => DI::l10n()->t('Organisations'),
+			'$news'         => DI::l10n()->t('News'),
+			'$community'    => DI::l10n()->t('Forums'),
+		]);	
+	}
 }
