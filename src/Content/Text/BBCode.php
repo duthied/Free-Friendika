@@ -1222,14 +1222,11 @@ class BBCode
 
 	public static function removeLinks(string $bbcode)
 	{
-		$bbcode = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", ' ', $bbcode);
 		$bbcode = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $1 ', $bbcode);
-		$bbcode = preg_replace("/\[img\](.*?)\[\/img\]/ism", ' ', $bbcode);
+		$bbcode = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $bbcode);
 
-		$bbcode = preg_replace('/([@!#])\[url\=(.*?)\](.*?)\[\/url\]/ism', '', $bbcode);
-		$bbcode = preg_replace("/\[url\](.*?)\[\/url\]/ism", ' ', $bbcode);
 		$bbcode = preg_replace("/\[url=[^\[\]]*\](.*)\[\/url\]/Usi", ' $1 ', $bbcode);
-		$bbcode = preg_replace("/\[url\](.*?)\[\/url\]/ism", ' ', $bbcode);
+		$bbcode = preg_replace('/[@!#]?\[url.*?\[\/url\]/ism', '', $bbcode);
 		return $bbcode;
 	}
 
