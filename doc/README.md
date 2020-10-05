@@ -4,8 +4,8 @@
 
 ## User and Admin documentation
 
-Every Friendica node has the _current_ version of the user and admin documentation avail-able in the `/help` location.
-The documentation is mainly done in English, but the pages are translate able and some are already translated to German.
+Every Friendica node has the _current_ version of the user and admin documentation available in the `/help` location.
+The documentation is mainly done in English, but the pages can be translated and some are already to German.
 If you want to help expanding the documentation or the translation, please register an account at the [Friendica wiki](https://wiki.friendi.ca) where the [texts are maintained](https://wiki.friendi.ca/docs).
 The documentation is periodically merged back from there to the _development_ branch of Friendica.
 
