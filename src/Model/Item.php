@@ -2487,6 +2487,16 @@ class Item
 		return '';
 	}
 
+	public static function getLanguageMessage(array $item)
+	{
+		$used_languages = '';
+		foreach (json_decode($item['language'], true) as $language => $reliability) {
+			$used_languages .= $language . ": " . number_format($reliability, 5) . '\n';
+		}
+		$used_languages = DI::l10n()->t('Used languages in this post:\n%s', $used_languages);
+		return $used_languages;
+	}
+
 	/**
 	 * Creates an unique guid out of a given uri
 	 *

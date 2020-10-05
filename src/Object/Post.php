@@ -411,6 +411,11 @@ class Post
 			}
 		}
 
+		$languages = [];
+		if (!empty($item['language'])) {
+			$languages = [DI::l10n()->t('Languages'), Item::getLanguageMessage($item)];
+		}
+
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
@@ -466,6 +471,7 @@ class Post
 			'ignore'          => $ignore,
 			'tagger'          => $tagger,
 			'filer'           => $filer,
+			'language'        => $languages,
 			'drop'            => $drop,
 			'vote'            => $buttons,
 			'like_html'       => $responses['like']['output'],

@@ -225,7 +225,7 @@ function settings_post(App $a)
 		if (isset($_FILES['importcontact-filename'])) {
 			// was there an error
 			if ($_FILES['importcontact-filename']['error'] > 0) {
-				Logger::notice('Contact CSV file upload error');
+				Logger::notice('Contact CSV file upload error', ['error' => $_FILES['importcontact-filename']['error']]);
 				notice(DI::l10n()->t('Contact CSV file upload error'));
 			} else {
 				$csvArray = array_map('str_getcsv', file($_FILES['importcontact-filename']['tmp_name']));
