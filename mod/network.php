@@ -36,6 +36,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Post\Category;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Module\Contact as ModuleContact;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
@@ -131,6 +132,13 @@ function network_init(App $a)
 		DI::page()['aside'] = '';
 	}
 
+	if (in_array($a->argv[1], ['person', 'organisation', 'news', 'community'])) {
+		$accounttype = $a->argv[1];
+	} else {
+		$accounttype = '';
+	}
+
+	DI::page()['aside'] .= Widget::accounts('network', $accounttype);
 	DI::page()['aside'] .= Group::sidebarWidget('network/0', 'network', 'standard', $group_id);
 	DI::page()['aside'] .= ForumManager::widget(local_user(), $cid);
 	DI::page()['aside'] .= Widget::postedByYear('network', local_user(), false);
@@ -292,10 +300,28 @@ function network_content(App $a, $update = 0, $parent = 0)
 		$o = '';
 	}
 
+	switch ($a->argv[1] ?? '') {
+		case 'person':
+			$account = User::ACCOUNT_TYPE_PERSON;
+			break;
+		case 'organisation':
+			$account = User::ACCOUNT_TYPE_ORGANISATION;
+			break;
+		case 'news':
+			$account = User::ACCOUNT_TYPE_NEWS;
+			break;
+		case 'community':
+			$account = User::ACCOUNT_TYPE_COMMUNITY;
+			break;
+		default:
+			$account = null;
+		break;
+	}
+
 	if (!empty($_GET['file'])) {
-		$o .= networkFlatView($a, $update);
+		$o .= networkFlatView($a, $update, $account);
 	} else {
-		$o .= networkThreadedView($a, $update, $parent);
+		$o .= networkThreadedView($a, $update, $parent, $account);
 	}
 
 	if (!$update && ($o === '')) {
@@ -315,7 +341,7 @@ function network_content(App $a, $update = 0, $parent = 0)
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  * @global Pager  $pager
  */
-function networkFlatView(App $a, $update = 0)
+function networkFlatView(App $a, $update, $account)
 {
 	global $pager;
 	// Rawmode is used for fetching new content at the end of the page
@@ -383,6 +409,10 @@ function networkFlatView(App $a, $update = 0)
 		networkSetSeen(['unseen' => true, 'uid' => local_user()]);
 	}
 
+	if (!empty($account)) {
+		$item_condition['contact-type'] = $account;
+	}
+
 	$result = Item::selectForUser(local_user(), [], $item_condition, $item_params);
 	$items = Item::inArray($result);
 	$o .= networkConversation($a, $items, $pager, 'network-new', $update);
@@ -401,7 +431,7 @@ function networkFlatView(App $a, $update = 0)
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  * @global Pager   $pager
  */
-function networkThreadedView(App $a, $update, $parent)
+function networkThreadedView(App $a, $update, $parent, $account)
 {
 	/// @TODO this will have to be converted to a static property of the converted Module\Network class
 	global $pager;
@@ -506,6 +536,10 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$conditionFields = ['uid' => local_user()];
 	$conditionStrings = [];
+
+	if (!empty($account)) {
+		$conditionFields['contact-type'] = $account;
+	}
 
 	if ($star) {
 		$conditionFields['starred'] = true;
