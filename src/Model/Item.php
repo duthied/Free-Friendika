@@ -1840,6 +1840,7 @@ class Item
 		}
 
 		$body = $item['body'];
+		$verb = $item['verb'];
 
 		// We just remove everything that is content
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
@@ -1943,7 +1944,7 @@ class Item
 			$update_commented = in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]);
 		} else {
 			// Update when it isn't a follow or tag verb
-			$update_commented = !in_array($item['verb'], [Activity::FOLLOW, Activity::TAG]);
+			$update_commented = !in_array($verb, [Activity::FOLLOW, Activity::TAG]);
 		}
 
 		if ($update_commented) {
