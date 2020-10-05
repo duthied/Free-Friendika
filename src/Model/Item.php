@@ -1828,8 +1828,6 @@ class Item
 			$notify_type = Delivery::POST;
 		}
 
-		$like_no_comment = DI::config()->get('system', 'like_no_comment');
-
 		DBA::transaction();
 
 		if (!in_array($item['verb'], self::ACTIVITIES)) {
@@ -1940,8 +1938,15 @@ class Item
 		$item['parent'] = $parent_id;
 
 		// update the commented timestamp on the parent
-		// Only update "commented" if it is really a comment
-		if (($item['gravity'] != GRAVITY_ACTIVITY) || !$like_no_comment) {
+		if (DI::config()->get('system', 'like_no_comment')) {
+			// Update when it is a comment
+			$update_commented = in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]);
+		} else {
+			// Update when it isn't a follow or tag verb
+			$update_commented = !in_array($item['verb'], [Activity::FOLLOW, Activity::TAG]);
+		}
+
+		if ($update_commented) {
 			DBA::update('item', ['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		} else {
 			DBA::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
