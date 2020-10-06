@@ -28,11 +28,10 @@ use Friendica\Module\Contact;
 
 function update_contact_content(App $a)
 {
-	if (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update')) {
-		$text = Contact::content([], true);
+	if (!empty($a->argv[1]) && (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update'))) {
+		$text = Contact::getConversationsHMTL($a, $a->argv[1], true, ($_GET['item'] ?? 0));
 	} else {
 		$text = '';
 	}
-
 	System::htmlUpdateExit($text);
 }
