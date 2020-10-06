@@ -1225,6 +1225,7 @@ class BBCode
 		$bbcode = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", ' $1 ', $bbcode);
 		$bbcode = preg_replace("/\[img.*?\[\/img\]/ism", ' ', $bbcode);
 
+		$bbcode = preg_replace('/[@!#]\[url\=.*?\].*?\[\/url\]/ism', '', $bbcode);
 		$bbcode = preg_replace("/\[url=[^\[\]]*\](.*)\[\/url\]/Usi", ' $1 ', $bbcode);
 		$bbcode = preg_replace('/[@!#]?\[url.*?\[\/url\]/ism', '', $bbcode);
 		return $bbcode;
