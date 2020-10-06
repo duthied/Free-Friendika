@@ -21,10 +21,8 @@
 
 namespace Friendica\Database;
 
-use Exception;
 use Friendica\Core\Config\Cache;
 use Friendica\Core\System;
-use Friendica\DI;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -75,36 +73,11 @@ class Database
 		$this->profiler      = $profiler;
 		$this->logger        = $logger;
 
-		$this->readServerVariables($server);
 		$this->connect();
 
 		if ($this->isConnected()) {
 			// Loads DB_UPDATE_VERSION constant
 			DBStructure::definition($configCache->get('system', 'basepath'), false);
-		}
-	}
-
-	private function readServerVariables(array $server)
-	{
-		// Use environment variables for mysql if they are set beforehand
-		if (!empty($server['MYSQL_HOST'])
-		    && (!empty($server['MYSQL_USERNAME']) || !empty($server['MYSQL_USER']))
-		    && $server['MYSQL_PASSWORD'] !== false
-		    && !empty($server['MYSQL_DATABASE']))
-		{
-			$db_host = $server['MYSQL_HOST'];
-			if (!empty($server['MYSQL_PORT'])) {
-				$db_host .= ':' . $server['MYSQL_PORT'];
-			}
-			$this->configCache->set('database', 'hostname', $db_host);
-			unset($db_host);
-			if (!empty($server['MYSQL_USERNAME'])) {
-				$this->configCache->set('database', 'username', $server['MYSQL_USERNAME']);
-			} else {
-				$this->configCache->set('database', 'username', $server['MYSQL_USER']);
-			}
-			$this->configCache->set('database', 'password', (string) $server['MYSQL_PASSWORD']);
-			$this->configCache->set('database', 'database', $server['MYSQL_DATABASE']);
 		}
 	}
 
@@ -124,6 +97,11 @@ class Database
 		if (count($serverdata) > 1) {
 			$port = trim($serverdata[1]);
 		}
+
+		if (!empty(trim($this->configCache->get('database', 'port')))) {
+			$port = trim(trim($this->configCache->get('database', 'port')));
+		}
+
 		$server  = trim($server);
 		$user    = trim($this->configCache->get('database', 'username'));
 		$pass    = trim($this->configCache->get('database', 'password'));
@@ -658,7 +636,7 @@ class Database
 			$errorno = $this->errorno;
 
 			if ($this->testmode) {
-				throw new Exception(DI::l10n()->t('Database error %d "%s" at "%s"', $errorno, $error, $this->replaceParameters($sql, $args)));
+				throw new DatabaseException($error, $errorno, $this->replaceParameters($sql, $args));
 			}
 
 			$this->logger->error('DB Error', [
@@ -761,7 +739,7 @@ class Database
 			$errorno = $this->errorno;
 
 			if ($this->testmode) {
-				throw new Exception(DI::l10n()->t('Database error %d "%s" at "%s"', $errorno, $error, $this->replaceParameters($sql, $params)));
+				throw new DatabaseException($error, $errorno, $this->replaceParameters($sql, $params));
 			}
 
 			$this->logger->error('DB Error', [
