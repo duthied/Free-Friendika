@@ -921,7 +921,7 @@ class Contact extends BaseModule
 		return $tab_str;
 	}
 
-	private static function getConversationsHMTL($a, $contact_id, $update)
+	public static function getConversationsHMTL($a, $contact_id, $update, $parent = 0)
 	{
 		$o = '';
 
@@ -952,14 +952,15 @@ class Contact extends BaseModule
 		if (DBA::isResult($contact)) {
 			DI::page()['aside'] = '';
 
-			$profiledata = Model\Contact::getByURLForUser($contact['url'], local_user());
-
-			Model\Profile::load($a, '', $profiledata, true);
+			if (!$update) {
+				$profiledata = Model\Contact::getByURLForUser($contact['url'], local_user());
+				Model\Profile::load($a, '', $profiledata, true);
+			}
 
 			if ($contact['uid'] == 0) {
-				$o .= Model\Contact::getPostsFromId($contact['id'], true, $update);
+				$o .= Model\Contact::getPostsFromId($contact['id'], true, $update, $parent);
 			} else {
-				$o .= Model\Contact::getPostsFromUrl($contact['url'], true, $update);
+				$o .= Model\Contact::getPostsFromUrl($contact['url'], true, $update, $parent);
 			}
 		}
 

@@ -1247,25 +1247,27 @@ class Contact
 	 *
 	 * @param string $contact_url Contact URL
 	 * @param bool   $thread_mode
-	 * @param int    $update
+	 * @param int    $update      Update mode 
+	 * @param int    $parent      Item parent ID for the update mode
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0)
+	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0, $parent = 0)
 	{
-		return self::getPostsFromId(self::getIdForURL($contact_url), $thread_mode, $update);
+		return self::getPostsFromId(self::getIdForURL($contact_url), $thread_mode, $update, $parent);
 	}
 
 	/**
 	 * Returns posts from a given contact id
 	 *
-	 * @param integer $cid
-	 * @param bool    $thread_mode
-	 * @param integer $update
+	 * @param int  $cid         Contact ID
+	 * @param bool $thread_mode
+	 * @param int  $update      Update mode 
+	 * @param int  $parent     Item parent ID for the update mode
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
-	public static function getPostsFromId($cid, $thread_mode = false, $update = 0)
+	public static function getPostsFromId($cid, $thread_mode = false, $update = 0, $parent = 0)
 	{
 		$a = DI::app();
 
@@ -1290,9 +1292,13 @@ class Contact
 				$cid, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
 		}
 
-		$last_received = isset($_GET['last_received']) ? DateTimeFormat::utc($_GET['last_received']) : '';
-		if (!empty($last_received)) {
-			$condition = DBA::mergeConditions($condition, ["`received` < ?", $last_received]);
+		if (!empty($parent)) {
+			$condition = DBA::mergeConditions($condition, ['parent' => $parent]);
+		} else {
+			$last_received = isset($_GET['last_received']) ? DateTimeFormat::utc($_GET['last_received']) : '';
+			if (!empty($last_received)) {
+				$condition = DBA::mergeConditions($condition, ["`received` < ?", $last_received]);
+			}
 		}
 
 		if (DI::mode()->isMobile()) {
@@ -1335,7 +1341,7 @@ class Contact
 
 			$items = Item::inArray($r);
 
-			$o .= conversation($a, $items, 'contact-posts', false);
+			$o .= conversation($a, $items, 'contact-posts', $update);
 		}
 
 		if (!$update) {

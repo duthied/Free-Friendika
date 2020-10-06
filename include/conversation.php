@@ -452,8 +452,8 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		$profile_owner = 0;
 
 		if (!$update) {
-			$live_update_div = '<div id="live-contacts"></div>' . "\r\n"
-				. "<script> var profile_uid = -1; var netargs = '" . substr(DI::args()->getCommand(), 9)
+			$live_update_div = '<div id="live-contact"></div>' . "\r\n"
+				. "<script> var profile_uid = -1; var netargs = '" . substr(DI::args()->getCommand(), 8)
 				."/?f='; </script>\r\n";
 		}
 	} elseif ($mode === 'search') {
