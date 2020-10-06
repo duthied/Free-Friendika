@@ -1245,10 +1245,10 @@ class Contact
 	/**
 	 * Returns posts from a given contact url
 	 *
-	 * @param string $contact_url Contact URL
-	 * @param bool   $thread_mode
-	 * @param int    $update
-	 * @param int    $parent
+	 * @param string  $contact_url Contact URL
+	 * @param bool    $thread_mode
+	 * @param integer $update      Update mode 
+	 * @param int     $parent      Parent ID for the update mode
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
@@ -1260,10 +1260,10 @@ class Contact
 	/**
 	 * Returns posts from a given contact id
 	 *
-	 * @param integer $cid
+	 * @param integer $cid         Contact ID
 	 * @param bool    $thread_mode
-	 * @param integer $update
-	 * @param int     $parent
+	 * @param integer $update      Update mode 
+	 * @param int     $parent      Parent ID for the update mode
 	 * @return string posts in HTML
 	 * @throws \Exception
 	 */
