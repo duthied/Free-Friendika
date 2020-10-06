@@ -2482,7 +2482,17 @@ class Item
 			return '';
 		}
 
-		$naked_body = BBCode::toPlaintext($item['body'], false);
+		// Convert attachments to links
+		$naked_body = BBCode::removeAttachment($item['body']);
+
+		// Remove links and pictures
+		$naked_body = BBCode::removeLinks($naked_body);
+
+		// Convert the title and the body to plain text
+		$naked_body = trim($item['title'] . "\n" . BBCode::toPlaintext($naked_body));
+
+		// Remove possibly remaining links
+		$naked_body = preg_replace(Strings::autoLinkRegEx(), '', $naked_body);
 
 		$ld = new Language();
 		$languages = $ld->detect($naked_body)->limit(0, 3)->close();
