@@ -702,6 +702,17 @@ nav.navbar .nav > li > button:focus
     max-height: 400px;
     overflow: auto
 }
+.intro-actions {
+	font-size: 2em;
+	padding: 1em;
+}
+.intro-wrapper button.intro-action-link {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+ul li .intro-wrapper button.intro-action-link {
+	opacity:0.7;
+}
 @media screen and (max-width: 768px) {
     #topbar-second #space-menu-dropdown .media-list,
     #topbar-second #search-menu-dropdown .media-list {
