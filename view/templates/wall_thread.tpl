@@ -16,7 +16,7 @@
 <span class="created" style="display: none;">{{$item.created_date}}</span>
 <span class="uriid" style="display: none;">{{$item.uriid}}</span>
 {{/if}}
-<div id="tread-wrapper-{{$item.id}}" class="tread-wrapper {{$item.toplevel}} {{if $item.toplevel}} h-entry {{else}} u-comment h-cite {{/if}}">
+<div id="tread-wrapper-{{$item.uriid}}" class="tread-wrapper {{$item.toplevel}} {{if $item.toplevel}} h-entry {{else}} u-comment h-cite {{/if}}">
 <a name="{{$item.id}}" ></a>
 <div class="wall-item-outside-wrapper {{$item.indent}}{{$item.previewing}}{{if $item.owner_url}} wallwall{{/if}}" id="wall-item-outside-wrapper-{{$item.id}}" >
 	<div class="wall-item-content-wrapper {{$item.indent}} {{$item.shiny}}" id="wall-item-content-wrapper-{{$item.id}}" >

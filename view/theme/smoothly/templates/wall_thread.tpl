@@ -11,7 +11,7 @@
 	<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 {{/if}}
 
-<div id="tread-wrapper-{{$item.id}}" class="tread-wrapper {{$item.toplevel}} {{if $item.toplevel}} h-entry {{else}} u-comment h-cite {{/if}}">
+<div id="tread-wrapper-{{$item.uriid}}" class="tread-wrapper {{$item.toplevel}} {{if $item.toplevel}} h-entry {{else}} u-comment h-cite {{/if}}">
 <div class="wall-item-outside-wrapper {{$item.indent}} {{$item.shiny}} wallwall" id="wall-item-outside-wrapper-{{$item.id}}" >
 <div class="wall-item-content-wrapper {{$item.indent}} {{$item.shiny}}" id="wall-item-content-wrapper-{{$item.id}}" >
 
