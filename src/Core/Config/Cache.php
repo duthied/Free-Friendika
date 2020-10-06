@@ -36,6 +36,8 @@ class Cache
 	const SOURCE_DB = 1;
 	/** @var int Indicates that the cache entry is set by a server environment variable - High Priority */
 	const SOURCE_ENV = 3;
+	/** @var int Indicates that the cache entry is fixed and must not be changed */
+	const SOURCE_FIX = 4;
 
 	/** @var int Default value for a config source */
 	const SOURCE_DEFAULT = self::SOURCE_FILE;

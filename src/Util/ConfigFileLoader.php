@@ -97,11 +97,12 @@ class ConfigFileLoader
 	 * expected local.config.php
 	 *
 	 * @param Cache $config The config cache to load to
+	 * @param array $server The $_SERVER array
 	 * @param bool  $raw    Setup the raw config format
 	 *
 	 * @throws Exception
 	 */
-	public function setupCache(Cache $config, $raw = false)
+	public function setupCache(Cache $config, array $server = [], $raw = false)
 	{
 		// Load static config files first, the order is important
 		$config->load($this->loadStaticConfig('defaults'), Cache::SOURCE_FILE);
@@ -114,10 +115,12 @@ class ConfigFileLoader
 		// Now load every other config you find inside the 'config/' directory
 		$this->loadCoreConfig($config);
 
+		$config->load($this->loadEnvConfig($server), Cache::SOURCE_ENV);
+
 		// In case of install mode, add the found basepath (because there isn't a basepath set yet
 		if (!$raw && empty($config->get('system', 'basepath'))) {
 			// Setting at least the basepath we know
-			$config->set('system', 'basepath', $this->baseDir);
+			$config->set('system', 'basepath', $this->baseDir, Cache::SOURCE_FILE);
 		}
 	}
 
@@ -190,6 +193,38 @@ class ConfigFileLoader
 		} else {
 			return [];
 		}
+	}
+
+	/**
+	 * Tries to load environment specific variables, based on the `env.config.php` mapping table
+	 *
+	 * @param array $server The $_SERVER variable
+	 *
+	 * @return array The config array (empty if no config was found)
+	 *
+	 * @throws Exception if the configuration file isn't readable
+	 */
+	public function loadEnvConfig(array $server)
+	{
+		$filepath = $this->baseDir . DIRECTORY_SEPARATOR .   // /var/www/html/
+					self::STATIC_DIR . DIRECTORY_SEPARATOR . // static/
+					"env.config.php";                        // env.config.php
+
+		if (!file_exists($filepath)) {
+			return [];
+		}
+
+		$envConfig = $this->loadConfigFile($filepath);
+
+		$return = [];
+
+		foreach ($envConfig as $envKey => $configStructure) {
+			if (isset($server[$envKey])) {
+				$return[$configStructure[0]][$configStructure[1]] = $server[$envKey];
+			}
+		}
+
+		return $return;
 	}
 
 	/**

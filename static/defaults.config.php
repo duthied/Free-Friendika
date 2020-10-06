@@ -32,6 +32,11 @@ return [
 		// Can contain the port number with the syntax "hostname:port".
 		'hostname' => '',
 
+		// port (Integer)
+		// Port of the database server.
+		// Can be used instead of adding a port number to the hostname
+		'port' => null,
+
 		// user (String)
 		// Database user name. Please don't use "root".
 		'username' => '',

@@ -75,13 +75,13 @@ return [
 	Util\ConfigFileLoader::class => [
 		'shared'          => true,
 		'constructParams' => [
-			[Dice::INSTANCE => '$basepath'],
+			[Dice::INSTANCE => '$basepath']
 		],
 	],
 	Config\Cache::class          => [
 		'instanceOf' => Factory\ConfigFactory::class,
 		'call'       => [
-			['createCache', [], Dice::CHAIN_CALL],
+			['createCache', [$_SERVER], Dice::CHAIN_CALL],
 		],
 	],
 	App\Mode::class              => [
@@ -105,7 +105,6 @@ return [
 	Database::class                         => [
 		'constructParams' => [
 			[Dice::INSTANCE => \Psr\Log\NullLogger::class],
-			$_SERVER,
 		],
 	],
 	/**

@@ -94,6 +94,19 @@ class CacheTest extends MockedTest
 
 		$this->assertEquals($override['system']['test'], $configCache->get('system', 'test'));
 		$this->assertEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
+
+		// Don't overwrite server ENV variables - even in load mode
+		$configCache->load($data, Cache::SOURCE_DB);
+
+		$this->assertEquals($override['system']['test'], $configCache->get('system', 'test'));
+		$this->assertEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
+
+		// Overwrite ENV variables with ENV variables
+		$configCache->load($data, Cache::SOURCE_ENV);
+
+		$this->assertConfigValues($data, $configCache);
+		$this->assertNotEquals($override['system']['test'], $configCache->get('system', 'test'));
+		$this->assertNotEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
 	}
 
 	/**
