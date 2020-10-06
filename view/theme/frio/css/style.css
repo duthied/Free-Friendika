@@ -591,6 +591,9 @@ nav.navbar .nav > li > button:focus
     border-left: 3px solid #e3eff3;
     background-color: #e3eff3;
 }
+#topbar-first #nav-notifications-menu li.notification-unseen a {
+    color: $nav_icon_hover_color;
+}
 #topbar-first #nav-notifications-menu li.notif-entry:hover {
     background-color: #f7f7f7;
     border-left: 3px solid $link_color;
@@ -603,6 +606,9 @@ nav.navbar .nav > li > button:focus
 }
 #topbar-first #nav-notifications-menu .media .media-body .label {
     padding: .1em .5em
+}
+#topbar-first #nav-notifications-menu li.notification-unseen .media .time {
+    color: $nav_icon_hover_color;
 }
 #topbar-first #nav-notifications-menu li.notif-entry .media-object a img {
     height: 32px;
