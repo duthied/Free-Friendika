@@ -75,7 +75,7 @@ return [
 	Util\ConfigFileLoader::class => [
 		'shared'          => true,
 		'constructParams' => [
-			[Dice::INSTANCE => '$basepath']
+			[Dice::INSTANCE => '$basepath'],
 		],
 	],
 	Config\Cache::class          => [

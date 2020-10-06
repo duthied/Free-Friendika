@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * Main mapping table of environment variables to correct config values
+ * Main mapping table of environment variables to namespaced config values
  *
  */
 
