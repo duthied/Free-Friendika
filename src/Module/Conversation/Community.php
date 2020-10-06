@@ -46,6 +46,7 @@ class Community extends BaseModule
 	protected static $itemsPerPage;
 	protected static $since_id;
 	protected static $max_id;
+	protected static $item_id;
 
 	public static function content(array $parameters = [])
 	{
@@ -258,6 +259,7 @@ class Community extends BaseModule
 		self::$since_id = $_GET['since_id'] ?? null;
 		self::$max_id   = $_GET['max_id']   ?? null;
 		self::$max_id   = $_GET['last_commented'] ?? self::$max_id;
+		self::$item_id  = $_GET['item'] ?? null;
 	}
 
 	/**
@@ -271,7 +273,7 @@ class Community extends BaseModule
 	 */
 	protected static function getItems()
 	{
-		$items = self::selectItems(self::$since_id, self::$max_id, self::$itemsPerPage);
+		$items = self::selectItems(self::$since_id, self::$max_id, self::$item_id, self::$itemsPerPage);
 
 		$maxpostperauthor = (int) DI::config()->get('system', 'max_author_posts_community_page');
 		if ($maxpostperauthor != 0 && self::$content == 'local') {
@@ -303,7 +305,7 @@ class Community extends BaseModule
 					self::$max_id = $items[count($items) - 1]['commented'];
 				}
 
-				$items = self::selectItems(self::$since_id, self::$max_id, self::$itemsPerPage);
+				$items = self::selectItems(self::$since_id, self::$max_id, self::$item_id, self::$itemsPerPage);
 			}
 		} else {
 			$selected_items = $items;
@@ -322,7 +324,7 @@ class Community extends BaseModule
 	 * @throws \Exception
 	 * @TODO Move to repository/factory
 	 */
-	private static function selectItems($since_id, $max_id, $itemspage)
+	private static function selectItems($since_id, $max_id, $item_id, $itemspage)
 	{
 		$r = false;
 
@@ -342,19 +344,24 @@ class Community extends BaseModule
 			return [];
 		}
 
-		if (local_user() && !empty($_REQUEST['no_sharer'])) {
-			$condition[0] .= " AND NOT EXISTS (SELECT `uri-id` FROM `thread` AS t1 WHERE `t1`.`uri-id` = `thread`.`uri-id` AND `t1`.`uid` = ?)";
-			$condition[] = local_user();
-		}
+		if (isset($item_id)) {
+			$condition[0] .= " AND `iid` = ?";
+			$condition[] = $item_id;
+		} else {
+			if (local_user() && !empty($_REQUEST['no_sharer'])) {
+				$condition[0] .= " AND NOT EXISTS (SELECT `uri-id` FROM `thread` AS t1 WHERE `t1`.`uri-id` = `thread`.`uri-id` AND `t1`.`uid` = ?)";
+				$condition[] = local_user();
+			}
+	
+			if (isset($max_id)) {
+				$condition[0] .= " AND `commented` < ?";
+				$condition[] = $max_id;
+			}
 
-		if (isset($max_id)) {
-			$condition[0] .= " AND `commented` < ?";
-			$condition[] = $max_id;
-		}
-
-		if (isset($since_id)) {
-			$condition[0] .= " AND `commented` > ?";
-			$condition[] = $since_id;
+			if (isset($since_id)) {
+				$condition[0] .= " AND `commented` > ?";
+				$condition[] = $since_id;
+			}
 		}
 
 		$r = Item::selectThreadForUser(0, ['uri', 'commented', 'author-link'], $condition, ['order' => ['commented' => true], 'limit' => $itemspage]);
