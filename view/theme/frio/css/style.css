@@ -631,6 +631,9 @@ nav.navbar .nav > li > button:focus
 #myNavmenu li.nav-sitename {
     font-weight: bold;
 }
+#myNavmenu {
+    top: 50px;
+}
 #topbar-first .dropdown.account li#nav-sitename {
     padding-left: 15px;
     padding-right: 15px;
