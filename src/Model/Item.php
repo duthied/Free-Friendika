@@ -2494,7 +2494,7 @@ class Item
 		// Remove possibly remaining links
 		$naked_body = preg_replace(Strings::autoLinkRegEx(), '', $naked_body);
 
-		$ld = new Language();
+		$ld = new Language(DI::l10n()->getAvailableLanguages());
 		$languages = $ld->detect($naked_body)->limit(0, 3)->close();
 		if (is_array($languages)) {
 			return json_encode($languages);
@@ -2505,11 +2505,13 @@ class Item
 
 	public static function getLanguageMessage(array $item)
 	{
+		$iso639 = new \Matriphe\ISO639\ISO639;
+
 		$used_languages = '';
 		foreach (json_decode($item['language'], true) as $language => $reliability) {
-			$used_languages .= $language . ": " . number_format($reliability, 5) . '\n';
+			$used_languages .= $iso639->languageByCode1($language) . ' (' . $language . "): " . number_format($reliability, 5) . '\n';
 		}
-		$used_languages = DI::l10n()->t('Used languages in this post:\n%s', $used_languages);
+		$used_languages = DI::l10n()->t('Detected languages in this post:\n%s', $used_languages);
 		return $used_languages;
 	}
 
