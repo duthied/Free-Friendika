@@ -66,6 +66,7 @@ class ContactBlock
 			'pending' => false,
 			'hidden' => false,
 			'archive' => false,
+			'failed' => false,
 			'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::FEED],
 		]);
 

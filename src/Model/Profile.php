@@ -406,6 +406,7 @@ class Profile
 					'pending' => false,
 					'hidden' => false,
 					'archive' => false,
+					'failed' => false,
 					'network' => Protocol::FEDERATED,
 				]);
 			}

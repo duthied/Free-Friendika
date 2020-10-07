@@ -82,6 +82,7 @@ class Group
 			   AND NOT `deleted`
 			   AND NOT `blocked`
 			   AND NOT `pending`
+			   AND NOT `failed`
 			   AND `id` NOT IN (
 			   	SELECT DISTINCT(`contact-id`)
 			   	FROM `group_member`

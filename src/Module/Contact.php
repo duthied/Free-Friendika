@@ -652,15 +652,15 @@ class Contact extends BaseModule
 				array_unshift($sql_values, 0);
 				break;
 			case 'archived':
-				$sql_extra = " AND `archive` AND NOT `blocked` AND NOT `pending`";
+				$sql_extra = " AND (`archive` OR `failed`) AND NOT `blocked` AND NOT `pending`";
 				break;
 			case 'pending':
-				$sql_extra = " AND `pending` AND NOT `archive` AND ((`rel` = ?)
+				$sql_extra = " AND `pending` AND NOT `archive` AND NOT `failed` AND ((`rel` = ?)
 					OR EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id` AND NOT `ignore`))";
 				$sql_values[] = Model\Contact::SHARING;
 				break;
 			default:
-				$sql_extra = " AND NOT `archive` AND NOT `blocked` AND NOT `pending`";
+				$sql_extra = " AND NOT `archive` AND NOT `blocked` AND NOT `pending` AND NOT `failed`";
 				break;
 		}
 

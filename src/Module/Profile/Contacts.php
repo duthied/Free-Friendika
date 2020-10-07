@@ -69,6 +69,7 @@ class Contacts extends Module\BaseProfile
 			'pending' => false,
 			'hidden'  => false,
 			'archive' => false,
+			'failed'  => false,
 			'self'    => false,
 			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED]
 		];

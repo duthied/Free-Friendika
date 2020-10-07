@@ -319,7 +319,7 @@ class Group extends BaseModule
 			$contacts = Model\Contact\Group::listUngrouped(local_user());
 		} else {
 			$contacts_stmt = DBA::select('contact', [],
-				['uid' => local_user(), 'pending' => false, 'blocked' => false, 'self' => false],
+				['uid' => local_user(), 'pending' => false, 'blocked' => false, 'failed' => false, 'self' => false],
 				['order' => ['name']]
 			);
 			$contacts = DBA::toArray($contacts_stmt);
