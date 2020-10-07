@@ -29,7 +29,7 @@ use Friendica\Util\Network;
 /**
  * A content class for Curl call results
  */
-class CurlResult
+class CurlResult implements IHTTPResult
 {
 	/**
 	 * @var int HTTP return code or 0 if timeout or failure
@@ -229,33 +229,19 @@ class CurlResult
 		}
 	}
 
-	/**
-	 * Gets the Curl Code
-	 *
-	 * @return string The Curl Code
-	 */
+	/** {@inheritDoc} */
 	public function getReturnCode()
 	{
 		return $this->returnCode;
 	}
 
-	/**
-	 * Returns the Curl Content Type
-	 *
-	 * @return string the Curl Content Type
-	 */
+	/** {@inheritDoc} */
 	public function getContentType()
 	{
 		return $this->contentType;
 	}
 
-	/**
-	 * Returns the Curl headers
-	 *
-	 * @param string $field optional header field. Return all fields if empty
-	 *
-	 * @return string the Curl headers or the specified content of the header variable
-	 */
+	/** {@inheritDoc} */
 	public function getHeader(string $field = '')
 	{
 		if (empty($field)) {
@@ -273,13 +259,7 @@ class CurlResult
 		return '';
 	}
 
-	/**
-	 * Check if a specified header exists
-	 *
-	 * @param string $field header field
-	 *
-	 * @return boolean "true" if header exists
-	 */
+	/** {@inheritDoc} */
 	public function inHeader(string $field)
 	{
 		$field = strtolower(trim($field));
@@ -289,11 +269,7 @@ class CurlResult
 		return array_key_exists($field, $headers);
 	}
 
-	/**
-	 * Returns the Curl headers as an associated array
-	 *
-	 * @return array associated header array
-	 */
+	/** {@inheritDoc} */
 	public function getHeaderArray()
 	{
 		if (!empty($this->header_fields)) {
@@ -313,73 +289,55 @@ class CurlResult
 		return $this->header_fields;
 	}
 
-	/**
-	 * @return bool
-	 */
+	/** {@inheritDoc} */
 	public function isSuccess()
 	{
 		return $this->isSuccess;
 	}
 
-	/**
-	 * @return string
-	 */
+	/** {@inheritDoc} */
 	public function getUrl()
 	{
 		return $this->url;
 	}
 
-	/**
-	 * @return string
-	 */
+	/** {@inheritDoc} */
 	public function getRedirectUrl()
 	{
 		return $this->redirectUrl;
 	}
 
-	/**
-	 * @return string
-	 */
+	/** {@inheritDoc} */
 	public function getBody()
 	{
 		return $this->body;
 	}
 
-	/**
-	 * @return array
-	 */
+	/** {@inheritDoc} */
 	public function getInfo()
 	{
 		return $this->info;
 	}
 
-	/**
-	 * @return bool
-	 */
+	/** {@inheritDoc} */
 	public function isRedirectUrl()
 	{
 		return $this->isRedirectUrl;
 	}
 
-	/**
-	 * @return int
-	 */
+	/** {@inheritDoc} */
 	public function getErrorNumber()
 	{
 		return $this->errorNumber;
 	}
 
-	/**
-	 * @return string
-	 */
+	/** {@inheritDoc} */
 	public function getError()
 	{
 		return $this->error;
 	}
 
-	/**
-	 * @return bool
-	 */
+	/** {@inheritDoc} */
 	public function isTimeout()
 	{
 		return $this->isTimeout;
