@@ -17,6 +17,9 @@
 	background-color: $nav_bg;
 }
 
+#topbar-first #nav-notifications-menu li.notification-unseen {
+        background-color: $nav_icon_hover_color;
+}
 
 #topbar-second {
 	background-color: $nav_bg;
