@@ -505,10 +505,17 @@ class Group
 				$groupedit = null;
 			}
 
+			if ($each == 'group') {
+				$count = DBA::count('group_member', ['gid' => $group['id']]);
+				$group_name = sprintf('%s (%d)', $group['name'], $count);
+			} else {
+				$group_name = $group['name'];
+			}
+
 			$display_groups[] = [
 				'id'   => $group['id'],
 				'cid'  => $cid,
-				'text' => $group['name'],
+				'text' => $group_name,
 				'href' => $each . '/' . $group['id'],
 				'edit' => $groupedit,
 				'selected' => $selected,
