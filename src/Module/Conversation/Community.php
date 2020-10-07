@@ -256,10 +256,16 @@ class Community extends BaseModule
 			self::$itemsPerPage = DI::app()->force_max_items;
 		}
 
+		if (!empty($_GET['item'])) {
+			$item = Item::selectFirst(['parent'], ['id' => $_GET['item']]);
+			self::$item_id = $item['parent'] ?? 0;
+		} else {
+			self::$item_id = 0;
+		}
+
 		self::$since_id = $_GET['since_id'] ?? null;
 		self::$max_id   = $_GET['max_id']   ?? null;
 		self::$max_id   = $_GET['last_commented'] ?? self::$max_id;
-		self::$item_id  = $_GET['item'] ?? null;
 	}
 
 	/**
@@ -344,7 +350,7 @@ class Community extends BaseModule
 			return [];
 		}
 
-		if (isset($item_id)) {
+		if (!empty($item_id)) {
 			$condition[0] .= " AND `iid` = ?";
 			$condition[] = $item_id;
 		} else {

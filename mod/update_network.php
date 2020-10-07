@@ -23,6 +23,7 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Item;
 
 require_once "mod/network.php";
 
@@ -33,10 +34,15 @@ function update_network_content(App $a)
 	}
 
 	$profile_uid = intval($_GET['p']);
-	$parent = intval($_GET['item']);
 
 	if (!DI::pConfig()->get($profile_uid, "system", "no_auto_update") || ($_GET["force"] == 1)) {
-		$text = network_content($a, $profile_uid, $parent);
+		if (!empty($_GET['item'])) {
+			$item = Item::selectFirst(['parent'], ['id' => $_GET['item']]);
+			$parentid = $item['parent'] ?? 0;
+		} else {
+			$parentid = 0;
+		}
+		$text = network_content($a, $profile_uid, $parentid);
 	} else {
 		$text = "";
 	}
