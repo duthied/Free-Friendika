@@ -479,7 +479,7 @@ nav.navbar .nav > li > button:focus
     position: absolute;
     top: 4px;
     right: -2px;
-    background-color: #ff8989;
+    background-color: #ff3535;
 }
 #topbar-first #intro-update{
     cursor: pointer;
