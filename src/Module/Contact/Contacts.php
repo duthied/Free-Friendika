@@ -41,6 +41,7 @@ class Contacts extends BaseModule
 			'blocked' => false,
 			'self' => false,
 			'hidden' => false,
+			'failed' => false,
 		];
 
 		$noresult_label = DI::l10n()->t('No known contacts.');
