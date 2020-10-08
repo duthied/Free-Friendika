@@ -69,7 +69,7 @@ class PreloadConfig extends BaseConfig
 		$this->config_loaded = true;
 
 		// load the whole category out of the DB into the cache
-		$this->configCache->load($config, true);
+		$this->configCache->load($config, Cache::SOURCE_DB);
 	}
 
 	/**

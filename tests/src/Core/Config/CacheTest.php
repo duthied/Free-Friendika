@@ -83,16 +83,30 @@ class CacheTest extends MockedTest
 		];
 
 		$configCache = new Cache();
-		$configCache->load($data);
-		$configCache->load($override);
+		$configCache->load($data, Cache::SOURCE_DB);
+		// doesn't override - Low Priority due Config file
+		$configCache->load($override, Cache::SOURCE_FILE);
 
 		$this->assertConfigValues($data, $configCache);
 
-		// override the value
-		$configCache->load($override, true);
+		// override the value - High Prio due Server Env
+		$configCache->load($override, Cache::SOURCE_ENV);
 
 		$this->assertEquals($override['system']['test'], $configCache->get('system', 'test'));
 		$this->assertEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
+
+		// Don't overwrite server ENV variables - even in load mode
+		$configCache->load($data, Cache::SOURCE_DB);
+
+		$this->assertEquals($override['system']['test'], $configCache->get('system', 'test'));
+		$this->assertEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
+
+		// Overwrite ENV variables with ENV variables
+		$configCache->load($data, Cache::SOURCE_ENV);
+
+		$this->assertConfigValues($data, $configCache);
+		$this->assertNotEquals($override['system']['test'], $configCache->get('system', 'test'));
+		$this->assertNotEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
 	}
 
 	/**

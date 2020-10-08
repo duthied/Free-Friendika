@@ -350,7 +350,7 @@ abstract class ConfigTest extends MockedTest
 	 */
 	public function testGetWithRefresh($data)
 	{
-		$this->configCache->load(['test' => ['it' => 'now']]);
+		$this->configCache->load(['test' => ['it' => 'now']], Cache::SOURCE_FILE);
 
 		$this->testedConfig = $this->getInstance();
 		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
@@ -375,7 +375,7 @@ abstract class ConfigTest extends MockedTest
 	 */
 	public function testDeleteWithoutDB($data)
 	{
-		$this->configCache->load(['test' => ['it' => $data]]);
+		$this->configCache->load(['test' => ['it' => $data]], Cache::SOURCE_FILE);
 
 		$this->testedConfig = $this->getInstance();
 		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
@@ -395,7 +395,7 @@ abstract class ConfigTest extends MockedTest
 	 */
 	public function testDeleteWithDB()
 	{
-		$this->configCache->load(['test' => ['it' => 'now', 'quarter' => 'true']]);
+		$this->configCache->load(['test' => ['it' => 'now', 'quarter' => 'true']], Cache::SOURCE_FILE);
 
 		$this->configModel->shouldReceive('delete')
 		                  ->with('test', 'it')
