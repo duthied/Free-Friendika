@@ -111,6 +111,31 @@
 						<li role="presentation"><button type="button" class="btn-link icon" style="cursor: pointer;" aria-label="{{$edurl}}" title="{{$edurl}}" onclick="insertFormattingToPost('url');"><i class="fa fa-link"></i></button></li>
 						<li role="presentation"><button type="button" class="btn-link" id="profile-attach"  ondragenter="return linkDropper(event);" ondragover="return linkDropper(event);" ondrop="linkDrop(event);" onclick="jotGetLink();" title="{{$edattach}}"><i class="fa fa-paperclip"></i></button></li>
 						<li role="presentation"><button type="button" class="btn-link" id="profile-location" onclick="jotGetLocation();" title="{{$setloc}}"><i class="fa fa-map-marker" aria-hidden="true"></i></button></li>
+<script>
+function myFunction() {
+  var x = document.getElementById("emojis");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+} 
+</script>
+<script src="view/theme/frio/js/twemoji.min.js" crossorigin="anonymous"></script>
+<script src="view/theme/frio/js/DisMojiPicker.js"></script>
+<link rel="stylesheet" href="view/theme/frio/css/emojis.css" />
+<script>
+
+
+    $("#emojis").disMojiPicker()
+    $("#emojis").picker(emoji => console.log(emoji));
+    twemoji.parse(document.body);
+
+</script>
+
+<div id="emojis" style="display:none">
+</div>
+                                                <li role="presentation"><button type="button" class="btn-link" id="profile-emoji" onclick="myFunction();" title="{{$setloc}}"><i class="fa fa-smile-o" aria-hidden="true"></i></button></li>
 						<!-- TODO: waiting for a better placement
 						<li><button type="button" class="btn-link" id="profile-nolocation" onclick="jotClearLocation();" title="{{$noloc}}">{{$shortnoloc}}</button></li>
 						-->
