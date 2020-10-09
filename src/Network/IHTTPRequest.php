@@ -75,6 +75,7 @@ interface IHTTPRequest
 	 *                           'nobody' => only return the header
 	 *                           'cookiejar' => path to cookie jar file
 	 *                           'header' => header array
+	 *                           'content_length' => int maximum File content length
 	 *
 	 * @return IHTTPResult
 	 */

@@ -160,13 +160,8 @@ class ParseUrl
 			return $siteinfo;
 		}
 
-		$curlResult = DI::httpRequest()->get($url);
+		$curlResult = DI::httpRequest()->get($url, false, ['content_length' => 1000000]);
 		if (!$curlResult->isSuccess()) {
-			return $siteinfo;
-		}
-
-		// If the file is too large then exit
-		if (($curlResult->getInfo()['download_content_length'] ?? 0) > 1000000) {
 			return $siteinfo;
 		}
 

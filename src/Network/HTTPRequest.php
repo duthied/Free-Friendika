@@ -30,6 +30,7 @@ use Friendica\Util\Network;
 use Friendica\Util\Profiler;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -177,10 +178,18 @@ class HTTPRequest implements IHTTPRequest
 			$this->logger->notice('Curl redirect.', ['url' => $request->getUri(), 'to' => $uri]);
 		};
 
+		$onHeaders = function (ResponseInterface $response) use ($opts) {
+			if (!empty($opts['content_length']) &&
+				$response->getHeaderLine('Content-Length') > $opts['content_length']) {
+				throw new TransferException('The file is too big!');
+			}
+		};
+
 		$client = new Client([
 			'allow_redirect' => [
 				'max' => 8,
 				'on_redirect' => $onRedirect,
+				'on_headers' => $onHeaders,
 				'track_redirect' => true,
 				'strict' => true,
 				'referer' => true,
@@ -191,8 +200,9 @@ class HTTPRequest implements IHTTPRequest
 		try {
 			$response = $client->get($url);
 			return new GuzzleResponse($response, $url);
-		} catch (RequestException $exception) {
-			if ($exception->hasResponse()) {
+		} catch (TransferException $exception) {
+			if ($exception instanceof RequestException &&
+				$exception->hasResponse()) {
 				return new GuzzleResponse($exception->getResponse(), $url, $exception->getCode(), $exception->getMessage());
 			} else {
 				return new CurlResult($url, '', ['http_code' => $exception->getCode()], $exception->getCode(), $exception->getMessage());
