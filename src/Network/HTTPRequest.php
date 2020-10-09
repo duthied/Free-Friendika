@@ -454,8 +454,7 @@ class HTTPRequest implements IHTTPRequest
 				'timeout'        => $timeout,
 				'accept_content' => $accept_content,
 				'cookiejar'      => $cookiejar
-			],
-			$redirects
+			]
 		);
 	}
 
