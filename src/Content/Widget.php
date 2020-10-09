@@ -24,17 +24,13 @@ namespace Friendica\Content;
 use Friendica\Core\Addon;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
-use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
-use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
 class Widget
@@ -527,7 +523,29 @@ class Widget
 	}
 
 	/**
+	 * Display the account types sidebar
+	 * The account type value is added as a parameter to the url
+	 * 
+	 * @param string $base        Basepath
+	 * @param int    $accounttype Acount type
+	 * @return string
+	 */
+	public static function accounttypes(string $base, $accounttype)
+	{
+		$accounts = [
+			['ref' => 'person', 'name' => DI::l10n()->t('Persons')],
+			['ref' => 'organisation', 'name' => DI::l10n()->t('Organisations')],
+			['ref' => 'news', 'name' => DI::l10n()->t('News')],
+			['ref' => 'community', 'name' => DI::l10n()->t('Forums')],
+		];
+
+		return self::filter('accounttype', DI::l10n()->t('Accounts'), '',
+			DI::l10n()->t('All'), $base, $accounts, $accounttype);
+	}
+
+	/**
 	 * Display the accounts sidebar
+	 * The account type is added to the path
 	 *
 	 * @param string $base        Basepath
 	 * @param string $accounttype Acount type (person, organisation, news, community)

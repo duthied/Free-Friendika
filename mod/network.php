@@ -300,23 +300,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 		$o = '';
 	}
 
-	switch ($a->argv[1] ?? '') {
-		case 'person':
-			$account = User::ACCOUNT_TYPE_PERSON;
-			break;
-		case 'organisation':
-			$account = User::ACCOUNT_TYPE_ORGANISATION;
-			break;
-		case 'news':
-			$account = User::ACCOUNT_TYPE_NEWS;
-			break;
-		case 'community':
-			$account = User::ACCOUNT_TYPE_COMMUNITY;
-			break;
-		default:
-			$account = null;
-		break;
-	}
+	$account = User::getAccountTypeByString($a->argv[1] ?? '');
 
 	if (!empty($_GET['file'])) {
 		$o .= networkFlatView($a, $update, $account);

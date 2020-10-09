@@ -469,7 +469,7 @@ class Relation
 		);
 
 		return DI::dba()->selectToArray('contact', [], $condition,
-			['limit' => [$offset, $count], 'order' => [$shuffle ? 'name' : 'RAND()']]
+			['limit' => [$offset, $count], 'order' => [$shuffle ? 'RAND()' : 'name']]
 		);
 	}
 
@@ -485,8 +485,8 @@ class Relation
 	public static function countAll(int $cid, array $condition = [])
 	{
 		$condition = DBA::mergeConditions($condition,
-			['`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`) 
-			OR `id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`)',
+			['(`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`) 
+			OR `id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`))',
 				$cid, $cid]
 		);
 
@@ -507,13 +507,13 @@ class Relation
 	public static function listAll(int $cid, array $condition = [], int $count = 30, int $offset = 0, bool $shuffle = false)
 	{
 		$condition = DBA::mergeConditions($condition,
-			['`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`) 
-			OR `id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`)',
+			['(`id` IN (SELECT `relation-cid` FROM `contact-relation` WHERE `cid` = ? AND `follows`) 
+			OR `id` IN (SELECT `cid` FROM `contact-relation` WHERE `relation-cid` = ? AND `follows`))',
 				$cid, $cid]
 		);
 
 		return DI::dba()->selectToArray('contact', [], $condition,
-			['limit' => [$offset, $count], 'order' => [$shuffle ? 'name' : 'RAND()']]
+			['limit' => [$offset, $count], 'order' => [$shuffle ? 'RAND()' : 'name']]
 		);
 	}
 
@@ -560,7 +560,7 @@ class Relation
 		);
 
 		return DI::dba()->selectToArray('contact', [], $condition,
-			['limit' => [$offset, $count], 'order' => [$shuffle ? 'name' : 'RAND()']]
+			['limit' => [$offset, $count], 'order' => [$shuffle ? 'RAND()' : 'name']]
 		);
 	}
 
@@ -605,7 +605,7 @@ class Relation
 		);
 
 		return DI::dba()->selectToArray('contact', [], $condition,
-			['limit' => [$offset, $count], 'order' => [$shuffle ? 'name' : 'RAND()']]
+			['limit' => [$offset, $count], 'order' => [$shuffle ? 'RAND()' : 'name']]
 		);
 	}
 
@@ -650,7 +650,7 @@ class Relation
 		);
 
 		return DI::dba()->selectToArray('contact', [], $condition,
-			['limit' => [$offset, $count], 	'order' => [$shuffle ? 'name' : 'RAND()']]
+			['limit' => [$offset, $count], 	'order' => [$shuffle ? 'RAND()' : 'name']]
 		);
 	}
 }

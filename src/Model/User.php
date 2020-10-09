@@ -103,6 +103,29 @@ class User
 	private static $owner;
 
 	/**
+	 * Returns the numeric account type by their string
+	 *
+	 * @param string $accounttype as string constant
+	 * @return void
+	 */
+	public static function getAccountTypeByString(string $accounttype)
+	{
+		switch ($accounttype) {
+			case 'person':
+				return User::ACCOUNT_TYPE_PERSON;
+			case 'organisation':
+				return User::ACCOUNT_TYPE_ORGANISATION;
+			case 'news':
+				return User::ACCOUNT_TYPE_NEWS;
+			case 'community':
+				return User::ACCOUNT_TYPE_COMMUNITY;
+			default:
+				return null;
+			break;
+		}
+	}
+
+	/**
 	 * Fetch the system account
 	 *
 	 * @return array system account
