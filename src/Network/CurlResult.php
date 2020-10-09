@@ -245,7 +245,7 @@ class CurlResult implements IHTTPResult
 	public function getHeader($header)
 	{
 		if (empty($header)) {
-			return '';
+			return [];
 		}
 
 		$header = strtolower(trim($header));
@@ -256,7 +256,7 @@ class CurlResult implements IHTTPResult
 			return $headers[$header];
 		}
 
-		return '';
+		return [];
 	}
 
 	/** {@inheritDoc} */
@@ -289,7 +289,11 @@ class CurlResult implements IHTTPResult
 			$parts = explode(':', $line);
 			$headerfield = strtolower(trim(array_shift($parts)));
 			$headerdata = trim(implode(':', $parts));
-			$this->header_fields[$headerfield] = $headerdata;
+			if (empty($this->header_fields[$headerfield])) {
+				$this->header_fields[$headerfield] = [$headerdata];
+			} elseif (!in_array($headerdata, $this->header_fields[$headerfield])) {
+				$this->header_fields[$headerfield][] = $headerdata;
+			}
 		}
 
 		return $this->header_fields;
