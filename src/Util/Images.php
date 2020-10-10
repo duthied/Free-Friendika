@@ -77,7 +77,7 @@ class Images
 	 *
 	 * @param string $image_data Image data
 	 * @param string $filename   File name (for guessing the type via the extension)
-	 * @param string $mimeTypes  possible mime type
+	 * @param string $mimeType   possible mime type
 	 *
 	 * @return string
 	 * @throws \Exception
