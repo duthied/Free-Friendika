@@ -59,7 +59,7 @@ class HTTPRequest implements IHTTPRequest
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function get(string $url, bool $binary = false, array $opts = [], int &$redirects = 0)
+	public function get(string $url, array $opts = [], int &$redirects = 0)
 	{
 		$stamp1 = microtime(true);
 
@@ -172,12 +172,7 @@ class HTTPRequest implements IHTTPRequest
 			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		}
 
-		if ($binary) {
-			@curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
-		}
-
-		// don't let curl abort the entire application
-		// if it throws any errors.
+		$logger = $this->logger;
 
 		$s         = @curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
@@ -196,7 +191,7 @@ class HTTPRequest implements IHTTPRequest
 			$redirects++;
 			$this->logger->notice('Curl redirect.', ['url' => $url, 'to' => $curlResponse->getRedirectUrl()]);
 			@curl_close($ch);
-			return $this->get($curlResponse->getRedirectUrl(), $binary, $opts, $redirects);
+			return $this->get($curlResponse->getRedirectUrl(), $opts, $redirects);
 		}
 
 		@curl_close($ch);
@@ -435,9 +430,9 @@ class HTTPRequest implements IHTTPRequest
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function fetch(string $url, bool $binary = false, int $timeout = 0, string $accept_content = '', string $cookiejar = '', int &$redirects = 0)
+	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '', int &$redirects = 0)
 	{
-		$ret = $this->fetchFull($url, $binary, $timeout, $accept_content, $cookiejar, $redirects);
+		$ret = $this->fetchFull($url, $timeout, $accept_content, $cookiejar, $redirects);
 
 		return $ret->getBody();
 	}
@@ -449,11 +444,10 @@ class HTTPRequest implements IHTTPRequest
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function fetchFull(string $url, bool $binary = false, int $timeout = 0, string $accept_content = '', string $cookiejar = '', int &$redirects = 0)
+	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '', int &$redirects = 0)
 	{
 		return $this->get(
 			$url,
-			$binary,
 			[
 				'timeout'        => $timeout,
 				'accept_content' => $accept_content,

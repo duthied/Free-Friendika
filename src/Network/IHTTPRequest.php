@@ -34,7 +34,6 @@ interface IHTTPRequest
 	 * to preserve cookies from one request to the next.
 	 *
 	 * @param string $url             URL to fetch
-	 * @param bool   $binary          default false
 	 *                                TRUE if asked to return binary results (file download)
 	 * @param int    $timeout         Timeout in seconds, default system config value or 60 seconds
 	 * @param string $accept_content  supply Accept: header with 'accept_content' as the value
@@ -42,7 +41,7 @@ interface IHTTPRequest
 	 *
 	 * @return string The fetched content
 	 */
-	public function fetch(string $url, bool $binary = false, int $timeout = 0, string $accept_content = '', string $cookiejar = '');
+	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '');
 
 	/**
 	 * Fetches the whole response of an URL.
@@ -51,7 +50,6 @@ interface IHTTPRequest
 	 * all the information collected during the fetch.
 	 *
 	 * @param string $url             URL to fetch
-	 * @param bool   $binary          default false
 	 *                                TRUE if asked to return binary results (file download)
 	 * @param int    $timeout         Timeout in seconds, default system config value or 60 seconds
 	 * @param string $accept_content  supply Accept: header with 'accept_content' as the value
@@ -59,13 +57,12 @@ interface IHTTPRequest
 	 *
 	 * @return CurlResult With all relevant information, 'body' contains the actual fetched content.
 	 */
-	public function fetchFull(string $url, bool $binary = false, int $timeout = 0, string $accept_content = '', string $cookiejar = '');
+	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '');
 
 	/**
 	 * Send a GET to an URL.
 	 *
 	 * @param string $url        URL to fetch
-	 * @param bool   $binary     default false
 	 *                           TRUE if asked to return binary results (file download)
 	 * @param array  $opts       (optional parameters) assoziative array with:
 	 *                           'accept_content' => supply Accept: header with 'accept_content' as the value
@@ -78,7 +75,7 @@ interface IHTTPRequest
 	 *
 	 * @return CurlResult
 	 */
-	public function get(string $url, bool $binary = false, array $opts = []);
+	public function get(string $url, array $opts = []);
 
 	/**
 	 * Send POST request to an URL
