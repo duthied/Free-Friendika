@@ -37,6 +37,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\User;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\NotFoundException;
@@ -260,6 +261,9 @@ class Contact extends BaseModule
 		$rel    = Strings::escapeTags(trim($_GET['rel']    ?? ''));
 		$group  = Strings::escapeTags(trim($_GET['group']  ?? ''));
 
+		$accounttype = $_GET['accounttype'] ?? '';
+		$accounttypeid = User::getAccountTypeByString($accounttype);
+
 		$page = DI::page();
 
 		$page->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
@@ -339,6 +343,7 @@ class Contact extends BaseModule
 
 			$findpeople_widget = '';
 			$follow_widget = '';
+			$account_widget = '';
 			$networks_widget = '';
 			$rel_widget = '';
 
@@ -356,12 +361,13 @@ class Contact extends BaseModule
 				$follow_widget = Widget::follow();
 			}
 
+			$account_widget = Widget::accounttypes($_SERVER['REQUEST_URI'], $accounttype);
 			$networks_widget = Widget::networks($_SERVER['REQUEST_URI'], $nets);
 			$rel_widget = Widget::contactRels($_SERVER['REQUEST_URI'], $rel);
 			$groups_widget = Widget::groups($_SERVER['REQUEST_URI'], $group);
 		}
 
-		DI::page()['aside'] .= $vcard_widget . $findpeople_widget . $follow_widget . $groups_widget . $networks_widget . $rel_widget;
+		DI::page()['aside'] .= $vcard_widget . $findpeople_widget . $follow_widget . $account_widget . $groups_widget . $networks_widget . $rel_widget;
 
 		$tpl = Renderer::getMarkupTemplate('contacts-head.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
@@ -662,6 +668,11 @@ class Contact extends BaseModule
 			default:
 				$sql_extra = " AND NOT `archive` AND NOT `blocked` AND NOT `pending` AND NOT `failed`";
 				break;
+		}
+
+		if (isset($accounttypeid)) {
+			$sql_extra .= " AND `contact-type` = ?";
+			$sql_values[] = $accounttypeid;
 		}
 
 		$searching = false;

@@ -192,23 +192,7 @@ class Community extends BaseModule
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 		}
 
-		switch ($parameters['accounttype'] ?? '') {
-			case 'person':
-				self::$accounttype = User::ACCOUNT_TYPE_PERSON;
-				break;
-			case 'organisation':
-				self::$accounttype = User::ACCOUNT_TYPE_ORGANISATION;
-				break;
-			case 'news':
-				self::$accounttype = User::ACCOUNT_TYPE_NEWS;
-				break;
-			case 'community':
-				self::$accounttype = User::ACCOUNT_TYPE_COMMUNITY;
-				break;
-			default:
-				self::$accounttype = null;
-				break;
-		}
+		self::$accounttype = User::getAccountTypeByString($parameters['accounttype'] ?? '');
 
 		self::$content = $parameters['content'] ?? '';
 		if (!self::$content) {

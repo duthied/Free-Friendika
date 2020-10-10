@@ -4,10 +4,11 @@ namespace Friendica\Module\Contact;
 
 use Friendica\BaseModule;
 use Friendica\Content\Pager;
+use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
-use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Model\User;
 use Friendica\Module;
 use Friendica\Network\HTTPException;
 
@@ -23,6 +24,8 @@ class Contacts extends BaseModule
 
 		$cid = $parameters['id'];
 		$type = $parameters['type'] ?? 'all';
+		$accounttype = $_GET['accounttype'] ?? '';
+		$accounttypeid = User::getAccountTypeByString($accounttype);
 
 		if (!$cid) {
 			throw new HTTPException\BadRequestException(DI::l10n()->t('Invalid contact.'));
@@ -44,6 +47,10 @@ class Contacts extends BaseModule
 			'failed' => false,
 		];
 
+		if (isset($accounttypeid)) {
+			$condition['contact-type'] = $accounttypeid;
+		}
+
 		$noresult_label = DI::l10n()->t('No known contacts.');
 
 		switch ($type) {
@@ -57,10 +64,6 @@ class Contacts extends BaseModule
 				$total = Model\Contact\Relation::countMutuals($cid, $condition);
 				break;
 			case 'common':
-				$condition = [
-					'NOT `self` AND NOT `blocked` AND NOT `hidden` AND `id` != ?',
-					$localContactId,
-				];
 				$total = Model\Contact\Relation::countCommon($localContactId, $cid, $condition);
 				$noresult_label = DI::l10n()->t('No common contacts.');
 				break;
@@ -118,6 +121,8 @@ class Contacts extends BaseModule
 			'$contacts' => $contacts,
 			'$paginate' => $pager->renderFull($total),
 		]);
+
+		DI::page()['aside'] .= Widget::accounttypes($_SERVER['REQUEST_URI'], $accounttype);
 
 		return $o;
 	}

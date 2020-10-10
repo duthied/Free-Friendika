@@ -132,7 +132,7 @@ function network_init(App $a)
 		DI::page()['aside'] = '';
 	}
 
-	if (!empty($a->argv[1]) && in_array($a->argv[1], ['person', 'organisation', 'news', 'community'])) {
+	if (!empty(User::getAccountTypeByString($a->argv[1] ?? ''))) {
 		$accounttype = $a->argv[1];
 	} else {
 		$accounttype = '';
@@ -300,23 +300,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 		$o = '';
 	}
 
-	switch ($a->argv[1] ?? '') {
-		case 'person':
-			$account = User::ACCOUNT_TYPE_PERSON;
-			break;
-		case 'organisation':
-			$account = User::ACCOUNT_TYPE_ORGANISATION;
-			break;
-		case 'news':
-			$account = User::ACCOUNT_TYPE_NEWS;
-			break;
-		case 'community':
-			$account = User::ACCOUNT_TYPE_COMMUNITY;
-			break;
-		default:
-			$account = null;
-		break;
-	}
+	$account = User::getAccountTypeByString($a->argv[1] ?? '');
 
 	if (!empty($_GET['file'])) {
 		$o .= networkFlatView($a, $update, $account);
