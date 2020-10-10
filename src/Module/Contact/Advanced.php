@@ -125,6 +125,14 @@ class Advanced extends BaseModule
 			$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '2' => DI::l10n()->t('Mirror as my own posting')];
 		}
 
+		// This data is fetched automatically for most networks.
+		// Editing does only makes sense for mail and feed contacts.
+		if (!in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
+			$readonly = 'readonly';
+		} else {
+			$readonly = '';
+		}
+
 		$tab_str = Contact::getTabsHTML($contact, Contact::TAB_ADVANCED);
 
 		$tpl = Renderer::getMarkupTemplate('contact/advanced.tpl');
@@ -147,16 +155,16 @@ class Advanced extends BaseModule
 				$remote_self_options
 			],
 
-			'$name'    => ['name', DI::l10n()->t('Name'), $contact['name']],
-			'$nick'    => ['nick', DI::l10n()->t('Account Nickname'), $contact['nick']],
+			'$name'    => ['name', DI::l10n()->t('Name'), $contact['name'], '', '', $readonly],
+			'$nick'    => ['nick', DI::l10n()->t('Account Nickname'), $contact['nick'], '', '', $readonly],
 			'$attag'   => ['attag', DI::l10n()->t('@Tagname - overrides Name/Nickname'), $contact['attag']],
-			'$url'     => ['url', DI::l10n()->t('Account URL'), $contact['url']],
-			'$alias'   => ['alias', DI::l10n()->t('Account URL Alias'), $contact['alias']],
-			'$request' => ['request', DI::l10n()->t('Friend Request URL'), $contact['request']],
-			'confirm'  => ['confirm', DI::l10n()->t('Friend Confirm URL'), $contact['confirm']],
-			'notify'   => ['notify', DI::l10n()->t('Notification Endpoint URL'), $contact['notify']],
-			'poll'     => ['poll', DI::l10n()->t('Poll/Feed URL'), $contact['poll']],
-			'photo'    => ['photo', DI::l10n()->t('New photo from this URL'), ''],
+			'$url'     => ['url', DI::l10n()->t('Account URL'), $contact['url'], '', '', $readonly],
+			'$alias'   => ['alias', DI::l10n()->t('Account URL Alias'), $contact['alias'], '', '', $readonly],
+			'$request' => ['request', DI::l10n()->t('Friend Request URL'), $contact['request'], '', '', $readonly],
+			'confirm'  => ['confirm', DI::l10n()->t('Friend Confirm URL'), $contact['confirm'], '', '', $readonly],
+			'notify'   => ['notify', DI::l10n()->t('Notification Endpoint URL'), $contact['notify'], '', '', $readonly],
+			'poll'     => ['poll', DI::l10n()->t('Poll/Feed URL'), $contact['poll'], '', '', $readonly],
+			'photo'    => ['photo', DI::l10n()->t('New photo from this URL'), '', '', '', $readonly],
 		]);
 	}
 }
