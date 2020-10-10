@@ -539,7 +539,7 @@ class Widget
 			['ref' => 'community', 'name' => DI::l10n()->t('Forums')],
 		];
 
-		return self::filter('accounttype', DI::l10n()->t('Accounts'), '',
+		return self::filter('accounttype', DI::l10n()->t('Account Types'), '',
 			DI::l10n()->t('All'), $base, $accounts, $accounttype);
 	}
 
@@ -554,7 +554,7 @@ class Widget
 	public static function accounts(string $base, string $accounttype)
 	{
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/accounts.tpl'), [
-			'$title'        => DI::l10n()->t('Accounts'),
+			'$title'        => DI::l10n()->t('Account Types'),
 			'$content'      => $base,
 			'$accounttype'  => ($accounttype ?? ''),
 			'$all'          => DI::l10n()->t('All'),
