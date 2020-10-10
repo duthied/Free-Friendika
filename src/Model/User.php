@@ -1008,7 +1008,7 @@ class User
 				$contType = $curlResult->getContentType();
 			} else {
 				$img_str = '';
-				$contType = [];
+				$contType = '';
 			}
 
 			$type = Images::getMimeTypeByData($img_str, $photo, $contType);

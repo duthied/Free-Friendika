@@ -19,7 +19,7 @@ interface IHTTPResult
 	/**
 	 * Returns the Content Type
 	 *
-	 * @return string[] the Content Types
+	 * @return string the Content Type
 	 */
 	public function getContentType();
 

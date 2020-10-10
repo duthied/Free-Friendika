@@ -429,7 +429,7 @@ class Probe
 		}
 
 		// If it isn't a HTML file then exit
-		if (!in_array('html', $curlResult->getContentType())) {
+		if (($curlResult->getContentType() != '') && !strstr(strtolower($curlResult->getContentType()), 'html')) {
 			return false;
 		}
 

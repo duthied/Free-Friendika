@@ -75,25 +75,23 @@ class Images
 	/**
 	 * Fetch image mimetype from the image data or guessing from the file name
 	 *
-	 * @param string   $image_data Image data
-	 * @param string   $filename   File name (for guessing the type via the extension)
-	 * @param string[] $mimeTypes  possible mime types
+	 * @param string $image_data Image data
+	 * @param string $filename   File name (for guessing the type via the extension)
+	 * @param string $mimeTypes  possible mime type
 	 *
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function getMimeTypeByData(string $image_data, string $filename = '', array $mimeTypes = [])
+	public static function getMimeTypeByData(string $image_data, string $filename = '', string $mimeType = '')
 	{
-		foreach ($mimeTypes as $mimeType) {
-			if (substr($mimeType, 0, 6) == 'image/') {
-				Logger::info('Using default mime type', ['filename' => $filename, 'mime' => $mimeTypes]);
-				return $mimeType;
-			}
+		if (substr($mimeType, 0, 6) == 'image/') {
+			Logger::info('Using default mime type', ['filename' => $filename, 'mime' => $mimeType]);
+			return $mimeType;
 		}
 
 		$image = @getimagesizefromstring($image_data);
 		if (!empty($image['mime'])) {
-			Logger::info('Mime type detected via data', ['filename' => $filename, 'default' => $mimeTypes, 'mime' => $image['mime']]);
+			Logger::info('Mime type detected via data', ['filename' => $filename, 'default' => $mimeType, 'mime' => $image['mime']]);
 			return $image['mime'];
 		}
 
