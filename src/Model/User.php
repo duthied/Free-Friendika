@@ -106,7 +106,7 @@ class User
 	 * Returns the numeric account type by their string
 	 *
 	 * @param string $accounttype as string constant
-	 * @return void
+	 * @return int|null Numeric account type - or null when not set
 	 */
 	public static function getAccountTypeByString(string $accounttype)
 	{

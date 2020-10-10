@@ -132,7 +132,7 @@ function network_init(App $a)
 		DI::page()['aside'] = '';
 	}
 
-	if (!empty($a->argv[1]) && in_array($a->argv[1], ['person', 'organisation', 'news', 'community'])) {
+	if (!empty(User::getAccountTypeByString($a->argv[1] ?? ''))) {
 		$accounttype = $a->argv[1];
 	} else {
 		$accounttype = '';
