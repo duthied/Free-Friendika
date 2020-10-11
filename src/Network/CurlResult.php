@@ -29,7 +29,7 @@ use Friendica\Util\Network;
 /**
  * A content class for Curl call results
  */
-class CurlResult implements IHTTPResult
+class CurlResult
 {
 	/**
 	 * @var int HTTP return code or 0 if timeout or failure
@@ -101,7 +101,7 @@ class CurlResult implements IHTTPResult
 	 *
 	 * @param string $url optional URL
 	 *
-	 * @return IHTTPResult a CURL with error response
+	 * @return CurlResult a CURL with error response
 	 * @throws InternalServerErrorException
 	 */
 	public static function createErrorCurl($url = '')
@@ -229,43 +229,57 @@ class CurlResult implements IHTTPResult
 		}
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * Gets the Curl Code
+	 *
+	 * @return string The Curl Code
+	 */
 	public function getReturnCode()
 	{
 		return $this->returnCode;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * Returns the Curl Content Type
+	 *
+	 * @return string the Curl Content Type
+	 */
 	public function getContentType()
 	{
 		return $this->contentType;
 	}
 
-	/** {@inheritDoc} */
-	public function getHeader($header)
+	/**
+	 * Returns the Curl headers
+	 *
+	 * @param string $field optional header field. Return all fields if empty
+	 *
+	 * @return string the Curl headers or the specified content of the header variable
+	 */
+	public function getHeader(string $field = '')
 	{
-		if (empty($header)) {
-			return [];
+		if (empty($field)) {
+			return $this->header;
 		}
 
-		$header = strtolower(trim($header));
+		$field = strtolower(trim($field));
 
 		$headers = $this->getHeaderArray();
 
-		if (isset($headers[$header])) {
-			return $headers[$header];
+		if (isset($headers[$field])) {
+			return $headers[$field];
 		}
 
-		return [];
+		return '';
 	}
 
-	/** {@inheritDoc} */
-	public function getHeaders()
-	{
-		return $this->getHeaderArray();
-	}
-
-	/** {@inheritDoc} */
+	/**
+	 * Check if a specified header exists
+	 *
+	 * @param string $field header field
+	 *
+	 * @return boolean "true" if header exists
+	 */
 	public function inHeader(string $field)
 	{
 		$field = strtolower(trim($field));
@@ -275,7 +289,11 @@ class CurlResult implements IHTTPResult
 		return array_key_exists($field, $headers);
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * Returns the Curl headers as an associated array
+	 *
+	 * @return array associated header array
+	 */
 	public function getHeaderArray()
 	{
 		if (!empty($this->header_fields)) {
@@ -289,59 +307,79 @@ class CurlResult implements IHTTPResult
 			$parts = explode(':', $line);
 			$headerfield = strtolower(trim(array_shift($parts)));
 			$headerdata = trim(implode(':', $parts));
-			if (empty($this->header_fields[$headerfield])) {
-				$this->header_fields[$headerfield] = [$headerdata];
-			} elseif (!in_array($headerdata, $this->header_fields[$headerfield])) {
-				$this->header_fields[$headerfield][] = $headerdata;
-			}
+			$this->header_fields[$headerfield] = $headerdata;
 		}
 
 		return $this->header_fields;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * @return bool
+	 */
 	public function isSuccess()
 	{
 		return $this->isSuccess;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * @return string
+	 */
 	public function getUrl()
 	{
 		return $this->url;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * @return string
+	 */
 	public function getRedirectUrl()
 	{
 		return $this->redirectUrl;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * @return string
+	 */
 	public function getBody()
 	{
 		return $this->body;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * @return array
+	 */
+	public function getInfo()
+	{
+		return $this->info;
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isRedirectUrl()
 	{
 		return $this->isRedirectUrl;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * @return int
+	 */
 	public function getErrorNumber()
 	{
 		return $this->errorNumber;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * @return string
+	 */
 	public function getError()
 	{
 		return $this->error;
 	}
 
-	/** {@inheritDoc} */
+	/**
+	 * @return bool
+	 */
 	public function isTimeout()
 	{
 		return $this->isTimeout;

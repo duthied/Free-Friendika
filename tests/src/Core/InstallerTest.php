@@ -25,7 +25,7 @@ namespace Friendica\Core;
 use Dice\Dice;
 use Friendica\Core\Config\Cache;
 use Friendica\DI;
-use Friendica\Network\IHTTPResult;
+use Friendica\Network\CurlResult;
 use Friendica\Network\IHTTPRequest;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
@@ -297,14 +297,14 @@ class InstallerTest extends MockedTest
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		// Mocking the CURL Response
-		$IHTTPResult = \Mockery::mock(IHTTPResult::class);
-		$IHTTPResult
+		$curlResult = \Mockery::mock(CurlResult::class);
+		$curlResult
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
-		$IHTTPResult
+		$curlResult
 			->shouldReceive('getRedirectUrl')
 			->andReturn('');
-		$IHTTPResult
+		$curlResult
 			->shouldReceive('getError')
 			->andReturn('test Error');
 
@@ -313,11 +313,11 @@ class InstallerTest extends MockedTest
 		$networkMock
 			->shouldReceive('fetchFull')
 			->with('https://test/install/testrewrite')
-			->andReturn($IHTTPResult);
+			->andReturn($curlResult);
 		$networkMock
 			->shouldReceive('fetchFull')
 			->with('http://test/install/testrewrite')
-			->andReturn($IHTTPResult);
+			->andReturn($curlResult);
 
 		$this->dice->shouldReceive('create')
 		     ->with(IHTTPRequest::class)
@@ -344,14 +344,14 @@ class InstallerTest extends MockedTest
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		// Mocking the failed CURL Response
-		$IHTTPResultF = \Mockery::mock(IHTTPResult::class);
-		$IHTTPResultF
+		$curlResultF = \Mockery::mock(CurlResult::class);
+		$curlResultF
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
 
 		// Mocking the working CURL Response
-		$IHTTPResultW = \Mockery::mock(IHTTPResult::class);
-		$IHTTPResultW
+		$curlResultW = \Mockery::mock(CurlResult::class);
+		$curlResultW
 			->shouldReceive('getReturnCode')
 			->andReturn('204');
 
@@ -360,11 +360,11 @@ class InstallerTest extends MockedTest
 		$networkMock
 			->shouldReceive('fetchFull')
 			->with('https://test/install/testrewrite')
-			->andReturn($IHTTPResultF);
+			->andReturn($curlResultF);
 		$networkMock
 			->shouldReceive('fetchFull')
 			->with('http://test/install/testrewrite')
-			->andReturn($IHTTPResultW);
+			->andReturn($curlResultW);
 
 		$this->dice->shouldReceive('create')
 		           ->with(IHTTPRequest::class)

@@ -160,8 +160,13 @@ class ParseUrl
 			return $siteinfo;
 		}
 
-		$curlResult = DI::httpRequest()->get($url, false, ['content_length' => 1000000]);
+		$curlResult = DI::httpRequest()->get($url);
 		if (!$curlResult->isSuccess()) {
+			return $siteinfo;
+		}
+
+		// If the file is too large then exit
+		if (($curlResult->getInfo()['download_content_length'] ?? 0) > 1000000) {
 			return $siteinfo;
 		}
 
@@ -170,6 +175,7 @@ class ParseUrl
 			return $siteinfo;
 		}
 
+		$header = $curlResult->getHeader();
 		$body = $curlResult->getBody();
 
 		if ($do_oembed) {
@@ -198,7 +204,7 @@ class ParseUrl
 		$charset = '';
 		// Look for a charset, first in headers
 		// Expected form: Content-Type: text/html; charset=ISO-8859-4
-		if (preg_match('/charset=([a-z0-9-_.\/]+)/i', $curlResult->getContentType(), $matches)) {
+		if (preg_match('/charset=([a-z0-9-_.\/]+)/i', $header, $matches)) {
 			$charset = trim(trim(trim(array_pop($matches)), ';,'));
 		}
 

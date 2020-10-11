@@ -28,12 +28,6 @@ use Friendica\Core\Config\IConfig;
 use Friendica\Core\System;
 use Friendica\Util\Network;
 use Friendica\Util\Profiler;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\TransferException;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -60,8 +54,12 @@ class HTTPRequest implements IHTTPRequest
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @param int $redirects The recursion counter for internal use - default 0
+	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function get(string $url, bool $binary = false, array $opts = [])
+	public function get(string $url, bool $binary = false, array $opts = [], int &$redirects = 0)
 	{
 		$stamp1 = microtime(true);
 
@@ -88,140 +86,124 @@ class HTTPRequest implements IHTTPRequest
 			return CurlResult::createErrorCurl($url);
 		}
 
-		$curlOptions = [];
+		$ch = @curl_init($url);
 
-		$curlOptions[CURLOPT_HEADER] = true;
+		if (($redirects > 8) || (!$ch)) {
+			return CurlResult::createErrorCurl($url);
+		}
+
+		@curl_setopt($ch, CURLOPT_HEADER, true);
 
 		if (!empty($opts['cookiejar'])) {
-			$curlOptions[CURLOPT_COOKIEJAR] = $opts["cookiejar"];
-			$curlOptions[CURLOPT_COOKIEFILE] = $opts["cookiejar"];
+			curl_setopt($ch, CURLOPT_COOKIEJAR, $opts["cookiejar"]);
+			curl_setopt($ch, CURLOPT_COOKIEFILE, $opts["cookiejar"]);
 		}
 
 		// These settings aren't needed. We're following the location already.
-		//	$curlOptions[CURLOPT_FOLLOWLOCATION] =true;
-		//	$curlOptions[CURLOPT_MAXREDIRS] = 5;
+		//	@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		//	@curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
 
 		if (!empty($opts['accept_content'])) {
-			if (empty($curlOptions[CURLOPT_HTTPHEADER])) {
-				$curlOptions[CURLOPT_HTTPHEADER] = [];
-			}
-			array_push($curlOptions[CURLOPT_HTTPHEADER], 'Accept: ' . $opts['accept_content']);
+			curl_setopt(
+				$ch,
+				CURLOPT_HTTPHEADER,
+				['Accept: ' . $opts['accept_content']]
+			);
 		}
 
 		if (!empty($opts['header'])) {
-			if (empty($curlOptions[CURLOPT_HTTPHEADER])) {
-				$curlOptions[CURLOPT_HTTPHEADER] = [];
-			}
-			$curlOptions[CURLOPT_HTTPHEADER] = array_merge($opts['header'], $curlOptions[CURLOPT_HTTPHEADER]);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['header']);
 		}
 
-		$curlOptions[CURLOPT_RETURNTRANSFER] = true;
-		$curlOptions[CURLOPT_USERAGENT] = $this->getUserAgent();
+		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		@curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
 
 		$range = intval($this->config->get('system', 'curl_range_bytes', 0));
 
 		if ($range > 0) {
-			$curlOptions[CURLOPT_RANGE] = '0-' . $range;
+			@curl_setopt($ch, CURLOPT_RANGE, '0-' . $range);
 		}
 
 		// Without this setting it seems as if some webservers send compressed content
 		// This seems to confuse curl so that it shows this uncompressed.
 		/// @todo  We could possibly set this value to "gzip" or something similar
-		$curlOptions[CURLOPT_ENCODING] = '';
+		curl_setopt($ch, CURLOPT_ENCODING, '');
 
 		if (!empty($opts['headers'])) {
-			if (empty($curlOptions[CURLOPT_HTTPHEADER])) {
-				$curlOptions[CURLOPT_HTTPHEADER] = [];
-			}
-			$curlOptions[CURLOPT_HTTPHEADER] = array_merge($opts['headers'], $curlOptions[CURLOPT_HTTPHEADER]);
+			@curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['headers']);
 		}
 
 		if (!empty($opts['nobody'])) {
-			$curlOptions[CURLOPT_NOBODY] = $opts['nobody'];
+			@curl_setopt($ch, CURLOPT_NOBODY, $opts['nobody']);
 		}
 
-		$curlOptions[CURLOPT_CONNECTTIMEOUT] = 10;
+		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 
 		if (!empty($opts['timeout'])) {
-			$curlOptions[CURLOPT_TIMEOUT] = $opts['timeout'];
+			@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
 		} else {
 			$curl_time = $this->config->get('system', 'curl_timeout', 60);
-			$curlOptions[CURLOPT_TIMEOUT] = intval($curl_time);
+			@curl_setopt($ch, CURLOPT_TIMEOUT, intval($curl_time));
 		}
 
 		// by default we will allow self-signed certs
 		// but you can override this
 
 		$check_cert = $this->config->get('system', 'verifyssl');
-		$curlOptions[CURLOPT_SSL_VERIFYPEER] = ($check_cert) ? true : false;
+		@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
 
 		if ($check_cert) {
-			$curlOptions[CURLOPT_SSL_VERIFYHOST] = 2;
+			@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 		}
 
 		$proxy = $this->config->get('system', 'proxy');
 
 		if (!empty($proxy)) {
-			$curlOptions[CURLOPT_HTTPPROXYTUNNEL] = 1;
-			$curlOptions[CURLOPT_PROXY] = $proxy;
+			@curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
+			@curl_setopt($ch, CURLOPT_PROXY, $proxy);
 			$proxyuser = $this->config->get('system', 'proxyuser');
 
 			if (!empty($proxyuser)) {
-				$curlOptions[CURLOPT_PROXYUSERPWD] = $proxyuser;
+				@curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyuser);
 			}
 		}
 
 		if ($this->config->get('system', 'ipv4_resolve', false)) {
-			$curlOptions[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
+			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		}
 
 		if ($binary) {
-			$curlOptions[CURLOPT_BINARYTRANSFER] = 1;
+			@curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
 		}
 
-		$logger = $this->logger;
+		// don't let curl abort the entire application
+		// if it throws any errors.
 
-		$onRedirect = function(
-			RequestInterface $request,
-			ResponseInterface $response,
-			UriInterface $uri
-		) use ($logger) {
-			$logger->notice('Curl redirect.', ['url' => $request->getUri(), 'to' => $uri]);
-		};
+		$s         = @curl_exec($ch);
+		$curl_info = @curl_getinfo($ch);
 
-		$onHeaders = function (ResponseInterface $response) use ($opts) {
-			if (!empty($opts['content_length']) &&
-				$response->getHeaderLine('Content-Length') > $opts['content_length']) {
-				throw new TransferException('The file is too big!');
-			}
-		};
-
-		$client = new Client([
-			'allow_redirect' => [
-				'max' => 8,
-				'on_redirect' => $onRedirect,
-				'track_redirect' => true,
-				'strict' => true,
-				'referer' => true,
-			],
-			'on_headers' => $onHeaders,
-			'sink' => tempnam(get_temppath(), 'guzzle'),
-			'curl' => $curlOptions
-		]);
-
-		try {
-			$response = $client->get($url);
-			return new GuzzleResponse($response, $url);
-		} catch (TransferException $exception) {
-			if ($exception instanceof RequestException &&
-				$exception->hasResponse()) {
-				return new GuzzleResponse($exception->getResponse(), $url, $exception->getCode(), '');
-			} else {
-				return new CurlResult($url, '', ['http_code' => $exception->getCode()], $exception->getCode(), '');
-			}
-		} finally {
-			$this->profiler->saveTimestamp($stamp1, 'network');
+		// Special treatment for HTTP Code 416
+		// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/416
+		if (($curl_info['http_code'] == 416) && ($range > 0)) {
+			@curl_setopt($ch, CURLOPT_RANGE, '');
+			$s         = @curl_exec($ch);
+			$curl_info = @curl_getinfo($ch);
 		}
+
+		$curlResponse = new CurlResult($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
+
+		if (!Network::isRedirectBlocked($url) && $curlResponse->isRedirectUrl()) {
+			$redirects++;
+			$this->logger->notice('Curl redirect.', ['url' => $url, 'to' => $curlResponse->getRedirectUrl()]);
+			@curl_close($ch);
+			return $this->get($curlResponse->getRedirectUrl(), $binary, $opts, $redirects);
+		}
+
+		@curl_close($ch);
+
+		$this->profiler->saveTimestamp($stamp1, 'network');
+
+		return $curlResponse;
 	}
 
 	/**
@@ -476,7 +458,8 @@ class HTTPRequest implements IHTTPRequest
 				'timeout'        => $timeout,
 				'accept_content' => $accept_content,
 				'cookiejar'      => $cookiejar
-			]
+			],
+			$redirects
 		);
 	}
 

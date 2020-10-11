@@ -746,8 +746,7 @@ class OStatus
 
 		$xml = '';
 
-		if ($curlResult->inHeader('Content-Type') &&
-			in_array('application/atom+xml', $curlResult->getHeader('Content-Type'))) {
+		if (stristr($curlResult->getHeader(), 'Content-Type: application/atom+xml')) {
 			$xml = $curlResult->getBody();
 		}
 
@@ -940,8 +939,7 @@ class OStatus
 
 		$xml = '';
 
-		if ($curlResult->inHeader('Content-Type') &&
-			in_array('application/atom+xml', $curlResult->getHeader('Content-Type'))) {
+		if (stristr($curlResult->getHeader(), 'Content-Type: application/atom+xml')) {
 			Logger::log('Directly fetched XML for URI ' . $related_uri, Logger::DEBUG);
 			$xml = $curlResult->getBody();
 		}

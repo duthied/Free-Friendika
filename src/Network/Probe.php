@@ -423,8 +423,13 @@ class Probe
 	 */
 	private static function getHideStatus($url)
 	{
-		$curlResult = DI::httpRequest()->get($url, false, ['content_length' => 1000000]);
+		$curlResult = DI::httpRequest()->get($url);
 		if (!$curlResult->isSuccess()) {
+			return false;
+		}
+
+		// If the file is too large then exit
+		if (($curlResult->getInfo()['download_content_length'] ?? 0) > 1000000) {
 			return false;
 		}
 
