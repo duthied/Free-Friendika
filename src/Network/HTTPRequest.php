@@ -179,14 +179,12 @@ class HTTPRequest implements IHTTPRequest
 			$curlOptions[CURLOPT_BINARYTRANSFER] = 1;
 		}
 
-		$logger = $this->logger;
-
 		$onRedirect = function(
 			RequestInterface $request,
 			ResponseInterface $response,
 			UriInterface $uri
-		) use ($logger) {
-			$logger->notice('Curl redirect.', ['url' => $request->getUri(), 'to' => $uri]);
+		) {
+			$this->logger->notice('Curl redirect.', ['url' => $request->getUri(), 'to' => $uri]);
 		};
 
 		$onHeaders = function (ResponseInterface $response) use ($opts) {
