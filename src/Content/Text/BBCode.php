@@ -491,8 +491,8 @@ class BBCode
 				}
 
 				$i = $curlResult->getBody();
-				$type = $curlResult->getContentType();
-				$type = Images::getMimeTypeByData($i, $mtch[1], $type);
+				$contType = $curlResult->getContentType();
+				$type = Images::getMimeTypeByData($i, $mtch[1], $contType);
 
 				if ($i) {
 					$Image = new Image($i, $type);

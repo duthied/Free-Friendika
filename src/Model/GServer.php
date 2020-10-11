@@ -30,7 +30,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\Register;
-use Friendica\Network\CurlResult;
+use Friendica\Network\IHTTPResult;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -630,18 +630,19 @@ class GServer
 	/**
 	 * Detect server type by using the nodeinfo data
 	 *
-	 * @param string     $url        address of the server
-	 * @param CurlResult $curlResult
+	 * @param string      $url        address of the server
+	 * @param IHTTPResult $httpResult
+	 *
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function fetchNodeinfo(string $url, CurlResult $curlResult)
+	private static function fetchNodeinfo(string $url, IHTTPResult $httpResult)
 	{
-		if (!$curlResult->isSuccess()) {
+		if (!$httpResult->isSuccess()) {
 			return [];
 		}
 
-		$nodeinfo = json_decode($curlResult->getBody(), true);
+		$nodeinfo = json_decode($httpResult->getBody(), true);
 
 		if (!is_array($nodeinfo) || empty($nodeinfo['links'])) {
 			return [];

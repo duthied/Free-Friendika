@@ -90,12 +90,13 @@ function parse_url_content(App $a)
 	if ($curlResponse->isSuccess()) {
 		// Convert the header fields into an array
 		$hdrs = [];
-		$h = explode("\n", $curlResponse->getHeader());
+		$h = $curlResponse->getHeaders();
 		foreach ($h as $l) {
-			$header = array_map('trim', explode(':', trim($l), 2));
-			if (count($header) == 2) {
-				list($k, $v) = $header;
-				$hdrs[$k] = $v;
+			foreach ($l as $k => $v) {
+				if (empty($hdrs[$k])) {
+					$hdrs[$k] = $v;
+				}
+				$hdrs[$k] .= " " . $v;
 			}
 		}
 		$type = null;
