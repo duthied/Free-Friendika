@@ -242,27 +242,21 @@ class CurlResult implements IHTTPResult
 	}
 
 	/** {@inheritDoc} */
-	public function getHeader($header)
+	public function getHeader(string $field = '')
 	{
-		if (empty($header)) {
-			return '';
+		if (empty($field)) {
+			return $this->header;
 		}
 
-		$header = strtolower(trim($header));
+		$field = strtolower(trim($field));
 
 		$headers = $this->getHeaderArray();
 
-		if (isset($headers[$header])) {
-			return $headers[$header];
+		if (isset($headers[$field])) {
+			return $headers[$field];
 		}
 
 		return '';
-	}
-
-	/** {@inheritDoc} */
-	public function getHeaders()
-	{
-		return $this->getHeaderArray();
 	}
 
 	/** {@inheritDoc} */

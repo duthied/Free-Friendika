@@ -53,7 +53,6 @@ class CurlResultTest extends TestCase
 	public function testNormal()
 	{
 		$header = file_get_contents(__DIR__ . '/../../datasets/curl/about.head');
-		$headerArray = include(__DIR__ . '/../../datasets/curl/about.head.php');
 		$body = file_get_contents(__DIR__ . '/../../datasets/curl/about.body');
 
 
@@ -66,7 +65,7 @@ class CurlResultTest extends TestCase
 		$this->assertTrue($curlResult->isSuccess());
 		$this->assertFalse($curlResult->isTimeout());
 		$this->assertFalse($curlResult->isRedirectUrl());
-		$this->assertSame($headerArray, $curlResult->getHeaders());
+		$this->assertSame($header, $curlResult->getHeader());
 		$this->assertSame($body, $curlResult->getBody());
 		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		$this->assertSame('https://test.local', $curlResult->getUrl());
@@ -81,7 +80,6 @@ class CurlResultTest extends TestCase
 	public function testRedirect()
 	{
 		$header = file_get_contents(__DIR__ . '/../../datasets/curl/about.head');
-		$headerArray = include(__DIR__ . '/../../datasets/curl/about.head.php');
 		$body = file_get_contents(__DIR__ . '/../../datasets/curl/about.body');
 
 
@@ -95,7 +93,7 @@ class CurlResultTest extends TestCase
 		$this->assertTrue($curlResult->isSuccess());
 		$this->assertFalse($curlResult->isTimeout());
 		$this->assertTrue($curlResult->isRedirectUrl());
-		$this->assertSame($headerArray, $curlResult->getHeaders());
+		$this->assertSame($header, $curlResult->getHeader());
 		$this->assertSame($body, $curlResult->getBody());
 		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		$this->assertSame('https://test.local/test/it', $curlResult->getUrl());
@@ -108,7 +106,6 @@ class CurlResultTest extends TestCase
 	public function testTimeout()
 	{
 		$header = file_get_contents(__DIR__ . '/../../datasets/curl/about.head');
-		$headerArray = include(__DIR__ . '/../../datasets/curl/about.head.php');
 		$body = file_get_contents(__DIR__ . '/../../datasets/curl/about.body');
 
 
@@ -122,7 +119,7 @@ class CurlResultTest extends TestCase
 		$this->assertFalse($curlResult->isSuccess());
 		$this->assertTrue($curlResult->isTimeout());
 		$this->assertFalse($curlResult->isRedirectUrl());
-		$this->assertSame($headerArray, $curlResult->getHeaders());
+		$this->assertSame($header, $curlResult->getHeader());
 		$this->assertSame($body, $curlResult->getBody());
 		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		$this->assertSame('https://test.local/test/it', $curlResult->getRedirectUrl());
@@ -137,7 +134,6 @@ class CurlResultTest extends TestCase
 	public function testRedirectHeader()
 	{
 		$header = file_get_contents(__DIR__ . '/../../datasets/curl/about.redirect');
-		$headerArray = include(__DIR__ . '/../../datasets/curl/about.redirect.php');
 		$body = file_get_contents(__DIR__ . '/../../datasets/curl/about.body');
 
 
@@ -150,7 +146,7 @@ class CurlResultTest extends TestCase
 		$this->assertTrue($curlResult->isSuccess());
 		$this->assertFalse($curlResult->isTimeout());
 		$this->assertTrue($curlResult->isRedirectUrl());
-		$this->assertSame($headerArray, $curlResult->getHeaders());
+		$this->assertSame($header, $curlResult->getHeader());
 		$this->assertSame($body, $curlResult->getBody());
 		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		$this->assertSame('https://test.local/test/it?key=value', $curlResult->getUrl());
@@ -208,7 +204,7 @@ class CurlResultTest extends TestCase
 			'url' => 'https://test.local'
 		]);
 
-		$this->assertNotEmpty($curlResult->getHeaders());
+		$this->assertNotEmpty($curlResult->getHeader());
 		$this->assertEmpty($curlResult->getHeader('wrongHeader'));
 	}
 }

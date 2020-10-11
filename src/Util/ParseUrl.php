@@ -175,6 +175,7 @@ class ParseUrl
 			return $siteinfo;
 		}
 
+		$header = $curlResult->getHeader();
 		$body = $curlResult->getBody();
 
 		if ($do_oembed) {
@@ -203,7 +204,7 @@ class ParseUrl
 		$charset = '';
 		// Look for a charset, first in headers
 		// Expected form: Content-Type: text/html; charset=ISO-8859-4
-		if (preg_match('/charset=([a-z0-9-_.\/]+)/i', $curlResult->getContentType(), $matches)) {
+		if (preg_match('/charset=([a-z0-9-_.\/]+)/i', $header, $matches)) {
 			$charset = trim(trim(trim(array_pop($matches)), ';,'));
 		}
 

@@ -1358,7 +1358,7 @@ class DFRN
 			return -9; // timed out
 		}
 
-		if (($curl_stat == 503) && $postResult->inHeader('retry-after')) {
+		if (($curl_stat == 503) && stristr($postResult->getHeader(), 'retry-after')) {
 			return -10;
 		}
 
@@ -1453,7 +1453,7 @@ class DFRN
 			return -9; // timed out
 		}
 
-		if (($curl_stat == 503) && $postResult->inHeader('retry-after')) {
+		if (($curl_stat == 503) && (stristr($postResult->getHeader(), 'retry-after'))) {
 			return -10;
 		}
 
