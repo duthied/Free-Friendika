@@ -311,11 +311,17 @@ as the value of $top_child_total (this is done at the end of this file)
 
 			{{* Button for sharing the item *}}
 			{{if $item.vote}}
-				{{if $item.vote.share}}
+				{{if $item.vote.share OR $item.vote.announce}}
 					{{if $item.vote.like OR $item.vote.dislike OR $item.comment_html}}
 				<span role="presentation" class="separator"></span>
 					{{/if}}
-				<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp;{{$item.vote.share.1}}</button>
+				{{/if}}
+				{{if $item.vote.announce}}
+				<button type="button" class="btn-link button-announces{{if $item.responses.announce.self}} active" aria-pressed="true{{/if}}" id="announce-{{$item.id}}" title="{{$item.vote.announce.0}}" onclick="doLikeAction({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp;{{$item.vote.announce.1}}</button>
+				<span role="presentation" class="separator"></span>
+				{{/if}}
+				{{if $item.vote.share}}
+				<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-share" aria-hidden="true"></i>&nbsp;{{$item.vote.share.1}}</button>
 				{{/if}}
 			{{/if}}
 
@@ -434,10 +440,18 @@ as the value of $top_child_total (this is done at the end of this file)
 				</div>
 			{{/if}}
 
+			{{* Button for announcing the item *}}
+			{{if $item.vote.announce}}
+<!--				<div class="btn-group" role="group">
+					<button type="button" class="btn btn-sm button-announces{{if $item.responses.announce.self}} active" aria-pressed="true{{/if}}" id="announce-{{$item.id}}" title="{{$item.vote.announce.0}}" onclick="doLikeAction({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-retweet-up" aria-hidden="true"></i></button>
+				</div>
+				-->
+			{{/if}}
+
 			{{* Button for sharing the item *}}
 			{{if $item.vote.share}}
 				<div class="btn-group" role="group">
-					<button type="button" class="btn btn-sm button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet" aria-hidden="true"></i></button>
+					<button type="button" class="btn btn-sm button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-share" aria-hidden="true"></i></button>
 				</div>
 			{{/if}}
 

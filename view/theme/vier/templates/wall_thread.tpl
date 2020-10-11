@@ -124,9 +124,11 @@
 				<a role="button" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active"{{/if}} title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false"><i class="icon-thumbs-up icon-large"><span class="sr-only">{{$item.vote.like.0}}</span></i></a>
 				{{/if}}{{if $item.vote.dislike}}
 				<a role="button" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active"{{/if}} title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false"><i class="icon-thumbs-down icon-large"><span class="sr-only">{{$item.vote.dislike.0}}</span></i></a>
+				{{/if}}{{if $item.vote.announce}}
+				<a role="button" id="announce-{{$item.id}}"{{if $item.responses.announce.self}} class="active"{{/if}} title="{{$item.vote.announce.0}}" onclick="dolike({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}}); return false"><i class="icon-retweet icon-large"><span class="sr-only">{{$item.vote.dislike.0}}</span></i></a>
 				{{/if}}
 			    {{if $item.vote.share}}
-				    <a role="button" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"><i class="icon-retweet icon-large"><span class="sr-only">{{$item.vote.share.0}}</span></i></a>
+				    <a role="button" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"><i class="icon-share icon-large"><span class="sr-only">{{$item.vote.share.0}}</span></i></a>
 			    {{/if}}
 			{{/if}}
 

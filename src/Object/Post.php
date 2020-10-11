@@ -151,9 +151,10 @@ class Post
 		}
 		$sparkle = '';
 		$buttons = [
-			'like'    => null,
-			'dislike' => null,
-			'share'   => null,
+			'like'     => null,
+			'dislike'  => null,
+			'share'    => null,
+			'announce' => null,
 		];
 		$dropping = false;
 		$pinned = '';
@@ -175,6 +176,7 @@ class Post
 			: false);
 
 		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != Item::PRIVATE;
+		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN]);
 
 		$edpost = false;
 
@@ -344,7 +346,10 @@ class Post
 			$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29")      , DI::l10n()->t("like")];
 			$buttons['dislike'] = [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t("dislike")];
 			if ($shareable) {
-				$buttons['share'] = [DI::l10n()->t('Share this'), DI::l10n()->t('share')];
+				$buttons['share'] = [DI::l10n()->t('Share this'), DI::l10n()->t('Share')];
+			}
+			if ($announceable) {
+				$buttons['announce'] = [DI::l10n()->t('Announce this'), DI::l10n()->t('Announce')];
 			}
 		}
 
