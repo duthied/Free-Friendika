@@ -2028,7 +2028,7 @@ class Item
 	 */
 	private static function setOwnerforResharedItem(array $item)
 	{
-		$parent = self::selectFirst(['id', 'owner-id', 'author-id', 'author-link', 'origin', 'post-type'],
+		$parent = self::selectFirst(['id', 'causer-id', 'owner-id', 'author-id', 'author-link', 'origin', 'post-type'],
 			['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
 		if (!DBA::isResult($parent)) {
 			Logger::error('Parent not found', ['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
@@ -2048,6 +2048,11 @@ class Item
 		}
 
 		if ($author['contact-type'] != Contact::TYPE_COMMUNITY) {
+			if ($parent['post-type'] == self::PT_ANNOUNCEMENT) {
+				Logger::info('The parent is already marked as announced: quit', ['causer' => $parent['causer-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
+				return;
+			}
+
 			if (Contact::isSharing($parent['owner-id'], $item['uid'])) {
 				Logger::info('The resharer is no forum: quit', ['resharer' => $item['author-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
 				return;
