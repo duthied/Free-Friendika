@@ -31,7 +31,6 @@
 		"divineomega/password_exposed": "^2.8",
 		"ezyang/htmlpurifier": "^4.7",
 		"friendica/json-ld": "^1.0",
-		"guzzlehttp/guzzle": "^6.5",
 		"league/html-to-markdown": "^4.8",
 		"level-2/dice": "^4",
 		"lightopenid/lightopenid": "dev-master",
