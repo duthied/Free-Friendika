@@ -178,6 +178,11 @@ class Post
 		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != Item::PRIVATE;
 		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER]);
 
+		// On Diaspora only toplevel posts can be reshared
+		if ($announceable && ($item['network'] == Protocol::DIASPORA) && ($item['gravity'] != GRAVITY_PARENT)) {
+			$announceable = false;
+		}
+
 		$edpost = false;
 
 		if (local_user()) {
