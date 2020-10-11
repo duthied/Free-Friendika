@@ -285,7 +285,7 @@ function editpost(url) {
 	jotcache = $("#jot-content > #jot-sections");
 
 	// Remove the original Jot as long as the edit Jot is open.
-	jotcache.remove();
+	jotcache.detach();
 
 	// Add the class "edit" to the modal to have some kind of identifier to
 	// have the possibility to e.g. put special event-listener.
