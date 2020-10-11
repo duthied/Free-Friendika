@@ -215,9 +215,9 @@ class HTTPRequest implements IHTTPRequest
 		} catch (TransferException $exception) {
 			if ($exception instanceof RequestException &&
 				$exception->hasResponse()) {
-				return new GuzzleResponse($exception->getResponse(), $url, $exception->getCode(), '');
+				return new GuzzleResponse($exception->getResponse(), $url, $exception->getCode(), $exception->getMessage());
 			} else {
-				return new CurlResult($url, '', ['http_code' => $exception->getCode()], $exception->getCode(), '');
+				return new CurlResult($url, '', ['http_code' => $exception->getCode()], $exception->getCode(), $exception->getMessage());
 			}
 		} finally {
 			$this->profiler->saveTimestamp($stamp1, 'network');
