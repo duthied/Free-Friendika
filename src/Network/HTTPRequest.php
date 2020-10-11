@@ -206,7 +206,7 @@ class HTTPRequest implements IHTTPRequest
 			if ($exception->hasResponse()) {
 				return new GuzzleResponse($exception->getResponse(), $url, $exception->getCode(), $exception->getMessage());
 			} else {
-				return new CurlResult($url, '', ['http_code' => $exception->getCode()], $exception->getCode(), $exception->getMessage());
+				return new GuzzleResponse(null, $url, $exception->getCode(), $exception->getMessage());
 			}
 		} finally {
 			$this->profiler->saveTimestamp($stamp1, 'network');
