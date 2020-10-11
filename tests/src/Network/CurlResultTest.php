@@ -68,7 +68,7 @@ class CurlResultTest extends TestCase
 		$this->assertFalse($curlResult->isRedirectUrl());
 		$this->assertSame($headerArray, $curlResult->getHeaders());
 		$this->assertSame($body, $curlResult->getBody());
-		$this->assertSame(['text/html; charset=utf-8'], $curlResult->getContentType());
+		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		$this->assertSame('https://test.local', $curlResult->getUrl());
 		$this->assertSame('https://test.local', $curlResult->getRedirectUrl());
 	}
@@ -97,7 +97,7 @@ class CurlResultTest extends TestCase
 		$this->assertTrue($curlResult->isRedirectUrl());
 		$this->assertSame($headerArray, $curlResult->getHeaders());
 		$this->assertSame($body, $curlResult->getBody());
-		$this->assertSame(['text/html; charset=utf-8'], $curlResult->getContentType());
+		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		$this->assertSame('https://test.local/test/it', $curlResult->getUrl());
 		$this->assertSame('https://test.other/test/it', $curlResult->getRedirectUrl());
 	}
@@ -124,7 +124,7 @@ class CurlResultTest extends TestCase
 		$this->assertFalse($curlResult->isRedirectUrl());
 		$this->assertSame($headerArray, $curlResult->getHeaders());
 		$this->assertSame($body, $curlResult->getBody());
-		$this->assertSame(['text/html; charset=utf-8'], $curlResult->getContentType());
+		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		$this->assertSame('https://test.local/test/it', $curlResult->getRedirectUrl());
 		$this->assertSame('Tested error', $curlResult->getError());
 	}
@@ -152,7 +152,7 @@ class CurlResultTest extends TestCase
 		$this->assertTrue($curlResult->isRedirectUrl());
 		$this->assertSame($headerArray, $curlResult->getHeaders());
 		$this->assertSame($body, $curlResult->getBody());
-		$this->assertSame(['text/html; charset=utf-8'], $curlResult->getContentType());
+		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		$this->assertSame('https://test.local/test/it?key=value', $curlResult->getUrl());
 		$this->assertSame('https://test.other/some/?key=value', $curlResult->getRedirectUrl());
 	}
