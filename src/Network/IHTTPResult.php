@@ -83,6 +83,11 @@ interface IHTTPResult
 	public function getBody();
 
 	/**
+	 * @return array
+	 */
+	public function getInfo();
+
+	/**
 	 * @return boolean
 	 */
 	public function isRedirectUrl();
