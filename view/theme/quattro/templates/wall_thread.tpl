@@ -122,6 +122,9 @@
 				{{if $item.vote.dislike}}
 				<a href="#" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false">{{$item.vote.dislike.1}}</a>
 				{{/if}}
+				{{if $item.vote.announce}}
+				<a href="#" id="announce-{{$item.id}}"{{if $item.responses.announce.self}} class="active{{/if}}" title="{{$item.vote.announce.0}}" onclick="dolike({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}}); return false">{{$item.vote.announce.1}}</a>
+				{{/if}}
 			    {{if $item.vote.share}}
 				    <a href="#" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false">{{$item.vote.share.1}}</a>
 			    {{/if}}

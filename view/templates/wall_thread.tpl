@@ -82,7 +82,8 @@
 			<div class="wall-item-like-buttons" id="wall-item-like-buttons-{{$item.id}}">
 				<a href="#" class="icon like{{if $item.responses.like.self}} active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false"></a>
 				{{if $item.vote.dislike}}<a href="#" class="icon dislike{{if $item.responses.dislike.self}} active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false"></a>{{/if}}
-				{{if $item.vote.share}}<a href="#" class="icon recycle wall-item-share-buttons" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"></a>{{/if}}
+				{{if $item.vote.announce}}<a href="#" class="icon recycle{{if $item.responses.announce.self}} active{{/if}}" title="{{$item.vote.announce.0}}" onclick="dolike({{$item.id}},'announce'{{if $item.responses.announce.self}}, true{{/if}}); return false"></a>{{/if}}
+				{{if $item.vote.share}}<a href="#" class="icon share wall-item-share-buttons" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"></a>{{/if}}
 				<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 			</div>
 			{{/if}}

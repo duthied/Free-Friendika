@@ -562,9 +562,10 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 				];
 
 				$likebuttons = [
-					'like'    => null,
-					'dislike' => null,
-					'share'   => null,
+					'like'     => null,
+					'dislike'  => null,
+					'share'    => null,
+					'announce' => null,
 				];
 
 				if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
