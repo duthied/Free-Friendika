@@ -88,13 +88,7 @@ class GuzzleResponse extends Response implements IHTTPResult, ResponseInterface
 	/** {@inheritDoc} */
 	public function getContentType()
 	{
-		$contentTypes = $this->getHeader('Content-Type') ?? [];
-		$countTypes = count($contentTypes);
-		if ($countTypes > 0) {
-			return $contentTypes[$countTypes - 1];
-		} else {
-			return '';
-		}
+		return implode($this->getHeader('Content-Type'));
 	}
 
 	/** {@inheritDoc} */
