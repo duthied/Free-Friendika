@@ -102,11 +102,17 @@ class HTTPRequest implements IHTTPRequest
 		//	$curlOptions[CURLOPT_MAXREDIRS] = 5;
 
 		if (!empty($opts['accept_content'])) {
-			$curlOptions[CURLOPT_HTTPHEADER][] = ['Accept: ' . $opts['accept_content']];
+			if (empty($curlOptions[CURLOPT_HTTPHEADER])) {
+				$curlOptions[CURLOPT_HTTPHEADER] = [];
+			}
+			array_push($curlOptions[CURLOPT_HTTPHEADER], 'Accept: ' . $opts['accept_content']);
 		}
 
 		if (!empty($opts['header'])) {
-			$curlOptions[CURLOPT_HTTPHEADER][] = $opts['header'];
+			if (empty($curlOptions[CURLOPT_HTTPHEADER])) {
+				$curlOptions[CURLOPT_HTTPHEADER] = [];
+			}
+			$curlOptions[CURLOPT_HTTPHEADER] = array_merge($opts['header'], $curlOptions[CURLOPT_HTTPHEADER]);
 		}
 
 		$curlOptions[CURLOPT_RETURNTRANSFER] = true;
@@ -124,7 +130,10 @@ class HTTPRequest implements IHTTPRequest
 		$curlOptions[CURLOPT_ENCODING] = '';
 
 		if (!empty($opts['headers'])) {
-			$curlOptions[CURLOPT_HTTPHEADER][] = $opts['headers'];
+			if (empty($curlOptions[CURLOPT_HTTPHEADER])) {
+				$curlOptions[CURLOPT_HTTPHEADER] = [];
+			}
+			$curlOptions[CURLOPT_HTTPHEADER] = array_merge($opts['headers'], $curlOptions[CURLOPT_HTTPHEADER]);
 		}
 
 		if (!empty($opts['nobody'])) {
@@ -191,11 +200,12 @@ class HTTPRequest implements IHTTPRequest
 			'allow_redirect' => [
 				'max' => 8,
 				'on_redirect' => $onRedirect,
-				'on_headers' => $onHeaders,
 				'track_redirect' => true,
 				'strict' => true,
 				'referer' => true,
 			],
+			'on_headers' => $onHeaders,
+			'sink' => tempnam(get_temppath(), 'guzzle'),
 			'curl' => $curlOptions
 		]);
 
