@@ -427,7 +427,7 @@ class Photo
 			$contType = $ret->getContentType();
 		} else {
 			$img_str = '';
-			$contType = '';
+			$contType = [];
 		}
 
 		if ($quit_on_error && ($img_str == "")) {
