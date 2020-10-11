@@ -424,17 +424,16 @@ class Photo
 		if (!empty($image_url)) {
 			$ret = DI::httpRequest()->get($image_url, true);
 			$img_str = $ret->getBody();
-			$contType = $ret->getContentType();
+			$type = $ret->getContentType();
 		} else {
 			$img_str = '';
-			$contType = [];
 		}
 
 		if ($quit_on_error && ($img_str == "")) {
 			return false;
 		}
 
-		$type = Images::getMimeTypeByData($img_str, $image_url, $contType);
+		$type = Images::getMimeTypeByData($img_str, $image_url, $type);
 
 		$Image = new Image($img_str, $type);
 		if ($Image->isValid()) {
