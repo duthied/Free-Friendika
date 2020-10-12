@@ -442,10 +442,9 @@ as the value of $top_child_total (this is done at the end of this file)
 
 			{{* Button for announcing the item *}}
 			{{if $item.vote.announce}}
-<!--				<div class="btn-group" role="group">
-					<button type="button" class="btn btn-sm button-announces{{if $item.responses.announce.self}} active" aria-pressed="true{{/if}}" id="announce-{{$item.id}}" title="{{$item.vote.announce.0}}" onclick="doLikeAction({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-retweet-up" aria-hidden="true"></i></button>
+				<div class="btn-group" role="group">
+					<button type="button" class="btn btn-sm button-votes{{if $item.responses.announce.self}} active" aria-pressed="true{{/if}}" id="announce-{{$item.id}}" title="{{$item.vote.announce.0}}" onclick="doLikeAction({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-retweet" aria-hidden="true"></i></button>
 				</div>
-				-->
 			{{/if}}
 
 			{{* Button for sharing the item *}}
