@@ -351,7 +351,7 @@ class Post
 			$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29")      , DI::l10n()->t("like")];
 			$buttons['dislike'] = [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t("dislike")];
 			if ($shareable) {
-				$buttons['share'] = [DI::l10n()->t('Quote and share this'), DI::l10n()->t('Quoted Share')];
+				$buttons['share'] = [DI::l10n()->t('Quote and share this'), DI::l10n()->t('Quote Share')];
 			}
 			if ($announceable) {
 				$buttons['announce'] = [DI::l10n()->t('Share this'), DI::l10n()->t('Share')];
