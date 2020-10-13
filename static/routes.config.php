@@ -164,6 +164,7 @@ return [
 		'/status_message/{guid}' => [Module\Diaspora\Fetch::class, [R::GET]],
 		'/reshare/{guid}'        => [Module\Diaspora\Fetch::class, [R::GET]],
 	],
+	'/filed'             => [Module\Search\Filed::class,    [R::GET]],
 	'/filer[/{id:\d+}]'  => [Module\Filer\SaveTag::class,   [R::GET]],
 	'/filerm/{id:\d+}'   => [Module\Filer\RemoveTag::class, [R::GET]],
 	'/follow_confirm'    => [Module\FollowConfirm::class,   [R::GET, R::POST]],
@@ -298,6 +299,14 @@ return [
 		'/userexport[/{action}]' => [Module\Settings\UserExport::class,             [R::GET, R::POST]],
 	],
 
+	'/network' => [
+		'[/]'                         => [Module\Conversation\Network::class, [R::GET]],
+		'/archive/{from:\d\d\d\d-\d\d-\d\d}[/{to:\d\d\d\d-\d\d-\d\d}]' => [Module\Conversation\Network::class, [R::GET]],
+		'/forum/{contact_id:\d+}'     => [Module\Conversation\Network::class, [R::GET]],
+		'/group/{group_id:\d+}'       => [Module\Conversation\Network::class, [R::GET]],
+		'/accounttype/{accounttype}'  => [Module\Conversation\Network::class, [R::GET]],
+	],
+
 	'/randprof'                      => [Module\RandomProfile::class,         [R::GET]],
 	'/register'                      => [Module\Register::class,              [R::GET, R::POST]],
 	'/remote_follow/{profile}'       => [Module\RemoteFollow::class,          [R::GET, R::POST]],
@@ -310,6 +319,7 @@ return [
 	'/tos'                           => [Module\Tos::class,                   [R::GET]],
 
 	'/update_community[/{content}[/{accounttype}]]' => [Module\Update\Community::class, [R::GET]],
+	'/update_network'                => [Module\Update\Network::class,        [R::GET]],
 	'/update_profile'                => [Module\Update\Profile::class,        [R::GET]],
 
 	'/view/theme/{theme}/style.pcss' => [Module\Theme::class,                 [R::GET]],
