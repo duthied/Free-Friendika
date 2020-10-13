@@ -28,4 +28,32 @@ return [
 	'MYSQL_PORT' => ['database', 'port'],
 	'MYSQL_PASSWORD' => ['database', 'password'],
 	'MYSQL_DATABASE' => ['database', 'database'],
+
+	// Core variables
+	'FRIENDICA_ADMIN_MAIL' => ['config', 'admin_email'],
+	'FRIENDICA_URL' => ['system', 'url'],
+	'FRIENDICA_TZ' => ['config', 'timezone'],
+	'FRIENDICA_LANG' => ['config', 'language'],
+	'FRIENDICA_SITENAME' => ['config', 'sitename'],
+
+	// Storage
+	'FRIENDICA_DATA' => ['storage', 'name'],
+	'FRIENDICA_DATA_DIR' => ['storage', 'filesystem_path'],
+
+	// Debugging/Profiling
+	'FRIENDICA_DEBUGGING' => ['system', 'debugging'],
+	'FRIENDICA_LOGFILE' => ['system', 'logfile'],
+	'FRIENDICA_LOGLEVEL'=> ['system', 'loglevel'],
+	'FRIENDICA_PROFILING' => ['system', 'profiler'],
+
+	// Caching
+	'FRIENDICA_CACHE_DRIVER' => ['system', 'cache_driver'],
+	'FRIENDICA_SESSION_HANDLER' => ['system', 'session_handler'],
+	'FRIENDICA_LOCK_DRIVER' => ['system', 'lock_driver'],
+
+	// Redis Config
+	'REDIS_HOST' => ['system', 'redis_host'],
+	'REDIS_PORT' => ['system', 'redis_port'],
+	'REDIS_PW' => ['system', 'redis_password'],
+	'REDIS_DB' => ['system', 'redis_db'],
 ];
