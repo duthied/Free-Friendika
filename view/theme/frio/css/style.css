@@ -2044,7 +2044,7 @@ p.wall-item-announce,
 
 .radio label::before,
 .checkbox label::before {
-	background-color: $background_color;
+	background-color: rgba(255,255,255,$contentbg_transp);
 }
 .radio label::after {
 	background-color: $link_color;
