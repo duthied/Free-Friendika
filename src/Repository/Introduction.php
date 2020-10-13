@@ -64,16 +64,16 @@ class Introduction extends BaseRepository
 	}
 
 	/**
-	 * @param array $condition
-	 * @param array $params
+	 * @param array    $condition
+	 * @param array    $params
+	 * @param int|null $min_id
 	 * @param int|null $max_id
-	 * @param int|null $since_id
-	 * @param int $limit
+	 * @param int      $limit
 	 * @return Collection\Introductions
 	 * @throws \Exception
 	 */
-	public function selectByBoundaries(array $condition = [], array $params = [], int $max_id = null, int $since_id = null, int $limit = self::LIMIT)
+	public function selectByBoundaries(array $condition = [], array $params = [], int $min_id = null, int $max_id = null, int $limit = self::LIMIT)
 	{
-		return parent::selectByBoundaries($condition, $params, $max_id, $since_id, $limit);
+		return parent::selectByBoundaries($condition, $params, $min_id, $max_id, $limit);
 	}
 }

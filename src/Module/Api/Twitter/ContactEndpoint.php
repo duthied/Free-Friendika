@@ -155,15 +155,24 @@ abstract class ContactEndpoint extends BaseApi
 
 			$total_count = (int)DBA::count('contact', $condition);
 
+			$params = ['limit' => $count, 'order' => ['id' => 'ASC']];
+
 			if ($cursor !== -1) {
 				if ($cursor > 0) {
 					$condition = DBA::mergeConditions($condition, ['`id` > ?', $cursor]);
 				} else {
 					$condition = DBA::mergeConditions($condition, ['`id` < ?', -$cursor]);
+					// Previous page case: we want the items closest to cursor but for that we need to reverse the query order
+					$params['order']['id'] = 'DESC';
 				}
 			}
 
-			$contacts = Contact::selectToArray(['id'], $condition, ['limit' => $count, 'order' => ['id']]);
+			$contacts = Contact::selectToArray(['id'], $condition, $params);
+
+			// Previous page case: once we get the relevant items closest to cursor, we need to restore the expected display order
+			if ($cursor !== -1 && $cursor <= 0) {
+				$contacts = array_reverse($contacts);
+			}
 
 			// Contains user-specific contact ids
 			$ids = array_column($contacts, 'id');

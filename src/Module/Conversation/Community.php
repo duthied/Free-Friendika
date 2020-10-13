@@ -44,7 +44,7 @@ class Community extends BaseModule
 	protected static $content;
 	protected static $accounttype;
 	protected static $itemsPerPage;
-	protected static $since_id;
+	protected static $min_id;
 	protected static $max_id;
 	protected static $item_id;
 
@@ -98,8 +98,8 @@ class Community extends BaseModule
 				}
 				$query_parameters = [];
 		
-				if (!empty($_GET['since_id'])) {
-					$query_parameters['since_id'] = $_GET['since_id'];
+				if (!empty($_GET['min_id'])) {
+					$query_parameters['min_id'] = $_GET['min_id'];
 				}
 				if (!empty($_GET['max_id'])) {
 					$query_parameters['max_id'] = $_GET['max_id'];
@@ -247,7 +247,7 @@ class Community extends BaseModule
 			self::$item_id = 0;
 		}
 
-		self::$since_id = $_GET['since_id'] ?? null;
+		self::$min_id = $_GET['min_id'] ?? null;
 		self::$max_id   = $_GET['max_id']   ?? null;
 		self::$max_id   = $_GET['last_commented'] ?? self::$max_id;
 	}
@@ -263,7 +263,7 @@ class Community extends BaseModule
 	 */
 	protected static function getItems()
 	{
-		$items = self::selectItems(self::$since_id, self::$max_id, self::$item_id, self::$itemsPerPage);
+		$items = self::selectItems(self::$min_id, self::$max_id, self::$item_id, self::$itemsPerPage);
 
 		$maxpostperauthor = (int) DI::config()->get('system', 'max_author_posts_community_page');
 		if ($maxpostperauthor != 0 && self::$content == 'local') {
@@ -288,14 +288,14 @@ class Community extends BaseModule
 
 				// If we're looking at a "previous page", the lookup continues forward in time because the list is
 				// sorted in chronologically decreasing order
-				if (isset(self::$since_id)) {
-					self::$since_id = $items[0]['commented'];
+				if (isset(self::$min_id)) {
+					self::$min_id = $items[0]['commented'];
 				} else {
 					// In any other case, the lookup continues backwards in time
 					self::$max_id = $items[count($items) - 1]['commented'];
 				}
 
-				$items = self::selectItems(self::$since_id, self::$max_id, self::$item_id, self::$itemsPerPage);
+				$items = self::selectItems(self::$min_id, self::$max_id, self::$item_id, self::$itemsPerPage);
 			}
 		} else {
 			$selected_items = $items;
@@ -307,17 +307,15 @@ class Community extends BaseModule
 	/**
 	 * Database query for the comunity page
 	 *
-	 * @param $since_id
+	 * @param $min_id
 	 * @param $max_id
 	 * @param $itemspage
 	 * @return array
 	 * @throws \Exception
 	 * @TODO Move to repository/factory
 	 */
-	private static function selectItems($since_id, $max_id, $item_id, $itemspage)
+	private static function selectItems($min_id, $max_id, $item_id, $itemspage)
 	{
-		$r = false;
-
 		if (self::$content == 'local') {
 			if (!is_null(self::$accounttype)) {
 				$condition = ["`wall` AND `origin` AND `private` = ? AND `owner`.`contact-type` = ?", Item::PUBLIC, self::$accounttype];
@@ -334,6 +332,8 @@ class Community extends BaseModule
 			return [];
 		}
 
+		$params = ['order' => ['commented' => true], 'limit' => $itemspage];
+
 		if (!empty($item_id)) {
 			$condition[0] .= " AND `iid` = ?";
 			$condition[] = $item_id;
@@ -348,14 +348,26 @@ class Community extends BaseModule
 				$condition[] = $max_id;
 			}
 
-			if (isset($since_id)) {
+			if (isset($min_id)) {
 				$condition[0] .= " AND `commented` > ?";
-				$condition[] = $since_id;
+				$condition[] = $min_id;
+
+				// Previous page case: we want the items closest to min_id but for that we need to reverse the query order
+				if (!isset($max_id)) {
+					$params['order']['commented'] = false;
+				}
 			}
 		}
 
-		$r = Item::selectThreadForUser(0, ['uri', 'commented', 'author-link'], $condition, ['order' => ['commented' => true], 'limit' => $itemspage]);
+		$r = Item::selectThreadForUser(0, ['uri', 'commented', 'author-link'], $condition, $params);
 
-		return DBA::toArray($r);
+		$items = DBA::toArray($r);
+
+		// Previous page case: once we get the relevant items closest to min_id, we need to restore the expected display order
+		if (empty($item_id) && isset($min_id) && !isset($max_id)) {
+			$items = array_reverse($items);
+		}
+
+		return $items;
 	}
 }
