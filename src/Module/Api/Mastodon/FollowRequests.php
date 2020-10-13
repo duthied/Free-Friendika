@@ -91,7 +91,7 @@ class FollowRequests extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		$since_id = $_GET['since_id'] ?? null;
+		$min_id = $_GET['min_id'] ?? null;
 		$max_id = $_GET['max_id'] ?? null;
 		$limit = intval($_GET['limit'] ?? 40);
 
@@ -100,7 +100,7 @@ class FollowRequests extends BaseApi
 		$introductions = DI::intro()->selectByBoundaries(
 			['`uid` = ? AND NOT `ignore`', self::$current_user_id],
 			['order' => ['id' => 'DESC']],
-			$since_id,
+			$min_id,
 			$max_id,
 			$limit
 		);
@@ -127,7 +127,7 @@ class FollowRequests extends BaseApi
 		}
 
 		if (count($introductions)) {
-			$links[] = '<' . $baseUrl->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['since_id' => $introductions[0]->id]) . '>; rel="prev"';
+			$links[] = '<' . $baseUrl->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['min_id' => $introductions[0]->id]) . '>; rel="prev"';
 		}
 
 		header('Link: ' . implode(', ', $links));
