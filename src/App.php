@@ -77,7 +77,6 @@ class App
 	public $sourcename              = '';
 	public $videowidth              = 425;
 	public $videoheight             = 350;
-	public $force_max_items         = 0;
 	public $theme_events_in_profile = true;
 	public $queue;
 

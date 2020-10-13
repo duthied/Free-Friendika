@@ -234,12 +234,6 @@ class Community extends BaseModule
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
-		// now that we have the user settings, see if the theme forces
-		// a maximum item number which is lower then the user choice
-		if ((DI::app()->force_max_items > 0) && (DI::app()->force_max_items < self::$itemsPerPage)) {
-			self::$itemsPerPage = DI::app()->force_max_items;
-		}
-
 		if (!empty($_GET['item'])) {
 			$item = Item::selectFirst(['parent'], ['id' => $_GET['item']]);
 			self::$item_id = $item['parent'] ?? 0;
