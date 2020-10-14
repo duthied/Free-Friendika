@@ -501,7 +501,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 			$writable = false;
 		}
 
-		if (in_array($mode, ['network-new', 'search', 'contact-posts'])) {
+		if (in_array($mode, ['filed', 'search', 'contact-posts'])) {
 
 			/*
 			 * "New Item View" on network page or search page results
@@ -548,7 +548,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 				$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
 
 				localize_item($item);
-				if ($mode === 'network-new') {
+				if ($mode === 'filed') {
 					$dropping = true;
 				} else {
 					$dropping = false;

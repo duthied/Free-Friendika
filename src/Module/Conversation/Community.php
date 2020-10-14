@@ -42,7 +42,8 @@ class Community extends BaseModule
 {
 	protected static $page_style;
 	protected static $content;
-	protected static $accounttype;
+	protected static $accountTypeString;
+	protected static $accountType;
 	protected static $itemsPerPage;
 	protected static $min_id;
 	protected static $max_id;
@@ -89,7 +90,7 @@ class Community extends BaseModule
 
 			Nav::setSelected('community');
 
-			DI::page()['aside'] .= Widget::accounts('community/' . self::$content, $parameters['accounttype'] ?? '');
+			DI::page()['aside'] .= Widget::accounttypes('community/' . self::$content, self::$accountTypeString);
 	
 			if (local_user() && DI::config()->get('system', 'community_no_sharer')) {
 				$path = self::$content;
@@ -192,7 +193,8 @@ class Community extends BaseModule
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 		}
 
-		self::$accounttype = User::getAccountTypeByString($parameters['accounttype'] ?? '');
+		self::$accountTypeString = $_GET['accounttype'] ?? $parameters['accounttype'] ?? '';
+		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
 
 		self::$content = $parameters['content'] ?? '';
 		if (!self::$content) {
@@ -232,12 +234,6 @@ class Community extends BaseModule
 		} else {
 			self::$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
 				DI::config()->get('system', 'itemspage_network'));
-		}
-
-		// now that we have the user settings, see if the theme forces
-		// a maximum item number which is lower then the user choice
-		if ((DI::app()->force_max_items > 0) && (DI::app()->force_max_items < self::$itemsPerPage)) {
-			self::$itemsPerPage = DI::app()->force_max_items;
 		}
 
 		if (!empty($_GET['item'])) {
@@ -317,14 +313,14 @@ class Community extends BaseModule
 	private static function selectItems($min_id, $max_id, $item_id, $itemspage)
 	{
 		if (self::$content == 'local') {
-			if (!is_null(self::$accounttype)) {
-				$condition = ["`wall` AND `origin` AND `private` = ? AND `owner`.`contact-type` = ?", Item::PUBLIC, self::$accounttype];
+			if (!is_null(self::$accountType)) {
+				$condition = ["`wall` AND `origin` AND `private` = ? AND `owner`.`contact-type` = ?", Item::PUBLIC, self::$accountType];
 			} else {
  				$condition = ["`wall` AND `origin` AND `private` = ?", Item::PUBLIC];
 			}
 		} elseif (self::$content == 'global') {
-			if (!is_null(self::$accounttype)) {
-				$condition = ["`uid` = ? AND `private` = ? AND `owner`.`contact-type` = ?", 0, Item::PUBLIC, self::$accounttype];
+			if (!is_null(self::$accountType)) {
+				$condition = ["`uid` = ? AND `private` = ? AND `owner`.`contact-type` = ?", 0, Item::PUBLIC, self::$accountType];
 			} else {
 				$condition = ["`uid` = ? AND `private` = ?", 0, Item::PUBLIC];
 			}

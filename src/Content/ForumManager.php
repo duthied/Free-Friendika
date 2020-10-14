@@ -99,13 +99,14 @@ class ForumManager
 	 * Sidebar widget to show subcribed friendica forums. If activated
 	 * in the settings, it appears at the notwork page sidebar
 	 *
-	 * @param int $uid The ID of the User
-	 * @param int $cid The contact id which is used to mark a forum as "selected"
+	 * @param string $baseurl Base module path
+	 * @param int    $uid     The ID of the User
+	 * @param int    $cid     The contact id which is used to mark a forum as "selected"
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function widget($uid, $cid = 0)
+	public static function widget(string $baseurl, int $uid, int $cid = 0)
 	{
 		$o = '';
 
@@ -125,7 +126,7 @@ class ForumManager
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
 				$entry = [
-					'url' => 'network?contactid=' . $contact['id'],
+					'url' => $baseurl . '/' . $contact['id'],
 					'external_url' => Contact::magicLink($contact['url']),
 					'name' => $contact['name'],
 					'cid' => $contact['id'],

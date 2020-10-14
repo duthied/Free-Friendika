@@ -51,7 +51,6 @@ class Renderer
 		'sourcename' => '',
 		'videowidth' => 425,
 		'videoheight' => 350,
-		'force_max_items' => 0,
 		'stylesheet' => '',
 		'template_engine' => 'smarty3',
 	];

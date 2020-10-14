@@ -180,12 +180,6 @@ class Status extends BaseProfile
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
-		//  now that we have the user settings, see if the theme forces
-		//  a maximum item number which is lower then the user choice
-		if (($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network)) {
-			$itemspage_network = $a->force_max_items;
-		}
-
 		$pager = new Pager(DI::l10n(), $args->getQueryString(), $itemspage_network);
 
 		$pager_sql = sprintf(" LIMIT %d, %d ", $pager->getStart(), $pager->getItemsPerPage());
