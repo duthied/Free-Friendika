@@ -117,7 +117,7 @@ return [
 	'/debug/ap'            => [Module\Debug\ActivityPubConversion::class,  [R::GET, R::POST]],
 	'/bookmarklet'         => [Module\Bookmarklet::class,  [R::GET]],
 
-	'/community[/{content}[/{accounttype}]]' => [Module\Conversation\Community::class, [R::GET]],
+	'/community[/{content}]' => [Module\Conversation\Community::class, [R::GET]],
 
 	'/compose[/{type}]'    => [Module\Item\Compose::class, [R::GET, R::POST]],
 
@@ -304,7 +304,6 @@ return [
 		'/archive/{from:\d\d\d\d-\d\d-\d\d}[/{to:\d\d\d\d-\d\d-\d\d}]' => [Module\Conversation\Network::class, [R::GET]],
 		'/forum/{contact_id:\d+}'     => [Module\Conversation\Network::class, [R::GET]],
 		'/group/{group_id:\d+}'       => [Module\Conversation\Network::class, [R::GET]],
-		'/accounttype/{accounttype}'  => [Module\Conversation\Network::class, [R::GET]],
 	],
 
 	'/randprof'                      => [Module\RandomProfile::class,         [R::GET]],
@@ -318,7 +317,7 @@ return [
 	'/toggle_mobile'                 => [Module\ToggleMobile::class,          [R::GET]],
 	'/tos'                           => [Module\Tos::class,                   [R::GET]],
 
-	'/update_community[/{content}[/{accounttype}]]' => [Module\Update\Community::class, [R::GET]],
+	'/update_community[/{content}]'  => [Module\Update\Community::class,      [R::GET]],
 	'/update_network'                => [Module\Update\Network::class,        [R::GET]],
 	'/update_profile'                => [Module\Update\Profile::class,        [R::GET]],
 

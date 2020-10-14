@@ -34,6 +34,8 @@ class Network extends BaseModule
 	private static $min_id;
 	/** @var mixed */
 	private static $max_id;
+	/** @var string */
+	private static $accountTypeString;
 	/** @var int */
 	private static $accountType;
 	/** @var string */
@@ -61,7 +63,7 @@ class Network extends BaseModule
 
 		$module = 'network';
 
-		DI::page()['aside'] .= Widget::accounts($module . '/accounttype', self::$accountType);
+		DI::page()['aside'] .= Widget::accounttypes($module, self::$accountTypeString);
 		DI::page()['aside'] .= Group::sidebarWidget($module, $module . '/group', 'standard', self::$groupId);
 		DI::page()['aside'] .= ForumManager::widget($module . '/forum', local_user(), self::$forumContactId);
 		DI::page()['aside'] .= Widget::postedByYear($module . '/archive', local_user(), false);
@@ -300,7 +302,8 @@ class Network extends BaseModule
 		self::$mention = intval($_GET['mention']      ?? 0);
 		self::$order   = in_array(self::$selectedTab, ['received', 'commented', 'created', 'uriid']) ? self::$selectedTab : 'commented';
 
-		self::$accountType = User::getAccountTypeByString($parameters['accounttype'] ?? '') ?? '';
+		self::$accountTypeString = $_GET['accounttype'] ?? $parameters['accounttype'] ?? '';
+		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
 
 		self::$network = $get['nets'] ?? '';
 
@@ -339,7 +342,7 @@ class Network extends BaseModule
 		$conditionFields['uid'] = local_user();
 		$conditionStrings = [];
 
-		if (self::$accountType) {
+		if (!is_null(self::$accountType)) {
 			$conditionFields['contact-type'] = self::$accountType;
 		}
 
