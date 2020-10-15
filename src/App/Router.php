@@ -268,20 +268,33 @@ class Router
 	 * The cached "routerDispatchData" lasts for a day, and must be cleared manually when there
 	 * is any changes in the enabled addons list.
 	 *
+	 * Additionally, we check for the base routes file last modification time to automatically
+	 * trigger re-computing the dispatch data.
+	 *
 	 * @return array|mixed
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private function getCachedDispatchData()
 	{
 		$routerDispatchData = $this->cache->get('routerDispatchData');
+		$lastRoutesFileModifiedTime = $this->cache->get('lastRoutesFileModifiedTime');
+		$forceRecompute = false;
 
-		if ($routerDispatchData) {
+		if ($this->baseRoutesFilepath && file_exists($this->baseRoutesFilepath)) {
+			$routesFileModifiedTime = filemtime($this->baseRoutesFilepath);
+			$forceRecompute = $lastRoutesFileModifiedTime != $routesFileModifiedTime;
+		}
+
+		if (!$forceRecompute && $routerDispatchData) {
 			return $routerDispatchData;
 		}
 
 		$routerDispatchData = $this->getDispatchData();
 
 		$this->cache->set('routerDispatchData', $routerDispatchData, Duration::DAY);
+		if (!empty($routesFileModifiedTime)) {
+			$this->cache->set('lastRoutesFileMtime', $routesFileModifiedTime, Duration::MONTH);
+		}
 
 		return $routerDispatchData;
 	}
