@@ -21,12 +21,8 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Core\Logger;
-use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\ItemURI;
-use Friendica\Util\Strings;
 
 /**
  * Do some repairs in database entries
@@ -36,37 +32,6 @@ class RepairDatabase
 {
 	public static function execute()
 	{
-		// Sometimes there seem to be issues where the "self" contact vanishes.
-		// We haven't found the origin of the problem by now.
-
-		$users = DBA::select('user', ['uid'], ["NOT EXISTS (SELECT `uid` FROM `contact` WHERE `contact`.`uid` = `user`.`uid` AND `contact`.`self`)"]);
-		while ($user = DBA::fetch($users)) {
-			Logger::notice('Create missing self contact', ['user'=> $user['uid']]);
-			Contact::createSelfFromUserId($user['uid']);
-		}
-		DBA::close($users);
-
-		// There was an issue where the nick vanishes from the contact table
-		DBA::e("UPDATE `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid` SET `nick` = `nickname` WHERE `self` AND `nick`=''");
-
-		/// @todo
-		/// - remove thread entries without item
-		/// - remove sign entries without item
-		/// - remove children when parent got lost
-		/// - set contact-id in item when not present
-
-		// Add intro entries for pending contacts
-		// We don't do this for DFRN entries since such revived contact requests seem to mostly fail.
-		$pending_contacts = DBA::p("SELECT `uid`, `id`, `url`, `network`, `created` FROM `contact`
-			WHERE `pending` AND `rel` IN (?, ?) AND `network` != ? AND `uid` != ?
-				AND NOT EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id`)",
-			0, Contact::FOLLOWER, Protocol::DFRN, 0);
-		while ($contact = DBA::fetch($pending_contacts)) {
-			DBA::insert('intro', ['uid' => $contact['uid'], 'contact-id' => $contact['id'], 'blocked' => false,
-				'hash' => Strings::getRandomHex(), 'datetime' => $contact['created']]);
-		}
-		DBA::close($pending_contacts);
-
 		// Ensure that there are no "uri-id", "parent-uri-id" or "thr-parent-id" fields that are NULL
 		$items = DBA::select('item', ['id', 'uri', 'guid'], ["`uri-id` IS NULL"]);
 		while ($item = DBA::fetch($items)) {
@@ -88,5 +53,16 @@ class RepairDatabase
 			DBA::update('item', ['thr-parent-id' => $uriid], ['id' => $item['id']]);
 		}
 		DBA::close($items);
+
+		// Ensure that all uri-id are set correctly
+		DBA::e("UPDATE `item` INNER JOIN `item-uri` ON `item-uri`.`uri` = `item`.`uri`
+			SET `uri-id` = `item-uri`.`id` WHERE `item`.`uri-id` != `item-uri`.`id` AND `uri` != ?", '');
+		DBA::e("UPDATE `item` INNER JOIN `item-uri` ON `item-uri`.`uri` = `item`.`parent-uri`
+			SET `parent-uri-id` = `item-uri`.`id` WHERE `item`.`parent-uri-id` != `item-uri`.`id` AND `parent-uri` != ?", '');
+		DBA::e("UPDATE `item` INNER JOIN `item-uri` ON `item-uri`.`uri` = `item`.`thr-parent`
+			SET `thr-parent-id` = `item-uri`.`id` WHERE `item`.`thr-parent-id` != `item-uri`.`id` AND `thr-parent` != ?", '');
+
+		// Delete orphaned data from notify table.
+		DBA::e("DELETE FROM `notify` WHERE NOT `type` IN (1, 2, 16, 32, 512) AND NOT `iid` IN (SELECT `id` FROM `item`)");
 	}
 }
