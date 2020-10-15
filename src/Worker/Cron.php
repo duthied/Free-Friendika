@@ -72,9 +72,6 @@ class Cron
 		// Call possible post update functions
 		Worker::add(PRIORITY_LOW, 'PostUpdate');
 
-		// Repair entries in the database
-		Worker::add(PRIORITY_LOW, 'RepairDatabase');
-
 		// Hourly cron calls
 		if (DI::config()->get('system', 'last_cron_hourly', 0) + 3600 < time()) {
 
@@ -93,6 +90,9 @@ class Cron
 			// Clear cache entries
 			Worker::add(PRIORITY_LOW, 'ClearCache');
 
+			// Repair entries in the database
+			Worker::add(PRIORITY_LOW, 'RepairDatabase');
+
 			DI::config()->set('system', 'last_cron_hourly', time());
 		}
 
@@ -110,7 +110,7 @@ class Cron
 
 			Worker::add(PRIORITY_LOW, 'Expire');
 
-			Worker::add(PRIORITY_MEDIUM, 'DBClean');
+			Worker::add(PRIORITY_LOW, 'ExpirePosts');
 
 			Worker::add(PRIORITY_LOW, 'ExpireConversations');
 
