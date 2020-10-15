@@ -56,9 +56,11 @@ class RepairDatabase
 
 		// Ensure that all uri-id are set correctly
 		DBA::e("UPDATE `item` INNER JOIN `item-uri` ON `item-uri`.`uri` = `item`.`uri`
-			SET `uri-id` = `item-uri`.`id` WHERE `item`.`uri-id` != `item-uri`.`id`");
+			SET `uri-id` = `item-uri`.`id` WHERE `item`.`uri-id` != `item-uri`.`id` AND `uri` != ?", '');
 		DBA::e("UPDATE `item` INNER JOIN `item-uri` ON `item-uri`.`uri` = `item`.`parent-uri`
-			SET `parent-uri-id` = `item-uri`.`id` WHERE `item`.`parent-uri-id` != `item-uri`.`id`");
+			SET `parent-uri-id` = `item-uri`.`id` WHERE `item`.`parent-uri-id` != `item-uri`.`id` AND `parent-uri` != ?", '');
+		DBA::e("UPDATE `item` INNER JOIN `item-uri` ON `item-uri`.`uri` = `item`.`thr-parent`
+			SET `thr-parent-id` = `item-uri`.`id` WHERE `item`.`thr-parent-id` != `item-uri`.`id` AND `thr-parent` != ?", '');
 
 		// Delete orphaned data from notify table.
 		DBA::e("DELETE FROM `notify` WHERE NOT `type` IN (1, 2, 16, 32, 512) AND NOT `iid` IN (SELECT `id` FROM `item`)");
