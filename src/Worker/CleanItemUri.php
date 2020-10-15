@@ -21,6 +21,7 @@
 
 namespace Friendica\Worker;
 
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 
 class CleanItemUri
@@ -30,8 +31,9 @@ class CleanItemUri
 	 */
 	public static function execute()
 	{
-		DBA::p("DELETE FROM `item-uri` WHERE NOT `id` IN (SELECT `uri-id` FROM `item`)
+		$ret = DBA::e("DELETE FROM `item-uri` WHERE NOT `id` IN (SELECT `uri-id` FROM `item`)
 			AND NOT `id` IN (SELECT `parent-uri-id` FROM `item`)
 			AND NOT `id` IN (SELECT `thr-parent-id` FROM `item`)");
+		Logger::notice('Orphaned URI-ID entries removed', ['result' => $ret, 'rows' => DBA::affectedRows()]);
 	}
 }

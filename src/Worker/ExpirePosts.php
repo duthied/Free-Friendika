@@ -40,7 +40,7 @@ class ExpirePosts
 		}
 
 		if (!empty($expire_days)) {
-			Logger::notice('Start deleting expired threads', ['expiry_days' => $expire_days, 'count' => DBA::count('item')]);
+			Logger::notice('Start deleting expired threads', ['expiry_days' => $expire_days]);
 			$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` IN
 				(SELECT `uri-id` FROM `thread`
 				INNER JOIN `contact` ON `id` = `contact-id` AND NOT `notify_new_posts`
@@ -54,20 +54,20 @@ class ExpirePosts
 								WHERE `uri-id` = `item`.`uri-id`))
 							AND `item`.`parent` = `thread`.`iid`))", $expire_days);
 
-			Logger::notice('Deleted expired threads', ['result' => $ret, 'rows' => DBA::affectedRows(), 'count' => DBA::count('item')]);
+			Logger::notice('Deleted expired threads', ['result' => $ret, 'rows' => DBA::affectedRows()]);
 		}
 
 		if (!empty($expire_days_unclaimed)) {
 			$expiry_date = DateTimeFormat::utc('now - ' . $expire_days_unclaimed . ' days', DateTimeFormat::MYSQL);
 
-			Logger::notice('Start deleting unclaimed public items', ['expiry_days' => $expire_days_unclaimed, 'expired' => $expiry_date, 'count' => DBA::count('item')]);
+			Logger::notice('Start deleting unclaimed public items', ['expiry_days' => $expire_days_unclaimed, 'expired' => $expiry_date]);
 			$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` IN
 				(SELECT `uri-id` FROM `item` WHERE `gravity` = ? AND `uid` = ? AND `received` < ?
 					AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item` WHERE `uid` != ?)
 					AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item` WHERE `uid` = ? AND `received` > ?))",
 				GRAVITY_PARENT, 0, $expiry_date, 0, 0, $expiry_date);
 
-			Logger::notice('Deleted unclaimed public items', ['result' => $ret, 'rows' => DBA::affectedRows(), 'count' => DBA::count('item')]);
+			Logger::notice('Deleted unclaimed public items', ['result' => $ret, 'rows' => DBA::affectedRows()]);
 		}
 	}
 }
