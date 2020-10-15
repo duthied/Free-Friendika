@@ -178,7 +178,8 @@ class ModuleTest extends DatabaseTest
 
 		$cache = \Mockery::mock(ICache::class);
 		$cache->shouldReceive('get')->with('routerDispatchData')->andReturn('')->atMost()->once();
-		$cache->shouldReceive('set')->withAnyArgs()->andReturn(false)->atMost()->once();
+		$cache->shouldReceive('get')->with('lastRoutesFileModifiedTime')->andReturn('')->atMost()->once();
+		$cache->shouldReceive('set')->withAnyArgs()->andReturn(false)->atMost()->twice();
 
 		$router = (new App\Router([], __DIR__ . '/../../../static/routes.config.php', $l10n, $cache));
 

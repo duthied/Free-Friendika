@@ -185,7 +185,7 @@ class RouterTest extends TestCase
 						],
 					],
 					'/post' => [
-						'/it' => [Module\NodeInfo::class, [Router::POST]],
+						'/it' => [Module\WellKnown\NodeInfo::class, [Router::POST]],
 					],
 					'/double' => [Module\Profile\Index::class, [Router::GET, Router::POST]]
 				],
@@ -221,7 +221,7 @@ class RouterTest extends TestCase
 		], '', $this->l10n, $this->cache))->loadRoutes($routes);
 
 		// Don't find GET
-		$this->assertEquals(Module\NodeInfo::class, $router->getModuleClass('/post/it'));
+		$this->assertEquals(Module\WellKnown\NodeInfo::class, $router->getModuleClass('/post/it'));
 		$this->assertEquals(Module\Profile\Index::class, $router->getModuleClass('/double'));
 	}
 }
