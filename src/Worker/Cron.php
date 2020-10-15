@@ -90,9 +90,6 @@ class Cron
 			// Clear cache entries
 			Worker::add(PRIORITY_LOW, 'ClearCache');
 
-			// Repair entries in the database
-			Worker::add(PRIORITY_LOW, 'RepairDatabase');
-
 			DI::config()->set('system', 'last_cron_hourly', time());
 		}
 
@@ -107,6 +104,9 @@ class Cron
 			Worker::add(PRIORITY_LOW, 'NodeInfo');
 
 			Worker::add(PRIORITY_LOW, 'UpdateGServers');
+
+			// Repair entries in the database
+			Worker::add(PRIORITY_LOW, 'RepairDatabase');
 
 			Worker::add(PRIORITY_LOW, 'Expire');
 
