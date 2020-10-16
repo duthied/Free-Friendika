@@ -102,8 +102,6 @@ function get_vier_config($key, $default = false, $admin = false)
 
 function vier_community_info()
 {
-	$a = DI::app();
-
 	$show_pages      = get_vier_config("show_pages", 1);
 	$show_profiles   = get_vier_config("show_profiles", 1);
 	$show_helpers    = get_vier_config("show_helpers", 1);
@@ -184,49 +182,7 @@ function vier_community_info()
 
 	//Community_Pages at right_aside
 	if ($show_pages && local_user()) {
-		$cid = $_GET['cid'] ?? null;
-
-		//sort by last updated item
-		$lastitem = true;
-
-		$contacts = ForumManager::getList($a->user['uid'], $lastitem, true, true);
-		$total = count($contacts);
-		$visible_forums = 10;
-
-		if (count($contacts)) {
-			$id = 0;
-
-			foreach ($contacts as $contact) {
-				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
-
-				$entry = [
-					'url'          => 'network?contactid=' . $contact['id'],
-					'external_url' => Contact::magicLink($contact['url']),
-					'name'         => $contact['name'],
-					'cid'          => $contact['id'],
-					'selected'     => $selected,
-					'micro'        => Contact::getMicro($contact),
-					'id'           => ++$id,
-				];
-				$entries[] = $entry;
-			}
-
-
-			$tpl = Renderer::getMarkupTemplate('widget_forumlist_right.tpl');
-
-			$page = Renderer::replaceMacros(
-				$tpl,
-				[
-					'$title'          => DI::l10n()->t('Forums'),
-					'$forums'         => $entries,
-					'$link_desc'      => DI::l10n()->t('External link to forum'),
-					'$total'          => $total,
-					'$visible_forums' => $visible_forums,
-					'$showmore'       => DI::l10n()->t('show more')]
-			);
-
-			$aside['$page'] = $page;
-		}
+		$aside['$page'] = ForumManager::widget('network/forum', local_user());;
 	}
 	// END Community Page
 
