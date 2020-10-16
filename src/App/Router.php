@@ -93,6 +93,10 @@ class Router
 		$this->routeCollector = isset($routeCollector) ?
 			$routeCollector :
 			new RouteCollector(new Std(), new GroupCountBased());
+
+		if ($this->baseRoutesFilepath && !file_exists($this->baseRoutesFilepath)) {
+			throw new HTTPException\InternalServerErrorException('Routes file path does\'n exist.');
+		}
 	}
 
 	/**
@@ -249,7 +253,7 @@ class Router
 	{
 		$dispatchData = [];
 
-		if ($this->baseRoutesFilepath && file_exists($this->baseRoutesFilepath)) {
+		if ($this->baseRoutesFilepath) {
 			$dispatchData = require $this->baseRoutesFilepath;
 			if (!is_array($dispatchData)) {
 				throw new HTTPException\InternalServerErrorException('Invalid base routes file');
@@ -280,7 +284,7 @@ class Router
 		$lastRoutesFileModifiedTime = $this->cache->get('lastRoutesFileModifiedTime');
 		$forceRecompute = false;
 
-		if ($this->baseRoutesFilepath && file_exists($this->baseRoutesFilepath)) {
+		if ($this->baseRoutesFilepath) {
 			$routesFileModifiedTime = filemtime($this->baseRoutesFilepath);
 			$forceRecompute = $lastRoutesFileModifiedTime != $routesFileModifiedTime;
 		}
