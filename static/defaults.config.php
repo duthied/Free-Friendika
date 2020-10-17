@@ -187,7 +187,8 @@ return [
 
 		// dbclean-expire-limit (Integer)
 		// This defines the number of items that are to be deleted in a single call.
-		// Reduce this value when you are getting memory issues.
+		// Reduce this value when you are getting lock issues.
+		// A value of 0 disables the deletion process.
 		'dbclean-expire-limit' => 1000,
 
 		// diaspora_test (Boolean)
