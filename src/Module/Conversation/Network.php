@@ -282,7 +282,7 @@ class Network extends BaseModule
 
 		self::$forumContactId = $parameters['contact_id'] ?? 0;
 
-		self::$selectedTab = DI::pConfig()->get(local_user(), 'network.view', 'selected_tab', '');
+		self::$selectedTab = '';
 
 		if (!empty($get['star'])) {
 			self::$selectedTab = 'star';
@@ -296,11 +296,9 @@ class Network extends BaseModule
 			self::$selectedTab = $get['order'];
 		}
 
-		DI::pConfig()->set(local_user(), 'network.view', 'selected_tab', self::$selectedTab);
-
-		self::$star    = intval($get['star']      ?? 0);
-		self::$mention = intval($_GET['mention']      ?? 0);
-		self::$order   = in_array(self::$selectedTab, ['received', 'commented', 'created', 'uriid']) ? self::$selectedTab : 'commented';
+		self::$star    = intval($get['star'] ?? 0);
+		self::$mention = intval($_GET['mention'] ?? 0);
+		self::$order   = $get['order'] ?? 'commented';
 
 		self::$accountTypeString = $_GET['accounttype'] ?? $parameters['accounttype'] ?? '';
 		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
@@ -321,7 +319,7 @@ class Network extends BaseModule
 		self::$min_id = $_GET['min_id'] ?? null;
 		self::$max_id = $_GET['max_id'] ?? null;
 
-		switch (self::$selectedTab) {
+		switch (self::$order) {
 			case 'received':
 				self::$max_id = $_GET['last_received'] ?? self::$max_id;
 				break;
@@ -420,26 +418,20 @@ class Network extends BaseModule
 			$items = array_reverse($items);
 		}
 
-		$parents_str = '';
 		if (DBA::isResult($items)) {
-			$parents_arr = [];
-
-			foreach ($items as $item) {
-				if (!in_array($item['parent'], $parents_arr) && ($item['parent'] > 0)) {
-					$parents_arr[] = $item['parent'];
-				}
-			}
-			$parents_str = implode(', ', $parents_arr);
+			$parents = array_column($items, 'parent');
+		} else {
+			$parents = [];
 		}
 
 		// We aren't going to try and figure out at the item, group, and page
 		// level which items you've seen and which you haven't. If you're looking
 		// at the top level network page just mark everything seen.
-		if (!self::$groupId && !self::$forumContactId && self::$selectedTab != 'star') {
+		if (!self::$groupId && !self::$forumContactId && !self::$star && !self::$mention) {
 			$condition = ['unseen' => true, 'uid' => local_user()];
 			self::setItemsSeenByCondition($condition);
-		} elseif ($parents_str) {
-			$condition = ["`uid` = ? AND `unseen` AND `parent` IN (" . DBA::escape($parents_str) . ")", local_user()];
+		} elseif (!empty($parents)) {
+			$condition = ['unseen' => true, 'uid' => local_user(), 'parent' => $parents];
 			self::setItemsSeenByCondition($condition);
 		}
 
