@@ -300,7 +300,7 @@ class Network extends BaseModule
 		Session::set('network-tab', self::$selectedTab);
 
 		self::$star    = intval($get['star'] ?? 0);
-		self::$mention = intval($_GET['mention'] ?? 0);
+		self::$mention = intval($get['mention'] ?? 0);
 		self::$order   = $get['order'] ?? Session::get('network-order', 'commented');
 
 		self::$selectedTab = self::$selectedTab ?? self::$order;
@@ -308,7 +308,7 @@ class Network extends BaseModule
 		Session::set('network-tab', self::$selectedTab);
 		Session::set('network-order', self::$order);
 
-		self::$accountTypeString = $_GET['accounttype'] ?? $parameters['accounttype'] ?? '';
+		self::$accountTypeString = $get['accounttype'] ?? $parameters['accounttype'] ?? '';
 		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
 
 		self::$network = $get['nets'] ?? '';
@@ -324,12 +324,12 @@ class Network extends BaseModule
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
-		self::$min_id = $_GET['min_id'] ?? null;
-		self::$max_id = $_GET['max_id'] ?? null;
+		self::$min_id = $get['min_id'] ?? null;
+		self::$max_id = $get['max_id'] ?? null;
 
 		switch (self::$order) {
 			case 'received':
-				self::$max_id = $_GET['last_received'] ?? self::$max_id;
+				self::$max_id = $get['last_received'] ?? self::$max_id;
 				break;
 			case 'commented':
 				self::$max_id = $_GET['last_commented'] ?? self::$max_id;
