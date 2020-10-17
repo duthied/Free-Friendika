@@ -93,8 +93,8 @@ class Cron
 			DI::config()->set('system', 'last_cron_hourly', time());
 		}
 
-		// Daily cron calls
-		if (DI::config()->get('system', 'last_cron_daily', 0) + 86400 < time()) {
+		// Daily maintenance cron calls
+		if (Worker::isInMaintenanceWindow(true)) {
 
 			Worker::add(PRIORITY_LOW, 'UpdateContactBirthdays');
 

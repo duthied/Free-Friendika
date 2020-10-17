@@ -22,6 +22,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
@@ -63,6 +64,11 @@ class ExpirePosts
 
 				$rows = DBA::affectedRows();
 				Logger::notice('Deleted expired threads', ['result' => $ret, 'rows' => $rows]);
+
+				if (!Worker::isInMaintenanceWindow()) {
+					Logger::notice('We are outside of the maintenance window, quitting');
+					return;
+				}
 			} while ($rows >= $limit);
 		}
 
@@ -80,6 +86,11 @@ class ExpirePosts
 
 				$rows = DBA::affectedRows();
 				Logger::notice('Deleted unclaimed public items', ['result' => $ret, 'rows' => $rows]);
+
+				if (!Worker::isInMaintenanceWindow()) {
+					Logger::notice('We are outside of the maintenance window, quitting');
+					return;
+				}
 			} while ($rows >= $limit);
 		}
 	}

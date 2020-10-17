@@ -1394,4 +1394,48 @@ class Worker
 
 		return (bool)$row['jobs'];
 	}
+
+	/**
+	 * Check if the system is inside the defined maintenance window
+	 *
+	 * @return boolean
+	 */
+	public static function isInMaintenanceWindow(bool $check_last_execution = false)
+	{
+		// Calculate the seconds of the start end end of the maintenance window
+		$start = strtotime(DI::config()->get('system', 'maintenance_start')) % 86400;
+		$end = strtotime(DI::config()->get('system', 'maintenance_end')) % 86400;
+
+		Logger::info('Maintenance window', ['start' => date('H:i:s', $start), 'end' => date('H:i:s', $end)]);
+
+		if ($check_last_execution) {
+			// Calculate the window duration
+			$duration = max($start, $end) - min($start, $end);
+
+			// Quit when the last cron execution had been after the previous window
+			$last_cron = DI::config()->get('system', 'last_cron_daily');
+			if ($last_cron + $duration > time()) {
+				Logger::info('The Daily cron had been executed recently', ['last' => date(DateTimeFormat::MYSQL, $last_cron), 'start' => date('H:i:s', $start), 'end' => date('H:i:s', $end)]);
+				return false;
+			}
+		}
+
+		$current = time() % 86400;
+
+		if ($start < $end) {
+			// Execute if we are inside the window
+			$execute = ($current >= $start) && ($current <= $end);
+		} else {
+			// Don't execute if we are outside the window
+			$execute = !(($current > $end) && ($current < $start));
+		}
+
+		if (!$execute) {
+			Logger::info('We are outside the maintenance window', ['current' => date('H:i:s', $current), 'start' => date('H:i:s', $start), 'end' => date('H:i:s', $end)]);
+		} else {
+			Logger::info('We are inside the maintenance window', ['current' => date('H:i:s', $current), 'start' => date('H:i:s', $start), 'end' => date('H:i:s', $end)]);
+		}
+		
+		return $execute;
+	}
 }
