@@ -11,6 +11,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -282,7 +283,7 @@ class Network extends BaseModule
 
 		self::$forumContactId = $parameters['contact_id'] ?? 0;
 
-		self::$selectedTab = '';
+		self::$selectedTab = Session::get('network-tab', '');
 
 		if (!empty($get['star'])) {
 			self::$selectedTab = 'star';
@@ -296,9 +297,16 @@ class Network extends BaseModule
 			self::$selectedTab = $get['order'];
 		}
 
+		Session::set('network-tab', self::$selectedTab);
+
 		self::$star    = intval($get['star'] ?? 0);
 		self::$mention = intval($_GET['mention'] ?? 0);
-		self::$order   = $get['order'] ?? 'commented';
+		self::$order   = $get['order'] ?? Session::get('network-order', 'commented');
+
+		self::$selectedTab = self::$selectedTab ?? self::$order;
+
+		Session::set('network-tab', self::$selectedTab);
+		Session::set('network-order', self::$order);
 
 		self::$accountTypeString = $_GET['accounttype'] ?? $parameters['accounttype'] ?? '';
 		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
