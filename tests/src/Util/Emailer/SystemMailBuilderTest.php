@@ -70,7 +70,7 @@ class SystemMailBuilderTest extends MockedTest
 	{
 		$builder = new SystemMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger(), 'moreply@friendica.local', 'FriendicaSite');
 
-		$this->assertInstanceOf(MailBuilder::class, $builder);
-		$this->assertInstanceOf(SystemMailBuilder::class, $builder);
+		self::assertInstanceOf(MailBuilder::class, $builder);
+		self::assertInstanceOf(SystemMailBuilder::class, $builder);
 	}
 }

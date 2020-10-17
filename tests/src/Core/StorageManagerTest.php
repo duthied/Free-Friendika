@@ -87,7 +87,7 @@ class StorageManagerTest extends DatabaseTest
 	{
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
-		$this->assertInstanceOf(StorageManager::class, $storageManager);
+		self::assertInstanceOf(StorageManager::class, $storageManager);
 	}
 
 	public function dataStorages()
@@ -172,12 +172,12 @@ class StorageManagerTest extends DatabaseTest
 		$storage = $storageManager->getByName($name, $userBackend);
 
 		if (!empty($assert)) {
-			$this->assertInstanceOf(Storage\IStorage::class, $storage);
-			$this->assertInstanceOf($assert, $storage);
+			self::assertInstanceOf(Storage\IStorage::class, $storage);
+			self::assertInstanceOf($assert, $storage);
 		} else {
-			$this->assertNull($storage);
+			self::assertNull($storage);
 		}
-		$this->assertEquals($assertName, $storage);
+		self::assertEquals($assertName, $storage);
 	}
 
 	/**
@@ -190,10 +190,10 @@ class StorageManagerTest extends DatabaseTest
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
 		// true in every of the backends
-		$this->assertEquals(!empty($assertName), $storageManager->isValidBackend($name));
+		self::assertEquals(!empty($assertName), $storageManager->isValidBackend($name));
 
 		// if userBackend is set to true, filter out e.g. SystemRessource
-		$this->assertEquals($userBackend, $storageManager->isValidBackend($name, true));
+		self::assertEquals($userBackend, $storageManager->isValidBackend($name, true));
 	}
 
 	/**
@@ -203,7 +203,7 @@ class StorageManagerTest extends DatabaseTest
 	{
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
-		$this->assertEquals(StorageManager::DEFAULT_BACKENDS, $storageManager->listBackends());
+		self::assertEquals(StorageManager::DEFAULT_BACKENDS, $storageManager->listBackends());
 	}
 
 	/**
@@ -215,12 +215,12 @@ class StorageManagerTest extends DatabaseTest
 	{
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
-		$this->assertNull($storageManager->getBackend());
+		self::assertNull($storageManager->getBackend());
 
 		if ($userBackend) {
 			$storageManager->setBackend($name);
 
-			$this->assertInstanceOf($assert, $storageManager->getBackend());
+			self::assertInstanceOf($assert, $storageManager->getBackend());
 		}
 	}
 
@@ -237,9 +237,9 @@ class StorageManagerTest extends DatabaseTest
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
 		if ($userBackend) {
-			$this->assertInstanceOf($assert, $storageManager->getBackend());
+			self::assertInstanceOf($assert, $storageManager->getBackend());
 		} else {
-			$this->assertNull($storageManager->getBackend());
+			self::assertNull($storageManager->getBackend());
 		}
 	}
 
@@ -261,12 +261,12 @@ class StorageManagerTest extends DatabaseTest
 
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
-		$this->assertTrue($storageManager->register(SampleStorageBackend::class));
+		self::assertTrue($storageManager->register(SampleStorageBackend::class));
 
-		$this->assertEquals(array_merge(StorageManager::DEFAULT_BACKENDS, [
+		self::assertEquals(array_merge(StorageManager::DEFAULT_BACKENDS, [
 			SampleStorageBackend::getName() => SampleStorageBackend::class,
 		]), $storageManager->listBackends());
-		$this->assertEquals(array_merge(StorageManager::DEFAULT_BACKENDS, [
+		self::assertEquals(array_merge(StorageManager::DEFAULT_BACKENDS, [
 			SampleStorageBackend::getName() => SampleStorageBackend::class,
 		]), $this->config->get('storage', 'backends'));
 
@@ -274,17 +274,17 @@ class StorageManagerTest extends DatabaseTest
 		SampleStorageBackend::registerHook();
 		Hook::loadHooks();
 
-		$this->assertTrue($storageManager->setBackend(SampleStorageBackend::NAME));
-		$this->assertEquals(SampleStorageBackend::NAME, $this->config->get('storage', 'name'));
+		self::assertTrue($storageManager->setBackend(SampleStorageBackend::NAME));
+		self::assertEquals(SampleStorageBackend::NAME, $this->config->get('storage', 'name'));
 
-		$this->assertInstanceOf(SampleStorageBackend::class, $storageManager->getBackend());
+		self::assertInstanceOf(SampleStorageBackend::class, $storageManager->getBackend());
 
-		$this->assertTrue($storageManager->unregister(SampleStorageBackend::class));
-		$this->assertEquals(StorageManager::DEFAULT_BACKENDS, $this->config->get('storage', 'backends'));
-		$this->assertEquals(StorageManager::DEFAULT_BACKENDS, $storageManager->listBackends());
+		self::assertTrue($storageManager->unregister(SampleStorageBackend::class));
+		self::assertEquals(StorageManager::DEFAULT_BACKENDS, $this->config->get('storage', 'backends'));
+		self::assertEquals(StorageManager::DEFAULT_BACKENDS, $storageManager->listBackends());
 
-		$this->assertNull($storageManager->getBackend());
-		$this->assertNull($this->config->get('storage', 'name'));
+		self::assertNull($storageManager->getBackend());
+		self::assertNull($this->config->get('storage', 'name'));
 	}
 
 	/**
@@ -308,12 +308,12 @@ class StorageManagerTest extends DatabaseTest
 
 		while ($photo = $this->dba->fetch($photos)) {
 
-			$this->assertEmpty($photo['data']);
+			self::assertEmpty($photo['data']);
 
 			$storage = $storageManager->getByName($photo['backend-class']);
 			$data = $storage->get($photo['backend-ref']);
 
-			$this->assertNotEmpty($data);
+			self::assertNotEmpty($data);
 		}
 	}
 

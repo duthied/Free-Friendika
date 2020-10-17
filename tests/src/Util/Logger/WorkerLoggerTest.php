@@ -29,7 +29,7 @@ class WorkerLoggerTest extends MockedTest
 {
 	private function assertUid($uid, $length = 7)
 	{
-		$this->assertRegExp('/^[a-zA-Z0-9]{' . $length . '}+$/', $uid);
+		self::assertRegExp('/^[a-zA-Z0-9]{' . $length . '}+$/', $uid);
 	}
 
 	/**
@@ -51,7 +51,7 @@ class WorkerLoggerTest extends MockedTest
 		for ($i = 1; $i < 14; $i++) {
 			$workLogger = new WorkerLogger($logger, 'test', $i);
 			$uid = $workLogger->getWorkerId();
-			$this->assertUid($uid, $i);
+			self::assertUid($uid, $i);
 		}
 	}
 
@@ -107,7 +107,7 @@ class WorkerLoggerTest extends MockedTest
 		$testContext = $context;
 		$testContext['worker_id'] = $workLogger->getWorkerId();
 		$testContext['worker_cmd'] = 'test';
-		$this->assertUid($testContext['worker_id']);
+		self::assertUid($testContext['worker_id']);
 		$logger
 			->shouldReceive($func)
 			->with($msg, $testContext)
@@ -125,7 +125,7 @@ class WorkerLoggerTest extends MockedTest
 		$context = $testContext = ['test' => 'it'];
 		$testContext['worker_id'] = $workLogger->getWorkerId();
 		$testContext['worker_cmd'] = 'test';
-		$this->assertUid($testContext['worker_id']);
+		self::assertUid($testContext['worker_id']);
 		$logger
 			->shouldReceive('log')
 			->with('debug', 'a test', $testContext)

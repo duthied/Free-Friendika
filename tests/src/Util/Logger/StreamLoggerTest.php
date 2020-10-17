@@ -92,7 +92,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 		$text = $logfile->getContent();
 
-		$this->assertLogline($text);
+		self::assertLogline($text);
 	}
 
 	/**
@@ -111,7 +111,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 		$text = $logfile->getContent();
 
-		$this->assertLoglineNums(2, $text);
+		self::assertLoglineNums(2, $text);
 	}
 
 	/**

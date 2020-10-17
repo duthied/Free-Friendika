@@ -69,7 +69,7 @@ class ServerBlockConsoleTest extends ConsoleTest
 
 CONS;
 
-		$this->assertEquals($output, $txt);
+		self::assertEquals($output, $txt);
 	}
 
 	/**
@@ -101,7 +101,7 @@ CONS;
 		$console->setArgument(2, 'I like it!');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'I like it!\')' . PHP_EOL, $txt);
+		self::assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'I like it!\')' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -132,7 +132,7 @@ CONS;
 		$console->setArgument(1, 'testme.now');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'' . ServerBlock::DEFAULT_REASON . '\')' . PHP_EOL, $txt);
+		self::assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'' . ServerBlock::DEFAULT_REASON . '\')' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -169,7 +169,7 @@ CONS;
 		$console->setArgument(2, 'Other reason');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'pod.ordoevangelistarum.com\' is now updated. (Reason: \'Other reason\')' . PHP_EOL, $txt);
+		self::assertEquals('The domain \'pod.ordoevangelistarum.com\' is now updated. (Reason: \'Other reason\')' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -201,7 +201,7 @@ CONS;
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'pod.ordoevangelistarum.com\' is not more blocked' . PHP_EOL, $txt);
+		self::assertEquals('The domain \'pod.ordoevangelistarum.com\' is not more blocked' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -213,7 +213,7 @@ CONS;
 		$console->setArgument(0, 'wrongcommand');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertStringStartsWith('[Warning] Unknown command', $txt);
+		self::assertStringStartsWith('[Warning] Unknown command', $txt);
 	}
 
 	/**
@@ -232,7 +232,7 @@ CONS;
 		$console->setArgument(1, 'not.exiting');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'not.exiting\' is not blocked.' . PHP_EOL, $txt);
+		self::assertEquals('The domain \'not.exiting\' is not blocked.' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -244,7 +244,7 @@ CONS;
 		$console->setArgument(0, 'add');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertStringStartsWith('[Warning] Add needs a domain and optional a reason.', $txt);
+		self::assertStringStartsWith('[Warning] Add needs a domain and optional a reason.', $txt);
 	}
 
 	/**
@@ -275,7 +275,7 @@ CONS;
 		$console->setArgument(1, 'testme.now');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('Couldn\'t save \'testme.now\' as blocked server' . PHP_EOL, $txt);
+		self::assertEquals('Couldn\'t save \'testme.now\' as blocked server' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -307,7 +307,7 @@ CONS;
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('Couldn\'t remove \'pod.ordoevangelistarum.com\' from blocked servers' . PHP_EOL, $txt);
+		self::assertEquals('Couldn\'t remove \'pod.ordoevangelistarum.com\' from blocked servers' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -319,7 +319,7 @@ CONS;
 		$console->setArgument(0, 'remove');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertStringStartsWith('[Warning] Remove needs a second parameter.', $txt);
+		self::assertStringStartsWith('[Warning] Remove needs a second parameter.', $txt);
 	}
 
 	/**
@@ -357,6 +357,6 @@ Options
 
 HELP;
 
-		$this->assertEquals($help, $txt);
+		self::assertEquals($help, $txt);
 	}
 }

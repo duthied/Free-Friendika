@@ -49,9 +49,9 @@ abstract class ConfigTest extends MockedTest
 	{
 		$result = $this->testedConfig->getCache()->getAll();
 
-		$this->assertNotEmpty($result);
-		$this->assertArrayHasKey($cat, $result);
-		$this->assertArraySubset($data, $result[$cat]);
+		self::assertNotEmpty($result);
+		self::assertArrayHasKey($cat, $result);
+		self::assertArraySubset($data, $result[$cat]);
 	}
 
 
@@ -161,10 +161,10 @@ abstract class ConfigTest extends MockedTest
 		                  ->once();
 
 		$this->testedConfig = $this->getInstance();
-		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
 		// assert config is loaded everytime
-		$this->assertConfig('config', $data['config']);
+		self::assertConfig('config', $data['config']);
 	}
 
 	/**
@@ -173,7 +173,7 @@ abstract class ConfigTest extends MockedTest
 	public function testLoad(array $data, array $possibleCats, array $load)
 	{
 		$this->testedConfig = $this->getInstance();
-		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
 		foreach ($load as $loadedCats) {
 			$this->testedConfig->load($loadedCats);
@@ -181,7 +181,7 @@ abstract class ConfigTest extends MockedTest
 
 		// Assert at least loaded cats are loaded
 		foreach ($load as $loadedCats) {
-			$this->assertConfig($loadedCats, $data[$loadedCats]);
+			self::assertConfig($loadedCats, $data[$loadedCats]);
 		}
 	}
 
@@ -254,7 +254,7 @@ abstract class ConfigTest extends MockedTest
 	public function testCacheLoadDouble(array $data1, array $data2, array $expect)
 	{
 		$this->testedConfig = $this->getInstance();
-		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
 		foreach ($data1 as $cat => $data) {
 			$this->testedConfig->load($cat);
@@ -262,7 +262,7 @@ abstract class ConfigTest extends MockedTest
 
 		// Assert at least loaded cats are loaded
 		foreach ($data1 as $cat => $data) {
-			$this->assertConfig($cat, $data);
+			self::assertConfig($cat, $data);
 		}
 
 		foreach ($data2 as $cat => $data) {
@@ -279,9 +279,9 @@ abstract class ConfigTest extends MockedTest
 		$this->configModel->shouldReceive('load')->withAnyArgs()->andReturn([])->once();
 
 		$this->testedConfig = $this->getInstance();
-		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
-		$this->assertEmpty($this->testedConfig->getCache()->getAll());
+		self::assertEmpty($this->testedConfig->getCache()->getAll());
 	}
 
 	/**
@@ -296,12 +296,12 @@ abstract class ConfigTest extends MockedTest
 		                  ->times(3);
 
 		$this->testedConfig = $this->getInstance();
-		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
-		$this->assertTrue($this->testedConfig->set('test', 'it', $data));
+		self::assertTrue($this->testedConfig->set('test', 'it', $data));
 
-		$this->assertEquals($data, $this->testedConfig->get('test', 'it'));
-		$this->assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
+		self::assertEquals($data, $this->testedConfig->get('test', 'it'));
+		self::assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
 	}
 
 	/**
@@ -314,12 +314,12 @@ abstract class ConfigTest extends MockedTest
 		$this->configModel->shouldReceive('set')->with('test', 'it', $data)->andReturn(true)->once();
 
 		$this->testedConfig = $this->getInstance();
-		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
-		$this->assertTrue($this->testedConfig->set('test', 'it', $data));
+		self::assertTrue($this->testedConfig->set('test', 'it', $data));
 
-		$this->assertEquals($data, $this->testedConfig->get('test', 'it'));
-		$this->assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
+		self::assertEquals($data, $this->testedConfig->get('test', 'it'));
+		self::assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
 	}
 
 	/**
@@ -328,19 +328,19 @@ abstract class ConfigTest extends MockedTest
 	public function testGetWrongWithoutDB()
 	{
 		$this->testedConfig = $this->getInstance();
-		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
 		// without refresh
-		$this->assertNull($this->testedConfig->get('test', 'it'));
+		self::assertNull($this->testedConfig->get('test', 'it'));
 
 		/// beware that the cache returns '!<unset>!' and not null for a non existing value
-		$this->assertNull($this->testedConfig->getCache()->get('test', 'it'));
+		self::assertNull($this->testedConfig->getCache()->get('test', 'it'));
 
 		// with default value
-		$this->assertEquals('default', $this->testedConfig->get('test', 'it', 'default'));
+		self::assertEquals('default', $this->testedConfig->get('test', 'it', 'default'));
 
 		// with default value and refresh
-		$this->assertEquals('default', $this->testedConfig->get('test', 'it', 'default', true));
+		self::assertEquals('default', $this->testedConfig->get('test', 'it', 'default', true));
 	}
 
 	/**
@@ -353,19 +353,19 @@ abstract class ConfigTest extends MockedTest
 		$this->configCache->load(['test' => ['it' => 'now']], Cache::SOURCE_FILE);
 
 		$this->testedConfig = $this->getInstance();
-		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
 		// without refresh
-		$this->assertEquals('now', $this->testedConfig->get('test', 'it'));
-		$this->assertEquals('now', $this->testedConfig->getCache()->get('test', 'it'));
+		self::assertEquals('now', $this->testedConfig->get('test', 'it'));
+		self::assertEquals('now', $this->testedConfig->getCache()->get('test', 'it'));
 
 		// with refresh
-		$this->assertEquals($data, $this->testedConfig->get('test', 'it', null, true));
-		$this->assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
+		self::assertEquals($data, $this->testedConfig->get('test', 'it', null, true));
+		self::assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
 
 		// without refresh and wrong value and default
-		$this->assertEquals('default', $this->testedConfig->get('test', 'not', 'default'));
-		$this->assertNull($this->testedConfig->getCache()->get('test', 'not'));
+		self::assertEquals('default', $this->testedConfig->get('test', 'not', 'default'));
+		self::assertNull($this->testedConfig->getCache()->get('test', 'not'));
 	}
 
 	/**
@@ -378,16 +378,16 @@ abstract class ConfigTest extends MockedTest
 		$this->configCache->load(['test' => ['it' => $data]], Cache::SOURCE_FILE);
 
 		$this->testedConfig = $this->getInstance();
-		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
-		$this->assertEquals($data, $this->testedConfig->get('test', 'it'));
-		$this->assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
+		self::assertEquals($data, $this->testedConfig->get('test', 'it'));
+		self::assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
 
-		$this->assertTrue($this->testedConfig->delete('test', 'it'));
-		$this->assertNull($this->testedConfig->get('test', 'it'));
-		$this->assertNull($this->testedConfig->getCache()->get('test', 'it'));
+		self::assertTrue($this->testedConfig->delete('test', 'it'));
+		self::assertNull($this->testedConfig->get('test', 'it'));
+		self::assertNull($this->testedConfig->getCache()->get('test', 'it'));
 
-		$this->assertEmpty($this->testedConfig->getCache()->getAll());
+		self::assertEmpty($this->testedConfig->getCache()->getAll());
 	}
 
 	/**
@@ -415,23 +415,23 @@ abstract class ConfigTest extends MockedTest
 		                  ->once();
 
 		$this->testedConfig = $this->getInstance();
-		$this->assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
 
 		// directly set the value to the cache
 		$this->testedConfig->getCache()->set('test', 'it', 'now');
 
-		$this->assertEquals('now', $this->testedConfig->get('test', 'it'));
-		$this->assertEquals('now', $this->testedConfig->getCache()->get('test', 'it'));
+		self::assertEquals('now', $this->testedConfig->get('test', 'it'));
+		self::assertEquals('now', $this->testedConfig->getCache()->get('test', 'it'));
 
 		// delete from cache only
-		$this->assertTrue($this->testedConfig->delete('test', 'it'));
+		self::assertTrue($this->testedConfig->delete('test', 'it'));
 		// delete from db only
-		$this->assertTrue($this->testedConfig->delete('test', 'second'));
+		self::assertTrue($this->testedConfig->delete('test', 'second'));
 		// no delete
-		$this->assertFalse($this->testedConfig->delete('test', 'third'));
+		self::assertFalse($this->testedConfig->delete('test', 'third'));
 		// delete both
-		$this->assertTrue($this->testedConfig->delete('test', 'quarter'));
+		self::assertTrue($this->testedConfig->delete('test', 'quarter'));
 
-		$this->assertEmpty($this->testedConfig->getCache()->getAll());
+		self::assertEmpty($this->testedConfig->getCache()->getAll());
 	}
 }

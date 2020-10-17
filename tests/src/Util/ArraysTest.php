@@ -35,7 +35,7 @@ class ArraysTest extends TestCase
 	public function testEmptyArrayEmptyDelimiter()
 	{
 		$str = Arrays::recursiveImplode([], '');
-		$this->assertEmpty($str);
+		self::assertEmpty($str);
 	}
 
 	/**
@@ -44,7 +44,7 @@ class ArraysTest extends TestCase
 	public function testEmptyArrayNonEmptyDelimiter()
 	{
 		$str = Arrays::recursiveImplode([], ',');
-		$this->assertEmpty($str);
+		self::assertEmpty($str);
 	}
 
 	/**
@@ -53,7 +53,7 @@ class ArraysTest extends TestCase
 	public function testNonEmptyArrayEmptyDelimiter()
 	{
 		$str = Arrays::recursiveImplode([1], '');
-		$this->assertSame($str, '1');
+		self::assertSame($str, '1');
 	}
 
 	/**
@@ -62,7 +62,7 @@ class ArraysTest extends TestCase
 	public function testNonEmptyArray2EmptyDelimiter()
 	{
 		$str = Arrays::recursiveImplode([1, 2], '');
-		$this->assertSame($str, '12');
+		self::assertSame($str, '12');
 	}
 
 	/**
@@ -71,7 +71,7 @@ class ArraysTest extends TestCase
 	public function testNonEmptyArrayNonEmptyDelimiter()
 	{
 		$str = Arrays::recursiveImplode([1], ',');
-		$this->assertSame($str, '1');
+		self::assertSame($str, '1');
 	}
 
 	/**
@@ -80,7 +80,7 @@ class ArraysTest extends TestCase
 	public function testNonEmptyArray2NonEmptyDelimiter()
 	{
 		$str = Arrays::recursiveImplode([1, 2], ',');
-		$this->assertSame($str, '1,2');
+		self::assertSame($str, '1,2');
 	}
 
 	/**
@@ -89,7 +89,7 @@ class ArraysTest extends TestCase
 	public function testEmptyMultiArray2EmptyDelimiter()
 	{
 		$str = Arrays::recursiveImplode([[1], []], '');
-		$this->assertSame($str, '{1}{}');
+		self::assertSame($str, '{1}{}');
 	}
 
 	/**
@@ -98,7 +98,7 @@ class ArraysTest extends TestCase
 	public function testEmptyMulti2Array2EmptyDelimiter()
 	{
 		$str = Arrays::recursiveImplode([[1], [2]], '');
-		$this->assertSame($str, '{1}{2}');
+		self::assertSame($str, '{1}{2}');
 	}
 
 	/**
@@ -107,7 +107,7 @@ class ArraysTest extends TestCase
 	public function testEmptyMultiArray2NonEmptyDelimiter()
 	{
 		$str = Arrays::recursiveImplode([[1], []], ',');
-		$this->assertSame($str, '{1},{}');
+		self::assertSame($str, '{1},{}');
 	}
 
 	/**
@@ -116,7 +116,7 @@ class ArraysTest extends TestCase
 	public function testEmptyMulti2Array2NonEmptyDelimiter()
 	{
 		$str = Arrays::recursiveImplode([[1], [2]], ',');
-		$this->assertSame($str, '{1},{2}');
+		self::assertSame($str, '{1},{2}');
 	}
 
 	/**
@@ -125,6 +125,6 @@ class ArraysTest extends TestCase
 	public function testEmptyMulti3Array2NonEmptyDelimiter()
 	{
 		$str = Arrays::recursiveImplode([[1], [2, [3]]], ',');
-		$this->assertSame($str, '{1},{2,{3}}');
+		self::assertSame($str, '{1},{2,{3}}');
 	}
 }

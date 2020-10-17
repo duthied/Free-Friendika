@@ -85,7 +85,7 @@ class ProbeTest extends TestCase
 
 				$feedLink = Probe::getFeedLink($url, $body);
 
-				$this->assertEquals($expected, $feedLink, 'base url = ' . $url . ' | href = ' . $href);
+				self::assertEquals($expected, $feedLink, 'base url = ' . $url . ' | href = ' . $href);
 			}
 		}
 	}
@@ -101,7 +101,7 @@ class ProbeTest extends TestCase
 
 				$feedLink = Probe::getFeedLink('http://example.com', $body);
 
-				$this->assertEquals($expected, $feedLink, 'base url = ' . $url . ' | href = ' . $href);
+				self::assertEquals($expected, $feedLink, 'base url = ' . $url . ' | href = ' . $href);
 			}
 		}
 	}

@@ -51,7 +51,7 @@ class CacheTest extends MockedTest
 	{
 		foreach ($data as $cat => $values) {
 			foreach ($values as $key => $value) {
-				$this->assertEquals($data[$cat][$key], $configCache->get($uid, $cat, $key));
+				self::assertEquals($data[$cat][$key], $configCache->get($uid, $cat, $key));
 			}
 		}
 	}
@@ -72,7 +72,7 @@ class CacheTest extends MockedTest
 			}
 		}
 
-		$this->assertConfigValues($data, $configCache, $uid);
+		self::assertConfigValues($data, $configCache, $uid);
 	}
 
 
@@ -94,13 +94,13 @@ class CacheTest extends MockedTest
 			],
 		]);
 
-		$this->assertEquals([
+		self::assertEquals([
 			'key1' => 'value1',
 			'key2' => 'value2',
 		], $configCache->get($uid, 'system'));
 
 		// test explicit cat with null as key
-		$this->assertEquals([
+		self::assertEquals([
 			'key1' => 'value1',
 			'key2' => 'value2',
 		], $configCache->get($uid, 'system', null));
@@ -128,7 +128,7 @@ class CacheTest extends MockedTest
 			}
 		}
 
-		$this->assertEmpty($configCache->getAll());
+		self::assertEmpty($configCache->getAll());
 	}
 
 	/**
@@ -146,7 +146,7 @@ class CacheTest extends MockedTest
 			]
 		];
 
-		$this->assertEquals($diffConfig, $configCache->keyDiff($diffConfig));
+		self::assertEquals($diffConfig, $configCache->keyDiff($diffConfig));
 	}
 
 	/**
@@ -162,7 +162,7 @@ class CacheTest extends MockedTest
 
 		$diffConfig = $configCache->getAll();
 
-		$this->assertEmpty($configCache->keyDiff($diffConfig));
+		self::assertEmpty($configCache->keyDiff($diffConfig));
 	}
 
 	/**
@@ -179,9 +179,9 @@ class CacheTest extends MockedTest
 			]
 		]);
 
-		$this->assertEquals('supersecure', $configCache->get(1, 'database', 'password'));
-		$this->assertNotEquals('supersecure', print_r($configCache->get(1, 'database', 'password'), true));
-		$this->assertEquals('notsecured', print_r($configCache->get(1, 'database', 'username'), true));
+		self::assertEquals('supersecure', $configCache->get(1, 'database', 'password'));
+		self::assertNotEquals('supersecure', print_r($configCache->get(1, 'database', 'password'), true));
+		self::assertEquals('notsecured', print_r($configCache->get(1, 'database', 'username'), true));
 	}
 
 	/**
@@ -198,9 +198,9 @@ class CacheTest extends MockedTest
 			]
 		]);
 
-		$this->assertEquals('supersecure', $configCache->get(1, 'database', 'password'));
-		$this->assertEquals('supersecure', print_r($configCache->get(1, 'database', 'password'), true));
-		$this->assertEquals('notsecured', print_r($configCache->get(1, 'database', 'username'), true));
+		self::assertEquals('supersecure', $configCache->get(1, 'database', 'password'));
+		self::assertEquals('supersecure', print_r($configCache->get(1, 'database', 'password'), true));
+		self::assertEquals('notsecured', print_r($configCache->get(1, 'database', 'username'), true));
 	}
 
 	/**
@@ -217,8 +217,8 @@ class CacheTest extends MockedTest
 			]
 		]);
 
-		$this->assertEmpty($configCache->get(1, 'database', 'password'));
-		$this->assertEmpty($configCache->get(1, 'database', 'username'));
+		self::assertEmpty($configCache->get(1, 'database', 'password'));
+		self::assertEmpty($configCache->get(1, 'database', 'username'));
 	}
 
 	public function testWrongTypePassword()
@@ -232,8 +232,8 @@ class CacheTest extends MockedTest
 			]
 		]);
 
-		$this->assertNotEmpty($configCache->get(1, 'database', 'password'));
-		$this->assertEmpty($configCache->get(1, 'database', 'username'));
+		self::assertNotEmpty($configCache->get(1, 'database', 'password'));
+		self::assertEmpty($configCache->get(1, 'database', 'username'));
 
 		$configCache = new Cache();
 
@@ -244,8 +244,8 @@ class CacheTest extends MockedTest
 			],
 		]);
 
-		$this->assertEquals(23, $configCache->get(1, 'database', 'password'));
-		$this->assertEmpty($configCache->get(1, 'database', 'username'));
+		self::assertEquals(23, $configCache->get(1, 'database', 'password'));
+		self::assertEmpty($configCache->get(1, 'database', 'username'));
 	}
 
 	/**
@@ -268,11 +268,11 @@ class CacheTest extends MockedTest
 			],
 		]);
 
-		$this->assertEquals('value1', $configCache->get(1, 'cat1', 'key1'));
-		$this->assertEquals('value2', $configCache->get(2, 'cat2', 'key2'));
+		self::assertEquals('value1', $configCache->get(1, 'cat1', 'key1'));
+		self::assertEquals('value2', $configCache->get(2, 'cat2', 'key2'));
 
-		$this->assertNull($configCache->get(1, 'cat2', 'key2'));
-		$this->assertNull($configCache->get(2, 'cat1', 'key1'));
+		self::assertNull($configCache->get(1, 'cat2', 'key2'));
+		self::assertNull($configCache->get(2, 'cat1', 'key1'));
 	}
 
 	/**
@@ -286,9 +286,9 @@ class CacheTest extends MockedTest
 
 		$configCache = new Cache();
 
-		$this->assertNull($configCache->get($uid, 'cat1', 'cat2'));
+		self::assertNull($configCache->get($uid, 'cat1', 'cat2'));
 
-		$this->assertFalse($configCache->set($uid, 'cat1', 'key1', 'doesn\'t matter!'));
-		$this->assertFalse($configCache->delete($uid, 'cat1', 'key1'));
+		self::assertFalse($configCache->set($uid, 'cat1', 'key1', 'doesn\'t matter!'));
+		self::assertFalse($configCache->delete($uid, 'cat1', 'key1'));
 	}
 }

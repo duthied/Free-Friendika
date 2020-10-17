@@ -37,7 +37,7 @@ class StringsTest extends TestCase
 		$randomname1 = Strings::getRandomName(10);
 		$randomname2 = Strings::getRandomName(10);
 
-		$this->assertNotEquals($randomname1, $randomname2);
+		self::assertNotEquals($randomname1, $randomname2);
 	}
 
 	/**
@@ -48,7 +48,7 @@ class StringsTest extends TestCase
 		$randomname1 = Strings::getRandomName(9);
 		$randomname2 = Strings::getRandomName(9);
 
-		$this->assertNotEquals($randomname1, $randomname2);
+		self::assertNotEquals($randomname1, $randomname2);
 	}
 
 	/**
@@ -57,7 +57,7 @@ class StringsTest extends TestCase
 	public function testRandomNameNoLength()
 	{
 		$randomname1 = Strings::getRandomName(0);
-		$this->assertEquals(0, strlen($randomname1));
+		self::assertEquals(0, strlen($randomname1));
 	}
 
 	/**
@@ -68,7 +68,7 @@ class StringsTest extends TestCase
 	public function testRandomNameNegativeLength()
 	{
 		$randomname1 = Strings::getRandomName(-23);
-		$this->assertEquals(0, strlen($randomname1));
+		self::assertEquals(0, strlen($randomname1));
 	}
 
 	/**
@@ -77,10 +77,10 @@ class StringsTest extends TestCase
 	public function testRandomNameLength1()
 	{
 		$randomname1 = Strings::getRandomName(1);
-		$this->assertEquals(1, strlen($randomname1));
+		self::assertEquals(1, strlen($randomname1));
 
 		$randomname2 = Strings::getRandomName(1);
-		$this->assertEquals(1, strlen($randomname2));
+		self::assertEquals(1, strlen($randomname2));
 	}
 
 	/**
@@ -93,8 +93,8 @@ class StringsTest extends TestCase
 		$validstring = Strings::escapeTags($invalidstring);
 		$escapedString = Strings::escapeHtml($invalidstring);
 
-		$this->assertEquals('[submit type="button" onclick="alert(\'failed!\');" /]', $validstring);
-		$this->assertEquals(
+		self::assertEquals('[submit type="button" onclick="alert(\'failed!\');" /]', $validstring);
+		self::assertEquals(
 			"&lt;submit type=&quot;button&quot; onclick=&quot;alert('failed!');&quot; /&gt;",
 			$escapedString
 		);
@@ -132,7 +132,7 @@ class StringsTest extends TestCase
 	 */
 	public function testIsHex($input, $valid)
 	{
-		$this->assertEquals($valid, Strings::isHex($input));
+		self::assertEquals($valid, Strings::isHex($input));
 	}
 
 	/**
@@ -142,13 +142,13 @@ class StringsTest extends TestCase
 	public function testSubstringReplaceASCII()
 	{
 		for ($start = -10; $start <= 10; $start += 5) {
-			$this->assertEquals(
+			self::assertEquals(
 				substr_replace('string', 'replacement', $start),
 				Strings::substringReplace('string', 'replacement', $start)
 			);
 
 			for ($length = -10; $length <= 10; $length += 5) {
-				$this->assertEquals(
+				self::assertEquals(
 					substr_replace('string', 'replacement', $start, $length),
 					Strings::substringReplace('string', 'replacement', $start, $length)
 				);
@@ -184,7 +184,7 @@ class StringsTest extends TestCase
 	 */
 	public function testSubstringReplaceMultiByte(string $expected, string $string, string $replacement, int $start, int $length = null)
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			$expected,
 			Strings::substringReplace(
 				$string,
@@ -203,7 +203,7 @@ class StringsTest extends TestCase
 			return $text;
 		});
 
-		$this->assertEquals($originalText, $text);
+		self::assertEquals($originalText, $text);
 	}
 
 	public function testPerformWithEscapedBlocksNested()
@@ -218,6 +218,6 @@ class StringsTest extends TestCase
 			return $text;
 		});
 
-		$this->assertEquals($originalText, $text);
+		self::assertEquals($originalText, $text);
 	}
 }

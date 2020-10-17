@@ -66,7 +66,7 @@ class FilesystemStorageTest extends StorageTest
 
 	protected function assertOption(IStorage $storage)
 	{
-		$this->assertEquals([
+		self::assertEquals([
 			'storagepath' => [
 				'input', 'Storage base path',
 				$this->root->getChild('storage')->url(),
@@ -119,12 +119,12 @@ class FilesystemStorageTest extends StorageTest
 		$dir = $this->root->getChild('storage/f0/c0')->url();
 		$file = $this->root->getChild('storage/f0/c0/d0i0')->url();
 
-		$this->assertDirectoryExists($dir);
-		$this->assertFileExists($file);
+		self::assertDirectoryExists($dir);
+		self::assertFileExists($file);
 
-		$this->assertDirectoryIsWritable($dir);
-		$this->assertFileIsWritable($file);
+		self::assertDirectoryIsWritable($dir);
+		self::assertFileIsWritable($file);
 
-		$this->assertEquals('test', file_get_contents($file));
+		self::assertEquals('test', file_get_contents($file));
 	}
 }

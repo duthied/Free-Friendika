@@ -19,7 +19,7 @@
  *
  */
 
-namespace functional;
+namespace Friendica\Test\functional;
 
 use Dice\Dice;
 use Friendica\App;
@@ -63,8 +63,8 @@ class dependencyCheck extends TestCase
 		/** @var BasePath $basePath */
 		$basePath = $this->dice->create(BasePath::class, [$this->root->url()]);
 
-		$this->assertInstanceOf(BasePath::class, $basePath);
-		$this->assertEquals($this->root->url(), $basePath->getPath());
+		self::assertInstanceOf(BasePath::class, $basePath);
+		self::assertEquals($this->root->url(), $basePath->getPath());
 	}
 
 	/**
@@ -76,14 +76,14 @@ class dependencyCheck extends TestCase
 		/** @var ConfigFileLoader $configFileLoader */
 		$configFileLoader = $this->dice->create(ConfigFileLoader::class);
 
-		$this->assertInstanceOf(ConfigFileLoader::class, $configFileLoader);
+		self::assertInstanceOf(ConfigFileLoader::class, $configFileLoader);
 
 		$configCache = new Cache();
 		$configFileLoader->setupCache($configCache);
 
-		$this->assertNotEmpty($configCache->getAll());
-		$this->assertArrayHasKey('database', $configCache->getAll());
-		$this->assertArrayHasKey('system', $configCache->getAll());
+		self::assertNotEmpty($configCache->getAll());
+		self::assertArrayHasKey('database', $configCache->getAll());
+		self::assertArrayHasKey('system', $configCache->getAll());
 	}
 
 	/**
@@ -94,7 +94,7 @@ class dependencyCheck extends TestCase
 		/** @var Profiler $profiler */
 		$profiler = $this->dice->create(Profiler::class);
 
-		$this->assertInstanceOf(Profiler::class, $profiler);
+		self::assertInstanceOf(Profiler::class, $profiler);
 
 		$configCache = new Cache([
 			'system' => [
@@ -109,8 +109,8 @@ class dependencyCheck extends TestCase
 		$this->dice = new Dice();
 		$profiler = $this->dice->create(Profiler::class, [$configCache]);
 
-		$this->assertInstanceOf(Profiler::class, $profiler);
-		$this->assertTrue($profiler->isRendertime());
+		self::assertInstanceOf(Profiler::class, $profiler);
+		self::assertTrue($profiler->isRendertime());
 	}
 
 	public function testDatabase()
@@ -118,8 +118,8 @@ class dependencyCheck extends TestCase
 		/** @var Database $database */
 		$database = $this->dice->create(Database::class);
 
-		$this->assertInstanceOf(Database::class, $database);
-		$this->assertTrue($database->connected());
+		self::assertInstanceOf(Database::class, $database);
+		self::assertTrue($database->connected());
 	}
 
 	public function testAppMode()
@@ -127,9 +127,9 @@ class dependencyCheck extends TestCase
 		/** @var App\Mode $mode */
 		$mode = $this->dice->create(App\Mode::class);
 
-		$this->assertInstanceOf(App\Mode::class, $mode);
+		self::assertInstanceOf(App\Mode::class, $mode);
 
-		$this->assertTrue($mode->isNormal());
+		self::assertTrue($mode->isNormal());
 	}
 
 	public function testConfiguration()
@@ -137,9 +137,9 @@ class dependencyCheck extends TestCase
 		/** @var IConfig $config */
 		$config = $this->dice->create(IConfig::class);
 
-		$this->assertInstanceOf(IConfig::class, $config);
+		self::assertInstanceOf(IConfig::class, $config);
 
-		$this->assertNotEmpty($config->get('database', 'username'));
+		self::assertNotEmpty($config->get('database', 'username'));
 	}
 
 	public function testLogger()
@@ -147,7 +147,7 @@ class dependencyCheck extends TestCase
 		/** @var LoggerInterface $logger */
 		$logger = $this->dice->create(LoggerInterface::class, ['test']);
 
-		$this->assertInstanceOf(LoggerInterface::class, $logger);
+		self::assertInstanceOf(LoggerInterface::class, $logger);
 	}
 
 	public function testDevLogger()
@@ -159,7 +159,7 @@ class dependencyCheck extends TestCase
 		/** @var LoggerInterface $logger */
 		$logger = $this->dice->create('$devLogger', ['dev']);
 
-		$this->assertInstanceOf(LoggerInterface::class, $logger);
+		self::assertInstanceOf(LoggerInterface::class, $logger);
 	}
 
 	public function testCache()
@@ -167,7 +167,7 @@ class dependencyCheck extends TestCase
 		/** @var ICache $cache */
 		$cache = $this->dice->create(ICache::class);
 
-		$this->assertInstanceOf(ICache::class, $cache);
+		self::assertInstanceOf(ICache::class, $cache);
 	}
 
 	public function testMemoryCache()
@@ -176,7 +176,7 @@ class dependencyCheck extends TestCase
 		$cache = $this->dice->create(IMemoryCache::class);
 
 		// We need to check "just" ICache, because the default Cache is DB-Cache, which isn't a memorycache
-		$this->assertInstanceOf(ICache::class, $cache);
+		self::assertInstanceOf(ICache::class, $cache);
 	}
 
 	public function testLock()
@@ -184,6 +184,6 @@ class dependencyCheck extends TestCase
 		/** @var ILock $cache */
 		$lock = $this->dice->create(ILock::class);
 
-		$this->assertInstanceOf(ILock::class, $lock);
+		self::assertInstanceOf(ILock::class, $lock);
 	}
 }

@@ -45,15 +45,15 @@ abstract class MemoryCacheTest extends CacheTest
 	 */
 	function testCompareSet($value1, $value2)
 	{
-		$this->assertNull($this->instance->get('value1'));
+		self::assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $value1);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value1, $received, 'Value received from cache not equal to the original');
+		self::assertEquals($value1, $received, 'Value received from cache not equal to the original');
 
 		$this->instance->compareSet('value1', $value1, $value2);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value2, $received, 'Value not overwritten by compareSet');
+		self::assertEquals($value2, $received, 'Value not overwritten by compareSet');
 	}
 
 	/**
@@ -62,16 +62,16 @@ abstract class MemoryCacheTest extends CacheTest
 	 */
 	function testNegativeCompareSet($value1, $value2)
 	{
-		$this->assertNull($this->instance->get('value1'));
+		self::assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $value1);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value1, $received, 'Value received from cache not equal to the original');
+		self::assertEquals($value1, $received, 'Value received from cache not equal to the original');
 
 		$this->instance->compareSet('value1', 'wrong', $value2);
 		$received = $this->instance->get('value1');
-		$this->assertNotEquals($value2, $received, 'Value was wrongly overwritten by compareSet');
-		$this->assertEquals($value1, $received, 'Value was wrongly overwritten by any other value');
+		self::assertNotEquals($value2, $received, 'Value was wrongly overwritten by compareSet');
+		self::assertEquals($value1, $received, 'Value was wrongly overwritten by any other value');
 	}
 
 	/**
@@ -80,13 +80,13 @@ abstract class MemoryCacheTest extends CacheTest
 	 */
 	function testCompareDelete($data)
 	{
-		$this->assertNull($this->instance->get('value1'));
+		self::assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $data);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($data, $received, 'Value received from cache not equal to the original');
+		self::assertEquals($data, $received, 'Value received from cache not equal to the original');
 		$this->instance->compareDelete('value1', $data);
-		$this->assertNull($this->instance->get('value1'), 'Value was not deleted by compareDelete');
+		self::assertNull($this->instance->get('value1'), 'Value was not deleted by compareDelete');
 	}
 
 	/**
@@ -95,16 +95,16 @@ abstract class MemoryCacheTest extends CacheTest
 	 */
 	function testNegativeCompareDelete($data)
 	{
-		$this->assertNull($this->instance->get('value1'));
+		self::assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $data);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($data, $received, 'Value received from cache not equal to the original');
+		self::assertEquals($data, $received, 'Value received from cache not equal to the original');
 		$this->instance->compareDelete('value1', 'wrong');
-		$this->assertNotNull($this->instance->get('value1'), 'Value was wrongly compareDeleted');
+		self::assertNotNull($this->instance->get('value1'), 'Value was wrongly compareDeleted');
 
 		$this->instance->compareDelete('value1', $data);
-		$this->assertNull($this->instance->get('value1'), 'Value was wrongly NOT deleted by compareDelete');
+		self::assertNull($this->instance->get('value1'), 'Value was wrongly NOT deleted by compareDelete');
 	}
 
 	/**
@@ -113,19 +113,19 @@ abstract class MemoryCacheTest extends CacheTest
 	 */
 	function testAdd($value1, $value2)
 	{
-		$this->assertNull($this->instance->get('value1'));
+		self::assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $value1);
 
 		$this->instance->add('value1', $value2);
 		$received = $this->instance->get('value1');
-		$this->assertNotEquals($value2, $received, 'Value was wrongly overwritten by add');
-		$this->assertEquals($value1, $received, 'Value was wrongly overwritten by any other value');
+		self::assertNotEquals($value2, $received, 'Value was wrongly overwritten by add');
+		self::assertEquals($value1, $received, 'Value was wrongly overwritten by any other value');
 
 		$this->instance->delete('value1');
 		$this->instance->add('value1', $value2);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value2, $received, 'Value was not overwritten by add');
-		$this->assertNotEquals($value1, $received, 'Value was not overwritten by any other value');
+		self::assertEquals($value2, $received, 'Value was not overwritten by add');
+		self::assertNotEquals($value1, $received, 'Value was not overwritten by any other value');
 	}
 }

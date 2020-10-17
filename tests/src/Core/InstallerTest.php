@@ -104,7 +104,7 @@ class InstallerTest extends MockedTest
 			'help' => $help]
 		];
 
-		$this->assertArraySubset($subSet, $assertionArray, false, "expected subset: " . PHP_EOL . print_r($subSet, true) . PHP_EOL . "current subset: " . print_r($assertionArray, true));
+		self::assertArraySubset($subSet, $assertionArray, false, "expected subset: " . PHP_EOL . print_r($subSet, true) . PHP_EOL . "current subset: " . print_r($assertionArray, true));
 	}
 
 	/**
@@ -152,11 +152,11 @@ class InstallerTest extends MockedTest
 
 		$this->setFunctions(['openssl_pkey_new' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkKeys());
+		self::assertFalse($install->checkKeys());
 
 		$this->setFunctions(['openssl_pkey_new' => true]);
 		$install = new Installer();
-		$this->assertTrue($install->checkKeys());
+		self::assertTrue($install->checkKeys());
 	}
 
 	/**
@@ -167,8 +167,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['curl_init' => false, 'imagecreatefromjpeg' => true]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(3,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(3,
 			'libCurl PHP module',
 			'Error: libCURL PHP module required but not installed.',
 			false,
@@ -178,8 +178,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['imagecreatefromjpeg' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(4,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(4,
 			'GD graphics PHP module',
 			'Error: GD graphics PHP module with JPEG support required but not installed.',
 			false,
@@ -189,8 +189,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['openssl_public_encrypt' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(5,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(5,
 			'OpenSSL PHP module',
 			'Error: openssl PHP module required but not installed.',
 			false,
@@ -200,8 +200,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['mb_strlen' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(6,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(6,
 			'mb_string PHP module',
 			'Error: mb_string PHP module required but not installed.',
 			false,
@@ -211,8 +211,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['iconv_strlen' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(7,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(7,
 			'iconv PHP module',
 			'Error: iconv PHP module required but not installed.',
 			false,
@@ -222,8 +222,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['posix_kill' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(8,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(8,
 			'POSIX PHP module',
 			'Error: POSIX PHP module required but not installed.',
 			false,
@@ -233,8 +233,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['json_encode' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(9,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(9,
 			'JSON PHP module',
 			'Error: JSON PHP module required but not installed.',
 			false,
@@ -244,8 +244,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['finfo_open' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(10,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(10,
 			'File Information PHP module',
 			'Error: File Information PHP module required but not installed.',
 			false,
@@ -264,7 +264,7 @@ class InstallerTest extends MockedTest
 			'finfo_open' => true,
 		]);
 		$install = new Installer();
-		$this->assertTrue($install->checkFunctions());
+		self::assertTrue($install->checkFunctions());
 	}
 
 	/**
@@ -274,17 +274,17 @@ class InstallerTest extends MockedTest
 	{
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
-		$this->assertTrue($this->root->hasChild('config/local.config.php'));
+		self::assertTrue($this->root->hasChild('config/local.config.php'));
 
 		$install = new Installer();
-		$this->assertTrue($install->checkLocalIni());
+		self::assertTrue($install->checkLocalIni());
 
 		$this->delConfigFile('local.config.php');
 
-		$this->assertFalse($this->root->hasChild('config/local.config.php'));
+		self::assertFalse($this->root->hasChild('config/local.config.php'));
 
 		$install = new Installer();
-		$this->assertTrue($install->checkLocalIni());
+		self::assertTrue($install->checkLocalIni());
 	}
 
 	/**
@@ -330,8 +330,8 @@ class InstallerTest extends MockedTest
 
 		$install = new Installer();
 
-		$this->assertFalse($install->checkHtAccess('https://test'));
-		$this->assertSame('test Error', $install->getChecks()[0]['error_msg']['msg']);
+		self::assertFalse($install->checkHtAccess('https://test'));
+		self::assertSame('test Error', $install->getChecks()[0]['error_msg']['msg']);
 	}
 
 	/**
@@ -377,7 +377,7 @@ class InstallerTest extends MockedTest
 
 		$install = new Installer();
 
-		$this->assertTrue($install->checkHtAccess('https://test'));
+		self::assertTrue($install->checkHtAccess('https://test'));
 	}
 
 	/**
@@ -396,9 +396,9 @@ class InstallerTest extends MockedTest
 		$install = new Installer();
 
 		// even there is no supported type, Imagick should return true (because it is not required)
-		$this->assertTrue($install->checkImagick());
+		self::assertTrue($install->checkImagick());
 
-		$this->assertCheckExist(1,
+		self::assertCheckExist(1,
 			$this->l10nMock->t('ImageMagick supports GIF'),
 			'',
 			true,
@@ -422,8 +422,8 @@ class InstallerTest extends MockedTest
 		$install = new Installer();
 
 		// even there is no supported type, Imagick should return true (because it is not required)
-		$this->assertTrue($install->checkImagick());
-		$this->assertCheckExist(1,
+		self::assertTrue($install->checkImagick());
+		self::assertCheckExist(1,
 			$this->l10nMock->t('ImageMagick supports GIF'),
 			'',
 			false,
@@ -439,8 +439,8 @@ class InstallerTest extends MockedTest
 		$install = new Installer();
 
 		// even there is no supported type, Imagick should return true (because it is not required)
-		$this->assertTrue($install->checkImagick());
-		$this->assertCheckExist(0,
+		self::assertTrue($install->checkImagick());
+		self::assertCheckExist(0,
 			'ImageMagick PHP extension is not installed',
 			'',
 			false,

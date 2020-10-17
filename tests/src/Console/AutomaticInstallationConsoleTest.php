@@ -264,7 +264,7 @@ Installation is finished
 
 
 FIN;
-		$this->assertEquals($finished, $txt);
+		self::assertEquals($finished, $txt);
 	}
 
 	private function assertStuckDB($txt)
@@ -295,7 +295,7 @@ Could not connect to database.:
 
 FIN;
 
-		$this->assertEquals($finished, $txt);
+		self::assertEquals($finished, $txt);
 	}
 
 	private function assertStuckURL($txt)
@@ -319,7 +319,7 @@ The Friendica URL has to be set during CLI installation.
 
 FIN;
 
-		$this->assertEquals($finished, $txt);
+		self::assertEquals($finished, $txt);
 	}
 
 	/**
@@ -333,13 +333,13 @@ FIN;
 	public function assertConfigEntry($cat, $key, $assertion = null, $default_value = null)
 	{
 		if (!empty($assertion[$cat][$key])) {
-			$this->assertEquals($assertion[$cat][$key], $this->configCache->get($cat, $key));
+			self::assertEquals($assertion[$cat][$key], $this->configCache->get($cat, $key));
 		} elseif (!empty($assertion) && !is_array($assertion)) {
-			$this->assertEquals($assertion, $this->configCache->get($cat, $key));
+			self::assertEquals($assertion, $this->configCache->get($cat, $key));
 		} elseif (!empty($default_value)) {
-			$this->assertEquals($default_value, $this->configCache->get($cat, $key));
+			self::assertEquals($default_value, $this->configCache->get($cat, $key));
 		} else {
-			$this->assertEmpty($this->configCache->get($cat, $key), $this->configCache->get($cat, $key));
+			self::assertEmpty($this->configCache->get($cat, $key), $this->configCache->get($cat, $key));
 		}
 	}
 
@@ -358,21 +358,21 @@ FIN;
 			$assertion['database']['hostname'] .= (!empty($assertion['database']['port']) ? ':' . $assertion['database']['port'] : '');
 		}
 
-		$this->assertConfigEntry('database', 'hostname', ($saveDb) ? $assertion : null, (!$saveDb || $defaultDb) ? Installer::DEFAULT_HOST : null);
-		$this->assertConfigEntry('database', 'username', ($saveDb) ? $assertion : null);
-		$this->assertConfigEntry('database', 'password', ($saveDb) ? $assertion : null);
-		$this->assertConfigEntry('database', 'database', ($saveDb) ? $assertion : null);
+		self::assertConfigEntry('database', 'hostname', ($saveDb) ? $assertion : null, (!$saveDb || $defaultDb) ? Installer::DEFAULT_HOST : null);
+		self::assertConfigEntry('database', 'username', ($saveDb) ? $assertion : null);
+		self::assertConfigEntry('database', 'password', ($saveDb) ? $assertion : null);
+		self::assertConfigEntry('database', 'database', ($saveDb) ? $assertion : null);
 
-		$this->assertConfigEntry('config', 'admin_email', $assertion);
-		$this->assertConfigEntry('config', 'php_path', trim(shell_exec('which php')));
-		$this->assertConfigEntry('config', 'hostname', $assertion);
+		self::assertConfigEntry('config', 'admin_email', $assertion);
+		self::assertConfigEntry('config', 'php_path', trim(shell_exec('which php')));
+		self::assertConfigEntry('config', 'hostname', $assertion);
 
-		$this->assertConfigEntry('system', 'default_timezone', $assertion, ($default) ? Installer::DEFAULT_TZ : null);
-		$this->assertConfigEntry('system', 'language', $assertion, ($default) ? Installer::DEFAULT_LANG : null);
-		$this->assertConfigEntry('system', 'url', $assertion);
-		$this->assertConfigEntry('system', 'urlpath', $assertion);
-		$this->assertConfigEntry('system', 'ssl_policy', $assertion, ($default) ? App\BaseURL::DEFAULT_SSL_SCHEME : null);
-		$this->assertConfigEntry('system', 'basepath', ($realBasepath) ? $this->root->url() : $assertion);
+		self::assertConfigEntry('system', 'default_timezone', $assertion, ($default) ? Installer::DEFAULT_TZ : null);
+		self::assertConfigEntry('system', 'language', $assertion, ($default) ? Installer::DEFAULT_LANG : null);
+		self::assertConfigEntry('system', 'url', $assertion);
+		self::assertConfigEntry('system', 'urlpath', $assertion);
+		self::assertConfigEntry('system', 'ssl_policy', $assertion, ($default) ? App\BaseURL::DEFAULT_SSL_SCHEME : null);
+		self::assertConfigEntry('system', 'basepath', ($realBasepath) ? $this->root->url() : $assertion);
 	}
 
 	/**
@@ -385,7 +385,7 @@ FIN;
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertStuckURL($txt);
+		self::assertStuckURL($txt);
 	}
 
 	/**
@@ -407,10 +407,10 @@ FIN;
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertFinished($txt, true, false);
-		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
+		self::assertFinished($txt, true, false);
+		self::assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
 
-		$this->assertConfig(['config' => ['hostname' => 'friendica.local'], 'system' => ['url' => 'http://friendica.local', 'ssl_policy' => 0, 'urlPath' => '']], false, true, true, true);
+		self::assertConfig(['config' => ['hostname' => 'friendica.local'], 'system' => ['url' => 'http://friendica.local', 'ssl_policy' => 0, 'urlPath' => '']], false, true, true, true);
 	}
 
 	/**
@@ -481,12 +481,12 @@ CONF;
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertFinished($txt, false, true);
+		self::assertFinished($txt, false, true);
 
-		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
-		$this->assertEquals($config, file_get_contents($this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.config.php')->url()));
+		self::assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
+		self::assertEquals($config, file_get_contents($this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.config.php')->url()));
 
-		$this->assertConfig($data, true, false, false);
+		self::assertConfig($data, true, false, false);
 	}
 
 	/**
@@ -504,27 +504,27 @@ CONF;
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
 		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
 
-		$this->assertTrue(putenv('MYSQL_HOST='     . $data['database']['hostname']));
-		$this->assertTrue(putenv('MYSQL_PORT='     . $data['database']['port']));
-		$this->assertTrue(putenv('MYSQL_DATABASE=' . $data['database']['database']));
-		$this->assertTrue(putenv('MYSQL_USERNAME=' . $data['database']['username']));
-		$this->assertTrue(putenv('MYSQL_PASSWORD=' . $data['database']['password']));
+		self::assertTrue(putenv('MYSQL_HOST='     . $data['database']['hostname']));
+		self::assertTrue(putenv('MYSQL_PORT='     . $data['database']['port']));
+		self::assertTrue(putenv('MYSQL_DATABASE=' . $data['database']['database']));
+		self::assertTrue(putenv('MYSQL_USERNAME=' . $data['database']['username']));
+		self::assertTrue(putenv('MYSQL_PASSWORD=' . $data['database']['password']));
 
-		$this->assertTrue(putenv('FRIENDICA_HOSTNAME='   . $data['config']['hostname']));
-		$this->assertTrue(putenv('FRIENDICA_BASE_PATH='  . $data['system']['basepath']));
-		$this->assertTrue(putenv('FRIENDICA_URL='        . $data['system']['url']));
-		$this->assertTrue(putenv('FRIENDICA_PHP_PATH='   . $data['config']['php_path']));
-		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=' . $data['config']['admin_email']));
-		$this->assertTrue(putenv('FRIENDICA_TZ='         . $data['system']['default_timezone']));
-		$this->assertTrue(putenv('FRIENDICA_LANG='       . $data['system']['language']));
+		self::assertTrue(putenv('FRIENDICA_HOSTNAME='   . $data['config']['hostname']));
+		self::assertTrue(putenv('FRIENDICA_BASE_PATH='  . $data['system']['basepath']));
+		self::assertTrue(putenv('FRIENDICA_URL='        . $data['system']['url']));
+		self::assertTrue(putenv('FRIENDICA_PHP_PATH='   . $data['config']['php_path']));
+		self::assertTrue(putenv('FRIENDICA_ADMIN_MAIL=' . $data['config']['admin_email']));
+		self::assertTrue(putenv('FRIENDICA_TZ='         . $data['system']['default_timezone']));
+		self::assertTrue(putenv('FRIENDICA_LANG='       . $data['system']['language']));
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 		$console->setOption('savedb', true);
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertFinished($txt, true);
-		$this->assertConfig($data, true, true, false, true);
+		self::assertFinished($txt, true);
+		self::assertConfig($data, true, true, false, true);
 	}
 
 	/**
@@ -542,26 +542,26 @@ CONF;
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
 		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
 
-		$this->assertTrue(putenv('MYSQL_HOST=' . $data['database']['hostname']));
-		$this->assertTrue(putenv('MYSQL_PORT=' . $data['database']['port']));
-		$this->assertTrue(putenv('MYSQL_DATABASE=' . $data['database']['database']));
-		$this->assertTrue(putenv('MYSQL_USERNAME=' . $data['database']['username']));
-		$this->assertTrue(putenv('MYSQL_PASSWORD=' . $data['database']['password']));
+		self::assertTrue(putenv('MYSQL_HOST=' . $data['database']['hostname']));
+		self::assertTrue(putenv('MYSQL_PORT=' . $data['database']['port']));
+		self::assertTrue(putenv('MYSQL_DATABASE=' . $data['database']['database']));
+		self::assertTrue(putenv('MYSQL_USERNAME=' . $data['database']['username']));
+		self::assertTrue(putenv('MYSQL_PASSWORD=' . $data['database']['password']));
 
-		$this->assertTrue(putenv('FRIENDICA_HOSTNAME='   . $data['config']['hostname']));
-		$this->assertTrue(putenv('FRIENDICA_BASE_PATH='  . $data['system']['basepath']));
-		$this->assertTrue(putenv('FRIENDICA_URL='        . $data['system']['url']));
-		$this->assertTrue(putenv('FRIENDICA_PHP_PATH='   . $data['config']['php_path']));
-		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=' . $data['config']['admin_email']));
-		$this->assertTrue(putenv('FRIENDICA_TZ='         . $data['system']['default_timezone']));
-		$this->assertTrue(putenv('FRIENDICA_LANG='       . $data['system']['language']));
+		self::assertTrue(putenv('FRIENDICA_HOSTNAME='   . $data['config']['hostname']));
+		self::assertTrue(putenv('FRIENDICA_BASE_PATH='  . $data['system']['basepath']));
+		self::assertTrue(putenv('FRIENDICA_URL='        . $data['system']['url']));
+		self::assertTrue(putenv('FRIENDICA_PHP_PATH='   . $data['config']['php_path']));
+		self::assertTrue(putenv('FRIENDICA_ADMIN_MAIL=' . $data['config']['admin_email']));
+		self::assertTrue(putenv('FRIENDICA_TZ='         . $data['system']['default_timezone']));
+		self::assertTrue(putenv('FRIENDICA_LANG='       . $data['system']['language']));
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertFinished($txt, true);
-		$this->assertConfig($data, false, true, false, true);
+		self::assertFinished($txt, true);
+		self::assertConfig($data, false, true, false, true);
 	}
 
 	/**
@@ -599,8 +599,8 @@ CONF;
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertFinished($txt, true);
-		$this->assertConfig($data, true, true, true, true);
+		self::assertFinished($txt, true);
+		self::assertConfig($data, true, true, true, true);
 	}
 
 	/**
@@ -618,10 +618,10 @@ CONF;
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertStuckDB($txt);
-		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
+		self::assertStuckDB($txt);
+		self::assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
 
-		$this->assertConfig(['config' => ['hostname' => 'friendica.local'], 'system' => ['url' => 'http://friendica.local', 'ssl_policy' => 0, 'urlpath' => '']], false, true, false, true);
+		self::assertConfig(['config' => ['hostname' => 'friendica.local'], 'system' => ['url' => 'http://friendica.local', 'ssl_policy' => 0, 'urlpath' => '']], false, true, false, true);
 	}
 
 	public function testGetHelp()
@@ -685,6 +685,6 @@ HELP;
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals($theHelp, $txt);
+		self::assertEquals($theHelp, $txt);
 	}
 }

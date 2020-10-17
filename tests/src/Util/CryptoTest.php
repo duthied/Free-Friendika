@@ -35,23 +35,23 @@ class CryptoTest extends TestCase
 	{
 		global $phpMock;
 		$phpMock['random_int'] = function ($mMin, $mMax) use ($min, $max) {
-			$this->assertEquals($min, $mMin);
-			$this->assertEquals($max, $mMax);
+			self::assertEquals($min, $mMin);
+			self::assertEquals($max, $mMax);
 			return 1;
 		};
 	}
 
 	public function testRandomDigitsRandomInt()
 	{
-		$this->assertRandomInt(0, 9);
+		self::assertRandomInt(0, 9);
 
 		$test = Crypto::randomDigits(1);
-		$this->assertEquals(1, strlen($test));
-		$this->assertEquals(1, $test);
+		self::assertEquals(1, strlen($test));
+		self::assertEquals(1, $test);
 
 		$test = Crypto::randomDigits(8);
-		$this->assertEquals(8, strlen($test));
-		$this->assertEquals(11111111, $test);
+		self::assertEquals(8, strlen($test));
+		self::assertEquals(11111111, $test);
 	}
 
 	public function dataRsa()
@@ -69,7 +69,7 @@ class CryptoTest extends TestCase
 	 */
 	public function testPubRsaToMe(string $key, string $expected)
 	{
-		$this->assertEquals($expected, Crypto::rsaToPem(base64_decode($key)));
+		self::assertEquals($expected, Crypto::rsaToPem(base64_decode($key)));
 	}
 
 
@@ -95,7 +95,7 @@ class CryptoTest extends TestCase
 			'n' => new BigInteger($m, 256)
 		]);
 
-		$this->assertEquals($expectedRSA->getPublicKey(), $key);
+		self::assertEquals($expectedRSA->getPublicKey(), $key);
 	}
 
 	/**
@@ -107,7 +107,7 @@ class CryptoTest extends TestCase
 
 		$checkKey = Crypto::meToPem($m, $e);
 
-		$this->assertEquals($key, $checkKey);
+		self::assertEquals($key, $checkKey);
 	}
 }
 

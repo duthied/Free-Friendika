@@ -123,14 +123,14 @@ class ApiTest extends FixtureTest
 	 */
 	private function assertSelfUser(array $user)
 	{
-		$this->assertEquals($this->selfUser['id'], $user['uid']);
-		$this->assertEquals($this->selfUser['id'], $user['cid']);
-		$this->assertEquals(1, $user['self']);
-		$this->assertEquals('DFRN', $user['location']);
-		$this->assertEquals($this->selfUser['name'], $user['name']);
-		$this->assertEquals($this->selfUser['nick'], $user['screen_name']);
-		$this->assertEquals('dfrn', $user['network']);
-		$this->assertTrue($user['verified']);
+		self::assertEquals($this->selfUser['id'], $user['uid']);
+		self::assertEquals($this->selfUser['id'], $user['cid']);
+		self::assertEquals(1, $user['self']);
+		self::assertEquals('DFRN', $user['location']);
+		self::assertEquals($this->selfUser['name'], $user['name']);
+		self::assertEquals($this->selfUser['nick'], $user['screen_name']);
+		self::assertEquals('dfrn', $user['network']);
+		self::assertTrue($user['verified']);
 	}
 
 	/**
@@ -142,12 +142,12 @@ class ApiTest extends FixtureTest
 	 */
 	private function assertOtherUser(array $user)
 	{
-		$this->assertEquals($this->otherUser['id'], $user['id']);
-		$this->assertEquals($this->otherUser['id'], $user['id_str']);
-		$this->assertEquals(0, $user['self']);
-		$this->assertEquals($this->otherUser['name'], $user['name']);
-		$this->assertEquals($this->otherUser['nick'], $user['screen_name']);
-		$this->assertFalse($user['verified']);
+		self::assertEquals($this->otherUser['id'], $user['id']);
+		self::assertEquals($this->otherUser['id'], $user['id_str']);
+		self::assertEquals(0, $user['self']);
+		self::assertEquals($this->otherUser['name'], $user['name']);
+		self::assertEquals($this->otherUser['nick'], $user['screen_name']);
+		self::assertFalse($user['verified']);
 	}
 
 	/**
@@ -159,8 +159,8 @@ class ApiTest extends FixtureTest
 	 */
 	private function assertStatus(array $status)
 	{
-		$this->assertInternalType('string', $status['text']);
-		$this->assertInternalType('int', $status['id']);
+		self::assertInternalType('string', $status['text']);
+		self::assertInternalType('int', $status['id']);
 		// We could probably do more checks here.
 	}
 
@@ -173,10 +173,10 @@ class ApiTest extends FixtureTest
 	 */
 	private function assertList(array $list)
 	{
-		$this->assertInternalType('string', $list['name']);
-		$this->assertInternalType('int', $list['id']);
-		$this->assertInternalType('string', $list['id_str']);
-		$this->assertContains($list['mode'], ['public', 'private']);
+		self::assertInternalType('string', $list['name']);
+		self::assertInternalType('int', $list['id']);
+		self::assertInternalType('string', $list['id_str']);
+		self::assertContains($list['mode'], ['public', 'private']);
 		// We could probably do more checks here.
 	}
 
@@ -190,8 +190,8 @@ class ApiTest extends FixtureTest
 	 */
 	private function assertXml($result, $root_element)
 	{
-		$this->assertStringStartsWith('<?xml version="1.0"?>', $result);
-		$this->assertContains('<' . $root_element, $result);
+		self::assertStringStartsWith('<?xml version="1.0"?>', $result);
+		self::assertContains('<' . $root_element, $result);
 		// We could probably do more checks here.
 	}
 
@@ -221,7 +221,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiUser()
 	{
-		$this->assertEquals($this->selfUser['id'], api_user());
+		self::assertEquals($this->selfUser['id'], api_user());
 	}
 
 	/**
@@ -232,7 +232,7 @@ class ApiTest extends FixtureTest
 	public function testApiUserWithUnallowedUser()
 	{
 		$_SESSION = ['allow_api' => false];
-		$this->assertEquals(false, api_user());
+		self::assertEquals(false, api_user());
 	}
 
 	/**
@@ -242,7 +242,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiSource()
 	{
-		$this->assertEquals('api', api_source());
+		self::assertEquals('api', api_source());
 	}
 
 	/**
@@ -253,7 +253,7 @@ class ApiTest extends FixtureTest
 	public function testApiSourceWithTwidere()
 	{
 		$_SERVER['HTTP_USER_AGENT'] = 'Twidere';
-		$this->assertEquals('Twidere', api_source());
+		self::assertEquals('Twidere', api_source());
 	}
 
 	/**
@@ -264,7 +264,7 @@ class ApiTest extends FixtureTest
 	public function testApiSourceWithGet()
 	{
 		$_GET['source'] = 'source_name';
-		$this->assertEquals('source_name', api_source());
+		self::assertEquals('source_name', api_source());
 	}
 
 	/**
@@ -274,7 +274,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiDate()
 	{
-		$this->assertEquals('Wed Oct 10 00:00:00 +0000 1990', api_date('1990-10-10'));
+		self::assertEquals('Wed Oct 10 00:00:00 +0000 1990', api_date('1990-10-10'));
 	}
 
 	/**
@@ -285,7 +285,7 @@ class ApiTest extends FixtureTest
 	public function testApiRegisterFunc()
 	{
 		global $API;
-		$this->assertNull(
+		self::assertNull(
 			api_register_func(
 				'api_path',
 				function () {
@@ -294,9 +294,9 @@ class ApiTest extends FixtureTest
 				'method'
 			)
 		);
-		$this->assertTrue($API['api_path']['auth']);
-		$this->assertEquals('method', $API['api_path']['method']);
-		$this->assertTrue(is_callable($API['api_path']['func']));
+		self::assertTrue($API['api_path']['auth']);
+		self::assertEquals('method', $API['api_path']['method']);
+		self::assertTrue(is_callable($API['api_path']['func']));
 	}
 
 	/**
@@ -377,7 +377,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiCheckMethod()
 	{
-		$this->assertFalse(api_check_method('method'));
+		self::assertFalse(api_check_method('method'));
 	}
 
 	/**
@@ -388,7 +388,7 @@ class ApiTest extends FixtureTest
 	public function testApiCheckMethodWithCorrectMethod()
 	{
 		$_SERVER['REQUEST_METHOD'] = 'method';
-		$this->assertTrue(api_check_method('method'));
+		self::assertTrue(api_check_method('method'));
 	}
 
 	/**
@@ -398,7 +398,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiCheckMethodWithWildcard()
 	{
-		$this->assertTrue(api_check_method('*'));
+		self::assertTrue(api_check_method('*'));
 	}
 
 	/**
@@ -422,7 +422,7 @@ class ApiTest extends FixtureTest
 
 		$args = DI::args()->determine($_SERVER, $_GET);
 
-		$this->assertEquals(
+		self::assertEquals(
 			'callback_name(["some_data"])',
 			api_call($this->app, $args)
 		);
@@ -459,7 +459,7 @@ class ApiTest extends FixtureTest
 			'network'        => ['some_function' => 200]
 		];
 
-		$this->assertEquals(
+		self::assertEquals(
 			'["some_data"]',
 			api_call($this->app, $args)
 		);
@@ -485,7 +485,7 @@ class ApiTest extends FixtureTest
 
 		$args = DI::args()->determine($_SERVER, $_GET);
 
-		$this->assertEquals(
+		self::assertEquals(
 			'{"status":{"error":"Internal Server Error","code":"500 Internal Server Error","request":"api_path"}}',
 			api_call($this->app, $args)
 		);
@@ -499,7 +499,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiCallWithUninplementedApi()
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			'{"status":{"error":"Not Implemented","code":"501 Not Implemented","request":""}}',
 			api_call($this->app)
 		);
@@ -525,7 +525,7 @@ class ApiTest extends FixtureTest
 
 		$args = DI::args()->determine($_SERVER, $_GET);
 
-		$this->assertEquals(
+		self::assertEquals(
 			'["some_data"]',
 			api_call($this->app, $args)
 		);
@@ -551,7 +551,7 @@ class ApiTest extends FixtureTest
 
 		$args = DI::args()->determine($_SERVER, $_GET);
 
-		$this->assertEquals(
+		self::assertEquals(
 			'some_data',
 			api_call($this->app, $args)
 		);
@@ -577,7 +577,7 @@ class ApiTest extends FixtureTest
 
 		$args = DI::args()->determine($_SERVER, $_GET);
 
-		$this->assertEquals(
+		self::assertEquals(
 			'<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
 			'some_data',
 			api_call($this->app, $args)
@@ -604,7 +604,7 @@ class ApiTest extends FixtureTest
 
 		$args = DI::args()->determine($_SERVER, $_GET);
 
-		$this->assertEquals(
+		self::assertEquals(
 			'<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
 			'some_data',
 			api_call($this->app, $args)
@@ -626,7 +626,7 @@ class ApiTest extends FixtureTest
 
 		$args = DI::args()->determine($_SERVER, $_GET);
 
-		$this->assertEquals(
+		self::assertEquals(
 			'{"status":{"error":"Method Not Allowed","code":"405 Method Not Allowed","request":"api_path"}}',
 			api_call($this->app, $args)
 		);
@@ -651,7 +651,7 @@ class ApiTest extends FixtureTest
 
 		$args = DI::args()->determine($_SERVER, $_GET);
 
-		$this->assertEquals(
+		self::assertEquals(
 			'{"status":{"error":"This API requires login","code":"401 Unauthorized","request":"api_path"}}',
 			api_call($this->app, $args)
 		);
@@ -665,7 +665,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiErrorWithJson()
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			'{"status":{"error":"error_message","code":"200 OK","request":""}}',
 			api_error('json', new HTTPException\OKException('error_message'), DI::args())
 		);
@@ -679,7 +679,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiErrorWithXml()
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			'<?xml version="1.0"?>' . "\n" .
 			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
 			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
@@ -700,7 +700,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiErrorWithRss()
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			'<?xml version="1.0"?>' . "\n" .
 			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
 			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
@@ -721,7 +721,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiErrorWithAtom()
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			'<?xml version="1.0"?>' . "\n" .
 			'<status xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
 			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
@@ -743,14 +743,14 @@ class ApiTest extends FixtureTest
 	{
 		$user_info = ['url' => 'user_url', 'lang' => 'en'];
 		$result    = api_rss_extra($this->app, [], $user_info);
-		$this->assertEquals($user_info, $result['$user']);
-		$this->assertEquals($user_info['url'], $result['$rss']['alternate']);
-		$this->assertArrayHasKey('self', $result['$rss']);
-		$this->assertArrayHasKey('base', $result['$rss']);
-		$this->assertArrayHasKey('updated', $result['$rss']);
-		$this->assertArrayHasKey('atom_updated', $result['$rss']);
-		$this->assertArrayHasKey('language', $result['$rss']);
-		$this->assertArrayHasKey('logo', $result['$rss']);
+		self::assertEquals($user_info, $result['$user']);
+		self::assertEquals($user_info['url'], $result['$rss']['alternate']);
+		self::assertArrayHasKey('self', $result['$rss']);
+		self::assertArrayHasKey('base', $result['$rss']);
+		self::assertArrayHasKey('updated', $result['$rss']);
+		self::assertArrayHasKey('atom_updated', $result['$rss']);
+		self::assertArrayHasKey('language', $result['$rss']);
+		self::assertArrayHasKey('logo', $result['$rss']);
 	}
 
 	/**
@@ -761,14 +761,14 @@ class ApiTest extends FixtureTest
 	public function testApiRssExtraWithoutUserInfo()
 	{
 		$result = api_rss_extra($this->app, [], null);
-		$this->assertInternalType('array', $result['$user']);
-		$this->assertArrayHasKey('alternate', $result['$rss']);
-		$this->assertArrayHasKey('self', $result['$rss']);
-		$this->assertArrayHasKey('base', $result['$rss']);
-		$this->assertArrayHasKey('updated', $result['$rss']);
-		$this->assertArrayHasKey('atom_updated', $result['$rss']);
-		$this->assertArrayHasKey('language', $result['$rss']);
-		$this->assertArrayHasKey('logo', $result['$rss']);
+		self::assertInternalType('array', $result['$user']);
+		self::assertArrayHasKey('alternate', $result['$rss']);
+		self::assertArrayHasKey('self', $result['$rss']);
+		self::assertArrayHasKey('base', $result['$rss']);
+		self::assertArrayHasKey('updated', $result['$rss']);
+		self::assertArrayHasKey('atom_updated', $result['$rss']);
+		self::assertArrayHasKey('language', $result['$rss']);
+		self::assertArrayHasKey('logo', $result['$rss']);
 	}
 
 	/**
@@ -778,7 +778,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiUniqueIdToNurl()
 	{
-		$this->assertFalse(api_unique_id_to_nurl($this->wrongUserId));
+		self::assertFalse(api_unique_id_to_nurl($this->wrongUserId));
 	}
 
 	/**
@@ -788,7 +788,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiUniqueIdToNurlWithCorrectId()
 	{
-		$this->assertEquals($this->otherUser['nurl'], api_unique_id_to_nurl($this->otherUser['id']));
+		self::assertEquals($this->otherUser['nurl'], api_unique_id_to_nurl($this->otherUser['id']));
 	}
 
 	/**
@@ -799,10 +799,10 @@ class ApiTest extends FixtureTest
 	public function testApiGetUser()
 	{
 		$user = api_get_user($this->app);
-		$this->assertSelfUser($user);
-		$this->assertEquals('708fa0', $user['profile_sidebar_fill_color']);
-		$this->assertEquals('6fdbe8', $user['profile_link_color']);
-		$this->assertEquals('ededed', $user['profile_background_color']);
+		self::assertSelfUser($user);
+		self::assertEquals('708fa0', $user['profile_sidebar_fill_color']);
+		self::assertEquals('6fdbe8', $user['profile_link_color']);
+		self::assertEquals('ededed', $user['profile_background_color']);
 	}
 
 	/**
@@ -815,10 +815,10 @@ class ApiTest extends FixtureTest
 		$pConfig = $this->dice->create(IPConfig::class);
 		$pConfig->set($this->selfUser['id'], 'frio', 'schema', 'red');
 		$user = api_get_user($this->app);
-		$this->assertSelfUser($user);
-		$this->assertEquals('708fa0', $user['profile_sidebar_fill_color']);
-		$this->assertEquals('6fdbe8', $user['profile_link_color']);
-		$this->assertEquals('ededed', $user['profile_background_color']);
+		self::assertSelfUser($user);
+		self::assertEquals('708fa0', $user['profile_sidebar_fill_color']);
+		self::assertEquals('6fdbe8', $user['profile_link_color']);
+		self::assertEquals('ededed', $user['profile_background_color']);
 	}
 
 	/**
@@ -831,10 +831,10 @@ class ApiTest extends FixtureTest
 		$pConfig = $this->dice->create(IPConfig::class);
 		$pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
 		$user = api_get_user($this->app);
-		$this->assertSelfUser($user);
-		$this->assertEquals('708fa0', $user['profile_sidebar_fill_color']);
-		$this->assertEquals('6fdbe8', $user['profile_link_color']);
-		$this->assertEquals('ededed', $user['profile_background_color']);
+		self::assertSelfUser($user);
+		self::assertEquals('708fa0', $user['profile_sidebar_fill_color']);
+		self::assertEquals('6fdbe8', $user['profile_link_color']);
+		self::assertEquals('ededed', $user['profile_background_color']);
 	}
 
 	/**
@@ -850,10 +850,10 @@ class ApiTest extends FixtureTest
 		$pConfig->set($this->selfUser['id'], 'frio', 'link_color', '#123456');
 		$pConfig->set($this->selfUser['id'], 'frio', 'background_color', '#123456');
 		$user = api_get_user($this->app);
-		$this->assertSelfUser($user);
-		$this->assertEquals('123456', $user['profile_sidebar_fill_color']);
-		$this->assertEquals('123456', $user['profile_link_color']);
-		$this->assertEquals('123456', $user['profile_background_color']);
+		self::assertSelfUser($user);
+		self::assertEquals('123456', $user['profile_sidebar_fill_color']);
+		self::assertEquals('123456', $user['profile_link_color']);
+		self::assertEquals('123456', $user['profile_background_color']);
 	}
 
 	/**
@@ -867,7 +867,7 @@ class ApiTest extends FixtureTest
 		$_SERVER['PHP_AUTH_USER'] = 'Test user';
 		$_SERVER['PHP_AUTH_PW']   = 'password';
 		$_SESSION['allow_api']    = false;
-		$this->assertFalse(api_get_user($this->app));
+		self::assertFalse(api_get_user($this->app));
 	}
 
 	/**
@@ -878,7 +878,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetUserWithGetId()
 	{
 		$_GET['user_id'] = $this->otherUser['id'];
-		$this->assertOtherUser(api_get_user($this->app));
+		self::assertOtherUser(api_get_user($this->app));
 	}
 
 	/**
@@ -890,7 +890,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetUserWithWrongGetId()
 	{
 		$_GET['user_id'] = $this->wrongUserId;
-		$this->assertOtherUser(api_get_user($this->app));
+		self::assertOtherUser(api_get_user($this->app));
 	}
 
 	/**
@@ -901,7 +901,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetUserWithGetName()
 	{
 		$_GET['screen_name'] = $this->selfUser['nick'];
-		$this->assertSelfUser(api_get_user($this->app));
+		self::assertSelfUser(api_get_user($this->app));
 	}
 
 	/**
@@ -912,7 +912,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetUserWithGetUrl()
 	{
 		$_GET['profileurl'] = $this->selfUser['nurl'];
-		$this->assertSelfUser(api_get_user($this->app));
+		self::assertSelfUser(api_get_user($this->app));
 	}
 
 	/**
@@ -925,7 +925,7 @@ class ApiTest extends FixtureTest
 		global $called_api;
 		$called_api         = ['api_path'];
 		$this->app->argv[1] = $this->otherUser['id'] . '.json';
-		$this->assertOtherUser(api_get_user($this->app));
+		self::assertOtherUser(api_get_user($this->app));
 	}
 
 	/**
@@ -937,7 +937,7 @@ class ApiTest extends FixtureTest
 	{
 		global $called_api;
 		$called_api = ['api', 'api_path'];
-		$this->assertSelfUser(api_get_user($this->app));
+		self::assertSelfUser(api_get_user($this->app));
 	}
 
 	/**
@@ -947,7 +947,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithCorrectUser()
 	{
-		$this->assertOtherUser(api_get_user($this->app, $this->otherUser['id']));
+		self::assertOtherUser(api_get_user($this->app, $this->otherUser['id']));
 	}
 
 	/**
@@ -958,7 +958,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithWrongUser()
 	{
-		$this->assertOtherUser(api_get_user($this->app, $this->wrongUserId));
+		self::assertOtherUser(api_get_user($this->app, $this->wrongUserId));
 	}
 
 	/**
@@ -968,7 +968,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiGetUserWithZeroUser()
 	{
-		$this->assertSelfUser(api_get_user($this->app, 0));
+		self::assertSelfUser(api_get_user($this->app, 0));
 	}
 
 	/**
@@ -979,7 +979,7 @@ class ApiTest extends FixtureTest
 	public function testApiItemGetUser()
 	{
 		$users = api_item_get_user($this->app, []);
-		$this->assertSelfUser($users[0]);
+		self::assertSelfUser($users[0]);
 	}
 
 	/**
@@ -990,8 +990,8 @@ class ApiTest extends FixtureTest
 	public function testApiItemGetUserWithDifferentParent()
 	{
 		$users = api_item_get_user($this->app, ['thr-parent' => 'item_parent', 'uri' => 'item_uri']);
-		$this->assertSelfUser($users[0]);
-		$this->assertEquals($users[0], $users[1]);
+		self::assertSelfUser($users[0]);
+		self::assertEquals($users[0], $users[1]);
 	}
 
 	/**
@@ -1002,7 +1002,7 @@ class ApiTest extends FixtureTest
 	public function testApiWalkRecursive()
 	{
 		$array = ['item1'];
-		$this->assertEquals(
+		self::assertEquals(
 			$array,
 			api_walk_recursive(
 				$array,
@@ -1022,7 +1022,7 @@ class ApiTest extends FixtureTest
 	public function testApiWalkRecursiveWithArray()
 	{
 		$array = [['item1'], ['item2']];
-		$this->assertEquals(
+		self::assertEquals(
 			$array,
 			api_walk_recursive(
 				$array,
@@ -1043,8 +1043,8 @@ class ApiTest extends FixtureTest
 	{
 		$item = true;
 		$key  = '';
-		$this->assertTrue(api_reformat_xml($item, $key));
-		$this->assertEquals('true', $item);
+		self::assertTrue(api_reformat_xml($item, $key));
+		self::assertEquals('true', $item);
 	}
 
 	/**
@@ -1056,8 +1056,8 @@ class ApiTest extends FixtureTest
 	{
 		$item = '';
 		$key  = 'statusnet_api';
-		$this->assertTrue(api_reformat_xml($item, $key));
-		$this->assertEquals('statusnet:api', $key);
+		self::assertTrue(api_reformat_xml($item, $key));
+		self::assertEquals('statusnet:api', $key);
 	}
 
 	/**
@@ -1069,8 +1069,8 @@ class ApiTest extends FixtureTest
 	{
 		$item = '';
 		$key  = 'friendica_api';
-		$this->assertTrue(api_reformat_xml($item, $key));
-		$this->assertEquals('friendica:api', $key);
+		self::assertTrue(api_reformat_xml($item, $key));
+		self::assertEquals('friendica:api', $key);
 	}
 
 	/**
@@ -1080,7 +1080,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiCreateXml()
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			'<?xml version="1.0"?>' . "\n" .
 			'<root_element xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
 			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
@@ -1098,7 +1098,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiCreateXmlWithoutNamespaces()
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			'<?xml version="1.0"?>' . "\n" .
 			'<ok>' . "\n" .
 			'  <data>some_data</data>' . "\n" .
@@ -1115,7 +1115,7 @@ class ApiTest extends FixtureTest
 	public function testApiFormatData()
 	{
 		$data = ['some_data'];
-		$this->assertEquals($data, api_format_data('root_element', 'json', $data));
+		self::assertEquals($data, api_format_data('root_element', 'json', $data));
 	}
 
 	/**
@@ -1125,7 +1125,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFormatDataWithXml()
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			'<?xml version="1.0"?>' . "\n" .
 			'<root_element xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" ' .
 			'xmlns:friendica="http://friendi.ca/schema/api/1/" ' .
@@ -1143,7 +1143,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiAccountVerifyCredentials()
 	{
-		$this->assertArrayHasKey('user', api_account_verify_credentials('json'));
+		self::assertArrayHasKey('user', api_account_verify_credentials('json'));
 	}
 
 	/**
@@ -1165,7 +1165,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testRequestdata()
 	{
-		$this->assertNull(requestdata('variable_name'));
+		self::assertNull(requestdata('variable_name'));
 	}
 
 	/**
@@ -1176,7 +1176,7 @@ class ApiTest extends FixtureTest
 	public function testRequestdataWithPost()
 	{
 		$_POST['variable_name'] = 'variable_value';
-		$this->assertEquals('variable_value', requestdata('variable_name'));
+		self::assertEquals('variable_value', requestdata('variable_name'));
 	}
 
 	/**
@@ -1187,7 +1187,7 @@ class ApiTest extends FixtureTest
 	public function testRequestdataWithGet()
 	{
 		$_GET['variable_name'] = 'variable_value';
-		$this->assertEquals('variable_value', requestdata('variable_name'));
+		self::assertEquals('variable_value', requestdata('variable_name'));
 	}
 
 	/**
@@ -1213,7 +1213,7 @@ class ApiTest extends FixtureTest
 		$_GET['status'] = '<b>Status content</b>';
 
 		$result = api_statuses_mediap('json');
-		$this->assertStatus($result['status']);
+		self::assertStatus($result['status']);
 	}
 
 	/**
@@ -1252,7 +1252,7 @@ class ApiTest extends FixtureTest
 		];
 
 		$result = api_statuses_update('json');
-		$this->assertStatus($result['status']);
+		self::assertStatus($result['status']);
 	}
 
 	/**
@@ -1265,7 +1265,7 @@ class ApiTest extends FixtureTest
 		$_GET['htmlstatus'] = '<b>Status content</b>';
 
 		$result = api_statuses_update('json');
-		$this->assertStatus($result['status']);
+		self::assertStatus($result['status']);
 	}
 
 	/**
@@ -1372,10 +1372,10 @@ class ApiTest extends FixtureTest
 		$app->argc = 2;
 
 		$result = api_media_upload();
-		$this->assertEquals('image/png', $result['media']['image']['image_type']);
-		$this->assertEquals(1, $result['media']['image']['w']);
-		$this->assertEquals(1, $result['media']['image']['h']);
-		$this->assertNotEmpty($result['media']['image']['friendica_preview_url']);
+		self::assertEquals('image/png', $result['media']['image']['image_type']);
+		self::assertEquals(1, $result['media']['image']['w']);
+		self::assertEquals(1, $result['media']['image']['h']);
+		self::assertNotEmpty($result['media']['image']['friendica_preview_url']);
 	}
 
 	/**
@@ -1384,7 +1384,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusShowWithJson()
 	{
 		$result = api_status_show('json', 1);
-		$this->assertStatus($result['status']);
+		self::assertStatus($result['status']);
 	}
 
 	/**
@@ -1393,7 +1393,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusShowWithXml()
 	{
 		$result = api_status_show('xml', 1);
-		$this->assertXml($result, 'statuses');
+		self::assertXml($result, 'statuses');
 	}
 
 	/**
@@ -1403,7 +1403,7 @@ class ApiTest extends FixtureTest
 	{
 		$item = api_get_last_status($this->selfUser['id'], $this->selfUser['id']);
 
-		$this->assertNotNull($item);
+		self::assertNotNull($item);
 	}
 
 	/**
@@ -1415,12 +1415,12 @@ class ApiTest extends FixtureTest
 	{
 		$result = api_users_show('json');
 		// We can't use assertSelfUser() here because the user object is missing some properties.
-		$this->assertEquals($this->selfUser['id'], $result['user']['cid']);
-		$this->assertEquals('DFRN', $result['user']['location']);
-		$this->assertEquals($this->selfUser['name'], $result['user']['name']);
-		$this->assertEquals($this->selfUser['nick'], $result['user']['screen_name']);
-		$this->assertEquals('dfrn', $result['user']['network']);
-		$this->assertTrue($result['user']['verified']);
+		self::assertEquals($this->selfUser['id'], $result['user']['cid']);
+		self::assertEquals('DFRN', $result['user']['location']);
+		self::assertEquals($this->selfUser['name'], $result['user']['name']);
+		self::assertEquals($this->selfUser['nick'], $result['user']['screen_name']);
+		self::assertEquals('dfrn', $result['user']['network']);
+		self::assertTrue($result['user']['verified']);
 	}
 
 	/**
@@ -1431,7 +1431,7 @@ class ApiTest extends FixtureTest
 	public function testApiUsersShowWithXml()
 	{
 		$result = api_users_show('xml');
-		$this->assertXml($result, 'statuses');
+		self::assertXml($result, 'statuses');
 	}
 
 	/**
@@ -1443,7 +1443,7 @@ class ApiTest extends FixtureTest
 	{
 		$_GET['q'] = 'othercontact';
 		$result    = api_users_search('json');
-		$this->assertOtherUser($result['users'][0]);
+		self::assertOtherUser($result['users'][0]);
 	}
 
 	/**
@@ -1455,7 +1455,7 @@ class ApiTest extends FixtureTest
 	{
 		$_GET['q'] = 'othercontact';
 		$result    = api_users_search('xml');
-		$this->assertXml($result, 'users');
+		self::assertXml($result, 'users');
 	}
 
 	/**
@@ -1489,7 +1489,7 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['user_id'] = $this->otherUser['id'];
 		$result              = api_users_lookup('json');
-		$this->assertOtherUser($result['users'][0]);
+		self::assertOtherUser($result['users'][0]);
 	}
 
 	/**
@@ -1503,8 +1503,8 @@ class ApiTest extends FixtureTest
 		$_REQUEST['max_id'] = 10;
 		$result             = api_search('json');
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
-			$this->assertContains('reply', $status['text'], null, true);
+			self::assertStatus($status);
+			self::assertContains('reply', $status['text'], null, true);
 		}
 	}
 
@@ -1519,8 +1519,8 @@ class ApiTest extends FixtureTest
 		$_REQUEST['count'] = 20;
 		$result            = api_search('json');
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
-			$this->assertContains('reply', $status['text'], null, true);
+			self::assertStatus($status);
+			self::assertContains('reply', $status['text'], null, true);
 		}
 	}
 
@@ -1535,8 +1535,8 @@ class ApiTest extends FixtureTest
 		$_REQUEST['rpp'] = 20;
 		$result          = api_search('json');
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
-			$this->assertContains('reply', $status['text'], null, true);
+			self::assertStatus($status);
+			self::assertContains('reply', $status['text'], null, true);
 		}
 	}
 
@@ -1550,8 +1550,8 @@ class ApiTest extends FixtureTest
 		$_REQUEST['q'] = '%23friendica';
 		$result        = api_search('json');
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
-			$this->assertContains('#friendica', $status['text'], null, true);
+			self::assertStatus($status);
+			self::assertContains('#friendica', $status['text'], null, true);
 		}
 	}
 
@@ -1567,7 +1567,7 @@ class ApiTest extends FixtureTest
 		$_REQUEST['q']               = 'friendica';
 		$result                      = api_search('json');
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -1606,9 +1606,9 @@ class ApiTest extends FixtureTest
 		$_REQUEST['exclude_replies'] = true;
 		$_REQUEST['conversation_id'] = 1;
 		$result                      = api_statuses_home_timeline('json');
-		$this->assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -1621,9 +1621,9 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['page'] = -2;
 		$result           = api_statuses_home_timeline('json');
-		$this->assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -1648,7 +1648,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesHomeTimelineWithRss()
 	{
 		$result = api_statuses_home_timeline('rss');
-		$this->assertXml($result, 'statuses');
+		self::assertXml($result, 'statuses');
 	}
 
 	/**
@@ -1661,9 +1661,9 @@ class ApiTest extends FixtureTest
 		$_REQUEST['max_id']          = 10;
 		$_REQUEST['conversation_id'] = 1;
 		$result                      = api_statuses_public_timeline('json');
-		$this->assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -1677,9 +1677,9 @@ class ApiTest extends FixtureTest
 		$_REQUEST['max_id']          = 10;
 		$_REQUEST['exclude_replies'] = true;
 		$result                      = api_statuses_public_timeline('json');
-		$this->assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -1692,9 +1692,9 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['page'] = -2;
 		$result           = api_statuses_public_timeline('json');
-		$this->assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -1719,7 +1719,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesPublicTimelineWithRss()
 	{
 		$result = api_statuses_public_timeline('rss');
-		$this->assertXml($result, 'statuses');
+		self::assertXml($result, 'statuses');
 	}
 
 	/**
@@ -1731,9 +1731,9 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['max_id'] = 10;
 		$result             = api_statuses_networkpublic_timeline('json');
-		$this->assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -1746,9 +1746,9 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['page'] = -2;
 		$result           = api_statuses_networkpublic_timeline('json');
-		$this->assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -1773,7 +1773,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesNetworkpublicTimelineWithRss()
 	{
 		$result = api_statuses_networkpublic_timeline('rss');
-		$this->assertXml($result, 'statuses');
+		self::assertXml($result, 'statuses');
 	}
 
 	/**
@@ -1796,7 +1796,7 @@ class ApiTest extends FixtureTest
 	{
 		$this->app->argv[3] = 1;
 		$result             = api_statuses_show('json');
-		$this->assertStatus($result['status']);
+		self::assertStatus($result['status']);
 	}
 
 	/**
@@ -1809,9 +1809,9 @@ class ApiTest extends FixtureTest
 		$this->app->argv[3]       = 1;
 		$_REQUEST['conversation'] = 1;
 		$result                   = api_statuses_show('json');
-		$this->assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -1850,9 +1850,9 @@ class ApiTest extends FixtureTest
 		$_REQUEST['max_id'] = 10;
 		$_REQUEST['page']   = -2;
 		$result             = api_conversation_show('json');
-		$this->assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -1901,12 +1901,12 @@ class ApiTest extends FixtureTest
 	{
 		$this->app->argv[3] = 1;
 		$result             = api_statuses_repeat('json');
-		$this->assertStatus($result['status']);
+		self::assertStatus($result['status']);
 
 		// Also test with a shared status
 		$this->app->argv[3] = 5;
 		$result             = api_statuses_repeat('json');
-		$this->assertStatus($result['status']);
+		self::assertStatus($result['status']);
 	}
 
 	/**
@@ -1941,7 +1941,7 @@ class ApiTest extends FixtureTest
 	{
 		$this->app->argv[3] = 1;
 		$result             = api_statuses_destroy('json');
-		$this->assertStatus($result['status']);
+		self::assertStatus($result['status']);
 	}
 
 	/**
@@ -1954,7 +1954,7 @@ class ApiTest extends FixtureTest
 		$this->app->user    = ['nickname' => $this->selfUser['nick']];
 		$_REQUEST['max_id'] = 10;
 		$result             = api_statuses_mentions('json');
-		$this->assertEmpty($result['status']);
+		self::assertEmpty($result['status']);
 		// We should test with mentions in the database.
 	}
 
@@ -1967,7 +1967,7 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['page'] = -2;
 		$result           = api_statuses_mentions('json');
-		$this->assertEmpty($result['status']);
+		self::assertEmpty($result['status']);
 	}
 
 	/**
@@ -1991,7 +1991,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesMentionsWithRss()
 	{
 		$result = api_statuses_mentions('rss');
-		$this->assertXml($result, 'statuses');
+		self::assertXml($result, 'statuses');
 	}
 
 	/**
@@ -2005,9 +2005,9 @@ class ApiTest extends FixtureTest
 		$_REQUEST['exclude_replies'] = true;
 		$_REQUEST['conversation_id'] = 1;
 		$result                      = api_statuses_user_timeline('json');
-		$this->assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -2020,9 +2020,9 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['page'] = -2;
 		$result           = api_statuses_user_timeline('json');
-		$this->assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -2034,7 +2034,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesUserTimelineWithRss()
 	{
 		$result = api_statuses_user_timeline('rss');
-		$this->assertXml($result, 'statuses');
+		self::assertXml($result, 'statuses');
 	}
 
 	/**
@@ -2101,7 +2101,7 @@ class ApiTest extends FixtureTest
 		$this->app->argc = count($this->app->argv);
 		$_REQUEST['id']  = 3;
 		$result          = api_favorites_create_destroy('json');
-		$this->assertStatus($result['status']);
+		self::assertStatus($result['status']);
 	}
 
 	/**
@@ -2115,7 +2115,7 @@ class ApiTest extends FixtureTest
 		$this->app->argc = count($this->app->argv);
 		$_REQUEST['id']  = 3;
 		$result          = api_favorites_create_destroy('rss');
-		$this->assertXml($result, 'status');
+		self::assertXml($result, 'status');
 	}
 
 	/**
@@ -2129,7 +2129,7 @@ class ApiTest extends FixtureTest
 		$this->app->argc = count($this->app->argv);
 		$_REQUEST['id']  = 3;
 		$result          = api_favorites_create_destroy('json');
-		$this->assertStatus($result['status']);
+		self::assertStatus($result['status']);
 	}
 
 	/**
@@ -2157,7 +2157,7 @@ class ApiTest extends FixtureTest
 		$_REQUEST['max_id'] = 10;
 		$result             = api_favorites('json');
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -2169,7 +2169,7 @@ class ApiTest extends FixtureTest
 	public function testApiFavoritesWithRss()
 	{
 		$result = api_favorites('rss');
-		$this->assertXml($result, 'statuses');
+		self::assertXml($result, 'statuses');
 	}
 
 	/**
@@ -2197,12 +2197,12 @@ class ApiTest extends FixtureTest
 			['id' => 2, 'screen_name' => 'recipient_name'],
 			['id' => 3, 'screen_name' => 'sender_name']
 		);
-		$this->assertEquals('item_title' . "\n" . 'item_body', $result['text']);
-		$this->assertEquals(1, $result['id']);
-		$this->assertEquals(2, $result['recipient_id']);
-		$this->assertEquals(3, $result['sender_id']);
-		$this->assertEquals('recipient_name', $result['recipient_screen_name']);
-		$this->assertEquals('sender_name', $result['sender_screen_name']);
+		self::assertEquals('item_title' . "\n" . 'item_body', $result['text']);
+		self::assertEquals(1, $result['id']);
+		self::assertEquals(2, $result['recipient_id']);
+		self::assertEquals(3, $result['sender_id']);
+		self::assertEquals('recipient_name', $result['recipient_screen_name']);
+		self::assertEquals('sender_name', $result['sender_screen_name']);
 	}
 
 	/**
@@ -2218,8 +2218,8 @@ class ApiTest extends FixtureTest
 			['id' => 2, 'screen_name' => 'recipient_name'],
 			['id' => 3, 'screen_name' => 'sender_name']
 		);
-		$this->assertEquals('item_title', $result['title']);
-		$this->assertEquals('<strong>item_body</strong>', $result['text']);
+		self::assertEquals('item_title', $result['title']);
+		self::assertEquals('<strong>item_body</strong>', $result['text']);
 	}
 
 	/**
@@ -2235,8 +2235,8 @@ class ApiTest extends FixtureTest
 			['id' => 2, 'screen_name' => 'recipient_name'],
 			['id' => 3, 'screen_name' => 'sender_name']
 		);
-		$this->assertEquals('item_title', $result['title']);
-		$this->assertEquals('item_body', $result['text']);
+		self::assertEquals('item_title', $result['title']);
+		self::assertEquals('item_body', $result['text']);
 	}
 
 	/**
@@ -2252,8 +2252,8 @@ class ApiTest extends FixtureTest
 			['id' => 2, 'screen_name' => 'recipient_name'],
 			['id' => 3, 'screen_name' => 'sender_name']
 		);
-		$this->assertTrue(!isset($result['sender']));
-		$this->assertTrue(!isset($result['recipient']));
+		self::assertTrue(!isset($result['sender']));
+		self::assertTrue(!isset($result['recipient']));
 	}
 
 	/**
@@ -2294,8 +2294,8 @@ class ApiTest extends FixtureTest
 				'plink'   => 'item_plink'
 			]
 		);
-		$this->assertStringStartsWith('item_title', $result['text']);
-		$this->assertStringStartsWith('<h4>item_title</h4><br>perspiciatis impedit voluptatem', $result['html']);
+		self::assertStringStartsWith('item_title', $result['text']);
+		self::assertStringStartsWith('<h4>item_title</h4><br>perspiciatis impedit voluptatem', $result['html']);
 	}
 
 	/**
@@ -2313,8 +2313,8 @@ class ApiTest extends FixtureTest
 				'plink'   => 'item_plink'
 			]
 		);
-		$this->assertEquals('item_title', $result['text']);
-		$this->assertEquals('<h4>item_title</h4><br>item_plink', $result['html']);
+		self::assertEquals('item_title', $result['text']);
+		self::assertEquals('<h4>item_title</h4><br>item_plink', $result['html']);
 	}
 
 	/**
@@ -2330,8 +2330,8 @@ class ApiTest extends FixtureTest
 				'body'  => 'item_title item_body'
 			]
 		);
-		$this->assertEquals('item_title item_body', $result['text']);
-		$this->assertEquals('<h4>item_title</h4><br>item_title item_body', $result['html']);
+		self::assertEquals('item_title item_body', $result['text']);
+		self::assertEquals('<h4>item_title</h4><br>item_title item_body', $result['html']);
 	}
 
 	/**
@@ -2342,7 +2342,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetAttachments()
 	{
 		$body = 'body';
-		$this->assertEmpty(api_get_attachments($body));
+		self::assertEmpty(api_get_attachments($body));
 	}
 
 	/**
@@ -2353,7 +2353,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetAttachmentsWithImage()
 	{
 		$body = '[img]http://via.placeholder.com/1x1.png[/img]';
-		$this->assertInternalType('array', api_get_attachments($body));
+		self::assertInternalType('array', api_get_attachments($body));
 	}
 
 	/**
@@ -2365,7 +2365,7 @@ class ApiTest extends FixtureTest
 	{
 		$_SERVER['HTTP_USER_AGENT'] = 'AndStatus';
 		$body                       = '[img]http://via.placeholder.com/1x1.png[/img]';
-		$this->assertInternalType('array', api_get_attachments($body));
+		self::assertInternalType('array', api_get_attachments($body));
 	}
 
 	/**
@@ -2376,7 +2376,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetEntitities()
 	{
 		$text = 'text';
-		$this->assertInternalType('array', api_get_entitities($text, 'bbcode'));
+		self::assertInternalType('array', api_get_entitities($text, 'bbcode'));
 	}
 
 	/**
@@ -2389,10 +2389,10 @@ class ApiTest extends FixtureTest
 		$_REQUEST['include_entities'] = 'true';
 		$text                         = 'text';
 		$result                       = api_get_entitities($text, 'bbcode');
-		$this->assertInternalType('array', $result['hashtags']);
-		$this->assertInternalType('array', $result['symbols']);
-		$this->assertInternalType('array', $result['urls']);
-		$this->assertInternalType('array', $result['user_mentions']);
+		self::assertInternalType('array', $result['hashtags']);
+		self::assertInternalType('array', $result['symbols']);
+		self::assertInternalType('array', $result['urls']);
+		self::assertInternalType('array', $result['user_mentions']);
 	}
 
 	/**
@@ -2402,7 +2402,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiFormatItemsEmbededImages()
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			'text ' . DI::baseUrl() . '/display/item_guid',
 			api_format_items_embeded_images(['guid' => 'item_guid'], 'text data:image/foo')
 		);
@@ -2415,7 +2415,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiContactlinkToArray()
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			[
 				'name' => 'text',
 				'url'  => '',
@@ -2431,7 +2431,7 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiContactlinkToArrayWithUrl()
 	{
-		$this->assertEquals(
+		self::assertEquals(
 			[
 				'name' => ['link_text'],
 				'url'  => ['url'],
@@ -2449,11 +2449,11 @@ class ApiTest extends FixtureTest
 	{
 		$item   = ['uid' => 0, 'uri' => ''];
 		$result = api_format_items_activities($item);
-		$this->assertArrayHasKey('like', $result);
-		$this->assertArrayHasKey('dislike', $result);
-		$this->assertArrayHasKey('attendyes', $result);
-		$this->assertArrayHasKey('attendno', $result);
-		$this->assertArrayHasKey('attendmaybe', $result);
+		self::assertArrayHasKey('like', $result);
+		self::assertArrayHasKey('dislike', $result);
+		self::assertArrayHasKey('attendyes', $result);
+		self::assertArrayHasKey('attendno', $result);
+		self::assertArrayHasKey('attendmaybe', $result);
 	}
 
 	/**
@@ -2465,11 +2465,11 @@ class ApiTest extends FixtureTest
 	{
 		$item   = ['uid' => 0, 'uri' => ''];
 		$result = api_format_items_activities($item, 'xml');
-		$this->assertArrayHasKey('friendica:like', $result);
-		$this->assertArrayHasKey('friendica:dislike', $result);
-		$this->assertArrayHasKey('friendica:attendyes', $result);
-		$this->assertArrayHasKey('friendica:attendno', $result);
-		$this->assertArrayHasKey('friendica:attendmaybe', $result);
+		self::assertArrayHasKey('friendica:like', $result);
+		self::assertArrayHasKey('friendica:dislike', $result);
+		self::assertArrayHasKey('friendica:attendyes', $result);
+		self::assertArrayHasKey('friendica:attendno', $result);
+		self::assertArrayHasKey('friendica:attendmaybe', $result);
 	}
 
 	/**
@@ -2494,7 +2494,7 @@ class ApiTest extends FixtureTest
 		];
 		$result = api_format_items($items, ['id' => 0], true);
 		foreach ($result as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -2518,7 +2518,7 @@ class ApiTest extends FixtureTest
 		];
 		$result = api_format_items($items, ['id' => 0], true, 'xml');
 		foreach ($result as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -2530,9 +2530,9 @@ class ApiTest extends FixtureTest
 	public function testApiAccountRateLimitStatus()
 	{
 		$result = api_account_rate_limit_status('json');
-		$this->assertEquals(150, $result['hash']['remaining_hits']);
-		$this->assertEquals(150, $result['hash']['hourly_limit']);
-		$this->assertInternalType('int', $result['hash']['reset_time_in_seconds']);
+		self::assertEquals(150, $result['hash']['remaining_hits']);
+		self::assertEquals(150, $result['hash']['hourly_limit']);
+		self::assertInternalType('int', $result['hash']['reset_time_in_seconds']);
 	}
 
 	/**
@@ -2543,7 +2543,7 @@ class ApiTest extends FixtureTest
 	public function testApiAccountRateLimitStatusWithXml()
 	{
 		$result = api_account_rate_limit_status('xml');
-		$this->assertXml($result, 'hash');
+		self::assertXml($result, 'hash');
 	}
 
 	/**
@@ -2554,7 +2554,7 @@ class ApiTest extends FixtureTest
 	public function testApiHelpTest()
 	{
 		$result = api_help_test('json');
-		$this->assertEquals(['ok' => 'ok'], $result);
+		self::assertEquals(['ok' => 'ok'], $result);
 	}
 
 	/**
@@ -2565,7 +2565,7 @@ class ApiTest extends FixtureTest
 	public function testApiHelpTestWithXml()
 	{
 		$result = api_help_test('xml');
-		$this->assertXml($result, 'ok');
+		self::assertXml($result, 'ok');
 	}
 
 	/**
@@ -2576,7 +2576,7 @@ class ApiTest extends FixtureTest
 	public function testApiListsList()
 	{
 		$result = api_lists_list('json');
-		$this->assertEquals(['lists_list' => []], $result);
+		self::assertEquals(['lists_list' => []], $result);
 	}
 
 	/**
@@ -2588,7 +2588,7 @@ class ApiTest extends FixtureTest
 	{
 		$result = api_lists_ownerships('json');
 		foreach ($result['lists']['lists'] as $list) {
-			$this->assertList($list);
+			self::assertList($list);
 		}
 	}
 
@@ -2627,7 +2627,7 @@ class ApiTest extends FixtureTest
 		$_REQUEST['max_id']  = 10;
 		$result              = api_lists_statuses('json');
 		foreach ($result['status'] as $status) {
-			$this->assertStatus($status);
+			self::assertStatus($status);
 		}
 	}
 
@@ -2640,7 +2640,7 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['list_id'] = 1;
 		$result              = api_lists_statuses('rss');
-		$this->assertXml($result, 'statuses');
+		self::assertXml($result, 'statuses');
 	}
 
 	/**
@@ -2665,7 +2665,7 @@ class ApiTest extends FixtureTest
 	{
 		$_GET['page'] = -1;
 		$result       = api_statuses_f('friends');
-		$this->assertArrayHasKey('user', $result);
+		self::assertArrayHasKey('user', $result);
 	}
 
 	/**
@@ -2676,7 +2676,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesFWithFollowers()
 	{
 		$result = api_statuses_f('followers');
-		$this->assertArrayHasKey('user', $result);
+		self::assertArrayHasKey('user', $result);
 	}
 
 	/**
@@ -2687,7 +2687,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesFWithBlocks()
 	{
 		$result = api_statuses_f('blocks');
-		$this->assertArrayHasKey('user', $result);
+		self::assertArrayHasKey('user', $result);
 	}
 
 	/**
@@ -2698,7 +2698,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesFWithIncoming()
 	{
 		$result = api_statuses_f('incoming');
-		$this->assertArrayHasKey('user', $result);
+		self::assertArrayHasKey('user', $result);
 	}
 
 	/**
@@ -2709,7 +2709,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesFWithUndefinedCursor()
 	{
 		$_GET['cursor'] = 'undefined';
-		$this->assertFalse(api_statuses_f('friends'));
+		self::assertFalse(api_statuses_f('friends'));
 	}
 
 	/**
@@ -2720,7 +2720,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesFriends()
 	{
 		$result = api_statuses_friends('json');
-		$this->assertArrayHasKey('user', $result);
+		self::assertArrayHasKey('user', $result);
 	}
 
 	/**
@@ -2731,7 +2731,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesFriendsWithUndefinedCursor()
 	{
 		$_GET['cursor'] = 'undefined';
-		$this->assertFalse(api_statuses_friends('json'));
+		self::assertFalse(api_statuses_friends('json'));
 	}
 
 	/**
@@ -2742,7 +2742,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesFollowers()
 	{
 		$result = api_statuses_followers('json');
-		$this->assertArrayHasKey('user', $result);
+		self::assertArrayHasKey('user', $result);
 	}
 
 	/**
@@ -2753,7 +2753,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusesFollowersWithUndefinedCursor()
 	{
 		$_GET['cursor'] = 'undefined';
-		$this->assertFalse(api_statuses_followers('json'));
+		self::assertFalse(api_statuses_followers('json'));
 	}
 
 	/**
@@ -2764,7 +2764,7 @@ class ApiTest extends FixtureTest
 	public function testApiBlocksList()
 	{
 		$result = api_blocks_list('json');
-		$this->assertArrayHasKey('user', $result);
+		self::assertArrayHasKey('user', $result);
 	}
 
 	/**
@@ -2775,7 +2775,7 @@ class ApiTest extends FixtureTest
 	public function testApiBlocksListWithUndefinedCursor()
 	{
 		$_GET['cursor'] = 'undefined';
-		$this->assertFalse(api_blocks_list('json'));
+		self::assertFalse(api_blocks_list('json'));
 	}
 
 	/**
@@ -2786,7 +2786,7 @@ class ApiTest extends FixtureTest
 	public function testApiFriendshipsIncoming()
 	{
 		$result = api_friendships_incoming('json');
-		$this->assertArrayHasKey('id', $result);
+		self::assertArrayHasKey('id', $result);
 	}
 
 	/**
@@ -2797,7 +2797,7 @@ class ApiTest extends FixtureTest
 	public function testApiFriendshipsIncomingWithUndefinedCursor()
 	{
 		$_GET['cursor'] = 'undefined';
-		$this->assertFalse(api_friendships_incoming('json'));
+		self::assertFalse(api_friendships_incoming('json'));
 	}
 
 	/**
@@ -2808,16 +2808,16 @@ class ApiTest extends FixtureTest
 	public function testApiStatusnetConfig()
 	{
 		$result = api_statusnet_config('json');
-		$this->assertEquals('localhost', $result['config']['site']['server']);
-		$this->assertEquals('default', $result['config']['site']['theme']);
-		$this->assertEquals(DI::baseUrl() . '/images/friendica-64.png', $result['config']['site']['logo']);
-		$this->assertTrue($result['config']['site']['fancy']);
-		$this->assertEquals('en', $result['config']['site']['language']);
-		$this->assertEquals('UTC', $result['config']['site']['timezone']);
-		$this->assertEquals(200000, $result['config']['site']['textlimit']);
-		$this->assertEquals('false', $result['config']['site']['private']);
-		$this->assertEquals('false', $result['config']['site']['ssl']);
-		$this->assertEquals(30, $result['config']['site']['shorturllength']);
+		self::assertEquals('localhost', $result['config']['site']['server']);
+		self::assertEquals('default', $result['config']['site']['theme']);
+		self::assertEquals(DI::baseUrl() . '/images/friendica-64.png', $result['config']['site']['logo']);
+		self::assertTrue($result['config']['site']['fancy']);
+		self::assertEquals('en', $result['config']['site']['language']);
+		self::assertEquals('UTC', $result['config']['site']['timezone']);
+		self::assertEquals(200000, $result['config']['site']['textlimit']);
+		self::assertEquals('false', $result['config']['site']['private']);
+		self::assertEquals('false', $result['config']['site']['ssl']);
+		self::assertEquals(30, $result['config']['site']['shorturllength']);
 	}
 
 	/**
@@ -2828,7 +2828,7 @@ class ApiTest extends FixtureTest
 	public function testApiStatusnetVersion()
 	{
 		$result = api_statusnet_version('json');
-		$this->assertEquals('0.9.7', $result['version']);
+		self::assertEquals('0.9.7', $result['version']);
 	}
 
 	/**
@@ -2839,7 +2839,7 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesNew()
 	{
 		$result = api_direct_messages_new('json');
-		$this->assertNull($result);
+		self::assertNull($result);
 	}
 
 	/**
@@ -2864,7 +2864,7 @@ class ApiTest extends FixtureTest
 		$_POST['text']    = 'message_text';
 		$_POST['user_id'] = $this->otherUser['id'];
 		$result           = api_direct_messages_new('json');
-		$this->assertEquals(['direct_message' => ['error' => -1]], $result);
+		self::assertEquals(['direct_message' => ['error' => -1]], $result);
 	}
 
 	/**
@@ -2878,9 +2878,9 @@ class ApiTest extends FixtureTest
 		$_POST['text']        = 'message_text';
 		$_POST['screen_name'] = $this->friendUser['nick'];
 		$result               = api_direct_messages_new('json');
-		$this->assertContains('message_text', $result['direct_message']['text']);
-		$this->assertEquals('selfcontact', $result['direct_message']['sender_screen_name']);
-		$this->assertEquals(1, $result['direct_message']['friendica_seen']);
+		self::assertContains('message_text', $result['direct_message']['text']);
+		self::assertEquals('selfcontact', $result['direct_message']['sender_screen_name']);
+		self::assertEquals(1, $result['direct_message']['friendica_seen']);
 	}
 
 	/**
@@ -2895,10 +2895,10 @@ class ApiTest extends FixtureTest
 		$_POST['screen_name'] = $this->friendUser['nick'];
 		$_REQUEST['title']    = 'message_title';
 		$result               = api_direct_messages_new('json');
-		$this->assertContains('message_text', $result['direct_message']['text']);
-		$this->assertContains('message_title', $result['direct_message']['text']);
-		$this->assertEquals('selfcontact', $result['direct_message']['sender_screen_name']);
-		$this->assertEquals(1, $result['direct_message']['friendica_seen']);
+		self::assertContains('message_text', $result['direct_message']['text']);
+		self::assertContains('message_title', $result['direct_message']['text']);
+		self::assertEquals('selfcontact', $result['direct_message']['sender_screen_name']);
+		self::assertEquals(1, $result['direct_message']['friendica_seen']);
 	}
 
 	/**
@@ -2912,7 +2912,7 @@ class ApiTest extends FixtureTest
 		$_POST['text']        = 'message_text';
 		$_POST['screen_name'] = $this->friendUser['nick'];
 		$result               = api_direct_messages_new('rss');
-		$this->assertXml($result, 'direct-messages');
+		self::assertXml($result, 'direct-messages');
 	}
 
 	/**
@@ -2935,7 +2935,7 @@ class ApiTest extends FixtureTest
 	{
 		$_GET['friendica_verbose'] = 'true';
 		$result                    = api_direct_messages_destroy('json');
-		$this->assertEquals(
+		self::assertEquals(
 			[
 				'$result' => [
 					'result'  => 'error',
@@ -2981,7 +2981,7 @@ class ApiTest extends FixtureTest
 		$_REQUEST['friendica_parenturi'] = 'parent_uri';
 		$_GET['friendica_verbose']       = 'true';
 		$result                          = api_direct_messages_destroy('json');
-		$this->assertEquals(
+		self::assertEquals(
 			[
 				'$result' => [
 					'result'  => 'error',
@@ -3012,7 +3012,7 @@ class ApiTest extends FixtureTest
 		$_REQUEST['page']   = -1;
 		$_REQUEST['max_id'] = 10;
 		$result             = api_direct_messages_box('json', 'sentbox', 'false');
-		$this->assertArrayHasKey('direct_message', $result);
+		self::assertArrayHasKey('direct_message', $result);
 	}
 
 	/**
@@ -3023,7 +3023,7 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesBoxWithConversation()
 	{
 		$result = api_direct_messages_box('json', 'conversation', 'false');
-		$this->assertArrayHasKey('direct_message', $result);
+		self::assertArrayHasKey('direct_message', $result);
 	}
 
 	/**
@@ -3034,7 +3034,7 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesBoxWithAll()
 	{
 		$result = api_direct_messages_box('json', 'all', 'false');
-		$this->assertArrayHasKey('direct_message', $result);
+		self::assertArrayHasKey('direct_message', $result);
 	}
 
 	/**
@@ -3045,7 +3045,7 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesBoxWithInbox()
 	{
 		$result = api_direct_messages_box('json', 'inbox', 'false');
-		$this->assertArrayHasKey('direct_message', $result);
+		self::assertArrayHasKey('direct_message', $result);
 	}
 
 	/**
@@ -3056,7 +3056,7 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesBoxWithVerbose()
 	{
 		$result = api_direct_messages_box('json', 'sentbox', 'true');
-		$this->assertEquals(
+		self::assertEquals(
 			[
 				'$result' => [
 					'result'  => 'error',
@@ -3075,7 +3075,7 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesBoxWithRss()
 	{
 		$result = api_direct_messages_box('rss', 'sentbox', 'false');
-		$this->assertXml($result, 'direct-messages');
+		self::assertXml($result, 'direct-messages');
 	}
 
 	/**
@@ -3099,7 +3099,7 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesSentbox()
 	{
 		$result = api_direct_messages_sentbox('json');
-		$this->assertArrayHasKey('direct_message', $result);
+		self::assertArrayHasKey('direct_message', $result);
 	}
 
 	/**
@@ -3110,7 +3110,7 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesInbox()
 	{
 		$result = api_direct_messages_inbox('json');
-		$this->assertArrayHasKey('direct_message', $result);
+		self::assertArrayHasKey('direct_message', $result);
 	}
 
 	/**
@@ -3121,7 +3121,7 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesAll()
 	{
 		$result = api_direct_messages_all('json');
-		$this->assertArrayHasKey('direct_message', $result);
+		self::assertArrayHasKey('direct_message', $result);
 	}
 
 	/**
@@ -3132,7 +3132,7 @@ class ApiTest extends FixtureTest
 	public function testApiDirectMessagesConversation()
 	{
 		$result = api_direct_messages_conversation('json');
-		$this->assertArrayHasKey('direct_message', $result);
+		self::assertArrayHasKey('direct_message', $result);
 	}
 
 	/**
@@ -3254,7 +3254,7 @@ class ApiTest extends FixtureTest
 	public function testApiFrPhotosList()
 	{
 		$result = api_fr_photos_list('json');
-		$this->assertArrayHasKey('photo', $result);
+		self::assertArrayHasKey('photo', $result);
 	}
 
 	/**
@@ -3460,12 +3460,12 @@ class ApiTest extends FixtureTest
 		$_POST['description'] = 'new_description';
 		$result               = api_account_update_profile('json');
 		// We can't use assertSelfUser() here because the user object is missing some properties.
-		$this->assertEquals($this->selfUser['id'], $result['user']['cid']);
-		$this->assertEquals('DFRN', $result['user']['location']);
-		$this->assertEquals($this->selfUser['nick'], $result['user']['screen_name']);
-		$this->assertEquals('dfrn', $result['user']['network']);
-		$this->assertEquals('new_name', $result['user']['name']);
-		$this->assertEquals('new_description', $result['user']['description']);
+		self::assertEquals($this->selfUser['id'], $result['user']['cid']);
+		self::assertEquals('DFRN', $result['user']['location']);
+		self::assertEquals($this->selfUser['nick'], $result['user']['screen_name']);
+		self::assertEquals('dfrn', $result['user']['network']);
+		self::assertEquals('new_name', $result['user']['name']);
+		self::assertEquals('new_description', $result['user']['description']);
 	}
 
 	/**
@@ -3477,7 +3477,7 @@ class ApiTest extends FixtureTest
 	{
 		$result = check_acl_input('<aclstring>');
 		// Where does this result come from?
-		$this->assertEquals(1, $result);
+		self::assertEquals(1, $result);
 	}
 
 	/**
@@ -3488,7 +3488,7 @@ class ApiTest extends FixtureTest
 	public function testCheckAclInputWithEmptyAclString()
 	{
 		$result = check_acl_input(' ');
-		$this->assertFalse($result);
+		self::assertFalse($result);
 	}
 
 	/**
@@ -3567,7 +3567,7 @@ class ApiTest extends FixtureTest
 	{
 		$item   = ['body' => '', 'author-id' => 1, 'owner-id' => 1];
 		$result = api_share_as_retweet($item);
-		$this->assertFalse($result);
+		self::assertFalse($result);
 	}
 
 	/**
@@ -3588,11 +3588,11 @@ class ApiTest extends FixtureTest
 	public function testApiInReplyTo()
 	{
 		$result = api_in_reply_to(['id' => 0, 'parent' => 0, 'uri' => '', 'thr-parent' => '']);
-		$this->assertArrayHasKey('status_id', $result);
-		$this->assertArrayHasKey('user_id', $result);
-		$this->assertArrayHasKey('status_id_str', $result);
-		$this->assertArrayHasKey('user_id_str', $result);
-		$this->assertArrayHasKey('screen_name', $result);
+		self::assertArrayHasKey('status_id', $result);
+		self::assertArrayHasKey('user_id', $result);
+		self::assertArrayHasKey('status_id_str', $result);
+		self::assertArrayHasKey('user_id_str', $result);
+		self::assertArrayHasKey('screen_name', $result);
 	}
 
 	/**
@@ -3614,7 +3614,7 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['include_entities'] = 'true';
 		$result                       = api_clean_plain_items('some_text [url="some_url"]some_text[/url]');
-		$this->assertEquals('some_text [url="some_url"]"some_url"[/url]', $result);
+		self::assertEquals('some_text [url="some_url"]"some_url"[/url]', $result);
 	}
 
 	/**
@@ -3626,7 +3626,7 @@ class ApiTest extends FixtureTest
 	{
 		$contacts = [];
 		$result   = api_best_nickname($contacts);
-		$this->assertNull($result);
+		self::assertNull($result);
 	}
 
 	/**
@@ -3763,7 +3763,7 @@ class ApiTest extends FixtureTest
 		$this->app->argc = count($this->app->argv);
 		$_SESSION['uid'] = 41;
 		$result          = api_friendica_notification('json');
-		$this->assertEquals(['note' => false], $result);
+		self::assertEquals(['note' => false], $result);
 	}
 
 	/**
@@ -3783,7 +3783,7 @@ class ApiTest extends FixtureTest
   <note id="1" hash="" type="8" name="Reply to" url="http://localhost/display/1" photo="http://localhost/" date="2020-01-01 12:12:02" msg="A test reply from an item" uid="42" uri-id="" link="http://localhost/notification/1" iid="4" parent="0" parent-uri-id="" seen="0" verb="" otype="item" name_cache="Reply to" msg_cache="A test reply from an item" timestamp="1577880722" date_rel="{$dateRel}" msg_html="A test reply from an item" msg_plain="A test reply from an item"/>
 </notes>
 XML;
-		$this->assertXmlStringEqualsXmlString($assertXml, $result);
+		self::assertXmlStringEqualsXmlString($assertXml, $result);
 	}
 
 	/**
@@ -3796,7 +3796,7 @@ XML;
 		$this->app->argv = ['api', 'friendica', 'notification'];
 		$this->app->argc = count($this->app->argv);
 		$result          = json_encode(api_friendica_notification('json'));
-		$this->assertJson($result);
+		self::assertJson($result);
 	}
 
 	/**
@@ -3837,9 +3837,9 @@ XML;
 	public function testApiSavedSearchesList()
 	{
 		$result = api_saved_searches_list('json');
-		$this->assertEquals(1, $result['terms'][0]['id']);
-		$this->assertEquals(1, $result['terms'][0]['id_str']);
-		$this->assertEquals('Saved search', $result['terms'][0]['name']);
-		$this->assertEquals('Saved search', $result['terms'][0]['query']);
+		self::assertEquals(1, $result['terms'][0]['id']);
+		self::assertEquals(1, $result['terms'][0]['id_str']);
+		self::assertEquals('Saved search', $result['terms'][0]['name']);
+		self::assertEquals('Saved search', $result['terms'][0]['query']);
 	}
 }

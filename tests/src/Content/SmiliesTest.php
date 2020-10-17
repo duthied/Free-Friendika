@@ -62,6 +62,6 @@ class SmiliesTest extends MockedTest
 	public function testReplaceFromArray($text, $smilies, $expected)
 	{
 		$output = Smilies::replaceFromArray($text, $smilies);
-		$this->assertEquals($expected, $output);
+		self::assertEquals($expected, $output);
 	}
 }

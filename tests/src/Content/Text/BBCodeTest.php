@@ -169,9 +169,9 @@ class BBCodeTest extends MockedTest
 		$output = BBCode::convert($data);
 		$assert = '<a href="' . $data . '" target="_blank" rel="noopener noreferrer">' . $data . '</a>';
 		if ($assertHTML) {
-			$this->assertEquals($assert, $output);
+			self::assertEquals($assert, $output);
 		} else {
-			$this->assertNotEquals($assert, $output);
+			self::assertNotEquals($assert, $output);
 		}
 	}
 
@@ -264,7 +264,7 @@ class BBCodeTest extends MockedTest
 	{
 		$actual = BBCode::convert($text, $try_oembed, $simpleHtml, $forPlaintext);
 
-		$this->assertEquals($expectedHtml, $actual);
+		self::assertEquals($expectedHtml, $actual);
 	}
 
 	public function dataBBCodesToMarkdown()
@@ -299,6 +299,6 @@ class BBCodeTest extends MockedTest
 	{
 		$actual = BBCode::toMarkdown($text, $for_diaspora);
 
-		$this->assertEquals($expected, $actual);
+		self::assertEquals($expected, $actual);
 	}
 }

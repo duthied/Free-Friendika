@@ -56,10 +56,10 @@ abstract class LockTest extends MockedTest
 	 */
 	public function testLock()
 	{
-		$this->assertFalse($this->instance->isLocked('foo'));
-		$this->assertTrue($this->instance->acquire('foo', 1));
-		$this->assertTrue($this->instance->isLocked('foo'));
-		$this->assertFalse($this->instance->isLocked('bar'));
+		self::assertFalse($this->instance->isLocked('foo'));
+		self::assertTrue($this->instance->acquire('foo', 1));
+		self::assertTrue($this->instance->isLocked('foo'));
+		self::assertFalse($this->instance->isLocked('bar'));
 	}
 
 	/**
@@ -67,11 +67,11 @@ abstract class LockTest extends MockedTest
 	 */
 	public function testDoubleLock()
 	{
-		$this->assertFalse($this->instance->isLocked('foo'));
-		$this->assertTrue($this->instance->acquire('foo', 1));
-		$this->assertTrue($this->instance->isLocked('foo'));
+		self::assertFalse($this->instance->isLocked('foo'));
+		self::assertTrue($this->instance->acquire('foo', 1));
+		self::assertTrue($this->instance->isLocked('foo'));
 		// We already locked it
-		$this->assertTrue($this->instance->acquire('foo', 1));
+		self::assertTrue($this->instance->acquire('foo', 1));
 	}
 
 	/**
@@ -79,11 +79,11 @@ abstract class LockTest extends MockedTest
 	 */
 	public function testReleaseLock()
 	{
-		$this->assertFalse($this->instance->isLocked('foo'));
-		$this->assertTrue($this->instance->acquire('foo', 1));
-		$this->assertTrue($this->instance->isLocked('foo'));
+		self::assertFalse($this->instance->isLocked('foo'));
+		self::assertTrue($this->instance->acquire('foo', 1));
+		self::assertTrue($this->instance->isLocked('foo'));
 		$this->instance->release('foo');
-		$this->assertFalse($this->instance->isLocked('foo'));
+		self::assertFalse($this->instance->isLocked('foo'));
 	}
 
 	/**
@@ -91,19 +91,19 @@ abstract class LockTest extends MockedTest
 	 */
 	public function testReleaseAll()
 	{
-		$this->assertTrue($this->instance->acquire('foo', 1));
-		$this->assertTrue($this->instance->acquire('bar', 1));
-		$this->assertTrue($this->instance->acquire('nice', 1));
+		self::assertTrue($this->instance->acquire('foo', 1));
+		self::assertTrue($this->instance->acquire('bar', 1));
+		self::assertTrue($this->instance->acquire('nice', 1));
 
-		$this->assertTrue($this->instance->isLocked('foo'));
-		$this->assertTrue($this->instance->isLocked('bar'));
-		$this->assertTrue($this->instance->isLocked('nice'));
+		self::assertTrue($this->instance->isLocked('foo'));
+		self::assertTrue($this->instance->isLocked('bar'));
+		self::assertTrue($this->instance->isLocked('nice'));
 
-		$this->assertTrue($this->instance->releaseAll());
+		self::assertTrue($this->instance->releaseAll());
 
-		$this->assertFalse($this->instance->isLocked('foo'));
-		$this->assertFalse($this->instance->isLocked('bar'));
-		$this->assertFalse($this->instance->isLocked('nice'));
+		self::assertFalse($this->instance->isLocked('foo'));
+		self::assertFalse($this->instance->isLocked('bar'));
+		self::assertFalse($this->instance->isLocked('nice'));
 	}
 
 	/**
@@ -111,23 +111,23 @@ abstract class LockTest extends MockedTest
 	 */
 	public function testReleaseAfterUnlock()
 	{
-		$this->assertFalse($this->instance->isLocked('foo'));
-		$this->assertFalse($this->instance->isLocked('bar'));
-		$this->assertFalse($this->instance->isLocked('nice'));
-		$this->assertTrue($this->instance->acquire('foo', 1));
-		$this->assertTrue($this->instance->acquire('bar', 1));
-		$this->assertTrue($this->instance->acquire('nice', 1));
+		self::assertFalse($this->instance->isLocked('foo'));
+		self::assertFalse($this->instance->isLocked('bar'));
+		self::assertFalse($this->instance->isLocked('nice'));
+		self::assertTrue($this->instance->acquire('foo', 1));
+		self::assertTrue($this->instance->acquire('bar', 1));
+		self::assertTrue($this->instance->acquire('nice', 1));
 
-		$this->assertTrue($this->instance->release('foo'));
+		self::assertTrue($this->instance->release('foo'));
 
-		$this->assertFalse($this->instance->isLocked('foo'));
-		$this->assertTrue($this->instance->isLocked('bar'));
-		$this->assertTrue($this->instance->isLocked('nice'));
+		self::assertFalse($this->instance->isLocked('foo'));
+		self::assertTrue($this->instance->isLocked('bar'));
+		self::assertTrue($this->instance->isLocked('nice'));
 
-		$this->assertTrue($this->instance->releaseAll());
+		self::assertTrue($this->instance->releaseAll());
 
-		$this->assertFalse($this->instance->isLocked('bar'));
-		$this->assertFalse($this->instance->isLocked('nice'));
+		self::assertFalse($this->instance->isLocked('bar'));
+		self::assertFalse($this->instance->isLocked('nice'));
 	}
 
 	/**
@@ -135,11 +135,11 @@ abstract class LockTest extends MockedTest
 	 */
 	public function testReleaseWitTTL()
 	{
-		$this->assertFalse($this->instance->isLocked('test'));
-		$this->assertTrue($this->instance->acquire('test', 1, 10));
-		$this->assertTrue($this->instance->isLocked('test'));
-		$this->assertTrue($this->instance->release('test'));
-		$this->assertFalse($this->instance->isLocked('test'));
+		self::assertFalse($this->instance->isLocked('test'));
+		self::assertTrue($this->instance->acquire('test', 1, 10));
+		self::assertTrue($this->instance->isLocked('test'));
+		self::assertTrue($this->instance->release('test'));
+		self::assertFalse($this->instance->isLocked('test'));
 	}
 
 	/**
@@ -147,19 +147,19 @@ abstract class LockTest extends MockedTest
 	 */
 	public function testGetLocks()
 	{
-		$this->assertTrue($this->instance->acquire('foo', 1));
-		$this->assertTrue($this->instance->acquire('bar', 1));
-		$this->assertTrue($this->instance->acquire('nice', 1));
+		self::assertTrue($this->instance->acquire('foo', 1));
+		self::assertTrue($this->instance->acquire('bar', 1));
+		self::assertTrue($this->instance->acquire('nice', 1));
 
-		$this->assertTrue($this->instance->isLocked('foo'));
-		$this->assertTrue($this->instance->isLocked('bar'));
-		$this->assertTrue($this->instance->isLocked('nice'));
+		self::assertTrue($this->instance->isLocked('foo'));
+		self::assertTrue($this->instance->isLocked('bar'));
+		self::assertTrue($this->instance->isLocked('nice'));
 
 		$locks = $this->instance->getLocks();
 
-		$this->assertContains('foo', $locks);
-		$this->assertContains('bar', $locks);
-		$this->assertContains('nice', $locks);
+		self::assertContains('foo', $locks);
+		self::assertContains('bar', $locks);
+		self::assertContains('nice', $locks);
 	}
 
 	/**
@@ -167,19 +167,19 @@ abstract class LockTest extends MockedTest
 	 */
 	public function testGetLocksWithPrefix()
 	{
-		$this->assertTrue($this->instance->acquire('foo', 1));
-		$this->assertTrue($this->instance->acquire('test1', 1));
-		$this->assertTrue($this->instance->acquire('test2', 1));
+		self::assertTrue($this->instance->acquire('foo', 1));
+		self::assertTrue($this->instance->acquire('test1', 1));
+		self::assertTrue($this->instance->acquire('test2', 1));
 
-		$this->assertTrue($this->instance->isLocked('foo'));
-		$this->assertTrue($this->instance->isLocked('test1'));
-		$this->assertTrue($this->instance->isLocked('test2'));
+		self::assertTrue($this->instance->isLocked('foo'));
+		self::assertTrue($this->instance->isLocked('test1'));
+		self::assertTrue($this->instance->isLocked('test2'));
 
 		$locks = $this->instance->getLocks('test');
 
-		$this->assertContains('test1', $locks);
-		$this->assertContains('test2', $locks);
-		$this->assertNotContains('foo', $locks);
+		self::assertContains('test1', $locks);
+		self::assertContains('test2', $locks);
+		self::assertNotContains('foo', $locks);
 	}
 
 	/**
@@ -189,25 +189,25 @@ abstract class LockTest extends MockedTest
 	{
 		$this->markTestSkipped('taking too much time without mocking');
 
-		$this->assertFalse($this->instance->isLocked('foo'));
-		$this->assertFalse($this->instance->isLocked('bar'));
+		self::assertFalse($this->instance->isLocked('foo'));
+		self::assertFalse($this->instance->isLocked('bar'));
 
 		// TODO [nupplaphil] - Because of the Datetime-Utils for the database, we have to wait a FULL second between the checks to invalidate the db-locks/cache
-		$this->assertTrue($this->instance->acquire('foo', 2, 1));
-		$this->assertTrue($this->instance->acquire('bar', 2, 3));
+		self::assertTrue($this->instance->acquire('foo', 2, 1));
+		self::assertTrue($this->instance->acquire('bar', 2, 3));
 
-		$this->assertTrue($this->instance->isLocked('foo'));
-		$this->assertTrue($this->instance->isLocked('bar'));
-
-		sleep(2);
-
-		$this->assertFalse($this->instance->isLocked('foo'));
-		$this->assertTrue($this->instance->isLocked('bar'));
+		self::assertTrue($this->instance->isLocked('foo'));
+		self::assertTrue($this->instance->isLocked('bar'));
 
 		sleep(2);
 
-		$this->assertFalse($this->instance->isLocked('foo'));
-		$this->assertFalse($this->instance->isLocked('bar'));
+		self::assertFalse($this->instance->isLocked('foo'));
+		self::assertTrue($this->instance->isLocked('bar'));
+
+		sleep(2);
+
+		self::assertFalse($this->instance->isLocked('foo'));
+		self::assertFalse($this->instance->isLocked('bar'));
 	}
 
 	/**
@@ -215,7 +215,7 @@ abstract class LockTest extends MockedTest
 	 */
 	public function testReleaseLockWithoutLock()
 	{
-		$this->assertFalse($this->instance->isLocked('wrongLock'));
-		$this->assertFalse($this->instance->release('wrongLock'));
+		self::assertFalse($this->instance->isLocked('wrongLock'));
+		self::assertFalse($this->instance->release('wrongLock'));
 	}
 }

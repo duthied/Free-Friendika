@@ -57,6 +57,6 @@ class VideoTest extends MockedTest
 	{
 		$bbCodeVideo = new Video();
 
-		$this->assertEquals($assert, $bbCodeVideo->transform($input));
+		self::assertEquals($assert, $bbCodeVideo->transform($input));
 	}
 }

@@ -72,14 +72,14 @@ class ActivityTest extends MockedTest
 	{
 		$activity = new Activity();
 
-		$this->assertEquals($assert, $activity->match($haystack, $needle));
+		self::assertEquals($assert, $activity->match($haystack, $needle));
 	}
 
 	public function testIsHidden()
 	{
 		$activity = new Activity();
 
-		$this->assertTrue($activity->isHidden(Activity::LIKE));
-		$this->assertFalse($activity->isHidden(Activity\ObjectType::BOOKMARK));
+		self::assertTrue($activity->isHidden(Activity::LIKE));
+		self::assertFalse($activity->isHidden(Activity\ObjectType::BOOKMARK));
 	}
 }

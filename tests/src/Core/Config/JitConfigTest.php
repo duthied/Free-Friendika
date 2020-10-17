@@ -100,7 +100,7 @@ class JitConfigTest extends ConfigTest
 
 		// Assert the expected categories
 		foreach ($data2 as $cat => $data) {
-			$this->assertConfig($cat, $expect[$cat]);
+			self::assertConfig($cat, $expect[$cat]);
 		}
 	}
 

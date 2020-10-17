@@ -37,18 +37,18 @@ class ACLFormaterTest extends TestCase
 
 		$acl = $aclFormatter->expand($text);
 
-		$this->assertEquals($assert, $acl);
+		self::assertEquals($assert, $acl);
 
-		$this->assertMergable($acl);
+		self::assertMergable($acl);
 	}
 
 	public function assertMergable(array $aclOne, array $aclTwo = [])
 	{
-		$this->assertTrue(is_array($aclOne));
-		$this->assertTrue(is_array($aclTwo));
+		self::assertTrue(is_array($aclOne));
+		self::assertTrue(is_array($aclTwo));
 
 		$aclMerged = array_unique(array_merge($aclOne, $aclTwo));
-		$this->assertTrue(is_array($aclMerged));
+		self::assertTrue(is_array($aclMerged));
 
 		return $aclMerged;
 	}
@@ -118,7 +118,7 @@ class ACLFormaterTest extends TestCase
 	 */
 	public function testExpand($input, array $assert)
 	{
-		$this->assertAcl($input, $assert);
+		self::assertAcl($input, $assert);
 	}
 
 	/**
@@ -131,11 +131,11 @@ class ACLFormaterTest extends TestCase
 		$allow_people = $aclFormatter->expand();
 		$allow_groups = $aclFormatter->expand();
 
-		$this->assertEmpty($aclFormatter->expand(null));
-		$this->assertEmpty($aclFormatter->expand());
+		self::assertEmpty($aclFormatter->expand(null));
+		self::assertEmpty($aclFormatter->expand());
 
 		$recipients   = array_unique(array_merge($allow_people, $allow_groups));
-		$this->assertEmpty($recipients);
+		self::assertEmpty($recipients);
 	}
 
 	public function dataAclToString()
@@ -188,6 +188,6 @@ class ACLFormaterTest extends TestCase
 	{
 		$aclFormatter = new ACLFormatter();
 
-		$this->assertEquals($assert, $aclFormatter->toString($input));
+		self::assertEquals($assert, $aclFormatter->toString($input));
 	}
 }

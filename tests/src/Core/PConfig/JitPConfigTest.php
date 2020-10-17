@@ -78,7 +78,7 @@ class JitPConfigTest extends PConfigTest
 
 		// Assert the expected categories
 		foreach ($data2 as $cat => $data) {
-			$this->assertConfig($uid, $cat, $expect[$cat]);
+			self::assertConfig($uid, $cat, $expect[$cat]);
 		}
 	}
 

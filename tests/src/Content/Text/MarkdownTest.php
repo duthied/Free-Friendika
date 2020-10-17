@@ -67,7 +67,7 @@ class MarkdownTest extends MockedTest
 	{
 		$output = Markdown::convert($input);
 
-		$this->assertEquals($expected, $output);
+		self::assertEquals($expected, $output);
 	}
 
 	public function dataMarkdownText()
@@ -93,6 +93,6 @@ class MarkdownTest extends MockedTest
 	{
 		$actual = Markdown::toBBCode($html);
 
-		$this->assertEquals($expectedBBCode, $actual);
+		self::assertEquals($expectedBBCode, $actual);
 	}
 }

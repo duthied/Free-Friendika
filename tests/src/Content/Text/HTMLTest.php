@@ -67,7 +67,7 @@ class HTMLTest extends MockedTest
 	{
 		$output = HTML::toPlaintext($input, 0);
 
-		$this->assertEquals($expected, $output);
+		self::assertEquals($expected, $output);
 	}
 
 	public function dataHTMLText()
@@ -97,6 +97,6 @@ class HTMLTest extends MockedTest
 	{
 		$actual = HTML::toBBCode($html);
 
-		$this->assertEquals($expectedBBCode, $actual);
+		self::assertEquals($expectedBBCode, $actual);
 	}
 }

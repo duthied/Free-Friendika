@@ -71,7 +71,7 @@ class ConfigConsoleTest extends ConsoleTest
 		$console->setArgument(1, 'test');
 		$console->setArgument(2, 'now');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("config.test <= now\n", $txt);
+		self::assertEquals("config.test <= now\n", $txt);
 
 		$this->configMock
 			->shouldReceive('get')
@@ -83,7 +83,7 @@ class ConfigConsoleTest extends ConsoleTest
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("config.test => now\n", $txt);
+		self::assertEquals("config.test => now\n", $txt);
 
 		$this->configMock
 			->shouldReceive('get')
@@ -95,7 +95,7 @@ class ConfigConsoleTest extends ConsoleTest
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("config.test => \n", $txt);
+		self::assertEquals("config.test => \n", $txt);
 	}
 
 	function testSetArrayValue() {
@@ -112,7 +112,7 @@ class ConfigConsoleTest extends ConsoleTest
 		$console->setArgument(2, 'now');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals("[Error] config.test is an array and can't be set using this command.\n", $txt);
+		self::assertEquals("[Error] config.test is an array and can't be set using this command.\n", $txt);
 	}
 
 	function testTooManyArguments() {
@@ -124,7 +124,7 @@ class ConfigConsoleTest extends ConsoleTest
 		$txt = $this->dumpExecute($console);
 		$assertion = '[Warning] Too many arguments';
 		$firstline = substr($txt, 0, strlen($assertion));
-		$this->assertEquals($assertion, $firstline);
+		self::assertEquals($assertion, $firstline);
 	}
 
 	function testVerbose() {
@@ -152,7 +152,7 @@ test.it => now
 
 CONF;
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals($assertion, $txt);
+		self::assertEquals($assertion, $txt);
 	}
 
 	function testUnableToSet() {
@@ -171,7 +171,7 @@ CONF;
 		$console->setArgument(1, 'it');
 		$console->setArgument(2, 'now');
 		$txt = $this->dumpExecute($console);
-		$this->assertSame("Unable to set test.it\n", $txt);
+		self::assertSame("Unable to set test.it\n", $txt);
 	}
 
 	public function testGetHelp()
@@ -212,6 +212,6 @@ HELP;
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals($txt, $theHelp);
+		self::assertEquals($txt, $theHelp);
 	}
 }

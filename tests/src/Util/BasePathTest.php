@@ -59,7 +59,7 @@ class BasePathTest extends MockedTest
 	public function testDetermineBasePath(array $server, $input, $output)
 	{
 		$basepath = new BasePath($input, $server);
-		$this->assertEquals($output, $basepath->getPath());
+		self::assertEquals($output, $basepath->getPath());
 	}
 
 	/**

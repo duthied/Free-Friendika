@@ -32,13 +32,13 @@ class DBATest extends DatabaseTest
 	 */
 	public function testExists() {
 
-		$this->assertTrue(DBA::exists('config', []));
-		$this->assertFalse(DBA::exists('notable', []));
+		self::assertTrue(DBA::exists('config', []));
+		self::assertFalse(DBA::exists('notable', []));
 
-		$this->assertTrue(DBA::exists('config', null));
-		$this->assertFalse(DBA::exists('notable', null));
+		self::assertTrue(DBA::exists('config', null));
+		self::assertFalse(DBA::exists('notable', null));
 
-		$this->assertTrue(DBA::exists('config', ['k' => 'hostname']));
-		$this->assertFalse(DBA::exists('config', ['k' => 'nonsense']));
+		self::assertTrue(DBA::exists('config', ['k' => 'hostname']));
+		self::assertFalse(DBA::exists('config', ['k' => 'nonsense']));
 	}
 }

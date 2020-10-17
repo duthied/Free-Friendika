@@ -97,25 +97,25 @@ abstract class CacheTest extends MockedTest
 	 */
 	function testSimple($value1, $value2)
 	{
-		$this->assertNull($this->instance->get('value1'));
+		self::assertNull($this->instance->get('value1'));
 
 		$this->instance->set('value1', $value1);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value1, $received, 'Value received from cache not equal to the original');
+		self::assertEquals($value1, $received, 'Value received from cache not equal to the original');
 
 		$this->instance->set('value1', $value2);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value2, $received, 'Value not overwritten by second set');
+		self::assertEquals($value2, $received, 'Value not overwritten by second set');
 
 		$this->instance->set('value2', $value1);
 		$received2 = $this->instance->get('value2');
-		$this->assertEquals($value2, $received, 'Value changed while setting other variable');
-		$this->assertEquals($value1, $received2, 'Second value not equal to original');
+		self::assertEquals($value2, $received, 'Value changed while setting other variable');
+		self::assertEquals($value1, $received2, 'Second value not equal to original');
 
-		$this->assertNull($this->instance->get('not_set'), 'Unset value not equal to null');
+		self::assertNull($this->instance->get('not_set'), 'Unset value not equal to null');
 
-		$this->assertTrue($this->instance->delete('value1'));
-		$this->assertNull($this->instance->get('value1'));
+		self::assertTrue($this->instance->delete('value1'));
+		self::assertNull($this->instance->get('value1'));
 	}
 
 	/**
@@ -135,7 +135,7 @@ abstract class CacheTest extends MockedTest
 		$this->instance->set('2_value1', $value3);
 		$this->instance->set('3_value1', $value4);
 
-		$this->assertEquals([
+		self::assertEquals([
 			'1_value1' => $value1,
 			'1_value2' => $value2,
 			'2_value1' => $value3,
@@ -147,9 +147,9 @@ abstract class CacheTest extends MockedTest
 			'3_value1' => $this->instance->get('3_value1'),
 		]);
 
-		$this->assertTrue($this->instance->clear());
+		self::assertTrue($this->instance->clear());
 
-		$this->assertEquals([
+		self::assertEquals([
 			'1_value1' => $value1,
 			'1_value2' => $value2,
 			'2_value1' => $value3,
@@ -161,9 +161,9 @@ abstract class CacheTest extends MockedTest
 			'3_value1' => $this->instance->get('3_value1'),
 		]);
 
-		$this->assertTrue($this->instance->clear(false));
+		self::assertTrue($this->instance->clear(false));
 
-		$this->assertEquals([
+		self::assertEquals([
 			'1_value1' => null,
 			'1_value2' => null,
 			'2_value3' => null,
@@ -183,16 +183,16 @@ abstract class CacheTest extends MockedTest
 	{
 		$this->markTestSkipped('taking too much time without mocking');
 
-		$this->assertNull($this->instance->get('value1'));
+		self::assertNull($this->instance->get('value1'));
 
 		$value = 'foobar';
 		$this->instance->set('value1', $value, 1);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value, $received, 'Value received from cache not equal to the original');
+		self::assertEquals($value, $received, 'Value received from cache not equal to the original');
 
 		sleep(2);
 
-		$this->assertNull($this->instance->get('value1'));
+		self::assertNull($this->instance->get('value1'));
 	}
 
 	/**
@@ -206,7 +206,7 @@ abstract class CacheTest extends MockedTest
 	{
 		$this->instance->set('val', $data);
 		$received = $this->instance->get('val');
-		$this->assertEquals($data, $received, 'Value type changed from ' . gettype($data) . ' to ' . gettype($received));
+		self::assertEquals($data, $received, 'Value type changed from ' . gettype($data) . ' to ' . gettype($received));
 	}
 
 	/**
@@ -220,20 +220,20 @@ abstract class CacheTest extends MockedTest
 	 */
 	public function testGetAllKeys($value1, $value2, $value3)
 	{
-		$this->assertTrue($this->instance->set('value1', $value1));
-		$this->assertTrue($this->instance->set('value2', $value2));
-		$this->assertTrue($this->instance->set('test_value3', $value3));
+		self::assertTrue($this->instance->set('value1', $value1));
+		self::assertTrue($this->instance->set('value2', $value2));
+		self::assertTrue($this->instance->set('test_value3', $value3));
 
 		$list = $this->instance->getAllKeys();
 
-		$this->assertContains('value1', $list);
-		$this->assertContains('value2', $list);
-		$this->assertContains('test_value3', $list);
+		self::assertContains('value1', $list);
+		self::assertContains('value2', $list);
+		self::assertContains('test_value3', $list);
 
 		$list = $this->instance->getAllKeys('test');
 
-		$this->assertContains('test_value3', $list);
-		$this->assertNotContains('value1', $list);
-		$this->assertNotContains('value2', $list);
+		self::assertContains('test_value3', $list);
+		self::assertNotContains('value1', $list);
+		self::assertNotContains('value2', $list);
 	}
 }

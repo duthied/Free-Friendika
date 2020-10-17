@@ -73,9 +73,9 @@ class SemaphoreLockTest extends LockTest
 		$file = get_temppath() . '/test.sem';
 		touch($file);
 
-		$this->assertTrue(file_exists($file));
-		$this->assertFalse($this->instance->release('test', false));
-		$this->assertTrue(file_exists($file));
+		self::assertTrue(file_exists($file));
+		self::assertFalse($this->instance->release('test', false));
+		self::assertTrue(file_exists($file));
 	}
 
 	/**
@@ -90,9 +90,9 @@ class SemaphoreLockTest extends LockTest
 		$file = get_temppath() . '/test.sem';
 		touch($file);
 
-		$this->assertTrue(file_exists($file));
-		$this->assertFalse($this->instance->release('test', true));
-		$this->assertTrue(file_exists($file));
+		self::assertTrue(file_exists($file));
+		self::assertFalse($this->instance->release('test', true));
+		self::assertTrue(file_exists($file));
 	}
 
 	/**
@@ -103,9 +103,9 @@ class SemaphoreLockTest extends LockTest
 		$file = get_temppath() . '/test.sem';
 		touch($file);
 
-		$this->assertTrue(file_exists($file));
-		$this->assertTrue($this->instance->acquire('test'));
-		$this->assertTrue($this->instance->isLocked('test'));
-		$this->assertTrue($this->instance->release('test'));
+		self::assertTrue(file_exists($file));
+		self::assertTrue($this->instance->acquire('test'));
+		self::assertTrue($this->instance->isLocked('test'));
+		self::assertTrue($this->instance->release('test'));
 	}
 }
