@@ -1430,10 +1430,10 @@ class Worker
 			$execute = !(($current > $end) && ($current < $start));
 		}
 
-		if (!$execute) {
-			Logger::info('We are outside the maintenance window', ['current' => date('H:i:s', $current), 'start' => date('H:i:s', $start), 'end' => date('H:i:s', $end)]);
-		} else {
+		if ($execute) {
 			Logger::info('We are inside the maintenance window', ['current' => date('H:i:s', $current), 'start' => date('H:i:s', $start), 'end' => date('H:i:s', $end)]);
+		} else {
+			Logger::info('We are outside the maintenance window', ['current' => date('H:i:s', $current), 'start' => date('H:i:s', $start), 'end' => date('H:i:s', $end)]);
 		}
 		
 		return $execute;
