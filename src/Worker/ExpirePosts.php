@@ -22,6 +22,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
@@ -39,35 +40,58 @@ class ExpirePosts
 			$expire_days_unclaimed = $expire_days;
 		}
 
-		if (!empty($expire_days)) {
-			Logger::notice('Start deleting expired threads', ['expiry_days' => $expire_days]);
-			$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` IN
-				(SELECT `uri-id` FROM `thread`
-				INNER JOIN `contact` ON `id` = `contact-id` AND NOT `notify_new_posts`
-				WHERE `received` < UTC_TIMESTAMP() - INTERVAL ? DAY
-					AND NOT `mention` AND NOT `starred` AND NOT `wall` AND NOT `origin`
-					AND `thread`.`uid` != 0 AND NOT `iid` IN (SELECT `parent` FROM `item`
-						WHERE (`item`.`starred` OR (`item`.`resource-id` != '')
-							OR (`item`.`event-id` != '') OR (`item`.`attach` != '')
-							OR `item`.`wall` OR `item`.`origin`
-							OR `uri-id` IN (SELECT `uri-id` FROM `post-category`
-								WHERE `uri-id` = `item`.`uri-id`))
-							AND `item`.`parent` = `thread`.`iid`))", $expire_days);
+		$limit = DI::config()->get('system', 'dbclean-expire-limit');
+		if (empty($limit)) {
+			return;
+		}
 
-			Logger::notice('Deleted expired threads', ['result' => $ret, 'rows' => DBA::affectedRows()]);
+		if (!empty($expire_days)) {
+			do {
+				Logger::notice('Start deleting expired threads', ['expiry_days' => $expire_days]);
+				$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` IN
+					(SELECT `uri-id` FROM `thread`
+					INNER JOIN `contact` ON `id` = `contact-id` AND NOT `notify_new_posts`
+					WHERE `received` < UTC_TIMESTAMP() - INTERVAL ? DAY
+						AND NOT `mention` AND NOT `starred` AND NOT `wall` AND NOT `origin`
+						AND `thread`.`uid` != 0 AND NOT `iid` IN (SELECT `parent` FROM `item`
+							WHERE (`item`.`starred` OR (`item`.`resource-id` != '')
+								OR (`item`.`event-id` != '') OR (`item`.`attach` != '')
+								OR `item`.`wall` OR `item`.`origin`
+								OR `uri-id` IN (SELECT `uri-id` FROM `post-category`
+									WHERE `uri-id` = `item`.`uri-id`))
+								AND `item`.`parent` = `thread`.`iid`))
+					ORDER BY `id` LIMIT ?", $expire_days, $limit);
+
+				$rows = DBA::affectedRows();
+				Logger::notice('Deleted expired threads', ['result' => $ret, 'rows' => $rows]);
+
+				if (!Worker::isInMaintenanceWindow()) {
+					Logger::notice('We are outside of the maintenance window, quitting');
+					return;
+				}
+			} while ($rows >= $limit);
 		}
 
 		if (!empty($expire_days_unclaimed)) {
 			$expiry_date = DateTimeFormat::utc('now - ' . $expire_days_unclaimed . ' days', DateTimeFormat::MYSQL);
 
-			Logger::notice('Start deleting unclaimed public items', ['expiry_days' => $expire_days_unclaimed, 'expired' => $expiry_date]);
-			$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` IN
-				(SELECT `uri-id` FROM `item` WHERE `gravity` = ? AND `uid` = ? AND `received` < ?
-					AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item` WHERE `uid` != ?)
-					AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item` WHERE `uid` = ? AND `received` > ?))",
-				GRAVITY_PARENT, 0, $expiry_date, 0, 0, $expiry_date);
+			do {
+				Logger::notice('Start deleting unclaimed public items', ['expiry_days' => $expire_days_unclaimed, 'expired' => $expiry_date]);
+				$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` IN
+					(SELECT `uri-id` FROM `item` WHERE `gravity` = ? AND `uid` = ? AND `received` < ?
+						AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item` WHERE `uid` != ?)
+						AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item` WHERE `uid` = ? AND `received` > ?))
+					ORDER BY `id` LIMIT ?",
+					GRAVITY_PARENT, 0, $expiry_date, 0, 0, $expiry_date, $limit);
 
-			Logger::notice('Deleted unclaimed public items', ['result' => $ret, 'rows' => DBA::affectedRows()]);
+				$rows = DBA::affectedRows();
+				Logger::notice('Deleted unclaimed public items', ['result' => $ret, 'rows' => $rows]);
+
+				if (!Worker::isInMaintenanceWindow()) {
+					Logger::notice('We are outside of the maintenance window, quitting');
+					return;
+				}
+			} while ($rows >= $limit);
 		}
 	}
 }

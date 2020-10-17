@@ -187,7 +187,8 @@ return [
 
 		// dbclean-expire-limit (Integer)
 		// This defines the number of items that are to be deleted in a single call.
-		// Reduce this value when you are getting memory issues.
+		// Reduce this value when you are getting lock issues.
+		// A value of 0 disables the deletion process.
 		'dbclean-expire-limit' => 1000,
 
 		// diaspora_test (Boolean)
@@ -298,6 +299,16 @@ return [
 		// logger_config (String)
 		// Sets the logging adapter of Friendica globally (monolog, syslog, stream)
 		'logger_config' => 'stream',
+
+		// maintenance_start (String)
+		// Start of the window for the daily maintenance cron call.
+		// The system timezone is used when no timezone is defined here.
+		'maintenance_start' => '01:00 +00:00',
+
+		// maintenance_end (String)
+		// End of the window for the daily maintenance cron call
+		// The system timezone is used when no timezone is defined here.
+		'maintenance_end' => '03:00 +00:00',
 
 		// max_batch_queue (Integer)
 		// Maximum number of batched queue items for a single contact before subsequent messages are discarded.
