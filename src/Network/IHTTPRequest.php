@@ -29,12 +29,10 @@ interface IHTTPRequest
 	/**
 	 * Fetches the content of an URL
 	 *
-	 * If binary flag is true, return binary results.
 	 * Set the cookiejar argument to a string (e.g. "/tmp/friendica-cookies.txt")
 	 * to preserve cookies from one request to the next.
 	 *
 	 * @param string $url             URL to fetch
-	 *                                TRUE if asked to return binary results (file download)
 	 * @param int    $timeout         Timeout in seconds, default system config value or 60 seconds
 	 * @param string $accept_content  supply Accept: header with 'accept_content' as the value
 	 * @param string $cookiejar       Path to cookie jar file
@@ -50,7 +48,6 @@ interface IHTTPRequest
 	 * all the information collected during the fetch.
 	 *
 	 * @param string $url             URL to fetch
-	 *                                TRUE if asked to return binary results (file download)
 	 * @param int    $timeout         Timeout in seconds, default system config value or 60 seconds
 	 * @param string $accept_content  supply Accept: header with 'accept_content' as the value
 	 * @param string $cookiejar       Path to cookie jar file
@@ -60,16 +57,30 @@ interface IHTTPRequest
 	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '');
 
 	/**
-	 * Send a GET to an URL.
+	 * Send a HEAD to an URL.
 	 *
 	 * @param string $url        URL to fetch
-	 *                           TRUE if asked to return binary results (file download)
 	 * @param array  $opts       (optional parameters) assoziative array with:
 	 *                           'accept_content' => supply Accept: header with 'accept_content' as the value
 	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
 	 *                           'http_auth' => username:password
 	 *                           'novalidate' => do not validate SSL certs, default is to validate using our CA list
-	 *                           'nobody' => only return the header
+	 *                           'cookiejar' => path to cookie jar file
+	 *                           'header' => header array
+	 *
+	 * @return CurlResult
+	 */
+	public function head(string $url, array $opts = []);
+
+	/**
+	 * Send a GET to an URL.
+	 *
+	 * @param string $url        URL to fetch
+	 * @param array  $opts       (optional parameters) assoziative array with:
+	 *                           'accept_content' => supply Accept: header with 'accept_content' as the value
+	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
+	 *                           'http_auth' => username:password
+	 *                           'novalidate' => do not validate SSL certs, default is to validate using our CA list
 	 *                           'cookiejar' => path to cookie jar file
 	 *                           'header' => header array
 	 *

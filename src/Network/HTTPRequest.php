@@ -52,6 +52,17 @@ class HTTPRequest implements IHTTPRequest
 		$this->baseUrl  = $baseUrl->get();
 	}
 
+	/** {@inheritDoc}
+	 *
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public function head(string $url, array $opts = [])
+	{
+		$opts['nobody'] = true;
+
+		return $this->get($url, $opts);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 *
