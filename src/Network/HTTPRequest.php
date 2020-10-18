@@ -141,6 +141,7 @@ class HTTPRequest implements IHTTPRequest
 		curl_setopt($ch, CURLOPT_ENCODING, '');
 
 		if (!empty($opts['headers'])) {
+			$this->logger->warning('Wrong option \'headers\' used.');
 			@curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['headers']);
 		}
 

@@ -411,7 +411,7 @@ class HTTPSignature
 	 */
 	public static function fetchRaw($request, $uid = 0, $binary = false, $opts = [])
 	{
-		$headers = [];
+		$header = [];
 
 		if (!empty($uid)) {
 			$owner = User::getOwnerDataById($uid);
@@ -431,21 +431,21 @@ class HTTPSignature
 			$path = parse_url($request, PHP_URL_PATH);
 			$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
 
-			$headers = ['Date: ' . $date, 'Host: ' . $host];
+			$header = ['Date: ' . $date, 'Host: ' . $host];
 
 			$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
 
 			$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
 
-			$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
+			$header[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
 		}
 
 		if (!empty($opts['accept_content'])) {
-			$headers[] = 'Accept: ' . $opts['accept_content'];
+			$header[] = 'Accept: ' . $opts['accept_content'];
 		}
 
 		$curl_opts = $opts;
-		$curl_opts['header'] = $headers;
+		$curl_opts['header'] = $header;
 
 		if ($opts['nobody']) {
 			$curlResult = DI::httpRequest()->head($request, $curl_opts);
