@@ -45,8 +45,11 @@ class JitConfigTest extends ConfigTest
 
 	/**
 	 * @dataProvider dataConfigLoad
+	 *
+	 * @param array $data
+	 * @param array $load
 	 */
-	public function testLoad(array $data, array $possibleCats, array $load)
+	public function testLoad(array $data, array $load)
 	{
 		$this->configModel->shouldReceive('isConnected')
 		                  ->andReturn(true)
@@ -64,13 +67,13 @@ class JitConfigTest extends ConfigTest
 			                  ->once();
 		}
 
-		parent::testLoad($data, $possibleCats, $load);
+		parent::testLoad($data, $load);
 	}
 
 	/**
 	 * @dataProvider dataDoubleLoad
 	 */
-	public function testCacheLoadDouble(array $data1, array $data2, array $expect)
+	public function testCacheLoadDouble(array $data1, array $data2, array $expect = [])
 	{
 		$this->configModel->shouldReceive('isConnected')
 		                  ->andReturn(true)
@@ -96,7 +99,7 @@ class JitConfigTest extends ConfigTest
 			                  ->once();
 		}
 
-		parent::testCacheLoadDouble($data1, $data2, $expect);
+		parent::testCacheLoadDouble($data1, $data2);
 
 		// Assert the expected categories
 		foreach ($data2 as $cat => $data) {

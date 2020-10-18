@@ -48,6 +48,8 @@ class CookieTest extends MockedTest
 	protected function tearDown()
 	{
 		StaticCookie::clearStatic();
+
+		parent::tearDown();
 	}
 
 	/**

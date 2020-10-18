@@ -27,20 +27,21 @@ use Friendica\Core\Config\IConfig;
 use Friendica\Core\Config\JitConfig;
 use Friendica\Core\Lock\SemaphoreLock;
 use Friendica\DI;
+use Mockery;
 use Mockery\MockInterface;
 
 class SemaphoreLockTest extends LockTest
 {
-	public function setUp()
+	protected function setUp()
 	{
 		/** @var MockInterface|Dice $dice */
-		$dice = \Mockery::mock(Dice::class)->makePartial();
+		$dice = Mockery::mock(Dice::class)->makePartial();
 
-		$app = \Mockery::mock(App::class);
+		$app = Mockery::mock(App::class);
 		$app->shouldReceive('getHostname')->andReturn('friendica.local');
 		$dice->shouldReceive('create')->with(App::class)->andReturn($app);
 
-		$configMock = \Mockery::mock(JitConfig::class);
+		$configMock = Mockery::mock(JitConfig::class);
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'temppath')
@@ -58,7 +59,7 @@ class SemaphoreLockTest extends LockTest
 		return new SemaphoreLock();
 	}
 
-	function testLockTTL()
+	public function testLockTTL()
 	{
 		// Semaphore doesn't work with TTL
 		return true;
@@ -83,6 +84,7 @@ class SemaphoreLockTest extends LockTest
 	 * This test proves that semaphore locks cannot get released by other instances except themselves
 	 *
 	 * Check for Bug https://github.com/friendica/friendica/issues/7298#issuecomment-521996540
+	 *
 	 * @see https://github.com/friendica/friendica/issues/7298#issuecomment-521996540
 	 */
 	public function testMissingFileOverriding()

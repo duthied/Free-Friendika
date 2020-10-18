@@ -41,10 +41,7 @@ class SystemMailBuilderTest extends MockedTest
 	/** @var BaseURL */
 	private $baseUrl;
 
-	/** @var string[] */
-	private $defaultHeaders;
-
-	public function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 
@@ -59,8 +56,6 @@ class SystemMailBuilderTest extends MockedTest
 		$this->baseUrl = \Mockery::mock(BaseURL::class);
 		$this->baseUrl->shouldReceive('getHostname')->andReturn('friendica.local');
 		$this->baseUrl->shouldReceive('get')->andReturn('http://friendica.local');
-
-		$this->defaultHeaders = [];
 	}
 
 	/**

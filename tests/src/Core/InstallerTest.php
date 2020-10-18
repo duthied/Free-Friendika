@@ -19,7 +19,7 @@
  *
  */
 
-// this is in the same namespace as Install for mocking 'function_exists'
+/// @todo this is in the same namespace as Install for mocking 'function_exists'
 namespace Friendica\Core;
 
 use Dice\Dice;
@@ -29,6 +29,7 @@ use Friendica\Network\CurlResult;
 use Friendica\Network\IHTTPRequest;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
+use Mockery;
 use Mockery\MockInterface;
 
 class InstallerTest extends MockedTest
@@ -36,7 +37,7 @@ class InstallerTest extends MockedTest
 	use VFSTrait;
 
 	/**
-	 * @var \Friendica\Core\L10n|MockInterface
+	 * @var L10n|MockInterface
 	 */
 	private $l10nMock;
 	/**
@@ -44,20 +45,20 @@ class InstallerTest extends MockedTest
 	 */
 	private $dice;
 
-	public function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 
 		$this->setUpVfsDir();
 
-		$this->l10nMock = \Mockery::mock(\Friendica\Core\L10n::class);
+		$this->l10nMock = Mockery::mock(L10n::class);
 
 		/** @var Dice|MockInterface $dice */
-		$this->dice = \Mockery::mock(Dice::class)->makePartial();
+		$this->dice = Mockery::mock(Dice::class)->makePartial();
 		$this->dice = $this->dice->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
 
 		$this->dice->shouldReceive('create')
-		           ->with(\Friendica\Core\L10n::class)
+		           ->with(L10n::class)
 		           ->andReturn($this->l10nMock);
 
 		DI::init($this->dice);
@@ -112,7 +113,7 @@ class InstallerTest extends MockedTest
 	 *
 	 * @param array $functions a list from function names and their result
 	 */
-	private function setFunctions($functions)
+	private function setFunctions(array $functions)
 	{
 		global $phpMock;
 		$phpMock['function_exists'] = function($function) use ($functions) {
@@ -130,7 +131,7 @@ class InstallerTest extends MockedTest
 	 *
 	 * @param array $classes a list from class names and their results
 	 */
-	private function setClasses($classes)
+	private function setClasses(array $classes)
 	{
 		global $phpMock;
 		$phpMock['class_exists'] = function($class) use ($classes) {
@@ -297,7 +298,7 @@ class InstallerTest extends MockedTest
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		// Mocking the CURL Response
-		$curlResult = \Mockery::mock(CurlResult::class);
+		$curlResult = Mockery::mock(CurlResult::class);
 		$curlResult
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
@@ -309,7 +310,7 @@ class InstallerTest extends MockedTest
 			->andReturn('test Error');
 
 		// Mocking the CURL Request
-		$networkMock = \Mockery::mock(IHTTPRequest::class);
+		$networkMock = Mockery::mock(IHTTPRequest::class);
 		$networkMock
 			->shouldReceive('fetchFull')
 			->with('https://test/install/testrewrite')
@@ -344,19 +345,19 @@ class InstallerTest extends MockedTest
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		// Mocking the failed CURL Response
-		$curlResultF = \Mockery::mock(CurlResult::class);
+		$curlResultF = Mockery::mock(CurlResult::class);
 		$curlResultF
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
 
 		// Mocking the working CURL Response
-		$curlResultW = \Mockery::mock(CurlResult::class);
+		$curlResultW = Mockery::mock(CurlResult::class);
 		$curlResultW
 			->shouldReceive('getReturnCode')
 			->andReturn('204');
 
 		// Mocking the CURL Request
-		$networkMock = \Mockery::mock(IHTTPRequest::class);
+		$networkMock = Mockery::mock(IHTTPRequest::class);
 		$networkMock
 			->shouldReceive('fetchFull')
 			->with('https://test/install/testrewrite')
@@ -387,7 +388,7 @@ class InstallerTest extends MockedTest
 	 */
 	public function testImagick()
 	{
-		$this->markTestIncomplete('needs adapted class_exists() mock');
+		static::markTestIncomplete('needs adapted class_exists() mock');
 
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
@@ -413,7 +414,7 @@ class InstallerTest extends MockedTest
 	 */
 	public function testImagickNotFound()
 	{
-		$this->markTestIncomplete('Disabled due not working/difficult mocking global functions - needs more care!');
+		static::markTestIncomplete('Disabled due not working/difficult mocking global functions - needs more care!');
 
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
@@ -456,8 +457,8 @@ class InstallerTest extends MockedTest
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		$install = new Installer();
-		$configCache = \Mockery::mock(Cache::class);
-		$configCache->shouldReceive('set')->with('config', 'php_path', \Mockery::any())->once();
+		$configCache = Mockery::mock(Cache::class);
+		$configCache->shouldReceive('set')->with('config', 'php_path', Mockery::any())->once();
 		$configCache->shouldReceive('set')->with('system', 'basepath', '/test/')->once();
 
 		$install->setUpCache($configCache, '/test/');
@@ -471,7 +472,7 @@ class InstallerTest extends MockedTest
  *
  * @return bool true or false
  */
-function function_exists($function_name)
+function function_exists(string $function_name)
 {
 	global $phpMock;
 	if (isset($phpMock['function_exists'])) {

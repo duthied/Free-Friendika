@@ -4,6 +4,7 @@ namespace Friendica\Test\src\Module\Api\Twitter;
 
 use Friendica\Model\Contact;
 use Friendica\Module\Api\Twitter\ContactEndpoint;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Object\Api\Twitter\User;
 use Friendica\Test\FixtureTest;
@@ -172,7 +173,7 @@ class ContactEndpointTest extends FixtureTest
 	 * @depends testIds
 	 *
 	 * @throws NotFoundException
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public function testList()

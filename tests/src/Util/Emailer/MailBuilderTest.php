@@ -24,6 +24,7 @@ namespace Friendica\Test\src\Util\Emailer;
 use Friendica\App\BaseURL;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\EMail\IEmail;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\SampleMailBuilder;
@@ -50,7 +51,7 @@ class MailBuilderTest extends MockedTest
 	/** @var string */
 	private $defaultHeaders;
 
-	public function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 
@@ -95,7 +96,7 @@ class MailBuilderTest extends MockedTest
 	 */
 	public function testBuilderWithNonRawEmail()
 	{
-		$this->markTestIncomplete('Cannot easily mock Renderer and BBCode, so skipping tests wit them');
+		static::markTestIncomplete('Cannot easily mock Renderer and BBCode, so skipping tests wit them');
 	}
 
 	/**
@@ -128,11 +129,12 @@ class MailBuilderTest extends MockedTest
 	/**
 	 * Test if the builder throws an exception in case no recipient
 	 *
-	 * @expectedException \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @expectedExceptionMessage Recipient address is missing.
 	 */
 	public function testBuilderWithEmptyMail()
 	{
+		$this->expectException(InternalServerErrorException::class);
+		$this->expectExceptionMessage("Recipient address is missing.");
+
 		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
 		$builder->build(true);
@@ -140,12 +142,12 @@ class MailBuilderTest extends MockedTest
 
 	/**
 	 * Test if the builder throws an exception in case no sender
-	 *
-	 * @expectedException \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @expectedExceptionMessage Sender address or name is missing.
 	 */
 	public function testBuilderWithEmptySender()
 	{
+		$this->expectException(InternalServerErrorException::class);
+		$this->expectExceptionMessage("Sender address or name is missing.");
+
 		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
 		$builder

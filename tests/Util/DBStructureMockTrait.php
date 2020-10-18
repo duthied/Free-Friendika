@@ -42,7 +42,7 @@ trait DBStructureMockTrait
 	 * @param bool $return True, if the connect was successful, otherwise false
 	 * @param null|int $times How often the method will get used
 	 */
-	public function mockUpdate($args = [], $return = true, $times = null)
+	public function mockUpdate(array $args = [], bool $return = true, int $times = null)
 	{
 		if (!isset($this->dbStructure)) {
 			$this->dbStructure = \Mockery::mock('alias:' . DBStructure::class);
@@ -58,11 +58,11 @@ trait DBStructureMockTrait
 	/**
 	 * Mocking DBStructure::existsTable()
 	 *
-	 * @param string $tableName The name of the table to check
-	 * @param bool $return True, if the connect was successful, otherwise false
-	 * @param null|int $times How often the method will get used
+	 * @param string   $tableName The name of the table to check
+	 * @param bool     $return    True, if the connect was successful, otherwise false
+	 * @param null|int $times     How often the method will get used
 	 */
-	public function mockExistsTable($tableName, $return = true, $times = null)
+	public function mockExistsTable(string $tableName, bool $return = true, int $times = null)
 	{
 		if (!isset($this->dbStructure)) {
 			$this->dbStructure = \Mockery::mock('alias:' . DBStructure::class);

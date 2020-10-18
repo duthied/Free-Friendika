@@ -51,6 +51,7 @@ class SyslogLoggerWrapper extends SyslogLogger
 
 	/**
 	 * {@inheritdoc}
+	 * @noinspection PhpMissingParentCallCommonInspection
 	 */
 	protected function syslogWrapper($level, $entry)
 	{

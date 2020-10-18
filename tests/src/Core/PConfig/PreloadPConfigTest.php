@@ -22,7 +22,6 @@
 namespace Friendica\Test\src\Core\PConfig;
 
 use Friendica\Core\PConfig\PreloadPConfig;
-use Friendica\Test\src\Core\PConfig\PConfigTest;
 
 class PreloadPConfigTest extends PConfigTest
 {

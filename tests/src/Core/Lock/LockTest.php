@@ -21,6 +21,7 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
+use Friendica\Core\Lock\ILock;
 use Friendica\Test\MockedTest;
 
 abstract class LockTest extends MockedTest
@@ -31,7 +32,7 @@ abstract class LockTest extends MockedTest
 	protected $startTime = 1417011228;
 
 	/**
-	 * @var \Friendica\Core\Lock\ILock
+	 * @var ILock
 	 */
 	protected $instance;
 
@@ -185,9 +186,9 @@ abstract class LockTest extends MockedTest
 	/**
 	 * @medium
 	 */
-	function testLockTTL()
+	public function testLockTTL()
 	{
-		$this->markTestSkipped('taking too much time without mocking');
+		static::markTestSkipped('taking too much time without mocking');
 
 		self::assertFalse($this->instance->isLocked('foo'));
 		self::assertFalse($this->instance->isLocked('bar'));

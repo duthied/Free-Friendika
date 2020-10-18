@@ -31,7 +31,7 @@ class APCuCacheTest extends MemoryCacheTest
 	protected function setUp()
 	{
 		if (!APCuCache::isAvailable()) {
-			$this->markTestSkipped('APCu is not available');
+			static::markTestSkipped('APCu is not available');
 		}
 
 		parent::setUp();
@@ -43,7 +43,7 @@ class APCuCacheTest extends MemoryCacheTest
 		return $this->cache;
 	}
 
-	public function tearDown()
+	protected function tearDown()
 	{
 		$this->cache->clear(false);
 		parent::tearDown();

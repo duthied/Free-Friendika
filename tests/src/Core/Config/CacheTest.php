@@ -24,6 +24,7 @@ namespace Friendica\Test\src\Core\Config;
 use Friendica\Core\Config\Cache;
 use Friendica\Test\MockedTest;
 use ParagonIE\HiddenString\HiddenString;
+use stdClass;
 
 class CacheTest extends MockedTest
 {
@@ -300,7 +301,7 @@ class CacheTest extends MockedTest
 	{
 		$configCache = new Cache([
 			'database' => [
-				'password' => new \stdClass(),
+				'password' => new stdClass(),
 				'username' => '',
 			]
 		]);

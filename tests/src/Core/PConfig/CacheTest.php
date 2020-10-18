@@ -133,10 +133,8 @@ class CacheTest extends MockedTest
 
 	/**
 	 * Test the keyDiff() method with result
-	 *
-	 * @dataProvider dataTests
 	 */
-	public function testKeyDiffWithResult($data)
+	public function testKeyDiffWithResult()
 	{
 		$configCache = new Cache();
 

@@ -27,6 +27,7 @@ use Friendica\Core\L10n;
 use Friendica\Module;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NotFoundException;
+use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -43,10 +44,10 @@ class RouterTest extends TestCase
 	{
 		parent::setUp();
 
-		$this->l10n = \Mockery::mock(L10n::class);
+		$this->l10n = Mockery::mock(L10n::class);
 		$this->l10n->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
-		$this->cache = \Mockery::mock(ICache::class);
+		$this->cache = Mockery::mock(ICache::class);
 		$this->cache->shouldReceive('get')->andReturn(null);
 		$this->cache->shouldReceive('set')->andReturn(false);
 	}

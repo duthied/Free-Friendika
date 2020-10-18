@@ -34,6 +34,7 @@ use Friendica\Factory\ConfigFactory;
 use Friendica\Model\Config\Config;
 use Friendica\Model\Storage;
 use Friendica\Core\Session;
+use Friendica\Model\Storage\StorageException;
 use Friendica\Test\DatabaseTest;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
@@ -56,7 +57,7 @@ class StorageManagerTest extends DatabaseTest
 
 	use VFSTrait;
 
-	public function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 
@@ -319,12 +320,12 @@ class StorageManagerTest extends DatabaseTest
 
 	/**
 	 * Test moving data to a WRONG storage
-	 *
-	 * @expectedException \Friendica\Model\Storage\StorageException
-	 * @expectedExceptionMessage Can't move to storage backend 'SystemResource'
 	 */
 	public function testMoveStorageWrong()
 	{
+		$this->expectExceptionMessage("Can't move to storage backend 'SystemResource'");
+		$this->expectException(StorageException::class);
+
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 		$storage = $storageManager->getByName(Storage\SystemResource::getName());
 		$storageManager->move($storage);

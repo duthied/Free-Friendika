@@ -23,6 +23,7 @@ namespace Friendica\Test\src\Console;
 
 use Friendica\Console\ServerBlock;
 use Friendica\Core\Config\IConfig;
+use Mockery;
 
 class ServerBlockConsoleTest extends ConsoleTest
 {
@@ -36,12 +37,16 @@ class ServerBlockConsoleTest extends ConsoleTest
 			'reason' => 'Illegal content',
 		]
 	];
+	/**
+	 * @var IConfig|Mockery\LegacyMockInterface|Mockery\MockInterface
+	 */
+	private $configMock;
 
 	protected function setUp()
 	{
 		parent::setUp();
 
-		$this->configMock = \Mockery::mock(IConfig::class);
+		$this->configMock = Mockery::mock(IConfig::class);
 	}
 
 	/**

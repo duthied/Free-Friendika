@@ -45,28 +45,28 @@ class SystemTest extends TestCase
 		self::assertRegExp("/^" . $prefix . "[a-z0-9]{" . $length . "}?$/", $guid);
 	}
 
-	function testGuidWithoutParameter()
+	public function testGuidWithoutParameter()
 	{
 		$this->useBaseUrl();
 		$guid = System::createGUID();
 		self::assertGuid($guid, 16);
 	}
 
-	function testGuidWithSize32()
+	public function testGuidWithSize32()
 	{
 		$this->useBaseUrl();
 		$guid = System::createGUID(32);
 		self::assertGuid($guid, 32);
 	}
 
-	function testGuidWithSize64()
+	public function testGuidWithSize64()
 	{
 		$this->useBaseUrl();
 		$guid = System::createGUID(64);
 		self::assertGuid($guid, 64);
 	}
 
-	function testGuidWithPrefix()
+	public function testGuidWithPrefix()
 	{
 		$guid = System::createGUID(23, 'test');
 		self::assertGuid($guid, 23, 'test');

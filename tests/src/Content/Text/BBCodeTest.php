@@ -24,9 +24,11 @@ namespace Friendica\Test\src\Content\Text;
 use Friendica\App\BaseURL;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
 use Friendica\Test\Util\VFSTrait;
+use Mockery;
 
 class BBCodeTest extends MockedTest
 {
@@ -62,13 +64,13 @@ class BBCodeTest extends MockedTest
 			->with('system', 'big_emojis')
 			->andReturn(false);
 
-		$l10nMock = \Mockery::mock(L10n::class);
+		$l10nMock = Mockery::mock(L10n::class);
 		$l10nMock->shouldReceive('t')->withAnyArgs()->andReturnUsing(function ($args) { return $args; });
 		$this->dice->shouldReceive('create')
 		           ->with(L10n::class)
 		           ->andReturn($l10nMock);
 
-		$baseUrlMock = \Mockery::mock(BaseURL::class);
+		$baseUrlMock = Mockery::mock(BaseURL::class);
 		$baseUrlMock->shouldReceive('get')->withAnyArgs()->andReturn('friendica.local');
 		$this->dice->shouldReceive('create')
 		           ->with(BaseURL::class)
@@ -158,13 +160,15 @@ class BBCodeTest extends MockedTest
 
 	/**
 	 * Test convert different links inside a text
+	 *
 	 * @dataProvider dataLinks
 	 *
-	 * @param string $data The data to text
-	 * @param bool $assertHTML True, if the link is a HTML link (<a href...>...</a>)
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param string $data       The data to text
+	 * @param bool   $assertHTML True, if the link is a HTML link (<a href...>...</a>)
+	 *
+	 * @throws InternalServerErrorException
 	 */
-	public function testAutoLinking($data, $assertHTML)
+	public function testAutoLinking(string $data, bool $assertHTML)
 	{
 		$output = BBCode::convert($data);
 		$assert = '<a href="' . $data . '" target="_blank" rel="noopener noreferrer">' . $data . '</a>';
@@ -258,9 +262,10 @@ class BBCodeTest extends MockedTest
 	 * @param bool   $try_oembed   Whether to convert multimedia BBCode tag
 	 * @param int    $simpleHtml   BBCode::convert method $simple_html parameter value, optional.
 	 * @param bool   $forPlaintext BBCode::convert method $for_plaintext parameter value, optional.
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws InternalServerErrorException
 	 */
-	public function testConvert($expectedHtml, $text, $try_oembed = false, $simpleHtml = 0, $forPlaintext = false)
+	public function testConvert(string $expectedHtml, string $text, $try_oembed = false, int $simpleHtml = 0, bool $forPlaintext = false)
 	{
 		$actual = BBCode::convert($text, $try_oembed, $simpleHtml, $forPlaintext);
 
@@ -290,12 +295,13 @@ class BBCodeTest extends MockedTest
 	 *
 	 * @dataProvider dataBBCodesToMarkdown
 	 *
-	 * @param string $expected     Expected Markdown output
-	 * @param string $text         BBCode text
+	 * @param string $expected Expected Markdown output
+	 * @param string $text     BBCode text
 	 * @param bool   $for_diaspora
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws InternalServerErrorException
 	 */
-	public function testToMarkdown($expected, $text, $for_diaspora = false)
+	public function testToMarkdown(string $expected, string $text, $for_diaspora = false)
 	{
 		$actual = BBCode::toMarkdown($text, $for_diaspora);
 

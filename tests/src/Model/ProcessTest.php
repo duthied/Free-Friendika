@@ -24,7 +24,7 @@ class ProcessTest extends DatabaseTest
 
 		$this->setUpVfsDir();
 
-		$this->logger = new NullLogger();
+		$logger = new NullLogger();
 
 		$profiler = \Mockery::mock(Profiler::class);
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
@@ -34,7 +34,7 @@ class ProcessTest extends DatabaseTest
 		$loader        = new ConfigFileLoader($this->root->url());
 		$configCache   = $configFactory->createCache($loader);
 
-		$this->dba = new StaticDatabase($configCache, $profiler, $this->logger);
+		$this->dba = new StaticDatabase($configCache, $profiler, $logger);
 	}
 
 	public function testInsertDelete()

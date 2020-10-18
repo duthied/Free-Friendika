@@ -64,11 +64,12 @@ class BasePathTest extends MockedTest
 
 	/**
 	 * Test the basepath determination with a complete wrong path
-	 * @expectedException \Exception
-	 * @expectedExceptionMessageRegExp /(.*) is not a valid basepath/
 	 */
 	public function testFailedBasePath()
 	{
+		$this->expectException(\Exception::class);
+		$this->expectExceptionMessageRegExp("/(.*) is not a valid basepath/");
+		
 		$basepath = new BasePath('/now23452sgfgas', []);
 		$basepath->getPath();
 	}

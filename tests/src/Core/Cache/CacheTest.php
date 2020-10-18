@@ -21,6 +21,8 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
+use Friendica\Core\Cache\ICache;
+use Friendica\Core\Cache\IMemoryCache;
 use Friendica\Test\MockedTest;
 use Friendica\Util\PidFile;
 
@@ -32,12 +34,12 @@ abstract class CacheTest extends MockedTest
 	protected $startTime = 1417011228;
 
 	/**
-	 * @var \Friendica\Core\Cache\ICache
+	 * @var ICache
 	 */
 	protected $instance;
 
 	/**
-	 * @var \Friendica\Core\Cache\IMemoryCache
+	 * @var IMemoryCache
 	 */
 	protected $cache;
 
@@ -95,7 +97,7 @@ abstract class CacheTest extends MockedTest
 	 * @param mixed $value1 a first
 	 * @param mixed $value2 a second
 	 */
-	function testSimple($value1, $value2)
+	public function testSimple($value1, $value2)
 	{
 		self::assertNull($this->instance->get('value1'));
 
@@ -127,9 +129,8 @@ abstract class CacheTest extends MockedTest
 	 * @param mixed $value3 a third
 	 * @param mixed $value4 a fourth
 	 */
-	function testClear($value1, $value2, $value3, $value4)
+	public function testClear($value1, $value2, $value3, $value4)
 	{
-		$value = 'ipsum lorum';
 		$this->instance->set('1_value1', $value1);
 		$this->instance->set('1_value2', $value2);
 		$this->instance->set('2_value1', $value3);
@@ -179,9 +180,9 @@ abstract class CacheTest extends MockedTest
 	/**
 	 * @medium
 	 */
-	function testTTL()
+	public function testTTL()
 	{
-		$this->markTestSkipped('taking too much time without mocking');
+		static::markTestSkipped('taking too much time without mocking');
 
 		self::assertNull($this->instance->get('value1'));
 
@@ -198,11 +199,11 @@ abstract class CacheTest extends MockedTest
 	/**
 	 * @small
 	 *
-	 * @param $data mixed the data to store in the cache
+	 * @param mixed $data the data to store in the cache
 	 *
 	 * @dataProvider dataTypesInCache
 	 */
-	function testDifferentTypesInCache($data)
+	public function testDifferentTypesInCache($data)
 	{
 		$this->instance->set('val', $data);
 		$received = $this->instance->get('val');

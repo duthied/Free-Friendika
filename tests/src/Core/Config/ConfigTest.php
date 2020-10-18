@@ -67,7 +67,7 @@ abstract class ConfigTest extends MockedTest
 	/**
 	 * @return IConfig
 	 */
-	public abstract function getInstance();
+	abstract public function getInstance();
 
 	public function dataTests()
 	{
@@ -169,8 +169,11 @@ abstract class ConfigTest extends MockedTest
 
 	/**
 	 * Test the configuration load() method
+	 *
+	 * @param array $data
+	 * @param array $load
 	 */
-	public function testLoad(array $data, array $possibleCats, array $load)
+	public function testLoad(array $data, array $load)
 	{
 		$this->testedConfig = $this->getInstance();
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
@@ -251,7 +254,7 @@ abstract class ConfigTest extends MockedTest
 	/**
 	 * Test the configuration load() method with overwrite
 	 */
-	public function testCacheLoadDouble(array $data1, array $data2, array $expect)
+	public function testCacheLoadDouble(array $data1, array $data2, array $expect = [])
 	{
 		$this->testedConfig = $this->getInstance();
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());

@@ -35,9 +35,6 @@ class EMailerTest extends MockedTest
 	/** @var BaseURL|MockInterface */
 	private $baseUrl;
 
-	/** @var string */
-	private $defaultHeaders;
-
 	protected function setUp()
 	{
 		parent::setUp();
@@ -54,8 +51,6 @@ class EMailerTest extends MockedTest
 		$this->baseUrl = \Mockery::mock(BaseURL::class);
 		$this->baseUrl->shouldReceive('getHostname')->andReturn('friendica.local');
 		$this->baseUrl->shouldReceive('get')->andReturn('http://friendica.local');
-
-		$this->defaultHeaders = [];
 	}
 
 	protected function tearDown()

@@ -44,8 +44,11 @@ class PreloadConfigTest extends ConfigTest
 
 	/**
 	 * @dataProvider dataConfigLoad
+	 *
+	 * @param array $data
+	 * @param array $load
 	 */
-	public function testLoad(array $data, array $possibleCats, array $load)
+	public function testLoad(array $data, array $load)
 	{
 		$this->configModel->shouldReceive('isConnected')
 		                  ->andReturn(true)
@@ -55,7 +58,7 @@ class PreloadConfigTest extends ConfigTest
 		                  ->andReturn($data)
 		                  ->once();
 
-		parent::testLoad($data, $possibleCats, $load);
+		parent::testLoad($data, $load);
 
 		// Assert that every category is loaded everytime
 		foreach ($data as $cat => $values) {
@@ -65,8 +68,11 @@ class PreloadConfigTest extends ConfigTest
 
 	/**
 	 * @dataProvider dataDoubleLoad
+	 *
+	 * @param array $data1
+	 * @param array $data2
 	 */
-	public function testCacheLoadDouble(array $data1, array $data2, array $expect)
+	public function testCacheLoadDouble(array $data1, array $data2, array $expect = [])
 	{
 		$this->configModel->shouldReceive('isConnected')
 		                  ->andReturn(true)
@@ -76,7 +82,7 @@ class PreloadConfigTest extends ConfigTest
 		                  ->andReturn($data1)
 		                  ->once();
 
-		parent::testCacheLoadDouble($data1, $data2, $expect);
+		parent::testCacheLoadDouble($data1, $data2);
 
 		// Assert that every category is loaded everytime and is NOT overwritten
 		foreach ($data1 as $cat => $values) {

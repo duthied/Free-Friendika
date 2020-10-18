@@ -55,11 +55,12 @@ class ConfigFileLoaderTest extends MockedTest
 
 	/**
 	 * Test the loadConfigFiles() method with a wrong local.config.php
-	 * @expectedException \Exception
-	 * @expectedExceptionMessageRegExp /Error loading config file \w+/
+	 *
 	 */
 	public function testLoadConfigWrong()
 	{
+		$this->expectExceptionMessageRegExp("/Error loading config file \w+/");
+		$this->expectException(\Exception::class);
 		$this->delConfigFile('local.config.php');
 
 		vfsStream::newFile('local.config.php')

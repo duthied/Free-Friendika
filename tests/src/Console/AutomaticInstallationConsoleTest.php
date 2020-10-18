@@ -35,6 +35,7 @@ use Friendica\Test\Util\DBStructureMockTrait;
 use Friendica\Test\Util\RendererMockTrait;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\Logger\VoidLogger;
+use Mockery;
 use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
@@ -77,7 +78,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 
 	public function setUp()
 	{
-		$this->markTestSkipped('Needs class \'Installer\' as constructing argument for console tests');
+		static::markTestSkipped('Needs class \'Installer\' as constructing argument for console tests');
 
 		parent::setUp();
 
@@ -87,9 +88,9 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 			$this->root->getChild('config')
 				->removeChild('local.config.php');
 		}
-		$this->dice = \Mockery::mock(Dice::class)->makePartial();
+		$this->dice = Mockery::mock(Dice::class)->makePartial();
 
-		$l10nMock = \Mockery::mock(L10n::class);
+		$l10nMock = Mockery::mock(L10n::class);
 		$l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		$this->dice->shouldReceive('create')
@@ -400,7 +401,7 @@ FIN;
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+		$this->mockReplaceMacros('testTemplate', Mockery::any(), '', 1);
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 		$console->setOption('url', 'http://friendica.local');
@@ -502,7 +503,7 @@ CONF;
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+		$this->mockReplaceMacros('testTemplate', Mockery::any(), '', 1);
 
 		self::assertTrue(putenv('MYSQL_HOST='     . $data['database']['hostname']));
 		self::assertTrue(putenv('MYSQL_PORT='     . $data['database']['port']));
@@ -540,7 +541,7 @@ CONF;
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+		$this->mockReplaceMacros('testTemplate', Mockery::any(), '', 1);
 
 		self::assertTrue(putenv('MYSQL_HOST=' . $data['database']['hostname']));
 		self::assertTrue(putenv('MYSQL_PORT=' . $data['database']['port']));
@@ -576,7 +577,7 @@ CONF;
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+		$this->mockReplaceMacros('testTemplate', Mockery::any(), '', 1);
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 
@@ -611,7 +612,7 @@ CONF;
 		$this->mockConnect(false, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+		$this->mockReplaceMacros('testTemplate', Mockery::any(), '', 1);
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 		$console->setOption('url', 'http://friendica.local');

@@ -25,6 +25,8 @@ use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\Console\Config;
 use Friendica\Core\Config\IConfig;
+use Mockery;
+use Mockery\LegacyMockInterface;
 use Mockery\MockInterface;
 
 class ConfigConsoleTest extends ConsoleTest
@@ -33,27 +35,27 @@ class ConfigConsoleTest extends ConsoleTest
 	 * @var App\Mode|MockInterface $appMode
 	 */
 	private $appMode;
-	/** @var IConfig|\Mockery\LegacyMockInterface|MockInterface */
+	/** @var IConfig|LegacyMockInterface|MockInterface */
 	private $configMock;
 
 	protected function setUp()
 	{
 		parent::setUp();
 
-		\Mockery::getConfiguration()->setConstantsMap([
+		Mockery::getConfiguration()->setConstantsMap([
 			Mode::class => [
-				'DBCONFIGAVAILABLE' => 0
-			]
+				'DBCONFIGAVAILABLE' => 0,
+			],
 		]);
 
-		$this->appMode = \Mockery::mock(App\Mode::class);
+		$this->appMode = Mockery::mock(App\Mode::class);
 		$this->appMode->shouldReceive('has')
-		        ->andReturn(true);
+					  ->andReturn(true);
 
-		$this->configMock = \Mockery::mock(IConfig::class);
+		$this->configMock = Mockery::mock(IConfig::class);
 	}
 
-	function testSetGetKeyValue()
+	public function testSetGetKeyValue()
 	{
 		$this->configMock
 			->shouldReceive('set')
@@ -98,7 +100,8 @@ class ConfigConsoleTest extends ConsoleTest
 		self::assertEquals("config.test => \n", $txt);
 	}
 
-	function testSetArrayValue() {
+	public function testSetArrayValue()
+	{
 		$testArray = [1, 2, 3];
 		$this->configMock
 			->shouldReceive('get')
@@ -115,19 +118,21 @@ class ConfigConsoleTest extends ConsoleTest
 		self::assertEquals("[Error] config.test is an array and can't be set using this command.\n", $txt);
 	}
 
-	function testTooManyArguments() {
+	public function testTooManyArguments()
+	{
 		$console = new Config($this->appMode, $this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
 		$console->setArgument(2, 'it');
 		$console->setArgument(3, 'now');
-		$txt = $this->dumpExecute($console);
+		$txt       = $this->dumpExecute($console);
 		$assertion = '[Warning] Too many arguments';
 		$firstline = substr($txt, 0, strlen($assertion));
 		self::assertEquals($assertion, $firstline);
 	}
 
-	function testVerbose() {
+	public function testVerbose()
+	{
 		$this->configMock
 			->shouldReceive('get')
 			->with('test', 'it')
@@ -138,7 +143,7 @@ class ConfigConsoleTest extends ConsoleTest
 		$console->setArgument(1, 'it');
 		$console->setOption('v', 1);
 		$executable = $this->consoleArgv[0];
-		$assertion = <<<CONF
+		$assertion  = <<<CONF
 Executable: {$executable}
 Class: Friendica\Console\Config
 Arguments: array (
@@ -151,11 +156,12 @@ Options: array (
 test.it => now
 
 CONF;
-		$txt = $this->dumpExecute($console);
+		$txt        = $this->dumpExecute($console);
 		self::assertEquals($assertion, $txt);
 	}
 
-	function testUnableToSet() {
+	public function testUnableToSet()
+	{
 		$this->configMock
 			->shouldReceive('set')
 			->with('test', 'it', 'now')
@@ -164,7 +170,7 @@ CONF;
 		$this->configMock
 			->shouldReceive('get')
 			->with('test', 'it')
-			->andReturn(NULL)
+			->andReturn(null)
 			->once();
 		$console = new Config($this->appMode, $this->configMock, [$this->consoleArgv]);
 		$console->setArgument(0, 'test');

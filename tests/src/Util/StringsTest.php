@@ -126,11 +126,11 @@ class StringsTest extends TestCase
 	 * Tests if the string is a valid hexadecimal value
 	 *
 	 * @param string $input
-	 * @param bool $valid
+	 * @param bool   $valid
 	 *
 	 * @dataProvider dataIsHex
 	 */
-	public function testIsHex($input, $valid)
+	public function testIsHex(string $input, bool $valid)
 	{
 		self::assertEquals($valid, Strings::isHex($input));
 	}

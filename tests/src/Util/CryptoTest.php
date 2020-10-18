@@ -19,6 +19,8 @@
  *
  * This is in the same namespace as Crypto for mocking 'rand' and 'random_init'
  */
+
+/// @todo Use right namespace - needs alternative way of mocking random_int()
 namespace Friendica\Util;
 
 use phpseclib\Crypt\RSA;
@@ -120,7 +122,6 @@ function random_int($min, $max)
 {
 	global $phpMock;
 	if (isset($phpMock['random_int'])) {
-		$result = call_user_func_array($phpMock['random_int'], func_get_args());
-		return $result;
+		return call_user_func_array($phpMock['random_int'], func_get_args());
 	}
 }

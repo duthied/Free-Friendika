@@ -36,7 +36,7 @@ use Friendica\Util\Profiler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-class dependencyCheck extends TestCase
+class DependencyCheckTest extends TestCase
 {
 	use VFSTrait;
 

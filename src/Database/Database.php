@@ -58,6 +58,7 @@ class Database
 	protected $connection;
 	protected $driver;
 	protected $emulate_prepares = false;
+	protected $pdo_emulate_prepares = false;
 	private $error          = false;
 	private $errorno        = 0;
 	private $affected_rows  = 0;

@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\Console\Lock;
 use Friendica\Core\Lock\ILock;
+use Mockery;
 use Mockery\MockInterface;
 
 class LockConsoleTest extends ConsoleTest
@@ -43,17 +44,17 @@ class LockConsoleTest extends ConsoleTest
 	{
 		parent::setUp();
 
-		\Mockery::getConfiguration()->setConstantsMap([
+		Mockery::getConfiguration()->setConstantsMap([
 			Mode::class => [
 				'DBCONFIGAVAILABLE' => 0
 			]
 		]);
 
-		$this->appMode = \Mockery::mock(App\Mode::class);
+		$this->appMode = Mockery::mock(App\Mode::class);
 		$this->appMode->shouldReceive('has')
 		        ->andReturn(true);
 
-		$this->lockMock = \Mockery::mock(ILock::class);
+		$this->lockMock = Mockery::mock(ILock::class);
 	}
 
 	public function testList()

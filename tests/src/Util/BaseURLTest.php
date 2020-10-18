@@ -534,9 +534,9 @@ class BaseURLTest extends MockedTest
 		self::assertFalse($baseUrl->save('test', 10, 'nope'));
 
 		// nothing should have changed because we never successfully saved anything
-		self::assertEquals($baseUrl->getHostname(), 'friendica.local');
-		self::assertEquals($baseUrl->getUrlPath(), 'new/test');
-		self::assertEquals($baseUrl->getSSLPolicy(), BaseURL::DEFAULT_SSL_SCHEME);
-		self::assertEquals($baseUrl->get(), 'http://friendica.local/new/test');
+		self::assertEquals('friendica.local', $baseUrl->getHostname());
+		self::assertEquals('new/test', $baseUrl->getUrlPath());
+		self::assertEquals(BaseURL::DEFAULT_SSL_SCHEME, $baseUrl->getSSLPolicy());
+		self::assertEquals('http://friendica.local/new/test', $baseUrl->get());
 	}
 }

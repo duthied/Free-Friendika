@@ -24,12 +24,13 @@ namespace Friendica\Test\src\App;
 use Detection\MobileDetect;
 use Friendica\App\Mode;
 use Friendica\App\Module;
-use Friendica\Core\Config;
+use Friendica\Core\Config\Cache;
 use Friendica\Database\Database;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\BasePath;
+use Mockery;
 use Mockery\MockInterface;
 
 class ModeTest extends MockedTest
@@ -48,19 +49,19 @@ class ModeTest extends MockedTest
 	private $databaseMock;
 
 	/**
-	 * @var \Friendica\Core\Config\Cache|MockInterface
+	 * @var Cache|MockInterface
 	 */
 	private $configCacheMock;
 
-	public function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 
 		$this->setUpVfsDir();
 
-		$this->basePathMock = \Mockery::mock(BasePath::class);
-		$this->databaseMock = \Mockery::mock(Database::class);
-		$this->configCacheMock = \Mockery::mock(Config\Cache::class);
+		$this->basePathMock = Mockery::mock(BasePath::class);
+		$this->databaseMock = Mockery::mock(Database::class);
+		$this->configCacheMock = Mockery::mock(Cache::class);
 	}
 
 	public function testItEmpty()
@@ -280,7 +281,7 @@ class ModeTest extends MockedTest
 	{
 		$server = [];
 		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
-		$mobileDetect = \Mockery::mock(MobileDetect::class);
+		$mobileDetect = Mockery::mock(MobileDetect::class);
 		$mobileDetect->shouldReceive('isMobile')->andReturn(true);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(true);
 
@@ -298,7 +299,7 @@ class ModeTest extends MockedTest
 	{
 		$server = [];
 		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
-		$mobileDetect = \Mockery::mock(MobileDetect::class);
+		$mobileDetect = Mockery::mock(MobileDetect::class);
 		$mobileDetect->shouldReceive('isMobile')->andReturn(false);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(false);
 

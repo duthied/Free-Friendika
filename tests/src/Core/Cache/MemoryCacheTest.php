@@ -21,12 +21,13 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
+use Exception;
 use Friendica\Core\Cache\IMemoryCache;
 
 abstract class MemoryCacheTest extends CacheTest
 {
 	/**
-	 * @var \Friendica\Core\Cache\IMemoryCache
+	 * @var IMemoryCache
 	 */
 	protected $instance;
 
@@ -35,7 +36,7 @@ abstract class MemoryCacheTest extends CacheTest
 		parent::setUp();
 
 		if (!($this->instance instanceof IMemoryCache)) {
-			throw new \Exception('MemoryCacheTest unsupported');
+			throw new Exception('MemoryCacheTest unsupported');
 		}
 	}
 
@@ -43,7 +44,7 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testCompareSet($value1, $value2)
+	public function testCompareSet($value1, $value2)
 	{
 		self::assertNull($this->instance->get('value1'));
 
@@ -60,7 +61,7 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testNegativeCompareSet($value1, $value2)
+	public function testNegativeCompareSet($value1, $value2)
 	{
 		self::assertNull($this->instance->get('value1'));
 
@@ -78,7 +79,7 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testCompareDelete($data)
+	public function testCompareDelete($data)
 	{
 		self::assertNull($this->instance->get('value1'));
 
@@ -93,7 +94,7 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testNegativeCompareDelete($data)
+	public function testNegativeCompareDelete($data)
 	{
 		self::assertNull($this->instance->get('value1'));
 
@@ -111,7 +112,7 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testAdd($value1, $value2)
+	public function testAdd($value1, $value2)
 	{
 		self::assertNull($this->instance->get('value1'));
 

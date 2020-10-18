@@ -21,7 +21,6 @@
 
 namespace Friendica\Test\src\Util;
 
-use Error;
 use Friendica\Model\Group;
 use Friendica\Util\ACLFormatter;
 use PHPUnit\Framework\TestCase;

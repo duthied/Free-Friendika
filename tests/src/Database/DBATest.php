@@ -10,7 +10,7 @@ use Friendica\Test\Util\Database\StaticDatabase;
 
 class DBATest extends DatabaseTest
 {
-	public function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 

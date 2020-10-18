@@ -69,7 +69,7 @@ abstract class PConfigTest extends MockedTest
 	/**
 	 * @return BasePConfig
 	 */
-	public abstract function getInstance();
+	abstract public function getInstance();
 
 	public function dataTests()
 	{
@@ -159,9 +159,8 @@ abstract class PConfigTest extends MockedTest
 
 	/**
 	 * Test the configuration initialization
-	 * @dataProvider dataConfigLoad
 	 */
-	public function testSetUp(int $uid, array $data)
+	public function testSetUp()
 	{
 		$this->testedConfig = $this->getInstance();
 		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());

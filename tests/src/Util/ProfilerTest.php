@@ -53,6 +53,8 @@ class ProfilerTest extends MockedTest
 		            ->andReturn(true)
 		            ->twice();
 		$profiler = new Profiler($configCache);
+
+		self::assertInstanceOf(Profiler::class, $profiler);
 	}
 
 	/**
@@ -141,7 +143,7 @@ class ProfilerTest extends MockedTest
 	 * Test the Profiler reset
 	 * @dataProvider dataPerformance
 	 */
-	public function testReset($timestamp, $name, array $functions)
+	public function testReset($timestamp, $name)
 	{
 		$configCache = \Mockery::mock(Cache::class);
 		$configCache->shouldReceive('get')

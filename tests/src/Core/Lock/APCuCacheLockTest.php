@@ -32,7 +32,7 @@ class APCuCacheLockTest extends LockTest
 	protected function setUp()
 	{
 		if (!APCuCache::isAvailable()) {
-			$this->markTestSkipped('APCu is not available');
+			static::markTestSkipped('APCu is not available');
 		}
 
 		parent::setUp();

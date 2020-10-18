@@ -21,6 +21,8 @@
 
 namespace Friendica\Test\src\Content;
 
+use Friendica\Content\PageInfo;
+
 /**
  * Class PageInfoMock
  *
@@ -29,7 +31,7 @@ namespace Friendica\Test\src\Content;
  * @method static string|null getRelevantUrlFromBody(string $body, $searchNakedUrls = false)
  * @method static string stripTrailingUrlFromBody(string $body, string $url)
  */
-class PageInfoMock extends \Friendica\Content\PageInfo
+class PageInfoMock extends PageInfo
 {
 	public static function __callStatic($name, $arguments)
 	{
