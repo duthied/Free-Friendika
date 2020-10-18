@@ -141,7 +141,7 @@ class HTTPRequest implements IHTTPRequest
 		curl_setopt($ch, CURLOPT_ENCODING, '');
 
 		if (!empty($opts['headers'])) {
-			$this->logger->warning('Wrong option \'headers\' used.');
+			$this->logger->notice('Wrong option \'headers\' used.');
 			@curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['headers']);
 		}
 
@@ -183,8 +183,6 @@ class HTTPRequest implements IHTTPRequest
 		if ($this->config->get('system', 'ipv4_resolve', false)) {
 			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		}
-
-		$logger = $this->logger;
 
 		$s         = @curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
