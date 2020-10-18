@@ -1064,7 +1064,7 @@ class Worker
 		}
 
 		$url = DI::baseUrl() . '/worker';
-		DI::httpRequest()->fetch($url, false, 1);
+		DI::httpRequest()->fetch($url, 1);
 	}
 
 	/**

@@ -311,7 +311,7 @@ class GServer
 
 		// When a nodeinfo is present, we don't need to dig further
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-		$curlResult = DI::httpRequest()->get($url . '/.well-known/nodeinfo', false, ['timeout' => $xrd_timeout]);
+		$curlResult = DI::httpRequest()->get($url . '/.well-known/nodeinfo', ['timeout' => $xrd_timeout]);
 		if ($curlResult->isTimeout()) {
 			self::setFailure($url);
 			return false;
@@ -344,7 +344,7 @@ class GServer
 					$basedata = ['detection-method' => self::DETECT_MANUAL];
 				}
 
-				$curlResult = DI::httpRequest()->get($baseurl, false, ['timeout' => $xrd_timeout]);
+				$curlResult = DI::httpRequest()->get($baseurl, ['timeout' => $xrd_timeout]);
 				if ($curlResult->isSuccess()) {
 					$basedata = self::analyseRootHeader($curlResult, $basedata);
 					$basedata = self::analyseRootBody($curlResult, $basedata, $baseurl);
@@ -361,7 +361,7 @@ class GServer
 					// When the base path doesn't seem to contain a social network we try the complete path.
 					// Most detectable system have to be installed in the root directory.
 					// We checked the base to avoid false positives.
-					$curlResult = DI::httpRequest()->get($url, false, ['timeout' => $xrd_timeout]);
+					$curlResult = DI::httpRequest()->get($url, ['timeout' => $xrd_timeout]);
 					if ($curlResult->isSuccess()) {
 						$urldata = self::analyseRootHeader($curlResult, $serverdata);
 						$urldata = self::analyseRootBody($curlResult, $urldata, $url);
@@ -913,7 +913,7 @@ class GServer
 	private static function validHostMeta(string $url)
 	{
 		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-		$curlResult = DI::httpRequest()->get($url . '/.well-known/host-meta', false, ['timeout' => $xrd_timeout]);
+		$curlResult = DI::httpRequest()->get($url . '/.well-known/host-meta', ['timeout' => $xrd_timeout]);
 		if (!$curlResult->isSuccess()) {
 			return false;
 		}
@@ -1639,7 +1639,7 @@ class GServer
 		if (!empty($accesstoken)) {
 			$api = 'https://instances.social/api/1.0/instances/list?count=0';
 			$header = ['Authorization: Bearer '.$accesstoken];
-			$curlResult = DI::httpRequest()->get($api, false, ['headers' => $header]);
+			$curlResult = DI::httpRequest()->get($api, ['headers' => $header]);
 
 			if ($curlResult->isSuccess()) {
 				$servers = json_decode($curlResult->getBody(), true);

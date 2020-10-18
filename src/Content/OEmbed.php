@@ -95,7 +95,7 @@ class OEmbed
 
 			if (!in_array($ext, $noexts)) {
 				// try oembed autodiscovery
-				$html_text = DI::httpRequest()->fetch($embedurl, false, 15, 'text/*');
+				$html_text = DI::httpRequest()->fetch($embedurl, 15, 'text/*');
 				if ($html_text) {
 					$dom = @DOMDocument::loadHTML($html_text);
 					if ($dom) {

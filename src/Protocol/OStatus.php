@@ -738,7 +738,7 @@ class OStatus
 
 		self::$conv_list[$conversation] = true;
 
-		$curlResult = DI::httpRequest()->get($conversation, false, ['accept_content' => 'application/atom+xml, text/html']);
+		$curlResult = DI::httpRequest()->get($conversation, ['accept_content' => 'application/atom+xml, text/html']);
 
 		if (!$curlResult->isSuccess()) {
 			return;
@@ -931,7 +931,7 @@ class OStatus
 		}
 
 		$stored = false;
-		$curlResult = DI::httpRequest()->get($related, false, ['accept_content' => 'application/atom+xml, text/html']);
+		$curlResult = DI::httpRequest()->get($related, ['accept_content' => 'application/atom+xml, text/html']);
 
 		if (!$curlResult->isSuccess()) {
 			return;
