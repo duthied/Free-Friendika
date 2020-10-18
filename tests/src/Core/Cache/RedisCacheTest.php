@@ -60,7 +60,7 @@ class RedisCacheTest extends MemoryCacheTest
 		try {
 			$this->cache = new RedisCache($host, $configMock);
 		} catch (Exception $e) {
-			static::markTestSkipped('Redis is not available.');
+			static::markTestSkipped('Redis is not available. Failure: ' . $e->getMessage());
 		}
 		return $this->cache;
 	}
