@@ -63,7 +63,6 @@ interface IHTTPRequest
 	 * @param array  $opts       (optional parameters) assoziative array with:
 	 *                           'accept_content' => supply Accept: header with 'accept_content' as the value
 	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
-	 *                           'novalidate' => do not validate SSL certs, default is to validate using our CA list
 	 *                           'cookiejar' => path to cookie jar file
 	 *                           'header' => header array
 	 *
@@ -78,7 +77,6 @@ interface IHTTPRequest
 	 * @param array  $opts       (optional parameters) assoziative array with:
 	 *                           'accept_content' => supply Accept: header with 'accept_content' as the value
 	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
-	 *                           'novalidate' => do not validate SSL certs, default is to validate using our CA list
 	 *                           'cookiejar' => path to cookie jar file
 	 *                           'header' => header array
 	 *

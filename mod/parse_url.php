@@ -85,7 +85,7 @@ function parse_url_content(App $a)
 	// Check if the URL is an image, video or audio file. If so format
 	// the URL with the corresponding BBCode media tag
 	// Fetch the header of the URL
-	$curlResponse = DI::httpRequest()->head($url, ['novalidate' => true]);
+	$curlResponse = DI::httpRequest()->head($url);
 
 	if ($curlResponse->isSuccess()) {
 		// Convert the header fields into an array
