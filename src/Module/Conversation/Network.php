@@ -332,13 +332,13 @@ class Network extends BaseModule
 				self::$max_id = $get['last_received'] ?? self::$max_id;
 				break;
 			case 'commented':
-				self::$max_id = $_GET['last_commented'] ?? self::$max_id;
+				self::$max_id = $get['last_commented'] ?? self::$max_id;
 				break;
 			case 'created':
-				self::$max_id = $_GET['last_created'] ?? self::$max_id;
+				self::$max_id = $get['last_created'] ?? self::$max_id;
 				break;
 			case 'uriid':
-				self::$max_id = $_GET['last_uriid'] ?? self::$max_id;
+				self::$max_id = $get['last_uriid'] ?? self::$max_id;
 				break;
 		}
 	}
