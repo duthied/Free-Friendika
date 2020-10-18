@@ -91,6 +91,7 @@ jobs:
           MYSQL_PASSWORD: test
           MYSQL_USER: test
           REDIS_PORT: ${{ job.services.redis.ports[6379] }}
+          REDIS_HOST: 127.0.0.1
           MEMCACHED_PORT: ${{ job.services.memcached.ports[11211] }}
           MEMCACHE_PORT: ${{ job.services.memcached.ports[11211] }}
 

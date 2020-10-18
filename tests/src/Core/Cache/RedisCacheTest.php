@@ -37,7 +37,7 @@ class RedisCacheTest extends MemoryCacheTest
 		$configMock = Mockery::mock(IConfig::class);
 
 		$host = $_SERVER['REDIS_HOST'] ?? 'localhost';
-		$port = $_SERVER['REDIS_PORT'] ?? null;
+		$port = $_SERVER['REDIS_PORT'] ?? 6379;
 
 		$configMock
 			->shouldReceive('get')
@@ -51,7 +51,7 @@ class RedisCacheTest extends MemoryCacheTest
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_db', 0)
-			->andReturn(3);
+			->andReturn(0);
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_password')

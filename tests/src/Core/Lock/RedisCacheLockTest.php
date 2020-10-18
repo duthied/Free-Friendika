@@ -38,7 +38,7 @@ class RedisCacheLockTest extends LockTest
 		$configMock = Mockery::mock(IConfig::class);
 
 		$host = $_SERVER['REDIS_HOST'] ?? 'localhost';
-		$port = $_SERVER['REDIS_PORT'] ?? null;
+		$port = $_SERVER['REDIS_PORT'] ?? 6379;
 
 		$configMock
 			->shouldReceive('get')
@@ -52,7 +52,7 @@ class RedisCacheLockTest extends LockTest
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_db', 0)
-			->andReturn(3);
+			->andReturn(0);
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_password')
