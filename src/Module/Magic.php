@@ -88,19 +88,19 @@ class Magic extends BaseModule
 				$exp = explode('/profile/', $contact['url']);
 				$basepath = $exp[0];
 
-				$headers = [];
-				$headers['Accept'] = 'application/x-dfrn+json, application/x-zot+json';
-				$headers['X-Open-Web-Auth'] = Strings::getRandomHex();
+				$header = [];
+				$header['Accept'] = 'application/x-dfrn+json, application/x-zot+json';
+				$header['X-Open-Web-Auth'] = Strings::getRandomHex();
 
 				// Create a header that is signed with the local users private key.
-				$headers = HTTPSignature::createSig(
-					$headers,
+				$header = HTTPSignature::createSig(
+					$header,
 					$user['prvkey'],
 					'acct:' . $user['nickname'] . '@' . DI::baseUrl()->getHostname() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : '')
 				);
 
 				// Try to get an authentication token from the other instance.
-				$curlResult = DI::httpRequest()->get($basepath . '/owa', ['headers' => $headers]);
+				$curlResult = DI::httpRequest()->get($basepath . '/owa', ['header' => $header]);
 
 				if ($curlResult->isSuccess()) {
 					$j = json_decode($curlResult->getBody(), true);

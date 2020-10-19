@@ -403,8 +403,6 @@ class HTTPSignature
 	 * @param array   $opts    (optional parameters) assoziative array with:
 	 *                         'accept_content' => supply Accept: header with 'accept_content' as the value
 	 *                         'timeout' => int Timeout in seconds, default system config value or 60 seconds
-	 *                         'http_auth' => username:password
-	 *                         'novalidate' => do not validate SSL certs, default is to validate using our CA list
 	 *                         'nobody' => only return the header
 	 *                         'cookiejar' => path to cookie jar file
 	 *
@@ -413,7 +411,7 @@ class HTTPSignature
 	 */
 	public static function fetchRaw($request, $uid = 0, $binary = false, $opts = [])
 	{
-		$headers = [];
+		$header = [];
 
 		if (!empty($uid)) {
 			$owner = User::getOwnerDataById($uid);
@@ -433,23 +431,27 @@ class HTTPSignature
 			$path = parse_url($request, PHP_URL_PATH);
 			$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
 
-			$headers = ['Date: ' . $date, 'Host: ' . $host];
+			$header = ['Date: ' . $date, 'Host: ' . $host];
 
 			$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
 
 			$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
 
-			$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
+			$header[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
 		}
 
 		if (!empty($opts['accept_content'])) {
-			$headers[] = 'Accept: ' . $opts['accept_content'];
+			$header[] = 'Accept: ' . $opts['accept_content'];
 		}
 
 		$curl_opts = $opts;
-		$curl_opts['header'] = $headers;
+		$curl_opts['header'] = $header;
 
-		$curlResult = DI::httpRequest()->get($request, $curl_opts);
+		if ($opts['nobody']) {
+			$curlResult = DI::httpRequest()->head($request, $curl_opts);
+		} else {
+			$curlResult = DI::httpRequest()->get($request, $curl_opts);
+		}
 		$return_code = $curlResult->getReturnCode();
 
 		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);
