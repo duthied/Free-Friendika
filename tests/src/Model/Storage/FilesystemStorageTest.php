@@ -25,12 +25,12 @@ use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
 use Friendica\Model\Storage\Filesystem;
 use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\StorageException;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\Profiler;
 use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
 use Psr\Log\NullLogger;
-use function GuzzleHttp\Psr7\uri_for;
 
 class FilesystemStorageTest extends StorageTest
 {
@@ -66,7 +66,7 @@ class FilesystemStorageTest extends StorageTest
 
 	protected function assertOption(IStorage $storage)
 	{
-		$this->assertEquals([
+		self::assertEquals([
 			'storagepath' => [
 				'input', 'Storage base path',
 				$this->root->getChild('storage')->url(),
@@ -77,12 +77,11 @@ class FilesystemStorageTest extends StorageTest
 
 	/**
 	 * Test the exception in case of missing directorsy permissions
-	 *
-	 * @expectedException  \Friendica\Model\Storage\StorageException
-	 * @expectedExceptionMessageRegExp /Filesystem storage failed to create \".*\". Check you write permissions./
 	 */
 	public function testMissingDirPermissions()
 	{
+		$this->expectException(StorageException::class);
+		$this->expectExceptionMessageRegExp("/Filesystem storage failed to create \".*\". Check you write permissions./");
 		$this->root->getChild('storage')->chmod(000);
 
 		$instance = $this->getInstance();
@@ -92,12 +91,13 @@ class FilesystemStorageTest extends StorageTest
 	/**
 	 * Test the exception in case of missing file permissions
 	 *
-	 * @expectedException \Friendica\Model\Storage\StorageException
-	 * @expectedExceptionMessageRegExp /Filesystem storage failed to save data to \".*\". Check your write permissions/
 	 */
 	public function testMissingFilePermissions()
 	{
-		$this->markTestIncomplete("Cannot catch file_put_content() error due vfsStream failure");
+		static::markTestIncomplete("Cannot catch file_put_content() error due vfsStream failure");
+
+		$this->expectException(StorageException::class);
+		$this->expectExceptionMessageRegExp("/Filesystem storage failed to save data to \".*\". Check your write permissions/");
 
 		vfsStream::create(['storage' => ['f0' => ['c0' => ['k0i0' => '']]]], $this->root);
 
@@ -119,12 +119,12 @@ class FilesystemStorageTest extends StorageTest
 		$dir = $this->root->getChild('storage/f0/c0')->url();
 		$file = $this->root->getChild('storage/f0/c0/d0i0')->url();
 
-		$this->assertDirectoryExists($dir);
-		$this->assertFileExists($file);
+		self::assertDirectoryExists($dir);
+		self::assertFileExists($file);
 
-		$this->assertDirectoryIsWritable($dir);
-		$this->assertFileIsWritable($file);
+		self::assertDirectoryIsWritable($dir);
+		self::assertFileIsWritable($file);
 
-		$this->assertEquals('test', file_get_contents($file));
+		self::assertEquals('test', file_get_contents($file));
 	}
 }

@@ -24,7 +24,7 @@ class ProcessTest extends DatabaseTest
 
 		$this->setUpVfsDir();
 
-		$this->logger = new NullLogger();
+		$logger = new NullLogger();
 
 		$profiler = \Mockery::mock(Profiler::class);
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
@@ -34,29 +34,29 @@ class ProcessTest extends DatabaseTest
 		$loader        = new ConfigFileLoader($this->root->url());
 		$configCache   = $configFactory->createCache($loader);
 
-		$this->dba = new StaticDatabase($configCache, $profiler, $this->logger);
+		$this->dba = new StaticDatabase($configCache, $profiler, $logger);
 	}
 
 	public function testInsertDelete()
 	{
 		$process = new Process($this->dba);
 
-		$this->assertEquals(0, $this->dba->count('process'));
+		self::assertEquals(0, $this->dba->count('process'));
 		$process->insert('test', 1);
 		$process->insert('test2', 2);
 		$process->insert('test3', 3);
 
-		$this->assertEquals(3, $this->dba->count('process'));
+		self::assertEquals(3, $this->dba->count('process'));
 
-		$this->assertEquals([
+		self::assertEquals([
 			['command' => 'test']
 		], $this->dba->selectToArray('process', ['command'], ['pid' => 1]));
 
 		$process->deleteByPid(1);
 
-		$this->assertEmpty($this->dba->selectToArray('process', ['command'], ['pid' => 1]));
+		self::assertEmpty($this->dba->selectToArray('process', ['command'], ['pid' => 1]));
 
-		$this->assertEquals(2, $this->dba->count('process'));
+		self::assertEquals(2, $this->dba->count('process'));
 	}
 
 	public function testDoubleInsert()
@@ -68,7 +68,7 @@ class ProcessTest extends DatabaseTest
 		// double insert doesn't work
 		$process->insert('test23', 1);
 
-		$this->assertEquals([['command' => 'test']], $this->dba->selectToArray('process', ['command'], ['pid' => 1]));
+		self::assertEquals([['command' => 'test']], $this->dba->selectToArray('process', ['command'], ['pid' => 1]));
 	}
 
 	public function testWrongDelete()

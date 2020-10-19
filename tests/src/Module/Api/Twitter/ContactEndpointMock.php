@@ -2,6 +2,8 @@
 
 namespace Friendica\Test\src\Module\Api\Twitter;
 
+use Friendica\Module\Api\Twitter\ContactEndpoint;
+
 /**
  * Class ContactEndpointMock
  *
@@ -13,7 +15,7 @@ namespace Friendica\Test\src\Module\Api\Twitter;
  *
  * @package Friendica\Test\Mock\Module\Api\Twitter
  */
-class ContactEndpointMock extends \Friendica\Module\Api\Twitter\ContactEndpoint
+class ContactEndpointMock extends ContactEndpoint
 {
 	public static function __callStatic($name, $arguments)
 	{

@@ -4,6 +4,7 @@ namespace Friendica\Test\src\Module\Api\Twitter;
 
 use Friendica\Model\Contact;
 use Friendica\Module\Api\Twitter\ContactEndpoint;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Object\Api\Twitter\User;
 use Friendica\Test\FixtureTest;
@@ -12,9 +13,9 @@ class ContactEndpointTest extends FixtureTest
 {
 	public function testGetUid()
 	{
-		$this->assertSame(42, ContactEndpointMock::getUid(42));
-		$this->assertSame(42, ContactEndpointMock::getUid(null, 'selfcontact'));
-		$this->assertSame(42, ContactEndpointMock::getUid(84, 'selfcontact'));
+		self::assertSame(42, ContactEndpointMock::getUid(42));
+		self::assertSame(42, ContactEndpointMock::getUid(null, 'selfcontact'));
+		self::assertSame(42, ContactEndpointMock::getUid(84, 'selfcontact'));
 	}
 
 	public function testGetUidContactIdNotFound()
@@ -52,7 +53,7 @@ class ContactEndpointTest extends FixtureTest
 			'total_count' => 0,
 		];
 
-		$this->assertSame($expectedEmpty, ContactEndpointMock::ids(Contact::FOLLOWER, 42));
+		self::assertSame($expectedEmpty, ContactEndpointMock::ids(Contact::FOLLOWER, 42));
 
 		$expectedFriend = [
 			'ids' => [47],
@@ -63,20 +64,20 @@ class ContactEndpointTest extends FixtureTest
 			'total_count' => 1,
 		];
 
-		$this->assertSame($expectedFriend, ContactEndpointMock::ids(Contact::FRIEND, 42));
-		$this->assertSame($expectedFriend, ContactEndpointMock::ids([Contact::FOLLOWER, Contact::FRIEND], 42));
+		self::assertSame($expectedFriend, ContactEndpointMock::ids(Contact::FRIEND, 42));
+		self::assertSame($expectedFriend, ContactEndpointMock::ids([Contact::FOLLOWER, Contact::FRIEND], 42));
 
 		$result = ContactEndpointMock::ids(Contact::SHARING, 42);
 
-		$this->assertArrayHasKey('ids', $result);
-		$this->assertContainsOnly('int', $result['ids']);
-		$this->assertSame(45, $result['ids'][0]);
+		self::assertArrayHasKey('ids', $result);
+		self::assertContainsOnly('int', $result['ids']);
+		self::assertSame(45, $result['ids'][0]);
 
 		$result = ContactEndpointMock::ids([Contact::SHARING, Contact::FRIEND], 42);
 
-		$this->assertArrayHasKey('ids', $result);
-		$this->assertContainsOnly('int', $result['ids']);
-		$this->assertSame(45, $result['ids'][0]);
+		self::assertArrayHasKey('ids', $result);
+		self::assertContainsOnly('int', $result['ids']);
+		self::assertSame(45, $result['ids'][0]);
 	}
 
 	/**
@@ -88,9 +89,9 @@ class ContactEndpointTest extends FixtureTest
 	{
 		$result = ContactEndpointMock::ids(Contact::SHARING, 42, -1, ContactEndpoint::DEFAULT_COUNT, true);
 
-		$this->assertArrayHasKey('ids', $result);
-		$this->assertContainsOnly('string', $result['ids']);
-		$this->assertSame('45', $result['ids'][0]);
+		self::assertArrayHasKey('ids', $result);
+		self::assertContainsOnly('string', $result['ids']);
+		self::assertSame('45', $result['ids'][0]);
 	}
 
 	public function testIdsPagination()
@@ -106,7 +107,7 @@ class ContactEndpointTest extends FixtureTest
 
 		$result = ContactEndpointMock::ids([Contact::SHARING, Contact::FRIEND], 42, -1, 1);
 
-		$this->assertSame($expectedDefaultPageResult, $result);
+		self::assertSame($expectedDefaultPageResult, $result);
 
 		$nextPageCursor = $result['next_cursor'];
 
@@ -121,7 +122,7 @@ class ContactEndpointTest extends FixtureTest
 
 		$result = ContactEndpointMock::ids([Contact::SHARING, Contact::FRIEND], 42, $nextPageCursor, 1);
 
-		$this->assertSame($expectedSecondPageResult, $result);
+		self::assertSame($expectedSecondPageResult, $result);
 
 		$firstPageCursor = $result['previous_cursor'];
 		$emptyNextPageCursor = $result['next_cursor'];
@@ -137,7 +138,7 @@ class ContactEndpointTest extends FixtureTest
 
 		$result = ContactEndpointMock::ids([Contact::SHARING, Contact::FRIEND], 42, $firstPageCursor, 1);
 
-		$this->assertSame($expectedFirstPageResult, $result);
+		self::assertSame($expectedFirstPageResult, $result);
 
 		$emptyPrevPageCursor = $result['previous_cursor'];
 
@@ -152,7 +153,7 @@ class ContactEndpointTest extends FixtureTest
 
 		$result = ContactEndpointMock::ids([Contact::SHARING, Contact::FRIEND], 42, $emptyPrevPageCursor, 1);
 
-		$this->assertSame($expectedEmptyPrevPageResult, $result);
+		self::assertSame($expectedEmptyPrevPageResult, $result);
 
 		$expectedEmptyNextPageResult = [
 			'ids' => [],
@@ -165,14 +166,14 @@ class ContactEndpointTest extends FixtureTest
 
 		$result = ContactEndpointMock::ids([Contact::SHARING, Contact::FRIEND], 42, $emptyNextPageCursor, 1);
 
-		$this->assertSame($expectedEmptyNextPageResult, $result);
+		self::assertSame($expectedEmptyNextPageResult, $result);
 	}
 
 	/**
 	 * @depends testIds
 	 *
 	 * @throws NotFoundException
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public function testList()
@@ -186,7 +187,7 @@ class ContactEndpointTest extends FixtureTest
 			'total_count' => 0,
 		];
 
-		$this->assertSame($expectedEmpty, ContactEndpointMock::list(Contact::FOLLOWER, 42));
+		self::assertSame($expectedEmpty, ContactEndpointMock::list(Contact::FOLLOWER, 42));
 
 		$expectedFriendContactUser = [
 			'id' => 45,
@@ -241,14 +242,14 @@ class ContactEndpointTest extends FixtureTest
 
 		$result = ContactEndpointMock::list(Contact::SHARING, 42);
 
-		$this->assertArrayHasKey('users', $result);
-		$this->assertContainsOnlyInstancesOf(User::class, $result['users']);
-		$this->assertSame($expectedFriendContactUser, $result['users'][0]->toArray());
+		self::assertArrayHasKey('users', $result);
+		self::assertContainsOnlyInstancesOf(User::class, $result['users']);
+		self::assertSame($expectedFriendContactUser, $result['users'][0]->toArray());
 
 		$result = ContactEndpointMock::list([Contact::SHARING, Contact::FRIEND], 42);
 
-		$this->assertArrayHasKey('users', $result);
-		$this->assertContainsOnlyInstancesOf(User::class, $result['users']);
-		$this->assertSame($expectedFriendContactUser, $result['users'][0]->toArray());
+		self::assertArrayHasKey('users', $result);
+		self::assertContainsOnlyInstancesOf(User::class, $result['users']);
+		self::assertSame($expectedFriendContactUser, $result['users'][0]->toArray());
 	}
 }

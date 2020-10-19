@@ -31,7 +31,7 @@ class ArrayCacheTest extends MemoryCacheTest
 		return $this->cache;
 	}
 
-	public function tearDown()
+	protected function tearDown()
 	{
 		$this->cache->clear(false);
 		parent::tearDown();

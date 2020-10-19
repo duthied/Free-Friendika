@@ -87,7 +87,7 @@ class PageInfoTest extends MockedTest
 	 */
 	public function testGetRelevantUrlFromBody($expected, string $body, bool $searchNakedUrls = false)
 	{
-		$this->assertSame($expected, PageInfoMock::getRelevantUrlFromBody($body, $searchNakedUrls));
+		self::assertSame($expected, PageInfoMock::getRelevantUrlFromBody($body, $searchNakedUrls));
 	}
 
 	public function dataStripTrailingUrlFromBody()
@@ -135,6 +135,6 @@ class PageInfoTest extends MockedTest
 	 */
 	public function testStripTrailingUrlFromBody(string $expected, string $body, string $url)
 	{
-		$this->assertSame($expected, PageInfoMock::stripTrailingUrlFromBody($body, $url));
+		self::assertSame($expected, PageInfoMock::stripTrailingUrlFromBody($body, $url));
 	}
 }

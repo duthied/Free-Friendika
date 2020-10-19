@@ -201,11 +201,11 @@ class BaseURLTest extends MockedTest
 
 		$baseUrl = new BaseURL($configMock, $server);
 
-		$this->assertEquals($assert['hostname'], $baseUrl->getHostname());
-		$this->assertEquals($assert['urlPath'], $baseUrl->getUrlPath());
-		$this->assertEquals($assert['sslPolicy'], $baseUrl->getSSLPolicy());
-		$this->assertEquals($assert['scheme'], $baseUrl->getScheme());
-		$this->assertEquals($assert['url'], $baseUrl->get());
+		self::assertEquals($assert['hostname'], $baseUrl->getHostname());
+		self::assertEquals($assert['urlPath'], $baseUrl->getUrlPath());
+		self::assertEquals($assert['sslPolicy'], $baseUrl->getSSLPolicy());
+		self::assertEquals($assert['scheme'], $baseUrl->getScheme());
+		self::assertEquals($assert['url'], $baseUrl->get());
 	}
 
 	public function dataSave()
@@ -320,7 +320,7 @@ class BaseURLTest extends MockedTest
 
 		$baseUrl->save($save['hostname'], $save['sslPolicy'], $save['urlPath']);
 
-		$this->assertEquals($url, $baseUrl->get());
+		self::assertEquals($url, $baseUrl->get());
 	}
 
 	/**
@@ -358,7 +358,7 @@ class BaseURLTest extends MockedTest
 
 		$baseUrl->saveByURL($url);
 
-		$this->assertEquals($url, $baseUrl->get());
+		self::assertEquals($url, $baseUrl->get());
 	}
 
 	public function dataGetBaseUrl()
@@ -417,7 +417,7 @@ class BaseURLTest extends MockedTest
 
 		$baseUrl = new BaseURL($configMock, []);
 
-		$this->assertEquals($assert, $baseUrl->get($ssl));
+		self::assertEquals($assert, $baseUrl->get($ssl));
 	}
 
 	public function dataCheckRedirectHTTPS()
@@ -476,7 +476,7 @@ class BaseURLTest extends MockedTest
 
 		$baseUrl = new BaseURL($configMock, $server);
 
-		$this->assertEquals($redirect, $baseUrl->checkRedirectHttps());
+		self::assertEquals($redirect, $baseUrl->checkRedirectHttps());
 	}
 
 	public function dataWrongSave()
@@ -531,12 +531,12 @@ class BaseURLTest extends MockedTest
 		}
 
 		$baseUrl = new BaseURL($configMock, []);
-		$this->assertFalse($baseUrl->save('test', 10, 'nope'));
+		self::assertFalse($baseUrl->save('test', 10, 'nope'));
 
 		// nothing should have changed because we never successfully saved anything
-		$this->assertEquals($baseUrl->getHostname(), 'friendica.local');
-		$this->assertEquals($baseUrl->getUrlPath(), 'new/test');
-		$this->assertEquals($baseUrl->getSSLPolicy(), BaseURL::DEFAULT_SSL_SCHEME);
-		$this->assertEquals($baseUrl->get(), 'http://friendica.local/new/test');
+		self::assertEquals('friendica.local', $baseUrl->getHostname());
+		self::assertEquals('new/test', $baseUrl->getUrlPath());
+		self::assertEquals(BaseURL::DEFAULT_SSL_SCHEME, $baseUrl->getSSLPolicy());
+		self::assertEquals('http://friendica.local/new/test', $baseUrl->get());
 	}
 }

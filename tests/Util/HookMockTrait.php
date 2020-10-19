@@ -16,6 +16,8 @@ trait HookMockTrait
 	/**
 	 * Mocking a method 'Hook::call()' call
 	 *
+	 * @param string $name
+	 * @param mixed  $capture
 	 */
 	public function mockHookCallAll(string $name, &$capture)
 	{

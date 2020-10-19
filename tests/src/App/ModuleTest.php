@@ -29,14 +29,15 @@ use Friendica\LegacyModule;
 use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Module\WellKnown\HostMeta;
 use Friendica\Test\DatabaseTest;
+use Mockery;
 
 class ModuleTest extends DatabaseTest
 {
 	private function assertModule(array $assert, App\Module $module)
 	{
-		$this->assertEquals($assert['isBackend'], $module->isBackend());
-		$this->assertEquals($assert['name'], $module->getName());
-		$this->assertEquals($assert['class'], $module->getClassName());
+		self::assertEquals($assert['isBackend'], $module->isBackend());
+		self::assertEquals($assert['name'], $module->getName());
+		self::assertEquals($assert['class'], $module->getClassName());
 	}
 
 	/**
@@ -46,7 +47,7 @@ class ModuleTest extends DatabaseTest
 	{
 		$module = new App\Module();
 
-		$this->assertModule([
+		self::assertModule([
 			'isBackend' => false,
 			'name'      => App\Module::DEFAULT,
 			'class'     => App\Module::DEFAULT_CLASS,
@@ -128,7 +129,7 @@ class ModuleTest extends DatabaseTest
 	{
 		$module = (new App\Module())->determineModule($args);
 
-		$this->assertModule($assert, $module);
+		self::assertModule($assert, $module);
 	}
 
 	public function dataModuleClass()
@@ -170,13 +171,13 @@ class ModuleTest extends DatabaseTest
 	 */
 	public function testModuleClass($assert, string $name, string $command, bool $privAdd)
 	{
-		$config = \Mockery::mock(IConfig::class);
+		$config = Mockery::mock(IConfig::class);
 		$config->shouldReceive('get')->with('config', 'private_addons', false)->andReturn($privAdd)->atMost()->once();
 
-		$l10n = \Mockery::mock(L10n::class);
+		$l10n = Mockery::mock(L10n::class);
 		$l10n->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
-		$cache = \Mockery::mock(ICache::class);
+		$cache = Mockery::mock(ICache::class);
 		$cache->shouldReceive('get')->with('routerDispatchData')->andReturn('')->atMost()->once();
 		$cache->shouldReceive('get')->with('lastRoutesFileModifiedTime')->andReturn('')->atMost()->once();
 		$cache->shouldReceive('set')->withAnyArgs()->andReturn(false)->atMost()->twice();
@@ -185,7 +186,7 @@ class ModuleTest extends DatabaseTest
 
 		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), $router, $config);
 
-		$this->assertEquals($assert, $module->getClassName());
+		self::assertEquals($assert, $module->getClassName());
 	}
 
 	/**
@@ -197,6 +198,6 @@ class ModuleTest extends DatabaseTest
 
 		$moduleNew = $module->determineModule(new App\Arguments());
 
-		$this->assertNotSame($moduleNew, $module);
+		self::assertNotSame($moduleNew, $module);
 	}
 }

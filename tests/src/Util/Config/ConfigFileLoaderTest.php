@@ -50,16 +50,17 @@ class ConfigFileLoaderTest extends MockedTest
 
 		$configFileLoader->setupCache($configCache);
 
-		$this->assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
+		self::assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
 	}
 
 	/**
 	 * Test the loadConfigFiles() method with a wrong local.config.php
-	 * @expectedException \Exception
-	 * @expectedExceptionMessageRegExp /Error loading config file \w+/
+	 *
 	 */
 	public function testLoadConfigWrong()
 	{
+		$this->expectExceptionMessageRegExp("/Error loading config file \w+/");
+		$this->expectException(\Exception::class);
 		$this->delConfigFile('local.config.php');
 
 		vfsStream::newFile('local.config.php')
@@ -95,13 +96,13 @@ class ConfigFileLoaderTest extends MockedTest
 
 		$configFileLoader->setupCache($configCache);
 
-		$this->assertEquals('testhost', $configCache->get('database', 'hostname'));
-		$this->assertEquals('testuser', $configCache->get('database', 'username'));
-		$this->assertEquals('testpw', $configCache->get('database', 'password'));
-		$this->assertEquals('testdb', $configCache->get('database', 'database'));
+		self::assertEquals('testhost', $configCache->get('database', 'hostname'));
+		self::assertEquals('testuser', $configCache->get('database', 'username'));
+		self::assertEquals('testpw', $configCache->get('database', 'password'));
+		self::assertEquals('testdb', $configCache->get('database', 'database'));
 
-		$this->assertEquals('admin@test.it', $configCache->get('config', 'admin_email'));
-		$this->assertEquals('Friendica Social Network', $configCache->get('config', 'sitename'));
+		self::assertEquals('admin@test.it', $configCache->get('config', 'admin_email'));
+		self::assertEquals('Friendica Social Network', $configCache->get('config', 'sitename'));
 	}
 
 	/**
@@ -127,12 +128,12 @@ class ConfigFileLoaderTest extends MockedTest
 
 		$configFileLoader->setupCache($configCache);
 
-		$this->assertEquals('testhost', $configCache->get('database', 'hostname'));
-		$this->assertEquals('testuser', $configCache->get('database', 'username'));
-		$this->assertEquals('testpw', $configCache->get('database', 'password'));
-		$this->assertEquals('testdb', $configCache->get('database', 'database'));
+		self::assertEquals('testhost', $configCache->get('database', 'hostname'));
+		self::assertEquals('testuser', $configCache->get('database', 'username'));
+		self::assertEquals('testpw', $configCache->get('database', 'password'));
+		self::assertEquals('testdb', $configCache->get('database', 'database'));
 
-		$this->assertEquals('admin@test.it', $configCache->get('config', 'admin_email'));
+		self::assertEquals('admin@test.it', $configCache->get('config', 'admin_email'));
 	}
 
 	/**
@@ -158,25 +159,25 @@ class ConfigFileLoaderTest extends MockedTest
 
 		$configFileLoader->setupCache($configCache);
 
-		$this->assertEquals('testhost', $configCache->get('database', 'hostname'));
-		$this->assertEquals('testuser', $configCache->get('database', 'username'));
-		$this->assertEquals('testpw', $configCache->get('database', 'password'));
-		$this->assertEquals('testdb', $configCache->get('database', 'database'));
-		$this->assertEquals('anotherCharset', $configCache->get('database', 'charset'));
+		self::assertEquals('testhost', $configCache->get('database', 'hostname'));
+		self::assertEquals('testuser', $configCache->get('database', 'username'));
+		self::assertEquals('testpw', $configCache->get('database', 'password'));
+		self::assertEquals('testdb', $configCache->get('database', 'database'));
+		self::assertEquals('anotherCharset', $configCache->get('database', 'charset'));
 
-		$this->assertEquals('/var/run/friendica.pid', $configCache->get('system', 'pidfile'));
-		$this->assertEquals('Europe/Berlin', $configCache->get('system', 'default_timezone'));
-		$this->assertEquals('fr', $configCache->get('system', 'language'));
+		self::assertEquals('/var/run/friendica.pid', $configCache->get('system', 'pidfile'));
+		self::assertEquals('Europe/Berlin', $configCache->get('system', 'default_timezone'));
+		self::assertEquals('fr', $configCache->get('system', 'language'));
 
-		$this->assertEquals('admin@test.it', $configCache->get('config', 'admin_email'));
-		$this->assertEquals('Friendly admin', $configCache->get('config', 'admin_nickname'));
+		self::assertEquals('admin@test.it', $configCache->get('config', 'admin_email'));
+		self::assertEquals('Friendly admin', $configCache->get('config', 'admin_nickname'));
 
-		$this->assertEquals('/another/php', $configCache->get('config', 'php_path'));
-		$this->assertEquals('999', $configCache->get('config', 'max_import_size'));
-		$this->assertEquals('666', $configCache->get('system', 'maximagesize'));
+		self::assertEquals('/another/php', $configCache->get('config', 'php_path'));
+		self::assertEquals('999', $configCache->get('config', 'max_import_size'));
+		self::assertEquals('666', $configCache->get('system', 'maximagesize'));
 
-		$this->assertEquals('quattro,vier,duepuntozero', $configCache->get('system', 'allowed_themes'));
-		$this->assertEquals('1', $configCache->get('system', 'no_regfullname'));
+		self::assertEquals('quattro,vier,duepuntozero', $configCache->get('system', 'allowed_themes'));
+		self::assertEquals('1', $configCache->get('system', 'no_regfullname'));
 	}
 
 	public function testLoadAddonConfig()
@@ -206,12 +207,12 @@ class ConfigFileLoaderTest extends MockedTest
 
 		$conf = $configFileLoader->loadAddonConfig('test');
 
-		$this->assertEquals('testhost', $conf['database']['hostname']);
-		$this->assertEquals('testuser', $conf['database']['username']);
-		$this->assertEquals('testpw', $conf['database']['password']);
-		$this->assertEquals('testdb', $conf['database']['database']);
+		self::assertEquals('testhost', $conf['database']['hostname']);
+		self::assertEquals('testuser', $conf['database']['username']);
+		self::assertEquals('testpw', $conf['database']['password']);
+		self::assertEquals('testdb', $conf['database']['database']);
 
-		$this->assertEquals('admin@test.it', $conf['config']['admin_email']);
+		self::assertEquals('admin@test.it', $conf['config']['admin_email']);
 	}
 
 	/**
@@ -239,8 +240,8 @@ class ConfigFileLoaderTest extends MockedTest
 
 		$configFileLoader->setupCache($configCache);
 
-		$this->assertEquals('admin@overwritten.local', $configCache->get('config', 'admin_email'));
-		$this->assertEquals('newValue', $configCache->get('system', 'newKey'));
+		self::assertEquals('admin@overwritten.local', $configCache->get('config', 'admin_email'));
+		self::assertEquals('newValue', $configCache->get('system', 'newKey'));
 	}
 
 	/**
@@ -268,8 +269,8 @@ class ConfigFileLoaderTest extends MockedTest
 
 		$configFileLoader->setupCache($configCache);
 
-		$this->assertEquals('admin@overwritten.local', $configCache->get('config', 'admin_email'));
-		$this->assertEquals('newValue', $configCache->get('system', 'newKey'));
+		self::assertEquals('admin@overwritten.local', $configCache->get('config', 'admin_email'));
+		self::assertEquals('newValue', $configCache->get('system', 'newKey'));
 	}
 
 	/**
@@ -297,7 +298,7 @@ class ConfigFileLoaderTest extends MockedTest
 
 		$configFileLoader->setupCache($configCache);
 
-		$this->assertEquals('admin@test.it', $configCache->get('config', 'admin_email'));
-		$this->assertEmpty($configCache->get('system', 'NewKey'));
+		self::assertEquals('admin@test.it', $configCache->get('config', 'admin_email'));
+		self::assertEmpty($configCache->get('system', 'NewKey'));
 	}
 }

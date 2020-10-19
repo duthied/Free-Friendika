@@ -29,36 +29,36 @@ use PHPUnit\Framework\TestCase;
  */
 class XmlTest extends TestCase
 {
-    /**
-	* escape and unescape
-	*/
+	/**
+	 * escape and unescape
+	 */
 	public function testEscapeUnescape()
 	{
-		$text="<tag>I want to break\n this!11!<?hard?></tag>";
-		$xml=XML::escape($text);
-		$retext=XML::unescape($text);
-		$this->assertEquals($text, $retext);
-    }
-    
+		$text   = "<tag>I want to break\n this!11!<?hard?></tag>";
+		$xml    = XML::escape($text);
+		$retext = XML::unescape($text);
+		self::assertEquals($text, $retext);
+	}
+
 	/**
 	 * escape and put in a document
 	 */
 	public function testEscapeDocument()
 	{
-		$tag="<tag>I want to break</tag>";
-		$xml=XML::escape($tag);
-		$text='<text>'.$xml.'</text>';
-		$xml_parser=xml_parser_create();
+		$tag        = "<tag>I want to break</tag>";
+		$xml        = XML::escape($tag);
+		$text       = '<text>' . $xml . '</text>';
+		$xml_parser = xml_parser_create();
 		//should be possible to parse it
-		$values=array();
-		$index=array();
-		$this->assertEquals(1, xml_parse_into_struct($xml_parser, $text, $values, $index));
-		$this->assertEquals(
-			array('TEXT'=>array(0)),
+		$values = [];
+		$index  = [];
+		self::assertEquals(1, xml_parse_into_struct($xml_parser, $text, $values, $index));
+		self::assertEquals(
+			['TEXT' => [0]],
 			$index
 		);
-		$this->assertEquals(
-			array(array('tag'=>'TEXT', 'type'=>'complete', 'level'=>1, 'value'=>$tag)),
+		self::assertEquals(
+			[['tag' => 'TEXT', 'type' => 'complete', 'level' => 1, 'value' => $tag]],
 			$values
 		);
 		xml_parser_free($xml_parser);

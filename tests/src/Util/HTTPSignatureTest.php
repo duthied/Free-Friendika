@@ -43,7 +43,7 @@ class HTTPSignatureTest extends TestCase
            YWuxyvBa0Z6NdOb0di70cdrSDEsL5Gz7LBY5J2N9KdGg=="';
 
 		$headers = HTTPSignature::parseSigheader($header);
-		$this->assertSame([
+		self::assertSame([
 			'keyId'     => 'test-key-a',
 			'algorithm' => 'hs2019',
 			'created'   => '1402170695',

@@ -22,7 +22,6 @@
 namespace Friendica\Test\src\Core\PConfig;
 
 use Friendica\Core\PConfig\JitPConfig;
-use Friendica\Test\src\Core\PConfig\PConfigTest;
 
 class JitPConfigTest extends PConfigTest
 {
@@ -78,7 +77,7 @@ class JitPConfigTest extends PConfigTest
 
 		// Assert the expected categories
 		foreach ($data2 as $cat => $data) {
-			$this->assertConfig($uid, $cat, $expect[$cat]);
+			self::assertConfig($uid, $cat, $expect[$cat]);
 		}
 	}
 

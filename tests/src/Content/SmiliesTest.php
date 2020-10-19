@@ -9,6 +9,7 @@
 namespace Friendica\Test\src\Content;
 
 use Friendica\Content\Smilies;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
 use Friendica\Test\Util\VFSTrait;
@@ -52,16 +53,18 @@ class SmiliesTest extends MockedTest
 
 	/**
 	 * Test replace smilies in different texts
+	 *
 	 * @dataProvider dataLinks
 	 *
 	 * @param string $text     Test string
 	 * @param array  $smilies  List of smilies to replace
 	 * @param string $expected Expected result
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws InternalServerErrorException
 	 */
-	public function testReplaceFromArray($text, $smilies, $expected)
+	public function testReplaceFromArray(string $text, array $smilies, string $expected)
 	{
 		$output = Smilies::replaceFromArray($text, $smilies);
-		$this->assertEquals($expected, $output);
+		self::assertEquals($expected, $output);
 	}
 }

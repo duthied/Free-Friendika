@@ -28,11 +28,11 @@ class ArgumentsTest extends TestCase
 {
 	private function assertArguments(array $assert, App\Arguments $arguments)
 	{
-		$this->assertEquals($assert['queryString'], $arguments->getQueryString());
-		$this->assertEquals($assert['command'], $arguments->getCommand());
-		$this->assertEquals($assert['argv'], $arguments->getArgv());
-		$this->assertEquals($assert['argc'], $arguments->getArgc());
-		$this->assertCount($assert['argc'], $arguments->getArgv());
+		self::assertEquals($assert['queryString'], $arguments->getQueryString());
+		self::assertEquals($assert['command'], $arguments->getCommand());
+		self::assertEquals($assert['argv'], $arguments->getArgv());
+		self::assertEquals($assert['argc'], $arguments->getArgc());
+		self::assertCount($assert['argc'], $arguments->getArgv());
 	}
 
 	/**
@@ -42,7 +42,7 @@ class ArgumentsTest extends TestCase
 	{
 		$arguments = new App\Arguments();
 
-		$this->assertArguments([
+		self::assertArguments([
 			'queryString' => '',
 			'command'     => '',
 			'argv'        => [],
@@ -177,7 +177,7 @@ class ArgumentsTest extends TestCase
 		$arguments = (new App\Arguments())
 			->determine($server, $get);
 
-		$this->assertArguments($assert, $arguments);
+		self::assertArguments($assert, $arguments);
 	}
 
 	/**
@@ -191,13 +191,13 @@ class ArgumentsTest extends TestCase
 			->determine($server, $get);
 
 		for ($i = 0; $i < $arguments->getArgc(); $i++) {
-			$this->assertTrue($arguments->has($i));
-			$this->assertEquals($assert['argv'][$i], $arguments->get($i));
+			self::assertTrue($arguments->has($i));
+			self::assertEquals($assert['argv'][$i], $arguments->get($i));
 		}
 
-		$this->assertFalse($arguments->has($arguments->getArgc()));
-		$this->assertEmpty($arguments->get($arguments->getArgc()));
-		$this->assertEquals('default', $arguments->get($arguments->getArgc(), 'default'));
+		self::assertFalse($arguments->has($arguments->getArgc()));
+		self::assertEmpty($arguments->get($arguments->getArgc()));
+		self::assertEquals('default', $arguments->get($arguments->getArgc(), 'default'));
 	}
 
 	public function dataStripped()
@@ -242,7 +242,7 @@ class ArgumentsTest extends TestCase
 		$arguments = (new App\Arguments())
 			->determine(['QUERY_STRING' => 'pagename=' . $command . $input,], ['pagename' => $command]);
 
-		$this->assertEquals($command . $assert, $arguments->getQueryString());
+		self::assertEquals($command . $assert, $arguments->getQueryString());
 	}
 
 	/**
@@ -254,6 +254,6 @@ class ArgumentsTest extends TestCase
 
 		$argNew = $argument->determine([], []);
 
-		$this->assertNotSame($argument, $argNew);
+		self::assertNotSame($argument, $argNew);
 	}
 }

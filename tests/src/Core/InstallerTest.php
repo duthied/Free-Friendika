@@ -19,7 +19,7 @@
  *
  */
 
-// this is in the same namespace as Install for mocking 'function_exists'
+/// @todo this is in the same namespace as Install for mocking 'function_exists'
 namespace Friendica\Core;
 
 use Dice\Dice;
@@ -29,6 +29,7 @@ use Friendica\Network\CurlResult;
 use Friendica\Network\IHTTPRequest;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
+use Mockery;
 use Mockery\MockInterface;
 
 class InstallerTest extends MockedTest
@@ -36,7 +37,7 @@ class InstallerTest extends MockedTest
 	use VFSTrait;
 
 	/**
-	 * @var \Friendica\Core\L10n|MockInterface
+	 * @var L10n|MockInterface
 	 */
 	private $l10nMock;
 	/**
@@ -44,20 +45,20 @@ class InstallerTest extends MockedTest
 	 */
 	private $dice;
 
-	public function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 
 		$this->setUpVfsDir();
 
-		$this->l10nMock = \Mockery::mock(\Friendica\Core\L10n::class);
+		$this->l10nMock = Mockery::mock(L10n::class);
 
 		/** @var Dice|MockInterface $dice */
-		$this->dice = \Mockery::mock(Dice::class)->makePartial();
+		$this->dice = Mockery::mock(Dice::class)->makePartial();
 		$this->dice = $this->dice->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
 
 		$this->dice->shouldReceive('create')
-		           ->with(\Friendica\Core\L10n::class)
+		           ->with(L10n::class)
 		           ->andReturn($this->l10nMock);
 
 		DI::init($this->dice);
@@ -104,7 +105,7 @@ class InstallerTest extends MockedTest
 			'help' => $help]
 		];
 
-		$this->assertArraySubset($subSet, $assertionArray, false, "expected subset: " . PHP_EOL . print_r($subSet, true) . PHP_EOL . "current subset: " . print_r($assertionArray, true));
+		self::assertArraySubset($subSet, $assertionArray, false, "expected subset: " . PHP_EOL . print_r($subSet, true) . PHP_EOL . "current subset: " . print_r($assertionArray, true));
 	}
 
 	/**
@@ -112,7 +113,7 @@ class InstallerTest extends MockedTest
 	 *
 	 * @param array $functions a list from function names and their result
 	 */
-	private function setFunctions($functions)
+	private function setFunctions(array $functions)
 	{
 		global $phpMock;
 		$phpMock['function_exists'] = function($function) use ($functions) {
@@ -130,7 +131,7 @@ class InstallerTest extends MockedTest
 	 *
 	 * @param array $classes a list from class names and their results
 	 */
-	private function setClasses($classes)
+	private function setClasses(array $classes)
 	{
 		global $phpMock;
 		$phpMock['class_exists'] = function($class) use ($classes) {
@@ -152,11 +153,11 @@ class InstallerTest extends MockedTest
 
 		$this->setFunctions(['openssl_pkey_new' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkKeys());
+		self::assertFalse($install->checkKeys());
 
 		$this->setFunctions(['openssl_pkey_new' => true]);
 		$install = new Installer();
-		$this->assertTrue($install->checkKeys());
+		self::assertTrue($install->checkKeys());
 	}
 
 	/**
@@ -167,8 +168,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['curl_init' => false, 'imagecreatefromjpeg' => true]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(3,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(3,
 			'libCurl PHP module',
 			'Error: libCURL PHP module required but not installed.',
 			false,
@@ -178,8 +179,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['imagecreatefromjpeg' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(4,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(4,
 			'GD graphics PHP module',
 			'Error: GD graphics PHP module with JPEG support required but not installed.',
 			false,
@@ -189,8 +190,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['openssl_public_encrypt' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(5,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(5,
 			'OpenSSL PHP module',
 			'Error: openssl PHP module required but not installed.',
 			false,
@@ -200,8 +201,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['mb_strlen' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(6,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(6,
 			'mb_string PHP module',
 			'Error: mb_string PHP module required but not installed.',
 			false,
@@ -211,8 +212,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['iconv_strlen' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(7,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(7,
 			'iconv PHP module',
 			'Error: iconv PHP module required but not installed.',
 			false,
@@ -222,8 +223,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['posix_kill' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(8,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(8,
 			'POSIX PHP module',
 			'Error: POSIX PHP module required but not installed.',
 			false,
@@ -233,8 +234,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['json_encode' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(9,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(9,
 			'JSON PHP module',
 			'Error: JSON PHP module required but not installed.',
 			false,
@@ -244,8 +245,8 @@ class InstallerTest extends MockedTest
 		$this->mockFunctionL10TCalls();
 		$this->setFunctions(['finfo_open' => false]);
 		$install = new Installer();
-		$this->assertFalse($install->checkFunctions());
-		$this->assertCheckExist(10,
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(10,
 			'File Information PHP module',
 			'Error: File Information PHP module required but not installed.',
 			false,
@@ -264,7 +265,7 @@ class InstallerTest extends MockedTest
 			'finfo_open' => true,
 		]);
 		$install = new Installer();
-		$this->assertTrue($install->checkFunctions());
+		self::assertTrue($install->checkFunctions());
 	}
 
 	/**
@@ -274,17 +275,17 @@ class InstallerTest extends MockedTest
 	{
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
-		$this->assertTrue($this->root->hasChild('config/local.config.php'));
+		self::assertTrue($this->root->hasChild('config/local.config.php'));
 
 		$install = new Installer();
-		$this->assertTrue($install->checkLocalIni());
+		self::assertTrue($install->checkLocalIni());
 
 		$this->delConfigFile('local.config.php');
 
-		$this->assertFalse($this->root->hasChild('config/local.config.php'));
+		self::assertFalse($this->root->hasChild('config/local.config.php'));
 
 		$install = new Installer();
-		$this->assertTrue($install->checkLocalIni());
+		self::assertTrue($install->checkLocalIni());
 	}
 
 	/**
@@ -297,7 +298,7 @@ class InstallerTest extends MockedTest
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		// Mocking the CURL Response
-		$curlResult = \Mockery::mock(CurlResult::class);
+		$curlResult = Mockery::mock(CurlResult::class);
 		$curlResult
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
@@ -309,7 +310,7 @@ class InstallerTest extends MockedTest
 			->andReturn('test Error');
 
 		// Mocking the CURL Request
-		$networkMock = \Mockery::mock(IHTTPRequest::class);
+		$networkMock = Mockery::mock(IHTTPRequest::class);
 		$networkMock
 			->shouldReceive('fetchFull')
 			->with('https://test/install/testrewrite')
@@ -330,8 +331,8 @@ class InstallerTest extends MockedTest
 
 		$install = new Installer();
 
-		$this->assertFalse($install->checkHtAccess('https://test'));
-		$this->assertSame('test Error', $install->getChecks()[0]['error_msg']['msg']);
+		self::assertFalse($install->checkHtAccess('https://test'));
+		self::assertSame('test Error', $install->getChecks()[0]['error_msg']['msg']);
 	}
 
 	/**
@@ -344,19 +345,19 @@ class InstallerTest extends MockedTest
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		// Mocking the failed CURL Response
-		$curlResultF = \Mockery::mock(CurlResult::class);
+		$curlResultF = Mockery::mock(CurlResult::class);
 		$curlResultF
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
 
 		// Mocking the working CURL Response
-		$curlResultW = \Mockery::mock(CurlResult::class);
+		$curlResultW = Mockery::mock(CurlResult::class);
 		$curlResultW
 			->shouldReceive('getReturnCode')
 			->andReturn('204');
 
 		// Mocking the CURL Request
-		$networkMock = \Mockery::mock(IHTTPRequest::class);
+		$networkMock = Mockery::mock(IHTTPRequest::class);
 		$networkMock
 			->shouldReceive('fetchFull')
 			->with('https://test/install/testrewrite')
@@ -377,7 +378,7 @@ class InstallerTest extends MockedTest
 
 		$install = new Installer();
 
-		$this->assertTrue($install->checkHtAccess('https://test'));
+		self::assertTrue($install->checkHtAccess('https://test'));
 	}
 
 	/**
@@ -387,7 +388,7 @@ class InstallerTest extends MockedTest
 	 */
 	public function testImagick()
 	{
-		$this->markTestIncomplete('needs adapted class_exists() mock');
+		static::markTestIncomplete('needs adapted class_exists() mock');
 
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
@@ -396,9 +397,9 @@ class InstallerTest extends MockedTest
 		$install = new Installer();
 
 		// even there is no supported type, Imagick should return true (because it is not required)
-		$this->assertTrue($install->checkImagick());
+		self::assertTrue($install->checkImagick());
 
-		$this->assertCheckExist(1,
+		self::assertCheckExist(1,
 			$this->l10nMock->t('ImageMagick supports GIF'),
 			'',
 			true,
@@ -413,7 +414,7 @@ class InstallerTest extends MockedTest
 	 */
 	public function testImagickNotFound()
 	{
-		$this->markTestIncomplete('Disabled due not working/difficult mocking global functions - needs more care!');
+		static::markTestIncomplete('Disabled due not working/difficult mocking global functions - needs more care!');
 
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
@@ -422,8 +423,8 @@ class InstallerTest extends MockedTest
 		$install = new Installer();
 
 		// even there is no supported type, Imagick should return true (because it is not required)
-		$this->assertTrue($install->checkImagick());
-		$this->assertCheckExist(1,
+		self::assertTrue($install->checkImagick());
+		self::assertCheckExist(1,
 			$this->l10nMock->t('ImageMagick supports GIF'),
 			'',
 			false,
@@ -439,8 +440,8 @@ class InstallerTest extends MockedTest
 		$install = new Installer();
 
 		// even there is no supported type, Imagick should return true (because it is not required)
-		$this->assertTrue($install->checkImagick());
-		$this->assertCheckExist(0,
+		self::assertTrue($install->checkImagick());
+		self::assertCheckExist(0,
 			'ImageMagick PHP extension is not installed',
 			'',
 			false,
@@ -456,8 +457,8 @@ class InstallerTest extends MockedTest
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		$install = new Installer();
-		$configCache = \Mockery::mock(Cache::class);
-		$configCache->shouldReceive('set')->with('config', 'php_path', \Mockery::any())->once();
+		$configCache = Mockery::mock(Cache::class);
+		$configCache->shouldReceive('set')->with('config', 'php_path', Mockery::any())->once();
 		$configCache->shouldReceive('set')->with('system', 'basepath', '/test/')->once();
 
 		$install->setUpCache($configCache, '/test/');
@@ -471,7 +472,7 @@ class InstallerTest extends MockedTest
  *
  * @return bool true or false
  */
-function function_exists($function_name)
+function function_exists(string $function_name)
 {
 	global $phpMock;
 	if (isset($phpMock['function_exists'])) {

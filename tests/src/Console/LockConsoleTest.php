@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\Console\Lock;
 use Friendica\Core\Lock\ILock;
+use Mockery;
 use Mockery\MockInterface;
 
 class LockConsoleTest extends ConsoleTest
@@ -43,17 +44,17 @@ class LockConsoleTest extends ConsoleTest
 	{
 		parent::setUp();
 
-		\Mockery::getConfiguration()->setConstantsMap([
+		Mockery::getConfiguration()->setConstantsMap([
 			Mode::class => [
 				'DBCONFIGAVAILABLE' => 0
 			]
 		]);
 
-		$this->appMode = \Mockery::mock(App\Mode::class);
+		$this->appMode = Mockery::mock(App\Mode::class);
 		$this->appMode->shouldReceive('has')
 		        ->andReturn(true);
 
-		$this->lockMock = \Mockery::mock(ILock::class);
+		$this->lockMock = Mockery::mock(ILock::class);
 	}
 
 	public function testList()
@@ -66,7 +67,7 @@ class LockConsoleTest extends ConsoleTest
 		$console = new Lock($this->appMode, $this->lockMock, $this->consoleArgv);
 		$console->setArgument(0, 'list');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("Listing all Locks:\ntest\ntest2\n2 locks found\n", $txt);
+		self::assertEquals("Listing all Locks:\ntest\ntest2\n2 locks found\n", $txt);
 	}
 
 	public function testListPrefix()
@@ -81,7 +82,7 @@ class LockConsoleTest extends ConsoleTest
 		$console->setArgument(0, 'list');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("Listing all Locks starting with \"test\":\ntest\ntest2\n2 locks found\n", $txt);
+		self::assertEquals("Listing all Locks starting with \"test\":\ntest\ntest2\n2 locks found\n", $txt);
 	}
 
 	public function testDelLock()
@@ -96,7 +97,7 @@ class LockConsoleTest extends ConsoleTest
 		$console->setArgument(0, 'del');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("Lock 'test' released.\n", $txt);
+		self::assertEquals("Lock 'test' released.\n", $txt);
 	}
 
 	public function testDelUnknownLock()
@@ -111,7 +112,7 @@ class LockConsoleTest extends ConsoleTest
 		$console->setArgument(0, 'del');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("Couldn't release Lock 'test'\n", $txt);
+		self::assertEquals("Couldn't release Lock 'test'\n", $txt);
 	}
 
 	public function testSetLock()
@@ -131,7 +132,7 @@ class LockConsoleTest extends ConsoleTest
 		$console->setArgument(0, 'set');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("Lock 'test' acquired.\n", $txt);
+		self::assertEquals("Lock 'test' acquired.\n", $txt);
 	}
 
 	public function testSetLockIsLocked()
@@ -146,7 +147,7 @@ class LockConsoleTest extends ConsoleTest
 		$console->setArgument(0, 'set');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("[Error] 'test' is already set.\n", $txt);
+		self::assertEquals("[Error] 'test' is already set.\n", $txt);
 	}
 
 	public function testSetLockNotWorking()
@@ -166,7 +167,7 @@ class LockConsoleTest extends ConsoleTest
 		$console->setArgument(0, 'set');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("[Error] Unable to lock 'test'.\n", $txt);
+		self::assertEquals("[Error] Unable to lock 'test'.\n", $txt);
 	}
 
 	public function testReleaseAll()
@@ -179,7 +180,7 @@ class LockConsoleTest extends ConsoleTest
 		$console = new Lock($this->appMode, $this->lockMock, $this->consoleArgv);
 		$console->setArgument(0, 'clear');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("Locks successfully cleared.\n", $txt);
+		self::assertEquals("Locks successfully cleared.\n", $txt);
 	}
 
 	public function testReleaseAllFailed()
@@ -192,7 +193,7 @@ class LockConsoleTest extends ConsoleTest
 		$console = new Lock($this->appMode, $this->lockMock, $this->consoleArgv);
 		$console->setArgument(0, 'clear');
 		$txt = $this->dumpExecute($console);
-		$this->assertEquals("[Error] Unable to clear the locks.\n", $txt);
+		self::assertEquals("[Error] Unable to clear the locks.\n", $txt);
 	}
 
 	public function testGetHelp()
@@ -229,6 +230,6 @@ HELP;
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals($txt, $theHelp);
+		self::assertEquals($txt, $theHelp);
 	}
 }

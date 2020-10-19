@@ -72,7 +72,7 @@ class UserTest extends MockedTest
 
 		$record = User::identities($this->parent['uid']);
 
-		$this->assertEquals([], $record);
+		self::assertEquals([], $record);
 	}
 
 	public function testIdentitiesAsParent()
@@ -109,7 +109,7 @@ class UserTest extends MockedTest
 
 		$record = User::identities($this->parent['uid']);
 
-		$this->assertEquals([
+		self::assertEquals([
 			$this->parent,
 			$this->child,
 			$this->manage
@@ -162,7 +162,7 @@ class UserTest extends MockedTest
 
 		$record = User::identities($this->child['uid']);
 
-		$this->assertEquals([
+		self::assertEquals([
 			$this->parent,
 			$this->child,
 			$this->manage

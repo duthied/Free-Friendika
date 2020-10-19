@@ -62,14 +62,14 @@ class CurlResultTest extends TestCase
 			'url' => 'https://test.local'
 		]);
 
-		$this->assertTrue($curlResult->isSuccess());
-		$this->assertFalse($curlResult->isTimeout());
-		$this->assertFalse($curlResult->isRedirectUrl());
-		$this->assertSame($header, $curlResult->getHeader());
-		$this->assertSame($body, $curlResult->getBody());
-		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
-		$this->assertSame('https://test.local', $curlResult->getUrl());
-		$this->assertSame('https://test.local', $curlResult->getRedirectUrl());
+		self::assertTrue($curlResult->isSuccess());
+		self::assertFalse($curlResult->isTimeout());
+		self::assertFalse($curlResult->isRedirectUrl());
+		self::assertSame($header, $curlResult->getHeader());
+		self::assertSame($body, $curlResult->getBody());
+		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
+		self::assertSame('https://test.local', $curlResult->getUrl());
+		self::assertSame('https://test.local', $curlResult->getRedirectUrl());
 	}
 
 	/**
@@ -90,14 +90,14 @@ class CurlResultTest extends TestCase
 			'redirect_url' => 'https://test.other'
 		]);
 
-		$this->assertTrue($curlResult->isSuccess());
-		$this->assertFalse($curlResult->isTimeout());
-		$this->assertTrue($curlResult->isRedirectUrl());
-		$this->assertSame($header, $curlResult->getHeader());
-		$this->assertSame($body, $curlResult->getBody());
-		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
-		$this->assertSame('https://test.local/test/it', $curlResult->getUrl());
-		$this->assertSame('https://test.other/test/it', $curlResult->getRedirectUrl());
+		self::assertTrue($curlResult->isSuccess());
+		self::assertFalse($curlResult->isTimeout());
+		self::assertTrue($curlResult->isRedirectUrl());
+		self::assertSame($header, $curlResult->getHeader());
+		self::assertSame($body, $curlResult->getBody());
+		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
+		self::assertSame('https://test.local/test/it', $curlResult->getUrl());
+		self::assertSame('https://test.other/test/it', $curlResult->getRedirectUrl());
 	}
 
 	/**
@@ -116,14 +116,14 @@ class CurlResultTest extends TestCase
 			'redirect_url' => 'https://test.other'
 		], CURLE_OPERATION_TIMEDOUT, 'Tested error');
 
-		$this->assertFalse($curlResult->isSuccess());
-		$this->assertTrue($curlResult->isTimeout());
-		$this->assertFalse($curlResult->isRedirectUrl());
-		$this->assertSame($header, $curlResult->getHeader());
-		$this->assertSame($body, $curlResult->getBody());
-		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
-		$this->assertSame('https://test.local/test/it', $curlResult->getRedirectUrl());
-		$this->assertSame('Tested error', $curlResult->getError());
+		self::assertFalse($curlResult->isSuccess());
+		self::assertTrue($curlResult->isTimeout());
+		self::assertFalse($curlResult->isRedirectUrl());
+		self::assertSame($header, $curlResult->getHeader());
+		self::assertSame($body, $curlResult->getBody());
+		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
+		self::assertSame('https://test.local/test/it', $curlResult->getRedirectUrl());
+		self::assertSame('Tested error', $curlResult->getError());
 	}
 
 	/**
@@ -143,14 +143,14 @@ class CurlResultTest extends TestCase
 			'url' => 'https://test.local/test/it?key=value',
 		]);
 
-		$this->assertTrue($curlResult->isSuccess());
-		$this->assertFalse($curlResult->isTimeout());
-		$this->assertTrue($curlResult->isRedirectUrl());
-		$this->assertSame($header, $curlResult->getHeader());
-		$this->assertSame($body, $curlResult->getBody());
-		$this->assertSame('text/html; charset=utf-8', $curlResult->getContentType());
-		$this->assertSame('https://test.local/test/it?key=value', $curlResult->getUrl());
-		$this->assertSame('https://test.other/some/?key=value', $curlResult->getRedirectUrl());
+		self::assertTrue($curlResult->isSuccess());
+		self::assertFalse($curlResult->isTimeout());
+		self::assertTrue($curlResult->isRedirectUrl());
+		self::assertSame($header, $curlResult->getHeader());
+		self::assertSame($body, $curlResult->getBody());
+		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
+		self::assertSame('https://test.local/test/it?key=value', $curlResult->getUrl());
+		self::assertSame('https://test.other/some/?key=value', $curlResult->getRedirectUrl());
 	}
 
 	/**
@@ -166,8 +166,8 @@ class CurlResultTest extends TestCase
 			'content_type' => 'text/html; charset=utf-8',
 			'url' => 'https://test.local'
 		]);
-		$this->assertTrue($curlResult->inHeader('vary'));
-		$this->assertFalse($curlResult->inHeader('wrongHeader'));
+		self::assertTrue($curlResult->inHeader('vary'));
+		self::assertFalse($curlResult->inHeader('wrongHeader'));
 	}
 
 	 /**
@@ -186,8 +186,8 @@ class CurlResultTest extends TestCase
 
 		$headers = $curlResult->getHeaderArray();
 
-		$this->assertNotEmpty($headers);
-		$this->assertArrayHasKey('vary', $headers);
+		self::assertNotEmpty($headers);
+		self::assertArrayHasKey('vary', $headers);
 	}
 
 	 /**
@@ -204,7 +204,7 @@ class CurlResultTest extends TestCase
 			'url' => 'https://test.local'
 		]);
 
-		$this->assertNotEmpty($curlResult->getHeader());
-		$this->assertEmpty($curlResult->getHeader('wrongHeader'));
+		self::assertNotEmpty($curlResult->getHeader());
+		self::assertEmpty($curlResult->getHeader('wrongHeader'));
 	}
 }

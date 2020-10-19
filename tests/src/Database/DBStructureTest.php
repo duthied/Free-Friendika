@@ -44,13 +44,13 @@ class DBStructureTest extends DatabaseTest
 	 * @small
 	 */
 	public function testExists() {
-		$this->assertTrue(DBStructure::existsTable('config'));
+		self::assertTrue(DBStructure::existsTable('config'));
 
-		$this->assertFalse(DBStructure::existsTable('notatable'));
+		self::assertFalse(DBStructure::existsTable('notatable'));
 
-		$this->assertTrue(DBStructure::existsColumn('config', ['k']));
-		$this->assertFalse(DBStructure::existsColumn('config', ['nonsense']));
-		$this->assertFalse(DBStructure::existsColumn('config', ['k', 'nonsense']));
+		self::assertTrue(DBStructure::existsColumn('config', ['k']));
+		self::assertFalse(DBStructure::existsColumn('config', ['nonsense']));
+		self::assertFalse(DBStructure::existsColumn('config', ['k', 'nonsense']));
 	}
 
 	/**
@@ -62,24 +62,24 @@ class DBStructureTest extends DatabaseTest
 		$fromType = 'varbinary(255) not null';
 		$toType = 'varbinary(255) not null comment \'Test To Type\'';
 
-		$this->assertTrue(DBStructure::rename('config', [ $fromColumn => [ $toColumn, $toType ]]));
-		$this->assertTrue(DBStructure::existsColumn('config', [ $toColumn ]));
-		$this->assertFalse(DBStructure::existsColumn('config', [ $fromColumn ]));
+		self::assertTrue(DBStructure::rename('config', [ $fromColumn => [ $toColumn, $toType ]]));
+		self::assertTrue(DBStructure::existsColumn('config', [ $toColumn ]));
+		self::assertFalse(DBStructure::existsColumn('config', [ $fromColumn ]));
 
-		$this->assertTrue(DBStructure::rename('config', [ $toColumn => [ $fromColumn, $fromType ]]));
-		$this->assertTrue(DBStructure::existsColumn('config', [ $fromColumn ]));
-		$this->assertFalse(DBStructure::existsColumn('config', [ $toColumn ]));
+		self::assertTrue(DBStructure::rename('config', [ $toColumn => [ $fromColumn, $fromType ]]));
+		self::assertTrue(DBStructure::existsColumn('config', [ $fromColumn ]));
+		self::assertFalse(DBStructure::existsColumn('config', [ $toColumn ]));
 	}
 
 	/**
 	 * @small
 	 */
 	public function testChangePrimaryKey() {
-		$this->markTestSkipped('rename primary key with autoincrement and foreign key support necessary first');
+		static::markTestSkipped('rename primary key with autoincrement and foreign key support necessary first');
 		$oldID = 'client_id';
 		$newID = 'pw';
 
-		$this->assertTrue(DBStructure::rename('clients', [ $newID ], DBStructure::RENAME_PRIMARY_KEY));
-		$this->assertTrue(DBStructure::rename('clients', [ $oldID ], DBStructure::RENAME_PRIMARY_KEY));
+		self::assertTrue(DBStructure::rename('clients', [ $newID ], DBStructure::RENAME_PRIMARY_KEY));
+		self::assertTrue(DBStructure::rename('clients', [ $oldID ], DBStructure::RENAME_PRIMARY_KEY));
 	}
 }

@@ -73,7 +73,7 @@ class FileTagTest extends TestCase
      */
     public function testArrayToFile(array $array, string $type, string $file)
     {
-        $this->assertEquals($file, FileTag::arrayToFile($array, $type));
+        self::assertEquals($file, FileTag::arrayToFile($array, $type));
     }
 
     public function dataFileToArray()
@@ -133,6 +133,6 @@ class FileTagTest extends TestCase
      */
     public function testFileToArray(string $file, string $type, array $array)
     {
-        $this->assertEquals($array, FileTag::fileToArray($file, $type));
+        self::assertEquals($array, FileTag::fileToArray($file, $type));
     }
 }

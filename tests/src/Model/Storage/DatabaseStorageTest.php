@@ -66,6 +66,6 @@ class DatabaseStorageTest extends StorageTest
 
 	protected function assertOption(IStorage $storage)
 	{
-		$this->assertEmpty($storage->getOptions());
+		self::assertEmpty($storage->getOptions());
 	}
 }

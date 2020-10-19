@@ -58,9 +58,9 @@ trait VFSTrait
 	 * Copying a config file from the file system to the Virtual File System
 	 *
 	 * @param string $filename The filename of the config file
-	 * @param bool $static True, if the folder `static` instead of `config` should be used
+	 * @param bool   $static   True, if the folder `static` instead of `config` should be used
 	 */
-	protected function setConfigFile($filename, bool $static = false)
+	protected function setConfigFile(string $filename, bool $static = false)
 	{
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
@@ -78,9 +78,9 @@ trait VFSTrait
 	 * Delets a config file from the Virtual File System
 	 *
 	 * @param string $filename The filename of the config file
-	 * @param bool $static True, if the folder `static` instead of `config` should be used
+	 * @param bool   $static   True, if the folder `static` instead of `config` should be used
 	 */
-	protected function delConfigFile($filename, bool $static = false)
+	protected function delConfigFile(string $filename, bool $static = false)
 	{
 		if ($this->root->hasChild(($static ? 'static' : 'config') . '/' . $filename)) {
 			$this->root->getChild(($static ? 'static' : 'config'))->removeChild($filename);

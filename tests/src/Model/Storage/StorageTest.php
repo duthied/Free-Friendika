@@ -37,7 +37,7 @@ abstract class StorageTest extends MockedTest
 	public function testInstance()
 	{
 		$instance = $this->getInstance();
-		$this->assertInstanceOf(IStorage::class, $instance);
+		self::assertInstanceOf(IStorage::class, $instance);
 	}
 
 	/**
@@ -58,11 +58,11 @@ abstract class StorageTest extends MockedTest
 		$instance = $this->getInstance();
 
 		$ref = $instance->put('data12345');
-		$this->assertNotEmpty($ref);
+		self::assertNotEmpty($ref);
 
-		$this->assertEquals('data12345', $instance->get($ref));
+		self::assertEquals('data12345', $instance->get($ref));
 
-		$this->assertTrue($instance->delete($ref));
+		self::assertTrue($instance->delete($ref));
 	}
 
 	/**
@@ -73,7 +73,7 @@ abstract class StorageTest extends MockedTest
 		$instance = $this->getInstance();
 
 		// Even deleting not existing references should return "true"
-		$this->assertTrue($instance->delete(-1234456));
+		self::assertTrue($instance->delete(-1234456));
 	}
 
 	/**
@@ -84,7 +84,7 @@ abstract class StorageTest extends MockedTest
 		$instance = $this->getInstance();
 
 		// Invalid references return an empty string
-		$this->assertEmpty($instance->get(-123456));
+		self::assertEmpty($instance->get(-123456));
 	}
 
 	/**
@@ -95,12 +95,12 @@ abstract class StorageTest extends MockedTest
 		$instance = $this->getInstance();
 
 		$ref = $instance->put('data12345');
-		$this->assertNotEmpty($ref);
+		self::assertNotEmpty($ref);
 
-		$this->assertEquals('data12345', $instance->get($ref));
+		self::assertEquals('data12345', $instance->get($ref));
 
-		$this->assertEquals($ref, $instance->put('data5432', $ref));
-		$this->assertEquals('data5432', $instance->get($ref));
+		self::assertEquals($ref, $instance->put('data5432', $ref));
+		self::assertEquals('data5432', $instance->get($ref));
 	}
 
 	/**
@@ -110,6 +110,6 @@ abstract class StorageTest extends MockedTest
 	{
 		$instance = $this->getInstance();
 
-		$this->assertEquals(-123, $instance->put('data12345', -123));
+		self::assertEquals(-123, $instance->put('data12345', -123));
 	}
 }

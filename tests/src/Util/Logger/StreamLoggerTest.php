@@ -33,11 +33,6 @@ class StreamLoggerTest extends AbstractLoggerTest
 	use VFSTrait;
 
 	/**
-	 * @var StreamLogger
-	 */
-	private $logger;
-
-	/**
 	 * @var vfsStreamFile
 	 */
 	private $logfile;
@@ -53,7 +48,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 		$this->setUpVfsDir();
 
-		$this->fileSystem = new Filesystem();
+		$this->fileSystem = new FileSystem();
 	}
 
 	/**
@@ -64,9 +59,9 @@ class StreamLoggerTest extends AbstractLoggerTest
 		$this->logfile = vfsStream::newFile('friendica.log')
 			->at($this->root);
 
-		$this->logger = new StreamLogger('test', $this->logfile->url(), $this->introspection, $this->fileSystem, $level);
+		$logger = new StreamLogger('test', $this->logfile->url(), $this->introspection, $this->fileSystem, $level);
 
-		return $this->logger;
+		return $logger;
 	}
 
 	/**
@@ -92,7 +87,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 		$text = $logfile->getContent();
 
-		$this->assertLogline($text);
+		self::assertLogline($text);
 	}
 
 	/**
@@ -111,16 +106,17 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 		$text = $logfile->getContent();
 
-		$this->assertLoglineNums(2, $text);
+		self::assertLoglineNums(2, $text);
 	}
 
 	/**
 	 * Test when a file isn't set
-	 * @expectedException \LogicException
-	 * @expectedExceptionMessage Missing stream URL.
 	 */
 	public function testNoUrl()
 	{
+		$this->expectException(\LogicException::class);
+		$this->expectExceptionMessage("Missing stream URL.");
+
 		$logger = new StreamLogger('test', '', $this->introspection, $this->fileSystem);
 
 		$logger->emergency('not working');
@@ -128,11 +124,12 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 	/**
 	 * Test when a file cannot be opened
-	 * @expectedException \UnexpectedValueException
-	 * @expectedExceptionMessageRegExp /The stream or file .* could not be opened: .* /
 	 */
 	public function testWrongUrl()
 	{
+		$this->expectException(\UnexpectedValueException::class);
+		$this->expectExceptionMessageRegExp("/The stream or file .* could not be opened: .* /");
+
 		$logfile = vfsStream::newFile('friendica.log')
 			->at($this->root)->chmod(0);
 
@@ -143,12 +140,13 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 	/**
 	 * Test when the directory cannot get created
-	 * @expectedException \UnexpectedValueException
-	 * @expectedExceptionMessageRegExp /Directory .* cannot get created: .* /
 	 */
 	public function testWrongDir()
 	{
-		$this->markTestIncomplete('We need a platform independent way to set directory to readonly');
+		$this->expectException(\UnexpectedValueException::class);
+		$this->expectExceptionMessageRegExp("/Directory .* cannot get created: .* /");
+
+		static::markTestIncomplete('We need a platform independent way to set directory to readonly');
 
 		$logger = new StreamLogger('test', '/$%/wrong/directory/file.txt', $this->introspection, $this->fileSystem);
 
@@ -157,21 +155,23 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 	/**
 	 * Test when the minimum level is not valid
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessageRegExp /The level ".*" is not valid./
 	 */
 	public function testWrongMinimumLevel()
 	{
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessageRegExp("/The level \".*\" is not valid./");
+
 		$logger = new StreamLogger('test', 'file.text', $this->introspection, $this->fileSystem, 'NOPE');
 	}
 
 	/**
 	 * Test when the minimum level is not valid
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessageRegExp /The level ".*" is not valid./
 	 */
 	public function testWrongLogLevel()
 	{
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessageRegExp("/The level \".*\" is not valid./");
+
 		$logfile = vfsStream::newFile('friendica.log')
 			->at($this->root);
 
@@ -182,11 +182,12 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 	/**
 	 * Test when the file is null
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessage A stream must either be a resource or a string.
 	 */
 	public function testWrongFile()
 	{
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage("A stream must either be a resource or a string.");
+
 		$logger = new StreamLogger('test', null, $this->introspection, $this->fileSystem);
 	}
 
@@ -195,7 +196,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testRealPath()
 	{
-		$this->markTestSkipped('vfsStream isn\'t compatible with chdir, so not testable.');
+		static::markTestSkipped('vfsStream isn\'t compatible with chdir, so not testable.');
 
 		$logfile = vfsStream::newFile('friendica.log')
 		                    ->at($this->root);

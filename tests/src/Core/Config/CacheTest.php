@@ -24,6 +24,7 @@ namespace Friendica\Test\src\Core\Config;
 use Friendica\Core\Config\Cache;
 use Friendica\Test\MockedTest;
 use ParagonIE\HiddenString\HiddenString;
+use stdClass;
 
 class CacheTest extends MockedTest
 {
@@ -52,7 +53,7 @@ class CacheTest extends MockedTest
 	{
 		foreach ($data as $cat => $values) {
 			foreach ($values as $key => $value) {
-				$this->assertEquals($data[$cat][$key], $configCache->get($cat, $key));
+				self::assertEquals($data[$cat][$key], $configCache->get($cat, $key));
 			}
 		}
 	}
@@ -66,7 +67,7 @@ class CacheTest extends MockedTest
 		$configCache = new Cache();
 		$configCache->load($data);
 
-		$this->assertConfigValues($data, $configCache);
+		self::assertConfigValues($data, $configCache);
 	}
 
 	/**
@@ -87,26 +88,26 @@ class CacheTest extends MockedTest
 		// doesn't override - Low Priority due Config file
 		$configCache->load($override, Cache::SOURCE_FILE);
 
-		$this->assertConfigValues($data, $configCache);
+		self::assertConfigValues($data, $configCache);
 
 		// override the value - High Prio due Server Env
 		$configCache->load($override, Cache::SOURCE_ENV);
 
-		$this->assertEquals($override['system']['test'], $configCache->get('system', 'test'));
-		$this->assertEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
+		self::assertEquals($override['system']['test'], $configCache->get('system', 'test'));
+		self::assertEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
 
 		// Don't overwrite server ENV variables - even in load mode
 		$configCache->load($data, Cache::SOURCE_DB);
 
-		$this->assertEquals($override['system']['test'], $configCache->get('system', 'test'));
-		$this->assertEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
+		self::assertEquals($override['system']['test'], $configCache->get('system', 'test'));
+		self::assertEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
 
 		// Overwrite ENV variables with ENV variables
 		$configCache->load($data, Cache::SOURCE_ENV);
 
-		$this->assertConfigValues($data, $configCache);
-		$this->assertNotEquals($override['system']['test'], $configCache->get('system', 'test'));
-		$this->assertNotEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
+		self::assertConfigValues($data, $configCache);
+		self::assertNotEquals($override['system']['test'], $configCache->get('system', 'test'));
+		self::assertNotEquals($override['system']['boolTrue'], $configCache->get('system', 'boolTrue'));
 	}
 
 	/**
@@ -118,15 +119,15 @@ class CacheTest extends MockedTest
 
 		// empty dataset
 		$configCache->load([]);
-		$this->assertEmpty($configCache->getAll());
+		self::assertEmpty($configCache->getAll());
 
 		// wrong dataset
 		$configCache->load(['system' => 'not_array']);
-		$this->assertEmpty($configCache->getAll());
+		self::assertEmpty($configCache->getAll());
 
 		// incomplete dataset (key is integer ID of the array)
 		$configCache->load(['system' => ['value']]);
-		$this->assertEquals('value', $configCache->get('system', 0));
+		self::assertEquals('value', $configCache->get('system', 0));
 	}
 
 	/**
@@ -140,8 +141,8 @@ class CacheTest extends MockedTest
 
 		$all = $configCache->getAll();
 
-		$this->assertContains($data['system'], $all);
-		$this->assertContains($data['config'], $all);
+		self::assertContains($data['system'], $all);
+		self::assertContains($data['config'], $all);
 	}
 
 	/**
@@ -158,7 +159,7 @@ class CacheTest extends MockedTest
 			}
 		}
 
-		$this->assertConfigValues($data, $configCache);
+		self::assertConfigValues($data, $configCache);
 	}
 
 	/**
@@ -168,7 +169,7 @@ class CacheTest extends MockedTest
 	{
 		$configCache = new Cache();
 
-		$this->assertNull($configCache->get('something', 'value'));
+		self::assertNull($configCache->get('something', 'value'));
 	}
 
 	/**
@@ -186,13 +187,13 @@ class CacheTest extends MockedTest
 			],
 		]);
 
-		$this->assertEquals([
+		self::assertEquals([
 			'key1' => 'value1',
 			'key2' => 'value2',
 		], $configCache->get('system'));
 
 		// explicit null as key
-		$this->assertEquals([
+		self::assertEquals([
 			'key1' => 'value1',
 			'key2' => 'value2',
 		], $configCache->get('system', null));
@@ -212,7 +213,7 @@ class CacheTest extends MockedTest
 			}
 		}
 
-		$this->assertEmpty($configCache->getAll());
+		self::assertEmpty($configCache->getAll());
 	}
 
 	/**
@@ -229,7 +230,7 @@ class CacheTest extends MockedTest
 			]
 		];
 
-		$this->assertEquals($diffConfig, $configCache->keyDiff($diffConfig));
+		self::assertEquals($diffConfig, $configCache->keyDiff($diffConfig));
 	}
 
 	/**
@@ -242,7 +243,7 @@ class CacheTest extends MockedTest
 
 		$diffConfig = $configCache->getAll();
 
-		$this->assertEmpty($configCache->keyDiff($diffConfig));
+		self::assertEmpty($configCache->keyDiff($diffConfig));
 	}
 
 	/**
@@ -257,9 +258,9 @@ class CacheTest extends MockedTest
 			],
 		]);
 
-		$this->assertEquals('supersecure', $configCache->get('database', 'password'));
-		$this->assertNotEquals('supersecure', print_r($configCache->get('database', 'password'), true));
-		$this->assertEquals('notsecured', print_r($configCache->get('database', 'username'), true));
+		self::assertEquals('supersecure', $configCache->get('database', 'password'));
+		self::assertNotEquals('supersecure', print_r($configCache->get('database', 'password'), true));
+		self::assertEquals('notsecured', print_r($configCache->get('database', 'username'), true));
 	}
 
 	/**
@@ -274,9 +275,9 @@ class CacheTest extends MockedTest
 			],
 		], false);
 
-		$this->assertEquals('supersecure', $configCache->get('database', 'password'));
-		$this->assertEquals('supersecure', print_r($configCache->get('database', 'password'), true));
-		$this->assertEquals('notsecured', print_r($configCache->get('database', 'username'), true));
+		self::assertEquals('supersecure', $configCache->get('database', 'password'));
+		self::assertEquals('supersecure', print_r($configCache->get('database', 'password'), true));
+		self::assertEquals('notsecured', print_r($configCache->get('database', 'username'), true));
 	}
 
 	/**
@@ -291,22 +292,22 @@ class CacheTest extends MockedTest
 			]
 		]);
 
-		$this->assertNotEmpty($configCache->get('database', 'password'));
-		$this->assertInstanceOf(HiddenString::class, $configCache->get('database', 'password'));
-		$this->assertEmpty($configCache->get('database', 'username'));
+		self::assertNotEmpty($configCache->get('database', 'password'));
+		self::assertInstanceOf(HiddenString::class, $configCache->get('database', 'password'));
+		self::assertEmpty($configCache->get('database', 'username'));
 	}
 
 	public function testWrongTypePassword()
 	{
 		$configCache = new Cache([
 			'database' => [
-				'password' => new \stdClass(),
+				'password' => new stdClass(),
 				'username' => '',
 			]
 		]);
 
-		$this->assertNotEmpty($configCache->get('database', 'password'));
-		$this->assertEmpty($configCache->get('database', 'username'));
+		self::assertNotEmpty($configCache->get('database', 'password'));
+		self::assertEmpty($configCache->get('database', 'username'));
 
 		$configCache = new Cache([
 			'database' => [
@@ -315,7 +316,7 @@ class CacheTest extends MockedTest
 			]
 		]);
 
-		$this->assertEquals(23, $configCache->get('database', 'password'));
-		$this->assertEmpty($configCache->get('database', 'username'));
+		self::assertEquals(23, $configCache->get('database', 'password'));
+		self::assertEmpty($configCache->get('database', 'username'));
 	}
 }

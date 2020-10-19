@@ -22,7 +22,6 @@
 namespace Friendica\Test\src\Core\PConfig;
 
 use Friendica\Core\PConfig\PreloadPConfig;
-use Friendica\Test\src\Core\PConfig\PConfigTest;
 
 class PreloadPConfigTest extends PConfigTest
 {
@@ -49,7 +48,7 @@ class PreloadPConfigTest extends PConfigTest
 
 		// Assert that every category is loaded everytime
 		foreach ($data as $cat => $values) {
-			$this->assertConfig($uid, $cat, $values);
+			self::assertConfig($uid, $cat, $values);
 		}
 	}
 
@@ -71,7 +70,7 @@ class PreloadPConfigTest extends PConfigTest
 
 		// Assert that every category is loaded everytime and is NOT overwritten
 		foreach ($data1 as $cat => $values) {
-			$this->assertConfig($uid, $cat, $values);
+			self::assertConfig($uid, $cat, $values);
 		}
 	}
 

@@ -46,7 +46,7 @@ abstract class ConsoleTest extends MockedTest
 	 *
 	 * @return string the output of the execution
 	 */
-	protected function dumpExecute($console)
+	protected function dumpExecute(Console $console)
 	{
 		Intercept::reset();
 		$console->execute();

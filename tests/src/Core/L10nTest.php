@@ -109,6 +109,6 @@ class L10nTest extends MockedTest
 	 */
 	public function testDetectLanguage(array $server, array $get, string $default, string $assert)
 	{
-		$this->assertEquals($assert, L10n::detectLanguage($server, $get, $default));
+		self::assertEquals($assert, L10n::detectLanguage($server, $get, $default));
 	}
 }

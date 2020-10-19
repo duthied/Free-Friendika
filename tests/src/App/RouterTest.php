@@ -27,6 +27,7 @@ use Friendica\Core\L10n;
 use Friendica\Module;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NotFoundException;
+use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -43,10 +44,10 @@ class RouterTest extends TestCase
 	{
 		parent::setUp();
 
-		$this->l10n = \Mockery::mock(L10n::class);
+		$this->l10n = Mockery::mock(L10n::class);
 		$this->l10n->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
-		$this->cache = \Mockery::mock(ICache::class);
+		$this->cache = Mockery::mock(ICache::class);
 		$this->cache->shouldReceive('get')->andReturn(null);
 		$this->cache->shouldReceive('set')->andReturn(false);
 	}
@@ -64,15 +65,15 @@ class RouterTest extends TestCase
 		$routeCollector->addRoute([Router::GET], '/variable/{var}', 'VariableModuleClassName');
 		$routeCollector->addRoute([Router::GET], '/optionalvariable[/{option}]', 'OptionalVariableModuleClassName');
 
-		$this->assertEquals('IndexModuleClassName', $router->getModuleClass('/'));
-		$this->assertEquals('TestModuleClassName', $router->getModuleClass('/test'));
-		$this->assertEquals('TestGetPostModuleClassName', $router->getModuleClass('/testgetpost'));
-		$this->assertEquals('TestSubModuleClassName', $router->getModuleClass('/test/sub'));
-		$this->assertEquals('OptionalModuleClassName', $router->getModuleClass('/optional'));
-		$this->assertEquals('OptionalModuleClassName', $router->getModuleClass('/optional/option'));
-		$this->assertEquals('VariableModuleClassName', $router->getModuleClass('/variable/123abc'));
-		$this->assertEquals('OptionalVariableModuleClassName', $router->getModuleClass('/optionalvariable'));
-		$this->assertEquals('OptionalVariableModuleClassName', $router->getModuleClass('/optionalvariable/123abc'));
+		self::assertEquals('IndexModuleClassName', $router->getModuleClass('/'));
+		self::assertEquals('TestModuleClassName', $router->getModuleClass('/test'));
+		self::assertEquals('TestGetPostModuleClassName', $router->getModuleClass('/testgetpost'));
+		self::assertEquals('TestSubModuleClassName', $router->getModuleClass('/test/sub'));
+		self::assertEquals('OptionalModuleClassName', $router->getModuleClass('/optional'));
+		self::assertEquals('OptionalModuleClassName', $router->getModuleClass('/optional/option'));
+		self::assertEquals('VariableModuleClassName', $router->getModuleClass('/variable/123abc'));
+		self::assertEquals('OptionalVariableModuleClassName', $router->getModuleClass('/optionalvariable'));
+		self::assertEquals('OptionalVariableModuleClassName', $router->getModuleClass('/optionalvariable/123abc'));
 	}
 
 	public function testPostModuleClass()
@@ -88,15 +89,15 @@ class RouterTest extends TestCase
 		$routeCollector->addRoute([Router::POST], '/variable/{var}', 'VariableModuleClassName');
 		$routeCollector->addRoute([Router::POST], '/optionalvariable[/{option}]', 'OptionalVariableModuleClassName');
 
-		$this->assertEquals('IndexModuleClassName', $router->getModuleClass('/'));
-		$this->assertEquals('TestModuleClassName', $router->getModuleClass('/test'));
-		$this->assertEquals('TestGetPostModuleClassName', $router->getModuleClass('/testgetpost'));
-		$this->assertEquals('TestSubModuleClassName', $router->getModuleClass('/test/sub'));
-		$this->assertEquals('OptionalModuleClassName', $router->getModuleClass('/optional'));
-		$this->assertEquals('OptionalModuleClassName', $router->getModuleClass('/optional/option'));
-		$this->assertEquals('VariableModuleClassName', $router->getModuleClass('/variable/123abc'));
-		$this->assertEquals('OptionalVariableModuleClassName', $router->getModuleClass('/optionalvariable'));
-		$this->assertEquals('OptionalVariableModuleClassName', $router->getModuleClass('/optionalvariable/123abc'));
+		self::assertEquals('IndexModuleClassName', $router->getModuleClass('/'));
+		self::assertEquals('TestModuleClassName', $router->getModuleClass('/test'));
+		self::assertEquals('TestGetPostModuleClassName', $router->getModuleClass('/testgetpost'));
+		self::assertEquals('TestSubModuleClassName', $router->getModuleClass('/test/sub'));
+		self::assertEquals('OptionalModuleClassName', $router->getModuleClass('/optional'));
+		self::assertEquals('OptionalModuleClassName', $router->getModuleClass('/optional/option'));
+		self::assertEquals('VariableModuleClassName', $router->getModuleClass('/variable/123abc'));
+		self::assertEquals('OptionalVariableModuleClassName', $router->getModuleClass('/optionalvariable'));
+		self::assertEquals('OptionalVariableModuleClassName', $router->getModuleClass('/optionalvariable/123abc'));
 	}
 
 	public function testGetModuleClassNotFound()
@@ -205,10 +206,10 @@ class RouterTest extends TestCase
 			$this->cache
 		))->loadRoutes($routes);
 
-		$this->assertEquals(Module\Home::class, $router->getModuleClass('/'));
-		$this->assertEquals(Module\Friendica::class, $router->getModuleClass('/group/route'));
-		$this->assertEquals(Module\Xrd::class, $router->getModuleClass('/group2/group3/route'));
-		$this->assertEquals(Module\Profile\Index::class, $router->getModuleClass('/double'));
+		self::assertEquals(Module\Home::class, $router->getModuleClass('/'));
+		self::assertEquals(Module\Friendica::class, $router->getModuleClass('/group/route'));
+		self::assertEquals(Module\Xrd::class, $router->getModuleClass('/group2/group3/route'));
+		self::assertEquals(Module\Profile\Index::class, $router->getModuleClass('/double'));
 	}
 
 	/**
@@ -221,7 +222,7 @@ class RouterTest extends TestCase
 		], '', $this->l10n, $this->cache))->loadRoutes($routes);
 
 		// Don't find GET
-		$this->assertEquals(Module\WellKnown\NodeInfo::class, $router->getModuleClass('/post/it'));
-		$this->assertEquals(Module\Profile\Index::class, $router->getModuleClass('/double'));
+		self::assertEquals(Module\WellKnown\NodeInfo::class, $router->getModuleClass('/post/it'));
+		self::assertEquals(Module\Profile\Index::class, $router->getModuleClass('/double'));
 	}
 }

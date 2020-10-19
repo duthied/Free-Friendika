@@ -21,9 +21,11 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
+use Exception;
 use Friendica\Core\Cache\MemcacheCache;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\Lock\CacheLock;
+use Mockery;
 
 /**
  * @requires extension Memcache
@@ -33,7 +35,7 @@ class MemcacheCacheLockTest extends LockTest
 {
 	protected function getInstance()
 	{
-		$configMock = \Mockery::mock(IConfig::class);
+		$configMock = Mockery::mock(IConfig::class);
 
 		$host = $_SERVER['MEMCACHE_HOST'] ?? 'localhost';
 		$port = $_SERVER['MEMCACHE_PORT'] ?? '11211';
@@ -52,8 +54,8 @@ class MemcacheCacheLockTest extends LockTest
 		try {
 			$cache = new MemcacheCache($host, $configMock);
 			$lock = new CacheLock($cache);
-		} catch (\Exception $e) {
-			$this->markTestSkipped('Memcache is not available');
+		} catch (Exception $e) {
+			static::markTestSkipped('Memcache is not available');
 		}
 
 		return $lock;
@@ -64,7 +66,7 @@ class MemcacheCacheLockTest extends LockTest
 	 */
 	public function testGetLocks()
 	{
-		$this->markTestIncomplete('Race condition because of too fast getAllKeys() which uses a workaround');
+		static::markTestIncomplete('Race condition because of too fast getAllKeys() which uses a workaround');
 	}
 
 	/**
@@ -72,6 +74,6 @@ class MemcacheCacheLockTest extends LockTest
 	 */
 	public function testGetLocksWithPrefix()
 	{
-		$this->markTestIncomplete('Race condition because of too fast getAllKeys() which uses a workaround');
+		static::markTestIncomplete('Race condition because of too fast getAllKeys() which uses a workaround');
 	}
 }

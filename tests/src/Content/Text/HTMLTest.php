@@ -21,7 +21,9 @@
 
 namespace Friendica\Test\src\Content\Text;
 
+use Exception;
 use Friendica\Content\Text\HTML;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
 use Friendica\Test\Util\VFSTrait;
@@ -61,13 +63,14 @@ class HTMLTest extends MockedTest
 	 *
 	 * @param string $input    The Markdown text to test
 	 * @param string $expected The expected HTML output
-	 * @throws \Exception
+	 *
+	 * @throws Exception
 	 */
-	public function testToPlaintext($input, $expected)
+	public function testToPlaintext(string $input, string $expected)
 	{
 		$output = HTML::toPlaintext($input, 0);
 
-		$this->assertEquals($expected, $output);
+		self::assertEquals($expected, $output);
 	}
 
 	public function dataHTMLText()
@@ -91,12 +94,13 @@ class HTMLTest extends MockedTest
 	 *
 	 * @param string $expectedBBCode Expected BBCode output
 	 * @param string $html           HTML text
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws InternalServerErrorException
 	 */
-	public function testToBBCode($expectedBBCode, $html)
+	public function testToBBCode(string $expectedBBCode, string $html)
 	{
 		$actual = HTML::toBBCode($html);
 
-		$this->assertEquals($expectedBBCode, $actual);
+		self::assertEquals($expectedBBCode, $actual);
 	}
 }

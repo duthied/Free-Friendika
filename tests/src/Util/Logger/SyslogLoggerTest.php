@@ -59,21 +59,23 @@ class SyslogLoggerTest extends AbstractLoggerTest
 
 	/**
 	 * Test when the minimum level is not valid
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessageRegExp /The level ".*" is not valid./
 	 */
 	public function testWrongMinimumLevel()
 	{
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessageRegExp("/The level \".*\" is not valid./");
+		
 		$logger = new SyslogLoggerWrapper('test', $this->introspection, 'NOPE');
 	}
 
 	/**
 	 * Test when the minimum level is not valid
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessageRegExp /The level ".*" is not valid./
 	 */
 	public function testWrongLogLevel()
 	{
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessageRegExp("/The level \".*\" is not valid./");
+
 		$logger = new SyslogLoggerWrapper('test', $this->introspection);
 
 		$logger->log('NOPE', 'a test');
@@ -81,11 +83,12 @@ class SyslogLoggerTest extends AbstractLoggerTest
 
 	/**
 	 * Test when the logfacility is wrong (string)
-	 * @expectedException \UnexpectedValueException
-	 * @expectedExceptionMessageRegExp /Can\'t open syslog for ident ".*" and facility ".*": .* /
 	 */
 	public function testServerException()
 	{
+		$this->expectException(\UnexpectedValueException::class);
+		$this->expectExceptionMessageRegExp("/Can\'t open syslog for ident \".*\" and facility \".*\": .* /");
+
 		$logger = new SyslogLoggerWrapper('test', $this->introspection, LogLevel::DEBUG, null, 'a string');
 		$logger->emergency('not working');
 	}
