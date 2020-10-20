@@ -447,7 +447,7 @@ class HTTPSignature
 		$curl_opts = $opts;
 		$curl_opts['header'] = $header;
 
-		if ($opts['nobody']) {
+		if (!empty($opts['nobody'])) {
 			$curlResult = DI::httpRequest()->head($request, $curl_opts);
 		} else {
 			$curlResult = DI::httpRequest()->get($request, $curl_opts);
