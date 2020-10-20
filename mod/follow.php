@@ -121,6 +121,10 @@ function follow_content(App $a)
 		$request = $contact['request'];
 		$tpl = Renderer::getMarkupTemplate('dfrn_request.tpl');
 	} else {
+		if (!empty($_REQUEST['auto'])) {
+			follow_process($a, $contact['url']);
+		}
+	
 		$request = DI::baseUrl() . '/follow';
 		$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
 	}
@@ -136,10 +140,6 @@ function follow_content(App $a)
 
 	// Makes the connection request for friendica contacts easier
 	$_SESSION['fastlane'] = $contact['url'];
-
-	if (!empty($_REQUEST['auto'])) {
-		follow_process($a, $contact['url']);
-	}
 
 	$o = Renderer::replaceMacros($tpl, [
 		'$header'        => DI::l10n()->t('Connect/Follow'),
