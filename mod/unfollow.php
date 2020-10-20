@@ -31,56 +31,13 @@ use Friendica\Util\Strings;
 
 function unfollow_post(App $a)
 {
-	$base_return_path = 'contact';
-
 	if (!local_user()) {
 		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('login');
 		// NOTREACHED
 	}
 
-	$uid = local_user();
-	$url = Strings::escapeTags(trim($_REQUEST['url'] ?? ''));
-
-	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
-		$uid, Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
-		Strings::normaliseLink($url), $url];
-	$contact = DBA::selectFirst('contact', [], $condition);
-
-	if (!DBA::isResult($contact)) {
-		notice(DI::l10n()->t("You aren't following this contact."));
-		DI::baseUrl()->redirect($base_return_path);
-		// NOTREACHED
-	}
-
-	if (!empty($_REQUEST['cancel'])) {
-		DI::baseUrl()->redirect($base_return_path . '/' . $contact['id']);
-	}
-
-	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-		notice(DI::l10n()->t('Unfollowing is currently not supported by your network.'));
-		DI::baseUrl()->redirect($base_return_path . '/' . $contact['id']);
-		// NOTREACHED
-	}
-
-	$dissolve = ($contact['rel'] == Contact::SHARING);
-
-	$owner = User::getOwnerDataById($uid);
-	if ($owner) {
-		Contact::terminateFriendship($owner, $contact, $dissolve);
-	}
-
-	// Sharing-only contacts get deleted as there no relationship any more
-	if ($dissolve) {
-		Contact::remove($contact['id']);
-		$return_path = $base_return_path;
-	} else {
-		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
-		$return_path = $base_return_path . '/' . $contact['id'];
-	}
-
-	DI::baseUrl()->redirect($return_path);
-	// NOTREACHED
+	unfollow_process();
 }
 
 function unfollow_content(App $a)
@@ -91,6 +48,10 @@ function unfollow_content(App $a)
 		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('login');
 		// NOTREACHED
+	}
+
+	if (!empty($_REQUEST['auto'])) {
+		unfollow_process();
 	}
 
 	$uid = local_user();
@@ -153,4 +114,47 @@ function unfollow_content(App $a)
 	$o .= Contact::getPostsFromUrl($contact['url']);
 
 	return $o;
+}
+
+function unfollow_process()
+{
+	$base_return_path = 'contact';
+
+	$uid = local_user();
+	$url = Strings::escapeTags(trim($_REQUEST['url'] ?? ''));
+
+	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
+		$uid, Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
+		Strings::normaliseLink($url), $url];
+	$contact = DBA::selectFirst('contact', [], $condition);
+
+	if (!DBA::isResult($contact)) {
+		notice(DI::l10n()->t("You aren't following this contact."));
+		DI::baseUrl()->redirect($base_return_path);
+		// NOTREACHED
+	}
+
+	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+		notice(DI::l10n()->t('Unfollowing is currently not supported by your network.'));
+		DI::baseUrl()->redirect($base_return_path . '/' . $contact['id']);
+		// NOTREACHED
+	}
+
+	$dissolve = ($contact['rel'] == Contact::SHARING);
+
+	$owner = User::getOwnerDataById($uid);
+	if ($owner) {
+		Contact::terminateFriendship($owner, $contact, $dissolve);
+	}
+
+	// Sharing-only contacts get deleted as there no relationship any more
+	if ($dissolve) {
+		Contact::remove($contact['id']);
+		$return_path = $base_return_path;
+	} else {
+		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
+		$return_path = $base_return_path . '/' . $contact['id'];
+	}
+
+	DI::baseUrl()->redirect($return_path);
 }

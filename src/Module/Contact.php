@@ -314,9 +314,9 @@ class Contact extends BaseModule
 			$unfollow_link = '';
 			if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 				if ($contact['uid'] && in_array($contact['rel'], [Model\Contact::SHARING, Model\Contact::FRIEND])) {
-					$unfollow_link = 'unfollow?url=' . urlencode($contact['url']);
+					$unfollow_link = 'unfollow?url=' . urlencode($contact['url']) . '&auto=1';
 				} elseif(!$contact['pending']) {
-					$follow_link = 'follow?url=' . urlencode($contact['url']);
+					$follow_link = 'follow?url=' . urlencode($contact['url']) . '&auto=1';
 				}
 			}
 

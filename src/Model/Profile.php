@@ -322,9 +322,9 @@ class Profile
 				}
 			} elseif ($profile_is_native) {
 				if ($visitor_is_following) {
-					$unfollow_link = $visitor_base_path . '/unfollow?url=' . urlencode($profile_url);
+					$unfollow_link = $visitor_base_path . '/unfollow?url=' . urlencode($profile_url) . '&auto=1';
 				} else {
-					$follow_link =  $visitor_base_path .'/follow?url=' . urlencode($profile_url);
+					$follow_link =  $visitor_base_path .'/follow?url=' . urlencode($profile_url) . '&auto=1';
 				}
 			}
 

@@ -41,31 +41,7 @@ function follow_post(App $a)
 		DI::baseUrl()->redirect('contact');
 	}
 
-	$url = Probe::cleanURI($_REQUEST['url']);
-	$return_path = 'follow?url=' . urlencode($url);
-
-	// Makes the connection request for friendica contacts easier
-	// This is just a precaution if maybe this page is called somewhere directly via POST
-	$_SESSION['fastlane'] = $url;
-
-	$result = Contact::createFromProbe($a->user, $url, true);
-
-	if ($result['success'] == false) {
-		// Possibly it is a remote item and not an account
-		follow_remote_item($url);
-
-		if ($result['message']) {
-			notice($result['message']);
-		}
-		DI::baseUrl()->redirect($return_path);
-	} elseif ($result['cid']) {
-		DI::baseUrl()->redirect('contact/' . $result['cid']);
-	}
-
-	notice(DI::l10n()->t('The contact could not be added.'));
-
-	DI::baseUrl()->redirect($return_path);
-	// NOTREACHED
+	follow_process($a);
 }
 
 function follow_content(App $a)
@@ -90,6 +66,10 @@ function follow_content(App $a)
 
 	if (!$url) {
 		DI::baseUrl()->redirect($return_path);
+	}
+
+	if (!empty($_REQUEST['auto'])) {
+		follow_process($a);
 	}
 
 	$submit = DI::l10n()->t('Submit Request');
@@ -193,6 +173,34 @@ function follow_content(App $a)
 	}
 
 	return $o;
+}
+
+function follow_process(App $a)
+{
+	$url = Probe::cleanURI($_REQUEST['url']);
+	$return_path = 'follow?url=' . urlencode($url);
+
+	// Makes the connection request for friendica contacts easier
+	// This is just a precaution if maybe this page is called somewhere directly via POST
+	$_SESSION['fastlane'] = $url;
+
+	$result = Contact::createFromProbe($a->user, $url, true);
+
+	if ($result['success'] == false) {
+		// Possibly it is a remote item and not an account
+		follow_remote_item($url);
+
+		if ($result['message']) {
+			notice($result['message']);
+		}
+		DI::baseUrl()->redirect($return_path);
+	} elseif ($result['cid']) {
+		DI::baseUrl()->redirect('contact/' . $result['cid']);
+	}
+
+	notice(DI::l10n()->t('The contact could not be added.'));
+
+	DI::baseUrl()->redirect($return_path);
 }
 
 function follow_remote_item($url)
