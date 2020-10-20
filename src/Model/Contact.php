@@ -942,9 +942,9 @@ class Contact
 		$unfollow_link = '';
 		if (!$contact['self'] && in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 			if ($contact['uid'] && in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
-				$unfollow_link = 'unfollow?url=' . urlencode($contact['url']);
+				$unfollow_link = 'unfollow?url=' . urlencode($contact['url']) . '&auto=1';
 			} elseif(!$contact['pending']) {
-				$follow_link = 'follow?url=' . urlencode($contact['url']);
+				$follow_link = 'follow?url=' . urlencode($contact['url']) . '&auto=1';
 			}
 		}
 

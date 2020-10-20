@@ -928,7 +928,7 @@ function item_photo_menu($item) {
 
 		if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&
 			in_array($item['network'], Protocol::FEDERATED)) {
-			$menu[DI::l10n()->t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']);
+			$menu[DI::l10n()->t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']) . '&auto=1';
 		}
 	} else {
 		$menu = [DI::l10n()->t('View Profile') => $item['author-link']];
