@@ -115,10 +115,17 @@ class Introduction extends BaseFactory
 			);
 
 			while ($notification = $this->dba->fetch($stmtNotifications)) {
-				// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
+				if (empty($notification['url'])) {
+					continue;
+				}
+
+			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
 				// We have to distinguish between these two because they use different data.
 				// Contact suggestions
 				if ($notification['fid'] ?? '') {
+					if (empty($notification['furl'])) {
+						continue;
+					}
 					$return_addr = bin2hex($this->nick . '@' .
 					                       $this->baseUrl->getHostName() .
 					                       (($this->baseUrl->getURLPath()) ? '/' . $this->baseUrl->getURLPath() : ''));
@@ -143,10 +150,6 @@ class Introduction extends BaseFactory
 
 					// Normal connection requests
 				} else {
-					if (empty($notification['url'])) {
-						continue;
-					}
-
 					// Don't show these data until you are connected. Diaspora is doing the same.
 					if ($notification['network'] === Protocol::DIASPORA) {
 						$notification['location'] = "";
