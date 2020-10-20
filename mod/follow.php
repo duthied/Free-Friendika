@@ -41,7 +41,9 @@ function follow_post(App $a)
 		DI::baseUrl()->redirect('contact');
 	}
 
-	follow_process($a);
+	$url = Probe::cleanURI($_REQUEST['url']);
+
+	follow_process($a, $url);
 }
 
 function follow_content(App $a)
@@ -66,10 +68,6 @@ function follow_content(App $a)
 
 	if (!$url) {
 		DI::baseUrl()->redirect($return_path);
-	}
-
-	if (!empty($_REQUEST['auto'])) {
-		follow_process($a);
 	}
 
 	$submit = DI::l10n()->t('Submit Request');
@@ -139,6 +137,10 @@ function follow_content(App $a)
 	// Makes the connection request for friendica contacts easier
 	$_SESSION['fastlane'] = $contact['url'];
 
+	if (!empty($_REQUEST['auto'])) {
+		follow_process($a, $contact['url']);
+	}
+
 	$o = Renderer::replaceMacros($tpl, [
 		'$header'        => DI::l10n()->t('Connect/Follow'),
 		'$pls_answer'    => DI::l10n()->t('Please answer the following:'),
@@ -175,9 +177,8 @@ function follow_content(App $a)
 	return $o;
 }
 
-function follow_process(App $a)
+function follow_process(App $a, string $url)
 {
-	$url = Probe::cleanURI($_REQUEST['url']);
 	$return_path = 'follow?url=' . urlencode($url);
 
 	// Makes the connection request for friendica contacts easier

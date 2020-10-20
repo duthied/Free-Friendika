@@ -37,7 +37,9 @@ function unfollow_post(App $a)
 		// NOTREACHED
 	}
 
-	unfollow_process();
+	$url = Strings::escapeTags(trim($_REQUEST['url'] ?? ''));
+
+	unfollow_process($url);
 }
 
 function unfollow_content(App $a)
@@ -48,10 +50,6 @@ function unfollow_content(App $a)
 		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('login');
 		// NOTREACHED
-	}
-
-	if (!empty($_REQUEST['auto'])) {
-		unfollow_process();
 	}
 
 	$uid = local_user();
@@ -89,6 +87,10 @@ function unfollow_content(App $a)
 	// Makes the connection request for friendica contacts easier
 	$_SESSION['fastlane'] = $contact['url'];
 
+	if (!empty($_REQUEST['auto'])) {
+		unfollow_process($contact['url']);
+	}
+
 	$o = Renderer::replaceMacros($tpl, [
 		'$header'        => DI::l10n()->t('Disconnect/Unfollow'),
 		'$page_desc'     => '',
@@ -116,12 +118,11 @@ function unfollow_content(App $a)
 	return $o;
 }
 
-function unfollow_process()
+function unfollow_process(string $url)
 {
 	$base_return_path = 'contact';
 
 	$uid = local_user();
-	$url = Strings::escapeTags(trim($_REQUEST['url'] ?? ''));
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 		$uid, Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
