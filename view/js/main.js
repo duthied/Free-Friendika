@@ -621,10 +621,8 @@ function liveUpdate(src) {
 		update_item = 0;
 
 		if (data.length < 100) {
-			// console.log('No data ' + data.length + ':' + data);
 			return;
 		}
-		// console.log('Got data: ' + data.length + ':' + data);
 
 		$('.wall-item-body', data).imagesLoaded(function() {
 			updateConvItems(data);
