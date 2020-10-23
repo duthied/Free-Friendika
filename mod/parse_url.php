@@ -126,13 +126,17 @@ function parse_url_content(App $a)
 
 	$template = '[bookmark=%s]%s[/bookmark]%s';
 
-	$arr = ['url' => $url, 'text' => ''];
+	$arr = ['url' => $url, 'format' => $format, 'text' => null];
 
 	Hook::callAll('parse_link', $arr);
 
-	if (strlen($arr['text'])) {
-		echo $arr['text'];
-		exit();
+	if ($arr['text']) {
+		if ($format == 'json') {
+			System::jsonExit($arr['text']);
+		} else {
+			echo $arr['text'];
+			exit();
+		}
 	}
 
 	// If there is already some content information submitted we don't
