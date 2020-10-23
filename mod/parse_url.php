@@ -88,16 +88,8 @@ function parse_url_content(App $a)
 	$curlResponse = DI::httpRequest()->head($url);
 
 	if ($curlResponse->isSuccess()) {
-		// Convert the header fields into an array
-		$hdrs = [];
-		$h = explode("\n", $curlResponse->getHeader());
-		foreach ($h as $l) {
-			$header = array_map('trim', explode(':', trim($l), 2));
-			if (count($header) == 2) {
-				list($k, $v) = $header;
-				$hdrs[$k] = $v;
-			}
-		}
+		$hdrs = $curlResponse->getHeaderArray();
+
 		$type = null;
 		$content_type = '';
 		$bbcode = '';
@@ -134,13 +126,17 @@ function parse_url_content(App $a)
 
 	$template = '[bookmark=%s]%s[/bookmark]%s';
 
-	$arr = ['url' => $url, 'text' => ''];
+	$arr = ['url' => $url, 'format' => $format, 'text' => null];
 
 	Hook::callAll('parse_link', $arr);
 
-	if (strlen($arr['text'])) {
-		echo $arr['text'];
-		exit();
+	if ($arr['text']) {
+		if ($format == 'json') {
+			System::jsonExit($arr['text']);
+		} else {
+			echo $arr['text'];
+			exit();
+		}
 	}
 
 	// If there is already some content information submitted we don't
