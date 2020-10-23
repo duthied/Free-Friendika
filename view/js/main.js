@@ -620,7 +620,7 @@ function liveUpdate(src) {
 		in_progress = false;
 		update_item = 0;
 
-		if (data.length < 100) {
+		if ($('.wall-item-body', data).length == 0) {
 			return;
 		}
 
