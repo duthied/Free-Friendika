@@ -88,16 +88,8 @@ function parse_url_content(App $a)
 	$curlResponse = DI::httpRequest()->head($url);
 
 	if ($curlResponse->isSuccess()) {
-		// Convert the header fields into an array
-		$hdrs = [];
-		$h = explode("\n", $curlResponse->getHeader());
-		foreach ($h as $l) {
-			$header = array_map('trim', explode(':', trim($l), 2));
-			if (count($header) == 2) {
-				list($k, $v) = $header;
-				$hdrs[$k] = $v;
-			}
-		}
+		$hdrs = $curlResponse->getHeaderArray();
+
 		$type = null;
 		$content_type = '';
 		$bbcode = '';
