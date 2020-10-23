@@ -1030,7 +1030,7 @@ class Database
 				$id = $this->connection->insert_id;
 				break;
 		}
-		return $id;
+		return (int)$id;
 	}
 
 	/**

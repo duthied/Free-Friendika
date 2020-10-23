@@ -1828,12 +1828,10 @@ class Item
 			$notify_type = Delivery::POST;
 		}
 
-		DBA::transaction();
-
 		if (!in_array($item['verb'], self::ACTIVITIES)) {
 			$item['icid'] = self::insertContent($item);
 			if (empty($item['icid'])) {
-				// This most likely happens when identical posts arrives from different sources at the same time
+				// This shouldn't happen
 				Logger::warning('No content stored, quitting', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'causer-id' => ($item['causer-id'] ?? 0), 'post-type' => $item['post-type'], 'network' => $item['network']]);
 				return 0;
 			}
@@ -1853,7 +1851,7 @@ class Item
 
 		// Diaspora signature
 		if (!empty($item['diaspora_signed_text'])) {
-			DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $item['diaspora_signed_text']], true);
+			DBA::replace('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $item['diaspora_signed_text']]);
 		}
 
 		unset($item['diaspora_signed_text']);
@@ -1886,47 +1884,29 @@ class Item
 			}
 		}
 
+		DBA::lock('item');
+
+		$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
+		if (DBA::exists('item', $condition)) {
+			DBA::unlock();
+			Logger::notice('Item is already inserted - aborting', $condition);
+			return 0;
+		}
+
 		$ret = DBA::insert('item', $item);
 
 		// When the item was successfully stored we fetch the ID of the item.
-		if (DBA::isResult($ret)) {
-			$current_post = DBA::lastInsertId();
-		} else {
-			// This can happen - for example - if there are locking timeouts.
-			DBA::rollback();
+		$current_post = DBA::lastInsertId();
+		DBA::unlock();
 
-			// Store the data into a spool file so that we can try again later.
+		if (!DBA::isResult($ret) || ($current_post == 0)) {
+			// On failure store the data into a spool file so that the "SpoolPost" worker can try again later.
+			Logger::warning('Could not store item. it will be spooled', ['ret' => $ret, 'id' => $current_post]);
 			self::spool($orig_item);
 			return 0;
 		}
 
-		if ($current_post == 0) {
-			// This is one of these error messages that never should occur.
-			Logger::log("couldn't find created item - we better quit now.");
-			DBA::rollback();
-			return 0;
-		}
-
-		// How much entries have we created?
-		// We wouldn't need this query when we could use an unique index - but MySQL has length problems with them.
-		$entries = DBA::count('item', ['uri' => $item['uri'], 'uid' => $item['uid'], 'network' => $item['network']]);
-
-		if ($entries > 1) {
-			// There are duplicates. We delete our just created entry.
-			Logger::info('Delete duplicated item', ['id' => $current_post, 'uri' => $item['uri'], 'uid' => $item['uid'], 'guid' => $item['guid']]);
-
-			// Yes, we could do a rollback here - but we possibly are still having users with MyISAM.
-			DBA::delete('item', ['id' => $current_post]);
-			DBA::commit();
-			return 0;
-		} elseif ($entries == 0) {
-			// This really should never happen since we quit earlier if there were problems.
-			Logger::log("Something is terribly wrong. We haven't found our created entry.");
-			DBA::rollback();
-			return 0;
-		}
-
-		Logger::log('created item '.$current_post);
+		Logger::notice('created item', ['id' => $current_post, 'uid' => $item['uid'], 'network' => $item['network'], 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 
 		if (!$parent_id || ($item['parent-uri'] === $item['uri'])) {
 			$parent_id = $current_post;
@@ -1958,7 +1938,6 @@ class Item
 		} else {
 			self::updateThread($parent_id);
 		}
-		DBA::commit();
 
 		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances
 		if (self::tagDeliver($item['uid'], $current_post)) {
@@ -2109,24 +2088,16 @@ class Item
 		$item_content = DBA::selectFirst('item-content', ['id'], ['uri-id' => $item['uri-id']]);
 		if (DBA::isResult($item_content)) {
 			$icid = $item_content['id'];
-			Logger::info('Content found', ['icid' => $icid, 'uri' => $item['uri']]);
+			Logger::info('Existing content found', ['icid' => $icid, 'uri' => $item['uri']]);
 			return $icid;
 		}
 
-		DBA::insert('item-content', $fields, true);
-		$icid = DBA::lastInsertId();
-		if ($icid != 0) {
-			Logger::info('Content inserted', ['icid' => $icid, 'uri' => $item['uri']]);
-			return $icid;
-		}
+		DBA::replace('item-content', $fields);
 
-		// Possibly there can be timing issues. Then the same content could be inserted multiple times.
-		// Due to the indexes this doesn't happen, but "lastInsertId" will be empty in these situations.
-		// So we have to fetch the id manually. This is no bug and there is no data loss.
 		$item_content = DBA::selectFirst('item-content', ['id'], ['uri-id' => $item['uri-id']]);
 		if (DBA::isResult($item_content)) {
 			$icid = $item_content['id'];
-			Logger::notice('Content inserted with empty lastInsertId', ['icid' => $icid, 'uri' => $item['uri']]);
+			Logger::notice('Content inserted', ['icid' => $icid, 'uri' => $item['uri']]);
 			return $icid;
 		}
 
@@ -3343,7 +3314,7 @@ class Item
 		$item['iid'] = $itemid;
 
 		if (!$onlyshadow) {
-			$result = DBA::insert('thread', $item);
+			$result = DBA::replace('thread', $item);
 
 			Logger::info('Add thread', ['item' => $itemid, 'result' => $result]);
 		}

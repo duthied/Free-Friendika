@@ -89,7 +89,7 @@ class Category
 					continue;
 				}
 
-				DBA::insert('post-category', [
+				DBA::replace('post-category', [
 					'uri-id' => $uri_id,
 					'uid' => $uid,
 					'type' => self::FILE,
@@ -105,7 +105,7 @@ class Category
 					continue;
 				}
 
-				DBA::insert('post-category', [
+				DBA::replace('post-category', [
 					'uri-id' => $uri_id,
 					'uid' => $uid,
 					'type' => self::CATEGORY,
