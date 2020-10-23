@@ -620,6 +620,10 @@ function liveUpdate(src) {
 		in_progress = false;
 		update_item = 0;
 
+		if ($('.wall-item-body', data).length == 0) {
+			return;
+		}
+
 		$('.wall-item-body', data).imagesLoaded(function() {
 			updateConvItems(data);
 

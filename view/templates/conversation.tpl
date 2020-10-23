@@ -1,6 +1,4 @@
-
 {{$live_update nofilter}}
-
 {{foreach $threads as $thread}}
 <div id="tread-wrapper-{{$thread.id}}" class="tread-wrapper">
 	{{foreach $thread.items as $item}}
@@ -18,7 +16,7 @@
 	{{/foreach}}
 </div>
 {{/foreach}}
-
+{{if !$update}}
 <div id="conversation-end"></div>
 
 {{if $dropping}}
@@ -27,4 +25,5 @@
   <div id="item-delete-selected-desc" >{{$dropping}}</div>
 </div>
 <div id="item-delete-selected-end"></div>
+{{/if}}
 {{/if}}

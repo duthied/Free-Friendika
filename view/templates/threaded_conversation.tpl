@@ -1,10 +1,8 @@
-
 {{$live_update nofilter}}
-
 {{foreach $threads as $thread}}
 {{include file="{{$thread.template}}" item=$thread}}
 {{/foreach}}
-
+{{if !$update}}
 <div id="conversation-end"></div>
 
 {{if $dropping}}
@@ -14,4 +12,5 @@
 </div>
 <img id="item-delete-selected-rotator" class="like-rotator" src="images/rotator.gif" style="display: none;" />
 <div id="item-delete-selected-end"></div>
+{{/if}}
 {{/if}}

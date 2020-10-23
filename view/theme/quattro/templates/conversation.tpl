@@ -1,5 +1,4 @@
 {{$live_update nofilter}}
-
 {{foreach $threads as $thread}}
 <div id="tread-wrapper-{{$thread.id}}" class="tread-wrapper">
 	{{foreach $thread.items as $item}}
@@ -23,7 +22,7 @@
 	{{/foreach}}
 </div>
 {{/foreach}}
-
+{{if !$update}}
 <div id="conversation-end"></div>
 
 {{if $dropping}}
@@ -46,4 +45,4 @@
     $('#item-'+id).animate(colWhite, 1000).animate(colShiny).animate(colWhite, 2000);
 </script>
 {{/if}}
-
+{{/if}}
