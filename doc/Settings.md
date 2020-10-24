@@ -182,7 +182,7 @@ By default, any (valid) email address is allowed in registrations.
 
 #### Allow Users to set remote_self
 
-If you enable the `Allow Users to set remote_self` users can select Atom feeds from their contact list being their *remote self* in the advanced contact settings.
+If you enable the `Allow Users to set remote_self` users can select Atom feeds from their contact list being their *remote self* in the contact settings.
 Which means that postings by the remote self are automatically reposted by Friendica in their names.
 
 This feature can be used to let the user mirror e.g. blog postings into their Friendica postings.
