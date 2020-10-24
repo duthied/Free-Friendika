@@ -807,12 +807,6 @@ function item_post(App $a) {
 		}
 	}
 
-	// Insert an item entry for UID=0 for global entries.
-	// We now do it in the background to save some time.
-	// This is important in interactive environments like the frontend or the API.
-	// We don't fork a new process since this is done anyway with the following command
-	Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "CreateShadowEntry", $post_id);
-
 	// When we are doing some forum posting via ! we have to start the notifier manually.
 	// These kind of posts don't initiate the notifier call in the item class.
 	if ($only_to_forum) {
