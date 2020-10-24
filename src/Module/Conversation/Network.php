@@ -329,9 +329,6 @@ class Network extends BaseModule
 			case 'received':
 				self::$max_id = $get['last_received'] ?? self::$max_id;
 				break;
-			case 'commented':
-				self::$max_id = $get['last_commented'] ?? self::$max_id;
-				break;
 			case 'created':
 				self::$max_id = $get['last_created'] ?? self::$max_id;
 				break;
