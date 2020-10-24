@@ -417,7 +417,11 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'only_tag_search'  , $only_tag_search);
 
 		DI::config()->set('system', 'worker_queues'    , $worker_queues);
-		DI::config()->set('system', 'worker_dont_fork' , $worker_dont_fork);
+
+		if (function_exists('proc_open')) {
+			DI::config()->set('system', 'worker_dont_fork', $worker_dont_fork);
+		}
+
 		DI::config()->set('system', 'worker_fastlane'  , $worker_fastlane);
 		DI::config()->set('system', 'frontend_worker'  , $worker_frontend);
 
@@ -578,6 +582,14 @@ class Site extends BaseAdmin
 			}
 		}
 
+		if (function_exists('proc_open')) {
+			$worker_dont_fork = DI::config()->get('system', 'worker_dont_fork');
+			$worker_dont_fork_disabled = '';
+		} else {
+			$worker_dont_fork = true;
+			$worker_dont_fork_disabled = 'disabled';
+		}
+
 		$t = Renderer::getMarkupTemplate('admin/site.tpl');
 		return Renderer::replaceMacros($t, [
 			'$title'             => DI::l10n()->t('Administration'),
@@ -689,7 +701,7 @@ class Site extends BaseAdmin
 			'$rino'                   => ['rino', DI::l10n()->t('RINO Encryption'), intval(DI::config()->get('system', 'rino_encrypt')), DI::l10n()->t('Encryption layer between nodes.'), [0 => DI::l10n()->t('Disabled'), 1 => DI::l10n()->t('Enabled')]],
 
 			'$worker_queues'          => ['worker_queues', DI::l10n()->t('Maximum number of parallel workers'), DI::config()->get('system', 'worker_queues'), DI::l10n()->t('On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.', 5, 20, 10)],
-			'$worker_dont_fork'       => ['worker_dont_fork', DI::l10n()->t('Don\'t use "proc_open" with the worker'), DI::config()->get('system', 'worker_dont_fork'), DI::l10n()->t('Enable this if your system doesn\'t allow the use of "proc_open". This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.')],
+			'$worker_dont_fork'       => ['worker_dont_fork', DI::l10n()->t('Don\'t use "proc_open" with the worker'), $worker_dont_fork, DI::l10n()->t('Enable this if your system doesn\'t allow the use of "proc_open". This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.'), $worker_dont_fork_disabled],
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],
 			'$worker_frontend'        => ['worker_frontend', DI::l10n()->t('Enable frontend worker'), DI::config()->get('system', 'frontend_worker'), DI::l10n()->t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', DI::baseUrl()->get())],
 
