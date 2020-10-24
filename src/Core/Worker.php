@@ -22,10 +22,8 @@
 namespace Friendica\Core;
 
 use Friendica\Core;
-use Friendica\Core\Process as ProcessAlias;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -38,7 +36,7 @@ class Worker
 	const STATE_REFETCH    = 3; // Worker had refetched jobs in the execution loop.
 	const STATE_SHORT_LOOP = 4; // Worker is processing preassigned jobs, thus saving much time.
 
-	const FAST_COMMANDS = ['APDelivery', 'Delivery', 'CreateShadowEntry'];
+	const FAST_COMMANDS = ['APDelivery', 'Delivery'];
 
 	const LOCK_PROCESS = 'worker_process';
 	const LOCK_WORKER = 'worker';
@@ -580,7 +578,7 @@ class Worker
 			'workerqueue',
 			['id', 'pid', 'executed', 'priority', 'parameter'],
 			['NOT `done` AND `pid` != 0'],
-			['order' => ['priority', 'created']]
+			['order' => ['priority', 'retrial', 'created']]
 		);
 		self::$db_duration += (microtime(true) - $stamp);
 
@@ -850,7 +848,7 @@ class Worker
 		$ids = [];
 		$stamp = (float)microtime(true);
 		$condition = ["`priority` = ? AND `pid` = 0 AND NOT `done` AND `next_try` < ?", $priority, DateTimeFormat::utcNow()];
-		$tasks = DBA::select('workerqueue', ['id', 'parameter'], $condition, ['limit' => $limit, 'order' => ['created']]);
+		$tasks = DBA::select('workerqueue', ['id', 'parameter'], $condition, ['limit' => $limit, 'order' => ['retrial', 'created']]);
 		self::$db_duration += (microtime(true) - $stamp);
 		while ($task = DBA::fetch($tasks)) {
 			$ids[] = $task['id'];
@@ -970,7 +968,7 @@ class Worker
 		if ($limit > 0) {
 			$stamp = (float)microtime(true);
 			$condition = ["`pid` = 0 AND NOT `done` AND `next_try` < ?", DateTimeFormat::utcNow()];
-			$tasks = DBA::select('workerqueue', ['id', 'parameter'], $condition, ['limit' => $limit, 'order' => ['priority', 'created']]);
+			$tasks = DBA::select('workerqueue', ['id', 'parameter'], $condition, ['limit' => $limit, 'order' => ['priority', 'retrial', 'created']]);
 			self::$db_duration += (microtime(true) - $stamp);
 
 			while ($task = DBA::fetch($tasks)) {
@@ -1188,7 +1186,7 @@ class Worker
 	 *
 	 * next args are passed as $cmd command line
 	 * or: Worker::add(PRIORITY_HIGH, "Notifier", Delivery::DELETION, $drop_id);
-	 * or: Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "CreateShadowEntry", $post_id);
+	 * or: Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "Delivery", $post_id);
 	 *
 	 * @return boolean "false" if worker queue entry already existed or there had been an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

@@ -2325,7 +2325,7 @@ class Item
 	 * @param integer $itemid Item ID that should be added
 	 * @throws \Exception
 	 */
-	public static function addShadow($itemid)
+	private static function addShadow($itemid)
 	{
 		$fields = ['uid', 'private', 'moderated', 'visible', 'deleted', 'network', 'uri'];
 		$condition = ['id' => $itemid, 'parent' => [0, $itemid]];
@@ -2388,7 +2388,7 @@ class Item
 	 * @param integer $itemid Item ID that should be added
 	 * @throws \Exception
 	 */
-	public static function addShadowPost($itemid)
+	private static function addShadowPost($itemid)
 	{
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $itemid]);
 		if (!DBA::isResult($item)) {
@@ -2469,6 +2469,10 @@ class Item
 
 		// Remove possibly remaining links
 		$naked_body = preg_replace(Strings::autoLinkRegEx(), '', $naked_body);
+
+		if (empty($naked_body)) {
+			return '';
+		}
 
 		$ld = new Language(DI::l10n()->getAvailableLanguages());
 		$languages = $ld->detect($naked_body)->limit(0, 3)->close();
