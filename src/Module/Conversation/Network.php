@@ -283,7 +283,7 @@ class Network extends BaseModule
 
 		self::$forumContactId = $parameters['contact_id'] ?? 0;
 
-		self::$selectedTab = Session::get('network-tab', '');
+		self::$selectedTab = Session::get('network-tab', DI::pConfig()->get(local_user(), 'network.view', 'selected_tab', ''));
 
 		if (!empty($get['star'])) {
 			self::$selectedTab = 'star';
@@ -297,8 +297,6 @@ class Network extends BaseModule
 			self::$selectedTab = $get['order'];
 		}
 
-		Session::set('network-tab', self::$selectedTab);
-
 		self::$star    = intval($get['star'] ?? 0);
 		self::$mention = intval($get['mention'] ?? 0);
 		self::$order   = $get['order'] ?? Session::get('network-order', 'commented');
@@ -306,7 +304,7 @@ class Network extends BaseModule
 		self::$selectedTab = self::$selectedTab ?? self::$order;
 
 		Session::set('network-tab', self::$selectedTab);
-		Session::set('network-order', self::$order);
+		DI::pConfig()->set(local_user(), 'network.view', 'selected_tab', self::$selectedTab);
 
 		self::$accountTypeString = $get['accounttype'] ?? $parameters['accounttype'] ?? '';
 		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
@@ -340,7 +338,12 @@ class Network extends BaseModule
 			case 'uriid':
 				self::$max_id = $get['last_uriid'] ?? self::$max_id;
 				break;
+			default:
+				self::$order = 'commented';
+				self::$max_id = $get['last_commented'] ?? self::$max_id;
 		}
+
+		Session::set('network-order', self::$order);
 	}
 
 	protected static function getItems(string $table, array $params, array $conditionFields = [])
