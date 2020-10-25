@@ -19,38 +19,33 @@
  *
  */
 
-namespace Friendica\Object\Api\Mastodon\Status;
+namespace Friendica\Object\Api\Mastodon;
+
+use Friendica\App\BaseURL;
+use Friendica\BaseEntity;
 
 /**
- * Class Counts
+ * Class Tag
  *
- * @see https://docs.joinmastodon.org/entities/status
+ * @see https://docs.joinmastodon.org/entities/tag
  */
-class Counts
+class Tag extends BaseEntity
 {
-	/** @var int */
-	protected $replies;
-	/** @var int */
-	protected $reblogs;
-	/** @var int */
-	protected $favourites;
+	/** @var string */
+	protected $name;
+	/** @var string */
+	protected $url = null;
 
 	/**
-	 * Creates a status count object
+	 * Creates a hashtag record from an tag-view record.
 	 *
-	 * @param int $replies
-	 * @param int $reblogs
-	 * @param int $favourites
+	 * @param BaseURL $baseUrl
+	 * @param array   $tag     tag-view record
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(int $replies, int $reblogs, int $favourites)
+	public function __construct(BaseURL $baseUrl, array $tag)
 	{
-		$this->replies = $replies;
-		$this->reblogs = $reblogs;
-		$this->favourites = $favourites;
-	}
-
-	public function __get($name) {
-		return $this->$name;
+		$this->name = strtolower($tag['name']);
+		$this->url  = $baseUrl . '/search?tag=' . urlencode($this->name);
 	}
 }

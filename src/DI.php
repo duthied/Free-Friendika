@@ -280,6 +280,22 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Mention
+	 */
+	public static function mstdnMention()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Mention::class);
+	}
+
+	/**
+	 * @return Factory\Api\Mastodon\Tag
+	 */
+	public static function mstdnTag()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Tag::class);
+	}
+
+	/**
 	 * @return Factory\Api\Twitter\User
 	 */
 	public static function twitterUser()

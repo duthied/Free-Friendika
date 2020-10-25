@@ -22,32 +22,40 @@
 namespace Friendica\Object\Api\Mastodon\Status;
 
 /**
- * Class Counts
+ * Class UserAttributes
  *
  * @see https://docs.joinmastodon.org/entities/status
  */
-class Counts
+class UserAttributes
 {
-	/** @var int */
-	protected $replies;
-	/** @var int */
-	protected $reblogs;
-	/** @var int */
-	protected $favourites;
+	/** @var bool */
+	protected $favourited;
+	/** @var bool */
+	protected $reblogged;
+	/** @var bool */
+	protected $muted;
+	/** @var bool */
+	protected $bookmarked;
+	/** @var bool */
+	protected $pinned;
 
 	/**
-	 * Creates a status count object
+	 * Creates a authorized user attributes object
 	 *
-	 * @param int $replies
-	 * @param int $reblogs
-	 * @param int $favourites
+	 * @param bool $favourited
+	 * @param bool $reblogged
+	 * @param bool $muted
+	 * @param bool $bookmarked
+	 * @param bool $pinned
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(int $replies, int $reblogs, int $favourites)
+	public function __construct(bool $favourited, bool $reblogged, bool $muted, bool $bookmarked, bool $pinned)
 	{
-		$this->replies = $replies;
-		$this->reblogs = $reblogs;
-		$this->favourites = $favourites;
+		$this->favourited = $favourited;
+		$this->reblogged = $reblogged;
+		$this->muted = $muted;
+		$this->bookmarked = $bookmarked;
+		$this->pinned = $pinned;
 	}
 
 	public function __get($name) {

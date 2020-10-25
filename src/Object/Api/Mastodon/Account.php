@@ -99,7 +99,7 @@ class Account extends BaseEntity
 				$publicContact['nick'] :
 				$publicContact['addr'];
 		$this->display_name    = $publicContact['name'];
-		$this->locked          = $publicContact['manually-approve'] ?? !empty($apcontact['manually-approve']);
+		$this->locked          = (bool)$publicContact['manually-approve'] ?? !empty($apcontact['manually-approve']);
 		$this->bot             = ($publicContact['contact-type'] == Contact::TYPE_NEWS);
 		$this->discoverable    = !$publicContact['unsearchable'];
 		$this->group           = ($publicContact['contact-type'] == Contact::TYPE_COMMUNITY);
@@ -131,5 +131,21 @@ class Account extends BaseEntity
 		$this->emojis          = [];
 		$this->fields          = $fields->getArrayCopy();
 
+	}
+
+	/**
+	 * Returns the current entity as an array
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$account = parent::toArray();
+
+		if (empty($account['moved'])) {
+			unset($account['moved']);
+		}
+
+		return $account;
 	}
 }
