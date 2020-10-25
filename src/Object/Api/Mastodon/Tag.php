@@ -45,7 +45,7 @@ class Tag extends BaseEntity
 	 */
 	public function __construct(BaseURL $baseUrl, array $tag)
 	{
-		$this->name = $tag['name'];
-		$this->url  = $baseUrl . '/search?tag=' . urlencode($tag['name']);
+		$this->name = strtolower($tag['name']);
+		$this->url  = $baseUrl . '/search?tag=' . urlencode($this->name);
 	}
 }
