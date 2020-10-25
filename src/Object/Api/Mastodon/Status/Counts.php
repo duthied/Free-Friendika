@@ -51,6 +51,6 @@ class Counts
 	}
 
 	public function __get($name) {
-        return $this->$name;
-    }
+		return $this->$name;
+	}
 }
