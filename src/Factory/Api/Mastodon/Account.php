@@ -69,8 +69,9 @@ class Account extends BaseFactory
 
 		$apcontact = APContact::getByURL($publicContact['url'], false);
 
-		if (!empty($userContact['self'])) {
-			$profileFields = $this->profileField->select(['uid' => $uid, 'psid' => PermissionSet::PUBLIC]);
+		$self_contact = Contact::selectFirst(['uid'], ['nurl' => $publicContact['nurl'], 'self' => true]);
+		if (!empty($self_contact['uid'])) {
+			$profileFields = $this->profileField->select(['uid' => $self_contact['uid'], 'psid' => PermissionSet::PUBLIC]);
 			$fields        = $this->mstdnField->createFromProfileFields($profileFields);
 		} else {
 			$fields = new Fields();

@@ -93,8 +93,8 @@ class Instance extends BaseEntity
 			$adminList = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
 			$administrator = User::getByEmail($adminList[0], ['nickname']);
 			if (!empty($administrator)) {
-				$adminContact = DBA::selectFirst('contact', ['id', 'uid'], ['nick' => $administrator['nickname'], 'self' => true]);
-				$instance->contact_account = DI::mstdnAccount()->createFromContactId($adminContact['id'], $adminContact['uid']);
+				$adminContact = DBA::selectFirst('contact', ['id'], ['nick' => $administrator['nickname'], 'self' => true]);
+				$instance->contact_account = DI::mstdnAccount()->createFromContactId($adminContact['id']);
 			}
 		}
 
