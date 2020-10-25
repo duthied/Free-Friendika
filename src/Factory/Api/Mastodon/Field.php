@@ -37,7 +37,7 @@ class Field extends BaseFactory
 	 */
 	public function createFromProfileField(ProfileField $profileField)
 	{
-		return new \Friendica\Api\Entity\Mastodon\Field($profileField->label, BBCode::convert($profileField->value, false, BBCode::ACTIVITYPUB));
+		return new \Friendica\Object\Api\Mastodon\Field($profileField->label, BBCode::convert($profileField->value, false, BBCode::ACTIVITYPUB));
 	}
 
 	/**
