@@ -59,4 +59,18 @@ class Card extends BaseEntity
 		$this->type        = $attachment['type'] ?? '';
 		$this->image       = $attachment['image'] ?? '';
 	}
+
+	/**
+	 * Returns the current entity as an array
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		if (empty($this->url)) {
+			return null;
+		}
+
+		return parent::toArray();
+	}
 }
