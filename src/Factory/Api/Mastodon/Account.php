@@ -69,8 +69,12 @@ class Account extends BaseFactory
 
 		$apcontact = APContact::getByURL($publicContact['url'], false);
 
-		$profileFields = $this->profileField->select(['uid' => $uid, 'psid' => PermissionSet::PUBLIC]);
-		$fields        = $this->mstdnField->createFromProfileFields($profileFields);
+		if (!empty($userContact['self'])) {
+			$profileFields = $this->profileField->select(['uid' => $uid, 'psid' => PermissionSet::PUBLIC]);
+			$fields        = $this->mstdnField->createFromProfileFields($profileFields);
+		} else {
+			$fields = new Fields();
+		}
 
 		return new \Friendica\Object\Api\Mastodon\Account($this->baseUrl, $publicContact, $fields, $apcontact, $userContact);
 	}
