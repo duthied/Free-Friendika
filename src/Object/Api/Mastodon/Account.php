@@ -132,4 +132,20 @@ class Account extends BaseEntity
 		$this->fields          = $fields->getArrayCopy();
 
 	}
+
+	/**
+	 * Returns the current entity as an array
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$account = parent::toArray();
+
+		if (empty($account['moved'])) {
+			unset($account['moved']);
+		}
+
+		return $account;
+	}
 }

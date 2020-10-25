@@ -137,4 +137,24 @@ class Status extends BaseEntity
 		$this->card = $card->toArray();
 		$this->poll = null;
 	}
+
+	/**
+	 * Returns the current entity as an array
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$status = parent::toArray();
+
+		if (!$status['pinned']) {
+			unset($status['pinned']);
+		}
+
+		if (empty($status['application']['name'])) {
+			unset($status['application']);
+		}
+
+		return $status;
+	}
 }
