@@ -78,7 +78,7 @@ class Status extends BaseFactory
 		);
 
 		$sensitive = DBA::exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw']);
-		$application = new \Friendica\Object\Api\Mastodon\Application($item['app']);
+		$application = new \Friendica\Object\Api\Mastodon\Application($item['app'] ?? '');
 		$mentions = DI::mstdnMention()->createFromUriId($uriId);
 		$tags = DI::mstdnTag()->createFromUriId($uriId);
 

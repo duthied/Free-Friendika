@@ -146,13 +146,15 @@ class BBCode
 	public static function getAttachmentData($body)
 	{
 		$data = [
-			'type'        => '',
-			'text'        => '',
-			'after'       => '',
-			'image'       => null,
-			'url'         => '',
-			'title'       => '',
-			'description' => '',
+			'type'          => '',
+			'text'          => '',
+			'after'         => '',
+			'image'         => null,
+			'url'           => '',
+			'provider_name' => '',
+			'provider_url'  => '',
+			'title'         => '',
+			'description'   => '',
 		];
 
 		if (!preg_match("/(.*)\[attachment(.*?)\](.*?)\[\/attachment\](.*)/ism", $body, $match)) {
@@ -252,6 +254,16 @@ class BBCode
 		$data['description'] = trim($match[3]);
 
 		$data['after'] = trim($match[4]);
+
+		$parts = parse_url($data['url']);
+		if (!empty($parts['scheme']) && !empty($parts['host'])) {
+			$data['provider_name'] = $parts['host'];
+			$data['provider_url'] = $parts['scheme'] . '://' . $parts['host'];
+
+			if (!empty($parts['port'])) {
+				$data['provider_url'] .= ':' . $parts['port'];
+			}
+		}
 
 		return $data;
 	}
