@@ -285,21 +285,25 @@ class Network extends BaseModule
 
 		self::$selectedTab = Session::get('network-tab', DI::pConfig()->get(local_user(), 'network.view', 'selected_tab', ''));
 
+		self::$order = 'commented';
+
 		if (!empty($get['star'])) {
 			self::$selectedTab = 'star';
+			self::$order = 'received';
 		}
 
 		if (!empty($get['mention'])) {
 			self::$selectedTab = 'mention';
+			self::$order = 'received';
 		}
 
 		if (!empty($get['order'])) {
 			self::$selectedTab = $get['order'];
+			self::$order = $get['order'];
 		}
 
 		self::$star    = intval($get['star'] ?? 0);
 		self::$mention = intval($get['mention'] ?? 0);
-		self::$order   = $get['order'] ?? Session::get('network-order', 'commented');
 
 		self::$selectedTab = self::$selectedTab ?? self::$order;
 
@@ -339,8 +343,6 @@ class Network extends BaseModule
 				self::$order = 'commented';
 				self::$max_id = $get['last_commented'] ?? self::$max_id;
 		}
-
-		Session::set('network-order', self::$order);
 	}
 
 	protected static function getItems(string $table, array $params, array $conditionFields = [])
