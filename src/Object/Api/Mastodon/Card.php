@@ -22,10 +22,6 @@
 namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\BaseEntity;
-use Friendica\Content\Text\BBCode;
-use Friendica\Object\Api\Mastodon\Status\Counts;
-use Friendica\Object\Api\Mastodon\Status\UserAttributes;
-use Friendica\Util\DateTimeFormat;
 
 /**
  * Class Card
@@ -43,21 +39,27 @@ class Card extends BaseEntity
 	/** @var string */
 	protected $type;
 	/** @var string */
+	protected $provider_name;
+	/** @var string */
+	protected $provider_url;
+	/** @var string */
 	protected $image;
 
 	/**
-	 * Creates a status record from an item record.
+	 * Creates a card record from an attachment array.
 	 *
 	 * @param array   $attachment Attachment record
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function __construct(array $attachment)
 	{
-		$this->url         = $attachment['url'] ?? '';
-		$this->title       = $attachment['title'] ?? '';
-		$this->description = $attachment['description'] ?? '';
-		$this->type        = $attachment['type'] ?? '';
-		$this->image       = $attachment['image'] ?? '';
+		$this->url           = $attachment['url'] ?? '';
+		$this->title         = $attachment['title'] ?? '';
+		$this->description   = $attachment['description'] ?? '';
+		$this->type          = $attachment['type'] ?? '';
+		$this->image         = $attachment['image'] ?? '';
+		$this->provider_name = $attachment['provider_name'] ?? '';
+		$this->provider_url  = $attachment['provider_url'] ?? '';
 	}
 
 	/**
