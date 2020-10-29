@@ -89,7 +89,7 @@ class Processor
 	 * @param array $attachment
 	 * @return void
 	 */
-	private static function storeAttachment(int $uriid, array $attachment)
+	private static function storeAttachmentAsMedia(int $uriid, array $attachment)
 	{
 		if (empty($attachment['url'])) {
 			return;
@@ -152,7 +152,7 @@ class Processor
 					$item['body'] = PageInfo::appendDataToBody($item['body'], $data);
 					break;
 				default:
-					self::storeAttachment($item['uri-id'], $attach);
+					self::storeAttachmentAsMedia($item['uri-id'], $attach);
 
 					$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
 					if ($filetype == 'image') {
