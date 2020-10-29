@@ -1818,7 +1818,7 @@ class Item
 		}
 
 		// Remove all media attachments from the body and store them in the post-media table
-		$item['raw-body'] = Post\Media::addAttachmentsFromBody($item['uri-id'], $item['raw-body']);
+		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
 
 		// Check for hashtags in the body and repair or add hashtag links

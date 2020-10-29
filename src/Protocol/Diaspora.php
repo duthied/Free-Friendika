@@ -2817,7 +2817,7 @@ class Diaspora
 	 * @param object $photo
 	 * @return void
 	 */
-	private static function storePhoto(int $uriid, $photo)
+	private static function storePhotoAsMedia(int $uriid, $photo)
 	{
 		$data = [];
 		$data['uri-id'] = $uriid;
@@ -2878,7 +2878,7 @@ class Diaspora
 		// Attach embedded pictures to the body
 		if ($data->photo) {
 			foreach ($data->photo as $photo) {
-				self::storePhoto($datarray['uri-id'], $photo);
+				self::storePhotoAsMedia($datarray['uri-id'], $photo);
 				$body = "[img]".XML::unescape($photo->remote_photo_path).
 					XML::unescape($photo->remote_photo_name)."[/img]\n".$body;
 			}

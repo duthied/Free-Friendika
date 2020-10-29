@@ -34,9 +34,9 @@ use Friendica\Util\Images;
  */
 class Media
 {
-    const UNKNOWN = 0;
-    const IMAGE   = 1;
-    const VIDEO   = 2;
+	const UNKNOWN = 0;
+	const IMAGE   = 1;
+	const VIDEO   = 2;
 	const AUDIO   = 3;
 	const TORRENT = 16;
 
@@ -104,7 +104,7 @@ class Media
 	 * @param string $body
 	 * @return string Body without media links
 	 */
-	public static function addAttachmentsFromBody(int $uriid, string $body)
+	public static function insertFromBody(int $uriid, string $body)
 	{
 		// Simplify image codes
 		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
