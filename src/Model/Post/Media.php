@@ -148,7 +148,6 @@ class Media
 			}
 		}
 
-		/// @todo audio + video
 		if (preg_match_all("/\[audio\]([^\[\]]*)\[\/audio\]/ism", $body, $audios, PREG_SET_ORDER)) {
 			foreach ($audios as $audio) {
 				$body = str_replace($audio[0], '', $body);
