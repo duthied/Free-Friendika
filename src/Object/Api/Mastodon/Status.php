@@ -24,6 +24,7 @@ namespace Friendica\Object\Api\Mastodon;
 use Friendica\BaseEntity;
 use Friendica\Content\Text\BBCode;
 use Friendica\Object\Api\Mastodon\Status\Counts;
+use Friendica\Object\Api\Mastodon\Status\UserAttributes;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -96,7 +97,7 @@ class Status extends BaseEntity
 	 * @param array   $item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(array $item, Account $account, Counts $counts)
+	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card)
 	{
 		$this->id         = (string)$item['uri-id'];
 		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::ATOM);
@@ -106,32 +107,54 @@ class Status extends BaseEntity
 			$this->in_reply_to_account_id = (string)$item['parent-author-id'];
 		}
 
-		$this->sensitive = false;
+		$this->sensitive = $sensitive;
 		$this->spoiler_text = $item['title'];
 
 		$visibility = ['public', 'private', 'unlisted'];
 		$this->visibility = $visibility[$item['private']];
 
-		$this->language = null;
+		$languages = json_decode($item['language'], true);
+		$this->language = is_array($languages) ? array_key_first($languages) : null;
+
 		$this->uri = $item['uri'];
 		$this->url = $item['plink'] ?? null;
 		$this->replies_count = $counts->replies;
 		$this->reblogs_count = $counts->reblogs;
 		$this->favourites_count = $counts->favourites;
-		$this->favourited = false;
-		$this->reblogged = false;
-		$this->muted = false;
-		$this->bookmarked = false;
-		$this->pinned = false;
+		$this->favourited = $userAttributes->favourited;
+		$this->reblogged = $userAttributes->reblogged;
+		$this->muted = $userAttributes->muted;
+		$this->bookmarked = $userAttributes->bookmarked;
+		$this->pinned = $userAttributes->pinned;
 		$this->content = BBCode::convert($item['body'], false);
-		$this->reblog = null;
-		$this->application = null;
+		$this->reblog = null; /// @todo
+		$this->application = $application->toArray();
 		$this->account = $account->toArray();
-		$this->media_attachments = [];
-		$this->mentions = [];
-		$this->tags = [];
+		$this->media_attachments = []; /// @todo
+		$this->mentions = $mentions;
+		$this->tags = $tags;
 		$this->emojis = [];
-		$this->card = null;
+		$this->card = $card->toArray();
 		$this->poll = null;
+	}
+
+	/**
+	 * Returns the current entity as an array
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$status = parent::toArray();
+
+		if (!$status['pinned']) {
+			unset($status['pinned']);
+		}
+
+		if (empty($status['application']['name'])) {
+			unset($status['application']);
+		}
+
+		return $status;
 	}
 }

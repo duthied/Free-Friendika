@@ -21,7 +21,6 @@
 
 namespace Friendica\Module;
 
-use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
@@ -132,6 +131,8 @@ class Contact extends BaseModule
 
 		$fetch_further_information = intval($_POST['fetch_further_information'] ?? 0);
 
+		$remote_self = $_POST['remote_self'] ?? false;
+
 		$ffi_keyword_denylist = Strings::escapeHtml(trim($_POST['ffi_keyword_denylist'] ?? ''));
 
 		$priority = intval($_POST['poll'] ?? 0);
@@ -147,6 +148,7 @@ class Contact extends BaseModule
 			'hidden'     => $hidden,
 			'notify_new_posts' => $notify,
 			'fetch_further_information' => $fetch_further_information,
+			'remote_self' => $remote_self,
 			'ffi_keyword_denylist'     => $ffi_keyword_denylist],
 			['id' => $contact_id, 'uid' => local_user()]
 		);
@@ -555,6 +557,18 @@ class Contact extends BaseModule
 				];
 			}
 
+			// Disable remote self for everything except feeds.
+			// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter
+			// Problem is, you couldn't reply to both networks.
+			$allow_remote_self = in_array($contact['network'], [Protocol::FEED, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER])
+				&& DI::config()->get('system', 'allow_users_remote_self');
+
+			if ($contact['network'] == Protocol::FEED) {
+				$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '1' => DI::l10n()->t('Mirror as forwarded posting'), '2' => DI::l10n()->t('Mirror as my own posting')];
+			} else {
+				$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '2' => DI::l10n()->t('Mirror as my own posting')];
+			}
+
 			$poll_interval = null;
 			if ((($contact['network'] == Protocol::FEED) && !DI::config()->get('system', 'adjust_poll_frequency')) || ($contact['network']== Protocol::MAIL)) {
 				$poll_interval = ContactSelector::pollInterval($contact['priority'], !$poll_enabled);
@@ -629,6 +643,13 @@ class Contact extends BaseModule
 				'$contact_status' => DI::l10n()->t('Status'),
 				'$contact_settings_label' => $contact_settings_label,
 				'$contact_profile_label' => DI::l10n()->t('Profile'),
+				'$allow_remote_self' => $allow_remote_self,
+				'$remote_self'       => ['remote_self',
+					DI::l10n()->t('Mirror postings from this contact'),
+					$contact['remote_self'],
+					DI::l10n()->t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
+					$remote_self_options
+				],	
 			]);
 
 			$arr = ['contact' => $contact, 'output' => $o];
@@ -916,7 +937,7 @@ class Contact extends BaseModule
 			],
 		];
 
-		if ($cid != $pcid) {
+		if (!empty($contact['network']) && in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) && ($cid != $pcid)) {
 			$tabs[] = ['label' => DI::l10n()->t('Advanced'),
 				'url'   => 'contact/' . $cid . '/advanced/',
 				'sel'   => (($active_tab == self::TAB_ADVANCED) ? 'active' : ''),

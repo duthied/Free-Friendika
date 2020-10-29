@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.12-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1370
+-- DB_UPDATE_VERSION 1372
 -- ------------------------------------------
 
 
@@ -775,6 +775,7 @@ CREATE TABLE IF NOT EXISTS `item-content` (
 	`title` varchar(255) NOT NULL DEFAULT '' COMMENT 'item title',
 	`content-warning` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`body` mediumtext COMMENT 'item body content',
+	`raw-body` mediumtext COMMENT 'Body without embedded media links',
 	`location` varchar(255) NOT NULL DEFAULT '' COMMENT 'text location where this item originated',
 	`coord` varchar(255) NOT NULL DEFAULT '' COMMENT 'longitude/latitude pair representing location where this item originated',
 	`language` text COMMENT 'Language information about this post',
@@ -1063,6 +1064,27 @@ CREATE TABLE IF NOT EXISTS `post-delivery-data` (
 	 PRIMARY KEY(`uri-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
+
+--
+-- TABLE post-media
+--
+CREATE TABLE IF NOT EXISTS `post-media` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`url` varbinary(511) NOT NULL COMMENT 'Media URL',
+	`type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Media type',
+	`mimetype` varchar(60) COMMENT '',
+	`height` smallint unsigned COMMENT 'Height of the media',
+	`width` smallint unsigned COMMENT 'Width of the media',
+	`size` int unsigned COMMENT 'Media size',
+	`preview` varbinary(255) COMMENT 'Preview URL',
+	`preview-height` smallint unsigned COMMENT 'Height of the preview picture',
+	`preview-width` smallint unsigned COMMENT 'Width of the preview picture',
+	`description` text COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uri-id-url` (`uri-id`,`url`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Attached media';
 
 --
 -- TABLE post-tag
@@ -1390,7 +1412,7 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	 PRIMARY KEY(`id`),
 	 INDEX `done_parameter` (`done`,`parameter`(64)),
 	 INDEX `done_executed` (`done`,`executed`),
-	 INDEX `done_priority_created` (`done`,`priority`,`created`),
+	 INDEX `done_priority_retrial_created` (`done`,`priority`,`retrial`,`created`),
 	 INDEX `done_priority_next_try` (`done`,`priority`,`next_try`),
 	 INDEX `done_pid_next_try` (`done`,`pid`,`next_try`),
 	 INDEX `done_pid_retrial` (`done`,`pid`,`retrial`),

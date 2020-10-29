@@ -21,38 +21,45 @@
 
 namespace Friendica\Factory\Api\Mastodon;
 
+use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
-use Friendica\Collection\Api\Mastodon\Fields;
-use Friendica\Collection\ProfileFields;
-use Friendica\Content\Text\BBCode;
-use Friendica\Model\ProfileField;
+use Friendica\Model\Tag as TagModel;
 use Friendica\Network\HTTPException;
+use Friendica\Repository\ProfileField;
+use Psr\Log\LoggerInterface;
 
-class Field extends BaseFactory
+class Tag extends BaseFactory
 {
-	/**
-	 * @param ProfileField $profileField
-	 * @return \Friendica\Api\Entity\Mastodon\Field
-	 * @throws HTTPException\InternalServerErrorException
-	 */
-	public function createFromProfileField(ProfileField $profileField)
+	/** @var BaseURL */
+	protected $baseUrl;
+	/** @var ProfileField */
+	protected $profileField;
+	/** @var Field */
+	protected $mstdnField;
+
+	public function __construct(LoggerInterface $logger, BaseURL $baseURL, ProfileField $profileField, Field $mstdnField)
 	{
-		return new \Friendica\Object\Api\Mastodon\Field($profileField->label, BBCode::convert($profileField->value, false, BBCode::ACTIVITYPUB));
+		parent::__construct($logger);
+
+		$this->baseUrl = $baseURL;
+		$this->profileField = $profileField;
+		$this->mstdnField = $mstdnField;
 	}
 
 	/**
-	 * @param ProfileFields $profileFields
-	 * @return Fields
+	 * @param int $uriId Uri-ID of the item
+	 * @return array
 	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public function createFromProfileFields(ProfileFields $profileFields)
+	public function createFromUriId(int $uriId)
 	{
-		$fields = [];
-
-		foreach ($profileFields as $profileField) {
-			$fields[] = $this->createFromProfileField($profileField);
+		$hashtags = [];
+		$tags = TagModel::getByURIId($uriId, [TagModel::HASHTAG]);
+		foreach ($tags as $tag) {
+			$hashtag = new \Friendica\Object\Api\Mastodon\Tag($this->baseUrl, $tag);
+			$hashtags[] = $hashtag->toArray();
 		}
-
-		return new Fields($fields);
+		return $hashtags;
 	}
 }

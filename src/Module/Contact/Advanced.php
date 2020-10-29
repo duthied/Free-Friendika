@@ -63,7 +63,6 @@ class Advanced extends BaseModule
 		$poll        = $_POST['poll'] ?? '';
 		$attag       = $_POST['attag'] ?? '';
 		$photo       = $_POST['photo'] ?? '';
-		$remote_self = $_POST['remote_self'] ?? false;
 		$nurl        = Strings::normaliseLink($url);
 
 		$r = DI::dba()->update(
@@ -79,7 +78,6 @@ class Advanced extends BaseModule
 				'notify'      => $notify,
 				'poll'        => $poll,
 				'attag'       => $attag,
-				'remote_self' => $remote_self,
 			],
 			['id' => $contact['id'], 'uid' => local_user()]
 		);
@@ -113,18 +111,6 @@ class Advanced extends BaseModule
 
 		$returnaddr = "contact/$cid";
 
-		// Disable remote self for everything except feeds.
-		// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter
-		// Problem is, you couldn't reply to both networks.
-		$allow_remote_self = in_array($contact['network'], [Protocol::FEED, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER])
-		                     && DI::config()->get('system', 'allow_users_remote_self');
-
-		if ($contact['network'] == Protocol::FEED) {
-			$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '1' => DI::l10n()->t('Mirror as forwarded posting'), '2' => DI::l10n()->t('Mirror as my own posting')];
-		} else {
-			$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '2' => DI::l10n()->t('Mirror as my own posting')];
-		}
-
 		// This data is fetched automatically for most networks.
 		// Editing does only makes sense for mail and feed contacts.
 		if (!in_array($contact['network'], [Protocol::FEED, Protocol::MAIL])) {
@@ -146,14 +132,6 @@ class Advanced extends BaseModule
 			'$udprofilenow'      => DI::l10n()->t('Refetch contact data'),
 			'$contact_id'        => $contact['id'],
 			'$lbl_submit'        => DI::l10n()->t('Submit'),
-			'$label_remote_self' => DI::l10n()->t('Remote Self'),
-			'$allow_remote_self' => $allow_remote_self,
-			'$remote_self'       => ['remote_self',
-				DI::l10n()->t('Mirror postings from this contact'),
-				$contact['remote_self'],
-				DI::l10n()->t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
-				$remote_self_options
-			],
 
 			'$name'    => ['name', DI::l10n()->t('Name'), $contact['name'], '', '', $readonly],
 			'$nick'    => ['nick', DI::l10n()->t('Account Nickname'), $contact['nick'], '', '', $readonly],

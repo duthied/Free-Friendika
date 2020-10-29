@@ -283,30 +283,32 @@ class Network extends BaseModule
 
 		self::$forumContactId = $parameters['contact_id'] ?? 0;
 
-		self::$selectedTab = Session::get('network-tab', '');
+		self::$selectedTab = Session::get('network-tab', DI::pConfig()->get(local_user(), 'network.view', 'selected_tab', ''));
+
+		self::$order = 'commented';
 
 		if (!empty($get['star'])) {
 			self::$selectedTab = 'star';
+			self::$order = 'received';
 		}
 
 		if (!empty($get['mention'])) {
 			self::$selectedTab = 'mention';
+			self::$order = 'received';
 		}
 
 		if (!empty($get['order'])) {
 			self::$selectedTab = $get['order'];
+			self::$order = $get['order'];
 		}
-
-		Session::set('network-tab', self::$selectedTab);
 
 		self::$star    = intval($get['star'] ?? 0);
 		self::$mention = intval($get['mention'] ?? 0);
-		self::$order   = $get['order'] ?? Session::get('network-order', 'commented');
 
 		self::$selectedTab = self::$selectedTab ?? self::$order;
 
 		Session::set('network-tab', self::$selectedTab);
-		Session::set('network-order', self::$order);
+		DI::pConfig()->set(local_user(), 'network.view', 'selected_tab', self::$selectedTab);
 
 		self::$accountTypeString = $get['accounttype'] ?? $parameters['accounttype'] ?? '';
 		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
@@ -331,15 +333,15 @@ class Network extends BaseModule
 			case 'received':
 				self::$max_id = $get['last_received'] ?? self::$max_id;
 				break;
-			case 'commented':
-				self::$max_id = $get['last_commented'] ?? self::$max_id;
-				break;
 			case 'created':
 				self::$max_id = $get['last_created'] ?? self::$max_id;
 				break;
 			case 'uriid':
 				self::$max_id = $get['last_uriid'] ?? self::$max_id;
 				break;
+			default:
+				self::$order = 'commented';
+				self::$max_id = $get['last_commented'] ?? self::$max_id;
 		}
 	}
 

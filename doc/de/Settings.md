@@ -172,7 +172,7 @@ Wildcards werden akzeptiert Standardmäßig sind alle gültigen Email-Adressen e
 
 #### Nutzern erlauben das remote_self Flag zu setzen
 
-Webb du die Option `Nutzern erlauben das remote_self Flag zu setzen` aktivierst, können alle Nutzer Atom Feeds in den erweiterten Einstellungen des Kontakts als "Entferntes Konto" markieren.
+Webb du die Option `Nutzern erlauben das remote_self Flag zu setzen` aktivierst, können alle Nutzer Atom Feeds in den Kontakteinstellungen als "Entferntes Konto" markieren.
 Dadurch werden automatisch alle Beiträge dieser Feeds für diesen Nutzer gespiegelt und an die Kontakte bei Friendica verteilt.
 
 Dieses Feature kann z.B. dafür genutzt werden Blogbeiträge zu spiegeln.

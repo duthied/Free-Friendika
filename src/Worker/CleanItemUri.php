@@ -31,9 +31,19 @@ class CleanItemUri
 	 */
 	public static function execute()
 	{
-		$ret = DBA::e("DELETE FROM `item-uri` WHERE NOT `id` IN (SELECT `uri-id` FROM `item`)
+		// We have to avoid deleting newly created "item-uri" entries.
+		// So we fetch a post that had been stored yesterday and only delete older ones.
+		$item = DBA::selectFirst('item', ['uri-id'], ["`uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY", 0, 1],
+			['order' => ['received' => true]]);
+		if (empty($item['uri-id'])) {
+			Logger::warning('No item with uri-id found - we better quit here');
+			return;
+		}
+		Logger::notice('Start deleting orphaned URI-ID', ['last-id' => $item['uri-id']]);
+		$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` < ?
+			AND NOT `id` IN (SELECT `uri-id` FROM `item`)
 			AND NOT `id` IN (SELECT `parent-uri-id` FROM `item`)
-			AND NOT `id` IN (SELECT `thr-parent-id` FROM `item`)");
+			AND NOT `id` IN (SELECT `thr-parent-id` FROM `item`)", $item['uri-id']);
 		Logger::notice('Orphaned URI-ID entries removed', ['result' => $ret, 'rows' => DBA::affectedRows()]);
 	}
 }

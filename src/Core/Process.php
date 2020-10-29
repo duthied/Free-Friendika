@@ -225,6 +225,7 @@ class Process
 	public function run($command, $args)
 	{
 		if (!function_exists('proc_open')) {
+			$this->logger->notice('"proc_open" not available - quitting');
 			return;
 		}
 
@@ -242,6 +243,7 @@ class Process
 		}
 
 		if ($this->isMinMemoryReached()) {
+			$this->logger->notice('Memory limit reached - quitting');
 			return;
 		}
 
@@ -251,9 +253,11 @@ class Process
 			$resource = proc_open($cmdline . ' &', [], $foo, $this->basePath);
 		}
 		if (!is_resource($resource)) {
-			$this->logger->debug('We got no resource for command.', ['cmd' => $cmdline]);
+			$this->logger->notice('We got no resource for command.', ['command' => $cmdline]);
 			return;
 		}
 		proc_close($resource);
+
+		$this->logger->info('Executed "proc_open"', ['command' => $cmdline, 'callstack' => System::callstack(10)]);
 	}
 }

@@ -23,6 +23,7 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
+use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
@@ -68,6 +69,22 @@ class Status extends BaseFactory
 			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)])
 		);
 
-		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts);
+		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(
+			DBA::exists('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)]),
+			DBA::exists('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]),
+			DBA::exists('thread', ['iid' => $item['id'], 'uid' => $item['uid'], 'ignored' => true]),
+			(bool)$item['starred'],
+			DBA::exists('user-item', ['iid' => $item['id'], 'uid' => $item['uid'], 'pinned' => true])
+		);
+
+		$sensitive = DBA::exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw']);
+		$application = new \Friendica\Object\Api\Mastodon\Application($item['app'] ?? '');
+		$mentions = DI::mstdnMention()->createFromUriId($uriId);
+		$tags = DI::mstdnTag()->createFromUriId($uriId);
+
+		$attachment = BBCode::getAttachmentData($item['body']);
+		$card = new \Friendica\Object\Api\Mastodon\Card($attachment);
+
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card);
 	}
 }
