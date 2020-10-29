@@ -37,6 +37,7 @@ use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
+use Friendica\Model\Post;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Relay;
@@ -82,6 +83,45 @@ class Processor
 	}
 
 	/**
+	 * Store attached media files in the post-media table
+	 *
+	 * @param int $uriid
+	 * @param array $attachment
+	 * @return void
+	 */
+	private static function storeAttachmentAsMedia(int $uriid, array $attachment)
+	{
+		if (empty($attachment['url'])) {
+			return;
+		}
+
+		$data = ['uri-id' => $uriid];
+
+		$filetype = strtolower(substr($attachment['mediaType'], 0, strpos($attachment['mediaType'], '/')));
+		if ($filetype == 'image') {
+			$data['type'] = Post\Media::IMAGE;
+		} elseif ($filetype == 'video') {
+			$data['type'] = Post\Media::VIDEO;
+		} elseif ($filetype == 'audio') {
+			$data['type'] = Post\Media::AUDIO;
+		} elseif (in_array($attachment['mediaType'], ['application/x-bittorrent', 'application/x-bittorrent;x-scheme-handler/magnet'])) {
+			$data['type'] = Post\Media::TORRENT;
+		} else {
+			Logger::info('Unknown type', ['attachment' => $attachment]);
+			return;
+		}
+
+		$data['url'] = $attachment['url'];
+		$data['mimetype'] = $attachment['mediaType'];
+		$data['height'] = $attachment['height'] ?? null;
+		$data['size'] = $attachment['size'] ?? null;
+		$data['preview'] = $attachment['image'] ?? null;
+		$data['description'] = $attachment['name'] ?? null;
+
+		Post\Media::insert($data);
+	}
+
+	/**
 	 * Add attachment data to the item array
 	 *
 	 * @param array   $activity
@@ -94,6 +134,8 @@ class Processor
 		if (empty($activity['attachments'])) {
 			return $item;
 		}
+
+		$item['attach'] = '';
 
 		foreach ($activity['attachments'] as $attach) {
 			switch ($attach['type']) {
@@ -110,6 +152,8 @@ class Processor
 					$item['body'] = PageInfo::appendDataToBody($item['body'], $data);
 					break;
 				default:
+					self::storeAttachmentAsMedia($item['uri-id'], $attach);
+
 					$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
 					if ($filetype == 'image') {
 						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
@@ -146,13 +190,13 @@ class Processor
 
 						$item['body'] .= "\n[video]" . $attach['url'] . '[/video]';
 					} else {
-						if (!empty($item["attach"])) {
-							$item["attach"] .= ',';
+						if (!empty($item['attach'])) {
+							$item['attach'] .= ',';
 						} else {
-							$item["attach"] = '';
+							$item['attach'] = '';
 						}
 
-						$item["attach"] .= '[attach]href="' . $attach['url'] . '" length="' . ($attach['length'] ?? '0') . '" type="' . $attach['mediaType'] . '" title="' . ($attach['name'] ?? '') . '"[/attach]';
+						$item['attach'] .= '[attach]href="' . $attach['url'] . '" length="' . ($attach['length'] ?? '0') . '" type="' . $attach['mediaType'] . '" title="' . ($attach['name'] ?? '') . '"[/attach]';
 					}
 			}
 		}
@@ -180,6 +224,9 @@ class Processor
 		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 
 		$item = self::processContent($activity, $item);
+
+		$item = self::constructAttachList($activity, $item);
+
 		if (empty($item)) {
 			return;
 		}
@@ -403,17 +450,18 @@ class Processor
 	{
 		$item['title'] = HTML::toBBCode($activity['name']);
 
+		$content = HTML::toBBCode($activity['content']);
+
+		if (!empty($activity['emojis'])) {
+			$content = self::replaceEmojis($content, $activity['emojis']);
+		}
+
+		$content = self::convertMentions($content);
+
 		if (!empty($activity['source'])) {
 			$item['body'] = $activity['source'];
+			$item['raw-body'] = $content;
 		} else {
-			$content = HTML::toBBCode($activity['content']);
-
-			if (!empty($activity['emojis'])) {
-				$content = self::replaceEmojis($content, $activity['emojis']);
-			}
-
-			$content = self::convertMentions($content);
-
 			if (empty($activity['directmessage']) && ($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
 				$item_private = !in_array(0, $activity['item_receiver']);
 				$parent = Item::selectFirst(['id', 'uri-id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
@@ -429,7 +477,7 @@ class Processor
 				$content = self::removeImplicitMentionsFromBody($content, $parent);
 			}
 			$item['content-warning'] = HTML::toBBCode($activity['summary']);
-			$item['body'] = $content;
+			$item['raw-body'] = $item['body'] = $content;
 		}
 
 		self::storeFromBody($item);

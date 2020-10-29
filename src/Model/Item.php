@@ -104,7 +104,7 @@ class Item
 			'object-type', 'object', 'target-type', 'target', 'plink'];
 
 	// Field list for "item-content" table that is not present in the "item" table
-	const CONTENT_FIELDLIST = ['language'];
+	const CONTENT_FIELDLIST = ['language', 'raw-body'];
 
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
@@ -1678,6 +1678,7 @@ class Item
 		$item['deny_gid']      = trim($item['deny_gid'] ?? '');
 		$item['private']       = intval($item['private'] ?? self::PUBLIC);
 		$item['body']          = trim($item['body'] ?? '');
+		$item['raw-body']      = trim($item['raw-body'] ?? $item['body']);
 		$item['attach']        = trim($item['attach'] ?? '');
 		$item['app']           = trim($item['app'] ?? '');
 		$item['origin']        = intval($item['origin'] ?? 0);
@@ -1815,6 +1816,10 @@ class Item
 		if ($item['verb'] == Activity::ANNOUNCE) {
 			self::setOwnerforResharedItem($item);
 		}
+
+		// Remove all media attachments from the body and store them in the post-media table
+		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
+		$item['raw-body'] = self::setHashtags($item['raw-body']);
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
