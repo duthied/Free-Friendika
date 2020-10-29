@@ -2811,6 +2811,26 @@ class Diaspora
 	}
 
 	/**
+	 * Store an attached photo in the post-media table
+	 *
+	 * @param int $uriid
+	 * @param object $photo
+	 * @return void
+	 */
+	private static function storePhoto(int $uriid, $photo)
+	{
+		$data = [];
+		$data['uri-id'] = $uriid;
+		$data['type'] = Post\Media::IMAGE;
+		$data['url'] = XML::unescape($photo->remote_photo_path) . XML::unescape($photo->remote_photo_name);
+		$data['height'] = (int)XML::unescape($photo->height ?? 0);
+		$data['width'] = (int)XML::unescape($photo->width ?? 0);
+		$data['description'] = XML::unescape($photo->text ?? '');
+
+		Post\Media::insert($data);
+	}
+
+	/**
 	 * Receives status messages
 	 *
 	 * @param array            $importer Array of the importer user
@@ -2847,13 +2867,18 @@ class Diaspora
 			}
 		}
 
-		$body = Markdown::toBBCode($text);
+		$raw_body = $body = Markdown::toBBCode($text);
 
 		$datarray = [];
+
+		$datarray["guid"] = $guid;
+		$datarray["uri"] = $datarray["parent-uri"] = self::getUriFromGuid($author, $guid);
+		$datarray['uri-id'] = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);
 
 		// Attach embedded pictures to the body
 		if ($data->photo) {
 			foreach ($data->photo as $photo) {
+				self::storePhoto($datarray['uri-id'], $photo);
 				$body = "[img]".XML::unescape($photo->remote_photo_path).
 					XML::unescape($photo->remote_photo_name)."[/img]\n".$body;
 			}
@@ -2887,10 +2912,6 @@ class Diaspora
 		$datarray["owner-link"] = $datarray["author-link"];
 		$datarray["owner-id"] = $datarray["author-id"];
 
-		$datarray["guid"] = $guid;
-		$datarray["uri"] = $datarray["parent-uri"] = self::getUriFromGuid($author, $guid);
-		$datarray['uri-id'] = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);
-
 		$datarray["verb"] = Activity::POST;
 		$datarray["gravity"] = GRAVITY_PARENT;
 
@@ -2904,6 +2925,7 @@ class Diaspora
 		}
 
 		$datarray["body"] = self::replacePeopleGuid($body, $contact["url"]);
+		$datarray["raw-body"] = self::replacePeopleGuid($raw_body, $contact["url"]);
 
 		self::storeMentions($datarray['uri-id'], $text);
 		Tag::storeRawTagsFromBody($datarray['uri-id'], $datarray["body"]);

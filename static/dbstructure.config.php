@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1371);
+	define('DB_UPDATE_VERSION', 1372);
 }
 
 return [
@@ -843,6 +843,7 @@ return [
 			"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "item title"],
 			"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"body" => ["type" => "mediumtext", "comment" => "item body content"],
+			"raw-body" => ["type" => "mediumtext", "comment" => "Body without embedded media links"],
 			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "text location where this item originated"],
 			"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "longitude/latitude pair representing location where this item originated"],
 			"language" => ["type" => "text", "comment" => "Language information about this post"],
@@ -1131,6 +1132,27 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id"],
+		]
+	],
+	"post-media" => [
+		"comment" => "Attached media",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"url" => ["type" => "varbinary(511)", "not null" => "1", "comment" => "Media URL"],
+			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Media type"],
+			"mimetype" => ["type" => "varchar(60)", "comment" => ""],
+			"height" => ["type" => "smallint unsigned", "comment" => "Height of the media"],
+			"width" => ["type" => "smallint unsigned", "comment" => "Width of the media"],
+			"size" => ["type" => "int unsigned", "comment" => "Media size"],
+			"preview" => ["type" => "varbinary(255)", "comment" => "Preview URL"],
+			"preview-height" => ["type" => "smallint unsigned", "comment" => "Height of the preview picture"],
+			"preview-width" => ["type" => "smallint unsigned", "comment" => "Width of the preview picture"],
+			"description" => ["type" => "text", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uri-id-url" => ["UNIQUE", "uri-id", "url"],
 		]
 	],
 	"post-tag" => [
