@@ -937,7 +937,7 @@ class Contact extends BaseModule
 			],
 		];
 
-		if (in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) && ($cid != $pcid)) {
+		if (!empty($contact['network']) && in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) && ($cid != $pcid)) {
 			$tabs[] = ['label' => DI::l10n()->t('Advanced'),
 				'url'   => 'contact/' . $cid . '/advanced/',
 				'sel'   => (($active_tab == self::TAB_ADVANCED) ? 'active' : ''),

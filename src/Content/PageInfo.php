@@ -292,7 +292,7 @@ class PageInfo
 			$quotedUrl
 		)$#isx", function ($match) use ($url) {
 			// Stripping URLs with no label
-			if (!isset($match[1])) {
+			if (empty($match[1])) {
 				return '';
 			}
 
