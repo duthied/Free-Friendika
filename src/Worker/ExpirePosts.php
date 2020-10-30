@@ -25,7 +25,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Util\DateTimeFormat;
 
 class ExpirePosts
 {
@@ -51,14 +50,15 @@ class ExpirePosts
 				$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` IN
 					(SELECT `uri-id` FROM `thread`
 					INNER JOIN `contact` ON `id` = `contact-id` AND NOT `notify_new_posts`
-					WHERE `received` < UTC_TIMESTAMP() - INTERVAL ? DAY
-						AND NOT `mention` AND NOT `starred` AND NOT `wall` AND NOT `origin`
+					WHERE `thread`.`received` < UTC_TIMESTAMP() - INTERVAL ? DAY
+						AND NOT `thread`.`mention` AND NOT `thread`.`starred`
+						AND NOT `thread`.`wall` AND NOT `thread`.`origin`
 						AND `thread`.`uid` != 0 AND NOT `iid` IN (SELECT `parent` FROM `item`
 							WHERE (`item`.`starred` OR (`item`.`resource-id` != '')
 								OR (`item`.`event-id` != '') OR (`item`.`attach` != '')
 								OR `item`.`wall` OR `item`.`origin`
-								OR `uri-id` IN (SELECT `uri-id` FROM `post-category`
-									WHERE `uri-id` = `item`.`uri-id`))
+								OR `item`.`uri-id` IN (SELECT `uri-id` FROM `post-category`
+									WHERE `post-category`.`uri-id` = `item`.`uri-id`))
 								AND `item`.`parent` = `thread`.`iid`))
 					ORDER BY `id` LIMIT ?", $expire_days, $limit);
 
@@ -73,16 +73,16 @@ class ExpirePosts
 		}
 
 		if (!empty($expire_days_unclaimed)) {
-			$expiry_date = DateTimeFormat::utc('now - ' . $expire_days_unclaimed . ' days', DateTimeFormat::MYSQL);
-
 			do {
-				Logger::notice('Start deleting unclaimed public items', ['expiry_days' => $expire_days_unclaimed, 'expired' => $expiry_date]);
+				Logger::notice('Start deleting unclaimed public items', ['expiry_days' => $expire_days_unclaimed]);
 				$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` IN
-					(SELECT `uri-id` FROM `item` WHERE `gravity` = ? AND `uid` = ? AND `received` < ?
-						AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item` WHERE `uid` != ?)
-						AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item` WHERE `uid` = ? AND `received` > ?))
+					(SELECT `uri-id` FROM `item` WHERE `gravity` = ? AND `uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY
+						AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item` AS `i` WHERE `i`.`uid` != ?
+							AND `i`.`parent-uri-id` = `item`.`uri-id`)
+						AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item` AS `i` WHERE `i`.`uid` = ?
+							AND `i`.`parent-uri-id` = `item`.`uri-id` AND `i`.`received` > UTC_TIMESTAMP() - INTERVAL ? DAY))
 					ORDER BY `id` LIMIT ?",
-					GRAVITY_PARENT, 0, $expiry_date, 0, 0, $expiry_date, $limit);
+					GRAVITY_PARENT, 0, $expire_days_unclaimed, 0, 0, $expire_days_unclaimed, $limit);
 
 				$rows = DBA::affectedRows();
 				Logger::notice('Deleted unclaimed public items', ['result' => $ret, 'rows' => $rows]);
