@@ -71,6 +71,8 @@ class Item
 	const PT_FETCHED = 75;
 	const PT_PERSONAL_NOTE = 128;
 
+	const LOCK_INSERT = 'item-insert';
+
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = [
 		'uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid', 'network', 'gravity',
@@ -1889,24 +1891,28 @@ class Item
 			}
 		}
 
-		DBA::lock('item');
+		if (DI::lock()->acquire(self::LOCK_INSERT, 0)) {
+			$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
+			if (DBA::exists('item', $condition)) {
+				DI::lock()->release(self::LOCK_INSERT);
+				Logger::notice('Item is already inserted - aborting', $condition);
+				return 0;
+			}
 
-		$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
-		if (DBA::exists('item', $condition)) {
-			DBA::unlock();
-			Logger::notice('Item is already inserted - aborting', $condition);
-			return 0;
+			$result = DBA::insert('item', $item);
+
+			// When the item was successfully stored we fetch the ID of the item.
+			$current_post = DBA::lastInsertId();
+			DI::lock()->release(self::LOCK_INSERT);
+		} else {
+			Logger::warning('Item lock had not been acquired');
+			$result = false;
+			$current_post = 0;
 		}
 
-		$ret = DBA::insert('item', $item);
-
-		// When the item was successfully stored we fetch the ID of the item.
-		$current_post = DBA::lastInsertId();
-		DBA::unlock();
-
-		if (!DBA::isResult($ret) || ($current_post == 0)) {
+		if (empty($current_post) || !DBA::isResult($result)) {
 			// On failure store the data into a spool file so that the "SpoolPost" worker can try again later.
-			Logger::warning('Could not store item. it will be spooled', ['ret' => $ret, 'id' => $current_post]);
+			Logger::warning('Could not store item. it will be spooled', ['result' => $result, 'id' => $current_post]);
 			self::spool($orig_item);
 			return 0;
 		}

@@ -91,6 +91,8 @@ class Contact
 	 * @}
 	 */
 
+	const LOCK_INSERT = 'contact-insert';
+
 	/**
 	 * Account types
 	 *
@@ -1125,19 +1127,23 @@ class Contact
 			$condition = ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid, 'deleted' => false];
 
 			// Before inserting we do check if the entry does exist now.
-			DBA::lock('contact');
-			$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
-			if (DBA::isResult($contact)) {
-				$contact_id = $contact['id'];
-				Logger::notice('Contact had been created (shortly) before', ['id' => $contact_id, 'url' => $url, 'uid' => $uid]);
-			} else {
-				DBA::insert('contact', $fields);
-				$contact_id = DBA::lastInsertId();
-				if ($contact_id) {
-					Logger::info('Contact inserted', ['id' => $contact_id, 'url' => $url, 'uid' => $uid]);
+			if (DI::lock()->acquire(self::LOCK_INSERT, 0)) {
+				$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+				if (DBA::isResult($contact)) {
+					$contact_id = $contact['id'];
+					Logger::notice('Contact had been created (shortly) before', ['id' => $contact_id, 'url' => $url, 'uid' => $uid]);
+				} else {
+					DBA::insert('contact', $fields);
+					$contact_id = DBA::lastInsertId();
+					if ($contact_id) {
+						Logger::info('Contact inserted', ['id' => $contact_id, 'url' => $url, 'uid' => $uid]);
+					}
 				}
+				DI::lock()->release(self::LOCK_INSERT);
+			} else {
+				Logger::warning('Contact lock had not been acquired');
 			}
-			DBA::unlock();
+
 			if (!$contact_id) {
 				Logger::info('Contact was not inserted', ['url' => $url, 'uid' => $uid]);
 				return 0;
