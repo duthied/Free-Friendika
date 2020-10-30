@@ -71,7 +71,7 @@ class Item
 	const PT_FETCHED = 75;
 	const PT_PERSONAL_NOTE = 128;
 
-	const LOCK_ITEM = 'item-insert';
+	const LOCK_INSERT = 'item-insert';
 
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = [
@@ -1891,10 +1891,10 @@ class Item
 			}
 		}
 
-		if (DI::lock()->acquire(self::LOCK_ITEM, 0)) {
+		if (DI::lock()->acquire(self::LOCK_INSERT, 0)) {
 			$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
 			if (DBA::exists('item', $condition)) {
-				DI::lock()->release(self::LOCK_ITEM);
+				DI::lock()->release(self::LOCK_INSERT);
 				Logger::notice('Item is already inserted - aborting', $condition);
 				return 0;
 			}
@@ -1903,8 +1903,9 @@ class Item
 
 			// When the item was successfully stored we fetch the ID of the item.
 			$current_post = DBA::lastInsertId();
-			DI::lock()->release(self::LOCK_ITEM);
+			DI::lock()->release(self::LOCK_INSERT);
 		} else {
+			Logger::warning('Item lock had not been acquired');
 			$result = false;
 			$current_post = 0;
 		}
