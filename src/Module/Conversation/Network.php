@@ -289,17 +289,17 @@ class Network extends BaseModule
 
 		if (!empty($get['star'])) {
 			self::$selectedTab = 'star';
-			self::$order = 'received';
 		}
 
 		if (!empty($get['mention'])) {
 			self::$selectedTab = 'mention';
-			self::$order = 'received';
 		}
 
 		if (!empty($get['order'])) {
 			self::$selectedTab = $get['order'];
 			self::$order = $get['order'];
+		} elseif (in_array(self::$selectedTab, ['received', 'star', 'mention'])) {
+			self::$order = 'received';
 		}
 
 		self::$star    = intval($get['star'] ?? 0);
