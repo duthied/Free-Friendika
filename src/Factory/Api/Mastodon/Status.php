@@ -82,9 +82,11 @@ class Status extends BaseFactory
 		$mentions = DI::mstdnMention()->createFromUriId($uriId);
 		$tags = DI::mstdnTag()->createFromUriId($uriId);
 
-		$attachment = BBCode::getAttachmentData($item['body']);
-		$card = new \Friendica\Object\Api\Mastodon\Card($attachment);
+		$data = BBCode::getAttachmentData($item['body']);
+		$card = new \Friendica\Object\Api\Mastodon\Card($data);
 
-		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card);
+		$attachments = DI::mstdnAttachment()->createFromUriId($uriId);
+
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments);
 	}
 }

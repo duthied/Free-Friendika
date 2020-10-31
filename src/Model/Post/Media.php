@@ -258,4 +258,16 @@ class Media
 			self::insert($media);
 		}
 	}
+
+	/**
+	 * Retrieves the media attachments associated with the provided item ID.
+	 *
+	 * @param int $uri_id
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getByURIId(int $uri_id)
+	{
+		return DBA::selectToArray('post-media', [], ['uri-id' => $uri_id]);
+	}
 }

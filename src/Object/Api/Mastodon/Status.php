@@ -97,7 +97,7 @@ class Status extends BaseEntity
 	 * @param array   $item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card)
+	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments)
 	{
 		$this->id         = (string)$item['uri-id'];
 		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::ATOM);
@@ -130,7 +130,7 @@ class Status extends BaseEntity
 		$this->reblog = null; /// @todo
 		$this->application = $application->toArray();
 		$this->account = $account->toArray();
-		$this->media_attachments = []; /// @todo
+		$this->media_attachments = $attachments;
 		$this->mentions = $mentions;
 		$this->tags = $tags;
 		$this->emojis = [];
