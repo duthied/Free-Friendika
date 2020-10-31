@@ -56,6 +56,8 @@ return [
 
 	'/api' => [
 		'/v1' => [
+			'/accounts/{id:\d+}'                 => [Module\Api\Mastodon\Accounts::class,                 [R::GET         ]],
+			'/accounts/{id:\d+}/statuses'        => [Module\Api\Mastodon\Accounts\Statuses::class,        [R::GET         ]],
 			'/custom_emojis'                     => [Module\Api\Mastodon\CustomEmojis::class,             [R::GET         ]],
 			'/directory'                         => [Module\Api\Mastodon\Directory::class,                [R::GET         ]],
 			'/follow_requests'                   => [Module\Api\Mastodon\FollowRequests::class,           [R::GET         ]],
@@ -63,6 +65,7 @@ return [
 			'/instance'                          => [Module\Api\Mastodon\Instance::class,                 [R::GET         ]],
 			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class,           [R::GET         ]],
 			'/timelines/public'                  => [Module\Api\Mastodon\Timelines\PublicTimeline::class, [R::GET         ]],
+			'/trends'                            => [Module\Api\Mastodon\Trends::class,                   [R::GET         ]],
 		],
 		'/friendica' => [
 			'/profile/show'                      => [Module\Api\Friendica\Profile\Show::class , [R::GET         ]],

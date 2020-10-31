@@ -22,38 +22,17 @@
 namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
-use Friendica\Collection\Api\Mastodon\Emojis;
+use Friendica\Core\System;
+use Friendica\DI;
 
-class Emoji extends BaseFactory
+class Error extends BaseFactory
 {
-	public function create(string $shortcode, string $url)
+	public function RecordNotFound()
 	{
-		return new \Friendica\Object\Api\Mastodon\Emoji($shortcode, $url);
-	}
+		$error = DI::l10n()->t('Record not found');
+		$error_description = '';
+		$errorobj = New \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 
-	/**
-	 * @param array $smilies
-	 * @return Emojis
-	 */
-	public function createCollectionFromSmilies(array $smilies)
-	{
-		$prototype = null;
-
-		$emojis = [];
-
-		foreach ($smilies['texts'] as $key => $shortcode) {
-			if (preg_match('/src="(.+?)"/', $smilies['icons'][$key], $matches)) {
-				$url = $matches[1];
-
-				if ($prototype === null) {
-					$prototype = $this->create($shortcode, $url);
-					$emojis[] = $prototype;
-				} else {
-					$emojis[] = \Friendica\Object\Api\Mastodon\Emoji::createFromPrototype($prototype, $shortcode, $url);
-				}
-			};
-		}
-
-		return new Emojis($emojis);
+		System::jsonError(404, $errorobj->toArray());
 	}
 }
