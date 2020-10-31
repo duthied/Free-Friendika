@@ -126,7 +126,7 @@ class Status extends BaseEntity
 		$this->muted = $userAttributes->muted;
 		$this->bookmarked = $userAttributes->bookmarked;
 		$this->pinned = $userAttributes->pinned;
-		$this->content = BBCode::convert($item['body'], false);
+		$this->content = BBCode::convert($item['raw-body'] ?? $item['body'], false);
 		$this->reblog = null; /// @todo
 		$this->application = $application->toArray();
 		$this->account = $account->toArray();
