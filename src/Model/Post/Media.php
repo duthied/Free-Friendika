@@ -24,6 +24,7 @@ namespace Friendica\Model\Post;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Images;
 
 /**
@@ -34,11 +35,12 @@ use Friendica\Util\Images;
  */
 class Media
 {
-	const UNKNOWN = 0;
-	const IMAGE   = 1;
-	const VIDEO   = 2;
-	const AUDIO   = 3;
-	const TORRENT = 16;
+	const UNKNOWN  = 0;
+	const IMAGE    = 1;
+	const VIDEO    = 2;
+	const AUDIO    = 3;
+	const TORRENT  = 16;
+	const DOCUMENT = 128;
 
 	/**
 	 * Insert a post-media record
@@ -46,25 +48,90 @@ class Media
 	 * @param array $media
 	 * @return void
 	 */
-	public static function insert(array $media)
+	public static function insert(array $media, bool $force = false)
 	{
-		if (empty($media['url']) || empty($media['uri-id'])) {
+		if (empty($media['url']) || empty($media['uri-id']) || empty($media['type'])) {
+			Logger::warning('Incomplete media data', ['media' => $media]);
 			return;
 		}
 
-		if (DBA::exists('post-media', ['uri-id' => $media['uri-id'], 'url' => $media['url']])) {
+		// "document" has got the lowest priority. So when the same file is both attached as document
+		// and embedded as picture then we only store the picture or replace the document 
+		$found = DBA::selectFirst('post-media', ['type'], ['uri-id' => $media['uri-id'], 'url' => $media['url']]);
+		if (!$force && !empty($found) && (($found['type'] != self::DOCUMENT) || ($media['type'] == self::DOCUMENT))) {
 			Logger::info('Media already exists', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'callstack' => System::callstack()]);
 			return;
 		}
 
-		$fields = ['type', 'mimetype', 'height', 'width', 'size', 'preview', 'preview-height', 'preview-width', 'description'];
+		$fields = ['mimetype', 'height', 'width', 'size', 'preview', 'preview-height', 'preview-width', 'description'];
 		foreach ($fields as $field) {
 			if (empty($media[$field])) {
 				unset($media[$field]);
 			}
 		}
 
-		if ($media['type'] == self::IMAGE) {
+		// We are storing as fast as possible to avoid duplicated network requests
+		// when fetching additional information for pictures and other content.
+		$result = DBA::insert('post-media', $media, true);
+		Logger::info('Stored media', ['result' => $result, 'media' => $media, 'callstack' => System::callstack()]);
+		$stored = $media;
+
+		$media = self::fetchAdditionalData($media);
+
+		if (array_diff_assoc($media, $stored)) {
+			$result = DBA::insert('post-media', $media, true);
+			Logger::info('Updated media', ['result' => $result, 'media' => $media]);
+		} else {
+			Logger::info('Norhing to update', ['media' => $media]);
+		}
+	}
+
+	/**
+	 * Creates the "[attach]" element from the given attributes
+	 *
+	 * @param string $href
+	 * @param integer $length
+	 * @param string $type
+	 * @param string $title
+	 * @return string "[attach]" element
+	 */
+	public static function getAttachElement(string $href, int $length, string $type, string $title = '')
+	{
+		$media = self::fetchAdditionalData(['type' => self::DOCUMENT, 'url' => $href,
+			'size' => $length, 'mimetype' => $type, 'description' => $title]);
+
+		return '[attach]href="' . $media['url'] . '" length="' . $media['size'] .
+			'" type="' . $media['mimetype'] . '" title="' . $media['description'] . '"[/attach]';
+	}
+
+	/**
+	 * Fetch additional data for the provided media array
+	 *
+	 * @param array $media
+	 * @return array media array with additional data
+	 */
+	public static function fetchAdditionalData(array $media)
+	{
+		// Fetch the mimetype or size if missing.
+		// We don't do it for torrent links since they need special treatment.
+		// We don't do this for images, since we are fetching their details some lines later anyway.
+		if (!in_array($media['type'], [self::TORRENT, self::IMAGE]) && (empty($media['mimetype']) || empty($media['size']))) {
+			$timeout = DI::config()->get('system', 'xrd_timeout');
+			$curlResult = DI::httpRequest()->head($media['url'], ['timeout' => $timeout]);
+			if ($curlResult->isSuccess()) {
+				$header = $curlResult->getHeaderArray();
+				if (empty($media['mimetype']) && !empty($header['content-type'])) {
+					$media['mimetype'] = $header['content-type'];
+				}
+				if (empty($media['size']) && !empty($header['content-length'])) {
+					$media['size'] = $header['content-length'];
+				}
+			}
+		}
+
+		$filetype = !empty($media['mimetype']) ? strtolower(substr($media['mimetype'], 0, strpos($media['mimetype'], '/'))) : '';
+
+		if (($media['type'] == self::IMAGE) || ($filetype == 'image')) {
 			$imagedata = Images::getInfoFromURLCached($media['url']);
 			if (!empty($imagedata)) {
 				$media['mimetype'] = $imagedata['mime'];
@@ -80,9 +147,7 @@ class Media
 				}
 			}
 		}
-
-		$result = DBA::insert('post-media', $media, true);
-		Logger::info('Stored media', ['result' => $result, 'media' => $media, 'callstack' => System::callstack()]);
+		return $media;
 	}
 
 	/**
@@ -167,5 +232,30 @@ class Media
 		}
 
 		return trim($body);
+	}
+
+	/**
+	 * Add media links from the attach field
+	 *
+	 * @param integer $uriid
+	 * @param string $attach
+	 * @return void
+	 */
+	public static function insertFromAttachment(int $uriid, string $attach)
+	{
+		if (!preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\"(?: title=\"(.*?)\")?|', $attach, $matches, PREG_SET_ORDER)) {
+			return;
+		}
+
+		foreach ($matches as $attachment) {
+			$media['type'] = self::DOCUMENT;
+			$media['uri-id'] = $uriid;
+			$media['url'] = $attachment[1];
+			$media['size'] = $attachment[2];
+			$media['mimetype'] = $attachment[3];
+			$media['description'] = $attachment[4] ?? '';
+
+			self::insert($media);
+		}
 	}
 }

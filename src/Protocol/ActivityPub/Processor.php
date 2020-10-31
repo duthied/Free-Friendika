@@ -196,7 +196,8 @@ class Processor
 							$item['attach'] = '';
 						}
 
-						$item['attach'] .= '[attach]href="' . $attach['url'] . '" length="' . ($attach['length'] ?? '0') . '" type="' . $attach['mediaType'] . '" title="' . ($attach['name'] ?? '') . '"[/attach]';
+						$item['attach'] .= Post\Media::getAttachElement($attach['url'],
+							$attach['length'] ?? 0, $attach['mediaType'], $attach['name'] ?? '');
 					}
 			}
 		}

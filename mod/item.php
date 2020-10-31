@@ -35,7 +35,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -48,6 +47,7 @@ use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\Photo;
+use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Network\HTTPException;
 use Friendica\Object\EMail\ItemCCEMail;
@@ -55,7 +55,6 @@ use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Security\Security;
-use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 
 function item_post(App $a) {
@@ -532,9 +531,8 @@ function item_post(App $a) {
 				if (strlen($attachments)) {
 					$attachments .= ',';
 				}
-				$attachments .= '[attach]href="' . DI::baseUrl() . '/attach/' . $attachment['id'] .
-						'" length="' . $attachment['filesize'] . '" type="' . $attachment['filetype'] .
-						'" title="' . ($attachment['filename'] ? $attachment['filename'] : '') . '"[/attach]';
+				$attachments .= Post\Media::getAttachElement(DI::baseUrl() . '/attach/' . $attachment['id'],
+					$attachment['filesize'], $attachment['filetype'], $attachment['filename'] ?? '');
 			}
 			$body = str_replace($match[1],'',$body);
 		}

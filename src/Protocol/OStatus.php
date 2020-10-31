@@ -36,6 +36,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
+use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
@@ -1126,7 +1127,8 @@ class OStatus
 							if (!isset($attribute['length'])) {
 								$attribute['length'] = "0";
 							}
-							$item["attach"] .= '[attach]href="'.$attribute['href'].'" length="'.$attribute['length'].'" type="'.$attribute['type'].'" title="'.($attribute['title'] ?? '') .'"[/attach]';
+							$item["attach"] .= Post\Media::getAttachElement($attribute['href'],
+								$attribute['length'], $attribute['type'], $attribute['title'] ?? '');
 						}
 						break;
 					case "related":
