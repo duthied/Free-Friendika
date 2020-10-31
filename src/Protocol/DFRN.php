@@ -39,6 +39,7 @@ use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\PermissionSet;
+use Friendica\Model\Post;
 use Friendica\Model\Post\Category;
 use Friendica\Model\Profile;
 use Friendica\Model\Tag;
@@ -2176,7 +2177,7 @@ class DFRN
 							$item["attach"] = "";
 						}
 
-						$item["attach"] .= '[attach]href="' . $href . '" length="' . $length . '" type="' . $type . '" title="' . $title . '"[/attach]';
+						$item["attach"] .= Post\Media::getAttachElement($href, $length, $type, $title);
 						break;
 				}
 			}

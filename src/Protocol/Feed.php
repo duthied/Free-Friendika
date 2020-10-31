@@ -33,6 +33,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
@@ -457,7 +458,7 @@ class Feed
 
 				$attachments[] = ["link" => $href, "type" => $type, "length" => $length];
 
-				$item["attach"] .= '[attach]href="' . $href . '" length="' . $length . '" type="' . $type . '"[/attach]';
+				$item["attach"] .= Post\Media::getAttachElement($href, $length, $type);
 			}
 
 			$taglist = [];

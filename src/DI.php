@@ -240,6 +240,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Attachment
+	 */
+	public static function mstdnAttachment()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Attachment::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Emoji
 	 */
 	public static function mstdnEmoji()

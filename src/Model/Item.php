@@ -968,6 +968,14 @@ class Item
 
 		while ($item = DBA::fetch($items)) {
 			if (empty($content_fields['verb']) || !in_array($content_fields['verb'], self::ACTIVITIES)) {
+				if (!empty($content_fields['body'])) {
+					$content_fields['raw-body'] = trim($content_fields['raw-body'] ?? $content_fields['body']);
+		
+					// Remove all media attachments from the body and store them in the post-media table
+					$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
+					$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
+				}
+		
 				self::updateContent($content_fields, ['uri-id' => $item['uri-id']]);
 
 				if (empty($item['icid'])) {
@@ -992,6 +1000,10 @@ class Item
 				if (!empty($item['file'])) {
 					DBA::update('item', ['file' => ''], ['id' => $item['id']]);
 				}
+			}
+
+			if (!empty($fields['attach'])) {
+				Post\Media::insertFromAttachment($item['uri-id'], $fields['attach']);
 			}
 
 			Post\DeliveryData::update($item['uri-id'], $delivery_data);
@@ -1825,6 +1837,10 @@ class Item
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
+
+		if (!empty($item['attach'])) {
+			Post\Media::insertFromAttachment($item['uri-id'], $item['attach']);
+		}
 
 		// Fill the cache field
 		self::putInCache($item);
