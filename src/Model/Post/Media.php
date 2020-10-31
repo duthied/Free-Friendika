@@ -82,7 +82,7 @@ class Media
 			$result = DBA::insert('post-media', $media, true);
 			Logger::info('Updated media', ['result' => $result, 'media' => $media]);
 		} else {
-			Logger::info('Norhing to update', ['media' => $media]);
+			Logger::info('Nothing to update', ['media' => $media]);
 		}
 	}
 
