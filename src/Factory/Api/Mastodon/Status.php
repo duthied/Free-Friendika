@@ -87,6 +87,15 @@ class Status extends BaseFactory
 
 		$attachments = DI::mstdnAttachment()->createFromUriId($uriId);
 
-		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments);
+		if ($item['vid'] == Verb::getID(Activity::ANNOUNCE)) {
+			$reshare = $this->createFromUriId($item['thr-parent-id'], $uid)->toArray();
+			$reshared_item = Item::selectFirst(['title', 'body'], ['uri-id' => $item['thr-parent-id'], 'uid' => $uid]);
+			$item['title'] = $reshared_item['title'] ?? $item['title'];
+			$item['body'] = $reshared_item['body'] ?? $item['body'];
+		} else {
+			$reshare = [];
+		}
+
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare);
 	}
 }
