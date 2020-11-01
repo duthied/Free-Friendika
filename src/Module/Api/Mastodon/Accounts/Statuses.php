@@ -26,7 +26,9 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Verb;
 use Friendica\Module\BaseApi;
+use Friendica\Protocol\Activity;
 
 /**
  * @see https://docs.joinmastodon.org/methods/accounts/
@@ -61,8 +63,11 @@ class Statuses extends BaseApi
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $limit];
 
-		$condition = ['author-id' => $id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
-			'private' => Item::PUBLIC, 'uid' => 0, 'network' => Protocol::FEDERATED];
+		$condition = ['author-id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED],
+			'uid' => 0, 'network' => Protocol::FEDERATED];
+
+		$condition = DBA::mergeConditions($condition, ["(`gravity` IN (?, ?) OR (`gravity` = ? AND `vid` = ?))",
+			GRAVITY_PARENT, GRAVITY_COMMENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE)]);
 
 		if (!empty($max_id)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $max_id]);
