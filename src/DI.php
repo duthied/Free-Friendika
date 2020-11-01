@@ -256,6 +256,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Error
+	 */
+	public static function mstdnError()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Error::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Field
 	 */
 	public static function mstdnField()

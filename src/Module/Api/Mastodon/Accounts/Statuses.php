@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon\Timelines;
+namespace Friendica\Module\Api\Mastodon\Accounts;
 
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -27,23 +27,27 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Module\BaseApi;
-use Friendica\Network\HTTPException;
 
 /**
- * @see https://docs.joinmastodon.org/methods/timelines/
+ * @see https://docs.joinmastodon.org/methods/accounts/
  */
-class PublicTimeline extends BaseApi
+class Statuses extends BaseApi
 {
 	/**
 	 * @param array $parameters
-	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		// Show only local statuses? Defaults to false.
-		$local = (bool)!isset($_REQUEST['local']) ? false : ($_REQUEST['local'] == 'true');
-		// Show only remote statuses? Defaults to false.
-		$remote = (bool)!isset($_REQUEST['remote']) ? false : ($_REQUEST['remote'] == 'true');
+		if (empty($parameters['id'])) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		$id = $parameters['id'];
+		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
 		// Show only statuses with media attached? Defaults to false.
 		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true'); // Currently not supported
 		// Return results older than this id
@@ -57,16 +61,8 @@ class PublicTimeline extends BaseApi
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $limit];
 
-		$condition = ['gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'private' => Item::PUBLIC,
-			'uid' => 0, 'network' => Protocol::FEDERATED];
-
-		if ($local) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `item` WHERE `origin`)"]);
-		}
-
-		if ($remote) {
-			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `item` WHERE `origin`)"]);
-		}
+		$condition = ['author-id' => $id, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
+			'private' => Item::PUBLIC, 'uid' => 0, 'network' => Protocol::FEDERATED];
 
 		if (!empty($max_id)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $max_id]);
