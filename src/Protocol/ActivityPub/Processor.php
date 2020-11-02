@@ -196,8 +196,12 @@ class Processor
 							$item['attach'] = '';
 						}
 
-						$item['attach'] .= Post\Media::getAttachElement($attach['url'],
-							$attach['length'] ?? 0, $attach['mediaType'], $attach['name'] ?? '');
+						$item['attach'] .= Post\Media::getAttachElement(
+							$attach['url'],
+							$attach['length'] ?? 0,
+							$attach['mediaType'] ?? '',
+							$attach['name'] ?? ''
+						);
 					}
 			}
 		}
