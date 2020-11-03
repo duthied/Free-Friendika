@@ -3421,7 +3421,8 @@ class Item
 			 // Authenticated visitor - fetch the matching permissionsets
 			$set = PermissionSet::get($owner_id, $remote_user);
 			if (!empty($set)) {
-				$condition = ["(`private` != ? OR (`private` = ? AND `wall` AND `psid` IN (?" . str_repeat(",?", count($set) - 1) . ")))",
+				$condition = ["(`private` != ? OR (`private` = ? AND `wall`
+					AND `psid` IN (" . implode(', ', array_fill(0, count($set), '?')) . ")))",
 					Item::PRIVATE, Item::PRIVATE];
 				$condition = array_merge($condition, $set);
 			}

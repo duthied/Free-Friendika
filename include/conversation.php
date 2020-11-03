@@ -833,7 +833,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 			$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
 				$parent['uri'], $uid, Verb::getID(Activity::FOLLOW)];
 			$causer = 0;
-			}
+		}
 		$items = conversation_fetch_items($parent, $items, $condition, $block_authors, $params, $causer);
 	}
 
@@ -851,12 +851,12 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 /**
  * Fetch conversation items
  *
- * @param array $parent
- * @param array $items
- * @param array $condition
- * @param boolean $block_authors
- * @param array $params
- * @param integer $causer
+ * @param array   $parent        Parent Item array
+ * @param array   $items         Item array
+ * @param array   $condition     SQL condition
+ * @param boolean $block_authors Don't show posts from contacts that are hidden (used on the community page)
+ * @param array   $params        SQL parameters
+ * @param integer $causer        Contact ID of the resharer
  * @return array
  */
 function conversation_fetch_items(array $parent, array $items, array $condition, bool $block_authors, array $params, int $causer) {
