@@ -74,11 +74,19 @@ class Session
 	{
 		$session = DI::session();
 
-		if (empty($session->get('remote')[$uid])) {
-			return 0;
+		if (!empty($session->get('remote')[$uid])) {
+			$remote = $session->get('remote')[$uid];
+		} else {
+			$remote = 0;
 		}
 
-		return $session->get('remote')[$uid];
+		$local_user = !empty($session->get('authenticated')) ? $session->get('uid') : 0;
+
+		if (empty($remote) && ($local_user != $uid) && !empty($my_address = $session->get('my_address'))) {
+			$remote = Contact::getIdForURL($my_address, $uid, false);
+		}
+
+		return $remote;
 	}
 
 	/**
