@@ -893,16 +893,29 @@ function loadScrollContent() {
 
 	// get the raw content from the next page and insert this content
 	// right before "#conversation-end"
-	$.get(infinite_scroll.reload_uri + '&mode=raw&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_uriid=' + uriid, function(data) {
+	$.get({
+		url: infinite_scroll.reload_uri,
+		data: {
+			'mode'          : 'raw',
+			'last_received' : received,
+			'last_commented': commented,
+			'last_created'  : created,
+			'last_uriid'    : uriid
+		}
+	})
+	.done(function(data) {
 		$("#scroll-loader").hide();
 		if ($(data).length > 0) {
 			$(data).insertBefore('#conversation-end');
-			lockLoadContent = false;
 		} else {
 			$("#scroll-end").fadeIn('normal');
 		}
 
 		document.dispatchEvent(new Event('postprocess_liveupdate'));
+	})
+	.always(function () {
+		$("#scroll-loader").hide();
+		lockLoadContent = false;
 	});
 }
 
