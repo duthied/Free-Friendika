@@ -3400,6 +3400,37 @@ class Item
 		}
 	}
 
+	/**
+	 * Fetch the SQL condition for the given user id
+	 *
+	 * @param integer $owner_id User ID for which the permissions should be fetched
+	 * @return array condition
+	 */
+	public static function getPermissionsConditionArrayByUserId(int $owner_id)
+	{
+		$local_user = local_user();
+		$remote_user = Session::getRemoteContactID($owner_id);
+
+		// default permissions - anonymous user
+		$condition = ["`private` != ?", self::PRIVATE];
+
+		if ($local_user && ($local_user == $owner_id)) {
+			// Profile owner - everything is visible
+			$condition = [];
+		} elseif ($remote_user) {
+			 // Authenticated visitor - fetch the matching permissionsets
+			$set = PermissionSet::get($owner_id, $remote_user);
+			if (!empty($set)) {
+				$condition = ["(`private` != ? OR (`private` = ? AND `wall`
+					AND `psid` IN (" . implode(', ', array_fill(0, count($set), '?')) . ")))",
+					Item::PRIVATE, Item::PRIVATE];
+				$condition = array_merge($condition, $set);
+			}
+		}
+
+		return $condition;
+	}
+
 	public static function getPermissionsSQLByUserId($owner_id)
 	{
 		$local_user = local_user();
