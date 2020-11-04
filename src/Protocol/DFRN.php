@@ -1513,10 +1513,7 @@ class DFRN
 			$author["contact-id"] = $contact_old["id"];
 			$author["network"] = $contact_old["network"];
 		} else {
-			Logger::info('Blubb', ['condition' => $condition]);
-			if (!$onlyfetch) {
-				Logger::debug("Contact ".$author["link"]." wasn't found for user ".$importer["importer_uid"]." XML: ".$xml);
-			}
+			Logger::info('Contact not found', ['condition' => $condition]);
 
 			$author["contact-unknown"] = true;
 			$contact = Contact::getByURL($author["link"], null, ["id", "network"]);
