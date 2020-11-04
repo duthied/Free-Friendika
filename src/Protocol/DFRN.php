@@ -1500,15 +1500,20 @@ class DFRN
 
 		$fields = ['id', 'uid', 'url', 'network', 'avatar-date', 'avatar', 'name-date', 'uri-date', 'addr',
 			'name', 'nick', 'about', 'location', 'keywords', 'xmpp', 'bdyear', 'bd', 'hidden', 'contact-type'];
-		$condition = ["`uid` = ? AND `nurl` = ? AND `network` != ? AND NOT `pending` AND NOT `blocked` AND `rel` IN (?, ?)",
-			$importer["importer_uid"], Strings::normaliseLink($author["link"]), Protocol::STATUSNET,
-			Contact::SHARING, Contact::FRIEND];
+		$condition = ["`uid` = ? AND `nurl` = ? AND `network` != ? AND NOT `pending` AND NOT `blocked`",
+			$importer["importer_uid"], Strings::normaliseLink($author["link"]), Protocol::STATUSNET];
+
+		if ($importer['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
+			$condition = DBA::mergeConditions($condition, ['rel' => [Contact::SHARING, Contact::FRIEND]]);
+		}
+
 		$contact_old = DBA::selectFirst('contact', $fields, $condition);
 
 		if (DBA::isResult($contact_old)) {
 			$author["contact-id"] = $contact_old["id"];
 			$author["network"] = $contact_old["network"];
 		} else {
+			Logger::info('Blubb', ['condition' => $condition]);
 			if (!$onlyfetch) {
 				Logger::debug("Contact ".$author["link"]." wasn't found for user ".$importer["importer_uid"]." XML: ".$xml);
 			}
