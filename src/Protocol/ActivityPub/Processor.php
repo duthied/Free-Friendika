@@ -189,7 +189,7 @@ class Processor
 						}
 
 						$item['body'] .= "\n[video]" . $attach['url'] . '[/video]';
-					} else {
+					} elseif (!empty($attach['url'])) {
 						if (!empty($item['attach'])) {
 							$item['attach'] .= ',';
 						} else {
@@ -202,6 +202,8 @@ class Processor
 							$attach['mediaType'] ?? '',
 							$attach['name'] ?? ''
 						);
+					} else {
+						Logger::notice('Unknown attachment', ['attach' => $attach]);
 					}
 			}
 		}
