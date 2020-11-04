@@ -437,14 +437,14 @@ class Feed
 			$enclosures = $xpath->query("enclosure|atom:link[@rel='enclosure']", $entry);
 			foreach ($enclosures AS $enclosure) {
 				$href = "";
-				$length = "";
+				$length = 0;
 				$type = "";
 
 				foreach ($enclosure->attributes AS $attribute) {
 					if (in_array($attribute->name, ["url", "href"])) {
 						$href = $attribute->textContent;
 					} elseif ($attribute->name == "length") {
-						$length = $attribute->textContent;
+						$length = (int)$attribute->textContent;
 					} elseif ($attribute->name == "type") {
 						$type = $attribute->textContent;
 					}
