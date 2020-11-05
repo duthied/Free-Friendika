@@ -141,7 +141,7 @@ abstract class BaseModel extends BaseEntity
 
 	protected function checkValid()
 	{
-		if (empty($this->data['id'])) {
+		if (!isset($this->data['id']) || is_null($this->data['id'])) {
 			throw new HTTPException\InternalServerErrorException(static::class . ' record uninitialized');
 		}
 	}
