@@ -3651,12 +3651,10 @@ class Item
 
 		$as = '';
 		$vhead = false;
-		$matches = [];
-		preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\"(?: title=\"(.*?)\")?|', $item['attach'], $matches, PREG_SET_ORDER);
-		foreach ($matches as $mtch) {
-			$mime = $mtch[3];
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
+			$mime = $attachment['mimetype'];
 
-			$the_url = Contact::magicLinkById($item['author-id'], $mtch[1]);
+			$the_url = Contact::magicLinkById($item['author-id'], $attachment['url']);
 
 			if (strpos($mime, 'video') !== false) {
 				if (!$vhead) {
@@ -3683,8 +3681,8 @@ class Item
 				$filesubtype = 'unkn';
 			}
 
-			$title = Strings::escapeHtml(trim(($mtch[4] ?? '') ?: $mtch[1]));
-			$title .= ' ' . $mtch[2] . ' ' . DI::l10n()->t('bytes');
+			$title = Strings::escapeHtml(trim(($attachment['description'] ?? '') ?: $attachment['url']));
+			$title .= ' ' . ($attachment['size'] ?? 0) . ' ' . DI::l10n()->t('bytes');
 
 			$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
 			$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" rel="noopener noreferrer" >' . $icon . '</a>';

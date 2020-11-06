@@ -263,11 +263,18 @@ class Media
 	 * Retrieves the media attachments associated with the provided item ID.
 	 *
 	 * @param int $uri_id
+	 * @param array $types
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getByURIId(int $uri_id)
+	public static function getByURIId(int $uri_id, array $types = [])
 	{
-		return DBA::selectToArray('post-media', [], ['uri-id' => $uri_id]);
+		$condition = ['uri-id' => $uri_id];
+
+		if (!empty($types)) {
+			$condition = DBA::mergeConditions($condition, ['type' => $types]);
+		}
+
+		return DBA::selectToArray('post-media', [], $condition);
 	}
 }

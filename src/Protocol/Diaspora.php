@@ -3578,13 +3578,11 @@ class Diaspora
 				$body = "### ".html_entity_decode($title)."\n\n".$body;
 			}
 
-			if ($item["attach"]) {
-				$cnt = preg_match_all('/href=\"(.*?)\"(.*?)title=\"(.*?)\"/ism', $item["attach"], $matches, PREG_SET_ORDER);
-				if ($cnt) {
-					$body .= "\n".DI::l10n()->t("Attachments:")."\n";
-					foreach ($matches as $mtch) {
-						$body .= "[".$mtch[3]."](".$mtch[1].")\n";
-					}
+			$attachments = Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]);
+			if (!empty($attachments)) {
+				$body .= "\n".DI::l10n()->t("Attachments:")."\n";
+				foreach ($attachments as $attachment) {
+					$body .= "[" . $attachment['description'] . "](" . $attachment['url'] . ")\n";
 				}
 			}
 
