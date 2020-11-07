@@ -143,10 +143,6 @@ trait AppMockTrait
 			->andReturn(getenv('MYSQL_DATABASE'));
 		$this->configMock
 			->shouldReceive('get')
-			->with('database', 'disable_pdo')
-			->andReturn(true);
-		$this->configMock
-			->shouldReceive('get')
 			->with('config', 'hostname')
 			->andReturn('localhost');
 		$this->configMock
