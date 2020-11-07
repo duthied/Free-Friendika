@@ -119,9 +119,9 @@ class DependencyCheckTest extends TestCase
 		$database = $this->dice->create(Database::class);
 
 		self::assertInstanceOf(Database::class, $database);
-		self::assertContains($database->getDriver(), [Database::PDO, Database::MYSQLI]);
-		self::assertNotNull($database->getConnection());
-		self::assertTrue($database->connected());
+		self::assertContains($database->getDriver(), [Database::PDO, Database::MYSQLI], 'The driver returns an unexpected value');
+		self::assertNotNull($database->getConnection(), 'There is no database connection');
+		self::assertTrue($database->connected(), 'The database is not connected');
 	}
 
 	public function testAppMode()

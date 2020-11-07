@@ -385,12 +385,11 @@ class Database
 
 		switch ($this->driver) {
 			case self::PDO:
-				$connected = true;
-//				$r = $this->p("SELECT 1");
-//				if ($this->isResult($r)) {
-//					$row       = $this->toArray($r);
-//					$connected = ($row[0]['1'] == '1');
-//				}
+				$r = $this->p("SELECT 1");
+				if ($this->isResult($r)) {
+					$row       = $this->toArray($r);
+					$connected = ($row[0]['1'] == '1');
+				}
 				break;
 			case self::MYSQLI:
 				$connected = $this->connection->ping();
