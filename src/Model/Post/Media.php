@@ -87,6 +87,22 @@ class Media
 	}
 
 	/**
+	 * Copy attachments from one uri-id to another
+	 *
+	 * @param integer $from_uri_id
+	 * @param integer $to_uri_id
+	 * @return void
+	 */
+	public static function copy(int $from_uri_id, int $to_uri_id)
+	{
+		$attachments = self::getByURIId($from_uri_id);
+		foreach ($attachments as $attachment) {
+			$attachment['uri-id'] = $to_uri_id;
+			self::insert($attachment);
+		}
+	}
+
+	/**
 	 * Creates the "[attach]" element from the given attributes
 	 *
 	 * @param string $href

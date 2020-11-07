@@ -2146,9 +2146,9 @@ class DFRN
 	{
 		$rel = "";
 		$href = "";
-		$type = "";
-		$length = "0";
-		$title = "";
+		$type = null;
+		$length = null;
+		$title = null;
 		foreach ($links as $link) {
 			foreach ($link->attributes as $attributes) {
 				switch ($attributes->name) {
@@ -2165,13 +2165,8 @@ class DFRN
 						$item["plink"] = $href;
 						break;
 					case "enclosure":
-						if (!empty($item["attach"])) {
-							$item["attach"] .= ",";
-						} else {
-							$item["attach"] = "";
-						}
-
-						$item["attach"] .= Post\Media::getAttachElement($href, $length, $type, $title);
+						Post\Media::insert(['uri-id' => $item['uri-id'], 'type' => Post\Media::DOCUMENT,
+							'url' => $href, 'mimetype' => $type, 'size' => $length, 'description' => $title]);
 						break;
 				}
 			}

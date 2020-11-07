@@ -2458,8 +2458,8 @@ class Diaspora
 		}
 
 		// Do we already have this item?
-		$fields = ['body', 'title', 'attach', 'app', 'created', 'object-type', 'uri', 'guid',
-			'author-name', 'author-link', 'author-avatar', 'plink'];
+		$fields = ['body', 'title', 'app', 'created', 'object-type', 'uri', 'guid',
+			'author-name', 'author-link', 'author-avatar', 'plink', 'uri-id'];
 		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
 		$item = Item::selectFirst($fields, $condition);
 
@@ -2502,8 +2502,8 @@ class Diaspora
 			}
 
 			if ($stored) {
-				$fields = ['body', 'title', 'attach', 'app', 'created', 'object-type', 'uri', 'guid',
-					'author-name', 'author-link', 'author-avatar', 'plink'];
+				$fields = ['body', 'title', 'app', 'created', 'object-type', 'uri', 'guid',
+					'author-name', 'author-link', 'author-avatar', 'plink', 'uri-id'];
 				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
 				$item = Item::selectFirst($fields, $condition);
 
@@ -2646,7 +2646,7 @@ class Diaspora
 
 		Tag::storeFromBody($datarray['uri-id'], $datarray["body"]);
 
-		$datarray["attach"] = $original_item["attach"];
+		Post\Media::copy($original_item['uri-id'], $datarray['uri-id']);
 		$datarray["app"]  = $original_item["app"];
 
 		$datarray["plink"] = self::plink($author, $guid);

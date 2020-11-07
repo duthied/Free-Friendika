@@ -754,7 +754,6 @@ class Contact
 			$item['title'] = '';
 			$item['guid'] = '';
 			$item['uri-id'] = 0;
-			$item['attach'] = '';
 			$slap = OStatus::salmon($item, $user);
 
 			if (!empty($contact['notify'])) {
@@ -2233,7 +2232,6 @@ class Contact
 				$item['title'] = '';
 				$item['guid'] = '';
 				$item['uri-id'] = 0;
-				$item['attach'] = '';
 
 				$slap = OStatus::salmon($item, $owner);
 

@@ -1119,16 +1119,9 @@ class OStatus
 						if ($filetype == 'image') {
 							$link_data['add_body'] .= "\n[img]".$attribute['href'].'[/img]';
 						} else {
-							if (!empty($item["attach"])) {
-								$item["attach"] .= ',';
-							} else {
-								$item["attach"] = '';
-							}
-							if (!isset($attribute['length'])) {
-								$attribute['length'] = "0";
-							}
-							$item["attach"] .= Post\Media::getAttachElement($attribute['href'],
-								$attribute['length'], $attribute['type'], $attribute['title'] ?? '');
+							Post\Media::insert(['uri-id' => $item['uri-id'], 'type' => Post\Media::DOCUMENT,
+								'url' => $attribute['href'], 'mimetype' => $attribute['type'],
+								'size' => $attribute['length'] ?? null, 'description' => $attribute['title'] ?? null]);
 						}
 						break;
 					case "related":

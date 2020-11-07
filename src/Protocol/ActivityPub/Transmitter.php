@@ -829,7 +829,6 @@ class Transmitter
 		$mail['gravity'] = ($mail['reply'] ? GRAVITY_COMMENT: GRAVITY_PARENT);
 
 		$mail['event-type'] = '';
-		$mail['attach'] = '';
 
 		$mail['parent'] = 0;
 

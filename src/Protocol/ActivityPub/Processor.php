@@ -135,8 +135,6 @@ class Processor
 			return $item;
 		}
 
-		$item['attach'] = '';
-
 		foreach ($activity['attachments'] as $attach) {
 			switch ($attach['type']) {
 				case 'link':
@@ -189,21 +187,6 @@ class Processor
 						}
 
 						$item['body'] .= "\n[video]" . $attach['url'] . '[/video]';
-					} elseif (!empty($attach['url'])) {
-						if (!empty($item['attach'])) {
-							$item['attach'] .= ',';
-						} else {
-							$item['attach'] = '';
-						}
-
-						$item['attach'] .= Post\Media::getAttachElement(
-							$attach['url'],
-							$attach['length'] ?? 0,
-							$attach['mediaType'] ?? '',
-							$attach['name'] ?? ''
-						);
-					} else {
-						Logger::notice('Unknown attachment', ['attach' => $attach]);
 					}
 			}
 		}
@@ -787,6 +770,10 @@ class Processor
 			$object_actor = $object['actor'];
 		} elseif (!empty($object['attributedTo'])) {
 			$object_actor = $object['attributedTo'];
+			if (is_array($object_actor)) {
+				$compacted = JsonLD::compact($object);
+				$object_actor = JsonLD::fetchElement($compacted, 'as:attributedTo', '@id');
+			}
 		} else {
 			// Shouldn't happen
 			$object_actor = '';

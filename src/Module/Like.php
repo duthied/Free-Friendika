@@ -54,7 +54,7 @@ class Like extends BaseModule
 		// @TODO: Replace with parameter from router
 		$itemId = (($app->argc > 1) ? Strings::escapeTags(trim($app->argv[1])) : 0);
 
-		if (in_array($verb, [ 'announce', 'unannounce'])) {
+		if (in_array($verb, ['announce', 'unannounce'])) {
 			$item = Item::selectFirst(['network'], ['id' => $itemId]);
 			if ($item['network'] == Protocol::DIASPORA) {
 				self::performDiasporaReshare($itemId);
@@ -85,7 +85,7 @@ class Like extends BaseModule
 
 	private static function performDiasporaReshare(int $itemId)
 	{
-		$fields = ['uri-id', 'body', 'title', 'attach', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
+		$fields = ['uri-id', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 		$item = Item::selectFirst($fields, ['id' => $itemId, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 		if (!DBA::isResult($item) || ($item['body'] == '')) {
 			return;
@@ -105,7 +105,6 @@ class Like extends BaseModule
 			$post .= '[/share]';
 		}
 		$_REQUEST['body'] = $post;
-		$_REQUEST['attach'] = $item['attach'];
 		$_REQUEST['profile_uid'] = local_user();
 
 		require_once 'mod/item.php';

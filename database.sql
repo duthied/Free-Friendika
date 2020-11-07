@@ -677,7 +677,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`psid` int unsigned COMMENT 'ID of the permission set of this post',
 	`resource-id` varchar(32) NOT NULL DEFAULT '' COMMENT 'Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type',
 	`event-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Used to link to the event.id',
-	`attach` mediumtext COMMENT 'JSON structure representing attachments to this item',
+	`attach` mediumtext COMMENT 'Deprecated',
 	`allow_cid` mediumtext COMMENT 'Deprecated',
 	`allow_gid` mediumtext COMMENT 'Deprecated',
 	`deny_cid` mediumtext COMMENT 'Deprecated',
