@@ -120,6 +120,7 @@ class DependencyCheckTest extends TestCase
 
 		self::assertInstanceOf(Database::class, $database);
 		self::assertContains($database->getDriver(), [Database::PDO, Database::MYSQLI]);
+		self::assertNotNull($database->getConnection());
 		self::assertTrue($database->connected());
 	}
 
