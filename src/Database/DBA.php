@@ -73,6 +73,16 @@ class DBA
 	}
 
 	/**
+	 * Return the database driver string
+	 *
+	 * @return string with either "pdo" or "mysqli"
+	 */
+	public static function getDriver()
+	{
+		return DI::dba()->getDriver();
+	}
+
+	/**
 	 * Returns the MySQL server version string
 	 *
 	 * This function discriminate between the deprecated mysql API and the current

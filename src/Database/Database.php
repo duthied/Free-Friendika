@@ -39,6 +39,9 @@ use Psr\Log\LoggerInterface;
  */
 class Database
 {
+	const PDO = 'pdo';
+	const MYSQLI = 'mysqli';
+
 	protected $connected = false;
 
 	/**
@@ -119,7 +122,7 @@ class Database
 		$this->pdo_emulate_prepares = (bool)$this->configCache->get('database', 'pdo_emulate_prepares');
 
 		if (!$this->configCache->get('database', 'disable_pdo') && class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
-			$this->driver = 'pdo';
+			$this->driver = self::PDO;
 			$connect      = "mysql:host=" . $server . ";dbname=" . $db;
 
 			if ($port > 0) {
@@ -140,7 +143,7 @@ class Database
 		}
 
 		if (!$this->connected && class_exists('\mysqli')) {
-			$this->driver = 'mysqli';
+			$this->driver = self::MYSQLI;
 
 			if ($port > 0) {
 				$this->connection = @new mysqli($server, $user, $pass, $db, $port);
@@ -201,10 +204,10 @@ class Database
 	{
 		if (!is_null($this->connection)) {
 			switch ($this->driver) {
-				case 'pdo':
+				case self::PDO:
 					$this->connection = null;
 					break;
-				case 'mysqli':
+				case self::MYSQLI:
 					$this->connection->close();
 					$this->connection = null;
 					break;
@@ -235,6 +238,16 @@ class Database
 	}
 
 	/**
+	 * Return the database driver string
+	 *
+	 * @return string with either "pdo" or "mysqli"
+	 */
+	public function getDriver()
+	{
+		return $this->driver;
+	}
+
+	/**
 	 * Returns the MySQL server version string
 	 *
 	 * This function discriminate between the deprecated mysql API and the current
@@ -246,10 +259,10 @@ class Database
 	{
 		if ($this->server_info == '') {
 			switch ($this->driver) {
-				case 'pdo':
+				case self::PDO:
 					$this->server_info = $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
 					break;
-				case 'mysqli':
+				case self::MYSQLI:
 					$this->server_info = $this->connection->server_info;
 					break;
 			}
@@ -346,10 +359,10 @@ class Database
 	{
 		if ($this->connected) {
 			switch ($this->driver) {
-				case 'pdo':
+				case self::PDO:
 					return substr(@$this->connection->quote($str, PDO::PARAM_STR), 1, -1);
 
-				case 'mysqli':
+				case self::MYSQLI:
 					return @$this->connection->real_escape_string($str);
 			}
 		} else {
@@ -371,14 +384,14 @@ class Database
 		}
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				$r = $this->p("SELECT 1");
 				if ($this->isResult($r)) {
 					$row       = $this->toArray($r);
 					$connected = ($row[0]['1'] == '1');
 				}
 				break;
-			case 'mysqli':
+			case self::MYSQLI:
 				$connected = $this->connection->ping();
 				break;
 		}
@@ -508,7 +521,7 @@ class Database
 		}
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				// If there are no arguments we use "query"
 				if ($this->emulate_prepares || count($args) == 0) {
 					if (!$retval = $this->connection->query($this->replaceParameters($sql, $args))) {
@@ -553,7 +566,7 @@ class Database
 					$this->affected_rows = $retval->rowCount();
 				}
 				break;
-			case 'mysqli':
+			case self::MYSQLI:
 				// There are SQL statements that cannot be executed with a prepared statement
 				$parts           = explode(' ', $orig_sql);
 				$command         = strtolower($parts[0]);
@@ -861,9 +874,9 @@ class Database
 			return 0;
 		}
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				return $stmt->columnCount();
-			case 'mysqli':
+			case self::MYSQLI:
 				return $stmt->field_count;
 		}
 		return 0;
@@ -882,9 +895,9 @@ class Database
 			return 0;
 		}
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				return $stmt->rowCount();
-			case 'mysqli':
+			case self::MYSQLI:
 				return $stmt->num_rows;
 		}
 		return 0;
@@ -909,10 +922,10 @@ class Database
 		}
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				$columns = $stmt->fetch(PDO::FETCH_ASSOC);
 				break;
-			case 'mysqli':
+			case self::MYSQLI:
 				if (get_class($stmt) == 'mysqli_result') {
 					$columns = $stmt->fetch_assoc();
 					break;
@@ -1023,10 +1036,10 @@ class Database
 	public function lastInsertId()
 	{
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				$id = $this->connection->lastInsertId();
 				break;
-			case 'mysqli':
+			case self::MYSQLI:
 				$id = $this->connection->insert_id;
 				break;
 		}
@@ -1046,7 +1059,7 @@ class Database
 	public function lock($table)
 	{
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
-		if ($this->driver == 'pdo') {
+		if ($this->driver == self::PDO) {
 			$this->e("SET autocommit=0");
 			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 		} else {
@@ -1055,12 +1068,12 @@ class Database
 
 		$success = $this->e("LOCK TABLES " . DBA::buildTableString($table) . " WRITE");
 
-		if ($this->driver == 'pdo') {
+		if ($this->driver == self::PDO) {
 			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 		}
 
 		if (!$success) {
-			if ($this->driver == 'pdo') {
+			if ($this->driver == self::PDO) {
 				$this->e("SET autocommit=1");
 			} else {
 				$this->connection->autocommit(true);
@@ -1082,13 +1095,13 @@ class Database
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
 		$this->performCommit();
 
-		if ($this->driver == 'pdo') {
+		if ($this->driver == self::PDO) {
 			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 		}
 
 		$success = $this->e("UNLOCK TABLES");
 
-		if ($this->driver == 'pdo') {
+		if ($this->driver == self::PDO) {
 			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 			$this->e("SET autocommit=1");
 		} else {
@@ -1111,13 +1124,13 @@ class Database
 		}
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				if (!$this->connection->inTransaction() && !$this->connection->beginTransaction()) {
 					return false;
 				}
 				break;
 
-			case 'mysqli':
+			case self::MYSQLI:
 				if (!$this->connection->begin_transaction()) {
 					return false;
 				}
@@ -1131,14 +1144,14 @@ class Database
 	protected function performCommit()
 	{
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				if (!$this->connection->inTransaction()) {
 					return true;
 				}
 
 				return $this->connection->commit();
 
-			case 'mysqli':
+			case self::MYSQLI:
 				return $this->connection->commit();
 		}
 
@@ -1169,7 +1182,7 @@ class Database
 		$ret = false;
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				if (!$this->connection->inTransaction()) {
 					$ret = true;
 					break;
@@ -1177,7 +1190,7 @@ class Database
 				$ret = $this->connection->rollBack();
 				break;
 
-			case 'mysqli':
+			case self::MYSQLI:
 				$ret = $this->connection->rollback();
 				break;
 		}
@@ -1634,10 +1647,10 @@ class Database
 		}
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				$ret = $stmt->closeCursor();
 				break;
-			case 'mysqli':
+			case self::MYSQLI:
 				// MySQLi offers both a mysqli_stmt and a mysqli_result class.
 				// We should be careful not to assume the object type of $stmt
 				// because DBA::p() has been able to return both types.
