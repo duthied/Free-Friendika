@@ -131,10 +131,10 @@ class DependencyCheckTest extends TestCase
 
 		self::assertInstanceOf(App\Mode::class, $mode);
 
-		self::assertTrue($mode->has((App\Mode::LOCALCONFIGPRESENT), 'No local config present');
-		self::assertTrue($mode->has((App\Mode::DBAVAILABLE), 'Database is not available');
-		self::assertTrue($mode->has((App\Mode::DBCONFIGAVAILABLE), 'Database config is not available');
-		self::assertTrue($mode->has((App\Mode::MAINTENANCEDISABLED), 'In maintenance mode');
+		self::assertTrue($mode->has((App\Mode::LOCALCONFIGPRESENT), 'No local config present'));
+		self::assertTrue($mode->has((App\Mode::DBAVAILABLE), 'Database is not available'));
+		self::assertTrue($mode->has((App\Mode::DBCONFIGAVAILABLE), 'Database config is not available'));
+		self::assertTrue($mode->has((App\Mode::MAINTENANCEDISABLED), 'In maintenance mode'));
 
 		self::assertTrue($mode->isNormal(), 'Not in normal mode');
 	}
