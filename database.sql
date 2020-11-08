@@ -1574,7 +1574,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`term-date` AS `term-date`,
 	`contact`.`last-item` AS `last-item`,
 	`contact`.`priority` AS `priority`,
-	`contact`.`blocked` AS `blocked`,
+	`user`.`blocked` AS `blocked`,
 	`contact`.`block_reason` AS `block_reason`,
 	`contact`.`readonly` AS `readonly`,
 	`contact`.`writable` AS `writable`,
