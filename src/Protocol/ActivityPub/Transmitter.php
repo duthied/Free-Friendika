@@ -1258,7 +1258,7 @@ class Transmitter
 			return $match[0];
 		}
 
-		return '@[url=' . $data['url'] . ']' . $data['nick'] . '[/url]';
+		return '[url=' . $data['url'] . ']@' . $data['nick'] . '[/url]';
 	}
 
 	/**
@@ -1425,7 +1425,7 @@ class Transmitter
 		}
 
 		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions')) {
-			$body = self::prependMentions($body, $item['uri-id']);
+			$body = self::prependMentions($body, $item['uri-id'], $item['author-link']);
 		}
 
 		if ($type == 'Event') {
@@ -1973,7 +1973,7 @@ class Transmitter
 		return HTTPSignature::transmit($signed, $profile['inbox'], $uid);
 	}
 
-	private static function prependMentions($body, int $uriid)
+	private static function prependMentions($body, int $uriid, string $authorLink)
 	{
 		$mentions = [];
 
@@ -1983,6 +1983,7 @@ class Transmitter
 				&& $profile['contact-type'] != Contact::TYPE_COMMUNITY
 				&& !strstr($body, $profile['addr'])
 				&& !strstr($body, $tag['url'])
+				&& $tag['url'] !== $authorLink
 			) {
 				$mentions[] = '@[url=' . $tag['url'] . ']' . $profile['nick'] . '[/url]';
 			}
