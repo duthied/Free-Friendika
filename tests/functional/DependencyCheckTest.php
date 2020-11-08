@@ -79,7 +79,6 @@ class DependencyCheckTest extends TestCase
 		self::assertInstanceOf(ConfigFileLoader::class, $configFileLoader);
 
 		$configCache = new Cache();
-		$configCache->set('database', 'disable_pdo', true);
 		$configFileLoader->setupCache($configCache);
 
 		self::assertNotEmpty($configCache->getAll());
@@ -116,11 +115,16 @@ class DependencyCheckTest extends TestCase
 
 	public function testDatabase()
 	{
+		$configCache = $this->dice->create(Cache::class);
+		$configCache->set('database', 'disable_pdo', true);
+
 		/** @var Database $database */
 		$database = $this->dice->create(Database::class);
 
+		$database->setTestmode(true);
+
 		self::assertInstanceOf(Database::class, $database);
-		self::assertContains($database->getDriver(), [Database::PDO, Database::MYSQLI], 'The driver returns an unexpected value');
+		self::assertContains($database->getDriver(), [Database::MYSQLI], 'The driver returns an unexpected value');
 		self::assertNotNull($database->getConnection(), 'There is no database connection');
 
 		$result = $database->p("SELECT 1");
