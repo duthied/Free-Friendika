@@ -1511,7 +1511,9 @@ class User
 				$condition['blocked'] = false;
 				break;
 			case 'blocked':
+				$condition['account_removed'] = false;
 				$condition['blocked'] = true;
+				$condition['verified'] = true;
 				break;
 			case 'removed':
 				$condition['account_removed'] = true;

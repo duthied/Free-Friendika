@@ -184,8 +184,6 @@ class Register extends BaseModule
 	{
 		BaseModule::checkFormSecurityTokenRedirectOnError('/register', 'register');
 
-		$a = DI::app();
-
 		$arr = ['post' => $_POST];
 		Hook::callAll('register_post', $arr);
 

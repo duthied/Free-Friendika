@@ -2936,17 +2936,7 @@ section.help-content-wrapper li {
 #adminpage .addon .desc {
     padding-left: 10px;
 }
-.adminpage .admin-settings-action-link,
-.adminpage .admin-settings-action-link:hover {
-    color: $font_color_darker;
-}
-.adminpage .admin-settings-action-link:hover {
-    opacity: 1;
-}
-.adminpage .admin-settings-action-link {
-    opacity: 0.8;
-}
-#admin-users tr.blocked {
+#admin-users #users tr.blocked {
     background-color: #f8efc0;
 }
 .adminpage .table-hover > tbody > tr:hover + tr.details {

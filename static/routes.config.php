@@ -110,7 +110,12 @@ return [
 
 		'/tos' => [Module\Admin\Tos::class, [R::GET, R::POST]],
 
-		'/users[/{action}/{uid}]' => [Module\Admin\Users::class, [R::GET, R::POST]],
+		'/users[/{action}/{uid}]'         => [Module\Admin\Users\Index::class,   [R::GET, R::POST]],
+		'/users/active[/{action}/{uid}]'  => [Module\Admin\Users\Active::class,  [R::GET, R::POST]],
+		'/users/pending[/{action}/{uid}]' => [Module\Admin\Users\Pending::class, [R::GET, R::POST]],
+		'/users/blocked[/{action}/{uid}]' => [Module\Admin\Users\Blocked::class, [R::GET, R::POST]],
+		'/users/deleted'                  => [Module\Admin\Users\Deleted::class, [R::GET         ]],
+		'/users/create'                   => [Module\Admin\Users\Create::class,  [R::GET, R::POST]],
 	],
 	'/amcd'                => [Module\AccountManagementControlDocument::class, [R::GET]],
 	'/acctlink'            => [Module\Acctlink::class,     [R::GET]],
