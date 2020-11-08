@@ -2040,35 +2040,40 @@ function api_statuses_repeat($type)
 
 	Logger::log('API: api_statuses_repeat: '.$id);
 
-	$fields = ['uri-id', 'body', 'title', 'attach', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
+	$fields = ['uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 	$item = Item::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 
 	if (DBA::isResult($item) && $item['body'] != "") {
-		if (strpos($item['body'], "[/share]") !== false) {
-			$pos = strpos($item['body'], "[share");
-			$post = substr($item['body'], $pos);
+		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::TWITTER])) {
+			if (!Item::performActivity($id, 'announce', local_user())) {
+				throw new InternalServerErrorException();
+			}
+		
+			$item_id = $id;
 		} else {
-			$post = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
+			if (strpos($item['body'], "[/share]") !== false) {
+				$pos = strpos($item['body'], "[share");
+				$post = substr($item['body'], $pos);
+			} else {
+				$post = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid']);
 
-			if (!empty($item['title'])) {
-				$post .= '[h3]' . $item['title'] . "[/h3]\n";
+				if (!empty($item['title'])) {
+					$post .= '[h3]' . $item['title'] . "[/h3]\n";
+				}
+
+				$post .= $item['body'];
+				$post .= "[/share]";
+			}
+			$_REQUEST['body'] = $post;
+			$_REQUEST['profile_uid'] = api_user();
+			$_REQUEST['api_source'] = true;
+
+			if (empty($_REQUEST['source'])) {
+				$_REQUEST["source"] = api_source();
 			}
 
-			$post .= $item['body'];
-			$post .= "[/share]";
+			$item_id = item_post($a);
 		}
-		$_REQUEST['body'] = $post;
-		$_REQUEST['attach'] = $item['attach'];
-		$_REQUEST['profile_uid'] = api_user();
-		$_REQUEST['api_source'] = true;
-
-		if (empty($_REQUEST['source'])) {
-			$_REQUEST["source"] = api_source();
-		}
-
-		$item_id = item_post($a);
-
-		/// @todo Copy tags from the original post to the new one
 	} else {
 		throw new ForbiddenException();
 	}

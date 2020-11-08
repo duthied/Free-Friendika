@@ -119,7 +119,14 @@ class DependencyCheckTest extends TestCase
 		$database = $this->dice->create(Database::class);
 
 		self::assertInstanceOf(Database::class, $database);
-		self::assertTrue($database->connected());
+		self::assertContains($database->getDriver(), [Database::PDO, Database::MYSQLI], 'The driver returns an unexpected value');
+		self::assertNotNull($database->getConnection(), 'There is no database connection');
+
+		$result = $database->p("SELECT 1");
+		self::assertEquals($database->errorMessage(), '', 'There had been a database error message');
+		self::assertEquals($database->errorNo(), 0, 'There had been a database error number');
+
+		self::assertTrue($database->connected(), 'The database is not connected');
 	}
 
 	public function testAppMode()
@@ -129,7 +136,12 @@ class DependencyCheckTest extends TestCase
 
 		self::assertInstanceOf(App\Mode::class, $mode);
 
-		self::assertTrue($mode->isNormal());
+		self::assertTrue($mode->has(App\Mode::LOCALCONFIGPRESENT), 'No local config present');
+		self::assertTrue($mode->has(App\Mode::DBAVAILABLE), 'Database is not available');
+		self::assertTrue($mode->has(App\Mode::DBCONFIGAVAILABLE), 'Database config is not available');
+		self::assertTrue($mode->has(App\Mode::MAINTENANCEDISABLED), 'In maintenance mode');
+
+		self::assertTrue($mode->isNormal(), 'Not in normal mode');
 	}
 
 	public function testConfiguration()

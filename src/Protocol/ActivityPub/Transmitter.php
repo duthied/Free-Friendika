@@ -37,13 +37,13 @@ use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Profile;
 use Friendica\Model\Photo;
+use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
-use Friendica\Util\Images;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
 use Friendica\Util\Map;
@@ -829,7 +829,6 @@ class Transmitter
 		$mail['gravity'] = ($mail['reply'] ? GRAVITY_COMMENT: GRAVITY_PARENT);
 
 		$mail['event-type'] = '';
-		$mail['attach'] = '';
 
 		$mail['parent'] = 0;
 
@@ -1220,57 +1219,22 @@ class Transmitter
 			$attachments[] = $attachment;
 		}
 		*/
-		$arr = explode('[/attach],', $item['attach']);
-		if (count($arr)) {
-			foreach ($arr as $r) {
-				$matches = false;
-				$cnt = preg_match('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|', $r, $matches);
-				if ($cnt) {
-					$attributes = ['type' => 'Document',
-							'mediaType' => $matches[3],
-							'url' => $matches[1],
-							'name' => null];
-
-					if (trim($matches[4]) != '') {
-						$attributes['name'] = trim($matches[4]);
-					}
-
-					$attachments[] = $attributes;
-				}
-			}
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
+			$attachments[] = ['type' => 'Document',
+				'mediaType' => $attachment['mimetype'],
+				'url' => $attachment['url'],
+				'name' => $attachment['description']];
 		}
 
 		if ($type != 'Note') {
 			return $attachments;
 		}
 
-		// Simplify image codes
-		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $item['body']);
-
-		// Grab all pictures without alternative descriptions and create attachments out of them
-		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures)) {
-			foreach ($pictures[1] as $picture) {
-				$imgdata = Images::getInfoFromURLCached($picture);
-				if ($imgdata) {
-					$attachments[] = ['type' => 'Document',
-						'mediaType' => $imgdata['mime'],
-						'url' => $picture,
-						'name' => null];
-				}
-			}
-		}
-
-		// Grab all pictures with alternative description and create attachments out of them
-		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
-			foreach ($pictures as $picture) {
-				$imgdata = Images::getInfoFromURLCached($picture[1]);
-				if ($imgdata) {
-					$attachments[] = ['type' => 'Document',
-						'mediaType' => $imgdata['mime'],
-						'url' => $picture[1],
-						'name' => $picture[2]];
-				}
-			}
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]) as $attachment) {
+			$attachments[] = ['type' => 'Document',
+				'mediaType' => $attachment['mimetype'],
+				'url' => $attachment['url'],
+				'name' => $attachment['description']];
 		}
 
 		return $attachments;
@@ -1454,14 +1418,14 @@ class Transmitter
 
 		$body = $item['body'];
 
-		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions')) {
-			$body = self::prependMentions($body, $item['uri-id']);
-		}
-
 		if ($type == 'Note') {
-			$body = self::removePictures($body);
+			$body = $item['raw-body'] ?? self::removePictures($body);
 		} elseif (($type == 'Article') && empty($data['summary'])) {
 			$data['summary'] = BBCode::toPlaintext(Plaintext::shorten(self::removePictures($body), 1000));
+		}
+
+		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions')) {
+			$body = self::prependMentions($body, $item['uri-id']);
 		}
 
 		if ($type == 'Event') {

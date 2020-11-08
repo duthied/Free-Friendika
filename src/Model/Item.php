@@ -77,7 +77,7 @@ class Item
 	const DISPLAY_FIELDLIST = [
 		'uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid', 'network', 'gravity',
 		'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
-		'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach', 'language',
+		'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id',
 		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
@@ -95,7 +95,7 @@ class Item
 	const DELIVER_FIELDLIST = ['uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid',
 			'parent-guid', 'created', 'edited', 'verb', 'object-type', 'object', 'target',
 			'private', 'title', 'body', 'location', 'coord', 'app',
-			'attach', 'deleted', 'extid', 'post-type', 'gravity',
+			'deleted', 'extid', 'post-type', 'gravity',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'author-id', 'author-link', 'owner-link', 'contact-uid',
 			'signed_text', 'signature', 'signer', 'network'];
@@ -113,7 +113,7 @@ class Item
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'vid',
 			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
-			'postopts', 'plink', 'resource-id', 'event-id', 'attach', 'inform',
+			'postopts', 'plink', 'resource-id', 'event-id', 'inform',
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
@@ -659,7 +659,7 @@ class Item
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'vid', 'causer-id',
 			'contact-id', 'owner-id', 'author-id', 'type', 'wall', 'gravity', 'extid',
 			'created', 'edited', 'commented', 'received', 'changed', 'psid',
-			'resource-id', 'event-id', 'attach', 'post-type', 'file',
+			'resource-id', 'event-id', 'post-type', 'file',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
 			'id' => 'item_id', 'network', 'icid',
@@ -1087,7 +1087,7 @@ class Item
 		Logger::info('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
 		$fields = ['id', 'uri', 'uri-id', 'uid', 'parent', 'parent-uri', 'origin',
-			'deleted', 'file', 'resource-id', 'event-id', 'attach',
+			'deleted', 'file', 'resource-id', 'event-id',
 			'verb', 'object-type', 'object', 'target', 'contact-id',
 			'icid', 'psid', 'gravity'];
 		$item = self::selectFirst($fields, ['id' => $item_id]);
@@ -1144,10 +1144,9 @@ class Item
 		}
 
 		// If item has attachments, drop them
-		/// @TODO: this should first check if attachment is used elsewhere
-		foreach (explode(",", $item['attach']) as $attach) {
-			preg_match("|attach/(\d+)|", $attach, $matches);
-			if (is_array($matches) && count($matches) > 1) {
+		$attachments = Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT]);
+		foreach($attachments as $attachment) {
+			if (preg_match("|attach/(\d+)|", $attachment['url'], $matches)) {
 				Attach::delete(['id' => $matches[1], 'uid' => $item['uid']]);
 			}
 		}
@@ -1693,7 +1692,6 @@ class Item
 		$item['private']       = intval($item['private'] ?? self::PUBLIC);
 		$item['body']          = trim($item['body'] ?? '');
 		$item['raw-body']      = trim($item['raw-body'] ?? $item['body']);
-		$item['attach']        = trim($item['attach'] ?? '');
 		$item['app']           = trim($item['app'] ?? '');
 		$item['origin']        = intval($item['origin'] ?? 0);
 		$item['postopts']      = trim($item['postopts'] ?? '');
@@ -2857,14 +2855,19 @@ class Item
 			}
 
 			if ($contact['network'] != Protocol::FEED) {
+				$old_uri_id = $datarray["uri-id"] ?? 0;
 				$datarray["guid"] = System::createUUID();
 				unset($datarray["plink"]);
 				$datarray["uri"] = self::newURI($contact['uid'], $datarray["guid"]);
+				$datarray["uri-id"] = ItemURI::getIdByURI($datarray["uri"]);
 				$datarray["parent-uri"] = $datarray["uri"];
 				$datarray["thr-parent"] = $datarray["uri"];
 				$datarray["extid"] = Protocol::DFRN;
 				$urlpart = parse_url($datarray2['author-link']);
 				$datarray["app"] = $urlpart["host"];
+				if (!empty($old_uri_id)) {
+					Post\Media::copy($old_uri_id, $datarray["uri-id"]);
+				}
 			} else {
 				$datarray['private'] = self::PUBLIC;
 			}
@@ -3651,12 +3654,10 @@ class Item
 
 		$as = '';
 		$vhead = false;
-		$matches = [];
-		preg_match_all('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\"(?: title=\"(.*?)\")?|', $item['attach'], $matches, PREG_SET_ORDER);
-		foreach ($matches as $mtch) {
-			$mime = $mtch[3];
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
+			$mime = $attachment['mimetype'];
 
-			$the_url = Contact::magicLinkById($item['author-id'], $mtch[1]);
+			$the_url = Contact::magicLinkById($item['author-id'], $attachment['url']);
 
 			if (strpos($mime, 'video') !== false) {
 				if (!$vhead) {
@@ -3683,8 +3684,8 @@ class Item
 				$filesubtype = 'unkn';
 			}
 
-			$title = Strings::escapeHtml(trim(($mtch[4] ?? '') ?: $mtch[1]));
-			$title .= ' ' . $mtch[2] . ' ' . DI::l10n()->t('bytes');
+			$title = Strings::escapeHtml(trim(($attachment['description'] ?? '') ?: $attachment['url']));
+			$title .= ' ' . ($attachment['size'] ?? 0) . ' ' . DI::l10n()->t('bytes');
 
 			$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
 			$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" rel="noopener noreferrer" >' . $icon . '</a>';
@@ -3923,7 +3924,7 @@ class Item
 		$uid = $item['uid'] ?? 0;
 
 		// first try to fetch the item via the GUID. This will work for all reshares that had been created on this system
-		$shared_item = self::selectFirst(['title', 'body', 'attach'], ['guid' => $shared['guid'], 'uid' => [0, $uid]]);
+		$shared_item = self::selectFirst(['title', 'body'], ['guid' => $shared['guid'], 'uid' => [0, $uid]]);
 		if (!DBA::isResult($shared_item)) {
 			if (empty($shared['link'])) {
 				return $item;
@@ -3936,7 +3937,7 @@ class Item
 				return $item;
 			}
 
-			$shared_item = self::selectFirst(['title', 'body', 'attach'], ['id' => $id]);
+			$shared_item = self::selectFirst(['title', 'body'], ['id' => $id]);
 			if (!DBA::isResult($shared_item)) {
 				return $item;
 			}

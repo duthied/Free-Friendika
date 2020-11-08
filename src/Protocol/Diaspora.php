@@ -2458,8 +2458,8 @@ class Diaspora
 		}
 
 		// Do we already have this item?
-		$fields = ['body', 'title', 'attach', 'app', 'created', 'object-type', 'uri', 'guid',
-			'author-name', 'author-link', 'author-avatar', 'plink'];
+		$fields = ['body', 'title', 'app', 'created', 'object-type', 'uri', 'guid',
+			'author-name', 'author-link', 'author-avatar', 'plink', 'uri-id'];
 		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
 		$item = Item::selectFirst($fields, $condition);
 
@@ -2502,8 +2502,8 @@ class Diaspora
 			}
 
 			if ($stored) {
-				$fields = ['body', 'title', 'attach', 'app', 'created', 'object-type', 'uri', 'guid',
-					'author-name', 'author-link', 'author-avatar', 'plink'];
+				$fields = ['body', 'title', 'app', 'created', 'object-type', 'uri', 'guid',
+					'author-name', 'author-link', 'author-avatar', 'plink', 'uri-id'];
 				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => [Item::PUBLIC, Item::UNLISTED]];
 				$item = Item::selectFirst($fields, $condition);
 
@@ -2646,7 +2646,7 @@ class Diaspora
 
 		Tag::storeFromBody($datarray['uri-id'], $datarray["body"]);
 
-		$datarray["attach"] = $original_item["attach"];
+		Post\Media::copy($original_item['uri-id'], $datarray['uri-id']);
 		$datarray["app"]  = $original_item["app"];
 
 		$datarray["plink"] = self::plink($author, $guid);
@@ -3578,13 +3578,11 @@ class Diaspora
 				$body = "### ".html_entity_decode($title)."\n\n".$body;
 			}
 
-			if ($item["attach"]) {
-				$cnt = preg_match_all('/href=\"(.*?)\"(.*?)title=\"(.*?)\"/ism', $item["attach"], $matches, PREG_SET_ORDER);
-				if ($cnt) {
-					$body .= "\n".DI::l10n()->t("Attachments:")."\n";
-					foreach ($matches as $mtch) {
-						$body .= "[".$mtch[3]."](".$mtch[1].")\n";
-					}
+			$attachments = Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]);
+			if (!empty($attachments)) {
+				$body .= "\n".DI::l10n()->t("Attachments:")."\n";
+				foreach ($attachments as $attachment) {
+					$body .= "[" . $attachment['description'] . "](" . $attachment['url'] . ")\n";
 				}
 			}
 

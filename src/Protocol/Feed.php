@@ -437,8 +437,8 @@ class Feed
 			$enclosures = $xpath->query("enclosure|atom:link[@rel='enclosure']", $entry);
 			foreach ($enclosures AS $enclosure) {
 				$href = "";
-				$length = 0;
-				$type = "";
+				$length = null;
+				$type = null;
 
 				foreach ($enclosure->attributes AS $attribute) {
 					if (in_array($attribute->name, ["url", "href"])) {
@@ -450,15 +450,9 @@ class Feed
 					}
 				}
 
-				if (!empty($item["attach"])) {
-					$item["attach"] .= ',';
-				} else {
-					$item["attach"] = '';
+				if (!empty($href)) {
+					$attachments[] = ['type' => Post\Media::DOCUMENT, 'url' => $href, 'mimetype' => $type, 'size' => $length];
 				}
-
-				$attachments[] = ["link" => $href, "type" => $type, "length" => $length];
-
-				$item["attach"] .= Post\Media::getAttachElement($href, $length, $type);
 			}
 
 			$taglist = [];
@@ -515,8 +509,8 @@ class Feed
 			if (!empty($contact["fetch_further_information"]) && ($contact["fetch_further_information"] < 3)) {
 				// Handle enclosures and treat them as preview picture
 				foreach ($attachments AS $attachment) {
-					if ($attachment["type"] == "image/jpeg") {
-						$preview = $attachment["link"];
+					if ($attachment["mimetype"] == "image/jpeg") {
+						$preview = $attachment["url"];
 					}
 				}
 
@@ -576,7 +570,7 @@ class Feed
 				$item["body"] = $item["body"] . "\n" . PageInfo::getFooterFromData($data, false);
 				$taglist = $contact["fetch_further_information"] == 2 ? PageInfo::getTagsFromUrl($item["plink"], $preview, $contact["ffi_keyword_denylist"] ?? '') : [];
 				$item["object-type"] = Activity\ObjectType::BOOKMARK;
-				unset($item["attach"]);
+				$attachments = [];
 			} else {
 				if (!empty($summary)) {
 					$item["body"] = '[abstract]' . HTML::toBBCode($summary, $basepath) . "[/abstract]\n" . $item["body"];
@@ -616,10 +610,14 @@ class Feed
 
 			Logger::info("Feed for contact " . $contact["url"] . " stored under id " . $id);
 
-			if (!empty($id) && !empty($taglist)) {
+			if (!empty($id) && (!empty($taglist) || !empty($attachments))) {
 				$feeditem = Item::selectFirst(['uri-id'], ['id' => $id]);
 				foreach ($taglist as $tag) {
 					Tag::store($feeditem['uri-id'], Tag::HASHTAG, $tag);
+				}
+				foreach ($attachments as $attachment) {
+					$attachment['uri-id'] = $feeditem['uri-id']; 
+					Post\Media::insert($attachment);
 				}
 			}
 		}

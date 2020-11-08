@@ -87,6 +87,22 @@ class Media
 	}
 
 	/**
+	 * Copy attachments from one uri-id to another
+	 *
+	 * @param integer $from_uri_id
+	 * @param integer $to_uri_id
+	 * @return void
+	 */
+	public static function copy(int $from_uri_id, int $to_uri_id)
+	{
+		$attachments = self::getByURIId($from_uri_id);
+		foreach ($attachments as $attachment) {
+			$attachment['uri-id'] = $to_uri_id;
+			self::insert($attachment);
+		}
+	}
+
+	/**
 	 * Creates the "[attach]" element from the given attributes
 	 *
 	 * @param string $href
@@ -263,11 +279,18 @@ class Media
 	 * Retrieves the media attachments associated with the provided item ID.
 	 *
 	 * @param int $uri_id
+	 * @param array $types
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getByURIId(int $uri_id)
+	public static function getByURIId(int $uri_id, array $types = [])
 	{
-		return DBA::selectToArray('post-media', [], ['uri-id' => $uri_id]);
+		$condition = ['uri-id' => $uri_id];
+
+		if (!empty($types)) {
+			$condition = DBA::mergeConditions($condition, ['type' => $types]);
+		}
+
+		return DBA::selectToArray('post-media', [], $condition);
 	}
 }

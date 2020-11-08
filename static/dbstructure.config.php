@@ -747,9 +747,8 @@ return [
 			// It has to be decided whether these fields belong to the user or the structure
 			"resource-id" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type"],
 			"event-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["event" => "id"], "comment" => "Used to link to the event.id"],
-			// Could possibly be replaced by the "attach" table?
-			"attach" => ["type" => "mediumtext", "comment" => "JSON structure representing attachments to this item"],
 			// Deprecated fields. Will be removed in upcoming versions
+			"attach" => ["type" => "mediumtext", "comment" => "Deprecated"],
 			"allow_cid" => ["type" => "mediumtext", "comment" => "Deprecated"],
 			"allow_gid" => ["type" => "mediumtext", "comment" => "Deprecated"],
 			"deny_cid" => ["type" => "mediumtext", "comment" => "Deprecated"],

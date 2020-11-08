@@ -866,27 +866,19 @@ class DFRN
 	 */
 	private static function getAttachment($doc, $root, $item)
 	{
-		$arr = explode('[/attach],', $item['attach']);
-		if (count($arr)) {
-			foreach ($arr as $r) {
-				$matches = false;
-				$cnt = preg_match('|\[attach\]href=\"(.*?)\" length=\"(.*?)\" type=\"(.*?)\" title=\"(.*?)\"|', $r, $matches);
-				if ($cnt) {
-					$attributes = ["rel" => "enclosure",
-							"href" => $matches[1],
-							"type" => $matches[3]];
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
+			$attributes = ['rel' => 'enclosure',
+				'href' => $attachment['url'],
+				'type' => $attachment['mimetype']];
 
-					if (intval($matches[2])) {
-						$attributes["length"] = intval($matches[2]);
-					}
-
-					if (trim($matches[4]) != "") {
-						$attributes["title"] = trim($matches[4]);
-					}
-
-					XML::addElement($doc, $root, "link", "", $attributes);
-				}
+			if (!empty($attachment['size'])) {
+				$attributes['length'] = intval($attachment['size']);
 			}
+			if (!empty($attachment['description'])) {
+				$attributes['title'] = $attachment['description'];
+			}
+
+			XML::addElement($doc, $root, 'link', '', $attributes);
 		}
 	}
 
@@ -2154,9 +2146,9 @@ class DFRN
 	{
 		$rel = "";
 		$href = "";
-		$type = "";
-		$length = "0";
-		$title = "";
+		$type = null;
+		$length = null;
+		$title = null;
 		foreach ($links as $link) {
 			foreach ($link->attributes as $attributes) {
 				switch ($attributes->name) {
@@ -2173,13 +2165,8 @@ class DFRN
 						$item["plink"] = $href;
 						break;
 					case "enclosure":
-						if (!empty($item["attach"])) {
-							$item["attach"] .= ",";
-						} else {
-							$item["attach"] = "";
-						}
-
-						$item["attach"] .= Post\Media::getAttachElement($href, $length, $type, $title);
+						Post\Media::insert(['uri-id' => $item['uri-id'], 'type' => Post\Media::DOCUMENT,
+							'url' => $href, 'mimetype' => $type, 'size' => $length, 'description' => $title]);
 						break;
 				}
 			}
