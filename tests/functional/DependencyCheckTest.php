@@ -136,6 +136,9 @@ class DependencyCheckTest extends TestCase
 
 	public function testAppMode()
 	{
+		$configCache = $this->dice->create(Cache::class);
+		$configCache->set('database', 'disable_pdo', true);
+
 		/** @var App\Mode $mode */
 		$mode = $this->dice->create(App\Mode::class);
 
