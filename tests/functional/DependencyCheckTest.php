@@ -115,16 +115,17 @@ class DependencyCheckTest extends TestCase
 
 	public function testDatabase()
 	{
-		$configCache = $this->dice->create(Cache::class);
-		$configCache->set('database', 'disable_pdo', true);
+		// PDO needs to be disabled for PHP 7.2, see https://jira.mariadb.org/browse/MDEV-24121
+		if (version_compare(PHP_VERSION, '7.3') < 0) {
+			$configCache = $this->dice->create(Cache::class);
+			$configCache->set('database', 'disable_pdo', true);
+		}
 
 		/** @var Database $database */
 		$database = $this->dice->create(Database::class);
 
-		$database->setTestmode(true);
-
 		self::assertInstanceOf(Database::class, $database);
-		self::assertContains($database->getDriver(), [Database::MYSQLI], 'The driver returns an unexpected value');
+		self::assertContains($database->getDriver(), [Database::PDO, Database::MYSQLI], 'The driver returns an unexpected value');
 		self::assertNotNull($database->getConnection(), 'There is no database connection');
 
 		$result = $database->p("SELECT 1");
@@ -136,8 +137,11 @@ class DependencyCheckTest extends TestCase
 
 	public function testAppMode()
 	{
-		$configCache = $this->dice->create(Cache::class);
-		$configCache->set('database', 'disable_pdo', true);
+		// PDO needs to be disabled for PHP 7.2, see https://jira.mariadb.org/browse/MDEV-24121
+		if (version_compare(PHP_VERSION, '7.3') < 0) {
+			$configCache = $this->dice->create(Cache::class);
+			$configCache->set('database', 'disable_pdo', true);
+		}
 
 		/** @var App\Mode $mode */
 		$mode = $this->dice->create(App\Mode::class);
