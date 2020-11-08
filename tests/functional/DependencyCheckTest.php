@@ -79,6 +79,7 @@ class DependencyCheckTest extends TestCase
 		self::assertInstanceOf(ConfigFileLoader::class, $configFileLoader);
 
 		$configCache = new Cache();
+		$configCache->set('database', 'disable_pdo', true);
 		$configFileLoader->setupCache($configCache);
 
 		self::assertNotEmpty($configCache->getAll());
@@ -123,8 +124,8 @@ class DependencyCheckTest extends TestCase
 		self::assertNotNull($database->getConnection(), 'There is no database connection');
 
 		$result = $database->p("SELECT 1");
-		self::assertEquals($database->errorMessage(), '', 'There had been a database error message');
-		self::assertEquals($database->errorNo(), 0, 'There had been a database error number');
+		self::assertEquals('', $database->errorMessage(), 'There had been a database error message');
+		self::assertEquals(0, $database->errorNo(), 'There had been a database error number');
 
 		self::assertTrue($database->connected(), 'The database is not connected');
 	}
