@@ -181,7 +181,7 @@ return [
 			"term-date" => ["contact", "term-date"],
 			"last-item" => ["contact", "last-item"],
 			"priority" => ["contact", "priority"],
-			"blocked" => ["contact", "blocked"], /// @todo Check if "blocked" from contact or from the users table
+			"blocked" => ["user", "blocked"],
 			"block_reason" => ["contact", "block_reason"],
 			"readonly" => ["contact", "readonly"],
 			"writable" => ["contact", "writable"],
