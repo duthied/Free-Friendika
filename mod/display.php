@@ -238,6 +238,10 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		throw new HTTPException\NotFoundException(DI::l10n()->t('The requested item doesn\'t exist or has been deleted.'));
 	}
 
+	if (!DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
+		DBA::update('notify', ['seen' => true], ['parent' => $item['parent'], 'uid' => local_user()]);
+	}
+
 	// We are displaying an "alternate" link if that post was public. See issue 2864
 	$is_public = Item::exists(['id' => $item_id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 	if ($is_public) {
