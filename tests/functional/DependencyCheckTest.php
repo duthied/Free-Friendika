@@ -115,22 +115,30 @@ class DependencyCheckTest extends TestCase
 
 	public function testDatabase()
 	{
+		$configCache = $this->dice->create(Cache::class);
+		$configCache->set('database', 'disable_pdo', true);
+
 		/** @var Database $database */
 		$database = $this->dice->create(Database::class);
 
+		$database->setTestmode(true);
+
 		self::assertInstanceOf(Database::class, $database);
-		self::assertContains($database->getDriver(), [Database::PDO, Database::MYSQLI], 'The driver returns an unexpected value');
+		self::assertContains($database->getDriver(), [Database::MYSQLI], 'The driver returns an unexpected value');
 		self::assertNotNull($database->getConnection(), 'There is no database connection');
 
 		$result = $database->p("SELECT 1");
-		self::assertEquals($database->errorMessage(), '', 'There had been a database error message');
-		self::assertEquals($database->errorNo(), 0, 'There had been a database error number');
+		self::assertEquals('', $database->errorMessage(), 'There had been a database error message');
+		self::assertEquals(0, $database->errorNo(), 'There had been a database error number');
 
 		self::assertTrue($database->connected(), 'The database is not connected');
 	}
 
 	public function testAppMode()
 	{
+		$configCache = $this->dice->create(Cache::class);
+		$configCache->set('database', 'disable_pdo', true);
+
 		/** @var App\Mode $mode */
 		$mode = $this->dice->create(App\Mode::class);
 
