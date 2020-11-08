@@ -292,7 +292,7 @@ function ping_init(App $a)
 			foreach ($regs as $reg) {
 				$notif = [
 					'id'      => 0,
-					'href'    => DI::baseUrl() . '/admin/users/',
+					'href'    => DI::baseUrl() . '/admin/users/pending',
 					'name'    => $reg['name'],
 					'url'     => $reg['url'],
 					'photo'   => $reg['micro'],
