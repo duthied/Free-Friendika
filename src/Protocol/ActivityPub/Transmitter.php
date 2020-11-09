@@ -1253,12 +1253,12 @@ class Transmitter
 			return '';
 		}
 
-		$data = Contact::getByURL($match[1], false, ['url', 'nick']);
+		$data = Contact::getByURL($match[1], false, ['url', 'alias', 'nick']);
 		if (empty($data['nick'])) {
 			return $match[0];
 		}
 
-		return '[url=' . $data['url'] . ']@' . $data['nick'] . '[/url]';
+		return '[url=' . ($data['alias'] ?: $data['url']) . ']@' . $data['nick'] . '[/url]';
 	}
 
 	/**
