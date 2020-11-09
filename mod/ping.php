@@ -289,16 +289,30 @@ function ping_init(App $a)
 		}
 
 		if (DBA::isResult($regs)) {
-			foreach ($regs as $reg) {
+			if (count($regs) <= 1 || DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
+				foreach ($regs as $reg) {
+					$notif = [
+						'id'      => 0,
+						'href'    => DI::baseUrl() . '/admin/users/pending',
+						'name'    => $reg['name'],
+						'url'     => $reg['url'],
+						'photo'   => $reg['micro'],
+						'date'    => $reg['created'],
+						'seen'    => false,
+						'message' => DI::l10n()->t('{0} requested registration'),
+					];
+					$notifs[] = $notif;
+				}
+			} else {
 				$notif = [
 					'id'      => 0,
 					'href'    => DI::baseUrl() . '/admin/users/pending',
-					'name'    => $reg['name'],
-					'url'     => $reg['url'],
-					'photo'   => $reg['micro'],
-					'date'    => $reg['created'],
+					'name'    => $regs[0]['name'],
+					'url'     => $regs[0]['url'],
+					'photo'   => $regs[0]['micro'],
+					'date'    => $regs[0]['created'],
 					'seen'    => false,
-					'message' => DI::l10n()->t('{0} requested registration'),
+					'message' => DI::l10n()->t('{0} and %d others requested registration', count($regs) - 1),
 				];
 				$notifs[] = $notif;
 			}
