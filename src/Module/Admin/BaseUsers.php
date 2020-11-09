@@ -120,7 +120,7 @@ abstract class BaseUsers extends BaseAdmin
 			$user['login_date'] = Temporal::getRelativeDate($user['login_date']);
 			$user['lastitem_date'] = Temporal::getRelativeDate($user['last-item']);
 			$user['is_admin'] = in_array($user['email'], $adminlist);
-			$user['is_deletable'] = (intval($user['uid']) != local_user());
+			$user['is_deletable'] = !$user['account_removed'] && intval($user['uid']) != local_user();
 			$user['deleted'] = ($user['account_removed'] ? Temporal::getRelativeDate($user['account_expires_on']) : False);
 
 			return $user;
