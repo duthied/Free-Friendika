@@ -1509,29 +1509,9 @@ class BBCode
 				$text = str_replace('[hr]', '<hr />', $text);
 
 				if (!$for_plaintext) {
-					$escaped = [];
-
-					// Escaping BBCodes susceptible to contain rogue URL we don'' want the autolinker to catch
-					$text = preg_replace_callback('#\[(url|img|audio|video|youtube|vimeo|share|attachment|iframe|bookmark).+?\[/\1\]#ism',
-						function ($matches) use (&$escaped) {
-							$return = '{escaped-' . count($escaped) . '}';
-							$escaped[] = $matches[0];
-
-							return $return;
-						},
-						$text
-					);
-
-					// Autolinker for isolated URLs
-					$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
-
-					// Restoring escaped blocks
-					$text = preg_replace_callback('/{escaped-([0-9]+)}/iU',
-						function ($matches) use ($escaped) {
-							return $escaped[intval($matches[1])] ?? $matches[0];
-						},
-						$text
-					);
+					$text = self::performWithEscapedTags($text, ['url', 'img', 'audio', 'video', 'youtube', 'vimeo', 'share', 'attachment', 'iframe', 'bookmark'], function ($text) {
+						return preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
+					});
 				}
 
 				// This is actually executed in Item::prepareBody()
