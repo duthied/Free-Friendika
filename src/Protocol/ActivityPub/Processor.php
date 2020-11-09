@@ -154,8 +154,16 @@ class Processor
 
 					$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
 					if ($filetype == 'image') {
-						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-							continue 2;
+						if (!empty($activity['source'])) {
+							foreach ([0, 1, 2] as $size) {
+								if (preg_match('#/photo/.*-' . $size . '\.#ism', $attach['url']) && 
+									strpos(preg_replace('#(/photo/.*)-[012]\.#ism', '$1-' . $size . '.', $activity['source']), $attach['url'])) {
+									continue 3;
+								}
+							}
+							if (strpos($activity['source'], $attach['url'])) {
+								continue 2;
+							}
 						}
 
 						$item['body'] .= "\n";
