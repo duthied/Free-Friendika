@@ -101,7 +101,7 @@ class Index extends BaseUsers
 				self::checkFormSecurityTokenRedirectOnError('admin/users', 'admin_users', 't');
 				User::block($uid);
 				notice(DI::l10n()->t('User "%s" blocked', $user['username']));
-				DI::baseUrl()->redirect(DI::baseUrl()->get(true));
+				DI::baseUrl()->redirect('admin/users');
 				break;
 			case 'unblock':
 				self::checkFormSecurityTokenRedirectOnError('admin/users', 'admin_users', 't');
@@ -171,7 +171,7 @@ class Index extends BaseUsers
 
 			// values //
 			'$baseurl' => DI::baseUrl()->get(true),
-			'$query_string' => DI::baseUrl()->get(true),
+			'$query_string' => DI::args()->getQueryString(),
 
 			'$users' => $users,
 			'$count' => $count,

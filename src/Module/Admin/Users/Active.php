@@ -88,13 +88,13 @@ class Active extends BaseUsers
 					notice(DI::l10n()->t('You can\'t remove yourself'));
 				}
 
-				DI::baseUrl()->redirect('admin/users');
+				DI::baseUrl()->redirect('admin/users/active');
 				break;
 			case 'block':
 				self::checkFormSecurityTokenRedirectOnError('admin/users/active', 'admin_users_active', 't');
 				User::block($uid);
 				notice(DI::l10n()->t('User "%s" blocked', $user['username']));
-				DI::baseUrl()->redirect(DI::baseUrl()->get(true));
+				DI::baseUrl()->redirect('admin/users/active');
 				break;
 		}
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 100);
@@ -154,7 +154,7 @@ class Active extends BaseUsers
 
 			// values //
 			'$baseurl' => DI::baseUrl()->get(true),
-			'$query_string' => DI::baseUrl()->get(true),
+			'$query_string' => DI::args()->getQueryString(),
 
 			'$users' => $users,
 			'$count' => $count,
