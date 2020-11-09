@@ -625,6 +625,7 @@ class OnePoll
 					if (empty($datarray['parent-uri'])) {
 						$datarray['parent-uri'] = $datarray['uri'];
 					}
+					unset($datarray['parent-uri']);
 
 					$headers = imap_headerinfo($mbox, $meta->msgno);
 

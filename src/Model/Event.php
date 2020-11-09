@@ -347,7 +347,6 @@ class Event
 				$item_arr['uid']           = $event['uid'];
 				$item_arr['contact-id']    = $event['cid'];
 				$item_arr['uri']           = $event['uri'];
-				$item_arr['parent-uri']    = $event['uri'];
 				$item_arr['guid']          = $event['guid'];
 				$item_arr['plink']         = $arr['plink'] ?? '';
 				$item_arr['post-type']     = Item::PT_EVENT;

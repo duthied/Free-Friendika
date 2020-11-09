@@ -1633,7 +1633,6 @@ class Item
 		$item['coord']         = trim($item['coord'] ?? '');
 		$item['visible']       = (isset($item['visible']) ? intval($item['visible']) : 1);
 		$item['deleted']       = 0;
-		$item['parent-uri']    = trim(($item['parent-uri'] ?? '') ?: $item['uri']);
 		$item['post-type']     = ($item['post-type'] ?? '') ?: self::PT_ARTICLE;
 		$item['verb']          = trim($item['verb'] ?? '');
 		$item['object-type']   = trim($item['object-type'] ?? '');
@@ -2858,14 +2857,15 @@ class Item
 				unset($datarray["plink"]);
 				$datarray["uri"] = self::newURI($contact['uid'], $datarray["guid"]);
 				$datarray["uri-id"] = ItemURI::getIdByURI($datarray["uri"]);
-				$datarray["parent-uri"] = $datarray["uri"];
-				$datarray["thr-parent"] = $datarray["uri"];
 				$datarray["extid"] = Protocol::DFRN;
 				$urlpart = parse_url($datarray2['author-link']);
 				$datarray["app"] = $urlpart["host"];
 				if (!empty($old_uri_id)) {
 					Post\Media::copy($old_uri_id, $datarray["uri-id"]);
 				}
+
+				unset($datarray["parent-uri"]);
+				unset($datarray["thr-parent"]);
 			} else {
 				$datarray['private'] = self::PUBLIC;
 			}
@@ -3297,7 +3297,6 @@ class Item
 			'network'       => Protocol::DFRN,
 			'gravity'       => GRAVITY_ACTIVITY,
 			'parent'        => $item['id'],
-			'parent-uri'    => $item['uri'],
 			'thr-parent'    => $item['uri'],
 			'owner-id'      => $author_id,
 			'author-id'     => $author_id,
