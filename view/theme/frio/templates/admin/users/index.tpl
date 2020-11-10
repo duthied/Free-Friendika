@@ -87,6 +87,8 @@
 						</i>
 						{{/if}}
 						{{if $u.is_admin}}<i class="fa fa-user-secret text-primary" title="{{$siteadmin}}"></i>{{/if}}
+						{{if $u.blocked}}<i class="fa fa-ban text-danger" title="{{$blocked}}"></i>{{/if}}
+						{{if $u.deleted}}<i class="fa fa-user-times" title="{{$h_deleted}}"></i>{{/if}}
 						{{if $u.account_expired}}<i class="fa fa-clock-o text-warning" title="{{$accountexpired}}"></i>{{/if}}
 					</td>
 				{{/if}}
@@ -131,7 +133,7 @@
 				{{if $u.is_deletable}}
 					{{if $u.blocked}}
 						<a href="{{$baseurl}}/admin/users/unblock/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$unblock}}">
-							<i class="fa fa-circle-o" aria-hidden="true"></i>
+							<i class="fa fa-check-circle-o" aria-hidden="true"></i>
 						</a>
 					{{else}}
 						<a href="{{$baseurl}}/admin/users/block/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$block}}">

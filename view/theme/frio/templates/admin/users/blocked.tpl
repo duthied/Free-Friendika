@@ -86,6 +86,7 @@
 						</i>
 						{{/if}}
 						{{if $u.is_admin}}<i class="fa fa-user-secret text-primary" title="{{$siteadmin}}"></i>{{/if}}
+						{{if $u.blocked}}<i class="fa fa-ban text-danger" title="{{$blocked}}"></i>{{/if}}
 						{{if $u.account_expired}}<i class="fa fa-clock-o text-warning" title="{{$accountexpired}}"></i>{{/if}}
 					</td>
 				{{/if}}
