@@ -234,7 +234,7 @@
 						<input type="file" name="importcontact-filename" />
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="importcontact-submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
 			</div>
@@ -253,7 +253,7 @@
 						<div id="settings-relocate-desc">{{$relocate_text}}</div>
 					</div>
 					<div class="panel-footer">
-						<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
+						<button type="submit" name="resend_relocate" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 					</div>
 				</div>
 			</div>

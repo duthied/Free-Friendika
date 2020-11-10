@@ -229,6 +229,7 @@ function settings_post(App $a)
 				notice(DI::l10n()->t('Contact CSV file upload error'));
 			} else {
 				$csvArray = array_map('str_getcsv', file($_FILES['importcontact-filename']['tmp_name']));
+				Logger::info('Import started', ['lines' => count($csvArray)]);
 				// import contacts
 				foreach ($csvArray as $csvRow) {
 					// The 1st row may, or may not contain the headers of the table
@@ -240,11 +241,14 @@ function settings_post(App $a)
 						Worker::add(PRIORITY_LOW, 'AddContact', $_SESSION['uid'], $csvRow[0]);
 					}
 				}
+				Logger::info('Import done');
 
 				info(DI::l10n()->t('Importing Contacts done'));
 				// delete temp file
 				unlink($_FILES['importcontact-filename']['tmp_name']);
 			}
+		} else {
+			Logger::info('Import triggered, but no import file was found.');
 		}
 
 		return;
