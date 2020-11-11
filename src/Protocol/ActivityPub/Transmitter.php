@@ -146,7 +146,8 @@ class Transmitter
 			'deleted' => false,
 			'hidden' => false,
 			'archive' => false,
-			'pending' => false
+			'pending' => false,
+			'blocked' => false,
 		];
 		$condition = DBA::buildCondition($parameters);
 
