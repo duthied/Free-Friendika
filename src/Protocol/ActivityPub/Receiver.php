@@ -1345,7 +1345,7 @@ class Receiver
 		$object_data['longitude'] = JsonLD::fetchElement($object_data, 'longitude', '@value');
 		$object_data['attachments'] = self::processAttachments(JsonLD::fetchElementArray($object, 'as:attachment') ?? []);
 		$object_data['tags'] = self::processTags(JsonLD::fetchElementArray($object, 'as:tag') ?? []);
-		$object_data['emojis'] = self::processEmojis(JsonLD::fetchElementArray($object, 'as:tag', 'toot:Emoji') ?? []);
+		$object_data['emojis'] = self::processEmojis(JsonLD::fetchElementArray($object, 'as:tag', null, '@type', 'toot:Emoji') ?? []);
 		$object_data['generator'] = JsonLD::fetchElement($object, 'as:generator', 'as:name', '@type', 'as:Application');
 		$object_data['generator'] = JsonLD::fetchElement($object_data, 'generator', '@value');
 		$object_data['alternate-url'] = JsonLD::fetchElement($object, 'as:url', '@id');
