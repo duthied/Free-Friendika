@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -31,6 +32,7 @@ use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 /**
  * ActivityPub Objects
@@ -47,8 +49,27 @@ class Objects extends BaseModule
 			DI::baseUrl()->redirect(str_replace('objects/', 'display/', DI::args()->getQueryString()));
 		}
 
+		$itemuri = DBA::selectFirst('item-uri', ['id'], ['guid' => $parameters['guid']]);
+
+		if (DBA::isResult($itemuri)) {
+			Logger::info('Provided GUID found.', ['guid' => $parameters['guid'], 'uri-id' => $itemuri['id']]);
+		} else {
+			// The item URI does not always contain the GUID. This means that we have to search the URL instead
+			$url = DI::baseUrl()->get() . '/' . DI::args()->getQueryString();
+			$nurl = Strings::normaliseLink($url);
+			$ssl_url = str_replace('http://', 'https://', $nurl);
+
+			$itemuri = DBA::selectFirst('item-uri', ['guid', 'id'], ['uri' => [$url, $nurl, $ssl_url]]);
+			if (DBA::isResult($itemuri)) {
+				Logger::info('URL found.', ['url' => $url, 'guid' => $itemuri['guid'], 'uri-id' => $itemuri['id']]);
+			} else {
+				Logger::info('URL not found.', ['url' => $url]);
+				throw new HTTPException\NotFoundException();
+			}
+		}
+
 		$item = Item::selectFirst(['id', 'uid', 'origin', 'author-link', 'changed', 'private', 'psid', 'gravity'],
-			['guid' => $parameters['guid']], ['order' => ['origin' => true]]);
+			['uri-id' => $itemuri['id']], ['order' => ['origin' => true]]);
 
 		if (!DBA::isResult($item)) {
 			throw new HTTPException\NotFoundException();
