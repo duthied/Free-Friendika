@@ -605,8 +605,7 @@ function item_post(App $a) {
 	$datarray['pubmail']       = $pubmail_enabled;
 	$datarray['attach']        = $attachments;
 
-	// This is not a bug. The item store function changes 'parent-uri' to 'thr-parent' and fetches 'parent-uri' new. (We should change this)
-	$datarray['parent-uri']    = $thr_parent_uri;
+	$datarray['thr-parent']    = $thr_parent_uri;
 
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
@@ -627,7 +626,7 @@ function item_post(App $a) {
 	// This field is for storing the raw conversation data
 	$datarray['protocol'] = Conversation::PARCEL_DFRN;
 
-	$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $datarray['parent-uri']]);
+	$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $datarray['thr-parent']]);
 	if (DBA::isResult($conversation)) {
 		if ($conversation['conversation-uri'] != '') {
 			$datarray['conversation-uri'] = $conversation['conversation-uri'];

@@ -482,7 +482,7 @@ class OStatus
 				Logger::log("Favorite ".$orig_uri." ".print_r($item, true));
 
 				$item["verb"] = Activity::LIKE;
-				$item["parent-uri"] = $orig_uri;
+				$item["thr-parent"] = $orig_uri;
 				$item["gravity"] = GRAVITY_ACTIVITY;
 				$item["object-type"] = Activity\ObjectType::NOTE;
 			}
@@ -495,7 +495,7 @@ class OStatus
 			self::processPost($xpath, $entry, $item, $importer);
 
 			if ($initialize && (count(self::$itemlist) > 0)) {
-				if (self::$itemlist[0]['uri'] == self::$itemlist[0]['parent-uri']) {
+				if (self::$itemlist[0]['uri'] == self::$itemlist[0]['thr-parent']) {
 					// We will import it everytime, when it is started by our contacts
 					$valid = Contact::isSharingByURL(self::$itemlist[0]['author-link'], self::$itemlist[0]['uid']);
 
@@ -523,9 +523,9 @@ class OStatus
 					}
 				} else {
 					// But we will only import complete threads
-					$valid = Item::exists(['uid' => $importer["uid"], 'uri' => self::$itemlist[0]['parent-uri']]);
+					$valid = Item::exists(['uid' => $importer["uid"], 'uri' => self::$itemlist[0]['thr-parent']]);
 					if ($valid) {
-						Logger::log("Item with uri ".self::$itemlist[0]["uri"]." belongs to parent ".self::$itemlist[0]['parent-uri']." of user ".$importer["uid"].". It will be imported.", Logger::DEBUG);
+						Logger::log("Item with uri ".self::$itemlist[0]["uri"]." belongs to parent ".self::$itemlist[0]['thr-parent']." of user ".$importer["uid"].". It will be imported.", Logger::DEBUG);
 					}
 				}
 
@@ -621,7 +621,7 @@ class OStatus
 		if (is_object($inreplyto->item(0))) {
 			foreach ($inreplyto->item(0)->attributes as $attributes) {
 				if ($attributes->name == "ref") {
-					$item["parent-uri"] = $attributes->textContent;
+					$item["thr-parent"] = $attributes->textContent;
 				}
 				if ($attributes->name == "href") {
 					$related = $attributes->textContent;
@@ -702,16 +702,16 @@ class OStatus
 			self::fetchConversation($item['conversation-href'], $item['conversation-uri']);
 		}
 
-		if (isset($item["parent-uri"])) {
-			if (!Item::exists(['uid' => $importer["uid"], 'uri' => $item['parent-uri']])) {
+		if (isset($item["thr-parent"])) {
+			if (!Item::exists(['uid' => $importer["uid"], 'uri' => $item['thr-parent']])) {
 				if ($related != '') {
-					self::fetchRelated($related, $item["parent-uri"], $importer);
+					self::fetchRelated($related, $item["thr-parent"], $importer);
 				}
 			} else {
 				Logger::log('Reply with URI '.$item["uri"].' already existed for user '.$importer["uid"].'.', Logger::DEBUG);
 			}
 		} else {
-			$item["parent-uri"] = $item["uri"];
+			$item["thr-parent"] = $item["uri"];
 			$item["gravity"] = GRAVITY_PARENT;
 		}
 
@@ -1074,7 +1074,7 @@ class OStatus
 		if (is_object($inreplyto->item(0))) {
 			foreach ($inreplyto->item(0)->attributes as $attributes) {
 				if ($attributes->name == "ref") {
-					$item["parent-uri"] = $attributes->textContent;
+					$item["thr-parent"] = $attributes->textContent;
 				}
 			}
 		}
@@ -1126,8 +1126,8 @@ class OStatus
 						break;
 					case "related":
 						if ($item["object-type"] != Activity\ObjectType::BOOKMARK) {
-							if (!isset($item["parent-uri"])) {
-								$item["parent-uri"] = $attribute['href'];
+							if (!isset($item["thr-parent"])) {
+								$item["thr-parent"] = $attribute['href'];
 							}
 							$link_data['related'] = $attribute['href'];
 						} else {
@@ -1934,9 +1934,8 @@ class OStatus
 
 		if ($item['gravity'] != GRAVITY_PARENT) {
 			$parent = Item::selectFirst(['guid', 'author-link', 'owner-link'], ['id' => $item['parent']]);
-			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
-			$thrparent = Item::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner["uid"], 'uri' => $parent_item]);
+			$thrparent = Item::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner["uid"], 'uri' => $item['thr-parent']]);
 
 			if (DBA::isResult($thrparent)) {
 				$mentioned[$thrparent["author-link"]] = $thrparent["author-link"];
@@ -1949,7 +1948,7 @@ class OStatus
 			}
 
 			$attributes = [
-					"ref" => $parent_item,
+					"ref" => $item['thr-parent'],
 					"href" => $parent_plink];
 			XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
 
@@ -1960,7 +1959,7 @@ class OStatus
 		}
 
 		if (intval($item['parent']) > 0) {
-			$conversation_href = $conversation_uri = str_replace('/objects/', '/context/', $item['parent-uri']);
+			$conversation_href = $conversation_uri = str_replace('/objects/', '/context/', $item['thr-parent']);
 
 			if (isset($parent_item)) {
 				$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $parent_item]);

@@ -354,7 +354,7 @@ class Feed
 
 			$item["plink"] = DI::httpRequest()->finalUrl($item["plink"]);
 
-			$item["parent-uri"] = $item["uri"];
+			$item["thr-parent"] = $item["uri"];
 
 			$item["title"] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
 
@@ -602,6 +602,7 @@ class Feed
 			if ($notify) {
 				$item['guid'] = Item::guidFromUri($orig_plink, DI::baseUrl()->getHostname());
 				unset($item['uri']);
+				unset($item['thr-parent']);
 				unset($item['parent-uri']);
 
 				// Set the delivery priority for "remote self" to "medium"
@@ -1108,9 +1109,8 @@ class Feed
 
 		if ($item['gravity'] != GRAVITY_PARENT) {
 			$parent = Item::selectFirst(['guid', 'author-link', 'owner-link'], ['id' => $item['parent']]);
-			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
 
-			$thrparent = Item::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner["uid"], 'uri' => $parent_item]);
+			$thrparent = Item::selectFirst(['guid', 'author-link', 'owner-link', 'plink'], ['uid' => $owner["uid"], 'uri' => $item['thr-parent']]);
 
 			if (DBA::isResult($thrparent)) {
 				$mentioned[$thrparent["author-link"]] = $thrparent["author-link"];
@@ -1123,7 +1123,7 @@ class Feed
 			}
 
 			$attributes = [
-					"ref" => $parent_item,
+					"ref" => $item['thr-parent'],
 					"href" => $parent_plink];
 			XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
 

@@ -622,8 +622,8 @@ class OnePoll
 						}
 					}
 
-					if (empty($datarray['parent-uri'])) {
-						$datarray['parent-uri'] = $datarray['uri'];
+					if (!empty($datarray['parent-uri'])) {
+						$datarray['thr-parent'] = $datarray['parent-uri'];
 					}
 					unset($datarray['parent-uri']);
 
@@ -664,7 +664,7 @@ class OnePoll
 					$datarray['owner-link'] = "mailto:".$contact['addr'];
 					$datarray['owner-avatar'] = $contact['photo'];
 
-					if ($datarray['parent-uri'] === $datarray['uri']) {
+					if ($datarray['thr-parent'] === $datarray['uri']) {
 						$datarray['private'] = Item::PRIVATE;
 					}
 

@@ -136,7 +136,7 @@ EOT;
 	$arr['wall'] = $item['wall'];
 	$arr['gravity'] = GRAVITY_COMMENT;
 	$arr['parent'] = $item['id'];
-	$arr['parent-uri'] = $item['uri'];
+	$arr['thr-parent'] = $item['uri'];
 	$arr['owner-name'] = $item['author-name'];
 	$arr['owner-link'] = $item['author-link'];
 	$arr['owner-avatar'] = $item['author-avatar'];

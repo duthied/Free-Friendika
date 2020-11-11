@@ -438,7 +438,7 @@ class DFRN
 		$mail->appendChild($sender);
 
 		XML::addElement($doc, $mail, "dfrn:id", $item['uri']);
-		XML::addElement($doc, $mail, "dfrn:in-reply-to", $item['parent-uri']);
+		XML::addElement($doc, $mail, "dfrn:in-reply-to", $item['thr-parent']);
 		XML::addElement($doc, $mail, "dfrn:sentdate", DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM));
 		XML::addElement($doc, $mail, "dfrn:subject", $item['title']);
 		XML::addElement($doc, $mail, "dfrn:content", $item['body']);
@@ -956,10 +956,9 @@ class DFRN
 		$entry->appendChild($dfrnowner);
 
 		if ($item['gravity'] != GRAVITY_PARENT) {
-			$parent_item = (($item['thr-parent']) ? $item['thr-parent'] : $item['parent-uri']);
-			$parent = Item::selectFirst(['guid', 'plink'], ['uri' => $parent_item, 'uid' => $item['uid']]);
+			$parent = Item::selectFirst(['guid', 'plink'], ['uri' => $item['thr-parent'], 'uid' => $item['uid']]);
 			if (DBA::isResult($parent)) {
-				$attributes = ["ref" => $parent_item, "type" => "text/html",
+				$attributes = ["ref" => $item['thr-parent'], "type" => "text/html",
 					"href" => $parent['plink'],
 					"dfrn:diaspora_guid" => $parent['guid']];
 				XML::addElement($doc, $entry, "thr:in-reply-to", "", $attributes);
@@ -971,7 +970,7 @@ class DFRN
 		$conversation_uri = $conversation_href;
 
 		if (isset($parent_item)) {
-			$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $item['parent-uri']]);
+			$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $item['thr-parent']]);
 			if (DBA::isResult($conversation)) {
 				if ($conversation['conversation-uri'] != '') {
 					$conversation_uri = $conversation['conversation-uri'];
@@ -1768,7 +1767,7 @@ class DFRN
 		$msg["from-photo"] = XML::getFirstValue($xpath, "dfrn:sender/dfrn:avatar/text()", $mail);
 		$msg["contact-id"] = $importer["id"];
 		$msg["uri"] = XML::getFirstValue($xpath, "dfrn:id/text()", $mail);
-		$msg["parent-uri"] = XML::getFirstValue($xpath, "dfrn:in-reply-to/text()", $mail);
+		$msg["thr-parent"] = XML::getFirstValue($xpath, "dfrn:in-reply-to/text()", $mail);
 		$msg["created"] = DateTimeFormat::utc(XML::getFirstValue($xpath, "dfrn:sentdate/text()", $mail));
 		$msg["title"] = XML::getFirstValue($xpath, "dfrn:subject/text()", $mail);
 		$msg["body"] = XML::getFirstValue($xpath, "dfrn:content/text()", $mail);
@@ -1918,7 +1917,7 @@ class DFRN
 	 */
 	private static function getEntryType($importer, $item)
 	{
-		if ($item["parent-uri"] != $item["uri"]) {
+		if ($item["thr-parent"] != $item["uri"]) {
 			$community = false;
 
 			if ($importer["page-flags"] == User::PAGE_FLAGS_COMMUNITY || $importer["page-flags"] == User::PAGE_FLAGS_PRVGROUP) {
@@ -1934,18 +1933,18 @@ class DFRN
 
 			$is_a_remote_action = false;
 
-			$parent = Item::selectFirst(['parent-uri'], ['uri' => $item["parent-uri"]]);
+			$parent = Item::selectFirst(['thr-parent'], ['uri' => $item["thr-parent"]]);
 			if (DBA::isResult($parent)) {
 				$r = q(
 					"SELECT `item`.`forum_mode`, `item`.`wall` FROM `item`
 					INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-					WHERE `item`.`uri` = '%s' AND (`item`.`parent-uri` = '%s' OR `item`.`thr-parent` = '%s')
+					WHERE `item`.`uri` = '%s' AND (`item`.`thr-parent` = '%s' OR `item`.`thr-parent` = '%s')
 					AND `item`.`uid` = %d
 					$sql_extra
 					LIMIT 1",
-					DBA::escape($parent["parent-uri"]),
-					DBA::escape($parent["parent-uri"]),
-					DBA::escape($parent["parent-uri"]),
+					DBA::escape($parent["thr-parent"]),
+					DBA::escape($parent["thr-parent"]),
+					DBA::escape($parent["thr-parent"]),
 					intval($importer["importer_uid"])
 				);
 				if (DBA::isResult($r)) {
@@ -2008,7 +2007,7 @@ class DFRN
 			if ($Blink && Strings::compareLink($Blink, DI::baseUrl() . "/profile/" . $importer["nickname"])) {
 				$author = DBA::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item['author-id']]);
 
-				$parent = Item::selectFirst(['id'], ['uri' => $item['parent-uri'], 'uid' => $importer["importer_uid"]]);
+				$parent = Item::selectFirst(['id'], ['uri' => $item['thr-parent'], 'uid' => $importer["importer_uid"]]);
 				$item['parent'] = $parent['id'];
 
 				// send a notification
@@ -2090,15 +2089,15 @@ class DFRN
 				$is_like = true;
 				$item["gravity"] = GRAVITY_ACTIVITY;
 				// only one like or dislike per person
-				// splitted into two queries for performance issues
+				// split into two queries for performance issues
 				$condition = ['uid' => $item["uid"], 'author-id' => $item["author-id"], 'gravity' => GRAVITY_ACTIVITY,
-					'verb' => $item["verb"], 'parent-uri' => $item["parent-uri"]];
+					'verb' => $item['verb'], 'parent-uri' => $item['thr-parent']];
 				if (Item::exists($condition)) {
 					return false;
 				}
 
 				$condition = ['uid' => $item["uid"], 'author-id' => $item["author-id"], 'gravity' => GRAVITY_ACTIVITY,
-					'verb' => $item["verb"], 'thr-parent' => $item["parent-uri"]];
+					'verb' => $item['verb'], 'thr-parent' => $item['thr-parent']];
 				if (Item::exists($condition)) {
 					return false;
 				}
@@ -2370,19 +2369,19 @@ class DFRN
 		}
 
 		// Is it a reply or a top level posting?
-		$item["parent-uri"] = $item["uri"];
+		$item['thr-parent'] = $item['uri'];
 
 		$inreplyto = $xpath->query("thr:in-reply-to", $entry);
 		if (is_object($inreplyto->item(0))) {
 			foreach ($inreplyto->item(0)->attributes as $attributes) {
 				if ($attributes->name == "ref") {
-					$item["parent-uri"] = $attributes->textContent;
+					$item['thr-parent'] = $attributes->textContent;
 				}
 			}
 		}
 
 		// Check if the message is wanted
-		if (($importer["importer_uid"] == 0) && ($item['uri'] == $item['parent-uri'])) {
+		if (($importer['importer_uid'] == 0) && ($item['uri'] == $item['thr-parent'])) {
 			if (!self::isSolicitedMessage($item)) {
 				DBA::delete('item-uri', ['uri' => $item['uri']]);
 				return 403;
@@ -2760,7 +2759,7 @@ class DFRN
 
 		// check that the message originated elsewhere and is a top-level post
 
-		if ($item['wall'] || $item['origin'] || ($item['uri'] != $item['parent-uri'])) {
+		if ($item['wall'] || $item['origin'] || ($item['uri'] != $item['thr-parent'])) {
 			return false;
 		}
 
