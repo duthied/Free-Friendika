@@ -1576,7 +1576,7 @@ class Item
 		$uid = intval($item['uid']);
 
 		$item['guid'] = self::guid($item, $notify);
-		$item['uri'] = substr(Strings::escapeTags(trim(($item['uri'] ?? '') ?: self::newURI($item['uid'], $item['guid']))), 0, 255);
+		$item['uri'] = substr(trim($item['uri'] ?? '') ?: self::newURI($item['uid'], $item['guid']), 0, 255);
 
 		// Store URI data
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
@@ -1685,7 +1685,7 @@ class Item
 			return 0;
 		}
 
-		if ($item['thr-parent'] != $item['uri']) {
+		if ($item['gravity'] !== GRAVITY_PARENT) {
 			$toplevel_parent = self::getTopLevelParent($item);
 			if (empty($toplevel_parent)) {
 				return 0;
@@ -1917,7 +1917,7 @@ class Item
 
 		Logger::notice('created item', ['id' => $current_post, 'uid' => $item['uid'], 'network' => $item['network'], 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 
-		if (!$parent_id || ($item['parent-uri'] === $item['uri'])) {
+		if (!$parent_id || ($item['gravity'] === GRAVITY_PARENT)) {
 			$parent_id = $current_post;
 		}
 
@@ -1942,7 +1942,7 @@ class Item
 			DBA::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		}
 
-		if ($item['parent-uri'] === $item['uri']) {
+		if ($item['gravity'] === GRAVITY_PARENT) {
 			self::addThread($current_post);
 		} else {
 			self::updateThread($parent_id);
@@ -1970,7 +1970,7 @@ class Item
 			}
 		}
 
-		if ($item['parent-uri'] === $item['uri']) {
+		if ($item['gravity'] === GRAVITY_PARENT) {
 			self::addShadow($current_post);
 		} else {
 			self::addShadowPost($current_post);
