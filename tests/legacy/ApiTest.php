@@ -500,7 +500,7 @@ class ApiTest extends FixtureTest
 	public function testApiCallWithUninplementedApi()
 	{
 		self::assertEquals(
-			'{"status":{"error":"Not Implemented","code":"501 Not Implemented","request":""}}',
+			'{"status":{"error":"Not Found","code":"404 Not Found","request":""}}',
 			api_call($this->app)
 		);
 	}
