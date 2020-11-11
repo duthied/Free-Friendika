@@ -62,6 +62,7 @@ class JsonLDTest extends TestCase
 		$data = JsonLD::fetchElementArray($object, 'field', '@id');
 		self::assertSame(['value3', 'value4'], $data);
 	}
+
 	public function testFetchElementArrayFoundArrays()
 	{
 		$object = ['field' => [['subfield11' => 'value11', 'subfield12' => 'value12'],
@@ -71,6 +72,17 @@ class JsonLDTest extends TestCase
 			['subfield21' => 'value21', 'subfield22' => 'value22']];
 
 		$data = JsonLD::fetchElementArray($object, 'field');
+		self::assertSame($expect, $data);
+	}
+
+	public function testFetchElementArrayTypeValue()
+	{
+		$object = ['field' => [['subfield11' => 'value11', 'subfield12' => 'value12'],
+			['subfield21' => 'value21', 'subfield22' => 'value22']]];
+
+		$expect = [['subfield11' => 'value11', 'subfield12' => 'value12']];
+
+		$data = JsonLD::fetchElementArray($object, 'field', null, 'subfield11', 'value11');
 		self::assertSame($expect, $data);
 	}
 
