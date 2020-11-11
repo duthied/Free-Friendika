@@ -1415,11 +1415,6 @@ class Item
 			return false;
 		}
 
-		if (!empty($item['uid']) && !empty($item['author-id']) && Contact\User::isBlocked($item['author-id'], $item['uid'])) {
-			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
-			return false;
-		}
-
 		if (!empty($item['owner-id']) && Contact::isBlocked($item['owner-id'])) {
 			Logger::notice('Owner is blocked node-wide', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
 			return false;
@@ -1430,22 +1425,10 @@ class Item
 			return false;
 		}
 
-		if (!empty($item['uid']) && !empty($item['owner-id']) && Contact\User::isBlocked($item['owner-id'], $item['uid'])) {
-			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
+		if (!empty($item['uid']) && !self::isAllowedByUser($item, $item['uid'])) {
 			return false;
 		}
 
-		// The causer is set during a thread completion, for example because of a reshare. It countains the responsible actor.
-		if (!empty($item['uid']) && !empty($item['causer-id']) && Contact\User::isBlocked($item['causer-id'], $item['uid'])) {
-			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
-			return false;
-		}
-
-		if (!empty($item['uid']) && !empty($item['causer-id']) && ($item['parent-uri'] == $item['uri']) && Contact\User::isIgnored($item['causer-id'], $item['uid'])) {
-			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
-			return false;
-		}
-		
 		if ($item['verb'] == Activity::FOLLOW) {
 			if (!$item['origin'] && ($item['author-id'] == Contact::getPublicIdByUserId($item['uid']))) {
 				// Our own follow request can be relayed to us. We don't store it to avoid notification chaos.
@@ -1530,6 +1513,13 @@ class Item
 
 		if (!DBA::isResult($toplevel_parent)) {
 			Logger::info('item parent was not found - ignoring item', ['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
+			return [];
+		}
+
+		if ($toplevel_parent['wall']
+			&& $toplevel_parent['uid'] &&
+			!self::isAllowedByUser($item, $toplevel_parent['uid'])
+		) {
 			return [];
 		}
 
@@ -3954,5 +3944,42 @@ class Item
 		unset($shared_item['body']);
 
 		return array_merge($item, $shared_item);
+	}
+
+	/**
+	 * Check a prospective item array against user-level permissions
+	 *
+	 * @param array $item Expected keys: uri, gravity, and
+	 *                    author-link if is author-id is set,
+	 *                    owner-link if is owner-id is set,
+	 *                    causer-link if is causer-id is set.
+	 * @param int   $user_id Local user ID
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected static function isAllowedByUser(array $item, int $user_id)
+	{
+		if (!empty($item['author-id']) && Contact\User::isBlocked($item['author-id'], $user_id)) {
+			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (!empty($item['owner-id']) && Contact\User::isBlocked($item['owner-id'], $user_id)) {
+			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		// The causer is set during a thread completion, for example because of a reshare. It countains the responsible actor.
+		if (!empty($item['causer-id']) && Contact\User::isBlocked($item['causer-id'], $user_id)) {
+			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (!empty($item['causer-id']) && ($item['gravity'] === GRAVITY_PARENT) && Contact\User::isIgnored($item['causer-id'], $user_id)) {
+			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		return true;
 	}
 }
