@@ -192,8 +192,8 @@ class Network extends BaseModule
 			$pager = new BoundariesPager(
 				DI::l10n(),
 				DI::args()->getQueryString(),
-				$items[0][self::$order],
-				$items[count($items) - 1][self::$order],
+				$items[0][self::$order] ?? null,
+				$items[count($items) - 1][self::$order] ?? null,
 				self::$itemsPerPage
 			);
 
