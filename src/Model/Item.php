@@ -1379,7 +1379,7 @@ class Item
 	public static function isValid(array $item)
 	{
 		// When there is no content then we don't post it
-		if ($item['body'].$item['title'] == '') {
+		if ($item['body'] . $item['title'] == '') {
 			Logger::notice('No body, no title.');
 			return false;
 		}
@@ -1497,88 +1497,43 @@ class Item
 	}
 
 	/**
-	 * Fetch parent data for the given item array
+	 * Fetch top-level parent data for the given item array
 	 *
 	 * @param array $item
 	 * @return array item array with parent data
+	 * @throws \Exception
 	 */
-	private static function getParentData(array $item)
+	private static function getTopLevelParent(array $item)
 	{
-		// find the parent and snarf the item id and ACLs
-		// and anything else we need to inherit
-
-		$fields = ['uri', 'parent-uri', 'id', 'deleted',
+		$fields = ['uid', 'uri', 'parent-uri', 'id', 'deleted',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'wall', 'private', 'forum_mode', 'origin', 'author-id'];
-		$condition = ['uri' => $item['parent-uri'], 'uid' => $item['uid']];
+		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid']];
 		$params = ['order' => ['id' => false]];
 		$parent = self::selectFirst($fields, $condition, $params);
 
 		if (!DBA::isResult($parent)) {
-			Logger::info('item parent was not found - ignoring item', ['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
+			Logger::info('item parent was not found - ignoring item', ['thr-parent' => $item['thr-parent'], 'uid' => $item['uid']]);
 			return [];
-		} else {
-			// is the new message multi-level threaded?
-			// even though we don't support it now, preserve the info
-			// and re-attach to the conversation parent.
-			if ($parent['uri'] != $parent['parent-uri']) {
-				$item['parent-uri'] = $parent['parent-uri'];
-
-				$condition = ['uri' => $item['parent-uri'],
-					'parent-uri' => $item['parent-uri'],
-					'uid' => $item['uid']];
-				$params = ['order' => ['id' => false]];
-				$toplevel_parent = self::selectFirst($fields, $condition, $params);
-
-				if (DBA::isResult($toplevel_parent)) {
-					$parent = $toplevel_parent;
-				}
-			}
-
-			$item['parent']        = $parent['id'];
-			$item["deleted"]       = $parent['deleted'];
-			$item["allow_cid"]     = $parent['allow_cid'];
-			$item['allow_gid']     = $parent['allow_gid'];
-			$item['deny_cid']      = $parent['deny_cid'];
-			$item['deny_gid']      = $parent['deny_gid'];
-			$item['parent_origin'] = $parent['origin'];
-
-			// Don't federate received participation messages
-			if ($item['verb'] != Activity::FOLLOW) {
-				$item['wall'] = $parent['wall'];
-			} else {
-				$item['wall'] = false;
-			}
-
-			/*
-			 * If the parent is private, force privacy for the entire conversation
-			 * This differs from the above settings as it subtly allows comments from
-			 * email correspondents to be private even if the overall thread is not.
-			 */
-			if ($parent['private']) {
-				$item['private'] = $parent['private'];
-			}
-
-			/*
-			 * Edge case. We host a public forum that was originally posted to privately.
-			 * The original author commented, but as this is a comment, the permissions
-			 * weren't fixed up so it will still show the comment as private unless we fix it here.
-			 */
-			if ((intval($parent['forum_mode']) == 1) && ($parent['private'] != self::PUBLIC)) {
-				$item['private'] = self::PUBLIC;
-			}
-
-			// If its a post that originated here then tag the thread as "mention"
-			if ($item['origin'] && $item['uid']) {
-				DBA::update('thread', ['mention' => true], ['iid' => $item['parent']]);
-				Logger::info('tagged thread as mention', ['parent' => $item['parent'], 'uid' => $item['uid']]);
-			}
-
-			// Update the contact relations
-			Contact\Relation::store($parent['author-id'], $item['author-id'], $item['created']);
 		}
 
-		return $item;
+		if ($parent['uri'] == $parent['parent-uri']) {
+			return $parent;
+		}
+
+		$condition = ['uri' => $item['parent-uri'],
+			'parent-uri' => $item['parent-uri'],
+			'uid' => $item['uid']];
+		// We select wall = 1 in priority for top level permission checks
+		$params = ['order' => ['wall' => true]];
+		$toplevel_parent = self::selectFirst($fields, $condition, $params);
+
+		if (!DBA::isResult($toplevel_parent)) {
+			Logger::info('item parent was not found - ignoring item', ['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
+			return [];
+		}
+
+		return $toplevel_parent;
 	}
 
 	/**
@@ -1636,12 +1591,13 @@ class Item
 		// Store URI data
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 
+		// Backward compatibility: parent-uri used to be the direct parent uri.
+		// If it is provided without a thr-parent, it probably is the old behavior.
+		$item['thr-parent'] = trim($item['thr-parent'] ?? $item['parent-uri'] ?? $item['uri']);
+		$item['parent-uri'] = $item['thr-parent'];
+
 		// Store conversation data
 		$item = Conversation::insert($item);
-
-		if (!empty($item['thr-parent'])) {
-			$item['parent-uri'] = $item['thr-parent'];
-		}
 
 		/*
 		 * Do we already have this item?
@@ -1740,6 +1696,62 @@ class Item
 			return 0;
 		}
 
+		if ($item['thr-parent'] != $item['uri']) {
+			$toplevel_parent = self::getTopLevelParent($item);
+			if (empty($toplevel_parent)) {
+				return 0;
+			}
+
+			$parent_id          = $toplevel_parent['id'];
+			$item['parent-uri'] = $toplevel_parent['uri'];
+			$item['deleted']    = $toplevel_parent['deleted'];
+			$item['allow_cid']  = $toplevel_parent['allow_cid'];
+			$item['allow_gid']  = $toplevel_parent['allow_gid'];
+			$item['deny_cid']   = $toplevel_parent['deny_cid'];
+			$item['deny_gid']   = $toplevel_parent['deny_gid'];
+			$parent_origin      = $toplevel_parent['origin'];
+
+			// Don't federate received participation messages
+			if ($item['verb'] != Activity::FOLLOW) {
+				$item['wall'] = $toplevel_parent['wall'];
+			} else {
+				$item['wall'] = false;
+			}
+
+			/*
+			 * If the parent is private, force privacy for the entire conversation
+			 * This differs from the above settings as it subtly allows comments from
+			 * email correspondents to be private even if the overall thread is not.
+			 */
+			if ($toplevel_parent['private']) {
+				$item['private'] = $toplevel_parent['private'];
+			}
+
+			/*
+			 * Edge case. We host a public forum that was originally posted to privately.
+			 * The original author commented, but as this is a comment, the permissions
+			 * weren't fixed up so it will still show the comment as private unless we fix it here.
+			 */
+			if ((intval($toplevel_parent['forum_mode']) == 1) && ($toplevel_parent['private'] != self::PUBLIC)) {
+				$item['private'] = self::PUBLIC;
+			}
+
+			// If its a post that originated here then tag the thread as "mention"
+			if ($item['origin'] && $item['uid']) {
+				DBA::update('thread', ['mention' => true], ['iid' => $parent_id]);
+				Logger::info('tagged thread as mention', ['parent' => $parent_id, 'uid' => $item['uid']]);
+			}
+
+			// Update the contact relations
+			Contact\Relation::store($toplevel_parent['author-id'], $item['author-id'], $item['created']);
+
+			unset($item['parent']);
+			unset($item['parent_origin']);
+		} else {
+			$parent_id = 0;
+			$parent_origin = $item['origin'];
+		}
+
 		// We don't store the causer link, only the id
 		unset($item['causer-link']);
 
@@ -1752,23 +1764,6 @@ class Item
 		unset($item['owner-link']);
 		unset($item['owner-name']);
 		unset($item['owner-avatar']);
-
-		$item['thr-parent'] = $item['parent-uri'];
-
-		if ($item['parent-uri'] != $item['uri']) {
-			$item = self::getParentData($item);
-			if (empty($item)) {
-				return 0;
-			}
-
-			$parent_id = $item['parent'];
-			unset($item['parent']);
-			$parent_origin = $item['parent_origin'];
-			unset($item['parent_origin']);
-		} else {
-			$parent_id = 0;
-			$parent_origin = $item['origin'];
-		}
 
 		$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);
 		$item['thr-parent-id'] = ItemURI::getIdByURI($item['thr-parent']);
