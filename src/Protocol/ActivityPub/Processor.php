@@ -75,10 +75,15 @@ class Processor
 	 */
 	private static function replaceEmojis($body, array $emojis)
 	{
-		foreach ($emojis as $emoji) {
-			$replace = '[class=emoji mastodon][img=' . $emoji['href'] . ']' . $emoji['name'] . '[/img][/class]';
-			$body = str_replace($emoji['name'], $replace, $body);
-		}
+		$body = strtr($body,
+			array_combine(
+				array_column($emojis, 'name'),
+				array_map(function ($emoji) {
+					return '[class=emoji mastodon][img=' . $emoji['href'] . ']' . $emoji['name'] . '[/img][/class]';
+				}, $emojis)
+			)
+		);
+
 		return $body;
 	}
 
