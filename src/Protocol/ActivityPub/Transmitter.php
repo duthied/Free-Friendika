@@ -146,7 +146,8 @@ class Transmitter
 			'deleted' => false,
 			'hidden' => false,
 			'archive' => false,
-			'pending' => false
+			'pending' => false,
+			'blocked' => false,
 		];
 		$condition = DBA::buildCondition($parameters);
 
@@ -680,7 +681,7 @@ class Transmitter
 			$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
 		}
 
-		$condition = ['uid' => $uid, 'archive' => false, 'pending' => false];
+		$condition = ['uid' => $uid, 'archive' => false, 'pending' => false, 'blocked' => false];
 
 		if (!empty($uid)) {
 			$condition['rel'] = [Contact::FOLLOWER, Contact::FRIEND];
