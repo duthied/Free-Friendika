@@ -105,7 +105,7 @@ function item_post(App $a) {
 
 	$parent_item = null;
 	$toplevel_item = null;
-	$toplevel_item_id = null;
+	$toplevel_item_id = 0;
 	$toplevel_user_id = null;
 
 	$objecttype = null;
