@@ -173,7 +173,7 @@ class JsonLD
 	 *
 	 * @return array fetched element
 	 */
-	public static function fetchElementArray($array, $element, $key = null)
+	public static function fetchElementArray($array, $element, $key = null, $type = null, $type_value = null)
 	{
 		if (!isset($array[$element])) {
 			return null;
@@ -187,10 +187,14 @@ class JsonLD
 		$elements = [];
 
 		foreach ($array[$element] as $entry) {
-			if (!is_array($entry) || (is_null($key) && is_array($entry))) {
-				$elements[] = $entry;
-			} elseif (!is_null($key) && isset($entry[$key])) {
-				$elements[] = $entry[$key];
+			if (!is_array($entry) || is_null($key)) {
+				$item = $entry;
+			} elseif (isset($entry[$key])) {
+				$item = $entry[$key];
+			}
+
+			if (isset($item) && (is_null($type) || is_null($type_value) || isset($item[$type]) && $item[$type] == $type_value)) {
+				$elements[] = $item;
 			}
 		}
 
