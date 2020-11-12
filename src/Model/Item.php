@@ -1496,7 +1496,7 @@ class Item
 		$parent = self::selectFirst($fields, $condition, $params);
 
 		if (!DBA::isResult($parent)) {
-			Logger::info('item parent was not found - ignoring item', ['thr-parent' => $item['thr-parent'], 'uid' => $item['uid']]);
+			Logger::notice('item parent was not found - ignoring item', ['thr-parent' => $item['thr-parent'], 'uid' => $item['uid']]);
 			return [];
 		}
 
@@ -1504,21 +1504,21 @@ class Item
 			return $parent;
 		}
 
-		$condition = ['uri' => $item['parent-uri'],
-			'parent-uri' => $item['parent-uri'],
-			'uid' => $item['uid']];
+		$condition = ['uri' => $parent['parent-uri'],
+			'parent-uri' => $parent['parent-uri'],
+			'uid' => $parent['uid']];
 		// We select wall = 1 in priority for top level permission checks
 		$params = ['order' => ['wall' => true]];
 		$toplevel_parent = self::selectFirst($fields, $condition, $params);
 
 		if (!DBA::isResult($toplevel_parent)) {
-			Logger::info('item parent was not found - ignoring item', ['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
+			Logger::notice('item top level parent was not found - ignoring item', ['parent-uri' => $parent['parent-uri'], 'uid' => $parent['uid']]);
 			return [];
 		}
 
 		if ($toplevel_parent['wall']
-			&& $toplevel_parent['uid'] &&
-			!self::isAllowedByUser($item, $toplevel_parent['uid'])
+			&& $toplevel_parent['uid']
+			&& !self::isAllowedByUser($item, $toplevel_parent['uid'])
 		) {
 			return [];
 		}
