@@ -1734,7 +1734,6 @@ class Item
 			// Update the contact relations
 			Contact\Relation::store($toplevel_parent['author-id'], $item['author-id'], $item['created']);
 
-			unset($item['parent']);
 			unset($item['parent_origin']);
 		} else {
 			$parent_id = 0;
@@ -1777,10 +1776,12 @@ class Item
 			$item['parent'] = $parent_id;
 			Hook::callAll('post_local', $item);
 			unset($item['edit']);
-			unset($item['parent']);
 		} else {
 			Hook::callAll('post_remote', $item);
 		}
+
+		// Set after the insert because top-level posts are self-referencing
+		unset($item['parent']);
 
 		if (!empty($item['cancel'])) {
 			Logger::log('post cancelled by addon.');
