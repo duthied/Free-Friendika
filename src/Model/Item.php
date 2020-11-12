@@ -2479,12 +2479,15 @@ class Item
 	 */
 	private static function getLanguage(array $item)
 	{
-		if (!in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT])) {
+		if (!in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]) || empty($item['body'])) {
 			return '';
 		}
 
 		// Convert attachments to links
 		$naked_body = BBCode::removeAttachment($item['body']);
+		if (empty($naked_body)) {
+			return '';
+		}
 
 		// Remove links and pictures
 		$naked_body = BBCode::removeLinks($naked_body);
