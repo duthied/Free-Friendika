@@ -552,25 +552,27 @@ class Feed
 
 				$data = PageInfo::queryUrl($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_denylist"] ?? '');
 
-				// Take the data that was provided by the feed if the query is empty
-				if (($data['type'] == 'link') && empty($data['title']) && empty($data['text'])) {
-					$data['title'] = $saved_title;
-					$item["body"] = $saved_body;
+				if (!empty($data)) {
+					// Take the data that was provided by the feed if the query is empty
+					if (($data['type'] == 'link') && empty($data['title']) && empty($data['text'])) {
+						$data['title'] = $saved_title;
+						$item["body"] = $saved_body;
+					}
+
+					$data_text = strip_tags(trim($data['text'] ?? ''));
+					$item_body = strip_tags(trim($item['body'] ?? ''));
+
+					if (!empty($data_text) && (($data_text == $item_body) || strstr($item_body, $data_text))) {
+						$data['text'] = '';
+					}
+
+					// We always strip the title since it will be added in the page information
+					$item["title"] = "";
+					$item["body"] = $item["body"] . "\n" . PageInfo::getFooterFromData($data, false);
+					$taglist = $contact["fetch_further_information"] == 2 ? PageInfo::getTagsFromUrl($item["plink"], $preview, $contact["ffi_keyword_denylist"] ?? '') : [];
+					$item["object-type"] = Activity\ObjectType::BOOKMARK;
+					$attachments = [];
 				}
-
-				$data_text = strip_tags(trim($data['text'] ?? ''));
-				$item_body = strip_tags(trim($item['body'] ?? ''));
-
-				if (!empty($data_text) && (($data_text == $item_body) || strstr($item_body, $data_text))) {
-					$data['text'] = '';
-				}
-
-				// We always strip the title since it will be added in the page information
-				$item["title"] = "";
-				$item["body"] = $item["body"] . "\n" . PageInfo::getFooterFromData($data, false);
-				$taglist = $contact["fetch_further_information"] == 2 ? PageInfo::getTagsFromUrl($item["plink"], $preview, $contact["ffi_keyword_denylist"] ?? '') : [];
-				$item["object-type"] = Activity\ObjectType::BOOKMARK;
-				$attachments = [];
 			} else {
 				if (!empty($summary)) {
 					$item["body"] = '[abstract]' . HTML::toBBCode($summary, $basepath) . "[/abstract]\n" . $item["body"];

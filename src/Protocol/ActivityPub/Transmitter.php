@@ -995,9 +995,17 @@ class Transmitter
 			if (!empty($author['nurl'])) {
 				$self = Contact::selectFirst(['uid'], ['nurl' => $author['nurl'], 'self' => true]);
 				if (!empty($self['uid'])) {
-					$item = Item::selectFirst([], ['uri-id' => $item['uri-id'], 'uid' => $self['uid']]);
+					$forum_item = Item::selectFirst([], ['uri-id' => $item['uri-id'], 'uid' => $self['uid']]);
+					if (DBA::isResult($item)) {
+						$item = $forum_item; 
+					}
 				}
 			}
+		}
+
+		if (empty($item['uri-id'])) {
+			Logger::warning('Item without uri-id', ['item' => $item]);
+			return false;
 		}
 
 		if (empty($type)) {
