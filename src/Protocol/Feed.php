@@ -354,8 +354,6 @@ class Feed
 
 			$item["plink"] = DI::httpRequest()->finalUrl($item["plink"]);
 
-			$item["thr-parent"] = $item["uri"];
-
 			$item["title"] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
 
 			if (empty($item["title"])) {
