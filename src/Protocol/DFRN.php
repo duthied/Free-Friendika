@@ -414,36 +414,36 @@ class DFRN
 	/**
 	 * Create XML text for DFRN mails
 	 *
-	 * @param array $item  message elements
+	 * @param array $mail  Mail record
 	 * @param array $owner Owner record
 	 *
 	 * @return string DFRN mail
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  Find proper type-hints
 	 */
-	public static function mail($item, $owner)
+	public static function mail(array $mail, array $owner)
 	{
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
 		$root = self::addHeader($doc, $owner, "dfrn:owner", "", false);
 
-		$mail = $doc->createElement("dfrn:mail");
-		$sender = $doc->createElement("dfrn:sender");
+		$mailElement = $doc->createElement("dfrn:mail");
+		$senderElement = $doc->createElement("dfrn:sender");
 
-		XML::addElement($doc, $sender, "dfrn:name", $owner['name']);
-		XML::addElement($doc, $sender, "dfrn:uri", $owner['url']);
-		XML::addElement($doc, $sender, "dfrn:avatar", $owner['thumb']);
+		XML::addElement($doc, $senderElement, "dfrn:name", $owner['name']);
+		XML::addElement($doc, $senderElement, "dfrn:uri", $owner['url']);
+		XML::addElement($doc, $senderElement, "dfrn:avatar", $owner['thumb']);
 
-		$mail->appendChild($sender);
+		$mailElement->appendChild($senderElement);
 
-		XML::addElement($doc, $mail, "dfrn:id", $item['uri']);
-		XML::addElement($doc, $mail, "dfrn:in-reply-to", $item['thr-parent']);
-		XML::addElement($doc, $mail, "dfrn:sentdate", DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM));
-		XML::addElement($doc, $mail, "dfrn:subject", $item['title']);
-		XML::addElement($doc, $mail, "dfrn:content", $item['body']);
+		XML::addElement($doc, $mailElement, "dfrn:id", $mail['uri']);
+		XML::addElement($doc, $mailElement, "dfrn:in-reply-to", $mail['parent-uri']);
+		XML::addElement($doc, $mailElement, "dfrn:sentdate", DateTimeFormat::utc($mail['created'] . '+00:00', DateTimeFormat::ATOM));
+		XML::addElement($doc, $mailElement, "dfrn:subject", $mail['title']);
+		XML::addElement($doc, $mailElement, "dfrn:content", $mail['body']);
 
-		$root->appendChild($mail);
+		$root->appendChild($mailElement);
 
 		return trim($doc->saveXML());
 	}
