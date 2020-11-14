@@ -54,7 +54,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1373);
+	define('DB_UPDATE_VERSION', 1374);
 }
 
 return [
@@ -1050,11 +1050,11 @@ return [
 	"pconfig" => [
 		"comment" => "personal (per user) configuration storage",
 		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Primary key"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "User id"],
-			"cat" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => ""],
-			"k" => ["type" => "varbinary(100)", "not null" => "1", "default" => "", "comment" => ""],
-			"v" => ["type" => "mediumtext", "comment" => ""],
+			"cat" => ["type" => "varchar(50)", "not null" => "1", "default" => "", "comment" => "Category"],
+			"k" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "Key"],
+			"v" => ["type" => "mediumtext", "comment" => "Value"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
