@@ -1514,13 +1514,6 @@ class Item
 			return [];
 		}
 
-		// If the thread originated from this node, we check the permission against the thread starter
-		$condition = ['uri' => $toplevel_parent['uri'], 'wall' => true];
-		$localTopLevelParent = self::selectFirst(['uid'], $condition);
-		if (!empty($localTopLevelParent['uid']) && !self::isAllowedByUser($item, $localTopLevelParent['uid'])) {
-			return [];
-		}
-
 		return $toplevel_parent;
 	}
 
@@ -1686,6 +1679,13 @@ class Item
 		if ($item['gravity'] !== GRAVITY_PARENT) {
 			$toplevel_parent = self::getTopLevelParent($item);
 			if (empty($toplevel_parent)) {
+				return 0;
+			}
+
+			// If the thread originated from this node, we check the permission against the thread starter
+			$condition = ['uri' => $toplevel_parent['uri'], 'wall' => true];
+			$localTopLevelParent = self::selectFirst(['uid'], $condition);
+			if (!empty($localTopLevelParent['uid']) && !self::isAllowedByUser($item, $localTopLevelParent['uid'])) {
 				return 0;
 			}
 
