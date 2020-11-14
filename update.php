@@ -747,5 +747,5 @@ function pre_update_1365()
 		return Update::FAILED;
 	}
 
-	return UPDATE::SUCCESS;
+	return Update::SUCCESS;
 }
