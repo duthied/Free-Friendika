@@ -1507,19 +1507,17 @@ class Item
 		$condition = ['uri' => $parent['parent-uri'],
 			'parent-uri' => $parent['parent-uri'],
 			'uid' => $parent['uid']];
-		// We select wall = 1 in priority for top level permission checks
-		$params = ['order' => ['wall' => true]];
+		$params = ['order' => ['id' => false]];
 		$toplevel_parent = self::selectFirst($fields, $condition, $params);
-
 		if (!DBA::isResult($toplevel_parent)) {
 			Logger::notice('item top level parent was not found - ignoring item', ['parent-uri' => $parent['parent-uri'], 'uid' => $parent['uid']]);
 			return [];
 		}
 
-		if ($toplevel_parent['wall']
-			&& $toplevel_parent['uid']
-			&& !self::isAllowedByUser($item, $toplevel_parent['uid'])
-		) {
+		// If the thread originated from this node, we check the permission against the thread starter
+		$condition = ['uri' => $toplevel_parent['uri'], 'wall' => true];
+		$localTopLevelParent = self::selectFirst(['uid'], $condition);
+		if (!empty($localTopLevelParent['uid']) && !self::isAllowedByUser($item, $localTopLevelParent['uid'])) {
 			return [];
 		}
 
