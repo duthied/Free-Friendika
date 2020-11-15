@@ -1699,7 +1699,9 @@ class BBCode
 
 				// Replace non graphical smilies for external posts
 				if (!$nosmile && !$for_plaintext) {
-					$text = Smilies::replace($text);
+					$text = self::performWithEscapedTags($text, ['img'], function ($text) {
+						return Smilies::replace($text);
+					});
 				}
 
 				if (!$for_plaintext && DI::config()->get('system', 'big_emojis') && ($simple_html != self::DIASPORA)) {
