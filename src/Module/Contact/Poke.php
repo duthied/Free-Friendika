@@ -67,7 +67,6 @@ class Poke extends BaseModule
 		$arr['guid']          = System::createUUID();
 		$arr['uid']           = $uid;
 		$arr['uri']           = $uri;
-		$arr['parent-uri']    = $uri;
 		$arr['wall']          = 1;
 		$arr['contact-id']    = $actor['id'];
 		$arr['owner-name']    = $actor['name'];

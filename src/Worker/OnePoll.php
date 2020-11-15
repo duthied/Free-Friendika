@@ -583,9 +583,9 @@ class OnePoll
 							}
 						}
 						$condition = ['uri' => $refs_arr, 'uid' => $importer_uid];
-						$parent = Item::selectFirst(['parent-uri'], $condition);
+						$parent = Item::selectFirst(['uri'], $condition);
 						if (DBA::isResult($parent)) {
-							$datarray['parent-uri'] = $parent['parent-uri'];  // Set the parent as the top-level item
+							$datarray['thr-parent'] = $parent['uri'];
 						}
 					}
 
@@ -613,17 +613,13 @@ class OnePoll
 					$datarray['title'] = self::RemoveReply($datarray['title']);
 
 					// If it seems to be a reply but a header couldn't be found take the last message with matching subject
-					if (empty($datarray['parent-uri']) && $reply) {
+					if (empty($datarray['thr-parent']) && $reply) {
 						$condition = ['title' => $datarray['title'], 'uid' => $importer_uid, 'network' => Protocol::MAIL];
 						$params = ['order' => ['created' => true]];
-						$parent = Item::selectFirst(['parent-uri'], $condition, $params);
+						$parent = Item::selectFirst(['uri'], $condition, $params);
 						if (DBA::isResult($parent)) {
-							$datarray['parent-uri'] = $parent['parent-uri'];
+							$datarray['thr-parent'] = $parent['uri'];
 						}
-					}
-
-					if (empty($datarray['parent-uri'])) {
-						$datarray['parent-uri'] = $datarray['uri'];
 					}
 
 					$headers = imap_headerinfo($mbox, $meta->msgno);
@@ -663,7 +659,7 @@ class OnePoll
 					$datarray['owner-link'] = "mailto:".$contact['addr'];
 					$datarray['owner-avatar'] = $contact['photo'];
 
-					if ($datarray['parent-uri'] === $datarray['uri']) {
+					if ($datarray['thr-parent'] === $datarray['uri']) {
 						$datarray['private'] = Item::PRIVATE;
 					}
 

@@ -1697,9 +1697,9 @@ class Diaspora
 
 		if (isset($data->thread_parent_guid)) {
 			$thread_parent_guid = Strings::escapeTags(XML::unescape($data->thread_parent_guid));
-			$thr_uri = self::getUriFromGuid("", $thread_parent_guid, true);
+			$thr_parent = self::getUriFromGuid("", $thread_parent_guid, true);
 		} else {
-			$thr_uri = "";
+			$thr_parent = "";
 		}
 
 		$contact = self::allowedContactByHandle($importer, $sender, true);
@@ -1712,8 +1712,8 @@ class Diaspora
 			return true;
 		}
 
-		$parent_item = self::parentItem($importer["uid"], $parent_guid, $author, $contact);
-		if (!$parent_item) {
+		$toplevel_parent_item = self::parentItem($importer["uid"], $parent_guid, $author, $contact);
+		if (!$toplevel_parent_item) {
 			return false;
 		}
 
@@ -1754,11 +1754,8 @@ class Diaspora
 		$datarray["verb"] = Activity::POST;
 		$datarray["gravity"] = GRAVITY_COMMENT;
 
-		if ($thr_uri != "") {
-			$datarray["parent-uri"] = $thr_uri;
-		} else {
-			$datarray["parent-uri"] = $parent_item["uri"];
-		}
+		$datarray['thr-parent'] = $thr_parent ?: $toplevel_parent_item['uri'];
+		$datarray['parent-uri'] = $toplevel_parent_item['uri'];
 
 		$datarray["object-type"] = Activity\ObjectType::COMMENT;
 
@@ -1767,7 +1764,7 @@ class Diaspora
 
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
-		$datarray["plink"] = self::plink($author, $guid, $parent_item['guid']);
+		$datarray["plink"] = self::plink($author, $guid, $toplevel_parent_item['guid']);
 		$body = Markdown::toBBCode($text);
 
 		$datarray["body"] = self::replacePeopleGuid($body, $person["url"]);
@@ -1779,7 +1776,7 @@ class Diaspora
 
 		// If we are the origin of the parent we store the original data.
 		// We notify our followers during the item storage.
-		if ($parent_item["origin"]) {
+		if ($toplevel_parent_item["origin"]) {
 			$datarray['diaspora_signed_text'] = json_encode($data);
 		}
 
@@ -1953,8 +1950,8 @@ class Diaspora
 			return true;
 		}
 
-		$parent_item = self::parentItem($importer["uid"], $parent_guid, $author, $contact);
-		if (!$parent_item) {
+		$toplevel_parent_item = self::parentItem($importer["uid"], $parent_guid, $author, $contact);
+		if (!$toplevel_parent_item) {
 			return false;
 		}
 
@@ -1991,7 +1988,7 @@ class Diaspora
 
 		$datarray["verb"] = $verb;
 		$datarray["gravity"] = GRAVITY_ACTIVITY;
-		$datarray["parent-uri"] = $parent_item["uri"];
+		$datarray['thr-parent'] = $toplevel_parent_item['uri'];
 
 		$datarray["object-type"] = Activity\ObjectType::NOTE;
 
@@ -2001,11 +1998,11 @@ class Diaspora
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = DateTimeFormat::utcNow();
 
 		// like on comments have the comment as parent. So we need to fetch the toplevel parent
-		if ($parent_item['gravity'] != GRAVITY_PARENT) {
-			$toplevel = Item::selectFirst(['origin'], ['id' => $parent_item['parent']]);
+		if ($toplevel_parent_item['gravity'] != GRAVITY_PARENT) {
+			$toplevel = Item::selectFirst(['origin'], ['id' => $toplevel_parent_item['parent']]);
 			$origin = $toplevel["origin"];
 		} else {
-			$origin = $parent_item["origin"];
+			$origin = $toplevel_parent_item["origin"];
 		}
 
 		// If we are the origin of the parent we store the original data.
@@ -2116,16 +2113,16 @@ class Diaspora
 			return true;
 		}
 
-		$parent_item = self::parentItem($importer["uid"], $parent_guid, $author, $contact);
-		if (!$parent_item) {
+		$toplevel_parent_item = self::parentItem($importer["uid"], $parent_guid, $author, $contact);
+		if (!$toplevel_parent_item) {
 			return false;
 		}
 
-		if (!$parent_item['origin']) {
+		if (!$toplevel_parent_item['origin']) {
 			Logger::info('Not our origin. Participation is ignored', ['parent_guid' => $parent_guid, 'guid' => $guid, 'author' => $author]);
 		}
 
-		if (!in_array($parent_item['private'], [Item::PUBLIC, Item::UNLISTED])) {
+		if (!in_array($toplevel_parent_item['private'], [Item::PUBLIC, Item::UNLISTED])) {
 			Logger::info('Item is not public, participation is ignored', ['parent_guid' => $parent_guid, 'guid' => $guid, 'author' => $author]);
 			return false;
 		}
@@ -2155,7 +2152,8 @@ class Diaspora
 
 		$datarray["verb"] = Activity::FOLLOW;
 		$datarray["gravity"] = GRAVITY_ACTIVITY;
-		$datarray["parent-uri"] = $parent_item["uri"];
+		$datarray['thr-parent'] = $toplevel_parent_item['uri'];
+		$datarray['parent-uri'] = $toplevel_parent_item['parent-uri'];
 
 		$datarray["object-type"] = Activity\ObjectType::NOTE;
 
@@ -2170,7 +2168,7 @@ class Diaspora
 
 		// Send all existing comments and likes to the requesting server
 		$comments = Item::select(['id', 'uri-id', 'parent-author-network', 'author-network', 'verb'],
-			['parent' => $parent_item['id'], 'gravity' => [GRAVITY_COMMENT, GRAVITY_ACTIVITY]]);
+			['parent' => $toplevel_parent_item['id'], 'gravity' => [GRAVITY_COMMENT, GRAVITY_ACTIVITY]]);
 		while ($comment = Item::fetch($comments)) {
 			if (in_array($comment['verb'], [Activity::FOLLOW, Activity::TAG])) {
 				Logger::info('participation messages are not relayed', ['item' => $comment['id']]);
@@ -2547,7 +2545,8 @@ class Diaspora
 
 		$datarray['guid'] = $parent['guid'] . '-' . $guid;
 		$datarray['uri'] = self::getUriFromGuid($author, $datarray['guid']);
-		$datarray['parent-uri'] = $parent['uri'];
+		$datarray['thr-parent'] = $parent['uri'];
+		$datarray['parent-uri'] = $parent['parent-uri'];
 
 		$datarray['verb'] = $datarray['body'] = Activity::ANNOUNCE;
 		$datarray['gravity'] = GRAVITY_ACTIVITY;
@@ -2618,7 +2617,7 @@ class Diaspora
 		$datarray["owner-id"] = $datarray["author-id"];
 
 		$datarray["guid"] = $guid;
-		$datarray["uri"] = $datarray["parent-uri"] = self::getUriFromGuid($author, $guid);
+		$datarray["uri"] = $datarray["thr-parent"] = self::getUriFromGuid($author, $guid);
 		$datarray['uri-id'] = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);
 
 		$datarray["verb"] = Activity::POST;
@@ -2703,7 +2702,7 @@ class Diaspora
 		}
 
 		// Fetch items that are about to be deleted
-		$fields = ['uid', 'id', 'parent', 'parent-uri', 'author-link', 'file'];
+		$fields = ['uid', 'id', 'parent', 'author-link', 'file'];
 
 		// When we receive a public retraction, we delete every item that we find.
 		if ($importer['uid'] == 0) {
@@ -2872,7 +2871,7 @@ class Diaspora
 		$datarray = [];
 
 		$datarray["guid"] = $guid;
-		$datarray["uri"] = $datarray["parent-uri"] = self::getUriFromGuid($author, $guid);
+		$datarray["uri"] = $datarray["thr-parent"] = self::getUriFromGuid($author, $guid);
 		$datarray['uri-id'] = ItemURI::insert(['uri' => $datarray['uri'], 'guid' => $datarray['guid']]);
 
 		// Attach embedded pictures to the body
@@ -3681,12 +3680,12 @@ class Diaspora
 	 */
 	private static function constructLike(array $item, array $owner)
 	{
-		$parent = Item::selectFirst(['guid', 'uri', 'parent-uri'], ['uri' => $item["thr-parent"]]);
+		$parent = Item::selectFirst(['guid', 'uri', 'thr-parent'], ['uri' => $item["thr-parent"]]);
 		if (!DBA::isResult($parent)) {
 			return false;
 		}
 
-		$target_type = ($parent["uri"] === $parent["parent-uri"] ? "Post" : "Comment");
+		$target_type = ($parent["uri"] === $parent["thr-parent"] ? "Post" : "Comment");
 		$positive = null;
 		if ($item['verb'] === Activity::LIKE) {
 			$positive = "true";
@@ -3713,7 +3712,7 @@ class Diaspora
 	 */
 	private static function constructAttend(array $item, array $owner)
 	{
-		$parent = Item::selectFirst(['guid', 'uri', 'parent-uri'], ['uri' => $item["thr-parent"]]);
+		$parent = Item::selectFirst(['guid'], ['uri' => $item['thr-parent']]);
 		if (!DBA::isResult($parent)) {
 			return false;
 		}
@@ -4242,10 +4241,7 @@ class Diaspora
 			return false;
 		}
 
-		// This is a workaround for the behaviour of the "insert" function, see mod/item.php
-		$item['thr-parent'] = $item['parent-uri'];
-
-		$parent = Item::selectFirst(['parent-uri'], ['uri' => $item['parent-uri']]);
+		$parent = Item::selectFirst(['parent-uri'], ['uri' => $item['thr-parent']]);
 		if (!DBA::isResult($parent)) {
 			return;
 		}

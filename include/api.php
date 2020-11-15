@@ -4766,7 +4766,6 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
 	$arr['guid']          = System::createUUID();
 	$arr['uid']           = intval(api_user());
 	$arr['uri']           = $uri;
-	$arr['parent-uri']    = $uri;
 	$arr['type']          = 'photo';
 	$arr['wall']          = 1;
 	$arr['resource-id']   = $hash;

@@ -749,3 +749,12 @@ function pre_update_1365()
 
 	return Update::SUCCESS;
 }
+
+function update_1375()
+{
+	if (!DBA::e("UPDATE `item` SET `thr-parent` = `parent-uri`, `thr-parent-id` = `parent-uri-id` WHERE `thr-parent` = ''")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}

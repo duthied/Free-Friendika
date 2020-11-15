@@ -100,29 +100,32 @@ function item_post(App $a) {
 	}
 
 	// Is this a reply to something?
-	$toplevel_item_id = intval($_REQUEST['parent'] ?? 0);
+	$parent_item_id = intval($_REQUEST['parent'] ?? 0);
 	$thr_parent_uri = trim($_REQUEST['parent_uri'] ?? '');
 
+	$parent_item = null;
 	$toplevel_item = null;
-	$parent_user = null;
+	$toplevel_item_id = 0;
+	$toplevel_user_id = null;
 
 	$objecttype = null;
 	$profile_uid = ($_REQUEST['profile_uid'] ?? 0) ?: local_user();
 	$posttype = ($_REQUEST['post_type'] ?? '') ?: Item::PT_ARTICLE;
 
-	if ($toplevel_item_id || $thr_parent_uri) {
-		if ($toplevel_item_id) {
-			$toplevel_item = Item::selectFirst([], ['id' => $toplevel_item_id]);
+	if ($parent_item_id || $thr_parent_uri) {
+		if ($parent_item_id) {
+			$parent_item = Item::selectFirst([], ['id' => $parent_item_id]);
 		} elseif ($thr_parent_uri) {
-			$toplevel_item = Item::selectFirst([], ['uri' => $thr_parent_uri, 'uid' => $profile_uid]);
+			$parent_item = Item::selectFirst([], ['uri' => $thr_parent_uri, 'uid' => $profile_uid]);
 		}
 
 		// if this isn't the top-level parent of the conversation, find it
-		if (DBA::isResult($toplevel_item)) {
+		if (DBA::isResult($parent_item)) {
 			// The URI and the contact is taken from the direct parent which needn't to be the top parent
-			$thr_parent_uri = $toplevel_item['uri'];
+			$thr_parent_uri = $parent_item['uri'];
+			$toplevel_item = $parent_item;
 
-			if ($toplevel_item['gravity'] != GRAVITY_PARENT) {
+			if ($parent_item['gravity'] != GRAVITY_PARENT) {
 				$toplevel_item = Item::selectFirst([], ['id' => $toplevel_item['parent']]);
 			}
 		}
@@ -146,7 +149,7 @@ function item_post(App $a) {
 		}
 
 		$toplevel_item_id = $toplevel_item['id'];
-		$parent_user = $toplevel_item['uid'];
+		$toplevel_user_id = $toplevel_item['uid'];
 
 		$objecttype = Activity\ObjectType::COMMENT;
 	}
@@ -168,8 +171,8 @@ function item_post(App $a) {
 	}
 
 	// Ensure that the user id in a thread always stay the same
-	if (!is_null($parent_user) && in_array($parent_user, [local_user(), 0])) {
-		$profile_uid = $parent_user;
+	if (!is_null($toplevel_user_id) && in_array($toplevel_user_id, [local_user(), 0])) {
+		$profile_uid = $toplevel_user_id;
 	}
 
 	// Check for multiple posts with the same message id (when the post was created via API)
@@ -605,8 +608,7 @@ function item_post(App $a) {
 	$datarray['pubmail']       = $pubmail_enabled;
 	$datarray['attach']        = $attachments;
 
-	// This is not a bug. The item store function changes 'parent-uri' to 'thr-parent' and fetches 'parent-uri' new. (We should change this)
-	$datarray['parent-uri']    = $thr_parent_uri;
+	$datarray['thr-parent']    = $thr_parent_uri;
 
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
@@ -627,7 +629,7 @@ function item_post(App $a) {
 	// This field is for storing the raw conversation data
 	$datarray['protocol'] = Conversation::PARCEL_DFRN;
 
-	$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $datarray['parent-uri']]);
+	$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $datarray['thr-parent']]);
 	if (DBA::isResult($conversation)) {
 		if ($conversation['conversation-uri'] != '') {
 			$datarray['conversation-uri'] = $conversation['conversation-uri'];

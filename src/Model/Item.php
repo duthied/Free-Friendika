@@ -1379,7 +1379,7 @@ class Item
 	public static function isValid(array $item)
 	{
 		// When there is no content then we don't post it
-		if ($item['body'].$item['title'] == '') {
+		if ($item['body'] . $item['title'] == '') {
 			Logger::notice('No body, no title.');
 			return false;
 		}
@@ -1415,11 +1415,6 @@ class Item
 			return false;
 		}
 
-		if (!empty($item['uid']) && !empty($item['author-id']) && Contact\User::isBlocked($item['author-id'], $item['uid'])) {
-			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
-			return false;
-		}
-
 		if (!empty($item['owner-id']) && Contact::isBlocked($item['owner-id'])) {
 			Logger::notice('Owner is blocked node-wide', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
 			return false;
@@ -1430,22 +1425,10 @@ class Item
 			return false;
 		}
 
-		if (!empty($item['uid']) && !empty($item['owner-id']) && Contact\User::isBlocked($item['owner-id'], $item['uid'])) {
-			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
+		if (!empty($item['uid']) && !self::isAllowedByUser($item, $item['uid'])) {
 			return false;
 		}
 
-		// The causer is set during a thread completion, for example because of a reshare. It countains the responsible actor.
-		if (!empty($item['uid']) && !empty($item['causer-id']) && Contact\User::isBlocked($item['causer-id'], $item['uid'])) {
-			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
-			return false;
-		}
-
-		if (!empty($item['uid']) && !empty($item['causer-id']) && ($item['parent-uri'] == $item['uri']) && Contact\User::isIgnored($item['causer-id'], $item['uid'])) {
-			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'], 'uid' => $item['uid'], 'item-uri' => $item['uri']]);
-			return false;
-		}
-		
 		if ($item['verb'] == Activity::FOLLOW) {
 			if (!$item['origin'] && ($item['author-id'] == Contact::getPublicIdByUserId($item['uid']))) {
 				// Our own follow request can be relayed to us. We don't store it to avoid notification chaos.
@@ -1497,88 +1480,41 @@ class Item
 	}
 
 	/**
-	 * Fetch parent data for the given item array
+	 * Fetch top-level parent data for the given item array
 	 *
 	 * @param array $item
 	 * @return array item array with parent data
+	 * @throws \Exception
 	 */
-	private static function getParentData(array $item)
+	private static function getTopLevelParent(array $item)
 	{
-		// find the parent and snarf the item id and ACLs
-		// and anything else we need to inherit
-
-		$fields = ['uri', 'parent-uri', 'id', 'deleted',
+		$fields = ['uid', 'uri', 'parent-uri', 'id', 'deleted',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'wall', 'private', 'forum_mode', 'origin', 'author-id'];
-		$condition = ['uri' => $item['parent-uri'], 'uid' => $item['uid']];
+		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid']];
 		$params = ['order' => ['id' => false]];
 		$parent = self::selectFirst($fields, $condition, $params);
 
 		if (!DBA::isResult($parent)) {
-			Logger::info('item parent was not found - ignoring item', ['parent-uri' => $item['parent-uri'], 'uid' => $item['uid']]);
+			Logger::notice('item parent was not found - ignoring item', ['thr-parent' => $item['thr-parent'], 'uid' => $item['uid']]);
 			return [];
-		} else {
-			// is the new message multi-level threaded?
-			// even though we don't support it now, preserve the info
-			// and re-attach to the conversation parent.
-			if ($parent['uri'] != $parent['parent-uri']) {
-				$item['parent-uri'] = $parent['parent-uri'];
-
-				$condition = ['uri' => $item['parent-uri'],
-					'parent-uri' => $item['parent-uri'],
-					'uid' => $item['uid']];
-				$params = ['order' => ['id' => false]];
-				$toplevel_parent = self::selectFirst($fields, $condition, $params);
-
-				if (DBA::isResult($toplevel_parent)) {
-					$parent = $toplevel_parent;
-				}
-			}
-
-			$item['parent']        = $parent['id'];
-			$item["deleted"]       = $parent['deleted'];
-			$item["allow_cid"]     = $parent['allow_cid'];
-			$item['allow_gid']     = $parent['allow_gid'];
-			$item['deny_cid']      = $parent['deny_cid'];
-			$item['deny_gid']      = $parent['deny_gid'];
-			$item['parent_origin'] = $parent['origin'];
-
-			// Don't federate received participation messages
-			if ($item['verb'] != Activity::FOLLOW) {
-				$item['wall'] = $parent['wall'];
-			} else {
-				$item['wall'] = false;
-			}
-
-			/*
-			 * If the parent is private, force privacy for the entire conversation
-			 * This differs from the above settings as it subtly allows comments from
-			 * email correspondents to be private even if the overall thread is not.
-			 */
-			if ($parent['private']) {
-				$item['private'] = $parent['private'];
-			}
-
-			/*
-			 * Edge case. We host a public forum that was originally posted to privately.
-			 * The original author commented, but as this is a comment, the permissions
-			 * weren't fixed up so it will still show the comment as private unless we fix it here.
-			 */
-			if ((intval($parent['forum_mode']) == 1) && ($parent['private'] != self::PUBLIC)) {
-				$item['private'] = self::PUBLIC;
-			}
-
-			// If its a post that originated here then tag the thread as "mention"
-			if ($item['origin'] && $item['uid']) {
-				DBA::update('thread', ['mention' => true], ['iid' => $item['parent']]);
-				Logger::info('tagged thread as mention', ['parent' => $item['parent'], 'uid' => $item['uid']]);
-			}
-
-			// Update the contact relations
-			Contact\Relation::store($parent['author-id'], $item['author-id'], $item['created']);
 		}
 
-		return $item;
+		if ($parent['uri'] == $parent['parent-uri']) {
+			return $parent;
+		}
+
+		$condition = ['uri' => $parent['parent-uri'],
+			'parent-uri' => $parent['parent-uri'],
+			'uid' => $parent['uid']];
+		$params = ['order' => ['id' => false]];
+		$toplevel_parent = self::selectFirst($fields, $condition, $params);
+		if (!DBA::isResult($toplevel_parent)) {
+			Logger::notice('item top level parent was not found - ignoring item', ['parent-uri' => $parent['parent-uri'], 'uid' => $parent['uid']]);
+			return [];
+		}
+
+		return $toplevel_parent;
 	}
 
 	/**
@@ -1631,17 +1567,18 @@ class Item
 		$uid = intval($item['uid']);
 
 		$item['guid'] = self::guid($item, $notify);
-		$item['uri'] = substr(Strings::escapeTags(trim(($item['uri'] ?? '') ?: self::newURI($item['uid'], $item['guid']))), 0, 255);
+		$item['uri'] = substr(trim($item['uri'] ?? '') ?: self::newURI($item['uid'], $item['guid']), 0, 255);
 
 		// Store URI data
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 
+		// Backward compatibility: parent-uri used to be the direct parent uri.
+		// If it is provided without a thr-parent, it probably is the old behavior.
+		$item['thr-parent'] = trim($item['thr-parent'] ?? $item['parent-uri'] ?? $item['uri']);
+		$item['parent-uri'] = $item['thr-parent'];
+
 		// Store conversation data
 		$item = Conversation::insert($item);
-
-		if (!empty($item['thr-parent'])) {
-			$item['parent-uri'] = $item['thr-parent'];
-		}
 
 		/*
 		 * Do we already have this item?
@@ -1677,7 +1614,6 @@ class Item
 		$item['coord']         = trim($item['coord'] ?? '');
 		$item['visible']       = (isset($item['visible']) ? intval($item['visible']) : 1);
 		$item['deleted']       = 0;
-		$item['parent-uri']    = trim(($item['parent-uri'] ?? '') ?: $item['uri']);
 		$item['post-type']     = ($item['post-type'] ?? '') ?: self::PT_ARTICLE;
 		$item['verb']          = trim($item['verb'] ?? '');
 		$item['object-type']   = trim($item['object-type'] ?? '');
@@ -1740,6 +1676,68 @@ class Item
 			return 0;
 		}
 
+		if ($item['gravity'] !== GRAVITY_PARENT) {
+			$toplevel_parent = self::getTopLevelParent($item);
+			if (empty($toplevel_parent)) {
+				return 0;
+			}
+
+			// If the thread originated from this node, we check the permission against the thread starter
+			$condition = ['uri' => $toplevel_parent['uri'], 'wall' => true];
+			$localTopLevelParent = self::selectFirst(['uid'], $condition);
+			if (!empty($localTopLevelParent['uid']) && !self::isAllowedByUser($item, $localTopLevelParent['uid'])) {
+				return 0;
+			}
+
+			$parent_id          = $toplevel_parent['id'];
+			$item['parent-uri'] = $toplevel_parent['uri'];
+			$item['deleted']    = $toplevel_parent['deleted'];
+			$item['allow_cid']  = $toplevel_parent['allow_cid'];
+			$item['allow_gid']  = $toplevel_parent['allow_gid'];
+			$item['deny_cid']   = $toplevel_parent['deny_cid'];
+			$item['deny_gid']   = $toplevel_parent['deny_gid'];
+			$parent_origin      = $toplevel_parent['origin'];
+
+			// Don't federate received participation messages
+			if ($item['verb'] != Activity::FOLLOW) {
+				$item['wall'] = $toplevel_parent['wall'];
+			} else {
+				$item['wall'] = false;
+			}
+
+			/*
+			 * If the parent is private, force privacy for the entire conversation
+			 * This differs from the above settings as it subtly allows comments from
+			 * email correspondents to be private even if the overall thread is not.
+			 */
+			if ($toplevel_parent['private']) {
+				$item['private'] = $toplevel_parent['private'];
+			}
+
+			/*
+			 * Edge case. We host a public forum that was originally posted to privately.
+			 * The original author commented, but as this is a comment, the permissions
+			 * weren't fixed up so it will still show the comment as private unless we fix it here.
+			 */
+			if ((intval($toplevel_parent['forum_mode']) == 1) && ($toplevel_parent['private'] != self::PUBLIC)) {
+				$item['private'] = self::PUBLIC;
+			}
+
+			// If its a post that originated here then tag the thread as "mention"
+			if ($item['origin'] && $item['uid']) {
+				DBA::update('thread', ['mention' => true], ['iid' => $parent_id]);
+				Logger::info('tagged thread as mention', ['parent' => $parent_id, 'uid' => $item['uid']]);
+			}
+
+			// Update the contact relations
+			Contact\Relation::store($toplevel_parent['author-id'], $item['author-id'], $item['created']);
+
+			unset($item['parent_origin']);
+		} else {
+			$parent_id = 0;
+			$parent_origin = $item['origin'];
+		}
+
 		// We don't store the causer link, only the id
 		unset($item['causer-link']);
 
@@ -1752,23 +1750,6 @@ class Item
 		unset($item['owner-link']);
 		unset($item['owner-name']);
 		unset($item['owner-avatar']);
-
-		$item['thr-parent'] = $item['parent-uri'];
-
-		if ($item['parent-uri'] != $item['uri']) {
-			$item = self::getParentData($item);
-			if (empty($item)) {
-				return 0;
-			}
-
-			$parent_id = $item['parent'];
-			unset($item['parent']);
-			$parent_origin = $item['parent_origin'];
-			unset($item['parent_origin']);
-		} else {
-			$parent_id = 0;
-			$parent_origin = $item['origin'];
-		}
 
 		$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);
 		$item['thr-parent-id'] = ItemURI::getIdByURI($item['thr-parent']);
@@ -1793,10 +1774,12 @@ class Item
 			$item['parent'] = $parent_id;
 			Hook::callAll('post_local', $item);
 			unset($item['edit']);
-			unset($item['parent']);
 		} else {
 			Hook::callAll('post_remote', $item);
 		}
+
+		// Set after the insert because top-level posts are self-referencing
+		unset($item['parent']);
 
 		if (!empty($item['cancel'])) {
 			Logger::log('post cancelled by addon.');
@@ -1933,7 +1916,7 @@ class Item
 
 		Logger::notice('created item', ['id' => $current_post, 'uid' => $item['uid'], 'network' => $item['network'], 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 
-		if (!$parent_id || ($item['parent-uri'] === $item['uri'])) {
+		if (!$parent_id || ($item['gravity'] === GRAVITY_PARENT)) {
 			$parent_id = $current_post;
 		}
 
@@ -1958,7 +1941,7 @@ class Item
 			DBA::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		}
 
-		if ($item['parent-uri'] === $item['uri']) {
+		if ($item['gravity'] === GRAVITY_PARENT) {
 			self::addThread($current_post);
 		} else {
 			self::updateThread($parent_id);
@@ -1986,7 +1969,7 @@ class Item
 			}
 		}
 
-		if ($item['parent-uri'] === $item['uri']) {
+		if ($item['gravity'] === GRAVITY_PARENT) {
 			self::addShadow($current_post);
 		} else {
 			self::addShadowPost($current_post);
@@ -2863,14 +2846,15 @@ class Item
 				unset($datarray["plink"]);
 				$datarray["uri"] = self::newURI($contact['uid'], $datarray["guid"]);
 				$datarray["uri-id"] = ItemURI::getIdByURI($datarray["uri"]);
-				$datarray["parent-uri"] = $datarray["uri"];
-				$datarray["thr-parent"] = $datarray["uri"];
 				$datarray["extid"] = Protocol::DFRN;
 				$urlpart = parse_url($datarray2['author-link']);
 				$datarray["app"] = $urlpart["host"];
 				if (!empty($old_uri_id)) {
 					Post\Media::copy($old_uri_id, $datarray["uri-id"]);
 				}
+
+				unset($datarray["parent-uri"]);
+				unset($datarray["thr-parent"]);
 			} else {
 				$datarray['private'] = self::PUBLIC;
 			}
@@ -3302,7 +3286,6 @@ class Item
 			'network'       => Protocol::DFRN,
 			'gravity'       => GRAVITY_ACTIVITY,
 			'parent'        => $item['id'],
-			'parent-uri'    => $item['uri'],
 			'thr-parent'    => $item['uri'],
 			'owner-id'      => $author_id,
 			'author-id'     => $author_id,
@@ -3960,5 +3943,42 @@ class Item
 		unset($shared_item['body']);
 
 		return array_merge($item, $shared_item);
+	}
+
+	/**
+	 * Check a prospective item array against user-level permissions
+	 *
+	 * @param array $item Expected keys: uri, gravity, and
+	 *                    author-link if is author-id is set,
+	 *                    owner-link if is owner-id is set,
+	 *                    causer-link if is causer-id is set.
+	 * @param int   $user_id Local user ID
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected static function isAllowedByUser(array $item, int $user_id)
+	{
+		if (!empty($item['author-id']) && Contact\User::isBlocked($item['author-id'], $user_id)) {
+			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (!empty($item['owner-id']) && Contact\User::isBlocked($item['owner-id'], $user_id)) {
+			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		// The causer is set during a thread completion, for example because of a reshare. It countains the responsible actor.
+		if (!empty($item['causer-id']) && Contact\User::isBlocked($item['causer-id'], $user_id)) {
+			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		if (!empty($item['causer-id']) && ($item['gravity'] === GRAVITY_PARENT) && Contact\User::isIgnored($item['causer-id'], $user_id)) {
+			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			return false;
+		}
+
+		return true;
 	}
 }

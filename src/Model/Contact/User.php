@@ -64,7 +64,7 @@ class User
 	{
 		$cdata = Contact::getPublicAndUserContacID($cid, $uid);
 		if (empty($cdata)) {
-			return;
+			return false;
 		}
 
 		$public_blocked = false;
@@ -127,7 +127,7 @@ class User
 	{
 		$cdata = Contact::getPublicAndUserContacID($cid, $uid);
 		if (empty($cdata)) {
-			return;
+			return false;
 		}
 
 		$public_ignored = false;
