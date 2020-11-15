@@ -42,6 +42,7 @@ use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
+use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
@@ -77,6 +78,27 @@ class Transmitter
 		}
 		DBA::close($contacts);
 
+		return $inboxes;
+	}
+
+	/**
+	 * Add relay servers to the list of inboxes
+	 *
+	 * @param array $inboxes
+	 * @return array inboxes with added relay servers
+	 */
+	public static function addRelayServerInboxesForItem(int $item_id, array $inboxes = [])
+	{
+		$relays = Relay::getList($item_id, [], [Protocol::ACTIVITYPUB]);
+		if (empty($relays)) {
+			return $inboxes;
+		}
+
+		foreach ($relays as $relay) {
+			if (!in_array($relay['batch'], $inboxes)) {
+				$inboxes[] = $relay['batch'];
+			}
+		}
 		return $inboxes;
 	}
 

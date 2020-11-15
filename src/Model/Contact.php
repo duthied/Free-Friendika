@@ -176,6 +176,14 @@ class Contact
 	 */
 	public static function insert(array $fields, bool $on_duplicate_update = false)
 	{
+		if (!empty($fields['baseurl']) && empty($fields['gsid'])) {
+			$fields['gsid'] = GServer::getID($fields['baseurl'], true);
+		}
+
+		if (empty($fields['created'])) {
+			$fields['created'] = DateTimeFormat::utcNow();
+		}
+
 		$ret = DBA::insert('contact', $fields, $on_duplicate_update);
 		$contact = DBA::selectFirst('contact', ['nurl', 'uid'], ['id' => DBA::lastInsertId()]);
 		if (!DBA::isResult($contact)) {

@@ -31,7 +31,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\Register;
 use Friendica\Network\CurlResult;
-use Friendica\Protocol\Diaspora;
+use Friendica\Protocol\Relay;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -518,7 +518,7 @@ class GServer
 			$data['tags'] = [];
 		}
 
-		$gserver = DBA::selectFirst('gserver', ['id', 'relay-subscribe', 'relay-scope'], ['nurl' => Strings::normaliseLink($server_url)]);
+		$gserver = DBA::selectFirst('gserver', ['id', 'url', 'network', 'relay-subscribe', 'relay-scope'], ['nurl' => Strings::normaliseLink($server_url)]);
 		if (!DBA::isResult($gserver)) {
 			return;
 		}
@@ -567,8 +567,22 @@ class GServer
 					$fields['batch'] = $data['protocols']['dfrn'];
 				}
 			}
+
+			if (isset($data['protocols']['activitypub'])) {
+				$fields['network'] = Protocol::ACTIVITYPUB;
+
+				if (!empty($data['protocols']['activitypub']['actor'])) {
+					$fields['url'] = $data['protocols']['activitypub']['actor'];
+				}
+				if (!empty($data['protocols']['activitypub']['receive'])) {
+					$fields['batch'] = $data['protocols']['activitypub']['receive'];
+				}
+			}
 		}
-		Diaspora::setRelayContact($server_url, $fields);
+
+		Logger::info('Discovery ended', ['server' => $server_url, 'data' => $fields]);
+
+		Relay::updateContact($gserver, $fields);
 	}
 
 	/**
