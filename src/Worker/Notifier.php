@@ -40,6 +40,7 @@ use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
+use Friendica\Protocol\Relay;
 use Friendica\Protocol\Salmon;
 
 /*
@@ -414,12 +415,10 @@ class Notifier
 
 				$relay_list_stmt = DBA::p(
 					"SELECT
-						`batch`,
+						`batch`, `network`, `protocol`,
 						ANY_VALUE(`id`) AS `id`,
 						ANY_VALUE(`url`) AS `url`,
-						ANY_VALUE(`name`) AS `name`,
-						ANY_VALUE(`network`) AS `network`,
-						ANY_VALUE(`protocol`) AS `protocol`
+						ANY_VALUE(`name`) AS `name`
 					FROM `contact`
 					WHERE `network` = ?
 					AND `batch` != ''
@@ -428,7 +427,7 @@ class Notifier
 					AND NOT `blocked`
 					AND NOT `pending`
 					AND NOT `archive`
-					GROUP BY `batch`",
+					GROUP BY `batch`, `network`, `protocol`",
 					Protocol::DIASPORA,
 					$owner['uid'],
 					Contact::SHARING
@@ -442,7 +441,7 @@ class Notifier
 				// Add the relay to the list, avoid duplicates.
 				// Don't send community posts to the relay. Forum posts via the Diaspora protocol are looking ugly.
 				if (!$followup && !Item::isForumPost($target_item, $owner) && !self::isForumPost($target_item)) {
-					$relay_list = Diaspora::relayList($target_id, $relay_list);
+					$relay_list = Relay::getList($target_id, $relay_list, [Protocol::DFRN, Protocol::DIASPORA]);
 				}
 			}
 
@@ -461,7 +460,7 @@ class Notifier
 					}
 
 					if (!empty($rr['addr']) && ($rr['network'] == Protocol::ACTIVITYPUB) && !DBA::exists('fcontact', ['addr' => $rr['addr']])) {
-						Logger::info('Contact is AP omly, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'contact' => $rr['url']]);
+						Logger::info('Contact is AP only, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'contact' => $rr['url']]);
 						continue;
 					}
 
@@ -476,7 +475,7 @@ class Notifier
 					}
 
 					if (self::skipDFRN($rr, $target_item, $parent, $thr_parent, $owner, $cmd)) {
-						Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['id' => $target_id, 'url' => $rr['url']]);
+						Logger::info('Content will be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['id' => $target_id, 'url' => $rr['url']]);
 						continue;
 					}
 
@@ -516,7 +515,7 @@ class Notifier
 			}
 
 			if (!empty($contact['addr']) && ($contact['network'] == Protocol::ACTIVITYPUB) && !DBA::exists('fcontact', ['addr' => $contact['addr']])) {
-				Logger::info('Contact is AP omly, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'contact' => $contact['url']]);
+				Logger::info('Contact is AP only, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'contact' => $contact['url']]);
 				continue;
 			}
 
@@ -531,7 +530,7 @@ class Notifier
 			}
 
 			if (self::skipDFRN($contact, $target_item, $parent, $thr_parent, $owner, $cmd)) {
-				Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'url' => $contact['url']]);
+				Logger::info('Content will be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'url' => $contact['url']]);
 				continue;
 			}
 
@@ -789,6 +788,7 @@ class Notifier
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
 
 			if (in_array($target_item['private'], [Item::PUBLIC])) {
+				$inboxes = ActivityPub\Transmitter::addRelayServerInboxesForItem($target_item['id'], $inboxes);
 				$relay_inboxes = ActivityPub\Transmitter::addRelayServerInboxes();
 			}
 
@@ -805,6 +805,7 @@ class Notifier
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($parent, $uid, true, $target_item['id']);
 
 			if (in_array($target_item['private'], [Item::PUBLIC])) {
+				$inboxes = ActivityPub\Transmitter::addRelayServerInboxesForItem($parent['id'], $inboxes);
 				$relay_inboxes = ActivityPub\Transmitter::addRelayServerInboxes([]);
 			}
 

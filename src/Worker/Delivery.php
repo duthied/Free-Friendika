@@ -34,6 +34,7 @@ use Friendica\Util\Strings;
 use Friendica\Util\Network;
 use Friendica\Core\Worker;
 use Friendica\Model\FContact;
+use Friendica\Protocol\Relay;
 
 class Delivery
 {
@@ -484,7 +485,7 @@ class Delivery
 
 			// When it is delivered to the public endpoint, we do mark the relay contact for archival as well
 			if ($public_message) {
-				Diaspora::markRelayForArchival($contact);
+				Relay::markForArchival($contact);
 			}
 
 			if (empty($contact['contact-type']) || ($contact['contact-type'] != Model\Contact::TYPE_RELAY)) {

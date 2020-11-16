@@ -67,14 +67,19 @@ class XSocialRelay extends BaseModule
 			'scope'     => $scope,
 			'tags'      => $tagList,
 			'protocols' => [
-				'diaspora' => [
-					'receive' => DI::baseUrl()->get() . '/receive/public'
+				'activitypub' => [
+					'actor' => DI::baseUrl()->get() . '/friendica',
+					'receive' => DI::baseUrl()->get() . '/inbox'
 				],
 				'dfrn'     => [
 					'receive' => DI::baseUrl()->get() . '/dfrn_notify'
 				]
 			]
 		];
+
+		if (DI::config()->get("system", "diaspora_enabled")) {
+			$relay['protocols']['diaspora'] = ['receive' => DI::baseUrl()->get() . '/receive/public'];
+		}
 
 		header('Content-type: application/json; charset=utf-8');
 		echo json_encode($relay, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
