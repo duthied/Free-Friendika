@@ -122,7 +122,7 @@ class LockFactory
 			try {
 				return new Lock\SemaphoreLock();
 			} catch (\Exception $exception) {
-				$this->logger->debug('Using Semaphore driver for locking failed.', ['exception' => $exception]);
+				$this->logger->warning('Using Semaphore driver for locking failed.', ['exception' => $exception]);
 			}
 		}
 
@@ -135,7 +135,7 @@ class LockFactory
 					return new Lock\CacheLock($cache);
 				}
 			} catch (\Exception $exception) {
-				$this->logger->debug('Using Cache driver for locking failed.', ['exception' => $exception]);
+				$this->logger->warning('Using Cache driver for locking failed.', ['exception' => $exception]);
 			}
 		}
 

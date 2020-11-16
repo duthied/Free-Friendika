@@ -1888,10 +1888,16 @@ class Item
 			}
 		}
 
-		if (DI::lock()->acquire(self::LOCK_INSERT, 0)) {
+		$locked = DI::lock()->acquire(self::LOCK_INSERT, 0);
+
+		if ($locked || DBA::lock('item')) {
 			$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
 			if (DBA::exists('item', $condition)) {
-				DI::lock()->release(self::LOCK_INSERT);
+				if ($locked) {
+					DI::lock()->release(self::LOCK_INSERT);
+				} else {
+					DBA::unlock();
+				}
 				Logger::notice('Item is already inserted - aborting', $condition);
 				return 0;
 			}
@@ -1900,7 +1906,11 @@ class Item
 
 			// When the item was successfully stored we fetch the ID of the item.
 			$current_post = DBA::lastInsertId();
-			DI::lock()->release(self::LOCK_INSERT);
+			if ($locked) {
+				DI::lock()->release(self::LOCK_INSERT);
+			} else {
+				DBA::unlock();
+			}
 		} else {
 			Logger::warning('Item lock had not been acquired');
 			$result = false;
