@@ -719,7 +719,7 @@ class Transmitter
 				continue;
 			}
 
-			if ($isforum && ($contact['dfrn'] == Protocol::DFRN)) {
+			if ($isforum && ($contact['network'] == Protocol::DFRN)) {
 				continue;
 			}
 

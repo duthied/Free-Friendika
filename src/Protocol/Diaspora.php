@@ -1565,7 +1565,6 @@ class Diaspora
 		$datarray["gravity"] = GRAVITY_COMMENT;
 
 		$datarray['thr-parent'] = $thr_parent ?: $toplevel_parent_item['uri'];
-		$datarray['parent-uri'] = $toplevel_parent_item['uri'];
 
 		$datarray["object-type"] = Activity\ObjectType::COMMENT;
 
@@ -1963,7 +1962,6 @@ class Diaspora
 		$datarray["verb"] = Activity::FOLLOW;
 		$datarray["gravity"] = GRAVITY_ACTIVITY;
 		$datarray['thr-parent'] = $toplevel_parent_item['uri'];
-		$datarray['parent-uri'] = $toplevel_parent_item['parent-uri'];
 
 		$datarray["object-type"] = Activity\ObjectType::NOTE;
 
@@ -2356,7 +2354,6 @@ class Diaspora
 		$datarray['guid'] = $parent['guid'] . '-' . $guid;
 		$datarray['uri'] = self::getUriFromGuid($author, $datarray['guid']);
 		$datarray['thr-parent'] = $parent['uri'];
-		$datarray['parent-uri'] = $parent['parent-uri'];
 
 		$datarray['verb'] = $datarray['body'] = Activity::ANNOUNCE;
 		$datarray['gravity'] = GRAVITY_ACTIVITY;
