@@ -34,6 +34,61 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Global servers';
 
 --
+-- TABLE user
+--
+CREATE TABLE IF NOT EXISTS `user` (
+	`uid` mediumint unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`parent-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'The parent user that has full control about this user',
+	`guid` varchar(64) NOT NULL DEFAULT '' COMMENT 'A unique identifier for this user',
+	`username` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name that this user is known by',
+	`password` varchar(255) NOT NULL DEFAULT '' COMMENT 'encrypted password',
+	`legacy_password` boolean NOT NULL DEFAULT '0' COMMENT 'Is the password hash double-hashed?',
+	`nickname` varchar(255) NOT NULL DEFAULT '' COMMENT 'nick- and user name',
+	`email` varchar(255) NOT NULL DEFAULT '' COMMENT 'the users email address',
+	`openid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`timezone` varchar(128) NOT NULL DEFAULT '' COMMENT 'PHP-legal timezone',
+	`language` varchar(32) NOT NULL DEFAULT 'en' COMMENT 'default language',
+	`register_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of registration',
+	`login_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of last login',
+	`default-location` varchar(255) NOT NULL DEFAULT '' COMMENT 'Default for item.location',
+	`allow_location` boolean NOT NULL DEFAULT '0' COMMENT '1 allows to display the location',
+	`theme` varchar(255) NOT NULL DEFAULT '' COMMENT 'user theme preference',
+	`pubkey` text COMMENT 'RSA public key 4096 bit',
+	`prvkey` text COMMENT 'RSA private key 4096 bit',
+	`spubkey` text COMMENT '',
+	`sprvkey` text COMMENT '',
+	`verified` boolean NOT NULL DEFAULT '0' COMMENT 'user is verified through email',
+	`blocked` boolean NOT NULL DEFAULT '0' COMMENT '1 for user is blocked',
+	`blockwall` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to post to the profile page of the user',
+	`hidewall` boolean NOT NULL DEFAULT '0' COMMENT 'Hide profile details from unkown viewers',
+	`blocktags` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to tag the post of this user',
+	`unkmail` boolean NOT NULL DEFAULT '0' COMMENT 'Permit unknown people to send private mails to this user',
+	`cntunkmail` int unsigned NOT NULL DEFAULT 10 COMMENT '',
+	`notify-flags` smallint unsigned NOT NULL DEFAULT 65535 COMMENT 'email notification options',
+	`page-flags` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'page/profile type',
+	`account-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`prvnets` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`pwdreset` varchar(255) COMMENT 'Password reset request token',
+	`pwdreset_time` datetime COMMENT 'Timestamp of the last password reset request',
+	`maxreq` int unsigned NOT NULL DEFAULT 10 COMMENT '',
+	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`account_removed` boolean NOT NULL DEFAULT '0' COMMENT 'if 1 the account is removed',
+	`account_expired` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`account_expires_on` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp when account expires and will be deleted',
+	`expire_notification_sent` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of last warning of account expiration',
+	`def_gid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`allow_cid` mediumtext COMMENT 'default permission for this user',
+	`allow_gid` mediumtext COMMENT 'default permission for this user',
+	`deny_cid` mediumtext COMMENT 'default permission for this user',
+	`deny_gid` mediumtext COMMENT 'default permission for this user',
+	`openidserver` text COMMENT '',
+	 PRIMARY KEY(`uid`),
+	 INDEX `nickname` (`nickname`(32)),
+	 INDEX `parent-uid` (`parent-uid`),
+	FOREIGN KEY (`parent-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
+
+--
 -- TABLE contact
 --
 CREATE TABLE IF NOT EXISTS `contact` (
@@ -162,61 +217,6 @@ CREATE TABLE IF NOT EXISTS `tag` (
 	 UNIQUE INDEX `type_name_url` (`name`,`url`),
 	 INDEX `url` (`url`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='tags and mentions';
-
---
--- TABLE user
---
-CREATE TABLE IF NOT EXISTS `user` (
-	`uid` mediumint unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`parent-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'The parent user that has full control about this user',
-	`guid` varchar(64) NOT NULL DEFAULT '' COMMENT 'A unique identifier for this user',
-	`username` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name that this user is known by',
-	`password` varchar(255) NOT NULL DEFAULT '' COMMENT 'encrypted password',
-	`legacy_password` boolean NOT NULL DEFAULT '0' COMMENT 'Is the password hash double-hashed?',
-	`nickname` varchar(255) NOT NULL DEFAULT '' COMMENT 'nick- and user name',
-	`email` varchar(255) NOT NULL DEFAULT '' COMMENT 'the users email address',
-	`openid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`timezone` varchar(128) NOT NULL DEFAULT '' COMMENT 'PHP-legal timezone',
-	`language` varchar(32) NOT NULL DEFAULT 'en' COMMENT 'default language',
-	`register_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of registration',
-	`login_date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of last login',
-	`default-location` varchar(255) NOT NULL DEFAULT '' COMMENT 'Default for item.location',
-	`allow_location` boolean NOT NULL DEFAULT '0' COMMENT '1 allows to display the location',
-	`theme` varchar(255) NOT NULL DEFAULT '' COMMENT 'user theme preference',
-	`pubkey` text COMMENT 'RSA public key 4096 bit',
-	`prvkey` text COMMENT 'RSA private key 4096 bit',
-	`spubkey` text COMMENT '',
-	`sprvkey` text COMMENT '',
-	`verified` boolean NOT NULL DEFAULT '0' COMMENT 'user is verified through email',
-	`blocked` boolean NOT NULL DEFAULT '0' COMMENT '1 for user is blocked',
-	`blockwall` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to post to the profile page of the user',
-	`hidewall` boolean NOT NULL DEFAULT '0' COMMENT 'Hide profile details from unkown viewers',
-	`blocktags` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to tag the post of this user',
-	`unkmail` boolean NOT NULL DEFAULT '0' COMMENT 'Permit unknown people to send private mails to this user',
-	`cntunkmail` int unsigned NOT NULL DEFAULT 10 COMMENT '',
-	`notify-flags` smallint unsigned NOT NULL DEFAULT 65535 COMMENT 'email notification options',
-	`page-flags` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'page/profile type',
-	`account-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`prvnets` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`pwdreset` varchar(255) COMMENT 'Password reset request token',
-	`pwdreset_time` datetime COMMENT 'Timestamp of the last password reset request',
-	`maxreq` int unsigned NOT NULL DEFAULT 10 COMMENT '',
-	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`account_removed` boolean NOT NULL DEFAULT '0' COMMENT 'if 1 the account is removed',
-	`account_expired` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`account_expires_on` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp when account expires and will be deleted',
-	`expire_notification_sent` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'timestamp of last warning of account expiration',
-	`def_gid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`allow_cid` mediumtext COMMENT 'default permission for this user',
-	`allow_gid` mediumtext COMMENT 'default permission for this user',
-	`deny_cid` mediumtext COMMENT 'default permission for this user',
-	`deny_gid` mediumtext COMMENT 'default permission for this user',
-	`openidserver` text COMMENT '',
-	 PRIMARY KEY(`uid`),
-	 INDEX `nickname` (`nickname`(32)),
-	 INDEX `parent-uid` (`parent-uid`),
-	FOREIGN KEY (`parent-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
 
 --
 -- TABLE clients
