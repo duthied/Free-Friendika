@@ -86,7 +86,6 @@ class User
 			return true;
 		}
 
-Logger::info('Blubb-Update', ['uri-id' => $uri_id, 'uid' => $uid, 'fields' => $fields]);
 		return DBA::update('post-user', $fields, ['uri-id' => $uri_id, 'uid' => $uid], true);
 	}
 }
