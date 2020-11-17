@@ -20,6 +20,7 @@
  * Main database structure configuration file.
  *
  * Here are described all the tables, fields and indexes Friendica needs to work.
+ * The entry order is mostly alphabetic - with the exception of tables that are used in foreign keys.
  *
  * Syntax (braces indicate optionale values):
  * "<table name>" => [

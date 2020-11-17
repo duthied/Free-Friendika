@@ -1054,6 +1054,28 @@ class DBStructure
 			}
 		}
 
+		if (self::existsTable('user') && !DBA::exists('user', ['uid' => 0])) {
+			$system = User::getSystemAccount();
+			$user = [
+				"username" => $system['name'],
+				"nickname" => $system['nick'],
+				"register_date" => $system['created'],
+				"pubkey" => $system['pubkey'],
+				"prvkey" => $system['prvkey'],
+				"spubkey" => $system['spubkey'],
+				"sprvkey" => $system['sprvkey'],
+				"verified" => true,
+				"page-flags" => User::PAGE_FLAGS_SOAPBOX,
+				"account-type" => User::ACCOUNT_TYPE_RELAY,
+			];
+	
+			DBA::insert('user', $user);
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('user', ['uid' => 0], ['uid' => $lastid]);
+			}
+		}
+
 		if (self::existsTable('contact') && !DBA::exists('contact', ['id' => 0])) {
 			DBA::insert('contact', ['nurl' => '']);
 			$lastid = DBA::lastInsertId();
@@ -1098,28 +1120,6 @@ class DBStructure
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
 				DBA::update('tag', ['id' => 0], ['id' => $lastid]);
-			}
-		}
-
-		if (self::existsTable('user') && !DBA::exists('user', ['uid' => 0])) {
-			$system = User::getSystemAccount();
-			$user = [
-				"username" => $system['name'],
-				"nickname" => $system['nick'],
-				"register_date" => $system['created'],
-				"pubkey" => $system['pubkey'],
-				"prvkey" => $system['prvkey'],
-				"spubkey" => $system['spubkey'],
-				"sprvkey" => $system['sprvkey'],
-				"verified" => true,
-				"page-flags" => User::PAGE_FLAGS_SOAPBOX,
-				"account-type" => User::ACCOUNT_TYPE_RELAY,
-			];
-	
-			DBA::insert('user', $user);
-			$lastid = DBA::lastInsertId();
-			if ($lastid != 0) {
-				DBA::update('user', ['uid' => 0], ['uid' => $lastid]);
 			}
 		}
 
