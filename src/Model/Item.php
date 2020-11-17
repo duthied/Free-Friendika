@@ -1905,7 +1905,7 @@ class Item
 			// When the item was successfully stored we fetch the ID of the item.
 			$current_post = DBA::lastInsertId();
 		} else {
-			Logger::notice('Post-User is already inserted - aborting');
+			Logger::notice('Post-User is already inserted - aborting', ['uid' => $item['uid'], 'uri-id' => $item['uri-id']]);
 			return 0;
 		}
 
