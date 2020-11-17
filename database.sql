@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.12-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1372
+-- DB_UPDATE_VERSION 1376
 -- ------------------------------------------
 
 
@@ -135,6 +135,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `uid_network_self_lastupdate` (`uid`,`network`,`self`,`last-update`),
 	 INDEX `uid_lastitem` (`uid`,`last-item`),
 	 INDEX `gsid` (`gsid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='contact table';
 
@@ -212,7 +213,9 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`deny_gid` mediumtext COMMENT 'default permission for this user',
 	`openidserver` text COMMENT '',
 	 PRIMARY KEY(`uid`),
-	 INDEX `nickname` (`nickname`(32))
+	 INDEX `nickname` (`nickname`(32)),
+	 INDEX `parent-uid` (`parent-uid`),
+	FOREIGN KEY (`parent-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
 
 --
@@ -241,7 +244,8 @@ CREATE TABLE IF NOT EXISTS `permissionset` (
 	`deny_cid` mediumtext COMMENT 'Access Control - list of denied contact.id',
 	`deny_gid` mediumtext COMMENT 'Access Control - list of denied groups',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid_allow_cid_allow_gid_deny_cid_deny_gid` (`allow_cid`(50),`allow_gid`(30),`deny_cid`(50),`deny_gid`(30))
+	 INDEX `uid_allow_cid_allow_gid_deny_cid_deny_gid` (`uid`,`allow_cid`(50),`allow_gid`(30),`deny_cid`(50),`deny_gid`(30)),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
@@ -484,6 +488,7 @@ CREATE TABLE IF NOT EXISTS `event` (
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_start` (`uid`,`start`),
 	 INDEX `cid` (`cid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Events';
 
@@ -745,6 +750,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`causer-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
@@ -946,7 +952,8 @@ CREATE TABLE IF NOT EXISTS `openwebauth-token` (
 	`meta` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of creation',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`)
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Store OpenWebAuth token to verify contacts';
 
 --
@@ -982,11 +989,11 @@ CREATE TABLE IF NOT EXISTS `participation` (
 -- TABLE pconfig
 --
 CREATE TABLE IF NOT EXISTS `pconfig` (
-	`id` int unsigned NOT NULL auto_increment COMMENT '',
+	`id` int unsigned NOT NULL auto_increment COMMENT 'Primary key',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	`cat` varbinary(50) NOT NULL DEFAULT '' COMMENT '',
-	`k` varbinary(100) NOT NULL DEFAULT '' COMMENT '',
-	`v` mediumtext COMMENT '',
+	`cat` varchar(50) NOT NULL DEFAULT '' COMMENT 'Category',
+	`k` varchar(100) NOT NULL DEFAULT '' COMMENT 'Key',
+	`v` mediumtext COMMENT 'Value',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uid_cat_k` (`uid`,`cat`,`k`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
@@ -1029,6 +1036,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	 INDEX `uid_album_scale_created` (`uid`,`album`(32),`scale`,`created`),
 	 INDEX `uid_album_resource-id_created` (`uid`,`album`(32),`resource-id`,`created`),
 	 INDEX `resource-id` (`resource-id`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='photo storage';
 
@@ -1042,7 +1050,9 @@ CREATE TABLE IF NOT EXISTS `post-category` (
 	`tid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`uri-id`,`uid`,`type`,`tid`),
 	 INDEX `uri-id` (`tid`),
+	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to categories';
 
@@ -1101,6 +1111,28 @@ CREATE TABLE IF NOT EXISTS `post-tag` (
 	FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to tags';
+
+--
+-- TABLE post-user
+--
+CREATE TABLE IF NOT EXISTS `post-user` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`uid` mediumint unsigned NOT NULL COMMENT 'Owner id which owns this copy of the item',
+	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
+	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'post has not been seen',
+	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide the post from the user',
+	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
+	`psid` int unsigned COMMENT 'ID of the permission set of this post',
+	 PRIMARY KEY(`uid`,`uri-id`),
+	 INDEX `uri-id` (`uri-id`),
+	 INDEX `contact-id` (`contact-id`),
+	 INDEX `psid` (`psid`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific post data';
 
 --
 -- TABLE process
@@ -1316,7 +1348,8 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	 INDEX `private_wall_origin_commented` (`private`,`wall`,`origin`,`commented`),
 	 INDEX `uri-id` (`uri-id`),
 	FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data';
 
 --

@@ -170,6 +170,34 @@ class DBStructure
 		return $definition;
 	}
 
+	/**
+	 * Get field data for the given table
+	 *
+	 * @param string $table
+	 * @param array $data data fields
+	 * @return array fields for the given
+	 */
+	public static function getFieldsForTable(string $table, array $data = [])
+	{
+		$definition = DBStructure::definition('', false);
+		if (empty($definition[$table])) {
+			return [];
+		}
+
+		$fieldnames = array_keys($definition[$table]['fields']);
+
+		$fields = [];
+
+		// Assign all field that are present in the table
+		foreach ($fieldnames as $field) {
+			if (isset($data[$field])) {
+				$fields[$field] = $data[$field];
+			}
+		}
+
+		return $fields;
+	}
+
 	private static function createTable($name, $structure, $verbose, $action)
 	{
 		$r = true;
@@ -1070,6 +1098,28 @@ class DBStructure
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
 				DBA::update('tag', ['id' => 0], ['id' => $lastid]);
+			}
+		}
+
+		if (self::existsTable('user') && !DBA::exists('user', ['uid' => 0])) {
+			$system = User::getSystemAccount();
+			$user = [
+				"username" => $system['name'],
+				"nickname" => $system['nick'],
+				"register_date" => $system['created'],
+				"pubkey" => $system['pubkey'],
+				"prvkey" => $system['prvkey'],
+				"spubkey" => $system['spubkey'],
+				"sprvkey" => $system['sprvkey'],
+				"verified" => true,
+				"page-flags" => User::PAGE_FLAGS_SOAPBOX,
+				"account-type" => User::ACCOUNT_TYPE_RELAY,
+			];
+	
+			DBA::insert('user', $user);
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('user', ['uid' => 0], ['uid' => $lastid]);
 			}
 		}
 

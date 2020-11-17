@@ -758,3 +758,41 @@ function update_1375()
 
 	return Update::SUCCESS;
 }
+
+function pre_update_1376()
+{
+	// Insert a user with uid=0
+	DBStructure::checkInitialValues();
+
+	if (!DBA::e("DELETE FROM `item` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `event` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `thread` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `permissionset` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `openwebauth-token` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `post-category` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `contact` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	Photo::delete(["NOT `uid` IN (SELECT `uid` FROM `user`)"]);
+
+	return Update::SUCCESS;
+}

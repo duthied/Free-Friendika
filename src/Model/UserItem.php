@@ -156,7 +156,9 @@ class UserItem
 
 		Logger::info('Set notification', ['iid' => $item['id'], 'uid' => $uid, 'notification-type' => $notification_type]);
 
-		DBA::update('user-item', ['notification-type' => $notification_type], ['iid' => $item['id'], 'uid' => $uid], true);
+		$fields = ['notification-type' => $notification_type];
+		Post\User::update($item['uri-id'], $uid, $fields);
+		DBA::update('user-item', $fields, ['iid' => $item['id'], 'uid' => $uid], true);
 	}
 
 	/**
