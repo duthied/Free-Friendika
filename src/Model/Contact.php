@@ -1113,7 +1113,7 @@ class Contact
 			$contact = self::selectFirst(['id'], ['nurl' => $urls, 'uid' => $uid]);
 			if (!empty($contact['id'])) {
 				$contact_id = $contact['id'];
-				Logger::info('Fetched id by url', ['cid' => $contact_id, 'uid' => $uid, 'url' => $url, 'probed_url' => $data['url'], 'alias' => $data['alias'], 'addr' => $data['addr']]);
+				Logger::info('Fetched id by url', ['cid' => $contact_id, 'uid' => $uid, 'url' => $url, 'data' => $data]);
 			}
 		}
 

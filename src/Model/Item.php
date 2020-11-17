@@ -3972,12 +3972,12 @@ class Item
 
 		// The causer is set during a thread completion, for example because of a reshare. It countains the responsible actor.
 		if (!empty($item['causer-id']) && Contact\User::isBlocked($item['causer-id'], $user_id)) {
-			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'] ?? $item['causer-id'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
 			return false;
 		}
 
 		if (!empty($item['causer-id']) && ($item['gravity'] === GRAVITY_PARENT) && Contact\User::isIgnored($item['causer-id'], $user_id)) {
-			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
+			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'] ?? $item['causer-id'], 'uid' => $user_id, 'item-uri' => $item['uri']]);
 			return false;
 		}
 
