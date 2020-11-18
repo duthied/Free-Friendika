@@ -1055,6 +1055,22 @@ class DBStructure
 		}
 
 		if (self::existsTable('user') && !DBA::exists('user', ['uid' => 0])) {
+			DBA::insert('user', ['uid' => 0]);
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('user', ['uid' => 0], ['uid' => $lastid]);
+			}
+		}
+
+		if (self::existsTable('contact') && !DBA::exists('contact', ['id' => 0])) {
+			DBA::insert('contact', ['nurl' => '']);
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('contact', ['id' => 0], ['id' => $lastid]);
+			}		
+		}
+
+		if (self::existsTable('user') && DBA::exists('user', ['uid' => 0])) {
 			$system = User::getSystemAccount();
 			$user = [
 				"username" => $system['name'],
@@ -1069,19 +1085,7 @@ class DBStructure
 				"account-type" => User::ACCOUNT_TYPE_RELAY,
 			];
 	
-			DBA::insert('user', $user);
-			$lastid = DBA::lastInsertId();
-			if ($lastid != 0) {
-				DBA::update('user', ['uid' => 0], ['uid' => $lastid]);
-			}
-		}
-
-		if (self::existsTable('contact') && !DBA::exists('contact', ['id' => 0])) {
-			DBA::insert('contact', ['nurl' => '']);
-			$lastid = DBA::lastInsertId();
-			if ($lastid != 0) {
-				DBA::update('contact', ['id' => 0], ['id' => $lastid]);
-			}		
+			DBA::update('user', $user, ['uid' => 0]);
 		}
 
 		if (self::existsTable('permissionset')) {
