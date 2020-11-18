@@ -521,6 +521,8 @@ class OStatus
 							Logger::log("Item with uri ".self::$itemlist[0]['uri']." will be imported since the thread contains posts or shares.", Logger::DEBUG);
 						}
 					}
+				} else {
+					$valid = true;
 				}
 
 				if ($valid) {
