@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 --
 CREATE TABLE IF NOT EXISTS `user` (
 	`uid` mediumint unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`parent-uid` mediumint unsigned NOT NULL COMMENT 'The parent user that has full control about this user',
+	`parent-uid` mediumint unsigned COMMENT 'The parent user that has full control about this user',
 	`guid` varchar(64) NOT NULL DEFAULT '' COMMENT 'A unique identifier for this user',
 	`username` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name that this user is known by',
 	`password` varchar(255) NOT NULL DEFAULT '' COMMENT 'encrypted password',

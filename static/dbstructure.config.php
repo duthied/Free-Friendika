@@ -94,7 +94,7 @@ return [
 		"comment" => "The local users",
 		"fields" => [
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"parent-uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"],
+			"parent-uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"],
 				"comment" => "The parent user that has full control about this user"],
 			"guid" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => "A unique identifier for this user"],
 			"username" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Name that this user is known by"],
