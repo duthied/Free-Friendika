@@ -1058,7 +1058,12 @@ class DBStructure
 			DBA::insert('user', ['uid' => 0]);
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
-				DBA::update('user', ['uid' => 0], ['uid' => $lastid]);
+				$user = [
+					"verified" => true,
+					"page-flags" => User::PAGE_FLAGS_SOAPBOX,
+					"account-type" => User::ACCOUNT_TYPE_RELAY,
+				];
+				DBA::update('user', $user, ['uid' => $lastid]);
 			}
 		}
 
