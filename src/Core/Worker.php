@@ -1254,6 +1254,11 @@ class Worker
 			DBA::update('workerqueue', ['priority' => $priority], ['parameter' => $parameters, 'done' => false, 'pid' => 0]);
 		}
 
+		// Set the IPC flag to ensure an immediate process execution via daemon
+		if (DI::config()->get('system', 'worker_daemon_mode', false)) {
+			self::IPCSetJobState(true);
+		}
+
 		// Should we quit and wait for the worker to be called as a cronjob?
 		if ($dont_fork) {
 			return $added;
@@ -1272,9 +1277,8 @@ class Worker
 			return $added;
 		}
 
-		// We tell the daemon that a new job entry exists
+		// Quit on daemon mode
 		if (DI::config()->get('system', 'worker_daemon_mode', false)) {
-			// We don't have to set the IPC flag - this is done in "tooMuchWorkers"
 			return $added;
 		}
 
