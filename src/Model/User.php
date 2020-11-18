@@ -144,6 +144,26 @@ class User
 		$system['sprvkey'] = $system['uprvkey'] = $system['prvkey'];
 		$system['spubkey'] = $system['upubkey'] = $system['pubkey'];
 		$system['nickname'] = $system['nick'];
+
+		// Ensure that the user contains data
+		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => 0]);
+		if (empty($user['prvkey'])) {
+			$fields = [
+				'username' => $system['name'],
+				'nickname' => $system['nick'],
+				'register_date' => $system['created'],
+				'pubkey' => $system['pubkey'],
+				'prvkey' => $system['prvkey'],
+				'spubkey' => $system['spubkey'],
+				'sprvkey' => $system['sprvkey'],
+				'verified' => true,
+				'page-flags' => User::PAGE_FLAGS_SOAPBOX,
+				'account-type' => User::ACCOUNT_TYPE_RELAY,
+			];
+
+			DBA::update('user', $fields, ['uid' => 0]);
+		}
+
 		return $system;
 	}
 

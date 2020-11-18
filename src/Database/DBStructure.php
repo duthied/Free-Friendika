@@ -1075,24 +1075,6 @@ class DBStructure
 			}		
 		}
 
-/*		if (self::existsTable('user') && DBA::exists('user', ['uid' => 0])) {
-			$system = User::getSystemAccount();
-			$user = [
-				"username" => $system['name'],
-				"nickname" => $system['nick'],
-				"register_date" => $system['created'],
-				"pubkey" => $system['pubkey'],
-				"prvkey" => $system['prvkey'],
-				"spubkey" => $system['spubkey'],
-				"sprvkey" => $system['sprvkey'],
-				"verified" => true,
-				"page-flags" => User::PAGE_FLAGS_SOAPBOX,
-				"account-type" => User::ACCOUNT_TYPE_RELAY,
-			];
-	
-			DBA::update('user', $user, ['uid' => 0]);
-		}
-*/
 		if (self::existsTable('permissionset')) {
 			if (!DBA::exists('permissionset', ['id' => 0])) {
 				DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
