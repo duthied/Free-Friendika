@@ -522,11 +522,7 @@ class OStatus
 						}
 					}
 				} else {
-					// But we will only import complete threads
-					$valid = Item::exists(['uid' => $importer['uid'], 'uri' => self::$itemlist[0]['thr-parent']]);
-					if ($valid) {
-						Logger::info('Item is valid', ['uri' => self::$itemlist[0]["uri"], 'thr-parent' => self::$itemlist[0]['thr-parent'], 'user' => $importer["uid"]]);
-					}
+					$valid = true;
 				}
 
 				if ($valid) {
