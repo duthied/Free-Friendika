@@ -1055,15 +1055,15 @@ class DBStructure
 		}
 
 		if (self::existsTable('user') && !DBA::exists('user', ['uid' => 0])) {
-			DBA::insert('user', ['uid' => 0]);
+			$user = [
+				"verified" => true,
+				"page-flags" => User::PAGE_FLAGS_SOAPBOX,
+				"account-type" => User::ACCOUNT_TYPE_RELAY,
+			];
+			DBA::insert('user', $user);
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
-				$user = [
-					"verified" => true,
-					"page-flags" => User::PAGE_FLAGS_SOAPBOX,
-					"account-type" => User::ACCOUNT_TYPE_RELAY,
-				];
-				DBA::update('user', $user, ['uid' => $lastid]);
+				DBA::update('user', ['uid' => 0], ['uid' => $lastid]);
 			}
 		}
 
