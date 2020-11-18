@@ -33,6 +33,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Util\DateTimeFormat;
 use Psr\Log\LoggerInterface;
 
 // Get options
@@ -193,8 +194,8 @@ while (true) {
 	if ($do_cron || (!DI::process()->isMaxLoadReached() && Worker::entriesExists() && Worker::isReady())) {
 		Worker::spawnWorker($do_cron);
 	} else {
-		Logger::info('Cool down', ['pid' => $pid]);
-		sleep(10);
+		Logger::info('Cool down for 5 seconds', ['pid' => $pid]);
+		sleep(5);
 	}
 
 	if ($do_cron) {
@@ -205,8 +206,9 @@ while (true) {
 		$last_cron = time();
 	}
 
-	Logger::info("Sleeping", ["pid" => $pid]);
 	$start = time();
+	Logger::info("Sleeping", ["pid" => $pid, 'until' => gmdate(DateTimeFormat::MYSQL, $start + $wait_interval)]);
+
 	do {
 		$seconds = (time() - $start);
 
@@ -214,7 +216,7 @@ while (true) {
 		// Background: After jobs had been started, they often fork many workers.
 		// To not waste too much time, the sleep period increases.
 		$arg = (($seconds + 1) / ($wait_interval / 9)) + 1;
-		$sleep = round(log10($arg) * 1000000, 0);
+		$sleep = min(1000000, round(log10($arg) * 1000000, 0));
 		usleep($sleep);
 
 		$timeout = ($seconds >= $wait_interval);
