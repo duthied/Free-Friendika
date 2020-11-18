@@ -1070,7 +1070,7 @@ class DBStructure
 			}		
 		}
 
-		if (self::existsTable('user') && DBA::exists('user', ['uid' => 0])) {
+/*		if (self::existsTable('user') && DBA::exists('user', ['uid' => 0])) {
 			$system = User::getSystemAccount();
 			$user = [
 				"username" => $system['name'],
@@ -1087,7 +1087,7 @@ class DBStructure
 	
 			DBA::update('user', $user, ['uid' => 0]);
 		}
-
+*/
 		if (self::existsTable('permissionset')) {
 			if (!DBA::exists('permissionset', ['id' => 0])) {
 				DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
