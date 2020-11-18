@@ -350,7 +350,7 @@ class DBStructure
 
 		$errors = '';
 
-		Logger::log('updating structure', Logger::DEBUG);
+		Logger::info('updating structure');
 
 		// Get the current structure
 		$database = [];
@@ -363,7 +363,7 @@ class DBStructure
 			foreach ($tables AS $table) {
 				$table = current($table);
 
-				Logger::log(sprintf('updating structure for table %s ...', $table), Logger::DEBUG);
+				Logger::info('updating structure', ['table' => $table]);
 				$database[$table] = self::tableStructure($table);
 			}
 		}
