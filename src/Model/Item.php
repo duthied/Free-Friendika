@@ -34,7 +34,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Model\Post\Category;
+use Friendica\Model\Post;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
@@ -70,8 +70,6 @@ class Item
 	const PT_RELAY = 74;
 	const PT_FETCHED = 75;
 	const PT_PERSONAL_NOTE = 128;
-
-	const LOCK_INSERT = 'item-insert';
 
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = [
@@ -310,7 +308,7 @@ class Item
 		if (!array_key_exists('verb', $row) || in_array($row['verb'], ['', Activity::POST, Activity::SHARE])) {
 			// Build the file string out of the term entries
 			if (array_key_exists('file', $row) && empty($row['file'])) {
-				$row['file'] = Category::getTextByURIId($row['internal-uri-id'], $row['internal-uid']);
+				$row['file'] = Post\Category::getTextByURIId($row['internal-uri-id'], $row['internal-uid']);
 			}
 		}
 
@@ -911,6 +909,8 @@ class Item
 			return false;
 		}
 
+		$data_fields = $fields;
+
 		// To ensure the data integrity we do it in an transaction
 		DBA::transaction();
 
@@ -967,6 +967,8 @@ class Item
 		$notify_items = [];
 
 		while ($item = DBA::fetch($items)) {
+			Post\User::update($item['uri-id'], $item['uid'], $data_fields);
+
 			if (empty($content_fields['verb']) || !in_array($content_fields['verb'], self::ACTIVITIES)) {
 				if (!empty($content_fields['body'])) {
 					$content_fields['raw-body'] = trim($content_fields['raw-body'] ?? $content_fields['body']);
@@ -996,7 +998,7 @@ class Item
 			}
 
 			if (!is_null($files)) {
-				Category::storeTextByURIId($item['uri-id'], $item['uid'], $files);
+				Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], $files);
 				if (!empty($item['file'])) {
 					DBA::update('item', ['file' => ''], ['id' => $item['id']]);
 				}
@@ -1056,8 +1058,10 @@ class Item
 			return;
 		}
 
-		$items = self::select(['id', 'uid'], $condition);
+		$items = self::select(['id', 'uid', 'uri-id'], $condition);
 		while ($item = self::fetch($items)) {
+			Post\User::update($item['uri-id'], $item['uid'], ['hidden' => true]);
+
 			// "Deleting" global items just means hiding them
 			if ($item['uid'] == 0) {
 				DBA::update('user-item', ['hidden' => true], ['iid' => $item['id'], 'uid' => $uid], true);
@@ -1158,7 +1162,7 @@ class Item
 		$item_fields = ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
 		DBA::update('item', $item_fields, ['id' => $item['id']]);
 
-		Category::storeTextByURIId($item['uri-id'], $item['uid'], '');
+		Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], '');
 		self::deleteThread($item['id'], $item['parent-uri']);
 
 		if (!self::exists(["`uri` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri']])) {
@@ -1191,6 +1195,7 @@ class Item
 			// send the notification upstream/downstream
 			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", Delivery::DELETION, intval($item['id']));
 		} elseif ($item['uid'] != 0) {
+			Post\User::update($item['uri-id'], $item['uid'], ['hidden' => true]);
 
 			// When we delete just our local user copy of an item, we have to set a marker to hide it
 			$global_item = self::selectFirst(['id'], ['uri' => $item['uri'], 'uid' => 0, 'deleted' => false]);
@@ -1862,7 +1867,7 @@ class Item
 
 		// Attached file links
 		if (!empty($item['file'])) {
-			Category::storeTextByURIId($item['uri-id'], $item['uid'], $item['file']);
+			Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], $item['file']);
 		}
 
 		unset($item['file']);
@@ -1888,16 +1893,9 @@ class Item
 			}
 		}
 
-		$locked = DI::lock()->acquire(self::LOCK_INSERT, 0);
-
-		if ($locked || DBA::lock('item')) {
+		if (Post\User::insert($item['uri-id'], $item['uid'], $item)) {
 			$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
 			if (DBA::exists('item', $condition)) {
-				if ($locked) {
-					DI::lock()->release(self::LOCK_INSERT);
-				} else {
-					DBA::unlock();
-				}
 				Logger::notice('Item is already inserted - aborting', $condition);
 				return 0;
 			}
@@ -1906,15 +1904,9 @@ class Item
 
 			// When the item was successfully stored we fetch the ID of the item.
 			$current_post = DBA::lastInsertId();
-			if ($locked) {
-				DI::lock()->release(self::LOCK_INSERT);
-			} else {
-				DBA::unlock();
-			}
 		} else {
-			Logger::warning('Item lock had not been acquired');
-			$result = false;
-			$current_post = 0;
+			Logger::notice('Post-User is already inserted - aborting', ['uid' => $item['uid'], 'uri-id' => $item['uri-id']]);
+			return 0;
 		}
 
 		if (empty($current_post) || !DBA::isResult($result)) {

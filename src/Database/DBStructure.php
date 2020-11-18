@@ -170,6 +170,34 @@ class DBStructure
 		return $definition;
 	}
 
+	/**
+	 * Get field data for the given table
+	 *
+	 * @param string $table
+	 * @param array $data data fields
+	 * @return array fields for the given
+	 */
+	public static function getFieldsForTable(string $table, array $data = [])
+	{
+		$definition = DBStructure::definition('', false);
+		if (empty($definition[$table])) {
+			return [];
+		}
+
+		$fieldnames = array_keys($definition[$table]['fields']);
+
+		$fields = [];
+
+		// Assign all field that are present in the table
+		foreach ($fieldnames as $field) {
+			if (isset($data[$field])) {
+				$fields[$field] = $data[$field];
+			}
+		}
+
+		return $fields;
+	}
+
 	private static function createTable($name, $structure, $verbose, $action)
 	{
 		$r = true;
@@ -322,7 +350,7 @@ class DBStructure
 
 		$errors = '';
 
-		Logger::log('updating structure', Logger::DEBUG);
+		Logger::info('updating structure');
 
 		// Get the current structure
 		$database = [];
@@ -335,7 +363,7 @@ class DBStructure
 			foreach ($tables AS $table) {
 				$table = current($table);
 
-				Logger::log(sprintf('updating structure for table %s ...', $table), Logger::DEBUG);
+				Logger::info('updating structure', ['table' => $table]);
 				$database[$table] = self::tableStructure($table);
 			}
 		}
@@ -1023,6 +1051,19 @@ class DBStructure
 		if (self::existsTable('verb') && !DBA::exists('verb', ['id' => 1])) {
 			foreach (Item::ACTIVITIES as $index => $activity) {
 				DBA::insert('verb', ['id' => $index + 1, 'name' => $activity], true);
+			}
+		}
+
+		if (self::existsTable('user') && !DBA::exists('user', ['uid' => 0])) {
+			$user = [
+				"verified" => true,
+				"page-flags" => User::PAGE_FLAGS_SOAPBOX,
+				"account-type" => User::ACCOUNT_TYPE_RELAY,
+			];
+			DBA::insert('user', $user);
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('user', ['uid' => 0], ['uid' => $lastid]);
 			}
 		}
 
