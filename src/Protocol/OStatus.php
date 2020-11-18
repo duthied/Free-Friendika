@@ -521,6 +521,12 @@ class OStatus
 							Logger::log("Item with uri ".self::$itemlist[0]['uri']." will be imported since the thread contains posts or shares.", Logger::DEBUG);
 						}
 					}
+				} else {
+					// But we will only import complete threads
+					$valid = Item::exists(['uid' => $importer['uid'], 'uri' => self::$itemlist[0]['thr-parent']]);
+					if ($valid) {
+						Logger::info('Item is valid', ['uri' => self::$itemlist[0]["uri"], 'thr-parent' => self::$itemlist[0]['thr-parent'], 'user' => $importer["uid"]]);
+					}
 				}
 
 				if ($valid) {
