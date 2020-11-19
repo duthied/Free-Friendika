@@ -290,16 +290,16 @@ class DBA
 	/**
 	 * Insert a row into a table
 	 *
-	 * @param string|array $table               Table name or array [schema => table]
-	 * @param array        $param               parameter array
-	 * @param bool         $on_duplicate_update Do an update on a duplicate entry
+	 * @param string|array $table          Table name or array [schema => table]
+	 * @param array        $param          parameter array
+	 * @param int          $duplicate_mode What to do on a duplicated entry
 	 *
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public static function insert($table, $param, $on_duplicate_update = false)
+	public static function insert($table, array $param, int $duplicate_mode = Database::INSERT_DEFAULT)
 	{
-		return DI::dba()->insert($table, $param, $on_duplicate_update);
+		return DI::dba()->insert($table, $param, $duplicate_mode);
 	}
 
 	/**

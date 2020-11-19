@@ -42,6 +42,10 @@ class Database
 	const PDO = 'pdo';
 	const MYSQLI = 'mysqli';
 
+	const INSERT_DEFAULT = 0;
+	const INSERT_UPDATE = 1;
+	const INSERT_IGNORE = 2;
+
 	protected $connected = false;
 
 	/**
@@ -966,14 +970,14 @@ class Database
 	/**
 	 * Insert a row into a table
 	 *
-	 * @param string|array $table               Table name or array [schema => table]
-	 * @param array        $param               parameter array
-	 * @param bool         $on_duplicate_update Do an update on a duplicate entry
+	 * @param string|array $table          Table name or array [schema => table]
+	 * @param array        $param          parameter array
+	 * @param int          $duplicate_mode What to do on a duplicated entry
 	 *
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public function insert($table, array $param, bool $on_duplicate_update = false)
+	public function insert($table, array $param, int $duplicate_mode = self::INSERT_DEFAULT)
 	{
 		if (empty($table) || empty($param)) {
 			$this->logger->info('Table and fields have to be set');
@@ -986,9 +990,15 @@ class Database
 
 		$values_string = substr(str_repeat("?, ", count($param)), 0, -2);
 
-		$sql = "INSERT INTO " . $table_string . " (" . $fields_string . ") VALUES (" . $values_string . ")";
+		$sql = "INSERT ";
 
-		if ($on_duplicate_update) {
+		if ($duplicate_mode == self::INSERT_IGNORE) {
+			$sql .= "IGNORE ";
+		}
+
+		$sql .= "INTO " . $table_string . " (" . $fields_string . ") VALUES (" . $values_string . ")";
+
+		if ($duplicate_mode == self::INSERT_UPDATE) {
 			$fields_string = implode(' = ?, ', array_map([DBA::class, 'quoteIdentifier'], array_keys($param)));
 
 			$sql .= " ON DUPLICATE KEY UPDATE " . $fields_string . " = ?";
@@ -997,7 +1007,12 @@ class Database
 			$param  = array_merge_recursive($values, $values);
 		}
 
-		return $this->e($sql, $param);
+		$result = $this->e($sql, $param);
+		if (!$result || ($duplicate_mode != self::INSERT_IGNORE)) {
+			return $result;
+		}
+
+		return $this->affectedRows() != 0;
 	}
 
 	/**

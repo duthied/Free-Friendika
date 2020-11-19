@@ -23,6 +23,7 @@ namespace Friendica\Model\Post;
 
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Images;
@@ -72,14 +73,14 @@ class Media
 
 		// We are storing as fast as possible to avoid duplicated network requests
 		// when fetching additional information for pictures and other content.
-		$result = DBA::insert('post-media', $media, true);
+		$result = DBA::insert('post-media', $media, Database::INSERT_UPDATE);
 		Logger::info('Stored media', ['result' => $result, 'media' => $media, 'callstack' => System::callstack()]);
 		$stored = $media;
 
 		$media = self::fetchAdditionalData($media);
 
 		if (array_diff_assoc($media, $stored)) {
-			$result = DBA::insert('post-media', $media, true);
+			$result = DBA::insert('post-media', $media, Database::INSERT_UPDATE);
 			Logger::info('Updated media', ['result' => $result, 'media' => $media]);
 		} else {
 			Logger::info('Nothing to update', ['media' => $media]);

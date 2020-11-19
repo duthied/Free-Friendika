@@ -44,6 +44,7 @@ use Friendica\Core\Addon;
 use Friendica\Core\Logger;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
@@ -429,7 +430,7 @@ function update_1332()
 function update_1347()
 {
 	foreach (Item::ACTIVITIES as $index => $activity) {
-		DBA::insert('verb', ['id' => $index + 1, 'name' => $activity], true);
+		DBA::insert('verb', ['id' => $index + 1, 'name' => $activity], Database::INSERT_IGNORE);
 	}
 
 	return Update::SUCCESS;

@@ -25,6 +25,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Strings;
@@ -151,7 +152,7 @@ class Tag
 			}
 		}
 
-		DBA::insert('post-tag', $fields, true);
+		DBA::insert('post-tag', $fields, Database::INSERT_IGNORE);
 
 		Logger::info('Stored tag/mention', ['uri-id' => $uriid, 'tag-id' => $tagid, 'contact-id' => $cid, 'name' => $name, 'type' => $type, 'callstack' => System::callstack(8)]);
 	}
@@ -172,7 +173,7 @@ class Tag
 			return $tag['id'];
 		}
 
-		DBA::insert('tag', $fields, true);
+		DBA::insert('tag', $fields, Database::INSERT_IGNORE);
 		$tid = DBA::lastInsertId();
 		if (!empty($tid)) {
 			return $tid;

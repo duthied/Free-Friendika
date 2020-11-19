@@ -21,6 +21,7 @@
 
 namespace Friendica\Model;
 
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 
 class Verb
@@ -44,7 +45,7 @@ class Verb
 			return $verb_record['id'];
 		}
 
-		DBA::insert('verb', ['name' => $verb], true);
+		DBA::insert('verb', ['name' => $verb], Database::INSERT_IGNORE);
 
 		return DBA::lastInsertId();
 	}
