@@ -559,7 +559,7 @@ class User
 	 * @return array
 	 * @throws HTTPException\NotFoundException
 	 */
-	private static function getAuthenticationInfo($user_info)
+	public static function getAuthenticationInfo($user_info)
 	{
 		$user = null;
 
