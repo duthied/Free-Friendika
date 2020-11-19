@@ -476,21 +476,30 @@ function notification($params)
 	$notify_id = 0;
 
 	if ($show_in_notification_page) {
-		$notification = DI::notify()->insert([
+		$fields = [
 			'name'          => $params['source_name'] ?? '',
 			'name_cache'    => substr(strip_tags(BBCode::convert($params['source_name'])), 0, 255),
 			'url'           => $params['source_link'] ?? '',
 			'photo'         => $params['source_photo'] ?? '',
 			'link'          => $itemlink ?? '',
 			'uid'           => $params['uid'] ?? 0,
-			'iid'           => $item_id,
-			'uri-id'        => $uri_id,
-			'parent'        => $parent_id,
-			'parent-uri-id' => $parent_uri_id,
 			'type'          => $params['type'] ?? '',
 			'verb'          => $params['verb'] ?? '',
 			'otype'         => $params['otype'] ?? '',
-		]);
+		];
+		if (!empty($item_id)) {
+			$fields['iid'] = $item_id;
+		}
+		if (!empty($uri_id)) {
+			$fields['uri-id'] = $uri_id;
+		}
+		if (!empty($item_id)) {
+			$fields['parent'] = $parent_id;
+		}
+		if (!empty($item_id)) {
+			$fields['parent-uri-id'] = $parent_uri_id;
+		}
+		$notification = DI::notify()->insert($fields);
 
 		// Notification insertion can be intercepted by an addon registering the 'enotify_store' hook
 		if (!$notification) {

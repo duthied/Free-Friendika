@@ -1054,6 +1054,14 @@ class DBStructure
 			}
 		}
 
+		if (self::existsTable('verb') && !DBA::exists('verb', ['id' => 0])) {
+			DBA::insert('verb', ['name' => '']);
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('verb', ['id' => 0], ['id' => $lastid]);
+			}
+		}
+
 		if (self::existsTable('user') && !DBA::exists('user', ['uid' => 0])) {
 			$user = [
 				"verified" => true,
