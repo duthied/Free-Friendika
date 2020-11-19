@@ -342,7 +342,7 @@ function ping_init(App $a)
 		array_walk($notifications, function (&$notification) {
 			if (empty($notification['photo'])) {
 				$contact = Contact::getByURL($notification['url'], false, ['micro', 'id', 'avatar']);
-				$notification['photo'] = Contact::getMicro($contact, $notif['photo']);
+				$notification['photo'] = Contact::getMicro($contact, $notification['photo']);
 			}
 
 			$notification['timestamp'] = DateTimeFormat::local($notification['date']);

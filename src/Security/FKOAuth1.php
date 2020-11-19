@@ -55,7 +55,7 @@ class FKOAuth1 extends OAuthServer
 		$a = DI::app();
 		$record = DBA::selectFirst('user', [], ['uid' => $uid, 'blocked' => 0, 'account_expired' => 0, 'account_removed' => 0, 'verified' => 1]);
 
-		if (!DBA::isResult($record)) {
+		if (!DBA::isResult($record) || empty($uid)) {
 			Logger::info('FKOAuth1::loginUser failure', ['server' => $_SERVER]);
 			header('HTTP/1.0 401 Unauthorized');
 			die('This api requires login');
