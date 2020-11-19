@@ -264,7 +264,7 @@ class User
 	 */
 	public static function getById($uid, array $fields = [])
 	{
-		return DBA::selectFirst('user', $fields, ['uid' => $uid]);
+		return !empty($uid) ? DBA::selectFirst('user', $fields, ['uid' => $uid]) : [];
 	}
 
 	/**

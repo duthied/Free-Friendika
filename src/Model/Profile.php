@@ -166,7 +166,7 @@ class Profile
 			}
 		}
 
-		$profile = User::getOwnerDataById($user['uid'], false);
+		$profile = !empty($user['uid']) ? User::getOwnerDataById($user['uid'], false) : [];
 
 		if (empty($profile) && empty($profiledata)) {
 			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
