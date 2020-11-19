@@ -661,7 +661,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
 	`causer-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
 	`icid` int unsigned COMMENT 'Id of the item-content table entry that contains the whole item content',
-	`vid` int unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
+	`vid` tinyint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
 	`extid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, bookmark, ...)',
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -1430,7 +1430,7 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 -- TABLE verb
 --
 CREATE TABLE IF NOT EXISTS `verb` (
-	`id` int unsigned NOT NULL auto_increment,
+	`id` tinyint unsigned NOT NULL auto_increment,
 	`name` varchar(100) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activity Verbs';

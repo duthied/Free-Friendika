@@ -726,7 +726,7 @@ return [
 			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the author of this item"],
 			"causer-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the contact that caused the item creation"],
 			"icid" => ["type" => "int unsigned", "relation" => ["item-content" => "id"], "comment" => "Id of the item-content table entry that contains the whole item content"],
-			"vid" => ["type" => "int unsigned", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
+			"vid" => ["type" => "tinyint unsigned", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
 			"extid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"post-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Post type (personal note, bookmark, ...)"],
 			"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -1472,7 +1472,7 @@ return [
 	"verb" => [
 		"comment" => "Activity Verbs",
 		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
+			"id" => ["type" => "tinyint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
 			"name" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""]
 		],
 		"indexes" => [
