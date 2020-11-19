@@ -1050,7 +1050,7 @@ class DBStructure
 	{
 		if (self::existsTable('verb') && !DBA::exists('verb', ['id' => 1])) {
 			foreach (Item::ACTIVITIES as $index => $activity) {
-				DBA::insert('verb', ['id' => $index + 1, 'name' => $activity], true);
+				DBA::insert('verb', ['id' => $index + 1, 'name' => $activity], Database::INSERT_IGNORE);
 			}
 		}
 

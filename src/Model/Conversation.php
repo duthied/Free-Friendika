@@ -23,6 +23,7 @@ namespace Friendica\Model;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 
@@ -124,7 +125,7 @@ class Conversation
 						Logger::DEBUG);
 				}
 			} else {
-				if (!DBA::insert('conversation', $conversation, true)) {
+				if (!DBA::insert('conversation', $conversation, Database::INSERT_UPDATE)) {
 					Logger::log('Conversation: insert for ' . $conversation['item-uri'] . ' (protocol ' . $conversation['protocol'] . ') failed',
 						Logger::DEBUG);
 				}

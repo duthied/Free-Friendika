@@ -26,6 +26,7 @@ use DOMXPath;
 use Friendica\Content\OEmbed;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 
@@ -91,7 +92,7 @@ class ParseUrl
 				'oembed' => $do_oembed, 'content' => serialize($data),
 				'created' => DateTimeFormat::utcNow()
 			],
-			true
+			Database::INSERT_UPDATE
 		);
 
 		return $data;

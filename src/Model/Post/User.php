@@ -23,7 +23,7 @@ namespace Friendica\Model\Post;
 
 use Friendica\Database\DBA;
 use \BadMethodCallException;
-use Friendica\Core\Logger;
+use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 
 class User
@@ -58,7 +58,7 @@ class User
 			$fields['unseen'] = false;
 		}
 
-		return DBA::insert('post-user', $fields);
+		return DBA::insert('post-user', $fields, Database::INSERT_IGNORE);
 	}
 
 	/**

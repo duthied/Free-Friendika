@@ -736,7 +736,7 @@ class PostUpdate
 		while ($delivery = DBA::fetch($deliveries)) {
 			$id = $delivery['iid'];
 			unset($delivery['iid']);
-			DBA::insert('post-delivery-data', $delivery, true);
+			DBA::insert('post-delivery-data', $delivery, Database::INSERT_UPDATE);
 			++$rows;
 		}
 		DBA::close($deliveries);

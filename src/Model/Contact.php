@@ -31,6 +31,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Notify\Type;
@@ -168,13 +169,13 @@ class Contact
 	 * Insert a row into the contact table
 	 * Important: You can't use DBA::lastInsertId() after this call since it will be set to 0.
 	 *
-	 * @param array        $fields              field array
-	 * @param bool         $on_duplicate_update Do an update on a duplicate entry
+	 * @param array $fields         field array
+	 * @param int   $duplicate_mode Do an update on a duplicate entry
 	 *
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public static function insert(array $fields, bool $on_duplicate_update = false)
+	public static function insert(array $fields, int $duplicate_mode = Database::INSERT_DEFAULT)
 	{
 		if (!empty($fields['baseurl']) && empty($fields['gsid'])) {
 			$fields['gsid'] = GServer::getID($fields['baseurl'], true);
@@ -184,7 +185,7 @@ class Contact
 			$fields['created'] = DateTimeFormat::utcNow();
 		}
 
-		$ret = DBA::insert('contact', $fields, $on_duplicate_update);
+		$ret = DBA::insert('contact', $fields, $duplicate_mode);
 		$contact = DBA::selectFirst('contact', ['nurl', 'uid'], ['id' => DBA::lastInsertId()]);
 		if (!DBA::isResult($contact)) {
 			// Shouldn't happen

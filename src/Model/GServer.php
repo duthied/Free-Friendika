@@ -27,6 +27,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\Register;
@@ -541,7 +542,7 @@ class GServer
 			}
 
 			foreach ($tags as $tag) {
-				DBA::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag], true);
+				DBA::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag], Database::INSERT_IGNORE);
 			}
 		}
 
