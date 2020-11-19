@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.12-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1376
+-- DB_UPDATE_VERSION 1377
 -- ------------------------------------------
 
 
@@ -620,7 +620,7 @@ CREATE TABLE IF NOT EXISTS `inbox-status` (
 CREATE TABLE IF NOT EXISTS `intro` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	`fid` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`fid` int unsigned COMMENT '',
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`knowyou` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`duplex` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -645,7 +645,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`uri-hash` varchar(80) NOT NULL DEFAULT '' COMMENT 'RIPEMD-128 hash from uri',
-	`parent` int unsigned NOT NULL DEFAULT 0 COMMENT 'item.id of the parent to this item if it is a reply of some form; otherwise this must be set to the id of this item',
+	`parent` int unsigned COMMENT 'item.id of the parent to this item if it is a reply of some form; otherwise this must be set to the id of this item',
 	`parent-uri` varchar(255) NOT NULL DEFAULT '' COMMENT 'uri of the top-level parent to this item',
 	`parent-uri-id` int unsigned COMMENT 'Id of the item-uri table that contains the top-level parent uri',
 	`thr-parent` varchar(255) NOT NULL DEFAULT '' COMMENT 'If the parent of this item is not the top-level item in the conversation, the uri of the immediate parent; otherwise set to parent-uri',
@@ -661,7 +661,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
 	`causer-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
 	`icid` int unsigned COMMENT 'Id of the item-content table entry that contains the whole item content',
-	`iaid` int unsigned COMMENT 'Id of the item-activity table entry that contains the activity data',
 	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
 	`extid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, bookmark, ...)',
@@ -681,7 +680,8 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`psid` int unsigned COMMENT 'ID of the permission set of this post',
 	`resource-id` varchar(32) NOT NULL DEFAULT '' COMMENT 'Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type',
-	`event-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Used to link to the event.id',
+	`event-id` int unsigned COMMENT 'Used to link to the event.id',
+	`iaid` int unsigned COMMENT 'Deprecated',
 	`attach` mediumtext COMMENT 'Deprecated',
 	`allow_cid` mediumtext COMMENT 'Deprecated',
 	`allow_gid` mediumtext COMMENT 'Deprecated',
@@ -741,6 +741,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_eventid` (`uid`,`event-id`),
 	 INDEX `icid` (`icid`),
 	 INDEX `iaid` (`iaid`),
+	 INDEX `vid` (`vid`),
 	 INDEX `psid_wall` (`psid`,`wall`),
 	 INDEX `uri-id` (`uri-id`),
 	 INDEX `parent-uri-id` (`parent-uri-id`),
@@ -749,8 +750,12 @@ CREATE TABLE IF NOT EXISTS `item` (
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`causer-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`vid`) REFERENCES `verb` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
@@ -826,8 +831,8 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	`from-name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name of the sender',
 	`from-photo` varchar(255) NOT NULL DEFAULT '' COMMENT 'contact photo link of the sender',
 	`from-url` varchar(255) NOT NULL DEFAULT '' COMMENT 'profile linke of the sender',
-	`contact-id` varchar(255) NOT NULL DEFAULT '' COMMENT 'contact.id',
-	`convid` int unsigned NOT NULL DEFAULT 0 COMMENT 'conv.id',
+	`contact-id` varchar(255) COMMENT 'contact.id',
+	`convid` int unsigned COMMENT 'conv.id',
 	`title` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`body` mediumtext COMMENT '',
 	`seen` boolean NOT NULL DEFAULT '0' COMMENT 'if message visited it is 1',
@@ -895,8 +900,8 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`msg` mediumtext COMMENT '',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner User id',
 	`link` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`iid` int unsigned NOT NULL DEFAULT 0 COMMENT 'item.id',
-	`parent` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`iid` int unsigned COMMENT 'item.id',
+	`parent` int unsigned COMMENT '',
 	`uri-id` int unsigned COMMENT 'Item-uri id of the related post',
 	`parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
 	`seen` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -908,7 +913,11 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	 INDEX `seen_uid_date` (`seen`,`uid`,`date`),
 	 INDEX `uid_date` (`uid`,`date`),
 	 INDEX `uid_type_link` (`uid`,`type`,`link`(190)),
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `uri-id` (`uri-id`),
+	 INDEX `parent-uri-id` (`parent-uri-id`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='notifications';
 
 --
@@ -917,15 +926,18 @@ CREATE TABLE IF NOT EXISTS `notify` (
 CREATE TABLE IF NOT EXISTS `notify-threads` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`notify-id` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`master-parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`master-parent-item` int unsigned COMMENT '',
 	`master-parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
 	`parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`receiver-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`),
+	 INDEX `master-parent-item` (`master-parent-item`),
 	 INDEX `master-parent-uri-id` (`master-parent-uri-id`),
 	 INDEX `receiver-uid` (`receiver-uid`),
 	 INDEX `notify-id` (`notify-id`),
 	FOREIGN KEY (`notify-id`) REFERENCES `notify` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`master-parent-item`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`master-parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`receiver-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
@@ -1349,7 +1361,10 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	 INDEX `uri-id` (`uri-id`),
 	FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data';
 
 --

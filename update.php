@@ -788,11 +788,74 @@ function pre_update_1376()
 		return Update::FAILED;
 	}
 
+	Photo::delete(["NOT `uid` IN (SELECT `uid` FROM `user`)"]);
+
 	if (!DBA::e("DELETE FROM `contact` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
 		return Update::FAILED;
 	}
 
-	Photo::delete(["NOT `uid` IN (SELECT `uid` FROM `user`)"]);
+	return Update::SUCCESS;
+}
+
+function pre_update_1377()
+{
+	DBStructure::checkInitialValues();
+
+	if (!DBA::e("DELETE FROM `item` WHERE NOT `parent` IN (SELECT `id` FROM `item`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `item` WHERE NOT `author-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `item` WHERE NOT `owner-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `item` SET `contact-id` = `owner-id` WHERE NOT `contact-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `thread` WHERE NOT `author-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `thread` WHERE NOT `owner-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `thread` SET `contact-id` = `owner-id` WHERE NOT `contact-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `notify` SET `uri-id` = NULL WHERE `uri-id` = 0")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `notify` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `notify` SET `parent-uri-id` = NULL WHERE `parent-uri-id` = 0")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `notify` WHERE `parent-uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `notify-threads` SET `master-parent-uri-id` = NULL WHERE `master-parent-uri-id` = 0")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `notify-threads` WHERE `master-parent-uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `notify-threads` WHERE `master-parent-item` NOT IN (SELECT `id` FROM `item`)")) {
+		return Update::FAILED;
+	}
 
 	return Update::SUCCESS;
 }
