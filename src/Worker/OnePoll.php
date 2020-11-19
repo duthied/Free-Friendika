@@ -659,7 +659,7 @@ class OnePoll
 					$datarray['owner-link'] = "mailto:".$contact['addr'];
 					$datarray['owner-avatar'] = $contact['photo'];
 
-					if ($datarray['thr-parent'] === $datarray['uri']) {
+					if (empty($datarray['thr-parent']) || ($datarray['thr-parent'] === $datarray['uri'])) {
 						$datarray['private'] = Item::PRIVATE;
 					}
 
