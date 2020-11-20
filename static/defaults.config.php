@@ -191,6 +191,11 @@ return [
 		// A value of 0 disables the deletion process.
 		'dbclean-expire-limit' => 1000,
 
+		// daemon_watchdog (Boolean)
+		// Enable regular checking if the daemon is running.
+		// If it is not running and hadn't been terminated normally, it will be started automatically.
+		'daemon_watchdog' => false,
+
 		// diaspora_test (Boolean)
 		// For development only. Disables the message transfer.
 		'diaspora_test' => false,
