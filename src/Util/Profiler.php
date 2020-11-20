@@ -165,10 +165,11 @@ class Profiler implements ContainerInterface
 
 	/**
 	 * Returns the rendertime string
+	 * @param int $limit Minimal limit for displaying the execution duration
 	 *
 	 * @return string the rendertime
 	 */
-	public function getRendertimeString()
+	public function getRendertimeString(int $limit = 0)
 	{
 		$output = '';
 
@@ -180,7 +181,7 @@ class Profiler implements ContainerInterface
 			$output .= "\nDatabase Read:\n";
 			foreach ($this->callstack["database"] as $func => $time) {
 				$time = round($time, 3);
-				if ($time > 0) {
+				if ($time > $limit) {
 					$output .= $func . ": " . $time . "\n";
 				}
 			}
@@ -189,7 +190,7 @@ class Profiler implements ContainerInterface
 			$output .= "\nDatabase Write:\n";
 			foreach ($this->callstack["database_write"] as $func => $time) {
 				$time = round($time, 3);
-				if ($time > 0) {
+				if ($time > $limit) {
 					$output .= $func . ": " . $time . "\n";
 				}
 			}
@@ -198,7 +199,7 @@ class Profiler implements ContainerInterface
 			$output .= "\nCache Read:\n";
 			foreach ($this->callstack["cache"] as $func => $time) {
 				$time = round($time, 3);
-				if ($time > 0) {
+				if ($time > $limit) {
 					$output .= $func . ": " . $time . "\n";
 				}
 			}
@@ -207,7 +208,7 @@ class Profiler implements ContainerInterface
 			$output .= "\nCache Write:\n";
 			foreach ($this->callstack["cache_write"] as $func => $time) {
 				$time = round($time, 3);
-				if ($time > 0) {
+				if ($time > $limit) {
 					$output .= $func . ": " . $time . "\n";
 				}
 			}
@@ -216,7 +217,7 @@ class Profiler implements ContainerInterface
 			$output .= "\nNetwork:\n";
 			foreach ($this->callstack["network"] as $func => $time) {
 				$time = round($time, 3);
-				if ($time > 0) {
+				if ($time > $limit) {
 					$output .= $func . ": " . $time . "\n";
 				}
 			}
