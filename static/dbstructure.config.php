@@ -307,6 +307,16 @@ return [
 			"uid_allow_cid_allow_gid_deny_cid_deny_gid" => ["uid", "allow_cid(50)", "allow_gid(30)", "deny_cid(50)", "deny_gid(30)"],
 		]
 	],
+	"verb" => [
+		"comment" => "Activity Verbs",
+		"fields" => [
+			"id" => ["type" => "smallint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
+			"name" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""]
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"]
+		]
+	],
 	// Main tables
 	"2fa_app_specific_password" => [
 		"comment" => "Two-factor app-specific _password",
@@ -726,7 +736,7 @@ return [
 			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the author of this item"],
 			"causer-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the contact that caused the item creation"],
 			"icid" => ["type" => "int unsigned", "relation" => ["item-content" => "id"], "comment" => "Id of the item-content table entry that contains the whole item content"],
-			"vid" => ["type" => "int unsigned", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
+			"vid" => ["type" => "smallint unsigned", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
 			"extid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"post-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Post type (personal note, bookmark, ...)"],
 			"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -1467,16 +1477,6 @@ return [
 			"PRIMARY" => ["uid", "iid"],
 			"uid_pinned" => ["uid", "pinned"],
 			"iid_uid" => ["iid", "uid"]
-		]
-	],
-	"verb" => [
-		"comment" => "Activity Verbs",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
-			"name" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""]
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"]
 		]
 	],
 	"worker-ipc" => [

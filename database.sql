@@ -249,6 +249,15 @@ CREATE TABLE IF NOT EXISTS `permissionset` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
+-- TABLE verb
+--
+CREATE TABLE IF NOT EXISTS `verb` (
+	`id` smallint unsigned NOT NULL auto_increment,
+	`name` varchar(100) NOT NULL DEFAULT '' COMMENT '',
+	 PRIMARY KEY(`id`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activity Verbs';
+
+--
 -- TABLE 2fa_app_specific_password
 --
 CREATE TABLE IF NOT EXISTS `2fa_app_specific_password` (
@@ -661,7 +670,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
 	`causer-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
 	`icid` int unsigned COMMENT 'Id of the item-content table entry that contains the whole item content',
-	`vid` int unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
+	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
 	`extid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, bookmark, ...)',
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -1425,15 +1434,6 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 	FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
-
---
--- TABLE verb
---
-CREATE TABLE IF NOT EXISTS `verb` (
-	`id` int unsigned NOT NULL auto_increment,
-	`name` varchar(100) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activity Verbs';
 
 --
 -- TABLE worker-ipc
