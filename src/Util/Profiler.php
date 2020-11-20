@@ -165,11 +165,11 @@ class Profiler implements ContainerInterface
 
 	/**
 	 * Returns the rendertime string
-	 * @param int $limit Minimal limit for displaying the execution duration
+	 * @param float $limit Minimal limit for displaying the execution duration
 	 *
 	 * @return string the rendertime
 	 */
-	public function getRendertimeString(int $limit = 0)
+	public function getRendertimeString(float $limit = 0)
 	{
 		$output = '';
 
