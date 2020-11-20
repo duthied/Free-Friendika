@@ -802,10 +802,6 @@ function pre_update_1377()
 {
 	DBStructure::checkInitialValues();
 
-	if (!DBA::e("DELETE FROM `item` WHERE NOT `parent` IN (SELECT `id` FROM `item`)")) {
-		return Update::FAILED;
-	}
-
 	if (!DBA::e("DELETE FROM `item` WHERE NOT `author-id` IN (SELECT `id` FROM `contact`)")) {
 		return Update::FAILED;
 	}
