@@ -1073,6 +1073,8 @@ class Worker
 	 */
 	public static function executeIfIdle()
 	{
+		self::checkDaemonState();
+
 		if (!DI::config()->get("system", "frontend_worker")) {
 			return;
 		}
@@ -1259,6 +1261,8 @@ class Worker
 			self::IPCSetJobState(true);
 		}
 
+		self::checkDaemonState();
+
 		// Should we quit and wait for the worker to be called as a cronjob?
 		if ($dont_fork) {
 			return $added;
@@ -1395,6 +1399,65 @@ class Worker
 		}
 
 		return (bool)$row['jobs'];
+	}
+
+	/**
+	 * Test if the daemon is running. If not, it will be started
+	 *
+	 * @return void
+	 */
+	private static function checkDaemonState()
+	{
+		if (!DI::config()->get('system', 'daemon_watchdog', false)) {
+			return;
+		}
+
+		if (!DI::mode()->isNormal()) {
+			return;
+		}
+
+		// Check every minute if the daemon is running
+		if (DI::config()->get('system', 'last_daemon_check', 0) + 60 > time()) {
+			return;
+		}
+
+		DI::config()->set('system', 'last_daemon_check', time());
+
+		$pidfile = DI::config()->get('system', 'pidfile');
+		if (empty($pidfile)) {
+			// No pid file, no daemon
+			return;
+		}
+
+		if (!is_readable($pidfile)) {
+			// No pid file. We assume that the daemon had been intentionally stopped.
+			return;
+		}
+
+		$pid = intval(file_get_contents($pidfile));
+		if (posix_kill($pid, 0)) {
+			Logger::info('Daemon process is running', ['pid' => $pid]);
+			return;
+		}
+
+		Logger::warning('Daemon process is not running', ['pid' => $pid]);
+
+		self::spawnDaemon();
+	}
+
+	/**
+	 * Spawn a new daemon process
+	 *
+	 * @return void
+	 */
+	private static function spawnDaemon()
+	{
+		Logger::info('Starting new daemon process');
+		$command = 'bin/daemon.php';
+		$a = DI::app();
+		$process = new Core\Process(DI::logger(), DI::mode(), DI::config(), DI::modelProcess(), $a->getBasePath(), getmypid());
+		$process->run($command, ['start']);
+		Logger::info('New daemon process started');
 	}
 
 	/**
