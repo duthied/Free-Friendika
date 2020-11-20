@@ -249,6 +249,15 @@ CREATE TABLE IF NOT EXISTS `permissionset` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
+-- TABLE verb
+--
+CREATE TABLE IF NOT EXISTS `verb` (
+	`id` smallint unsigned NOT NULL auto_increment,
+	`name` varchar(100) NOT NULL DEFAULT '' COMMENT '',
+	 PRIMARY KEY(`id`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activity Verbs';
+
+--
 -- TABLE 2fa_app_specific_password
 --
 CREATE TABLE IF NOT EXISTS `2fa_app_specific_password` (
@@ -753,6 +762,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`causer-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`vid`) REFERENCES `verb` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
@@ -1424,15 +1434,6 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 	FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
-
---
--- TABLE verb
---
-CREATE TABLE IF NOT EXISTS `verb` (
-	`id` smallint unsigned NOT NULL auto_increment,
-	`name` varchar(100) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activity Verbs';
 
 --
 -- TABLE worker-ipc
