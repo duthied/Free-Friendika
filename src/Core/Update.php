@@ -113,7 +113,7 @@ class Update
 
 				// Compare the current structure with the defined structure
 				// If the Lock is acquired, never release it automatically to avoid double updates
-				if (DI::lock()->acquire('dbupdate', 120, Cache\Duration::INFINITE)) {
+				if (DI::lock()->acquire('dbupdate', 0, Cache\Duration::INFINITE)) {
 
 					Logger::notice('Update starting.', ['from' => $stored, 'to' => $current]);
 
