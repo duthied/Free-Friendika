@@ -111,11 +111,11 @@ class Update
 			if ($stored < $current || $force) {
 				DI::config()->load('database');
 
-				Logger::notice('Update starting.', ['from' => $stored, 'to' => $current]);
-
 				// Compare the current structure with the defined structure
 				// If the Lock is acquired, never release it automatically to avoid double updates
 				if (DI::lock()->acquire('dbupdate', 120, Cache\Duration::INFINITE)) {
+
+					Logger::notice('Update starting.', ['from' => $stored, 'to' => $current]);
 
 					// Checks if the build changed during Lock acquiring (so no double update occurs)
 					$retryBuild = DI::config()->get('system', 'build', null, true);
@@ -127,16 +127,20 @@ class Update
 
 					// run the pre_update_nnnn functions in update.php
 					for ($x = $stored + 1; $x <= $current; $x++) {
+						Logger::notice('Execute pre update.', ['version' => $x]);
 						$r = self::runUpdateFunction($x, 'pre_update', $sendMail);
 						if (!$r) {
 							Logger::warning('Pre update failed', ['version' => $x]);
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
 							return $r;
+						} else {
+							Logger::notice('Pre update executed.', ['version' => $x]);
 						}
 					}
 
 					// update the structure in one call
+					Logger::notice('Execute structure update');
 					$retval = DBStructure::update($basePath, $verbose, true);
 					if (!empty($retval)) {
 						if ($sendMail) {
@@ -152,27 +156,32 @@ class Update
 					} else {
 						DI::config()->set('database', 'last_successful_update', $current);
 						DI::config()->set('database', 'last_successful_update_time', time());
-						Logger::info('Update finished.', ['from' => $stored, 'to' => $current]);
+						Logger::notice('Database structure update finished.', ['from' => $stored, 'to' => $current]);
 					}
 
 					// run the update_nnnn functions in update.php
 					for ($x = $stored + 1; $x <= $current; $x++) {
+						Logger::notice('Execute post update.', ['version' => $x]);
 						$r = self::runUpdateFunction($x, 'update', $sendMail);
 						if (!$r) {
 							Logger::warning('Post update failed', ['version' => $x]);
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
 							return $r;
+						} else {
+							DI::config()->set('system', 'build', $x);
+							Logger::notice('Post update executed.', ['version' => $x]);
 						}
 					}
+
+					DI::config()->set('system', 'build', $current);
+					DI::config()->set('system', 'update', Update::SUCCESS);
+					DI::lock()->release('dbupdate');
 
 					Logger::notice('Update success.', ['from' => $stored, 'to' => $current]);
 					if ($sendMail) {
 						self::updateSuccessfull($stored, $current);
 					}
-
-					DI::config()->set('system', 'update', Update::SUCCESS);
-					DI::lock()->release('dbupdate');
 				}
 			}
 		}
@@ -194,7 +203,7 @@ class Update
 	{
 		$funcname = $prefix . '_' . $x;
 
-		Logger::info('Update function start.', ['function' => $funcname]);
+		Logger::notice('Update function start.', ['function' => $funcname]);
 
 		if (function_exists($funcname)) {
 			// There could be a lot of processes running or about to run.
@@ -207,9 +216,9 @@ class Update
 			if (DI::lock()->acquire('dbupdate_function', 120, Cache\Duration::INFINITE)) {
 
 				// call the specific update
-				Logger::info('Pre update function start.', ['function' => $funcname]);
+				Logger::notice('Pre update function start.', ['function' => $funcname]);
 				$retval = $funcname();
-				Logger::info('Update function done.', ['function' => $funcname]);
+				Logger::notice('Update function done.', ['function' => $funcname]);
 
 				if ($retval) {
 					if ($sendMail) {
@@ -223,30 +232,16 @@ class Update
 					DI::lock()->release('dbupdate_function');
 					return false;
 				} else {
-					DI::config()->set('database', 'last_successful_update_function', $funcname);
-					DI::config()->set('database', 'last_successful_update_function_time', time());
-
-					if ($prefix == 'update') {
-						DI::config()->set('system', 'build', $x);
-					}
-
 					DI::lock()->release('dbupdate_function');
-					Logger::info('Update function finished.', ['function' => $funcname]);
+					Logger::notice('Update function finished.', ['function' => $funcname]);
 					return true;
 				}
 			} else {
 				Logger::error('Locking failed.', ['function' => $funcname]);
+				return false;
 			}
 		} else {
-			Logger::info('Update function skipped.', ['function' => $funcname]);
-
-			DI::config()->set('database', 'last_successful_update_function', $funcname);
-			DI::config()->set('database', 'last_successful_update_function_time', time());
-
-			if ($prefix == 'update') {
-				DI::config()->set('system', 'build', $x);
-			}
-
+			Logger::notice('Update function skipped.', ['function' => $funcname]);
 			return true;
 		}
 	}
