@@ -1034,11 +1034,6 @@ function builtin_activity_puller(array $activity, array &$conv_responses)
 				$activity['thr-parent'] = $activity['parent-uri'];
 			}
 
-			// only list each unique author once
-			if (in_array($link, $conv_responses[$mode][$activity['thr-parent']]['links'])) {
-				continue;
-			}
-
 			// Skip when the causer of the parent is the same than the author of the announce
 			if (($verb == Activity::ANNOUNCE) && Item::exists(['uri' => $activity['thr-parent'],
 				'uid' => $activity['uid'], 'causer-id' => $activity['author-id'], 'gravity' => GRAVITY_PARENT])) {
@@ -1050,6 +1045,9 @@ function builtin_activity_puller(array $activity, array &$conv_responses)
 					'links' => [],
 					'self' => 0,
 				];
+			} elseif (in_array($link, $conv_responses[$mode][$activity['thr-parent']]['links'])) {
+				// only list each unique author once
+				continue;
 			}
 
 			if (public_contact() == $activity['author-id']) {
