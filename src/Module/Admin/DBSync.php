@@ -57,8 +57,6 @@ class DBSync extends BaseAdmin
 				$retval = DBStructure::update($a->getBasePath(), false, true);
 				if ($retval === '') {
 					$o = DI::l10n()->t("Database structure update %s was successfully applied.", DB_UPDATE_VERSION) . "<br />";
-					DI::config()->set('database', 'last_successful_update', DB_UPDATE_VERSION);
-					DI::config()->set('database', 'last_successful_update_time', time());
 				} else {
 					$o = DI::l10n()->t("Executing of database structure update %s failed with error: %s", DB_UPDATE_VERSION, $retval) . "<br />";
 				}
