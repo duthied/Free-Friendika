@@ -256,7 +256,7 @@ function localize_item(&$item)
 	// add zrl's to public images
 	$photo_pattern = "/\[url=(.*?)\/photos\/(.*?)\/image\/(.*?)\]\[img(.*?)\]h(.*?)\[\/img\]\[\/url\]/is";
 	if (preg_match($photo_pattern, $item['body'])) {
-		$photo_replace = '[url=' . Profile::zrl('$1' . '/photos/' . '$2' . '/image/' . '$3' ,true) . '][img' . '$4' . ']h' . '$5'  . '[/img][/url]';
+		$photo_replace = '[url=' . Profile::zrl('$1' . '/photos/' . '$2' . '/image/' . '$3' , true) . '][img' . '$4' . ']h' . '$5'  . '[/img][/url]';
 		$item['body'] = BBCode::pregReplaceInTag($photo_pattern, $photo_replace, 'url', $item['body']);
 	}
 
@@ -467,7 +467,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 	}
 
 	$cb = ['items' => $items, 'mode' => $mode, 'update' => $update, 'preview' => $preview];
-	Hook::callAll('conversation_start',$cb);
+	Hook::callAll('conversation_start', $cb);
 
 	$items = $cb['items'];
 
@@ -544,7 +544,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 				}
 
 				$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
-				Hook::callAll('render_location',$locate);
+				Hook::callAll('render_location', $locate);
 				$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
 
 				localize_item($item);
@@ -614,7 +614,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'folders' => $folders,
 					'text' => strip_tags($body_html),
 					'localtime' => DateTimeFormat::local($item['created'], 'r'),
-					'ago' => (($item['app']) ? DI::l10n()->t('%s from %s', Temporal::getRelativeDate($item['created']),$item['app']) : Temporal::getRelativeDate($item['created'])),
+					'ago' => (($item['app']) ? DI::l10n()->t('%s from %s', Temporal::getRelativeDate($item['created']), $item['app']) : Temporal::getRelativeDate($item['created'])),
 					'location_html' => $location_html,
 					'indent' => '',
 					'owner_name' => '',
@@ -982,13 +982,14 @@ function item_photo_menu($item) {
  *
  * Increments the count of each matching activity and adds a link to the author as needed.
  *
- * @param array  $item
+ * @param array  $activity
  * @param array &$conv_responses (already created with builtin activity structure)
  * @return void
  * @throws ImagickException
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function builtin_activity_puller($item, &$conv_responses) {
+function builtin_activity_puller(array $activity, array &$conv_responses)
+{
 	foreach ($conv_responses as $mode => $v) {
 		$sparkle = '';
 
@@ -1015,47 +1016,47 @@ function builtin_activity_puller($item, &$conv_responses) {
 				return;
 		}
 
-		if (!empty($item['verb']) && DI::activity()->match($item['verb'], $verb) && ($item['gravity'] != GRAVITY_PARENT)) {
-			$author = ['uid' => 0, 'id' => $item['author-id'],
-				'network' => $item['author-network'], 'url' => $item['author-link']];
+		if (!empty($activity['verb']) && DI::activity()->match($activity['verb'], $verb) && ($activity['gravity'] != GRAVITY_PARENT)) {
+			$author = [
+				'uid' => 0,
+				'id' => $activity['author-id'],
+				'network' => $activity['author-network'],
+				'url' => $activity['author-link']
+			];
 			$url = Contact::magicLinkByContact($author);
 			if (strpos($url, 'redir/') === 0) {
 				$sparkle = ' class="sparkle" ';
 			}
 
-			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
+			$link = '<a href="' . $url . '"' . $sparkle . '>' . htmlentities($activity['author-name']) . '</a>';
 
-			if (empty($item['thr-parent'])) {
-				$item['thr-parent'] = $item['parent-uri'];
-			}
-
-			if (!(isset($conv_responses[$mode][$item['thr-parent'] . '-l'])
-				&& is_array($conv_responses[$mode][$item['thr-parent'] . '-l']))) {
-				$conv_responses[$mode][$item['thr-parent'] . '-l'] = [];
+			if (empty($activity['thr-parent'])) {
+				$activity['thr-parent'] = $activity['parent-uri'];
 			}
 
 			// only list each unique author once
-			if (in_array($url,$conv_responses[$mode][$item['thr-parent'] . '-l'])) {
+			if (in_array($link, $conv_responses[$mode][$activity['thr-parent']]['links'])) {
 				continue;
 			}
 
 			// Skip when the causer of the parent is the same than the author of the announce
-			if (($verb == Activity::ANNOUNCE) && Item::exists(['uri' => $item['thr-parent'],
-				'uid' => $item['uid'], 'causer-id' => $item['author-id'], 'gravity' => GRAVITY_PARENT])) {
+			if (($verb == Activity::ANNOUNCE) && Item::exists(['uri' => $activity['thr-parent'],
+				'uid' => $activity['uid'], 'causer-id' => $activity['author-id'], 'gravity' => GRAVITY_PARENT])) {
 				continue;
 			}
 
-			if (!isset($conv_responses[$mode][$item['thr-parent']])) {
-				$conv_responses[$mode][$item['thr-parent']] = 1;
-			} else {
-				$conv_responses[$mode][$item['thr-parent']] ++;
+			if (!isset($conv_responses[$mode][$activity['thr-parent']])) {
+				$conv_responses[$mode][$activity['thr-parent']] = [
+					'links' => [],
+					'self' => 0,
+				];
 			}
 
-			if (public_contact() == $item['author-id']) {
-				$conv_responses[$mode][$item['thr-parent'] . '-self'] = 1;
+			if (public_contact() == $activity['author-id']) {
+				$conv_responses[$mode][$activity['thr-parent']]['self'] = 1;
 			}
 
-			$conv_responses[$mode][$item['thr-parent'] . '-l'][] = $url;
+			$conv_responses[$mode][$activity['thr-parent']]['links'][] = $link;
 
 			// there can only be one activity verb per item so if we found anything, we can stop looking
 			return;
@@ -1064,26 +1065,26 @@ function builtin_activity_puller($item, &$conv_responses) {
 }
 
 /**
- * Format the vote text for a profile item
+ * Format the activity text for an item/photo/video
  *
- * @param int    $cnt  = number of people who vote the item
- * @param array  $arr  = array of pre-linked names of likers/dislikers
- * @param string $type = one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe'
- * @param int    $id   = item id
+ * @param array  $links = array of pre-linked names of actors
+ * @param string $verb  = one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe'
+ * @param int    $id    = item id
  * @return string formatted text
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function format_like($cnt, array $arr, $type, $id) {
+function format_activity(array $links, $verb, $id) {
 	$o = '';
 	$expanded = '';
 	$phrase = '';
 
-	if ($cnt == 1) {
-		$likers = $arr[0];
+	$total = count($links);
+	if ($total == 1) {
+		$likers = $links[0];
 
 		// Phrase if there is only one liker. In other cases it will be uses for the expanded
 		// list which show all likers
-		switch ($type) {
+		switch ($verb) {
 			case 'like' :
 				$phrase = DI::l10n()->t('%s likes this.', $likers);
 				break;
@@ -1103,56 +1104,51 @@ function format_like($cnt, array $arr, $type, $id) {
 				$phrase = DI::l10n()->t('%s reshared this.', $likers);
 				break;
 		}
-	}
-
-	if ($cnt > 1) {
-		$total = count($arr);
+	} elseif ($total > 1) {
 		if ($total < MAX_LIKERS) {
-			$last = DI::l10n()->t('and') . ' ' . $arr[count($arr)-1];
-			$arr2 = array_slice($arr, 0, -1);
-			$likers = implode(', ', $arr2) . ' ' . $last;
+			$likers = implode(', ', array_slice($links, 0, -1));
+			$likers .= ' ' . DI::l10n()->t('and') . ' ' . $links[count($links)-1];
 		} else  {
-			$arr = array_slice($arr, 0, MAX_LIKERS - 1);
-			$likers = implode(', ', $arr);
-			$likers .= DI::l10n()->t('and %d other people', $total - MAX_LIKERS);
+			$likers = implode(', ', array_slice($links, 0, MAX_LIKERS - 1));
+			$likers .= ' ' . DI::l10n()->t('and %d other people', $total - MAX_LIKERS);
 		}
 
-		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$type}list-$id');\"";
+		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$verb}list-$id');\"";
 
 		$explikers = '';
-		switch ($type) {
+		switch ($verb) {
 			case 'like':
-				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> like this', $spanatts, $cnt);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> like this', $spanatts, $total);
 				$explikers = DI::l10n()->t('%s like this.', $likers);
 				break;
 			case 'dislike':
-				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> don\'t like this', $spanatts, $cnt);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> don\'t like this', $spanatts, $total);
 				$explikers = DI::l10n()->t('%s don\'t like this.', $likers);
 				break;
 			case 'attendyes':
-				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> attend', $spanatts, $cnt);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> attend', $spanatts, $total);
 				$explikers = DI::l10n()->t('%s attend.', $likers);
 				break;
 			case 'attendno':
-				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> don\'t attend', $spanatts, $cnt);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> don\'t attend', $spanatts, $total);
 				$explikers = DI::l10n()->t('%s don\'t attend.', $likers);
 				break;
 			case 'attendmaybe':
-				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $cnt);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $total);
 				$explikers = DI::l10n()->t('%s attend maybe.', $likers);
 				break;
 			case 'announce':
-				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $cnt);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $total);
 				$explikers = DI::l10n()->t('%s reshared this.', $likers);
 				break;
 		}
 
-		$expanded .= "\t" . '<p class="wall-item-' . $type . '-expanded" id="' . $type . 'list-' . $id . '" style="display: none;" >' . $explikers . EOL . '</p>';
+		$expanded .= "\t" . '<p class="wall-item-' . $verb . '-expanded" id="' . $verb . 'list-' . $id . '" style="display: none;" >' . $explikers . EOL . '</p>';
 	}
 
 	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('voting_fakelink.tpl'), [
 		'$phrase' => $phrase,
-		'$type' => $type,
+		'$type' => $verb,
 		'$id' => $id
 	]);
 	$o .= $expanded;
@@ -1183,10 +1179,9 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	$jotplugins = '';
 	Hook::callAll('jot_tool', $jotplugins);
 
-	// $tpl = Renderer::replaceMacros($tpl,array('$jotplugins' => $jotplugins));
 	$tpl = Renderer::getMarkupTemplate("jot.tpl");
 
-	$o .= Renderer::replaceMacros($tpl,[
+	$o .= Renderer::replaceMacros($tpl, [
 		'$new_post' => DI::l10n()->t('New Post'),
 		'$return_path'  => DI::args()->getQueryString(),
 		'$action'       => 'item',

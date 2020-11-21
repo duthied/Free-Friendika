@@ -280,8 +280,8 @@ class Post
 		$responses = [];
 		foreach ($response_verbs as $value => $verb) {
 			$responses[$verb] = [
-				'self'   => $conv_responses[$verb][$item['uri'] . '-self'] ?? 0,
-				'output' => !empty($conv_responses[$verb][$item['uri']]) ? format_like($conv_responses[$verb][$item['uri']], $conv_responses[$verb][$item['uri'] . '-l'], $verb, $item['uri']) : '',
+				'self'   => $conv_responses[$verb][$item['uri']]['self'] ?? 0,
+				'output' => !empty($conv_responses[$verb][$item['uri']]) ? format_activity($conv_responses[$verb][$item['uri']]['links'], $verb, $item['uri']) : '',
 			];
 		}
 
