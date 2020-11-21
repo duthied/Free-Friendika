@@ -1423,11 +1423,11 @@ function photos_content(App $a)
 				}
 
 				if (!empty($conv_responses['like'][$link_item['uri']])) {
-					$like = format_like($conv_responses['like'][$link_item['uri']], $conv_responses['like'][$link_item['uri'] . '-l'], 'like', $link_item['id']);
+					$like = format_activity($conv_responses['like'][$link_item['uri']]['links'], 'like', $link_item['id']);
 				}
 
 				if (!empty($conv_responses['dislike'][$link_item['uri']])) {
-					$dislike = format_like($conv_responses['dislike'][$link_item['uri']], $conv_responses['dislike'][$link_item['uri'] . '-l'], 'dislike', $link_item['id']);
+					$dislike = format_activity($conv_responses['dislike'][$link_item['uri']]['links'], 'dislike', $link_item['id']);
 				}
 
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
