@@ -154,8 +154,6 @@ class Update
 						DI::lock()->release('dbupdate');
 						return $retval;
 					} else {
-						DI::config()->set('database', 'last_successful_update', $current);
-						DI::config()->set('database', 'last_successful_update_time', time());
 						Logger::notice('Database structure update finished.', ['from' => $stored, 'to' => $current]);
 					}
 
