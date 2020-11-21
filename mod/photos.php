@@ -1361,17 +1361,6 @@ function photos_content(App $a)
 			$tpl = Renderer::getMarkupTemplate('photo_item.tpl');
 			$return_path = DI::args()->getCommand();
 
-			if ($cmd === 'view' && ($can_post || Security::canWriteToUserWall($owner_uid))) {
-				$like_tpl = Renderer::getMarkupTemplate('like_noshare.tpl');
-				$likebuttons = Renderer::replaceMacros($like_tpl, [
-					'$id' => $link_item['id'],
-					'$likethis' => DI::l10n()->t("I like this \x28toggle\x29"),
-					'$dislike' => DI::pConfig()->get(local_user(), 'system', 'hide_dislike') ? '' : DI::l10n()->t("I don't like this \x28toggle\x29"),
-					'$wait' => DI::l10n()->t('Please wait'),
-					'$return_path' => DI::args()->getQueryString(),
-				]);
-			}
-
 			if (!DBA::isResult($items)) {
 				if (($can_post || Security::canWriteToUserWall($owner_uid))) {
 					/*
@@ -1532,6 +1521,28 @@ function photos_content(App $a)
 						]);
 					}
 				}
+			}
+
+			$responses = [];
+			foreach ($conv_responses as $verb => $activity) {
+				if (isset($activity[$link_item['uri']])) {
+					$responses[$verb] = $activity[$link_item['uri']];
+				}
+			}
+
+			if ($cmd === 'view' && ($can_post || Security::canWriteToUserWall($owner_uid))) {
+				$like_tpl = Renderer::getMarkupTemplate('like_noshare.tpl');
+				$likebuttons = Renderer::replaceMacros($like_tpl, [
+					'$id' => $link_item['id'],
+					'$like' => DI::l10n()->t('Like'),
+					'$like_title' => DI::l10n()->t('I like this (toggle)'),
+					'$dislike' => DI::l10n()->t('Dislike'),
+					'$wait' => DI::l10n()->t('Please wait'),
+					'$dislike_title' => DI::l10n()->t('I don\'t like this (toggle)'),
+					'$hide_dislike' => DI::pConfig()->get(local_user(), 'system', 'hide_dislike'),
+					'$responses' => $responses,
+					'$return_path' => DI::args()->getQueryString(),
+				]);
 			}
 
 			$paginate = $pager->renderFull($total);
