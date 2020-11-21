@@ -432,7 +432,12 @@ class Transmitter
 		$activity = json_decode($conversation['source'], true);
 
 		$actor = JsonLD::fetchElement($activity, 'actor', 'id');
-		$profile = APContact::getByURL($actor);
+		if (!empty($actor)) {
+			$permissions['to'][] = $actor;
+			$profile = APContact::getByURL($actor);
+		} else {
+			$profile = [];
+		}
 
 		$item_profile = APContact::getByURL($item['author-link']);
 		$exclude[] = $item['author-link'];
@@ -440,8 +445,6 @@ class Transmitter
 		if ($item['gravity'] == GRAVITY_PARENT) {
 			$exclude[] = $item['owner-link'];
 		}
-
-		$permissions['to'][] = $actor;
 
 		foreach (['to', 'cc', 'bto', 'bcc'] as $element) {
 			if (empty($activity[$element])) {
