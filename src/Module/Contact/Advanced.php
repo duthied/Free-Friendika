@@ -128,8 +128,6 @@ class Advanced extends BaseModule
 			'$info'              => $info,
 			'$returnaddr'        => $returnaddr,
 			'$return'            => DI::l10n()->t('Return to contact editor'),
-			'$update_profile'    => in_array($contact['network'], Protocol::FEDERATED),
-			'$udprofilenow'      => DI::l10n()->t('Refetch contact data'),
 			'$contact_id'        => $contact['id'],
 			'$lbl_submit'        => DI::l10n()->t('Submit'),
 

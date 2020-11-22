@@ -1139,7 +1139,7 @@ class Contact extends BaseModule
 			];
 		}
 
-		if (in_array($contact['network'], Protocol::FEDERATED)) {
+		if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 			$contact_actions['updateprofile'] = [
 				'label' => DI::l10n()->t('Refetch contact data'),
 				'url'   => 'contact/' . $contact['id'] . '/updateprofile',
