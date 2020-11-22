@@ -15,12 +15,6 @@
 
 		<!-- <h4>{{$contact_name}}</h4> -->
 
-		<div id="contact-update-profile-wrapper">
-		{{if $update_profile}}
-			<span id="contact-update-profile-now" class="button"><a href="contact/{{$contact_id}}/updateprofile" >{{$udprofilenow}}</a></span>
-		{{/if}}
-		</div>
-
 		{{include file="field_input.tpl" field=$name}}
 
 		{{include file="field_input.tpl" field=$nick}}
