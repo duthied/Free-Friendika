@@ -163,29 +163,21 @@ class Addon
 		if (function_exists($addon . '_install')) {
 			$func = $addon . '_install';
 			$func(DI::app());
-
-			$addon_admin = (function_exists($addon . "_addon_admin") ? 1 : 0);
-
-			DBA::insert('addon', ['name' => $addon, 'installed' => true,
-				'timestamp' => $t, 'plugin_admin' => $addon_admin]);
-
-			// we can add the following with the previous SQL
-			// once most site tables have been updated.
-			// This way the system won't fall over dead during the update.
-
-			if (file_exists('addon/' . $addon . '/.hidden')) {
-				DBA::update('addon', ['hidden' => true], ['name' => $addon]);
-			}
-
-			if (!self::isEnabled($addon)) {
-				self::$addons[] = $addon;
-			}
-
-			return true;
-		} else {
-			Logger::error("Addon {addon}: {action} failed", ['action' => 'install', 'addon' => $addon]);
-			return false;
 		}
+
+		DBA::insert('addon', [
+			'name' => $addon,
+			'installed' => true,
+			'timestamp' => $t,
+			'plugin_admin' => function_exists($addon . '_addon_admin'),
+			'hidden' => file_exists('addon/' . $addon . '/.hidden')
+		]);
+
+		if (!self::isEnabled($addon)) {
+			self::$addons[] = $addon;
+		}
+
+		return true;
 	}
 
 	/**
