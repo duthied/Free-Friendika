@@ -36,45 +36,40 @@ class PollContacts
 {
 	public static function execute()
 	{
-		$sql = "SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`, `contact`.`archive`,
-					`contact`.`last-update`, `contact`.`priority`, `contact`.`rating`, `contact`.`rel`, `contact`.`subhub`
-				FROM `user`
-				STRAIGHT_JOIN `contact`
-				ON `contact`.`uid` = `user`.`uid` AND `contact`.`poll` != ''
-					AND `contact`.`network` IN (?, ?, ?, ?, ?)
-					AND NOT `contact`.`self` AND NOT `contact`.`blocked`
-					AND `contact`.`rel` != ?
-				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed`";
-
-		$parameters = [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Contact::FOLLOWER];
-
-		// Only poll from those with suitable relationships,
-		// and which have a polling address and ignore Diaspora since
-		// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
 		$abandon_days = intval(DI::config()->get('system', 'account_abandon_days'));
 		if ($abandon_days < 1) {
 			$abandon_days = 0;
 		}
 
+		$condition = ['network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::FEED, 
+			Protocol::MAIL, Protocol::ZOT, Protocol::PHANTOM], 'self' => false, 'blocked' => false];
+
 		if (!empty($abandon_days)) {
-			$sql .= " AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL ? DAY";
-			$parameters[] = $abandon_days;
+			$condition = DBA::mergeConditions($condition,
+				["`uid` != ? AND `uid` IN (SELECT `uid` FROM `user` WHERE NOT `account_expired` AND NOT `account_removed`  AND `login_date` > UTC_TIMESTAMP() - INTERVAL ? DAY)", 0, $abandon_days]);
+		} else 	{
+			$condition = DBA::mergeConditions($condition,
+				["`uid` != ? AND `uid` IN (SELECT `uid` FROM `user` WHERE NOT `account_expired` AND NOT `account_removed`)", 0]);
 		}
 
-		$contacts = DBA::p($sql, $parameters);
-
+		$contacts = DBA::select('contact', ['id', 'nick', 'name', 'network', 'archive', 'last-update', 'priority', 'rating'], $condition);
 		if (!DBA::isResult($contacts)) {
 			return;
 		}
 
 		while ($contact = DBA::fetch($contacts)) {
-			$ratings = [0, 3, 7, 8, 9, 10];
-			if (DI::config()->get('system', 'adjust_poll_frequency') && ($contact['network'] == Protocol::FEED)) {
-				$rating = $contact['rating'];
-			} elseif (array_key_exists($contact['priority'], $ratings)) {
-				$rating = $ratings[$contact['priority']];
+			if (in_array($contact['network'], [Protocol::MAIL, Protocol::FEED])) {
+				$ratings = [0, 3, 7, 8, 9, 10];
+				if (DI::config()->get('system', 'adjust_poll_frequency') && ($contact['network'] == Protocol::FEED)) {
+					$rating = $contact['rating'];
+				} elseif (array_key_exists($contact['priority'], $ratings)) {
+					$rating = $ratings[$contact['priority']];
+				} else {
+					$rating = -1;
+				}
 			} else {
-				$rating = -1;
+				// Check once a week per default for all other networks
+				$rating = 9;
 			}
 
 			// Friendica and OStatus are checked once a day
@@ -82,13 +77,8 @@ class PollContacts
 				$rating = 8;
 			}
 
-			// ActivityPub is checked once a week
-			if ($contact['network'] == Protocol::ACTIVITYPUB) {
-				$rating = 9;
-			}
-
-			// Check archived contacts once a month
-			if ($contact['archive']) {
+			// Check archived contacts or contacts with unsupported protocols once a month
+			if ($contact['archive'] || in_array($contact['network'], [Protocol::ZOT, Protocol::PHANTOM])) {
 				$rating = 10;
 			}
 
