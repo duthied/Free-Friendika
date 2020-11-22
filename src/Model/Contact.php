@@ -1749,9 +1749,12 @@ class Contact
 		$condition['rel'] = self::SHARING;
 		DBA::update('contact', $fields, $condition);
 
-		unset($fields['last-update']);
-		unset($fields['success_update']);
-		unset($fields['failure_update']);
+		// If the contact failed, propagate the update fields to all contacts
+		if (empty($fields['failed'])) {
+			unset($fields['last-update']);
+			unset($fields['success_update']);
+			unset($fields['failure_update']);
+		}
 
 		if (empty($fields)) {
 			return;
@@ -1872,9 +1875,7 @@ class Contact
 
 		// If Probe::uri fails the network code will be different ("feed" or "unkn")
 		if (in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network'])) {
-			if ($uid == 0) {
-				self::updateContact($id, $uid, $ret['url'], ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
-			}
+			self::updateContact($id, $uid, $ret['url'], ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
 			return false;
 		}
 
@@ -1943,6 +1944,7 @@ class Contact
 
 		$ret['nurl'] = Strings::normaliseLink($ret['url']);
 		$ret['updated'] = $updated;
+		$ret['failed'] = false;
 
 		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
 		if (empty($pubkey) && !empty($new_pubkey)) {
@@ -1960,7 +1962,6 @@ class Contact
 		if ($uid == 0) {
 			$ret['last-update'] = $updated;
 			$ret['success_update'] = $updated;
-			$ret['failed'] = false;
 		}
 
 		unset($ret['photo']);

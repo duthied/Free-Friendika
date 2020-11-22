@@ -528,7 +528,7 @@ class Contact extends BaseModule
 			$last_update = (($contact['last-update'] <= DBA::NULL_DATETIME) ? DI::l10n()->t('Never') : DateTimeFormat::local($contact['last-update'], 'D, j M Y, g:i A'));
 
 			if ($contact['last-update'] > DBA::NULL_DATETIME) {
-				$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? DI::l10n()->t('(Update was successful)') : DI::l10n()->t('(Update was not successful)'));
+				$last_update .= ' ' . ($contact['failed'] ? DI::l10n()->t('(Update was not successful)') : DI::l10n()->t('(Update was successful)'));
 			}
 			$lblsuggest = (($contact['network'] === Protocol::DFRN) ? DI::l10n()->t('Suggest friends') : '');
 
@@ -679,7 +679,7 @@ class Contact extends BaseModule
 				array_unshift($sql_values, 0);
 				break;
 			case 'archived':
-				$sql_extra = " AND (`archive` OR `failed`) AND NOT `blocked` AND NOT `pending`";
+				$sql_extra = " AND `archive` AND NOT `blocked` AND NOT `pending`";
 				break;
 			case 'pending':
 				$sql_extra = " AND `pending` AND NOT `archive` AND NOT `failed` AND ((`rel` = ?)
@@ -687,7 +687,7 @@ class Contact extends BaseModule
 				$sql_values[] = Model\Contact::SHARING;
 				break;
 			default:
-				$sql_extra = " AND NOT `archive` AND NOT `blocked` AND NOT `pending` AND NOT `failed`";
+				$sql_extra = " AND NOT `archive` AND NOT `blocked` AND NOT `pending`";
 				break;
 		}
 
