@@ -301,7 +301,7 @@ function ping_init(App $a)
 						'seen'    => false,
 						'message' => DI::l10n()->t('{0} requested registration'),
 					];
-					$notifs[] = $notif;
+					$notifications[] = $notif;
 				}
 			} else {
 				$notif = [
