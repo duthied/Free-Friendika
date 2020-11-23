@@ -193,9 +193,9 @@ class Delivery
 			return;
 		}
 
-		// We don't deliver our items to blocked or pending contacts, and not to ourselves either
+		// We don't deliver our items to blocked, archived or pending contacts, and not to ourselves either
 		$contact = DBA::selectFirst('contact', [],
-			['id' => $contact_id, 'blocked' => false, 'pending' => false, 'self' => false]
+			['id' => $contact_id, 'archive' => false, 'blocked' => false, 'pending' => false, 'self' => false]
 		);
 		if (!DBA::isResult($contact)) {
 			self::setFailedQueue($cmd, $target_item);

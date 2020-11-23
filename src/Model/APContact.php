@@ -32,6 +32,7 @@ use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\JsonLD;
 use Friendica\Util\Network;
 
@@ -148,6 +149,7 @@ class APContact
 
 		$data = ActivityPub::fetchContent($url);
 		if (empty($data)) {
+			self::markForArchival($fetched_contact ?: []);
 			return $fetched_contact;
 		}
 
@@ -351,9 +353,53 @@ class APContact
 	}
 
 	/**
+	 * Mark the given AP Contact as "to archive"
+	 *
+	 * @param array $apcontact
+	 * @return void
+	 */
+	public static function markForArchival(array $apcontact)
+	{
+		if (!empty($apcontact['inbox'])) {
+			Logger::info('Set inbox status to failure', ['inbox' => $apcontact['inbox']]);
+			HTTPSignature::setInboxStatus($apcontact['inbox'], false);
+		}
+
+		if (!empty($apcontact['sharedinbox'])) {
+			// Check if there are any vital inboxes
+			$vital = DBA::exists('apcontact', ["`sharedinbox` = ? AnD `inbox` IN (SELECT `url` FROM `inbox-status` WHERE `success` > `failure`)",
+				$apcontact['sharedinbox']]);
+			if (!$vital) {
+				// If all known personal inboxes are failing then set their shared inbox to failure as well
+				Logger::info('Set shared inbox status to failure', ['sharedinbox' => $apcontact['sharedinbox']]);
+				HTTPSignature::setInboxStatus($apcontact['sharedinbox'], false, true);
+			}
+		}
+	}
+
+	/**
+	 * Unmark the given AP Contact as "to archive"
+	 *
+	 * @param array $apcontact
+	 * @return void
+	 */
+	public static function unmarkForArchival(array $apcontact)
+	{
+		if (!empty($apcontact['inbox'])) {
+			Logger::info('Set inbox status to success', ['inbox' => $apcontact['inbox']]);
+			HTTPSignature::setInboxStatus($apcontact['inbox'], true);
+		}
+		if (!empty($apcontact['sharedinbox'])) {
+			Logger::info('Set shared inbox status to success', ['sharedinbox' => $apcontact['sharedinbox']]);
+			HTTPSignature::setInboxStatus($apcontact['sharedinbox'], true, true);
+		}
+	}
+
+	/**
 	 * Unarchive inboxes
 	 *
-	 * @param string $url inbox url
+	 * @param string  $url    inbox url
+	 * @param boolean $shared Shared Inbox
 	 */
 	private static function unarchiveInbox($url, $shared)
 	{
@@ -361,15 +407,6 @@ class APContact
 			return;
 		}
 
-		$now = DateTimeFormat::utcNow();
-
-		$fields = ['archive' => false, 'success' => $now, 'shared' => $shared];
-
-		if (!DBA::exists('inbox-status', ['url' => $url])) {
-			$fields = array_merge($fields, ['url' => $url, 'created' => $now]);
-			DBA::replace('inbox-status', $fields);
-		} else {
-			DBA::update('inbox-status', $fields, ['url' => $url]);
-		}
+		HTTPSignature::setInboxStatus($url, true, $shared);
 	}
 }

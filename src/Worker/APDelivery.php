@@ -42,7 +42,16 @@ class APDelivery
 	 */
 	public static function execute($cmd, $target_id, $inbox, $uid)
 	{
-		Logger::log('Invoked: ' . $cmd . ': ' . $target_id . ' to ' . $inbox, Logger::DEBUG);
+		if (ActivityPub\Transmitter::archivedInbox($inbox)) {
+			Logger::info('Inbox is archived', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $target_id, 'uid' => $uid]);
+			if (in_array($cmd, [Delivery::POST])) {
+				$item = Item::selectFirst(['uri-id'], ['id' => $target_id]);
+				Post\DeliveryData::incrementQueueFailed($item['uri-id'] ?? 0);
+			}
+			return;
+		}
+
+		Logger::info('Invoked', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $target_id, 'uid' => $uid]);
 
 		$success = true;
 
