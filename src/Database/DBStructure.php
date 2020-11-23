@@ -1090,9 +1090,9 @@ class DBStructure
 					echo "Zero user added\n";
 				}
 			}
-		} elseif (self::existsTable('user')) {
+		} elseif (self::existsTable('user') && $verbose) {
 			echo "Zero user already added\n";
-		} else {
+		} elseif ($verbose) {
 			echo "user: Table not found\n";
 		}
 
@@ -1105,10 +1105,25 @@ class DBStructure
 					echo "Zero contact added\n";
 				}
 			}		
-		} elseif (self::existsTable('contact')) {
+		} elseif (self::existsTable('contact') && $verbose) {
 			echo "Zero contact already added\n";
-		} else {
+		} elseif ($verbose) {
 			echo "contact: Table not found\n";
+		}
+
+		if (self::existsTable('tag') && !DBA::exists('tag', ['id' => 0])) {
+			DBA::insert('tag', ['name' => '']);
+			$lastid = DBA::lastInsertId();
+			if ($lastid != 0) {
+				DBA::update('tag', ['id' => 0], ['id' => $lastid]);
+				if ($verbose) {
+					echo "Zero tag added\n";
+				}
+			}
+		} elseif (self::existsTable('tag') && $verbose) {
+			echo "Zero tag already added\n";
+		} elseif ($verbose) {
+			echo "tag: Table not found\n";
 		}
 
 		if (self::existsTable('permissionset')) {
@@ -1118,7 +1133,7 @@ class DBStructure
 				if ($lastid != 0) {
 					DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
 					if ($verbose) {
-						echo "Zero tag added\n";
+						echo "Zero permissionset added\n";
 					}
 				}
 			} elseif ($verbose) {
@@ -1149,21 +1164,6 @@ class DBStructure
 			echo "permissionset: Table not found\n";
 		}
 	
-		if (self::existsTable('tag') && !DBA::exists('tag', ['id' => 0])) {
-			DBA::insert('tag', ['name' => '']);
-			$lastid = DBA::lastInsertId();
-			if ($lastid != 0) {
-				DBA::update('tag', ['id' => 0], ['id' => $lastid]);
-				if ($verbose) {
-					echo "Zero tag added\n";
-				}
-			}
-		} elseif (self::existsTable('tag')) {
-			echo "Zero tag already added\n";
-		} else {
-			echo "tag: Table not found\n";
-		}
-
 		if (!self::existsForeignKeyForField('tokens', 'client_id')) {
 			$tokens = DBA::p("SELECT `tokens`.`id` FROM `tokens`
 				LEFT JOIN `clients` ON `clients`.`client_id` = `tokens`.`client_id`
