@@ -55,6 +55,7 @@ Commands
 	update   Update database schema
 	dumpsql  Dump database schema
 	toinnodb Convert all tables from MyISAM or InnoDB in the Antelope file format to InnoDB in the Barracuda file format
+	initial  Set needed initial values in the tables
 	version  Set the database to a given number
 
 Options
@@ -123,7 +124,11 @@ HELP;
 				DBStructure::setDatabaseVersion($this->getArgument(1));
 				$output = ob_get_clean();
 				break;
-					
+			case "initial":
+				ob_start();
+				DBStructure::checkInitialValues(true);
+				$output = ob_get_clean();
+				break;
 			default:
 				$output = 'Unknown command: ' . $this->getArgument(0);
 		}

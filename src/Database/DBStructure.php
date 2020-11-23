@@ -1046,20 +1046,34 @@ class DBStructure
 	/**
 	 * Check if initial database values do exist - or create them
 	 */
-	public static function checkInitialValues()
+	public static function checkInitialValues(bool $verbose = false)
 	{
-		if (self::existsTable('verb') && !DBA::exists('verb', ['id' => 1])) {
-			foreach (Item::ACTIVITIES as $index => $activity) {
-				DBA::insert('verb', ['id' => $index + 1, 'name' => $activity], Database::INSERT_IGNORE);
+		if (self::existsTable('verb')) {
+			if (!DBA::exists('verb', ['id' => 1])) {
+				foreach (Item::ACTIVITIES as $index => $activity) {
+					DBA::insert('verb', ['id' => $index + 1, 'name' => $activity], Database::INSERT_IGNORE);
+				}
+				if ($verbose) {
+					echo "verb: activities added\n";
+				}
+			} elseif ($verbose) {
+				echo "verb: activities already added\n";
 			}
-		}
 
-		if (self::existsTable('verb') && !DBA::exists('verb', ['id' => 0])) {
-			DBA::insert('verb', ['name' => '']);
-			$lastid = DBA::lastInsertId();
-			if ($lastid != 0) {
-				DBA::update('verb', ['id' => 0], ['id' => $lastid]);
+			if (!DBA::exists('verb', ['id' => 0])) {
+				DBA::insert('verb', ['name' => '']);
+				$lastid = DBA::lastInsertId();
+				if ($lastid != 0) {
+					DBA::update('verb', ['id' => 0], ['id' => $lastid]);
+					if ($verbose) {
+						echo "Zero verb added\n";
+					}
+				}
+			} elseif ($verbose) {
+				echo "Zero verb already added\n";
 			}
+		} elseif ($verbose) {
+			echo "verb: Table not found\n";
 		}
 
 		if (self::existsTable('user') && !DBA::exists('user', ['uid' => 0])) {
@@ -1072,7 +1086,14 @@ class DBStructure
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
 				DBA::update('user', ['uid' => 0], ['uid' => $lastid]);
+				if ($verbose) {
+					echo "Zero user added\n";
+				}
 			}
+		} elseif (self::existsTable('user')) {
+			echo "Zero user already added\n";
+		} else {
+			echo "user: Table not found\n";
 		}
 
 		if (self::existsTable('contact') && !DBA::exists('contact', ['id' => 0])) {
@@ -1080,7 +1101,14 @@ class DBStructure
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
 				DBA::update('contact', ['id' => 0], ['id' => $lastid]);
+				if ($verbose) {
+					echo "Zero contact added\n";
+				}
 			}		
+		} elseif (self::existsTable('contact')) {
+			echo "Zero contact already added\n";
+		} else {
+			echo "contact: Table not found\n";
 		}
 
 		if (self::existsTable('permissionset')) {
@@ -1089,7 +1117,12 @@ class DBStructure
 				$lastid = DBA::lastInsertId();
 				if ($lastid != 0) {
 					DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
+					if ($verbose) {
+						echo "Zero tag added\n";
+					}
 				}
+			} elseif ($verbose) {
+				echo "Zero permissionset already added\n";
 			}
 			if (!self::existsForeignKeyForField('item', 'psid')) {
 				$sets = DBA::p("SELECT `psid`, `item`.`uid`, `item`.`private` FROM `item`
@@ -1112,6 +1145,8 @@ class DBStructure
 				}
 				DBA::close($sets);
 			}
+		} elseif ($verbose) {
+			echo "permissionset: Table not found\n";
 		}
 	
 		if (self::existsTable('tag') && !DBA::exists('tag', ['id' => 0])) {
@@ -1119,7 +1154,14 @@ class DBStructure
 			$lastid = DBA::lastInsertId();
 			if ($lastid != 0) {
 				DBA::update('tag', ['id' => 0], ['id' => $lastid]);
+				if ($verbose) {
+					echo "Zero tag added\n";
+				}
 			}
+		} elseif (self::existsTable('tag')) {
+			echo "Zero tag already added\n";
+		} else {
+			echo "tag: Table not found\n";
 		}
 
 		if (!self::existsForeignKeyForField('tokens', 'client_id')) {
