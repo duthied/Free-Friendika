@@ -366,10 +366,10 @@ class APContact
 		}
 
 		if (!empty($apcontact['sharedinbox'])) {
-			// Check if there are any vital inboxes
-			$vital = DBA::exists('apcontact', ["`sharedinbox` = ? AnD `inbox` IN (SELECT `url` FROM `inbox-status` WHERE `success` > `failure`)",
+			// Check if there are any available inboxes
+			$available = DBA::exists('apcontact', ["`sharedinbox` = ? AnD `inbox` IN (SELECT `url` FROM `inbox-status` WHERE `success` > `failure`)",
 				$apcontact['sharedinbox']]);
-			if (!$vital) {
+			if (!$available) {
 				// If all known personal inboxes are failing then set their shared inbox to failure as well
 				Logger::info('Set shared inbox status to failure', ['sharedinbox' => $apcontact['sharedinbox']]);
 				HTTPSignature::setInboxStatus($apcontact['sharedinbox'], false, true);
