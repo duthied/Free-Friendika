@@ -104,6 +104,8 @@ class Receiver
 			return;
 		}
 
+		APContact::unMarkForArchival($apcontact);
+
 		$http_signer = HTTPSignature::getSigner($body, $header);
 		if (empty($http_signer)) {
 			Logger::warning('Invalid HTTP signature, message will be discarded.');
@@ -233,6 +235,7 @@ class Receiver
 
 		$profile = APContact::getByURL($object_id);
 		if (!empty($profile['type'])) {
+			APContact::unMarkForArchival($profile);
 			return 'as:' . $profile['type'];
 		}
 

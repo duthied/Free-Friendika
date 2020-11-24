@@ -670,7 +670,7 @@ class Transmitter
 	 *
 	 * @return boolean "true" if inbox is archived
 	 */
-	private static function archivedInbox($url)
+	public static function archivedInbox($url)
 	{
 		return DBA::exists('inbox-status', ['url' => $url, 'archive' => true]);
 	}

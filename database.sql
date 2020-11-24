@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.12-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1378
+-- DB_UPDATE_VERSION 1379
 -- ------------------------------------------
 
 
@@ -332,6 +332,7 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	 INDEX `alias` (`alias`(190)),
 	 INDEX `followers` (`followers`(190)),
 	 INDEX `baseurl` (`baseurl`(190)),
+	 INDEX `sharedinbox` (`sharedinbox`(190)),
 	 INDEX `gsid` (`gsid`),
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='ActivityPub compatible contacts - used in the ActivityPub implementation';
@@ -1057,7 +1058,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	 INDEX `uid_album_scale_created` (`uid`,`album`(32),`scale`,`created`),
 	 INDEX `uid_album_resource-id_created` (`uid`,`album`(32),`resource-id`,`created`),
 	 INDEX `resource-id` (`resource-id`),
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='photo storage';
 

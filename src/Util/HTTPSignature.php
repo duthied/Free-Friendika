@@ -314,14 +314,15 @@ class HTTPSignature
 	 *
 	 * @param string  $url     The URL of the inbox
 	 * @param boolean $success Transmission status
+	 * @param boolean $shared  The inbox is a shared inbox
 	 */
-	static private function setInboxStatus($url, $success)
+	static public function setInboxStatus($url, $success, $shared = false)
 	{
 		$now = DateTimeFormat::utcNow();
 
 		$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
 		if (!DBA::isResult($status)) {
-			DBA::insert('inbox-status', ['url' => $url, 'created' => $now]);
+			DBA::insert('inbox-status', ['url' => $url, 'created' => $now, 'shared' => $shared]);
 			$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
 		}
 

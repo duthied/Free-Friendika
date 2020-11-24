@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1378);
+	define('DB_UPDATE_VERSION', 1379);
 }
 
 return [
@@ -395,6 +395,7 @@ return [
 			"alias" => ["alias(190)"],
 			"followers" => ["followers(190)"],
 			"baseurl" => ["baseurl(190)"],
+			"sharedinbox" => ["sharedinbox(190)"],
 			"gsid" => ["gsid"]
 		]
 	],
@@ -1081,7 +1082,7 @@ return [
 		"comment" => "photo storage",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid", "on delete" => "restrict"], "comment" => "Owner User id"],
 			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "contact.id"],
 			"guid" => ["type" => "char(16)", "not null" => "1", "default" => "", "comment" => "A unique identifier for this photo"],
 			"resource-id" => ["type" => "char(32)", "not null" => "1", "default" => "", "comment" => ""],
