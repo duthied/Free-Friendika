@@ -99,12 +99,14 @@ class Receiver
 		$actor = JsonLD::fetchElement($ldactivity, 'as:actor', '@id');
 
 		$apcontact = APContact::getByURL($actor);
-		if (!empty($apcontact) && ($apcontact['type'] == 'Application') && ($apcontact['nick'] == 'relay')) {
+		if (empty($apcontact)) {
+			Logger::notice('Unable to retrieve AP contact for actor', ['actor' => $actor]);
+		} elseif ($apcontact['type'] == 'Application' && $apcontact['nick'] == 'relay') {
 			self::processRelayPost($ldactivity, $actor);
 			return;
+		} else {
+			APContact::unmarkForArchival($apcontact);
 		}
-
-		APContact::unMarkForArchival($apcontact);
 
 		$http_signer = HTTPSignature::getSigner($body, $header);
 		if (empty($http_signer)) {
@@ -235,7 +237,7 @@ class Receiver
 
 		$profile = APContact::getByURL($object_id);
 		if (!empty($profile['type'])) {
-			APContact::unMarkForArchival($profile);
+			APContact::unmarkForArchival($profile);
 			return 'as:' . $profile['type'];
 		}
 
