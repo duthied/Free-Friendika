@@ -84,19 +84,12 @@ class Mail
 
 		// send notifications.
 		$notif_params = [
-			'type' => Type::MAIL,
-			'notify_flags' => $user['notify-flags'],
-			'language' => $user['language'],
-			'to_name' => $user['username'],
-			'to_email' => $user['email'],
-			'uid' => $user['uid'],
-			'item' => $msg,
-			'parent' => $msg['id'],
-			'source_name' => $msg['from-name'],
-			'source_link' => $msg['from-url'],
-			'source_photo' => $msg['from-photo'],
-			'verb' => Activity::POST,
-			'otype' => 'mail'
+			'type'  => Type::MAIL,
+			'otype' => Notify\ObjectType::MAIL,
+			'verb'  => Activity::POST,
+			'uid'   => $user['uid'],
+			'cid'   => $msg['contact-id'],
+			'link'  => DI::baseUrl() . '/message/' . $msg['id'],
 		];
 
 		notification($notif_params);

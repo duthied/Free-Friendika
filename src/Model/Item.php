@@ -1065,9 +1065,6 @@ class Item
 			// "Deleting" global items just means hiding them
 			if ($item['uid'] == 0) {
 				DBA::update('user-item', ['hidden' => true], ['iid' => $item['id'], 'uid' => $uid], true);
-
-				// Delete notifications
-				DBA::delete('notify', ['iid' => $item['id'], 'uid' => $uid]);
 			} elseif ($item['uid'] == $uid) {
 				self::markForDeletionById($item['id'], PRIORITY_HIGH);
 			} else {
@@ -1155,9 +1152,6 @@ class Item
 			}
 		}
 
-		// Delete notifications
-		DBA::delete('notify', ['iid' => $item['id'], 'uid' => $item['uid']]);
-
 		// Set the item to "deleted"
 		$item_fields = ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
 		DBA::update('item', $item_fields, ['id' => $item['id']]);
@@ -1171,9 +1165,6 @@ class Item
 
 		Post\DeliveryData::delete($item['uri-id']);
 
-		if (!empty($item['icid']) && !self::exists(['icid' => $item['icid'], 'deleted' => false])) {
-			DBA::delete('item-content', ['id' => $item['icid']], ['cascade' => false]);
-		}
 		// When the permission set will be used in photo and events as well,
 		// this query here needs to be extended.
 		// @todo Currently deactivated. We need the permission set in the deletion process.

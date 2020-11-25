@@ -37,6 +37,7 @@ use Friendica\Model\FContact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
+use Friendica\Model\Notify;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\PermissionSet;
 use Friendica\Model\Post;
@@ -2005,7 +2006,7 @@ class DFRN
 			}
 
 			if ($Blink && Strings::compareLink($Blink, DI::baseUrl() . "/profile/" . $importer["nickname"])) {
-				$author = DBA::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item['author-id']]);
+				$author = DBA::selectFirst('contact', ['id', 'name', 'thumb', 'url'], ['id' => $item['author-id']]);
 
 				$parent = Item::selectFirst(['id'], ['uri' => $item['thr-parent'], 'uid' => $importer["importer_uid"]]);
 				$item['parent'] = $parent['id'];
@@ -2013,21 +2014,15 @@ class DFRN
 				// send a notification
 				notification(
 					[
-					"type"         => Type::POKE,
-					"notify_flags" => $importer["notify-flags"],
-					"language"     => $importer["language"],
-					"to_name"      => $importer["username"],
-					"to_email"     => $importer["email"],
-					"uid"          => $importer["importer_uid"],
-					"item"         => $item,
-					"link"         => DI::baseUrl()."/display/".urlencode($item['guid']),
-					"source_name"  => $author["name"],
-					"source_link"  => $author["url"],
-					"source_photo" => $author["thumb"],
-					"verb"         => $item["verb"],
-					"otype"        => "person",
-					"activity"     => $verb,
-					"parent"       => $item['parent']]
+					"type"     => Type::POKE,
+					"otype"    => Notify\ObjectType::PERSON,
+					"activity" => $verb,
+					"verb"     => $item["verb"],
+					"uid"      => $importer["importer_uid"],
+					"cid"      => $author["id"],
+					"item"     => $item,
+					"link"     => DI::baseUrl() . "/display/" . urlencode($item['guid']),
+					]
 				);
 			}
 		}

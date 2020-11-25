@@ -50,6 +50,7 @@ use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\Notify;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Model\Storage;
@@ -851,6 +852,21 @@ function pre_update_1377()
 	}
 
 	if (!DBA::e("DELETE FROM `notify-threads` WHERE `master-parent-item` NOT IN (SELECT `id` FROM `item`)")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function update_1380()
+{
+	if (!DBA::e("UPDATE `notify` INNER JOIN `item` ON `item`.`id` = `notify`.`iid` SET `notify`.`uri-id` = `item`.`uri-id` WHERE `notify`.`uri-id` IS NULL AND `notify`.`otype` IN (?, ?)",
+		Notify\ObjectType::ITEM, Notify\ObjectType::PERSON)) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `notify` INNER JOIN `item` ON `item`.`id` = `notify`.`parent` SET `notify`.`parent-uri-id` = `item`.`uri-id` WHERE `notify`.`parent-uri-id` IS NULL AND `notify`.`otype` IN (?, ?)",
+		Notify\ObjectType::ITEM, Notify\ObjectType::PERSON)) {
 		return Update::FAILED;
 	}
 
