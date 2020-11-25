@@ -5,6 +5,16 @@ Migrating to a different Server
 
 ## Preparation
 
+### Head up to users
+
+Inform your users of an upcoming interruption to your service. To ensure no loss of data, your server needs to be offline during some part of the migration processes.
+
+You may find these addons useful for in communicating with your users prior to the migration process:
+
+* blackout
+* notifyall
+
+
 ### Storage
 Check your storage backend with ``bin/console storage list`` in the root folder.
 
@@ -20,6 +30,9 @@ This process may take a long time depending on the size of your storage.
 
 ### Configuration files
 
+
+### Go offline 
+Take your web server offline. 
 
 ## Dumping DB
 
