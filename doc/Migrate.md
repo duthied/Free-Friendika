@@ -1,4 +1,4 @@
-Migrating to a different Server
+Migrating to a new server
 ===============
 
 * [Home](help)
@@ -27,6 +27,22 @@ This process may take a long time depending on the size of your storage.
 ### Cleaning up
 
 [Removing expired items]
+
+
+To review the size of your database, log into MySQL with ``mysql -p`` run the following query: 
+
+``SELECT table_schema AS "Database", SUM(data_length + index_length) / 1024 / 1024 / 1024 AS "Size (GB)" FROM information_schema.TABLES GROUP BY table_schema;``
+
+You should see an out like this:
+
+````
++--------------------+----------------+
+| Database           | Size (GB)      |
++--------------------+----------------+
+| friendica          | 8.054092407227 |
+| [..........]       | [...........]  |
++--------------------+----------------+
+````
 
 ### Configuration files
 
