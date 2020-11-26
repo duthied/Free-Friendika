@@ -44,12 +44,18 @@ use Friendica\Network\HTTPException;
  */
 class Router
 {
-	const POST = 'POST';
-	const GET  = 'GET';
+	const DELETE = 'DELETE';
+	const GET    = 'GET';
+	const PATCH  = 'PATCH';
+	const POST   = 'POST';
+	const PUT    = 'PUT';
 
 	const ALLOWED_METHODS = [
-		self::POST,
+		self::DELETE,
 		self::GET,
+		self::PATCH,
+		self::POST,
+		self::PUT,
 	];
 
 	/** @var RouteCollector */
