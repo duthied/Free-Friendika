@@ -282,7 +282,6 @@ function message_content(App $a)
 			$messages = DBA::toArray($messages_stmt);
 
 			DBA::update('mail', ['seen' => 1], ['parent-uri' => $message['parent-uri'], 'uid' => local_user()]);
-			DBA::update('notify', ['seen' => 1], ['type' => Type::MAIL, 'parent' => $message['id'], 'uid' => local_user()]);
 		} else {
 			$messages = false;
 		}

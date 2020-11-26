@@ -45,6 +45,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
 use Friendica\Model\Item;
+use Friendica\Model\Notify;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
@@ -756,37 +757,23 @@ function item_post(App $a) {
 	if ($contact_record != $author) {
 		if ($toplevel_item_id) {
 			notification([
-				'type'         => Type::COMMENT,
-				'notify_flags' => $user['notify-flags'],
-				'language'     => $user['language'],
-				'to_name'      => $user['username'],
-				'to_email'     => $user['email'],
-				'uid'          => $user['uid'],
-				'item'         => $datarray,
-				'link'         => DI::baseUrl().'/display/'.urlencode($datarray['guid']),
-				'source_name'  => $datarray['author-name'],
-				'source_link'  => $datarray['author-link'],
-				'source_photo' => $datarray['author-avatar'],
-				'verb'         => Activity::POST,
-				'otype'        => 'item',
-				'parent'       => $toplevel_item_id,
-				'parent_uri'   => $toplevel_item['uri']
+				'type'  => Type::COMMENT,
+				'otype' => Notify\ObjectType::ITEM,
+				'verb'  => Activity::POST,
+				'uid'   => $user['uid'],
+				'cid'   => $datarray['author-id'],
+				'item'  => $datarray,
+				'link'  => DI::baseUrl() . '/display/' . urlencode($datarray['guid']),
 			]);
 		} elseif (empty($forum_contact)) {
 			notification([
-				'type'         => Type::WALL,
-				'notify_flags' => $user['notify-flags'],
-				'language'     => $user['language'],
-				'to_name'      => $user['username'],
-				'to_email'     => $user['email'],
-				'uid'          => $user['uid'],
-				'item'         => $datarray,
-				'link'         => DI::baseUrl().'/display/'.urlencode($datarray['guid']),
-				'source_name'  => $datarray['author-name'],
-				'source_link'  => $datarray['author-link'],
-				'source_photo' => $datarray['author-avatar'],
-				'verb'         => Activity::POST,
-				'otype'        => 'item'
+				'type'  => Type::WALL,
+				'otype' => Notify\ObjectType::ITEM,
+				'verb'  => Activity::POST,
+				'uid'   => $user['uid'],
+				'cid'   => $datarray['author-id'],
+				'item'  => $datarray,
+				'link'  => DI::baseUrl() . '/display/' . urlencode($datarray['guid']),
 			]);
 		}
 	}

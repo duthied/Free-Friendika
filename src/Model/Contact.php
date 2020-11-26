@@ -2426,18 +2426,12 @@ class Contact
 					in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL])) {
 
 					notification([
-						'type'         => Type::INTRO,
-						'notify_flags' => $user['notify-flags'],
-						'language'     => $user['language'],
-						'to_name'      => $user['username'],
-						'to_email'     => $user['email'],
-						'uid'          => $user['uid'],
-						'link'         => DI::baseUrl() . '/notifications/intros',
-						'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : DI::l10n()->t('[Name Withheld]')),
-						'source_link'  => $contact_record['url'],
-						'source_photo' => $contact_record['photo'],
-						'verb'         => ($sharing ? Activity::FRIEND : Activity::FOLLOW),
-						'otype'        => 'intro'
+						'type'  => Type::INTRO,
+						'otype' => Notify\ObjectType::INTRO,
+						'verb'  => ($sharing ? Activity::FRIEND : Activity::FOLLOW),
+						'uid'   => $user['uid'],
+						'cid'   => $contact_record['id'],
+						'link'  => DI::baseUrl() . '/notifications/intros',
 					]);
 				}
 			} elseif (DBA::isResult($user) && in_array($user['page-flags'], [User::PAGE_FLAGS_SOAPBOX, User::PAGE_FLAGS_FREELOVE, User::PAGE_FLAGS_COMMUNITY])) {

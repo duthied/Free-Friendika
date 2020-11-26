@@ -40,6 +40,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Notify;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
@@ -542,18 +543,12 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			if ($combined['notify-flags'] & Type::CONFIRM) {
 				$mutual = ($new_relation == Contact::FRIEND);
 				notification([
-					'type'         => Type::CONFIRM,
-					'notify_flags' => $combined['notify-flags'],
-					'language'     => $combined['language'],
-					'to_name'      => $combined['username'],
-					'to_email'     => $combined['email'],
-					'uid'          => $combined['uid'],
-					'link'         => DI::baseUrl() . '/contact/' . $dfrn_record,
-					'source_name'  => ((strlen(stripslashes($combined['name']))) ? stripslashes($combined['name']) : DI::l10n()->t('[Name Withheld]')),
-					'source_link'  => $combined['url'],
-					'source_photo' => $combined['photo'],
-					'verb'         => ($mutual ? Activity::FRIEND : Activity::FOLLOW),
-					'otype'        => 'intro'
+					'type'  => Type::CONFIRM,
+					'otype' => Notify\ObjectType::INTRO,
+					'verb'  => ($mutual ? Activity::FRIEND : Activity::FOLLOW),
+					'uid'   => $combined['uid'],
+					'cid'   => $combined['id'],
+					'link'  => DI::baseUrl() . '/contact/' . $dfrn_record,
 				]);
 			}
 		}

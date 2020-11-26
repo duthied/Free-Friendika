@@ -1217,6 +1217,7 @@ class Worker
 		// Don't fork from frontend tasks by default
 		$dont_fork = DI::config()->get("system", "worker_dont_fork", false) || !DI::mode()->isBackend();
 		$created = DateTimeFormat::utcNow();
+		$delayed = DBA::NULL_DATETIME;
 		$force_priority = false;
 
 		$run_parameter = array_shift($args);
@@ -1224,6 +1225,9 @@ class Worker
 		if (is_int($run_parameter)) {
 			$priority = $run_parameter;
 		} elseif (is_array($run_parameter)) {
+			if (isset($run_parameter['delayed'])) {
+				$delayed = $run_parameter['execute'];
+			}
 			if (isset($run_parameter['priority'])) {
 				$priority = $run_parameter['priority'];
 			}
@@ -1248,7 +1252,8 @@ class Worker
 		}
 
 		if (!$found) {
-			$added = DBA::insert('workerqueue', ['parameter' => $parameters, 'created' => $created, 'priority' => $priority]);
+			$added = DBA::insert('workerqueue', ['parameter' => $parameters, 'created' => $created,
+				'priority' => $priority, 'next_try' => $delayed]);
 			if (!$added) {
 				return false;
 			}

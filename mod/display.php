@@ -187,7 +187,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
-		$item = Item::selectFirst(['uid', 'parent', 'parent-uri'], ['id' => $item_id]);
+		$item = Item::selectFirst(['uid', 'parent', 'parent-uri', 'parent-uri-id'], ['id' => $item_id]);
 		if ($item['uid'] != 0) {
 			$a->profile = ['uid' => intval($item['uid'])];
 		} else {
@@ -201,7 +201,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 		if ($a->argc == 2) {
 			$item_parent = 0;
-			$fields = ['id', 'parent', 'parent-uri', 'uid'];
+			$fields = ['id', 'parent', 'parent-uri', 'parent-uri-id', 'uid'];
 
 			if (local_user()) {
 				$condition = ['guid' => $a->argv[1], 'uid' => local_user()];
@@ -239,7 +239,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	if (!DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
-		DBA::update('notify', ['seen' => true], ['parent' => $item['parent'], 'uid' => local_user()]);
+		DBA::update('notify', ['seen' => true], ['parent-uri-id' => $item['parent-uri-id'], 'uid' => local_user()]);
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864

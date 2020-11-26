@@ -26,6 +26,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemContent;
 use Friendica\Model\Notify;
@@ -37,10 +38,10 @@ use Friendica\Protocol\Activity;
  * Creates a notification entry and possibly sends a mail
  *
  * @param array $params Array with the elements:
- *                      uid, item, parent, type, otype, verb, event,
- *                      link, subject, body, to_name, to_email, source_name,
- *                      source_link, activity, preamble, notify_flags,
- *                      language, show_in_notification_page
+ *                      type, event, otype, activity, verb, uid, cid, origin_cid, item, link,
+ *                      source_name, source_mail, source_nick, source_link, source_photo,
+ *                      show_in_notification_page
+ * 
  * @return bool
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
@@ -55,7 +56,7 @@ function notification($params)
 	}
 
 	// Ensure that the important fields are set at any time
-	$fields = ['notify-flags', 'language', 'username', 'email'];
+	$fields = ['nickname', 'page-flags', 'notify-flags', 'language', 'username', 'email'];
 	$user = DBA::selectFirst('user', $fields, ['uid' => $params['uid']]);
 
 	if (!DBA::isResult($user)) {
@@ -63,13 +64,38 @@ function notification($params)
 		return false;
 	}
 
-	$params['notify_flags'] = ($params['notify_flags'] ?? '') ?: $user['notify-flags'];
-	$params['language']     = ($params['language']     ?? '') ?: $user['language'];
-	$params['to_name']      = ($params['to_name']      ?? '') ?: $user['username'];
-	$params['to_email']     = ($params['to_email']     ?? '') ?: $user['email'];
+	// There is no need to create notifications for forum accounts
+	if (in_array($user['page-flags'], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
+		return false;
+	}
+
+	$nickname = $user['nickname'];
+
+	$params['notify_flags'] = $user['notify-flags'];
+	$params['language']     = $user['language'];
+	$params['to_name']      = $user['username'];
+	$params['to_email']     = $user['email'];
 
 	// from here on everything is in the recipients language
 	$l10n = DI::l10n()->withLang($params['language']);
+
+	if (!empty($params['cid'])) {
+		$contact = Contact::getById($params['cid'], ['url', 'name', 'photo']);
+		if (DBA::isResult($contact)) {
+			$params['source_link'] = $contact['url'];
+			$params['source_name'] = $contact['name'];
+			$params['source_photo'] = $contact['photo'];
+		}
+	}
+
+	if (!empty($params['origin_cid'])) {
+		$contact = Contact::getById($params['origin_cid'], ['url', 'name', 'photo']);
+		if (DBA::isResult($contact)) {
+			$params['origin_link'] = $contact['url'];
+			$params['origin_name'] = $contact['name'];
+			$params['origin_photo'] = $contact['photo'];
+		}
+	}
 
 	$siteurl = DI::baseUrl()->get(true);
 	$sitename = DI::config()->get('config', 'sitename');
@@ -78,14 +104,6 @@ function notification($params)
 	if (strpos($hostname, ':')) {
 		$hostname = substr($hostname, 0, strpos($hostname, ':'));
 	}
-
-	$user = User::getById($params['uid'], ['nickname', 'page-flags']);
-
-	// There is no need to create notifications for forum accounts
-	if (!DBA::isResult($user) || in_array($user["page-flags"], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
-		return false;
-	}
-	$nickname = $user["nickname"];
 
 	// Creates a new email builder for the notification email
 	$emailBuilder = DI::emailer()->newNotifyMail();
@@ -97,36 +115,13 @@ function notification($params)
 
 	$emailBuilder->setHeader('X-Friendica-Account', '<' . $nickname . '@' . $hostname . '>');
 
-	if (array_key_exists('item', $params)) {
-		$title = $params['item']['title'];
-		$body = $params['item']['body'];
-	} else {
-		$title = $body = '';
-	}
+	$title = $params['item']['title'] ?? '';
+	$body = $params['item']['body'] ?? '';
 
-	if (isset($params['item']['id'])) {
-		$item_id = $params['item']['id'];
-	} else {
-		$item_id = 0;
-	}
-
-	if (isset($params['item']['uri-id'])) {
-		$uri_id = $params['item']['uri-id'];
-	} else {
-		$uri_id = 0;
-	}
-
-	if (isset($params['parent'])) {
-		$parent_id = $params['parent'];
-	} else {
-		$parent_id = 0;
-	}
-
-	if (isset($params['item']['parent-uri-id'])) {
-		$parent_uri_id = $params['item']['parent-uri-id'];
-	} else {
-		$parent_uri_id = 0;
-	}
+	$item_id = $params['item']['id'] ?? 0;
+	$uri_id = $params['item']['uri-id'] ?? 0;
+	$parent_id = $params['item']['parent'] ?? 0;
+	$parent_uri_id = $params['item']['parent-uri-id'] ?? 0;
 
 	$epreamble = '';
 	$preamble  = '';
@@ -137,8 +132,7 @@ function notification($params)
 	$itemlink  = '';
 
 	if ($params['type'] == Notify\Type::MAIL) {
-		$itemlink = $siteurl.'/message/'.$params['item']['id'];
-		$params["link"] = $itemlink;
+		$itemlink = $params['link'];
 
 		$subject = $l10n->t('%s New mail received at %s', $subjectPrefix, $sitename);
 
@@ -146,8 +140,11 @@ function notification($params)
 		$epreamble = $l10n->t('%1$s sent you %2$s.', '[url='.$params['source_link'].']'.$params['source_name'].'[/url]', '[url=' . $itemlink . ']' . $l10n->t('a private message').'[/url]');
 
 		$sitelink = $l10n->t('Please visit %s to view and/or reply to your private messages.');
-		$tsitelink = sprintf($sitelink, $siteurl.'/message/'.$params['item']['id']);
-		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'/message/'.$params['item']['id'].'">'.$sitename.'</a>');
+		$tsitelink = sprintf($sitelink, $itemlink);
+		$hsitelink = sprintf($sitelink, '<a href="' . $itemlink . '">' . $sitename . '</a>');
+
+		// Mail notifications aren't using the "notify" table entry
+		$show_in_notification_page = false;
 	}
 
 	if ($params['type'] == Notify\Type::COMMENT || $params['type'] == Notify\Type::TAG_SELF) {
@@ -493,10 +490,10 @@ function notification($params)
 		if (!empty($uri_id)) {
 			$fields['uri-id'] = $uri_id;
 		}
-		if (!empty($item_id)) {
+		if (!empty($parent_id)) {
 			$fields['parent'] = $parent_id;
 		}
-		if (!empty($item_id)) {
+		if (!empty($parent_uri_id)) {
 			$fields['parent-uri-id'] = $parent_uri_id;
 		}
 		$notification = DI::notify()->insert($fields);
@@ -628,14 +625,11 @@ function check_item_notification($itemid, $uid, $notification_type) {
 
 	// Generate the notification array
 	$params = [];
+	$params['otype'] = Notify\ObjectType::ITEM;
 	$params['uid'] = $uid;
+	$params['origin_cid'] = $params['cid'] = $item['author-id'];
 	$params['item'] = $item;
-	$params['parent'] = $item['parent'];
 	$params['link'] = DI::baseUrl() . '/display/' . urlencode($item['guid']);
-	$params['otype'] = 'item';
-	$params['origin_name'] = $params['source_name'] = $item['author-name'];
-	$params['origin_link'] = $params['source_link'] = $item['author-link'];
-	$params['origin_photo'] = $params['source_photo'] = $item['author-avatar'];
 
 	// Set the activity flags
 	$params['activity']['explicit_tagged'] = ($notification_type & UserItem::NOTIF_EXPLICIT_TAGGED);
@@ -663,9 +657,7 @@ function check_item_notification($itemid, $uid, $notification_type) {
 					return false;
 				}
 
-				$params['origin_name'] = $parent_item['author-name'];
-				$params['origin_link'] = $parent_item['author-link'];
-				$params['origin_photo'] = $parent_item['author-avatar'];
+				$params['origin_cid'] = $parent_item['author-id'];
 				$params['item'] = $parent_item;
 			}
 		}

@@ -181,19 +181,13 @@ class FContact
 		DBA::insert('intro', $fields);
 
 		notification([
-			'type'         => Type::SUGGEST,
-			'notify_flags' => $owner['notify-flags'],
-			'language'     => $owner['language'],
-			'to_name'      => $owner['name'],
-			'to_email'     => $owner['email'],
-			'uid'          => $owner['uid'],
-			'item'         => $suggest,
-			'link'         => DI::baseUrl().'/notifications/intros',
-			'source_name'  => $from_contact['name'],
-			'source_link'  => $from_contact['url'],
-			'source_photo' => $from_contact['photo'],
-			'verb'         => Activity::REQ_FRIEND,
-			'otype'        => 'intro'
+			'type'  => Type::SUGGEST,
+			'otype' => Notify\ObjectType::INTRO,
+			'verb'  => Activity::REQ_FRIEND,
+			'uid'   => $owner['uid'],
+			'cid'   => $from_contact['uid'],
+			'item'  => $suggest,
+			'link'  => DI::baseUrl().'/notifications/intros',
 		]);
 
 		return true;

@@ -35,6 +35,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Notify;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -559,18 +560,12 @@ function dfrn_request_content(App $a)
 
 				if (!$auto_confirm) {
 					notification([
-						'type'         => Type::INTRO,
-						'notify_flags' => $r[0]['notify-flags'],
-						'language'     => $r[0]['language'],
-						'to_name'      => $r[0]['username'],
-						'to_email'     => $r[0]['email'],
-						'uid'          => $r[0]['uid'],
-						'link'         => DI::baseUrl() . '/notifications/intros',
-						'source_name'  => ((strlen(stripslashes($r[0]['name']))) ? stripslashes($r[0]['name']) : DI::l10n()->t('[Name Withheld]')),
-						'source_link'  => $r[0]['url'],
-						'source_photo' => $r[0]['photo'],
-						'verb'         => Activity::REQ_FRIEND,
-						'otype'        => 'intro'
+						'type'  => Type::INTRO,
+						'otype' => Notify\ObjectType::INTRO,
+						'verb'  => Activity::REQ_FRIEND,
+						'uid'   => $r[0]['uid'],
+						'cid'   => $r[0]['id'],
+						'link'  => DI::baseUrl() . '/notifications/intros',
 					]);
 				}
 
