@@ -41,7 +41,7 @@ class Unimplemented extends BaseApi
 		Logger::info('Unimplemented API call', ['path' => $path]);
 		$error = DI::l10n()->t('API endpoint "%s" is not implemented', $path);
 		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');;
-		$errorobj = New \Friendica\Object\Api\Mastodon\Error($error, $error_description);
+		$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 		System::jsonError(501, $errorobj->toArray());
 	}
 }
