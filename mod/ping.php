@@ -185,7 +185,7 @@ function ping_init(App $a)
 			"SELECT `intro`.`id`, `intro`.`datetime`,
 			`contact`.`name`, `contact`.`url`, `contact`.`photo`
 			FROM `intro` INNER JOIN `contact` ON `intro`.`contact-id` = `contact`.`id`
-			WHERE `intro`.`uid` = %d AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`contact-id` != 0 AND `intro`.`fid` = 0",
+			WHERE `intro`.`uid` = %d AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`contact-id` != 0 AND (`intro`.`fid` = 0 OR `intro`.`fid` IS NULL)",
 			intval(local_user())
 		);
 
@@ -346,6 +346,7 @@ function ping_init(App $a)
 			}
 
 			$notification['timestamp'] = DateTimeFormat::local($notification['date']);
+			$notification['date'] = Temporal::getRelativeDate($notification['date']);
 		});
 	}
 
