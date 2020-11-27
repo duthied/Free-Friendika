@@ -928,6 +928,9 @@ class Database
 		switch ($this->driver) {
 			case self::PDO:
 				$columns = $stmt->fetch(PDO::FETCH_ASSOC);
+				if (!empty($stmt->table) && is_array($columns)) {
+					$columns = $this->castFields($stmt->table, $columns);
+				}
 				break;
 			case self::MYSQLI:
 				if (get_class($stmt) == 'mysqli_result') {
@@ -984,6 +987,8 @@ class Database
 			return false;
 		}
 
+		$param = $this->castFields($table, $param);
+
 		$table_string = DBA::buildTableString($table);
 
 		$fields_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], array_keys($param)));
@@ -1031,6 +1036,8 @@ class Database
 			$this->logger->info('Table and fields have to be set');
 			return false;
 		}
+
+		$param = $this->castFields($table, $param);
 
 		$table_string = DBA::buildTableString($table);
 
@@ -1444,6 +1451,8 @@ class Database
 			return true;
 		}
 
+		$fields = $this->castFields($table, $fields);
+
 		$table_string = DBA::buildTableString($table);
 
 		$condition_string = DBA::buildCondition($condition);
@@ -1552,6 +1561,10 @@ class Database
 
 		$result = $this->p($sql, $condition);
 
+		if (($this->driver == self::PDO) && !empty($result) && is_string($table)) {
+			$result->table = $table;
+		}
+
 		return $result;
 	}
 
@@ -1596,7 +1609,8 @@ class Database
 
 		$row = $this->fetchFirst($sql, $condition);
 
-		return $row['count'];
+		// Ensure to always return either a "null" or a numeric value
+		return is_numeric($row['count']) ? (int)$row['count'] : $row['count'];
 	}
 
 	/**
@@ -1625,6 +1639,71 @@ class Database
 		return $data;
 	}
 
+	/**
+	 * Cast field types according to the table definition
+	 *
+	 * @param string $table
+	 * @param array  $fields
+	 * @return array casted fields
+	 */
+	public function castFields(string $table, array $fields) {
+		// When there is no data, we don't need to do something
+		if (empty($fields)) {
+			return $fields;
+		}
+
+		// We only need to cast fields with PDO
+		if ($this->driver != self::PDO) {
+			return $fields;
+		}
+
+		// We only need to cast when emulating the prepares
+		if (!$this->connection->getAttribute(PDO::ATTR_EMULATE_PREPARES)) {
+			return $fields;
+		}
+
+		$types = [];
+
+		$tables = DBStructure::definition('', false);
+		if (empty($tables[$table])) {
+			// When a matching table wasn't found we check if it is a view
+			$views = View::definition('', false);
+			if (empty($views[$table])) {
+				return $fields;
+			}
+
+			foreach(array_keys($fields) as $field) {
+				if (!empty($views[$table]['fields'][$field])) {
+					$viewdef = $views[$table]['fields'][$field];
+					if (!empty($tables[$viewdef[0]]['fields'][$viewdef[1]]['type'])) {
+						$types[$field] = $tables[$viewdef[0]]['fields'][$viewdef[1]]['type'];
+					}
+				}
+			}
+		} else {
+			foreach ($tables[$table]['fields'] as $field => $definition) {
+				$types[$field] = $definition['type'];
+			}
+		}
+
+		foreach ($fields as $field => $content) {
+			if (is_null($content) || empty($types[$field])) {
+				continue;
+			}
+
+			if ((substr($types[$field], 0, 7) == 'tinyint') || (substr($types[$field], 0, 8) == 'smallint') ||
+				(substr($types[$field], 0, 9) == 'mediumint') || (substr($types[$field], 0, 3) == 'int') ||
+				(substr($types[$field], 0, 6) == 'bigint') || (substr($types[$field], 0, 7) == 'boolean')) {
+				$fields[$field] = (int)$content;
+			}
+			if ((substr($types[$field], 0, 5) == 'float') || (substr($types[$field], 0, 6) == 'double')) {
+				$fields[$field] = (float)$content;
+			}
+		}
+
+		return $fields;	
+	}
+	
 	/**
 	 * Returns the error number of the last query
 	 *

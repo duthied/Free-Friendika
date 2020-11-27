@@ -517,7 +517,7 @@ class Tag
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function setGlobalTrendingHashtags(int $period, $limit = 10)
+	public static function setGlobalTrendingHashtags(int $period, int $limit = 10)
 	{
 		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
 			FROM `tag-search-view`
@@ -560,7 +560,7 @@ class Tag
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function setLocalTrendingHashtags(int $period, $limit = 10)
+	public static function setLocalTrendingHashtags(int $period, int $limit = 10)
 	{
 		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
 			FROM `tag-search-view`

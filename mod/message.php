@@ -385,7 +385,7 @@ function message_content(App $a)
  * @param int $limit
  * @return array
  */
-function get_messages($uid, $start, $limit)
+function get_messages(int $uid, int $start, int $limit)
 {
 	return DBA::toArray(DBA::p('SELECT
 			m.`id`,

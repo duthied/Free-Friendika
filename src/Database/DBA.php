@@ -777,6 +777,18 @@ class DBA
 	}
 
 	/**
+	 * Cast field types according to the table definition
+	 *
+	 * @param string $table
+	 * @param array  $fields
+	 * @return array casted fields
+	 */
+	public static function castFields(string $table, array $fields)
+	{
+		return DI::dba()->castFields($table, $fields);
+	}
+
+	/**
 	 * Returns the error number of the last query
 	 *
 	 * @return string Error number (0 if no error)

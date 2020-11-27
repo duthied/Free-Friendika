@@ -233,6 +233,8 @@ class Item
 			return $row;
 		}
 
+		$row = DBA::castFields('item', $row);
+
 		// ---------------------- Transform item structure data ----------------------
 
 		// We prefer the data from the user's contact over the public one
@@ -3024,7 +3026,7 @@ class Item
 		return $recipients;
 	}
 
-	public static function expire($uid, $days, $network = "", $force = false)
+	public static function expire(int $uid, int $days, string $network = "", bool $force = false)
 	{
 		if (!$uid || ($days < 1)) {
 			return;
