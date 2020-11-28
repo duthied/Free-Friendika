@@ -560,13 +560,23 @@ class Contact extends BaseModule
 			// Disable remote self for everything except feeds.
 			// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter
 			// Problem is, you couldn't reply to both networks.
-			$allow_remote_self = in_array($contact['network'], [Protocol::FEED, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER])
+			$allow_remote_self = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::FEED, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER])
 				&& DI::config()->get('system', 'allow_users_remote_self');
 
 			if ($contact['network'] == Protocol::FEED) {
-				$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '1' => DI::l10n()->t('Mirror as forwarded posting'), '2' => DI::l10n()->t('Mirror as my own posting')];
+				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'),
+					Model\Contact::MIRROR_FORWARDED => DI::l10n()->t('Mirror as forwarded posting'),
+					Model\Contact::MIRROR_OWN_POST => DI::l10n()->t('Mirror as my own posting')];
+			} elseif (in_array($contact['network'], [Protocol::ACTIVITYPUB])) {
+				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'), 
+				Model\Contact::MIRROR_NATIVE_RESHARE => DI::l10n()->t('Native reshare')];
+			} elseif (in_array($contact['network'], [Protocol::DFRN])) {
+				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'), 
+				Model\Contact::MIRROR_OWN_POST => DI::l10n()->t('Mirror as my own posting'),
+				Model\Contact::MIRROR_NATIVE_RESHARE => DI::l10n()->t('Native reshare')];
 			} else {
-				$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '2' => DI::l10n()->t('Mirror as my own posting')];
+				$remote_self_options = [Model\Contact::MIRROR_DEACTIVATED => DI::l10n()->t('No mirroring'), 
+					Model\Contact::MIRROR_OWN_POST => DI::l10n()->t('Mirror as my own posting')];
 			}
 
 			$poll_interval = null;
