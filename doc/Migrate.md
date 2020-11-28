@@ -6,7 +6,7 @@ Migrating to a new server
 ## Preparation
 
 ### New server
-Set up your new server as described [here](Install) by following installation procedure until you have created a database.
+Set up your new server as described [here](Install); follow the installation procedure until you have created a database.
 
 ### Head up to users
 
@@ -19,17 +19,24 @@ You may find these addons useful for in communicating with your users prior to t
 
 
 ### Storage
-Check your storage backend with ``bin/console storage list`` in the root folder.
+Check your storage backend with ``bin/console storage list`` in the root folder. The output should be like this:
+````
+Sel | Name                
+-----------------------
+     | Filesystem          
+ *   | Database  
+````
 
-If you are not currently using ``Database`` run the following commands:
-1. ``bin/console storage set Database`` to active the database backend.
-2. ``bin/console storage move`` to initiate moving the stored image files.
+If you are *not* using ``Database`` run the following commands:
 
-This process may take a long time depending on the size of your storage and your server capacity. Prior to initiating this process, you may want to check the number of files in the storage with the following command: ``tree -if -I index.html /path/to/storage/``.
+1.  ``bin/console storage set Database`` to activate the database backend.
+2.  ``bin/console storage move`` to initiate moving the stored image files.
+
+This process may take a long time depending on the size of your storage and your server's capacity. Prior to initiating this process, you may want to check the number of files in the storage with the following command: ``tree -if -I index.html /path/to/storage/``.
 
 ### Cleaning up
 
-Before transferring your database, you may want to clean it up by ensuring the expiration of items is set to reasonable value in the administrator panel. *Admin* > *Site* > *Performance* > Enable "Clean up database" 
+Before transferring your database, you may want to clean it up by ensuring the expiration of items is set to reasonable values in the administrator panel. *Admin* > *Site* > *Performance* > Enable "Clean up database" 
 
 After adjusting these settings, the database cleaning up processes will be initiated according to your configured daily cron time frame.
 
@@ -46,7 +53,7 @@ You should see an output like this:
 +--------------------+----------------+
 ````
 
-Finally, you may also want optimise your database with the following command:
+Finally, you may also want to optimise your database with the following command:
 ``mysqloptimize -p friendica-db``
 
 ### Go offline 
@@ -59,7 +66,7 @@ and possibly compress it.
 
 ## Transferring to new installation 
 
-Transfer your database and copy of your configuration file ``config/local.config.php-copy`` to your new server.
+Transfer your database and a copy of your configuration file ``config/local.config.php-copy`` to your new server.
 
 ## Restore your DB
 
