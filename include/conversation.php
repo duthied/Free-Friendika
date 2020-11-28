@@ -723,7 +723,7 @@ function conversation_fetch_comments($thread_items, bool $pinned, array $activit
 			if (($row['gravity'] == GRAVITY_PARENT)) {
 				$row['post-type'] = Item::PT_ANNOUNCEMENT;
 				$row = array_merge($row, $activity);
-				$contact = Contact::getById($activity['author-id'], ['url', 'name', 'thumb']);
+				$contact = Contact::getById($activity['causer-id'], ['url', 'name', 'thumb']);
 				$row['causer-link'] = $contact['url'];
 				$row['causer-avatar'] = $contact['thumb'];
 				$row['causer-name'] = $contact['name'];
