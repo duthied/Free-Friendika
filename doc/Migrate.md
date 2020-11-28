@@ -74,7 +74,11 @@ Import your database on your new server: ``mysql -p friendica_db < your-friendic
 
 ## Completing installation process
 
+Ensure your DNS settings point to your new server.
+
 Complete the installation by adjusting the configuration settings and set up the required daily cron job.
+
+
 
 
 
