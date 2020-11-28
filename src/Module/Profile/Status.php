@@ -193,7 +193,7 @@ class Status extends BaseProfile
 		$pager = new Pager(DI::l10n(), $args->getQueryString(), $itemspage_network);
 		$params = ['limit' => [$pager->getStart(), $pager->getItemsPerPage()], 'order' => ['received' => true]];
 
-		$items_stmt = DBA::select('item', ['uri', 'thr-parent-id', 'gravity', 'author-id'], $condition, $params);
+		$items_stmt = DBA::select('item', ['uri', 'thr-parent-id', 'gravity', 'author-id', 'received'], $condition, $params);
 
 		// Set a time stamp for this page. We will make use of it when we
 		// search for new items (update routine)

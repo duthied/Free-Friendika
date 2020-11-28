@@ -711,24 +711,24 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
  *
  * @param mixed   $thread_items Database statement with thread posts
  * @param boolean $pinned       Is the item pinned?
- * @param integer $causer       Contact ID of the resharer
+ * @param array   $activity     Contact data of the resharer
  *
  * @return array items with parents and comments
  */
-function conversation_fetch_comments($thread_items, $pinned, $causer) {
+function conversation_fetch_comments($thread_items, bool $pinned, array $activity) {
 	$comments = [];
 
 	while ($row = Item::fetch($thread_items)) {
-		if (!empty($causer)) {
+		if (!empty($activity)) {
 			if (($row['gravity'] == GRAVITY_PARENT)) {
 				$row['post-type'] = Item::PT_ANNOUNCEMENT;
-				$row['causer-id'] = $causer;
-				$contact = Contact::getById($causer, ['url', 'name', 'thumb']);
+				$row = array_merge($row, $activity);
+				$contact = Contact::getById($activity['causer-id'], ['url', 'name', 'thumb']);
 				$row['causer-link'] = $contact['url'];
 				$row['causer-avatar'] = $contact['thumb'];
 				$row['causer-name'] = $contact['name'];
 			} elseif (($row['gravity'] == GRAVITY_ACTIVITY) && ($row['verb'] == Activity::ANNOUNCE) &&
-				($row['author-id'] == $causer)) {
+				($row['author-id'] == $activity['causer-id'])) {
 				continue;
 			}
 		}
@@ -829,13 +829,20 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 		if (!empty($parent['thr-parent-id']) && !empty($parent['gravity']) && ($parent['gravity'] == GRAVITY_ACTIVITY)) {
 			$condition = ["`item`.`parent-uri-id` = ? AND `item`.`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
 				$parent['thr-parent-id'], $uid, Verb::getID(Activity::FOLLOW)];
-			$causer = $parent['author-id'] ?? 0;
+			if (!empty($parent['author-id'])) {
+				$activity = ['causer-id' => $parent['author-id']];
+				foreach (['commented', 'received', 'created'] as $orderfields) {
+					if (!empty($parent[$orderfields])) {
+						$activity[$orderfields] = $parent[$orderfields];	
+					}	
+				}
+			}
 		} else {
 			$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
 				$parent['uri'], $uid, Verb::getID(Activity::FOLLOW)];
-			$causer = 0;
+			$activity = [];
 		}
-		$items = conversation_fetch_items($parent, $items, $condition, $block_authors, $params, $causer);
+		$items = conversation_fetch_items($parent, $items, $condition, $block_authors, $params, $activity);
 	}
 
 	foreach ($items as $index => $item) {
@@ -857,17 +864,17 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
  * @param array   $condition     SQL condition
  * @param boolean $block_authors Don't show posts from contacts that are hidden (used on the community page)
  * @param array   $params        SQL parameters
- * @param integer $causer        Contact ID of the resharer
+ * @param array   $activity      Contact data of the resharer
  * @return array
  */
-function conversation_fetch_items(array $parent, array $items, array $condition, bool $block_authors, array $params, int $causer) {
+function conversation_fetch_items(array $parent, array $items, array $condition, bool $block_authors, array $params, array $activity) {
 	if ($block_authors) {
 		$condition[0] .= " AND NOT `author`.`hidden`";
 	}
 
 	$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity', 'post-type']), $condition, $params);
 
-	$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false, $causer);
+	$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false, $activity);
 
 	if (count($comments) != 0) {
 		$items = array_merge($items, $comments);
