@@ -6,7 +6,7 @@ Migrating to a new server
 ## Preparation
 
 ### New server
-Set up your new server as described [here] (install) by following installation procedure until you have created a database.
+Set up your new server as described [here](install) by following installation procedure until you have created a database.
 
 ### Head up to users
 
