@@ -55,16 +55,15 @@ Take your web server offline. This will ensure consistency of your users' data.
 ## Dumping DB
 
 Dump you database: ``mysqldump  -p friendica_db > friendica_db-$(date +%Y%m%d).sql``
-
 and possibly compress it. 
 
 ## Transferring to new installation 
 
 Transfer your database and copy of your configuration file ``config/local.config.php-copy`` to your new server.
 
-## Import your DB
+## Restore your DB
 
-Import your database: ``mysql -p friendica_db < your-friendica_db-file.sql``
+Import your database on your new server: ``mysql -p friendica_db < your-friendica_db-file.sql``
 
 ## Completing installation process
 
