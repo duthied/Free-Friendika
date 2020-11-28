@@ -35,7 +35,7 @@ Friendica Documentation and Resources
 * [Using SSL with Friendica](help/SSL)
 * [Config values that can only be set in config/local.config.php](help/Config)
 * [Improve Performance](help/Improve-Performance)
-* [Migrate to new server](help/Migrate)
+* [Migrate](help/Migrate)
 * [Administration Tools](help/tools)
 
 **Developer Manual**
