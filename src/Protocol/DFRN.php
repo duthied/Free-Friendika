@@ -1768,7 +1768,7 @@ class DFRN
 		$msg["from-photo"] = XML::getFirstValue($xpath, "dfrn:sender/dfrn:avatar/text()", $mail);
 		$msg["contact-id"] = $importer["id"];
 		$msg["uri"] = XML::getFirstValue($xpath, "dfrn:id/text()", $mail);
-		$msg["thr-parent"] = XML::getFirstValue($xpath, "dfrn:in-reply-to/text()", $mail);
+		$msg["parent-uri"] = XML::getFirstValue($xpath, "dfrn:in-reply-to/text()", $mail);
 		$msg["created"] = DateTimeFormat::utc(XML::getFirstValue($xpath, "dfrn:sentdate/text()", $mail));
 		$msg["title"] = XML::getFirstValue($xpath, "dfrn:subject/text()", $mail);
 		$msg["body"] = XML::getFirstValue($xpath, "dfrn:content/text()", $mail);
