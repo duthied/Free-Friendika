@@ -1553,7 +1553,7 @@ class Item
 			$item['wall'] = 1;
 			$item['origin'] = 1;
 			$item['network'] = Protocol::DFRN;
-			$item['protocol'] = Conversation::PARCEL_DFRN;
+			$item['protocol'] = Conversation::PARCEL_DIRECT;
 
 			if (is_int($notify)) {
 				$priority = $notify;
@@ -1879,14 +1879,14 @@ class Item
 			Tag::storeFromBody($item['uri-id'], $body);
 		}
 
-		// Remove all fields that aren't part of the item table
-		foreach ($item as $field => $value) {
-			if (!in_array($field, $structure['item'])) {
-				unset($item[$field]);
-			}
-		}
-
 		if (Post\User::insert($item['uri-id'], $item['uid'], $item)) {
+			// Remove all fields that aren't part of the item table
+			foreach ($item as $field => $value) {
+				if (!in_array($field, $structure['item'])) {
+					unset($item[$field]);
+				}
+			}
+
 			$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
 			if (DBA::exists('item', $condition)) {
 				Logger::notice('Item is already inserted - aborting', $condition);
