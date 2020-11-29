@@ -917,8 +917,7 @@ class OStatus
 		$condition = ['item-uri' => $related_uri, 'protocol' => [Conversation::PARCEL_DFRN,
 			Conversation::PARCEL_DIASPORA_DFRN, Conversation::PARCEL_LEGACY_DFRN,
 			Conversation::PARCEL_LOCAL_DFRN, Conversation::PARCEL_DIRECT, Conversation::PARCEL_SALMON]];
-	if (DBA::exists('conversation', $condition)) {
-	$conversation = DBA::selectFirst('conversation', ['source', 'protocol'], $condition);
+		$conversation = DBA::selectFirst('conversation', ['source', 'protocol'], $condition);
 		if (DBA::isResult($conversation)) {
 			$stored = true;
 			$xml = $conversation['source'];
