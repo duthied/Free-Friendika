@@ -168,10 +168,10 @@ class View
 		$status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_TYPE'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_NAME' => $table]);
 
-			if (empty($status['TABLE_TYPE'])) {
-				return false;
-			}
+		if (empty($status['TABLE_TYPE'])) {
+			return false;
+		}
 
-			return $status['TABLE_TYPE'] == 'BASE TABLE';
+		return $status['TABLE_TYPE'] == 'BASE TABLE';
 	}
 }
