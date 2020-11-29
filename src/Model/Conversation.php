@@ -34,11 +34,15 @@ class Conversation
 	 * It currently is stored in the "protocol" field for legacy reasons.
 	 */
 	const PARCEL_ACTIVITYPUB        = 0;
-	const PARCEL_DFRN               = 1;
+	const PARCEL_DFRN               = 1; // Deprecated
 	const PARCEL_DIASPORA           = 2;
 	const PARCEL_SALMON             = 3;
 	const PARCEL_FEED               = 4; // Deprecated
 	const PARCEL_SPLIT_CONVERSATION = 6;
+	const PARCEL_LEGACY_DFRN        = 7;
+	const PARCEL_DIASPORA_DFRN      = 8;
+	const PARCEL_LOCAL_DFRN         = 9;
+	const PARCEL_DIRECT             = 10;
 	const PARCEL_TWITTER            = 67;
 	const PARCEL_UNKNOWN            = 255;
 
@@ -134,9 +138,7 @@ class Conversation
 
 		unset($arr['conversation-uri']);
 		unset($arr['conversation-href']);
-		unset($arr['protocol']);
 		unset($arr['source']);
-		unset($arr['direction']);
 
 		return $arr;
 	}

@@ -33,6 +33,7 @@ use Friendica\Protocol\Activity;
 use Friendica\Util\Strings;
 use Friendica\Util\Network;
 use Friendica\Core\Worker;
+use Friendica\Model\Conversation;
 use Friendica\Model\FContact;
 use Friendica\Protocol\Relay;
 
@@ -334,7 +335,7 @@ class Delivery
 				return;
 			}
 
-			DFRN::import($atom, $target_importer);
+			DFRN::import($atom, $target_importer, false, Conversation::PARCEL_LOCAL_DFRN);
 
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::DFRN);

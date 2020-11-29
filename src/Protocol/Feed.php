@@ -32,6 +32,7 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
@@ -100,7 +101,7 @@ class Feed
 			$dfrn_importer = DFRN::getImporter($contact['id'], $importer['uid']);
 			if (!empty($dfrn_importer)) {
 				Logger::info('Now import the DFRN feed');
-				DFRN::import($xml, $dfrn_importer, true);
+				DFRN::import($xml, $dfrn_importer, true, Conversation::PARCEL_LEGACY_DFRN);
 				return;
 			}
 		}

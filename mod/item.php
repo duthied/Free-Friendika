@@ -81,8 +81,6 @@ function item_post(App $a) {
 
 	$api_source = $_REQUEST['api_source'] ?? false;
 
-	$message_id = ((!empty($_REQUEST['message_id']) && $api_source) ? strip_tags($_REQUEST['message_id']) : '');
-
 	$return_path = $_REQUEST['return'] ?? '';
 	$preview = intval($_REQUEST['preview'] ?? 0);
 
@@ -174,14 +172,6 @@ function item_post(App $a) {
 	// Ensure that the user id in a thread always stay the same
 	if (!is_null($toplevel_user_id) && in_array($toplevel_user_id, [local_user(), 0])) {
 		$profile_uid = $toplevel_user_id;
-	}
-
-	// Check for multiple posts with the same message id (when the post was created via API)
-	if (($message_id != '') && ($profile_uid != 0)) {
-		if (Item::exists(['uri' => $message_id, 'uid' => $profile_uid])) {
-			Logger::info('Message already exists for user', ['uri' => $message_id, 'uid' => $profile_uid]);
-			return 0;
-		}
 	}
 
 	// Allow commenting if it is an answer to a public post
@@ -562,7 +552,7 @@ function item_post(App $a) {
 		$origin = $_REQUEST['origin'];
 	}
 
-	$uri = ($message_id ? $message_id : Item::newURI($api_source ? $profile_uid : $uid, $guid));
+	$uri = Item::newURI($api_source ? $profile_uid : $uid, $guid);
 
 	// Fallback so that we alway have a parent uri
 	if (!$thr_parent_uri || !$toplevel_item_id) {
@@ -628,7 +618,7 @@ function item_post(App $a) {
 	$datarray['api_source'] = $api_source;
 
 	// This field is for storing the raw conversation data
-	$datarray['protocol'] = Conversation::PARCEL_DFRN;
+	$datarray['protocol'] = Conversation::PARCEL_DIRECT;
 
 	$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $datarray['thr-parent']]);
 	if (DBA::isResult($conversation)) {

@@ -2199,13 +2199,13 @@ class DFRN
 	 * @throws \ImagickException
 	 * @todo  Add type-hints
 	 */
-	private static function processEntry($header, $xpath, $entry, $importer, $xml)
+	private static function processEntry($header, $xpath, $entry, $importer, $xml, $protocol)
 	{
 		Logger::log("Processing entries");
 
 		$item = $header;
 
-		$item["protocol"] = Conversation::PARCEL_DFRN;
+		$item["protocol"] = $protocol;
 
 		$item["source"] = $xml;
 
@@ -2601,7 +2601,7 @@ class DFRN
 	 * @throws \ImagickException
 	 * @todo  set proper type-hints
 	 */
-	public static function import($xml, $importer, $sort_by_date = false)
+	public static function import($xml, $importer, $sort_by_date = false, $protocol = Conversation::PARCEL_DFRN)
 	{
 		if ($xml == "") {
 			return 400;
@@ -2712,7 +2712,7 @@ class DFRN
 		if (!$sort_by_date) {
 			$entries = $xpath->query("/atom:feed/atom:entry");
 			foreach ($entries as $entry) {
-				self::processEntry($header, $xpath, $entry, $importer, $xml);
+				self::processEntry($header, $xpath, $entry, $importer, $xml, $protocol);
 			}
 		} else {
 			$newentries = [];
@@ -2726,7 +2726,7 @@ class DFRN
 			ksort($newentries);
 
 			foreach ($newentries as $entry) {
-				self::processEntry($header, $xpath, $entry, $importer, $xml);
+				self::processEntry($header, $xpath, $entry, $importer, $xml, $protocol);
 			}
 		}
 		Logger::log("Import done for user " . $importer["importer_uid"] . " from contact " . $importer["id"], Logger::DEBUG);
