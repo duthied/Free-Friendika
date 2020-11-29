@@ -1304,8 +1304,8 @@ class Contact
 		$contact_field = ((($contact["contact-type"] == self::TYPE_COMMUNITY) || ($contact['network'] == Protocol::MAIL)) ? 'owner-id' : 'author-id');
 
 		if ($thread_mode) {
-			$condition = ["(`$contact_field` = ? OR (`causer-id` = ? AND `post-type` = ?)) AND `gravity` = ? AND " . $sql,
-				$cid, $cid, Item::PT_ANNOUNCEMENT, GRAVITY_PARENT, local_user()];
+			$condition = ["((`$contact_field` = ? AND `gravity` = ?) OR (`author-id` = ? AND `gravity` = ? AND `vid` = ?)) AND " . $sql,
+				$cid, GRAVITY_PARENT, $cid, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), local_user()];
 		} else {
 			$condition = ["`$contact_field` = ? AND `gravity` IN (?, ?) AND " . $sql,
 				$cid, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
@@ -1341,15 +1341,9 @@ class Contact
 		}
 
 		if ($thread_mode) {		
-			$r = Item::selectForUser(local_user(), ['uri', 'gravity', 'parent-uri'], $condition, $params);
+			$r = Item::selectForUser(local_user(), ['uri', 'gravity', 'parent-uri', 'thr-parent-id', 'author-id'], $condition, $params);
 			$items = [];
 			while ($item = DBA::fetch($r)) {
-				if ($item['gravity'] != GRAVITY_PARENT) {
-					$item['uri'] = $item['parent-uri'];
-				}
-				unset($item['parent-uri']);
-				unset($item['gravity']);
-				
 				$items[] = $item;
 			}
 			DBA::close($r);
