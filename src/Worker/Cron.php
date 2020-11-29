@@ -55,13 +55,13 @@ class Cron
 		}
 
 		// Fork the cron jobs in separate parts to avoid problems when one of them is crashing
-		Hook::fork($a->queue['priority'], 'cron');
+		Hook::fork(PRIORITY_MEDIUM, 'cron');
 
 		// Poll contacts
 		Worker::add(PRIORITY_MEDIUM, 'PollContacts');
 
 		// Update contact information
-		Worker::add(PRIORITY_LOW, 'UpdatePublicContacts');		
+		Worker::add(PRIORITY_LOW, 'UpdatePublicContacts');
 
 		// run the process to update server directories in the background
 		Worker::add(PRIORITY_LOW, 'UpdateServerDirectories');
