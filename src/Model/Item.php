@@ -2802,6 +2802,10 @@ class Item
 			return;
 		}
 
+		if (!in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+			return;
+		}
+
 		Logger::info('Automatically reshare item', ['uid' => $item['uid'], 'id' => $item['id'], 'guid' => $item['guid'], 'uri-id' => $item['uri-id']]);
 
 		Item::performActivity($item['id'], 'announce', $item['uid']);
