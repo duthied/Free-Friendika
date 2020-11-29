@@ -139,7 +139,12 @@ class Contact
 	 * @}
 	 */
 
-	/**
+	 const MIRROR_DEACTIVATED = 0;
+	 const MIRROR_FORWARDED = 1;
+	 const MIRROR_OWN_POST = 2;
+	 const MIRROR_NATIVE_RESHARE = 3;
+
+	 /**
 	 * @param array $fields    Array of selected fields, empty for all
 	 * @param array $condition Array of fields for condition
 	 * @param array $params    Array of several parameters

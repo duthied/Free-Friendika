@@ -1181,7 +1181,7 @@ class Item
 		}
 
 		// Is it our comment and/or our thread?
-		if ($item['origin'] || $parent['origin']) {
+		if (($item['origin'] || $parent['origin']) && ($item['uid'] != 0)) {
 			// When we delete the original post we will delete all existing copies on the server as well
 			self::markForDeletion(['uri' => $item['uri'], 'deleted' => false], $priority);
 
@@ -1978,6 +1978,9 @@ class Item
 
 		// Distribute items to users who subscribed to their tags
 		self::distributeByTags($item);
+
+		// Automatically reshare the item if the "remote_self" option is selected
+		self::autoReshare($item);
 
 		$transmit = $notify || ($item['visible'] && ($parent_origin || $item['origin']));
 
@@ -2783,6 +2786,31 @@ class Item
 		return false;
 	}
 
+	/**
+	 * Automatically reshare the item if the "remote_self" option is selected
+	 *
+	 * @param array $item
+	 * @return void
+	 */
+	private static function autoReshare(array $item)
+	{
+		if ($item['gravity'] != GRAVITY_PARENT) {
+			return;
+		}
+
+		if (!DBA::exists('contact', ['id' => $item['contact-id'], 'remote_self' => Contact::MIRROR_NATIVE_RESHARE])) {
+			return;
+		}
+
+		if (!in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+			return;
+		}
+
+		Logger::info('Automatically reshare item', ['uid' => $item['uid'], 'id' => $item['id'], 'guid' => $item['guid'], 'uri-id' => $item['uri-id']]);
+
+		Item::performActivity($item['id'], 'announce', $item['uid']);
+	}
+
 	public static function isRemoteSelf($contact, &$datarray)
 	{
 		if (!$contact['remote_self']) {
@@ -2814,7 +2842,7 @@ class Item
 
 		$datarray2 = $datarray;
 		Logger::info('remote-self start', ['contact' => $contact['url'], 'remote_self'=> $contact['remote_self'], 'item' => $datarray]);
-		if ($contact['remote_self'] == 2) {
+		if ($contact['remote_self'] == Contact::MIRROR_OWN_POST) {
 			$self = DBA::selectFirst('contact', ['id', 'name', 'url', 'thumb'],
 					['uid' => $contact['uid'], 'self' => true]);
 			if (DBA::isResult($self)) {
