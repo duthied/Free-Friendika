@@ -1140,7 +1140,7 @@ CREATE TABLE IF NOT EXISTS `post-tag` (
 CREATE TABLE IF NOT EXISTS `post-user` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`uid` mediumint unsigned NOT NULL COMMENT 'Owner id which owns this copy of the item',
-	`protocol` tinyint unsigned COMMENT 'The used transport protocol - can be different per user',
+	`protocol` tinyint unsigned COMMENT 'Protocol used to deliver the item for this user',
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
 	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'post has not been seen',
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide the post from the user',
@@ -1755,5 +1755,4 @@ CREATE VIEW `workerqueue-view` AS SELECT
 	FROM `process`
 			INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`
 			WHERE NOT `workerqueue`.`done`;
-
 
