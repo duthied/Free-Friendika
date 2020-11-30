@@ -108,55 +108,6 @@ class Feed
 	}
 
 	/**
-	 * Get the poll interval for the given contact array
-	 *
-	 * @param array $contact
-	 * @return int Poll interval in minutes
-	 */
-	public static function getPollInterval(array $contact)
-	{
-		if (in_array($contact['network'], [Protocol::MAIL, Protocol::FEED])) {
-			$ratings = [0, 3, 7, 8, 9, 10];
-			if (DI::config()->get('system', 'adjust_poll_frequency') && ($contact['network'] == Protocol::FEED)) {
-				$rating = $contact['rating'];
-			} elseif (array_key_exists($contact['priority'], $ratings)) {
-				$rating = $ratings[$contact['priority']];
-			} else {
-				$rating = -1;
-			}
-		} else {
-			// Check once a week per default for all other networks
-			$rating = 9;
-		}
-
-		// Friendica and OStatus are checked once a day
-		if (in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
-			$rating = 8;
-		}
-
-		// Check archived contacts or contacts with unsupported protocols once a month
-		if ($contact['archive'] || in_array($contact['network'], [Protocol::ZOT, Protocol::PHANTOM])) {
-			$rating = 10;
-		}
-
-		if ($rating < 0) {
-			return 0;
-		}
-		/*
-		 * Based on $contact['priority'], should we poll this site now? Or later?
-		 */
-
-		$min_poll_interval = max(1, DI::config()->get('system', 'min_poll_interval'));
-
-		$poll_intervals = [$min_poll_interval, 15, 30, 60, 120, 180, 360, 720 ,1440, 10080, 43200];
-
-		//$poll_intervals = [$min_poll_interval . ' minute', '15 minute', '30 minute',
-		//	'1 hour', '2 hour', '3 hour', '6 hour', '12 hour' ,'1 day', '1 week', '1 month'];
-
-		return $poll_intervals[$rating];
-	}
-
-	/**
 	 * Read a RSS/RDF/Atom feed and create an item entry for it
 	 *
 	 * @param string $xml      The feed data
@@ -666,7 +617,8 @@ class Feed
 		if (!empty($postings)) {
 			$total = count($postings);
 			if ($total > 1) {
-				$interval = self::getPollInterval($contact);
+				// Posts shouldn't be delayed more than a day
+				$interval = max(1440, self::getPollInterval($contact));
 				$delay = round(($interval * 60) / $total);
 				Logger::notice('Got posting delay', ['delay' => $delay, 'interval' => $interval, 'items' => $total, 'cid' => $contact['id'], 'url' => $contact['url']]);
 			} else {
@@ -821,6 +773,55 @@ class Feed
 			Logger::notice('Adjusting priority', ['old' => $contact['rating'], 'new' => $priority, 'id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $contact['url']]);
 			DBA::update('contact', ['rating' => $priority], ['id' => $contact['id']]);
 		}
+	}
+
+	/**
+	 * Get the poll interval for the given contact array
+	 *
+	 * @param array $contact
+	 * @return int Poll interval in minutes
+	 */
+	public static function getPollInterval(array $contact)
+	{
+		if (in_array($contact['network'], [Protocol::MAIL, Protocol::FEED])) {
+			$ratings = [0, 3, 7, 8, 9, 10];
+			if (DI::config()->get('system', 'adjust_poll_frequency') && ($contact['network'] == Protocol::FEED)) {
+				$rating = $contact['rating'];
+			} elseif (array_key_exists($contact['priority'], $ratings)) {
+				$rating = $ratings[$contact['priority']];
+			} else {
+				$rating = -1;
+			}
+		} else {
+			// Check once a week per default for all other networks
+			$rating = 9;
+		}
+
+		// Friendica and OStatus are checked once a day
+		if (in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
+			$rating = 8;
+		}
+
+		// Check archived contacts or contacts with unsupported protocols once a month
+		if ($contact['archive'] || in_array($contact['network'], [Protocol::ZOT, Protocol::PHANTOM])) {
+			$rating = 10;
+		}
+
+		if ($rating < 0) {
+			return 0;
+		}
+		/*
+		 * Based on $contact['priority'], should we poll this site now? Or later?
+		 */
+
+		$min_poll_interval = max(1, DI::config()->get('system', 'min_poll_interval'));
+
+		$poll_intervals = [$min_poll_interval, 15, 30, 60, 120, 180, 360, 720 ,1440, 10080, 43200];
+
+		//$poll_intervals = [$min_poll_interval . ' minute', '15 minute', '30 minute',
+		//	'1 hour', '2 hour', '3 hour', '6 hour', '12 hour' ,'1 day', '1 week', '1 month'];
+
+		return $poll_intervals[$rating];
 	}
 
 	/**
