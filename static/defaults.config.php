@@ -237,6 +237,10 @@ return [
 		// restricts develop log writes to requests originating from this IP address.
 		'dlogip' => '',
 
+		// expire-notify-priority (integer)
+		// Priority for the expirary notification 
+		'expire-notify-priority' => PRIORITY_LOW,
+
 		// free_crawls (Integer)
 		// Number of "free" searches when system => permit_crawling is enabled.
 		'free_crawls' => 10,

@@ -1186,7 +1186,9 @@ class Item
 			self::markForDeletion(['uri' => $item['uri'], 'deleted' => false], $priority);
 
 			// send the notification upstream/downstream
-			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", Delivery::DELETION, intval($item['id']));
+			if ($priority) {
+				Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", Delivery::DELETION, intval($item['id']));
+			}
 		} elseif ($item['uid'] != 0) {
 			Post\User::update($item['uri-id'], $item['uid'], ['hidden' => true]);
 
@@ -3111,6 +3113,8 @@ class Item
 
 		$expired = 0;
 
+		$priority = DI::config()->get('system', 'expire-notify-priority');
+
 		while ($item = Item::fetch($items)) {
 			// don't expire filed items
 
@@ -3130,7 +3134,7 @@ class Item
 				continue;
 			}
 
-			self::markForDeletionById($item['id'], PRIORITY_LOW);
+			self::markForDeletionById($item['id'], $priority);
 
 			++$expired;
 		}
