@@ -505,7 +505,7 @@ class Feed
 			} elseif (!Item::isValid($item)) {
 				Logger::info('Feed item is invalid', ['created' => $item['created'], 'uid' => $item['uid'], 'uri' => $item['uri']]);
 				continue;
-			} elseif (Item::tooOld($item)) {
+			} elseif (Item::isTooOld($item)) {
 				Logger::info('Feed is too old', ['created' => $item['created'], 'uid' => $item['uid'], 'uri' => $item['uri']]);
 				continue;
 			}

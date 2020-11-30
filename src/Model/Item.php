@@ -1431,7 +1431,7 @@ class Item
 	 * @param array $item
 	 * @return boolean item is too old
 	 */
-	public static function tooOld(array $item)
+	public static function isTooOld(array $item)
 	{
 		// check for create date and expire time
 		$expire_interval = DI::config()->get('system', 'dbclean-expire-days', 0);
