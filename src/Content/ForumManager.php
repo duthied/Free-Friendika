@@ -147,6 +147,7 @@ class ForumManager
 					'$link_desc'	=> DI::l10n()->t('External link to forum'),
 					'$total'	=> $total,
 					'$visible_forums' => $visible_forums,
+					'$showless'	=> DI::l10n()->t('show less'),
 					'$showmore'	=> DI::l10n()->t('show more')]
 			);
 		}
