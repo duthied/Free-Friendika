@@ -629,7 +629,7 @@ class Feed
 
 			foreach ($postings as $posting) {
 				if ($delay > 0) {
-					$publish_at = DateTimeFormat::utc('now + ' . $post_delay . ' minute');
+					$publish_at = DateTimeFormat::utc('now + ' . $post_delay . ' second');
 					Logger::notice('Got publishing date', ['delay' => $delay, 'publish_at' => $publish_at, 'cid' => $contact['id'], 'url' => $contact['url']]);
 					$post_delay += $delay;
 				}
