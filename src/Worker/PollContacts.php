@@ -26,7 +26,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
+use Friendica\Protocol\Feed;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -58,47 +58,16 @@ class PollContacts
 		}
 
 		while ($contact = DBA::fetch($contacts)) {
-			if (in_array($contact['network'], [Protocol::MAIL, Protocol::FEED])) {
-				$ratings = [0, 3, 7, 8, 9, 10];
-				if (DI::config()->get('system', 'adjust_poll_frequency') && ($contact['network'] == Protocol::FEED)) {
-					$rating = $contact['rating'];
-				} elseif (array_key_exists($contact['priority'], $ratings)) {
-					$rating = $ratings[$contact['priority']];
-				} else {
-					$rating = -1;
-				}
-			} else {
-				// Check once a week per default for all other networks
-				$rating = 9;
-			}
-
-			// Friendica and OStatus are checked once a day
-			if (in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
-				$rating = 8;
-			}
-
-			// Check archived contacts or contacts with unsupported protocols once a month
-			if ($contact['archive'] || in_array($contact['network'], [Protocol::ZOT, Protocol::PHANTOM])) {
-				$rating = 10;
-			}
-
-			if ($rating < 0) {
+			$interval = Feed::getPollInterval($contact);
+			if ($interval == 0) {
 				continue;
 			}
-			/*
-			 * Based on $contact['priority'], should we poll this site now? Or later?
-			 */
-
-			$min_poll_interval = DI::config()->get('system', 'min_poll_interval');
-
-			$poll_intervals = [$min_poll_interval . ' minute', '15 minute', '30 minute',
-				'1 hour', '2 hour', '3 hour', '6 hour', '12 hour' ,'1 day', '1 week', '1 month'];
 
 			$now = DateTimeFormat::utcNow();
-			$next_update = DateTimeFormat::utc($contact['last-update'] . ' + ' . $poll_intervals[$rating]);
+			$next_update = DateTimeFormat::utc($contact['last-update'] . ' + ' . $interval . ' minute');
 
-			if (empty($poll_intervals[$rating]) || ($now < $next_update))  {
-				Logger::debug('No update', ['cid' => $contact['id'], 'rating' => $rating, 'next' => $next_update, 'now' => $now]);
+			if ($now < $next_update)  {
+				Logger::debug('No update', ['cid' => $contact['id'], 'interval' => $interval, 'next' => $next_update, 'now' => $now]);
 				continue;
 			}
 
