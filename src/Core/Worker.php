@@ -1226,7 +1226,7 @@ class Worker
 			$priority = $run_parameter;
 		} elseif (is_array($run_parameter)) {
 			if (isset($run_parameter['delayed'])) {
-				$delayed = $run_parameter['execute'];
+				$delayed = $run_parameter['delayed'];
 			}
 			if (isset($run_parameter['priority'])) {
 				$priority = $run_parameter['priority'];

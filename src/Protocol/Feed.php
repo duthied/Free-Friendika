@@ -29,6 +29,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -310,6 +311,8 @@ class Feed
 		if (($max_items > 0) && ($total_items > $max_items)) {
 			$total_items = $max_items;
 		}
+
+		$postings = [];
 
 		// Importing older entries first
 		for ($i = $total_items; $i >= 0; --$i) {
@@ -608,19 +611,32 @@ class Feed
 				$notify = PRIORITY_MEDIUM;
 			}
 
-			$id = Item::insert($item, $notify);
+			$postings[] = ['item' => $item, 'notify' => $notify,
+				'taglist' => $taglist, 'attachments' => $attachments];
+		}
 
-			Logger::info("Feed for contact " . $contact["url"] . " stored under id " . $id);
+		if (!empty($postings)) {
+			$total = count($postings);
+			if ($total > 1) {
+				// Posts shouldn't be delayed more than a day
+				$interval = min(1440, self::getPollInterval($contact));
+				$delay = round(($interval * 60) / $total);
+				Logger::notice('Got posting delay', ['delay' => $delay, 'interval' => $interval, 'items' => $total, 'cid' => $contact['id'], 'url' => $contact['url']]);
+			} else {
+				$delay = 0;
+			}
 
-			if (!empty($id) && (!empty($taglist) || !empty($attachments))) {
-				$feeditem = Item::selectFirst(['uri-id'], ['id' => $id]);
-				foreach ($taglist as $tag) {
-					Tag::store($feeditem['uri-id'], Tag::HASHTAG, $tag);
+			$post_delay = 0;
+
+			foreach ($postings as $posting) {
+				if ($delay > 0) {
+					$publish_at = DateTimeFormat::utc('now + ' . $post_delay . ' second');
+					Logger::notice('Got publishing date', ['delay' => $delay, 'publish_at' => $publish_at, 'cid' => $contact['id'], 'url' => $contact['url']]);
+					$post_delay += $delay;
 				}
-				foreach ($attachments as $attachment) {
-					$attachment['uri-id'] = $feeditem['uri-id']; 
-					Post\Media::insert($attachment);
-				}
+
+				Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $publish_at],
+					'DelayedPublish', $posting['item'], $posting['notify'], $posting['taglist'], $posting['attachments']);
 			}
 		}
 
@@ -675,7 +691,7 @@ class Feed
 					$oldest = $day;
 					$oldest_date = $date;
 				}
-			
+
 				if ($newest < $day) {
 					$newest = $day;
 					$newest_date = $date;
@@ -749,6 +765,55 @@ class Feed
 	}
 
 	/**
+	 * Get the poll interval for the given contact array
+	 *
+	 * @param array $contact
+	 * @return int Poll interval in minutes
+	 */
+	public static function getPollInterval(array $contact)
+	{
+		if (in_array($contact['network'], [Protocol::MAIL, Protocol::FEED])) {
+			$ratings = [0, 3, 7, 8, 9, 10];
+			if (DI::config()->get('system', 'adjust_poll_frequency') && ($contact['network'] == Protocol::FEED)) {
+				$rating = $contact['rating'];
+			} elseif (array_key_exists($contact['priority'], $ratings)) {
+				$rating = $ratings[$contact['priority']];
+			} else {
+				$rating = -1;
+			}
+		} else {
+			// Check once a week per default for all other networks
+			$rating = 9;
+		}
+
+		// Friendica and OStatus are checked once a day
+		if (in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
+			$rating = 8;
+		}
+
+		// Check archived contacts or contacts with unsupported protocols once a month
+		if ($contact['archive'] || in_array($contact['network'], [Protocol::ZOT, Protocol::PHANTOM])) {
+			$rating = 10;
+		}
+
+		if ($rating < 0) {
+			return 0;
+		}
+		/*
+		 * Based on $contact['priority'], should we poll this site now? Or later?
+		 */
+
+		$min_poll_interval = max(1, DI::config()->get('system', 'min_poll_interval'));
+
+		$poll_intervals = [$min_poll_interval, 15, 30, 60, 120, 180, 360, 720 ,1440, 10080, 43200];
+
+		//$poll_intervals = [$min_poll_interval . ' minute', '15 minute', '30 minute',
+		//	'1 hour', '2 hour', '3 hour', '6 hour', '12 hour' ,'1 day', '1 week', '1 month'];
+
+		return $poll_intervals[$rating];
+	}
+
+	/**
 	 * Convert a tag array to a tag string
 	 *
 	 * @param array $tags
@@ -762,7 +827,7 @@ class Feed
 			if ($tagstr != "") {
 				$tagstr .= ", ";
 			}
-	
+
 			$tagstr .= "#[url=" . DI::baseUrl() . "/search?tag=" . urlencode($tag) . "]" . $tag . "[/url]";
 		}
 
