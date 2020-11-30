@@ -667,8 +667,8 @@ class Feed
 			$total = count($postings);
 			if ($total > 1) {
 				$interval = self::getPollInterval($contact);
-				$delay = round(($interval * 60) / $total); 
-				Logger::info('Got posting delay', ['delay' => $delay, 'interval' => $interval, 'items' => $total, 'cid' => $contact['id'], 'url' => $contact['url']]);
+				$delay = round(($interval * 60) / $total);
+				Logger::notice('Got posting delay', ['delay' => $delay, 'interval' => $interval, 'items' => $total, 'cid' => $contact['id'], 'url' => $contact['url']]);
 			} else {
 				$delay = 0;
 			}
@@ -678,13 +678,13 @@ class Feed
 			foreach ($postings as $posting) {
 				if ($delay > 0) {
 					$publish_at = DateTimeFormat::utc('now + ' . $post_delay . ' minute');
-					Logger::info('Got publishing date', ['delay' => $delay, 'publish_at' => $publish_at, 'cid' => $contact['id'], 'url' => $contact['url']]);
+					Logger::notice('Got publishing date', ['delay' => $delay, 'publish_at' => $publish_at, 'cid' => $contact['id'], 'url' => $contact['url']]);
 					$post_delay += $delay;
 				}
 
 				$id = Item::insert($posting['item'], $posting['notify']);
 
-				Logger::info("Feed for contact " . $contact["url"] . " stored under id " . $id);
+				Logger::notice("Feed for contact " . $contact["url"] . " stored under id " . $id);
 
 				if (!empty($id) && (!empty($posting['taglist']) || !empty($posting['attachments']))) {
 					$feeditem = Item::selectFirst(['uri-id'], ['id' => $id]);
@@ -692,7 +692,7 @@ class Feed
 						Tag::store($feeditem['uri-id'], Tag::HASHTAG, $tag);
 					}
 					foreach ($posting['attachments'] as $attachment) {
-						$attachment['uri-id'] = $feeditem['uri-id']; 
+						$attachment['uri-id'] = $feeditem['uri-id'];
 						Post\Media::insert($attachment);
 					}
 				}
@@ -750,7 +750,7 @@ class Feed
 					$oldest = $day;
 					$oldest_date = $date;
 				}
-			
+
 				if ($newest < $day) {
 					$newest = $day;
 					$newest_date = $date;
@@ -837,7 +837,7 @@ class Feed
 			if ($tagstr != "") {
 				$tagstr .= ", ";
 			}
-	
+
 			$tagstr .= "#[url=" . DI::baseUrl() . "/search?tag=" . urlencode($tag) . "]" . $tag . "[/url]";
 		}
 
