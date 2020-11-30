@@ -1296,7 +1296,7 @@ class Contact
 		}
 
 		if (empty($contact["network"]) || in_array($contact["network"], Protocol::FEDERATED)) {
-			$sql = "`item`.`uid` IN (0, ?)";
+			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))";
 		} else {
 			$sql = "`item`.`uid` = ?";
 		}
@@ -1330,8 +1330,7 @@ class Contact
 
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
-		$params = ['order' => ['received' => true], 'group_by' => ['uri-id'],
-			'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+		$params = ['order' => ['received' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 
 		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
 			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
