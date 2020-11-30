@@ -619,7 +619,7 @@ class Feed
 			$total = count($postings);
 			if ($total > 1) {
 				// Posts shouldn't be delayed more than a day
-				$interval = max(1440, self::getPollInterval($contact));
+				$interval = min(1440, self::getPollInterval($contact));
 				$delay = round(($interval * 60) / $total);
 				Logger::notice('Got posting delay', ['delay' => $delay, 'interval' => $interval, 'items' => $total, 'cid' => $contact['id'], 'url' => $contact['url']]);
 			} else {
@@ -635,7 +635,7 @@ class Feed
 					$post_delay += $delay;
 				}
 
-				Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $post_delay],
+				Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $publish_at],
 					'DelayedPublish', $posting['item'], $posting['notify'], $posting['taglist'], $posting['attachments']);
 			}
 		}
