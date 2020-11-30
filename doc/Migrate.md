@@ -69,7 +69,24 @@ Transfer your database and a copy of your configuration file ``config/local.conf
 ## Restoring your DB
 Import your database on your new server: ``mysql -p friendica_db < your-friendica_db-file.sql``
 
-## Completing installation process
-Ensure your DNS settings point to your new server.
+## Completing migration
 
-Complete the installation by adjusting the configuration settings and set up the required daily cron job.
+### Configuration file
+Copy your old server's configuration file to ``config/local.config.php``.
+Ensure the newly created database credentials are identical to the setting in the configuration file; otherwise update them accordingly. 
+
+### Cron job for worker
+Set up the required daily cron job.
+Run ``crontab -e`` and add the following line according to your system specification
+``*/10 * * * * cd /var/www/friendica; /usr/bin/php bin/worker.php`` 
+
+### DNS settings
+Adjust your DNS records by pointing them to your new server.
+
+## Troubleshooting
+If you are unable to login to your newly migrated Friendica installation, check your web server's error and access logs and mysql logs for obvious issues.
+
+If still unable to resolve the problem, it's likely an issue with your [installation](Install).
+In this case, you may try to an entirely new Friendica installation on your new server, but use a different FQDN and DNS name.
+Once you have this up and running, take it offline and purge the database and configuration file and try migrating to this installation.
+
