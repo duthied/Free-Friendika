@@ -29,6 +29,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -634,20 +635,8 @@ class Feed
 					$post_delay += $delay;
 				}
 
-				$id = Item::insert($posting['item'], $posting['notify']);
-
-				Logger::notice("Feed for contact " . $contact["url"] . " stored under id " . $id);
-
-				if (!empty($id) && (!empty($posting['taglist']) || !empty($posting['attachments']))) {
-					$feeditem = Item::selectFirst(['uri-id'], ['id' => $id]);
-					foreach ($posting['taglist'] as $tag) {
-						Tag::store($feeditem['uri-id'], Tag::HASHTAG, $tag);
-					}
-					foreach ($posting['attachments'] as $attachment) {
-						$attachment['uri-id'] = $feeditem['uri-id'];
-						Post\Media::insert($attachment);
-					}
-				}
+				Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $post_delay],
+					'DelayedPublish', $posting['item'], $posting['notify'], $posting['taglist'], $posting['attachments']);
 			}
 		}
 
