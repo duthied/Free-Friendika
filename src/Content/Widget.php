@@ -516,7 +516,7 @@ class Widget
 			'$cutoff' => $cutoff,
 			'$url' => $url,
 			'$dates' => $ret,
-			'$showless'	=> DI::l10n()->t('show less'),
+			'$showless' => DI::l10n()->t('show less'),
 			'$showmore' => DI::l10n()->t('show more')
 		]);
 
