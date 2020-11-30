@@ -633,6 +633,8 @@ class Feed
 					$publish_at = DateTimeFormat::utc('now + ' . $post_delay . ' second');
 					Logger::notice('Got publishing date', ['delay' => $delay, 'publish_at' => $publish_at, 'cid' => $contact['id'], 'url' => $contact['url']]);
 					$post_delay += $delay;
+				} else {
+					$publish_at = DBA::NULL_DATETIME;
 				}
 
 				Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $publish_at],
