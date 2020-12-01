@@ -67,7 +67,7 @@ class Delayed
 	}
 
 	/**
-	 * Undocumented function
+	 * Check if an entry exists
 	 *
 	 * @param string $uri
 	 *
@@ -95,7 +95,8 @@ class Delayed
 
 		if (!empty($id) && (!empty($taglist) || !empty($attachments))) {
 			$feeditem = Item::selectFirst(['uri-id', 'uri'], ['id' => $id]);
-			self::delete($feeditem['uri']);
+			$result = self::delete($feeditem['uri']);
+			Logger::notice('Delayed post entry deleted', ['result' => $result, 'item' => $feeditem]);
 
 			foreach ($taglist as $tag) {
 				Tag::store($feeditem['uri-id'], Tag::HASHTAG, $tag);
