@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.12-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1381
+-- DB_UPDATE_VERSION 1382
 -- ------------------------------------------
 
 
@@ -460,6 +460,19 @@ CREATE TABLE IF NOT EXISTS `conversation` (
 	 INDEX `conversation-uri` (`conversation-uri`),
 	 INDEX `received` (`received`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Raw data and structure information for messages';
+
+--
+-- TABLE delayed-post
+--
+CREATE TABLE IF NOT EXISTS `delayed-post` (
+	`id` int unsigned NOT NULL auto_increment,
+	`uri` varchar(255) COMMENT 'URI of the post that will be posted later',
+	`uid` mediumint unsigned COMMENT 'Owner User id',
+	`delayed` datetime COMMENT 'delay time',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uri` (`uri`(190)),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Posts that are about to be posted at a later time';
 
 --
 -- TABLE diaspora-interaction
@@ -1472,7 +1485,7 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 --
 -- VIEW category-view
 --
-DROP VIEW IF EXISTS `category-view`;
+DROP VIEW `category-view`;
 CREATE VIEW `category-view` AS SELECT 
 	`post-category`.`uri-id` AS `uri-id`,
 	`post-category`.`uid` AS `uid`,
@@ -1489,7 +1502,7 @@ CREATE VIEW `category-view` AS SELECT
 --
 -- VIEW tag-view
 --
-DROP VIEW IF EXISTS `tag-view`;
+DROP VIEW `tag-view`;
 CREATE VIEW `tag-view` AS SELECT 
 	`post-tag`.`uri-id` AS `uri-id`,
 	`item-uri`.`uri` AS `uri`,
@@ -1507,7 +1520,7 @@ CREATE VIEW `tag-view` AS SELECT
 --
 -- VIEW network-item-view
 --
-DROP VIEW IF EXISTS `network-item-view`;
+DROP VIEW `network-item-view`;
 CREATE VIEW `network-item-view` AS SELECT 
 	`item`.`parent-uri-id` AS `uri-id`,
 	`item`.`parent-uri` AS `uri`,
@@ -1539,7 +1552,7 @@ CREATE VIEW `network-item-view` AS SELECT
 --
 -- VIEW network-thread-view
 --
-DROP VIEW IF EXISTS `network-thread-view`;
+DROP VIEW `network-thread-view`;
 CREATE VIEW `network-thread-view` AS SELECT 
 	`item`.`uri-id` AS `uri-id`,
 	`item`.`uri` AS `uri`,
@@ -1570,7 +1583,7 @@ CREATE VIEW `network-thread-view` AS SELECT
 --
 -- VIEW owner-view
 --
-DROP VIEW IF EXISTS `owner-view`;
+DROP VIEW `owner-view`;
 CREATE VIEW `owner-view` AS SELECT 
 	`contact`.`id` AS `id`,
 	`contact`.`uid` AS `uid`,
@@ -1705,7 +1718,7 @@ CREATE VIEW `owner-view` AS SELECT
 --
 -- VIEW pending-view
 --
-DROP VIEW IF EXISTS `pending-view`;
+DROP VIEW `pending-view`;
 CREATE VIEW `pending-view` AS SELECT 
 	`register`.`id` AS `id`,
 	`register`.`hash` AS `hash`,
@@ -1727,7 +1740,7 @@ CREATE VIEW `pending-view` AS SELECT
 --
 -- VIEW tag-search-view
 --
-DROP VIEW IF EXISTS `tag-search-view`;
+DROP VIEW `tag-search-view`;
 CREATE VIEW `tag-search-view` AS SELECT 
 	`post-tag`.`uri-id` AS `uri-id`,
 	`item`.`id` AS `iid`,
@@ -1748,11 +1761,12 @@ CREATE VIEW `tag-search-view` AS SELECT
 --
 -- VIEW workerqueue-view
 --
-DROP VIEW IF EXISTS `workerqueue-view`;
+DROP VIEW `workerqueue-view`;
 CREATE VIEW `workerqueue-view` AS SELECT 
 	`process`.`pid` AS `pid`,
 	`workerqueue`.`priority` AS `priority`
 	FROM `process`
 			INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`
 			WHERE NOT `workerqueue`.`done`;
+
 

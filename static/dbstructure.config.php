@@ -537,7 +537,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"url" => ["UNIQUE", "url"],
+			"uri" => ["UNIQUE", "uri(190)"],
 		]
 	],
 	"diaspora-interaction" => [
