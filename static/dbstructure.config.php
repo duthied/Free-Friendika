@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1381);
+	define('DB_UPDATE_VERSION', 1382);
 }
 
 return [
@@ -525,6 +525,19 @@ return [
 			"PRIMARY" => ["item-uri"],
 			"conversation-uri" => ["conversation-uri"],
 			"received" => ["received"],
+		]
+	],
+	"delayed-post" => [
+		"comment" => "Posts that are about to be posted at a later time",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
+			"uri" => ["type" => "varchar(255)", "comment" => "URI of the post that will be posted later"],
+			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
+			"delayed" => ["type" => "datetime", "comment" => "delay time"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"url" => ["UNIQUE", "url"],
 		]
 	],
 	"diaspora-interaction" => [

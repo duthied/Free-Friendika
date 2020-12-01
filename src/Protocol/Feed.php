@@ -606,7 +606,7 @@ class Feed
 			// Additionally we have to avoid conflicts with identical URI between imported feeds and these items.
 			if ($notify) {
 				$item['guid'] = Item::guidFromUri($orig_plink, DI::baseUrl()->getHostname());
-				unset($item['uri']);
+				$item['uri'] = Item::newURI($item['uid'], $item['guid']);
 				unset($item['thr-parent']);
 				unset($item['parent-uri']);
 
@@ -614,16 +614,21 @@ class Feed
 				$notify = PRIORITY_MEDIUM;
 			}
 
-			$postings[] = ['item' => $item, 'notify' => $notify,
-				'taglist' => $taglist, 'attachments' => $attachments];
+			if (!Post\Delayed::exists($item["uri"])) {
+				$postings[] = ['item' => $item, 'notify' => $notify,
+					'taglist' => $taglist, 'attachments' => $attachments];
+			} else {
+				Logger::info('Post already exists in the delayed posts queue', ['uri' => $item["uri"]]);
+			}
 		}
 
 		if (!empty($postings)) {
+			$min_posting = DI::config()->get('system', 'minimum_posting_interval', 0);
 			$total = count($postings);
 			if ($total > 1) {
 				// Posts shouldn't be delayed more than a day
 				$interval = min(1440, self::getPollInterval($contact));
-				$delay = round(($interval * 60) / $total);
+				$delay = max(round(($interval * 60) / $total), 60 * $min_posting);
 				Logger::notice('Got posting delay', ['delay' => $delay, 'interval' => $interval, 'items' => $total, 'cid' => $contact['id'], 'url' => $contact['url']]);
 			} else {
 				$delay = 0;
@@ -633,15 +638,22 @@ class Feed
 
 			foreach ($postings as $posting) {
 				if ($delay > 0) {
-					$publish_at = DateTimeFormat::utc('now + ' . $post_delay . ' second');
-					Logger::notice('Got publishing date', ['delay' => $delay, 'publish_at' => $publish_at, 'cid' => $contact['id'], 'url' => $contact['url']]);
+					$publish_time = time() + $post_delay;
+					Logger::notice('Got publishing date', ['delay' => $delay, 'cid' => $contact['id'], 'url' => $contact['url']]);
 					$post_delay += $delay;
 				} else {
-					$publish_at = DBA::NULL_DATETIME;
+					$publish_time = time();
 				}
 
-				Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $publish_at],
-					'DelayedPublish', $posting['item'], $posting['notify'], $posting['taglist'], $posting['attachments']);
+				$last_publish = DI::pConfig()->get($posting['item']['uid'], 'system', 'last_publish', 0, true);
+				$next_publish = max($last_publish + (60 * $min_posting), time());
+				if ($publish_time < $next_publish) {
+					$publish_time = $next_publish;
+				}
+				$publish_at = date(DateTimeFormat::MYSQL, $publish_time);
+
+				Post\Delayed::add($item['uri'], $item['uid'], $publish_at, $posting['item'], $posting['notify'], $posting['taglist'], $posting['attachments']);
+				DI::pConfig()->set($item['uid'], 'system', 'last_publish', $next_publish);
 			}
 		}
 
