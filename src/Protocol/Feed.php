@@ -648,6 +648,10 @@ class Feed
 				$last_publish = DI::pConfig()->get($posting['item']['uid'], 'system', 'last_publish', 0, true);
 				$next_publish = max($last_publish + (60 * $min_posting), time());
 				if ($publish_time < $next_publish) {
+					Logger::notice('Adapting publish time',
+						['last' => date(DateTimeFormat::MYSQL, $last_publish),
+						'next' => date(DateTimeFormat::MYSQL, $next_publish),
+						'publish' => date(DateTimeFormat::MYSQL, $publish_time)]);
 					$publish_time = $next_publish;
 				}
 				$publish_at = date(DateTimeFormat::MYSQL, $publish_time);
