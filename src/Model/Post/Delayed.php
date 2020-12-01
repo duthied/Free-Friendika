@@ -93,10 +93,14 @@ class Delayed
 
 		Logger::notice('Post stored', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id']]);
 
+		// It should always contain an URI since this is needed to create a delayed post entry
+		if (!empty($item['uri'])) {
+			$result = self::delete($item['uri']);
+			Logger::notice('Delayed post entry deleted', ['result' => $result, 'uri' => $item['uri']]);
+		}
+
 		if (!empty($id) && (!empty($taglist) || !empty($attachments))) {
-			$feeditem = Item::selectFirst(['uri-id', 'uri'], ['id' => $id]);
-			$result = self::delete($feeditem['uri']);
-			Logger::notice('Delayed post entry deleted', ['result' => $result, 'item' => $feeditem]);
+			$feeditem = Item::selectFirst(['uri-id'], ['id' => $id]);
 
 			foreach ($taglist as $tag) {
 				Tag::store($feeditem['uri-id'], Tag::HASHTAG, $tag);
