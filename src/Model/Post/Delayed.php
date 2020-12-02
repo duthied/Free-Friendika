@@ -33,8 +33,6 @@ class Delayed
 	/**
 	 * Insert a new delayed post
 	 *
-	 * @param string $uri
-	 * @param integer $uid
 	 * @param string $delayed
 	 * @param array $item
 	 * @param integer $notify
@@ -42,16 +40,16 @@ class Delayed
 	 * @param array $attachments
 	 * @return bool insert success
 	 */ 
-	public static function add(string $uri, int $uid, string $delayed, array $item, int $notify = 0, array $taglist = [], array $attachments = [])
+	public static function add(string $delayed, array $item, int $notify = 0, array $taglist = [], array $attachments = [])
 	{
-		if (self::exists($uri)) {
+		if (empty($item['uri']) || empty($item['uid']) || self::exists($item['uri'])) {
 			return false;
 		}
 
-		Logger::notice('Adding post for delayed publishing', ['uid' => $uid, 'delayed' => $delayed, 'uri' => $uri]);
+		Logger::notice('Adding post for delayed publishing', ['uid' => $item['uid'], 'delayed' => $delayed, 'uri' => $item['uri']]);
 
 		Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments);
-		return DBA::insert('delayed-post', ['uri' => $uri, 'uid' => $uid, 'delayed' => $delayed], Database::INSERT_IGNORE);
+		return DBA::insert('delayed-post', ['uri' => $item['uri'], 'uid' => $item['uid'], 'delayed' => $delayed], Database::INSERT_IGNORE);
 	}
 
 	/**

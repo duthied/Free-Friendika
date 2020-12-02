@@ -656,7 +656,7 @@ class Feed
 				}
 				$publish_at = date(DateTimeFormat::MYSQL, $publish_time);
 
-				Post\Delayed::add($item['uri'], $item['uid'], $publish_at, $posting['item'], $posting['notify'], $posting['taglist'], $posting['attachments']);
+				Post\Delayed::add($publish_at, $posting['item'], $posting['notify'], $posting['taglist'], $posting['attachments']);
 				DI::pConfig()->set($item['uid'], 'system', 'last_publish', $next_publish);
 			}
 		}
