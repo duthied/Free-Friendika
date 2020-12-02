@@ -528,10 +528,10 @@ return [
 		]
 	],
 	"delayed-post" => [
-		"comment" => "Posts that are about to be posted at a later time",
+		"comment" => "Posts that are about to be distributed at a later time",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
-			"uri" => ["type" => "varchar(255)", "comment" => "URI of the post that will be posted later"],
+			"uri" => ["type" => "varchar(255)", "comment" => "URI of the post that will be distributed later"],
 			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"delayed" => ["type" => "datetime", "comment" => "delay time"],
 		],

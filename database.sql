@@ -466,13 +466,13 @@ CREATE TABLE IF NOT EXISTS `conversation` (
 --
 CREATE TABLE IF NOT EXISTS `delayed-post` (
 	`id` int unsigned NOT NULL auto_increment,
-	`uri` varchar(255) COMMENT 'URI of the post that will be posted later',
+	`uri` varchar(255) COMMENT 'URI of the post that will be distributed later',
 	`uid` mediumint unsigned COMMENT 'Owner User id',
 	`delayed` datetime COMMENT 'delay time',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uid_uri` (`uid`,`uri`(190)),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Posts that are about to be posted at a later time';
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Posts that are about to be distributed at a later time';
 
 --
 -- TABLE diaspora-interaction
