@@ -614,7 +614,8 @@ class Feed
 				$notify = PRIORITY_MEDIUM;
 			}
 
-			if (!Post\Delayed::exists($item["uri"])) {
+			$condition = ['uid' => $item['uid'], 'uri' => $item['uri'], 'network' => Protocol::FEED];
+			if (!Item::exists($condition) && !Post\Delayed::exists($item["uri"])) {
 				$postings[] = ['item' => $item, 'notify' => $notify,
 					'taglist' => $taglist, 'attachments' => $attachments];
 			} else {
