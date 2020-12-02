@@ -1485,7 +1485,7 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 --
 -- VIEW category-view
 --
-DROP VIEW `category-view`;
+DROP VIEW IF EXISTS `category-view`;
 CREATE VIEW `category-view` AS SELECT 
 	`post-category`.`uri-id` AS `uri-id`,
 	`post-category`.`uid` AS `uid`,
@@ -1502,7 +1502,7 @@ CREATE VIEW `category-view` AS SELECT
 --
 -- VIEW tag-view
 --
-DROP VIEW `tag-view`;
+DROP VIEW IF EXISTS `tag-view`;
 CREATE VIEW `tag-view` AS SELECT 
 	`post-tag`.`uri-id` AS `uri-id`,
 	`item-uri`.`uri` AS `uri`,
@@ -1520,7 +1520,7 @@ CREATE VIEW `tag-view` AS SELECT
 --
 -- VIEW network-item-view
 --
-DROP VIEW `network-item-view`;
+DROP VIEW IF EXISTS `network-item-view`;
 CREATE VIEW `network-item-view` AS SELECT 
 	`item`.`parent-uri-id` AS `uri-id`,
 	`item`.`parent-uri` AS `uri`,
@@ -1552,7 +1552,7 @@ CREATE VIEW `network-item-view` AS SELECT
 --
 -- VIEW network-thread-view
 --
-DROP VIEW `network-thread-view`;
+DROP VIEW IF EXISTS `network-thread-view`;
 CREATE VIEW `network-thread-view` AS SELECT 
 	`item`.`uri-id` AS `uri-id`,
 	`item`.`uri` AS `uri`,
@@ -1583,7 +1583,7 @@ CREATE VIEW `network-thread-view` AS SELECT
 --
 -- VIEW owner-view
 --
-DROP VIEW `owner-view`;
+DROP VIEW IF EXISTS `owner-view`;
 CREATE VIEW `owner-view` AS SELECT 
 	`contact`.`id` AS `id`,
 	`contact`.`uid` AS `uid`,
@@ -1718,7 +1718,7 @@ CREATE VIEW `owner-view` AS SELECT
 --
 -- VIEW pending-view
 --
-DROP VIEW `pending-view`;
+DROP VIEW IF EXISTS `pending-view`;
 CREATE VIEW `pending-view` AS SELECT 
 	`register`.`id` AS `id`,
 	`register`.`hash` AS `hash`,
@@ -1740,7 +1740,7 @@ CREATE VIEW `pending-view` AS SELECT
 --
 -- VIEW tag-search-view
 --
-DROP VIEW `tag-search-view`;
+DROP VIEW IF EXISTS `tag-search-view`;
 CREATE VIEW `tag-search-view` AS SELECT 
 	`post-tag`.`uri-id` AS `uri-id`,
 	`item`.`id` AS `iid`,
@@ -1761,7 +1761,7 @@ CREATE VIEW `tag-search-view` AS SELECT
 --
 -- VIEW workerqueue-view
 --
-DROP VIEW `workerqueue-view`;
+DROP VIEW IF EXISTS `workerqueue-view`;
 CREATE VIEW `workerqueue-view` AS SELECT 
 	`process`.`pid` AS `pid`,
 	`workerqueue`.`priority` AS `priority`
