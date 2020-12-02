@@ -42,7 +42,7 @@ class Delayed
 	 */ 
 	public static function add(string $delayed, array $item, int $notify = 0, array $taglist = [], array $attachments = [])
 	{
-		if (empty($item['uri']) || empty($item['uid']) || self::exists($item['uri'])) {
+		if (empty($item['uri']) || empty($item['uid']) || self::exists($item['uri'], $item['uid'])) {
 			return false;
 		}
 
@@ -59,9 +59,9 @@ class Delayed
 	 *
 	 * @return bool delete success
 	 */
-	private static function delete(string $uri)
+	private static function delete(string $uri, int $uid)
 	{
-		return DBA::delete('delayed-post', ['uri' => $uri]);
+		return DBA::delete('delayed-post', ['uri' => $uri, 'uid' => $uid]);
 	}
 
 	/**
@@ -71,9 +71,9 @@ class Delayed
 	 *
 	 * @return bool "true" if an entry with that URI exists
 	 */
-	public static function exists(string $uri)
+	public static function exists(string $uri, int $uid)
 	{
-		return DBA::exists('delayed-post', ['uri' => $uri]);
+		return DBA::exists('delayed-post', ['uri' => $uri, 'uid' => $uid]);
 	}
 
 	/**
@@ -93,7 +93,7 @@ class Delayed
 
 		// It should always contain an URI since this is needed to create a delayed post entry
 		if (!empty($item['uri'])) {
-			$result = self::delete($item['uri']);
+			$result = self::delete($item['uri'], $item['uid']);
 			Logger::notice('Delayed post entry deleted', ['result' => $result, 'uri' => $item['uri']]);
 		}
 

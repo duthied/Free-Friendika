@@ -615,7 +615,7 @@ class Feed
 			}
 
 			$condition = ['uid' => $item['uid'], 'uri' => $item['uri']];
-			if (!Item::exists($condition) && !Post\Delayed::exists($item["uri"])) {
+			if (!Item::exists($condition) && !Post\Delayed::exists($item["uri"], $item['uid'])) {
 				$postings[] = ['item' => $item, 'notify' => $notify,
 					'taglist' => $taglist, 'attachments' => $attachments];
 			} else {

@@ -470,7 +470,7 @@ CREATE TABLE IF NOT EXISTS `delayed-post` (
 	`uid` mediumint unsigned COMMENT 'Owner User id',
 	`delayed` datetime COMMENT 'delay time',
 	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `uri` (`uri`(190)),
+	 UNIQUE INDEX `uid_uri` (`uid`,`uri`(190)),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Posts that are about to be posted at a later time';
 
