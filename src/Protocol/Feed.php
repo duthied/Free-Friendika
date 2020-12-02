@@ -616,10 +616,14 @@ class Feed
 
 			$condition = ['uid' => $item['uid'], 'uri' => $item['uri']];
 			if (!Item::exists($condition) && !Post\Delayed::exists($item["uri"], $item['uid'])) {
-				$postings[] = ['item' => $item, 'notify' => $notify,
-					'taglist' => $taglist, 'attachments' => $attachments];
+				if (!$notify) {
+					Post\Delayed::publish($item, $notify, $taglist, $attachments);
+				} else {
+					$postings[] = ['item' => $item, 'notify' => $notify,
+						'taglist' => $taglist, 'attachments' => $attachments];
+				}
 			} else {
-				Logger::info('Post already exists in the delayed posts queue', ['uri' => $item["uri"]]);
+				Logger::info('Post already crated or exists in the delayed posts queue', ['uri' => $item["uri"]]);
 			}
 		}
 
@@ -638,11 +642,6 @@ class Feed
 			$post_delay = 0;
 
 			foreach ($postings as $posting) {
-				if (!$posting['notify']) {
-					Post\Delayed::publish($posting['item'], $posting['notify'], $posting['taglist'], $posting['attachments']);
-					continue;
-				}
-
 				if ($delay > 0) {
 					$publish_time = time() + $post_delay;
 					Logger::notice('Got publishing date', ['delay' => $delay, 'cid' => $contact['id'], 'url' => $contact['url']]);
@@ -657,7 +656,9 @@ class Feed
 					Logger::notice('Adapting publish time',
 						['last' => date(DateTimeFormat::MYSQL, $last_publish),
 						'next' => date(DateTimeFormat::MYSQL, $next_publish),
-						'publish' => date(DateTimeFormat::MYSQL, $publish_time)]);
+						'publish' => date(DateTimeFormat::MYSQL, $publish_time),
+						'uid' => $posting['item']['uid'], 'cid' => $posting['item']['contact-id'],
+						'uri' => $posting['item']["uri"]]);
 					$publish_time = $next_publish;
 				}
 				$publish_at = date(DateTimeFormat::MYSQL, $publish_time);
