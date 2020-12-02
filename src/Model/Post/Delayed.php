@@ -91,10 +91,8 @@ class Delayed
 
 		Logger::notice('Post stored', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id']]);
 
-		// It should always contain an URI since this is needed to create a delayed post entry
 		if (!empty($item['uri']) && self::exists($item['uri'], $item['uid'])) {
-			$result = self::delete($item['uri'], $item['uid']);
-			Logger::notice('Delayed post entry deleted', ['result' => $result, 'uri' => $item['uri']]);
+			self::delete($item['uri'], $item['uid']);
 		}
 
 		if (!empty($id) && (!empty($taglist) || !empty($attachments))) {
