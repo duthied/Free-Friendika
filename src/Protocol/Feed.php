@@ -638,22 +638,24 @@ class Feed
 			$post_delay = 0;
 
 			foreach ($postings as $posting) {
-				if ($delay > 0) {
-					$publish_time = time() + $post_delay;
-					Logger::notice('Got publishing date', ['delay' => $delay, 'cid' => $contact['id'], 'url' => $contact['url']]);
-					$post_delay += $delay;
-				} else {
-					$publish_time = time();
-				}
+				$publish_time = time();
 
-				$last_publish = DI::pConfig()->get($posting['item']['uid'], 'system', 'last_publish', 0, true);
-				$next_publish = max($last_publish + (60 * $min_posting), time());
-				if ($publish_time < $next_publish) {
-					Logger::notice('Adapting publish time',
-						['last' => date(DateTimeFormat::MYSQL, $last_publish),
-						'next' => date(DateTimeFormat::MYSQL, $next_publish),
-						'publish' => date(DateTimeFormat::MYSQL, $publish_time)]);
-					$publish_time = $next_publish;
+				if ($posting['notify']) {
+					if ($delay > 0) {
+						$publish_time = time() + $post_delay;
+						Logger::notice('Got publishing date', ['delay' => $delay, 'cid' => $contact['id'], 'url' => $contact['url']]);
+						$post_delay += $delay;
+					}
+
+					$last_publish = DI::pConfig()->get($posting['item']['uid'], 'system', 'last_publish', 0, true);
+					$next_publish = max($last_publish + (60 * $min_posting), time());
+					if ($publish_time < $next_publish) {
+						Logger::notice('Adapting publish time',
+							['last' => date(DateTimeFormat::MYSQL, $last_publish),
+							'next' => date(DateTimeFormat::MYSQL, $next_publish),
+							'publish' => date(DateTimeFormat::MYSQL, $publish_time)]);
+						$publish_time = $next_publish;
+					}
 				}
 				$publish_at = date(DateTimeFormat::MYSQL, $publish_time);
 
