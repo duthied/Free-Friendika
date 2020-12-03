@@ -254,6 +254,10 @@ return [
 		// This can alternatively be set on a per account basis in the pconfig table.
 		'groupedit_image_limit' => 400,
 
+		// gserver_update_limit (Integer)
+		// How much servers should be checked at a time?
+		'gserver_update_limit' => 100,
+
 		// hsts (Boolean)
 		// Enables the sending of HTTP Strict Transport Security headers.
 		'hsts' => false,

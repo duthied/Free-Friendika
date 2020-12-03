@@ -24,33 +24,49 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Util\Strings;
 
 class UpdateGServers
 {
 	/**
-	 * Updates up to 100 servers
+	 * Updates a defined number of servers
 	 */
 	public static function execute()
 	{
+		$update_limit = DI::config()->get('system', 'gserver_update_limit');
+		if (empty($update_limit)) {
+			return;
+		}
+
 		$updating = Worker::countWorkersByCommand('UpdateGServer');
-		$limit = 100 - $updating;
+		$limit = $update_limit - $updating;
 		if ($limit <= 0) {
 			Logger::info('The number of currently running jobs exceed the limit');
 			return;
 		}
 
-		$outdated = DBA::count('gserver', ["`next_contact` < UTC_TIMESTAMP()"]);
 		$total = DBA::count('gserver');
+		$condition = ["`next_contact` < UTC_TIMESTAMP() AND (`nurl` != ? OR `url` != ?)", '', ''];
+		$outdated = DBA::count('gserver', $condition);
 		Logger::info('Server status', ['total' => $total, 'outdated' => $outdated, 'updating' => $limit]);
 
-		$gservers = DBA::select('gserver', ['url'], ["`next_contact` < UTC_TIMESTAMP()"], ['limit' => $limit]);
+		$gservers = DBA::select('gserver', ['url', 'nurl'], $condition, ['limit' => $limit]);
 		if (!DBA::isResult($gservers)) {
 			return;
 		}
 
 		$count = 0;
 		while ($gserver = DBA::fetch($gservers)) {
-			Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false, true);
+			// Sometimes the "nurl" and "url" doesn't seem to fit, see https://forum.friendi.ca/display/ec054ce7-155f-c94d-6159-f50372664245
+			// There are duplicated "url" but not "nurl". So we check both addresses instead of just overwriting them,
+			// since that would mean loosing data.
+			if (!empty($gserver['url'])) {
+				Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['url']);
+			}
+			if (!empty($gserver['nurl']) && ($gserver['nurl'] != Strings::normaliseLink($gserver['url']))) {
+				Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['nurl']);
+			}
 			$count++;
 		}
 		DBA::close($gservers);
