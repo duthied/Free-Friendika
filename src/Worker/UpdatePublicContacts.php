@@ -39,16 +39,27 @@ class UpdatePublicContacts
 		$ids = [];
 		$base_condition = ['network' => Protocol::FEDERATED, 'uid' => 0, 'self' => false];
 
+		$existing = Worker::countWorkersByCommand('UpdateContact');
+		Logger::info('Already existing jobs', ['existing' => $existing]);
+		if ($existing > 100) {
+			return;
+		}
+
+		$limit = 100 - $existing;
+
 		if (!DI::config()->get('system', 'update_active_contacts')) {
+			$part = 3;
 			// Add every contact (mostly failed ones) that hadn't been updated for six months
 			$condition = DBA::mergeConditions($base_condition,
 				["`last-update` < ?", DateTimeFormat::utc('now - 6 month')]);
-			$ids = self::getContactsToUpdate($condition, $ids);
+			$ids = self::getContactsToUpdate($condition, $ids, round($limit / $part));
 
 			// Add every non failed contact that hadn't been updated for a month
 			$condition = DBA::mergeConditions($base_condition,
 				["NOT `failed` AND `last-update` < ?", DateTimeFormat::utc('now - 1 month')]);
-			$ids = self::getContactsToUpdate($condition, $ids);
+			$ids = self::getContactsToUpdate($condition, $ids, round($limit / $part));
+		} else {
+			$part = 1;
 		}
 
 		// Add every contact our system interacted with and hadn't been updated for a week
@@ -56,7 +67,7 @@ class UpdatePublicContacts
 			`id` IN (SELECT `owner-id` FROM `item`) OR `id` IN (SELECT `causer-id` FROM `item`) OR
 			`id` IN (SELECT `cid` FROM `post-tag`) OR `id` IN (SELECT `cid` FROM `user-contact`)) AND
 			`last-update` < ?", DateTimeFormat::utc('now - 1 week')]);
-		$ids = self::getContactsToUpdate($condition, $ids);
+		$ids = self::getContactsToUpdate($condition, $ids, round($limit / $part));
 
 		foreach ($ids as $id) {
 			Worker::add(PRIORITY_LOW, "UpdateContact", $id);
@@ -73,9 +84,9 @@ class UpdatePublicContacts
 	 * @param array $ids
 	 * @return array contact ids
 	 */
-	private static function getContactsToUpdate(array $condition, array $ids = [])
+	private static function getContactsToUpdate(array $condition, array $ids = [], int $limit)
 	{
-		$contacts = DBA::select('contact', ['id'], $condition, ['limit' => 100, 'order' => ['last-update']]);
+		$contacts = DBA::select('contact', ['id'], $condition, ['limit' => $limit, 'order' => ['last-update']]);
 		while ($contact = DBA::fetch($contacts)) {
 			$ids[] = $contact['id'];
 		}

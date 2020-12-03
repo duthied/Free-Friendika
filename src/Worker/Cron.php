@@ -63,6 +63,9 @@ class Cron
 		// Update contact information
 		Worker::add(PRIORITY_LOW, 'UpdatePublicContacts');
 
+		// Update server information
+		Worker::add(PRIORITY_LOW, 'UpdateGServers');
+
 		// run the process to update server directories in the background
 		Worker::add(PRIORITY_LOW, 'UpdateServerDirectories');
 
@@ -102,8 +105,6 @@ class Cron
 
 			// update nodeinfo data
 			Worker::add(PRIORITY_LOW, 'NodeInfo');
-
-			Worker::add(PRIORITY_LOW, 'UpdateGServers');
 
 			// Repair entries in the database
 			Worker::add(PRIORITY_LOW, 'RepairDatabase');

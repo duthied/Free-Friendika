@@ -32,18 +32,19 @@ class UpdateGServer
 	 * @param string  $server_url    Server URL
 	 * @param boolean $only_nodeinfo Only use nodeinfo for server detection
 	 */
-	public static function execute(string $server_url, bool $only_nodeinfo = false)
+	public static function execute(string $server_url, bool $only_nodeinfo = false, bool $force = false)
 	{
 		if (empty($server_url)) {
 			return;
 		}
 
-		$server_url = filter_var($server_url, FILTER_SANITIZE_URL);
-		if (substr(Strings::normaliseLink($server_url), 0, 7) != 'http://') {
+		$filtered = filter_var($server_url, FILTER_SANITIZE_URL);
+		if (substr(Strings::normaliseLink($filtered), 0, 7) != 'http://') {
+			GServer::setFailure($filtered);
 			return;
 		}
 
-		$ret = GServer::check($server_url, '', false, $only_nodeinfo);
-		Logger::info('Updated gserver', ['url' => $server_url, 'result' => $ret]);
+		$ret = GServer::check($filtered, '', $force, $only_nodeinfo);
+		Logger::info('Updated gserver', ['url' => $filtered, 'result' => $ret]);
 	}
 }

@@ -81,13 +81,15 @@ return [
 			"detection-method" => ["type" => "tinyint unsigned", "comment" => "Method that had been used to detect that server"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last_poco_query" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"last_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"last_failure" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"last_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Last successful connection request"],
+			"last_failure" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Last failed connection request"],
 			"failed" => ["type" => "boolean", "comment" => "Connection failed"],
+			"next_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Next connection request"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"nurl" => ["UNIQUE", "nurl(190)"],
+			"next_contact" => ["next_contact"],
 		]
 	],
 	"user" => [
@@ -1496,7 +1498,8 @@ return [
 		"comment" => "Background tasks queue entries",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented worker task id"],
-			"parameter" => ["type" => "mediumtext", "comment" => "Task command"],
+			"command" => ["type" => "varchar(100)", "comment" => "Task command"],
+			"parameter" => ["type" => "mediumtext", "comment" => "Task parameter"],
 			"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Task priority"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation date"],
 			"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"],
@@ -1507,7 +1510,8 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"done_parameter" => ["done", "parameter(64)"],
+			"command" => ["command"],
+			"done_command_parameter" => ["done", "command", "parameter(64)"],
 			"done_executed" => ["done", "executed"],
 			"done_priority_retrial_created" => ["done", "priority", "retrial", "created"],
 			"done_priority_next_try" => ["done", "priority", "next_try"],

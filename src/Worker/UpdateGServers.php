@@ -24,34 +24,36 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Model\GServer;
 
 class UpdateGServers
 {
 	/**
-	 * Updates the first 250 servers
+	 * Updates up to 100 servers
 	 */
 	public static function execute()
 	{
-		$gservers = DBA::p("SELECT `url`, `created`, `last_failure`, `last_contact` FROM `gserver` ORDER BY rand()");
+		$updating = Worker::countWorkersByCommand('UpdateGServer');
+		$limit = 100 - $updating;
+		if ($limit <= 0) {
+			Logger::info('The number of currently running jobs exceed the limit');
+			return;
+		}
+
+		$outdated = DBA::count('gserver', ["`next_contact` < UTC_TIMESTAMP()"]);
+		$total = DBA::count('gserver');
+		Logger::info('Server status', ['total' => $total, 'outdated' => $outdated, 'updating' => $limit]);
+
+		$gservers = DBA::select('gserver', ['url'], ["`next_contact` < UTC_TIMESTAMP()"], ['limit' => $limit]);
 		if (!DBA::isResult($gservers)) {
 			return;
 		}
 
-		$updated = 0;
-
+		$count = 0;
 		while ($gserver = DBA::fetch($gservers)) {
-			if (!GServer::updateNeeded($gserver['created'], '', $gserver['last_failure'], $gserver['last_contact'])) {
-				continue;
-			}
-			Logger::info('Update server status', ['server' => $gserver['url']]);
-
-			Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['url']);
-
-			if (++$updated > 250) {
-				return;
-			}
+			Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['url'], false, true);
+			$count++;
 		}
 		DBA::close($gservers);
+		Logger::info('Updated servers', ['count' => $count]);
 	}
 }
