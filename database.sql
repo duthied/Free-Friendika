@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.12-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1381
+-- DB_UPDATE_VERSION 1382
 -- ------------------------------------------
 
 
@@ -460,6 +460,19 @@ CREATE TABLE IF NOT EXISTS `conversation` (
 	 INDEX `conversation-uri` (`conversation-uri`),
 	 INDEX `received` (`received`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Raw data and structure information for messages';
+
+--
+-- TABLE delayed-post
+--
+CREATE TABLE IF NOT EXISTS `delayed-post` (
+	`id` int unsigned NOT NULL auto_increment,
+	`uri` varchar(255) COMMENT 'URI of the post that will be distributed later',
+	`uid` mediumint unsigned COMMENT 'Owner User id',
+	`delayed` datetime COMMENT 'delay time',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uid_uri` (`uid`,`uri`(190)),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Posts that are about to be distributed at a later time';
 
 --
 -- TABLE diaspora-interaction
@@ -1755,4 +1768,5 @@ CREATE VIEW `workerqueue-view` AS SELECT
 	FROM `process`
 			INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`
 			WHERE NOT `workerqueue`.`done`;
+
 
