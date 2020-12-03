@@ -112,9 +112,9 @@ class View
 		}
 
 		if (self::isView($name)) {
-			$sql = sprintf("DROP VIEW `%s`", DBA::escape($name));
+			$sql = sprintf("DROP VIEW IF EXISTS `%s`", DBA::escape($name));
 		} elseif (self::isTable($name)) {
-			$sql = sprintf("DROP TABLE `%s`", DBA::escape($name));
+			$sql = sprintf("DROP TABLE IF EXISTS `%s`", DBA::escape($name));
 		}
 
 		if ($verbose) {

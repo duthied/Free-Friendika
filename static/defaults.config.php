@@ -383,6 +383,10 @@ return [
 		// minimal distance in minutes between two polls for a contact. Reasonable values are between 1 and 59.
 		'min_poll_interval' => 15,
 
+		// minimum_posting_interval (Integer)
+		// Minimum interval between two feed posts per user
+		'minimum_posting_interval' => 0,
+
 		// no_count (Boolean)
 		// Don't do count calculations (currently only when showing photo albums).
 		'no_count' => false,

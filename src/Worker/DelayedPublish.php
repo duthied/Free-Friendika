@@ -39,20 +39,7 @@ class DelayedPublish
 	  */
 	public static function execute(array $item, int $notify = 0, array $taglist = [], array $attachments = [])
 	{
-		$id = Item::insert($item, $notify);
-
-		Logger::notice('Post stored', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id']]);
-
-		if (!empty($id) && (!empty($taglist) || !empty($attachments))) {
-			$feeditem = Item::selectFirst(['uri-id'], ['id' => $id]);
-			foreach ($taglist as $tag) {
-				Tag::store($feeditem['uri-id'], Tag::HASHTAG, $tag);
-			}
-			foreach ($attachments as $attachment) {
-				$attachment['uri-id'] = $feeditem['uri-id'];
-				Post\Media::insert($attachment);
-			}
-		}
-
+		$id = Post\Delayed::publish($item, $notify, $taglist, $attachments);
+		Logger::notice('Post published', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id']]);
 	}
 }
