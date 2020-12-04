@@ -49,6 +49,9 @@ use Friendica\Util\XML;
 
 class BBCode
 {
+	// Update this value to the current date whenever changes are made to BBCode::convert
+	const VERSION = '2020-12-03';
+
 	const INTERNAL = 0;
 	const API = 2;
 	const DIASPORA = 3;
