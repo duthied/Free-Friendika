@@ -41,8 +41,7 @@ class PollContacts
 			$abandon_days = 0;
 		}
 
-		$condition = ['network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::FEED, 
-			Protocol::MAIL, Protocol::ZOT, Protocol::PHANTOM], 'self' => false, 'blocked' => false];
+		$condition = ['network' => [Protocol::FEED, Protocol::MAIL, Protocol::OSTATUS], 'self' => false, 'blocked' => false];
 
 		if (!empty($abandon_days)) {
 			$condition = DBA::mergeConditions($condition,

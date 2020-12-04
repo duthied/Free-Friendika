@@ -56,7 +56,7 @@ class OnePoll
 
 		// We never probe mail contacts since their probing demands a mail from the contact in the inbox.
 		// We don't probe feed accounts by default since they are polled in a higher frequency, but forced probes are okay.
-		if (!in_array($contact['network'], [Protocol::MAIL, Protocol::FEED]) || ($force && ($contact['network'] == Protocol::FEED))) {
+		if ($force && ($contact['network'] == Protocol::FEED)) {
 			$success = Contact::updateFromProbe($contact_id);
 		} else {
 			$success = true;

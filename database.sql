@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.12-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1382
+-- DB_UPDATE_VERSION 1383
 -- ------------------------------------------
 
 
@@ -26,11 +26,13 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`detection-method` tinyint unsigned COMMENT 'Method that had been used to detect that server',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_poco_query` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Last successful connection request',
+	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Last failed connection request',
 	`failed` boolean COMMENT 'Connection failed',
+	`next_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Next connection request',
 	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `nurl` (`nurl`(190))
+	 UNIQUE INDEX `nurl` (`nurl`(190)),
+	 INDEX `next_contact` (`next_contact`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Global servers';
 
 --
@@ -1464,7 +1466,8 @@ CREATE TABLE IF NOT EXISTS `worker-ipc` (
 --
 CREATE TABLE IF NOT EXISTS `workerqueue` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'Auto incremented worker task id',
-	`parameter` mediumtext COMMENT 'Task command',
+	`command` varchar(100) COMMENT 'Task command',
+	`parameter` mediumtext COMMENT 'Task parameter',
 	`priority` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Task priority',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation date',
 	`pid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Process id of the worker',
@@ -1473,7 +1476,8 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	`retrial` tinyint NOT NULL DEFAULT 0 COMMENT 'Retrial counter',
 	`done` boolean NOT NULL DEFAULT '0' COMMENT 'Marked 1 when the task was done - will be deleted later',
 	 PRIMARY KEY(`id`),
-	 INDEX `done_parameter` (`done`,`parameter`(64)),
+	 INDEX `command` (`command`),
+	 INDEX `done_command_parameter` (`done`,`command`,`parameter`(64)),
 	 INDEX `done_executed` (`done`,`executed`),
 	 INDEX `done_priority_retrial_created` (`done`,`priority`,`retrial`,`created`),
 	 INDEX `done_priority_next_try` (`done`,`priority`,`next_try`),

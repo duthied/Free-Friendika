@@ -131,6 +131,10 @@ return [
 		// Don't display sharing accounts on the global community
 		'community_no_sharer' => false,
 
+		// contact_update_limit (Integer)
+		// How much contacts should be checked at a time?
+		'contact_update_limit' => 100,
+
 		// cron_interval (Integer)
 		// Minimal period in minutes between two calls of the "Cron" worker job.
 		'cron_interval' => 5,
@@ -253,6 +257,10 @@ return [
 		// Number of contacts at which the group editor should switch from display the profile pictures of the contacts to only display the names.
 		// This can alternatively be set on a per account basis in the pconfig table.
 		'groupedit_image_limit' => 400,
+
+		// gserver_update_limit (Integer)
+		// How much servers should be checked at a time?
+		'gserver_update_limit' => 100,
 
 		// hsts (Boolean)
 		// Enables the sending of HTTP Strict Transport Security headers.

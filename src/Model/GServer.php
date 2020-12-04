@@ -71,6 +71,22 @@ class GServer
 	const DETECT_NODEINFO_2 = 102;
 
 	/**
+	 * Check for the existance of a server and adds it in the background if not existant
+	 *
+	 * @param string $url
+	 * @param boolean $only_nodeinfo
+	 * @return void
+	 */
+	public static function add(string $url, bool $only_nodeinfo = false)
+	{
+		if (self::getID($url, false)) {
+			return;
+		}
+
+		Worker::add(PRIORITY_LOW, 'UpdateGServer', $url, $only_nodeinfo);
+	}
+
+	/**
 	 * Get the ID for the given server URL
 	 *
 	 * @param string $url
@@ -124,59 +140,53 @@ class GServer
 		return self::check($server, $network, $force);
 	}
 
-	/**
-	 * Decides if a server needs to be updated, based upon several date fields
-	 *
-	 * @param date $created      Creation date of that server entry
-	 * @param date $updated      When had the server entry be updated
-	 * @param date $last_failure Last failure when contacting that server
-	 * @param date $last_contact Last time the server had been contacted
-	 *
-	 * @return boolean Does the server record needs an update?
-	 */
-	public static function updateNeeded($created, $updated, $last_failure, $last_contact)
+	public static function getNextUpdateDate(bool $success, string $created = '', string $last_contact = '')
 	{
+		// On successful contact process check again next week
+		if ($success) {
+			return DateTimeFormat::utc('now +7 day');
+		}
+
 		$now = strtotime(DateTimeFormat::utcNow());
 
-		if ($updated > $last_contact) {
-			$contact_time = strtotime($updated);
+		if ($created > $last_contact) {
+			$contact_time = strtotime($created);
 		} else {
 			$contact_time = strtotime($last_contact);
 		}
 
-		$failure_time = strtotime($last_failure);
-		$created_time = strtotime($created);
-
-		// If there is no "created" time then use the current time
-		if ($created_time <= 0) {
-			$created_time = $now;
+		// If the last contact was less than 6 hours before then try again in 6 hours
+		if (($now - $contact_time) < (60 * 60 * 6)) {
+			return DateTimeFormat::utc('now +6 hour');
 		}
 
-		// If the last contact was less than 24 hours then don't update
+		// If the last contact was less than 12 hours before then try again in 12 hours
+		if (($now - $contact_time) < (60 * 60 * 12)) {
+			return DateTimeFormat::utc('now +12 hour');
+		}
+
+		// If the last contact was less than 24 hours before then try tomorrow again
 		if (($now - $contact_time) < (60 * 60 * 24)) {
-			return false;
+			return DateTimeFormat::utc('now +1 day');
+		}
+		
+		// If the last contact was less than a week before then try again in a week
+		if (($now - $contact_time) < (60 * 60 * 24 * 7)) {
+			return DateTimeFormat::utc('now +1 week');
 		}
 
-		// If the last failure was less than 24 hours then don't update
-		if (($now - $failure_time) < (60 * 60 * 24)) {
-			return false;
+		// If the last contact was less than two weeks before then try again in two week
+		if (($now - $contact_time) < (60 * 60 * 24 * 14)) {
+			return DateTimeFormat::utc('now +2 week');
 		}
 
-		// If the last contact was less than a week ago and the last failure is older than a week then don't update
-		//if ((($now - $contact_time) < (60 * 60 * 24 * 7)) && ($contact_time > $failure_time))
-		//	return false;
-
-		// If the last contact time was more than a week ago and the contact was created more than a week ago, then only try once a week
-		if ((($now - $contact_time) > (60 * 60 * 24 * 7)) && (($now - $created_time) > (60 * 60 * 24 * 7)) && (($now - $failure_time) < (60 * 60 * 24 * 7))) {
-			return false;
+		// If the last contact was less than a month before then try again in a month
+		if (($now - $contact_time) < (60 * 60 * 24 * 30)) {
+			return DateTimeFormat::utc('now +1 month');
 		}
 
-		// If the last contact time was more than a month ago and the contact was created more than a month ago, then only try once a month
-		if ((($now - $contact_time) > (60 * 60 * 24 * 30)) && (($now - $created_time) > (60 * 60 * 24 * 30)) && (($now - $failure_time) < (60 * 60 * 24 * 30))) {
-			return false;
-		}
-
-		return true;
+		// The system hadn't been successul contacted for more than a month, so try again in three months
+		return DateTimeFormat::utc('now +3 month');
 	}
 
 	/**
@@ -192,7 +202,6 @@ class GServer
 	public static function check(string $server_url, string $network = '', bool $force = false, bool $only_nodeinfo = false)
 	{
 		$server_url = self::cleanURL($server_url);
-
 		if ($server_url == '') {
 			return false;
 		}
@@ -205,24 +214,11 @@ class GServer
 				DBA::update('gserver', $fields, $condition);
 			}
 
-			$last_contact = $gserver['last_contact'];
-			$last_failure = $gserver['last_failure'];
-
-			// See discussion under https://forum.friendi.ca/display/0b6b25a8135aabc37a5a0f5684081633
-			// It can happen that a zero date is in the database, but storing it again is forbidden.
-			if ($last_contact < DBA::NULL_DATETIME) {
-				$last_contact = DBA::NULL_DATETIME;
-			}
-
-			if ($last_failure < DBA::NULL_DATETIME) {
-				$last_failure = DBA::NULL_DATETIME;
-			}
-
-			if (!$force && !self::updateNeeded($gserver['created'], '', $last_failure, $last_contact)) {
+			if (!$force && (strtotime($gserver['next_contact']) > time())) {
 				Logger::info('No update needed', ['server' => $server_url]);
-				return ($last_contact >= $last_failure);
+				return (!$gserver['failed']);
 			}
-			Logger::info('Server is outdated. Start discovery.', ['Server' => $server_url, 'Force' => $force, 'Created' => $gserver['created'], 'Failure' => $last_failure, 'Contact' => $last_contact]);
+			Logger::info('Server is outdated. Start discovery.', ['Server' => $server_url, 'Force' => $force]);
 		} else {
 			Logger::info('Server is unknown. Start discovery.', ['Server' => $server_url]);
 		}
@@ -235,10 +231,13 @@ class GServer
 	 *
 	 * @param string $url
 	 */
-	private static function setFailure(string $url)
+	public static function setFailure(string $url)
 	{
-		if (DBA::exists('gserver', ['nurl' => Strings::normaliseLink($url)])) {
-			DBA::update('gserver', ['failed' => true, 'last_failure' => DateTimeFormat::utcNow(), 'detection-method' => null],
+		$gserver = DBA::selectFirst('gserver', [], ['nurl' => Strings::normaliseLink($url)]);
+		if (DBA::isResult($gserver)) {
+			$next_update = self::getNextUpdateDate(false, $gserver['created'], $gserver['last_contact']);
+			DBA::update('gserver', ['failed' => true, 'last_failure' => DateTimeFormat::utcNow(),
+			'next_contact' => $next_update, 'detection-method' => null],
 			['nurl' => Strings::normaliseLink($url)]);
 			Logger::info('Set failed status for existing server', ['url' => $url]);
 			return;
@@ -306,6 +305,7 @@ class GServer
 
 		// If the URL missmatches, then we mark the old entry as failure
 		if ($url != $original_url) {
+			/// @todo What to do with "next_contact" here?
 			DBA::update('gserver', ['failed' => true, 'last_failure' => DateTimeFormat::utcNow()],
 				['nurl' => Strings::normaliseLink($original_url)]);
 		}
@@ -451,6 +451,8 @@ class GServer
 			$serverdata['registered-users'] = $registeredUsers;
 			$serverdata = self::detectNetworkViaContacts($url, $serverdata);
 		}
+
+		$serverdata['next_contact'] = self::getNextUpdateDate(true);
 
 		$serverdata['last_contact'] = DateTimeFormat::utcNow();
 		$serverdata['failed'] = false;
@@ -1593,13 +1595,6 @@ class GServer
 		);
 
 		while ($gserver = DBA::fetch($gservers)) {
-			if (!GServer::check($gserver['url'], $gserver['network'])) {
-				// The server is not reachable? Okay, then we will try it later
-				$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
-				DBA::update('gserver', $fields, ['nurl' => $gserver['nurl']]);
-				continue;
-			}
-
 			Logger::info('Update peer list', ['server' => $gserver['url'], 'id' => $gserver['id']]);
 			Worker::add(PRIORITY_LOW, 'UpdateServerPeers', $gserver['url']);
 
@@ -1642,7 +1637,7 @@ class GServer
 				if (!empty($data['data']['nodes'])) {
 					foreach ($data['data']['nodes'] as $server) {
 						// Using "only_nodeinfo" since servers that are listed on that page should always have it.
-						Worker::add(PRIORITY_LOW, 'UpdateGServer', 'https://' . $server['host'], true);
+						self::add('https://' . $server['host'], true);
 					}
 				}
 			}
@@ -1661,7 +1656,7 @@ class GServer
 
 				foreach ($servers['instances'] as $server) {
 					$url = (is_null($server['https_score']) ? 'http' : 'https') . '://' . $server['name'];
-					Worker::add(PRIORITY_LOW, 'UpdateGServer', $url);
+					self::add($url);
 				}
 			}
 		}

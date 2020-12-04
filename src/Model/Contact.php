@@ -1722,30 +1722,37 @@ class Contact
 		}
 
 		// Search for duplicated contacts and get rid of them
-		if (self::removeDuplicates(Strings::normaliseLink($url), $uid) || ($uid != 0)) {
+		if (self::removeDuplicates(Strings::normaliseLink($url), $uid)) {
 			return;
 		}
 
-		// Archive or unarchive the contact. We only need to do this for the public contact.
-		// The archive/unarchive function will update the personal contacts by themselves.
+		// Archive or unarchive the contact.
 		$contact = DBA::selectFirst('contact', [], ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			Logger::info('Couldn\'t select contact for archival.', ['id' => $id]);
 			return;
 		}
 
-		if (!empty($fields['success_update'])) {
-			self::unmarkForArchival($contact);
-		} elseif (!empty($fields['failure_update'])) {
-			self::markForArchival($contact);
+		if (isset($fields['failed'])) {
+			if ($fields['failed']) {
+				self::markForArchival($contact);
+			} else {
+				self::unmarkForArchival($contact);
+			}
 		}
 
-		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($url), 'network' => Protocol::FEDERATED];
+		if ($contact['uid'] != 0) {
+			return;
+		}
 
-		// These contacts are sharing with us, we don't poll them.
-		// This means that we don't set the update fields in "OnePoll.php".
-		$condition['rel'] = self::SHARING;
+		// Update contact data for all users
+		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($url)];
+
+		$condition['network'] = [Protocol::DFRN, Protocol::DIASPORA, Protocol::ACTIVITYPUB];
 		DBA::update('contact', $fields, $condition);
+
+		// We mustn't set the update fields for OStatus contacts since they are updated in OnePoll
+		$condition['network'] = Protocol::OSTATUS;
 
 		// If the contact failed, propagate the update fields to all contacts
 		if (empty($fields['failed'])) {
@@ -1758,8 +1765,6 @@ class Contact
 			return;
 		}
 
-		// We are polling these contacts, so we mustn't set the update fields here.
-		$condition['rel'] = [self::FOLLOWER, self::FRIEND];
 		DBA::update('contact', $fields, $condition);
 	}
 
@@ -1957,7 +1962,7 @@ class Contact
 			$ret['name-date'] = $updated;
 		}
 
-		if ($uid == 0) {
+		if (($uid == 0) || in_array($ret['network'], [Protocol::DFRN, Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
 			$ret['last-update'] = $updated;
 			$ret['success_update'] = $updated;
 		}
@@ -2224,8 +2229,11 @@ class Contact
 		self::updateAvatar($contact_id, $ret['photo']);
 
 		// pull feed and consume it, which should subscribe to the hub.
-
-		Worker::add(PRIORITY_HIGH, "OnePoll", $contact_id, "force");
+		if ($contact['network'] == Protocol::OSTATUS) {
+			Worker::add(PRIORITY_HIGH, 'OnePoll', $contact_id, 'force');
+		} else {
+			Worker::add(PRIORITY_HIGH, 'UpdateContact', $contact_id);
+		}
 
 		$owner = User::getOwnerDataById($user['uid']);
 

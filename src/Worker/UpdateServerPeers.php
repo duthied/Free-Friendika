@@ -22,9 +22,9 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\GServer;
 use Friendica\Util\Strings;
 
 class UpdateServerPeers
@@ -58,7 +58,7 @@ class UpdateServerPeers
 				continue;
 			}
 			// This endpoint doesn't offer the schema. So we assume that it is HTTPS.
-			Worker::add(PRIORITY_LOW, 'UpdateGServer', 'https://' . $peer);
+			GServer::add('https://' . $peer);
 			++$added;
 		}
 		Logger::info('Server peer update ended', ['total' => $total, 'added' => $added, 'url' => $url]);
