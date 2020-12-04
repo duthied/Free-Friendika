@@ -671,9 +671,9 @@ class BBCode
 					$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
 				} else {
 					if (!empty($data['image'])) {
-						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
+						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br>', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
 					} elseif (!empty($data['preview'])) {
-						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data['url'], self::proxyUrl($data['preview'], $simplehtml), $data['title']);
+						$return .= sprintf('<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br>', $data['url'], self::proxyUrl($data['preview'], $simplehtml), $data['title']);
 					}
 					$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
 				}
@@ -1033,7 +1033,7 @@ class BBCode
 
 		switch ($simplehtml) {
 			case self::API:
-				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
+				$text = ($is_quote_share? '<br>' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case self::DIASPORA:
 				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0) {
@@ -1062,7 +1062,7 @@ class BBCode
 
 				break;
 			case self::OSTATUS:
-				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' @' . $author_contact['addr'] . ': ' . $content . '</p>' . "\n";
+				$text = ($is_quote_share? '<br>' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' @' . $author_contact['addr'] . ': ' . $content . '</p>' . "\n";
 				break;
 			case self::ACTIVITYPUB:
 				$author = '@<span class="vcard"><a href="' . $author_contact['url'] . '" class="url u-url mention" title="' . $author_contact['addr'] . '"><span class="fn nickname mention">' . $author_contact['addr'] . '</span></a>:</span>';
@@ -1275,6 +1275,8 @@ class BBCode
 			return '';
 		}
 
+		Hook::callAll('bbcode', $text);
+
 		$a = DI::app();
 
 		$text = self::performWithEscapedTags($text, ['code'], function ($text) use ($try_oembed, $simple_html, $for_plaintext, $a) {
@@ -1300,10 +1302,11 @@ class BBCode
 					return $return;
 				};
 
-
-
 				// Remove the abstract element. It is a non visible element.
 				$text = self::stripAbstract($text);
+
+				// Line ending normalisation
+				$text = str_replace("\r\n", "\n", $text);
 
 				// Move new lines outside of tags
 				$text = preg_replace("#\[(\w*)](\n*)#ism", '$2[$1]', $text);
@@ -1338,16 +1341,6 @@ class BBCode
 					$text = preg_replace("/\[share(.*?)avatar\s?=\s?'.*?'\s?(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "\n[share$1$2]$3[/share]", $text);
 				}
 
-				// Convert new line chars to html <br /> tags
-
-				// nlbr seems to be hopelessly messed up
-				//	$Text = nl2br($Text);
-
-				// We'll emulate it.
-
-				$text = trim($text);
-				$text = str_replace("\r\n", "\n", $text);
-
 				// Remove linefeeds inside of the table elements. See issue #6799
 				$search = ["\n[th]", "[th]\n", " [th]", "\n[/th]", "[/th]\n", "[/th] ",
 					"\n[td]", "[td]\n", " [td]", "\n[/td]", "[/td]\n", "[/td] ",
@@ -1367,11 +1360,14 @@ class BBCode
 				$replace = ["[table]", "[/table]"];
 				$text = str_replace($search, $replace, $text);
 
+				// Trim new lines regardless of the system.remove_multiplicated_lines config value
+				$text = trim($text, "\n");
+
 				// removing multiplicated newlines
 				if (DI::config()->get('system', 'remove_multiplicated_lines')) {
-					$search = ["\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
+					$search = ["\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[*]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
 							"\n[h1]", "[/h1]\n", "\n[h2]", "[/h2]\n", "\n[h3]", "[/h3]\n", "\n[h4]", "[/h4]\n", "\n[h5]", "[/h5]\n", "\n[h6]", "[/h6]\n"];
-					$replace = ["\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[ul]", "[/ul]", "\n[share ", "[/attachment]",
+					$replace = ["\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[*]", "[ul]", "[/ul]", "\n[share ", "[/attachment]",
 							"[h1]", "[/h1]", "[h2]", "[/h2]", "[h3]", "[/h3]", "[h4]", "[/h4]", "[h5]", "[/h5]", "[h6]", "[/h6]"];
 					do {
 						$oldtext = $text;
@@ -1447,8 +1443,8 @@ class BBCode
 				// Check for sized text
 				// [size=50] --> font-size: 50px (with the unit).
 				if ($simple_html != self::DIASPORA) {
-					$text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1px; line-height: initial;\">$2</span>", $text);
-					$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1; line-height: initial;\">$2</span>", $text);
+					$text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism", '<span style="font-size:$1px;line-height:normal;">$2</span>', $text);
+					$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", '<span style="font-size:$1;line-height:normal;">$2</span>', $text);
 				} else {
 					// Issue 2199: Diaspora doesn't interpret the construct above, nor the <small> or <big> element
 					$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "$2", $text);
@@ -1456,28 +1452,16 @@ class BBCode
 
 
 				// Check for centered text
-				$text = preg_replace("(\[center\](.*?)\[\/center\])ism", "<div style=\"text-align:center;\">$1</div>", $text);
+				$text = preg_replace("(\[center\](.*?)\[\/center\])ism", '<div style="text-align:center;">$1</div>', $text);
 
 				// Check for list text
 				$text = str_replace("[*]", "<li>", $text);
 
 				// Check for style sheet commands
-				$text = preg_replace_callback(
-					"(\[style=(.*?)\](.*?)\[\/style\])ism",
-					function ($match) {
-						return "<span style=\"" . HTML::sanitizeCSS($match[1]) . ";\">" . $match[2] . "</span>";
-					},
-					$text
-				);
+				$text = preg_replace("(\[style=(.*?)\](.*?)\[\/style\])ism", '<span style="$1">$2</span>', $text);
 
 				// Check for CSS classes
-				$text = preg_replace_callback(
-					"(\[class=(.*?)\](.*?)\[\/class\])ism",
-					function ($match) {
-						return "<span class=\"" . HTML::sanitizeCSS($match[1]) . "\">" . $match[2] . "</span>";
-					},
-					$text
-				);
+				$text = preg_replace("(\[class=(.*?)\](.*?)\[\/class\])ism", '<span style="$1">$2</span>', $text);
 
 				// handle nested lists
 				$endlessloop = 0;
@@ -1608,20 +1592,20 @@ class BBCode
 				$text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . DI::l10n()->t('Image/photo') . '" />', $text);
 				$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . DI::l10n()->t('Image/photo') . '" />', $text);
 
-				$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . DI::l10n()->t('Encrypted content') . '" /><br />', $text);
-				$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . '$1' . ' ' . DI::l10n()->t('Encrypted content') . '" /><br />', $text);
-				//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . '$1' . ' ' . DI::l10n()->t('Encrypted content') . '" /><br />', $Text);
+				$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . DI::l10n()->t('Encrypted content') . '" /><br>', $text);
+				$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . '$1' . ' ' . DI::l10n()->t('Encrypted content') . '" /><br>', $text);
+				//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . '$1' . ' ' . DI::l10n()->t('Encrypted content') . '" /><br>', $Text);
 
 				// Simplify "video" element
 				$text = preg_replace('(\[video.*?\ssrc\s?=\s?([^\s\]]+).*?\].*?\[/video\])ism', '[video]$1[/video]', $text);
 
-				// Try to Oembed
 				if ($try_oembed) {
+					// html5 video and audio
 					$text = preg_replace("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4).*?)\[\/video\]/ism",
-						'<video src="$1" controls="controls" width="' . $a->videowidth . '" height="' . $a->videoheight . '" loop="true"><a href="$1">$1</a></video>', $text);
+						'<video src="$1" controls width="' . $a->videowidth . '" height="' . $a->videoheight . '" loop="true"><a href="$1">$1</a></video>', $text);
 					$text = preg_replace("/\[video\](.*?)\[\/video\]/ism",
 						'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>', $text);
-					$text = preg_replace("/\[audio\](.*?)\[\/audio\]/ism", '<audio src="$1" controls="controls"><a href="$1">$1</a></audio>', $text);
+					$text = preg_replace("/\[audio\](.*?)\[\/audio\]/ism", '<audio src="$1" controls><a href="$1">$1</a></audio>', $text);
 
 					$text = preg_replace_callback("/\[video\](.*?)\[\/video\]/ism", $try_oembed_callback, $text);
 					$text = preg_replace_callback("/\[audio\](.*?)\[\/audio\]/ism", $try_oembed_callback, $text);
@@ -1631,9 +1615,6 @@ class BBCode
 					$text = preg_replace("/\[audio\](.*?)\[\/audio\]/ism",
 						'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>', $text);
 				}
-
-				// html5 video and audio
-
 
 				if ($try_oembed) {
 					$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<iframe src="$1" width="' . $a->videowidth . '" height="' . $a->videoheight . '"><a href="$1">$1</a></iframe>', $text);
@@ -1678,7 +1659,7 @@ class BBCode
 				$text = OEmbed::BBCode2HTML($text);
 
 				// Avoid triple linefeeds through oembed
-				$text = str_replace("<br style='clear:left'></span><br /><br />", "<br style='clear:left'></span><br />", $text);
+				$text = str_replace("<br style='clear:left'></span><br><br>", "<br style='clear:left'></span><br>", $text);
 
 				// If we found an event earlier, strip out all the event code and replace with a reformatted version.
 				// Replace the event-start section with the entire formatted event. The other bbcode is stripped.
@@ -1708,7 +1689,7 @@ class BBCode
 					$conv = html_entity_decode(str_replace([' ', "\n", "\r"], '', $text));
 					// Emojis are always 4 byte Unicode characters
 					if (!empty($conv) && (strlen($conv) / mb_strlen($conv) == 4)) {
-						$text = '<span style="font-size: xx-large; line-height: initial;">' . $text . '</span>';
+						$text = '<span style="font-size: xx-large; line-height: normal;">' . $text . '</span>';
 					}
 				}
 
@@ -1721,8 +1702,6 @@ class BBCode
 					$text = preg_replace("(\[url\](.*?)\[\/url\])ism", " $1 ", $text);
 					$text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::removePictureLinksCallback', $text);
 				}
-
-				$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
 
 				// Remove all hashtag addresses
 				if ($simple_html && !in_array($simple_html, [self::DIASPORA, self::OSTATUS, self::ACTIVITYPUB])) {
@@ -1872,8 +1851,11 @@ class BBCode
 
 			// Additionally, [pre] tags preserve spaces
 			$text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", function ($match) {
-				return str_replace(' ', '&nbsp;', $match[1]);
+				return str_replace(' ', '&nbsp;', htmlentities($match[1], ENT_NOQUOTES,'UTF-8'));
 			}, $text);
+
+			// Add HTML new lines
+			$text = str_replace("\n", '<br>', $text);
 
 			return $text;
 		}); // Escaped code
@@ -1881,9 +1863,9 @@ class BBCode
 		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#ism",
 			function ($matches) {
 				if (strpos($matches[2], "\n") !== false) {
-					$return = '<pre><code class="language-' . trim($matches[1]) . '">' . htmlspecialchars(trim($matches[2], "\n\r"), ENT_NOQUOTES, 'UTF-8') . '</code></pre>';
+					$return = '<pre><code class="language-' . trim($matches[1]) . '">' . htmlentities(trim($matches[2], "\n\r"), ENT_NOQUOTES, 'UTF-8') . '</code></pre>';
 				} else {
-					$return = '<code>' . htmlspecialchars($matches[2], ENT_NOQUOTES, 'UTF-8') . '</code>';
+					$return = '<code>' . htmlentities($matches[2], ENT_NOQUOTES, 'UTF-8') . '</code>';
 				}
 
 				return $return;
@@ -1891,37 +1873,20 @@ class BBCode
 			$text
 		);
 
-		// Clean up the HTML by loading and saving the HTML with the DOM.
-		// Bad structured html can break a whole page.
-		// For performance reasons do it only with activated item cache or at export.
-		if (!$try_oembed || (get_itemcachepath() != '')) {
-			$doc = new DOMDocument();
-			$doc->preserveWhiteSpace = false;
+		$config = \HTMLPurifier_HTML5Config::createDefault();
+		$config->set('HTML.Doctype', 'HTML5');
+		$config->set('Attr.AllowedRel', [
+			'noreferrer' => true,
+			'noopener' => true,
+		]);
+		$config->set('Attr.AllowedFrameTargets', [
+			'_blank' => true,
+		]);
 
-			$text = mb_convert_encoding($text, 'HTML-ENTITIES', "UTF-8");
+		$HTMLPurifier = new \HTMLPurifier($config);
+		$text = $HTMLPurifier->purify($text);
 
-			$doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">';
-			$encoding = '<?xml encoding="UTF-8">';
-			@$doc->loadHTML($encoding . $doctype . '<html><body>' . $text . '</body></html>');
-			$doc->encoding = 'UTF-8';
-			$text = $doc->saveHTML();
-			$text = str_replace(['<html><body>', '</body></html>', $doctype, $encoding], ['', '', '', ''], $text);
-
-			$text = str_replace('<br></li>', '</li>', $text);
-
-			//$Text = mb_convert_encoding($Text, "UTF-8", 'HTML-ENTITIES');
-		}
-
-		// Clean up some useless linebreaks in lists
-		//$Text = str_replace('<br /><ul', '<ul ', $Text);
-		//$Text = str_replace('</ul><br />', '</ul>', $Text);
-		//$Text = str_replace('</li><br />', '</li>', $Text);
-		//$Text = str_replace('<br /><li>', '<li>', $Text);
-		//$Text = str_replace('<br /><ul', '<ul ', $Text);
-
-		Hook::callAll('bbcode', $text);
-
-		return trim($text);
+		return $text;
 	}
 
 	/**

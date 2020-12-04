@@ -265,7 +265,7 @@ class PageInfo
 		}
 
 		if (!$matches && $searchNakedUrls) {
-			preg_match('~(?<=\W|^)(?<![=\]])(https?://.+)$~is', $body, $matches);
+			preg_match(Strings::autoLinkRegEx(), $body, $matches);
 			if ($matches && !Strings::endsWith($body, $matches[1])) {
 				unset($matches);
 			}

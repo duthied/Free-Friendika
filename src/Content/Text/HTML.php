@@ -36,27 +36,6 @@ use League\HTMLToMarkdown\HtmlConverter;
 
 class HTML
 {
-	public static function sanitizeCSS($input)
-	{
-		$cleaned = "";
-
-		$input = strtolower($input);
-
-		for ($i = 0; $i < strlen($input); $i++) {
-			$char = substr($input, $i, 1);
-
-			if (($char >= "a") && ($char <= "z")) {
-				$cleaned .= $char;
-			}
-
-			if (!(strpos(" #;:0123456789-_.%", $char) === false)) {
-				$cleaned .= $char;
-			}
-		}
-
-		return $cleaned;
-	}
-
 	/**
 	 * Search all instances of a specific HTML tag node in the provided DOM document and replaces them with BBCode text nodes.
 	 *
