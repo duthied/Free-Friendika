@@ -49,7 +49,7 @@ class Babel extends BaseModule
 		if (!empty($_REQUEST['text'])) {
 			switch (($_REQUEST['type'] ?? '') ?: 'bbcode') {
 				case 'bbcode':
-					$bbcode = trim($_REQUEST['text']);
+					$bbcode = $_REQUEST['text'];
 					$results[] = [
 						'title'   => DI::l10n()->t('Source input'),
 						'content' => visible_whitespace($bbcode)
@@ -65,6 +65,11 @@ class Babel extends BaseModule
 					$results[] = [
 						'title'   => DI::l10n()->t('BBCode::convert (raw HTML)'),
 						'content' => visible_whitespace($html)
+					];
+
+					$results[] = [
+						'title'   => DI::l10n()->t('BBCode::convert (hex)'),
+						'content' => visible_whitespace(bin2hex($html)),
 					];
 
 					$results[] = [
@@ -176,6 +181,25 @@ class Babel extends BaseModule
 					$results[] = [
 						'title'   => DI::l10n()->t('HTML Input'),
 						'content' => $html
+					];
+
+					$config = \HTMLPurifier_Config::createDefault();
+					$HTMLPurifier = new \HTMLPurifier($config);
+					$purified = $HTMLPurifier->purify($html);
+
+					$results[] = [
+						'title'   => DI::l10n()->t('HTML Purified (raw)'),
+						'content' => visible_whitespace($purified),
+					];
+
+					$results[] = [
+						'title'   => DI::l10n()->t('HTML Purified (hex)'),
+						'content' => visible_whitespace(bin2hex($purified)),
+					];
+
+					$results[] = [
+						'title'   => DI::l10n()->t('HTML Purified'),
+						'content' => $purified,
 					];
 
 					$bbcode = Text\HTML::toBBCode($html);
