@@ -3537,18 +3537,18 @@ class Item
 
 		if ($rendered_hash == ''
 			|| $rendered_html == ''
-			|| $rendered_hash != BBCode::VERSION . '::' . hash('md5', $body)
+			|| $rendered_hash != hash('md5', BBCode::VERSION . '::' . $body)
 			|| DI::config()->get('system', 'ignore_cache')
 		) {
 			self::addRedirToImageTags($item);
 
 			$item['rendered-html'] = BBCode::convert($item['body']);
-			$item['rendered-hash'] = hash('md5', $body);
+			$item['rendered-hash'] = hash('md5', BBCode::VERSION . '::' . $body);
 
 			$hook_data = ['item' => $item, 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];
 			Hook::callAll('put_item_in_cache', $hook_data);
 			$item['rendered-html'] = $hook_data['rendered-html'];
-			$item['rendered-hash'] = BBCode::VERSION . '::' . $hook_data['rendered-hash'];
+			$item['rendered-hash'] = $hook_data['rendered-hash'];
 			unset($hook_data);
 
 			// Force an update if the generated values differ from the existing ones
