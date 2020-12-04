@@ -35,8 +35,6 @@ class UpdateContacts
 {
 	public static function execute()
 	{
-		$count = 0;
-		$ids = [];
 		$base_condition = ['network' => array_merge(Protocol::FEDERATED, [Protocol::ZOT, Protocol::PHANTOM]), 'self' => false];
 
 		$update_limit = DI::config()->get('system', 'contact_update_limit');
@@ -58,8 +56,8 @@ class UpdateContacts
 			`id` IN (SELECT `cid` FROM `post-tag`) OR `id` IN (SELECT `cid` FROM `user-contact`) OR `uid` != ?) AND
 			(`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
 			0, DateTimeFormat::utc('now - 1 month'), DateTimeFormat::utc('now - 1 week')]);
-		$ids = self::getContactsToUpdate($condition, $ids, $limit - count($ids));
-
+		Logger::info('Updatable interacting federated contacts', ['count' => DBA::count('contact', $condition)]);
+		$ids = self::getContactsToUpdate($condition, [], $limit);
 		Logger::info('Fetched interacting federated contacts', ['count' => count($ids)]);
 
 		if (!DI::config()->get('system', 'update_active_contacts')) {
@@ -68,9 +66,13 @@ class UpdateContacts
 			$condition = DBA::mergeConditions($base_condition,
 				["(`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
 					DateTimeFormat::utc('now - 6 month'), DateTimeFormat::utc('now - 1 month')]);
-			$ids = self::getContactsToUpdate($condition, $ids, $limit - count($ids));
+			Logger::info('Updatable federated contacts', ['count' => DBA::count('contact', $condition)]);
+			$previous = count($ids);
+			$ids = self::getContactsToUpdate($condition, $ids, $limit - $previous);
+			Logger::info('Fetched federated contacts', ['count' => count($ids) - $previous]);
 		}
 
+		$count = 0;
 		foreach ($ids as $id) {
 			Worker::add(PRIORITY_LOW, "UpdateContact", $id);
 			++$count;
