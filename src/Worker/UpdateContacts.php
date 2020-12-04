@@ -29,52 +29,54 @@ use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 
 /**
- * Update public contacts
+ * Update federated contacts
  */
-class UpdatePublicContacts
+class UpdateContacts
 {
 	public static function execute()
 	{
 		$count = 0;
 		$ids = [];
-		$base_condition = ['network' => Protocol::FEDERATED, 'uid' => 0, 'self' => false];
+		$base_condition = ['network' => array_merge(Protocol::FEDERATED, [Protocol::ZOT, Protocol::PHANTOM]), 'self' => false];
 
-		$existing = Worker::countWorkersByCommand('UpdateContact');
-		Logger::info('Already existing jobs', ['existing' => $existing]);
-		if ($existing > 100) {
+		$update_limit = DI::config()->get('system', 'contact_update_limit');
+		if (empty($update_limit)) {
 			return;
 		}
 
-		$limit = 100 - $existing;
-
-		if (!DI::config()->get('system', 'update_active_contacts')) {
-			$part = 3;
-			// Add every contact (mostly failed ones) that hadn't been updated for six months
-			$condition = DBA::mergeConditions($base_condition,
-				["`last-update` < ?", DateTimeFormat::utc('now - 6 month')]);
-			$ids = self::getContactsToUpdate($condition, $ids, round($limit / $part));
-
-			// Add every non failed contact that hadn't been updated for a month
-			$condition = DBA::mergeConditions($base_condition,
-				["NOT `failed` AND `last-update` < ?", DateTimeFormat::utc('now - 1 month')]);
-			$ids = self::getContactsToUpdate($condition, $ids, round($limit / $part));
-		} else {
-			$part = 1;
+		$updating = Worker::countWorkersByCommand('UpdateContact');
+		$limit = $update_limit - $updating;
+		if ($limit <= 0) {
+			Logger::info('The number of currently running jobs exceed the limit');
+			return;
 		}
 
-		// Add every contact our system interacted with and hadn't been updated for a week
+		// Add every contact our system interacted with and hadn't been updated for a week if unarchived
+		// or for a month if archived.
 		$condition = DBA::mergeConditions($base_condition, ["(`id` IN (SELECT `author-id` FROM `item`) OR
 			`id` IN (SELECT `owner-id` FROM `item`) OR `id` IN (SELECT `causer-id` FROM `item`) OR
-			`id` IN (SELECT `cid` FROM `post-tag`) OR `id` IN (SELECT `cid` FROM `user-contact`)) AND
-			`last-update` < ?", DateTimeFormat::utc('now - 1 week')]);
-		$ids = self::getContactsToUpdate($condition, $ids, round($limit / $part));
+			`id` IN (SELECT `cid` FROM `post-tag`) OR `id` IN (SELECT `cid` FROM `user-contact`) OR `uid` != ?) AND
+			(`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
+			0, DateTimeFormat::utc('now - 1 month'), DateTimeFormat::utc('now - 1 week')]);
+		$ids = self::getContactsToUpdate($condition, $ids, $limit - count($ids));
+
+		Logger::info('Fetched interacting federated contacts', ['count' => count($ids)]);
+
+		if (!DI::config()->get('system', 'update_active_contacts')) {
+			// Add every contact (mostly failed ones) that hadn't been updated for six months
+			// and every non failed contact that hadn't been updated for a month
+			$condition = DBA::mergeConditions($base_condition,
+				["(`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
+					DateTimeFormat::utc('now - 6 month'), DateTimeFormat::utc('now - 1 month')]);
+			$ids = self::getContactsToUpdate($condition, $ids, $limit - count($ids));
+		}
 
 		foreach ($ids as $id) {
 			Worker::add(PRIORITY_LOW, "UpdateContact", $id);
 			++$count;
 		}
 
-		Logger::info('Initiated update for public contacts', ['count' => $count]);
+		Logger::info('Initiated update for federated contacts', ['count' => $count]);
 	}
 
 	/**

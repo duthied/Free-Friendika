@@ -181,9 +181,11 @@ class Contact extends BaseModule
 			if ($result['success']) {
 				DBA::update('contact', ['subhub' => 1], ['id' => $contact_id]);
 			}
-		} else {
+
 			// pull feed and consume it, which should subscribe to the hub.
 			Worker::add(PRIORITY_HIGH, 'OnePoll', $contact_id, 'force');
+		} else {
+			Worker::add(PRIORITY_HIGH, 'UpdateContact', $contact_id);
 		}
 	}
 

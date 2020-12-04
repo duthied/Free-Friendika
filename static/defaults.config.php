@@ -131,6 +131,10 @@ return [
 		// Don't display sharing accounts on the global community
 		'community_no_sharer' => false,
 
+		// contact_update_limit (Integer)
+		// How much contacts should be checked at a time?
+		'contact_update_limit' => 100,
+
 		// cron_interval (Integer)
 		// Minimal period in minutes between two calls of the "Cron" worker job.
 		'cron_interval' => 5,

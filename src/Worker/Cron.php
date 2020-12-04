@@ -61,7 +61,7 @@ class Cron
 		Worker::add(PRIORITY_MEDIUM, 'PollContacts');
 
 		// Update contact information
-		Worker::add(PRIORITY_LOW, 'UpdatePublicContacts');
+		Worker::add(PRIORITY_LOW, 'UpdateContacts');
 
 		// Update server information
 		Worker::add(PRIORITY_LOW, 'UpdateGServers');
