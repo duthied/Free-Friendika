@@ -75,6 +75,18 @@ class BBCodeTest extends MockedTest
 		$this->dice->shouldReceive('create')
 		           ->with(BaseURL::class)
 		           ->andReturn($baseUrlMock);
+
+		$config = \HTMLPurifier_HTML5Config::createDefault();
+		$config->set('HTML.Doctype', 'HTML5');
+		$config->set('Attr.AllowedRel', [
+			'noreferrer' => true,
+			'noopener' => true,
+		]);
+		$config->set('Attr.AllowedFrameTargets', [
+			'_blank' => true,
+		]);
+
+		$this->HTMLPurifier = new \HTMLPurifier($config);
 	}
 
 	public function dataLinks()
@@ -171,7 +183,7 @@ class BBCodeTest extends MockedTest
 	public function testAutoLinking(string $data, bool $assertHTML)
 	{
 		$output = BBCode::convert($data);
-		$assert = '<a href="' . $data . '" target="_blank" rel="noopener noreferrer">' . $data . '</a>';
+		$assert = $this->HTMLPurifier->purify('<a href="' . $data . '" target="_blank" rel="noopener noreferrer">' . $data . '</a>');
 		if ($assertHTML) {
 			self::assertEquals($assert, $output);
 		} else {
@@ -183,31 +195,31 @@ class BBCodeTest extends MockedTest
 	{
 		return [
 			'bug-7271-condensed-space' => [
-				'expectedHtml' => '<ul class="listdecimal" style="list-style-type: decimal;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul class="listdecimal" style="list-style-type:decimal;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ol][*] http://example.com/[/ol]',
 			],
 			'bug-7271-condensed-nospace' => [
-				'expectedHtml' => '<ul class="listdecimal" style="list-style-type: decimal;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul class="listdecimal" style="list-style-type:decimal;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ol][*]http://example.com/[/ol]',
 			],
 			'bug-7271-indented-space' => [
-				'expectedHtml' => '<ul class="listbullet" style="list-style-type: circle;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul class="listbullet" style="list-style-type:circle;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ul]
 [*] http://example.com/
 [/ul]',
 			],
 			'bug-7271-indented-nospace' => [
-				'expectedHtml' => '<ul class="listbullet" style="list-style-type: circle;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul class="listbullet" style="list-style-type:circle;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ul]
 [*]http://example.com/
 [/ul]',
 			],
 			'bug-2199-named-size' => [
-				'expectedHtml' => '<span style="font-size: xx-large; line-height: initial;">Test text</span>',
+				'expectedHtml' => '<span style="font-size:xx-large;line-height:normal;">Test text</span>',
 				'text' => '[size=xx-large]Test text[/size]',
 			],
 			'bug-2199-numeric-size' => [
-				'expectedHtml' => '<span style="font-size: 24px; line-height: initial;">Test text</span>',
+				'expectedHtml' => '<span style="font-size:24px;line-height:normal;">Test text</span>',
 				'text' => '[size=24]Test text[/size]',
 			],
 			'bug-2199-diaspora-no-named-size' => [
@@ -225,7 +237,7 @@ class BBCodeTest extends MockedTest
 				'simpleHtml' => 3,
 			],
 			'bug-7665-audio-tag' => [
-				'expectedHtml' => '<audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls="controls"><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio>',
+				'expectedHtml' => '<audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio>',
 				'text' => '[audio]http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3[/audio]',
 				'try_oembed' => true,
 			],
@@ -246,8 +258,24 @@ class BBCodeTest extends MockedTest
 				'text' => '[test] Space',
 			],
 			'task-8800-pre-spaces' => [
-				'expectedHtml' => '&nbsp;&nbsp;&nbsp;&nbsp;Spaces',
+				'expectedHtml' => '    Spaces',
 				'text' => '[pre]    Spaces[/pre]',
+			],
+			'bug-9611-purify-xss-nobb' => [
+				'expectedHTML' => '<span>dare to move your mouse here</span>',
+				'text' => '[nobb]<span onmouseover="alert(0)">dare to move your mouse here</span>[/nobb]'
+			],
+			'bug-9611-purify-xss-noparse' => [
+				'expectedHTML' => '<span>dare to move your mouse here</span>',
+				'text' => '[noparse]<span onmouseover="alert(0)">dare to move your mouse here</span>[/noparse]'
+			],
+			'bug-9611-purify-xss-attributes' => [
+				'expectedHTML' => '<span>dare to move your mouse here</span>',
+				'text' => '[color="onmouseover=alert(0) style="]dare to move your mouse here[/color]'
+			],
+			'bug-9611-purify-attributes-correct' => [
+				'expectedHTML' => '<span style="color:#FFFFFF;">dare to move your mouse here</span>',
+				'text' => '[color=FFFFFF]dare to move your mouse here[/color]'
 			],
 		];
 	}

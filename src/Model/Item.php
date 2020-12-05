@@ -3529,20 +3529,21 @@ class Item
 	 */
 	public static function putInCache(&$item, $update = false)
 	{
-		$body = $item["body"];
+		// Save original body to prevent addons to modify it
+		$body = $item['body'];
 
 		$rendered_hash = $item['rendered-hash'] ?? '';
 		$rendered_html = $item['rendered-html'] ?? '';
 
 		if ($rendered_hash == ''
-			|| $rendered_html == ""
-			|| $rendered_hash != hash("md5", $item["body"])
-			|| DI::config()->get("system", "ignore_cache")
+			|| $rendered_html == ''
+			|| $rendered_hash != hash('md5', BBCode::VERSION . '::' . $body)
+			|| DI::config()->get('system', 'ignore_cache')
 		) {
 			self::addRedirToImageTags($item);
 
-			$item["rendered-html"] = BBCode::convert($item["body"]);
-			$item["rendered-hash"] = hash("md5", $item["body"]);
+			$item['rendered-html'] = BBCode::convert($item['body']);
+			$item['rendered-hash'] = hash('md5', BBCode::VERSION . '::' . $body);
 
 			$hook_data = ['item' => $item, 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];
 			Hook::callAll('put_item_in_cache', $hook_data);
@@ -3551,27 +3552,27 @@ class Item
 			unset($hook_data);
 
 			// Force an update if the generated values differ from the existing ones
-			if ($rendered_hash != $item["rendered-hash"]) {
+			if ($rendered_hash != $item['rendered-hash']) {
 				$update = true;
 			}
 
 			// Only compare the HTML when we forcefully ignore the cache
-			if (DI::config()->get("system", "ignore_cache") && ($rendered_html != $item["rendered-html"])) {
+			if (DI::config()->get('system', 'ignore_cache') && ($rendered_html != $item['rendered-html'])) {
 				$update = true;
 			}
 
-			if ($update && !empty($item["id"])) {
+			if ($update && !empty($item['id'])) {
 				self::update(
 					[
-						'rendered-html' => $item["rendered-html"],
-						'rendered-hash' => $item["rendered-hash"]
+						'rendered-html' => $item['rendered-html'],
+						'rendered-hash' => $item['rendered-hash']
 					],
-					['id' => $item["id"]]
+					['id' => $item['id']]
 				);
 			}
 		}
 
-		$item["body"] = $body;
+		$item['body'] = $body;
 	}
 
 	/**
