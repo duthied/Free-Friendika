@@ -117,6 +117,8 @@ class Cron
 
 			Worker::add(PRIORITY_LOW, 'CleanItemUri');
 
+			Worker::add(PRIORITY_LOW, 'RemoveUnusedContacts');
+
 			// check upstream version?
 			Worker::add(PRIORITY_LOW, 'CheckVersion');
 
