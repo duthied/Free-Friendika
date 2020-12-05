@@ -29,8 +29,10 @@ use Friendica\Model\Photo;
 /**
  * Removes public contacts that aren't in use
  */
-class RemoveUnusedContacts {
-	public static function execute() {
+class RemoveUnusedContacts
+{
+	public static function execute()
+	{
 		$condition = ["`uid` = ? AND NOT `self` AND NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` != ?)
 			AND (NOT `network` IN (?, ?, ?, ?, ?, ?) OR (`archive` AND `success_update` < UTC_TIMESTAMP() - INTERVAL ? DAY))
 			AND NOT `id` IN (SELECT `author-id` FROM `item`) AND NOT `id` IN (SELECT `owner-id` FROM `item`)
