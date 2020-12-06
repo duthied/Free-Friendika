@@ -62,12 +62,15 @@ class UpdateGServers
 			// There are duplicated "url" but not "nurl". So we check both addresses instead of just overwriting them,
 			// since that would mean loosing data.
 			if (!empty($gserver['url'])) {
-				Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['url']);
+				if (Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['url'])) {
+					$count++;
+				}
 			}
 			if (!empty($gserver['nurl']) && ($gserver['nurl'] != Strings::normaliseLink($gserver['url']))) {
-				Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['nurl']);
+				if (Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['nurl'])) {
+					$count++;
+				}
 			}
-			$count++;
 		}
 		DBA::close($gservers);
 		Logger::info('Updated servers', ['count' => $count]);

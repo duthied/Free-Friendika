@@ -74,8 +74,9 @@ class UpdateContacts
 
 		$count = 0;
 		foreach ($ids as $id) {
-			Worker::add(PRIORITY_LOW, "UpdateContact", $id);
-			++$count;
+			if (Worker::add(PRIORITY_LOW, "UpdateContact", $id)) {
+				++$count;
+			}
 		}
 
 		Logger::info('Initiated update for federated contacts', ['count' => $count]);
