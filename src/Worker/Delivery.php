@@ -296,13 +296,17 @@ class Delivery
 			$msgitems = [$target_item];
 			$atom = DFRN::entries($msgitems, $owner);
 		} else {
-			$msgitems = [];
-			foreach ($items as $item) {
-				// Only add the parent when we don't delete other items.
-				if (($target_item['id'] == $item['id']) || ($cmd != self::DELETION)) {
-					$item["entry:comment-allow"] = true;
-					$item["entry:cid"] = ($top_level ? $contact['id'] : 0);
-					$msgitems[] = $item;
+			if ($target_item['deleted']) {
+				$msgitems = [$target_item];
+			} else {
+				$msgitems = [];
+				foreach ($items as $item) {
+					// Only add the parent when we don't delete other items.
+					if (($target_item['id'] == $item['id']) || ($cmd != self::DELETION)) {
+						$item["entry:comment-allow"] = true;
+						$item["entry:cid"] = ($top_level ? $contact['id'] : 0);
+						$msgitems[] = $item;
+					}
 				}
 			}
 			$atom = DFRN::entries($msgitems, $owner);
