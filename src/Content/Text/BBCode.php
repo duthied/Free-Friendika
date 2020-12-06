@@ -1378,6 +1378,9 @@ class BBCode
 					} while ($oldtext != $text);
 				}
 
+				// Add HTML new lines
+				$text = str_replace("\n", '<br>', $text);
+
 				/// @todo Have a closer look at the different html modes
 				// Handle attached links or videos
 				if ($simple_html == self::ACTIVITYPUB) {
@@ -1848,17 +1851,15 @@ class BBCode
 				return $text;
 			}); // Escaped noparse, nobb, pre
 
-			// Remove escaping tags
-			$text = preg_replace("/\[noparse\](.*?)\[\/noparse\]/ism", '\1', $text);
-			$text = preg_replace("/\[nobb\](.*?)\[\/nobb\]/ism", '\1', $text);
+			// Remove escaping tags and replace new lines that remain
+			$text = preg_replace_callback("/\[(noparse|nobb)\](.*?)\[\/\1\]/ism", function ($match) {
+				return str_replace("\n", "<br>", $match[2]);
+			}, $text);
 
 			// Additionally, [pre] tags preserve spaces
 			$text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", function ($match) {
-				return str_replace(' ', '&nbsp;', htmlentities($match[1], ENT_NOQUOTES,'UTF-8'));
+				return str_replace([' ', "\n"], ['&nbsp;', "<br>"], htmlentities($match[1], ENT_NOQUOTES,'UTF-8'));
 			}, $text);
-
-			// Add HTML new lines
-			$text = str_replace("\n", '<br>', $text);
 
 			return $text;
 		}); // Escaped code
