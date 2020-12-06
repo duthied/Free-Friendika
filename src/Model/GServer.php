@@ -448,7 +448,7 @@ class GServer
 		}
 
 		if ($serverdata['network'] == Protocol::PHANTOM) {
-			$serverdata['registered-users'] = $registeredUsers;
+			$serverdata['registered-users'] = max($registeredUsers, 1);
 			$serverdata = self::detectNetworkViaContacts($url, $serverdata);
 		}
 
@@ -478,7 +478,7 @@ class GServer
 		if (!empty($serverdata['network']) && !empty($id) && ($serverdata['network'] != Protocol::PHANTOM)) {
 			$apcontacts = DBA::count('apcontact', ['gsid' => $id]);
 			$contacts = DBA::count('contact', ['uid' => 0, 'gsid' => $id]);
-			$max_users = max($apcontacts, $contacts, $registeredUsers);
+			$max_users = max($apcontacts, $contacts, $registeredUsers, 1);
 			if ($max_users > $registeredUsers) {
 				Logger::info('Update registered users', ['id' => $id, 'url' => $serverdata['nurl'], 'registered-users' => $max_users]);
 				DBA::update('gserver', ['registered-users' => $max_users], ['id' => $id]);
@@ -744,7 +744,7 @@ class GServer
 		}
 
 		if (!empty($nodeinfo['usage']['users']['total'])) {
-			$server['registered-users'] = $nodeinfo['usage']['users']['total'];
+			$server['registered-users'] = max($nodeinfo['usage']['users']['total'], 1);
 		}
 
 		if (!empty($nodeinfo['protocols']['inbound']) && is_array($nodeinfo['protocols']['inbound'])) {
@@ -820,7 +820,7 @@ class GServer
 		}
 
 		if (!empty($nodeinfo['usage']['users']['total'])) {
-			$server['registered-users'] = $nodeinfo['usage']['users']['total'];
+			$server['registered-users'] = max($nodeinfo['usage']['users']['total'], 1);
 		}
 
 		if (!empty($nodeinfo['protocols'])) {
@@ -897,7 +897,7 @@ class GServer
 		}
 
 		if (!empty($data['channels_total'])) {
-			$serverdata['registered-users'] = $data['channels_total'];
+			$serverdata['registered-users'] = max($data['channels_total'], 1);
 		}
 
 		if (!empty($data['register_policy'])) {
@@ -1001,7 +1001,7 @@ class GServer
 			}
 		}
 
-		$serverdata['registered-users'] = max($serverdata['registered-users'], count($contacts));
+		$serverdata['registered-users'] = max($serverdata['registered-users'], count($contacts), 1);
 
 		return $serverdata;
 	}
@@ -1032,7 +1032,7 @@ class GServer
 
 		if (!empty($data['totalResults'])) {
 			$registeredUsers = $serverdata['registered-users'] ?? 0;
-			$serverdata['registered-users'] = max($data['totalResults'], $registeredUsers);
+			$serverdata['registered-users'] = max($data['totalResults'], $registeredUsers, 1);
 			$serverdata['directory-type'] = self::DT_POCO;
 			$serverdata['poco'] = $url . '/poco';
 		}
@@ -1146,7 +1146,7 @@ class GServer
 		}
 
 		if (!empty($data['stats']['user_count'])) {
-			$serverdata['registered-users'] = $data['stats']['user_count'];
+			$serverdata['registered-users'] = max($data['stats']['user_count'], 1);
 		}
 
 		if (!empty($serverdata['version']) && preg_match('/.*?\(compatible;\s(.*)\s(.*)\)/ism', $serverdata['version'], $matches)) {
