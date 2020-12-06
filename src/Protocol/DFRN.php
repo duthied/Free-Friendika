@@ -2705,8 +2705,12 @@ class DFRN
 		}
 
 		$deletions = $xpath->query("/atom:feed/at:deleted-entry");
-		foreach ($deletions as $deletion) {
-			self::processDeletion($xpath, $deletion, $importer);
+		if (!empty($deletions)) {
+			foreach ($deletions as $deletion) {
+				self::processDeletion($xpath, $deletion, $importer);
+			}
+			Logger::notice('Deletions had been processed');
+			return 200;
 		}
 
 		if (!$sort_by_date) {
