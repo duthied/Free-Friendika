@@ -50,7 +50,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	// Update this value to the current date whenever changes are made to BBCode::convert
-	const VERSION = '2020-12-03';
+	const VERSION = '2020-12-06';
 
 	const INTERNAL = 0;
 	const API = 2;
@@ -1852,7 +1852,7 @@ class BBCode
 			}); // Escaped noparse, nobb, pre
 
 			// Remove escaping tags and replace new lines that remain
-			$text = preg_replace_callback("/\[(noparse|nobb)\](.*?)\[\/\1\]/ism", function ($match) {
+			$text = preg_replace_callback('/\[(noparse|nobb)](.*?)\[\/\1]/ism', function ($match) {
 				return str_replace("\n", "<br>", $match[2]);
 			}, $text);
 
