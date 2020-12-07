@@ -1,149 +1,99 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
-function notes_init(&$a) {
+use Friendica\App;
+use Friendica\Content\Nav;
+use Friendica\Content\Pager;
+use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Model\Item;
+use Friendica\Module\BaseProfile;
 
-	if(! local_user())
+function notes_init(App $a)
+{
+	if (! local_user()) {
 		return;
+	}
 
-	$profile = 0;
-
-	$which = $a->user['nickname'];
-
-//	profile_load($a,$which,$profile);
-
+	Nav::setSelected('home');
 }
 
 
-function notes_content(&$a,$update = false) {
-
-	if(! local_user()) {
-		notice( t('Permission denied.') . EOL);
+function notes_content(App $a, $update = false)
+{
+	if (!local_user()) {
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
-	require_once("include/bbcode.php");
-	require_once('include/security.php');
-	require_once('include/conversation.php');
-	require_once('include/acl_selectors.php');
-	$groups = array();
+	$o = BaseProfile::getTabsHTML($a, 'notes', true);
 
+	if (!$update) {
+		$o .= '<h3>' . DI::l10n()->t('Personal Notes') . '</h3>';
 
-	$o = '';
+		$x = [
+			'is_owner' => true,
+			'allow_location' => (($a->user['allow_location']) ? true : false),
+			'default_location' => $a->user['default-location'],
+			'nickname' => $a->user['nickname'],
+			'lockstate' => 'lock',
+			'acl' => '',
+			'bang' => '',
+			'visitor' => 'block',
+			'profile_uid' => local_user(),
+			'button' => DI::l10n()->t('Save'),
+			'acl_data' => '',
+		];
 
-	$remote_contact = false;
-
-	$contact_id = $_SESSION['cid'];
-	$contact = $a->contact;
-
-	$is_owner = true;
-
-	$o ="";
-	// tabs
-	$tpl = get_markup_template('profile_tabs.tpl');
-	$o .= replace_macros($tpl,array(
-		'$url' => $a->get_baseurl() . '/profile/' . $a->user['nickname'],
-		'$phototab' => $a->get_baseurl() . '/photos/' . $a->user['nickname'],
-		'$status' => t('Status'),
-		'$profile' => t('Profile'),
-		'$photos' => t('Photos'),
-		'$events' => t('Events') ,
-		'$notes' => t('Personal Notes'),
-		'$activetab' => "notes",
-	));	
-	
-
-	if(! $update) {
-		$o .= '<h3>' . t('Personal Notes') . '</h3>';
-
-		$commpage = false;
-		$commvisitor = false;
-
-		$celeb = false;
-
-
-
-		$x = array(
-			'is_owner' => $is_owner,
-       		'allow_location' => (($a->user['allow_location']) ? true : false),
-	        'default_location' => $a->user['default-location'],
-    	    'nickname' => $a->user['nickname'],
-   	    	'lockstate' => 'lock',
-	       	'acl' => '',
-    	    'bang' => '',
-        	'visitor' => 'block',
-	   	    'profile_uid' => local_user(),
-			'button' => t('Save')
-
-    	);
-
-    	$o .= status_editor($a,$x,$a->contact['id']);
-
-		$o .= '<div id="live-notes"></div>' . "\r\n";
-		$o .= "<script> var profile_uid = " . local_user() 
-			. "; var netargs = '/?f='; var profile_page = " . $a->pager['page'] . "; </script>\r\n";
-
+		$o .= status_editor($a, $x, $a->contact['id']);
 	}
 
-	// Construct permissions
+	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
+		'contact-id'=> $a->contact['id']];
 
-	// default permissions - anonymous user
-	
-	$sql_extra = " AND `allow_cid` = '<" . $a->contact['id'] . ">' ";
-
-	$r = q("SELECT COUNT(*) AS `total`
-		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0 
-		AND `item`.`id` = `item`.`parent` AND `item`.`wall` = 0
-		$sql_extra ",
-		intval(local_user())
-
-	);
-
-	if(count($r)) {
-		$a->set_pager_total($r[0]['total']);
-		$a->set_pager_itemspage(40);
+	if (DI::mode()->isMobile()) {
+		$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+			DI::config()->get('system', 'itemspage_network_mobile'));
+	} else {
+		$itemsPerPage = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+			DI::config()->get('system', 'itemspage_network'));
 	}
 
-	$r = q("SELECT `item`.`id` AS `item_id`, `contact`.`uid` AS `contact-uid`
-		FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-		WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-		AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-		AND `item`.`id` = `item`.`parent` AND `item`.`wall` = 0
-		$sql_extra
-		ORDER BY `item`.`created` DESC LIMIT %d ,%d ",
-		intval(local_user()),
-		intval($a->pager['start']),
-		intval($a->pager['itemspage'])
+	$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
-	);
+	$params = ['order' => ['created' => true],
+		'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+	$r = Item::selectThreadForUser(local_user(), ['uri'], $condition, $params);
 
-	$parents_arr = array();
-	$parents_str = '';
+	$count = 0;
 
-	if(count($r)) {
-		foreach($r as $rr)
-			$parents_arr[] = $rr['item_id'];
-		$parents_str = implode(', ', $parents_arr);
- 
-		$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
-			`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`network`, `contact`.`rel`, 
-			`contact`.`thumb`, `contact`.`self`, `contact`.`writable`, 
-			`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-			FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			WHERE `item`.`uid` = %d AND `item`.`visible` = 1 AND `item`.`deleted` = 0
-			AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-			AND `item`.`parent` IN ( %s )
-			$sql_extra
-			ORDER BY `parent` DESC, `gravity` ASC, `item`.`id` ASC ",
-			intval(local_user()),
-			dbesc($parents_str)
-		);
+	if (DBA::isResult($r)) {
+		$notes = Item::inArray($r);
+
+		$count = count($notes);
+
+		$o .= conversation($a, $notes, 'notes', $update);
 	}
 
-	$o .= conversation($a,$r,'notes',$update);
+	$o .= $pager->renderMinimal($count);
 
-
-	$o .= paginate($a);
 	return $o;
 }

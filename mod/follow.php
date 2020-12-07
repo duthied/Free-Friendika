@@ -1,203 +1,206 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
-require_once('Scrape.php');
+use Friendica\App;
+use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
+use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Model\Profile;
+use Friendica\Model\Item;
+use Friendica\Network\Probe;
+use Friendica\Database\DBA;
+use Friendica\Model\User;
+use Friendica\Util\Strings;
 
-function follow_post(&$a) {
-
-	if(! local_user()) {
-		notice( t('Permission denied.') . EOL);
-		goaway($_SESSION['return_url']);
-		// NOTREACHED
+function follow_post(App $a)
+{
+	if (!local_user()) {
+		throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 	}
 
-	$url = $orig_url = notags(trim($_POST['url']));
-
-	// remove ajax junk, e.g. Twitter
-
-	$url = str_replace('/#!/','/',$url);
-
-	if(! allowed_url($url)) {
-		notice( t('Disallowed profile URL.') . EOL);
-		goaway($_SESSION['return_url']);
-		// NOTREACHED
+	if (isset($_REQUEST['cancel'])) {
+		DI::baseUrl()->redirect('contact');
 	}
 
-	$ret = probe_url($url);
+	$url = Probe::cleanURI($_REQUEST['url']);
+	$return_path = 'follow?url=' . urlencode($url);
 
-	if($ret['network'] === NETWORK_DFRN) {
-		if(strlen($a->path))
-			$myaddr = bin2hex($a->get_baseurl() . '/profile/' . $a->user['nickname']);
-		else
-			$myaddr = bin2hex($a->user['nickname'] . '@' . $a->get_hostname());
- 
-		goaway($ret['request'] . "&addr=$myaddr");
-		
-		// NOTREACHED
-	}
-	else {
-		if(get_config('system','dfrn_only')) {
-			notice( t('This site is not configured to allow communications with other networks.') . EOL);
-			notice( t('No compatible communication protocols or feeds were discovered.') . EOL);
-			goaway($_SESSION['return_url']);
+	// Makes the connection request for friendica contacts easier
+	// This is just a precaution if maybe this page is called somewhere directly via POST
+	$_SESSION['fastlane'] = $url;
+
+	$result = Contact::createFromProbe($a->user, $url, true);
+
+	if ($result['success'] == false) {
+		// Possibly it is a remote item and not an account
+		follow_remote_item($url);
+
+		if ($result['message']) {
+			notice($result['message']);
 		}
+		DI::baseUrl()->redirect($return_path);
+	} elseif ($result['cid']) {
+		DI::baseUrl()->redirect('contact/' . $result['cid']);
 	}
 
-	// do we have enough information?
-	
-	if(! ((x($ret,'name')) && (x($ret,'poll')) && ((x($ret,'url')) || (x($ret,'addr'))))) {
-		notice( t('The profile address specified does not provide adequate information.') . EOL);
-		if(! x($ret,'poll'))
-			notice( t('No compatible communication protocols or feeds were discovered.') . EOL);
-		if(! x($ret,'name'))
-			notice( t('An author or name was not found.') . EOL);
-		if(! x($ret,'url'))
-			notice( t('No browser URL could be matched to this address.') . EOL);
-		if(strpos($url,'@') !== false)
-			notice('Unable to match @-style Identity Address with a known protocol or email contact');
-		goaway($_SESSION['return_url']);
-	}
+	info(DI::l10n()->t('The contact could not be added.'));
 
-	if($ret['network'] === NETWORK_OSTATUS && get_config('system','ostatus_disabled')) {
-		notice( t('The profile address specified belongs to a network which has been disabled on this site.') . EOL);
-		$ret['notify'] = '';
-	}
-
-	if(! $ret['notify']) {
-		notice( t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . EOL);
-	}
-
-	$writeable = ((($ret['network'] === NETWORK_OSTATUS) && ($ret['notify'])) ? 1 : 0);
-	if($ret['network'] === NETWORK_MAIL) {
-		$writeable = 1;
-		
-	}
-	if($ret['network'] === NETWORK_DIASPORA)
-		$writeable = 1;
-
-	// check if we already have a contact
-	// the poll url is more reliable than the profile url, as we may have
-	// indirect links or webfinger links
-
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `poll` = '%s' LIMIT 1",
-		intval(local_user()),
-		dbesc($ret['poll'])
-	);			
-
-	if(count($r)) {
-		// update contact
-		if($r[0]['rel'] == CONTACT_IS_FOLLOWER || ($network === NETWORK_DIASPORA && $r[0]['rel'] == CONTACT_IS_SHARING)) {
-			q("UPDATE `contact` SET `rel` = %d , `readonly` = 0 WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval(CONTACT_IS_FRIEND),
-				intval($r[0]['id']),
-				intval(local_user())
-			);
-		}
-	}
-	else {
-
-		$new_relation = (($ret['network'] === NETWORK_MAIL) ? CONTACT_IS_FRIEND : CONTACT_IS_SHARING);
-		if($ret['network'] === NETWORK_DIASPORA)
-			$new_relation = CONTACT_IS_FOLLOWER;
-
-		// create contact record 
-		$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `addr`, `alias`, `batch`, `notify`, `poll`, `name`, `nick`, `photo`, `network`, `pubkey`, `rel`, `priority`,
-			`writable`, `blocked`, `readonly`, `pending` )
-			VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, 0, 0, 0 ) ",
-			intval(local_user()),
-			dbesc(datetime_convert()),
-			dbesc($ret['url']),
-			dbesc($ret['addr']),
-			dbesc($ret['alias']),
-			dbesc($ret['batch']),
-			dbesc($ret['notify']),
-			dbesc($ret['poll']),
-			dbesc($ret['name']),
-			dbesc($ret['nick']),
-			dbesc($ret['photo']),
-			dbesc($ret['network']),
-			dbesc($ret['pubkey']),
-			intval($new_relation),
-			intval($ret['priority']),
-			intval($writeable)
-		);
-	}
-
-	$r = q("SELECT * FROM `contact` WHERE `url` = '%s' AND `uid` = %d LIMIT 1",
-		dbesc($ret['url']),
-		intval(local_user())
-	);
-
-	if(! count($r)) {
-		notice( t('Unable to retrieve contact information.') . EOL);
-		goaway($_SESSION['return_url']);
-		// NOTREACHED
-	}
-
-	$contact = $r[0];
-	$contact_id  = $r[0]['id'];
-
-	require_once("Photo.php");
-
-	$photos = import_profile_photo($ret['photo'],local_user(),$contact_id);
-
-	$r = q("UPDATE `contact` SET `photo` = '%s', 
-			`thumb` = '%s',
-			`micro` = '%s', 
-			`name-date` = '%s', 
-			`uri-date` = '%s', 
-			`avatar-date` = '%s'
-			WHERE `id` = %d LIMIT 1
-		",
-			dbesc($photos[0]),
-			dbesc($photos[1]),
-			dbesc($photos[2]),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			intval($contact_id)
-		);			
-
-
-	// pull feed and consume it, which should subscribe to the hub.
-
-	proc_run('php',"include/poller.php","$contact_id");
-
-	// create a follow slap
-
-	$tpl = get_markup_template('follow_slap.tpl');
-	$slap = replace_macros($tpl, array(
-		'$name' => $a->user['username'],
-		'$profile_page' => $a->get_baseurl() . '/profile/' . $a->user['nickname'],
-		'$photo' => $a->contact['photo'],
-		'$thumb' => $a->contact['thumb'],
-		'$published' => datetime_convert('UTC','UTC', 'now', ATOM_TIME),
-		'$item_id' => 'urn:X-dfrn:' . $a->get_hostname() . ':follow:' . random_string(),
-		'$title' => '',
-		'$type' => 'text',
-		'$content' => t('following'),
-		'$nick' => $a->user['nickname'],
-		'$verb' => ACTIVITY_FOLLOW,
-		'$ostat_follow' => ''
-	));
-
-	$r = q("SELECT `contact`.*, `user`.* FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid` 
-			WHERE `user`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
-			intval(local_user())
-	);
-
-	if(count($r)) {
-		if(($contact['network'] == NETWORK_OSTATUS) && (strlen($contact['notify']))) {
-			require_once('include/salmon.php');
-			slapper($r[0],$contact['notify'],$slap);
-		}
-		if($contact['network'] == NETWORK_DIASPORA) {
-			require_once('include/diaspora.php');
-			$ret = diaspora_share($a->user,$contact);
-			logger('mod_follow: diaspora_share returns: ' . $ret);
-		}
-	}
-
-	goaway($a->get_baseurl() . '/contacts/' . $contact_id);
-//	goaway($_SESSION['return_url']);
+	DI::baseUrl()->redirect($return_path);
 	// NOTREACHED
+}
+
+function follow_content(App $a)
+{
+	$return_path = 'contact';
+
+	if (!local_user()) {
+		notice(DI::l10n()->t('Permission denied.'));
+		DI::baseUrl()->redirect($return_path);
+		// NOTREACHED
+	}
+
+	$uid = local_user();
+
+	// Issue 4815: Silently removing a prefixing @
+	$url = ltrim(Strings::escapeTags(trim($_REQUEST['url'] ?? '')), '@!');
+
+	// Issue 6874: Allow remote following from Peertube
+	if (strpos($url, 'acct:') === 0) {
+		$url = str_replace('acct:', '', $url);
+	}
+
+	if (!$url) {
+		DI::baseUrl()->redirect($return_path);
+	}
+
+	$submit = DI::l10n()->t('Submit Request');
+
+	// Don't try to add a pending contact
+	$user_contact = DBA::selectFirst('contact', ['pending'], ["`uid` = ? AND ((`rel` != ?) OR (`network` = ?)) AND
+		(`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?", 
+		$uid, Contact::FOLLOWER, Protocol::DFRN, Strings::normaliseLink($url),
+		Strings::normaliseLink($url), $url, Protocol::STATUSNET]);
+
+	if (DBA::isResult($user_contact)) {
+		if ($user_contact['pending']) {
+			notice(DI::l10n()->t('You already added this contact.'));
+			$submit = '';
+		}
+	}
+
+	$contact = Contact::getByURL($url, 0, [], true);
+	if (empty($contact)) {
+		// Possibly it is a remote item and not an account
+		follow_remote_item($url);
+
+		notice(DI::l10n()->t("The network type couldn't be detected. Contact can't be added."));
+		$submit = '';
+		$contact = ['url' => $url, 'network' => Protocol::PHANTOM, 'name' => $url, 'keywords' => ''];
+	}
+
+	$protocol = Contact::getProtocol($contact['url'], $contact['network']);
+
+	if (($protocol == Protocol::DIASPORA) && !DI::config()->get('system', 'diaspora_enabled')) {
+		notice(DI::l10n()->t("Diaspora support isn't enabled. Contact can't be added."));
+		$submit = '';
+	}
+
+	if (($protocol == Protocol::OSTATUS) && DI::config()->get('system', 'ostatus_disabled')) {
+		notice(DI::l10n()->t("OStatus support is disabled. Contact can't be added."));
+		$submit = '';
+	}
+
+	if ($protocol == Protocol::MAIL) {
+		$contact['url'] = $contact['addr'];
+	}
+
+	if (($protocol === Protocol::DFRN) && !DBA::isResult($contact)) {
+		$request = $contact['request'];
+		$tpl = Renderer::getMarkupTemplate('dfrn_request.tpl');
+	} else {
+		$request = DI::baseUrl() . '/follow';
+		$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
+	}
+
+	$owner = User::getOwnerDataById($uid);
+	if (empty($owner)) {
+		notice(DI::l10n()->t('Permission denied.'));
+		DI::baseUrl()->redirect($return_path);
+		// NOTREACHED
+	}
+
+	$myaddr = $owner['url'];
+
+	// Makes the connection request for friendica contacts easier
+	$_SESSION['fastlane'] = $contact['url'];
+
+	$o = Renderer::replaceMacros($tpl, [
+		'$header'        => DI::l10n()->t('Connect/Follow'),
+		'$pls_answer'    => DI::l10n()->t('Please answer the following:'),
+		'$your_address'  => DI::l10n()->t('Your Identity Address:'),
+		'$url_label'     => DI::l10n()->t('Profile URL'),
+		'$keywords_label'=> DI::l10n()->t('Tags:'),
+		'$submit'        => $submit,
+		'$cancel'        => DI::l10n()->t('Cancel'),
+
+		'$request'       => $request,
+		'$name'          => $contact['name'],
+		'$url'           => $contact['url'],
+		'$zrl'           => Profile::zrl($contact['url']),
+		'$myaddr'        => $myaddr,
+		'$keywords'      => $contact['keywords'],
+
+		'$does_know_you' => ['knowyou', DI::l10n()->t('%s knows you', $contact['name'])],
+		'$addnote_field' => ['dfrn-request-message', DI::l10n()->t('Add a personal note:')],
+	]);
+
+	DI::page()['aside'] = '';
+
+	if ($protocol != Protocol::PHANTOM) {
+		Profile::load($a, '', $contact, false);
+
+		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'),
+			['$title' => DI::l10n()->t('Status Messages and Posts')]
+		);
+
+		// Show last public posts
+		$o .= Contact::getPostsFromUrl($contact['url']);
+	}
+
+	return $o;
+}
+
+function follow_remote_item($url)
+{
+	$item_id = Item::fetchByLink($url, local_user());
+	if (!$item_id) {
+		// If the user-specific search failed, we search and probe a public post
+		$item_id = Item::fetchByLink($url);
+	}
+
+	if (!empty($item_id)) {
+		$item = Item::selectFirst(['guid'], ['id' => $item_id]);
+		if (DBA::isResult($item)) {
+			DI::baseUrl()->redirect('display/' . $item['guid']);
+		}
+	}
 }

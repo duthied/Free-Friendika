@@ -1,64 +1,155 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
+use Friendica\App;
+use Friendica\Content\Widget;
+use Friendica\Core\Renderer;
+use Friendica\Core\Search;
+use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Model\Profile;
+use Friendica\Util\Network;
+use Friendica\Util\Proxy as ProxyUtils;
 
-function match_content(&$a) {
-
-	$o = '';
-	if(! local_user())
-		return;
-
-	$o .= '<h2>' . t('Profile Match') . '</h2>';
-
-	$r = q("SELECT `pub_keywords`, `prv_keywords` FROM `profile` WHERE `is-default` = 1 AND `uid` = %d LIMIT 1",
-		intval(local_user())
-	);
-	if(! count($r))
-		return; 
-	if(! $r[0]['pub_keywords'] && (! $r[0]['prv_keywords'])) {
-		notice( t('No keywords to match. Please add keywords to your default profile.') . EOL);
-		return;
-
+/**
+ * Controller for /match.
+ *
+ * It takes keywords from your profile and queries the directory server for
+ * matching keywords from other profiles.
+ *
+ * @param App $a App
+ *
+ * @return string
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+ * @throws Exception
+ */
+function match_content(App $a)
+{
+	if (!local_user()) {
+		return '';
 	}
 
-	$params = array();
-	$tags = trim($r[0]['pub_keywords'] . ' ' . $r[0]['prv_keywords']);
-	
-	if($tags) {
-		$params['s'] = $tags;
-		if($a->pager['page'] != 1)
-			$params['p'] = $a->pager['page'];
-			
-		if(strlen(get_config('system','directory_submit_url')))
-			$x = post_url('http://dir.friendika.com/msearch', $params);
-		else
-			$x = post_url($a->get_baseurl() . '/msearch', $params);
+	DI::page()['aside'] .= Widget::findPeople();
+	DI::page()['aside'] .= Widget::follow();
 
-		$j = json_decode($x);
+	$_SESSION['return_path'] = DI::args()->getCommand();
 
-		if($j->total) {
-			$a->set_pager_total($j->total);
-			$a->set_pager_itemspage($j->items_page);
-		}
+	$profile = Profile::getByUID(local_user());
 
-		if(count($j->results)) {
-			
-			$tpl = get_markup_template('match.tpl');
-			foreach($j->results as $jj) {
-				
-				$o .= replace_macros($tpl,array(
-					'$url' => $jj->url,
-					'$name' => $jj->name,
-					'$photo' => $jj->photo,
-					'$tags' => $jj->tags
-				));
+	if (!DBA::isResult($profile)) {
+		return '';
+	}
+	if (!$profile['pub_keywords'] && (!$profile['prv_keywords'])) {
+		notice(DI::l10n()->t('No keywords to match. Please add keywords to your profile.') . EOL);
+		return '';
+	}
+
+	$params = [];
+	$tags = trim($profile['pub_keywords'] . ' ' . $profile['prv_keywords']);
+
+	$params['s'] = $tags;
+	$params['n'] = 100;
+
+	if (strlen(DI::config()->get('system', 'directory'))) {
+		$host = Search::getGlobalDirectory();
+	} else {
+		$host = DI::baseUrl();
+	}
+
+	$msearch_json = Network::post($host . '/msearch', $params)->getBody();
+
+	$msearch = json_decode($msearch_json);
+
+	$start = $_GET['start'] ?? 0;
+	$entries = [];
+	$paginate = '';
+
+	if (!empty($msearch->results)) {
+		for ($i = $start;count($entries) < 10 && $i < $msearch->total; $i++) {
+			$profile = $msearch->results[$i];
+
+			// Already known contact
+			if (!$profile || Contact::getIdForURL($profile->url, local_user(), true)) {
+				continue;
 			}
-		}
-		else {
-			info( t('No matches') . EOL);
-		}		
 
+			// Workaround for wrong directory photo URL
+			$profile->photo = str_replace('http:///photo/', Search::getGlobalDirectory() . '/photo/', $profile->photo);
+
+			$connlnk = DI::baseUrl() . '/follow/?url=' . $profile->url;
+			$photo_menu = [
+				'profile' => [DI::l10n()->t("View Profile"), Contact::magicLink($profile->url)],
+				'follow' => [DI::l10n()->t("Connect/Follow"), $connlnk]
+			];
+
+			$contact_details = Contact::getDetailsByURL($profile->url, 0);
+
+			$entry = [
+				'url'          => Contact::magicLink($profile->url),
+				'itemurl'      => $contact_details['addr'] ?? $profile->url,
+				'name'         => $profile->name,
+				'details'      => $contact_details['location'] ?? '',
+				'tags'         => $contact_details['keywords'] ?? '',
+				'about'        => $contact_details['about'] ?? '',
+				'account_type' => Contact::getAccountType($contact_details),
+				'thumb'        => ProxyUtils::proxifyUrl($profile->photo, false, ProxyUtils::SIZE_THUMB),
+				'conntxt'      => DI::l10n()->t('Connect'),
+				'connlnk'      => $connlnk,
+				'img_hover'    => $profile->tags,
+				'photo_menu'   => $photo_menu,
+				'id'           => $i,
+			];
+			$entries[] = $entry;
+		}
+
+		$data = [
+			'class' => 'pager',
+			'first' => [
+				'url'   => 'match',
+				'text'  => DI::l10n()->t('first'),
+				'class' => 'previous' . ($start == 0 ? 'disabled' : '')
+			],
+			'next'  => [
+				'url'   => 'match?start=' . $i,
+				'text'  => DI::l10n()->t('next'),
+				'class' =>  'next' . ($i >= $msearch->total ? ' disabled' : '')
+			]
+		];
+
+		$tpl = Renderer::getMarkupTemplate('paginate.tpl');
+		$paginate = Renderer::replaceMacros($tpl, ['pager' => $data]);
 	}
 
-	$o .= paginate($a);
+	if (empty($entries)) {
+		info(DI::l10n()->t('No matches') . EOL);
+	}
+
+	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
+	$o = Renderer::replaceMacros($tpl, [
+		'$title'    => DI::l10n()->t('Profile Match'),
+		'$contacts' => $entries,
+		'$paginate' => $paginate
+	]);
+
 	return $o;
 }

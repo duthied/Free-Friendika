@@ -1,12 +1,81 @@
 favicon.*
-.htconfig.php
+/.htconfig.php
+/.htpreconfig.php
 \#*
-include/jquery-1.4.2.min.js
 *.log
 *.out
 *.version*
-favicon.*
 home.html
-addon
 *~
+robots.txt
 
+#ignore local config
+/config/local.config.php
+/config/addon.config.php
+/config/local.ini.php
+/config/addon.ini.php
+
+#ignore documentation, it should be newly built
+/doc/html
+
+#ignore reports, should be generated with every build
+report/
+
+#ignore config files from eclipse, we don't want IDE files in our repository
+.project
+.buildpath
+.externalToolBuilders
+.settings
+
+#ignore OSX .DS_Store files
+.DS_Store
+
+#ignore NetBeans IDE's private files (at least)
+/nbproject/private/
+
+Ignore config files from VSCode
+/.vscode/
+
+#ignore smarty cache
+/view/smarty3/compiled/
+
+#ignore cache folders
+/privacy_image_cache/
+/photo/
+/proxy/
+nbproject
+
+#ignore vagrant dir
+.vagrant/
+
+#ignore local folder
+/local/
+
+#ignore config files from Visual Studio
+/.vs/
+/php_friendica.phpproj
+/php_friendica.sln
+/php_friendica.phpproj.user
+
+#ignore things from transifex-client
+venv/
+
+#ignore Composer dependencies
+/vendor
+/view/asset
+
+#ignore config files from JetBrains
+/.idea
+
+#ignore addons directory
+/addons
+/addon
+
+#ignore .htaccess
+.htaccess
+
+#ignore filesystem storage default path
+/storage
+
+#Ignore log folder
+/log

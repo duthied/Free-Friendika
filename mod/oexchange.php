@@ -1,60 +1,76 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
+use Friendica\App;
+use Friendica\Core\Renderer;
+use Friendica\DI;
+use Friendica\Module\Security\Login;
+use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
-function oexchange_init(&$a) {
+function oexchange_init(App $a) {
 
-	if(($a->argc > 1) && ($a->argv[1] === 'xrd')) {
-		$tpl = get_markup_template('oexchange_xrd.tpl');
+	if (($a->argc > 1) && ($a->argv[1] === 'xrd')) {
+		$tpl = Renderer::getMarkupTemplate('oexchange_xrd.tpl');
 
-		$o = replace_macros($tpl, array('$base' => $a->get_baseurl()));
+		$o = Renderer::replaceMacros($tpl, ['$base' => DI::baseUrl()]);
 		echo $o;
-		killme();
+		exit();
 	}
-
-		
-
-
 }
 
-function oexchange_content(&$a) {
+function oexchange_content(App $a) {
 
-	if(! local_user()) {
-		$o = login(false);
+	if (!local_user()) {
+		$o = Login::form();
 		return $o;
 	}
 
-	if(($a->argc > 1) && $a->argv[1] === 'done') {
-		info( t('Post successful.') . EOL);
+	if (($a->argc > 1) && $a->argv[1] === 'done') {
+		info(DI::l10n()->t('Post successful.') . EOL);
 		return;
 	}
 
-	$url = (((x($_GET,'url')) && strlen($_GET['url'])) 
-		? urlencode(notags(trim($_GET['url']))) : '');
-	$title = (((x($_GET,'title')) && strlen($_GET['title'])) 
-		? '&title=' . urlencode(notags(trim($_GET['title']))) : '');
-	$description = (((x($_GET,'description')) && strlen($_GET['description'])) 
-		? '&description=' . urlencode(notags(trim($_GET['description']))) : '');
-	$tags = (((x($_GET,'tags')) && strlen($_GET['tags'])) 
-		? '&tags=' . urlencode(notags(trim($_GET['tags']))) : '');
+	$url = ((!empty($_REQUEST['url']))
+		? urlencode(Strings::escapeTags(trim($_REQUEST['url']))) : '');
+	$title = ((!empty($_REQUEST['title']))
+		? '&title=' . urlencode(Strings::escapeTags(trim($_REQUEST['title']))) : '');
+	$description = ((!empty($_REQUEST['description']))
+		? '&description=' . urlencode(Strings::escapeTags(trim($_REQUEST['description']))) : '');
+	$tags = ((!empty($_REQUEST['tags']))
+		? '&tags=' . urlencode(Strings::escapeTags(trim($_REQUEST['tags']))) : '');
 
-	$s = fetch_url($a->get_baseurl() . '/parse_url?f=&url=' . $url . $title . $description . $tags);
+	$s = Network::fetchUrl(DI::baseUrl() . '/parse_url?url=' . $url . $title . $description . $tags);
 
-	if(! strlen($s))
+	if (!strlen($s)) {
 		return;
+	}
 
-	require_once('include/html2bbcode.php');
-
-	$post = array();
+	$post = [];
 
 	$post['profile_uid'] = local_user();
-	$post['return'] = '/oexchange/done' ;
-	$post['body'] = html2bbcode($s);
-	$post['type'] = 'wall';
+	$post['return'] = '/oexchange/done';
+	$post['body'] = Friendica\Content\Text\HTML::toBBCode($s);
 
-	$_POST = $post;
+	$_REQUEST = $post;
 	require_once('mod/item.php');
 	item_post($a);
-
 }
-
-

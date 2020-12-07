@@ -4,6 +4,7 @@
 // Attribution: http://www.krisbailey.com
 // license: unknown
 // modified: Mike Macgrivin mike@macgirvin.com 6-oct-2010 to support Salmon auto-discovery
+// modified: Tobias Diekershoff 28-jul-2016 adding an intval in line 162 to make PHP7 happy
 // from openssl public keys
 
 
@@ -155,11 +156,11 @@ class ASN_BASE {
 				if (($length & ASN_LONG_LEN)==ASN_LONG_LEN){
 					$tempLength = 0;
 					for ($x=0; $x<($length & (ASN_LONG_LEN-1)); $x++){
-						$tempLength = ord($string[$p++]) + ($tempLength * 256);
+						$tempLength = @ord($string[$p++]) + ($tempLength * 256);
 					}
 					$length = $tempLength;
 				}
-				$data = substr($string, $p, $length);
+				$data = substr($string, $p, intval($length));
 				$parsed[] = self::parseASNData($type, $data, $level, $maxLevels);
 				$p = $p + $length;
 			}

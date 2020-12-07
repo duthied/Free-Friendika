@@ -1,123 +1,155 @@
 <?php
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
-require_once('acl_selectors.php');
+use Friendica\App;
+use Friendica\Content\Feature;
+use Friendica\Core\Hook;
+use Friendica\Core\Renderer;
+use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Model\FileTag;
+use Friendica\Model\Item;
+use Friendica\Util\Crypto;
 
-function editpost_content(&$a) {
-
+function editpost_content(App $a)
+{
 	$o = '';
 
-	if(! local_user()) {
-		notice( t('Permission denied.') . EOL);
+	if (!local_user()) {
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
-	if(! $post_id) {
-		notice( t('Item not found') . EOL);
+	if (!$post_id) {
+		notice(DI::l10n()->t('Item not found') . EOL);
 		return;
 	}
 
-	$itm = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($post_id),
-		intval(local_user())
-	);
+	$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
+		'type', 'body', 'title', 'file', 'wall', 'post-type', 'guid'];
 
-	if(! count($itm)) {
-		notice( t('Item not found') . EOL);
+	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
+
+	if (!DBA::isResult($item)) {
+		notice(DI::l10n()->t('Item not found') . EOL);
 		return;
 	}
 
+	$geotag = '';
 
-	$o .= '<h2>' . t('Edit post') . '</h2>';
+	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate("section_title.tpl"), [
+		'$title' => DI::l10n()->t('Edit post')
+	]);
 
-	$tpl = get_markup_template('jot-header.tpl');
-	
-	$a->page['htmlhead'] .= replace_macros($tpl, array(
-		'$baseurl' => $a->get_baseurl(),
-		'$ispublic' => '&nbsp;', // t('Visible to <strong>everybody</strong>'),
+	$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
+	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
+		'$ispublic' => '&nbsp;', // DI::l10n()->t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $a->user['nickname']
-	));
+	]);
 
-
-	$tpl = get_markup_template("jot.tpl");
-		
-	if(($group) || (is_array($a->user) && ((strlen($a->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($a->user['deny_cid'])) || (strlen($a->user['deny_gid'])))))
+	if (strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid'])) {
 		$lockstate = 'lock';
-	else
+	} else {
 		$lockstate = 'unlock';
-
-	$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
+	}
 
 	$jotplugins = '';
 	$jotnets = '';
 
-	$mail_disabled = ((function_exists('imap_open') && (! get_config('system','imap_disabled'))) ? 0 : 1);
+	Hook::callAll('jot_tool', $jotplugins);
 
-	$mail_enabled = false;
-	$pubmail_enabled = false;
-
-	if(! $mail_disabled) {
-		$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d AND `server` != '' LIMIT 1",
-			intval(local_user())
-		);
-		if(count($r)) {
-			$mail_enabled = true;
-			if(intval($r[0]['pubmail']))
-				$pubmail_enabled = true;
-		}
-	}
-
-	if($mail_enabled) {
-       $selected = (($pubmail_enabled) ? ' checked="checked" ' : '');
-		$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> '
-          	. t("Post to Email") . '</div>';
-	}
-					
-
-
-	call_hooks('jot_tool', $jotplugins);
-	call_hooks('jot_networks', $jotnets);
-
-	
-	//$tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));	
-	
-
-	$o .= replace_macros($tpl,array(
-		'$return_path' => $_SESSION['return_url'],
+	$tpl = Renderer::getMarkupTemplate("jot.tpl");
+	$o .= Renderer::replaceMacros($tpl, [
+		'$is_edit' => true,
+		'$return_path' => '/display/' . $item['guid'],
 		'$action' => 'item',
-		'$share' => t('Edit'),
-		'$upload' => t('Upload photo'),
-		'$attach' => t('Attach file'),
-		'$weblink' => t('Insert web link'),
-		'$youtube' => t('Insert YouTube video'),
-		'$video' => t('Insert Vorbis [.ogg] video'),
-		'$audio' => t('Insert Vorbis [.ogg] audio'),
-		'$setloc' => t('Set your location'),
-		'$noloc' => t('Clear browser location'),
-		'$wait' => t('Please wait'),
-		'$permset' => t('Permission settings'),
-		'$ptyp' => $itm[0]['type'],
-		'$content' => $itm[0]['body'],
+		'$share' => DI::l10n()->t('Save'),
+		'$loading' => DI::l10n()->t('Loading...'),
+		'$upload' => DI::l10n()->t('Upload photo'),
+		'$shortupload' => DI::l10n()->t('upload photo'),
+		'$attach' => DI::l10n()->t('Attach file'),
+		'$shortattach' => DI::l10n()->t('attach file'),
+		'$weblink' => DI::l10n()->t('Insert web link'),
+		'$shortweblink' => DI::l10n()->t('web link'),
+		'$video' => DI::l10n()->t('Insert video link'),
+		'$shortvideo' => DI::l10n()->t('video link'),
+		'$audio' => DI::l10n()->t('Insert audio link'),
+		'$shortaudio' => DI::l10n()->t('audio link'),
+		'$setloc' => DI::l10n()->t('Set your location'),
+		'$shortsetloc' => DI::l10n()->t('set location'),
+		'$noloc' => DI::l10n()->t('Clear browser location'),
+		'$shortnoloc' => DI::l10n()->t('clear location'),
+		'$wait' => DI::l10n()->t('Please wait'),
+		'$permset' => DI::l10n()->t('Permission settings'),
+		'$wall' => $item['wall'],
+		'$posttype' => $item['post-type'],
+		'$content' => undo_post_tagging($item['body']),
 		'$post_id' => $post_id,
-		'$baseurl' => $a->get_baseurl(),
 		'$defloc' => $a->user['default-location'],
 		'$visitor' => 'none',
 		'$pvisit' => 'none',
-		'$emailcc' => t('CC: email addresses'),
-		'$public' => t('Public post'),
+		'$emailcc' => DI::l10n()->t('CC: email addresses'),
+		'$public' => DI::l10n()->t('Public post'),
 		'$jotnets' => $jotnets,
-		'$emtitle' => t('Example: bob@example.com, mary@example.com'),
+		'$title' => $item['title'],
+		'$placeholdertitle' => DI::l10n()->t('Set title'),
+		'$category' => FileTag::fileToList($item['file'], 'category'),
+		'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : ''),
+		'$emtitle' => DI::l10n()->t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,
-		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user), $celeb),
-		'$bang' => (($group) ? '!' : ''),
+		'$acl' => '', // populate_acl((($group) ? $group_acl : $a->user)),
+		'$bang' => ($lockstate === 'lock' ? '!' : ''),
 		'$profile_uid' => $_SESSION['uid'],
+		'$preview' => DI::l10n()->t('Preview'),
 		'$jotplugins' => $jotplugins,
-	));
+		'$sourceapp' => DI::l10n()->t($a->sourcename),
+		'$cancel' => DI::l10n()->t('Cancel'),
+		'$rand_num' => Crypto::randomDigits(12),
+
+		//jot nav tab (used in some themes)
+		'$message' => DI::l10n()->t('Message'),
+		'$browser' => DI::l10n()->t('Browser'),
+		'$shortpermset' => DI::l10n()->t('permissions'),
+
+		'$compose_link_title' => DI::l10n()->t('Open Compose page'),
+	]);
 
 	return $o;
-
 }
 
-
+function undo_post_tagging($s) {
+	$matches = null;
+	$cnt = preg_match_all('/([!#@])\[url=(.*?)\](.*?)\[\/url\]/ism', $s, $matches, PREG_SET_ORDER);
+	if ($cnt) {
+		foreach ($matches as $mtch) {
+			if (in_array($mtch[1], ['!', '@'])) {
+				$contact = Contact::getDetailsByURL($mtch[2]);
+				$mtch[3] = empty($contact['addr']) ? $mtch[2] : $contact['addr'];
+			}
+			$s = str_replace($mtch[0], $mtch[1] . $mtch[3],$s);
+		}
+	}
+	return $s;
+}

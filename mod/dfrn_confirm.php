@@ -1,117 +1,144 @@
 <?php
-
-/*
- * Module: dfrn_confirm
- * Purpose: Friendship acceptance for DFRN contacts
+/**
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Friendship acceptance for DFRN contacts
  *
  * There are two possible entry points and three scenarios.
  *
  *   1. A form was submitted by our user approving a friendship that originated elsewhere.
  *      This may also be called from dfrn_request to automatically approve a friendship.
  *
- *   2. We may be the target or other side of the conversation to scenario 1, and will 
+ *   2. We may be the target or other side of the conversation to scenario 1, and will
  *      interact with that process on our own user's behalf.
- *   
+ *
+ *  @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/stable/spec/dfrn2.pdf
+ *    You also find a graphic which describes the confirmation process at
+ *    https://github.com/friendica/friendica/blob/stable/spec/dfrn2_contact_confirmation.png
  */
 
-function dfrn_confirm_post(&$a,$handsfree = null) {
+use Friendica\App;
+use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
+use Friendica\Core\System;
+use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Model\Group;
+use Friendica\Model\Notify\Type;
+use Friendica\Model\User;
+use Friendica\Protocol\Activity;
+use Friendica\Util\Crypto;
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Network;
+use Friendica\Util\Strings;
+use Friendica\Util\XML;
 
-	if(is_array($handsfree)) {
-
-		/**
+function dfrn_confirm_post(App $a, $handsfree = null)
+{
+	$node = null;
+	if (is_array($handsfree)) {
+		/*
 		 * We were called directly from dfrn_request due to automatic friend acceptance.
 		 * Any $_POST parameters we may require are supplied in the $handsfree array.
 		 *
 		 */
-
 		$node = $handsfree['node'];
 		$a->interactive = false; // notice() becomes a no-op since nobody is there to see it
-
-	}
-	else {
-		if($a->argc > 1)
-			$node = $a->argv[1];
+	} elseif ($a->argc > 1) {
+		$node = $a->argv[1];
 	}
 
-		/**
-		 *
-		 * Main entry point. Scenario 1. Our user received a friend request notification (perhaps 
-		 * from another site) and clicked 'Approve'. 
-		 * $POST['source_url'] is not set. If it is, it indicates Scenario 2.
-		 *
-		 * We may also have been called directly from dfrn_request ($handsfree != null) due to 
-		 * this being a page type which supports automatic friend acceptance. That is also Scenario 1
-		 * since we are operating on behalf of our registered user to approve a friendship.
-		 *
-		 */
-
-	if(! x($_POST,'source_url')) {
-
-		$uid = ((is_array($handsfree)) ? $handsfree['uid'] : local_user());
-
-		if(! $uid) {
-			notice( t('Permission denied.') . EOL );
+	/*
+	 * Main entry point. Scenario 1. Our user received a friend request notification (perhaps
+	 * from another site) and clicked 'Approve'.
+	 * $POST['source_url'] is not set. If it is, it indicates Scenario 2.
+	 *
+	 * We may also have been called directly from dfrn_request ($handsfree != null) due to
+	 * this being a page type which supports automatic friend acceptance. That is also Scenario 1
+	 * since we are operating on behalf of our registered user to approve a friendship.
+	 */
+	if (empty($_POST['source_url'])) {
+		$uid = ($handsfree['uid'] ?? 0) ?: local_user();
+		if (!$uid) {
+			notice(DI::l10n()->t('Permission denied.') . EOL);
 			return;
-		}	
+		}
 
-		$user = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-			intval($uid)
-		);
-
-		if(! $user) {
-			notice( t('Profile not found.') . EOL );
+		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
+		if (!DBA::isResult($user)) {
+			notice(DI::l10n()->t('Profile not found.') . EOL);
 			return;
-		}	
-
+		}
 
 		// These data elements may come from either the friend request notification form or $handsfree array.
-
-		if(is_array($handsfree)) {
-			logger('dfrn_confirm: Confirm in handsfree mode');
-			$dfrn_id   = $handsfree['dfrn_id'];
-			$intro_id  = $handsfree['intro_id'];
-			$duplex    = $handsfree['duplex'];
+		if (is_array($handsfree)) {
+			Logger::log('Confirm in handsfree mode');
+			$dfrn_id  = $handsfree['dfrn_id'];
+			$intro_id = $handsfree['intro_id'];
+			$duplex   = $handsfree['duplex'];
+			$cid      = 0;
+			$hidden   = intval($handsfree['hidden'] ?? 0);
+		} else {
+			$dfrn_id  = Strings::escapeTags(trim($_POST['dfrn_id'] ?? ''));
+			$intro_id = intval($_POST['intro_id']   ?? 0);
+			$duplex   = intval($_POST['duplex']     ?? 0);
+			$cid      = intval($_POST['contact_id'] ?? 0);
+			$hidden   = intval($_POST['hidden']     ?? 0);
 		}
-		else {
-			$dfrn_id  = ((x($_POST,'dfrn_id'))    ? notags(trim($_POST['dfrn_id'])) : "");
-			$intro_id = ((x($_POST,'intro_id'))   ? intval($_POST['intro_id'])      : 0 );
-			$duplex   = ((x($_POST,'duplex'))     ? intval($_POST['duplex'])        : 0 );
-			$cid      = ((x($_POST,'contact_id')) ? intval($_POST['contact_id'])    : 0 );
-		}
 
-		/**
-		 *
+		/*
 		 * Ensure that dfrn_id has precedence when we go to find the contact record.
-		 * We only want to search based on contact id if there is no dfrn_id, 
+		 * We only want to search based on contact id if there is no dfrn_id,
 		 * e.g. for OStatus network followers.
-		 *
 		 */
-
-		if(strlen($dfrn_id))
+		if (strlen($dfrn_id)) {
 			$cid = 0;
+		}
 
-		logger('dfrn_confirm: Confirming request for dfrn_id (issued) ' . $dfrn_id);
-		if($cid)
-			logger('dfrn_confirm: Confirming follower with contact_id: ' . $cid);
+		Logger::log('Confirming request for dfrn_id (issued) ' . $dfrn_id);
+		if ($cid) {
+			Logger::log('Confirming follower with contact_id: ' . $cid);
+		}
 
-
-		/**
-		 *
+		/*
 		 * The other person will have been issued an ID when they first requested friendship.
-		 * Locate their record. At this time, their record will have both pending and blocked set to 1. 
+		 * Locate their record. At this time, their record will have both pending and blocked set to 1.
 		 * There won't be any dfrn_id if this is a network follower, so use the contact_id instead.
-		 *
 		 */
-
-		$r = q("SELECT * FROM `contact` WHERE ( ( `issued-id` != '' AND `issued-id` = '%s' ) OR ( `id` = %d AND `id` != 0 ) ) AND `uid` = %d LIMIT 1",
-			dbesc($dfrn_id),
+		$r = q("SELECT *
+			FROM `contact`
+			WHERE (
+				(`issued-id` != '' AND `issued-id` = '%s')
+				OR
+				(`id` = %d AND `id` != 0)
+			)
+			AND `uid` = %d
+			AND `duplex` = 0
+			LIMIT 1",
+			DBA::escape($dfrn_id),
 			intval($cid),
 			intval($uid)
 		);
-
-		if(! count($r)) {
-			logger('dfrn_confirm: Contact not found in DB.'); 
-			notice( t('Contact not found.') . EOL );
+		if (!DBA::isResult($r)) {
+			Logger::log('Contact not found in DB.');
+			notice(DI::l10n()->t('Contact not found.') . EOL);
+			notice(DI::l10n()->t('This may occasionally happen if contact was requested by both persons and it has already been approved.') . EOL);
 			return;
 		}
 
@@ -122,601 +149,422 @@ function dfrn_confirm_post(&$a,$handsfree = null) {
 		$site_pubkey  = $contact['site-pubkey'];
 		$dfrn_confirm = $contact['confirm'];
 		$aes_allow    = $contact['aes_allow'];
+		$protocol     = $contact['network'];
 
-		$network = ((strlen($contact['issued-id'])) ? NETWORK_DFRN : NETWORK_OSTATUS);
+		/*
+		 * Generate a key pair for all further communications with this person.
+		 * We have a keypair for every contact, and a site key for unknown people.
+		 * This provides a means to carry on relationships with other people if
+		 * any single key is compromised. It is a robust key. We're much more
+		 * worried about key leakage than anybody cracking it.
+		 */
+		$res = Crypto::newKeypair(4096);
 
-		if($contact['network'])
-			$network = $contact['network'];
+		$private_key = $res['prvkey'];
+		$public_key  = $res['pubkey'];
 
-		if($network === NETWORK_DFRN) {
+		// Save the private key. Send them the public key.
+		$fields = ['prvkey' => $private_key, 'protocol' => Protocol::DFRN];
+		DBA::update('contact', $fields, ['id' => $contact_id]);
 
-			/**
-			 *
-			 * Generate a key pair for all further communications with this person.
-			 * We have a keypair for every contact, and a site key for unknown people.
-			 * This provides a means to carry on relationships with other people if 
-			 * any single key is compromised. It is a robust key. We're much more 
-			 * worried about key leakage than anybody cracking it.  
-			 *
-			 */
+		$params = [];
 
-			$res = openssl_pkey_new(array(
-				'digest_alg' => 'sha1',
-				'private_key_bits' => 4096,
-				'encrypt_key' => false )
-			);
+		/*
+		 * Per the DFRN protocol, we will verify both ends by encrypting the dfrn_id with our
+		 * site private key (person on the other end can decrypt it with our site public key).
+		 * Then encrypt our profile URL with the other person's site public key. They can decrypt
+		 * it with their site private key. If the decryption on the other end fails for either
+		 * item, it indicates tampering or key failure on at least one site and we will not be
+		 * able to provide a secure communication pathway.
+		 *
+		 * If other site is willing to accept full encryption, (aes_allow is 1 AND we have php5.3
+		 * or later) then we encrypt the personal public key we send them using AES-256-CBC and a
+		 * random key which is encrypted with their site public key.
+		 */
 
-			$private_key = '';
+		$src_aes_key = openssl_random_pseudo_bytes(64);
 
-			openssl_pkey_export($res, $private_key);
+		$result = '';
+		openssl_private_encrypt($dfrn_id, $result, $user['prvkey']);
 
-			$pubkey = openssl_pkey_get_details($res);
-			$public_key = $pubkey["key"];
+		$params['dfrn_id'] = bin2hex($result);
+		$params['public_key'] = $public_key;
 
-			// Save the private key. Send them the public key.
+		$my_url = DI::baseUrl() . '/profile/' . $user['nickname'];
 
-			$r = q("UPDATE `contact` SET `prvkey` = '%s' WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				dbesc($private_key),
-				intval($contact_id),
-				intval($uid) 
-			);
+		openssl_public_encrypt($my_url, $params['source_url'], $site_pubkey);
+		$params['source_url'] = bin2hex($params['source_url']);
 
-			$params = array();
-
-			/**
-			 *
-			 * Per the DFRN protocol, we will verify both ends by encrypting the dfrn_id with our 
-			 * site private key (person on the other end can decrypt it with our site public key).
-			 * Then encrypt our profile URL with the other person's site public key. They can decrypt
-			 * it with their site private key. If the decryption on the other end fails for either
-			 * item, it indicates tampering or key failure on at least one site and we will not be 
-			 * able to provide a secure communication pathway.
-			 *
-			 * If other site is willing to accept full encryption, (aes_allow is 1 AND we have php5.3 
-			 * or later) then we encrypt the personal public key we send them using AES-256-CBC and a 
-			 * random key which is encrypted with their site public key.  
-			 *
-			 */
-
-			$src_aes_key = random_string();
-
-			$result = '';
-			openssl_private_encrypt($dfrn_id,$result,$user[0]['prvkey']);
-
-			$params['dfrn_id'] = bin2hex($result);
-			$params['public_key'] = $public_key;
-
-
-			$my_url = $a->get_baseurl() . '/profile/' . $user[0]['nickname'];
-
-			openssl_public_encrypt($my_url, $params['source_url'], $site_pubkey);
-			$params['source_url'] = bin2hex($params['source_url']);
-
-			if($aes_allow && function_exists('openssl_encrypt')) {
-				openssl_public_encrypt($src_aes_key, $params['aes_key'], $site_pubkey);
-				$params['aes_key'] = bin2hex($params['aes_key']);
-				$params['public_key'] = bin2hex(openssl_encrypt($public_key,'AES-256-CBC',$src_aes_key));
-			}
-
-			$params['dfrn_version'] = DFRN_PROTOCOL_VERSION ;
-			if($duplex == 1)
-				$params['duplex'] = 1;
-
-			logger('dfrn_confirm: Confirm: posting data to ' . $dfrn_confirm . ': ' . print_r($params,true), LOGGER_DATA);
-
-			/**
-			 *
-			 * POST all this stuff to the other site.
-			 * Temporarily raise the network timeout to 120 seconds because the default 60
-			 * doesn't always give the other side quite enough time to decrypt everything.
-			 *
-			 */
-
-			$a->config['system']['curl_timeout'] = 120;
-
-			$res = post_url($dfrn_confirm,$params);
-
-			logger('dfrn_confirm: Confirm: received data: ' . $res, LOGGER_DATA);
-
-			// Now figure out what they responded. Try to be robust if the remote site is 
-			// having difficulty and throwing up errors of some kind. 
-
-			$leading_junk = substr($res,0,strpos($res,'<?xml'));
-
-			$res = substr($res,strpos($res,'<?xml'));
-			if(! strlen($res)) {
-
-					// No XML at all, this exchange is messed up really bad.
-					// We shouldn't proceed, because the xml parser might choke,
-					// and $status is going to be zero, which indicates success.
-					// We can hardly call this a success.  
-	
-				notice( t('Response from remote site was not understood.') . EOL);
-				return;
-			}
-
-			if(strlen($leading_junk) && get_config('system','debugging')) {
-	
-					// This might be more common. Mixed error text and some XML.
-					// If we're configured for debugging, show the text. Proceed in either case.
-
-				notice( t('Unexpected response from remote site: ') . EOL . $leading_junk . EOL );
-			}
-
-			$xml = parse_xml_string($res);
-			$status = (int) $xml->status;
-			$message = unxmlify($xml->message);   // human readable text of what may have gone wrong.
-			switch($status) {
-				case 0:
-					notice( t("Confirmation completed successfully.") . EOL);
-					if(strlen($message))
-						notice( t('Remote site reported: ') . $message . EOL);
-					break;
-				case 1:
-					// birthday paradox - generate new dfrn-id and fall through.
-					$new_dfrn_id = random_string();
-					$r = q("UPDATE contact SET `issued-id` = '%s' WHERE `id` = %d AND `uid` = %d LIMIT 1",
-						dbesc($new_dfrn_id),
-						intval($contact_id),
-						intval($uid) 
-					);
-
-				case 2:
-					notice( t("Temporary failure. Please wait and try again.") . EOL);
-					if(strlen($message))
-						notice( t('Remote site reported: ') . $message . EOL);
-					break;
-
-
-				case 3:
-					notice( t("Introduction failed or was revoked.") . EOL);
-					if(strlen($message))
-						notice( t('Remote site reported: ') . $message . EOL);
-					break;
-				}
-
-			if(($status == 0) && ($intro_id)) {
-	
-				// Success. Delete the notification.
-	
-				$r = q("DELETE FROM `intro` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-					intval($intro_id),
-					intval($uid)
-				);
-				
-			}
-
-			if($status != 0) 
-				return;
+		if ($aes_allow && function_exists('openssl_encrypt')) {
+			openssl_public_encrypt($src_aes_key, $params['aes_key'], $site_pubkey);
+			$params['aes_key'] = bin2hex($params['aes_key']);
+			$params['public_key'] = bin2hex(openssl_encrypt($public_key, 'AES-256-CBC', $src_aes_key));
 		}
 
+		$params['dfrn_version'] = DFRN_PROTOCOL_VERSION;
+		if ($duplex == 1) {
+			$params['duplex'] = 1;
+		}
+
+		if ($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
+			$params['page'] = 1;
+		}
+
+		if ($user['page-flags'] == User::PAGE_FLAGS_PRVGROUP) {
+			$params['page'] = 2;
+		}
+
+		Logger::debug('Confirm: posting data', ['confirm'  => $dfrn_confirm, 'parameter' => $params]);
 
 		/*
 		 *
+		 * POST all this stuff to the other site.
+		 * Temporarily raise the network timeout to 120 seconds because the default 60
+		 * doesn't always give the other side quite enough time to decrypt everything.
+		 *
+		 */
+
+		$res = Network::post($dfrn_confirm, $params, [], 120)->getBody();
+
+		Logger::log(' Confirm: received data: ' . $res, Logger::DATA);
+
+		// Now figure out what they responded. Try to be robust if the remote site is
+		// having difficulty and throwing up errors of some kind.
+
+		$leading_junk = substr($res, 0, strpos($res, '<?xml'));
+
+		$res = substr($res, strpos($res, '<?xml'));
+		if (!strlen($res)) {
+			// No XML at all, this exchange is messed up really bad.
+			// We shouldn't proceed, because the xml parser might choke,
+			// and $status is going to be zero, which indicates success.
+			// We can hardly call this a success.
+			notice(DI::l10n()->t('Response from remote site was not understood.') . EOL);
+			return;
+		}
+
+		if (strlen($leading_junk) && DI::config()->get('system', 'debugging')) {
+			// This might be more common. Mixed error text and some XML.
+			// If we're configured for debugging, show the text. Proceed in either case.
+			notice(DI::l10n()->t('Unexpected response from remote site: ') . EOL . $leading_junk . EOL);
+		}
+
+		if (stristr($res, "<status") === false) {
+			// wrong xml! stop here!
+			Logger::log('Unexpected response posting to ' . $dfrn_confirm);
+			notice(DI::l10n()->t('Unexpected response from remote site: ') . EOL . htmlspecialchars($res) . EOL);
+			return;
+		}
+
+		$xml = XML::parseString($res);
+		$status = (int) $xml->status;
+		$message = XML::unescape($xml->message);   // human readable text of what may have gone wrong.
+		switch ($status) {
+			case 0:
+				info(DI::l10n()->t("Confirmation completed successfully.") . EOL);
+				break;
+			case 1:
+				// birthday paradox - generate new dfrn-id and fall through.
+				$new_dfrn_id = Strings::getRandomHex();
+				q("UPDATE contact SET `issued-id` = '%s' WHERE `id` = %d AND `uid` = %d",
+					DBA::escape($new_dfrn_id),
+					intval($contact_id),
+					intval($uid)
+				);
+
+			case 2:
+				notice(DI::l10n()->t("Temporary failure. Please wait and try again.") . EOL);
+				break;
+			case 3:
+				notice(DI::l10n()->t("Introduction failed or was revoked.") . EOL);
+				break;
+		}
+
+		if (strlen($message)) {
+			notice(DI::l10n()->t('Remote site reported: ') . $message . EOL);
+		}
+
+		if (($status == 0) && $intro_id) {
+			$intro = DBA::selectFirst('intro', ['note'], ['id' => $intro_id]);
+			if (DBA::isResult($intro)) {
+				DBA::update('contact', ['reason' => $intro['note']], ['id' => $contact_id]);
+			}
+
+			// Success. Delete the notification.
+			DBA::delete('intro', ['id' => $intro_id]);
+		}
+
+		if ($status != 0) {
+			return;
+		}
+
+		/*
 		 * We have now established a relationship with the other site.
 		 * Let's make our own personal copy of their profile photo so we don't have
 		 * to always load it from their site.
 		 *
 		 * We will also update the contact record with the nature and scope of the relationship.
-		 *
 		 */
+		Contact::updateAvatar($contact['photo'], $uid, $contact_id);
 
-		require_once('include/Photo.php');
+		Logger::log('dfrn_confirm: confirm - imported photos');
 
-		$photos = import_profile_photo($contact['photo'],$uid,$contact_id);
-		
-		logger('dfrn_confirm: confirm - imported photos');
+		$new_relation = Contact::FOLLOWER;
 
-		if($network === NETWORK_DFRN) {
-
-			$new_relation = CONTACT_IS_FOLLOWER;
-			if(($relation == CONTACT_IS_SHARING) || ($duplex))
-				$new_relation = CONTACT_IS_FRIEND;
-
-			if(($relation == CONTACT_IS_SHARING) && ($duplex))
-				$duplex = 0;
-
-			$r = q("UPDATE `contact` SET `photo` = '%s', 
-				`thumb` = '%s',
-				`micro` = '%s', 
-				`rel` = %d, 
-				`name-date` = '%s', 
-				`uri-date` = '%s', 
-				`avatar-date` = '%s', 
-				`blocked` = 0, 
-				`pending` = 0,
-				`duplex` = %d,
-				`network` = 'dfrn' WHERE `id` = %d LIMIT 1
-			",
-				dbesc($photos[0]),
-				dbesc($photos[1]),
-				dbesc($photos[2]),
-				intval($new_relation),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				intval($duplex),
-				intval($contact_id)
-			);
-		}
-		else {  
-
-			// $network !== NETWORK_DFRN
-
-			$network = (($contact['network']) ? $contact['network'] : NETWORK_OSTATUS);
-			$notify = (($contact['notify']) ? $contact['notify'] : '');
-			$poll   = (($contact['poll']) ? $contact['poll'] : '');
-
-			if((! $contact['notify']) || (! $contact['poll'])) {
-				$arr = lrdd($contact['url']);
-				if(count($arr)) {
-					foreach($arr as $link) {
-						if($link['@attributes']['rel'] === 'salmon')
-							$notify = $link['@attributes']['href'];
-						if($link['@attributes']['rel'] === NAMESPACE_FEED)
-							$poll = $link['@attributes']['href'];
-					}
-				}
-			}
-
-			$new_relation = $contact['rel'];
-			$writable = $contact['writable'];
-
-			if($network === NETWORK_DIASPORA) {
-				if($duplex)
-					$new_relation = CONTACT_IS_FRIEND;
-				if($new_relation != CONTACT_IS_FOLLOWER)
-					$writable = 1;
-			}
-
-			$r = q("DELETE FROM `intro` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval($intro_id),
-				intval($uid)
-			);
-
-
-			$r = q("UPDATE `contact` SET `photo` = '%s', 
-				`thumb` = '%s',
-				`micro` = '%s', 
-				`name-date` = '%s', 
-				`uri-date` = '%s', 
-				`avatar-date` = '%s', 
-				`notify` = '%s',
-				`poll` = '%s',
-				`blocked` = 0, 
-				`pending` = 0,
-				`network` = '%s',
-				`writable` = %d,
-				`rel` = %d
-				WHERE `id` = %d LIMIT 1
-			",
-				dbesc($photos[0]),
-				dbesc($photos[1]),
-				dbesc($photos[2]),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				dbesc($notify),
-				dbesc($poll),
-				dbesc($network),
-				intval($writable),
-				intval($new_relation),
-				intval($contact_id)
-			);			
+		if (($relation == Contact::SHARING) || ($duplex)) {
+			$new_relation = Contact::FRIEND;
 		}
 
-		if($r === false)
-				notice( t('Unable to set contact photo.') . EOL);
+		if (($relation == Contact::SHARING) && ($duplex)) {
+			$duplex = 0;
+		}
 
-		// reload contact info
-
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d LIMIT 1",
+		$r = q("UPDATE `contact` SET `rel` = %d,
+			`name-date` = '%s',
+			`uri-date` = '%s',
+			`blocked` = 0,
+			`pending` = 0,
+			`duplex` = %d,
+			`hidden` = %d,
+			`network` = '%s' WHERE `id` = %d
+		",
+			intval($new_relation),
+			DBA::escape(DateTimeFormat::utcNow()),
+			DBA::escape(DateTimeFormat::utcNow()),
+			intval($duplex),
+			intval($hidden),
+			DBA::escape(Protocol::DFRN),
 			intval($contact_id)
 		);
-		if(count($r))
-			$contact = $r[0];
-		else
-			$contact = null;
 
-		// Send a new friend post if we are allowed to...
+		// reload contact info
+		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 
-		$r = q("SELECT `hide-friends` FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
-			intval($uid)
-		);
-		if((count($r)) && ($r[0]['hide-friends'] == 0) && (is_array($contact)) &&  isset($new_relation) && ($new_relation == CONTACT_IS_FRIEND)) {
+		Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact['id']);
 
-			if($r[0]['network'] === NETWORK_DIASPORA) {
-				require_once('include/diaspora.php');
-				$ret = diaspora_share($user[0],$r[0]);
-				logger('mod_follow: diaspora_share returns: ' . $ret);
-			}
-
-			require_once('include/items.php');
-
-			$self = q("SELECT * FROM `contact` WHERE `self` = 1 AND `uid` = %d LIMIT 1",
-				intval($uid)
-			);
-
-			if(count($self)) {
-
-				$arr = array();
-				$arr['uri'] = $arr['parent-uri'] = item_new_uri($a->get_hostname(), $uid); 
-				$arr['uid'] = $uid;
-				$arr['contact-id'] = $self[0]['id'];
-				$arr['wall'] = 1;
-				$arr['type'] = 'wall';
-				$arr['gravity'] = 0;
-				$arr['author-name'] = $arr['owner-name'] = $self[0]['name'];
-				$arr['author-link'] = $arr['owner-link'] = $self[0]['url'];
-				$arr['author-avatar'] = $arr['owner-avatar'] = $self[0]['thumb'];
-				$arr['verb'] = ACTIVITY_FRIEND;
-				$arr['object-type'] = ACTIVITY_OBJ_PERSON;
-				
-				$A = '[url=' . $self[0]['url'] . ']' . $self[0]['name'] . '[/url]';
-				$B = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
-				$BPhoto = '[url=' . $contact['url'] . ']' . '[img]' . $contact['thumb'] . '[/img][/url]';
-				$arr['body'] =  sprintf( t('%1$s is now friends with %2$s'), $A, $B)."\n\n\n".$Bphoto;
-
-				$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $contact['name'] . '</title>'
-					. '<id>' . $contact['url'] . '/' . $contact['name'] . '</id>';
-				$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $contact['url'] . '" />' . "\n");
-				$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $contact['thumb'] . '" />' . "\n");
-				$arr['object'] .= '</link></object>' . "\n";
-				$arr['last-child'] = 1;
-
-				$arr['allow_cid'] = $user[0]['allow_cid'];
-				$arr['allow_gid'] = $user[0]['allow_gid'];
-				$arr['deny_cid']  = $user[0]['deny_cid'];
-				$arr['deny_gid']  = $user[0]['deny_gid'];
-
-				$i = item_store($arr);
-				if($i)
-			    	proc_run('php',"include/notifier.php","activity","$i");
-
-			}
-
-		}
 		// Let's send our user to the contact editor in case they want to
 		// do anything special with this new friend.
-
-		if($handsfree === null)
-			goaway($a->get_baseurl() . '/contacts/' . intval($contact_id));
-		else
-			return;  
+		if ($handsfree === null) {
+			DI::baseUrl()->redirect('contact/' . intval($contact_id));
+		} else {
+			return;
+		}
 		//NOTREACHED
 	}
 
-	/**
-	 *
-	 *
+	/*
 	 * End of Scenario 1. [Local confirmation of remote friend request].
 	 *
 	 * Begin Scenario 2. This is the remote response to the above scenario.
 	 * This will take place on the site that originally initiated the friend request.
-	 * In the section above where the confirming party makes a POST and 
+	 * In the section above where the confirming party makes a POST and
 	 * retrieves xml status information, they are communicating with the following code.
-	 *
 	 */
-
-	if(x($_POST,'source_url')) {
-
+	if (!empty($_POST['source_url'])) {
 		// We are processing an external confirmation to an introduction created by our user.
+		$public_key =         $_POST['public_key'] ?? '';
+		$dfrn_id    = hex2bin($_POST['dfrn_id']    ?? '');
+		$source_url = hex2bin($_POST['source_url'] ?? '');
+		$aes_key    =         $_POST['aes_key']    ?? '';
+		$duplex     =  intval($_POST['duplex']     ?? 0);
+		$page       =  intval($_POST['page']       ?? 0);
 
-		$public_key = ((x($_POST,'public_key'))   ? $_POST['public_key']           : '');
-		$dfrn_id    = ((x($_POST,'dfrn_id'))      ? hex2bin($_POST['dfrn_id'])     : '');
-		$source_url = ((x($_POST,'source_url'))   ? hex2bin($_POST['source_url'])  : '');
-		$aes_key    = ((x($_POST,'aes_key'))      ? $_POST['aes_key']              : '');
-		$duplex     = ((x($_POST,'duplex'))       ? intval($_POST['duplex'])       : 0 );
-		$version_id = ((x($_POST,'dfrn_version')) ? (float) $_POST['dfrn_version'] : 2.0);
-	
-		logger('dfrn_confirm: requestee contacted: ' . $node);
+		$forum = (($page == 1) ? 1 : 0);
+		$prv   = (($page == 2) ? 1 : 0);
 
-		logger('dfrn_confirm: request: POST=' . print_r($_POST,true), LOGGER_DATA);
+		Logger::notice('requestee contacted', ['node' => $node]);
+
+		Logger::debug('request', ['POST' => $_POST]);
 
 		// If $aes_key is set, both of these items require unpacking from the hex transport encoding.
 
-		if(x($aes_key)) {
+		if (!empty($aes_key)) {
 			$aes_key = hex2bin($aes_key);
 			$public_key = hex2bin($public_key);
 		}
 
 		// Find our user's account
-
-		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' LIMIT 1",
-			dbesc($node));
-
-		if(! count($r)) {
-			$message = sprintf(t('No user record found for \'%s\' '), $node);
-			xml_status(3,$message); // failure
+		$user = DBA::selectFirst('user', [], ['nickname' => $node]);
+		if (!DBA::isResult($user)) {
+			$message = DI::l10n()->t('No user record found for \'%s\' ', $node);
+			System::xmlExit(3, $message); // failure
 			// NOTREACHED
 		}
 
-		$my_prvkey = $r[0]['prvkey'];
-		$local_uid = $r[0]['uid'];
+		$my_prvkey = $user['prvkey'];
+		$local_uid = $user['uid'];
 
 
-		if(! strstr($my_prvkey,'PRIVATE KEY')) {
-			$message = t('Our site encryption key is apparently messed up.');
-			xml_status(3,$message);
+		if (!strstr($my_prvkey, 'PRIVATE KEY')) {
+			$message = DI::l10n()->t('Our site encryption key is apparently messed up.');
+			System::xmlExit(3, $message);
 		}
 
 		// verify everything
 
 		$decrypted_source_url = "";
-		openssl_private_decrypt($source_url,$decrypted_source_url,$my_prvkey);
+		openssl_private_decrypt($source_url, $decrypted_source_url, $my_prvkey);
 
 
-		if(! strlen($decrypted_source_url)) {
-			$message = t('Empty site URL was provided or URL could not be decrypted by us.');
-			xml_status(3,$message);
+		if (!strlen($decrypted_source_url)) {
+			$message = DI::l10n()->t('Empty site URL was provided or URL could not be decrypted by us.');
+			System::xmlExit(3, $message);
 			// NOTREACHED
 		}
 
-		$ret = q("SELECT * FROM `contact` WHERE `url` = '%s' AND `uid` = %d LIMIT 1",
-			dbesc($decrypted_source_url),
-			intval($local_uid)
-		);
-		if(! count($ret)) {
-			if(strstr($decrypted_source_url,'http:'))
-				$newurl = str_replace('http:','https:',$decrypted_source_url);
-			else
-				$newurl = str_replace('https:','http:',$decrypted_source_url);
+		$contact = DBA::selectFirst('contact', [], ['url' => $decrypted_source_url, 'uid' => $local_uid]);
+		if (!DBA::isResult($contact)) {
+			if (strstr($decrypted_source_url, 'http:')) {
+				$newurl = str_replace('http:', 'https:', $decrypted_source_url);
+			} else {
+				$newurl = str_replace('https:', 'http:', $decrypted_source_url);
+			}
 
-			$ret = q("SELECT * FROM `contact` WHERE `url` = '%s' AND `uid` = %d LIMIT 1",
-				dbesc($newurl),
-				intval($local_uid)
-			);
-			if(! count($ret)) {
+			$contact = DBA::selectFirst('contact', [], ['url' => $newurl, 'uid' => $local_uid]);
+			if (!DBA::isResult($contact)) {
 				// this is either a bogus confirmation (?) or we deleted the original introduction.
-				$message = t('Contact record was not found for you on our site.');
-				xml_status(3,$message);
-				return; // NOTREACHED 
+				$message = DI::l10n()->t('Contact record was not found for you on our site.');
+				System::xmlExit(3, $message);
+				return; // NOTREACHED
 			}
 		}
 
-		$relation = $ret[0]['rel'];
+		$relation = $contact['rel'];
 
 		// Decrypt all this stuff we just received
 
-		$foreign_pubkey = $ret[0]['site-pubkey'];
-		$dfrn_record    = $ret[0]['id'];
+		$foreign_pubkey = $contact['site-pubkey'];
+		$dfrn_record = $contact['id'];
 
-		if(! $foreign_pubkey) {
-			$message = sprintf( t('Site public key not available in contact record for URL %s.'), $newurl);
-			xml_status(3,$message);
+		if (!$foreign_pubkey) {
+			$message = DI::l10n()->t('Site public key not available in contact record for URL %s.', $decrypted_source_url);
+			System::xmlExit(3, $message);
 		}
 
 		$decrypted_dfrn_id = "";
-		openssl_public_decrypt($dfrn_id,$decrypted_dfrn_id,$foreign_pubkey);
+		openssl_public_decrypt($dfrn_id, $decrypted_dfrn_id, $foreign_pubkey);
 
-		if(strlen($aes_key)) {
+		if (strlen($aes_key)) {
 			$decrypted_aes_key = "";
-			openssl_private_decrypt($aes_key,$decrypted_aes_key,$my_prvkey);
-			$dfrn_pubkey = openssl_decrypt($public_key,'AES-256-CBC',$decrypted_aes_key);
-		}
-		else {
+			openssl_private_decrypt($aes_key, $decrypted_aes_key, $my_prvkey);
+			$dfrn_pubkey = openssl_decrypt($public_key, 'AES-256-CBC', $decrypted_aes_key);
+		} else {
 			$dfrn_pubkey = $public_key;
 		}
 
-		$r = q("SELECT * FROM `contact` WHERE `dfrn-id` = '%s' LIMIT 1",
-			dbesc($decrypted_dfrn_id)
-		);
-		if(count($r)) {
-			$message = t('The ID provided by your system is a duplicate on our system. It should work if you try again.');
-			xml_status(1,$message); // Birthday paradox - duplicate dfrn-id
+		if (DBA::exists('contact', ['dfrn-id' => $decrypted_dfrn_id])) {
+			$message = DI::l10n()->t('The ID provided by your system is a duplicate on our system. It should work if you try again.');
+			System::xmlExit(1, $message); // Birthday paradox - duplicate dfrn-id
 			// NOTREACHED
 		}
 
-		$r = q("UPDATE `contact` SET `dfrn-id` = '%s', `pubkey` = '%s' WHERE `id` = %d LIMIT 1",
-			dbesc($decrypted_dfrn_id),
-			dbesc($dfrn_pubkey),
+		$r = q("UPDATE `contact` SET `dfrn-id` = '%s', `pubkey` = '%s' WHERE `id` = %d",
+			DBA::escape($decrypted_dfrn_id),
+			DBA::escape($dfrn_pubkey),
 			intval($dfrn_record)
 		);
-		if(! count($r)) {
-			$message = t('Unable to set your contact credentials on our system.');
-			xml_status(3,$message);
+		if (!DBA::isResult($r)) {
+			$message = DI::l10n()->t('Unable to set your contact credentials on our system.');
+			System::xmlExit(3, $message);
+		}
+
+		// It's possible that the other person also requested friendship.
+		// If it is a duplex relationship, ditch the issued-id if one exists.
+
+		if ($duplex) {
+			q("UPDATE `contact` SET `issued-id` = '' WHERE `id` = %d",
+				intval($dfrn_record)
+			);
 		}
 
 		// We're good but now we have to scrape the profile photo and send notifications.
+		$contact = DBA::selectFirst('contact', ['photo'], ['id' => $dfrn_record]);
+		if (DBA::isResult($contact)) {
+			$photo = $contact['photo'];
+		} else {
+			$photo = DI::baseUrl() . '/images/person-300.jpg';
+		}
 
+		Contact::updateAvatar($photo, $local_uid, $dfrn_record);
 
+		Logger::log('dfrn_confirm: request - photos imported');
 
-		$r = q("SELECT `photo` FROM `contact` WHERE `id` = %d LIMIT 1",
-			intval($dfrn_record));
+		$new_relation = Contact::SHARING;
 
-		if(count($r))
-			$photo = $r[0]['photo'];
-		else
-			$photo = $a->get_baseurl() . '/images/default-profile.jpg';
-				
-		require_once("Photo.php");
+		if (($relation == Contact::FOLLOWER) || ($duplex)) {
+			$new_relation = Contact::FRIEND;
+		}
 
-		$photos = import_profile_photo($photo,$local_uid,$dfrn_record);
-
-		logger('dfrn_confirm: request - photos imported');
-
-		$new_relation = CONTACT_IS_SHARING;
-		if(($relation == CONTACT_IS_FOLLOWER) || ($duplex))
-			$new_relation = CONTACT_IS_FRIEND;
-
-		if(($relation == CONTACT_IS_FOLLOWER) && ($duplex))
+		if (($relation == Contact::FOLLOWER) && ($duplex)) {
 			$duplex = 0;
+		}
 
-		$r = q("UPDATE `contact` SET 
-			`photo` = '%s', 
-			`thumb` = '%s', 
-			`micro` = '%s',
-			`rel` = %d, 
-			`name-date` = '%s', 
-			`uri-date` = '%s', 
-			`avatar-date` = '%s', 
-			`blocked` = 0, 
+		$r = q("UPDATE `contact` SET
+			`rel` = %d,
+			`name-date` = '%s',
+			`uri-date` = '%s',
+			`blocked` = 0,
 			`pending` = 0,
-			`duplex` = %d, 
-			`network` = '%s' WHERE `id` = %d LIMIT 1
+			`duplex` = %d,
+			`forum` = %d,
+			`prv` = %d,
+			`network` = '%s' WHERE `id` = %d
 		",
-			dbesc($photos[0]),
-			dbesc($photos[1]),
-			dbesc($photos[2]),
 			intval($new_relation),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
-			dbesc(datetime_convert()),
+			DBA::escape(DateTimeFormat::utcNow()),
+			DBA::escape(DateTimeFormat::utcNow()),
 			intval($duplex),
-			dbesc(NETWORK_DFRN),
+			intval($forum),
+			intval($prv),
+			DBA::escape(Protocol::DFRN),
 			intval($dfrn_record)
 		);
-		if($r === false) {    // indicates schema is messed up or total db failure
-			$message = t('Unable to update your contact profile details on our system');
-			xml_status(3,$message);
+		if (!DBA::isResult($r)) {	// indicates schema is messed up or total db failure
+			$message = DI::l10n()->t('Unable to update your contact profile details on our system');
+			System::xmlExit(3, $message);
 		}
 
 		// Otherwise everything seems to have worked and we are almost done. Yay!
 		// Send an email notification
 
-		logger('dfrn_confirm: request: info updated');
+		Logger::log('dfrn_confirm: request: info updated');
 
-		$r = q("SELECT `contact`.*, `user`.* FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
-			WHERE `contact`.`id` = %d LIMIT 1",
+		$combined = null;
+		$r = q("SELECT `contact`.*, `user`.*
+			FROM `contact`
+			LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
+			WHERE `contact`.`id` = %d
+			LIMIT 1",
 			intval($dfrn_record)
 		);
-		if((count($r)) && ($r[0]['notify-flags'] & NOTIFY_CONFIRM)) {
+		if (DBA::isResult($r)) {
+			$combined = $r[0];
 
-			push_lang($r[0]['language']);
-			$tpl = (($new_relation == CONTACT_IS_FRIEND) 
-				? get_intltext_template('friend_complete_eml.tpl')
-				: get_intltext_template('intro_complete_eml.tpl'));
-		
-			$email_tpl = replace_macros($tpl, array(
-				'$sitename' => $a->config['sitename'],
-				'$siteurl' =>  $a->get_baseurl(),
-				'$username' => $r[0]['username'],
-				'$email' => $r[0]['email'],
-				'$fn' => $r[0]['name'],
-				'$dfrn_url' => $r[0]['url'],
-				'$uid' => $newuid )
-			);
-	
-			$res = mail($r[0]['email'], sprintf( t("Connection accepted at %s") , $a->config['sitename']),
-				$email_tpl,
-				'From: ' . t('Administrator') . '@' . $_SERVER['SERVER_NAME'] . "\n"
-				. 'Content-type: text/plain; charset=UTF-8' . "\n"
-				. 'Content-transfer-encoding: 8bit' );
-
-			if(!$res) {
-				// pointless throwing an error here and confusing the person at the other end of the wire.
+			if ($combined['notify-flags'] & Type::CONFIRM) {
+				$mutual = ($new_relation == Contact::FRIEND);
+				notification([
+					'type'         => Type::CONFIRM,
+					'notify_flags' => $combined['notify-flags'],
+					'language'     => $combined['language'],
+					'to_name'      => $combined['username'],
+					'to_email'     => $combined['email'],
+					'uid'          => $combined['uid'],
+					'link'         => DI::baseUrl() . '/contact/' . $dfrn_record,
+					'source_name'  => ((strlen(stripslashes($combined['name']))) ? stripslashes($combined['name']) : DI::l10n()->t('[Name Withheld]')),
+					'source_link'  => $combined['url'],
+					'source_photo' => $combined['photo'],
+					'verb'         => ($mutual ? Activity::FRIEND : Activity::FOLLOW),
+					'otype'        => 'intro'
+				]);
 			}
-			pop_lang();
 		}
-		xml_status(0); // Success
-		return; // NOTREACHED
 
-			////////////////////// End of this scenario ///////////////////////////////////////////////
+		System::xmlExit(0); // Success
+		return; // NOTREACHED
+		////////////////////// End of this scenario ///////////////////////////////////////////////
 	}
 
 	// somebody arrived here by mistake or they are fishing. Send them to the homepage.
-
-	goaway(z_root());
+	DI::baseUrl()->redirect();
 	// NOTREACHED
-
 }
