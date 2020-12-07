@@ -41,6 +41,7 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 use ImagickException;
@@ -192,11 +193,12 @@ class User
 		$system['name'] = 'System Account';
 		$system['addr'] = $system_actor_name . '@' . DI::baseUrl()->getHostname();
 		$system['nick'] = $system_actor_name;
-		$system['avatar'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
-		$system['photo'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
-		$system['thumb'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_THUMB;
-		$system['micro'] = DI::baseUrl() . Contact::DEFAULT_AVATAR_MICRO;
 		$system['url'] = DI::baseUrl() . '/friendica';
+
+		$system['avatar'] = $system['photo'] = Contact::getDefaultAvatar($system, Proxy::SIZE_SMALL);
+		$system['thumb'] = Contact::getDefaultAvatar($system, Proxy::SIZE_THUMB);
+		$system['micro'] = Contact::getDefaultAvatar($system, Proxy::SIZE_MICRO);
+
 		$system['nurl'] = Strings::normaliseLink($system['url']);
 		$system['pubkey'] = $keys['pubkey'];
 		$system['prvkey'] = $keys['prvkey'];

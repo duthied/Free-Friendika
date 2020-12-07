@@ -470,6 +470,10 @@ return [
 		// Whether to use Cache to store session data or to use PHP native session storage.
 		'session_handler' => 'database',
 
+		// remote_avatar_lookup (Boolean)
+		// Perform an avatar lookup via the activated services for remote contacts
+		'remote_avatar_lookup' => false,
+
 		// remove_multiplicated_lines (Boolean)
 		// If enabled, multiple linefeeds in items are stripped to a single one.
 		'remove_multiplicated_lines' => false,

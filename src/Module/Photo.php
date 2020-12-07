@@ -23,9 +23,11 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo as MPhoto;
+use Friendica\Util\Proxy;
 
 /**
  * Photo Module
@@ -134,28 +136,38 @@ class Photo extends BaseModule
 
 	private static function getAvatar($uid, $type="avatar")
 	{
-
 		switch($type) {
-		case "profile":
-		case "custom":
-			$scale = 4;
-			$default = Contact::DEFAULT_AVATAR_PHOTO;
-			break;
-		case "micro":
-			$scale = 6;
-			$default = Contact::DEFAULT_AVATAR_MICRO;
-			break;
-		case "avatar":
-		default:
-			$scale = 5;
-			$default = Contact::DEFAULT_AVATAR_THUMB;
+			case "profile":
+			case "custom":
+				$scale = 4;
+				break;
+			case "micro":
+				$scale = 6;
+				break;
+			case "avatar":
+			default:
+				$scale = 5;
 		}
 
 		$photo = MPhoto::selectFirst([], ["scale" => $scale, "uid" => $uid, "profile" => 1]);
-		if ($photo === false) {
+		if (empty($photo)) {
+			$contact = DBA::selectFirst('contact', ['uid' => $uid, 'self' => true]) ?: [];
+
+			switch($type) {
+				case "profile":
+				case "custom":
+					$default = Contact::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
+					break;
+				case "micro":
+					$default = Contact::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
+					break;
+				case "avatar":
+				default:
+					$default = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
+			}
+	
 			$photo = MPhoto::createPhotoForSystemResource($default);
 		}
 		return $photo;
 	}
-
 }
