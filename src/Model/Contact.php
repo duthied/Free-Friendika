@@ -1678,7 +1678,7 @@ class Contact
 			}
 		}
 
-		$default_avatar = empty($avatar) || ($avatar == DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO);
+		$default_avatar = empty($avatar) || strpos($avatar, self::DEFAULT_AVATAR_PHOTO);
 
 		if ($default_avatar) {
 			$avatar = self::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
