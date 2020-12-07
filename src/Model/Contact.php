@@ -523,14 +523,14 @@ class Contact
 		}
 
 		if ($contact['uid'] != 0) {
-			$pcid = Contact::getIdForURL($contact['url'], 0, false, ['url' => $contact['url']]);
+			$pcid = self::getIdForURL($contact['url'], 0, false, ['url' => $contact['url']]);
 			if (empty($pcid)) {
 				return [];
 			}
 			$ucid = $contact['id'];
 		} else {
 			$pcid = $contact['id'];
-			$ucid = Contact::getIdForURL($contact['url'], $uid);
+			$ucid = self::getIdForURL($contact['url'], $uid);
 		}
 
 		return ['public' => $pcid, 'user' => $ucid];
@@ -645,6 +645,16 @@ class Contact
 			'contact-type' => $user['account-type'], 'prvkey' => $user['prvkey'],
 			'pubkey' => $user['pubkey'], 'xmpp' => $profile['xmpp']];
 
+		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
+		$fields['url'] = DI::baseUrl() . '/profile/' . $user['nickname'];
+		$fields['nurl'] = Strings::normaliseLink($fields['url']);
+		$fields['addr'] = $user['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
+		$fields['request'] = DI::baseUrl() . '/dfrn_request/' . $user['nickname'];
+		$fields['notify'] = DI::baseUrl() . '/dfrn_notify/' . $user['nickname'];
+		$fields['poll'] = DI::baseUrl() . '/dfrn_poll/'. $user['nickname'];
+		$fields['confirm'] = DI::baseUrl() . '/dfrn_confirm/' . $user['nickname'];
+		$fields['poco'] = DI::baseUrl() . '/poco/' . $user['nickname'];
+
 		$avatar = Photo::selectFirst(['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
 		if (DBA::isResult($avatar)) {
 			if ($update_avatar) {
@@ -668,25 +678,15 @@ class Contact
 			$fields['micro'] = $prefix . '6' . $suffix;
 		} else {
 			// We hadn't found a photo entry, so we use the default avatar
-			$fields['photo'] = DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO;
-			$fields['thumb'] = DI::baseUrl() . self::DEFAULT_AVATAR_THUMB;
-			$fields['micro'] = DI::baseUrl() . self::DEFAULT_AVATAR_MICRO;
+			$fields['photo'] = self::getDefaultAvatar($fields, Proxy::SIZE_SMALL);
+			$fields['thumb'] = self::getDefaultAvatar($fields, Proxy::SIZE_THUMB);
+			$fields['micro'] = self::getDefaultAvatar($fields, Proxy::SIZE_MICRO);
 		}
 
 		$fields['avatar'] = DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 		$fields['unsearchable'] = !$profile['net-publish'];
-
-		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
-		$fields['url'] = DI::baseUrl() . '/profile/' . $user['nickname'];
-		$fields['nurl'] = Strings::normaliseLink($fields['url']);
-		$fields['addr'] = $user['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
-		$fields['request'] = DI::baseUrl() . '/dfrn_request/' . $user['nickname'];
-		$fields['notify'] = DI::baseUrl() . '/dfrn_notify/' . $user['nickname'];
-		$fields['poll'] = DI::baseUrl() . '/dfrn_poll/'. $user['nickname'];
-		$fields['confirm'] = DI::baseUrl() . '/dfrn_confirm/' . $user['nickname'];
-		$fields['poco'] = DI::baseUrl() . '/poco/' . $user['nickname'];
 
 		$update = false;
 
@@ -1475,12 +1475,11 @@ class Contact
 	 *
 	 * @param array $contact  contact array
 	 * @param string $field   Fieldname of the photo in the contact array
-	 * @param string $default Default path when no picture had been found
 	 * @param string $size    Size of the avatar picture
 	 * @param string $avatar  Avatar path that is displayed when no photo had been found
 	 * @return string photo path
 	 */
-	private static function getAvatarPath(array $contact, string $field, string $default, string $size, string $avatar)
+	private static function getAvatarPath(array $contact, string $field, string $size, string $avatar)
 	{
 		if (!empty($contact)) {
 			$contact = self::checkAvatarCacheByArray($contact);
@@ -1490,7 +1489,7 @@ class Contact
 		}
 
 		if (empty($avatar)) {
-			return $default;
+			$avatar = self::getDefaultAvatar([], $size);
 		}
 
 		if (Proxy::isLocalImage($avatar)) {
@@ -1509,7 +1508,7 @@ class Contact
 	 */
 	public static function getPhoto(array $contact, string $avatar = '')
 	{
-		return self::getAvatarPath($contact, 'photo', DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO, Proxy::SIZE_SMALL, $avatar);
+		return self::getAvatarPath($contact, 'photo', Proxy::SIZE_SMALL, $avatar);
 	}
 
 	/**
@@ -1521,7 +1520,7 @@ class Contact
 	 */
 	public static function getThumb(array $contact, string $avatar = '')
 	{
-		return self::getAvatarPath($contact, 'thumb', DI::baseUrl() . self::DEFAULT_AVATAR_THUMB, Proxy::SIZE_THUMB, $avatar);
+		return self::getAvatarPath($contact, 'thumb', Proxy::SIZE_THUMB, $avatar);
 	}
 
 	/**
@@ -1533,7 +1532,7 @@ class Contact
 	 */
 	public static function getMicro(array $contact, string $avatar = '')
 	{
-		return self::getAvatarPath($contact, 'micro', DI::baseUrl() . self::DEFAULT_AVATAR_MICRO, Proxy::SIZE_MICRO, $avatar);
+		return self::getAvatarPath($contact, 'micro', Proxy::SIZE_MICRO, $avatar);
 	}
 
 	/**
@@ -1572,16 +1571,69 @@ class Contact
 
 		/// add the default avatars if the fields aren't filled
 		if (isset($contact['photo']) && empty($contact['photo'])) {
-			$contact['photo'] = DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO;
+			$contact['photo'] = self::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
 		}
 		if (isset($contact['thumb']) && empty($contact['thumb'])) {
-			$contact['thumb'] = DI::baseUrl() . self::DEFAULT_AVATAR_THUMB;
+			$contact['thumb'] = self::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
 		}
 		if (isset($contact['micro']) && empty($contact['micro'])) {
-			$contact['micro'] = DI::baseUrl() . self::DEFAULT_AVATAR_MICRO;
+			$contact['micro'] = self::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
 		}
 
 		return $contact;
+	}
+
+	/**
+	 * Fetch the default avatar for the given contact and size
+	 *
+	 * @param array $contact  contact array
+	 * @param string $size    Size of the avatar picture
+	 * @return void
+	 */
+	public static function getDefaultAvatar(array $contact, string $size)
+	{
+		switch ($size) {
+			case Proxy::SIZE_MICRO:
+				$avatar['size'] = 48;
+				$default = self::DEFAULT_AVATAR_MICRO;
+				break;
+	
+			case Proxy::SIZE_THUMB:
+				$avatar['size'] = 80;
+				$default = self::DEFAULT_AVATAR_THUMB;
+				break;
+	
+			case Proxy::SIZE_SMALL:
+			default:
+				$avatar['size'] = 300;
+				$default = self::DEFAULT_AVATAR_PHOTO;
+				break;
+		}
+
+		if (!DI::config()->get('system', 'remote_avatar_lookup')) {
+			return DI::baseUrl() . $default;
+		}
+
+		if (!empty($contact['xmpp'])) {
+			$avatar['email'] = $contact['xmpp'];
+		} elseif (!empty($contact['addr'])) {
+			$avatar['email'] = $contact['addr'];
+		} elseif (!empty($contact['url'])) {
+			$avatar['email'] = $contact['url'];
+		} else {
+			return DI::baseUrl() . $default;
+		}
+
+		$avatar['url'] = '';
+		$avatar['success'] = false;
+
+		Hook::callAll('avatar_lookup', $avatar);
+
+		if ($avatar['success'] && !empty($avatar['url'])) {
+			return $avatar['url'];
+		}
+
+		return DI::baseUrl() . $default;
 	}
 
 	/**
@@ -1599,7 +1651,8 @@ class Contact
 	 */
 	public static function updateAvatar(int $cid, string $avatar, bool $force = false, bool $create_cache = false)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'nurl', 'url', 'network'], ['id' => $cid, 'self' => false]);
+		$contact = DBA::selectFirst('contact', ['uid', 'avatar', 'photo', 'thumb', 'micro', 'xmpp', 'addr', 'nurl', 'url', 'network'],
+			['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
@@ -1624,13 +1677,18 @@ class Contact
 				return;
 			}
 		}
-		
-		// Replace cached avatar pictures from the default avatar with the default avatars in different sizes
-		if (strpos($avatar, self::DEFAULT_AVATAR_PHOTO)) {
+
+		$default_avatar = empty($avatar) || ($avatar == DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO);
+
+		if ($default_avatar) {
+			$avatar = self::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
+		}
+
+		if ($default_avatar && Proxy::isLocalImage($avatar)) {
 			$fields = ['avatar' => $avatar, 'avatar-date' => DateTimeFormat::utcNow(),
-				'photo' => DI::baseUrl() . self::DEFAULT_AVATAR_PHOTO,
-				'thumb' => DI::baseUrl() . self::DEFAULT_AVATAR_THUMB,
-				'micro' => DI::baseUrl() . self::DEFAULT_AVATAR_MICRO];
+				'photo' => $avatar,
+				'thumb' => self::getDefaultAvatar($contact, Proxy::SIZE_THUMB),
+				'micro' => self::getDefaultAvatar($contact, Proxy::SIZE_MICRO)];
 			Logger::debug('Use default avatar', ['id' => $cid, 'uid' => $uid]);
 		}
 
@@ -2448,7 +2506,7 @@ class Contact
 				$condition = ['uid' => $importer['uid'], 'url' => $url, 'pending' => true];
 				$fields = ['pending' => false];
 				if ($user['page-flags'] == User::PAGE_FLAGS_FREELOVE) {
-					$fields['rel'] = Contact::FRIEND;
+					$fields['rel'] = self::FRIEND;
 				}
 
 				DBA::update('contact', $fields, $condition);
@@ -2465,7 +2523,7 @@ class Contact
 		if (($contact['rel'] == self::FRIEND) || ($contact['rel'] == self::SHARING)) {
 			DBA::update('contact', ['rel' => self::SHARING], ['id' => $contact['id']]);
 		} else {
-			Contact::remove($contact['id']);
+			self::remove($contact['id']);
 		}
 	}
 
@@ -2474,7 +2532,7 @@ class Contact
 		if (($contact['rel'] == self::FRIEND) || ($contact['rel'] == self::FOLLOWER)) {
 			DBA::update('contact', ['rel' => self::FOLLOWER], ['id' => $contact['id']]);
 		} else {
-			Contact::remove($contact['id']);
+			self::remove($contact['id']);
 		}
 	}
 
@@ -2495,8 +2553,8 @@ class Contact
 			AND NOT `contact`.`blocked`
 			AND NOT `contact`.`archive`
 			AND NOT `contact`.`deleted`',
-			Contact::SHARING,
-			Contact::FRIEND
+			self::SHARING,
+			self::FRIEND
 		];
 
 		$contacts = DBA::select('contact', ['id', 'uid', 'name', 'url', 'bd'], $condition);
@@ -2531,7 +2589,7 @@ class Contact
 			return [];
 		}
 
-		$contacts = Contact::selectToArray(['id'], [
+		$contacts = self::selectToArray(['id'], [
 			'id'      => $contact_ids,
 			'blocked' => false,
 			'pending' => false,
@@ -2699,7 +2757,7 @@ class Contact
 
 		// check if we search only communities or every contact
 		if ($mode === 'community') {
-			$extra_sql = sprintf(' AND `contact-type` = %d', Contact::TYPE_COMMUNITY);
+			$extra_sql = sprintf(' AND `contact-type` = %d', self::TYPE_COMMUNITY);
 		} else {
 			$extra_sql = '';
 		}
@@ -2732,7 +2790,7 @@ class Contact
 		$count = 0;
 
 		foreach ($urls as $url) {
-			$contact = Contact::getByURL($url, false, ['id', 'updated']);
+			$contact = self::getByURL($url, false, ['id', 'updated']);
 			if (empty($contact['id'])) {
 				Worker::add(PRIORITY_LOW, 'AddContact', 0, $url);
 				++$added;

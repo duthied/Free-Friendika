@@ -32,6 +32,7 @@ use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Security\Security;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 require_once "include/dba.php";
@@ -494,9 +495,10 @@ class Photo
 		}
 
 		if ($photo_failure) {
-			$image_url = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
-			$thumb = DI::baseUrl() . Contact::DEFAULT_AVATAR_THUMB;
-			$micro = DI::baseUrl() . Contact::DEFAULT_AVATAR_MICRO;
+			$contact = Contact::getById($cid) ?: [];
+			$image_url = Contact::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
+			$thumb = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
+			$micro = Contact::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
 		}
 
 		return [$image_url, $thumb, $micro];
