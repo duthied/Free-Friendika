@@ -151,7 +151,7 @@ class Photo extends BaseModule
 
 		$photo = MPhoto::selectFirst([], ["scale" => $scale, "uid" => $uid, "profile" => 1]);
 		if (empty($photo)) {
-			$contact = DBA::selectFirst('contact', ['uid' => $uid, 'self' => true]) ?: [];
+			$contact = DBA::selectFirst('contact', [], ['uid' => $uid, 'self' => true]) ?: [];
 
 			switch($type) {
 				case "profile":
