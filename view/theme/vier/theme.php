@@ -25,7 +25,10 @@ function vier_init(App $a)
 
 	Renderer::setActiveTemplateEngine('smarty3');
 
-	if (!empty($a->argv[0]) && ($a->argv[0] . ($a->argv[1] ?? '')) === ('profile' . ($a->user['nickname'] ?? '')) || $a->argv[0] === 'network' && local_user()) {
+	$args = DI::args();
+
+	if ($args->get(0) === 'profile' && $args->get(1) === ($a->user['nickname'] ?? '') || $args->get(0) === 'network' && local_user()
+	) {
 		vier_community_info();
 
 		DI::page()['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
@@ -77,7 +80,7 @@ EOT;
 
 	// Hide the left menu bar
 	/// @TODO maybe move this static array out where it should belong?
-	if (empty(DI::page()['aside']) && in_array($a->argv[0], ["community", "events", "help", "delegation", "notifications",
+	if (empty(DI::page()['aside']) && in_array($args->get(0), ["community", "events", "help", "delegation", "notifications",
 			"probe", "webfinger", "login", "invite", "credits"])) {
 		DI::page()['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
 	}
