@@ -623,7 +623,7 @@ class Feed
 						'taglist' => $taglist, 'attachments' => $attachments];
 				}
 			} else {
-				Logger::info('Post already crated or exists in the delayed posts queue', ['uid' => $item['uid'], 'uri' => $item["uri"]]);
+				Logger::info('Post already created or exists in the delayed posts queue', ['uid' => $item['uid'], 'uri' => $item["uri"]]);
 			}
 		}
 

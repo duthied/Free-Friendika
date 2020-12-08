@@ -22,9 +22,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
-use Friendica\Model\Tag;
 
 class DelayedPublish
 {
@@ -40,6 +38,6 @@ class DelayedPublish
 	public static function execute(array $item, int $notify = 0, array $taglist = [], array $attachments = [])
 	{
 		$id = Post\Delayed::publish($item, $notify, $taglist, $attachments);
-		Logger::notice('Post published', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id']]);
+		Logger::notice('Post published', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id'], 'notify' => $notify]);
 	}
 }

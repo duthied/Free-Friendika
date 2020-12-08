@@ -1568,7 +1568,7 @@ class Item
 			$item['network'] = Protocol::DFRN;
 			$item['protocol'] = Conversation::PARCEL_DIRECT;
 
-			if (is_int($notify)) {
+			if (in_array($notify, PRIORITIES)) {
 				$priority = $notify;
 			}
 		} else {
@@ -2912,7 +2912,7 @@ class Item
 		$_SESSION["authenticated"] = true;
 		$_SESSION["uid"] = $contact['uid'];
 
-		return $result;
+		return (bool)$result;
 	}
 
 	/**

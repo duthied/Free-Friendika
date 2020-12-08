@@ -421,6 +421,11 @@ class Worker
 		// For this reason the variables have to be initialized.
 		DI::profiler()->reset();
 
+		if (!in_array($queue['priority'], PRIORITIES)) {
+			Logger::warning('Invalid period', ['queue' => $queue, 'callstack' => System::callstack(20)]);
+			$queue['priority'] = PRIORITY_MEDIUM;
+		}
+
 		$a->queue = $queue;
 
 		$up_duration = microtime(true) - self::$up_start;
@@ -1263,6 +1268,11 @@ class Worker
 		$parameters = json_encode($args);
 		$found = DBA::exists('workerqueue', ['command' => $command, 'parameter' => $parameters, 'done' => false]);
 		$added = false;
+
+		if (!in_array($priority, PRIORITIES)) {
+			Logger::warning('Invalid period', ['priority' => $priority, 'command' => $command, 'callstack' => System::callstack(20)]);
+			$priority = PRIORITY_MEDIUM;
+		}
 
 		// Quit if there was a database error - a precaution for the update process to 3.5.3
 		if (DBA::errorNo() != 0) {
