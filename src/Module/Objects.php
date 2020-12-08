@@ -103,6 +103,10 @@ class Objects extends BaseModule
 
 		if (empty($parameters['activity']) && ($item['gravity'] != GRAVITY_ACTIVITY)) {
 			$activity = ActivityPub\Transmitter::createActivityFromItem($item['id'], true);
+			if (empty($activity['type'])) {
+				throw new HTTPException\NotFoundException();
+			}
+
 			$activity['type'] = $activity['type'] == 'Update' ? 'Create' : $activity['type'];
 
 			// Only display "Create" activity objects here, no reshares or anything else
