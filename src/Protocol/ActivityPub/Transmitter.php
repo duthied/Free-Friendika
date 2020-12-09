@@ -1003,10 +1003,10 @@ class Transmitter
 	 * @param integer $item_id
 	 * @param boolean $object_mode Is the activity item is used inside another object?
 	 *
-	 * @return array of activity
+	 * @return false|array
 	 * @throws \Exception
 	 */
-	public static function createActivityFromItem($item_id, $object_mode = false)
+	public static function createActivityFromItem(int $item_id, bool $object_mode = false)
 	{
 		Logger::info('Fetching activity', ['item' => $item_id]);
 		$item = Item::selectFirst([], ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);

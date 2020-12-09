@@ -33,7 +33,7 @@ class Source extends BaseAdmin
 	{
 		parent::content($parameters);
 
-		$guid = basename($_REQUEST['guid'] ?? '') ?: $parameters['guid'];
+		$guid = basename($_REQUEST['guid'] ?? $parameters['guid'] ?? '');
 
 		$source = '';
 		$item_uri = '';
