@@ -422,7 +422,7 @@ class Worker
 		DI::profiler()->reset();
 
 		if (!in_array($queue['priority'], PRIORITIES)) {
-			Logger::warning('Invalid period', ['queue' => $queue, 'callstack' => System::callstack(20)]);
+			Logger::warning('Invalid priority', ['queue' => $queue, 'callstack' => System::callstack(20)]);
 			$queue['priority'] = PRIORITY_MEDIUM;
 		}
 
@@ -1270,7 +1270,7 @@ class Worker
 		$added = false;
 
 		if (!in_array($priority, PRIORITIES)) {
-			Logger::warning('Invalid period', ['priority' => $priority, 'command' => $command, 'callstack' => System::callstack(20)]);
+			Logger::warning('Invalid priority', ['priority' => $priority, 'command' => $command, 'callstack' => System::callstack(20)]);
 			$priority = PRIORITY_MEDIUM;
 		}
 
