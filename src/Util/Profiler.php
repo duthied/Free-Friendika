@@ -134,7 +134,7 @@ class Profiler implements ContainerInterface
 	public function resetPerformance()
 	{
 		$this->performance = [];
-		$this->performance['start'] = microtime(true);
+		$this->performance['start'] = $this->performance['ready'] = microtime(true);
 		$this->performance['database'] = 0;
 		$this->performance['database_write'] = 0;
 		$this->performance['cache'] = 0;
@@ -145,6 +145,9 @@ class Profiler implements ContainerInterface
 		$this->performance['parser'] = 0;
 		$this->performance['marktime'] = 0;
 		$this->performance['marktime'] = microtime(true);
+		$this->performance['frontend'] = 0;
+		$this->performance['init'] = 0;
+		$this->performance['content'] = 0;
 	}
 
 	/**
@@ -275,6 +278,11 @@ class Profiler implements ContainerInterface
 		} else {
 			return $this->performance[$id];
 		}
+	}
+
+	public function set($timestamp, $id)
+	{
+		$this->performance[$id] = $timestamp;
 	}
 
 	/**

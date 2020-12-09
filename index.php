@@ -21,6 +21,8 @@
 
 use Dice\Dice;
 
+$start_time = microtime(true);
+
 if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
 	die('Vendor path not found. Please execute "bin/composer.phar --no-dev install" on the command line in the web root.');
 }
@@ -39,5 +41,6 @@ $a->runFrontend(
 	$dice->create(\Friendica\App\Router::class),
 	$dice->create(\Friendica\Core\PConfig\IPConfig::class),
 	$dice->create(\Friendica\Security\Authentication::class),
-	$dice->create(\Friendica\App\Page::class)
+	$dice->create(\Friendica\App\Page::class),
+	$start_time
 );

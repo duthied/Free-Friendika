@@ -415,8 +415,14 @@ class App
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Module $module, App\Router $router, IPConfig $pconfig, Authentication $auth, App\Page $page)
+	public function runFrontend(App\Module $module, App\Router $router, IPConfig $pconfig, Authentication $auth, App\Page $page, int $start_time = 0)
 	{
+		if ($start_time != 0) {
+			$this->profiler->set($start_time, 'start');
+		}
+
+		$this->profiler->set(microtime(true), 'classinit');
+
 		$moduleName = $module->getName();
 
 		try {
@@ -551,12 +557,12 @@ class App
 			$module = $module->determineClass($this->args, $router, $this->config);
 
 			// Let the module run it's internal process (init, get, post, ...)
-			$module->run($this->l10n, $this->baseURL, $this->logger, $_SERVER, $_POST);
+			$module->run($this->l10n, $this->baseURL, $this->logger, $this->profiler, $_SERVER, $_POST);
 		} catch (HTTPException $e) {
 			ModuleHTTPException::rawContent($e);
 		}
 
-		$page->run($this, $this->baseURL, $this->mode, $module, $this->l10n, $this->config, $pconfig);
+		$page->run($this, $this->baseURL, $this->mode, $module, $this->l10n, $this->profiler, $this->config, $pconfig);
 	}
 
 	/**

@@ -36,6 +36,7 @@ use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
+use Friendica\Util\Profiler;
 
 /**
  * Contains the page specific environment variables for the current Page
@@ -375,7 +376,7 @@ class Page implements ArrayAccess
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function run(App $app, BaseURL $baseURL, Mode $mode, Module $module, L10n $l10n, IConfig $config, IPConfig $pconfig)
+	public function run(App $app, BaseURL $baseURL, Mode $mode, Module $module, L10n $l10n, Profiler $profiler, IConfig $config, IPConfig $pconfig)
 	{
 		$moduleName = $module->getName();
 
@@ -384,7 +385,9 @@ class Page implements ArrayAccess
 		 *
 		 * Sets the $Page->page['content'] variable
 		 */
+		$timestamp = microtime(true);
 		$this->initContent($module, $mode);
+		$profiler->set(microtime(true) - $timestamp, 'content');
 
 		// Load current theme info after module has been initialized as theme could have been set in module
 		$currentTheme = $app->getCurrentTheme();
