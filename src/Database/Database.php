@@ -910,13 +910,12 @@ class Database
 	/**
 	 * Fetch a single row
 	 *
-	 * @param mixed $stmt statement object
+	 * @param PDOStatement|mysqli_stmt $stmt statement object
 	 *
-	 * @return array current row
+	 * @return array|false current row
 	 */
 	public function fetch($stmt)
 	{
-
 		$stamp1 = microtime(true);
 
 		$columns = [];
@@ -934,7 +933,7 @@ class Database
 				break;
 			case self::MYSQLI:
 				if (get_class($stmt) == 'mysqli_result') {
-					$columns = $stmt->fetch_assoc();
+					$columns = $stmt->fetch_assoc() ?? false;
 					break;
 				}
 
