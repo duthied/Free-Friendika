@@ -2709,8 +2709,10 @@ class DFRN
 			foreach ($deletions as $deletion) {
 				self::processDeletion($xpath, $deletion, $importer);
 			}
-			Logger::notice('Deletions had been processed');
-			return 200;
+			if (count($deletions) > 0) {
+				Logger::notice('Deletions had been processed');
+				return 200;
+			}
 		}
 
 		if (!$sort_by_date) {
