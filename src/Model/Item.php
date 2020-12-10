@@ -223,13 +223,14 @@ class Item
 	 * Fetch a single item row
 	 *
 	 * @param mixed $stmt statement object
-	 * @return array current row
+	 * @return array|false current row or false
+	 * @throws \Exception
 	 */
 	public static function fetch($stmt)
 	{
 		$row = DBA::fetch($stmt);
 
-		if (is_bool($row)) {
+		if (!is_array($row)) {
 			return $row;
 		}
 
