@@ -134,7 +134,8 @@ class Profiler implements ContainerInterface
 	public function resetPerformance()
 	{
 		$this->performance = [];
-		$this->performance['start'] = $this->performance['ready'] = microtime(true);
+		$this->performance['start'] = microtime(true);
+		$this->performance['ready'] = 0;
 		$this->performance['database'] = 0;
 		$this->performance['database_write'] = 0;
 		$this->performance['cache'] = 0;
@@ -145,7 +146,8 @@ class Profiler implements ContainerInterface
 		$this->performance['parser'] = 0;
 		$this->performance['marktime'] = 0;
 		$this->performance['marktime'] = microtime(true);
-		$this->performance['frontend'] = 0;
+		$this->performance['classcreate'] = 0;
+		$this->performance['classinit'] = 0;
 		$this->performance['init'] = 0;
 		$this->performance['content'] = 0;
 	}

@@ -415,12 +415,9 @@ class App
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Module $module, App\Router $router, IPConfig $pconfig, Authentication $auth, App\Page $page, int $start_time = 0)
+	public function runFrontend(App\Module $module, App\Router $router, IPConfig $pconfig, Authentication $auth, App\Page $page, float $start_time)
 	{
-		if ($start_time != 0) {
-			$this->profiler->set($start_time, 'start');
-		}
-
+		$this->profiler->set($start_time, 'start');
 		$this->profiler->set(microtime(true), 'classinit');
 
 		$moduleName = $module->getName();
