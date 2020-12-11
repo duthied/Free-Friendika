@@ -3031,7 +3031,18 @@ class Diaspora
 			$owner['uprvkey'] = $owner['prvkey'];
 		}
 
-		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
+		// When sending content to Friendica contacts using the Diaspora protocol
+		// we have to fetch the public key from the fcontact.
+		// This is due to the fact that legacy DFRN had unique keys for every contact.
+		$pubkey = $contact['pubkey'];
+		if (!empty($contact['addr'])) {
+			$fcontact = FContact::getByURL($contact['addr']);
+			if (!empty($fcontact)) {
+				$pubkey = $fcontact['pubkey'];
+			}
+		}
+
+		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $pubkey, $public_batch);
 
 		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, $guid);
 
