@@ -324,8 +324,7 @@ function conv_get_blocklist()
 	$blocklist = [];
 
 	foreach (explode(',', $str_blocked) as $entry) {
-		// The 4th parameter guarantees that there always will be a public contact entry
-		$cid = Contact::getIdForURL(trim($entry), 0, false, ['url' => trim($entry)]);
+		$cid = Contact::getIdForURL(trim($entry), 0, false);
 		if (!empty($cid)) {
 			$blocklist[] = $cid;
 		}
