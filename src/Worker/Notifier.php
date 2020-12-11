@@ -133,10 +133,7 @@ class Notifier
 				}
 			}
 
-			if ((count($items) == 1) && ($items[0]['id'] === $target_item['id']) && ($items[0]['uri'] === $items[0]['parent-uri'])) {
-				Logger::info('Top level post', ['target' => $target_id]);
-				$top_level = true;
-			}
+			$top_level = $target_item['gravity'] == GRAVITY_PARENT;
 		}
 
 		$owner = User::getOwnerDataById($uid);
@@ -774,8 +771,13 @@ class Notifier
 			return 0;
 		}
 
-		// Also don't deliver  when the direct thread parent was delivered via Diaspora
+		// Also don't deliver when the direct thread parent was delivered via Diaspora
 		if ($thr_parent['network'] == Protocol::DIASPORA) {
+			return 0;
+		}
+
+		// Posts from Diaspora contacts are transmitted via Diaspora
+		if ($target_item['network'] == Protocol::DIASPORA) {
 			return 0;
 		}
 

@@ -141,13 +141,7 @@ class Delivery
 				}
 			}
 
-			// When commenting too fast after delivery, a post wasn't recognized as top level post.
-			// The count then showed more than one entry. The additional check should help.
-			// The check for the "count" should be superfluous, but I'm not totally sure by now, so we keep it.
-			if ((($parent['id'] == $target_id) || (count($items) == 1)) && ($parent['uri'] === $parent['parent-uri'])) {
-				Logger::log('Top level post');
-				$top_level = true;
-			}
+			$top_level = $target_item['gravity'] == GRAVITY_PARENT;
 
 			// This is IMPORTANT!!!!
 
@@ -211,7 +205,8 @@ class Delivery
 		// Transmit via Diaspora if the thread had started as Diaspora post.
 		// Also transmit via Diaspora if this is a direct answer to a Diaspora comment.
 		// This is done since the uri wouldn't match (Diaspora doesn't transmit it)
-		if (!empty($parent) && !empty($thr_parent) && in_array(Protocol::DIASPORA, [$parent['network'], $thr_parent['network']])) {
+		// Also transmit relayed posts from Diaspora contacts via Diaspora.
+		if (!empty($parent) && !empty($thr_parent) && in_array(Protocol::DIASPORA, [$parent['network'], $thr_parent['network'], $target_item['network']])) {
 			$contact['network'] = Protocol::DIASPORA;
 		}
 

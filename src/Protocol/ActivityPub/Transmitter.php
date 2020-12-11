@@ -470,6 +470,20 @@ class Transmitter
 	}
 
 	/**
+	 * Check if the given item id is from ActivityPub
+	 *
+	 * @param integer $item_id
+	 * @return boolean "true" if the post is from ActivityPub
+	 */
+	private static function isAPPost(int $item_id) {
+		if (empty($item_id)) {
+			return false;
+		}
+
+		return Item::exists(['id' => $item_id, 'network' => Protocol::ACTIVITYPUB]);
+	}
+
+	/**
 	 * Creates an array of permissions from an item thread
 	 *
 	 * @param array   $item       Item array
@@ -501,7 +515,7 @@ class Transmitter
 			$always_bcc = true;
 		}
 
-		if (self::isAnnounce($item) || DI::config()->get('debug', 'total_ap_delivery')) {
+		if (self::isAnnounce($item) || DI::config()->get('debug', 'total_ap_delivery') || self::isAPPost($last_id)) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
 		} else {
@@ -680,12 +694,13 @@ class Transmitter
 	 *
 	 * @param integer $uid      User ID
 	 * @param boolean $personal fetch personal inboxes
+	 * @param boolean $all_ap   Retrieve all AP enabled inboxes
 	 *
 	 * @return array of follower inboxes
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchTargetInboxesforUser($uid, $personal = false)
+	public static function fetchTargetInboxesforUser($uid, $personal = false, bool $all_ap = false)
 	{
 		$inboxes = [];
 
@@ -698,7 +713,7 @@ class Transmitter
 			}
 		}
 
-		if (DI::config()->get('debug', 'total_ap_delivery')) {
+		if (DI::config()->get('debug', 'total_ap_delivery') || $all_ap) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
 		} else {
@@ -793,7 +808,7 @@ class Transmitter
 				}
 
 				if ($item_profile && ($receiver == $item_profile['followers']) && ($uid == $profile_uid)) {
-					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal));
+					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal, self::isAPPost($last_id)));
 				} else {
 					if (Contact::isLocal($receiver)) {
 						continue;
