@@ -475,7 +475,8 @@ class Transmitter
 	 * @param integer $item_id
 	 * @return boolean "true" if the post is from ActivityPub
 	 */
-	private static function isAPPost(int $item_id) {
+	private static function isAPPost(int $item_id)
+	{
 		if (empty($item_id)) {
 			return false;
 		}
@@ -1048,32 +1049,30 @@ class Transmitter
 			return false;
 		}
 
-		if (empty($type)) {
-			$condition = ['item-uri' => $item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
-			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
-			if (DBA::isResult($conversation)) {
-				$data = json_decode($conversation['source'], true);
-				if (!empty($data['type'])) {
-					if (in_array($data['type'], ['Create', 'Update'])) {
-						if ($object_mode) {
-							unset($data['@context']);
-							unset($data['signature']);
-						}
-						Logger::info('Return stored conversation', ['item' => $item_id]);
-						return $data;
-					} elseif (in_array('as:' . $data['type'], Receiver::CONTENT_TYPES)) {
-						if (!empty($data['@context'])) {
-							$context = $data['@context'];
-							unset($data['@context']);
-						}
-						unset($data['actor']);
-						$object = $data;
+		$condition = ['item-uri' => $item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
+		$conversation = DBA::selectFirst('conversation', ['source'], $condition);
+		if (!$item['origin'] && DBA::isResult($conversation)) {
+			$data = json_decode($conversation['source'], true);
+			if (!empty($data['type'])) {
+				if (in_array($data['type'], ['Create', 'Update'])) {
+					if ($object_mode) {
+						unset($data['@context']);
+						unset($data['signature']);
 					}
+					Logger::info('Return stored conversation', ['item' => $item_id]);
+					return $data;
+				} elseif (in_array('as:' . $data['type'], Receiver::CONTENT_TYPES)) {
+					if (!empty($data['@context'])) {
+						$context = $data['@context'];
+						unset($data['@context']);
+					}
+					unset($data['actor']);
+					$object = $data;
 				}
 			}
-
-			$type = self::getTypeOfItem($item);
 		}
+
+		$type = self::getTypeOfItem($item);
 
 		if (!$object_mode) {
 			$data = ['@context' => $context ?? ActivityPub::CONTEXT];
