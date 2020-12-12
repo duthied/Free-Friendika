@@ -74,7 +74,7 @@ class Transmitter
 			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))",
 				'Application', 0, Contact::FOLLOWER, Contact::FRIEND]);
 		while ($contact = DBA::fetch($contacts)) {
-			$inboxes[] = $contact['inbox'];
+			$inboxes[$contact['inbox']] = $contact['inbox'];
 		}
 		DBA::close($contacts);
 
@@ -89,15 +89,19 @@ class Transmitter
 	 */
 	public static function addRelayServerInboxesForItem(int $item_id, array $inboxes = [])
 	{
+		$item = Item::selectFirst(['uid'], ['id' => $item_id]);
+		if (empty($item)) {
+			return $inboxes;
+		}
+
 		$relays = Relay::getList($item_id, [], [Protocol::ACTIVITYPUB]);
 		if (empty($relays)) {
 			return $inboxes;
 		}
 
 		foreach ($relays as $relay) {
-			if (!in_array($relay['batch'], $inboxes)) {
-				$inboxes[] = $relay['batch'];
-			}
+			$contact = Contact::getByURLForUser($relay['url'], $item['uid'], false, ['id']);
+			$inboxes[$relay['batch']][] = $contact['id'] ?? 0;
 		}
 		return $inboxes;
 	}
@@ -728,7 +732,7 @@ class Transmitter
 			$condition['rel'] = [Contact::FOLLOWER, Contact::FRIEND];
 		}
 
-		$contacts = DBA::select('contact', ['url', 'network', 'protocol'], $condition);
+		$contacts = DBA::select('contact', ['id', 'url', 'network', 'protocol'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
 			if (Contact::isLocal($contact['url'])) {
 				continue;
@@ -754,7 +758,7 @@ class Transmitter
 					$target = $profile['sharedinbox'];
 				}
 				if (!self::archivedInbox($target)) {
-					$inboxes[$target] = $target;
+					$inboxes[$target][] = $contact['id'];
 				}
 			}
 		}
@@ -817,13 +821,15 @@ class Transmitter
 
 					$profile = APContact::getByURL($receiver, false);
 					if (!empty($profile)) {
+						$contact = Contact::getByURLForUser($receiver, $uid, false, ['id']);
+
 						if (empty($profile['sharedinbox']) || $personal || $blindcopy) {
 							$target = $profile['inbox'];
 						} else {
 							$target = $profile['sharedinbox'];
 						}
 						if (!self::archivedInbox($target)) {
-							$inboxes[$target] = $target;
+							$inboxes[$target][] = $contact['id'] ?? 0;
 						}
 					}
 				}

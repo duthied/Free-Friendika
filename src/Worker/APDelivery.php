@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Protocol\ActivityPub;
@@ -37,10 +38,11 @@ class APDelivery
 	 * @param integer $target_id
 	 * @param string  $inbox
 	 * @param integer $uid
+	 * @param array   $receivers
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function execute($cmd, $target_id, $inbox, $uid)
+	public static function execute($cmd, $target_id, $inbox, $uid, $receivers = [])
 	{
 		if (ActivityPub\Transmitter::archivedInbox($inbox)) {
 			Logger::info('Inbox is archived', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $target_id, 'uid' => $uid]);
@@ -80,6 +82,19 @@ class APDelivery
 		// This should never fail and is temporariy (until the move to the "post" structure)
 		$item = Item::selectFirst(['uri-id'], ['id' => $target_id]);
 		$uriid = $item['uri-id'] ?? 0;
+
+		foreach ($receivers as $receiver) {
+			$contact = Contact::getById($receiver);
+			if (empty($contact)) {
+				continue;
+			}
+
+			if ($success) {
+				Contact::unmarkForArchival($contact);
+			} else {
+				Contact::markForArchival($contact);
+			}
+		}
 
 		if (!$success && !Worker::defer() && in_array($cmd, [Delivery::POST])) {
 			Post\DeliveryData::incrementQueueFailed($uriid);
