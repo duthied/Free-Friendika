@@ -809,7 +809,7 @@ class Contact
 			Logger::info('Empty contact', ['contact' => $contact, 'callstack' => System::callstack(20)]);
 		}
 
-		Logger::info('Contact is marked for archival', ['id' => $contact['id']]);
+		Logger::info('Contact is marked for archival', ['id' => $contact['id'], 'term-date' => $contact['term-date']]);
 
 		// Contact already archived or "self" contact? => nothing to do
 		if ($contact['archive'] || $contact['self']) {
@@ -867,7 +867,7 @@ class Contact
 			return;
 		}
 
-		Logger::info('Contact is marked as vital again', ['id' => $contact['id']]);
+		Logger::info('Contact is marked as vital again', ['id' => $contact['id'], 'term-date' => $contact['term-date']]);
 
 		if (!isset($contact['url']) && !empty($contact['id'])) {
 			$fields = ['id', 'url', 'batch'];
