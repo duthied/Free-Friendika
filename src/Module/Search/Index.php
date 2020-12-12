@@ -175,7 +175,9 @@ class Index extends BaseSearch
 		}
 
 		if (empty($items)) {
-			notice(DI::l10n()->t('No results.'));
+			if (empty($last_uriid)) {
+				notice(DI::l10n()->t('No results.'));
+			}
 			return $o;
 		}
 

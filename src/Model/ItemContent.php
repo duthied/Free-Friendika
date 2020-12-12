@@ -42,7 +42,9 @@ class ItemContent
 	public static function getURIIdListBySearch(string $search, int $uid = 0, int $start = 0, int $limit = 100, int $last_uriid = 0)
 	{
 		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `item-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
-			AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
+			AND (NOT `private` OR (`private` AND `uid` = ?))
+			AND `uri-id` IN (SELECT `uri-id` FROM `item` WHERE `network` IN (?, ?, ?, ?))",
+			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 
 		if (!empty($last_uriid)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $last_uriid]);
@@ -68,7 +70,9 @@ class ItemContent
 	public static function countBySearch(string $search, int $uid = 0)
 	{
 		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `item-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
-			AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
+			AND (NOT `private` OR (`private` AND `uid` = ?))
+			AND `uri-id` IN (SELECT `uri-id` FROM `item` WHERE `network` IN (?, ?, ?, ?))",
+			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 		return DBA::count('item', $condition);
 	}
 

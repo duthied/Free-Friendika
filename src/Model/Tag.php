@@ -24,6 +24,7 @@ namespace Friendica\Model;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
@@ -450,7 +451,9 @@ class Tag
 	 */
 	public static function countByTag(string $search, int $uid = 0)
 	{
-		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
+		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))
+			AND `uri-id` IN (SELECT `uri-id` FROM `item` WHERE `network` IN (?, ?, ?, ?))",
+			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 		$params = ['group_by' => ['uri-id']];
 
 		return DBA::count('tag-search-view', $condition, $params);
@@ -468,7 +471,9 @@ class Tag
 	 */
 	public static function getURIIdListByTag(string $search, int $uid = 0, int $start = 0, int $limit = 100, int $last_uriid = 0)
 	{
-		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))", $search, $uid];
+		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))
+			AND `uri-id` IN (SELECT `uri-id` FROM `item` WHERE `network` IN (?, ?, ?, ?))",
+			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 
 		if (!empty($last_uriid)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $last_uriid]);
