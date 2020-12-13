@@ -2910,8 +2910,8 @@ class Item
 		$datarray['api_source'] = true;
 
 		// We have to tell the hooks who we are - this really should be improved
-		$_SESSION["authenticated"] = true;
-		$_SESSION["uid"] = $contact['uid'];
+		$_SESSION['authenticated'] = true;
+		$_SESSION['uid'] = $contact['uid'];
 
 		return (bool)$result;
 	}

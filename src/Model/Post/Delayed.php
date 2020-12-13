@@ -25,37 +25,58 @@ use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Core\Worker;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Tag;
+use Friendica\Util\DateTimeFormat;
 
 class Delayed
 {
 	/**
 	 * Insert a new delayed post
 	 *
-	 * @param string $delayed
-	 * @param array $item
+	 * @param string  $uri
+	 * @param array   $item
 	 * @param integer $notify
-	 * @param array $taglist
-	 * @param array $attachments
+	 * @param bool    $unprepared
+	 * @param string  $delayed
+	 * @param array   $taglist
+	 * @param array   $attachments
 	 * @return bool insert success
 	 */ 
-	public static function add(string $delayed, array $item, int $notify = 0, array $taglist = [], array $attachments = [])
+	public static function add(string $uri, array $item, int $notify = 0, bool $unprepared = false, string $delayed = '', array $taglist = [], array $attachments = [])
 	{
-		if (empty($item['uri']) || empty($item['uid']) || self::exists($item['uri'], $item['uid'])) {
+		if (empty($item['uid']) || self::exists($uri, $item['uid'])) {
+			Logger::notice('No uid or already found');
 			return false;
 		}
 
-		Logger::notice('Adding post for delayed publishing', ['uid' => $item['uid'], 'delayed' => $delayed, 'uri' => $item['uri']]);
+		if (empty($delayed)) {
+			$min_posting = DI::config()->get('system', 'minimum_posting_interval', 0);
 
-		Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments);
-		return DBA::insert('delayed-post', ['uri' => $item['uri'], 'uid' => $item['uid'], 'delayed' => $delayed], Database::INSERT_IGNORE);
+			$last_publish = DI::pConfig()->get($item['uid'], 'system', 'last_publish', 0, true);
+			$next_publish = max($last_publish + (60 * $min_posting), time());
+			$delayed = date(DateTimeFormat::MYSQL, $next_publish);
+		} else {
+			$next_publish = strtotime($delayed);
+		}
+
+		Logger::notice('Adding post for delayed publishing', ['uid' => $item['uid'], 'delayed' => $delayed, 'uri' => $uri]);
+
+		if (!Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $unprepared, $uri)) {
+			return false;
+		}
+
+		DI::pConfig()->set($item['uid'], 'system', 'last_publish', $next_publish);
+
+		return DBA::insert('delayed-post', ['uri' => $uri, 'uid' => $item['uid'], 'delayed' => $delayed], Database::INSERT_IGNORE);
 	}
 
 	/**
 	 * Delete a delayed post
 	 *
 	 * @param string $uri
+	 * @param int    $uid
 	 *
 	 * @return bool delete success
 	 */
@@ -68,6 +89,7 @@ class Delayed
 	 * Check if an entry exists
 	 *
 	 * @param string $uri
+	 * @param int    $uid
 	 *
 	 * @return bool "true" if an entry with that URI exists
 	 */
@@ -83,16 +105,49 @@ class Delayed
 	 * @param integer $notify
 	 * @param array $taglist
 	 * @param array $attachments
+	 * @param bool  $unprepared
+	 * @param string $uri
 	 * @return bool
 	 */
-	public static function publish(array $item, int $notify = 0, array $taglist = [], array $attachments = [])
+	public static function publish(array $item, int $notify = 0, array $taglist = [], array $attachments = [], bool $unprepared = false, string $uri = '')
 	{
+		if ($unprepared) {
+			$_SESSION['authenticated'] = true;
+			$_SESSION['uid'] = $item['uid'];
+
+			$_REQUEST = $item;
+			$_REQUEST['api_source'] = true;
+			$_REQUEST['profile_uid'] = $item['uid'];
+			$_REQUEST['title'] = $item['title'] ?? '';
+
+			if (!empty($item['app'])) {
+				$_REQUEST['source'] = $item['app'];
+			}
+
+			require_once 'mod/item.php';
+			$id = item_post(DI::app());
+
+			if (empty($uri) && !empty($item['extid'])) {
+				$uri = $item['extid'];
+			}
+
+			Logger::notice('Unprepared post stored', ['id' => $id, 'uid' => $item['uid'], 'uri' => $uri]);
+			if (self::exists($uri, $item['uid'])) {
+				self::delete($uri, $item['uid']);
+			}
+	
+			return $id;
+		}
 		$id = Item::insert($item, $notify);
 
 		Logger::notice('Post stored', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id']]);
 
-		if (!empty($item['uri']) && self::exists($item['uri'], $item['uid'])) {
-			self::delete($item['uri'], $item['uid']);
+		if (empty($uri) && !empty($item['uri'])) {
+			$uri = $item['uri'];
+		}
+
+		if (!empty($uri) && self::exists($uri, $item['uid'])) {
+			self::delete($uri, $item['uid']);
 		}
 
 		if (!empty($id) && (!empty($taglist) || !empty($attachments))) {
