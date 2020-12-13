@@ -34,11 +34,12 @@ class DelayedPublish
 	  * @param array $taglist
 	  * @param array $attachments
 	  * @param bool  $unprepared
+	  * @param string $uri
 	  * @return void
 	  */
-	public static function execute(array $item, int $notify = 0, array $taglist = [], array $attachments = [], bool $unprepared = false)
+	public static function execute(array $item, int $notify = 0, array $taglist = [], array $attachments = [], bool $unprepared = false, string $uri = '')
 	{
-		$id = Post\Delayed::publish($item, $notify, $taglist, $attachments, $unprepared);
+		$id = Post\Delayed::publish($item, $notify, $taglist, $attachments, $unprepared, $uri);
 		Logger::notice('Post published', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id'], 'notify' => $notify, 'unprepared' => $unprepared]);
 	}
 }

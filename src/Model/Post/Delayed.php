@@ -63,7 +63,7 @@ class Delayed
 
 		Logger::notice('Adding post for delayed publishing', ['uid' => $item['uid'], 'delayed' => $delayed, 'uri' => $uri]);
 
-		if (!Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $unprepared)) {
+		if (!Worker::add(['priority' => PRIORITY_HIGH, 'delayed' => $delayed], 'DelayedPublish', $item, $notify, $taglist, $attachments, $unprepared, $uri)) {
 			return false;
 		}
 
@@ -106,9 +106,10 @@ class Delayed
 	 * @param array $taglist
 	 * @param array $attachments
 	 * @param bool  $unprepared
+	 * @param string $uri
 	 * @return bool
 	 */
-	public static function publish(array $item, int $notify = 0, array $taglist = [], array $attachments = [], bool $unprepared = false)
+	public static function publish(array $item, int $notify = 0, array $taglist = [], array $attachments = [], bool $unprepared = false, string $uri = '')
 	{
 		if ($unprepared) {
 			$_SESSION['authenticated'] = true;
@@ -126,15 +127,27 @@ class Delayed
 			require_once 'mod/item.php';
 			$id = item_post(DI::app());
 
-			Logger::notice('Unprepared post stored', ['id' => $id, 'uid' => $item['uid'], 'extid' => $item['extid']]);
+			if (empty($uri) && !empty($item['extid'])) {
+				$uri = $item['extid'];
+			}
+
+			Logger::notice('Unprepared post stored', ['id' => $id, 'uid' => $item['uid'], 'uri' => $uri]);
+			if (self::exists($uri, $item['uid'])) {
+				self::delete($uri, $item['uid']);
+			}
+	
 			return $id;
 		}
 		$id = Item::insert($item, $notify);
 
 		Logger::notice('Post stored', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id']]);
 
-		if (!empty($item['uri']) && self::exists($item['uri'], $item['uid'])) {
-			self::delete($item['uri'], $item['uid']);
+		if (empty($uri) && !empty($item['uri'])) {
+			$uri = $item['uri'];
+		}
+
+		if (!empty($uri) && self::exists($uri, $item['uid'])) {
+			self::delete($uri, $item['uid']);
 		}
 
 		if (!empty($id) && (!empty($taglist) || !empty($attachments))) {
