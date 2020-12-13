@@ -47,6 +47,7 @@ class Delayed
 	public static function add(string $uri, array $item, int $notify = 0, bool $unprepared = false, string $delayed = '', array $taglist = [], array $attachments = [])
 	{
 		if (empty($item['uid']) || self::exists($uri, $item['uid'])) {
+			Logger::notice('No uid or already found');
 			return false;
 		}
 
