@@ -327,6 +327,10 @@ class Processor
 		$item['guid'] = $activity['diaspora:guid'] ?: $guid;
 
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
+		if (empty($item['uri-id'])) {
+			Logger::warning('Unable to get a uri-id for an item uri', ['uri' => $item['uri'], 'guid' => $item['guid']]);
+			return [];
+		}
 
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
