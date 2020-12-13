@@ -127,7 +127,7 @@ class Delayed
 			$id = item_post(DI::app());
 
 			Logger::notice('Unprepared post stored', ['id' => $id, 'uid' => $item['uid'], 'extid' => $item['extid']]);
-			return;
+			return $id;
 		}
 		$id = Item::insert($item, $notify);
 
