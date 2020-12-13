@@ -46,9 +46,6 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'mod/share.php';
-require_once 'include/api.php';
-
 /**
  * This class contain functions for the OStatus protocol
  */

@@ -67,7 +67,6 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once __DIR__ . '/../mod/share.php';
 require_once __DIR__ . '/../mod/item.php';
 require_once __DIR__ . '/../mod/wall_upload.php';
 

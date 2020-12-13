@@ -3382,7 +3382,6 @@ class Diaspora
 			}
 
 			if ($item['author-link'] != $item['owner-link']) {
-				require_once 'mod/share.php';
 				$body = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'],
 					$item['plink'], $item['created']) . $body . '[/share]';
 			}

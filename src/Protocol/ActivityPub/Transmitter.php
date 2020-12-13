@@ -51,9 +51,6 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 
-require_once 'include/api.php';
-require_once 'mod/share.php';
-
 /**
  * ActivityPub Transmitter Protocol class
  *
