@@ -258,7 +258,7 @@ class Probe
 	 * @return string profile link
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function webfingerDfrn($webbie, &$hcard_url)
+	public static function webfingerDfrn(string $webbie, string &$hcard_url)
 	{
 		$profile_link = '';
 
