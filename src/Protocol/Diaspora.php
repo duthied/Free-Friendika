@@ -1589,6 +1589,11 @@ class Diaspora
 			$datarray['diaspora_signed_text'] = json_encode($data);
 		}
 
+		if (Item::isTooOld($datarray)) {
+			Logger::info('Comment is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
+			return false;
+		}
+
 		$message_id = Item::insert($datarray);
 
 		if ($message_id <= 0) {
@@ -1820,6 +1825,11 @@ class Diaspora
 			$datarray['diaspora_signed_text'] = json_encode($data);
 		}
 
+		if (Item::isTooOld($datarray)) {
+			Logger::info('Like is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
+			return false;
+		}
+
 		$message_id = Item::insert($datarray);
 
 		if ($message_id <= 0) {
@@ -1969,6 +1979,11 @@ class Diaspora
 
 		// Diaspora doesn't provide a date for a participation
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = DateTimeFormat::utcNow();
+
+		if (Item::isTooOld($datarray)) {
+			Logger::info('Participation is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
+			return false;
+		}
 
 		$message_id = Item::insert($datarray);
 
@@ -2365,6 +2380,11 @@ class Diaspora
 		$datarray['private'] = $item['private'];
 		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = $item['created'];
 
+		if (Item::isTooOld($datarray)) {
+			Logger::info('Reshare activity is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
+			return false;
+		}
+
 		$message_id = Item::insert($datarray);
 
 		if ($message_id) {
@@ -2462,6 +2482,12 @@ class Diaspora
 		$datarray["object-type"] = $original_item["object-type"];
 
 		self::fetchGuid($datarray);
+
+		if (Item::isTooOld($datarray)) {
+			Logger::info('Reshare is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
+			return false;
+		}
+
 		$message_id = Item::insert($datarray);
 
 		self::sendParticipation($contact, $datarray);
@@ -2758,6 +2784,12 @@ class Diaspora
 		}
 
 		self::fetchGuid($datarray);
+
+		if (Item::isTooOld($datarray)) {
+			Logger::info('Status is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
+			return false;
+		}
+
 		$message_id = Item::insert($datarray);
 
 		self::sendParticipation($contact, $datarray);
