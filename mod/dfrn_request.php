@@ -299,7 +299,7 @@ function dfrn_request_post(App $a)
 		$network = $data["network"];
 
 		// Canonicalize email-style profile locator
-		$url = Probe::webfingerDfrn($data['url'], $hcard);
+		$url = Probe::webfingerDfrn($data['url'] ?? $url, $hcard);
 
 		if (substr($url, 0, 5) === 'stat:') {
 			// Every time we detect the remote subscription we define this as OStatus.

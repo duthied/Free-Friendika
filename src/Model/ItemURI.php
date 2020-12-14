@@ -31,10 +31,10 @@ class ItemURI
 	 *
 	 * @param array $fields Item-uri fields
 	 *
-	 * @return integer item-uri id
+	 * @return int|null item-uri id
 	 * @throws \Exception
 	 */
-	public static function insert($fields)
+	public static function insert(array $fields)
 	{
 		// If the URI gets too long we only take the first parts and hope for best
 		$uri = substr($fields['uri'], 0, 255);

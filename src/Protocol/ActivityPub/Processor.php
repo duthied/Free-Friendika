@@ -327,6 +327,10 @@ class Processor
 		$item['guid'] = $activity['diaspora:guid'] ?: $guid;
 
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
+		if (empty($item['uri-id'])) {
+			Logger::warning('Unable to get a uri-id for an item uri', ['uri' => $item['uri'], 'guid' => $item['guid']]);
+			return [];
+		}
 
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
@@ -903,20 +907,15 @@ class Processor
 		if (!empty($cid)) {
 			self::switchContact($cid);
 			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
-			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
-		} else {
-			$contact = [];
 		}
 
 		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
 			'author-link' => $activity['actor']];
 
-		$note = Strings::escapeTags(trim($activity['content'] ?? ''));
-
 		// Ensure that the contact has got the right network type
 		self::switchContact($item['author-id']);
 
-		$result = Contact::addRelationship($owner, $contact, $item, false, $note);
+		$result = Contact::addRelationship($owner, [], $item, false, $activity['content'] ?? '');
 		if ($result === true) {
 			ActivityPub\Transmitter::sendContactAccept($item['author-link'], $activity['id'], $owner['uid']);
 		}

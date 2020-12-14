@@ -34,6 +34,28 @@ class APDelivery
 	/**
 	 * Delivers ActivityPub messages
 	 *
+	 * @param string       $cmd
+	 * @param integer      $target_id
+	 * @param string|array $inboxes
+	 * @param integer      $uid
+	 * @param array        $receivers
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function execute(string $cmd, int $target_id, $inboxes, int $uid, array $receivers = [])
+	{
+		if (is_string($inboxes)) {
+			$inboxes = [$inboxes];
+		}
+
+		foreach ($inboxes as $inbox) {
+			self::perform($cmd, $target_id, $inbox, $uid, $receivers);
+		}
+	}
+
+	/**
+	 * Delivers ActivityPub messages
+	 *
 	 * @param string  $cmd
 	 * @param integer $target_id
 	 * @param string  $inbox
@@ -42,7 +64,7 @@ class APDelivery
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function execute($cmd, $target_id, $inbox, $uid, $receivers = [])
+	private static function perform(string $cmd, int $target_id, string $inbox, int $uid, array $receivers = [])
 	{
 		if (ActivityPub\Transmitter::archivedInbox($inbox)) {
 			Logger::info('Inbox is archived', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $target_id, 'uid' => $uid]);
