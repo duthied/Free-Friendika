@@ -1392,7 +1392,7 @@ class Item
 				return false;
 			}
 
-			if ($owner['deleted'] || $owner['account_expired'] || $owner['account_removed']) {
+			if ($owner['account_expired'] || $owner['account_removed']) {
 				Logger::notice('Item user has been deleted/expired/removed', ['uid' => $item['uid'], 'deleted' => $owner['deleted'], 'account_expired' => $owner['account_expired'], 'account_removed' => $owner['account_removed']]);
 				return false;
 			}
