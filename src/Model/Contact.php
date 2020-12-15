@@ -724,7 +724,7 @@ class Contact
 	{
 		// We want just to make sure that we don't delete our "self" contact
 		$contact = DBA::selectFirst('contact', ['uid'], ['id' => $id, 'self' => false]);
-		if (!DBA::isResult($contact) || !intval($contact['uid'])) {
+		if (!DBA::isResult($contact)) {
 			return;
 		}
 
@@ -1762,6 +1762,17 @@ class Contact
 		DBA::update('contact', $fields, ['id' => $cids]);
 	}
 
+	public static function deleteContactByUrl(string $url)
+	{
+		// Update contact data for all users
+		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($url)];
+		$contacts = DBA::select('contact', ['id', 'uid'], $condition);
+		while ($contact = DBA::fetch($contacts)) {
+			Logger::info('Deleting contact', ['id' => $contact['id'], 'uid' => $contact['uid'], 'url' => $url]);
+			self::remove($contact['id']);
+		}
+	}
+
 	/**
 	 * Helper function for "updateFromProbe". Updates personal and public contact
 	 *
@@ -1912,6 +1923,15 @@ class Contact
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
+		}
+
+		if (!empty($ret['account-type']) && $ret['account-type'] == User::ACCOUNT_TYPE_DELETED) {
+			Logger::info('Deleted account', ['id' => $id, 'url' => $ret['url'], 'ret' => $ret]);
+			self::remove($id);
+
+			// Delete all contacts with the same URL
+			self::deleteContactByUrl($ret['url']);
+			return true;
 		}
 
 		$uid = $contact['uid'];

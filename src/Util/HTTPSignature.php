@@ -376,8 +376,7 @@ class HTTPSignature
 	 */
 	public static function fetch($request, $uid)
 	{
-		$opts = ['accept_content' => 'application/activity+json, application/ld+json'];
-		$curlResult = self::fetchRaw($request, $uid, false, $opts);
+		$curlResult = self::fetchRaw($request, $uid);
 
 		if (empty($curlResult)) {
 			return false;
@@ -410,7 +409,7 @@ class HTTPSignature
 	 * @return object CurlResult
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchRaw($request, $uid = 0, $binary = false, $opts = [])
+	public static function fetchRaw($request, $uid = 0, $opts = ['accept_content' => 'application/activity+json, application/ld+json'])
 	{
 		$header = [];
 

@@ -147,14 +147,25 @@ class APContact
 			$url = $apcontact['url'];
 		}
 
-		$data = ActivityPub::fetchContent($url);
-		if (empty($data)) {
+		$curlResult = HTTPSignature::fetchRaw($url);
+		$failed = empty($curlResult) || empty($curlResult->getBody()) ||
+			(!$curlResult->isSuccess() && ($curlResult->getReturnCode() != 410));
+
+		if (!$failed) {
+			$data = json_decode($curlResult->getBody(), true);
+			$failed = empty($data) || !is_array($data);
+		}
+
+		if (!$failed && ($curlResult->getReturnCode() == 410)) {
+			$data = ['@context' => ActivityPub::CONTEXT, 'id' => $url, 'type' => 'Tombstone'];
+		}
+
+		if ($failed) {
 			self::markForArchival($fetched_contact ?: []);
 			return $fetched_contact;
 		}
 
 		$compacted = JsonLD::compact($data);
-
 		if (empty($compacted['@id'])) {
 			return $fetched_contact;
 		}
@@ -207,8 +218,11 @@ class APContact
 		}
 
 		// Quit if none of the basic values are set
-		if (empty($apcontact['url']) || empty($apcontact['inbox']) || empty($apcontact['type'])) {
+		if (empty($apcontact['url']) || empty($apcontact['type']) || (($apcontact['type'] != 'Tombstone') && empty($apcontact['inbox']))) {
 			return $fetched_contact;
+		} elseif ($apcontact['type'] == 'Tombstone') {
+			// The "inbox" field must have a content
+			$apcontact['inbox'] = '';
 		}
 
 		// Quit if this doesn't seem to be an account at all
