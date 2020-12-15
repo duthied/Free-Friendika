@@ -370,12 +370,12 @@ class User
 	/**
 	 * Get owner data by user id
 	 *
-	 * @param int $uid
-	 * @param boolean $check_valid Test if data is invalid and correct it
+	 * @param int     $uid
+	 * @param boolean $repairMissing Repair the owner data if it's missing
 	 * @return boolean|array
 	 * @throws Exception
 	 */
-	public static function getOwnerDataById(int $uid, bool $check_valid = true)
+	public static function getOwnerDataById(int $uid, bool $repairMissing = true)
 	{
 		if ($uid == 0) {
 			return self::getSystemAccount();
@@ -387,7 +387,7 @@ class User
 
 		$owner = DBA::selectFirst('owner-view', [], ['uid' => $uid]);
 		if (!DBA::isResult($owner)) {
-			if (!DBA::exists('user', ['uid' => $uid]) || !$check_valid) {
+			if (!DBA::exists('user', ['uid' => $uid]) || !$repairMissing) {
 				return false;
 			}
 			Contact::createSelfFromUserId($uid);
@@ -398,7 +398,7 @@ class User
 			return false;
 		}
 
-		if (!$check_valid) {
+		if (!$repairMissing) {
 			return $owner;
 		}
 
