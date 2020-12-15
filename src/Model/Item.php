@@ -1385,6 +1385,19 @@ class Item
 			return false;
 		}
 
+		if (!empty($item['uid'])) {
+			$owner = User::getOwnerDataById($item['uid'], false);
+			if (!$owner) {
+				Logger::notice('Missing item user owner data', ['uid' => $item['uid']]);
+				return false;
+			}
+
+			if ($owner['deleted'] || $owner['account_expired'] || $owner['account_removed']) {
+				Logger::notice('Item user has been deleted/expired/removed', ['uid' => $item['uid'], 'deleted' => $owner['deleted'], 'account_expired' => $owner['account_expired'], 'account_removed' => $owner['account_removed']]);
+				return false;
+			}
+		}
+
 		if (!empty($item['author-id']) && Contact::isBlocked($item['author-id'])) {
 			Logger::notice('Author is blocked node-wide', ['author-link' => $item['author-link'], 'item-uri' => $item['uri']]);
 			return false;
