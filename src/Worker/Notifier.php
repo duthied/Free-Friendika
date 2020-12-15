@@ -81,10 +81,10 @@ class Notifier
 
 			$mail = ActivityPub\Transmitter::ItemArrayFromMail($target_id);
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($mail, $uid, true);
-			foreach ($inboxes as $inbox) {
+			foreach ($inboxes as $inbox => $receivers) {
 				Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'target' => $target_id, 'inbox' => $inbox]);
 				Worker::add(['priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true],
-					'APDelivery', $cmd, $target_id, $inbox, $uid);
+					'APDelivery', $cmd, $target_id, $inbox, $uid, $receivers);
 			}
 		} elseif ($cmd == Delivery::SUGGESTION) {
 			$suggest = DI::fsuggest()->getById($target_id);
@@ -744,10 +744,10 @@ class Notifier
 		DBA::close($contacts_stmt);
 
 		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser(0);
-		foreach ($inboxes as $inbox) {
+		foreach ($inboxes as $inbox => $receivers) {
 			Logger::info('Account removal via ActivityPub', ['uid' => $self_user_id, 'inbox' => $inbox]);
 			Worker::add(['priority' => PRIORITY_NEGLIGIBLE, 'created' => $created, 'dont_fork' => true],
-				'APDelivery', Delivery::REMOVAL, '', $inbox, $self_user_id);
+				'APDelivery', Delivery::REMOVAL, 0, $inbox, $self_user_id, $receivers);
 		}
 
 		return true;
@@ -834,10 +834,10 @@ class Notifier
 		}
 
 		// We deliver posts to relay servers slightly delayed to priorize the direct delivery
-		foreach ($relay_inboxes as $inbox => $receivers) {
+		foreach ($relay_inboxes as $inbox) {
 			Logger::info('Delivery to relay servers via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 
-			if (Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, $target_item['id'], $inbox, $uid, $receivers)) {
+			if (Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, $target_item['id'], $inbox, $uid)) {
 				$delivery_queue_count++;
 			}
 		}

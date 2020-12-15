@@ -94,6 +94,7 @@ HELP;
 		'serverblock'            => Friendica\Console\ServerBlock::class,
 		'storage'                => Friendica\Console\Storage::class,
 		'relay'                  => Friendica\Console\Relay::class,
+		'fixapdeliveryworkertaskparameters' => Friendica\Console\FixAPDeliveryWorkerTaskParameters::class,
 	];
 
 	/**

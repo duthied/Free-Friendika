@@ -40,10 +40,10 @@ class ProfileUpdate {
 
 		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser($uid);
 
-		foreach ($inboxes as $inbox) {
+		foreach ($inboxes as $inbox => $receivers) {
 			Logger::log('Profile update for user ' . $uid . ' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
 			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
-				'APDelivery', Delivery::PROFILEUPDATE, '', $inbox, $uid);
+				'APDelivery', Delivery::PROFILEUPDATE, 0, $inbox, $uid, $receivers);
 		}
 
 		Diaspora::sendProfile($uid);
