@@ -834,10 +834,10 @@ class Notifier
 		}
 
 		// We deliver posts to relay servers slightly delayed to priorize the direct delivery
-		foreach ($relay_inboxes as $inbox => $receivers) {
+		foreach ($relay_inboxes as $inbox) {
 			Logger::info('Delivery to relay servers via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 
-			if (Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, $target_item['id'], $inbox, $uid, $receivers)) {
+			if (Worker::add(['priority' => $priority, 'dont_fork' => true], 'APDelivery', $cmd, $target_item['id'], $inbox, $uid)) {
 				$delivery_queue_count++;
 			}
 		}
