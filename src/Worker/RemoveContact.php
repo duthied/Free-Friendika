@@ -31,15 +31,21 @@ use Friendica\Model\Photo;
  */
 class RemoveContact {
 	public static function execute($id) {
-
 		// Only delete if the contact is to be deleted
 		$contact = DBA::selectFirst('contact', ['uid'], ['deleted' => true, 'id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
 
+		Logger::info('Start deleting contact', ['id' => $id]);
 		// Now we delete the contact and all depending tables
-		$condition = ['uid' => $contact['uid'], 'contact-id' => $id];
+		if ($contact['uid'] == 0) {
+			DBA::delete('post-tag', ['cid' => $id]);
+			$condition = ["`author-id` = ? OR `owner-id` = ? OR `causer-id` = ? OR `contact-id` = ?",
+				$id, $id, $id, $id];
+		} else {
+			$condition = ['uid' => $contact['uid'], 'contact-id' => $id];
+		}
 		do {
 			$items = Item::select(['id', 'guid'], $condition, ['limit' => 100]);
 			while ($item = Item::fetch($items)) {
@@ -49,7 +55,8 @@ class RemoveContact {
 			DBA::close($items);
 		} while (Item::exists($condition));
 
-		Photo::delete(['uid' => $contact['uid'], 'contact-id' => $id]);
-		DBA::delete('contact', ['id' => $id]);
+		Photo::delete(['contact-id' => $id]);
+		$ret = DBA::delete('contact', ['id' => $id]);
+		Logger::info('Deleted contact', ['id' => $id, 'result' => $ret]);
 	}
 }

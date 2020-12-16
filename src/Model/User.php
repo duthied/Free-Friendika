@@ -97,6 +97,7 @@ class User
 	const ACCOUNT_TYPE_NEWS =         2;
 	const ACCOUNT_TYPE_COMMUNITY =    3;
 	const ACCOUNT_TYPE_RELAY =        4;
+	const ACCOUNT_TYPE_DELETED =    127;
 	/**
 	 * @}
 	 */

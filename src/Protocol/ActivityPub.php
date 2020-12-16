@@ -68,7 +68,7 @@ class ActivityPub
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
 		'directMessage' => 'litepub:directMessage']];
-	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application'];
+	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application', 'Tombstone'];
 	/**
 	 * Checks if the web request is done for the AP protocol
 	 *
@@ -112,6 +112,9 @@ class ActivityPub
 				break;
 			case 'Application':
 				$accounttype = User::ACCOUNT_TYPE_RELAY;
+				break;
+			case 'Tombstone':
+				$accounttype = User::ACCOUNT_TYPE_DELETED;
 				break;
 		}
 
