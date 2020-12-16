@@ -116,7 +116,7 @@ class ActivityPub
 			case 'Tombstone':
 				$accounttype = User::ACCOUNT_TYPE_DELETED;
 				break;
-			}
+		}
 
 		return $accounttype;
 	}
