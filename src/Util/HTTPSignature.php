@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
+use Friendica\Model\Contact;
 use Friendica\Model\User;
 
 /**
@@ -543,8 +544,19 @@ class HTTPSignature
 		}
 
 		$key = self::fetchKey($sig_block['keyId'], $actor);
+		if (empty($key)) {
+			return false;
+		}
 
-		if (empty($key) || empty($key['pubkey'])) {
+		if (!empty($key['url']) && !empty($key['type']) && ($key['type'] == 'Tombstone')) {
+			Logger::info('Actor is a tombstone', ['key' => $key]);
+
+			// We now delete everything that we possibly knew from this actor
+			Contact::deleteContactByUrl($key['url']);
+			return false;
+		}
+
+		if (empty($key['pubkey'])) {
 			return false;
 		}
 
@@ -615,12 +627,12 @@ class HTTPSignature
 		$profile = APContact::getByURL($url);
 		if (!empty($profile)) {
 			Logger::log('Taking key from id ' . $id, Logger::DEBUG);
-			return ['url' => $url, 'pubkey' => $profile['pubkey']];
+			return ['url' => $url, 'pubkey' => $profile['pubkey'], 'type' => $profile['type']];
 		} elseif ($url != $actor) {
 			$profile = APContact::getByURL($actor);
 			if (!empty($profile)) {
 				Logger::log('Taking key from actor ' . $actor, Logger::DEBUG);
-				return ['url' => $actor, 'pubkey' => $profile['pubkey']];
+				return ['url' => $actor, 'pubkey' => $profile['pubkey'], 'type' => $profile['type']];
 			}
 		}
 
