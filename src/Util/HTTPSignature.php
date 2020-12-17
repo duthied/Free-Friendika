@@ -22,6 +22,7 @@
 namespace Friendica\Util;
 
 use Friendica\Core\Logger;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
@@ -323,7 +324,7 @@ class HTTPSignature
 
 		$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
 		if (!DBA::isResult($status)) {
-			DBA::insert('inbox-status', ['url' => $url, 'created' => $now, 'shared' => $shared]);
+			DBA::insert('inbox-status', ['url' => $url, 'created' => $now, 'shared' => $shared], Database::INSERT_IGNORE);
 			$status = DBA::selectFirst('inbox-status', [], ['url' => $url]);
 		}
 
