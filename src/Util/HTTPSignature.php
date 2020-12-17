@@ -544,7 +544,7 @@ class HTTPSignature
 
 		$key = self::fetchKey($sig_block['keyId'], $actor);
 
-		if (empty($key)) {
+		if (empty($key) || empty($key['pubkey'])) {
 			return false;
 		}
 
