@@ -814,7 +814,7 @@ class Processor
 		}
 
 		$activity = [];
-		$activity['@context'] = $object['@context'];
+		$activity['@context'] = $object['@context'] ?? ActivityPub::CONTEXT;
 		unset($object['@context']);
 		$activity['id'] = $object['id'];
 		$activity['to'] = $object['to'] ?? [];

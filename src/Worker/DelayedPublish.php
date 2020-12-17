@@ -40,6 +40,6 @@ class DelayedPublish
 	public static function execute(array $item, int $notify = 0, array $taglist = [], array $attachments = [], bool $unprepared = false, string $uri = '')
 	{
 		$id = Post\Delayed::publish($item, $notify, $taglist, $attachments, $unprepared, $uri);
-		Logger::notice('Post published', ['id' => $id, 'uid' => $item['uid'], 'cid' => $item['contact-id'], 'notify' => $notify, 'unprepared' => $unprepared]);
+		Logger::notice('Post published', ['id' => $id, 'uid' => $item['uid'], 'notify' => $notify, 'unprepared' => $unprepared]);
 	}
 }
