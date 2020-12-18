@@ -50,7 +50,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	// Update this value to the current date whenever changes are made to BBCode::convert
-	const VERSION = '2020-12-18';
+	const VERSION = '2020-12-18-video-embeds';
 
 	const INTERNAL = 0;
 	const API = 2;
@@ -1467,7 +1467,7 @@ class BBCode
 				$text = preg_replace("(\[style=(.*?)\](.*?)\[\/style\])ism", '<span style="$1">$2</span>', $text);
 
 				// Check for CSS classes
-				$text = preg_replace("(\[class=(.*?)\](.*?)\[\/class\])ism", '<span style="$1">$2</span>', $text);
+				$text = preg_replace("(\[class=(.*?)\](.*?)\[\/class\])ism", '<span class="$1">$2</span>', $text);
 
 				// handle nested lists
 				$endlessloop = 0;
