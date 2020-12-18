@@ -277,6 +277,10 @@ class BBCodeTest extends MockedTest
 				'expectedHTML' => '<span style="color:#FFFFFF;">dare to move your mouse here</span>',
 				'text' => '[color=FFFFFF]dare to move your mouse here[/color]'
 			],
+			'bug-9639-span-classes' => [
+				'expectedHTML' => '<span class="arbitrary classes">Test</span>',
+				'text' => '[class=arbitrary classes]Test[/class]',
+			],
 		];
 	}
 
