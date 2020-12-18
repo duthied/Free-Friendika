@@ -594,6 +594,7 @@ class Site extends BaseAdmin
 		return Renderer::replaceMacros($t, [
 			'$title'             => DI::l10n()->t('Administration'),
 			'$page'              => DI::l10n()->t('Site'),
+			'$general_info'      => DI::l10n()->t('General Information'),
 			'$submit'            => DI::l10n()->t('Save Settings'),
 			'$republish'         => DI::l10n()->t('Republish users to directory'),
 			'$registration'      => DI::l10n()->t('Registration'),

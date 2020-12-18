@@ -12,6 +12,7 @@
 	<form action="{{$baseurl}}/admin/site" method="post">
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
+		<h2>{{$general_info}}</h2>
 		{{include file="field_input.tpl" field=$sitename}}
 		{{include file="field_input.tpl" field=$sender_email}}
 		{{include file="field_input.tpl" field=$system_actor_name}}
