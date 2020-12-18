@@ -25,15 +25,12 @@
 		<form action="{{$baseurl}}/admin/site" method="post">
 			<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 			<input type="hidden" name="active_panel" value="">
-			<!--
-			/*
-			*    General Information
-			*/ -->
+			{{* General Information *}}
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-general">
 					<h2>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-general-collapse" aria-expanded="false" aria-controls="admin-settings-general-collapse">
-							General Information
+							{{$general_info}}
 						</a>
 					</h2>
 				</div>
