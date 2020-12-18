@@ -1876,6 +1876,14 @@ class BBCode
 
 		$config = \HTMLPurifier_HTML5Config::createDefault();
 		$config->set('HTML.Doctype', 'HTML5');
+		$config->set('HTML.SafeIframe', true);
+		$config->set('URI.SafeIframeRegexp', '%^(?:
+			https://www.youtube.com/embed/
+			|
+			https://player.vimeo.com/video/
+			|
+			' . DI::baseUrl() . '/oembed/ # Has to change with the source in Content\Oembed::iframe
+		)%xi');
 		$config->set('Attr.AllowedRel', [
 			'noreferrer' => true,
 			'noopener' => true,
