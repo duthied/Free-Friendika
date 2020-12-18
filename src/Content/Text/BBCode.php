@@ -1622,11 +1622,8 @@ class BBCode
 						'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>', $text);
 				}
 
-				if ($try_oembed) {
-					$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<iframe src="$1" width="' . $a->videowidth . '" height="' . $a->videoheight . '"><a href="$1">$1</a></iframe>', $text);
-				} else {
-					$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1">$1</a>', $text);
-				}
+				// Backward compatibility, [iframe] support has been removed in version 2020.12
+				$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1">$1</a>', $text);
 
 				// Youtube extensions
 				if ($try_oembed) {

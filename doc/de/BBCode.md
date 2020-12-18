@@ -483,10 +483,6 @@ Du kannst Videos, Musikdateien und weitere Dinge in Beitr&auml;gen einbinden.
   <td>OEmbed rich content einbetten.</td>
 </tr>
 <tr>
-  <td>[iframe]URL[/iframe]</td>
-  <td>General embed, iframe size is limited by the theme size for video players.</td>
-</tr>
-<tr>
   <td>[url]*url*[/url]</td>
   <td>Wenn *url* die OEmbed- oder Opengraph-Spezifikationen unterst&uuml;tzt, wird das Objekt eingebettet (z.B. Dokumente von scribd).
   Ansonsten wird der Titel der Seite mit der URL verlinkt.</td>
