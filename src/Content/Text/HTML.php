@@ -290,7 +290,8 @@ class HTML
 
 			self::tagToBBCode($doc, 'video', ['src' => '/(.+)/'], '[video]$1', '[/video]', true);
 			self::tagToBBCode($doc, 'audio', ['src' => '/(.+)/'], '[audio]$1', '[/audio]', true);
-			self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], '[iframe]$1', '[/iframe]', true);
+			// Backward compatibility, [iframe] support has been removed in version 2020.12
+			self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], '[url]$1', '[/url]', true);
 
 			self::tagToBBCode($doc, 'key', [], '[code]', '[/code]');
 			self::tagToBBCode($doc, 'code', [], '[code]', '[/code]');
@@ -630,6 +631,7 @@ class HTML
 			self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], ' ', ' ');
 		}
 
+		// Backward compatibility, [iframe] support has been removed in version 2020.12
 		self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], ' $1 ', '');
 
 		$message = $doc->saveHTML();

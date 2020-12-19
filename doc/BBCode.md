@@ -503,10 +503,6 @@ You can embed video, audio and more in a message.
   <td>Embed OEmbed rich content.</td>
 </tr>
 <tr>
-  <td>[iframe]URL[/iframe]</td>
-  <td>General embed, iframe size is limited by the theme size for video players.</td>
-</tr>
-<tr>
   <td>[url]*url*[/url]</td>
   <td>If *url* supports oembed or opengraph specifications the embedded object will be shown (eg, documents from scribd).
 Page title with a link to *url* will be shown.</td>

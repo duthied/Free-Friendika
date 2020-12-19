@@ -50,7 +50,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	// Update this value to the current date whenever changes are made to BBCode::convert
-	const VERSION = '2020-12-18-small-emojis';
+	const VERSION = '2020-12-18-video-embeds';
 
 	const INTERNAL = 0;
 	const API = 2;
@@ -1622,11 +1622,8 @@ class BBCode
 						'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>', $text);
 				}
 
-				if ($try_oembed) {
-					$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<iframe src="$1" width="' . $a->videowidth . '" height="' . $a->videoheight . '"><a href="$1">$1</a></iframe>', $text);
-				} else {
-					$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1">$1</a>', $text);
-				}
+				// Backward compatibility, [iframe] support has been removed in version 2020.12
+				$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1">$1</a>', $text);
 
 				// Youtube extensions
 				if ($try_oembed) {
@@ -1879,6 +1876,14 @@ class BBCode
 
 		$config = \HTMLPurifier_HTML5Config::createDefault();
 		$config->set('HTML.Doctype', 'HTML5');
+		$config->set('HTML.SafeIframe', true);
+		$config->set('URI.SafeIframeRegexp', '%^(?:
+			https://www.youtube.com/embed/
+			|
+			https://player.vimeo.com/video/
+			|
+			' . DI::baseUrl() . '/oembed/ # Has to change with the source in Content\Oembed::iframe
+		)%xi');
 		$config->set('Attr.AllowedRel', [
 			'noreferrer' => true,
 			'noopener' => true,
