@@ -289,10 +289,16 @@ class Network extends BaseModule
 
 		if (!empty($get['star'])) {
 			self::$selectedTab = 'star';
+			self::$star = true;
+		} else {
+			self::$star = self::$selectedTab == 'star';
 		}
 
 		if (!empty($get['mention'])) {
 			self::$selectedTab = 'mention';
+			self::$mention = true;
+		} else {
+			self::$mention = self::$selectedTab == 'mention';
 		}
 
 		if (!empty($get['order'])) {
@@ -301,9 +307,6 @@ class Network extends BaseModule
 		} elseif (in_array(self::$selectedTab, ['received', 'star', 'mention'])) {
 			self::$order = 'received';
 		}
-
-		self::$star    = intval($get['star'] ?? 0);
-		self::$mention = intval($get['mention'] ?? 0);
 
 		self::$selectedTab = self::$selectedTab ?? self::$order;
 
