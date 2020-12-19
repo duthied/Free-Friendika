@@ -247,7 +247,7 @@ class Site extends BaseAdmin
 				}
 				DI::baseUrl()->redirect('admin/site' . $active_panel);
 			}
-		} else {
+		} elseif (!empty($storagebackend)) {
 			notice(DI::l10n()->t('Invalid storage backend setting value.'));
 		}
 
