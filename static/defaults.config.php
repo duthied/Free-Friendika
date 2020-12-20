@@ -55,8 +55,7 @@ return [
 
 		// pdo_emulate_prepares (Boolean)
 		// If enabled, the builtin emulation for prepared statements is used.
-		// When enabled, a workaround is used to ensure that the returned field types are correct,
-		// since by standard all returned values are casted as strings.
+		// This can be used as a workaround for the database error "Prepared statement needs to be re-prepared".
 		'pdo_emulate_prepares' => false,
 
 		// disable_pdo (Boolean)
