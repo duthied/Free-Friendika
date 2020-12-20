@@ -119,6 +119,8 @@ class Cron
 
 			Worker::add(PRIORITY_LOW, 'RemoveUnusedContacts');
 
+			Worker::add(PRIORITY_LOW, 'RemoveUnusedAvatars');
+
 			// check upstream version?
 			Worker::add(PRIORITY_LOW, 'CheckVersion');
 
