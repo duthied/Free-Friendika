@@ -1,14 +1,14 @@
-# FRIENDICA Distributed Social Network
-# Copyright (C) 2010-2020 the Friendica Project
-# This file is distributed under the same license as the Friendica package.
-# Mike Macgirvin, 2010
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 2020.12-rc\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-17 22:51-0500\n"
+"POT-Creation-Date: 2020-12-19 22:52-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #: include/api.php:1128
 #, php-format
@@ -180,7 +180,7 @@ msgstr ""
 msgid "Fetched because of %s"
 msgstr ""
 
-#: include/conversation.php:941 view/theme/frio/theme.php:321
+#: include/conversation.php:941
 msgid "Follow Thread"
 msgstr ""
 
@@ -238,7 +238,6 @@ msgstr ""
 
 #: include/conversation.php:962 mod/follow.php:145 src/Content/Widget.php:75
 #: src/Model/Contact.php:979 src/Model/Contact.php:992
-#: view/theme/vier/theme.php:172
 msgid "Connect/Follow"
 msgstr ""
 
@@ -896,8 +895,7 @@ msgstr ""
 
 #: mod/cal.php:273 mod/events.php:414 src/Content/Nav.php:181
 #: src/Content/Nav.php:248 src/Module/BaseProfile.php:88
-#: src/Module/BaseProfile.php:99 view/theme/frio/theme.php:229
-#: view/theme/frio/theme.php:233
+#: src/Module/BaseProfile.php:99
 msgid "Events"
 msgstr ""
 
@@ -909,7 +907,7 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#: mod/cal.php:276 mod/events.php:418 src/Module/Install.php:192
+#: mod/cal.php:276 mod/events.php:418 src/Module/Install.php:196
 msgid "Next"
 msgstr ""
 
@@ -918,17 +916,14 @@ msgid "today"
 msgstr ""
 
 #: mod/cal.php:280 mod/events.php:424 src/Model/Event.php:445
-#: src/Util/Temporal.php:330
 msgid "month"
 msgstr ""
 
 #: mod/cal.php:281 mod/events.php:425 src/Model/Event.php:446
-#: src/Util/Temporal.php:331
 msgid "week"
 msgstr ""
 
 #: mod/cal.php:282 mod/events.php:426 src/Model/Event.php:447
-#: src/Util/Temporal.php:332
 msgid "day"
 msgstr ""
 
@@ -1219,7 +1214,7 @@ msgstr ""
 msgid "Edit post"
 msgstr ""
 
-#: mod/editpost.php:88 mod/notes.php:62 src/Content/Text/HTML.php:875
+#: mod/editpost.php:88 mod/notes.php:62 src/Content/Text/HTML.php:877
 #: src/Module/Filer/SaveTag.php:66
 msgid "Save"
 msgstr ""
@@ -1282,6 +1277,20 @@ msgid "Event Starts:"
 msgstr ""
 
 #: mod/events.php:530 mod/events.php:562
+#: src/Module/Admin/Blocklist/Server.php:79
+#: src/Module/Admin/Blocklist/Server.php:80
+#: src/Module/Admin/Blocklist/Server.php:99
+#: src/Module/Admin/Blocklist/Server.php:100
+#: src/Module/Admin/Item/Delete.php:70 src/Module/Debug/Probe.php:57
+#: src/Module/Install.php:189 src/Module/Install.php:222
+#: src/Module/Install.php:227 src/Module/Install.php:246
+#: src/Module/Install.php:257 src/Module/Install.php:262
+#: src/Module/Install.php:268 src/Module/Install.php:273
+#: src/Module/Install.php:287 src/Module/Install.php:302
+#: src/Module/Install.php:329 src/Module/Register.php:135
+#: src/Module/Security/TwoFactor/Verify.php:85
+#: src/Module/Settings/TwoFactor/Index.php:128
+#: src/Module/Settings/TwoFactor/Verify.php:141
 msgid "Required"
 msgstr ""
 
@@ -1324,21 +1333,19 @@ msgstr ""
 #: src/Module/Contact/Advanced.php:132 src/Module/Contact/Poke.php:155
 #: src/Module/Contact.php:604 src/Module/Debug/Localtime.php:64
 #: src/Module/Delegation.php:152 src/Module/FriendSuggest.php:129
-#: src/Module/Install.php:230 src/Module/Install.php:270
-#: src/Module/Install.php:306 src/Module/Invite.php:175
-#: src/Module/Item/Compose.php:144 src/Module/Profile/Profile.php:241
+#: src/Module/Install.php:234 src/Module/Install.php:276
+#: src/Module/Install.php:313 src/Module/Invite.php:175
+#: src/Module/Item/Compose.php:144 src/Module/Profile/Profile.php:242
 #: src/Module/Settings/Profile/Index.php:237 src/Object/Post.php:953
-#: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
-#: view/theme/quattro/config.php:71 view/theme/vier/config.php:119
 msgid "Submit"
 msgstr ""
 
-#: mod/events.php:573 src/Module/Profile/Profile.php:242
+#: mod/events.php:573 src/Module/Profile/Profile.php:243
 msgid "Basic"
 msgstr ""
 
 #: mod/events.php:574 src/Module/Admin/Site.php:603 src/Module/Contact.php:953
-#: src/Module/Profile/Profile.php:243
+#: src/Module/Profile/Profile.php:244
 msgid "Advanced"
 msgstr ""
 
@@ -1347,7 +1354,6 @@ msgid "Failed to remove event"
 msgstr ""
 
 #: mod/fbrowser.php:43 src/Content/Nav.php:179 src/Module/BaseProfile.php:68
-#: view/theme/frio/theme.php:227
 msgid "Photos"
 msgstr ""
 
@@ -1612,7 +1618,7 @@ msgstr ""
 msgid "Discard"
 msgstr ""
 
-#: mod/message.php:135 src/Content/Nav.php:273 view/theme/frio/theme.php:234
+#: mod/message.php:135 src/Content/Nav.php:273
 msgid "Messages"
 msgstr ""
 
@@ -2841,7 +2847,7 @@ msgid ""
 "hours."
 msgstr ""
 
-#: mod/suggest.php:55 src/Content/Widget.php:78 view/theme/vier/theme.php:175
+#: mod/suggest.php:55 src/Content/Widget.php:78
 msgid "Friend Suggestions"
 msgstr ""
 
@@ -3305,7 +3311,7 @@ msgid "Display membership date in profile"
 msgstr ""
 
 #: src/Content/ForumManager.php:145 src/Content/Nav.php:229
-#: src/Content/Text/HTML.php:896 src/Content/Widget.php:540
+#: src/Content/Text/HTML.php:898 src/Content/Widget.php:540
 msgid "Forums"
 msgstr ""
 
@@ -3334,7 +3340,7 @@ msgstr ""
 msgid "Clear notifications"
 msgstr ""
 
-#: src/Content/Nav.php:96 src/Content/Text/HTML.php:883
+#: src/Content/Nav.php:96 src/Content/Text/HTML.php:885
 msgid "@name, !forum, #tags, content"
 msgstr ""
 
@@ -3357,40 +3363,39 @@ msgstr ""
 
 #: src/Content/Nav.php:177 src/Module/BaseProfile.php:60
 #: src/Module/Contact.php:655 src/Module/Contact.php:920
-#: src/Module/Settings/TwoFactor/Index.php:107 view/theme/frio/theme.php:225
+#: src/Module/Settings/TwoFactor/Index.php:107
 msgid "Status"
 msgstr ""
 
 #: src/Content/Nav.php:177 src/Content/Nav.php:263
-#: view/theme/frio/theme.php:225
 msgid "Your posts and conversations"
 msgstr ""
 
 #: src/Content/Nav.php:178 src/Module/BaseProfile.php:52
 #: src/Module/BaseSettings.php:57 src/Module/Contact.php:657
 #: src/Module/Contact.php:936 src/Module/Profile/Profile.php:236
-#: src/Module/Welcome.php:57 view/theme/frio/theme.php:226
+#: src/Module/Welcome.php:57
 msgid "Profile"
 msgstr ""
 
-#: src/Content/Nav.php:178 view/theme/frio/theme.php:226
+#: src/Content/Nav.php:178
 msgid "Your profile page"
 msgstr ""
 
-#: src/Content/Nav.php:179 view/theme/frio/theme.php:227
+#: src/Content/Nav.php:179
 msgid "Your photos"
 msgstr ""
 
 #: src/Content/Nav.php:180 src/Module/BaseProfile.php:76
-#: src/Module/BaseProfile.php:79 view/theme/frio/theme.php:228
+#: src/Module/BaseProfile.php:79
 msgid "Videos"
 msgstr ""
 
-#: src/Content/Nav.php:180 view/theme/frio/theme.php:228
+#: src/Content/Nav.php:180
 msgid "Your videos"
 msgstr ""
 
-#: src/Content/Nav.php:181 view/theme/frio/theme.php:229
+#: src/Content/Nav.php:181
 msgid "Your events"
 msgstr ""
 
@@ -3423,7 +3428,7 @@ msgstr ""
 #: src/Module/Settings/TwoFactor/AppSpecific.php:115
 #: src/Module/Settings/TwoFactor/Index.php:106
 #: src/Module/Settings/TwoFactor/Recovery.php:93
-#: src/Module/Settings/TwoFactor/Verify.php:132 view/theme/vier/theme.php:217
+#: src/Module/Settings/TwoFactor/Verify.php:132
 msgid "Help"
 msgstr ""
 
@@ -3439,7 +3444,7 @@ msgstr ""
 msgid "Addon applications, utilities, games"
 msgstr ""
 
-#: src/Content/Nav.php:220 src/Content/Text/HTML.php:881
+#: src/Content/Nav.php:220 src/Content/Text/HTML.php:883
 #: src/Module/Search/Index.php:99
 msgid "Search"
 msgstr ""
@@ -3448,19 +3453,19 @@ msgstr ""
 msgid "Search site content"
 msgstr ""
 
-#: src/Content/Nav.php:223 src/Content/Text/HTML.php:890
+#: src/Content/Nav.php:223 src/Content/Text/HTML.php:892
 msgid "Full Text"
 msgstr ""
 
-#: src/Content/Nav.php:224 src/Content/Text/HTML.php:891
+#: src/Content/Nav.php:224 src/Content/Text/HTML.php:893
 #: src/Content/Widget/TagCloud.php:68
 msgid "Tags"
 msgstr ""
 
 #: src/Content/Nav.php:225 src/Content/Nav.php:284
-#: src/Content/Text/HTML.php:892 src/Module/BaseProfile.php:121
+#: src/Content/Text/HTML.php:894 src/Module/BaseProfile.php:121
 #: src/Module/BaseProfile.php:124 src/Module/Contact.php:855
-#: src/Module/Contact.php:943 view/theme/frio/theme.php:236
+#: src/Module/Contact.php:943
 msgid "Contacts"
 msgstr ""
 
@@ -3473,7 +3478,7 @@ msgid "Conversations on this and other servers"
 msgstr ""
 
 #: src/Content/Nav.php:248 src/Module/BaseProfile.php:91
-#: src/Module/BaseProfile.php:102 view/theme/frio/theme.php:233
+#: src/Module/BaseProfile.php:102
 msgid "Events and Calendar"
 msgstr ""
 
@@ -3503,11 +3508,11 @@ msgstr ""
 msgid "Terms of Service of this Friendica instance"
 msgstr ""
 
-#: src/Content/Nav.php:261 view/theme/frio/theme.php:232
+#: src/Content/Nav.php:261
 msgid "Network"
 msgstr ""
 
-#: src/Content/Nav.php:261 view/theme/frio/theme.php:232
+#: src/Content/Nav.php:261
 msgid "Conversations from your friends"
 msgstr ""
 
@@ -3532,7 +3537,7 @@ msgstr ""
 msgid "Mark all system notifications seen"
 msgstr ""
 
-#: src/Content/Nav.php:273 view/theme/frio/theme.php:234
+#: src/Content/Nav.php:273
 msgid "Private mail"
 msgstr ""
 
@@ -3554,15 +3559,15 @@ msgstr ""
 
 #: src/Content/Nav.php:282 src/Module/Admin/Addons/Details.php:114
 #: src/Module/Admin/Themes/Details.php:93 src/Module/BaseSettings.php:124
-#: src/Module/Welcome.php:52 view/theme/frio/theme.php:235
+#: src/Module/Welcome.php:52
 msgid "Settings"
 msgstr ""
 
-#: src/Content/Nav.php:282 view/theme/frio/theme.php:235
+#: src/Content/Nav.php:282
 msgid "Account settings"
 msgstr ""
 
-#: src/Content/Nav.php:284 view/theme/frio/theme.php:236
+#: src/Content/Nav.php:284
 msgid "Manage/edit friends and contacts"
 msgstr ""
 
@@ -3614,7 +3619,7 @@ msgstr ""
 msgid "link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1516 src/Content/Text/HTML.php:933
+#: src/Content/Text/BBCode.php:1516 src/Content/Text/HTML.php:935
 msgid "Click to open/close"
 msgstr ""
 
@@ -3626,23 +3631,23 @@ msgstr ""
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1824
+#: src/Content/Text/BBCode.php:1821
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1839
+#: src/Content/Text/BBCode.php:1836
 msgid "Invalid link protocol"
 msgstr ""
 
-#: src/Content/Text/HTML.php:781
+#: src/Content/Text/HTML.php:783
 msgid "Loading more entries..."
 msgstr ""
 
-#: src/Content/Text/HTML.php:782
+#: src/Content/Text/HTML.php:784
 msgid "The end"
 msgstr ""
 
-#: src/Content/Text/HTML.php:875 src/Model/Profile.php:439
+#: src/Content/Text/HTML.php:877 src/Model/Profile.php:439
 #: src/Module/Contact.php:340
 msgid "Follow"
 msgstr ""
@@ -3716,41 +3721,40 @@ msgid_plural "%d invitations available"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Content/Widget.php:73 view/theme/vier/theme.php:170
+#: src/Content/Widget.php:73
 msgid "Find People"
 msgstr ""
 
-#: src/Content/Widget.php:74 view/theme/vier/theme.php:171
+#: src/Content/Widget.php:74
 msgid "Enter name or interest"
 msgstr ""
 
-#: src/Content/Widget.php:76 view/theme/vier/theme.php:173
+#: src/Content/Widget.php:76
 msgid "Examples: Robert Morgenstein, Fishing"
 msgstr ""
 
 #: src/Content/Widget.php:77 src/Module/Contact.php:876
-#: src/Module/Directory.php:105 view/theme/vier/theme.php:174
+#: src/Module/Directory.php:105
 msgid "Find"
 msgstr ""
 
-#: src/Content/Widget.php:79 view/theme/vier/theme.php:176
+#: src/Content/Widget.php:79
 msgid "Similar Interests"
 msgstr ""
 
-#: src/Content/Widget.php:80 view/theme/vier/theme.php:177
+#: src/Content/Widget.php:80
 msgid "Random Profile"
 msgstr ""
 
-#: src/Content/Widget.php:81 view/theme/vier/theme.php:178
+#: src/Content/Widget.php:81
 msgid "Invite Friends"
 msgstr ""
 
 #: src/Content/Widget.php:82 src/Module/Directory.php:97
-#: view/theme/vier/theme.php:179
 msgid "Global Directory"
 msgstr ""
 
-#: src/Content/Widget.php:84 view/theme/vier/theme.php:181
+#: src/Content/Widget.php:84
 msgid "Local Directory"
 msgstr ""
 
@@ -3819,7 +3823,7 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: src/Core/ACL.php:153
+#: src/Core/ACL.php:153 src/Module/Profile/Profile.php:237
 msgid "Yourself"
 msgstr ""
 
@@ -3878,7 +3882,7 @@ msgid ""
 "or mysql."
 msgstr ""
 
-#: src/Core/Installer.php:199 src/Module/Install.php:191
+#: src/Core/Installer.php:199 src/Module/Install.php:195
 msgid "Please see the file \"doc/INSTALL.md\"."
 msgstr ""
 
@@ -4742,8 +4746,8 @@ msgstr ""
 msgid "[no subject]"
 msgstr ""
 
-#: src/Model/Profile.php:346 src/Module/Profile/Profile.php:250
-#: src/Module/Profile/Profile.php:252
+#: src/Model/Profile.php:346 src/Module/Profile/Profile.php:251
+#: src/Module/Profile/Profile.php:253
 msgid "Edit profile"
 msgstr ""
 
@@ -5688,15 +5692,15 @@ msgstr ""
 msgid "Open"
 msgstr ""
 
-#: src/Module/Admin/Site.php:530 src/Module/Install.php:200
+#: src/Module/Admin/Site.php:530 src/Module/Install.php:204
 msgid "No SSL policy, links will track page SSL state"
 msgstr ""
 
-#: src/Module/Admin/Site.php:531 src/Module/Install.php:201
+#: src/Module/Admin/Site.php:531 src/Module/Install.php:205
 msgid "Force all links to use SSL"
 msgstr ""
 
-#: src/Module/Admin/Site.php:532 src/Module/Install.php:202
+#: src/Module/Admin/Site.php:532 src/Module/Install.php:206
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
 msgstr ""
 
@@ -5859,11 +5863,11 @@ msgstr ""
 msgid "Theme for mobile devices"
 msgstr ""
 
-#: src/Module/Admin/Site.php:624 src/Module/Install.php:210
+#: src/Module/Admin/Site.php:624 src/Module/Install.php:214
 msgid "SSL link policy"
 msgstr ""
 
-#: src/Module/Admin/Site.php:624 src/Module/Install.php:212
+#: src/Module/Admin/Site.php:624 src/Module/Install.php:216
 msgid "Determines whether generated links should be forced to use SSL"
 msgstr ""
 
@@ -8313,138 +8317,151 @@ msgstr ""
 msgid "System check"
 msgstr ""
 
-#: src/Module/Install.php:193
+#: src/Module/Install.php:190 src/Module/Install.php:247
+#: src/Module/Install.php:330
+msgid "Requirement not satisfied"
+msgstr ""
+
+#: src/Module/Install.php:191
+msgid "Optional requirement not satisfied"
+msgstr ""
+
+#: src/Module/Install.php:192
+msgid "OK"
+msgstr ""
+
+#: src/Module/Install.php:197
 msgid "Check again"
 msgstr ""
 
-#: src/Module/Install.php:208
+#: src/Module/Install.php:212
 msgid "Base settings"
 msgstr ""
 
-#: src/Module/Install.php:215
+#: src/Module/Install.php:219
 msgid "Host name"
 msgstr ""
 
-#: src/Module/Install.php:217
+#: src/Module/Install.php:221
 msgid ""
 "Overwrite this field in case the determinated hostname isn't right, "
 "otherweise leave it as is."
 msgstr ""
 
-#: src/Module/Install.php:220
+#: src/Module/Install.php:224
 msgid "Base path to installation"
 msgstr ""
 
-#: src/Module/Install.php:222
+#: src/Module/Install.php:226
 msgid ""
 "If the system cannot detect the correct path to your installation, enter the "
 "correct path here. This setting should only be set if you are using a "
 "restricted system and symbolic links to your webroot."
 msgstr ""
 
-#: src/Module/Install.php:225
+#: src/Module/Install.php:229
 msgid "Sub path of the URL"
 msgstr ""
 
-#: src/Module/Install.php:227
+#: src/Module/Install.php:231
 msgid ""
 "Overwrite this field in case the sub path determination isn't right, "
 "otherwise leave it as is. Leaving this field blank means the installation is "
 "at the base URL without sub path."
 msgstr ""
 
-#: src/Module/Install.php:238
+#: src/Module/Install.php:242
 msgid "Database connection"
 msgstr ""
 
-#: src/Module/Install.php:239
+#: src/Module/Install.php:243
 msgid ""
 "In order to install Friendica we need to know how to connect to your "
 "database."
 msgstr ""
 
-#: src/Module/Install.php:240
+#: src/Module/Install.php:244
 msgid ""
 "Please contact your hosting provider or site administrator if you have "
 "questions about these settings."
 msgstr ""
 
-#: src/Module/Install.php:241
+#: src/Module/Install.php:245
 msgid ""
 "The database you specify below should already exist. If it does not, please "
 "create it before continuing."
 msgstr ""
 
-#: src/Module/Install.php:248
+#: src/Module/Install.php:254
 msgid "Database Server Name"
 msgstr ""
 
-#: src/Module/Install.php:253
+#: src/Module/Install.php:259
 msgid "Database Login Name"
 msgstr ""
 
-#: src/Module/Install.php:259
+#: src/Module/Install.php:265
 msgid "Database Login Password"
 msgstr ""
 
-#: src/Module/Install.php:261
+#: src/Module/Install.php:267
 msgid "For security reasons the password must not be empty"
 msgstr ""
 
-#: src/Module/Install.php:264
+#: src/Module/Install.php:270
 msgid "Database Name"
 msgstr ""
 
-#: src/Module/Install.php:268 src/Module/Install.php:297
+#: src/Module/Install.php:274 src/Module/Install.php:304
 msgid "Please select a default timezone for your website"
 msgstr ""
 
-#: src/Module/Install.php:282
+#: src/Module/Install.php:289
 msgid "Site settings"
 msgstr ""
 
-#: src/Module/Install.php:292
+#: src/Module/Install.php:299
 msgid "Site administrator email address"
 msgstr ""
 
-#: src/Module/Install.php:294
+#: src/Module/Install.php:301
 msgid ""
 "Your account email address must match this in order to use the web admin "
 "panel."
 msgstr ""
 
-#: src/Module/Install.php:301
+#: src/Module/Install.php:308
 msgid "System Language:"
 msgstr ""
 
-#: src/Module/Install.php:303
+#: src/Module/Install.php:310
 msgid ""
 "Set the default language for your Friendica installation interface and to "
 "send emails."
 msgstr ""
 
-#: src/Module/Install.php:315
+#: src/Module/Install.php:322
 msgid "Your Friendica site database has been installed."
 msgstr ""
 
-#: src/Module/Install.php:323
+#: src/Module/Install.php:332
 msgid "Installation finished"
 msgstr ""
 
-#: src/Module/Install.php:343
+#: src/Module/Install.php:352
 msgid "<h1>What next</h1>"
 msgstr ""
 
-#: src/Module/Install.php:344
+#: src/Module/Install.php:353
 msgid ""
 "IMPORTANT: You will need to [manually] setup a scheduled task for the worker."
 msgstr ""
 
-#: src/Module/Install.php:345
+#: src/Module/Install.php:354
 msgid "Please see the file \"INSTALL.txt\"."
 msgstr ""
 
-#: src/Module/Install.php:347
+#: src/Module/Install.php:356
 #, php-format
 msgid ""
 "Go to your new Friendica node <a href=\"%s/register\">registration page</a> "
@@ -8733,17 +8750,15 @@ msgstr ""
 msgid "j F"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:164 src/Util/Temporal.php:163
+#: src/Module/Profile/Profile.php:164
 msgid "Birthday:"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:167 src/Module/Settings/Profile/Index.php:260
-#: src/Util/Temporal.php:165
 msgid "Age: "
 msgstr ""
 
 #: src/Module/Profile/Profile.php:167 src/Module/Settings/Profile/Index.php:260
-#: src/Util/Temporal.php:165
 #, php-format
 msgid "%d year old"
 msgid_plural "%d years old"
@@ -8754,28 +8769,28 @@ msgstr[1] ""
 msgid "Forums:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:240
+#: src/Module/Profile/Profile.php:241
 msgid "View profile as:"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:257
+#: src/Module/Profile/Profile.php:258
 msgid "View as"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:320 src/Module/Profile/Profile.php:323
+#: src/Module/Profile/Profile.php:321 src/Module/Profile/Profile.php:324
 #: src/Module/Profile/Status.php:64 src/Module/Profile/Status.php:67
 #: src/Protocol/Feed.php:999 src/Protocol/OStatus.php:1261
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:321 src/Module/Profile/Status.php:65
+#: src/Module/Profile/Profile.php:322 src/Module/Profile/Status.php:65
 #: src/Protocol/Feed.php:1003 src/Protocol/OStatus.php:1265
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
-#: src/Module/Profile/Profile.php:322 src/Module/Profile/Status.php:66
+#: src/Module/Profile/Profile.php:323 src/Module/Profile/Status.php:66
 #: src/Protocol/Feed.php:1006 src/Protocol/OStatus.php:1268
 #, php-format
 msgid "%s's comments"
@@ -9171,9 +9186,7 @@ msgstr ""
 msgid "Content Settings"
 msgstr ""
 
-#: src/Module/Settings/Display.php:193 view/theme/duepuntozero/config.php:70
-#: view/theme/frio/config.php:161 view/theme/quattro/config.php:72
-#: view/theme/vier/config.php:120
+#: src/Module/Settings/Display.php:193
 msgid "Theme settings"
 msgstr ""
 
@@ -9326,8 +9339,7 @@ msgstr ""
 msgid "Location"
 msgstr ""
 
-#: src/Module/Settings/Profile/Index.php:245 src/Util/Temporal.php:93
-#: src/Util/Temporal.php:95
+#: src/Module/Settings/Profile/Index.php:245
 msgid "Miscellaneous"
 msgstr ""
 
@@ -10335,365 +10347,4 @@ msgstr ""
 
 #: src/Security/Authentication.php:390
 msgid "Please upload a profile photo."
-msgstr ""
-
-#: src/Util/EMailer/MailBuilder.php:259
-msgid "Friendica Notification"
-msgstr ""
-
-#: src/Util/EMailer/NotifyMailBuilder.php:78
-#: src/Util/EMailer/SystemMailBuilder.php:54
-#, php-format
-msgid "%1$s, %2$s Administrator"
-msgstr ""
-
-#: src/Util/EMailer/NotifyMailBuilder.php:80
-#: src/Util/EMailer/SystemMailBuilder.php:56
-#, php-format
-msgid "%s Administrator"
-msgstr ""
-
-#: src/Util/EMailer/NotifyMailBuilder.php:193
-#: src/Util/EMailer/NotifyMailBuilder.php:217
-#: src/Util/EMailer/SystemMailBuilder.php:101
-#: src/Util/EMailer/SystemMailBuilder.php:118
-msgid "thanks"
-msgstr ""
-
-#: src/Util/Temporal.php:167
-msgid "YYYY-MM-DD or MM-DD"
-msgstr ""
-
-#: src/Util/Temporal.php:314
-msgid "never"
-msgstr ""
-
-#: src/Util/Temporal.php:321
-msgid "less than a second ago"
-msgstr ""
-
-#: src/Util/Temporal.php:329
-msgid "year"
-msgstr ""
-
-#: src/Util/Temporal.php:329
-msgid "years"
-msgstr ""
-
-#: src/Util/Temporal.php:330
-msgid "months"
-msgstr ""
-
-#: src/Util/Temporal.php:331
-msgid "weeks"
-msgstr ""
-
-#: src/Util/Temporal.php:332
-msgid "days"
-msgstr ""
-
-#: src/Util/Temporal.php:333
-msgid "hour"
-msgstr ""
-
-#: src/Util/Temporal.php:333
-msgid "hours"
-msgstr ""
-
-#: src/Util/Temporal.php:334
-msgid "minute"
-msgstr ""
-
-#: src/Util/Temporal.php:334
-msgid "minutes"
-msgstr ""
-
-#: src/Util/Temporal.php:335
-msgid "second"
-msgstr ""
-
-#: src/Util/Temporal.php:335
-msgid "seconds"
-msgstr ""
-
-#: src/Util/Temporal.php:345
-#, php-format
-msgid "in %1$d %2$s"
-msgstr ""
-
-#: src/Util/Temporal.php:348
-#, php-format
-msgid "%1$d %2$s ago"
-msgstr ""
-
-#: src/Worker/Delivery.php:557
-msgid "(no subject)"
-msgstr ""
-
-#: update.php:198
-#, php-format
-msgid "%s: Updating author-id and owner-id in item and thread table. "
-msgstr ""
-
-#: update.php:253
-#, php-format
-msgid "%s: Updating post-type."
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:52
-msgid "default"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:53
-msgid "greenzero"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:54
-msgid "purplezero"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:55
-msgid "easterbunny"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:56
-msgid "darkzero"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:57
-msgid "comix"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:58
-msgid "slackr"
-msgstr ""
-
-#: view/theme/duepuntozero/config.php:71
-msgid "Variations"
-msgstr ""
-
-#: view/theme/frio/config.php:142
-msgid "Light (Accented)"
-msgstr ""
-
-#: view/theme/frio/config.php:143
-msgid "Dark (Accented)"
-msgstr ""
-
-#: view/theme/frio/config.php:144
-msgid "Black (Accented)"
-msgstr ""
-
-#: view/theme/frio/config.php:156
-msgid "Note"
-msgstr ""
-
-#: view/theme/frio/config.php:156
-msgid "Check image permissions if all users are allowed to see the image"
-msgstr ""
-
-#: view/theme/frio/config.php:162
-msgid "Custom"
-msgstr ""
-
-#: view/theme/frio/config.php:163
-msgid "Legacy"
-msgstr ""
-
-#: view/theme/frio/config.php:164
-msgid "Accented"
-msgstr ""
-
-#: view/theme/frio/config.php:165
-msgid "Select color scheme"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Select scheme accent"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Blue"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Red"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Purple"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Green"
-msgstr ""
-
-#: view/theme/frio/config.php:166
-msgid "Pink"
-msgstr ""
-
-#: view/theme/frio/config.php:167
-msgid "Copy or paste schemestring"
-msgstr ""
-
-#: view/theme/frio/config.php:167
-msgid ""
-"You can copy this string to share your theme with others. Pasting here "
-"applies the schemestring"
-msgstr ""
-
-#: view/theme/frio/config.php:168
-msgid "Navigation bar background color"
-msgstr ""
-
-#: view/theme/frio/config.php:169
-msgid "Navigation bar icon color "
-msgstr ""
-
-#: view/theme/frio/config.php:170
-msgid "Link color"
-msgstr ""
-
-#: view/theme/frio/config.php:171
-msgid "Set the background color"
-msgstr ""
-
-#: view/theme/frio/config.php:172
-msgid "Content background opacity"
-msgstr ""
-
-#: view/theme/frio/config.php:173
-msgid "Set the background image"
-msgstr ""
-
-#: view/theme/frio/config.php:174
-msgid "Background image style"
-msgstr ""
-
-#: view/theme/frio/config.php:179
-msgid "Login page background image"
-msgstr ""
-
-#: view/theme/frio/config.php:183
-msgid "Login page background color"
-msgstr ""
-
-#: view/theme/frio/config.php:183
-msgid "Leave background image and color empty for theme defaults"
-msgstr ""
-
-#: view/theme/frio/php/default.php:81 view/theme/frio/php/standard.php:38
-msgid "Skip to main content"
-msgstr ""
-
-#: view/theme/frio/php/Image.php:40
-msgid "Top Banner"
-msgstr ""
-
-#: view/theme/frio/php/Image.php:40
-msgid ""
-"Resize image to the width of the screen and show background color below on "
-"long pages."
-msgstr ""
-
-#: view/theme/frio/php/Image.php:41
-msgid "Full screen"
-msgstr ""
-
-#: view/theme/frio/php/Image.php:41
-msgid ""
-"Resize image to fill entire screen, clipping either the right or the bottom."
-msgstr ""
-
-#: view/theme/frio/php/Image.php:42
-msgid "Single row mosaic"
-msgstr ""
-
-#: view/theme/frio/php/Image.php:42
-msgid ""
-"Resize image to repeat it on a single row, either vertical or horizontal."
-msgstr ""
-
-#: view/theme/frio/php/Image.php:43
-msgid "Mosaic"
-msgstr ""
-
-#: view/theme/frio/php/Image.php:43
-msgid "Repeat image to fill the screen."
-msgstr ""
-
-#: view/theme/frio/theme.php:207
-msgid "Guest"
-msgstr ""
-
-#: view/theme/frio/theme.php:210
-msgid "Visitor"
-msgstr ""
-
-#: view/theme/quattro/config.php:73
-msgid "Alignment"
-msgstr ""
-
-#: view/theme/quattro/config.php:73
-msgid "Left"
-msgstr ""
-
-#: view/theme/quattro/config.php:73
-msgid "Center"
-msgstr ""
-
-#: view/theme/quattro/config.php:74
-msgid "Color scheme"
-msgstr ""
-
-#: view/theme/quattro/config.php:75
-msgid "Posts font size"
-msgstr ""
-
-#: view/theme/quattro/config.php:76
-msgid "Textareas font size"
-msgstr ""
-
-#: view/theme/vier/config.php:75
-msgid "Comma separated list of helper forums"
-msgstr ""
-
-#: view/theme/vier/config.php:115
-msgid "don't show"
-msgstr ""
-
-#: view/theme/vier/config.php:115
-msgid "show"
-msgstr ""
-
-#: view/theme/vier/config.php:121
-msgid "Set style"
-msgstr ""
-
-#: view/theme/vier/config.php:122
-msgid "Community Pages"
-msgstr ""
-
-#: view/theme/vier/config.php:123 view/theme/vier/theme.php:125
-msgid "Community Profiles"
-msgstr ""
-
-#: view/theme/vier/config.php:124
-msgid "Help or @NewHere ?"
-msgstr ""
-
-#: view/theme/vier/config.php:125 view/theme/vier/theme.php:296
-msgid "Connect Services"
-msgstr ""
-
-#: view/theme/vier/config.php:126
-msgid "Find Friends"
-msgstr ""
-
-#: view/theme/vier/config.php:127 view/theme/vier/theme.php:152
-msgid "Last users"
-msgstr ""
-
-#: view/theme/vier/theme.php:211
-msgid "Quick Start"
 msgstr ""

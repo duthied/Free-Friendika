@@ -6,20 +6,20 @@
 {{foreach $checks as $check}}
 	<tr><td>{{$check.title nofilter}} </td><td>
 	{{if $check.status}}
-		<img src="{{$baseurl}}/view/install/green.png" alt="Ok">
+		<img src="{{$baseurl}}/view/install/green.png" alt="{{$ok}}">
 	{{else}}
 		{{if $check.required}}
-			<img src="{{$baseurl}}/view/install/red.png" alt="Requirement not satisfied">
+			<img src="{{$baseurl}}/view/install/red.png" alt="{{$requirement_not_satisfied}}">
 		{{else}}
-			<img src="{{$baseurl}}/view/install/yellow.png" alt="Optional requirement not satisfied">
+			<img src="{{$baseurl}}/view/install/yellow.png" alt="{{$optional_requirement_not_satisfied}}">
 		{{/if}}
 	{{/if}}
-	</td><td>{{if $check.required}}(required){{/if}}</td></tr>
+	</td><td>{{if $check.required}}{{$required}}{{/if}}</td></tr>
 	{{if $check.help}}
 	<tr><td class="help" colspan="3">
 		<blockquote>{{$check.help nofilter}}</blockquote>
 		{{if $check.error_msg}}
-		<div class="error_header"><b>{{$check.error_msg.head}}</br><a href="{{$check.error_msg.url}}">{{$check.error_msg.url}}</a></b></div>
+		<div class="error_header"><b>{{$check.error_msg.head}}<br><a href="{{$check.error_msg.url}}">{{$check.error_msg.url}}</a></b></div>
 		<blockquote>{{$check.error_msg.msg}}</blockquote>
 		{{/if}}
 	</td></tr>

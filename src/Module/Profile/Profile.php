@@ -231,9 +231,10 @@ class Profile extends BaseProfile
 			);
 		}
 
-		$tpl = Renderer::getMarkupTemplate('profile/index.tpl');
+		$tpl = Renderer::getMarkupTemplate('profile/profile.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$title' => DI::l10n()->t('Profile'),
+			'$yourself' => DI::l10n()->t('Yourself'),
 			'$view_as_contacts' => $view_as_contacts,
 			'$view_as_contact_id' => $view_as_contact_id,
 			'$view_as_contact_alert' => $view_as_contact_alert,

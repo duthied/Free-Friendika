@@ -138,7 +138,7 @@ class Verify extends BaseSettings
 			'$holder'             => $holder,
 			'$secret'             => $secret,
 
-			'$verify_code'  => ['verify_code', DI::l10n()->t('Please enter a code from your authentication app'), '', '', 'required', 'autofocus placeholder="000000"'],
+			'$verify_code'  => ['verify_code', DI::l10n()->t('Please enter a code from your authentication app'), '', '', DI::l10n()->t('Required'), 'autofocus placeholder="000000"'],
 			'$verify_label' => DI::l10n()->t('Verify code and enable two-factor authentication'),
 		]);
 	}

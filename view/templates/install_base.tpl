@@ -7,15 +7,6 @@
 	{{$info_03}}
 </p>
 
-<table>
-	{{foreach $checks as $check}}
-	<tr><td>{{$check.title}} </td><td>
-			{{if ! $check.status}}
-			<img src="{{$baseurl}}/view/install/red.png" alt="Requirement not satisfied">
-			{{/if}}
-			{{/foreach}}
-</table>
-
 <form id="install-form" action="{{$baseurl}}/install" method="post">
 
 	<input type="hidden" name="config-php_path" value="{{$php_path}}" />

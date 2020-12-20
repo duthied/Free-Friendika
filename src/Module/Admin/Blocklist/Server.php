@@ -76,8 +76,8 @@ class Server extends BaseAdmin
 		if (is_array($blocklist)) {
 			foreach ($blocklist as $id => $b) {
 				$blocklistform[] = [
-					'domain' => ["domain[$id]", DI::l10n()->t('Blocked server domain pattern'), $b['domain'], '', 'required', '', ''],
-					'reason' => ["reason[$id]", DI::l10n()->t("Reason for the block"), $b['reason'], '', 'required', '', ''],
+					'domain' => ["domain[$id]", DI::l10n()->t('Blocked server domain pattern'), $b['domain'], '', DI::l10n()->t('Required'), '', ''],
+					'reason' => ["reason[$id]", DI::l10n()->t("Reason for the block"), $b['reason'], '', DI::l10n()->t('Required'), '', ''],
 					'delete' => ["delete[$id]", DI::l10n()->t("Delete server domain pattern") . ' (' . $b['domain'] . ')', false, DI::l10n()->t("Check to delete this entry from the blocklist")]
 				];
 			}
@@ -96,8 +96,8 @@ class Server extends BaseAdmin
 	<li><code>[&lt;char1&gt;&lt;char2&gt;...]</code>: char1 or char2</li>
 </ul>'),
 			'$addtitle' => DI::l10n()->t('Add new entry to block list'),
-			'$newdomain' => ['newentry_domain', DI::l10n()->t('Server Domain Pattern'), '', DI::l10n()->t('The domain pattern of the new server to add to the block list. Do not include the protocol.'), 'required', '', ''],
-			'$newreason' => ['newentry_reason', DI::l10n()->t('Block reason'), '', DI::l10n()->t('The reason why you blocked this server domain pattern.'), 'required', '', ''],
+			'$newdomain' => ['newentry_domain', DI::l10n()->t('Server Domain Pattern'), '', DI::l10n()->t('The domain pattern of the new server to add to the block list. Do not include the protocol.'), DI::l10n()->t('Required'), '', ''],
+			'$newreason' => ['newentry_reason', DI::l10n()->t('Block reason'), '', DI::l10n()->t('The reason why you blocked this server domain pattern.'), DI::l10n()->t('Required'), '', ''],
 			'$submit' => DI::l10n()->t('Add Entry'),
 			'$savechanges' => DI::l10n()->t('Save changes to the blocklist'),
 			'$currenttitle' => DI::l10n()->t('Current Entries in the Blocklist'),

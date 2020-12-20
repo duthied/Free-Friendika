@@ -102,7 +102,7 @@
 	<fieldset class="panel-body">
 		<label for="viewas-select">{{$view_as}}</label>
 		<select name="viewas" id="viewas-select" class="form-control">
-			<option value="0">Yourself</option>
+			<option value="0">{{$yourself}}</option>
 			{{foreach $view_as_contacts as $contact}}
 				<option value="{{$contact.id}}"{{if $contact.id == $view_as_contact_id}} selected{{/if}}>{{$contact.name}}</option>
 			{{/foreach}}

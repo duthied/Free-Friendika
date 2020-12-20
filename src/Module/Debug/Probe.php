@@ -54,7 +54,7 @@ class Probe extends BaseModule
 				DI::l10n()->t('Lookup address'),
 				$addr,
 				'',
-				'required'
+				DI::l10n()->t('Required')
 			],
 			'$res'  => $res,
 		]);
