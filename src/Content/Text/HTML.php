@@ -188,6 +188,10 @@ class HTML
 			$message = str_replace(["\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"], ["<", ">", "<br />", " ", ""], $message);
 			$message = preg_replace('= [\s]*=i', " ", $message);
 
+			if (empty($message)) {
+				return '';
+			}
+
 			@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
 			self::tagToBBCode($doc, 'html', [], "", "");
