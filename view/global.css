@@ -652,3 +652,7 @@ body.dragging, body.dragging * {
 	border-left-color: black;
 	border-right: none;
 }
+
+span.required {
+	color: #c80000;
+}
