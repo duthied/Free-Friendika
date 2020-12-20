@@ -29,6 +29,7 @@ use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\PermissionSet;
+use Friendica\Model\Photo;
 use Friendica\Model\Post\Category;
 use Friendica\Model\Tag;
 use Friendica\Model\UserItem;
@@ -45,7 +46,7 @@ class PostUpdate
 {
 	// Needed for the helper function to read from the legacy term table
 	const OBJECT_TYPE_POST  = 1;
-	const VERSION = 1349;
+	const VERSION = 1383;
 
 	/**
 	 * Calls the post update functions
@@ -92,6 +93,9 @@ class PostUpdate
 			return false;
 		}
 		if (!self::update1349()) {
+			return false;
+		}
+		if (!self::update1383()) {
 			return false;
 		}
 
@@ -1014,5 +1018,45 @@ class PostUpdate
 		}
 
 		return false;
+	}
+	/**
+	 * Remove orphaned photo entries
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1383()
+	{
+		// Was the script completed?
+		if (DI::config()->get("system", "post_update_version") >= 1383) {
+			return true;
+		}
+
+		Logger::info('Start');
+
+		$deleted = 0;
+		$avatar = [4 => 'photo', 5 => 'thumb', 6 => 'micro'];
+
+		$photos = DBA::select('photo', ['id', 'contact-id', 'resource-id', 'scale'], ["`contact-id` != ? AND `album` = ?", 0, Photo::CONTACT_PHOTOS]);
+		while ($photo = DBA::fetch($photos)) {
+			$delete = !in_array($photo['scale'], [4, 5, 6]);
+
+			if (!$delete) {
+				// Check if there is a contact entry with that photo
+				$delete = !DBA::exists('contact', ["`id` = ? AND `" . $avatar[$photo['scale']] . "` LIKE ?",
+					$photo['contact-id'], '%' . $photo['resource-id'] . '%']);
+			}
+
+			if ($delete) {
+				Photo::delete(['id' => $photo['id']]);
+				$deleted++;
+			}
+		}
+		DBA::close($photos);
+
+		DI::config()->set("system", "post_update_version", 1383);
+		Logger::info('Done', ['deleted' => $deleted]);
+		return true;
 	}
 }
