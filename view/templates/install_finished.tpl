@@ -2,7 +2,7 @@
 <h2>{{$pass}}</h2>
 
 {{foreach $checks as $check}}
-<img src="{{$baseurl}}/view/install/red.png" alt="Requirement not satisfied">
+<img src="{{$baseurl}}/view/install/red.png" alt="{{$requirement_not_satisfied}}">
 {{$check.title nofilter}}
 <textarea rows="24" cols="80">{{$check.help nofilter}}</textarea>
 {{/foreach}}
