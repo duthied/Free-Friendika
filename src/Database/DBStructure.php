@@ -65,6 +65,46 @@ class DBStructure
 	}
 
 	/**
+	 * Drop unused tables
+	 *
+	 * @param boolean $execute
+	 * @return void
+	 */
+	public static function dropTables(bool $execute)
+	{
+		$old_tables = ['fserver', 'gcign', 'gcontact', 'gcontact-relation', 'gfollower' ,'glink', 'item-delivery-data',
+		'item_id', 'poll', 'poll_result', 'queue', 'retriever_rule', 'sign', 'spam', 'term'];
+
+		$tables = DBA::selectToArray(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_NAME'],
+			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_TYPE' => 'BASE TABLE']);
+
+		if (empty($tables)) {
+			echo DI::l10n()->t('No unused tables found.');
+			return;
+		}
+
+		if (!$execute) {
+			echo DI::l10n()->t('These tables are not used for friendica and will be deleted when you execute "dbstructure drop -e":') . "\n\n";
+		}
+
+		foreach ($tables as $table) {
+			if (in_array($table['TABLE_NAME'], $old_tables)) {
+				if ($execute) {
+					$sql = 'DROP TABLE ' . DBA::quoteIdentifier($table['TABLE_NAME']) . ';';
+					echo $sql . "\n";
+
+					$result = DBA::e($sql);
+					if (!DBA::isResult($result)) {
+						self::printUpdateError($sql);
+					}
+				} else {
+					echo $table['TABLE_NAME'] . "\n";
+				}
+			}
+		}
+	}
+
+	/**
 	 * Converts all tables from MyISAM/InnoDB Antelope to InnoDB Barracuda
 	 */
 	public static function convertToInnoDB()

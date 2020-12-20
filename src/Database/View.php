@@ -158,7 +158,7 @@ class View
 	}
 
 	/**
-	 * Check if the given table/view is a view
+	 * Check if the given table/view is a table
 	 *
 	 * @param string $table
 	 * @return boolean "true" if it's a table
