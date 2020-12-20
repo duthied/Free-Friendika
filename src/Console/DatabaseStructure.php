@@ -62,9 +62,9 @@ Commands
 Options
     -h|--help|-?       Show help information
     -v                 Show more debug information.
-	-e|--execute       Execute the dropping.
+    -e|--execute       Execute the dropping.
     -f|--force         Force the update command (Even if the database structure matches)
-	-o|--override      Override running or stalling updates
+    -o|--override      Override running or stalling updates
 HELP;
 		return $help;
 	}
