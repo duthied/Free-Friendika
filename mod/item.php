@@ -50,6 +50,7 @@ use Friendica\Model\Notify\Type;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
+use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
@@ -195,8 +196,7 @@ function item_post(App $a) {
 		$orig_post = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 	}
 
-	$user = DBA::selectFirst('user', [], ['uid' => $profile_uid]);
-
+	$user = User::getById($profile_uid, ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
 	if (!DBA::isResult($user) && !$toplevel_item_id) {
 		return 0;
 	}
@@ -272,6 +272,11 @@ function item_post(App $a) {
 			$str_group_allow   = isset($_REQUEST['group_allow'])   ? $aclFormatter->toString($_REQUEST['group_allow'])   : $user['allow_gid'] ?? '';
 			$str_contact_deny  = isset($_REQUEST['contact_deny'])  ? $aclFormatter->toString($_REQUEST['contact_deny'])  : $user['deny_cid']  ?? '';
 			$str_group_deny    = isset($_REQUEST['group_deny'])    ? $aclFormatter->toString($_REQUEST['group_deny'])    : $user['deny_gid']  ?? '';
+
+			// Since we know from the visibility parameter it should be private, we have to prevent the empty ACL case
+			// that would make the item public. So we always append the author's contact id to the allowed contacts.
+			// See https://github.com/friendica/friendica/issues/9672
+			$str_contact_allow .= $aclFormatter->toString(Contact::getPublicIdByUserId($uid));
 		}
 
 		$title             = trim($_REQUEST['title']    ?? '');
@@ -750,7 +755,7 @@ function item_post(App $a) {
 				'type'  => Type::COMMENT,
 				'otype' => Notify\ObjectType::ITEM,
 				'verb'  => Activity::POST,
-				'uid'   => $user['uid'],
+				'uid'   => $profile_uid,
 				'cid'   => $datarray['author-id'],
 				'item'  => $datarray,
 				'link'  => DI::baseUrl() . '/display/' . urlencode($datarray['guid']),
@@ -760,7 +765,7 @@ function item_post(App $a) {
 				'type'  => Type::WALL,
 				'otype' => Notify\ObjectType::ITEM,
 				'verb'  => Activity::POST,
-				'uid'   => $user['uid'],
+				'uid'   => $profile_uid,
 				'cid'   => $datarray['author-id'],
 				'item'  => $datarray,
 				'link'  => DI::baseUrl() . '/display/' . urlencode($datarray['guid']),

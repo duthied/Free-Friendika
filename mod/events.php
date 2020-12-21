@@ -163,31 +163,39 @@ function events_post(App $a)
 
 
 	if ($share) {
+		$str_contact_allow = '';
+		$str_group_allow   = '';
+		$str_contact_deny  = '';
+		$str_group_deny    = '';
 
-		$aclFormatter = DI::aclFormatter();
+		if (($_REQUEST['visibility'] ?? '') !== 'public') {
+			$user = User::getById($uid, ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
+			if (!DBA::isResult($user)) {
+				return;
+			}
 
-		$str_group_allow   = $aclFormatter->toString($_POST['group_allow'] ?? '');
-		$str_contact_allow = $aclFormatter->toString($_POST['contact_allow'] ?? '');
-		$str_group_deny    = $aclFormatter->toString($_POST['group_deny'] ?? '');
-		$str_contact_deny  = $aclFormatter->toString($_POST['contact_deny'] ?? '');
+			$aclFormatter = DI::aclFormatter();
+			$str_contact_allow = isset($_REQUEST['contact_allow']) ? $aclFormatter->toString($_REQUEST['contact_allow']) : $user['allow_cid'] ?? '';
+			$str_group_allow   = isset($_REQUEST['group_allow'])   ? $aclFormatter->toString($_REQUEST['group_allow'])   : $user['allow_gid'] ?? '';
+			$str_contact_deny  = isset($_REQUEST['contact_deny'])  ? $aclFormatter->toString($_REQUEST['contact_deny'])  : $user['deny_cid']  ?? '';
+			$str_group_deny    = isset($_REQUEST['group_deny'])    ? $aclFormatter->toString($_REQUEST['group_deny'])    : $user['deny_gid']  ?? '';
 
-		// Undo the pseudo-contact of self, since there are real contacts now
-		if (strpos($str_contact_allow, '<' . $self . '>') !== false) {
-			$str_contact_allow = str_replace('<' . $self . '>', '', $str_contact_allow);
-		}
-		// Make sure to set the `private` field as true. This is necessary to
-		// have the posts show up correctly in Diaspora if an event is created
-		// as visible only to self at first, but then edited to display to others.
-		if (strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) {
-			$private_event = true;
+			// Since we know from the visibility parameter it should be private, we have to prevent the empty ACL case
+			// that would make the item public. So we always append the author's contact id to the allowed contacts.
+			// See https://github.com/friendica/friendica/issues/9672
+			$str_contact_allow .= $aclFormatter->toString(\Friendica\Model\Contact::getPublicIdByUserId($uid));
 		}
 	} else {
-		// Note: do not set `private` field for self-only events. It will
-		// keep even you from seeing them!
 		$str_contact_allow = '<' . $self . '>';
 		$str_group_allow = $str_contact_deny = $str_group_deny = '';
 	}
 
+	// Make sure to set the `private` field as true. This is necessary to
+	// have the posts show up correctly in Diaspora if an event is created
+	// as visible only to self at first, but then edited to display to others.
+	if (strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) {
+		$private_event = true;
+	}
 
 	$datarray = [];
 	$datarray['start']     = $start;

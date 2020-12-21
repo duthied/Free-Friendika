@@ -155,10 +155,6 @@ function photos_init(App $a) {
 
 function photos_post(App $a)
 {
-	Logger::log('mod-photos: photos_post: begin' , Logger::DEBUG);
-	Logger::log('mod_photos: REQUEST ' . print_r($_REQUEST, true), Logger::DATA);
-	Logger::log('mod_photos: FILES '   . print_r($_FILES, true), Logger::DATA);
-
 	$phototypes = Images::supportedTypes();
 
 	$can_post  = false;
@@ -184,8 +180,26 @@ function photos_post(App $a)
 
 	if (!$owner_record) {
 		notice(DI::l10n()->t('Contact information unavailable'));
-		Logger::log('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
+		DI::logger()->info('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
 		exit();
+	}
+
+	$str_contact_allow = '';
+	$str_group_allow   = '';
+	$str_contact_deny  = '';
+	$str_group_deny    = '';
+
+	if (($_REQUEST['visibility'] ?? '') !== 'public') {
+		$aclFormatter = DI::aclFormatter();
+		$str_contact_allow = isset($_REQUEST['contact_allow']) ? $aclFormatter->toString($_REQUEST['contact_allow']) : $owner_record['allow_cid'] ?? '';
+		$str_group_allow   = isset($_REQUEST['group_allow'])   ? $aclFormatter->toString($_REQUEST['group_allow'])   : $owner_record['allow_gid'] ?? '';
+		$str_contact_deny  = isset($_REQUEST['contact_deny'])  ? $aclFormatter->toString($_REQUEST['contact_deny'])  : $owner_record['deny_cid']  ?? '';
+		$str_group_deny    = isset($_REQUEST['group_deny'])    ? $aclFormatter->toString($_REQUEST['group_deny'])    : $owner_record['deny_gid']  ?? '';
+
+		// Since we know from the visibility parameter it should be private, we have to prevent the empty ACL case
+		// that would make the item public. So we always append the author's contact id to the allowed contacts.
+		// See https://github.com/friendica/friendica/issues/9672
+		$str_contact_allow .= $aclFormatter->toString(\Friendica\Model\Contact::getPublicIdByUserId($page_owner_uid));
 	}
 
 	if ($a->argc > 3 && $a->argv[2] === 'album') {
@@ -312,13 +326,6 @@ function photos_post(App $a)
 		$item_id     = !empty($_POST['item_id'])   ? intval($_POST['item_id'])                      : 0;
 		$albname     = !empty($_POST['albname'])   ? trim($_POST['albname'])                        : '';
 		$origaname   = !empty($_POST['origaname']) ? Strings::escapeTags(trim($_POST['origaname'])) : '';
-
-		$aclFormatter = DI::aclFormatter();
-
-		$str_group_allow   = !empty($_POST['group_allow'])   ? $aclFormatter->toString($_POST['group_allow'])   : '';
-		$str_contact_allow = !empty($_POST['contact_allow']) ? $aclFormatter->toString($_POST['contact_allow']) : '';
-		$str_group_deny    = !empty($_POST['group_deny'])    ? $aclFormatter->toString($_POST['group_deny'])    : '';
-		$str_contact_deny  = !empty($_POST['contact_deny'])  ? $aclFormatter->toString($_POST['contact_deny'])  : '';
 
 		$resource_id = $a->argv[3];
 
@@ -638,18 +645,6 @@ function photos_post(App $a)
 	if (!empty($_REQUEST['not_visible']) && $_REQUEST['not_visible'] !== 'false') {
 		$visible = 0;
 	}
-
-	$group_allow   = $_REQUEST['group_allow']   ?? [];
-	$contact_allow = $_REQUEST['contact_allow'] ?? [];
-	$group_deny    = $_REQUEST['group_deny']    ?? [];
-	$contact_deny  = $_REQUEST['contact_deny']  ?? [];
-
-	$aclFormatter = DI::aclFormatter();
-
-	$str_group_allow   = $aclFormatter->toString(is_array($group_allow)   ? $group_allow   : explode(',', $group_allow));
-	$str_contact_allow = $aclFormatter->toString(is_array($contact_allow) ? $contact_allow : explode(',', $contact_allow));
-	$str_group_deny    = $aclFormatter->toString(is_array($group_deny)    ? $group_deny    : explode(',', $group_deny));
-	$str_contact_deny  = $aclFormatter->toString(is_array($contact_deny)  ? $contact_deny  : explode(',', $contact_deny));
 
 	$ret = ['src' => '', 'filename' => '', 'filesize' => 0, 'type' => ''];
 
