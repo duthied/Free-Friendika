@@ -48,21 +48,25 @@ class DatabaseStructure extends \Asika\SimpleConsole\Console
 		$help = <<<HELP
 console dbstructure - Performs database updates
 Usage
-	bin/console dbstructure <command> [-h|--help|-?] |-f|--force] [-v]
+	bin/console dbstructure <command> [options]
 
 Commands
-	dryrun   Show database update schema queries without running them
-	update   Update database schema
-	dumpsql  Dump database schema
-	toinnodb Convert all tables from MyISAM or InnoDB in the Antelope file format to InnoDB in the Barracuda file format
-	initial  Set needed initial values in the tables
-	version  Set the database to a given number
+    drop     Show tables that aren't in use by Friendica anymore and can be dropped
+       -e|--execute    Execute the dropping
 
-Options
+    update   Update database schema
+       -f|--force      Force the update command (Even if the database structure matches)
+       -o|--override   Override running or stalling updates
+
+    dryrun   Show database update schema queries without running them
+    dumpsql  Dump database schema
+    toinnodb Convert all tables from MyISAM or InnoDB in the Antelope file format to InnoDB in the Barracuda file format
+    initial  Set needed initial values in the tables
+    version  Set the database to a given number
+
+General Options
     -h|--help|-?       Show help information
     -v                 Show more debug information.
-    -f|--force         Force the update command (Even if the database structure matches)
-    -o|--override      Override running or stalling updates
 HELP;
 		return $help;
 	}
@@ -109,6 +113,12 @@ HELP;
 				$override = $this->getOption(['o', 'override'], false);
 				$output = Update::run($basePath, $force, $override,true, false);
 				break;
+			case "drop":
+				$execute = $this->getOption(['e', 'execute'], false);
+				ob_start();
+				DBStructure::dropTables($execute);
+				$output = ob_get_clean();
+				break;
 			case "dumpsql":
 				ob_start();
 				DBStructure::printStructure($basePath);
@@ -133,7 +143,7 @@ HELP;
 				$output = 'Unknown command: ' . $this->getArgument(0);
 		}
 
-		$this->out($output);
+		$this->out(trim($output));
 
 		return 0;
 	}
