@@ -64,7 +64,6 @@ class Database
 	/** @var PDO|mysqli */
 	protected $connection;
 	protected $driver;
-	protected $emulate_prepares = false;
 	protected $pdo_emulate_prepares = false;
 	private $error          = false;
 	private $errorno        = 0;
@@ -122,7 +121,6 @@ class Database
 
 		$persistent = (bool)$this->configCache->get('database', 'persistent');
 
-		$this->emulate_prepares = (bool)$this->configCache->get('database', 'emulate_prepares');
 		$this->pdo_emulate_prepares = (bool)$this->configCache->get('database', 'pdo_emulate_prepares');
 
 		if (!$this->configCache->get('database', 'disable_pdo') && class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
@@ -527,7 +525,7 @@ class Database
 		switch ($this->driver) {
 			case self::PDO:
 				// If there are no arguments we use "query"
-				if ($this->emulate_prepares || count($args) == 0) {
+				if (count($args) == 0) {
 					if (!$retval = $this->connection->query($this->replaceParameters($sql, $args))) {
 						$errorInfo     = $this->connection->errorInfo();
 						$this->error   = $errorInfo[2];
@@ -577,7 +575,7 @@ class Database
 				$can_be_prepared = in_array($command, ['select', 'update', 'insert', 'delete']);
 
 				// The fallback routine is called as well when there are no arguments
-				if ($this->emulate_prepares || !$can_be_prepared || (count($args) == 0)) {
+				if (!$can_be_prepared || (count($args) == 0)) {
 					$retval = $this->connection->query($this->replaceParameters($sql, $args));
 					if ($this->connection->errno) {
 						$this->error   = $this->connection->error;

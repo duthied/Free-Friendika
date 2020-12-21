@@ -53,15 +53,9 @@ return [
 		// Database connection charset. Changing this value will likely corrupt special characters.
 		'charset' => 'utf8mb4',
 
-		// emulate_prepares (Boolean) (Experimental)
-		// If enabled, prepared statements will be emulated.
-		// In combination with MySQLi this will cast all return values to strings.
-		'emulate_prepares' => false,
-
-		// pdo_emulate_prepares (Boolean) (Experimental)
+		// pdo_emulate_prepares (Boolean)
 		// If enabled, the builtin emulation for prepared statements is used.
-		// Due to limitations of that emulation (all return values are casted as strings)
-		// this will most likely cause issues and should not be used on production systems.
+		// This can be used as a workaround for the database error "Prepared statement needs to be re-prepared".
 		'pdo_emulate_prepares' => false,
 
 		// disable_pdo (Boolean)
