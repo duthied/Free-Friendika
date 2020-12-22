@@ -2658,7 +2658,7 @@ class Contact
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function magicLinkbyId($cid, $url = '')
+	public static function magicLinkById($cid, $url = '')
 	{
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'url', 'uid'], ['id' => $cid]);
 

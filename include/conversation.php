@@ -762,7 +762,7 @@ function conversation_fetch_comments($thread_items, bool $pinned, array $activit
 				}
 
 				if (($row['gravity'] == GRAVITY_PARENT) && !empty($row['causer-id'])) {
-					$row['reshared'] = DI::l10n()->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkbyId($row['causer-id'])) .'">' . htmlentities($name) . '</a>');
+					$row['reshared'] = DI::l10n()->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkById($row['causer-id'])) .'">' . htmlentities($name) . '</a>');
 				}
 				$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Reshared') : DI::l10n()->t('Reshared by %s', $name))];
 				break;
