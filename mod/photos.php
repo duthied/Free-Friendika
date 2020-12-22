@@ -184,22 +184,21 @@ function photos_post(App $a)
 		exit();
 	}
 
-	$str_contact_allow = '';
-	$str_group_allow   = '';
-	$str_contact_deny  = '';
-	$str_group_deny    = '';
+	$aclFormatter = DI::aclFormatter();
+	$str_contact_allow = isset($_REQUEST['contact_allow']) ? $aclFormatter->toString($_REQUEST['contact_allow']) : $owner_record['allow_cid'] ?? '';
+	$str_group_allow   = isset($_REQUEST['group_allow'])   ? $aclFormatter->toString($_REQUEST['group_allow'])   : $owner_record['allow_gid'] ?? '';
+	$str_contact_deny  = isset($_REQUEST['contact_deny'])  ? $aclFormatter->toString($_REQUEST['contact_deny'])  : $owner_record['deny_cid']  ?? '';
+	$str_group_deny    = isset($_REQUEST['group_deny'])    ? $aclFormatter->toString($_REQUEST['group_deny'])    : $owner_record['deny_gid']  ?? '';
 
-	if (($_REQUEST['visibility'] ?? '') !== 'public') {
-		$aclFormatter = DI::aclFormatter();
-		$str_contact_allow = isset($_REQUEST['contact_allow']) ? $aclFormatter->toString($_REQUEST['contact_allow']) : $owner_record['allow_cid'] ?? '';
-		$str_group_allow   = isset($_REQUEST['group_allow'])   ? $aclFormatter->toString($_REQUEST['group_allow'])   : $owner_record['allow_gid'] ?? '';
-		$str_contact_deny  = isset($_REQUEST['contact_deny'])  ? $aclFormatter->toString($_REQUEST['contact_deny'])  : $owner_record['deny_cid']  ?? '';
-		$str_group_deny    = isset($_REQUEST['group_deny'])    ? $aclFormatter->toString($_REQUEST['group_deny'])    : $owner_record['deny_gid']  ?? '';
-
-		// Since we know from the visibility parameter it should be private, we have to prevent the empty ACL case
-		// that would make the item public. So we always append the author's contact id to the allowed contacts.
+	$visibility = $_REQUEST['visibility'] ?? '';
+	if ($visibility === 'public') {
+		// The ACL selector introduced in version 2019.12 sends ACL input data even when the Public visibility is selected
+		$str_contact_allow = $str_group_allow = $str_contact_deny = $str_group_deny = '';
+	} else if ($visibility === 'custom') {
+		// Since we know from the visibility parameter the item should be private, we have to prevent the empty ACL
+		// case that would make it public. So we always append the author's contact id to the allowed contacts.
 		// See https://github.com/friendica/friendica/issues/9672
-		$str_contact_allow .= $aclFormatter->toString(\Friendica\Model\Contact::getPublicIdByUserId($page_owner_uid));
+		$str_contact_allow .= $aclFormatter->toString(Contact::getPublicIdByUserId($page_owner_uid));
 	}
 
 	if ($a->argc > 3 && $a->argv[2] === 'album') {
