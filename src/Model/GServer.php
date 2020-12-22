@@ -64,6 +64,7 @@ class GServer
 	const DETECT_SITEINFO_JSON = 15; // Newer Hubzilla
 	const DETECT_MASTODON_API = 16;
 	const DETECT_STATUS_PHP = 17; // Nextcloud
+	const DETECT_V1_CONFIG = 18;
 
 	// Standardized endpoints
 	const DETECT_STATISTICS_JSON = 100;
@@ -318,6 +319,17 @@ class GServer
 			return false;
 		}
 
+		// On a redirect follow the new host but mark the old one as failure
+		if ($curlResult->isSuccess() && (parse_url($url, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST))) {
+			$curlResult = DI::httpRequest()->get($url, ['timeout' => $xrd_timeout]);
+			if (parse_url($url, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST)) {
+				Logger::info('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $curlResult->getRedirectUrl()]);
+				self::setFailure($url);
+				self::detect($curlResult->getRedirectUrl(), $network, $only_nodeinfo);
+				return false;
+			}
+		}
+
 		$nodeinfo = self::fetchNodeinfo($url, $curlResult);
 		if ($only_nodeinfo && empty($nodeinfo)) {
 			Logger::info('Invalid nodeinfo in nodeinfo-mode, server is marked as failure', ['url' => $url]);
@@ -347,6 +359,13 @@ class GServer
 
 				$curlResult = DI::httpRequest()->get($baseurl, ['timeout' => $xrd_timeout]);
 				if ($curlResult->isSuccess()) {
+					if ((parse_url($baseurl, PHP_URL_HOST) != parse_url($curlResult->getRedirectUrl(), PHP_URL_HOST))) {
+						Logger::info('Found redirect. Mark old entry as failure', ['old' => $url, 'new' => $curlResult->getRedirectUrl()]);
+						self::setFailure($url);
+						self::detect($curlResult->getRedirectUrl(), $network, $only_nodeinfo);
+						return false;
+					}
+
 					$basedata = self::analyseRootHeader($curlResult, $basedata);
 					$basedata = self::analyseRootBody($curlResult, $basedata, $baseurl);
 				}
@@ -406,6 +425,10 @@ class GServer
 			// The 'siteinfo.json' doesn't seem to be present on older Hubzilla installations
 			if (empty($serverdata['network'])) {
 				$serverdata = self::detectHubzilla($url, $serverdata);
+			}
+
+			if (empty($serverdata['network']) || in_array($serverdata['detection-method'], [self::DETECT_MANUAL, self::DETECT_BODY])) {
+				$serverdata = self::detectPeertube($url, $serverdata);
 			}
 
 			if (empty($serverdata['network'])) {
@@ -1068,6 +1091,54 @@ class GServer
 	}
 
 	/**
+	 * Detects Peertube via their known endpoint
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function detectPeertube(string $url, array $serverdata)
+	{
+		$curlResult = DI::httpRequest()->get($url . '/api/v1/config');
+
+		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+			return $serverdata;
+		}
+
+		$data = json_decode($curlResult->getBody(), true);
+		if (empty($data)) {
+			return $serverdata;
+		}
+
+		if (!empty($data['instance']) && !empty($data['serverVersion'])) {
+			$serverdata['platform'] = 'peertube';
+			$serverdata['version'] = $data['serverVersion'];
+			$serverdata['network'] = Protocol::ACTIVITYPUB;
+
+			if (!empty($data['instance']['name'])) {
+				$serverdata['site_name'] = $data['instance']['name'];
+			}
+
+			if (!empty($data['instance']['shortDescription'])) {
+				$serverdata['info'] = $data['instance']['shortDescription'];
+			}
+
+			if (!empty($data['signup'])) {
+				if (!empty($data['signup']['allowed'])) {
+					$serverdata['register_policy'] = Register::OPEN;
+				}
+			}
+
+			if (in_array($serverdata['detection-method'], [self::DETECT_HEADER, self::DETECT_BODY, self::DETECT_MANUAL])) {
+				$serverdata['detection-method'] = self::DETECT_V1_CONFIG;
+			}
+		}
+
+		return $serverdata;
+	}
+
+	/**
 	 * Detects the version number of a given server when it was a NextCloud installation
 	 *
 	 * @param string $url        URL of the given server
@@ -1448,7 +1519,7 @@ class GServer
 
 				if (count($version_part) == 2) {
 					if (in_array($version_part[0], ['WordPress'])) {
-						$serverdata['platform'] = strtolower($version_part[0]);
+						$serverdata['platform'] = 'wordpress';
 						$serverdata['version'] = $version_part[1];
 
 						// We still do need a reliable test if some AP plugin is activated
