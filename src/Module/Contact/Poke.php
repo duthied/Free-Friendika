@@ -51,7 +51,7 @@ class Poke extends BaseModule
 
 		$a = DI::app();
 
-		$private = (!empty($_GET['private']) ? intval($_GET['private']) : Model\Item::PUBLIC);
+		$private = !empty($_POST['private']) ? Model\Item::PRIVATE : Model\Item::PUBLIC;
 
 		$allow_cid     = ($private ? '<' . $contact['id']. '>' : $a->user['allow_cid']);
 		$allow_gid     = ($private ? '' : $a->user['allow_gid']);
