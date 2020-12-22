@@ -1008,7 +1008,9 @@ class BBCode
 					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
 				}
 
-				return $match[1] . $callback($attributes, $author_contact, $match[3], trim($match[1]) != '');
+				$content = preg_replace(Strings::autoLinkRegEx(), '<a href="$1">$1</a>', $match[3]);
+
+				return $match[1] . $callback($attributes, $author_contact, $content, trim($match[1]) != '');
 			},
 			$text
 		);
