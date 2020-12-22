@@ -1454,7 +1454,7 @@ function photos_content(App $a)
 						continue;
 					}
 
-					$profile_url = Contact::magicLinkbyId($item['author-id']);
+					$profile_url = Contact::magicLinkById($item['author-id']);
 					if (strpos($profile_url, 'redir/') === 0) {
 						$sparkle = ' sparkle';
 					} else {

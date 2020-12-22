@@ -44,14 +44,14 @@ class Poke extends BaseModule
 
 		Logger::info('verb ' . $verb . ' contact ' . $contact_id);
 
-		$contact = DBA::selectFirst('contact', ['id', 'name'], ['id' => $parameters['id'], 'uid' => local_user()]);
+		$contact = DBA::selectFirst('contact', ['id', 'name', 'url'], ['id' => $parameters['id'], 'uid' => local_user()]);
 		if (!DBA::isResult($contact)) {
 			return self::postReturn(false);
 		}
 
 		$a = DI::app();
 
-		$private = (!empty($_GET['private']) ? intval($_GET['private']) : Model\Item::PUBLIC);
+		$private = !empty($_POST['private']) ? Model\Item::PRIVATE : Model\Item::PUBLIC;
 
 		$allow_cid     = ($private ? '<' . $contact['id']. '>' : $a->user['allow_cid']);
 		$allow_gid     = ($private ? '' : $a->user['allow_gid']);
@@ -86,7 +86,7 @@ class Poke extends BaseModule
 		$arr['object-type']   = Activity\ObjectType::PERSON;
 
 		$arr['origin']        = 1;
-		$arr['body']          = '[url=' . $actor['url'] . ']' . $actor['name'] . '[/url]' . ' ' . $verbs[$verb][2] . ' ' . '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
+		$arr['body']          = '@[url=' . $actor['url'] . ']' . $actor['name'] . '[/url]' . ' ' . $verbs[$verb][2] . ' ' . '@[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 
 		$arr['object'] = '<object><type>' . Activity\ObjectType::PERSON . '</type><title>' . XML::escape($contact['name']) . '</title><id>' . XML::escape($contact['url']) . '</id>';
 		$arr['object'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . $contact['url'] . '" />') . "\n";
