@@ -427,7 +427,7 @@ class GServer
 				$serverdata = self::detectHubzilla($url, $serverdata);
 			}
 
-			if (empty($serverdata['network']) || in_array($basedata['detection-method'], [self::DETECT_MANUAL, self::DETECT_BODY])) {
+			if (empty($serverdata['network']) || in_array($serverdata['detection-method'], [self::DETECT_MANUAL, self::DETECT_BODY])) {
 				$serverdata = self::detectPeertube($url, $serverdata);
 			}
 
