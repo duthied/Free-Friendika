@@ -4219,7 +4219,7 @@ function api_fr_photo_create_update($type)
 	$deny_cid  = $_REQUEST['deny_cid' ] ?? null;
 	$allow_gid = $_REQUEST['allow_gid'] ?? null;
 	$deny_gid  = $_REQUEST['deny_gid' ] ?? null;
-	$visibility = !empty($_REQUEST['visibility']) && $_REQUEST['visibility'] !== "false";
+	$visibility = !$allow_cid && !$deny_cid && !$allow_gid && !$deny_gid;
 
 	// do several checks on input parameters
 	// we do not allow calls without album string
