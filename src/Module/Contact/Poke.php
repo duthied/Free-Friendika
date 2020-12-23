@@ -44,7 +44,7 @@ class Poke extends BaseModule
 
 		Logger::info('verb ' . $verb . ' contact ' . $contact_id);
 
-		$contact = DBA::selectFirst('contact', ['id', 'name', 'url'], ['id' => $parameters['id'], 'uid' => local_user()]);
+		$contact = DBA::selectFirst('contact', ['id', 'name', 'url', 'photo'], ['id' => $parameters['id'], 'uid' => local_user()]);
 		if (!DBA::isResult($contact)) {
 			return self::postReturn(false);
 		}
