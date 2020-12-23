@@ -36,6 +36,17 @@
 			<div class="intro-note intro-note-{{$intro_id}}">{{$note}}</div>
 		</div>
 
+		{{* On mobile touch devices we use buttons for approve, ingnore && discard to have a better UX *}}
+		{{if $is_mobile}}
+		<div class="intro-action-buttons">
+			<form class="intro-form pull-left" action="notification/{{$intro_id}}" method="post">
+				<button class="btn btn-small btn-default intro-submit-ignore" type="submit" name="submit" value="{{$ignore}}">{{$ignore}}</button>
+				{{if $discard}}<button class="btn btn-small btn-default intro-submit-discard" type="submit" name="submit" value="{{$discard}}">{{$discard}}</button>&nbsp;{{/if}}
+			</form>
+			<button class="btn btn-small btn-primary intro-submit-approve pull-right" onclick="addElmToModal('#intro-approve-wrapper-{{$intro_id}}')">{{$approve}}</button>
+		</div>
+		<div class="clear"></div>
+		{{else}}
 		{{* The intro actions like approve, ignore, discard intro*}}
 		<div class="intro-actions pull-right nav-pills preferences">
 			<button class="btn-link intro-action-link" onclick="addElmToModal('#intro-approve-wrapper-{{$intro_id}}');" aria-label="{{$approve}}" title="{{$approve}}" data-toggle="tooltip"><i class="fa fa-check" aria-hidden="true"></i></button>
@@ -45,6 +56,7 @@
 				{{if $discard}}<button class="btn-link intro-submit-discard intro-action-link" type="submit" name="submit" value="{{$discard}}" aria-label="{{$discard}}" title="{{$discard}}" data-toggle="tooltip"><i class="fa fa-trash-o" aria-hidden="true"></i></button>{{/if}}
 			</form>
 		</div>
+		{{/if}}
 
 		{{* This sections contains special settings for contact approval. We hide it by default and load this section in
 		a bootstrap modal in the case of approval *}}
@@ -74,17 +86,5 @@
 			</form>
 		</div>
 	</div>
-
-	{{* On mobile touch devices we use buttons for approve, ingnore && discard to have a better UX *}}
-	{{if $APP->is_mobile}}
-	<div class="intro-action-buttons">
-		<form class="intro-form pull-left" action="notification/{{$intro_id}}" method="post">
-			<button class="btn btn-small btn-default intro-submit-ignore" type="submit" name="submit" value="{{$ignore}}">{{$ignore}}</button>
-			{{if $discard}}<button class="btn btn-small btn-default intro-submit-discard" type="submit" name="submit" value="{{$discard}}">{{$discard}}</button>&nbsp;{{/if}}
-		</form>
-		<button class="btn btn-small btn-primary intro-submit-approve pull-right" onclick="addElmToModal('#intro-approve-wrapper-{{$intro_id}}')">{{$approve}}</button>
-	</div>
-	<div class="clear"></div>
-	{{/if}}
 </div>
 <div class="intro-end"></div>

@@ -66,7 +66,8 @@ function editpost_content(App $a)
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$ispublic' => '&nbsp;', // DI::l10n()->t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
-		'$nickname' => $a->user['nickname']
+		'$nickname' => $a->user['nickname'],
+		'$is_mobile' => DI::mode()->isMobile(),
 	]);
 
 	if (strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid'])) {

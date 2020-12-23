@@ -112,6 +112,7 @@ class Introductions extends BaseNotifications
 						'$note'                  => $notification->getNote(),
 						'$ignore'                => DI::l10n()->t('Ignore'),
 						'$discard'               => DI::l10n()->t('Discard'),
+						'$is_mobile'             => DI::mode()->isMobile(),
 					]);
 					break;
 
@@ -190,6 +191,7 @@ class Introductions extends BaseNotifications
 						'$ignore'                => DI::l10n()->t('Ignore'),
 						'$discard'               => $discard,
 						'$action'                => $action,
+						'$is_mobile'              => DI::mode()->isMobile(),
 					]);
 					break;
 			}
