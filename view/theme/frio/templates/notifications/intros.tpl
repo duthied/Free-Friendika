@@ -38,14 +38,13 @@
 
 		{{* On mobile touch devices we use buttons for approve, ingnore && discard to have a better UX *}}
 		{{if $is_mobile}}
-		<div class="intro-action-buttons">
-			<form class="intro-form pull-left" action="notification/{{$intro_id}}" method="post">
-				<button class="btn btn-small btn-default intro-submit-ignore" type="submit" name="submit" value="{{$ignore}}">{{$ignore}}</button>
-				{{if $discard}}<button class="btn btn-small btn-default intro-submit-discard" type="submit" name="submit" value="{{$discard}}">{{$discard}}</button>&nbsp;{{/if}}
-			</form>
-			<button class="btn btn-small btn-primary intro-submit-approve pull-right" onclick="addElmToModal('#intro-approve-wrapper-{{$intro_id}}')">{{$approve}}</button>
-		</div>
-		<div class="clear"></div>
+		<form class="intro-form" action="notification/{{$intro_id}}" method="post">
+			<button class="btn btn-small btn-primary" type="button" onclick="addElmToModal('#intro-approve-wrapper-{{$intro_id}}');"><i class="fa fa-check" aria-hidden="true"></i> {{$approve}}</button>
+			{{if $discard}}
+				<button class="btn btn-small btn-warning intro-submit-discard" type="submit" name="submit" value="{{$discard}}"><i class="fa fa-trash-o" aria-hidden="true"></i> {{$discard}}</button>
+			{{/if}}
+			<button class="btn btn-small btn-danger intro-submit-ignore" type="submit" name="submit" value="{{$ignore}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$ignore}}</button>
+		</form>
 		{{else}}
 		{{* The intro actions like approve, ignore, discard intro*}}
 		<div class="intro-actions pull-right nav-pills preferences">
