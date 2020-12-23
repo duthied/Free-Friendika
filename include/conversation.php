@@ -1177,7 +1177,8 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$term'      => DI::l10n()->t('Tag term:'),
 		'$fileas'    => DI::l10n()->t('Save to Folder:'),
 		'$whereareu' => DI::l10n()->t('Where are you right now?'),
-		'$delitems'  => DI::l10n()->t("Delete item\x28s\x29?")
+		'$delitems'  => DI::l10n()->t("Delete item\x28s\x29?"),
+		'$is_mobile' => DI::mode()->isMobile(),
 	]);
 
 	$jotplugins = '';

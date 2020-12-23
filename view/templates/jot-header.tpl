@@ -8,7 +8,7 @@ var textlen = 0;
 function initEditor(callback) {
 	if (editor == false) {
 		var  colorbox_options = {
-			{{if $APP->is_mobile}}
+			{{if $is_mobile}}
 			'width' : '100%',
 			'height' : '100%',
 			{{/if}}

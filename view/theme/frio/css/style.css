@@ -198,6 +198,11 @@ blockquote {
     padding: 1px 5px;
     font-size: 12px;
 }
+.btn.btn-danger {
+	color: #FFFFFF;
+	background-color: #AE0F0F;
+}
+
 .btn.btn-primary {
     background: $nav_bg;
     color: $btn_primary_color;
