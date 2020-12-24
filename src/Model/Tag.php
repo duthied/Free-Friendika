@@ -70,8 +70,8 @@ class Tag
 	public static function store(int $uriid, int $type, string $name, string $url = '', $probing = true)
 	{
 		if ($type == self::HASHTAG) {
-			// Remove some common "garbarge" from tags
-			$name = trim($name, "\x00..\x20\xFF#!@,;.:'/?!^°$%".'"');
+			// Trim Unicode non-word characters
+			$name = preg_replace('/(^\W+)|(\W+$)/us', '', $name);
 
 			$tags = explode(self::TAG_CHARACTER[self::HASHTAG], $name);
 			if (count($tags) > 1) {
