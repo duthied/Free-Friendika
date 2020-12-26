@@ -98,6 +98,9 @@ class PostUpdate
 		if (!self::update1383()) {
 			return false;
 		}
+		if (!self::update1384()) {
+			return false;
+		}
 
 		return true;
 	}
@@ -115,7 +118,7 @@ class PostUpdate
 			return true;
 		}
 
-		Logger::log("Start", Logger::DEBUG);
+		Logger::info("Start");
 
 		$end_id = DI::config()->get("system", "post_update_1194_end");
 		if (!$end_id) {
@@ -126,7 +129,7 @@ class PostUpdate
 			}
 		}
 
-		Logger::log("End ID: ".$end_id, Logger::DEBUG);
+		Logger::info("End ID: ".$end_id);
 
 		$start_id = DI::config()->get("system", "post_update_1194_start");
 
@@ -145,14 +148,14 @@ class PostUpdate
 			DBA::escape(Protocol::DFRN), DBA::escape(Protocol::DIASPORA), DBA::escape(Protocol::OSTATUS));
 		if (!$r) {
 			DI::config()->set("system", "post_update_version", 1194);
-			Logger::log("Update is done", Logger::DEBUG);
+			Logger::info("Update is done");
 			return true;
 		} else {
 			DI::config()->set("system", "post_update_1194_start", $r[0]["id"]);
 			$start_id = DI::config()->get("system", "post_update_1194_start");
 		}
 
-		Logger::log("Start ID: ".$start_id, Logger::DEBUG);
+		Logger::info("Start ID: ".$start_id);
 
 		$r = q($query1.$query2.$query3."  ORDER BY `item`.`id` LIMIT 1000,1",
 			intval($start_id), intval($end_id),
@@ -162,13 +165,13 @@ class PostUpdate
 		} else {
 			$pos_id = $end_id;
 		}
-		Logger::log("Progress: Start: ".$start_id." position: ".$pos_id." end: ".$end_id, Logger::DEBUG);
+		Logger::info("Progress: Start: ".$start_id." position: ".$pos_id." end: ".$end_id);
 
 		q("UPDATE `item` ".$query2." SET `item`.`global` = 1 ".$query3,
 			intval($start_id), intval($pos_id),
 			DBA::escape(Protocol::DFRN), DBA::escape(Protocol::DIASPORA), DBA::escape(Protocol::OSTATUS));
 
-		Logger::log("Done", Logger::DEBUG);
+		Logger::info("Done");
 	}
 
 	/**
@@ -186,7 +189,7 @@ class PostUpdate
 			return true;
 		}
 
-		Logger::log("Start", Logger::DEBUG);
+		Logger::info("Start");
 		$r = q("SELECT `contact`.`id`, `contact`.`last-item`,
 			(SELECT MAX(`changed`) FROM `item` USE INDEX (`uid_wall_changed`) WHERE `wall` AND `uid` = `user`.`uid`) AS `lastitem_date`
 			FROM `user`
@@ -202,7 +205,7 @@ class PostUpdate
 		}
 
 		DI::config()->set("system", "post_update_version", 1206);
-		Logger::log("Done", Logger::DEBUG);
+		Logger::info("Done");
 		return true;
 	}
 
@@ -222,7 +225,7 @@ class PostUpdate
 
 		$id = DI::config()->get("system", "post_update_version_1279_id", 0);
 
-		Logger::log("Start from item " . $id, Logger::DEBUG);
+		Logger::info("Start from item " . $id);
 
 		$fields = array_merge(Item::MIXED_CONTENT_FIELDLIST, ['network', 'author-id', 'owner-id', 'tag', 'file',
 			'author-name', 'author-avatar', 'author-link', 'owner-name', 'owner-avatar', 'owner-link', 'id',
@@ -236,7 +239,7 @@ class PostUpdate
 		$items = Item::select($fields, $condition, $params);
 
 		if (DBA::errorNo() != 0) {
-			Logger::log('Database error ' . DBA::errorNo() . ':' . DBA::errorMessage());
+			Logger::info('Database error ' . DBA::errorNo() . ':' . DBA::errorMessage());
 			return false;
 		}
 
@@ -297,7 +300,7 @@ class PostUpdate
 
 		DI::config()->set("system", "post_update_version_1279_id", $id);
 
-		Logger::log("Processed rows: " . $rows . " - last processed item:  " . $id, Logger::DEBUG);
+		Logger::info("Processed rows: " . $rows . " - last processed item:  " . $id);
 
 		if ($start_id == $id) {
 			// Set all deprecated fields to "null" if they contain an empty string
@@ -309,13 +312,13 @@ class PostUpdate
 			foreach ($nullfields as $field) {
 				$fields = [$field => null];
 				$condition = [$field => ''];
-				Logger::log("Setting '" . $field . "' to null if empty.", Logger::DEBUG);
+				Logger::info("Setting '" . $field . "' to null if empty.");
 				// Important: This has to be a "DBA::update", not a "Item::update"
 				DBA::update('item', $fields, $condition);
 			}
 
 			DI::config()->set("system", "post_update_version", 1279);
-			Logger::log("Done", Logger::DEBUG);
+			Logger::info("Done");
 			return true;
 		}
 
@@ -379,7 +382,7 @@ class PostUpdate
 
 		$id = DI::config()->get("system", "post_update_version_1281_id", 0);
 
-		Logger::log("Start from item " . $id, Logger::DEBUG);
+		Logger::info("Start from item " . $id);
 
 		$fields = ['id', 'guid', 'uri', 'uri-id', 'parent-uri', 'parent-uri-id', 'thr-parent', 'thr-parent-id'];
 
@@ -390,7 +393,7 @@ class PostUpdate
 		$items = DBA::select('item', $fields, $condition, $params);
 
 		if (DBA::errorNo() != 0) {
-			Logger::log('Database error ' . DBA::errorNo() . ':' . DBA::errorMessage());
+			Logger::info('Database error ' . DBA::errorNo() . ':' . DBA::errorMessage());
 			return false;
 		}
 
@@ -431,17 +434,17 @@ class PostUpdate
 
 		DI::config()->set("system", "post_update_version_1281_id", $id);
 
-		Logger::log("Processed rows: " . $rows . " - last processed item:  " . $id, Logger::DEBUG);
+		Logger::info("Processed rows: " . $rows . " - last processed item:  " . $id);
 
 		if ($start_id == $id) {
-			Logger::log("Updating item-uri in item-activity", Logger::DEBUG);
+			Logger::info("Updating item-uri in item-activity");
 			DBA::e("UPDATE `item-activity` INNER JOIN `item-uri` ON `item-uri`.`uri` = `item-activity`.`uri` SET `item-activity`.`uri-id` = `item-uri`.`id` WHERE `item-activity`.`uri-id` IS NULL");
 
-			Logger::log("Updating item-uri in item-content", Logger::DEBUG);
+			Logger::info("Updating item-uri in item-content");
 			DBA::e("UPDATE `item-content` INNER JOIN `item-uri` ON `item-uri`.`uri` = `item-content`.`uri` SET `item-content`.`uri-id` = `item-uri`.`id` WHERE `item-content`.`uri-id` IS NULL");
 
 			DI::config()->set("system", "post_update_version", 1281);
-			Logger::log("Done", Logger::DEBUG);
+			Logger::info("Done");
 			return true;
 		}
 
@@ -1019,6 +1022,7 @@ class PostUpdate
 
 		return false;
 	}
+
 	/**
 	 * Remove orphaned photo entries
 	 *
@@ -1058,5 +1062,53 @@ class PostUpdate
 		DI::config()->set("system", "post_update_version", 1383);
 		Logger::info('Done', ['deleted' => $deleted]);
 		return true;
+	}
+
+	/**
+	 * update the "hash" field in the photo table
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1384()
+	{
+		// Was the script completed?
+		if (DI::config()->get("system", "post_update_version") >= 1384) {
+			return true;
+		}
+
+		$condition = ["`hash` IS NULL"];
+		Logger::info('Start', ['rest' => DBA::count('photo', $condition)]);
+
+		$rows = 0;
+		$photos = DBA::select('photo', [], $condition, ['limit' => 10000]);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($photo = DBA::fetch($photos)) {
+			$img = Photo::getImageForPhoto($photo);
+			if (!empty($img)) {
+				$md5 = md5($img->asString());
+			} else {
+				$md5 = '';
+			}
+			DBA::update('photo', ['hash' => $md5], ['id' => $photo['id']]);
+			++$rows;
+		}
+		DBA::close($photos);
+
+		Logger::info('Processed', ['rows' => $rows]);
+
+		if ($rows <= 100) {
+			DI::config()->set("system", "post_update_version", 1384);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
 	}
 }

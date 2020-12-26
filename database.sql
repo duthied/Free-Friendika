@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2020.12-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1383
+-- Friendica 2020.12-rc (Red Hot Poker)
+-- DB_UPDATE_VERSION 1384
 -- ------------------------------------------
 
 
@@ -1045,6 +1045,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
 	`guid` char(16) NOT NULL DEFAULT '' COMMENT 'A unique identifier for this photo',
 	`resource-id` char(32) NOT NULL DEFAULT '' COMMENT '',
+	`hash` char(32) COMMENT 'hash value of the photo',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'creation date',
 	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'last edited date',
 	`title` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -1772,5 +1773,3 @@ CREATE VIEW `workerqueue-view` AS SELECT
 	FROM `process`
 			INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid`
 			WHERE NOT `workerqueue`.`done`;
-
-
