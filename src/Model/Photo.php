@@ -305,6 +305,7 @@ class Photo
 			"contact-id" => $cid,
 			"guid" => $guid,
 			"resource-id" => $rid,
+			"hash" => md5($Image->asString()),
 			"created" => $created,
 			"edited" => DateTimeFormat::utcNow(),
 			"filename" => basename($filename),

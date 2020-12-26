@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1383);
+	define('DB_UPDATE_VERSION', 1384);
 }
 
 return [
@@ -1101,6 +1101,7 @@ return [
 			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "contact.id"],
 			"guid" => ["type" => "char(16)", "not null" => "1", "default" => "", "comment" => "A unique identifier for this photo"],
 			"resource-id" => ["type" => "char(32)", "not null" => "1", "default" => "", "comment" => ""],
+			"hash" => ["type" => "char(32)", "comment" => "hash value of the photo"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "creation date"],
 			"edited" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "last edited date"],
 			"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],

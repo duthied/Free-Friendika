@@ -40,8 +40,9 @@ class Photo extends BaseModule
 	 * Fetch a photo or an avatar, in optional size, check for permissions and
 	 * return the image
 	 */
-	public static function init(array $parameters = [])
+	public static function rawContent(array $parameters = [])
 	{
+		$totalstamp = microtime(true);
 		$a = DI::app();
 		// @TODO: Replace with parameter from router
 		if ($a->argc <= 1 || $a->argc > 4) {
@@ -66,7 +67,9 @@ class Photo extends BaseModule
 
 		$customsize = 0;
 		$photo = false;
+		$scale = null;
 		// @TODO: Replace with parameter from router
+		$stamp = microtime(true);
 		switch($a->argc) {
 			case 4:
 				$customsize = intval($a->argv[2]);
@@ -90,6 +93,7 @@ class Photo extends BaseModule
 				}
 				break;
 		}
+		$fetch = microtime(true) - $stamp;
 
 		if ($photo === false) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
@@ -97,10 +101,12 @@ class Photo extends BaseModule
 
 		$cacheable = ($photo["allow_cid"] . $photo["allow_gid"] . $photo["deny_cid"] . $photo["deny_gid"] === "") && (isset($photo["cacheable"]) ? $photo["cacheable"] : true);
 
+		$stamp = microtime(true);
 		$img = MPhoto::getImageForPhoto($photo);
+		$data = microtime(true) - $stamp;
 
 		if (is_null($img) || !$img->isValid()) {
-			Logger::log("Invalid photo with id {$photo["id"]}.");
+			Logger::warning("Invalid photo with id {$photo["id"]}.");
 			throw new \Friendica\Network\HTTPException\InternalServerErrorException(DI::l10n()->t('Invalid photo with id %s.', $photo["id"]));
 		}
 
@@ -116,20 +122,34 @@ class Photo extends BaseModule
 
 		header("Content-type: " . $img->getType());
 
+		$stamp = microtime(true);
 		if (!$cacheable) {
 			// it is a private photo that they have no permission to view.
 			// tell the browser not to cache it, in case they authenticate
 			// and subsequently have permission to see it
 			header("Cache-Control: no-store, no-cache, must-revalidate");
 		} else {
-			$md5 = md5($img->asString());
+			$md5 = $photo['hash'] ?: md5($img->asString());
 			header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
 			header("Etag: \"{$md5}\"");
 			header("Expires: " . gmdate("D, d M Y H:i:s", time() + (31536000)) . " GMT");
 			header("Cache-Control: max-age=31536000");
 		}
+		$checksum = microtime(true) - $stamp;
 
+		$stamp = microtime(true);
 		echo $img->asString();
+		$output = microtime(true) - $stamp;
+
+		$total = microtime(true) - $totalstamp;
+		$rest = $total - ($fetch + $data + $checksum + $output);
+
+		if (!is_null($scale) && ($scale < 4)) {
+			Logger::info('Performance:', ['scale' => $scale, 'resource' => $photo['resource-id'],
+				'total' => number_format($total, 3), 'fetch' => number_format($fetch, 3),
+				'data' => number_format($data, 3), 'checksum' => number_format($checksum, 3),
+				'output' => number_format($output, 3), 'rest' => number_format($rest, 3)]);
+		}
 
 		exit();
 	}

@@ -117,11 +117,11 @@ class View
 			$sql = sprintf("DROP TABLE IF EXISTS `%s`", DBA::escape($name));
 		}
 
-		if ($verbose) {
+		if (!empty($sql) && $verbose) {
 			echo $sql . ";\n";
 		}
 
-		if ($action) {
+		if (!empty($sql) && $action) {
 			DBA::e($sql);
 		}
 

@@ -218,6 +218,7 @@ class Network extends BaseModule
 		$unseen = Item::exists($condition);
 
 		if ($unseen) {
+			/// @todo handle huge "unseen" updates in the background to avoid timeout errors
 			Item::update(['unseen' => false], $condition);
 		}
 	}
