@@ -102,17 +102,19 @@ class Photo extends BaseModule
 		$cacheable = ($photo["allow_cid"] . $photo["allow_gid"] . $photo["deny_cid"] . $photo["deny_gid"] === "") && (isset($photo["cacheable"]) ? $photo["cacheable"] : true);
 
 		$stamp = microtime(true);
-		$img = MPhoto::getImageForPhoto($photo);
+		$imgdata = MPhoto::getImageDataForPhoto($photo);
 		$data = microtime(true) - $stamp;
 
-		if (is_null($img) || !$img->isValid()) {
+		if (empty($imgdata)) {
 			Logger::warning("Invalid photo with id {$photo["id"]}.");
 			throw new \Friendica\Network\HTTPException\InternalServerErrorException(DI::l10n()->t('Invalid photo with id %s.', $photo["id"]));
 		}
 
 		// if customsize is set and image is not a gif, resize it
-		if ($img->getType() !== "image/gif" && $customsize > 0 && $customsize < 501) {
+		if ($photo['type'] !== "image/gif" && $customsize > 0 && $customsize < 501) {
+			$img = MPhoto::getImageForPhoto($photo);
 			$img->scaleToSquare($customsize);
+			$imgdata = $img->asString();
 		}
 
 		if (function_exists("header_remove")) {
@@ -120,7 +122,7 @@ class Photo extends BaseModule
 			header_remove("pragma");
 		}
 
-		header("Content-type: " . $img->getType());
+		header("Content-type: " . $photo['type']);
 
 		$stamp = microtime(true);
 		if (!$cacheable) {
@@ -129,7 +131,7 @@ class Photo extends BaseModule
 			// and subsequently have permission to see it
 			header("Cache-Control: no-store, no-cache, must-revalidate");
 		} else {
-			$md5 = $photo['hash'] ?: md5($img->asString());
+			$md5 = $photo['hash'] ?: md5($imgdata);
 			header("Last-Modified: " . gmdate("D, d M Y H:i:s", time()) . " GMT");
 			header("Etag: \"{$md5}\"");
 			header("Expires: " . gmdate("D, d M Y H:i:s", time() + (31536000)) . " GMT");
@@ -138,7 +140,7 @@ class Photo extends BaseModule
 		$checksum = microtime(true) - $stamp;
 
 		$stamp = microtime(true);
-		echo $img->asString();
+		echo $imgdata;
 		$output = microtime(true) - $stamp;
 
 		$total = microtime(true) - $totalstamp;

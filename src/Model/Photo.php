@@ -178,7 +178,7 @@ class Photo
 
 
 	/**
-	 * Get Image object for given row id. null if row id does not exist
+	 * Get Image data for given row id. null if row id does not exist
 	 *
 	 * @param array $photo Photo data. Needs at least 'id', 'type', 'backend-class', 'backend-ref'
 	 *
@@ -186,7 +186,7 @@ class Photo
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getImageForPhoto(array $photo)
+	public static function getImageDataForPhoto(array $photo)
 	{
 		$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
 		if ($backendClass === null) {
@@ -200,7 +200,21 @@ class Photo
 			$backendRef = $photo['backend-ref'] ?? '';
 			$data = $backendClass->get($backendRef);
 		}
+		return $data;
+	}
 
+	/**
+	 * Get Image object for given row id. null if row id does not exist
+	 *
+	 * @param array $photo Photo data. Needs at least 'id', 'type', 'backend-class', 'backend-ref'
+	 *
+	 * @return \Friendica\Object\Image
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function getImageForPhoto(array $photo)
+	{
+		$data = self::getImageDataForPhoto($photo);
 		if (empty($data)) {
 			return null;
 		}
