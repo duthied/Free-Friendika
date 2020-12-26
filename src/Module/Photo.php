@@ -28,6 +28,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo as MPhoto;
 use Friendica\Util\Proxy;
+use Friendica\Object\Image;
 
 /**
  * Photo Module
@@ -112,7 +113,7 @@ class Photo extends BaseModule
 
 		// if customsize is set and image is not a gif, resize it
 		if ($photo['type'] !== "image/gif" && $customsize > 0 && $customsize < 501) {
-			$img = MPhoto::getImageForPhoto($photo);
+			$img = new Image($imgdata, $photo['type']);
 			$img->scaleToSquare($customsize);
 			$imgdata = $img->asString();
 		}
