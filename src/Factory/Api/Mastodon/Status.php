@@ -61,6 +61,10 @@ class Status extends BaseFactory
 	public function createFromUriId(int $uriId, $uid = 0)
 	{
 		$item = Item::selectFirst([], ['uri-id' => $uriId, 'uid' => $uid]);
+		if (!$item) {
+			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . 'not found' . ($uid ? ' for user ' . $uid : '.'));
+		}
+
 		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
 
 		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(
