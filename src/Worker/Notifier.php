@@ -766,6 +766,11 @@ class Notifier
 	 */
 	private static function activityPubDelivery($cmd, array $target_item, array $parent, array $thr_parent, $priority, $created, $owner)
 	{
+		// Don't deliver via AP when the starting post isn't from a federated network
+		if (!in_array($parent['network'], Protocol::FEDERATED)) {
+			return 0;
+		}
+
 		// Don't deliver via AP when the starting post is delivered via Diaspora
 		if ($parent['network'] == Protocol::DIASPORA) {
 			return 0;
