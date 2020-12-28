@@ -175,6 +175,17 @@ $(function() {
 		$(textarea).trigger('change');
 	});
 
+	$(".comment-edit-wrapper textarea, .wall-item-comment-wrapper textarea")
+		.editor_autocomplete(baseurl + '/search/acl')
+		.bbco_autocomplete('bbcode');
+
+	// Ensures asynchronously-added comment forms recognize mentions, tags and BBCodes as well
+	document.addEventListener("postprocess_liveupdate", function() {
+		$(".comment-edit-wrapper textarea, .wall-item-comment-wrapper textarea")
+			.editor_autocomplete(baseurl + '/search/acl')
+			.bbco_autocomplete('bbcode');
+	});
+
 	/* popup menus */
 	function close_last_popup_menu() {
 		if (last_popup_menu) {
@@ -568,10 +579,6 @@ function updateConvItems(data) {
 		commentBusy = false;
 		$('body').css('cursor', 'auto');
 	}
-	/* autocomplete @nicknames */
-	$(".comment-edit-form  textarea").editor_autocomplete(baseurl + '/search/acl');
-	/* autocomplete bbcode */
-	$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
 }
 
 function liveUpdate(src) {
