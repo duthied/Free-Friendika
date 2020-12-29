@@ -67,6 +67,10 @@ class Account extends BaseFactory
 			$userContact = [];
 		}
 
+		if (empty($publicContact)) {
+			throw new HTTPException\NotFoundException('Contact ' . $contactId . ' not found');
+		}
+
 		$apcontact = APContact::getByURL($publicContact['url'], false);
 
 		$self_contact = Contact::selectFirst(['uid'], ['nurl' => $publicContact['nurl'], 'self' => true]);
