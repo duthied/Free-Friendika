@@ -24,7 +24,6 @@
  */
 
 use Friendica\App;
-use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
@@ -69,7 +68,6 @@ function cal_init(App $a)
 	}
 
 	$a->profile = Profile::getByNickname($nick, $a->profile_uid);
-
 	if (empty($a->profile)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}
@@ -131,6 +129,9 @@ function cal_content(App $a)
 	// Setup permissions structures
 	$owner_uid = intval($a->data['user']['uid']);
 	$nick = $a->data['user']['nickname'];
+	if (empty($a->profile)) {
+		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+	}
 
 	$contact_id = Session::getRemoteContactID($a->profile['uid']);
 

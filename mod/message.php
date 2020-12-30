@@ -332,7 +332,7 @@ function message_content(App $a)
 				'id' => $message['id'],
 				'from_name' => $from_name_e,
 				'from_url' => $from_url,
-				'from_addr' => $contact['addr'],
+				'from_addr' => $contact['addr'] ?? $from_url,
 				'sparkle' => $sparkle,
 				'from_photo' => $from_photo,
 				'subject' => $subject_e,
