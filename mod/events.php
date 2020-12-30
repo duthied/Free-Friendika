@@ -30,6 +30,7 @@ use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\User;
@@ -129,7 +130,7 @@ function events_post(App $a)
 	];
 
 	$action = ($event_id == '') ? 'new' : 'event/' . $event_id;
-	$onerror_path = 'events/' . $action . '?' . http_build_query($params, null, null, PHP_QUERY_RFC3986);
+	$onerror_path = 'events/' . $action . '?' . http_build_query($params, '', '&', PHP_QUERY_RFC3986);
 
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
 		notice(DI::l10n()->t('Event can not end before it has started.'));

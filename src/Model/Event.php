@@ -292,7 +292,7 @@ class Event
 
 		$contact = DBA::selectFirst('contact', [], $conditions);
 		if (!DBA::isResult($contact)) {
-			Logger::warning('Contact not found', ['condition' => $conditions]);
+			Logger::warning('Contact not found', ['condition' => $conditions, 'cakkstack' => System::callstack(20)]);
 		}
 
 		// Existing event being modified.
