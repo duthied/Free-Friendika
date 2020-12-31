@@ -69,9 +69,15 @@ class HTTPException
 			$message = $explanation[$e->getCode()] ?? '';
 		}
 
-		$vars = ['$title' => $title, '$message' => $message, '$back' => DI::l10n()->t('Go back')];
+		$vars = [
+			'$title' => $title,
+			'$message' => $message,
+			'$back' => DI::l10n()->t('Go back'),
+			'$stack_trace' => DI::l10n()->t('Stack trace:'),
+		];
 
 		if (is_site_admin()) {
+			$vars['$thrown'] = DI::l10n()->t('Exception thrown in %s:%d', $e->getFile(), $e->getLine());
 			$vars['$trace'] = $e->getTraceAsString();
 		}
 
