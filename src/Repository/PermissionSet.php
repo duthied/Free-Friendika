@@ -25,7 +25,6 @@ use Friendica\BaseRepository;
 use Friendica\Collection;
 use Friendica\Database\Database;
 use Friendica\Model;
-use Friendica\Model\Group;
 use Friendica\Network\HTTPException;
 use Friendica\Util\ACLFormatter;
 use Psr\Log\LoggerInterface;
@@ -162,9 +161,19 @@ class PermissionSet extends BaseRepository
 	 */
 	public function selectByContactId($contact_id, $uid)
 	{
+		$cdata = Model\Contact::getPublicAndUserContacID($contact_id, $uid);
+		if (!empty($cdata)) {
+			$public_contact_str = '<' . $cdata['public'] . '>';
+			$user_contact_str = '<' . $cdata['user'] . '>';
+			$contact_id = $cdata['user'];
+		} else {
+			$public_contact_str = '<' . $contact_id . '>';
+			$user_contact_str = '';
+		}
+
 		$groups = [];
-		if ($this->dba->exists('contact', ['id' => $contact_id, 'uid' => $uid, 'blocked' => false])) {
-			$groups = Group::getIdsByContactId($contact_id);
+		if (!empty($user_contact_str) && $this->dba->exists('contact', ['id' => $contact_id, 'uid' => $uid, 'blocked' => false])) {
+			$groups = Model\Group::getIdsByContactId($contact_id);
 		}
 
 		$group_str = '<<>>'; // should be impossible to match
@@ -172,11 +181,16 @@ class PermissionSet extends BaseRepository
 			$group_str .= '|<' . preg_quote($group_id) . '>';
 		}
 
-		$contact_str = '<' . $contact_id . '>';
-
-		$condition = ["`uid` = ? AND (NOT (`deny_cid` REGEXP ? OR deny_gid REGEXP ?)
-			AND (allow_cid REGEXP ? OR allow_gid REGEXP ? OR (allow_cid = '' AND allow_gid = '')))",
-			$uid, $contact_str, $group_str, $contact_str, $group_str];
+		if (!empty($user_contact_str)) {
+			$condition = ["`uid` = ? AND (NOT (`deny_cid` REGEXP ? OR `deny_cid` REGEXP ? OR deny_gid REGEXP ?)
+				AND (allow_cid REGEXP ? OR allow_cid REGEXP ? OR allow_gid REGEXP ? OR (allow_cid = '' AND allow_gid = '')))",
+				$uid, $user_contact_str, $public_contact_str, $group_str,
+				$user_contact_str, $public_contact_str, $group_str];
+		} else {
+			$condition = ["`uid` = ? AND (NOT (`deny_cid` REGEXP ? OR deny_gid REGEXP ?)
+				AND (allow_cid REGEXP ? OR allow_gid REGEXP ? OR (allow_cid = '' AND allow_gid = '')))",
+				$uid, $public_contact_str, $group_str, $public_contact_str, $group_str];
+		}
 
 		return $this->select($condition);
 	}
