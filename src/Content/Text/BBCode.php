@@ -1393,6 +1393,16 @@ class BBCode
 					$text = self::convertAttachment($text, $simple_html, $try_oembed);
 				}
 
+				$nosmile = strpos($text, '[nosmile]') !== false;
+				$text = str_replace('[nosmile]', '', $text);
+
+				// Replace non graphical smilies for external posts
+				if (!$nosmile && !$for_plaintext) {
+					$text = self::performWithEscapedTags($text, ['img'], function ($text) {
+						return Smilies::replace($text);
+					});
+				}
+
 				// leave open the posibility of [map=something]
 				// this is replaced in Item::prepareBody() which has knowledge of the item location
 				if (strpos($text, '[/map]') !== false) {
@@ -1505,11 +1515,6 @@ class BBCode
 						return preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
 					});
 				}
-
-				// This is actually executed in Item::prepareBody()
-
-				$nosmile = strpos($text, '[nosmile]') !== false;
-				$text = str_replace('[nosmile]', '', $text);
 
 				// Check for font change text
 				$text = preg_replace("/\[font=(.*?)\](.*?)\[\/font\]/sm", "<span style=\"font-family: $1;\">$2</span>", $text);
@@ -1681,13 +1686,6 @@ class BBCode
 					$text = preg_replace("/\[event\-location\](.*?)\[\/event\-location\]/ism", '', $text);
 					$text = preg_replace("/\[event\-adjust\](.*?)\[\/event\-adjust\]/ism", '', $text);
 					$text = preg_replace("/\[event\-id\](.*?)\[\/event\-id\]/ism", '', $text);
-				}
-
-				// Replace non graphical smilies for external posts
-				if (!$nosmile && !$for_plaintext) {
-					$text = self::performWithEscapedTags($text, ['img'], function ($text) {
-						return Smilies::replace($text);
-					});
 				}
 
 				if (!$for_plaintext && DI::config()->get('system', 'big_emojis') && ($simple_html != self::DIASPORA)) {
