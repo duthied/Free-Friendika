@@ -119,7 +119,7 @@ blockquote {
 #back-to-top {
     display: none;
     cursor: pointer;
-    color: white;
+    color: $nav_icon_color;
     position: fixed;
     z-index: 49;
     right: 20px;
@@ -128,7 +128,7 @@ blockquote {
     font-size: 2.9em;
     padding: 0 12px 0 12px;
     border-radius: 10px;
-    background-color: #aaa;
+    background-color: $nav_bg;
     line-height: 1.5;
 }
 

@@ -347,11 +347,17 @@ section > .generic-page-wrapper,
 .fsuggest-content-wrapper,
 .panel,
 aside .widget,
-.nav-container .widget{
+.nav-container .widget,
+#back-to-top
+{
 	box-shadow: 0 0 3px $link_color;
 	-webkit-box-shadow: 0 0 3px $link_color;
 }
 
 input[type=text].tt-input {
 	box-shadow: none;
+}
+
+#back-to-top {
+	color: $link_color;
 }
