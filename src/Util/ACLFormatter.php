@@ -84,7 +84,7 @@ final class ACLFormatter
 	private function sanitizeItem(string &$item) {
 		// The item is an ACL int value
 		if (intval($item)) {
-			$item = '<' . intval(Strings::escapeTags(trim($item))) . '>';
+			$item = '<' . intval($item) . '>';
 		// The item is a allowed ACL character
 		} elseif (in_array($item, [Group::FOLLOWERS, Group::MUTUALS])) {
 			$item = '<' . $item . '>';

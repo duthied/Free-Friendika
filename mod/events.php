@@ -66,9 +66,7 @@ function events_init(App $a)
 
 function events_post(App $a)
 {
-
 	Logger::debug('post', ['request' => $_REQUEST]);
-
 	if (!local_user()) {
 		return;
 	}
@@ -82,6 +80,8 @@ function events_post(App $a)
 
 	$adjust   = intval($_POST['adjust'] ?? 0);
 	$nofinish = intval($_POST['nofinish'] ?? 0);
+
+	$share = intval($_POST['share'] ?? 0);
 
 	// The default setting for the `private` field in event_store() is false, so mirror that
 	$private_event = false;
@@ -150,18 +150,9 @@ function events_post(App $a)
 		DI::baseUrl()->redirect($onerror_path);
 	}
 
-	$share = intval($_POST['share'] ?? 0);
+	$self = \Friendica\Model\Contact::getPublicIdByUserId($uid);
 
-	$c = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
-		intval(local_user())
-	);
-
-	if (DBA::isResult($c)) {
-		$self = $c[0]['id'];
-	} else {
-		$self = 0;
-	}
-
+	$aclFormatter = DI::aclFormatter();
 
 	if ($share) {
 		$user = User::getById($uid, ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
@@ -169,7 +160,6 @@ function events_post(App $a)
 			return;
 		}
 
-		$aclFormatter = DI::aclFormatter();
 		$str_contact_allow = isset($_REQUEST['contact_allow']) ? $aclFormatter->toString($_REQUEST['contact_allow']) : $user['allow_cid'] ?? '';
 		$str_group_allow   = isset($_REQUEST['group_allow'])   ? $aclFormatter->toString($_REQUEST['group_allow'])   : $user['allow_gid'] ?? '';
 		$str_contact_deny  = isset($_REQUEST['contact_deny'])  ? $aclFormatter->toString($_REQUEST['contact_deny'])  : $user['deny_cid']  ?? '';
@@ -183,10 +173,10 @@ function events_post(App $a)
 			// Since we know from the visibility parameter the item should be private, we have to prevent the empty ACL
 			// case that would make it public. So we always append the author's contact id to the allowed contacts.
 			// See https://github.com/friendica/friendica/issues/9672
-			$str_contact_allow .= $aclFormatter->toString(Contact::getPublicIdByUserId($uid));
+			$str_contact_allow .= $aclFormatter->toString($self);
 		}
 	} else {
-		$str_contact_allow = '<' . $self . '>';
+		$str_contact_allow = $aclFormatter->toString($self);
 		$str_group_allow = $str_contact_deny = $str_group_deny = '';
 	}
 
