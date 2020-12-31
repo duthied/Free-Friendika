@@ -179,7 +179,7 @@ class Process
 		$reached = ($free < $min_memory);
 
 		if ($reached) {
-			$this->logger->debug('Minimal memory reached.', ['free' => $free, 'memtotal' => $meminfo['MemTotal'], 'limit' => $min_memory]);
+			$this->logger->warning('Minimal memory reached.', ['free' => $free, 'memtotal' => $meminfo['MemTotal'], 'limit' => $min_memory]);
 		}
 
 		return $reached;
@@ -209,7 +209,7 @@ class Process
 		$load = System::currentLoad();
 		if ($load) {
 			if (intval($load) > $maxsysload) {
-				$this->logger->info('system load for process too high.', ['load' => $load, 'process' => $process, 'maxsysload' => $maxsysload]);
+				$this->logger->warning('system load for process too high.', ['load' => $load, 'process' => $process, 'maxsysload' => $maxsysload]);
 				return true;
 			}
 		}
@@ -225,7 +225,7 @@ class Process
 	public function run($command, $args)
 	{
 		if (!function_exists('proc_open')) {
-			$this->logger->notice('"proc_open" not available - quitting');
+			$this->logger->warning('"proc_open" not available - quitting');
 			return;
 		}
 
@@ -243,7 +243,7 @@ class Process
 		}
 
 		if ($this->isMinMemoryReached()) {
-			$this->logger->notice('Memory limit reached - quitting');
+			$this->logger->warning('Memory limit reached - quitting');
 			return;
 		}
 
@@ -253,7 +253,7 @@ class Process
 			$resource = proc_open($cmdline . ' &', [], $foo, $this->basePath);
 		}
 		if (!is_resource($resource)) {
-			$this->logger->notice('We got no resource for command.', ['command' => $cmdline]);
+			$this->logger->warning('We got no resource for command.', ['command' => $cmdline]);
 			return;
 		}
 		proc_close($resource);
