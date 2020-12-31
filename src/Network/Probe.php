@@ -1801,26 +1801,28 @@ class Probe
 
 		$hrefParts = parse_url($href);
 
-		// Root path case (/path) including relative scheme case (//host/path)
-		if ($hrefParts['path'] && $hrefParts['path'][0] == '/') {
-			$path = $hrefParts['path'];
-		} else {
-			$path = $path . '/' . $hrefParts['path'];
+		if (!empty($hrefParts['path'])) {
+			// Root path case (/path) including relative scheme case (//host/path)
+			if ($hrefParts['path'] && $hrefParts['path'][0] == '/') {
+				$path = $hrefParts['path'];
+			} else {
+				$path = $path . '/' . $hrefParts['path'];
 
-			// Resolve arbitrary relative path
-			// Lifted from https://www.php.net/manual/en/function.realpath.php#84012
-			$parts = array_filter(explode('/', $path), 'strlen');
-			$absolutes = array();
-			foreach ($parts as $part) {
-				if ('.' == $part) continue;
-				if ('..' == $part) {
-					array_pop($absolutes);
-				} else {
-					$absolutes[] = $part;
+				// Resolve arbitrary relative path
+				// Lifted from https://www.php.net/manual/en/function.realpath.php#84012
+				$parts = array_filter(explode('/', $path), 'strlen');
+				$absolutes = array();
+				foreach ($parts as $part) {
+					if ('.' == $part) continue;
+					if ('..' == $part) {
+						array_pop($absolutes);
+					} else {
+						$absolutes[] = $part;
+					}
 				}
-			}
 
-			$path = '/' . implode('/', $absolutes);
+				$path = '/' . implode('/', $absolutes);
+			}
 		}
 
 		// Relative scheme case (//host/path)
