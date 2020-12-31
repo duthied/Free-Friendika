@@ -103,7 +103,7 @@ class Worker
 
 				// The work will be done
 				if (!self::execute($entry)) {
-					Logger::info('Process execution failed, quitting.');
+					Logger::notice('Process execution failed, quitting.');
 					return;
 				}
 
@@ -125,14 +125,14 @@ class Worker
 				if (DI::lock()->acquire(self::LOCK_WORKER, 0)) {
 				// Count active workers and compare them with a maximum value that depends on the load
 					if (self::tooMuchWorkers()) {
-						Logger::info('Active worker limit reached, quitting.');
+						Logger::notice('Active worker limit reached, quitting.');
 						DI::lock()->release(self::LOCK_WORKER);
 						return;
 					}
 
 					// Check free memory
 					if (DI::process()->isMinMemoryReached()) {
-						Logger::notice('Memory limit reached, quitting.');
+						Logger::warning('Memory limit reached, quitting.');
 						DI::lock()->release(self::LOCK_WORKER);
 						return;
 					}
@@ -168,25 +168,25 @@ class Worker
 	{
 		// Count active workers and compare them with a maximum value that depends on the load
 		if (self::tooMuchWorkers()) {
-			Logger::info('Active worker limit reached, quitting.');
+			Logger::notice('Active worker limit reached, quitting.');
 			return false;
 		}
 
 		// Do we have too few memory?
 		if (DI::process()->isMinMemoryReached()) {
-			Logger::notice('Memory limit reached, quitting.');
+			Logger::warning('Memory limit reached, quitting.');
 			return false;
 		}
 
 		// Possibly there are too much database connections
 		if (self::maxConnectionsReached()) {
-			Logger::notice('Maximum connections reached, quitting.');
+			Logger::warning('Maximum connections reached, quitting.');
 			return false;
 		}
 
 		// Possibly there are too much database processes that block the system
 		if (DI::process()->isMaxProcessesReached()) {
-			Logger::notice('Maximum processes reached, quitting.');
+			Logger::warning('Maximum processes reached, quitting.');
 			return false;
 		}
 		
@@ -290,13 +290,13 @@ class Worker
 
 		// Constantly check the number of parallel database processes
 		if (DI::process()->isMaxProcessesReached()) {
-			Logger::notice("Max processes reached for process", ['pid' => $mypid]);
+			Logger::warning("Max processes reached for process", ['pid' => $mypid]);
 			return false;
 		}
 
 		// Constantly check the number of available database connections to let the frontend be accessible at any time
 		if (self::maxConnectionsReached()) {
-			Logger::notice("Max connection reached for process", ['pid' => $mypid]);
+			Logger::warning("Max connection reached for process", ['pid' => $mypid]);
 			return false;
 		}
 
@@ -540,7 +540,7 @@ class Worker
 			$level = ($used / $max) * 100;
 
 			if ($level >= $maxlevel) {
-				Logger::notice("Maximum level (".$maxlevel."%) of user connections reached: ".$used."/".$max);
+				Logger::warning("Maximum level (".$maxlevel."%) of user connections reached: ".$used."/".$max);
 				return true;
 			}
 		}
@@ -570,7 +570,7 @@ class Worker
 		if ($level < $maxlevel) {
 			return false;
 		}
-		Logger::notice("Maximum level (".$level."%) of system connections reached: ".$used."/".$max);
+		Logger::warning("Maximum level (".$level."%) of system connections reached: ".$used."/".$max);
 		return true;
 	}
 
@@ -1352,7 +1352,7 @@ class Worker
 				$new_retrial = $retrial;
 			}
 		}
-		Logger::info('New retrial for task', ['id' => $queue['id'], 'created' => $queue['created'], 'old' => $queue['retrial'], 'new' => $new_retrial]);
+		Logger::notice('New retrial for task', ['id' => $queue['id'], 'created' => $queue['created'], 'old' => $queue['retrial'], 'new' => $new_retrial]);
 		return $new_retrial;
 	}
 
@@ -1378,7 +1378,7 @@ class Worker
 		$new_retrial = self::getNextRetrial($queue, $max_level);
 
 		if ($new_retrial > $max_level) {
-			Logger::info('The task exceeded the maximum retry count', ['id' => $id, 'created' => $queue['created'], 'old_prio' => $queue['priority'], 'old_retrial' => $queue['retrial'], 'max_level' => $max_level, 'retrial' => $new_retrial]);
+			Logger::notice('The task exceeded the maximum retry count', ['id' => $id, 'created' => $queue['created'], 'old_prio' => $queue['priority'], 'old_retrial' => $queue['retrial'], 'max_level' => $max_level, 'retrial' => $new_retrial]);
 			return false;
 		}
 
@@ -1490,12 +1490,12 @@ class Worker
 	 */
 	private static function spawnDaemon()
 	{
-		Logger::info('Starting new daemon process');
+		Logger::notice('Starting new daemon process');
 		$command = 'bin/daemon.php';
 		$a = DI::app();
 		$process = new Core\Process(DI::logger(), DI::mode(), DI::config(), DI::modelProcess(), $a->getBasePath(), getmypid());
 		$process->run($command, ['start']);
-		Logger::info('New daemon process started');
+		Logger::notice('New daemon process started');
 	}
 
 	/**
