@@ -38,6 +38,11 @@ class Mode
 	const DBCONFIGAVAILABLE   = 4;
 	const MAINTENANCEDISABLED = 8;
 
+	const UNDEFINED = 0;
+	const INDEX = 1;
+	const DAEMON = 2;
+	const WORKER = 3;
+
 	const BACKEND_CONTENT_TYPES = ['application/jrd+json', 'text/xml',
 		'application/rss+xml', 'application/atom+xml', 'application/activity+json'];
 
@@ -46,6 +51,12 @@ class Mode
 	 *
 	 */
 	private $mode;
+
+	/***
+	 * @var int Who executes this Application
+	 *
+	 */
+	private $executor = self::UNDEFINED;
 
 	/**
 	 * @var bool True, if the call is a backend call
@@ -163,6 +174,31 @@ class Mode
 		return ($this->mode & $mode) > 0;
 	}
 
+	/**
+	 * Set the execution mode
+	 *
+	 * @param integer $executor Execution Mode
+	 * @return void
+	 */
+	public function setExecutor(int $executor)
+	{
+		$this->executor = $executor;
+
+		// Daemon and worker are always backend
+		if (in_array($executor, [self::DAEMON, self::WORKER])) {
+			$this->isBackend = true;
+		}
+	}
+
+	/*isBackend = true;*
+	 * get the execution mode
+	 *
+	 * @return int Execution Mode
+	 */
+	public function getExecutor()
+	{
+		return $this->executor;
+	}
 
 	/**
 	 * Install mode is when the local config file is missing or the DB schema hasn't been installed yet.

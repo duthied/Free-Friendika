@@ -29,6 +29,7 @@ if (php_sapi_name() !== 'cli') {
 }
 
 use Dice\Dice;
+use Friendica\App\Mode;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -64,6 +65,8 @@ $a = DI::app();
 if (DI::mode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");
 }
+
+DI::mode()->setExecutor(Mode::DAEMON);
 
 DI::config()->load();
 
@@ -144,34 +147,35 @@ Logger::notice('Starting worker daemon.', ["pid" => $pid]);
 if (!$foreground) {
 	echo "Starting worker daemon.\n";
 
-	// Switch over to daemon mode.
-	if ($pid = pcntl_fork()) {
-		return;     // Parent
-	}
-
-	fclose(STDIN);  // Close all of the standard
-
-	// Enabling this seem to block a running php process with 100% CPU usage when there is an outpout
-	// fclose(STDOUT); // file descriptors as we
-	// fclose(STDERR); // are running as a daemon.
-
 	DBA::disconnect();
 
+	// Fork a daemon process
+	$pid = pcntl_fork();
+	if ($pid == -1) {
+		echo "Daemon couldn't be forked.\n";
+		Logger::warning('Could not fork daemon');
+		exit(1);
+	} elseif ($pid) {
+		// The parent process continues here
+		echo 'Child process started with pid ' . $pid . ".\n";
+		Logger::notice('Child process started', ['pid' => $pid]);
+		file_put_contents($pidfile, $pid);
+		exit(0);
+	}
+
+	// We now are in the child process
 	register_shutdown_function('shutdown');
 
+	// Make the child the main process, detach it from the terminal
 	if (posix_setsid() < 0) {
 		return;
 	}
 
-	if ($pid = pcntl_fork()) {
-		return;     // Parent
-	}
+	// Closing all existing connections with the outside
+	fclose(STDIN);
 
-	$pid = getmypid();
-	file_put_contents($pidfile, $pid);
-
-	// We lose the database connection upon forking
-	DBA::reconnect();
+	// And now connect the database again
+	DBA::connect();
 }
 
 DI::config()->set('system', 'worker_daemon_mode', true);

@@ -21,6 +21,7 @@
 
 namespace Friendica\Core;
 
+use Friendica\App\Mode;
 use Friendica\Core;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -1181,6 +1182,44 @@ class Worker
 	}
 
 	/**
+	 * Fork a child process
+	 *
+	 * @param boolean $do_cron
+	 * @return void
+	 */
+	private static function forkProcess(bool $do_cron)
+	{
+		// Children inherit their parent's database connection.
+		// To avoid problems we disconnect and connect both parent and child
+		DBA::disconnect();
+		$pid = pcntl_fork();
+		if ($pid == -1) {
+			DBA::connect();
+			Logger::warning('Could not spawn worker');
+			return;
+		} elseif ($pid) {
+			// The parent process continues here
+			DBA::connect();
+			Logger::info('Spawned new worker', ['cron' => $do_cron, 'pid' => $pid]);
+			return;
+		}
+	
+		// We now are in the new worker
+		DBA::connect();
+		Logger::info('Worker spawned', ['cron' => $do_cron, 'pid' => getmypid()]);
+
+		DI::process()->start();
+
+		self::processQueue($do_cron);
+
+		self::unclaimProcess();
+
+		DI::process()->end();
+		Logger::info('Worker ended', ['cron' => $do_cron, 'pid' => getmypid()]);
+		exit();
+	}
+
+	/**
 	 * Spawns a new worker
 	 *
 	 * @param bool $do_cron
@@ -1189,13 +1228,15 @@ class Worker
 	 */
 	public static function spawnWorker($do_cron = false)
 	{
-		$command = 'bin/worker.php';
-
-		$args = ['no_cron' => !$do_cron];
-
-		$a = DI::app();
-		$process = new Core\Process(DI::logger(), DI::mode(), DI::config(), DI::modelProcess(), $a->getBasePath(), getmypid());
-		$process->run($command, $args);
+		// Worker and daemon are started from the command line.
+		// This means that this is executed by a PHP interpreter without runtime limitations
+		if (in_array(DI::mode()->getExecutor(), [Mode::DAEMON, Mode::WORKER])) {
+			self::forkProcess($do_cron);
+		} else {
+			$process = new Core\Process(DI::logger(), DI::mode(), DI::config(),
+				DI::modelProcess(), DI::app()->getBasePath(), getmypid());
+			$process->run('bin/worker.php', ['no_cron' => !$do_cron]);
+		}
 
 		// after spawning we have to remove the flag.
 		if (DI::config()->get('system', 'worker_daemon_mode', false)) {

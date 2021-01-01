@@ -36,6 +36,8 @@ $dice = $dice->addRule(Friendica\App\Mode::class, ['call' => [['determineRunMode
 
 $a = \Friendica\DI::app();
 
+\Friendica\DI::mode()->setExecutor(\Friendica\App\Mode::INDEX);
+
 $a->runFrontend(
 	$dice->create(\Friendica\App\Module::class),
 	$dice->create(\Friendica\App\Router::class),
