@@ -205,9 +205,7 @@ class Site extends BaseAdmin
 		$check_new_version_url  = (!empty($_POST['check_new_version_url'])  ? Strings::escapeTags(trim($_POST['check_new_version_url'])) : 'none');
 
 		$worker_queues    = (!empty($_POST['worker_queues'])                ? intval($_POST['worker_queues'])                 : 10);
-		$worker_dont_fork = !empty($_POST['worker_dont_fork']);
 		$worker_fastlane  = !empty($_POST['worker_fastlane']);
-		$worker_frontend  = !empty($_POST['worker_frontend']);
 
 		$relay_directly    = !empty($_POST['relay_directly']);
 		$relay_server      = (!empty($_POST['relay_server'])      ? Strings::escapeTags(trim($_POST['relay_server']))       : '');
@@ -417,13 +415,7 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'only_tag_search'  , $only_tag_search);
 
 		DI::config()->set('system', 'worker_queues'    , $worker_queues);
-
-		if (function_exists('proc_open')) {
-			DI::config()->set('system', 'worker_dont_fork', $worker_dont_fork);
-		}
-
 		DI::config()->set('system', 'worker_fastlane'  , $worker_fastlane);
-		DI::config()->set('system', 'frontend_worker'  , $worker_frontend);
 
 		DI::config()->set('system', 'relay_directly'   , $relay_directly);
 		DI::config()->set('system', 'relay_server'     , $relay_server);
@@ -582,14 +574,6 @@ class Site extends BaseAdmin
 			}
 		}
 
-		if (function_exists('proc_open')) {
-			$worker_dont_fork = DI::config()->get('system', 'worker_dont_fork');
-			$worker_dont_fork_disabled = '';
-		} else {
-			$worker_dont_fork = true;
-			$worker_dont_fork_disabled = 'disabled';
-		}
-
 		$t = Renderer::getMarkupTemplate('admin/site.tpl');
 		return Renderer::replaceMacros($t, [
 			'$title'             => DI::l10n()->t('Administration'),
@@ -702,9 +686,7 @@ class Site extends BaseAdmin
 			'$rino'                   => ['rino', DI::l10n()->t('RINO Encryption'), intval(DI::config()->get('system', 'rino_encrypt')), DI::l10n()->t('Encryption layer between nodes.'), [0 => DI::l10n()->t('Disabled'), 1 => DI::l10n()->t('Enabled')]],
 
 			'$worker_queues'          => ['worker_queues', DI::l10n()->t('Maximum number of parallel workers'), DI::config()->get('system', 'worker_queues'), DI::l10n()->t('On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.', 5, 20, 10)],
-			'$worker_dont_fork'       => ['worker_dont_fork', DI::l10n()->t('Don\'t use "proc_open" with the worker'), $worker_dont_fork, DI::l10n()->t('Enable this if your system doesn\'t allow the use of "proc_open". This can happen on shared hosters. If this is enabled you should increase the frequency of worker calls in your crontab.'), $worker_dont_fork_disabled],
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],
-			'$worker_frontend'        => ['worker_frontend', DI::l10n()->t('Enable frontend worker'), DI::config()->get('system', 'frontend_worker'), DI::l10n()->t('When enabled the Worker process is triggered when backend access is performed (e.g. messages being delivered). On smaller sites you might want to call %s/worker on a regular basis via an external cron job. You should only enable this option if you cannot utilize cron/scheduled jobs on your server.', DI::baseUrl()->get())],
 
 			'$relay_subscribe'        => ['relay_subscribe', DI::l10n()->t('Use relay servers'), DI::config()->get('system', 'relay_subscribe'), DI::l10n()->t('Enables the receiving of public posts from relay servers. They will be included in the search, subscribed tags and on the global community page.')],
 			'$relay_server'           => ['relay_server', DI::l10n()->t('"Social Relay" server'), DI::config()->get('system', 'relay_server'), DI::l10n()->t('Address of the "Social Relay" server where public posts should be send to. For example %s. ActivityRelay servers are administrated via the "console relay" command line command.', 'https://social-relay.isurf.ca')],

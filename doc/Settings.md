@@ -240,14 +240,8 @@ This section allows you to configure the background process that is triggered by
 The process does check the available system resources before creating a new worker for a task.
 Because of this, it may happen that the maximum number of worker processes you allow will not be reached.
 
-If your server setup does not allow you to use the `proc_open` function of PHP, please disable it in this section.
-
 The tasks for the background process have priorities.
 To guarantee that important tasks are executed even though the system has a lot of work to do, it is useful to enable the *fastlane*.
-
-Should you not be able to run a cron job on your server, you can also activate the *frontend* worker.
-If you have done so, you can call `example.com/worker` (replace example.com with your actual domain name) on a regular basis from an external service.
-This will then trigger the execution of the background process.
 
 ### Relocate
 

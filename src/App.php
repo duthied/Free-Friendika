@@ -445,11 +445,6 @@ class App
 				Core\Hook::callAll('init_1');
 			}
 
-			// Exclude the backend processes from the session management
-			if ($this->mode->isBackend()) {
-				Core\Worker::executeIfIdle();
-			}
-
 			if ($this->mode->isNormal() && !$this->mode->isBackend()) {
 				$requester = HTTPSignature::getSigner('', $_SERVER);
 				if (!empty($requester)) {

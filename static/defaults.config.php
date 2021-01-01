@@ -243,10 +243,6 @@ return [
 		// Number of "free" searches when system => permit_crawling is enabled.
 		'free_crawls' => 10,
 
-		// frontend_worker_timeout (Integer)
-		// Value in minutes after we think that a frontend task was killed by the webserver.
-		'frontend_worker_timeout' => 10,
-
 		// groupedit_image_limit (Integer)
 		// Number of contacts at which the group editor should switch from display the profile pictures of the contacts to only display the names.
 		// This can alternatively be set on a per account basis in the pconfig table.
