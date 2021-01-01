@@ -1189,6 +1189,11 @@ class Worker
 	 */
 	private static function forkProcess(bool $do_cron)
 	{
+		if (DI::process()->isMinMemoryReached()) {
+			Logger::warning('Memory limit reached - quitting');
+			return;
+		}
+
 		// Children inherit their parent's database connection.
 		// To avoid problems we disconnect and connect both parent and child
 		DBA::disconnect();
@@ -1230,7 +1235,7 @@ class Worker
 	{
 		// Worker and daemon are started from the command line.
 		// This means that this is executed by a PHP interpreter without runtime limitations
-		if (in_array(DI::mode()->getExecutor(), [Mode::DAEMON, Mode::WORKER])) {
+		if (function_exists('pcntl_fork') && in_array(DI::mode()->getExecutor(), [Mode::DAEMON, Mode::WORKER])) {
 			self::forkProcess($do_cron);
 		} else {
 			$process = new Core\Process(DI::logger(), DI::mode(), DI::config(),
