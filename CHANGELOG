@@ -1,3 +1,106 @@
+Version 2021.01 (2021-01-xx)
+  Friendica Core
+    Added HU translation
+    Updates to the translations: DE, IT, RU [translation teams]
+    Updates to the themes (duepuntozero, frio, vier) [annando, MrPetovan, tobiasd, vinzv]
+    General Code cleanup [annando, MrPetovan, nupplaphil]
+    Enhanced the handling of permission sets [annando]
+    Enhanced the usage of system resources when displaying photos and updating contacts [annando]
+    Enhanced the database structure [annando, Quix0r]
+    Enhanced the detection of PeerTube servers [annando]
+    Enhanced the photo cache [annando]
+    Enhanced the import of old postings which would otherwise not be imported due their age [annando]
+    Enhanced the delivery process of ActivityPub content [annando]
+    Enhanced the performance profiler [annando]
+    Enhanced the background worker [annando]
+    Enhanced the handling of blocked authors [MrPetovan]
+    Enhanced the user management in the admin panel [MrPetovan]
+    Enhanced the process of expiring postings [annando]
+    Enhanced the un/follow process of contacts [annando]
+    Enhanced the handling of HTTP requests [nupplaphil]
+    Enhanced filter possibilities of contacts [annando]
+    Enhanced language detection of postings [annando]
+    Enhanced the admin panel [MrPetovan, tobiasd]
+    Enhanced the contact suggestions [annando]
+    Enhanced the community page (filter, tags) [annando]
+    Enhanced the display of the reason why a posting is displayed in a stream [annando]
+    Enhanced the forum delivery of postings [redmatrix]
+    Enhanced PHP8 compatibility [annando]
+    Added new options to the remote_self feature [annando]
+    Added API endpoints for accounts and trends [annando]
+    Added API endpoints for re-sharing of postings [annando]
+    Added provider fields to the API [annando]
+    Added the possibility to map $_SERVER variables during installation [nupplaphil]
+    Added the possibility to filter account types on the network page [annando]
+    Added missing Mastodon API endpoints as "unsupported" [annando]
+    Added a watchdog mode to check if the daemon is running [annando]
+    Added number of group members to the contact widget [annando]
+    Added endless scrolling in several places [annando]
+    Added an option to stay local when clicking on a contact profile [annando]
+    Added support of ActivityPub relays [annando]
+    Model\User::getAuthenticationInfo is now available for addons [MrPetovan]
+    Contact details can only edited for mail and feed contacts [annando]
+    Fixed some problems during the export of user data [annando]
+    Fixed various problems with the notification system [MrPetovan]
+    Fixed a problem with emoticon alt-text interpretation [MrPetovan]
+    Fixed a problem that caused comments on Tweets being distributed via ActivityPub [annando]
+    Fixed a problem with the auto-completion when composing comments [MrPetovan]
+    Fixed an ACL problem while poking contacts [MrPetovan]
+    Fixed a problem with Mastodon emoticons [MrPetovan]
+    Fixed a parser problem that caused additional <br> tags [annando]
+    Fixed escaping of several HTML snippets [MrPetovan]
+    Fixed a problem with fetching objects by URL [annando]
+
+  Friendica Addons
+    Updated to the translations IT, HU [translation teams]
+    advancedcontentfilter:
+      Added examples [hoergen]
+    blackout:
+      Improved the wording in the admin interface [urbalazsqsu]
+    catavatar:
+      Improved the generation of avatars [annando]
+    ifttt:
+      Added support for delayed postings [annando]
+    mailstream:
+      Improved code structure [nupplaphil]
+      Fix case-sensitive check by [nupplaphil]
+    markdown:
+      Improved parsing [MrPetovan]
+    newmemberwidget:
+      Improved addon description [SpencerDub]
+    langfilter:
+      Changed the input to use a slider [MrPetovan]
+    ldapauth:
+      Reworked the authentication code [MrPetovan]
+    libravatar:
+      Fixed a problem with DNS requests [annando]
+      Improved the list of available avatars [annando]
+    phpmailer:
+      Fixed UTF8 encoding problems [MrPetovan]
+    rendertime:
+      Added more information about the "other" things that cost time [annando]
+    showmore:
+      Improved handling of the HTML structure of postings [MrPetovan]
+    showmore_dyn:
+      Improved user settings, language [MrPetovan]
+    twitter:
+      Improved logging [annando]
+      Improved the twitter_post_hook [MrPetovan]
+      Improved the posts send to twitter [annando]
+      Improved the remote_self functionality [annando]
+      Added support for delayed postings [annando]
+      Fixed a bug with direct re-shares [MrPetovan]
+
+  Closed Issues
+    2803, 4230, 4486, 4494, 5616, 7393, 7697, 8485, 8533, 8605, 8689,
+    8796, 8896, 8943, 8950, 9042, 9089, 9127, 9142, 9165, 9235, 9236,
+    9238, 9249, 9264, 9268, 9276, 9281, 9291, 9296, 9305, 9306, 9315,
+    9326, 9328, 9329, 9337, 9344, 9348, 9363, 9383, 9385, 9407, 9427,
+    9430, 9432, 9457, 9461, 9464, 9465, 9480, 9486, 9496, 9508, 9518,
+    9525, 9538, 9549, 9564, 9568, 9573, 9598, 9611, 9622, 9629, 9630,
+    9633, 9636, 9639, 9641, 9642, 9662, 9672, 9673, 9678, 9682, 9692,
+    9712
+
 Version 2020.09-1 (2020-09-24)
   Friendica Core:
     Updates to the translations: RU [translation teams]
