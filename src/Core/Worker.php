@@ -411,6 +411,12 @@ class Worker
 	{
 		$a = DI::app();
 
+		$cooldown = DI::config()->get("system", "worker_cooldown", 0);
+		if ($cooldown > 0) {
+			Logger::info('Pre execution cooldown.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'cooldown' => $cooldown]);
+			sleep($cooldown);
+		}
+
 		Logger::enableWorker($funcname);
 
 		Logger::info("Process start.", ['priority' => $queue["priority"], 'id' => $queue["id"]]);
@@ -483,10 +489,8 @@ class Worker
 
 		DI::profiler()->saveLog(DI::logger(), "ID " . $queue["id"] . ": " . $funcname);
 
-		$cooldown = DI::config()->get("system", "worker_cooldown", 0);
-
 		if ($cooldown > 0) {
-			Logger::info('Cooldown.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'cooldown' => $cooldown]);
+			Logger::info('Post execution cooldown.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'cooldown' => $cooldown]);
 			sleep($cooldown);
 		}
 	}
