@@ -50,6 +50,7 @@ class Worker
 	private static $lock_duration = 0;
 	private static $last_update;
 	private static $state;
+	private static $daemon_mode = null;
 
 	/**
 	 * Processes the tasks that are in the workerqueue table
@@ -146,13 +147,17 @@ class Worker
 			if (time() > ($starttime + (DI::config()->get('system', 'cron_interval') * 60))) {
 				Logger::info('Process lifetime reached, respawning.');
 				self::unclaimProcess();
-				self::spawnWorker();
+				if (self::isDaemonMode()) {
+					self::IPCSetJobState(true);
+				} else {
+					self::spawnWorker();
+				}
 				return;
 			}
 		}
 
 		// Cleaning up. Possibly not needed, but it doesn't harm anything.
-		if (DI::config()->get('system', 'worker_daemon_mode', false)) {
+		if (self::isDaemonMode()) {
 			self::IPCSetJobState(false);
 		}
 		Logger::info("Couldn't select a workerqueue entry, quitting process", ['pid' => getmypid()]);
@@ -190,7 +195,7 @@ class Worker
 			Logger::warning('Maximum processes reached, quitting.');
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -771,7 +776,7 @@ class Worker
 			// Are there fewer workers running as possible? Then fork a new one.
 			if (!DI::config()->get("system", "worker_dont_fork", false) && ($queues > ($active + 1)) && self::entriesExists()) {
 				Logger::info("There are fewer workers as possible, fork a new worker.", ['active' => $active, 'queues' => $queues]);
-				if (DI::config()->get('system', 'worker_daemon_mode', false)) {
+				if (self::isDaemonMode()) {
 					self::IPCSetJobState(true);
 				} else {
 					self::spawnWorker();
@@ -780,7 +785,7 @@ class Worker
 		}
 
 		// if there are too much worker, we don't spawn a new one.
-		if (DI::config()->get('system', 'worker_daemon_mode', false) && ($active > $queues)) {
+		if (self::isDaemonMode() && ($active > $queues)) {
 			self::IPCSetJobState(false);
 		}
 
@@ -1208,7 +1213,7 @@ class Worker
 			Logger::info('Spawned new worker', ['cron' => $do_cron, 'pid' => $pid]);
 			return;
 		}
-	
+
 		// We now are in the new worker
 		DBA::connect();
 		Logger::info('Worker spawned', ['cron' => $do_cron, 'pid' => getmypid()]);
@@ -1233,6 +1238,7 @@ class Worker
 	 */
 	public static function spawnWorker($do_cron = false)
 	{
+		Logger::notice("Spawn", ['do_cron' => $do_cron, 'callstack' => System::callstack(20)]);
 		// Worker and daemon are started from the command line.
 		// This means that this is executed by a PHP interpreter without runtime limitations
 		if (function_exists('pcntl_fork') && in_array(DI::mode()->getExecutor(), [Mode::DAEMON, Mode::WORKER])) {
@@ -1244,7 +1250,7 @@ class Worker
 		}
 
 		// after spawning we have to remove the flag.
-		if (DI::config()->get('system', 'worker_daemon_mode', false)) {
+		if (self::isDaemonMode()) {
 			self::IPCSetJobState(false);
 		}
 	}
@@ -1336,7 +1342,7 @@ class Worker
 		}
 
 		// Set the IPC flag to ensure an immediate process execution via daemon
-		if (DI::config()->get('system', 'worker_daemon_mode', false)) {
+		if (self::isDaemonMode()) {
 			self::IPCSetJobState(true);
 		}
 
@@ -1361,7 +1367,7 @@ class Worker
 		}
 
 		// Quit on daemon mode
-		if (DI::config()->get('system', 'worker_daemon_mode', false)) {
+		if (self::isDaemonMode()) {
 			return $added;
 		}
 
@@ -1483,6 +1489,46 @@ class Worker
 		}
 
 		return (bool)$row['jobs'];
+	}
+
+	/**
+	 * Checks if the worker is running in the daemon mode.
+	 *
+	 * @return boolean
+	 */
+	public static function isDaemonMode()
+	{
+		if (!is_null(self::$daemon_mode)) {
+			return self::$daemon_mode;
+		}
+
+		if (DI::mode()->getExecutor() == Mode::DAEMON) {
+			return true;
+		}
+
+		$daemon_mode = DI::config()->get('system', 'worker_daemon_mode', false, true);
+		if ($daemon_mode) {
+			return $daemon_mode;
+		}
+
+		$pidfile = DI::config()->get('system', 'pidfile');
+		if (empty($pidfile)) {
+			// No pid file, no daemon
+			self::$daemon_mode = false;
+			return false;
+		}
+
+		if (!is_readable($pidfile)) {
+			// No pid file. We assume that the daemon had been intentionally stopped.
+			self::$daemon_mode = false;
+			return false;
+		}
+
+		$pid = intval(file_get_contents($pidfile));
+		$running = posix_kill($pid, 0);
+
+		self::$daemon_mode = $running;
+		return $running;
 	}
 
 	/**
