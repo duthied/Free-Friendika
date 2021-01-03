@@ -1159,6 +1159,9 @@ class User
 			return false;
 		}
 
+		// Delete the avatar
+		Photo::delete(['uid' => $register['uid']]);
+
 		return DBA::delete('user', ['uid' => $register['uid']]) &&
 		       Register::deleteByHash($register['hash']);
 	}

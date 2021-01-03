@@ -35,6 +35,7 @@ Athalbert
 aweiher
 axelt
 balderino
+Balázs Úr
 Beanow
 beardyunixer
 Beatriz Vital
@@ -133,6 +134,7 @@ julia.domagalska
 Julio Cova
 Karel
 Karolina
+Kastal András
 Keenan Pepper
 Keith Fernie
 Klaus Weidenbach
@@ -144,11 +146,11 @@ Leberwurscht
 Leonard Lausen
 Lionel Triay
 loma-one
+loma1
 Lorem Ipsum
 Ludovic Grossard
 Lynn Stephenson
 maase2
-Magdalena Gazda
 Mai Anh Nguyen
 Manuel Pérez Monís
 Marcin Klessa
@@ -157,7 +159,6 @@ Marcus Müller
 Marie Olive
 Mariusz Pisz
 marmor
-Marquis_de_Carabas
 Martin Schmitt
 Mateusz Mikos
 Mats Sjöberg
@@ -177,6 +178,7 @@ mpanhans
 mytbk
 nathilia-peirce
 Nicola Spanti
+nobody
 Olaf Conradi
 Oliver
 Olivier
@@ -225,7 +227,6 @@ Samuli Valavuo
 Sandro Santilli
 Sebastian Egbers
 sella
-Sennewood
 Seth
 Silke Meyer
 Simon L'nu
@@ -242,7 +243,6 @@ Sveinn í Felli
 Sven Anders
 Sylke Vicious
 Sylvain Lagacé
-szymon.filip
 Sérgio Lima
 Taekus
 Tazman DeVille
