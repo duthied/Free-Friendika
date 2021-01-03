@@ -26,6 +26,7 @@ Version 2021.01 (2021-01-xx)
     Enhanced the display of the reason why a posting is displayed in a stream [annando]
     Enhanced the forum delivery of postings [redmatrix]
     Enhanced PHP8 compatibility [annando]
+    Enhanced the worker_cooldown mechanism [annando]
     Added new options to the remote_self feature [annando]
     Added API endpoints for accounts and trends [annando]
     Added API endpoints for re-sharing of postings [annando]
