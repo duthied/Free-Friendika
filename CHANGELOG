@@ -57,7 +57,7 @@ Version 2021.01 (2021-01-xx)
     advancedcontentfilter:
       Added examples [hoergen]
     blackout:
-      Improved the wording in the admin interface [urbalazsqsu]
+      Improved the wording in the admin interface [urbalazs]
     catavatar:
       Improved the generation of avatars [annando]
     ifttt:
