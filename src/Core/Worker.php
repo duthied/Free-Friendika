@@ -1230,6 +1230,17 @@ class Worker
 
 		DI::process()->end();
 		Logger::info('Worker ended', ['cron' => $do_cron, 'pid' => getmypid()]);
+
+		DBA::disconnect();
+/*
+		$php = '/usr/bin/php';
+		$param = ['bin/worker.php'];
+		if ($do_cron) {
+			$param[] = 'no_cron';
+		}
+		pcntl_exec($php, $param);
+		Logger::warning('Error calling worker', ['cron' => $do_cron, 'pid' => getmypid()]);
+*/
 		exit();
 	}
 
@@ -1242,20 +1253,13 @@ class Worker
 	 */
 	public static function spawnWorker($do_cron = false)
 	{
-		Logger::notice("Spawn", ['do_cron' => $do_cron, 'callstack' => System::callstack(20)]);
-		// Worker and daemon are started from the command line.
-		// This means that this is executed by a PHP interpreter without runtime limitations
-		if (function_exists('pcntl_fork') && in_array(DI::mode()->getExecutor(), [Mode::DAEMON, Mode::WORKER])) {
+		if (self::isDaemonMode()) {
 			self::forkProcess($do_cron);
+			self::IPCSetJobState(false);
 		} else {
 			$process = new Core\Process(DI::logger(), DI::mode(), DI::config(),
 				DI::modelProcess(), DI::app()->getBasePath(), getmypid());
 			$process->run('bin/worker.php', ['no_cron' => !$do_cron]);
-		}
-
-		// after spawning we have to remove the flag.
-		if (self::isDaemonMode()) {
-			self::IPCSetJobState(false);
 		}
 	}
 
@@ -1513,6 +1517,11 @@ class Worker
 		$daemon_mode = DI::config()->get('system', 'worker_daemon_mode', false, true);
 		if ($daemon_mode) {
 			return $daemon_mode;
+		}
+
+		if (!function_exists('pcntl_fork')) {
+			self::$daemon_mode = false;
+			return false;
 		}
 
 		$pidfile = DI::config()->get('system', 'pidfile');
