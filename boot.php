@@ -38,7 +38,7 @@ use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Red Hot Poker');
-define('FRIENDICA_VERSION',      '2021.01');
+define('FRIENDICA_VERSION',      '2021.03-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
