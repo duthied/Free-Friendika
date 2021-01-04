@@ -224,8 +224,10 @@ while (true) {
 		usleep($sleep);
 
 		$pid = pcntl_waitpid(-1, $status, WNOHANG);
-		Logger::info('Checked children status via pcntl_waitpid', ['pid' => $pid, 'status' => $status]);
-	
+		if ($pid > 0) {
+			Logger::info('Children quit via pcntl_waitpid', ['pid' => $pid, 'status' => $status]);
+		}
+
 		$timeout = ($seconds >= $wait_interval);
 	} while (!$timeout && !Worker::IPCJobsExists());
 
