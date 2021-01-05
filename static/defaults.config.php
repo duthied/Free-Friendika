@@ -538,6 +538,10 @@ return [
 		// Number of worker tasks that are fetched in a single query.
 		'worker_fetch_limit' => 1,
 
+		// worker_fork (Boolean)
+		// Experimental setting. use pcntl_fork to spawn a new worker process
+		'worker_fork' => false,
+
 		// worker_jpm (Boolean)
 		// If enabled, it prints out the jobs per minute.
 		'worker_jpm' => false,
