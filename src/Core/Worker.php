@@ -1234,6 +1234,7 @@ class Worker
 		// We now are in the new worker
 		DBA::connect();
 		/// @todo Reinitialize the logger to set a new process_id and uid
+		DI::process()->setPid($pid);
 
 		$cycles = 0;
 		while (!self::IPCJobsExists($pid) && (++$cycles < 100)) {
