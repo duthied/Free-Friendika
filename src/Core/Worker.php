@@ -1232,6 +1232,8 @@ class Worker
 		}
 
 		// We now are in the new worker
+		$pid = getmypid();
+
 		DBA::connect();
 		/// @todo Reinitialize the logger to set a new process_id and uid
 		DI::process()->setPid($pid);
@@ -1241,15 +1243,15 @@ class Worker
 			usleep(10000);
 		}
 
-		Logger::info('Worker spawned', ['pid' => getmypid(), 'wait_cycles' => $cycles]);
+		Logger::info('Worker spawned', ['pid' => $pid, 'wait_cycles' => $cycles]);
 
 		self::processQueue($do_cron);
 
 		self::unclaimProcess();
 
-		self::IPCSetJobState(false, getmypid());
+		self::IPCSetJobState(false, $pid);
 		DI::process()->end();
-		Logger::info('Worker ended', ['pid' => getmypid()]);
+		Logger::info('Worker ended', ['pid' => $pid]);
 		exit();
 	}
 
