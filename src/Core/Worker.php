@@ -1234,9 +1234,13 @@ class Worker
 		// We now are in the new worker
 		DBA::connect();
 		/// @todo Reinitialize the logger to set a new process_id and uid
-		
-		self::IPCSetJobState(true, getmypid());
-		Logger::info('Worker spawned', ['pid' => getmypid()]);
+
+		$cycles = 0;
+		while (!self::IPCJobsExists($pid) && (++$cycles < 100)) {
+			usleep(10000);
+		}
+
+		Logger::info('Worker spawned', ['pid' => getmypid(), 'wait_cycles' => $cycles]);
 
 		self::processQueue($do_cron);
 
