@@ -154,7 +154,7 @@ class Cron
 		
 		$processes = DBA::p("SHOW FULL PROCESSLIST");
 		while ($process = DBA::fetch($processes)) {
-			if (($process['Command'] != 'Sleep') || ($process['Time'] < 60) || ($process['db'] != DBA::databaseName())) {
+			if (($process['Command'] != 'Sleep') || ($process['Time'] < 300) || ($process['db'] != DBA::databaseName())) {
 				continue;
 			}
 
