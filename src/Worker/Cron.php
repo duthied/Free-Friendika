@@ -24,6 +24,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Tag;
 
@@ -52,6 +53,10 @@ class Cron
 		$basepath = $a->getBasePath();
 		if (!file_exists($basepath . '/.htaccess') && is_writable($basepath)) {
 			copy($basepath . '/.htaccess-dist', $basepath . '/.htaccess');
+		}
+
+		if (DI::config()->get('system', 'delete_sleeping_processes')) {
+			self::deleteSleepingProcesses();
 		}
 
 		// Fork the cron jobs in separate parts to avoid problems when one of them is crashing
@@ -136,5 +141,27 @@ class Cron
 		Logger::notice('end');
 
 		DI::config()->set('system', 'last_cron', time());
+	}
+
+	/**
+	 * Kill sleeping database processes
+	 *
+	 * @return void
+	 */
+	private static function deleteSleepingProcesses()
+	{
+		Logger::info('Looking for sleeping processes');
+		
+		$processes = DBA::p("SHOW FULL PROCESSLIST");
+		while ($process = DBA::fetch($processes)) {
+			// To-Do: Auf Datenbank abgrenzen
+			if (($process['Command'] != 'Sleep') || ($process['Time'] < 60) || ($process['db'] != DBA::databaseName())) {
+				continue;
+			}
+
+			DBA::e("KILL ?", $process['Id']);
+			Logger::notice('Killed sleeping process', ['id' => $process['Id']]);
+		}
+		DBA::close($processes);
 	}
 }
