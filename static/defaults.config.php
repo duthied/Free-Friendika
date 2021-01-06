@@ -194,6 +194,10 @@ return [
 		// If it is not running and hadn't been terminated normally, it will be started automatically.
 		'daemon_watchdog' => false,
 
+		// delete_sleeping_processes (Boolean)
+		// Periodically delete waiting database processes.
+		'delete_sleeping_processes' => false,
+
 		// diaspora_test (Boolean)
 		// For development only. Disables the message transfer.
 		'diaspora_test' => false,
