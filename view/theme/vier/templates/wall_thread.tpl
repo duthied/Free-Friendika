@@ -96,6 +96,9 @@
 				<span class="category p-category"><a href="{{$cat.url}}">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 			{{/foreach}}
 		</div>
+		{{if $item.edited}}
+		<div class="itemedited text-muted">{{$item.edited['label']}} (<span title="{{$item.edited['date']}}">{{$item.edited['relative']}}</span>)</div>
+		{{/if}}
 	</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links">
