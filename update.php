@@ -831,6 +831,18 @@ function pre_update_1377()
 		return Update::FAILED;
 	}
 
+	if (DBStructure::existsTable('diaspora-interaction') && !DBA::e("DELETE FROM `diaspora-interaction` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('item-activity') && !DBA::e("DELETE FROM `item-activity` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('item-content') && !DBA::e("DELETE FROM `item-content` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
 	if (!DBA::e("DELETE FROM `notify` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
 		return Update::FAILED;
 	}
@@ -838,7 +850,6 @@ function pre_update_1377()
 	if (!DBA::e("UPDATE `notify` SET `parent-uri-id` = NULL WHERE `parent-uri-id` = 0")) {
 		return Update::FAILED;
 	}
-
 	if (!DBA::e("DELETE FROM `notify` WHERE `parent-uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
 		return Update::FAILED;
 	}
