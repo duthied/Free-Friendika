@@ -62,7 +62,8 @@
 		</div>
 			<div class="wall-item-title p-name" id="wall-item-title-{{$item.id}}">{{$item.title}}</div>
 			<div class="wall-item-title-end"></div>
-			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" ><span class="e-content">{{$item.body_html nofilter}}</span>
+			<div class="wall-item-body" id="wall-item-body-{{$item.id}}">
+				<span class="e-content">{{$item.body_html nofilter}}</span>
 				<div class="body-tag">
 				{{if !$item.suppress_tags}}
 					{{foreach $item.tags as $tag}}
@@ -84,7 +85,9 @@
 				{{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
 				</div>
 				{{/if}}
-
+				{{if $item.edited}}
+				<div class="itemedited text-muted">{{$item.edited['label']}} (<span title="{{$item.edited['date']}}">{{$item.edited['relative']}}</span>)</div>
+				{{/if}}
 			</div>
 		</div>
 		<div class="wall-item-social" id="wall-item-social-{{$item.id}}">
