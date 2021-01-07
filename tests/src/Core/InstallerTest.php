@@ -93,6 +93,8 @@ class InstallerTest extends MockedTest
 		$this->mockL10nT('Error: JSON PHP module required but not installed.', 1);
 		$this->mockL10nT('File Information PHP module', 1);
 		$this->mockL10nT('Error: File Information PHP module required but not installed.', 1);
+		$this->mockL10nT('Program execution functions', 1);
+		$this->mockL10nT('Error: Program execution functions required but not enabled.', 1);
 	}
 
 	private function assertCheckExist($position, $title, $help, $status, $required, $assertionArray)
@@ -232,10 +234,20 @@ class InstallerTest extends MockedTest
 			$install->getChecks());
 
 		$this->mockFunctionL10TCalls();
-		$this->setFunctions(['json_encode' => false]);
+		$this->setFunctions(['proc_open' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
 		self::assertCheckExist(9,
+			'Program execution functions',
+			'Error: Program execution functions required but not enabled.',
+			false,
+			true,
+			$install->getChecks());
+		$this->mockFunctionL10TCalls();
+		$this->setFunctions(['json_encode' => false]);
+		$install = new Installer();
+		self::assertFalse($install->checkFunctions());
+		self::assertCheckExist(10,
 			'JSON PHP module',
 			'Error: JSON PHP module required but not installed.',
 			false,
@@ -246,7 +258,7 @@ class InstallerTest extends MockedTest
 		$this->setFunctions(['finfo_open' => false]);
 		$install = new Installer();
 		self::assertFalse($install->checkFunctions());
-		self::assertCheckExist(10,
+		self::assertCheckExist(11,
 			'File Information PHP module',
 			'Error: File Information PHP module required but not installed.',
 			false,
