@@ -1,4 +1,10 @@
 Version 2021.03 (unreleased)
+  Friendica Core
+    Removed the frontend worker [annando]
+
+  Friendica Addons
+
+  Closed Issues
 
 Version 2021.01 (2021-01-04)
   Friendica Core
