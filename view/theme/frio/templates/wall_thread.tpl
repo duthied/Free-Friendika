@@ -440,17 +440,33 @@ as the value of $top_child_total (this is done at the end of this file)
 				</div>
 			{{/if}}
 
-			{{* Button for announcing the item *}}
-			{{if $item.vote.announce}}
-				<div class="btn-group" role="group">
-					<button type="button" class="btn btn-sm button-votes{{if $item.responses.announce.self}} active" aria-pressed="true{{/if}}" id="announce-{{$item.id}}" title="{{$item.vote.announce.0}}" onclick="doLikeAction({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}});" data-toggle="button"><i class="fa fa-retweet" aria-hidden="true"></i></button>
-				</div>
-			{{/if}}
-
-			{{* Button for sharing the item *}}
-			{{if $item.vote.share}}
-				<div class="btn-group" role="group">
-					<button type="button" class="btn btn-sm button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-share" aria-hidden="true"></i></button>
+			{{if $item.vote.announce OR $item.vote.share}}
+				<div class="share-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}">
+					<button type="button" class="btn btn-sm dropdown-toggle{{if $item.responses.announce.self}} active{{/if}}" data-toggle="dropdown" id="shareMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}">
+						<i class="fa fa-share" aria-hidden="true"></i>
+					</button>
+					<ul class="dropdown-menu dropdown-menu-left" role="menu" aria-labelledby="shareMenuOptions-{{$item.id}}">
+						{{if $item.vote.announce}} {{* edit the posting *}}
+						<li role="menuitem">
+							{{if $item.responses.announce.self}}
+							<a class="btn-link" id="announce-{{$item.id}}" href="javascript:doLikeAction({{$item.id}}, 'announce', true);" title="{{$item.vote.unannounce.0}}">
+								<i class="fa fa-ban" aria-hidden="true"></i> {{$item.vote.unannounce.1}}
+							</a>
+							{{else}}
+							<a class="btn-link" id="announce-{{$item.id}}" href="javascript:doLikeAction({{$item.id}}, 'announce');" title="{{$item.vote.announce.0}}">
+								<i class="fa fa-retweet" aria-hidden="true"></i> {{$item.vote.announce.1}}
+							</a>
+							{{/if}}
+						</li>
+						{{/if}}
+						{{if $item.vote.share}}
+						<li role="menuitem">
+							<a class="btn-link" id="share-{{$item.id}}" href="javascript:jotShare({{$item.id}});" title="{{$item.vote.share.0}}">
+								<i class="fa fa-share" aria-hidden="true"></i> {{$item.vote.share.1}}
+							</a>
+						</li>
+						{{/if}}
+					</ul>
 				</div>
 			{{/if}}
 
