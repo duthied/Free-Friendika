@@ -831,7 +831,7 @@ function pre_update_1377()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `diaspora-interaction` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+	if (DBStructure::existsTable('diaspora-interaction') && !DBA::e("DELETE FROM `diaspora-interaction` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
 		return Update::FAILED;
 	}
 
