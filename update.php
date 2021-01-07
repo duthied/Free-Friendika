@@ -835,6 +835,14 @@ function pre_update_1377()
 		return Update::FAILED;
 	}
 
+	if (DBStructure::existsTable('item-activity') && !DBA::e("DELETE FROM `item-activity` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('item-content') && !DBA::e("DELETE FROM `item-content` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
 	if (!DBA::e("DELETE FROM `notify` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
 		return Update::FAILED;
 	}
