@@ -78,6 +78,17 @@ class Process
 	}
 
 	/**
+	 * Set the process id
+	 *
+	 * @param integer $pid
+	 * @return void
+	 */
+	public function setPid(int $pid)
+	{
+		$this->pid = $pid;
+	}
+
+	/**
 	 * Log active processes into the "process" table
 	 */
 	public function start()

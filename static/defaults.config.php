@@ -194,6 +194,10 @@ return [
 		// If it is not running and hadn't been terminated normally, it will be started automatically.
 		'daemon_watchdog' => false,
 
+		// delete_sleeping_processes (Boolean)
+		// Periodically delete waiting database processes.
+		'delete_sleeping_processes' => false,
+
 		// diaspora_test (Boolean)
 		// For development only. Disables the message transfer.
 		'diaspora_test' => false,
@@ -534,6 +538,11 @@ return [
 		// Number of worker tasks that are fetched in a single query.
 		'worker_fetch_limit' => 1,
 
+		// worker_fork (Boolean)
+		// Experimental setting. Use pcntl_fork to spawn a new worker process.
+		// Does not work when "worker_multiple_fetch" is enabled (Needs more testing)
+		'worker_fork' => false,
+
 		// worker_jpm (Boolean)
 		// If enabled, it prints out the jobs per minute.
 		'worker_jpm' => false,
@@ -551,6 +560,7 @@ return [
 		// worker_multiple_fetch (Boolean)
 		// When activated, the worker fetches jobs for multiple workers (not only for itself).
 		// This is an experimental setting without knowing the performance impact.
+		// Does not work when "worker_fork" is enabled (Needs more testing)
 		'worker_multiple_fetch' => false,
 		
 		// worker_defer_limit (Integer)
