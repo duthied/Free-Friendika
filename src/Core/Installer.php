@@ -463,6 +463,13 @@ class Installer
 		);
 		$returnVal = $returnVal ? $status : false;
 
+		$status = $this->checkFunction('proc_open',
+			DI::l10n()->t('Program execution functions'),
+			DI::l10n()->t('Error: Program execution functions required but not enabled.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
 		$status = $this->checkFunction('json_encode',
 			DI::l10n()->t('JSON PHP module'),
 			DI::l10n()->t('Error: JSON PHP module required but not installed.'),

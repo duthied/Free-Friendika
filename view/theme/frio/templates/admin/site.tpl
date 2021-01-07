@@ -275,9 +275,7 @@
 						{{include file="field_input.tpl" field=$maxloadavg}}
 						{{include file="field_input.tpl" field=$min_memory}}
 						{{include file="field_input.tpl" field=$worker_queues}}
-						{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
 						{{include file="field_checkbox.tpl" field=$worker_fastlane}}
-						{{include file="field_checkbox.tpl" field=$worker_frontend}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
