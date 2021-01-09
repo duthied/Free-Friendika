@@ -257,6 +257,16 @@ class Event
 	 */
 	public static function store($arr)
 	{
+		$network = $arr['network'] ?? Protocol::DFRN;
+		$protocol = $arr['protocol'] ?? Conversation::PARCEL_UNKNOWN;
+		$direction = $arr['direction'] ?? Conversation::UNKNOWN;
+		$source = $arr['source'] ?? '';
+
+		unset($arr['network']);
+		unset($arr['protocol']);
+		unset($arr['direction']);
+		unset($arr['source']);
+
 		$event = [];
 		$event['id']        = intval($arr['id']        ?? 0);
 		$event['uid']       = intval($arr['uid']       ?? 0);
@@ -373,7 +383,10 @@ class Event
 				$item_arr['origin']        = $event['cid'] === 0 ? 1 : 0;
 				$item_arr['body']          = self::getBBCode($event);
 				$item_arr['event-id']      = $event['id'];
-				$item_arr['network']       = Protocol::DFRN;
+				$item_arr['network']       = $network;
+				$item_arr['protocol']      = $protocol;
+				$item_arr['direction']     = $direction;
+				$item_arr['source']        = $source;
 
 				$item_arr['object']  = '<object><type>' . XML::escape(Activity\ObjectType::EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
 				$item_arr['object'] .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';

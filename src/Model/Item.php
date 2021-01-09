@@ -1581,6 +1581,7 @@ class Item
 			$item['origin'] = 1;
 			$item['network'] = Protocol::DFRN;
 			$item['protocol'] = Conversation::PARCEL_DIRECT;
+			$item['direction'] = Conversation::PUSH;
 
 			if (in_array($notify, PRIORITIES)) {
 				$priority = $notify;
@@ -3336,6 +3337,8 @@ class Item
 			'wall'          => $item['wall'],
 			'origin'        => 1,
 			'network'       => Protocol::DFRN,
+			'protocol'      => Conversation::PARCEL_DIRECT,
+			'direction'     => Conversation::PUSH,
 			'gravity'       => GRAVITY_ACTIVITY,
 			'parent'        => $item['id'],
 			'thr-parent'    => $item['uri'],

@@ -193,7 +193,7 @@ function dfrn_notify_post(App $a) {
 
 	Logger::log('Importing post from ' . $importer['addr'] . ' to ' . $importer['nickname'] . ' with the RINO ' . $rino_remote . ' encryption.', Logger::DEBUG);
 
-	$ret = DFRN::import($data, $importer, false, Conversation::PARCEL_LEGACY_DFRN);
+	$ret = DFRN::import($data, $importer, Conversation::PARCEL_LEGACY_DFRN, Conversation::PUSH);
 	System::xmlExit($ret, 'Processed');
 
 	// NOTREACHED
@@ -225,7 +225,7 @@ function dfrn_dispatch_public($postdata)
 	Logger::log('Importing post from ' . $msg['author'] . ' with the public envelope.', Logger::DEBUG);
 
 	// Now we should be able to import it
-	$ret = DFRN::import($msg['message'], $importer, false, Conversation::PARCEL_DIASPORA_DFRN);
+	$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::PUSH);
 	System::xmlExit($ret, 'Done');
 }
 
@@ -258,7 +258,7 @@ function dfrn_dispatch_private($user, $postdata)
 	Logger::log('Importing post from ' . $msg['author'] . ' to ' . $user['nickname'] . ' with the private envelope.', Logger::DEBUG);
 
 	// Now we should be able to import it
-	$ret = DFRN::import($msg['message'], $importer, false, Conversation::PARCEL_DIASPORA_DFRN);
+	$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::PUSH);
 	System::xmlExit($ret, 'Done');
 }
 

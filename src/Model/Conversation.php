@@ -21,7 +21,6 @@
 
 namespace Friendica\Model;
 
-use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
@@ -105,34 +104,8 @@ class Conversation
 				$conversation['source'] = $arr['source'];
 			}
 
-			$fields = ['item-uri', 'reply-to-uri', 'conversation-uri', 'conversation-href', 'protocol', 'source'];
-			$old_conv = DBA::selectFirst('conversation', $fields, ['item-uri' => $conversation['item-uri']]);
-			if (DBA::isResult($old_conv)) {
-				// Don't update when only the source has changed.
-				// Only do this when there had been no source before.
-				if ($old_conv['source'] != '') {
-					unset($old_conv['source']);
-				}
-				// Update structure data all the time but the source only when its from a better protocol.
-				if (
-					empty($conversation['source'])
-					|| (
-						!empty($old_conv['source'])
-						&& ($old_conv['protocol'] < (($conversation['protocol'] ?? '') ?: self::PARCEL_UNKNOWN))
-					)
-				) {
-					unset($conversation['protocol']);
-					unset($conversation['source']);
-				}
-				if (!DBA::update('conversation', $conversation, ['item-uri' => $conversation['item-uri']], $old_conv)) {
-					Logger::log('Conversation: update for ' . $conversation['item-uri'] . ' from ' . $old_conv['protocol'] . ' to ' . $conversation['protocol'] . ' failed',
-						Logger::DEBUG);
-				}
-			} else {
-				if (!DBA::insert('conversation', $conversation, Database::INSERT_UPDATE)) {
-					Logger::log('Conversation: insert for ' . $conversation['item-uri'] . ' (protocol ' . $conversation['protocol'] . ') failed',
-						Logger::DEBUG);
-				}
+			if (!DBA::exists('conversation', ['item-uri' => $conversation['item-uri']])) {
+				DBA::insert('conversation', $conversation, Database::INSERT_IGNORE);
 			}
 		}
 

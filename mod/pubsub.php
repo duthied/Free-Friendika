@@ -139,20 +139,15 @@ function pubsub_post(App $a)
 		hub_post_return();
 	}
 
-	// We import feeds from OStatus, Friendica and ATOM/RSS.
-	/// @todo Check if Friendica posts really arrive here - otherwise we can discard some stuff
-	if (!in_array($contact['network'], [Protocol::OSTATUS, Protocol::DFRN, Protocol::FEED])) {
+	// We only import feeds from OStatus here
+	if ($contact['network'] != Protocol::OSTATUS) {
+		Logger::warning('Unexpected network', ['contact' => $contact]);
 		hub_post_return();
 	}
 
 	Logger::log('Import item for ' . $nick . ' from ' . $contact['nick'] . ' (' . $contact['id'] . ')');
 	$feedhub = '';
-	Feed::consume($xml, $importer, $contact, $feedhub);
-
-	// do it a second time for DFRN so that any children find their parents.
-	if ($contact['network'] === Protocol::DFRN) {
-		Feed::consume($xml, $importer, $contact, $feedhub);
-	}
+	OStatus::import($xml, $importer, $contact, $feedhub);
 
 	hub_post_return();
 }
