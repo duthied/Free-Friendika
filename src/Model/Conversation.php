@@ -57,6 +57,10 @@ class Conversation
 	 * The message had been fetched by our system
 	 */
 	const PULL    = 2;
+	/**
+	 * The message had been pushed to this system via a relay server
+	 */
+	const RELAY   = 3;
 
 	public static function getByItemUri($item_uri)
 	{

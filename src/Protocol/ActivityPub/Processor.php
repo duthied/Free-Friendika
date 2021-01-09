@@ -297,6 +297,10 @@ class Processor
 			}
 		}
 
+		if (!empty($activity['from-relay'])) {
+			$item['direction'] = Conversation::RELAY;
+		}
+
 		$item['isForum'] = false;
 
 		if (!empty($activity['thread-completion'])) {

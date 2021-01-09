@@ -36,8 +36,6 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 function dfrn_notify_post(App $a) {
-	Logger::log(__function__, Logger::TRACE);
-
 	$postdata = Network::postdata();
 
 	if (empty($_POST) || !empty($postdata)) {
@@ -225,7 +223,7 @@ function dfrn_dispatch_public($postdata)
 	Logger::log('Importing post from ' . $msg['author'] . ' with the public envelope.', Logger::DEBUG);
 
 	// Now we should be able to import it
-	$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::PUSH);
+	$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::RELAY);
 	System::xmlExit($ret, 'Done');
 }
 
