@@ -31,6 +31,7 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\FContact;
 use Friendica\Model\Item;
@@ -2633,6 +2634,10 @@ class DFRN
 		$header["origin"] = 0;
 		$header["contact-id"] = $importer["id"];
 		$header["direction"] = $direction;
+
+		if ($direction == Conversation::RELAY) {
+			$header['post-type'] = Item::PT_RELAY;
+		}
 
 		// Update the contact table if the data has changed
 
