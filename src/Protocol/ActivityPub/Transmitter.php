@@ -68,8 +68,8 @@ class Transmitter
 	public static function addRelayServerInboxes(array $inboxes = [])
 	{
 		$contacts = DBA::select('apcontact', ['inbox'],
-			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` IN (?, ?))",
-				'Application', 0, Contact::FOLLOWER, Contact::FRIEND]);
+			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` = ?)",
+				'Application', 0, Contact::FRIEND]);
 		while ($contact = DBA::fetch($contacts)) {
 			$inboxes[$contact['inbox']] = $contact['inbox'];
 		}
@@ -119,8 +119,7 @@ class Transmitter
 		$activity_id = ActivityPub\Transmitter::activityIDFromContact($contact['id']);
 		$success = ActivityPub\Transmitter::sendActivity('Follow', $url, 0, $activity_id);
 		if ($success) {
-			$rel = $contact['rel'] == Contact::SHARING ? Contact::FRIEND : Contact::FOLLOWER;
-			DBA::update('contact', ['rel' => $rel], ['id' => $contact['id']]);
+			DBA::update('contact', ['rel' => Contact::FRIEND], ['id' => $contact['id']]);
 		}
 
 		return $success;
@@ -142,8 +141,7 @@ class Transmitter
 
 		$success = self::sendContactUndo($url, $contact['id'], 0);
 		if ($success || $force) {
-			$rel = $contact['rel'] == Contact::FRIEND ? Contact::SHARING : Contact::NOTHING;
-			DBA::update('contact', ['rel' => $rel], ['id' => $contact['id']]);
+			DBA::update('contact', ['rel' => Contact::NOTHING], ['id' => $contact['id']]);
 		}
 
 		return $success;
