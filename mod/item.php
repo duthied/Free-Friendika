@@ -623,6 +623,7 @@ function item_post(App $a) {
 
 	// This field is for storing the raw conversation data
 	$datarray['protocol'] = Conversation::PARCEL_DIRECT;
+	$datarray['direction'] = Conversation::PUSH;
 
 	$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $datarray['thr-parent']]);
 	if (DBA::isResult($conversation)) {

@@ -334,7 +334,7 @@ class Delivery
 				return;
 			}
 
-			DFRN::import($atom, $target_importer, false, Conversation::PARCEL_LOCAL_DFRN);
+			DFRN::import($atom, $target_importer, Conversation::PARCEL_LOCAL_DFRN, Conversation::PUSH);
 
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::DFRN);

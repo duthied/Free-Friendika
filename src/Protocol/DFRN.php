@@ -2425,13 +2425,17 @@ class DFRN
 				$ev = Event::fromBBCode($item["body"]);
 				if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['start'])) {
 					Logger::log("Event in item ".$item["uri"]." was found.", Logger::DEBUG);
-					$ev["cid"]     = $importer["id"];
-					$ev["uid"]     = $importer["importer_uid"];
-					$ev["uri"]     = $item["uri"];
-					$ev["edited"]  = $item["edited"];
-					$ev["private"] = $item["private"];
-					$ev["guid"]    = $item["guid"];
-					$ev["plink"]   = $item["plink"];
+					$ev["cid"]       = $importer["id"];
+					$ev["uid"]       = $importer["importer_uid"];
+					$ev["uri"]       = $item["uri"];
+					$ev["edited"]    = $item["edited"];
+					$ev["private"]   = $item["private"];
+					$ev["guid"]      = $item["guid"];
+					$ev["plink"]     = $item["plink"];
+					$ev["network"]   = $item["network"];
+					$ev["protocol"]  = $item["protocol"];
+					$ev["direction"] = $item["direction"];
+					$ev["source"]    = $item["source"];
 
 					$condition = ['uri' => $item["uri"], 'uid' => $importer["importer_uid"]];
 					$event = DBA::selectFirst('event', ['id'], $condition);
@@ -2593,15 +2597,16 @@ class DFRN
 	/**
 	 * Imports a DFRN message
 	 *
-	 * @param string $xml          The DFRN message
-	 * @param array  $importer     Record of the importer user mixed with contact of the content
-	 * @param bool   $sort_by_date Is used when feeds are polled
+	 * @param string $xml       The DFRN message
+	 * @param array  $importer  Record of the importer user mixed with contact of the content
+	 * @param int    $protocol  Transport protocol
+	 * @param int    $direction Is the message pushed or pulled?
 	 * @return integer Import status
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @todo  set proper type-hints
 	 */
-	public static function import($xml, $importer, $sort_by_date = false, $protocol = Conversation::PARCEL_DFRN)
+	public static function import($xml, $importer, $protocol, $direction)
 	{
 		if ($xml == "") {
 			return 400;
@@ -2628,6 +2633,11 @@ class DFRN
 		$header["wall"] = 0;
 		$header["origin"] = 0;
 		$header["contact-id"] = $importer["id"];
+		$header["direction"] = $direction;
+
+		if ($direction === Conversation::RELAY) {
+			$header['post-type'] = Item::PT_RELAY;
+		}
 
 		// Update the contact table if the data has changed
 
@@ -2715,26 +2725,11 @@ class DFRN
 			}
 		}
 
-		if (!$sort_by_date) {
-			$entries = $xpath->query("/atom:feed/atom:entry");
-			foreach ($entries as $entry) {
-				self::processEntry($header, $xpath, $entry, $importer, $xml, $protocol);
-			}
-		} else {
-			$newentries = [];
-			$entries = $xpath->query("/atom:feed/atom:entry");
-			foreach ($entries as $entry) {
-				$created = XML::getFirstNodeValue($xpath, "atom:published/text()", $entry);
-				$newentries[strtotime($created)] = $entry;
-			}
-
-			// Now sort after the publishing date
-			ksort($newentries);
-
-			foreach ($newentries as $entry) {
-				self::processEntry($header, $xpath, $entry, $importer, $xml, $protocol);
-			}
+		$entries = $xpath->query("/atom:feed/atom:entry");
+		foreach ($entries as $entry) {
+			self::processEntry($header, $xpath, $entry, $importer, $xml, $protocol);
 		}
+
 		Logger::log("Import done for user " . $importer["importer_uid"] . " from contact " . $importer["id"], Logger::DEBUG);
 		return 200;
 	}

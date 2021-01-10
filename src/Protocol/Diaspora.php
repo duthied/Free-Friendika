@@ -537,7 +537,7 @@ class Diaspora
 				return self::receiveConversation($importer, $msg, $fields);
 
 			case "like":
-				return self::receiveLike($importer, $sender, $fields);
+				return self::receiveLike($importer, $sender, $fields, $fetched);
 
 			case "message":
 				if (!$private) {
@@ -551,7 +551,7 @@ class Diaspora
 					Logger::log('Message with type ' . $type . ' is not private, quitting.');
 					return false;
 				}
-				return self::receiveParticipation($importer, $fields);
+				return self::receiveParticipation($importer, $fields, $fetched);
 
 			case "photo": // Not implemented
 				return self::receivePhoto($importer, $fields);
@@ -567,7 +567,7 @@ class Diaspora
 				return self::receiveProfile($importer, $fields);
 
 			case "reshare":
-				return self::receiveReshare($importer, $fields, $msg["message"]);
+				return self::receiveReshare($importer, $fields, $msg["message"], $fetched);
 
 			case "retraction":
 				return self::receiveRetraction($importer, $sender, $fields);
@@ -1570,6 +1570,7 @@ class Diaspora
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
+		$datarray["direction"] = $fetched ? Conversation::PULL : Conversation::PUSH;
 
 		$datarray["changed"] = $datarray["created"] = $datarray["edited"] = $created_at;
 
@@ -1740,7 +1741,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveLike(array $importer, $sender, $data)
+	private static function receiveLike(array $importer, $sender, $data, bool $fetched)
 	{
 		$author = Strings::escapeTags(XML::unescape($data->author));
 		$guid = Strings::escapeTags(XML::unescape($data->guid));
@@ -1789,6 +1790,7 @@ class Diaspora
 		$datarray = [];
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
+		$datarray["direction"] = $fetched ? Conversation::PULL : Conversation::PUSH;
 
 		$datarray["uid"] = $importer["uid"];
 		$datarray["contact-id"] = $author_contact["cid"];
@@ -1917,7 +1919,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveParticipation(array $importer, $data)
+	private static function receiveParticipation(array $importer, $data, bool $fetched)
 	{
 		$author = strtolower(Strings::escapeTags(XML::unescape($data->author)));
 		$guid = Strings::escapeTags(XML::unescape($data->guid));
@@ -1958,6 +1960,7 @@ class Diaspora
 		$datarray = [];
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
+		$datarray["direction"] = $fetched ? Conversation::PULL : Conversation::PUSH;
 
 		$datarray["uid"] = $importer["uid"];
 		$datarray["contact-id"] = $author_contact["cid"];
@@ -2375,6 +2378,8 @@ class Diaspora
 		$datarray['object-type'] = Activity\ObjectType::NOTE;
 
 		$datarray['protocol'] = $item['protocol'];
+		$datarray['source'] = $item['source'];
+		$datarray['direction'] = $item['direction'];
 
 		$datarray['plink'] = self::plink($author, $datarray['guid']);
 		$datarray['private'] = $item['private'];
@@ -2406,7 +2411,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function receiveReshare(array $importer, $data, $xml)
+	private static function receiveReshare(array $importer, $data, $xml, bool $fetched)
 	{
 		$author = Strings::escapeTags(XML::unescape($data->author));
 		$guid = Strings::escapeTags(XML::unescape($data->guid));
@@ -2452,6 +2457,7 @@ class Diaspora
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
+		$datarray["direction"] = $fetched ? Conversation::PULL : Conversation::PUSH;
 
 		/// @todo Copy tag data from original post
 
@@ -2749,6 +2755,7 @@ class Diaspora
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
+		$datarray["direction"] = $fetched ? Conversation::PULL : Conversation::PUSH;
 
 		if ($fetched) {
 			$datarray["post-type"] = Item::PT_FETCHED;

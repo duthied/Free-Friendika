@@ -25,12 +25,13 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget\CalendarExport;
 use Friendica\Core\ACL;
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\User;
@@ -204,6 +205,9 @@ function events_post(App $a)
 	$datarray['deny_gid']  = $str_group_deny;
 	$datarray['private']   = $private_event;
 	$datarray['id']        = $event_id;
+	$datarray['network']   = Protocol::DFRN;
+	$datarray['protocol']  = Conversation::PARCEL_DIRECT;
+	$datarray['direction'] = Conversation::PUSH;
 
 	if (intval($_REQUEST['preview'])) {
 		$html = Event::getHTML($datarray);

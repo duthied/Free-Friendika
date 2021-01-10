@@ -312,7 +312,7 @@ class OStatus
 	 */
 	public static function import($xml, array $importer, array &$contact, &$hub)
 	{
-		self::process($xml, $importer, $contact, $hub);
+		self::process($xml, $importer, $contact, $hub, false, true, Conversation::PUSH);
 	}
 
 	/**
@@ -329,7 +329,7 @@ class OStatus
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function process($xml, array $importer, array &$contact = null, &$hub, $stored = false, $initialize = true)
+	private static function process($xml, array $importer, array &$contact = null, &$hub, $stored = false, $initialize = true, $direction = Conversation::UNKNOWN)
 	{
 		if ($initialize) {
 			self::$itemlist = [];
@@ -397,6 +397,7 @@ class OStatus
 
 			$header["protocol"] = Conversation::PARCEL_SALMON;
 			$header["source"] = $xml2;
+			$header["direction"] = $direction;
 		} elseif (!$initialize) {
 			return false;
 		}
@@ -807,6 +808,7 @@ class OStatus
 			$conv_data = [];
 
 			$conv_data['protocol'] = Conversation::PARCEL_SPLIT_CONVERSATION;
+			$conv_data['direction'] = Conversation::PULL;
 			$conv_data['network'] = Protocol::OSTATUS;
 			$conv_data['uri'] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
 
@@ -846,12 +848,6 @@ class OStatus
 			$doc2->appendChild($entry);
 
 			$conv_data['source'] = $doc2->saveXML();
-
-			$condition = ['item-uri' => $conv_data['uri'],'protocol' => Conversation::PARCEL_FEED];
-			if (DBA::exists('conversation', $condition)) {
-				Logger::log('Delete deprecated entry for URI '.$conv_data['uri'], Logger::DEBUG);
-				DBA::delete('conversation', ['item-uri' => $conv_data['uri']]);
-			}
 
 			Logger::log('Store conversation data for uri '.$conv_data['uri'], Logger::DEBUG);
 			Conversation::insert($conv_data);
@@ -895,6 +891,7 @@ class OStatus
 
 		$item["protocol"] = Conversation::PARCEL_SALMON;
 		$item["source"] = $xml;
+		$item["direction"] = Conversation::PULL;
 
 		Logger::log('Conversation '.$item['uri'].' is now fetched.', Logger::DEBUG);
 	}
@@ -918,7 +915,7 @@ class OStatus
 		if (DBA::isResult($conversation)) {
 			$stored = true;
 			$xml = $conversation['source'];
-			if (self::process($xml, $importer, $contact, $hub, $stored, false)) {
+			if (self::process($xml, $importer, $contact, $hub, $stored, false, Conversation::PULL)) {
 				Logger::log('Got valid cached XML for URI '.$related_uri, Logger::DEBUG);
 				return;
 			}
@@ -1003,7 +1000,7 @@ class OStatus
 		}
 
 		if ($xml != '') {
-			self::process($xml, $importer, $contact, $hub, $stored, false);
+			self::process($xml, $importer, $contact, $hub, $stored, false, Conversation::PULL);
 		} else {
 			Logger::log("XML couldn't be fetched for URI: ".$related_uri." - href: ".$related, Logger::DEBUG);
 		}
