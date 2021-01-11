@@ -1265,7 +1265,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function plink($addr, $guid, $parent_guid = '')
+	private static function plink(string $addr, string $guid, string $parent_guid = '')
 	{
 		$contact = Contact::getByURL($addr);
 		if (empty($contact)) {
@@ -2434,6 +2434,10 @@ class Diaspora
 		$original_item = self::originalItem($root_guid, $root_author);
 		if (!$original_item) {
 			return false;
+		}
+
+		if (empty($original_item['plink'])) {
+			$original_item['plink'] = self::plink($root_author, $root_guid);
 		}
 
 		$datarray = [];
