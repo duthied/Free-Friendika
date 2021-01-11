@@ -1698,6 +1698,12 @@ class Item
 		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
 		$item["contact-id"] = self::contactId($item);
 
+		if (!empty($item['direction']) && in_array($item['direction'], [Conversation::PUSH, Conversation::RELAY]) &&
+			self::isTooOld($item)) {
+			Logger::info('Item is too old', ['item' => $item]);
+			return 0;
+		}
+
 		if (!self::isValid($item)) {
 			return 0;
 		}
