@@ -452,13 +452,13 @@ class Notifier
 
 			$conversants = array_merge($contacts, $relay_list);
 
-			$delivery_queue_count += self::delivery($cmd, $target_id, $target_item, $thr_parent, $owner, $batch_delivery, $conversants, $ap_contacts, []);
+			$delivery_queue_count += self::delivery($cmd, $target_id, $target_item, $thr_parent, $owner, $batch_delivery, true, $conversants, $ap_contacts, []);
 
 			$push_notify = true;
 		}
 
 		$contacts = DBA::toArray($delivery_contacts_stmt);
-		$delivery_queue_count += self::delivery($cmd, $target_id, $target_item, $thr_parent, $owner, $batch_delivery, $contacts, $ap_contacts, $conversants);
+		$delivery_queue_count += self::delivery($cmd, $target_id, $target_item, $thr_parent, $owner, $batch_delivery, false, $contacts, $ap_contacts, $conversants);
 
 		$delivery_queue_count += self::deliverOStatus($target_id, $target_item, $owner, $url_recipients, $public_message, $push_notify);
 
@@ -499,7 +499,7 @@ class Notifier
 	 * @throws InternalServerErrorException 
 	 * @throws Exception 
 	 */
-	private static function delivery(string $cmd, int $target_id, array $target_item, array $thr_parent, array $owner, bool $batch_delivery, array $contacts, array $ap_contacts, array $conversants = [])
+	private static function delivery(string $cmd, int $target_id, array $target_item, array $thr_parent, array $owner, bool $batch_delivery, bool $in_batch, array $contacts, array $ap_contacts, array $conversants = [])
 	{
 		$a = DI::app(); 
 		$delivery_queue_count = 0;
@@ -531,7 +531,7 @@ class Notifier
 			}
 
 			// Don't deliver to Diaspora if it already had been done as batch delivery
-			if (($contact['network'] == Protocol::DIASPORA) && $batch_delivery) {
+			if (!$in_batch && $batch_delivery && ($contact['network'] == Protocol::DIASPORA)) {
 				Logger::info('Diaspora contact is already delivered via batch', ['id' => $target_id, 'contact' => $contact]);
 				continue;
 			}
@@ -542,7 +542,7 @@ class Notifier
 				continue;
 			}
 
-			Logger::info('Delivery', ['target' => $target_id, 'guid' => $target_item['guid'] ?? '', 'to' => $contact]);
+			Logger::info('Delivery', ['batch' => $in_batch, 'target' => $target_id, 'guid' => $target_item['guid'] ?? '', 'to' => $contact]);
 
 			// Ensure that posts with our own protocol arrives before Diaspora posts arrive.
 			// Situation is that sometimes Friendica servers receive Friendica posts over the Diaspora protocol first.
