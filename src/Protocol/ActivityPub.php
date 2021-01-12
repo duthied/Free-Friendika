@@ -21,12 +21,13 @@
 
 namespace Friendica\Protocol;
 
-use Friendica\Util\JsonLD;
-use Friendica\Util\Network;
 use Friendica\Core\Protocol;
+use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\User;
 use Friendica\Util\HTTPSignature;
+use Friendica\Util\JsonLD;
 
 /**
  * ActivityPub Protocol class
@@ -67,7 +68,7 @@ class ActivityPub
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
 		'directMessage' => 'litepub:directMessage']];
-	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application'];
+	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application', 'Tombstone'];
 	/**
 	 * Checks if the web request is done for the AP protocol
 	 *
@@ -87,24 +88,9 @@ class ActivityPub
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchContent($url, $uid = 0)
+	public static function fetchContent(string $url, int $uid = 0)
 	{
-		if (!empty($uid)) {
-			return HTTPSignature::fetch($url, $uid);
-		}
-
-		$curlResult = Network::curl($url, false, ['accept_content' => 'application/activity+json, application/ld+json']);
-		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-			return false;
-		}
-
-		$content = json_decode($curlResult->getBody(), true);
-
-		if (empty($content) || !is_array($content)) {
-			return false;
-		}
-
-		return $content;
+		return HTTPSignature::fetch($url, $uid);
 	}
 
 	private static function getAccountType($apcontact)
@@ -127,6 +113,9 @@ class ActivityPub
 			case 'Application':
 				$accounttype = User::ACCOUNT_TYPE_RELAY;
 				break;
+			case 'Tombstone':
+				$accounttype = User::ACCOUNT_TYPE_DELETED;
+				break;
 		}
 
 		return $accounttype;
@@ -145,7 +134,7 @@ class ActivityPub
 	{
 		$apcontact = APContact::getByURL($url, $update);
 		if (empty($apcontact)) {
-			return false;
+			return [];
 		}
 
 		$profile = ['network' => Protocol::ACTIVITYPUB];
@@ -170,7 +159,10 @@ class ActivityPub
 		$profile['notify'] = $apcontact['inbox'];
 		$profile['poll'] = $apcontact['outbox'];
 		$profile['pubkey'] = $apcontact['pubkey'];
+		$profile['subscribe'] = $apcontact['subscribe'];
+		$profile['manually-approve'] = $apcontact['manually-approve'];
 		$profile['baseurl'] = $apcontact['baseurl'];
+		$profile['gsid'] = $apcontact['gsid'];
 
 		// Remove all "null" fields
 		foreach ($profile as $field => $content) {

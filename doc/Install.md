@@ -33,7 +33,7 @@ The account will expire after 7 days, but you can ask the server admin to keep y
 * Apache with mod-rewrite enabled and "Options All" so you can use a local `.htaccess` file
 * PHP 7+ (PHP 7.1+ is recommended for performance and official support)
   * PHP *command line* access with register_argc_argv set to true in the php.ini file
-  * Curl, GD, PDO, MySQLi, hash, xml, zip and OpenSSL extensions
+  * Curl, GD, PDO, mbstrings, MySQLi, hash, xml, zip and OpenSSL extensions
   * The POSIX module of PHP needs to be activated (e.g. [RHEL, CentOS](http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7) have disabled it)
   * some form of email server or email gateway such that PHP mail() works
 * MySQL 5.6+ or an equivalent alternative for MySQL (MariaDB, Percona Server etc.)
@@ -47,7 +47,6 @@ For alternative server configurations (such as Nginx server and MariaDB database
 ### Optional 
 
 * PHP ImageMagick extension (php-imagick) for animated GIF support.
-* [Composer](https://getcomposer.org/) for a git install
 
 ## Installation procedure
 
@@ -61,6 +60,8 @@ If this is nothing for you, you might be interested in
 
 ### Get Friendica
 
+Download the full archive of the stable release of Friendica core and the addons from [the project homepage](https://friendi.ca/resources/download-files/).
+Make sure that the version of the Friendica archive and the addons match.
 Unpack the Friendica files into the root of your web server document area.
 
 If you copy the directory tree to your webserver, make sure that you also copy `.htaccess-dist` - as "dot" files are often hidden and aren't normally copied.
@@ -72,7 +73,7 @@ This makes the software much easier to update.
 
 The Linux commands to clone the repository into a directory "mywebsite" would be
 
-    git clone https://github.com/friendica/friendica.git -b master mywebsite
+    git clone https://github.com/friendica/friendica.git -b stable mywebsite
     cd mywebsite
     bin/composer.phar install --no-dev
 
@@ -88,7 +89,7 @@ Get the addons by going into your website folder.
 
 Clone the addon repository (separately):
 
-    git clone https://github.com/friendica/friendica-addons.git -b master addon
+    git clone https://github.com/friendica/friendica-addons.git -b stable addon
 
 If you want to use the development version of Friendica you can switch to the develop branch in the repository by running
 
@@ -435,7 +436,7 @@ provided by one of our members.
 > 
 > This is obvious as soon as you notice that the friendica-cron uses `proc_open`
 > to execute PHP scripts that also use `proc_open`, but it took me quite some time to find that out.
-> I hope this saves some time for other people using suhosin with function blacklists.
+> I hope this saves some time for other people using suhosin with function blocklists.
 
 ### Unable to create all mysql tables on MySQL 5.7.17 or newer
 

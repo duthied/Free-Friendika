@@ -19,9 +19,9 @@
  *
  *Handles communication associated with the issuance of friend requests.
  *
- * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
+ * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/stable/spec/dfrn2.pdf
  *    You also find a graphic which describes the confirmation process at
- *    https://github.com/friendica/friendica/blob/master/spec/dfrn2_contact_request.png
+ *    https://github.com/friendica/friendica/blob/stable/spec/dfrn2_contact_request.png
  */
 
 use Friendica\App;
@@ -29,12 +29,13 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\System;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Notify;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -110,7 +111,7 @@ function dfrn_request_post(App $a)
 				if (DBA::isResult($r)) {
 					if (strlen($r[0]['dfrn-id'])) {
 						// We don't need to be here. It has already happened.
-						notice(DI::l10n()->t("This introduction has already been accepted.") . EOL);
+						notice(DI::l10n()->t("This introduction has already been accepted."));
 						return;
 					} else {
 						$contact_record = $r[0];
@@ -128,18 +129,18 @@ function dfrn_request_post(App $a)
 					$parms = Probe::profile($dfrn_url);
 
 					if (!count($parms)) {
-						notice(DI::l10n()->t('Profile location is not valid or does not contain profile information.') . EOL);
+						notice(DI::l10n()->t('Profile location is not valid or does not contain profile information.'));
 						return;
 					} else {
 						if (empty($parms['fn'])) {
-							notice(DI::l10n()->t('Warning: profile location has no identifiable owner name.') . EOL);
+							notice(DI::l10n()->t('Warning: profile location has no identifiable owner name.'));
 						}
 						if (empty($parms['photo'])) {
-							notice(DI::l10n()->t('Warning: profile location has no profile photo.') . EOL);
+							notice(DI::l10n()->t('Warning: profile location has no profile photo.'));
 						}
 						$invalid = Probe::validDfrn($parms);
 						if ($invalid) {
-							notice(DI::l10n()->tt("%d required parameter was not found at the given location", "%d required parameters were not found at the given location", $invalid) . EOL);
+							notice(DI::l10n()->tt("%d required parameter was not found at the given location", "%d required parameters were not found at the given location", $invalid));
 							return;
 						}
 					}
@@ -177,7 +178,7 @@ function dfrn_request_post(App $a)
 				}
 
 				if ($r) {
-					info(DI::l10n()->t("Introduction complete.") . EOL);
+					info(DI::l10n()->t("Introduction complete."));
 				}
 
 				$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `site-pubkey` = '%s' LIMIT 1",
@@ -189,7 +190,7 @@ function dfrn_request_post(App $a)
 					Group::addMember(User::getDefaultGroup(local_user(), $r[0]["network"]), $r[0]['id']);
 
 					if (isset($photo)) {
-						Contact::updateAvatar($photo, local_user(), $r[0]["id"], true);
+						Contact::updateAvatar($r[0]["id"], $photo, true);
 					}
 
 					$forward_path = "contact/" . $r[0]['id'];
@@ -203,7 +204,7 @@ function dfrn_request_post(App $a)
 				}
 
 				if (!empty($dfrn_request) && strlen($confirm_key)) {
-					Network::fetchUrl($dfrn_request . '?confirm_key=' . $confirm_key);
+					DI::httpRequest()->fetch($dfrn_request . '?confirm_key=' . $confirm_key);
 				}
 
 				// (ignore reply, nothing we can do it failed)
@@ -213,7 +214,7 @@ function dfrn_request_post(App $a)
 		}
 
 		// invalid/bogus request
-		notice(DI::l10n()->t('Unrecoverable protocol error.') . EOL);
+		notice(DI::l10n()->t('Unrecoverable protocol error.'));
 		DI::baseUrl()->redirect();
 		return; // NOTREACHED
 	}
@@ -240,7 +241,7 @@ function dfrn_request_post(App $a)
 	 *
 	 */
 	if (empty($a->profile['uid'])) {
-		notice(DI::l10n()->t('Profile unavailable.') . EOL);
+		notice(DI::l10n()->t('Profile unavailable.'));
 		return;
 	}
 
@@ -261,9 +262,9 @@ function dfrn_request_post(App $a)
 				intval($uid)
 			);
 			if (DBA::isResult($r) && count($r) > $maxreq) {
-				notice(DI::l10n()->t('%s has received too many connection requests today.', $a->profile['name']) . EOL);
-				notice(DI::l10n()->t('Spam protection measures have been invoked.') . EOL);
-				notice(DI::l10n()->t('Friends are advised to please try again in 24 hours.') . EOL);
+				notice(DI::l10n()->t('%s has received too many connection requests today.', $a->profile['name']));
+				notice(DI::l10n()->t('Spam protection measures have been invoked.'));
+				notice(DI::l10n()->t('Friends are advised to please try again in 24 hours.'));
 				return;
 			}
 		}
@@ -287,18 +288,18 @@ function dfrn_request_post(App $a)
 
 		$url = trim($_POST['dfrn_url']);
 		if (!strlen($url)) {
-			notice(DI::l10n()->t("Invalid locator") . EOL);
+			notice(DI::l10n()->t("Invalid locator"));
 			return;
 		}
 
 		$hcard = '';
 
 		// Detect the network
-		$data = Probe::uri($url);
+		$data = Contact::getByURL($url);
 		$network = $data["network"];
 
-		// Canonicalise email-style profile locator
-		$url = Probe::webfingerDfrn($url, $hcard);
+		// Canonicalize email-style profile locator
+		$url = Probe::webfingerDfrn($data['url'] ?? $url, $hcard);
 
 		if (substr($url, 0, 5) === 'stat:') {
 			// Every time we detect the remote subscription we define this as OStatus.
@@ -323,10 +324,10 @@ function dfrn_request_post(App $a)
 
 			if (DBA::isResult($ret)) {
 				if (strlen($ret[0]['issued-id'])) {
-					notice(DI::l10n()->t('You have already introduced yourself here.') . EOL);
+					notice(DI::l10n()->t('You have already introduced yourself here.'));
 					return;
 				} elseif ($ret[0]['rel'] == Contact::FRIEND) {
-					notice(DI::l10n()->t('Apparently you are already friends with %s.', $a->profile['name']) . EOL);
+					notice(DI::l10n()->t('Apparently you are already friends with %s.', $a->profile['name']));
 					return;
 				} else {
 					$contact_record = $ret[0];
@@ -346,19 +347,19 @@ function dfrn_request_post(App $a)
 			} else {
 				$url = Network::isUrlValid($url);
 				if (!$url) {
-					notice(DI::l10n()->t('Invalid profile URL.') . EOL);
+					notice(DI::l10n()->t('Invalid profile URL.'));
 					DI::baseUrl()->redirect(DI::args()->getCommand());
 					return; // NOTREACHED
 				}
 
 				if (!Network::isUrlAllowed($url)) {
-					notice(DI::l10n()->t('Disallowed profile URL.') . EOL);
+					notice(DI::l10n()->t('Disallowed profile URL.'));
 					DI::baseUrl()->redirect(DI::args()->getCommand());
 					return; // NOTREACHED
 				}
 
 				if (Network::isUrlBlocked($url)) {
-					notice(DI::l10n()->t('Blocked domain') . EOL);
+					notice(DI::l10n()->t('Blocked domain'));
 					DI::baseUrl()->redirect(DI::args()->getCommand());
 					return; // NOTREACHED
 				}
@@ -366,18 +367,18 @@ function dfrn_request_post(App $a)
 				$parms = Probe::profile(($hcard) ? $hcard : $url);
 
 				if (!count($parms)) {
-					notice(DI::l10n()->t('Profile location is not valid or does not contain profile information.') . EOL);
+					notice(DI::l10n()->t('Profile location is not valid or does not contain profile information.'));
 					DI::baseUrl()->redirect(DI::args()->getCommand());
 				} else {
 					if (empty($parms['fn'])) {
-						notice(DI::l10n()->t('Warning: profile location has no identifiable owner name.') . EOL);
+						notice(DI::l10n()->t('Warning: profile location has no identifiable owner name.'));
 					}
 					if (empty($parms['photo'])) {
-						notice(DI::l10n()->t('Warning: profile location has no profile photo.') . EOL);
+						notice(DI::l10n()->t('Warning: profile location has no profile photo.'));
 					}
 					$invalid = Probe::validDfrn($parms);
 					if ($invalid) {
-						notice(DI::l10n()->tt("%d required parameter was not found at the given location", "%d required parameters were not found at the given location", $invalid) . EOL);
+						notice(DI::l10n()->tt("%d required parameter was not found at the given location", "%d required parameters were not found at the given location", $invalid));
 
 						return;
 					}
@@ -420,12 +421,12 @@ function dfrn_request_post(App $a)
 					);
 					if (DBA::isResult($r)) {
 						$contact_record = $r[0];
-						Contact::updateAvatar($photo, $uid, $contact_record["id"], true);
+						Contact::updateAvatar($contact_record["id"], $photo, true);
 					}
 				}
 			}
 			if ($r === false) {
-				notice(DI::l10n()->t('Failed to update contact record.') . EOL);
+				notice(DI::l10n()->t('Failed to update contact record.'));
 				return;
 			}
 
@@ -445,7 +446,7 @@ function dfrn_request_post(App $a)
 
 			// This notice will only be seen by the requestor if the requestor and requestee are on the same server.
 			if (!$failed) {
-				info(DI::l10n()->t('Your introduction has been sent.') . EOL);
+				info(DI::l10n()->t('Your introduction has been sent.'));
 			}
 
 			// "Homecoming" - send the requestor back to their site to record the introduction.
@@ -477,7 +478,7 @@ function dfrn_request_post(App $a)
 			// NOTREACHED
 			// END $network != Protocol::PHANTOM
 		} else {
-			notice(DI::l10n()->t("Remote subscription can't be done for your network. Please subscribe directly on your system.") . EOL);
+			notice(DI::l10n()->t("Remote subscription can't be done for your network. Please subscribe directly on your system."));
 			return;
 		}
 	} return;
@@ -493,7 +494,7 @@ function dfrn_request_content(App $a)
 	// to send us to the post section to record the introduction.
 	if (!empty($_GET['dfrn_url'])) {
 		if (!local_user()) {
-			info(DI::l10n()->t("Please login to confirm introduction.") . EOL);
+			info(DI::l10n()->t("Please login to confirm introduction."));
 			/* setup the return URL to come back to this page if they use openid */
 			return Login::form();
 		}
@@ -501,7 +502,7 @@ function dfrn_request_content(App $a)
 		// Edge case, but can easily happen in the wild. This person is authenticated,
 		// but not as the person who needs to deal with this request.
 		if ($a->user['nickname'] != $a->argv[1]) {
-			notice(DI::l10n()->t("Incorrect identity currently logged in. Please login to <strong>this</strong> profile.") . EOL);
+			notice(DI::l10n()->t("Incorrect identity currently logged in. Please login to <strong>this</strong> profile."));
 			return Login::form();
 		}
 
@@ -559,18 +560,12 @@ function dfrn_request_content(App $a)
 
 				if (!$auto_confirm) {
 					notification([
-						'type'         => Type::INTRO,
-						'notify_flags' => $r[0]['notify-flags'],
-						'language'     => $r[0]['language'],
-						'to_name'      => $r[0]['username'],
-						'to_email'     => $r[0]['email'],
-						'uid'          => $r[0]['uid'],
-						'link'         => DI::baseUrl() . '/notifications/intros',
-						'source_name'  => ((strlen(stripslashes($r[0]['name']))) ? stripslashes($r[0]['name']) : DI::l10n()->t('[Name Withheld]')),
-						'source_link'  => $r[0]['url'],
-						'source_photo' => $r[0]['photo'],
-						'verb'         => Activity::REQ_FRIEND,
-						'otype'        => 'intro'
+						'type'  => Type::INTRO,
+						'otype' => Notify\ObjectType::INTRO,
+						'verb'  => Activity::REQ_FRIEND,
+						'uid'   => $r[0]['uid'],
+						'cid'   => $r[0]['id'],
+						'link'  => DI::baseUrl() . '/notifications/intros',
 					]);
 				}
 
@@ -603,7 +598,7 @@ function dfrn_request_content(App $a)
 		// Normal web request. Display our user's introduction form.
 		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			if (!DI::config()->get('system', 'local_block')) {
-				notice(DI::l10n()->t('Public access denied.') . EOL);
+				notice(DI::l10n()->t('Public access denied.'));
 				return;
 			}
 		}

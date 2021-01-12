@@ -35,14 +35,14 @@ function editpost_content(App $a)
 	$o = '';
 
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
 	if (!$post_id) {
-		notice(DI::l10n()->t('Item not found') . EOL);
+		notice(DI::l10n()->t('Item not found'));
 		return;
 	}
 
@@ -52,7 +52,7 @@ function editpost_content(App $a)
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
 
 	if (!DBA::isResult($item)) {
-		notice(DI::l10n()->t('Item not found') . EOL);
+		notice(DI::l10n()->t('Item not found'));
 		return;
 	}
 
@@ -66,7 +66,8 @@ function editpost_content(App $a)
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$ispublic' => '&nbsp;', // DI::l10n()->t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
-		'$nickname' => $a->user['nickname']
+		'$nickname' => $a->user['nickname'],
+		'$is_mobile' => DI::mode()->isMobile(),
 	]);
 
 	if (strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid'])) {
@@ -131,7 +132,7 @@ function editpost_content(App $a)
 		//jot nav tab (used in some themes)
 		'$message' => DI::l10n()->t('Message'),
 		'$browser' => DI::l10n()->t('Browser'),
-		'$shortpermset' => DI::l10n()->t('permissions'),
+		'$shortpermset' => DI::l10n()->t('Permissions'),
 
 		'$compose_link_title' => DI::l10n()->t('Open Compose page'),
 	]);
@@ -145,7 +146,7 @@ function undo_post_tagging($s) {
 	if ($cnt) {
 		foreach ($matches as $mtch) {
 			if (in_array($mtch[1], ['!', '@'])) {
-				$contact = Contact::getDetailsByURL($mtch[2]);
+				$contact = Contact::getByURL($mtch[2], false, ['addr']);
 				$mtch[3] = empty($contact['addr']) ? $mtch[2] : $contact['addr'];
 			}
 			$s = str_replace($mtch[0], $mtch[1] . $mtch[3],$s);

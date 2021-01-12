@@ -2,8 +2,9 @@ right_aside {
   display: block;
 }
 
-#forumlist-sidebar-frame,
-#forumlist-sidebar {
+aside #forumlist-sidebar-frame,
+aside #forumlist-sidebar,
+#forumlist-sidebar-inflated {
   display: none;
 }
 

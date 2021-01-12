@@ -19,16 +19,16 @@
  *
  */
 
-namespace Friendica\Testsrc\Model\User;
+namespace Friendica\Test\src\Model\User;
 
 use Friendica\App\BaseURL;
 use Friendica\Core\Config\IConfig;
 use Friendica\Model\User\Cookie;
-use Friendica\Test\DatabaseTest;
+use Friendica\Test\MockedTest;
 use Friendica\Test\Util\StaticCookie;
 use Mockery\MockInterface;
 
-class CookieTest extends DatabaseTest
+class CookieTest extends MockedTest
 {
 	/** @var MockInterface|IConfig */
 	private $config;
@@ -48,6 +48,8 @@ class CookieTest extends DatabaseTest
 	protected function tearDown()
 	{
 		StaticCookie::clearStatic();
+
+		parent::tearDown();
 	}
 
 	/**
@@ -60,7 +62,7 @@ class CookieTest extends DatabaseTest
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn('7')->once();
 
 		$cookie = new Cookie($this->config, $this->baseUrl);
-		$this->assertInstanceOf(Cookie::class, $cookie);
+		self::assertInstanceOf(Cookie::class, $cookie);
 	}
 
 	public function dataGet()
@@ -124,31 +126,31 @@ class CookieTest extends DatabaseTest
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn('7')->once();
 
 		$cookie = new Cookie($this->config, $this->baseUrl, [], $cookieData);
-		$this->assertInstanceOf(Cookie::class, $cookie);
+		self::assertInstanceOf(Cookie::class, $cookie);
 
 		$assertData = $cookie->getData();
 
 		if (!$hasValues) {
-			$this->assertEmpty($assertData);
+			self::assertEmpty($assertData);
 		} else {
-			$this->assertNotEmpty($assertData);
+			self::assertNotEmpty($assertData);
 			if (isset($uid)) {
-				$this->assertObjectHasAttribute('uid', $assertData);
-				$this->assertEquals($uid, $assertData->uid);
+				self::assertObjectHasAttribute('uid', $assertData);
+				self::assertEquals($uid, $assertData->uid);
 			} else {
-				$this->assertObjectNotHasAttribute('uid', $assertData);
+				self::assertObjectNotHasAttribute('uid', $assertData);
 			}
 			if (isset($hash)) {
-				$this->assertObjectHasAttribute('hash', $assertData);
-				$this->assertEquals($hash, $assertData->hash);
+				self::assertObjectHasAttribute('hash', $assertData);
+				self::assertEquals($hash, $assertData->hash);
 			} else {
-				$this->assertObjectNotHasAttribute('hash', $assertData);
+				self::assertObjectNotHasAttribute('hash', $assertData);
 			}
 			if (isset($ip)) {
-				$this->assertObjectHasAttribute('ip', $assertData);
-				$this->assertEquals($ip, $assertData->ip);
+				self::assertObjectHasAttribute('ip', $assertData);
+				self::assertEquals($ip, $assertData->ip);
 			} else {
-				$this->assertObjectNotHasAttribute('ip', $assertData);
+				self::assertObjectNotHasAttribute('ip', $assertData);
 			}
 		}
 	}
@@ -192,9 +194,9 @@ class CookieTest extends DatabaseTest
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn('7')->once();
 
 		$cookie = new Cookie($this->config, $this->baseUrl);
-		$this->assertInstanceOf(Cookie::class, $cookie);
+		self::assertInstanceOf(Cookie::class, $cookie);
 
-		$this->assertEquals($assertTrue, $cookie->check($assertHash, $password, $userPrivateKey));
+		self::assertEquals($assertTrue, $cookie->check($assertHash, $password, $userPrivateKey));
 	}
 
 	public function dataSet()
@@ -245,21 +247,21 @@ class CookieTest extends DatabaseTest
 
 	public function assertCookie($uid, $hash, $remoteIp, $lifetime)
 	{
-		$this->assertArrayHasKey(Cookie::NAME, StaticCookie::$_COOKIE);
+		self::assertArrayHasKey(Cookie::NAME, StaticCookie::$_COOKIE);
 
 		$data = json_decode(StaticCookie::$_COOKIE[Cookie::NAME]);
 
-		$this->assertObjectHasAttribute('uid', $data);
-		$this->assertEquals($uid, $data->uid);
-		$this->assertObjectHasAttribute('hash', $data);
-		$this->assertEquals($hash, $data->hash);
-		$this->assertObjectHasAttribute('ip', $data);
-		$this->assertEquals($remoteIp, $data->ip);
+		self::assertObjectHasAttribute('uid', $data);
+		self::assertEquals($uid, $data->uid);
+		self::assertObjectHasAttribute('hash', $data);
+		self::assertEquals($hash, $data->hash);
+		self::assertObjectHasAttribute('ip', $data);
+		self::assertEquals($remoteIp, $data->ip);
 
 		if (isset($lifetime) && $lifetime !== 0) {
-			$this->assertLessThanOrEqual(time() + $lifetime, StaticCookie::$_EXPIRE);
+			self::assertLessThanOrEqual(time() + $lifetime, StaticCookie::$_EXPIRE);
 		} else {
-			$this->assertLessThanOrEqual(time() + Cookie::DEFAULT_EXPIRE * 24 * 60 * 60, StaticCookie::$_EXPIRE);
+			self::assertLessThanOrEqual(time() + Cookie::DEFAULT_EXPIRE * 24 * 60 * 60, StaticCookie::$_EXPIRE);
 		}
 	}
 
@@ -275,11 +277,11 @@ class CookieTest extends DatabaseTest
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn(Cookie::DEFAULT_EXPIRE)->once();
 
 		$cookie = new StaticCookie($this->config, $this->baseUrl, $serverArray);
-		$this->assertInstanceOf(Cookie::class, $cookie);
+		self::assertInstanceOf(Cookie::class, $cookie);
 
 		$cookie->set($uid, $password, $privateKey, $lifetime);
 
-		$this->assertCookie($uid, $assertHash, $remoteIp, $lifetime);
+		self::assertCookie($uid, $assertHash, $remoteIp, $lifetime);
 	}
 
 	/**
@@ -294,14 +296,14 @@ class CookieTest extends DatabaseTest
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn(Cookie::DEFAULT_EXPIRE)->once();
 
 		$cookie = new StaticCookie($this->config, $this->baseUrl, $serverArray);
-		$this->assertInstanceOf(Cookie::class, $cookie);
+		self::assertInstanceOf(Cookie::class, $cookie);
 
 		// Invalid set, should get overwritten
 		$cookie->set(-1, 'invalid', 'nothing', -234);
 
 		$cookie->set($uid, $password, $privateKey, $lifetime);
 
-		$this->assertCookie($uid, $assertHash, $remoteIp, $lifetime);
+		self::assertCookie($uid, $assertHash, $remoteIp, $lifetime);
 	}
 
 	/**
@@ -318,14 +320,14 @@ class CookieTest extends DatabaseTest
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn(Cookie::DEFAULT_EXPIRE)->once();
 
 		$cookie = new StaticCookie($this->config, $this->baseUrl);
-		$this->assertInstanceOf(Cookie::class, $cookie);
+		self::assertInstanceOf(Cookie::class, $cookie);
 
-		$this->assertEquals('test', StaticCookie::$_COOKIE[Cookie::NAME]);
-		$this->assertEquals(null, StaticCookie::$_EXPIRE);
+		self::assertEquals('test', StaticCookie::$_COOKIE[Cookie::NAME]);
+		self::assertEquals(null, StaticCookie::$_EXPIRE);
 
 		$cookie->clear();
 
-		$this->assertEmpty(StaticCookie::$_COOKIE[Cookie::NAME]);
-		$this->assertEquals(-3600, StaticCookie::$_EXPIRE);
+		self::assertEmpty(StaticCookie::$_COOKIE[Cookie::NAME]);
+		self::assertEquals(-3600, StaticCookie::$_EXPIRE);
 	}
 }

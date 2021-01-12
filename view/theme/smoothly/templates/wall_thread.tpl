@@ -11,7 +11,7 @@
 	<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 {{/if}}
 
-<div id="tread-wrapper-{{$item.id}}" class="tread-wrapper {{$item.toplevel}} {{if $item.toplevel}} h-entry {{else}} u-comment h-cite {{/if}}">
+<div id="tread-wrapper-{{$item.uriid}}" class="tread-wrapper {{$item.toplevel}} {{if $item.toplevel}} h-entry {{else}} u-comment h-cite {{/if}}">
 <div class="wall-item-outside-wrapper {{$item.indent}} {{$item.shiny}} wallwall" id="wall-item-outside-wrapper-{{$item.id}}" >
 <div class="wall-item-content-wrapper {{$item.indent}} {{$item.shiny}}" id="wall-item-content-wrapper-{{$item.id}}" >
 
@@ -31,18 +31,18 @@
 				<span onclick="openClose('wall-item-photo-menu-{{$item.id}}');" class="fakelink wall-item-photo-menu-button" id="wall-item-photo-menu-button-{{$item.id}}">menu</span>
                 <div class="wall-item-photo-menu" id="wall-item-photo-menu-{{$item.id}}">
                     <ul>
-                        {{$item.item_photo_menu nofilter}}
+                        {{$item.item_photo_menu_html nofilter}}
                     </ul>
                 </div>
 
 			</div>
 			<div class="wall-item-photo-end"></div>
-			<div class="wall-item-location" id="wall-item-location-{{$item.id}}">{{if $item.location}}<span class="icon globe"></span>{{$item.location nofilter}} {{/if}}</div>
+			<div class="wall-item-location" id="wall-item-location-{{$item.id}}">{{if $item.location_html}}<span class="icon globe"></span>{{$item.location_html nofilter}} {{/if}}</div>
 		</div>
 		<div class="wall-item-lock-wrapper">
 			{{if $item.lock}}
 			<div class="wall-item-lock">
-			<img src="images/lock_icon.gif" class="lockview" alt="{{$item.lock}}" onclick="lockview(event,{{$item.id}});" />
+			<img src="images/lock_icon.gif" class="lockview" alt="{{$item.lock}}" onclick="lockview(event, 'item', {{$item.id}});" />
 			</div>
 			{{else}}
 			<div class="wall-item-lock"></div>
@@ -62,7 +62,8 @@
 		</div>
 			<div class="wall-item-title p-name" id="wall-item-title-{{$item.id}}">{{$item.title}}</div>
 			<div class="wall-item-title-end"></div>
-			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" ><span class="e-content">{{$item.body nofilter}}</span>
+			<div class="wall-item-body" id="wall-item-body-{{$item.id}}">
+				<span class="e-content">{{$item.body_html nofilter}}</span>
 				<div class="body-tag">
 				{{if !$item.suppress_tags}}
 					{{foreach $item.tags as $tag}}
@@ -84,19 +85,24 @@
 				{{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
 				</div>
 				{{/if}}
-
+				{{if $item.edited}}
+				<div class="itemedited text-muted">{{$item.edited['label']}} (<span title="{{$item.edited['date']}}">{{$item.edited['relative']}}</span>)</div>
+				{{/if}}
 			</div>
 		</div>
 		<div class="wall-item-social" id="wall-item-social-{{$item.id}}">
 
 			{{if $item.vote}}
 			<div class="wall-item-like-buttons" id="wall-item-like-buttons-{{$item.id}}">
-				<a href="#" class="icon like{{if $item.responses.like.self}} self{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false"></a>
+				<a href="#" class="icon like{{if $item.responses.like.self}} self{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false"></a>
 				{{if $item.vote.dislike}}
-				<a href="#" class="icon dislike{{if $item.responses.dislike.self}} self{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false"></a>
+				<a href="#" class="icon dislike{{if $item.responses.dislike.self}} self{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false"></a>
+				{{/if}}
+				{{if $item.vote.announce}}
+				<a href="#" class="icon recycle{{if $item.responses.announce.self}} self{{/if}}" title="{{$item.vote.announce.0}}" onclick="dolike({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}}); return false"></a>
 				{{/if}}
 				{{if $item.vote.share}}
-				<a href="#" class="icon recycle wall-item-share-buttons" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"></a>				{{/if}}
+				<a href="#" class="icon share wall-item-share-buttons" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"></a>				{{/if}}
 				<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 			</div>
 			{{/if}}
@@ -143,13 +149,13 @@
 
 	</div>
 	<div class="wall-item-wrapper-end"></div>
-	<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like nofilter}}</div>
-	<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike nofilter}}</div>
+	<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like_html nofilter}}</div>
+	<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike_html nofilter}}</div>
 
 	{{if $item.threaded}}
-	{{if $item.comment}}
+	{{if $item.comment_html}}
         <div class="wall-item-comment-wrapper {{$item.indent}} {{$item.shiny}}" >
-		{{$item.comment nofilter}}
+		{{$item.comment_html nofilter}}
 	</div>
 	{{/if}}
 	{{/if}}
@@ -163,7 +169,7 @@
 
 {{if $item.flatten}}
 <div class="wall-item-comment-wrapper" >
-	{{$item.comment nofilter}}
+	{{$item.comment_html nofilter}}
 </div>
 {{/if}}
 </div>

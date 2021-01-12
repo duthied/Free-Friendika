@@ -23,6 +23,8 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
+use Friendica\Model\Contact;
+use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Protocol\ActivityPub;
@@ -33,26 +35,36 @@ class APDelivery
 	/**
 	 * Delivers ActivityPub messages
 	 *
-	 * @param string  $cmd
-	 * @param integer $target_id
-	 * @param string  $inbox
-	 * @param integer $uid
+	 * @param string  $cmd       One of the Worker\Delivery constant values
+	 * @param integer $item_id   0 if no item is involved (like Delivery::REMOVAL and Delivery::PROFILEUPDATE)
+	 * @param string  $inbox     The URL of the recipient profile
+	 * @param integer $uid       The ID of the user who triggered this delivery
+	 * @param array   $receivers The contact IDs related to the inbox URL for contact archival housekeeping
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function execute($cmd, $target_id, $inbox, $uid)
+	public static function execute(string $cmd, int $item_id, string $inbox, int $uid, array $receivers = [])
 	{
-		Logger::log('Invoked: ' . $cmd . ': ' . $target_id . ' to ' . $inbox, Logger::DEBUG);
+		if (ActivityPub\Transmitter::archivedInbox($inbox)) {
+			Logger::info('Inbox is archived', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uid' => $uid]);
+			if (in_array($cmd, [Delivery::POST])) {
+				$item = Item::selectFirst(['uri-id'], ['id' => $item_id]);
+				Post\DeliveryData::incrementQueueFailed($item['uri-id'] ?? 0);
+			}
+			return;
+		}
+
+		Logger::info('Invoked', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uid' => $uid]);
 
 		$success = true;
 
 		if ($cmd == Delivery::MAIL) {
-			$data = ActivityPub\Transmitter::createActivityFromMail($target_id);
+			$data = ActivityPub\Transmitter::createActivityFromMail($item_id);
 			if (!empty($data)) {
 				$success = HTTPSignature::transmit($data, $inbox, $uid);
 			}
 		} elseif ($cmd == Delivery::SUGGESTION) {
-			$success = ActivityPub\Transmitter::sendContactSuggestion($uid, $inbox, $target_id);
+			$success = ActivityPub\Transmitter::sendContactSuggestion($uid, $inbox, $item_id);
 		} elseif ($cmd == Delivery::RELOCATION) {
 			// @todo Implementation pending
 		} elseif ($cmd == Delivery::POKE) {
@@ -62,19 +74,40 @@ class APDelivery
 		} elseif ($cmd == Delivery::PROFILEUPDATE) {
 			$success = ActivityPub\Transmitter::sendProfileUpdate($uid, $inbox);
 		} else {
-			$data = ActivityPub\Transmitter::createCachedActivityFromItem($target_id);
+			$data = ActivityPub\Transmitter::createCachedActivityFromItem($item_id);
 			if (!empty($data)) {
 				$success = HTTPSignature::transmit($data, $inbox, $uid);
 			}
 		}
 
-		// This should never fail and is temporariy (until the move to )
-		$item = Item::selectFirst(['uri-id'], ['id' => $target_id]);
+		// This should never fail and is temporariy (until the move to the "post" structure)
+		$item = Item::selectFirst(['uri-id'], ['id' => $item_id]);
+		$uriid = $item['uri-id'] ?? 0;
+		$gsid = null;
+
+		foreach ($receivers as $receiver) {
+			$contact = Contact::getById($receiver);
+			if (empty($contact)) {
+				continue;
+			}
+
+			$gsid = $gsid ?: $contact['gsid'];
+
+			if ($success) {
+				Contact::unmarkForArchival($contact);
+			} else {
+				Contact::markForArchival($contact);
+			}
+		}
+
+		if (!empty($gsid)) {
+			GServer::setProtocol($gsid, Post\DeliveryData::ACTIVITYPUB);
+		}
 
 		if (!$success && !Worker::defer() && in_array($cmd, [Delivery::POST])) {
-			Post\DeliveryData::incrementQueueFailed($item['uri-id']);
+			Post\DeliveryData::incrementQueueFailed($uriid);
 		} elseif ($success && in_array($cmd, [Delivery::POST])) {
-			Post\DeliveryData::incrementQueueDone($item['uri-id'], Post\DeliveryData::ACTIVITYPUB);
+			Post\DeliveryData::incrementQueueDone($uriid, Post\DeliveryData::ACTIVITYPUB);
 		}
 	}
 }

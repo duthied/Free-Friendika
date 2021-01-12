@@ -38,7 +38,6 @@ use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
@@ -152,9 +151,10 @@ class Post
 		}
 		$sparkle = '';
 		$buttons = [
-			'like'    => null,
-			'dislike' => null,
-			'share'   => null,
+			'like'     => null,
+			'dislike'  => null,
+			'share'    => null,
+			'announce' => null,
 		];
 		$dropping = false;
 		$pinned = '';
@@ -176,6 +176,12 @@ class Post
 			: false);
 
 		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != Item::PRIVATE;
+		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER]);
+
+		// On Diaspora only toplevel posts can be reshared
+		if ($announceable && ($item['network'] == Protocol::DIASPORA) && ($item['gravity'] != GRAVITY_PARENT)) {
+			$announceable = false;
+		}
 
 		$edpost = false;
 
@@ -214,7 +220,7 @@ class Post
 			$pinned = DI::l10n()->t('pinned item');
 		}
 
-		if ($origin && ($item['id'] != $item['parent']) && ($item['network'] == Protocol::ACTIVITYPUB)) {
+		if ($origin && ($item['gravity'] != GRAVITY_PARENT) && ($item['network'] == Protocol::ACTIVITYPUB)) {
 			// ActivityPub doesn't allow removal of remote comments
 			$delete = DI::l10n()->t('Delete locally');
 		} else {
@@ -222,15 +228,14 @@ class Post
 			$delete = $origin ? DI::l10n()->t('Delete globally') : DI::l10n()->t('Remove locally');
 		}
 
-		$drop = [
-			'dropping' => $dropping,
-			'pagedrop' => $item['pagedrop'],
-			'select'   => DI::l10n()->t('Select'),
-			'delete'   => $delete,
-		];
-
-		if (!local_user()) {
-			$drop = false;
+		$drop = false;
+		if (local_user()) {
+			$drop = [
+				'dropping' => $dropping,
+				'pagedrop' => $item['pagedrop'],
+				'select'   => DI::l10n()->t('Select'),
+				'delete'   => $delete,
+			];
 		}
 
 		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? DI::l10n()->t("save to folder") : false);
@@ -255,7 +260,7 @@ class Post
 
 		$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
 		Hook::callAll('render_location', $locate);
-		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
+		$location_html = $locate['html'] ?: Strings::escapeHtml($locate['location'] ?: $locate['coord'] ?: '');
 
 		// process action responses - e.g. like/dislike/attend/agree/whatever
 		$response_verbs = ['like', 'dislike', 'announce'];
@@ -275,8 +280,8 @@ class Post
 		$responses = [];
 		foreach ($response_verbs as $value => $verb) {
 			$responses[$verb] = [
-				'self'   => $conv_responses[$verb][$item['uri'] . '-self'] ?? 0,
-				'output' => !empty($conv_responses[$verb][$item['uri']]) ? format_like($conv_responses[$verb][$item['uri']], $conv_responses[$verb][$item['uri'] . '-l'], $verb, $item['uri']) : '',
+				'self'   => $conv_responses[$verb][$item['uri']]['self'] ?? 0,
+				'output' => !empty($conv_responses[$verb][$item['uri']]) ? format_activity($conv_responses[$verb][$item['uri']]['links'], $verb, $item['uri']) : '',
 			];
 		}
 
@@ -346,11 +351,15 @@ class Post
 			$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29")      , DI::l10n()->t("like")];
 			$buttons['dislike'] = [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t("dislike")];
 			if ($shareable) {
-				$buttons['share'] = [DI::l10n()->t('Share this'), DI::l10n()->t('share')];
+				$buttons['share'] = [DI::l10n()->t('Quote share this'), DI::l10n()->t('Quote Share')];
+			}
+			if ($announceable) {
+				$buttons['announce'] = [DI::l10n()->t('Reshare this'), DI::l10n()->t('Reshare')];
+				$buttons['unannounce'] = [DI::l10n()->t('Cancel your Reshare'), DI::l10n()->t('Unshare')];
 			}
 		}
 
-		$comment = $this->getCommentBox($indent);
+		$comment_html = $this->getCommentBox($indent);
 
 		if (strcmp(DateTimeFormat::utc($item['created']), DateTimeFormat::utc('now - 12 hours')) > 0) {
 			$shiny = 'shiny';
@@ -358,30 +367,26 @@ class Post
 
 		localize_item($item);
 
-		$body = Item::prepareBody($item, true);
+		$body_html = Item::prepareBody($item, true);
 
 		list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
 
-		$body_e       = $body;
-		$text_e       = strip_tags($body);
-		$name_e       = $profile_name;
-
 		if (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
-			$title_e = ucfirst($item['content-warning']);
+			$title = ucfirst($item['content-warning']);
 		} else {
-			$title_e = $item['title'];
+			$title = $item['title'];
 		}
-
-		$location_e   = $location;
-		$owner_name_e = $this->getOwnerName();
 
 		if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
 			$buttons['dislike'] = false;
 		}
 
 		// Disable features that aren't available in several networks
-		if ($buttons["dislike"] && !in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
-			$buttons["dislike"] = false;
+		if (!in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
+			if ($buttons["dislike"]) {
+				$buttons["dislike"] = false;
+			}
+
 			$isevent = false;
 			$tagger = '';
 		}
@@ -407,12 +412,19 @@ class Post
 		}
 
 		$direction = [];
-		if (DI::config()->get('debug', 'show_direction')) {
+		if (!empty($item['direction'])) {
+			$direction = $item['direction'];
+		} elseif (DI::config()->get('debug', 'show_direction')) {
 			$conversation = DBA::selectFirst('conversation', ['direction'], ['item-uri' => $item['uri']]);
 			if (!empty($conversation['direction']) && in_array($conversation['direction'], [1, 2])) {
-				$title = [1 => DI::l10n()->t('Pushed'), 2 => DI::l10n()->t('Pulled')];
-				$direction = ['direction' => $conversation['direction'], 'title' => $title[$conversation['direction']]];
+				$direction_title = [1 => DI::l10n()->t('Pushed'), 2 => DI::l10n()->t('Pulled')];
+				$direction = ['direction' => $conversation['direction'], 'title' => $direction_title[$conversation['direction']]];
 			}
+		}
+
+		$languages = [];
+		if (!empty($item['language'])) {
+			$languages = [DI::l10n()->t('Languages'), Item::getLanguageMessage($item)];
 		}
 
 		$tmp_item = [
@@ -429,8 +441,8 @@ class Post
 			'has_folders'     => ((count($folders)) ? 'true' : ''),
 			'categories'      => $categories,
 			'folders'         => $folders,
-			'body'            => $body_e,
-			'text'            => $text_e,
+			'body_html'       => $body_html,
+			'text'            => strip_tags($body_html),
 			'id'              => $this->getId(),
 			'guid'            => urlencode($item['guid']),
 			'isevent'         => $isevent,
@@ -442,24 +454,24 @@ class Post
 			'wall'            => DI::l10n()->t('Wall-to-Wall'),
 			'vwall'           => DI::l10n()->t('via Wall-To-Wall:'),
 			'profile_url'     => $profile_link,
-			'item_photo_menu' => item_photo_menu($item),
-			'name'            => $name_e,
-			'thumb'           => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
+			'name'            => $profile_name,
+			'item_photo_menu_html' => item_photo_menu($item),
+			'thumb'           => DI::baseUrl()->remove($item['author-avatar']),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
-			'title'           => $title_e,
+			'title'           => $title,
 			'localtime'       => DateTimeFormat::local($item['created'], 'r'),
 			'ago'             => $item['app'] ? DI::l10n()->t('%s from %s', $ago, $item['app']) : $ago,
 			'app'             => $item['app'],
 			'created'         => $ago,
 			'lock'            => $lock,
-			'location'        => $location_e,
+			'location_html'   => $location_html,
 			'indent'          => $indent,
 			'shiny'           => $shiny,
 			'owner_self'      => $item['author-link'] == Session::get('my_url'),
 			'owner_url'       => $this->getOwnerUrl(),
-			'owner_photo'     => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
-			'owner_name'      => $owner_name_e,
+			'owner_photo'     => DI::baseUrl()->remove($item['owner-avatar']),
+			'owner_name'      => $this->getOwnerName(),
 			'plink'           => Item::getPlink($item),
 			'edpost'          => $edpost,
 			'ispinned'        => $ispinned,
@@ -470,14 +482,15 @@ class Post
 			'ignore'          => $ignore,
 			'tagger'          => $tagger,
 			'filer'           => $filer,
+			'language'        => $languages,
 			'drop'            => $drop,
 			'vote'            => $buttons,
-			'like'            => $responses['like']['output'],
-			'dislike'         => $responses['dislike']['output'],
+			'like_html'       => $responses['like']['output'],
+			'dislike_html'    => $responses['dislike']['output'],
 			'responses'       => $responses,
 			'switchcomment'   => DI::l10n()->t('Comment'),
-			'reply_label'     => DI::l10n()->t('Reply to %s', $name_e),
-			'comment'         => $comment,
+			'reply_label'     => DI::l10n()->t('Reply to %s', $profile_name),
+			'comment_html'    => $comment_html,
 			'remote_comment'  => $remote_comment,
 			'menu'            => DI::l10n()->t('More'),
 			'previewing'      => $conv->isPreview() ? ' preview ' : '',
@@ -490,8 +503,10 @@ class Post
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
+			'uriid'           => $item['uri-id'],
 			'return'          => (DI::args()->getCommand()) ? bin2hex(DI::args()->getCommand()) : '',
 			'direction'       => $direction,
+			'reshared'        => $item['reshared'] ?? '',
 			'delivery'        => [
 				'queue_count'       => $item['delivery_queue_count'],
 				'queue_done'        => $item['delivery_queue_done'] + $item['delivery_queue_failed'], /// @todo Possibly display it separately in the future
@@ -874,7 +889,7 @@ class Post
 
 		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 		foreach ($terms as $term) {
-			$profile = Contact::getDetailsByURL($term['url']);
+			$profile = Contact::getByURL($term['url'], false, ['addr', 'contact-type']);
 			if (!empty($profile['addr']) && ((($profile['contact-type'] ?? '') ?: Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&
 				($profile['addr'] != $owner['addr']) && !strstr($text, $profile['addr'])) {
 				$text .= '@' . $profile['addr'] . ' ';
@@ -899,21 +914,16 @@ class Post
 
 		$comment_box = '';
 		$conv = $this->getThread();
-		$ww = '';
-		if (($conv->getMode() === 'network') && $this->isWallToWall()) {
-			$ww = 'ww';
-		}
 
 		if ($conv->isWritable() && $this->isWritable()) {
-			$qcomment = null;
-
 			/*
 			 * Hmmm, code depending on the presence of a particular addon?
 			 * This should be better if done by a hook
 			 */
+			$qcomment = null;
 			if (Addon::isEnabled('qcomment')) {
-				$qc = ((local_user()) ? DI::pConfig()->get(local_user(), 'qcomment', 'words') : null);
-				$qcomment = (($qc) ? explode("\n", $qc) : null);
+				$words = DI::pConfig()->get(local_user(), 'qcomment', 'words');
+				$qcomment = $words ? explode("\n", $words) : [];
 			}
 
 			// Fetch the user id from the parent when the owner user is empty
@@ -955,7 +965,6 @@ class Post
 				'$preview'     => DI::l10n()->t('Preview'),
 				'$indent'      => $indent,
 				'$sourceapp'   => DI::l10n()->t($a->sourcename),
-				'$ww'          => $conv->getMode() === 'network' ? $ww : '',
 				'$rand_num'    => Crypto::randomDigits(12)
 			]);
 		}
@@ -985,7 +994,7 @@ class Post
 
 		if ($this->isToplevel()) {
 			if ($conv->getMode() !== 'profile') {
-				if ($this->getDataValue('wall') && !$this->getDataValue('self')) {
+				if ($this->getDataValue('wall') && !$this->getDataValue('self') && !empty($a->page_contact)) {
 					// On the network page, I am the owner. On the display page it will be the profile owner.
 					// This will have been stored in $a->page_contact by our calling page.
 					// Put this person as the wall owner of the wall-to-wall notice.

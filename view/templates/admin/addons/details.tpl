@@ -24,6 +24,7 @@
 	{{if $admin_form}}
 	<h3>{{$settings}}</h3>
 	<form method="post" action="{{$baseurl}}/admin/{{$function}}/{{$addon}}">
+		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 		{{$admin_form nofilter}}
 	</form>
 	{{/if}}

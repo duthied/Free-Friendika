@@ -132,7 +132,7 @@ class Register extends BaseModule
 		$o = Renderer::replaceMacros($tpl, [
 			'$invitations'  => DI::config()->get('system', 'invitation_only'),
 			'$permonly'     => intval(DI::config()->get('config', 'register_policy')) === self::APPROVE,
-			'$permonlybox'  => ['permonlybox', DI::l10n()->t('Note for the admin'), '', DI::l10n()->t('Leave a message for the admin, why you want to join this node'), 'required'],
+			'$permonlybox'  => ['permonlybox', DI::l10n()->t('Note for the admin'), '', DI::l10n()->t('Leave a message for the admin, why you want to join this node'), DI::l10n()->t('Required')],
 			'$invite_desc'  => DI::l10n()->t('Membership on this site is by invitation only.'),
 			'$invite_label' => DI::l10n()->t('Your invitation code: '),
 			'$invite_id'    => $invite_id,
@@ -183,8 +183,6 @@ class Register extends BaseModule
 	public static function post(array $parameters = [])
 	{
 		BaseModule::checkFormSecurityTokenRedirectOnError('/register', 'register');
-
-		$a = DI::app();
 
 		$arr = ['post' => $_POST];
 		Hook::callAll('register_post', $arr);
@@ -369,15 +367,13 @@ class Register extends BaseModule
 				\notification([
 					'type'         => Model\Notify\Type::SYSTEM,
 					'event'        => 'SYSTEM_REGISTER_REQUEST',
+					'uid'          => $admin['uid'],
+					'link'         => $base_url . '/admin/users/',
 					'source_name'  => $user['username'],
 					'source_mail'  => $user['email'],
 					'source_nick'  => $user['nickname'],
 					'source_link'  => $base_url . '/admin/users/',
-					'link'         => $base_url . '/admin/users/',
 					'source_photo' => $base_url . '/photo/avatar/' . $user['uid'] . '.jpg',
-					'to_email'     => $admin['email'],
-					'uid'          => $admin['uid'],
-					'language'     => ($admin['language'] ?? '') ?: 'en',
 					'show_in_notification_page' => false
 				]);
 			}

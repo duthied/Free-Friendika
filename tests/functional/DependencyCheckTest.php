@@ -19,7 +19,7 @@
  *
  */
 
-namespace functional;
+namespace Friendica\Test\functional;
 
 use Dice\Dice;
 use Friendica\App;
@@ -36,7 +36,7 @@ use Friendica\Util\Profiler;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-class dependencyCheck extends TestCase
+class DependencyCheckTest extends TestCase
 {
 	use VFSTrait;
 
@@ -63,8 +63,8 @@ class dependencyCheck extends TestCase
 		/** @var BasePath $basePath */
 		$basePath = $this->dice->create(BasePath::class, [$this->root->url()]);
 
-		$this->assertInstanceOf(BasePath::class, $basePath);
-		$this->assertEquals($this->root->url(), $basePath->getPath());
+		self::assertInstanceOf(BasePath::class, $basePath);
+		self::assertEquals($this->root->url(), $basePath->getPath());
 	}
 
 	/**
@@ -76,14 +76,14 @@ class dependencyCheck extends TestCase
 		/** @var ConfigFileLoader $configFileLoader */
 		$configFileLoader = $this->dice->create(ConfigFileLoader::class);
 
-		$this->assertInstanceOf(ConfigFileLoader::class, $configFileLoader);
+		self::assertInstanceOf(ConfigFileLoader::class, $configFileLoader);
 
 		$configCache = new Cache();
 		$configFileLoader->setupCache($configCache);
 
-		$this->assertNotEmpty($configCache->getAll());
-		$this->assertArrayHasKey('database', $configCache->getAll());
-		$this->assertArrayHasKey('system', $configCache->getAll());
+		self::assertNotEmpty($configCache->getAll());
+		self::assertArrayHasKey('database', $configCache->getAll());
+		self::assertArrayHasKey('system', $configCache->getAll());
 	}
 
 	/**
@@ -94,7 +94,7 @@ class dependencyCheck extends TestCase
 		/** @var Profiler $profiler */
 		$profiler = $this->dice->create(Profiler::class);
 
-		$this->assertInstanceOf(Profiler::class, $profiler);
+		self::assertInstanceOf(Profiler::class, $profiler);
 
 		$configCache = new Cache([
 			'system' => [
@@ -109,27 +109,51 @@ class dependencyCheck extends TestCase
 		$this->dice = new Dice();
 		$profiler = $this->dice->create(Profiler::class, [$configCache]);
 
-		$this->assertInstanceOf(Profiler::class, $profiler);
-		$this->assertTrue($profiler->isRendertime());
+		self::assertInstanceOf(Profiler::class, $profiler);
+		self::assertTrue($profiler->isRendertime());
 	}
 
 	public function testDatabase()
 	{
+		// PDO needs to be disabled for PHP 7.2, see https://jira.mariadb.org/browse/MDEV-24121
+		if (version_compare(PHP_VERSION, '7.3') < 0) {
+			$configCache = $this->dice->create(Cache::class);
+			$configCache->set('database', 'disable_pdo', true);
+		}
+
 		/** @var Database $database */
 		$database = $this->dice->create(Database::class);
 
-		$this->assertInstanceOf(Database::class, $database);
-		$this->assertTrue($database->connected());
+		self::assertInstanceOf(Database::class, $database);
+		self::assertContains($database->getDriver(), [Database::PDO, Database::MYSQLI], 'The driver returns an unexpected value');
+		self::assertNotNull($database->getConnection(), 'There is no database connection');
+
+		$result = $database->p("SELECT 1");
+		self::assertEquals('', $database->errorMessage(), 'There had been a database error message');
+		self::assertEquals(0, $database->errorNo(), 'There had been a database error number');
+
+		self::assertTrue($database->connected(), 'The database is not connected');
 	}
 
 	public function testAppMode()
 	{
+		// PDO needs to be disabled for PHP 7.2, see https://jira.mariadb.org/browse/MDEV-24121
+		if (version_compare(PHP_VERSION, '7.3') < 0) {
+			$configCache = $this->dice->create(Cache::class);
+			$configCache->set('database', 'disable_pdo', true);
+		}
+
 		/** @var App\Mode $mode */
 		$mode = $this->dice->create(App\Mode::class);
 
-		$this->assertInstanceOf(App\Mode::class, $mode);
+		self::assertInstanceOf(App\Mode::class, $mode);
 
-		$this->assertTrue($mode->isNormal());
+		self::assertTrue($mode->has(App\Mode::LOCALCONFIGPRESENT), 'No local config present');
+		self::assertTrue($mode->has(App\Mode::DBAVAILABLE), 'Database is not available');
+		self::assertTrue($mode->has(App\Mode::DBCONFIGAVAILABLE), 'Database config is not available');
+		self::assertTrue($mode->has(App\Mode::MAINTENANCEDISABLED), 'In maintenance mode');
+
+		self::assertTrue($mode->isNormal(), 'Not in normal mode');
 	}
 
 	public function testConfiguration()
@@ -137,9 +161,9 @@ class dependencyCheck extends TestCase
 		/** @var IConfig $config */
 		$config = $this->dice->create(IConfig::class);
 
-		$this->assertInstanceOf(IConfig::class, $config);
+		self::assertInstanceOf(IConfig::class, $config);
 
-		$this->assertNotEmpty($config->get('database', 'username'));
+		self::assertNotEmpty($config->get('database', 'username'));
 	}
 
 	public function testLogger()
@@ -147,7 +171,7 @@ class dependencyCheck extends TestCase
 		/** @var LoggerInterface $logger */
 		$logger = $this->dice->create(LoggerInterface::class, ['test']);
 
-		$this->assertInstanceOf(LoggerInterface::class, $logger);
+		self::assertInstanceOf(LoggerInterface::class, $logger);
 	}
 
 	public function testDevLogger()
@@ -159,7 +183,7 @@ class dependencyCheck extends TestCase
 		/** @var LoggerInterface $logger */
 		$logger = $this->dice->create('$devLogger', ['dev']);
 
-		$this->assertInstanceOf(LoggerInterface::class, $logger);
+		self::assertInstanceOf(LoggerInterface::class, $logger);
 	}
 
 	public function testCache()
@@ -167,7 +191,7 @@ class dependencyCheck extends TestCase
 		/** @var ICache $cache */
 		$cache = $this->dice->create(ICache::class);
 
-		$this->assertInstanceOf(ICache::class, $cache);
+		self::assertInstanceOf(ICache::class, $cache);
 	}
 
 	public function testMemoryCache()
@@ -176,7 +200,7 @@ class dependencyCheck extends TestCase
 		$cache = $this->dice->create(IMemoryCache::class);
 
 		// We need to check "just" ICache, because the default Cache is DB-Cache, which isn't a memorycache
-		$this->assertInstanceOf(ICache::class, $cache);
+		self::assertInstanceOf(ICache::class, $cache);
 	}
 
 	public function testLock()
@@ -184,6 +208,6 @@ class dependencyCheck extends TestCase
 		/** @var ILock $cache */
 		$lock = $this->dice->create(ILock::class);
 
-		$this->assertInstanceOf(ILock::class, $lock);
+		self::assertInstanceOf(ILock::class, $lock);
 	}
 }

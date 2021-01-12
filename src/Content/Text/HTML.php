@@ -26,37 +26,16 @@ use DOMXPath;
 use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Util\Network;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use League\HTMLToMarkdown\HtmlConverter;
 
 class HTML
 {
-	public static function sanitizeCSS($input)
-	{
-		$cleaned = "";
-
-		$input = strtolower($input);
-
-		for ($i = 0; $i < strlen($input); $i++) {
-			$char = substr($input, $i, 1);
-
-			if (($char >= "a") && ($char <= "z")) {
-				$cleaned .= $char;
-			}
-
-			if (!(strpos(" #;:0123456789-_.%", $char) === false)) {
-				$cleaned .= $char;
-			}
-		}
-
-		return $cleaned;
-	}
-
 	/**
 	 * Search all instances of a specific HTML tag node in the provided DOM document and replaces them with BBCode text nodes.
 	 *
@@ -166,252 +145,243 @@ class HTML
 	{
 		$message = str_replace("\r", "", $message);
 
-		// Removing code blocks before the whitespace removal processing below
-		$codeblocks = [];
+		$message = Strings::performWithEscapedBlocks($message, '#<pre><code.*</code></pre>#iUs', function ($message) {
+			$message = str_replace(
+				[
+					"<li><p>",
+					"</p></li>",
+				],
+				[
+					"<li>",
+					"</li>",
+				],
+				$message
+			);
+
+			// remove namespaces
+			$message = preg_replace('=<(\w+):(.+?)>=', '<removeme>', $message);
+			$message = preg_replace('=</(\w+):(.+?)>=', '</removeme>', $message);
+
+			$doc = new DOMDocument();
+			$doc->preserveWhiteSpace = false;
+
+			$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
+
+			@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
+
+			XML::deleteNode($doc, 'style');
+			XML::deleteNode($doc, 'head');
+			XML::deleteNode($doc, 'title');
+			XML::deleteNode($doc, 'meta');
+			XML::deleteNode($doc, 'xml');
+			XML::deleteNode($doc, 'removeme');
+
+			$xpath = new DomXPath($doc);
+			$list = $xpath->query("//pre");
+			foreach ($list as $node) {
+				// Ensure to escape unescaped & - they will otherwise raise a warning
+				$safe_value = preg_replace('/&(?!\w+;)/', '&amp;', $node->nodeValue);
+				$node->nodeValue = str_replace("\n", "\r", $safe_value);
+			}
+
+			$message = $doc->saveHTML();
+			$message = str_replace(["\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"], ["<", ">", "<br />", " ", ""], $message);
+			$message = preg_replace('= [\s]*=i', " ", $message);
+
+			if (empty($message)) {
+				return '';
+			}
+
+			@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
+
+			self::tagToBBCode($doc, 'html', [], "", "");
+			self::tagToBBCode($doc, 'body', [], "", "");
+
+			// Outlook-Quote - Variant 1
+			self::tagToBBCode($doc, 'p', ['class' => 'MsoNormal', 'style' => 'margin-left:35.4pt'], '[quote]', '[/quote]');
+
+			// Outlook-Quote - Variant 2
+			self::tagToBBCode(
+				$doc,
+				'div',
+				['style' => 'border:none;border-left:solid blue 1.5pt;padding:0cm 0cm 0cm 4.0pt'],
+				'[quote]',
+				'[/quote]'
+			);
+
+			// MyBB-Stuff
+			self::tagToBBCode($doc, 'span', ['style' => 'text-decoration: underline;'], '[u]', '[/u]');
+			self::tagToBBCode($doc, 'span', ['style' => 'font-style: italic;'], '[i]', '[/i]');
+			self::tagToBBCode($doc, 'span', ['style' => 'font-weight: bold;'], '[b]', '[/b]');
+
+			/* self::node2BBCode($doc, 'font', array('face'=>'/([\w ]+)/', 'size'=>'/(\d+)/', 'color'=>'/(.+)/'), '[font=$1][size=$2][color=$3]', '[/color][/size][/font]');
+			  self::node2BBCode($doc, 'font', array('size'=>'/(\d+)/', 'color'=>'/(.+)/'), '[size=$1][color=$2]', '[/color][/size]');
+			  self::node2BBCode($doc, 'font', array('face'=>'/([\w ]+)/', 'size'=>'/(.+)/'), '[font=$1][size=$2]', '[/size][/font]');
+			  self::node2BBCode($doc, 'font', array('face'=>'/([\w ]+)/', 'color'=>'/(.+)/'), '[font=$1][color=$3]', '[/color][/font]');
+			  self::node2BBCode($doc, 'font', array('face'=>'/([\w ]+)/'), '[font=$1]', '[/font]');
+			  self::node2BBCode($doc, 'font', array('size'=>'/(\d+)/'), '[size=$1]', '[/size]');
+			  self::node2BBCode($doc, 'font', array('color'=>'/(.+)/'), '[color=$1]', '[/color]');
+			 */
+			// Untested
+			//self::node2BBCode($doc, 'span', array('style'=>'/.*font-size:\s*(.+?)[,;].*font-family:\s*(.+?)[,;].*color:\s*(.+?)[,;].*/'), '[size=$1][font=$2][color=$3]', '[/color][/font][/size]');
+			//self::node2BBCode($doc, 'span', array('style'=>'/.*font-size:\s*(\d+)[,;].*/'), '[size=$1]', '[/size]');
+			//self::node2BBCode($doc, 'span', array('style'=>'/.*font-size:\s*(.+?)[,;].*/'), '[size=$1]', '[/size]');
+
+			self::tagToBBCode($doc, 'span', ['style' => '/.*color:\s*(.+?)[,;].*/'], '[color="$1"]', '[/color]');
+
+			//self::node2BBCode($doc, 'span', array('style'=>'/.*font-family:\s*(.+?)[,;].*/'), '[font=$1]', '[/font]');
+			//self::node2BBCode($doc, 'div', array('style'=>'/.*font-family:\s*(.+?)[,;].*font-size:\s*(\d+?)pt.*/'), '[font=$1][size=$2]', '[/size][/font]');
+			//self::node2BBCode($doc, 'div', array('style'=>'/.*font-family:\s*(.+?)[,;].*font-size:\s*(\d+?)px.*/'), '[font=$1][size=$2]', '[/size][/font]');
+			//self::node2BBCode($doc, 'div', array('style'=>'/.*font-family:\s*(.+?)[,;].*/'), '[font=$1]', '[/font]');
+			// Importing the classes - interesting for importing of posts from third party networks that were exported from friendica
+			// Test
+			//self::node2BBCode($doc, 'span', array('class'=>'/([\w ]+)/'), '[class=$1]', '[/class]');
+			self::tagToBBCode($doc, 'span', ['class' => 'type-link'], '[class=type-link]', '[/class]');
+			self::tagToBBCode($doc, 'span', ['class' => 'type-video'], '[class=type-video]', '[/class]');
+
+			self::tagToBBCode($doc, 'strong', [], '[b]', '[/b]');
+			self::tagToBBCode($doc, 'em', [], '[i]', '[/i]');
+			self::tagToBBCode($doc, 'b', [], '[b]', '[/b]');
+			self::tagToBBCode($doc, 'i', [], '[i]', '[/i]');
+			self::tagToBBCode($doc, 'u', [], '[u]', '[/u]');
+			self::tagToBBCode($doc, 's', [], '[s]', '[/s]');
+			self::tagToBBCode($doc, 'del', [], '[s]', '[/s]');
+			self::tagToBBCode($doc, 'strike', [], '[s]', '[/s]');
+
+			self::tagToBBCode($doc, 'big', [], "[size=large]", "[/size]");
+			self::tagToBBCode($doc, 'small', [], "[size=small]", "[/size]");
+
+			self::tagToBBCode($doc, 'blockquote', [], '[quote]', '[/quote]');
+
+			self::tagToBBCode($doc, 'br', [], "\n", '');
+
+			self::tagToBBCode($doc, 'p', ['class' => 'MsoNormal'], "\n", "");
+			self::tagToBBCode($doc, 'div', ['class' => 'MsoNormal'], "\r", "");
+
+			self::tagToBBCode($doc, 'span', [], "", "");
+
+			self::tagToBBCode($doc, 'span', [], "", "");
+			self::tagToBBCode($doc, 'pre', [], "", "");
+
+			self::tagToBBCode($doc, 'div', [], "\r", "\r");
+			self::tagToBBCode($doc, 'p', [], "\n", "\n");
+
+			self::tagToBBCode($doc, 'ul', [], "[list]", "[/list]");
+			self::tagToBBCode($doc, 'ol', [], "[list=1]", "[/list]");
+			self::tagToBBCode($doc, 'li', [], "[*]", "");
+
+			self::tagToBBCode($doc, 'hr', [], "[hr]", "");
+
+			self::tagToBBCode($doc, 'table', [], "[table]", "[/table]");
+			self::tagToBBCode($doc, 'th', [], "[th]", "[/th]");
+			self::tagToBBCode($doc, 'tr', [], "[tr]", "[/tr]");
+			self::tagToBBCode($doc, 'td', [], "[td]", "[/td]");
+
+			self::tagToBBCode($doc, 'h1', [], "[h1]", "[/h1]");
+			self::tagToBBCode($doc, 'h2', [], "[h2]", "[/h2]");
+			self::tagToBBCode($doc, 'h3', [], "[h3]", "[/h3]");
+			self::tagToBBCode($doc, 'h4', [], "[h4]", "[/h4]");
+			self::tagToBBCode($doc, 'h5', [], "[h5]", "[/h5]");
+			self::tagToBBCode($doc, 'h6', [], "[h6]", "[/h6]");
+
+			self::tagToBBCode($doc, 'a', ['href' => '/mailto:(.+)/'], '[mail=$1]', '[/mail]');
+			self::tagToBBCode($doc, 'a', ['href' => '/(.+)/'], '[url=$1]', '[/url]');
+
+			self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'alt' => '/(.+)/'], '[img=$1]$2', '[/img]', true);
+			self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'width' => '/(\d+)/', 'height' => '/(\d+)/'], '[img=$2x$3]$1', '[/img]', true);
+			self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], '[img]$1', '[/img]', true);
+
+
+			self::tagToBBCode($doc, 'video', ['src' => '/(.+)/'], '[video]$1', '[/video]', true);
+			self::tagToBBCode($doc, 'audio', ['src' => '/(.+)/'], '[audio]$1', '[/audio]', true);
+			// Backward compatibility, [iframe] support has been removed in version 2020.12
+			self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], '[url]$1', '[/url]', true);
+
+			self::tagToBBCode($doc, 'key', [], '[code]', '[/code]');
+			self::tagToBBCode($doc, 'code', [], '[code]', '[/code]');
+
+			$message = $doc->saveHTML();
+
+			// I'm removing something really disturbing
+			// Don't know exactly what it is
+			$message = str_replace(chr(194) . chr(160), ' ', $message);
+
+			$message = str_replace("&nbsp;", " ", $message);
+
+			// removing multiple DIVs
+			$message = preg_replace('=\r *\r=i', "\n", $message);
+			$message = str_replace("\r", "\n", $message);
+
+			Hook::callAll('html2bbcode', $message);
+
+			$message = strip_tags($message);
+
+			$message = html_entity_decode($message, ENT_QUOTES, 'UTF-8');
+
+			// remove quotes if they don't make sense
+			$message = preg_replace('=\[/quote\][\s]*\[quote\]=i', "\n", $message);
+
+			$message = preg_replace('=\[quote\]\s*=i', "[quote]", $message);
+			$message = preg_replace('=\s*\[/quote\]=i', "[/quote]", $message);
+
+			do {
+				$oldmessage = $message;
+				$message = str_replace("\n \n", "\n\n", $message);
+			} while ($oldmessage != $message);
+
+			do {
+				$oldmessage = $message;
+				$message = str_replace("\n\n\n", "\n\n", $message);
+			} while ($oldmessage != $message);
+
+			do {
+				$oldmessage = $message;
+				$message = str_replace(
+					[
+						"[/size]\n\n",
+						"\n[hr]",
+						"[hr]\n",
+						"\n[list",
+						"[/list]\n",
+						"\n[/",
+						"[list]\n",
+						"[list=1]\n",
+						"\n[*]"],
+					[
+						"[/size]\n",
+						"[hr]",
+						"[hr]",
+						"[list",
+						"[/list]",
+						"[/",
+						"[list]",
+						"[list=1]",
+						"[*]"],
+					$message
+				);
+			} while ($message != $oldmessage);
+
+			$message = str_replace(
+				['[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'],
+				['[b]', '[/b]', '[i]', '[/i]'],
+				$message
+			);
+
+			// Handling Yahoo style of mails
+			$message = str_replace('[hr][b]From:[/b]', '[quote][b]From:[/b]', $message);
+
+			return $message;
+		});
+
 		$message = preg_replace_callback(
 			'#<pre><code(?: class="language-([^"]*)")?>(.*)</code></pre>#iUs',
-			function ($matches) use (&$codeblocks) {
-				$return = '[codeblock-' . count($codeblocks) . ']';
-
+			function ($matches) {
 				$prefix = '[code]';
 				if ($matches[1] != '') {
 					$prefix = '[code=' . $matches[1] . ']';
 				}
 
-				$codeblocks[] = $prefix . PHP_EOL . trim($matches[2]) . PHP_EOL . '[/code]';
-				return $return;
-			},
-			$message
-		);
-
-		$message = str_replace(
-			[
-				"<li><p>",
-				"</p></li>",
-			],
-			[
-				"<li>",
-				"</li>",
-			],
-			$message
-		);
-
-		// remove namespaces
-		$message = preg_replace('=<(\w+):(.+?)>=', '<removeme>', $message);
-		$message = preg_replace('=</(\w+):(.+?)>=', '</removeme>', $message);
-
-		$doc = new DOMDocument();
-		$doc->preserveWhiteSpace = false;
-
-		$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
-
-		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
-
-		XML::deleteNode($doc, 'style');
-		XML::deleteNode($doc, 'head');
-		XML::deleteNode($doc, 'title');
-		XML::deleteNode($doc, 'meta');
-		XML::deleteNode($doc, 'xml');
-		XML::deleteNode($doc, 'removeme');
-
-		$xpath = new DomXPath($doc);
-		$list = $xpath->query("//pre");
-		foreach ($list as $node) {
-			// Ensure to escape unescaped & - they will otherwise raise a warning
-			$safe_value = preg_replace('/&(?!\w+;)/', '&amp;', $node->nodeValue);
-			$node->nodeValue = str_replace("\n", "\r", $safe_value);
-		}
-
-		$message = $doc->saveHTML();
-		$message = str_replace(["\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"], ["<", ">", "<br />", " ", ""], $message);
-		$message = preg_replace('= [\s]*=i', " ", $message);
-
-		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
-
-		self::tagToBBCode($doc, 'html', [], "", "");
-		self::tagToBBCode($doc, 'body', [], "", "");
-
-		// Outlook-Quote - Variant 1
-		self::tagToBBCode($doc, 'p', ['class' => 'MsoNormal', 'style' => 'margin-left:35.4pt'], '[quote]', '[/quote]');
-
-		// Outlook-Quote - Variant 2
-		self::tagToBBCode(
-			$doc,
-			'div',
-			['style' => 'border:none;border-left:solid blue 1.5pt;padding:0cm 0cm 0cm 4.0pt'],
-			'[quote]',
-			'[/quote]'
-		);
-
-		// MyBB-Stuff
-		self::tagToBBCode($doc, 'span', ['style' => 'text-decoration: underline;'], '[u]', '[/u]');
-		self::tagToBBCode($doc, 'span', ['style' => 'font-style: italic;'], '[i]', '[/i]');
-		self::tagToBBCode($doc, 'span', ['style' => 'font-weight: bold;'], '[b]', '[/b]');
-
-		/* self::node2BBCode($doc, 'font', array('face'=>'/([\w ]+)/', 'size'=>'/(\d+)/', 'color'=>'/(.+)/'), '[font=$1][size=$2][color=$3]', '[/color][/size][/font]');
-		  self::node2BBCode($doc, 'font', array('size'=>'/(\d+)/', 'color'=>'/(.+)/'), '[size=$1][color=$2]', '[/color][/size]');
-		  self::node2BBCode($doc, 'font', array('face'=>'/([\w ]+)/', 'size'=>'/(.+)/'), '[font=$1][size=$2]', '[/size][/font]');
-		  self::node2BBCode($doc, 'font', array('face'=>'/([\w ]+)/', 'color'=>'/(.+)/'), '[font=$1][color=$3]', '[/color][/font]');
-		  self::node2BBCode($doc, 'font', array('face'=>'/([\w ]+)/'), '[font=$1]', '[/font]');
-		  self::node2BBCode($doc, 'font', array('size'=>'/(\d+)/'), '[size=$1]', '[/size]');
-		  self::node2BBCode($doc, 'font', array('color'=>'/(.+)/'), '[color=$1]', '[/color]');
-		 */
-		// Untested
-		//self::node2BBCode($doc, 'span', array('style'=>'/.*font-size:\s*(.+?)[,;].*font-family:\s*(.+?)[,;].*color:\s*(.+?)[,;].*/'), '[size=$1][font=$2][color=$3]', '[/color][/font][/size]');
-		//self::node2BBCode($doc, 'span', array('style'=>'/.*font-size:\s*(\d+)[,;].*/'), '[size=$1]', '[/size]');
-		//self::node2BBCode($doc, 'span', array('style'=>'/.*font-size:\s*(.+?)[,;].*/'), '[size=$1]', '[/size]');
-
-		self::tagToBBCode($doc, 'span', ['style' => '/.*color:\s*(.+?)[,;].*/'], '[color="$1"]', '[/color]');
-
-		//self::node2BBCode($doc, 'span', array('style'=>'/.*font-family:\s*(.+?)[,;].*/'), '[font=$1]', '[/font]');
-		//self::node2BBCode($doc, 'div', array('style'=>'/.*font-family:\s*(.+?)[,;].*font-size:\s*(\d+?)pt.*/'), '[font=$1][size=$2]', '[/size][/font]');
-		//self::node2BBCode($doc, 'div', array('style'=>'/.*font-family:\s*(.+?)[,;].*font-size:\s*(\d+?)px.*/'), '[font=$1][size=$2]', '[/size][/font]');
-		//self::node2BBCode($doc, 'div', array('style'=>'/.*font-family:\s*(.+?)[,;].*/'), '[font=$1]', '[/font]');
-		// Importing the classes - interesting for importing of posts from third party networks that were exported from friendica
-		// Test
-		//self::node2BBCode($doc, 'span', array('class'=>'/([\w ]+)/'), '[class=$1]', '[/class]');
-		self::tagToBBCode($doc, 'span', ['class' => 'type-link'], '[class=type-link]', '[/class]');
-		self::tagToBBCode($doc, 'span', ['class' => 'type-video'], '[class=type-video]', '[/class]');
-
-		self::tagToBBCode($doc, 'strong', [], '[b]', '[/b]');
-		self::tagToBBCode($doc, 'em', [], '[i]', '[/i]');
-		self::tagToBBCode($doc, 'b', [], '[b]', '[/b]');
-		self::tagToBBCode($doc, 'i', [], '[i]', '[/i]');
-		self::tagToBBCode($doc, 'u', [], '[u]', '[/u]');
-		self::tagToBBCode($doc, 's', [], '[s]', '[/s]');
-		self::tagToBBCode($doc, 'del', [], '[s]', '[/s]');
-		self::tagToBBCode($doc, 'strike', [], '[s]', '[/s]');
-
-		self::tagToBBCode($doc, 'big', [], "[size=large]", "[/size]");
-		self::tagToBBCode($doc, 'small', [], "[size=small]", "[/size]");
-
-		self::tagToBBCode($doc, 'blockquote', [], '[quote]', '[/quote]');
-
-		self::tagToBBCode($doc, 'br', [], "\n", '');
-
-		self::tagToBBCode($doc, 'p', ['class' => 'MsoNormal'], "\n", "");
-		self::tagToBBCode($doc, 'div', ['class' => 'MsoNormal'], "\r", "");
-
-		self::tagToBBCode($doc, 'span', [], "", "");
-
-		self::tagToBBCode($doc, 'span', [], "", "");
-		self::tagToBBCode($doc, 'pre', [], "", "");
-
-		self::tagToBBCode($doc, 'div', [], "\r", "\r");
-		self::tagToBBCode($doc, 'p', [], "\n", "\n");
-
-		self::tagToBBCode($doc, 'ul', [], "[list]", "[/list]");
-		self::tagToBBCode($doc, 'ol', [], "[list=1]", "[/list]");
-		self::tagToBBCode($doc, 'li', [], "[*]", "");
-
-		self::tagToBBCode($doc, 'hr', [], "[hr]", "");
-
-		self::tagToBBCode($doc, 'table', [], "[table]", "[/table]");
-		self::tagToBBCode($doc, 'th', [], "[th]", "[/th]");
-		self::tagToBBCode($doc, 'tr', [], "[tr]", "[/tr]");
-		self::tagToBBCode($doc, 'td', [], "[td]", "[/td]");
-
-		self::tagToBBCode($doc, 'h1', [], "[h1]", "[/h1]");
-		self::tagToBBCode($doc, 'h2', [], "[h2]", "[/h2]");
-		self::tagToBBCode($doc, 'h3', [], "[h3]", "[/h3]");
-		self::tagToBBCode($doc, 'h4', [], "[h4]", "[/h4]");
-		self::tagToBBCode($doc, 'h5', [], "[h5]", "[/h5]");
-		self::tagToBBCode($doc, 'h6', [], "[h6]", "[/h6]");
-
-		self::tagToBBCode($doc, 'a', ['href' => '/mailto:(.+)/'], '[mail=$1]', '[/mail]');
-		self::tagToBBCode($doc, 'a', ['href' => '/(.+)/'], '[url=$1]', '[/url]');
-
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'alt' => '/(.+)/'], '[img=$1]$2', '[/img]', true);
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'width' => '/(\d+)/', 'height' => '/(\d+)/'], '[img=$2x$3]$1', '[/img]', true);
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], '[img]$1', '[/img]', true);
-
-
-		self::tagToBBCode($doc, 'video', ['src' => '/(.+)/'], '[video]$1', '[/video]', true);
-		self::tagToBBCode($doc, 'audio', ['src' => '/(.+)/'], '[audio]$1', '[/audio]', true);
-		self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], '[iframe]$1', '[/iframe]', true);
-
-		self::tagToBBCode($doc, 'key', [], '[code]', '[/code]');
-		self::tagToBBCode($doc, 'code', [], '[code]', '[/code]');
-
-		$message = $doc->saveHTML();
-
-		// I'm removing something really disturbing
-		// Don't know exactly what it is
-		$message = str_replace(chr(194) . chr(160), ' ', $message);
-
-		$message = str_replace("&nbsp;", " ", $message);
-
-		// removing multiple DIVs
-		$message = preg_replace('=\r *\r=i', "\n", $message);
-		$message = str_replace("\r", "\n", $message);
-
-		Hook::callAll('html2bbcode', $message);
-
-		$message = strip_tags($message);
-
-		$message = html_entity_decode($message, ENT_QUOTES, 'UTF-8');
-
-		// remove quotes if they don't make sense
-		$message = preg_replace('=\[/quote\][\s]*\[quote\]=i', "\n", $message);
-
-		$message = preg_replace('=\[quote\]\s*=i', "[quote]", $message);
-		$message = preg_replace('=\s*\[/quote\]=i', "[/quote]", $message);
-
-		do {
-			$oldmessage = $message;
-			$message = str_replace("\n \n", "\n\n", $message);
-		} while ($oldmessage != $message);
-
-		do {
-			$oldmessage = $message;
-			$message = str_replace("\n\n\n", "\n\n", $message);
-		} while ($oldmessage != $message);
-
-		do {
-			$oldmessage = $message;
-			$message = str_replace(
-				[
-				"[/size]\n\n",
-				"\n[hr]",
-				"[hr]\n",
-				"\n[list",
-				"[/list]\n",
-				"\n[/",
-				"[list]\n",
-				"[list=1]\n",
-				"\n[*]"],
-				[
-				"[/size]\n",
-				"[hr]",
-				"[hr]",
-				"[list",
-				"[/list]",
-				"[/",
-				"[list]",
-				"[list=1]",
-				"[*]"],
-				$message
-			);
-		} while ($message != $oldmessage);
-
-		$message = str_replace(
-			['[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'],
-			['[b]', '[/b]', '[i]', '[/i]'],
-			$message
-		);
-
-		// Handling Yahoo style of mails
-		$message = str_replace('[hr][b]From:[/b]', '[quote][b]From:[/b]', $message);
-
-		// Restore code blocks
-		$message = preg_replace_callback(
-			'#\[codeblock-([0-9]+)\]#iU',
-			function ($matches) use ($codeblocks) {
-				$return = '';
-				if (isset($codeblocks[intval($matches[1])])) {
-					$return = $codeblocks[$matches[1]];
-				}
-				return $return;
+				return $prefix . PHP_EOL . trim($matches[2]) . PHP_EOL . '[/code]';
 			},
 			$message
 		);
@@ -665,6 +635,7 @@ class HTML
 			self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], ' ', ' ');
 		}
 
+		// Backward compatibility, [iframe] support has been removed in version 2020.12
 		self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], ' $1 ', '');
 
 		$message = $doc->saveHTML();
@@ -881,7 +852,7 @@ class HTML
 			'$click' => $contact['click'] ?? '',
 			'$class' => $class,
 			'$url' => $url,
-			'$photo' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
+			'$photo' => Contact::getThumb($contact),
 			'$name' => $contact['name'],
 			'title' => $contact['name'] . ' [' . $contact['addr'] . ']',
 			'$parkle' => $sparkle,
@@ -917,7 +888,7 @@ class HTML
 			'$save_label'   => $save_label,
 			'$search_hint'  => DI::l10n()->t('@name, !forum, #tags, content'),
 			'$mode'         => $mode,
-			'$return_url'   => urlencode('search?q=' . urlencode($s)),
+			'$return_url'   => urlencode(Search::getSearchPath($s)),
 		];
 
 		if (!$aside) {

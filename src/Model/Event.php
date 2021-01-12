@@ -24,6 +24,7 @@ namespace Friendica\Model;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -256,6 +257,16 @@ class Event
 	 */
 	public static function store($arr)
 	{
+		$network = $arr['network'] ?? Protocol::DFRN;
+		$protocol = $arr['protocol'] ?? Conversation::PARCEL_UNKNOWN;
+		$direction = $arr['direction'] ?? Conversation::UNKNOWN;
+		$source = $arr['source'] ?? '';
+
+		unset($arr['network']);
+		unset($arr['protocol']);
+		unset($arr['direction']);
+		unset($arr['source']);
+
 		$event = [];
 		$event['id']        = intval($arr['id']        ?? 0);
 		$event['uid']       = intval($arr['uid']       ?? 0);
@@ -290,6 +301,9 @@ class Event
 		}
 
 		$contact = DBA::selectFirst('contact', [], $conditions);
+		if (!DBA::isResult($contact)) {
+			Logger::warning('Contact not found', ['condition' => $conditions, 'callstack' => System::callstack(20)]);
+		}
 
 		// Existing event being modified.
 		if ($event['id']) {
@@ -346,7 +360,6 @@ class Event
 				$item_arr['uid']           = $event['uid'];
 				$item_arr['contact-id']    = $event['cid'];
 				$item_arr['uri']           = $event['uri'];
-				$item_arr['parent-uri']    = $event['uri'];
 				$item_arr['guid']          = $event['guid'];
 				$item_arr['plink']         = $arr['plink'] ?? '';
 				$item_arr['post-type']     = Item::PT_EVENT;
@@ -370,6 +383,10 @@ class Event
 				$item_arr['origin']        = $event['cid'] === 0 ? 1 : 0;
 				$item_arr['body']          = self::getBBCode($event);
 				$item_arr['event-id']      = $event['id'];
+				$item_arr['network']       = $network;
+				$item_arr['protocol']      = $protocol;
+				$item_arr['direction']     = $direction;
+				$item_arr['source']        = $source;
 
 				$item_arr['object']  = '<object><type>' . XML::escape(Activity\ObjectType::EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
 				$item_arr['object'] .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
@@ -611,14 +628,12 @@ class Event
 
 			$title = BBCode::convert(Strings::escapeHtml($event['summary']));
 			if (!$title) {
-				list($title, $_trash) = explode("<br", BBCode::convert(Strings::escapeHtml($event['desc'])), 2);
+				list($title, $_trash) = explode("<br", BBCode::convert(Strings::escapeHtml($event['desc'])), BBCode::API);
 			}
 
 			$author_link = $event['author-link'];
-			$plink       = $event['plink'];
 
 			$event['author-link'] = Contact::magicLink($author_link);
-			$event['plink']       = Contact::magicLink($author_link, $plink);
 
 			$html = self::getHTML($event);
 			$event['summary']  = BBCode::convert(Strings::escapeHtml($event['summary']));
@@ -638,7 +653,7 @@ class Event
 				'is_first' => $is_first,
 				'item'     => $event,
 				'html'     => $html,
-				'plink'    => [$event['plink'], DI::l10n()->t('link to source'), '', ''],
+				'plink'    => Item::getPlink($event),
 			];
 		}
 

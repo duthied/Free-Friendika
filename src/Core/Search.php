@@ -24,12 +24,9 @@ namespace Friendica\Core;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use Friendica\Network\HTTPException;
-use Friendica\Network\Probe;
 use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
-use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
@@ -64,8 +61,7 @@ class Search
 		if ((filter_var($user, FILTER_VALIDATE_EMAIL) && Network::isEmailDomainValid($user)) ||
 		    (substr(Strings::normaliseLink($user), 0, 7) == "http://")) {
 
-			/// @todo Possibly use "getIdForURL" instead?
-			$user_data = Probe::uri($user);
+			$user_data = Contact::getByURL($user);
 			if (empty($user_data)) {
 				return $emptyResultList;
 			}
@@ -74,10 +70,7 @@ class Search
 				return $emptyResultList;
 			}
 
-			// Ensure that we do have a contact entry
-			Contact::getIdForURL($user_data['url'] ?? '');
-
-			$contactDetails = Contact::getDetailsByURL($user_data['url'] ?? '', local_user());
+			$contactDetails = Contact::getByURLForUser($user_data['url'] ?? '', local_user());
 
 			$result = new ContactResult(
 				$user_data['name'] ?? '',
@@ -87,7 +80,7 @@ class Search
 				$user_data['photo'] ?? '',
 				$user_data['network'] ?? '',
 				$contactDetails['id'] ?? 0,
-				0,
+				$user_data['id'] ?? 0,
 				$user_data['tags'] ?? ''
 			);
 
@@ -100,7 +93,7 @@ class Search
 	/**
 	 * Search in the global directory for occurrences of the search string
 	 *
-	 * @see https://github.com/friendica/friendica-directory/blob/master/docs/Protocol.md#search
+	 * @see https://github.com/friendica/friendica-directory/blob/stable/docs/Protocol.md#search
 	 *
 	 * @param string $search
 	 * @param int    $type specific type of searching
@@ -129,7 +122,7 @@ class Search
 			$searchUrl .= '&page=' . $page;
 		}
 
-		$resultJson = Network::fetchUrl($searchUrl, false, 0, 'application/json');
+		$resultJson = DI::httpRequest()->fetch($searchUrl, 0, 'application/json');
 
 		$results = json_decode($resultJson, true);
 
@@ -143,7 +136,7 @@ class Search
 
 		foreach ($profiles as $profile) {
 			$profile_url = $profile['url'] ?? '';
-			$contactDetails = Contact::getDetailsByURL($profile_url, local_user());
+			$contactDetails = Contact::getByURLForUser($profile_url, local_user());
 
 			$result = new ContactResult(
 				$profile['name'] ?? '',
@@ -176,6 +169,8 @@ class Search
 	 */
 	public static function getContactsFromLocalDirectory($search, $type = self::TYPE_ALL, $start = 0, $itemPage = 80)
 	{
+		Logger::info('Searching', ['search' => $search, 'type' => $type, 'start' => $start, 'itempage' => $itemPage]);
+
 		$config = DI::config();
 
 		$diaspora = $config->get('system', 'diaspora_enabled') ? Protocol::DIASPORA : Protocol::DFRN;
@@ -183,18 +178,20 @@ class Search
 
 		$wildcard = Strings::escapeHtml('%' . $search . '%');
 
-		$count = DBA::count('gcontact', [
-			'NOT `hide`
+		$condition = [
+			'NOT `unsearchable`
 			AND `network` IN (?, ?, ?, ?)
-			AND ((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`))
+			AND NOT `failed` AND `uid` = ?
 			AND (`url` LIKE ? OR `name` LIKE ? OR `location` LIKE ? 
 				OR `addr` LIKE ? OR `about` LIKE ? OR `keywords` LIKE ?)
-			AND `community` = ?',
-			Protocol::ACTIVITYPUB, Protocol::DFRN, $ostatus, $diaspora,
+			AND `forum` = ?',
+			Protocol::ACTIVITYPUB, Protocol::DFRN, $ostatus, $diaspora, 0,
 			$wildcard, $wildcard, $wildcard,
 			$wildcard, $wildcard, $wildcard,
 			($type === self::TYPE_FORUM),
-		]);
+		];
+
+		$count = DBA::count('contact', $condition);
 
 		$resultList = new ResultList($start, $itemPage, $count);
 
@@ -202,18 +199,7 @@ class Search
 			return $resultList;
 		}
 
-		$data = DBA::select('gcontact', ['nurl'], [
-			'NOT `hide`
-			AND `network` IN (?, ?, ?, ?)
-			AND ((`last_contact` >= `last_failure`) OR (`updated` >= `last_failure`))
-			AND (`url` LIKE ? OR `name` LIKE ? OR `location` LIKE ? 
-				OR `addr` LIKE ? OR `about` LIKE ? OR `keywords` LIKE ?)
-			AND `community` = ?',
-			Protocol::ACTIVITYPUB, Protocol::DFRN, $ostatus, $diaspora,
-			$wildcard, $wildcard, $wildcard,
-			$wildcard, $wildcard, $wildcard,
-			($type === self::TYPE_FORUM),
-		], [
+		$data = DBA::select('contact', [], $condition, [
 			'group_by' => ['nurl', 'updated'],
 			'limit'    => [$start, $itemPage],
 			'order'    => ['updated' => 'DESC']
@@ -223,21 +209,7 @@ class Search
 			return $resultList;
 		}
 
-		while ($row = DBA::fetch($data)) {
-			$urlParts = parse_url($row["nurl"]);
-
-			// Ignore results that look strange.
-			// For historic reasons the gcontact table does contain some garbage.
-			if (!empty($urlParts['query']) || !empty($urlParts['fragment'])) {
-				continue;
-			}
-
-			$contact = Contact::getDetailsByURL($row["nurl"], local_user());
-
-			if ($contact["name"] == "") {
-				$contact["name"] = end(explode("/", $urlParts["path"]));
-			}
-
+		while ($contact = DBA::fetch($data)) {
 			$result = new ContactResult(
 				$contact["name"],
 				$contact["addr"],
@@ -245,8 +217,8 @@ class Search
 				$contact["url"],
 				$contact["photo"],
 				$contact["network"],
-				$contact["cid"],
-				$contact["zid"],
+				$contact["cid"] ?? 0,
+				$contact["zid"] ?? 0,
 				$contact["keywords"]
 			);
 
@@ -262,7 +234,7 @@ class Search
 	}
 
 	/**
-	 * Searching for global contacts for autocompletion
+	 * Searching for contacts for autocompletion
 	 *
 	 * @param string $search Name or part of a name or nick
 	 * @param string $mode   Search mode (e.g. "community")
@@ -270,8 +242,10 @@ class Search
 	 * @return array with the search results
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function searchGlobalContact($search, $mode, int $page = 1)
+	public static function searchContact($search, $mode, int $page = 1)
 	{
+		Logger::info('Searching', ['search' => $search, 'mode' => $mode, 'page' => $page]);
+
 		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			return [];
 		}
@@ -287,10 +261,10 @@ class Search
 
 		// check if searching in the local global contact table is enabled
 		if (DI::config()->get('system', 'poco_local_search')) {
-			$return = GContact::searchByName($search, $mode);
+			$return = Contact::searchByName($search, $mode);
 		} else {
 			$p = $page > 1 ? 'p=' . $page : '';
-			$curlResult = Network::curl(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), false, ['accept_content' => 'application/json']);
+			$curlResult = DI::httpRequest()->get(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), ['accept_content' => 'application/json']);
 			if ($curlResult->isSuccess()) {
 				$searchResult = json_decode($curlResult->getBody(), true);
 				if (!empty($searchResult['profiles'])) {
@@ -310,5 +284,20 @@ class Search
 	public static function getGlobalDirectory()
 	{
 		return DI::config()->get('system', 'directory', self::DEFAULT_DIRECTORY);
+	}
+
+	/**
+	 * Return the search path (either fulltext search or tag search)
+	 *
+	 * @param string $search
+	 * @return string search path
+	 */
+	public static function getSearchPath(string $search)
+	{
+		if (substr($search, 0, 1) == '#') {
+			return 'search?tag=' . urlencode(substr($search, 1));
+		} else {
+			return 'search?q=' . urlencode($search);
+		}
 	}
 }

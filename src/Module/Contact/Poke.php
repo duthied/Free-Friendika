@@ -44,14 +44,14 @@ class Poke extends BaseModule
 
 		Logger::info('verb ' . $verb . ' contact ' . $contact_id);
 
-		$contact = DBA::selectFirst('contact', ['id', 'name'], ['id' => $parameters['id'], 'uid' => local_user()]);
+		$contact = DBA::selectFirst('contact', ['id', 'name', 'url', 'photo'], ['id' => $parameters['id'], 'uid' => local_user()]);
 		if (!DBA::isResult($contact)) {
 			return self::postReturn(false);
 		}
 
 		$a = DI::app();
 
-		$private = (!empty($_GET['private']) ? intval($_GET['private']) : Model\Item::PUBLIC);
+		$private = !empty($_POST['private']) ? Model\Item::PRIVATE : Model\Item::PUBLIC;
 
 		$allow_cid     = ($private ? '<' . $contact['id']. '>' : $a->user['allow_cid']);
 		$allow_gid     = ($private ? '' : $a->user['allow_gid']);
@@ -67,7 +67,6 @@ class Poke extends BaseModule
 		$arr['guid']          = System::createUUID();
 		$arr['uid']           = $uid;
 		$arr['uri']           = $uri;
-		$arr['parent-uri']    = $uri;
 		$arr['wall']          = 1;
 		$arr['contact-id']    = $actor['id'];
 		$arr['owner-name']    = $actor['name'];
@@ -87,7 +86,7 @@ class Poke extends BaseModule
 		$arr['object-type']   = Activity\ObjectType::PERSON;
 
 		$arr['origin']        = 1;
-		$arr['body']          = '[url=' . $actor['url'] . ']' . $actor['name'] . '[/url]' . ' ' . $verbs[$verb][2] . ' ' . '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
+		$arr['body']          = '@[url=' . $actor['url'] . ']' . $actor['name'] . '[/url]' . ' ' . $verbs[$verb][2] . ' ' . '@[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 
 		$arr['object'] = '<object><type>' . Activity\ObjectType::PERSON . '</type><title>' . XML::escape($contact['name']) . '</title><id>' . XML::escape($contact['url']) . '</id>';
 		$arr['object'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . $contact['url'] . '" />') . "\n";
@@ -110,9 +109,7 @@ class Poke extends BaseModule
 	 */
 	private static function postReturn(bool $success)
 	{
-		if ($success) {
-			info(DI::l10n()->t('Poke successfully sent.'));
-		} else {
+		if (!$success) {
 			notice(DI::l10n()->t('Error while sending poke, please retry.'));
 		}
 
@@ -138,7 +135,7 @@ class Poke extends BaseModule
 			throw new HTTPException\NotFoundException();
 		}
 
-		Model\Profile::load(DI::app(), '', Model\Contact::getDetailsByURL($contact["url"]));
+		Model\Profile::load(DI::app(), '', Model\Contact::getByURL($contact["url"], false));
 
 		$verbs = [];
 		foreach (DI::l10n()->getPokeVerbs() as $verb => $translations) {

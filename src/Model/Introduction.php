@@ -164,19 +164,16 @@ class Introduction extends BaseModel
 		}
 
 		$contact = Contact::selectFirst([], ['id' => $this->{'contact-id'}, 'uid' => $this->uid]);
+		if (!empty($contact)) {
+			if (!empty($contact['protocol'])) {
+				$protocol = $contact['protocol'];
+			} else {
+				$protocol = $contact['network'];
+			}
 
-		if (!$contact) {
-			throw new HTTPException\NotFoundException('Contact record not found.');
-		}
-
-		if (!empty($contact['protocol'])) {
-			$protocol = $contact['protocol'];
-		} else {
-			$protocol = $contact['network'];
-		}
-
-		if ($protocol == Protocol::ACTIVITYPUB) {
-			ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $contact['uid']);
+			if ($protocol == Protocol::ACTIVITYPUB) {
+				ActivityPub\Transmitter::sendContactReject($contact['url'], $contact['hub-verify'], $contact['uid']);
+			}
 		}
 
 		return $this->intro->delete($this);

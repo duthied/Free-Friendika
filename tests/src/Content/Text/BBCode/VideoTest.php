@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Test\Content\Text\BBCode;
+namespace Friendica\Test\src\Content\Text\BBCode;
 
 use Friendica\Content\Text\BBCode\Video;
 use Friendica\Test\MockedTest;
@@ -57,6 +57,6 @@ class VideoTest extends MockedTest
 	{
 		$bbCodeVideo = new Video();
 
-		$this->assertEquals($assert, $bbCodeVideo->transform($input));
+		self::assertEquals($assert, $bbCodeVideo->transform($input));
 	}
 }

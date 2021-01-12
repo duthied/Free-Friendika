@@ -24,13 +24,12 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Util\Network;
 
 /**
  * Check the git repository VERSION file and save the version to the DB
  *
  * Checking the upstream version is optional (opt-in) and can be done to either
- * the master or the develop branch in the repository.
+ * the stable or the develop branch in the repository.
  */
 class CheckVersion
 {
@@ -42,7 +41,8 @@ class CheckVersion
 
 		switch ($checkurl) {
 			case 'master':
-				$checked_url = 'https://raw.githubusercontent.com/friendica/friendica/master/VERSION';
+			case 'stable':
+				$checked_url = 'https://raw.githubusercontent.com/friendica/friendica/stable/VERSION';
 				break;
 			case 'develop':
 				$checked_url = 'https://raw.githubusercontent.com/friendica/friendica/develop/VERSION';
@@ -54,7 +54,7 @@ class CheckVersion
 		Logger::log("Checking VERSION from: ".$checked_url, Logger::DEBUG);
 
 		// fetch the VERSION file
-		$gitversion = DBA::escape(trim(Network::fetchUrl($checked_url)));
+		$gitversion = DBA::escape(trim(DI::httpRequest()->fetch($checked_url)));
 		Logger::log("Upstream VERSION is: ".$gitversion, Logger::DEBUG);
 
 		DI::config()->set('system', 'git_friendica_version', $gitversion);

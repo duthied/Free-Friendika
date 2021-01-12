@@ -25,15 +25,12 @@
 		<form action="{{$baseurl}}/admin/site" method="post">
 			<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 			<input type="hidden" name="active_panel" value="">
-			<!--
-			/*
-			*    General Information
-			*/ -->
+			{{* General Information *}}
 			<div class="panel">
 				<div class="section-subtitle-wrapper panel-heading" role="tab" id="admin-settings-general">
 					<h2>
 						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#admin-settings" href="#admin-settings-general-collapse" aria-expanded="false" aria-controls="admin-settings-general-collapse">
-							General Information
+							{{$general_info}}
 						</a>
 					</h2>
 				</div>
@@ -41,6 +38,7 @@
 					<div class="panel-body">
 						{{include file="field_input.tpl" field=$sitename}}
 						{{include file="field_input.tpl" field=$sender_email}}
+						{{include file="field_input.tpl" field=$system_actor_name}}
 						{{include file="field_textarea.tpl" field=$banner}}
 						{{include file="field_input.tpl" field=$shortcut_icon}}
 						{{include file="field_input.tpl" field=$touch_icon}}
@@ -190,8 +188,6 @@
 						{{include file="field_input.tpl" field=$proxyuser}}
 						{{include file="field_input.tpl" field=$timeout}}
 						{{include file="field_input.tpl" field=$maxloadavg_frontend}}
-						{{include file="field_input.tpl" field=$optimize_max_tablesize}}
-						{{include file="field_input.tpl" field=$optimize_fragmentation}}
 						{{include file="field_input.tpl" field=$abandon_days}}
 						{{include file="field_input.tpl" field=$temppath}}
 						{{include file="field_checkbox.tpl" field=$suppress_tags}}
@@ -218,11 +214,10 @@
 				</div>
 				<div id="admin-settings-contacts-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-cocontactsrporate">
 					<div class="panel-body">
-						{{include file="field_checkbox.tpl" field=$poco_completion}}
-						{{include file="field_select.tpl" field=$gcontact_discovery}}
+						{{include file="field_select.tpl" field=$contact_discovery}}
+						{{include file="field_checkbox.tpl" field=$synchronize_directory}}
+						{{include file="field_checkbox.tpl" field=$poco_discovery}}
 						{{include file="field_input.tpl" field=$poco_requery_days}}
-						{{include file="field_select.tpl" field=$poco_discovery}}
-						{{include file="field_select.tpl" field=$poco_discovery_since}}
 						{{include file="field_checkbox.tpl" field=$poco_local_search}}
 					</div>
 					<div class="panel-footer">
@@ -249,11 +244,13 @@
 						{{include file="field_input.tpl" field=$itemcache}}
 						{{include file="field_input.tpl" field=$itemcache_duration}}
 						{{include file="field_input.tpl" field=$max_comments}}
+						{{include file="field_input.tpl" field=$max_display_comments}}
 						{{include file="field_checkbox.tpl" field=$proxy_disabled}}
 						{{include file="field_checkbox.tpl" field=$dbclean}}
 						{{include file="field_input.tpl" field=$dbclean_expire_days}}
 						{{include file="field_input.tpl" field=$dbclean_unclaimed}}
 						{{include file="field_input.tpl" field=$dbclean_expire_conv}}
+						{{include file="field_checkbox.tpl" field=$optimize_tables}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
@@ -278,9 +275,7 @@
 						{{include file="field_input.tpl" field=$maxloadavg}}
 						{{include file="field_input.tpl" field=$min_memory}}
 						{{include file="field_input.tpl" field=$worker_queues}}
-						{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
 						{{include file="field_checkbox.tpl" field=$worker_fastlane}}
-						{{include file="field_checkbox.tpl" field=$worker_frontend}}
 					</div>
 					<div class="panel-footer">
 						<input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}"/>
@@ -307,6 +302,7 @@
 						{{include file="field_checkbox.tpl" field=$relay_directly}}
 						{{include file="field_select.tpl" field=$relay_scope}}
 						{{include file="field_input.tpl" field=$relay_server_tags}}
+						{{include file="field_input.tpl" field=$relay_deny_tags}}
 						{{include file="field_checkbox.tpl" field=$relay_user_tags}}
 					</div>
 					<div class="panel-footer">
@@ -320,7 +316,7 @@
 		/*
 		 *    Relocate
 		 */ -->
-		<form class="panel" action="{{$baseurl}}/admin/site" method="post">
+		<form id="relocate-form" class="panel" action="{{$baseurl}}/admin/site" method="post">
 			<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 			<input type="hidden" name="page_site" value="{{$submit}}">
 			<input type="hidden" name="active_panel" value="admin-settings-relocate-collapse">

@@ -26,7 +26,6 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Protocol;
-use Friendica\Util\Network;
 
 /**
  * Tests a given feed of a contact
@@ -36,7 +35,7 @@ class Feed extends BaseModule
 	public static function init(array $parameters = [])
 	{
 		if (!local_user()) {
-			info(DI::l10n()->t('You must be logged in to use this module'));
+			notice(DI::l10n()->t('You must be logged in to use this module'));
 			DI::baseUrl()->redirect();
 		}
 	}
@@ -47,10 +46,9 @@ class Feed extends BaseModule
 		if (!empty($_REQUEST['url'])) {
 			$url = $_REQUEST['url'];
 
-			$contact_id = Model\Contact::getIdForURL($url, local_user(), true);
-			$contact = Model\Contact::getById($contact_id);
+			$contact = Model\Contact::getByURLForUser($url, local_user(), false);
 
-			$xml = Network::fetchUrl($contact['poll']);
+			$xml = DI::httpRequest()->fetch($contact['poll']);
 
 			$import_result = Protocol\Feed::import($xml);
 

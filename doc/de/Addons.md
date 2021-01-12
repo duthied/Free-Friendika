@@ -226,10 +226,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('item_photo_menu', $args);
     Hook::callAll('jot_tool', $jotplugins);
 
-### include/items.php
-
-    Hook::callAll('page_info_data', $data);
-
 ### mod/directory.php
 
     Hook::callAll('directory_item', $arr);
@@ -315,10 +311,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 ### mod/tagger.php
 
     Hook::callAll('post_local_end', $arr);
-
-### mod/lockview.php
-
-    Hook::callAll('lockview_content', $item);
 
 ### mod/uexport.php
 
@@ -425,6 +417,10 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 ### src/Core/StorageManager
 
     Hook::callAll('storage_instance', $data);
+
+### src/Module/PermissionTooltip.php
+
+    Hook::callAll('lockview_content', $item);
 
 ### src/Worker/Directory.php
 

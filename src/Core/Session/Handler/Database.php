@@ -94,7 +94,7 @@ class Database implements SessionHandlerInterface
 		}
 
 		if (!$session_data) {
-			return true;
+			return $this->destroy($session_id);
 		}
 
 		$expire         = time() + Session::$expire;

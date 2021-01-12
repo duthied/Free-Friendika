@@ -52,6 +52,8 @@ class Display extends BaseSettings
 		$no_auto_update     = !empty($_POST['no_auto_update'])     ? intval($_POST['no_auto_update'])     : 0;
 		$no_smart_threading = !empty($_POST['no_smart_threading']) ? intval($_POST['no_smart_threading']) : 0;
 		$hide_dislike       = !empty($_POST['hide_dislike'])       ? intval($_POST['hide_dislike'])       : 0;
+		$display_resharer   = !empty($_POST['display_resharer'])   ? intval($_POST['display_resharer'])   : 0;
+		$stay_local         = !empty($_POST['stay_local'])         ? intval($_POST['stay_local'])         : 0;
 		$browser_update     = !empty($_POST['browser_update'])     ? intval($_POST['browser_update'])     : 0;
 		if ($browser_update != -1) {
 			$browser_update = $browser_update * 1000;
@@ -85,6 +87,8 @@ class Display extends BaseSettings
 		DI::pConfig()->set(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
 		DI::pConfig()->set(local_user(), 'system', 'no_smart_threading'      , $no_smart_threading);
 		DI::pConfig()->set(local_user(), 'system', 'hide_dislike'            , $hide_dislike);
+		DI::pConfig()->set(local_user(), 'system', 'display_resharer'        , $display_resharer);
+		DI::pConfig()->set(local_user(), 'system', 'stay_local'              , $stay_local);
 		DI::pConfig()->set(local_user(), 'system', 'first_day_of_week'       , $first_day_of_week);
 
 		if (in_array($theme, Theme::getAllowedList())) {
@@ -166,6 +170,9 @@ class Display extends BaseSettings
 		$infinite_scroll    = DI::pConfig()->get(local_user(), 'system', 'infinite_scroll', 0);
 		$no_smart_threading = DI::pConfig()->get(local_user(), 'system', 'no_smart_threading', 0);
 		$hide_dislike       = DI::pConfig()->get(local_user(), 'system', 'hide_dislike', 0);
+		$display_resharer   = DI::pConfig()->get(local_user(), 'system', 'display_resharer', 0);
+		$stay_local         = DI::pConfig()->get(local_user(), 'system', 'stay_local', 0);
+
 
 		$first_day_of_week = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
 		$weekdays = [0 => DI::l10n()->t("Sunday"), 1 => DI::l10n()->t("Monday")];
@@ -202,6 +209,8 @@ class Display extends BaseSettings
 			'$infinite_scroll'          => ['infinite_scroll'         , DI::l10n()->t('Infinite scroll'), $infinite_scroll, DI::l10n()->t('Automatic fetch new items when reaching the page end.')],
 			'$no_smart_threading'       => ['no_smart_threading'      , DI::l10n()->t('Disable Smart Threading'), $no_smart_threading, DI::l10n()->t('Disable the automatic suppression of extraneous thread indentation.')],
 			'$hide_dislike'             => ['hide_dislike'            , DI::l10n()->t('Hide the Dislike feature'), $hide_dislike, DI::l10n()->t('Hides the Dislike button and dislike reactions on posts and comments.')],
+			'$display_resharer'         => ['display_resharer'        , DI::l10n()->t('Display the resharer'), $display_resharer, DI::l10n()->t('Display the first resharer as icon and text on a reshared item.')],
+			'$stay_local'               => ['stay_local'              , DI::l10n()->t('Stay local'), $stay_local, DI::l10n()->t("Don't go to a remote system when following a contact link.")],
 
 			'$first_day_of_week' => ['first_day_of_week', DI::l10n()->t('Beginning of week:'), $first_day_of_week, '', $weekdays, false],
 		]);

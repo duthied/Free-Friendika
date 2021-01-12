@@ -33,7 +33,7 @@ class ExtendedPDO extends PDO
 	/**
 	 * @var array Database drivers that support SAVEPOINT * statements.
 	 */
-	protected static $_supportedDrivers = array("pgsql", "mysql");
+	protected static $_supportedDrivers = ["pgsql", "mysql"];
 
 	/**
 	 * @var int the current transaction depth

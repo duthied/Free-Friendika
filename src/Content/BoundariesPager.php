@@ -27,7 +27,7 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
- * This pager should be used by lists using the since_id†/max_id† parameters
+ * This pager should be used by lists using the min_id†/max_id† parameters
  *
  * This pager automatically identifies if the sorting is done increasingly or decreasingly if the first item id†
  * and last item id† are different. Otherwise it defaults to decreasingly like reverse chronological lists.
@@ -60,9 +60,9 @@ class BoundariesPager extends Pager
 		if (!empty($parsed['query'])) {
 			parse_str($parsed['query'], $queryParameters);
 
-			$this->first_page = !($queryParameters['since_id'] ?? null) && !($queryParameters['max_id'] ?? null);
+			$this->first_page = !($queryParameters['min_id'] ?? null) && !($queryParameters['max_id'] ?? null);
 
-			unset($queryParameters['since_id']);
+			unset($queryParameters['min_id']);
 			unset($queryParameters['max_id']);
 
 			$parsed['query'] = http_build_query($queryParameters);
@@ -111,7 +111,7 @@ class BoundariesPager extends Pager
 			'prev'  => [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString .
 					($this->first_item_id >= $this->last_item_id ?
-						'&since_id=' . $this->first_item_id : '&max_id=' . $this->first_item_id)
+						'&min_id=' . $this->first_item_id : '&max_id=' . $this->first_item_id)
 				),
 				'text'  => $this->l10n->t('newer'),
 				'class' => 'previous' . ($this->first_page ? ' disabled' : '')
@@ -119,7 +119,7 @@ class BoundariesPager extends Pager
 			'next'  => [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString .
 					($this->first_item_id >= $this->last_item_id ?
-					'&max_id=' . $this->last_item_id : '&since_id=' . $this->last_item_id)
+					'&max_id=' . $this->last_item_id : '&min_id=' . $this->last_item_id)
 				),
 				'text'  => $this->l10n->t('older'),
 				'class' =>  'next' . ($displayedItemCount < $this->getItemsPerPage() ? ' disabled' : '')

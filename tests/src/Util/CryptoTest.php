@@ -19,8 +19,12 @@
  *
  * This is in the same namespace as Crypto for mocking 'rand' and 'random_init'
  */
+
+/// @todo Use right namespace - needs alternative way of mocking random_int()
 namespace Friendica\Util;
 
+use phpseclib\Crypt\RSA;
+use phpseclib\Math\BigInteger;
 use PHPUnit\Framework\TestCase;
 
 class CryptoTest extends TestCase
@@ -32,24 +36,80 @@ class CryptoTest extends TestCase
 	private function assertRandomInt($min, $max)
 	{
 		global $phpMock;
-		$phpMock['random_int'] = function($mMin, $mMax) use ($min, $max) {
-			$this->assertEquals($min, $mMin);
-			$this->assertEquals($max, $mMax);
+		$phpMock['random_int'] = function ($mMin, $mMax) use ($min, $max) {
+			self::assertEquals($min, $mMin);
+			self::assertEquals($max, $mMax);
 			return 1;
 		};
 	}
 
 	public function testRandomDigitsRandomInt()
 	{
-		$this->assertRandomInt(0, 9);
+		self::assertRandomInt(0, 9);
 
 		$test = Crypto::randomDigits(1);
-		$this->assertEquals(1, strlen($test));
-		$this->assertEquals(1, $test);
+		self::assertEquals(1, strlen($test));
+		self::assertEquals(1, $test);
 
 		$test = Crypto::randomDigits(8);
-		$this->assertEquals(8, strlen($test));
-		$this->assertEquals(11111111, $test);
+		self::assertEquals(8, strlen($test));
+		self::assertEquals(11111111, $test);
+	}
+
+	public function dataRsa()
+	{
+		return [
+			'diaspora' => [
+				'key' => file_get_contents(__DIR__ . '/../../datasets/crypto/rsa/diaspora-public-rsa-base64'),
+				'expected' => file_get_contents(__DIR__ . '/../../datasets/crypto/rsa/diaspora-public-pem'),
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataRsa
+	 */
+	public function testPubRsaToMe(string $key, string $expected)
+	{
+		self::assertEquals($expected, Crypto::rsaToPem(base64_decode($key)));
+	}
+
+
+	public function dataPEM()
+	{
+		return [
+			'diaspora' => [
+				'key' => file_get_contents(__DIR__ . '/../../datasets/crypto/rsa/diaspora-public-pem'),
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataPEM
+	 */
+	public function testPemToMe(string $key)
+	{
+		Crypto::pemToMe($key, $m, $e);
+
+		$expectedRSA = new RSA();
+		$expectedRSA->loadKey([
+			'e' => new BigInteger($e, 256),
+			'n' => new BigInteger($m, 256)
+		]);
+
+		self::assertEquals($expectedRSA->getPublicKey(), $key);
+	}
+
+	/**
+	 * @dataProvider dataPEM
+	 */
+	public function testMeToPem(string $key)
+	{
+		Crypto::pemToMe($key, $m, $e);
+
+		$checkKey = Crypto::meToPem($m, $e);
+
+		self::assertEquals($key, $checkKey);
 	}
 }
 
@@ -62,7 +122,6 @@ function random_int($min, $max)
 {
 	global $phpMock;
 	if (isset($phpMock['random_int'])) {
-		$result = call_user_func_array($phpMock['random_int'], func_get_args());
-		return $result;
+		return call_user_func_array($phpMock['random_int'], func_get_args());
 	}
 }

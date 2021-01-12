@@ -27,8 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
-use Friendica\Util\Network;
-use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Module\Contact as ModuleContact;
 
 /**
  * Controller for /match.
@@ -60,7 +59,7 @@ function match_content(App $a)
 		return '';
 	}
 	if (!$profile['pub_keywords'] && (!$profile['prv_keywords'])) {
-		notice(DI::l10n()->t('No keywords to match. Please add keywords to your profile.') . EOL);
+		notice(DI::l10n()->t('No keywords to match. Please add keywords to your profile.'));
 		return '';
 	}
 
@@ -76,7 +75,7 @@ function match_content(App $a)
 		$host = DI::baseUrl();
 	}
 
-	$msearch_json = Network::post($host . '/msearch', $params)->getBody();
+	$msearch_json = DI::httpRequest()->post($host . '/msearch', $params)->getBody();
 
 	$msearch = json_decode($msearch_json);
 
@@ -89,37 +88,14 @@ function match_content(App $a)
 			$profile = $msearch->results[$i];
 
 			// Already known contact
-			if (!$profile || Contact::getIdForURL($profile->url, local_user(), true)) {
+			if (!$profile || Contact::getIdForURL($profile->url, local_user())) {
 				continue;
 			}
 
-			// Workaround for wrong directory photo URL
-			$profile->photo = str_replace('http:///photo/', Search::getGlobalDirectory() . '/photo/', $profile->photo);
-
-			$connlnk = DI::baseUrl() . '/follow/?url=' . $profile->url;
-			$photo_menu = [
-				'profile' => [DI::l10n()->t("View Profile"), Contact::magicLink($profile->url)],
-				'follow' => [DI::l10n()->t("Connect/Follow"), $connlnk]
-			];
-
-			$contact_details = Contact::getDetailsByURL($profile->url, 0);
-
-			$entry = [
-				'url'          => Contact::magicLink($profile->url),
-				'itemurl'      => $contact_details['addr'] ?? $profile->url,
-				'name'         => $profile->name,
-				'details'      => $contact_details['location'] ?? '',
-				'tags'         => $contact_details['keywords'] ?? '',
-				'about'        => $contact_details['about'] ?? '',
-				'account_type' => Contact::getAccountType($contact_details),
-				'thumb'        => ProxyUtils::proxifyUrl($profile->photo, false, ProxyUtils::SIZE_THUMB),
-				'conntxt'      => DI::l10n()->t('Connect'),
-				'connlnk'      => $connlnk,
-				'img_hover'    => $profile->tags,
-				'photo_menu'   => $photo_menu,
-				'id'           => $i,
-			];
-			$entries[] = $entry;
+			$contact = Contact::getByURLForUser($profile->url, local_user());
+			if (!empty($contact)) {
+				$entries[] = ModuleContact::getContactTemplateVars($contact);
+			}
 		}
 
 		$data = [
@@ -141,7 +117,7 @@ function match_content(App $a)
 	}
 
 	if (empty($entries)) {
-		info(DI::l10n()->t('No matches') . EOL);
+		info(DI::l10n()->t('No matches'));
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');

@@ -70,7 +70,7 @@ class JitConfig extends BaseConfig
 		}
 
 		// load the whole category out of the DB into the cache
-		$this->configCache->load($config, true);
+		$this->configCache->load($config, Cache::SOURCE_DB);
 	}
 
 	/**

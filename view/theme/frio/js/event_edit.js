@@ -1,3 +1,4 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPLv3-or-later
 $(document).ready(function() {
 	// Go to the permissions tab if the checkbox is checked.
 	$('body').on("click", "#id_share", function() {
@@ -22,7 +23,7 @@ $(document).ready(function() {
 	$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
 		var selstr;
 		$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
-			selstr = $(this).text();
+			selstr = $(this).html();
 			$('#jot-public').hide();
 		});
 		if (selstr == null) {
@@ -107,3 +108,4 @@ function enableDisableFinishDate() {
 	else
 		$('#id_finish_text').prop("disabled", false);
 }
+// @license-end

@@ -22,69 +22,72 @@
 namespace Friendica\Model;
 
 use Friendica\Content\Text\HTML;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\Probe;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Crypto;
-use Friendica\Util\Network;
-use Friendica\Util\JsonLD;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Strings;
+use Friendica\Util\HTTPSignature;
+use Friendica\Util\JsonLD;
+use Friendica\Util\Network;
 
 class APContact
 {
 	/**
-	 * Resolves the profile url from the address by using webfinger
+	 * Fetch webfinger data
 	 *
-	 * @param string $addr profile address (user@domain.tld)
-	 * @param string $url profile URL. When set then we return "true" when this profile url can be found at the address
-	 * @return string|boolean url
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param string $addr Address
+	 * @return array webfinger data
 	 */
-	private static function addrToUrl($addr, $url = null)
+	private static function fetchWebfingerData(string $addr)
 	{
 		$addr_parts = explode('@', $addr);
 		if (count($addr_parts) != 2) {
-			return false;
+			return [];
 		}
 
-		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
-
-		$webfinger = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
-
-		$curlResult = Network::curl($webfinger, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/jrd+json,application/json']);
-		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-			$webfinger = Strings::normaliseLink($webfinger);
-
-			$curlResult = Network::curl($webfinger, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/jrd+json,application/json']);
-
-			if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-				return false;
+		$data = ['addr' => $addr];
+		$template = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
+		$webfinger = Probe::webfinger(str_replace('{uri}', urlencode($addr), $template), 'application/jrd+json');
+		if (empty($webfinger['links'])) {
+			$template = 'http://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
+			$webfinger = Probe::webfinger(str_replace('{uri}', urlencode($addr), $template), 'application/jrd+json');
+			if (empty($webfinger['links'])) {
+				return [];
 			}
+			$data['baseurl'] = 'http://' . $addr_parts[1];
+		} else {
+			$data['baseurl'] = 'https://' . $addr_parts[1];
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
-
-		if (empty($data['links'])) {
-			return false;
-		}
-
-		foreach ($data['links'] as $link) {
-			if (!empty($url) && !empty($link['href']) && ($link['href'] == $url)) {
-				return true;
-			}
-
-			if (empty($link['href']) || empty($link['rel']) || empty($link['type'])) {
+		foreach ($webfinger['links'] as $link) {
+			if (empty($link['rel'])) {
 				continue;
 			}
 
-			if (empty($url) && ($link['rel'] == 'self') && ($link['type'] == 'application/activity+json')) {
-				return $link['href'];
+			if (!empty($link['template']) && ($link['rel'] == ActivityNamespace::OSTATUSSUB)) {
+				$data['subscribe'] = $link['template'];
+			}
+
+			if (!empty($link['href']) && !empty($link['type']) && ($link['rel'] == 'self') && ($link['type'] == 'application/activity+json')) {
+				$data['url'] = $link['href'];
+			}
+
+			if (!empty($link['href']) && !empty($link['type']) && ($link['rel'] == 'http://webfinger.net/rel/profile-page') && ($link['type'] == 'text/html')) {
+				$data['alias'] = $link['href'];
 			}
 		}
 
-		return false;
+		if (!empty($data['url']) && !empty($data['alias']) && ($data['url'] == $data['alias'])) {
+			unset($data['alias']);
+		}
+
+		return $data;
 	}
 
 	/**
@@ -133,25 +136,50 @@ class APContact
 			}
 		}
 
-		if (empty(parse_url($url, PHP_URL_SCHEME))) {
-			$url = self::addrToUrl($url);
-			if (empty($url)) {
+		$apcontact = [];
+
+		$webfinger = empty(parse_url($url, PHP_URL_SCHEME));
+		if ($webfinger) {
+			$apcontact = self::fetchWebfingerData($url);
+			if (empty($apcontact['url'])) {
 				return $fetched_contact;
 			}
+			$url = $apcontact['url'];
 		}
 
-		$data = ActivityPub::fetchContent($url);
-		if (empty($data)) {
+		$curlResult = HTTPSignature::fetchRaw($url);
+		$failed = empty($curlResult) || empty($curlResult->getBody()) ||
+			(!$curlResult->isSuccess() && ($curlResult->getReturnCode() != 410));
+
+		if (!$failed) {
+			$data = json_decode($curlResult->getBody(), true);
+			$failed = empty($data) || !is_array($data);
+		}
+
+		if (!$failed && ($curlResult->getReturnCode() == 410)) {
+			$data = ['@context' => ActivityPub::CONTEXT, 'id' => $url, 'type' => 'Tombstone'];
+		}
+
+		if ($failed) {
+			self::markForArchival($fetched_contact ?: []);
 			return $fetched_contact;
 		}
 
 		$compacted = JsonLD::compact($data);
-
 		if (empty($compacted['@id'])) {
 			return $fetched_contact;
 		}
 
-		$apcontact = [];
+		// Detect multiple fast repeating request to the same address
+		// See https://github.com/friendica/friendica/issues/9303
+		$cachekey = 'apcontact:getByURL:' . $url;
+		$result = DI::cache()->get($cachekey);
+		if (!is_null($result)) {
+			Logger::notice('Multiple requests for the address', ['url' => $url, 'update' => $update, 'callstack' => System::callstack(20), 'result' => $result]);
+		} else {
+			DI::cache()->set($cachekey, System::callstack(20), Duration::FIVE_MINUTES);
+		}
+
 		$apcontact['url'] = $compacted['@id'];
 		$apcontact['uuid'] = JsonLD::fetchElement($compacted, 'diaspora:guid', '@value');
 		$apcontact['type'] = str_replace('as:', '', JsonLD::fetchElement($compacted, '@type'));
@@ -182,14 +210,19 @@ class APContact
 			$apcontact['photo'] = JsonLD::fetchElement($compacted['as:icon'], 'as:url', '@id');
 		}
 
-		$apcontact['alias'] = JsonLD::fetchElement($compacted, 'as:url', '@id');
-		if (is_array($apcontact['alias'])) {
-			$apcontact['alias'] = JsonLD::fetchElement($compacted['as:url'], 'as:href', '@id');
+		if (empty($apcontact['alias'])) {
+			$apcontact['alias'] = JsonLD::fetchElement($compacted, 'as:url', '@id');
+			if (is_array($apcontact['alias'])) {
+				$apcontact['alias'] = JsonLD::fetchElement($compacted['as:url'], 'as:href', '@id');
+			}
 		}
 
 		// Quit if none of the basic values are set
-		if (empty($apcontact['url']) || empty($apcontact['inbox']) || empty($apcontact['type'])) {
+		if (empty($apcontact['url']) || empty($apcontact['type']) || (($apcontact['type'] != 'Tombstone') && empty($apcontact['inbox']))) {
 			return $fetched_contact;
+		} elseif ($apcontact['type'] == 'Tombstone') {
+			// The "inbox" field must have a content
+			$apcontact['inbox'] = '';
 		}
 
 		// Quit if this doesn't seem to be an account at all
@@ -201,10 +234,12 @@ class APContact
 		unset($parts['scheme']);
 		unset($parts['path']);
 
-		if (!empty($apcontact['nick'])) {
-			$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
-		} else {
-			$apcontact['addr'] = '';
+		if (empty($apcontact['addr'])) {
+			if (!empty($apcontact['nick'])) {
+				$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
+			} else {
+				$apcontact['addr'] = '';
+			}
 		}
 
 		$apcontact['pubkey'] = null;
@@ -276,19 +311,36 @@ class APContact
 			}
 		}
 
-		$parts = parse_url($apcontact['url']);
-		unset($parts['path']);
-		$baseurl = Network::unparseURL($parts);
+		if (!$webfinger && !empty($apcontact['addr'])) {
+			$data = self::fetchWebfingerData($apcontact['addr']);
+			if (!empty($data)) {
+				$apcontact['baseurl'] = $data['baseurl'];
 
-		// Check if the address is resolvable or the profile url is identical with the base url of the system
-		if (self::addrToUrl($apcontact['addr'], $apcontact['url']) || Strings::compareLink($apcontact['url'], $baseurl)) {
-			$apcontact['baseurl'] = $baseurl;
-		} else {
-			$apcontact['addr'] = null;
+				if (empty($apcontact['alias']) && !empty($data['alias'])) {
+					$apcontact['alias'] = $data['alias'];
+				}
+				if (!empty($data['subscribe'])) {
+					$apcontact['subscribe'] = $data['subscribe'];
+				}
+			} else {
+				$apcontact['addr'] = null;
+			}
 		}
 
 		if (empty($apcontact['baseurl'])) {
 			$apcontact['baseurl'] = null;
+		}
+
+		if (empty($apcontact['subscribe'])) {
+			$apcontact['subscribe'] = null;
+		}		
+
+		if (!empty($apcontact['baseurl']) && empty($fetched_contact['gsid'])) {
+			$apcontact['gsid'] = GServer::getID($apcontact['baseurl']);
+		} elseif (!empty($fetched_contact['gsid'])) {
+			$apcontact['gsid'] = $fetched_contact['gsid'];
+		} else {
+			$apcontact['gsid'] = null;
 		}
 
 		if ($apcontact['url'] == $apcontact['alias']) {
@@ -297,22 +349,71 @@ class APContact
 
 		$apcontact['updated'] = DateTimeFormat::utcNow();
 
-		DBA::update('apcontact', $apcontact, ['url' => $url], true);
-
 		// We delete the old entry when the URL is changed
-		if (($url != $apcontact['url']) && DBA::exists('apcontact', ['url' => $url]) && DBA::exists('apcontact', ['url' => $apcontact['url']])) {
+		if ($url != $apcontact['url']) {
+			Logger::info('Delete changed profile url', ['old' => $url, 'new' => $apcontact['url']]);
 			DBA::delete('apcontact', ['url' => $url]);
 		}
 
-		Logger::log('Updated profile for ' . $url, Logger::DEBUG);
+		if (DBA::exists('apcontact', ['url' => $apcontact['url']])) {
+			DBA::update('apcontact', $apcontact, ['url' => $apcontact['url']]);
+		} else {
+			DBA::replace('apcontact', $apcontact);
+		}
+
+		Logger::info('Updated profile', ['url' => $url]);
 
 		return $apcontact;
 	}
 
 	/**
+	 * Mark the given AP Contact as "to archive"
+	 *
+	 * @param array $apcontact
+	 * @return void
+	 */
+	public static function markForArchival(array $apcontact)
+	{
+		if (!empty($apcontact['inbox'])) {
+			Logger::info('Set inbox status to failure', ['inbox' => $apcontact['inbox']]);
+			HTTPSignature::setInboxStatus($apcontact['inbox'], false);
+		}
+
+		if (!empty($apcontact['sharedinbox'])) {
+			// Check if there are any available inboxes
+			$available = DBA::exists('apcontact', ["`sharedinbox` = ? AnD `inbox` IN (SELECT `url` FROM `inbox-status` WHERE `success` > `failure`)",
+				$apcontact['sharedinbox']]);
+			if (!$available) {
+				// If all known personal inboxes are failing then set their shared inbox to failure as well
+				Logger::info('Set shared inbox status to failure', ['sharedinbox' => $apcontact['sharedinbox']]);
+				HTTPSignature::setInboxStatus($apcontact['sharedinbox'], false, true);
+			}
+		}
+	}
+
+	/**
+	 * Unmark the given AP Contact as "to archive"
+	 *
+	 * @param array $apcontact
+	 * @return void
+	 */
+	public static function unmarkForArchival(array $apcontact)
+	{
+		if (!empty($apcontact['inbox'])) {
+			Logger::info('Set inbox status to success', ['inbox' => $apcontact['inbox']]);
+			HTTPSignature::setInboxStatus($apcontact['inbox'], true);
+		}
+		if (!empty($apcontact['sharedinbox'])) {
+			Logger::info('Set shared inbox status to success', ['sharedinbox' => $apcontact['sharedinbox']]);
+			HTTPSignature::setInboxStatus($apcontact['sharedinbox'], true, true);
+		}
+	}
+
+	/**
 	 * Unarchive inboxes
 	 *
-	 * @param string $url inbox url
+	 * @param string  $url    inbox url
+	 * @param boolean $shared Shared Inbox
 	 */
 	private static function unarchiveInbox($url, $shared)
 	{
@@ -320,15 +421,6 @@ class APContact
 			return;
 		}
 
-		$now = DateTimeFormat::utcNow();
-
-		$fields = ['archive' => false, 'success' => $now, 'shared' => $shared];
-
-		if (!DBA::exists('inbox-status', ['url' => $url])) {
-			$fields = array_merge($fields, ['url' => $url, 'created' => $now]);
-			DBA::insert('inbox-status', $fields);
-		} else {
-			DBA::update('inbox-status', $fields, ['url' => $url]);
-		}
+		HTTPSignature::setInboxStatus($url, true, $shared);
 	}
 }

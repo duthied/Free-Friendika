@@ -23,10 +23,12 @@ namespace Friendica\Module\Notifications;
 
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\User;
 use Friendica\Module\BaseNotifications;
 use Friendica\Object\Notification\Introduction;
 
@@ -76,6 +78,8 @@ class Introductions extends BaseNotifications
 			'text' => (!$all ? DI::l10n()->t('Show Ignored Requests') : DI::l10n()->t('Hide Ignored Requests')),
 		];
 
+		$owner = User::getOwnerDataById(local_user());
+	
 		// Loop through all introduction notifications.This creates an array with the output html for each
 		// introduction
 		/** @var Introduction $notification */
@@ -98,17 +102,17 @@ class Introductions extends BaseNotifications
 						'$contact_id'            => $notification->getContactId(),
 						'$photo'                 => $notification->getPhoto(),
 						'$fullname'              => $notification->getName(),
+						'$dfrn_url'              => $owner['url'],
 						'$url'                   => $notification->getUrl(),
 						'$zrl'                   => $notification->getZrl(),
 						'$lbl_url'               => DI::l10n()->t('Profile URL'),
 						'$addr'                  => $notification->getAddr(),
-						'$hidden'                => ['hidden', DI::l10n()->t('Hide this contact from others'), $notification->isHidden(), ''],
-						'$knowyou'               => $notification->getKnowYou(),
+						'$action'                => 'follow',
 						'$approve'               => DI::l10n()->t('Approve'),
 						'$note'                  => $notification->getNote(),
-						'$request'               => $notification->getRequest(),
 						'$ignore'                => DI::l10n()->t('Ignore'),
 						'$discard'               => DI::l10n()->t('Discard'),
+						'$is_mobile'             => DI::mode()->isMobile(),
 					]);
 					break;
 
@@ -122,10 +126,12 @@ class Introductions extends BaseNotifications
 						$knowyou = '';
 					}
 
-					$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
-					$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification->getName(), $notification->getName());
-					$helptext3 = DI::l10n()->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification->getName());
+					$convertedName = BBCode::convert($notification->getName());
 
+					$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
+					$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $convertedName, $convertedName);
+					$helptext3 = DI::l10n()->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $convertedName);
+		
 					$friend = ['duplex', DI::l10n()->t('Friend'), '1', $helptext2, true];
 					$follower = ['duplex', DI::l10n()->t('Subscriber'), '0', $helptext3, false];
 
@@ -185,13 +191,14 @@ class Introductions extends BaseNotifications
 						'$ignore'                => DI::l10n()->t('Ignore'),
 						'$discard'               => $discard,
 						'$action'                => $action,
+						'$is_mobile'              => DI::mode()->isMobile(),
 					]);
 					break;
 			}
 		}
 
 		if (count($notifications['notifications']) == 0) {
-			info(DI::l10n()->t('No introductions.') . EOL);
+			notice(DI::l10n()->t('No introductions.'));
 			$notificationNoContent = DI::l10n()->t('No more %s notifications.', $notifications['ident']);
 		}
 

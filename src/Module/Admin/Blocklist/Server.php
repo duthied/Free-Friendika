@@ -30,13 +30,13 @@ class Server extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		if (empty($_POST['page_blocklist_save']) && empty($_POST['page_blocklist_edit'])) {
 			return;
 		}
 
-		parent::checkFormSecurityTokenRedirectOnError('/admin/blocklist/server', 'admin_blocklist');
+		self::checkFormSecurityTokenRedirectOnError('/admin/blocklist/server', 'admin_blocklist');
 
 		if (!empty($_POST['page_blocklist_save'])) {
 			//  Add new item to blocklist
@@ -46,7 +46,7 @@ class Server extends BaseAdmin
 				'reason' => Strings::escapeTags(trim($_POST['newentry_reason']))
 			];
 			DI::config()->set('system', 'blocklist', $blocklist);
-			info(DI::l10n()->t('Server domain pattern added to blocklist.') . EOL);
+			info(DI::l10n()->t('Server domain pattern added to blocklist.'));
 		} else {
 			// Edit the entries from blocklist
 			$blocklist = [];
@@ -62,7 +62,6 @@ class Server extends BaseAdmin
 				}
 			}
 			DI::config()->set('system', 'blocklist', $blocklist);
-			info(DI::l10n()->t('Site blocklist updated.') . EOL);
 		}
 
 		DI::baseUrl()->redirect('admin/blocklist/server');
@@ -77,8 +76,8 @@ class Server extends BaseAdmin
 		if (is_array($blocklist)) {
 			foreach ($blocklist as $id => $b) {
 				$blocklistform[] = [
-					'domain' => ["domain[$id]", DI::l10n()->t('Blocked server domain pattern'), $b['domain'], '', 'required', '', ''],
-					'reason' => ["reason[$id]", DI::l10n()->t("Reason for the block"), $b['reason'], '', 'required', '', ''],
+					'domain' => ["domain[$id]", DI::l10n()->t('Blocked server domain pattern'), $b['domain'], '', DI::l10n()->t('Required'), '', ''],
+					'reason' => ["reason[$id]", DI::l10n()->t("Reason for the block"), $b['reason'], '', DI::l10n()->t('Required'), '', ''],
 					'delete' => ["delete[$id]", DI::l10n()->t("Delete server domain pattern") . ' (' . $b['domain'] . ')', false, DI::l10n()->t("Check to delete this entry from the blocklist")]
 				];
 			}
@@ -88,7 +87,7 @@ class Server extends BaseAdmin
 		return Renderer::replaceMacros($t, [
 			'$title' => DI::l10n()->t('Administration'),
 			'$page' => DI::l10n()->t('Server Domain Pattern Blocklist'),
-			'$intro' => DI::l10n()->t('This page can be used to define a blacklist of server domain patterns from the federated network that are not allowed to interact with your node. For each domain pattern you should also provide the reason why you block it.'),
+			'$intro' => DI::l10n()->t('This page can be used to define a blocklist of server domain patterns from the federated network that are not allowed to interact with your node. For each domain pattern you should also provide the reason why you block it.'),
 			'$public' => DI::l10n()->t('The list of blocked server domain patterns will be made publically available on the <a href="/friendica">/friendica</a> page so that your users and people investigating communication problems can find the reason easily.'),
 			'$syntax' => DI::l10n()->t('<p>The server domain pattern syntax is case-insensitive shell wildcard, comprising the following special characters:</p>
 <ul>
@@ -97,8 +96,8 @@ class Server extends BaseAdmin
 	<li><code>[&lt;char1&gt;&lt;char2&gt;...]</code>: char1 or char2</li>
 </ul>'),
 			'$addtitle' => DI::l10n()->t('Add new entry to block list'),
-			'$newdomain' => ['newentry_domain', DI::l10n()->t('Server Domain Pattern'), '', DI::l10n()->t('The domain pattern of the new server to add to the block list. Do not include the protocol.'), 'required', '', ''],
-			'$newreason' => ['newentry_reason', DI::l10n()->t('Block reason'), '', DI::l10n()->t('The reason why you blocked this server domain pattern.'), 'required', '', ''],
+			'$newdomain' => ['newentry_domain', DI::l10n()->t('Server Domain Pattern'), '', DI::l10n()->t('The domain pattern of the new server to add to the block list. Do not include the protocol.'), DI::l10n()->t('Required'), '', ''],
+			'$newreason' => ['newentry_reason', DI::l10n()->t('Block reason'), '', DI::l10n()->t('The reason why you blocked this server domain pattern.'), DI::l10n()->t('Required'), '', ''],
 			'$submit' => DI::l10n()->t('Add Entry'),
 			'$savechanges' => DI::l10n()->t('Save changes to the blocklist'),
 			'$currenttitle' => DI::l10n()->t('Current Entries in the Blocklist'),
@@ -108,7 +107,7 @@ class Server extends BaseAdmin
 			'$entries' => $blocklistform,
 			'$baseurl' => DI::baseUrl()->get(true),
 			'$confirm_delete' => DI::l10n()->t('Delete entry from blocklist?'),
-			'$form_security_token' => parent::getFormSecurityToken("admin_blocklist")
+			'$form_security_token' => self::getFormSecurityToken("admin_blocklist")
 		]);
 	}
 }

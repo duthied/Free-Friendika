@@ -87,7 +87,7 @@ Field parameter:
 1. Label for the input box,
 2. Current value of the variable,
 3. Help text for the input box,
-4. if set to "required" modern browser will check that this input box is filled when submitting the form,
+4. Should be set to the translation of "Required" to mark this field as required,
 5. if set to "autofocus" modern browser will put the cursur into this box once the page is loaded,
 6. if set, it will be used for the input type, default is `text` (possible types: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#%3Cinput%3E_types).
 
@@ -122,7 +122,7 @@ Field parameter:
 1. Label for the field,
 2. Value for the field, e.g. the old password,
 3. Help text for the input field,
-4. if set to "required" modern browser will check that this field is filled out,
+4. Should be set to the translation of "Required" to mark this field as required,
 5. if set to "autofocus" modern browser will put the cursor automatically into this input field.
 
 ### field_radio.tpl
@@ -176,5 +176,5 @@ Field parameter:
 0. Name of the input field,
 1. Label for the input box,
 2. Current text for the box,
-3. Help text for the input box.
-4. if set to "required" modern browser will check that this input box is filled when submitting the form,
+3. Help text for the input box,
+4. Should be set to the translation of "Required" to mark this field as required.

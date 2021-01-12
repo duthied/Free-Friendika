@@ -55,7 +55,7 @@ Wenn du die Möglichkeit hierzu hast, empfehlen wir dir "git" zu nutzen, um die 
 Das macht die Aktualisierung wesentlich einfacher.
 Der Linux-Code, mit dem man die Dateien direkt in ein Verzeichnis wie "meinewebseite" kopiert, ist
 
-    git clone https://github.com/friendica/friendica.git -b master mywebsite
+    git clone https://github.com/friendica/friendica.git -b stable mywebsite
     cd mywebsite
     bin/composer.phar install
 
@@ -70,7 +70,7 @@ Falls Addons installiert werden sollen: Gehe in den Friendica-Ordner
 
 Und die Addon Repository klonst:
 
-    git clone https://github.com/friendica/friendica-addons.git -b master addon
+    git clone https://github.com/friendica/friendica-addons.git -b stable addon
 
 Um das Addon-Verzeichnis aktuell zu halten, solltest du in diesem Pfad ein "git pull"-Befehl eintragen
 

@@ -24,34 +24,55 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Model\GServer;
+use Friendica\DI;
+use Friendica\Util\Strings;
 
 class UpdateGServers
 {
 	/**
-	 * Updates the first 250 servers
+	 * Updates a defined number of servers
 	 */
 	public static function execute()
 	{
-		$gservers = DBA::p("SELECT `url`, `created`, `last_failure`, `last_contact` FROM `gserver` ORDER BY rand()");
+		$update_limit = DI::config()->get('system', 'gserver_update_limit');
+		if (empty($update_limit)) {
+			return;
+		}
+
+		$updating = Worker::countWorkersByCommand('UpdateGServer');
+		$limit = $update_limit - $updating;
+		if ($limit <= 0) {
+			Logger::info('The number of currently running jobs exceed the limit');
+			return;
+		}
+
+		$total = DBA::count('gserver');
+		$condition = ["`next_contact` < UTC_TIMESTAMP() AND (`nurl` != ? OR `url` != ?)", '', ''];
+		$outdated = DBA::count('gserver', $condition);
+		Logger::info('Server status', ['total' => $total, 'outdated' => $outdated, 'updating' => $limit]);
+
+		$gservers = DBA::select('gserver', ['url', 'nurl'], $condition, ['limit' => $limit]);
 		if (!DBA::isResult($gservers)) {
 			return;
 		}
 
-		$updated = 0;
-
+		$count = 0;
 		while ($gserver = DBA::fetch($gservers)) {
-			if (!GServer::updateNeeded($gserver['created'], '', $gserver['last_failure'], $gserver['last_contact'])) {
-				continue;
+			// Sometimes the "nurl" and "url" doesn't seem to fit, see https://forum.friendi.ca/display/ec054ce7-155f-c94d-6159-f50372664245
+			// There are duplicated "url" but not "nurl". So we check both addresses instead of just overwriting them,
+			// since that would mean loosing data.
+			if (!empty($gserver['url'])) {
+				if (Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['url'])) {
+					$count++;
+				}
 			}
-			Logger::info('Update server status', ['server' => $gserver['url']]);
-
-			Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['url']);
-
-			if (++$updated > 250) {
-				return;
+			if (!empty($gserver['nurl']) && ($gserver['nurl'] != Strings::normaliseLink($gserver['url']))) {
+				if (Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['nurl'])) {
+					$count++;
+				}
 			}
 		}
 		DBA::close($gservers);
+		Logger::info('Updated servers', ['count' => $count]);
 	}
 }

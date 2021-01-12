@@ -144,7 +144,8 @@ class Delegation extends BaseModule
 		}
 
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('delegation.tpl'), [
-			'$title'      => DI::l10n()->t('Manage Identities and/or Pages'),
+			'$title'      => DI::l10n()->t('Switch between your accounts'),
+			'$settings_label' => DI::l10n()->t('Manage your accounts'),
 			'$desc'       => DI::l10n()->t('Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'),
 			'$choose'     => DI::l10n()->t('Select an identity to manage: '),
 			'$identities' => $identities,

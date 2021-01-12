@@ -1,12 +1,20 @@
 
 <div class="wall-item-actions" id="wall-item-like-buttons-{{$id}}">
-	<button type="button" class="btn-link button-likes" id="like-{{$id}}" title="{{$likethis}}" onclick="dolike({{$id}},'like'); return false;" data-toggle="button">
-		<i class="faded-icon page-action fa fa-thumbs-up" aria-hidden="true"></i>
+	<button type="button"
+	        class="btn-link button-likes{{if $responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$id}}"
+	        title="{{$like_title}}"
+	        onclick="doLikeAction({{$id}}, 'like'{{if $responses.like.self}}, true{{/if}});"
+	        data-toggle="button">
+		<i class="fa fa-thumbs-up" aria-hidden="true"></i>&nbsp;{{$like}}
 	</button>
-	{{if $dislike}}
-	<span class="icon-padding"> </span>
-	<button type="button" class="btn-link button-likes" id="dislike-{{$id}}" title="{{$dislike}}" onclick="dolike({{$id}},'dislike'); return false;" data-toggle="button">
-		<i class="faded-icon page-action fa fa-thumbs-down" aria-hidden="true"></i>
+	{{if !$hide_dislike}}
+		<span class="icon-padding"> </span>
+	<button type="button"
+	        class="btn-link button-likes{{if $responses.dislike.self}} active" aria-pressed="true{{/if}}"
+	        id="dislike-{{$id}}"
+	        title="{{$dislike_title}}"
+	        onclick="doLikeAction({{$id}}, 'dislike'{{if $responses.dislike.self}}, true{{/if}});"
+	        data-toggle="button"><i class="fa fa-thumbs-down" aria-hidden="true"></i>&nbsp;{{$dislike}}
 	</button>
 	{{/if}}
 	<img id="like-rotator-{{$id}}" class="like-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />

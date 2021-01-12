@@ -1,12 +1,16 @@
 <!-- TODO => Unknow block -->
 <div class="wall-item-decor" style="display:none;">
 	<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>
-	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event, {{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock" aria-hidden="true"></span>{{/if}}
+	{{if $item.lock}}<span class="navicon lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}"></span><span class="fa fa-lock" aria-hidden="true"></span>{{/if}}
 </div>
 <!-- ./TODO => Unknow block -->
 
 
 <div class="panel item-{{$item.id}}" id="item-{{$item.guid}}">
+	<span class="commented" style="display: none;">{{$item.commented}}</span>
+	<span class="received" style="display: none;">{{$item.received}}</span>
+	<span class="created" style="display: none;">{{$item.created_date}}</span>
+	<span class="uriid" style="display: none;">{{$item.uriid}}</span>
 	<div class="wall-item-container panel-body{{$item.indent}} {{$item.shiny}} {{$item.previewing}}" >
 		<div class="media">
 			{{* Put additional actions in a top-right dropdown menu *}}
@@ -56,7 +60,7 @@
 					</a>
 				{{/if}}
 				{{if $item.lock}}
-					<span class="navicon lock fakelink" onClick="lockview(event, {{$item.id}});" title="{{$item.lock}}">
+					<span class="navicon lock fakelink" onClick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}">
 						&nbsp;<small><i class="fa fa-lock" aria-hidden="true"></i></small>
 					</span>
 				{{/if}}
@@ -66,9 +70,9 @@
 							<small><a href="{{$item.plink.orig}}"><span class="time" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</span></a></small>
 						</div>
 
-						{{if $item.location}}
+						{{if $item.location_html}}
 						<div id="wall-item-location-{{$item.id}}" class="wall-item-location">
-							<small><span class="location">({{$item.location nofilter}})</span></small>
+							<small><span class="location">({{$item.location_html nofilter}})</span></small>
 						</div>
 						{{/if}}
 					</div>
@@ -81,7 +85,7 @@
 				<h5 class="media-heading">
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span>{{$item.name}}</span></a>
 					<p class="text-muted"><small>
-						<span class="wall-item-ago">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}</small>
+						<span class="wall-item-ago">{{$item.ago}}</span> {{if $item.location_html}}&nbsp;&mdash;&nbsp;({{$item.location_html nofilter}}){{/if}}</small>
 					</p>
 				</h5>
 			</div>
@@ -92,16 +96,11 @@
 
 			{{* item content *}}
 			<div class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
-				{{* insert some space if it's an top-level post *}}
-				{{if $item.thread_level==1}}
-				<div style="height:10px;">&nbsp;</div> <!-- use padding/margin instead-->
-				{{/if}}
-
 				{{if $item.title}}
 				<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h4><br /></span>
 				{{/if}}
 
-				<div class="wall-item-body" id="wall-item-body-{{$item.id}}">{{$item.body nofilter}}</div>
+				<div class="wall-item-body" id="wall-item-body-{{$item.id}}">{{$item.body_html nofilter}}</div>
 			</div>
 
 			<!-- TODO -->
@@ -133,7 +132,7 @@
 			<p class="wall-item-actions">
 				{{* Action buttons to interact with the item (like: like, dislike, share and so on *}}
 				<span class="wall-item-actions-left">
-					<!--comment this out to try something different {{if $item.threaded}}{{if $item.comment}}
+					<!--comment this out to try something different {{if $item.threaded}}{{if $item.comment_html}}
 					<div id="button-reply" class="pull-left">
 						<button type="button" class="btn-link" id="comment-{{$item.id}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"><i class="fa fa-reply" title="{{$item.switchcomment}}"></i> </span>
 					</div>
@@ -144,29 +143,29 @@
 					{{* Buttons for like and dislike *}}
 					{{if $item.vote}}
 						{{if $item.vote.like}}
-					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}}, 'like');">{{$item.vote.like.0}}</button>
+					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}});">{{$item.vote.like.0}}</button>
 						{{/if}}
 						{{if $item.vote.like AND $item.vote.dislike}}
 					<span role="presentation" class="separator">•</span>
 						{{/if}}
 
 						{{if $item.vote.dislike}}
-					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}}, 'dislike');">{{$item.vote.dislike.0}}</button>
+					<button type="button" class="btn btn-defaultbutton-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}});">{{$item.vote.dislike.0}}</button>
 						{{/if}}
-						{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment}}
+						{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment_html}}
 					<span role="presentation" class="separator">•</span>
 						{{/if}}
 					{{/if}}
 
 					{{* Button to open the comment text field *}}
-					{{if $item.comment}}
+					{{if $item.comment_html}}
 						<button type="button" class="btn btn-default" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});">{{$item.switchcomment}}</button>
 					{{/if}}
 
 					{{* Button for sharing the item *}}
 					{{if $item.vote}}
 						{{if $item.vote.share}}
-							{{if $item.vote.like OR $item.vote.dislike OR $item.comment}}
+							{{if $item.vote.like OR $item.vote.dislike OR $item.comment_html}}
 					<span role="presentation" class="separator">•</span>
 							{{/if}}
 					<button type="button" class="btn btn-default" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp;{{$item.vote.share.0}}</button>
@@ -218,6 +217,12 @@
 							</li>
 						{{/if}}
 
+						{{if $item.language}}
+						<li role="menuitem">
+							<a id="language-{{$item.id}}" href="javascript:alert('{{$item.language.1}}');" class="btn-link filer-item language-icon" title="{{$item.language.0}}"><i class="fa fa-language" aria-hidden="true"></i>&nbsp;{{$item.language.0}}</a>
+						</li>
+						{{/if}}
+
 						{{if ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.subthread) && ($item.ignore || $item.drop.dropping)}}
 							<li role="separator" class="divider"></li>
 						{{/if}}
@@ -249,9 +254,9 @@
 					{{* Event attendance buttons *}}
 				{{if $item.isevent}}
 					<span class="vote-event">
-						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}}, 'attendyes');"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
-						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}}, 'attendno');"><i class="fa fa-times" aria-hidden="true"><span class="sr-only">{{$item.attend.1}}</span></i></button>
-						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}}, 'attendmaybe');"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
+						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}});"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
+						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}}, 'attendno'{{if $item.responses.attendno.self}}, true{{/if}});"><i class="fa fa-times" aria-hidden="true"><span class="sr-only">{{$item.attend.1}}</span></i></button>
+						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}});"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
 					</span>
 				{{/if}}
 

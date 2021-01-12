@@ -15,10 +15,13 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 
 ## Implemented endpoints
 
+- [`GET /api/v1//accounts/:id`](https://docs.joinmastodon.org/methods/accounts/#retrieve-information)
+- [`GET /api/v1//accounts/:id/statuses`](https://docs.joinmastodon.org/methods/accounts/#retrieve-information)
 - [`GET /api/v1/custom_emojis`](https://docs.joinmastodon.org/methods/instance/custom_emojis/)
     - Doesn't return unicode emojis since they aren't using an image URL
 
 
+- [`GET /api/v1/directory`](https://docs.joinmastodon.org/methods/instance/directory/)
 - [`GET /api/v1/follow_requests`](https://docs.joinmastodon.org/methods/accounts/follow_requests#pending-follows)
     - Returned IDs are specific to follow requests
 - [`POST /api/v1/follow_requests/:id/authorize`](https://docs.joinmastodon.org/methods/accounts/follow_requests#accept-follow)
@@ -33,6 +36,8 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 
 - [`GET /api/v1/instance`](https://docs.joinmastodon.org/methods/instance#fetch-instance)
 - [`GET /api/v1/instance/peers`](https://docs.joinmastodon.org/methods/instance#list-of-connected-domains)
+- [`GET /api/v1/timelines/public`](https://docs.joinmastodon.org/methods/timelines/)
+- [`GET /api/v1/trends`](https://docs.joinmastodon.org/methods/instance/trends/)
 
 ## Non-implemented endpoints
 

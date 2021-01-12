@@ -148,7 +148,7 @@ class DeliveryData
 
 		$fields['uri-id'] = $uri_id;
 
-		return DBA::insert('post-delivery-data', $fields);
+		return DBA::replace('post-delivery-data', $fields);
 	}
 
 	/**

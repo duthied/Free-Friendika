@@ -26,7 +26,9 @@ use DOMXPath;
 use Friendica\Content\OEmbed;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 /**
  * Get information about a given URL
@@ -55,14 +57,13 @@ class ParseUrl
 	 *                            to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
-	 *    string 'url' => The url of the parsed page
-	 *    string 'type' => Content type
-	 *    string 'title' => The title of the content
-	 *    string 'text' => The description for the content
-	 *    string 'image' => A preview image of the content (only available
-	 *                if $no_geuessing = false
-	 *    array'images' = Array of preview pictures
-	 *    string 'keywords' => The tags which belong to the content
+	 *    string 'url'      => The url of the parsed page
+	 *    string 'type'     => Content type
+	 *    string 'title'    => (optional) The title of the content
+	 *    string 'text'     => (optional) The description for the content
+	 *    string 'image'    => (optional) A preview image of the content (only available if $no_geuessing = false)
+	 *    array  'images'   => (optional) Array of preview pictures
+	 *    string 'keywords' => (optional) The tags which belong to the content
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @see   ParseUrl::getSiteinfo() for more information about scraping
@@ -91,7 +92,7 @@ class ParseUrl
 				'oembed' => $do_oembed, 'content' => serialize($data),
 				'created' => DateTimeFormat::utcNow()
 			],
-			true
+			Database::INSERT_UPDATE
 		);
 
 		return $data;
@@ -115,14 +116,13 @@ class ParseUrl
 	 * @param int    $count       Internal counter to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
-	 *    string 'url' => The url of the parsed page
-	 *    string 'type' => Content type
-	 *    string 'title' => The title of the content
-	 *    string 'text' => The description for the content
-	 *    string 'image' => A preview image of the content (only available
-	 *                if $no_geuessing = false
-	 *    array'images' = Array of preview pictures
-	 *    string 'keywords' => The tags which belong to the content
+	 *    string 'url'      => The url of the parsed page
+	 *    string 'type'     => Content type
+	 *    string 'title'    => (optional) The title of the content
+	 *    string 'text'     => (optional) The description for the content
+	 *    string 'image'    => (optional) A preview image of the content (only available if $no_guessing = false)
+	 *    array  'images'   => (optional) Array of preview pictures
+	 *    string 'keywords' => (optional) The tags which belong to the content
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  https://developers.google.com/+/plugins/snippet/
@@ -140,29 +140,28 @@ class ParseUrl
 	 */
 	public static function getSiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1)
 	{
-		$siteinfo = [];
-
 		// Check if the URL does contain a scheme
 		$scheme = parse_url($url, PHP_URL_SCHEME);
 
 		if ($scheme == '') {
-			$url = 'http://' . trim($url, '/');
+			$url = 'http://' . ltrim($url, '/');
 		}
+
+		$url = trim($url, "'\"");
+
+		$url = Network::stripTrackingQueryParams($url);
+
+		$siteinfo = [
+			'url' => $url,
+			'type' => 'link',
+		];
 
 		if ($count > 10) {
 			Logger::log('Endless loop detected for ' . $url, Logger::DEBUG);
 			return $siteinfo;
 		}
 
-		$url = trim($url, "'");
-		$url = trim($url, '"');
-
-		$url = Network::stripTrackingQueryParams($url);
-
-		$siteinfo['url'] = $url;
-		$siteinfo['type'] = 'link';
-
-		$curlResult = Network::curl($url);
+		$curlResult = DI::httpRequest()->get($url);
 		if (!$curlResult->isSuccess()) {
 			return $siteinfo;
 		}
@@ -203,11 +202,28 @@ class ParseUrl
 			}
 		}
 
-		// Fetch the first mentioned charset. Can be in body or header
 		$charset = '';
-		if (preg_match('/charset=(.*?)[\'"\s\n]/', $header, $matches)) {
+		// Look for a charset, first in headers
+		// Expected form: Content-Type: text/html; charset=ISO-8859-4
+		if (preg_match('/charset=([a-z0-9-_.\/]+)/i', $header, $matches)) {
 			$charset = trim(trim(trim(array_pop($matches)), ';,'));
 		}
+
+		// Then in body that gets precedence
+		// Expected forms:
+		// - <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		// - <meta charset="utf-8">
+		// - <meta charset=utf-8>
+		// - <meta charSet="utf-8">
+		// We escape <style> and <script> tags since they can contain irrelevant charset information
+		// (see https://github.com/friendica/friendica/issues/9251#issuecomment-698636806)
+		Strings::performWithEscapedBlocks($body, '#<(?:style|script).*?</(?:style|script)>#ism', function ($body) use (&$charset) {
+			if (preg_match('/charset=["\']?([a-z0-9-_.\/]+)/i', $body, $matches)) {
+				$charset = trim(trim(trim(array_pop($matches)), ';,'));
+			}
+		});
+
+		$siteinfo['charset'] = $charset;
 
 		if ($charset && strtoupper($charset) != 'UTF-8') {
 			// See https://github.com/friendica/friendica/issues/5470#issuecomment-418351211

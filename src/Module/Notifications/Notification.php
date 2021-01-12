@@ -108,7 +108,13 @@ class Notification extends BaseModule
 
 		if ($request_id) {
 			$notify = DI::notify()->getByID($request_id, local_user());
-			DI::notify()->setSeen(true, $notify);
+
+			if (DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
+				$notify->seen = true;
+				DI::notify()->update($notify);
+			} else {
+				DI::notify()->setSeen(true, $notify);
+			}
 
 			if (!empty($notify->link)) {
 				System::externalRedirect($notify->link);

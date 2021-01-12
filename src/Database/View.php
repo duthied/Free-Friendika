@@ -111,13 +111,17 @@ class View
 			}
 		}
 
-		$sql = sprintf("DROP VIEW IF EXISTS `%s`", DBA::escape($name));
+		if (self::isView($name)) {
+			$sql = sprintf("DROP VIEW IF EXISTS `%s`", DBA::escape($name));
+		} elseif (self::isTable($name)) {
+			$sql = sprintf("DROP TABLE IF EXISTS `%s`", DBA::escape($name));
+		}
 
-		if ($verbose) {
+		if (!empty($sql) && $verbose) {
 			echo $sql . ";\n";
 		}
 
-		if ($action) {
+		if (!empty($sql) && $action) {
 			DBA::e($sql);
 		}
 
@@ -133,5 +137,41 @@ class View
 		}
 
 		return $r;
+	}
+
+	/**
+	 * Check if the given table/view is a view
+	 *
+	 * @param string $view
+	 * @return boolean "true" if it's a view
+	 */
+	private static function isView(string $view)
+	{
+		$status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_TYPE'],
+			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_NAME' => $view]);
+
+		if (empty($status['TABLE_TYPE'])) {
+			return false;
+		}
+
+		return $status['TABLE_TYPE'] == 'VIEW';
+	}
+
+	/**
+	 * Check if the given table/view is a table
+	 *
+	 * @param string $table
+	 * @return boolean "true" if it's a table
+	 */
+	private static function isTable(string $table)
+	{
+		$status = DBA::selectFirst(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_TYPE'],
+			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_NAME' => $table]);
+
+		if (empty($status['TABLE_TYPE'])) {
+			return false;
+		}
+
+		return $status['TABLE_TYPE'] == 'BASE TABLE';
 	}
 }

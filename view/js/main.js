@@ -134,6 +134,7 @@ var commentBusy = false;
 var last_popup_menu = null;
 var last_popup_button = null;
 var lockLoadContent = false;
+var originalTitle = document.title;
 
 const urlRegex = /^(?:https?:\/\/|\s)[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})(?:\/+[a-z0-9_.:;-]*)*(?:\?[&%|+a-z0-9_=,.:;-]*)?(?:[&%|+&a-z0-9_=,:;.-]*)(?:[!#\/&%|+a-z0-9_=,:;.-]*)}*$/i;
 
@@ -172,6 +173,17 @@ $(function() {
 		var end = textarea.selectionEnd;
 		textarea.value = textarea.value.substring(0, start) + bbcode + textarea.value.substring(end, textarea.value.length);
 		$(textarea).trigger('change');
+	});
+
+	$(".comment-edit-wrapper textarea, .wall-item-comment-wrapper textarea")
+		.editor_autocomplete(baseurl + '/search/acl')
+		.bbco_autocomplete('bbcode');
+
+	// Ensures asynchronously-added comment forms recognize mentions, tags and BBCodes as well
+	document.addEventListener("postprocess_liveupdate", function() {
+		$(".comment-edit-wrapper textarea, .wall-item-comment-wrapper textarea")
+			.editor_autocomplete(baseurl + '/search/acl')
+			.bbco_autocomplete('bbcode');
 	});
 
 	/* popup menus */
@@ -240,6 +252,13 @@ $(function() {
 		var invalid = data.invalid || 0;
 		if (invalid == 1) {
 			window.location.href=window.location.href
+		}
+
+		let tabNotifications = data.mail + data.notification;
+		if (tabNotifications > 0) {
+			document.title = '(' + tabNotifications + ') ' + originalTitle;
+		} else {
+			document.title = originalTitle;
 		}
 
 		['net', 'home', 'intro', 'mail', 'events', 'birthdays', 'notification'].forEach(function(type) {
@@ -528,7 +547,7 @@ function updateConvItems(data) {
 		if ($('#' + ident).length === 0
 			&& (!getUrlParameter('page')
 				&& !getUrlParameter('max_id')
-				&& !getUrlParameter('since_id')
+				&& !getUrlParameter('min_id')
 				|| getUrlParameter('page') === '1'
 			)
 		) {
@@ -560,10 +579,6 @@ function updateConvItems(data) {
 		commentBusy = false;
 		$('body').css('cursor', 'auto');
 	}
-	/* autocomplete @nicknames */
-	$(".comment-edit-form  textarea").editor_autocomplete(baseurl + '/search/acl');
-	/* autocomplete bbcode */
-	$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
 }
 
 function liveUpdate(src) {
@@ -586,30 +601,35 @@ function liveUpdate(src) {
 
 	in_progress = true;
 
-	if ($(document).scrollTop() == 0) {
-		force_update = true;
-	}
+	let force = force_update || $(document).scrollTop() === 0;
 
 	var orgHeight = $("section").height();
 
 	var udargs = ((netargs.length) ? '/' + netargs : '');
 
-	var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&force=' + ((force_update) ? 1 : 0) + '&item=' + update_item;
+	var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&force=' + (force ? 1 : 0) + '&item=' + update_item;
+
+	if (force_update) {
+		force_update = false;
+	}
 
 	if (getUrlParameter('page')) {
 		update_url += '&page=' + getUrlParameter('page');
 	}
-	if (getUrlParameter('since_id')) {
-		update_url += '&since_id=' + getUrlParameter('since_id');
+	if (getUrlParameter('min_id')) {
+		update_url += '&min_id=' + getUrlParameter('min_id');
 	}
 	if (getUrlParameter('max_id')) {
 		update_url += '&max_id=' + getUrlParameter('max_id');
 	}
 
-	$.get(update_url,function(data) {
+	$.get(update_url, function(data) {
 		in_progress = false;
-		force_update = false;
 		update_item = 0;
+
+		if ($('.wall-item-body', data).length == 0) {
+			return;
+		}
 
 		$('.wall-item-body', data).imagesLoaded(function() {
 			updateConvItems(data);
@@ -640,9 +660,15 @@ function imgdull(node) {
 // trickery. This still could cause confusion if the "like" ajax call
 // is delayed and NavUpdate runs before it completes.
 
-function dolike(ident,verb) {
+/**
+ * @param {int}     ident The id of the relevant item
+ * @param {string}  verb  The verb of the action
+ * @param {boolean} un    Whether to perform an activity removal instead of creation
+ */
+function dolike(ident, verb, un) {
 	unpause();
 	$('#like-rotator-' + ident.toString()).show();
+	verb = un ? 'un' + verb : verb;
 	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate);
 	liking = 1;
 	force_update = true;
@@ -735,24 +761,21 @@ function getPosition(e) {
 
 var lockvisible = false;
 
-function lockview(event,id) {
+function lockview(event, type, id) {
 	event = event || window.event;
 	cursor = getPosition(event);
 	if (lockvisible) {
-		lockviewhide();
+		lockvisible = false;
+		$('#panel').hide();
 	} else {
 		lockvisible = true;
-		$.get('lockview/' + id, function(data) {
-			$('#panel').html(data);
-			$('#panel').css({'left': cursor.x + 5 , 'top': cursor.y + 5});
-			$('#panel').show();
+		$.get('permission/tooltip/' + type + '/' + id, function(data) {
+			$('#panel')
+				.html(data)
+				.css({'left': cursor.x + 5 , 'top': cursor.y + 5})
+				.show();
 		});
 	}
-}
-
-function lockviewhide() {
-	lockvisible = false;
-	$('#panel').hide();
 }
 
 function post_comment(id) {
@@ -847,10 +870,6 @@ function loadScrollContent() {
 
 	$("#scroll-loader").fadeIn('normal');
 
-	// the page number to load is one higher than the actual
-	// page number
-	infinite_scroll.pageno+=1;
-
 	match = $("span.received").last();
 	if (match.length > 0) {
 		received = match[0].innerHTML;
@@ -872,25 +891,38 @@ function loadScrollContent() {
 		commented = "0000-00-00 00:00:00";
 	}
 
-	match = $("span.id").last();
+	match = $("span.uriid").last();
 	if (match.length > 0) {
-		id = match[0].innerHTML;
+		uriid = match[0].innerHTML;
 	} else {
-		id = "0";
+		uriid = "0";
 	}
 
 	// get the raw content from the next page and insert this content
 	// right before "#conversation-end"
-	$.get(infinite_scroll.reload_uri + '&mode=raw&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_id=' + id + '&page=' + infinite_scroll.pageno, function(data) {
+	$.get({
+		url: infinite_scroll.reload_uri,
+		data: {
+			'mode'          : 'raw',
+			'last_received' : received,
+			'last_commented': commented,
+			'last_created'  : created,
+			'last_uriid'    : uriid
+		}
+	})
+	.done(function(data) {
 		$("#scroll-loader").hide();
 		if ($(data).length > 0) {
 			$(data).insertBefore('#conversation-end');
-			lockLoadContent = false;
 		} else {
 			$("#scroll-end").fadeIn('normal');
 		}
 
 		document.dispatchEvent(new Event('postprocess_liveupdate'));
+	})
+	.always(function () {
+		$("#scroll-loader").hide();
+		lockLoadContent = false;
 	});
 }
 
@@ -921,14 +953,6 @@ function groupChangeMember(gid, cid, sec_token) {
 	$('body .fakelink').css('cursor', 'wait');
 	$.get('group/' + gid + '/' + cid + "?t=" + sec_token, function(data) {
 			$('#group-update-wrapper').html(data);
-			$('body .fakelink').css('cursor', 'auto');
-	});
-}
-
-function profChangeMember(gid,cid) {
-	$('body .fakelink').css('cursor', 'wait');
-	$.get('profperm/' + gid + '/' + cid, function(data) {
-			$('#prof-update-wrapper').html(data);
 			$('body .fakelink').css('cursor', 'auto');
 	});
 }

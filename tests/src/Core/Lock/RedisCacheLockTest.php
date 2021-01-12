@@ -21,9 +21,11 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
+use Exception;
 use Friendica\Core\Cache\RedisCache;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\Lock\CacheLock;
+use Mockery;
 
 /**
  * @requires extension redis
@@ -33,9 +35,10 @@ class RedisCacheLockTest extends LockTest
 {
 	protected function getInstance()
 	{
-		$configMock = \Mockery::mock(IConfig::class);
+		$configMock = Mockery::mock(IConfig::class);
 
 		$host = $_SERVER['REDIS_HOST'] ?? 'localhost';
+		$port = $_SERVER['REDIS_PORT'] ?? 6379;
 
 		$configMock
 			->shouldReceive('get')
@@ -44,12 +47,12 @@ class RedisCacheLockTest extends LockTest
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_port')
-			->andReturn(null);
+			->andReturn($port);
 
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_db', 0)
-			->andReturn(3);
+			->andReturn(0);
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_password')
@@ -60,8 +63,8 @@ class RedisCacheLockTest extends LockTest
 		try {
 			$cache = new RedisCache($host, $configMock);
 			$lock = new CacheLock($cache);
-		} catch (\Exception $e) {
-			$this->markTestSkipped('Redis is not available');
+		} catch (Exception $e) {
+			static::markTestSkipped('Redis is not available. Error: ' . $e->getMessage());
 		}
 
 		return $lock;

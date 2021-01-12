@@ -47,14 +47,14 @@ class Email implements IEmail
 	/** @var string */
 	private $msgText;
 
-	/** @var string */
-	private $additionalMailHeader = '';
+	/** @var string[][] */
+	private $additionalMailHeader;
 	/** @var int|null */
-	private $toUid = null;
+	private $toUid;
 
 	public function __construct(string $fromName, string $fromAddress, string $replyTo, string $toAddress,
 	                            string $subject, string $msgHtml, string $msgText,
-	                            string $additionalMailHeader = '', int $toUid = null)
+	                            array $additionalMailHeader = [], int $toUid = null)
 	{
 		$this->fromName             = $fromName;
 		$this->fromAddress          = $fromAddress;
@@ -125,6 +125,25 @@ class Email implements IEmail
 	public function getAdditionalMailHeader()
 	{
 		return $this->additionalMailHeader;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getAdditionalMailHeaderString()
+	{
+		$headerString = '';
+
+		foreach ($this->additionalMailHeader as $name => $values) {
+			if (is_array($values)) {
+				foreach ($values as $value) {
+					$headerString .= "$name: $value\n";
+				}
+			} else {
+				$headerString .= "$name: $values\n";
+			}
+		}
+		return $headerString;
 	}
 
 	/**

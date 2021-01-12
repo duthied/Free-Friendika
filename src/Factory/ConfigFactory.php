@@ -37,10 +37,10 @@ class ConfigFactory
 	 *
 	 * @throws Exception
 	 */
-	public function createCache(ConfigFileLoader $loader)
+	public function createCache(ConfigFileLoader $loader, array $server = [])
 	{
 		$configCache = new Cache();
-		$loader->setupCache($configCache);
+		$loader->setupCache($configCache, $server);
 
 		return $configCache;
 	}

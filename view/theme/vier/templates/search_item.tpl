@@ -1,8 +1,10 @@
-
-
+<span class="commented" style="display: none;">{{$item.commented}}</span>
+<span class="received" style="display: none;">{{$item.received}}</span>
+<span class="created" style="display: none;">{{$item.created_date}}</span>
+<span class="uriid" style="display: none;">{{$item.uriid}}</span>
 <div class="wall-item-decor">
 	{{if $item.star}}<span class="icon star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>{{/if}}
-	{{if $item.lock}}<span class="icon lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
+	{{if $item.lock}}<span class="icon lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
 	<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 </div>
 
@@ -16,7 +18,7 @@
 					<img src="{{$item.thumb}}" class="contact-photo{{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 				<!-- <a rel="#wall-item-photo-menu-{{$item.id}}" class="contact-photo-menu-button icon s16 menu" id="wall-item-photo-menu-button-{{$item.id}}">menu</a> -->
 				<ul role="menu" aria-haspopup="true" class="wall-item-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
-				{{$item.item_photo_menu nofilter}}
+				{{$item.item_photo_menu_html nofilter}}
 				</ul>
 
 			</div>
@@ -25,12 +27,12 @@
 			<a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.sparkle}}">{{$item.name}}</span></a>
 			<span class="wall-item-ago">
 				{{if $item.plink}}<a class="link" title="{{$item.plink.title}}" href="{{$item.plink.href}}" style="color: #999">{{$item.ago}}</a>{{else}} {{$item.ago}} {{/if}}
-				{{if $item.lock}}<span class="fakelink" style="color: #999" onclick="lockview(event,{{$item.id}});">{{$item.lock}}</span> {{/if}}
+				{{if $item.lock}}<span class="fakelink" style="color: #999" onclick="lockview(event, 'item', {{$item.id}});">{{$item.lock}}</span> {{/if}}
 			</span>
 		</div>
 		<div class="wall-item-content">
 			{{if $item.title}}<h2><a href="{{$item.plink.href}}">{{$item.title}}</a></h2>{{/if}}
-			<div class="wall-item-body">{{$item.body nofilter}}</div>
+			<div class="wall-item-body">{{$item.body_html nofilter}}</div>
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -51,7 +53,7 @@
 		</div>
 		<div class="wall-item-actions">
 
-			<div class="wall-item-location">{{$item.location nofilter}}&nbsp;</div>
+			<div class="wall-item-location">{{$item.location_html nofilter}}&nbsp;</div>
 
 			<div class="wall-item-actions-social">
 			{{if $item.star}}
@@ -61,10 +63,10 @@
 			{{/if}}
 
 			{{if $item.vote.like}}
-				<a href="#" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active"{{/if}} title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false">{{$item.vote.like.1}}</a>
+				<a href="#" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active"{{/if}} title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false">{{$item.vote.like.1}}</a>
 			{{/if}}
 			{{if $item.vote.dislike}}
-				<a href="#" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active"{{/if}} title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false">{{$item.vote.dislike.1}}</a>
+				<a href="#" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active"{{/if}} title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false">{{$item.vote.dislike.1}}</a>
 			{{/if}}
 
 			{{if $item.vote.share}}
@@ -89,7 +91,7 @@
 	</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
-		<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like nofilter}}</div>
-		<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike nofilter}}</div>
+		<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like_html nofilter}}</div>
+		<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike_html nofilter}}</div>
 	</div>
 </div>

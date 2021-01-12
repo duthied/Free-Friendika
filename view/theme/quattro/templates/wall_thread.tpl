@@ -19,12 +19,12 @@
 <span class="commented" style="display: none;">{{$item.commented}}</span>
 <span class="received" style="display: none;">{{$item.received}}</span>
 <span class="created" style="display: none;">{{$item.created_date}}</span>
-<span class="id" style="display: none;">{{$item.id}}</span>
+<span class="uriid" style="display: none;">{{$item.uriid}}</span>
 {{/if}}
 
 <div class="wall-item-decor">
 	{{if $item.star}}<span class="icon s22 star {{$item.isstarred}}" id="starred-{{$item.id}}" title="{{$item.star.starred}}">{{$item.star.starred}}</span>{{/if}}
-	{{if $item.lock}}<span class="icon s22 lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
+	{{if $item.lock}}<span class="icon s22 lock fakelink" onclick="lockview(event, 'item', {{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
 	<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 </div>
 
@@ -39,7 +39,7 @@
 				</a>
 				<a href="#" rel="#wall-item-photo-menu-{{$item.id}}" class="contact-photo-menu-button icon s16 menu" id="wall-item-photo-menu-button-{{$item.id}}">menu</a>
 				<ul class="contact-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
-				{{$item.item_photo_menu nofilter}}
+				{{$item.item_photo_menu_html nofilter}}
 				</ul>
 
 			</div>
@@ -50,11 +50,11 @@
 				</a>
 			</div>
 			{{/if}}
-			<div class="wall-item-location">{{$item.location nofilter}}</div>
+			<div class="wall-item-location">{{$item.location_html nofilter}}</div>
 		</div>
 		<div class="wall-item-content">
 			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h2>{{/if}}
-			<span class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}">{{$item.body nofilter}}</span>
+			<div class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}">{{$item.body_html nofilter}}</div>
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -76,6 +76,9 @@
 			{{/foreach}}
 		{{/if}}
 		</div>
+		{{if $item.edited}}
+		<div class="itemedited text-muted">{{$item.edited['label']}} (<span title="{{$item.edited['date']}}">{{$item.edited['relative']}}</span>)</div>
+		{{/if}}
 	</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links">
@@ -118,9 +121,12 @@
 			{{/if}}
 
 			{{if $item.vote}}
-				<a href="#" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false">{{$item.vote.like.1}}</a>
+				<a href="#" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false">{{$item.vote.like.1}}</a>
 				{{if $item.vote.dislike}}
-				<a href="#" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false">{{$item.vote.dislike.1}}</a>
+				<a href="#" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false">{{$item.vote.dislike.1}}</a>
+				{{/if}}
+				{{if $item.vote.announce}}
+				<a href="#" id="announce-{{$item.id}}"{{if $item.responses.announce.self}} class="active{{/if}}" title="{{$item.vote.announce.0}}" onclick="dolike({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}}); return false">{{$item.vote.announce.1}}</a>
 				{{/if}}
 			    {{if $item.vote.share}}
 				    <a href="#" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false">{{$item.vote.share.1}}</a>
@@ -129,9 +135,9 @@
 			{{if $item.isevent}}
 			<div class="clear"></div>
 			<div class="wall-item-actions-isevent">
-				<a href="#" id="attendyes-{{$item.id}}"{{if $item.responses.attendyes.self}} class="active{{/if}}" title="{{$item.attend.0}}" onclick="dolike({{$item.id}},'attendyes'); return false;">{{$item.attend.0}}</a>
-				<a href="#" id="attendno-{{$item.id}}"{{if $item.responses.attendno.self}} class="active{{/if}}" title="{{$item.attend.1}}" onclick="dolike({{$item.id}},'attendno'); return false;">{{$item.attend.1}}</a>
-				<a href="#" id="attendmaybe-{{$item.id}}"{{if $item.responses.attendmaybe.self}} class="active{{/if}}" title="{{$item.attend.2}}" onclick="dolike({{$item.id}},'attendmaybe'); return false;">{{$item.attend.2}}</a>
+				<a href="#" id="attendyes-{{$item.id}}"{{if $item.responses.attendyes.self}} class="active{{/if}}" title="{{$item.attend.0}}" onclick="dolike({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}}); return false;">{{$item.attend.0}}</a>
+				<a href="#" id="attendno-{{$item.id}}"{{if $item.responses.attendno.self}} class="active{{/if}}" title="{{$item.attend.1}}" onclick="dolike({{$item.id}}, 'attendno'{{if $item.responses.attendno.self}}, true{{/if}}); return false;">{{$item.attend.1}}</a>
+				<a href="#" id="attendmaybe-{{$item.id}}"{{if $item.responses.attendmaybe.self}} class="active{{/if}}" title="{{$item.attend.2}}" onclick="dolike({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}}); return false;">{{$item.attend.2}}</a>
 			</div>
 			{{/if}}
 
@@ -161,11 +167,11 @@
 		{{/if}}
 	</div>
 
-	{{if $item.threaded}}{{if $item.comment}}{{if $item.indent==comment}}
+	{{if $item.threaded}}{{if $item.comment_html}}{{if $item.indent==comment}}
 	<div class="wall-item-bottom commentbox">
 		<div class="wall-item-links"></div>
 		<div class="wall-item-comment-wrapper">
-					{{$item.comment nofilter}}
+					{{$item.comment_html nofilter}}
 		</div>
 	</div>
 	{{/if}}{{/if}}{{/if}}
@@ -189,11 +195,11 @@
 {{/if}}
 
 {{* top thread comment box *}}
-{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
+{{if $item.threaded}}{{if $item.comment_html}}{{if $item.thread_level==1}}
+<div class="wall-item-comment-wrapper" >{{$item.comment_html nofilter}}</div>
 {{/if}}{{/if}}{{/if}}
 
 
 {{if $item.flatten}}
-<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
+<div class="wall-item-comment-wrapper" >{{$item.comment_html nofilter}}</div>
 {{/if}}

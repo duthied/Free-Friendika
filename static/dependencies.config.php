@@ -46,6 +46,7 @@ use Friendica\Database\Database;
 use Friendica\Factory;
 use Friendica\Model\Storage\IStorage;
 use Friendica\Model\User\Cookie;
+use Friendica\Network;
 use Friendica\Util;
 use Psr\Log\LoggerInterface;
 
@@ -80,7 +81,7 @@ return [
 	Config\Cache::class          => [
 		'instanceOf' => Factory\ConfigFactory::class,
 		'call'       => [
-			['createCache', [], Dice::CHAIN_CALL],
+			['createCache', [$_SERVER], Dice::CHAIN_CALL],
 		],
 	],
 	App\Mode::class              => [
@@ -104,7 +105,6 @@ return [
 	Database::class                         => [
 		'constructParams' => [
 			[Dice::INSTANCE => \Psr\Log\NullLogger::class],
-			$_SERVER,
 		],
 	],
 	/**
@@ -186,14 +186,14 @@ return [
 	Process::class => [
 		'constructParams' => [
 			[Dice::INSTANCE => '$basepath'],
+			getmypid(),
 		],
 	],
 	App\Router::class => [
 		'constructParams' => [
-			$_SERVER, null
-		],
-		'call' => [
-			['loadRoutes', [include __DIR__ . '/routes.config.php'], Dice::CHAIN_CALL],
+			$_SERVER,
+			__DIR__ . '/routes.config.php',
+			null
 		],
 	],
 	L10n::class => [
@@ -219,4 +219,7 @@ return [
 			['getBackend', [], Dice::CHAIN_CALL],
 		],
 	],
+	Network\IHTTPRequest::class => [
+		'instanceOf' => Network\HTTPRequest::class,
+	]
 ];

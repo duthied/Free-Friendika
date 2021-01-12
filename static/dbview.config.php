@@ -164,6 +164,65 @@ return [
 			LEFT JOIN `tag` ON `post-tag`.`tid` = `tag`.`id`
 			LEFT JOIN `contact` ON `post-tag`.`cid` = `contact`.`id`"
 	],
+	"network-item-view" => [
+		"fields" => [
+			"uri-id" => ["item", "parent-uri-id"],
+			"uri" => ["item", "parent-uri"],
+			"parent" => ["item", "parent"],
+			"received" => ["item", "received"],
+			"commented" => ["item", "commented"],
+			"created" => ["item", "created"],
+			"uid" => ["item", "uid"],
+			"starred" => ["item", "starred"],
+			"mention" => ["item", "mention"],
+			"network" => ["item", "network"],
+			"unseen" => ["item", "unseen"],
+			"gravity" => ["item", "gravity"],
+			"contact-id" => ["item", "contact-id"],
+			"contact-type" => ["ownercontact", "contact-type"],
+		],
+		"query" => "FROM `item`
+			INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
+			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
+			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
+			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
+			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `thread`.`owner-id`
+			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
+			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
+			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
+			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`)"
+	],
+	"network-thread-view" => [
+		"fields" => [
+			"uri-id" => ["item", "uri-id"],
+			"uri" => ["item", "uri"],
+			"parent-uri-id" => ["item", "parent-uri-id"],
+			"parent" => ["thread", "iid"],
+			"received" => ["thread", "received"],
+			"commented" => ["thread", "commented"],
+			"created" => ["thread", "created"],
+			"uid" => ["thread", "uid"],
+			"starred" => ["thread", "starred"],
+			"mention" => ["thread", "mention"],
+			"network" => ["thread", "network"],
+			"contact-id" => ["thread", "contact-id"],
+			"contact-type" => ["ownercontact", "contact-type"],
+		],
+		"query" => "FROM `thread`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
+			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
+			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
+			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
+			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
+			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `thread`.`owner-id`
+			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
+			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
+			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
+			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
+			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`)"
+	],
 	"owner-view" => [
 		"fields" => [
 			"id" => ["contact", "id"],
@@ -218,18 +277,18 @@ return [
 			"term-date" => ["contact", "term-date"],
 			"last-item" => ["contact", "last-item"],
 			"priority" => ["contact", "priority"],
-			"blocked" => ["contact", "blocked"], /// @todo Check if "blocked" from contact or from the users table
+			"blocked" => ["user", "blocked"],
 			"block_reason" => ["contact", "block_reason"],
 			"readonly" => ["contact", "readonly"],
 			"writable" => ["contact", "writable"],
 			"forum" => ["contact", "forum"],
 			"prv" => ["contact", "prv"],
 			"contact-type" => ["contact", "contact-type"],
+			"manually-approve" => ["contact", "manually-approve"],
 			"hidden" => ["contact", "hidden"],
 			"archive" => ["contact", "archive"],
 			"pending" => ["contact", "pending"],
 			"deleted" => ["contact", "deleted"],
-			"rating" => ["contact", "rating"],
 			"unsearchable" => ["contact", "unsearchable"],
 			"sensitive" => ["contact", "sensitive"],
 			"baseurl" => ["contact", "baseurl"],
@@ -241,7 +300,7 @@ return [
 			"bd" => ["contact", "bd"],
 			"notify_new_posts" => ["contact", "notify_new_posts"],
 			"fetch_further_information" => ["contact", "fetch_further_information"],
-			"ffi_keyword_blacklist" => ["contact", "ffi_keyword_blacklist"],
+			"ffi_keyword_denylist" => ["contact", "ffi_keyword_denylist"],
 			"parent-uid" => ["user", "parent-uid"],
 			"guid" => ["user", "guid"],
 			"nickname" => ["user", "nickname"], /// @todo Replaces all uses of "nickname" with "nick"
@@ -273,7 +332,7 @@ return [
 			"account_removed" => ["user", "account_removed"],
 			"account_expired" => ["user", "account_expired"],
 			"account_expires_on" => ["user", "account_expires_on"],
-			"expire_notification_sent" => ["user", "expire_notification_sent"],			
+			"expire_notification_sent" => ["user", "expire_notification_sent"],
 			"def_gid" => ["user", "def_gid"],
 			"allow_cid" => ["user", "allow_cid"],
 			"allow_gid" => ["user", "allow_gid"],

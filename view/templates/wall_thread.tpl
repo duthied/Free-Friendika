@@ -14,12 +14,15 @@
 <span class="commented" style="display: none;">{{$item.commented}}</span>
 <span class="received" style="display: none;">{{$item.received}}</span>
 <span class="created" style="display: none;">{{$item.created_date}}</span>
-<span class="id" style="display: none;">{{$item.id}}</span>
+<span class="uriid" style="display: none;">{{$item.uriid}}</span>
 {{/if}}
-<div id="tread-wrapper-{{$item.id}}" class="tread-wrapper {{$item.toplevel}} {{if $item.toplevel}} h-entry {{else}} u-comment h-cite {{/if}}">
+<div id="tread-wrapper-{{$item.uriid}}" class="tread-wrapper {{$item.toplevel}} {{if $item.toplevel}} h-entry {{else}} u-comment h-cite {{/if}}">
 <a name="{{$item.id}}" ></a>
 <div class="wall-item-outside-wrapper {{$item.indent}}{{$item.previewing}}{{if $item.owner_url}} wallwall{{/if}}" id="wall-item-outside-wrapper-{{$item.id}}" >
 	<div class="wall-item-content-wrapper {{$item.indent}} {{$item.shiny}}" id="wall-item-content-wrapper-{{$item.id}}" >
+	{{if $item.reshared}}
+		<p class="wall-item-announce wall-item-responses" id="wall-item-announce-{{$item.id}}">{{$item.reshared nofilter}}</p>
+	{{/if}}
 		<div class="wall-item-info{{if $item.owner_url}} wallwall{{/if}}" id="wall-item-info-{{$item.id}}">
 			{{if $item.owner_url}}
 			<div class="wall-item-photo-wrapper wwto" id="wall-item-ownerphoto-wrapper-{{$item.id}}" >
@@ -36,16 +39,16 @@
 				<span onclick="openClose('wall-item-photo-menu-{{$item.id}}');" class="fakelink wall-item-photo-menu-button" id="wall-item-photo-menu-button-{{$item.id}}">menu</span>
                 <div class="wall-item-photo-menu" id="wall-item-photo-menu-{{$item.id}}">
                     <ul>
-                        {{$item.item_photo_menu nofilter}}
+                        {{$item.item_photo_menu_html nofilter}}
                     </ul>
                 </div>
 
 			</div>
 			<div class="wall-item-photo-end"></div>
 			<div class="wall-item-wrapper" id="wall-item-wrapper-{{$item.id}}" >
-				{{if $item.lock}}<div class="wall-item-lock"><img src="images/lock_icon.gif" class="lockview" alt="{{$item.lock}}" onclick="lockview(event,{{$item.id}});" /></div>
+				{{if $item.lock}}<div class="wall-item-lock"><img src="images/lock_icon.gif" class="lockview" alt="{{$item.lock}}" onclick="lockview(event, 'item', {{$item.id}});" /></div>
 				{{else}}<div class="wall-item-lock"></div>{{/if}}
-				<div class="wall-item-location" id="wall-item-location-{{$item.id}}">{{$item.location nofilter}}</div>
+				<div class="wall-item-location" id="wall-item-location-{{$item.id}}">{{$item.location_html nofilter}}</div>
 			</div>
 		</div>
 		<div class="wall-item-author">
@@ -55,31 +58,36 @@
 		<div class="wall-item-content" id="wall-item-content-{{$item.id}}" >
 			<div class="wall-item-title p-name" id="wall-item-title-{{$item.id}}">{{$item.title}}</div>
 			<div class="wall-item-title-end"></div>
-			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" ><span class="e-content">{{$item.body nofilter}}<span>
-			<div class="body-tag">
-			{{if !$item.suppress_tags}}
-				{{foreach $item.tags as $tag}}
-				<span class="tag">{{$tag nofilter}}</span>
-				{{/foreach}}
-			{{/if}}
-			</div>
-			{{if $item.has_cats}}
-			<div class="categorytags"><span>{{$item.txt_cats}} {{foreach $item.categories as $cat}}<span class="p-category"><a href="{{$cat.url}}">{{$cat.name}}</a></span>{{if $cat.removeurl}} <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a>{{/if}} {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
-			</div>
-			{{/if}}
+			<div class="wall-item-body" id="wall-item-body-{{$item.id}}">
+				<span class="e-content">{{$item.body_html nofilter}}<span>
+				<div class="body-tag">
+				{{if !$item.suppress_tags}}
+					{{foreach $item.tags as $tag}}
+					<span class="tag">{{$tag nofilter}}</span>
+					{{/foreach}}
+				{{/if}}
+				</div>
+				{{if $item.has_cats}}
+				<div class="categorytags"><span>{{$item.txt_cats}} {{foreach $item.categories as $cat}}<span class="p-category"><a href="{{$cat.url}}">{{$cat.name}}</a></span>{{if $cat.removeurl}} <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a>{{/if}} {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
+				</div>
+				{{/if}}
 
-			{{if $item.has_folders}}
-			<div class="filesavetags"><span>{{$item.txt_folders}} {{foreach $item.folders as $cat}}<span class="p-category">{{$cat.name}}</span>{{if $cat.removeurl}} <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a>{{/if}}{{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
-			</div>
-			{{/if}}
+				{{if $item.has_folders}}
+				<div class="filesavetags"><span>{{$item.txt_folders}} {{foreach $item.folders as $cat}}<span class="p-category">{{$cat.name}}</span>{{if $cat.removeurl}} <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a>{{/if}}{{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
+				</div>
+				{{/if}}
+				{{if $item.edited}}
+				<div class="itemedited text-muted">{{$item.edited['label']}} (<span title="{{$item.edited['date']}}">{{$item.edited['relative']}}</span>)</div>
+				{{/if}}
 			</div>
 		</div>
 		<div class="wall-item-tools" id="wall-item-tools-{{$item.id}}">
 			{{if $item.vote}}
 			<div class="wall-item-like-buttons" id="wall-item-like-buttons-{{$item.id}}">
-				<a href="#" class="icon like{{if $item.responses.like.self}} active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}},'like'); return false"></a>
-				{{if $item.vote.dislike}}<a href="#" class="icon dislike{{if $item.responses.dislike.self}} active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'); return false"></a>{{/if}}
-				{{if $item.vote.share}}<a href="#" class="icon recycle wall-item-share-buttons" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"></a>{{/if}}
+				<a href="#" class="icon like{{if $item.responses.like.self}} active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false"></a>
+				{{if $item.vote.dislike}}<a href="#" class="icon dislike{{if $item.responses.dislike.self}} active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}},'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false"></a>{{/if}}
+				{{if $item.vote.announce}}<a href="#" class="icon recycle{{if $item.responses.announce.self}} active{{/if}}" title="{{$item.vote.announce.0}}" onclick="dolike({{$item.id}},'announce'{{if $item.responses.announce.self}}, true{{/if}}); return false"></a>{{/if}}
+				{{if $item.vote.share}}<a href="#" class="icon share wall-item-share-buttons" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false"></a>{{/if}}
 				<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 			</div>
 			{{/if}}
@@ -107,9 +115,9 @@
 			{{/if}}
 			{{if $item.isevent }}
 			<div class="wall-item-attend-wrapper">
-				<a href="#" id="attendyes-{{$item.id}}" class="icon attendyes{{if $item.responses.attendyes.self}} active{{/if}}" onclick="dolike({{$item.id}},'attendyes'); return false;" title="{{$item.attend.0}}"></a>
-				<a href="#" id="attendno-{{$item.id}}" class="icon attendno{{if $item.responses.attendno.self}} active{{/if}}"  onclick="dolike({{$item.id}},'attendno'); return false;" title="{{$item.attend.1}}"></a>
-				<a href="#" id="attendmaybe-{{$item.id}}"  class="icon attendmaybe{{if $item.responses.attendmaybe.self}} active{{/if}}" onclick="dolike({{$item.id}},'attendmaybe'); return false;" title="{{$item.attend.2}}"></a>
+				<a href="#" id="attendyes-{{$item.id}}" class="icon attendyes{{if $item.responses.attendyes.self}} active{{/if}}" onclick="dolike({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}}); return false;" title="{{$item.attend.0}}"></a>
+				<a href="#" id="attendno-{{$item.id}}" class="icon attendno{{if $item.responses.attendno.self}} active{{/if}}"  onclick="dolike({{$item.id}}, 'attendno'{{if $item.responses.attendno.self}}, true{{/if}}); return false;" title="{{$item.attend.1}}"></a>
+				<a href="#" id="attendmaybe-{{$item.id}}"  class="icon attendmaybe{{if $item.responses.attendmaybe.self}} active{{/if}}" onclick="dolike({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}}); return false;" title="{{$item.attend.2}}"></a>
 			</div>
 			{{/if}}
 			<div class="wall-item-delete-wrapper" id="wall-item-delete-wrapper-{{$item.id}}" >
@@ -126,9 +134,9 @@
 		{{/foreach}}
 	{{/if}}
 			{{if $item.threaded}}
-			{{if $item.comment}}
+			{{if $item.comment_html}}
 			<div class="wall-item-comment-wrapper {{$item.indent}}" >
-				{{$item.comment nofilter}}
+				{{$item.comment_html nofilter}}
 			</div>
 			{{/if}}
 			{{/if}}
@@ -141,7 +149,7 @@
 
 {{if $item.flatten}}
 <div class="wall-item-comment-wrapper" >
-	{{$item.comment nofilter}}
+	{{$item.comment_html nofilter}}
 </div>
 {{/if}}
 </div>

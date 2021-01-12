@@ -1,36 +1,62 @@
 <script src="{{$baseurl}}/view/theme/quattro/jquery.tools.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
 
-{{include file="field_select.tpl" field=$scheme}}
+<div class="form-group field select">
+	<label for="id_{{$scheme.0}}">{{$scheme.1}}</label>
+	<select name="{{$scheme.0}}" id="id_{{$scheme.0}}" class="form-control">
+		<option value="---" {{if '---' == $scheme.2}}selected="selected"{{/if}}>{{$custom}}</option>
+		<optgroup label="{{$accented}}">
+	{{foreach $scheme.3 as $value => $label}}
+			<option value="{{$value}}" {{if $value == $scheme.2}}selected="selected"{{/if}}>{{$label}}</option>
+	{{/foreach}}
+		</optgroup>
+		<optgroup label="{{$legacy}}">
+	{{foreach $scheme.4 as $value => $label}}
+			<option value="{{$value}}" {{if $value == $scheme.2}}selected="selected"{{/if}}>{{$label}}</option>
+	{{/foreach}}
+		</optgroup>
+	</select>
+</div>
 
-{{if $nav_bg}}{{include file="field_input.tpl" field=$share_string}}{{/if}}
+{{if $scheme_accent}}
+<div class="form-group">
+	<p><label>{{$scheme_accent.1}}</label></p>
+	<label class="radio-inline">
+		<input type="radio" name="{{$scheme_accent.0}}" value="{{$smarty.const.FRIO_SCHEME_ACCENT_BLUE}}" {{if $scheme_accent.2 == $smarty.const.FRIO_SCHEME_ACCENT_BLUE}} checked{{/if}}>
+		<span style="border-radius: 10px; background-color: {{$smarty.const.FRIO_SCHEME_ACCENT_BLUE}}; width: 20px; display: inline-block">&nbsp;</span>
+		{{$scheme_accent.3.blue}}
+	</label>
+	<label class="radio-inline">
+		<input type="radio" name="{{$scheme_accent.0}}" value="{{$smarty.const.FRIO_SCHEME_ACCENT_RED}}" {{if $scheme_accent.2 == $smarty.const.FRIO_SCHEME_ACCENT_RED}} checked{{/if}}>
+		<span style="border-radius: 10px; background-color: {{$smarty.const.FRIO_SCHEME_ACCENT_RED}}; width: 20px; display: inline-block">&nbsp;</span>
+		{{$scheme_accent.3.red}}
+	</label>
+	<label class="radio-inline">
+		<input type="radio" name="{{$scheme_accent.0}}" value="{{$smarty.const.FRIO_SCHEME_ACCENT_PURPLE}}" {{if $scheme_accent.2 == $smarty.const.FRIO_SCHEME_ACCENT_PURPLE}} checked{{/if}}>
+		<span style="border-radius: 10px; background-color: {{$smarty.const.FRIO_SCHEME_ACCENT_PURPLE}}; width: 20px; display: inline-block">&nbsp;</span>
+		{{$scheme_accent.3.purple}}
+	</label>
+	<label class="radio-inline">
+		<input type="radio" name="{{$scheme_accent.0}}" value="{{$smarty.const.FRIO_SCHEME_ACCENT_GREEN}}" {{if $scheme_accent.2 == $smarty.const.FRIO_SCHEME_ACCENT_GREEN}} checked{{/if}}>
+		<span style="border-radius: 10px; background-color: {{$smarty.const.FRIO_SCHEME_ACCENT_GREEN}}; width: 20px; display: inline-block">&nbsp;</span>
+		{{$scheme_accent.3.green}}
+	</label>
+	<label class="radio-inline">
+		<input type="radio" name="{{$scheme_accent.0}}" value="{{$smarty.const.FRIO_SCHEME_ACCENT_PINK}}" {{if $scheme_accent.2 == $smarty.const.FRIO_SCHEME_ACCENT_PINK}} checked{{/if}}>
+		<span style="border-radius: 10px; background-color: {{$smarty.const.FRIO_SCHEME_ACCENT_PINK}}; width: 20px; display: inline-block">&nbsp;</span>
+		{{$scheme_accent.3.pink}}
+	</label>
+</div>
+{{/if}}
+
+{{if $share_string}}{{include file="field_input.tpl" field=$share_string}}{{/if}}
 {{if $nav_bg}}{{include file="field_colorinput.tpl" field=$nav_bg}}{{/if}}
 {{if $nav_icon_color}}{{include file="field_colorinput.tpl" field=$nav_icon_color}}{{/if}}
 {{if $link_color}}{{include file="field_colorinput.tpl" field=$link_color}}{{/if}}
 
 {{if $background_color}}{{include file="field_colorinput.tpl" field=$background_color}}{{/if}}
 
-{{* The slider for the content opacity - We use no template for this since it is only used at this page *}}
-{{if $contentbg_transp}}
-<div class="form-group field input color">
-	<label for="id_{{$contentbg_transp.0}}" id="label_{{$contentbg_transp.0}}">{{$contentbg_transp.1}}</label>
-
-	<div class="row">
-		<div class="col-xs-9">
-			<input type="range" class="form-control color" id="{{$contentbg_transp.0}}_range" min="0" max="100" step="1" value="{{$contentbg_transp.2}}" onchange="{{$contentbg_transp.0}}.value = this.value" oninput="{{$contentbg_transp.0}}.value = this.value">
-		</div>
-		<div class="col-xs-3">
-			<div class="input-group">
-				<input type="text" class="form-control input-sm" name="{{$contentbg_transp.0}}" id="{{$contentbg_transp.0}}" value="{{$contentbg_transp.2}}" onchange="{{$contentbg_transp.0}}_range.value = this.value" oninput="{{$contentbg_transp.0}}_range.value = this.value" aria-describedby="{{$contentbg_transp.0}}_tip">
-				<span class="input-group-addon image-select">%</span>
-			</div>
-		</div>
-	</div>
-
-	<span id="{{$contentbg_transp.0}}_tip" class="help-block" role="tooltip">{{$contentbg_transp.3}}</span>
-	<div id="end_{{$contentbg_transp.0}}" class="field_end"></div>
-</div>
-{{/if}}
+{{if $contentbg_transp}}{{include file="field/range_percent.tpl" field=$contentbg_transp}}{{/if}}
 
 {{if $background_image}}{{include file="field_fileinput.tpl" field=$background_image}}{{/if}}
 
@@ -183,7 +209,7 @@
 	});
 </script>
 
-<div class="settings-submit-wrapper form-group pull-right">
+<div class="settings-submit-wrapper pull-right">
 	<button type="submit" value="{{$submit}}" class="settings-submit btn btn-primary" name="frio-settings-submit">{{$submit}}</button>
 </div>
 <div class="clearfix"></div>

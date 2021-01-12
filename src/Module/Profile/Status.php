@@ -25,6 +25,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
+use Friendica\Core\Protocol;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -32,10 +33,13 @@ use Friendica\Model\Item;
 use Friendica\Model\Post\Category;
 use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
+use Friendica\Model\Verb;
 use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
+use Friendica\Network\HTTPException;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Security;
+use Friendica\Security\Security;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
@@ -48,6 +52,10 @@ class Status extends BaseProfile
 		$a = DI::app();
 
 		ProfileModel::load($a, $parameters['nickname']);
+
+		if (empty($a->profile)) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+		}
 
 		if (!$a->profile['net-publish']) {
 			DI::page()['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
@@ -97,13 +105,13 @@ class Status extends BaseProfile
 		$last_updated_key = "profile:" . $a->profile['uid'] . ":" . local_user() . ":" . $remote_contact;
 
 		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
-			notice(DI::l10n()->t('Access to this profile has been restricted.') . EOL);
+			notice(DI::l10n()->t('Access to this profile has been restricted.'));
 			return '';
 		}
 
 		$o .= self::getTabsHTML($a, 'status', $is_owner, $a->profile['nickname']);
 
-		$o .= Widget::commonFriendsVisitor($a->profile['uid']);
+		$o .= Widget::commonFriendsVisitor($a->profile['uid'], $a->profile['nickname']);
 
 		$commpage = $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$commvisitor = $commpage && $remote_contact;
@@ -134,37 +142,32 @@ class Status extends BaseProfile
 		}
 
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
-		$sql_extra = Item::getPermissionsSQLByUserId($a->profile['uid']);
-		$sql_extra2 = '';
+		$condition = Item::getPermissionsConditionArrayByUserId($a->profile['uid']);
 
 		$last_updated_array = Session::get('last_updated', []);
 
-		$sql_post_table = "";
-
 		if (!empty($category)) {
-			$sql_post_table = sprintf("INNER JOIN (SELECT `uri-id` FROM `category-view` WHERE `name` = '%s' AND `type` = %d AND `uid` = %d ORDER BY `uri-id` DESC) AS `category` ON `item`.`uri-id` = `category`.`uri-id` ",
-				DBA::escape(Strings::protectSprintf($category)), intval(Category::CATEGORY), intval($a->profile['uid']));
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `category-view` WHERE `name` = ? AND `type` = ? AND `uid` = ?)",
+				$category, Category::CATEGORY, $a->profile['uid']]);
 		}
 
 		if (!empty($hashtags)) {
-			$sql_post_table .= sprintf("INNER JOIN (SELECT `uri-id` FROM `tag-search-view` WHERE `name` = '%s' AND `uid` = %d ORDER BY `uri-id` DESC) AS `tag-search` ON `item`.`uri-id` = `tag-search`.`uri-id` ",
-				DBA::escape(Strings::protectSprintf($hashtags)), intval($a->profile['uid']));
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `tag-search-view` WHERE `name` = ? AND `uid` = ?)",
+				$hashtags, $a->profile['uid']]);
 		}
 
 		if (!empty($datequery)) {
-			$sql_extra2 .= Strings::protectSprintf(sprintf(" AND `thread`.`received` <= '%s' ", DBA::escape(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
+			$condition = DBA::mergeConditions($condition, ["`received` <= ?", DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get())]);
 		}
 		if (!empty($datequery2)) {
-			$sql_extra2 .= Strings::protectSprintf(sprintf(" AND `thread`.`received` >= '%s' ", DBA::escape(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
+			$condition = DBA::mergeConditions($condition, ["`received` >= ?", DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get())]);
 		}
 
 		// Does the profile page belong to a forum?
 		// If not then we can improve the performance with an additional condition
-		$condition = ['uid' => $a->profile['uid'], 'page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]];
-		if (!DBA::exists('user', $condition)) {
-			$sql_extra3 = sprintf(" AND `thread`.`contact-id` = %d ", intval(intval($a->profile['id'])));
-		} else {
-			$sql_extra3 = "";
+		$condition2 = ['uid' => $a->profile['uid'], 'page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]];
+		if (!DBA::exists('user', $condition2)) {
+			$condition = DBA::mergeConditions($condition, ['contact-id' => $a->profile['id']]);
 		}
 
 		if (DI::mode()->isMobile()) {
@@ -175,37 +178,22 @@ class Status extends BaseProfile
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
-		//  now that we have the user settings, see if the theme forces
-		//  a maximum item number which is lower then the user choice
-		if (($a->force_max_items > 0) && ($a->force_max_items < $itemspage_network)) {
-			$itemspage_network = $a->force_max_items;
-		}
+		$condition = DBA::mergeConditions($condition, ["((`gravity` = ? AND `wall`) OR
+			(`gravity` = ? AND `vid` = ? AND `origin` AND `thr-parent-id` IN
+				(SELECT `uri-id` FROM `item` AS `i`
+					WHERE `gravity` = ? AND `network` IN (?, ?, ?, ?) AND `uid` IN (?, ?)
+						AND `i`.`uri-id` = `item`.`thr-parent-id`)))",
+			GRAVITY_PARENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), GRAVITY_PARENT,
+			Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::OSTATUS,
+			0, $a->profile['uid']]);
+
+		$condition = DBA::mergeConditions($condition, ['uid' => $a->profile['uid'], 'network' => Protocol::FEDERATED,
+			'visible' => true, 'deleted' => false, 'moderated' => false]);
 
 		$pager = new Pager(DI::l10n(), $args->getQueryString(), $itemspage_network);
+		$params = ['limit' => [$pager->getStart(), $pager->getItemsPerPage()], 'order' => ['received' => true]];
 
-		$pager_sql = sprintf(" LIMIT %d, %d ", $pager->getStart(), $pager->getItemsPerPage());
-
-		$items_stmt = DBA::p(
-			"SELECT `item`.`uri`
-			FROM `thread`
-			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-			$sql_post_table
-			STRAIGHT_JOIN `contact`
-			ON `contact`.`id` = `thread`.`contact-id`
-				AND NOT `contact`.`blocked`
-				AND NOT `contact`.`pending`
-			WHERE `thread`.`uid` = ?
-				AND `thread`.`visible`
-				AND NOT `thread`.`deleted`
-				AND NOT `thread`.`moderated`
-				AND `thread`.`wall`
-				$sql_extra3
-				$sql_extra
-				$sql_extra2
-			ORDER BY `thread`.`received` DESC
-			$pager_sql",
-			$a->profile['uid']
-		);
+		$items_stmt = DBA::select('item', ['uri', 'thr-parent-id', 'gravity', 'author-id', 'received'], $condition, $params);
 
 		// Set a time stamp for this page. We will make use of it when we
 		// search for new items (update routine)
@@ -227,7 +215,19 @@ class Status extends BaseProfile
 		$items = DBA::toArray($items_stmt);
 
 		if ($pager->getStart() == 0 && !empty($a->profile['uid'])) {
-			$pinned_items = Item::selectPinned($a->profile['uid'], ['uri', 'pinned']);
+			$condition = ['private' => [Item::PUBLIC, Item::UNLISTED]];
+			$remote_user = Session::getRemoteContactID($a->profile['uid']);
+			if (!empty($remote_user)) {
+				$permissionSets = DI::permissionSet()->selectByContactId($remote_user, $a->profile['uid']);
+				if (!empty($permissionSets)) {
+					$condition = ['psid' => array_merge($permissionSets->column('id'),
+							[DI::permissionSet()->getIdFromACL($a->profile['uid'], '', '', '', '')])];
+				}
+			} elseif ($a->profile['uid'] == local_user()) {
+				$condition = [];
+			}
+	
+			$pinned_items = Item::selectPinned($a->profile['uid'], ['uri', 'pinned'], $condition);
 			$pinned = Item::inArray($pinned_items);
 			$items = array_merge($items, $pinned);
 		}

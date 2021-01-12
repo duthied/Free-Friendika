@@ -271,8 +271,6 @@ class FileTag
 			if (!strlen($saved) || !stristr($saved, '[' . self::encode($file) . ']')) {
 				DI::pConfig()->set($uid, 'system', 'filetags', $saved . '[' . self::encode($file) . ']');
 			}
-
-			info(DI::l10n()->t('Item filed'));
 		}
 
 		return true;

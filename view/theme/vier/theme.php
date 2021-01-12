@@ -17,8 +17,6 @@ use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
 function vier_init(App $a)
@@ -27,7 +25,10 @@ function vier_init(App $a)
 
 	Renderer::setActiveTemplateEngine('smarty3');
 
-	if (!empty($a->argv[0]) && ($a->argv[0] . ($a->argv[1] ?? '')) === ('profile' . $a->user['nickname']) || $a->argv[0] === 'network' && local_user()) {
+	$args = DI::args();
+
+	if ($args->get(0) === 'profile' && $args->get(1) === ($a->user['nickname'] ?? '') || $args->get(0) === 'network' && local_user()
+	) {
 		vier_community_info();
 
 		DI::page()['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
@@ -79,7 +80,7 @@ EOT;
 
 	// Hide the left menu bar
 	/// @TODO maybe move this static array out where it should belong?
-	if (empty(DI::page()['aside']) && in_array($a->argv[0], ["community", "events", "help", "delegation", "notifications",
+	if (empty(DI::page()['aside']) && in_array($args->get(0), ["community", "events", "help", "delegation", "notifications",
 			"probe", "webfinger", "login", "invite", "credits"])) {
 		DI::page()['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
 	}
@@ -104,8 +105,6 @@ function get_vier_config($key, $default = false, $admin = false)
 
 function vier_community_info()
 {
-	$a = DI::app();
-
 	$show_pages      = get_vier_config("show_pages", 1);
 	$show_profiles   = get_vier_config("show_profiles", 1);
 	$show_helpers    = get_vier_config("show_helpers", 1);
@@ -119,19 +118,19 @@ function vier_community_info()
 
 	// comunity_profiles
 	if ($show_profiles) {
-		$r = GContact::suggestionQuery(local_user(), 0, 9);
+		$contacts = Contact\Relation::getSuggestions(local_user(), 0, 9);
 
 		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
-		if (DBA::isResult($r)) {
+		if (DBA::isResult($contacts)) {
 			$aside['$comunity_profiles_title'] = DI::l10n()->t('Community Profiles');
 			$aside['$comunity_profiles_items'] = [];
 
-			foreach ($r as $rr) {
+			foreach ($contacts as $contact) {
 				$entry = Renderer::replaceMacros($tpl, [
-					'$id' => $rr['id'],
-					'$profile_link' => 'follow/?url='.urlencode($rr['url']),
-					'$photo' => ProxyUtils::proxifyUrl($rr['photo'], false, ProxyUtils::SIZE_MICRO),
-					'$alt_text' => $rr['name'],
+					'$id' => $contact['id'],
+					'$profile_link' => 'follow/?url='.urlencode($contact['url']),
+					'$photo' => Contact::getMicro($contact),
+					'$alt_text' => $contact['name'],
 				]);
 				$aside['$comunity_profiles_items'][] = $entry;
 			}
@@ -186,49 +185,7 @@ function vier_community_info()
 
 	//Community_Pages at right_aside
 	if ($show_pages && local_user()) {
-		$cid = $_GET['cid'] ?? null;
-
-		//sort by last updated item
-		$lastitem = true;
-
-		$contacts = ForumManager::getList($a->user['uid'], $lastitem, true, true);
-		$total = count($contacts);
-		$visible_forums = 10;
-
-		if (count($contacts)) {
-			$id = 0;
-
-			foreach ($contacts as $contact) {
-				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
-
-				$entry = [
-					'url'          => 'network?cid=' . $contact['id'],
-					'external_url' => Contact::magicLink($contact['url']),
-					'name'         => $contact['name'],
-					'cid'          => $contact['id'],
-					'selected'     => $selected,
-					'micro'        => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO)),
-					'id'           => ++$id,
-				];
-				$entries[] = $entry;
-			}
-
-
-			$tpl = Renderer::getMarkupTemplate('widget_forumlist_right.tpl');
-
-			$page = Renderer::replaceMacros(
-				$tpl,
-				[
-					'$title'          => DI::l10n()->t('Forums'),
-					'$forums'         => $entries,
-					'$link_desc'      => DI::l10n()->t('External link to forum'),
-					'$total'          => $total,
-					'$visible_forums' => $visible_forums,
-					'$showmore'       => DI::l10n()->t('show more')]
-			);
-
-			$aside['$page'] = $page;
-		}
+		$aside['$page'] = ForumManager::widget('network/forum', local_user());;
 	}
 	// END Community Page
 
@@ -241,16 +198,10 @@ function vier_community_info()
 		$helpers = explode(",", $helperlist);
 
 		if ($helpers) {
-			$query = "";
-			foreach ($helpers as $index => $helper) {
-				if ($query != "") {
-					$query .= ",";
-				}
-
-				$query .= "'".DBA::escape(Strings::normaliseLink(trim($helper)))."'";
+			foreach ($helpers as $helper) {
+				$urls[] = Strings::normaliseLink(trim($helper));
 			}
-
-			$r = q("SELECT `url`, `name` FROM `gcontact` WHERE `nurl` IN (%s)", $query);
+			$r = DBA::selectToArray('contact', ['url', 'name'], ['uid' => 0, 'nurl' => $urls]);
 		}
 
 		foreach ($r as $index => $helper) {

@@ -70,7 +70,7 @@
 			</div><!--row-->
 		</div><!-- container -->
 
-		<div id="back-to-top" title="back to top">&#8679;</div>
+		<div id="back-to-top" title="back to top">⇧</div>
 	</main>
 
 <footer>

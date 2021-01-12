@@ -44,7 +44,7 @@ class Probe extends BaseModule
 		$res  = '';
 
 		if (!empty($addr)) {
-			$res = NetworkProbe::uri($addr, '', 0, false);
+			$res = NetworkProbe::uri($addr, '', 0);
 			$res = print_r($res, true);
 		}
 
@@ -54,7 +54,7 @@ class Probe extends BaseModule
 				DI::l10n()->t('Lookup address'),
 				$addr,
 				'',
-				'required'
+				DI::l10n()->t('Required')
 			],
 			'$res'  => $res,
 		]);

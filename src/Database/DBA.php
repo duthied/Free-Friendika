@@ -73,6 +73,16 @@ class DBA
 	}
 
 	/**
+	 * Return the database driver string
+	 *
+	 * @return string with either "pdo" or "mysqli"
+	 */
+	public static function getDriver()
+	{
+		return DI::dba()->getDriver();
+	}
+
+	/**
 	 * Returns the MySQL server version string
 	 *
 	 * This function discriminate between the deprecated mysql API and the current
@@ -280,16 +290,31 @@ class DBA
 	/**
 	 * Insert a row into a table
 	 *
-	 * @param string|array $table               Table name or array [schema => table]
-	 * @param array        $param               parameter array
-	 * @param bool         $on_duplicate_update Do an update on a duplicate entry
+	 * @param string|array $table          Table name or array [schema => table]
+	 * @param array        $param          parameter array
+	 * @param int          $duplicate_mode What to do on a duplicated entry
 	 *
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public static function insert($table, $param, $on_duplicate_update = false)
+	public static function insert($table, array $param, int $duplicate_mode = Database::INSERT_DEFAULT)
 	{
-		return DI::dba()->insert($table, $param, $on_duplicate_update);
+		return DI::dba()->insert($table, $param, $duplicate_mode);
+	}
+
+	/**
+	 * Inserts a row with the provided data in the provided table.
+	 * If the data corresponds to an existing row through a UNIQUE or PRIMARY index constraints, it updates the row instead.
+	 *
+	 * @param string|array $table Table name or array [schema => table]
+	 * @param array        $param parameter array
+	 *
+	 * @return boolean was the insert successful?
+	 * @throws \Exception
+	 */
+	public static function replace($table, $param)
+	{
+		return DI::dba()->replace($table, $param);
 	}
 
 	/**
@@ -539,7 +564,7 @@ class DBA
 	 * Returns the SQL condition string built from the provided condition array
 	 *
 	 * This function operates with two modes.
-	 * - Supplied with a filed/value associative array, it builds simple strict
+	 * - Supplied with a field/value associative array, it builds simple strict
 	 *   equality conditions linked by AND.
 	 * - Supplied with a flat list, the first element is the condition string and
 	 *   the following arguments are the values to be interpolated
@@ -646,7 +671,57 @@ class DBA
 	}
 
 	/**
+	 * Merges the provided conditions into a single collapsed one
+	 *
+	 * @param array ...$conditions One or more condition arrays
+	 * @return array A collapsed condition
+	 * @see DBA::collapseCondition() for the condition array formats
+	 */
+	public static function mergeConditions(array ...$conditions)
+	{
+		if (count($conditions) == 1) {
+			return current($conditions);
+		}
+
+		$conditionStrings = [];
+		$result = [];
+
+		foreach ($conditions as $key => $condition) {
+			if (!$condition) {
+				continue;
+			}
+
+			$condition = self::collapseCondition($condition);
+
+			$conditionStrings[] = array_shift($condition);
+			// The result array holds the eventual parameter values
+			$result = array_merge($result, $condition);
+		}
+
+		if (count($conditionStrings)) {
+			// We prepend the condition string at the end to form a collapsed condition array again
+			array_unshift($result, implode(' AND ', $conditionStrings));
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Returns the SQL parameter string built from the provided parameter array
+	 *
+	 * Expected format for each key:
+	 *
+	 * group_by:
+	 *  - list of column names
+	 *
+	 * order:
+	 *  - numeric keyed column name => ASC
+	 *  - associative element with boolean value => DESC (true), ASC (false)
+	 *  - associative element with string value => 'ASC' or 'DESC' literally
+	 *
+	 * limit:
+	 *  - single numeric value => count
+	 *  - list with two numeric values => offset, count
 	 *
 	 * @param array $params
 	 * @return string
@@ -665,7 +740,11 @@ class DBA
 				if ($order === 'RAND()') {
 					$order_string .= "RAND(), ";
 				} elseif (!is_int($fields)) {
-					$order_string .= self::quoteIdentifier($fields) . " " . ($order ? "DESC" : "ASC") . ", ";
+					if ($order !== 'DESC' && $order !== 'ASC') {
+						$order = $order ? 'DESC' : 'ASC';
+					}
+
+					$order_string .= self::quoteIdentifier($fields) . " " . $order . ", ";
 				} else {
 					$order_string .= self::quoteIdentifier($order) . ", ";
 				}
@@ -695,6 +774,18 @@ class DBA
 	public static function toArray($stmt, $do_close = true)
 	{
 		return DI::dba()->toArray($stmt, $do_close);
+	}
+
+	/**
+	 * Cast field types according to the table definition
+	 *
+	 * @param string $table
+	 * @param array  $fields
+	 * @return array casted fields
+	 */
+	public static function castFields(string $table, array $fields)
+	{
+		return DI::dba()->castFields($table, $fields);
 	}
 
 	/**

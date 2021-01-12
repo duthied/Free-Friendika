@@ -38,7 +38,7 @@ use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Red Hot Poker');
-define('FRIENDICA_VERSION',      '2020.06-dev');
+define('FRIENDICA_VERSION',      '2021.03-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
@@ -201,6 +201,7 @@ define('PRIORITY_HIGH',       20);
 define('PRIORITY_MEDIUM',     30);
 define('PRIORITY_LOW',        40);
 define('PRIORITY_NEGLIGIBLE', 50);
+define('PRIORITIES', [PRIORITY_CRITICAL, PRIORITY_HIGH, PRIORITY_MEDIUM, PRIORITY_LOW, PRIORITY_NEGLIGIBLE]);
 /* @}*/
 
 /**
@@ -253,10 +254,10 @@ function public_contact()
 	if (!$public_contact_id && !empty($_SESSION['authenticated'])) {
 		if (!empty($_SESSION['my_address'])) {
 			// Local user
-			$public_contact_id = intval(Contact::getIdForURL($_SESSION['my_address'], 0, true));
+			$public_contact_id = intval(Contact::getIdForURL($_SESSION['my_address'], 0, false));
 		} elseif (!empty($_SESSION['visitor_home'])) {
 			// Remote user
-			$public_contact_id = intval(Contact::getIdForURL($_SESSION['visitor_home'], 0, true));
+			$public_contact_id = intval(Contact::getIdForURL($_SESSION['visitor_home'], 0, false));
 		}
 	} elseif (empty($_SESSION['authenticated'])) {
 		$public_contact_id = false;
@@ -266,7 +267,7 @@ function public_contact()
 }
 
 /**
- * Returns contact id of authenticated site visitor or false
+ * Returns public contact id of authenticated site visitor or false
  *
  * @return int|bool visitor_id or false
  */
@@ -380,38 +381,6 @@ function is_site_admin()
 	$adminlist = explode(',', str_replace(' ', '', $admin_email));
 
 	return local_user() && $admin_email && in_array($a->user['email'] ?? '', $adminlist);
-}
-
-function explode_querystring($query)
-{
-	$arg_st = strpos($query, '?');
-	if ($arg_st !== false) {
-		$base = substr($query, 0, $arg_st);
-		$arg_st += 1;
-	} else {
-		$base = '';
-		$arg_st = 0;
-	}
-
-	$args = explode('&', substr($query, $arg_st));
-	foreach ($args as $k => $arg) {
-		/// @TODO really compare type-safe here?
-		if ($arg === '') {
-			unset($args[$k]);
-		}
-	}
-	$args = array_values($args);
-
-	if (!$base) {
-		$base = $args[0];
-		unset($args[0]);
-		$args = array_values($args);
-	}
-
-	return [
-		'base' => $base,
-		'args' => $args,
-	];
 }
 
 /**

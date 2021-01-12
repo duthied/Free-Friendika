@@ -33,7 +33,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
-use Friendica\Util\Security;
+use Friendica\Security\Security;
 
 function videos_init(App $a)
 {
@@ -67,7 +67,7 @@ function videos_init(App $a)
 			'$photo' => $profile['photo'],
 			'$addr' => $profile['addr'] ?? '',
 			'$account_type' => $account_type,
-			'$about' => BBCode::convert($profile['about'] ?? ''),
+			'$about' => BBCode::convert($profile['about']),
 		]);
 
 		// If not there, create 'aside' empty
@@ -126,7 +126,7 @@ function videos_content(App $a)
 
 
 	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
-		notice(DI::l10n()->t('Public access denied.') . EOL);
+		notice(DI::l10n()->t('Public access denied.'));
 		return;
 	}
 
@@ -179,7 +179,7 @@ function videos_content(App $a)
 	}
 
 	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && !$remote_contact) {
-		notice(DI::l10n()->t('Access to this item is restricted.') . EOL);
+		notice(DI::l10n()->t('Access to this item is restricted.'));
 		return;
 	}
 

@@ -18,6 +18,7 @@
 						<ul role="menu" aria-haspopup="true" id="contact-actions-menu" class="menu-popup" >
 							{{if $lblsuggest}}<li role="menuitem"><a  href="#" title="{{$contact_actions.suggest.title}}" onclick="window.location.href='{{$contact_actions.suggest.url}}'; return false;">{{$contact_actions.suggest.label}}</a></li>{{/if}}
 							{{if $poll_enabled}}<li role="menuitem"><a  href="#" title="{{$contact_actions.update.title}}" onclick="window.location.href='{{$contact_actions.update.url}}'; return false;">{{$contact_actions.update.label}}</a></li>{{/if}}
+							{{if $contact_actions.updateprofile}}<li role="menuitem"><a href="{{$contact_actions.updateprofile.url}}" title="{{$contact_actions.updateprofile.title}}">{{$contact_actions.updateprofile.label}}</a></li>{{/if}}
 							<li class="divider"></li>
 							<li role="menuitem"><a  href="#" title="{{$contact_actions.block.title}}" onclick="window.location.href='{{$contact_actions.block.url}}'; return false;">{{$contact_actions.block.label}}</a></li>
 							<li role="menuitem"><a  href="#" title="{{$contact_actions.ignore.title}}" onclick="window.location.href='{{$contact_actions.ignore.url}}'; return false;">{{$contact_actions.ignore.label}}</a></li>
@@ -68,8 +69,12 @@
 					{{include file="field_checkbox.tpl" field=$notify}}
 					{{if $fetch_further_information}}
 						{{include file="field_select.tpl" field=$fetch_further_information}}
-						{{if $fetch_further_information.2 == 2 || $fetch_further_information.2 == 3}} {{include file="field_textarea.tpl" field=$ffi_keyword_blacklist}} {{/if}}
+						{{if $fetch_further_information.2 == 2 || $fetch_further_information.2 == 3}} {{include file="field_textarea.tpl" field=$ffi_keyword_denylist}} {{/if}}
 					{{/if}}
+					{{if $allow_remote_self}}
+						{{include file="field_select.tpl" field=$remote_self}}
+					{{/if}}
+
 					{{include file="field_checkbox.tpl" field=$hidden}}
 
 				<div id="contact-edit-info-wrapper">

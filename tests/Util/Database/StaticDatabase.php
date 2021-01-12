@@ -22,6 +22,7 @@
 namespace Friendica\Test\Util\Database;
 
 use Friendica\Database\Database;
+use Friendica\Database\DatabaseException;
 use PDO;
 use PDOException;
 
@@ -56,6 +57,8 @@ class StaticDatabase extends Database
 		$this->driver = 'pdo';
 		$this->connection = self::$staticConnection;
 		$this->connected = true;
+		$this->emulate_prepares = false;
+		$this->pdo_emulate_prepares = false;
 
 		return $this->connected;
 	}
@@ -78,7 +81,7 @@ class StaticDatabase extends Database
 	/**
 	 * Does a commit
 	 *
-	 * @return boolean Was the command executed successfully?
+	 * @return bool Was the command executed successfully?
 	 */
 	public function commit()
 	{
@@ -94,12 +97,14 @@ class StaticDatabase extends Database
 	 * Either through explicit calling or through implicit using the Database
 	 *
 	 * @param array $server $_SERVER variables
+	 *
+	 * @throws \Exception
 	 */
 	public static function statConnect(array $server)
 	{
 		// Use environment variables for mysql if they are set beforehand
 		if (!empty($server['MYSQL_HOST'])
-		    && (!empty($server['MYSQL_USERNAME'] || !empty($server['MYSQL_USER'])))
+		    && (!empty($server['MYSQL_USERNAME']) || !empty($server['MYSQL_USER']))
 		    && $server['MYSQL_PASSWORD'] !== false
 		    && !empty($server['MYSQL_DATABASE']))
 		{
@@ -117,6 +122,10 @@ class StaticDatabase extends Database
 			$db_data = $server['MYSQL_DATABASE'];
 		}
 
+		if (empty($db_host) || empty($db_user) || empty($db_data)) {
+			throw new DatabaseException('Either one of the following settings are missing: Host, User or Database', 999, 'CONNECT');
+		}
+
 		$port       = 0;
 		$serveraddr = trim($db_host);
 		$serverdata = explode(':', $serveraddr);
@@ -126,7 +135,7 @@ class StaticDatabase extends Database
 		}
 		$server  = trim($server);
 		$user    = trim($db_user);
-		$pass    = trim($db_pw);
+		$pass    = trim($db_pw ?? '');
 		$db      = trim($db_data);
 
 		if (!(strlen($server) && strlen($user))) {

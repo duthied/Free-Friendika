@@ -24,15 +24,21 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Module\Contact;
 
 function update_contact_content(App $a)
 {
-	if (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update')) {
-		$text = Contact::content([], true);
+	if (!empty($a->argv[1]) && (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update'))) {
+		if (!empty($_GET['item'])) {
+			$item = Item::selectFirst(['parent'], ['id' => $_GET['item']]);
+			$parentid = $item['parent'] ?? 0;
+		} else {
+			$parentid = 0;
+		}
+		$text = Contact::getConversationsHMTL($a, $a->argv[1], true, $parentid);
 	} else {
 		$text = '';
 	}
-
 	System::htmlUpdateExit($text);
 }

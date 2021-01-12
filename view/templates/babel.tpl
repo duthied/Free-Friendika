@@ -9,6 +9,9 @@
 			{{include file="field_radio.tpl" field=$type_diaspora}}
 			{{include file="field_radio.tpl" field=$type_markdown}}
 			{{include file="field_radio.tpl" field=$type_html}}
+		{{if $flag_twitter}}
+			{{include file="field_radio.tpl" field=$type_twitter}}
+		{{/if}}
 		</div>
 		<p><button type="submit" class="btn btn-primary">Submit</button></p>
 	</div>
@@ -21,9 +24,7 @@
 		<div class="panel-heading">
 			<h3 class="panel-title">{{$result.title}}</h3>
 		</div>
-		<div class="panel-body">
-			{{$result.content nofilter}}
-		</div>
+		<div class="panel-body">{{$result.content nofilter}}</div>
 	</div>
 	{{/foreach}}
 </div>

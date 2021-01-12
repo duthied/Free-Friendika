@@ -99,9 +99,7 @@ class Hook
 			return true;
 		}
 
-		$result = DBA::insert('hook', ['hook' => $hook, 'file' => $file, 'function' => $function, 'priority' => $priority]);
-
-		return $result;
+		return self::insert(['hook' => $hook, 'file' => $file, 'function' => $function, 'priority' => $priority]);
 	}
 
 	/**
@@ -119,10 +117,10 @@ class Hook
 
 		// This here is only needed for fixing a problem that existed on the develop branch
 		$condition = ['hook' => $hook, 'file' => $file, 'function' => $function];
-		DBA::delete('hook', $condition);
+		self::delete($condition);
 
 		$condition = ['hook' => $hook, 'file' => $relative_file, 'function' => $function];
-		$result = DBA::delete('hook', $condition);
+		$result = self::delete($condition);
 		return $result;
 	}
 
@@ -220,7 +218,7 @@ class Hook
 		} else {
 			// remove orphan hooks
 			$condition = ['hook' => $name, 'file' => $hook[0], 'function' => $hook[1]];
-			DBA::delete('hook', $condition, ['cascade' => false]);
+			self::delete($condition, ['cascade' => false]);
 		}
 	}
 
@@ -244,5 +242,46 @@ class Hook
 		}
 
 		return false;
+	}
+
+	/**
+	 * Deletes one or more hook records
+	 *
+	 * We have to clear the cached routerDispatchData because addons can provide routes
+	 *
+	 * @param array $condition
+	 * @param array $options
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public static function delete(array $condition, array $options = [])
+	{
+		$result = DBA::delete('hook', $condition, $options);
+
+		if ($result) {
+			DI::cache()->delete('routerDispatchData');
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Inserts a hook record
+	 *
+	 * We have to clear the cached routerDispatchData because addons can provide routes
+	 *
+	 * @param array $condition
+	 * @return bool
+	 * @throws \Exception
+	 */
+	private static function insert(array $condition)
+	{
+		$result = DBA::insert('hook', $condition);
+
+		if ($result) {
+			DI::cache()->delete('routerDispatchData');
+		}
+
+		return $result;
 	}
 }

@@ -72,12 +72,12 @@ abstract class AbstractLoggerTest extends MockedTest
 
 	public function assertLogline($string)
 	{
-		$this->assertRegExp(self::LOGLINE, $string);
+		self::assertRegExp(self::LOGLINE, $string);
 	}
 
 	public function assertLoglineNums($assertNum, $string)
 	{
-		$this->assertEquals($assertNum, preg_match_all(self::LOGLINE, $string));
+		self::assertEquals($assertNum, preg_match_all(self::LOGLINE, $string));
 	}
 
 	/**
@@ -92,8 +92,8 @@ abstract class AbstractLoggerTest extends MockedTest
 		$logger->notice('message', ['an' => 'context']);
 
 		$text = $this->getContent();
-		$this->assertLogline($text);
-		$this->assertLoglineNums(4, $text);
+		self::assertLogline($text);
+		self::assertLoglineNums(4, $text);
 	}
 
 	/**
@@ -106,8 +106,8 @@ abstract class AbstractLoggerTest extends MockedTest
 		$logger->emergency('A {psr} test', ['psr' => 'working']);
 		$logger->alert('An {array} test', ['array' => ['it', 'is', 'working']]);
 		$text = $this->getContent();
-		$this->assertContains('A working test', $text);
-		$this->assertContains('An ["it","is","working"] test', $text);
+		self::assertContains('A working test', $text);
+		self::assertContains('An ["it","is","working"] test', $text);
 	}
 
 	/**
@@ -119,9 +119,9 @@ abstract class AbstractLoggerTest extends MockedTest
 		$logger->emergency('A test');
 
 		$text = $this->getContent();
-		$this->assertContains('"file":"' . self::FILE . '"', $text);
-		$this->assertContains('"line":' . self::LINE, $text);
-		$this->assertContains('"function":"' . self::FUNC . '"', $text);
+		self::assertContains('"file":"' . self::FILE . '"', $text);
+		self::assertContains('"line":' . self::LINE, $text);
+		self::assertContains('"function":"' . self::FUNC . '"', $text);
 	}
 
 	/**
@@ -141,7 +141,7 @@ abstract class AbstractLoggerTest extends MockedTest
 
 		$text = $this->getContent();
 
-		$this->assertLoglineNums(5, $text);
+		self::assertLoglineNums(5, $text);
 	}
 
 	/**
@@ -155,8 +155,8 @@ abstract class AbstractLoggerTest extends MockedTest
 
 		$text = $this->getContent();
 
-		$this->assertLogline($text);
+		self::assertLogline($text);
 
-		$this->assertContains(@json_encode($context), $text);
+		self::assertContains(@json_encode($context), $text);
 	}
 }

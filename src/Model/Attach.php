@@ -28,7 +28,7 @@ use Friendica\DI;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
-use Friendica\Util\Security;
+use Friendica\Security\Security;
 
 /**
  * Class to handle attach dabatase table
@@ -159,7 +159,7 @@ class Attach
 	 */
 	public static function getData($item)
 	{
-		$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+		$backendClass = DI::storageManager()->getByName($item['backend-class'] ?? '');
 		if ($backendClass === null) {
 			// legacy data storage in 'data' column
 			$i = self::selectFirst(['data'], ['id' => $item['id']]);

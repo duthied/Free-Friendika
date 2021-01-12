@@ -35,20 +35,20 @@ class Markdown
 	 * compatibility with Diaspora in spite of the Markdown standard.
 	 *
 	 * @param string $text
-	 * @param bool   $hardwrap
+	 * @param bool   $hardwrap Enables line breaks on \n without two trailing spaces
+	 * @param string $baseuri  Optional. Prepend anchor links with this URL
 	 * @return string
-	 * @throws \Exception
 	 */
-	public static function convert($text, $hardwrap = true) {
+	public static function convert($text, $hardwrap = true, $baseuri = null) {
 		$stamp1 = microtime(true);
 
 		$MarkdownParser = new MarkdownParser();
 		$MarkdownParser->code_class_prefix  = 'language-';
 		$MarkdownParser->hard_wrap          = $hardwrap;
 		$MarkdownParser->hashtag_protection = true;
-		$MarkdownParser->url_filter_func    = function ($url) {
-			if (strpos($url, '#') === 0) {
-				$url = ltrim($_SERVER['REQUEST_URI'], '/') . $url;
+		$MarkdownParser->url_filter_func    = function ($url) use ($baseuri) {
+			if (!empty($baseuri) && strpos($url, '#') === 0) {
+				$url = ltrim($baseuri, '/') . $url;
 			}
 			return  $url;
 		};
@@ -57,7 +57,7 @@ class Markdown
 
 		$html = $MarkdownParser->transform($text);
 
-		DI::profiler()->saveTimestamp($stamp1, "parser", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "parser");
 
 		return $html;
 	}
@@ -83,7 +83,7 @@ class Markdown
 					return '';
 				}
 
-				$data = Contact::getDetailsByAddr($matches[3]);
+				$data = Contact::getByURL($matches[3]);
 
 				if (empty($data)) {
 					return '';

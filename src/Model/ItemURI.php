@@ -21,6 +21,7 @@
 
 namespace Friendica\Model;
 
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 
 class ItemURI
@@ -30,16 +31,16 @@ class ItemURI
 	 *
 	 * @param array $fields Item-uri fields
 	 *
-	 * @return integer item-uri id
+	 * @return int|null item-uri id
 	 * @throws \Exception
 	 */
-	public static function insert($fields)
+	public static function insert(array $fields)
 	{
 		// If the URI gets too long we only take the first parts and hope for best
 		$uri = substr($fields['uri'], 0, 255);
 
 		if (!DBA::exists('item-uri', ['uri' => $uri])) {
-			DBA::insert('item-uri', $fields, true);
+			DBA::insert('item-uri', $fields, Database::INSERT_UPDATE);
 		}
 
 		$itemuri = DBA::selectFirst('item-uri', ['id', 'guid'], ['uri' => $uri]);

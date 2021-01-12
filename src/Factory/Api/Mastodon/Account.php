@@ -67,9 +67,21 @@ class Account extends BaseFactory
 			$userContact = [];
 		}
 
+		if (empty($publicContact)) {
+			throw new HTTPException\NotFoundException('Contact ' . $contactId . ' not found');
+		}
+
 		$apcontact = APContact::getByURL($publicContact['url'], false);
 
-		return new \Friendica\Object\Api\Mastodon\Account($this->baseUrl, $publicContact, new Fields(), $apcontact, $userContact);
+		$self_contact = Contact::selectFirst(['uid'], ['nurl' => $publicContact['nurl'], 'self' => true]);
+		if (!empty($self_contact['uid'])) {
+			$profileFields = $this->profileField->select(['uid' => $self_contact['uid'], 'psid' => PermissionSet::PUBLIC]);
+			$fields        = $this->mstdnField->createFromProfileFields($profileFields);
+		} else {
+			$fields = new Fields();
+		}
+
+		return new \Friendica\Object\Api\Mastodon\Account($this->baseUrl, $publicContact, $fields, $apcontact, $userContact);
 	}
 
 	/**

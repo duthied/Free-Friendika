@@ -21,8 +21,8 @@
 
 namespace Friendica\Model;
 
-use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 
@@ -33,11 +33,15 @@ class Conversation
 	 * It currently is stored in the "protocol" field for legacy reasons.
 	 */
 	const PARCEL_ACTIVITYPUB        = 0;
-	const PARCEL_DFRN               = 1;
+	const PARCEL_DFRN               = 1; // Deprecated
 	const PARCEL_DIASPORA           = 2;
 	const PARCEL_SALMON             = 3;
 	const PARCEL_FEED               = 4; // Deprecated
 	const PARCEL_SPLIT_CONVERSATION = 6;
+	const PARCEL_LEGACY_DFRN        = 7;
+	const PARCEL_DIASPORA_DFRN      = 8;
+	const PARCEL_LOCAL_DFRN         = 9;
+	const PARCEL_DIRECT             = 10;
 	const PARCEL_TWITTER            = 67;
 	const PARCEL_UNKNOWN            = 255;
 
@@ -53,6 +57,10 @@ class Conversation
 	 * The message had been fetched by our system
 	 */
 	const PULL    = 2;
+	/**
+	 * The message had been pushed to this system via a relay server
+	 */
+	const RELAY   = 3;
 
 	public static function getByItemUri($item_uri)
 	{
@@ -100,42 +108,14 @@ class Conversation
 				$conversation['source'] = $arr['source'];
 			}
 
-			$fields = ['item-uri', 'reply-to-uri', 'conversation-uri', 'conversation-href', 'protocol', 'source'];
-			$old_conv = DBA::selectFirst('conversation', $fields, ['item-uri' => $conversation['item-uri']]);
-			if (DBA::isResult($old_conv)) {
-				// Don't update when only the source has changed.
-				// Only do this when there had been no source before.
-				if ($old_conv['source'] != '') {
-					unset($old_conv['source']);
-				}
-				// Update structure data all the time but the source only when its from a better protocol.
-				if (
-					empty($conversation['source'])
-					|| (
-						!empty($old_conv['source'])
-						&& ($old_conv['protocol'] < (($conversation['protocol'] ?? '') ?: self::PARCEL_UNKNOWN))
-					)
-				) {
-					unset($conversation['protocol']);
-					unset($conversation['source']);
-				}
-				if (!DBA::update('conversation', $conversation, ['item-uri' => $conversation['item-uri']], $old_conv)) {
-					Logger::log('Conversation: update for ' . $conversation['item-uri'] . ' from ' . $old_conv['protocol'] . ' to ' . $conversation['protocol'] . ' failed',
-						Logger::DEBUG);
-				}
-			} else {
-				if (!DBA::insert('conversation', $conversation, true)) {
-					Logger::log('Conversation: insert for ' . $conversation['item-uri'] . ' (protocol ' . $conversation['protocol'] . ') failed',
-						Logger::DEBUG);
-				}
+			if (!DBA::exists('conversation', ['item-uri' => $conversation['item-uri']])) {
+				DBA::insert('conversation', $conversation, Database::INSERT_IGNORE);
 			}
 		}
 
 		unset($arr['conversation-uri']);
 		unset($arr['conversation-href']);
-		unset($arr['protocol']);
 		unset($arr['source']);
-		unset($arr['direction']);
 
 		return $arr;
 	}

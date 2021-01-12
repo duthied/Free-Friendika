@@ -74,13 +74,13 @@ class AppSpecific extends BaseSettings
 						DI::baseUrl()->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					} else {
 						self::$appSpecificPassword = AppSpecificPassword::generateForUser(local_user(), $_POST['description'] ?? '');
-						notice(DI::l10n()->t('New app-specific password generated.'));
+						info(DI::l10n()->t('New app-specific password generated.'));
 					}
 
 					break;
 				case 'revoke_all' :
 					AppSpecificPassword::deleteAllForUser(local_user());
-					notice(DI::l10n()->t('App-specific passwords successfully revoked.'));
+					info(DI::l10n()->t('App-specific passwords successfully revoked.'));
 					DI::baseUrl()->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					break;
 			}
@@ -90,7 +90,7 @@ class AppSpecific extends BaseSettings
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/app_specific', 'settings_2fa_app_specific');
 
 			if (AppSpecificPassword::deleteForUser(local_user(), $_POST['revoke_id'])) {
-				notice(DI::l10n()->t('App-specific password successfully revoked.'));
+				info(DI::l10n()->t('App-specific password successfully revoked.'));
 			}
 
 			DI::baseUrl()->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));

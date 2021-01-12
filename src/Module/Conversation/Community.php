@@ -26,6 +26,8 @@ use Friendica\BaseModule;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
+use Friendica\Content\Text\HTML;
+use Friendica\Content\Widget;
 use Friendica\Content\Widget\TrendingTags;
 use Friendica\Core\ACL;
 use Friendica\Core\Renderer;
@@ -40,65 +42,111 @@ class Community extends BaseModule
 {
 	protected static $page_style;
 	protected static $content;
-	protected static $accounttype;
+	protected static $accountTypeString;
+	protected static $accountType;
 	protected static $itemsPerPage;
-	protected static $since_id;
+	protected static $min_id;
 	protected static $max_id;
+	protected static $item_id;
 
 	public static function content(array $parameters = [])
 	{
 		self::parseRequest($parameters);
 
-		$tabs = [];
-
-		if ((Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(DI::config()->get('system', 'singleuser'))) {
-			$tabs[] = [
-				'label' => DI::l10n()->t('Local Community'),
-				'url' => 'community/local',
-				'sel' => self::$content == 'local' ? 'active' : '',
-				'title' => DI::l10n()->t('Posts from local users on this server'),
-				'id' => 'community-local-tab',
-				'accesskey' => 'l'
-			];
+		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
+			$o = Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
+		} else {
+			$o = '';
 		}
 
-		if (Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
-			$tabs[] = [
-				'label' => DI::l10n()->t('Global Community'),
-				'url' => 'community/global',
-				'sel' => self::$content == 'global' ? 'active' : '',
-				'title' => DI::l10n()->t('Posts from users of the whole federated network'),
-				'id' => 'community-global-tab',
-				'accesskey' => 'g'
-			];
+		if (empty($_GET['mode']) || ($_GET['mode'] != 'raw')) {
+			$tabs = [];
+
+			if ((Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(DI::config()->get('system', 'singleuser'))) {
+				$tabs[] = [
+					'label' => DI::l10n()->t('Local Community'),
+					'url' => 'community/local',
+					'sel' => self::$content == 'local' ? 'active' : '',
+					'title' => DI::l10n()->t('Posts from local users on this server'),
+					'id' => 'community-local-tab',
+					'accesskey' => 'l'
+				];
+			}
+	
+			if (Session::isAuthenticated() || in_array(self::$page_style, [CP_USERS_AND_GLOBAL, CP_GLOBAL_COMMUNITY])) {
+				$tabs[] = [
+					'label' => DI::l10n()->t('Global Community'),
+					'url' => 'community/global',
+					'sel' => self::$content == 'global' ? 'active' : '',
+					'title' => DI::l10n()->t('Posts from users of the whole federated network'),
+					'id' => 'community-global-tab',
+					'accesskey' => 'g'
+				];
+			}
+
+			$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
+			$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
+
+			Nav::setSelected('community');
+
+			DI::page()['aside'] .= Widget::accounttypes('community/' . self::$content, self::$accountTypeString);
+	
+			if (local_user() && DI::config()->get('system', 'community_no_sharer')) {
+				$path = self::$content;
+				if (!empty($parameters['accounttype'])) {
+					$path .= '/' . $parameters['accounttype'];
+				}
+				$query_parameters = [];
+		
+				if (!empty($_GET['min_id'])) {
+					$query_parameters['min_id'] = $_GET['min_id'];
+				}
+				if (!empty($_GET['max_id'])) {
+					$query_parameters['max_id'] = $_GET['max_id'];
+				}
+				if (!empty($_GET['last_commented'])) {
+					$query_parameters['max_id'] = $_GET['last_commented'];
+				}
+		
+				$path_all = $path . (!empty($query_parameters) ? '?' . http_build_query($query_parameters) : '');
+				$path_no_sharer = $path . '?' . http_build_query(array_merge($query_parameters, ['no_sharer' => true]));
+				DI::page()['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/community_sharer.tpl'), [
+					'$title'           => DI::l10n()->t('Own Contacts'),
+					'$path_all'        => $path_all,
+					'$path_no_sharer'  => $path_no_sharer,
+					'$no_sharer'       => !empty($_REQUEST['no_sharer']),
+					'$all'             => DI::l10n()->t('Include'),
+					'$no_sharer_label' => DI::l10n()->t('Hide'),
+				]);
+			}
+	
+			if (Feature::isEnabled(local_user(), 'trending_tags')) {
+				DI::page()['aside'] .= TrendingTags::getHTML(self::$content);
+			}
+
+			// We need the editor here to be able to reshare an item.
+			if (Session::isAuthenticated()) {
+				$x = [
+					'is_owner' => true,
+					'allow_location' => DI::app()->user['allow_location'],
+					'default_location' => DI::app()->user['default-location'],
+					'nickname' => DI::app()->user['nickname'],
+					'lockstate' => (is_array(DI::app()->user) && (strlen(DI::app()->user['allow_cid']) || strlen(DI::app()->user['allow_gid']) || strlen(DI::app()->user['deny_cid']) || strlen(DI::app()->user['deny_gid'])) ? 'lock' : 'unlock'),
+					'acl' => ACL::getFullSelectorHTML(DI::page(), DI::app()->user, true),
+					'bang' => '',
+					'visitor' => 'block',
+					'profile_uid' => local_user(),
+				];
+				$o .= status_editor(DI::app(), $x, 0, true);
+			}
 		}
-
-		$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
-		$o = Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
-
-		Nav::setSelected('community');
 
 		$items = self::getItems();
 
 		if (!DBA::isResult($items)) {
-			info(DI::l10n()->t('No results.'));
+			notice(DI::l10n()->t('No results.'));
 			return $o;
-		}
-
-		// We need the editor here to be able to reshare an item.
-		if (Session::isAuthenticated()) {
-			$x = [
-				'is_owner' => true,
-				'allow_location' => DI::app()->user['allow_location'],
-				'default_location' => DI::app()->user['default-location'],
-				'nickname' => DI::app()->user['nickname'],
-				'lockstate' => (is_array(DI::app()->user) && (strlen(DI::app()->user['allow_cid']) || strlen(DI::app()->user['allow_gid']) || strlen(DI::app()->user['deny_cid']) || strlen(DI::app()->user['deny_gid'])) ? 'lock' : 'unlock'),
-				'acl' => ACL::getFullSelectorHTML(DI::page(), DI::app()->user, true),
-				'bang' => '',
-				'visitor' => 'block',
-				'profile_uid' => local_user(),
-			];
-			$o .= status_editor(DI::app(), $x, 0, true);
 		}
 
 		$o .= conversation(DI::app(), $items, 'community', false, false, 'commented', local_user());
@@ -111,10 +159,10 @@ class Community extends BaseModule
 			self::$itemsPerPage
 		);
 
-		$o .= $pager->renderMinimal(count($items));
-
-		if (Feature::isEnabled(local_user(), 'trending_tags')) {
-			DI::page()['aside'] .= TrendingTags::getHTML(self::$content);
+		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+			$o .= HTML::scrollLoader();
+		} else {
+			$o .= $pager->renderMinimal(count($items));
 		}
 
 		$t = Renderer::getMarkupTemplate("community.tpl");
@@ -145,23 +193,8 @@ class Community extends BaseModule
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 		}
 
-		switch ($parameters['accounttype'] ?? '') {
-			case 'person':
-				self::$accounttype = User::ACCOUNT_TYPE_PERSON;
-				break;
-			case 'organisation':
-				self::$accounttype = User::ACCOUNT_TYPE_ORGANISATION;
-				break;
-			case 'news':
-				self::$accounttype = User::ACCOUNT_TYPE_NEWS;
-				break;
-			case 'community':
-				self::$accounttype = User::ACCOUNT_TYPE_COMMUNITY;
-				break;
-			default:
-				self::$accounttype = null;
-				break;
-		}
+		self::$accountTypeString = $_GET['accounttype'] ?? $parameters['accounttype'] ?? '';
+		self::$accountType = User::getAccountTypeByString(self::$accountTypeString);
 
 		self::$content = $parameters['content'] ?? '';
 		if (!self::$content) {
@@ -203,14 +236,16 @@ class Community extends BaseModule
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
-		// now that we have the user settings, see if the theme forces
-		// a maximum item number which is lower then the user choice
-		if ((DI::app()->force_max_items > 0) && (DI::app()->force_max_items < self::$itemsPerPage)) {
-			self::$itemsPerPage = DI::app()->force_max_items;
+		if (!empty($_GET['item'])) {
+			$item = Item::selectFirst(['parent'], ['id' => $_GET['item']]);
+			self::$item_id = $item['parent'] ?? 0;
+		} else {
+			self::$item_id = 0;
 		}
 
-		self::$since_id = $_GET['since_id'] ?? null;
+		self::$min_id = $_GET['min_id'] ?? null;
 		self::$max_id   = $_GET['max_id']   ?? null;
+		self::$max_id   = $_GET['last_commented'] ?? self::$max_id;
 	}
 
 	/**
@@ -224,7 +259,7 @@ class Community extends BaseModule
 	 */
 	protected static function getItems()
 	{
-		$items = self::selectItems(self::$since_id, self::$max_id, self::$itemsPerPage);
+		$items = self::selectItems(self::$min_id, self::$max_id, self::$item_id, self::$itemsPerPage);
 
 		$maxpostperauthor = (int) DI::config()->get('system', 'max_author_posts_community_page');
 		if ($maxpostperauthor != 0 && self::$content == 'local') {
@@ -249,14 +284,14 @@ class Community extends BaseModule
 
 				// If we're looking at a "previous page", the lookup continues forward in time because the list is
 				// sorted in chronologically decreasing order
-				if (isset(self::$since_id)) {
-					self::$since_id = $items[0]['commented'];
+				if (isset(self::$min_id)) {
+					self::$min_id = $items[0]['commented'];
 				} else {
 					// In any other case, the lookup continues backwards in time
 					self::$max_id = $items[count($items) - 1]['commented'];
 				}
 
-				$items = self::selectItems(self::$since_id, self::$max_id, self::$itemsPerPage);
+				$items = self::selectItems(self::$min_id, self::$max_id, self::$item_id, self::$itemsPerPage);
 			}
 		} else {
 			$selected_items = $items;
@@ -268,26 +303,24 @@ class Community extends BaseModule
 	/**
 	 * Database query for the comunity page
 	 *
-	 * @param $since_id
+	 * @param $min_id
 	 * @param $max_id
 	 * @param $itemspage
 	 * @return array
 	 * @throws \Exception
 	 * @TODO Move to repository/factory
 	 */
-	private static function selectItems($since_id, $max_id, $itemspage)
+	private static function selectItems($min_id, $max_id, $item_id, $itemspage)
 	{
-		$r = false;
-
 		if (self::$content == 'local') {
-			if (!is_null(self::$accounttype)) {
-				$condition = ["`wall` AND `origin` AND `private` = ? AND `owner`.`contact-type` = ?", Item::PUBLIC, self::$accounttype];
+			if (!is_null(self::$accountType)) {
+				$condition = ["`wall` AND `origin` AND `private` = ? AND `owner`.`contact-type` = ?", Item::PUBLIC, self::$accountType];
 			} else {
-				$condition = ["`wall` AND `origin` AND `private` = ?", Item::PUBLIC];
+ 				$condition = ["`wall` AND `origin` AND `private` = ?", Item::PUBLIC];
 			}
 		} elseif (self::$content == 'global') {
-			if (!is_null(self::$accounttype)) {
-				$condition = ["`uid` = ? AND `private` = ? AND `owner`.`contact-type` = ?", 0, Item::PUBLIC, self::$accounttype];
+			if (!is_null(self::$accountType)) {
+				$condition = ["`uid` = ? AND `private` = ? AND `owner`.`contact-type` = ?", 0, Item::PUBLIC, self::$accountType];
 			} else {
 				$condition = ["`uid` = ? AND `private` = ?", 0, Item::PUBLIC];
 			}
@@ -295,18 +328,42 @@ class Community extends BaseModule
 			return [];
 		}
 
-		if (isset($max_id)) {
-			$condition[0] .= " AND `commented` < ?";
-			$condition[] = $max_id;
+		$params = ['order' => ['commented' => true], 'limit' => $itemspage];
+
+		if (!empty($item_id)) {
+			$condition[0] .= " AND `iid` = ?";
+			$condition[] = $item_id;
+		} else {
+			if (local_user() && !empty($_REQUEST['no_sharer'])) {
+				$condition[0] .= " AND NOT EXISTS (SELECT `uri-id` FROM `thread` AS t1 WHERE `t1`.`uri-id` = `thread`.`uri-id` AND `t1`.`uid` = ?)";
+				$condition[] = local_user();
+			}
+	
+			if (isset($max_id)) {
+				$condition[0] .= " AND `commented` < ?";
+				$condition[] = $max_id;
+			}
+
+			if (isset($min_id)) {
+				$condition[0] .= " AND `commented` > ?";
+				$condition[] = $min_id;
+
+				// Previous page case: we want the items closest to min_id but for that we need to reverse the query order
+				if (!isset($max_id)) {
+					$params['order']['commented'] = false;
+				}
+			}
 		}
 
-		if (isset($since_id)) {
-			$condition[0] .= " AND `commented` > ?";
-			$condition[] = $since_id;
+		$r = Item::selectThreadForUser(0, ['uri', 'commented', 'author-link'], $condition, $params);
+
+		$items = DBA::toArray($r);
+
+		// Previous page case: once we get the relevant items closest to min_id, we need to restore the expected display order
+		if (empty($item_id) && isset($min_id) && !isset($max_id)) {
+			$items = array_reverse($items);
 		}
 
-		$r = Item::selectThreadForUser(0, ['uri', 'commented', 'author-link'], $condition, ['order' => ['commented' => true], 'limit' => $itemspage]);
-
-		return DBA::toArray($r);
+		return $items;
 	}
 }

@@ -66,6 +66,7 @@ class ContactBlock
 			'pending' => false,
 			'hidden' => false,
 			'archive' => false,
+			'failed' => false,
 			'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::FEED],
 		]);
 
@@ -98,7 +99,7 @@ class ContactBlock
 					$contact_ids[] = $contact["id"];
 				}
 
-				$contacts_stmt = DBA::select('contact', ['id', 'uid', 'addr', 'url', 'name', 'thumb', 'network'], ['id' => $contact_ids]);
+				$contacts_stmt = DBA::select('contact', ['id', 'uid', 'addr', 'url', 'name', 'thumb', 'avatar', 'network'], ['id' => $contact_ids]);
 
 				if (DBA::isResult($contacts_stmt)) {
 					$contacts_title = DI::l10n()->tt('%d Contact', '%d Contacts', $total);

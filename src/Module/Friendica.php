@@ -25,8 +25,11 @@ use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
+use Friendica\Database\PostUpdate;
 use Friendica\DI;
 use Friendica\Model\User;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * Prints information about the current node
@@ -93,8 +96,8 @@ class Friendica extends BaseModule
 			'about'     => DI::l10n()->t('This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.',
 				'<strong>' . FRIENDICA_VERSION . '</strong>',
 				DI::baseUrl()->get(),
-				'<strong>' . DB_UPDATE_VERSION . '</strong>',
-				'<strong>' . $config->get('system', 'post_update_version') . '</strong>'),
+				'<strong>' . DB_UPDATE_VERSION . '/' . $config->get('system', 'build') .'</strong>',
+				'<strong>' . PostUpdate::VERSION . '/' . $config->get('system', 'post_update_version') . '</strong>'),
 			'friendica' => DI::l10n()->t('Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'),
 			'bugs'      => DI::l10n()->t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">' . DI::l10n()->t('the bugtracker at github') . '</a>',
 			'info'      => DI::l10n()->t('Suggestions, praise, etc. - please email "info" at "friendi - dot - ca'),
@@ -108,6 +111,15 @@ class Friendica extends BaseModule
 
 	public static function rawContent(array $parameters = [])
 	{
+		if (ActivityPub::isRequest()) {
+			$data = ActivityPub\Transmitter::getProfile(0);
+			if (!empty($data)) {
+				header('Access-Control-Allow-Origin: *');
+				header('Cache-Control: max-age=23200, stale-while-revalidate=23200');
+				System::jsonExit($data, 'application/activity+json');
+			}
+		}
+
 		$app = DI::app();
 
 		// @TODO: Replace with parameter from router
@@ -130,21 +142,13 @@ class Friendica extends BaseModule
 			$register_policy = $register_policies[$register_policy_int];
 		}
 
-		$condition = [];
-		$admin = false;
-		if (!empty($config->get('config', 'admin_nickname'))) {
-			$condition['nickname'] = $config->get('config', 'admin_nickname');
-		}
-		if (!empty($config->get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', $config->get('config', 'admin_email')));
-			$condition['email'] = $adminList[0];
-			$administrator = User::getByEmail($adminList[0], ['username', 'nickname']);
-			if (!empty($administrator)) {
-				$admin = [
-					'name'    => $administrator['username'],
-					'profile' => DI::baseUrl()->get() . '/profile/' . $administrator['nickname'],
-				];
-			}
+		$admin = [];
+		$administrator = User::getFirstAdmin(['username', 'nickname']);
+		if (!empty($administrator)) {
+			$admin = [
+				'name'    => $administrator['username'],
+				'profile' => DI::baseUrl()->get() . '/profile/' . $administrator['nickname'],
+			];
 		}
 
 		$visible_addons = Addon::getVisibleList();

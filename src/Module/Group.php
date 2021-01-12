@@ -53,7 +53,6 @@ class Group extends BaseModule
 			$name = Strings::escapeTags(trim($_POST['groupname']));
 			$r = Model\Group::create(local_user(), $name);
 			if ($r) {
-				info(DI::l10n()->t('Group created.'));
 				$r = Model\Group::getIdByName(local_user(), $name);
 				if ($r) {
 					DI::baseUrl()->redirect('group/' . $r);
@@ -75,8 +74,8 @@ class Group extends BaseModule
 			}
 			$groupname = Strings::escapeTags(trim($_POST['groupname']));
 			if (strlen($groupname) && ($groupname != $group['name'])) {
-				if (Model\Group::update($group['id'], $groupname)) {
-					info(DI::l10n()->t('Group name changed.'));
+				if (!Model\Group::update($group['id'], $groupname)) {
+					notice(DI::l10n()->t('Group name was not changed.'));
 				}
 			}
 		}
@@ -132,7 +131,7 @@ class Group extends BaseModule
 				throw new \Exception(DI::l10n()->t('Bad request.'), 400);
 			}
 
-			notice($message);
+			info($message);
 			System::jsonExit(['status' => 'OK', 'message' => $message]);
 		} catch (\Exception $e) {
 			notice($e->getMessage());
@@ -216,9 +215,7 @@ class Group extends BaseModule
 					DI::baseUrl()->redirect('contact');
 				}
 
-				if (Model\Group::remove($a->argv[2])) {
-					info(DI::l10n()->t('Group removed.'));
-				} else {
+				if (!Model\Group::remove($a->argv[2])) {
 					notice(DI::l10n()->t('Unable to remove group.'));
 				}
 			}
@@ -242,7 +239,7 @@ class Group extends BaseModule
 				DI::baseUrl()->redirect('contact');
 			}
 
-			$members = Model\Contact::getByGroupId($group['id']);
+			$members = Model\Contact\Group::getById($group['id']);
 			$preselected = [];
 
 			if (count($members)) {
@@ -258,7 +255,7 @@ class Group extends BaseModule
 					Model\Group::addMember($group['id'], $change);
 				}
 
-				$members = Model\Contact::getByGroupId($group['id']);
+				$members = Model\Contact\Group::getById($group['id']);
 				$preselected = [];
 				if (count($members)) {
 					foreach ($members as $member) {
@@ -319,10 +316,10 @@ class Group extends BaseModule
 		}
 
 		if ($nogroup) {
-			$contacts = Model\Contact::getUngroupedList(local_user());
+			$contacts = Model\Contact\Group::listUngrouped(local_user());
 		} else {
 			$contacts_stmt = DBA::select('contact', [],
-				['uid' => local_user(), 'pending' => false, 'blocked' => false, 'self' => false],
+				['uid' => local_user(), 'pending' => false, 'blocked' => false, 'failed' => false, 'self' => false],
 				['order' => ['name']]
 			);
 			$contacts = DBA::toArray($contacts_stmt);

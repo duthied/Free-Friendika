@@ -28,11 +28,13 @@ use Friendica\Content\Widget;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\ItemContent;
 use Friendica\Model\Tag;
 use Friendica\Module\BaseSearch;
 use Friendica\Network\HTTPException;
@@ -80,7 +82,7 @@ class Index extends BaseSearch
 		}
 
 		if (local_user()) {
-			DI::page()['aside'] .= Widget\SavedSearches::getHTML('search?q=' . urlencode($search), $search);
+			DI::page()['aside'] .= Widget\SavedSearches::getHTML(Search::getSearchPath($search), $search);
 		}
 
 		Nav::setSelected('search');
@@ -130,6 +132,14 @@ class Index extends BaseSearch
 			}
 		}
 
+		// Don't perform a fulltext or tag search on search results that look like an URL
+		// Tags don't look like an URL and the fulltext search does only work with natural words
+		if (parse_url($search, PHP_URL_SCHEME) && parse_url($search, PHP_URL_HOST)) {
+			Logger::info('Skipping tag and fulltext search since the search looks like a URL.', ['q' => $search]);
+			notice(DI::l10n()->t('No results.'));
+			return $o;
+		}
+
 		$tag = $tag || DI::config()->get('system', 'only_tag_search');
 
 		// Here is the way permissions work in the search module...
@@ -145,38 +155,35 @@ class Index extends BaseSearch
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
+		$last_uriid = isset($_GET['last_uriid']) ? intval($_GET['last_uriid']) : 0;
+
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemsPerPage);
 
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);
-			$uriids = Tag::getURIIdListByTag($search, local_user(), $pager->getStart(), $pager->getItemsPerPage());
-
-			if (!empty($uriids)) {
-				$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
-				$items = Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params);
-				$r = Item::inArray($items);
-			} else {
-				$r = [];
-			}
+			$uriids = Tag::getURIIdListByTag($search, local_user(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
+			$count = Tag::countByTag($search, local_user());
 		} else {
 			Logger::info('Start fulltext search.', ['q' => $search]);
-
-			$condition = [
-				"(`uid` = 0 OR (`uid` = ? AND NOT `global`))
-				AND `body` LIKE CONCAT('%',?,'%')",
-				local_user(), $search
-			];
-			$params = [
-				'order' => ['id' => true],
-				'limit' => [$pager->getStart(), $pager->getItemsPerPage()]
-			];
-			$items = Item::selectForUser(local_user(), [], $condition, $params);
-			$r = Item::inArray($items);
+			$uriids = ItemContent::getURIIdListBySearch($search, local_user(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
+			$count = ItemContent::countBySearch($search, local_user());
 		}
 
-		if (!DBA::isResult($r)) {
-			info(DI::l10n()->t('No results.'));
+		if (!empty($uriids)) {
+			$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
+			$items = Item::inArray(Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params));
+		}
+
+		if (empty($items)) {
+			if (empty($last_uriid)) {
+				notice(DI::l10n()->t('No results.'));
+			}
 			return $o;
+		}
+
+		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+			$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
+			$o .= Renderer::replaceMacros($tpl, ['$reload_uri' => DI::args()->getQueryString()]);
 		}
 
 		if ($tag) {
@@ -191,9 +198,14 @@ class Index extends BaseSearch
 
 		Logger::info('Start Conversation.', ['q' => $search]);
 
-		$o .= conversation(DI::app(), $r, 'search', false, false, 'commented', local_user());
+		$o .= conversation(DI::app(), $items, 'search', false, false, 'commented', local_user());
 
-		$o .= $pager->renderMinimal(count($r));
+		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
+			$o .= HTML::scrollLoader();
+		} else {
+			$o .= $pager->renderMinimal($count);
+		}
+
 
 		return $o;
 	}
@@ -236,13 +248,13 @@ class Index extends BaseSearch
 		} else {
 			// Cheaper local lookup for anonymous users, no probe
 			if ($isAddr) {
-				$contact = Contact::selectFirst(['id' => 'cid'], ['addr' => $search, 'uid' => 0]);
+				$contact = Contact::selectFirst(['id'], ['addr' => $search, 'uid' => 0]);
 			} else {
-				$contact = Contact::getDetailsByURL($search, 0, ['cid' => 0]);
+				$contact = Contact::getByURL($search, null, ['id']) ?: ['id' => 0];
 			}
 
 			if (DBA::isResult($contact)) {
-				$contact_id = $contact['cid'];
+				$contact_id = $contact['id'];
 			}
 		}
 

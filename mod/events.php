@@ -25,11 +25,13 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget\CalendarExport;
 use Friendica\Core\ACL;
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\User;
@@ -65,9 +67,7 @@ function events_init(App $a)
 
 function events_post(App $a)
 {
-
-	Logger::log('post: ' . print_r($_REQUEST, true), Logger::DATA);
-
+	Logger::debug('post', ['request' => $_REQUEST]);
 	if (!local_user()) {
 		return;
 	}
@@ -81,6 +81,8 @@ function events_post(App $a)
 
 	$adjust   = intval($_POST['adjust'] ?? 0);
 	$nofinish = intval($_POST['nofinish'] ?? 0);
+
+	$share = intval($_POST['share'] ?? 0);
 
 	// The default setting for the `private` field in event_store() is false, so mirror that
 	$private_event = false;
@@ -129,10 +131,10 @@ function events_post(App $a)
 	];
 
 	$action = ($event_id == '') ? 'new' : 'event/' . $event_id;
-	$onerror_path = 'events/' . $action . '?' . http_build_query($params, null, null, PHP_QUERY_RFC3986);
+	$onerror_path = 'events/' . $action . '?' . http_build_query($params, '', '&', PHP_QUERY_RFC3986);
 
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
-		notice(DI::l10n()->t('Event can not end before it has started.') . EOL);
+		notice(DI::l10n()->t('Event can not end before it has started.'));
 		if (intval($_REQUEST['preview'])) {
 			echo DI::l10n()->t('Event can not end before it has started.');
 			exit();
@@ -141,7 +143,7 @@ function events_post(App $a)
 	}
 
 	if (!$summary || ($start === DBA::NULL_DATETIME)) {
-		notice(DI::l10n()->t('Event title and start time are required.') . EOL);
+		notice(DI::l10n()->t('Event title and start time are required.'));
 		if (intval($_REQUEST['preview'])) {
 			echo DI::l10n()->t('Event title and start time are required.');
 			exit();
@@ -149,45 +151,42 @@ function events_post(App $a)
 		DI::baseUrl()->redirect($onerror_path);
 	}
 
-	$share = intval($_POST['share'] ?? 0);
+	$self = \Friendica\Model\Contact::getPublicIdByUserId($uid);
 
-	$c = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
-		intval(local_user())
-	);
-
-	if (DBA::isResult($c)) {
-		$self = $c[0]['id'];
-	} else {
-		$self = 0;
-	}
-
+	$aclFormatter = DI::aclFormatter();
 
 	if ($share) {
-
-		$aclFormatter = DI::aclFormatter();
-
-		$str_group_allow   = $aclFormatter->toString($_POST['group_allow'] ?? '');
-		$str_contact_allow = $aclFormatter->toString($_POST['contact_allow'] ?? '');
-		$str_group_deny    = $aclFormatter->toString($_POST['group_deny'] ?? '');
-		$str_contact_deny  = $aclFormatter->toString($_POST['contact_deny'] ?? '');
-
-		// Undo the pseudo-contact of self, since there are real contacts now
-		if (strpos($str_contact_allow, '<' . $self . '>') !== false) {
-			$str_contact_allow = str_replace('<' . $self . '>', '', $str_contact_allow);
+		$user = User::getById($uid, ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
+		if (!DBA::isResult($user)) {
+			return;
 		}
-		// Make sure to set the `private` field as true. This is necessary to
-		// have the posts show up correctly in Diaspora if an event is created
-		// as visible only to self at first, but then edited to display to others.
-		if (strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) {
-			$private_event = true;
+
+		$str_contact_allow = isset($_REQUEST['contact_allow']) ? $aclFormatter->toString($_REQUEST['contact_allow']) : $user['allow_cid'] ?? '';
+		$str_group_allow   = isset($_REQUEST['group_allow'])   ? $aclFormatter->toString($_REQUEST['group_allow'])   : $user['allow_gid'] ?? '';
+		$str_contact_deny  = isset($_REQUEST['contact_deny'])  ? $aclFormatter->toString($_REQUEST['contact_deny'])  : $user['deny_cid']  ?? '';
+		$str_group_deny    = isset($_REQUEST['group_deny'])    ? $aclFormatter->toString($_REQUEST['group_deny'])    : $user['deny_gid']  ?? '';
+
+		$visibility = $_REQUEST['visibility'] ?? '';
+		if ($visibility === 'public') {
+			// The ACL selector introduced in version 2019.12 sends ACL input data even when the Public visibility is selected
+			$str_contact_allow = $str_group_allow = $str_contact_deny = $str_group_deny = '';
+		} else if ($visibility === 'custom') {
+			// Since we know from the visibility parameter the item should be private, we have to prevent the empty ACL
+			// case that would make it public. So we always append the author's contact id to the allowed contacts.
+			// See https://github.com/friendica/friendica/issues/9672
+			$str_contact_allow .= $aclFormatter->toString($self);
 		}
 	} else {
-		// Note: do not set `private` field for self-only events. It will
-		// keep even you from seeing them!
-		$str_contact_allow = '<' . $self . '>';
+		$str_contact_allow = $aclFormatter->toString($self);
 		$str_group_allow = $str_contact_deny = $str_group_deny = '';
 	}
 
+	// Make sure to set the `private` field as true. This is necessary to
+	// have the posts show up correctly in Diaspora if an event is created
+	// as visible only to self at first, but then edited to display to others.
+	if (strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) {
+		$private_event = true;
+	}
 
 	$datarray = [];
 	$datarray['start']     = $start;
@@ -206,6 +205,9 @@ function events_post(App $a)
 	$datarray['deny_gid']  = $str_group_deny;
 	$datarray['private']   = $private_event;
 	$datarray['id']        = $event_id;
+	$datarray['network']   = Protocol::DFRN;
+	$datarray['protocol']  = Conversation::PARCEL_DIRECT;
+	$datarray['direction'] = Conversation::PUSH;
 
 	if (intval($_REQUEST['preview'])) {
 		$html = Event::getHTML($datarray);
@@ -225,7 +227,7 @@ function events_post(App $a)
 function events_content(App $a)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return Login::form();
 	}
 
@@ -255,6 +257,11 @@ function events_content(App $a)
 
 	// get the translation strings for the callendar
 	$i18n = Event::getStrings();
+
+	DI::page()->registerStylesheet('view/asset/fullcalendar/dist/fullcalendar.min.css');
+	DI::page()->registerStylesheet('view/asset/fullcalendar/dist/fullcalendar.print.min.css', 'print');
+	DI::page()->registerFooterScript('view/asset/moment/min/moment-with-locales.min.js');
+	DI::page()->registerFooterScript('view/asset/fullcalendar/dist/fullcalendar.min.js');
 
 	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($htpl, [
@@ -469,16 +476,16 @@ function events_content(App $a)
 		$t_orig = $orig_event['summary']  ?? '';
 		$d_orig = $orig_event['desc']     ?? '';
 		$l_orig = $orig_event['location'] ?? '';
-		$eid = !empty($orig_event) ? $orig_event['id']  : 0;
-		$cid = !empty($orig_event) ? $orig_event['cid'] : 0;
-		$uri = !empty($orig_event) ? $orig_event['uri'] : '';
+		$eid = $orig_event['id'] ?? 0;
+		$cid = $orig_event['cid'] ?? 0;
+		$uri = $orig_event['uri'] ?? '';
 
 		if ($cid || $mode === 'edit') {
 			$share_disabled = 'disabled="disabled"';
 		}
 
-		$sdt = !empty($orig_event) ? $orig_event['start']  : 'now';
-		$fdt = !empty($orig_event) ? $orig_event['finish'] : 'now';
+		$sdt = $orig_event['start'] ?? 'now';
+		$fdt = $orig_event['finish'] ?? 'now';
 
 		$tz = date_default_timezone_get();
 		if (!empty($orig_event)) {
@@ -583,9 +590,7 @@ function events_content(App $a)
 		}
 
 		if (Item::exists(['id' => $ev[0]['itemid']])) {
-			notice(DI::l10n()->t('Failed to remove event') . EOL);
-		} else {
-			info(DI::l10n()->t('Event removed') . EOL);
+			notice(DI::l10n()->t('Failed to remove event'));
 		}
 
 		DI::baseUrl()->redirect('events');

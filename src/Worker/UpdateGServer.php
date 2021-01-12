@@ -22,6 +22,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
+use Friendica\Database\DBA;
 use Friendica\Model\GServer;
 use Friendica\Util\Strings;
 
@@ -29,20 +30,33 @@ class UpdateGServer
 {
 	/**
 	 * Update the given server
-	 * @param string $server_url Server URL
+	 * @param string  $server_url    Server URL
+	 * @param boolean $only_nodeinfo Only use nodeinfo for server detection
 	 */
-	public static function execute($server_url)
+	public static function execute(string $server_url, bool $only_nodeinfo = false)
 	{
 		if (empty($server_url)) {
 			return;
 		}
 
-		$server_url = filter_var($server_url, FILTER_SANITIZE_URL);
-		if (substr(Strings::normaliseLink($server_url), 0, 7) != 'http://') {
+		$filtered = filter_var($server_url, FILTER_SANITIZE_URL);
+		if (substr(Strings::normaliseLink($filtered), 0, 7) != 'http://') {
+			GServer::setFailure($server_url);
 			return;
 		}
 
-		$ret = GServer::check($server_url);
-		Logger::info('Updated gserver', ['url' => $server_url, 'result' => $ret]);
+		if (($filtered != $server_url) && DBA::exists('gserver', ['nurl' => Strings::normaliseLink($server_url)])) {
+			GServer::setFailure($server_url);
+			return;
+		}
+
+		$cleaned = GServer::cleanURL($server_url);
+		if (($cleaned != $server_url) && DBA::exists('gserver', ['nurl' => Strings::normaliseLink($server_url)])) {
+			GServer::setFailure($server_url);
+			return;
+		}
+
+		$ret = GServer::check($filtered, '', true, $only_nodeinfo);
+		Logger::info('Updated gserver', ['url' => $filtered, 'result' => $ret]);
 	}
 }

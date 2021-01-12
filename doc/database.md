@@ -18,9 +18,6 @@ Database Tables
 | [event](help/database/db_event)                      | Events                                           |
 | [fcontact](help/database/db_fcontact)                | friend suggestion stuff                          |
 | [fsuggest](help/database/db_fsuggest)                | friend suggestion stuff                          |
-| [gcign](help/database/db_gcign)                      | contacts ignored by friend suggestions           |
-| [gcontact](help/database/db_gcontact)                | global contacts                                  |
-| [glink](help/database/db_glink)                      | "friends of friends" linkages derived from poco  |
 | [group](help/database/db_group)                      | privacy groups, group info                       |
 | [group_member](help/database/db_group_member)        | privacy groups, member info                      |
 | [gserver](help/database/db_gserver)                  |                                                  |

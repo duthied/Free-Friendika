@@ -77,14 +77,6 @@ class ContactSelector
 		}
 
 		if (empty($server_url)) {
-			// Fetch the server url from the gcontact table
-			$gcontact = DBA::selectFirst('gcontact', ['server_url'], ['nurl' => Strings::normaliseLink($profile)]);
-			if (!empty($gcontact) && !empty($gcontact['server_url'])) {
-				$server_url = Strings::normaliseLink($gcontact['server_url']);
-			}
-		}
-
-		if (empty($server_url)) {
 			// Create the server url out of the profile url
 			$parts = parse_url($profile);
 			unset($parts['path']);

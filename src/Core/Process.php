@@ -23,6 +23,7 @@ namespace Friendica\Core;
 
 use Friendica\App;
 use Friendica\Core\Config\IConfig;
+use Friendica\Model;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -56,12 +57,59 @@ class Process
 	 */
 	private $basePath;
 
-	public function __construct(LoggerInterface $logger, App\Mode $mode, IConfig $config, string $basepath)
+	/** @var Model\Process */
+	private $processModel;
+
+	/**
+	 * The Process ID of this process
+	 *
+	 * @var int
+	 */
+	private $pid;
+
+	public function __construct(LoggerInterface $logger, App\Mode $mode, IConfig $config, Model\Process $processModel, string $basepath, int $pid)
 	{
-		$this->logger   = $logger;
-		$this->mode     = $mode;
-		$this->config   = $config;
+		$this->logger = $logger;
+		$this->mode = $mode;
+		$this->config = $config;
 		$this->basePath = $basepath;
+		$this->processModel = $processModel;
+		$this->pid = $pid;
+	}
+
+	/**
+	 * Set the process id
+	 *
+	 * @param integer $pid
+	 * @return void
+	 */
+	public function setPid(int $pid)
+	{
+		$this->pid = $pid;
+	}
+
+	/**
+	 * Log active processes into the "process" table
+	 */
+	public function start()
+	{
+		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+
+		$command = basename($trace[0]['file']);
+
+		$this->processModel->deleteInactive();
+		$this->processModel->insert($command, $this->pid);
+	}
+
+	/**
+	 * Remove the active process from the "process" table
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function end()
+	{
+		return $this->processModel->deleteByPid($this->pid);
 	}
 
 	/**
@@ -142,7 +190,7 @@ class Process
 		$reached = ($free < $min_memory);
 
 		if ($reached) {
-			$this->logger->debug('Minimal memory reached.', ['free' => $free, 'memtotal' => $meminfo['MemTotal'], 'limit' => $min_memory]);
+			$this->logger->warning('Minimal memory reached.', ['free' => $free, 'memtotal' => $meminfo['MemTotal'], 'limit' => $min_memory]);
 		}
 
 		return $reached;
@@ -172,7 +220,7 @@ class Process
 		$load = System::currentLoad();
 		if ($load) {
 			if (intval($load) > $maxsysload) {
-				$this->logger->info('system load for process too high.', ['load' => $load, 'process' => $process, 'maxsysload' => $maxsysload]);
+				$this->logger->warning('system load for process too high.', ['load' => $load, 'process' => $process, 'maxsysload' => $maxsysload]);
 				return true;
 			}
 		}
@@ -188,6 +236,7 @@ class Process
 	public function run($command, $args)
 	{
 		if (!function_exists('proc_open')) {
+			$this->logger->warning('"proc_open" not available - quitting');
 			return;
 		}
 
@@ -205,6 +254,7 @@ class Process
 		}
 
 		if ($this->isMinMemoryReached()) {
+			$this->logger->warning('Memory limit reached - quitting');
 			return;
 		}
 
@@ -214,9 +264,11 @@ class Process
 			$resource = proc_open($cmdline . ' &', [], $foo, $this->basePath);
 		}
 		if (!is_resource($resource)) {
-			$this->logger->debug('We got no resource for command.', ['cmd' => $cmdline]);
+			$this->logger->warning('We got no resource for command.', ['command' => $cmdline]);
 			return;
 		}
 		proc_close($resource);
+
+		$this->logger->info('Executed "proc_open"', ['command' => $cmdline, 'callstack' => System::callstack(10)]);
 	}
 }

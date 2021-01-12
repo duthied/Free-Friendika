@@ -27,9 +27,9 @@
  *   2. We may be the target or other side of the conversation to scenario 1, and will
  *      interact with that process on our own user's behalf.
  *
- *  @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
+ *  @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/stable/spec/dfrn2.pdf
  *    You also find a graphic which describes the confirmation process at
- *    https://github.com/friendica/friendica/blob/master/spec/dfrn2_contact_confirmation.png
+ *    https://github.com/friendica/friendica/blob/stable/spec/dfrn2_contact_confirmation.png
  */
 
 use Friendica\App;
@@ -40,12 +40,12 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Notify;
 use Friendica\Model\Notify\Type;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
@@ -76,13 +76,13 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 	if (empty($_POST['source_url'])) {
 		$uid = ($handsfree['uid'] ?? 0) ?: local_user();
 		if (!$uid) {
-			notice(DI::l10n()->t('Permission denied.') . EOL);
+			notice(DI::l10n()->t('Permission denied.'));
 			return;
 		}
 
 		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
-			notice(DI::l10n()->t('Profile not found.') . EOL);
+			notice(DI::l10n()->t('Profile not found.'));
 			return;
 		}
 
@@ -137,8 +137,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		);
 		if (!DBA::isResult($r)) {
 			Logger::log('Contact not found in DB.');
-			notice(DI::l10n()->t('Contact not found.') . EOL);
-			notice(DI::l10n()->t('This may occasionally happen if contact was requested by both persons and it has already been approved.') . EOL);
+			notice(DI::l10n()->t('Contact not found.'));
+			notice(DI::l10n()->t('This may occasionally happen if contact was requested by both persons and it has already been approved.'));
 			return;
 		}
 
@@ -214,7 +214,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$params['page'] = 2;
 		}
 
-		Logger::log('Confirm: posting data to ' . $dfrn_confirm . ': ' . print_r($params, true), Logger::DATA);
+		Logger::debug('Confirm: posting data', ['confirm'  => $dfrn_confirm, 'parameter' => $params]);
 
 		/*
 		 *
@@ -224,7 +224,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		 *
 		 */
 
-		$res = Network::post($dfrn_confirm, $params, [], 120)->getBody();
+		$res = DI::httpRequest()->post($dfrn_confirm, $params, [], 120)->getBody();
 
 		Logger::log(' Confirm: received data: ' . $res, Logger::DATA);
 
@@ -239,20 +239,20 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			// We shouldn't proceed, because the xml parser might choke,
 			// and $status is going to be zero, which indicates success.
 			// We can hardly call this a success.
-			notice(DI::l10n()->t('Response from remote site was not understood.') . EOL);
+			notice(DI::l10n()->t('Response from remote site was not understood.'));
 			return;
 		}
 
 		if (strlen($leading_junk) && DI::config()->get('system', 'debugging')) {
 			// This might be more common. Mixed error text and some XML.
 			// If we're configured for debugging, show the text. Proceed in either case.
-			notice(DI::l10n()->t('Unexpected response from remote site: ') . EOL . $leading_junk . EOL);
+			notice(DI::l10n()->t('Unexpected response from remote site: ') . $leading_junk);
 		}
 
 		if (stristr($res, "<status") === false) {
 			// wrong xml! stop here!
 			Logger::log('Unexpected response posting to ' . $dfrn_confirm);
-			notice(DI::l10n()->t('Unexpected response from remote site: ') . EOL . htmlspecialchars($res) . EOL);
+			notice(DI::l10n()->t('Unexpected response from remote site: ') . EOL . htmlspecialchars($res));
 			return;
 		}
 
@@ -261,7 +261,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		$message = XML::unescape($xml->message);   // human readable text of what may have gone wrong.
 		switch ($status) {
 			case 0:
-				info(DI::l10n()->t("Confirmation completed successfully.") . EOL);
+				info(DI::l10n()->t("Confirmation completed successfully."));
 				break;
 			case 1:
 				// birthday paradox - generate new dfrn-id and fall through.
@@ -273,15 +273,15 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				);
 
 			case 2:
-				notice(DI::l10n()->t("Temporary failure. Please wait and try again.") . EOL);
+				notice(DI::l10n()->t("Temporary failure. Please wait and try again."));
 				break;
 			case 3:
-				notice(DI::l10n()->t("Introduction failed or was revoked.") . EOL);
+				notice(DI::l10n()->t("Introduction failed or was revoked."));
 				break;
 		}
 
 		if (strlen($message)) {
-			notice(DI::l10n()->t('Remote site reported: ') . $message . EOL);
+			notice(DI::l10n()->t('Remote site reported: ') . $message);
 		}
 
 		if (($status == 0) && $intro_id) {
@@ -305,7 +305,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		 *
 		 * We will also update the contact record with the nature and scope of the relationship.
 		 */
-		Contact::updateAvatar($contact['photo'], $uid, $contact_id);
+		Contact::updateAvatar($contact_id, $contact['photo']);
 
 		Logger::log('dfrn_confirm: confirm - imported photos');
 
@@ -372,9 +372,9 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		$forum = (($page == 1) ? 1 : 0);
 		$prv   = (($page == 2) ? 1 : 0);
 
-		Logger::log('dfrn_confirm: requestee contacted: ' . $node);
+		Logger::notice('requestee contacted', ['node' => $node]);
 
-		Logger::log('dfrn_confirm: request: POST=' . print_r($_POST, true), Logger::DATA);
+		Logger::debug('request', ['POST' => $_POST]);
 
 		// If $aes_key is set, both of these items require unpacking from the hex transport encoding.
 
@@ -482,10 +482,10 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		if (DBA::isResult($contact)) {
 			$photo = $contact['photo'];
 		} else {
-			$photo = DI::baseUrl() . '/images/person-300.jpg';
+			$photo = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
 		}
 
-		Contact::updateAvatar($photo, $local_uid, $dfrn_record);
+		Contact::updateAvatar($dfrn_record, $photo);
 
 		Logger::log('dfrn_confirm: request - photos imported');
 
@@ -543,18 +543,12 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			if ($combined['notify-flags'] & Type::CONFIRM) {
 				$mutual = ($new_relation == Contact::FRIEND);
 				notification([
-					'type'         => Type::CONFIRM,
-					'notify_flags' => $combined['notify-flags'],
-					'language'     => $combined['language'],
-					'to_name'      => $combined['username'],
-					'to_email'     => $combined['email'],
-					'uid'          => $combined['uid'],
-					'link'         => DI::baseUrl() . '/contact/' . $dfrn_record,
-					'source_name'  => ((strlen(stripslashes($combined['name']))) ? stripslashes($combined['name']) : DI::l10n()->t('[Name Withheld]')),
-					'source_link'  => $combined['url'],
-					'source_photo' => $combined['photo'],
-					'verb'         => ($mutual ? Activity::FRIEND : Activity::FOLLOW),
-					'otype'        => 'intro'
+					'type'  => Type::CONFIRM,
+					'otype' => Notify\ObjectType::INTRO,
+					'verb'  => ($mutual ? Activity::FRIEND : Activity::FOLLOW),
+					'uid'   => $combined['uid'],
+					'cid'   => $combined['id'],
+					'link'  => DI::baseUrl() . '/contact/' . $dfrn_record,
 				]);
 			}
 		}

@@ -27,6 +27,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 
@@ -171,20 +172,24 @@ class Nav
 		}
 
 		if (local_user()) {
-			// user menu
-			$nav['usermenu'][] = ['profile/' . $a->user['nickname'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
-			$nav['usermenu'][] = ['profile/' . $a->user['nickname'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
-			$nav['usermenu'][] = ['photos/' . $a->user['nickname'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
-			$nav['usermenu'][] = ['videos/' . $a->user['nickname'], DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
-			$nav['usermenu'][] = ['events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
-			$nav['usermenu'][] = ['notes/', DI::l10n()->t('Personal notes'), '', DI::l10n()->t('Your personal notes')];
+			if (!empty($a->user)) {
+				// user menu
+				$nav['usermenu'][] = ['profile/' . $a->user['nickname'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
+				$nav['usermenu'][] = ['profile/' . $a->user['nickname'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
+				$nav['usermenu'][] = ['photos/' . $a->user['nickname'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
+				$nav['usermenu'][] = ['videos/' . $a->user['nickname'], DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
+				$nav['usermenu'][] = ['events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
+				$nav['usermenu'][] = ['notes/', DI::l10n()->t('Personal notes'), '', DI::l10n()->t('Your personal notes')];
 
-			// user info
-			$contact = DBA::selectFirst('contact', ['micro'], ['uid' => $a->user['uid'], 'self' => true]);
-			$userinfo = [
-				'icon' => (DBA::isResult($contact) ? DI::baseUrl()->remove($contact['micro']) : 'images/person-48.jpg'),
-				'name' => $a->user['username'],
-			];
+				// user info
+				$contact = DBA::selectFirst('contact', ['micro'], ['uid' => $a->user['uid'], 'self' => true]);
+				$userinfo = [
+					'icon' => (DBA::isResult($contact) ? DI::baseUrl()->remove($contact['micro']) : Contact::DEFAULT_AVATAR_MICRO),
+					'name' => $a->user['username'],
+				];
+			} else {
+				DI::logger()->warning('Empty $a->user for local user', ['local_user' => local_user(), '$a' => $a]);
+			}
 		}
 
 		// "Home" should also take you home from an authenticated remote profile connection
@@ -252,7 +257,7 @@ class Nav
 		}
 
 		// The following nav links are only show to logged in users
-		if (local_user()) {
+		if (local_user() && !empty($a->user)) {
 			$nav['network'] = ['network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
 
 			$nav['home'] = ['profile/' . $a->user['nickname'], DI::l10n()->t('Home'), '', DI::l10n()->t('Your posts and conversations')];

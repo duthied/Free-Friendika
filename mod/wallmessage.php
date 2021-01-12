@@ -32,7 +32,7 @@ function wallmessage_post(App $a) {
 
 	$replyto = Profile::getMyURL();
 	if (!$replyto) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -56,7 +56,7 @@ function wallmessage_post(App $a) {
 	$user = $r[0];
 
 	if (! intval($user['unkmail'])) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -73,19 +73,17 @@ function wallmessage_post(App $a) {
 
 	switch ($ret) {
 		case -1:
-			notice(DI::l10n()->t('No recipient selected.') . EOL);
+			notice(DI::l10n()->t('No recipient selected.'));
 			break;
 		case -2:
-			notice(DI::l10n()->t('Unable to check your home location.') . EOL);
+			notice(DI::l10n()->t('Unable to check your home location.'));
 			break;
 		case -3:
-			notice(DI::l10n()->t('Message could not be sent.') . EOL);
+			notice(DI::l10n()->t('Message could not be sent.'));
 			break;
 		case -4:
-			notice(DI::l10n()->t('Message collection failure.') . EOL);
+			notice(DI::l10n()->t('Message collection failure.'));
 			break;
-		default:
-			info(DI::l10n()->t('Message sent.') . EOL);
 	}
 
 	DI::baseUrl()->redirect('profile/'.$user['nickname']);
@@ -95,14 +93,14 @@ function wallmessage_post(App $a) {
 function wallmessage_content(App $a) {
 
 	if (!Profile::getMyURL()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
 	$recipient = (($a->argc > 1) ? $a->argv[1] : '');
 
 	if (!$recipient) {
-		notice(DI::l10n()->t('No recipient.') . EOL);
+		notice(DI::l10n()->t('No recipient.'));
 		return;
 	}
 
@@ -111,7 +109,7 @@ function wallmessage_content(App $a) {
 	);
 
 	if (! DBA::isResult($r)) {
-		notice(DI::l10n()->t('No recipient.') . EOL);
+		notice(DI::l10n()->t('No recipient.'));
 		Logger::log('wallmessage: no recipient');
 		return;
 	}
@@ -119,7 +117,7 @@ function wallmessage_content(App $a) {
 	$user = $r[0];
 
 	if (!intval($user['unkmail'])) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 

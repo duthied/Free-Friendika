@@ -112,6 +112,7 @@ class Profile extends BaseProfile
 
 		$view_as_contacts = [];
 		$view_as_contact_id = 0;
+		$view_as_contact_alert = '';
 		if ($is_owner) {
 			$view_as_contact_id = intval($_GET['viewas'] ?? 0);
 
@@ -122,9 +123,19 @@ class Profile extends BaseProfile
 				'blocked' => false,
 			]);
 
+			$view_as_contact_ids = array_column($view_as_contacts, 'id');
+
 			// User manually provided a contact ID they aren't privy to, silently defaulting to their own view
-			if (!in_array($view_as_contact_id, array_column($view_as_contacts, 'id'))) {
+			if (!in_array($view_as_contact_id, $view_as_contact_ids)) {
 				$view_as_contact_id = 0;
+			}
+
+			if (($key = array_search($view_as_contact_id, $view_as_contact_ids)) !== false) {
+				$view_as_contact_alert = DI::l10n()->t(
+					'You\'re currently viewing your profile as <b>%s</b> <a href="%s" class="btn btn-sm pull-right">Cancel</a>',
+					htmlentities($view_as_contacts[$key]['name'], ENT_COMPAT, 'UTF-8'),
+					'profile/' . $parameters['nickname'] . '/profile'
+				);
 			}
 		}
 
@@ -220,12 +231,15 @@ class Profile extends BaseProfile
 			);
 		}
 
-		$tpl = Renderer::getMarkupTemplate('profile/index.tpl');
+		$tpl = Renderer::getMarkupTemplate('profile/profile.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$title' => DI::l10n()->t('Profile'),
+			'$yourself' => DI::l10n()->t('Yourself'),
 			'$view_as_contacts' => $view_as_contacts,
 			'$view_as_contact_id' => $view_as_contact_id,
+			'$view_as_contact_alert' => $view_as_contact_alert,
 			'$view_as' => DI::l10n()->t('View profile as:'),
+			'$submit' => DI::l10n()->t('Submit'),
 			'$basic' => DI::l10n()->t('Basic'),
 			'$advanced' => DI::l10n()->t('Advanced'),
 			'$is_owner' => $a->profile_uid == local_user(),
@@ -237,6 +251,11 @@ class Profile extends BaseProfile
 				'url' => DI::baseUrl() . '/settings/profile', DI::l10n()->t('Edit profile'),
 				'title' => '',
 				'label' => DI::l10n()->t('Edit profile')
+			],
+			'$viewas_link' => [
+				'url' =>  DI::args()->getQueryString() . '#viewas',
+				'title' => '',
+				'label' => DI::l10n()->t('View as')
 			],
 		]);
 

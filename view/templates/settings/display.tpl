@@ -18,6 +18,8 @@
 	{{include file="field_checkbox.tpl" field=$infinite_scroll}}
 	{{include file="field_checkbox.tpl" field=$no_smart_threading}}
 	{{include file="field_checkbox.tpl" field=$hide_dislike}}
+	{{include file="field_checkbox.tpl" field=$display_resharer}}
+	{{include file="field_checkbox.tpl" field=$stay_local}}
 
 	<h2>{{$calendar_title}}</h2>
 	{{include file="field_select.tpl" field=$first_day_of_week}}

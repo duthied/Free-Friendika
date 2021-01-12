@@ -28,7 +28,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Util\HTTPSignature;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
@@ -42,9 +41,9 @@ class Magic extends BaseModule
 	{
 		$a = DI::app();
 		$ret = ['success' => false, 'url' => '', 'message' => ''];
-		Logger::log('magic mdule: invoked', Logger::DEBUG);
+		Logger::info('magic mdule: invoked');
 
-		Logger::log('args: ' . print_r($_REQUEST, true), Logger::DATA);
+		Logger::debug('args', ['request' => $_REQUEST]);
 
 		$addr = $_REQUEST['addr'] ?? '';
 		$dest = $_REQUEST['dest'] ?? '';
@@ -73,7 +72,7 @@ class Magic extends BaseModule
 				return $ret;
 			}
 
-			Logger::log('Contact is already authenticated', Logger::DEBUG);
+			Logger::info('Contact is already authenticated');
 			System::externalRedirect($dest);
 		}
 
@@ -89,19 +88,19 @@ class Magic extends BaseModule
 				$exp = explode('/profile/', $contact['url']);
 				$basepath = $exp[0];
 
-				$headers = [];
-				$headers['Accept'] = 'application/x-dfrn+json, application/x-zot+json';
-				$headers['X-Open-Web-Auth'] = Strings::getRandomHex();
+				$header = [];
+				$header['Accept'] = 'application/x-dfrn+json, application/x-zot+json';
+				$header['X-Open-Web-Auth'] = Strings::getRandomHex();
 
 				// Create a header that is signed with the local users private key.
-				$headers = HTTPSignature::createSig(
-					$headers,
+				$header = HTTPSignature::createSig(
+					$header,
 					$user['prvkey'],
 					'acct:' . $user['nickname'] . '@' . DI::baseUrl()->getHostname() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : '')
 				);
 
 				// Try to get an authentication token from the other instance.
-				$curlResult = Network::curl($basepath . '/owa', false, ['headers' => $headers]);
+				$curlResult = DI::httpRequest()->get($basepath . '/owa', ['header' => $header]);
 
 				if ($curlResult->isSuccess()) {
 					$j = json_decode($curlResult->getBody(), true);

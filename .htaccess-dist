@@ -1,3 +1,6 @@
+# This file is meant to be copied to ".htaccess" on Apache-powered web servers.
+# The created .htaccess file can be edited manually and will not be overwritten by Friendica updates.
+
 Options -Indexes
 AddType application/x-java-archive .jar
 AddType audio/ogg .oga

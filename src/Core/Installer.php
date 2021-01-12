@@ -28,7 +28,6 @@ use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Util\Images;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
@@ -197,7 +196,7 @@ class Installer
 
 		if ($result) {
 			$txt = DI::l10n()->t('You may need to import the file "database.sql" manually using phpmyadmin or mysql.') . EOL;
-			$txt .= DI::l10n()->t('Please see the file "INSTALL.txt".');
+			$txt .= DI::l10n()->t('Please see the file "doc/INSTALL.md".');
 
 			$this->addCheck($txt, false, true, htmlentities($result, ENT_COMPAT, 'UTF-8'));
 
@@ -259,7 +258,7 @@ class Installer
 		$help = "";
 		if (!$passed) {
 			$help .= DI::l10n()->t('Could not find a command line version of PHP in the web server PATH.') . EOL;
-			$help .= DI::l10n()->t("If you don't have a command line version of PHP installed on your server, you will not be able to run the background processing. See <a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-worker'>'Setup the worker'</a>") . EOL;
+			$help .= DI::l10n()->t("If you don't have a command line version of PHP installed on your server, you will not be able to run the background processing. See <a href='https://github.com/friendica/friendica/blob/stable/doc/Install.md#set-up-the-worker'>'Setup the worker'</a>") . EOL;
 			$help .= EOL . EOL;
 			$tpl = Renderer::getMarkupTemplate('field_input.tpl');
 			/// @todo Separate backend Installer class and presentation layer/view
@@ -464,6 +463,13 @@ class Installer
 		);
 		$returnVal = $returnVal ? $status : false;
 
+		$status = $this->checkFunction('proc_open',
+			DI::l10n()->t('Program execution functions'),
+			DI::l10n()->t('Error: Program execution functions required but not enabled.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
 		$status = $this->checkFunction('json_encode',
 			DI::l10n()->t('JSON PHP module'),
 			DI::l10n()->t('Error: JSON PHP module required but not installed.'),
@@ -548,11 +554,11 @@ class Installer
 		$help = "";
 		$error_msg = "";
 		if (function_exists('curl_init')) {
-			$fetchResult = Network::fetchUrlFull($baseurl . "/install/testrewrite");
+			$fetchResult = DI::httpRequest()->fetchFull($baseurl . "/install/testrewrite");
 
 			$url = Strings::normaliseLink($baseurl . "/install/testrewrite");
 			if ($fetchResult->getReturnCode() != 204) {
-				$fetchResult = Network::fetchUrlFull($url);
+				$fetchResult = DI::httpRequest()->fetchFull($url);
 			}
 
 			if ($fetchResult->getReturnCode() != 204) {

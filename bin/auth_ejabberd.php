@@ -51,9 +51,14 @@
  *
  */
 
+if (php_sapi_name() !== 'cli') {
+	header($_SERVER["SERVER_PROTOCOL"] . ' 403 Forbidden');
+	exit();
+}
+
 use Dice\Dice;
 use Friendica\App\Mode;
-use Friendica\Util\ExAuth;
+use Friendica\Security\ExAuth;
 use Psr\Log\LoggerInterface;
 
 if (sizeof($_SERVER["argv"]) == 0) {
@@ -80,6 +85,7 @@ $dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['auth_ejabb
 $appMode = $dice->create(Mode::class);
 
 if ($appMode->isNormal()) {
-	$oAuth = new ExAuth();
+	/** @var ExAuth $oAuth */
+	$oAuth = $dice->create(ExAuth::class);
 	$oAuth->readStdin();
 }

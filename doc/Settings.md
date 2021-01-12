@@ -74,7 +74,7 @@ You can chose between the following modes:
 ##### Invitation based registry
 
 Additionally to the setting in the admin panel, you can decide if registrations are only possible using an invitation code or not.
-To enable invitation based registration, you have to set the `invitation_only` setting in the [config/local.config.php](/help/Config) file.
+To enable invitation based registration, you have to set the `invitation_only` setting to `true` in the `system` section of the [config/local.config.php](/help/Config) file.
 If you want to use this method, the registration policy has to be set to either *open* or *requires approval*.
 
 #### Check Full Names
@@ -182,7 +182,7 @@ By default, any (valid) email address is allowed in registrations.
 
 #### Allow Users to set remote_self
 
-If you enable the `Allow Users to set remote_self` users can select Atom feeds from their contact list being their *remote self* in the advanced contact settings.
+If you enable the `Allow Users to set remote_self` users can select Atom feeds from their contact list being their *remote self* in the contact settings.
 Which means that postings by the remote self are automatically reposted by Friendica in their names.
 
 This feature can be used to let the user mirror e.g. blog postings into their Friendica postings.
@@ -240,14 +240,8 @@ This section allows you to configure the background process that is triggered by
 The process does check the available system resources before creating a new worker for a task.
 Because of this, it may happen that the maximum number of worker processes you allow will not be reached.
 
-If your server setup does not allow you to use the `proc_open` function of PHP, please disable it in this section.
-
 The tasks for the background process have priorities.
 To guarantee that important tasks are executed even though the system has a lot of work to do, it is useful to enable the *fastlane*.
-
-Should you not be able to run a cron job on your server, you can also activate the *frontend* worker.
-If you have done so, you can call `example.com/worker` (replace example.com with your actual domain name) on a regular basis from an external service.
-This will then trigger the execution of the background process.
 
 ### Relocate
 

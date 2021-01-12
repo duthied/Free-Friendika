@@ -68,6 +68,7 @@ class Strings
 	 *
 	 * @param string $string Input string
 	 * @return string Filtered string
+	 * @deprecated since 2020.09 Please use Smarty default HTML escaping for templates or htmlspecialchars() otherwise
 	 */
 	public static function escapeTags($string)
 	{
@@ -369,9 +370,39 @@ class Strings
 	 * @param array	 $chars
 	 * @return bool
 	 */
-	public static function startsWith($string, array $chars)
+	public static function startsWithChars($string, array $chars)
 	{
 		$return = in_array(substr(trim($string), 0, 1), $chars);
+
+		return $return;
+	}
+
+	/**
+	 * Check if the first string starts with the second
+	 *
+	 * @see http://maettig.com/code/php/php-performance-benchmarks.php#startswith
+	 * @param string $string
+	 * @param string $start
+	 * @return bool
+	 */
+	public static function startsWith(string $string, string $start)
+	{
+		$return = substr_compare($string, $start, 0, strlen($start)) === 0;
+
+		return $return;
+	}
+
+	/**
+	 * Checks if the first string ends with the second
+	 *
+	 * @see http://maettig.com/code/php/php-performance-benchmarks.php#endswith
+	 * @param string $string
+	 * @param string $end
+	 * @return bool
+	 */
+	public static function endsWith(string $string, string $end)
+	{
+		$return = substr_compare($string, $end, -strlen($end)) === 0;
 
 		return $return;
 	}
@@ -457,5 +488,53 @@ class Strings
 		}
 
 		return mb_substr($string, 0, $start) . $replacement . mb_substr($string, $start + $length, $string_length - $start - $length);
+	}
+
+	/**
+	 * Perform a custom function on a text after having escaped blocks matched by the provided regular expressions.
+	 * Only full matches are used, capturing group are ignored.
+	 *
+	 * To change the provided text, the callback function needs to return it and this function will return the modified
+	 * version as well after having restored the escaped blocks.
+	 *
+	 * @param string   $text
+	 * @param string   $regex
+	 * @param callable $callback
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function performWithEscapedBlocks(string $text, string $regex, callable $callback)
+	{
+		// Enables nested use
+		$executionId = random_int(PHP_INT_MAX / 10, PHP_INT_MAX);
+
+		$blocks = [];
+
+		$text = preg_replace_callback($regex,
+			function ($matches) use ($executionId, &$blocks) {
+				$return = '«block-' . $executionId . '-' . count($blocks) . '»';
+
+				$blocks[] = $matches[0];
+
+				return $return;
+			},
+			$text
+		);
+
+		$text = $callback($text) ?? '';
+
+		// Restore code blocks
+		$text = preg_replace_callback('/«block-' . $executionId . '-([0-9]+)»/iU',
+			function ($matches) use ($blocks) {
+				$return = $matches[0];
+				if (isset($blocks[intval($matches[1])])) {
+					$return = $blocks[$matches[1]];
+				}
+				return $return;
+			},
+			$text
+		);
+
+		return $text;
 	}
 }

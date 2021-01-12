@@ -75,6 +75,6 @@ class DateTimeFormatTest extends MockedTest
 	{
 		$dtFormat = new DateTimeFormat();
 
-		$this->assertEquals($assert, $dtFormat->isYearMonth($input));
+		self::assertEquals($assert, $dtFormat->isYearMonth($input));
 	}
 }

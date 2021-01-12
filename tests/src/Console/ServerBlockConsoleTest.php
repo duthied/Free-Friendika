@@ -23,6 +23,7 @@ namespace Friendica\Test\src\Console;
 
 use Friendica\Console\ServerBlock;
 use Friendica\Core\Config\IConfig;
+use Mockery;
 
 class ServerBlockConsoleTest extends ConsoleTest
 {
@@ -36,12 +37,16 @@ class ServerBlockConsoleTest extends ConsoleTest
 			'reason' => 'Illegal content',
 		]
 	];
+	/**
+	 * @var IConfig|Mockery\LegacyMockInterface|Mockery\MockInterface
+	 */
+	private $configMock;
 
 	protected function setUp()
 	{
 		parent::setUp();
 
-		$this->configMock = \Mockery::mock(IConfig::class);
+		$this->configMock = Mockery::mock(IConfig::class);
 	}
 
 	/**
@@ -69,7 +74,7 @@ class ServerBlockConsoleTest extends ConsoleTest
 
 CONS;
 
-		$this->assertEquals($output, $txt);
+		self::assertEquals($output, $txt);
 	}
 
 	/**
@@ -101,7 +106,7 @@ CONS;
 		$console->setArgument(2, 'I like it!');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'I like it!\')' . PHP_EOL, $txt);
+		self::assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'I like it!\')' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -132,7 +137,7 @@ CONS;
 		$console->setArgument(1, 'testme.now');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'' . ServerBlock::DEFAULT_REASON . '\')' . PHP_EOL, $txt);
+		self::assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'' . ServerBlock::DEFAULT_REASON . '\')' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -169,7 +174,7 @@ CONS;
 		$console->setArgument(2, 'Other reason');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'pod.ordoevangelistarum.com\' is now updated. (Reason: \'Other reason\')' . PHP_EOL, $txt);
+		self::assertEquals('The domain \'pod.ordoevangelistarum.com\' is now updated. (Reason: \'Other reason\')' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -201,7 +206,7 @@ CONS;
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'pod.ordoevangelistarum.com\' is not more blocked' . PHP_EOL, $txt);
+		self::assertEquals('The domain \'pod.ordoevangelistarum.com\' is not more blocked' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -213,7 +218,7 @@ CONS;
 		$console->setArgument(0, 'wrongcommand');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertStringStartsWith('[Warning] Unknown command', $txt);
+		self::assertStringStartsWith('[Warning] Unknown command', $txt);
 	}
 
 	/**
@@ -232,7 +237,7 @@ CONS;
 		$console->setArgument(1, 'not.exiting');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'not.exiting\' is not blocked.' . PHP_EOL, $txt);
+		self::assertEquals('The domain \'not.exiting\' is not blocked.' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -244,7 +249,7 @@ CONS;
 		$console->setArgument(0, 'add');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertStringStartsWith('[Warning] Add needs a domain and optional a reason.', $txt);
+		self::assertStringStartsWith('[Warning] Add needs a domain and optional a reason.', $txt);
 	}
 
 	/**
@@ -275,7 +280,7 @@ CONS;
 		$console->setArgument(1, 'testme.now');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('Couldn\'t save \'testme.now\' as blocked server' . PHP_EOL, $txt);
+		self::assertEquals('Couldn\'t save \'testme.now\' as blocked server' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -307,7 +312,7 @@ CONS;
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('Couldn\'t remove \'pod.ordoevangelistarum.com\' from blocked servers' . PHP_EOL, $txt);
+		self::assertEquals('Couldn\'t remove \'pod.ordoevangelistarum.com\' from blocked servers' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -319,7 +324,7 @@ CONS;
 		$console->setArgument(0, 'remove');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertStringStartsWith('[Warning] Remove needs a second parameter.', $txt);
+		self::assertStringStartsWith('[Warning] Remove needs a second parameter.', $txt);
 	}
 
 	/**
@@ -334,14 +339,18 @@ CONS;
 		$help = <<<HELP
 console serverblock - Manage blocked server domain patterns
 Usage
-	bin/console serverblock [-h|--help|-?] [-v]
-	bin/console serverblock add <pattern> <reason> [-h|--help|-?] [-v]
-	bin/console serverblock remove <pattern> [-h|--help|-?] [-v]
+    bin/console serverblock [-h|--help|-?] [-v]
+    bin/console serverblock add <pattern> <reason> [-h|--help|-?] [-v]
+    bin/console serverblock remove <pattern> [-h|--help|-?] [-v]
+    bin/console serverblock export <filename>
+    bin/console serverblock import <filename>
 
 Description
-	With this tool, you can list the current blocked server domain patterns
+    With this tool, you can list the current blocked server domain patterns
     or you can add / remove a blocked server domain pattern from the list.
-    
+    Using the export and import options you can share your server blocklist
+    with other node admins by CSV files.
+
     Patterns are case-insensitive shell wildcard comprising the following special characters:
     - * : Any number of characters
     - ? : Any single character
@@ -353,6 +362,6 @@ Options
 
 HELP;
 
-		$this->assertEquals($help, $txt);
+		self::assertEquals($help, $txt);
 	}
 }

@@ -21,13 +21,8 @@
 
 namespace Friendica\Factory\Api\Mastodon;
 
-use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
 use Friendica\Collection\Api\Mastodon\Emojis;
-use Friendica\Model\APContact;
-use Friendica\Model\Contact;
-use Friendica\Network\HTTPException;
-use Psr\Log\LoggerInterface;
 
 class Emoji extends BaseFactory
 {

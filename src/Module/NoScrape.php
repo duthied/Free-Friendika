@@ -26,14 +26,13 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 
 /**
  * Endpoint for getting current user infos
  *
- * @see GContact::updateFromNoScrape() for usage
+ * @see Contact::updateFromNoScrape() for usage
  */
 class NoScrape extends BaseModule
 {
@@ -46,19 +45,22 @@ class NoScrape extends BaseModule
 			$which = $parameters['nick'];
 		} elseif (local_user() && isset($parameters['profile']) && DI::args()->get(2) == 'view') {
 			// view infos about a known profile (needs a login)
-			$which   = $a->user['nickname'];
+			$which = $a->user['nickname'];
 		} else {
 			System::jsonError(403, 'Authentication required');
-			exit();
 		}
 
 		Profile::load($a, $which);
+
+		if (empty($a->profile['uid'])) {
+			System::jsonError(404, 'Profile not found');
+		}
 
 		$json_info = [
 			'addr'         => $a->profile['addr'],
 			'nick'         => $which,
 			'guid'         => $a->profile['guid'],
-			'key'          => $a->profile['pubkey'],
+			'key'          => $a->profile['upubkey'],
 			'homepage'     => DI::baseUrl() . "/profile/{$which}",
 			'comm'         => ($a->profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY),
 			'account-type' => $a->profile['account-type'],

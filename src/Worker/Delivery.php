@@ -33,6 +33,9 @@ use Friendica\Protocol\Activity;
 use Friendica\Util\Strings;
 use Friendica\Util\Network;
 use Friendica\Core\Worker;
+use Friendica\Model\Conversation;
+use Friendica\Model\FContact;
+use Friendica\Protocol\Relay;
 
 class Delivery
 {
@@ -58,14 +61,12 @@ class Delivery
 		if ($cmd == self::MAIL) {
 			$target_item = DBA::selectFirst('mail', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
-				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::SUGGESTION) {
 			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
-				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
 			$uid = $target_item['uid'];
@@ -75,7 +76,6 @@ class Delivery
 		} else {
 			$item = Model\Item::selectFirst(['parent'], ['id' => $target_id]);
 			if (!DBA::isResult($item) || empty($item['parent'])) {
-				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
 			$parent_id = intval($item['parent']);
@@ -85,6 +85,10 @@ class Delivery
 			$itemdata = Model\Item::select([], $condition, $params);
 
 			while ($item = Model\Item::fetch($itemdata)) {
+				if ($item['verb'] == Activity::ANNOUNCE) {
+					continue;
+				}
+	
 				if ($item['id'] == $parent_id) {
 					$parent = $item;
 				}
@@ -97,7 +101,6 @@ class Delivery
 
 			if (empty($target_item)) {
 				Logger::log('Item ' . $target_id . "wasn't found. Quitting here.");
-				self::setFailedQueue($cmd, $target_item);
 				return;
 			}
 
@@ -138,13 +141,7 @@ class Delivery
 				}
 			}
 
-			// When commenting too fast after delivery, a post wasn't recognized as top level post.
-			// The count then showed more than one entry. The additional check should help.
-			// The check for the "count" should be superfluous, but I'm not totally sure by now, so we keep it.
-			if ((($parent['id'] == $target_id) || (count($items) == 1)) && ($parent['uri'] === $parent['parent-uri'])) {
-				Logger::log('Top level post');
-				$top_level = true;
-			}
+			$top_level = $target_item['gravity'] == GRAVITY_PARENT;
 
 			// This is IMPORTANT!!!!
 
@@ -191,9 +188,9 @@ class Delivery
 			return;
 		}
 
-		// We don't deliver our items to blocked or pending contacts, and not to ourselves either
+		// We don't deliver our items to blocked, archived or pending contacts, and not to ourselves either
 		$contact = DBA::selectFirst('contact', [],
-			['id' => $contact_id, 'blocked' => false, 'pending' => false, 'self' => false]
+			['id' => $contact_id, 'archive' => false, 'blocked' => false, 'pending' => false, 'self' => false]
 		);
 		if (!DBA::isResult($contact)) {
 			self::setFailedQueue($cmd, $target_item);
@@ -205,10 +202,13 @@ class Delivery
 			return;
 		}
 
+		$protocol = Model\GServer::getProtocol($contact['gsid'] ?? 0);
+
 		// Transmit via Diaspora if the thread had started as Diaspora post.
 		// Also transmit via Diaspora if this is a direct answer to a Diaspora comment.
 		// This is done since the uri wouldn't match (Diaspora doesn't transmit it)
-		if (!empty($parent) && !empty($thr_parent) && in_array(Protocol::DIASPORA, [$parent['network'], $thr_parent['network']])) {
+		// Also transmit relayed posts from Diaspora contacts via Diaspora.
+		if (!empty($parent) && !empty($thr_parent) && in_array(Protocol::DIASPORA, [$parent['network'], $thr_parent['network'], $target_item['network']])) {
 			$contact['network'] = Protocol::DIASPORA;
 		}
 
@@ -221,7 +221,7 @@ class Delivery
 
 		switch ($contact['network']) {
 			case Protocol::DFRN:
-				self::deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
+				self::deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup, $protocol);
 				break;
 
 			case Protocol::DIASPORA:
@@ -257,21 +257,22 @@ class Delivery
 	/**
 	 * Deliver content via DFRN
 	 *
-	 * @param string  $cmd            Command
-	 * @param array   $contact        Contact record of the receiver
-	 * @param array   $owner          Owner record of the sender
-	 * @param array   $items          Item record of the content and the parent
-	 * @param array   $target_item    Item record of the content
-	 * @param boolean $public_message Is the content public?
-	 * @param boolean $top_level      Is it a thread starter?
-	 * @param boolean $followup       Is it an answer to a remote post?
+	 * @param string  $cmd             Command
+	 * @param array   $contact         Contact record of the receiver
+	 * @param array   $owner           Owner record of the sender
+	 * @param array   $items           Item record of the content and the parent
+	 * @param array   $target_item     Item record of the content
+	 * @param boolean $public_message  Is the content public?
+	 * @param boolean $top_level       Is it a thread starter?
+	 * @param boolean $followup        Is it an answer to a remote post?
+	 * @param int     $server_protocol The protocol of the server
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
+	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup, $server_protocol)
 	{
 		// Transmit Diaspora reshares via Diaspora if the Friendica contact support Diaspora
-		if (Diaspora::isReshare($target_item['body']) && !empty(Diaspora::personByHandle($contact['addr'], false))) {
+		if (Diaspora::isReshare($target_item['body']) && !empty(FContact::getByURL($contact['addr'], false))) {
 			Logger::info('Reshare will be transmitted via Diaspora', ['url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
 			self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 			return;
@@ -293,13 +294,17 @@ class Delivery
 			$msgitems = [$target_item];
 			$atom = DFRN::entries($msgitems, $owner);
 		} else {
-			$msgitems = [];
-			foreach ($items as $item) {
-				// Only add the parent when we don't delete other items.
-				if (($target_item['id'] == $item['id']) || ($cmd != self::DELETION)) {
-					$item["entry:comment-allow"] = true;
-					$item["entry:cid"] = ($top_level ? $contact['id'] : 0);
-					$msgitems[] = $item;
+			if ($target_item['deleted']) {
+				$msgitems = [$target_item];
+			} else {
+				$msgitems = [];
+				foreach ($items as $item) {
+					// Only add the parent when we don't delete other items.
+					if (($target_item['id'] == $item['id']) || ($cmd != self::DELETION)) {
+						$item["entry:comment-allow"] = true;
+						$item["entry:cid"] = ($top_level ? $contact['id'] : 0);
+						$msgitems[] = $item;
+					}
 				}
 			}
 			$atom = DFRN::entries($msgitems, $owner);
@@ -332,7 +337,7 @@ class Delivery
 				return;
 			}
 
-			DFRN::import($atom, $target_importer);
+			DFRN::import($atom, $target_importer, Conversation::PARCEL_LOCAL_DFRN, Conversation::PUSH);
 
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::DFRN);
@@ -358,6 +363,8 @@ class Delivery
 				if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 					if (($deliver_status >= 200) && ($deliver_status <= 299)) {
 						Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], $protocol);
+
+						Model\GServer::setProtocol($contact['gsid'] ?? 0, $protocol);
 					} else {
 						Model\Post\DeliveryData::incrementQueueFailed($target_item['uri-id']);
 					}
@@ -365,7 +372,7 @@ class Delivery
 				return;
 			}
 
-			if (($deliver_status < 200) || ($deliver_status > 299)) {
+			if ((($deliver_status < 200) || ($deliver_status > 299)) && (empty($server_protocol) || ($server_protocol == Model\Post\DeliveryData::LEGACY_DFRN))) {
 				// Transmit via Diaspora if not possible via Friendica
 				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				return;
@@ -373,7 +380,7 @@ class Delivery
 		} elseif ($cmd != self::RELOCATION) {
 			// DFRN payload over Diaspora transport layer
 			$deliver_status = DFRN::transmit($owner, $contact, $atom);
-			if ($deliver_status < 200) {
+			if (($deliver_status < 200) && (empty($server_protocol) || ($server_protocol == Model\Post\DeliveryData::LEGACY_DFRN))) {
 				// Legacy DFRN
 				$deliver_status = DFRN::deliver($owner, $contact, $atom);
 				$protocol = Model\Post\DeliveryData::LEGACY_DFRN;
@@ -388,6 +395,8 @@ class Delivery
 		if (($deliver_status >= 200) && ($deliver_status <= 299)) {
 			// We successfully delivered a message, the contact is alive
 			Model\Contact::unmarkForArchival($contact);
+
+			Model\GServer::setProtocol($contact['gsid'] ?? 0, $protocol);
 
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], $protocol);
@@ -474,6 +483,8 @@ class Delivery
 			// We successfully delivered a message, the contact is alive
 			Model\Contact::unmarkForArchival($contact);
 
+			Model\GServer::setProtocol($contact['gsid'] ?? 0, Model\Post\DeliveryData::DIASPORA);
+
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				Model\Post\DeliveryData::incrementQueueDone($target_item['uri-id'], Model\Post\DeliveryData::DIASPORA);
 			}
@@ -483,7 +494,7 @@ class Delivery
 
 			// When it is delivered to the public endpoint, we do mark the relay contact for archival as well
 			if ($public_message) {
-				Diaspora::markRelayForArchival($contact);
+				Relay::markForArchival($contact);
 			}
 
 			if (empty($contact['contact-type']) || ($contact['contact-type'] != Model\Contact::TYPE_RELAY)) {

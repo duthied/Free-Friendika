@@ -97,37 +97,52 @@ abstract class BaseRepository extends BaseFactory
 	 * Populates the collection according to the condition. Retrieves a limited subset of models depending on the boundaries
 	 * and the limit. The total count of rows matching the condition is stored in the collection.
 	 *
+	 * max_id and min_id are susceptible to the query order:
+	 * - min_id alone only reliably works with ASC order
+	 * - max_id alone only reliably works with DESC order
+	 * If the wrong order is detected in either case, we inverse the query order and we reverse the model array after the query
+	 *
 	 * Chainable.
 	 *
 	 * @param array $condition
 	 * @param array $params
-	 * @param int?  $max_id
-	 * @param int?  $since_id
+	 * @param int?  $min_id Retrieve models with an id no fewer than this, as close to it as possible
+	 * @param int?  $max_id Retrieve models with an id no greater than this, as close to it as possible
 	 * @param int   $limit
 	 * @return BaseCollection
 	 * @throws \Exception
 	 */
-	public function selectByBoundaries(array $condition = [], array $params = [], int $max_id = null, int $since_id = null, int $limit = self::LIMIT)
+	public function selectByBoundaries(array $condition = [], array $params = [], int $min_id = null, int $max_id = null, int $limit = self::LIMIT)
 	{
-		$condition = DBA::collapseCondition($condition);
+		$totalCount = DBA::count(static::$table_name, $condition);
 
 		$boundCondition = $condition;
 
-		if (isset($max_id)) {
-			$boundCondition[0] .= " AND `id` < ?";
-			$boundCondition[] = $max_id;
+		$reverseModels = false;
+
+		if (isset($min_id)) {
+			$boundCondition = DBA::mergeConditions($boundCondition, ['`id` > ?', $min_id]);
+			if (!isset($max_id) && isset($params['order']['id']) && ($params['order']['id'] === true || $params['order']['id'] === 'DESC')) {
+				$reverseModels = true;
+				$params['order']['id'] = 'ASC';
+			}
 		}
 
-		if (isset($since_id)) {
-			$boundCondition[0] .= " AND `id` > ?";
-			$boundCondition[] = $since_id;
+		if (isset($max_id)) {
+			$boundCondition = DBA::mergeConditions($boundCondition, ['`id` < ?', $max_id]);
+			if (!isset($min_id) && (!isset($params['order']['id']) || $params['order']['id'] === false || $params['order']['id'] === 'ASC')) {
+				$reverseModels = true;
+				$params['order']['id'] = 'DESC';
+			}
 		}
 
 		$params['limit'] = $limit;
 
 		$models = $this->selectModels($boundCondition, $params);
 
-		$totalCount = DBA::count(static::$table_name, $condition);
+		if ($reverseModels) {
+			$models = array_reverse($models);
+		}
 
 		return new static::$collection_class($models, $totalCount);
 	}
@@ -220,6 +235,8 @@ abstract class BaseRepository extends BaseFactory
 				$models[] = static::$model_class::createFromPrototype($prototype, $record);
 			}
 		}
+
+		$this->dba->close($result);
 
 		return $models;
 	}

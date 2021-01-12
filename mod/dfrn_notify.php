@@ -19,7 +19,7 @@
  *
  * The dfrn notify endpoint
  *
- * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
+ * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/stable/spec/dfrn2.pdf
  */
 
 use Friendica\App;
@@ -28,6 +28,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\User;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
@@ -35,8 +36,6 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 function dfrn_notify_post(App $a) {
-	Logger::log(__function__, Logger::TRACE);
-
 	$postdata = Network::postdata();
 
 	if (empty($_POST) || !empty($postdata)) {
@@ -192,7 +191,7 @@ function dfrn_notify_post(App $a) {
 
 	Logger::log('Importing post from ' . $importer['addr'] . ' to ' . $importer['nickname'] . ' with the RINO ' . $rino_remote . ' encryption.', Logger::DEBUG);
 
-	$ret = DFRN::import($data, $importer);
+	$ret = DFRN::import($data, $importer, Conversation::PARCEL_LEGACY_DFRN, Conversation::PUSH);
 	System::xmlExit($ret, 'Processed');
 
 	// NOTREACHED
@@ -224,7 +223,7 @@ function dfrn_dispatch_public($postdata)
 	Logger::log('Importing post from ' . $msg['author'] . ' with the public envelope.', Logger::DEBUG);
 
 	// Now we should be able to import it
-	$ret = DFRN::import($msg['message'], $importer);
+	$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::RELAY);
 	System::xmlExit($ret, 'Done');
 }
 
@@ -257,7 +256,7 @@ function dfrn_dispatch_private($user, $postdata)
 	Logger::log('Importing post from ' . $msg['author'] . ' to ' . $user['nickname'] . ' with the private envelope.', Logger::DEBUG);
 
 	// Now we should be able to import it
-	$ret = DFRN::import($msg['message'], $importer);
+	$ret = DFRN::import($msg['message'], $importer, Conversation::PARCEL_DIASPORA_DFRN, Conversation::PUSH);
 	System::xmlExit($ret, 'Done');
 }
 

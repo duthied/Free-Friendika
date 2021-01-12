@@ -53,6 +53,8 @@ class ProfilerTest extends MockedTest
 		            ->andReturn(true)
 		            ->twice();
 		$profiler = new Profiler($configCache);
+
+		self::assertInstanceOf(Profiler::class, $profiler);
 	}
 
 	/**
@@ -134,14 +136,14 @@ class ProfilerTest extends MockedTest
 			$profiler->saveTimestamp($timestamp, $name, $function);
 		}
 
-		$this->assertGreaterThanOrEqual(0, $profiler->get($name));
+		self::assertGreaterThanOrEqual(0, $profiler->get($name));
 	}
 
 	/**
 	 * Test the Profiler reset
 	 * @dataProvider dataPerformance
 	 */
-	public function testReset($timestamp, $name, array $functions)
+	public function testReset($timestamp, $name)
 	{
 		$configCache = \Mockery::mock(Cache::class);
 		$configCache->shouldReceive('get')
@@ -154,7 +156,7 @@ class ProfilerTest extends MockedTest
 		$profiler->saveTimestamp($timestamp, $name);
 		$profiler->reset();
 
-		$this->assertEquals(0, $profiler->get($name));
+		self::assertEquals(0, $profiler->get($name));
 	}
 
 	public function dataBig()
@@ -227,7 +229,7 @@ class ProfilerTest extends MockedTest
 		foreach ($data as $perf => $items) {
 			foreach ($items['functions'] as $function) {
 				// assert that the output contains the functions
-				$this->assertRegExp('/' . $function . ': \d+/', $output);
+				self::assertRegExp('/' . $function . ': \d+/', $output);
 			}
 		}
 	}
@@ -249,8 +251,8 @@ class ProfilerTest extends MockedTest
 
 		$profiler = new Profiler($configCache);
 
-		$this->assertFalse($profiler->isRendertime());
-		$this->assertEmpty($profiler->getRendertimeString());
+		self::assertFalse($profiler->isRendertime());
+		self::assertEmpty($profiler->getRendertimeString());
 
 		$profiler->saveTimestamp(time(), 'network', 'test1');
 
@@ -266,8 +268,8 @@ class ProfilerTest extends MockedTest
 
 		$profiler->update($config);
 
-		$this->assertFalse($profiler->isRendertime());
-		$this->assertEmpty($profiler->getRendertimeString());
+		self::assertFalse($profiler->isRendertime());
+		self::assertEmpty($profiler->getRendertimeString());
 
 		$config->shouldReceive('get')
 		       ->with('system', 'profiler')
@@ -282,9 +284,9 @@ class ProfilerTest extends MockedTest
 
 		$profiler->saveTimestamp(time(), 'database', 'test2');
 
-		$this->assertTrue($profiler->isRendertime());
+		self::assertTrue($profiler->isRendertime());
 		$output = $profiler->getRendertimeString();
-		$this->assertRegExp('/test1: \d+/', $output);
-		$this->assertRegExp('/test2: \d+/', $output);
+		self::assertRegExp('/test1: \d+/', $output);
+		self::assertRegExp('/test2: \d+/', $output);
 	}
 }

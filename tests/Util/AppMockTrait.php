@@ -25,6 +25,7 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\DI;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Render\FriendicaSmartyEngine;
 use Friendica\Util\Profiler;
 use Mockery\MockInterface;
@@ -64,7 +65,9 @@ trait AppMockTrait
 	 * Mock the App
 	 *
 	 * @param vfsStreamDirectory $root The root directory
-	 * @param bool $raw If true, no config mocking will be done
+	 * @param bool               $raw  If true, no config mocking will be done
+	 *
+	 * @throws InternalServerErrorException
 	 */
 	public function mockApp(vfsStreamDirectory $root, $raw = false)
 	{
@@ -108,7 +111,7 @@ trait AppMockTrait
 			->andReturn($this->configMock);
 		$this->app
 			->shouldReceive('getTemplateEngine')
-			->andReturn(new FriendicaSmartyEngine());
+			->andReturn(new FriendicaSmartyEngine('frio', []));
 		$this->app
 			->shouldReceive('getCurrentTheme')
 			->andReturn('Smarty3');

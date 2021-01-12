@@ -1,3 +1,4 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPLv3-or-later
 /**
  * Contains functions for bootstrap modal handling.
  */
@@ -191,12 +192,12 @@ function loadModalTitle() {
 	var title = "";
 
 	// Get the text of the first element with "heading" class.
-	title = $("#modal-body .heading").first().text();
+	title = $("#modal-body .heading").first().html();
 
 	// for event modals we need some speacial handling
 	if($("#modal-body .event-wrapper .event-summary").length) {
 		title = '<i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;';
-		var eventsum = $("#modal-body .event-wrapper .event-summary").text();
+		var eventsum = $("#modal-body .event-wrapper .event-summary").html();
 		title = title + eventsum;
 	}
 
@@ -284,7 +285,7 @@ function editpost(url) {
 	jotcache = $("#jot-content > #jot-sections");
 
 	// Remove the original Jot as long as the edit Jot is open.
-	jotcache.remove();
+	jotcache.detach();
 
 	// Add the class "edit" to the modal to have some kind of identifier to
 	// have the possibility to e.g. put special event-listener.
@@ -397,3 +398,4 @@ function eventEdit(url) {
 		loadModalTitle();
 	});
 }
+// @license-end

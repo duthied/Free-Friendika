@@ -23,6 +23,7 @@ namespace Friendica\Util;
 
 use Friendica\Core\Config\Cache;
 use Friendica\Core\Config\IConfig;
+use Friendica\Core\System;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -88,15 +89,17 @@ class Profiler implements ContainerInterface
 	 * Saves a timestamp for a value - f.e. a call
 	 * Necessary for profiling Friendica
 	 *
-	 * @param int $timestamp the Timestamp
-	 * @param string $value A value to profile
-	 * @param string $callstack The callstack of the current profiling data
+	 * @param int    $timestamp the Timestamp
+	 * @param string $value     A value to profile
+	 * @param string $callstack A callstack string, generated if absent
 	 */
 	public function saveTimestamp($timestamp, $value, $callstack = '')
 	{
 		if (!$this->enabled) {
 			return;
 		}
+
+		$callstack = $callstack ?: System::callstack(4, 1);
 
 		$duration = floatval(microtime(true) - $timestamp);
 
@@ -132,6 +135,7 @@ class Profiler implements ContainerInterface
 	{
 		$this->performance = [];
 		$this->performance['start'] = microtime(true);
+		$this->performance['ready'] = 0;
 		$this->performance['database'] = 0;
 		$this->performance['database_write'] = 0;
 		$this->performance['cache'] = 0;
@@ -142,6 +146,10 @@ class Profiler implements ContainerInterface
 		$this->performance['parser'] = 0;
 		$this->performance['marktime'] = 0;
 		$this->performance['marktime'] = microtime(true);
+		$this->performance['classcreate'] = 0;
+		$this->performance['classinit'] = 0;
+		$this->performance['init'] = 0;
+		$this->performance['content'] = 0;
 	}
 
 	/**
@@ -162,10 +170,11 @@ class Profiler implements ContainerInterface
 
 	/**
 	 * Returns the rendertime string
+	 * @param float $limit Minimal limit for displaying the execution duration
 	 *
 	 * @return string the rendertime
 	 */
-	public function getRendertimeString()
+	public function getRendertimeString(float $limit = 0)
 	{
 		$output = '';
 
@@ -177,7 +186,7 @@ class Profiler implements ContainerInterface
 			$output .= "\nDatabase Read:\n";
 			foreach ($this->callstack["database"] as $func => $time) {
 				$time = round($time, 3);
-				if ($time > 0) {
+				if ($time > $limit) {
 					$output .= $func . ": " . $time . "\n";
 				}
 			}
@@ -186,7 +195,7 @@ class Profiler implements ContainerInterface
 			$output .= "\nDatabase Write:\n";
 			foreach ($this->callstack["database_write"] as $func => $time) {
 				$time = round($time, 3);
-				if ($time > 0) {
+				if ($time > $limit) {
 					$output .= $func . ": " . $time . "\n";
 				}
 			}
@@ -195,7 +204,7 @@ class Profiler implements ContainerInterface
 			$output .= "\nCache Read:\n";
 			foreach ($this->callstack["cache"] as $func => $time) {
 				$time = round($time, 3);
-				if ($time > 0) {
+				if ($time > $limit) {
 					$output .= $func . ": " . $time . "\n";
 				}
 			}
@@ -204,7 +213,7 @@ class Profiler implements ContainerInterface
 			$output .= "\nCache Write:\n";
 			foreach ($this->callstack["cache_write"] as $func => $time) {
 				$time = round($time, 3);
-				if ($time > 0) {
+				if ($time > $limit) {
 					$output .= $func . ": " . $time . "\n";
 				}
 			}
@@ -213,7 +222,7 @@ class Profiler implements ContainerInterface
 			$output .= "\nNetwork:\n";
 			foreach ($this->callstack["network"] as $func => $time) {
 				$time = round($time, 3);
-				if ($time > 0) {
+				if ($time > $limit) {
 					$output .= $func . ": " . $time . "\n";
 				}
 			}
@@ -271,6 +280,11 @@ class Profiler implements ContainerInterface
 		} else {
 			return $this->performance[$id];
 		}
+	}
+
+	public function set($timestamp, $id)
+	{
+		$this->performance[$id] = $timestamp;
 	}
 
 	/**

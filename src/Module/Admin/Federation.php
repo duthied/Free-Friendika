@@ -42,6 +42,7 @@ class Federation extends BaseAdmin
 			'hubzilla'    => ['name' => 'Hubzilla/Red Matrix', 'color' => '#43488a'], // blue from the logo
 			'mastodon'    => ['name' => 'Mastodon', 'color' => '#1a9df9'], // blue from the Mastodon logo
 			'misskey'     => ['name' => 'Misskey', 'color' => '#ccfefd'], // Font color of the homepage
+			'nextcloud'   => ['name' => 'Nextcloud', 'color' => '#1cafff'], // Logo color
 			'peertube'    => ['name' => 'Peertube', 'color' => '#ffad5c'], // One of the logo colors
 			'pixelfed'    => ['name' => 'Pixelfed', 'color' => '#11da47'], // One of the logo colors
 			'pleroma'     => ['name' => 'Pleroma', 'color' => '#E46F0F'], // Orange from the text that is used on Pleroma instances
@@ -64,14 +65,14 @@ class Federation extends BaseAdmin
 
 		$gservers = DBA::p("SELECT COUNT(*) AS `total`, SUM(`registered-users`) AS `users`, `platform`,
 			ANY_VALUE(`network`) AS `network`, MAX(`version`) AS `version`
-			FROM `gserver` WHERE `last_contact` >= `last_failure` GROUP BY `platform`");
+			FROM `gserver` WHERE NOT `failed` GROUP BY `platform`");
 		while ($gserver = DBA::fetch($gservers)) {
 			$total += $gserver['total'];
 			$users += $gserver['users'];
 
 			$versionCounts = [];
 			$versions = DBA::p("SELECT COUNT(*) AS `total`, `version` FROM `gserver`
-				WHERE `last_contact` >= `last_failure` AND `platform` = ?
+				WHERE NOT `failed` AND `platform` = ?
 				GROUP BY `version` ORDER BY `version`", $gserver['platform']);
 			while ($version = DBA::fetch($versions)) {
 				$version['version'] = str_replace(["\n", "\r", "\t"], " ", $version['version']);
@@ -132,7 +133,6 @@ class Federation extends BaseAdmin
 
 		// some helpful text
 		$intro = DI::l10n()->t('This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of.');
-		$hint = DI::l10n()->t('The <em>Auto Discovered Contact Directory</em> feature is not enabled, it will improve the data displayed here.');
 
 		// load the template, replace the macros and return the page content
 		$t = Renderer::getMarkupTemplate('admin/federation.tpl');
@@ -140,8 +140,6 @@ class Federation extends BaseAdmin
 			'$title' => DI::l10n()->t('Administration'),
 			'$page' => DI::l10n()->t('Federation Statistics'),
 			'$intro' => $intro,
-			'$hint' => $hint,
-			'$autoactive' => DI::config()->get('system', 'poco_completion'),
 			'$counts' => $counts,
 			'$version' => FRIENDICA_VERSION,
 			'$legendtext' => DI::l10n()->t('Currently this node is aware of %d nodes with %d registered users from the following platforms:', $total, $users),
@@ -163,8 +161,9 @@ class Federation extends BaseAdmin
 			$newVC = $vv['total'];
 			$newVV = $vv['version'];
 			$lastDot = strrpos($newVV, '.');
+			$firstDash = strpos($newVV, '-');
 			$len = strlen($newVV) - 1;
-			if (($lastDot == $len - 4) && (!strrpos($newVV, '-rc') == $len - 3)) {
+			if (($lastDot == $len - 4) && (!strrpos($newVV, '-rc') == $len - 3) && (!$firstDash == $len - 1)) {
 				$newVV = substr($newVV, 0, $lastDot);
 			}
 			if (isset($newV[$newVV])) {

@@ -23,11 +23,18 @@
  * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
  */
 
+if (php_sapi_name() !== 'cli') {
+	header($_SERVER["SERVER_PROTOCOL"] . ' 403 Forbidden');
+	exit();
+}
+
 use Dice\Dice;
+use Friendica\App\Mode;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Util\DateTimeFormat;
 use Psr\Log\LoggerInterface;
 
 // Get options
@@ -58,6 +65,8 @@ $a = DI::app();
 if (DI::mode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");
 }
+
+DI::mode()->setExecutor(Mode::DAEMON);
 
 DI::config()->load();
 
@@ -138,34 +147,35 @@ Logger::notice('Starting worker daemon.', ["pid" => $pid]);
 if (!$foreground) {
 	echo "Starting worker daemon.\n";
 
-	// Switch over to daemon mode.
-	if ($pid = pcntl_fork()) {
-		return;     // Parent
-	}
-
-	fclose(STDIN);  // Close all of the standard
-
-	// Enabling this seem to block a running php process with 100% CPU usage when there is an outpout
-	// fclose(STDOUT); // file descriptors as we
-	// fclose(STDERR); // are running as a daemon.
-
 	DBA::disconnect();
 
+	// Fork a daemon process
+	$pid = pcntl_fork();
+	if ($pid == -1) {
+		echo "Daemon couldn't be forked.\n";
+		Logger::warning('Could not fork daemon');
+		exit(1);
+	} elseif ($pid) {
+		// The parent process continues here
+		echo 'Child process started with pid ' . $pid . ".\n";
+		Logger::notice('Child process started', ['pid' => $pid]);
+		file_put_contents($pidfile, $pid);
+		exit(0);
+	}
+
+	// We now are in the child process
 	register_shutdown_function('shutdown');
 
+	// Make the child the main process, detach it from the terminal
 	if (posix_setsid() < 0) {
 		return;
 	}
 
-	if ($pid = pcntl_fork()) {
-		return;     // Parent
-	}
+	// Closing all existing connections with the outside
+	fclose(STDIN);
 
-	$pid = getmypid();
-	file_put_contents($pidfile, $pid);
-
-	// We lose the database connection upon forking
-	DBA::reconnect();
+	// And now connect the database again
+	DBA::connect();
 }
 
 DI::config()->set('system', 'worker_daemon_mode', true);
@@ -185,7 +195,12 @@ while (true) {
 		$do_cron = true;
 	}
 
-	Worker::spawnWorker($do_cron);
+	if ($do_cron || (!DI::process()->isMaxLoadReached() && Worker::entriesExists() && Worker::isReady())) {
+		Worker::spawnWorker($do_cron);
+	} else {
+		Logger::info('Cool down for 5 seconds', ['pid' => $pid]);
+		sleep(5);
+	}
 
 	if ($do_cron) {
 		// We force a reconnect of the database connection.
@@ -195,8 +210,9 @@ while (true) {
 		$last_cron = time();
 	}
 
-	Logger::info("Sleeping", ["pid" => $pid]);
 	$start = time();
+	Logger::info("Sleeping", ["pid" => $pid, 'until' => gmdate(DateTimeFormat::MYSQL, $start + $wait_interval)]);
+
 	do {
 		$seconds = (time() - $start);
 
@@ -204,8 +220,13 @@ while (true) {
 		// Background: After jobs had been started, they often fork many workers.
 		// To not waste too much time, the sleep period increases.
 		$arg = (($seconds + 1) / ($wait_interval / 9)) + 1;
-		$sleep = round(log10($arg) * 1000000, 0);
+		$sleep = min(1000000, round(log10($arg) * 1000000, 0));
 		usleep($sleep);
+
+		$pid = pcntl_waitpid(-1, $status, WNOHANG);
+		if ($pid > 0) {
+			Logger::info('Children quit via pcntl_waitpid', ['pid' => $pid, 'status' => $status]);
+		}
 
 		$timeout = ($seconds >= $wait_interval);
 	} while (!$timeout && !Worker::IPCJobsExists());

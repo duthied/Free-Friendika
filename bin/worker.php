@@ -21,8 +21,14 @@
  * Starts the background processing
  */
 
+if (php_sapi_name() !== 'cli') {
+	header($_SERVER["SERVER_PROTOCOL"] . ' 403 Forbidden');
+	exit();
+}
+
 use Dice\Dice;
 use Friendica\App;
+use Friendica\App\Mode;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\DI;
@@ -53,6 +59,8 @@ $dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['worker']])
 DI::init($dice);
 $a = DI::app();
 
+DI::mode()->setExecutor(Mode::WORKER);
+
 // Check the database structure and possibly fixes it
 Update::check($a->getBasePath(), true, DI::mode());
 
@@ -76,4 +84,4 @@ Worker::processQueue($run_cron);
 
 Worker::unclaimProcess();
 
-Worker::endProcess();
+DI::process()->end();

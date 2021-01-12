@@ -33,32 +33,35 @@ class System
 	/**
 	 * Returns a string with a callstack. Can be used for logging.
 	 *
-	 * @param integer $depth optional, default 4
+	 * @param integer $depth  How many calls to include in the stacks after filtering
+	 * @param int     $offset How many calls to shave off the top of the stack, for example if
+	 *                        this is called from a centralized method that isn't relevant to the callstack
 	 * @return string
 	 */
-	public static function callstack($depth = 4)
+	public static function callstack(int $depth = 4, int $offset = 0)
 	{
 		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-		// We remove the first two items from the list since they contain data that we don't need.
-		array_shift($trace);
-		array_shift($trace);
+		// We remove at least the first two items from the list since they contain data that we don't need.
+		$trace = array_slice($trace, 2 + $offset);
 
 		$callstack = [];
-		$previous = ['class' => '', 'function' => ''];
+		$previous = ['class' => '', 'function' => '', 'database' => false];
 
 		// The ignore list contains all functions that are only wrapper functions
-		$ignore = ['fetchUrl', 'call_user_func_array'];
+		$ignore = ['call_user_func_array'];
 
 		while ($func = array_pop($trace)) {
 			if (!empty($func['class'])) {
-				// Don't show multiple calls from the "dba" class to show the essential parts of the callstack
-				if ((($previous['class'] != $func['class']) || ($func['class'] != 'Friendica\Database\DBA')) && ($previous['function'] != 'q')) {
+				// Don't show multiple calls from the Database classes to show the essential parts of the callstack
+				$func['database'] = in_array($func['class'], ['Friendica\Database\DBA', 'Friendica\Database\Database']);
+				if (!$previous['database'] || !$func['database']) {	
 					$classparts = explode("\\", $func['class']);
 					$callstack[] = array_pop($classparts).'::'.$func['function'];
 					$previous = $func;
 				}
 			} elseif (!in_array($func['function'], $ignore)) {
+				$func['database'] = ($func['function'] == 'q');
 				$callstack[] = $func['function'];
 				$func['class'] = '';
 				$previous = $func;
@@ -134,12 +137,13 @@ class System
 	 * and adds an application/json HTTP header to the output.
 	 * After finishing the process is getting killed.
 	 *
-	 * @param mixed  $x The input content.
-	 * @param string $content_type Type of the input (Default: 'application/json').
+	 * @param mixed   $x The input content.
+	 * @param string  $content_type Type of the input (Default: 'application/json').
+	 * @param integer $options JSON options
 	 */
-	public static function jsonExit($x, $content_type = 'application/json') {
+	public static function jsonExit($x, $content_type = 'application/json', int $options = 0) {
 		header("Content-type: $content_type");
-		echo json_encode($x);
+		echo json_encode($x, $options);
 		exit();
 	}
 

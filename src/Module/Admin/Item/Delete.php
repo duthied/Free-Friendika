@@ -31,13 +31,13 @@ class Delete extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::checkAdminAccess();
 
 		if (empty($_POST['page_deleteitem_submit'])) {
 			return;
 		}
 
-		parent::checkFormSecurityTokenRedirectOnError('/admin/item/delete', 'admin_deleteitem');
+		self::checkFormSecurityTokenRedirectOnError('/admin/item/delete', 'admin_deleteitem');
 
 		if (!empty($_POST['page_deleteitem_submit'])) {
 			$guid = trim(Strings::escapeTags($_POST['deleteitemguid']));
@@ -51,7 +51,7 @@ class Delete extends BaseAdmin
 			Item::markForDeletion(['guid' => $guid]);
 		}
 
-		info(DI::l10n()->t('Item marked for deletion.') . EOL);
+		info(DI::l10n()->t('Item marked for deletion.'));
 		DI::baseUrl()->redirect('admin/item/delete');
 	}
 
@@ -67,8 +67,8 @@ class Delete extends BaseAdmin
 			'$submit' => DI::l10n()->t('Delete this Item'),
 			'$intro1' => DI::l10n()->t('On this page you can delete an item from your node. If the item is a top level posting, the entire thread will be deleted.'),
 			'$intro2' => DI::l10n()->t('You need to know the GUID of the item. You can find it e.g. by looking at the display URL. The last part of http://example.com/display/123456 is the GUID, here 123456.'),
-			'$deleteitemguid' => ['deleteitemguid', DI::l10n()->t("GUID"), '', DI::l10n()->t("The GUID of the item you want to delete."), 'required', 'autofocus'],
-			'$form_security_token' => parent::getFormSecurityToken("admin_deleteitem")
+			'$deleteitemguid' => ['deleteitemguid', DI::l10n()->t("GUID"), '', DI::l10n()->t("The GUID of the item you want to delete."), DI::l10n()->t('Required'), 'autofocus'],
+			'$form_security_token' => self::getFormSecurityToken("admin_deleteitem")
 		]);
 	}
 }

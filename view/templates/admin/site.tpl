@@ -12,8 +12,10 @@
 	<form action="{{$baseurl}}/admin/site" method="post">
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
+		<h2>{{$general_info}}</h2>
 		{{include file="field_input.tpl" field=$sitename}}
 		{{include file="field_input.tpl" field=$sender_email}}
+		{{include file="field_input.tpl" field=$system_actor_name}}
 		{{include file="field_textarea.tpl" field=$banner}}
 		{{include file="field_input.tpl" field=$email_banner}}
 		{{include file="field_input.tpl" field=$shortcut_icon}}
@@ -87,8 +89,6 @@
 		{{include file="field_input.tpl" field=$proxyuser}}
 		{{include file="field_input.tpl" field=$timeout}}
 		{{include file="field_input.tpl" field=$maxloadavg_frontend}}
-		{{include file="field_input.tpl" field=$optimize_max_tablesize}}
-		{{include file="field_input.tpl" field=$optimize_fragmentation}}
 		{{include file="field_input.tpl" field=$abandon_days}}
 		{{include file="field_input.tpl" field=$temppath}}
 		{{include file="field_checkbox.tpl" field=$suppress_tags}}
@@ -97,11 +97,10 @@
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$portable_contacts}}</h2>
-		{{include file="field_checkbox.tpl" field=$poco_completion}}
-		{{include file="field_select.tpl" field=$gcontact_discovery}}
+		{{include file="field_select.tpl" field=$contact_discovery}}
+		{{include file="field_checkbox.tpl" field=$synchronize_directory}}
 		{{include file="field_input.tpl" field=$poco_requery_days}}
-		{{include file="field_select.tpl" field=$poco_discovery}}
-		{{include file="field_select.tpl" field=$poco_discovery_since}}
+		{{include file="field_checkbox.tpl" field=$poco_discovery}}
 		{{include file="field_checkbox.tpl" field=$poco_local_search}}
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
@@ -110,20 +109,20 @@
 		{{include file="field_input.tpl" field=$itemcache}}
 		{{include file="field_input.tpl" field=$itemcache_duration}}
 		{{include file="field_input.tpl" field=$max_comments}}
+		{{include file="field_input.tpl" field=$max_display_comments}}
 		{{include file="field_checkbox.tpl" field=$proxy_disabled}}
 		{{include file="field_checkbox.tpl" field=$dbclean}}
 		{{include file="field_input.tpl" field=$dbclean_expire_days}}
 		{{include file="field_input.tpl" field=$dbclean_unclaimed}}
 		{{include file="field_input.tpl" field=$dbclean_expire_conv}}
+		{{include file="field_checkbox.tpl" field=$optimize_tables}}
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$worker_title}}</h2>
 		{{include file="field_input.tpl" field=$maxloadavg}}
 		{{include file="field_input.tpl" field=$min_memory}}
 		{{include file="field_input.tpl" field=$worker_queues}}
-		{{include file="field_checkbox.tpl" field=$worker_dont_fork}}
 		{{include file="field_checkbox.tpl" field=$worker_fastlane}}
-		{{include file="field_checkbox.tpl" field=$worker_frontend}}
 
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
@@ -133,6 +132,7 @@
 		{{include file="field_checkbox.tpl" field=$relay_directly}}
 		{{include file="field_select.tpl" field=$relay_scope}}
 		{{include file="field_input.tpl" field=$relay_server_tags}}
+		{{include file="field_input.tpl" field=$relay_deny_tags}}
 		{{include file="field_checkbox.tpl" field=$relay_user_tags}}
 
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>

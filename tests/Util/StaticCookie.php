@@ -33,6 +33,20 @@ class StaticCookie extends Cookie
 	/** @var int The last expire time set */
 	public static $_EXPIRE;
 
+	/**
+	 * Send a cookie - protected, internal function for test-mocking possibility
+	 * @see Cookie::setCookie()
+	 *
+	 * @link  https://php.net/manual/en/function.setcookie.php
+	 *
+	 * @param string $name
+	 * @param string $value  [optional]
+	 * @param int    $expire [optional]
+	 * @param bool   $secure [optional]
+	 *
+	 * @noinspection PhpMissingParentCallCommonInspection
+	 *
+	 */
 	protected function setCookie(string $name, string $value = null, int $expire = null, bool $secure = null)
 	{
 		self::$_COOKIE[$name] = $value;

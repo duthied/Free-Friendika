@@ -30,9 +30,10 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Notify\Type;
+use Friendica\Model\Verb;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\XML;
 
 /**
@@ -132,14 +133,11 @@ function ping_init(App $a)
 			exit();
 		}
 
-		$notifs = ping_get_notifications(local_user());
+		$notifications = ping_get_notifications(local_user());
 
-		$condition = ["`unseen` AND `uid` = ? AND `contact-id` != ?", local_user(), local_user()];
-		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
-			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid', 'wall'];
-		$params = ['order' => ['received' => true]];
-		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
-
+		$condition = ["`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
+			local_user(), Verb::getID(Activity::FOLLOW)];
+		$items = Item::selectForUser(local_user(), ['wall', 'uid', 'uri-id'], $condition);
 		if (DBA::isResult($items)) {
 			$items_unseen = Item::inArray($items);
 			$arr = ['items' => $items_unseen];
@@ -153,6 +151,7 @@ function ping_init(App $a)
 				}
 			}
 		}
+		DBA::close($items);
 
 		if ($network_count) {
 			// Find out how unseen network posts are spread across groups
@@ -178,15 +177,15 @@ function ping_init(App $a)
 		$intros1 = q(
 			"SELECT  `intro`.`id`, `intro`.`datetime`,
 			`fcontact`.`name`, `fcontact`.`url`, `fcontact`.`photo`
-			FROM `intro` LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
-			WHERE `intro`.`uid` = %d  AND `intro`.`blocked` = 0 AND `intro`.`ignore` = 0 AND `intro`.`fid` != 0",
+			FROM `intro` INNER JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
+			WHERE `intro`.`uid` = %d AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`fid` != 0",
 			intval(local_user())
 		);
 		$intros2 = q(
 			"SELECT `intro`.`id`, `intro`.`datetime`,
 			`contact`.`name`, `contact`.`url`, `contact`.`photo`
-			FROM `intro` LEFT JOIN `contact` ON `intro`.`contact-id` = `contact`.`id`
-			WHERE `intro`.`uid` = %d  AND `intro`.`blocked` = 0 AND `intro`.`ignore` = 0 AND `intro`.`contact-id` != 0",
+			FROM `intro` INNER JOIN `contact` ON `intro`.`contact-id` = `contact`.`id`
+			WHERE `intro`.`uid` = %d AND NOT `intro`.`blocked` AND NOT `intro`.`ignore` AND `intro`.`contact-id` != 0 AND (`intro`.`fid` = 0 OR `intro`.`fid` IS NULL)",
 			intval(local_user())
 		);
 
@@ -264,8 +263,8 @@ function ping_init(App $a)
 		$data['birthdays']        = $birthdays;
 		$data['birthdays-today']  = $birthdays_today;
 
-		if (DBA::isResult($notifs)) {
-			foreach ($notifs as $notif) {
+		if (DBA::isResult($notifications)) {
+			foreach ($notifications as $notif) {
 				if ($notif['seen'] == 0) {
 					$sysnotify_count ++;
 				}
@@ -278,30 +277,44 @@ function ping_init(App $a)
 				$notif = [
 					'id'      => 0,
 					'href'    => DI::baseUrl() . '/notifications/intros/' . $intro['id'],
-					'name'    => $intro['name'],
+					'name'    => BBCode::convert($intro['name']),
 					'url'     => $intro['url'],
 					'photo'   => $intro['photo'],
 					'date'    => $intro['datetime'],
 					'seen'    => false,
 					'message' => DI::l10n()->t('{0} wants to be your friend'),
 				];
-				$notifs[] = $notif;
+				$notifications[] = $notif;
 			}
 		}
 
 		if (DBA::isResult($regs)) {
-			foreach ($regs as $reg) {
+			if (count($regs) <= 1 || DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
+				foreach ($regs as $reg) {
+					$notif = [
+						'id'      => 0,
+						'href'    => DI::baseUrl() . '/admin/users/pending',
+						'name'    => $reg['name'],
+						'url'     => $reg['url'],
+						'photo'   => $reg['micro'],
+						'date'    => $reg['created'],
+						'seen'    => false,
+						'message' => DI::l10n()->t('{0} requested registration'),
+					];
+					$notifications[] = $notif;
+				}
+			} else {
 				$notif = [
 					'id'      => 0,
-					'href'    => DI::baseUrl() . '/admin/users/',
-					'name'    => $reg['name'],
-					'url'     => $reg['url'],
-					'photo'   => $reg['micro'],
-					'date'    => $reg['created'],
+					'href'    => DI::baseUrl() . '/admin/users/pending',
+					'name'    => $regs[0]['name'],
+					'url'     => $regs[0]['url'],
+					'photo'   => $regs[0]['micro'],
+					'date'    => $regs[0]['created'],
 					'seen'    => false,
-					'message' => DI::l10n()->t('{0} requested registration'),
+					'message' => DI::l10n()->t('{0} and %d others requested registration', count($regs) - 1),
 				];
-				$notifs[] = $notif;
+				$notifications[] = $notif;
 			}
 		}
 
@@ -324,32 +337,17 @@ function ping_init(App $a)
 			}
 			return ($adate < $bdate) ? 1 : -1;
 		};
-		usort($notifs, $sort_function);
+		usort($notifications, $sort_function);
 
-		if (DBA::isResult($notifs)) {
-			foreach ($notifs as $notif) {
-				$contact = Contact::getDetailsByURL($notif['url']);
-				if (isset($contact['micro'])) {
-					$notif['photo'] = ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO);
-				} else {
-					$notif['photo'] = ProxyUtils::proxifyUrl($notif['photo'], false, ProxyUtils::SIZE_MICRO);
-				}
-
-				$local_time = DateTimeFormat::local($notif['date']);
-
-				$notifications[] = [
-					'id'        => $notif['id'],
-					'href'      => $notif['href'],
-					'name'      => $notif['name'],
-					'url'       => $notif['url'],
-					'photo'     => $notif['photo'],
-					'date'      => Temporal::getRelativeDate($notif['date']),
-					'message'   => $notif['message'],
-					'seen'      => $notif['seen'],
-					'timestamp' => strtotime($local_time)
-				];
+		array_walk($notifications, function (&$notification) {
+			if (empty($notification['photo'])) {
+				$contact = Contact::getByURL($notification['url'], false, ['micro', 'id', 'avatar']);
+				$notification['photo'] = Contact::getMicro($contact, $notification['photo']);
 			}
-		}
+
+			$notification['timestamp'] = DateTimeFormat::local($notification['date']);
+			$notification['date'] = Temporal::getRelativeDate($notification['date']);
+		});
 	}
 
 	$sysmsgs = [];
@@ -464,13 +462,13 @@ function ping_get_notifications($uid)
 
 			if ($notification["visible"]
 				&& !$notification["deleted"]
-				&& empty($result[$notification["parent"]])
+				&& empty($result[$notification['parent']])
 			) {
 				// Should we condense the notifications or show them all?
 				if (DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
 					$result[$notification["id"]] = $notification;
 				} else {
-					$result[$notification["parent"]] = $notification;
+					$result[$notification['parent']] = $notification;
 				}
 			}
 		}

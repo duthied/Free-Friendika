@@ -24,7 +24,7 @@ namespace Friendica;
 use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
-use Friendica\App\Authentication;
+use Friendica\Security\Authentication;
 use Friendica\Core\Config\Cache;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\PConfig\IPConfig;
@@ -77,7 +77,6 @@ class App
 	public $sourcename              = '';
 	public $videowidth              = 425;
 	public $videoheight             = 350;
-	public $force_max_items         = 0;
 	public $theme_events_in_profile = true;
 	public $queue;
 
@@ -238,22 +237,6 @@ class App
 		if ($this->timezone) {
 			date_default_timezone_set($this->timezone);
 		}
-	}
-
-	/**
-	 * Returns the current UserAgent as a String
-	 *
-	 * @return string the UserAgent as a String
-	 * @throws HTTPException\InternalServerErrorException
-	 */
-	public function getUserAgent()
-	{
-		return
-			FRIENDICA_PLATFORM . " '" .
-			FRIENDICA_CODENAME . "' " .
-			FRIENDICA_VERSION . '-' .
-			DB_UPDATE_VERSION . '; ' .
-			$this->baseURL->get();
 	}
 
 	/**
@@ -432,8 +415,11 @@ class App
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Module $module, App\Router $router, IPConfig $pconfig, Authentication $auth, App\Page $page)
+	public function runFrontend(App\Module $module, App\Router $router, IPConfig $pconfig, Authentication $auth, App\Page $page, float $start_time)
 	{
+		$this->profiler->set($start_time, 'start');
+		$this->profiler->set(microtime(true), 'classinit');
+
 		$moduleName = $module->getName();
 
 		try {
@@ -459,12 +445,7 @@ class App
 				Core\Hook::callAll('init_1');
 			}
 
-			// Exclude the backend processes from the session management
-			if ($this->mode->isBackend()) {
-				Core\Worker::executeIfIdle();
-			}
-
-			if ($this->mode->isNormal()) {
+			if ($this->mode->isNormal() && !$this->mode->isBackend()) {
 				$requester = HTTPSignature::getSigner('', $_SERVER);
 				if (!empty($requester)) {
 					Profile::addVisitorCookieForHandle($requester);
@@ -472,7 +453,7 @@ class App
 			}
 
 			// ZRL
-			if (!empty($_GET['zrl']) && $this->mode->isNormal()) {
+			if (!empty($_GET['zrl']) && $this->mode->isNormal() && !$this->mode->isBackend()) {
 				if (!local_user()) {
 					// Only continue when the given profile link seems valid
 					// Valid profile links contain a path with "/profile/" and no query parameters
@@ -568,12 +549,12 @@ class App
 			$module = $module->determineClass($this->args, $router, $this->config);
 
 			// Let the module run it's internal process (init, get, post, ...)
-			$module->run($this->l10n, $this->baseURL, $this->logger, $_SERVER, $_POST);
+			$module->run($this->l10n, $this->baseURL, $this->logger, $this->profiler, $_SERVER, $_POST);
 		} catch (HTTPException $e) {
 			ModuleHTTPException::rawContent($e);
 		}
 
-		$page->run($this, $this->baseURL, $this->mode, $module, $this->l10n, $this->config, $pconfig);
+		$page->run($this, $this->baseURL, $this->mode, $module, $this->l10n, $this->profiler, $this->config, $pconfig);
 	}
 
 	/**

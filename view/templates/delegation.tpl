@@ -1,7 +1,6 @@
-
-<h3>{{$title}}</h3>
-<div id="identity-delegation-desc">{{$desc nofilter}}</div>
-<div id="identity-delegation-choose">{{$choose}}</div>
+<h1>{{$title}}</h1>
+<p id="identity-delegation-desc">{{$desc nofilter}}</p>
+<p id="identity-delegation-choose">{{$choose}}</p>
 
 <div id="identity-selector-wrapper" role="menu">
 	<form action="delegation" method="post">
@@ -35,3 +34,7 @@
 
 	</form>
 </div>
+
+<p>
+	<a href="settings/delegation" class="btn btn-primary"><i class="fa fa-cog"></i> {{$settings_label}}</a>
+</p>

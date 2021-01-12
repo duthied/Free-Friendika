@@ -574,29 +574,29 @@
       var tagsinput = $(this).data('tagsinput');
       // Initialize a new tags input
       if (!tagsinput) {
-          tagsinput = new TagsInput(this, arg1);
-          $(this).data('tagsinput', tagsinput);
-          results.push(tagsinput);
+        tagsinput = new TagsInput(this, arg1);
+        $(this).data('tagsinput', tagsinput);
+        results.push(tagsinput);
 
-          if (this.tagName === 'SELECT') {
-              $('option', $(this)).attr('selected', 'selected');
-          }
+        if (this.tagName === 'SELECT') {
+          $('option', $(this)).attr('selected', 'selected');
+        }
 
-          // Init tags from $(this).val()
-          $(this).val($(this).val());
+        // Init tags from $(this).val()
+        $(this).val($(this).val());
       } else if (!arg1 && !arg2) {
-          // tagsinput already exists
-          // no function, trying to init
-          results.push(tagsinput);
+        // tagsinput already exists
+        // no function, trying to init
+        results.push(tagsinput);
       } else if(tagsinput[arg1] !== undefined) {
-          // Invoke function on existing tags input
-            if(tagsinput[arg1].length === 3 && arg3 !== undefined){
-               var retVal = tagsinput[arg1](arg2, null, arg3);
-            }else{
-               var retVal = tagsinput[arg1](arg2);
-            }
-          if (retVal !== undefined)
-              results.push(retVal);
+        // Invoke function on existing tags input
+        if(tagsinput[arg1].length === 3 && arg3 !== undefined){
+          var retVal = tagsinput[arg1](arg2, null, arg3);
+        }else{
+          var retVal = tagsinput[arg1](arg2);
+        }
+        if (retVal !== undefined)
+          results.push(retVal);
       }
     });
 

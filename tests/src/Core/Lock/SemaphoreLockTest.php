@@ -27,20 +27,21 @@ use Friendica\Core\Config\IConfig;
 use Friendica\Core\Config\JitConfig;
 use Friendica\Core\Lock\SemaphoreLock;
 use Friendica\DI;
+use Mockery;
 use Mockery\MockInterface;
 
 class SemaphoreLockTest extends LockTest
 {
-	public function setUp()
+	protected function setUp()
 	{
 		/** @var MockInterface|Dice $dice */
-		$dice = \Mockery::mock(Dice::class)->makePartial();
+		$dice = Mockery::mock(Dice::class)->makePartial();
 
-		$app = \Mockery::mock(App::class);
+		$app = Mockery::mock(App::class);
 		$app->shouldReceive('getHostname')->andReturn('friendica.local');
 		$dice->shouldReceive('create')->with(App::class)->andReturn($app);
 
-		$configMock = \Mockery::mock(JitConfig::class);
+		$configMock = Mockery::mock(JitConfig::class);
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'temppath')
@@ -58,7 +59,7 @@ class SemaphoreLockTest extends LockTest
 		return new SemaphoreLock();
 	}
 
-	function testLockTTL()
+	public function testLockTTL()
 	{
 		// Semaphore doesn't work with TTL
 		return true;
@@ -73,9 +74,9 @@ class SemaphoreLockTest extends LockTest
 		$file = get_temppath() . '/test.sem';
 		touch($file);
 
-		$this->assertTrue(file_exists($file));
-		$this->assertFalse($this->instance->release('test', false));
-		$this->assertTrue(file_exists($file));
+		self::assertTrue(file_exists($file));
+		self::assertFalse($this->instance->release('test', false));
+		self::assertTrue(file_exists($file));
 	}
 
 	/**
@@ -83,6 +84,7 @@ class SemaphoreLockTest extends LockTest
 	 * This test proves that semaphore locks cannot get released by other instances except themselves
 	 *
 	 * Check for Bug https://github.com/friendica/friendica/issues/7298#issuecomment-521996540
+	 *
 	 * @see https://github.com/friendica/friendica/issues/7298#issuecomment-521996540
 	 */
 	public function testMissingFileOverriding()
@@ -90,9 +92,9 @@ class SemaphoreLockTest extends LockTest
 		$file = get_temppath() . '/test.sem';
 		touch($file);
 
-		$this->assertTrue(file_exists($file));
-		$this->assertFalse($this->instance->release('test', true));
-		$this->assertTrue(file_exists($file));
+		self::assertTrue(file_exists($file));
+		self::assertFalse($this->instance->release('test', true));
+		self::assertTrue(file_exists($file));
 	}
 
 	/**
@@ -103,9 +105,9 @@ class SemaphoreLockTest extends LockTest
 		$file = get_temppath() . '/test.sem';
 		touch($file);
 
-		$this->assertTrue(file_exists($file));
-		$this->assertTrue($this->instance->acquire('test'));
-		$this->assertTrue($this->instance->isLocked('test'));
-		$this->assertTrue($this->instance->release('test'));
+		self::assertTrue(file_exists($file));
+		self::assertTrue($this->instance->acquire('test'));
+		self::assertTrue($this->instance->isLocked('test'));
+		self::assertTrue($this->instance->release('test'));
 	}
 }

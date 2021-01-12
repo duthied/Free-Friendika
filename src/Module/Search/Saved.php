@@ -22,6 +22,7 @@
 namespace Friendica\Module\Search;
 
 use Friendica\BaseModule;
+use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Strings;
@@ -33,23 +34,25 @@ class Saved extends BaseModule
 		$action = DI::args()->get(2, 'none');
 		$search = Strings::escapeTags(trim(rawurldecode($_GET['term'] ?? '')));
 
-		$return_url = $_GET['return_url'] ?? 'search?q=' . urlencode($search);
+		$return_url = $_GET['return_url'] ?? Search::getSearchPath($search);
 
 		if (local_user() && $search) {
 			switch ($action) {
 				case 'add':
 					$fields = ['uid' => local_user(), 'term' => $search];
 					if (!DBA::exists('search', $fields)) {
-						DBA::insert('search', $fields);
-						info(DI::l10n()->t('Search term successfully saved.'));
+						if (!DBA::insert('search', $fields)) {
+							notice(DI::l10n()->t('Search term was not saved.'));
+						}
 					} else {
-						info(DI::l10n()->t('Search term already saved.'));
+						notice(DI::l10n()->t('Search term already saved.'));
 					}
 					break;
 
 				case 'remove':
-					DBA::delete('search', ['uid' => local_user(), 'term' => $search]);
-					info(DI::l10n()->t('Search term successfully removed.'));
+					if (!DBA::delete('search', ['uid' => local_user(), 'term' => $search])) {
+						notice(DI::l10n()->t('Search term was not removed.'));
+					}
 					break;
 			}
 		}

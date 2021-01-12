@@ -9,10 +9,13 @@
 
 <table>
 	{{foreach $checks as $check}}
-	<tr><td>{{$check.title}} </td><td>
+	<tr>
+		<td>{{$check.title}} </td>
+		<td>
 			{{if ! $check.status}}
-			<img src="{{$baseurl}}/view/install/red.png" alt="Requirement not satisfied">
+			<img src="{{$baseurl}}/view/install/red.png" alt="{{$requirement_not_satisfied}}">
 			{{/if}}
+		</td>
 	{{/foreach}}
 </table>
 

@@ -64,7 +64,7 @@ class Index extends BaseSettings
 						DI::pConfig()->delete(local_user(), '2fa', 'verified');
 						Session::remove('2fa');
 
-						notice(DI::l10n()->t('Two-factor authentication successfully disabled.'));
+						info(DI::l10n()->t('Two-factor authentication successfully disabled.'));
 						DI::baseUrl()->redirect('settings/2fa');
 					}
 					break;
@@ -125,7 +125,7 @@ class Index extends BaseSettings
 			'$app_specific_passwords_message'   => DI::l10n()->t('<p>These randomly generated passwords allow you to authenticate on apps not supporting two-factor authentication.</p>'),
 
 			'$action_title'         => DI::l10n()->t('Actions'),
-			'$password'             => ['password', DI::l10n()->t('Current password:'), '', DI::l10n()->t('You need to provide your current password to change two-factor authentication settings.'), 'required', 'autofocus'],
+			'$password'             => ['password', DI::l10n()->t('Current password:'), '', DI::l10n()->t('You need to provide your current password to change two-factor authentication settings.'), DI::l10n()->t('Required'), 'autofocus'],
 			'$enable_label'         => DI::l10n()->t('Enable two-factor authentication'),
 			'$disable_label'        => DI::l10n()->t('Disable two-factor authentication'),
 			'$recovery_codes_label' => DI::l10n()->t('Show recovery codes'),

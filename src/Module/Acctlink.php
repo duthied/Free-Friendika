@@ -22,8 +22,8 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Network\Probe;
 use Friendica\Core\System;
+use Friendica\Model\Contact;
 
 /**
  * Redirects to another URL based on the parameter 'addr'
@@ -35,10 +35,9 @@ class Acctlink extends BaseModule
 		$addr = trim($_GET['addr'] ?? '');
 
 		if ($addr) {
-			$url = Probe::uri($addr)['url'] ?? '';
-
+			$url = Contact::getByURL($addr)['url'] ?? '';
 			if ($url) {
-				System::externalRedirect($url);
+				System::externalRedirect($url['url']);
 				exit();
 			}
 		}

@@ -81,11 +81,11 @@ trait DBAMockTrait
 	/**
 	 * Mocking DBA::fetchFirst()
 	 *
-	 * @param string $arg The argument of fetchFirst
-	 * @param bool $return True, if the DB is connected, otherwise false
-	 * @param null|int $times How often the method will get used
+	 * @param string   $arg    The argument of fetchFirst
+	 * @param bool     $return True, if the DB is connected, otherwise false
+	 * @param null|int $times  How often the method will get used
 	 */
-	public function mockFetchFirst($arg, $return = true, $times = null)
+	public function mockFetchFirst(string $arg, bool $return = true, int $times = null)
 	{
 		$this->checkMock();
 
@@ -139,13 +139,13 @@ trait DBAMockTrait
 	/**
 	 * Mocking DBA::select()
 	 *
-	 * @param string $tableName The name of the table
-	 * @param array $select The Select Array (Default is [])
-	 * @param array $where The Where Array (Default is [])
-	 * @param object $return The array to return (Default is [])
-	 * @param null|int $times How often the method will get used
+	 * @param string   $tableName The name of the table
+	 * @param array    $select    The Select Array (Default is [])
+	 * @param array    $where     The Where Array (Default is [])
+	 * @param object   $return    The array to return (Default is [])
+	 * @param null|int $times     How often the method will get used
 	 */
-	public function mockSelect($tableName, $select = [], $where = [], $return = null, $times = null)
+	public function mockSelect(string $tableName, array $select = [], array $where = [], $return = null, int $times = null)
 	{
 		$this->checkMock();
 
@@ -159,12 +159,12 @@ trait DBAMockTrait
 	/**
 	 * Mocking DBA::delete()
 	 *
-	 * @param string $tableName The name of the table
-	 * @param array $where The Where Array (Default is [])
-	 * @param bool $return The array to return (Default is true)
-	 * @param null|int $times How often the method will get used
+	 * @param string   $tableName The name of the table
+	 * @param array    $where     The Where Array (Default is [])
+	 * @param bool     $return    The array to return (Default is true)
+	 * @param null|int $times     How often the method will get used
 	 */
-	public function mockDBADelete($tableName, $where = [], $return = true, $times = null)
+	public function mockDBADelete(string $tableName, array $where = [], bool $return = true, int $times = null)
 	{
 		$this->checkMock();
 
@@ -178,14 +178,14 @@ trait DBAMockTrait
 	/**
 	 * Mocking DBA::update()
 	 *
-	 * @param string $expTableName The name of the table
-	 * @param array $expFields The Fields Array
-	 * @param array $expCondition The Condition Array
-	 * @param array $expOld_fields The Old Fieldnames (Default is [])
-	 * @param bool $return true if the update was successful
-	 * @param null|int $times How often the method will get used
+	 * @param string   $expTableName  The name of the table
+	 * @param array    $expFields     The Fields Array
+	 * @param array    $expCondition  The Condition Array
+	 * @param array    $expOld_fields The Old Fieldnames (Default is [])
+	 * @param bool     $return        true if the update was successful
+	 * @param null|int $times         How often the method will get used
 	 */
-	public function mockDBAUpdate($expTableName, $expFields, $expCondition, $expOld_fields = [], $return = true, $times = null)
+	public function mockDBAUpdate(string $expTableName, array $expFields, array $expCondition, array $expOld_fields = [], bool $return = true, int $times = null)
 	{
 		$this->checkMock();
 
@@ -207,13 +207,13 @@ trait DBAMockTrait
 	/**
 	 * Mocking DBA::insert()
 	 *
-	 * @param string $expTableName    The name of the table
-	 * @param array  $expParam        The Parameters Array
-	 * @param bool   $expOnDuplUpdate Update on a duplicated entry
-	 * @param bool   $return          True if the insert was successful
-	 * @param null|int $times How often the method will get used
+	 * @param string   $expTableName    The name of the table
+	 * @param array    $expParam        The Parameters Array
+	 * @param bool     $expOnDuplUpdate Update on a duplicated entry
+	 * @param bool     $return          True if the insert was successful
+	 * @param null|int $times           How often the method will get used
 	 */
-	public function mockDBAInsert($expTableName, $expParam, $expOnDuplUpdate = false, $return = true, $times = null)
+	public function mockDBAInsert(string $expTableName, array $expParam, bool $expOnDuplUpdate = false, bool $return = true, int $times = null)
 	{
 		$this->checkMock();
 
@@ -234,13 +234,13 @@ trait DBAMockTrait
 	/**
 	 * Mocking DBA::selectFirst()
 	 *
-	 * @param string $expTableName The name of the table
-	 * @param array $expSelect The Select Array (Default is [])
-	 * @param array $expWhere The Where Array (Default is [])
-	 * @param array $return The array to return (Default is [])
-	 * @param null|int $times How often the method will get used
+	 * @param string   $expTableName The name of the table
+	 * @param array    $expSelect    The Select Array (Default is [])
+	 * @param array    $expWhere     The Where Array (Default is [])
+	 * @param array    $return       The array to return (Default is [])
+	 * @param null|int $times        How often the method will get used
 	 */
-	public function mockSelectFirst($expTableName, $expSelect = [], $expWhere = [], $return = [], $times = null)
+	public function mockSelectFirst(string $expTableName, array $expSelect = [], array $expWhere = [], array $return = [], int $times = null)
 	{
 		$this->checkMock();
 
@@ -321,11 +321,11 @@ trait DBAMockTrait
 	/**
 	 * Mocking DBA::lock()
 	 *
-	 * @param string $table The table to lock
-	 * @param bool $return True, if the lock is set successful
-	 * @param null|int $times How often the method will get used
+	 * @param string   $table  The table to lock
+	 * @param bool     $return True, if the lock is set successful
+	 * @param null|int $times  How often the method will get used
 	 */
-	public function mockDbaLock($table, $return = true, $times = null)
+	public function mockDbaLock(string $table, bool $return = true, int $times = null)
 	{
 		$this->checkMock();
 

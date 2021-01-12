@@ -36,6 +36,7 @@ use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
+use Friendica\Util\Profiler;
 
 /**
  * Contains the page specific environment variables for the current Page
@@ -165,11 +166,10 @@ class Page implements ArrayAccess
 	 * The path can be absolute or relative to the Friendica installation base folder.
 	 *
 	 * @param string $path
-	 *
+	 * @param string $media
 	 * @see Page::initHead()
-	 *
 	 */
-	public function registerStylesheet($path)
+	public function registerStylesheet($path, string $media = 'screen')
 	{
 		$path = Network::appendQueryParam($path, ['v' => FRIENDICA_VERSION]);
 
@@ -177,7 +177,7 @@ class Page implements ArrayAccess
 			$path = mb_substr($path, mb_strlen($this->basePath . DIRECTORY_SEPARATOR));
 		}
 
-		$this->stylesheets[] = trim($path, '/');
+		$this->stylesheets[trim($path, '/')] = $media;
 	}
 
 	/**
@@ -234,7 +234,7 @@ class Page implements ArrayAccess
 
 		$touch_icon = $config->get('system', 'touch_icon');
 		if ($touch_icon == '') {
-			$touch_icon = 'images/friendica-128.png';
+			$touch_icon = 'images/friendica-192.png';
 		}
 
 		Hook::callAll('head', $this->page['htmlhead']);
@@ -252,7 +252,7 @@ class Page implements ArrayAccess
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,
 			'$block_public'    => intval($config->get('system', 'block_public')),
-			'$stylesheets'     => array_unique($this->stylesheets),
+			'$stylesheets'     => $this->stylesheets,
 		]) . $this->page['htmlhead'];
 	}
 
@@ -276,7 +276,7 @@ class Page implements ArrayAccess
 		// If you're just visiting, let javascript take you home
 		if (!empty($_SESSION['visitor_home'])) {
 			$homebase = $_SESSION['visitor_home'];
-		} elseif (local_user()) {
+		} elseif (!empty($app->user['nickname'])) {
 			$homebase = 'profile/' . $app->user['nickname'];
 		}
 
@@ -376,7 +376,7 @@ class Page implements ArrayAccess
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function run(App $app, BaseURL $baseURL, Mode $mode, Module $module, L10n $l10n, IConfig $config, IPConfig $pconfig)
+	public function run(App $app, BaseURL $baseURL, Mode $mode, Module $module, L10n $l10n, Profiler $profiler, IConfig $config, IPConfig $pconfig)
 	{
 		$moduleName = $module->getName();
 
@@ -385,7 +385,9 @@ class Page implements ArrayAccess
 		 *
 		 * Sets the $Page->page['content'] variable
 		 */
+		$timestamp = microtime(true);
 		$this->initContent($module, $mode);
+		$profiler->set(microtime(true) - $timestamp, 'content');
 
 		// Load current theme info after module has been initialized as theme could have been set in module
 		$currentTheme = $app->getCurrentTheme();

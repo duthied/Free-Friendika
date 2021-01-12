@@ -24,9 +24,11 @@ namespace Friendica\Test\src\Content\Text;
 use Friendica\App\BaseURL;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
 use Friendica\Test\Util\VFSTrait;
+use Mockery;
 
 class BBCodeTest extends MockedTest
 {
@@ -58,18 +60,33 @@ class BBCodeTest extends MockedTest
 		$this->configMock->shouldReceive('get')
 			->with('system', 'no_smilies')
 			->andReturn(false);
+		$this->configMock->shouldReceive('get')
+			->with('system', 'big_emojis')
+			->andReturn(false);
 
-		$l10nMock = \Mockery::mock(L10n::class);
+		$l10nMock = Mockery::mock(L10n::class);
 		$l10nMock->shouldReceive('t')->withAnyArgs()->andReturnUsing(function ($args) { return $args; });
 		$this->dice->shouldReceive('create')
 		           ->with(L10n::class)
 		           ->andReturn($l10nMock);
 
-		$baseUrlMock = \Mockery::mock(BaseURL::class);
+		$baseUrlMock = Mockery::mock(BaseURL::class);
 		$baseUrlMock->shouldReceive('get')->withAnyArgs()->andReturn('friendica.local');
 		$this->dice->shouldReceive('create')
 		           ->with(BaseURL::class)
 		           ->andReturn($baseUrlMock);
+
+		$config = \HTMLPurifier_HTML5Config::createDefault();
+		$config->set('HTML.Doctype', 'HTML5');
+		$config->set('Attr.AllowedRel', [
+			'noreferrer' => true,
+			'noopener' => true,
+		]);
+		$config->set('Attr.AllowedFrameTargets', [
+			'_blank' => true,
+		]);
+
+		$this->HTMLPurifier = new \HTMLPurifier($config);
 	}
 
 	public function dataLinks()
@@ -155,20 +172,22 @@ class BBCodeTest extends MockedTest
 
 	/**
 	 * Test convert different links inside a text
+	 *
 	 * @dataProvider dataLinks
 	 *
-	 * @param string $data The data to text
-	 * @param bool $assertHTML True, if the link is a HTML link (<a href...>...</a>)
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param string $data       The data to text
+	 * @param bool   $assertHTML True, if the link is a HTML link (<a href...>...</a>)
+	 *
+	 * @throws InternalServerErrorException
 	 */
-	public function testAutoLinking($data, $assertHTML)
+	public function testAutoLinking(string $data, bool $assertHTML)
 	{
 		$output = BBCode::convert($data);
-		$assert = '<a href="' . $data . '" target="_blank" rel="noopener noreferrer">' . $data . '</a>';
+		$assert = $this->HTMLPurifier->purify('<a href="' . $data . '" target="_blank" rel="noopener noreferrer">' . $data . '</a>');
 		if ($assertHTML) {
-			$this->assertEquals($assert, $output);
+			self::assertEquals($assert, $output);
 		} else {
-			$this->assertNotEquals($assert, $output);
+			self::assertNotEquals($assert, $output);
 		}
 	}
 
@@ -176,31 +195,31 @@ class BBCodeTest extends MockedTest
 	{
 		return [
 			'bug-7271-condensed-space' => [
-				'expectedHtml' => '<ul class="listdecimal" style="list-style-type: decimal;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul class="listdecimal" style="list-style-type:decimal;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ol][*] http://example.com/[/ol]',
 			],
 			'bug-7271-condensed-nospace' => [
-				'expectedHtml' => '<ul class="listdecimal" style="list-style-type: decimal;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul class="listdecimal" style="list-style-type:decimal;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ol][*]http://example.com/[/ol]',
 			],
 			'bug-7271-indented-space' => [
-				'expectedHtml' => '<ul class="listbullet" style="list-style-type: circle;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul class="listbullet" style="list-style-type:circle;"><li> <a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ul]
 [*] http://example.com/
 [/ul]',
 			],
 			'bug-7271-indented-nospace' => [
-				'expectedHtml' => '<ul class="listbullet" style="list-style-type: circle;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
+				'expectedHtml' => '<ul class="listbullet" style="list-style-type:circle;"><li><a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a></li></ul>',
 				'text' => '[ul]
 [*]http://example.com/
 [/ul]',
 			],
 			'bug-2199-named-size' => [
-				'expectedHtml' => '<span style="font-size: xx-large; line-height: initial;">Test text</span>',
+				'expectedHtml' => '<span style="font-size:xx-large;line-height:normal;">Test text</span>',
 				'text' => '[size=xx-large]Test text[/size]',
 			],
 			'bug-2199-numeric-size' => [
-				'expectedHtml' => '<span style="font-size: 24px; line-height: initial;">Test text</span>',
+				'expectedHtml' => '<span style="font-size:24px;line-height:normal;">Test text</span>',
 				'text' => '[size=24]Test text[/size]',
 			],
 			'bug-2199-diaspora-no-named-size' => [
@@ -218,7 +237,7 @@ class BBCodeTest extends MockedTest
 				'simpleHtml' => 3,
 			],
 			'bug-7665-audio-tag' => [
-				'expectedHtml' => '<audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls="controls"><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio>',
+				'expectedHtml' => '<audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio>',
 				'text' => '[audio]http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3[/audio]',
 				'try_oembed' => true,
 			],
@@ -233,7 +252,35 @@ class BBCodeTest extends MockedTest
 			'bug-7808-code-amp' => [
 				'expectedHtml' => '<code>&amp;</code>',
 				'text' => '[code]&[/code]',
-			]
+			],
+			'task-8800-pre-spaces-notag' => [
+				'expectedHtml' => '[test] Space',
+				'text' => '[test] Space',
+			],
+			'task-8800-pre-spaces' => [
+				'expectedHtml' => '    Spaces',
+				'text' => '[pre]    Spaces[/pre]',
+			],
+			'bug-9611-purify-xss-nobb' => [
+				'expectedHTML' => '<span>dare to move your mouse here</span>',
+				'text' => '[nobb]<span onmouseover="alert(0)">dare to move your mouse here</span>[/nobb]'
+			],
+			'bug-9611-purify-xss-noparse' => [
+				'expectedHTML' => '<span>dare to move your mouse here</span>',
+				'text' => '[noparse]<span onmouseover="alert(0)">dare to move your mouse here</span>[/noparse]'
+			],
+			'bug-9611-purify-xss-attributes' => [
+				'expectedHTML' => '<span>dare to move your mouse here</span>',
+				'text' => '[color="onmouseover=alert(0) style="]dare to move your mouse here[/color]'
+			],
+			'bug-9611-purify-attributes-correct' => [
+				'expectedHTML' => '<span style="color:#FFFFFF;">dare to move your mouse here</span>',
+				'text' => '[color=FFFFFF]dare to move your mouse here[/color]'
+			],
+			'bug-9639-span-classes' => [
+				'expectedHTML' => '<span class="arbitrary classes">Test</span>',
+				'text' => '[class=arbitrary classes]Test[/class]',
+			],
 		];
 	}
 
@@ -247,13 +294,14 @@ class BBCodeTest extends MockedTest
 	 * @param bool   $try_oembed   Whether to convert multimedia BBCode tag
 	 * @param int    $simpleHtml   BBCode::convert method $simple_html parameter value, optional.
 	 * @param bool   $forPlaintext BBCode::convert method $for_plaintext parameter value, optional.
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws InternalServerErrorException
 	 */
-	public function testConvert($expectedHtml, $text, $try_oembed = false, $simpleHtml = 0, $forPlaintext = false)
+	public function testConvert(string $expectedHtml, string $text, $try_oembed = false, int $simpleHtml = 0, bool $forPlaintext = false)
 	{
 		$actual = BBCode::convert($text, $try_oembed, $simpleHtml, $forPlaintext);
 
-		$this->assertEquals($expectedHtml, $actual);
+		self::assertEquals($expectedHtml, $actual);
 	}
 
 	public function dataBBCodesToMarkdown()
@@ -279,15 +327,16 @@ class BBCodeTest extends MockedTest
 	 *
 	 * @dataProvider dataBBCodesToMarkdown
 	 *
-	 * @param string $expected     Expected Markdown output
-	 * @param string $text         BBCode text
+	 * @param string $expected Expected Markdown output
+	 * @param string $text     BBCode text
 	 * @param bool   $for_diaspora
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws InternalServerErrorException
 	 */
-	public function testToMarkdown($expected, $text, $for_diaspora = false)
+	public function testToMarkdown(string $expected, string $text, $for_diaspora = false)
 	{
 		$actual = BBCode::toMarkdown($text, $for_diaspora);
 
-		$this->assertEquals($expected, $actual);
+		self::assertEquals($expected, $actual);
 	}
 }

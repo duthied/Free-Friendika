@@ -160,16 +160,11 @@ span.connector {
 }
 
 .shared_header a {
-  color: black;
   -webkit-transition: all 0.2s ease-in-out;
   -moz-transition: all 0.2s ease-in-out;
   -o-transition: all 0.2s ease-in-out;
   -ms-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
-}
-
-.shared_header a:hover {
-  color: #36c;
 }
 
 .shared_header img {
@@ -178,11 +173,6 @@ span.connector {
   border-radius: 4px;
   float: left;
   margin-right: 9px;
-}
-
-.shared_header span {
-  display: table-cell;
-  float: none;
 }
 
 blockquote.shared_content {
@@ -656,4 +646,8 @@ body.dragging, body.dragging * {
 	border: 7px solid transparent;
 	border-left-color: black;
 	border-right: none;
+}
+
+span.required {
+	color: #c80000;
 }

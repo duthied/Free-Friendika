@@ -32,6 +32,11 @@ return [
 		// Can contain the port number with the syntax "hostname:port".
 		'hostname' => '',
 
+		// port (Integer)
+		// Port of the database server.
+		// Can be used instead of adding a port number to the hostname
+		'port' => null,
+
 		// user (String)
 		// Database user name. Please don't use "root".
 		'username' => '',
@@ -45,8 +50,24 @@ return [
 		'database' => '',
 
 		// charset (String)
-		// Database connexion charset. Changing this value will likely corrupt special characters.
+		// Database connection charset. Changing this value will likely corrupt special characters.
 		'charset' => 'utf8mb4',
+
+		// pdo_emulate_prepares (Boolean)
+		// If enabled, the builtin emulation for prepared statements is used.
+		// This can be used as a workaround for the database error "Prepared statement needs to be re-prepared".
+		'pdo_emulate_prepares' => false,
+
+		// disable_pdo (Boolean)
+		// PDO is used by default (if available). Otherwise MySQLi will be used.
+		'disable_pdo' => false,
+
+		// persistent (Boolean)
+		// This controls if the system should use persistent connections or not.
+		// Persistent connections increase the performance.
+		// On the other hand the number of open connections are higher,
+		// this will most likely increase the system load.
+		'persistent' => false,
 	],
 	'config' => [
 		// admin_email (Comma-separated list)
@@ -67,6 +88,10 @@ return [
 		'php_path' => 'php',
 	],
 	'system' => [
+		// adjust_poll_frequency (Boolean)
+		// Automatically detect and set the best feed poll frequency.
+		'adjust_poll_frequency' => false,
+
 		// allowed_link_protocols (Array)
 		// Allowed protocols in links URLs, add at your own risk. http(s) is always allowed.
 		'allowed_link_protocols' => ['ftp://', 'ftps://', 'mailto:', 'cid:', 'gopher://'],
@@ -88,16 +113,28 @@ return [
 		// chose "Remember me" when logging in is considered logged out.
 		'auth_cookie_lifetime' => 7,
 
+		// big_emojis (Boolean)
+		// Display "Emoji Only" posts in big.
+		'big_emojis' => false,
+
 		// block_local_dir (Boolean)
 		// Deny public access to the local user directory.
 		'block_local_dir' => false,
+
+		// community_no_sharer (Boolean)
+		// Don't display sharing accounts on the global community
+		'community_no_sharer' => false,
+
+		// contact_update_limit (Integer)
+		// How much contacts should be checked at a time?
+		'contact_update_limit' => 100,
 
 		// cron_interval (Integer)
 		// Minimal period in minutes between two calls of the "Cron" worker job.
 		'cron_interval' => 5,
 
-		// cache_driver (database|memcache|memcached|redis)
-		// Whether to use Memcache or Memcached or Redis to store temporary cache.
+		// cache_driver (database|memcache|memcached|redis|apcu)
+		// Whether to use Memcache, Memcached, Redis or APCu to store temporary cache.
 		'cache_driver' => 'database',
 
 		// config_adapter (jit|preload)
@@ -124,9 +161,9 @@ return [
 		// Watchlist of indexes to watch.
 		'db_log_index_watch' => '',
 
-		// db_log_index_blacklist (Comma-separated list)
-		// Blacklist of indexes that shouldn't be watched.
-		'db_log_index_blacklist' => '',
+		// db_log_index_denylist (Comma-separated list)
+		// Deny list of indexes that shouldn't be watched.
+		'db_log_index_denylist' => '',
 
 		// db_loglimit (Integer)
 		// If a database call lasts longer than this value in seconds it is logged.
@@ -148,8 +185,18 @@ return [
 
 		// dbclean-expire-limit (Integer)
 		// This defines the number of items that are to be deleted in a single call.
-		// Reduce this value when you are getting memory issues.
+		// Reduce this value when you are getting lock issues.
+		// A value of 0 disables the deletion process.
 		'dbclean-expire-limit' => 1000,
+
+		// daemon_watchdog (Boolean)
+		// Enable regular checking if the daemon is running.
+		// If it is not running and hadn't been terminated normally, it will be started automatically.
+		'daemon_watchdog' => false,
+
+		// delete_sleeping_processes (Boolean)
+		// Periodically delete waiting database processes.
+		'delete_sleeping_processes' => false,
 
 		// diaspora_test (Boolean)
 		// For development only. Disables the message transfer.
@@ -180,6 +227,10 @@ return [
 		// Disable the polling of DFRN and OStatus contacts through onepoll.php.
 		'disable_polling' => false,
 
+		// display_resharer (Boolean)
+		// Display the first resharer as icon and text on a reshared item.
+		'display_resharer' => false,
+
 		// dlogfile (Path)
 		// location of the developer log file.
 		'dlogfile' => '',
@@ -188,18 +239,22 @@ return [
 		// restricts develop log writes to requests originating from this IP address.
 		'dlogip' => '',
 
+		// expire-notify-priority (integer)
+		// Priority for the expirary notification 
+		'expire-notify-priority' => PRIORITY_LOW,
+
 		// free_crawls (Integer)
 		// Number of "free" searches when system => permit_crawling is enabled.
 		'free_crawls' => 10,
-
-		// frontend_worker_timeout (Integer)
-		// Value in minutes after we think that a frontend task was killed by the webserver.
-		'frontend_worker_timeout' => 10,
 
 		// groupedit_image_limit (Integer)
 		// Number of contacts at which the group editor should switch from display the profile pictures of the contacts to only display the names.
 		// This can alternatively be set on a per account basis in the pconfig table.
 		'groupedit_image_limit' => 400,
+
+		// gserver_update_limit (Integer)
+		// How much servers should be checked at a time?
+		'gserver_update_limit' => 100,
 
 		// hsts (Boolean)
 		// Enables the sending of HTTP Strict Transport Security headers.
@@ -256,6 +311,16 @@ return [
 		// Sets the logging adapter of Friendica globally (monolog, syslog, stream)
 		'logger_config' => 'stream',
 
+		// maintenance_start (String)
+		// Start of the window for the daily maintenance cron call.
+		// The system timezone is used when no timezone is defined here.
+		'maintenance_start' => '01:00 +00:00',
+
+		// maintenance_end (String)
+		// End of the window for the daily maintenance cron call
+		// The system timezone is used when no timezone is defined here.
+		'maintenance_end' => '03:00 +00:00',
+
 		// max_batch_queue (Integer)
 		// Maximum number of batched queue items for a single contact before subsequent messages are discarded.
 		'max_batch_queue' => 1000,
@@ -272,6 +337,12 @@ return [
 		// max_contact_queue (Integer)
 		// Maximum number of queue items for a single contact before subsequent messages are discarded.
 		'max_contact_queue' => 500,
+
+		// max_csv_file_size (Integer)
+		// When uploading a CSV with account addresses to follow
+		// in the user settings, this controls the maximum file
+		// size of the upload file.
+		'max_csv_file_size' => 30720,
 
 		// max_feed_items (Integer)
 		// Maximum number of feed items that are fetched and processed. For unlimited items set to 0.
@@ -312,7 +383,11 @@ return [
 
 		// min_poll_interval (Integer)
 		// minimal distance in minutes between two polls for a contact. Reasonable values are between 1 and 59.
-		'min_poll_interval' => 1,
+		'min_poll_interval' => 15,
+
+		// minimum_posting_interval (Integer)
+		// Minimum interval between two feed posts per user
+		'minimum_posting_interval' => 0,
 
 		// no_count (Boolean)
 		// Don't do count calculations (currently only when showing photo albums).
@@ -321,6 +396,10 @@ return [
 		// no_oembed (Boolean)
 		// Don't use OEmbed to fetch more information about a link.
 		'no_oembed' => false,
+
+		// no_redirect_list (Array)
+		// List of domains where HTTP redirects should be ignored. 
+		'no_redirect_list' => [],
 
 		// no_smilies (Boolean)
 		// Don't show smilies.
@@ -365,10 +444,6 @@ return [
 		// - 0 = every minute
 		'pushpoll_frequency' => 3,
 
-		// queue_no_dead_check (Boolean)
-		// Ignore if the target contact or server seems to be dead during queue delivery.
-		'queue_no_dead_check' => false,
-
 		// redis_host (String)
 		// Host name of the redis daemon.
 		'redis_host' => '127.0.0.1',
@@ -388,6 +463,10 @@ return [
 		// session_handler (database|cache|native)
 		// Whether to use Cache to store session data or to use PHP native session storage.
 		'session_handler' => 'database',
+
+		// remote_avatar_lookup (Boolean)
+		// Perform an avatar lookup via the activated services for remote contacts
+		'remote_avatar_lookup' => false,
 
 		// remove_multiplicated_lines (Boolean)
 		// If enabled, multiple linefeeds in items are stripped to a single one.
@@ -431,6 +510,10 @@ return [
 		// Maximum number of posts that a user can send per month with the API. 0 to disable monthly throttling.
 		'throttle_limit_month' => 0,
 
+		// update_active_contacts (Boolean)
+		// When activated, only public contacts will be activated regularly that are used for example in items or tags.
+		'update_active_contacts' => false,
+
 		// username_min_length (Integer)
 		// The minimum character length a username can be.
 		// This length is check once the username has been trimmed and multiple spaces have been collapsed into one.
@@ -455,6 +538,11 @@ return [
 		// Number of worker tasks that are fetched in a single query.
 		'worker_fetch_limit' => 1,
 
+		// worker_fork (Boolean)
+		// Experimental setting. Use pcntl_fork to spawn a new worker process.
+		// Does not work when "worker_multiple_fetch" is enabled (Needs more testing)
+		'worker_fork' => false,
+
 		// worker_jpm (Boolean)
 		// If enabled, it prints out the jobs per minute.
 		'worker_jpm' => false,
@@ -469,6 +557,12 @@ return [
 		// Setting 0 would allow maximum worker queues at all times, which is not recommended.
 		'worker_load_exponent' => 3,
 
+		// worker_multiple_fetch (Boolean)
+		// When activated, the worker fetches jobs for multiple workers (not only for itself).
+		// This is an experimental setting without knowing the performance impact.
+		// Does not work when "worker_fork" is enabled (Needs more testing)
+		'worker_multiple_fetch' => false,
+		
 		// worker_defer_limit (Integer)
 		// Per default the systems tries delivering for 15 times before dropping it.
 		'worker_defer_limit' => 15,

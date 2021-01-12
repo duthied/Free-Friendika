@@ -54,7 +54,7 @@ function display_init(App $a)
 	$item = null;
 	$item_user = local_user();
 
-	$fields = ['id', 'parent', 'author-id', 'body', 'uid', 'guid'];
+	$fields = ['id', 'parent', 'author-id', 'body', 'uid', 'guid', 'gravity'];
 
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
@@ -101,12 +101,12 @@ function display_init(App $a)
 	}
 
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
-		Logger::log('Directly serving XML for id '.$item["id"], Logger::DEBUG);
-		displayShowFeed($item["id"], false);
+		Logger::log('Directly serving XML for id '.$item['id'], Logger::DEBUG);
+		displayShowFeed($item['id'], false);
 	}
 
-	if ($item["id"] != $item["parent"]) {
-		$parent = Item::selectFirstForUser($item_user, $fields, ['id' => $item["parent"]]);
+	if ($item['gravity'] != GRAVITY_PARENT) {
+		$parent = Item::selectFirstForUser($item_user, $fields, ['id' => $item['parent']]);
 		$item = $parent ?: $item;
 	}
 
@@ -164,7 +164,7 @@ function display_fetchauthor($a, $item)
 		$profiledata["about"] = "";
 	}
 
-	$profiledata = Contact::getDetailsByURL($profiledata["url"], local_user(), $profiledata);
+	$profiledata = Contact::getByURLForUser($profiledata["url"], local_user()) ?: $profiledata;
 
 	if (!empty($profiledata["photo"])) {
 		$profiledata["photo"] = DI::baseUrl()->remove($profiledata["photo"]);
@@ -183,9 +183,11 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	$item = null;
 
+	$force = (bool)($_REQUEST['force'] ?? false);
+
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
-		$item = Item::selectFirst(['uid', 'parent', 'parent-uri'], ['id' => $item_id]);
+		$item = Item::selectFirst(['uid', 'parent', 'parent-uri', 'parent-uri-id'], ['id' => $item_id]);
 		if ($item['uid'] != 0) {
 			$a->profile = ['uid' => intval($item['uid'])];
 		} else {
@@ -199,14 +201,14 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 		if ($a->argc == 2) {
 			$item_parent = 0;
-			$fields = ['id', 'parent', 'parent-uri', 'uid'];
+			$fields = ['id', 'parent', 'parent-uri', 'parent-uri-id', 'uid'];
 
 			if (local_user()) {
 				$condition = ['guid' => $a->argv[1], 'uid' => local_user()];
 				$item = Item::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
-					$item_id = $item["id"];
-					$item_parent = $item["parent"];
+					$item_id = $item['id'];
+					$item_parent = $item['parent'];
 					$item_parent_uri = $item['parent-uri'];
 				}
 			}
@@ -214,8 +216,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			if (($item_parent == 0) && remote_user()) {
 				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
 				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
-					$item_id = $item["id"];
-					$item_parent = $item["parent"];
+					$item_id = $item['id'];
+					$item_parent = $item['parent'];
 					$item_parent_uri = $item['parent-uri'];
 				}
 			}
@@ -224,8 +226,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 				$condition = ['private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $a->argv[1], 'uid' => 0];
 				$item = Item::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
-					$item_id = $item["id"];
-					$item_parent = $item["parent"];
+					$item_id = $item['id'];
+					$item_parent = $item['parent'];
 					$item_parent_uri = $item['parent-uri'];
 				}
 			}
@@ -234,6 +236,10 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	if (empty($item)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('The requested item doesn\'t exist or has been deleted.'));
+	}
+
+	if (!DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
+		DBA::update('notify', ['seen' => true], ['parent-uri-id' => $item['parent-uri-id'], 'uid' => local_user()]);
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
@@ -281,7 +287,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	// We need the editor here to be able to reshare an item.
-	if ($is_owner) {
+	if ($is_owner && !$update) {
 		$x = [
 			'is_owner' => true,
 			'allow_location' => $a->user['allow_location'],
@@ -304,7 +310,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$unseen = false;
 	}
 
-	if ($update && !$unseen) {
+	if ($update && !$unseen && !$force) {
 		return '';
 	}
 

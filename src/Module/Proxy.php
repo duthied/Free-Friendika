@@ -104,7 +104,7 @@ class Proxy extends BaseModule
 
 		// It shouldn't happen but it does - spaces in URL
 		$request['url'] = str_replace(' ', '+', $request['url']);
-		$fetchResult = HTTPSignature::fetchRaw($request['url'], local_user(), true, ['timeout' => 10]);
+		$fetchResult = HTTPSignature::fetchRaw($request['url'], local_user(), ['timeout' => 10]);
 		$img_str = $fetchResult->getBody();
 
 		// If there is an error then return a blank image

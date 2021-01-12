@@ -28,6 +28,7 @@ use Friendica\Test\Util\Database\StaticDatabase;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\Profiler;
+use Mockery;
 use Psr\Log\NullLogger;
 
 class DatabaseCacheTest extends CacheTest
@@ -45,7 +46,7 @@ class DatabaseCacheTest extends CacheTest
 	protected function getInstance()
 	{
 		$logger = new NullLogger();
-		$profiler = \Mockery::mock(Profiler::class);
+		$profiler = Mockery::mock(Profiler::class);
 		$profiler->shouldReceive('saveTimestamp')->withAnyArgs()->andReturn(true);
 
 		// load real config to avoid mocking every config-entry which is related to the Database class
@@ -59,7 +60,7 @@ class DatabaseCacheTest extends CacheTest
 		return $this->cache;
 	}
 
-	public function tearDown()
+	protected function tearDown()
 	{
 		$this->cache->clear(false);
 		parent::tearDown();

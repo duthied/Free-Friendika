@@ -106,7 +106,7 @@ HELP;
 		$isregisterd = false;
 		foreach ($this->storageManager->listBackends() as $name => $class) {
 			$issel = ' ';
-			if ($current::getName() == $name) {
+			if ($current && $current::getName() == $name) {
 				$issel = '*';
 				$isregisterd = true;
 			};

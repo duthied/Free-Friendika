@@ -136,7 +136,7 @@ class Addon
 			$func();
 		}
 
-		DBA::delete('hook', ['file' => 'addon/' . $addon . '/' . $addon . '.php']);
+		Hook::delete(['file' => 'addon/' . $addon . '/' . $addon . '.php']);
 
 		unset(self::$addons[array_search($addon, self::$addons)]);
 	}
@@ -163,29 +163,21 @@ class Addon
 		if (function_exists($addon . '_install')) {
 			$func = $addon . '_install';
 			$func(DI::app());
-
-			$addon_admin = (function_exists($addon . "_addon_admin") ? 1 : 0);
-
-			DBA::insert('addon', ['name' => $addon, 'installed' => true,
-				'timestamp' => $t, 'plugin_admin' => $addon_admin]);
-
-			// we can add the following with the previous SQL
-			// once most site tables have been updated.
-			// This way the system won't fall over dead during the update.
-
-			if (file_exists('addon/' . $addon . '/.hidden')) {
-				DBA::update('addon', ['hidden' => true], ['name' => $addon]);
-			}
-
-			if (!self::isEnabled($addon)) {
-				self::$addons[] = $addon;
-			}
-
-			return true;
-		} else {
-			Logger::error("Addon {addon}: {action} failed", ['action' => 'install', 'addon' => $addon]);
-			return false;
 		}
+
+		DBA::insert('addon', [
+			'name' => $addon,
+			'installed' => true,
+			'timestamp' => $t,
+			'plugin_admin' => function_exists($addon . '_addon_admin'),
+			'hidden' => file_exists('addon/' . $addon . '/.hidden')
+		]);
+
+		if (!self::isEnabled($addon)) {
+			self::$addons[] = $addon;
+		}
+
+		return true;
 	}
 
 	/**
@@ -204,17 +196,9 @@ class Addon
 			}
 
 			Logger::notice("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $addon['name']]);
-			@include_once($fname);
 
-			if (function_exists($addonname . '_uninstall')) {
-				$func = $addonname . '_uninstall';
-				$func(DI::app());
-			}
-			if (function_exists($addonname . '_install')) {
-				$func = $addonname . '_install';
-				$func(DI::app());
-			}
-			DBA::update('addon', ['timestamp' => $t], ['id' => $addon['id']]);
+			self::uninstall($fname);
+			self::install($fname);
 		}
 	}
 
@@ -237,8 +221,6 @@ class Addon
 	 */
 	public static function getInfo($addon)
 	{
-		$a = DI::app();
-
 		$addon = Strings::sanitizeFilePathItem($addon);
 
 		$info = [
@@ -256,7 +238,7 @@ class Addon
 
 		$stamp1 = microtime(true);
 		$f = file_get_contents("addon/$addon/$addon.php");
-		DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "file");
 
 		$r = preg_match("|/\*.*\*/|msU", $f, $m);
 

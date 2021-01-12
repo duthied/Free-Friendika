@@ -65,17 +65,17 @@ table.bbcodes > * > tr > th {
   <td><a href="http://friendi.ca" target="external-link">Friendica</a></td>
 </tr>
 <tr>
-  <td>[img]https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg[/img]</td>
-  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="Immagine/foto"></td>
+  <td>[img]https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg[/img]</td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg" alt="Immagine/foto"></td>
 </tr>
 <tr>
-  <td>[img=https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg]Das Friendica Logo[/img]</td>
-  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="Das Friendica Logo"></td>
+  <td>[img=https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg]Das Friendica Logo[/img]</td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg" alt="Das Friendica Logo"></td>
 </tr>
 <tr>
-  <td>[img=64x32]https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg[/img]<br>
+  <td>[img=64x32]https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg[/img]<br>
 <br>Note: provided height is simply discarded.</td>
-  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" style="width: 64px;"></td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg" style="width: 64px;"></td>
 </tr>
 <tr>
   <td>[size=xx-small]kleiner Text[/size]</td>
@@ -481,10 +481,6 @@ Du kannst Videos, Musikdateien und weitere Dinge in Beitr&auml;gen einbinden.
 <tr>
   <td>[embed]URL[/embed]</td>
   <td>OEmbed rich content einbetten.</td>
-</tr>
-<tr>
-  <td>[iframe]URL[/iframe]</td>
-  <td>General embed, iframe size is limited by the theme size for video players.</td>
 </tr>
 <tr>
   <td>[url]*url*[/url]</td>

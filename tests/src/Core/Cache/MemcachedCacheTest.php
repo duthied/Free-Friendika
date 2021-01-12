@@ -21,8 +21,10 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
+use Exception;
 use Friendica\Core\Cache\MemcachedCache;
 use Friendica\Core\Config\IConfig;
+use Mockery;
 use Psr\Log\NullLogger;
 
 /**
@@ -33,26 +35,27 @@ class MemcachedCacheTest extends MemoryCacheTest
 {
 	protected function getInstance()
 	{
-		$configMock = \Mockery::mock(IConfig::class);
+		$configMock = Mockery::mock(IConfig::class);
 
 		$host = $_SERVER['MEMCACHED_HOST'] ?? 'localhost';
+		$port = $_SERVER['MEMCACHED_PORT'] ?? '11211';
 
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'memcached_hosts')
-			->andReturn([0 => $host . ', 11211']);
+			->andReturn([0 => $host . ', ' . $port]);
 
 		$logger = new NullLogger();
 
 		try {
 			$this->cache = new MemcachedCache($host, $configMock, $logger);
-		} catch (\Exception $exception) {
-			$this->markTestSkipped('Memcached is not available');
+		} catch (Exception $exception) {
+			static::markTestSkipped('Memcached is not available');
 		}
 		return $this->cache;
 	}
 
-	public function tearDown()
+	protected function tearDown()
 	{
 		$this->cache->clear(false);
 		parent::tearDown();
@@ -65,6 +68,6 @@ class MemcachedCacheTest extends MemoryCacheTest
 	 */
 	public function testGetAllKeys($value1, $value2, $value3)
 	{
-		$this->markTestIncomplete('Race condition because of too fast getAllKeys() which uses a workaround');
+		static::markTestIncomplete('Race condition because of too fast getAllKeys() which uses a workaround');
 	}
 }

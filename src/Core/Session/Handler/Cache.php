@@ -87,7 +87,7 @@ class Cache implements SessionHandlerInterface
 		}
 
 		if (!$session_data) {
-			return true;
+			return $this->destroy($session_id);
 		}
 
 		return $this->cache->set('session:' . $session_id, $session_data, Session::$expire);

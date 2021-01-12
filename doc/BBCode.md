@@ -65,17 +65,17 @@ table.bbcodes > * > tr > th {
   <td><a href="http://friendi.ca" target="external-link">Friendica</a></td>
 </tr>
 <tr>
-  <td>[img]https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg[/img]</td>
-  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="Immagine/foto"></td>
+  <td>[img]https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg[/img]</td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg" alt="Immagine/foto"></td>
 </tr>
 <tr>
-  <td>[img=https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg]The Friendica Logo[/img]</td>
-  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="The Friendica Logo"></td>
+  <td>[img=https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg]The Friendica Logo[/img]</td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg" alt="The Friendica Logo"></td>
 </tr>
 <tr>
-  <td>[img=64x32]https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg[/img]<br>
+  <td>[img=64x32]https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg[/img]<br>
 <br>Note: provided height is simply discarded.</td>
-  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" style="width: 64px;"></td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/stable/images/friendica-32.jpg" style="width: 64px;"></td>
 </tr>
 <tr>
   <td>[size=xx-small]small text[/size]</td>
@@ -503,10 +503,6 @@ You can embed video, audio and more in a message.
   <td>Embed OEmbed rich content.</td>
 </tr>
 <tr>
-  <td>[iframe]URL[/iframe]</td>
-  <td>General embed, iframe size is limited by the theme size for video players.</td>
-</tr>
-<tr>
   <td>[url]*url*[/url]</td>
   <td>If *url* supports oembed or opengraph specifications the embedded object will be shown (eg, documents from scribd).
 Page title with a link to *url* will be shown.</td>
@@ -613,14 +609,33 @@ On Mastodon this field is used for the content warning.
   <th>Result</th>
 </tr>
 <tr>
-  <td>If you need to put literal bbcode in a message, [noparse], [nobb] or [pre] are used to escape bbcode:
+  <td>If you need to put literal BBCode in a message, [noparse], [nobb] or [pre] blocks prevent BBCode conversion:
     <ul>
       <li>[noparse][b]bold[/b][/noparse]</li>
       <li>[nobb][b]bold[/b][/nobb]</li>
       <li>[pre][b]bold[/b][/pre]</li>
     </ul>
+    Note: [code] has priority over [noparse], [nobb] and [pre] which makes them display as BBCode tags in code blocks instead of being removed.
+    [code] blocks inside [noparse] will still be converted to a code block.
   </td>
   <td>[b]bold[/b]</td>
+</tr>
+<tr>
+  <td>Additionally, [noparse] and [pre] blocks prevent mention and hashtag conversion to links:
+    <ul>
+      <li>[noparse]@user@domain.tld #hashtag[/noparse]</li>
+      <li>[pre]@user@domain.tld #hashtag[/pre]</li>
+    </ul>
+  </td>
+  <td>@user@domain.tld #hashtag</td>
+</tr>
+<tr>
+  <td>Additionally, [pre] blocks preserve spaces:
+    <ul>
+      <li>[pre]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Spaces[/pre]</li>
+    </ul>
+  </td>
+  <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Spaces</td>
 </tr>
 <tr>
   <td>[nosmile] is used to disable smilies on a post by post basis<br>

@@ -89,7 +89,7 @@ class Group
 				$group = DBA::selectFirst('group', ['deleted'], ['id' => $gid]);
 				if (DBA::isResult($group) && $group['deleted']) {
 					DBA::update('group', ['deleted' => 0], ['id' => $gid]);
-					notice(DI::l10n()->t('A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.') . EOL);
+					notice(DI::l10n()->t('A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.'));
 				}
 				return true;
 			}
@@ -505,10 +505,17 @@ class Group
 				$groupedit = null;
 			}
 
+			if ($each == 'group') {
+				$count = DBA::count('group_member', ['gid' => $group['id']]);
+				$group_name = sprintf('%s (%d)', $group['name'], $count);
+			} else {
+				$group_name = $group['name'];
+			}
+
 			$display_groups[] = [
 				'id'   => $group['id'],
 				'cid'  => $cid,
-				'text' => $group['name'],
+				'text' => $group_name,
 				'href' => $each . '/' . $group['id'],
 				'edit' => $groupedit,
 				'selected' => $selected,

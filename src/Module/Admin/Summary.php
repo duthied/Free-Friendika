@@ -34,7 +34,6 @@ use Friendica\Module\BaseAdmin;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
 
 class Summary extends BaseAdmin
 {
@@ -46,6 +45,14 @@ class Summary extends BaseAdmin
 
 		// are there MyISAM tables in the DB? If so, trigger a warning message
 		$warningtext = [];
+
+		$templateEngine = Renderer::getTemplateEngine();
+		$errors = [];
+		$templateEngine->testInstall($errors);
+		foreach ($errors as $error) {
+			$warningtext[] = DI::l10n()->t('Template engine (%s) error: %s', $templateEngine::$name, $error);
+		}
+
 		if (DBA::count(['information_schema' => 'tables'], ['engine' => 'myisam', 'table_schema' => DBA::databaseName()])) {
 			$warningtext[] = DI::l10n()->t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 		}
@@ -65,8 +72,8 @@ class Summary extends BaseAdmin
 			}
 		}
 
-		// Check if github.com/friendica/master/VERSION is higher then
-		// the local version of Friendica. Check is opt-in, source may be master or devel branch
+		// Check if github.com/friendica/stable/VERSION is higher then
+		// the local version of Friendica. Check is opt-in, source may be stable or develop branch
 		if (DI::config()->get('system', 'check_new_version_url', 'none') != 'none') {
 			$gitversion = DI::config()->get('system', 'git_friendica_version');
 			if (version_compare(FRIENDICA_VERSION, $gitversion) < 0) {
@@ -136,7 +143,6 @@ class Summary extends BaseAdmin
 						throw new InternalServerErrorException('Stream is null.');
 					}
 				}
-
 			} catch (\Throwable $exception) {
 				$warningtext[] = DI::l10n()->t('The debug logfile \'%s\' is not usable. No logging possible (error: \'%s\')', $file, $exception->getMessage());
 			}
@@ -193,7 +199,7 @@ class Summary extends BaseAdmin
 		}
 		DBA::close($pageFlagsCountStmt);
 
-		Logger::log('accounts: ' . print_r($accounts, true), Logger::DATA);
+		Logger::debug('accounts', ['accounts' => $accounts]);
 
 		$pending = Register::getPendingCount();
 
@@ -240,7 +246,7 @@ class Summary extends BaseAdmin
 	private static function checkSelfHostMeta()
 	{
 		// Fetch the host-meta to check if this really is a vital server
-		return Network::curl(DI::baseUrl()->get() . '/.well-known/host-meta')->isSuccess();
+		return DI::httpRequest()->get(DI::baseUrl()->get() . '/.well-known/host-meta')->isSuccess();
 	}
 
 }

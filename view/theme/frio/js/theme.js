@@ -1,7 +1,11 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPLv3-or-later
 
 var jotcache = ''; //The jot cache. We use it as cache to restore old/original jot content
 
 $(document).ready(function(){
+	// Destroy unused perfect scrollbar in aside element
+	$('aside').perfectScrollbar('destroy');
+
 	//fade in/out based on scrollTop value
 	var scrollStart;
 
@@ -112,10 +116,8 @@ $(document).ready(function(){
 		}
 	});
 
-	//$('ul.flex-nav').flexMenu();
-
 	// initialize the bootstrap tooltips
-	$('body').tooltip({
+	$body.tooltip({
 		selector: '[data-toggle="tooltip"]',
 		container: 'body',
 		animation: true,
@@ -144,7 +146,7 @@ $(document).ready(function(){
 	if( $(".search-content-wrapper").length ) {
 		// get the text of the heading (we catch the plain text because we don't
 		// want to have a h4 heading in the navbar
-		var searchText = $(".section-title-wrapper > h2").text();
+		var searchText = $(".section-title-wrapper > h2").html();
 		// insert the plain text in a <h4> heading and give it a class
 		var newText = '<h4 class="search-heading">'+searchText+'</h4>';
 		// append the new heading to the navbar
@@ -206,7 +208,7 @@ $(document).ready(function(){
 		// get the heading element
 		var heading = $(".network-content-wrapper > .section-title-wrapper > h2");
 		// get the text of the heading
-		var headingContent = heading.text();
+		var headingContent = heading.html();
 		// create a new element with the content of the heading
 		var newText = '<h4 class="heading" data-toggle="tooltip" title="'+headingContent+'">'+headingContent+'</h4>';
 		// remove the old heading element
@@ -219,7 +221,7 @@ $(document).ready(function(){
 		// get the heading element
 		var heading = $(".community-content-wrapper > h3").first();
 		// get the text of the heading
-		var headingContent = heading.text();
+		var headingContent = heading.html();
 		// create a new element with the content of the heading
 		var newText = '<h4 class="heading">'+headingContent+'</h4>';
 		// remove the old heading element
@@ -364,10 +366,16 @@ $(document).ready(function(){
 
 	// Comment form submit
 	$body.on('submit', '.comment-edit-form', function(e) {
-		e.preventDefault();
-
 		let $form = $(this);
 		let id = $form.data('item-id');
+
+		// Compose page form exception: id is always 0 and form must not be submitted asynchronously
+		if (id === 0) {
+			return;
+		}
+
+		e.preventDefault();
+
 		let $commentSubmit = $form.find('.comment-edit-submit').button('loading');
 
 		unpause();
@@ -698,7 +706,7 @@ function scrollToItem(elementId) {
 		scrollTop: itemPos
 	}, 400).promise().done( function() {
 		// Highlight post/commenent with ID  (GUID)
-		$el.animate(colWhite, 1000).animate(colShiny).animate(colWhite, 600);
+		$el.animate(colWhite, 1000).animate(colShiny).animate({backgroundColor: 'transparent'}, 600);
 	});
 }
 
@@ -716,22 +724,17 @@ function htmlToText(htmlString) {
  * Sends a /like API call and updates the display of the relevant action button
  * before the update reloads the item.
  *
- * @param {string} ident The id of the relevant item
- * @param {string} verb The verb of the action
- * @returns {undefined}
+ * @param {int}     ident The id of the relevant item
+ * @param {string}  verb  The verb of the action
+ * @param {boolean} un    Whether to perform an activity removal instead of creation
  */
-function doLikeAction(ident, verb) {
-	unpause();
-
+function doLikeAction(ident, verb, un) {
 	if (verb.indexOf('attend') === 0) {
 		$('.item-' + ident + ' .button-event:not(#' + verb + '-' + ident + ')').removeClass('active');
 	}
 	$('#' + verb + '-' + ident).toggleClass('active');
-	$('#like-rotator-' + ident.toString()).show();
-	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate );
-	liking = 1;
-	force_update = true;
-	update_item = ident.toString();
+
+	dolike(ident, verb, un);
 }
 
 // Decodes a hexadecimally encoded binary string
@@ -787,7 +790,7 @@ function bin2hex (s) {
 // Dropdown menus with the class "dropdown-head" will display the active tab
 // as button text
 function toggleDropdownText(elm) {
-		$(elm).closest(".dropdown").find('.btn').html($(elm).text() + ' <span class="caret"></span>');
+		$(elm).closest(".dropdown").find('.btn').html($(elm).html() + ' <span class="caret"></span>');
 		$(elm).closest(".dropdown").find('.btn').val($(elm).data('value'));
 		$(elm).closest("ul").children("li").show();
 		$(elm).parent("li").hide();
@@ -797,3 +800,4 @@ function toggleDropdownText(elm) {
 function hasClass(elem, cls) {
 	return (" " + elem.className + " " ).indexOf( " "+cls+" " ) > -1;
 }
+// @license-end

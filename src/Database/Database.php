@@ -39,6 +39,13 @@ use Psr\Log\LoggerInterface;
  */
 class Database
 {
+	const PDO = 'pdo';
+	const MYSQLI = 'mysqli';
+
+	const INSERT_DEFAULT = 0;
+	const INSERT_UPDATE = 1;
+	const INSERT_IGNORE = 2;
+
 	protected $connected = false;
 
 	/**
@@ -57,51 +64,27 @@ class Database
 	/** @var PDO|mysqli */
 	protected $connection;
 	protected $driver;
-	private $emulate_prepares = false;
+	protected $pdo_emulate_prepares = false;
 	private $error          = false;
 	private $errorno        = 0;
 	private $affected_rows  = 0;
 	protected $in_transaction = false;
 	protected $in_retrial     = false;
+	protected $testmode       = false;
 	private $relation       = [];
 
-	public function __construct(Cache $configCache, Profiler $profiler, LoggerInterface $logger, array $server = [])
+	public function __construct(Cache $configCache, Profiler $profiler, LoggerInterface $logger)
 	{
 		// We are storing these values for being able to perform a reconnect
 		$this->configCache   = $configCache;
 		$this->profiler      = $profiler;
 		$this->logger        = $logger;
 
-		$this->readServerVariables($server);
 		$this->connect();
 
 		if ($this->isConnected()) {
 			// Loads DB_UPDATE_VERSION constant
 			DBStructure::definition($configCache->get('system', 'basepath'), false);
-		}
-	}
-
-	private function readServerVariables(array $server)
-	{
-		// Use environment variables for mysql if they are set beforehand
-		if (!empty($server['MYSQL_HOST'])
-		    && (!empty($server['MYSQL_USERNAME'] || !empty($server['MYSQL_USER'])))
-		    && $server['MYSQL_PASSWORD'] !== false
-		    && !empty($server['MYSQL_DATABASE']))
-		{
-			$db_host = $server['MYSQL_HOST'];
-			if (!empty($server['MYSQL_PORT'])) {
-				$db_host .= ':' . $server['MYSQL_PORT'];
-			}
-			$this->configCache->set('database', 'hostname', $db_host);
-			unset($db_host);
-			if (!empty($server['MYSQL_USERNAME'])) {
-				$this->configCache->set('database', 'username', $server['MYSQL_USERNAME']);
-			} else {
-				$this->configCache->set('database', 'username', $server['MYSQL_USER']);
-			}
-			$this->configCache->set('database', 'password', (string) $server['MYSQL_PASSWORD']);
-			$this->configCache->set('database', 'database', $server['MYSQL_DATABASE']);
 		}
 	}
 
@@ -121,6 +104,11 @@ class Database
 		if (count($serverdata) > 1) {
 			$port = trim($serverdata[1]);
 		}
+
+		if (!empty(trim($this->configCache->get('database', 'port')))) {
+			$port = trim($this->configCache->get('database', 'port'));
+		}
+
 		$server  = trim($server);
 		$user    = trim($this->configCache->get('database', 'username'));
 		$pass    = trim($this->configCache->get('database', 'password'));
@@ -131,10 +119,12 @@ class Database
 			return false;
 		}
 
-		$this->emulate_prepares = (bool)$this->configCache->get('database', 'emulate_prepares');
+		$persistent = (bool)$this->configCache->get('database', 'persistent');
 
-		if (class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
-			$this->driver = 'pdo';
+		$this->pdo_emulate_prepares = (bool)$this->configCache->get('database', 'pdo_emulate_prepares');
+
+		if (!$this->configCache->get('database', 'disable_pdo') && class_exists('\PDO') && in_array('mysql', PDO::getAvailableDrivers())) {
+			$this->driver = self::PDO;
 			$connect      = "mysql:host=" . $server . ";dbname=" . $db;
 
 			if ($port > 0) {
@@ -146,8 +136,8 @@ class Database
 			}
 
 			try {
-				$this->connection = @new PDO($connect, $user, $pass);
-				$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+				$this->connection = @new PDO($connect, $user, $pass, [PDO::ATTR_PERSISTENT => $persistent]);
+				$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 				$this->connected = true;
 			} catch (PDOException $e) {
 				$this->connected = false;
@@ -155,7 +145,7 @@ class Database
 		}
 
 		if (!$this->connected && class_exists('\mysqli')) {
-			$this->driver = 'mysqli';
+			$this->driver = self::MYSQLI;
 
 			if ($port > 0) {
 				$this->connection = @new mysqli($server, $user, $pass, $db, $port);
@@ -181,6 +171,10 @@ class Database
 		return $this->connected;
 	}
 
+	public function setTestmode(bool $test)
+	{
+		$this->testmode = $test;
+	}
 	/**
 	 * Sets the logger for DBA
 	 *
@@ -212,10 +206,10 @@ class Database
 	{
 		if (!is_null($this->connection)) {
 			switch ($this->driver) {
-				case 'pdo':
+				case self::PDO:
 					$this->connection = null;
 					break;
-				case 'mysqli':
+				case self::MYSQLI:
 					$this->connection->close();
 					$this->connection = null;
 					break;
@@ -246,6 +240,16 @@ class Database
 	}
 
 	/**
+	 * Return the database driver string
+	 *
+	 * @return string with either "pdo" or "mysqli"
+	 */
+	public function getDriver()
+	{
+		return $this->driver;
+	}
+
+	/**
 	 * Returns the MySQL server version string
 	 *
 	 * This function discriminate between the deprecated mysql API and the current
@@ -257,10 +261,10 @@ class Database
 	{
 		if ($this->server_info == '') {
 			switch ($this->driver) {
-				case 'pdo':
+				case self::PDO:
 					$this->server_info = $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
 					break;
-				case 'mysqli':
+				case self::MYSQLI:
 					$this->server_info = $this->connection->server_info;
 					break;
 			}
@@ -311,7 +315,7 @@ class Database
 		}
 
 		$watchlist = explode(',', $this->configCache->get('system', 'db_log_index_watch'));
-		$blacklist = explode(',', $this->configCache->get('system', 'db_log_index_blacklist'));
+		$denylist = explode(',', $this->configCache->get('system', 'db_log_index_denylist'));
 
 		while ($row = $this->fetch($r)) {
 			if ((intval($this->configCache->get('system', 'db_loglimit_index')) > 0)) {
@@ -325,7 +329,7 @@ class Database
 				$log = true;
 			}
 
-			if (in_array($row['key'], $blacklist) || ($row['key'] == "")) {
+			if (in_array($row['key'], $denylist) || ($row['key'] == "")) {
 				$log = false;
 			}
 
@@ -335,13 +339,13 @@ class Database
 				                                                                      $row['key'] . "\t" . $row['rows'] . "\t" . $row['Extra'] . "\t" .
 				                                                                      basename($backtrace[1]["file"]) . "\t" .
 				                                                                      $backtrace[1]["line"] . "\t" . $backtrace[2]["function"] . "\t" .
-				                                                                      substr($query, 0, 2000) . "\n", FILE_APPEND);
+				                                                                      substr($query, 0, 4000) . "\n", FILE_APPEND);
 			}
 		}
 	}
 
 	/**
-	 * Removes every not whitelisted character from the identifier string
+	 * Removes every not allowlisted character from the identifier string
 	 *
 	 * @param string $identifier
 	 *
@@ -357,10 +361,10 @@ class Database
 	{
 		if ($this->connected) {
 			switch ($this->driver) {
-				case 'pdo':
+				case self::PDO:
 					return substr(@$this->connection->quote($str, PDO::PARAM_STR), 1, -1);
 
-				case 'mysqli':
+				case self::MYSQLI:
 					return @$this->connection->real_escape_string($str);
 			}
 		} else {
@@ -382,14 +386,14 @@ class Database
 		}
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				$r = $this->p("SELECT 1");
 				if ($this->isResult($r)) {
 					$row       = $this->toArray($r);
 					$connected = ($row[0]['1'] == '1');
 				}
 				break;
-			case 'mysqli':
+			case self::MYSQLI:
 				$connected = $this->connection->ping();
 				break;
 		}
@@ -497,6 +501,7 @@ class Database
 			$sql = "/*" . System::callstack() . " */ " . $sql;
 		}
 
+		$is_error            = false;
 		$this->error         = '';
 		$this->errorno       = 0;
 		$this->affected_rows = 0;
@@ -518,14 +523,15 @@ class Database
 		}
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				// If there are no arguments we use "query"
-				if ($this->emulate_prepares || count($args) == 0) {
+				if (count($args) == 0) {
 					if (!$retval = $this->connection->query($this->replaceParameters($sql, $args))) {
 						$errorInfo     = $this->connection->errorInfo();
 						$this->error   = $errorInfo[2];
 						$this->errorno = $errorInfo[1];
 						$retval        = false;
+						$is_error      = true;
 						break;
 					}
 					$this->affected_rows = $retval->rowCount();
@@ -538,6 +544,7 @@ class Database
 					$this->error   = $errorInfo[2];
 					$this->errorno = $errorInfo[1];
 					$retval        = false;
+					$is_error      = true;
 					break;
 				}
 
@@ -555,24 +562,26 @@ class Database
 					$this->error   = $errorInfo[2];
 					$this->errorno = $errorInfo[1];
 					$retval        = false;
+					$is_error      = true;
 				} else {
 					$retval              = $stmt;
 					$this->affected_rows = $retval->rowCount();
 				}
 				break;
-			case 'mysqli':
+			case self::MYSQLI:
 				// There are SQL statements that cannot be executed with a prepared statement
 				$parts           = explode(' ', $orig_sql);
 				$command         = strtolower($parts[0]);
 				$can_be_prepared = in_array($command, ['select', 'update', 'insert', 'delete']);
 
 				// The fallback routine is called as well when there are no arguments
-				if ($this->emulate_prepares || !$can_be_prepared || (count($args) == 0)) {
+				if (!$can_be_prepared || (count($args) == 0)) {
 					$retval = $this->connection->query($this->replaceParameters($sql, $args));
 					if ($this->connection->errno) {
 						$this->error   = $this->connection->error;
 						$this->errorno = $this->connection->errno;
 						$retval        = false;
+						$is_error      = true;
 					} else {
 						if (isset($retval->num_rows)) {
 							$this->affected_rows = $retval->num_rows;
@@ -589,6 +598,7 @@ class Database
 					$this->error   = $stmt->error;
 					$this->errorno = $stmt->errno;
 					$retval        = false;
+					$is_error      = true;
 					break;
 				}
 
@@ -616,6 +626,7 @@ class Database
 					$this->error   = $this->connection->error;
 					$this->errorno = $this->connection->errno;
 					$retval        = false;
+					$is_error      = true;
 				} else {
 					$stmt->store_result();
 					$retval              = $stmt;
@@ -624,15 +635,29 @@ class Database
 				break;
 		}
 
+		// See issue https://github.com/friendica/friendica/issues/8572
+		// Ensure that we always get an error message on an error.
+		if ($is_error && empty($this->errorno)) {
+			$this->errorno = -1;
+		}
+
+		if ($is_error && empty($this->error)) {
+			$this->error = 'Unknown database error';
+		}
+
 		// We are having an own error logging in the function "e"
 		if (($this->errorno != 0) && !$called_from_e) {
 			// We have to preserve the error code, somewhere in the logging it get lost
 			$error   = $this->error;
 			$errorno = $this->errorno;
 
+			if ($this->testmode) {
+				throw new DatabaseException($error, $errorno, $this->replaceParameters($sql, $args));
+			}
+
 			$this->logger->error('DB Error', [
-				'code'      => $this->errorno,
-				'error'     => $this->error,
+				'code'      => $errorno,
+				'error'     => $error,
 				'callstack' => System::callstack(8),
 				'params'    => $this->replaceParameters($sql, $args),
 			]);
@@ -643,21 +668,21 @@ class Database
 					// It doesn't make sense to continue when the database connection was lost
 					if ($this->in_retrial) {
 						$this->logger->notice('Giving up retrial because of database error', [
-							'code'  => $this->errorno,
-							'error' => $this->error,
+							'code'  => $errorno,
+							'error' => $error,
 						]);
 					} else {
 						$this->logger->notice('Couldn\'t reconnect after database error', [
-							'code'  => $this->errorno,
-							'error' => $this->error,
+							'code'  => $errorno,
+							'error' => $error,
 						]);
 					}
 					exit(1);
 				} else {
 					// We try it again
 					$this->logger->notice('Reconnected after database error', [
-						'code'  => $this->errorno,
-						'error' => $this->error,
+						'code'  => $errorno,
+						'error' => $error,
 					]);
 					$this->in_retrial = true;
 					$ret              = $this->p($sql, $args);
@@ -670,7 +695,7 @@ class Database
 			$this->errorno = $errorno;
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'database');
 
 		if ($this->configCache->get('system', 'db_log')) {
 			$stamp2   = microtime(true);
@@ -683,7 +708,7 @@ class Database
 				@file_put_contents($this->configCache->get('system', 'db_log'), DateTimeFormat::utcNow() . "\t" . $duration . "\t" .
 				                                                                basename($backtrace[1]["file"]) . "\t" .
 				                                                                $backtrace[1]["line"] . "\t" . $backtrace[2]["function"] . "\t" .
-				                                                                substr($this->replaceParameters($sql, $args), 0, 2000) . "\n", FILE_APPEND);
+				                                                                substr($this->replaceParameters($sql, $args), 0, 4000) . "\n", FILE_APPEND);
 			}
 		}
 		return $retval;
@@ -729,9 +754,13 @@ class Database
 			$error   = $this->error;
 			$errorno = $this->errorno;
 
+			if ($this->testmode) {
+				throw new DatabaseException($error, $errorno, $this->replaceParameters($sql, $params));
+			}
+
 			$this->logger->error('DB Error', [
-				'code'      => $this->errorno,
-				'error'     => $this->error,
+				'code'      => $errorno,
+				'error'     => $error,
 				'callstack' => System::callstack(8),
 				'params'    => $this->replaceParameters($sql, $params),
 			]);
@@ -740,8 +769,8 @@ class Database
 			// A reconnect like in $this->p could be dangerous with modifications
 			if ($errorno == 2006) {
 				$this->logger->notice('Giving up because of database error', [
-					'code'  => $this->errorno,
-					'error' => $this->error,
+					'code'  => $errorno,
+					'error' => $error,
 				]);
 				exit(1);
 			}
@@ -750,7 +779,7 @@ class Database
 			$this->errorno = $errorno;
 		}
 
-		$this->profiler->saveTimestamp($stamp, "database_write", System::callstack());
+		$this->profiler->saveTimestamp($stamp, "database_write");
 
 		return $retval;
 	}
@@ -847,9 +876,9 @@ class Database
 			return 0;
 		}
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				return $stmt->columnCount();
-			case 'mysqli':
+			case self::MYSQLI:
 				return $stmt->field_count;
 		}
 		return 0;
@@ -868,9 +897,9 @@ class Database
 			return 0;
 		}
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				return $stmt->rowCount();
-			case 'mysqli':
+			case self::MYSQLI:
 				return $stmt->num_rows;
 		}
 		return 0;
@@ -879,13 +908,12 @@ class Database
 	/**
 	 * Fetch a single row
 	 *
-	 * @param mixed $stmt statement object
+	 * @param PDOStatement|mysqli_stmt $stmt statement object
 	 *
-	 * @return array current row
+	 * @return array|false current row
 	 */
 	public function fetch($stmt)
 	{
-
 		$stamp1 = microtime(true);
 
 		$columns = [];
@@ -895,12 +923,15 @@ class Database
 		}
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				$columns = $stmt->fetch(PDO::FETCH_ASSOC);
+				if (!empty($stmt->table) && is_array($columns)) {
+					$columns = $this->castFields($stmt->table, $columns);
+				}
 				break;
-			case 'mysqli':
+			case self::MYSQLI:
 				if (get_class($stmt) == 'mysqli_result') {
-					$columns = $stmt->fetch_assoc();
+					$columns = $stmt->fetch_assoc() ?? false;
 					break;
 				}
 
@@ -931,7 +962,7 @@ class Database
 				}
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'database');
 
 		return $columns;
 	}
@@ -939,19 +970,21 @@ class Database
 	/**
 	 * Insert a row into a table
 	 *
-	 * @param string|array $table               Table name or array [schema => table]
-	 * @param array        $param               parameter array
-	 * @param bool         $on_duplicate_update Do an update on a duplicate entry
+	 * @param string|array $table          Table name or array [schema => table]
+	 * @param array        $param          parameter array
+	 * @param int          $duplicate_mode What to do on a duplicated entry
 	 *
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public function insert($table, $param, $on_duplicate_update = false)
+	public function insert($table, array $param, int $duplicate_mode = self::INSERT_DEFAULT)
 	{
 		if (empty($table) || empty($param)) {
 			$this->logger->info('Table and fields have to be set');
 			return false;
 		}
+
+		$param = $this->castFields($table, $param);
 
 		$table_string = DBA::buildTableString($table);
 
@@ -959,9 +992,15 @@ class Database
 
 		$values_string = substr(str_repeat("?, ", count($param)), 0, -2);
 
-		$sql = "INSERT INTO " . $table_string . " (" . $fields_string . ") VALUES (" . $values_string . ")";
+		$sql = "INSERT ";
 
-		if ($on_duplicate_update) {
+		if ($duplicate_mode == self::INSERT_IGNORE) {
+			$sql .= "IGNORE ";
+		}
+
+		$sql .= "INTO " . $table_string . " (" . $fields_string . ") VALUES (" . $values_string . ")";
+
+		if ($duplicate_mode == self::INSERT_UPDATE) {
 			$fields_string = implode(' = ?, ', array_map([DBA::class, 'quoteIdentifier'], array_keys($param)));
 
 			$sql .= " ON DUPLICATE KEY UPDATE " . $fields_string . " = ?";
@@ -969,6 +1008,41 @@ class Database
 			$values = array_values($param);
 			$param  = array_merge_recursive($values, $values);
 		}
+
+		$result = $this->e($sql, $param);
+		if (!$result || ($duplicate_mode != self::INSERT_IGNORE)) {
+			return $result;
+		}
+
+		return $this->affectedRows() != 0;
+	}
+
+	/**
+	 * Inserts a row with the provided data in the provided table.
+	 * If the data corresponds to an existing row through a UNIQUE or PRIMARY index constraints, it updates the row instead.
+	 *
+	 * @param string|array $table Table name or array [schema => table]
+	 * @param array        $param parameter array
+	 *
+	 * @return boolean was the insert successful?
+	 * @throws \Exception
+	 */
+	public function replace($table, array $param)
+	{
+		if (empty($table) || empty($param)) {
+			$this->logger->info('Table and fields have to be set');
+			return false;
+		}
+
+		$param = $this->castFields($table, $param);
+
+		$table_string = DBA::buildTableString($table);
+
+		$fields_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], array_keys($param)));
+
+		$values_string = substr(str_repeat("?, ", count($param)), 0, -2);
+
+		$sql = "REPLACE " . $table_string . " (" . $fields_string . ") VALUES (" . $values_string . ")";
 
 		return $this->e($sql, $param);
 	}
@@ -981,14 +1055,14 @@ class Database
 	public function lastInsertId()
 	{
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				$id = $this->connection->lastInsertId();
 				break;
-			case 'mysqli':
+			case self::MYSQLI:
 				$id = $this->connection->insert_id;
 				break;
 		}
-		return $id;
+		return (int)$id;
 	}
 
 	/**
@@ -1004,7 +1078,7 @@ class Database
 	public function lock($table)
 	{
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
-		if ($this->driver == 'pdo') {
+		if ($this->driver == self::PDO) {
 			$this->e("SET autocommit=0");
 			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 		} else {
@@ -1013,12 +1087,12 @@ class Database
 
 		$success = $this->e("LOCK TABLES " . DBA::buildTableString($table) . " WRITE");
 
-		if ($this->driver == 'pdo') {
-			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+		if ($this->driver == self::PDO) {
+			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 		}
 
 		if (!$success) {
-			if ($this->driver == 'pdo') {
+			if ($this->driver == self::PDO) {
 				$this->e("SET autocommit=1");
 			} else {
 				$this->connection->autocommit(true);
@@ -1040,14 +1114,14 @@ class Database
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
 		$this->performCommit();
 
-		if ($this->driver == 'pdo') {
+		if ($this->driver == self::PDO) {
 			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 		}
 
 		$success = $this->e("UNLOCK TABLES");
 
-		if ($this->driver == 'pdo') {
-			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+		if ($this->driver == self::PDO) {
+			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, $this->pdo_emulate_prepares);
 			$this->e("SET autocommit=1");
 		} else {
 			$this->connection->autocommit(true);
@@ -1069,13 +1143,13 @@ class Database
 		}
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				if (!$this->connection->inTransaction() && !$this->connection->beginTransaction()) {
 					return false;
 				}
 				break;
 
-			case 'mysqli':
+			case self::MYSQLI:
 				if (!$this->connection->begin_transaction()) {
 					return false;
 				}
@@ -1089,14 +1163,14 @@ class Database
 	protected function performCommit()
 	{
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				if (!$this->connection->inTransaction()) {
 					return true;
 				}
 
 				return $this->connection->commit();
 
-			case 'mysqli':
+			case self::MYSQLI:
 				return $this->connection->commit();
 		}
 
@@ -1127,7 +1201,7 @@ class Database
 		$ret = false;
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				if (!$this->connection->inTransaction()) {
 					$ret = true;
 					break;
@@ -1135,7 +1209,7 @@ class Database
 				$ret = $this->connection->rollBack();
 				break;
 
-			case 'mysqli':
+			case self::MYSQLI:
 				$ret = $this->connection->rollback();
 				break;
 		}
@@ -1358,7 +1432,7 @@ class Database
 			if (is_bool($old_fields)) {
 				if ($do_insert) {
 					$values = array_merge($condition, $fields);
-					return $this->insert($table, $values, $do_insert);
+					return $this->replace($table, $values);
 				}
 				$old_fields = [];
 			}
@@ -1373,6 +1447,8 @@ class Database
 		if (count($fields) == 0) {
 			return true;
 		}
+
+		$fields = $this->castFields($table, $fields);
 
 		$table_string = DBA::buildTableString($table);
 
@@ -1434,24 +1510,30 @@ class Database
 	/**
 	 * Select rows from a table
 	 *
+	 *
+	 * Example:
+	 * $table = 'item';
+	 * or:
+	 * $table = ['schema' => 'table'];
+	 * @see DBA::buildTableString()
+	 *
+	 * $fields = ['id', 'uri', 'uid', 'network'];
+	 *
+	 * $condition = ['uid' => 1, 'network' => 'dspr', 'blocked' => true];
+	 * or:
+	 * $condition = ['`uid` = ? AND `network` IN (?, ?)', 1, 'dfrn', 'dspr'];
+	 * @see DBA::buildCondition()
+	 *
+	 * $params = ['order' => ['id', 'received' => true, 'created' => 'ASC'), 'limit' => 10];
+	 * @see DBA::buildParameter()
+	 *
+	 * $data = DBA::select($table, $fields, $condition, $params);
+	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $fields    Array of selected fields, empty for all
 	 * @param array        $condition Array of fields for condition
 	 * @param array        $params    Array of several parameters
-	 *
 	 * @return boolean|object
-	 *
-	 * Example:
-	 * $table = "item";
-	 * $fields = array("id", "uri", "uid", "network");
-	 *
-	 * $condition = array("uid" => 1, "network" => 'dspr');
-	 * or:
-	 * $condition = array("`uid` = ? AND `network` IN (?, ?)", 1, 'dfrn', 'dspr');
-	 *
-	 * $params = array("order" => array("id", "received" => true), "limit" => 10);
-	 *
-	 * $data = DBA::select($table, $fields, $condition, $params);
 	 * @throws \Exception
 	 */
 	public function select($table, array $fields = [], array $condition = [], array $params = [])
@@ -1475,6 +1557,10 @@ class Database
 		$sql = "SELECT " . $select_string . " FROM " . $table_string . $condition_string . $param_string;
 
 		$result = $this->p($sql, $condition);
+
+		if (($this->driver == self::PDO) && !empty($result) && is_string($table)) {
+			$result->table = $table;
+		}
 
 		return $result;
 	}
@@ -1520,7 +1606,8 @@ class Database
 
 		$row = $this->fetchFirst($sql, $condition);
 
-		return $row['count'];
+		// Ensure to always return either a "null" or a numeric value
+		return is_numeric($row['count']) ? (int)$row['count'] : $row['count'];
 	}
 
 	/**
@@ -1549,6 +1636,71 @@ class Database
 		return $data;
 	}
 
+	/**
+	 * Cast field types according to the table definition
+	 *
+	 * @param string $table
+	 * @param array  $fields
+	 * @return array casted fields
+	 */
+	public function castFields(string $table, array $fields) {
+		// When there is no data, we don't need to do something
+		if (empty($fields)) {
+			return $fields;
+		}
+
+		// We only need to cast fields with PDO
+		if ($this->driver != self::PDO) {
+			return $fields;
+		}
+
+		// We only need to cast when emulating the prepares
+		if (!$this->connection->getAttribute(PDO::ATTR_EMULATE_PREPARES)) {
+			return $fields;
+		}
+
+		$types = [];
+
+		$tables = DBStructure::definition('', false);
+		if (empty($tables[$table])) {
+			// When a matching table wasn't found we check if it is a view
+			$views = View::definition('', false);
+			if (empty($views[$table])) {
+				return $fields;
+			}
+
+			foreach(array_keys($fields) as $field) {
+				if (!empty($views[$table]['fields'][$field])) {
+					$viewdef = $views[$table]['fields'][$field];
+					if (!empty($tables[$viewdef[0]]['fields'][$viewdef[1]]['type'])) {
+						$types[$field] = $tables[$viewdef[0]]['fields'][$viewdef[1]]['type'];
+					}
+				}
+			}
+		} else {
+			foreach ($tables[$table]['fields'] as $field => $definition) {
+				$types[$field] = $definition['type'];
+			}
+		}
+
+		foreach ($fields as $field => $content) {
+			if (is_null($content) || empty($types[$field])) {
+				continue;
+			}
+
+			if ((substr($types[$field], 0, 7) == 'tinyint') || (substr($types[$field], 0, 8) == 'smallint') ||
+				(substr($types[$field], 0, 9) == 'mediumint') || (substr($types[$field], 0, 3) == 'int') ||
+				(substr($types[$field], 0, 6) == 'bigint') || (substr($types[$field], 0, 7) == 'boolean')) {
+				$fields[$field] = (int)$content;
+			}
+			if ((substr($types[$field], 0, 5) == 'float') || (substr($types[$field], 0, 6) == 'double')) {
+				$fields[$field] = (float)$content;
+			}
+		}
+
+		return $fields;	
+	}
+	
 	/**
 	 * Returns the error number of the last query
 	 *
@@ -1586,10 +1738,10 @@ class Database
 		}
 
 		switch ($this->driver) {
-			case 'pdo':
+			case self::PDO:
 				$ret = $stmt->closeCursor();
 				break;
-			case 'mysqli':
+			case self::MYSQLI:
 				// MySQLi offers both a mysqli_stmt and a mysqli_result class.
 				// We should be careful not to assume the object type of $stmt
 				// because DBA::p() has been able to return both types.
@@ -1605,7 +1757,7 @@ class Database
 				break;
 		}
 
-		$this->profiler->saveTimestamp($stamp1, 'database', System::callstack());
+		$this->profiler->saveTimestamp($stamp1, 'database');
 
 		return $ret;
 	}

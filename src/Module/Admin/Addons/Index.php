@@ -34,12 +34,12 @@ class Index extends BaseAdmin
 
 		// reload active themes
 		if (!empty($_GET['action'])) {
-			parent::checkFormSecurityTokenRedirectOnError('/admin/addons', 'admin_addons', 't');
+			self::checkFormSecurityTokenRedirectOnError('/admin/addons', 'admin_addons', 't');
 
 			switch ($_GET['action']) {
 				case 'reload':
 					Addon::reload();
-					info('Addons reloaded');
+					info(DI::l10n()->t('Addons reloaded'));
 					break;
 
 				case 'toggle' :
@@ -50,7 +50,7 @@ class Index extends BaseAdmin
 					} elseif (Addon::install($addon)) {
 						info(DI::l10n()->t('Addon %s enabled.', $addon));
 					} else {
-						info(DI::l10n()->t('Addon %s failed to install.', $addon));
+						notice(DI::l10n()->t('Addon %s failed to install.', $addon));
 					}
 
 					break;
@@ -73,7 +73,7 @@ class Index extends BaseAdmin
 			'$addons' => $addons,
 			'$pcount' => count($addons),
 			'$noplugshint' => DI::l10n()->t('There are currently no addons available on your node. You can find the official addon repository at %1$s and might find other interesting addons in the open addon registry at %2$s', 'https://github.com/friendica/friendica-addons', 'http://addons.friendi.ca'),
-			'$form_security_token' => parent::getFormSecurityToken('admin_addons'),
+			'$form_security_token' => self::getFormSecurityToken('admin_addons'),
 		]);
 	}
 }

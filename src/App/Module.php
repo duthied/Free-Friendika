@@ -30,6 +30,7 @@ use Friendica\Module\HTTPException\MethodNotAllowed;
 use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -234,10 +235,10 @@ class Module
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function run(Core\L10n $l10n, App\BaseURL $baseUrl, LoggerInterface $logger, array $server, array $post)
+	public function run(Core\L10n $l10n, App\BaseURL $baseUrl, LoggerInterface $logger, Profiler $profiler, array $server, array $post)
 	{
 		if ($this->printNotAllowedAddon) {
-			info($l10n->t("You must be logged in to use addons. "));
+			notice($l10n->t("You must be logged in to use addons. "));
 		}
 
 		/* The URL provided does not resolve to a valid module.
@@ -266,9 +267,14 @@ class Module
 
 		$placeholder = '';
 
+		$profiler->set(microtime(true), 'ready');
+		$timestamp = microtime(true);
+
 		Core\Hook::callAll($this->module . '_mod_init', $placeholder);
 
 		call_user_func([$this->module_class, 'init'], $this->module_parameters);
+
+		$profiler->set(microtime(true) - $timestamp, 'init');
 
 		if ($server['REQUEST_METHOD'] === 'POST') {
 			Core\Hook::callAll($this->module . '_mod_post', $post);

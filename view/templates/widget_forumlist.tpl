@@ -2,12 +2,12 @@
 function showHideForumlist() {
 	if( $("li[id^='forum-widget-entry-extended-']").is(':visible')) {
 		$("li[id^='forum-widget-entry-extended-']").hide();
-		$("li#forum-widget-collapse").html(window.showMore);
+		$("li#forum-widget-collapse").html('{{$showmore}}');
 
 	}
 	else {
 		$("li[id^='forum-widget-entry-extended-']").show();
-		$("li#forum-widget-collapse").html(window.showFewer);
+		$("li#forum-widget-collapse").html('{{$showless}}');
 	}
 }
 </script>

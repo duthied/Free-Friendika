@@ -52,14 +52,14 @@ class Fetch extends BaseModule
 		// Fetch the item
 		$fields = [
 			'uid', 'title', 'body', 'guid', 'contact-id', 'private', 'created', 'received', 'app', 'location', 'coord', 'network',
-			'event-id', 'resource-id', 'author-link', 'author-avatar', 'author-name', 'plink', 'owner-link', 'attach'
+			'event-id', 'resource-id', 'author-link', 'author-avatar', 'author-name', 'plink', 'owner-link', 'uri-id'
 		];
 		$condition = ['wall' => true, 'private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
 		$item = Item::selectFirst($fields, $condition);
 		if (empty($item)) {
 			$condition = ['guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
 			$item = Item::selectFirst(['author-link'], $condition);
-			if (empty($item)) {
+			if (!empty($item["author-link"])) {
 				$parts = parse_url($item["author-link"]);
 				if (empty($parts["scheme"]) || empty($parts["host"])) {
 					throw new HTTPException\InternalServerErrorException();

@@ -27,7 +27,6 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Util\Proxy as ProxyUtils;
 
 /**
  * This class handles methods related to the forum functionality
@@ -72,7 +71,7 @@ class ForumManager
 
 		$forumlist = [];
 
-		$fields = ['id', 'url', 'name', 'micro', 'thumb'];
+		$fields = ['id', 'url', 'name', 'micro', 'thumb', 'avatar'];
 		$condition = [$condition_str, Protocol::DFRN, Protocol::ACTIVITYPUB, $uid];
 		$contacts = DBA::select('contact', $fields, $condition, $params);
 		if (!$contacts) {
@@ -100,13 +99,14 @@ class ForumManager
 	 * Sidebar widget to show subcribed friendica forums. If activated
 	 * in the settings, it appears at the notwork page sidebar
 	 *
-	 * @param int $uid The ID of the User
-	 * @param int $cid The contact id which is used to mark a forum as "selected"
+	 * @param string $baseurl Base module path
+	 * @param int    $uid     The ID of the User
+	 * @param int    $cid     The contact id which is used to mark a forum as "selected"
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function widget($uid, $cid = 0)
+	public static function widget(string $baseurl, int $uid, int $cid = 0)
 	{
 		$o = '';
 
@@ -126,12 +126,12 @@ class ForumManager
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
 				$entry = [
-					'url' => 'network?cid=' . $contact['id'],
+					'url' => $baseurl . '/' . $contact['id'],
 					'external_url' => Contact::magicLink($contact['url']),
 					'name' => $contact['name'],
 					'cid' => $contact['id'],
 					'selected' 	=> $selected,
-					'micro' => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO)),
+					'micro' => DI::baseUrl()->remove(Contact::getMicro($contact)),
 					'id' => ++$id,
 				];
 				$entries[] = $entry;
@@ -147,6 +147,7 @@ class ForumManager
 					'$link_desc'	=> DI::l10n()->t('External link to forum'),
 					'$total'	=> $total,
 					'$visible_forums' => $visible_forums,
+					'$showless'	=> DI::l10n()->t('show less'),
 					'$showmore'	=> DI::l10n()->t('show more')]
 			);
 		}

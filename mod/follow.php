@@ -28,6 +28,7 @@ use Friendica\Model\Profile;
 use Friendica\Model\Item;
 use Friendica\Network\Probe;
 use Friendica\Database\DBA;
+use Friendica\Model\User;
 use Friendica\Util\Strings;
 
 function follow_post(App $a)
@@ -40,32 +41,9 @@ function follow_post(App $a)
 		DI::baseUrl()->redirect('contact');
 	}
 
-	$uid = local_user();
 	$url = Probe::cleanURI($_REQUEST['url']);
-	$return_path = 'follow?url=' . urlencode($url);
 
-	// Makes the connection request for friendica contacts easier
-	// This is just a precaution if maybe this page is called somewhere directly via POST
-	$_SESSION['fastlane'] = $url;
-
-	$result = Contact::createFromProbe($uid, $url, true);
-
-	if ($result['success'] == false) {
-		// Possibly it is a remote item and not an account
-		follow_remote_item($url);
-
-		if ($result['message']) {
-			notice($result['message']);
-		}
-		DI::baseUrl()->redirect($return_path);
-	} elseif ($result['cid']) {
-		DI::baseUrl()->redirect('contact/' . $result['cid']);
-	}
-
-	info(DI::l10n()->t('The contact could not be added.'));
-
-	DI::baseUrl()->redirect($return_path);
-	// NOTREACHED
+	follow_process($a, $url);
 }
 
 function follow_content(App $a)
@@ -95,88 +73,73 @@ function follow_content(App $a)
 	$submit = DI::l10n()->t('Submit Request');
 
 	// Don't try to add a pending contact
-	$r = q("SELECT `pending` FROM `contact` WHERE `uid` = %d AND ((`rel` != %d) OR (`network` = '%s')) AND
-		(`nurl` = '%s' OR `alias` = '%s' OR `alias` = '%s') AND
-		`network` != '%s' LIMIT 1",
-		intval(local_user()), DBA::escape(Contact::FOLLOWER), DBA::escape(Protocol::DFRN), DBA::escape(Strings::normaliseLink($url)),
-		DBA::escape(Strings::normaliseLink($url)), DBA::escape($url), DBA::escape(Protocol::STATUSNET));
+	$user_contact = DBA::selectFirst('contact', ['pending'], ["`uid` = ? AND ((`rel` != ?) OR (`network` = ?)) AND
+		(`nurl` = ? OR `alias` = ? OR `alias` = ?) AND `network` != ?", 
+		$uid, Contact::FOLLOWER, Protocol::DFRN, Strings::normaliseLink($url),
+		Strings::normaliseLink($url), $url, Protocol::STATUSNET]);
 
-	if ($r) {
-		if ($r[0]['pending']) {
+	if (DBA::isResult($user_contact)) {
+		if ($user_contact['pending']) {
 			notice(DI::l10n()->t('You already added this contact.'));
 			$submit = '';
-			//$a->internalRedirect($_SESSION['return_path']);
-			// NOTREACHED
 		}
 	}
 
-	$ret = Probe::uri($url);
+	$contact = Contact::getByURL($url, true);
 
-	$protocol = Contact::getProtocol($ret['url'], $ret['network']);
-
-	if (($protocol == Protocol::DIASPORA) && !DI::config()->get('system', 'diaspora_enabled')) {
-		notice(DI::l10n()->t("Diaspora support isn't enabled. Contact can't be added."));
-		$submit = '';
-		//$a->internalRedirect($_SESSION['return_path']);
-		// NOTREACHED
+	// Possibly it is a mail contact
+	if (empty($contact)) {
+		$contact = Probe::uri($url, Protocol::MAIL, $uid);
 	}
 
-	if (($protocol == Protocol::OSTATUS) && DI::config()->get('system', 'ostatus_disabled')) {
-		notice(DI::l10n()->t("OStatus support is disabled. Contact can't be added."));
-		$submit = '';
-		//$a->internalRedirect($_SESSION['return_path']);
-		// NOTREACHED
-	}
-
-	if ($protocol == Protocol::PHANTOM) {
+	if (empty($contact) || ($contact['network'] == Protocol::PHANTOM)) {
 		// Possibly it is a remote item and not an account
 		follow_remote_item($url);
 
 		notice(DI::l10n()->t("The network type couldn't be detected. Contact can't be added."));
 		$submit = '';
-		//$a->internalRedirect($_SESSION['return_path']);
-		// NOTREACHED
+		$contact = ['url' => $url, 'network' => Protocol::PHANTOM, 'name' => $url, 'keywords' => ''];
+	}
+
+	$protocol = Contact::getProtocol($contact['url'], $contact['network']);
+
+	if (($protocol == Protocol::DIASPORA) && !DI::config()->get('system', 'diaspora_enabled')) {
+		notice(DI::l10n()->t("Diaspora support isn't enabled. Contact can't be added."));
+		$submit = '';
+	}
+
+	if (($protocol == Protocol::OSTATUS) && DI::config()->get('system', 'ostatus_disabled')) {
+		notice(DI::l10n()->t("OStatus support is disabled. Contact can't be added."));
+		$submit = '';
 	}
 
 	if ($protocol == Protocol::MAIL) {
-		$ret['url'] = $ret['addr'];
+		$contact['url'] = $contact['addr'];
 	}
 
-	if (($protocol === Protocol::DFRN) && !DBA::isResult($r)) {
-		$request = $ret['request'];
+	if (($protocol === Protocol::DFRN) && !DBA::isResult($contact)) {
+		$request = $contact['request'];
 		$tpl = Renderer::getMarkupTemplate('dfrn_request.tpl');
 	} else {
+		if (!empty($_REQUEST['auto'])) {
+			follow_process($a, $contact['url']);
+		}
+	
 		$request = DI::baseUrl() . '/follow';
 		$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
 	}
 
-	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1", intval($uid));
-
-	if (!$r) {
+	$owner = User::getOwnerDataById($uid);
+	if (empty($owner)) {
 		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect($return_path);
 		// NOTREACHED
 	}
 
-	$myaddr = $r[0]['url'];
-	$gcontact_id = 0;
+	$myaddr = $owner['url'];
 
 	// Makes the connection request for friendica contacts easier
-	$_SESSION['fastlane'] = $ret['url'];
-
-	$r = q("SELECT `id`, `location`, `about`, `keywords` FROM `gcontact` WHERE `nurl` = '%s'",
-		Strings::normaliseLink($ret['url']));
-
-	if (!$r) {
-		$r = [['location' => '', 'about' => '', 'keywords' => '']];
-	} else {
-		$gcontact_id = $r[0]['id'];
-	}
-
-	if ($protocol === Protocol::DIASPORA) {
-		$r[0]['location'] = '';
-		$r[0]['about'] = '';
-	}
+	$_SESSION['fastlane'] = $contact['url'];
 
 	$o = Renderer::replaceMacros($tpl, [
 		'$header'        => DI::l10n()->t('Connect/Follow'),
@@ -188,33 +151,57 @@ function follow_content(App $a)
 		'$cancel'        => DI::l10n()->t('Cancel'),
 
 		'$request'       => $request,
-		'$name'          => $ret['name'],
-		'$url'           => $ret['url'],
-		'$zrl'           => Profile::zrl($ret['url']),
+		'$name'          => $contact['name'],
+		'$url'           => $contact['url'],
+		'$zrl'           => Profile::zrl($contact['url']),
 		'$myaddr'        => $myaddr,
-		'$keywords'      => $r[0]['keywords'],
+		'$keywords'      => $contact['keywords'],
 
-		'$does_know_you' => ['knowyou', DI::l10n()->t('%s knows you', $ret['name'])],
+		'$does_know_you' => ['knowyou', DI::l10n()->t('%s knows you', $contact['name'])],
 		'$addnote_field' => ['dfrn-request-message', DI::l10n()->t('Add a personal note:')],
 	]);
 
 	DI::page()['aside'] = '';
 
-	$profiledata = Contact::getDetailsByURL($ret['url']);
-	if ($profiledata) {
-		Profile::load($a, '', $profiledata, false);
-	}
+	if ($protocol != Protocol::PHANTOM) {
+		Profile::load($a, '', $contact, false);
 
-	if ($gcontact_id <> 0) {
 		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'),
 			['$title' => DI::l10n()->t('Status Messages and Posts')]
 		);
 
 		// Show last public posts
-		$o .= Contact::getPostsFromUrl($ret['url']);
+		$o .= Contact::getPostsFromUrl($contact['url']);
 	}
 
 	return $o;
+}
+
+function follow_process(App $a, string $url)
+{
+	$return_path = 'follow?url=' . urlencode($url);
+
+	// Makes the connection request for friendica contacts easier
+	// This is just a precaution if maybe this page is called somewhere directly via POST
+	$_SESSION['fastlane'] = $url;
+
+	$result = Contact::createFromProbe($a->user, $url, true);
+
+	if ($result['success'] == false) {
+		// Possibly it is a remote item and not an account
+		follow_remote_item($url);
+
+		if ($result['message']) {
+			notice($result['message']);
+		}
+		DI::baseUrl()->redirect($return_path);
+	} elseif ($result['cid']) {
+		DI::baseUrl()->redirect('contact/' . $result['cid']);
+	}
+
+	notice(DI::l10n()->t('The contact could not be added.'));
+
+	DI::baseUrl()->redirect($return_path);
 }
 
 function follow_remote_item($url)

@@ -29,6 +29,7 @@ use Exception;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
@@ -95,7 +96,7 @@ class OEmbed
 
 			if (!in_array($ext, $noexts)) {
 				// try oembed autodiscovery
-				$html_text = Network::fetchUrl($embedurl, false, 15, 'text/*');
+				$html_text = DI::httpRequest()->fetch($embedurl, 15, 'text/*');
 				if ($html_text) {
 					$dom = @DOMDocument::loadHTML($html_text);
 					if ($dom) {
@@ -103,14 +104,14 @@ class OEmbed
 						$entries = $xpath->query("//link[@type='application/json+oembed']");
 						foreach ($entries as $e) {
 							$href = $e->getAttributeNode('href')->nodeValue;
-							$json_string = Network::fetchUrl($href . '&maxwidth=' . $a->videowidth);
+							$json_string = DI::httpRequest()->fetch($href . '&maxwidth=' . $a->videowidth);
 							break;
 						}
 
 						$entries = $xpath->query("//link[@type='text/json+oembed']");
 						foreach ($entries as $e) {
 							$href = $e->getAttributeNode('href')->nodeValue;
-							$json_string = Network::fetchUrl($href . '&maxwidth=' . $a->videowidth);
+							$json_string = DI::httpRequest()->fetch($href . '&maxwidth=' . $a->videowidth);
 							break;
 						}
 					}
@@ -131,7 +132,7 @@ class OEmbed
 					'maxwidth' => $a->videowidth,
 					'content' => $json_string,
 					'created' => DateTimeFormat::utcNow()
-				], true);
+				], Database::INSERT_UPDATE);
 				$cache_ttl = Duration::DAY;
 			} else {
 				$cache_ttl = Duration::FIVE_MINUTES;

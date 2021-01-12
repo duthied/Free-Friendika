@@ -134,6 +134,17 @@ class Emailer
 			return true;
 		}
 
+		// @see https://github.com/friendica/friendica/issues/9142
+		$countMessageId = 0;
+		foreach ($email->getAdditionalMailHeader() as $name => $value) {
+			if (strtolower($name) == 'message-id') {
+				$countMessageId += count($value);
+			}
+		}
+		if ($countMessageId > 0) {
+			$this->logger->warning('More than one Message-ID found - RFC violation', ['email' => $email]);
+		}
+
 		$email_textonly = false;
 		if (!empty($email->getRecipientUid())) {
 			$email_textonly = $this->pConfig->get($email->getRecipientUid(), 'system', 'email_textonly');
@@ -151,7 +162,7 @@ class Emailer
 		                . rand(10000, 99999);
 
 		// generate a multipart/alternative message header
-		$messageHeader = $email->getAdditionalMailHeader() .
+		$messageHeader = $email->getAdditionalMailHeaderString() .
 		                 "From: $fromName <{$fromAddress}>\n" .
 		                 "Reply-To: $fromName <{$replyTo}>\n" .
 		                 "MIME-Version: 1.0\n" .
@@ -197,15 +208,34 @@ class Emailer
 			return true;
 		}
 
-		$res = mail(
+		$res = $this->mail(
 			$hookdata['to'],
 			$hookdata['subject'],
 			$hookdata['body'],
 			$hookdata['headers'],
 			$hookdata['parameters']
 		);
+
 		$this->logger->debug('header ' . 'To: ' . $email->getToAddress() . '\n' . $messageHeader);
 		$this->logger->debug('return value ' . (($res) ? 'true' : 'false'));
+
 		return $res;
+	}
+
+	/**
+	 * Wrapper around the mail() method (mainly used to overwrite for tests)
+	 * @see mail()
+	 *
+	 * @param string $to         Recipient of this mail
+	 * @param string $subject    Subject of this mail
+	 * @param string $body       Message body of this mail
+	 * @param string $headers    Headers of this mail
+	 * @param string $parameters Additional (sendmail) parameters of this mail
+	 *
+	 * @return boolean true if the mail was successfully accepted for delivery, false otherwise.
+	 */
+	protected function mail(string $to, string $subject, string $body, string $headers, string $parameters)
+	{
+		return mail($to, $subject, $body, $headers, $parameters);
 	}
 }

@@ -28,6 +28,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\Core\System;
+use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 
@@ -61,23 +62,20 @@ class RemoteFollow extends BaseModule
 		}
 
 		// Detect the network, make sure the provided URL is valid
-		$data = Probe::uri($url);
-		if ($data['network'] == Protocol::PHANTOM) {
+		$data = Contact::getByURL($url);
+		if (!$data) {
 			notice(DI::l10n()->t("The provided profile link doesn't seem to be valid"));
 			return;
 		}
 
-		// Fetch link for the "remote follow" functionality of the given profile
-		$follow_link_template = Probe::getRemoteFollowLink($url);
-
-		if (empty($follow_link_template)) {
+		if (empty($data['subscribe'])) {
 			notice(DI::l10n()->t("Remote subscription can't be done for your network. Please subscribe directly on your system."));
 			return;
 		}
 
-		Logger::notice('Remote request', ['url' => $url, 'follow' => $a->profile['url'], 'remote' => $follow_link_template]);
+		Logger::notice('Remote request', ['url' => $url, 'follow' => $a->profile['url'], 'remote' => $data['subscribe']]);
 		
-		// Substitute our user's feed URL into $follow_link_template
+		// Substitute our user's feed URL into $data['subscribe']
 		// Send the subscriber home to subscribe
 		// Diaspora needs the uri in the format user@domain.tld
 		if ($data['network'] == Protocol::DIASPORA) {
@@ -86,7 +84,7 @@ class RemoteFollow extends BaseModule
 			$uri = urlencode($a->profile['url']);
 		}
 	
-		$follow_link = str_replace('{uri}', $uri, $follow_link_template);
+		$follow_link = str_replace('{uri}', $uri, $data['subscribe']);
 		System::externalRedirect($follow_link);
 	}
 

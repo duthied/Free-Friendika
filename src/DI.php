@@ -64,14 +64,6 @@ abstract class DI
 	//
 
 	/**
-	 * @return App\Authentication
-	 */
-	public static function auth()
-	{
-		return self::$dice->create(App\Authentication::class);
-	}
-
-	/**
 	 * @return App\Arguments
 	 */
 	public static function args()
@@ -248,11 +240,27 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Attachment
+	 */
+	public static function mstdnAttachment()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Attachment::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Emoji
 	 */
 	public static function mstdnEmoji()
 	{
 		return self::$dice->create(Factory\Api\Mastodon\Emoji::class);
+	}
+
+	/**
+	 * @return Factory\Api\Mastodon\Error
+	 */
+	public static function mstdnError()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Error::class);
 	}
 
 	/**
@@ -280,6 +288,38 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Status
+	 */
+	public static function mstdnStatus()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Status::class);
+	}
+
+	/**
+	 * @return Factory\Api\Mastodon\Mention
+	 */
+	public static function mstdnMention()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Mention::class);
+	}
+
+	/**
+	 * @return Factory\Api\Mastodon\Tag
+	 */
+	public static function mstdnTag()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Tag::class);
+	}
+
+	/**
+	 * @return Factory\Api\Twitter\User
+	 */
+	public static function twitterUser()
+	{
+		return self::$dice->create(Factory\Api\Twitter\User::class);
+	}
+
+	/**
 	 * @return Factory\Notification\Notification
 	 */
 	public static function notification()
@@ -298,6 +338,13 @@ abstract class DI
 	//
 	// "Model" namespace instances
 	//
+	/**
+	 * @return Model\Process
+	 */
+	public static function modelProcess()
+	{
+		return self::$dice->create(Model\Process::class);
+	}
 
 	/**
 	 * @return Model\User\Cookie
@@ -313,6 +360,18 @@ abstract class DI
 	public static function storage()
 	{
 		return self::$dice->create(Model\Storage\IStorage::class);
+	}
+
+	//
+	// "Network" namespace
+	//
+
+	/**
+	 * @return Network\IHTTPRequest
+	 */
+	public static function httpRequest()
+	{
+		return self::$dice->create(Network\IHTTPRequest::class);
 	}
 
 	//
@@ -369,6 +428,18 @@ abstract class DI
 	public static function activity()
 	{
 		return self::$dice->create(Protocol\Activity::class);
+	}
+
+	//
+	// "Security" namespace instances
+	//
+
+	/**
+	 * @return \Friendica\Security\Authentication
+	 */
+	public static function auth()
+	{
+		return self::$dice->create(Security\Authentication::class);
 	}
 
 	//

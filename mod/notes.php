@@ -40,7 +40,7 @@ function notes_init(App $a)
 function notes_content(App $a, $update = false)
 {
 	if (!local_user()) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		return;
 	}
 
@@ -55,7 +55,7 @@ function notes_content(App $a, $update = false)
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
 			'lockstate' => 'lock',
-			'acl' => '',
+			'acl' => \Friendica\Core\ACL::getSelfOnlyHTML(local_user(), DI::l10n()->t('Personal notes are visible only by yourself.')),
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),

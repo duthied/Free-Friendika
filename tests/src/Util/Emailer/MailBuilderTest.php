@@ -24,11 +24,13 @@ namespace Friendica\Test\src\Util\Emailer;
 use Friendica\App\BaseURL;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\EMail\IEmail;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\SampleMailBuilder;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\EMailer\MailBuilder;
+use Mockery\MockInterface;
 use Psr\Log\NullLogger;
 
 /**
@@ -39,17 +41,17 @@ class MailBuilderTest extends MockedTest
 {
 	use VFSTrait;
 
-	/** @var IConfig */
+	/** @var IConfig|MockInterface */
 	private $config;
-	/** @var L10n */
+	/** @var L10n|MockInterface */
 	private $l10n;
-	/** @var BaseURL */
+	/** @var BaseURL|MockInterface */
 	private $baseUrl;
 
 	/** @var string */
 	private $defaultHeaders;
 
-	public function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 
@@ -61,20 +63,20 @@ class MailBuilderTest extends MockedTest
 		$this->baseUrl->shouldReceive('getHostname')->andReturn('friendica.local');
 		$this->baseUrl->shouldReceive('get')->andReturn('http://friendica.local');
 
-		$this->defaultHeaders = "";
+		$this->defaultHeaders = [];
 	}
 
 	public function assertEmail(IEmail $email, array $asserts)
 	{
-		$this->assertEquals($asserts['subject'] ?? $email->getSubject(), $email->getSubject());
-		$this->assertEquals($asserts['html'] ?? $email->getMessage(), $email->getMessage());
-		$this->assertEquals($asserts['text'] ?? $email->getMessage(true), $email->getMessage(true));
-		$this->assertEquals($asserts['toAddress'] ?? $email->getToAddress(), $email->getToAddress());
-		$this->assertEquals($asserts['fromAddress'] ?? $email->getFromAddress(), $email->getFromAddress());
-		$this->assertEquals($asserts['fromName'] ?? $email->getFromName(), $email->getFromName());
-		$this->assertEquals($asserts['replyTo'] ?? $email->getReplyTo(), $email->getReplyTo());
-		$this->assertEquals($asserts['uid'] ?? $email->getRecipientUid(), $email->getRecipientUid());
-		$this->assertEquals($asserts['header'] ?? $email->getAdditionalMailHeader(), $email->getAdditionalMailHeader());
+		self::assertEquals($asserts['subject'] ?? $email->getSubject(), $email->getSubject());
+		self::assertEquals($asserts['html'] ?? $email->getMessage(), $email->getMessage());
+		self::assertEquals($asserts['text'] ?? $email->getMessage(true), $email->getMessage(true));
+		self::assertEquals($asserts['toAddress'] ?? $email->getToAddress(), $email->getToAddress());
+		self::assertEquals($asserts['fromAddress'] ?? $email->getFromAddress(), $email->getFromAddress());
+		self::assertEquals($asserts['fromName'] ?? $email->getFromName(), $email->getFromName());
+		self::assertEquals($asserts['replyTo'] ?? $email->getReplyTo(), $email->getReplyTo());
+		self::assertEquals($asserts['uid'] ?? $email->getRecipientUid(), $email->getRecipientUid());
+		self::assertEquals($asserts['header'] ?? $email->getAdditionalMailHeader(), $email->getAdditionalMailHeader());
 	}
 
 	/**
@@ -84,7 +86,7 @@ class MailBuilderTest extends MockedTest
 	{
 		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
-		$this->assertInstanceOf(MailBuilder::class, $builder);
+		self::assertInstanceOf(MailBuilder::class, $builder);
 	}
 
 	/**
@@ -94,7 +96,7 @@ class MailBuilderTest extends MockedTest
 	 */
 	public function testBuilderWithNonRawEmail()
 	{
-		$this->markTestIncomplete('Cannot easily mock Renderer and BBCode, so skipping tests wit them');
+		static::markTestIncomplete('Cannot easily mock Renderer and BBCode, so skipping tests wit them');
 	}
 
 	/**
@@ -111,7 +113,7 @@ class MailBuilderTest extends MockedTest
 			->forUser(['uid' => 100])
 			->build(true);
 
-		$this->assertEmail($testEmail, [
+		self::assertEmail($testEmail, [
 			'subject' => 'Subject',
 			'html' => 'Html',
 			'text' => 'text',
@@ -127,11 +129,12 @@ class MailBuilderTest extends MockedTest
 	/**
 	 * Test if the builder throws an exception in case no recipient
 	 *
-	 * @expectedException \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @expectedExceptionMessage Recipient address is missing.
 	 */
 	public function testBuilderWithEmptyMail()
 	{
+		$this->expectException(InternalServerErrorException::class);
+		$this->expectExceptionMessage("Recipient address is missing.");
+
 		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
 		$builder->build(true);
@@ -139,12 +142,12 @@ class MailBuilderTest extends MockedTest
 
 	/**
 	 * Test if the builder throws an exception in case no sender
-	 *
-	 * @expectedException \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @expectedExceptionMessage Sender address or name is missing.
 	 */
 	public function testBuilderWithEmptySender()
 	{
+		$this->expectException(InternalServerErrorException::class);
+		$this->expectExceptionMessage("Sender address or name is missing.");
+
 		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
 		$builder
@@ -164,7 +167,7 @@ class MailBuilderTest extends MockedTest
 			->withSender('Sender', 'sender@friendica.local')
 			->build(true);
 
-		$this->assertEmail($testEmail, [
+		self::assertEmail($testEmail, [
 			'toAddress' => 'recipient@friendica.local',
 			'fromName' => 'Sender',
 			'fromAddress' => 'sender@friendica.local',
@@ -185,7 +188,7 @@ class MailBuilderTest extends MockedTest
 			->withSender('Sender', 'sender@friendica.local')
 			->build(true);
 
-		$this->assertEmail($testEmail, [
+		self::assertEmail($testEmail, [
 			'toAddress' => 'recipient@friendica.local',
 			'fromName' => 'Sender',
 			'fromAddress' => 'sender@friendica.local',

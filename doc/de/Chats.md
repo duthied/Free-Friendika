@@ -49,7 +49,7 @@ Per Git:
 cd /var/www/&lt;Pfad zu Deiner friendica-Installation&gt;/addon; git pull
 </p>
 
-oder als normaler Download von hier: https://github.com/friendica/friendica-addons/blob/master/jappixmini.tgz (auf „view raw“ klicken)
+oder als normaler Download von hier: https://github.com/friendica/friendica-addons/blob/stable/jappixmini.tgz (auf „view raw“ klicken)
 
 Entpacke diese Datei (ggf. den entpackten Ordner in „jappixmini“ umbenennen) und lade sowohl den entpackten Ordner komplett als auch die .tgz Datei in den Addon Ordner Deiner Friendica Installation hoch.
 
