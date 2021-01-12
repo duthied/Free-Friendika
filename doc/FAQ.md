@@ -94,26 +94,25 @@ in German:
 When a certain language is forced, the language remains until session is closed.
 
 <a name="contacts"></a>
-### What is the difference between blocked|ignored|archived|hidden contacts?
+### What is the difference between blocked, ignored, archived and hidden contacts?
 
-We prevent direct communication with **blocked contacts**.
-They are not included in delivery, and their own posts to you are not imported.
-However their conversations with your friends will still be visible in your stream.
-If you remove a contact completely, they can send you another friend request.
-Blocked contacts cannot do this. They cannot communicate with you directly, only through friends.
+##### Blocked
 
-**Ignored contacts** are included in delivery - they will receive your posts and private messages.
-However we do not import their posts or private messages to you.
-Like blocking, you will still see this person's comments to posts made by your friends.
+Direct communication will be blocked. Blocked contacts are not included in delivery, and their own posts to you are not imported. However their conversations with your friends will still be visible in your stream. If you remove a contact completely, they can send you another friend request. Blocked contacts cannot do this. They cannot communicate with you directly, only through friends.
 
-An addon called "blockem" can be installed to collapse/hide all posts from a particular person in your stream if you desire complete blocking of an individual, including his/her conversations with your other friends.
+##### Ignored
 
-An **archived contact** means that communication is not possible and will not be attempted.
-(Perhaps the person moved to a new site and removed the old profile.)
-However unlike blocking, existing posts this person made before being archived will be visible in your stream.
+Not included in delivery but they will receive your posts and private messages. However we do not import their posts or private messages to you. Like blocking, you will still see this person's comments to posts made by your friends.
 
-A **hidden contact** will not be displayed in any "friend list" (except to you).
-However a hidden contact will appear normally in conversations and this may expose his/her hidden status to anybody who can see the conversation.
+An addon called "blockem" can be installed to collapse/hide all posts from a particular person in your stream if you desire complete blocking of an individual, including their conversations with your other friends.
+
+##### Archieved
+
+Communication is not possible and will not be attempted. However unlike blocking, existing posts this person made before being archived will be visible in your stream.
+
+##### Hidden
+
+Contact not be displayed in your public friend list. However a hidden contact will appear normally in conversations and this may expose their hidden status to anybody who can see the conversation.
 
 <a name="removed"></a>
 ### What happens when an account is removed?
