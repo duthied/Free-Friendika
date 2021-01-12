@@ -160,22 +160,16 @@ Friendica is using a [Twitter/GNU Social compatible API](help/api), which means 
 Here is a list of known working clients:
 
 * Android
-  * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) (available in Google Playstore or from a binary repository you can add to [F-Droid](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854))
-  * [Fedilab](https://fedilab.app/) (available in F-Droid and Google stores)
-  * [DiCa](https://dica.mixi.cool/)
-  * AndStatus
-  * Twidere
-  * Mustard and Mustard-Mod
+  * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) ([F-Droid](https://git.friendi.ca/lubuwest/Friendiqa#install), [Google Play](https://play.google.com/store/apps/details?id=org.qtproject.friendiqa))
+  * [Fedilab](https://fedilab.app/) ([F-Droid](https://f-droid.org/app/fr.gouv.etalab.mastodon), [Google Play](https://play.google.com/store/apps/details?id=app.fedilab.android))
+  * AndStatus ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.andstatus.app), [Google Play](https://play.google.com/store/apps/details?id=org.andstatus.app))
+  * Twidere ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.mariotaku.twidere), [Google Play](https://play.google.com/store/apps/details?id=com.twidere.twiderex), [GitHub](https://github.com/TwidereProject/Twidere-Android)
 * SailfishOS
   * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
 * Linux
-  * Hotot
-  * Choqok
-* MacOS X
-  * Hotot
+  * [Choqok](https://choqok.kde.org)
 * Windows
-  * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) for Windows 10
-  * Hotot
+  * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) (Windows 10)
 
 Depending on the features of the client you might encounter some glitches in usability, like being limited in the length of your postings to 140 characters and having no access to the [permission settings](help/Groups-and-Privacy).
 
