@@ -13,7 +13,7 @@ User
 * **[What happens when an account is removed? Is it truly deleted?](help/FAQ#removed)**
 * **[Can I subscribe to a hashtag?](help/FAQ#hashtag)**
 * **[How to create a RSS feed of the stream?](help/FAQ#rss)**
-* **[Are there any clients for friendica I can use?](help/FAQ#clients)**
+* **[List of friendica clients](help/FAQ#clients)**
 * **[Where I can find help?](help/FAQ#help)**
 
 Admins
@@ -154,7 +154,7 @@ Example: Friendica Support
 	https://forum.friendi.ca/feed/helpers/comments
 
 <a name="clients"></a>
-### Are there any clients for friendica I can use?
+### List of friendica clients
 
 Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your platform as long as you can change the API path in its settings.
 Here is a list of known working clients:
