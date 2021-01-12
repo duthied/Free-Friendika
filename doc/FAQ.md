@@ -9,7 +9,7 @@ User
 * **[How can I upload images, files, links, videos and sound files to posts?](help/FAQ#upload)**
 * **[Is it possible to have different avatars per profile?](help/FAQ#avatars)**
 * **[How can I view Friendica in a certain language?](help/FAQ#language)**
-* **[What is the difference between blocked|ignored|archived|hidden contacts?](help/FAQ#contacts)**
+* **[How do blocked, ignored, archived and hidden contacts behave?](help/FAQ#contacts)**
 * **[What happens when an account is removed? Is it truly deleted?](help/FAQ#removed)**
 * **[Can I subscribe to a hashtag?](help/FAQ#hashtag)**
 * **[How to create a RSS feed of the stream?](help/FAQ#rss)**
@@ -94,7 +94,7 @@ in German:
 When a certain language is forced, the language remains until session is closed.
 
 <a name="contacts"></a>
-### What is the difference between blocked, ignored, archived and hidden contacts?
+### How do blocked, ignored, archived and hidden contacts behave?
 
 ##### Blocked
 
