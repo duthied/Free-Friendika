@@ -96,7 +96,7 @@ class Item
 			'deleted', 'extid', 'post-type', 'gravity',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'author-id', 'author-link', 'owner-link', 'contact-uid',
-			'signed_text', 'signature', 'signer', 'network'];
+			'signed_text', 'network'];
 
 	// Field list for "item-content" table that is mixed with the item table
 	const MIXED_CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
