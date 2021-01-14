@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1385
+-- DB_UPDATE_VERSION 1386
 -- ------------------------------------------
 
 
@@ -1487,6 +1487,157 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	 INDEX `done_pid_retrial` (`done`,`pid`,`retrial`),
 	 INDEX `done_pid_priority_created` (`done`,`pid`,`priority`,`created`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Background tasks queue entries';
+
+--
+-- VIEW post-view
+--
+DROP VIEW IF EXISTS `post-view`;
+CREATE VIEW `post-view` AS SELECT 
+	`item`.`id` AS `id`,
+	`item`.`id` AS `item_id`,
+	`item`.`uid` AS `uid`,
+	`item`.`uid` AS `internal-uid`,
+	`item`.`parent` AS `parent`,
+	`item`.`uri` AS `uri`,
+	`item`.`uri-id` AS `uri-id`,
+	`item`.`uri-id` AS `internal-uri-id`,
+	`item`.`parent-uri` AS `parent-uri`,
+	`item`.`parent-uri-id` AS `parent-uri-id`,
+	`item`.`thr-parent` AS `thr-parent`,
+	`item`.`thr-parent-id` AS `thr-parent-id`,
+	`item`.`guid` AS `guid`,
+	`item`.`type` AS `type`,
+	`item`.`wall` AS `wall`,
+	`item`.`gravity` AS `gravity`,
+	`item`.`extid` AS `extid`,
+	`item`.`created` AS `created`,
+	`item`.`edited` AS `edited`,
+	`item`.`commented` AS `commented`,
+	`item`.`received` AS `received`,
+	`item`.`changed` AS `changed`,
+	`item`.`resource-id` AS `resource-id`,
+	`item`.`post-type` AS `post-type`,
+	`item`.`private` AS `private`,
+	`item`.`pubmail` AS `pubmail`,
+	`item`.`moderated` AS `moderated`,
+	`item`.`visible` AS `visible`,
+	`item`.`starred` AS `starred`,
+	`item`.`bookmark` AS `bookmark`,
+	`item`.`unseen` AS `unseen`,
+	`item`.`deleted` AS `deleted`,
+	`item`.`origin` AS `origin`,
+	`item`.`forum_mode` AS `forum_mode`,
+	`item`.`mention` AS `mention`,
+	`item`.`global` AS `global`,
+	`item`.`network` AS `network`,
+	`item`.`icid` AS `icid`,
+	`item`.`vid` AS `vid`,
+	`item`.`psid` AS `psid`,
+	`item`.`attach` AS `attach`,
+	(SELECT COUNT(*) FROM `post-category` WHERE `post-category`.`uri-id` = `item`.`uri-id`) AS `internal-file-count`,
+	NULL AS `file`,
+	IF (`item`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
+	`item-content`.`title` AS `title`,
+	`item-content`.`content-warning` AS `content-warning`,
+	`item-content`.`raw-body` AS `raw-body`,
+	`item-content`.`body` AS `body`,
+	`item-content`.`rendered-hash` AS `rendered-hash`,
+	`item-content`.`rendered-html` AS `rendered-html`,
+	`item-content`.`language` AS `language`,
+	`item-content`.`plink` AS `plink`,
+	`item-content`.`location` AS `location`,
+	`item-content`.`coord` AS `coord`,
+	`item-content`.`app` AS `app`,
+	`item-content`.`object-type` AS `object-type`,
+	`item-content`.`object` AS `object`,
+	`item-content`.`target-type` AS `target-type`,
+	`item-content`.`target` AS `target`,
+	`item`.`contact-id` AS `contact-id`,
+	`contact`.`url` AS `contact-link`,
+	`contact`.`addr` AS `contact-addr`,
+	`contact`.`name` AS `contact-name`,
+	`contact`.`nick` AS `contact-nick`,
+	`contact`.`thumb` AS `contact-avatar`,
+	`contact`.`network` AS `contact-network`,
+	`contact`.`uid` AS `contact-uid`,
+	IF (`item`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`) AS `writable`,
+	`contact`.`self` AS `self`,
+	`contact`.`id` AS `cid`,
+	`contact`.`alias` AS `alias`,
+	`contact`.`photo` AS `photo`,
+	`contact`.`name-date` AS `name-date`,
+	`contact`.`uri-date` AS `uri-date`,
+	`contact`.`avatar-date` AS `avatar-date`,
+	`contact`.`thumb` AS `thumb`,
+	`contact`.`dfrn-id` AS `dfrn-id`,
+	`item`.`author-id` AS `author-id`,
+	`author`.`url` AS `author-link`,
+	`author`.`addr` AS `author-addr`,
+	IF (`contact`.`url` = `author`.`url`, `contact`.`name`, `author`.`name`) AS `author-name`,
+	`author`.`nick` AS `author-nick`,
+	IF (`contact`.`url` = `author`.`url`, `contact`.`thumb`, `author`.`thumb`) AS `author-avatar`,
+	`author`.`network` AS `author-network`,
+	`item`.`owner-id` AS `owner-id`,
+	`owner`.`url` AS `owner-link`,
+	`owner`.`addr` AS `owner-addr`,
+	IF (`contact`.`url` = `owner`.`url`, `contact`.`name`, `owner`.`name`) AS `owner-name`,
+	`owner`.`nick` AS `owner-nick`,
+	IF (`contact`.`url` = `owner`.`url`, `contact`.`thumb`, `owner`.`thumb`) AS `owner-avatar`,
+	`owner`.`network` AS `owner-network`,
+	`item`.`causer-id` AS `causer-id`,
+	`causer`.`url` AS `causer-link`,
+	`causer`.`addr` AS `causer-addr`,
+	`causer`.`name` AS `causer-name`,
+	`causer`.`nick` AS `causer-nick`,
+	`causer`.`thumb` AS `causer-avatar`,
+	`causer`.`network` AS `causer-network`,
+	`causer`.`contact-type` AS `causer-contact-type`,
+	`post-delivery-data`.`postopts` AS `postopts`,
+	`post-delivery-data`.`inform` AS `inform`,
+	`post-delivery-data`.`queue_count` AS `delivery_queue_count`,
+	`post-delivery-data`.`queue_done` AS `delivery_queue_done`,
+	`post-delivery-data`.`queue_failed` AS `delivery_queue_failed`,
+	IF (`item`.`psid` IS NULL, '', `permissionset`.`allow_cid`) AS `allow_cid`,
+	IF (`item`.`psid` IS NULL, '', `permissionset`.`allow_gid`) AS `allow_gid`,
+	IF (`item`.`psid` IS NULL, '', `permissionset`.`deny_cid`) AS `deny_cid`,
+	IF (`item`.`psid` IS NULL, '', `permissionset`.`deny_gid`) AS `deny_gid`,
+	`user-item`.`pinned` AS `pinned`,
+	`user-item`.`hidden` AS `hidden`,
+	`user-item`.`ignored` AS `ignored`,
+	`user-item`.`notification-type` AS `notification-type`,
+	`item`.`event-id` AS `event-id`,
+	`event`.`created` AS `event-created`,
+	`event`.`edited` AS `event-edited`,
+	`event`.`start` AS `event-start`,
+	`event`.`finish` AS `event-finish`,
+	`event`.`summary` AS `event-summary`,
+	`event`.`desc` AS `event-desc`,
+	`event`.`location` AS `event-location`,
+	`event`.`type` AS `event-type`,
+	`event`.`nofinish` AS `event-nofinish`,
+	`event`.`adjust` AS `event-adjust`,
+	`event`.`ignore` AS `event-ignore`,
+	`diaspora-interaction`.`interaction` AS `signed_text`,
+	`parent-item`.`guid` AS `parent-guid`,
+	`parent-item`.`network` AS `parent-network`,
+	`parent-item`.`author-id` AS `parent-author-id`,
+	`parent-item-author`.`url` AS `parent-author-link`,
+	`parent-item-author`.`name` AS `parent-author-name`,
+	`parent-item-author`.`network` AS `parent-author-network`
+	FROM `item`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `item`.`owner-id`
+			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`
+			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
+			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
+			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`
+			LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`
+			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `item`.`uri-id` AND `item`.`origin`
+			LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
+			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id`
+			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
+			STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`;
 
 --
 -- VIEW category-view

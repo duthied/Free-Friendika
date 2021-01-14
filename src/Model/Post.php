@@ -204,7 +204,10 @@ class Post
 	public static function select(array $selected = [], array $condition = [], $params = [])
 	{
 		if (empty($selected)) {
-			$selected = Item::DISPLAY_FIELDLIST;
+			$selected = array_merge(['author-addr', 'author-nick', 'owner-addr', 'owner-nick', 'causer-addr', 'causer-nick',
+				'causer-network', 'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id',
+				'parent-guid', 'parent-network', 'parent-author-id', 'parent-author-link', 'parent-author-name',
+				'parent-author-network', 'signed_text'], Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST, Item::CONTENT_FIELDLIST);
 		}
 
 		$selected = array_merge($selected, ['internal-uri-id', 'internal-uid', 'internal-file-count']);
