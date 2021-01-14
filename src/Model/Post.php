@@ -115,17 +115,28 @@ class Post
 	 * @throws \Exception
 	 */
 	public static function exists($condition) {
-		$stmt = self::select(['id'], $condition, ['limit' => 1]);
+		return DBA::exists('post-view', $condition);
+	}
 
-		if (is_bool($stmt)) {
-			$retval = $stmt;
-		} else {
-			$retval = (DBA::numRows($stmt) > 0);
-		}
-
-		DBA::close($stmt);
-
-		return $retval;
+	/**
+	 * Counts the posts satisfying the provided condition
+	 *
+	 * @param array        $condition array of fields for condition
+	 * @param array        $params    Array of several parameters
+	 *
+	 * @return int
+	 *
+	 * Example:
+	 * $condition = ["uid" => 1, "network" => 'dspr'];
+	 * or:
+	 * $condition = ["`uid` = ? AND `network` IN (?, ?)", 1, 'dfrn', 'dspr'];
+	 *
+	 * $count = Post::count($condition);
+	 * @throws \Exception
+	 */
+	public static function count(array $condition = [], array $params = [])
+	{
+		return DBA::count('post-view', $condition, $params);
 	}
 
 	/**
