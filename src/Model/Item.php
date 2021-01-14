@@ -262,7 +262,7 @@ class Item
 		// We can always comment on posts from these networks
 		if (array_key_exists('writable', $row) &&
 			in_array($row['internal-network'], Protocol::FEDERATED)) {
-			$row['writable'] = true;
+			$row['writable'] = 1;
 		}
 
 		// ---------------------- Transform item content data ----------------------
@@ -663,7 +663,7 @@ class Item
 			'resource-id', 'event-id', 'post-type', 'file',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global',
-			'id' => 'item_id', 'network', 'icid',
+			'id' => 'item_id', 'network', 'icid', 'event-id',
 			'uri-id' => 'internal-uri-id', 'uid' => 'internal-uid',
 			'network' => 'internal-network', 'psid' => 'internal-psid'];
 
@@ -703,7 +703,7 @@ class Item
 			'summary' => 'event-summary','desc' => 'event-desc',
 			'location' => 'event-location', 'type' => 'event-type',
 			'nofinish' => 'event-nofinish','adjust' => 'event-adjust',
-			'ignore' => 'event-ignore', 'id' => 'event-id'];
+			'ignore' => 'event-ignore'];
 
 		$fields['diaspora-interaction'] = ['interaction', 'interaction' => 'signed_text'];
 
