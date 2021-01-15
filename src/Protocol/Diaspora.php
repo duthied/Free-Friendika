@@ -3701,51 +3701,6 @@ class Diaspora
 	}
 
 	/**
-	 * Creates a message from a signature record entry
-	 *
-	 * @param array $item The item that will be exported
-	 * @return array The message
-	 */
-	private static function messageFromSignature(array $item)
-	{
-		// Split the signed text
-		$signed_parts = explode(";", $item['signed_text']);
-
-		if ($item["deleted"]) {
-			$message = ["author" => $item['signer'],
-					"target_guid" => $signed_parts[0],
-					"target_type" => $signed_parts[1]];
-		} elseif (in_array($item["verb"], [Activity::LIKE, Activity::DISLIKE])) {
-			$message = ["author" => $signed_parts[4],
-					"guid" => $signed_parts[1],
-					"parent_guid" => $signed_parts[3],
-					"parent_type" => $signed_parts[2],
-					"positive" => $signed_parts[0],
-					"author_signature" => $item['signature'],
-					"parent_author_signature" => ""];
-		} else {
-			// Remove the comment guid
-			$guid = array_shift($signed_parts);
-
-			// Remove the parent guid
-			$parent_guid = array_shift($signed_parts);
-
-			// Remove the handle
-			$handle = array_pop($signed_parts);
-
-			$message = [
-				"author" => $handle,
-				"guid" => $guid,
-				"parent_guid" => $parent_guid,
-				"text" => implode(";", $signed_parts),
-				"author_signature" => $item['signature'],
-				"parent_author_signature" => ""
-			];
-		}
-		return $message;
-	}
-
-	/**
 	 * Relays messages (like, comment, retraction) to other servers if we are the thread owner
 	 *
 	 * @param array $item         The item that will be exported
