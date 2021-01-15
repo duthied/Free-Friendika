@@ -1788,10 +1788,34 @@ code > .hl-main {
 /* wall item hover effects */
 
 @media (min-width: 768px) {
+    /* Tags and mentions */
+    .wall-item-container .wall-item-bottom .wall-item-tags span.label {
+        filter:grayscale(0.5);
+        opacity: 0.8;
+
+        -webkit-transition: all 0.25s ease-in-out;
+		-moz-transition: all 0.25s ease-in-out;
+		-o-transition: all 0.25s ease-in-out;
+		-ms-transition: all 0.25s ease-in-out;
+		transition: all 0.25s ease-in-out;
+    }
+
+    .wall-item-container:hover .wall-item-bottom .wall-item-tags span.label {
+        filter:grayscale(0);
+        opacity: 1;
+
+        -webkit-transition: all 0.25s ease-in-out;
+		-moz-transition: all 0.25s ease-in-out;
+		-o-transition: all 0.25s ease-in-out;
+		-ms-transition: all 0.25s ease-in-out;
+		transition: all 0.25s ease-in-out;
+    }
+    /* Like/Comment/etc buttons */
 	.wall-item-container .wall-item-links,
 	.wall-item-container .wall-item-actions button,
 	.wall-item-container .body-attach > a {
-		opacity: 0.3;
+        opacity: 0.4;
+        
 		-webkit-transition: all 0.25s ease-in-out;
 		-moz-transition: all 0.25s ease-in-out;
 		-o-transition: all 0.25s ease-in-out;
@@ -1801,7 +1825,8 @@ code > .hl-main {
 	.wall-item-container:hover .wall-item-links,
 	.wall-item-container:hover .wall-item-actions button,
 	.wall-item-container:hover .body-attach > a {
-		opacity: 1;
+        opacity: 1;
+        
 		-webkit-transition: all 0.25s ease-in-out;
 		-moz-transition: all 0.25s ease-in-out;
 		-o-transition: all 0.25s ease-in-out;
