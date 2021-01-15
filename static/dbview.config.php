@@ -147,10 +147,6 @@ return [
 			"allow_gid" => "IF (`item`.`psid` IS NULL, '', `permissionset`.`allow_gid`)",
 			"deny_cid" => "IF (`item`.`psid` IS NULL, '', `permissionset`.`deny_cid`)",
 			"deny_gid" => "IF (`item`.`psid` IS NULL, '', `permissionset`.`deny_gid`)",
-			"pinned" => ["user-item", "pinned"],
-			"hidden" => ["user-item", "hidden"],
-			"ignored" => ["user-item", "ignored"],
-			"notification-type" => ["user-item", "notification-type"],
 			"event-id" => ["item", "event-id"],
 			"event-created" => ["event", "created"],
 			"event-edited" => ["event", "edited"],
@@ -182,7 +178,6 @@ return [
 			LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `item`.`uri-id` AND `item`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id`
 			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
 			STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`"
 	],

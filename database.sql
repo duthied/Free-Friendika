@@ -1601,10 +1601,6 @@ CREATE VIEW `post-view` AS SELECT
 	IF (`item`.`psid` IS NULL, '', `permissionset`.`allow_gid`) AS `allow_gid`,
 	IF (`item`.`psid` IS NULL, '', `permissionset`.`deny_cid`) AS `deny_cid`,
 	IF (`item`.`psid` IS NULL, '', `permissionset`.`deny_gid`) AS `deny_gid`,
-	`user-item`.`pinned` AS `pinned`,
-	`user-item`.`hidden` AS `hidden`,
-	`user-item`.`ignored` AS `ignored`,
-	`user-item`.`notification-type` AS `notification-type`,
 	`item`.`event-id` AS `event-id`,
 	`event`.`created` AS `event-created`,
 	`event`.`edited` AS `event-edited`,
@@ -1635,7 +1631,6 @@ CREATE VIEW `post-view` AS SELECT
 			LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `item`.`uri-id` AND `item`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id`
 			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
 			STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`;
 
