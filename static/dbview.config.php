@@ -36,7 +36,7 @@
  *
  */
 
-return [
+ return [
 	"post-view" => [
 		"fields" => [
 			"id" => ["item", "id"],
@@ -106,6 +106,9 @@ return [
 			"contact-avatar" => ["contact", "thumb"],
 			"contact-network" => ["contact", "network"],
 			"contact-blocked" => ["contact", "blocked"],
+			"contact-readonly" => ["contact", "readonly"],
+			"contact-pending" => ["contact", "pending"],
+			"contact-rel" => ["contact", "rel"],
 			"contact-uid" => ["contact", "uid"],
 			"writable" => "IF (`item`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`)",
 			"self" => ["contact", "self"],
