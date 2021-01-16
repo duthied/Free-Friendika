@@ -28,8 +28,8 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
-use Friendica\Model\Item;
 use Friendica\Model\Notify\Type;
+use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
@@ -137,9 +137,9 @@ function ping_init(App $a)
 
 		$condition = ["`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
 			local_user(), Verb::getID(Activity::FOLLOW)];
-		$items = Item::selectForUser(local_user(), ['wall', 'uid', 'uri-id'], $condition);
+		$items = Post::selectForUser(local_user(), ['wall', 'uid', 'uri-id'], $condition);
 		if (DBA::isResult($items)) {
-			$items_unseen = Item::inArray($items);
+			$items_unseen = Post::toArray($items);
 			$arr = ['items' => $items_unseen];
 			Hook::callAll('network_ping', $arr);
 

@@ -86,7 +86,7 @@ function notes_content(App $a, $update = false)
 	$count = 0;
 
 	if (DBA::isResult($r)) {
-		$notes = Item::inArray($r);
+		$notes = Item::toArray($r);
 
 		$count = count($notes);
 

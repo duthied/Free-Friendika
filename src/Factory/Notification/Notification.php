@@ -32,7 +32,7 @@ use Friendica\Core\PConfig\IPConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session\ISession;
 use Friendica\Database\Database;
-use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Module\BaseNotifications;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\Api\Friendica\Notification as ApiNotification;
@@ -278,7 +278,7 @@ class Notification extends BaseFactory
 		$formattedNotifications = [];
 
 		try {
-			$items = Item::selectForUser(local_user(), $fields, $conditions, $params);
+			$items = Post::selectForUser(local_user(), $fields, $conditions, $params);
 
 			while ($item = $this->dba->fetch($items)) {
 				$formattedNotifications[] = $this->createFromItem($item);
@@ -319,7 +319,7 @@ class Notification extends BaseFactory
 		$formattedNotifications = [];
 
 		try {
-			$items = Item::selectForUser(local_user(), $fields, $condition, $params);
+			$items = Post::selectForUser(local_user(), $fields, $condition, $params);
 
 			while ($item = $this->dba->fetch($items)) {
 				$formattedNotifications[] = $this->createFromItem($item);
@@ -356,7 +356,7 @@ class Notification extends BaseFactory
 		$formattedNotifications = [];
 
 		try {
-			$items = Item::selectForUser(local_user(), $fields, $condition, $params);
+			$items = Post::selectForUser(local_user(), $fields, $condition, $params);
 
 			while ($item = $this->dba->fetch($items)) {
 				$item = $this->formatItem($item);

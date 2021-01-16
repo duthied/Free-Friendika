@@ -861,7 +861,7 @@ function drop_item(int $id, string $return = '')
 {
 	// locate item to be deleted
 	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', 'parent'];
-	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
+	$item = Post::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
 		notice(DI::l10n()->t('Item not found.'));
@@ -881,7 +881,7 @@ function drop_item(int $id, string $return = '')
 
 	if ((local_user() == $item['uid']) || $contact_id) {
 		if (!empty($item['parent'])) {
-			$parentitem = Item::selectFirstForUser(local_user(), ['guid'], ['id' => $item['parent']]);
+			$parentitem = Post::selectFirstForUser(local_user(), ['guid'], ['id' => $item['parent']]);
 		}
 
 		// delete the item

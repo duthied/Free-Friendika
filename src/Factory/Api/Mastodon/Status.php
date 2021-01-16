@@ -69,14 +69,14 @@ class Status extends BaseFactory
 		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
 
 		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(
-			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_COMMENT]),
-			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]),
-			DBA::count('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)])
+			Post::count(['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_COMMENT]),
+			Post::count(['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]),
+			Post::count(['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)])
 		);
 
 		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(
-			DBA::exists('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)]),
-			DBA::exists('item', ['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]),
+			Post::exists(['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)]),
+			Post::exists(['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]),
 			DBA::exists('thread', ['iid' => $item['id'], 'uid' => $item['uid'], 'ignored' => true]),
 			(bool)$item['starred'],
 			DBA::exists('user-item', ['iid' => $item['id'], 'uid' => $item['uid'], 'pinned' => true])

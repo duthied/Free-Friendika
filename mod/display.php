@@ -63,7 +63,7 @@ function display_init(App $a)
 
 		// Does the local user have this item?
 		if (local_user()) {
-			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'uid' => local_user()]);
+			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'uid' => local_user()]);
 			if (DBA::isResult($item)) {
 				$nick = $a->user["nickname"];
 			}
@@ -83,14 +83,14 @@ function display_init(App $a)
 
 		// Is it an item with uid=0?
 		if (!DBA::isResult($item)) {
-			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
+			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 		}
 	} elseif ($a->argc >= 3 && $nick == 'feed-item') {
 		$item_id = $a->argv[2];
 		if (substr($item_id, -5) == '.atom') {
 			$item_id = substr($item_id, 0, -5);
 		}
-		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $item_id, 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
+		$item = Post::selectFirstForUser(local_user(), $fields, ['id' => $item_id, 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 	}
 
 	if (!DBA::isResult($item)) {
@@ -107,7 +107,7 @@ function display_init(App $a)
 	}
 
 	if ($item['gravity'] != GRAVITY_PARENT) {
-		$parent = Item::selectFirstForUser($item_user, $fields, ['id' => $item['parent']]);
+		$parent = Post::selectFirstForUser($item_user, $fields, ['id' => $item['parent']]);
 		$item = $parent ?: $item;
 	}
 
@@ -206,7 +206,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 			if (local_user()) {
 				$condition = ['guid' => $a->argv[1], 'uid' => local_user()];
-				$item = Item::selectFirstForUser(local_user(), $fields, $condition);
+				$item = Post::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
 					$item_id = $item['id'];
 					$item_parent = $item['parent'];
@@ -225,7 +225,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 			if ($item_parent == 0) {
 				$condition = ['private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $a->argv[1], 'uid' => 0];
-				$item = Item::selectFirstForUser(local_user(), $fields, $condition);
+				$item = Post::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
 					$item_id = $item['id'];
 					$item_parent = $item['parent'];
@@ -315,9 +315,9 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		return '';
 	}
 
-	$condition = ["`id` = ? AND `item`.`uid` IN (0, ?) " . $sql_extra, $item_id, $item_uid];
+	$condition = ["`id` = ? AND `uid` IN (0, ?) " . $sql_extra, $item_id, $item_uid];
 	$fields = ['parent-uri', 'body', 'title', 'author-name', 'author-avatar', 'plink', 'author-id', 'owner-id', 'contact-id'];
-	$item = Item::selectFirstForUser($a->profile['uid'], $fields, $condition);
+	$item = Post::selectFirstForUser($a->profile['uid'], $fields, $condition);
 
 	if (!DBA::isResult($item)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('The requested item doesn\'t exist or has been deleted.'));

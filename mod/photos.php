@@ -1276,13 +1276,12 @@ function photos_content(App $a)
 
 		if (!empty($link_item['parent']) && !empty($link_item['uid'])) {
 			$condition = ["`parent` = ? AND `gravity` != ?",  $link_item['parent'], GRAVITY_PARENT];
-			$total = DBA::count('item', $condition);
+			$total = Post::count($condition);
 
 			$pager = new Pager(DI::l10n(), DI::args()->getQueryString());
 
 			$params = ['order' => ['id'], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
-			$result = Item::selectForUser($link_item['uid'], Item::ITEM_FIELDLIST, $condition, $params);
-			$items = Item::inArray($result);
+			$items = Post::toArray(Post::selectForUser($link_item['uid'], Item::ITEM_FIELDLIST, $condition, $params));
 
 			if (local_user() == $link_item['uid']) {
 				Item::update(['unseen' => false], ['parent' => $link_item['parent']]);

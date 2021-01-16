@@ -24,6 +24,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 
 /**
  * Toggle starred items
@@ -42,7 +43,7 @@ class Starred extends BaseModule
 
 		$itemId = intval($parameters['item']);
 
-		$item = Item::selectFirstForUser(local_user(), ['starred'], ['uid' => local_user(), 'id' => $itemId]);
+		$item = Post::selectFirstForUser(local_user(), ['starred'], ['uid' => local_user(), 'id' => $itemId]);
 		if (empty($item)) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}

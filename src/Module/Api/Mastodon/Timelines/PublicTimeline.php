@@ -26,6 +26,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 
@@ -81,7 +82,7 @@ class PublicTimeline extends BaseApi
 			$params['order'] = ['uri-id'];
 		}
 
-		$items = Item::selectForUser(0, ['uri-id', 'uid'], $condition, $params);
+		$items = Post::selectForUser(0, ['uri-id', 'uid'], $condition, $params);
 
 		$statuses = [];
 		while ($item = Item::fetch($items)) {

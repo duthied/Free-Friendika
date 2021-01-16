@@ -56,7 +56,7 @@ class ItemContent
 			'limit' => [$start, $limit]
 		];
 
-		$tags = DBA::select('item', ['uri-id'], $condition, $params);
+		$tags = Post::select(['uri-id'], $condition, $params);
 
 		$uriids = [];
 		while ($tag = DBA::fetch($tags)) {
@@ -73,7 +73,7 @@ class ItemContent
 			AND (NOT `private` OR (`private` AND `uid` = ?))
 			AND `uri-id` IN (SELECT `uri-id` FROM `item` WHERE `network` IN (?, ?, ?, ?))",
 			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
-		return DBA::count('item', $condition);
+		return Post::count($condition);
 	}
 
 	/**

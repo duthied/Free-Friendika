@@ -1296,9 +1296,9 @@ class Contact
 		}
 
 		if (empty($contact["network"]) || in_array($contact["network"], Protocol::FEDERATED)) {
-			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))";
+			$sql = "(`uid` = 0 OR (`uid` = ? AND NOT `global`))";
 		} else {
-			$sql = "`item`.`uid` = ?";
+			$sql = "`uid` = ?";
 		}
 
 		$contact_field = ((($contact["contact-type"] == self::TYPE_COMMUNITY) || ($contact['network'] == Protocol::MAIL)) ? 'owner-id' : 'author-id');
@@ -1340,18 +1340,11 @@ class Contact
 		}
 
 		if ($thread_mode) {		
-			$r = Item::selectForUser(local_user(), ['uri', 'gravity', 'parent-uri', 'thr-parent-id', 'author-id'], $condition, $params);
-			$items = [];
-			while ($item = DBA::fetch($r)) {
-				$items[] = $item;
-			}
-			DBA::close($r);
+			$items = Post::toArray(Post::selectForUser(local_user(), ['uri', 'gravity', 'parent-uri', 'thr-parent-id', 'author-id'], $condition, $params));
 
 			$o .= conversation($a, $items, 'contacts', $update, false, 'commented', local_user());
 		} else {
-			$r = Item::selectForUser(local_user(), [], $condition, $params);
-
-			$items = Item::inArray($r);
+			$items = Post::toArray(Post::selectForUser(local_user(), [], $condition, $params));
 
 			$o .= conversation($a, $items, 'contact-posts', $update);
 		}

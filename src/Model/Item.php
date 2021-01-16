@@ -353,7 +353,7 @@ class Item
 	 * @param bool   $do_close
 	 * @return array Data array
 	 */
-	public static function inArray($stmt, $do_close = true) {
+	public static function toArray($stmt, $do_close = true) {
 		if (is_bool($stmt)) {
 			return $stmt;
 		}
@@ -388,28 +388,6 @@ class Item
 		DBA::close($stmt);
 
 		return $retval;
-	}
-
-	/**
-	 * Retrieve a single record from the item table for a given user and returns it in an associative array
-	 *
-	 * @param integer $uid User ID
-	 * @param array   $selected
-	 * @param array   $condition
-	 * @param array   $params
-	 * @return bool|array
-	 * @throws \Exception
-	 * @see   DBA::select
-	 */
-	public static function selectFirstForUser($uid, array $selected = [], array $condition = [], $params = [])
-	{
-		$params['uid'] = $uid;
-
-		if (empty($selected)) {
-			$selected = self::DISPLAY_FIELDLIST;
-		}
-
-		return self::selectFirst($selected, $condition, $params);
 	}
 
 	/**
@@ -1518,7 +1496,7 @@ class Item
 			'wall', 'private', 'forum_mode', 'origin', 'author-id'];
 		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid']];
 		$params = ['order' => ['id' => false]];
-		$parent = self::selectFirst($fields, $condition, $params);
+		$parent = Post::selectFirst($fields, $condition, $params);
 
 		if (!DBA::isResult($parent)) {
 			Logger::notice('item parent was not found - ignoring item', ['thr-parent' => $item['thr-parent'], 'uid' => $item['uid']]);
@@ -1533,7 +1511,7 @@ class Item
 			'parent-uri' => $parent['parent-uri'],
 			'uid' => $parent['uid']];
 		$params = ['order' => ['id' => false]];
-		$toplevel_parent = self::selectFirst($fields, $condition, $params);
+		$toplevel_parent = Post::selectFirst($fields, $condition, $params);
 		if (!DBA::isResult($toplevel_parent)) {
 			Logger::notice('item top level parent was not found - ignoring item', ['parent-uri' => $parent['parent-uri'], 'uid' => $parent['uid']]);
 			return [];
@@ -2019,7 +1997,7 @@ class Item
 		$transmit = $notify || ($item['visible'] && ($parent_origin || $item['origin']));
 
 		if ($transmit) {
-			$transmit_item = self::selectFirst(['verb', 'origin'], ['id' => $item['id']]);
+			$transmit_item = Post::selectFirst(['verb', 'origin'], ['id' => $item['id']]);
 			// Don't relay participation messages
 			if (($transmit_item['verb'] == Activity::FOLLOW) && 
 				(!$transmit_item['origin'] || ($item['author-id'] != Contact::getPublicIdByUserId($uid)))) {

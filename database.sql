@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1386
+-- DB_UPDATE_VERSION 1387
 -- ------------------------------------------
 
 
@@ -1582,6 +1582,7 @@ CREATE VIEW `post-view` AS SELECT
 	IF (`contact`.`url` = `author`.`url`, `contact`.`thumb`, `author`.`thumb`) AS `author-avatar`,
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
+	`author`.`hidden` AS `author-hidden`,
 	`item`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
@@ -1590,6 +1591,7 @@ CREATE VIEW `post-view` AS SELECT
 	IF (`contact`.`url` = `owner`.`url`, `contact`.`thumb`, `owner`.`thumb`) AS `owner-avatar`,
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
+	`owner`.`hidden` AS `owner-hidden`,
 	`item`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
 	`causer`.`addr` AS `causer-addr`,
@@ -1598,6 +1600,7 @@ CREATE VIEW `post-view` AS SELECT
 	`causer`.`thumb` AS `causer-avatar`,
 	`causer`.`network` AS `causer-network`,
 	`causer`.`blocked` AS `causer-blocked`,
+	`causer`.`hidden` AS `causer-hidden`,
 	`causer`.`contact-type` AS `causer-contact-type`,
 	`post-delivery-data`.`postopts` AS `postopts`,
 	`post-delivery-data`.`inform` AS `inform`,

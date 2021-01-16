@@ -9,7 +9,7 @@ use Friendica\Content\Widget;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Model\Post\Category;
 use Friendica\Module\BaseSearch;
 use Friendica\Module\Security\Login;
@@ -69,8 +69,7 @@ class Filed extends BaseSearch
 		$item_condition = ['uid' => local_user(), 'uri-id' => $posts];
 		$item_params = ['order' => ['uri-id' => true]];
 
-		$result = Item::selectForUser(local_user(), [], $item_condition, $item_params);
-		$items = Item::inArray($result);
+		$items = Post::toArray(Post::selectForUser(local_user(), [], $item_condition, $item_params));
 
 		$o .= conversation(DI::app(), $items, 'filed', false, false, '', local_user());
 
