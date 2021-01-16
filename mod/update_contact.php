@@ -24,14 +24,14 @@
 use Friendica\App;
 use Friendica\Core\System;
 use Friendica\DI;
-use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Module\Contact;
 
 function update_contact_content(App $a)
 {
 	if (!empty($a->argv[1]) && (!empty($_GET['force']) || !DI::pConfig()->get(local_user(), 'system', 'no_auto_update'))) {
 		if (!empty($_GET['item'])) {
-			$item = Item::selectFirst(['parent'], ['id' => $_GET['item']]);
+			$item = Post::selectFirst(['parent'], ['id' => $_GET['item']]);
 			$parentid = $item['parent'] ?? 0;
 		} else {
 			$parentid = 0;

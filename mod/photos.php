@@ -36,6 +36,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
+use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
@@ -427,7 +428,7 @@ function photos_post(App $a)
 		}
 
 		if ($item_id) {
-			$item = Item::selectFirst(['tag', 'inform', 'uri-id'], ['id' => $item_id, 'uid' => $page_owner_uid]);
+			$item = Post::selectFirst(['tag', 'inform', 'uri-id'], ['id' => $item_id, 'uid' => $page_owner_uid]);
 
 			if (DBA::isResult($item)) {
 				$old_inform = $item['inform'];
@@ -1270,7 +1271,7 @@ function photos_content(App $a)
 		);
 		if (DBA::isResult($linked_items)) {
 			// This is a workaround to not being forced to rewrite the while $sql_extra handling
-			$link_item = Item::selectFirst([], ['id' => $linked_items[0]['id']]);
+			$link_item = Post::selectFirst([], ['id' => $linked_items[0]['id']]);
 		}
 
 		if (!empty($link_item['parent']) && !empty($link_item['uid'])) {

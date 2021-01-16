@@ -114,9 +114,9 @@ function item_post(App $a) {
 
 	if ($parent_item_id || $thr_parent_uri) {
 		if ($parent_item_id) {
-			$parent_item = Item::selectFirst([], ['id' => $parent_item_id]);
+			$parent_item = Post::selectFirst([], ['id' => $parent_item_id]);
 		} elseif ($thr_parent_uri) {
-			$parent_item = Item::selectFirst([], ['uri' => $thr_parent_uri, 'uid' => $profile_uid]);
+			$parent_item = Post::selectFirst([], ['uri' => $thr_parent_uri, 'uid' => $profile_uid]);
 		}
 
 		// if this isn't the top-level parent of the conversation, find it
@@ -126,7 +126,7 @@ function item_post(App $a) {
 			$toplevel_item = $parent_item;
 
 			if ($parent_item['gravity'] != GRAVITY_PARENT) {
-				$toplevel_item = Item::selectFirst([], ['id' => $toplevel_item['parent']]);
+				$toplevel_item = Post::selectFirst([], ['id' => $toplevel_item['parent']]);
 			}
 		}
 
@@ -144,7 +144,7 @@ function item_post(App $a) {
 			$stored = Item::storeForUserByUriId($toplevel_item['uri-id'], local_user());
 			Logger::info('Public item stored for user', ['uri-id' => $toplevel_item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
 			if ($stored) {
-				$toplevel_item = Item::selectFirst([], ['id' => $stored]);
+				$toplevel_item = Post::selectFirst([], ['id' => $stored]);
 			}
 		}
 
@@ -193,7 +193,7 @@ function item_post(App $a) {
 
 	// is this an edited post?
 	if ($post_id > 0) {
-		$orig_post = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
+		$orig_post = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 	}
 
 	$user = User::getById($profile_uid, ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);
@@ -728,7 +728,7 @@ function item_post(App $a) {
 		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item wasn\'t stored.'));
 	}
 
-	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
+	$datarray = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 
 	if (!DBA::isResult($datarray)) {
 		Logger::error('Item couldn\'t be fetched.', ['post_id' => $post_id]);

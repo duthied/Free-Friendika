@@ -23,6 +23,7 @@ use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 
 function share_init(App $a) {
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
@@ -33,7 +34,7 @@ function share_init(App $a) {
 
 	$fields = ['private', 'body', 'author-name', 'author-link', 'author-avatar',
 		'guid', 'created', 'plink', 'title'];
-	$item = Item::selectFirst($fields, ['id' => $post_id]);
+	$item = Post::selectFirst($fields, ['id' => $post_id]);
 
 	if (!DBA::isResult($item) || $item['private'] == Item::PRIVATE) {
 		exit();

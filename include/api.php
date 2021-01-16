@@ -41,6 +41,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Mail;
 use Friendica\Model\Notify;
 use Friendica\Model\Photo;
+use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
 use Friendica\Model\Verb;
@@ -1365,7 +1366,7 @@ function api_get_last_status($ownerId, $uid)
  */
 function api_get_item(array $condition)
 {
-	$item = Item::selectFirst(Item::DISPLAY_FIELDLIST, $condition, ['order' => ['id' => true]]);
+	$item = Post::selectFirst(Item::DISPLAY_FIELDLIST, $condition, ['order' => ['id' => true]]);
 
 	return $item;
 }
@@ -1673,7 +1674,7 @@ function api_statuses_home_timeline($type)
 	}
 
 	if (!empty($idarray)) {
-		$unseen = Item::exists(['unseen' => true, 'id' => $idarray]);
+		$unseen = Post::exists(['unseen' => true, 'id' => $idarray]);
 		if ($unseen) {
 			Item::update(['unseen' => false], ['unseen' => true, 'id' => $idarray]);
 		}
@@ -1880,12 +1881,12 @@ function api_statuses_show($type)
 	$conversation = !empty($_REQUEST['conversation']);
 
 	// try to fetch the item for the local user - or the public item, if there is no local one
-	$uri_item = Item::selectFirst(['uri'], ['id' => $id]);
+	$uri_item = Post::selectFirst(['uri'], ['id' => $id]);
 	if (!DBA::isResult($uri_item)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
-	$item = Item::selectFirst(['id'], ['uri' => $uri_item['uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	$item = Post::selectFirst(['id'], ['uri' => $uri_item['uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
 	if (!DBA::isResult($item)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
@@ -1963,12 +1964,12 @@ function api_conversation_show($type)
 	Logger::info(API_LOG_PREFIX . '{subaction}', ['module' => 'api', 'action' => 'conversation', 'subaction' => 'show', 'id' => $id]);
 
 	// try to fetch the item for the local user - or the public item, if there is no local one
-	$item = Item::selectFirst(['parent-uri'], ['id' => $id]);
+	$item = Post::selectFirst(['parent-uri'], ['id' => $id]);
 	if (!DBA::isResult($item)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
-	$parent = Item::selectFirst(['id'], ['uri' => $item['parent-uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	$parent = Post::selectFirst(['id'], ['uri' => $item['parent-uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
 	if (!DBA::isResult($parent)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
@@ -4879,7 +4880,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 
 	// retrieve item element for getting activities (like, dislike etc.) related to photo
 	$condition = ['uid' => api_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
-	$item = Item::selectFirst(['id', 'uid', 'uri', 'parent', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid'], $condition);
+	$item = Post::selectFirst(['id', 'uid', 'uri', 'parent', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid'], $condition);
 	if (!DBA::isResult($item)) {
 		throw new NotFoundException('Photo-related item not found.');
 	}
@@ -5075,7 +5076,7 @@ function api_share_as_retweet(&$item)
 	}
 
 	if (!empty($condition)) {
-		$original_item = Item::selectFirst([], $condition);
+		$original_item = Post::selectFirst([], $condition);
 		if (DBA::isResult($original_item)) {
 			$reshared_item = array_merge($reshared_item, $original_item);
 		}
@@ -5102,7 +5103,7 @@ function api_in_reply_to($item)
 	$in_reply_to['screen_name'] = null;
 
 	if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] != GRAVITY_PARENT)) {
-		$parent = Item::selectFirst(['id'], ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
+		$parent = Post::selectFirst(['id'], ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
 		if (DBA::isResult($parent)) {
 			$in_reply_to['status_id'] = intval($parent['id']);
 		} else {
@@ -5112,7 +5113,7 @@ function api_in_reply_to($item)
 		$in_reply_to['status_id_str'] = (string) intval($in_reply_to['status_id']);
 
 		$fields = ['author-nick', 'author-name', 'author-id', 'author-link'];
-		$parent = Item::selectFirst($fields, ['id' => $in_reply_to['status_id']]);
+		$parent = Post::selectFirst($fields, ['id' => $in_reply_to['status_id']]);
 
 		if (DBA::isResult($parent)) {
 			$in_reply_to['screen_name'] = (($parent['author-nick']) ? $parent['author-nick'] : $parent['author-name']);

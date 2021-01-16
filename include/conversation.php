@@ -33,10 +33,11 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\Verb;
-use Friendica\Object\Post;
+use Friendica\Object\Post as PostObject;
 use Friendica\Object\Thread;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
@@ -201,7 +202,7 @@ function localize_item(&$item)
 		if ($activity->match($item['verb'], Activity::TAG)) {
 			$fields = ['author-id', 'author-link', 'author-name', 'author-network',
 				'verb', 'object-type', 'resource-id', 'body', 'plink'];
-			$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
+			$obj = Post::selectFirst($fields, ['uri' => $item['parent-uri']]);
 			if (!DBA::isResult($obj)) {
 				return;
 			}
@@ -677,7 +678,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 				$item['pagedrop'] = $page_dropping;
 
 				if ($item['gravity'] == GRAVITY_PARENT) {
-					$item_object = new Post($item);
+					$item_object = new PostObject($item);
 					$conv->addParent($item_object);
 				}
 			}
@@ -871,7 +872,7 @@ function conversation_fetch_items(array $parent, array $items, array $condition,
 		$condition[0] .= " AND NOT `author`.`hidden`";
 	}
 
-	$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity', 'post-type']), $condition, $params);
+	$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-type']), $condition, $params);
 
 	$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false, $activity);
 
@@ -1041,7 +1042,7 @@ function builtin_activity_puller(array $activity, array &$conv_responses)
 			}
 
 			// Skip when the causer of the parent is the same than the author of the announce
-			if (($verb == Activity::ANNOUNCE) && Item::exists(['uri' => $activity['thr-parent'],
+			if (($verb == Activity::ANNOUNCE) && Post::exists(['uri' => $activity['thr-parent'],
 				'uid' => $activity['uid'], 'causer-id' => $activity['author-id'], 'gravity' => GRAVITY_PARENT])) {
 				continue;
 			}

@@ -34,6 +34,7 @@ use Friendica\DI;
 use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
@@ -589,7 +590,7 @@ function events_content(App $a)
 			Item::deleteForUser(['id' => $ev[0]['itemid']], local_user());
 		}
 
-		if (Item::exists(['id' => $ev[0]['itemid']])) {
+		if (Post::exists(['id' => $ev[0]['itemid']])) {
 			notice(DI::l10n()->t('Failed to remove event'));
 		}
 

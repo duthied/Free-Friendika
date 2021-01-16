@@ -30,6 +30,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemContent;
 use Friendica\Model\Notify;
+use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
 use Friendica\Protocol\Activity;
@@ -518,7 +519,7 @@ function notification($params)
 		Logger::log('sending notification email');
 
 		if (isset($params['parent']) && (intval($params['parent']) != 0)) {
-			$parent = Item::selectFirst(['guid'], ['id' => $params['parent']]);
+			$parent = Post::selectFirst(['guid'], ['id' => $params['parent']]);
 			$message_id = "<" . $parent['guid'] . "@" . gethostname() . ">";
 
 			// Is this the first email notification for this parent item and user?
@@ -650,7 +651,7 @@ function check_item_notification($itemid, $uid, $notification_type) {
 
 		// Special treatment for posts that had been shared via "announce"
 		if ($item['gravity'] == GRAVITY_ACTIVITY) {
-			$parent_item = Item::selectFirst($fields, ['uri-id' => $item['thr-parent-id'], 'uid' => [$uid, 0]]);
+			$parent_item = Post::selectFirst($fields, ['uri-id' => $item['thr-parent-id'], 'uid' => [$uid, 0]]);
 			if (DBA::isResult($parent_item)) {
 				// Don't notify on own entries
 				if (User::getIdForURL($parent_item['author-link']) == $uid) {
