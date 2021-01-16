@@ -1442,20 +1442,6 @@ aside .panel-body {
 }
 
 /* Thread hover effects */
-/* .desktop-view .panel.tread-wrapper {
-    -webkit-transition: box-shadow 0.25s ease-in-out;
-    -moz-transition: box-shadow 0.25s ease-in-out;
-    -o-transition: box-shadow 0.25s ease-in-out;
-    -ms-transition: box-shadow 0.25s ease-in-out;
-    transition: box-shadow 0.25s ease-in-out;
-} */
-/* .desktop-view .panel.tread-wrapper:hover {
-    box-shadow: 0 0 3px #dadada;
-    -webkit-box-shadow: 0 0 3px #dadada;
-    -moz-box-shadow: 0 0 3px #dadada;
-
-} */
-
 .desktop-view .wall-item-container .wall-item-content a,
 .desktop-view .wall-item-name,
 .desktop-view .wall-item-container .fakelink,
