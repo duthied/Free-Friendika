@@ -33,7 +33,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
-use Friendica\Model\Post as ModelPost;
+use Friendica\Model\Post as PostModel;
 use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
@@ -213,7 +213,7 @@ class Post
 		if (!$origin) {
 			/// @todo This shouldn't be done as query here, but better during the data creation.
 			// it is now done here, since during the RC phase we shouldn't make to intense changes.
-			$parent = ModelPost::selectFirst(['origin'], ['id' => $item['parent']]);
+			$parent = PostModel::selectFirst(['origin'], ['id' => $item['parent']]);
 			if (DBA::isResult($parent)) {
 				$origin = $parent['origin'];
 			}
@@ -876,7 +876,7 @@ class Post
 			return '';
 		}
 
-		$item = ModelPost::selectFirst(['author-addr', 'uri-id'], ['id' => $this->getId()]);
+		$item = PostModel::selectFirst(['author-addr', 'uri-id'], ['id' => $this->getId()]);
 		if (!DBA::isResult($item) || empty($item['author-addr'])) {
 			// Should not happen
 			return '';
