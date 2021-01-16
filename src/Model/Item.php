@@ -3470,7 +3470,7 @@ class Item
 		 *
 		 * default permissions - anonymous user
 		 */
-		$sql = sprintf(" AND `item`.`private` != %d", self::PRIVATE);
+		$sql = sprintf(" AND `private` != %d", self::PRIVATE);
 
 		// Profile owner - everything is visible
 		if ($local_user && ($local_user == $owner_id)) {
@@ -3486,12 +3486,12 @@ class Item
 			$set = PermissionSet::get($owner_id, $remote_user);
 
 			if (!empty($set)) {
-				$sql_set = sprintf(" OR (`item`.`private` = %d AND `item`.`wall` AND `item`.`psid` IN (", self::PRIVATE) . implode(',', $set) . "))";
+				$sql_set = sprintf(" OR (`private` = %d AND `wall` AND `psid` IN (", self::PRIVATE) . implode(',', $set) . "))";
 			} else {
 				$sql_set = '';
 			}
 
-			$sql = sprintf(" AND (`item`.`private` != %d", self::PRIVATE) . $sql_set . ")";
+			$sql = sprintf(" AND (`private` != %d", self::PRIVATE) . $sql_set . ")";
 		}
 
 		return $sql;
