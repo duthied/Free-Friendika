@@ -22,7 +22,6 @@ $nav_icon_hover_color = '#' . $accentColor->darken(20);
 switch ($scheme_accent) {
 	case FRIO_SCHEME_ACCENT_GREEN:
 	case FRIO_SCHEME_ACCENT_RED:
-
 		$nav_bg = '#' . $accentColor->darken(27);
 		$background_color = '#' . $accentColor->darken(29);
 		break;

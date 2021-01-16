@@ -670,12 +670,11 @@ nav.navbar .nav > li > button:focus
 
     background-color: $background_color;
 
-    /* fix bootstrap well not playing well with data-target slide animation */
+    /* fix bootstrap .well class not playing well with data-target slide animation */
     margin: 0;
     padding: 0;
     min-height: 0;
     border-radius: 0;
-
 }
 #search-mobile .navbar-form {
     margin: 0;
@@ -1482,7 +1481,6 @@ aside .panel-body {
 
 .comment-edit-preview .wall-item-container.panel-body.preview {
     margin-top: 4px;
-
 }
 .comment-edit-preview .panel {
     margin-bottom: 0;
@@ -3450,7 +3448,6 @@ section .profile-match-wrapper {
         left: 10%;
         z-index: -1;
     }
-
 }
 
 /* Mobile display */
