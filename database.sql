@@ -1628,18 +1628,18 @@ CREATE VIEW `post-view` AS SELECT
 	`parent-item-author`.`name` AS `parent-author-name`,
 	`parent-item-author`.`network` AS `parent-author-network`
 	FROM `item`
-			LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			LEFT JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
-			LEFT JOIN `contact` AS `owner` ON `owner`.`id` = `item`.`owner-id`
-			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `item`.`owner-id`
+			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`
 			LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `item`.`uri-id` AND `item`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
-			LEFT JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
-			LEFT JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`;
+			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
+			STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`;
 
 --
 -- VIEW category-view
