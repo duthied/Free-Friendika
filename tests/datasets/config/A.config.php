@@ -12,6 +12,7 @@ return [
 		'password' => 'testpw',
 		'database' => 'testdb',
 		'charset' => 'utf8mb4',
+		'pdo_emulate_prepares' => true,
 	],
 
 	'config' => [
