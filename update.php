@@ -52,6 +52,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Notify;
 use Friendica\Model\Photo;
+use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Model\Storage;
 use Friendica\Util\DateTimeFormat;
@@ -336,7 +337,7 @@ function update_1309()
 			continue;
 		}
 
-		$item = Item::selectFirst(['id', 'gravity'], ['uid' => $contact['uid'], 'guid' => $entry['guid']]);
+		$item = Post::selectFirst(['id', 'gravity'], ['uid' => $contact['uid'], 'guid' => $entry['guid']]);
 		if (!DBA::isResult($item)) {
 			continue;
 		}

@@ -28,6 +28,7 @@ use Friendica\Model\Profile;
 use Friendica\Model\Item;
 use Friendica\Network\Probe;
 use Friendica\Database\DBA;
+use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Util\Strings;
 
@@ -213,7 +214,7 @@ function follow_remote_item($url)
 	}
 
 	if (!empty($item_id)) {
-		$item = Item::selectFirst(['guid'], ['id' => $item_id]);
+		$item = Post::selectFirst(['guid'], ['id' => $item_id]);
 		if (DBA::isResult($item)) {
 			DI::baseUrl()->redirect('display/' . $item['guid']);
 		}

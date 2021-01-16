@@ -28,6 +28,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Strings;
@@ -53,7 +54,7 @@ function tagger_content(App $a) {
 	Logger::log('tagger: tag ' . $term . ' item ' . $item_id);
 
 
-	$item = Item::selectFirst([], ['id' => $item_id]);
+	$item = Post::selectFirst([], ['id' => $item_id]);
 
 	if (!$item_id || !DBA::isResult($item)) {
 		Logger::log('tagger: no item ' . $item_id);

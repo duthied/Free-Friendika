@@ -32,6 +32,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Module\Objects;
 use Friendica\Network\HTTPException;
@@ -70,7 +71,7 @@ function display_init(App $a)
 
 		// Is this item private but could be visible to the remove visitor?
 		if (!DBA::isResult($item) && remote_user()) {
-			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
+			$item = Post::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
 			if (DBA::isResult($item)) {
 				if (!Contact::isFollower(remote_user(), $item['uid'])) {
 					$item = null;
@@ -187,7 +188,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
-		$item = Item::selectFirst(['uid', 'parent', 'parent-uri', 'parent-uri-id'], ['id' => $item_id]);
+		$item = Post::selectFirst(['uid', 'parent', 'parent-uri', 'parent-uri-id'], ['id' => $item_id]);
 		if ($item['uid'] != 0) {
 			$a->profile = ['uid' => intval($item['uid'])];
 		} else {
@@ -214,7 +215,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			}
 
 			if (($item_parent == 0) && remote_user()) {
-				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
+				$item = Post::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
 				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
 					$item_id = $item['id'];
 					$item_parent = $item['parent'];
@@ -243,7 +244,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
-	$is_public = Item::exists(['id' => $item_id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
+	$is_public = Post::exists(['id' => $item_id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 	if ($is_public) {
 		// For the atom feed the nickname doesn't matter at all, we only need the item id.
 		$alternate = DI::baseUrl().'/display/feed-item/'.$item_id.'.atom';
@@ -262,7 +263,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	$parent = null;
 	if (!empty($item_parent_uri)) {
-		$parent = Item::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
+		$parent = Post::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
 	}
 
 	if (DBA::isResult($parent)) {
@@ -305,7 +306,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	if (local_user() && (local_user() == $a->profile['uid'])) {
 		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];
-		$unseen = Item::exists($condition);
+		$unseen = Post::exists($condition);
 	} else {
 		$unseen = false;
 	}

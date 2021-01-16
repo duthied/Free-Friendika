@@ -24,6 +24,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Util\Strings;
 
@@ -62,7 +63,7 @@ function update_tags($item_id, $tags)
 		return;
 	}
 
-	$item = Item::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => local_user()]);
+	$item = Post::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => local_user()]);
 	if (!DBA::isResult($item)) {
 		return;
 	}
@@ -96,7 +97,7 @@ function tagrm_content(App $a)
 		// NOTREACHED
 	}
 
-	$item = Item::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => local_user()]);
+	$item = Post::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => local_user()]);
 	if (!DBA::isResult($item)) {
 		DI::baseUrl()->redirect($_SESSION['photo_return']);
 	}
