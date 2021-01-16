@@ -25,51 +25,51 @@
 				{{* Buttons for the mobile view *}}
 				<button type="button" class="navbar-toggle collapsed pull-right" data-toggle="offcanvas" data-target="#myNavmenu" aria-controls="myNavmenu" aria-haspopup="true">
 					<span class="sr-only">Toggle navigation</span>
-					<i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+					<i class="fa fa-ellipsis-v fa-fw fa-lg" aria-hidden="true"></i>
 				</button>
 				<button type="button" class="navbar-toggle collapsed pull-right" data-toggle="collapse" data-target="#search-mobile" aria-expanded="false" aria-controls="search-mobile">
 					<span class="sr-only">Toggle Search</span>
-					<i class="fa fa-search" aria-hidden="true" style="color:#FFF;"></i>
+					<i class="fa fa-search fa-fw fa-lg" aria-hidden="true" style="color:#FFF;"></i>
 				</button>
 				<button type="button" class="navbar-toggle collapsed pull-left visible-sm visible-xs" data-toggle="offcanvas" data-target="aside" aria-haspopup="true">
 					<span class="sr-only">Toggle navigation</span>
-					<i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+					<i class="fa fa-ellipsis-v fa-fw fa-lg" aria-hidden="true"></i>
 				</button>
 
 				{{* Left section of the NavBar with navigation shortcuts/icons *}}
 				<ul class="nav navbar-left" role="menubar">
 					{{if $nav.network}}
 					<li class="nav-segment">
-						<a accesskey="n" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" aria-label="{{$nav.network.3}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th" aria-hidden="true"></i><span id="net-update" class="nav-network-badge badge nav-notification"></span></a>
+						<a accesskey="n" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" aria-label="{{$nav.network.3}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th fa-fw" aria-hidden="true"></i><span id="net-update" class="nav-network-badge badge nav-notification"></span></a>
 					</li>
 					{{/if}}
 					{{if $nav.home}}
 					<li class="nav-segment">
-						<a accesskey="p" class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" aria-label="{{$nav.home.3}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home" aria-hidden="true"></i><span id="home-update" class="nav-home-badge badge nav-notification"></span></a>
+						<a accesskey="p" class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" aria-label="{{$nav.home.3}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home fa-fw" aria-hidden="true"></i><span id="home-update" class="nav-home-badge badge nav-notification"></span></a>
 					</li>
 					{{/if}}
 
 					{{if $nav.community}}
 					<li class="nav-segment">
-						<a accesskey="c" class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}" data-toggle="tooltip" aria-label="{{$nav.community.3}}" title="{{$nav.community.3}}"><i class="fa fa-lg fa-bullseye" aria-hidden="true"></i></a>
+						<a accesskey="c" class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}" data-toggle="tooltip" aria-label="{{$nav.community.3}}" title="{{$nav.community.3}}"><i class="fa fa-lg fa-bullseye fa-fw" aria-hidden="true"></i></a>
 					</li>
 					{{/if}}
 
 					{{if $nav.messages}}
 					<li class="nav-segment hidden-xs">
-						<a accesskey="m" id="nav-messages-link" href="{{$nav.messages.0}}" data-toggle="tooltip" aria-label="{{$nav.messages.1}}" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i><span id="mail-update" class="nav-mail-badge badge nav-notification"></span></a>
+						<a accesskey="m" id="nav-messages-link" href="{{$nav.messages.0}}" data-toggle="tooltip" aria-label="{{$nav.messages.1}}" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg fa-fw" aria-hidden="true"></i><span id="mail-update" class="nav-mail-badge badge nav-notification"></span></a>
 					</li>
 					{{/if}}
 
 					{{if $nav.events}}
 					<li class="nav-segment hidden-xs">
-						<a accesskey="e" id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip" aria-label="{{$nav.events.1}}" title="{{$nav.events.1}}" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
+						<a accesskey="e" id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip" aria-label="{{$nav.events.1}}" title="{{$nav.events.1}}" class="nav-menu"><i class="fa fa-lg fa-calendar fa-fw"></i></a>
 					</li>
 					{{/if}}
 
 					{{if $nav.contacts}}
 					<li class="nav-segment hidden-xs">
-						<a accesskey="k" id="nav-contacts-link" href="{{$nav.contacts.0}}" data-toggle="tooltip" aria-label="{{$nav.contacts.1}}" title="{{$nav.contacts.1}}"class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}"><i class="fa fa-users fa-lg"></i></a>
+						<a accesskey="k" id="nav-contacts-link" href="{{$nav.contacts.0}}" data-toggle="tooltip" aria-label="{{$nav.contacts.1}}" title="{{$nav.contacts.1}}"class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}"><i class="fa fa-users fa-lg fa-fw"></i></a>
 					</li>
 					{{/if}}
 
@@ -264,14 +264,16 @@
 {{/if}}
 
 {{* provide a a search input for mobile view, which expands by pressing the search icon *}}
-<div id="search-mobile" class="hidden-lg hidden-md collapse">
-	<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
-		<!-- <img class="hidden-xs" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
-		<div class="form-group form-group-search">
-			<input id="nav-search-input-field-mobile" class="form-control form-search" type="text" name="q" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$nav.search.1}}">
-			<button class="btn btn-default btn-sm form-button-search" type="submit">{{$nav.search.1}}</button>
-		</div>
-	</form>
+<div id="search-mobile" class="hidden-lg hidden-md hidden-sm collapse row well">
+	<div class="col-xs-12">
+		<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
+			<!-- <img class="hidden-xs" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
+			<div class="form-group form-group-search">
+				<input id="nav-search-input-field-mobile" class="form-control form-search" type="text" name="q" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$nav.search.1}}">
+				<button class="btn btn-default btn-sm form-button-search" type="submit">{{$nav.search.1}}</button>
+			</div>
+		</form>
+	</div>
 </div>
 
 {{* The second navbar which contains nav points of the actual page - (nav points are actual handled by this theme throug js *}}
