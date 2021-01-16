@@ -3304,7 +3304,7 @@ function api_lists_statuses($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `group_member`.`gid` = ?",
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `group-id` = ?",
 		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $_REQUEST['list_id']];
 
 	if ($max_id > 0) {

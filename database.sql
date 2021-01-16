@@ -1574,6 +1574,7 @@ CREATE VIEW `post-view` AS SELECT
 	`contact`.`avatar-date` AS `avatar-date`,
 	`contact`.`thumb` AS `thumb`,
 	`contact`.`dfrn-id` AS `dfrn-id`,
+	`group_member`.`gid` AS `group-id`,
 	`item`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -1635,6 +1636,7 @@ CREATE VIEW `post-view` AS SELECT
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `item`.`owner-id`
 			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`
+			STRAIGHT_JOIN `group_member` ON `group_member`.`contact-id` = `item`.`contact-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`
