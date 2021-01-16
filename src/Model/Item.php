@@ -82,7 +82,7 @@ class Item
 		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network',
 		'causer-id', 'causer-link', 'causer-name', 'causer-avatar', 'causer-contact-type',
 		'contact-id', 'contact-uid', 'contact-link', 'contact-name', 'contact-avatar',
-		'writable', 'self', 'cid', 'alias', 'pinned',
+		'writable', 'self', 'cid', 'alias',
 		'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
 		'event-summary', 'event-desc', 'event-location', 'event-type',
 		'event-nofinish', 'event-adjust', 'event-ignore', 'event-id',
