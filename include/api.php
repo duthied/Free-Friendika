@@ -1644,19 +1644,19 @@ function api_statuses_home_timeline($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ?",
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ?",
 		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[0] .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
 	if ($exclude_replies) {
-		$condition[0] .= ' AND `item`.`gravity` = ?';
+		$condition[0] .= ' AND `gravity` = ?';
 		$condition[] = GRAVITY_PARENT;
 	}
 	if ($conversation_id > 0) {
-		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[0] .= " AND `parent` = ?";
 		$condition[] = $conversation_id;
 	}
 
@@ -1746,15 +1746,15 @@ function api_statuses_public_timeline($type)
 
 		$r = Item::toArray($statuses);
 	} else {
-		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND `private` = ? AND `wall` AND `item`.`origin` AND NOT `author`.`hidden`",
+		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND `private` = ? AND `wall` AND `origin` AND NOT `author-hidden`",
 			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 		if ($max_id > 0) {
-			$condition[0] .= " AND `item`.`id` <= ?";
+			$condition[0] .= " AND `id` <= ?";
 			$condition[] = $max_id;
 		}
 		if ($conversation_id > 0) {
-			$condition[0] .= " AND `item`.`parent` = ?";
+			$condition[0] .= " AND `parent` = ?";
 			$condition[] = $conversation_id;
 		}
 
@@ -1976,11 +1976,11 @@ function api_conversation_show($type)
 
 	$id = $parent['id'];
 
-	$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `gravity` IN (?, ?) AND `item`.`id` > ?",
+	$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `gravity` IN (?, ?) AND `id` > ?",
 		$id, api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[0] .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
 
@@ -2253,25 +2253,25 @@ function api_statuses_user_timeline($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ? AND `item`.`contact-id` = ?",
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `contact-id` = ?",
 		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $user_info['cid']];
 
 	if ($user_info['self'] == 1) {
-		$condition[0] .= ' AND `item`.`wall` ';
+		$condition[0] .= ' AND `wall` ';
 	}
 
 	if ($exclude_replies) {
-		$condition[0] .= ' AND `item`.`gravity` = ?';
+		$condition[0] .= ' AND `gravity` = ?';
 		$condition[] = GRAVITY_PARENT;
 	}
 
 	if ($conversation_id > 0) {
-		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[0] .= " AND `parent` = ?";
 		$condition[] = $conversation_id;
 	}
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[0] .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
 
@@ -2426,7 +2426,7 @@ function api_favorites($type)
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 
 		if ($max_id > 0) {
-			$condition[0] .= " AND `item`.`id` <= ?";
+			$condition[0] .= " AND `id` <= ?";
 			$condition[] = $max_id;
 		}
 
@@ -3308,15 +3308,15 @@ function api_lists_statuses($type)
 		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $_REQUEST['list_id']];
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[0] .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
 	if ($exclude_replies > 0) {
-		$condition[0] .= ' AND `item`.`gravity` = ?';
+		$condition[0] .= ' AND `gravity` = ?';
 		$condition[] = GRAVITY_PARENT;
 	}
 	if ($conversation_id > 0) {
-		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[0] .= " AND `parent` = ?";
 		$condition[] = $conversation_id;
 	}
 
