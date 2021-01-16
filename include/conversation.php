@@ -37,7 +37,7 @@ use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\Tag;
 use Friendica\Model\Verb;
-use Friendica\Object\Post as ObjectPost;
+use Friendica\Object\Post as PostObject;
 use Friendica\Object\Thread;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
@@ -678,7 +678,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 				$item['pagedrop'] = $page_dropping;
 
 				if ($item['gravity'] == GRAVITY_PARENT) {
-					$item_object = new ObjectPost($item);
+					$item_object = new PostObject($item);
 					$conv->addParent($item_object);
 				}
 			}
