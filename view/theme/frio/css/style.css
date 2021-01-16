@@ -1937,7 +1937,7 @@ wall-item-comment-wrapper.well hr {
 
 .comment-edit-submit-wrapper {
     text-align: right;
-    /* margin-bottom: 0; */
+    margin-bottom: 0;
 }
 
 .comment-icon-list {
