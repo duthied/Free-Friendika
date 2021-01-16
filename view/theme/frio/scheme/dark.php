@@ -16,13 +16,15 @@ switch ($scheme_accent) {
 	default:
 		$link_color = '#' . $accentColor->lighten(25);
 }
-$nav_icon_color = $scheme_accent;
+$nav_icon_color = '#' . $accentColor->lighten(40);
 $nav_icon_hover_color = '#' . $accentColor->darken(20);
+
 switch ($scheme_accent) {
 	case FRIO_SCHEME_ACCENT_GREEN:
 	case FRIO_SCHEME_ACCENT_RED:
-		$nav_bg = '#' . $accentColor->darken(25);
-		$background_color = '#' . $accentColor->darken(27);
+
+		$nav_bg = '#' . $accentColor->darken(27);
+		$background_color = '#' . $accentColor->darken(29);
 		break;
 	default:
 		$nav_bg = '#' . $accentColor->darken(30);

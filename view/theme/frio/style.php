@@ -188,8 +188,8 @@ $options = [
 	'$background_repeat'           => $background_repeat,
 	'$login_bg_image'              => $login_bg_image,
 	'$login_bg_color'              => $login_bg_color,
-	'$font_color_darker'           => $font_color_darker ?? '#555',
-	'$font_color'                  => $font_color ?? '#777',
+	'$font_color_darker'           => $font_color_darker ?? '#222',
+	'$font_color'                  => $font_color ?? '#444',
 ];
 
 $css_tpl = file_get_contents('view/theme/frio/css/style.css');
