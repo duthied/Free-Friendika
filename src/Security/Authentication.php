@@ -33,6 +33,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
+use Friendica\Repository\TwoFactor\TrustedBrowser;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -100,16 +101,13 @@ class Authentication
 	 */
 	public function withSession(App $a)
 	{
-		$data = $this->cookie->getData();
-
 		// When the "Friendica" cookie is set, take the value to authenticate and renew the cookie.
-		if (isset($data->uid)) {
-
+		if ($this->cookie->get('uid')) {
 			$user = $this->dba->selectFirst(
 				'user',
 				[],
 				[
-					'uid'             => $data->uid,
+					'uid'             => $this->cookie->get('uid'),
 					'blocked'         => false,
 					'account_expired' => false,
 					'account_removed' => false,
@@ -117,24 +115,25 @@ class Authentication
 				]
 			);
 			if ($this->dba->isResult($user)) {
-				if (!$this->cookie->check($data->hash,
+				if (!$this->cookie->comparePrivateDataHash($this->cookie->get('hash'),
 					$user['password'] ?? '',
-					$user['prvkey'] ?? '')) {
-					$this->logger->notice("Hash doesn't fit.", ['user' => $data->uid]);
+					$user['prvkey'] ?? '')
+				) {
+					$this->logger->notice("Hash doesn't fit.", ['user' => $this->cookie->get('uid')]);
 					$this->session->clear();
 					$this->cookie->clear();
 					$this->baseUrl->redirect();
 				}
 
 				// Renew the cookie
-				$this->cookie->set($user['uid'], $user['password'], $user['prvkey']);
+				$this->cookie->send();
 
 				// Do the authentification if not done by now
 				if (!$this->session->get('authenticated')) {
 					$this->setForUser($a, $user);
 
 					if ($this->config->get('system', 'paranoia')) {
-						$this->session->set('addr', $data->ip);
+						$this->session->set('addr', $this->cookie->get('ip'));
 					}
 				}
 			}
@@ -377,12 +376,15 @@ class Authentication
 			 */
 			if ($this->session->get('remember')) {
 				$this->logger->info('Injecting cookie for remembered user ' . $user_record['nickname']);
-				$this->cookie->set($user_record['uid'], $user_record['password'], $user_record['prvkey']);
+				$this->cookie->setMultiple([
+					'uid'  => $user_record['uid'],
+					'hash' => $this->cookie->hashPrivateData($user_record['password'], $user_record['prvkey']),
+				]);
 				$this->session->remove('remember');
 			}
 		}
 
-		$this->twoFactorCheck($user_record['uid'], $a);
+		$this->redirectForTwoFactorAuthentication($user_record['uid'], $a);
 
 		if ($interactive) {
 			if ($user_record['login_date'] <= DBA::NULL_DATETIME) {
@@ -404,19 +406,23 @@ class Authentication
 	}
 
 	/**
+	 * Decides whether to redirect the user to two-factor authentication.
+	 * All return calls in this method skip two-factor authentication
+	 *
 	 * @param int $uid The User Identified
 	 * @param App $a   The Friendica Application context
 	 *
 	 * @throws HTTPException\ForbiddenException In case the two factor authentication is forbidden (e.g. for AJAX calls)
+	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function twoFactorCheck(int $uid, App $a)
+	private function redirectForTwoFactorAuthentication(int $uid, App $a)
 	{
 		// Check user setting, if 2FA disabled return
 		if (!$this->pConfig->get($uid, '2fa', 'verified')) {
 			return;
 		}
 
-		// Check current path, if 2fa authentication module return
+		// Check current path, if public or 2fa module return
 		if ($a->argc > 0 && in_array($a->argv[0], ['2fa', 'view', 'help', 'api', 'proxy', 'logout'])) {
 			return;
 		}

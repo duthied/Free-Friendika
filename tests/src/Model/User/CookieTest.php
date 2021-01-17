@@ -128,30 +128,20 @@ class CookieTest extends MockedTest
 		$cookie = new Cookie($this->config, $this->baseUrl, [], $cookieData);
 		self::assertInstanceOf(Cookie::class, $cookie);
 
-		$assertData = $cookie->getData();
-
-		if (!$hasValues) {
-			self::assertEmpty($assertData);
+		if (isset($uid)) {
+			self::assertEquals($uid, $cookie->get('uid'));
 		} else {
-			self::assertNotEmpty($assertData);
-			if (isset($uid)) {
-				self::assertObjectHasAttribute('uid', $assertData);
-				self::assertEquals($uid, $assertData->uid);
-			} else {
-				self::assertObjectNotHasAttribute('uid', $assertData);
-			}
-			if (isset($hash)) {
-				self::assertObjectHasAttribute('hash', $assertData);
-				self::assertEquals($hash, $assertData->hash);
-			} else {
-				self::assertObjectNotHasAttribute('hash', $assertData);
-			}
-			if (isset($ip)) {
-				self::assertObjectHasAttribute('ip', $assertData);
-				self::assertEquals($ip, $assertData->ip);
-			} else {
-				self::assertObjectNotHasAttribute('ip', $assertData);
-			}
+			self::assertNull($cookie->get('uid'));
+		}
+		if (isset($hash)) {
+			self::assertEquals($hash, $cookie->get('hash'));
+		} else {
+			self::assertNull($cookie->get('hash'));
+		}
+		if (isset($ip)) {
+			self::assertEquals($ip, $cookie->get('ip'));
+		} else {
+			self::assertNull($cookie->get('ip'));
 		}
 	}
 
@@ -196,7 +186,7 @@ class CookieTest extends MockedTest
 		$cookie = new Cookie($this->config, $this->baseUrl);
 		self::assertInstanceOf(Cookie::class, $cookie);
 
-		self::assertEquals($assertTrue, $cookie->check($assertHash, $password, $userPrivateKey));
+		self::assertEquals($assertTrue, $cookie->comparePrivateDataHash($assertHash, $password, $userPrivateKey));
 	}
 
 	public function dataSet()
@@ -210,7 +200,6 @@ class CookieTest extends MockedTest
 				'assertHash'  => 'b657a15cfe7ed1f7289c9aa51af14a9a26c966f4ddd74e495fba103d8e872a39',
 				'remoteIp'    => '0.0.0.0',
 				'serverArray' => [],
-				'lifetime'    => null,
 			],
 			'withServerArray' => [
 				'serverKey'   => 23,
@@ -220,32 +209,11 @@ class CookieTest extends MockedTest
 				'assertHash'  => 'b657a15cfe7ed1f7289c9aa51af14a9a26c966f4ddd74e495fba103d8e872a39',
 				'remoteIp'    => '1.2.3.4',
 				'serverArray' => ['REMOTE_ADDR' => '1.2.3.4',],
-				'lifetime'    => null,
-			],
-			'withLifetime0'   => [
-				'serverKey'   => 23,
-				'uid'         => 0,
-				'password'    => '234',
-				'privateKey'  => '124',
-				'assertHash'  => 'b657a15cfe7ed1f7289c9aa51af14a9a26c966f4ddd74e495fba103d8e872a39',
-				'remoteIp'    => '1.2.3.4',
-				'serverArray' => ['REMOTE_ADDR' => '1.2.3.4',],
-				'lifetime'    => 0,
-			],
-			'withLifetime'     => [
-				'serverKey'   => 23,
-				'uid'         => 0,
-				'password'    => '234',
-				'privateKey'  => '124',
-				'assertHash'  => 'b657a15cfe7ed1f7289c9aa51af14a9a26c966f4ddd74e495fba103d8e872a39',
-				'remoteIp'    => '1.2.3.4',
-				'serverArray' => ['REMOTE_ADDR' => '1.2.3.4',],
-				'lifetime'    => 2 * 24 * 60 * 60,
 			],
 		];
 	}
 
-	public function assertCookie($uid, $hash, $remoteIp, $lifetime)
+	public function assertCookie($uid, $hash, $remoteIp)
 	{
 		self::assertArrayHasKey(Cookie::NAME, StaticCookie::$_COOKIE);
 
@@ -258,11 +226,7 @@ class CookieTest extends MockedTest
 		self::assertObjectHasAttribute('ip', $data);
 		self::assertEquals($remoteIp, $data->ip);
 
-		if (isset($lifetime) && $lifetime !== 0) {
-			self::assertLessThanOrEqual(time() + $lifetime, StaticCookie::$_EXPIRE);
-		} else {
-			self::assertLessThanOrEqual(time() + Cookie::DEFAULT_EXPIRE * 24 * 60 * 60, StaticCookie::$_EXPIRE);
-		}
+		self::assertLessThanOrEqual(time() + Cookie::DEFAULT_EXPIRE * 24 * 60 * 60, StaticCookie::$_EXPIRE);
 	}
 
 	/**
@@ -270,7 +234,7 @@ class CookieTest extends MockedTest
 	 *
 	 * @dataProvider dataSet
 	 */
-	public function testSet($serverKey, $uid, $password, $privateKey, $assertHash, $remoteIp, $serverArray, $lifetime)
+	public function testSet($serverKey, $uid, $password, $privateKey, $assertHash, $remoteIp, $serverArray)
 	{
 		$this->baseUrl->shouldReceive('getSSLPolicy')->andReturn(true)->once();
 		$this->config->shouldReceive('get')->with('system', 'site_prvkey')->andReturn($serverKey)->once();
@@ -279,17 +243,20 @@ class CookieTest extends MockedTest
 		$cookie = new StaticCookie($this->config, $this->baseUrl, $serverArray);
 		self::assertInstanceOf(Cookie::class, $cookie);
 
-		$cookie->set($uid, $password, $privateKey, $lifetime);
+		$cookie->setMultiple([
+			'uid' => $uid,
+			'hash' => $assertHash,
+		]);
 
-		self::assertCookie($uid, $assertHash, $remoteIp, $lifetime);
+		self::assertCookie($uid, $assertHash, $remoteIp);
 	}
 
 	/**
-	 * Test two different set() of the cookie class (first set is invalid)
+	 * Test the set() method of the cookie class
 	 *
 	 * @dataProvider dataSet
 	 */
-	public function testDoubleSet($serverKey, $uid, $password, $privateKey, $assertHash, $remoteIp, $serverArray, $lifetime)
+	public function testDoubleSet($serverKey, $uid, $password, $privateKey, $assertHash, $remoteIp, $serverArray)
 	{
 		$this->baseUrl->shouldReceive('getSSLPolicy')->andReturn(true)->once();
 		$this->config->shouldReceive('get')->with('system', 'site_prvkey')->andReturn($serverKey)->once();
@@ -298,12 +265,10 @@ class CookieTest extends MockedTest
 		$cookie = new StaticCookie($this->config, $this->baseUrl, $serverArray);
 		self::assertInstanceOf(Cookie::class, $cookie);
 
-		// Invalid set, should get overwritten
-		$cookie->set(-1, 'invalid', 'nothing', -234);
+		$cookie->set('uid', $uid);
+		$cookie->set('hash', $assertHash);
 
-		$cookie->set($uid, $password, $privateKey, $lifetime);
-
-		self::assertCookie($uid, $assertHash, $remoteIp, $lifetime);
+		self::assertCookie($uid, $assertHash, $remoteIp);
 	}
 
 	/**
