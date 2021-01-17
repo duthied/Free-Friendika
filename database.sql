@@ -1643,7 +1643,7 @@ CREATE VIEW `post-view` AS SELECT
 			LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `item`.`uri-id` AND `item`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
-			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`uri-id` = `item`.`parent-uri-id` AND `parent-item`.`uid` = `item`.`uid`
+			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`uri-id` = `item`.`parent-uri-id`
 			STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`;
 
 --
