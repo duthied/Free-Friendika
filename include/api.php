@@ -2043,7 +2043,7 @@ function api_statuses_repeat($type)
 	$fields = ['uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 	$item = Post::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
  
-	if (DBA::isResult($item)) {
+	if (DBA::isResult($item) && !empty($item['body'])) {
 		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::TWITTER])) {
 			if (!Item::performActivity($id, 'announce', local_user())) {
 				throw new InternalServerErrorException();
@@ -2075,7 +2075,7 @@ function api_statuses_repeat($type)
 			$item_id = item_post($a);
 		}
 	} else {
-		throw new ForbiddenException();
+		throw new ForbiddenException(print_r($item, true));
 	}
 
 	// output the post that we just posted.
