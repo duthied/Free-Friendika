@@ -21,7 +21,7 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
@@ -32,7 +32,7 @@ use Friendica\Module\Register;
  *
  * @see https://docs.joinmastodon.org/api/entities/#instance
  */
-class Instance extends BaseEntity
+class Instance extends BaseDataTransferObject
 {
 	/** @var string (URL) */
 	protected $uri;

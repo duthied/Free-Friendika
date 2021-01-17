@@ -21,14 +21,14 @@
 
 namespace Friendica\Object\Api\Twitter;
 
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
 
 /**
  * @see https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/user-object
  */
-class User extends BaseEntity
+class User extends BaseDataTransferObject
 {
 	/** @var int */
 	protected $id;

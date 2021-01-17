@@ -21,14 +21,14 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 
 /**
  * Class Card
  *
  * @see https://docs.joinmastodon.org/entities/card
  */
-class Card extends BaseEntity
+class Card extends BaseDataTransferObject
 {
 	/** @var string */
 	protected $url;
@@ -67,10 +67,10 @@ class Card extends BaseEntity
 	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		if (empty($this->url)) {
-			return null;
+			return [];
 		}
 
 		return parent::toArray();

@@ -21,7 +21,7 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -31,7 +31,7 @@ use Friendica\DI;
  *
  * @see https://docs.joinmastodon.org/api/entities/#stats
  */
-class Stats extends BaseEntity
+class Stats extends BaseDataTransferObject
 {
 	/** @var int */
 	protected $user_count = 0;

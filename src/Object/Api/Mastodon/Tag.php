@@ -22,14 +22,14 @@
 namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\App\BaseURL;
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 
 /**
  * Class Tag
  *
  * @see https://docs.joinmastodon.org/entities/tag
  */
-class Tag extends BaseEntity
+class Tag extends BaseDataTransferObject
 {
 	/** @var string */
 	protected $name;

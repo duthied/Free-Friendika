@@ -21,14 +21,14 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 
 /**
  * Class Error
  *
  * @see https://docs.joinmastodon.org/entities/error
  */
-class Error extends BaseEntity
+class Error extends BaseDataTransferObject
 {
 	/** @var string */
 	protected $error;
@@ -53,7 +53,7 @@ class Error extends BaseEntity
 	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		$error = parent::toArray();
 

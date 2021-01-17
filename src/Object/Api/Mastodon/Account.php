@@ -22,7 +22,7 @@
 namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\App\BaseURL;
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 use Friendica\Collection\Api\Mastodon\Fields;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
@@ -34,7 +34,7 @@ use Friendica\Util\DateTimeFormat;
  *
  * @see https://docs.joinmastodon.org/entities/account
  */
-class Account extends BaseEntity
+class Account extends BaseDataTransferObject
 {
 	/** @var string */
 	protected $id;
@@ -138,7 +138,7 @@ class Account extends BaseEntity
 	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		$account = parent::toArray();
 

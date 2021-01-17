@@ -22,20 +22,20 @@
 namespace Friendica;
 
 /**
- * The API entity classes are meant as data transfer objects. As such, their member should be protected.
+ * These data transfer object classes are meant for API representations. As such, their members should be protected.
  * Then the JsonSerializable interface ensures the protected members will be included in a JSON encode situation.
  *
  * Constructors are supposed to take as arguments the Friendica dependencies/model/collection/data it needs to
  * populate the class members.
  */
-abstract class BaseEntity implements \JsonSerializable
+abstract class BaseDataTransferObject implements \JsonSerializable
 {
 	/**
 	 * Returns the current entity as an json array
 	 *
 	 * @return array
 	 */
-	public function jsonSerialize()
+	public function jsonSerialize(): array
 	{
 		return $this->toArray();
 	}
@@ -45,7 +45,7 @@ abstract class BaseEntity implements \JsonSerializable
 	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		return get_object_vars($this);
 	}
