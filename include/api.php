@@ -1881,14 +1881,14 @@ function api_statuses_show($type)
 	$conversation = !empty($_REQUEST['conversation']);
 
 	// try to fetch the item for the local user - or the public item, if there is no local one
-	$uri_item = Post::selectFirst(['uri'], ['id' => $id]);
+	$uri_item = Post::selectFirst(['uri-id'], ['id' => $id]);
 	if (!DBA::isResult($uri_item)) {
-		throw new BadRequestException("There is no status with this id.");
+		throw new BadRequestException(sprintf("There is no status with the id %d", $id));
 	}
 
-	$item = Post::selectFirst(['id'], ['uri' => $uri_item['uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	$item = Post::selectFirst(['id'], ['uri-id' => $uri_item['uri-id'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
 	if (!DBA::isResult($item)) {
-		throw new BadRequestException("There is no status with this id.");
+		throw new BadRequestException(sprintf("There is no status with the uri-id %d for the given user.", $uri_item['uri-id']));
 	}
 
 	$id = $item['id'];
@@ -1905,7 +1905,7 @@ function api_statuses_show($type)
 
 	/// @TODO How about copying this to above methods which don't check $r ?
 	if (!DBA::isResult($statuses)) {
-		throw new BadRequestException("There is no status with this id.");
+		throw new BadRequestException(sprintf("There is no status or conversation with the id %d.", $id));
 	}
 
 	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
@@ -2171,35 +2171,28 @@ function api_statuses_mentions($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$query = "SELECT `item`.`id` FROM `user-item`
-		INNER JOIN `item` ON `item`.`id` = `user-item`.`iid` AND `item`.`gravity` IN (?, ?)
-		WHERE (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`) AND
-			`user-item`.`uid` = ? AND `user-item`.`notification-type` & ? != 0
-			AND `user-item`.`iid` > ?";
 	$condition = [GRAVITY_PARENT, GRAVITY_COMMENT, api_user(),
 		UserItem::NOTIF_EXPLICIT_TAGGED | UserItem::NOTIF_IMPLICIT_TAGGED |
 		UserItem::NOTIF_THREAD_COMMENT | UserItem::NOTIF_DIRECT_COMMENT |
 		UserItem::NOTIF_DIRECT_THREAD_COMMENT,
 		$since_id];
 
+	$query = "`gravity` IN (?, ?) AND `id` IN (SELECT `iid` FROM `user-item`		
+		WHERE (`hidden` IS NULL OR NOT `hidden`) AND
+			`uid` = ? AND `notification-type` & ? != 0
+			AND `iid` > ?";
+
 	if ($max_id > 0) {
-		$query .= " AND `item`.`id` <= ?";
+		$query .= " AND `iid` <= ?";
 		$condition[] = $max_id;
 	}
 
-	$query .= " ORDER BY `user-item`.`iid` DESC LIMIT ?, ?";
-	$condition[] = $start;
-	$condition[] = $count;
+	$query .= ")";
 
-	$useritems = DBA::p($query, $condition);
-	$itemids = [];
-	while ($useritem = DBA::fetch($useritems)) {
-		$itemids[] = $useritem['id'];
-	}
-	DBA::close($useritems);
+	$condition = array_merge([$query], $condition);
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser(api_user(), [], ['id' => $itemids], $params);
+	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
 
 	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 
@@ -2875,7 +2868,7 @@ function api_format_items_activities($item, $type = "json")
 	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY];
 	$ret = Post::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
 
-	while ($parent_item = Item::fetch($ret)) {
+	while ($parent_item = Post::fetch($ret)) {
 		// not used as result should be structured like other user data
 		//builtin_activity_puller($i, $activities);
 
