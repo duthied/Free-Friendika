@@ -1964,12 +1964,12 @@ function api_conversation_show($type)
 	Logger::info(API_LOG_PREFIX . '{subaction}', ['module' => 'api', 'action' => 'conversation', 'subaction' => 'show', 'id' => $id]);
 
 	// try to fetch the item for the local user - or the public item, if there is no local one
-	$item = Post::selectFirst(['parent-uri'], ['id' => $id]);
+	$item = Post::selectFirst(['parent-uri-id'], ['id' => $id]);
 	if (!DBA::isResult($item)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
-	$parent = Post::selectFirst(['id'], ['uri' => $item['parent-uri'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
+	$parent = Post::selectFirst(['id'], ['uri-id' => $item['parent-uri-id'], 'uid' => [0, api_user()]], ['order' => ['uid' => true]]);
 	if (!DBA::isResult($parent)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
