@@ -72,9 +72,8 @@ class UserItem
 
 		// Add every user who participated so far in this thread
 		// This can only happen with participations on global items. (means: uid = 0) 
-		$users = DBA::p("SELECT DISTINCT(`contact`.`uid`) FROM `item`
-			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` != 0
-			WHERE `parent` IN (SELECT `parent` FROM `item` WHERE `id`=?)", $iid);
+		$users = DBA::p("SELECT DISTINCT(`contact-uid`) AS `uid` FROM `post-view`
+			WHERE `contact-uid` != 0 AND `parent` IN (SELECT `parent` FROM `post-view` WHERE `id` = ?)", $iid);
 		while ($user = DBA::fetch($users)) {
 			$uids[] = $user['uid'];
 		}

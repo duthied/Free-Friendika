@@ -209,14 +209,14 @@ class ForumManager
 	public static function countUnseenItems()
 	{
 		$stmtContacts = DBA::p(
-			"SELECT `contact`.`id`, `contact`.`name`, COUNT(*) AS `count` FROM `item`
-				INNER JOIN `contact` ON `item`.`contact-id` = `contact`.`id`
-				WHERE `item`.`uid` = ? AND `item`.`visible` AND NOT `item`.`deleted` AND `item`.`unseen`
-				AND `contact`.`network`= 'dfrn' AND (`contact`.`forum` OR `contact`.`prv`)
+			"SELECT `contact`.`id`, `contact`.`name`, COUNT(*) AS `count` FROM `post-view`
+				INNER JOIN `contact` ON `post-view`.`contact-id` = `contact`.`id`
+				WHERE `post-view`.`uid` = ? AND `post-view`.`visible` AND NOT `post-view`.`deleted` AND `post-view`.`unseen`
+				AND `contact`.`network` IN (?, ?) AND `contact`.`contact-type` = ?
 				AND NOT `contact`.`blocked` AND NOT `contact`.`hidden`
 				AND NOT `contact`.`pending` AND NOT `contact`.`archive`
-				GROUP BY `contact`.`id` ",
-			local_user()
+				GROUP BY `contact`.`id`",
+			local_user(), Protocol::DFRN, Protocol::ACTIVITYPUB, Contact::TYPE_COMMUNITY
 		);
 
 		return DBA::toArray($stmtContacts);

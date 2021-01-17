@@ -43,7 +43,7 @@ class ItemContent
 	{
 		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `item-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
 			AND (NOT `private` OR (`private` AND `uid` = ?))
-			AND `uri-id` IN (SELECT `uri-id` FROM `item` WHERE `network` IN (?, ?, ?, ?))",
+			AND `uri-id` IN (SELECT `uri-id` FROM `post-view` WHERE `network` IN (?, ?, ?, ?))",
 			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 
 		if (!empty($last_uriid)) {
@@ -71,7 +71,7 @@ class ItemContent
 	{
 		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `item-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
 			AND (NOT `private` OR (`private` AND `uid` = ?))
-			AND `uri-id` IN (SELECT `uri-id` FROM `item` WHERE `network` IN (?, ?, ?, ?))",
+			AND `uri-id` IN (SELECT `uri-id` FROM `post-view` WHERE `network` IN (?, ?, ?, ?))",
 			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 		return Post::count($condition);
 	}

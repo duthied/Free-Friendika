@@ -2041,9 +2041,9 @@ function api_statuses_repeat($type)
 	Logger::log('API: api_statuses_repeat: '.$id);
 
 	$fields = ['uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
-	$item = Item::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
-
-	if (DBA::isResult($item) && $item['body'] != "") {
+	$item = Post::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
+ 
+	if (DBA::isResult($item) && !empty($item['body'])) {
 		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::TWITTER])) {
 			if (!Item::performActivity($id, 'announce', local_user())) {
 				throw new InternalServerErrorException();
@@ -6007,7 +6007,7 @@ function bindComments(&$data)
 	}
 
 	$idStr = DBA::escape(implode(', ', $ids));
-	$sql = "SELECT `parent`, COUNT(*) as comments FROM `item` WHERE `parent` IN ($idStr) AND `deleted` = ? AND `gravity`= ? GROUP BY `parent`";
+	$sql = "SELECT `parent`, COUNT(*) as comments FROM `post-view` WHERE `parent` IN ($idStr) AND `deleted` = ? AND `gravity`= ? GROUP BY `parent`";
 	$items = DBA::p($sql, 0, GRAVITY_COMMENT);
 	$itemsData = DBA::toArray($items);
 

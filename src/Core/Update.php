@@ -22,9 +22,11 @@
 namespace Friendica\Core;
 
 use Friendica\App;
+use Friendica\App\Mode;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Strings;
 
 class Update
@@ -60,8 +62,24 @@ class Update
 		}
 
 		// We don't support upgrading from very old versions anymore
-		if ($build < NEW_UPDATE_ROUTINE_VERSION) {
-			die('You try to update from a version prior to database version 1170. The direct upgrade path is not supported. Please update to version 3.5.4 before updating to this version.');
+		if ($build < NEW_TABLE_STRUCTURE_VERSION) {
+			$error = DI::l10n('Updates from version %s are not supported. Please update at least to version 2021,01 and wait until the postupdate finished version 1383.', $build);
+			if (DI::mode()->getExecutor() == Mode::INDEX) {
+				die($error);
+			} else {
+				throw new InternalServerErrorException($error);
+			}
+		}
+
+		// The postupdate has to completed version 1281 for the new post views to take over
+		$postupdate = DI::config()->get("system", "post_update_version");
+		if ($postupdate < NEW_TABLE_STRUCTURE_VERSION) {
+			$error = DI::l10n('Updates from postupdate version %s are not supported. Please update at least to version 2021,01 and wait until the postupdate finished version 1383.', $postupdate);
+			if (DI::mode()->getExecutor() == Mode::INDEX) {
+				die($error);
+			} else {
+				throw new InternalServerErrorException($error);
+			}
 		}
 
 		if ($build < DB_UPDATE_VERSION) {

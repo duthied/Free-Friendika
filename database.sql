@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1388
+-- DB_UPDATE_VERSION 1389
 -- ------------------------------------------
 
 
@@ -1560,10 +1560,13 @@ CREATE VIEW `post-view` AS SELECT
 	`contact`.`thumb` AS `contact-avatar`,
 	`contact`.`network` AS `contact-network`,
 	`contact`.`blocked` AS `contact-blocked`,
+	`contact`.`hidden` AS `contact-hidden`,
 	`contact`.`readonly` AS `contact-readonly`,
+	`contact`.`archive` AS `contact-archive`,
 	`contact`.`pending` AS `contact-pending`,
 	`contact`.`rel` AS `contact-rel`,
 	`contact`.`uid` AS `contact-uid`,
+	`contact`.`contact-type` AS `contact-contact-type`,
 	IF (`item`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`) AS `writable`,
 	`contact`.`self` AS `self`,
 	`contact`.`id` AS `cid`,

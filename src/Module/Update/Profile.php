@@ -71,27 +71,18 @@ class Profile extends BaseModule
 		// If the page user is the owner of the page we should query for unseen
 		// items. Otherwise use a timestamp of the last succesful update request.
 		if ($is_owner || !$last_updated) {
-			$sql_extra4 = " AND `item`.`unseen`";
+			$sql_extra4 = " AND `unseen`";
 		} else {
 			$gmupdate = gmdate(DateTimeFormat::MYSQL, $last_updated);
-			$sql_extra4 = " AND `item`.`received` > '" . $gmupdate . "'";
+			$sql_extra4 = " AND `received` > '" . $gmupdate . "'";
 		}
 
 		$items_stmt = DBA::p(
-			"SELECT DISTINCT(`parent-uri`) AS `uri`, `item`.`created`
-			FROM `item`
-			INNER JOIN `contact`
-			ON `contact`.`id` = `item`.`contact-id`
-				AND NOT `contact`.`blocked`
-				AND NOT `contact`.`pending`
-			WHERE `item`.`uid` = ?
-				AND `item`.`visible`
-				AND	(NOT `item`.`deleted` OR `item`.`gravity` = ?)
-				AND NOT `item`.`moderated`
-				AND `item`.`wall`
-				$sql_extra4
-				$sql_extra
-			ORDER BY `item`.`received` DESC",
+			"SELECT DISTINCT(`parent-uri`) AS `uri`, `created` FROM `post-view`
+				WHERE `uid` = ? AND NOT `contact-blocked` AND NOT `contact-pending`
+				AND `visible` AND (NOT `deleted` OR `gravity` = ?)
+				AND NOT `moderated` AND `wall` $sql_extra4 $sql_extra
+			ORDER BY `received` DESC",
 			$a->profile['uid'],
 			GRAVITY_ACTIVITY
 		);

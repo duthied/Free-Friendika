@@ -62,11 +62,11 @@ class PublicTimeline extends BaseApi
 			'uid' => 0, 'network' => Protocol::FEDERATED];
 
 		if ($local) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `item` WHERE `origin`)"]);
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-view` WHERE `origin`)"]);
 		}
 
 		if ($remote) {
-			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `item` WHERE `origin`)"]);
+			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-view` WHERE `origin`)"]);
 		}
 
 		if (!empty($max_id)) {

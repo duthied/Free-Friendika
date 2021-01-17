@@ -184,7 +184,7 @@ class DFRN
 
 		// default permissions - anonymous user
 
-		$sql_extra = sprintf(" AND `item`.`private` != %s ", Item::PRIVATE);
+		$sql_extra = sprintf(" AND `private` != %s ", Item::PRIVATE);
 
 		$owner = DBA::selectFirst('owner-view', [], ['nickname' => $owner_nick]);
 		if (!DBA::isResult($owner)) {
@@ -194,9 +194,7 @@ class DFRN
 
 		$owner_id = $owner['uid'];
 
-		$sql_post_table = "";
-
-		if (! $public_feed) {
+		if (!$public_feed) {
 			switch ($direction) {
 				case (-1):
 					$sql_extra = sprintf(" AND `issued-id` = '%s' ", DBA::escape($dfrn_id));
@@ -212,71 +210,41 @@ class DFRN
 					break; // NOTREACHED
 			}
 
-			$r = q(
-				"SELECT * FROM `contact` WHERE NOT `blocked` AND `contact`.`uid` = %d $sql_extra LIMIT 1",
-				intval($owner_id)
-			);
-
-			if (! DBA::isResult($r)) {
-				Logger::log(sprintf('No contact found for uid=%d', $owner_id), Logger::WARNING);
+			$contact = DBA::selectFirst('contact', [], ["NOT `blocked` AND `contact`.`uid` = ?" . $sql_extra, $owner_id]);
+			if (!DBA::isResult($contact)) {
+				Logger::notice('No contact found', ['uid' => $owner_id]);
 				exit();
 			}
-
-			$contact = $r[0];
 
 			$set = PermissionSet::get($owner_id, $contact['id']);
 
 			if (!empty($set)) {
-				$sql_extra = " AND `item`.`psid` IN (" . implode(',', $set) .")";
+				$sql_extra = " AND `psid` IN (" . implode(',', $set) .")";
 			} else {
-				$sql_extra = sprintf(" AND `item`.`private` != %s", Item::PRIVATE);
+				$sql_extra = sprintf(" AND `private` != %s", Item::PRIVATE);
 			}
 		}
 
-		if ($public_feed) {
-			$sort = 'DESC';
-		} else {
-			$sort = 'ASC';
-		}
-
-		if (! strlen($last_update)) {
+		if (!strlen($last_update)) {
 			$last_update = 'now -30 days';
 		}
 
 		if (isset($category)) {
-			$sql_post_table = sprintf("INNER JOIN (SELECT `uri-id` FROM `category-view` WHERE `name` = '%s' AND `type` = %d AND `uid` = %d ORDER BY `uri-id` DESC) AS `category` ON `item`.`uri-id` = `category`.`uri-id` ",
+			$sql_extra .= sprintf(" AND `uri-id` IN (SELECT `uri-id` FROM `category-view` WHERE `name` = '%s' AND `type` = %d AND `uid` = %d)",
 				DBA::escape(Strings::protectSprintf($category)), intval(Category::CATEGORY), intval($owner_id));
 		}
 
 		if ($public_feed && ! $converse) {
-			$sql_extra .= " AND `contact`.`self` = 1 ";
+			$sql_extra .= " AND `self` ";
 		}
 
 		$check_date = DateTimeFormat::utc($last_update);
 
-		$r = q(
-			"SELECT `item`.`id`
-			FROM `item` USE INDEX (`uid_wall_changed`) $sql_post_table
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			WHERE `item`.`uid` = %d AND `item`.`wall` AND `item`.`changed` > '%s'
-			AND `vid` != %d AND `item`.`visible` $sql_extra
-			ORDER BY `item`.`parent` ".$sort.", `item`.`received` ASC LIMIT 0, 300",
-			intval($owner_id),
-			DBA::escape($check_date),
-			Verb::getID(Activity::ANNOUNCE),
-			DBA::escape($sort)
-		);
+		$condition = ["`uid` = ? AND `wall` AND `changed` > ? AND `vid` != ? AND `visible`" . $sql_extra,
+			$owner_id, $check_date, Verb::getID(Activity::ANNOUNCE)];
 
-		$ids = [];
-		foreach ($r as $item) {
-			$ids[] = $item['id'];
-		}
-
-		if (!empty($ids)) {
-			$items = Post::selectToArray(Item::DELIVER_FIELDLIST, ['id' => $ids]);
-		} else {
-			$items = [];
-		}
+		$params = ['sort' => ['parent' => $public_feed, 'received']];
+		$items = Post::selectToArray(Item::DELIVER_FIELDLIST, $condition, $params, ['limit' => 300]);
 
 		/*
 		 * Will check further below if this actually returned results.
@@ -1924,32 +1892,15 @@ class DFRN
 				$community = true;
 				Logger::log("possible community action");
 			} else {
-				$sql_extra = " AND `contact`.`self` AND `item`.`wall` ";
+				$sql_extra = " AND `self` AND `wall`";
 			}
 
 			// was the top-level post for this action written by somebody on this site?
 			// Specifically, the recipient?
+			$parent = Post::selectFirst(['forum_mode', 'wall'],
+				["`uri` = ? AND `uid` = ?" . $sql_extra, $item["thr-parent"], $importer["importer_uid"]]);
 
-			$is_a_remote_action = false;
-
-			$parent = Post::selectFirst(['thr-parent'], ['uri' => $item["thr-parent"]]);
-			if (DBA::isResult($parent)) {
-				$r = q(
-					"SELECT `item`.`forum_mode`, `item`.`wall` FROM `item`
-					INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-					WHERE `item`.`uri` = '%s' AND (`item`.`thr-parent` = '%s' OR `item`.`thr-parent` = '%s')
-					AND `item`.`uid` = %d
-					$sql_extra
-					LIMIT 1",
-					DBA::escape($parent["thr-parent"]),
-					DBA::escape($parent["thr-parent"]),
-					DBA::escape($parent["thr-parent"]),
-					intval($importer["importer_uid"])
-				);
-				if (DBA::isResult($r)) {
-					$is_a_remote_action = true;
-				}
-			}
+			$is_a_remote_action = DBA::isResult($parent);
 
 			/*
 			 * Does this have the characteristics of a community or private group action?
@@ -1957,7 +1908,7 @@ class DFRN
 			 * valid community action. Also forum_mode makes it valid for sure.
 			 * If neither, it's not.
 			 */
-			if ($is_a_remote_action && $community && (!$r[0]["forum_mode"]) && (!$r[0]["wall"])) {
+			if ($is_a_remote_action && $community && (!$parent["forum_mode"]) && (!$parent["wall"])) {
 				$is_a_remote_action = false;
 				Logger::log("not a community action");
 			}

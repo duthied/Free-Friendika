@@ -179,6 +179,50 @@ return [
 			'guid' => '6',
 		],
 	],
+	'item-content' => [
+		[
+			'id'          => 1,
+			'uri-id'      => 1,
+			'uri-plink-hash' => '1',
+			'body'        => 'Parent status',
+			'plink'       => 'http://localhost/display/1',
+		],
+		[
+			'id'          => 2,
+			'uri-id'      => 2,
+			'uri-plink-hash' => '2',
+			'body'        => 'Reply',
+			'plink'       => 'http://localhost/display/2',
+		],
+		[
+			'id'          => 3,
+			'uri-id'      => 3,
+			'uri-plink-hash' => '3',
+			'body'        => 'Other user status',
+			'plink'       => 'http://localhost/display/3',
+		],
+		[
+			'id'          => 4,
+			'uri-id'      => 4,
+			'uri-plink-hash' => '4',
+			'body'        => 'Friend user reply',
+			'plink'       => 'http://localhost/display/4',
+		],
+		[
+			'id'          => 5,
+			'uri-id'      => 5,
+			'uri-plink-hash' => '5',
+			'body'        => '[share]Shared status[/share]',
+			'plink'       => 'http://localhost/display/5',
+		],
+		[
+			'id'          => 6,
+			'uri-id'      => 6,
+			'uri-plink-hash' => '6',
+			'body'        => 'Friend user status',
+			'plink'       => 'http://localhost/display/6',
+		],
+	],	
 	'item'    => [
 		[
 			'id'          => 1,
@@ -191,7 +235,6 @@ return [
 			'uid'         => 42,
 			'verb'        => 'http://activitystrea.ms/schema/1.0/post',
 			'unseen'      => 1,
-			'body'        => 'Parent status',
 			'parent'      => 1,
 			'parent-uri-id' => 1,
 			'thr-parent-id' => 1,
@@ -205,7 +248,6 @@ return [
 			'deny_cid'    => '',
 			'deny_gid'    => '',
 			'guid'        => '1',
-			'plink'       => 'http://localhost/display/1',
 		],
 		[
 			'id'          => 2,
@@ -218,7 +260,6 @@ return [
 			'uid'         => 42,
 			'verb'        => 'http://activitystrea.ms/schema/1.0/post',
 			'unseen'      => 0,
-			'body'        => 'Reply',
 			'parent'      => 1,
 			'parent-uri-id' => 1,
 			'thr-parent-id' => 1,
@@ -228,10 +269,8 @@ return [
 			'starred'     => 0,
 			'origin'      => 1,
 			'guid'        => '2',
-			'plink'       => 'http://localhost/display/2',
 		],
 		[
-
 			'id'          => 3,
 			'uri-id'      => 3,
 			'visible'     => 1,
@@ -242,7 +281,6 @@ return [
 			'uid'         => 42,
 			'verb'        => 'http://activitystrea.ms/schema/1.0/post',
 			'unseen'      => 0,
-			'body'        => 'Other user status',
 			'parent'      => 3,
 			'parent-uri-id' => 3,
 			'thr-parent-id' => 3,
@@ -252,7 +290,6 @@ return [
 			'starred'     => 0,
 			'origin'      => 1,
 			'guid'        => '3',
-			'plink'       => 'http://localhost/display/3',
 		],
 		[
 			'id'          => 4,
@@ -275,7 +312,6 @@ return [
 			'starred'     => 0,
 			'origin'      => 1,
 			'guid'        => '4',
-			'plink'       => 'http://localhost/display/4',
 		],
 		[
 
@@ -289,7 +325,6 @@ return [
 			'uid'         => 42,
 			'verb'        => 'http://activitystrea.ms/schema/1.0/post',
 			'unseen'      => 0,
-			'body'        => '[share]Shared status[/share]',
 			'parent'      => 1,
 			'parent-uri-id' => 1,
 			'thr-parent-id' => 1,
@@ -303,7 +338,6 @@ return [
 			'deny_cid'    => '',
 			'deny_gid'    => '',
 			'guid'        => '5',
-			'plink'       => 'http://localhost/display/5',
 		],
 		[
 			'id'          => 6,
@@ -316,7 +350,6 @@ return [
 			'uid'         => 42,
 			'verb'        => 'http://activitystrea.ms/schema/1.0/post',
 			'unseen'      => 0,
-			'body'        => 'Friend user status',
 			'parent'      => 6,
 			'parent-uri-id' => 6,
 			'thr-parent-id' => 6,
@@ -326,7 +359,6 @@ return [
 			'starred'     => 0,
 			'origin'      => 1,
 			'guid'        => '6',
-			'plink'       => 'http://localhost/display/6',
 		],
 	],
 	'notify' => [

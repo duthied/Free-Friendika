@@ -60,7 +60,7 @@ class Nodeinfo
 
 		$logger->debug('user statistics', $userStats);
 
-		$items = DBA::p("SELECT COUNT(*) AS `total`, `gravity` FROM `item` WHERE `origin` AND NOT `deleted` AND `uid` != 0 AND `gravity` IN (?, ?) GROUP BY `gravity`",
+		$items = DBA::p("SELECT COUNT(*) AS `total`, `gravity` FROM `post-view` WHERE `origin` AND NOT `deleted` AND `uid` != 0 AND `gravity` IN (?, ?) GROUP BY `gravity`",
 			GRAVITY_PARENT, GRAVITY_COMMENT);
 		while ($item = DBA::fetch($items)) {
 			if ($item['gravity'] == GRAVITY_PARENT) {

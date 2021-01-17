@@ -513,15 +513,13 @@ class Event
 		}
 
 		// Query for the event by event id
-		$r = q("SELECT `event`.*, `item`.`id` AS `itemid` FROM `event`
-			LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
+		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-view`.`id` AS `itemid` FROM `event`
+			LEFT JOIN `post-view` ON `post-view`.`event-id` = `event`.`id` AND `post-view`.`uid` = `event`.`uid`
 			WHERE `event`.`uid` = %d AND `event`.`id` = %d $sql_extra",
-			intval($owner_uid),
-			intval($event_id)
-		);
+			$owner_uid, $event_id));
 
-		if (DBA::isResult($r)) {
-			$return = self::removeDuplicates($r);
+		if (DBA::isResult($events)) {
+			$return = self::removeDuplicates($events);
 		}
 
 		return $return;
@@ -554,24 +552,17 @@ class Event
 
 		// Query for the event by date.
 		// @todo Slow query (518 seconds to run), to be optimzed
-		$r = q("SELECT `event`.*, `item`.`id` AS `itemid` FROM `event`
-				LEFT JOIN `item` ON `item`.`event-id` = `event`.`id` AND `item`.`uid` = `event`.`uid`
-				WHERE `event`.`uid` = %d AND event.ignore = %d
-				AND ((`adjust` = 0 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s')
-				OR  (`adjust` = 1 AND (`finish` >= '%s' OR (nofinish AND start >= '%s')) AND `start` <= '%s'))
-				$sql_extra ",
-				intval($owner_uid),
-				intval($event_params["ignore"]),
-				DBA::escape($event_params["start"]),
-				DBA::escape($event_params["start"]),
-				DBA::escape($event_params["finish"]),
-				DBA::escape($event_params["adjust_start"]),
-				DBA::escape($event_params["adjust_start"]),
-				DBA::escape($event_params["adjust_finish"])
-		);
+		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-view`.`id` AS `itemid` FROM `event`
+				LEFT JOIN `post-view` ON `post-view`.`event-id` = `event`.`id` AND `post-view`.`uid` = `event`.`uid`
+				WHERE `event`.`uid` = ? AND `event`.`ignore` = ?
+				AND ((NOT `adjust` AND (`finish` >= ? OR (`nofinish` AND `start` >= ?)) AND `start` <= ?)
+				OR  (`adjust` AND (`finish` >= ? OR (`nofinish` AND `start` >= ?)) AND `start` <= ?))" . $sql_extra,
+				$owner_uid, $event_params["ignore"],
+				$event_params["start"], $event_params["start"], $event_params["finish"],
+				$event_params["adjust_start"], $event_params["adjust_start"], $event_params["adjust_finish"]));
 
-		if (DBA::isResult($r)) {
-			$return = self::removeDuplicates($r);
+		if (DBA::isResult($events)) {
+			$return = self::removeDuplicates($events);
 		}
 
 		return $return;

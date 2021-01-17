@@ -92,19 +92,19 @@ class TagCloud
 
 		if ($flags) {
 			if ($flags === 'wall') {
-				$sql_options .= ' AND `item`.`wall` ';
+				$sql_options .= ' AND `post-view`.`wall` ';
 			}
 		}
 
 		if ($owner_id) {
-			$sql_options .= ' AND `item`.`owner-id` = ' . intval($owner_id) . ' ';
+			$sql_options .= ' AND `post-view`.`owner-id` = ' . intval($owner_id) . ' ';
 		}
 
 		// Fetch tags
 		$tag_stmt = DBA::p("SELECT `name`, COUNT(`name`) AS `total` FROM `tag-search-view`
-			LEFT JOIN `item` ON `tag-search-view`.`uri-id` = `item`.`uri-id`
+			LEFT JOIN `post-view` ON `tag-search-view`.`uri-id` = `post-view`.`uri-id`
 			WHERE `tag-search-view`.`uid` = ?
-			AND `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+			AND `post-view`.`visible` AND NOT `post-view`.`deleted` AND NOT `post-view`.`moderated`
 			$sql_options
 			GROUP BY `name` ORDER BY `total` DESC $limit",
 			$uid

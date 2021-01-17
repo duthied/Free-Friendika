@@ -302,11 +302,7 @@ class Notification extends BaseFactory
 	 */
 	public function getPersonalList(bool $seen = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT)
 	{
-		$myUrl    = str_replace('http://', '', $this->nurl);
-		$diaspUrl = str_replace('/profile/', '/u/', $myUrl);
-
-		$condition = ["NOT `wall` AND `uid` = ? AND (`item`.`author-id` = ? OR `item`.`tag` REGEXP ? OR `item`.`tag` REGEXP ?)",
-			local_user(), public_contact(), $myUrl . '\\]', $diaspUrl . '\\]'];
+		$condition = ["NOT `wall` AND `uid` = ? AND `author-id` = ?", local_user(), public_contact()];
 
 		if (!$seen) {
 			$condition[0] .= " AND `unseen`";

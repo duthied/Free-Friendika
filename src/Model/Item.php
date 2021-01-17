@@ -148,15 +148,6 @@ class Item
 		return $postfields;
 	}
 
-	public static function isLegacyMode()
-	{
-		if (is_null(self::$legacy_mode)) {
-			self::$legacy_mode = (DI::config()->get("system", "post_update_version") < 1279);
-		}
-
-		return self::$legacy_mode;
-	}
-
 	/**
 	 * Set the pinned state of an item
 	 *
@@ -226,7 +217,7 @@ class Item
 	 * @return array|false current row or false
 	 * @throws \Exception
 	 */
-	public static function fetch($stmt)
+	private static function fetch($stmt)
 	{
 		$row = DBA::fetch($stmt);
 
@@ -266,17 +257,6 @@ class Item
 		}
 
 		// ---------------------- Transform item content data ----------------------
-
-		// Fetch data from the item-content table whenever there is content there
-		if (self::isLegacyMode()) {
-			$legacy_fields = array_merge(Post\DeliveryData::LEGACY_FIELD_LIST, self::MIXED_CONTENT_FIELDLIST);
-			foreach ($legacy_fields as $field) {
-				if (empty($row[$field]) && !empty($row['internal-item-' . $field])) {
-					$row[$field] = $row['internal-item-' . $field];
-				}
-				unset($row['internal-item-' . $field]);
-			}
-		}
 
 		if (array_key_exists('verb', $row)) {
 			if (!is_null($row['internal-verb'])) {
@@ -388,53 +368,6 @@ class Item
 		DBA::close($stmt);
 
 		return $retval;
-	}
-
-	/**
-	 * Select rows from the item table for a given user
-	 *
-	 * @param integer $uid       User ID
-	 * @param array   $selected  Array of selected fields, empty for all
-	 * @param array   $condition Array of fields for condition
-	 * @param array   $params    Array of several parameters
-	 *
-	 * @return boolean|object
-	 * @throws \Exception
-	 */
-	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [])
-	{
-		$params['uid'] = $uid;
-
-		if (empty($selected)) {
-			$selected = self::DISPLAY_FIELDLIST;
-		}
-
-		return self::select($selected, $condition, $params);
-	}
-
-	/**
-	 * Retrieve a single record from the item table and returns it in an associative array
-	 *
-	 * @param array $fields
-	 * @param array $condition
-	 * @param array $params
-	 * @return bool|array
-	 * @throws \Exception
-	 * @see   DBA::select
-	 */
-	public static function selectFirst(array $fields = [], array $condition = [], $params = [])
-	{
-		$params['limit'] = 1;
-
-		$result = self::select($fields, $condition, $params);
-
-		if (is_bool($result)) {
-			return $result;
-		} else {
-			$row = self::fetch($result);
-			DBA::close($result);
-			return $row;
-		}
 	}
 
 	/**
@@ -830,9 +763,6 @@ class Item
 		foreach ($fields as $table => $table_fields) {
 			foreach ($table_fields as $field => $select) {
 				if (empty($selected) || in_array($select, $selected)) {
-					if (self::isLegacyMode() && in_array($select, $legacy_fields)) {
-						$selection[] = "`item`.`".$select."` AS `internal-item-" . $select . "`";
-					}
 					if (is_int($field)) {
 						$selection[] = "`" . $table . "`.`" . $select . "`";
 					} else {
@@ -904,7 +834,7 @@ class Item
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($fields[$field])) {
 				$content_fields[$field] = $fields[$field];
-				if (in_array($field, self::CONTENT_FIELDLIST) || !self::isLegacyMode()) {
+				if (in_array($field, self::CONTENT_FIELDLIST)) {
 					unset($fields[$field]);
 				} else {
 					$fields[$field] = null;
@@ -965,14 +895,6 @@ class Item
 					$item_content = DBA::selectFirst('item-content', [], ['uri-id' => $item['uri-id']]);
 					if (DBA::isResult($item_content)) {
 						$item_fields = ['icid' => $item_content['id']];
-						// Clear all fields in the item table that have a content in the item-content table
-						if (self::isLegacyMode()) {
-							foreach ($item_content as $field => $content) {
-								if (in_array($field, self::MIXED_CONTENT_FIELDLIST) && !empty($content)) {
-									$item_fields[$field] = null;
-								}
-							}
-						}
 						DBA::update('item', $item_fields, ['id' => $item['id']]);
 					}
 				}
