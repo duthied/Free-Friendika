@@ -2875,7 +2875,7 @@ function api_format_items_activities($item, $type = "json")
 	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY];
 	$ret = Post::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
 
-	while ($parent_item = Item::fetch($ret)) {
+	while ($parent_item = Post::fetch($ret)) {
 		// not used as result should be structured like other user data
 		//builtin_activity_puller($i, $activities);
 
