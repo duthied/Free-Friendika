@@ -371,31 +371,6 @@ class Item
 	}
 
 	/**
-	 * Retrieve a single record from the item table and returns it in an associative array
-	 *
-	 * @param array $fields
-	 * @param array $condition
-	 * @param array $params
-	 * @return bool|array
-	 * @throws \Exception
-	 * @see   DBA::select
-	 */
-	public static function selectFirst(array $fields = [], array $condition = [], $params = [])
-	{
-		$params['limit'] = 1;
-
-		$result = self::select($fields, $condition, $params);
-
-		if (is_bool($result)) {
-			return $result;
-		} else {
-			$row = self::fetch($result);
-			DBA::close($result);
-			return $row;
-		}
-	}
-
-	/**
 	 * Select rows from the item table and returns them as an array
 	 *
 	 * @param array $selected  Array of selected fields, empty for all
