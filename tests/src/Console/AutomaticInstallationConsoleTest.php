@@ -447,7 +447,7 @@ return [
 		'password' => '{$conf('database', 'password')}',
 		'database' => '{$conf('database', 'database')}',
 		'charset' => 'utf8mb4',
-		'pdo_emulate_prepares' => true,
+		'pdo_emulate_prepares' => false,
 	],
 
 	// ****************************************************************
