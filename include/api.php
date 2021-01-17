@@ -2041,9 +2041,9 @@ function api_statuses_repeat($type)
 	Logger::log('API: api_statuses_repeat: '.$id);
 
 	$fields = ['uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
-	$item = Item::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
-
-	if (DBA::isResult($item) && $item['body'] != "") {
+	$item = Post::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
+ 
+	if (!empty($item['body'])) {
 		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::TWITTER])) {
 			if (!Item::performActivity($id, 'announce', local_user())) {
 				throw new InternalServerErrorException();
@@ -2075,7 +2075,7 @@ function api_statuses_repeat($type)
 			$item_id = item_post($a);
 		}
 	} else {
-		throw new ForbiddenException();
+		throw new ForbiddenException(!DBA::isResult($item) ? 'not found' : 'empty body');
 	}
 
 	// output the post that we just posted.
