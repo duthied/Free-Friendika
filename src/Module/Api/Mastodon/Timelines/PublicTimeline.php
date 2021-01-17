@@ -85,7 +85,7 @@ class PublicTimeline extends BaseApi
 		$items = Post::selectForUser(0, ['uri-id', 'uid'], $condition, $params);
 
 		$statuses = [];
-		while ($item = Item::fetch($items)) {
+		while ($item = Post::fetch($items)) {
 			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $item['uid']);
 		}
 		DBA::close($items);
