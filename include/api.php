@@ -2171,16 +2171,16 @@ function api_statuses_mentions($type)
 
 	$start = max(0, ($page - 1) * $count);
 
+	$query = "`gravity` IN (?, ?) AND `id` IN (SELECT `iid` FROM `user-item`		
+		WHERE (`hidden` IS NULL OR NOT `hidden`) AND
+			`uid` = ? AND `notification-type` & ? != 0
+			AND `iid` > ?";
+
 	$condition = [GRAVITY_PARENT, GRAVITY_COMMENT, api_user(),
 		UserItem::NOTIF_EXPLICIT_TAGGED | UserItem::NOTIF_IMPLICIT_TAGGED |
 		UserItem::NOTIF_THREAD_COMMENT | UserItem::NOTIF_DIRECT_COMMENT |
 		UserItem::NOTIF_DIRECT_THREAD_COMMENT,
 		$since_id];
-
-	$query = "`gravity` IN (?, ?) AND `id` IN (SELECT `iid` FROM `user-item`		
-		WHERE (`hidden` IS NULL OR NOT `hidden`) AND
-			`uid` = ? AND `notification-type` & ? != 0
-			AND `iid` > ?";
 
 	if ($max_id > 0) {
 		$query .= " AND `iid` <= ?";
@@ -2189,7 +2189,7 @@ function api_statuses_mentions($type)
 
 	$query .= ")";
 
-	$condition = array_merge([$query], $condition);
+	array_unshift($condition, $query);
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
