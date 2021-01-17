@@ -125,7 +125,7 @@ class Notifier
 				return;
 			}
 
-			$items = Post::inArray($items_stmt);
+			$items = Post::toArray($items_stmt);
 
 			// avoid race condition with deleting entries
 			if ($items[0]['deleted']) {

@@ -1584,13 +1584,13 @@ function api_search($type)
 		}
 
 		if (!empty($id)) {
-			$statuses = Item::select([], ['id' => $id]);
+			$statuses = Post::select([], ['id' => $id]);
 		}
 	}
 
-	$statuses = $statuses ?: Item::selectForUser(api_user(), [], $condition, $params);
+	$statuses = $statuses ?: Post::selectForUser(api_user(), [], $condition, $params);
 
-	$data['status'] = api_format_items(Item::inArray($statuses), $user_info);
+	$data['status'] = api_format_items(Post::toArray($statuses), $user_info);
 
 	bindComments($data['status']);
 
@@ -1644,26 +1644,26 @@ function api_statuses_home_timeline($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ?",
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ?",
 		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[0] .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
 	if ($exclude_replies) {
-		$condition[0] .= ' AND `item`.`gravity` = ?';
+		$condition[0] .= ' AND `gravity` = ?';
 		$condition[] = GRAVITY_PARENT;
 	}
 	if ($conversation_id > 0) {
-		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[0] .= " AND `parent` = ?";
 		$condition[] = $conversation_id;
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
 
-	$items = Item::inArray($statuses);
+	$items = Post::toArray($statuses);
 
 	$ret = api_format_items($items, $user_info, false, $type);
 
@@ -1744,24 +1744,24 @@ function api_statuses_public_timeline($type)
 		$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
 		$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
-		$r = Item::inArray($statuses);
+		$r = Item::toArray($statuses);
 	} else {
-		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND `private` = ? AND `wall` AND `item`.`origin` AND NOT `author`.`hidden`",
+		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND `private` = ? AND `wall` AND `origin` AND NOT `author-hidden`",
 			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 		if ($max_id > 0) {
-			$condition[0] .= " AND `item`.`id` <= ?";
+			$condition[0] .= " AND `id` <= ?";
 			$condition[] = $max_id;
 		}
 		if ($conversation_id > 0) {
-			$condition[0] .= " AND `item`.`parent` = ?";
+			$condition[0] .= " AND `parent` = ?";
 			$condition[] = $conversation_id;
 		}
 
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-		$statuses = Item::selectForUser(api_user(), [], $condition, $params);
+		$statuses = Post::selectForUser(api_user(), [], $condition, $params);
 
-		$r = Item::inArray($statuses);
+		$r = Post::toArray($statuses);
 	}
 
 	$ret = api_format_items($r, $user_info, false, $type);
@@ -1823,7 +1823,7 @@ function api_statuses_networkpublic_timeline($type)
 	$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
 	$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
-	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Item::toArray($statuses), $user_info, false, $type);
 
 	bindComments($ret);
 
@@ -1901,14 +1901,14 @@ function api_statuses_show($type)
 		$params = [];
 	}
 
-	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
 
 	/// @TODO How about copying this to above methods which don't check $r ?
 	if (!DBA::isResult($statuses)) {
 		throw new BadRequestException("There is no status with this id.");
 	}
 
-	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 
 	if ($conversation) {
 		$data = ['status' => $ret];
@@ -1976,22 +1976,22 @@ function api_conversation_show($type)
 
 	$id = $parent['id'];
 
-	$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `gravity` IN (?, ?) AND `item`.`id` > ?",
+	$condition = ["`parent` = ? AND `uid` IN (0, ?) AND `gravity` IN (?, ?) AND `id` > ?",
 		$id, api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[0] .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
 
 	if (!DBA::isResult($statuses)) {
 		throw new BadRequestException("There is no status with id $id.");
 	}
 
-	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
 	return api_format_data("statuses", $type, $data);
@@ -2199,9 +2199,9 @@ function api_statuses_mentions($type)
 	DBA::close($useritems);
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::selectForUser(api_user(), [], ['id' => $itemids], $params);
+	$statuses = Post::selectForUser(api_user(), [], ['id' => $itemids], $params);
 
-	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -2253,32 +2253,32 @@ function api_statuses_user_timeline($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ? AND `item`.`contact-id` = ?",
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `contact-id` = ?",
 		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $user_info['cid']];
 
 	if ($user_info['self'] == 1) {
-		$condition[0] .= ' AND `item`.`wall` ';
+		$condition[0] .= ' AND `wall` ';
 	}
 
 	if ($exclude_replies) {
-		$condition[0] .= ' AND `item`.`gravity` = ?';
+		$condition[0] .= ' AND `gravity` = ?';
 		$condition[] = GRAVITY_PARENT;
 	}
 
 	if ($conversation_id > 0) {
-		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[0] .= " AND `parent` = ?";
 		$condition[] = $conversation_id;
 	}
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[0] .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
 
-	$ret = api_format_items(Item::inArray($statuses), $user_info, true, $type);
+	$ret = api_format_items(Post::toArray($statuses), $user_info, true, $type);
 
 	bindComments($ret);
 
@@ -2336,7 +2336,7 @@ function api_favorites_create_destroy($type)
 		$itemid = intval($_REQUEST['id'] ?? 0);
 	}
 
-	$item = Item::selectFirstForUser(api_user(), [], ['id' => $itemid, 'uid' => api_user()]);
+	$item = Post::selectFirstForUser(api_user(), [], ['id' => $itemid, 'uid' => api_user()]);
 
 	if (!DBA::isResult($item)) {
 		throw new BadRequestException("Invalid item.");
@@ -2426,13 +2426,13 @@ function api_favorites($type)
 		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 
 		if ($max_id > 0) {
-			$condition[0] .= " AND `item`.`id` <= ?";
+			$condition[0] .= " AND `id` <= ?";
 			$condition[] = $max_id;
 		}
 
-		$statuses = Item::selectForUser(api_user(), [], $condition, $params);
+		$statuses = Post::selectForUser(api_user(), [], $condition, $params);
 
-		$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
+		$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 	}
 
 	bindComments($ret);
@@ -2873,7 +2873,7 @@ function api_format_items_activities($item, $type = "json")
 	];
 
 	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY];
-	$ret = Item::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
+	$ret = Post::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
 
 	while ($parent_item = Item::fetch($ret)) {
 		// not used as result should be structured like other user data
@@ -3304,26 +3304,26 @@ function api_lists_statuses($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `group_member`.`gid` = ?",
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `group-id` = ?",
 		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $_REQUEST['list_id']];
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `item`.`id` <= ?";
+		$condition[0] .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
 	if ($exclude_replies > 0) {
-		$condition[0] .= ' AND `item`.`gravity` = ?';
+		$condition[0] .= ' AND `gravity` = ?';
 		$condition[] = GRAVITY_PARENT;
 	}
 	if ($conversation_id > 0) {
-		$condition[0] .= " AND `item`.`parent` = ?";
+		$condition[0] .= " AND `parent` = ?";
 		$condition[] = $conversation_id;
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
 
-	$items = api_format_items(Item::inArray($statuses), $user_info, false, $type);
+	$items = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 
 	$data = ['status' => $items];
 	switch ($type) {
@@ -4891,10 +4891,10 @@ function prepare_photo_data($type, $scale, $photo_id)
 	$condition = ["`parent` = ? AND `uid` = ? AND (`gravity` IN (?, ?) OR `type`='photo')",
 		$item['parent'], api_user(), GRAVITY_PARENT, GRAVITY_COMMENT];
 
-	$statuses = Item::selectForUser(api_user(), [], $condition);
+	$statuses = Post::selectForUser(api_user(), [], $condition);
 
 	// prepare output of comments
-	$commentData = api_format_items(Item::inArray($statuses), $user_info, false, $type);
+	$commentData = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 	$comments = [];
 	if ($type == "xml") {
 		$k = 0;
@@ -5007,7 +5007,7 @@ function api_get_announce($item)
 
 	$fields = ['author-id', 'author-name', 'author-link', 'author-avatar'];
 	$condition = ['parent-uri' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY, 'uid' => [0, $item['uid']], 'vid' => Verb::getID(Activity::ANNOUNCE)];
-	$announce = Item::selectFirstForUser($item['uid'], $fields, $condition, ['order' => ['received' => true]]);
+	$announce = Post::selectFirstForUser($item['uid'], $fields, $condition, ['order' => ['received' => true]]);
 	if (!DBA::isResult($announce)) {
 		return [];
 	}
@@ -5815,7 +5815,7 @@ function api_friendica_notification_seen($type)
 		DI::notify()->setSeen(true, $notify);
 
 		if ($notify->otype === Notify\ObjectType::ITEM) {
-			$item = Item::selectFirstForUser(api_user(), [], ['id' => $notify->iid, 'uid' => api_user()]);
+			$item = Post::selectFirstForUser(api_user(), [], ['id' => $notify->iid, 'uid' => api_user()]);
 			if (DBA::isResult($item)) {
 				// we found the item, return it to the user
 				$ret  = api_format_items([$item], $user_info, false, $type);

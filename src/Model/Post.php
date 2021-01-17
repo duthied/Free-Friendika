@@ -89,7 +89,7 @@ class Post
 	 * @param bool   $do_close
 	 * @return array Data array
 	 */
-	public static function inArray($stmt, $do_close = true) {
+	public static function toArray($stmt, $do_close = true) {
 		if (is_bool($stmt)) {
 			return $stmt;
 		}
@@ -212,5 +212,84 @@ class Post
 		$selected = array_unique($selected);
 
 		return DBA::select('post-view', $selected, $condition, $params);
+	}
+
+	/**
+	 * Select rows from the post view for a given user
+	 *
+	 * @param integer $uid       User ID
+	 * @param array   $selected  Array of selected fields, empty for all
+	 * @param array   $condition Array of fields for condition
+	 * @param array   $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 * @throws \Exception
+	 */
+	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		if (empty($selected)) {
+			$selected = Item::DISPLAY_FIELDLIST;
+		}
+
+		$selected = array_unique(array_merge($selected, ['internal-uri-id', 'internal-uid', 'internal-file-count']));
+
+		$condition = DBA::mergeConditions($condition,
+			["`visible` AND NOT `deleted` AND NOT `moderated`
+			AND NOT `author-blocked` AND NOT `owner-blocked`
+			AND (NOT `causer-blocked` OR `causer-id` = ?) AND NOT `contact-blocked`
+			AND ((NOT `contact-readonly` AND NOT `contact-pending` AND (`contact-rel` IN (?, ?)))
+				OR `self` OR `gravity` != ? OR `contact-uid` = ?)
+			AND NOT EXISTS (SELECT `iid` FROM `user-item` WHERE `hidden` AND `iid` = `id` AND `uid` = ?)
+			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `author-id` AND `blocked`)
+			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `owner-id` AND `blocked`)
+			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `author-id` AND `ignored` AND `gravity` = ?)
+			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `owner-id` AND `ignored` AND `gravity` = ?)",
+			0, Contact::SHARING, Contact::FRIEND, GRAVITY_PARENT, 0, $uid, $uid, $uid, $uid, GRAVITY_PARENT, $uid, GRAVITY_PARENT]);
+
+		$select_string = '';
+
+		if (in_array('pinned', $selected)) {
+			$selected = array_flip($selected);
+			unset($selected['pinned']);
+			$selected = array_flip($selected);	
+
+			$select_string = '(SELECT `pinned` FROM `user-item` WHERE `iid` = `post-view`.`id` AND uid=`post-view`.`uid`) AS `pinned`, ';
+		}
+
+		$select_string .= implode(', ', array_map([DBA::class, 'quoteIdentifier'], $selected));
+
+		$condition_string = DBA::buildCondition($condition);
+		$param_string = DBA::buildParameter($params);
+
+		$sql = "SELECT " . $select_string . " FROM `post-view` " . $condition_string . $param_string;
+		$sql = DBA::cleanQuery($sql);
+
+		return DBA::p($sql, $condition);
+	}
+
+	/**
+	 * Retrieve a single record from the post view for a given user and returns it in an associative array
+	 *
+	 * @param integer $uid User ID
+	 * @param array   $selected
+	 * @param array   $condition
+	 * @param array   $params
+	 * @return bool|array
+	 * @throws \Exception
+	 * @see   DBA::select
+	 */
+	public static function selectFirstForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$params['limit'] = 1;
+
+		$result = self::selectForUser($uid, $selected, $condition, $params);
+
+		if (is_bool($result)) {
+			return $result;
+		} else {
+			$row = self::fetch($result);
+			DBA::close($result);
+			return $row;
+		}
 	}
 }

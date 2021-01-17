@@ -28,6 +28,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Util\Crypto;
 
 function editpost_content(App $a)
@@ -49,7 +50,7 @@ function editpost_content(App $a)
 	$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 		'type', 'body', 'title', 'file', 'wall', 'post-type', 'guid'];
 
-	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
+	$item = Post::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
 
 	if (!DBA::isResult($item)) {
 		notice(DI::l10n()->t('Item not found'));

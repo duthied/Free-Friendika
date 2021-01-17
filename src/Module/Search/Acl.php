@@ -332,9 +332,9 @@ class Acl extends BaseModule
 
 			$condition = ["`parent` = ?", $conv_id];
 			$params = ['order' => ['author-name' => true]];
-			$authors = Item::selectForUser(local_user(), ['author-link'], $condition, $params);
+			$authors = Post::selectForUser(local_user(), ['author-link'], $condition, $params);
 			$item_authors = [];
-			while ($author = Item::fetch($authors)) {
+			while ($author = Post::fetch($authors)) {
 				$item_authors[$author['author-link']] = $author['author-link'];
 			}
 			DBA::close($authors);

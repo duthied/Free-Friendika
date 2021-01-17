@@ -167,7 +167,7 @@ function notification($params)
 		// if it's a post figure out who's post it is.
 		$item = null;
 		if ($params['otype'] === Notify\ObjectType::ITEM && $parent_id) {
-			$item = Item::selectFirstForUser($params['uid'], Item::ITEM_FIELDLIST, ['id' => $parent_id, 'deleted' => false]);
+			$item = Post::selectFirstForUser($params['uid'], Item::ITEM_FIELDLIST, ['id' => $parent_id, 'deleted' => false]);
 		}
 
 		if (empty($item)) {
@@ -619,7 +619,7 @@ function check_item_notification($itemid, $uid, $notification_type) {
 		'title', 'body', 'author-link', 'author-name', 'author-avatar', 'author-id',
 		'gravity', 'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
 	$condition = ['id' => $itemid, 'deleted' => false];
-	$item = Item::selectFirstForUser($uid, $fields, $condition);
+	$item = Post::selectFirstForUser($uid, $fields, $condition);
 	if (!DBA::isResult($item)) {
 		return false;
 	}

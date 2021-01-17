@@ -172,7 +172,7 @@ class Index extends BaseSearch
 
 		if (!empty($uriids)) {
 			$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
-			$items = Item::inArray(Item::selectForUser(local_user(), [], ['uri-id' => $uriids], $params));
+			$items = Post::toArray(Post::selectForUser(local_user(), [], ['uri-id' => $uriids], $params));
 		}
 
 		if (empty($items)) {

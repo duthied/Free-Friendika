@@ -718,7 +718,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 function conversation_fetch_comments($thread_items, bool $pinned, array $activity) {
 	$comments = [];
 
-	while ($row = Item::fetch($thread_items)) {
+	while ($row = Post::fetch($thread_items)) {
 		if (!empty($activity)) {
 			if (($row['gravity'] == GRAVITY_PARENT)) {
 				$row['post-type'] = Item::PT_ANNOUNCEMENT;
@@ -827,7 +827,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	foreach ($parents AS $parent) {
 		if (!empty($parent['thr-parent-id']) && !empty($parent['gravity']) && ($parent['gravity'] == GRAVITY_ACTIVITY)) {
-			$condition = ["`item`.`parent-uri-id` = ? AND `item`.`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
+			$condition = ["`parent-uri-id` = ? AND `uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
 				$parent['thr-parent-id'], $uid, Verb::getID(Activity::FOLLOW)];
 			if (!empty($parent['author-id'])) {
 				$activity = ['causer-id' => $parent['author-id']];
@@ -838,7 +838,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 				}
 			}
 		} else {
-			$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
+			$condition = ["`parent-uri` = ? AND `uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
 				$parent['uri'], $uid, Verb::getID(Activity::FOLLOW)];
 			$activity = [];
 		}
@@ -869,10 +869,10 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
  */
 function conversation_fetch_items(array $parent, array $items, array $condition, bool $block_authors, array $params, array $activity) {
 	if ($block_authors) {
-		$condition[0] .= " AND NOT `author`.`hidden`";
+		$condition[0] .= " AND NOT `author-hidden`";
 	}
 
-	$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-type']), $condition, $params);
+	$thread_items = Post::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-type']), $condition, $params);
 
 	$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false, $activity);
 

@@ -26,6 +26,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Module\BaseApi;
 use Friendica\Protocol\Activity;
@@ -82,10 +83,10 @@ class Statuses extends BaseApi
 			$params['order'] = ['uri-id'];
 		}
 
-		$items = Item::selectForUser(0, ['uri-id', 'uid'], $condition, $params);
+		$items = Post::selectForUser(0, ['uri-id', 'uid'], $condition, $params);
 
 		$statuses = [];
-		while ($item = Item::fetch($items)) {
+		while ($item = Post::fetch($items)) {
 			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $item['uid']);
 		}
 		DBA::close($items);

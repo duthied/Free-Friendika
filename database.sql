@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1386
+-- DB_UPDATE_VERSION 1387
 -- ------------------------------------------
 
 
@@ -1574,6 +1574,7 @@ CREATE VIEW `post-view` AS SELECT
 	`contact`.`avatar-date` AS `avatar-date`,
 	`contact`.`thumb` AS `thumb`,
 	`contact`.`dfrn-id` AS `dfrn-id`,
+	`group_member`.`gid` AS `group-id`,
 	`item`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -1582,6 +1583,7 @@ CREATE VIEW `post-view` AS SELECT
 	IF (`contact`.`url` = `author`.`url`, `contact`.`thumb`, `author`.`thumb`) AS `author-avatar`,
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
+	`author`.`hidden` AS `author-hidden`,
 	`item`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
@@ -1590,6 +1592,7 @@ CREATE VIEW `post-view` AS SELECT
 	IF (`contact`.`url` = `owner`.`url`, `contact`.`thumb`, `owner`.`thumb`) AS `owner-avatar`,
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
+	`owner`.`hidden` AS `owner-hidden`,
 	`item`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
 	`causer`.`addr` AS `causer-addr`,
@@ -1598,6 +1601,7 @@ CREATE VIEW `post-view` AS SELECT
 	`causer`.`thumb` AS `causer-avatar`,
 	`causer`.`network` AS `causer-network`,
 	`causer`.`blocked` AS `causer-blocked`,
+	`causer`.`hidden` AS `causer-hidden`,
 	`causer`.`contact-type` AS `causer-contact-type`,
 	`post-delivery-data`.`postopts` AS `postopts`,
 	`post-delivery-data`.`inform` AS `inform`,
@@ -1632,6 +1636,7 @@ CREATE VIEW `post-view` AS SELECT
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `item`.`owner-id`
 			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`
+			LEFT JOIN `group_member` ON `group_member`.`contact-id` = `item`.`contact-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`

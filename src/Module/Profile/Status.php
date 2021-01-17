@@ -183,7 +183,7 @@ class Status extends BaseProfile
 			(`gravity` = ? AND `vid` = ? AND `origin` AND `thr-parent-id` IN
 				(SELECT `uri-id` FROM `item` AS `i`
 					WHERE `gravity` = ? AND `network` IN (?, ?, ?, ?) AND `uid` IN (?, ?)
-						AND `i`.`uri-id` = `item`.`thr-parent-id`)))",
+						AND `i`.`uri-id` = `thr-parent-id`)))",
 			GRAVITY_PARENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), GRAVITY_PARENT,
 			Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::OSTATUS,
 			0, $a->profile['uid']]);
@@ -194,7 +194,7 @@ class Status extends BaseProfile
 		$pager = new Pager(DI::l10n(), $args->getQueryString(), $itemspage_network);
 		$params = ['limit' => [$pager->getStart(), $pager->getItemsPerPage()], 'order' => ['received' => true]];
 
-		$items_stmt = DBA::select('item', ['uri', 'thr-parent-id', 'gravity', 'author-id', 'received'], $condition, $params);
+		$items_stmt = Post::select(['uri', 'thr-parent-id', 'gravity', 'author-id', 'received'], $condition, $params);
 
 		// Set a time stamp for this page. We will make use of it when we
 		// search for new items (update routine)
@@ -213,7 +213,7 @@ class Status extends BaseProfile
 			}
 		}
 
-		$items = DBA::toArray($items_stmt);
+		$items = Post::toArray($items_stmt);
 
 		if ($pager->getStart() == 0 && !empty($a->profile['uid'])) {
 			$condition = ['private' => [Item::PUBLIC, Item::UNLISTED]];
@@ -229,7 +229,7 @@ class Status extends BaseProfile
 			}
 	
 			$pinned_items = Item::selectPinned($a->profile['uid'], ['uri', 'pinned'], $condition);
-			$pinned = Item::inArray($pinned_items);
+			$pinned = Item::toArray($pinned_items);
 			$items = array_merge($items, $pinned);
 		}
 

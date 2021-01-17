@@ -120,6 +120,7 @@
 			"avatar-date" => ["contact", "avatar-date"],
 			"thumb" => ["contact", "thumb"],
 			"dfrn-id" => ["contact", "dfrn-id"],
+			"group-id" => ["group_member", "gid"],
 			"author-id" => ["item", "author-id"],
 			"author-link" => ["author", "url"],
 			"author-addr" => ["author", "addr"],
@@ -128,6 +129,7 @@
 			"author-avatar" => "IF (`contact`.`url` = `author`.`url`, `contact`.`thumb`, `author`.`thumb`)",
 			"author-network" => ["author", "network"],
 			"author-blocked" => ["author", "blocked"],
+			"author-hidden" => ["author", "hidden"],
 			"owner-id" => ["item", "owner-id"],
 			"owner-link" => ["owner", "url"],
 			"owner-addr" => ["owner", "addr"],
@@ -136,6 +138,7 @@
 			"owner-avatar" => "IF (`contact`.`url` = `owner`.`url`, `contact`.`thumb`, `owner`.`thumb`)",
 			"owner-network" => ["owner", "network"],
 			"owner-blocked" => ["owner", "blocked"],
+			"owner-hidden" => ["owner", "hidden"],
 			"causer-id" => ["item", "causer-id"],
 			"causer-link" => ["causer", "url"],
 			"causer-addr" => ["causer", "addr"],
@@ -144,6 +147,7 @@
 			"causer-avatar" => ["causer", "thumb"],
 			"causer-network" => ["causer", "network"],
 			"causer-blocked" => ["causer", "blocked"],
+			"causer-hidden" => ["causer", "hidden"],
 			"causer-contact-type" => ["causer", "contact-type"],
 			"postopts" => ["post-delivery-data", "postopts"],
 			"inform" => ["post-delivery-data", "inform"],
@@ -179,6 +183,7 @@
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `item`.`owner-id`
 			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`
+			LEFT JOIN `group_member` ON `group_member`.`contact-id` = `item`.`contact-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`

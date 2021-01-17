@@ -260,7 +260,7 @@ class Transmitter
 			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
 			'deleted' => false, 'visible' => true, 'moderated' => false]);
 
-		$count = DBA::count('item', $condition);
+		$count = Post::count($condition);
 
 		$data = ['@context' => ActivityPub::CONTEXT];
 		$data['id'] = DI::baseUrl() . '/outbox/' . $owner['nickname'];
