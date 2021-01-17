@@ -40,7 +40,7 @@ define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Red Hot Poker');
 define('FRIENDICA_VERSION',      '2021.03-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
-define('NEW_UPDATE_ROUTINE_VERSION', 1170);
+define('NEW_TABLE_STRUCTURE_VERSION', 1288);
 
 /**
  * Constant with a HTML line break.

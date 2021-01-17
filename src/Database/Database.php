@@ -455,7 +455,7 @@ class Database
 	/**
 	 * Executes a prepared statement that returns data
 	 *
-	 * @usage Example: $r = p("SELECT * FROM `item` WHERE `guid` = ?", $guid);
+	 * @usage Example: $r = p("SELECT * FROM `post` WHERE `guid` = ?", $guid);
 	 *
 	 * Please only use it with complicated queries.
 	 * For all regular queries please use DBA::select or DBA::exists

@@ -43,7 +43,7 @@ use Psr\Log\LoggerInterface;
  * @property integer parent Parent Item Id
  * @property boolean seen   Whether the notification was read or not.
  * @property string  verb   Verb URL (@see http://activitystrea.ms)
- * @property string  otype  Subject type (`item`, `intro` or `mail`)
+ * @property string  otype  Subject type ('item', 'intro' or 'mail')
  *
  * @property-read string name_cache Full name of the contact subject
  * @property-read string msg_cache  Plaintext version of the notification text with a placeholder (`{0}`) for the subject contact's name.

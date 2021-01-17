@@ -452,7 +452,7 @@ class Tag
 	public static function countByTag(string $search, int $uid = 0)
 	{
 		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))
-			AND `uri-id` IN (SELECT `uri-id` FROM `item` WHERE `network` IN (?, ?, ?, ?))",
+			AND `uri-id` IN (SELECT `uri-id` FROM `post-view` WHERE `network` IN (?, ?, ?, ?))",
 			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 		$params = ['group_by' => ['uri-id']];
 
@@ -472,7 +472,7 @@ class Tag
 	public static function getURIIdListByTag(string $search, int $uid = 0, int $start = 0, int $limit = 100, int $last_uriid = 0)
 	{
 		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))
-			AND `uri-id` IN (SELECT `uri-id` FROM `item` WHERE `network` IN (?, ?, ?, ?))",
+			AND `uri-id` IN (SELECT `uri-id` FROM `post-view` WHERE `network` IN (?, ?, ?, ?))",
 			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 
 		if (!empty($last_uriid)) {

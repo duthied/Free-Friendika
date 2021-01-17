@@ -183,7 +183,7 @@ class DBA
 
 	/**
 	 * Executes a prepared statement that returns data
-	 * Example: $r = p("SELECT * FROM `item` WHERE `guid` = ?", $guid);
+	 * Example: $r = p("SELECT * FROM `post` WHERE `guid` = ?", $guid);
 	 *
 	 * Please only use it with complicated queries.
 	 * For all regular queries please use DBA::select or DBA::exists

@@ -63,7 +63,7 @@ class Notification extends BaseEntity
 	protected $seen;
 	/** @var string Verb URL @see http://activitystrea.ms */
 	protected $verb;
-	/** @var string Subject type (`item`, `intro` or `mail`) */
+	/** @var string Subject type ('item', 'intro' or 'mail') */
 	protected $otype;
 	/** @var string Full name of the contact subject (HTML) */
 	protected $name_cache;

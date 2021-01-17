@@ -6007,7 +6007,7 @@ function bindComments(&$data)
 	}
 
 	$idStr = DBA::escape(implode(', ', $ids));
-	$sql = "SELECT `parent`, COUNT(*) as comments FROM `item` WHERE `parent` IN ($idStr) AND `deleted` = ? AND `gravity`= ? GROUP BY `parent`";
+	$sql = "SELECT `parent`, COUNT(*) as comments FROM `post-view` WHERE `parent` IN ($idStr) AND `deleted` = ? AND `gravity`= ? GROUP BY `parent`";
 	$items = DBA::p($sql, 0, GRAVITY_COMMENT);
 	$itemsData = DBA::toArray($items);
 

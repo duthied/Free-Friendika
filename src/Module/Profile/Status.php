@@ -181,7 +181,7 @@ class Status extends BaseProfile
 
 		$condition = DBA::mergeConditions($condition, ["((`gravity` = ? AND `wall`) OR
 			(`gravity` = ? AND `vid` = ? AND `origin` AND `thr-parent-id` IN
-				(SELECT `uri-id` FROM `item` AS `i`
+				(SELECT `uri-id` FROM `post-view` AS `i`
 					WHERE `gravity` = ? AND `network` IN (?, ?, ?, ?) AND `uid` IN (?, ?)
 						AND `i`.`uri-id` = `thr-parent-id`)))",
 			GRAVITY_PARENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), GRAVITY_PARENT,
