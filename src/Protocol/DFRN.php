@@ -210,7 +210,7 @@ class DFRN
 					break; // NOTREACHED
 			}
 
-			$contact = DBA::selectFirst('contact', ["NOT `blocked` AND `contact`.`uid` = ?" . $sql_extra, $owner_id]);
+			$contact = DBA::selectFirst('contact', [], ["NOT `blocked` AND `contact`.`uid` = ?" . $sql_extra, $owner_id]);
 			if (!DBA::isResult($contact)) {
 				Logger::notice('No contact found', ['uid' => $owner_id]);
 				exit();
