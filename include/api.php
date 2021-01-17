@@ -2041,7 +2041,6 @@ function api_statuses_repeat($type)
 	Logger::log('API: api_statuses_repeat: '.$id);
 
 	$fields = ['uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
-	$fields = [];
 	$item = Post::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
  
 	if (DBA::isResult($item) && !empty($item['body'])) {
@@ -2076,7 +2075,7 @@ function api_statuses_repeat($type)
 			$item_id = item_post($a);
 		}
 	} else {
-		throw new ForbiddenException(print_r($item, true));
+		throw new ForbiddenException();
 	}
 
 	// output the post that we just posted.
