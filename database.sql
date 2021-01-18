@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1390
+-- DB_UPDATE_VERSION 1391
 -- ------------------------------------------
 
 
@@ -1577,7 +1577,6 @@ CREATE VIEW `post-view` AS SELECT
 	`contact`.`avatar-date` AS `avatar-date`,
 	`contact`.`thumb` AS `thumb`,
 	`contact`.`dfrn-id` AS `dfrn-id`,
-	`group_member`.`gid` AS `group-id`,
 	`item`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -1639,7 +1638,6 @@ CREATE VIEW `post-view` AS SELECT
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `item`.`owner-id`
 			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`
-			LEFT JOIN `group_member` ON `group_member`.`contact-id` = `item`.`contact-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`
@@ -1740,7 +1738,6 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`contact`.`avatar-date` AS `avatar-date`,
 	`contact`.`thumb` AS `thumb`,
 	`contact`.`dfrn-id` AS `dfrn-id`,
-	`group_member`.`gid` AS `group-id`,
 	`thread`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -1803,7 +1800,6 @@ CREATE VIEW `post-thread-view` AS SELECT
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `thread`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `thread`.`owner-id`
 			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`
-			LEFT JOIN `group_member` ON `group_member`.`contact-id` = `thread`.`contact-id`
 			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `thread`.`uri-id`
