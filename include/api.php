@@ -3297,8 +3297,10 @@ function api_lists_statuses($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `id` > ? AND `group-id` = ?",
-		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $_REQUEST['list_id']];
+	$groups = DBA::selectToArray('group_member', ['contact-id'], ['gid' => 1]);
+	$gids = array_column($groups, 'contact-id');
+	$condition = ['uid' => api_user(), 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'group-id' => $gids];
+	$condition = DBA::mergeConditions($condition, ["`id` > ?", $since_id]);
 
 	if ($max_id > 0) {
 		$condition[0] .= " AND `id` <= ?";
