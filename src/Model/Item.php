@@ -217,7 +217,7 @@ class Item
 	 * @return array|false current row or false
 	 * @throws \Exception
 	 */
-	private static function fetch($stmt)
+	public static function fetch($stmt)
 	{
 		$row = DBA::fetch($stmt);
 

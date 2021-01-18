@@ -190,6 +190,36 @@ class Post
 	}
 
 	/**
+	 * Select rows from the given view
+	 *
+	 * @param string $view      View (post-view or post-thread-view)
+	 * @param array  $selected  Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 * @throws \Exception
+	 */
+	private static function selectView(string $view, array $selected = [], array $condition = [], $params = [])
+	{
+		if (empty($selected)) {
+			$selected = array_merge(['author-addr', 'author-nick', 'owner-addr', 'owner-nick', 'causer-addr', 'causer-nick',
+				'causer-network', 'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id',
+				'parent-guid', 'parent-network', 'parent-author-id', 'parent-author-link', 'parent-author-name',
+				'parent-author-network', 'signed_text'], Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST, Item::CONTENT_FIELDLIST);
+			
+			if ($view == 'post-thread-view') {
+				$selected = array_merge($selected, ['ignored', 'iid']);
+			}
+		}
+
+		$selected = array_merge($selected, ['internal-uri-id', 'internal-uid', 'internal-file-count']);
+		$selected = array_unique($selected);
+
+		return DBA::select($view, $selected, $condition, $params);
+	}
+
+	/**
 	 * Select rows from the post table
 	 *
 	 * @param array $selected  Array of selected fields, empty for all
@@ -201,22 +231,28 @@ class Post
 	 */
 	public static function select(array $selected = [], array $condition = [], $params = [])
 	{
-		if (empty($selected)) {
-			$selected = array_merge(['author-addr', 'author-nick', 'owner-addr', 'owner-nick', 'causer-addr', 'causer-nick',
-				'causer-network', 'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id',
-				'parent-guid', 'parent-network', 'parent-author-id', 'parent-author-link', 'parent-author-name',
-				'parent-author-network', 'signed_text'], Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST, Item::CONTENT_FIELDLIST);
-		}
-
-		$selected = array_merge($selected, ['internal-uri-id', 'internal-uid', 'internal-file-count']);
-		$selected = array_unique($selected);
-
-		return DBA::select('post-view', $selected, $condition, $params);
+		return self::selectView('post-view', $selected, $condition, $params);
 	}
 
 	/**
-	 * Select rows from the post view for a given user
+	 * Select rows from the post table
 	 *
+	 * @param array $selected  Array of selected fields, empty for all
+	 * @param array $condition Array of fields for condition
+	 * @param array $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 * @throws \Exception
+	 */
+	public static function selectThread(array $selected = [], array $condition = [], $params = [])
+	{
+		return self::selectView('post-thread-view', $selected, $condition, $params);
+	}
+
+	/**
+	 * Select rows from the given view for a given user
+	 *
+	 * @param string  $view      View (post-view or post-thread-view)
 	 * @param integer $uid       User ID
 	 * @param array   $selected  Array of selected fields, empty for all
 	 * @param array   $condition Array of fields for condition
@@ -225,7 +261,7 @@ class Post
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [])
+	private static function selectViewForUser(string $view, $uid, array $selected = [], array $condition = [], $params = [])
 	{
 		if (empty($selected)) {
 			$selected = Item::DISPLAY_FIELDLIST;
@@ -253,7 +289,7 @@ class Post
 			unset($selected['pinned']);
 			$selected = array_flip($selected);	
 
-			$select_string = '(SELECT `pinned` FROM `user-item` WHERE `iid` = `post-view`.`id` AND uid=`post-view`.`uid`) AS `pinned`, ';
+			$select_string = "(SELECT `pinned` FROM `user-item` WHERE `iid` = `" . $view . "`.`id` AND uid=`" . $view . "`.`uid`) AS `pinned`, ";
 		}
 
 		$select_string .= implode(', ', array_map([DBA::class, 'quoteIdentifier'], $selected));
@@ -261,10 +297,42 @@ class Post
 		$condition_string = DBA::buildCondition($condition);
 		$param_string = DBA::buildParameter($params);
 
-		$sql = "SELECT " . $select_string . " FROM `post-view` " . $condition_string . $param_string;
+		$sql = "SELECT " . $select_string . " FROM `" . $view . "` " . $condition_string . $param_string;
 		$sql = DBA::cleanQuery($sql);
 
 		return DBA::p($sql, $condition);
+	}
+
+	/**
+	 * Select rows from the post view for a given user
+	 *
+	 * @param integer $uid       User ID
+	 * @param array   $selected  Array of selected fields, empty for all
+	 * @param array   $condition Array of fields for condition
+	 * @param array   $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 * @throws \Exception
+	 */
+	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		return self::selectViewForUser('post-view', $uid, $selected, $condition, $params);
+	}
+
+		/**
+	 * Select rows from the post view for a given user
+	 *
+	 * @param integer $uid       User ID
+	 * @param array   $selected  Array of selected fields, empty for all
+	 * @param array   $condition Array of fields for condition
+	 * @param array   $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 * @throws \Exception
+	 */
+	public static function selectThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		return self::selectViewForUser('post-thread-view', $uid, $selected, $condition, $params);
 	}
 
 	/**
