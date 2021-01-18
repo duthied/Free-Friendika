@@ -3382,17 +3382,28 @@ class Item
 		return $condition;
 	}
 
-	public static function getPermissionsSQLByUserId($owner_id)
+	/**
+	 * Get a permission SQL string for the given user
+	 * 
+	 * @param int $owner_id 
+	 * @param string $table 
+	 * @return string 
+	 */
+	public static function getPermissionsSQLByUserId(int $owner_id, string $table = '')
 	{
 		$local_user = local_user();
 		$remote_user = Session::getRemoteContactID($owner_id);
+
+		if (!empty($table)) {
+			$table = DBA::quoteIdentifier($table) . '.';
+		}
 
 		/*
 		 * Construct permissions
 		 *
 		 * default permissions - anonymous user
 		 */
-		$sql = sprintf(" AND `private` != %d", self::PRIVATE);
+		$sql = sprintf(" AND " . $table . "`private` != %d", self::PRIVATE);
 
 		// Profile owner - everything is visible
 		if ($local_user && ($local_user == $owner_id)) {
@@ -3408,12 +3419,12 @@ class Item
 			$set = PermissionSet::get($owner_id, $remote_user);
 
 			if (!empty($set)) {
-				$sql_set = sprintf(" OR (`private` = %d AND `wall` AND `psid` IN (", self::PRIVATE) . implode(',', $set) . "))";
+				$sql_set = sprintf(" OR (" . $table . "`private` = %d AND " . $table . "`wall` AND " . $table . "`psid` IN (", self::PRIVATE) . implode(',', $set) . "))";
 			} else {
 				$sql_set = '';
 			}
 
-			$sql = sprintf(" AND (`private` != %d", self::PRIVATE) . $sql_set . ")";
+			$sql = sprintf(" AND (" . $table . "`private` != %d", self::PRIVATE) . $sql_set . ")";
 		}
 
 		return $sql;

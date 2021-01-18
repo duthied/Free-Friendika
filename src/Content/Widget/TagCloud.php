@@ -87,7 +87,7 @@ class TagCloud
 	 */
 	private static function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = Tag::HASHTAG)
 	{
-		$sql_options = Item::getPermissionsSQLByUserId($uid);
+		$sql_options = Item::getPermissionsSQLByUserId($uid, 'post-view');
 		$limit = $count ? sprintf('LIMIT %d', intval($count)) : '';
 
 		if ($flags) {
