@@ -26,6 +26,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Profile;
+use Friendica\Security\TwoFactor;
 
 /**
  * Logout module
@@ -44,6 +45,13 @@ class Logout extends BaseModule
 		}
 
 		Hook::callAll("logging_out");
+
+		// Remove this trusted browser as it won't be able to be used ever again after the cookie is cleared
+		if (DI::cookie()->get('trusted')) {
+			$trustedBrowserRepository = new TwoFactor\Repository\TrustedBrowser(DI::dba(), DI::logger());
+			$trustedBrowserRepository->removeForUser(local_user(), DI::cookie()->get('trusted'));
+		}
+
 		DI::cookie()->clear();
 		DI::session()->clear();
 

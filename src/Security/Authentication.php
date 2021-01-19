@@ -33,7 +33,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
-use Friendica\Repository\TwoFactor\TrustedBrowser;
+use Friendica\Security\TwoFactor\Repository\TrustedBrowser;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -427,9 +427,36 @@ class Authentication
 			return;
 		}
 
-		// Case 1: 2FA session present and valid: return
+		// Case 1a: 2FA session already present: return
 		if ($this->session->get('2fa')) {
 			return;
+		}
+
+		// Case 1b: Check for trusted browser
+		if ($this->cookie->get('trusted')) {
+			// Retrieve a trusted_browser model based on cookie hash
+			$trustedBrowserRepository = new TrustedBrowser($this->dba, $this->logger);
+			try {
+				$trustedBrowser = $trustedBrowserRepository->selectOneByHash($this->cookie->get('trusted'));
+				// Verify record ownership
+				if ($trustedBrowser->uid === $uid) {
+					// Update last_used date
+					$trustedBrowser->recordUse();
+
+					// Save it to the database
+					$trustedBrowserRepository->save($trustedBrowser);
+
+					// Set 2fa session key and return
+					$this->session->set('2fa', true);
+
+					return;
+				} else {
+					// Invalid trusted cookie value, removing it
+					$this->cookie->unset('trusted');
+				}
+			} catch (\Throwable $e) {
+				// Local trusted browser record was probably removed by the user, we carry on with 2FA
+			}
 		}
 
 		// Case 2: No valid 2FA session: redirect to code verification page

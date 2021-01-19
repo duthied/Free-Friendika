@@ -18,6 +18,8 @@
 
 		{{include file="field_input.tpl" field=$verify_code}}
 
+		{{include file="field_checkbox.tpl" field=$trust_browser}}
+
 		<div class="form-group settings-submit-wrapper">
 			<button type="submit" name="action" id="confirm-submit-button" class="btn btn-primary confirm-button" value="verify">{{$verify_label}}</button>
 		</div>
