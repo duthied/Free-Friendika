@@ -25,7 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
-use Friendica\Model\TwoFactor\RecoveryCode;
+use Friendica\Security\TwoFactor\Model\RecoveryCode;
 
 /**
  * // Page 1a: Recovery code verification
