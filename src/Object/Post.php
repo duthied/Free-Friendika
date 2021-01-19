@@ -301,7 +301,7 @@ class Post
 
 		if ($this->isToplevel()) {
 			if(local_user()) {
-				$thread = Item::selectFirstThreadForUser(local_user(), ['ignored'], ['iid' => $item['id']]);
+				$thread = PostModel::selectFirstThreadForUser(local_user(), ['ignored'], ['iid' => $item['id']]);
 				if (DBA::isResult($thread)) {
 					$ignore = [
 						'do'        => DI::l10n()->t("ignore thread"),

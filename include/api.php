@@ -1733,18 +1733,18 @@ function api_statuses_public_timeline($type)
 	$start = max(0, ($page - 1) * $count);
 
 	if ($exclude_replies && !$conversation_id) {
-		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND `private` = ? AND `wall` AND NOT `author`.`hidden`",
+		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND `private` = ? AND `wall` AND NOT `author-hidden`",
 			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 		if ($max_id > 0) {
-			$condition[0] .= " AND `thread`.`iid` <= ?";
+			$condition[0] .= " AND `iid` <= ?";
 			$condition[] = $max_id;
 		}
 
 		$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
-		$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+		$statuses = Post::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
-		$r = Item::toArray($statuses);
+		$r = Post::toArray($statuses);
 	} else {
 		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND `private` = ? AND `wall` AND `origin` AND NOT `author-hidden`",
 			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
@@ -1812,18 +1812,18 @@ function api_statuses_networkpublic_timeline($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `thread`.`iid` > ? AND `private` = ?",
+	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `iid` > ? AND `private` = ?",
 		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `thread`.`iid` <= ?";
+		$condition[0] .= " AND `iid` <= ?";
 		$condition[] = $max_id;
 	}
 
 	$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
-	$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Post::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
-	$ret = api_format_items(Item::toArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 
 	bindComments($ret);
 

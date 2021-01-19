@@ -378,7 +378,7 @@ class Processor
 		}
 
 		foreach ($activity['receiver'] as $receiver) {
-			$item = Post::selectFirst(['id', 'uri-id', 'tag', 'origin', 'author-link'], ['uri' => $activity['target_id'], 'uid' => $receiver]);
+			$item = Post::selectFirst(['id', 'uri-id', 'origin', 'author-link'], ['uri' => $activity['target_id'], 'uid' => $receiver]);
 			if (!DBA::isResult($item)) {
 				// We don't fetch missing content for this purpose
 				continue;

@@ -228,8 +228,8 @@ class Status extends BaseProfile
 				$condition = [];
 			}
 	
-			$pinned_items = Item::selectPinned($a->profile['uid'], ['uri', 'pinned'], $condition);
-			$pinned = Item::toArray($pinned_items);
+			$pinned_items = Post::selectPinned($a->profile['uid'], ['uri', 'pinned'], $condition);
+			$pinned = Post::toArray($pinned_items);
 			$items = array_merge($items, $pinned);
 		}
 

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1391
+-- DB_UPDATE_VERSION 1392
 -- ------------------------------------------
 
 
@@ -1580,18 +1580,18 @@ CREATE VIEW `post-view` AS SELECT
 	`item`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
-	IF (`contact`.`url` = `author`.`url`, `contact`.`name`, `author`.`name`) AS `author-name`,
+	IF (`contact`.`url` = `author`.`url` AND `contact`.`name` != '', `contact`.`name`, `author`.`name`) AS `author-name`,
 	`author`.`nick` AS `author-nick`,
-	IF (`contact`.`url` = `author`.`url`, `contact`.`thumb`, `author`.`thumb`) AS `author-avatar`,
+	IF (`contact`.`url` = `author`.`url` AND `contact`.`thumb` != '', `contact`.`thumb`, `author`.`thumb`) AS `author-avatar`,
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
 	`item`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
-	IF (`contact`.`url` = `owner`.`url`, `contact`.`name`, `owner`.`name`) AS `owner-name`,
+	IF (`contact`.`url` = `owner`.`url` AND `contact`.`name` != '', `contact`.`name`, `owner`.`name`) AS `owner-name`,
 	`owner`.`nick` AS `owner-nick`,
-	IF (`contact`.`url` = `owner`.`url`, `contact`.`thumb`, `owner`.`thumb`) AS `owner-avatar`,
+	IF (`contact`.`url` = `owner`.`url` AND `contact`.`thumb` != '', `contact`.`thumb`, `owner`.`thumb`) AS `owner-avatar`,
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
@@ -1671,7 +1671,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`item`.`gravity` AS `gravity`,
 	`item`.`extid` AS `extid`,
 	`thread`.`created` AS `created`,
-	`thread`.`edited` AS `edited`,
+	`item`.`edited` AS `edited`,
 	`thread`.`commented` AS `commented`,
 	`thread`.`received` AS `received`,
 	`thread`.`changed` AS `changed`,
@@ -1741,18 +1741,18 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`thread`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
-	IF (`contact`.`url` = `author`.`url`, `contact`.`name`, `author`.`name`) AS `author-name`,
+	IF (`contact`.`url` = `author`.`url` AND `contact`.`name` != '', `contact`.`name`, `author`.`name`) AS `author-name`,
 	`author`.`nick` AS `author-nick`,
-	IF (`contact`.`url` = `author`.`url`, `contact`.`thumb`, `author`.`thumb`) AS `author-avatar`,
+	IF (`contact`.`url` = `author`.`url` AND `contact`.`thumb` != '', `contact`.`thumb`, `author`.`thumb`) AS `author-avatar`,
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
 	`thread`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
-	IF (`contact`.`url` = `owner`.`url`, `contact`.`name`, `owner`.`name`) AS `owner-name`,
+	IF (`contact`.`url` = `owner`.`url` AND `contact`.`name` != '', `contact`.`name`, `owner`.`name`) AS `owner-name`,
 	`owner`.`nick` AS `owner-nick`,
-	IF (`contact`.`url` = `owner`.`url`, `contact`.`thumb`, `owner`.`thumb`) AS `owner-avatar`,
+	IF (`contact`.`url` = `owner`.`url` AND `contact`.`thumb` != '', `contact`.`thumb`, `owner`.`thumb`) AS `owner-avatar`,
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
@@ -1806,7 +1806,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 			LEFT JOIN `item-content` ON `item-content`.`uri-id` = `thread`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `thread`.`uri-id` AND `thread`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
-			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`uri-id` = `item`.`parent-uri-id` AND `parent-item`.`uid` = `item`.`uid`
+			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
 			STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`;
 
 --
