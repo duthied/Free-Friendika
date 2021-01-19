@@ -2060,7 +2060,7 @@ class DFRN
 				$xt = XML::parseString($item["target"]);
 
 				if ($xt->type == Activity\ObjectType::NOTE) {
-					$item_tag = Post::selectFirst(['id', 'uri-id', 'tag'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
+					$item_tag = Post::selectFirst(['id', 'uri-id'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
 
 					if (!DBA::isResult($item_tag)) {
 						Logger::log("Query failed to execute, no result returned in " . __FUNCTION__);
