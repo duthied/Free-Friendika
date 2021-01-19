@@ -1812,11 +1812,11 @@ function api_statuses_networkpublic_timeline($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `thread`.`iid` > ? AND `private` = ?",
+	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `iid` > ? AND `private` = ?",
 		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `thread`.`iid` <= ?";
+		$condition[0] .= " AND `iid` <= ?";
 		$condition[] = $max_id;
 	}
 
