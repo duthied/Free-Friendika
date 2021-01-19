@@ -417,6 +417,10 @@ nav.navbar {
     z-index: 1030;
     color: $nav_icon_color;
 }
+#topbar-first .navbar-toggle {
+    margin-top: 5px;
+    margin-bottom: 0;
+}
 #topbar-first .nav > li > a,
 #topbar-first .nav > li > button,
 nav.navbar .nav > li > a,
@@ -656,6 +660,21 @@ nav.navbar .nav > li > button:focus
 #topbar-first #search-box .navbar-form {
     margin: 0px;
     padding: 12px 12px;
+}
+#search-mobile {
+    position: fixed;
+    top: 90px;
+    left: 0;
+    right: 0;
+    z-index: 2;
+
+    background-color: $background_color;
+
+    /* fix bootstrap .well class not playing well with data-target slide animation */
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    border-radius: 0;
 }
 #search-mobile .navbar-form {
     margin: 0;
@@ -1398,9 +1417,9 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
 .panel {
     border: none;
     background-color: rgba(255,255,255,$contentbg_transp);
-    box-shadow: 0 0 3px #dadada;
-    -webkit-box-shadow: 0 0 3px #dadada;
-    -moz-box-shadow: 0 0 3px #dadada;
+    box-shadow: 0 0 2px #dadada;
+    -webkit-box-shadow: 0 0 2px #dadada;
+    -moz-box-shadow: 0 0 2px #dadada;
     border-radius: 4px;
     position: relative;
 }
@@ -1458,6 +1477,13 @@ aside .panel-body {
 .wall-item-container.panel-body {
     padding: 0;
     border-top: none;
+}
+
+.comment-edit-preview .wall-item-container.panel-body.preview {
+    margin-top: 4px;
+}
+.comment-edit-preview .panel {
+    margin-bottom: 0;
 }
 
 .wall-item-container .media {
@@ -1847,6 +1873,7 @@ wall-item-comment-wrapper.well {
     background-color: rgba(237, 237, 237, $contentbg_transp);
     background-image: none;
     margin-bottom: 1px;
+    background-color: red;
 }
 wall-item-comment-wrapper.well-small {
     padding: 10px;
@@ -1908,6 +1935,7 @@ wall-item-comment-wrapper.well hr {
 
 .comment-edit-submit-wrapper {
     text-align: right;
+    margin-bottom: 0;
 }
 
 .comment-icon-list {
@@ -3420,7 +3448,6 @@ section .profile-match-wrapper {
         left: 10%;
         z-index: -1;
     }
-
 }
 
 /* Mobile display */
