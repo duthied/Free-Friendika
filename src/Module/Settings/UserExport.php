@@ -28,6 +28,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Module\BaseSettings;
 
 /**
@@ -245,7 +246,7 @@ class UserExport extends BaseSettings
 		// chunk the output to avoid exhausting memory
 
 		for ($x = 0; $x < $total; $x += 500) {
-			$items = Item::selectToArray(Item::ITEM_FIELDLIST, ['uid' => local_user()], ['limit' => [$x, 500]]);
+			$items = Post::selectToArray(Item::ITEM_FIELDLIST, ['uid' => local_user()], ['limit' => [$x, 500]]);
 			$output = ['item' => $items];
 			echo json_encode($output, JSON_PARTIAL_OUTPUT_ON_ERROR). "\n";
 		}

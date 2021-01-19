@@ -356,9 +356,9 @@ class Community extends BaseModule
 			}
 		}
 
-		$r = Item::selectThreadForUser(0, ['uri', 'commented', 'author-link'], $condition, $params);
+		$r = Post::selectThreadForUser(0, ['uri', 'commented', 'author-link'], $condition, $params);
 
-		$items = DBA::toArray($r);
+		$items = Post::toArray($r);
 
 		// Previous page case: once we get the relevant items closest to min_id, we need to restore the expected display order
 		if (empty($item_id) && isset($min_id) && !isset($max_id)) {

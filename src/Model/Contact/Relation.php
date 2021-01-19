@@ -24,6 +24,7 @@ namespace Friendica\Model\Contact;
 use Exception;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
@@ -64,7 +65,7 @@ class Relation
 			return;
 		}
 
-		DBA::update('contact-relation', ['last-interaction' => $interaction_date], ['cid' => $target, 'relation-cid' => $actor], true);
+		DBA::insert('contact-relation', ['last-interaction' => $interaction_date, 'cid' => $target, 'relation-cid' => $actor], Database::INSERT_UPDATE);
 	}
 
 	/**
@@ -136,14 +137,14 @@ class Relation
 			$actor = Contact::getIdForURL($contact);
 			if (!empty($actor)) {
 				if (in_array($contact, $followers)) {
-					$fields = ['cid' => $target, 'relation-cid' => $actor];
-					DBA::update('contact-relation', ['follows' => true, 'follow-updated' => DateTimeFormat::utcNow()], $fields, true);
+					$fields = ['cid' => $target, 'relation-cid' => $actor, 'follows' => true, 'follow-updated' => DateTimeFormat::utcNow()];
+					DBA::insert('contact-relation', $fields, Database::INSERT_UPDATE);
 					$follower_counter++;
 				}
 
 				if (in_array($contact, $followings)) {
-					$fields = ['cid' => $actor, 'relation-cid' => $target];
-					DBA::update('contact-relation', ['follows' => true, 'follow-updated' => DateTimeFormat::utcNow()], $fields, true);
+					$fields = ['cid' => $actor, 'relation-cid' => $target, 'follows' => true, 'follow-updated' => DateTimeFormat::utcNow()];
+					DBA::insert('contact-relation', $fields, Database::INSERT_UPDATE);
 					$following_counter++;
 				}
 			}

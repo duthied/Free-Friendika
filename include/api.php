@@ -1742,9 +1742,9 @@ function api_statuses_public_timeline($type)
 		}
 
 		$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
-		$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+		$statuses = Post::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
-		$r = Item::toArray($statuses);
+		$r = Post::toArray($statuses);
 	} else {
 		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND `private` = ? AND `wall` AND `origin` AND NOT `author-hidden`",
 			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
@@ -1821,9 +1821,9 @@ function api_statuses_networkpublic_timeline($type)
 	}
 
 	$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
-	$statuses = Item::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Post::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
-	$ret = api_format_items(Item::toArray($statuses), $user_info, false, $type);
+	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 
 	bindComments($ret);
 

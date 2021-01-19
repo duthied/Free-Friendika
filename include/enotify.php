@@ -149,7 +149,7 @@ function notification($params)
 	}
 
 	if ($params['type'] == Notify\Type::COMMENT || $params['type'] == Notify\Type::TAG_SELF) {
-		$thread = Item::selectFirstThreadForUser($params['uid'], ['ignored'], ['iid' => $parent_id, 'deleted' => false]);
+		$thread = Post::selectFirstThreadForUser($params['uid'], ['ignored'], ['iid' => $parent_id, 'deleted' => false]);
 		if (DBA::isResult($thread) && $thread['ignored']) {
 			Logger::log('Thread ' . $parent_id . ' will be ignored', Logger::DEBUG);
 			return false;

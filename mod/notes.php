@@ -25,6 +25,7 @@ use Friendica\Content\Pager;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Module\BaseProfile;
 
 function notes_init(App $a)
@@ -81,12 +82,12 @@ function notes_content(App $a, $update = false)
 
 	$params = ['order' => ['created' => true],
 		'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
-	$r = Item::selectThreadForUser(local_user(), ['uri'], $condition, $params);
+	$r = Post::selectThreadForUser(local_user(), ['uri'], $condition, $params);
 
 	$count = 0;
 
 	if (DBA::isResult($r)) {
-		$notes = Item::toArray($r);
+		$notes = Post::toArray($r);
 
 		$count = count($notes);
 

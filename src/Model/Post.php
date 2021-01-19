@@ -360,4 +360,63 @@ class Post
 			return $row;
 		}
 	}
+
+	/**
+	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
+	 *
+	 * @param integer $uid User ID
+	 * @param array   $selected
+	 * @param array   $condition
+	 * @param array   $params
+	 * @return bool|array
+	 * @throws \Exception
+	 * @see   DBA::select
+	 */
+	public static function selectFirstThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$params['limit'] = 1;
+
+		$result = self::selectThreadForUser($uid, $selected, $condition, $params);
+
+		if (is_bool($result)) {
+			return $result;
+		} else {
+			$row = self::fetch($result);
+			DBA::close($result);
+			return $row;
+		}
+	}
+
+	/**
+	 * Select pinned rows from the item table for a given user
+	 *
+	 * @param integer $uid       User ID
+	 * @param array   $selected  Array of selected fields, empty for all
+	 * @param array   $condition Array of fields for condition
+	 * @param array   $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 * @throws \Exception
+	 */
+	public static function selectPinned(int $uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$useritems = DBA::select('user-item', ['iid'], ['uid' => $uid, 'pinned' => true]);
+		if (!DBA::isResult($useritems)) {
+			return $useritems;
+		}
+
+		$pinned = [];
+		while ($useritem = DBA::fetch($useritems)) {
+			$pinned[] = $useritem['iid'];
+		}
+		DBA::close($useritems);
+
+		if (empty($pinned)) {
+			return [];
+		}
+
+		$condition = DBA::mergeConditions(['iid' => $pinned], $condition);
+
+		return self::selectThreadForUser($uid, $selected, $condition, $params);
+	}
 }

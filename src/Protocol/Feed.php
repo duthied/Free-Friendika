@@ -887,12 +887,12 @@ class Feed
 		$params = ['order' => ['received' => true], 'limit' => $max_items];
 
 		if ($filter === 'posts') {
-			$ret = Item::selectThread([], $condition, $params);
+			$ret = Post::selectThread([], $condition, $params);
 		} else {
-			$ret = Item::select([], $condition, $params);
+			$ret = Post::select([], $condition, $params);
 		}
 
-		$items = Item::toArray($ret);
+		$items = Post::toArray($ret);
 
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
