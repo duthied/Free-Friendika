@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1392);
+	define('DB_UPDATE_VERSION', 1393);
 }
 
 return [
@@ -752,7 +752,6 @@ return [
 			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the owner of this item"],
 			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the author of this item"],
 			"causer-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the contact that caused the item creation"],
-			"icid" => ["type" => "int unsigned", "relation" => ["item-content" => "id"], "comment" => "Id of the item-content table entry that contains the whole item content"],
 			"vid" => ["type" => "smallint unsigned", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
 			"extid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"post-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Post type (personal note, bookmark, ...)"],
@@ -777,6 +776,7 @@ return [
 			"event-id" => ["type" => "int unsigned", "relation" => ["event" => "id"], "comment" => "Used to link to the event.id"],
 			// Deprecated fields. Will be removed in upcoming versions
 			"iaid" => ["type" => "int unsigned", "comment" => "Deprecated"],
+			"icid" => ["type" => "int unsigned", "comment" => "Deprecated"],
 			"attach" => ["type" => "mediumtext", "comment" => "Deprecated"],
 			"allow_cid" => ["type" => "mediumtext", "comment" => "Deprecated"],
 			"allow_gid" => ["type" => "mediumtext", "comment" => "Deprecated"],
@@ -836,8 +836,6 @@ return [
 			"uid_unseen_wall" => ["uid", "unseen", "wall"],
 			"mention_uid_id" => ["mention", "uid", "id"],
 			"uid_eventid" => ["uid", "event-id"],
-			"icid" => ["icid"],
-			"iaid" => ["iaid"],
 			"vid" => ["vid"],
 			"psid_wall" => ["psid", "wall"],
 			"uri-id" => ["uri-id"],
