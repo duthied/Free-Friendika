@@ -31,6 +31,7 @@ use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Model\Tag;
 use Friendica\Core\Worker;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
@@ -108,7 +109,7 @@ class Item
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'vid',
-			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'psid',
+			'contact-id', 'type', 'wall', 'gravity', 'extid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'inform',
 			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
@@ -202,7 +203,7 @@ class Item
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'icid', 'uid', 'file'], $condition);
+		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'uid', 'file'], $condition);
 
 		$content_fields = [];
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
@@ -264,14 +265,6 @@ class Item
 				}
 		
 				self::updateContent($content_fields, ['uri-id' => $item['uri-id']]);
-
-				if (empty($item['icid'])) {
-					$item_content = DBA::selectFirst('item-content', [], ['uri-id' => $item['uri-id']]);
-					if (DBA::isResult($item_content)) {
-						$item_fields = ['icid' => $item_content['id']];
-						DBA::update('item', $item_fields, ['id' => $item['id']]);
-					}
-				}
 			}
 
 			if (!is_null($files)) {
@@ -366,8 +359,7 @@ class Item
 		// locate item to be deleted
 		$fields = ['id', 'uri', 'uri-id', 'uid', 'parent', 'parent-uri', 'origin',
 			'deleted', 'file', 'resource-id', 'event-id',
-			'verb', 'object-type', 'object', 'target', 'contact-id',
-			'icid', 'psid', 'gravity'];
+			'verb', 'object-type', 'object', 'target', 'contact-id', 'psid', 'gravity'];
 		$item = Post::selectFirst($fields, ['id' => $item_id]);
 		if (!DBA::isResult($item)) {
 			Logger::info('Item not found.', ['id' => $item_id]);
@@ -1123,13 +1115,10 @@ class Item
 			$notify_type = Delivery::POST;
 		}
 
-		if (!in_array($item['verb'], self::ACTIVITIES)) {
-			$item['icid'] = self::insertContent($item);
-			if (empty($item['icid'])) {
-				// This shouldn't happen
-				Logger::warning('No content stored, quitting', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'causer-id' => ($item['causer-id'] ?? 0), 'post-type' => $item['post-type'], 'network' => $item['network']]);
-				return 0;
-			}
+		if (!in_array($item['verb'], self::ACTIVITIES) && !self::insertContent($item)) {
+			// This shouldn't happen
+			Logger::warning('No content stored, quitting', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'causer-id' => ($item['causer-id'] ?? 0), 'post-type' => $item['post-type'], 'network' => $item['network']]);
+			return 0;
 		}
 
 		$body = $item['body'];
@@ -1372,6 +1361,7 @@ class Item
 	 * Insert a new item content entry
 	 *
 	 * @param array $item The item fields that are to be inserted
+	 * @return bool "true" if content was inserted or already existed
 	 * @throws \Exception
 	 */
 	private static function insertContent(array $item)
@@ -1384,25 +1374,23 @@ class Item
 			}
 		}
 
-		$item_content = DBA::selectFirst('item-content', ['id'], ['uri-id' => $item['uri-id']]);
-		if (DBA::isResult($item_content)) {
-			$icid = $item_content['id'];
-			Logger::info('Existing content found', ['icid' => $icid, 'uri' => $item['uri']]);
-			return $icid;
+		$found = DBA::exists('item-content', ['uri-id' => $item['uri-id']]);
+		if ($found) {
+			Logger::info('Existing content found', ['uri-id' => $item['uri-id'], 'uri' => $item['uri']]);
+			return true;
 		}
 
-		DBA::replace('item-content', $fields);
+		DBA::insert('item-content', $fields, Database::INSERT_IGNORE);
 
-		$item_content = DBA::selectFirst('item-content', ['id'], ['uri-id' => $item['uri-id']]);
-		if (DBA::isResult($item_content)) {
-			$icid = $item_content['id'];
-			Logger::notice('Content inserted', ['icid' => $icid, 'uri' => $item['uri']]);
-			return $icid;
+		$found = DBA::exists('item-content', ['uri-id' => $item['uri-id']]);
+		if ($found) {
+			Logger::notice('Content inserted', ['uri-id' => $item['uri-id'], 'uri' => $item['uri']]);
+			return true;
 		}
 
 		// This shouldn't happen.
 		Logger::error("Content wasn't inserted", $item);
-		return null;
+		return false;
 	}
 
 	/**
@@ -1439,7 +1427,7 @@ class Item
 	 */
 	public static function distribute($itemid, $signed_text = '')
 	{
-		$condition = ["`id` IN (SELECT `parent` FROM `item` WHERE `id` = ?)", $itemid];
+		$condition = ["`id` IN (SELECT `parent` FROM `post-view` WHERE `id` = ?)", $itemid];
 		$parent = Post::selectFirst(['owner-id'], $condition);
 		if (!DBA::isResult($parent)) {
 			return;

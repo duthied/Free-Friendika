@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1392
+-- DB_UPDATE_VERSION 1393
 -- ------------------------------------------
 
 
@@ -686,7 +686,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the owner of this item',
 	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
 	`causer-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
-	`icid` int unsigned COMMENT 'Id of the item-content table entry that contains the whole item content',
 	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
 	`extid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, bookmark, ...)',
@@ -708,6 +707,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`resource-id` varchar(32) NOT NULL DEFAULT '' COMMENT 'Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type',
 	`event-id` int unsigned COMMENT 'Used to link to the event.id',
 	`iaid` int unsigned COMMENT 'Deprecated',
+	`icid` int unsigned COMMENT 'Deprecated',
 	`attach` mediumtext COMMENT 'Deprecated',
 	`allow_cid` mediumtext COMMENT 'Deprecated',
 	`allow_gid` mediumtext COMMENT 'Deprecated',
@@ -765,8 +765,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `uid_unseen_wall` (`uid`,`unseen`,`wall`),
 	 INDEX `mention_uid_id` (`mention`,`uid`,`id`),
 	 INDEX `uid_eventid` (`uid`,`event-id`),
-	 INDEX `icid` (`icid`),
-	 INDEX `iaid` (`iaid`),
 	 INDEX `vid` (`vid`),
 	 INDEX `psid_wall` (`psid`,`wall`),
 	 INDEX `uri-id` (`uri-id`),
@@ -1530,7 +1528,6 @@ CREATE VIEW `post-view` AS SELECT
 	`item`.`mention` AS `mention`,
 	`item`.`global` AS `global`,
 	`item`.`network` AS `network`,
-	`item`.`icid` AS `icid`,
 	`item`.`vid` AS `vid`,
 	`item`.`psid` AS `psid`,
 	`item`.`attach` AS `attach`,
@@ -1691,7 +1688,6 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`thread`.`mention` AS `mention`,
 	`item`.`global` AS `global`,
 	`thread`.`network` AS `network`,
-	`item`.`icid` AS `icid`,
 	`item`.`vid` AS `vid`,
 	`item`.`psid` AS `psid`,
 	`item`.`attach` AS `attach`,

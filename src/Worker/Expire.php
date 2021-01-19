@@ -53,7 +53,7 @@ class Expire
 			// Normally we shouldn't have orphaned data at all.
 			// If we do have some, then we have to check why.
 			Logger::log('Deleting orphaned item content - start', Logger::DEBUG);
-			$condition = ["NOT EXISTS (SELECT `icid` FROM `item` WHERE `item`.`icid` = `item-content`.`id`)"];
+			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `item` WHERE `item`.`uri-id` = `item-content`.`uri-id`)"];
 			DBA::delete('item-content', $condition);
 			Logger::log('Orphaned item content deleted: ' . DBA::affectedRows(), Logger::DEBUG);
 
