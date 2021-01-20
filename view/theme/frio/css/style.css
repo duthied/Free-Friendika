@@ -417,9 +417,17 @@ nav.navbar {
     z-index: 1030;
     color: $nav_icon_color;
 }
+@media screen and (max-width: 767px) {
+    #topbar-first,
+    nav.navbar {
+        padding: 0 2px;
+    }
+}
+
 #topbar-first .navbar-toggle {
     margin-top: 5px;
     margin-bottom: 0;
+    margin-right: 0;
 }
 #topbar-first .nav > li > a,
 #topbar-first .nav > li > button,
