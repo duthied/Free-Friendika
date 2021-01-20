@@ -393,6 +393,12 @@ as the value of $top_child_total (this is done at the end of this file)
 							<a class="btn-link navicon delete" href="javascript:dropItem('item/drop/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.drop.delete}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.delete}}</a>
 						</li>
 						{{/if}}
+
+						{{if $item.block}}
+						<li role="menuitem">
+							<a class="btn-link navicon block" href="javascript:blockAuthor('item/block/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.block.block}}"><i class="fa fa-ban" aria-hidden="true"></i> {{$item.block.block}}</a>
+						</li>
+						{{/if}}
 					</ul>
 					<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 				</span>
