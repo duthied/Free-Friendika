@@ -385,6 +385,7 @@ return [
 			'/recovery'     => [Module\Settings\TwoFactor\Recovery::class,    [R::GET, R::POST]],
 			'/app_specific' => [Module\Settings\TwoFactor\AppSpecific::class, [R::GET, R::POST]],
 			'/verify'       => [Module\Settings\TwoFactor\Verify::class,      [R::GET, R::POST]],
+			'/trusted'      => [Module\Settings\TwoFactor\Trusted::class, [R::GET, R::POST]],
 		],
 		'/delegation[/{action}/{user_id}]' => [Module\Settings\Delegation::class,       [R::GET, R::POST]],
 		'/display'                 => [Module\Settings\Display::class,             [R::GET, R::POST]],

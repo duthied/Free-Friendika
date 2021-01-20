@@ -78,6 +78,11 @@ class Index extends BaseSettings
 						DI::baseUrl()->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					}
 					break;
+				case 'trusted':
+					if ($has_secret) {
+						DI::baseUrl()->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
+					}
+					break;
 				case 'configure':
 					if (!$verified) {
 						DI::baseUrl()->redirect('settings/2fa/verify?t=' . self::getFormSecurityToken('settings_2fa_password'));
@@ -130,6 +135,7 @@ class Index extends BaseSettings
 			'$disable_label'        => DI::l10n()->t('Disable two-factor authentication'),
 			'$recovery_codes_label' => DI::l10n()->t('Show recovery codes'),
 			'$app_specific_passwords_label' => DI::l10n()->t('Manage app-specific passwords'),
+			'$trusted_browsers_label' => DI::l10n()->t('Manage trusted browsers'),
 			'$configure_label'      => DI::l10n()->t('Finish app configuration'),
 		]);
 	}
