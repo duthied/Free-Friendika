@@ -2083,7 +2083,6 @@ ul.dropdown-menu li:hover {
 /* Dropdown Menu */
 .dropdown-menu li a,
 .dropdown-menu li .btn-link {
-    /* color: $link_color; */
     color: $font_color_darker;
     
 }
