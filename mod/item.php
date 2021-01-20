@@ -819,24 +819,50 @@ function item_post_return($baseurl, $api_source, $return_path)
 function item_content(App $a)
 {
 	if (!Session::isAuthenticated()) {
-		return;
+		throw new HTTPException\UnauthorizedException();
+	}
+
+	$args = DI::args();
+
+	if (!$args->has(3)) {
+		throw new HTTPException\BadRequestException();
 	}
 
 	$o = '';
+	switch ($args->get(1)) {
+		case 'drop':
+			if (DI::mode()->isAjax()) {
+				Item::deleteForUser(['id' => $args->get(2)], local_user());
+				// ajax return: [<item id>, 0 (no perm) | <owner id>]
+				System::jsonExit([intval($args->get(2)), local_user()]);
+			} else {
+				if (!empty($args->get(3))) {
+					$o = drop_item($args->get(2), $args->get(3));
+				} else {
+					$o = drop_item($args->get(2));
+				}
+			}
+			break;
+		case 'block':
+			$item = Post::selectFirstForUser(local_user(), ['guid', 'author-id', 'parent', 'gravity'], ['id' => $args->get(2)]);
+			if (empty($item['author-id'])) {
+				throw new HTTPException\NotFoundException('Item not found');
+			}
 
-	if (($a->argc >= 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
-		if (DI::mode()->isAjax()) {
-			Item::deleteForUser(['id' => $a->argv[2]], local_user());
-			// ajax return: [<item id>, 0 (no perm) | <owner id>]
-			System::jsonExit([intval($a->argv[2]), local_user()]);
-		} else {
-			if (!empty($a->argv[3])) {
-				$o = drop_item($a->argv[2], $a->argv[3]);
+			$cdata = Contact::getPublicAndUserContacID($item['author-id'], local_user());
+			if (empty($cdata['user'])) {
+				throw new HTTPException\NotFoundException('Contact not found');
 			}
-			else {
-				$o = drop_item($a->argv[2]);
+
+			Contact::block($cdata['user'], DI::l10n()->t('Blocked on item with guid %s', $item['guid']));
+
+			if (DI::mode()->isAjax()) {
+				// ajax return: [<item id>, 0 (no perm) | <owner id>]
+				System::jsonExit([intval($args->get(2)), local_user()]);
+			} else {
+				item_redirect_after_action($item, $args->get(3));
 			}
-		}
+			break;
 	}
 
 	return $o;
@@ -871,39 +897,10 @@ function drop_item(int $id, string $return = '')
 	}
 
 	if ((local_user() == $item['uid']) || $contact_id) {
-		if (!empty($item['parent'])) {
-			$parentitem = Post::selectFirstForUser(local_user(), ['guid'], ['id' => $item['parent']]);
-		}
-
 		// delete the item
 		Item::deleteForUser(['id' => $item['id']], local_user());
 
-		$return_url = hex2bin($return);
-
-		// removes update_* from return_url to ignore Ajax refresh
-		$return_url = str_replace("update_", "", $return_url);
-
-		// Check if delete a comment
-		if ($item['gravity'] == GRAVITY_COMMENT) {
-			// Return to parent guid
-			if (!empty($parentitem)) {
-				DI::baseUrl()->redirect('display/' . $parentitem['guid']);
-				//NOTREACHED
-			} // In case something goes wrong
-			else {
-				DI::baseUrl()->redirect('network');
-				//NOTREACHED
-			}
-		} else {
-			// if unknown location or deleting top level post called from display
-			if (empty($return_url) || strpos($return_url, 'display') !== false) {
-				DI::baseUrl()->redirect('network');
-				//NOTREACHED
-			} else {
-				DI::baseUrl()->redirect($return_url);
-				//NOTREACHED
-			}
-		}
+		item_redirect_after_action($item, $return);
 	} else {
 		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('display/' . $item['guid']);
@@ -911,4 +908,38 @@ function drop_item(int $id, string $return = '')
 	}
 
 	return '';
+}
+
+function item_redirect_after_action($item, $returnUrlHex)
+{
+	$return_url = hex2bin($returnUrlHex);
+
+	// removes update_* from return_url to ignore Ajax refresh
+	$return_url = str_replace("update_", "", $return_url);
+
+	// Check if delete a comment
+	if ($item['gravity'] == GRAVITY_COMMENT) {
+		if (!empty($item['parent'])) {
+			$parentitem = Post::selectFirstForUser(local_user(), ['guid'], ['id' => $item['parent']]);
+		}
+
+		// Return to parent guid
+		if (!empty($parentitem)) {
+			DI::baseUrl()->redirect('display/' . $parentitem['guid']);
+			//NOTREACHED
+		} // In case something goes wrong
+		else {
+			DI::baseUrl()->redirect('network');
+			//NOTREACHED
+		}
+	} else {
+		// if unknown location or deleting top level post called from display
+		if (empty($return_url) || strpos($return_url, 'display') !== false) {
+			DI::baseUrl()->redirect('network');
+			//NOTREACHED
+		} else {
+			DI::baseUrl()->redirect($return_url);
+			//NOTREACHED
+		}
+	}
 }

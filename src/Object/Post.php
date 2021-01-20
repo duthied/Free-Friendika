@@ -230,12 +230,18 @@ class Post
 		}
 
 		$drop = false;
+		$block = false;
 		if (local_user()) {
 			$drop = [
 				'dropping' => $dropping,
 				'pagedrop' => $item['pagedrop'],
 				'select'   => DI::l10n()->t('Select'),
 				'delete'   => $delete,
+			];
+			$block = [
+				'blocking' => true,
+				'block'   => DI::l10n()->t('Block %s', $item['author-name']),
+				'author_id'   => $item['author-id'],
 			];
 		}
 
@@ -485,6 +491,7 @@ class Post
 			'filer'           => $filer,
 			'language'        => $languages,
 			'drop'            => $drop,
+			'block'           => $block,
 			'vote'            => $buttons,
 			'like_html'       => $responses['like']['output'],
 			'dislike_html'    => $responses['dislike']['output'],
