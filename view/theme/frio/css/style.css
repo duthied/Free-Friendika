@@ -643,16 +643,32 @@ nav.navbar .nav > li > button:focus
     right: -2px;
     background-color: #ff8989;
 }
+#myNavmenu {
+    top: 50px;
+    background-color: $background_color;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-left-color: $nav_icon_color;
+    box-shadow: 0 0 3px black;
+}
+#myNavmenu ul, #myNavmenu ul li:first-child, #myNavmenu ul, #myNavmenu ul li:last-child {
+    border-radius: 0;
+}
 #myNavmenu li,
 #myNavmenu a {
     background-color: $nav_bg;
     color: $nav_icon_color;
 }
+
+#myNavmenu li.list-group-item {
+    border-color: $background_color;
+}
+#myNavmenu a {
+    display: block;
+}
 #myNavmenu li.nav-sitename {
     font-weight: bold;
-}
-#myNavmenu {
-    top: 50px;
 }
 #topbar-first .dropdown.account li#nav-sitename {
     padding-left: 15px;
@@ -2045,6 +2061,10 @@ ul.tabs li a {
 ul.tabs li:hover, ul.tabs li.active {
     border-bottom-width: 4px;
 }
+ul.tabbar ul.tabs-extended:hover li.dropdown {
+    border-bottom: 0;
+}
+
 ul.tabbar ul.tabs-extended li.active {
     width: 100%;
     border-bottom-width: 2px;
@@ -2053,14 +2073,18 @@ ul.tabbar ul.tabs-extended li.active a {
     background: none;
 }
 ul.dropdown-menu li:hover {
-    border-bottom-width: 0;
+    border-bottom: 0;
 }
-
-
+.dropdown-menu li {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
 /* Dropdown Menu */
 .dropdown-menu li a,
 .dropdown-menu li .btn-link {
-	color: $link_color;
+    color: $font_color_darker;
+    
 }
 .dropdown-menu li > :hover,
 .dropdown-menu li > :visited,

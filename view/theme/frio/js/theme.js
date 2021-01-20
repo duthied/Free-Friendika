@@ -136,7 +136,7 @@ $(document).ready(function(){
 	// initialize the bootstrap-select
 	$('.selectpicker').selectpicker();
 
-	// add search-heading to the seccond navbar
+	// add search-heading to the second navbar
 	if( $(".search-heading").length) {
 		$(".search-heading").appendTo("#topbar-second > .container > #tabmenu");
 	}
@@ -147,6 +147,13 @@ $(document).ready(function(){
 		// get the text of the heading (we catch the plain text because we don't
 		// want to have a h4 heading in the navbar
 		var searchText = $(".section-title-wrapper > h2").html();
+
+		// temporary workaround to avoid 'undefined' being displayed (issue #9789)
+		// https://github.com/friendica/friendica/issues/9789
+		// TODO: find a way to localize this string
+		if(typeof searchText === "undefined") { 
+			searchText = "No results";
+		}
 		// insert the plain text in a <h4> heading and give it a class
 		var newText = '<h4 class="search-heading">'+searchText+'</h4>';
 		// append the new heading to the navbar
