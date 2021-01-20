@@ -48,6 +48,7 @@
 		"psr/container": "^1.0",
 		"seld/cli-prompt": "^1.0",
 		"smarty/smarty": "^3.1",
+		"ua-parser/uap-php": "^3.9",
 		"xemlock/htmlpurifier-html5": "^0.1.11",
 		"fxp/composer-asset-plugin": "^1.4",
 		"bower-asset/base64": "^1.0",
