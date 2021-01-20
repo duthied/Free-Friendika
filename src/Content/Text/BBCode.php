@@ -2104,11 +2104,6 @@ class BBCode
 						continue;
 					}
 
-					// ignore strictly numeric tags like #1
-					if ((strpos($match, '#') === 0) && ctype_digit(substr($match, 1))) {
-						continue;
-					}
-
 					// try not to catch url fragments
 					if (strpos($string, $match) && preg_match('/[a-zA-z0-9\/]/', substr($string, strpos($string, $match) - 1, 1))) {
 						continue;
