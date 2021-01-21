@@ -373,15 +373,25 @@ $(document).ready(function () {
 			$body.removeClass("aside-out");
 		});
 
-	$(".offcanvas-right-toggle").on("click", function (event) {
+	// Right offcanvas elements
+	let $offcanvas_right_toggle = $(".offcanvas-right-toggle");
+	let $offcanvas_right_container = $("#offcanvasUsermenu"); // Use ID for faster lookup, class is .offcanvas-right
+
+	$offcanvas_right_toggle.on("click", function (event) {
 		event.preventDefault();
-		// FIXME: Doesn't toggle, menu stays open even when pressing the button again
 		$("body").toggleClass("offcanvas-right-active");
 	});
 
+	// Close the right offcanvas menu when clicking somewhere
 	$(document).on("mouseup touchend", function (event) {
-		var offCanvas = $(".offcanvas-right");
-		if (!offCanvas.is(event.target) && offCanvas.has(event.target).length === 0) {
+		if (
+			// Clicked element is not inside the menu
+			!$offcanvas_right_container.is(event.target) &&
+			$offcanvas_right_container.has(event.target).length === 0 &&
+			// Clicked element is not the toggle button (taken care by the toggleClass above)
+			!$offcanvas_right_toggle.is(event.target) &&
+			$offcanvas_right_toggle.has(event.target).length === 0
+		) {
 			$("body").removeClass("offcanvas-right-active");
 		}
 	});
