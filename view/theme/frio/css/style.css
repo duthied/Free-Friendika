@@ -1,6 +1,6 @@
 /*
     Created on : 17.02.2016, 23:55:45
-    Author     : rabuzarus
+    Author     : rabuzarus and contributors
 */
 
 body {
@@ -383,6 +383,86 @@ header #banner #logo-img,
 	color: $nav_icon_color;
 }
 
+/* offcanvas section */
+
+/* Right offcanvas uses: #offcanvasUsermenu, .offcanvas-right-active
+   .offcanvas-right and .offcanvas-right-overlay */
+.off-canvas {
+	width: 300px;
+	position: fixed;
+	left: 0;
+	top: 0;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	background-color: #333;
+	transform: translateX(-100%);
+	transition: 0.4s ease-in-out;
+	z-index: 1060;
+}
+#offcanvasUsermenu {
+	width: 300px;
+	position: fixed;
+	right: 0px;
+	top: 50px;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	background-color: #333;
+	transform: translateX(100%);
+	transition: 0.4s ease-in-out;
+	z-index: 1060;
+}
+.offcanvas-active .off-canvas {
+	transform: translateX(0);
+}
+.offcanvas-right-active #offcanvasUsermenu {
+	transform: translateX(0);
+}
+.navbar-fixed-top {
+	transition: 0.4s ease-in-out;
+	width: 100%;
+}
+.page-wrapper {
+	padding-top: 50px;
+	transition: 0.4s ease-in-out;
+}
+.offcanvas-active .page-wrapper,
+.offcanvas-active .navbar-fixed-top {
+	transform: translateX(300px);
+}
+
+.offcanvas-overlay {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 1050;
+	visibility: hidden;
+	opacity: 0;
+	transition: 0.4s ease-in-out;
+}
+.offcanvas-right-overlay {
+	position: fixed;
+	right: 0;
+	top: 50px;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 1050;
+	visibility: hidden;
+	opacity: 0;
+	transition: 0.4s ease-in-out;
+}
+.offcanvas-active .offcanvas-overlay,
+.offcanvas-right-active .offcanvas-right-overlay {
+	opacity: 1;
+	visibility: visible;
+}
+/* offcanvas section ends */
+
 /* NavBar */
 .topbar {
 	position: fixed;
@@ -470,7 +550,8 @@ nav.navbar .nav > li > button {
 #topbar-first .nav > li > button:not(#main-menu):hover,
 #topbar-first .nav > li > button:not(#main-menu):focus,
 nav.navbar .nav > li > a:hover,
-nav.navbar .nav > li > a:focus nav.navbar .nav > li > button:hover,
+nav.navbar .nav > li > a:focus,
+nav.navbar .nav > li > button:hover,
 nav.navbar .nav > li > button:focus {
 	background-color: $nav_icon_hover_color;
 }
@@ -663,34 +744,43 @@ nav.navbar .nav > li > button:focus {
 	right: -2px;
 	background-color: #ff8989;
 }
-#myNavmenu {
+#offcanvasUsermenu {
 	top: 50px;
 	background-color: $background_color;
 	border-top: 0;
 	border-right: 0;
 	border-bottom: 0;
 	border-left-color: $nav_icon_color;
-	box-shadow: 0 0 3px black;
+	box-shadow: -3px 0 3px -3px black;
 }
-#myNavmenu ul,
-#myNavmenu ul li:first-child,
-#myNavmenu ul,
-#myNavmenu ul li:last-child {
+#offcanvasUsermenu .nav-container {
+	/* required to compensate for moving the container below the topnav bar */
+	margin-bottom: 50px;
+}
+#offcanvasUsermenu li.list-group-separator {
+	background-color: transparent;
+	height: 3px;
+}
+
+#offcanvasUsermenu ul,
+#offcanvasUsermenu ul li:first-child,
+#offcanvasUsermenu ul,
+#offcanvasUsermenu ul li:last-child {
 	border-radius: 0;
 }
-#myNavmenu li,
-#myNavmenu a {
+#offcanvasUsermenu li,
+#offcanvasUsermenu a {
 	background-color: $nav_bg;
 	color: $nav_icon_color;
 }
 
-#myNavmenu li.list-group-item {
+#offcanvasUsermenu li.list-group-item {
 	border-color: $background_color;
 }
-#myNavmenu a {
+#offcanvasUsermenu a {
 	display: block;
 }
-#myNavmenu li.nav-sitename {
+#offcanvasUsermenu li.nav-sitename {
 	font-weight: bold;
 }
 #topbar-first .dropdown.account li#nav-sitename {

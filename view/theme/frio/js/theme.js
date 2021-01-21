@@ -373,6 +373,19 @@ $(document).ready(function () {
 			$body.removeClass("aside-out");
 		});
 
+	$(".offcanvas-right-toggle").on("click", function (event) {
+		event.preventDefault();
+		// FIXME: Doesn't toggle, menu stays open even when pressing the button again
+		$("body").toggleClass("offcanvas-right-active");
+	});
+
+	$(document).on("mouseup touchend", function (event) {
+		var offCanvas = $(".offcanvas-right");
+		if (!offCanvas.is(event.target) && offCanvas.has(event.target).length === 0) {
+			$("body").removeClass("offcanvas-right-active");
+		}
+	});
+
 	// Event listener for 'Show & hide event map' button in the network stream.
 	$body.on("click", ".event-map-btn", function () {
 		showHideEventMap(this);

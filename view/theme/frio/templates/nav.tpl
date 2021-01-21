@@ -7,7 +7,7 @@
 		<div id="banner" class="hidden-sm hidden-xs">
 			{{* show on remote/visitor connections an other logo which symols that fact*}}
 			{{if $nav.remote}}
-				<a hruf="{{$baseurl}}">
+				<a href="{{$baseurl}}">
 					<div id="remote-logo-img" aria-label="{{$home}}"></div>
 				</a>
 			{{else}}
@@ -28,8 +28,8 @@
 				<div class="topbar-nav" role="navigation">
 
 					{{* Buttons for the mobile view *}}
-					<button type="button" class="navbar-toggle collapsed pull-right" data-toggle="offcanvas"
-						data-target="#myNavmenu" aria-controls="myNavmenu" aria-haspopup="true">
+					<button type="button" class="navbar-toggle offcanvas-right-toggle pull-right" aria-controls="myNavmenu"
+						aria-haspopup="true">
 						<span class="sr-only">Toggle navigation</span>
 						<i class="fa fa-ellipsis-v fa-fw fa-lg" aria-hidden="true"></i>
 					</button>
@@ -178,58 +178,81 @@
 										{{/if}}
 									{{/if}}
 									{{foreach $nav.usermenu as $usermenu}}
-										<li role="presentation"><a role="menuitem" class="{{$usermenu.2}}" href="{{$usermenu.0}}"
-												title="{{$usermenu.3}}">{{$usermenu.1}}</a></li>
+										<li role="presentation">
+											<a role="menuitem" class="{{$usermenu.2}}" href="{{$usermenu.0}}"
+												title="{{$usermenu.3}}">
+												{{$usermenu.1}}
+											</a>
+										</li>
 									{{/foreach}}
 									<li role="presentation" class="divider"></li>
 									{{if $nav.notifications}}
-										<li role="presentation"><a role="menuitem" href="{{$nav.notifications.all.0}}"
-												title="{{$nav.notifications.1}}"><i class="fa fa-bell fa-fw" aria-hidden="true"></i>
-												{{$nav.notifications.1}}</a></li>
+										<li role="presentation">
+											<a role="menuitem" href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}">
+												<i class="fa fa-bell fa-fw" aria-hidden="true"></i>
+												{{$nav.notifications.1}}
+											</a>
+										</li>
 									{{/if}}
 									{{if $nav.messages}}
 										<li role="presentation"><a role="menuitem"
 												class="nav-commlink {{$nav.messages.2}} {{$sel.messages}}"
-												href="{{$nav.messages.0}}" title="{{$nav.messages.3}}"><i
-													class="fa fa-envelope fa-fw" aria-hidden="true"></i> {{$nav.messages.1}} <span
-													id="mail-update-li" class="nav-mail-badge badge nav-notification"></span></a>
+												href="{{$nav.messages.0}}" title="{{$nav.messages.3}}">
+												<i class="fa fa-envelope fa-fw" aria-hidden="true"></i>
+												{{$nav.messages.1}} <span id="mail-update-li"
+													class="nav-mail-badge badge nav-notification"></span>
+											</a>
 										</li>
 									{{/if}}
 									<li role="presentation" class="divider"></li>
 									{{if $nav.contacts}}
 										<li role="presentation"><a role="menuitem" id="nav-menu-contacts-link"
 												class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}"
-												title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw" aria-hidden="true"></i>
-												{{$nav.contacts.1}}</a></li>
+												title="{{$nav.contacts.3}}">
+												<i class="fa fa-users fa-fw" aria-hidden="true"></i>
+												{{$nav.contacts.1}}
+											</a>
+										</li>
 									{{/if}}
 									{{if $nav.delegation}}
-										<li role="presentation"><a role="menuitem" id="nav-delegation-link"
+										<li role="presentation">
+											<a role="menuitem" id="nav-delegation-link"
 												class="nav-commlink {{$nav.delegation.2}} {{$sel.delegation}}"
-												href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}"><i
-													class="fa fa-flag fa-fw" aria-hidden="true"></i> {{$nav.delegation.1}}</a></li>
+												href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}">
+												<i class="fa fa-flag fa-fw" aria-hidden="true"></i> {{$nav.delegation.1}}
+											</a>
+										</li>
 									{{/if}}
-									<li role="presentation"><a role="menuitem" id="nav-directory-link"
-											class="nav-link {{$nav.directory.2}}" href="{{$nav.directory.0}}"
-											title="{{$nav.directory.3}}"><i class="fa fa-sitemap fa-fw"
-												aria-hidden="true"></i>{{$nav.directory.1}}</a></li>
+									<li role="presentation">
+										<a role="menuitem" id="nav-directory-link" class="nav-link {{$nav.directory.2}}"
+											href="{{$nav.directory.0}}" title="{{$nav.directory.3}}">
+											<i class="fa fa-sitemap fa-fw" aria-hidden="true"></i>{{$nav.directory.1}}
+										</a>
+									</li>
 									<li role="presentation" class="divider"></li>
 									{{if $nav.apps}}
-										<li role="presentation"><a role="menuitem" id="nav-apps-link"
-												class="nav-link {{$nav.apps.2}}" href="{{$nav.apps.0}}" title="{{$nav.apps.3}}"><i
-													class="fa fa-puzzle-piece fa-fw" aria-hidden="true"></i> {{$nav.apps.1}}</a>
+										<li role="presentation">
+											<a role="menuitem" id="nav-apps-link" class="nav-link {{$nav.apps.2}}"
+												href="{{$nav.apps.0}}" title="{{$nav.apps.3}}">
+												<i class="fa fa-puzzle-piece fa-fw" aria-hidden="true"></i> {{$nav.apps.1}}
+											</a>
 										<li role="presentation" class="divider"></li>
 									{{/if}}
 									{{if $nav.help}}
-										<li role="presentation"><a role="menuitem" id="nav-help-link"
-												class="nav-link {{$nav.help.2}}" href="{{$nav.help.0}}" title="{{$nav.help.3}}"><i
-													class="fa fa-question-circle fa-fw" aria-hidden="true"></i> {{$nav.help.1}}</a>
+										<li role="presentation">
+											<a role="menuitem" id="nav-help-link" class="nav-link {{$nav.help.2}}"
+												href="{{$nav.help.0}}" title="{{$nav.help.3}}">
+												<i class="fa fa-question-circle fa-fw" aria-hidden="true"></i> {{$nav.help.1}}
+											</a>
 										</li>
 									{{/if}}
 									{{if $nav.settings}}
-										<li role="presentation"><a role="menuitem" id="nav-settings-link"
-												class="nav-link {{$nav.settings.2}}" href="{{$nav.settings.0}}"
-												title="{{$nav.settings.3}}"><i class="fa fa-cog fa-fw" aria-hidden="true"></i>
-												{{$nav.settings.1}}</a></li>
+										<li role="presentation">
+											<a role="menuitem" id="nav-settings-link" class="nav-link {{$nav.settings.2}}"
+												href="{{$nav.settings.0}}" title="{{$nav.settings.3}}">
+												<i class="fa fa-cog fa-fw" aria-hidden="true"></i> {{$nav.settings.1}}
+											</a>
+										</li>
 									{{/if}}
 									{{if $nav.admin}}
 										<li role="presentation"><a accesskey="a" role="menuitem" id="nav-admin-link"
@@ -260,13 +283,15 @@
 						{{/if}}
 
 						<!-- Language selector, I do not find it relevant, activate if necessary.
-					<li>{{$langselector}}</li>
-				-->
+						<li>{{$langselector}}</li>
+						-->
 					</ul>
 				</div>{{* End of right navbar *}}
 
-				{{* The usermenu dropdown for the mobile view. It is called via the buttons. Have a look at the top of this file *}}
-				<div id="myNavmenu" class="navmenu navmenu-default navmenu-fixed-right offcanvas">
+				{{* The usermenu dropdown for the mobile view. Offcanvas on the right side of the screen.
+					It is called via the buttons. Have a look at the top of this file *}}
+				<div class="offcanvas-right-overlay visible-xs-block"></div>
+				<div id="offcanvasUsermenu" class="offcanvas-right visible-xs-block">
 					<div class="nav-container">
 						<ul role="menu" class="list-group">
 							{{if $nav.remote}}
@@ -282,10 +307,14 @@
 								<li role="menuitem" class="list-group-item"><a role="menuitem" class="{{$usermenu.2}}"
 										href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a></li>
 							{{/foreach}}
+							{{if $nav.notifications || $nav.contacts || $nav.messages || $nav.delegation}}
+								<li role="presentation" class="list-group-separator"></li>
+							{{/if}}
 							{{if $nav.notifications}}
 								<li role="presentation" class="list-group-item"><a role="menuitem"
 										href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}"><i
-											class="fa fa-bell fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a></li>
+											class="fa fa-bell fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a>
+								</li>
 							{{/if}}
 							{{if $nav.contacts}}
 								<li role="presentation" class="list-group-item"><a role="menuitem"
@@ -305,21 +334,27 @@
 										href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}"><i class="fa fa-flag fa-fw"
 											aria-hidden="true"></i> {{$nav.delegation.1}}</a></li>
 							{{/if}}
+							{{if $nav.settings || $nav.admin || $nav.logout}}
+								<li role="presentation" class="list-group-separator"></li>
+							{{/if}}
 							{{if $nav.settings}}
-								<li role="presentation" class="list-group-item"><a role="menuitem"
-										class="nav-link {{$nav.settings.2}}" href="{{$nav.settings.0}}"
+								<li role="presentation" class="list-group-item">
+									<a role="menuitem" class="nav-link {{$nav.settings.2}}" href="{{$nav.settings.0}}"
 										title="{{$nav.settings.3}}"><i class="fa fa-cog fa-fw" aria-hidden="true"></i>
-										{{$nav.settings.1}}</a></li>
+										{{$nav.settings.1}}</a>
+								</li>
 							{{/if}}
 							{{if $nav.admin}}
 								<li role="presentation" class="list-group-item"><a role="menuitem"
 										class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}"><i
-											class="fa fa-user-secret fa-fw" aria-hidden="true"></i> {{$nav.admin.1}}</a></li>
+											class="fa fa-user-secret fa-fw" aria-hidden="true"></i>
+										{{$nav.admin.1}}</a></li>
 							{{/if}}
 							{{if $nav.logout}}
 								<li role="presentation" class="list-group-item"><a role="menuitem"
 										class="nav-link {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}"><i
-											class="fa fa fa-sign-out fa-fw" aria-hidden="true"></i> {{$nav.logout.1}}</a></li>
+											class="fa fa fa-sign-out fa-fw" aria-hidden="true"></i>
+										{{$nav.logout.1}}</a></li>
 							{{else}}
 								<li role="presentation" class="list-group-item"><a role="menuitem"
 										class="nav-login-link {{$nav.login.2}}" href="{{$nav.login.0}}"
