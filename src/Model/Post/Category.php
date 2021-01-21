@@ -51,6 +51,23 @@ class Category
 	}
 
 	/**
+	 * Delete all categories and files from a given uri-id and user
+	 *
+	 * @param int $uri_id
+	 * @param int $uid
+	 * @return boolean success
+	 * @throws \Exception
+	 */
+	public static function deleteFileByURIId(int $uri_id, int $uid, int $type, string $file)
+	{
+		$tagid = Tag::getID($file);
+		if (empty($tagid)) {
+			return false;
+		}
+
+		return DBA::delete('post-category', ['uri-id' => $uri_id, 'uid' => $uid, 'type' => $type, 'tid' => $tagid]);
+	}
+	/**
 	 * Generates the legacy item.file field string from an item ID.
 	 * Includes only file and category terms.
 	 *
@@ -166,18 +183,23 @@ class Category
 
 		if (preg_match_all("/\<(.*?)\>/ism", $files, $result)) {
 			foreach ($result[1] as $file) {
-				$tagid = Tag::getID($file);
-				if (empty($tagid)) {
-					continue;
-				}
-
-				DBA::replace('post-category', [
-					'uri-id' => $uri_id,
-					'uid' => $uid,
-					'type' => self::CATEGORY,
-					'tid' => $tagid
-				]);
+				self::storeFileByURIId($uri_id, $uid, self::FILE, $file);
 			}
 		}
+	}
+
+	public static function storeFileByURIId(int $uri_id, int $uid, int $type, string $file)
+	{
+		$tagid = Tag::getID($file);
+		if (empty($tagid)) {
+			return false;
+		}
+
+		return DBA::replace('post-category', [
+			'uri-id' => $uri_id,
+			'uid' => $uid,
+			'type' => $type,
+			'tid' => $tagid
+		]);
 	}
 }

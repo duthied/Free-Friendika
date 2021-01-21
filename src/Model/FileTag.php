@@ -21,8 +21,6 @@
 
 namespace Friendica\Model;
 
-use Friendica\Database\DBA;
-
 /**
  * This class handles FileTag related functions
  *
@@ -132,68 +130,5 @@ class FileTag
 		$list_array = explode(',', $list);
 
 		return self::arrayToFile($list_array, $type);
-	}
-
-	/**
-	 * Add tag to file
-	 *
-	 * @param int    $uid     Unique identity.
-	 * @param int    $item_id Item identity.
-	 * @param string $file    File tag.
-	 *
-	 * @return boolean      A value indicating success or failure.
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function saveFile($uid, $item_id, $file)
-	{
-		if (!intval($uid)) {
-			return false;
-		}
-
-		$item = Post::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => $uid]);
-		if (DBA::isResult($item)) {
-			$stored_file = Post\Category::getTextByURIId($item['uri-id'], $uid);
-
-			if (!stristr($stored_file, '[' . self::encode($file) . ']')) {
-				Post\Category::storeTextByURIId($item['uri-id'], $uid, $stored_file . '[' . self::encode($file) . ']');
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Remove tag from file
-	 *
-	 * @param int     $uid     Unique identity.
-	 * @param int     $item_id Item identity.
-	 * @param string  $file    File tag.
-	 * @param boolean $cat     Optional value indicating the term type (i.e. Category or File)
-	 *
-	 * @return boolean      A value indicating success or failure.
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function unsaveFile($uid, $item_id, $file, $cat = false)
-	{
-		if (!intval($uid)) {
-			return false;
-		}
-
-		if ($cat == true) {
-			$pattern = '<' . self::encode($file) . '>';
-		} else {
-			$pattern = '[' . self::encode($file) . ']';
-		}
-
-		$item = Post::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => $uid]);
-		if (!DBA::isResult($item)) {
-			return false;
-		}
-
-		$file = Post\Category::getTextByURIId($item['uri-id'], $uid);
-
-		Post\Category::storeTextByURIId($item['uri-id'], $uid, str_replace($pattern, '', $file));
-
-		return true;
 	}
 }

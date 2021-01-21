@@ -23,6 +23,7 @@ namespace Friendica\Module\Filer;
 
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Util\XML;
@@ -52,8 +53,11 @@ class SaveTag extends BaseModule
 		$logger->info('filer', ['tag' => $term, 'item' => $item_id]);
 
 		if ($item_id && strlen($term)) {
-			// file item
-			Model\FileTag::saveFile(local_user(), $item_id, $term);
+			$item = Model\Post::selectFirst(['uri-id'], ['id' => $item_id]);
+			if (!DBA::isResult($item)) {
+				return;				
+			}
+			Model\Post\Category::storeFileByURIId($item['uri-id'], local_user(), Model\Post\Category::FILE, $term);
 		}
 
 		// return filer dialog
