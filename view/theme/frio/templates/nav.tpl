@@ -299,16 +299,17 @@
 									<li role="menuitem" class="nav-sitename list-group-item">{{$nav.sitename}}</li>
 								{{/if}}
 							{{/if}}
-							<li role="presentation" class="list-group-item"><img src="{{$nav.userinfo.icon}}"
-									alt="{{$nav.userinfo.name}}"
+							<li role="presentation" class="list-group-item">
+								<img src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}"
 									style="max-width:15px; max-height:15px; min-width:15px; min-height:15px; width:15px; height:15px;">
-								{{$nav.userinfo.name}}{{if $nav.remote}} ({{$nav.remote}}){{/if}}</li>
+								{{$nav.userinfo.name}}{{if $nav.remote}} ({{$nav.remote}}){{/if}}
+							</li>
 							{{foreach $nav.usermenu as $usermenu}}
 								<li role="menuitem" class="list-group-item"><a role="menuitem" class="{{$usermenu.2}}"
 										href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a></li>
 							{{/foreach}}
 							{{if $nav.notifications || $nav.contacts || $nav.messages || $nav.delegation}}
-								<li role="presentation" class="list-group-separator"></li>
+								<li role="presentation" class="divider"></li>
 							{{/if}}
 							{{if $nav.notifications}}
 								<li role="presentation" class="list-group-item"><a role="menuitem"
@@ -335,7 +336,7 @@
 											aria-hidden="true"></i> {{$nav.delegation.1}}</a></li>
 							{{/if}}
 							{{if $nav.settings || $nav.admin || $nav.logout}}
-								<li role="presentation" class="list-group-separator"></li>
+								<li role="presentation" class="divider"></li>
 							{{/if}}
 							{{if $nav.settings}}
 								<li role="presentation" class="list-group-item">

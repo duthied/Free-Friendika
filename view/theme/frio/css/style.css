@@ -757,7 +757,7 @@ nav.navbar .nav > li > button:focus {
 	/* required to compensate for moving the container below the topnav bar */
 	margin-bottom: 50px;
 }
-#offcanvasUsermenu li.list-group-separator {
+#offcanvasUsermenu li.divider {
 	background-color: transparent;
 	height: 3px;
 }
