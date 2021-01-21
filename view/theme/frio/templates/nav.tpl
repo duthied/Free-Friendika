@@ -36,7 +36,7 @@
 					<button type="button" class="navbar-toggle collapsed pull-right" data-toggle="collapse"
 						data-target="#search-mobile" aria-expanded="false" aria-controls="search-mobile">
 						<span class="sr-only">Toggle Search</span>
-						<i class="fa fa-search fa-fw fa-lg" aria-hidden="true" style="color:#FFF;"></i>
+						<i class="fa fa-search fa-fw fa-lg" aria-hidden="true"></i>
 					</button>
 					<button type="button" class="navbar-toggle collapsed pull-left visible-sm visible-xs"
 						data-toggle="offcanvas" data-target="aside" aria-haspopup="true">
