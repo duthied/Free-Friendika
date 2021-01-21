@@ -63,7 +63,7 @@ class Update
 
 		// We don't support upgrading from very old versions anymore
 		if ($build < NEW_TABLE_STRUCTURE_VERSION) {
-			$error = DI::l10n('Updates from version %s are not supported. Please update at least to version 2021,01 and wait until the postupdate finished version 1383.', $build);
+			$error = DI::l10n()->t('Updates from version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.', $build);
 			if (DI::mode()->getExecutor() == Mode::INDEX) {
 				die($error);
 			} else {
@@ -74,7 +74,7 @@ class Update
 		// The postupdate has to completed version 1281 for the new post views to take over
 		$postupdate = DI::config()->get("system", "post_update_version");
 		if ($postupdate < NEW_TABLE_STRUCTURE_VERSION) {
-			$error = DI::l10n('Updates from postupdate version %s are not supported. Please update at least to version 2021,01 and wait until the postupdate finished version 1383.', $postupdate);
+			$error = DI::l10n()->t('Updates from postupdate version %s are not supported. Please update at least to version 2021.01 and wait until the postupdate finished version 1383.', $postupdate);
 			if (DI::mode()->getExecutor() == Mode::INDEX) {
 				die($error);
 			} else {
