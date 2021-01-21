@@ -57,8 +57,7 @@ class SaveTag extends BaseModule
 		}
 
 		// return filer dialog
-		$filetags = DI::pConfig()->get(local_user(), 'system', 'filetags', '');
-		$filetags = Model\FileTag::fileToArray($filetags);
+		$filetags = Model\Post\Category::getArray(local_user(), Model\Post\Category::FILE);
 
 		$tpl = Renderer::getMarkupTemplate("filer_dialog.tpl");
 		echo Renderer::replaceMacros($tpl, [

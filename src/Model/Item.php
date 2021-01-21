@@ -75,7 +75,7 @@ class Item
 	const DISPLAY_FIELDLIST = [
 		'uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid', 'network', 'gravity',
 		'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
-		'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'language',
+		'wall', 'private', 'starred', 'origin', 'title', 'body', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id',
 		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
@@ -112,7 +112,7 @@ class Item
 			'contact-id', 'type', 'wall', 'gravity', 'extid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'inform',
-			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
 			'title', 'content-warning', 'body', 'location', 'coord', 'app',
@@ -203,17 +203,13 @@ class Item
 		// We cannot simply expand the condition to check for origin entries
 		// The condition needn't to be a simple array but could be a complex condition.
 		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'uid', 'file'], $condition);
+		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'uid'], $condition);
 
 		$content_fields = [];
 		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
 			if (isset($fields[$field])) {
 				$content_fields[$field] = $fields[$field];
-				if (in_array($field, self::CONTENT_FIELDLIST)) {
-					unset($fields[$field]);
-				} else {
-					$fields[$field] = null;
-				}
+				unset($fields[$field]);
 			}
 		}
 
@@ -221,14 +217,12 @@ class Item
 
 		$clear_fields = ['bookmark', 'type', 'author-name', 'author-avatar', 'author-link', 'owner-name', 'owner-avatar', 'owner-link', 'postopts', 'inform'];
 		foreach ($clear_fields as $field) {
-			if (array_key_exists($field, $fields)) {
-				$fields[$field] = null;
-			}
+			unset($fields[$field]);
 		}
 
 		if (array_key_exists('file', $fields)) {
 			$files = $fields['file'];
-			$fields['file'] = null;
+			unset($fields['file']);
 		} else {
 			$files = null;
 		}
@@ -269,9 +263,6 @@ class Item
 
 			if (!is_null($files)) {
 				Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], $files);
-				if (!empty($item['file'])) {
-					DBA::update('item', ['file' => ''], ['id' => $item['id']]);
-				}
 			}
 
 			if (!empty($fields['attach'])) {
@@ -358,7 +349,7 @@ class Item
 		Logger::info('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
 		$fields = ['id', 'uri', 'uri-id', 'uid', 'parent', 'parent-uri', 'origin',
-			'deleted', 'file', 'resource-id', 'event-id',
+			'deleted', 'resource-id', 'event-id',
 			'verb', 'object-type', 'object', 'target', 'contact-id', 'psid', 'gravity'];
 		$item = Post::selectFirst($fields, ['id' => $item_id]);
 		if (!DBA::isResult($item)) {
@@ -377,25 +368,7 @@ class Item
 		}
 
 		// clean up categories and tags so they don't end up as orphans
-
-		$matches = [];
-		$cnt = preg_match_all('/<(.*?)>/', $item['file'], $matches, PREG_SET_ORDER);
-
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				FileTag::unsaveFile($item['uid'], $item['id'], $mtch[1],true);
-			}
-		}
-
-		$matches = [];
-
-		$cnt = preg_match_all('/\[(.*?)\]/', $item['file'], $matches, PREG_SET_ORDER);
-
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				FileTag::unsaveFile($item['uid'], $item['id'], $mtch[1],false);
-			}
-		}
+		Post\Category::deleteByURIId($item['uri-id'], $item['uid']);
 
 		/*
 		 * If item is a link to a photo resource, nuke all the associated photos
@@ -2363,7 +2336,7 @@ class Item
 		$condition[0] .= " AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY";
 		$condition[] = $days;
 
-		$items = Post::select(['file', 'resource-id', 'starred', 'type', 'id', 'post-type'], $condition);
+		$items = Post::select(['resource-id', 'starred', 'type', 'id', 'post-type', 'uid', 'uri-id'], $condition);
 
 		if (!DBA::isResult($items)) {
 			return;
@@ -2386,8 +2359,7 @@ class Item
 
 		while ($item = Post::fetch($items)) {
 			// don't expire filed items
-
-			if (strpos($item['file'], '[') !== false) {
+			if (DBA::exists('post-category', ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'type' => Post\Category::FILE])) {
 				continue;
 			}
 

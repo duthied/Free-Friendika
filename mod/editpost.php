@@ -26,8 +26,6 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\FileTag;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Util\Crypto;
 
@@ -48,7 +46,7 @@ function editpost_content(App $a)
 	}
 
 	$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-		'type', 'body', 'title', 'file', 'wall', 'post-type', 'guid'];
+		'type', 'body', 'title', 'uri-id', 'wall', 'post-type', 'guid'];
 
 	$item = Post::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
 
@@ -117,7 +115,7 @@ function editpost_content(App $a)
 		'$jotnets' => $jotnets,
 		'$title' => $item['title'],
 		'$placeholdertitle' => DI::l10n()->t('Set title'),
-		'$category' => FileTag::fileToList($item['file'], 'category'),
+		'$category' => Post\Category::getCSVByURIId($item['uri-id'], local_user(), Post\Category::CATEGORY),
 		'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : ''),
 		'$emtitle' => DI::l10n()->t('Example: bob@example.com, mary@example.com'),
 		'$lockstate' => $lockstate,

@@ -27,9 +27,9 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\FileTag;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
@@ -305,19 +305,10 @@ class Widget
 			return '';
 		}
 
-		$saved = DI::pConfig()->get(local_user(), 'system', 'filetags');
-		if (!strlen($saved)) {
-			return;
-		}
-
 		$terms = [];
-		foreach (FileTag::fileToArray($saved) as $savedFolderName) {
+		foreach (Post\Category::getArray(local_user(), Post\Category::FILE) as $savedFolderName) {
 			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}
-		
-		usort($terms, function ($a, $b) {
-			return strcmp($a['name'], $b['name']);
-		});
 
 		return self::filter(
 			'file',
@@ -348,13 +339,8 @@ class Widget
 			return '';
 		}
 
-		$saved = DI::pConfig()->get($uid, 'system', 'filetags');
-		if (!strlen($saved)) {
-			return;
-		}
-
 		$terms = array();
-		foreach (FileTag::fileToArray($saved, 'category') as $savedFolderName) {
+		foreach (Post\Category::getArray(local_user(), Post\Category::CATEGORY) as $savedFolderName) {
 			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}
 

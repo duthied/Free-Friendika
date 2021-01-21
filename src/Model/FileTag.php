@@ -22,8 +22,6 @@
 namespace Friendica\Model;
 
 use Friendica\Database\DBA;
-use Friendica\DI;
-use Friendica\Model\Post\Category;
 
 /**
  * This class handles FileTag related functions
@@ -42,7 +40,7 @@ class FileTag
 	 *
 	 * @return string   The URL encoded string.
 	 */
-	public static function encode($s)
+	private static function encode($s)
 	{
 		return str_replace(['<', '>', '[', ']'], ['%3c', '%3e', '%5b', '%5d'], $s);
 	}
@@ -54,29 +52,9 @@ class FileTag
 	 *
 	 * @return string   The decoded string.
 	 */
-	public static function decode($s)
+	private static function decode($s)
 	{
 		return str_replace(['%3c', '%3e', '%5b', '%5d'], ['<', '>', '[', ']'], $s);
-	}
-
-	/**
-	 * Query files for tag
-	 *
-	 * @param string $table The table to be queired.
-	 * @param string $s     The search term
-	 * @param string $type  Optional file type.
-	 *
-	 * @return string       Query string.
-	 */
-	public static function fileQuery($table, $s, $type = 'file')
-	{
-		if ($type == 'file') {
-			$str = preg_quote('[' . str_replace('%', '%%', self::encode($s)) . ']');
-		} else {
-			$str = preg_quote('<' . str_replace('%', '%%', self::encode($s)) . '>');
-		}
-
-		return " AND " . (($table) ? DBA::escape($table) . '.' : '') . "file regexp '" . DBA::escape($str) . "' ";
 	}
 
 	/**
@@ -157,93 +135,6 @@ class FileTag
 	}
 
 	/**
-	 * Get list from file tags
-	 *
-	 * ex. given <music><video>[friends], return music,video or friends
-	 * @param string $file File tags
-	 * @param string $type Optional file type.
-	 *
-	 * @return string       Comma delimited list of tag names.
-	 * @deprecated since 2019.06 use fileToArray() instead
-	 */
-	public static function fileToList(string $file, $type = 'file')
-	{
-		return implode(',', self::fileToArray($file, $type));
-	}
-
-	/**
-	 * Update file tags in PConfig
-	 *
-	 * @param int    $uid      Unique Identity.
-	 * @param string $file_old Categories previously associated with an item
-	 * @param string $file_new New list of categories for an item
-	 * @param string $type     Optional file type.
-	 *
-	 * @return boolean          A value indicating success or failure.
-	 * @throws \Exception
-	 */
-	public static function updatePconfig(int $uid, string $file_old, string $file_new, string $type = 'file')
-	{
-		if (!intval($uid)) {
-			return false;
-		} elseif ($file_old == $file_new) {
-			return true;
-		}
-
-		$saved = DI::pConfig()->get($uid, 'system', 'filetags');
-
-		if (strlen($saved)) {
-			if ($type == 'file') {
-				$lbracket = '[';
-				$rbracket = ']';
-				$termtype = Category::FILE;
-			} else {
-				$lbracket = '<';
-				$rbracket = '>';
-				$termtype = Category::CATEGORY;
-			}
-
-			$filetags_updated = $saved;
-
-			// check for new tags to be added as filetags in pconfig
-			$new_tags = [];
-			foreach (self::fileToArray($file_new, $type) as $tag) {
-				if (!stristr($saved, $lbracket . self::encode($tag) . $rbracket)) {
-					$new_tags[] = $tag;
-				}
-			}
-
-			$filetags_updated .= self::arrayToFile($new_tags, $type);
-
-			// check for deleted tags to be removed from filetags in pconfig
-			$deleted_tags = [];
-			foreach (self::fileToArray($file_old, $type) as $tag) {
-				if (!stristr($file_new, $lbracket . self::encode($tag) . $rbracket)) {
-					$deleted_tags[] = $tag;
-				}
-			}
-
-			foreach ($deleted_tags as $key => $tag) {
-				if (DBA::exists('category-view', ['name' => $tag, 'type' => $termtype, 'uid' => $uid])) {
-					unset($deleted_tags[$key]);
-				} else {
-					$filetags_updated = str_replace($lbracket . self::encode($tag) . $rbracket, '', $filetags_updated);
-				}
-			}
-
-			if ($saved != $filetags_updated) {
-				DI::pConfig()->set($uid, 'system', 'filetags', $filetags_updated);
-			}
-
-			return true;
-		} elseif (strlen($file_new)) {
-			DI::pConfig()->set($uid, 'system', 'filetags', $file_new);
-		}
-
-		return true;
-	}
-
-	/**
 	 * Add tag to file
 	 *
 	 * @param int    $uid     Unique identity.
@@ -259,17 +150,12 @@ class FileTag
 			return false;
 		}
 
-		$item = Post::selectFirst(['file'], ['id' => $item_id, 'uid' => $uid]);
+		$item = Post::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => $uid]);
 		if (DBA::isResult($item)) {
-			if (!stristr($item['file'], '[' . self::encode($file) . ']')) {
-				$fields = ['file' => $item['file'] . '[' . self::encode($file) . ']'];
-				Item::update($fields, ['id' => $item_id]);
-			}
+			$stored_file = Post\Category::getTextByURIId($item['uri-id'], $uid);
 
-			$saved = DI::pConfig()->get($uid, 'system', 'filetags');
-
-			if (!strlen($saved) || !stristr($saved, '[' . self::encode($file) . ']')) {
-				DI::pConfig()->set($uid, 'system', 'filetags', $saved . '[' . self::encode($file) . ']');
+			if (!stristr($stored_file, '[' . self::encode($file) . ']')) {
+				Post\Category::storeTextByURIId($item['uri-id'], $uid, $stored_file . '[' . self::encode($file) . ']');
 			}
 		}
 
@@ -295,26 +181,18 @@ class FileTag
 
 		if ($cat == true) {
 			$pattern = '<' . self::encode($file) . '>';
-			$termtype = Category::CATEGORY;
 		} else {
 			$pattern = '[' . self::encode($file) . ']';
-			$termtype = Category::FILE;
 		}
 
-		$item = Post::selectFirst(['file'], ['id' => $item_id, 'uid' => $uid]);
-
+		$item = Post::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => $uid]);
 		if (!DBA::isResult($item)) {
 			return false;
 		}
 
-		$fields = ['file' => str_replace($pattern, '', $item['file'])];
+		$file = Post\Category::getTextByURIId($item['uri-id'], $uid);
 
-		Item::update($fields, ['id' => $item_id]);
-
-		if (!DBA::exists('category-view', ['name' => $file, 'type' => $termtype, 'uid' => $uid])) {
-			$saved = DI::pConfig()->get($uid, 'system', 'filetags');
-			DI::pConfig()->set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
-		}
+		Post\Category::storeTextByURIId($item['uri-id'], $uid, str_replace($pattern, '', $file));
 
 		return true;
 	}

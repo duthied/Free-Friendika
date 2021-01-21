@@ -22,7 +22,6 @@
 namespace Friendica\Model\Post;
 
 use Friendica\Database\DBA;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 
@@ -39,10 +38,24 @@ class Category
     const FILE              = 5;
 
 	/**
+	 * Delete all categories and files from a given uri-id and user
+	 *
+	 * @param int $uri_id
+	 * @param int $uid
+	 * @return boolean success
+	 * @throws \Exception
+	 */
+	public static function deleteByURIId(int $uri_id, int $uid)
+	{
+		return DBA::delete('post-category', ['uri-id' => $uri_id, 'uid' => $uid]);
+	}
+
+	/**
 	 * Generates the legacy item.file field string from an item ID.
 	 * Includes only file and category terms.
 	 *
-	 * @param int $item_id
+	 * @param int $uri_id
+	 * @param int $uid
 	 * @return string
 	 * @throws \Exception
 	 */
@@ -60,6 +73,58 @@ class Category
 		}
 
 		return $file_text;
+	}
+
+	/**
+	 * Generates an array of files or categories of a given uri-id
+	 *
+	 * @param int $uid
+	 * @param int $type
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getArray(int $uid, int $type)
+	{
+		$tags = DBA::selectToArray('category-view', ['name'], ['uid' => $uid, 'type' => $type],
+			['group_by' => ['name'], 'order' => ['name']]);
+		if (empty($tags)) {
+			return [];
+		}
+
+		return array_column($tags, 'name');
+	}
+
+	/**
+	 * Generates an array of files or categories of a given uri-id
+	 *
+	 * @param int $uri_id
+	 * @param int $uid
+	 * @param int $type
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getArrayByURIId(int $uri_id, int $uid, int $type = self::CATEGORY)
+	{
+		$tags = DBA::selectToArray('category-view', ['type', 'name'], ['uri-id' => $uri_id, 'uid' => $uid, 'type' => $type]);
+		if (empty($tags)) {
+			return [];
+		}
+
+		return array_column($tags, 'name');
+	}
+
+	/**
+	 * Generates a comma separated list of files or categories
+	 *
+	 * @param int $uri_id
+	 * @param int $uid
+	 * @param int $type
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function getCSVByURIId(int $uri_id, int $uid, int $type)
+	{
+		return implode(',', self::getArrayByURIId($uri_id, $uid, $type));
 	}
 
 	/**

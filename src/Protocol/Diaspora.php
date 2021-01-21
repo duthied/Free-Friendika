@@ -2526,7 +2526,7 @@ class Diaspora
 		}
 
 		// Fetch items that are about to be deleted
-		$fields = ['uid', 'id', 'parent', 'author-link', 'file'];
+		$fields = ['uid', 'id', 'parent', 'author-link', 'uri-id'];
 
 		// When we receive a public retraction, we delete every item that we find.
 		if ($importer['uid'] == 0) {
@@ -2542,7 +2542,7 @@ class Diaspora
 		}
 
 		while ($item = Post::fetch($r)) {
-			if (strstr($item['file'], '[')) {
+			if (DBA::exists('post-category', ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'type' => Post\Category::FILE])) {
 				Logger::log("Target guid " . $target_guid . " for user " . $item['uid'] . " is filed. So it won't be deleted.", Logger::DEBUG);
 				continue;
 			}
