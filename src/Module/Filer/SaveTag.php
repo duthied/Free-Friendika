@@ -26,6 +26,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Network\HTTPException;
 use Friendica\Util\XML;
 
 /**
@@ -55,7 +56,7 @@ class SaveTag extends BaseModule
 		if ($item_id && strlen($term)) {
 			$item = Model\Post::selectFirst(['uri-id'], ['id' => $item_id]);
 			if (!DBA::isResult($item)) {
-				return;				
+				throw new HTTPException\NotFoundException();
 			}
 			Model\Post\Category::storeFileByURIId($item['uri-id'], local_user(), Model\Post\Category::FILE, $term);
 		}
