@@ -23,8 +23,8 @@ namespace Friendica\Content;
 
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\FileTag;
 use Friendica\Model\Tag;
+use Friendica\Model\Post;
 
 /**
  * A content helper class for displaying items
@@ -64,7 +64,7 @@ class Item
 		$folders = [];
 		$first = true;
 
-		foreach (FileTag::fileToArray($item['file'] ?? '', 'category') as $savedFolderName) {
+		foreach (Post\Category::getArrayByURIId($item['uri-id'], $item['uid'], Post\Category::CATEGORY) as $savedFolderName) {
 			if (!empty($item['author-link'])) {
 				$url = $item['author-link'] . "?category=" . rawurlencode($savedFolderName);
 			} else {
@@ -85,7 +85,7 @@ class Item
 		}
 
 		if (local_user() == $item['uid']) {
-			foreach (FileTag::fileToArray($item['file'] ?? '') as $savedFolderName) {
+			foreach (Post\Category::getArrayByURIId($item['uri-id'], $item['uid'], Post\Category::FILE) as $savedFolderName) {
 				$folders[] = [
 					'name' => $savedFolderName,
 					'url' => "#",

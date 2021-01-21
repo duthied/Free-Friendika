@@ -63,22 +63,6 @@ class Post
 			}
 		}
 
-		if (!array_key_exists('verb', $row) || in_array($row['verb'], ['', Activity::POST, Activity::SHARE])) {
-			// Build the file string out of the term entries
-			if (array_key_exists('file', $row)) {
-				if ($row['internal-file-count'] > 0) {
-					$row['file'] = Post\Category::getTextByURIId($row['internal-uri-id'], $row['internal-uid']);
-				} else {
-					$row['file'] = '';
-				}
-			}
-		}
-
-		// Remove internal fields
-		unset($row['internal-file-count']);
-		unset($row['internal-uri-id']);
-		unset($row['internal-uid']);
-
 		return $row;
 	}
 
@@ -213,7 +197,6 @@ class Post
 			}
 		}
 
-		$selected = array_merge($selected, ['internal-uri-id', 'internal-uid', 'internal-file-count']);
 		$selected = array_unique($selected);
 
 		return DBA::select($view, $selected, $condition, $params);
@@ -266,8 +249,6 @@ class Post
 		if (empty($selected)) {
 			$selected = Item::DISPLAY_FIELDLIST;
 		}
-
-		$selected = array_unique(array_merge($selected, ['internal-uri-id', 'internal-uid', 'internal-file-count']));
 
 		$condition = DBA::mergeConditions($condition,
 			["`visible` AND NOT `deleted` AND NOT `moderated`

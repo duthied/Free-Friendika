@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1393
+-- DB_UPDATE_VERSION 1394
 -- ------------------------------------------
 
 
@@ -1494,11 +1494,9 @@ CREATE VIEW `post-view` AS SELECT
 	`item`.`id` AS `id`,
 	`item`.`id` AS `item_id`,
 	`item`.`uid` AS `uid`,
-	`item`.`uid` AS `internal-uid`,
 	`item`.`parent` AS `parent`,
 	`item`.`uri` AS `uri`,
 	`item`.`uri-id` AS `uri-id`,
-	`item`.`uri-id` AS `internal-uri-id`,
 	`item`.`parent-uri` AS `parent-uri`,
 	`item`.`parent-uri-id` AS `parent-uri-id`,
 	`item`.`thr-parent` AS `thr-parent`,
@@ -1530,9 +1528,6 @@ CREATE VIEW `post-view` AS SELECT
 	`item`.`network` AS `network`,
 	`item`.`vid` AS `vid`,
 	`item`.`psid` AS `psid`,
-	`item`.`attach` AS `attach`,
-	(SELECT COUNT(*) FROM `post-category` WHERE `post-category`.`uri-id` = `item`.`uri-id`) AS `internal-file-count`,
-	NULL AS `file`,
 	IF (`item`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
 	`item-content`.`title` AS `title`,
 	`item-content`.`content-warning` AS `content-warning`,
@@ -1653,11 +1648,9 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`thread`.`iid` AS `iid`,
 	`item`.`id` AS `item_id`,
 	`thread`.`uid` AS `uid`,
-	`item`.`uid` AS `internal-uid`,
 	`item`.`parent` AS `parent`,
 	`item`.`uri` AS `uri`,
 	`item`.`uri-id` AS `uri-id`,
-	`item`.`uri-id` AS `internal-uri-id`,
 	`item`.`parent-uri` AS `parent-uri`,
 	`item`.`parent-uri-id` AS `parent-uri-id`,
 	`item`.`thr-parent` AS `thr-parent`,
@@ -1690,9 +1683,6 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`thread`.`network` AS `network`,
 	`item`.`vid` AS `vid`,
 	`item`.`psid` AS `psid`,
-	`item`.`attach` AS `attach`,
-	(SELECT COUNT(*) FROM `post-category` WHERE `post-category`.`uri-id` = `item`.`uri-id`) AS `internal-file-count`,
-	NULL AS `file`,
 	IF (`item`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
 	`item-content`.`title` AS `title`,
 	`item-content`.`content-warning` AS `content-warning`,

@@ -22,8 +22,9 @@
 namespace Friendica\Module\Filer;
 
 use Friendica\BaseModule;
+use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\FileTag;
+use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Util\XML;
 
@@ -46,26 +47,33 @@ class RemoveTag extends BaseModule
 		$term = XML::unescape(trim($_GET['term'] ?? ''));
 		$cat = XML::unescape(trim($_GET['cat'] ?? ''));
 
-		$category = (($cat) ? true : false);
-
-		if ($category) {
+		if (!empty($cat)) {
+			$type = Post\Category::CATEGORY;
 			$term = $cat;
+		} else {
+			$type = Post\Category::FILE;
 		}
 
 		$logger->info('Filer - Remove Tag', [
-			'term'     => $term,
-			'item'     => $item_id,
-			'category' => ($category ? 'true' : 'false')
+			'term' => $term,
+			'item' => $item_id,
+			'type' => $type
 		]);
 
 		if ($item_id && strlen($term)) {
-			if (!FileTag::unsaveFile(local_user(), $item_id, $term, $category)) {
+			$item = Post::selectFirst(['uri-id'], ['id' => $item_id]);
+			if (!DBA::isResult($item)) {
+				return;				
+			}
+			if (!Post\Category::deleteFileByURIId($item['uri-id'], local_user(), $type, $term)) {
 				notice(DI::l10n()->t('Item was not removed'));
 			}
 		} else {
 			notice(DI::l10n()->t('Item was not deleted'));
 		}
 
-		DI::baseUrl()->redirect('network?file=' . rawurlencode($term));
+		if ($type == Post\Category::FILE) {
+			DI::baseUrl()->redirect('filed?file=' . rawurlencode($term));
+		}
 	}
 }

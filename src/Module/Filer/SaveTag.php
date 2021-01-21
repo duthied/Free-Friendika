@@ -23,8 +23,10 @@ namespace Friendica\Module\Filer;
 
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
+use Friendica\Network\HTTPException;
 use Friendica\Util\XML;
 
 /**
@@ -52,13 +54,15 @@ class SaveTag extends BaseModule
 		$logger->info('filer', ['tag' => $term, 'item' => $item_id]);
 
 		if ($item_id && strlen($term)) {
-			// file item
-			Model\FileTag::saveFile(local_user(), $item_id, $term);
+			$item = Model\Post::selectFirst(['uri-id'], ['id' => $item_id]);
+			if (!DBA::isResult($item)) {
+				throw new HTTPException\NotFoundException();
+			}
+			Model\Post\Category::storeFileByURIId($item['uri-id'], local_user(), Model\Post\Category::FILE, $term);
 		}
 
 		// return filer dialog
-		$filetags = DI::pConfig()->get(local_user(), 'system', 'filetags', '');
-		$filetags = Model\FileTag::fileToArray($filetags);
+		$filetags = Model\Post\Category::getArray(local_user(), Model\Post\Category::FILE);
 
 		$tpl = Renderer::getMarkupTemplate("filer_dialog.tpl");
 		echo Renderer::replaceMacros($tpl, [

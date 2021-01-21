@@ -2508,14 +2508,14 @@ class DFRN
 		}
 
 		$condition = ['uri' => $uri, 'uid' => $importer["importer_uid"]];
-		$item = Post::selectFirst(['id', 'parent', 'contact-id', 'file', 'deleted', 'gravity'], $condition);
+		$item = Post::selectFirst(['id', 'parent', 'contact-id', 'uri-id', 'deleted', 'gravity'], $condition);
 		if (!DBA::isResult($item)) {
 			Logger::log("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " wasn't found.", Logger::DEBUG);
 			return;
 		}
 
-		if (strstr($item['file'], '[')) {
-			Logger::log("Item with uri " . $uri . " for user " . $importer["importer_uid"] . " is filed. So it won't be deleted.", Logger::DEBUG);
+		if (DBA::exists('post-category', ['uri-id' => $item['uri-id'], 'uid' => $importer['importer_uid'], 'type' => Post\Category::FILE])) {
+			Logger::notice("Item is filed. It won't be deleted.", ['uri' => $uri, 'uri-id' => $item['uri_id'], 'uid' => $importer["importer_uid"]]);
 			return;
 		}
 

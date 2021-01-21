@@ -252,7 +252,7 @@ function item_post(App $a) {
 		$verb              = $orig_post['verb'];
 		$objecttype        = $orig_post['object-type'];
 		$app               = $orig_post['app'];
-		$categories        = $orig_post['file'] ?? '';
+		$categories        = Post\Category::getTextByURIId($orig_post['uri-id'], $orig_post['uid']);
 		$title             = trim($_REQUEST['title'] ?? '');
 		$body              = trim($body);
 		$private           = $orig_post['private'];
@@ -344,10 +344,7 @@ function item_post(App $a) {
 		$filedas = FileTag::fileToArray($categories);
 	}
 
-	// save old and new categories, so we can determine what needs to be deleted from pconfig
-	$categories_old = $categories;
 	$categories = FileTag::listToFile(trim($_REQUEST['category'] ?? ''), 'category');
-	$categories_new = $categories;
 
 	if (!empty($filedas) && is_array($filedas)) {
 		// append the fileas stuff to the new categories list
@@ -696,9 +693,6 @@ function item_post(App $a) {
 
 		Item::update($fields, ['id' => $post_id]);
 
-		// update filetags in pconfig
-		FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
-
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -744,9 +738,6 @@ function item_post(App $a) {
 	if (!\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions') && ($datarray['gravity'] == GRAVITY_COMMENT)) {
 		Tag::createImplicitMentions($datarray['uri-id'], $datarray['thr-parent-id']);
 	}
-
-	// update filetags in pconfig
-	FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
 	// These notifications are sent if someone else is commenting other your wall
 	if ($contact_record != $author) {
