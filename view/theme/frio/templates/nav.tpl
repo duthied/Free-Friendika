@@ -28,8 +28,8 @@
 				<div class="topbar-nav" role="navigation">
 
 					{{* Buttons for the mobile view *}}
-					<button type="button" class="navbar-toggle offcanvas-right-toggle pull-right" aria-controls="myNavmenu"
-						aria-haspopup="true">
+					<button type="button" class="navbar-toggle offcanvas-right-toggle pull-right"
+						aria-controls="offcanvasUsermenu" aria-haspopup="true">
 						<span class="sr-only">Toggle navigation</span>
 						<i class="fa fa-ellipsis-v fa-fw fa-lg" aria-hidden="true"></i>
 					</button>
