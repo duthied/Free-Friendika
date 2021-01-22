@@ -2066,7 +2066,7 @@ class BBCode
 	{
 		$ret = [];
 
-		BBCode::performWithEscapedTags($string, ['noparse', 'pre', 'code'], function ($string) use (&$ret) {
+		BBCode::performWithEscapedTags($string, ['noparse', 'pre', 'code', 'img'], function ($string) use (&$ret) {
 			// Convert hashtag links to hashtags
 			$string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2 ', $string);
 

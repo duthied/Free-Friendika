@@ -1866,7 +1866,7 @@ class Item
 
 	public static function setHashtags($body)
 	{
-		$body = BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code'], function ($body) {
+		$body = BBCode::performWithEscapedTags($body, ['noparse', 'pre', 'code', 'img'], function ($body) {
 			$tags = BBCode::getTags($body);
 
 			// No hashtags?
