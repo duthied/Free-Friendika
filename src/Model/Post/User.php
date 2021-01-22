@@ -66,11 +66,12 @@ class User
 	 *
 	 * @param integer $uri_id
 	 * @param integer $uid
-	 * @param array   $fields
+	 * @param array   $data
+	 * @param bool    $insert_if_missing
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function update(int $uri_id, int $uid, array $data = [])
+	public static function update(int $uri_id, int $uid, array $data = [], bool $insert_if_missing = false)
 	{
 		if (empty($uri_id)) {
 			throw new BadMethodCallException('Empty URI_id');
@@ -86,6 +87,6 @@ class User
 			return true;
 		}
 
-		return DBA::update('post-user', $fields, ['uri-id' => $uri_id, 'uid' => $uid], true);
+		return DBA::update('post-user', $fields, ['uri-id' => $uri_id, 'uid' => $uid], $insert_if_missing ? true : []);
 	}
 }
