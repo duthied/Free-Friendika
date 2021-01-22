@@ -321,7 +321,9 @@ class Item
 
 		$items = Post::select(['id', 'uid', 'uri-id'], $condition);
 		while ($item = Post::fetch($items)) {
-			Post\User::update($item['uri-id'], $item['uid'], ['hidden' => true]);
+			if (in_array($item['uid'], [$uid, 0])) {
+				Post\User::update($item['uri-id'], $uid, ['hidden' => true], true);
+			}
 
 			// "Deleting" global items just means hiding them
 			if ($item['uid'] == 0) {
