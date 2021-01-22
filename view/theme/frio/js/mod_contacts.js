@@ -2,22 +2,20 @@
 
 var batchConfirmed = false;
 
-$(document).ready(function() {
+$(document).ready(function () {
 	// Initiale autosize for the textareas.
 	autosize($("textarea.text-autosize"));
 
-
 	// Replace the drop contact link of the photo menu
 	// with a confirmation modal.
-	$("body").on("click", ".contact-photo-menu a", function(e) {
-		var photoMenuLink = $(this).attr('href');
+	$("body").on("click", ".contact-photo-menu a", function (e) {
+		var photoMenuLink = $(this).attr("href");
 		if (typeof photoMenuLink !== "undefined" && photoMenuLink.indexOf("/drop?confirm=1") !== -1) {
 			e.preventDefault();
 			addToModal(photoMenuLink);
 			return false;
 		}
 	});
-
 });
 
 /**
@@ -25,7 +23,7 @@ $(document).ready(function() {
  *
  * @param {string} name The name of the batch action.
  * @param {string} value If it isn't empty the action will be posted.
- * 
+ *
  * @return {void}
  */
 function batch_submit_handler(name, value) {

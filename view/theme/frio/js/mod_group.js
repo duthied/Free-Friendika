@@ -5,10 +5,9 @@
  * The javascript for the group module
  */
 
-
-$(document).ready(function() {
+$(document).ready(function () {
 	// Add an event listeners on buttons for switching the contact list view
-	$("body").on("click", ".group-list-switcher", function() {
+	$("body").on("click", ".group-list-switcher", function () {
 		switchGroupViewMode(this);
 	});
 });
@@ -28,16 +27,16 @@ function groupChangeMember(gid, cid, sec_token) {
 	$(".tooltip").tooltip("hide");
 	$("body").css("cursor", "wait");
 
-	$.get('group/' + gid + '/' + cid + "?t=" + sec_token, function(data) {
-			// Insert the new group member list
-			$("#group-update-wrapper").html(data);
+	$.get("group/" + gid + "/" + cid + "?t=" + sec_token, function (data) {
+		// Insert the new group member list
+		$("#group-update-wrapper").html(data);
 
-			// Apply the actual gropu list view mode to the new
-			// group list html
-			var activeMode = $(".group-list-switcher.active");
-			switchGroupViewMode(activeMode[0]);
+		// Apply the actual gropu list view mode to the new
+		// group list html
+		var activeMode = $(".group-list-switcher.active");
+		switchGroupViewMode(activeMode[0]);
 
-			$("body").css("cursor", "auto");
+		$("body").css("cursor", "auto");
 	});
 }
 
@@ -48,17 +47,17 @@ function groupChangeMember(gid, cid, sec_token) {
  * @returns {undefined}
  */
 function switchGroupViewMode(elm) {
-		// Remove the active class from group list switcher buttons
-		$(".group-list-switcher").removeClass("active");
-		// And add it to the active button element
-		$(elm).addClass("active");
+	// Remove the active class from group list switcher buttons
+	$(".group-list-switcher").removeClass("active");
+	// And add it to the active button element
+	$(elm).addClass("active");
 
-		// Add or remove the css classes for the group list with regard to the active view mode
-		if (elm.id === "group-list-small") {
-			$("#contact-group-list > li").addClass("shortmode col-lg-6 col-md-6 col-sm-6 col-xs-12");
-		} else {
-			$("#contact-group-list > li").removeClass("shortmode col-lg-6 col-md-6 col-sm-6 col-xs-12");
-		}
+	// Add or remove the css classes for the group list with regard to the active view mode
+	if (elm.id === "group-list-small") {
+		$("#contact-group-list > li").addClass("shortmode col-lg-6 col-md-6 col-sm-6 col-xs-12");
+	} else {
+		$("#contact-group-list > li").removeClass("shortmode col-lg-6 col-md-6 col-sm-6 col-xs-12");
+	}
 }
 
 /**

@@ -4,8 +4,8 @@
  */
 
 // Lifted from https://css-tricks.com/snippets/jquery/move-cursor-to-end-of-textarea-or-input/
-jQuery.fn.putCursorAtEnd = function() {
-	return this.each(function() {
+jQuery.fn.putCursorAtEnd = function () {
+	return this.each(function () {
 		// Cache references
 		var $el = $(this),
 			el = this;
@@ -21,7 +21,7 @@ jQuery.fn.putCursorAtEnd = function() {
 			var len = $el.val().length * 2;
 
 			// Timeout seems to be required for Blink
-			setTimeout(function() {
+			setTimeout(function () {
 				el.setSelectionRange(len, len);
 			}, 1);
 		} else {
@@ -38,9 +38,9 @@ jQuery.fn.putCursorAtEnd = function() {
 
 function commentGetLink(id, prompttext) {
 	reply = prompt(prompttext);
-	if(reply && reply.length) {
+	if (reply && reply.length) {
 		reply = bin2hex(reply);
-		$.get('parse_url?noAttachment=1&binurl=' + reply, function(data) {
+		$.get("parse_url?noAttachment=1&binurl=" + reply, function (data) {
 			addCommentText(data, id);
 		});
 	}
@@ -64,7 +64,7 @@ function commentLinkDrop(event, id) {
 	event.preventDefault();
 	if (reply && reply.length) {
 		reply = bin2hex(reply);
-		$.get('parse_url?noAttachment=1&binurl=' + reply, function(data) {
+		$.get("parse_url?noAttachment=1&binurl=" + reply, function (data) {
 			addCommentText(data, id);
 		});
 	}
@@ -86,12 +86,12 @@ function insertFormattingToPost(BBCode) {
 }
 
 function showThread(id) {
-	$("#collapsed-comments-" + id).show()
-	$("#collapsed-comments-" + id + " .collapsed-comments").show()
+	$("#collapsed-comments-" + id).show();
+	$("#collapsed-comments-" + id + " .collapsed-comments").show();
 }
 function hideThread(id) {
-	$("#collapsed-comments-" + id).hide()
-	$("#collapsed-comments-" + id + " .collapsed-comments").hide()
+	$("#collapsed-comments-" + id).hide();
+	$("#collapsed-comments-" + id + " .collapsed-comments").hide();
 }
 
 function cmtBbOpen(id) {
@@ -101,8 +101,7 @@ function cmtBbClose(id) {
 	$("#comment-edit-bb-" + id).hide();
 }
 
-function commentExpand(id)
-{
+function commentExpand(id) {
 	$("#mod-cmnt-wrap-" + id).show();
 	closeMenu("comment-fake-form-" + id);
 	openMenu("item-comments-" + id);
@@ -114,9 +113,8 @@ function commentExpand(id)
 	return true;
 }
 
-function commentClose(obj, id)
-{
-	if (obj.value === '' || obj.value === obj.dataset.default) {
+function commentClose(obj, id) {
+	if (obj.value === "" || obj.value === obj.dataset.default) {
 		$("#comment-edit-text-" + id)
 			.removeClass("comment-edit-text-full")
 			.addClass("comment-edit-text-empty");
@@ -129,8 +127,8 @@ function commentClose(obj, id)
 }
 
 function showHideCommentBox(id) {
-	var $el = $('#comment-edit-form-' + id);
-	if ($el.is(':visible')) {
+	var $el = $("#comment-edit-form-" + id);
+	if ($el.is(":visible")) {
 		$el.hide();
 	} else {
 		$el.show();
@@ -142,19 +140,21 @@ function commentOpenUI(obj, id) {
 	openMenu("item-comments-" + id);
 	$("#comment-edit-text-" + id)
 		.putCursorAtEnd()
-		.addClass("comment-edit-text-full").removeClass("comment-edit-text-empty")
-		.attr('tabindex', '9'); 	// Choose an arbitrary tab index that's greater than what we're using in jot (3 of them)
-	$("#comment-edit-submit-" + id).attr('tabindex', '10'); // The submit button gets tabindex + 1
+		.addClass("comment-edit-text-full")
+		.removeClass("comment-edit-text-empty")
+		.attr("tabindex", "9"); // Choose an arbitrary tab index that's greater than what we're using in jot (3 of them)
+	$("#comment-edit-submit-" + id).attr("tabindex", "10"); // The submit button gets tabindex + 1
 	// initialize autosize for this comment
 	autosize($("#comment-edit-text-" + id + ".text-autosize"));
 }
 
 function commentCloseUI(obj, id) {
-	if (obj.value === '' || obj.value === obj.dataset.default) {
+	if (obj.value === "" || obj.value === obj.dataset.default) {
 		$("#comment-edit-text-" + id)
-			.removeClass("comment-edit-text-full").addClass("comment-edit-text-empty")
-			.removeAttr('tabindex');
-		$("#comment-edit-submit-" + id).removeAttr('tabindex');
+			.removeClass("comment-edit-text-full")
+			.addClass("comment-edit-text-empty")
+			.removeAttr("tabindex");
+		$("#comment-edit-submit-" + id).removeAttr("tabindex");
 		openMenu("comment-fake-form-" + id);
 		closeMenu("item-comments-" + id);
 		// destroy the automatic textarea resizing
@@ -163,7 +163,7 @@ function commentCloseUI(obj, id) {
 }
 
 function jotTextOpenUI(obj) {
-	if (obj.value === '' || obj.value === obj.dataset.default) {
+	if (obj.value === "" || obj.value === obj.dataset.default) {
 		var $el = $(".modal-body #profile-jot-text");
 		$el.addClass("profile-jot-text-full").removeClass("profile-jot-text-empty");
 		// initiale autosize for the jot
@@ -172,7 +172,7 @@ function jotTextOpenUI(obj) {
 }
 
 function jotTextCloseUI(obj) {
-	if (obj.value === '' || obj.value === obj.dataset.default) {
+	if (obj.value === "" || obj.value === obj.dataset.default) {
 		var $el = $(".modal-body #profile-jot-text");
 		$el.removeClass("profile-jot-text-full").addClass("profile-jot-text-empty");
 		// destroy the automatic textarea resizing
@@ -181,7 +181,7 @@ function jotTextCloseUI(obj) {
 }
 
 function commentOpen(obj, id) {
-	if (obj.value === '' || obj.value === obj.dataset.default) {
+	if (obj.value === "" || obj.value === obj.dataset.default) {
 		$("#comment-edit-text-" + id)
 			.putCursorAtEnd()
 			.addClass("comment-edit-text-full")
@@ -210,19 +210,22 @@ function dropItem(url, elementId) {
 	var confirm = confirmDelete();
 
 	if (confirm) {
-		$('body').css('cursor', 'wait');
+		$("body").css("cursor", "wait");
 
 		var $el = $(document.getElementById(elementId));
 
-		$el.fadeTo('fast', 0.33, function () {
-			$.get(url).then(function() {
-				$el.remove();
-			}).fail(function() {
-				// @todo Show related error message
-				$el.show();
-			}).always(function() {
-				$('body').css('cursor', 'auto');
-			});
+		$el.fadeTo("fast", 0.33, function () {
+			$.get(url)
+				.then(function () {
+					$el.remove();
+				})
+				.fail(function () {
+					// @todo Show related error message
+					$el.show();
+				})
+				.always(function () {
+					$("body").css("cursor", "auto");
+				});
 		});
 	}
 }
