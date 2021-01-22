@@ -373,6 +373,29 @@ $(document).ready(function () {
 			$body.removeClass("aside-out");
 		});
 
+	// Right offcanvas elements
+	let $offcanvas_right_toggle = $(".offcanvas-right-toggle");
+	let $offcanvas_right_container = $("#offcanvasUsermenu"); // Use ID for faster lookup, class is .offcanvas-right
+
+	$offcanvas_right_toggle.on("click", function (event) {
+		event.preventDefault();
+		$("body").toggleClass("offcanvas-right-active");
+	});
+
+	// Close the right offcanvas menu when clicking somewhere
+	$(document).on("mouseup touchend", function (event) {
+		if (
+			// Clicked element is not inside the menu
+			!$offcanvas_right_container.is(event.target) &&
+			$offcanvas_right_container.has(event.target).length === 0 &&
+			// Clicked element is not the toggle button (taken care by the toggleClass above)
+			!$offcanvas_right_toggle.is(event.target) &&
+			$offcanvas_right_toggle.has(event.target).length === 0
+		) {
+			$("body").removeClass("offcanvas-right-active");
+		}
+	});
+
 	// Event listener for 'Show & hide event map' button in the network stream.
 	$body.on("click", ".event-map-btn", function () {
 		showHideEventMap(this);
