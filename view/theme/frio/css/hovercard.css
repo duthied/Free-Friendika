@@ -1,4 +1,3 @@
-
 .hovercard {
 	position: absolute;
 	top: 0;
@@ -202,7 +201,6 @@
 	text-decoration: none !important;
 }
 
-
 /* Basic hovercard */
 .basic-content {
 	padding: 9px;
@@ -285,7 +283,6 @@
 
 .hover-card-header h4 {
 	display: block;
-
 }
 
 .hover-card-header h4 a {

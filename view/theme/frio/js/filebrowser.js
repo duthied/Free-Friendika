@@ -52,7 +52,6 @@
  *		});
  **/
 
-
 /*
  * IMPORTANT
  *
@@ -64,21 +63,20 @@
  *
  */
 
-
 var FileBrowser = {
-	nickname : "",
-	type : "",
+	nickname: "",
+	type: "",
 	event: "",
 	folder: "",
-	id : null,
+	id: null,
 
-	init: function(nickname, type, hash) {
+	init: function (nickname, type, hash) {
 		FileBrowser.nickname = nickname;
 		FileBrowser.type = type;
-		FileBrowser.event = "fbrowser."+type;
+		FileBrowser.event = "fbrowser." + type;
 
-		if (hash!=="") {
-			var h = hash.replace("#","");
+		if (hash !== "") {
+			var h = hash.replace("#", "");
 			var destination = h.split("-")[0];
 			FileBrowser.id = h.split("-")[1];
 			FileBrowser.event = FileBrowser.event + "." + destination;
@@ -86,28 +84,34 @@ var FileBrowser = {
 				// Get the comment textimput field
 				var commentElm = document.getElementById("comment-edit-text-" + FileBrowser.id);
 			}
-		};
+		}
 
-		console.log("FileBrowser: " + nickname,  type, FileBrowser.event, FileBrowser.id);
+		console.log("FileBrowser: " + nickname, type, FileBrowser.event, FileBrowser.id);
 
 		FileBrowser.postLoad();
 
-		$(".error .close").on("click", function(e) {
+		$(".error .close").on("click", function (e) {
 			e.preventDefault();
 			$(".error").addClass("hidden");
 		});
 
 		// Click on album link
-		$(".fbrowser").on("click", ".folders a, .path a", function(e) {
+		$(".fbrowser").on("click", ".folders a, .path a", function (e) {
 			e.preventDefault();
-			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + encodeURIComponent(this.dataset.folder) + "?mode=none&theme=frio";
+			var url =
+				baseurl +
+				"/fbrowser/" +
+				FileBrowser.type +
+				"/" +
+				encodeURIComponent(this.dataset.folder) +
+				"?mode=none&theme=frio";
 			FileBrowser.folder = this.dataset.folder;
 
 			FileBrowser.loadContent(url);
 		});
 
 		//Embed on click
-		$(".fbrowser").on('click', ".photo-album-photo-link", function(e) {
+		$(".fbrowser").on("click", ".photo-album-photo-link", function (e) {
 			e.preventDefault();
 
 			var embed = "";
@@ -123,36 +127,34 @@ var FileBrowser = {
 			// Note: not the best solution but function commentOpenUI don't
 			// work as expected (we need a way to wait until commentOpenUI would be finished).
 			// As for now we insert pieces of this function here
-			if ((commentElm !== null) && (typeof commentElm !== "undefined")) {
+			if (commentElm !== null && typeof commentElm !== "undefined") {
 				if (commentElm.value === "") {
-					$("#comment-edit-text-" + FileBrowser.id).addClass("comment-edit-text-full").removeClass("comment-edit-text-empty");
+					$("#comment-edit-text-" + FileBrowser.id)
+						.addClass("comment-edit-text-full")
+						.removeClass("comment-edit-text-empty");
 					$("#comment-edit-submit-wrapper-" + FileBrowser.id).show();
-					$("#comment-edit-text-" + FileBrowser.id).attr('tabindex','9');
-					$("#comment-edit-submit-" + FileBrowser.id).attr('tabindex','10');
+					$("#comment-edit-text-" + FileBrowser.id).attr("tabindex", "9");
+					$("#comment-edit-submit-" + FileBrowser.id).attr("tabindex", "10");
 				}
-
 			}
 
 			console.log(FileBrowser.event, this.dataset.filename, embed, FileBrowser.id);
 
-			$("body").trigger(FileBrowser.event, [
-				this.dataset.filename,
-				embed,
-				FileBrowser.id,
-				this.dataset.img
-			]);
+			$("body").trigger(FileBrowser.event, [this.dataset.filename, embed, FileBrowser.id, this.dataset.img]);
 
 			// Close model
-			$('#modal').modal('hide');
+			$("#modal").modal("hide");
 			// Update autosize for this textarea
 			autosize.update($(".text-autosize"));
 		});
 
 		// EventListener for switching between image and file mode
-		$(".fbrowser").on('click', ".fbswitcher .btn", function(e) {
+		$(".fbrowser").on("click", ".fbswitcher .btn", function (e) {
 			e.preventDefault();
 			FileBrowser.type = this.getAttribute("data-mode");
-			$(".fbrowser").removeClass().addClass("fbrowser " + FileBrowser.type);
+			$(".fbrowser")
+				.removeClass()
+				.addClass("fbrowser " + FileBrowser.type);
 			url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none&theme=frio";
 
 			FileBrowser.loadContent(url);
@@ -160,67 +162,73 @@ var FileBrowser = {
 	},
 
 	// Initialize the AjaxUpload for the upload buttons
-	uploadButtons: function() {
+	uploadButtons: function () {
 		if ($("#upload-image").length) {
 			//AjaxUpload for images
-			var image_uploader = new window.AjaxUpload(
-				'upload-image',
-				{
-					action: 'wall_upload/' + FileBrowser.nickname + '?response=json&album=' + encodeURIComponent(FileBrowser.folder),
-					name: 'userfile',
-					responseType: 'json',
-					onSubmit: function(file, ext) {
-						$(".fbrowser-content").hide();
-						$(".fbrowser .profile-rotator-wrapper").show();
-						$(".error").addClass('hidden');
-					},
-					onComplete: function(file,response) {
-						if (response['error'] != undefined) {
-							$(".error span").html(response['error']);
-							$(".error").removeClass('hidden');
-							$(".fbrowser .profile-rotator-wrapper").hide();
-							$(".fbrowser-content").show();
-							return;
-						}
-
-						// load new content to fbrowser window
-						FileBrowser.loadContent(baseurl + '/fbrowser/' + FileBrowser.type + '/' + encodeURIComponent(FileBrowser.folder) + '?mode=none&theme=frio');
+			var image_uploader = new window.AjaxUpload("upload-image", {
+				action:
+					"wall_upload/" +
+					FileBrowser.nickname +
+					"?response=json&album=" +
+					encodeURIComponent(FileBrowser.folder),
+				name: "userfile",
+				responseType: "json",
+				onSubmit: function (file, ext) {
+					$(".fbrowser-content").hide();
+					$(".fbrowser .profile-rotator-wrapper").show();
+					$(".error").addClass("hidden");
+				},
+				onComplete: function (file, response) {
+					if (response["error"] != undefined) {
+						$(".error span").html(response["error"]);
+						$(".error").removeClass("hidden");
+						$(".fbrowser .profile-rotator-wrapper").hide();
+						$(".fbrowser-content").show();
+						return;
 					}
-				}
-			);
+
+					// load new content to fbrowser window
+					FileBrowser.loadContent(
+						baseurl +
+							"/fbrowser/" +
+							FileBrowser.type +
+							"/" +
+							encodeURIComponent(FileBrowser.folder) +
+							"?mode=none&theme=frio",
+					);
+				},
+			});
 		}
 
 		if ($("#upload-file").length) {
 			//AjaxUpload for files
-			var file_uploader = new window.AjaxUpload(
-				'upload-file',
-				{	action: 'wall_attach/' + FileBrowser.nickname + '?response=json',
-					name: 'userfile',
-					onSubmit: function(file, ext) {
-						$(".fbrowser-content").hide();
-						$(".fbrowser .profile-rotator-wrapper").show();
-						$(".error").addClass('hidden');
-					},
-					onComplete: function(file,response) {
-						if (response['error']!= undefined) {
-							$(".error span").html(response['error']);
-							$(".error").removeClass('hidden');
-							$('#profile-rotator').hide();
-							$(".fbrowser-content").show();
-							return;
-						}
-
-						var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none&theme=frio";
-						// Load new content to fbrowser window
-						FileBrowser.loadContent(url);
+			var file_uploader = new window.AjaxUpload("upload-file", {
+				action: "wall_attach/" + FileBrowser.nickname + "?response=json",
+				name: "userfile",
+				onSubmit: function (file, ext) {
+					$(".fbrowser-content").hide();
+					$(".fbrowser .profile-rotator-wrapper").show();
+					$(".error").addClass("hidden");
+				},
+				onComplete: function (file, response) {
+					if (response["error"] != undefined) {
+						$(".error span").html(response["error"]);
+						$(".error").removeClass("hidden");
+						$("#profile-rotator").hide();
+						$(".fbrowser-content").show();
+						return;
 					}
-				}
-			);
+
+					var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none&theme=frio";
+					// Load new content to fbrowser window
+					FileBrowser.loadContent(url);
+				},
+			});
 		}
 	},
 
 	// Stuff which should be executed if ne content was loaded
-	postLoad: function() {
+	postLoad: function () {
 		FileBrowser.initGallery();
 		$(".fbrowser .fbswitcher .btn").removeClass("active");
 		$(".fbrowser .fbswitcher [data-mode=" + FileBrowser.type + "]").addClass("active");
@@ -229,14 +237,14 @@ var FileBrowser = {
 	},
 
 	// Load new content (e.g. change photo album)
-	loadContent: function(url) {
+	loadContent: function (url) {
 		$(".fbrowser-content").hide();
 		$(".fbrowser .profile-rotator-wrapper").show();
 
 		// load new content to fbrowser window
-		$(".fbrowser").load(url, function(responseText, textStatus) {
+		$(".fbrowser").load(url, function (responseText, textStatus) {
 			$(".profile-rotator-wrapper").hide();
-			if (textStatus === 'success') {
+			if (textStatus === "success") {
 				$(".fbrowser_content").show();
 				FileBrowser.postLoad();
 			}
@@ -244,12 +252,12 @@ var FileBrowser = {
 	},
 
 	// Initialize justified Gallery
-	initGallery: function() {
+	initGallery: function () {
 		$(".fbrowser.image .fbrowser-content-container").justifiedGallery({
-			'rowHeight': 80,
-			'margins': 4,
-			'border': 0
+			rowHeight: 80,
+			margins: 4,
+			border: 0,
 		});
-	}
+	},
 };
 // @license-end

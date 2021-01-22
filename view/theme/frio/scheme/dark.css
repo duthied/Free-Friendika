@@ -18,7 +18,7 @@
 }
 
 #topbar-first #nav-notifications-menu li.notification-unseen {
-        background-color: $nav_icon_hover_color;
+	background-color: $nav_icon_hover_color;
 }
 
 #topbar-second {
@@ -29,17 +29,20 @@
 	border_color: $link_color;
 }
 
-.dropdown-menu, .account .dropdown-menu {
+.dropdown-menu,
+.account .dropdown-menu {
 	background-color: $background_color;
 }
-.dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
+.dropdown-menu > li > a:focus,
+.dropdown-menu > li > a:hover {
 	color: $link_color;
 }
 .account .dropdown-menu li {
 	border-color: $background_color;
 }
 
-.dropdown-menu > li > a:focus, .dropdown-menu > li > a:hover {
+.dropdown-menu > li > a:focus,
+.dropdown-menu > li > a:hover {
 	background-image: none;
 	background-color: rgba(232, 232, 232, $contentbg_transp);
 }
@@ -60,9 +63,9 @@
 	-webkit-box-shadow: 0 0 3px #dadada;
 }
 
-input[type=text],
-input[type=submit],
-button[type=submit]:not(.btn),
+input[type="text"],
+input[type="submit"],
+button[type="submit"]:not(.btn),
 select,
 textarea,
 .form-control {
@@ -72,7 +75,7 @@ textarea,
 	box-shadow: 0 0 3px #dadada;
 	-webkit-box-shadow: 0 0 3px #dadada;
 }
-input[type=range] {
+input[type="range"] {
 	box-shadow: none;
 }
 
@@ -88,12 +91,12 @@ input[type=range] {
 	background-color: $background_color;
 }
 
-.nav-tabs>li.active>a,
-.nav-tabs>li.active>a:focus,
-.nav-tabs>li.active>a:hover,
-main .nav-tabs>li.active>a,
-main .nav-tabs>li.active>a:focus,
-main .nav-tabs>li.active>a:hover {
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover,
+main .nav-tabs > li.active > a,
+main .nav-tabs > li.active > a:focus,
+main .nav-tabs > li.active > a:hover {
 	background-color: $nav_bg;
 	color: $font_color_darker;
 }
@@ -118,8 +121,8 @@ main .nav-tabs>li.active>a:hover {
 	color: $font_color;
 }
 
-.pagination>li>a:hover,
-.pagination>li>span:hover {
+.pagination > li > a:hover,
+.pagination > li > span:hover {
 	background-color: $nav_bg;
 }
 
@@ -183,8 +186,8 @@ main .nav-tabs>li.active>a:hover {
 	color: $font_color;
 }
 
-button[type=submit]:not(.btn),
-input[type=submit],
+button[type="submit"]:not(.btn),
+input[type="submit"],
 .btn.btn-primary {
 	border: 1px solid $link_color;
 }
@@ -194,7 +197,7 @@ input[type=submit],
 	color: $link_color;
 }
 
-.panel-default>.panel-heading {
+.panel-default > .panel-heading {
 	background: none;
 	background-color: $nav_bg;
 	color: $font_color;
@@ -304,27 +307,26 @@ input[type=submit],
 	color: inherit;
 }
 
-
 code {
 	color: $font_color;
-	background-color: rgba(255, 255, 255, .2);
+	background-color: rgba(255, 255, 255, 0.2);
 }
 pre {
 	color: $font_color_darker;
-	background-color: rgba(255, 255, 255, .05);
+	background-color: rgba(255, 255, 255, 0.05);
 }
 
 legend {
 	color: $font_color;
 }
 
-.table-striped>tbody>tr:nth-of-type(odd),
+.table-striped > tbody > tr:nth-of-type(odd),
 .table-hover > tbody > tr:hover,
 .adminpage .table-hover > tbody > tr:hover + tr.details {
 	background-color: $nav_bg;
 }
 
-input[type=text].tt-input {
+input[type="text"].tt-input {
 	box-shadow: none;
 }
 
