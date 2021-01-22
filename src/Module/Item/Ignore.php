@@ -25,7 +25,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
-use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 
 /**
@@ -50,7 +50,7 @@ class Ignore extends BaseModule
 			throw new HTTPException\BadRequestException();
 		}
 
-		$thread = Item::selectFirstThreadForUser(local_user(), ['uid', 'ignored'], ['iid' => $message_id]);
+		$thread = Post::selectFirstThreadForUser(local_user(), ['uid', 'ignored'], ['iid' => $message_id]);
 		if (!$dba->isResult($thread)) {
 			throw new HTTPException\BadRequestException();
 		}
