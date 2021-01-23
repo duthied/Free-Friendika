@@ -192,7 +192,8 @@ class Profile extends BaseProfile
 
 		if ($a->profile['pub_keywords']) {
 			$tags = [];
-			foreach (explode(',', $a->profile['pub_keywords']) as $tag_label) {
+			// Separator is defined in Module\Settings\Profile\Index::cleanKeywords
+			foreach (explode(', ', $a->profile['pub_keywords']) as $tag_label) {
 				$tags[] = [
 					'url' => '/search?tag=' . $tag_label,
 					'label' => Tag::TAG_CHARACTER[Tag::HASHTAG] . $tag_label,
