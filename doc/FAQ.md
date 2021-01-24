@@ -9,11 +9,11 @@ User
 * **[How can I upload images, files, links, videos and sound files to posts?](help/FAQ#upload)**
 * **[Is it possible to have different avatars per profile?](help/FAQ#avatars)**
 * **[How can I view Friendica in a certain language?](help/FAQ#language)**
-* **[What is the difference between blocked|ignored|archived|hidden contacts?](help/FAQ#contacts)**
+* **[How do blocked, ignored, archived and hidden contacts behave?](help/FAQ#contacts)**
 * **[What happens when an account is removed? Is it truly deleted?](help/FAQ#removed)**
 * **[Can I subscribe to a hashtag?](help/FAQ#hashtag)**
 * **[How to create a RSS feed of the stream?](help/FAQ#rss)**
-* **[Are there any clients for friendica I can use?](help/FAQ#clients)**
+* **[What friendica clients can I use?](help/FAQ#clients)**
 * **[Where I can find help?](help/FAQ#help)**
 
 Admins
@@ -94,26 +94,33 @@ in German:
 When a certain language is forced, the language remains until session is closed.
 
 <a name="contacts"></a>
-### What is the difference between blocked|ignored|archived|hidden contacts?
+### How do blocked, ignored, archived and hidden contacts behave?
 
-We prevent direct communication with **blocked contacts**.
-They are not included in delivery, and their own posts to you are not imported.
+##### Blocked
+
+Direct communication will be blocked.
+Blocked contacts are not included in delivery, and their own posts to you are not imported.
 However their conversations with your friends will still be visible in your stream.
 If you remove a contact completely, they can send you another friend request.
 Blocked contacts cannot do this. They cannot communicate with you directly, only through friends.
 
-**Ignored contacts** are included in delivery - they will receive your posts and private messages.
+##### Ignored
+
+Ignored contacts are included in delivery and will receive your posts and private messages.
 However we do not import their posts or private messages to you.
-Like blocking, you will still see this person's comments to posts made by your friends.
+Like blocking you will still see this person's comments to posts made by your friends.
 
-An addon called "blockem" can be installed to collapse/hide all posts from a particular person in your stream if you desire complete blocking of an individual, including his/her conversations with your other friends.
+An addon called "blockem" can be installed to collapse/hide all posts from a particular person in your stream if you desire complete blocking of an individual, including their conversations with your other friends.
 
-An **archived contact** means that communication is not possible and will not be attempted.
-(Perhaps the person moved to a new site and removed the old profile.)
+##### Archived
+
+Communication is not possible and will not be attempted.
 However unlike blocking, existing posts this person made before being archived will be visible in your stream.
 
-A **hidden contact** will not be displayed in any "friend list" (except to you).
-However a hidden contact will appear normally in conversations and this may expose his/her hidden status to anybody who can see the conversation.
+##### Hidden
+
+Contact not be displayed in your public friend list.
+However a hidden contact will appear normally in conversations and this may expose their hidden status to anybody who can see the conversation.
 
 <a name="removed"></a>
 ### What happens when an account is removed?
@@ -155,28 +162,22 @@ Example: Friendica Support
 	https://forum.friendi.ca/feed/helpers/comments
 
 <a name="clients"></a>
-### Are there any clients for friendica I can use?
+### What friendica clients can I use?
 
 Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your platform as long as you can change the API path in its settings.
 Here is a list of known working clients:
 
 * Android
-  * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) (available in Google Playstore or from a binary repository you can add to [F-Droid](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854))
-  * [Fedilab](https://fedilab.app/) (available in F-Droid and Google stores)
-  * [DiCa](https://dica.mixi.cool/)
-  * AndStatus
-  * Twidere
-  * Mustard and Mustard-Mod
+  * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) ([F-Droid](https://git.friendi.ca/lubuwest/Friendiqa#install), [Google Play](https://play.google.com/store/apps/details?id=org.qtproject.friendiqa))
+  * [Fedilab](https://fedilab.app) ([F-Droid](https://f-droid.org/app/fr.gouv.etalab.mastodon), [Google Play](https://play.google.com/store/apps/details?id=app.fedilab.android))
+  * [AndStatus](http://andstatus.org) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.andstatus.app), [Google Play](https://play.google.com/store/apps/details?id=org.andstatus.app))
+  * [Twidere](https://dimension.im/) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.mariotaku.twidere), [Google Play](https://play.google.com/store/apps/details?id=com.twidere.twiderex), [GitHub](https://github.com/TwidereProject/Twidere-Android))
 * SailfishOS
   * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
 * Linux
-  * Hotot
-  * Choqok
-* MacOS X
-  * Hotot
+  * [Choqok](https://choqok.kde.org)
 * Windows
-  * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) for Windows 10
-  * Hotot
+  * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) (Windows 10)
 
 Depending on the features of the client you might encounter some glitches in usability, like being limited in the length of your postings to 140 characters and having no access to the [permission settings](help/Groups-and-Privacy).
 
