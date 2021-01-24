@@ -323,6 +323,8 @@ function settings_post(App $a)
 	$email_textonly   = (($_POST['email_textonly'] == 1) ? 1 : 0);
 	$detailed_notif   = (($_POST['detailed_notif'] == 1) ? 1 : 0);
 
+	$notify_ignored   = (($_POST['notify_ignored'] == 1) ? 1 : 0);
+	
 	$notify = 0;
 
 	if (!empty($_POST['notify1'])) {
@@ -416,6 +418,7 @@ function settings_post(App $a)
 
 	DI::pConfig()->set(local_user(), 'system', 'email_textonly', $email_textonly);
 	DI::pConfig()->set(local_user(), 'system', 'detailed_notif', $detailed_notif);
+	DI::pConfig()->set(local_user(), 'system', 'notify_ignored', $notify_ignored);
 	DI::pConfig()->set(local_user(), 'system', 'unlisted', $unlisted);
 	DI::pConfig()->set(local_user(), 'system', 'accessible-photos', $accessiblephotos);
 
@@ -911,7 +914,11 @@ function settings_content(App $a)
 									DI::pConfig()->get(local_user(), 'system', 'detailed_notif'),
 									DI::l10n()->t('Per default, notifications are condensed to a single notification per item. When enabled every notification is displayed.')],
 
-		'$h_advn' => DI::l10n()->t('Advanced Account/Page Type Settings'),
+		'$notify_ignored' => ['notify_ignored', DI::l10n()->t('Show notifications of ignored contacts') ,
+									DI::pConfig()->get(local_user(), 'system', 'notify_ignored', true),
+									DI::l10n()->t("You don't see posts from ignored contacts. But you still see their comments. This setting controls if you want to still receive regular notifications that are caused by ignored contacts or not.")],
+
+									'$h_advn' => DI::l10n()->t('Advanced Account/Page Type Settings'),
 		'$h_descadvn' => DI::l10n()->t('Change the behaviour of this account for special situations'),
 		'$pagetype' => $pagetype,
 
