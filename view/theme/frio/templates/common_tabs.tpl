@@ -44,14 +44,14 @@
 		</li>
 
 		{{* All others are moved to this dropdown menu *}}
-		<li class="pull-right">
+		<li>
 			<ul class="tabs tabs-extended">
 				<li class="dropdown">
 					<button type="button" class="btn-link dropdown-toggle" id="dropdownMenuTools-xs"
 						data-toggle="dropdown" aria-expanded="false">
 						<i class="fa fa-chevron-down" aria-hidden="true"></i>
 					</button>
-					<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuTools">
+					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuTools">
 						{{foreach $exttabs as $tab}}
 							<li id="{{$tab.id}}-xs" role="presentation" {{if $tab.sel}} class="{{$tab.sel}}" {{/if}}><a
 									role="menuitem" href="{{$tab.url}}" {{if $tab.title}} title="{{$tab.title}}"

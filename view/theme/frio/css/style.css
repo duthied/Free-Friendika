@@ -2189,6 +2189,12 @@ ul.tabs li:hover,
 ul.tabs li.active {
 	border-bottom-width: 4px;
 }
+.tabbar.visible-xs .tabs-extended {
+	padding-top: 0;
+}
+#dropdownMenuTools-xs {
+	padding: 9px 10px;
+}
 ul.tabbar ul.tabs-extended:hover li.dropdown {
 	border-bottom: 0;
 }
