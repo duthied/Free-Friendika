@@ -624,7 +624,7 @@ function check_item_notification($itemid, $uid, $notification_type) {
 		return false;
 	}
 
-	if (DI::pConfig()->get(local_user(), 'system', 'notify_ignored', true) && Contact\User::isIgnored($item['author-id'], $uid)) {
+	if (!DI::pConfig()->get(local_user(), 'system', 'notify_ignored', true) && Contact\User::isIgnored($item['author-id'], $uid)) {
 		Logger::info('Author is ignored, dropping notification', ['cid' => $item['author-id'], 'uid' =>  $uid]);
 		return false;
 	}
