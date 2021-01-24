@@ -13,7 +13,7 @@ User
 * **[What happens when an account is removed? Is it truly deleted?](help/FAQ#removed)**
 * **[Can I subscribe to a hashtag?](help/FAQ#hashtag)**
 * **[How to create a RSS feed of the stream?](help/FAQ#rss)**
-* **[List of friendica clients](help/FAQ#clients)**
+* **[What friendica clients can I use?](help/FAQ#clients)**
 * **[Where I can find help?](help/FAQ#help)**
 
 Admins
@@ -98,21 +98,29 @@ When a certain language is forced, the language remains until session is closed.
 
 ##### Blocked
 
-Direct communication will be blocked. Blocked contacts are not included in delivery, and their own posts to you are not imported. However their conversations with your friends will still be visible in your stream. If you remove a contact completely, they can send you another friend request. Blocked contacts cannot do this. They cannot communicate with you directly, only through friends.
+Direct communication will be blocked.
+Blocked contacts are not included in delivery, and their own posts to you are not imported.
+However their conversations with your friends will still be visible in your stream.
+If you remove a contact completely, they can send you another friend request.
+Blocked contacts cannot do this. They cannot communicate with you directly, only through friends.
 
 ##### Ignored
 
-Not included in delivery but they will receive your posts and private messages. However we do not import their posts or private messages to you. Like blocking, you will still see this person's comments to posts made by your friends.
+Ignored contacts are included in delivery and will receive your posts and private messages.
+However we do not import their posts or private messages to you.
+Like blocking you will still see this person's comments to posts made by your friends.
 
 An addon called "blockem" can be installed to collapse/hide all posts from a particular person in your stream if you desire complete blocking of an individual, including their conversations with your other friends.
 
-##### Archived
+##### Archieved
 
-Communication is not possible and will not be attempted. However unlike blocking, existing posts this person made before being archived will be visible in your stream.
+Communication is not possible and will not be attempted.
+However unlike blocking, existing posts this person made before being archived will be visible in your stream.
 
 ##### Hidden
 
-Contact not be displayed in your public friend list. However a hidden contact will appear normally in conversations and this may expose their hidden status to anybody who can see the conversation.
+Contact not be displayed in your public friend list.
+However a hidden contact will appear normally in conversations and this may expose their hidden status to anybody who can see the conversation.
 
 <a name="removed"></a>
 ### What happens when an account is removed?
@@ -154,7 +162,7 @@ Example: Friendica Support
 	https://forum.friendi.ca/feed/helpers/comments
 
 <a name="clients"></a>
-### List of friendica clients
+### What friendica clients can I use?
 
 Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your platform as long as you can change the API path in its settings.
 Here is a list of known working clients:
