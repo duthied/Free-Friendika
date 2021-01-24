@@ -106,7 +106,7 @@ Not included in delivery but they will receive your posts and private messages. 
 
 An addon called "blockem" can be installed to collapse/hide all posts from a particular person in your stream if you desire complete blocking of an individual, including their conversations with your other friends.
 
-##### Archieved
+##### Archived
 
 Communication is not possible and will not be attempted. However unlike blocking, existing posts this person made before being archived will be visible in your stream.
 
