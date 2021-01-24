@@ -101,6 +101,8 @@
 			{{include file="field_checkbox.tpl" field=$email_textonly}}
 			{{include file="field_checkbox.tpl" field=$detailed_notif}}
 
+			{{include file="field_checkbox.tpl" field=$notify_ignored}}
+
 			{{include file="field_checkbox.tpl" field=$desktop_notifications}}
 			<script>
 				(function () {
