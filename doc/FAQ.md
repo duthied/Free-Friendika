@@ -34,13 +34,14 @@ If this FAQ does not answer your question you can always reach out to the commun
 
   * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
   * XMPP support(at)forum.friendi.ca
-<!--- * [XMPP](xmpp:support@forum.friendi.ca?join)
-https://github.com/github/markup/issues/202
-https://github.com/gjtorikian/html-pipeline/pull/307
-https://github.com/github/opensource.guide/pull/807--->
   * [IRC](https://webchat.freenode.net/?settings=#friendica)
   * [Matrix](https://matrix.to/#/#friendica-en:matrix.org)
   * [Mailing List](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca)
+  <!--- * [XMPP](xmpp:support@forum.friendi.ca?join)
+	https://github.com/github/markup/issues/202
+	https://github.com/gjtorikian/html-pipeline/pull/307
+	https://github.com/github/opensource.guide/pull/807
+  --->
 
 <a name="ssl"></a>
 ### Why do I get warnings about SSL certificates?
