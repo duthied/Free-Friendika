@@ -35,7 +35,6 @@ If this FAQ does not answer your question you can always reach out to the commun
   * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
   * [XMPP](xmpp:support@forum.friendi.ca?join)
   * [IRC](https://webchat.freenode.net/?settings=#friendica)
-  * Matrix: #friendi.ca or #friendica at matrix.org
   * [Matrix](https://matrix.to/#/#friendica-en:matrix.org)
   * [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) you can subscribe to the list by sending an email to ``support-request(at)friendi.ca?subject=subscribe``
 
