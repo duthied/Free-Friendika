@@ -36,15 +36,15 @@ class Manifest extends BaseModule
 		$theme = DI::config()->get('system', 'theme');
 
 		$manifest = [
-			'name'			=> $config->get('config', 'sitename', 'Friendica'),
-			'start_url'		=> DI::baseUrl()->get(),
-			'display'		=> 'standalone',
-			'description'	=> $config->get('config', 'info', DI::l10n()->t('A Decentralized Social Network')),
-			'short_name'	=> 'Friendica',
-			'lang'			=> $config->get('system', 'language'),
-			'dir'			=> 'auto',
-			'categories'	=> ['social network', 'internet'],
-			'icons'			=> [
+			'name'          => $config->get('config', 'sitename', 'Friendica'),
+			'start_url'     => DI::baseUrl()->get(),
+			'display'       => 'standalone',
+			'description'   => $config->get('config', 'info', DI::l10n()->t('A Decentralized Social Network')),
+			'short_name'    => 'Friendica',
+			'lang'          => $config->get('system', 'language'),
+			'dir'           => 'auto',
+			'categories'    => ['social network', 'internet'],
+			'icons'         => [
 				[
 					'src'   => DI::baseUrl()->get() . '/' . $touch_icon,
 					'sizes' => '192x192',
@@ -56,26 +56,26 @@ class Manifest extends BaseModule
 					'type'  => 'image/png',
 				],
 			],
-			'shortcuts'		=> [
+			'shortcuts'     => [
 				[
-					'name'	=> 'Latest posts',
-					'url'	=> '/network'
+					'name'  => 'Latest posts',
+					'url'   => '/network'
 				],
 				[
-					'name'	=> 'Messages',
-					'url'	=> '/message'
+					'name'  => 'Messages',
+					'url'   => '/message'
 				],
 				[
-					'name'	=> 'Notifications',
-					'url'	=> '/notifications/system'
+					'name'  => 'Notifications',
+					'url'   => '/notifications/system'
 				],
 				[
-					'name'	=> 'Contacts',
-					'url'	=> '/contact'
+					'name'  => 'Contacts',
+					'url'   => '/contact'
 				],
 				[
-					'name'	=> 'Events',
-					'url'	=> '/events'
+					'name'  => 'Events',
+					'url'   => '/events'
 				]
 			]
 		];
