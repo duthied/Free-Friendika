@@ -33,7 +33,7 @@ User
 If this FAQ does not answer your question you can always reach out to the community via the following options:
 
   * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
-  * [XMPP](xmpp:support@forum.friendi.ca?join)
+  * [XMPP](xmpp://support@forum.friendi.ca?join)
   * [IRC](https://webchat.freenode.net/?settings=#friendica)
   * [Matrix](https://matrix.to/#/#friendica-en:matrix.org)
   * [Mailing List](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca)
