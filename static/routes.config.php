@@ -301,6 +301,7 @@ return [
 	'/magic'              => [Module\Magic::class,           [R::GET]],
 	'/maintenance'        => [Module\Maintenance::class,     [R::GET]],
 	'/manifest'           => [Module\Manifest::class,        [R::GET]],
+	'/friendica.webmanifest'  => [Module\Manifest::class,        [R::GET]],
 	'/modexp/{nick}'      => [Module\PublicRSAKey::class,    [R::GET]],
 	'/newmember'          => [Module\Welcome::class,         [R::GET]],
 	'/nodeinfo/1.0'       => [Module\NodeInfo110::class,     [R::GET]],
