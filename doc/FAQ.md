@@ -5,6 +5,7 @@ Frequently Asked Questions - FAQ
 
 User
 
+* **[Where I can find help?](help/FAQ#help)**
 * **[Why do I getting warnings about certificates?](help/FAQ#ssl)**
 * **[How can I upload images, files, links, videos and sound files to posts?](help/FAQ#upload)**
 * **[Is it possible to have different avatars per profile?](help/FAQ#avatars)**
@@ -14,7 +15,6 @@ User
 * **[Can I subscribe to a hashtag?](help/FAQ#hashtag)**
 * **[How to create a RSS feed of the stream?](help/FAQ#rss)**
 * **[What friendica clients can I use?](help/FAQ#clients)**
-* **[Where I can find help?](help/FAQ#help)**
 
 Admins
 
@@ -26,6 +26,23 @@ Admins
 
 User
 --------
+<a name="help"></a>
+
+### Where I can find help?
+
+If this FAQ does not answer your question you can always reach out to the community via the following options:
+
+  * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
+  * XMPP support(at)forum.friendi.ca
+  * [IRC](https://webchat.freenode.net/?settings=#friendica)
+  * [Matrix](https://matrix.to/#/#friendica-en:matrix.org)
+  * [Mailing List](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca)
+  <!--- * [XMPP](xmpp:support@forum.friendi.ca?join)
+	https://github.com/github/markup/issues/202
+	https://github.com/gjtorikian/html-pipeline/pull/307
+	https://github.com/github/opensource.guide/pull/807
+  --->
+
 <a name="ssl"></a>
 ### Why do I get warnings about SSL certificates?
 
@@ -180,21 +197,6 @@ Here is a list of known working clients:
   * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) (Windows 10)
 
 Depending on the features of the client you might encounter some glitches in usability, like being limited in the length of your postings to 140 characters and having no access to the [permission settings](help/Groups-and-Privacy).
-
-<a name="help"></a>
-
-### Where I can find help?
-
-If you have problems with your Friendica page, you can ask the community at the [Friendica Support Group](https://forum.friendi.ca/profile/helpers).
-If you can't use your default profile you can use an account at a public site [list](https://dir.friendica.social/servers).
-
-In case you do not want to set up another account on Friendica, you can also use one of the following channels to reach out for help:
-
-  * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
-  * [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) you can subscribe to the list by sending an email to ``support-request(at)friendi.ca?subject=subscribe``
-  * XMPP/Jabber MUC: support(at)forum.friendi.ca
-  * IRC: #friendica at irc.freenode.net
-  * Matrix: #friendi.ca or #friendica at matrix.org
 
 Admin
 --------
