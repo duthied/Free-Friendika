@@ -24,8 +24,8 @@ namespace Friendica\Module\Settings\TwoFactor;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
-use Friendica\Model\TwoFactor\AppSpecificPassword;
-use Friendica\Model\TwoFactor\RecoveryCode;
+use Friendica\Security\TwoFactor\Model\AppSpecificPassword;
+use Friendica\Security\TwoFactor\Model\RecoveryCode;
 use Friendica\Model\User;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
@@ -76,6 +76,11 @@ class Index extends BaseSettings
 				case 'app_specific':
 					if ($has_secret) {
 						DI::baseUrl()->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
+					}
+					break;
+				case 'trusted':
+					if ($has_secret) {
+						DI::baseUrl()->redirect('settings/2fa/trusted?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					}
 					break;
 				case 'configure':
@@ -130,6 +135,7 @@ class Index extends BaseSettings
 			'$disable_label'        => DI::l10n()->t('Disable two-factor authentication'),
 			'$recovery_codes_label' => DI::l10n()->t('Show recovery codes'),
 			'$app_specific_passwords_label' => DI::l10n()->t('Manage app-specific passwords'),
+			'$trusted_browsers_label' => DI::l10n()->t('Manage trusted browsers'),
 			'$configure_label'      => DI::l10n()->t('Finish app configuration'),
 		]);
 	}

@@ -21,14 +21,14 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 
 /**
  * Class Emoji
  *
  * @see https://docs.joinmastodon.org/entities/emoji/
  */
-class Emoji extends BaseEntity
+class Emoji extends BaseDataTransferObject
 {
 	//Required attributes
 	/** @var string */

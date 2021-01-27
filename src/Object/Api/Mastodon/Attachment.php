@@ -21,14 +21,14 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 
 /**
  * Class Attachment
  *
  * @see https://docs.joinmastodon.org/entities/attachment
  */
-class Attachment extends BaseEntity
+class Attachment extends BaseDataTransferObject
 {
 	/** @var string */
 	protected $id;
@@ -67,7 +67,7 @@ class Attachment extends BaseEntity
 	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		$attachment = parent::toArray();
 

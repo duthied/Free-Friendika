@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Model\TwoFactor;
+namespace Friendica\Security\TwoFactor\Model;
 
 use Friendica\Database\DBA;
 use Friendica\Model\User;

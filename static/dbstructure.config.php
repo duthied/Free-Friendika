@@ -348,6 +348,20 @@ return [
 			"PRIMARY" => ["uid", "code"]
 		]
 	],
+	"2fa_trusted_browser" => [
+		"comment" => "Two-factor authentication trusted browsers",
+		"fields" => [
+			"cookie_hash" => ["type" => "varchar(80)", "not null" => "1", "primary" => "1", "comment" => "Trusted cookie hash"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "User ID"],
+			"user_agent" => ["type" => "text", "comment" => "User agent string"],
+			"created" => ["type" => "datetime", "not null" => "1", "comment" => "Datetime the trusted browser was recorded"],
+			"last_used" => ["type" => "datetime", "comment" => "Datetime the trusted browser was last used"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["cookie_hash"],
+			"uid" => ["uid"],
+		]
+	],
 	"addon" => [
 		"comment" => "registered addons",
 		"fields" => [

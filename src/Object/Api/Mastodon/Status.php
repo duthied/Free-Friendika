@@ -21,7 +21,7 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Object\Api\Mastodon\Status\Counts;
 use Friendica\Object\Api\Mastodon\Status\UserAttributes;
@@ -32,7 +32,7 @@ use Friendica\Util\DateTimeFormat;
  *
  * @see https://docs.joinmastodon.org/entities/status
  */
-class Status extends BaseEntity
+class Status extends BaseDataTransferObject
 {
 	/** @var string */
 	protected $id;
@@ -143,7 +143,7 @@ class Status extends BaseEntity
 	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		$status = parent::toArray();
 

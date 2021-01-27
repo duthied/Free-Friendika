@@ -21,7 +21,7 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 use Friendica\Model\Contact;
 use Friendica\Util\Network;
 
@@ -30,7 +30,7 @@ use Friendica\Util\Network;
  *
  * @see https://docs.joinmastodon.org/api/entities/#relationship
  */
-class Relationship extends BaseEntity
+class Relationship extends BaseDataTransferObject
 {
 	/** @var int */
 	protected $id;

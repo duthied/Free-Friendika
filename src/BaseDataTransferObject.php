@@ -19,33 +19,25 @@
  *
  */
 
-namespace Friendica\Object\Api\Mastodon;
-
-use Friendica\BaseDataTransferObject;
+namespace Friendica;
 
 /**
- * Class Error
+ * These data transfer object classes are meant for API representations. As such, their members should be protected.
+ * Then the JsonSerializable interface ensures the protected members will be included in a JSON encode situation.
  *
- * @see https://docs.joinmastodon.org/entities/error
+ * Constructors are supposed to take as arguments the Friendica dependencies/model/collection/data it needs to
+ * populate the class members.
  */
-class Error extends BaseDataTransferObject
+abstract class BaseDataTransferObject implements \JsonSerializable
 {
-	/** @var string */
-	protected $error;
-	/** @var string */
-	protected $error_description;
-
 	/**
-	 * Creates an error record
+	 * Returns the current entity as an json array
 	 *
-	 * @param string $error
-	 * @param string error_description
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @return array
 	 */
-	public function __construct(string $error, string $error_description)
+	public function jsonSerialize(): array
 	{
-		$this->error             = $error;
-		$this->error_description = $error_description;
+		return $this->toArray();
 	}
 
 	/**
@@ -55,12 +47,6 @@ class Error extends BaseDataTransferObject
 	 */
 	public function toArray(): array
 	{
-		$error = parent::toArray();
-
-		if (empty($error['error_description'])) {
-			unset($error['error_description']);
-		}
-
-		return $error;
+		return get_object_vars($this);
 	}
 }

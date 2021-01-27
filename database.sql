@@ -283,9 +283,23 @@ CREATE TABLE IF NOT EXISTS `2fa_recovery_codes` (
 	`code` varchar(50) NOT NULL COMMENT 'Recovery code string',
 	`generated` datetime NOT NULL COMMENT 'Datetime the code was generated',
 	`used` datetime COMMENT 'Datetime the code was used',
-	 PRIMARY KEY(`uid`,`code`),
+	PRIMARY KEY(`uid`,`code`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor authentication recovery codes';
+
+--
+-- TABLE 2fa_trusted_browser
+--
+CREATE TABLE IF NOT EXISTS `2fa_trusted_browser` (
+    `cookie_hash` varchar(80) NOT NULL COMMENT 'Trusted cookie hash',
+    `uid` mediumint unsigned NOT NULL COMMENT 'User ID',
+    `user_agent` text COMMENT 'User agent string',
+    `created` datetime NOT NULL COMMENT 'Datetime the trusted browser was recorded',
+    `last_used` datetime COMMENT 'Datetime the trusted browser was last used',
+    PRIMARY KEY(`cookie_hash`),
+    INDEX `uid` (`uid`),
+    FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor authentication trusted browsers';
 
 --
 -- TABLE addon

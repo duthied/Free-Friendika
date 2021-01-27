@@ -21,7 +21,7 @@
 
 namespace Friendica\Object\Api\Friendica;
 
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Model\Notification as NotificationModel;
@@ -33,7 +33,7 @@ use Friendica\Util\Temporal;
  *
  * @see https://github.com/friendica/friendica/blob/develop/doc/API-Entities.md#notification
  */
-class Notification extends BaseEntity
+class Notification extends BaseDataTransferObject
 {
 	/** @var integer */
 	protected $id;

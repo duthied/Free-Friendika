@@ -21,14 +21,14 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\BaseEntity;
+use Friendica\BaseDataTransferObject;
 
 /**
  * Class Activity
  *
  * @see https://docs.joinmastodon.org/entities/activity
  */
-class Activity extends BaseEntity
+class Activity extends BaseDataTransferObject
 {
 	/** @var string (UNIX Timestamp) */
 	protected $week;

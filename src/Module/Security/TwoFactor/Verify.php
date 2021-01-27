@@ -26,6 +26,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
 use PragmaRX\Google2FA\Google2FA;
+use Friendica\Security\TwoFactor;
 
 /**
  * Page 1: Authenticator code verification
@@ -55,6 +56,19 @@ class Verify extends BaseModule
 			if ($valid && Session::get('2fa') !== $code) {
 				Session::set('2fa', $code);
 
+				// Trust this browser feature
+				if (!empty($_REQUEST['trust_browser'])) {
+					$trustedBrowserFactory = new TwoFactor\Factory\TrustedBrowser(DI::logger());
+					$trustedBrowserRepository = new TwoFactor\Repository\TrustedBrowser(DI::dba(), DI::logger(), $trustedBrowserFactory);
+
+					$trustedBrowser = $trustedBrowserFactory->createForUserWithUserAgent(local_user(), $_SERVER['HTTP_USER_AGENT']);
+
+					$trustedBrowserRepository->save($trustedBrowser);
+
+					// The string is sent to the browser to be sent back with each request
+					DI::cookie()->set('trusted', $trustedBrowser->cookie_hash);
+				}
+
 				// Resume normal login workflow
 				DI::auth()->setForUser($a, $a->user, true, true);
 			} else {
@@ -83,6 +97,7 @@ class Verify extends BaseModule
 			'$errors'           => self::$errors,
 			'$recovery_message' => DI::l10n()->t('Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>', '2fa/recovery'),
 			'$verify_code'      => ['verify_code', DI::l10n()->t('Please enter a code from your authentication app'), '', '', DI::l10n()->t('Required'), 'autofocus autocomplete="off" placeholder="000000"', 'tel'],
+			'$trust_browser'    => ['trust_browser', DI::l10n()->t('This is my two-factor authenticator app device'), !empty($_REQUEST['trust_browser'])],
 			'$verify_label'     => DI::l10n()->t('Verify code and complete login'),
 		]);
 	}

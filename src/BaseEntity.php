@@ -21,32 +21,36 @@
 
 namespace Friendica;
 
+use Friendica\Network\HTTPException;
+
 /**
- * The API entity classes are meant as data transfer objects. As such, their member should be protected.
- * Then the JsonSerializable interface ensures the protected members will be included in a JSON encode situation.
+ * The Entity classes directly inheriting from this abstract class are meant to represent a single business entity.
+ * Their properties may or may not correspond with the database fields of the table we use to represent it.
+ * Each model method must correspond to a business action being performed on this entity.
+ * Only these methods will be allowed to alter the model data.
  *
- * Constructors are supposed to take as arguments the Friendica dependencies/model/collection/data it needs to
- * populate the class members.
+ * To persist such a model, the associated Repository must be instantiated and the "save" method must be called
+ * and passed the entity as a parameter.
+ *
+ * Ideally, the constructor should only be called in the associated Factory which will instantiate entities depending
+ * on the provided data.
+ *
+ * Since these objects aren't meant to be using any dependency, including logging, unit tests can and must be
+ * written for each and all of their methods
  */
-abstract class BaseEntity implements \JsonSerializable
+abstract class BaseEntity extends BaseDataTransferObject
 {
 	/**
-	 * Returns the current entity as an json array
-	 *
-	 * @return array
+	 * @param string $name
+	 * @return mixed
+	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public function jsonSerialize()
+	public function __get(string $name)
 	{
-		return $this->toArray();
-	}
+		if (!property_exists($this, $name)) {
+			throw new HTTPException\InternalServerErrorException('Unknown property ' . $name . ' in Entity ' . static::class);
+		}
 
-	/**
-	 * Returns the current entity as an array
-	 *
-	 * @return array
-	 */
-	public function toArray()
-	{
-		return get_object_vars($this);
+		return $this->$name;
 	}
 }

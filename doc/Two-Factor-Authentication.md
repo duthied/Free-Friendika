@@ -72,3 +72,10 @@ We recommend generating a single app-specific password for each separate third-p
 
 You can also revoke any and all app-specific password you generated this way.
 This may log you out of the third-party application(s) you used the revoked app-specific password to log in with.
+
+## Trusted browsers
+
+As a convenience, during two-factor authentication it is possible to identify a browser as trusted.
+This will skip all further two-factor authentication prompt on this browser.
+
+You can remove any or all of these trusted browsers in the two-factor authentication settings.

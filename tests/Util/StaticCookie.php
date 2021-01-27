@@ -35,22 +35,24 @@ class StaticCookie extends Cookie
 
 	/**
 	 * Send a cookie - protected, internal function for test-mocking possibility
-	 * @see Cookie::setCookie()
 	 *
-	 * @link  https://php.net/manual/en/function.setcookie.php
-	 *
-	 * @param string $name
 	 * @param string $value  [optional]
 	 * @param int    $expire [optional]
 	 * @param bool   $secure [optional]
+	 * @return bool
 	 *
 	 * @noinspection PhpMissingParentCallCommonInspection
 	 *
+	 * @link         https://php.net/manual/en/function.setcookie.php
+	 *
+	 * @see          Cookie::setCookie()
 	 */
-	protected function setCookie(string $name, string $value = null, int $expire = null, bool $secure = null)
+	protected function setCookie(string $value = null, int $expire = null, bool $secure = null): bool
 	{
-		self::$_COOKIE[$name] = $value;
+		self::$_COOKIE[self::NAME] = $value;
 		self::$_EXPIRE = $expire;
+
+		return true;
 	}
 
 	public static function clearStatic()
