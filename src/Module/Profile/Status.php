@@ -194,7 +194,7 @@ class Status extends BaseProfile
 		$pager = new Pager(DI::l10n(), $args->getQueryString(), $itemspage_network);
 		$params = ['limit' => [$pager->getStart(), $pager->getItemsPerPage()], 'order' => ['received' => true]];
 
-		$items_stmt = Post::select(['uri', 'thr-parent-id', 'gravity', 'author-id', 'received'], $condition, $params);
+		$items_stmt = Post::select(['uri-id', 'thr-parent-id', 'gravity', 'author-id', 'received'], $condition, $params);
 
 		// Set a time stamp for this page. We will make use of it when we
 		// search for new items (update routine)
@@ -228,7 +228,7 @@ class Status extends BaseProfile
 				$condition = [];
 			}
 	
-			$pinned_items = Post::selectPinned($a->profile['uid'], ['uri', 'pinned'], $condition);
+			$pinned_items = Post::selectPinned($a->profile['uid'], ['uri-id', 'pinned'], $condition);
 			$pinned = Post::toArray($pinned_items);
 			$items = array_merge($items, $pinned);
 		}

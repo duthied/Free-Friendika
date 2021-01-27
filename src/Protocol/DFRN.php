@@ -310,22 +310,25 @@ class DFRN
 	}
 
 	/**
-	 * Generate an atom entry for a given item id
+	 * Generate an atom entry for a given uri id and user
 	 *
-	 * @param int     $item_id      The item id
+	 * @param int     $uri_id       The uri id
+	 * @param int     $uid          The user id
 	 * @param boolean $conversation Show the conversation. If false show the single post.
 	 *
 	 * @return string DFRN feed entry
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function itemFeed($item_id, $conversation = false)
+	public static function itemFeed(int $uri_id, int $uid, bool $conversation = false)
 	{
 		if ($conversation) {
-			$condition = ['parent' => $item_id];
+			$condition = ['parent-uri-id' => $uri_id];
 		} else {
-			$condition = ['id' => $item_id];
+			$condition = ['uri-id' => $uri_id];
 		}
+
+		$condition['uid'] = $uid;
 
 		$items = Post::selectToArray(Item::DELIVER_FIELDLIST, $condition);
 		if (!DBA::isResult($items)) {
