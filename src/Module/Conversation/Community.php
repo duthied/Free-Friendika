@@ -356,7 +356,7 @@ class Community extends BaseModule
 			}
 		}
 
-		$r = Post::selectThreadForUser(0, ['uri', 'commented', 'author-link'], $condition, $params);
+		$r = Post::selectThreadForUser(0, ['uri-id', 'commented', 'author-link'], $condition, $params);
 
 		$items = Post::toArray($r);
 

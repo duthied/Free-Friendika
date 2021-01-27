@@ -73,7 +73,8 @@ class Item
 
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = [
-		'uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid', 'network', 'gravity',
+		'uid', 'id', 'parent', 'guid', 'network', 'gravity',
+		'uri-id', 'uri', 'thr-parent-id', 'thr-parent', 'parent-uri-id', 'parent-uri',
 		'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 		'wall', 'private', 'starred', 'origin', 'title', 'body', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
@@ -350,7 +351,7 @@ class Item
 	{
 		Logger::info('Mark item for deletion by id', ['id' => $item_id, 'callstack' => System::callstack()]);
 		// locate item to be deleted
-		$fields = ['id', 'uri', 'uri-id', 'uid', 'parent', 'parent-uri', 'origin',
+		$fields = ['id', 'uri', 'uri-id', 'uid', 'parent', 'parent-uri-id', 'origin',
 			'deleted', 'resource-id', 'event-id',
 			'verb', 'object-type', 'object', 'target', 'contact-id', 'psid', 'gravity'];
 		$item = Post::selectFirst($fields, ['id' => $item_id]);
@@ -401,10 +402,10 @@ class Item
 		DBA::update('item', $item_fields, ['id' => $item['id']]);
 
 		Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], '');
-		self::deleteThread($item['id'], $item['parent-uri']);
+		self::deleteThread($item['id'], $item['parent-uri-id']);
 
-		if (!Post::exists(["`uri` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri']])) {
-			self::markForDeletion(['uri' => $item['uri'], 'uid' => 0, 'deleted' => false], $priority);
+		if (!Post::exists(["`uri-id` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri-id']])) {
+			self::markForDeletion(['uri-id' => $item['uri-id'], 'uid' => 0, 'deleted' => false], $priority);
 		}
 
 		Post\DeliveryData::delete($item['uri-id']);
@@ -425,7 +426,7 @@ class Item
 		// Is it our comment and/or our thread?
 		if (($item['origin'] || $parent['origin']) && ($item['uid'] != 0)) {
 			// When we delete the original post we will delete all existing copies on the server as well
-			self::markForDeletion(['uri' => $item['uri'], 'deleted' => false], $priority);
+			self::markForDeletion(['uri-id' => $item['uri-id'], 'deleted' => false], $priority);
 
 			// send the notification upstream/downstream
 			if ($priority) {
@@ -435,7 +436,7 @@ class Item
 			Post\User::update($item['uri-id'], $item['uid'], ['hidden' => true]);
 
 			// When we delete just our local user copy of an item, we have to set a marker to hide it
-			$global_item = Post::selectFirst(['id'], ['uri' => $item['uri'], 'uid' => 0, 'deleted' => false]);
+			$global_item = Post::selectFirst(['id'], ['uri-id' => $item['uri-id'], 'uid' => 0, 'deleted' => false]);
 			if (DBA::isResult($global_item)) {
 				DBA::update('user-item', ['hidden' => true], ['iid' => $global_item['id'], 'uid' => $item['uid']], true);
 			}
@@ -445,7 +446,6 @@ class Item
 
 		return true;
 	}
-
 
 	private static function guid($item, $notify)
 	{
@@ -560,8 +560,8 @@ class Item
 			return true;
 		}
 
-		$condition = ["`uri` = ? AND `network` IN (?, ?) AND `uid` = ?",
-			$item['uri'], $item['network'], Protocol::DFRN, $item['uid']];
+		$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'],
+			'network' => [$item['network'], Protocol::DFRN]];
 		if (Post::exists($condition)) {
 			Logger::notice('duplicated item with the same uri found.', $item);
 			return true;
@@ -589,8 +589,8 @@ class Item
 		 * There is a timing issue here that sometimes creates double postings.
 		 * An unique index would help - but the limitations of MySQL (maximum size of index values) prevent this.
 		 */
-		if (($item['uid'] == 0) && Post::exists(['uri' => trim($item['uri']), 'uid' => 0])) {
-			Logger::notice('Global item already stored.', ['uri' => $item['uri'], 'network' => $item['network']]);
+		if (($item['uid'] == 0) && Post::exists(['uri-id' => $item['uri-id'], 'uid' => 0])) {
+			Logger::notice('Global item already stored.', ['uri-id' => $item['uri-id'], 'network' => $item['network']]);
 			return true;
 		}
 
@@ -708,15 +708,15 @@ class Item
 	private static function getDuplicateID(array $item)
 	{
 		if (empty($item['network']) || in_array($item['network'], Protocol::FEDERATED)) {
-			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
-				trim($item['uri']), $item['uid'],
+			$condition = ["`uri-id` = ? AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
+				$item['uri-id'], $item['uid'],
 				Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
 			$existing = Post::selectFirst(['id', 'network'], $condition);
 			if (DBA::isResult($existing)) {
 				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
 				if ($item['uid'] != 0) {
 					Logger::notice('Item already existed for user', [
-						'uri' => $item['uri'],
+						'uri-id' => $item['uri-id'],
 						'uid' => $item['uid'],
 						'network' => $item['network'],
 						'existing_id' => $existing["id"],
@@ -740,28 +740,29 @@ class Item
 	private static function getTopLevelParent(array $item)
 	{
 		$fields = ['uid', 'uri', 'parent-uri', 'id', 'deleted',
+			'uri-id', 'parent-uri-id',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'wall', 'private', 'forum_mode', 'origin', 'author-id'];
-		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid']];
+		$condition = ['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid']];
 		$params = ['order' => ['id' => false]];
 		$parent = Post::selectFirst($fields, $condition, $params);
 
 		if (!DBA::isResult($parent)) {
-			Logger::notice('item parent was not found - ignoring item', ['thr-parent' => $item['thr-parent'], 'uid' => $item['uid']]);
+			Logger::notice('item parent was not found - ignoring item', ['thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
 			return [];
 		}
 
-		if ($parent['uri'] == $parent['parent-uri']) {
+		if ($parent['uri-id'] == $parent['parent-uri-id']) {
 			return $parent;
 		}
 
-		$condition = ['uri' => $parent['parent-uri'],
-			'parent-uri' => $parent['parent-uri'],
+		$condition = ['uri-id' => $parent['parent-uri-id'],
+			'parent-uri-id' => $parent['parent-uri-id'],
 			'uid' => $parent['uid']];
 		$params = ['order' => ['id' => false]];
 		$toplevel_parent = Post::selectFirst($fields, $condition, $params);
 		if (!DBA::isResult($toplevel_parent)) {
-			Logger::notice('item top level parent was not found - ignoring item', ['parent-uri' => $parent['parent-uri'], 'uid' => $parent['uid']]);
+			Logger::notice('item top level parent was not found - ignoring item', ['parent-uri-id' => $parent['parent-uri-id'], 'uid' => $parent['uid']]);
 			return [];
 		}
 
@@ -780,7 +781,7 @@ class Item
 
 		if (isset($item['gravity'])) {
 			return intval($item['gravity']);
-		} elseif ($item['parent-uri'] === $item['uri']) {
+		} elseif ($item['parent-uri-id'] === $item['uri-id']) {
 			return GRAVITY_PARENT;
 		} elseif ($activity->match($item['verb'], Activity::POST)) {
 			return GRAVITY_COMMENT;
@@ -828,6 +829,8 @@ class Item
 		// If it is provided without a thr-parent, it probably is the old behavior.
 		$item['thr-parent'] = trim($item['thr-parent'] ?? $item['parent-uri'] ?? $item['uri']);
 		$item['parent-uri'] = $item['thr-parent'];
+
+		$item['thr-parent-id'] = $item['parent-uri-id'] = ItemURI::getIdByURI($item['thr-parent']);
 
 		// Store conversation data
 		$item = Conversation::insert($item);
@@ -941,20 +944,21 @@ class Item
 			}
 
 			// If the thread originated from this node, we check the permission against the thread starter
-			$condition = ['uri' => $toplevel_parent['uri'], 'wall' => true];
+			$condition = ['uri-id' => $toplevel_parent['uri-id'], 'wall' => true];
 			$localTopLevelParent = Post::selectFirst(['uid'], $condition);
 			if (!empty($localTopLevelParent['uid']) && !self::isAllowedByUser($item, $localTopLevelParent['uid'])) {
 				return 0;
 			}
 
-			$parent_id          = $toplevel_parent['id'];
-			$item['parent-uri'] = $toplevel_parent['uri'];
-			$item['deleted']    = $toplevel_parent['deleted'];
-			$item['allow_cid']  = $toplevel_parent['allow_cid'];
-			$item['allow_gid']  = $toplevel_parent['allow_gid'];
-			$item['deny_cid']   = $toplevel_parent['deny_cid'];
-			$item['deny_gid']   = $toplevel_parent['deny_gid'];
-			$parent_origin      = $toplevel_parent['origin'];
+			$parent_id             = $toplevel_parent['id'];
+			$item['parent-uri']    = $toplevel_parent['uri'];
+			$item['parent-uri-id'] = $toplevel_parent['uri-id'];
+			$item['deleted']       = $toplevel_parent['deleted'];
+			$item['allow_cid']     = $toplevel_parent['allow_cid'];
+			$item['allow_gid']     = $toplevel_parent['allow_gid'];
+			$item['deny_cid']      = $toplevel_parent['deny_cid'];
+			$item['deny_gid']      = $toplevel_parent['deny_gid'];
+			$parent_origin         = $toplevel_parent['origin'];
 
 			// Don't federate received participation messages
 			if ($item['verb'] != Activity::FOLLOW) {
@@ -1017,9 +1021,9 @@ class Item
 			$item["global"] = true;
 
 			// Set the global flag on all items if this was a global item entry
-			DBA::update('item', ['global' => true], ['uri' => $item["uri"]]);
+			DBA::update('item', ['global' => true], ['uri-id' => $item['uri-id']]);
 		} else {
-			$item["global"] = Post::exists(['uid' => 0, 'uri' => $item["uri"]]);
+			$item['global'] = Post::exists(['uid' => 0, 'uri-id' => $item['uri-id']]);
 		}
 
 		// ACL settings
@@ -1145,7 +1149,7 @@ class Item
 			}
 
 			$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
-			if (DBA::exists('item', $condition)) {
+			if (Post::exists($condition)) {
 				Logger::notice('Item is already inserted - aborting', $condition);
 				return 0;
 			}
@@ -1464,8 +1468,8 @@ class Item
 
 		$origin_uid = 0;
 
-		if ($item['uri'] != $item['parent-uri']) {
-			$parents = Post::select(['uid', 'origin'], ["`uri` = ? AND `uid` != 0", $item['parent-uri']]);
+		if ($item['uri-id'] != $item['parent-uri-id']) {
+			$parents = Post::select(['uid', 'origin'], ["`uri-id` = ? AND `uid` != 0", $item['parent-uri-id']]);
 			while ($parent = Post::fetch($parents)) {
 				$users[$parent['uid']] = $parent['uid'];
 				if ($parent['origin'] && !$origin) {
@@ -1590,7 +1594,7 @@ class Item
 	 */
 	private static function addShadow($itemid)
 	{
-		$fields = ['uid', 'private', 'moderated', 'visible', 'deleted', 'network', 'uri'];
+		$fields = ['uid', 'private', 'moderated', 'visible', 'deleted', 'network', 'uri-id'];
 		$condition = ['id' => $itemid, 'parent' => [0, $itemid]];
 		$item = Post::selectFirst($fields, $condition);
 
@@ -1613,7 +1617,7 @@ class Item
 			return;
 		}
 
-		if (Post::exists(['uri' => $item['uri'], 'uid' => 0])) {
+		if (Post::exists(['uri-id' => $item['uri-id'], 'uid' => 0])) {
 			return;
 		}
 
@@ -1631,7 +1635,7 @@ class Item
 			unset($item['postopts']);
 			unset($item['inform']);
 			unset($item['post-type']);
-			if ($item['uri'] == $item['parent-uri']) {
+			if ($item['uri-id'] == $item['parent-uri-id']) {
 				$item['contact-id'] = $item['owner-id'];
 			} else {
 				$item['contact-id'] = $item['author-id'];
@@ -1670,12 +1674,12 @@ class Item
 		}
 
 		// Is there a shadow parent?
-		if (!Post::exists(['uri' => $item['parent-uri'], 'uid' => 0])) {
+		if (!Post::exists(['uri-id' => $item['parent-uri-id'], 'uid' => 0])) {
 			return;
 		}
 
 		// Is there already a shadow entry?
-		if (Post::exists(['uri' => $item['uri'], 'uid' => 0])) {
+		if (Post::exists(['uri-id' => $item['uri-id'], 'uid' => 0])) {
 			return;
 		}
 
@@ -1698,7 +1702,7 @@ class Item
 
 		$public_shadow = self::insert($item, false, true);
 
-		Logger::info('Stored public shadow', ['uri' => $item['uri'], 'id' => $public_shadow]);
+		Logger::info('Stored public shadow', ['uri-id' => $item['uri-id'], 'id' => $public_shadow]);
 
 		// If this was a comment to a Diaspora post we don't get our comment back.
 		// This means that we have to distribute the comment by ourselves.
@@ -1835,7 +1839,7 @@ class Item
 		$update = ($arr['private'] != self::PRIVATE) || in_array($arr['network'], Protocol::FEDERATED);
 
 		// Is it a forum? Then we don't care about the rules from above
-		if (!$update && in_array($arr["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN]) && ($arr["parent-uri"] === $arr["uri"])) {
+		if (!$update && in_array($arr["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN]) && ($arr["parent-uri-id"] === $arr["uri-id"])) {
 			if (DBA::exists('contact', ['id' => $arr['contact-id'], 'forum' => true])) {
 				$update = true;
 			}
@@ -2428,7 +2432,7 @@ class Item
 			return false;
 		}
 
-		$item_uri = $item['uri'];
+		$uri_id = $item['uri-id'];
 
 		if (!in_array($item['uid'], [0, $uid])) {
 			return false;
@@ -2439,7 +2443,7 @@ class Item
 			if (($item['parent-uri-id'] == $item['uri-id']) && !empty($stored)) {
 				$item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $stored]);
 				if (!DBA::isResult($item)) {
-					Logger::info('Could not fetch just created item - should not happen', ['stored' => $stored, 'uid' => $uid, 'item-uri' => $item_uri]);
+					Logger::info('Could not fetch just created item - should not happen', ['stored' => $stored, 'uid' => $uid, 'uri-id' => $uri_id]);
 					return false;
 				}
 			}
@@ -2514,7 +2518,7 @@ class Item
 		}
 
 		$condition = ['vid' => $vids, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY,
-			'author-id' => $author_id, 'uid' => $item['uid'], 'thr-parent' => $item_uri];
+			'author-id' => $author_id, 'uid' => $item['uid'], 'thr-parent-id' => $uri_id];
 		$like_item = Post::selectFirst(['id', 'guid', 'verb'], $condition);
 
 		if (DBA::isResult($like_item)) {
@@ -2651,7 +2655,7 @@ class Item
 		Logger::info('Update thread', ['item' => $itemid, 'guid' => $item["guid"], 'result' => $result]);
 	}
 
-	private static function deleteThread($itemid, $itemuri = "")
+	private static function deleteThread($itemid, $uri_id)
 	{
 		$item = DBA::selectFirst('thread', ['uid'], ['iid' => $itemid]);
 		if (!DBA::isResult($item)) {
@@ -2663,12 +2667,10 @@ class Item
 
 		Logger::info('Deleted thread', ['item' => $itemid, 'result' => $result]);
 
-		if ($itemuri != "") {
-			$condition = ["`uri` = ? AND NOT `deleted` AND NOT (`uid` IN (?, 0))", $itemuri, $item["uid"]];
-			if (!Post::exists($condition)) {
-				DBA::delete('item', ['uri' => $itemuri, 'uid' => 0]);
-				Logger::debug('Deleted shadow item', ['id' => $itemid, 'uri' => $itemuri]);
-			}
+		$condition = ["`uri-id` = ? AND NOT `deleted` AND NOT (`uid` IN (?, 0))", $uri_id, $item["uid"]];
+		if (!Post::exists($condition)) {
+			DBA::delete('item', ['uri-id' => $uri_id, 'uid' => 0]);
+			Logger::debug('Deleted shadow item', ['id' => $itemid, 'uri-id' => $uri_id]);
 		}
 	}
 
@@ -3051,7 +3053,7 @@ class Item
 
 		if (($item['author-id'] == $item['owner-id']) ||
 			($owner['id'] == $item['contact-id']) ||
-			($item['uri'] != $item['parent-uri']) ||
+			($item['uri-id'] != $item['parent-uri-id']) ||
 			$item['origin']) {
 			return false;
 		}
@@ -3072,22 +3074,12 @@ class Item
 		$ssl_uri = str_replace('http://', 'https://', $uri);
 		$uris = [$uri, $ssl_uri, Strings::normaliseLink($uri)];
 
-		$item = DBA::selectFirst('item', ['id'], ['uri' => $uris, 'uid' => $uid]);
+		$item = Post::selectFirst(['id'], ['uri' => $uris, 'uid' => $uid]);
 		if (DBA::isResult($item)) {
 			return $item['id'];
 		}
 
-		$itemcontent = DBA::selectFirst('item-content', ['uri-id'], ['plink' => $uris]);
-		if (!DBA::isResult($itemcontent)) {
-			return 0;
-		}
-
-		$itemuri = DBA::selectFirst('item-uri', ['uri'], ['id' => $itemcontent['uri-id']]);
-		if (!DBA::isResult($itemuri)) {
-			return 0;
-		}
-
-		$item = DBA::selectFirst('item', ['id'], ['uri' => $itemuri['uri'], 'uid' => $uid]);
+		$item = Post::selectFirst(['id'], ['plink' => $uris, 'uid' => $uid]);
 		if (DBA::isResult($item)) {
 			return $item['id'];
 		}
@@ -3107,19 +3099,14 @@ class Item
 		$ssl_uri = str_replace('http://', 'https://', $uri);
 		$uris = [$uri, $ssl_uri, Strings::normaliseLink($uri)];
 
-		$item = DBA::selectFirst('item', ['uri'], ['uri' => $uris]);
+		$item = Post::selectFirst(['uri'], ['uri' => $uris]);
 		if (DBA::isResult($item)) {
 			return $item['uri'];
 		}
 
-		$itemcontent = DBA::selectFirst('item-content', ['uri-id'], ['plink' => $uris]);
-		if (!DBA::isResult($itemcontent)) {
-			return '';
-		}
-
-		$itemuri = DBA::selectFirst('item-uri', ['uri'], ['id' => $itemcontent['uri-id']]);
-		if (DBA::isResult($itemuri)) {
-			return $itemuri['uri'];
+		$item = Post::selectFirst(['uri'], ['plink' => $uris]);
+		if (DBA::isResult($item)) {
+			return $item['uri'];
 		}
 
 		return '';

@@ -838,8 +838,8 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 				}
 			}
 		} else {
-			$condition = ["`parent-uri` = ? AND `uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
-				$parent['uri'], $uid, Verb::getID(Activity::FOLLOW)];
+			$condition = ["`parent-uri-id` = ? AND `uid` IN (0, ?) AND (`vid` != ? OR `vid` IS NULL)",
+				$parent['uri-id'], $uid, Verb::getID(Activity::FOLLOW)];
 			$activity = [];
 		}
 		$items = conversation_fetch_items($parent, $items, $condition, $block_authors, $params, $activity);
@@ -1037,31 +1037,31 @@ function builtin_activity_puller(array $activity, array &$conv_responses)
 
 			$link = '<a href="' . $url . '"' . $sparkle . '>' . htmlentities($activity['author-name']) . '</a>';
 
-			if (empty($activity['thr-parent'])) {
-				$activity['thr-parent'] = $activity['parent-uri'];
+			if (empty($activity['thr-parent-id'])) {
+				$activity['thr-parent-id'] = $activity['parent-uri-id'];
 			}
 
 			// Skip when the causer of the parent is the same than the author of the announce
-			if (($verb == Activity::ANNOUNCE) && Post::exists(['uri' => $activity['thr-parent'],
+			if (($verb == Activity::ANNOUNCE) && Post::exists(['uri-id' => $activity['thr-parent-id'],
 				'uid' => $activity['uid'], 'causer-id' => $activity['author-id'], 'gravity' => GRAVITY_PARENT])) {
 				continue;
 			}
 
-			if (!isset($conv_responses[$mode][$activity['thr-parent']])) {
-				$conv_responses[$mode][$activity['thr-parent']] = [
+			if (!isset($conv_responses[$mode][$activity['thr-parent-id']])) {
+				$conv_responses[$mode][$activity['thr-parent-id']] = [
 					'links' => [],
 					'self' => 0,
 				];
-			} elseif (in_array($link, $conv_responses[$mode][$activity['thr-parent']]['links'])) {
+			} elseif (in_array($link, $conv_responses[$mode][$activity['thr-parent-id']]['links'])) {
 				// only list each unique author once
 				continue;
 			}
 
 			if (public_contact() == $activity['author-id']) {
-				$conv_responses[$mode][$activity['thr-parent']]['self'] = 1;
+				$conv_responses[$mode][$activity['thr-parent-id']]['self'] = 1;
 			}
 
-			$conv_responses[$mode][$activity['thr-parent']]['links'][] = $link;
+			$conv_responses[$mode][$activity['thr-parent-id']]['links'][] = $link;
 
 			// there can only be one activity verb per item so if we found anything, we can stop looking
 			return;
@@ -1268,17 +1268,17 @@ function get_item_children(array &$item_list, array $parent, $recursive = true)
 		if ($item['gravity'] != GRAVITY_PARENT) {
 			if ($recursive) {
 				// Fallback to parent-uri if thr-parent is not set
-				$thr_parent = $item['thr-parent'];
+				$thr_parent = $item['thr-parent-id'];
 				if ($thr_parent == '') {
-					$thr_parent = $item['parent-uri'];
+					$thr_parent = $item['parent-uri-id'];
 				}
 
-				if ($thr_parent == $parent['uri']) {
+				if ($thr_parent == $parent['uri-id']) {
 					$item['children'] = get_item_children($item_list, $item);
 					$children[] = $item;
 					unset($item_list[$i]);
 				}
-			} elseif ($item['parent'] == $parent['id']) {
+			} elseif ($item['parent-uri-id'] == $parent['uri-id']) {
 				$children[] = $item;
 				unset($item_list[$i]);
 			}
@@ -1408,7 +1408,7 @@ function conv_sort(array $item_list, $order)
 			continue;
 		}
 
-		$item_array[$item['uri']] = $item;
+		$item_array[$item['uri-id']] = $item;
 	}
 
 	// Extract the top level items

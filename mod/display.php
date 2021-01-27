@@ -20,7 +20,6 @@
  */
 
 use Friendica\App;
-use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
@@ -55,7 +54,7 @@ function display_init(App $a)
 	$item = null;
 	$item_user = local_user();
 
-	$fields = ['id', 'parent', 'author-id', 'body', 'uid', 'guid', 'gravity'];
+	$fields = ['uri-id', 'parent-uri-id', 'author-id', 'body', 'uid', 'guid', 'gravity'];
 
 	// If there is only one parameter, then check if this parameter could be a guid
 	if ($a->argc == 2) {
@@ -86,11 +85,11 @@ function display_init(App $a)
 			$item = Post::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 		}
 	} elseif ($a->argc >= 3 && $nick == 'feed-item') {
-		$item_id = $a->argv[2];
-		if (substr($item_id, -5) == '.atom') {
-			$item_id = substr($item_id, 0, -5);
+		$uri_id = $a->argv[2];
+		if (substr($uri_id, -5) == '.atom') {
+			$uri_id = substr($uri_id, 0, -5);
 		}
-		$item = Post::selectFirstForUser(local_user(), $fields, ['id' => $item_id, 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
+		$item = Post::selectFirstForUser(local_user(), $fields, ['uri-id' => $uri_id, 'private' => [Item::PUBLIC, Item::UNLISTED], 'uid' => 0]);
 	}
 
 	if (!DBA::isResult($item)) {
@@ -98,16 +97,16 @@ function display_init(App $a)
 	}
 
 	if ($a->argc >= 3 && $nick == 'feed-item') {
-		displayShowFeed($item['id'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
+		displayShowFeed($item['uri-id'], $item['uid'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
 	}
 
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
-		Logger::log('Directly serving XML for id '.$item['id'], Logger::DEBUG);
-		displayShowFeed($item['id'], false);
+		Logger::log('Directly serving XML for uri-id '.$item['uri-id'], Logger::DEBUG);
+		displayShowFeed($item['uri-id'], $item['uid'], false);
 	}
 
 	if ($item['gravity'] != GRAVITY_PARENT) {
-		$parent = Post::selectFirstForUser($item_user, $fields, ['id' => $item['parent']]);
+		$parent = Post::selectFirstForUser($item_user, $fields, ['uid' => $item['uid'], 'uri-id' => $item['parent-uri-id']]);
 		$item = $parent ?: $item;
 	}
 
@@ -187,49 +186,44 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$force = (bool)($_REQUEST['force'] ?? false);
 
 	if ($update) {
-		$item_id = $_REQUEST['item_id'];
-		$item = Post::selectFirst(['uid', 'parent', 'parent-uri', 'parent-uri-id'], ['id' => $item_id]);
+		$uri_id = $_REQUEST['uri_id'];
+		$item = Post::selectFirst(['uid', 'parent-uri-id'], ['uri-id' => $uri_id, 'uid' => $update_uid]);
 		if ($item['uid'] != 0) {
 			$a->profile = ['uid' => intval($item['uid'])];
 		} else {
 			$a->profile = ['uid' => intval($update_uid)];
 		}
-		$item_parent = $item['parent'];
-		$item_parent_uri = $item['parent-uri'];
+		$parent_uri_id = $item['parent-uri-id'];
 	} else {
-		$item_id = (($a->argc > 2) ? $a->argv[2] : 0);
-		$item_parent = $item_id;
+		$uri_id = (($a->argc > 2) ? $a->argv[2] : 0);
+		$parent_uri_id = $uri_id;
 
 		if ($a->argc == 2) {
-			$item_parent = 0;
-			$fields = ['id', 'parent', 'parent-uri', 'parent-uri-id', 'uid'];
+			$fields = ['uri-id', 'parent-uri-id', 'uid'];
 
 			if (local_user()) {
 				$condition = ['guid' => $a->argv[1], 'uid' => local_user()];
 				$item = Post::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
-					$item_id = $item['id'];
-					$item_parent = $item['parent'];
-					$item_parent_uri = $item['parent-uri'];
+					$uri_id = $item['uri-id'];
+					$parent_uri_id = $item['parent-uri-id'];
 				}
 			}
 
-			if (($item_parent == 0) && remote_user()) {
+			if (($parent_uri_id == 0) && remote_user()) {
 				$item = Post::selectFirst($fields, ['guid' => $a->argv[1], 'private' => Item::PRIVATE, 'origin' => true]);
 				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
-					$item_id = $item['id'];
-					$item_parent = $item['parent'];
-					$item_parent_uri = $item['parent-uri'];
+					$uri_id = $item['uri-id'];
+					$parent_uri_id = $item['parent-uri-id'];
 				}
 			}
 
-			if ($item_parent == 0) {
+			if ($parent_uri_id == 0) {
 				$condition = ['private' => [Item::PUBLIC, Item::UNLISTED], 'guid' => $a->argv[1], 'uid' => 0];
 				$item = Post::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
-					$item_id = $item['id'];
-					$item_parent = $item['parent'];
-					$item_parent_uri = $item['parent-uri'];
+					$uri_id = $item['uri-id'];
+					$parent_uri_id = $item['parent-uri-id'];
 				}
 			}
 		}
@@ -244,11 +238,11 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
-	$is_public = Post::exists(['id' => $item_id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
+	$is_public = Post::exists(['uri-id' => $uri_id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
 	if ($is_public) {
 		// For the atom feed the nickname doesn't matter at all, we only need the item id.
-		$alternate = DI::baseUrl().'/display/feed-item/'.$item_id.'.atom';
-		$conversation = DI::baseUrl().'/display/feed-item/'.$item_parent.'/conversation.atom';
+		$alternate = DI::baseUrl().'/display/feed-item/'.$uri_id.'.atom';
+		$conversation = DI::baseUrl().'/display/feed-item/' . $parent_uri_id . '/conversation.atom';
 	} else {
 		$alternate = '';
 		$conversation = '';
@@ -262,8 +256,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$item_uid = local_user();
 
 	$parent = null;
-	if (!empty($item_parent_uri)) {
-		$parent = Post::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
+	if (!empty($parent_uri_id)) {
+		$parent = Post::selectFirst(['uid'], ['uri-id' => $parent_uri_id, 'wall' => true]);
 	}
 
 	if (DBA::isResult($parent)) {
@@ -305,7 +299,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['uid']);
 
 	if (local_user() && (local_user() == $a->profile['uid'])) {
-		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];
+		$condition = ['parent-uri-id' => $parent_uri_id, 'uid' => local_user(), 'unseen' => true];
 		$unseen = Post::exists($condition);
 	} else {
 		$unseen = false;
@@ -315,23 +309,23 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		return '';
 	}
 
-	$condition = ["`id` = ? AND `uid` IN (0, ?) " . $sql_extra, $item_id, $item_uid];
-	$fields = ['parent-uri', 'body', 'title', 'author-name', 'author-avatar', 'plink', 'author-id', 'owner-id', 'contact-id'];
+	$condition = ["`uri-id` = ? AND `uid` IN (0, ?) " . $sql_extra, $uri_id, $item_uid];
+	$fields = ['parent-uri-id', 'body', 'title', 'author-name', 'author-avatar', 'plink', 'author-id', 'owner-id', 'contact-id'];
 	$item = Post::selectFirstForUser($a->profile['uid'], $fields, $condition);
 
 	if (!DBA::isResult($item)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('The requested item doesn\'t exist or has been deleted.'));
 	}
 
-	$item['uri'] = $item['parent-uri'];
+	$item['uri-id'] = $item['parent-uri-id'];
 
 	if ($unseen) {
-		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];
+		$condition = ['parent-uri-id' => $parent_uri_id, 'uid' => local_user(), 'unseen' => true];
 		Item::update(['unseen' => false], $condition);
 	}
 
-	if (!$update) {
-		$o .= "<script> var netargs = '?item_id=" . $item_id . "'; </script>";
+	if (!$update && local_user()) {
+		$o .= "<script> var netargs = '?uri_id=" . $item['uri-id'] . "'; </script>";
 	}
 
 	$o .= conversation($a, [$item], 'display', $update_uid, false, 'commented', $item_uid);
@@ -396,9 +390,9 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	return $o;
 }
 
-function displayShowFeed($item_id, $conversation)
+function displayShowFeed(int $uri_id, int $uid, bool $conversation)
 {
-	$xml = DFRN::itemFeed($item_id, $conversation);
+	$xml = DFRN::itemFeed($uri_id, $uid, $conversation);
 	if ($xml == '') {
 		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('The feed for this item is unavailable.'));
 	}

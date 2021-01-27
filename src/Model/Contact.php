@@ -1339,7 +1339,7 @@ class Contact
 		}
 
 		if ($thread_mode) {		
-			$items = Post::toArray(Post::selectForUser(local_user(), ['uri', 'gravity', 'parent-uri', 'thr-parent-id', 'author-id'], $condition, $params));
+			$items = Post::toArray(Post::selectForUser(local_user(), ['uri-id', 'gravity', 'parent-uri-id', 'thr-parent-id', 'author-id'], $condition, $params));
 
 			$o .= conversation($a, $items, 'contacts', $update, false, 'commented', local_user());
 		} else {
