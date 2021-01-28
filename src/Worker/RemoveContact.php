@@ -47,10 +47,11 @@ class RemoveContact {
 			$condition = ['uid' => $contact['uid'], 'contact-id' => $id];
 		}
 		do {
-			$items = Post::select(['id', 'guid'], $condition, ['limit' => 100]);
+			$items = Post::select(['id', 'guid', 'uri-id', 'uid'], $condition, ['limit' => 100]);
 			while ($item = Post::fetch($items)) {
 				Logger::info('Delete removed contact item', ['id' => $item['id'], 'guid' => $item['guid']]);
 				DBA::delete('item', ['id' => $item['id']]);
+				Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
 			}
 			DBA::close($items);
 		} while (Post::exists($condition));

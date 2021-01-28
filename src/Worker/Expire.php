@@ -27,6 +27,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 
 /**
  * Expires old item entries
@@ -43,10 +44,11 @@ class Expire
 			Logger::log('Delete expired items', Logger::DEBUG);
 			// physically remove anything that has been deleted for more than two months
 			$condition = ["`deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY"];
-			$rows = DBA::select('item', ['id', 'guid'],  $condition);
+			$rows = DBA::select('item', ['id', 'guid', 'uri-id', 'uid'],  $condition);
 			while ($row = DBA::fetch($rows)) {
 				Logger::info('Delete expired item', ['id' => $row['id'], 'guid' => $row['guid']]);
 				DBA::delete('item', ['id' => $row['id']]);
+				Post\User::delete(['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
 			}
 			DBA::close($rows);
 

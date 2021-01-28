@@ -665,3 +665,28 @@ function update_1380()
 
 	return Update::SUCCESS;
 }
+
+function pre_update_1395()
+{
+	if (DBStructure::existsTable('post-user') && !DBA::e("DROP TABLE `post-user`")) {
+		return Update::FAILED;
+	}
+	return Update::SUCCESS;
+}
+
+function update_1395()
+{
+	if (!DBA::e("INSERT INTO `post-user`(`id`, `uri-id`, `uid`, `contact-id`, `unseen`, `origin`, `psid`)
+		SELECT `id`, `uri-id`, `uid`, `contact-id`, `unseen`, `origin`, `psid` FROM `item`
+		ON DUPLICATE KEY UPDATE `contact-id` = `item`.`contact-id`, `unseen` = `item`.`unseen`, `origin` = `item`.`origin`, `psid` = `item`.`psid`")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("INSERT INTO `post-user`(`uri-id`, `uid`, `hidden`, `notification-type`)
+		SELECT `uri-id`, `user-item`.`uid`, `hidden`,`notification-type` FROM `user-item`
+			INNER JOIN `item` ON `item`.`id` = `user-item`.`iid`
+		ON DUPLICATE KEY UPDATE `hidden` = `user-item`.`hidden`, `notification-type` = `user-item`.`notification-type`")) {
+		return Update::FAILED;
+	}
+	return Update::SUCCESS;
+}
