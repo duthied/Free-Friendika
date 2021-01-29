@@ -196,83 +196,44 @@ class Item
 			return false;
 		}
 
-		$data_fields = $fields;
-
-		// To ensure the data integrity we do it in an transaction
-		DBA::transaction();
-
-		// We cannot simply expand the condition to check for origin entries
-		// The condition needn't to be a simple array but could be a complex condition.
-		// And we have to execute this query before the update to ensure to fetch the same data.
-		$items = DBA::select('item', ['id', 'origin', 'uri', 'uri-id', 'uid'], $condition);
-
-		$content_fields = [];
-		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
-			if (isset($fields[$field])) {
-				$content_fields[$field] = $fields[$field];
-				unset($fields[$field]);
-			}
+		if (!empty($fields['verb'])) {
+			$fields['vid'] = Verb::getID($fields['verb']);
 		}
 
-		$delivery_data = Post\DeliveryData::extractFields($fields);
-
-		$clear_fields = ['bookmark', 'type', 'author-name', 'author-avatar', 'author-link', 'owner-name', 'owner-avatar', 'owner-link', 'postopts', 'inform'];
-		foreach ($clear_fields as $field) {
-			unset($fields[$field]);
+		$rows = Post::update($fields, $condition);
+		if (is_bool($rows)) {
+			return $rows;
 		}
 
-		if (array_key_exists('file', $fields)) {
-			$files = $fields['file'];
-			unset($fields['file']);
-		} else {
-			$files = null;
+		// We only need to call the line by line update for specific fields
+		if (empty($fields['body']) && empty($fields['file']) &&
+			empty($fields['attach']) && empty($fields['edited'])) {
+			return $rows;
 		}
 
-		if (!empty($content_fields['verb'])) {
-			$fields['vid'] = Verb::getID($content_fields['verb']);
-		}
+		Logger::info('Updating per single row method', ['fields' => $fields, 'condition' => $condition]);
 
-		if (!empty($fields)) {
-			$success = DBA::update('item', $fields, $condition);
-
-			if (!$success) {
-				DBA::close($items);
-				DBA::rollback();
-				return false;
-			}
-		}
-
-		// When there is no content for the "old" item table, this will count the fetched items
-		$rows = DBA::affectedRows();
+		$items = Post::select(['id', 'origin', 'uri-id', 'uid'], $condition);
 
 		$notify_items = [];
 
 		while ($item = DBA::fetch($items)) {
-			Post\User::update($item['uri-id'], $item['uid'], $data_fields);
-
-			if (empty($content_fields['verb']) || !in_array($content_fields['verb'], self::ACTIVITIES)) {
-				if (!empty($content_fields['body'])) {
-					$content_fields['raw-body'] = trim($content_fields['raw-body'] ?? $content_fields['body']);
-		
-					// Remove all media attachments from the body and store them in the post-media table
-					$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
-					$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
-				}
-		
+			if (!empty($fields['body'])) {
+				$content_fields = ['raw-body' => trim($fields['raw-body'] ?? $fields['body'])];
+	
+				// Remove all media attachments from the body and store them in the post-media table
+				$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
+				$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
 				self::updateContent($content_fields, ['uri-id' => $item['uri-id']]);
 			}
 
-			if (!is_null($files)) {
-				Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], $files);
+			if (!empty($fields['file'])) {
+				Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], $fields['file']);
 			}
 
 			if (!empty($fields['attach'])) {
 				Post\Media::insertFromAttachment($item['uri-id'], $fields['attach']);
 			}
-
-			Post\DeliveryData::update($item['uri-id'], $delivery_data);
-
-			self::updateThread($item['id']);
 
 			// We only need to notfiy others when it is an original entry from us.
 			// Only call the notifier when the item has some content relevant change.
@@ -282,7 +243,6 @@ class Item
 		}
 
 		DBA::close($items);
-		DBA::commit();
 
 		foreach ($notify_items as $notify_item) {
 			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $notify_item);
@@ -1140,13 +1100,17 @@ class Item
 			Tag::storeFromBody($item['uri-id'], $body);
 		}
 
-		if (Post\User::insert($item['uri-id'], $item['uid'], $item)) {
+		$id = Post\User::insert($item['uri-id'], $item['uid'], $item);
+		if ($id) {
 			// Remove all fields that aren't part of the item table
 			foreach ($item as $field => $value) {
 				if (!in_array($field, $structure['item'])) {
 					unset($item[$field]);
 				}
 			}
+
+			// We syncronize the id value of the of the post-user table with the item table
+			$item['id'] = $id;
 
 			$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
 			if (Post::exists($condition)) {
@@ -1991,7 +1955,8 @@ class Item
 			if (($community_page || $prvgroup) &&
 				  !$item['wall'] && !$item['origin'] && ($item['gravity'] == GRAVITY_PARENT)) {
 				Logger::info('Delete private group/communiy top-level item without mention', ['id' => $item_id, 'guid'=> $item['guid']]);
-				DBA::delete('item', ['id' => $item_id]);
+				DBA::delete('item', ['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
+				Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
 				return true;
 			}
 			return false;
@@ -2670,6 +2635,7 @@ class Item
 		$condition = ["`uri-id` = ? AND NOT `deleted` AND NOT (`uid` IN (?, 0))", $uri_id, $item["uid"]];
 		if (!Post::exists($condition)) {
 			DBA::delete('item', ['uri-id' => $uri_id, 'uid' => 0]);
+			Post\User::delete(['uri-id' => $uri_id, 'uid' => 0]);
 			Logger::debug('Deleted shadow item', ['id' => $itemid, 'uri-id' => $uri_id]);
 		}
 	}

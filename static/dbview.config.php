@@ -41,6 +41,7 @@
 		"fields" => [
 			"id" => ["item", "id"],
 			"item_id" => ["item", "id"],
+			"post-user-id" => ["post-user", "id"],
 			"uid" => ["item", "uid"],
 			"parent" => ["item", "parent"],
 			"uri" => ["item", "uri"],
@@ -175,6 +176,7 @@
 			"parent-author-network" => ["parent-item-author", "network"], 
 		],
 		"query" => "FROM `item`
+			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `item`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `item`.`owner-id`

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1394
+-- DB_UPDATE_VERSION 1395
 -- ------------------------------------------
 
 
@@ -1167,6 +1167,7 @@ CREATE TABLE IF NOT EXISTS `post-tag` (
 -- TABLE post-user
 --
 CREATE TABLE IF NOT EXISTS `post-user` (
+	`id` int unsigned NOT NULL auto_increment,
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`uid` mediumint unsigned NOT NULL COMMENT 'Owner id which owns this copy of the item',
 	`protocol` tinyint unsigned COMMENT 'Protocol used to deliver the item for this user',
@@ -1176,7 +1177,8 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
 	`psid` int unsigned COMMENT 'ID of the permission set of this post',
-	 PRIMARY KEY(`uid`,`uri-id`),
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uid_uri-id` (`uid`,`uri-id`),
 	 INDEX `uri-id` (`uri-id`),
 	 INDEX `contact-id` (`contact-id`),
 	 INDEX `psid` (`psid`),
@@ -1507,6 +1509,7 @@ DROP VIEW IF EXISTS `post-view`;
 CREATE VIEW `post-view` AS SELECT 
 	`item`.`id` AS `id`,
 	`item`.`id` AS `item_id`,
+	`post-user`.`id` AS `post-user-id`,
 	`item`.`uid` AS `uid`,
 	`item`.`parent` AS `parent`,
 	`item`.`uri` AS `uri`,
@@ -1640,6 +1643,7 @@ CREATE VIEW `post-view` AS SELECT
 	`parent-item-author`.`name` AS `parent-author-name`,
 	`parent-item-author`.`network` AS `parent-author-network`
 	FROM `item`
+			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `item`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `item`.`owner-id`

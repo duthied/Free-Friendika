@@ -34,7 +34,7 @@ class User
 	 * @param integer $uri_id
 	 * @param integer $uid
 	 * @param array   $fields
-	 * @return bool
+	 * @return int    ID of inserted post-user
 	 * @throws \Exception
 	 */
 	public static function insert(int $uri_id, int $uid, array $data = [])
@@ -58,7 +58,11 @@ class User
 			$fields['unseen'] = false;
 		}
 
-		return DBA::insert('post-user', $fields, Database::INSERT_IGNORE);
+		if (!DBA::insert('post-user', $fields, Database::INSERT_IGNORE)) {
+			return 0;
+		}
+
+		return DBA::lastInsertId();
 	}
 
 	/**
@@ -88,5 +92,21 @@ class User
 		}
 
 		return DBA::update('post-user', $fields, ['uri-id' => $uri_id, 'uid' => $uid], $insert_if_missing ? true : []);
+	}
+
+	/**
+	 * Delete a row from the post-user table
+	 *
+	 * @param array        $conditions Field condition(s)
+	 * @param array        $options
+	 *                           - cascade: If true we delete records in other tables that depend on the one we're deleting through
+	 *                           relations (default: true)
+	 *
+	 * @return boolean was the delete successful?
+	 * @throws \Exception
+	 */
+	public static function delete(array $conditions, array $options = [])
+	{
+		return DBA::delete('post-user', $conditions, $options);
 	}
 }

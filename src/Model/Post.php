@@ -21,7 +21,9 @@
 
 namespace Friendica\Model;
 
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\Protocol\Activity;
 
 class Post
@@ -399,5 +401,116 @@ class Post
 		$condition = DBA::mergeConditions(['iid' => $pinned], $condition);
 
 		return self::selectThreadForUser($uid, $selected, $condition, $params);
+	}
+
+	/**
+	 * Update existing post entries
+	 *
+	 * @param array $fields    The fields that are to be changed
+	 * @param array $condition The condition for finding the item entries
+	 *
+	 * A return value of "0" doesn't mean an error - but that 0 rows had been changed.
+	 *
+	 * @return integer|boolean number of affected rows - or "false" if there was an error
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function update(array $fields, array $condition)
+	{
+		$affected = 0;
+
+		Logger::info('Start Update', ['fields' => $fields, 'condition' => $condition]);
+
+		// Don't allow changes to fields that are responsible for the relation between the records
+		unset($fields['id']);
+		unset($fields['parent']);
+		unset($fields['uid']);
+		unset($fields['uri']);
+		unset($fields['uri-id']);
+		unset($fields['thr-parent']);
+		unset($fields['thr-parent-id']);
+		unset($fields['parent-uri']);
+		unset($fields['parent-uri-id']);
+
+		// To ensure the data integrity we do it in an transaction
+		DBA::transaction();
+
+		$update_fields = DBStructure::getFieldsForTable('post-user', $fields);
+		if (!empty($update_fields)) {
+			$rows = DBA::selectToArray('post-view', ['post-user-id'], $condition);
+			$puids = array_column($rows, 'post-user-id');
+			if (!DBA::update('post-user', $update_fields, ['id' => $puids])) {
+				DBA::rollback();
+				Logger::notice('Updating post-user failed', ['fields' => $update_fields, 'condition' => $condition]);
+				return false;
+			}
+			$affected = DBA::affectedRows();			
+		}
+
+		$update_fields = DBStructure::getFieldsForTable('item-content', $fields);
+		if (!empty($update_fields)) {
+			$rows = DBA::selectToArray('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			$uriids = array_column($rows, 'uri-id');
+			if (!DBA::update('item-content', $update_fields, ['uri-id' => $uriids])) {
+				DBA::rollback();
+				Logger::notice('Updating item-content failed', ['fields' => $update_fields, 'condition' => $condition]);
+				return false;
+			}
+			$affected = max($affected, DBA::affectedRows());
+		}
+
+		$update_fields = Post\DeliveryData::extractFields($fields);
+		if (!empty($update_fields)) {
+			if (empty($uriids)) {
+				$rows = DBA::selectToArray('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+				$uriids = array_column($rows, 'uri-id');
+			}
+			if (!DBA::update('post-delivery-data', $update_fields, ['uri-id' => $uriids])) {
+				DBA::rollback();
+				Logger::notice('Updating post-delivery-data failed', ['fields' => $update_fields, 'condition' => $condition]);
+				return false;
+			}
+			$affected = max($affected, DBA::affectedRows());
+		}
+
+		$update_fields = DBStructure::getFieldsForTable('thread', $fields);
+		if (!empty($update_fields)) {
+			$rows = DBA::selectToArray('post-view', ['id'], $condition);
+			$ids = array_column($rows, 'id');
+			if (!DBA::update('thread', $update_fields, ['iid' => $ids])) {
+				DBA::rollback();
+				Logger::notice('Updating thread failed', ['fields' => $update_fields, 'condition' => $condition]);
+				return false;
+			}
+			$affected = max($affected, DBA::affectedRows());
+		}
+
+		$item_fields = ['guid', 'type', 'wall', 'gravity', 'extid', 'created', 'edited', 'commented', 'received', 'changed',
+			'resource-id', 'post-type', 'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
+			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network', 'vid', 'psid',
+			'contact-id', 'author-id', 'owner-id', 'causer-id', 'event-id'];
+
+		$update_fields = [];
+		foreach ($item_fields as $field) {
+			if (array_key_exists($field, $fields)) {
+				$update_fields[$field] = $fields[$field];
+			}
+		}
+		if (!empty($update_fields)) {
+			if (empty($ids)) {
+				$rows = DBA::selectToArray('post-view', ['id'], $condition, []);
+				$ids = array_column($rows, 'id');
+			}
+			if (!DBA::update('item', $update_fields, ['id' => $ids])) {
+				DBA::rollback();
+				Logger::notice('Updating item failed', ['fields' => $update_fields, 'condition' => $condition]);
+				return false;
+			}
+			$affected = max($affected, DBA::affectedRows());
+		}
+
+		DBA::commit();
+
+		Logger::info('Updated posts', ['rows' => $affected]);
+		return $affected;
 	}
 }
