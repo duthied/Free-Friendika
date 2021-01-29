@@ -245,7 +245,7 @@ class OnePoll
 					$datarray['network'] = Protocol::MAIL;
 					// $meta = Email::messageMeta($mbox, $msg_uid);
 
-					$datarray['uri'] = Email::msgid2iri(trim($meta->message_id, '<>'));
+					$datarray['thr-parent'] = $datarray['uri'] = Email::msgid2iri(trim($meta->message_id, '<>'));
 
 					// Have we seen it before?
 					$fields = ['deleted', 'id'];
