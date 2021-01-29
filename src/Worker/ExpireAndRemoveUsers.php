@@ -57,7 +57,16 @@ class ExpireAndRemoveUsers
 				DBA::delete('contact', ['nurl' => $self['nurl'], 'self' => false]);
 			}
 
+			// We have to delete photo entries by hand because otherwise the photo data won't be deleted
 			Photo::delete(['uid' => $user['uid']]);
+
+			// These tables contain the permissionset which will also be deleted when a user is deleted.
+			// It seems that sometimes the system wants to delete the records in the wrong order.
+			// So when the permissionset is deleted and these tables are still filled then an error is thrown.
+			// So we now delete them before all other user related entries are deleted.
+			DBA::delete('item', ['uid' => $user['uid']]);
+			DBA::delete('post-user', ['uid' => $user['uid']]);
+			DBA::delete('profile_field', ['uid' => $user['uid']]);
 
 			DBA::delete('user', ['uid' => $user['uid']]);
 		}
