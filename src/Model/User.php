@@ -1353,7 +1353,7 @@ class User
 	 */
 	public static function remove(int $uid)
 	{
-		if (!$uid) {
+		if (empty($uid)) {
 			return false;
 		}
 
