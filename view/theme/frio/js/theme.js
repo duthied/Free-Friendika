@@ -774,13 +774,13 @@ function htmlToText(htmlString) {
  * @param {string}  verb  The verb of the action
  * @param {boolean} un    Whether to perform an activity removal instead of creation
  */
-function doLikeAction(ident, verb, un) {
+function doActivityItemAction(ident, verb, un) {
 	if (verb.indexOf("attend") === 0) {
 		$(".item-" + ident + " .button-event:not(#" + verb + "-" + ident + ")").removeClass("active");
 	}
 	$("#" + verb + "-" + ident).toggleClass("active");
 
-	dolike(ident, verb, un);
+	doActivityItem(ident, verb, un);
 }
 
 // Decodes a hexadecimally encoded binary string

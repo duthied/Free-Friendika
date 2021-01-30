@@ -3,7 +3,7 @@
 	<button type="button"
 	        class="btn-link button-likes{{if $responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$id}}"
 	        title="{{$like_title}}"
-	        onclick="doLikeAction({{$id}}, 'like'{{if $responses.like.self}}, true{{/if}});"
+	        onclick="doActivityItemAction({{$id}}, 'like'{{if $responses.like.self}}, true{{/if}});"
 	        data-toggle="button">
 		<i class="fa fa-thumbs-up" aria-hidden="true"></i>&nbsp;{{$like}}
 	</button>
@@ -13,7 +13,7 @@
 	        class="btn-link button-likes{{if $responses.dislike.self}} active" aria-pressed="true{{/if}}"
 	        id="dislike-{{$id}}"
 	        title="{{$dislike_title}}"
-	        onclick="doLikeAction({{$id}}, 'dislike'{{if $responses.dislike.self}}, true{{/if}});"
+	        onclick="doActivityItemAction({{$id}}, 'dislike'{{if $responses.dislike.self}}, true{{/if}});"
 	        data-toggle="button"><i class="fa fa-thumbs-down" aria-hidden="true"></i>&nbsp;{{$dislike}}
 	</button>
 	{{/if}}

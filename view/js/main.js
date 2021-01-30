@@ -665,7 +665,7 @@ function imgdull(node) {
  * @param {string}  verb  The verb of the action
  * @param {boolean} un    Whether to perform an activity removal instead of creation
  */
-function dolike(ident, verb, un) {
+function doActivityItem(ident, verb, un) {
 	unpause();
 	$('#like-rotator-' + ident.toString()).show();
 	verb = un ? 'un' + verb : verb;
