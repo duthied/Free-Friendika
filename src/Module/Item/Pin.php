@@ -19,42 +19,58 @@
  *
  */
 
-namespace Friendica\Module;
+namespace Friendica\Module\Item;
 
 use Friendica\BaseModule;
+use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Network\HTTPException;
 
 /**
  * Toggle pinned items
  */
-class Pinned extends BaseModule
+class Pin extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		if (!local_user()) {
-			throw new \Friendica\Network\HTTPException\ForbiddenException();
+		$l10n = DI::l10n();
+
+		if (!Session::isAuthenticated()) {
+			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
-		if (empty($parameters['item'])) {
-			throw new \Friendica\Network\HTTPException\BadRequestException();
+		if (empty($parameters['id'])) {
+			throw new HTTPException\BadRequestException();
 		}
 
-		$itemId = intval($parameters['item']);
+		$itemId = intval($parameters['id']);
 
 		$pinned = !Item::getPinned($itemId, local_user());
 
 		Item::setPinned($itemId, local_user(), $pinned);
 
 		// See if we've been passed a return path to redirect to
-		$returnPath = $_REQUEST['return'] ?? '';
-		if (!empty($returnPath)) {
-			$rand = '_=' . time() . (strpos($returnPath, '?') ? '&' : '?') . 'rand';
-			DI::baseUrl()->redirect($returnPath . $rand);
+		$return_path = $_REQUEST['return'] ?? '';
+		if (!empty($return_path)) {
+			$rand = '_=' . time();
+			if (strpos($return_path, '?')) {
+				$rand = "&$rand";
+			} else {
+				$rand = "?$rand";
+			}
+
+			DI::baseUrl()->redirect($return_path . $rand);
 		}
 
-		// the json doesn't really matter, it will either be 0 or 1
-		echo json_encode((int)$pinned);
-		exit();
+		$return = [
+			'status'  => 'ok',
+			'item_id' => $itemId,
+			'verb'    => 'pin',
+			'state'   => (int)$pinned,
+		];
+
+		System::jsonExit($return);
 	}
 }

@@ -704,9 +704,9 @@ function dostar(ident) {
 function doPin(ident) {
 	ident = ident.toString();
 	$('#like-rotator-' + ident).show();
-	$.get('pinned/' + ident)
+	$.post('item/' + ident + '/pin')
 	.then(function(data) {
-		if (data.match(/1/)) {
+		if (data.state === 1) {
 			$('#pinned-' + ident)
 				.addClass('pinned')
 				.removeClass('unpinned');
