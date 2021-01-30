@@ -66,8 +66,8 @@ Friendica - Dokumentation und Ressourcen
   * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
   * [Mailing Listen Archiv](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) zum Abonnieren der Liste eine E-Mail an ``support-request(at)friendi.ca?subject=subscribe`` senden
   * XMPP/Jabber MUC: support(at)forum.friendi.ca
-  * IRC: #friendica auf irc.freenode.net
-  * Matrix: #friendi.ca oder #friendica auf matrix.org
+  * IRC: [#friendica auf irc.freenode.net](https://webchat.freenode.net/?settings=#friendica)
+  * Matrix: [#friendi.ca](https://matrix.to/#/#friendi.ca:matrix.org) oder [#friendica-en](https://matrix.to/#/#friendica-en:matrix.org) auf matrix.org
 
 **Über diese Seite**
 
