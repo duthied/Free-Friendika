@@ -20,6 +20,7 @@
  */
 
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -28,7 +29,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
-use Friendica\Model\ItemContent;
 use Friendica\Model\Notification;
 use Friendica\Model\Post;
 use Friendica\Model\User;
@@ -176,7 +176,7 @@ function notification($params)
 
 		$item_post_type = Item::postType($item);
 
-		$content = ItemContent::getPlaintextPost($item, 70);
+		$content = Plaintext::getPost($item, 70);
 		if (!empty($content['text'])) {
 			$title = '"' . trim(str_replace("\n", " ", $content['text'])) . '"';
 		} else {

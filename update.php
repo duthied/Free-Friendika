@@ -266,6 +266,10 @@ function update_1348()
 
 function update_1349()
 {
+	if (!DBStructure::existsTable('item-activity')) {
+		return Update::SUCCESS;
+	}
+
 	$correct = true;
 	foreach (Item::ACTIVITIES as $index => $activity) {
 		if (!DBA::exists('verb', ['id' => $index + 1, 'name' => $activity])) {
@@ -686,6 +690,26 @@ function update_1395()
 		SELECT `uri-id`, `user-item`.`uid`, `hidden`,`notification-type` FROM `user-item`
 			INNER JOIN `item` ON `item`.`id` = `user-item`.`iid`
 		ON DUPLICATE KEY UPDATE `hidden` = `user-item`.`hidden`, `notification-type` = `user-item`.`notification-type`")) {
+		return Update::FAILED;
+	}
+	return Update::SUCCESS;
+}
+
+function update_1396()
+{
+	if (!DBStructure::existsTable('item-content')) {
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("INSERT IGNORE INTO `post-content`(`uri-id`, `title`, `content-warning`, `body`, `raw-body`,
+		`location`, `coord`, `language`, `app`, `rendered-hash`, `rendered-html`,
+		`object-type`, `object`, `target-type`, `target`, `resource-id`, `plink`)
+		SELECT `item-content`.`uri-id`, `item-content`.`title`, `item-content`.`content-warning`,
+			`item-content`.`body`, `item-content`.`raw-body`, `item-content`.`location`, `item-content`.`coord`,
+			`item-content`.`language`, `item-content`.`app`, `item-content`.`rendered-hash`,
+			`item-content`.`rendered-html`, `item-content`.`object-type`, `item-content`.`object`,
+			`item-content`.`target-type`, `item-content`.`target`, `item`.`resource-id`, `item-content`.`plink`
+			FROM `item-content` INNER JOIN `item` ON `item`.`uri-id` = `item-content`.`uri-id`")) {
 		return Update::FAILED;
 	}
 	return Update::SUCCESS;
