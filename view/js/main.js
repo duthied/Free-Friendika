@@ -685,7 +685,7 @@ function dosubthread(ident) {
 function doStar(ident) {
 	ident = ident.toString();
 	$('#like-rotator-' + ident).show();
-	$.get('starred/' + ident)
+	$.post('item/' + ident + '/star')
 	.then(function(data) {
 		if (data.state === 1) {
 			$('#starred-' + ident)

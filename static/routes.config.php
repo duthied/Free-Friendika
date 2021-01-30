@@ -294,6 +294,7 @@ return [
 		'/{id:\d+}/activity/{verb}' => [Module\Item\Activity::class,    [        R::POST]],
 		'/{id:\d+}/ignore'          => [Module\Item\Ignore::class,      [        R::POST]],
 		'/{id:\d+}/pin'             => [Module\Item\Pin::class,         [        R::POST]],
+		'/{id:\d+}/star'            => [Module\Item\Star::class,        [        R::POST]],
 	],
 
 	'/localtime'          => [Module\Debug\Localtime::class, [R::GET, R::POST]],
@@ -412,7 +413,6 @@ return [
 	'/rsd.xml'                       => [Module\ReallySimpleDiscovery::class, [R::GET]],
 	'/smilies[/json]'                => [Module\Smilies::class,               [R::GET]],
 	'/statistics.json'               => [Module\Statistics::class,            [R::GET]],
-	'/starred/{item:\d+}'            => [Module\Starred::class,               [R::GET]],
 	'/toggle_mobile'                 => [Module\ToggleMobile::class,          [R::GET]],
 	'/tos'                           => [Module\Tos::class,                   [R::GET]],
 

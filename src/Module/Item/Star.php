@@ -19,33 +19,38 @@
  *
  */
 
-namespace Friendica\Module;
+namespace Friendica\Module\Item;
 
 use Friendica\BaseModule;
+use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
+use Friendica\Network\HTTPException;
 
 /**
  * Toggle starred items
  */
-class Starred extends BaseModule
+class Star extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		if (!local_user()) {
-			throw new \Friendica\Network\HTTPException\ForbiddenException();
+		$l10n = DI::l10n();
+
+		if (!Session::isAuthenticated()) {
+			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
-		if (empty($parameters['item'])) {
-			throw new \Friendica\Network\HTTPException\BadRequestException();
+		if (empty($parameters['id'])) {
+			throw new HTTPException\BadRequestException();
 		}
 
-		$itemId = intval($parameters['item']);
+		$itemId = intval($parameters['id']);
 
 		$item = Post::selectFirstForUser(local_user(), ['starred'], ['uid' => local_user(), 'id' => $itemId]);
 		if (empty($item)) {
-			throw new \Friendica\Network\HTTPException\NotFoundException();
+			throw new HTTPException\NotFoundException();
 		}
 
 		$starred = !(bool)$item['starred'];
@@ -53,14 +58,25 @@ class Starred extends BaseModule
 		Item::update(['starred' => $starred], ['id' => $itemId]);
 
 		// See if we've been passed a return path to redirect to
-		$returnPath = $_REQUEST['return'] ?? '';
-		if (!empty($returnPath)) {
-			$rand = '_=' . time() . (strpos($returnPath, '?') ? '&' : '?') . 'rand';
-			DI::baseUrl()->redirect($returnPath . $rand);
+		$return_path = $_REQUEST['return'] ?? '';
+		if (!empty($return_path)) {
+			$rand = '_=' . time();
+			if (strpos($return_path, '?')) {
+				$rand = "&$rand";
+			} else {
+				$rand = "?$rand";
+			}
+
+			DI::baseUrl()->redirect($return_path . $rand);
 		}
 
-		// the json doesn't really matter, it will either be 0 or 1
-		echo json_encode((int)$starred);
-		exit();
+		$return = [
+			'status'  => 'ok',
+			'item_id' => $itemId,
+			'verb'    => 'star',
+			'state'   => (int)$starred,
+		];
+
+		System::jsonExit($return);
 	}
 }
