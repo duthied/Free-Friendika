@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1395
+-- DB_UPDATE_VERSION 1396
 -- ------------------------------------------
 
 
@@ -283,7 +283,7 @@ CREATE TABLE IF NOT EXISTS `2fa_recovery_codes` (
 	`code` varchar(50) NOT NULL COMMENT 'Recovery code string',
 	`generated` datetime NOT NULL COMMENT 'Datetime the code was generated',
 	`used` datetime COMMENT 'Datetime the code was used',
-	PRIMARY KEY(`uid`,`code`),
+	 PRIMARY KEY(`uid`,`code`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor authentication recovery codes';
 
@@ -291,14 +291,14 @@ CREATE TABLE IF NOT EXISTS `2fa_recovery_codes` (
 -- TABLE 2fa_trusted_browser
 --
 CREATE TABLE IF NOT EXISTS `2fa_trusted_browser` (
-    `cookie_hash` varchar(80) NOT NULL COMMENT 'Trusted cookie hash',
-    `uid` mediumint unsigned NOT NULL COMMENT 'User ID',
-    `user_agent` text COMMENT 'User agent string',
-    `created` datetime NOT NULL COMMENT 'Datetime the trusted browser was recorded',
-    `last_used` datetime COMMENT 'Datetime the trusted browser was last used',
-    PRIMARY KEY(`cookie_hash`),
-    INDEX `uid` (`uid`),
-    FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+	`cookie_hash` varchar(80) NOT NULL COMMENT 'Trusted cookie hash',
+	`uid` mediumint unsigned NOT NULL COMMENT 'User ID',
+	`user_agent` text COMMENT 'User agent string',
+	`created` datetime NOT NULL COMMENT 'Datetime the trusted browser was recorded',
+	`last_used` datetime COMMENT 'Datetime the trusted browser was last used',
+	 PRIMARY KEY(`cookie_hash`),
+	 INDEX `uid` (`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor authentication trusted browsers';
 
 --
@@ -798,55 +798,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
 --
--- TABLE item-activity
---
-CREATE TABLE IF NOT EXISTS `item-activity` (
-	`id` int unsigned NOT NULL auto_increment,
-	`uri` varchar(255) COMMENT '',
-	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the item uri',
-	`uri-hash` varchar(80) NOT NULL DEFAULT '' COMMENT 'RIPEMD-128 hash from uri',
-	`activity` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `uri-hash` (`uri-hash`),
-	 INDEX `uri` (`uri`(191)),
-	 INDEX `uri-id` (`uri-id`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activities for items';
-
---
--- TABLE item-content
---
-CREATE TABLE IF NOT EXISTS `item-content` (
-	`id` int unsigned NOT NULL auto_increment,
-	`uri` varchar(255) COMMENT '',
-	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the item uri',
-	`uri-plink-hash` varchar(80) NOT NULL DEFAULT '' COMMENT 'RIPEMD-128 hash from uri',
-	`title` varchar(255) NOT NULL DEFAULT '' COMMENT 'item title',
-	`content-warning` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`body` mediumtext COMMENT 'item body content',
-	`raw-body` mediumtext COMMENT 'Body without embedded media links',
-	`location` varchar(255) NOT NULL DEFAULT '' COMMENT 'text location where this item originated',
-	`coord` varchar(255) NOT NULL DEFAULT '' COMMENT 'longitude/latitude pair representing location where this item originated',
-	`language` text COMMENT 'Language information about this post',
-	`app` varchar(255) NOT NULL DEFAULT '' COMMENT 'application which generated this item',
-	`rendered-hash` varchar(32) NOT NULL DEFAULT '' COMMENT '',
-	`rendered-html` mediumtext COMMENT 'item.body converted to html',
-	`object-type` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams object type',
-	`object` text COMMENT 'JSON encoded object structure unless it is an implied object (normal post)',
-	`target-type` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams target type if applicable (URI)',
-	`target` text COMMENT 'JSON encoded target structure if used',
-	`plink` varchar(255) NOT NULL DEFAULT '' COMMENT 'permalink or URL to a displayable copy of the message at its source',
-	`verb` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams verb',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `uri-plink-hash` (`uri-plink-hash`),
-	 FULLTEXT INDEX `title-content-warning-body` (`title`,`content-warning`,`body`),
-	 INDEX `uri` (`uri`(191)),
-	 INDEX `plink` (`plink`(191)),
-	 INDEX `uri-id` (`uri-id`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
-
---
 -- TABLE locks
 --
 CREATE TABLE IF NOT EXISTS `locks` (
@@ -1106,6 +1057,33 @@ CREATE TABLE IF NOT EXISTS `post-category` (
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to categories';
+
+--
+-- TABLE post-content
+--
+CREATE TABLE IF NOT EXISTS `post-content` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`title` varchar(255) NOT NULL DEFAULT '' COMMENT 'item title',
+	`content-warning` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`body` mediumtext COMMENT 'item body content',
+	`raw-body` mediumtext COMMENT 'Body without embedded media links',
+	`location` varchar(255) NOT NULL DEFAULT '' COMMENT 'text location where this item originated',
+	`coord` varchar(255) NOT NULL DEFAULT '' COMMENT 'longitude/latitude pair representing location where this item originated',
+	`language` text COMMENT 'Language information about this post',
+	`app` varchar(255) NOT NULL DEFAULT '' COMMENT 'application which generated this item',
+	`rendered-hash` varchar(32) NOT NULL DEFAULT '' COMMENT '',
+	`rendered-html` mediumtext COMMENT 'item.body converted to html',
+	`object-type` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams object type',
+	`object` text COMMENT 'JSON encoded object structure unless it is an implied object (normal post)',
+	`target-type` varchar(100) NOT NULL DEFAULT '' COMMENT 'ActivityStreams target type if applicable (URI)',
+	`target` text COMMENT 'JSON encoded target structure if used',
+	`resource-id` varchar(32) NOT NULL DEFAULT '' COMMENT 'Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type',
+	`plink` varchar(255) NOT NULL DEFAULT '' COMMENT 'permalink or URL to a displayable copy of the message at its source',
+	 PRIMARY KEY(`uri-id`),
+	 INDEX `plink` (`plink`(191)),
+	 FULLTEXT INDEX `title-content-warning-body` (`title`,`content-warning`,`body`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --
 -- TABLE post-delivery-data
@@ -1528,7 +1506,6 @@ CREATE VIEW `post-view` AS SELECT
 	`item`.`commented` AS `commented`,
 	`item`.`received` AS `received`,
 	`item`.`changed` AS `changed`,
-	`item`.`resource-id` AS `resource-id`,
 	`item`.`post-type` AS `post-type`,
 	`item`.`private` AS `private`,
 	`item`.`pubmail` AS `pubmail`,
@@ -1546,21 +1523,22 @@ CREATE VIEW `post-view` AS SELECT
 	`item`.`vid` AS `vid`,
 	`item`.`psid` AS `psid`,
 	IF (`item`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
-	`item-content`.`title` AS `title`,
-	`item-content`.`content-warning` AS `content-warning`,
-	`item-content`.`raw-body` AS `raw-body`,
-	`item-content`.`body` AS `body`,
-	`item-content`.`rendered-hash` AS `rendered-hash`,
-	`item-content`.`rendered-html` AS `rendered-html`,
-	`item-content`.`language` AS `language`,
-	`item-content`.`plink` AS `plink`,
-	`item-content`.`location` AS `location`,
-	`item-content`.`coord` AS `coord`,
-	`item-content`.`app` AS `app`,
-	`item-content`.`object-type` AS `object-type`,
-	`item-content`.`object` AS `object`,
-	`item-content`.`target-type` AS `target-type`,
-	`item-content`.`target` AS `target`,
+	`post-content`.`title` AS `title`,
+	`post-content`.`content-warning` AS `content-warning`,
+	`post-content`.`raw-body` AS `raw-body`,
+	`post-content`.`body` AS `body`,
+	`post-content`.`rendered-hash` AS `rendered-hash`,
+	`post-content`.`rendered-html` AS `rendered-html`,
+	`post-content`.`language` AS `language`,
+	`post-content`.`plink` AS `plink`,
+	`post-content`.`location` AS `location`,
+	`post-content`.`coord` AS `coord`,
+	`post-content`.`app` AS `app`,
+	`post-content`.`object-type` AS `object-type`,
+	`post-content`.`object` AS `object`,
+	`post-content`.`target-type` AS `target-type`,
+	`post-content`.`target` AS `target`,
+	`post-content`.`resource-id` AS `resource-id`,
 	`item`.`contact-id` AS `contact-id`,
 	`contact`.`url` AS `contact-link`,
 	`contact`.`addr` AS `contact-addr`,
@@ -1651,7 +1629,7 @@ CREATE VIEW `post-view` AS SELECT
 			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`
-			LEFT JOIN `item-content` ON `item-content`.`uri-id` = `item`.`uri-id`
+			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `item`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `item`.`uri-id` AND `item`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
 			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`uri-id` = `item`.`parent-uri-id` AND `parent-item`.`uid` = `item`.`uid`
@@ -1683,7 +1661,6 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`thread`.`commented` AS `commented`,
 	`thread`.`received` AS `received`,
 	`thread`.`changed` AS `changed`,
-	`item`.`resource-id` AS `resource-id`,
 	`thread`.`post-type` AS `post-type`,
 	`thread`.`private` AS `private`,
 	`thread`.`pubmail` AS `pubmail`,
@@ -1702,21 +1679,22 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`item`.`vid` AS `vid`,
 	`item`.`psid` AS `psid`,
 	IF (`item`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
-	`item-content`.`title` AS `title`,
-	`item-content`.`content-warning` AS `content-warning`,
-	`item-content`.`raw-body` AS `raw-body`,
-	`item-content`.`body` AS `body`,
-	`item-content`.`rendered-hash` AS `rendered-hash`,
-	`item-content`.`rendered-html` AS `rendered-html`,
-	`item-content`.`language` AS `language`,
-	`item-content`.`plink` AS `plink`,
-	`item-content`.`location` AS `location`,
-	`item-content`.`coord` AS `coord`,
-	`item-content`.`app` AS `app`,
-	`item-content`.`object-type` AS `object-type`,
-	`item-content`.`object` AS `object`,
-	`item-content`.`target-type` AS `target-type`,
-	`item-content`.`target` AS `target`,
+	`post-content`.`title` AS `title`,
+	`post-content`.`content-warning` AS `content-warning`,
+	`post-content`.`raw-body` AS `raw-body`,
+	`post-content`.`body` AS `body`,
+	`post-content`.`rendered-hash` AS `rendered-hash`,
+	`post-content`.`rendered-html` AS `rendered-html`,
+	`post-content`.`language` AS `language`,
+	`post-content`.`plink` AS `plink`,
+	`post-content`.`location` AS `location`,
+	`post-content`.`coord` AS `coord`,
+	`post-content`.`app` AS `app`,
+	`post-content`.`object-type` AS `object-type`,
+	`post-content`.`object` AS `object`,
+	`post-content`.`target-type` AS `target-type`,
+	`post-content`.`target` AS `target`,
+	`post-content`.`resource-id` AS `resource-id`,
 	`thread`.`contact-id` AS `contact-id`,
 	`contact`.`url` AS `contact-link`,
 	`contact`.`addr` AS `contact-addr`,
@@ -1807,7 +1785,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `thread`.`uri-id`
-			LEFT JOIN `item-content` ON `item-content`.`uri-id` = `thread`.`uri-id`
+			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `thread`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `thread`.`uri-id` AND `thread`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
 			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
