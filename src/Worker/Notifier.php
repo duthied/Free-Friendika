@@ -53,7 +53,7 @@ use Friendica\Protocol\Salmon;
 
 class Notifier
 {
-	public static function execute($cmd, $target_id)
+	public static function execute(string $cmd, int $target_id)
 	{
 		$a = DI::app();
 
