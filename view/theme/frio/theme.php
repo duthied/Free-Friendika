@@ -308,20 +308,20 @@ function frio_acl_lookup(App $a, &$results)
  */
 function frio_display_item(App $a, &$arr)
 {
-	// Add subthread to the item menu
-	$subthread = [];
+	// Add follow to the item menu
+	$followThread = [];
 	if (
 		local_user()
 		&& local_user() == $arr['item']['uid']
 		&& $arr['item']['gravity'] == GRAVITY_PARENT
 		&& !$arr['item']['self'])
 	{
-		$subthread = [
+		$followThread = [
 			'menu'   => 'follow_thread',
 			'title'  => DI::l10n()->t('Follow Thread'),
-			'action' => 'dosubthread(' . $arr['item']['id'] . ');',
+			'action' => 'doFollowThread(' . $arr['item']['id'] . ');',
 			'href'   => '#'
 		];
 	}
-	$arr['output']['subthread'] = $subthread;
+	$arr['output']['follow_thread'] = $followThread;
 }

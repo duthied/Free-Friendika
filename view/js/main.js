@@ -675,10 +675,10 @@ function doActivityItem(ident, verb, un) {
 	update_item = ident.toString();
 }
 
-function dosubthread(ident) {
+function doFollowThread(ident) {
 	unpause();
 	$('#like-rotator-' + ident.toString()).show();
-	$.get('subthread/' + ident.toString(), NavUpdate);
+	$.post('item/' + ident.toString() + '/follow', NavUpdate);
 	liking = 1;
 }
 

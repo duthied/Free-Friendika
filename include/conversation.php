@@ -894,7 +894,7 @@ function item_photo_menu($item) {
 	$ignore_link = '';
 
 	if (local_user() && local_user() == $item['uid'] && $item['gravity'] == GRAVITY_PARENT && !$item['self']) {
-		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
+		$sub_link = 'javascript:doFollowThread(' . $item['id'] . '); return false;';
 	}
 
 	$author = ['uid' => 0, 'id' => $item['author-id'],
