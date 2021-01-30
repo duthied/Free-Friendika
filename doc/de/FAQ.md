@@ -5,6 +5,7 @@ Häufig gestellte Fragen - FAQ
 
 Nutzer
 
+* **[Wo finde ich Hilfe?](help/FAQ#help)**
 * **[Warum erhalte ich Warnungen über fehlende Zertifikate?](help/FAQ#ssl)**
 * **[Wie kann ich Bilder, Dateien, Links, Video und Audio in Beiträge einfügen?](help/FAQ#upload)**
 * **[Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?](help/FAQ#avatars)**
@@ -14,7 +15,6 @@ Nutzer
 * **[Kann ich einem Hashtag folgen?](help/FAQ#hashtag)**
 * **[Wie kann ich einen RSS-Feed meiner Netzwerkseite (Stream) erstellen?](help/FAQ#rss)**
 * **[Gibt es Clients für Friendica?](help/FAQ#clients)**
-* **[Wo finde ich Hilfe?](help/FAQ#help)**
 
 Admins
 
@@ -26,6 +26,25 @@ Admins
 
 Nutzer
 --------
+
+<a name="help"></a>
+### Wo finde ich Hilfe?
+
+Wenn Du Probleme mit Deiner Friendica-Seite hast, dann kannst Du die Community in der [Friendica-Support-Gruppe](https://forum.friendi.ca/profile/helpers) fragen.
+Wenn Du Deinen Account nicht nutzen kannst, kannst Du einen Account auf einer öffentlichen Seite ([Liste](https://dir.friendica.social/servers)) nutzen.
+
+Wenn du dir keinen weiteren Friendica Account einrichten willst, kannst du auch gerne über einen der folgenden alternativen Kanäle Hilfe suchen:
+
+  * Friendica Support Forum: [@helpers@forum.friendi.ca](https://forum.friendi.ca/~helpers)
+  * XMPP: support(at)forum.friendi.ca
+  * IRC: [#friendica at freenode.net](https://webchat.freenode.net/?settings=#friendica)
+  * Matrix: [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
+  * [Mailing List](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca)
+  <!--- * [XMPP](xmpp:support@forum.friendi.ca?join)
+	https://github.com/github/markup/issues/202
+	https://github.com/gjtorikian/html-pipeline/pull/307
+	https://github.com/github/opensource.guide/pull/807
+  --->
 
 <a name="ssl"></a>
 ### Warum erhalte ich Warnungen über fehlende Zertifikate?
@@ -194,20 +213,6 @@ Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell f
 * Windows
   * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) für Windows 10
   * Hotot
-
-<a name="help"></a>
-### Wo finde ich Hilfe?
-
-Wenn Du Probleme mit Deiner Friendica-Seite hast, dann kannst Du die Community in der [Friendica-Support-Gruppe](https://forum.friendi.ca/profile/helpers) fragen oder Dir das [deutsche Wiki](https://friendica-wiki.de/) anschauen.
-Wenn Du Deinen Account nicht nutzen kannst, kannst Du entweder einen [Testaccount](https://tryfriendica.de) bzw. einen Account auf einer öffentlichen Seite ([Liste](https://dir.friendica.social/servers)) nutzen.
-
-Wenn du dir keinen weiteren Friendica Account einrichten willst, kannst du auch gerne über einen der folgenden alternativen Kanäle Hilfe suchen:
-
-  * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
-  * [Mailing List Archive](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) you can subscribe to the list by sending an email to ``support-request(at)friendi.ca?subject=subscribe``
-  * XMPP/Jabber MUC: support(at)forum.friendi.ca
-  * IRC: #friendica at irc.freenode.net
-  * Matrix: #friendi.ca or #friendica at matrix.org.
 
 Admin
 --------
