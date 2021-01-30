@@ -290,11 +290,12 @@ return [
 		'/testrewrite'           => [Module\Install::class, [R::GET]],
 	],
 
-	'/item'            => [
-		'/{id:\d+}/activity/{verb}' => [Module\Item\Activity::class,    [        R::POST]],
-		'/{id:\d+}/ignore'          => [Module\Item\Ignore::class,      [        R::POST]],
-		'/{id:\d+}/pin'             => [Module\Item\Pin::class,         [        R::POST]],
-		'/{id:\d+}/star'            => [Module\Item\Star::class,        [        R::POST]],
+	'/item/{id:\d+}'            => [
+		'/activity/{verb}' => [Module\Item\Activity::class,    [        R::POST]],
+		'/follow'          => [Module\Item\Follow::class,      [        R::POST]],
+		'/ignore'          => [Module\Item\Ignore::class,      [        R::POST]],
+		'/pin'             => [Module\Item\Pin::class,         [        R::POST]],
+		'/star'            => [Module\Item\Star::class,        [        R::POST]],
 	],
 
 	'/localtime'          => [Module\Debug\Localtime::class, [R::GET, R::POST]],
