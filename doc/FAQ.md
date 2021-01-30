@@ -32,10 +32,10 @@ User
 
 If this FAQ does not answer your question you can always reach out to the community via the following options:
 
-  * Friendica Support Forum [@helpers@forum.friendi.ca](https://forum.friendi.ca/~helpers)
-  * XMPP support(at)forum.friendi.ca
-  * IRC [#friendica at freenode.net](https://webchat.freenode.net/?settings=#friendica)
-  * Matrix [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
+  * Friendica Support Forum: [@helpers@forum.friendi.ca](https://forum.friendi.ca/~helpers)
+  * XMPP: support(at)forum.friendi.ca
+  * IRC: [#friendica at freenode.net](https://webchat.freenode.net/?settings=#friendica)
+  * Matrix: [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
   * [Mailing List](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca)
   <!--- * [XMPP](xmpp:support@forum.friendi.ca?join)
 	https://github.com/github/markup/issues/202
