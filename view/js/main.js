@@ -701,21 +701,26 @@ function dostar(ident) {
 	});
 }
 
-function dopin(ident) {
+function doPin(ident) {
 	ident = ident.toString();
 	$('#like-rotator-' + ident).show();
-	$.get('pinned/' + ident, function(data) {
+	$.get('pinned/' + ident)
+	.then(function(data) {
 		if (data.match(/1/)) {
-			$('#pinned-' + ident).addClass('pinned');
-			$('#pinned-' + ident).removeClass('unpinned');
+			$('#pinned-' + ident)
+				.addClass('pinned')
+				.removeClass('unpinned');
 			$('#pin-' + ident).addClass('hidden');
 			$('#unpin-' + ident).removeClass('hidden');
 		} else {
-			$('#pinned-' + ident).addClass('unpinned');
-			$('#pinned-' + ident).removeClass('pinned');
+			$('#pinned-' + ident)
+				.addClass('unpinned')
+				.removeClass('pinned');
 			$('#pin-' + ident).removeClass('hidden');
 			$('#unpin-' + ident).addClass('hidden');
 		}
+	})
+	.always(function () {
 		$('#like-rotator-' + ident).hide();
 	});
 }

@@ -102,7 +102,7 @@
 			{{/if}}
 
 			{{if $item.pin}}
-			<a href="#" id="pinned-{{$item.id}}" onclick="dopin({{$item.id}}); return false;" class="pin-item icon {{$item.ispinned}}" title="{{$item.pin.toggle}}"></a>
+			<a href="#" id="pinned-{{$item.id}}" onclick="doPin({{$item.id}}); return false;" class="pin-item icon {{$item.ispinned}}" title="{{$item.pin.toggle}}"></a>
 			{{/if}}
 			{{if $item.star}}
 			<a href="#" id="starred-{{$item.id}}" onclick="dostar({{$item.id}}); return false;" class="star-item icon {{$item.isstarred}}" title="{{$item.star.toggle}}"></a>
