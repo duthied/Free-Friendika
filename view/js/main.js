@@ -725,7 +725,7 @@ function doPin(ident) {
 	});
 }
 
-function doignore(ident) {
+function doIgnoreThread(ident) {
 	ident = ident.toString();
 	$('#like-rotator-' + ident).show();
 	$.get('item/ignore/' + ident, function(data) {

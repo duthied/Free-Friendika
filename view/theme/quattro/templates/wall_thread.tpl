@@ -106,8 +106,8 @@
 				<a href="#" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}}); return false;"  class="{{$item.star.classundo}}"  title="{{$item.star.undo}}">{{$item.star.undo}}</a>
 			{{/if}}
 			{{if $item.ignore}}
-			    <a href="#" id="ignore-{{$item.id}}" onclick="doignore({{$item.id}}); return false;" class="{{$item.ignore.classdo}}" title="{{$item.ignore.do}}">{{$item.ignore.do}}</a>
-			    <a href="#" id="unignore-{{$item.id}}" onclick="doignore({{$item.id}}); return false;" class="{{$item.ignore.classundo}}" title="{{$item.ignore.undo}}">{{$item.ignore.undo}}</a>
+			    <a href="#" id="ignore-{{$item.id}}" onclick="doIgnoreThread({{$item.id}}); return false;" class="{{$item.ignore.classdo}}" title="{{$item.ignore.do}}">{{$item.ignore.do}}</a>
+			    <a href="#" id="unignore-{{$item.id}}" onclick="doIgnoreThread({{$item.id}}); return false;" class="{{$item.ignore.classundo}}" title="{{$item.ignore.undo}}">{{$item.ignore.undo}}</a>
 			{{/if}}
 			{{if $item.tagger}}
 				<a href="#" id="tagger-{{$item.id}}" onclick="itemTag({{$item.id}}); return false;" class="{{$item.tagger.class}}" title="{{$item.tagger.add}}">{{$item.tagger.add}}</a>
