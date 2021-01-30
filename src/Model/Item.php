@@ -1108,9 +1108,6 @@ class Item
 				}
 			}
 
-			// We syncronize the id value of the of the post-user table with the item table
-			$item['id'] = $id;
-
 			$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
 			if (Post::exists($condition)) {
 				Logger::notice('Item is already inserted - aborting', $condition);
