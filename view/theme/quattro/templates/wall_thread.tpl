@@ -102,8 +102,8 @@
 				<a href="#" id="unpin-{{$item.id}}" onclick="doPin({{$item.id}}); return false;" class="{{$item.pin.classundo}}" title="{{$item.pin.undo}}">{{$item.pin.undo}}</a>
 			{{/if}}
 			{{if $item.star}}
-				<a href="#" id="star-{{$item.id}}" onclick="dostar({{$item.id}}); return false;"  class="{{$item.star.classdo}}"  title="{{$item.star.do}}">{{$item.star.do}}</a>
-				<a href="#" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}}); return false;"  class="{{$item.star.classundo}}"  title="{{$item.star.undo}}">{{$item.star.undo}}</a>
+				<a href="#" id="star-{{$item.id}}" onclick="doStar({{$item.id}}); return false;" class="{{$item.star.classdo}}" title="{{$item.star.do}}">{{$item.star.do}}</a>
+				<a href="#" id="unstar-{{$item.id}}" onclick="doStar({{$item.id}}); return false;" class="{{$item.star.classundo}}" title="{{$item.star.undo}}">{{$item.star.undo}}</a>
 			{{/if}}
 			{{if $item.ignore}}
 			    <a href="#" id="ignore-{{$item.id}}" onclick="doIgnoreThread({{$item.id}}); return false;" class="{{$item.ignore.classdo}}" title="{{$item.ignore.do}}">{{$item.ignore.do}}</a>

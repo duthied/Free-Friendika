@@ -40,8 +40,8 @@
 
 			<div class="wall-item-actions-social">
 			{{if $star}}
-				<a href="#" id="star-{{$id}}" onclick="dostar({{$id}}); return false;"  class="{{$star.classdo}}"  title="{{$star.do}}">{{$star.do}}</a>
-				<a href="#" id="unstar-{{$id}}" onclick="dostar({{$id}}); return false;"  class="{{$star.classundo}}"  title="{{$star.undo}}">{{$star.undo}}</a>
+				<a href="#" id="star-{{$id}}" onclick="doStar({{$id}}); return false;" class="{{$star.classdo}}" title="{{$star.do}}">{{$star.do}}</a>
+				<a href="#" id="unstar-{{$id}}" onclick="doStar({{$id}}); return false;" class="{{$star.classundo}}" title="{{$star.undo}}">{{$star.undo}}</a>
 				<a href="#" id="tagger-{{$id}}" onclick="itemTag({{$id}}); return false;" class="{{$star.classtagger}}" title="{{$star.tagger}}">{{$star.tagger}}</a>
 			{{/if}}
 

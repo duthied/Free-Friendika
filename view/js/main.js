@@ -682,21 +682,26 @@ function dosubthread(ident) {
 	liking = 1;
 }
 
-function dostar(ident) {
+function doStar(ident) {
 	ident = ident.toString();
 	$('#like-rotator-' + ident).show();
-	$.get('starred/' + ident, function(data) {
-		if (data.match(/1/)) {
-			$('#starred-' + ident).addClass('starred');
-			$('#starred-' + ident).removeClass('unstarred');
+	$.get('starred/' + ident)
+	.then(function(data) {
+		if (data.state === 1) {
+			$('#starred-' + ident)
+				.addClass('starred')
+				.removeClass('unstarred');
 			$('#star-' + ident).addClass('hidden');
 			$('#unstar-' + ident).removeClass('hidden');
 		} else {
-			$('#starred-' + ident).addClass('unstarred');
-			$('#starred-' + ident).removeClass('starred');
+			$('#starred-' + ident)
+				.addClass('unstarred')
+				.removeClass('starred');
 			$('#star-' + ident).removeClass('hidden');
 			$('#unstar-' + ident).addClass('hidden');
 		}
+	})
+	.always(function () {
 		$('#like-rotator-' + ident).hide();
 	});
 }
