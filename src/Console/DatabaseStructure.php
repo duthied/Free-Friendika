@@ -106,7 +106,7 @@ HELP;
 
 		switch ($this->getArgument(0)) {
 			case "dryrun":
-				$output = DBStructure::update($basePath, true, false);
+				$output = DBStructure::dryRun();
 				break;
 			case "update":
 				$force    = $this->getOption(['f', 'force'], false);

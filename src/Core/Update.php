@@ -166,7 +166,7 @@ class Update
 
 					// update the structure in one call
 					Logger::notice('Execute structure update');
-					$retval = DBStructure::update($basePath, $verbose, true);
+					$retval = DBStructure::performUpdate(false, $verbose);
 					if (!empty($retval)) {
 						if ($sendMail) {
 							self::updateFailed(

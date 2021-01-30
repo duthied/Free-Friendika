@@ -362,6 +362,54 @@ class DBStructure
 	}
 
 	/**
+	 * Perform a database structure dryrun (means: just simulating)
+	 *
+	 * @throws Exception
+	 */
+	public static function dryRun()
+	{
+		self::update(DI::app()->getBasePath(), true, false);
+	}
+
+	/**
+	 * Updates DB structure and returns eventual errors messages
+	 *
+	 * @param bool $enable_maintenance_mode Set the maintenance mode
+	 * @param bool $verbose                 Display the SQL commands
+	 *
+	 * @return string Empty string if the update is successful, error messages otherwise
+	 * @throws Exception
+	 */
+	public static function performUpdate(bool $enable_maintenance_mode = true, bool $verbose = false)
+	{
+		if ($enable_maintenance_mode) {
+			DI::config()->set('system', 'maintenance', 1);
+		}
+
+		$status = self::update(DI::app()->getBasePath(), $verbose, true);
+
+		if ($enable_maintenance_mode) {
+			DI::config()->set('system', 'maintenance', 0);
+			DI::config()->set('system', 'maintenance_reason', '');
+		}
+
+		return $status;
+	}
+
+	/**
+	 * Updates DB structure from the installation and returns eventual errors messages
+	 *
+	 * @param string $basePath   The base path of this application
+	 *
+	 * @return string Empty string if the update is successful, error messages otherwise
+	 * @throws Exception
+	 */
+	public static function install(string $basePath)
+	{
+		return self::update($basePath, false, true, true);
+	}
+
+	/**
 	 * Updates DB structure and returns eventual errors messages
 	 *
 	 * @param string $basePath   The base path of this application
@@ -373,16 +421,15 @@ class DBStructure
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws Exception
 	 */
-	public static function update($basePath, $verbose, $action, $install = false, array $tables = null, array $definition = null)
+	private static function update($basePath, $verbose, $action, $install = false, array $tables = null, array $definition = null)
 	{
-		$in_maintenance = DI::config()->get('system', 'maintenance');
+		$in_maintenance_mode = DI::config()->get('system', 'maintenance');
 
-		if ($action && !$install) {
-			if (self::isUpdating()) {
-				return DI::l10n()->t('Another database update is currently running.');
-			}
+		if ($action && !$install && self::isUpdating()) {
+			return DI::l10n()->t('Another database update is currently running.');
+		}
 
-			DI::config()->set('system', 'maintenance', 1);
+		if ($in_maintenance_mode) {
 			DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
 		}
 
@@ -682,7 +729,7 @@ class DBStructure
 				}
 
 				if ($action) {
-					if (!$install) {
+					if ($in_maintenance_mode) {
 						DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: updating %s table.', DateTimeFormat::utcNow() . ' ' . date('e'), $name));
 					}
 
@@ -739,11 +786,6 @@ class DBStructure
 		self::checkInitialValues();
 
 		if ($action && !$install) {
-			if (!$in_maintenance) {
-				DI::config()->set('system', 'maintenance', 0);
-				DI::config()->set('system', 'maintenance_reason', '');
-			}
-
 			if ($errors) {
 				DI::config()->set('system', 'dbupdate', self::UPDATE_FAILED);
 			} else {
