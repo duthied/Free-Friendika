@@ -192,7 +192,7 @@ class Installer
 	 */
 	public function installDatabase($basePath)
 	{
-		$result = DBStructure::update($basePath, false, true, true);
+		$result = DBStructure::install($basePath);
 
 		if ($result) {
 			$txt = DI::l10n()->t('You may need to import the file "database.sql" manually using phpmyadmin or mysql.') . EOL;

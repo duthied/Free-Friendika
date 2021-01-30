@@ -82,7 +82,7 @@ class Summary extends BaseAdmin
 		}
 
 		if (DI::config()->get('system', 'dbupdate', DBStructure::UPDATE_NOT_CHECKED) == DBStructure::UPDATE_NOT_CHECKED) {
-			DBStructure::update($a->getBasePath(), false, true);
+			DBStructure::performUpdate();
 		}
 
 		if (DI::config()->get('system', 'dbupdate') == DBStructure::UPDATE_FAILED) {

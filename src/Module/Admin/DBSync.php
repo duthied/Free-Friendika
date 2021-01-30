@@ -54,7 +54,7 @@ class DBSync extends BaseAdmin
 				break;
 			case 'check':
 				// @TODO Seems like a similar logic like Update::check()
-				$retval = DBStructure::update($a->getBasePath(), false, true);
+				$retval = DBStructure::performUpdate();
 				if ($retval === '') {
 					$o = DI::l10n()->t("Database structure update %s was successfully applied.", DB_UPDATE_VERSION) . "<br />";
 				} else {

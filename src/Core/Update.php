@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
 class Update
@@ -143,14 +144,20 @@ class Update
 						return '';
 					}
 
+					DI::config()->set('system', 'maintenance', 1);
+		
 					// run the pre_update_nnnn functions in update.php
 					for ($version = $stored + 1; $version <= $current; $version++) {
 						Logger::notice('Execute pre update.', ['version' => $version]);
+						DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: executing pre update %d',
+							DateTimeFormat::utcNow() . ' ' . date('e'), $version));
 						$r = self::runUpdateFunction($version, 'pre_update', $sendMail);
 						if (!$r) {
 							Logger::warning('Pre update failed', ['version' => $version]);
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
+							DI::config()->set('system', 'maintenance', 0);
+							DI::config()->set('system', 'maintenance_reason', '');
 							return $r;
 						} else {
 							Logger::notice('Pre update executed.', ['version' => $version]);
@@ -159,7 +166,7 @@ class Update
 
 					// update the structure in one call
 					Logger::notice('Execute structure update');
-					$retval = DBStructure::update($basePath, $verbose, true);
+					$retval = DBStructure::performUpdate(false, $verbose);
 					if (!empty($retval)) {
 						if ($sendMail) {
 							self::updateFailed(
@@ -170,6 +177,8 @@ class Update
 						Logger::error('Update ERROR.', ['from' => $stored, 'to' => $current, 'retval' => $retval]);
 						DI::config()->set('system', 'update', Update::FAILED);
 						DI::lock()->release('dbupdate');
+						DI::config()->set('system', 'maintenance', 0);
+						DI::config()->set('system', 'maintenance_reason', '');
 						return $retval;
 					} else {
 						Logger::notice('Database structure update finished.', ['from' => $stored, 'to' => $current]);
@@ -178,11 +187,15 @@ class Update
 					// run the update_nnnn functions in update.php
 					for ($version = $stored + 1; $version <= $current; $version++) {
 						Logger::notice('Execute post update.', ['version' => $version]);
+						DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: executing post update %d',
+							DateTimeFormat::utcNow() . ' ' . date('e'), $version));
 						$r = self::runUpdateFunction($version, 'update', $sendMail);
 						if (!$r) {
 							Logger::warning('Post update failed', ['version' => $version]);
 							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
+							DI::config()->set('system', 'maintenance', 0);
+							DI::config()->set('system', 'maintenance_reason', '');
 							return $r;
 						} else {
 							DI::config()->set('system', 'build', $version);
@@ -193,6 +206,8 @@ class Update
 					DI::config()->set('system', 'build', $current);
 					DI::config()->set('system', 'update', Update::SUCCESS);
 					DI::lock()->release('dbupdate');
+					DI::config()->set('system', 'maintenance', 0);
+					DI::config()->set('system', 'maintenance_reason', '');
 
 					Logger::notice('Update success.', ['from' => $stored, 'to' => $current]);
 					if ($sendMail) {
