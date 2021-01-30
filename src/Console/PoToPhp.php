@@ -103,14 +103,14 @@ HELP;
 
 			if (substr($l, 0, 15) == '"Plural-Forms: ') {
 				$match = [];
-				preg_match("|nplurals=([0-9]*); *plural=(.*)[;\\\\]|", $l, $match);
-				$cond = str_replace('n', '$n', $match[2]);
+				preg_match("|nplurals=([0-9]*); *plural=(.*?)[;\\\\]|", $l, $match);
+				$return = $this->convertCPluralConditionToPhpReturnStatement($match[2]);
 				// define plural select function if not already defined
 				$fnname = 'string_plural_select_' . $lang;
 				$out .= 'if(! function_exists("' . $fnname . '")) {' . "\n";
 				$out .= 'function ' . $fnname . '($n){' . "\n";
 				$out .= '	$n = intval($n);' . "\n";
-				$out .= '	return ' . $cond . ';' . "\n";
+				$out .= '	' . $return . "\n";
 				$out .= '}}' . "\n";
 			}
 
@@ -211,5 +211,83 @@ HELP;
 	private function escapeDollar($match)
 	{
 		return str_replace('$', '\$', $match[0]);
+	}
+
+	/**
+	 * Converts C-style plural condition in .po files to a PHP-style plural return statement
+	 *
+	 * Adapted from https://github.com/friendica/friendica/issues/9747#issuecomment-769604485
+	 * Many thanks to Christian Archer (https://github.com/sunchaserinfo)
+	 *
+	 * @param string $cond
+	 * @return string
+	 */
+	private function convertCPluralConditionToPhpReturnStatement(string $cond)
+	{
+		$cond = str_replace('n', '$n', $cond);
+
+		/**
+		 * Parses the condition into an array if there's at least a ternary operator, to a string otherwise
+		 *
+		 * Warning: Black recursive magic
+		 *
+		 * @param string $string
+		 * @param array|string $node
+		 */
+		function parse(string $string, &$node = [])
+		{
+			// Removes extra outward parentheses
+			if (strpos($string, '(') === 0 && strrpos($string, ')') === strlen($string) - 1) {
+				$string = substr($string, 1, -1);
+			}
+
+			$q = strpos($string, '?');
+			$s = strpos($string, ':');
+
+			if ($q === false && $s === false) {
+				$node = $string;
+				return;
+			}
+
+			if ($q === false || $s < $q) {
+				list($then, $else) = explode(':', $string, 2);
+				$node['then'] = $then;
+				$parsedElse = [];
+				parse($else, $parsedElse);
+				$node['else'] = $parsedElse;
+			} else {
+				list($if, $thenelse) = explode('?', $string, 2);
+				$node['if'] = $if;
+				parse($thenelse, $node);
+			}
+		}
+
+		/**
+		 * Renders the parsed condition tree into a return statement
+		 *
+		 * Warning: Black recursive magic
+		 *
+		 * @param $tree
+		 * @return string
+		 */
+		function render($tree)
+		{
+			if (is_array($tree)) {
+				$if = trim($tree['if']);
+				$then = trim($tree['then']);
+				$else = render($tree['else']);
+
+				return "if ({$if}) { return {$then}; } else {$else}";
+			}
+
+			$tree = trim($tree);
+
+			return " { return {$tree}; }";
+		}
+
+		$tree = [];
+		parse($cond, $tree);
+
+		return is_string($tree) ? "return intval({$tree});" : render($tree);
 	}
 }
