@@ -166,8 +166,8 @@ class Index extends BaseSearch
 			$count = Tag::countByTag($search, local_user());
 		} else {
 			Logger::info('Start fulltext search.', ['q' => $search]);
-			$uriids = ItemContent::getURIIdListBySearch($search, local_user(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
-			$count = ItemContent::countBySearch($search, local_user());
+			$uriids = Post\Content::getURIIdListBySearch($search, local_user(), $pager->getStart(), $pager->getItemsPerPage(), $last_uriid);
+			$count = Post\Content::countBySearch($search, local_user());
 		}
 
 		if (!empty($uriids)) {

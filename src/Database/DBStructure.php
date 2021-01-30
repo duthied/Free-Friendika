@@ -72,8 +72,14 @@ class DBStructure
 	 */
 	public static function dropTables(bool $execute)
 	{
+		$postupdate = DI::config()->get("system", "post_update_version", PostUpdate::VERSION);
+		if ($postupdate < PostUpdate::VERSION) {
+			echo DI::l10n()->t('The post update is at version %d, it has to be at %d to safely drop the tables.', $postupdate, PostUpdate::VERSION);
+			return;
+		}
+
 		$old_tables = ['fserver', 'gcign', 'gcontact', 'gcontact-relation', 'gfollower' ,'glink', 'item-delivery-data',
-		'item_id', 'poll', 'poll_result', 'queue', 'retriever_rule', 'sign', 'spam', 'term'];
+			'item-activity', 'item-content', 'item_id', 'poll', 'poll_result', 'queue', 'retriever_rule', 'sign', 'spam', 'term'];
 
 		$tables = DBA::selectToArray(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_NAME'],
 			['TABLE_SCHEMA' => DBA::databaseName(), 'TABLE_TYPE' => 'BASE TABLE']);

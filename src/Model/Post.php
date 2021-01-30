@@ -446,13 +446,13 @@ class Post
 			$affected = DBA::affectedRows();			
 		}
 
-		$update_fields = DBStructure::getFieldsForTable('item-content', $fields);
+		$update_fields = DBStructure::getFieldsForTable('post-content', $fields);
 		if (!empty($update_fields)) {
 			$rows = DBA::selectToArray('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
 			$uriids = array_column($rows, 'uri-id');
-			if (!DBA::update('item-content', $update_fields, ['uri-id' => $uriids])) {
+			if (!DBA::update('post-content', $update_fields, ['uri-id' => $uriids])) {
 				DBA::rollback();
-				Logger::notice('Updating item-content failed', ['fields' => $update_fields, 'condition' => $condition]);
+				Logger::notice('Updating post-content failed', ['fields' => $update_fields, 'condition' => $condition]);
 				return false;
 			}
 			$affected = max($affected, DBA::affectedRows());

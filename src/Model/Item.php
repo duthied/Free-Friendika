@@ -99,12 +99,12 @@ class Item
 			'author-id', 'author-link', 'owner-link', 'contact-uid',
 			'signed_text', 'network'];
 
-	// Field list for "item-content" table that is mixed with the item table
+	// Field list for "post-content" table that is mixed with the item table
 	const MIXED_CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
 			'coord', 'app', 'rendered-hash', 'rendered-html', 'verb',
 			'object-type', 'object', 'target-type', 'target', 'plink'];
 
-	// Field list for "item-content" table that is not present in the "item" table
+	// Field list for "post-content" table that is not present in the "item" table
 	const CONTENT_FIELDLIST = ['language', 'raw-body'];
 
 	// All fields in the item table
@@ -133,7 +133,7 @@ class Item
 	const PRIVATE = 1;
 	const UNLISTED = 2;
 
-	const TABLES = ['item', 'user-item', 'item-content', 'post-delivery-data', 'diaspora-interaction'];
+	const TABLES = ['item', 'user-item', 'post-content', 'post-delivery-data', 'diaspora-interaction'];
 
 	private static function getItemFields()
 	{
@@ -224,7 +224,6 @@ class Item
 				// Remove all media attachments from the body and store them in the post-media table
 				$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
 				$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
-				self::updateContent($content_fields, ['uri-id' => $item['uri-id']]);
 			}
 
 			if (!empty($fields['file'])) {
@@ -1054,9 +1053,9 @@ class Item
 			$notify_type = Delivery::POST;
 		}
 
-		if (!in_array($item['verb'], self::ACTIVITIES) && !self::insertContent($item)) {
+		if (!in_array($item['verb'], self::ACTIVITIES) && !Post\Content::insert($item['uri-id'], $item)) {
 			// This shouldn't happen
-			Logger::warning('No content stored, quitting', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'causer-id' => ($item['causer-id'] ?? 0), 'post-type' => $item['post-type'], 'network' => $item['network']]);
+			Logger::warning('No post-content stored, quitting', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'causer-id' => ($item['causer-id'] ?? 0), 'post-type' => $item['post-type'], 'network' => $item['network']]);
 			return 0;
 		}
 
@@ -1108,9 +1107,6 @@ class Item
 					unset($item[$field]);
 				}
 			}
-
-			// We syncronize the id value of the of the post-user table with the item table
-			$item['id'] = $id;
 
 			$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
 			if (Post::exists($condition)) {
@@ -1298,67 +1294,6 @@ class Item
 			$stored = self::storeForUserByUriId($item['uri-id'], $uid, $fields);
 			Logger::info('Stored item for users', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'fields' => $fields, 'stored' => $stored]);
 		}
-	}
-
-	/**
-	 * Insert a new item content entry
-	 *
-	 * @param array $item The item fields that are to be inserted
-	 * @return bool "true" if content was inserted or already existed
-	 * @throws \Exception
-	 */
-	private static function insertContent(array $item)
-	{
-		$fields = ['uri-plink-hash' => (string)$item['uri-id'], 'uri-id' => $item['uri-id']];
-
-		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
-			if (isset($item[$field])) {
-				$fields[$field] = $item[$field];
-			}
-		}
-
-		$found = DBA::exists('item-content', ['uri-id' => $item['uri-id']]);
-		if ($found) {
-			Logger::info('Existing content found', ['uri-id' => $item['uri-id'], 'uri' => $item['uri']]);
-			return true;
-		}
-
-		DBA::insert('item-content', $fields, Database::INSERT_IGNORE);
-
-		$found = DBA::exists('item-content', ['uri-id' => $item['uri-id']]);
-		if ($found) {
-			Logger::notice('Content inserted', ['uri-id' => $item['uri-id'], 'uri' => $item['uri']]);
-			return true;
-		}
-
-		// This shouldn't happen.
-		Logger::error("Content wasn't inserted", $item);
-		return false;
-	}
-
-	/**
-	 * Update existing item content entries
-	 *
-	 * @param array $item      The item fields that are to be changed
-	 * @param array $condition The condition for finding the item content entries
-	 * @throws \Exception
-	 */
-	private static function updateContent($item, $condition)
-	{
-		// We have to select only the fields from the "item-content" table
-		$fields = [];
-		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
-			if (isset($item[$field])) {
-				$fields[$field] = $item[$field];
-			}
-		}
-
-		if (empty($fields)) {
-			return;
-		}
-
-		DBA::update('item-content', $fields, $condition, true);
-		Logger::info('Updated content', ['condition' => $condition]);
 	}
 
 	/**

@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1395);
+	define('DB_UPDATE_VERSION', 1396);
 }
 
 return [
@@ -858,55 +858,6 @@ return [
 			"causer-id" => ["causer-id"],
 		]
 	],
-	"item-activity" => [
-		"comment" => "Activities for items",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
-			"uri" => ["type" => "varchar(255)", "comment" => ""],
-			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"uri-hash" => ["type" => "varchar(80)", "not null" => "1", "default" => "", "comment" => "RIPEMD-128 hash from uri"],
-			"activity" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""]
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"uri-hash" => ["UNIQUE", "uri-hash"],
-			"uri" => ["uri(191)"],
-			"uri-id" => ["uri-id"]
-		]
-	],
-	"item-content" => [
-		"comment" => "Content for all posts",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
-			"uri" => ["type" => "varchar(255)", "comment" => ""],
-			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"uri-plink-hash" => ["type" => "varchar(80)", "not null" => "1", "default" => "", "comment" => "RIPEMD-128 hash from uri"],
-			"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "item title"],
-			"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"body" => ["type" => "mediumtext", "comment" => "item body content"],
-			"raw-body" => ["type" => "mediumtext", "comment" => "Body without embedded media links"],
-			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "text location where this item originated"],
-			"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "longitude/latitude pair representing location where this item originated"],
-			"language" => ["type" => "text", "comment" => "Language information about this post"],
-			"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "application which generated this item"],
-			"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
-			"rendered-html" => ["type" => "mediumtext", "comment" => "item.body converted to html"],
-			"object-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "ActivityStreams object type"],
-			"object" => ["type" => "text", "comment" => "JSON encoded object structure unless it is an implied object (normal post)"],
-			"target-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "ActivityStreams target type if applicable (URI)"],
-			"target" => ["type" => "text", "comment" => "JSON encoded target structure if used"],
-			"plink" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "permalink or URL to a displayable copy of the message at its source"],
-			"verb" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "ActivityStreams verb"]
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"uri-plink-hash" => ["UNIQUE", "uri-plink-hash"],
-			"title-content-warning-body" => ["FULLTEXT", "title", "content-warning", "body"],
-			"uri" => ["uri(191)"],
-			"plink" => ["plink(191)"],
-			"uri-id" => ["uri-id"]
-		]
-	],
 	"locks" => [
 		"comment" => "",
 		"fields" => [
@@ -1159,6 +1110,33 @@ return [
 			"PRIMARY" => ["uri-id", "uid", "type", "tid"],
 			"uri-id" => ["tid"],
 			"uid" => ["uid"],
+		]
+	],
+	"post-content" => [
+		"comment" => "Content for all posts",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "item title"],
+			"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"body" => ["type" => "mediumtext", "comment" => "item body content"],
+			"raw-body" => ["type" => "mediumtext", "comment" => "Body without embedded media links"],
+			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "text location where this item originated"],
+			"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "longitude/latitude pair representing location where this item originated"],
+			"language" => ["type" => "text", "comment" => "Language information about this post"],
+			"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "application which generated this item"],
+			"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
+			"rendered-html" => ["type" => "mediumtext", "comment" => "item.body converted to html"],
+			"object-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "ActivityStreams object type"],
+			"object" => ["type" => "text", "comment" => "JSON encoded object structure unless it is an implied object (normal post)"],
+			"target-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => "ActivityStreams target type if applicable (URI)"],
+			"target" => ["type" => "text", "comment" => "JSON encoded target structure if used"],
+			"resource-id" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type"],
+			"plink" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "permalink or URL to a displayable copy of the message at its source"]
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id"],
+			"plink" => ["plink(191)"],
+			"title-content-warning-body" => ["FULLTEXT", "title", "content-warning", "body"],
 		]
 	],
 	"post-delivery-data" => [
