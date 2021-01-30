@@ -291,8 +291,8 @@ return [
 	],
 
 	'/item'            => [
-		'/ignore/{id}' => [Module\Item\Ignore::class, [R::GET]],
 		'/{id:\d+}/activity/{verb}' => [Module\Item\Activity::class,    [        R::POST]],
+		'/{id:\d+}/ignore'          => [Module\Item\Ignore::class,      [        R::POST]],
 		'/{id:\d+}/pin'             => [Module\Item\Pin::class,         [        R::POST]],
 	],
 
