@@ -375,6 +375,8 @@ class DBStructure
 	 */
 	public static function update($basePath, $verbose, $action, $install = false, array $tables = null, array $definition = null)
 	{
+		$in_maintenance = DI::config()->get('system', 'maintenance');
+
 		if ($action && !$install) {
 			if (self::isUpdating()) {
 				return DI::l10n()->t('Another database update is currently running.');
@@ -737,8 +739,10 @@ class DBStructure
 		self::checkInitialValues();
 
 		if ($action && !$install) {
-			DI::config()->set('system', 'maintenance', 0);
-			DI::config()->set('system', 'maintenance_reason', '');
+			if (!$in_maintenance) {
+				DI::config()->set('system', 'maintenance', 0);
+				DI::config()->set('system', 'maintenance_reason', '');
+			}
 
 			if ($errors) {
 				DI::config()->set('system', 'dbupdate', self::UPDATE_FAILED);
