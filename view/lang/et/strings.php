@@ -3,7 +3,7 @@
 if(! function_exists("string_plural_select_et")) {
 function string_plural_select_et($n){
 	$n = intval($n);
-	return ($n != 1);;
+	return intval($n != 1);
 }}
 ;
 $a->strings["Daily posting limit of %d post reached. The post was rejected."] = [
