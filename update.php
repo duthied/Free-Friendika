@@ -715,9 +715,9 @@ function update_1396()
 	return Update::SUCCESS;
 }
 
-function update_139x()
+function update_1397()
 {
-	if (!DBStructure::existsTable('thread') || DBStructure::existsTable('user-item')) {
+	if (!DBStructure::existsTable('thread') || !DBStructure::existsTable('user-item')) {
 		return Update::SUCCESS;
 	}
 

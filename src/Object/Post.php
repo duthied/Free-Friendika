@@ -307,17 +307,15 @@ class Post
 
 		if ($this->isToplevel()) {
 			if(local_user()) {
-				$thread = PostModel::selectFirstThreadForUser(local_user(), ['ignored'], ['iid' => $item['id']]);
-				if (DBA::isResult($thread)) {
-					$ignore = [
-						'do'        => DI::l10n()->t("ignore thread"),
-						'undo'      => DI::l10n()->t("unignore thread"),
-						'toggle'    => DI::l10n()->t("toggle ignore status"),
-						'classdo'   => $thread['ignored'] ? "hidden" : "",
-						'classundo' => $thread['ignored'] ? "" : "hidden",
-						'ignored'   => DI::l10n()->t('ignored'),
-					];
-				}
+				$ignored = PostModel\ThreadUser::getIgnored($item['uri-id'], local_user());
+				$ignore = [
+					'do'        => DI::l10n()->t("ignore thread"),
+					'undo'      => DI::l10n()->t("unignore thread"),
+					'toggle'    => DI::l10n()->t("toggle ignore status"),
+					'classdo'   => $ignored ? "hidden" : "",
+					'classundo' => $ignored ? "" : "hidden",
+					'ignored'   => DI::l10n()->t('ignored'),
+				];
 
 				if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
 					if ($origin) {

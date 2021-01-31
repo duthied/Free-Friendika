@@ -272,7 +272,7 @@ class Post
 			unset($selected['pinned']);
 			$selected = array_flip($selected);	
 
-			$select_string = "(SELECT `pinned` FROM `user-item` WHERE `iid` = `" . $view . "`.`id` AND uid=`" . $view . "`.`uid`) AS `pinned`, ";
+			$select_string = "(SELECT `pinned` FROM `post-thread-user` WHERE `uri-id` = `" . $view . "`.`uri-id` AND uid=`" . $view . "`.`uid`) AS `pinned`, ";
 		}
 
 		$select_string .= implode(', ', array_map([DBA::class, 'quoteIdentifier'], $selected));
@@ -345,32 +345,6 @@ class Post
 	}
 
 	/**
-	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
-	 *
-	 * @param integer $uid User ID
-	 * @param array   $selected
-	 * @param array   $condition
-	 * @param array   $params
-	 * @return bool|array
-	 * @throws \Exception
-	 * @see   DBA::select
-	 */
-	public static function selectFirstThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
-	{
-		$params['limit'] = 1;
-
-		$result = self::selectThreadForUser($uid, $selected, $condition, $params);
-
-		if (is_bool($result)) {
-			return $result;
-		} else {
-			$row = self::fetch($result);
-			DBA::close($result);
-			return $row;
-		}
-	}
-
-	/**
 	 * Select pinned rows from the item table for a given user
 	 *
 	 * @param integer $uid       User ID
@@ -383,24 +357,24 @@ class Post
 	 */
 	public static function selectPinned(int $uid, array $selected = [], array $condition = [], $params = [])
 	{
-		$useritems = DBA::select('user-item', ['iid'], ['uid' => $uid, 'pinned' => true]);
-		if (!DBA::isResult($useritems)) {
-			return $useritems;
+		$postthreaduser = DBA::select('post-thread-user', ['uri-id'], ['uid' => $uid, 'pinned' => true]);
+		if (!DBA::isResult($postthreaduser)) {
+			return $postthreaduser;
 		}
-
+	
 		$pinned = [];
-		while ($useritem = DBA::fetch($useritems)) {
-			$pinned[] = $useritem['iid'];
+		while ($useritem = DBA::fetch($postthreaduser)) {
+			$pinned[] = $useritem['uri-id'];
 		}
-		DBA::close($useritems);
+		DBA::close($postthreaduser);
 
 		if (empty($pinned)) {
 			return [];
 		}
 
-		$condition = DBA::mergeConditions(['iid' => $pinned], $condition);
+		$condition = DBA::mergeConditions(['uri-id' => $pinned, 'uid' => $uid, 'gravity' => GRAVITY_PARENT], $condition);
 
-		return self::selectThreadForUser($uid, $selected, $condition, $params);
+		return self::selectForUser($uid, $selected, $condition, $params);
 	}
 
 	/**

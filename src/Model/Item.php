@@ -31,7 +31,6 @@ use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Model\Tag;
 use Friendica\Core\Worker;
-use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
@@ -132,49 +131,6 @@ class Item
 	const PUBLIC = 0;
 	const PRIVATE = 1;
 	const UNLISTED = 2;
-
-	const TABLES = ['item', 'user-item', 'post-content', 'post-delivery-data', 'diaspora-interaction'];
-
-	private static function getItemFields()
-	{
-		$definition = DBStructure::definition('', false);
-
-		$postfields = [];
-		foreach (self::TABLES as $table) {
-			$postfields[$table] = array_keys($definition[$table]['fields']);
-		}
-
-		return $postfields;
-	}
-
-	/**
-	 * Set the pinned state of an item
-	 *
-	 * @param integer $iid    Item ID
-	 * @param integer $uid    User ID
-	 * @param boolean $pinned Pinned state
-	 */
-	public static function setPinned(int $iid, int $uid, bool $pinned)
-	{
-		DBA::update('user-item', ['pinned' => $pinned], ['iid' => $iid, 'uid' => $uid], true);
-	}
-
-	/**
-	 * Get the pinned state
-	 *
-	 * @param integer $iid Item ID
-	 * @param integer $uid User ID
-	 *
-	 * @return boolean pinned state
-	 */
-	public static function getPinned(int $iid, int $uid)
-	{
-		$useritem = DBA::selectFirst('user-item', ['pinned'], ['iid' => $iid, 'uid' => $uid]);
-		if (!DBA::isResult($useritem)) {
-			return false;
-		}
-		return (bool)$useritem['pinned'];
-	}
 
 	/**
 	 * Update existing item entries
@@ -285,12 +241,9 @@ class Item
 				Post\User::update($item['uri-id'], $uid, ['hidden' => true], true);
 			}
 
-			// "Deleting" global items just means hiding them
-			if ($item['uid'] == 0) {
-				DBA::update('user-item', ['hidden' => true], ['iid' => $item['id'], 'uid' => $uid], true);
-			} elseif ($item['uid'] == $uid) {
+			if ($item['uid'] == $uid) {
 				self::markForDeletionById($item['id'], PRIORITY_HIGH);
-			} else {
+			} elseif ($item['uid'] != 0) {
 				Logger::log('Wrong ownership. Not deleting item ' . $item['id']);
 			}
 		}
@@ -393,12 +346,6 @@ class Item
 			}
 		} elseif ($item['uid'] != 0) {
 			Post\User::update($item['uri-id'], $item['uid'], ['hidden' => true]);
-
-			// When we delete just our local user copy of an item, we have to set a marker to hide it
-			$global_item = Post::selectFirst(['id'], ['uri-id' => $item['uri-id'], 'uid' => 0, 'deleted' => false]);
-			if (DBA::isResult($global_item)) {
-				DBA::update('user-item', ['hidden' => true], ['iid' => $global_item['id'], 'uid' => $item['uid']], true);
-			}
 		}
 
 		Logger::info('Item has been marked for deletion.', ['id' => $item_id]);
@@ -755,8 +702,6 @@ class Item
 
 	public static function insert($item, $notify = false, $dontcache = false)
 	{
-		$structure = self::getItemFields();
-
 		$orig_item = $item;
 
 		$priority = PRIORITY_HIGH;
@@ -1103,18 +1048,14 @@ class Item
 				Post\ThreadUser::insert($item['uri-id'], $item['uid'], $item);
 			}
 
-			// Remove all fields that aren't part of the item table
-			foreach ($item as $field => $value) {
-				if (!in_array($field, $structure['item'])) {
-					unset($item[$field]);
-				}
-			}
-
 			$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
 			if (Post::exists($condition)) {
 				Logger::notice('Item is already inserted - aborting', $condition);
 				return 0;
 			}
+
+			// Remove all fields that aren't part of the item table
+			$item = DBStructure::getFieldsForTable('item', $item);
 
 			$result = DBA::insert('item', $item);
 

@@ -395,13 +395,13 @@
 		"query" => "FROM `item`
 			INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
+			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
 			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
-			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
+			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
 			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`)"
 	],
@@ -424,13 +424,13 @@
 		"query" => "FROM `thread`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
+			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
 			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
-			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
+			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
 			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`)"
 	],

@@ -49,27 +49,17 @@ class Ignore extends BaseModule
 
 		$dba = DI::dba();
 
-		$thread = Post::selectFirstThreadForUser(local_user(), ['uid', 'ignored'], ['iid' => $itemId]);
+		$thread = Post::selectFirst(['uri-id', 'uid'], ['id' => $itemId, 'gravity' => GRAVITY_PARENT]);
 		if (!$dba->isResult($thread)) {
 			throw new HTTPException\NotFoundException();
 		}
 
-		// Numeric values are needed for the json output further below
-		$ignored = !empty($thread['ignored']) ? 0 : 1;
+		$ignored = !Post\ThreadUser::getIgnored($thread['uri-id'], local_user());
 
-		switch ($thread['uid'] ?? 0) {
-			// if the thread is from the current user
-			case local_user():
-				$dba->update('thread', ['ignored' => $ignored], ['iid' => $itemId]);
-				break;
-			// 0 (null will get transformed to 0) => it's a public post
-			case 0:
-				$dba->update('user-item', ['ignored' => $ignored], ['iid' => $itemId, 'uid' => local_user()], true);
-				break;
-			// Throws a BadRequestException and not a ForbiddenException on purpose
-			// Avoids harvesting existing, but forbidden IIDs (security issue)
-			default:
-				throw new HTTPException\BadRequestException();
+		if (in_array($thread['uid'], [0, local_user()])) {
+			Post\ThreadUser::setIgnored($thread['uri-id'], local_user(), $ignored);
+		} else {
+			throw new HTTPException\BadRequestException();
 		}
 
 		// See if we've been passed a return path to redirect to

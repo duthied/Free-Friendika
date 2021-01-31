@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1396
+-- DB_UPDATE_VERSION 1397
 -- ------------------------------------------
 
 
@@ -684,7 +684,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`guid` varchar(255) NOT NULL DEFAULT '' COMMENT 'A unique identifier for this item',
 	`uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the item uri',
-	`uri-hash` varchar(80) NOT NULL DEFAULT '' COMMENT 'RIPEMD-128 hash from uri',
 	`parent` int unsigned COMMENT 'item.id of the parent to this item if it is a reply of some form; otherwise this must be set to the id of this item',
 	`parent-uri` varchar(255) NOT NULL DEFAULT '' COMMENT 'uri of the top-level parent to this item',
 	`parent-uri-id` int unsigned COMMENT 'Id of the item-uri table that contains the top-level parent uri',
@@ -720,6 +719,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`psid` int unsigned COMMENT 'ID of the permission set of this post',
 	`resource-id` varchar(32) NOT NULL DEFAULT '' COMMENT 'Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type',
 	`event-id` int unsigned COMMENT 'Used to link to the event.id',
+	`uri-hash` varchar(80) COMMENT 'Deprecated',
 	`iaid` int unsigned COMMENT 'Deprecated',
 	`icid` int unsigned COMMENT 'Deprecated',
 	`attach` mediumtext COMMENT 'Deprecated',
@@ -1140,6 +1140,26 @@ CREATE TABLE IF NOT EXISTS `post-tag` (
 	FOREIGN KEY (`tid`) REFERENCES `tag` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to tags';
+
+--
+-- TABLE post-thread-user
+--
+CREATE TABLE IF NOT EXISTS `post-thread-user` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner id which owns this copy of the item',
+	`pinned` boolean NOT NULL DEFAULT '0' COMMENT 'The thread is pinned on the profile page',
+	`starred` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`ignored` boolean NOT NULL DEFAULT '0' COMMENT 'Ignore updates for this thread',
+	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
+	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	 PRIMARY KEY(`uid`,`uri-id`),
+	 INDEX `uid_wall` (`uid`,`wall`),
+	 INDEX `uid_pinned` (`uid`,`pinned`),
+	 INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data per user';
 
 --
 -- TABLE post-user
@@ -1848,13 +1868,13 @@ CREATE VIEW `network-item-view` AS SELECT
 	FROM `item`
 			INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
+			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
 			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
-			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
+			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
 			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
 
@@ -1879,13 +1899,13 @@ CREATE VIEW `network-thread-view` AS SELECT
 	FROM `thread`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
+			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
 			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
-			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
+			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
 			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
 

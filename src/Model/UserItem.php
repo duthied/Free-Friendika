@@ -52,7 +52,7 @@ class UserItem
 	public static function setNotification(int $iid)
 	{
 		$fields = ['id', 'uri-id', 'parent-uri-id', 'uid', 'body', 'parent', 'gravity',
-			'private', 'contact-id', 'thr-parent', 'parent-uri', 'author-id', 'verb'];
+			'private', 'contact-id', 'thr-parent', 'parent-uri-id', 'parent-uri', 'author-id', 'verb'];
 		$item = Post::selectFirst($fields, ['id' => $iid, 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			return;
@@ -92,8 +92,7 @@ class UserItem
 	 */
 	private static function setNotificationForUser(array $item, int $uid)
 	{
-		$thread = Post::selectFirstThreadForUser($uid, ['ignored'], ['iid' => $item['parent'], 'deleted' => false]);
-		if (!empty($thread['ignored'])) {
+		if (Post\ThreadUser::getIgnored($item['parent-uri-id'], $uid)) {
 			return;
 		}
 

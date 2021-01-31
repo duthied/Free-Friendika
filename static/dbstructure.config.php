@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1396);
+	define('DB_UPDATE_VERSION', 1397);
 }
 
 return [
@@ -750,7 +750,6 @@ return [
 			"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "A unique identifier for this item"],
 			"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"uri-hash" => ["type" => "varchar(80)", "not null" => "1", "default" => "", "comment" => "RIPEMD-128 hash from uri"],
 			"parent" => ["type" => "int unsigned", "relation" => ["item" => "id"], "comment" => "item.id of the parent to this item if it is a reply of some form; otherwise this must be set to the id of this item"],
 			"parent-uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "uri of the top-level parent to this item"],
 			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the top-level parent uri"],
@@ -774,7 +773,7 @@ return [
 			"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"moderated" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been deleted"],
-			// User specific fields. Eventually they will move to user-item
+			// User specific fields. Eventually they will move to post-user and post-thread-user
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
 			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id"],
 			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
@@ -789,6 +788,7 @@ return [
 			"resource-id" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type"],
 			"event-id" => ["type" => "int unsigned", "relation" => ["event" => "id"], "comment" => "Used to link to the event.id"],
 			// Deprecated fields. Will be removed in upcoming versions
+			"uri-hash" => ["type" => "varchar(80)", "comment" => "Deprecated"],
 			"iaid" => ["type" => "int unsigned", "comment" => "Deprecated"],
 			"icid" => ["type" => "int unsigned", "comment" => "Deprecated"],
 			"attach" => ["type" => "mediumtext", "comment" => "Deprecated"],
@@ -1208,6 +1208,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["uid", "uri-id"],
 			"uid_wall" => ["uid", "wall"],
+			"uid_pinned" => ["uid", "pinned"],
 			"uri-id" => ["uri-id"],
 		]
 	],
