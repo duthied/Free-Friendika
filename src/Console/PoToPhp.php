@@ -115,19 +115,15 @@ HELP;
 			}
 
 			if ($k != '' && substr($l, 0, 7) == 'msgstr ') {
-				if ($ink) {
-					$ink = false;
-					$out .= '$a->strings["' . $k . '"] = ';
-				}
-
-				if ($inv) {
-					$out .= '"' . $v . '"';
-				}
-
 				$v = substr($l, 8, $len - 10);
 				$v = preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $v);
 
-				$inv = true;
+				if ($v != '') {
+					$out .= '$a->strings["' . $k . '"] = "' . $v . '"';
+				} else {
+					$k = '';
+					$ink = false;
+				}
 			}
 
 			if ($k != "" && substr($l, 0, 7) == 'msgstr[') {
@@ -147,11 +143,13 @@ HELP;
 
 				$match = [];
 				preg_match("|\[([0-9]*)\] (.*)|", $l, $match);
-				$out .= "\t"
-					. preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $match[1])
-					. ' => '
-					. preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $match[2])
-					. ",\n";
+				if ($match[2] !== '""') {
+					$out .= "\t"
+						. preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $match[1])
+						. ' => '
+						. preg_replace_callback($escape_s_exp, [$this, 'escapeDollar'], $match[2])
+						. ",\n";
+				}
 			}
 
 			if (substr($l, 0, 6) == 'msgid_') {
