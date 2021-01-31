@@ -4758,8 +4758,8 @@ msgstr "activité"
 #: src/Model/Item.php:3381 src/Object/Post.php:540
 msgid "comment"
 msgid_plural "comments"
-msgstr[0] ""
-msgstr[1] "commentaire"
+msgstr[0] "commentaire"
+msgstr[1] "commentaires"
 
 #: src/Model/Item.php:3384
 msgid "post"

@@ -366,7 +366,7 @@ class Temporal
 	 * @return int Age in years
 	 * @throws \Exception
 	 */
-	public static function getAgeByTimezone($dob, $owner_tz = '')
+	public static function getAgeByTimezone($dob, $owner_tz = ''): int
 	{
 		if (!intval($dob)) {
 			return 0;
@@ -381,7 +381,7 @@ class Temporal
 
 		$interval = $birthdate->diff($currentDate);
 
-		return $interval->format('%y');
+		return (int) $interval->format('%y');
 	}
 
 	/**
