@@ -292,6 +292,7 @@ return [
 
 	'/item'            => [
 		'/ignore/{id}' => [Module\Item\Ignore::class, [R::GET]],
+		'/{id:\d+}/pin' => [Module\Item\Pin::class,       [        R::POST]],
 	],
 
 	'/like/{item:\d+}'    => [Module\Like::class,            [R::GET]],
@@ -351,7 +352,6 @@ return [
 		'/{type}/{customize}/{name}' => [Module\Photo::class, [R::GET]],
 	],
 
-	'/pinned/{item:\d+}' => [Module\Pinned::class,       [R::GET]],
 	'/pretheme'          => [Module\ThemeDetails::class, [R::GET]],
 	'/probe'             => [Module\Debug\Probe::class,  [R::GET]],
 

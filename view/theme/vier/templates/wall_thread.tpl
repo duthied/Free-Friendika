@@ -136,8 +136,8 @@
 			{{/if}}
 
 			{{if $item.pin}}
-				<a role="button" id="pin-{{$item.id}}" onclick="dopin({{$item.id}}); return false;"  class="{{$item.pin.classdo}}" title="{{$item.pin.do}}"><i class="icon-circle icon-large"><span class="sr-only">{{$item.pin.do}}</span></i></a>
-				<a role="button" id="unpin-{{$item.id}}" onclick="dopin({{$item.id}}); return false;"  class="{{$item.pin.classundo}}"  title="{{$item.pin.undo}}"><i class="icon-remove-circle icon-large"><span class="sr-only">{{$item.pin.undo}}</span></i></a>
+				<a role="button" id="pin-{{$item.id}}" onclick="doPin({{$item.id}}); return false;" class="{{$item.pin.classdo}}" title="{{$item.pin.do}}"><i class="icon-circle icon-large"><span class="sr-only">{{$item.pin.do}}</span></i></a>
+				<a role="button" id="unpin-{{$item.id}}" onclick="doPin({{$item.id}}); return false;" class="{{$item.pin.classundo}}" title="{{$item.pin.undo}}"><i class="icon-remove-circle icon-large"><span class="sr-only">{{$item.pin.undo}}</span></i></a>
 			{{/if}}
 			{{if $item.star}}
 				<a role="button" id="star-{{$item.id}}" onclick="dostar({{$item.id}}); return false;"  class="{{$item.star.classdo}}" title="{{$item.star.do}}"><i class="icon-star icon-large"><span class="sr-only">{{$item.star.do}}</span></i></a>
