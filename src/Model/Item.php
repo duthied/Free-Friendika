@@ -1053,10 +1053,8 @@ class Item
 			$notify_type = Delivery::POST;
 		}
 
-		if (!in_array($item['verb'], self::ACTIVITIES) && !Post\Content::insert($item['uri-id'], $item)) {
-			// This shouldn't happen
-			Logger::warning('No post-content stored, quitting', ['guid' => $item['guid'], 'uri-id' => $item['uri-id'], 'causer-id' => ($item['causer-id'] ?? 0), 'post-type' => $item['post-type'], 'network' => $item['network']]);
-			return 0;
+		if (!in_array($item['verb'], self::ACTIVITIES)) {
+			Post\Content::insert($item['uri-id'], $item);
 		}
 
 		$body = $item['body'];
