@@ -1099,6 +1099,10 @@ class Item
 
 		$id = Post\User::insert($item['uri-id'], $item['uid'], $item);
 		if ($id) {
+			if ($item['gravity'] == GRAVITY_PARENT) {
+				Post\ThreadUser::insert($item['uri-id'], $item['uid'], $item);
+			}
+
 			// Remove all fields that aren't part of the item table
 			foreach ($item as $field => $value) {
 				if (!in_array($field, $structure['item'])) {

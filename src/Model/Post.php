@@ -258,7 +258,7 @@ class Post
 			AND (NOT `causer-blocked` OR `causer-id` = ?) AND NOT `contact-blocked`
 			AND ((NOT `contact-readonly` AND NOT `contact-pending` AND (`contact-rel` IN (?, ?)))
 				OR `self` OR `gravity` != ? OR `contact-uid` = ?)
-			AND NOT EXISTS (SELECT `iid` FROM `user-item` WHERE `hidden` AND `iid` = `id` AND `uid` = ?)
+			AND NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `hidden` AND `uri-id` = `" . $view . "`.`uri-id` AND `uid` = ?)
 			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `author-id` AND `blocked`)
 			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `owner-id` AND `blocked`)
 			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `author-id` AND `ignored` AND `gravity` = ?)
@@ -431,6 +431,8 @@ class Post
 		unset($fields['parent-uri']);
 		unset($fields['parent-uri-id']);
 
+		$thread_condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
+
 		// To ensure the data integrity we do it in an transaction
 		DBA::transaction();
 
@@ -472,13 +474,32 @@ class Post
 			$affected = max($affected, DBA::affectedRows());
 		}
 
+		$update_fields = DBStructure::getFieldsForTable('post-thread-user', $fields);
+		if (!empty($update_fields)) {
+			$rows = DBA::selectToArray('post-view', ['post-user-id'], $thread_condition);
+			$thread_puids = array_column($rows, 'post-user-id');
+
+			$post_thread_condition = DBA::collapseCondition(['id' => $thread_puids]);
+
+			$post_thread_condition[0] = "EXISTS(SELECT `id` FROM `post-user` WHERE " .
+				$post_thread_condition[0] . " AND `uri-id` = `post-thread-user`.`uri-id` AND `uid` = `post-thread-user`.`uid`)";
+			Logger::info('Test2-start', ['condition' => $post_thread_condition]);
+				if (!DBA::update('post-thread-user', $update_fields, $post_thread_condition)) {
+				DBA::rollback();
+				Logger::notice('Updating post-thread-user failed', ['fields' => $update_fields, 'condition' => $condition]);
+				return false;
+			}
+			Logger::info('Test2-end');
+			$affected = max($affected, DBA::affectedRows());
+		}
+
 		$update_fields = DBStructure::getFieldsForTable('thread', $fields);
 		if (!empty($update_fields)) {
-			$rows = DBA::selectToArray('post-view', ['id'], $condition);
+			$rows = DBA::selectToArray('post-view', ['id'], $thread_condition);
 			$ids = array_column($rows, 'id');
 			if (!DBA::update('thread', $update_fields, ['iid' => $ids])) {
 				DBA::rollback();
-				Logger::notice('Updating thread failed', ['fields' => $update_fields, 'condition' => $condition]);
+				Logger::notice('Updating thread failed', ['fields' => $update_fields, 'condition' => $thread_condition]);
 				return false;
 			}
 			$affected = max($affected, DBA::affectedRows());
@@ -496,10 +517,8 @@ class Post
 			}
 		}
 		if (!empty($update_fields)) {
-			if (empty($ids)) {
-				$rows = DBA::selectToArray('post-view', ['id'], $condition, []);
-				$ids = array_column($rows, 'id');
-			}
+			$rows = DBA::selectToArray('post-view', ['id'], $condition, []);
+			$ids = array_column($rows, 'id');
 			if (!DBA::update('item', $update_fields, ['id' => $ids])) {
 				DBA::rollback();
 				Logger::notice('Updating item failed', ['fields' => $update_fields, 'condition' => $condition]);

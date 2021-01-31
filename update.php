@@ -466,7 +466,7 @@ function pre_update_1364()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `user-item` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+	if (DBStructure::existsTable('user-item') && !DBA::e("DELETE FROM `user-item` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
 		return Update::FAILED;
 	}
 
@@ -518,7 +518,7 @@ function pre_update_1364()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `user-item` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
+	if (DBStructure::existsTable('user-item') && !DBA::e("DELETE FROM `user-item` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
 		return Update::FAILED;
 	}
 
@@ -686,7 +686,7 @@ function update_1395()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("INSERT INTO `post-user`(`uri-id`, `uid`, `hidden`, `notification-type`)
+	if (DBStructure::existsTable('user-item') && !DBA::e("INSERT INTO `post-user`(`uri-id`, `uid`, `hidden`, `notification-type`)
 		SELECT `uri-id`, `user-item`.`uid`, `hidden`,`notification-type` FROM `user-item`
 			INNER JOIN `item` ON `item`.`id` = `user-item`.`iid`
 		ON DUPLICATE KEY UPDATE `hidden` = `user-item`.`hidden`, `notification-type` = `user-item`.`notification-type`")) {
@@ -710,6 +710,21 @@ function update_1396()
 			`item-content`.`rendered-html`, `item-content`.`object-type`, `item-content`.`object`,
 			`item-content`.`target-type`, `item-content`.`target`, `item`.`resource-id`, `item-content`.`plink`
 			FROM `item-content` INNER JOIN `item` ON `item`.`uri-id` = `item-content`.`uri-id`")) {
+		return Update::FAILED;
+	}
+	return Update::SUCCESS;
+}
+
+function update_139x()
+{
+	if (!DBStructure::existsTable('thread') || DBStructure::existsTable('user-item')) {
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("INSERT IGNORE INTO `post-thread-user`(`uri-id`, `uid`, `pinned`, `starred`, `ignored`, `wall`, `pubmail`, `forum_mode`)
+		SELECT `thread`.`uri-id`, `thread`.`uid`, `user-item`.`pinned`, `thread`.`starred`,
+			`thread`.`ignored`, `thread`.`wall`, `thread`.`pubmail`, `thread`.`forum_mode`
+		FROM `thread` LEFT JOIN `user-item` ON `user-item`.`iid` = `thread`.`iid`")) {
 		return Update::FAILED;
 	}
 	return Update::SUCCESS;

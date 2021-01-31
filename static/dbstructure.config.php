@@ -1193,6 +1193,24 @@ return [
 			"cid" => ["cid"]
 		]
 	],
+	"post-thread-user" => [
+		"comment" => "Thread related data per user",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
+			"pinned" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "The thread is pinned on the profile page"],
+			"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"ignored" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Ignore updates for this thread"],
+			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
+			"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""]
+		],
+		"indexes" => [
+			"PRIMARY" => ["uid", "uri-id"],
+			"uid_wall" => ["uid", "wall"],
+			"uri-id" => ["uri-id"],
+		]
+	],
 	"post-user" => [
 		"comment" => "User specific post data",
 		"fields" => [

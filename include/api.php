@@ -2170,10 +2170,10 @@ function api_statuses_mentions($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$query = "`gravity` IN (?, ?) AND `id` IN (SELECT `iid` FROM `user-item`		
+	$query = "`gravity` IN (?, ?) AND `uri-id` IN (SELECT `uri-id` FROM `post-user`
 		WHERE (`hidden` IS NULL OR NOT `hidden`) AND
-			`uid` = ? AND `notification-type` & ? != 0
-			AND `iid` > ?";
+			`uid` = ? AND `notification-type` & ? != 0)
+			AND `id` > ?";
 
 	$condition = [GRAVITY_PARENT, GRAVITY_COMMENT, api_user(),
 		UserItem::NOTIF_EXPLICIT_TAGGED | UserItem::NOTIF_IMPLICIT_TAGGED |
@@ -2182,11 +2182,9 @@ function api_statuses_mentions($type)
 		$since_id];
 
 	if ($max_id > 0) {
-		$query .= " AND `iid` <= ?";
+		$query .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
-
-	$query .= ")";
 
 	array_unshift($condition, $query);
 
