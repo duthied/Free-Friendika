@@ -44,10 +44,6 @@ class Content
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		if (DBA::exists('post-content', ['uri-id' => $uri_id])) {
-			return false;
-		}
-
 		$fields = DBStructure::getFieldsForTable('post-content', $data);
 
 		// Additionally assign the key fields
