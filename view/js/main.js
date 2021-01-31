@@ -725,11 +725,11 @@ function doPin(ident) {
 	});
 }
 
-function doignore(ident) {
+function doIgnoreThread(ident) {
 	ident = ident.toString();
 	$('#like-rotator-' + ident).show();
-	$.get('item/ignore/' + ident, function(data) {
-		if (data === 1) {
+	$.post('item/' + ident + '/ignore', function(data) {
+		if (data.state === 1) {
 			$('#ignored-' + ident)
 				.addClass('ignored')
 				.removeClass('unignored');
