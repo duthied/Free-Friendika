@@ -106,8 +106,8 @@
 				<a href="#" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}}); return false;"  class="{{$item.star.classundo}}"  title="{{$item.star.undo}}">{{$item.star.undo}}</a>
 			{{/if}}
 			{{if $item.ignore}}
-			    <a href="#" id="ignore-{{$item.id}}" onclick="doignore({{$item.id}}); return false;" class="{{$item.ignore.classdo}}" title="{{$item.ignore.do}}">{{$item.ignore.do}}</a>
-			    <a href="#" id="unignore-{{$item.id}}" onclick="doignore({{$item.id}}); return false;" class="{{$item.ignore.classundo}}" title="{{$item.ignore.undo}}">{{$item.ignore.undo}}</a>
+			    <a href="#" id="ignore-{{$item.id}}" onclick="doIgnoreThread({{$item.id}}); return false;" class="{{$item.ignore.classdo}}" title="{{$item.ignore.do}}">{{$item.ignore.do}}</a>
+			    <a href="#" id="unignore-{{$item.id}}" onclick="doIgnoreThread({{$item.id}}); return false;" class="{{$item.ignore.classundo}}" title="{{$item.ignore.undo}}">{{$item.ignore.undo}}</a>
 			{{/if}}
 			{{if $item.tagger}}
 				<a href="#" id="tagger-{{$item.id}}" onclick="itemTag({{$item.id}}); return false;" class="{{$item.tagger.class}}" title="{{$item.tagger.add}}">{{$item.tagger.add}}</a>
@@ -121,12 +121,12 @@
 			{{/if}}
 
 			{{if $item.vote}}
-				<a href="#" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active{{/if}}" title="{{$item.vote.like.0}}" onclick="dolike({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false">{{$item.vote.like.1}}</a>
+				<a href="#" id="like-{{$item.id}}"{{if $item.responses.like.self}} class="active{{/if}}" title="{{$item.vote.like.0}}" onclick="doActivityItem({{$item.id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false">{{$item.vote.like.1}}</a>
 				{{if $item.vote.dislike}}
-				<a href="#" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="dolike({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false">{{$item.vote.dislike.1}}</a>
+				<a href="#" id="dislike-{{$item.id}}"{{if $item.responses.dislike.self}} class="active{{/if}}" title="{{$item.vote.dislike.0}}" onclick="doActivityItem({{$item.id}}, 'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false">{{$item.vote.dislike.1}}</a>
 				{{/if}}
 				{{if $item.vote.announce}}
-				<a href="#" id="announce-{{$item.id}}"{{if $item.responses.announce.self}} class="active{{/if}}" title="{{$item.vote.announce.0}}" onclick="dolike({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}}); return false">{{$item.vote.announce.1}}</a>
+				<a href="#" id="announce-{{$item.id}}"{{if $item.responses.announce.self}} class="active{{/if}}" title="{{$item.vote.announce.0}}" onclick="doActivityItem({{$item.id}}, 'announce'{{if $item.responses.announce.self}}, true{{/if}}); return false">{{$item.vote.announce.1}}</a>
 				{{/if}}
 			    {{if $item.vote.share}}
 				    <a href="#" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}}); return false">{{$item.vote.share.1}}</a>
@@ -135,9 +135,9 @@
 			{{if $item.isevent}}
 			<div class="clear"></div>
 			<div class="wall-item-actions-isevent">
-				<a href="#" id="attendyes-{{$item.id}}"{{if $item.responses.attendyes.self}} class="active{{/if}}" title="{{$item.attend.0}}" onclick="dolike({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}}); return false;">{{$item.attend.0}}</a>
-				<a href="#" id="attendno-{{$item.id}}"{{if $item.responses.attendno.self}} class="active{{/if}}" title="{{$item.attend.1}}" onclick="dolike({{$item.id}}, 'attendno'{{if $item.responses.attendno.self}}, true{{/if}}); return false;">{{$item.attend.1}}</a>
-				<a href="#" id="attendmaybe-{{$item.id}}"{{if $item.responses.attendmaybe.self}} class="active{{/if}}" title="{{$item.attend.2}}" onclick="dolike({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}}); return false;">{{$item.attend.2}}</a>
+				<a href="#" id="attendyes-{{$item.id}}"{{if $item.responses.attendyes.self}} class="active{{/if}}" title="{{$item.attend.0}}" onclick="doActivityItem({{$item.id}}, 'attendyes'{{if $item.responses.attendyes.self}}, true{{/if}}); return false;">{{$item.attend.0}}</a>
+				<a href="#" id="attendno-{{$item.id}}"{{if $item.responses.attendno.self}} class="active{{/if}}" title="{{$item.attend.1}}" onclick="doActivityItem({{$item.id}}, 'attendno'{{if $item.responses.attendno.self}}, true{{/if}}); return false;">{{$item.attend.1}}</a>
+				<a href="#" id="attendmaybe-{{$item.id}}"{{if $item.responses.attendmaybe.self}} class="active{{/if}}" title="{{$item.attend.2}}" onclick="doActivityItem({{$item.id}}, 'attendmaybe'{{if $item.responses.attendmaybe.self}}, true{{/if}}); return false;">{{$item.attend.2}}</a>
 			</div>
 			{{/if}}
 

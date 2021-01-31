@@ -41,18 +41,17 @@ class Ignore extends BaseModule
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
-		$args = DI::args();
-		$dba = DI::dba();
-
-		$message_id = intval($args->get(2));
-
-		if (empty($message_id) || !is_int($message_id)) {
+		if (empty($parameters['id'])) {
 			throw new HTTPException\BadRequestException();
 		}
 
-		$thread = Post::selectFirstThreadForUser(local_user(), ['uid', 'ignored'], ['iid' => $message_id]);
+		$itemId = intval($parameters['id']);
+
+		$dba = DI::dba();
+
+		$thread = Post::selectFirstThreadForUser(local_user(), ['uid', 'ignored'], ['iid' => $itemId]);
 		if (!$dba->isResult($thread)) {
-			throw new HTTPException\BadRequestException();
+			throw new HTTPException\NotFoundException();
 		}
 
 		// Numeric values are needed for the json output further below
@@ -61,11 +60,11 @@ class Ignore extends BaseModule
 		switch ($thread['uid'] ?? 0) {
 			// if the thread is from the current user
 			case local_user():
-				$dba->update('thread', ['ignored' => $ignored], ['iid' => $message_id]);
+				$dba->update('thread', ['ignored' => $ignored], ['iid' => $itemId]);
 				break;
 			// 0 (null will get transformed to 0) => it's a public post
 			case 0:
-				$dba->update('user-item', ['ignored' => $ignored], ['iid' => $message_id, 'uid' => local_user()], true);
+				$dba->update('user-item', ['ignored' => $ignored], ['iid' => $itemId, 'uid' => local_user()], true);
 				break;
 			// Throws a BadRequestException and not a ForbiddenException on purpose
 			// Avoids harvesting existing, but forbidden IIDs (security issue)
@@ -86,7 +85,13 @@ class Ignore extends BaseModule
 			DI::baseUrl()->redirect($return_path . $rand);
 		}
 
-		// the json doesn't really matter, it will either be 0 or 1
-		System::jsonExit($ignored);
+		$return = [
+			'status'  => 'ok',
+			'item_id' => $itemId,
+			'verb'    => 'ignore',
+			'state'   => $ignored,
+		];
+
+		System::jsonExit($return);
 	}
 }

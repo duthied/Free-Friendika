@@ -665,11 +665,11 @@ function imgdull(node) {
  * @param {string}  verb  The verb of the action
  * @param {boolean} un    Whether to perform an activity removal instead of creation
  */
-function dolike(ident, verb, un) {
+function doActivityItem(ident, verb, un) {
 	unpause();
 	$('#like-rotator-' + ident.toString()).show();
 	verb = un ? 'un' + verb : verb;
-	$.get('like/' + ident.toString() + '?verb=' + verb, NavUpdate);
+	$.post('item/' + ident.toString() + '/activity/' + verb, NavUpdate);
 	liking = 1;
 	force_update = true;
 	update_item = ident.toString();
@@ -725,11 +725,11 @@ function doPin(ident) {
 	});
 }
 
-function doignore(ident) {
+function doIgnoreThread(ident) {
 	ident = ident.toString();
 	$('#like-rotator-' + ident).show();
-	$.get('item/ignore/' + ident, function(data) {
-		if (data === 1) {
+	$.post('item/' + ident + '/ignore', function(data) {
+		if (data.state === 1) {
 			$('#ignored-' + ident)
 				.addClass('ignored')
 				.removeClass('unignored');
