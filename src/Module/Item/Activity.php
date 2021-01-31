@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module;
+namespace Friendica\Module\Item;
 
 use Friendica\BaseModule;
 use Friendica\Content\Text\BBCode;
@@ -34,9 +34,10 @@ use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
 
 /**
- * Performs a like and optionally redirects to a return path
+ * Performs an activity (like, dislike, announce, attendyes, attendno, attendmaybe)
+ * and optionally redirects to a return path
  */
-class Like extends BaseModule
+class Activity extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
@@ -44,16 +45,12 @@ class Like extends BaseModule
 			throw new HTTPException\ForbiddenException();
 		}
 
-		$verb = Strings::escapeTags(trim($_GET['verb']));
-
-		if (!$verb) {
-			$verb = 'like';
+		if (empty($parameters['id']) || empty($parameters['verb'])) {
+			throw new HTTPException\BadRequestException();
 		}
 
-		$app = DI::app();
-
-		// @TODO: Replace with parameter from router
-		$itemId = (($app->argc > 1) ? Strings::escapeTags(trim($app->argv[1])) : 0);
+		$verb = $parameters['verb'];
+		$itemId =  $parameters['id'];
 
 		if (in_array($verb, ['announce', 'unannounce'])) {
 			$item = Post::selectFirst(['network'], ['id' => $itemId]);
@@ -66,22 +63,27 @@ class Like extends BaseModule
 			throw new HTTPException\BadRequestException();
 		}
 
-		// Decide how to return. If we were called with a 'return' argument,
-		// then redirect back to the calling page. If not, just quietly end
-		$returnPath = $_REQUEST['return'] ?? '';
-
-		if (!empty($returnPath)) {
+		// See if we've been passed a return path to redirect to
+		$return_path = $_REQUEST['return'] ?? '';
+		if (!empty($return_path)) {
 			$rand = '_=' . time();
-			if (strpos($returnPath, '?')) {
+			if (strpos($return_path, '?')) {
 				$rand = "&$rand";
 			} else {
 				$rand = "?$rand";
 			}
 
-			DI::baseUrl()->redirect($returnPath . $rand);
+			DI::baseUrl()->redirect($return_path . $rand);
 		}
 
-		System::jsonExit(['status' => 'OK']);
+		$return = [
+			'status' => 'ok',
+			'item_id' => $itemId,
+			'verb' => $verb,
+			'state' => 1,
+		];
+
+		System::jsonExit($return);
 	}
 
 	private static function performDiasporaReshare(int $itemId)

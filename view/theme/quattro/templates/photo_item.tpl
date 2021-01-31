@@ -39,8 +39,8 @@
 			{{/if}}
 
 			{{if $vote}}
-				<a href="#" id="like-{{$id}}"{{if $item.responses.like.self}} class="active{{/if}}" title="{{$vote.like.0}}" onclick="dolike({{$id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false">{{$vote.like.1}}</a>
-				<a href="#" id="dislike-{{$id}}"{{if $item.responses.dislike.self}} class="active{{/if}}" title="{{$vote.dislike.0}}" onclick="dolike({{$id}},'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false">{{$vote.dislike.1}}</a>
+				<a href="#" id="like-{{$id}}"{{if $item.responses.like.self}} class="active{{/if}}" title="{{$vote.like.0}}" onclick="doActivityItem({{$id}}, 'like'{{if $item.responses.like.self}}, true{{/if}}); return false">{{$vote.like.1}}</a>
+				<a href="#" id="dislike-{{$id}}"{{if $item.responses.dislike.self}} class="active{{/if}}" title="{{$vote.dislike.0}}" onclick="doActivityItem({{$id}},'dislike'{{if $item.responses.dislike.self}}, true{{/if}}); return false">{{$vote.dislike.1}}</a>
 			{{/if}}
 
 			{{if $vote.share}}

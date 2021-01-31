@@ -292,10 +292,10 @@ return [
 
 	'/item'            => [
 		'/ignore/{id}' => [Module\Item\Ignore::class, [R::GET]],
-		'/{id:\d+}/pin' => [Module\Item\Pin::class,       [        R::POST]],
+		'/{id:\d+}/activity/{verb}' => [Module\Item\Activity::class,    [        R::POST]],
+		'/{id:\d+}/pin'             => [Module\Item\Pin::class,         [        R::POST]],
 	],
 
-	'/like/{item:\d+}'    => [Module\Like::class,            [R::GET]],
 	'/localtime'          => [Module\Debug\Localtime::class, [R::GET, R::POST]],
 	'/login'              => [Module\Security\Login::class,  [R::GET, R::POST]],
 	'/logout'             => [Module\Security\Logout::class, [R::GET, R::POST]],
