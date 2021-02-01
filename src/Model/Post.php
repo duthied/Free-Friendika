@@ -192,7 +192,7 @@ class Post
 			$selected = array_merge(['author-addr', 'author-nick', 'owner-addr', 'owner-nick', 'causer-addr', 'causer-nick',
 				'causer-network', 'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id',
 				'parent-guid', 'parent-network', 'parent-author-id', 'parent-author-link', 'parent-author-name',
-				'parent-author-network', 'signed_text'], Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST, Item::CONTENT_FIELDLIST);
+				'parent-author-network', 'signed_text', 'language', 'raw-body'], Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST);
 			
 			if ($view == 'post-thread-view') {
 				$selected = array_merge($selected, ['ignored', 'iid']);
@@ -479,13 +479,8 @@ class Post
 			$affected = max($affected, DBA::affectedRows());
 		}
 
-		$item_fields = ['guid', 'type', 'wall', 'gravity', 'extid', 'created', 'edited', 'commented', 'received', 'changed',
-			'resource-id', 'post-type', 'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
-			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network', 'vid', 'psid',
-			'contact-id', 'author-id', 'owner-id', 'causer-id', 'event-id'];
-
 		$update_fields = [];
-		foreach ($item_fields as $field) {
+		foreach (Item::USED_FIELDLIST as $field) {
 			if (array_key_exists($field, $fields)) {
 				$update_fields[$field] = $fields[$field];
 			}

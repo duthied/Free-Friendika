@@ -785,9 +785,12 @@ return [
 			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"psid" => ["type" => "int unsigned", "foreign" => ["permissionset" => "id", "on delete" => "restrict"], "comment" => "ID of the permission set of this post"],
 			// It has to be decided whether these fields belong to the user or the structure
-			"resource-id" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type"],
 			"event-id" => ["type" => "int unsigned", "relation" => ["event" => "id"], "comment" => "Used to link to the event.id"],
+			// Check deprecation status
+			"type" => ["type" => "varchar(20)", "comment" => ""],
+			"bookmark" => ["type" => "boolean", "comment" => ""],
 			// Deprecated fields. Will be removed in upcoming versions
+			"resource-id" => ["type" => "varchar(32)", "comment" => "Deprecated"],
 			"uri-hash" => ["type" => "varchar(80)", "comment" => "Deprecated"],
 			"iaid" => ["type" => "int unsigned", "comment" => "Deprecated"],
 			"icid" => ["type" => "int unsigned", "comment" => "Deprecated"],
@@ -798,8 +801,6 @@ return [
 			"deny_gid" => ["type" => "mediumtext", "comment" => "Deprecated"],
 			"postopts" => ["type" => "text", "comment" => "Deprecated"],
 			"inform" => ["type" => "mediumtext", "comment" => "Deprecated"],
-			"type" => ["type" => "varchar(20)", "comment" => "Deprecated"],
-			"bookmark" => ["type" => "boolean", "comment" => "Deprecated"],
 			"file" => ["type" => "mediumtext", "comment" => "Deprecated"],
 			"location" => ["type" => "varchar(255)", "comment" => "Deprecated"],
 			"coord" => ["type" => "varchar(255)", "comment" => "Deprecated"],
