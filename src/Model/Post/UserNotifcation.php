@@ -21,20 +21,20 @@
 
 namespace Friendica\Model\Post;
 
-use Friendica\Database\DBA;
 use \BadMethodCallException;
 use Friendica\Database\Database;
+use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 
-class User
+class UserNotification
 {
 	/**
-	 * Insert a new post user entry
+	 * Insert a new user notification entry
 	 *
 	 * @param integer $uri_id
 	 * @param integer $uid
 	 * @param array   $fields
-	 * @return int    ID of inserted post-user
+	 * @return bool   success
 	 * @throws \Exception
 	 */
 	public static function insert(int $uri_id, int $uid, array $data = [])
@@ -43,30 +43,17 @@ class User
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		if (DBA::exists('post-user', ['uri-id' => $uri_id, 'uid' => $uid])) {
-			return false;
-		}
-
-		$fields = DBStructure::getFieldsForTable('post-user', $data);
+		$fields = DBStructure::getFieldsForTable('post-user-notification', $data);
 
 		// Additionally assign the key fields
 		$fields['uri-id'] = $uri_id;
 		$fields['uid'] = $uid;
 
-		// Public posts are always seen
-		if ($uid == 0) {
-			$fields['unseen'] = false;
-		}
-
-		if (!DBA::insert('post-user', $fields, Database::INSERT_IGNORE)) {
-			return 0;
-		}
-
-		return DBA::lastInsertId();
+		return DBA::insert('post-user-notification', $fields, Database::INSERT_IGNORE);
 	}
 
 	/**
-	 * Update a post user entry
+	 * Update a user notification entry
 	 *
 	 * @param integer $uri_id
 	 * @param integer $uid
@@ -81,7 +68,7 @@ class User
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DBStructure::getFieldsForTable('post-user', $data);
+		$fields = DBStructure::getFieldsForTable('post-user-notification', $data);
 
 		// Remove the key fields
 		unset($fields['uri-id']);
@@ -91,11 +78,11 @@ class User
 			return true;
 		}
 
-		return DBA::update('post-user', $fields, ['uri-id' => $uri_id, 'uid' => $uid], $insert_if_missing ? true : []);
+		return DBA::update('post-user-notification', $fields, ['uri-id' => $uri_id, 'uid' => $uid], $insert_if_missing ? true : []);
 	}
 
 	/**
-	 * Delete a row from the post-user table
+	 * Delete a row from the post-user-notification table
 	 *
 	 * @param array        $conditions Field condition(s)
 	 * @param array        $options
@@ -107,6 +94,6 @@ class User
 	 */
 	public static function delete(array $conditions, array $options = [])
 	{
-		return DBA::delete('post-user', $conditions, $options);
+		return DBA::delete('post-user-notification', $conditions, $options);
 	}
 }

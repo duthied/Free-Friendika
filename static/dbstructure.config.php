@@ -773,22 +773,23 @@ return [
 			"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"moderated" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been deleted"],
-			// User specific fields. Eventually they will move to post-user and post-thread-user
+			// Part of "post-user". Will be deprecated in a later step
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
 			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id"],
-			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
-			"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item originated at this site"],
-			"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been favourited"],
 			"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "item has not been seen"],
-			"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "The owner of this item was mentioned in it"],
-			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item originated at this site"],
 			"psid" => ["type" => "int unsigned", "foreign" => ["permissionset" => "id", "on delete" => "restrict"], "comment" => "ID of the permission set of this post"],
+			// Part of "post-thread-user". Will be deprecated in a later step
+			"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been favourited"],
+			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
+			"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			// It has to be decided whether these fields belong to the user or the structure
 			"event-id" => ["type" => "int unsigned", "relation" => ["event" => "id"], "comment" => "Used to link to the event.id"],
 			// Check deprecation status
 			"type" => ["type" => "varchar(20)", "comment" => ""],
 			"bookmark" => ["type" => "boolean", "comment" => ""],
+			"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "The owner of this item was mentioned in it"],
 			// Deprecated fields. Will be removed in upcoming versions
 			"resource-id" => ["type" => "varchar(32)", "comment" => "Deprecated"],
 			"uri-hash" => ["type" => "varchar(80)", "comment" => "Deprecated"],
@@ -1233,6 +1234,18 @@ return [
 			"uri-id" => ["uri-id"],
 			"contact-id" => ["contact-id"],
 			"psid" => ["psid"],
+		],
+	],
+// todo	
+	"post-user-notification" => [
+		"comment" => "User specific post data",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
+			"notification-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uid", "uri-id"],
 		],
 	],
 	"process" => [
