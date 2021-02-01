@@ -1236,16 +1236,16 @@ return [
 			"psid" => ["psid"],
 		],
 	],
-// todo	
 	"post-user-notification" => [
 		"comment" => "User specific post data",
 		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
 			"notification-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uid", "uri-id"],
+			"uri-id" => ["uri-id"],
 		],
 	],
 	"process" => [
