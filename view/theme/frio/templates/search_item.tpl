@@ -174,7 +174,7 @@
 
 
 				{{* Put additional actions in a dropdown menu *}}
-				{{if $item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.subthread || $item.ignore || $item.drop.dropping}}
+				{{if $item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || $item.drop.dropping}}
 					<span role="presentation" class="separator"></span>
 					<span class="more-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}">
 						<button type="button" class="btn-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i>&nbsp;{{$item.menu}}</button>
@@ -206,14 +206,14 @@
 
 						{{if $item.star}}
 							<li role="menuitem">
-								<a id="star-{{$item.id}}" href="javascript:dostar({{$item.id}});" class="btn-link {{$item.star.classdo}}" title="{{$item.star.do}}"><i class="fa fa-star-o" aria-hidden="true"></i>&nbsp;{{$item.star.do}}</a>
-								<a id="unstar-{{$item.id}}" href="javascript:dostar({{$item.id}});" class="btn-link {{$item.star.classundo}}" title="{{$item.star.undo}}"><i class="fa fa-star" aria-hidden="true"></i>&nbsp;{{$item.star.undo}}</a>
+								<a id="star-{{$item.id}}" href="javascript:doStar({{$item.id}});" class="btn-link {{$item.star.classdo}}" title="{{$item.star.do}}"><i class="fa fa-star-o" aria-hidden="true"></i>&nbsp;{{$item.star.do}}</a>
+								<a id="unstar-{{$item.id}}" href="javascript:doStar({{$item.id}});" class="btn-link {{$item.star.classundo}}" title="{{$item.star.undo}}"><i class="fa fa-star" aria-hidden="true"></i>&nbsp;{{$item.star.undo}}</a>
 							</li>
 						{{/if}}
 
-						{{if $item.subthread}}
+						{{if $item.follow_thread}}
 							<li role="menuitem">
-								<a id="subthread-{{$item.id}}" href="javascript:{{$item.subthread.action}}" class="btn-link" title="{{$item.subthread.title}}"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{{$item.subthread.title}}</a>
+								<a id="follow_thread-{{$item.id}}" href="javascript:{{$item.follow_thread.action}}" class="btn-link" title="{{$item.follow_thread.title}}"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{{$item.follow_thread.title}}</a>
 							</li>
 						{{/if}}
 
@@ -223,7 +223,7 @@
 						</li>
 						{{/if}}
 
-						{{if ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.subthread) && ($item.ignore || $item.drop.dropping)}}
+						{{if ($item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread) && ($item.ignore || $item.drop.dropping)}}
 							<li role="separator" class="divider"></li>
 						{{/if}}
 
