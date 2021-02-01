@@ -727,5 +727,19 @@ function update_1397()
 		FROM `thread` LEFT JOIN `user-item` ON `user-item`.`iid` = `thread`.`iid`")) {
 		return Update::FAILED;
 	}
+
+	if (!DBA::e("INSERT INTO `post-user-notification`(`uri-id`, `uid`, `notification-type`)
+		SELECT `uri-id`, `user-item`.`uid`, `notification-type` FROM `user-item`
+			INNER JOIN `item` ON `item`.`id` = `user-item`.`iid` WHERE `notification-type` != 0
+		ON DUPLICATE KEY UPDATE `notification-type` = `user-item`.`notification-type`")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("INSERT IGNORE INTO `post-user-notification`(`uri-id`, `uid`, `notification-type`)
+		SELECT `uri-id`, `uid`, `notification-type` FROM `post-user` WHERE `notification-type` != 0
+		ON DUPLICATE KEY UPDATE `uri-id` = `post-user`.`uri-id`, `uid` = `post-user`.`uid`, `notification-type` = `post-user`.`notification-type`")) {
+		return Update::FAILED;
+	}
+
 	return Update::SUCCESS;
 }

@@ -709,17 +709,17 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`deleted` boolean NOT NULL DEFAULT '0' COMMENT 'item has been deleted',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner id which owns this copy of the item',
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
-	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
-	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
-	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`starred` boolean NOT NULL DEFAULT '0' COMMENT 'item has been favourited',
 	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'item has not been seen',
-	`mention` boolean NOT NULL DEFAULT '0' COMMENT 'The owner of this item was mentioned in it',
-	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
 	`psid` int unsigned COMMENT 'ID of the permission set of this post',
+	`starred` boolean NOT NULL DEFAULT '0' COMMENT 'item has been favourited',
+	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
+	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`event-id` int unsigned COMMENT 'Used to link to the event.id',
 	`type` varchar(20) COMMENT '',
 	`bookmark` boolean COMMENT '',
+	`mention` boolean NOT NULL DEFAULT '0' COMMENT 'The owner of this item was mentioned in it',
 	`resource-id` varchar(32) COMMENT 'Deprecated',
 	`uri-hash` varchar(80) COMMENT 'Deprecated',
 	`iaid` int unsigned COMMENT 'Deprecated',
@@ -1185,6 +1185,19 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific post data';
+
+--
+-- TABLE post-user-notification
+--
+CREATE TABLE IF NOT EXISTS `post-user-notification` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`uid` mediumint unsigned NOT NULL COMMENT 'Owner id which owns this copy of the item',
+	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	 PRIMARY KEY(`uid`,`uri-id`),
+	 INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User post notifications';
 
 --
 -- TABLE process

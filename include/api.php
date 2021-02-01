@@ -2170,16 +2170,15 @@ function api_statuses_mentions($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$query = "`gravity` IN (?, ?) AND `uri-id` IN (SELECT `uri-id` FROM `post-user`
-		WHERE (`hidden` IS NULL OR NOT `hidden`) AND
-			`uid` = ? AND `notification-type` & ? != 0)
-			AND `id` > ?";
+	$query = "`gravity` IN (?, ?) AND `uri-id` IN
+		(SELECT `uri-id` FROM `post-user-notification` WHERE `uid` = ? AND `notification-type` & ? != 0 ORDER BY `uri-id`)
+		AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) AND `id` > ?";
 
 	$condition = [GRAVITY_PARENT, GRAVITY_COMMENT, api_user(),
 		UserItem::NOTIF_EXPLICIT_TAGGED | UserItem::NOTIF_IMPLICIT_TAGGED |
 		UserItem::NOTIF_THREAD_COMMENT | UserItem::NOTIF_DIRECT_COMMENT |
 		UserItem::NOTIF_DIRECT_THREAD_COMMENT,
-		$since_id];
+		api_user(), $since_id];
 
 	if ($max_id > 0) {
 		$query .= " AND `id` <= ?";
