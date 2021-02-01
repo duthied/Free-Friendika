@@ -551,10 +551,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 
     Hook::callAll('about_hook', $o);
 
-### mod/subthread.php
-
-    Hook::callAll('post_local_end', $arr);
-
 ### mod/profiles.php
 
     Hook::callAll('profile_post', $_POST);

@@ -259,10 +259,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 
     Hook::callAll('about_hook', $o);
 
-### mod/subthread.php
-
-    Hook::callAll('post_local_end', $arr);
-
 ### mod/profiles.php
 
     Hook::callAll('profile_post', $_POST);
