@@ -1022,14 +1022,14 @@ class Item
 		}
 
 		// Remove all fields that aren't part of the item table
-		$item = DBStructure::getFieldsForTable('item', $item);
+		$table_fields = DBStructure::getFieldsForTable('item', $item);
 
 		// We remove all legacy fields that now are stored in other tables
 		foreach (self::LEGACY_FIELDLIST as $field) {
-			unset($item[$field]);
+			unset($table_fields[$field]);
 		}
 
-		$result = DBA::insert('item', $item);
+		$result = DBA::insert('item', $table_fields);
 
 		// When the item was successfully stored we fetch the ID of the item.
 		$current_post = DBA::lastInsertId();
@@ -1059,7 +1059,7 @@ class Item
 			$update_commented = in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]);
 		} else {
 			// Update when it isn't a follow or tag verb
-			$update_commented = !in_array($item['verb'] ?? '', [Activity::FOLLOW, Activity::TAG]);
+			$update_commented = !in_array($item['verb'], [Activity::FOLLOW, Activity::TAG]);
 		}
 
 		if ($update_commented) {
