@@ -31,7 +31,6 @@ use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Post\Category;
 use Friendica\Model\Tag;
-use Friendica\Model\UserItem;
 use Friendica\Model\Verb;
 use Friendica\Util\Strings;
 
@@ -168,7 +167,7 @@ class PostUpdate
 	}
 
 	/**
-	 * update user-item data with notifications
+	 * update user notification data
 	 *
 	 * @return bool "true" when the job is done
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -188,7 +187,7 @@ class PostUpdate
 		$rows = 0;
 		$condition = ["`id` > ?", $id];
 		$params = ['order' => ['id'], 'limit' => 10000];
-		$items = DBA::select('item', ['id'], $condition, $params);
+		$items = DBA::select('item', ['id', 'uri-id', 'uid'], $condition, $params);
 
 		if (DBA::errorNo() != 0) {
 			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
@@ -198,7 +197,7 @@ class PostUpdate
 		while ($item = DBA::fetch($items)) {
 			$id = $item['id'];
 
-			UserItem::setNotification($item['id']);
+			Post\UserNotification::setNotification($item['uri-id'], $item['uid']);
 
 			++$rows;
 		}

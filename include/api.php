@@ -43,7 +43,6 @@ use Friendica\Model\Notification;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\User;
-use Friendica\Model\UserItem;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -2170,23 +2169,20 @@ function api_statuses_mentions($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$query = "`gravity` IN (?, ?) AND `id` IN (SELECT `iid` FROM `user-item`		
-		WHERE (`hidden` IS NULL OR NOT `hidden`) AND
-			`uid` = ? AND `notification-type` & ? != 0
-			AND `iid` > ?";
+	$query = "`gravity` IN (?, ?) AND `uri-id` IN
+		(SELECT `uri-id` FROM `post-user-notification` WHERE `uid` = ? AND `notification-type` & ? != 0 ORDER BY `uri-id`)
+		AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) AND `id` > ?";
 
 	$condition = [GRAVITY_PARENT, GRAVITY_COMMENT, api_user(),
-		UserItem::NOTIF_EXPLICIT_TAGGED | UserItem::NOTIF_IMPLICIT_TAGGED |
-		UserItem::NOTIF_THREAD_COMMENT | UserItem::NOTIF_DIRECT_COMMENT |
-		UserItem::NOTIF_DIRECT_THREAD_COMMENT,
-		$since_id];
+		Post\UserNotification::NOTIF_EXPLICIT_TAGGED | Post\UserNotification::NOTIF_IMPLICIT_TAGGED |
+		Post\UserNotification::NOTIF_THREAD_COMMENT | Post\UserNotification::NOTIF_DIRECT_COMMENT |
+		Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT,
+		api_user(), $since_id];
 
 	if ($max_id > 0) {
-		$query .= " AND `iid` <= ?";
+		$query .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
-
-	$query .= ")";
 
 	array_unshift($condition, $query);
 

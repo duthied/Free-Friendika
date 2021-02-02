@@ -24,8 +24,9 @@ namespace Friendica\Module\Item;
 use Friendica\BaseModule;
 use Friendica\Core\Session;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 
 /**
@@ -47,9 +48,18 @@ class Pin extends BaseModule
 
 		$itemId = intval($parameters['id']);
 
-		$pinned = !Item::getPinned($itemId, local_user());
+		$item = Post::selectFirst(['uri-id', 'uid'], ['id' => $itemId]);
+		if (!DBA::isResult($item)) {
+			throw new HTTPException\NotFoundException();
+		}
 
-		Item::setPinned($itemId, local_user(), $pinned);
+		if (!in_array($item['uid'], [0, local_user()])) {
+			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
+		}
+
+		$pinned = !Post\ThreadUser::getPinned($item['uri-id'], local_user());
+
+		Post\ThreadUser::setPinned($item['uri-id'], local_user(), $pinned);
 
 		// See if we've been passed a return path to redirect to
 		$return_path = $_REQUEST['return'] ?? '';

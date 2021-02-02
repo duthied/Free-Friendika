@@ -31,7 +31,6 @@ use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Model\Tag;
 use Friendica\Core\Worker;
-use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
@@ -99,14 +98,6 @@ class Item
 			'author-id', 'author-link', 'owner-link', 'contact-uid',
 			'signed_text', 'network'];
 
-	// Field list for "post-content" table that is mixed with the item table
-	const MIXED_CONTENT_FIELDLIST = ['title', 'content-warning', 'body', 'location',
-			'coord', 'app', 'rendered-hash', 'rendered-html', 'verb',
-			'object-type', 'object', 'target-type', 'target', 'plink'];
-
-	// Field list for "post-content" table that is not present in the "item" table
-	const CONTENT_FIELDLIST = ['language', 'raw-body'];
-
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'vid',
@@ -121,6 +112,22 @@ class Item
 			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 			'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'causer-id'];
 
+	// Item fiels that still are in use
+	const USED_FIELDLIST = ['id', 'parent', 'guid', 'uri', 'uri-id', 'parent-uri', 'parent-uri-id',
+		'thr-parent', 'thr-parent-id', 'created', 'edited', 'commented', 'received', 'changed',
+		'gravity', 'network', 'owner-id', 'author-id', 'causer-id', 'vid', 'extid', 'post-type',
+		'global', 'private', 'visible', 'moderated', 'deleted', 'uid', 'contact-id',
+		'wall', 'origin', 'pubmail', 'starred', 'unseen', 'mention', 'forum_mode', 'psid',
+		'event-id', 'type', 'bookmark'];
+
+	// Legacy item fields that aren't stored any more in the item table
+	const LEGACY_FIELDLIST = ['uri-hash', 'iaid', 'icid', 'attach',
+		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'postopts', 
+		'resource-id', 'inform', 'file', 'location', 'coord', 'tag', 'plink', 
+		'title', 'content-warning', 'body', 'app', 'verb', 'object-type', 'object', 
+		'target-type', 'target', 'author-name', 'author-link', 'author-avatar', 
+		'owner-name', 'owner-link', 'owner-avatar', 'rendered-hash', 'rendered-html'];
+
 	// List of all verbs that don't need additional content data.
 	// Never reorder or remove entries from this list. Just add new ones at the end, if needed.
 	const ACTIVITIES = [
@@ -132,49 +139,6 @@ class Item
 	const PUBLIC = 0;
 	const PRIVATE = 1;
 	const UNLISTED = 2;
-
-	const TABLES = ['item', 'user-item', 'post-content', 'post-delivery-data', 'diaspora-interaction'];
-
-	private static function getItemFields()
-	{
-		$definition = DBStructure::definition('', false);
-
-		$postfields = [];
-		foreach (self::TABLES as $table) {
-			$postfields[$table] = array_keys($definition[$table]['fields']);
-		}
-
-		return $postfields;
-	}
-
-	/**
-	 * Set the pinned state of an item
-	 *
-	 * @param integer $iid    Item ID
-	 * @param integer $uid    User ID
-	 * @param boolean $pinned Pinned state
-	 */
-	public static function setPinned(int $iid, int $uid, bool $pinned)
-	{
-		DBA::update('user-item', ['pinned' => $pinned], ['iid' => $iid, 'uid' => $uid], true);
-	}
-
-	/**
-	 * Get the pinned state
-	 *
-	 * @param integer $iid Item ID
-	 * @param integer $uid User ID
-	 *
-	 * @return boolean pinned state
-	 */
-	public static function getPinned(int $iid, int $uid)
-	{
-		$useritem = DBA::selectFirst('user-item', ['pinned'], ['iid' => $iid, 'uid' => $uid]);
-		if (!DBA::isResult($useritem)) {
-			return false;
-		}
-		return (bool)$useritem['pinned'];
-	}
 
 	/**
 	 * Update existing item entries
@@ -285,12 +249,9 @@ class Item
 				Post\User::update($item['uri-id'], $uid, ['hidden' => true], true);
 			}
 
-			// "Deleting" global items just means hiding them
-			if ($item['uid'] == 0) {
-				DBA::update('user-item', ['hidden' => true], ['iid' => $item['id'], 'uid' => $uid], true);
-			} elseif ($item['uid'] == $uid) {
+			if ($item['uid'] == $uid) {
 				self::markForDeletionById($item['id'], PRIORITY_HIGH);
-			} else {
+			} elseif ($item['uid'] != 0) {
 				Logger::log('Wrong ownership. Not deleting item ' . $item['id']);
 			}
 		}
@@ -393,12 +354,6 @@ class Item
 			}
 		} elseif ($item['uid'] != 0) {
 			Post\User::update($item['uri-id'], $item['uid'], ['hidden' => true]);
-
-			// When we delete just our local user copy of an item, we have to set a marker to hide it
-			$global_item = Post::selectFirst(['id'], ['uri-id' => $item['uri-id'], 'uid' => 0, 'deleted' => false]);
-			if (DBA::isResult($global_item)) {
-				DBA::update('user-item', ['hidden' => true], ['iid' => $global_item['id'], 'uid' => $item['uid']], true);
-			}
 		}
 
 		Logger::info('Item has been marked for deletion.', ['id' => $item_id]);
@@ -755,8 +710,6 @@ class Item
 
 	public static function insert($item, $notify = false, $dontcache = false)
 	{
-		$structure = self::getItemFields();
-
 		$orig_item = $item;
 
 		$priority = PRIORITY_HIGH;
@@ -952,25 +905,10 @@ class Item
 
 			// Update the contact relations
 			Contact\Relation::store($toplevel_parent['author-id'], $item['author-id'], $item['created']);
-
-			unset($item['parent_origin']);
 		} else {
 			$parent_id = 0;
 			$parent_origin = $item['origin'];
 		}
-
-		// We don't store the causer link, only the id
-		unset($item['causer-link']);
-
-		// We don't store these fields anymore in the item table
-		unset($item['author-link']);
-		unset($item['author-name']);
-		unset($item['author-avatar']);
-		unset($item['author-network']);
-
-		unset($item['owner-link']);
-		unset($item['owner-name']);
-		unset($item['owner-avatar']);
 
 		$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);
 		$item['thr-parent-id'] = ItemURI::getIdByURI($item['thr-parent']);
@@ -994,13 +932,9 @@ class Item
 			$item['edit'] = false;
 			$item['parent'] = $parent_id;
 			Hook::callAll('post_local', $item);
-			unset($item['edit']);
 		} else {
 			Hook::callAll('post_remote', $item);
 		}
-
-		// Set after the insert because top-level posts are self-referencing
-		unset($item['parent']);
 
 		if (!empty($item['cancel'])) {
 			Logger::log('post cancelled by addon.');
@@ -1020,15 +954,6 @@ class Item
 			$item['deny_gid']
 		);
 
-		unset($item['allow_cid']);
-		unset($item['allow_gid']);
-		unset($item['deny_cid']);
-		unset($item['deny_gid']);
-
-		// This array field is used to trigger some automatic reactions
-		// It is mainly used in the "post_local" hook.
-		unset($item['api_source']);
-
 		if ($item['verb'] == Activity::ANNOUNCE) {
 			self::setOwnerforResharedItem($item);
 		}
@@ -1040,10 +965,6 @@ class Item
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
 
-		if (!empty($item['attach'])) {
-			Post\Media::insertFromAttachment($item['uri-id'], $item['attach']);
-		}
-
 		// Fill the cache field
 		self::putInCache($item);
 
@@ -1053,40 +974,27 @@ class Item
 			$notify_type = Delivery::POST;
 		}
 
+		// Filling item related side tables
+		if (!empty($item['attach'])) {
+			Post\Media::insertFromAttachment($item['uri-id'], $item['attach']);
+		}
+
 		if (!in_array($item['verb'], self::ACTIVITIES)) {
 			Post\Content::insert($item['uri-id'], $item);
 		}
-
-		$body = $item['body'];
-		$verb = $item['verb'];
-
-		// We just remove everything that is content
-		foreach (array_merge(self::CONTENT_FIELDLIST, self::MIXED_CONTENT_FIELDLIST) as $field) {
-			unset($item[$field]);
-		}
-
-		unset($item['activity']);
-
-		// Filling item related side tables
 
 		// Diaspora signature
 		if (!empty($item['diaspora_signed_text'])) {
 			DBA::replace('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $item['diaspora_signed_text']]);
 		}
 
-		unset($item['diaspora_signed_text']);
-
 		// Attached file links
 		if (!empty($item['file'])) {
 			Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], $item['file']);
 		}
 
-		unset($item['file']);
-
 		// Delivery relevant data
 		$delivery_data = Post\DeliveryData::extractFields($item);
-		unset($item['postopts']);
-		unset($item['inform']);
 
 		if (!empty($item['origin']) || !empty($item['wall']) || !empty($delivery_data['postopts']) || !empty($delivery_data['inform'])) {
 			Post\DeliveryData::insert($item['uri-id'], $delivery_data);
@@ -1094,32 +1002,37 @@ class Item
 
 		// Store tags from the body if this hadn't been handled previously in the protocol classes
 		if (!Tag::existsForPost($item['uri-id'])) {
-			Tag::storeFromBody($item['uri-id'], $body);
+			Tag::storeFromBody($item['uri-id'], $item['body']);
 		}
 
 		$id = Post\User::insert($item['uri-id'], $item['uid'], $item);
-		if ($id) {
-			// Remove all fields that aren't part of the item table
-			foreach ($item as $field => $value) {
-				if (!in_array($field, $structure['item'])) {
-					unset($item[$field]);
-				}
-			}
-
-			$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
-			if (Post::exists($condition)) {
-				Logger::notice('Item is already inserted - aborting', $condition);
-				return 0;
-			}
-
-			$result = DBA::insert('item', $item);
-
-			// When the item was successfully stored we fetch the ID of the item.
-			$current_post = DBA::lastInsertId();
-		} else {
+		if (!$id) {
 			Logger::notice('Post-User is already inserted - aborting', ['uid' => $item['uid'], 'uri-id' => $item['uri-id']]);
 			return 0;
 		}
+
+		if ($item['gravity'] == GRAVITY_PARENT) {
+			Post\ThreadUser::insert($item['uri-id'], $item['uid'], $item);
+		}
+
+		$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
+		if (Post::exists($condition)) {
+			Logger::notice('Item is already inserted - aborting', $condition);
+			return 0;
+		}
+
+		// Remove all fields that aren't part of the item table
+		$table_fields = DBStructure::getFieldsForTable('item', $item);
+
+		// We remove all legacy fields that now are stored in other tables
+		foreach (self::LEGACY_FIELDLIST as $field) {
+			unset($table_fields[$field]);
+		}
+
+		$result = DBA::insert('item', $table_fields);
+
+		// When the item was successfully stored we fetch the ID of the item.
+		$current_post = DBA::lastInsertId();
 
 		if (empty($current_post) || !DBA::isResult($result)) {
 			// On failure store the data into a spool file so that the "SpoolPost" worker can try again later.
@@ -1146,7 +1059,7 @@ class Item
 			$update_commented = in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]);
 		} else {
 			// Update when it isn't a follow or tag verb
-			$update_commented = !in_array($verb, [Activity::FOLLOW, Activity::TAG]);
+			$update_commented = !in_array($item['verb'], [Activity::FOLLOW, Activity::TAG]);
 		}
 
 		if ($update_commented) {
@@ -1191,9 +1104,10 @@ class Item
 
 		self::updateContact($item);
 
-		UserItem::setNotification($current_post);
+		Post\UserNotification::setNotification($item['uri-id'], $item['uid']);
 
-		check_user_notification($current_post);
+		check_user_notification($item['uri-id'], $item['uid']);
+		//check_user_notification($current_post);
 
 		// Distribute items to users who subscribed to their tags
 		self::distributeByTags($item);

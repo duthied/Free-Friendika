@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1396);
+	define('DB_UPDATE_VERSION', 1397);
 }
 
 return [
@@ -750,7 +750,6 @@ return [
 			"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "A unique identifier for this item"],
 			"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"uri-hash" => ["type" => "varchar(80)", "not null" => "1", "default" => "", "comment" => "RIPEMD-128 hash from uri"],
 			"parent" => ["type" => "int unsigned", "relation" => ["item" => "id"], "comment" => "item.id of the parent to this item if it is a reply of some form; otherwise this must be set to the id of this item"],
 			"parent-uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "uri of the top-level parent to this item"],
 			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the top-level parent uri"],
@@ -774,21 +773,26 @@ return [
 			"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"moderated" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been deleted"],
-			// User specific fields. Eventually they will move to user-item
+			// Part of "post-user". Will be deprecated in a later step
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
 			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id"],
-			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
-			"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item originated at this site"],
-			"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been favourited"],
 			"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "item has not been seen"],
-			"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "The owner of this item was mentioned in it"],
-			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item originated at this site"],
 			"psid" => ["type" => "int unsigned", "foreign" => ["permissionset" => "id", "on delete" => "restrict"], "comment" => "ID of the permission set of this post"],
+			// Part of "post-thread-user". Will be deprecated in a later step
+			"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been favourited"],
+			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
+			"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			// It has to be decided whether these fields belong to the user or the structure
-			"resource-id" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => "Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type"],
 			"event-id" => ["type" => "int unsigned", "relation" => ["event" => "id"], "comment" => "Used to link to the event.id"],
+			// Check deprecation status
+			"type" => ["type" => "varchar(20)", "comment" => ""],
+			"bookmark" => ["type" => "boolean", "comment" => ""],
+			"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "The owner of this item was mentioned in it"],
 			// Deprecated fields. Will be removed in upcoming versions
+			"resource-id" => ["type" => "varchar(32)", "comment" => "Deprecated"],
+			"uri-hash" => ["type" => "varchar(80)", "comment" => "Deprecated"],
 			"iaid" => ["type" => "int unsigned", "comment" => "Deprecated"],
 			"icid" => ["type" => "int unsigned", "comment" => "Deprecated"],
 			"attach" => ["type" => "mediumtext", "comment" => "Deprecated"],
@@ -798,8 +802,6 @@ return [
 			"deny_gid" => ["type" => "mediumtext", "comment" => "Deprecated"],
 			"postopts" => ["type" => "text", "comment" => "Deprecated"],
 			"inform" => ["type" => "mediumtext", "comment" => "Deprecated"],
-			"type" => ["type" => "varchar(20)", "comment" => "Deprecated"],
-			"bookmark" => ["type" => "boolean", "comment" => "Deprecated"],
 			"file" => ["type" => "mediumtext", "comment" => "Deprecated"],
 			"location" => ["type" => "varchar(255)", "comment" => "Deprecated"],
 			"coord" => ["type" => "varchar(255)", "comment" => "Deprecated"],
@@ -1029,20 +1031,6 @@ return [
 			"created" => ["created"],
 		]
 	],
-	"participation" => [
-		"comment" => "Storage for participation messages from Diaspora",
-		"fields" => [
-			"iid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item" => "id"], "comment" => ""],
-			"server" => ["type" => "varchar(60)", "not null" => "1", "primary" => "1", "comment" => ""],
-			"cid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["contact" => "id"], "comment" => ""],
-			"fid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["fcontact" => "id"], "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["iid", "server"],
-			"cid" => ["cid"],
-			"fid" => ["fid"]
-		]
-	],
 	"pconfig" => [
 		"comment" => "personal (per user) configuration storage",
 		"fields" => [
@@ -1193,6 +1181,25 @@ return [
 			"cid" => ["cid"]
 		]
 	],
+	"post-thread-user" => [
+		"comment" => "Thread related data per user",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
+			"pinned" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "The thread is pinned on the profile page"],
+			"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"ignored" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Ignore updates for this thread"],
+			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
+			"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""]
+		],
+		"indexes" => [
+			"PRIMARY" => ["uid", "uri-id"],
+			"uid_wall" => ["uid", "wall"],
+			"uid_pinned" => ["uid", "pinned"],
+			"uri-id" => ["uri-id"],
+		]
+	],
 	"post-user" => [
 		"comment" => "User specific post data",
 		"fields" => [
@@ -1213,6 +1220,18 @@ return [
 			"uri-id" => ["uri-id"],
 			"contact-id" => ["contact-id"],
 			"psid" => ["psid"],
+		],
+	],
+	"post-user-notification" => [
+		"comment" => "User post notifications",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
+			"notification-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uid", "uri-id"],
+			"uri-id" => ["uri-id"],
 		],
 	],
 	"process" => [
@@ -1472,22 +1491,6 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["uid", "cid"],
 			"cid" => ["cid"],
-		]
-	],
-	"user-item" => [
-		"comment" => "User specific item data",
-		"fields" => [
-			"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["item" => "id"], "comment" => "Item id"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User id"],
-			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide an item from the user"],
-			"ignored" => ["type" => "boolean", "comment" => "Ignore this thread if set"],
-			"pinned" => ["type" => "boolean", "comment" => "The item is pinned on the profile page"],
-			"notification-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["uid", "iid"],
-			"uid_pinned" => ["uid", "pinned"],
-			"iid_uid" => ["iid", "uid"]
 		]
 	],
 	"worker-ipc" => [

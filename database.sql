@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1396
+-- DB_UPDATE_VERSION 1397
 -- ------------------------------------------
 
 
@@ -684,7 +684,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`guid` varchar(255) NOT NULL DEFAULT '' COMMENT 'A unique identifier for this item',
 	`uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the item uri',
-	`uri-hash` varchar(80) NOT NULL DEFAULT '' COMMENT 'RIPEMD-128 hash from uri',
 	`parent` int unsigned COMMENT 'item.id of the parent to this item if it is a reply of some form; otherwise this must be set to the id of this item',
 	`parent-uri` varchar(255) NOT NULL DEFAULT '' COMMENT 'uri of the top-level parent to this item',
 	`parent-uri-id` int unsigned COMMENT 'Id of the item-uri table that contains the top-level parent uri',
@@ -710,16 +709,19 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`deleted` boolean NOT NULL DEFAULT '0' COMMENT 'item has been deleted',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner id which owns this copy of the item',
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
-	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
-	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
-	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`starred` boolean NOT NULL DEFAULT '0' COMMENT 'item has been favourited',
 	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'item has not been seen',
-	`mention` boolean NOT NULL DEFAULT '0' COMMENT 'The owner of this item was mentioned in it',
-	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
 	`psid` int unsigned COMMENT 'ID of the permission set of this post',
-	`resource-id` varchar(32) NOT NULL DEFAULT '' COMMENT 'Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type',
+	`starred` boolean NOT NULL DEFAULT '0' COMMENT 'item has been favourited',
+	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
+	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`event-id` int unsigned COMMENT 'Used to link to the event.id',
+	`type` varchar(20) COMMENT '',
+	`bookmark` boolean COMMENT '',
+	`mention` boolean NOT NULL DEFAULT '0' COMMENT 'The owner of this item was mentioned in it',
+	`resource-id` varchar(32) COMMENT 'Deprecated',
+	`uri-hash` varchar(80) COMMENT 'Deprecated',
 	`iaid` int unsigned COMMENT 'Deprecated',
 	`icid` int unsigned COMMENT 'Deprecated',
 	`attach` mediumtext COMMENT 'Deprecated',
@@ -729,8 +731,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`deny_gid` mediumtext COMMENT 'Deprecated',
 	`postopts` text COMMENT 'Deprecated',
 	`inform` mediumtext COMMENT 'Deprecated',
-	`type` varchar(20) COMMENT 'Deprecated',
-	`bookmark` boolean COMMENT 'Deprecated',
 	`file` mediumtext COMMENT 'Deprecated',
 	`location` varchar(255) COMMENT 'Deprecated',
 	`coord` varchar(255) COMMENT 'Deprecated',
@@ -971,22 +971,6 @@ CREATE TABLE IF NOT EXISTS `parsed_url` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='cache for \'parse_url\' queries';
 
 --
--- TABLE participation
---
-CREATE TABLE IF NOT EXISTS `participation` (
-	`iid` int unsigned NOT NULL COMMENT '',
-	`server` varchar(60) NOT NULL COMMENT '',
-	`cid` int unsigned NOT NULL COMMENT '',
-	`fid` int unsigned NOT NULL COMMENT '',
-	 PRIMARY KEY(`iid`,`server`),
-	 INDEX `cid` (`cid`),
-	 INDEX `fid` (`fid`),
-	FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`fid`) REFERENCES `fcontact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Storage for participation messages from Diaspora';
-
---
 -- TABLE pconfig
 --
 CREATE TABLE IF NOT EXISTS `pconfig` (
@@ -1142,6 +1126,26 @@ CREATE TABLE IF NOT EXISTS `post-tag` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to tags';
 
 --
+-- TABLE post-thread-user
+--
+CREATE TABLE IF NOT EXISTS `post-thread-user` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner id which owns this copy of the item',
+	`pinned` boolean NOT NULL DEFAULT '0' COMMENT 'The thread is pinned on the profile page',
+	`starred` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`ignored` boolean NOT NULL DEFAULT '0' COMMENT 'Ignore updates for this thread',
+	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
+	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	 PRIMARY KEY(`uid`,`uri-id`),
+	 INDEX `uid_wall` (`uid`,`wall`),
+	 INDEX `uid_pinned` (`uid`,`pinned`),
+	 INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data per user';
+
+--
 -- TABLE post-user
 --
 CREATE TABLE IF NOT EXISTS `post-user` (
@@ -1165,6 +1169,19 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific post data';
+
+--
+-- TABLE post-user-notification
+--
+CREATE TABLE IF NOT EXISTS `post-user-notification` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`uid` mediumint unsigned NOT NULL COMMENT 'Owner id which owns this copy of the item',
+	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	 PRIMARY KEY(`uid`,`uri-id`),
+	 INDEX `uri-id` (`uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User post notifications';
 
 --
 -- TABLE process
@@ -1428,23 +1445,6 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific public contact data';
-
---
--- TABLE user-item
---
-CREATE TABLE IF NOT EXISTS `user-item` (
-	`iid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item id',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide an item from the user',
-	`ignored` boolean COMMENT 'Ignore this thread if set',
-	`pinned` boolean COMMENT 'The item is pinned on the profile page',
-	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	 PRIMARY KEY(`uid`,`iid`),
-	 INDEX `uid_pinned` (`uid`,`pinned`),
-	 INDEX `iid_uid` (`iid`,`uid`),
-	FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
 
 --
 -- TABLE worker-ipc
@@ -1848,13 +1848,13 @@ CREATE VIEW `network-item-view` AS SELECT
 	FROM `item`
 			INNER JOIN `thread` ON `thread`.`iid` = `item`.`parent`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
+			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
 			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
-			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
+			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
 			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
 
@@ -1879,13 +1879,13 @@ CREATE VIEW `network-thread-view` AS SELECT
 	FROM `thread`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `thread`.`contact-id`
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
-			LEFT JOIN `user-item` ON `user-item`.`iid` = `item`.`id` AND `user-item`.`uid` = `thread`.`uid`
+			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `thread`.`uid`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `thread`.`uid` AND `author`.`cid` = `thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `thread`.`uid` AND `owner`.`cid` = `thread`.`owner-id`
 			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `thread`.`owner-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
-			AND (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`)
+			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
 			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
 

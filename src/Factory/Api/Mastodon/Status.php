@@ -77,9 +77,9 @@ class Status extends BaseFactory
 		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(
 			Post::exists(['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)]),
 			Post::exists(['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]),
-			DBA::exists('thread', ['iid' => $item['id'], 'uid' => $item['uid'], 'ignored' => true]),
+			Post\ThreadUser::getIgnored($uriId, $item['uid']),
 			(bool)$item['starred'],
-			DBA::exists('user-item', ['iid' => $item['id'], 'uid' => $item['uid'], 'pinned' => true])
+			Post\ThreadUser::getPinned($uriId, $item['uid'])
 		);
 
 		$sensitive = DBA::exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw']);

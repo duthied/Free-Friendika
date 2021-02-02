@@ -192,7 +192,7 @@ class Post
 			$selected = array_merge(['author-addr', 'author-nick', 'owner-addr', 'owner-nick', 'causer-addr', 'causer-nick',
 				'causer-network', 'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id',
 				'parent-guid', 'parent-network', 'parent-author-id', 'parent-author-link', 'parent-author-name',
-				'parent-author-network', 'signed_text'], Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST, Item::CONTENT_FIELDLIST);
+				'parent-author-network', 'signed_text', 'language', 'raw-body'], Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST);
 			
 			if ($view == 'post-thread-view') {
 				$selected = array_merge($selected, ['ignored', 'iid']);
@@ -258,7 +258,7 @@ class Post
 			AND (NOT `causer-blocked` OR `causer-id` = ?) AND NOT `contact-blocked`
 			AND ((NOT `contact-readonly` AND NOT `contact-pending` AND (`contact-rel` IN (?, ?)))
 				OR `self` OR `gravity` != ? OR `contact-uid` = ?)
-			AND NOT EXISTS (SELECT `iid` FROM `user-item` WHERE `hidden` AND `iid` = `id` AND `uid` = ?)
+			AND NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `hidden` AND `uri-id` = `" . $view . "`.`uri-id` AND `uid` = ?)
 			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `author-id` AND `blocked`)
 			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `owner-id` AND `blocked`)
 			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `author-id` AND `ignored` AND `gravity` = ?)
@@ -272,7 +272,7 @@ class Post
 			unset($selected['pinned']);
 			$selected = array_flip($selected);	
 
-			$select_string = "(SELECT `pinned` FROM `user-item` WHERE `iid` = `" . $view . "`.`id` AND uid=`" . $view . "`.`uid`) AS `pinned`, ";
+			$select_string = "(SELECT `pinned` FROM `post-thread-user` WHERE `uri-id` = `" . $view . "`.`uri-id` AND uid=`" . $view . "`.`uid`) AS `pinned`, ";
 		}
 
 		$select_string .= implode(', ', array_map([DBA::class, 'quoteIdentifier'], $selected));
@@ -345,32 +345,6 @@ class Post
 	}
 
 	/**
-	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
-	 *
-	 * @param integer $uid User ID
-	 * @param array   $selected
-	 * @param array   $condition
-	 * @param array   $params
-	 * @return bool|array
-	 * @throws \Exception
-	 * @see   DBA::select
-	 */
-	public static function selectFirstThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
-	{
-		$params['limit'] = 1;
-
-		$result = self::selectThreadForUser($uid, $selected, $condition, $params);
-
-		if (is_bool($result)) {
-			return $result;
-		} else {
-			$row = self::fetch($result);
-			DBA::close($result);
-			return $row;
-		}
-	}
-
-	/**
 	 * Select pinned rows from the item table for a given user
 	 *
 	 * @param integer $uid       User ID
@@ -383,24 +357,24 @@ class Post
 	 */
 	public static function selectPinned(int $uid, array $selected = [], array $condition = [], $params = [])
 	{
-		$useritems = DBA::select('user-item', ['iid'], ['uid' => $uid, 'pinned' => true]);
-		if (!DBA::isResult($useritems)) {
-			return $useritems;
+		$postthreaduser = DBA::select('post-thread-user', ['uri-id'], ['uid' => $uid, 'pinned' => true]);
+		if (!DBA::isResult($postthreaduser)) {
+			return $postthreaduser;
 		}
-
+	
 		$pinned = [];
-		while ($useritem = DBA::fetch($useritems)) {
-			$pinned[] = $useritem['iid'];
+		while ($useritem = DBA::fetch($postthreaduser)) {
+			$pinned[] = $useritem['uri-id'];
 		}
-		DBA::close($useritems);
+		DBA::close($postthreaduser);
 
 		if (empty($pinned)) {
 			return [];
 		}
 
-		$condition = DBA::mergeConditions(['iid' => $pinned], $condition);
+		$condition = DBA::mergeConditions(['uri-id' => $pinned, 'uid' => $uid, 'gravity' => GRAVITY_PARENT], $condition);
 
-		return self::selectThreadForUser($uid, $selected, $condition, $params);
+		return self::selectForUser($uid, $selected, $condition, $params);
 	}
 
 	/**
@@ -430,6 +404,8 @@ class Post
 		unset($fields['thr-parent-id']);
 		unset($fields['parent-uri']);
 		unset($fields['parent-uri-id']);
+
+		$thread_condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
 
 		// To ensure the data integrity we do it in an transaction
 		DBA::transaction();
@@ -472,34 +448,44 @@ class Post
 			$affected = max($affected, DBA::affectedRows());
 		}
 
-		$update_fields = DBStructure::getFieldsForTable('thread', $fields);
+		$update_fields = DBStructure::getFieldsForTable('post-thread-user', $fields);
 		if (!empty($update_fields)) {
-			$rows = DBA::selectToArray('post-view', ['id'], $condition);
-			$ids = array_column($rows, 'id');
-			if (!DBA::update('thread', $update_fields, ['iid' => $ids])) {
+			$rows = DBA::selectToArray('post-view', ['post-user-id'], $thread_condition);
+			$thread_puids = array_column($rows, 'post-user-id');
+
+			$post_thread_condition = DBA::collapseCondition(['id' => $thread_puids]);
+
+			$post_thread_condition[0] = "EXISTS(SELECT `id` FROM `post-user` WHERE " .
+				$post_thread_condition[0] . " AND `uri-id` = `post-thread-user`.`uri-id` AND `uid` = `post-thread-user`.`uid`)";
+				if (!DBA::update('post-thread-user', $update_fields, $post_thread_condition)) {
 				DBA::rollback();
-				Logger::notice('Updating thread failed', ['fields' => $update_fields, 'condition' => $condition]);
+				Logger::notice('Updating post-thread-user failed', ['fields' => $update_fields, 'condition' => $condition]);
 				return false;
 			}
 			$affected = max($affected, DBA::affectedRows());
 		}
 
-		$item_fields = ['guid', 'type', 'wall', 'gravity', 'extid', 'created', 'edited', 'commented', 'received', 'changed',
-			'resource-id', 'post-type', 'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
-			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network', 'vid', 'psid',
-			'contact-id', 'author-id', 'owner-id', 'causer-id', 'event-id'];
+		$update_fields = DBStructure::getFieldsForTable('thread', $fields);
+		if (!empty($update_fields)) {
+			$rows = DBA::selectToArray('post-view', ['id'], $thread_condition);
+			$ids = array_column($rows, 'id');
+			if (!DBA::update('thread', $update_fields, ['iid' => $ids])) {
+				DBA::rollback();
+				Logger::notice('Updating thread failed', ['fields' => $update_fields, 'condition' => $thread_condition]);
+				return false;
+			}
+			$affected = max($affected, DBA::affectedRows());
+		}
 
 		$update_fields = [];
-		foreach ($item_fields as $field) {
+		foreach (Item::USED_FIELDLIST as $field) {
 			if (array_key_exists($field, $fields)) {
 				$update_fields[$field] = $fields[$field];
 			}
 		}
 		if (!empty($update_fields)) {
-			if (empty($ids)) {
-				$rows = DBA::selectToArray('post-view', ['id'], $condition, []);
-				$ids = array_column($rows, 'id');
-			}
+			$rows = DBA::selectToArray('post-view', ['id'], $condition, []);
+			$ids = array_column($rows, 'id');
 			if (!DBA::update('item', $update_fields, ['id' => $ids])) {
 				DBA::rollback();
 				Logger::notice('Updating item failed', ['fields' => $update_fields, 'condition' => $condition]);

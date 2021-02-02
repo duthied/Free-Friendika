@@ -32,7 +32,6 @@ use Friendica\Model\Item;
 use Friendica\Model\Notification;
 use Friendica\Model\Post;
 use Friendica\Model\User;
-use Friendica\Model\UserItem;
 use Friendica\Protocol\Activity;
 
 /**
@@ -149,9 +148,8 @@ function notification($params)
 	}
 
 	if ($params['type'] == Notification\Type::COMMENT || $params['type'] == Notification\Type::TAG_SELF) {
-		$thread = Post::selectFirstThreadForUser($params['uid'], ['ignored'], ['iid' => $parent_id, 'deleted' => false]);
-		if (DBA::isResult($thread) && $thread['ignored']) {
-			Logger::log('Thread ' . $parent_id . ' will be ignored', Logger::DEBUG);
+		if (Post\ThreadUser::getIgnored($parent_uri_id, $params['uid'])) {
+			Logger::info('Thread is ignored', ['parent' => $parent_id, 'parent-uri-id' => $parent_uri_id]);
 			return false;
 		}
 
@@ -593,32 +591,39 @@ function notification($params)
 /**
  * Checks for users who should be notified
  *
- * @param int $itemid ID of the item for which the check should be done
+ * @param int $uri_id URI ID of the item for which the check should be done
+ * @param int $uid    User ID of the item
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function check_user_notification($itemid) {
-	// fetch all users with notifications
-	$useritems = DBA::select('user-item', ['uid', 'notification-type'], ['iid' => $itemid]);
-	while ($useritem = DBA::fetch($useritems)) {
-		check_item_notification($itemid, $useritem['uid'], $useritem['notification-type']);
+function check_user_notification(int $uri_id, int $uid) {
+	$condition = ['uri-id' => $uri_id];
+
+	// fetch all users with notifications on public posts
+	if ($uid != 0) {
+		$condition['uid'] = $uid;
 	}
-	DBA::close($useritems);
+
+	$usernotifications = DBA::select('post-user-notification', ['uri-id', 'uid', 'notification-type'], $condition);
+	while ($usernotification = DBA::fetch($usernotifications)) {
+		check_item_notification($usernotification['uri-id'], $usernotification['uid'], $usernotification['notification-type']);
+	}
+	DBA::close($usernotifications);
 }
 
 /**
  * Checks for item related notifications and sends them
  *
- * @param int    $itemid            ID of the item for which the check should be done
+ * @param int    $uri_id            URI ID of the item for which the check should be done
  * @param int    $uid               User ID
  * @param int    $notification_type Notification bits
  * @return bool
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function check_item_notification($itemid, $uid, $notification_type) {
+function check_item_notification(int $uri_id, int $uid, int $notification_type) {
 	$fields = ['id', 'uri-id', 'mention', 'parent', 'parent-uri-id', 'thr-parent-id',
 		'title', 'body', 'author-link', 'author-name', 'author-avatar', 'author-id',
 		'gravity', 'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
-	$condition = ['id' => $itemid, 'deleted' => false];
+	$condition = ['uri-id' => $uri_id, 'uid' => $uid, 'deleted' => false];
 	$item = Post::selectFirstForUser($uid, $fields, $condition);
 	if (!DBA::isResult($item)) {
 		return false;
@@ -638,19 +643,19 @@ function check_item_notification($itemid, $uid, $notification_type) {
 	$params['link'] = DI::baseUrl() . '/display/' . urlencode($item['guid']);
 
 	// Set the activity flags
-	$params['activity']['explicit_tagged'] = ($notification_type & UserItem::NOTIF_EXPLICIT_TAGGED);
-	$params['activity']['implicit_tagged'] = ($notification_type & UserItem::NOTIF_IMPLICIT_TAGGED);
-	$params['activity']['origin_comment'] = ($notification_type & UserItem::NOTIF_DIRECT_COMMENT);
-	$params['activity']['origin_thread'] = ($notification_type & UserItem::NOTIF_THREAD_COMMENT);
-	$params['activity']['thread_comment'] = ($notification_type & UserItem::NOTIF_COMMENT_PARTICIPATION);
-	$params['activity']['thread_activity'] = ($notification_type & UserItem::NOTIF_ACTIVITY_PARTICIPATION);
+	$params['activity']['explicit_tagged'] = ($notification_type & Post\UserNotification::NOTIF_EXPLICIT_TAGGED);
+	$params['activity']['implicit_tagged'] = ($notification_type & Post\UserNotification::NOTIF_IMPLICIT_TAGGED);
+	$params['activity']['origin_comment'] = ($notification_type & Post\UserNotification::NOTIF_DIRECT_COMMENT);
+	$params['activity']['origin_thread'] = ($notification_type & Post\UserNotification::NOTIF_THREAD_COMMENT);
+	$params['activity']['thread_comment'] = ($notification_type & Post\UserNotification::NOTIF_COMMENT_PARTICIPATION);
+	$params['activity']['thread_activity'] = ($notification_type & Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION);
 
 	// Tagging a user in a direct post (first comment level) means a direct comment
-	if ($params['activity']['explicit_tagged'] && ($notification_type & UserItem::NOTIF_DIRECT_THREAD_COMMENT)) {
+	if ($params['activity']['explicit_tagged'] && ($notification_type & Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT)) {
 		$params['activity']['origin_comment'] = true;
 	}
 
-	if ($notification_type & UserItem::NOTIF_SHARED) {
+	if ($notification_type & Post\UserNotification::NOTIF_SHARED) {
 		$params['type'] = Notification\Type::SHARE;
 		$params['verb'] = Activity::POST;
 
@@ -667,22 +672,22 @@ function check_item_notification($itemid, $uid, $notification_type) {
 				$params['item'] = $parent_item;
 			}
 		}
-	} elseif ($notification_type & UserItem::NOTIF_EXPLICIT_TAGGED) {
+	} elseif ($notification_type & Post\UserNotification::NOTIF_EXPLICIT_TAGGED) {
 		$params['type'] = Notification\Type::TAG_SELF;
 		$params['verb'] = Activity::TAG;
-	} elseif ($notification_type & UserItem::NOTIF_IMPLICIT_TAGGED) {
+	} elseif ($notification_type & Post\UserNotification::NOTIF_IMPLICIT_TAGGED) {
 		$params['type'] = Notification\Type::COMMENT;
 		$params['verb'] = Activity::POST;
-	} elseif ($notification_type & UserItem::NOTIF_THREAD_COMMENT) {
+	} elseif ($notification_type & Post\UserNotification::NOTIF_THREAD_COMMENT) {
 		$params['type'] = Notification\Type::COMMENT;
 		$params['verb'] = Activity::POST;
-	} elseif ($notification_type & UserItem::NOTIF_DIRECT_COMMENT) {
+	} elseif ($notification_type & Post\UserNotification::NOTIF_DIRECT_COMMENT) {
 		$params['type'] = Notification\Type::COMMENT;
 		$params['verb'] = Activity::POST;
-	} elseif ($notification_type & UserItem::NOTIF_COMMENT_PARTICIPATION) {
+	} elseif ($notification_type & Post\UserNotification::NOTIF_COMMENT_PARTICIPATION) {
 		$params['type'] = Notification\Type::COMMENT;
 		$params['verb'] = Activity::POST;
-	} elseif ($notification_type & UserItem::NOTIF_ACTIVITY_PARTICIPATION) {
+	} elseif ($notification_type & Post\UserNotification::NOTIF_ACTIVITY_PARTICIPATION) {
 		$params['type'] = Notification\Type::COMMENT;
 		$params['verb'] = Activity::POST;
 	} else {

@@ -19,17 +19,23 @@
  *
  */
 
-namespace Friendica\Model;
+namespace Friendica\Model\Post;
 
+use \BadMethodCallException;
 use Friendica\Core\Logger;
 use Friendica\Core\Hook;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Model\Post;
 use Friendica\Util\Strings;
 use Friendica\Model\Tag;
 use Friendica\Protocol\Activity;
 
-class UserItem
+
+class UserNotification
 {
 	// Notification types
 	const NOTIF_NONE = 0;
@@ -42,18 +48,89 @@ class UserItem
 	const NOTIF_DIRECT_THREAD_COMMENT = 64;
 	const NOTIF_SHARED = 128;
 
+
+	/**
+	 * Insert a new user notification entry
+	 *
+	 * @param integer $uri_id
+	 * @param integer $uid
+	 * @param array   $fields
+	 * @return bool   success
+	 * @throws \Exception
+	 */
+	public static function insert(int $uri_id, int $uid, array $data = [])
+	{
+		if (empty($uri_id)) {
+			throw new BadMethodCallException('Empty URI_id');
+		}
+
+		$fields = DBStructure::getFieldsForTable('post-user-notification', $data);
+
+		// Additionally assign the key fields
+		$fields['uri-id'] = $uri_id;
+		$fields['uid'] = $uid;
+
+		return DBA::insert('post-user-notification', $fields, Database::INSERT_IGNORE);
+	}
+
+	/**
+	 * Update a user notification entry
+	 *
+	 * @param integer $uri_id
+	 * @param integer $uid
+	 * @param array   $data
+	 * @param bool    $insert_if_missing
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public static function update(int $uri_id, int $uid, array $data = [], bool $insert_if_missing = false)
+	{
+		if (empty($uri_id)) {
+			throw new BadMethodCallException('Empty URI_id');
+		}
+
+		$fields = DBStructure::getFieldsForTable('post-user-notification', $data);
+
+		// Remove the key fields
+		unset($fields['uri-id']);
+		unset($fields['uid']);
+
+		if (empty($fields)) {
+			return true;
+		}
+
+		return DBA::update('post-user-notification', $fields, ['uri-id' => $uri_id, 'uid' => $uid], $insert_if_missing ? true : []);
+	}
+
+	/**
+	 * Delete a row from the post-user-notification table
+	 *
+	 * @param array        $conditions Field condition(s)
+	 * @param array        $options
+	 *                           - cascade: If true we delete records in other tables that depend on the one we're deleting through
+	 *                           relations (default: true)
+	 *
+	 * @return boolean was the delete successful?
+	 * @throws \Exception
+	 */
+	public static function delete(array $conditions, array $options = [])
+	{
+		return DBA::delete('post-user-notification', $conditions, $options);
+	}
+
 	/**
 	 * Checks an item for notifications and sets the "notification-type" field
 	 * @ToDo:
 	 * - Check for mentions in posts with "uid=0" where the user hadn't interacted before
 	 *
-	 * @param int $iid Item ID
+	 * @param int $uri_id URI ID
+	 * @param int $uid    user ID
 	 */
-	public static function setNotification(int $iid)
+	public static function setNotification(int $uri_id, int $uid)
 	{
 		$fields = ['id', 'uri-id', 'parent-uri-id', 'uid', 'body', 'parent', 'gravity',
-			'private', 'contact-id', 'thr-parent', 'parent-uri', 'author-id', 'verb'];
-		$item = Post::selectFirst($fields, ['id' => $iid, 'origin' => false]);
+			'private', 'contact-id', 'thr-parent', 'parent-uri-id', 'parent-uri', 'author-id', 'verb'];
+		$item = Post::selectFirst($fields, ['uri-id' => $uri_id, 'uid' => $uid, 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			return;
 		}
@@ -73,7 +150,7 @@ class UserItem
 		// Add every user who participated so far in this thread
 		// This can only happen with participations on global items. (means: uid = 0) 
 		$users = DBA::p("SELECT DISTINCT(`contact-uid`) AS `uid` FROM `post-view`
-			WHERE `contact-uid` != 0 AND `parent` IN (SELECT `parent` FROM `post-view` WHERE `id` = ?)", $iid);
+			WHERE `contact-uid` != 0 AND `parent-uri-id` = ? AND `uid` = ?", $item['parent-uri-id'], $uid);
 		while ($user = DBA::fetch($users)) {
 			$uids[] = $user['uid'];
 		}
@@ -92,8 +169,7 @@ class UserItem
 	 */
 	private static function setNotificationForUser(array $item, int $uid)
 	{
-		$thread = Post::selectFirstThreadForUser($uid, ['ignored'], ['iid' => $item['parent'], 'deleted' => false]);
-		if (!empty($thread['ignored'])) {
+		if (Post\ThreadUser::getIgnored($item['parent-uri-id'], $uid)) {
 			return;
 		}
 
@@ -153,11 +229,11 @@ class UserItem
 			return;
 		}
 
-		Logger::info('Set notification', ['iid' => $item['id'], 'uid' => $uid, 'notification-type' => $notification_type]);
+		Logger::info('Set notification', ['iid' => $item['id'], 'uri-id' => $item['uri-id'], 'uid' => $uid, 'notification-type' => $notification_type]);
 
 		$fields = ['notification-type' => $notification_type];
 		Post\User::update($item['uri-id'], $uid, $fields);
-		DBA::update('user-item', $fields, ['iid' => $item['id'], 'uid' => $uid], true);
+		self::update($item['uri-id'], $uid, $fields, true);
 	}
 
 	/**

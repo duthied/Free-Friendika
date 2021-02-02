@@ -32,7 +32,6 @@ Database Tables
 | [notify-threads](help/database/db_notify-threads)    |                                                  |
 | [oembed](help/database/db_oembed)                    | cache for OEmbed queries                         |
 | [parsed_url](help/database/db_parsed_url)            | cache for "parse_url" queries                    |
-| [participation](help/database/db_participation)      | Storage for participation messages from Diaspora |
 | [pconfig](help/database/db_pconfig)                  | personal (per user) configuration storage        |
 | [photo](help/database/db_photo)                      | photo storage                                    |
 | [poll](help/database/db_poll)                        | data for polls                                   |

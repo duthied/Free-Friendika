@@ -466,7 +466,7 @@ function pre_update_1364()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `user-item` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+	if (DBStructure::existsTable('user-item') && !DBA::e("DELETE FROM `user-item` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
 		return Update::FAILED;
 	}
 
@@ -490,19 +490,11 @@ function pre_update_1364()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `participation` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
-		return Update::FAILED;
-	}
-
 	if (!DBA::e("DELETE FROM `profile_check` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
 		return Update::FAILED;
 	}
 
 	if (!DBA::e("DELETE FROM `user-contact` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
-		return Update::FAILED;
-	}
-
-	if (!DBA::e("DELETE FROM `participation` WHERE NOT `fid` IN (SELECT `id` FROM `fcontact`)")) {
 		return Update::FAILED;
 	}
 
@@ -514,11 +506,7 @@ function pre_update_1364()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `participation` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
-		return Update::FAILED;
-	}
-
-	if (!DBA::e("DELETE FROM `user-item` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
+	if (DBStructure::existsTable('user-item') && !DBA::e("DELETE FROM `user-item` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
 		return Update::FAILED;
 	}
 
@@ -686,7 +674,7 @@ function update_1395()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("INSERT INTO `post-user`(`uri-id`, `uid`, `hidden`, `notification-type`)
+	if (DBStructure::existsTable('user-item') && !DBA::e("INSERT INTO `post-user`(`uri-id`, `uid`, `hidden`, `notification-type`)
 		SELECT `uri-id`, `user-item`.`uid`, `hidden`,`notification-type` FROM `user-item`
 			INNER JOIN `item` ON `item`.`id` = `user-item`.`iid`
 		ON DUPLICATE KEY UPDATE `hidden` = `user-item`.`hidden`, `notification-type` = `user-item`.`notification-type`")) {
@@ -712,5 +700,38 @@ function update_1396()
 			FROM `item-content` INNER JOIN `item` ON `item`.`uri-id` = `item-content`.`uri-id`")) {
 		return Update::FAILED;
 	}
+	return Update::SUCCESS;
+}
+
+function update_1397()
+{
+	if (!DBA::e("INSERT INTO `post-user-notification`(`uri-id`, `uid`, `notification-type`)
+		SELECT `uri-id`, `uid`, `notification-type` FROM `post-user` WHERE `notification-type` != 0
+		ON DUPLICATE KEY UPDATE `uri-id` = `post-user`.`uri-id`, `uid` = `post-user`.`uid`, `notification-type` = `post-user`.`notification-type`")) {
+		return Update::FAILED;
+	}
+
+	if (!DBStructure::existsTable('user-item')) {
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("INSERT INTO `post-user-notification`(`uri-id`, `uid`, `notification-type`)
+		SELECT `uri-id`, `user-item`.`uid`, `notification-type` FROM `user-item`
+			INNER JOIN `item` ON `item`.`id` = `user-item`.`iid` WHERE `notification-type` != 0
+		ON DUPLICATE KEY UPDATE `notification-type` = `user-item`.`notification-type`")) {
+		return Update::FAILED;
+	}
+
+	if (!DBStructure::existsTable('thread')) {
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("INSERT IGNORE INTO `post-thread-user`(`uri-id`, `uid`, `pinned`, `starred`, `ignored`, `wall`, `pubmail`, `forum_mode`)
+		SELECT `thread`.`uri-id`, `thread`.`uid`, `user-item`.`pinned`, `thread`.`starred`,
+			`thread`.`ignored`, `thread`.`wall`, `thread`.`pubmail`, `thread`.`forum_mode`
+		FROM `thread` LEFT JOIN `user-item` ON `user-item`.`iid` = `thread`.`iid`")) {
+		return Update::FAILED;
+	}
+
 	return Update::SUCCESS;
 }

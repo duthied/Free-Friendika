@@ -21,20 +21,20 @@
 
 namespace Friendica\Model\Post;
 
-use Friendica\Database\DBA;
 use \BadMethodCallException;
 use Friendica\Database\Database;
+use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 
-class User
+class ThreadUser
 {
 	/**
-	 * Insert a new post user entry
+	 * Insert a new URI user entry
 	 *
 	 * @param integer $uri_id
 	 * @param integer $uid
 	 * @param array   $fields
-	 * @return int    ID of inserted post-user
+	 * @return bool   success
 	 * @throws \Exception
 	 */
 	public static function insert(int $uri_id, int $uid, array $data = [])
@@ -43,30 +43,17 @@ class User
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		if (DBA::exists('post-user', ['uri-id' => $uri_id, 'uid' => $uid])) {
-			return false;
-		}
-
-		$fields = DBStructure::getFieldsForTable('post-user', $data);
+		$fields = DBStructure::getFieldsForTable('post-thread-user', $data);
 
 		// Additionally assign the key fields
 		$fields['uri-id'] = $uri_id;
 		$fields['uid'] = $uid;
 
-		// Public posts are always seen
-		if ($uid == 0) {
-			$fields['unseen'] = false;
-		}
-
-		if (!DBA::insert('post-user', $fields, Database::INSERT_IGNORE)) {
-			return 0;
-		}
-
-		return DBA::lastInsertId();
+		return DBA::insert('post-thread-user', $fields, Database::INSERT_IGNORE);
 	}
 
 	/**
-	 * Update a post user entry
+	 * Update a URI user entry
 	 *
 	 * @param integer $uri_id
 	 * @param integer $uid
@@ -81,7 +68,7 @@ class User
 			throw new BadMethodCallException('Empty URI_id');
 		}
 
-		$fields = DBStructure::getFieldsForTable('post-user', $data);
+		$fields = DBStructure::getFieldsForTable('post-thread-user', $data);
 
 		// Remove the key fields
 		unset($fields['uri-id']);
@@ -91,11 +78,11 @@ class User
 			return true;
 		}
 
-		return DBA::update('post-user', $fields, ['uri-id' => $uri_id, 'uid' => $uid], $insert_if_missing ? true : []);
+		return DBA::update('post-thread-user', $fields, ['uri-id' => $uri_id, 'uid' => $uid], $insert_if_missing ? true : []);
 	}
 
 	/**
-	 * Delete a row from the post-user table
+	 * Delete a row from the post-thread-user table
 	 *
 	 * @param array        $conditions Field condition(s)
 	 * @param array        $options
@@ -107,6 +94,60 @@ class User
 	 */
 	public static function delete(array $conditions, array $options = [])
 	{
-		return DBA::delete('post-user', $conditions, $options);
+		return DBA::delete('post-thread-user', $conditions, $options);
+	}
+
+	/**
+	 * @param int $uri_id 
+	 * @param int $uid 
+	 * @return bool 
+	 * @throws Exception 
+	 */
+	public static function getIgnored(int $uri_id, int $uid)
+	{
+		$threaduser = DBA::selectFirst('post-thread-user', ['ignored'], ['uri-id' => $uri_id, 'uid' => $uid]);
+		if (empty($threaduser)) {
+			return false;
+		}
+		return (bool)$threaduser['ignored'];
+	}
+
+	/**
+	 * @param int $uri_id 
+	 * @param int $uid 
+	 * @param int $ignored 
+	 * @return void 
+	 * @throws Exception 
+	 */
+	public static function setIgnored(int $uri_id, int $uid, int $ignored)
+	{
+		DBA::update('post-thread-user', ['ignored' => $ignored], ['uri-id' => $uri_id, 'uid' => $uid], true);
+	}
+
+	/**
+	 * @param int $uri_id 
+	 * @param int $uid 
+	 * @return bool 
+	 * @throws Exception 
+	 */
+	public static function getPinned(int $uri_id, int $uid)
+	{
+		$threaduser = DBA::selectFirst('post-thread-user', ['pinned'], ['uri-id' => $uri_id, 'uid' => $uid]);
+		if (empty($threaduser)) {
+			return false;
+		}
+		return (bool)$threaduser['pinned'];
+	}
+
+	/**
+	 * @param int $uri_id 
+	 * @param int $uid 
+	 * @param int $pinned 
+	 * @return void 
+	 * @throws Exception 
+	 */
+	public static function setPinned(int $uri_id, int $uid, int $pinned)
+	{
+		DBA::update('post-thread-user', ['pinned' => $pinned], ['uri-id' => $uri_id, 'uid' => $uid], true);
 	}
 }
