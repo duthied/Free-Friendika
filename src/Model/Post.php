@@ -457,13 +457,11 @@ class Post
 
 			$post_thread_condition[0] = "EXISTS(SELECT `id` FROM `post-user` WHERE " .
 				$post_thread_condition[0] . " AND `uri-id` = `post-thread-user`.`uri-id` AND `uid` = `post-thread-user`.`uid`)";
-			Logger::info('Test2-start', ['condition' => $post_thread_condition]);
 				if (!DBA::update('post-thread-user', $update_fields, $post_thread_condition)) {
 				DBA::rollback();
 				Logger::notice('Updating post-thread-user failed', ['fields' => $update_fields, 'condition' => $condition]);
 				return false;
 			}
-			Logger::info('Test2-end');
 			$affected = max($affected, DBA::affectedRows());
 		}
 
