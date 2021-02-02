@@ -1507,22 +1507,6 @@ return [
 			"cid" => ["cid"],
 		]
 	],
-	"user-item" => [
-		"comment" => "User specific item data",
-		"fields" => [
-			"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["item" => "id"], "comment" => "Item id"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User id"],
-			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide an item from the user"],
-			"ignored" => ["type" => "boolean", "comment" => "Ignore this thread if set"],
-			"pinned" => ["type" => "boolean", "comment" => "The item is pinned on the profile page"],
-			"notification-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["uid", "iid"],
-			"uid_pinned" => ["uid", "pinned"],
-			"iid_uid" => ["iid", "uid"]
-		]
-	],
 	"worker-ipc" => [
 		"comment" => "Inter process communication between the frontend and the worker",
 		"fields" => [

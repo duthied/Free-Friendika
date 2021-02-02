@@ -43,7 +43,6 @@ use Friendica\Model\Notification;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\User;
-use Friendica\Model\UserItem;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -2175,9 +2174,9 @@ function api_statuses_mentions($type)
 		AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) AND `id` > ?";
 
 	$condition = [GRAVITY_PARENT, GRAVITY_COMMENT, api_user(),
-		UserItem::NOTIF_EXPLICIT_TAGGED | UserItem::NOTIF_IMPLICIT_TAGGED |
-		UserItem::NOTIF_THREAD_COMMENT | UserItem::NOTIF_DIRECT_COMMENT |
-		UserItem::NOTIF_DIRECT_THREAD_COMMENT,
+		Post\UserNotification::NOTIF_EXPLICIT_TAGGED | Post\UserNotification::NOTIF_IMPLICIT_TAGGED |
+		Post\UserNotification::NOTIF_THREAD_COMMENT | Post\UserNotification::NOTIF_DIRECT_COMMENT |
+		Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT,
 		api_user(), $since_id];
 
 	if ($max_id > 0) {

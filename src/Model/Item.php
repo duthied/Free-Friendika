@@ -1104,9 +1104,10 @@ class Item
 
 		self::updateContact($item);
 
-		UserItem::setNotification($current_post);
+		Post\UserNotification::setNotification($item['uri-id'], $item['uid']);
 
-		check_user_notification($current_post);
+		check_user_notification($item['uri-id'], $item['uid']);
+		//check_user_notification($current_post);
 
 		// Distribute items to users who subscribed to their tags
 		self::distributeByTags($item);

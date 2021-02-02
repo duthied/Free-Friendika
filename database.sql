@@ -1463,23 +1463,6 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific public contact data';
 
 --
--- TABLE user-item
---
-CREATE TABLE IF NOT EXISTS `user-item` (
-	`iid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item id',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
-	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide an item from the user',
-	`ignored` boolean COMMENT 'Ignore this thread if set',
-	`pinned` boolean COMMENT 'The item is pinned on the profile page',
-	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	 PRIMARY KEY(`uid`,`iid`),
-	 INDEX `uid_pinned` (`uid`,`pinned`),
-	 INDEX `iid_uid` (`iid`,`uid`),
-	FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
-
---
 -- TABLE worker-ipc
 --
 CREATE TABLE IF NOT EXISTS `worker-ipc` (
