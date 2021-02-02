@@ -490,10 +490,6 @@ function pre_update_1364()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `participation` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
-		return Update::FAILED;
-	}
-
 	if (!DBA::e("DELETE FROM `profile_check` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
 		return Update::FAILED;
 	}
@@ -502,19 +498,11 @@ function pre_update_1364()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `participation` WHERE NOT `fid` IN (SELECT `id` FROM `fcontact`)")) {
-		return Update::FAILED;
-	}
-
 	if (!DBA::e("DELETE FROM `group_member` WHERE NOT `gid` IN (SELECT `id` FROM `group`)")) {
 		return Update::FAILED;
 	}
 
 	if (!DBA::e("DELETE FROM `gserver-tag` WHERE NOT `gserver-id` IN (SELECT `id` FROM `gserver`)")) {
-		return Update::FAILED;
-	}
-
-	if (!DBA::e("DELETE FROM `participation` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
 		return Update::FAILED;
 	}
 

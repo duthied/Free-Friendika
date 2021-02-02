@@ -971,22 +971,6 @@ CREATE TABLE IF NOT EXISTS `parsed_url` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='cache for \'parse_url\' queries';
 
 --
--- TABLE participation
---
-CREATE TABLE IF NOT EXISTS `participation` (
-	`iid` int unsigned NOT NULL COMMENT '',
-	`server` varchar(60) NOT NULL COMMENT '',
-	`cid` int unsigned NOT NULL COMMENT '',
-	`fid` int unsigned NOT NULL COMMENT '',
-	 PRIMARY KEY(`iid`,`server`),
-	 INDEX `cid` (`cid`),
-	 INDEX `fid` (`fid`),
-	FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`fid`) REFERENCES `fcontact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Storage for participation messages from Diaspora';
-
---
 -- TABLE pconfig
 --
 CREATE TABLE IF NOT EXISTS `pconfig` (

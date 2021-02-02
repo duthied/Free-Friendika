@@ -79,7 +79,7 @@ class DBStructure
 		}
 
 		$old_tables = ['fserver', 'gcign', 'gcontact', 'gcontact-relation', 'gfollower' ,'glink', 'item-delivery-data',
-			'item-activity', 'item-content', 'item_id', 'poll', 'poll_result', 'queue', 'retriever_rule',
+			'item-activity', 'item-content', 'item_id', 'participation', 'poll', 'poll_result', 'queue', 'retriever_rule',
 			'sign', 'spam', 'term', 'user-item'];
 
 		$tables = DBA::selectToArray(['INFORMATION_SCHEMA' => 'TABLES'], ['TABLE_NAME'],

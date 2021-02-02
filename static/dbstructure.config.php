@@ -1031,20 +1031,6 @@ return [
 			"created" => ["created"],
 		]
 	],
-	"participation" => [
-		"comment" => "Storage for participation messages from Diaspora",
-		"fields" => [
-			"iid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item" => "id"], "comment" => ""],
-			"server" => ["type" => "varchar(60)", "not null" => "1", "primary" => "1", "comment" => ""],
-			"cid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["contact" => "id"], "comment" => ""],
-			"fid" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["fcontact" => "id"], "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["iid", "server"],
-			"cid" => ["cid"],
-			"fid" => ["fid"]
-		]
-	],
 	"pconfig" => [
 		"comment" => "personal (per user) configuration storage",
 		"fields" => [
