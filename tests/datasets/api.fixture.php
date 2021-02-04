@@ -211,6 +211,46 @@ return [
 			'plink'  => 'http://localhost/display/6',
 		],
 	],
+	'post-thread'  => [
+		[
+			'uri-id'     => 1,
+			'author-id'  => 42,
+			'owner-id'   => 42,
+			'causer-id'  => 42,
+			'network' => 'dfrn',
+		],
+		[
+			'uri-id'     => 3,
+			'author-id'  => 43,
+			'owner-id'   => 43,
+			'causer-id'  => 43,
+			'network' => 'dfrn',
+		],
+		[
+			'uri-id'     => 6,
+			'author-id'  => 44,
+			'owner-id'   => 44,
+			'causer-id'  => 44,
+			'network' => 'dfrn',
+		],
+	],
+	'post-thread-user'  => [
+		[
+			'uri-id'     => 1,
+			'uid'        => 42,
+			'wall'       => 1,
+		],
+		[
+			'uri-id'     => 3,
+			'uid'        => 42,
+			'wall'       => 1,
+		],
+		[
+			'uri-id'     => 6,
+			'uid'        => 42,
+			'wall'       => 1,
+		],
+	],
 	'post-user' => [
 		[
 			'id'          => 1,
@@ -266,6 +306,7 @@ return [
 		[
 			'id'          => 1,
 			'uri-id'      => 1,
+			'uri'         => '1',
 			'visible'     => 1,
 			'contact-id'  => 42,
 			'author-id'   => 42,
@@ -276,7 +317,9 @@ return [
 			'unseen'      => 1,
 			'parent'      => 1,
 			'parent-uri-id' => 1,
+			'parent-uri'  => '1',
 			'thr-parent-id' => 1,
+			'thr-parent'  => '1',
 			'gravity'     => GRAVITY_PARENT,
 			'author-link' => 'http://localhost/profile/selfcontact',
 			'wall'        => 1,
@@ -291,6 +334,7 @@ return [
 		[
 			'id'          => 2,
 			'uri-id'      => 2,
+			'uri'         => '2',
 			'visible'     => 1,
 			'contact-id'  => 42,
 			'author-id'   => 42,
@@ -301,7 +345,9 @@ return [
 			'unseen'      => 0,
 			'parent'      => 1,
 			'parent-uri-id' => 1,
+			'parent-uri'  => '1',
 			'thr-parent-id' => 1,
+			'thr-parent'  => '1',
 			'gravity'     => GRAVITY_COMMENT,
 			'author-link' => 'http://localhost/profile/selfcontact',
 			'wall'        => 1,
@@ -312,6 +358,7 @@ return [
 		[
 			'id'          => 3,
 			'uri-id'      => 3,
+			'uri'         => '3',
 			'visible'     => 1,
 			'contact-id'  => 43,
 			'author-id'   => 43,
@@ -322,7 +369,9 @@ return [
 			'unseen'      => 0,
 			'parent'      => 3,
 			'parent-uri-id' => 3,
+			'parent-uri'  => '3',
 			'thr-parent-id' => 3,
+			'thr-parent'  => '3',
 			'gravity'     => GRAVITY_PARENT,
 			'author-link' => 'http://localhost/profile/othercontact',
 			'wall'        => 1,
@@ -333,6 +382,7 @@ return [
 		[
 			'id'          => 4,
 			'uri-id'      => 4,
+			'uri'         => '4',
 			'visible'     => 1,
 			'contact-id'  => 44,
 			'author-id'   => 44,
@@ -344,7 +394,9 @@ return [
 			'body'        => 'Friend user reply',
 			'parent'      => 1,
 			'parent-uri-id' => 1,
+			'parent-uri'  => '1',
 			'thr-parent-id' => 1,
+			'thr-parent'  => '1',
 			'gravity'     => GRAVITY_COMMENT,
 			'author-link' => 'http://localhost/profile/othercontact',
 			'wall'        => 1,
@@ -356,6 +408,7 @@ return [
 
 			'id'          => 5,
 			'uri-id'      => 5,
+			'uri'         => '5',
 			'visible'     => 1,
 			'contact-id'  => 42,
 			'author-id'   => 42,
@@ -366,7 +419,9 @@ return [
 			'unseen'      => 0,
 			'parent'      => 1,
 			'parent-uri-id' => 1,
+			'parent-uri'  => '1',
 			'thr-parent-id' => 1,
+			'thr-parent'  => '1',
 			'gravity'     => GRAVITY_COMMENT,
 			'author-link' => 'http://localhost/profile/othercontact',
 			'wall'        => 1,
@@ -381,6 +436,7 @@ return [
 		[
 			'id'          => 6,
 			'uri-id'      => 6,
+			'uri'         => '6',
 			'visible'     => 1,
 			'contact-id'  => 44,
 			'author-id'   => 44,
@@ -391,7 +447,9 @@ return [
 			'unseen'      => 0,
 			'parent'      => 6,
 			'parent-uri-id' => 6,
+			'parent-uri'  => '6',
 			'thr-parent-id' => 6,
+			'thr-parent'  => '6',
 			'gravity'     => GRAVITY_PARENT,
 			'author-link' => 'http://localhost/profile/othercontact',
 			'wall'        => 1,
@@ -417,43 +475,6 @@ return [
 			'otype' => Notification\ObjectType::ITEM,
 			'name_cache' => 'Reply to',
 			'msg_cache' => 'A test reply from an item',
-		],
-	],
-	'post-thread'  => [
-		[
-			'uri-id'     => 1,
-			'author-id'  => 42,
-			'owner-id'   => 42,
-			'network' => 'dfrn',
-		],
-		[
-			'uri-id'     => 3,
-			'author-id'  => 43,
-			'owner-id'   => 43,
-			'network' => 'dfrn',
-		],
-		[
-			'uri-id'     => 6,
-			'author-id'  => 44,
-			'owner-id'   => 44,
-			'network' => 'dfrn',
-		],
-	],
-	'post-thread-user'  => [
-		[
-			'uri-id'     => 1,
-			'uid'        => 42,
-			'wall'       => 1,
-		],
-		[
-			'uri-id'     => 3,
-			'uid'        => 42,
-			'wall'       => 1,
-		],
-		[
-			'uri-id'     => 6,
-			'uid'        => 42,
-			'wall'       => 1,
 		],
 	],
 	'profile' => [
