@@ -1810,15 +1810,15 @@ function api_statuses_networkpublic_timeline($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `iid` > ? AND `private` = ?",
+	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `id` > ? AND `private` = ?",
 		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `iid` <= ?";
+		$condition[0] .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
 
-	$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Post::selectForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
 	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
