@@ -419,34 +419,36 @@ return [
 			'msg_cache' => 'A test reply from an item',
 		],
 	],
-	'thread'  => [
+	'post-thread'  => [
 		[
-			'iid'        => 1,
 			'uri-id'     => 1,
-			'visible'    => 1,
-			'contact-id' => 42,
 			'author-id'  => 42,
 			'owner-id'   => 42,
+		],
+		[
+			'uri-id'     => 3,
+			'author-id'  => 43,
+			'owner-id'   => 43,
+		],
+		[
+			'uri-id'     => 6,
+			'author-id'  => 44,
+			'owner-id'   => 44,
+		],
+	],
+	'post-thread-user'  => [
+		[
+			'uri-id'     => 1,
 			'uid'        => 42,
 			'wall'       => 1,
 		],
 		[
-			'iid'        => 3,
 			'uri-id'     => 3,
-			'visible'    => 1,
-			'contact-id' => 43,
-			'author-id'  => 43,
-			'owner-id'   => 43,
 			'uid'        => 0,
 			'wall'       => 1,
 		],
 		[
-			'iid'        => 6,
 			'uri-id'     => 6,
-			'visible'    => 1,
-			'contact-id' => 44,
-			'author-id'  => 44,
-			'owner-id'   => 44,
 			'uid'        => 0,
 			'wall'       => 1,
 		],

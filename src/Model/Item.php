@@ -899,8 +899,9 @@ class Item
 
 			// If its a post that originated here then tag the thread as "mention"
 			if ($item['origin'] && $item['uid']) {
+				DBA::update('post-thread-user', ['mention' => true], ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
 				DBA::update('thread', ['mention' => true], ['iid' => $parent_id]);
-				Logger::info('tagged thread as mention', ['parent' => $parent_id, 'uid' => $item['uid']]);
+				Logger::info('tagged thread as mention', ['parent' => $parent_id, 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
 			}
 
 			// Update the contact relations
