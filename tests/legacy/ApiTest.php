@@ -1677,7 +1677,7 @@ class ApiTest extends FixtureTest
 		$_REQUEST['max_id']          = 10;
 		$_REQUEST['exclude_replies'] = true;
 		$result                      = api_statuses_public_timeline('json');
-		self::assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status'], var_export($result, true));
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
 		}
@@ -1731,7 +1731,7 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['max_id'] = 10;
 		$result             = api_statuses_networkpublic_timeline('json');
-		self::assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status'], var_export($result, true));
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
 		}
@@ -1746,7 +1746,7 @@ class ApiTest extends FixtureTest
 	{
 		$_REQUEST['page'] = -2;
 		$result           = api_statuses_networkpublic_timeline('json');
-		self::assertNotEmpty($result['status']);
+		self::assertNotEmpty($result['status'], var_export($result, true));
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
 		}
