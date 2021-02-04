@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1397);
+	define('DB_UPDATE_VERSION', 1398);
 }
 
 return [
@@ -1181,6 +1181,29 @@ return [
 			"cid" => ["cid"]
 		]
 	],
+	"post-thread" => [
+		"comment" => "Thread related data",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item owner"],
+			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item author"],
+			"causer-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the contact that caused the item creation"],
+			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"received" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"changed" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date that something in the conversation changed, indicating clients should fetch the conversation again"],
+			"commented" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""]
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id"],
+			"owner-id" => ["owner-id"],
+			"author-id" => ["author-id"],
+			"causer-id" => ["causer-id"],
+			"received" => ["received"],
+			"commented" => ["commented"],
+			"changed" => ["changed"]
+		]
+	],
 	"post-thread-user" => [
 		"comment" => "Thread related data per user",
 		"fields" => [
@@ -1190,6 +1213,7 @@ return [
 			"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"ignored" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Ignore updates for this thread"],
 			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
+			"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""]
 		],

@@ -979,6 +979,10 @@ class Item
 			Post\Media::insertFromAttachment($item['uri-id'], $item['attach']);
 		}
 
+		if ($item['gravity'] == GRAVITY_PARENT) {
+			Post\Thread::insert($item['uri-id'], $item);
+		}
+
 		if (!in_array($item['verb'], self::ACTIVITIES)) {
 			Post\Content::insert($item['uri-id'], $item);
 		}
@@ -2203,9 +2207,9 @@ class Item
 
 	public static function firstPostDate($uid, $wall = false)
 	{
-		$condition = ['uid' => $uid, 'wall' => $wall, 'deleted' => false, 'visible' => true, 'moderated' => false];
+		$condition = ['gravity' => GRAVITY_PARENT, 'uid' => $uid, 'wall' => $wall, 'deleted' => false, 'visible' => true, 'moderated' => false];
 		$params = ['order' => ['received' => false]];
-		$thread = DBA::selectFirst('thread', ['received'], $condition, $params);
+		$thread = Post::selectFirst(['received'], $condition, $params);
 		if (DBA::isResult($thread)) {
 			return substr(DateTimeFormat::local($thread['received']), 0, 10);
 		}

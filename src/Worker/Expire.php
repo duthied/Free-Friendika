@@ -52,12 +52,17 @@ class Expire
 			}
 			DBA::close($rows);
 
-			// Normally we shouldn't have orphaned data at all.
-			// If we do have some, then we have to check why.
-			Logger::log('Deleting orphaned item content - start', Logger::DEBUG);
+			Logger::info('Deleting orphaned post-content - start');
+			/// @todo Replace "item with "post-user" in the future when "item" is removed
 			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `item` WHERE `item`.`uri-id` = `post-content`.`uri-id`)"];
 			DBA::delete('post-content', $condition);
-			Logger::log('Orphaned item content deleted: ' . DBA::affectedRows(), Logger::DEBUG);
+			Logger::info('Orphaned post-content deleted', ['rows' => DBA::affectedRows()]);
+
+			Logger::info('Deleting orphaned post-thread - start');
+			/// @todo Replace "item with "post-user" in the future when "item" is removed
+			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `item` WHERE `item`.`uri-id` = `post-thread`.`uri-id`)"];
+			DBA::delete('post-thread', $condition);
+			Logger::info('Orphaned item content deleted', ['rows' => DBA::affectedRows()]);
 
 			// make this optional as it could have a performance impact on large sites
 			if (intval(DI::config()->get('system', 'optimize_items'))) {

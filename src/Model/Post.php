@@ -194,7 +194,7 @@ class Post
 				'parent-guid', 'parent-network', 'parent-author-id', 'parent-author-link', 'parent-author-name',
 				'parent-author-network', 'signed_text', 'language', 'raw-body'], Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST);
 			
-			if ($view == 'post-thread-view') {
+			if ($view != 'post-view') {
 				$selected = array_merge($selected, ['ignored', 'iid']);
 			}
 		}
@@ -443,6 +443,18 @@ class Post
 			if (!DBA::update('post-delivery-data', $update_fields, ['uri-id' => $uriids])) {
 				DBA::rollback();
 				Logger::notice('Updating post-delivery-data failed', ['fields' => $update_fields, 'condition' => $condition]);
+				return false;
+			}
+			$affected = max($affected, DBA::affectedRows());
+		}
+
+		$update_fields = DBStructure::getFieldsForTable('post-thread', $fields);
+		if (!empty($update_fields)) {
+			$rows = DBA::selectToArray('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			$uriids = array_column($rows, 'uri-id');
+			if (!DBA::update('post-thread', $update_fields, ['uri-id' => $uriids])) {
+				DBA::rollback();
+				Logger::notice('Updating post-thread failed', ['fields' => $update_fields, 'condition' => $condition]);
 				return false;
 			}
 			$affected = max($affected, DBA::affectedRows());

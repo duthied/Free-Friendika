@@ -47,6 +47,7 @@ class ExpirePosts
 		if (!empty($expire_days)) {
 			do {
 				Logger::notice('Start deleting expired threads', ['expiry_days' => $expire_days]);
+				/// @todo replace that query later
 				$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` IN
 					(SELECT `uri-id` FROM `thread`
 					INNER JOIN `contact` ON `id` = `contact-id` AND NOT `notify_new_posts`

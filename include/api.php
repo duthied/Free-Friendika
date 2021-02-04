@@ -1118,8 +1118,8 @@ function api_statuses_update($type)
 		if ($throttle_day > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60);
 
-			$condition = ["`uid` = ? AND `wall` AND `received` > ?", api_user(), $datefrom];
-			$posts_day = DBA::count('thread', $condition);
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, api_user(), $datefrom];
+			$posts_day = Post::count($condition);
 
 			if ($posts_day > $throttle_day) {
 				Logger::log('Daily posting limit reached for user '.api_user(), Logger::DEBUG);
@@ -1132,8 +1132,8 @@ function api_statuses_update($type)
 		if ($throttle_week > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*7);
 
-			$condition = ["`uid` = ? AND `wall` AND `received` > ?", api_user(), $datefrom];
-			$posts_week = DBA::count('thread', $condition);
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, api_user(), $datefrom];
+			$posts_week = Post::count($condition);
 
 			if ($posts_week > $throttle_week) {
 				Logger::log('Weekly posting limit reached for user '.api_user(), Logger::DEBUG);
@@ -1146,8 +1146,8 @@ function api_statuses_update($type)
 		if ($throttle_month > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*30);
 
-			$condition = ["`uid` = ? AND `wall` AND `received` > ?", api_user(), $datefrom];
-			$posts_month = DBA::count('thread', $condition);
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, api_user(), $datefrom];
+			$posts_month = Post::count($condition);
 
 			if ($posts_month > $throttle_month) {
 				Logger::log('Monthly posting limit reached for user '.api_user(), Logger::DEBUG);
