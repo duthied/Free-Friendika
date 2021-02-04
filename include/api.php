@@ -2931,6 +2931,10 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
 
 	$ret = [];
 
+	if (empty($items)) {
+		return $ret;
+	}
+
 	foreach ((array)$items as $item) {
 		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
 
