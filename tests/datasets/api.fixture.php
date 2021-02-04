@@ -424,16 +424,19 @@ return [
 			'uri-id'     => 1,
 			'author-id'  => 42,
 			'owner-id'   => 42,
+			'network' => 'dfrn',
 		],
 		[
 			'uri-id'     => 3,
 			'author-id'  => 43,
 			'owner-id'   => 43,
+			'network' => 'dfrn',
 		],
 		[
 			'uri-id'     => 6,
 			'author-id'  => 44,
 			'owner-id'   => 44,
+			'network' => 'dfrn',
 		],
 	],
 	'post-thread-user'  => [
