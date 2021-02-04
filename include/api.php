@@ -1819,7 +1819,7 @@ function api_statuses_networkpublic_timeline($type)
 	}
 
 	$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Post::selectForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
 
 	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 
