@@ -1819,7 +1819,8 @@ function api_statuses_networkpublic_timeline($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+//	$statuses = Post::selectForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$statuses = Post::select(Item::DISPLAY_FIELDLIST, $condition, $params);
 
 	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
 

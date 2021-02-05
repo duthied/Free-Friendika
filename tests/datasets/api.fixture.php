@@ -19,6 +19,9 @@
  *
  */
 
+use Friendica\Core\Protocol;
+use Friendica\Model\Contact;
+use Friendica\Model\Item;
 use Friendica\Model\Notification;
 
 return [
@@ -70,8 +73,8 @@ return [
 			'about'   => 'User used in tests',
 			'pending' => 0,
 			'blocked' => 0,
-			'rel'     => 1,
-			'network' => 'dfrn',
+			'rel'     => Contact::FOLLOWER,
+			'network' => Protocol::DFRN,
 			'location' => 'DFRN',
 		],
 		// Having the same name and nick allows us to test
@@ -86,8 +89,8 @@ return [
 			'url'     => 'http://localhost/profile/othercontact',
 			'pending' => 0,
 			'blocked' => 0,
-			'rel'     => 0,
-			'network' => 'dfrn',
+			'rel'     => Contact::NOTHING,
+			'network' => Protocol::DFRN, 
 			'location' => 'DFRN',
 		],
 		[
@@ -100,8 +103,8 @@ return [
 			'url'     => 'http://localhost/profile/friendcontact',
 			'pending' => 0,
 			'blocked' => 0,
-			'rel'     => 2,
-			'network' => 'dfrn',
+			'rel'     => Contact::SHARING,
+			'network' => Protocol::DFRN,
 			'location' => 'DFRN',
 		],
 		[
@@ -114,8 +117,8 @@ return [
 			'url'     => 'http://localhost/profile/friendcontact',
 			'pending' => 0,
 			'blocked' => 0,
-			'rel'     => 2,
-			'network' => 'dfrn',
+			'rel'     => Contact::SHARING,
+			'network' => Protocol::DFRN,
 			'location' => 'DFRN',
 		],
 		[
@@ -128,8 +131,8 @@ return [
 			'url'     => 'http://localhost/profile/mutualcontact',
 			'pending' => 0,
 			'blocked' => 0,
-			'rel'     => 3,
-			'network' => 'dfrn',
+			'rel'     => Contact::FRIEND,
+			'network' => Protocol::DFRN,
 			'location' => 'DFRN',
 		],
 		[
@@ -142,8 +145,8 @@ return [
 			'url'     => 'http://localhost/profile/mutualcontact',
 			'pending' => 0,
 			'blocked' => 0,
-			'rel'     => 2,
-			'network' => 'dfrn',
+			'rel'     => Contact::SHARING,
+			'network' => Protocol::DFRN,
 			'location' => 'DFRN',
 		],
 	],
@@ -217,21 +220,21 @@ return [
 			'author-id'  => 42,
 			'owner-id'   => 42,
 			'causer-id'  => 42,
-			'network' => 'dfrn',
+			'network' => Protocol::DFRN,
 		],
 		[
 			'uri-id'     => 3,
 			'author-id'  => 43,
 			'owner-id'   => 43,
 			'causer-id'  => 43,
-			'network' => 'dfrn',
+			'network' => Protocol::DFRN,
 		],
 		[
 			'uri-id'     => 6,
 			'author-id'  => 44,
 			'owner-id'   => 44,
 			'causer-id'  => 44,
-			'network' => 'dfrn',
+			'network' => Protocol::DFRN,
 		],
 	],
 	'post-thread-user'  => [
@@ -320,7 +323,7 @@ return [
 			'parent-uri'  => '1',
 			'thr-parent-id' => 1,
 			'thr-parent'  => '1',
-			'private'     => 0,
+			'private'     => Item::PUBLIC,
 			'gravity'     => GRAVITY_PARENT,
 			'author-link' => 'http://localhost/profile/selfcontact',
 			'wall'        => 1,
@@ -349,7 +352,7 @@ return [
 			'parent-uri'  => '1',
 			'thr-parent-id' => 1,
 			'thr-parent'  => '1',
-			'private'     => 0,
+			'private'     => Item::PUBLIC,
 			'gravity'     => GRAVITY_COMMENT,
 			'author-link' => 'http://localhost/profile/selfcontact',
 			'wall'        => 1,
@@ -374,7 +377,7 @@ return [
 			'parent-uri'  => '3',
 			'thr-parent-id' => 3,
 			'thr-parent'  => '3',
-			'private'     => 0,
+			'private'     => Item::PUBLIC,
 			'gravity'     => GRAVITY_PARENT,
 			'author-link' => 'http://localhost/profile/othercontact',
 			'wall'        => 1,
@@ -400,7 +403,7 @@ return [
 			'parent-uri'  => '1',
 			'thr-parent-id' => 1,
 			'thr-parent'  => '1',
-			'private'     => 0,
+			'private'     => Item::PUBLIC,
 			'gravity'     => GRAVITY_COMMENT,
 			'author-link' => 'http://localhost/profile/othercontact',
 			'wall'        => 1,
@@ -426,7 +429,7 @@ return [
 			'parent-uri'  => '1',
 			'thr-parent-id' => 1,
 			'thr-parent'  => '1',
-			'private'     => 0,
+			'private'     => Item::PUBLIC,
 			'gravity'     => GRAVITY_COMMENT,
 			'author-link' => 'http://localhost/profile/othercontact',
 			'wall'        => 1,
@@ -455,7 +458,7 @@ return [
 			'parent-uri'  => '6',
 			'thr-parent-id' => 6,
 			'thr-parent'  => '6',
-			'private'     => 0,
+			'private'     => Item::PUBLIC,
 			'gravity'     => GRAVITY_PARENT,
 			'author-link' => 'http://localhost/profile/othercontact',
 			'wall'        => 1,
