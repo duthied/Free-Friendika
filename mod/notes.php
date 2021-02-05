@@ -82,7 +82,7 @@ function notes_content(App $a, $update = false)
 
 	$params = ['order' => ['created' => true],
 		'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
-	$r = Post::selectForUser(local_user(), ['uri-id'], $condition, $params);
+	$r = Post::selectThreadForUser(local_user(), ['uri-id'], $condition, $params);
 
 	$count = 0;
 
