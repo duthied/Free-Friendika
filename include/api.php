@@ -1118,8 +1118,8 @@ function api_statuses_update($type)
 		if ($throttle_day > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60);
 
-			$condition = ["`uid` = ? AND `wall` AND `received` > ?", api_user(), $datefrom];
-			$posts_day = DBA::count('thread', $condition);
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, api_user(), $datefrom];
+			$posts_day = Post::count($condition);
 
 			if ($posts_day > $throttle_day) {
 				Logger::log('Daily posting limit reached for user '.api_user(), Logger::DEBUG);
@@ -1132,8 +1132,8 @@ function api_statuses_update($type)
 		if ($throttle_week > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*7);
 
-			$condition = ["`uid` = ? AND `wall` AND `received` > ?", api_user(), $datefrom];
-			$posts_week = DBA::count('thread', $condition);
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, api_user(), $datefrom];
+			$posts_week = Post::count($condition);
 
 			if ($posts_week > $throttle_week) {
 				Logger::log('Weekly posting limit reached for user '.api_user(), Logger::DEBUG);
@@ -1146,8 +1146,8 @@ function api_statuses_update($type)
 		if ($throttle_month > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*30);
 
-			$condition = ["`uid` = ? AND `wall` AND `received` > ?", api_user(), $datefrom];
-			$posts_month = DBA::count('thread', $condition);
+			$condition = ["`gravity` = ? AND `uid` = ? AND `wall` AND `received` > ?", GRAVITY_PARENT, api_user(), $datefrom];
+			$posts_month = Post::count($condition);
 
 			if ($posts_month > $throttle_month) {
 				Logger::log('Monthly posting limit reached for user '.api_user(), Logger::DEBUG);
@@ -1810,18 +1810,18 @@ function api_statuses_networkpublic_timeline($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `iid` > ? AND `private` = ?",
+	$condition = ["`uid` = 0 AND `gravity` IN (?, ?) AND `id` > ? AND `private` = ?",
 		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `iid` <= ?";
+		$condition[0] .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
 
-	$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	$statuses = Post::toArray(Post::selectForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params));
 
-	$ret = api_format_items(Post::toArray($statuses), $user_info, false, $type);
+	$ret = api_format_items($statuses, $user_info, false, $type);
 
 	bindComments($ret);
 
@@ -2930,6 +2930,10 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
 	$a = Friendica\DI::app();
 
 	$ret = [];
+
+	if (empty($items)) {
+		return $ret;
+	}
 
 	foreach ((array)$items as $item) {
 		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);

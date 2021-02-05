@@ -24,6 +24,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\Model\Photo;
 
 /**
@@ -37,8 +38,8 @@ class RemoveUnusedContacts
 			AND (NOT `network` IN (?, ?, ?, ?, ?, ?) OR (`archive` AND `success_update` < UTC_TIMESTAMP() - INTERVAL ? DAY))
 			AND NOT `id` IN (SELECT `author-id` FROM `item`) AND NOT `id` IN (SELECT `owner-id` FROM `item`)
 			AND NOT `id` IN (SELECT `causer-id` FROM `item`) AND NOT `id` IN (SELECT `cid` FROM `post-tag`)
-			AND NOT `id` IN (SELECT `contact-id` FROM `item`) AND NOT `id` IN (SELECT `author-id` FROM `thread`)
-			AND NOT `id` IN (SELECT `owner-id` FROM `thread`) AND NOT `id` IN (SELECT `contact-id` FROM `thread`)
+			AND NOT `id` IN (SELECT `contact-id` FROM `item`) AND NOT `id` IN (SELECT `author-id` FROM `post-thread`)
+			AND NOT `id` IN (SELECT `owner-id` FROM `post-thread`) AND NOT `id` IN (SELECT `causer-id` FROM `post-thread`)
 			AND NOT `id` IN (SELECT `contact-id` FROM `post-user`) AND NOT `id` IN (SELECT `cid` FROM `user-contact`) 
 			AND NOT `id` IN (SELECT `cid` FROM `event`) AND NOT `id` IN (SELECT `contact-id` FROM `group_member`)",
 			0, 0, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Protocol::ACTIVITYPUB, 365];
@@ -49,6 +50,10 @@ class RemoveUnusedContacts
 		$contacts = DBA::select('contact', ['id', 'uid'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
 			if (Photo::delete(['uid' => $contact['uid'], 'contact-id' => $contact['id']])) {
+				if (DBStructure::existsTable('thread')) {
+					DBA::delete('thread', ['owner-id' => $contact['id']]);
+					DBA::delete('thread', ['author-id' => $contact['id']]);
+				}
 				DBA::delete('contact', ['id' => $contact['id']]);
 				if ((++$count % 1000) == 0) {
 					Logger::notice('In removal', ['count' => $count, 'total' => $total]);

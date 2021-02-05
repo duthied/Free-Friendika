@@ -899,8 +899,9 @@ class Item
 
 			// If its a post that originated here then tag the thread as "mention"
 			if ($item['origin'] && $item['uid']) {
+				DBA::update('post-thread-user', ['mention' => true], ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
 				DBA::update('thread', ['mention' => true], ['iid' => $parent_id]);
-				Logger::info('tagged thread as mention', ['parent' => $parent_id, 'uid' => $item['uid']]);
+				Logger::info('tagged thread as mention', ['parent' => $parent_id, 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
 			}
 
 			// Update the contact relations
@@ -977,6 +978,10 @@ class Item
 		// Filling item related side tables
 		if (!empty($item['attach'])) {
 			Post\Media::insertFromAttachment($item['uri-id'], $item['attach']);
+		}
+
+		if ($item['gravity'] == GRAVITY_PARENT) {
+			Post\Thread::insert($item['uri-id'], $item);
 		}
 
 		if (!in_array($item['verb'], self::ACTIVITIES)) {
@@ -2203,9 +2208,9 @@ class Item
 
 	public static function firstPostDate($uid, $wall = false)
 	{
-		$condition = ['uid' => $uid, 'wall' => $wall, 'deleted' => false, 'visible' => true, 'moderated' => false];
+		$condition = ['gravity' => GRAVITY_PARENT, 'uid' => $uid, 'wall' => $wall, 'deleted' => false, 'visible' => true, 'moderated' => false];
 		$params = ['order' => ['received' => false]];
-		$thread = DBA::selectFirst('thread', ['received'], $condition, $params);
+		$thread = Post::selectFirst(['received'], $condition, $params);
 		if (DBA::isResult($thread)) {
 			return substr(DateTimeFormat::local($thread['received']), 0, 10);
 		}

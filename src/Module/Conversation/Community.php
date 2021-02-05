@@ -336,7 +336,7 @@ class Community extends BaseModule
 			$condition[] = $item_id;
 		} else {
 			if (local_user() && !empty($_REQUEST['no_sharer'])) {
-				$condition[0] .= " AND NOT EXISTS (SELECT `uri-id` FROM `thread` AS t1 WHERE `t1`.`uri-id` = `thread`.`uri-id` AND `t1`.`uid` = ?)";
+				$condition[0] .= " AND NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-thread-view`.`uri-id` AND `post-user`.`uid` = ?)";
 				$condition[] = local_user();
 			}
 	

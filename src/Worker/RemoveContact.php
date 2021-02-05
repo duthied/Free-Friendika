@@ -52,6 +52,8 @@ class RemoveContact {
 				Logger::info('Delete removed contact item', ['id' => $item['id'], 'guid' => $item['guid']]);
 				DBA::delete('item', ['id' => $item['id']]);
 				Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
+				Post\Thread::delete(['uri-id' => $item['uri-id']]);
+				Post\ThreadUser::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
 			}
 			DBA::close($items);
 		} while (Post::exists($condition));

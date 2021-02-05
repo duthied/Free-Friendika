@@ -295,7 +295,7 @@ function update_1349()
 
 function update_1351()
 {
-	if (!DBA::e("UPDATE `thread` INNER JOIN `item` ON `thread`.`iid` = `item`.`id` SET `thread`.`uri-id` = `item`.`uri-id`")) {
+	if (DBStructure::existsTable('thread') && !DBA::e("UPDATE `thread` INNER JOIN `item` ON `thread`.`iid` = `item`.`id` SET `thread`.`uri-id` = `item`.`uri-id`")) {
 		return Update::FAILED;
 	}
 
@@ -519,7 +519,7 @@ function pre_update_1365()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `thread` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
+	if (DBStructure::existsTable('thread') && !DBA::e("DELETE FROM `thread` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
 		return Update::FAILED;
 	}
 
@@ -548,7 +548,7 @@ function pre_update_1376()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `thread` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+	if (DBStructure::existsTable('thread') && !DBA::e("DELETE FROM `thread` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
 		return Update::FAILED;
 	}
 
@@ -589,15 +589,15 @@ function pre_update_1377()
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `thread` WHERE NOT `author-id` IN (SELECT `id` FROM `contact`)")) {
+	if (DBStructure::existsTable('thread') && !DBA::e("DELETE FROM `thread` WHERE NOT `author-id` IN (SELECT `id` FROM `contact`)")) {
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("DELETE FROM `thread` WHERE NOT `owner-id` IN (SELECT `id` FROM `contact`)")) {
+	if (DBStructure::existsTable('thread') && !DBA::e("DELETE FROM `thread` WHERE NOT `owner-id` IN (SELECT `id` FROM `contact`)")) {
 		return Update::FAILED;
 	}
 
-	if (!DBA::e("UPDATE `thread` SET `contact-id` = `owner-id` WHERE NOT `contact-id` IN (SELECT `id` FROM `contact`)")) {
+	if (DBStructure::existsTable('thread') && !DBA::e("UPDATE `thread` SET `contact-id` = `owner-id` WHERE NOT `contact-id` IN (SELECT `id` FROM `contact`)")) {
 		return Update::FAILED;
 	}
 
@@ -734,4 +734,28 @@ function update_1397()
 	}
 
 	return Update::SUCCESS;
+}
+
+function update_1398()
+{
+	if (!DBStructure::existsTable('thread')) {
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("INSERT IGNORE INTO `post-thread` (`uri-id`, `owner-id`, `author-id`, `network`, `created`, `received`, `changed`, `commented`)
+		SELECT `uri-id`, `owner-id`, `author-id`, `network`, `created`, `received`, `changed`, `commented` FROM `thread`")) {
+			return Update::FAILED;
+	}
+
+	if (!DBStructure::existsTable('thread')) {
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("UPDATE `post-thread-user` INNER JOIN `thread` ON `thread`.`uid` = `post-thread-user`.`uid` AND `thread`.`uri-id` = `post-thread-user`.`uri-id`
+		SET `post-thread-user`.`mention` = `thread`.`mention`")) {
+			return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+
 }
