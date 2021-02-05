@@ -1819,9 +1819,10 @@ function api_statuses_networkpublic_timeline($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::toArray(Post::selectForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params));
+//	$statuses = Post::toArray(Post::selectForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params));
+	$statuses = Post::toArray(Post::select(Item::DISPLAY_FIELDLIST, $condition, $params));
 if (empty($statuses)) {
-	return ['status' => [], 'statuses' => $statuses, 'condition' => $condition, 'params' => $params, 'db' => DBA::errorNo(), 'msg' => DBA::errorMessage()];
+	return ['status' => [], 'statuses2' => $statuses, 'condition' => $condition, 'params' => $params, 'db' => DBA::errorNo(), 'msg' => DBA::errorMessage()];
 }
 	$ret = api_format_items($statuses, $user_info, false, $type);
 if (empty($ret)) {
