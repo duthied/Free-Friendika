@@ -319,7 +319,7 @@ class Item
 
 		// Set the item to "deleted"
 		$item_fields = ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
-		DBA::update('item', $item_fields, ['id' => $item['id']]);
+		Post::update($item_fields, ['id' => $item['id']]);
 
 		Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], '');
 		self::deleteThread($item['id'], $item['parent-uri-id']);
@@ -919,7 +919,7 @@ class Item
 			$item["global"] = true;
 
 			// Set the global flag on all items if this was a global item entry
-			DBA::update('item', ['global' => true], ['uri-id' => $item['uri-id']]);
+			Post::update(['global' => true], ['uri-id' => $item['uri-id']]);
 		} else {
 			$item['global'] = Post::exists(['uid' => 0, 'uri-id' => $item['uri-id']]);
 		}
@@ -1068,9 +1068,9 @@ class Item
 		}
 
 		if ($update_commented) {
-			DBA::update('item', ['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
+			Post::update(['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		} else {
-			DBA::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
+			Post::update(['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		}
 
 		if ($item['gravity'] === GRAVITY_PARENT) {

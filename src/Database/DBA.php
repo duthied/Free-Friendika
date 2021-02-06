@@ -478,7 +478,7 @@ class DBA
 	 * @return boolean|object
 	 *
 	 * Example:
-	 * $table = "item";
+	 * $table = "post";
 	 * $fields = array("id", "uri", "uid", "network");
 	 *
 	 * $condition = array("uid" => 1, "network" => 'dspr');
@@ -505,7 +505,7 @@ class DBA
 	 * @return int
 	 *
 	 * Example:
-	 * $table = "item";
+	 * $table = "post";
 	 *
 	 * $condition = ["uid" => 1, "network" => 'dspr'];
 	 * or:

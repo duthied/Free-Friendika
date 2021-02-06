@@ -1512,7 +1512,7 @@ class Database
 	 *
 	 *
 	 * Example:
-	 * $table = 'item';
+	 * $table = 'post';
 	 * or:
 	 * $table = ['schema' => 'table'];
 	 * @see DBA::buildTableString()
@@ -1575,7 +1575,7 @@ class Database
 	 * @return int
 	 *
 	 * Example:
-	 * $table = "item";
+	 * $table = "post";
 	 *
 	 * $condition = ["uid" => 1, "network" => 'dspr'];
 	 * or:

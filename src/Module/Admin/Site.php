@@ -104,7 +104,7 @@ class Site extends BaseAdmin
 			// update profile links in the format "http://server.tld"
 			update_table($a, "profile", ['photo', 'thumb'], $old_url, $new_url);
 			update_table($a, "contact", ['photo', 'thumb', 'micro', 'url', 'nurl', 'alias', 'request', 'notify', 'poll', 'confirm', 'poco', 'avatar'], $old_url, $new_url);
-			update_table($a, "item", ['owner-link', 'author-link', 'body', 'plink', 'tag'], $old_url, $new_url);
+			update_table($a, "post-content", ['body'], $old_url, $new_url);
 
 			// update profile addresses in the format "user@server.tld"
 			update_table($a, "contact", ['addr'], $old_host, $new_host);
