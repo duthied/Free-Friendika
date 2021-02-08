@@ -80,11 +80,9 @@ This method is slower overall, but it is better suited for large numbers of dupl
 
 ### Resolving Possible Database Issues Post Upgrading
 
-#### Foriegn Keys
+#### Foreign Keys
 
-Some of the updates include the use of foreign keys now that will bump
-into issues with previous versions, which would sometimes shove bad
-data into tables, preventing, causing errors such as below.
+Some of the updates include the use of foreign keys now that will bump into issues with previous versions, which would sometimes shove bad data into tables, preventing, causing errors such as below.
 
 ```
 Error 1452 occurred during database update:
@@ -95,14 +93,13 @@ ALTER TABLE `thread` ADD FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE 
 All current known fixes for possible items that can go wrong are as below.
 
 ```SQL
-delete from item where `owner-id` not in (select id from contact);
-delete from item where `contact-id` not in (select id from contact);
-delete from notify where `uri-id` not in (select id from `item-uri`);
-delete from photo where `contact-id` not in (select id from contact);
-delete from thread where iid not in (select id from item);
-delete from item where `author-id` not in (select id from contact);
-delete from diaspora-interaction where uri-id not in (select id from item-uri);
+DELETE FROM `item` WHERE `owner-id` NOT IN (SELECT `id` FROM `contact`);
+DELETE FROM `item` WHERE `contact-id` NOT IN (SELECT `id` FROM `contact`);
+DELETE FROM `notify` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`);
+DELETE FROM `photo` WHERE `contact-id` NOT IN (SELECT `id` FROM `contact`);
+DELETE FROM `thread` WHERE `iid` NOT IN (SELECT `id` FROM `item`);
+DELETE FROM `item` WHERE `author-id` NOT IN (SELECT `id` FROM `contact`);
+DELETE FROM `diaspora-interaction` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`);
 ```
 
-This all has been compiled as of currently from issue #9746, #9753,
-and #9878.
+This all has been compiled as of currently from issue #9746, #9753, and #9878.
