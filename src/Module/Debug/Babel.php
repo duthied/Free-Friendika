@@ -246,29 +246,34 @@ class Babel extends BaseModule
 				case 'twitter':
 					$json = trim($_REQUEST['text']);
 
-					$status = json_decode($json);
-
-					$results[] = [
-						'title'   => DI::l10n()->t('Decoded post'),
-						'content' => visible_whitespace(var_export($status, true)),
-					];
-
-					$postarray = [];
-					$postarray['object-type'] = Activity\ObjectType::NOTE;
-
-					if (!empty($status->full_text)) {
-						$postarray['body'] = $status->full_text;
-					} else {
-						$postarray['body'] = $status->text;
-					}
-
-					// When the post contains links then use the correct object type
-					if (count($status->entities->urls) > 0) {
-						$postarray['object-type'] = Activity\ObjectType::BOOKMARK;
-					}
-
 					if (file_exists('addon/twitter/twitter.php')) {
 						require_once 'addon/twitter/twitter.php';
+
+						if (parse_url($json) !== false) {
+							preg_match('#^https?://(?:mobile\.|www\.)?twitter.com/[^/]+/status/(\d+).*#', $json, $matches);
+							$status = twitter_statuses_show($matches[1]);
+						} else {
+							$status = json_decode($json);
+						}
+
+						$results[] = [
+							'title'   => DI::l10n()->t('Decoded post'),
+							'content' => visible_whitespace(var_export($status, true)),
+						];
+
+						$postarray = [];
+						$postarray['object-type'] = Activity\ObjectType::NOTE;
+
+						if (!empty($status->full_text)) {
+							$postarray['body'] = $status->full_text;
+						} else {
+							$postarray['body'] = $status->text;
+						}
+
+						// When the post contains links then use the correct object type
+						if (count($status->entities->urls) > 0) {
+							$postarray['object-type'] = Activity\ObjectType::BOOKMARK;
+						}
 
 						$picture = \twitter_media_entities($status, $postarray);
 
@@ -307,7 +312,7 @@ class Babel extends BaseModule
 			'$type_markdown' => ['type', DI::l10n()->t('Markdown'), 'markdown', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'markdown'],
 			'$type_html'     => ['type', DI::l10n()->t('HTML'), 'html', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'html'],
 			'$flag_twitter'  => file_exists('addon/twitter/twitter.php'),
-			'$type_twitter'  => ['type', DI::l10n()->t('Twitter Source'), 'twitter', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'twitter'],
+			'$type_twitter'  => ['type', DI::l10n()->t('Twitter Source / Tweet URL (requires API key)'), 'twitter', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'twitter'],
 			'$results'       => $results
 		]);
 
