@@ -477,18 +477,6 @@ class Post
 			$affected = max($affected, DBA::affectedRows());
 		}
 
-		$update_fields = DBStructure::getFieldsForTable('thread', $fields);
-		if (!empty($update_fields)) {
-			$rows = DBA::selectToArray('post-view', ['id'], $thread_condition);
-			$ids = array_column($rows, 'id');
-			if (!DBA::update('thread', $update_fields, ['iid' => $ids])) {
-				DBA::rollback();
-				Logger::notice('Updating thread failed', ['fields' => $update_fields, 'condition' => $thread_condition]);
-				return false;
-			}
-			$affected = max($affected, DBA::affectedRows());
-		}
-
 		$update_fields = [];
 		foreach (Item::USED_FIELDLIST as $field) {
 			if (array_key_exists($field, $fields)) {

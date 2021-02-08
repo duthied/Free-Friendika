@@ -319,10 +319,9 @@ class Item
 
 		// Set the item to "deleted"
 		$item_fields = ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
-		DBA::update('item', $item_fields, ['id' => $item['id']]);
+		Post::update($item_fields, ['id' => $item['id']]);
 
 		Post\Category::storeTextByURIId($item['uri-id'], $item['uid'], '');
-		self::deleteThread($item['id'], $item['parent-uri-id']);
 
 		if (!Post::exists(["`uri-id` = ? AND `uid` != 0 AND NOT `deleted`", $item['uri-id']])) {
 			self::markForDeletion(['uri-id' => $item['uri-id'], 'uid' => 0, 'deleted' => false], $priority);
@@ -900,7 +899,6 @@ class Item
 			// If its a post that originated here then tag the thread as "mention"
 			if ($item['origin'] && $item['uid']) {
 				DBA::update('post-thread-user', ['mention' => true], ['uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
-				DBA::update('thread', ['mention' => true], ['iid' => $parent_id]);
 				Logger::info('tagged thread as mention', ['parent' => $parent_id, 'parent-uri-id' => $item['parent-uri-id'], 'uid' => $item['uid']]);
 			}
 
@@ -919,7 +917,7 @@ class Item
 			$item["global"] = true;
 
 			// Set the global flag on all items if this was a global item entry
-			DBA::update('item', ['global' => true], ['uri-id' => $item['uri-id']]);
+			Post::update(['global' => true], ['uri-id' => $item['uri-id']]);
 		} else {
 			$item['global'] = Post::exists(['uid' => 0, 'uri-id' => $item['uri-id']]);
 		}
@@ -1068,15 +1066,9 @@ class Item
 		}
 
 		if ($update_commented) {
-			DBA::update('item', ['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
+			Post::update(['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		} else {
-			DBA::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
-		}
-
-		if ($item['gravity'] === GRAVITY_PARENT) {
-			self::addThread($current_post);
-		} else {
-			self::updateThread($parent_id);
+			Post::update(['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		}
 
 		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances
@@ -2421,75 +2413,6 @@ class Item
 		Hook::callAll('post_local_end', $new_item);
 
 		return true;
-	}
-
-	private static function addThread($itemid, $onlyshadow = false)
-	{
-		$fields = ['uid', 'created', 'edited', 'commented', 'received', 'changed', 'wall', 'private', 'pubmail',
-			'moderated', 'visible', 'starred', 'contact-id', 'post-type', 'uri-id',
-			'deleted', 'origin', 'forum_mode', 'mention', 'network', 'author-id', 'owner-id'];
-		$condition = ["`id` = ? AND (`parent` = ? OR `parent` = 0)", $itemid, $itemid];
-		$item = Post::selectFirst($fields, $condition);
-
-		if (!DBA::isResult($item)) {
-			return;
-		}
-
-		$item['iid'] = $itemid;
-
-		if (!$onlyshadow) {
-			$result = DBA::replace('thread', $item);
-
-			Logger::info('Add thread', ['item' => $itemid, 'result' => $result]);
-		}
-	}
-
-	private static function updateThread($itemid, $setmention = false)
-	{
-		$fields = ['uid', 'guid', 'created', 'edited', 'commented', 'received', 'changed', 'post-type',
-			'wall', 'private', 'pubmail', 'moderated', 'visible', 'starred', 'contact-id', 'uri-id',
-			'deleted', 'origin', 'forum_mode', 'network', 'author-id', 'owner-id'];
-
-		$item = Post::selectFirst($fields, ['id' => $itemid, 'gravity' => GRAVITY_PARENT]);
-		if (!DBA::isResult($item)) {
-			return;
-		}
-
-		if ($setmention) {
-			$item["mention"] = 1;
-		}
-
-		$fields = [];
-
-		foreach ($item as $field => $data) {
-			if (!in_array($field, ["guid"])) {
-				$fields[$field] = $data;
-			}
-		}
-
-		$result = DBA::update('thread', $fields, ['iid' => $itemid]);
-
-		Logger::info('Update thread', ['item' => $itemid, 'guid' => $item["guid"], 'result' => $result]);
-	}
-
-	private static function deleteThread($itemid, $uri_id)
-	{
-		$item = DBA::selectFirst('thread', ['uid'], ['iid' => $itemid]);
-		if (!DBA::isResult($item)) {
-			Logger::info('No thread found', ['id' => $itemid]);
-			return;
-		}
-
-		$result = DBA::delete('thread', ['iid' => $itemid], ['cascade' => false]);
-
-		Logger::info('Deleted thread', ['item' => $itemid, 'result' => $result]);
-
-		$condition = ["`uri-id` = ? AND NOT `deleted` AND NOT (`uid` IN (?, 0))", $uri_id, $item["uid"]];
-		if (!Post::exists($condition)) {
-			DBA::delete('item', ['uri-id' => $uri_id, 'uid' => 0]);
-			Post\User::delete(['uri-id' => $uri_id, 'uid' => 0]);
-			Logger::debug('Deleted shadow item', ['id' => $itemid, 'uri-id' => $uri_id]);
-		}
 	}
 
 	/**

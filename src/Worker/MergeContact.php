@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
+use Friendica\Model\Post;
 
 class MergeContact
 {
@@ -43,8 +44,7 @@ class MergeContact
 		Logger::info('Handling duplicate', ['search' => $old_cid, 'replace' => $new_cid]);
 
 		// Search and replace
-		DBA::update('item', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
-		DBA::update('thread', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
+		Post::update(['contact-id' => $new_cid], ['contact-id' => $old_cid]);
 		DBA::update('mail', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
 		DBA::update('photo', ['contact-id' => $new_cid], ['contact-id' => $old_cid]);
 		DBA::update('event', ['cid' => $new_cid], ['cid' => $old_cid]);
@@ -53,11 +53,9 @@ class MergeContact
 		if ($uid == 0) {
 			DBA::update('post-tag', ['cid' => $new_cid], ['cid' => $old_cid]);
 			DBA::delete('post-tag', ['cid' => $old_cid]);
-			DBA::update('item', ['author-id' => $new_cid], ['author-id' => $old_cid]);
-			DBA::update('item', ['owner-id' => $new_cid], ['owner-id' => $old_cid]);
-			DBA::update('item', ['causer-id' => $new_cid], ['causer-id' => $old_cid]);
-			DBA::update('thread', ['author-id' => $new_cid], ['author-id' => $old_cid]);
-			DBA::update('thread', ['owner-id' => $new_cid], ['owner-id' => $old_cid]);
+			Post::update(['author-id' => $new_cid], ['author-id' => $old_cid]);
+			Post::update(['owner-id' => $new_cid], ['owner-id' => $old_cid]);
+			Post::update(['causer-id' => $new_cid], ['causer-id' => $old_cid]);
 		} else {
 			/// @todo Check if some other data needs to be adjusted as well, possibly the "rel" status?
 		}

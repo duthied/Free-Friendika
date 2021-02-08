@@ -26,7 +26,7 @@ use Friendica\Model\ItemURI;
 
 /**
  * Do some repairs in database entries
- *
+ * @todo This class can be deleted without replacement when the item table is removed
  */
 class RepairDatabase
 {

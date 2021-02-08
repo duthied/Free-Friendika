@@ -242,7 +242,7 @@ class UserExport extends BaseSettings
 		self::exportAccount($a);
 		echo "\n";
 
-		$total = DBA::count('item', ['uid' => local_user()]);
+		$total = Post::count(['uid' => local_user()]);
 		// chunk the output to avoid exhausting memory
 
 		for ($x = 0; $x < $total; $x += 500) {
