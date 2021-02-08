@@ -98,21 +98,19 @@ class OEmbed
 				// try oembed autodiscovery
 				$html_text = DI::httpRequest()->fetch($embedurl, 15, 'text/*');
 				if ($html_text) {
-					$dom = @DOMDocument::loadHTML($html_text);
-					if ($dom) {
+					$dom = new DOMDocument();
+					if ($dom->loadHTML($html_text)) {
 						$xpath = new DOMXPath($dom);
-						$entries = $xpath->query("//link[@type='application/json+oembed']");
-						foreach ($entries as $e) {
-							$href = $e->getAttributeNode('href')->nodeValue;
-							$json_string = DI::httpRequest()->fetch($href . '&maxwidth=' . $a->videowidth);
-							break;
-						}
-
-						$entries = $xpath->query("//link[@type='text/json+oembed']");
-						foreach ($entries as $e) {
-							$href = $e->getAttributeNode('href')->nodeValue;
-							$json_string = DI::httpRequest()->fetch($href . '&maxwidth=' . $a->videowidth);
-							break;
+						foreach (
+							$xpath->query("//link[@type='application/json+oembed'] | //link[@type='text/json+oembed']")
+							as $link)
+						{
+							$href = $link->getAttributeNode('href')->nodeValue;
+							$result = DI::httpRequest()->fetchFull($href . '&maxwidth=' . $a->videowidth);
+							if ($result->getReturnCode() === 200) {
+								$json_string = $result->getBody();
+								break;
+							}
 						}
 					}
 				}
