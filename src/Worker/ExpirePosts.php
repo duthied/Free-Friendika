@@ -25,6 +25,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 
 class ExpirePosts
 {
@@ -47,21 +48,18 @@ class ExpirePosts
 		if (!empty($expire_days)) {
 			do {
 				Logger::notice('Start deleting expired threads', ['expiry_days' => $expire_days]);
-				/// @todo replace that query later
 				$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` IN
-					(SELECT `uri-id` FROM `thread`
-					INNER JOIN `contact` ON `id` = `contact-id` AND NOT `notify_new_posts`
-					WHERE `thread`.`received` < UTC_TIMESTAMP() - INTERVAL ? DAY
-						AND NOT `thread`.`mention` AND NOT `thread`.`starred`
-						AND NOT `thread`.`wall` AND NOT `thread`.`origin`
-						AND `thread`.`uid` != 0 AND NOT `iid` IN (SELECT `parent` FROM `item`
-							WHERE (`item`.`starred` OR (`item`.`resource-id` != '')
-								OR (`item`.`event-id` != '') OR (`item`.`attach` != '')
-								OR `item`.`wall` OR `item`.`origin`
-								OR `item`.`uri-id` IN (SELECT `uri-id` FROM `post-category`
-									WHERE `post-category`.`uri-id` = `item`.`uri-id`))
-								AND `item`.`parent` = `thread`.`iid`))
-					ORDER BY `id` LIMIT ?", $expire_days, $limit);
+					(SELECT `uri-id` FROM `post-thread` WHERE `received` < UTC_TIMESTAMP() - INTERVAL ? DAY
+						AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-thread-user` WHERE (`mention` OR `starred` OR `wall` OR `pinned`) AND `uri-id` = `post-thread`.`uri-id`)
+						AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin` AND `uri-id` = `post-thread`.`uri-id`)
+						AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-category` WHERE `uri-id` = `post-thread`.`uri-id`)
+						AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `uri-id` = `post-thread`.`uri-id`)
+						AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item` INNER JOIN `contact` ON `contact`.`id` = `contact-id` AND `notify_new_posts`
+							WHERE `parent-uri-id` = `post-thread`.`uri-id`)
+						AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `item`
+							WHERE (`origin` OR `starred` OR `resource-id` != 0 OR `event-id` != 0 OR `wall` OR `attach` != '' OR `post-type` = ?)
+								AND `parent-uri-id` = `post-thread`.`uri-id`))
+					ORDER BY `id` LIMIT ?", $expire_days, Item::PT_PERSONAL_NOTE, $limit);
 
 				$rows = DBA::affectedRows();
 				Logger::notice('Deleted expired threads', ['result' => $ret, 'rows' => $rows]);
