@@ -106,6 +106,10 @@ class OEmbed
 							as $link)
 						{
 							$href = $link->getAttributeNode('href')->nodeValue;
+							// Both Youtube and Vimeo output OEmbed endpoint URL with HTTP
+							// but their OEmbed endpoint is only accessible by HTTPS ¯\_(ツ)_/¯
+							$href = str_replace(['http://www.youtube.com/', 'http://player.vimeo.com/'],
+								['https://www.youtube.com/', 'https://player.vimeo.com/'], $href);
 							$result = DI::httpRequest()->fetchFull($href . '&maxwidth=' . $a->videowidth);
 							if ($result->getReturnCode() === 200) {
 								$json_string = $result->getBody();
@@ -335,10 +339,6 @@ class OEmbed
 
 	public static function getHTML($url, $title = null)
 	{
-		// Always embed the SSL version
-		$url = str_replace(["http://www.youtube.com/", "http://player.vimeo.com/"],
-					["https://www.youtube.com/", "https://player.vimeo.com/"], $url);
-
 		$o = self::fetchURL($url, !self::isAllowedURL($url));
 
 		if (!is_object($o) || property_exists($o, 'type') && $o->type == 'error') {
