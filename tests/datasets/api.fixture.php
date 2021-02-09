@@ -220,53 +220,21 @@ return [
 			'author-id'  => 42,
 			'owner-id'   => 42,
 			'causer-id'  => 42,
-			'network' => Protocol::DFRN,
+			'network'    => Protocol::DFRN,
 		],
 		[
 			'uri-id'     => 3,
 			'author-id'  => 43,
 			'owner-id'   => 43,
 			'causer-id'  => 43,
-			'network' => Protocol::DFRN,
+			'network'    => Protocol::DFRN,
 		],
 		[
 			'uri-id'     => 6,
 			'author-id'  => 44,
 			'owner-id'   => 44,
 			'causer-id'  => 44,
-			'network' => Protocol::DFRN,
-		],
-	],
-	'post-thread-user'  => [
-		[
-			'uri-id'     => 1,
-			'uid'        => 42,
-			'wall'       => 1,
-		],
-		[
-			'uri-id'     => 3,
-			'uid'        => 42,
-			'wall'       => 1,
-		],
-		[
-			'uri-id'     => 6,
-			'uid'        => 42,
-			'wall'       => 1,
-		],
-		[
-			'uri-id'     => 1,
-			'uid'        => 0,
-			'wall'       => 0,
-		],
-		[
-			'uri-id'     => 3,
-			'uid'        => 0,
-			'wall'       => 0,
-		],
-		[
-			'uri-id'     => 6,
-			'uid'        => 0,
-			'wall'       => 0,
+			'network'    => Protocol::DFRN,
 		],
 	],
 	'post-user' => [
@@ -366,7 +334,44 @@ return [
 			'unseen'      => 0,
 			'origin'      => 0,
 		],
-
+	],
+	'post-thread-user'  => [
+		[
+			'uri-id'     => 1,
+			'uid'        => 42,
+			'wall'       => 1,
+			'post-user-id' => 1,
+		],
+		[
+			'uri-id'     => 3,
+			'uid'        => 42,
+			'wall'       => 1,
+			'post-user-id' => 3,
+		],
+		[
+			'uri-id'     => 6,
+			'uid'        => 42,
+			'wall'       => 1,
+			'post-user-id' => 6,
+		],
+		[
+			'uri-id'     => 1,
+			'uid'        => 0,
+			'wall'       => 0,
+			'post-user-id' => 7,
+		],
+		[
+			'uri-id'     => 3,
+			'uid'        => 0,
+			'wall'       => 0,
+			'post-user-id' => 9,
+		],
+		[
+			'uri-id'     => 6,
+			'uid'        => 0,
+			'wall'       => 0,
+			'post-user-id' => 12,
+		],
 	],
 	'item'    => [
 		[

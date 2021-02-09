@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1398
+-- DB_UPDATE_VERSION 1399
 -- ------------------------------------------
 
 
@@ -1152,27 +1152,6 @@ CREATE TABLE IF NOT EXISTS `post-thread` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data';
 
 --
--- TABLE post-thread-user
---
-CREATE TABLE IF NOT EXISTS `post-thread-user` (
-	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner id which owns this copy of the item',
-	`pinned` boolean NOT NULL DEFAULT '0' COMMENT 'The thread is pinned on the profile page',
-	`starred` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`ignored` boolean NOT NULL DEFAULT '0' COMMENT 'Ignore updates for this thread',
-	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
-	`mention` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	 PRIMARY KEY(`uid`,`uri-id`),
-	 INDEX `uid_wall` (`uid`,`wall`),
-	 INDEX `uid_pinned` (`uid`,`pinned`),
-	 INDEX `uri-id` (`uri-id`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data per user';
-
---
 -- TABLE post-user
 --
 CREATE TABLE IF NOT EXISTS `post-user` (
@@ -1191,11 +1170,45 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	 INDEX `uri-id` (`uri-id`),
 	 INDEX `contact-id` (`contact-id`),
 	 INDEX `psid` (`psid`),
+	 INDEX `uid_hidden` (`uid`,`hidden`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific post data';
+
+--
+-- TABLE post-thread-user
+--
+CREATE TABLE IF NOT EXISTS `post-thread-user` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner id which owns this copy of the item',
+	`pinned` boolean NOT NULL DEFAULT '0' COMMENT 'The thread is pinned on the profile page',
+	`starred` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`ignored` boolean NOT NULL DEFAULT '0' COMMENT 'Ignore updates for this thread',
+	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
+	`mention` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
+	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'post has not been seen',
+	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide the post from the user',
+	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
+	`psid` int unsigned COMMENT 'ID of the permission set of this post',
+	`post-user-id` int unsigned COMMENT 'Id of the post-user table',
+	 PRIMARY KEY(`uid`,`uri-id`),
+	 INDEX `uid_wall` (`uid`,`wall`),
+	 INDEX `uid_pinned` (`uid`,`pinned`),
+	 INDEX `uri-id` (`uri-id`),
+	 INDEX `contact-id` (`contact-id`),
+	 INDEX `psid` (`psid`),
+	 INDEX `post-user-id` (`post-user-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`post-user-id`) REFERENCES `post-user` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data per user';
 
 --
 -- TABLE post-user-notification
@@ -1645,15 +1658,15 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`item`.`visible` AS `visible`,
 	`post-thread-user`.`starred` AS `starred`,
 	`item`.`bookmark` AS `bookmark`,
-	`post-user`.`unseen` AS `unseen`,
+	`post-thread-user`.`unseen` AS `unseen`,
 	`item`.`deleted` AS `deleted`,
-	`post-user`.`origin` AS `origin`,
+	`post-thread-user`.`origin` AS `origin`,
 	`post-thread-user`.`forum_mode` AS `forum_mode`,
 	`item`.`mention` AS `mention`,
 	`item`.`global` AS `global`,
 	`post-thread`.`network` AS `network`,
 	`item`.`vid` AS `vid`,
-	`post-user`.`psid` AS `psid`,
+	`post-thread-user`.`psid` AS `psid`,
 	IF (`item`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
 	`post-content`.`title` AS `title`,
 	`post-content`.`content-warning` AS `content-warning`,
@@ -1671,7 +1684,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post-content`.`target-type` AS `target-type`,
 	`post-content`.`target` AS `target`,
 	`post-content`.`resource-id` AS `resource-id`,
-	`post-user`.`contact-id` AS `contact-id`,
+	`post-thread-user`.`contact-id` AS `contact-id`,
 	`contact`.`url` AS `contact-link`,
 	`contact`.`addr` AS `contact-addr`,
 	`contact`.`name` AS `contact-name`,
@@ -1729,10 +1742,10 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post-delivery-data`.`queue_count` AS `delivery_queue_count`,
 	`post-delivery-data`.`queue_done` AS `delivery_queue_done`,
 	`post-delivery-data`.`queue_failed` AS `delivery_queue_failed`,
-	IF (`post-user`.`psid` IS NULL, '', `permissionset`.`allow_cid`) AS `allow_cid`,
-	IF (`post-user`.`psid` IS NULL, '', `permissionset`.`allow_gid`) AS `allow_gid`,
-	IF (`post-user`.`psid` IS NULL, '', `permissionset`.`deny_cid`) AS `deny_cid`,
-	IF (`post-user`.`psid` IS NULL, '', `permissionset`.`deny_gid`) AS `deny_gid`,
+	IF (`post-thread-user`.`psid` IS NULL, '', `permissionset`.`allow_cid`) AS `allow_cid`,
+	IF (`post-thread-user`.`psid` IS NULL, '', `permissionset`.`allow_gid`) AS `allow_gid`,
+	IF (`post-thread-user`.`psid` IS NULL, '', `permissionset`.`deny_cid`) AS `deny_cid`,
+	IF (`post-thread-user`.`psid` IS NULL, '', `permissionset`.`deny_gid`) AS `deny_gid`,
 	`item`.`event-id` AS `event-id`,
 	`event`.`created` AS `event-created`,
 	`event`.`edited` AS `event-edited`,
@@ -1754,9 +1767,8 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`parent-item-author`.`network` AS `parent-author-network`
 	FROM `post-thread`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-thread`.`uri-id`
-			STRAIGHT_JOIN `post-user` ON `post-user`.`uri-id` = `post-thread`.`uri-id`
 			STRAIGHT_JOIN `item` ON `item`.`uri-id` = `post-thread`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-thread`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread`.`owner-id`
 			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread`.`causer-id`
@@ -1764,8 +1776,8 @@ CREATE VIEW `post-thread-view` AS SELECT
 			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread`.`uri-id`
-			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread`.`uri-id` AND `post-user`.`origin`
-			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-user`.`psid`
+			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread`.`uri-id` AND `post-thread-user`.`origin`
+			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-thread-user`.`psid`
 			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
 			STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`;
 
@@ -1852,19 +1864,18 @@ CREATE VIEW `network-thread-view` AS SELECT
 	`post-thread-user`.`starred` AS `starred`,
 	`post-thread-user`.`mention` AS `mention`,
 	`post-thread`.`network` AS `network`,
-	`post-user`.`contact-id` AS `contact-id`,
+	`post-thread-user`.`contact-id` AS `contact-id`,
 	`ownercontact`.`contact-type` AS `contact-type`
 	FROM `post-thread`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-thread`.`uri-id`
-			STRAIGHT_JOIN `post-user` ON `post-user`.`uri-id` = `post-thread`.`uri-id` AND `post-user`.`uid` = `post-thread-user`.`uid`
 			STRAIGHT_JOIN `item` ON `item`.`uri-id` = `post-thread`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
-			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-user`.`uid` AND `author`.`cid` = `post-thread`.`author-id`
-			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-user`.`uid` AND `owner`.`cid` = `post-thread`.`owner-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread`.`author-id`
+			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread`.`owner-id`
 			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread`.`owner-id`
 			WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
-			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
+			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
 			AND (`owner`.`blocked` IS NULL OR NOT `owner`.`blocked`);
 

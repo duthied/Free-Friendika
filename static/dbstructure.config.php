@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1398);
+	define('DB_UPDATE_VERSION', 1399);
 }
 
 return [
@@ -1204,26 +1204,6 @@ return [
 			"changed" => ["changed"]
 		]
 	],
-	"post-thread-user" => [
-		"comment" => "Thread related data per user",
-		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
-			"pinned" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "The thread is pinned on the profile page"],
-			"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"ignored" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Ignore updates for this thread"],
-			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
-			"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""]
-		],
-		"indexes" => [
-			"PRIMARY" => ["uid", "uri-id"],
-			"uid_wall" => ["uid", "wall"],
-			"uid_pinned" => ["uid", "pinned"],
-			"uri-id" => ["uri-id"],
-		]
-	],
 	"post-user" => [
 		"comment" => "User specific post data",
 		"fields" => [
@@ -1244,7 +1224,37 @@ return [
 			"uri-id" => ["uri-id"],
 			"contact-id" => ["contact-id"],
 			"psid" => ["psid"],
+			"uid_hidden" => ["uid", "hidden"],
 		],
+	],
+	"post-thread-user" => [
+		"comment" => "Thread related data per user",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
+			"pinned" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "The thread is pinned on the profile page"],
+			"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"ignored" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Ignore updates for this thread"],
+			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
+			"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id"],
+			"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "post has not been seen"],
+			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide the post from the user"],
+			"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item originated at this site"],
+			"psid" => ["type" => "int unsigned", "foreign" => ["permissionset" => "id", "on delete" => "restrict"], "comment" => "ID of the permission set of this post"],
+			"post-user-id" => ["type" => "int unsigned", "foreign" => ["post-user" => "id"], "comment" => "Id of the post-user table"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uid", "uri-id"],
+			"uid_wall" => ["uid", "wall"],
+			"uid_pinned" => ["uid", "pinned"],
+			"uri-id" => ["uri-id"],
+			"contact-id" => ["contact-id"],
+			"psid" => ["psid"],
+			"post-user-id" => ["post-user-id"],
+		]
 	],
 	"post-user-notification" => [
 		"comment" => "User post notifications",
