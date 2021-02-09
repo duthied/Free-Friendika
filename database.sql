@@ -1152,6 +1152,32 @@ CREATE TABLE IF NOT EXISTS `post-thread` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data';
 
 --
+-- TABLE post-user
+--
+CREATE TABLE IF NOT EXISTS `post-user` (
+	`id` int unsigned NOT NULL auto_increment,
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`uid` mediumint unsigned NOT NULL COMMENT 'Owner id which owns this copy of the item',
+	`protocol` tinyint unsigned COMMENT 'Protocol used to deliver the item for this user',
+	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
+	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'post has not been seen',
+	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide the post from the user',
+	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
+	`psid` int unsigned COMMENT 'ID of the permission set of this post',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uid_uri-id` (`uid`,`uri-id`),
+	 INDEX `uri-id` (`uri-id`),
+	 INDEX `contact-id` (`contact-id`),
+	 INDEX `psid` (`psid`),
+	 INDEX `uid_hidden` (`uid`,`hidden`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific post data';
+
+--
 -- TABLE post-thread-user
 --
 CREATE TABLE IF NOT EXISTS `post-thread-user` (
@@ -1183,32 +1209,6 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`post-user-id`) REFERENCES `post-user` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data per user';
-
---
--- TABLE post-user
---
-CREATE TABLE IF NOT EXISTS `post-user` (
-	`id` int unsigned NOT NULL auto_increment,
-	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
-	`uid` mediumint unsigned NOT NULL COMMENT 'Owner id which owns this copy of the item',
-	`protocol` tinyint unsigned COMMENT 'Protocol used to deliver the item for this user',
-	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
-	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'post has not been seen',
-	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide the post from the user',
-	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
-	`psid` int unsigned COMMENT 'ID of the permission set of this post',
-	 PRIMARY KEY(`id`),
-	 UNIQUE INDEX `uid_uri-id` (`uid`,`uri-id`),
-	 INDEX `uri-id` (`uri-id`),
-	 INDEX `contact-id` (`contact-id`),
-	 INDEX `psid` (`psid`),
-	 INDEX `uid_hidden` (`uid`,`hidden`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific post data';
 
 --
 -- TABLE post-user-notification
