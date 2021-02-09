@@ -247,6 +247,7 @@ class Item
 		while ($item = Post::fetch($items)) {
 			if (in_array($item['uid'], [$uid, 0])) {
 				Post\User::update($item['uri-id'], $uid, ['hidden' => true], true);
+				Post\ThreadUser::update($item['uri-id'], $uid, ['hidden' => true], true);
 			}
 
 			if ($item['uid'] == $uid) {
@@ -353,6 +354,7 @@ class Item
 			}
 		} elseif ($item['uid'] != 0) {
 			Post\User::update($item['uri-id'], $item['uid'], ['hidden' => true]);
+			Post\ThreadUser::update($item['uri-id'], $item['uid'], ['hidden' => true]);
 		}
 
 		Logger::info('Item has been marked for deletion.', ['id' => $item_id]);
