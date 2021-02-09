@@ -1731,16 +1731,16 @@ function api_statuses_public_timeline($type)
 	$start = max(0, ($page - 1) * $count);
 
 	if ($exclude_replies && !$conversation_id) {
-		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND `private` = ? AND `wall` AND NOT `author-hidden`",
-			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, Item::PUBLIC];
+		$condition = ["`gravity` = ? AND `id` > ? AND `private` = ? AND `wall` AND NOT `author-hidden`",
+			GRAVITY_PARENT, $since_id, Item::PUBLIC];
 
 		if ($max_id > 0) {
-			$condition[0] .= " AND `iid` <= ?";
+			$condition[0] .= " AND `id` <= ?";
 			$condition[] = $max_id;
 		}
 
-		$params = ['order' => ['iid' => true], 'limit' => [$start, $count]];
-		$statuses = Post::selectThreadForUser(api_user(), Item::DISPLAY_FIELDLIST, $condition, $params);
+		$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+		$statuses = Post::selectForUser(api_user(), [], $condition, $params);
 
 		$r = Post::toArray($statuses);
 	} else {
