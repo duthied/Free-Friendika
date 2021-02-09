@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1398);
+	define('DB_UPDATE_VERSION', 1399);
 }
 
 return [
@@ -1215,13 +1215,22 @@ return [
 			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
 			"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""]
+			"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id"],
+			"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "post has not been seen"],
+			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide the post from the user"],
+			"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item originated at this site"],
+			"psid" => ["type" => "int unsigned", "foreign" => ["permissionset" => "id", "on delete" => "restrict"], "comment" => "ID of the permission set of this post"],
+			"post-user-id" => ["type" => "int unsigned", "foreign" => ["post-user" => "id"], "comment" => "Id of the post-user table"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uid", "uri-id"],
 			"uid_wall" => ["uid", "wall"],
 			"uid_pinned" => ["uid", "pinned"],
 			"uri-id" => ["uri-id"],
+			"contact-id" => ["contact-id"],
+			"psid" => ["psid"],
+			"post-user-id" => ["post-user-id"],
 		]
 	],
 	"post-user" => [
@@ -1244,6 +1253,7 @@ return [
 			"uri-id" => ["uri-id"],
 			"contact-id" => ["contact-id"],
 			"psid" => ["psid"],
+			"uid_hidden" => ["uid", "hidden"],
 		],
 	],
 	"post-user-notification" => [

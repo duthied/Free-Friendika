@@ -757,5 +757,16 @@ function update_1398()
 	}
 
 	return Update::SUCCESS;
+}
 
+function update_1399()
+{
+	if (!DBA::e("UPDATE `post-thread-user` INNER JOIN `post-user` ON `post-user`.`uid` = `post-thread-user`.`uid` AND `post-user`.`uri-id` = `post-thread-user`.`uri-id`
+		SET `post-thread-user`.`contact-id` = `post-user`.`contact-id`, `post-thread-user`.`unseen` = `post-user`.`unseen`, 
+		`post-thread-user`.`hidden` = `post-user`.`hidden`, `post-thread-user`.`origin` = `post-user`.`origin`, 
+		`post-thread-user`.`psid` = `post-user`.`psid`, `post-thread-user`.`post-user-id` = `post-user`.`id`")) {
+			return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
 }

@@ -1015,6 +1015,7 @@ class Item
 		}
 
 		if ($item['gravity'] == GRAVITY_PARENT) {
+			$item['post-user-id'] = $id;
 			Post\ThreadUser::insert($item['uri-id'], $item['uid'], $item);
 		}
 
