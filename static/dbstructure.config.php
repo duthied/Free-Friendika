@@ -1204,6 +1204,29 @@ return [
 			"changed" => ["changed"]
 		]
 	],
+	"post-user" => [
+		"comment" => "User specific post data",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
+			"protocol" => ["type" => "tinyint unsigned", "comment" => "Protocol used to deliver the item for this user"],
+			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id"],
+			"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "post has not been seen"],
+			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide the post from the user"],
+			"notification-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item originated at this site"],
+			"psid" => ["type" => "int unsigned", "foreign" => ["permissionset" => "id", "on delete" => "restrict"], "comment" => "ID of the permission set of this post"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uid_uri-id" => ["UNIQUE", "uid", "uri-id"],
+			"uri-id" => ["uri-id"],
+			"contact-id" => ["contact-id"],
+			"psid" => ["psid"],
+			"uid_hidden" => ["uid", "hidden"],
+		],
+	],
 	"post-thread-user" => [
 		"comment" => "Thread related data per user",
 		"fields" => [
@@ -1232,29 +1255,6 @@ return [
 			"psid" => ["psid"],
 			"post-user-id" => ["post-user-id"],
 		]
-	],
-	"post-user" => [
-		"comment" => "User specific post data",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
-			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
-			"protocol" => ["type" => "tinyint unsigned", "comment" => "Protocol used to deliver the item for this user"],
-			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id"],
-			"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "post has not been seen"],
-			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide the post from the user"],
-			"notification-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item originated at this site"],
-			"psid" => ["type" => "int unsigned", "foreign" => ["permissionset" => "id", "on delete" => "restrict"], "comment" => "ID of the permission set of this post"],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"uid_uri-id" => ["UNIQUE", "uid", "uri-id"],
-			"uri-id" => ["uri-id"],
-			"contact-id" => ["contact-id"],
-			"psid" => ["psid"],
-			"uid_hidden" => ["uid", "hidden"],
-		],
 	],
 	"post-user-notification" => [
 		"comment" => "User post notifications",
