@@ -40,5 +40,3 @@ Darkzero  <img src="doc/img/darkzero.png" alt="darkzero.png" style="padding-left
 <span style="padding-left: 10px; font-style:italic;">(incl. more "zero"-themes, slackr, comix, easterbunny, facepark)</span>
 
 Dispy  <img src="doc/img/dispy.png" alt="dispy.png" style="padding-left: 57px; vertical-align:middle;"> <i>(incl. smoothly, testbubble)</i>
-
-Frost Mobile  <img src="doc/img/frost.png" alt="frost.png" style="padding-left: 16px; vertical-align:middle;">

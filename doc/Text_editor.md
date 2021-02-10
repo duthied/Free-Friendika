@@ -78,11 +78,6 @@ These icons can change depending on the theme. Some examples:
     <td><img src="doc/img/editor_darkbubble.png" alt="darkbubble.png" style="vertical-align:middle;"></td>
     <td>&nbsp;</td>
 </tr>
-<tr>
-    <td>Frost: </td>
-    <td><img src="doc/img/editor_frost.png" alt="frost.png" style="vertical-align:middle;"> </td>
-    <td>&nbsp;</td>
-</tr>
 </table>
 <i><b>*</b> how to [upload](help/FAQ#upload) files</i>
 <p style="clear:both;">&nbsp;</p>

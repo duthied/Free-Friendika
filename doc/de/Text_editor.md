@@ -54,6 +54,4 @@ Darkbubble  <img src="doc/img/editor_darkbubble.png" alt="darkbubble.png" style=
 
 Frio  <img src="doc/img/editor_frio.png" alt="frio.png" style="padding-left: 44px; vertical-align:middle;">
 
-Frost  <img src="doc/img/editor_frost.png" alt="frost.png" style="padding-left: 42px; vertical-align:middle;"> 
-
 Vier  <img src="doc/img/editor_vier.png" alt="vier.png" style="padding-left: 44px; vertical-align:middle;"> <i>(inkl. dispy)</i>
