@@ -42,41 +42,38 @@
 			"id" => ["item", "id"],
 			"item_id" => ["item", "id"],
 			"post-user-id" => ["post-user", "id"],
-			"uid" => ["item", "uid"],
+			"uid" => ["post-user", "uid"],
 			"parent" => ["item", "parent"],
-			"uri" => ["item", "uri"],
-			"uri-id" => ["item", "uri-id"],
-			"parent-uri" => ["item", "parent-uri"],
-			"parent-uri-id" => ["item", "parent-uri-id"],
-			"thr-parent" => ["item", "thr-parent"],
-			"thr-parent-id" => ["item", "thr-parent-id"],
-			"guid" => ["item", "guid"],
-			"type" => ["item", "type"],
-			"wall" => ["item", "wall"],
-			"gravity" => ["item", "gravity"],
+			"uri" => ["item-uri", "uri"],
+			"uri-id" => ["post-user", "uri-id"],
+			"parent-uri" => ["parent-item-uri", "uri"],
+			"parent-uri-id" => ["post-user", "parent-uri-id"],
+			"thr-parent" => ["thr-parent-item-uri", "uri"],
+			"thr-parent-id" => ["post-user", "thr-parent-id"],
+			"guid" => ["item-uri", "guid"],
+			"wall" => ["post-user", "wall"],
+			"gravity" => ["post-user", "gravity"],
 			"extid" => ["item", "extid"],
-			"created" => ["item", "created"],
-			"edited" => ["item", "edited"],
-			"commented" => ["item", "commented"],
-			"received" => ["item", "received"],
-			"changed" => ["item", "changed"],
-			"post-type" => ["item", "post-type"],
-			"private" => ["item", "private"],
-			"pubmail" => ["item", "pubmail"],
-			"moderated" => ["item", "moderated"],
-			"visible" => ["item", "visible"],
-			"starred" => ["item", "starred"],
-			"bookmark" => ["item", "bookmark"],
-			"unseen" => ["item", "unseen"],
-			"deleted" => ["item", "deleted"],
-			"origin" => ["item", "origin"],
-			"forum_mode" => ["item", "forum_mode"],
-			"mention" => ["item", "mention"],
-			"global" => ["item", "global"],
-			"network" => ["item", "network"],
-			"vid" => ["item", "vid"],
-			"psid" => ["item", "psid"],
-			"verb" => "IF (`item`.`vid` IS NULL, '', `verb`.`name`)",
+			"created" => ["post-user", "created"],
+			"edited" => ["post-user", "edited"],
+			"commented" => ["post-thread-user", "commented"],
+			"received" => ["post-user", "received"],
+			"changed" => ["post-thread-user", "changed"],
+			"post-type" => ["post-user", "post-type"],
+			"private" => ["post-user", "private"],
+			"pubmail" => ["post-thread-user", "pubmail"],
+			"visible" => ["post-user", "visible"],
+			"starred" => ["post-thread-user", "starred"],
+			"unseen" => ["post-user", "unseen"],
+			"deleted" => ["post-user", "deleted"],
+			"origin" => ["post-user", "origin"],
+			"forum_mode" => ["post-thread-user", "forum_mode"],
+			"mention" => ["post-thread-user", "mention"],
+			"global" => ["post-user", "global"],
+			"network" => ["post-user", "network"],
+			"vid" => ["post-user", "vid"],
+			"psid" => ["post-user", "psid"],
+			"verb" => "IF (`post-user`.`vid` IS NULL, '', `verb`.`name`)",
 			"title" => ["post-content", "title"],
 			"content-warning" => ["post-content", "content-warning"],
 			"raw-body" => ["post-content", "raw-body"],
@@ -93,7 +90,7 @@
 			"target-type" => ["post-content", "target-type"],
 			"target" => ["post-content", "target"],
 			"resource-id" => ["post-content", "resource-id"],
-			"contact-id" => ["item", "contact-id"],
+			"contact-id" => ["post-user", "contact-id"],
 			"contact-link" => ["contact", "url"],
 			"contact-addr" => ["contact", "addr"],
 			"contact-name" => ["contact", "name"],
@@ -108,7 +105,7 @@
 			"contact-rel" => ["contact", "rel"],
 			"contact-uid" => ["contact", "uid"],
 			"contact-contact-type" => ["contact", "contact-type"],
-			"writable" => "IF (`item`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`)",
+			"writable" => "IF (`post-user`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`)",
 			"self" => ["contact", "self"],
 			"cid" => ["contact", "id"],
 			"alias" => ["contact", "alias"],
@@ -118,7 +115,7 @@
 			"avatar-date" => ["contact", "avatar-date"],
 			"thumb" => ["contact", "thumb"],
 			"dfrn-id" => ["contact", "dfrn-id"],
-			"author-id" => ["item", "author-id"],
+			"author-id" => ["post-user", "author-id"],
 			"author-link" => ["author", "url"],
 			"author-addr" => ["author", "addr"],
 			"author-name" => "IF (`contact`.`url` = `author`.`url` AND `contact`.`name` != '', `contact`.`name`, `author`.`name`)",
@@ -127,7 +124,7 @@
 			"author-network" => ["author", "network"],
 			"author-blocked" => ["author", "blocked"],
 			"author-hidden" => ["author", "hidden"],
-			"owner-id" => ["item", "owner-id"],
+			"owner-id" => ["post-user", "owner-id"],
 			"owner-link" => ["owner", "url"],
 			"owner-addr" => ["owner", "addr"],
 			"owner-name" => "IF (`contact`.`url` = `owner`.`url` AND `contact`.`name` != '', `contact`.`name`, `owner`.`name`)",
@@ -136,7 +133,7 @@
 			"owner-network" => ["owner", "network"],
 			"owner-blocked" => ["owner", "blocked"],
 			"owner-hidden" => ["owner", "hidden"],
-			"causer-id" => ["item", "causer-id"],
+			"causer-id" => ["post-user", "causer-id"],
 			"causer-link" => ["causer", "url"],
 			"causer-addr" => ["causer", "addr"],
 			"causer-name" => ["causer", "name"],
@@ -151,11 +148,11 @@
 			"delivery_queue_count" => ["post-delivery-data", "queue_count"],
 			"delivery_queue_done" => ["post-delivery-data", "queue_done"],
 			"delivery_queue_failed" => ["post-delivery-data", "queue_failed"],
-			"allow_cid" => "IF (`item`.`psid` IS NULL, '', `permissionset`.`allow_cid`)",
-			"allow_gid" => "IF (`item`.`psid` IS NULL, '', `permissionset`.`allow_gid`)",
-			"deny_cid" => "IF (`item`.`psid` IS NULL, '', `permissionset`.`deny_cid`)",
-			"deny_gid" => "IF (`item`.`psid` IS NULL, '', `permissionset`.`deny_gid`)",
-			"event-id" => ["item", "event-id"],
+			"allow_cid" => "IF (`post-user`.`psid` IS NULL, '', `permissionset`.`allow_cid`)",
+			"allow_gid" => "IF (`post-user`.`psid` IS NULL, '', `permissionset`.`allow_gid`)",
+			"deny_cid" => "IF (`post-user`.`psid` IS NULL, '', `permissionset`.`deny_cid`)",
+			"deny_gid" => "IF (`post-user`.`psid` IS NULL, '', `permissionset`.`deny_gid`)",
+			"event-id" => ["post-user", "event-id"],
 			"event-created" => ["event", "created"],
 			"event-edited" => ["event", "edited"],
 			"event-start" => ["event", "start"],
@@ -168,27 +165,31 @@
 			"event-adjust" => ["event", "adjust"],
 			"event-ignore" => ["event", "ignore"],
 			"signed_text" => ["diaspora-interaction", "interaction"],
-			"parent-guid" => ["parent-item", "guid"],
-			"parent-network" => ["parent-item", "network"],
-			"parent-author-id" => ["parent-item", "author-id"],
-			"parent-author-link" => ["parent-item-author", "url"],  
-			"parent-author-name" => ["parent-item-author", "name"],
-			"parent-author-network" => ["parent-item-author", "network"], 
+			"parent-guid" => ["parent-item-uri", "guid"],
+			"parent-network" => ["parent-post", "network"],
+			"parent-author-id" => ["parent-post", "author-id"],
+			"parent-author-link" => ["parent-post-author", "url"],  
+			"parent-author-name" => ["parent-post-author", "name"],
+			"parent-author-network" => ["parent-post-author", "network"], 
 		],
-		"query" => "FROM `item`
-			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `item`.`uid`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
-			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `item`.`owner-id`
-			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`
-			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
-			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
-			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`
-			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `item`.`uri-id`
-			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `item`.`uri-id` AND `item`.`origin`
-			LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
-			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`uri-id` = `item`.`parent-uri-id` AND `parent-item`.`uid` = `item`.`uid`
-			STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`"
+		"query" => "FROM `post-user`
+			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
+			LEFT JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
+			INNER JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
+			INNER JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
+			INNER JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
+			INNER JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`
+			INNER JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
+			INNER JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
+			INNER JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			INNER JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
+			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
+			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-user`.`uri-id`
+			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-user`.`uri-id`
+			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-user`.`uri-id`
+			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-user`.`psid`
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
+			INNER JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"
 	],
 	"post-thread-view" => [
 		"fields" => [
@@ -197,40 +198,37 @@
 			"item_id" => ["item", "id"],
 			"uid" => ["post-thread-user", "uid"],
 			"parent" => ["item", "parent"],
-			"uri" => ["item", "uri"],
-			"uri-id" => ["post-thread", "uri-id"],
-			"parent-uri" => ["item", "parent-uri"],
-			"parent-uri-id" => ["item", "parent-uri-id"],
-			"thr-parent" => ["item", "thr-parent"],
-			"thr-parent-id" => ["item", "thr-parent-id"],
-			"guid" => ["item", "guid"],
-			"type" => ["item", "type"],
+			"uri" => ["item-uri", "uri"],
+			"uri-id" => ["post-thread-user", "uri-id"],
+			"parent-uri" => ["parent-item-uri", "uri"],
+			"parent-uri-id" => ["post-user", "parent-uri-id"],
+			"thr-parent" => ["thr-parent-item-uri", "uri"],
+			"thr-parent-id" => ["post-user", "thr-parent-id"],
+			"guid" => ["item-uri", "guid"],
 			"wall" => ["post-thread-user", "wall"],
-			"gravity" => ["item", "gravity"],
+			"gravity" => ["post-user", "gravity"],
 			"extid" => ["item", "extid"],
-			"created" => ["post-thread", "created"],
-			"edited" => ["item", "edited"],
-			"commented" => ["post-thread", "commented"],
-			"received" => ["post-thread", "received"],
-			"changed" => ["post-thread", "changed"],
-			"post-type" => ["item", "post-type"],
-			"private" => ["item", "private"],
+			"created" => ["post-thread-user", "created"],
+			"edited" => ["post-user", "edited"],
+			"commented" => ["post-thread-user", "commented"],
+			"received" => ["post-thread-user", "received"],
+			"changed" => ["post-thread-user", "changed"],
+			"post-type" => ["post-user", "post-type"],
+			"private" => ["post-user", "private"],
 			"pubmail" => ["post-thread-user", "pubmail"],
-			"moderated" => ["item", "moderated"],
 			"ignored" => ["post-thread-user", "ignored"],
-			"visible" => ["item", "visible"],
+			"visible" => ["post-user", "visible"],
 			"starred" => ["post-thread-user", "starred"],
-			"bookmark" => ["item", "bookmark"],
 			"unseen" => ["post-thread-user", "unseen"],
-			"deleted" => ["item", "deleted"],
+			"deleted" => ["post-user", "deleted"],
 			"origin" => ["post-thread-user", "origin"],
 			"forum_mode" => ["post-thread-user", "forum_mode"],
-			"mention" => ["item", "mention"],
-			"global" => ["item", "global"],
-			"network" => ["post-thread", "network"],
-			"vid" => ["item", "vid"],
+			"mention" => ["post-thread-user", "mention"],
+			"global" => ["post-user", "global"],
+			"network" => ["post-thread-user", "network"],
+			"vid" => ["post-user", "vid"],
 			"psid" => ["post-thread-user", "psid"],
-			"verb" => "IF (`item`.`vid` IS NULL, '', `verb`.`name`)",
+			"verb" => "IF (`post-user`.`vid` IS NULL, '', `verb`.`name`)",
 			"title" => ["post-content", "title"],
 			"content-warning" => ["post-content", "content-warning"],
 			"raw-body" => ["post-content", "raw-body"],
@@ -262,7 +260,7 @@
 			"contact-rel" => ["contact", "rel"],
 			"contact-uid" => ["contact", "uid"],
 			"contact-contact-type" => ["contact", "contact-type"],
-			"writable" => "IF (`item`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`)",
+			"writable" => "IF (`post-user`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`)",
 			"self" => ["contact", "self"],
 			"cid" => ["contact", "id"],
 			"alias" => ["contact", "alias"],
@@ -272,7 +270,7 @@
 			"avatar-date" => ["contact", "avatar-date"],
 			"thumb" => ["contact", "thumb"],
 			"dfrn-id" => ["contact", "dfrn-id"],
-			"author-id" => ["post-thread", "author-id"],
+			"author-id" => ["post-thread-user", "author-id"],
 			"author-link" => ["author", "url"],
 			"author-addr" => ["author", "addr"],
 			"author-name" => "IF (`contact`.`url` = `author`.`url` AND `contact`.`name` != '', `contact`.`name`, `author`.`name`)",
@@ -281,7 +279,7 @@
 			"author-network" => ["author", "network"],
 			"author-blocked" => ["author", "blocked"],
 			"author-hidden" => ["author", "hidden"],
-			"owner-id" => ["post-thread", "owner-id"],
+			"owner-id" => ["post-thread-user", "owner-id"],
 			"owner-link" => ["owner", "url"],
 			"owner-addr" => ["owner", "addr"],
 			"owner-name" => "IF (`contact`.`url` = `owner`.`url` AND `contact`.`name` != '', `contact`.`name`, `owner`.`name`)",
@@ -290,7 +288,7 @@
 			"owner-network" => ["owner", "network"],
 			"owner-blocked" => ["owner", "blocked"],
 			"owner-hidden" => ["owner", "hidden"],
-			"causer-id" => ["item", "causer-id"],
+			"causer-id" => ["post-thread-user", "causer-id"],
 			"causer-link" => ["causer", "url"],
 			"causer-addr" => ["causer", "addr"],
 			"causer-name" => ["causer", "name"],
@@ -309,7 +307,7 @@
 			"allow_gid" => "IF (`post-thread-user`.`psid` IS NULL, '', `permissionset`.`allow_gid`)",
 			"deny_cid" => "IF (`post-thread-user`.`psid` IS NULL, '', `permissionset`.`deny_cid`)",
 			"deny_gid" => "IF (`post-thread-user`.`psid` IS NULL, '', `permissionset`.`deny_gid`)",
-			"event-id" => ["item", "event-id"],
+			"event-id" => ["post-user", "event-id"],
 			"event-created" => ["event", "created"],
 			"event-edited" => ["event", "edited"],
 			"event-start" => ["event", "start"],
@@ -322,28 +320,31 @@
 			"event-adjust" => ["event", "adjust"],
 			"event-ignore" => ["event", "ignore"],
 			"signed_text" => ["diaspora-interaction", "interaction"],
-			"parent-guid" => ["parent-item", "guid"],
-			"parent-network" => ["parent-item", "network"],
-			"parent-author-id" => ["parent-item", "author-id"],
-			"parent-author-link" => ["parent-item-author", "url"],  
-			"parent-author-name" => ["parent-item-author", "name"],
-			"parent-author-network" => ["parent-item-author", "network"], 
+			"parent-guid" => ["parent-item-uri", "guid"],
+			"parent-network" => ["parent-post", "network"],
+			"parent-author-id" => ["parent-post", "author-id"],
+			"parent-author-link" => ["parent-post-author", "url"],  
+			"parent-author-name" => ["parent-post-author", "name"],
+			"parent-author-network" => ["parent-post-author", "network"], 
 		],
-		"query" => "FROM `post-thread`
-			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-thread`.`uri-id`
-			STRAIGHT_JOIN `item` ON `item`.`uri-id` = `post-thread`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
-			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-thread`.`author-id`
-			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread`.`owner-id`
-			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread`.`causer-id`
-			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
-			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
-			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread`.`uri-id`
-			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread`.`uri-id`
-			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread`.`uri-id` AND `post-thread-user`.`origin`
+		"query" => "FROM `post-thread-user`
+			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
+			INNER JOIN `item` ON `item`.`uri-id` = `post-thread-user`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
+			INNER JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			INNER JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
+			INNER JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
+			INNER JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread-user`.`causer-id`
+			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
+			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
+			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
+			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread-user`.`uri-id`
+			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread-user`.`uri-id`
+			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread-user`.`uri-id` AND `post-thread-user`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-thread-user`.`psid`
-			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
-			STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`"
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
+			INNER JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"
 	],
 	"category-view" => [
 		"fields" => [
@@ -400,7 +401,7 @@
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `parent-item`.`uid` AND `author`.`cid` = `parent-item`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `parent-item`.`uid` AND `owner`.`cid` = `parent-item`.`owner-id`
 			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `parent-item`.`owner-id`
-			WHERE `parent-item`.`visible` AND NOT `parent-item`.`deleted` AND NOT `parent-item`.`moderated`
+			WHERE `parent-item`.`visible` AND NOT `parent-item`.`deleted`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
@@ -429,7 +430,7 @@
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread`.`owner-id`
 			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread`.`owner-id`
-			WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+			WHERE `item`.`visible` AND NOT `item`.`deleted`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)

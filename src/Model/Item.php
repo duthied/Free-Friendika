@@ -83,7 +83,7 @@ class Item
 		'causer-id', 'causer-link', 'causer-name', 'causer-avatar', 'causer-contact-type',
 		'contact-id', 'contact-uid', 'contact-link', 'contact-name', 'contact-avatar',
 		'writable', 'self', 'cid', 'alias',
-		'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
+		'event-created', 'event-edited', 'event-start', 'event-finish',
 		'event-summary', 'event-desc', 'event-location', 'event-type',
 		'event-nofinish', 'event-adjust', 'event-ignore', 'event-id',
 		'delivery_queue_count', 'delivery_queue_done', 'delivery_queue_failed'
@@ -91,34 +91,38 @@ class Item
 
 	// Field list that is used to deliver items via the protocols
 	const DELIVER_FIELDLIST = ['uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid',
-			'parent-guid', 'created', 'edited', 'verb', 'object-type', 'object', 'target',
-			'private', 'title', 'body', 'location', 'coord', 'app',
-			'deleted', 'extid', 'post-type', 'gravity',
+			'parent-guid', 'received', 'created', 'edited', 'verb', 'object-type', 'object', 'target',
+			'private', 'title', 'body', 'raw-body', 'location', 'coord', 'app',
+			'inform', 'deleted', 'extid', 'post-type', 'gravity',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-			'author-id', 'author-link', 'owner-link', 'contact-uid',
-			'signed_text', 'network'];
+			'author-id', 'author-link', 'owner-id', 'owner-link', 'contact-uid',
+			'signed_text', 'network', 'wall', 'contact-id', 'plink', 'forum_mode', 'origin',
+			'thr-parent-id', 'parent-uri-id', 'postopts', 'pubmail', 
+			'event-created', 'event-edited', 'event-start', 'event-finish',
+			'event-summary', 'event-desc', 'event-location', 'event-type',
+			'event-nofinish', 'event-adjust', 'event-ignore', 'event-id'];
 
 	// All fields in the item table
 	const ITEM_FIELDLIST = ['id', 'uid', 'parent', 'uri', 'parent-uri', 'thr-parent',
 			'guid', 'uri-id', 'parent-uri-id', 'thr-parent-id', 'vid',
-			'contact-id', 'type', 'wall', 'gravity', 'extid', 'psid',
+			'contact-id', 'wall', 'gravity', 'extid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'inform',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
-			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
+			'private', 'pubmail', 'visible', 'starred',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
 			'title', 'content-warning', 'body', 'location', 'coord', 'app',
 			'rendered-hash', 'rendered-html', 'object-type', 'object', 'target-type', 'target',
 			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 			'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'causer-id'];
 
-	// Item fiels that still are in use
+	// Item fields that still are in use
 	const USED_FIELDLIST = ['id', 'parent', 'guid', 'uri', 'uri-id', 'parent-uri', 'parent-uri-id',
 		'thr-parent', 'thr-parent-id', 'created', 'edited', 'commented', 'received', 'changed',
 		'gravity', 'network', 'owner-id', 'author-id', 'causer-id', 'vid', 'extid', 'post-type',
-		'global', 'private', 'visible', 'moderated', 'deleted', 'uid', 'contact-id',
+		'global', 'private', 'visible', 'deleted', 'uid', 'contact-id',
 		'wall', 'origin', 'pubmail', 'starred', 'unseen', 'mention', 'forum_mode', 'psid',
-		'event-id', 'type', 'bookmark'];
+		'event-id'];
 
 	// Legacy item fields that aren't stored any more in the item table
 	const LEGACY_FIELDLIST = ['uri-hash', 'iaid', 'icid', 'attach',
@@ -980,6 +984,12 @@ class Item
 			Post\Media::insertFromAttachment($item['uri-id'], $item['attach']);
 		}
 
+		if (empty($item['event-id'])) {
+			unset($item['event-id']);
+		}
+
+		Post::insert($item['uri-id'], $item);
+
 		if ($item['gravity'] == GRAVITY_PARENT) {
 			Post\Thread::insert($item['uri-id'], $item);
 		}
@@ -1010,6 +1020,12 @@ class Item
 			Tag::storeFromBody($item['uri-id'], $item['body']);
 		}
 
+		$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid']];
+		if (Post::exists($condition)) {
+			Logger::notice('Item is already inserted - aborting', $condition);
+			return 0;
+		}
+
 		$id = Post\User::insert($item['uri-id'], $item['uid'], $item);
 		if (!$id) {
 			Logger::notice('Post-User is already inserted - aborting', ['uid' => $item['uid'], 'uri-id' => $item['uri-id']]);
@@ -1019,12 +1035,6 @@ class Item
 		if ($item['gravity'] == GRAVITY_PARENT) {
 			$item['post-user-id'] = $id;
 			Post\ThreadUser::insert($item['uri-id'], $item['uid'], $item);
-		}
-
-		$condition = ['uri-id' => $item['uri-id'], 'uid' => $item['uid'], 'network' => $item['network']];
-		if (Post::exists($condition)) {
-			Logger::notice('Item is already inserted - aborting', $condition);
-			return 0;
 		}
 
 		// Remove all fields that aren't part of the item table
@@ -1226,7 +1236,7 @@ class Item
 		// Only distribute public items from native networks
 		$condition = ['id' => $itemid, 'uid' => 0,
 			'network' => array_merge(Protocol::FEDERATED ,['']),
-			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => [self::PUBLIC, self::UNLISTED]];
+			'visible' => true, 'deleted' => false, 'private' => [self::PUBLIC, self::UNLISTED]];
 		$item = Post::selectFirst(self::ITEM_FIELDLIST, $condition);
 		if (!DBA::isResult($item)) {
 			return;
@@ -1405,7 +1415,7 @@ class Item
 	 */
 	private static function addShadow($itemid)
 	{
-		$fields = ['uid', 'private', 'moderated', 'visible', 'deleted', 'network', 'uri-id'];
+		$fields = ['uid', 'private', 'visible', 'deleted', 'network', 'uri-id'];
 		$condition = ['id' => $itemid, 'parent' => [0, $itemid]];
 		$item = Post::selectFirst($fields, $condition);
 
@@ -1419,7 +1429,7 @@ class Item
 		}
 
 		// Is it a visible public post?
-		if (!$item["visible"] || $item["deleted"] || $item["moderated"] || ($item["private"] == self::PRIVATE)) {
+		if (!$item["visible"] || $item["deleted"]  || ($item["private"] == self::PRIVATE)) {
 			return;
 		}
 
@@ -2154,7 +2164,7 @@ class Item
 		$condition[0] .= " AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY";
 		$condition[] = $days;
 
-		$items = Post::select(['resource-id', 'starred', 'type', 'id', 'post-type', 'uid', 'uri-id'], $condition);
+		$items = Post::select(['resource-id', 'starred', 'id', 'post-type', 'uid', 'uri-id'], $condition);
 
 		if (!DBA::isResult($items)) {
 			return;
@@ -2187,9 +2197,9 @@ class Item
 				continue;
 			} elseif (!$expire_starred && intval($item['starred'])) {
 				continue;
-			} elseif (!$expire_notes && (($item['type'] == 'note') || ($item['post-type'] == self::PT_PERSONAL_NOTE))) {
+			} elseif (!$expire_notes && ($item['post-type'] == self::PT_PERSONAL_NOTE)) {
 				continue;
-			} elseif (!$expire_items && ($item['type'] != 'note') && ($item['post-type'] != self::PT_PERSONAL_NOTE)) {
+			} elseif (!$expire_items && ($item['post-type'] != self::PT_PERSONAL_NOTE)) {
 				continue;
 			}
 
@@ -2203,7 +2213,7 @@ class Item
 
 	public static function firstPostDate($uid, $wall = false)
 	{
-		$condition = ['gravity' => GRAVITY_PARENT, 'uid' => $uid, 'wall' => $wall, 'deleted' => false, 'visible' => true, 'moderated' => false];
+		$condition = ['gravity' => GRAVITY_PARENT, 'uid' => $uid, 'wall' => $wall, 'deleted' => false, 'visible' => true];
 		$params = ['order' => ['received' => false]];
 		$thread = Post::selectFirst(['received'], $condition, $params);
 		if (DBA::isResult($thread)) {

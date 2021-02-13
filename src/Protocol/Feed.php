@@ -887,9 +887,9 @@ class Feed
 		$params = ['order' => ['received' => true], 'limit' => $max_items];
 
 		if ($filter === 'posts') {
-			$ret = Post::selectThread([], $condition, $params);
+			$ret = Post::selectThread(Item::DELIVER_FIELDLIST, $condition, $params);
 		} else {
-			$ret = Post::select([], $condition, $params);
+			$ret = Post::select(Item::DELIVER_FIELDLIST, $condition, $params);
 		}
 
 		$items = Post::toArray($ret);
@@ -1041,7 +1041,7 @@ class Feed
 
 		$condition = ['uid' => $owner["uid"], 'guid' => $repeated_guid, 'private' => [Item::PUBLIC, Item::UNLISTED],
 			'network' => Protocol::FEDERATED];
-		$repeated_item = Post::selectFirst([], $condition);
+		$repeated_item = Post::selectFirst(Item::DELIVER_FIELDLIST, $condition);
 		if (!DBA::isResult($repeated_item)) {
 			return false;
 		}

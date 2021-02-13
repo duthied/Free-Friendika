@@ -21,13 +21,42 @@
 
 namespace Friendica\Model;
 
+use BadMethodCallException;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Protocol\Activity;
 
 class Post
 {
+	/**
+	 * Insert a new post entry
+	 *
+	 * @param integer $uri_id
+	 * @param array   $fields
+	 * @return int    ID of inserted post
+	 * @throws \Exception
+	 */
+	public static function insert(int $uri_id, array $data = [])
+	{
+		if (empty($uri_id)) {
+			throw new BadMethodCallException('Empty URI_id');
+		}
+
+		$fields = DBStructure::getFieldsForTable('post', $data);
+
+		// Additionally assign the key fields
+		$fields['uri-id'] = $uri_id;
+
+		if (!DBA::insert('post', $fields, Database::INSERT_IGNORE)) {
+			return 0;
+		}
+
+		return DBA::lastInsertId();
+	}
+
 	/**
 	 * Fetch a single post row
 	 *
@@ -189,12 +218,9 @@ class Post
 	private static function selectView(string $view, array $selected = [], array $condition = [], $params = [])
 	{
 		if (empty($selected)) {
-			$selected = array_merge(['author-addr', 'author-nick', 'owner-addr', 'owner-nick', 'causer-addr', 'causer-nick',
-				'causer-network', 'photo', 'name-date', 'uri-date', 'avatar-date', 'thumb', 'dfrn-id',
-				'parent-guid', 'parent-network', 'parent-author-id', 'parent-author-link', 'parent-author-name',
-				'parent-author-network', 'signed_text', 'language', 'raw-body'], Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST);
-			
-			if ($view != 'post-view') {
+			$selected = array_merge(Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST);
+
+			if ($view == 'post-thread-view') {
 				$selected = array_merge($selected, ['ignored', 'iid']);
 			}
 		}
@@ -216,7 +242,13 @@ class Post
 	 */
 	public static function select(array $selected = [], array $condition = [], $params = [])
 	{
-		return self::selectView('post-view', $selected, $condition, $params);
+		$timestamp = microtime(true);
+		$data = self::selectView('post-view', $selected, $condition, $params);
+		
+		$duration = microtime(true) - $timestamp;;
+		if ($duration > 0.1)
+			Logger::info('Blubb', ['duration' => $duration, 'selected' => $selected, 'condition' => $condition, 'params' => $params, 'callstack' => System::callstack(20)]);
+		return $data;
 	}
 
 	/**
@@ -253,7 +285,7 @@ class Post
 		}
 
 		$condition = DBA::mergeConditions($condition,
-			["`visible` AND NOT `deleted` AND NOT `moderated`
+			["`visible` AND NOT `deleted`
 			AND NOT `author-blocked` AND NOT `owner-blocked`
 			AND (NOT `causer-blocked` OR `causer-id` = ?) AND NOT `contact-blocked`
 			AND ((NOT `contact-readonly` AND NOT `contact-pending` AND (`contact-rel` IN (?, ?)))
@@ -299,6 +331,7 @@ class Post
 	 */
 	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [])
 	{
+		//Logger::info('Blubb', ['uid' => $uid, 'selected' => $selected, 'condition' => $condition, 'params' => $params]);
 		return self::selectViewForUser('post-view', $uid, $selected, $condition, $params);
 	}
 
@@ -434,6 +467,20 @@ class Post
 			$affected = max($affected, DBA::affectedRows());
 		}
 
+		$update_fields = DBStructure::getFieldsForTable('post', $fields);
+		if (!empty($update_fields)) {
+			if (empty($uriids)) {
+				$rows = DBA::selectToArray('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+				$uriids = array_column($rows, 'uri-id');
+			}
+			if (!DBA::update('post', $update_fields, ['uri-id' => $uriids])) {
+				DBA::rollback();
+				Logger::notice('Updating post failed', ['fields' => $update_fields, 'condition' => $condition]);
+				return false;
+			}
+			$affected = max($affected, DBA::affectedRows());
+		}
+
 		$update_fields = Post\DeliveryData::extractFields($fields);
 		if (!empty($update_fields)) {
 			if (empty($uriids)) {
@@ -450,7 +497,7 @@ class Post
 
 		$update_fields = DBStructure::getFieldsForTable('post-thread', $fields);
 		if (!empty($update_fields)) {
-			$rows = DBA::selectToArray('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			$rows = DBA::selectToArray('post-view', ['uri-id'], $thread_condition, ['group_by' => ['uri-id']]);
 			$uriids = array_column($rows, 'uri-id');
 			if (!DBA::update('post-thread', $update_fields, ['uri-id' => $uriids])) {
 				DBA::rollback();
@@ -493,5 +540,21 @@ class Post
 
 		Logger::info('Updated posts', ['rows' => $affected]);
 		return $affected;
+	}
+
+	/**
+	 * Delete a row from the post table
+	 *
+	 * @param array        $conditions Field condition(s)
+	 * @param array        $options
+	 *                           - cascade: If true we delete records in other tables that depend on the one we're deleting through
+	 *                           relations (default: true)
+	 *
+	 * @return boolean was the delete successful?
+	 * @throws \Exception
+	 */
+	public static function delete(array $conditions, array $options = [])
+	{
+		return DBA::delete('post', $conditions, $options);
 	}
 }

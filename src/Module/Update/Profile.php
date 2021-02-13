@@ -81,7 +81,7 @@ class Profile extends BaseModule
 			"SELECT DISTINCT(`parent-uri-id`) AS `uri-id`, `created` FROM `post-view`
 				WHERE `uid` = ? AND NOT `contact-blocked` AND NOT `contact-pending`
 				AND `visible` AND (NOT `deleted` OR `gravity` = ?)
-				AND NOT `moderated` AND `wall` $sql_extra4 $sql_extra
+				AND `wall` $sql_extra4 $sql_extra
 			ORDER BY `received` DESC",
 			$a->profile['uid'],
 			GRAVITY_ACTIVITY

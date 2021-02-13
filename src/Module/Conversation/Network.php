@@ -434,7 +434,7 @@ class Network extends BaseModule
 		}
 
 		if (DBA::isResult($items)) {
-			$parents = array_column($items, 'parent');
+			$parents = array_column($items, 'parent-uri-id');
 		} else {
 			$parents = [];
 		}
@@ -446,7 +446,7 @@ class Network extends BaseModule
 			$condition = ['unseen' => true, 'uid' => local_user()];
 			self::setItemsSeenByCondition($condition);
 		} elseif (!empty($parents)) {
-			$condition = ['unseen' => true, 'uid' => local_user(), 'parent' => $parents];
+			$condition = ['unseen' => true, 'uid' => local_user(), 'parent-uri-id' => $parents];
 			self::setItemsSeenByCondition($condition);
 		}
 

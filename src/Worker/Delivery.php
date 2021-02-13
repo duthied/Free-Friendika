@@ -35,6 +35,7 @@ use Friendica\Util\Network;
 use Friendica\Core\Worker;
 use Friendica\Model\Conversation;
 use Friendica\Model\FContact;
+use Friendica\Model\Item;
 use Friendica\Protocol\Relay;
 
 class Delivery
@@ -80,9 +81,9 @@ class Delivery
 			}
 			$parent_id = intval($item['parent']);
 
-			$condition = ['id' => [$target_id, $parent_id], 'visible' => true, 'moderated' => false];
+			$condition = ['id' => [$target_id, $parent_id], 'visible' => true];
 			$params = ['order' => ['id']];
-			$itemdata = Model\Post::select([], $condition, $params);
+			$itemdata = Model\Post::select(Item::DELIVER_FIELDLIST, $condition, $params);
 
 			while ($item = Model\Post::fetch($itemdata)) {
 				if ($item['verb'] == Activity::ANNOUNCE) {

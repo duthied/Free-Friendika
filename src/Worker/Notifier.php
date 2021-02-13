@@ -100,8 +100,8 @@ class Notifier
 			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'addr', 'network', 'protocol', 'batch'], $condition);
 		} else {
 			// find ancestors
-			$condition = ['id' => $target_id, 'visible' => true, 'moderated' => false];
-			$target_item = Post::selectFirst([], $condition);
+			$condition = ['id' => $target_id, 'visible' => true];
+			$target_item = Post::selectFirst(Item::DELIVER_FIELDLIST, $condition);
 
 			if (!DBA::isResult($target_item) || !intval($target_item['parent'])) {
 				Logger::info('No target item', ['cmd' => $cmd, 'target' => $target_id]);
@@ -117,9 +117,9 @@ class Notifier
 				return;
 			}
 
-			$condition = ['parent' => $target_item['parent'], 'visible' => true, 'moderated' => false];
+			$condition = ['parent' => $target_item['parent'], 'visible' => true];
 			$params = ['order' => ['id']];
-			$items_stmt = Post::select([], $condition, $params);
+			$items_stmt = Post::select(Item::DELIVER_FIELDLIST, $condition, $params);
 			if (!DBA::isResult($items_stmt)) {
 				Logger::info('No item found', ['cmd' => $cmd, 'target' => $target_id]);
 				return;
@@ -792,6 +792,6 @@ class Notifier
 	 */
 	public static function isForumPost(array $item)
 	{
-		return !empty($item['forum_mode']);
+		return ($item['gravity'] == GRAVITY_PARENT) && !empty($item['forum_mode']);
 	}
 }

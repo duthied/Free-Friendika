@@ -104,7 +104,7 @@ class TagCloud
 		$tag_stmt = DBA::p("SELECT `name`, COUNT(`name`) AS `total` FROM `tag-search-view`
 			LEFT JOIN `post-view` ON `tag-search-view`.`uri-id` = `post-view`.`uri-id`
 			WHERE `tag-search-view`.`uid` = ?
-			AND `post-view`.`visible` AND NOT `post-view`.`deleted` AND NOT `post-view`.`moderated`
+			AND `post-view`.`visible` AND NOT `post-view`.`deleted`
 			$sql_options
 			GROUP BY `name` ORDER BY `total` DESC $limit",
 			$uid
