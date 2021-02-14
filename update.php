@@ -773,19 +773,13 @@ function update_1399()
 
 function update_1400()
 {
-/*	
 	if (!DBA::e("INSERT IGNORE INTO `post` (`uri-id`, `parent-uri-id`, `thr-parent-id`, `owner-id`, `author-id`, `network`,
-		`created`, `received`, `edited`, `gravity`, `causer-id`, `post-type`, `vid`, `private`, `visible`, `deleted`)
+		`created`, `received`, `edited`, `gravity`, `causer-id`, `post-type`, `vid`, `private`, `visible`, `deleted`, `global`)
 		SELECT `uri-id`, `parent-uri-id`, `thr-parent-id`, `owner-id`, `author-id`, `network`, `created`, `received`, `edited`, 
-			`gravity`, `causer-id`, `post-type`, `vid`, `private`, `visible`, `deleted` FROM `item`")) {
+			`gravity`, `causer-id`, `post-type`, `vid`, `private`, `visible`, `deleted`, `global` FROM `item`")) {
 			return Update::FAILED;
 	}
 
-	if (!DBA::e("UPDATE `post` INNER JOIN `item` ON `item`.`uri-id` = `post`.`uri-id` AND `item`.`uid` = 0
-		SET `post`.`global` = true")) {
-		return Update::FAILED;
-
-// --------------------------------------
 	if (!DBA::e("UPDATE `post-user` INNER JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
 		INNER JOIN `event` ON `item`.`event-id` = `event`.`id` AND `event`.`id` != 0
 		SET `post-user`.`event-id` = `item`.`event-id`")) {
@@ -805,8 +799,6 @@ function update_1400()
 		return Update::FAILED;
 	}
 
-	*/
-
 	if (!DBA::e("UPDATE `post-thread-user` INNER JOIN `post-thread` ON `post-thread-user`.`uri-id` = `post-thread`.`uri-id`
 		SET `post-thread-user`.`owner-id` = `post-thread`.`owner-id`, `post-thread-user`.`author-id` = `post-thread`.`author-id`,
 		`post-thread-user`.`causer-id` = `post-thread`.`causer-id`, `post-thread-user`.`network` = `post-thread`.`network`,
@@ -815,6 +807,5 @@ function update_1400()
 		return Update::FAILED;
 	}
 
-	
 	return Update::SUCCESS;
 }

@@ -23,7 +23,6 @@ namespace Friendica\Model;
 
 use BadMethodCallException;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
@@ -511,23 +510,6 @@ class Post
 			if (!DBA::update('post-thread-user', $update_fields, ['post-user-id' => $thread_puids])) {
 				DBA::rollback();
 				Logger::notice('Updating post-thread-user failed', ['fields' => $update_fields, 'condition' => $condition]);
-				return false;
-			}
-			$affected = max($affected, DBA::affectedRows());
-		}
-
-		$update_fields = [];
-		foreach (Item::USED_FIELDLIST as $field) {
-			if (array_key_exists($field, $fields)) {
-				$update_fields[$field] = $fields[$field];
-			}
-		}
-		if (!empty($update_fields)) {
-			$rows = DBA::selectToArray('post-view', ['item-id'], $condition, []);
-			$ids = array_column($rows, 'item-id');
-			if (!DBA::update('item', $update_fields, ['id' => $ids])) {
-				DBA::rollback();
-				Logger::notice('Updating item failed', ['fields' => $update_fields, 'condition' => $condition]);
 				return false;
 			}
 			$affected = max($affected, DBA::affectedRows());

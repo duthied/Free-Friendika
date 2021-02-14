@@ -25,6 +25,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
@@ -47,7 +48,9 @@ class Expire
 			$rows = Post::select(['item-id', 'guid', 'uri-id', 'uid'],  $condition);
 			while ($row = Post::fetch($rows)) {
 				Logger::info('Delete expired item', ['id' => $row['item-id'], 'guid' => $row['guid']]);
-				DBA::delete('item', ['id' => $row['item-id']]);
+				if (DBStructure::existsTable('item')) {
+					DBA::delete('item', ['id' => $row['item-id']]);
+				}
 				Post\User::delete(['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
 				Post\ThreadUser::delete(['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
 			}

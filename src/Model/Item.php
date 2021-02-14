@@ -1042,38 +1042,13 @@ class Item
 			Post\ThreadUser::insert($item['uri-id'], $item['uid'], $item);
 		}
 
-		// Remove all fields that aren't part of the item table
-		$table_fields = DBStructure::getFieldsForTable('item', $item);
-
-		// We remove all legacy fields that now are stored in other tables
-		foreach (self::LEGACY_FIELDLIST as $field) {
-			unset($table_fields[$field]);
-		}
-
-		$result = DBA::insert('item', $table_fields);
-
-		// When the item was successfully stored we fetch the ID of the item.
-		$current_post = DBA::lastInsertId();
-
-		if (empty($current_post) || !DBA::isResult($result)) {
-			// On failure store the data into a spool file so that the "SpoolPost" worker can try again later.
-			Logger::warning('Could not store item. it will be spooled', ['result' => $result, 'id' => $current_post]);
-			self::spool($orig_item);
-			return 0;
-		}
-
-		Logger::notice('created item', ['id' => $current_post, 'uid' => $item['uid'], 'network' => $item['network'], 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-
-		if (!$parent_id || ($item['gravity'] === GRAVITY_PARENT)) {
-			$parent_id = $current_post;
-		}
-
-		// Set parent id
-		DBA::update('item', ['parent' => $parent_id], ['id' => $current_post]);
+		Logger::notice('created item', ['post-id' => $post_user_id, 'uid' => $item['uid'], 'network' => $item['network'], 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
 
 		$posted_item = Post::selectFirst(self::ITEM_FIELDLIST, ['post-user-id' => $post_user_id]);
 		if (!DBA::isResult($posted_item)) {
-			Logger::warning('new item not found in DB', ['id' => $post_user_id]);
+			// On failure store the data into a spool file so that the "SpoolPost" worker can try again later.
+			Logger::warning('Could not store item. it will be spooled', ['id' => $post_user_id]);
+			self::spool($orig_item);
 			return 0;
 		}
 
@@ -1164,15 +1139,15 @@ class Item
 			return;
 		}
 
-		$author = Contact::selectFirst(['url', 'contact-type'], ['id' => $item['author-id']]);
+		$author = Contact::selectFirst(['url', 'contact-type', 'network'], ['id' => $item['author-id']]);
 		if (!DBA::isResult($author)) {
 			Logger::error('Author not found', ['id' => $item['author-id']]);
 			return;
 		}
 
 		$cid = Contact::getIdForURL($author['url'], $item['uid']);
-		if (empty($cid) || !Contact::isSharing($cid, $item['uid'])) {
-			Logger::info('The resharer is not a following contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid']]);
+		if (empty($cid) || (!Contact::isSharing($cid, $item['uid'] && in_array($author['network'], Protocol::FEDERATED)))) {
+			Logger::info('The resharer is not a following contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid'], 'cid' => $cid]);
 			return;
 		}
 
@@ -1815,7 +1790,6 @@ class Item
 			if (($community_page || $prvgroup) &&
 				  !$item['wall'] && !$item['origin'] && ($item['gravity'] == GRAVITY_PARENT)) {
 				Logger::info('Delete private group/communiy top-level item without mention', ['id' => $item['id'], 'guid'=> $item['guid']]);
-				DBA::delete('item', ['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
 				Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
 				return true;
 			}

@@ -22,6 +22,7 @@
 namespace Friendica\Worker;
 
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 
@@ -64,7 +65,9 @@ class ExpireAndRemoveUsers
 			// It seems that sometimes the system wants to delete the records in the wrong order.
 			// So when the permissionset is deleted and these tables are still filled then an error is thrown.
 			// So we now delete them before all other user related entries are deleted.
-			DBA::delete('item', ['uid' => $user['uid']]);
+			if (DBStructure::existsTable('item')) {
+				DBA::delete('item', ['uid' => $user['uid']]);
+			}
 			DBA::delete('post-user', ['uid' => $user['uid']]);
 			DBA::delete('profile_field', ['uid' => $user['uid']]);
 
