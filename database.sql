@@ -1588,12 +1588,11 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 --
 DROP VIEW IF EXISTS `post-view`;
 CREATE VIEW `post-view` AS SELECT 
-	`item`.`id` AS `id`,
+	`post-user`.`id` AS `id`,
 	`item`.`id` AS `item-id`,
 	`post-user`.`id` AS `post-user-id`,
 	`post-user`.`uid` AS `uid`,
-	`item`.`parent` AS `parent`,
-	`parent-post`.`id` AS `parent-user-id`,
+	`parent-post`.`id` AS `parent`,
 	`item-uri`.`uri` AS `uri`,
 	`post-user`.`uri-id` AS `uri-id`,
 	`parent-item-uri`.`uri` AS `parent-uri`,
@@ -1747,13 +1746,12 @@ CREATE VIEW `post-view` AS SELECT
 --
 DROP VIEW IF EXISTS `post-thread-view`;
 CREATE VIEW `post-thread-view` AS SELECT 
-	`item`.`id` AS `id`,
+	`post-user`.`id` AS `id`,
 	`item`.`id` AS `item-id`,
-	`item`.`id` AS `iid`,
+	`post-user`.`id` AS `iid`,
 	`post-user`.`id` AS `post-user-id`,
 	`post-thread-user`.`uid` AS `uid`,
-	`item`.`parent` AS `parent`,
-	`parent-post`.`id` AS `parent-user-id`,
+	`parent-post`.`id` AS `parent`,
 	`item-uri`.`uri` AS `uri`,
 	`post-thread-user`.`uri-id` AS `uri-id`,
 	`parent-item-uri`.`uri` AS `parent-uri`,
@@ -1938,8 +1936,7 @@ CREATE VIEW `tag-view` AS SELECT
 DROP VIEW IF EXISTS `network-item-view`;
 CREATE VIEW `network-item-view` AS SELECT 
 	`post-user`.`uri-id` AS `uri-id`,
-	`item`.`parent` AS `parent`,
-	`post-user`.`parent-uri-id` AS `parent-uri-id`,
+	`post-user`.`parent-uri-id` AS `parent`,
 	`post-user`.`received` AS `received`,
 	`post-thread-user`.`commented` AS `commented`,
 	`post-user`.`created` AS `created`,
@@ -1952,8 +1949,7 @@ CREATE VIEW `network-item-view` AS SELECT
 	`post-user`.`contact-id` AS `contact-id`,
 	`ownercontact`.`contact-type` AS `contact-type`
 	FROM `post-user`
-			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
-			LEFT JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
+			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`			
 			INNER JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
@@ -1970,8 +1966,7 @@ CREATE VIEW `network-item-view` AS SELECT
 DROP VIEW IF EXISTS `network-thread-view`;
 CREATE VIEW `network-thread-view` AS SELECT 
 	`post-thread-user`.`uri-id` AS `uri-id`,
-	`post-user`.`parent-uri-id` AS `parent-uri-id`,
-	`item`.`id` AS `parent`,
+	`post-user`.`parent-uri-id` AS `parent`,
 	`post-thread-user`.`received` AS `received`,
 	`post-thread-user`.`commented` AS `commented`,
 	`post-thread-user`.`created` AS `created`,
@@ -1983,7 +1978,6 @@ CREATE VIEW `network-thread-view` AS SELECT
 	`ownercontact`.`contact-type` AS `contact-type`
 	FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
-			LEFT JOIN `item` ON `item`.`uri-id` = `post-thread-user`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
