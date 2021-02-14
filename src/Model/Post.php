@@ -246,13 +246,7 @@ class Post
 	 */
 	public static function select(array $selected = [], array $condition = [], $params = [])
 	{
-		$timestamp = microtime(true);
-		$data = self::selectView('post-view', $selected, $condition, $params);
-		
-		$duration = microtime(true) - $timestamp;;
-		if ($duration > 0.1)
-			Logger::info('Blubb', ['duration' => $duration, 'selected' => $selected, 'condition' => $condition, 'params' => $params, 'callstack' => System::callstack(20)]);
-		return $data;
+		return self::selectView('post-view', $selected, $condition, $params);
 	}
 
 	/**
@@ -335,7 +329,6 @@ class Post
 	 */
 	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [])
 	{
-		//Logger::info('Blubb', ['uid' => $uid, 'selected' => $selected, 'condition' => $condition, 'params' => $params]);
 		return self::selectViewForUser('post-view', $uid, $selected, $condition, $params);
 	}
 

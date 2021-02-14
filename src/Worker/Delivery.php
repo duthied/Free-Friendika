@@ -36,6 +36,7 @@ use Friendica\Core\Worker;
 use Friendica\Model\Conversation;
 use Friendica\Model\FContact;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Protocol\Relay;
 
 class Delivery
@@ -50,9 +51,20 @@ class Delivery
 	const REMOVAL       = 'removeme';
 	const PROFILEUPDATE = 'profileupdate';
 
-	public static function execute($cmd, $target_id, $contact_id)
+	public static function execute(string $cmd, int $post_uriid, int $contact_id, int $sender_uid = 0)
 	{
-		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $target_id, 'contact' => $contact_id]);
+		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $post_uriid, 'sender_uid' => $sender_uid, 'contact' => $contact_id]);
+
+		if (!empty($sender_uid)) {
+			$post = Post::selectFirst(['id'], ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
+			if (!DBA::isResult($post)) {
+				Logger::warning('Post not found', ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
+				return;
+			}
+			$target_id = $post['id'];
+		} else {
+			$target_id = $post_uriid;
+		}
 
 		$top_level = false;
 		$followup = false;

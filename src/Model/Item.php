@@ -212,7 +212,8 @@ class Item
 		DBA::close($items);
 
 		foreach ($notify_items as $notify_item) {
-			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $notify_item);
+			$post = Post::selectFirst(['uri-id', 'uid'], ['id' => $notify_item]);
+			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, (int)$post['uri-id'], (int)$post['uid']);
 		}
 
 		return $rows;
@@ -354,7 +355,7 @@ class Item
 
 			// send the notification upstream/downstream
 			if ($priority) {
-				Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", Delivery::DELETION, intval($item['id']));
+				Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", Delivery::DELETION, (int)$item['uri-id'], (int)$item['uid']);
 			}
 		} elseif ($item['uid'] != 0) {
 			Post\User::update($item['uri-id'], $item['uid'], ['hidden' => true]);
@@ -1142,7 +1143,7 @@ class Item
 		}
 
 		if ($transmit) {
-			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, $current_post);
+			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, (int)$item['uri-id'], (int)$item['uid']);
 		}
 
 		return $current_post;
@@ -1866,7 +1867,7 @@ class Item
 			'owner-id' => $owner_id, 'private' => $private, 'psid' => $psid];
 		self::update($fields, ['id' => $item_id]);
 
-		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, $item_id);
+		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, (int)$item['uri-id'], (int)$item['uid']);
 
 		self::performActivity($item_id, 'announce', $uid);
 

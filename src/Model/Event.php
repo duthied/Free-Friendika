@@ -173,32 +173,32 @@ class Event
 	{
 		$ev = [];
 
-		$match = '';
+		$match = [];
 		if (preg_match("/\[event\-summary\](.*?)\[\/event\-summary\]/is", $text, $match)) {
 			$ev['summary'] = $match[1];
 		}
 
-		$match = '';
+		$match = [];
 		if (preg_match("/\[event\-description\](.*?)\[\/event\-description\]/is", $text, $match)) {
 			$ev['desc'] = $match[1];
 		}
 
-		$match = '';
+		$match = [];
 		if (preg_match("/\[event\-start\](.*?)\[\/event\-start\]/is", $text, $match)) {
 			$ev['start'] = $match[1];
 		}
 
-		$match = '';
+		$match = [];
 		if (preg_match("/\[event\-finish\](.*?)\[\/event\-finish\]/is", $text, $match)) {
 			$ev['finish'] = $match[1];
 		}
 
-		$match = '';
+		$match = [];
 		if (preg_match("/\[event\-location\](.*?)\[\/event\-location\]/is", $text, $match)) {
 			$ev['location'] = $match[1];
 		}
 
-		$match = '';
+		$match = [];
 		if (preg_match("/\[event\-adjust\](.*?)\[\/event\-adjust\]/is", $text, $match)) {
 			$ev['adjust'] = $match[1];
 		}
@@ -330,7 +330,7 @@ class Event
 
 			DBA::update('event', $updated_fields, ['id' => $event['id'], 'uid' => $event['uid']]);
 
-			$item = Post::selectFirst(['id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
+			$item = Post::selectFirst(['id', 'uri-id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
 			if (DBA::isResult($item)) {
 				$object = '<object><type>' . XML::escape(Activity\ObjectType::EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
 				$object .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
@@ -339,9 +339,9 @@ class Event
 				$fields = ['body' => self::getBBCode($event), 'object' => $object, 'edited' => $event['edited']];
 				Item::update($fields, ['id' => $item['id']]);
 
-				$item_id = $item['id'];
+				$uriid = $item['uri-id'];
 			} else {
-				$item_id = 0;
+				$uriid = 0;
 			}
 
 			Hook::callAll('event_updated', $event['id']);
@@ -349,7 +349,7 @@ class Event
 			// New event. Store it.
 			DBA::insert('event', $event);
 
-			$item_id = 0;
+			$uriid = 0;
 
 			// Don't create an item for birthday events
 			if ($event['type'] == 'event') {
@@ -360,6 +360,7 @@ class Event
 				$item_arr['uid']           = $event['uid'];
 				$item_arr['contact-id']    = $event['cid'];
 				$item_arr['uri']           = $event['uri'];
+				$item_arr['uri-id']        = ItemURI::getIdByURI($event['uri']);
 				$item_arr['guid']          = $event['guid'];
 				$item_arr['plink']         = $arr['plink'] ?? '';
 				$item_arr['post-type']     = Item::PT_EVENT;
@@ -392,13 +393,15 @@ class Event
 				$item_arr['object'] .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
 				$item_arr['object'] .= '</object>' . "\n";
 
-				$item_id = Item::insert($item_arr);
+				if (Item::insert($item_arr)) {
+					$uriid = $item_arr['uri-id'];
+				}
 			}
 
 			Hook::callAll("event_created", $event['id']);
 		}
 
-		return $item_id;
+		return $uriid;
 	}
 
 	/**

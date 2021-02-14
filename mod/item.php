@@ -781,7 +781,7 @@ function item_post(App $a) {
 	// When we are doing some forum posting via ! we have to start the notifier manually.
 	// These kind of posts don't initiate the notifier call in the item class.
 	if ($only_to_forum) {
-		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => false], "Notifier", Delivery::POST, $post_id);
+		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => false], "Notifier", Delivery::POST, (int)$datarray['uri-id'], (int)$datarray['uid']);
 	}
 
 	Logger::info('post_complete');
