@@ -111,9 +111,6 @@ class Cron
 			// update nodeinfo data
 			Worker::add(PRIORITY_LOW, 'NodeInfo');
 
-			// Repair entries in the database
-			Worker::add(PRIORITY_LOW, 'RepairDatabase');
-
 			Worker::add(PRIORITY_LOW, 'Expire');
 
 			Worker::add(PRIORITY_LOW, 'ExpirePosts');

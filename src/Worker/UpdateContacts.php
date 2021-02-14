@@ -51,8 +51,8 @@ class UpdateContacts
 
 		// Add every contact our system interacted with and hadn't been updated for a week if unarchived
 		// or for a month if archived.
-		$condition = DBA::mergeConditions($base_condition, ["(`id` IN (SELECT `author-id` FROM `item`) OR
-			`id` IN (SELECT `owner-id` FROM `item`) OR `id` IN (SELECT `causer-id` FROM `item`) OR
+		$condition = DBA::mergeConditions($base_condition, ["(`id` IN (SELECT `author-id` FROM `post-user`) OR
+			`id` IN (SELECT `owner-id` FROM `post-user`) OR `id` IN (SELECT `causer-id` FROM `post-user`) OR
 			`id` IN (SELECT `cid` FROM `post-tag`) OR `id` IN (SELECT `cid` FROM `user-contact`) OR `uid` != ?) AND
 			(`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
 			0, DateTimeFormat::utc('now - 1 month'), DateTimeFormat::utc('now - 1 week')]);

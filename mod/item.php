@@ -651,7 +651,6 @@ function item_post(App $a) {
 		// doesn't have an ID.
 		$datarray["id"] = -1;
 		$datarray["uri-id"] = -1;
-		$datarray["item_id"] = -1;
 		$datarray["author-network"] = Protocol::DFRN;
 
 		$o = conversation($a, [array_merge($contact_record, $datarray)], 'search', false, true);

@@ -35,9 +35,9 @@ class RemoveUnusedAvatars
 	public static function execute()
 	{
 		$condition = ["`uid` = ? AND NOT `self` AND NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` != ?)
-			AND `id` IN (SELECT `contact-id` FROM `photo`) AND NOT `id` IN (SELECT `author-id` FROM `item`)
-			AND NOT `id` IN (SELECT `owner-id` FROM `item`) AND NOT `id` IN (SELECT `causer-id` FROM `item`)
-			AND NOT `id` IN (SELECT `cid` FROM `post-tag`) AND NOT `id` IN (SELECT `contact-id` FROM `item`)", 0, 0];
+			AND `id` IN (SELECT `contact-id` FROM `photo`) AND NOT `id` IN (SELECT `author-id` FROM `post-user`)
+			AND NOT `id` IN (SELECT `owner-id` FROM `post-user`) AND NOT `id` IN (SELECT `causer-id` FROM `post-user`)
+			AND NOT `id` IN (SELECT `cid` FROM `post-tag`) AND NOT `id` IN (SELECT `contact-id` FROM `post-user`)", 0, 0];
 
 		$total = DBA::count('contact', $condition);
 		Logger::notice('Starting removal', ['total' => $total]);

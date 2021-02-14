@@ -77,7 +77,7 @@ class Item
 		'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 		'wall', 'private', 'starred', 'origin', 'title', 'body', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
-		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id',
+		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network',
 		'causer-id', 'causer-link', 'causer-name', 'causer-avatar', 'causer-contact-type',
@@ -958,6 +958,10 @@ class Item
 			$item['deny_cid'],
 			$item['deny_gid']
 		);
+
+		if (!empty($item['extid'])) {
+			$item['external-id'] = ItemURI::getIdByURI($item['extid']);
+		}
 
 		if ($item['verb'] == Activity::ANNOUNCE) {
 			self::setOwnerforResharedItem($item);

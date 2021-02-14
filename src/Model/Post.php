@@ -94,6 +94,10 @@ class Post
 			}
 		}
 
+		if (array_key_exists('extid', $row) && is_null($row['extid'])) {
+			$row['extid'] = '';
+		}
+
 		return $row;
 	}
 
@@ -526,8 +530,8 @@ class Post
 			}
 		}
 		if (!empty($update_fields)) {
-			$rows = DBA::selectToArray('post-view', ['id'], $condition, []);
-			$ids = array_column($rows, 'id');
+			$rows = DBA::selectToArray('post-view', ['item-id'], $condition, []);
+			$ids = array_column($rows, 'item-id');
 			if (!DBA::update('item', $update_fields, ['id' => $ids])) {
 				DBA::rollback();
 				Logger::notice('Updating item failed', ['fields' => $update_fields, 'condition' => $condition]);

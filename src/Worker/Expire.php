@@ -55,20 +55,15 @@ class Expire
 
 			Logger::info('Deleting orphaned post-content - start');
 			/// @todo Replace "item with "post-user" in the future when "item" is removed
-			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `item` WHERE `item`.`uri-id` = `post-content`.`uri-id`)"];
+			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-content`.`uri-id`)"];
 			DBA::delete('post-content', $condition);
 			Logger::info('Orphaned post-content deleted', ['rows' => DBA::affectedRows()]);
 
 			Logger::info('Deleting orphaned post-thread - start');
 			/// @todo Replace "item with "post-user" in the future when "item" is removed
-			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `item` WHERE `item`.`uri-id` = `post-thread`.`uri-id`)"];
+			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-thread`.`uri-id`)"];
 			DBA::delete('post-thread', $condition);
 			Logger::info('Orphaned item content deleted', ['rows' => DBA::affectedRows()]);
-
-			// make this optional as it could have a performance impact on large sites
-			if (intval(DI::config()->get('system', 'optimize_items'))) {
-				DBA::e("OPTIMIZE TABLE `item`");
-			}
 
 			Logger::log('Delete expired items - done', Logger::DEBUG);
 			return;

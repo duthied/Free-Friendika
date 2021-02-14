@@ -40,10 +40,11 @@
 	"post-view" => [
 		"fields" => [
 			"id" => ["item", "id"],
-			"item_id" => ["item", "id"],
+			"item-id" => ["item", "id"],
 			"post-user-id" => ["post-user", "id"],
 			"uid" => ["post-user", "uid"],
 			"parent" => ["item", "parent"],
+			"parent-user-id" => ["parent-post", "id"],
 			"uri" => ["item-uri", "uri"],
 			"uri-id" => ["post-user", "uri-id"],
 			"parent-uri" => ["parent-item-uri", "uri"],
@@ -53,7 +54,8 @@
 			"guid" => ["item-uri", "guid"],
 			"wall" => ["post-user", "wall"],
 			"gravity" => ["post-user", "gravity"],
-			"extid" => ["item", "extid"],
+			"extid" => ["external-item-uri", "uri"],
+			"external-id" => ["post-user", "external-id"],
 			"created" => ["post-user", "created"],
 			"edited" => ["post-user", "edited"],
 			"commented" => ["post-thread-user", "commented"],
@@ -182,11 +184,12 @@
 			INNER JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
 			INNER JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
 			INNER JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
 			INNER JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-user`.`uri-id`
-			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-user`.`uri-id`
+			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-user`.`uri-id` AND `post-user`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-user`.`psid`
 			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
 			INNER JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"
@@ -194,10 +197,12 @@
 	"post-thread-view" => [
 		"fields" => [
 			"id" => ["item", "id"],
+			"item-id" => ["item", "id"],
 			"iid" => ["item", "id"],
-			"item_id" => ["item", "id"],
+			"post-user-id" => ["post-user", "id"],
 			"uid" => ["post-thread-user", "uid"],
 			"parent" => ["item", "parent"],
+			"parent-user-id" => ["parent-post", "id"],
 			"uri" => ["item-uri", "uri"],
 			"uri-id" => ["post-thread-user", "uri-id"],
 			"parent-uri" => ["parent-item-uri", "uri"],
@@ -207,7 +212,8 @@
 			"guid" => ["item-uri", "guid"],
 			"wall" => ["post-thread-user", "wall"],
 			"gravity" => ["post-user", "gravity"],
-			"extid" => ["item", "extid"],
+			"extid" => ["external-item-uri", "uri"],
+			"external-id" => ["post-user", "external-id"],
 			"created" => ["post-thread-user", "created"],
 			"edited" => ["post-user", "edited"],
 			"commented" => ["post-thread-user", "commented"],
@@ -329,15 +335,16 @@
 		],
 		"query" => "FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
-			INNER JOIN `item` ON `item`.`uri-id` = `post-thread-user`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
+			LEFT JOIN `item` ON `item`.`uri-id` = `post-thread-user`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
 			INNER JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
 			INNER JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
 			INNER JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
 			INNER JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread-user`.`causer-id`
-			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
-			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
-			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
-			LEFT JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
+			INNER JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
+			INNER JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
+			INNER JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
+			INNER JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread-user`.`uri-id`
@@ -350,22 +357,17 @@
 		"fields" => [
 			"uri-id" => ["post-category", "uri-id"],
 			"uid" => ["post-category", "uid"],
-			"uri" => ["item-uri", "uri"],
-			"guid" => ["item-uri", "guid"],
 			"type" => ["post-category", "type"],
 			"tid" => ["post-category", "tid"],
 			"name" => ["tag", "name"],
 			"url" => ["tag", "url"],
 		],
 		"query" => "FROM `post-category`
-			INNER JOIN `item-uri` ON `item-uri`.id = `post-category`.`uri-id`
 			LEFT JOIN `tag` ON `post-category`.`tid` = `tag`.`id`"
 	],
 	"tag-view" => [
 		"fields" => [
 			"uri-id" => ["post-tag", "uri-id"],
-			"uri" => ["item-uri", "uri"],
-			"guid" => ["item-uri", "guid"],
 			"type" => ["post-tag", "type"],
 			"tid" => ["post-tag", "tid"],
 			"cid" => ["post-tag", "cid"],
@@ -373,35 +375,34 @@
 			"url" => "CASE `cid` WHEN 0 THEN `tag`.`url` ELSE `contact`.`url` END",
 		],
 		"query" => "FROM `post-tag`
-			INNER JOIN `item-uri` ON `item-uri`.id = `post-tag`.`uri-id`
 			LEFT JOIN `tag` ON `post-tag`.`tid` = `tag`.`id`
 			LEFT JOIN `contact` ON `post-tag`.`cid` = `contact`.`id`"
 	],
 	"network-item-view" => [
 		"fields" => [
-			"uri-id" => ["item", "parent-uri-id"],
-			"uri" => ["item", "parent-uri"],
+			"uri-id" => ["post-user", "uri-id"],
 			"parent" => ["item", "parent"],
-			"received" => ["item", "received"],
-			"commented" => ["item", "commented"],
-			"created" => ["item", "created"],
-			"uid" => ["item", "uid"],
-			"starred" => ["item", "starred"],
-			"mention" => ["item", "mention"],
-			"network" => ["item", "network"],
-			"unseen" => ["item", "unseen"],
-			"gravity" => ["item", "gravity"],
-			"contact-id" => ["item", "contact-id"],
+			"parent-uri-id" => ["post-user", "parent-uri-id"],
+			"received" => ["post-user", "received"],
+			"commented" => ["post-thread-user", "commented"],
+			"created" => ["post-user", "created"],
+			"uid" => ["post-user", "uid"],
+			"starred" => ["post-thread-user", "starred"],
+			"mention" => ["post-thread-user", "mention"],
+			"network" => ["post-user", "network"],
+			"unseen" => ["post-user", "unseen"],
+			"gravity" => ["post-user", "gravity"],
+			"contact-id" => ["post-user", "contact-id"],
 			"contact-type" => ["ownercontact", "contact-type"],
 		],
-		"query" => "FROM `item`
-			INNER JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `parent-item`.`contact-id`
-			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `parent-item`.`uid`
-			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `parent-item`.`uid` AND `author`.`cid` = `parent-item`.`author-id`
-			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `parent-item`.`uid` AND `owner`.`cid` = `parent-item`.`owner-id`
-			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `parent-item`.`owner-id`
-			WHERE `parent-item`.`visible` AND NOT `parent-item`.`deleted`
+		"query" => "FROM `post-user`
+			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
+			LEFT JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
+			INNER JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
+			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
+			INNER JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
@@ -409,28 +410,27 @@
 	],
 	"network-thread-view" => [
 		"fields" => [
-			"uri-id" => ["post-thread", "uri-id"],
-			"uri" => ["item", "uri"],
-			"parent-uri-id" => ["item", "parent-uri-id"],
+			"uri-id" => ["post-thread-user", "uri-id"],
+			"parent-uri-id" => ["post-user", "parent-uri-id"],
 			"parent" => ["item", "id"],
-			"received" => ["post-thread", "received"],
-			"commented" => ["post-thread", "commented"],
-			"created" => ["post-thread", "created"],
+			"received" => ["post-thread-user", "received"],
+			"commented" => ["post-thread-user", "commented"],
+			"created" => ["post-thread-user", "created"],
 			"uid" => ["post-thread-user", "uid"],
 			"starred" => ["post-thread-user", "starred"],
 			"mention" => ["post-thread-user", "mention"],
-			"network" => ["post-thread", "network"],
+			"network" => ["post-thread-user", "network"],
 			"contact-id" => ["post-thread-user", "contact-id"],
 			"contact-type" => ["ownercontact", "contact-type"],
 		],
-		"query" => "FROM `post-thread`
-			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-thread`.`uri-id`
-			STRAIGHT_JOIN `item` ON `item`.`uri-id` = `post-thread`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
+		"query" => "FROM `post-thread-user`
+			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
+			LEFT JOIN `item` ON `item`.`uri-id` = `post-thread-user`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
-			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread`.`author-id`
-			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread`.`owner-id`
-			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread`.`owner-id`
-			WHERE `item`.`visible` AND NOT `item`.`deleted`
+			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
+			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
+			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
@@ -592,20 +592,17 @@
 	"tag-search-view" => [
 		"fields" => [
 			"uri-id" => ["post-tag", "uri-id"],
-			"iid" => ["item", "id"],
-			"uri" => ["item", "uri"],
-			"guid" => ["item", "guid"],
-			"uid" => ["item", "uid"],
-			"private" => ["item", "private"],
-			"wall" => ["item", "wall"],
-			"origin" => ["item", "origin"],
-			"gravity" => ["item", "gravity"],
-			"received" => ["item", "received"],			
+			"uid" => ["post-user", "uid"],
+			"private" => ["post-user", "private"],
+			"wall" => ["post-user", "wall"],
+			"origin" => ["post-user", "origin"],
+			"gravity" => ["post-user", "gravity"],
+			"received" => ["post-user", "received"],
 			"name" => ["tag", "name"],
 		],
 		"query" => "FROM `post-tag`
 			INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid`
-			INNER JOIN `item` ON `item`.`uri-id` = `post-tag`.`uri-id`
+			STRAIGHT_JOIN `post-user` ON `post-user`.`uri-id` = `post-tag`.`uri-id`
 			WHERE `post-tag`.`type` = 1"
 	],
 	"workerqueue-view" => [
