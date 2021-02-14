@@ -39,12 +39,11 @@
  return [
 	"post-view" => [
 		"fields" => [
-			"id" => ["item", "id"],
+			"id" => ["post-user", "id"],
 			"item-id" => ["item", "id"],
 			"post-user-id" => ["post-user", "id"],
 			"uid" => ["post-user", "uid"],
-			"parent" => ["item", "parent"],
-			"parent-user-id" => ["parent-post", "id"],
+			"parent" => ["parent-post", "id"],
 			"uri" => ["item-uri", "uri"],
 			"uri-id" => ["post-user", "uri-id"],
 			"parent-uri" => ["parent-item-uri", "uri"],
@@ -196,13 +195,12 @@
 	],
 	"post-thread-view" => [
 		"fields" => [
-			"id" => ["item", "id"],
+			"id" => ["post-user", "id"],
 			"item-id" => ["item", "id"],
-			"iid" => ["item", "id"],
+			"iid" => ["post-user", "id"],
 			"post-user-id" => ["post-user", "id"],
 			"uid" => ["post-thread-user", "uid"],
-			"parent" => ["item", "parent"],
-			"parent-user-id" => ["parent-post", "id"],
+			"parent" => ["parent-post", "id"],
 			"uri" => ["item-uri", "uri"],
 			"uri-id" => ["post-thread-user", "uri-id"],
 			"parent-uri" => ["parent-item-uri", "uri"],
@@ -381,8 +379,7 @@
 	"network-item-view" => [
 		"fields" => [
 			"uri-id" => ["post-user", "uri-id"],
-			"parent" => ["item", "parent"],
-			"parent-uri-id" => ["post-user", "parent-uri-id"],
+			"parent" => ["post-user", "parent-uri-id"],
 			"received" => ["post-user", "received"],
 			"commented" => ["post-thread-user", "commented"],
 			"created" => ["post-user", "created"],
@@ -396,8 +393,7 @@
 			"contact-type" => ["ownercontact", "contact-type"],
 		],
 		"query" => "FROM `post-user`
-			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
-			LEFT JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
+			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`			
 			INNER JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
@@ -411,8 +407,7 @@
 	"network-thread-view" => [
 		"fields" => [
 			"uri-id" => ["post-thread-user", "uri-id"],
-			"parent-uri-id" => ["post-user", "parent-uri-id"],
-			"parent" => ["item", "id"],
+			"parent" => ["post-user", "parent-uri-id"],
 			"received" => ["post-thread-user", "received"],
 			"commented" => ["post-thread-user", "commented"],
 			"created" => ["post-thread-user", "created"],
@@ -425,7 +420,6 @@
 		],
 		"query" => "FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
-			LEFT JOIN `item` ON `item`.`uri-id` = `post-thread-user`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`

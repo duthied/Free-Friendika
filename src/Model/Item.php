@@ -1031,14 +1031,14 @@ class Item
 			return 0;
 		}
 
-		$id = Post\User::insert($item['uri-id'], $item['uid'], $item);
-		if (!$id) {
+		$post_user_id = Post\User::insert($item['uri-id'], $item['uid'], $item);
+		if (!$post_user_id) {
 			Logger::notice('Post-User is already inserted - aborting', ['uid' => $item['uid'], 'uri-id' => $item['uri-id']]);
 			return 0;
 		}
 
 		if ($item['gravity'] == GRAVITY_PARENT) {
-			$item['post-user-id'] = $id;
+			$item['post-user-id'] = $post_user_id;
 			Post\ThreadUser::insert($item['uri-id'], $item['uid'], $item);
 		}
 
@@ -1071,82 +1071,78 @@ class Item
 		// Set parent id
 		DBA::update('item', ['parent' => $parent_id], ['id' => $current_post]);
 
-		$item['id'] = $current_post;
-		$item['parent'] = $parent_id;
+		$posted_item = Post::selectFirst(self::ITEM_FIELDLIST, ['post-user-id' => $post_user_id]);
+		if (!DBA::isResult($posted_item)) {
+			Logger::warning('new item not found in DB', ['id' => $post_user_id]);
+			return 0;
+		}
 
 		// update the commented timestamp on the parent
 		if (DI::config()->get('system', 'like_no_comment')) {
 			// Update when it is a comment
-			$update_commented = in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]);
+			$update_commented = in_array($posted_item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]);
 		} else {
 			// Update when it isn't a follow or tag verb
-			$update_commented = !in_array($item['verb'], [Activity::FOLLOW, Activity::TAG]);
+			$update_commented = !in_array($posted_item['verb'], [Activity::FOLLOW, Activity::TAG]);
 		}
 
 		if ($update_commented) {
-			Post::update(['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
+			Post::update(['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $post_user_id]);
 		} else {
-			Post::update(['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
+			Post::update(['changed' => DateTimeFormat::utcNow()], ['uri-id' => $posted_item['parent-uri-id'], 'uid' => $posted_item['uid']]);
 		}
 
 		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances
-		if (self::tagDeliver($item['uid'], $current_post)) {
+		if (self::tagDeliver($posted_item['uid'], $post_user_id)) {
 			// Get the user information for the logging
 			$user = User::getById($uid);
 
-			Logger::notice('Item had been deleted', ['id' => $current_post, 'user' => $uid, 'account-type' => $user['account-type']]);
+			Logger::notice('Item had been deleted', ['id' => $post_user_id, 'user' => $uid, 'account-type' => $user['account-type']]);
 			return 0;
 		}
 
 		if (!$dontcache) {
-			$posted_item = Post::selectFirst(self::ITEM_FIELDLIST, ['id' => $current_post]);
-			if (DBA::isResult($posted_item)) {
-				if ($notify) {
-					Hook::callAll('post_local_end', $posted_item);
-				} else {
-					Hook::callAll('post_remote_end', $posted_item);
-				}
+			if ($notify) {
+				Hook::callAll('post_local_end', $posted_item);
 			} else {
-				Logger::log('new item not found in DB, id ' . $current_post);
-			}
+				Hook::callAll('post_remote_end', $posted_item);
+			}		
 		}
 
-		if ($item['gravity'] === GRAVITY_PARENT) {
-			self::addShadow($current_post);
+		if ($posted_item['gravity'] === GRAVITY_PARENT) {
+			self::addShadow($post_user_id);
 		} else {
-			self::addShadowPost($current_post);
+			self::addShadowPost($post_user_id);
 		}
 
-		self::updateContact($item);
+		self::updateContact($posted_item);
 
-		Post\UserNotification::setNotification($item['uri-id'], $item['uid']);
+		Post\UserNotification::setNotification($posted_item['uri-id'], $posted_item['uid']);
 
-		check_user_notification($item['uri-id'], $item['uid']);
-		//check_user_notification($current_post);
+		check_user_notification($posted_item['uri-id'], $posted_item['uid']);
 
 		// Distribute items to users who subscribed to their tags
-		self::distributeByTags($item);
+		self::distributeByTags($posted_item);
 
 		// Automatically reshare the item if the "remote_self" option is selected
-		self::autoReshare($item);
+		self::autoReshare($posted_item);
 
-		$transmit = $notify || ($item['visible'] && ($parent_origin || $item['origin']));
+		$transmit = $notify || ($posted_item['visible'] && ($parent_origin || $posted_item['origin']));
 
 		if ($transmit) {
-			$transmit_item = Post::selectFirst(['verb', 'origin'], ['id' => $item['id']]);
 			// Don't relay participation messages
-			if (($transmit_item['verb'] == Activity::FOLLOW) && 
-				(!$transmit_item['origin'] || ($item['author-id'] != Contact::getPublicIdByUserId($uid)))) {
-				Logger::info('Participation messages will not be relayed', ['item' => $item['id'], 'uri' => $item['uri'], 'verb' => $transmit_item['verb']]);
+			if (($posted_item['verb'] == Activity::FOLLOW) && 
+				(!$posted_item['origin'] || ($posted_item['author-id'] != Contact::getPublicIdByUserId($uid)))) {
+				Logger::info('Participation messages will not be relayed', ['item' => $posted_item['id'], 'uri' => $posted_item['uri'], 'verb' => $posted_item['verb']]);
 				$transmit = false;
 			}
 		}
 
 		if ($transmit) {
-			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, (int)$item['uri-id'], (int)$item['uid']);
+			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, (int)$posted_item['uri-id'], (int)$posted_item['uid']);
 		}
 
-		return $current_post;
+		return $post_user_id;
 	}
 
 	/**
@@ -1235,6 +1231,7 @@ class Item
 		$condition = ["`id` IN (SELECT `parent` FROM `post-view` WHERE `id` = ?)", $itemid];
 		$parent = Post::selectFirst(['owner-id'], $condition);
 		if (!DBA::isResult($parent)) {
+			Logger::warning('Item not found', ['condition' => $condition]);
 			return;
 		}
 
@@ -1244,6 +1241,7 @@ class Item
 			'visible' => true, 'deleted' => false, 'private' => [self::PUBLIC, self::UNLISTED]];
 		$item = Post::selectFirst(self::ITEM_FIELDLIST, $condition);
 		if (!DBA::isResult($item)) {
+			Logger::warning('Item not found', ['condition' => $condition]);
 			return;
 		}
 
@@ -1421,7 +1419,7 @@ class Item
 	private static function addShadow($itemid)
 	{
 		$fields = ['uid', 'private', 'visible', 'deleted', 'network', 'uri-id'];
-		$condition = ['id' => $itemid, 'parent' => [0, $itemid]];
+		$condition = ['id' => $itemid, 'gravity' => GRAVITY_PARENT];
 		$item = Post::selectFirst($fields, $condition);
 
 		if (!DBA::isResult($item)) {
@@ -1816,7 +1814,7 @@ class Item
 		if (!$mention) {
 			if (($community_page || $prvgroup) &&
 				  !$item['wall'] && !$item['origin'] && ($item['gravity'] == GRAVITY_PARENT)) {
-				Logger::info('Delete private group/communiy top-level item without mention', ['id' => $item_id, 'guid'=> $item['guid']]);
+				Logger::info('Delete private group/communiy top-level item without mention', ['id' => $item['id'], 'guid'=> $item['guid']]);
 				DBA::delete('item', ['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
 				Post\User::delete(['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
 				return true;
@@ -1865,11 +1863,11 @@ class Item
 
 		$fields = ['wall' => true, 'origin' => true, 'forum_mode' => $forum_mode, 'contact-id' => $self['id'],
 			'owner-id' => $owner_id, 'private' => $private, 'psid' => $psid];
-		self::update($fields, ['id' => $item_id]);
+		self::update($fields, ['id' => $item['id']]);
 
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, (int)$item['uri-id'], (int)$item['uid']);
 
-		self::performActivity($item_id, 'announce', $uid);
+		self::performActivity($item['id'], 'announce', $uid);
 
 		return false;
 	}

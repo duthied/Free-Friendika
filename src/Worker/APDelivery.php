@@ -55,9 +55,10 @@ class APDelivery
 		}
 
 		if (empty($uri_id) && !empty($item_id)) {
-			$item = Post::selectFirst(['uri-id'], ['id' => $item_id]);
+			$item = Post::selectFirst(['uri-id', 'id'], ['item-id' => $item_id]);
 			if (!empty($item['uri-id'])) {
 				$uri_id = $item['uri-id'];
+				$item_id = $item['id'];
 			}
 		} elseif (!empty($uri_id) && !empty($item_id)) {
 			$item = Post::selectFirst(['id'], ['uri-id' => $uri_id, 'uid' => $uid]);

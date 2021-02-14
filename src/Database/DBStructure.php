@@ -1232,7 +1232,7 @@ class DBStructure
 			} elseif ($verbose) {
 				echo "Zero permissionset already added\n";
 			}
-			if (!self::existsForeignKeyForField('item', 'psid')) {
+			if (self::existsTable('item') && !self::existsForeignKeyForField('item', 'psid')) {
 				$sets = DBA::p("SELECT `psid`, `item`.`uid`, `item`.`private` FROM `item`
 					LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
 					WHERE `permissionset`.`id` IS NULL AND NOT `psid` IS NULL");
