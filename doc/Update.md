@@ -77,3 +77,29 @@ RENAME TABLE <table_name>_new TO <table_name>;
 ```
 
 This method is slower overall, but it is better suited for large numbers of duplicates.
+
+### Resolving Possible Database Issues Post Upgrading
+
+#### Foreign Keys
+
+Some of the updates include the use of foreign keys now that will bump into issues with previous versions, which would sometimes shove bad data into tables, preventing, causing errors such as below.
+
+```
+Error 1452 occurred during database update:
+Cannot add or update a child row: a foreign key constraint fails (`friendica`.`#sql-10ea6_5a6d`, CONSTRAINT `#sql-10ea6_5a6d_ibfk_1` FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`))
+ALTER TABLE `thread` ADD FOREIGN KEY (`iid`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE; 
+```
+
+All current known fixes for possible items that can go wrong are as below.
+
+```SQL
+DELETE FROM `item` WHERE `owner-id` NOT IN (SELECT `id` FROM `contact`);
+DELETE FROM `item` WHERE `contact-id` NOT IN (SELECT `id` FROM `contact`);
+DELETE FROM `notify` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`);
+DELETE FROM `photo` WHERE `contact-id` NOT IN (SELECT `id` FROM `contact`);
+DELETE FROM `thread` WHERE `iid` NOT IN (SELECT `id` FROM `item`);
+DELETE FROM `item` WHERE `author-id` NOT IN (SELECT `id` FROM `contact`);
+DELETE FROM `diaspora-interaction` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`);
+```
+
+This all has been compiled as of currently from issue #9746, #9753, and #9878.
