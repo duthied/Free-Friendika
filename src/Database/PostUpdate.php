@@ -45,7 +45,7 @@ class PostUpdate
 {
 	// Needed for the helper function to read from the legacy term table
 	const OBJECT_TYPE_POST  = 1;
-	const VERSION = 1384;
+	const VERSION = 1400;
 
 	/**
 	 * Calls the post update functions
@@ -804,7 +804,7 @@ class PostUpdate
 		Logger::info('Processed', ['rows' => $rows]);
 
 		if ($rows <= 100) {
-			DI::config()->set("system", "post_update_version", 1384);
+			DI::config()->set("system", "post_update_version", 1400);
 			Logger::info('Done');
 			return true;
 		}
