@@ -1146,7 +1146,7 @@ class Item
 		}
 
 		$cid = Contact::getIdForURL($author['url'], $item['uid']);
-		if (empty($cid) || (!Contact::isSharing($cid, $item['uid'] && in_array($author['network'], Protocol::FEDERATED)))) {
+		if (empty($cid) || !Contact::isSharing($cid, $item['uid'])) {
 			Logger::info('The resharer is not a following contact: quit', ['resharer' => $author['url'], 'uid' => $item['uid'], 'cid' => $cid]);
 			return;
 		}

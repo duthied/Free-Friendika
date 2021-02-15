@@ -61,7 +61,7 @@ class ExpirePosts
 						AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `post-user`
 							WHERE (`origin` OR `event-id` != 0 OR `post-type` = ?) AND `parent-uri-id` = `post-thread`.`uri-id`)
 						AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-content`
-							WHERE `resource-id` != 0 AND `uri-id` = `post-thread`.`uri-id`)
+							WHERE `resource-id` != 0 AND `uri-id` = `post-thread`.`uri-id`))
 					ORDER BY `id` LIMIT ?", $expire_days, Item::PT_PERSONAL_NOTE, $limit);
 
 				$rows = DBA::affectedRows();
