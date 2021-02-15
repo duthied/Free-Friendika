@@ -592,6 +592,7 @@ return [
 			'author-id'  => 42,
 			'owner-id'   => 42,
 			'causer-id'  => 42,
+			'contact-id' => 42,
 			'network'    => Protocol::DFRN,
 		],
 		[
@@ -602,6 +603,7 @@ return [
 			'author-id'  => 43,
 			'owner-id'   => 43,
 			'causer-id'  => 43,
+			'contact-id' => 43,
 			'network'    => Protocol::DFRN,
 		],
 		[
@@ -612,6 +614,7 @@ return [
 			'author-id'  => 44,
 			'owner-id'   => 44,
 			'causer-id'  => 44,
+			'contact-id' => 44,
 			'network'    => Protocol::DFRN,
 		],
 		[
@@ -622,6 +625,7 @@ return [
 			'author-id'  => 42,
 			'owner-id'   => 42,
 			'causer-id'  => 42,
+			'contact-id' => 42,
 			'network'    => Protocol::DFRN,
 		],
 		[
@@ -632,6 +636,7 @@ return [
 			'author-id'  => 43,
 			'owner-id'   => 43,
 			'causer-id'  => 43,
+			'contact-id' => 43,
 			'network'    => Protocol::DFRN,
 		],
 		[
@@ -642,6 +647,7 @@ return [
 			'author-id'  => 44,
 			'owner-id'   => 44,
 			'causer-id'  => 44,
+			'contact-id' => 44,
 			'network'    => Protocol::DFRN,
 		],
 	],
