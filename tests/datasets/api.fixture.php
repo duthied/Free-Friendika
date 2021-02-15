@@ -50,6 +50,16 @@ return [
 			'k'   => 'worker_dont_fork',
 			'v'   => '1',
 		],
+		[
+			'cat' => 'system',
+			'k'   => 'curl_timeout',
+			'v'   => '1',
+		],
+		[
+			'cat' => 'system',
+			'k'   => 'xrd_timeout',
+			'v'   => '1',
+		],
 	],
 	'user'    => [
 		[

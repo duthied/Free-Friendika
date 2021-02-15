@@ -2152,6 +2152,7 @@ DROP VIEW IF EXISTS `tag-search-view`;
 CREATE VIEW `tag-search-view` AS SELECT 
 	`post-tag`.`uri-id` AS `uri-id`,
 	`post-user`.`uid` AS `uid`,
+	`post-user`.`id` AS `iid`,
 	`post-user`.`private` AS `private`,
 	`post-user`.`wall` AS `wall`,
 	`post-user`.`origin` AS `origin`,

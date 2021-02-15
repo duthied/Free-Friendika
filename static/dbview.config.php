@@ -587,6 +587,7 @@
 		"fields" => [
 			"uri-id" => ["post-tag", "uri-id"],
 			"uid" => ["post-user", "uid"],
+			"iid" => ["post-user", "id"],
 			"private" => ["post-user", "private"],
 			"wall" => ["post-user", "wall"],
 			"origin" => ["post-user", "origin"],
