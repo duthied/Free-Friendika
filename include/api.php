@@ -2262,10 +2262,9 @@ function api_statuses_user_timeline($type)
 		$condition[0] .= " AND `id` <= ?";
 		$condition[] = $max_id;
 	}
-
+	$condition = []; // test
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-//	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
-	$statuses = Post::select([], $condition, $params);
+	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
 
 	$ret = api_format_items(Post::toArray($statuses), $user_info, true, $type);
 
