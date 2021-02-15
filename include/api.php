@@ -2264,7 +2264,8 @@ function api_statuses_user_timeline($type)
 	}
 
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
+//	$statuses = Post::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Post::select([], $condition, $params);
 
 	$ret = api_format_items(Post::toArray($statuses), $user_info, true, $type);
 

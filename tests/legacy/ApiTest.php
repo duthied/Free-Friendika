@@ -2001,9 +2001,9 @@ class ApiTest extends FixtureTest
 	 */
 	public function testApiStatusesUserTimeline()
 	{
-//		$_REQUEST['max_id']          = 10;
-//		$_REQUEST['exclude_replies'] = true;
-//		$_REQUEST['conversation_id'] = 1;
+		$_REQUEST['max_id']          = 10;
+		$_REQUEST['exclude_replies'] = true;
+		$_REQUEST['conversation_id'] = 1;
 		$result                      = api_statuses_user_timeline('json');
 		self::assertNotEmpty($result['status']);
 		foreach ($result['status'] as $status) {
