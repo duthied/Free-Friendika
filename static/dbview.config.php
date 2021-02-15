@@ -379,7 +379,7 @@
 	"network-item-view" => [
 		"fields" => [
 			"uri-id" => ["post-user", "uri-id"],
-			"parent" => ["post-user", "parent-uri-id"],
+			"parent" => ["parent-post", "id"],
 			"received" => ["post-user", "received"],
 			"commented" => ["post-thread-user", "commented"],
 			"created" => ["post-user", "created"],
@@ -398,6 +398,7 @@
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
 			INNER JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
 			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
@@ -407,7 +408,7 @@
 	"network-thread-view" => [
 		"fields" => [
 			"uri-id" => ["post-thread-user", "uri-id"],
-			"parent" => ["post-user", "parent-uri-id"],
+			"parent" => ["parent-post", "id"],
 			"received" => ["post-thread-user", "received"],
 			"commented" => ["post-thread-user", "commented"],
 			"created" => ["post-thread-user", "created"],
@@ -424,6 +425,7 @@
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
 			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
 			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)

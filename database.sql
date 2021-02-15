@@ -1936,7 +1936,7 @@ CREATE VIEW `tag-view` AS SELECT
 DROP VIEW IF EXISTS `network-item-view`;
 CREATE VIEW `network-item-view` AS SELECT 
 	`post-user`.`uri-id` AS `uri-id`,
-	`post-user`.`parent-uri-id` AS `parent`,
+	`parent-post`.`id` AS `parent`,
 	`post-user`.`received` AS `received`,
 	`post-thread-user`.`commented` AS `commented`,
 	`post-user`.`created` AS `created`,
@@ -1954,6 +1954,7 @@ CREATE VIEW `network-item-view` AS SELECT
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
 			INNER JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
 			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
@@ -1966,7 +1967,7 @@ CREATE VIEW `network-item-view` AS SELECT
 DROP VIEW IF EXISTS `network-thread-view`;
 CREATE VIEW `network-thread-view` AS SELECT 
 	`post-thread-user`.`uri-id` AS `uri-id`,
-	`post-user`.`parent-uri-id` AS `parent`,
+	`parent-post`.`id` AS `parent`,
 	`post-thread-user`.`received` AS `received`,
 	`post-thread-user`.`commented` AS `commented`,
 	`post-thread-user`.`created` AS `created`,
@@ -1982,6 +1983,7 @@ CREATE VIEW `network-thread-view` AS SELECT
 			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
 			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
 			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
 			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
