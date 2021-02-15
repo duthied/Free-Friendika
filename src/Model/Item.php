@@ -1062,10 +1062,12 @@ class Item
 		}
 
 		if ($update_commented) {
-			Post::update(['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $post_user_id]);
+			$fields = ['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
 		} else {
-			Post::update(['changed' => DateTimeFormat::utcNow()], ['uri-id' => $posted_item['parent-uri-id'], 'uid' => $posted_item['uid']]);
+			$fields = ['changed' => DateTimeFormat::utcNow()];
 		}
+
+		Post::update($fields, ['uri-id' => $posted_item['parent-uri-id'], 'uid' => $posted_item['uid']]);
 
 		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances
 		if (self::tagDeliver($posted_item['uid'], $post_user_id)) {
