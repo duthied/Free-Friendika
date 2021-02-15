@@ -59,6 +59,8 @@ class Notifier
 
 		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $post_uriid, 'sender_uid' => $sender_uid]);
 
+		$target_id = $post_uriid;
+
 		if (!empty($sender_uid)) {
 			$post = Post::selectFirst(['id'], ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
 			if (!DBA::isResult($post)) {
@@ -67,15 +69,12 @@ class Notifier
 			}
 			$target_id = $post['id'];
 		} elseif (!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
-			$post = Post::selectFirst(['id'], ['item-id' => $post_uriid]);
 			$post = Post::selectFirst(['id', 'uid', 'uri-id'], ['item-id' => $post_uriid]);
 			if (DBA::isResult($post)) {
 				$target_id = $post['id'];
 				$sender_uid = $post['uid'];
 				$post_uriid = $post['uri-id'];
 			}
-		} else {
-			$target_id = $post_uriid;
 		}
 
 		$top_level = false;

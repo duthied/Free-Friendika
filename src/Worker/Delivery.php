@@ -55,6 +55,8 @@ class Delivery
 	{
 		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $post_uriid, 'sender_uid' => $sender_uid, 'contact' => $contact_id]);
 
+		$target_id = $post_uriid;
+
 		if (!empty($sender_uid)) {
 			$post = Post::selectFirst(['id'], ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
 			if (!DBA::isResult($post)) {
@@ -69,8 +71,6 @@ class Delivery
 				$sender_uid = $post['uid'];
 				$post_uriid = $post['uri-id'];
 			}
-		} else {
-			$target_id = $post_uriid;
 		}
 
 		$top_level = false;
