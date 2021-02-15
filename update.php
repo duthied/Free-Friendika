@@ -799,6 +799,14 @@ function update_1400()
 		return Update::FAILED;
 	}
 
+	if (!DBA::e("INSERT IGNORE INTO `post-thread-user` (`uri-id`, `owner-id`, `author-id`, `causer-id`, `network`,
+		`created`, `received`, `changed`, `commented`, `uid`,  `wall`, `contact-id`, `unseen`, `hidden`, `origin`, `psid`, `post-user-id`)
+		SELECT `uri-id`, `owner-id`, `author-id`, `causer-id`, `network`, `created`, `received`, `received`, `received`,
+			`uid`, `wall`, `contact-id`, `unseen`, `hidden`, `origin`, `psid`, `id`
+		FROM `post-user` WHERE `gravity` = 0 AND NOT EXISTS(SELECT `uri-id` FROM `post-thread-user` WHERE `post-user-id` = `post-user`.id)")) {
+		return Update::FAILED;
+	}
+
 	if (!DBA::e("UPDATE `post-thread-user` INNER JOIN `post-thread` ON `post-thread-user`.`uri-id` = `post-thread`.`uri-id`
 		SET `post-thread-user`.`owner-id` = `post-thread`.`owner-id`, `post-thread-user`.`author-id` = `post-thread`.`author-id`,
 		`post-thread-user`.`causer-id` = `post-thread`.`causer-id`, `post-thread-user`.`network` = `post-thread`.`network`,
