@@ -365,6 +365,7 @@ return [
 			'private'       => Item::PUBLIC,
 			'gravity'       => GRAVITY_PARENT,
 			'network'       => Protocol::DFRN,
+			'wall'          => 1,
 			'origin'        => 1,
 		],
 		[
@@ -385,6 +386,7 @@ return [
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
 			'deleted'       => 0,
+			'wall'          => 1,
 		],
 		[
 			'id'            => 3,
@@ -404,6 +406,7 @@ return [
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
 			'deleted'       => 0,
+			'wall'          => 1,
 		],
 		[
 			'id'            => 4,
@@ -423,6 +426,7 @@ return [
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
 			'deleted'       => 0,
+			'wall'          => 1,
 		],
 		[
 			'id'            => 5,
@@ -442,6 +446,7 @@ return [
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
 			'deleted'       => 0,
+			'wall'          => 1,
 		],
 		[
 			'id'            => 6,
@@ -461,6 +466,7 @@ return [
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
 			'deleted'       => 0,
+			'wall'          => 1,
 		],
 		[
 			'id'            => 7,
@@ -480,6 +486,7 @@ return [
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
 			'deleted'       => 0,
+			'wall'          => 0,
 		],
 		[
 			'id'            => 8,
@@ -499,6 +506,7 @@ return [
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
 			'deleted'       => 0,
+			'wall'          => 0,
 		],
 		[
 			'id'            => 9,
@@ -518,6 +526,7 @@ return [
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
 			'deleted'       => 0,
+			'wall'          => 0,
 		],
 		[
 			'id'            => 10,
@@ -537,6 +546,7 @@ return [
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
 			'deleted'       => 0,
+			'wall'          => 0,
 		],
 		[
 			'id'            => 11,
@@ -556,6 +566,7 @@ return [
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
 			'deleted'       => 0,
+			'wall'          => 0,
 		],
 		[
 			'id'            => 12,
@@ -575,6 +586,7 @@ return [
 			'network'       => Protocol::DFRN,
 			'origin'        => 0,
 			'deleted'       => 0,
+			'wall'          => 0,
 		],
 	],
 	'post-thread'  => [
