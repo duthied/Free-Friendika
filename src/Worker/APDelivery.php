@@ -25,7 +25,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
@@ -40,10 +39,11 @@ class APDelivery
 	 * @param string  $inbox     The URL of the recipient profile
 	 * @param integer $uid       The ID of the user who triggered this delivery
 	 * @param array   $receivers The contact IDs related to the inbox URL for contact archival housekeeping
+	 * @param int     $uri_id    URI-ID of item to be transmitted
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function execute(string $cmd, int $item_id, string $inbox, int $uid, array $receivers = [])
+	public static function execute(string $cmd, int $item_id, string $inbox, int $uid, array $receivers = [], int $uri_id = 0)
 	{
 		if (ActivityPub\Transmitter::archivedInbox($inbox)) {
 			Logger::info('Inbox is archived', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uid' => $uid]);
@@ -54,7 +54,20 @@ class APDelivery
 			return;
 		}
 
-		Logger::info('Invoked', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uid' => $uid]);
+		if (empty($uri_id) && !empty($item_id)) {
+			$item = Post::selectFirst(['uri-id', 'id'], ['item-id' => $item_id]);
+			if (!empty($item['uri-id'])) {
+				$uri_id = $item['uri-id'];
+				$item_id = $item['id'];
+			}
+		} elseif (!empty($uri_id) && !empty($item_id)) {
+			$item = Post::selectFirst(['id'], ['uri-id' => $uri_id, 'uid' => $uid]);
+			if (!empty($item['uri-id'])) {
+				$item_id = $item['id'];
+			}
+		}
+
+		Logger::info('Invoked', ['cmd' => $cmd, 'inbox' => $inbox, 'id' => $item_id, 'uri-id' => $uri_id, 'uid' => $uid]);
 
 		$success = true;
 
@@ -81,8 +94,6 @@ class APDelivery
 		}
 
 		// This should never fail and is temporariy (until the move to the "post" structure)
-		$item = Post::selectFirst(['uri-id'], ['id' => $item_id]);
-		$uriid = $item['uri-id'] ?? 0;
 		$gsid = null;
 
 		foreach ($receivers as $receiver) {
@@ -105,9 +116,9 @@ class APDelivery
 		}
 
 		if (!$success && !Worker::defer() && in_array($cmd, [Delivery::POST])) {
-			Post\DeliveryData::incrementQueueFailed($uriid);
+			Post\DeliveryData::incrementQueueFailed($uri_id);
 		} elseif ($success && in_array($cmd, [Delivery::POST])) {
-			Post\DeliveryData::incrementQueueDone($uriid, Post\DeliveryData::ACTIVITYPUB);
+			Post\DeliveryData::incrementQueueDone($uri_id, Post\DeliveryData::ACTIVITYPUB);
 		}
 	}
 }

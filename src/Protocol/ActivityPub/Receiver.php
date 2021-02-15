@@ -930,7 +930,7 @@ class Receiver
 			} else {
 				Logger::log('Empty content for ' . $object_id . ', check if content is available locally.', Logger::DEBUG);
 
-				$item = Post::selectFirst([], ['uri' => $object_id]);
+				$item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['uri' => $object_id]);
 				if (!DBA::isResult($item)) {
 					Logger::log('Object with url ' . $object_id . ' was not found locally.', Logger::DEBUG);
 					return false;

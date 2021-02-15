@@ -61,7 +61,9 @@ class Status extends BaseFactory
 	 */
 	public function createFromUriId(int $uriId, $uid = 0)
 	{
-		$item = Post::selectFirst([], ['uri-id' => $uriId, 'uid' => $uid]);
+		$fields = ['uri-id', 'uid', 'author-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created',
+			'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity'];
+		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => $uid]);
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . 'not found' . ($uid ? ' for user ' . $uid : '.'));
 		}

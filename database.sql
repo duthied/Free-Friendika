@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1399
+-- DB_UPDATE_VERSION 1400
 -- ------------------------------------------
 
 
@@ -705,7 +705,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`private` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0=public, 1=private, 2=unlisted',
 	`visible` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`moderated` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`deleted` boolean NOT NULL DEFAULT '0' COMMENT 'item has been deleted',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner id which owns this copy of the item',
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
@@ -717,9 +716,10 @@ CREATE TABLE IF NOT EXISTS `item` (
 	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`event-id` int unsigned COMMENT 'Used to link to the event.id',
-	`type` varchar(20) COMMENT '',
-	`bookmark` boolean COMMENT '',
 	`mention` boolean NOT NULL DEFAULT '0' COMMENT 'The owner of this item was mentioned in it',
+	`bookmark` boolean COMMENT 'Deprecated',
+	`type` varchar(20) COMMENT 'Deprecated',
+	`moderated` boolean NOT NULL DEFAULT '0' COMMENT 'Deprecated',
 	`resource-id` varchar(32) COMMENT 'Deprecated',
 	`uri-hash` varchar(80) COMMENT 'Deprecated',
 	`iaid` int unsigned COMMENT 'Deprecated',
@@ -1027,6 +1027,47 @@ CREATE TABLE IF NOT EXISTS `photo` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='photo storage';
 
 --
+-- TABLE post
+--
+CREATE TABLE IF NOT EXISTS `post` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`parent-uri-id` int unsigned COMMENT 'Id of the item-uri table that contains the parent uri',
+	`thr-parent-id` int unsigned COMMENT 'Id of the item-uri table that contains the thread parent uri',
+	`external-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the external uri',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation timestamp.',
+	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last edit (default is created)',
+	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime',
+	`gravity` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT 'Network from where the item comes from',
+	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the owner of this item',
+	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
+	`causer-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
+	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, bookmark, ...)',
+	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
+	`private` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0=public, 1=private, 2=unlisted',
+	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`visible` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`deleted` boolean NOT NULL DEFAULT '0' COMMENT 'item has been marked for deletion',
+	 PRIMARY KEY(`uri-id`),
+	 INDEX `parent-uri-id` (`parent-uri-id`),
+	 INDEX `thr-parent-id` (`thr-parent-id`),
+	 INDEX `external-id` (`external-id`),
+	 INDEX `owner-id` (`owner-id`),
+	 INDEX `author-id` (`author-id`),
+	 INDEX `causer-id` (`causer-id`),
+	 INDEX `vid` (`vid`),
+	 INDEX `received` (`received`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`external-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`causer-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`vid`) REFERENCES `verb` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
+
+--
 -- TABLE post-category
 --
 CREATE TABLE IF NOT EXISTS `post-category` (
@@ -1157,12 +1198,31 @@ CREATE TABLE IF NOT EXISTS `post-thread` (
 CREATE TABLE IF NOT EXISTS `post-user` (
 	`id` int unsigned NOT NULL auto_increment,
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`parent-uri-id` int unsigned COMMENT 'Id of the item-uri table that contains the parent uri',
+	`thr-parent-id` int unsigned COMMENT 'Id of the item-uri table that contains the thread parent uri',
+	`external-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the external uri',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation timestamp.',
+	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last edit (default is created)',
+	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime',
+	`gravity` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT 'Network from where the item comes from',
+	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the owner of this item',
+	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
+	`causer-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
+	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, bookmark, ...)',
+	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
+	`private` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0=public, 1=private, 2=unlisted',
+	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`visible` boolean NOT NULL DEFAULT '0' COMMENT '',
+	`deleted` boolean NOT NULL DEFAULT '0' COMMENT 'item has been marked for deletion',
 	`uid` mediumint unsigned NOT NULL COMMENT 'Owner id which owns this copy of the item',
 	`protocol` tinyint unsigned COMMENT 'Protocol used to deliver the item for this user',
 	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
+	`event-id` int unsigned COMMENT 'Used to link to the event.id',
 	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'post has not been seen',
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide the post from the user',
 	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
 	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
 	`psid` int unsigned COMMENT 'ID of the permission set of this post',
 	 PRIMARY KEY(`id`),
@@ -1171,9 +1231,34 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	 INDEX `contact-id` (`contact-id`),
 	 INDEX `psid` (`psid`),
 	 INDEX `uid_hidden` (`uid`,`hidden`),
+	 INDEX `event-id` (`event-id`),
+	 INDEX `uid_wall` (`uid`,`wall`),
+	 INDEX `parent-uri-id` (`parent-uri-id`),
+	 INDEX `thr-parent-id` (`thr-parent-id`),
+	 INDEX `external-id` (`external-id`),
+	 INDEX `owner-id` (`owner-id`),
+	 INDEX `author-id` (`author-id`),
+	 INDEX `causer-id` (`causer-id`),
+	 INDEX `vid` (`vid`),
+	 INDEX `uid_received` (`uid`,`received`),
+	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
+	 INDEX `uid_network_received` (`uid`,`network`,`received`),
+	 INDEX `uid_contactid_received` (`uid`,`contact-id`,`received`),
+	 INDEX `authorid_received` (`author-id`,`received`),
+	 INDEX `uid_unseen_wall` (`uid`,`unseen`,`wall`),
+	 INDEX `uid_eventid` (`uid`,`event-id`),
+	 INDEX `psid_wall` (`psid`,`wall`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`external-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`causer-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`vid`) REFERENCES `verb` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`event-id`) REFERENCES `event` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific post data';
 
@@ -1182,6 +1267,14 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 --
 CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
+	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item author',
+	`causer-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
+	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
+	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`changed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date that something in the conversation changed, indicating clients should fetch the conversation again',
+	`commented` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner id which owns this copy of the item',
 	`pinned` boolean NOT NULL DEFAULT '0' COMMENT 'The thread is pinned on the profile page',
 	`starred` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -1203,7 +1296,28 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	 INDEX `contact-id` (`contact-id`),
 	 INDEX `psid` (`psid`),
 	 INDEX `post-user-id` (`post-user-id`),
+	 INDEX `owner-id` (`owner-id`),
+	 INDEX `causer-id` (`causer-id`),
+	 INDEX `uid_received` (`uid`,`received`),
+	 INDEX `uid_commented` (`uid`,`commented`),
+	 INDEX `uid_changed` (`uid`,`changed`),
+	 INDEX `uid_contact-id` (`uid`,`contact-id`,`received`),
+	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
+	 INDEX `uid_network_received` (`uid`,`network`,`received`),
+	 INDEX `uid_network_commented` (`uid`,`network`,`commented`),
+	 INDEX `uid_contact-id_received` (`uid`,`contact-id`,`received`),
+	 INDEX `author-id_received` (`author-id`,`received`),
+	 INDEX `uid_wall_changed` (`uid`,`wall`,`changed`),
+	 INDEX `uid_unseen_wall` (`uid`,`unseen`,`wall`),
+	 INDEX `mention_uid` (`mention`,`uid`),
+	 INDEX `psid_wall` (`psid`,`wall`),
+	 INDEX `received` (`received`),
+	 INDEX `commented` (`commented`),
+	 INDEX `changed` (`changed`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`causer-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
@@ -1474,44 +1588,42 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 --
 DROP VIEW IF EXISTS `post-view`;
 CREATE VIEW `post-view` AS SELECT 
-	`item`.`id` AS `id`,
-	`item`.`id` AS `item_id`,
+	`post-user`.`id` AS `id`,
+	`item`.`id` AS `item-id`,
 	`post-user`.`id` AS `post-user-id`,
-	`item`.`uid` AS `uid`,
-	`item`.`parent` AS `parent`,
-	`item`.`uri` AS `uri`,
-	`item`.`uri-id` AS `uri-id`,
-	`item`.`parent-uri` AS `parent-uri`,
-	`item`.`parent-uri-id` AS `parent-uri-id`,
-	`item`.`thr-parent` AS `thr-parent`,
-	`item`.`thr-parent-id` AS `thr-parent-id`,
-	`item`.`guid` AS `guid`,
-	`item`.`type` AS `type`,
-	`item`.`wall` AS `wall`,
-	`item`.`gravity` AS `gravity`,
-	`item`.`extid` AS `extid`,
-	`item`.`created` AS `created`,
-	`item`.`edited` AS `edited`,
-	`item`.`commented` AS `commented`,
-	`item`.`received` AS `received`,
-	`item`.`changed` AS `changed`,
-	`item`.`post-type` AS `post-type`,
-	`item`.`private` AS `private`,
-	`item`.`pubmail` AS `pubmail`,
-	`item`.`moderated` AS `moderated`,
-	`item`.`visible` AS `visible`,
-	`item`.`starred` AS `starred`,
-	`item`.`bookmark` AS `bookmark`,
-	`item`.`unseen` AS `unseen`,
-	`item`.`deleted` AS `deleted`,
-	`item`.`origin` AS `origin`,
-	`item`.`forum_mode` AS `forum_mode`,
-	`item`.`mention` AS `mention`,
-	`item`.`global` AS `global`,
-	`item`.`network` AS `network`,
-	`item`.`vid` AS `vid`,
-	`item`.`psid` AS `psid`,
-	IF (`item`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
+	`post-user`.`uid` AS `uid`,
+	`parent-post`.`id` AS `parent`,
+	`item-uri`.`uri` AS `uri`,
+	`post-user`.`uri-id` AS `uri-id`,
+	`parent-item-uri`.`uri` AS `parent-uri`,
+	`post-user`.`parent-uri-id` AS `parent-uri-id`,
+	`thr-parent-item-uri`.`uri` AS `thr-parent`,
+	`post-user`.`thr-parent-id` AS `thr-parent-id`,
+	`item-uri`.`guid` AS `guid`,
+	`post-user`.`wall` AS `wall`,
+	`post-user`.`gravity` AS `gravity`,
+	`external-item-uri`.`uri` AS `extid`,
+	`post-user`.`external-id` AS `external-id`,
+	`post-user`.`created` AS `created`,
+	`post-user`.`edited` AS `edited`,
+	`post-thread-user`.`commented` AS `commented`,
+	`post-user`.`received` AS `received`,
+	`post-thread-user`.`changed` AS `changed`,
+	`post-user`.`post-type` AS `post-type`,
+	`post-user`.`private` AS `private`,
+	`post-thread-user`.`pubmail` AS `pubmail`,
+	`post-user`.`visible` AS `visible`,
+	`post-thread-user`.`starred` AS `starred`,
+	`post-user`.`unseen` AS `unseen`,
+	`post-user`.`deleted` AS `deleted`,
+	`post-user`.`origin` AS `origin`,
+	`post-thread-user`.`forum_mode` AS `forum_mode`,
+	`post-thread-user`.`mention` AS `mention`,
+	`post-user`.`global` AS `global`,
+	`post-user`.`network` AS `network`,
+	`post-user`.`vid` AS `vid`,
+	`post-user`.`psid` AS `psid`,
+	IF (`post-user`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
 	`post-content`.`title` AS `title`,
 	`post-content`.`content-warning` AS `content-warning`,
 	`post-content`.`raw-body` AS `raw-body`,
@@ -1528,7 +1640,7 @@ CREATE VIEW `post-view` AS SELECT
 	`post-content`.`target-type` AS `target-type`,
 	`post-content`.`target` AS `target`,
 	`post-content`.`resource-id` AS `resource-id`,
-	`item`.`contact-id` AS `contact-id`,
+	`post-user`.`contact-id` AS `contact-id`,
 	`contact`.`url` AS `contact-link`,
 	`contact`.`addr` AS `contact-addr`,
 	`contact`.`name` AS `contact-name`,
@@ -1543,7 +1655,7 @@ CREATE VIEW `post-view` AS SELECT
 	`contact`.`rel` AS `contact-rel`,
 	`contact`.`uid` AS `contact-uid`,
 	`contact`.`contact-type` AS `contact-contact-type`,
-	IF (`item`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`) AS `writable`,
+	IF (`post-user`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`) AS `writable`,
 	`contact`.`self` AS `self`,
 	`contact`.`id` AS `cid`,
 	`contact`.`alias` AS `alias`,
@@ -1553,7 +1665,7 @@ CREATE VIEW `post-view` AS SELECT
 	`contact`.`avatar-date` AS `avatar-date`,
 	`contact`.`thumb` AS `thumb`,
 	`contact`.`dfrn-id` AS `dfrn-id`,
-	`item`.`author-id` AS `author-id`,
+	`post-user`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
 	IF (`contact`.`url` = `author`.`url` AND `contact`.`name` != '', `contact`.`name`, `author`.`name`) AS `author-name`,
@@ -1562,7 +1674,7 @@ CREATE VIEW `post-view` AS SELECT
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
-	`item`.`owner-id` AS `owner-id`,
+	`post-user`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
 	IF (`contact`.`url` = `owner`.`url` AND `contact`.`name` != '', `contact`.`name`, `owner`.`name`) AS `owner-name`,
@@ -1571,7 +1683,7 @@ CREATE VIEW `post-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
-	`item`.`causer-id` AS `causer-id`,
+	`post-user`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
 	`causer`.`addr` AS `causer-addr`,
 	`causer`.`name` AS `causer-name`,
@@ -1586,11 +1698,11 @@ CREATE VIEW `post-view` AS SELECT
 	`post-delivery-data`.`queue_count` AS `delivery_queue_count`,
 	`post-delivery-data`.`queue_done` AS `delivery_queue_done`,
 	`post-delivery-data`.`queue_failed` AS `delivery_queue_failed`,
-	IF (`item`.`psid` IS NULL, '', `permissionset`.`allow_cid`) AS `allow_cid`,
-	IF (`item`.`psid` IS NULL, '', `permissionset`.`allow_gid`) AS `allow_gid`,
-	IF (`item`.`psid` IS NULL, '', `permissionset`.`deny_cid`) AS `deny_cid`,
-	IF (`item`.`psid` IS NULL, '', `permissionset`.`deny_gid`) AS `deny_gid`,
-	`item`.`event-id` AS `event-id`,
+	IF (`post-user`.`psid` IS NULL, '', `permissionset`.`allow_cid`) AS `allow_cid`,
+	IF (`post-user`.`psid` IS NULL, '', `permissionset`.`allow_gid`) AS `allow_gid`,
+	IF (`post-user`.`psid` IS NULL, '', `permissionset`.`deny_cid`) AS `deny_cid`,
+	IF (`post-user`.`psid` IS NULL, '', `permissionset`.`deny_gid`) AS `deny_gid`,
+	`post-user`.`event-id` AS `event-id`,
 	`event`.`created` AS `event-created`,
 	`event`.`edited` AS `event-edited`,
 	`event`.`start` AS `event-start`,
@@ -1603,71 +1715,75 @@ CREATE VIEW `post-view` AS SELECT
 	`event`.`adjust` AS `event-adjust`,
 	`event`.`ignore` AS `event-ignore`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
-	`parent-item`.`guid` AS `parent-guid`,
-	`parent-item`.`network` AS `parent-network`,
-	`parent-item`.`author-id` AS `parent-author-id`,
-	`parent-item-author`.`url` AS `parent-author-link`,
-	`parent-item-author`.`name` AS `parent-author-name`,
-	`parent-item-author`.`network` AS `parent-author-network`
-	FROM `item`
-			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `item`.`uid`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `item`.`author-id`
-			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `item`.`owner-id`
-			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `item`.`causer-id`
-			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
-			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
-			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `item`.`uri-id`
-			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `item`.`uri-id`
-			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `item`.`uri-id` AND `item`.`origin`
-			LEFT JOIN `permissionset` ON `permissionset`.`id` = `item`.`psid`
-			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`uri-id` = `item`.`parent-uri-id` AND `parent-item`.`uid` = `item`.`uid`
-			STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`;
+	`parent-item-uri`.`guid` AS `parent-guid`,
+	`parent-post`.`network` AS `parent-network`,
+	`parent-post`.`author-id` AS `parent-author-id`,
+	`parent-post-author`.`url` AS `parent-author-link`,
+	`parent-post-author`.`name` AS `parent-author-name`,
+	`parent-post-author`.`network` AS `parent-author-network`
+	FROM `post-user`
+			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
+			LEFT JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
+			INNER JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
+			INNER JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
+			INNER JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
+			INNER JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`
+			INNER JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
+			INNER JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
+			INNER JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
+			INNER JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
+			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
+			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-user`.`uri-id`
+			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-user`.`uri-id`
+			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-user`.`uri-id` AND `post-user`.`origin`
+			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-user`.`psid`
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
+			INNER JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
 
 --
 -- VIEW post-thread-view
 --
 DROP VIEW IF EXISTS `post-thread-view`;
 CREATE VIEW `post-thread-view` AS SELECT 
-	`item`.`id` AS `id`,
-	`item`.`id` AS `iid`,
-	`item`.`id` AS `item_id`,
+	`post-user`.`id` AS `id`,
+	`item`.`id` AS `item-id`,
+	`post-user`.`id` AS `iid`,
+	`post-user`.`id` AS `post-user-id`,
 	`post-thread-user`.`uid` AS `uid`,
-	`item`.`parent` AS `parent`,
-	`item`.`uri` AS `uri`,
-	`post-thread`.`uri-id` AS `uri-id`,
-	`item`.`parent-uri` AS `parent-uri`,
-	`item`.`parent-uri-id` AS `parent-uri-id`,
-	`item`.`thr-parent` AS `thr-parent`,
-	`item`.`thr-parent-id` AS `thr-parent-id`,
-	`item`.`guid` AS `guid`,
-	`item`.`type` AS `type`,
+	`parent-post`.`id` AS `parent`,
+	`item-uri`.`uri` AS `uri`,
+	`post-thread-user`.`uri-id` AS `uri-id`,
+	`parent-item-uri`.`uri` AS `parent-uri`,
+	`post-user`.`parent-uri-id` AS `parent-uri-id`,
+	`thr-parent-item-uri`.`uri` AS `thr-parent`,
+	`post-user`.`thr-parent-id` AS `thr-parent-id`,
+	`item-uri`.`guid` AS `guid`,
 	`post-thread-user`.`wall` AS `wall`,
-	`item`.`gravity` AS `gravity`,
-	`item`.`extid` AS `extid`,
-	`post-thread`.`created` AS `created`,
-	`item`.`edited` AS `edited`,
-	`post-thread`.`commented` AS `commented`,
-	`post-thread`.`received` AS `received`,
-	`post-thread`.`changed` AS `changed`,
-	`item`.`post-type` AS `post-type`,
-	`item`.`private` AS `private`,
+	`post-user`.`gravity` AS `gravity`,
+	`external-item-uri`.`uri` AS `extid`,
+	`post-user`.`external-id` AS `external-id`,
+	`post-thread-user`.`created` AS `created`,
+	`post-user`.`edited` AS `edited`,
+	`post-thread-user`.`commented` AS `commented`,
+	`post-thread-user`.`received` AS `received`,
+	`post-thread-user`.`changed` AS `changed`,
+	`post-user`.`post-type` AS `post-type`,
+	`post-user`.`private` AS `private`,
 	`post-thread-user`.`pubmail` AS `pubmail`,
-	`item`.`moderated` AS `moderated`,
 	`post-thread-user`.`ignored` AS `ignored`,
-	`item`.`visible` AS `visible`,
+	`post-user`.`visible` AS `visible`,
 	`post-thread-user`.`starred` AS `starred`,
-	`item`.`bookmark` AS `bookmark`,
 	`post-thread-user`.`unseen` AS `unseen`,
-	`item`.`deleted` AS `deleted`,
+	`post-user`.`deleted` AS `deleted`,
 	`post-thread-user`.`origin` AS `origin`,
 	`post-thread-user`.`forum_mode` AS `forum_mode`,
-	`item`.`mention` AS `mention`,
-	`item`.`global` AS `global`,
-	`post-thread`.`network` AS `network`,
-	`item`.`vid` AS `vid`,
+	`post-thread-user`.`mention` AS `mention`,
+	`post-user`.`global` AS `global`,
+	`post-thread-user`.`network` AS `network`,
+	`post-user`.`vid` AS `vid`,
 	`post-thread-user`.`psid` AS `psid`,
-	IF (`item`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
+	IF (`post-user`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
 	`post-content`.`title` AS `title`,
 	`post-content`.`content-warning` AS `content-warning`,
 	`post-content`.`raw-body` AS `raw-body`,
@@ -1699,7 +1815,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`contact`.`rel` AS `contact-rel`,
 	`contact`.`uid` AS `contact-uid`,
 	`contact`.`contact-type` AS `contact-contact-type`,
-	IF (`item`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`) AS `writable`,
+	IF (`post-user`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `contact`.`writable`) AS `writable`,
 	`contact`.`self` AS `self`,
 	`contact`.`id` AS `cid`,
 	`contact`.`alias` AS `alias`,
@@ -1709,7 +1825,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`contact`.`avatar-date` AS `avatar-date`,
 	`contact`.`thumb` AS `thumb`,
 	`contact`.`dfrn-id` AS `dfrn-id`,
-	`post-thread`.`author-id` AS `author-id`,
+	`post-thread-user`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
 	IF (`contact`.`url` = `author`.`url` AND `contact`.`name` != '', `contact`.`name`, `author`.`name`) AS `author-name`,
@@ -1718,7 +1834,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`author`.`network` AS `author-network`,
 	`author`.`blocked` AS `author-blocked`,
 	`author`.`hidden` AS `author-hidden`,
-	`post-thread`.`owner-id` AS `owner-id`,
+	`post-thread-user`.`owner-id` AS `owner-id`,
 	`owner`.`url` AS `owner-link`,
 	`owner`.`addr` AS `owner-addr`,
 	IF (`contact`.`url` = `owner`.`url` AND `contact`.`name` != '', `contact`.`name`, `owner`.`name`) AS `owner-name`,
@@ -1727,7 +1843,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
-	`item`.`causer-id` AS `causer-id`,
+	`post-thread-user`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
 	`causer`.`addr` AS `causer-addr`,
 	`causer`.`name` AS `causer-name`,
@@ -1746,7 +1862,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	IF (`post-thread-user`.`psid` IS NULL, '', `permissionset`.`allow_gid`) AS `allow_gid`,
 	IF (`post-thread-user`.`psid` IS NULL, '', `permissionset`.`deny_cid`) AS `deny_cid`,
 	IF (`post-thread-user`.`psid` IS NULL, '', `permissionset`.`deny_gid`) AS `deny_gid`,
-	`item`.`event-id` AS `event-id`,
+	`post-user`.`event-id` AS `event-id`,
 	`event`.`created` AS `event-created`,
 	`event`.`edited` AS `event-edited`,
 	`event`.`start` AS `event-start`,
@@ -1759,27 +1875,31 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`event`.`adjust` AS `event-adjust`,
 	`event`.`ignore` AS `event-ignore`,
 	`diaspora-interaction`.`interaction` AS `signed_text`,
-	`parent-item`.`guid` AS `parent-guid`,
-	`parent-item`.`network` AS `parent-network`,
-	`parent-item`.`author-id` AS `parent-author-id`,
-	`parent-item-author`.`url` AS `parent-author-link`,
-	`parent-item-author`.`name` AS `parent-author-name`,
-	`parent-item-author`.`network` AS `parent-author-network`
-	FROM `post-thread`
-			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-thread`.`uri-id`
-			STRAIGHT_JOIN `item` ON `item`.`uri-id` = `post-thread`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
-			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-thread`.`author-id`
-			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread`.`owner-id`
-			STRAIGHT_JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread`.`causer-id`
-			LEFT JOIN `verb` ON `verb`.`id` = `item`.`vid`
-			LEFT JOIN `event` ON `event`.`id` = `item`.`event-id`
-			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread`.`uri-id`
-			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread`.`uri-id`
-			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread`.`uri-id` AND `post-thread-user`.`origin`
+	`parent-item-uri`.`guid` AS `parent-guid`,
+	`parent-post`.`network` AS `parent-network`,
+	`parent-post`.`author-id` AS `parent-author-id`,
+	`parent-post-author`.`url` AS `parent-author-link`,
+	`parent-post-author`.`name` AS `parent-author-name`,
+	`parent-post-author`.`network` AS `parent-author-network`
+	FROM `post-thread-user`
+			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
+			LEFT JOIN `item` ON `item`.`uri-id` = `post-thread-user`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
+			INNER JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			INNER JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
+			INNER JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
+			INNER JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread-user`.`causer-id`
+			INNER JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
+			INNER JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
+			INNER JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
+			INNER JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
+			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
+			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread-user`.`uri-id`
+			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread-user`.`uri-id`
+			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread-user`.`uri-id` AND `post-thread-user`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-thread-user`.`psid`
-			STRAIGHT_JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
-			STRAIGHT_JOIN `contact` AS `parent-item-author` ON `parent-item-author`.`id` = `parent-item`.`author-id`;
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
+			INNER JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
 
 --
 -- VIEW category-view
@@ -1788,14 +1908,11 @@ DROP VIEW IF EXISTS `category-view`;
 CREATE VIEW `category-view` AS SELECT 
 	`post-category`.`uri-id` AS `uri-id`,
 	`post-category`.`uid` AS `uid`,
-	`item-uri`.`uri` AS `uri`,
-	`item-uri`.`guid` AS `guid`,
 	`post-category`.`type` AS `type`,
 	`post-category`.`tid` AS `tid`,
 	`tag`.`name` AS `name`,
 	`tag`.`url` AS `url`
 	FROM `post-category`
-			INNER JOIN `item-uri` ON `item-uri`.id = `post-category`.`uri-id`
 			LEFT JOIN `tag` ON `post-category`.`tid` = `tag`.`id`;
 
 --
@@ -1804,15 +1921,12 @@ CREATE VIEW `category-view` AS SELECT
 DROP VIEW IF EXISTS `tag-view`;
 CREATE VIEW `tag-view` AS SELECT 
 	`post-tag`.`uri-id` AS `uri-id`,
-	`item-uri`.`uri` AS `uri`,
-	`item-uri`.`guid` AS `guid`,
 	`post-tag`.`type` AS `type`,
 	`post-tag`.`tid` AS `tid`,
 	`post-tag`.`cid` AS `cid`,
 	CASE `cid` WHEN 0 THEN `tag`.`name` ELSE `contact`.`name` END AS `name`,
 	CASE `cid` WHEN 0 THEN `tag`.`url` ELSE `contact`.`url` END AS `url`
 	FROM `post-tag`
-			INNER JOIN `item-uri` ON `item-uri`.id = `post-tag`.`uri-id`
 			LEFT JOIN `tag` ON `post-tag`.`tid` = `tag`.`id`
 			LEFT JOIN `contact` ON `post-tag`.`cid` = `contact`.`id`;
 
@@ -1821,28 +1935,27 @@ CREATE VIEW `tag-view` AS SELECT
 --
 DROP VIEW IF EXISTS `network-item-view`;
 CREATE VIEW `network-item-view` AS SELECT 
-	`item`.`parent-uri-id` AS `uri-id`,
-	`item`.`parent-uri` AS `uri`,
-	`item`.`parent` AS `parent`,
-	`item`.`received` AS `received`,
-	`item`.`commented` AS `commented`,
-	`item`.`created` AS `created`,
-	`item`.`uid` AS `uid`,
-	`item`.`starred` AS `starred`,
-	`item`.`mention` AS `mention`,
-	`item`.`network` AS `network`,
-	`item`.`unseen` AS `unseen`,
-	`item`.`gravity` AS `gravity`,
-	`item`.`contact-id` AS `contact-id`,
+	`post-user`.`uri-id` AS `uri-id`,
+	`parent-post`.`id` AS `parent`,
+	`post-user`.`received` AS `received`,
+	`post-thread-user`.`commented` AS `commented`,
+	`post-user`.`created` AS `created`,
+	`post-user`.`uid` AS `uid`,
+	`post-thread-user`.`starred` AS `starred`,
+	`post-thread-user`.`mention` AS `mention`,
+	`post-user`.`network` AS `network`,
+	`post-user`.`unseen` AS `unseen`,
+	`post-user`.`gravity` AS `gravity`,
+	`post-user`.`contact-id` AS `contact-id`,
 	`ownercontact`.`contact-type` AS `contact-type`
-	FROM `item`
-			INNER JOIN `item` AS `parent-item` ON `parent-item`.`id` = `item`.`parent`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `parent-item`.`contact-id`
-			LEFT JOIN `post-user` ON `post-user`.`uri-id` = `item`.`uri-id` AND `post-user`.`uid` = `parent-item`.`uid`
-			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `parent-item`.`uid` AND `author`.`cid` = `parent-item`.`author-id`
-			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `parent-item`.`uid` AND `owner`.`cid` = `parent-item`.`owner-id`
-			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `parent-item`.`owner-id`
-			WHERE `parent-item`.`visible` AND NOT `parent-item`.`deleted` AND NOT `parent-item`.`moderated`
+	FROM `post-user`
+			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`			
+			INNER JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
+			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
+			INNER JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
+			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
@@ -1853,27 +1966,25 @@ CREATE VIEW `network-item-view` AS SELECT
 --
 DROP VIEW IF EXISTS `network-thread-view`;
 CREATE VIEW `network-thread-view` AS SELECT 
-	`post-thread`.`uri-id` AS `uri-id`,
-	`item`.`uri` AS `uri`,
-	`item`.`parent-uri-id` AS `parent-uri-id`,
-	`item`.`id` AS `parent`,
-	`post-thread`.`received` AS `received`,
-	`post-thread`.`commented` AS `commented`,
-	`post-thread`.`created` AS `created`,
+	`post-thread-user`.`uri-id` AS `uri-id`,
+	`parent-post`.`id` AS `parent`,
+	`post-thread-user`.`received` AS `received`,
+	`post-thread-user`.`commented` AS `commented`,
+	`post-thread-user`.`created` AS `created`,
 	`post-thread-user`.`uid` AS `uid`,
 	`post-thread-user`.`starred` AS `starred`,
 	`post-thread-user`.`mention` AS `mention`,
-	`post-thread`.`network` AS `network`,
+	`post-thread-user`.`network` AS `network`,
 	`post-thread-user`.`contact-id` AS `contact-id`,
 	`ownercontact`.`contact-type` AS `contact-type`
-	FROM `post-thread`
-			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-thread`.`uri-id`
-			STRAIGHT_JOIN `item` ON `item`.`uri-id` = `post-thread`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
+	FROM `post-thread-user`
+			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
-			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread`.`author-id`
-			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread`.`owner-id`
-			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread`.`owner-id`
-			WHERE `item`.`visible` AND NOT `item`.`deleted` AND NOT `item`.`moderated`
+			LEFT JOIN `user-contact` AS `author` ON `author`.`uid` = `post-thread-user`.`uid` AND `author`.`cid` = `post-thread-user`.`author-id`
+			LEFT JOIN `user-contact` AS `owner` ON `owner`.`uid` = `post-thread-user`.`uid` AND `owner`.`cid` = `post-thread-user`.`owner-id`
+			LEFT JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
+			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
 			AND (`author`.`blocked` IS NULL OR NOT `author`.`blocked`)
@@ -2042,19 +2153,17 @@ CREATE VIEW `pending-view` AS SELECT
 DROP VIEW IF EXISTS `tag-search-view`;
 CREATE VIEW `tag-search-view` AS SELECT 
 	`post-tag`.`uri-id` AS `uri-id`,
-	`item`.`id` AS `iid`,
-	`item`.`uri` AS `uri`,
-	`item`.`guid` AS `guid`,
-	`item`.`uid` AS `uid`,
-	`item`.`private` AS `private`,
-	`item`.`wall` AS `wall`,
-	`item`.`origin` AS `origin`,
-	`item`.`gravity` AS `gravity`,
-	`item`.`received` AS `received`,
+	`post-user`.`uid` AS `uid`,
+	`post-user`.`id` AS `iid`,
+	`post-user`.`private` AS `private`,
+	`post-user`.`wall` AS `wall`,
+	`post-user`.`origin` AS `origin`,
+	`post-user`.`gravity` AS `gravity`,
+	`post-user`.`received` AS `received`,
 	`tag`.`name` AS `name`
 	FROM `post-tag`
 			INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid`
-			INNER JOIN `item` ON `item`.`uri-id` = `post-tag`.`uri-id`
+			STRAIGHT_JOIN `post-user` ON `post-user`.`uri-id` = `post-tag`.`uri-id`
 			WHERE `post-tag`.`type` = 1;
 
 --

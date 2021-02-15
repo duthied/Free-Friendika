@@ -36,11 +36,9 @@ class RemoveUnusedContacts
 	{
 		$condition = ["`uid` = ? AND NOT `self` AND NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` != ?)
 			AND (NOT `network` IN (?, ?, ?, ?, ?, ?) OR (`archive` AND `success_update` < UTC_TIMESTAMP() - INTERVAL ? DAY))
-			AND NOT `id` IN (SELECT `author-id` FROM `item`) AND NOT `id` IN (SELECT `owner-id` FROM `item`)
-			AND NOT `id` IN (SELECT `causer-id` FROM `item`) AND NOT `id` IN (SELECT `cid` FROM `post-tag`)
-			AND NOT `id` IN (SELECT `contact-id` FROM `item`) AND NOT `id` IN (SELECT `author-id` FROM `post-thread`)
-			AND NOT `id` IN (SELECT `owner-id` FROM `post-thread`) AND NOT `id` IN (SELECT `causer-id` FROM `post-thread`)
-			AND NOT `id` IN (SELECT `contact-id` FROM `post-user`) AND NOT `id` IN (SELECT `cid` FROM `user-contact`) 
+			AND NOT `id` IN (SELECT `author-id` FROM `post-user`) AND NOT `id` IN (SELECT `owner-id` FROM `post-user`)
+			AND NOT `id` IN (SELECT `causer-id` FROM `post-user`) AND NOT `id` IN (SELECT `cid` FROM `post-tag`)
+			AND NOT `id` IN (SELECT `contact-id` FROM `post-user`) AND NOT `id` IN (SELECT `cid` FROM `user-contact`)
 			AND NOT `id` IN (SELECT `cid` FROM `event`) AND NOT `id` IN (SELECT `contact-id` FROM `group_member`)",
 			0, 0, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Protocol::ACTIVITYPUB, 365];
 
@@ -54,6 +52,26 @@ class RemoveUnusedContacts
 					DBA::delete('thread', ['owner-id' => $contact['id']]);
 					DBA::delete('thread', ['author-id' => $contact['id']]);
 				}
+				if (DBStructure::existsTable('item')) {
+					DBA::delete('item', ['owner-id' => $contact['id']]);
+					DBA::delete('item', ['author-id' => $contact['id']]);
+					DBA::delete('item', ['causer-id' => $contact['id']]);
+				}
+
+				// There should be none entry for the contact in these tables when none was found in "post-user".
+				// But we want to be sure since the foreign key prohibits deletion otherwise.
+				DBA::delete('post', ['owner-id' => $contact['id']]);
+				DBA::delete('post', ['author-id' => $contact['id']]);
+				DBA::delete('post', ['causer-id' => $contact['id']]);
+				
+				DBA::delete('post-thread', ['owner-id' => $contact['id']]);
+				DBA::delete('post-thread', ['author-id' => $contact['id']]);
+				DBA::delete('post-thread', ['causer-id' => $contact['id']]);
+
+				DBA::delete('post-thread-user', ['owner-id' => $contact['id']]);
+				DBA::delete('post-thread-user', ['author-id' => $contact['id']]);
+				DBA::delete('post-thread-user', ['causer-id' => $contact['id']]);
+
 				DBA::delete('contact', ['id' => $contact['id']]);
 				if ((++$count % 1000) == 0) {
 					Logger::notice('In removal', ['count' => $count, 'total' => $total]);

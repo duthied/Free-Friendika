@@ -1343,7 +1343,7 @@ class Contact
 
 			$o .= conversation($a, $items, 'contacts', $update, false, 'commented', local_user());
 		} else {
-			$items = Post::toArray(Post::selectForUser(local_user(), [], $condition, $params));
+			$items = Post::toArray(Post::selectForUser(local_user(), Item::DISPLAY_FIELDLIST, $condition, $params));
 
 			$o .= conversation($a, $items, 'contact-posts', $update);
 		}

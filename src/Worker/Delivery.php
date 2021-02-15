@@ -35,6 +35,8 @@ use Friendica\Util\Network;
 use Friendica\Core\Worker;
 use Friendica\Model\Conversation;
 use Friendica\Model\FContact;
+use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Protocol\Relay;
 
 class Delivery
@@ -49,9 +51,27 @@ class Delivery
 	const REMOVAL       = 'removeme';
 	const PROFILEUPDATE = 'profileupdate';
 
-	public static function execute($cmd, $target_id, $contact_id)
+	public static function execute(string $cmd, int $post_uriid, int $contact_id, int $sender_uid = 0)
 	{
-		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $target_id, 'contact' => $contact_id]);
+		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $post_uriid, 'sender_uid' => $sender_uid, 'contact' => $contact_id]);
+
+		$target_id = $post_uriid;
+
+		if (!empty($sender_uid)) {
+			$post = Post::selectFirst(['id'], ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
+			if (!DBA::isResult($post)) {
+				Logger::warning('Post not found', ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
+				return;
+			}
+			$target_id = $post['id'];
+		} elseif (!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
+			$post = Post::selectFirst(['id', 'uid', 'uri-id'], ['item-id' => $post_uriid]);
+			if (DBA::isResult($post)) {
+				$target_id = $post['id'];
+				$sender_uid = $post['uid'];
+				$post_uriid = $post['uri-id'];
+			}
+		}
 
 		$top_level = false;
 		$followup = false;
@@ -80,9 +100,9 @@ class Delivery
 			}
 			$parent_id = intval($item['parent']);
 
-			$condition = ['id' => [$target_id, $parent_id], 'visible' => true, 'moderated' => false];
+			$condition = ['id' => [$target_id, $parent_id], 'visible' => true];
 			$params = ['order' => ['id']];
-			$itemdata = Model\Post::select([], $condition, $params);
+			$itemdata = Model\Post::select(Item::DELIVER_FIELDLIST, $condition, $params);
 
 			while ($item = Model\Post::fetch($itemdata)) {
 				if ($item['verb'] == Activity::ANNOUNCE) {

@@ -770,3 +770,50 @@ function update_1399()
 
 	return Update::SUCCESS;
 }
+
+function update_1400()
+{
+	if (!DBA::e("INSERT IGNORE INTO `post` (`uri-id`, `parent-uri-id`, `thr-parent-id`, `owner-id`, `author-id`, `network`,
+		`created`, `received`, `edited`, `gravity`, `causer-id`, `post-type`, `vid`, `private`, `visible`, `deleted`, `global`)
+		SELECT `uri-id`, `parent-uri-id`, `thr-parent-id`, `owner-id`, `author-id`, `network`, `created`, `received`, `edited`, 
+			`gravity`, `causer-id`, `post-type`, `vid`, `private`, `visible`, `deleted`, `global` FROM `item`")) {
+			return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `post-user` INNER JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
+		INNER JOIN `event` ON `item`.`event-id` = `event`.`id` AND `event`.`id` != 0
+		SET `post-user`.`event-id` = `item`.`event-id`")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `post-user` INNER JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
+		SET `post-user`.`wall` = `item`.`wall`, `post-user`.`parent-uri-id` = `item`.`parent-uri-id`,
+		`post-user`.`thr-parent-id` = `item`.`thr-parent-id`,
+		`post-user`.`created` = `item`.`created`, `post-user`.`edited` = `item`.`edited`,
+		`post-user`.`received` = `item`.`received`, `post-user`.`gravity` = `item`.`gravity`,
+		`post-user`.`network` = `item`.`network`, `post-user`.`owner-id` = `item`.`owner-id`,
+		`post-user`.`author-id` = `item`.`author-id`, `post-user`.`causer-id` = `item`.`causer-id`,
+		`post-user`.`post-type` = `item`.`post-type`, `post-user`.`vid` = `item`.`vid`,
+		`post-user`.`private` = `item`.`private`, `post-user`.`global` = `item`.`global`,
+		`post-user`.`visible` = `item`.`visible`, `post-user`.`deleted` = `item`.`deleted`")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("INSERT IGNORE INTO `post-thread-user` (`uri-id`, `owner-id`, `author-id`, `causer-id`, `network`,
+		`created`, `received`, `changed`, `commented`, `uid`,  `wall`, `contact-id`, `unseen`, `hidden`, `origin`, `psid`, `post-user-id`)
+		SELECT `uri-id`, `owner-id`, `author-id`, `causer-id`, `network`, `created`, `received`, `received`, `received`,
+			`uid`, `wall`, `contact-id`, `unseen`, `hidden`, `origin`, `psid`, `id`
+		FROM `post-user` WHERE `gravity` = 0 AND NOT EXISTS(SELECT `uri-id` FROM `post-thread-user` WHERE `post-user-id` = `post-user`.id)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `post-thread-user` INNER JOIN `post-thread` ON `post-thread-user`.`uri-id` = `post-thread`.`uri-id`
+		SET `post-thread-user`.`owner-id` = `post-thread`.`owner-id`, `post-thread-user`.`author-id` = `post-thread`.`author-id`,
+		`post-thread-user`.`causer-id` = `post-thread`.`causer-id`, `post-thread-user`.`network` = `post-thread`.`network`,
+		`post-thread-user`.`created` = `post-thread`.`created`, `post-thread-user`.`received` = `post-thread`.`received`,
+		`post-thread-user`.`changed` = `post-thread`.`changed`, `post-thread-user`.`commented` = `post-thread`.`commented`")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}

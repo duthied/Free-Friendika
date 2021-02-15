@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1399);
+	define('DB_UPDATE_VERSION', 1400);
 }
 
 return [
@@ -771,7 +771,6 @@ return [
 			"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"private" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "0=public, 1=private, 2=unlisted"],
 			"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"moderated" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been deleted"],
 			// Part of "post-user". Will be deprecated in a later step
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
@@ -787,10 +786,11 @@ return [
 			// It has to be decided whether these fields belong to the user or the structure
 			"event-id" => ["type" => "int unsigned", "relation" => ["event" => "id"], "comment" => "Used to link to the event.id"],
 			// Check deprecation status
-			"type" => ["type" => "varchar(20)", "comment" => ""],
-			"bookmark" => ["type" => "boolean", "comment" => ""],
 			"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "The owner of this item was mentioned in it"],
-			// Deprecated fields. Will be removed in upcoming versions
+			// Deprecated fields. Will not be transferred to the "post" table
+			"bookmark" => ["type" => "boolean", "comment" => "Deprecated"],
+			"type" => ["type" => "varchar(20)", "comment" => "Deprecated"],
+			"moderated" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Deprecated"],
 			"resource-id" => ["type" => "varchar(32)", "comment" => "Deprecated"],
 			"uri-hash" => ["type" => "varchar(80)", "comment" => "Deprecated"],
 			"iaid" => ["type" => "int unsigned", "comment" => "Deprecated"],
@@ -1086,6 +1086,40 @@ return [
 			"resource-id" => ["resource-id"],
 		]
 	],
+	"post" => [
+		"comment" => "Structure for all posts",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the parent uri"],
+			"thr-parent-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the thread parent uri"],
+			"external-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the external uri"],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation timestamp."],
+			"edited" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of last edit (default is created)"],
+			"received" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "datetime"],
+			"gravity" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Network from where the item comes from"],
+			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the owner of this item"],
+			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the author of this item"],
+			"causer-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the contact that caused the item creation"],
+			"post-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Post type (personal note, bookmark, ...)"],
+			"vid" => ["type" => "smallint unsigned", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
+			"private" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "0=public, 1=private, 2=unlisted"],
+			"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been marked for deletion"]
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id"],
+			"parent-uri-id" => ["parent-uri-id"],
+			"thr-parent-id" => ["thr-parent-id"],
+			"external-id" => ["external-id"],
+			"owner-id" => ["owner-id"],
+			"author-id" => ["author-id"],
+			"causer-id" => ["causer-id"],
+			"vid" => ["vid"],
+			"received" => ["received"],
+		]
+	],
 	"post-category" => [
 		"comment" => "post relation to categories",
 		"fields" => [
@@ -1209,12 +1243,31 @@ return [
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1"],
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the parent uri"],
+			"thr-parent-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the thread parent uri"],
+			"external-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the external uri"],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation timestamp."],
+			"edited" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of last edit (default is created)"],
+			"received" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "datetime"],
+			"gravity" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Network from where the item comes from"],
+			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the owner of this item"],
+			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the author of this item"],
+			"causer-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the contact that caused the item creation"],
+			"post-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Post type (personal note, bookmark, ...)"],
+			"vid" => ["type" => "smallint unsigned", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
+			"private" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "0=public, 1=private, 2=unlisted"],
+			"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
+			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been marked for deletion"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
 			"protocol" => ["type" => "tinyint unsigned", "comment" => "Protocol used to deliver the item for this user"],
 			"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "contact.id"],
+			"event-id" => ["type" => "int unsigned", "foreign" => ["event" => "id"], "comment" => "Used to link to the event.id"],
 			"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "post has not been seen"],
 			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide the post from the user"],
 			"notification-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
+			"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "This item was posted to the wall of uid"],
 			"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item originated at this site"],
 			"psid" => ["type" => "int unsigned", "foreign" => ["permissionset" => "id", "on delete" => "restrict"], "comment" => "ID of the permission set of this post"],
 		],
@@ -1225,12 +1278,37 @@ return [
 			"contact-id" => ["contact-id"],
 			"psid" => ["psid"],
 			"uid_hidden" => ["uid", "hidden"],
+			"event-id" => ["event-id"],
+			"uid_wall" => ["uid", "wall"],
+			"parent-uri-id" => ["parent-uri-id"],
+			"thr-parent-id" => ["thr-parent-id"],
+			"external-id" => ["external-id"],
+			"owner-id" => ["owner-id"],
+			"author-id" => ["author-id"],
+			"causer-id" => ["causer-id"],
+			"vid" => ["vid"],
+			"uid_received" => ["uid", "received"],
+			"uid_unseen_contactid" => ["uid", "unseen", "contact-id"],
+			"uid_network_received" => ["uid", "network", "received"],
+			"uid_contactid_received" => ["uid", "contact-id", "received"],
+			"authorid_received" => ["author-id", "received"],
+			"uid_unseen_wall" => ["uid", "unseen", "wall"],
+			"uid_eventid" => ["uid", "event-id"],
+			"psid_wall" => ["psid", "wall"],
 		],
 	],
 	"post-thread-user" => [
 		"comment" => "Thread related data per user",
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item owner"],
+			"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Item author"],
+			"causer-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the contact that caused the item creation"],
+			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"received" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"changed" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date that something in the conversation changed, indicating clients should fetch the conversation again"],
+			"commented" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner id which owns this copy of the item"],
 			"pinned" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "The thread is pinned on the profile page"],
 			"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -1254,6 +1332,24 @@ return [
 			"contact-id" => ["contact-id"],
 			"psid" => ["psid"],
 			"post-user-id" => ["post-user-id"],
+			"owner-id" => ["owner-id"],
+			"causer-id" => ["causer-id"],
+			"uid_received" => ["uid", "received"],
+			"uid_commented" => ["uid", "commented"],
+			"uid_changed" => ["uid", "changed"],
+			"uid_contact-id" => ["uid", "contact-id", "received"],
+			"uid_unseen_contactid" => ["uid", "unseen", "contact-id"],
+			"uid_network_received" => ["uid", "network", "received"],
+			"uid_network_commented" => ["uid", "network", "commented"],
+			"uid_contact-id_received" => ["uid", "contact-id", "received"],
+			"author-id_received" => ["author-id", "received"],
+			"uid_wall_changed" => ["uid", "wall", "changed"],
+			"uid_unseen_wall" => ["uid", "unseen", "wall"],
+			"mention_uid" => ["mention", "uid"],
+			"psid_wall" => ["psid", "wall"],
+			"received" => ["received"],
+			"commented" => ["commented"],
+			"changed" => ["changed"],
 		]
 	],
 	"post-user-notification" => [

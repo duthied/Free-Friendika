@@ -189,7 +189,7 @@ class Status extends BaseProfile
 			0, $a->profile['uid']]);
 
 		$condition = DBA::mergeConditions($condition, ['uid' => $a->profile['uid'], 'network' => Protocol::FEDERATED,
-			'visible' => true, 'deleted' => false, 'moderated' => false]);
+			'visible' => true, 'deleted' => false]);
 
 		$pager = new Pager(DI::l10n(), $args->getQueryString(), $itemspage_network);
 		$params = ['limit' => [$pager->getStart(), $pager->getItemsPerPage()], 'order' => ['received' => true]];

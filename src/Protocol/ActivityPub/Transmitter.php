@@ -258,7 +258,7 @@ class Transmitter
 		$condition = array_merge($condition,
 			['author-id' => $public_contact,
 			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
-			'deleted' => false, 'visible' => true, 'moderated' => false]);
+			'deleted' => false, 'visible' => true]);
 
 		$count = Post::count($condition);
 
@@ -1045,19 +1045,19 @@ class Transmitter
 	public static function createActivityFromItem(int $item_id, bool $object_mode = false)
 	{
 		Logger::info('Fetching activity', ['item' => $item_id]);
-		$item = Post::selectFirst([], ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);
+		$item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);
 		if (!DBA::isResult($item)) {
 			return false;
 		}
 
 		// In case of a forum post ensure to return the original post if author and forum are on the same machine
-		if (!empty($item['forum_mode'])) {
+		if (($item['gravity'] == GRAVITY_PARENT) && !empty($item['forum_mode'])) {
 			$author = Contact::getById($item['author-id'], ['nurl']);
 			if (!empty($author['nurl'])) {
 				$self = Contact::selectFirst(['uid'], ['nurl' => $author['nurl'], 'self' => true]);
 				if (!empty($self['uid'])) {
-					$forum_item = Post::selectFirst([], ['uri-id' => $item['uri-id'], 'uid' => $self['uid']]);
-					if (DBA::isResult($item)) {
+					$forum_item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['uri-id' => $item['uri-id'], 'uid' => $self['uid']]);
+					if (DBA::isResult($forum_item)) {
 						$item = $forum_item; 
 					}
 				}
@@ -1645,7 +1645,7 @@ class Transmitter
 			return [];
 		}
 
-		$reshared_item = Post::selectFirst([], ['guid' => $reshared['guid']]);
+		$reshared_item = Post::selectFirst(Item::DELIVER_FIELDLIST, ['guid' => $reshared['guid']]);
 		if (!DBA::isResult($reshared_item)) {
 			return [];
 		}

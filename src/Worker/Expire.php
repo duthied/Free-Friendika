@@ -25,6 +25,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
@@ -44,10 +45,12 @@ class Expire
 			Logger::log('Delete expired items', Logger::DEBUG);
 			// physically remove anything that has been deleted for more than two months
 			$condition = ["`deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY"];
-			$rows = Post::select(['id', 'guid', 'uri-id', 'uid'],  $condition);
+			$rows = Post::select(['item-id', 'guid', 'uri-id', 'uid'],  $condition);
 			while ($row = Post::fetch($rows)) {
-				Logger::info('Delete expired item', ['id' => $row['id'], 'guid' => $row['guid']]);
-				DBA::delete('item', ['id' => $row['id']]);
+				Logger::info('Delete expired item', ['id' => $row['item-id'], 'guid' => $row['guid']]);
+				if (DBStructure::existsTable('item')) {
+					DBA::delete('item', ['id' => $row['item-id']]);
+				}
 				Post\User::delete(['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
 				Post\ThreadUser::delete(['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
 			}
@@ -55,20 +58,15 @@ class Expire
 
 			Logger::info('Deleting orphaned post-content - start');
 			/// @todo Replace "item with "post-user" in the future when "item" is removed
-			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `item` WHERE `item`.`uri-id` = `post-content`.`uri-id`)"];
+			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-content`.`uri-id`)"];
 			DBA::delete('post-content', $condition);
 			Logger::info('Orphaned post-content deleted', ['rows' => DBA::affectedRows()]);
 
 			Logger::info('Deleting orphaned post-thread - start');
 			/// @todo Replace "item with "post-user" in the future when "item" is removed
-			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `item` WHERE `item`.`uri-id` = `post-thread`.`uri-id`)"];
+			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-thread`.`uri-id`)"];
 			DBA::delete('post-thread', $condition);
 			Logger::info('Orphaned item content deleted', ['rows' => DBA::affectedRows()]);
-
-			// make this optional as it could have a performance impact on large sites
-			if (intval(DI::config()->get('system', 'optimize_items'))) {
-				DBA::e("OPTIMIZE TABLE `item`");
-			}
 
 			Logger::log('Delete expired items - done', Logger::DEBUG);
 			return;

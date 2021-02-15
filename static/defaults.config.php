@@ -405,10 +405,6 @@ return [
 		// Don't show smilies.
 		'no_smilies' => false,
 
-		// optimize_items (Boolean)
-		// Triggers an SQL command to optimize the item table before expiring items.
-		'optimize_items' => false,
-
 		// paranoia (Boolean)
 		// Log out users if their IP address changed.
 		'paranoia' => false,

@@ -53,6 +53,12 @@ class System
 
 		while ($func = array_pop($trace)) {
 			if (!empty($func['class'])) {
+				if (in_array($previous['function'], ['insert', 'fetch', 'toArray', 'exists', 'count', 'selectFirst', 'selectToArray',
+					'select', 'update', 'delete', 'selectFirstForUser', 'selectForUser'])
+					&& (substr($previous['class'], 0, 15) === 'Friendica\Model')) {
+					continue;
+				}
+
 				// Don't show multiple calls from the Database classes to show the essential parts of the callstack
 				$func['database'] = in_array($func['class'], ['Friendica\Database\DBA', 'Friendica\Database\Database']);
 				if (!$previous['database'] || !$func['database']) {	

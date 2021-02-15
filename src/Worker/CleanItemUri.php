@@ -42,9 +42,10 @@ class CleanItemUri
 		}
 		Logger::notice('Start deleting orphaned URI-ID', ['last-id' => $item['uri-id']]);
 		$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` < ?
-			AND NOT `id` IN (SELECT `uri-id` FROM `item`)
-			AND NOT `id` IN (SELECT `parent-uri-id` FROM `item`)
-			AND NOT `id` IN (SELECT `thr-parent-id` FROM `item`)", $item['uri-id']);
+			AND NOT EXISTS(SELECT `uri-id` FROM `post-user` WHERE `uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `parent-uri-id` FROM `post-user` WHERE `parent-uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `thr-parent-id` FROM `post-user` WHERE `thr-parent-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `external-id` FROM `post-user` WHERE `external-id` = `item-uri`.`id`)", $item['uri-id']);
 		Logger::notice('Orphaned URI-ID entries removed', ['result' => $ret, 'rows' => DBA::affectedRows()]);
 	}
 }

@@ -27,6 +27,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\Post\Category;
@@ -44,7 +45,7 @@ class PostUpdate
 {
 	// Needed for the helper function to read from the legacy term table
 	const OBJECT_TYPE_POST  = 1;
-	const VERSION = 1384;
+	const VERSION = 1400;
 
 	/**
 	 * Calls the post update functions
@@ -87,7 +88,9 @@ class PostUpdate
 		if (!self::update1384()) {
 			return false;
 		}
-
+		if (!self::update1400()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -176,6 +179,11 @@ class PostUpdate
 	{
 		// Was the script completed?
 		if (DI::config()->get('system', 'post_update_version') >= 1329) {
+			return true;
+		}
+
+		if (!DBStructure::existsTable('item')) {
+			DI::config()->set('system', 'post_update_version', 1329);
 			return true;
 		}
 
@@ -514,7 +522,7 @@ class PostUpdate
 			return true;
 		}
 
-		if (!DBStructure::existsTable('item-activity')) {
+		if (!DBStructure::existsTable('item-activity') || !DBStructure::existsTable('item')) {
 			DI::config()->set('system', 'post_update_version', 1347);
 			return true;
 		}
@@ -755,6 +763,48 @@ class PostUpdate
 
 		if ($rows <= 100) {
 			DI::config()->set("system", "post_update_version", 1384);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * update the "hash" field in the photo table
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function update1400()
+	{
+		// Was the script completed?
+		if (DI::config()->get("system", "post_update_version") >= 1400) {
+			return true;
+		}
+
+		$condition = ["`extid` != ? AND EXISTS(SELECT `id` FROM `post-user` WHERE `uri-id` = `item`.`uri-id` AND `uid` = `item`.`uid` AND `external-id` IS NULL)", ''];
+		Logger::info('Start', ['rest' => DBA::count('item', $condition)]);
+
+		$rows = 0;
+		$items = DBA::select('item', ['uri-id', 'uid', 'extid'], $condition, ['order' => ['id'], 'limit' => 10000]);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($item = DBA::fetch($items)) {
+			Post::update(['external-id' => ItemURI::getIdByURI($item['extid'])], ['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
+			++$rows;
+		}
+		DBA::close($items);
+
+		Logger::info('Processed', ['rows' => $rows]);
+
+		if ($rows <= 100) {
+			DI::config()->set("system", "post_update_version", 1400);
 			Logger::info('Done');
 			return true;
 		}

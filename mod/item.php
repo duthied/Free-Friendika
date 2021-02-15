@@ -113,9 +113,9 @@ function item_post(App $a) {
 
 	if ($parent_item_id || $thr_parent_uri) {
 		if ($parent_item_id) {
-			$parent_item = Post::selectFirst([], ['id' => $parent_item_id]);
+			$parent_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $parent_item_id]);
 		} elseif ($thr_parent_uri) {
-			$parent_item = Post::selectFirst([], ['uri' => $thr_parent_uri, 'uid' => $profile_uid]);
+			$parent_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['uri' => $thr_parent_uri, 'uid' => $profile_uid]);
 		}
 
 		// if this isn't the top-level parent of the conversation, find it
@@ -125,7 +125,7 @@ function item_post(App $a) {
 			$toplevel_item = $parent_item;
 
 			if ($parent_item['gravity'] != GRAVITY_PARENT) {
-				$toplevel_item = Post::selectFirst([], ['id' => $toplevel_item['parent']]);
+				$toplevel_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $toplevel_item['parent']]);
 			}
 		}
 
@@ -143,7 +143,7 @@ function item_post(App $a) {
 			$stored = Item::storeForUserByUriId($toplevel_item['uri-id'], local_user());
 			Logger::info('Public item stored for user', ['uri-id' => $toplevel_item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
 			if ($stored) {
-				$toplevel_item = Post::selectFirst([], ['id' => $stored]);
+				$toplevel_item = Post::selectFirst(Item::ITEM_FIELDLIST, ['id' => $stored]);
 			}
 		}
 
@@ -462,7 +462,7 @@ function item_post(App $a) {
 	/*
 	 * Next link in any attachment references we find in the post.
 	 */
-	$match = false;
+	$match = [];
 
 	/// @todo these lines should be moved to Model/Attach (Once it exists)
 	if (!$preview && preg_match_all("/\[attachment\](.*?)\[\/attachment\]/", $body, $match)) {
@@ -489,6 +489,7 @@ function item_post(App $a) {
 	// embedded bookmark or attachment in post? set bookmark flag
 
 	$data = BBCode::getAttachmentData($body);
+	$match = [];
 	if ((preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data["type"]))
 		&& ($posttype != Item::PT_PERSONAL_NOTE)) {
 		$posttype = Item::PT_PAGE;
@@ -515,7 +516,7 @@ function item_post(App $a) {
 	}
 
 	$attachments = '';
-	$match = false;
+	$match = [];
 
 	if (preg_match_all('/(\[attachment\]([0-9]+)\[\/attachment\])/',$body,$match)) {
 		foreach ($match[2] as $mtch) {
@@ -603,7 +604,6 @@ function item_post(App $a) {
 
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
-	$datarray['moderated']     = false;
 	$datarray['object']        = $object;
 
 	/*
@@ -651,7 +651,6 @@ function item_post(App $a) {
 		// doesn't have an ID.
 		$datarray["id"] = -1;
 		$datarray["uri-id"] = -1;
-		$datarray["item_id"] = -1;
 		$datarray["author-network"] = Protocol::DFRN;
 
 		$o = conversation($a, [array_merge($contact_record, $datarray)], 'search', false, true);
@@ -782,7 +781,7 @@ function item_post(App $a) {
 	// When we are doing some forum posting via ! we have to start the notifier manually.
 	// These kind of posts don't initiate the notifier call in the item class.
 	if ($only_to_forum) {
-		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => false], "Notifier", Delivery::POST, $post_id);
+		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => false], "Notifier", Delivery::POST, (int)$datarray['uri-id'], (int)$datarray['uid']);
 	}
 
 	Logger::info('post_complete');

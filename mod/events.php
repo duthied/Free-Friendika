@@ -216,10 +216,10 @@ function events_post(App $a)
 		exit();
 	}
 
-	$item_id = Event::store($datarray);
+	$uri_id = Event::store($datarray);
 
 	if (!$cid) {
-		Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $item_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, (int)$uri_id, (int)$uid);
 	}
 
 	DI::baseUrl()->redirect('events');
