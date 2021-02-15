@@ -275,6 +275,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'uri-id'        => 2,
@@ -288,6 +289,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'uri-id'        => 3,
@@ -301,6 +303,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'uri-id'        => 4,
@@ -314,6 +317,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'uri-id'        => 5,
@@ -327,6 +331,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'uri-id'        => 6,
@@ -340,26 +345,27 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 	],
 	'post-user' => [
 		[
 			'id'            => 1,
 			'uri-id'        => 1,
-			'uid'           => 42,
+			'visible'       => 1,
 			'contact-id'    => 42,
+			'author-id'     => 42,
+			'owner-id'      => 42,
+			'causer-id'     => 42,
+			'uid'           => 42,
+			'vid'           => 8,
 			'unseen'        => 1,
-			'origin'        => 1,
 			'parent-uri-id' => 1,
 			'thr-parent-id' => 1,
+			'private'       => Item::PUBLIC,
 			'gravity'       => GRAVITY_PARENT,
 			'network'       => Protocol::DFRN,
-			'owner-id'      => 42,
-			'author-id'     => 42,
-			'causer-id'     => 42,
-			'vid'           => 8,
-			'private'       => Item::PUBLIC,
-			'visible'       => 1,
+			'origin'        => 1,
 		],
 		[
 			'id'            => 2,
@@ -378,6 +384,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'id'            => 3,
@@ -396,6 +403,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'id'            => 4,
@@ -414,6 +422,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'id'            => 5,
@@ -432,6 +441,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'id'            => 6,
@@ -450,6 +460,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'id'            => 7,
@@ -468,6 +479,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'id'            => 8,
@@ -486,6 +498,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'id'            => 9,
@@ -504,6 +517,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'id'            => 10,
@@ -522,6 +536,7 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'id'            => 11,
@@ -540,24 +555,26 @@ return [
 			'vid'           => 8,
 			'private'       => Item::PUBLIC,
 			'visible'       => 1,
+			'deleted'       => 0,
 		],
 		[
 			'id'            => 12,
 			'uri-id'        => 6,
-			'uid'           => 0,
+			'visible'       => 1,
 			'contact-id'    => 44,
+			'author-id'     => 44,
+			'owner-id'      => 42,
+			'causer-id'     => 44,
+			'uid'           => 0,
+			'vid'           => 8,
 			'unseen'        => 0,
-			'origin'        => 0,
 			'parent-uri-id' => 6,
 			'thr-parent-id' => 6,
+			'private'       => Item::PUBLIC,
 			'gravity'       => GRAVITY_PARENT,
 			'network'       => Protocol::DFRN,
-			'owner-id'      => 42,
-			'author-id'     => 44,
-			'causer-id'     => 44,
-			'vid'           => 8,
-			'private'       => Item::PUBLIC,
-			'visible'       => 1,
+			'origin'        => 0,
+			'deleted'       => 0,
 		],
 	],
 	'post-thread'  => [
@@ -594,6 +611,8 @@ return [
 			'causer-id'  => 42,
 			'contact-id' => 42,
 			'network'    => Protocol::DFRN,
+			'starred'    => 1,
+			'origin'     => 1,
 		],
 		[
 			'uri-id'     => 3,
@@ -605,6 +624,8 @@ return [
 			'causer-id'  => 43,
 			'contact-id' => 43,
 			'network'    => Protocol::DFRN,
+			'starred'    => 0,
+			'origin'     => 1,
 		],
 		[
 			'uri-id'     => 6,
@@ -616,6 +637,8 @@ return [
 			'causer-id'  => 44,
 			'contact-id' => 44,
 			'network'    => Protocol::DFRN,
+			'starred'    => 0,
+			'origin'     => 1,
 		],
 		[
 			'uri-id'     => 1,
@@ -627,6 +650,8 @@ return [
 			'causer-id'  => 42,
 			'contact-id' => 42,
 			'network'    => Protocol::DFRN,
+			'starred'    => 0,
+			'origin'     => 0,
 		],
 		[
 			'uri-id'     => 3,
@@ -638,6 +663,8 @@ return [
 			'causer-id'  => 43,
 			'contact-id' => 43,
 			'network'    => Protocol::DFRN,
+			'starred'    => 0,
+			'origin'     => 0,
 		],
 		[
 			'uri-id'     => 6,
@@ -649,6 +676,8 @@ return [
 			'causer-id'  => 44,
 			'contact-id' => 44,
 			'network'    => Protocol::DFRN,
+			'starred'    => 0,
+			'origin'     => 0,
 		],
 	],
 	'notify' => [
