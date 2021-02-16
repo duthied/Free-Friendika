@@ -1088,7 +1088,7 @@ class Mimetype
 			'zsh' => 'text/x-script.zsh'
 		];
 	
-		$dot = strpos($filename, '.');
+		$dot = strrpos($filename, '.');
 		if ($dot !== false) {
 			$ext = strtolower(substr($filename, $dot + 1));
 			if (array_key_exists($ext, $mime_types)) {
