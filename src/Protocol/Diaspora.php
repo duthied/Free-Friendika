@@ -3599,7 +3599,7 @@ class Diaspora
 			return $result;
 		}
 
-		$toplevel_item = Post::selectFirst(['guid', 'author-id', 'author-link'], ['id' => $item['parent'], 'parent' => $item['parent']]);
+		$toplevel_item = Post::selectFirst(['guid', 'author-id', 'author-link', 'gravity'], ['id' => $item['parent'], 'parent' => $item['parent']]);
 		if (!DBA::isResult($toplevel_item)) {
 			Logger::error('Missing parent conversation item', ['parent' => $item['parent']]);
 			return false;
@@ -3607,7 +3607,7 @@ class Diaspora
 
 		$thread_parent_item = $toplevel_item;
 		if ($item['thr-parent'] != $item['parent-uri']) {
-			$thread_parent_item = Post::selectFirst(['guid', 'author-id', 'author-link'], ['uri' => $item['thr-parent'], 'uid' => $item['uid']]);
+			$thread_parent_item = Post::selectFirst(['guid', 'author-id', 'author-link', 'gravity'], ['uri' => $item['thr-parent'], 'uid' => $item['uid']]);
 		}
 
 		$body = $item["body"];
@@ -3618,6 +3618,7 @@ class Diaspora
 		// - Implicit mentions are enabled
 		if (
 			$item['author-id'] != $thread_parent_item['author-id']
+			&& ($thread_parent_item['gravity'] != GRAVITY_PARENT)
 			&& (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions'))
 			&& !DI::config()->get('system', 'disable_implicit_mentions')
 		) {
