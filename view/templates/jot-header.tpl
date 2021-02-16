@@ -103,7 +103,7 @@ function enableOnUser(){
 		if(reply && reply.length) {
 			reply = bin2hex(reply);
 			$('#profile-rotator').show();
-			$.get('parse_url?binurl=' + reply, function(data) {
+			$.get('parseurl?binurl=' + reply, function(data) {
 				addeditortext(data);
 				$('#profile-rotator').hide();
 			});
@@ -160,7 +160,7 @@ function enableOnUser(){
 		if(reply && reply.length) {
 			reply = bin2hex(reply);
 			$('#profile-rotator').show();
-			$.get('parse_url?binurl=' + reply, function(data) {
+			$.get('parseurl?binurl=' + reply, function(data) {
 				if (!editor) $("#profile-jot-text").val("");
 				initEditor(function(){
 					addeditortext(data);
