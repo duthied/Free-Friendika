@@ -197,7 +197,6 @@
 		"fields" => [
 			"id" => ["post-user", "id"],
 			"item-id" => ["item", "id"],
-			"iid" => ["post-user", "id"],
 			"post-user-id" => ["post-user", "id"],
 			"uid" => ["post-thread-user", "uid"],
 			"parent" => ["parent-post", "id"],

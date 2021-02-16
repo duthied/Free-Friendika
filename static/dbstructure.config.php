@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1400);
+	define('DB_UPDATE_VERSION', 1401);
 }
 
 return [
@@ -951,8 +951,8 @@ return [
 			"msg" => ["type" => "mediumtext", "comment" => ""],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"iid" => ["type" => "int unsigned", "relation" => ["item" => "id"], "comment" => "item.id"],
-			"parent" => ["type" => "int unsigned", "relation" => ["item" => "id"], "comment" => ""],
+			"iid" => ["type" => "int unsigned", "comment" => ""],
+			"parent" => ["type" => "int unsigned", "comment" => ""],
 			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the related post"],
 			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related post"],
 			"seen" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
@@ -975,7 +975,7 @@ return [
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"notify-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["notify" => "id"], "comment" => ""],
-			"master-parent-item" => ["type" => "int unsigned", "foreign" => ["item" => "id"], "comment" => ""],
+			"master-parent-item" => ["type" => "int unsigned", "comment" => "Deprecated"],
 			"master-parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related post"],
 			"parent-item" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"receiver-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "foreign" => ["user" => "uid"],
@@ -983,7 +983,6 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"master-parent-item" => ["master-parent-item"],
 			"master-parent-uri-id" => ["master-parent-uri-id"],
 			"receiver-uid" => ["receiver-uid"],
 			"notify-id" => ["notify-id"],

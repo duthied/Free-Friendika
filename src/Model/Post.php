@@ -224,7 +224,7 @@ class Post
 			$selected = array_merge(Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST);
 
 			if ($view == 'post-thread-view') {
-				$selected = array_merge($selected, ['ignored', 'iid']);
+				$selected = array_merge($selected, ['ignored']);
 			}
 		}
 

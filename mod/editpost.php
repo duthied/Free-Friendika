@@ -46,7 +46,7 @@ function editpost_content(App $a)
 	}
 
 	$fields = ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-		'type', 'body', 'title', 'uri-id', 'wall', 'post-type', 'guid'];
+		'body', 'title', 'uri-id', 'wall', 'post-type', 'guid'];
 
 	$item = Post::selectFirstForUser(local_user(), $fields, ['id' => $post_id, 'uid' => local_user()]);
 

@@ -68,9 +68,12 @@ class Profile extends BaseModule
 
 		$last_updated = $last_updated_array[$last_updated_key] ?? 0;
 
-		// If the page user is the owner of the page we should query for unseen
-		// items. Otherwise use a timestamp of the last succesful update request.
-		if ($is_owner || !$last_updated) {
+		if ($_GET['force'] && !empty($_GET['item'])) {
+			// When the parent is provided, we only fetch this
+			$sql_extra4 = " AND `parent` = " . intval($_GET['item']);
+		} elseif ($is_owner || !$last_updated) {
+			// If the page user is the owner of the page we should query for unseen
+			// items. Otherwise use a timestamp of the last succesful update request.
 			$sql_extra4 = " AND `unseen`";
 		} else {
 			$gmupdate = gmdate(DateTimeFormat::MYSQL, $last_updated);
