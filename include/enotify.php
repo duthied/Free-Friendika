@@ -521,11 +521,10 @@ function notification($params)
 			$message_id = "<" . $parent['guid'] . "@" . gethostname() . ">";
 
 			// Is this the first email notification for this parent item and user?
-			if (!DBA::exists('notify-threads', ['master-parent-item' => $params['parent'], 'receiver-uid' => $params['uid']])) {
+			if (!DBA::exists('notify-threads', ['master-parent-uri-id' => $parent_uri_id, 'receiver-uid' => $params['uid']])) {
 				Logger::log("notify_id:" . intval($notify_id) . ", parent: " . intval($params['parent']) . "uid: " . intval($params['uid']), Logger::DEBUG);
 
-				$fields = ['notify-id' => $notify_id, 'master-parent-item' => $params['parent'],
-					'master-parent-uri-id' => $parent_uri_id,
+				$fields = ['notify-id' => $notify_id, 'master-parent-uri-id' => $parent_uri_id,
 					'receiver-uid' => $params['uid'], 'parent-item' => 0];
 				DBA::insert('notify-threads', $fields);
 
