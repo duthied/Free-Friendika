@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1402);
+	define('DB_UPDATE_VERSION', 1403);
 }
 
 return [
@@ -1019,15 +1019,18 @@ return [
 	"parsed_url" => [
 		"comment" => "cache for 'parse_url' queries",
 		"fields" => [
-			"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "page url"],
+			"url_hash" => ["type" => "binary(64)", "not null" => "1", "primary" => "1", "comment" => "page url hash"],
 			"guessing" => ["type" => "boolean", "not null" => "1", "default" => "0", "primary" => "1", "comment" => "is the 'guessing' mode active?"],
 			"oembed" => ["type" => "boolean", "not null" => "1", "default" => "0", "primary" => "1", "comment" => "is the data the result of oembed?"],
+			"url" => ["type" => "text", "not null" => "1", "comment" => "page url"],
 			"content" => ["type" => "mediumtext", "comment" => "page data"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "datetime of creation"],
+			"expires" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "datetime of expiration"],
 		],
 		"indexes" => [
-			"PRIMARY" => ["url", "guessing", "oembed"],
+			"PRIMARY" => ["url_hash", "guessing", "oembed"],
 			"created" => ["created"],
+			"expires" => ["expires"],
 		]
 	],
 	"pconfig" => [

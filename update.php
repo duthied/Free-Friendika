@@ -817,3 +817,13 @@ function update_1400()
 
 	return Update::SUCCESS;
 }
+
+function pre_update_1403()
+{
+	// Necessary before a primary key change
+	if (!DBA::e("DROP TABLE `parsed_url`")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
