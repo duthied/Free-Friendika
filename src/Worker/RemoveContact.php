@@ -32,6 +32,10 @@ use Friendica\Model\Post;
  */
 class RemoveContact {
 	public static function execute($id) {
+		if (empty($id)) {
+			return;
+		}
+
 		// Only delete if the contact is to be deleted
 		$contact = DBA::selectFirst('contact', ['uid'], ['deleted' => true, 'id' => $id]);
 		if (!DBA::isResult($contact)) {
@@ -47,20 +51,31 @@ class RemoveContact {
 		} else {
 			$condition = ['uid' => $contact['uid'], 'contact-id' => $id];
 		}
-		do {
-			$items = Post::select(['item-id', 'post-user-id', 'uri-id', 'guid'], $condition, ['limit' => 100]);
-			while ($item = Post::fetch($items)) {
-				Logger::info('Delete removed contact item', ['id' => $item['item-id'], 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-				if (DBStructure::existsTable('item')) {
-					DBA::delete('item', ['id' => $item['item-id']]);
+		if (DBStructure::existsTable('item')) {
+			do {
+				$items = Post::select(['item-id', 'post-user-id', 'uri-id', 'guid'], $condition, ['limit' => 100]);
+				while ($item = Post::fetch($items)) {
+					Logger::info('Delete removed contact item', ['id' => $item['item-id'], 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
+						DBA::delete('item', ['id' => $item['item-id']]);
 				}
-				Post::delete(['uri-id' => $item['uri-id']]);
-				Post\ThreadUser::delete(['post-user-id' => $item['post-user-id']]);
-				Post\Thread::delete(['uri-id' => $item['uri-id']]);
-				Post\User::delete(['id' => $item['post-user-id']]);
-			}
-			DBA::close($items);
-		} while (Post::exists($condition));
+				DBA::close($items);
+			} while (Post::exists($condition));
+		}
+
+		Post\User::delete(['author-id' => $id]);
+		Post\User::delete(['owner-id' => $id]);
+		Post\User::delete(['causer-id' => $id]);
+		Post\User::delete(['contact-id' => $id]);
+		Post\ThreadUser::delete(['author-id' => $id]);
+		Post\ThreadUser::delete(['owner-id' => $id]);
+		Post\ThreadUser::delete(['causer-id' => $id]);
+		Post\ThreadUser::delete(['contact-id' => $id]);
+		Post\Thread::delete(['author-id' => $id]);
+		Post\Thread::delete(['owner-id' => $id]);
+		Post\Thread::delete(['causer-id' => $id]);
+		Post::delete(['author-id' => $id]);
+		Post::delete(['owner-id' => $id]);
+		Post::delete(['causer-id' => $id]);
 
 		Photo::delete(['contact-id' => $id]);
 		$ret = DBA::delete('contact', ['id' => $id]);

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1400
+-- DB_UPDATE_VERSION 1401
 -- ------------------------------------------
 
 
@@ -889,7 +889,7 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`msg` mediumtext COMMENT '',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner User id',
 	`link` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`iid` int unsigned COMMENT 'item.id',
+	`iid` int unsigned COMMENT '',
 	`parent` int unsigned COMMENT '',
 	`uri-id` int unsigned COMMENT 'Item-uri id of the related post',
 	`parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
@@ -915,17 +915,15 @@ CREATE TABLE IF NOT EXISTS `notify` (
 CREATE TABLE IF NOT EXISTS `notify-threads` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`notify-id` int unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`master-parent-item` int unsigned COMMENT '',
+	`master-parent-item` int unsigned COMMENT 'Deprecated',
 	`master-parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
 	`parent-item` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`receiver-uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`id`),
-	 INDEX `master-parent-item` (`master-parent-item`),
 	 INDEX `master-parent-uri-id` (`master-parent-uri-id`),
 	 INDEX `receiver-uid` (`receiver-uid`),
 	 INDEX `notify-id` (`notify-id`),
 	FOREIGN KEY (`notify-id`) REFERENCES `notify` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`master-parent-item`) REFERENCES `item` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`master-parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`receiver-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
@@ -1748,7 +1746,6 @@ DROP VIEW IF EXISTS `post-thread-view`;
 CREATE VIEW `post-thread-view` AS SELECT 
 	`post-user`.`id` AS `id`,
 	`item`.`id` AS `item-id`,
-	`post-user`.`id` AS `iid`,
 	`post-user`.`id` AS `post-user-id`,
 	`post-thread-user`.`uid` AS `uid`,
 	`parent-post`.`id` AS `parent`,
