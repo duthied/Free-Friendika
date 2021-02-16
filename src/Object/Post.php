@@ -881,13 +881,13 @@ class Post
 			return '';
 		}
 
-		$item = PostModel::selectFirst(['author-addr', 'uri-id'], ['id' => $this->getId()]);
+		$item = PostModel::selectFirst(['author-addr', 'uri-id', 'network', 'gravity'], ['id' => $this->getId()]);
 		if (!DBA::isResult($item) || empty($item['author-addr'])) {
 			// Should not happen
 			return '';
 		}
 
-		if ($item['author-addr'] != $owner['addr']) {
+		if (($item['author-addr'] != $owner['addr']) && (($item['gravity'] != GRAVITY_PARENT) || !in_array($item['network'], [Protocol::DIASPORA]))) {
 			$text = '@' . $item['author-addr'] . ' ';
 		} else {
 			$text = '';
