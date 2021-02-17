@@ -905,7 +905,7 @@ class Contact
 
 		if (empty($contact['uid']) || ($contact['uid'] != $uid)) {
 			if ($uid == 0) {
-				$profile_link = self::magicLink($contact['url']);
+				$profile_link = self::magicLinkByContact($contact);
 				$menu = ['profile' => [DI::l10n()->t('View Profile'), $profile_link, true]];
 
 				return $menu;
@@ -2684,11 +2684,11 @@ class Contact
 			return 'contact/' . $contact['id'] . '/conversations';
 		}
 
-		if ($contact['network'] != Protocol::DFRN) {
+		if (!empty($contact['network']) && $contact['network'] != Protocol::DFRN) {
 			return $destination;
 		}
 
-		if (!empty($contact['uid'])) {
+		if (!empty($contact['uid']) || empty($contact['network'])) {
 			return self::magicLink($contact['url'], $url);
 		}
 
@@ -2819,22 +2819,22 @@ class Contact
 	}
 
 	/**
-	 * Returns a random, global contact of the current node
+	 * Returns a random, global contact array of the current node
 	 *
-	 * @return string The profile URL
+	 * @return array The profile array
 	 * @throws Exception
 	 */
-	public static function getRandomUrl()
+	public static function getRandomContact()
 	{
-		$r = DBA::selectFirst('contact', ['url'], [
+		$contact = DBA::selectFirst('contact', ['id', 'network', 'url', 'uid'], [
 			"`uid` = ? AND `network` = ? AND NOT `failed` AND `last-item` > ?",
 			0, Protocol::DFRN, DateTimeFormat::utc('now - 1 month'),
 		], ['order' => ['RAND()']]);
 
-		if (DBA::isResult($r)) {
-			return $r['url'];
+		if (DBA::isResult($contact)) {
+			return $contact;
 		}
 
-		return '';
+		return [];
 	}
 }

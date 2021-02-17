@@ -160,9 +160,6 @@ function localize_item(&$item)
 				return;
 			}
 
-			$Aname = $item['author-name'];
-			$Alink = $item['author-link'];
-
 			$obj = XML::parseString($xmlhead . $item['object']);
 
 			$Bname = $obj->title;
@@ -177,9 +174,17 @@ function localize_item(&$item)
 				}
 			}
 
-			$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
-			$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
-			if ($Bphoto != "") {
+			$author = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
+			$A = '[url=' . Contact::magicLinkByContact($author) . ']' . $item['author-name'] . '[/url]';
+
+			if (!empty($Blink)) {
+				$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
+			} else {
+				$B = '';
+			}
+
+			if ($Bphoto != "" && !empty($Blink)) {
 				$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img=80x80]' . $Bphoto . '[/img][/url]';
 			}
 
@@ -262,11 +267,10 @@ function localize_item(&$item)
 	}
 
 	// add sparkle links to appropriate permalinks
-	$author = ['uid' => 0, 'id' => $item['author-id'],
-		'network' => $item['author-network'], 'url' => $item['author-link']];
-
 	// Only create a redirection to a magic link when logged in
 	if (!empty($item['plink']) && Session::isAuthenticated()) {
+		$author = ['uid' => 0, 'id' => $item['author-id'],
+			'network' => $item['author-network'], 'url' => $item['author-link']];
 		$item['plink'] = Contact::magicLinkByContact($author, $item['plink']);
 	}
 }
@@ -763,7 +767,9 @@ function conversation_fetch_comments($thread_items, bool $pinned, array $activit
 				}
 
 				if (($row['gravity'] == GRAVITY_PARENT) && !empty($row['causer-id'])) {
-					$row['reshared'] = DI::l10n()->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkById($row['causer-id'])) .'">' . htmlentities($name) . '</a>');
+					$causer = ['uid' => 0, 'id' => $row['causer-id'],
+						'network' => $row['causer-network'], 'url' => $row['causer-link']];
+					$row['reshared'] = DI::l10n()->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkByContact($causer)) .'">' . htmlentities($name) . '</a>');
 				}
 				$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Reshared') : DI::l10n()->t('Reshared by %s', $name))];
 				break;
@@ -903,7 +909,7 @@ function item_photo_menu($item) {
 	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
-	$pcid = Contact::getIdForURL($item['author-link'], 0, false);
+	$pcid = $item['author-id'];
 	$network = '';
 	$rel = 0;
 	$condition = ['uid' => local_user(), 'nurl' => Strings::normaliseLink($item['author-link'])];

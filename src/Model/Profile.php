@@ -539,7 +539,7 @@ class Profile
 
 					$today = (((strtotime($rr['start'] . ' +00:00') < $now) && (strtotime($rr['finish'] . ' +00:00') > $now)) ? true : false);
 
-					$rr['link'] = Contact::magicLink($rr['url']);
+					$rr['link'] = Contact::magicLinkById($rr['cid']);
 					$rr['title'] = $rr['name'];
 					$rr['date'] = DI::l10n()->getDay(DateTimeFormat::convert($rr['start'], $a->timezone, 'UTC', $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
 					$rr['startime'] = null;

@@ -407,7 +407,7 @@ class Tag
 
 		$searchpath = DI::baseUrl() . "/search?tag=";
 
-		$taglist = DBA::select('tag-view', ['type', 'name', 'url'],
+		$taglist = DBA::select('tag-view', ['type', 'name', 'url', 'cid'],
 			['uri-id' => $item['uri-id'], 'type' => [self::HASHTAG, self::MENTION, self::EXCLUSIVE_MENTION, self::IMPLICIT_MENTION]]);
 		while ($tag = DBA::fetch($taglist)) {
 			if ($tag['url'] == '') {
@@ -428,7 +428,11 @@ class Tag
 					break;
 				case self::MENTION:
 				case self::EXCLUSIVE_MENTION:
+					if (!empty($tag['cid'])) {
+						$tag['url'] = Contact::magicLinkById($tag['cid']);
+					} else {
 						$tag['url'] = Contact::magicLink($tag['url']);
+					}
 					$return['mentions'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['name']) . '</a>';
 					$return['tags'][] = $prefix . '<a href="' . $tag['url'] . '" target="_blank" rel="noopener noreferrer">' . htmlspecialchars($tag['name']) . '</a>';
 					break;

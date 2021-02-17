@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1401);
+	define('DB_UPDATE_VERSION', 1402);
 }
 
 return [
@@ -1279,11 +1279,11 @@ return [
 			"uid_hidden" => ["uid", "hidden"],
 			"event-id" => ["event-id"],
 			"uid_wall" => ["uid", "wall"],
-			"parent-uri-id" => ["parent-uri-id"],
+			"parent-uri-id_uid" => ["parent-uri-id", "uid"],
 			"thr-parent-id" => ["thr-parent-id"],
 			"external-id" => ["external-id"],
 			"owner-id" => ["owner-id"],
-			"author-id" => ["author-id"],
+			"author-id_uid" => ["author-id", "uid"],
 			"causer-id" => ["causer-id"],
 			"vid" => ["vid"],
 			"uid_received" => ["uid", "received"],

@@ -59,7 +59,7 @@ function unfollow_content(App $a)
 		local_user(), Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
 		Strings::normaliseLink($url), $url];
 
-	$contact = DBA::selectFirst('contact', ['url', 'network', 'addr', 'name'], $condition);
+	$contact = DBA::selectFirst('contact', ['url', 'id', 'uid', 'network', 'addr', 'name'], $condition);
 
 	if (!DBA::isResult($contact)) {
 		notice(DI::l10n()->t("You aren't following this contact."));
@@ -99,7 +99,7 @@ function unfollow_content(App $a)
 		'$submit'        => DI::l10n()->t('Submit Request'),
 		'$cancel'        => DI::l10n()->t('Cancel'),
 		'$url'           => $contact['url'],
-		'$zrl'           => Contact::magicLink($contact['url']),
+		'$zrl'           => Contact::magicLinkByContact($contact),
 		'$url_label'     => DI::l10n()->t('Profile URL'),
 		'$myaddr'        => $self['url'],
 		'$request'       => $request,

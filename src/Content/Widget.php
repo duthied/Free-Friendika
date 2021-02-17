@@ -22,6 +22,7 @@
 namespace Friendica\Content;
 
 use Friendica\Core\Addon;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
@@ -266,7 +267,7 @@ class Widget
 
 		$extra_sql = self::unavailableNetworks();
 
-		$r = DBA::p("SELECT DISTINCT(`network`) FROM `contact` WHERE `uid` = ? AND NOT `deleted` AND `network` != '' $extra_sql ORDER BY `network`",
+		$r = DBA::p("SELECT `network` FROM `contact` WHERE `uid` = ? AND NOT `deleted` AND `network` != '' $extra_sql GROUP BY `network` ORDER BY `network`",
 			local_user()
 		);
 
@@ -395,7 +396,7 @@ class Widget
 		$entries = [];
 		foreach ($commonContacts as $contact) {
 			$entries[] = [
-				'url'   => Contact::magicLink($contact['url']),
+				'url'   => Contact::magicLinkByContact($contact),
 				'name'  => $contact['name'],
 				'photo' => Contact::getThumb($contact),
 			];
@@ -460,7 +461,13 @@ class Widget
 
 		$ret = [];
 
-		$dthen = Item::firstPostDate($uid, $wall);
+		$cachekey = 'Widget::postedByYear' . $uid . '-' . (int)$wall;
+		$dthen = DI::cache()->get($cachekey);
+		if (!empty($dthen)) {
+			$dthen = Item::firstPostDate($uid, $wall);
+			DI::cache()->set($cachekey, $dthen, Duration::HOUR);
+		}
+
 		if ($dthen) {
 			// Set the start and end date to the beginning of the month
 			$dnow = substr($dnow, 0, 8) . '01';

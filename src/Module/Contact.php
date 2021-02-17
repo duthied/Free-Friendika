@@ -518,7 +518,7 @@ class Contact extends BaseModule
 
 			$relation_text = sprintf($relation_text, $contact['name']);
 
-			$url = Model\Contact::magicLink($contact['url']);
+			$url = Model\Contact::magicLinkByContact($contact);
 			if (strpos($url, 'redir/') === 0) {
 				$sparkle = ' class="sparkle" ';
 			} else {
@@ -1076,7 +1076,7 @@ class Contact extends BaseModule
 			}
 		}
 
-		$url = Model\Contact::magicLink($contact['url']);
+		$url = Model\Contact::magicLinkByContact($contact);
 
 		if (strpos($url, 'redir/') === 0) {
 			$sparkle = ' class="sparkle" ';

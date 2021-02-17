@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1401
+-- DB_UPDATE_VERSION 1402
 -- ------------------------------------------
 
 
@@ -1231,11 +1231,11 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	 INDEX `uid_hidden` (`uid`,`hidden`),
 	 INDEX `event-id` (`event-id`),
 	 INDEX `uid_wall` (`uid`,`wall`),
-	 INDEX `parent-uri-id` (`parent-uri-id`),
+	 INDEX `parent-uri-id_uid` (`parent-uri-id`,`uid`),
 	 INDEX `thr-parent-id` (`thr-parent-id`),
 	 INDEX `external-id` (`external-id`),
 	 INDEX `owner-id` (`owner-id`),
-	 INDEX `author-id` (`author-id`),
+	 INDEX `author-id_uid` (`author-id`,`uid`),
 	 INDEX `causer-id` (`causer-id`),
 	 INDEX `vid` (`vid`),
 	 INDEX `uid_received` (`uid`,`received`),
@@ -1615,6 +1615,7 @@ CREATE VIEW `post-view` AS SELECT
 	`post-user`.`unseen` AS `unseen`,
 	`post-user`.`deleted` AS `deleted`,
 	`post-user`.`origin` AS `origin`,
+	`post-thread-user`.`origin` AS `parent-origin`,
 	`post-thread-user`.`forum_mode` AS `forum_mode`,
 	`post-thread-user`.`mention` AS `mention`,
 	`post-user`.`global` AS `global`,

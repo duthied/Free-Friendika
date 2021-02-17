@@ -208,16 +208,9 @@ class Post
 			$dropping = true;
 		}
 
-		$origin = $item['origin'];
+		$origin = $item['origin'] || $item['parent-origin'];
 
-		if (!$origin) {
-			/// @todo This shouldn't be done as query here, but better during the data creation.
-			// it is now done here, since during the RC phase we shouldn't make to intense changes.
-			$parent = PostModel::selectFirst(['origin'], ['id' => $item['parent']]);
-			if (DBA::isResult($parent)) {
-				$origin = $parent['origin'];
-			}
-		} elseif ($item['pinned']) {
+		if ($item['pinned']) {
 			$pinned = DI::l10n()->t('pinned item');
 		}
 
@@ -252,10 +245,9 @@ class Post
 			$profile_name = $item['author-link'];
 		}
 
-		$author = ['uid' => 0, 'id' => $item['author-id'],
-			'network' => $item['author-network'], 'url' => $item['author-link']];
-
 		if (Session::isAuthenticated()) {
+			$author = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
 			$profile_link = Contact::magicLinkByContact($author);
 		} else {
 			$profile_link = $item['author-link'];
@@ -1005,7 +997,7 @@ class Post
 					// This will have been stored in $a->page_contact by our calling page.
 					// Put this person as the wall owner of the wall-to-wall notice.
 
-					$this->owner_url = Contact::magicLink($a->page_contact['url']);
+					$this->owner_url = Contact::magicLinkByContact($a->page_contact);
 					$this->owner_photo = $a->page_contact['thumb'];
 					$this->owner_name = $a->page_contact['name'];
 					$this->wall_to_wall = true;

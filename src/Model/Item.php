@@ -32,7 +32,6 @@ use Friendica\Core\System;
 use Friendica\Model\Tag;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Post;
 use Friendica\Protocol\Activity;
@@ -75,12 +74,12 @@ class Item
 		'uid', 'id', 'parent', 'guid', 'network', 'gravity',
 		'uri-id', 'uri', 'thr-parent-id', 'thr-parent', 'parent-uri-id', 'parent-uri',
 		'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
-		'wall', 'private', 'starred', 'origin', 'title', 'body', 'language',
+		'wall', 'private', 'starred', 'origin', 'parent-origin', 'title', 'body', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network',
-		'causer-id', 'causer-link', 'causer-name', 'causer-avatar', 'causer-contact-type',
+		'causer-id', 'causer-link', 'causer-name', 'causer-avatar', 'causer-contact-type', 'causer-network',
 		'contact-id', 'contact-uid', 'contact-link', 'contact-name', 'contact-avatar',
 		'writable', 'self', 'cid', 'alias',
 		'event-created', 'event-edited', 'event-start', 'event-finish',
@@ -2196,7 +2195,8 @@ class Item
 		$params = ['order' => ['received' => false]];
 		$thread = Post::selectFirst(['received'], $condition, $params);
 		if (DBA::isResult($thread)) {
-			return substr(DateTimeFormat::local($thread['received']), 0, 10);
+			$postdate = substr(DateTimeFormat::local($thread['received']), 0, 10);
+			return $postdate;
 		}
 		return false;
 	}
@@ -2673,7 +2673,9 @@ class Item
 		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
 			$mime = $attachment['mimetype'];
 
-			$the_url = Contact::magicLinkById($item['author-id'], $attachment['url']);
+			$author = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
+			$the_url = Contact::magicLinkByContact($author, $attachment['url']);
 
 			if (strpos($mime, 'video') !== false) {
 				if (!$vhead) {

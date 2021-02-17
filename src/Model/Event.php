@@ -930,7 +930,9 @@ class Event
 		$location = self::locationToArray($item['event-location']);
 
 		// Construct the profile link (magic-auth).
-		$profile_link = Contact::magicLinkById($item['author-id']);
+		$author = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
+		$profile_link = Contact::magicLinkByContact($author);
 
 		$tpl = Renderer::getMarkupTemplate('event_stream_item.tpl');
 		$return = Renderer::replaceMacros($tpl, [
