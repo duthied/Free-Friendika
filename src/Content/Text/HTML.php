@@ -837,7 +837,7 @@ class HTML
 		$redir = false;
 
 		if ($redirect) {
-			$url = Contact::magicLink($contact['url']);
+			$url = Contact::magicLinkByContact($contact);
 			if (strpos($url, 'redir/') === 0) {
 				$sparkle = ' sparkle';
 			}

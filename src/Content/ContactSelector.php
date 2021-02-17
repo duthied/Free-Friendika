@@ -33,6 +33,9 @@ use Friendica\Util\Strings;
  */
 class ContactSelector
 {
+	static $serverdata = [];
+	static $server_url = [];
+
 	/**
 	 * @param string  $current  current
 	 * @param boolean $disabled optional, default false
@@ -61,6 +64,21 @@ class ContactSelector
 		return $o;
 	}
 
+	private static function getServerForProfile(string $profile)
+	{
+		$server_url = self::getServerURLForProfile($profile);
+
+		if (!empty(self::$serverdata[$server_url])) {
+			return self::$serverdata[$server_url];
+		}
+
+		// Now query the GServer for the platform name
+		$gserver = DBA::selectFirst('gserver', ['platform', 'network'], ['nurl' => $server_url]);
+
+		self::$serverdata[$server_url] = $gserver;
+		return $gserver;
+	}
+
 	/**
 	 * @param string $profile Profile URL
 	 * @return string Server URL
@@ -68,6 +86,10 @@ class ContactSelector
 	 */
 	private static function getServerURLForProfile($profile)
 	{
+		if (!empty(self::$server_url[$profile])) {
+			return self::$server_url[$profile];
+		}
+
 		$server_url = '';
 
 		// Fetch the server url from the contact table
@@ -82,6 +104,8 @@ class ContactSelector
 			unset($parts['path']);
 			$server_url = Strings::normaliseLink(Network::unparseURL($parts));
 		}
+
+		self::$server_url[$profile] = $server_url;
 
 		return $server_url;
 	}
@@ -123,24 +147,19 @@ class ContactSelector
 		$networkname = str_replace($search, $replace, $network);
 
 		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
-			$server_url = self::getServerURLForProfile($profile);
+			$gserver = self::getServerForProfile($profile);
 
-			// Now query the GServer for the platform name
-			$gserver = DBA::selectFirst('gserver', ['platform', 'network'], ['nurl' => $server_url]);
+			if (!empty($gserver['platform'])) {
+				$platform = $gserver['platform'];
+			} elseif (!empty($gserver['network']) && ($gserver['network'] != Protocol::ACTIVITYPUB)) {
+				$platform = self::networkToName($gserver['network']);
+			}
 
-			if (DBA::isResult($gserver)) {
-				if (!empty($gserver['platform'])) {
-					$platform = $gserver['platform'];
-				} elseif (!empty($gserver['network']) && ($gserver['network'] != Protocol::ACTIVITYPUB)) {
-					$platform = self::networkToName($gserver['network']);
-				}
+			if (!empty($platform)) {
+				$networkname = $platform;
 
-				if (!empty($platform)) {
-					$networkname = $platform;
-
-					if ($network == Protocol::ACTIVITYPUB) {
-						$networkname .= ' (AP)';
-					}
+				if ($network == Protocol::ACTIVITYPUB) {
+					$networkname .= ' (AP)';
 				}
 			}
 		}
@@ -192,12 +211,8 @@ class ContactSelector
 		$network_icon = str_replace($search, $replace, $network);
 
 		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
-			$server_url = self::getServerURLForProfile($profile);
-
-			// Now query the GServer for the platform name
-			$gserver = DBA::selectFirst('gserver', ['platform'], ['nurl' => $server_url]);
-
-			if (DBA::isResult($gserver) && !empty($gserver['platform'])) {
+			$gserver = self::getServerForProfile($profile);
+			if (!empty($gserver['platform'])) {
 				$network_icon = $platform_icons[strtolower($gserver['platform'])] ?? $network_icon;
 			}
 		}

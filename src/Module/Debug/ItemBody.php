@@ -47,7 +47,7 @@ class ItemBody extends BaseModule
 			throw new HTTPException\NotFoundException(DI::l10n()->t('Item not found.'));
 		}
 
-		$item = Post::selectFirst(['body'], ['uid' => local_user(), 'id' => $itemId]);
+		$item = Post::selectFirst(['body'], ['uid' => local_user(), 'uri-id' => $itemId]);
 
 		if (!empty($item)) {
 			if (DI::mode()->isAjax()) {

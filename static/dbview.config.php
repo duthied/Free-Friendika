@@ -68,6 +68,7 @@
 			"unseen" => ["post-user", "unseen"],
 			"deleted" => ["post-user", "deleted"],
 			"origin" => ["post-user", "origin"],
+			"parent-origin" => ["post-thread-user", "origin"],
 			"forum_mode" => ["post-thread-user", "forum_mode"],
 			"mention" => ["post-thread-user", "mention"],
 			"global" => ["post-user", "global"],

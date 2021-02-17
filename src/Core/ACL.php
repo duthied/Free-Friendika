@@ -144,6 +144,7 @@ class ACL
 				'archive' => false,
 				'deleted' => false,
 				'pending' => false,
+				'network' => Protocol::FEDERATED,
 				'rel' => [Contact::FOLLOWER, Contact::FRIEND]
 			], $condition),
 			$params
@@ -156,7 +157,7 @@ class ACL
 
 		$acl_forums = Contact::selectToArray($fields,
 			['uid' => $user_id, 'self' => false, 'blocked' => false, 'archive' => false, 'deleted' => false,
-			'pending' => false, 'contact-type' => Contact::TYPE_COMMUNITY], $params
+			'network' => Protocol::FEDERATED, 'pending' => false, 'contact-type' => Contact::TYPE_COMMUNITY], $params
 		);
 
 		$acl_contacts = array_merge($acl_forums, $acl_contacts);

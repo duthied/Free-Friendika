@@ -34,10 +34,10 @@ class RandomProfile extends BaseModule
 	{
 		$a = DI::app();
 
-		$contactUrl = Contact::getRandomUrl();
+		$contact = Contact::getRandomContact();
 
-		if ($contactUrl) {
-			$link = Contact::magicLink($contactUrl);
+		if (!empty($contact)) {
+			$link = Contact::magicLinkByContact($contact);
 			$a->redirect($link);
 		}
 

@@ -71,7 +71,7 @@ class ForumManager
 
 		$forumlist = [];
 
-		$fields = ['id', 'url', 'name', 'micro', 'thumb', 'avatar'];
+		$fields = ['id', 'url', 'name', 'micro', 'thumb', 'avatar', 'network', 'uid'];
 		$condition = [$condition_str, Protocol::DFRN, Protocol::ACTIVITYPUB, $uid];
 		$contacts = DBA::select('contact', $fields, $condition, $params);
 		if (!$contacts) {
@@ -127,7 +127,7 @@ class ForumManager
 
 				$entry = [
 					'url' => $baseurl . '/' . $contact['id'],
-					'external_url' => Contact::magicLink($contact['url']),
+					'external_url' => Contact::magicLinkByContact($contact),
 					'name' => $contact['name'],
 					'cid' => $contact['id'],
 					'selected' 	=> $selected,
