@@ -847,12 +847,7 @@ function item_content(App $a)
 				throw new HTTPException\NotFoundException('Item not found');
 			}
 
-			$cdata = Contact::getPublicAndUserContacID($item['author-id'], local_user());
-			if (empty($cdata['user'])) {
-				throw new HTTPException\NotFoundException('Contact not found');
-			}
-
-			Contact::block($cdata['user'], DI::l10n()->t('Blocked on item with guid %s', $item['guid']));
+			Contact\User::setBlocked($item['author-id'], local_user(), true);
 
 			if (DI::mode()->isAjax()) {
 				// ajax return: [<item id>, 0 (no perm) | <owner id>]
