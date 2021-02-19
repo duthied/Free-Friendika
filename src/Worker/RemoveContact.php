@@ -53,10 +53,10 @@ class RemoveContact {
 		}
 		if (DBStructure::existsTable('item')) {
 			do {
-				$items = Post::select(['item-id', 'post-user-id', 'uri-id', 'guid'], $condition, ['limit' => 100]);
+				$items = Post::select(['uri-id', 'guid', 'uid'], $condition, ['limit' => 100]);
 				while ($item = Post::fetch($items)) {
-					Logger::info('Delete removed contact item', ['id' => $item['item-id'], 'uri-id' => $item['uri-id'], 'guid' => $item['guid']]);
-						DBA::delete('item', ['id' => $item['item-id']]);
+					Logger::info('Delete removed contact item', ['uri-id' => $item['uri-id'], 'uid', 'guid' => $item['guid']]);
+					DBA::delete('item', ['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
 				}
 				DBA::close($items);
 			} while (Post::exists($condition));

@@ -40,7 +40,6 @@
 	"post-view" => [
 		"fields" => [
 			"id" => ["post-user", "id"],
-			"item-id" => ["item", "id"],
 			"post-user-id" => ["post-user", "id"],
 			"uid" => ["post-user", "uid"],
 			"parent" => ["parent-post", "id"],
@@ -176,28 +175,26 @@
 		],
 		"query" => "FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
-			LEFT JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
-			INNER JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
-			INNER JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
-			INNER JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
-			INNER JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`
-			INNER JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
-			INNER JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
-			INNER JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
+			LEFT JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
+			LEFT JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
+			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`
+			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
+			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
-			INNER JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
+			LEFT JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-user`.`uri-id` AND `post-user`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-user`.`psid`
 			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
-			INNER JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"
+			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"
 	],
 	"post-thread-view" => [
 		"fields" => [
 			"id" => ["post-user", "id"],
-			"item-id" => ["item", "id"],
 			"post-user-id" => ["post-user", "id"],
 			"uid" => ["post-thread-user", "uid"],
 			"parent" => ["parent-post", "id"],
@@ -333,23 +330,22 @@
 		],
 		"query" => "FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
-			LEFT JOIN `item` ON `item`.`uri-id` = `post-thread-user`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
-			INNER JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
-			INNER JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
-			INNER JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
-			INNER JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread-user`.`causer-id`
-			INNER JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
-			INNER JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
-			INNER JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			LEFT JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
+			LEFT JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
+			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread-user`.`causer-id`
+			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-thread-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
+			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
-			INNER JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
+			LEFT JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread-user`.`uri-id` AND `post-thread-user`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-thread-user`.`psid`
-			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
-			INNER JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-thread-user`.`uid`
+			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"
 	],
 	"category-view" => [
 		"fields" => [

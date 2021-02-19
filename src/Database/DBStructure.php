@@ -78,7 +78,7 @@ class DBStructure
 			return;
 		}
 
-		$old_tables = ['fserver', 'gcign', 'gcontact', 'gcontact-relation', 'gfollower' ,'glink', 'item-delivery-data',
+		$old_tables = ['fserver', 'gcign', 'gcontact', 'gcontact-relation', 'gfollower' ,'glink', 'item', 'item-delivery-data',
 			'item-activity', 'item-content', 'item_id', 'participation', 'poll', 'poll_result', 'queue', 'retriever_rule',
 			'sign', 'spam', 'term', 'thread', 'user-item'];
 

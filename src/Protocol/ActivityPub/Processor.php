@@ -1143,7 +1143,7 @@ class Processor
 
 		$implicit_mentions = [];
 		if (empty($parent_author['url'])) {
-			Logger::notice('Author public contact unknown.', ['author-link' => $parent['author-link'], 'item-id' => $parent['id']]);
+			Logger::notice('Author public contact unknown.', ['author-link' => $parent['author-link'], 'parent-id' => $parent['id']]);
 		} else {
 			$implicit_mentions[] = $parent_author['url'];
 			$implicit_mentions[] = $parent_author['nurl'];

@@ -55,49 +55,33 @@ class Delivery
 	{
 		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $post_uriid, 'sender_uid' => $sender_uid, 'contact' => $contact_id]);
 
-		$target_id = $post_uriid;
-
-		if (!empty($sender_uid)) {
-			$post = Post::selectFirst(['id'], ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
-			if (!DBA::isResult($post)) {
-				Logger::warning('Post not found', ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
-				return;
-			}
-			$target_id = $post['id'];
-		} elseif (!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
-			$post = Post::selectFirst(['id', 'uid', 'uri-id'], ['item-id' => $post_uriid]);
-			if (DBA::isResult($post)) {
-				$target_id = $post['id'];
-				$sender_uid = $post['uid'];
-				$post_uriid = $post['uri-id'];
-			}
-		}
-
 		$top_level = false;
 		$followup = false;
 		$public_message = false;
 
 		$items = [];
 		if ($cmd == self::MAIL) {
-			$target_item = DBA::selectFirst('mail', [], ['id' => $target_id]);
+			$target_item = DBA::selectFirst('mail', [], ['id' => $post_uriid]);
 			if (!DBA::isResult($target_item)) {
 				return;
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::SUGGESTION) {
-			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $target_id]);
+			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $post_uriid]);
 			if (!DBA::isResult($target_item)) {
 				return;
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::RELOCATION) {
-			$uid = $target_id;
+			$uid = $post_uriid;
 			$target_item = [];
 		} else {
-			$item = Model\Post::selectFirst(['parent'], ['id' => $target_id]);
+			$item = Model\Post::selectFirst(['id', 'parent'], ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
 			if (!DBA::isResult($item) || empty($item['parent'])) {
+				Logger::warning('Post not found', ['uri-id' => $post_uriid, 'uid' => $sender_uid]);
 				return;
 			}
+			$target_id = intval($item['id']);
 			$parent_id = intval($item['parent']);
 
 			$condition = ['id' => [$target_id, $parent_id], 'visible' => true];
