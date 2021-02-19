@@ -27,6 +27,7 @@ use Exception;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Item;
 use Friendica\Content\OEmbed;
+use Friendica\Content\PageInfo;
 use Friendica\Content\Smilies;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
@@ -2209,5 +2210,76 @@ class BBCode
 		$header  .= "']";
 
 		return $header;
+	}
+
+	/**
+	 * Returns the BBCode relevant to embed the provided URL in a post body.
+	 * For media type, it will return [img], [video] and [audio] tags.
+	 * For regular web pages, it will either output a [bookmark] tag if title and description were provided,
+	 * an [attachment] tag or a simple [url] tag depending on $tryAttachment.
+	 *
+	 * @param string      $url
+	 * @param bool        $tryAttachment
+	 * @param string|null $title
+	 * @param string|null $description
+	 * @param string|null $tags
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *@see ParseUrl::getSiteinfoCached
+	 *
+	 */
+	public static function embedURL(string $url, bool $tryAttachment = true, string $title = null, string $description = null, string $tags = null): string
+	{
+		DI::logger()->info($url);
+
+		// If there is already some content information submitted we don't
+		// need to parse the url for content.
+		if (!empty($title) && !empty($description)) {
+			$title = str_replace(["\r", "\n"], ['', ''], $title);
+
+			$description = '[quote]' . trim($description) . '[/quote]' . "\n";
+
+			$str_tags = '';
+			if (!empty($tags)) {
+				$arr_tags = ParseUrl::convertTagsToArray($tags);
+				if (count($arr_tags)) {
+					$str_tags = "\n" . implode(' ', $arr_tags) . "\n";
+				}
+			}
+
+			$result = sprintf('[bookmark=%s]%s[/bookmark]%s', $url, ($title) ? $title : $url, $description) . $str_tags;
+
+			DI::logger()->info('(unparsed): returns: ' . $result);
+
+			return $result;
+		}
+
+		$siteinfo = ParseUrl::getSiteinfoCached($url);
+
+		if (in_array($siteinfo['type'], ['image', 'video', 'audio'])) {
+			switch ($siteinfo['type']) {
+				case 'video':
+					$bbcode = "\n" . '[video]' . $url . '[/video]' . "\n";
+					break;
+				case 'audio':
+					$bbcode = "\n" . '[audio]' . $url . '[/audio]' . "\n";
+					break;
+				default:
+					$bbcode = "\n" . '[img]' . $url . '[/img]' . "\n";
+					break;
+			}
+
+			return $bbcode;
+		}
+
+		unset($siteinfo['keywords']);
+
+		// Bypass attachment if parse url for a comment
+		if (!$tryAttachment) {
+			return "\n" . '[url=' . $url . ']' . $siteinfo['title'] . '[/url]';
+		}
+
+		// Format it as BBCode attachment
+		return "\n" . PageInfo::getFooterFromData($siteinfo);
 	}
 }

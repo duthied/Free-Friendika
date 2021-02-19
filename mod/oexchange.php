@@ -47,16 +47,12 @@ function oexchange_content(App $a) {
 		return;
 	}
 
-	$url = ((!empty($_REQUEST['url']))
-		? urlencode(Strings::escapeTags(trim($_REQUEST['url']))) : '');
-	$title = ((!empty($_REQUEST['title']))
-		? '&title=' . urlencode(Strings::escapeTags(trim($_REQUEST['title']))) : '');
-	$description = ((!empty($_REQUEST['description']))
-		? '&description=' . urlencode(Strings::escapeTags(trim($_REQUEST['description']))) : '');
-	$tags = ((!empty($_REQUEST['tags']))
-		? '&tags=' . urlencode(Strings::escapeTags(trim($_REQUEST['tags']))) : '');
+	$url         = !empty($_REQUEST['url'])         ? trim($_REQUEST['url'])         : '';
+	$title       = !empty($_REQUEST['title'])       ? trim($_REQUEST['title'])       : '';
+	$description = !empty($_REQUEST['description']) ? trim($_REQUEST['description']) : '';
+	$tags        = !empty($_REQUEST['tags'])        ? trim($_REQUEST['tags'])        : '';
 
-	$s = DI::httpRequest()->fetch(DI::baseUrl() . '/parse_url?url=' . $url . $title . $description . $tags);
+	$s = \Friendica\Content\Text\BBCode::embedURL($url, true, $title, $description, $tags);
 
 	if (!strlen($s)) {
 		return;

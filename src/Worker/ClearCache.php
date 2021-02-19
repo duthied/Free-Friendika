@@ -64,7 +64,7 @@ class ClearCache
 		// Delete the cached OEmbed entries that are older than three month
 		DBA::delete('oembed', ["`created` < NOW() - INTERVAL 3 MONTH"]);
 
-		// Delete the cached "parse_url" entries that are older than three month
-		DBA::delete('parsed_url', ["`created` < NOW() - INTERVAL 3 MONTH"]);
+		// Delete the cached "parsed_url" entries that are expired
+		DBA::delete('parsed_url', ["`expires` < NOW()"]);
 	}
 }

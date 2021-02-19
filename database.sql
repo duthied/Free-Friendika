@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1402
+-- DB_UPDATE_VERSION 1403
 -- ------------------------------------------
 
 
@@ -959,15 +959,17 @@ CREATE TABLE IF NOT EXISTS `openwebauth-token` (
 -- TABLE parsed_url
 --
 CREATE TABLE IF NOT EXISTS `parsed_url` (
-	`url` varbinary(255) NOT NULL COMMENT 'page url',
+	`url_hash` binary(64) NOT NULL COMMENT 'page url hash',
 	`guessing` boolean NOT NULL DEFAULT '0' COMMENT 'is the \'guessing\' mode active?',
 	`oembed` boolean NOT NULL DEFAULT '0' COMMENT 'is the data the result of oembed?',
+	`url` text NOT NULL COMMENT 'page url',
 	`content` mediumtext COMMENT 'page data',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of creation',
-	 PRIMARY KEY(`url`,`guessing`,`oembed`),
-	 INDEX `created` (`created`)
+	`expires` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime of expiration',
+	PRIMARY KEY(`url_hash`,`guessing`,`oembed`),
+	INDEX `created` (`created`),
+	INDEX `expires` (`expires`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='cache for \'parse_url\' queries';
-
 --
 -- TABLE pconfig
 --

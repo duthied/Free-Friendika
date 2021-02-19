@@ -178,7 +178,7 @@
 		 * @returns {void}
 		 */
 		var getContentData = function(binurl, callback) {
-			$.get('parse_url?binurl='+ binurl + '&format=json', function (answer) {
+			$.get('parseurl?binurl='+ binurl + '&format=json', function (answer) {
 				obj = sanitizeInputData(answer);
 
 				// Put the data into a cache

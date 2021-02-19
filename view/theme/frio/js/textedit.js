@@ -40,7 +40,7 @@ function commentGetLink(id, prompttext) {
 	reply = prompt(prompttext);
 	if (reply && reply.length) {
 		reply = bin2hex(reply);
-		$.get("parse_url?noAttachment=1&binurl=" + reply, function (data) {
+		$.get("parseurl?noAttachment=1&binurl=" + reply, function (data) {
 			addCommentText(data, id);
 		});
 	}
@@ -64,7 +64,7 @@ function commentLinkDrop(event, id) {
 	event.preventDefault();
 	if (reply && reply.length) {
 		reply = bin2hex(reply);
-		$.get("parse_url?noAttachment=1&binurl=" + reply, function (data) {
+		$.get("parseurl?noAttachment=1&binurl=" + reply, function (data) {
 			addCommentText(data, id);
 		});
 	}

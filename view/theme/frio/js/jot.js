@@ -30,7 +30,7 @@ function jotGetLink() {
 			// Fallback: insert the attachment bbcode directly into the textarea
 			// if the attachment live preview isn't available
 		} else {
-			$.get("parse_url?binurl=" + bin2hex(reply) + noAttachment, function (data) {
+			$.get("parseurl?binurl=" + bin2hex(reply) + noAttachment, function (data) {
 				addeditortext(data);
 				$("#profile-rotator").hide();
 			});

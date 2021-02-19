@@ -23,7 +23,7 @@
 		reply = prompt("{{$linkurl}}");
 		if(reply && reply.length) {
 			$('#profile-rotator').show();
-			$.get('parse_url?url=' + reply, function(data) {
+			$.get('parseurl?url=' + reply, function(data) {
 				addeditortext(data);
 				$('#profile-rotator').hide();
 			});
@@ -42,7 +42,7 @@
 		event.preventDefault();
 		if(reply && reply.length) {
 			$('#profile-rotator').show();
-			$.get('parse_url?url=' + reply, function(data) {
+			$.get('parseurl?url=' + reply, function(data) {
 				addeditortext(data);
 				$('#profile-rotator').hide();
 			});
