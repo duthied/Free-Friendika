@@ -346,6 +346,7 @@ return [
 	'/openid'         => [Module\Security\OpenID::class, [R::GET]],
 	'/opensearch'     => [Module\OpenSearch::class,      [R::GET]],
 
+	'/parseurl'                           => [Module\ParseUrl::class,          [R::GET]],
 	'/permission/tooltip/{type}/{id:\d+}' => [Module\PermissionTooltip::class, [R::GET]],
 
 	'/photo' => [

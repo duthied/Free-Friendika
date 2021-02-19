@@ -29,6 +29,7 @@ use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Network\HTTPException;
 
 /**
  * Get information about a given URL
@@ -37,6 +38,9 @@ use Friendica\DI;
  */
 class ParseUrl
 {
+	const DEFAULT_EXPIRATION_FAILURE = 'now + 1 day';
+	const DEFAULT_EXPIRATION_SUCCESS = 'now + 3 months';
+
 	/**
 	 * Maximum number of characters for the description
 	 */
@@ -65,18 +69,23 @@ class ParseUrl
 	 *    array  'images'   => (optional) Array of preview pictures
 	 *    string 'keywords' => (optional) The tags which belong to the content
 	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @see   ParseUrl::getSiteinfo() for more information about scraping
 	 * embeddable content
 	 */
-	public static function getSiteinfoCached($url, $no_guessing = false, $do_oembed = true)
+	public static function getSiteinfoCached($url, $no_guessing = false, $do_oembed = true): array
 	{
-		if ($url == "") {
-			return false;
+		if (empty($url)) {
+			return [
+				'url' => '',
+				'type' => 'error',
+			];
 		}
 
+		$urlHash = hash('sha256', $url);
+
 		$parsed_url = DBA::selectFirst('parsed_url', ['content'],
-			['url' => Strings::normaliseLink($url), 'guessing' => !$no_guessing, 'oembed' => $do_oembed]
+			['url_hash' => $urlHash, 'guessing' => !$no_guessing, 'oembed' => $do_oembed]
 		);
 		if (!empty($parsed_url['content'])) {
 			$data = unserialize($parsed_url['content']);
@@ -85,12 +94,20 @@ class ParseUrl
 
 		$data = self::getSiteinfo($url, $no_guessing, $do_oembed);
 
-		DBA::insert(
+		$expires = $data['expires'];
+
+		unset($data['expires']);
+
+		DI::dba()->insert(
 			'parsed_url',
 			[
-				'url' => substr(Strings::normaliseLink($url), 0, 255), 'guessing' => !$no_guessing,
-				'oembed' => $do_oembed, 'content' => serialize($data),
-				'created' => DateTimeFormat::utcNow()
+				'url_hash' => $urlHash,
+				'guessing' => !$no_guessing,
+				'oembed'   => $do_oembed,
+				'url'      => $url,
+				'content'  => serialize($data),
+				'created'  => DateTimeFormat::utcNow(),
+				'expires'  => $expires,
 			],
 			Database::INSERT_UPDATE
 		);
@@ -117,7 +134,7 @@ class ParseUrl
 	 *
 	 * @return array which contains needed data for embedding
 	 *    string 'url'      => The url of the parsed page
-	 *    string 'type'     => Content type
+	 *    string 'type'     => Content type (error, link, photo, image, audio, video)
 	 *    string 'title'    => (optional) The title of the content
 	 *    string 'text'     => (optional) The description for the content
 	 *    string 'image'    => (optional) A preview image of the content (only available if $no_guessing = false)
@@ -140,6 +157,13 @@ class ParseUrl
 	 */
 	public static function getSiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1)
 	{
+		if (empty($url)) {
+			return [
+				'url' => '',
+				'type' => 'error',
+			];
+		}
+
 		// Check if the URL does contain a scheme
 		$scheme = parse_url($url, PHP_URL_SCHEME);
 
@@ -154,6 +178,7 @@ class ParseUrl
 		$siteinfo = [
 			'url' => $url,
 			'type' => 'link',
+			'expires' => DateTimeFormat::utc(self::DEFAULT_EXPIRATION_FAILURE),
 		];
 
 		if ($count > 10) {
@@ -166,14 +191,33 @@ class ParseUrl
 			return $siteinfo;
 		}
 
+		$siteinfo['expires'] = DateTimeFormat::utc(self::DEFAULT_EXPIRATION_SUCCESS);
+
 		// If the file is too large then exit
 		if (($curlResult->getInfo()['download_content_length'] ?? 0) > 1000000) {
 			return $siteinfo;
 		}
 
+		// Native media type, no need for HTML parsing
+		$type = $curlResult->getHeader('Content-Type');
+		if ($type) {
+			preg_match('#(image|video|audio)/#i', $type, $matches);
+			if ($matches) {
+				$siteinfo['type'] = array_pop($matches);
+				return $siteinfo;
+			}
+		}
+
 		// If it isn't a HTML file then exit
 		if (($curlResult->getContentType() != '') && !strstr(strtolower($curlResult->getContentType()), 'html')) {
 			return $siteinfo;
+		}
+
+		if ($cacheControlHeader = $curlResult->getHeader('Cache-Control')) {
+			if (preg_match('/max-age=([0-9]+)/i', $cacheControlHeader, $matches)) {
+				$maxAge = max(86400, (int)array_pop($matches));
+				$siteinfo['expires'] = DateTimeFormat::utc("now + $maxAge seconds");
+			}
 		}
 
 		$header = $curlResult->getHeader();

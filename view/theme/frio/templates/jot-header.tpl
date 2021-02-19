@@ -223,7 +223,7 @@
 			if (currentText.includes("[attachment") && currentText.includes("[/attachment]")) {
 				noAttachment = '&noAttachment=1';
 			}
-			$.get('parse_url?binurl=' + reply + noAttachment, function(data) {
+			$.get('parseurl?binurl=' + reply + noAttachment, function(data) {
 				if (!editor) $("#profile-jot-text").val("");
 				initEditor(function(){
 					addeditortext(data);

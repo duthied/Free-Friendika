@@ -818,7 +818,17 @@ function update_1400()
 	return Update::SUCCESS;
 }
 
-function update_1403()
+function pre_update_1403()
+{
+	// Necessary before a primary key change
+	if (!DBA::e("DROP TABLE `parsed_url`")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function update_1404()
 {
 	$tasks = DBA::select('workerqueue', ['id', 'command', 'parameter'], ['command' => ['notifier', 'delivery', 'apdelivery', 'done' => false]]);
 	while ($task = DBA::fetch($tasks)) {
@@ -874,5 +884,4 @@ function update_1403()
 		}
 		DBA::update('workerqueue', ['parameter' => json_encode($parameters)], ['id' => $task['id']]);
 	}
-	return Update::SUCCESS;
 }
