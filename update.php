@@ -817,3 +817,62 @@ function update_1400()
 
 	return Update::SUCCESS;
 }
+
+function update_1403()
+{
+	$tasks = DBA::select('workerqueue', ['id', 'command', 'parameter'], ['command' => ['notifier', 'delivery', 'apdelivery', 'done' => false]]);
+	while ($task = DBA::fetch($tasks)) {
+		$parameters = json_decode($task['parameter'], true);
+	
+		if (in_array($parameters[0], [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
+			continue;
+		}
+	
+		switch (strtolower($task['command'])) {
+			case 'notifier':
+				if (count($parameters) == 3) {
+					continue 2;
+				}
+				$item = DBA::selectFirst('item', ['uid', 'uri-id'], ['id' => $parameters[1]]);
+				if (!DBA::isResult($item)) {
+					continue 2;
+				}
+	
+				$parameters[1] = $item['uri-id'];
+				$parameters[2] = $item['uid'];
+				break;
+			case 'delivery':
+				if (count($parameters) == 4) {
+					continue 2;
+				}
+				$item = DBA::selectFirst('item', ['uid', 'uri-id'], ['id' => $parameters[1]]);
+				if (!DBA::isResult($item)) {
+					continue 2;
+				}
+	
+				$parameters[1] = $item['uri-id'];
+				$parameters[3] = $item['uid'];
+				break;
+			case 'apdelivery':
+				if (count($parameters) == 6) {
+					continue 2;
+				}
+	
+				if (empty($parameters[4])) {
+					$parameters[4] = [];
+				}
+	
+				$item = DBA::selectFirst('item', ['uri-id'], ['id' => $parameters[1]]);
+				if (!DBA::isResult($item)) {
+					continue 2;
+				}
+	
+				$parameters[5] = $item['uri-id'];
+				break;
+			default:
+				continue 2;
+		}
+		DBA::update('workerqueue', ['parameter' => json_encode($parameters)], ['id' => $task['id']]);
+	}
+	return Update::SUCCESS;
+}

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1402
+-- DB_UPDATE_VERSION 1403
 -- ------------------------------------------
 
 
@@ -675,127 +675,6 @@ CREATE TABLE IF NOT EXISTS `intro` (
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
-
---
--- TABLE item
---
-CREATE TABLE IF NOT EXISTS `item` (
-	`id` int unsigned NOT NULL auto_increment,
-	`guid` varchar(255) NOT NULL DEFAULT '' COMMENT 'A unique identifier for this item',
-	`uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`uri-id` int unsigned COMMENT 'Id of the item-uri table entry that contains the item uri',
-	`parent` int unsigned COMMENT 'item.id of the parent to this item if it is a reply of some form; otherwise this must be set to the id of this item',
-	`parent-uri` varchar(255) NOT NULL DEFAULT '' COMMENT 'uri of the top-level parent to this item',
-	`parent-uri-id` int unsigned COMMENT 'Id of the item-uri table that contains the top-level parent uri',
-	`thr-parent` varchar(255) NOT NULL DEFAULT '' COMMENT 'If the parent of this item is not the top-level item in the conversation, the uri of the immediate parent; otherwise set to parent-uri',
-	`thr-parent-id` int unsigned COMMENT 'Id of the item-uri table that contains the thread parent uri',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Creation timestamp.',
-	`edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last edit (default is created)',
-	`commented` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last comment/reply to this item',
-	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'datetime',
-	`changed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date that something in the conversation changed, indicating clients should fetch the conversation again',
-	`gravity` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`network` char(4) NOT NULL DEFAULT '' COMMENT 'Network from where the item comes from',
-	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the owner of this item',
-	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
-	`causer-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
-	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
-	`extid` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, bookmark, ...)',
-	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`private` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0=public, 1=private, 2=unlisted',
-	`visible` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`deleted` boolean NOT NULL DEFAULT '0' COMMENT 'item has been deleted',
-	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner id which owns this copy of the item',
-	`contact-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'contact.id',
-	`unseen` boolean NOT NULL DEFAULT '1' COMMENT 'item has not been seen',
-	`origin` boolean NOT NULL DEFAULT '0' COMMENT 'item originated at this site',
-	`psid` int unsigned COMMENT 'ID of the permission set of this post',
-	`starred` boolean NOT NULL DEFAULT '0' COMMENT 'item has been favourited',
-	`wall` boolean NOT NULL DEFAULT '0' COMMENT 'This item was posted to the wall of uid',
-	`pubmail` boolean NOT NULL DEFAULT '0' COMMENT '',
-	`forum_mode` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`event-id` int unsigned COMMENT 'Used to link to the event.id',
-	`mention` boolean NOT NULL DEFAULT '0' COMMENT 'The owner of this item was mentioned in it',
-	`bookmark` boolean COMMENT 'Deprecated',
-	`type` varchar(20) COMMENT 'Deprecated',
-	`moderated` boolean NOT NULL DEFAULT '0' COMMENT 'Deprecated',
-	`resource-id` varchar(32) COMMENT 'Deprecated',
-	`uri-hash` varchar(80) COMMENT 'Deprecated',
-	`iaid` int unsigned COMMENT 'Deprecated',
-	`icid` int unsigned COMMENT 'Deprecated',
-	`attach` mediumtext COMMENT 'Deprecated',
-	`allow_cid` mediumtext COMMENT 'Deprecated',
-	`allow_gid` mediumtext COMMENT 'Deprecated',
-	`deny_cid` mediumtext COMMENT 'Deprecated',
-	`deny_gid` mediumtext COMMENT 'Deprecated',
-	`postopts` text COMMENT 'Deprecated',
-	`inform` mediumtext COMMENT 'Deprecated',
-	`file` mediumtext COMMENT 'Deprecated',
-	`location` varchar(255) COMMENT 'Deprecated',
-	`coord` varchar(255) COMMENT 'Deprecated',
-	`tag` mediumtext COMMENT 'Deprecated',
-	`plink` varchar(255) COMMENT 'Deprecated',
-	`title` varchar(255) COMMENT 'Deprecated',
-	`content-warning` varchar(255) COMMENT 'Deprecated',
-	`body` mediumtext COMMENT 'Deprecated',
-	`app` varchar(255) COMMENT 'Deprecated',
-	`verb` varchar(100) COMMENT 'Deprecated',
-	`object-type` varchar(100) COMMENT 'Deprecated',
-	`object` text COMMENT 'Deprecated',
-	`target-type` varchar(100) COMMENT 'Deprecated',
-	`target` text COMMENT 'Deprecated',
-	`author-name` varchar(255) COMMENT 'Deprecated',
-	`author-link` varchar(255) COMMENT 'Deprecated',
-	`author-avatar` varchar(255) COMMENT 'Deprecated',
-	`owner-name` varchar(255) COMMENT 'Deprecated',
-	`owner-link` varchar(255) COMMENT 'Deprecated',
-	`owner-avatar` varchar(255) COMMENT 'Deprecated',
-	`rendered-hash` varchar(32) COMMENT 'Deprecated',
-	`rendered-html` mediumtext COMMENT 'Deprecated',
-	 PRIMARY KEY(`id`),
-	 INDEX `guid` (`guid`(191)),
-	 INDEX `uri` (`uri`(191)),
-	 INDEX `parent` (`parent`),
-	 INDEX `parent-uri` (`parent-uri`(191)),
-	 INDEX `extid` (`extid`(191)),
-	 INDEX `uid_id` (`uid`,`id`),
-	 INDEX `uid_contactid_id` (`uid`,`contact-id`,`id`),
-	 INDEX `uid_received` (`uid`,`received`),
-	 INDEX `uid_commented` (`uid`,`commented`),
-	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
-	 INDEX `uid_network_received` (`uid`,`network`,`received`),
-	 INDEX `uid_network_commented` (`uid`,`network`,`commented`),
-	 INDEX `uid_thrparent` (`uid`,`thr-parent`(190)),
-	 INDEX `uid_parenturi` (`uid`,`parent-uri`(190)),
-	 INDEX `uid_contactid_received` (`uid`,`contact-id`,`received`),
-	 INDEX `authorid_received` (`author-id`,`received`),
-	 INDEX `ownerid` (`owner-id`),
-	 INDEX `contact-id` (`contact-id`),
-	 INDEX `uid_uri` (`uid`,`uri`(190)),
-	 INDEX `resource-id` (`resource-id`),
-	 INDEX `deleted_changed` (`deleted`,`changed`),
-	 INDEX `uid_wall_changed` (`uid`,`wall`,`changed`),
-	 INDEX `uid_unseen_wall` (`uid`,`unseen`,`wall`),
-	 INDEX `mention_uid_id` (`mention`,`uid`,`id`),
-	 INDEX `uid_eventid` (`uid`,`event-id`),
-	 INDEX `vid` (`vid`),
-	 INDEX `psid_wall` (`psid`,`wall`),
-	 INDEX `uri-id` (`uri-id`),
-	 INDEX `parent-uri-id` (`parent-uri-id`),
-	 INDEX `thr-parent-id` (`thr-parent-id`),
-	 INDEX `causer-id` (`causer-id`),
-	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-	FOREIGN KEY (`causer-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-	FOREIGN KEY (`vid`) REFERENCES `verb` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`contact-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
-	FOREIGN KEY (`psid`) REFERENCES `permissionset` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Structure for all posts';
 
 --
 -- TABLE locks
@@ -1587,7 +1466,6 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 DROP VIEW IF EXISTS `post-view`;
 CREATE VIEW `post-view` AS SELECT 
 	`post-user`.`id` AS `id`,
-	`item`.`id` AS `item-id`,
 	`post-user`.`id` AS `post-user-id`,
 	`post-user`.`uid` AS `uid`,
 	`parent-post`.`id` AS `parent`,
@@ -1722,23 +1600,22 @@ CREATE VIEW `post-view` AS SELECT
 	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
-			LEFT JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
-			INNER JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
-			INNER JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
-			INNER JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
-			INNER JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`
-			INNER JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
-			INNER JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
-			INNER JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
+			LEFT JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
+			LEFT JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
+			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`
+			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
+			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
-			INNER JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
+			LEFT JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-user`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-user`.`uri-id` AND `post-user`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-user`.`psid`
 			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
-			INNER JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
+			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
 
 --
 -- VIEW post-thread-view
@@ -1746,7 +1623,6 @@ CREATE VIEW `post-view` AS SELECT
 DROP VIEW IF EXISTS `post-thread-view`;
 CREATE VIEW `post-thread-view` AS SELECT 
 	`post-user`.`id` AS `id`,
-	`item`.`id` AS `item-id`,
 	`post-user`.`id` AS `post-user-id`,
 	`post-thread-user`.`uid` AS `uid`,
 	`parent-post`.`id` AS `parent`,
@@ -1881,23 +1757,22 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
-			LEFT JOIN `item` ON `item`.`uri-id` = `post-thread-user`.`uri-id` AND `item`.`uid` = `post-thread-user`.`uid`
-			INNER JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
-			INNER JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
-			INNER JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
-			INNER JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread-user`.`causer-id`
-			INNER JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
-			INNER JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
-			INNER JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
+			LEFT JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			LEFT JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
+			LEFT JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
+			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread-user`.`causer-id`
+			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-thread-user`.`uri-id`
+			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
+			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post-user`.`parent-uri-id`
 			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post-user`.`external-id`
-			INNER JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
+			LEFT JOIN `verb` ON `verb`.`id` = `post-user`.`vid`
 			LEFT JOIN `event` ON `event`.`id` = `post-user`.`event-id`
 			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread-user`.`uri-id` AND `post-thread-user`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-thread-user`.`psid`
-			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
-			INNER JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
+			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-thread-user`.`uid`
+			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
 
 --
 -- VIEW category-view
