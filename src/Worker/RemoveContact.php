@@ -37,35 +37,23 @@ class RemoveContact {
 		}
 
 		// Only delete if the contact is to be deleted
-		$contact = DBA::selectFirst('contact', ['uid'], ['deleted' => true, 'id' => $id]);
+		$contact = DBA::selectFirst('contact', ['id', 'uid', 'url', 'nick', 'name'], ['deleted' => true, 'id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
 
-		Logger::info('Start deleting contact', ['id' => $id]);
+		Logger::info('Start deleting contact', ['contact' => $contact]);
+
 		// Now we delete the contact and all depending tables
-		if ($contact['uid'] == 0) {
-			DBA::delete('post-tag', ['cid' => $id]);
-			$condition = ["`author-id` = ? OR `owner-id` = ? OR `causer-id` = ? OR `contact-id` = ?",
-				$id, $id, $id, $id];
-		} else {
-			$condition = ['uid' => $contact['uid'], 'contact-id' => $id];
-		}
+		DBA::delete('post-tag', ['cid' => $id]);
+
 		if (DBStructure::existsTable('item')) {
-			do {
-				$items = Post::select(['uri-id', 'guid', 'uid'], $condition, ['limit' => 100]);
-				while ($item = Post::fetch($items)) {
-					Logger::info('Delete removed contact item', ['uri-id' => $item['uri-id'], 'uid', 'guid' => $item['guid']]);
-					DBA::delete('item', ['uri-id' => $item['uri-id'], 'uid' => $item['uid']]);
-				}
-				DBA::close($items);
-			} while (Post::exists($condition));
+			DBA::delete('item', ['author-id' => $id]);
+			DBA::delete('item', ['owner-id' => $id]);
+			DBA::delete('item', ['causer-id' => $id]);
+			DBA::delete('item', ['contact-id' => $id]);
 		}
 
-		Post\User::delete(['author-id' => $id]);
-		Post\User::delete(['owner-id' => $id]);
-		Post\User::delete(['causer-id' => $id]);
-		Post\User::delete(['contact-id' => $id]);
 		Post\ThreadUser::delete(['author-id' => $id]);
 		Post\ThreadUser::delete(['owner-id' => $id]);
 		Post\ThreadUser::delete(['causer-id' => $id]);
@@ -73,6 +61,10 @@ class RemoveContact {
 		Post\Thread::delete(['author-id' => $id]);
 		Post\Thread::delete(['owner-id' => $id]);
 		Post\Thread::delete(['causer-id' => $id]);
+		Post\User::delete(['author-id' => $id]);
+		Post\User::delete(['owner-id' => $id]);
+		Post\User::delete(['causer-id' => $id]);
+		Post\User::delete(['contact-id' => $id]);
 		Post::delete(['author-id' => $id]);
 		Post::delete(['owner-id' => $id]);
 		Post::delete(['causer-id' => $id]);
