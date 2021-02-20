@@ -1056,6 +1056,7 @@ CREATE TABLE IF NOT EXISTS `post-thread` (
 	`network` char(4) NOT NULL DEFAULT '' COMMENT '',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`received` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`changed` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date that something in the conversation changed, indicating clients should fetch the conversation again',
 	`commented` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`uri-id`),
 	 INDEX `owner-id` (`owner-id`),
