@@ -315,13 +315,13 @@ class Community extends BaseModule
 	{
 		if (self::$content == 'local') {
 			if (!is_null(self::$accountType)) {
-				$condition = ["`wall` AND `origin` AND `private` = ? AND `owner`.`contact-type` = ?", Item::PUBLIC, self::$accountType];
+				$condition = ["`wall` AND `origin` AND `private` = ? AND `owner-contact-type` = ?", Item::PUBLIC, self::$accountType];
 			} else {
  				$condition = ["`wall` AND `origin` AND `private` = ?", Item::PUBLIC];
 			}
 		} elseif (self::$content == 'global') {
 			if (!is_null(self::$accountType)) {
-				$condition = ["`uid` = ? AND `private` = ? AND `owner`.`contact-type` = ?", 0, Item::PUBLIC, self::$accountType];
+				$condition = ["`uid` = ? AND `private` = ? AND `owner-contact-type` = ?", 0, Item::PUBLIC, self::$accountType];
 			} else {
 				$condition = ["`uid` = ? AND `private` = ?", 0, Item::PUBLIC];
 			}

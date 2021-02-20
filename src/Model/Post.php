@@ -23,6 +23,7 @@ namespace Friendica\Model;
 
 use BadMethodCallException;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
@@ -421,7 +422,7 @@ class Post
 	{
 		$affected = 0;
 
-		Logger::info('Start Update', ['fields' => $fields, 'condition' => $condition]);
+		Logger::debug('Start Update', ['fields' => $fields, 'condition' => $condition, 'uid' => local_user(),'callstack' => System::callstack(10)]);
 
 		// Don't allow changes to fields that are responsible for the relation between the records
 		unset($fields['id']);

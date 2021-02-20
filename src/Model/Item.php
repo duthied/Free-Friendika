@@ -78,7 +78,7 @@ class Item
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
 		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
-		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network',
+		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network', 'owner-contact-type',
 		'causer-id', 'causer-link', 'causer-name', 'causer-avatar', 'causer-contact-type', 'causer-network',
 		'contact-id', 'contact-uid', 'contact-link', 'contact-name', 'contact-avatar',
 		'writable', 'self', 'cid', 'alias',
@@ -2513,12 +2513,11 @@ class Item
 	 * Body is preserved to avoid side-effects as we modify it just-in-time for spoilers and private image links
 	 *
 	 * @param array $item
-	 * @param bool  $update
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo Remove reference, simply return "rendered-html" and "rendered-hash"
 	 */
-	public static function putInCache(&$item, $update = false)
+	public static function putInCache(&$item)
 	{
 		// Save original body to prevent addons to modify it
 		$body = $item['body'];
@@ -2542,17 +2541,8 @@ class Item
 			$item['rendered-hash'] = $hook_data['rendered-hash'];
 			unset($hook_data);
 
-			// Force an update if the generated values differ from the existing ones
-			if ($rendered_hash != $item['rendered-hash']) {
-				$update = true;
-			}
-
-			// Only compare the HTML when we forcefully ignore the cache
-			if (DI::config()->get('system', 'ignore_cache') && ($rendered_html != $item['rendered-html'])) {
-				$update = true;
-			}
-
-			if ($update && !empty($item['id'])) {
+			// Update if the generated values differ from the existing ones
+			if ((($rendered_hash != $item['rendered-hash']) || ($rendered_html != $item['rendered-html'])) && !empty($item['id'])) {
 				self::update(
 					[
 						'rendered-html' => $item['rendered-html'],
@@ -2640,15 +2630,7 @@ class Item
 			unset($hook_data);
 		}
 
-		// Update the cached values if there is no "zrl=..." on the links.
-		$update = (!Session::isAuthenticated() && ($item["uid"] == 0));
-
-		// Or update it if the current viewer is the intented viewer.
-		if (($item["uid"] == local_user()) && ($item["uid"] != 0)) {
-			$update = true;
-		}
-
-		self::putInCache($item, $update);
+		self::putInCache($item);
 		$s = $item["rendered-html"];
 
 		$hook_data = [
