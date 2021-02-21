@@ -985,6 +985,7 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	`plink` varchar(255) NOT NULL DEFAULT '' COMMENT 'permalink or URL to a displayable copy of the message at its source',
 	 PRIMARY KEY(`uri-id`),
 	 INDEX `plink` (`plink`(191)),
+	 INDEX `resource-id` (`resource-id`),
 	 FULLTEXT INDEX `title-content-warning-body` (`title`,`content-warning`,`body`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
@@ -1592,9 +1593,9 @@ CREATE VIEW `post-view` AS SELECT
 	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
-			LEFT JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
-			LEFT JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
-			LEFT JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
 			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
@@ -1750,9 +1751,9 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
-			LEFT JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
-			LEFT JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
-			LEFT JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
 			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread-user`.`causer-id`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
