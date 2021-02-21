@@ -454,7 +454,7 @@ class Post
 				$affected_count += DBA::affectedRows();
 			}
 			DBA::close($posts);
-			$affected = $affected_count;			
+			$affected = $affected_count;
 		}
 
 		$update_fields = DBStructure::getFieldsForTable('post-content', $fields);
@@ -544,7 +544,7 @@ class Post
 					Logger::notice('Updating post-thread-user failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
-				$affected_count += DBA::affectedRows();			
+				$affected_count += DBA::affectedRows();
 			}
 			$affected = max($affected, $affected_count);
 		}
