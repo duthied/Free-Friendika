@@ -314,6 +314,13 @@ class Network extends BaseModule
 
 		self::$selectedTab = self::$selectedTab ?? self::$order;
 
+		// Prohibit combined usage of "star" and "mention"
+		if (self::$selectedTab == 'star') {
+			self::$mention = false;
+		} elseif (self::$selectedTab == 'mention') {
+			self::$star = false;
+		}
+
 		Session::set('network-tab', self::$selectedTab);
 		DI::pConfig()->set(local_user(), 'network.view', 'selected_tab', self::$selectedTab);
 
