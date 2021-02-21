@@ -443,17 +443,17 @@ class Post
 		$update_fields = DBStructure::getFieldsForTable('post-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$rows = DBA::selectToArray('post-view', ['post-user-id'], $condition);
-			$puids = array_column($rows, 'post-user-id');
-			while (!empty($puids)) {
-				$segment = array_splice($puids, 0, 100);
-				if (!DBA::update('post-user', $update_fields, ['id' => $segment])) {
+			$posts = DBA::select('post-view', ['post-user-id'], $condition);
+			while ($rows = DBA::toArray($posts, false, 100)) {
+				$puids = array_column($rows, 'post-user-id');
+				if (!DBA::update('post-user', $update_fields, ['id' => $puids])) {
 					DBA::rollback();
 					Logger::notice('Updating post-user failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();
 			}
+			DBA::close($posts);
 			$affected = $affected_count;			
 		}
 

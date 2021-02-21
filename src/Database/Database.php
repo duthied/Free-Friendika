@@ -1613,12 +1613,13 @@ class Database
 	/**
 	 * Fills an array with data from a query
 	 *
-	 * @param object $stmt statement object
-	 * @param bool   $do_close
+	 * @param object $stmt     statement object
+	 * @param bool   $do_close Close database connection after last row
+	 * @param int    $count    maximum number of rows to be fetched
 	 *
 	 * @return array Data array
 	 */
-	public function toArray($stmt, $do_close = true)
+	public function toArray($stmt, $do_close = true, int $count = 0)
 	{
 		if (is_bool($stmt)) {
 			return [];
@@ -1627,6 +1628,9 @@ class Database
 		$data = [];
 		while ($row = $this->fetch($stmt)) {
 			$data[] = $row;
+			if (($count != 0) && (count($data) == $count)) {
+				return $data;
+			}
 		}
 
 		if ($do_close) {
