@@ -115,22 +115,6 @@ class Item
 			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 			'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'causer-id'];
 
-	// Item fields that still are in use
-	const USED_FIELDLIST = ['id', 'parent', 'guid', 'uri', 'uri-id', 'parent-uri', 'parent-uri-id',
-		'thr-parent', 'thr-parent-id', 'created', 'edited', 'commented', 'received', 'changed',
-		'gravity', 'network', 'owner-id', 'author-id', 'causer-id', 'vid', 'extid', 'post-type',
-		'global', 'private', 'visible', 'deleted', 'uid', 'contact-id',
-		'wall', 'origin', 'pubmail', 'starred', 'unseen', 'mention', 'forum_mode', 'psid',
-		'event-id'];
-
-	// Legacy item fields that aren't stored any more in the item table
-	const LEGACY_FIELDLIST = ['uri-hash', 'iaid', 'icid', 'attach',
-		'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'postopts', 
-		'resource-id', 'inform', 'file', 'location', 'coord', 'tag', 'plink', 
-		'title', 'content-warning', 'body', 'app', 'verb', 'object-type', 'object', 
-		'target-type', 'target', 'author-name', 'author-link', 'author-avatar', 
-		'owner-name', 'owner-link', 'owner-avatar', 'rendered-hash', 'rendered-html'];
-
 	// List of all verbs that don't need additional content data.
 	// Never reorder or remove entries from this list. Just add new ones at the end, if needed.
 	const ACTIVITIES = [
@@ -882,6 +866,8 @@ class Item
 				$item['wall'] = $toplevel_parent['wall'];
 			} else {
 				$item['wall'] = false;
+				// Participations are technical messages, so they are set to "seen" automatically
+				$item['unseen'] = false;
 			}
 
 			/*
