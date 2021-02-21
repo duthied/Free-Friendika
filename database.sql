@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`next_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Next connection request',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `nurl` (`nurl`(190)),
-	 INDEX `next_contact` (`next_contact`)
+	 INDEX `next_contact` (`next_contact`),
+	 INDEX `network` (`network`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Global servers';
 
 --
@@ -89,6 +90,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	 INDEX `nickname` (`nickname`(32)),
 	 INDEX `parent-uid` (`parent-uid`),
 	 INDEX `guid` (`guid`),
+	 INDEX `email` (`email`(64)),
 	FOREIGN KEY (`parent-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
 
@@ -193,6 +195,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `network_uid_lastupdate` (`network`,`uid`,`last-update`),
 	 INDEX `uid_network_self_lastupdate` (`uid`,`network`,`self`,`last-update`),
 	 INDEX `uid_lastitem` (`uid`,`last-item`),
+	 INDEX `baseurl` (`baseurl`(64)),
 	 INDEX `gsid` (`gsid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT

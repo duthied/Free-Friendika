@@ -91,6 +91,7 @@ return [
 			"PRIMARY" => ["id"],
 			"nurl" => ["UNIQUE", "nurl(190)"],
 			"next_contact" => ["next_contact"],
+			"network" => ["network"],
 		]
 	],
 	"user" => [
@@ -253,6 +254,7 @@ return [
 			"network_uid_lastupdate" => ["network", "uid", "last-update"],
 			"uid_network_self_lastupdate" => ["uid", "network", "self", "last-update"],
 			"uid_lastitem" => ["uid", "last-item"],
+			"baseurl" => ["baseurl(64)"],
 			"gsid" => ["gsid"]
 		]
 	],
