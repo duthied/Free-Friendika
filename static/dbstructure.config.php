@@ -148,6 +148,7 @@ return [
 			"nickname" => ["nickname(32)"],
 			"parent-uid" => ["parent-uid"],
 			"guid" => ["guid"],
+			"email" => ["email(64)"],
 		]
 	],
 	"contact" => [
