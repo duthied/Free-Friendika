@@ -460,92 +460,85 @@ class Post
 		$update_fields = DBStructure::getFieldsForTable('post-content', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$rows = DBA::selectToArray('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
-			$uriids = array_column($rows, 'uri-id');
-			$elements = $uriids;
-			while (!empty($elements)) {
-				$segment = array_splice($elements, 0, 100);
-				if (!DBA::update('post-content', $update_fields, ['uri-id' => $segment])) {
+			$posts = DBA::select('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			while ($rows = DBA::toArray($posts, false, 100)) {
+				$uriids = array_column($rows, 'uri-id');
+				if (!DBA::update('post-content', $update_fields, ['uri-id' => $uriids])) {
 					DBA::rollback();
 					Logger::notice('Updating post-content failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();
 			}
+			DBA::close($posts);
 			$affected = max($affected, $affected_count);
 		}
 
 		$update_fields = DBStructure::getFieldsForTable('post', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			if (empty($uriids)) {
-				$rows = DBA::selectToArray('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			$posts = DBA::select('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			while ($rows = DBA::toArray($posts, false, 100)) {
 				$uriids = array_column($rows, 'uri-id');
-			}
-			$elements = $uriids;
-			while (!empty($elements)) {
-				$segment = array_splice($elements, 0, 100);
-				if (!DBA::update('post', $update_fields, ['uri-id' => $segment])) {
+				if (!DBA::update('post', $update_fields, ['uri-id' => $uriids])) {
 					DBA::rollback();
 					Logger::notice('Updating post failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();
 			}
+			DBA::close($posts);
 			$affected = max($affected, $affected_count);
 		}
 
 		$update_fields = Post\DeliveryData::extractFields($fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			if (empty($uriids)) {
-				$rows = DBA::selectToArray('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			$posts = DBA::select('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			while ($rows = DBA::toArray($posts, false, 100)) {
 				$uriids = array_column($rows, 'uri-id');
-			}
-			$elements = $uriids;
-			while (!empty($elements)) {
-				$segment = array_splice($elements, 0, 100);
-				if (!DBA::update('post-delivery-data', $update_fields, ['uri-id' => $segment])) {
+				if (!DBA::update('post-delivery-data', $update_fields, ['uri-id' => $uriids])) {
 					DBA::rollback();
 					Logger::notice('Updating post-delivery-data failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();
 			}
+			DBA::close($posts);
 			$affected = max($affected, $affected_count);
 		}
 
 		$update_fields = DBStructure::getFieldsForTable('post-thread', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$rows = DBA::selectToArray('post-view', ['uri-id'], $thread_condition, ['group_by' => ['uri-id']]);
-			$uriids = array_column($rows, 'uri-id');
-			while (!empty($uriids)) {
-				$segment = array_splice($uriids, 0, 100);
-				if (!DBA::update('post-thread', $update_fields, ['uri-id' => $segment])) {
+			$posts = DBA::select('post-view', ['uri-id'], $thread_condition, ['group_by' => ['uri-id']]);
+			while ($rows = DBA::toArray($posts, false, 100)) {
+				$uriids = array_column($rows, 'uri-id');
+				if (!DBA::update('post-thread', $update_fields, ['uri-id' => $uriids])) {
 					DBA::rollback();
 					Logger::notice('Updating post-thread failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();
 			}
+			DBA::close($posts);
 			$affected = max($affected, $affected_count);
 		}
 
 		$update_fields = DBStructure::getFieldsForTable('post-thread-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$rows = DBA::selectToArray('post-view', ['post-user-id'], $thread_condition);
-			$thread_puids = array_column($rows, 'post-user-id');
-			while (!empty($thread_puids)) {
-				$segment = array_splice($thread_puids, 0, 100);
-				if (!DBA::update('post-thread-user', $update_fields, ['post-user-id' => $segment])) {
+			$posts = DBA::select('post-view', ['post-user-id'], $thread_condition);
+			while ($rows = DBA::toArray($posts, false, 100)) {
+				$thread_puids = array_column($rows, 'post-user-id');
+				if (!DBA::update('post-thread-user', $update_fields, ['post-user-id' => $thread_puids])) {
 					DBA::rollback();
 					Logger::notice('Updating post-thread-user failed', ['fields' => $update_fields, 'condition' => $condition]);
 					return false;
 				}
 				$affected_count += DBA::affectedRows();
 			}
+			DBA::close($posts);
 			$affected = max($affected, $affected_count);
 		}
 
