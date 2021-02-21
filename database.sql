@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 	 PRIMARY KEY(`uid`),
 	 INDEX `nickname` (`nickname`(32)),
 	 INDEX `parent-uid` (`parent-uid`),
+	 INDEX `guid` (`guid`),
 	FOREIGN KEY (`parent-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
 
@@ -257,7 +258,8 @@ CREATE TABLE IF NOT EXISTS `permissionset` (
 CREATE TABLE IF NOT EXISTS `verb` (
 	`id` smallint unsigned NOT NULL auto_increment,
 	`name` varchar(100) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `name` (`name`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activity Verbs';
 
 --
@@ -313,6 +315,7 @@ CREATE TABLE IF NOT EXISTS `addon` (
 	`timestamp` int unsigned NOT NULL DEFAULT 0 COMMENT 'file timestamp to check for reloads',
 	`plugin_admin` boolean NOT NULL DEFAULT '0' COMMENT '1 = has admin config, 0 = has no admin config',
 	 PRIMARY KEY(`id`),
+	 INDEX `installed_name` (`installed`,`name`),
 	 UNIQUE INDEX `name` (`name`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='registered addons';
 
@@ -414,7 +417,8 @@ CREATE TABLE IF NOT EXISTS `challenge` (
 	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`type` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`last_update` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `expire` (`expire`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
@@ -627,6 +631,7 @@ CREATE TABLE IF NOT EXISTS `hook` (
 	`function` varbinary(200) NOT NULL DEFAULT '' COMMENT 'function name of hook handler',
 	`priority` smallint unsigned NOT NULL DEFAULT 0 COMMENT 'not yet implemented - can be used to sort conflicts in hook handling by calling handlers in priority order',
 	 PRIMARY KEY(`id`),
+	 INDEX `priority` (`priority`),
 	 UNIQUE INDEX `hook_file_function` (`hook`,`file`,`function`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='addon hook registry';
 
@@ -1350,7 +1355,8 @@ CREATE TABLE IF NOT EXISTS `search` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	`term` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`),
+	 INDEX `uid_term` (`uid`,`term`(64)),
+	 INDEX `term` (`term`(64)),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
