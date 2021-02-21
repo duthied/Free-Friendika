@@ -52,7 +52,7 @@ class CleanItemUri
 			$ids = array_column($rows, 'id');
 			DBA::delete('item-uri', ['id' => $ids]);
 			$affected_count += DBA::affectedRows();
-			Logger::info('Updated', ['rows' => $affected_count]);
+			Logger::info('Deleted', ['rows' => $affected_count]);
 		}
 		DBA::close($uris);
 		Logger::notice('Orphaned URI-ID entries removed', ['rows' => $affected_count]);

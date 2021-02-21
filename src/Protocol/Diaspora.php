@@ -3103,8 +3103,9 @@ class Diaspora
 		// In fact it doesn't matter which user sends this - but it is needed by the protocol.
 		// If the item belongs to a user, we take this user id.
 		if ($item['uid'] == 0) {
-			$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
-			$first_user = DBA::selectFirst('user', ['uid'], $condition);
+			$condition = ['verified' => true, 'blocked' => false,
+				'account_removed' => false, 'account_expired' => false, 'account-type' => User::ACCOUNT_TYPE_PERSON];
+			$first_user = DBA::selectFirst('user', ['uid'], $condition, ['order' => ['uid']]);
 			$owner = User::getOwnerDataById($first_user['uid']);
 		} else {
 			$owner = User::getOwnerDataById($item['uid']);

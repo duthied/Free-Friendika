@@ -147,6 +147,7 @@ return [
 			"PRIMARY" => ["uid"],
 			"nickname" => ["nickname(32)"],
 			"parent-uid" => ["parent-uid"],
+			"guid" => ["guid"],
 		]
 	],
 	"contact" => [
@@ -317,7 +318,8 @@ return [
 			"name" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""]
 		],
 		"indexes" => [
-			"PRIMARY" => ["id"]
+			"PRIMARY" => ["id"],
+			"name" => ["name"]
 		]
 	],
 	// Main tables
@@ -375,6 +377,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"installed_name" => ["installed", "name"],
 			"name" => ["UNIQUE", "name"],
 		]
 	],
@@ -480,6 +483,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"expire" => ["expire"],
 		]
 	],
 	"config" => [
@@ -693,6 +697,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"priority" => ["priority"],
 			"hook_file_function" => ["UNIQUE", "hook", "file", "function"],
 		]
 	],
@@ -1382,7 +1387,8 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"uid" => ["uid"],
+			"uid_term" => ["uid", "term(64)"],
+			"term" => ["term(64)"]
 		]
 	],
 	"session" => [
