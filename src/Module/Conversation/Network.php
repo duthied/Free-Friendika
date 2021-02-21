@@ -306,6 +306,8 @@ class Network extends BaseModule
 		if (!empty($get['order'])) {
 			self::$selectedTab = $get['order'];
 			self::$order = $get['order'];
+			self::$star = false;
+			self::$mention = false;
 		} elseif (in_array(self::$selectedTab, ['received', 'star', 'mention'])) {
 			self::$order = 'received';
 		}
