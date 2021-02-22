@@ -1462,10 +1462,10 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Background tasks queue entries';
 
 --
--- VIEW post-view
+-- VIEW post-user-view
 --
-DROP VIEW IF EXISTS `post-view`;
-CREATE VIEW `post-view` AS SELECT 
+DROP VIEW IF EXISTS `post-user-view`;
+CREATE VIEW `post-user-view` AS SELECT 
 	`post-user`.`id` AS `id`,
 	`post-user`.`id` AS `post-user-id`,
 	`post-user`.`uid` AS `uid`,
@@ -1620,10 +1620,10 @@ CREATE VIEW `post-view` AS SELECT
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
 
 --
--- VIEW post-thread-view
+-- VIEW post-thread-user-view
 --
-DROP VIEW IF EXISTS `post-thread-view`;
-CREATE VIEW `post-thread-view` AS SELECT 
+DROP VIEW IF EXISTS `post-thread-user-view`;
+CREATE VIEW `post-thread-user-view` AS SELECT 
 	`post-user`.`id` AS `id`,
 	`post-user`.`id` AS `post-user-id`,
 	`post-thread-user`.`uid` AS `uid`,
@@ -2034,8 +2034,10 @@ CREATE VIEW `tag-search-view` AS SELECT
 	`post-user`.`private` AS `private`,
 	`post-user`.`wall` AS `wall`,
 	`post-user`.`origin` AS `origin`,
+	`post-user`.`global` AS `global`,
 	`post-user`.`gravity` AS `gravity`,
 	`post-user`.`received` AS `received`,
+	`post-user`.`network` AS `network`,
 	`tag`.`name` AS `name`
 	FROM `post-tag`
 			INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid`

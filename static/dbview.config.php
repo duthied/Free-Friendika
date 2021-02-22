@@ -37,7 +37,7 @@
  */
 
  return [
-	"post-view" => [
+	"post-user-view" => [
 		"fields" => [
 			"id" => ["post-user", "id"],
 			"post-user-id" => ["post-user", "id"],
@@ -193,7 +193,7 @@
 			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-user`.`uid`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`"
 	],
-	"post-thread-view" => [
+	"post-thread-user-view" => [
 		"fields" => [
 			"id" => ["post-user", "id"],
 			"post-user-id" => ["post-user", "id"],
@@ -591,8 +591,10 @@
 			"private" => ["post-user", "private"],
 			"wall" => ["post-user", "wall"],
 			"origin" => ["post-user", "origin"],
+			"global" => ["post-user", "global"],
 			"gravity" => ["post-user", "gravity"],
 			"received" => ["post-user", "received"],
+			"network" => ["post-user", "network"],
 			"name" => ["tag", "name"],
 		],
 		"query" => "FROM `post-tag`

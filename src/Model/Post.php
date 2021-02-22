@@ -132,7 +132,7 @@ class Post
 	 * @throws \Exception
 	 */
 	public static function exists($condition) {
-		return DBA::exists('post-view', $condition);
+		return DBA::exists('post-user-view', $condition);
 	}
 
 	/**
@@ -153,7 +153,7 @@ class Post
 	 */
 	public static function count(array $condition = [], array $params = [])
 	{
-		return DBA::count('post-view', $condition, $params);
+		return DBA::count('post-user-view', $condition, $params);
 	}
 
 	/**
@@ -211,7 +211,7 @@ class Post
 	/**
 	 * Select rows from the given view
 	 *
-	 * @param string $view      View (post-view or post-thread-view)
+	 * @param string $view      View (post-user-view or post-thread-user-view)
 	 * @param array  $selected  Array of selected fields, empty for all
 	 * @param array  $condition Array of fields for condition
 	 * @param array  $params    Array of several parameters
@@ -224,7 +224,7 @@ class Post
 		if (empty($selected)) {
 			$selected = array_merge(Item::DISPLAY_FIELDLIST, Item::ITEM_FIELDLIST);
 
-			if ($view == 'post-thread-view') {
+			if ($view == 'post-thread-user-view') {
 				$selected = array_merge($selected, ['ignored']);
 			}
 		}
@@ -246,7 +246,7 @@ class Post
 	 */
 	public static function select(array $selected = [], array $condition = [], $params = [])
 	{
-		return self::selectView('post-view', $selected, $condition, $params);
+		return self::selectView('post-user-view', $selected, $condition, $params);
 	}
 
 	/**
@@ -261,13 +261,13 @@ class Post
 	 */
 	public static function selectThread(array $selected = [], array $condition = [], $params = [])
 	{
-		return self::selectView('post-thread-view', $selected, $condition, $params);
+		return self::selectView('post-thread-user-view', $selected, $condition, $params);
 	}
 
 	/**
 	 * Select rows from the given view for a given user
 	 *
-	 * @param string  $view      View (post-view or post-thread-view)
+	 * @param string  $view      View (post-user-view or post-thread-user-view)
 	 * @param integer $uid       User ID
 	 * @param array   $selected  Array of selected fields, empty for all
 	 * @param array   $condition Array of fields for condition
@@ -329,7 +329,7 @@ class Post
 	 */
 	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [])
 	{
-		return self::selectViewForUser('post-view', $uid, $selected, $condition, $params);
+		return self::selectViewForUser('post-user-view', $uid, $selected, $condition, $params);
 	}
 
 		/**
@@ -345,7 +345,7 @@ class Post
 	 */
 	public static function selectThreadForUser($uid, array $selected = [], array $condition = [], $params = [])
 	{
-		return self::selectViewForUser('post-thread-view', $uid, $selected, $condition, $params);
+		return self::selectViewForUser('post-thread-user-view', $uid, $selected, $condition, $params);
 	}
 
 	/**
@@ -443,7 +443,7 @@ class Post
 		$update_fields = DBStructure::getFieldsForTable('post-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-view', ['post-user-id'], $condition);
+			$posts = DBA::select('post-user-view', ['post-user-id'], $condition);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$puids = array_column($rows, 'post-user-id');
 				if (!DBA::update('post-user', $update_fields, ['id' => $puids])) {
@@ -460,7 +460,7 @@ class Post
 		$update_fields = DBStructure::getFieldsForTable('post-content', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$uriids = array_column($rows, 'uri-id');
 				if (!DBA::update('post-content', $update_fields, ['uri-id' => $uriids])) {
@@ -477,7 +477,7 @@ class Post
 		$update_fields = DBStructure::getFieldsForTable('post', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$uriids = array_column($rows, 'uri-id');
 				if (!DBA::update('post', $update_fields, ['uri-id' => $uriids])) {
@@ -494,7 +494,7 @@ class Post
 		$update_fields = Post\DeliveryData::extractFields($fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
+			$posts = DBA::select('post-user-view', ['uri-id'], $condition, ['group_by' => ['uri-id']]);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$uriids = array_column($rows, 'uri-id');
 				if (!DBA::update('post-delivery-data', $update_fields, ['uri-id' => $uriids])) {
@@ -511,7 +511,7 @@ class Post
 		$update_fields = DBStructure::getFieldsForTable('post-thread', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-view', ['uri-id'], $thread_condition, ['group_by' => ['uri-id']]);
+			$posts = DBA::select('post-user-view', ['uri-id'], $thread_condition, ['group_by' => ['uri-id']]);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$uriids = array_column($rows, 'uri-id');
 				if (!DBA::update('post-thread', $update_fields, ['uri-id' => $uriids])) {
@@ -528,7 +528,7 @@ class Post
 		$update_fields = DBStructure::getFieldsForTable('post-thread-user', $fields);
 		if (!empty($update_fields)) {
 			$affected_count = 0;
-			$posts = DBA::select('post-view', ['post-user-id'], $thread_condition);
+			$posts = DBA::select('post-user-view', ['post-user-id'], $thread_condition);
 			while ($rows = DBA::toArray($posts, false, 100)) {
 				$thread_puids = array_column($rows, 'post-user-id');
 				if (!DBA::update('post-thread-user', $update_fields, ['post-user-id' => $thread_puids])) {

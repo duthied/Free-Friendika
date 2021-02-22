@@ -109,8 +109,8 @@ class Content
 	public static function getURIIdListBySearch(string $search, int $uid = 0, int $start = 0, int $limit = 100, int $last_uriid = 0)
 	{
 		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `post-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
-			AND (NOT `private` OR (`private` AND `uid` = ?)) AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
-			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
+			AND (`uid` = ? OR (`uid` = ? AND NOT `global`)) AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
+			$search, 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
 
 		if (!empty($last_uriid)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $last_uriid]);
@@ -118,7 +118,6 @@ class Content
 
 		$params = [
 			'order' => ['uri-id' => true],
-			'group_by' => ['uri-id'],
 			'limit' => [$start, $limit]
 		];
 
@@ -136,8 +135,8 @@ class Content
 	public static function countBySearch(string $search, int $uid = 0)
 	{
 		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `post-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
-			AND (NOT `private` OR (`private` AND `uid` = ?)) AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
-			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
+			AND (`uid` = ? OR (`uid` = ? AND NOT `global`)) AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
+			$search, 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
 		return Post::count($condition);
 	}
 }

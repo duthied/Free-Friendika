@@ -1190,7 +1190,7 @@ class Item
 	 */
 	public static function distribute($itemid, $signed_text = '')
 	{
-		$condition = ["`id` IN (SELECT `parent` FROM `post-view` WHERE `id` = ?)", $itemid];
+		$condition = ["`id` IN (SELECT `parent` FROM `post-user-view` WHERE `id` = ?)", $itemid];
 		$parent = Post::selectFirst(['owner-id'], $condition);
 		if (!DBA::isResult($parent)) {
 			Logger::warning('Item not found', ['condition' => $condition]);

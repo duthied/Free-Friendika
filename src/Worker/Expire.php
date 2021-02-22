@@ -44,29 +44,36 @@ class Expire
 		if ($param == 'delete') {
 			Logger::log('Delete expired items', Logger::DEBUG);
 			// physically remove anything that has been deleted for more than two months
-			$condition = ["`deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY"];
+			$condition = ["`gravity` = ? AND `deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY", GRAVITY_PARENT];
 			$rows = Post::select(['guid', 'uri-id', 'uid'],  $condition);
 			while ($row = Post::fetch($rows)) {
 				Logger::info('Delete expired item', ['uri-id' => $row['uri-id'], 'guid' => $row['guid']]);
 				if (DBStructure::existsTable('item')) {
-					DBA::delete('item', ['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
+					DBA::delete('item', ['parent-uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
 				}
-				Post\User::delete(['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
-				Post\ThreadUser::delete(['uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
+				Post\User::delete(['parent-uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
 			}
 			DBA::close($rows);
 
-			Logger::info('Deleting orphaned post-content - start');
-			/// @todo Replace "item with "post-user" in the future when "item" is removed
+			Logger::info('Deleting orphaned post entries- start');
+			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post`.`uri-id`)"];
+			DBA::delete('post', $condition);
+			Logger::info('Orphaned post entries deleted', ['rows' => DBA::affectedRows()]);
+
+			Logger::info('Deleting orphaned post-content entries - start');
 			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-content`.`uri-id`)"];
 			DBA::delete('post-content', $condition);
-			Logger::info('Orphaned post-content deleted', ['rows' => DBA::affectedRows()]);
+			Logger::info('Orphaned post-content entries deleted', ['rows' => DBA::affectedRows()]);
 
-			Logger::info('Deleting orphaned post-thread - start');
-			/// @todo Replace "item with "post-user" in the future when "item" is removed
+			Logger::info('Deleting orphaned post-thread entries - start');
 			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-thread`.`uri-id`)"];
 			DBA::delete('post-thread', $condition);
-			Logger::info('Orphaned item content deleted', ['rows' => DBA::affectedRows()]);
+			Logger::info('Orphaned post-thread entries deleted', ['rows' => DBA::affectedRows()]);
+
+			Logger::info('Deleting orphaned post-thread-user entries - start');
+			$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-thread-user`.`uri-id`)"];
+			DBA::delete('post-thread-user', $condition);
+			Logger::info('Orphaned post-thread-user entries deleted', ['rows' => DBA::affectedRows()]);
 
 			Logger::log('Delete expired items - done', Logger::DEBUG);
 			return;

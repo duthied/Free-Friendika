@@ -412,8 +412,8 @@ function ping_get_notifications($uid)
 
 	do {
 		$r = q(
-			"SELECT `notify`.*, `post-view`.`visible`, `post-view`.`deleted`
-			FROM `notify` LEFT JOIN `post-view` ON `post-view`.`id` = `notify`.`iid`
+			"SELECT `notify`.*, `post`.`visible`, `post`.`deleted`
+			FROM `notify` LEFT JOIN `post` ON `post`.`uri-id` = `notify`.`uri-id`
 			WHERE `notify`.`uid` = %d AND `notify`.`msg` != ''
 			AND NOT (`notify`.`type` IN (%d, %d))
 			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` $order LIMIT %d, 50",

@@ -1266,7 +1266,7 @@ function photos_content(App $a)
 		// as a "post" but displaying instead the photo it is linked to
 
 		/// @todo Rewrite this query. To do so, $sql_extra must be changed
-		$linked_items = q("SELECT `id` FROM `post-view` WHERE `resource-id` = '%s' $sql_extra LIMIT 1",
+		$linked_items = q("SELECT `id` FROM `post-user-view` WHERE `resource-id` = '%s' $sql_extra LIMIT 1",
 			DBA::escape($datum)
 		);
 		if (DBA::isResult($linked_items)) {
