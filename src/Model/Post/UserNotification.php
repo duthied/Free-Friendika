@@ -149,7 +149,7 @@ class UserNotification
 
 		// Add every user who participated so far in this thread
 		// This can only happen with participations on global items. (means: uid = 0) 
-		$users = DBA::p("SELECT DISTINCT(`contact-uid`) AS `uid` FROM `post-view`
+		$users = DBA::p("SELECT DISTINCT(`contact-uid`) AS `uid` FROM `post-user-view`
 			WHERE `contact-uid` != 0 AND `parent-uri-id` = ? AND `uid` = ?", $item['parent-uri-id'], $uid);
 		while ($user = DBA::fetch($users)) {
 			$uids[] = $user['uid'];

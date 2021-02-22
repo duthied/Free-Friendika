@@ -87,24 +87,24 @@ class TagCloud
 	 */
 	private static function tagadelic($uid, $count = 0, $owner_id = 0, $flags = '', $type = Tag::HASHTAG)
 	{
-		$sql_options = Item::getPermissionsSQLByUserId($uid, 'post-view');
+		$sql_options = Item::getPermissionsSQLByUserId($uid, 'post-user-view');
 		$limit = $count ? sprintf('LIMIT %d', intval($count)) : '';
 
 		if ($flags) {
 			if ($flags === 'wall') {
-				$sql_options .= ' AND `post-view`.`wall` ';
+				$sql_options .= ' AND `post-user-view`.`wall` ';
 			}
 		}
 
 		if ($owner_id) {
-			$sql_options .= ' AND `post-view`.`owner-id` = ' . intval($owner_id) . ' ';
+			$sql_options .= ' AND `post-user-view`.`owner-id` = ' . intval($owner_id) . ' ';
 		}
 
 		// Fetch tags
 		$tag_stmt = DBA::p("SELECT `name`, COUNT(`name`) AS `total` FROM `tag-search-view`
-			LEFT JOIN `post-view` ON `tag-search-view`.`uri-id` = `post-view`.`uri-id`
+			LEFT JOIN `post-user-view` ON `tag-search-view`.`uri-id` = `post-user-view`.`uri-id` AND `tag-search-view`.`uid` = `post-user-view`.`uid`
 			WHERE `tag-search-view`.`uid` = ?
-			AND `post-view`.`visible` AND NOT `post-view`.`deleted`
+			AND `post-user-view`.`visible` AND NOT `post-user-view`.`deleted`
 			$sql_options
 			GROUP BY `name` ORDER BY `total` DESC $limit",
 			$uid

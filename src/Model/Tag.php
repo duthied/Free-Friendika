@@ -455,12 +455,11 @@ class Tag
 	 */
 	public static function countByTag(string $search, int $uid = 0)
 	{
-		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))
-			AND `uri-id` IN (SELECT `uri-id` FROM `post-view` WHERE `network` IN (?, ?, ?, ?))",
-			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
-		$params = ['group_by' => ['uri-id']];
+		$condition = ["`name` = ? AND (`uid` = ? OR (`uid` = ? AND NOT `global`))
+			AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
+			$search, 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
 
-		return DBA::count('tag-search-view', $condition, $params);
+		return DBA::count('tag-search-view', $condition);
 	}
 
 	/**
@@ -475,9 +474,9 @@ class Tag
 	 */
 	public static function getURIIdListByTag(string $search, int $uid = 0, int $start = 0, int $limit = 100, int $last_uriid = 0)
 	{
-		$condition = ["`name` = ? AND (NOT `private` OR (`private` AND `uid` = ?))
-			AND `uri-id` IN (SELECT `uri-id` FROM `post-view` WHERE `network` IN (?, ?, ?, ?))",
-			$search, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
+		$condition = ["`name` = ? AND (`uid` = ? OR (`uid` = ? AND NOT `global`))
+			AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
+			$search, 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
 
 		if (!empty($last_uriid)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $last_uriid]);
@@ -485,7 +484,6 @@ class Tag
 
 		$params = [
 			'order' => ['uri-id' => true],
-			'group_by' => ['uri-id'],
 			'limit' => [$start, $limit]
 		];
 

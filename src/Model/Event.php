@@ -516,8 +516,8 @@ class Event
 		}
 
 		// Query for the event by event id
-		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-view`.`id` AS `itemid` FROM `event`
-			LEFT JOIN `post-view` ON `post-view`.`event-id` = `event`.`id` AND `post-view`.`uid` = `event`.`uid`
+		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-user-view`.`id` AS `itemid` FROM `event`
+			LEFT JOIN `post-user-view` ON `post-user-view`.`event-id` = `event`.`id` AND `post-user-view`.`uid` = `event`.`uid`
 			WHERE `event`.`uid` = %d AND `event`.`id` = %d $sql_extra",
 			$owner_uid, $event_id));
 
@@ -555,8 +555,8 @@ class Event
 
 		// Query for the event by date.
 		// @todo Slow query (518 seconds to run), to be optimzed
-		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-view`.`id` AS `itemid` FROM `event`
-				LEFT JOIN `post-view` ON `post-view`.`event-id` = `event`.`id` AND `post-view`.`uid` = `event`.`uid`
+		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-user-view`.`id` AS `itemid` FROM `event`
+				LEFT JOIN `post-user-view` ON `post-user-view`.`event-id` = `event`.`id` AND `post-user-view`.`uid` = `event`.`uid`
 				WHERE `event`.`uid` = ? AND `event`.`ignore` = ?
 				AND ((NOT `adjust` AND (`finish` >= ? OR (`nofinish` AND `start` >= ?)) AND `start` <= ?)
 				OR  (`adjust` AND (`finish` >= ? OR (`nofinish` AND `start` >= ?)) AND `start` <= ?))" . $sql_extra,

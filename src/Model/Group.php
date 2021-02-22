@@ -160,7 +160,7 @@ class Group
 	public static function countUnseen()
 	{
 		$stmt = DBA::p("SELECT `group`.`id`, `group`.`name`,
-				(SELECT COUNT(*) FROM `post-view`
+				(SELECT COUNT(*) FROM `post-user-view`
 					WHERE `uid` = ?
 					AND `unseen`
 					AND `contact-id` IN

@@ -209,9 +209,9 @@ class ForumManager
 	public static function countUnseenItems()
 	{
 		$stmtContacts = DBA::p(
-			"SELECT `contact`.`id`, `contact`.`name`, COUNT(*) AS `count` FROM `post-view`
-				INNER JOIN `contact` ON `post-view`.`contact-id` = `contact`.`id`
-				WHERE `post-view`.`uid` = ? AND `post-view`.`visible` AND NOT `post-view`.`deleted` AND `post-view`.`unseen`
+			"SELECT `contact`.`id`, `contact`.`name`, COUNT(*) AS `count` FROM `post-user-view`
+				INNER JOIN `contact` ON `post-user-view`.`contact-id` = `contact`.`id`
+				WHERE `post-user-view`.`uid` = ? AND `post-user-view`.`visible` AND NOT `post-user-view`.`deleted` AND `post-user-view`.`unseen`
 				AND `contact`.`network` IN (?, ?) AND `contact`.`contact-type` = ?
 				AND NOT `contact`.`blocked` AND NOT `contact`.`hidden`
 				AND NOT `contact`.`pending` AND NOT `contact`.`archive`

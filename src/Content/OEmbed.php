@@ -99,7 +99,7 @@ class OEmbed
 				$html_text = DI::httpRequest()->fetch($embedurl, 15, 'text/*');
 				if ($html_text) {
 					$dom = new DOMDocument();
-					if ($dom->loadHTML($html_text)) {
+					if (@$dom->loadHTML($html_text)) {
 						$xpath = new DOMXPath($dom);
 						foreach (
 							$xpath->query("//link[@type='application/json+oembed'] | //link[@type='text/json+oembed']")
