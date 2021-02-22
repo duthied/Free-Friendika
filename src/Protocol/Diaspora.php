@@ -3099,17 +3099,7 @@ class Diaspora
 			return;
 		}
 
-		// Fetch some user id to have a valid handle to transmit the participation.
-		// In fact it doesn't matter which user sends this - but it is needed by the protocol.
-		// If the item belongs to a user, we take this user id.
-		if ($item['uid'] == 0) {
-			$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false];
-			$first_user = DBA::selectFirst('user', ['uid'], $condition);
-			$owner = User::getOwnerDataById($first_user['uid']);
-		} else {
-			$owner = User::getOwnerDataById($item['uid']);
-		}
-
+		$owner = User::getOwnerDataById($item['uid']);
 		$author = self::myHandle($owner);
 
 		$message = ["author" => $author,

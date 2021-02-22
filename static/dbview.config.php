@@ -134,11 +134,12 @@
 			"owner-network" => ["owner", "network"],
 			"owner-blocked" => ["owner", "blocked"],
 			"owner-hidden" => ["owner", "hidden"],
+			"owner-contact-type" => ["owner", "contact-type"],
 			"causer-id" => ["post-user", "causer-id"],
 			"causer-link" => ["causer", "url"],
 			"causer-addr" => ["causer", "addr"],
 			"causer-name" => ["causer", "name"],
-			"causer-nick" => ["causer", "nick"], 
+			"causer-nick" => ["causer", "nick"],
 			"causer-avatar" => ["causer", "thumb"],
 			"causer-network" => ["causer", "network"],
 			"causer-blocked" => ["causer", "blocked"],
@@ -169,15 +170,15 @@
 			"parent-guid" => ["parent-item-uri", "guid"],
 			"parent-network" => ["parent-post", "network"],
 			"parent-author-id" => ["parent-post", "author-id"],
-			"parent-author-link" => ["parent-post-author", "url"],  
+			"parent-author-link" => ["parent-post-author", "url"],
 			"parent-author-name" => ["parent-post-author", "name"],
-			"parent-author-network" => ["parent-post-author", "network"], 
+			"parent-author-network" => ["parent-post-author", "network"],
 		],
 		"query" => "FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
-			LEFT JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
-			LEFT JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
-			LEFT JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
 			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
@@ -289,11 +290,12 @@
 			"owner-network" => ["owner", "network"],
 			"owner-blocked" => ["owner", "blocked"],
 			"owner-hidden" => ["owner", "hidden"],
+			"owner-contact-type" => ["owner", "contact-type"],
 			"causer-id" => ["post-thread-user", "causer-id"],
 			"causer-link" => ["causer", "url"],
 			"causer-addr" => ["causer", "addr"],
 			"causer-name" => ["causer", "name"],
-			"causer-nick" => ["causer", "nick"], 
+			"causer-nick" => ["causer", "nick"],
 			"causer-avatar" => ["causer", "thumb"],
 			"causer-network" => ["causer", "network"],
 			"causer-blocked" => ["causer", "blocked"],
@@ -324,15 +326,15 @@
 			"parent-guid" => ["parent-item-uri", "guid"],
 			"parent-network" => ["parent-post", "network"],
 			"parent-author-id" => ["parent-post", "author-id"],
-			"parent-author-link" => ["parent-post-author", "url"],  
+			"parent-author-link" => ["parent-post-author", "url"],
 			"parent-author-name" => ["parent-post-author", "name"],
-			"parent-author-network" => ["parent-post-author", "network"], 
+			"parent-author-network" => ["parent-post-author", "network"],
 		],
 		"query" => "FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
-			LEFT JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
-			LEFT JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
-			LEFT JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
 			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread-user`.`causer-id`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`

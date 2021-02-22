@@ -41,11 +41,20 @@ class CleanItemUri
 			return;
 		}
 		Logger::notice('Start deleting orphaned URI-ID', ['last-id' => $item['uri-id']]);
-		$ret = DBA::e("DELETE FROM `item-uri` WHERE `id` < ?
-			AND NOT EXISTS(SELECT `uri-id` FROM `post-user` WHERE `uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `parent-uri-id` FROM `post-user` WHERE `parent-uri-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `thr-parent-id` FROM `post-user` WHERE `thr-parent-id` = `item-uri`.`id`)
-			AND NOT EXISTS(SELECT `external-id` FROM `post-user` WHERE `external-id` = `item-uri`.`id`)", $item['uri-id']);
-		Logger::notice('Orphaned URI-ID entries removed', ['result' => $ret, 'rows' => DBA::affectedRows()]);
+		$uris = DBA::select('item-uri', ['id'], ["`id` < ?
+			AND NOT EXISTS(SELECT `uri-id` FROM `post` WHERE `uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `parent-uri-id` FROM `post` WHERE `parent-uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `thr-parent-id` FROM `post` WHERE `thr-parent-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `external-id` FROM `post` WHERE `external-id` = `item-uri`.`id`)", $item['uri-id']]);
+
+		$affected_count = 0;
+		while ($rows = DBA::toArray($uris, false, 100)) {
+			$ids = array_column($rows, 'id');
+			DBA::delete('item-uri', ['id' => $ids]);
+			$affected_count += DBA::affectedRows();
+			Logger::info('Deleted', ['rows' => $affected_count]);
+		}
+		DBA::close($uris);
+		Logger::notice('Orphaned URI-ID entries removed', ['rows' => $affected_count]);
 	}
 }

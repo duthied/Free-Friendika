@@ -81,7 +81,7 @@ class Profile extends BaseModule
 		}
 
 		$items_stmt = DBA::p(
-			"SELECT DISTINCT(`parent-uri-id`) AS `uri-id`, `created` FROM `post-view`
+			"SELECT DISTINCT(`parent-uri-id`) AS `uri-id`, MAX(`created`), MAX(`received`) FROM `post-view`
 				WHERE `uid` = ? AND NOT `contact-blocked` AND NOT `contact-pending`
 				AND `visible` AND (NOT `deleted` OR `gravity` = ?)
 				AND `wall` $sql_extra4 $sql_extra

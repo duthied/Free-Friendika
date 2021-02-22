@@ -145,7 +145,7 @@ function localize_item(&$item)
 		$item['body'] = item_redir_and_replace_images($extracted['body'], $extracted['images'], $item['contact-id']);
 	}
 
-	/// @todo The following functionality needs to be cleaned up. 
+	/// @todo The following functionality needs to be cleaned up.
 	if (!empty($item['verb'])) {
 		$activity = DI::activity();
 
@@ -481,7 +481,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 		'attendyes'   => [],
 		'attendno'    => [],
 		'attendmaybe' => [],
-		'announce'    => [],	
+		'announce'    => [],
 	];
 
 	if (DI::pConfig()->get(local_user(), 'system', 'hide_dislike')) {
@@ -839,8 +839,8 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 				$activity = ['causer-id' => $parent['author-id']];
 				foreach (['commented', 'received', 'created'] as $orderfields) {
 					if (!empty($parent[$orderfields])) {
-						$activity[$orderfields] = $parent[$orderfields];	
-					}	
+						$activity[$orderfields] = $parent[$orderfields];
+					}
 				}
 			}
 		} else {

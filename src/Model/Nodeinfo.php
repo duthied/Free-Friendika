@@ -58,18 +58,14 @@ class Nodeinfo
 		$config->set('nodeinfo', 'active_users_monthly', $userStats['active_users_monthly']);
 		$config->set('nodeinfo', 'active_users_weekly', $userStats['active_users_weekly']);
 
-		$logger->debug('user statistics', $userStats);
+		$logger->info('user statistics', $userStats);
 
-		$items = DBA::p("SELECT COUNT(*) AS `total`, `gravity` FROM `post-view` WHERE `origin` AND NOT `deleted` AND `uid` != 0 AND `gravity` IN (?, ?) GROUP BY `gravity`",
-			GRAVITY_PARENT, GRAVITY_COMMENT);
-		while ($item = DBA::fetch($items)) {
-			if ($item['gravity'] == GRAVITY_PARENT) {
-				$config->set('nodeinfo', 'local_posts', $item['total']);
-			} elseif ($item['gravity'] == GRAVITY_COMMENT) {
-				$config->set('nodeinfo', 'local_comments', $item['total']);
-			}
-		}
-		DBA::close($items);
+		$posts = DBA::count('post-thread', ["EXISTS(SELECT `uri-id` FROM `post-user` WHERE NOT `deleted` AND `origin` AND `uri-id` = `post-thread`.`uri-id`)"]);
+		$comments = DBA::count('post', ["NOT `deleted` AND `gravity` = ? AND EXISTS(SELECT `uri-id` FROM `post-user` WHERE `origin` AND `uri-id` = `post`.`uri-id`)", GRAVITY_COMMENT]);
+		$config->set('nodeinfo', 'local_posts', $posts);
+		$config->set('nodeinfo', 'local_comments', $comments);
+
+		$logger->info('User actitivy', ['posts' => $posts, 'comments' => $comments]);
 	}
 
 	/**

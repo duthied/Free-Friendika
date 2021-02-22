@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1404);
+	define('DB_UPDATE_VERSION', 1405);
 }
 
 return [
@@ -91,6 +91,7 @@ return [
 			"PRIMARY" => ["id"],
 			"nurl" => ["UNIQUE", "nurl(190)"],
 			"next_contact" => ["next_contact"],
+			"network" => ["network"],
 		]
 	],
 	"user" => [
@@ -147,6 +148,8 @@ return [
 			"PRIMARY" => ["uid"],
 			"nickname" => ["nickname(32)"],
 			"parent-uid" => ["parent-uid"],
+			"guid" => ["guid"],
+			"email" => ["email(64)"],
 		]
 	],
 	"contact" => [
@@ -251,6 +254,7 @@ return [
 			"network_uid_lastupdate" => ["network", "uid", "last-update"],
 			"uid_network_self_lastupdate" => ["uid", "network", "self", "last-update"],
 			"uid_lastitem" => ["uid", "last-item"],
+			"baseurl" => ["baseurl(64)"],
 			"gsid" => ["gsid"]
 		]
 	],
@@ -317,7 +321,8 @@ return [
 			"name" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""]
 		],
 		"indexes" => [
-			"PRIMARY" => ["id"]
+			"PRIMARY" => ["id"],
+			"name" => ["name"]
 		]
 	],
 	// Main tables
@@ -375,6 +380,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"installed_name" => ["installed", "name"],
 			"name" => ["UNIQUE", "name"],
 		]
 	],
@@ -480,6 +486,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"expire" => ["expire"],
 		]
 	],
 	"config" => [
@@ -693,6 +700,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
+			"priority" => ["priority"],
 			"hook_file_function" => ["UNIQUE", "hook", "file", "function"],
 		]
 	],
@@ -1002,7 +1010,6 @@ return [
 			"author-id" => ["author-id"],
 			"causer-id" => ["causer-id"],
 			"vid" => ["vid"],
-			"received" => ["received"],
 		]
 	],
 	"post-category" => [
@@ -1043,6 +1050,7 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["uri-id"],
 			"plink" => ["plink(191)"],
+			"resource-id" => ["resource-id"],
 			"title-content-warning-body" => ["FULLTEXT", "title", "content-warning", "body"],
 		]
 	],
@@ -1110,7 +1118,7 @@ return [
 			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"received" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"changed" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date that something in the conversation changed, indicating clients should fetch the conversation again"],
+			"changed" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date that something in the conversation changed, indicating clients should fetch the conversation again"],			
 			"commented" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""]
 		],
 		"indexes" => [
@@ -1160,26 +1168,24 @@ return [
 			"PRIMARY" => ["id"],
 			"uid_uri-id" => ["UNIQUE", "uid", "uri-id"],
 			"uri-id" => ["uri-id"],
-			"contact-id" => ["contact-id"],
-			"psid" => ["psid"],
-			"uid_hidden" => ["uid", "hidden"],
-			"event-id" => ["event-id"],
-			"uid_wall" => ["uid", "wall"],
-			"parent-uri-id_uid" => ["parent-uri-id", "uid"],
+			"parent-uri-id" => ["parent-uri-id"],
 			"thr-parent-id" => ["thr-parent-id"],
 			"external-id" => ["external-id"],
 			"owner-id" => ["owner-id"],
-			"author-id_uid" => ["author-id", "uid"],
+			"author-id" => ["author-id"],
 			"causer-id" => ["causer-id"],
 			"vid" => ["vid"],
-			"uid_received" => ["uid", "received"],
+			"contact-id" => ["contact-id"],
+			"event-id" => ["event-id"],
+			"psid" => ["psid"],
+			"author-id_uid" => ["author-id", "uid"],
+			"author-id_received" => ["author-id", "received"],
+			"parent-uri-id_uid" => ["parent-uri-id", "uid"],
+			"uid_hidden" => ["uid", "hidden"],
+			"uid_contactid" => ["uid", "contact-id"],
 			"uid_unseen_contactid" => ["uid", "unseen", "contact-id"],
-			"uid_network_received" => ["uid", "network", "received"],
-			"uid_contactid_received" => ["uid", "contact-id", "received"],
-			"authorid_received" => ["author-id", "received"],
+			"uid_unseen" => ["uid", "unseen"],
 			"uid_unseen_wall" => ["uid", "unseen", "wall"],
-			"uid_eventid" => ["uid", "event-id"],
-			"psid_wall" => ["psid", "wall"],
 		],
 	],
 	"post-thread-user" => [
@@ -1211,30 +1217,21 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uid", "uri-id"],
-			"uid_wall" => ["uid", "wall"],
-			"uid_pinned" => ["uid", "pinned"],
 			"uri-id" => ["uri-id"],
+			"owner-id" => ["owner-id"],
+			"author-id" => ["author-id"],
+			"causer-id" => ["causer-id"],
+			"uid" => ["uid"],
 			"contact-id" => ["contact-id"],
 			"psid" => ["psid"],
 			"post-user-id" => ["post-user-id"],
-			"owner-id" => ["owner-id"],
-			"causer-id" => ["causer-id"],
-			"uid_received" => ["uid", "received"],
-			"uid_commented" => ["uid", "commented"],
-			"uid_changed" => ["uid", "changed"],
-			"uid_contact-id" => ["uid", "contact-id", "received"],
-			"uid_unseen_contactid" => ["uid", "unseen", "contact-id"],
-			"uid_network_received" => ["uid", "network", "received"],
-			"uid_network_commented" => ["uid", "network", "commented"],
-			"uid_contact-id_received" => ["uid", "contact-id", "received"],
-			"author-id_received" => ["author-id", "received"],
-			"uid_wall_changed" => ["uid", "wall", "changed"],
-			"uid_unseen_wall" => ["uid", "unseen", "wall"],
-			"mention_uid" => ["mention", "uid"],
-			"psid_wall" => ["psid", "wall"],
-			"received" => ["received"],
 			"commented" => ["commented"],
-			"changed" => ["changed"],
+			"received" => ["received"],
+			"author-id_received" => ["author-id", "received"],
+			"uid_pinned" => ["uid", "pinned"],
+			"uid_commented" => ["uid", "commented"],
+			"mention_uid" => ["mention", "uid"],
+			"uid_mention" => ["uid", "mention"],
 		]
 	],
 	"post-user-notification" => [
@@ -1393,7 +1390,8 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"uid" => ["uid"],
+			"uid_term" => ["uid", "term(64)"],
+			"term" => ["term(64)"]
 		]
 	],
 	"session" => [

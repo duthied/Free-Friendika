@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1404
+-- DB_UPDATE_VERSION 1405
 -- ------------------------------------------
 
 
@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`next_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Next connection request',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `nurl` (`nurl`(190)),
-	 INDEX `next_contact` (`next_contact`)
+	 INDEX `next_contact` (`next_contact`),
+	 INDEX `network` (`network`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Global servers';
 
 --
@@ -88,6 +89,8 @@ CREATE TABLE IF NOT EXISTS `user` (
 	 PRIMARY KEY(`uid`),
 	 INDEX `nickname` (`nickname`(32)),
 	 INDEX `parent-uid` (`parent-uid`),
+	 INDEX `guid` (`guid`),
+	 INDEX `email` (`email`(64)),
 	FOREIGN KEY (`parent-uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='The local users';
 
@@ -192,6 +195,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `network_uid_lastupdate` (`network`,`uid`,`last-update`),
 	 INDEX `uid_network_self_lastupdate` (`uid`,`network`,`self`,`last-update`),
 	 INDEX `uid_lastitem` (`uid`,`last-item`),
+	 INDEX `baseurl` (`baseurl`(64)),
 	 INDEX `gsid` (`gsid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
@@ -257,7 +261,8 @@ CREATE TABLE IF NOT EXISTS `permissionset` (
 CREATE TABLE IF NOT EXISTS `verb` (
 	`id` smallint unsigned NOT NULL auto_increment,
 	`name` varchar(100) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `name` (`name`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Activity Verbs';
 
 --
@@ -313,6 +318,7 @@ CREATE TABLE IF NOT EXISTS `addon` (
 	`timestamp` int unsigned NOT NULL DEFAULT 0 COMMENT 'file timestamp to check for reloads',
 	`plugin_admin` boolean NOT NULL DEFAULT '0' COMMENT '1 = has admin config, 0 = has no admin config',
 	 PRIMARY KEY(`id`),
+	 INDEX `installed_name` (`installed`,`name`),
 	 UNIQUE INDEX `name` (`name`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='registered addons';
 
@@ -414,7 +420,8 @@ CREATE TABLE IF NOT EXISTS `challenge` (
 	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`type` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`last_update` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	 PRIMARY KEY(`id`)
+	 PRIMARY KEY(`id`),
+	 INDEX `expire` (`expire`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
 --
@@ -627,6 +634,7 @@ CREATE TABLE IF NOT EXISTS `hook` (
 	`function` varbinary(200) NOT NULL DEFAULT '' COMMENT 'function name of hook handler',
 	`priority` smallint unsigned NOT NULL DEFAULT 0 COMMENT 'not yet implemented - can be used to sort conflicts in hook handling by calling handlers in priority order',
 	 PRIMARY KEY(`id`),
+	 INDEX `priority` (`priority`),
 	 UNIQUE INDEX `hook_file_function` (`hook`,`file`,`function`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='addon hook registry';
 
@@ -936,7 +944,6 @@ CREATE TABLE IF NOT EXISTS `post` (
 	 INDEX `author-id` (`author-id`),
 	 INDEX `causer-id` (`causer-id`),
 	 INDEX `vid` (`vid`),
-	 INDEX `received` (`received`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
@@ -986,6 +993,7 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	`plink` varchar(255) NOT NULL DEFAULT '' COMMENT 'permalink or URL to a displayable copy of the message at its source',
 	 PRIMARY KEY(`uri-id`),
 	 INDEX `plink` (`plink`(191)),
+	 INDEX `resource-id` (`resource-id`),
 	 FULLTEXT INDEX `title-content-warning-body` (`title`,`content-warning`,`body`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
@@ -1108,26 +1116,24 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uid_uri-id` (`uid`,`uri-id`),
 	 INDEX `uri-id` (`uri-id`),
-	 INDEX `contact-id` (`contact-id`),
-	 INDEX `psid` (`psid`),
-	 INDEX `uid_hidden` (`uid`,`hidden`),
-	 INDEX `event-id` (`event-id`),
-	 INDEX `uid_wall` (`uid`,`wall`),
-	 INDEX `parent-uri-id_uid` (`parent-uri-id`,`uid`),
+	 INDEX `parent-uri-id` (`parent-uri-id`),
 	 INDEX `thr-parent-id` (`thr-parent-id`),
 	 INDEX `external-id` (`external-id`),
 	 INDEX `owner-id` (`owner-id`),
-	 INDEX `author-id_uid` (`author-id`,`uid`),
+	 INDEX `author-id` (`author-id`),
 	 INDEX `causer-id` (`causer-id`),
 	 INDEX `vid` (`vid`),
-	 INDEX `uid_received` (`uid`,`received`),
+	 INDEX `contact-id` (`contact-id`),
+	 INDEX `event-id` (`event-id`),
+	 INDEX `psid` (`psid`),
+	 INDEX `author-id_uid` (`author-id`,`uid`),
+	 INDEX `author-id_received` (`author-id`,`received`),
+	 INDEX `parent-uri-id_uid` (`parent-uri-id`,`uid`),
+	 INDEX `uid_hidden` (`uid`,`hidden`),
+	 INDEX `uid_contactid` (`uid`,`contact-id`),
 	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
-	 INDEX `uid_network_received` (`uid`,`network`,`received`),
-	 INDEX `uid_contactid_received` (`uid`,`contact-id`,`received`),
-	 INDEX `authorid_received` (`author-id`,`received`),
+	 INDEX `uid_unseen` (`uid`,`unseen`),
 	 INDEX `uid_unseen_wall` (`uid`,`unseen`,`wall`),
-	 INDEX `uid_eventid` (`uid`,`event-id`),
-	 INDEX `psid_wall` (`psid`,`wall`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
@@ -1170,30 +1176,21 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	`psid` int unsigned COMMENT 'ID of the permission set of this post',
 	`post-user-id` int unsigned COMMENT 'Id of the post-user table',
 	 PRIMARY KEY(`uid`,`uri-id`),
-	 INDEX `uid_wall` (`uid`,`wall`),
-	 INDEX `uid_pinned` (`uid`,`pinned`),
 	 INDEX `uri-id` (`uri-id`),
+	 INDEX `owner-id` (`owner-id`),
+	 INDEX `author-id` (`author-id`),
+	 INDEX `causer-id` (`causer-id`),
+	 INDEX `uid` (`uid`),
 	 INDEX `contact-id` (`contact-id`),
 	 INDEX `psid` (`psid`),
 	 INDEX `post-user-id` (`post-user-id`),
-	 INDEX `owner-id` (`owner-id`),
-	 INDEX `causer-id` (`causer-id`),
-	 INDEX `uid_received` (`uid`,`received`),
-	 INDEX `uid_commented` (`uid`,`commented`),
-	 INDEX `uid_changed` (`uid`,`changed`),
-	 INDEX `uid_contact-id` (`uid`,`contact-id`,`received`),
-	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
-	 INDEX `uid_network_received` (`uid`,`network`,`received`),
-	 INDEX `uid_network_commented` (`uid`,`network`,`commented`),
-	 INDEX `uid_contact-id_received` (`uid`,`contact-id`,`received`),
-	 INDEX `author-id_received` (`author-id`,`received`),
-	 INDEX `uid_wall_changed` (`uid`,`wall`,`changed`),
-	 INDEX `uid_unseen_wall` (`uid`,`unseen`,`wall`),
-	 INDEX `mention_uid` (`mention`,`uid`),
-	 INDEX `psid_wall` (`psid`,`wall`),
-	 INDEX `received` (`received`),
 	 INDEX `commented` (`commented`),
-	 INDEX `changed` (`changed`),
+	 INDEX `received` (`received`),
+	 INDEX `author-id_received` (`author-id`,`received`),
+	 INDEX `uid_pinned` (`uid`,`pinned`),
+	 INDEX `uid_commented` (`uid`,`commented`),
+	 INDEX `mention_uid` (`mention`,`uid`),
+	 INDEX `uid_mention` (`uid`,`mention`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
@@ -1361,7 +1358,8 @@ CREATE TABLE IF NOT EXISTS `search` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	`term` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid` (`uid`),
+	 INDEX `uid_term` (`uid`,`term`(64)),
+	 INDEX `term` (`term`(64)),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='';
 
@@ -1563,6 +1561,7 @@ CREATE VIEW `post-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`contact-type` AS `owner-contact-type`,
 	`post-user`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
 	`causer`.`addr` AS `causer-addr`,
@@ -1603,9 +1602,9 @@ CREATE VIEW `post-view` AS SELECT
 	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
-			LEFT JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
-			LEFT JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
-			LEFT JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
 			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-user`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`
@@ -1720,6 +1719,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`owner`.`network` AS `owner-network`,
 	`owner`.`blocked` AS `owner-blocked`,
 	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`contact-type` AS `owner-contact-type`,
 	`post-thread-user`.`causer-id` AS `causer-id`,
 	`causer`.`url` AS `causer-link`,
 	`causer`.`addr` AS `causer-addr`,
@@ -1760,9 +1760,9 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`parent-post-author`.`network` AS `parent-author-network`
 	FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
-			LEFT JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
-			LEFT JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
-			LEFT JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-thread-user`.`author-id`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread-user`.`owner-id`
 			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread-user`.`causer-id`
 			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-thread-user`.`uri-id`
 			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post-user`.`thr-parent-id`

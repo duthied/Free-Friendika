@@ -2688,10 +2688,6 @@ class Contact
 			return $destination;
 		}
 
-		if (!empty($contact['uid']) || empty($contact['network'])) {
-			return self::magicLink($contact['url'], $url);
-		}
-
 		if (empty($contact['id'])) {
 			return $destination;
 		}
