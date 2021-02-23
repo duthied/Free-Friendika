@@ -1754,10 +1754,11 @@ class Probe
 	 */
 	public static function getFeedLink(string $url, string $body)
 	{
-		$doc = new DOMDocument();
 		if (empty($body)) {
 			return '';
 		}
+
+		$doc = new DOMDocument();
 		if (!@$doc->loadHTML($body)) {
 			return false;
 		}
