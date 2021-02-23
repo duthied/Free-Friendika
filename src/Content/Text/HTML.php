@@ -167,6 +167,10 @@ class HTML
 
 			$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 
+			if (empty($message)) {
+				return '';
+			}
+
 			@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
 			XML::deleteNode($doc, 'style');
@@ -587,6 +591,10 @@ class HTML
 		$doc->preserveWhiteSpace = false;
 
 		$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
+
+		if (empty($message)) {
+			return '';
+		}
 
 		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
