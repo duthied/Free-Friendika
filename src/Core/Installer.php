@@ -505,7 +505,7 @@ class Installer
 			$help = DI::l10n()->t('The web installer needs to be able to create a file called "local.config.php" in the "config" folder of your web server and it is unable to do so.') . EOL;
 			$help .= DI::l10n()->t('This is most often a permission setting, as the web server may not be able to write files in your folder - even if you can.') . EOL;
 			$help .= DI::l10n()->t('At the end of this procedure, we will give you a text to save in a file named local.config.php in your Friendica "config" folder.') . EOL;
-			$help .= DI::l10n()->t('You can alternatively skip this procedure and perform a manual installation. Please see the file "INSTALL.txt" for instructions.') . EOL;
+			$help .= DI::l10n()->t('You can alternatively skip this procedure and perform a manual installation. Please see the file "doc/INSTALL.md" for instructions.') . EOL;
 		}
 
 		$this->addCheck(DI::l10n()->t('config/local.config.php is writable'), $status, false, $help);
