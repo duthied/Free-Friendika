@@ -351,7 +351,7 @@ class Install extends BaseModule
 		return
 			DI::l10n()->t('<h1>What next</h1>')
 			. "<p>" . DI::l10n()->t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
-			. DI::l10n()->t('Please see the file "INSTALL.txt".')
+			. DI::l10n()->t('Please see the file "doc/INSTALL.md".')
 			. "</p><p>"
 			. DI::l10n()->t('Go to your new Friendica node <a href="%s/register">registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.', $baseurl)
 			. "</p>";
