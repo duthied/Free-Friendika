@@ -56,7 +56,7 @@ return [
 		// pdo_emulate_prepares (Boolean)
 		// If enabled, the builtin emulation for prepared statements is used.
 		// This can be used as a workaround for the database error "Prepared statement needs to be re-prepared".
-		'pdo_emulate_prepares' => false,
+		'pdo_emulate_prepares' => true,
 
 		// disable_pdo (Boolean)
 		// PDO is used by default (if available). Otherwise MySQLi will be used.
