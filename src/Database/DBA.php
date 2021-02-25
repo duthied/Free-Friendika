@@ -388,9 +388,6 @@ class DBA
 	 *
 	 * @param string|array $table      Table name
 	 * @param array        $conditions Field condition(s)
-	 * @param array        $options
-	 *                           - cascade: If true we delete records in other tables that depend on the one we're deleting through
-	 *                           relations (default: true)
 	 *
 	 * @return boolean was the delete successful?
 	 * @throws \Exception

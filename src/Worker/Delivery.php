@@ -183,7 +183,7 @@ class Delivery
 		}
 
 		if (empty($items)) {
-			Logger::log('No delivery data for  ' . $cmd . ' - Item ID: ' .$target_id . ' - Contact ID: ' . $contact_id);
+			Logger::notice('No delivery data', ['command' => $cmd, 'uri-id' => $post_uriid, 'cid' => $contact_id]);
 		}
 
 		$owner = Model\User::getOwnerDataById($uid);
@@ -221,7 +221,7 @@ class Delivery
 			$contact['network'] = Protocol::DFRN;
 		}
 
-		Logger::notice('Delivering', ['cmd' => $cmd, 'target' => $target_id, 'followup' => $followup, 'network' => $contact['network']]);
+		Logger::notice('Delivering', ['cmd' => $cmd, 'uri-id' => $post_uriid, 'followup' => $followup, 'network' => $contact['network']]);
 
 		switch ($contact['network']) {
 			case Protocol::DFRN:

@@ -218,7 +218,7 @@ class Hook
 		} else {
 			// remove orphan hooks
 			$condition = ['hook' => $name, 'file' => $hook[0], 'function' => $hook[1]];
-			self::delete($condition, ['cascade' => false]);
+			self::delete($condition);
 		}
 	}
 
@@ -250,13 +250,12 @@ class Hook
 	 * We have to clear the cached routerDispatchData because addons can provide routes
 	 *
 	 * @param array $condition
-	 * @param array $options
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function delete(array $condition, array $options = [])
+	public static function delete(array $condition)
 	{
-		$result = DBA::delete('hook', $condition, $options);
+		$result = DBA::delete('hook', $condition);
 
 		if ($result) {
 			DI::cache()->delete('routerDispatchData');

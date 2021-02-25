@@ -242,7 +242,7 @@ class Event
 			return;
 		}
 
-		DBA::delete('event', ['id' => $event_id], ['cascade' => false]);
+		DBA::delete('event', ['id' => $event_id]);
 		Logger::log("Deleted event ".$event_id, Logger::DEBUG);
 	}
 

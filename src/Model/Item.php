@@ -318,14 +318,6 @@ class Item
 
 		Post\DeliveryData::delete($item['uri-id']);
 
-		// When the permission set will be used in photo and events as well,
-		// this query here needs to be extended.
-		// @todo Currently deactivated. We need the permission set in the deletion process.
-		// This is a reminder to add the removal somewhere else.
-		//if (!empty($item['psid']) && !self::exists(['psid' => $item['psid'], 'deleted' => false])) {
-		//	DBA::delete('permissionset', ['id' => $item['psid']], ['cascade' => false]);
-		//}
-
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['gravity'] == GRAVITY_PARENT) {
 			self::markForDeletion(['parent' => $item['parent'], 'deleted' => false], $priority);

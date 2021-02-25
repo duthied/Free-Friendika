@@ -332,7 +332,7 @@ class Community extends BaseModule
 		$params = ['order' => ['commented' => true], 'limit' => $itemspage];
 
 		if (!empty($item_id)) {
-			$condition[0] .= " AND `iid` = ?";
+			$condition[0] .= " AND `id` = ?";
 			$condition[] = $item_id;
 		} else {
 			if (local_user() && !empty($_REQUEST['no_sharer'])) {

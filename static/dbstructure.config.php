@@ -46,7 +46,7 @@
  * ],
  *
  * Whenever possible prefer "foreign" before "relation" with the foreign keys.
- * "foreign" adds true foreign keys on the database level, while "relation" simulates this behaviour.
+ * "foreign" adds true foreign keys on the database level, while "relation" is just an indicator of a table relation without any consequences
  *
  * If you need to make any change, make sure to increment the DB_UPDATE_VERSION constant value below.
  *
