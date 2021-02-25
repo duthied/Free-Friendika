@@ -137,14 +137,16 @@ class Relation
 			$actor = Contact::getIdForURL($contact);
 			if (!empty($actor)) {
 				if (in_array($contact, $followers)) {
-					$fields = ['cid' => $target, 'relation-cid' => $actor, 'follows' => true, 'follow-updated' => DateTimeFormat::utcNow()];
-					DBA::insert('contact-relation', $fields, Database::INSERT_UPDATE);
+					$condition = ['cid' => $target, 'relation-cid' => $actor];
+					DBA::insert('contact-relation', $condition, Database::INSERT_IGNORE);
+					DBA::update('contact-relation', ['follows' => true, 'follow-updated' => DateTimeFormat::utcNow()], $condition);
 					$follower_counter++;
 				}
 
 				if (in_array($contact, $followings)) {
-					$fields = ['cid' => $actor, 'relation-cid' => $target, 'follows' => true, 'follow-updated' => DateTimeFormat::utcNow()];
-					DBA::insert('contact-relation', $fields, Database::INSERT_UPDATE);
+					$condition = ['cid' => $actor, 'relation-cid' => $target];
+					DBA::insert('contact-relation', $condition, Database::INSERT_IGNORE);
+					DBA::update('contact-relation', ['follows' => true, 'follow-updated' => DateTimeFormat::utcNow()], $condition);
 					$following_counter++;
 				}
 			}

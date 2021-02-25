@@ -1218,174 +1218,28 @@ class Database
 	}
 
 	/**
-	 * Build the array with the table relations
-	 *
-	 * The array is build from the database definitions in DBStructure.php
-	 *
-	 * This process must only be started once, since the value is cached.
-	 */
-	private function buildRelationData()
-	{
-		$definition = DBStructure::definition($this->configCache->get('system', 'basepath'));
-
-		foreach ($definition AS $table => $structure) {
-			foreach ($structure['fields'] AS $field => $field_struct) {
-				if (isset($field_struct['relation'])) {
-					foreach ($field_struct['relation'] AS $rel_table => $rel_field) {
-						$this->relation[$rel_table][$rel_field][$table][] = $field;
-					}
-				}
-			}
-		}
-	}
-
-	/**
 	 * Delete a row from a table
-	 *
-	 * Note: this methods does NOT accept schema => table arrays because of the complex relation stuff.
 	 *
 	 * @param string $table      Table name
 	 * @param array  $conditions Field condition(s)
-	 * @param array  $options
-	 *                           - cascade: If true we delete records in other tables that depend on the one we're deleting through
-	 *                           relations (default: true)
-	 * @param array  $callstack  Internal use: prevent endless loops
 	 *
 	 * @return boolean was the delete successful?
 	 * @throws \Exception
 	 */
-	public function delete($table, array $conditions, array $options = [], array &$callstack = [])
+	public function delete($table, array $conditions)
 	{
 		if (empty($table) || empty($conditions)) {
 			$this->logger->info('Table and conditions have to be set');
 			return false;
 		}
 
-		$commands = [];
+		$table_string = DBA::buildTableString($table);
 
-		// Create a key for the loop prevention
-		$key = $table . ':' . json_encode($conditions);
+		$condition_string = DBA::buildCondition($conditions);
 
-		// We quit when this key already exists in the callstack.
-		if (isset($callstack[$key])) {
-			return true;
-		}
-
-		$callstack[$key] = true;
-
-		$commands[$key] = ['table' => $table, 'conditions' => $conditions];
-
-		// Don't use "defaults" here, since it would set "false" to "true"
-		if (isset($options['cascade'])) {
-			$cascade = $options['cascade'];
-		} else {
-			$cascade = true;
-		}
-
-		// To speed up the whole process we cache the table relations
-		if ($cascade && count($this->relation) == 0) {
-			$this->buildRelationData();
-		}
-
-		// Is there a relation entry for the table?
-		if ($cascade && isset($this->relation[$table])) {
-			// We only allow a simple "one field" relation.
-			$field   = array_keys($this->relation[$table])[0];
-			$rel_def = array_values($this->relation[$table])[0];
-
-			// Create a key for preventing double queries
-			$qkey = $field . '-' . $table . ':' . json_encode($conditions);
-
-			// When the search field is the relation field, we don't need to fetch the rows
-			// This is useful when the leading record is already deleted in the frontend but the rest is done in the backend
-			if ((count($conditions) == 1) && ($field == array_keys($conditions)[0])) {
-				foreach ($rel_def AS $rel_table => $rel_fields) {
-					foreach ($rel_fields AS $rel_field) {
-						$this->delete($rel_table, [$rel_field => array_values($conditions)[0]], $options, $callstack);
-					}
-				}
-				// We quit when this key already exists in the callstack.
-			} elseif (!isset($callstack[$qkey])) {
-				$callstack[$qkey] = true;
-
-				// Fetch all rows that are to be deleted
-				$data = $this->select($table, [$field], $conditions);
-
-				while ($row = $this->fetch($data)) {
-					$this->delete($table, [$field => $row[$field]], $options, $callstack);
-				}
-
-				$this->close($data);
-
-				// Since we had split the delete command we don't need the original command anymore
-				unset($commands[$key]);
-			}
-		}
-
-		// Now we finalize the process
-		$do_transaction = !$this->in_transaction;
-
-		if ($do_transaction) {
-			$this->transaction();
-		}
-
-		$compacted = [];
-		$counter   = [];
-
-		foreach ($commands AS $command) {
-			$conditions = $command['conditions'];
-			reset($conditions);
-			$first_key = key($conditions);
-
-			$condition_string = DBA::buildCondition($conditions);
-
-			if ((count($command['conditions']) > 1) || is_int($first_key)) {
-				$sql = "DELETE FROM " . DBA::quoteIdentifier($command['table']) . " " . $condition_string;
-				$this->logger->info($this->replaceParameters($sql, $conditions), ['callstack' => System::callstack(6), 'internal_callstack' => $callstack]);
-
-				if (!$this->e($sql, $conditions)) {
-					if ($do_transaction) {
-						$this->rollback();
-					}
-					return false;
-				}
-			} else {
-				$key_table     = $command['table'];
-				$key_condition = array_keys($command['conditions'])[0];
-				$value         = array_values($command['conditions'])[0];
-
-				// Split the SQL queries in chunks of 100 values
-				// We do the $i stuff here to make the code better readable
-				$i = isset($counter[$key_table][$key_condition]) ? $counter[$key_table][$key_condition] : 0;
-				if (isset($compacted[$key_table][$key_condition][$i]) && count($compacted[$key_table][$key_condition][$i]) > 100) {
-					++$i;
-				}
-
-				$compacted[$key_table][$key_condition][$i][$value] = $value;
-				$counter[$key_table][$key_condition]               = $i;
-			}
-		}
-		foreach ($compacted AS $table => $values) {
-			foreach ($values AS $field => $field_value_list) {
-				foreach ($field_value_list AS $field_values) {
-					$sql = "DELETE FROM " . DBA::quoteIdentifier($table) . " WHERE " . DBA::quoteIdentifier($field) . " IN (" .
-					       substr(str_repeat("?, ", count($field_values)), 0, -2) . ");";
-
-					$this->logger->info($this->replaceParameters($sql, $field_values), ['callstack' => System::callstack(6), 'internal_callstack' => $callstack]);
-
-					if (!$this->e($sql, $field_values)) {
-						if ($do_transaction) {
-							$this->rollback();
-						}
-						return false;
-					}
-				}
-			}
-		}
-		if ($do_transaction) {
-			$this->commit();
-		}
-		return true;
+		$sql = "DELETE FROM " . $table_string . " " . $condition_string;
+		$this->logger->debug($this->replaceParameters($sql, $conditions), ['callstack' => System::callstack(6)]);
+		return $this->e($sql, $conditions);
 	}
 
 	/**
