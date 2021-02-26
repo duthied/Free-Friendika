@@ -39,8 +39,9 @@ class RemoveUnusedContacts
 			AND NOT `id` IN (SELECT `author-id` FROM `post-user`) AND NOT `id` IN (SELECT `owner-id` FROM `post-user`)
 			AND NOT `id` IN (SELECT `causer-id` FROM `post-user`) AND NOT `id` IN (SELECT `cid` FROM `post-tag`)
 			AND NOT `id` IN (SELECT `contact-id` FROM `post-user`) AND NOT `id` IN (SELECT `cid` FROM `user-contact`)
-			AND NOT `id` IN (SELECT `cid` FROM `event`) AND NOT `id` IN (SELECT `contact-id` FROM `group_member`)",
-			0, 0, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Protocol::ACTIVITYPUB, 365];
+			AND NOT `id` IN (SELECT `cid` FROM `event`) AND NOT `id` IN (SELECT `contact-id` FROM `group_member`)
+			AND `created` < UTC_TIMESTAMP() - INTERVAL ? DAY",
+			0, 0, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Protocol::ACTIVITYPUB, 365, 30];
 
 		$total = DBA::count('contact', $condition);
 		Logger::notice('Starting removal', ['total' => $total]);
