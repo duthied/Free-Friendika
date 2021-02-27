@@ -96,7 +96,8 @@ class ParseUrl extends BaseModule
 		if ($format == 'json') {
 			$siteinfo = Util\ParseUrl::getSiteinfoCached($url);
 
-			if (in_array($siteinfo['type'], ['image', 'video', 'audio'])) {
+			if (empty($siteinfo['title']) && empty($siteinfo['text']) && empty($siteinfo['image'])
+				&& in_array($siteinfo['type'], ['image', 'video', 'audio'])) {
 				switch ($siteinfo['type']) {
 					case 'video':
 						$content_type = 'video';
