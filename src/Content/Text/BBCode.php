@@ -28,6 +28,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Item;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
+use Friendica\Content\Text\HTMLPurifier_URIScheme_cid;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -1873,6 +1874,8 @@ class BBCode
 			},
 			$text
 		);
+
+		\HTMLPurifier_URISchemeRegistry::instance()->register('cid', new HTMLPurifier_URIScheme_cid());
 
 		$config = \HTMLPurifier_HTML5Config::createDefault();
 		$config->set('HTML.Doctype', 'HTML5');
