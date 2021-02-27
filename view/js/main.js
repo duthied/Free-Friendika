@@ -680,6 +680,8 @@ function doFollowThread(ident) {
 	$('#like-rotator-' + ident.toString()).show();
 	$.post('item/' + ident.toString() + '/follow', NavUpdate);
 	liking = 1;
+	force_update = true;
+	update_item = ident.toString();
 }
 
 function doStar(ident) {
