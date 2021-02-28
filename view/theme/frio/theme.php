@@ -314,8 +314,9 @@ function frio_display_item(App $a, &$arr)
 		local_user()
 		&& local_user() == $arr['item']['uid']
 		&& $arr['item']['gravity'] == GRAVITY_PARENT
-		&& !$arr['item']['self'] && !$arr['item']['mention'])
-	{
+		&& !$arr['item']['self']
+		&& !$arr['item']['mention']
+	) {
 		$followThread = [
 			'menu'   => 'follow_thread',
 			'title'  => DI::l10n()->t('Follow Thread'),
