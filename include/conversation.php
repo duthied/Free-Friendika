@@ -899,7 +899,7 @@ function item_photo_menu($item) {
 	$block_link = '';
 	$ignore_link = '';
 
-	if (local_user() && local_user() == $item['uid'] && $item['gravity'] == GRAVITY_PARENT && !$item['self']) {
+	if (local_user() && local_user() == $item['uid'] && $item['gravity'] == GRAVITY_PARENT && !$item['self'] && !$item['mention']) {
 		$sub_link = 'javascript:doFollowThread(' . $item['id'] . '); return false;';
 	}
 
