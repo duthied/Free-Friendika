@@ -58,7 +58,7 @@ return [
 
 		// allowed_themes (Comma-separated list)
 		// Themes users can change to in their settings.
-		'allowed_themes' => 'quattro,vier,duepuntozero,smoothly',
+		'allowed_themes' => 'frio,quattro,vier,duepuntozero,smoothly',
 
 		// curl_timeout (Integer)
 		// Value is in seconds. Set to 0 for unlimited (not recommended).
@@ -184,7 +184,7 @@ return [
 
 		// theme (String)
 		// System theme name.
-		'theme' => 'vier',
+		'theme' => 'frio',
 
 		// url (String)
 		// The fully-qualified URL of this Friendica node.
