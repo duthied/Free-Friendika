@@ -285,7 +285,7 @@ class Post
 		$condition = DBA::mergeConditions($condition,
 			["`visible` AND NOT `deleted`
 			AND NOT `author-blocked` AND NOT `owner-blocked`
-			AND (NOT `causer-blocked` OR `causer-id` = ?) AND NOT `contact-blocked`
+			AND (NOT `causer-blocked` OR `causer-id` = ? OR `causer-id` IS NULL) AND NOT `contact-blocked`
 			AND ((NOT `contact-readonly` AND NOT `contact-pending` AND (`contact-rel` IN (?, ?)))
 				OR `self` OR `gravity` != ? OR `contact-uid` = ?)
 			AND NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `hidden` AND `uri-id` = `" . $view . "`.`uri-id` AND `uid` = ?)

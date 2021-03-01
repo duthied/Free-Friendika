@@ -49,16 +49,27 @@ class UpdateContacts
 			return;
 		}
 
-		// Add every contact our system interacted with and hadn't been updated for a week if unarchived
-		// or for a month if archived.
-		$condition = DBA::mergeConditions($base_condition, ["(`id` IN (SELECT `author-id` FROM `post-user`) OR
-			`id` IN (SELECT `owner-id` FROM `post-user`) OR `id` IN (SELECT `causer-id` FROM `post-user`) OR
-			`id` IN (SELECT `cid` FROM `post-tag`) OR `id` IN (SELECT `cid` FROM `user-contact`) OR `uid` != ?) AND
-			(`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
+		$condition = DBA::mergeConditions($base_condition,
+			["`uid` != ? AND (`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
 			0, DateTimeFormat::utc('now - 1 month'), DateTimeFormat::utc('now - 1 week')]);
-		Logger::info('Updatable interacting federated contacts', ['count' => DBA::count('contact', $condition)]);
 		$ids = self::getContactsToUpdate($condition, [], $limit);
-		Logger::info('Fetched interacting federated contacts', ['count' => count($ids)]);
+		Logger::info('Fetched federated user contacts', ['count' => count($ids)]);
+
+		$conditions = ["`id` IN (SELECT `author-id` FROM `post-user`)", "`id` IN (SELECT `owner-id` FROM `post-user`)", 
+			"`id` IN (SELECT `causer-id` FROM `post-user`)", "`id` IN (SELECT `cid` FROM `post-tag`)",
+			"`id` IN (SELECT `cid` FROM `user-contact`)"];
+
+		foreach ($conditions as $contact_condition) {
+			$condition = DBA::mergeConditions($base_condition,
+				[$contact_condition . " AND (`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
+				DateTimeFormat::utc('now - 1 month'), DateTimeFormat::utc('now - 1 week')]);
+			$ids = self::getContactsToUpdate($condition, $ids, $limit);
+			Logger::info('Fetched interacting federated contacts', ['count' => count($ids), 'condition' => $contact_condition]);
+		}
+
+		if (count($ids) > $limit) {
+			$ids = array_slice($ids, 0, $limit, true);
+		}
 
 		if (!DI::config()->get('system', 'update_active_contacts')) {
 			// Add every contact (mostly failed ones) that hadn't been updated for six months
@@ -66,7 +77,6 @@ class UpdateContacts
 			$condition = DBA::mergeConditions($base_condition,
 				["(`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
 					DateTimeFormat::utc('now - 6 month'), DateTimeFormat::utc('now - 1 month')]);
-			Logger::info('Updatable federated contacts', ['count' => DBA::count('contact', $condition)]);
 			$previous = count($ids);
 			$ids = self::getContactsToUpdate($condition, $ids, $limit - $previous);
 			Logger::info('Fetched federated contacts', ['count' => count($ids) - $previous]);
@@ -93,7 +103,7 @@ class UpdateContacts
 	{
 		$contacts = DBA::select('contact', ['id'], $condition, ['limit' => $limit, 'order' => ['last-update']]);
 		while ($contact = DBA::fetch($contacts)) {
-			$ids[] = $contact['id'];
+			$ids[$contact['id']] = $contact['id'];
 		}
 		DBA::close($contacts);
 		return $ids;

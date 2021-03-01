@@ -970,6 +970,10 @@ class Item
 			unset($item['event-id']);
 		}
 
+		if (empty($item['causer-id'])) {
+			unset($item['causer-id']);
+		}
+
 		Post::insert($item['uri-id'], $item);
 
 		if ($item['gravity'] == GRAVITY_PARENT) {
