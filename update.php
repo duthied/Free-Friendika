@@ -885,3 +885,19 @@ function update_1404()
 		DBA::update('workerqueue', ['parameter' => json_encode($parameters)], ['id' => $task['id']]);
 	}
 }
+
+function update_1407()
+{
+	if (!DBA::e("UPDATE `post` SET `causer-id` = NULL WHERE `causer-id` = 0")) {
+		return Update::FAILED;
+	}
+	if (!DBA::e("UPDATE `post-user` SET `causer-id` = NULL WHERE `causer-id` = 0")) {
+		return Update::FAILED;
+	}
+	if (!DBA::e("UPDATE `post-thread` SET `causer-id` = NULL WHERE `causer-id` = 0")) {
+		return Update::FAILED;
+	}
+	if (!DBA::e("UPDATE `post-thread-user` SET `causer-id` = NULL WHERE `causer-id` = 0")) {
+		return Update::FAILED;
+	}
+}
