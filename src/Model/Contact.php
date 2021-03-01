@@ -1166,6 +1166,12 @@ class Contact
 
 		self::updateFromProbeArray($contact_id, $data);
 
+		// Don't return a number for a deleted account
+		if (!empty($data['account-type']) && $data['account-type'] == User::ACCOUNT_TYPE_DELETED) {
+			Logger::info('Contact is a tombstone', ['url' => $url, 'uid' => $uid]);
+			return 0;
+		}
+
 		return $contact_id;
 	}
 
@@ -1770,20 +1776,26 @@ class Contact
 	 *
 	 * @param integer $id      contact id
 	 * @param integer $uid     user id
-	 * @param string  $url     The profile URL of the contact
+	 * @param string  $old_url The previous profile URL of the contact
+	 * @param string  $new_url The profile URL of the contact
 	 * @param array   $fields  The fields that are updated
 	 *
 	 * @throws \Exception
 	 */
-	private static function updateContact($id, $uid, $url, array $fields)
+	private static function updateContact(int $id, int $uid, string $old_url, string $new_url, array $fields)
 	{
+		if (Strings::normaliseLink($new_url) != Strings::normaliseLink($old_url)) {
+			Logger::notice('New URL differs from old URL', ['old' => $old_url, 'new' => $new_url]);
+			// @todo It is to decide what to do when the URL is changed
+		}
+
 		if (!DBA::update('contact', $fields, ['id' => $id])) {
 			Logger::info('Couldn\'t update contact.', ['id' => $id, 'fields' => $fields]);
 			return;
 		}
 
 		// Search for duplicated contacts and get rid of them
-		if (self::removeDuplicates(Strings::normaliseLink($url), $uid)) {
+		if (self::removeDuplicates(Strings::normaliseLink($new_url), $uid)) {
 			return;
 		}
 
@@ -1807,7 +1819,7 @@ class Contact
 		}
 
 		// Update contact data for all users
-		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($url)];
+		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($old_url)];
 
 		$condition['network'] = [Protocol::DFRN, Protocol::DIASPORA, Protocol::ACTIVITYPUB];
 		DBA::update('contact', $fields, $condition);
@@ -1870,7 +1882,7 @@ class Contact
 			Worker::add(PRIORITY_HIGH, 'MergeContact', $first, $duplicate['id'], $uid);
 		}
 		DBA::close($duplicates);
-		Logger::info('Duplicates handled', ['uid' => $uid, 'nurl' => $nurl]);
+		Logger::info('Duplicates handled', ['uid' => $uid, 'nurl' => $nurl, 'callstack' => System::callstack(20)]);
 		return true;
 	}
 
@@ -1941,14 +1953,14 @@ class Contact
 		// We check after the probing to be able to correct falsely detected contact types.
 		if (($contact['contact-type'] == self::TYPE_RELAY) &&
 			(!Strings::compareLink($ret['url'], $contact['url']) || in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]))) {
-			self::updateContact($id, $uid, $contact['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
+			self::updateContact($id, $uid, $contact['url'], $contact['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
 			Logger::info('Not updating relais', ['id' => $id, 'url' => $contact['url']]);
 			return true;
 		}
 
 		// If Probe::uri fails the network code will be different ("feed" or "unkn")
 		if (in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network'])) {
-			self::updateContact($id, $uid, $ret['url'], ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
+			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => true, 'last-update' => $updated, 'failure_update' => $updated]);
 			return false;
 		}
 
@@ -1998,7 +2010,7 @@ class Contact
 		}
 
 		if (!$update) {
-			self::updateContact($id, $uid, $ret['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
+			self::updateContact($id, $uid, $contact['url'], $ret['url'], ['failed' => false, 'last-update' => $updated, 'success_update' => $updated]);
 
 			if (Contact\Relation::isDiscoverable($ret['url'])) {
 				Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
@@ -2039,7 +2051,7 @@ class Contact
 
 		unset($ret['photo']);
 
-		self::updateContact($id, $uid, $ret['url'], $ret);
+		self::updateContact($id, $uid, $contact['url'], $ret['url'], $ret);
 
 		if (Contact\Relation::isDiscoverable($ret['url'])) {
 			Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);

@@ -71,7 +71,6 @@ class MergeContact
 			if (DBStructure::existsTable('thread')) {
 				DBA::update('thread', ['author-id' => $new_cid], ['author-id' => $old_cid]);
 				DBA::update('thread', ['owner-id' => $new_cid], ['owner-id' => $old_cid]);
-				DBA::update('thread', ['causer-id' => $new_cid], ['causer-id' => $old_cid]);
 			}
 		} else {
 			/// @todo Check if some other data needs to be adjusted as well, possibly the "rel" status?

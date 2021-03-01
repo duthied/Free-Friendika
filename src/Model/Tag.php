@@ -125,7 +125,9 @@ class Tag
 				// The contact wasn't found in the system (most likely some dead account)
 				// We ensure that we only store a single entry by overwriting the previous name
 				Logger::info('Contact not found, updating tag', ['url' => $url, 'name' => $name]);
-				DBA::update('tag', ['name' => substr($name, 0, 96)], ['url' => $url]);
+				if (!DBA::exists('tag', ['name' => substr($name, 0, 96), 'url' => $url])) {
+					DBA::update('tag', ['name' => substr($name, 0, 96)], ['url' => $url]);
+				}
 			}
 		}
 
