@@ -108,7 +108,7 @@ class Cron
 
 			Worker::add(PRIORITY_LOW, 'UpdatePhotoAlbums');
 
-			Worker::add(PRIORITY_LOW, 'Expire');
+			Worker::add(PRIORITY_LOW, 'ExpirePosts');
 
 			Worker::add(PRIORITY_LOW, 'ExpireConversations');
 

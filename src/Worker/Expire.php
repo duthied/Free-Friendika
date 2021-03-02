@@ -76,8 +76,6 @@ class Expire
 
 		Logger::notice('calling hooks done');
 
-		Worker::add(['priority' => $a->queue['priority'], 'dont_fork' => true], 'ExpirePosts');
-
 		return;
 	}
 }

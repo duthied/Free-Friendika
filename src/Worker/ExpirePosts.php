@@ -38,16 +38,17 @@ class ExpirePosts
 	 */
 	public static function execute()
 	{
-		$a = DI::app();
-
 		self::deleteExpiredOriginPosts();
 
 		self::deleteUnusedItemUri();
 
 		self::deleteExpiredExternalPosts();
 
+		// Set the expiry for origin posta
+		Worker::add(PRIORITY_LOW, 'Expire');
+
 		// update nodeinfo data after everything is cleaned up
-		Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true], 'NodeInfo');
+		Worker::add(PRIORITY_LOW, 'NodeInfo');
 	}
 
 	/**
@@ -70,7 +71,7 @@ class ExpirePosts
 		}
 		DBA::close($rows);
 
-		Logger::info('Deleting orphaned post entries- start');
+		Logger::info('Deleting orphaned post entries - start');
 		$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post`.`uri-id`)"];
 		DBA::delete('post', $condition);
 		Logger::info('Orphaned post entries deleted', ['rows' => DBA::affectedRows()]);
