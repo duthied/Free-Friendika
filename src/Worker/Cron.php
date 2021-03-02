@@ -108,16 +108,9 @@ class Cron
 
 			Worker::add(PRIORITY_LOW, 'UpdatePhotoAlbums');
 
-			// update nodeinfo data
-			Worker::add(PRIORITY_LOW, 'NodeInfo');
-
 			Worker::add(PRIORITY_LOW, 'Expire');
 
-			Worker::add(PRIORITY_LOW, 'ExpirePosts');
-
 			Worker::add(PRIORITY_LOW, 'ExpireConversations');
-
-			Worker::add(PRIORITY_LOW, 'CleanItemUri');
 
 			Worker::add(PRIORITY_LOW, 'RemoveUnusedContacts');
 
