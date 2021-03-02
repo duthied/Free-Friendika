@@ -22,16 +22,115 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Post;
 
 class ExpirePosts
 {
 	/**
-	 * Delete old post entries
+	 * Expire posts and remove unused item-uri entries
+	 *
+	 * @return void
 	 */
 	public static function execute()
+	{
+		self::deleteExpiredOriginPosts();
+
+		self::deleteUnusedItemUri();
+
+		self::deleteExpiredExternalPosts();
+
+		// Set the expiry for origin posta
+		Worker::add(PRIORITY_LOW, 'Expire');
+
+		// update nodeinfo data after everything is cleaned up
+		Worker::add(PRIORITY_LOW, 'NodeInfo');
+	}
+
+	/**
+	 * Delete expired origin posts and orphaned post related table entries
+	 *
+	 * @return void
+	 */
+	private static function deleteExpiredOriginPosts()
+	{
+		Logger::info('Delete expired posts');
+		// physically remove anything that has been deleted for more than two months
+		$condition = ["`gravity` = ? AND `deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY", GRAVITY_PARENT];
+		$rows = Post::select(['guid', 'uri-id', 'uid'],  $condition);
+		while ($row = Post::fetch($rows)) {
+			Logger::info('Delete expired item', ['uri-id' => $row['uri-id'], 'guid' => $row['guid']]);
+			if (DBStructure::existsTable('item')) {
+				DBA::delete('item', ['parent-uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
+			}
+			Post\User::delete(['parent-uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
+		}
+		DBA::close($rows);
+
+		Logger::info('Deleting orphaned post entries - start');
+		$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post`.`uri-id`)"];
+		DBA::delete('post', $condition);
+		Logger::info('Orphaned post entries deleted', ['rows' => DBA::affectedRows()]);
+
+		Logger::info('Deleting orphaned post-content entries - start');
+		$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-content`.`uri-id`)"];
+		DBA::delete('post-content', $condition);
+		Logger::info('Orphaned post-content entries deleted', ['rows' => DBA::affectedRows()]);
+
+		Logger::info('Deleting orphaned post-thread entries - start');
+		$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-thread`.`uri-id`)"];
+		DBA::delete('post-thread', $condition);
+		Logger::info('Orphaned post-thread entries deleted', ['rows' => DBA::affectedRows()]);
+
+		Logger::info('Deleting orphaned post-thread-user entries - start');
+		$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-thread-user`.`uri-id`)"];
+		DBA::delete('post-thread-user', $condition);
+		Logger::info('Orphaned post-thread-user entries deleted', ['rows' => DBA::affectedRows()]);
+
+		Logger::info('Delete expired posts - done');
+	}
+
+	/**
+	 * Delete unused item-uri entries
+	 */
+	private static function deleteUnusedItemUri()
+	{
+		$a = DI::app();
+
+		// We have to avoid deleting newly created "item-uri" entries.
+		// So we fetch a post that had been stored yesterday and only delete older ones.
+		$item = Post::selectFirst(['uri-id'], ["`uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY", 0, 1],
+			['order' => ['received' => true]]);
+		if (empty($item['uri-id'])) {
+			Logger::warning('No item with uri-id found - we better quit here');
+			return;
+		}
+		Logger::notice('Start deleting orphaned URI-ID', ['last-id' => $item['uri-id']]);
+		$uris = DBA::select('item-uri', ['id'], ["`id` < ?
+			AND NOT EXISTS(SELECT `uri-id` FROM `post` WHERE `uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `parent-uri-id` FROM `post` WHERE `parent-uri-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `thr-parent-id` FROM `post` WHERE `thr-parent-id` = `item-uri`.`id`)
+			AND NOT EXISTS(SELECT `external-id` FROM `post` WHERE `external-id` = `item-uri`.`id`)", $item['uri-id']]);
+
+		$affected_count = 0;
+		while ($rows = DBA::toArray($uris, false, 100)) {
+			$ids = array_column($rows, 'id');
+			DBA::delete('item-uri', ['id' => $ids]);
+			$affected_count += DBA::affectedRows();
+			Logger::info('Deleted', ['rows' => $affected_count]);
+		}
+		DBA::close($uris);
+		Logger::notice('Orphaned URI-ID entries removed', ['rows' => $affected_count]);
+	}
+
+	/**
+	 * Delete old external post entries
+	 */
+	private static function deleteExpiredExternalPosts()
 	{
 		$expire_days = DI::config()->get('system', 'dbclean-expire-days');
 		$expire_days_unclaimed = DI::config()->get('system', 'dbclean-expire-unclaimed');
