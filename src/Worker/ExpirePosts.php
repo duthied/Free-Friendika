@@ -47,7 +47,9 @@ class ExpirePosts
 
 		self::deleteExpiredExternalPosts();
 
-		self::addMissingEntries();
+		if (DI::config()->get('system', 'add_missing_posts')) {
+			self::addMissingEntries();
+		}
 
 		// Set the expiry for origin posta
 		Worker::add(PRIORITY_LOW, 'Expire');
