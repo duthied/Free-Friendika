@@ -23,6 +23,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
@@ -40,9 +41,15 @@ class ExpirePosts
 	{
 		self::deleteExpiredOriginPosts();
 
+		self::deleteOrphanedEntries();
+
 		self::deleteUnusedItemUri();
 
 		self::deleteExpiredExternalPosts();
+
+		if (DI::config()->get('system', 'add_missing_posts')) {
+			self::addMissingEntries();
+		}
 
 		// Set the expiry for origin posta
 		Worker::add(PRIORITY_LOW, 'Expire');
@@ -58,40 +65,102 @@ class ExpirePosts
 	 */
 	private static function deleteExpiredOriginPosts()
 	{
-		Logger::info('Delete expired posts');
+		Logger::notice('Delete expired posts');
 		// physically remove anything that has been deleted for more than two months
 		$condition = ["`gravity` = ? AND `deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY", GRAVITY_PARENT];
 		$rows = Post::select(['guid', 'uri-id', 'uid'],  $condition);
 		while ($row = Post::fetch($rows)) {
 			Logger::info('Delete expired item', ['uri-id' => $row['uri-id'], 'guid' => $row['guid']]);
-			if (DBStructure::existsTable('item')) {
-				DBA::delete('item', ['parent-uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
-			}
 			Post\User::delete(['parent-uri-id' => $row['uri-id'], 'uid' => $row['uid']]);
 		}
 		DBA::close($rows);
 
-		Logger::info('Deleting orphaned post entries - start');
-		$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post`.`uri-id`)"];
-		DBA::delete('post', $condition);
-		Logger::info('Orphaned post entries deleted', ['rows' => DBA::affectedRows()]);
+		Logger::notice('Delete expired posts - done');
+	}
 
-		Logger::info('Deleting orphaned post-content entries - start');
-		$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-content`.`uri-id`)"];
-		DBA::delete('post-content', $condition);
-		Logger::info('Orphaned post-content entries deleted', ['rows' => DBA::affectedRows()]);
+	/**
+	 * Delete orphaned entries in the post related tables
+	 *
+	 * @return void
+	 */
+	private static function deleteOrphanedEntries()
+	{
+		Logger::notice('Delete orphaned entries');
 
-		Logger::info('Deleting orphaned post-thread entries - start');
-		$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-thread`.`uri-id`)"];
-		DBA::delete('post-thread', $condition);
-		Logger::info('Orphaned post-thread entries deleted', ['rows' => DBA::affectedRows()]);
+		// "post-user" is the leading table. So we delete every entry that isn't found there
+		$tables = ['item', 'post', 'post-content', 'post-thread', 'post-thread-user'];
+		foreach ($tables as $table) {
+			if (($table == 'item') && !DBStructure::existsTable('item')) {
+				continue;
+			}
 
-		Logger::info('Deleting orphaned post-thread-user entries - start');
-		$condition = ["NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `post-user`.`uri-id` = `post-thread-user`.`uri-id`)"];
-		DBA::delete('post-thread-user', $condition);
-		Logger::info('Orphaned post-thread-user entries deleted', ['rows' => DBA::affectedRows()]);
+			Logger::notice('Start collecting orphaned entries', ['table' => $table]);
+			$uris = DBA::select($table, ['uri-id'], ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user`)"]);
+			$affected_count = 0;
+			Logger::notice('Deleting orphaned entries - start', ['table' => $table]);
+			while ($rows = DBA::toArray($uris, false, 100)) {
+				$ids = array_column($rows, 'uri-id');
+				DBA::delete($table, ['uri-id' => $ids]);
+				$affected_count += DBA::affectedRows();
+			}
+			DBA::close($uris);
+			Logger::notice('Orphaned entries deleted', ['table' => $table, 'rows' => $affected_count]);
+		}
+		Logger::notice('Delete orphaned entries - done');
+	}
 
-		Logger::info('Delete expired posts - done');
+	/**
+	 * Add missing entries in some post related tables
+	 *
+	 * @return void
+	 */
+	private static function addMissingEntries()
+	{
+		Logger::notice('Adding missing entries');
+
+		$rows = 0;
+		$userposts = DBA::select('post-user', [], ["`uri-id` not in (select `uri-id` from `post`)"], ['group_by' => ['uri-id']]);
+		while ($fields = DBA::fetch($userposts)) {
+			$post_fields = DBStructure::getFieldsForTable('post', $fields);
+			DBA::insert('post', $post_fields, Database::INSERT_IGNORE);
+			$rows++;
+		}
+		DBA::close($userposts);
+		if ($rows > 0) {
+			Logger::notice('Added post entries', ['rows' => $rows]);
+		} else {
+			Logger::notice('No post entries added');
+		}
+
+		$rows = 0;
+		$userposts = DBA::select('post-user', [], ["`gravity` = ? AND `uri-id` not in (select `uri-id` from `post-thread`)", GRAVITY_PARENT], ['group_by' => ['uri-id']]);
+		while ($fields = DBA::fetch($userposts)) {
+			$post_fields = DBStructure::getFieldsForTable('post-thread', $fields);
+			$post_fields['commented'] = $post_fields['changed'] = $post_fields['created'];
+			DBA::insert('post-thread', $post_fields, Database::INSERT_IGNORE);
+			$rows++;
+		}
+		DBA::close($userposts);
+		if ($rows > 0) {
+			Logger::notice('Added post-thread entries', ['rows' => $rows]);
+		} else {
+			Logger::notice('No post-thread entries added');
+		}
+
+		$rows = 0;
+		$userposts = DBA::select('post-user', [], ["`gravity` = ? AND `id` not in (select `post-user-id` from `post-thread-user`)", GRAVITY_PARENT]);
+		while ($fields = DBA::fetch($userposts)) {
+			$post_fields = DBStructure::getFieldsForTable('post-thread-user', $fields);
+			$post_fields['commented'] = $post_fields['changed'] = $post_fields['created'];
+			DBA::insert('post-thread-user', $post_fields, Database::INSERT_IGNORE);
+			$rows++;
+		}
+		DBA::close($userposts);
+		if ($rows > 0) {
+			Logger::notice('Added post-thread-user entries', ['rows' => $rows]);
+		} else {
+			Logger::notice('No post-thread-user entries added');
+		}
 	}
 
 	/**
@@ -99,8 +168,6 @@ class ExpirePosts
 	 */
 	private static function deleteUnusedItemUri()
 	{
-		$a = DI::app();
-
 		// We have to avoid deleting newly created "item-uri" entries.
 		// So we fetch a post that had been stored yesterday and only delete older ones.
 		$item = Post::selectFirst(['uri-id'], ["`uid` = ? AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY", 0, 1],
@@ -109,13 +176,14 @@ class ExpirePosts
 			Logger::warning('No item with uri-id found - we better quit here');
 			return;
 		}
-		Logger::notice('Start deleting orphaned URI-ID', ['last-id' => $item['uri-id']]);
+		Logger::notice('Start collecting orphaned URI-ID', ['last-id' => $item['uri-id']]);
 		$uris = DBA::select('item-uri', ['id'], ["`id` < ?
 			AND NOT EXISTS(SELECT `uri-id` FROM `post` WHERE `uri-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `parent-uri-id` FROM `post` WHERE `parent-uri-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `thr-parent-id` FROM `post` WHERE `thr-parent-id` = `item-uri`.`id`)
 			AND NOT EXISTS(SELECT `external-id` FROM `post` WHERE `external-id` = `item-uri`.`id`)", $item['uri-id']]);
 
+		Logger::notice('Start deleting orphaned URI-ID', ['last-id' => $item['uri-id']]);
 		$affected_count = 0;
 		while ($rows = DBA::toArray($uris, false, 100)) {
 			$ids = array_column($rows, 'id');
