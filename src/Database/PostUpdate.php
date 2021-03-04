@@ -784,6 +784,11 @@ class PostUpdate
 			return true;
 		}
 
+		if (!DBStructure::existsTable('item')) {
+			DI::config()->set("system", "post_update_version", 1400);
+			return true;
+		}
+
 		$condition = ["`extid` != ? AND EXISTS(SELECT `id` FROM `post-user` WHERE `uri-id` = `item`.`uri-id` AND `uid` = `item`.`uid` AND `external-id` IS NULL)", ''];
 		Logger::info('Start', ['rest' => DBA::count('item', $condition)]);
 
