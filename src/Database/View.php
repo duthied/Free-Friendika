@@ -77,6 +77,20 @@ class View
 
 	public static function create(bool $verbose, bool $action)
 	{
+		// Delete previously used views that aren't used anymore
+		foreach(['post-view', 'post-thread-view'] as $view) {
+			if (self::isView($view)) {
+				$sql = sprintf("DROP VIEW IF EXISTS `%s`", DBA::escape($view));
+				if (!empty($sql) && $verbose) {
+					echo $sql . ";\n";
+				}
+		
+				if (!empty($sql) && $action) {
+					DBA::e($sql);
+				}
+			}
+		}
+
 		$definition = self::definition();
 
 		foreach ($definition as $name => $structure) {
