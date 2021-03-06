@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1408);
+	define('DB_UPDATE_VERSION', 1409);
 }
 
 return [
@@ -245,6 +245,7 @@ return [
 			"blocked_uid" => ["blocked", "uid"],
 			"uid_rel_network_poll" => ["uid", "rel", "network", "poll(64)", "archive"],
 			"uid_network_batch" => ["uid", "network", "batch(64)"],
+			"batch_contact-type" => ["batch(64)", "contact-type"],
 			"addr_uid" => ["addr(128)", "uid"],
 			"nurl_uid" => ["nurl(128)", "uid"],
 			"nick_uid" => ["nick(128)", "uid"],

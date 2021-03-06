@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-rc (Red Hot Poker)
--- DB_UPDATE_VERSION 1408
+-- DB_UPDATE_VERSION 1409
 -- ------------------------------------------
 
 
@@ -186,6 +186,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `blocked_uid` (`blocked`,`uid`),
 	 INDEX `uid_rel_network_poll` (`uid`,`rel`,`network`,`poll`(64),`archive`),
 	 INDEX `uid_network_batch` (`uid`,`network`,`batch`(64)),
+	 INDEX `batch_contact-type` (`batch`(64),`contact-type`),
 	 INDEX `addr_uid` (`addr`(128),`uid`),
 	 INDEX `nurl_uid` (`nurl`(128),`uid`),
 	 INDEX `nick_uid` (`nick`(128),`uid`),
