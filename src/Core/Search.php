@@ -21,7 +21,6 @@
 
 namespace Friendica\Core;
 
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
@@ -171,45 +170,11 @@ class Search
 	{
 		Logger::info('Searching', ['search' => $search, 'type' => $type, 'start' => $start, 'itempage' => $itemPage]);
 
-		$config = DI::config();
+		$contacts = Contact::searchByName($search, $type == self::TYPE_FORUM ? 'community' : '');
 
-		$diaspora = $config->get('system', 'diaspora_enabled') ? Protocol::DIASPORA : Protocol::DFRN;
-		$ostatus  = !$config->get('system', 'ostatus_disabled') ? Protocol::OSTATUS : Protocol::DFRN;
+		$resultList = new ResultList($start, $itemPage, count($contacts));
 
-		$wildcard = Strings::escapeHtml('%' . $search . '%');
-
-		$condition = [
-			'NOT `unsearchable`
-			AND `network` IN (?, ?, ?, ?)
-			AND NOT `failed` AND `uid` = ?
-			AND (`url` LIKE ? OR `name` LIKE ? OR `location` LIKE ? 
-				OR `addr` LIKE ? OR `about` LIKE ? OR `keywords` LIKE ?)
-			AND `forum` = ?',
-			Protocol::ACTIVITYPUB, Protocol::DFRN, $ostatus, $diaspora, 0,
-			$wildcard, $wildcard, $wildcard,
-			$wildcard, $wildcard, $wildcard,
-			($type === self::TYPE_FORUM),
-		];
-
-		$count = DBA::count('contact', $condition);
-
-		$resultList = new ResultList($start, $itemPage, $count);
-
-		if (empty($count)) {
-			return $resultList;
-		}
-
-		$data = DBA::select('contact', [], $condition, [
-			'group_by' => ['nurl', 'updated'],
-			'limit'    => [$start, $itemPage],
-			'order'    => ['updated' => 'DESC']
-		]);
-
-		if (!DBA::isResult($data)) {
-			return $resultList;
-		}
-
-		while ($contact = DBA::fetch($data)) {
+		foreach ($contacts as $contact) {
 			$result = new ContactResult(
 				$contact["name"],
 				$contact["addr"],
@@ -224,8 +189,6 @@ class Search
 
 			$resultList->addResult($result);
 		}
-
-		DBA::close($data);
 
 		// Add found profiles from the global directory to the local directory
 		Worker::add(PRIORITY_LOW, 'SearchDirectory', $search);
