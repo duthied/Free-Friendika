@@ -983,6 +983,28 @@ class Receiver
 	}
 
 	/**
+	 * Converts the language element (Used by Peertube)
+	 *
+	 * @param array $languages
+	 * @return array Languages
+	 */
+	public static function processLanguages(array $languages)
+	{
+		if (empty($languages)) {
+			return [];
+		}
+
+		$language_list = [];
+
+		foreach ($languages as $language) {
+			if (!empty($language['_:identifier']) && !empty($language['as:name'])) {
+				$language_list[$language['_:identifier']] = $language['as:name'];
+			}
+		}
+		return $language_list;
+	}
+
+	/**
 	 * Convert tags from JSON-LD format into a simplified format
 	 *
 	 * @param array $tags Tags in JSON-LD format
@@ -1345,6 +1367,7 @@ class Receiver
 		$object_data['name'] = JsonLD::fetchElement($object, 'as:name', '@value');
 		$object_data['summary'] = JsonLD::fetchElement($object, 'as:summary', '@value');
 		$object_data['content'] = JsonLD::fetchElement($object, 'as:content', '@value');
+		$object_data['mediatype'] = JsonLD::fetchElement($object, 'as:mediaType', '@value');
 		$object_data = self::getSource($object, $object_data);
 		$object_data['start-time'] = JsonLD::fetchElement($object, 'as:startTime', '@value');
 		$object_data['end-time'] = JsonLD::fetchElement($object, 'as:endTime', '@value');
@@ -1356,6 +1379,7 @@ class Receiver
 		$object_data['attachments'] = self::processAttachments(JsonLD::fetchElementArray($object, 'as:attachment') ?? []);
 		$object_data['tags'] = self::processTags(JsonLD::fetchElementArray($object, 'as:tag') ?? []);
 		$object_data['emojis'] = self::processEmojis(JsonLD::fetchElementArray($object, 'as:tag', null, '@type', 'toot:Emoji') ?? []);
+		$object_data['languages'] = self::processLanguages(JsonLD::fetchElementArray($object, 'sc:inLanguage') ?? []);
 		$object_data['generator'] = JsonLD::fetchElement($object, 'as:generator', 'as:name', '@type', 'as:Application');
 		$object_data['generator'] = JsonLD::fetchElement($object_data, 'generator', '@value');
 		$object_data['alternate-url'] = JsonLD::fetchElement($object, 'as:url', '@id');

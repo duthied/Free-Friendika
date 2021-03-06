@@ -1503,6 +1503,10 @@ class Item
 	 */
 	private static function getLanguage(array $item)
 	{
+		if (!empty($item['language'])) {
+			return $item['language'];
+		}
+
 		if (!in_array($item['gravity'], [GRAVITY_PARENT, GRAVITY_COMMENT]) || empty($item['body'])) {
 			return '';
 		}
