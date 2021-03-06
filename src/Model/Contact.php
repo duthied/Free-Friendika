@@ -1473,19 +1473,24 @@ class Contact
 	/**
 	 * Return the photo path for a given contact array in the given size
 	 *
-	 * @param array $contact  contact array
-	 * @param string $field   Fieldname of the photo in the contact array
-	 * @param string $size    Size of the avatar picture
-	 * @param string $avatar  Avatar path that is displayed when no photo had been found
+	 * @param array $contact    contact array
+	 * @param string $field     Fieldname of the photo in the contact array
+	 * @param string $size      Size of the avatar picture
+	 * @param string $avatar    Avatar path that is displayed when no photo had been found
+	 * @param bool  $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	private static function getAvatarPath(array $contact, string $field, string $size, string $avatar)
+	private static function getAvatarPath(array $contact, string $field, string $size, string $avatar, $no_update = false)
 	{
 		if (!empty($contact)) {
-			$contact = self::checkAvatarCacheByArray($contact);
+			$contact = self::checkAvatarCacheByArray($contact, $no_update);
 			if (!empty($contact[$field])) {
 				$avatar = $contact[$field];
 			}
+		}
+
+		if ($no_update && empty($avatar) && !empty($contact['avatar'])) {
+			$avatar = $contact['avatar'];
 		}
 
 		if (empty($avatar)) {
@@ -1502,46 +1507,50 @@ class Contact
 	/**
 	 * Return the photo path for a given contact array
 	 *
-	 * @param array $contact Contact array
-	 * @param string $avatar  Avatar path that is displayed when no photo had been found
+	 * @param array  $contact   Contact array
+	 * @param string $avatar    Avatar path that is displayed when no photo had been found
+	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getPhoto(array $contact, string $avatar = '')
+	public static function getPhoto(array $contact, string $avatar = '', bool $no_update = false)
 	{
-		return self::getAvatarPath($contact, 'photo', Proxy::SIZE_SMALL, $avatar);
+		return self::getAvatarPath($contact, 'photo', Proxy::SIZE_SMALL, $avatar, $no_update);
 	}
 
 	/**
 	 * Return the photo path (thumb size) for a given contact array
 	 *
-	 * @param array $contact Contact array
-	 * @param string $avatar  Avatar path that is displayed when no photo had been found
+	 * @param array  $contact   Contact array
+	 * @param string $avatar    Avatar path that is displayed when no photo had been found
+	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getThumb(array $contact, string $avatar = '')
+	public static function getThumb(array $contact, string $avatar = '', bool $no_update = false)
 	{
-		return self::getAvatarPath($contact, 'thumb', Proxy::SIZE_THUMB, $avatar);
+		return self::getAvatarPath($contact, 'thumb', Proxy::SIZE_THUMB, $avatar, $no_update);
 	}
 
 	/**
 	 * Return the photo path (micro size) for a given contact array
 	 *
-	 * @param array $contact Contact array
-	 * @param string $avatar  Avatar path that is displayed when no photo had been found
+	 * @param array  $contact   Contact array
+	 * @param string $avatar    Avatar path that is displayed when no photo had been found
+	 * @param bool   $no_update Don't perfom an update if no cached avatar was found
 	 * @return string photo path
 	 */
-	public static function getMicro(array $contact, string $avatar = '')
+	public static function getMicro(array $contact, string $avatar = '', bool $no_update = false)
 	{
-		return self::getAvatarPath($contact, 'micro', Proxy::SIZE_MICRO, $avatar);
+		return self::getAvatarPath($contact, 'micro', Proxy::SIZE_MICRO, $avatar, $no_update);
 	}
 
 	/**
 	 * Check the given contact array for avatar cache fields
 	 *
 	 * @param array $contact
+	 * @param bool  $no_update Don't perfom an update if no cached avatar was found
 	 * @return array contact array with avatar cache fields
 	 */
-	private static function checkAvatarCacheByArray(array $contact)
+	private static function checkAvatarCacheByArray(array $contact, bool $no_update = false)
 	{
 		$update = false;
 		$contact_fields = [];
@@ -1555,7 +1564,7 @@ class Contact
 			}
 		}
 
-		if (!$update) {
+		if (!$update || $no_update) {
 			return $contact;
 		}
 

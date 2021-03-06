@@ -30,7 +30,6 @@ use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
@@ -79,7 +78,7 @@ class Acl extends BaseModule
 		$contacts = [];
 		foreach ($result as $contact) {
 			$contacts[] = [
-				'photo'   => Contact::getMicro($contact),
+				'photo'   => Contact::getMicro($contact, '', true),
 				'name'    => htmlspecialchars($contact['name']),
 				'nick'    => $contact['addr'] ?: $contact['url'],
 				'network' => $contact['network'],
