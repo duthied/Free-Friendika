@@ -24,6 +24,7 @@ namespace Friendica\Protocol\ActivityPub;
 use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
+use Friendica\Content\Text\Markdown;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -65,6 +66,26 @@ class Processor
 		return $body;
 	}
 
+	/**
+	 * Convert the language array into a language JSON
+	 *
+	 * @param array $languages
+	 * @return string language JSON
+	 */
+	private static function processLanguages(array $languages)
+	{
+		$codes = array_keys($languages);
+		$lang = [];
+		foreach ($codes as $code) {
+			$lang[$code] = 1;
+		}
+
+		if (empty($lang)) {
+			return '';
+		}
+
+		return json_encode($lang);
+	}
 	/**
 	 * Replaces emojis in the body
 	 *
@@ -193,13 +214,13 @@ class Processor
 							continue 2;
 						}
 
-						$item['body'] .= "\n[audio]" . $attach['url'] . '[/audio]';
+						$item['body'] = '[audio]' . $attach['url'] . "[/audio]\n" . $item['body'];
 					} elseif ($filetype == 'video') {
 						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
 							continue 2;
 						}
 
-						$item['body'] .= "\n[video]" . $attach['url'] . '[/video]';
+						$item['body'] = '[video]' . $attach['url'] . "[/video]\n" . $item['body'];
 					}
 			}
 		}
@@ -463,9 +484,21 @@ class Processor
 	 */
 	private static function processContent($activity, $item)
 	{
-		$item['title'] = HTML::toBBCode($activity['name']);
+		if (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/markdown')) {
+			$item['title'] = Markdown::toBBCode($activity['name']);
+			$content = Markdown::toBBCode($activity['content']);
+		} elseif (!empty($activity['mediatype']) && ($activity['mediatype'] == 'text/bbcode')) {
+			$item['title'] = $activity['name'];
+			$content = $activity['content'];
+		} else {
+			// By default assume "text/html"
+			$item['title'] = HTML::toBBCode($activity['name']);
+			$content = HTML::toBBCode($activity['content']);
+		}
 
-		$content = HTML::toBBCode($activity['content']);
+		if (!empty($activity['languages'])) {
+			$item['language'] = self::processLanguages($activity['languages']);
+		}
 
 		if (!empty($activity['emojis'])) {
 			$content = self::replaceEmojis($content, $activity['emojis']);
