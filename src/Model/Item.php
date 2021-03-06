@@ -94,9 +94,9 @@ class Item
 			'private', 'title', 'body', 'raw-body', 'location', 'coord', 'app',
 			'inform', 'deleted', 'extid', 'post-type', 'gravity',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
-			'author-id', 'author-link', 'owner-id', 'owner-link', 'contact-uid',
+			'author-id', 'author-link', 'author-name', 'author-avatar', 'owner-id', 'owner-link', 'contact-uid',
 			'signed_text', 'network', 'wall', 'contact-id', 'plink', 'forum_mode', 'origin',
-			'thr-parent-id', 'parent-uri-id', 'postopts', 'pubmail', 
+			'thr-parent-id', 'parent-uri-id', 'postopts', 'pubmail',
 			'event-created', 'event-edited', 'event-start', 'event-finish',
 			'event-summary', 'event-desc', 'event-location', 'event-type',
 			'event-nofinish', 'event-adjust', 'event-ignore', 'event-id'];
