@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1407);
+	define('DB_UPDATE_VERSION', 1408);
 }
 
 return [
@@ -1128,7 +1128,6 @@ return [
 			"causer-id" => ["causer-id"],
 			"received" => ["received"],
 			"commented" => ["commented"],
-			"changed" => ["changed"]
 		]
 	],
 	"post-user" => [
@@ -1181,11 +1180,9 @@ return [
 			"author-id_uid" => ["author-id", "uid"],
 			"author-id_received" => ["author-id", "received"],
 			"parent-uri-id_uid" => ["parent-uri-id", "uid"],
-			"uid_hidden" => ["uid", "hidden"],
 			"uid_contactid" => ["uid", "contact-id"],
 			"uid_unseen_contactid" => ["uid", "unseen", "contact-id"],
 			"uid_unseen" => ["uid", "unseen"],
-			"uid_unseen_wall" => ["uid", "unseen", "wall"],
 		],
 	],
 	"post-thread-user" => [
@@ -1226,11 +1223,10 @@ return [
 			"psid" => ["psid"],
 			"post-user-id" => ["post-user-id"],
 			"commented" => ["commented"],
-			"received" => ["received"],
-			"author-id_received" => ["author-id", "received"],
+			"uid_received" => ["uid", "received"],
 			"uid_pinned" => ["uid", "pinned"],
 			"uid_commented" => ["uid", "commented"],
-			"mention_uid" => ["mention", "uid"],
+			"uid_starred" => ["uid", "starred"],
 			"uid_mention" => ["uid", "mention"],
 		]
 	],
