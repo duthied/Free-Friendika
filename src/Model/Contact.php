@@ -855,7 +855,9 @@ class Contact
 		if (!empty($contact['batch']) && !empty($contact['term-date']) && ($contact['term-date'] > DBA::NULL_DATETIME)) {
 			$fields = ['failed' => false, 'term-date' => DBA::NULL_DATETIME, 'archive' => false];
 			$condition = ['uid' => 0, 'network' => Protocol::FEDERATED, 'batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
-			DBA::update('contact', $fields, $condition);
+			if (!DBA::exists('contact', array_merge($condition, $fields))) {
+				DBA::update('contact', $fields, $condition);
+			}
 		}
 
 		$condition = ['`id` = ? AND (`term-date` > ? OR `archive`)', $contact['id'], DBA::NULL_DATETIME];
