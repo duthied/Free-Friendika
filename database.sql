@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2021.03-dev (Red Hot Poker)
--- DB_UPDATE_VERSION 1407
+-- Friendica 2021.03-rc (Red Hot Poker)
+-- DB_UPDATE_VERSION 1408
 -- ------------------------------------------
 
 
@@ -1073,7 +1073,6 @@ CREATE TABLE IF NOT EXISTS `post-thread` (
 	 INDEX `causer-id` (`causer-id`),
 	 INDEX `received` (`received`),
 	 INDEX `commented` (`commented`),
-	 INDEX `changed` (`changed`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
 	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
@@ -1129,11 +1128,9 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	 INDEX `author-id_uid` (`author-id`,`uid`),
 	 INDEX `author-id_received` (`author-id`,`received`),
 	 INDEX `parent-uri-id_uid` (`parent-uri-id`,`uid`),
-	 INDEX `uid_hidden` (`uid`,`hidden`),
 	 INDEX `uid_contactid` (`uid`,`contact-id`),
 	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
 	 INDEX `uid_unseen` (`uid`,`unseen`),
-	 INDEX `uid_unseen_wall` (`uid`,`unseen`,`wall`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
@@ -1185,11 +1182,10 @@ CREATE TABLE IF NOT EXISTS `post-thread-user` (
 	 INDEX `psid` (`psid`),
 	 INDEX `post-user-id` (`post-user-id`),
 	 INDEX `commented` (`commented`),
-	 INDEX `received` (`received`),
-	 INDEX `author-id_received` (`author-id`,`received`),
+	 INDEX `uid_received` (`uid`,`received`),
 	 INDEX `uid_pinned` (`uid`,`pinned`),
 	 INDEX `uid_commented` (`uid`,`commented`),
-	 INDEX `mention_uid` (`mention`,`uid`),
+	 INDEX `uid_starred` (`uid`,`starred`),
 	 INDEX `uid_mention` (`uid`,`mention`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
@@ -1775,6 +1771,196 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 			LEFT JOIN `post-delivery-data` ON `post-delivery-data`.`uri-id` = `post-thread-user`.`uri-id` AND `post-thread-user`.`origin`
 			LEFT JOIN `permissionset` ON `permissionset`.`id` = `post-thread-user`.`psid`
 			LEFT JOIN `post-user` AS `parent-post` ON `parent-post`.`uri-id` = `post-user`.`parent-uri-id` AND `parent-post`.`uid` = `post-thread-user`.`uid`
+			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
+
+--
+-- VIEW post-view
+--
+DROP VIEW IF EXISTS `post-view`;
+CREATE VIEW `post-view` AS SELECT 
+	`item-uri`.`uri` AS `uri`,
+	`post`.`uri-id` AS `uri-id`,
+	`parent-item-uri`.`uri` AS `parent-uri`,
+	`post`.`parent-uri-id` AS `parent-uri-id`,
+	`thr-parent-item-uri`.`uri` AS `thr-parent`,
+	`post`.`thr-parent-id` AS `thr-parent-id`,
+	`item-uri`.`guid` AS `guid`,
+	`post`.`gravity` AS `gravity`,
+	`external-item-uri`.`uri` AS `extid`,
+	`post`.`external-id` AS `external-id`,
+	`post`.`created` AS `created`,
+	`post`.`edited` AS `edited`,
+	`post-thread`.`commented` AS `commented`,
+	`post`.`received` AS `received`,
+	`post-thread`.`changed` AS `changed`,
+	`post`.`post-type` AS `post-type`,
+	`post`.`private` AS `private`,
+	`post`.`visible` AS `visible`,
+	`post`.`deleted` AS `deleted`,
+	`post`.`global` AS `global`,
+	`post`.`network` AS `network`,
+	`post`.`vid` AS `vid`,
+	IF (`post`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
+	`post-content`.`title` AS `title`,
+	`post-content`.`content-warning` AS `content-warning`,
+	`post-content`.`raw-body` AS `raw-body`,
+	`post-content`.`body` AS `body`,
+	`post-content`.`rendered-hash` AS `rendered-hash`,
+	`post-content`.`rendered-html` AS `rendered-html`,
+	`post-content`.`language` AS `language`,
+	`post-content`.`plink` AS `plink`,
+	`post-content`.`location` AS `location`,
+	`post-content`.`coord` AS `coord`,
+	`post-content`.`app` AS `app`,
+	`post-content`.`object-type` AS `object-type`,
+	`post-content`.`object` AS `object`,
+	`post-content`.`target-type` AS `target-type`,
+	`post-content`.`target` AS `target`,
+	`post-content`.`resource-id` AS `resource-id`,
+	`post`.`author-id` AS `author-id`,
+	`author`.`url` AS `author-link`,
+	`author`.`addr` AS `author-addr`,
+	`author`.`name` AS `author-name`,
+	`author`.`nick` AS `author-nick`,
+	`author`.`thumb` AS `author-avatar`,
+	`author`.`network` AS `author-network`,
+	`author`.`blocked` AS `author-blocked`,
+	`author`.`hidden` AS `author-hidden`,
+	`post`.`owner-id` AS `owner-id`,
+	`owner`.`url` AS `owner-link`,
+	`owner`.`addr` AS `owner-addr`,
+	`owner`.`name` AS `owner-name`,
+	`owner`.`nick` AS `owner-nick`,
+	`owner`.`thumb` AS `owner-avatar`,
+	`owner`.`network` AS `owner-network`,
+	`owner`.`blocked` AS `owner-blocked`,
+	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`contact-type` AS `owner-contact-type`,
+	`post`.`causer-id` AS `causer-id`,
+	`causer`.`url` AS `causer-link`,
+	`causer`.`addr` AS `causer-addr`,
+	`causer`.`name` AS `causer-name`,
+	`causer`.`nick` AS `causer-nick`,
+	`causer`.`thumb` AS `causer-avatar`,
+	`causer`.`network` AS `causer-network`,
+	`causer`.`blocked` AS `causer-blocked`,
+	`causer`.`hidden` AS `causer-hidden`,
+	`causer`.`contact-type` AS `causer-contact-type`,
+	`diaspora-interaction`.`interaction` AS `signed_text`,
+	`parent-item-uri`.`guid` AS `parent-guid`,
+	`parent-post`.`network` AS `parent-network`,
+	`parent-post`.`author-id` AS `parent-author-id`,
+	`parent-post-author`.`url` AS `parent-author-link`,
+	`parent-post-author`.`name` AS `parent-author-name`,
+	`parent-post-author`.`network` AS `parent-author-network`
+	FROM `post`
+			STRAIGHT_JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post`.`author-id`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post`.`owner-id`
+			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post`.`causer-id`
+			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post`.`uri-id`
+			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post`.`thr-parent-id`
+			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post`.`external-id`
+			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
+			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post`.`uri-id`
+			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post`.`uri-id`
+			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
+			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
+
+--
+-- VIEW post-thread-view
+--
+DROP VIEW IF EXISTS `post-thread-view`;
+CREATE VIEW `post-thread-view` AS SELECT 
+	`item-uri`.`uri` AS `uri`,
+	`post-thread`.`uri-id` AS `uri-id`,
+	`parent-item-uri`.`uri` AS `parent-uri`,
+	`post`.`parent-uri-id` AS `parent-uri-id`,
+	`thr-parent-item-uri`.`uri` AS `thr-parent`,
+	`post`.`thr-parent-id` AS `thr-parent-id`,
+	`item-uri`.`guid` AS `guid`,
+	`post`.`gravity` AS `gravity`,
+	`external-item-uri`.`uri` AS `extid`,
+	`post`.`external-id` AS `external-id`,
+	`post-thread`.`created` AS `created`,
+	`post`.`edited` AS `edited`,
+	`post-thread`.`commented` AS `commented`,
+	`post-thread`.`received` AS `received`,
+	`post-thread`.`changed` AS `changed`,
+	`post`.`post-type` AS `post-type`,
+	`post`.`private` AS `private`,
+	`post`.`visible` AS `visible`,
+	`post`.`deleted` AS `deleted`,
+	`post`.`global` AS `global`,
+	`post-thread`.`network` AS `network`,
+	`post`.`vid` AS `vid`,
+	IF (`post`.`vid` IS NULL, '', `verb`.`name`) AS `verb`,
+	`post-content`.`title` AS `title`,
+	`post-content`.`content-warning` AS `content-warning`,
+	`post-content`.`raw-body` AS `raw-body`,
+	`post-content`.`body` AS `body`,
+	`post-content`.`rendered-hash` AS `rendered-hash`,
+	`post-content`.`rendered-html` AS `rendered-html`,
+	`post-content`.`language` AS `language`,
+	`post-content`.`plink` AS `plink`,
+	`post-content`.`location` AS `location`,
+	`post-content`.`coord` AS `coord`,
+	`post-content`.`app` AS `app`,
+	`post-content`.`object-type` AS `object-type`,
+	`post-content`.`object` AS `object`,
+	`post-content`.`target-type` AS `target-type`,
+	`post-content`.`target` AS `target`,
+	`post-content`.`resource-id` AS `resource-id`,
+	`post-thread`.`author-id` AS `author-id`,
+	`author`.`url` AS `author-link`,
+	`author`.`addr` AS `author-addr`,
+	`author`.`name` AS `author-name`,
+	`author`.`nick` AS `author-nick`,
+	`author`.`thumb` AS `author-avatar`,
+	`author`.`network` AS `author-network`,
+	`author`.`blocked` AS `author-blocked`,
+	`author`.`hidden` AS `author-hidden`,
+	`post-thread`.`owner-id` AS `owner-id`,
+	`owner`.`url` AS `owner-link`,
+	`owner`.`addr` AS `owner-addr`,
+	`owner`.`name` AS `owner-name`,
+	`owner`.`nick` AS `owner-nick`,
+	`owner`.`thumb` AS `owner-avatar`,
+	`owner`.`network` AS `owner-network`,
+	`owner`.`blocked` AS `owner-blocked`,
+	`owner`.`hidden` AS `owner-hidden`,
+	`owner`.`contact-type` AS `owner-contact-type`,
+	`post-thread`.`causer-id` AS `causer-id`,
+	`causer`.`url` AS `causer-link`,
+	`causer`.`addr` AS `causer-addr`,
+	`causer`.`name` AS `causer-name`,
+	`causer`.`nick` AS `causer-nick`,
+	`causer`.`thumb` AS `causer-avatar`,
+	`causer`.`network` AS `causer-network`,
+	`causer`.`blocked` AS `causer-blocked`,
+	`causer`.`hidden` AS `causer-hidden`,
+	`causer`.`contact-type` AS `causer-contact-type`,
+	`diaspora-interaction`.`interaction` AS `signed_text`,
+	`parent-item-uri`.`guid` AS `parent-guid`,
+	`parent-post`.`network` AS `parent-network`,
+	`parent-post`.`author-id` AS `parent-author-id`,
+	`parent-post-author`.`url` AS `parent-author-link`,
+	`parent-post-author`.`name` AS `parent-author-name`,
+	`parent-post-author`.`network` AS `parent-author-network`
+	FROM `post-thread`
+			INNER JOIN `post` ON `post`.`uri-id` = `post-thread`.`uri-id`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-thread`.`author-id`
+			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-thread`.`owner-id`
+			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-thread`.`causer-id`
+			LEFT JOIN `item-uri` ON `item-uri`.`id` = `post-thread`.`uri-id`
+			LEFT JOIN `item-uri` AS `thr-parent-item-uri` ON `thr-parent-item-uri`.`id` = `post`.`thr-parent-id`
+			LEFT JOIN `item-uri` AS `parent-item-uri` ON `parent-item-uri`.`id` = `post`.`parent-uri-id`
+			LEFT JOIN `item-uri` AS `external-item-uri` ON `external-item-uri`.`id` = `post`.`external-id`
+			LEFT JOIN `verb` ON `verb`.`id` = `post`.`vid`
+			LEFT JOIN `diaspora-interaction` ON `diaspora-interaction`.`uri-id` = `post-thread`.`uri-id`
+			LEFT JOIN `post-content` ON `post-content`.`uri-id` = `post-thread`.`uri-id`
+			LEFT JOIN `post` AS `parent-post` ON `parent-post`.`uri-id` = `post`.`parent-uri-id`
 			LEFT JOIN `contact` AS `parent-post-author` ON `parent-post-author`.`id` = `parent-post`.`author-id`;
 
 --
