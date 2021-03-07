@@ -172,7 +172,7 @@ function notification($params)
 			return false;
 		}
 
-		$item_post_type = Item::postType($item);
+		$item_post_type = Item::postType($item, $l10n);
 
 		$content = Plaintext::getPost($item, 70);
 		if (!empty($content['text'])) {
