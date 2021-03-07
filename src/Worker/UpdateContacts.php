@@ -50,7 +50,7 @@ class UpdateContacts
 		}
 
 		$condition = DBA::mergeConditions($base_condition,
-			["`uid` != ? AND (`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
+			["`uid` != ? AND (`last-update` < ? OR (NOT `failed` AND `last-update` < ?))",
 			0, DateTimeFormat::utc('now - 1 month'), DateTimeFormat::utc('now - 1 week')]);
 		$ids = self::getContactsToUpdate($condition, [], $limit);
 		Logger::info('Fetched federated user contacts', ['count' => count($ids)]);
@@ -61,7 +61,7 @@ class UpdateContacts
 
 		foreach ($conditions as $contact_condition) {
 			$condition = DBA::mergeConditions($base_condition,
-				[$contact_condition . " AND (`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
+				[$contact_condition . " AND (`last-update` < ? OR (NOT `failed` AND `last-update` < ?))",
 				DateTimeFormat::utc('now - 1 month'), DateTimeFormat::utc('now - 1 week')]);
 			$ids = self::getContactsToUpdate($condition, $ids, $limit);
 			Logger::info('Fetched interacting federated contacts', ['count' => count($ids), 'condition' => $contact_condition]);
@@ -75,7 +75,7 @@ class UpdateContacts
 			// Add every contact (mostly failed ones) that hadn't been updated for six months
 			// and every non failed contact that hadn't been updated for a month
 			$condition = DBA::mergeConditions($base_condition,
-				["(`last-update` < ? OR (NOT `archive` AND `last-update` < ?))",
+				["(`last-update` < ? OR (NOT `failed` AND `last-update` < ?))",
 					DateTimeFormat::utc('now - 6 month'), DateTimeFormat::utc('now - 1 month')]);
 			$previous = count($ids);
 			$ids = self::getContactsToUpdate($condition, $ids, $limit - $previous);
