@@ -463,7 +463,7 @@ class Widget
 
 		$cachekey = 'Widget::postedByYear' . $uid . '-' . (int)$wall;
 		$dthen = DI::cache()->get($cachekey);
-		if (!empty($dthen)) {
+		if (empty($dthen)) {
 			$dthen = Item::firstPostDate($uid, $wall);
 			DI::cache()->set($cachekey, $dthen, Duration::HOUR);
 		}

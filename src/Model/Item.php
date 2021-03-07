@@ -2177,9 +2177,15 @@ class Item
 
 	public static function firstPostDate($uid, $wall = false)
 	{
-		$condition = ['gravity' => GRAVITY_PARENT, 'uid' => $uid, 'wall' => $wall, 'deleted' => false, 'visible' => true];
+		$user = User::getById($uid, ['register_date']);
+		if (empty($user)) {
+			return false;
+		}
+
+		$condition = ["`uid` = ? AND `wall` = ? AND NOT `deleted` AND `visible` AND `received` >= ?",
+			$uid, $wall, $user['register_date']];
 		$params = ['order' => ['received' => false]];
-		$thread = Post::selectFirst(['received'], $condition, $params);
+		$thread = Post::selectFirstThread(['received'], $condition, $params);
 		if (DBA::isResult($thread)) {
 			$postdate = substr(DateTimeFormat::local($thread['received']), 0, 10);
 			return $postdate;
