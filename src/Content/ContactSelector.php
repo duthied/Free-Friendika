@@ -117,7 +117,7 @@ class ContactSelector
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function networkToName($network, $profile = '', $protocol = '')
+	public static function networkToName($network, $profile = '', $protocol = '', $gsid = 0)
 	{
 		$nets = [
 			Protocol::DFRN      =>   DI::l10n()->t('DFRN'),
@@ -147,7 +147,14 @@ class ContactSelector
 		$networkname = str_replace($search, $replace, $network);
 
 		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
-			$gserver = self::getServerForProfile($profile);
+			if (!empty($gsid) && !empty(self::$serverdata[$gsid])) {
+				$gserver = self::$serverdata[$gsid];
+			} elseif (!empty($gsid)) {
+				$gserver = DBA::selectFirst('gserver', ['platform', 'network'], ['id' => $gsid]);
+				self::$serverdata[$gsid] = $gserver;
+			} else {
+				$gserver = self::getServerForProfile($profile);
+			}
 
 			if (!empty($gserver['platform'])) {
 				$platform = $gserver['platform'];
