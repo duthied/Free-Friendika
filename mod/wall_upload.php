@@ -168,19 +168,6 @@ function wall_upload_post(App $a, $desktopmode = true)
 	Logger::log("File upload src: " . $src . " - filename: " . $filename .
 		" - size: " . $filesize . " - type: " . $filetype, Logger::DEBUG);
 
-	$maximagesize = DI::config()->get('system', 'maximagesize');
-
-	if (($maximagesize) && ($filesize > $maximagesize)) {
-		$msg = DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize));
-		if ($r_json) {
-			echo json_encode(['error' => $msg]);
-		} else {
-			echo  $msg. EOL;
-		}
-		@unlink($src);
-		exit();
-	}
-
 	$imagedata = @file_get_contents($src);
 	$Image = new Image($imagedata, $filetype);
 
@@ -204,11 +191,38 @@ function wall_upload_post(App $a, $desktopmode = true)
 	}
 	if ($max_length > 0) {
 		$Image->scaleDown($max_length);
+		$filesize = strlen($Image->asString());
 		Logger::log("File upload: Scaling picture to new size " . $max_length, Logger::DEBUG);
 	}
 
 	$width = $Image->getWidth();
 	$height = $Image->getHeight();
+
+	$maximagesize = DI::config()->get('system', 'maximagesize');
+
+	if (!empty($maximagesize) && ($filesize > $maximagesize)) {
+		// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
+		foreach ([5120, 2560, 1280, 640] as $pixels) {
+			if (($filesize > $maximagesize) && (max($width, $height) > $pixels)) {
+				Logger::info('Resize', ['size' => $filesize, 'width' => $width, 'height' => $height, 'max' => $maximagesize, 'pixels' => $pixels]);
+				$Image->scaleDown($pixels);
+				$filesize = strlen($Image->asString());
+				$width = $Image->getWidth();
+				$height = $Image->getHeight();
+			}
+		}
+		if ($filesize > $maximagesize) {
+			Logger::notice('Image size is too big', ['size' => $filesize, 'max' => $maximagesize]);
+			$msg = DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize));
+			if ($r_json) {
+				echo json_encode(['error' => $msg]);
+			} else {
+				echo  $msg. EOL;
+			}
+			@unlink($src);
+			exit();
+		}
+	}
 
 	$resource_id = Photo::newResource();
 
