@@ -4872,7 +4872,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 	}
 
 	// retrieve item element for getting activities (like, dislike etc.) related to photo
-	$condition = ['uid' => api_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
+	$condition = ['uid' => api_user(), 'resource-id' => $photo_id];
 	$item = Post::selectFirst(['id', 'uid', 'uri', 'parent', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid'], $condition);
 	if (!DBA::isResult($item)) {
 		throw new NotFoundException('Photo-related item not found.');
@@ -4881,7 +4881,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 	$data['photo']['friendica_activities'] = api_format_items_activities($item, $type);
 
 	// retrieve comments on photo
-	$condition = ["`parent` = ? AND `uid` = ? AND (`gravity` IN (?, ?) OR `type`='photo')",
+	$condition = ["`parent` = ? AND `uid` = ? AND `gravity` IN (?, ?)",
 		$item['parent'], api_user(), GRAVITY_PARENT, GRAVITY_COMMENT];
 
 	$statuses = Post::selectForUser(api_user(), [], $condition);
