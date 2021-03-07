@@ -2475,22 +2475,23 @@ class Item
 	/**
 	 * get translated item type
 	 *
-	 * @param $item
+	 * @param array                $item
+	 * @param \Friendica\Core\L10n $l10n
 	 * @return string
 	 */
-	public static function postType($item)
+	public static function postType(array $item, \Friendica\Core\L10n $l10n)
 	{
 		if (!empty($item['event-id'])) {
-			return DI::l10n()->t('event');
+			return $l10n->t('event');
 		} elseif (!empty($item['resource-id'])) {
-			return DI::l10n()->t('photo');
+			return $l10n->t('photo');
 		} elseif ($item['gravity'] == GRAVITY_ACTIVITY) {
-			return DI::l10n()->t('activity');
+			return $l10n->t('activity');
 		} elseif ($item['gravity'] == GRAVITY_COMMENT) {
-			return DI::l10n()->t('comment');
+			return $l10n->t('comment');
 		}
 
-		return DI::l10n()->t('post');
+		return $l10n->t('post');
 	}
 
 	/**
