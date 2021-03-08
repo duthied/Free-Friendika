@@ -24,13 +24,10 @@ namespace Friendica\Module\Debug;
 use Friendica\BaseModule;
 use Friendica\Content\PageInfo;
 use Friendica\Content\Text;
-use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Protocol\Activity;
-use Friendica\Model\Tag;
 use Friendica\Util\XML;
 
 /**
@@ -306,6 +303,7 @@ class Babel extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('babel.tpl');
 		$o = Renderer::replaceMacros($tpl, [
+			'$title'         => DI::l10n()->t('Babel Diagnostic'),
 			'$text'          => ['text', DI::l10n()->t('Source text'), $_REQUEST['text'] ?? '', ''],
 			'$type_bbcode'   => ['type', DI::l10n()->t('BBCode'), 'bbcode', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'bbcode'],
 			'$type_diaspora' => ['type', DI::l10n()->t('Diaspora'), 'diaspora', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'diaspora'],
@@ -313,7 +311,8 @@ class Babel extends BaseModule
 			'$type_html'     => ['type', DI::l10n()->t('HTML'), 'html', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'html'],
 			'$flag_twitter'  => file_exists('addon/twitter/twitter.php'),
 			'$type_twitter'  => ['type', DI::l10n()->t('Twitter Source / Tweet URL (requires API key)'), 'twitter', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'twitter'],
-			'$results'       => $results
+			'$results'       => $results,
+			'$submit'        => DI::l10n()->t('Submit'),
 		]);
 
 		return $o;

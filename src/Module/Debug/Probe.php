@@ -50,13 +50,16 @@ class Probe extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('probe.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$addr' => ['addr',
+			'$title'  => DI::l10n()->t('Probe Diagnostic'),
+			'$output' => DI::l10n()->t('Output'),
+			'$submit' => DI::l10n()->t('Submit'),
+			'$addr'   => ['addr',
 				DI::l10n()->t('Lookup address'),
 				$addr,
 				'',
 				DI::l10n()->t('Required')
 			],
-			'$res'  => $res,
+			'$res'    => $res,
 		]);
 	}
 }
