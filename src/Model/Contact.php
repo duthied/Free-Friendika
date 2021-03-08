@@ -2579,15 +2579,14 @@ class Contact
 	public static function updateBirthdays()
 	{
 		$condition = [
-			'`bd` != ""
-			AND `bd` > "0001-01-01"
-			AND SUBSTRING(`bd`, 1, 4) != `bdyear`
+			'`bd` > ?
 			AND (`contact`.`rel` = ? OR `contact`.`rel` = ?)
 			AND NOT `contact`.`pending`
 			AND NOT `contact`.`hidden`
 			AND NOT `contact`.`blocked`
 			AND NOT `contact`.`archive`
 			AND NOT `contact`.`deleted`',
+			DBA::NULL_DATE,
 			self::SHARING,
 			self::FRIEND
 		];
