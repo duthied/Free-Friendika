@@ -49,8 +49,11 @@ class WebFinger extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('webfinger.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$addr' => $addr,
-			'$res'  => $res,
+			'$title'  => DI::l10n()->t('Webfinger Diagnostic'),
+			'$submit' => DI::l10n()->t('Submit'),
+			'$lookup' => DI::l10n()->t('Lookup address:'),
+			'$addr'   => $addr,
+			'$res'    => $res,
 		]);
 	}
 }

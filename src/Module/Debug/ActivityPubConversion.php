@@ -135,8 +135,10 @@ class ActivityPubConversion extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('debug/activitypubconversion.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$source'          => ['source', DI::l10n()->t('Source activity'), $_REQUEST['source'] ?? '', ''],
-			'$results'       => $results
+			'$title'   => DI::l10n()->t('ActivityPub Conversion'),
+			'$source'  => ['source', DI::l10n()->t('Source activity'), $_REQUEST['source'] ?? '', ''],
+			'$results' => $results,
+			'$submit' => DI::l10n()->t('Submit'),
 		]);
 
 		return $o;

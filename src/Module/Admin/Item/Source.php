@@ -54,11 +54,23 @@ class Source extends BaseAdmin
 
 		$tpl = Renderer::getMarkupTemplate('admin/item/source.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$guid'          => ['guid', DI::l10n()->t('Item Guid'), $guid, ''],
-			'$source'        => $source,
-			'$item_uri'      => $item_uri,
-			'$item_id'       => $item_id,
-			'$terms'         => $terms,
+			'$title'       => DI::l10n()->t('Item Source'),
+			'$guid'        => ['guid', DI::l10n()->t('Item Guid'), $guid, ''],
+			'$source'      => $source,
+			'$item_uri'    => $item_uri,
+			'$item_id'     => $item_id,
+			'$terms'       => $terms,
+			'$itemidlbl'   => DI::l10n()->t('Item Id'),
+			'$itemurilbl'  => DI::l10n()->t('Item URI'),
+			'$submit'      => DI::l10n()->t('Submit'),
+			'$termslbl'    => DI::l10n()->t('Terms'),
+			'$taglbl'      => DI::l10n()->t('Tag'),
+			'$typelbl'     => DI::l10n()->t('Type'),
+			'$termlbl'     => DI::l10n()->t('Term'),
+			'$urllbl'      => DI::l10n()->t('URL'),
+			'$mentionlbl'  => DI::l10n()->t('Mention'),
+			'$implicitlbl' => DI::l10n()->t('Implicit Mention'),
+			'$sourcelbl'   => DI::l10n()->t('Source'),
 		]);
 
 		return $o;
