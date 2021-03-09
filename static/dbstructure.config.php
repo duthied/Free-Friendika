@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1409);
+	define('DB_UPDATE_VERSION', 1410);
 }
 
 return [
@@ -1184,6 +1184,7 @@ return [
 			"uid_contactid" => ["uid", "contact-id"],
 			"uid_unseen_contactid" => ["uid", "unseen", "contact-id"],
 			"uid_unseen" => ["uid", "unseen"],
+			"uid_hidden_uri-id" => ["uid", "hidden", "uri-id"],
 		],
 	],
 	"post-thread-user" => [

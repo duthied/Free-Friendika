@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-rc (Red Hot Poker)
--- DB_UPDATE_VERSION 1409
+-- DB_UPDATE_VERSION 1410
 -- ------------------------------------------
 
 
@@ -1132,6 +1132,7 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	 INDEX `uid_contactid` (`uid`,`contact-id`),
 	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
 	 INDEX `uid_unseen` (`uid`,`unseen`),
+	 INDEX `uid_hidden_uri-id` (`uid`,`hidden`,`uri-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
