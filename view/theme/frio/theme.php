@@ -189,7 +189,7 @@ function frio_contact_photo_menu(App $a, &$args)
  * @param App $a The App class
  * @param array $nav The original nav menu
  */
-function frio_remote_nav($a, &$nav)
+function frio_remote_nav(App $a, array &$nav)
 {
 	// get the homelink from $_XSESSION
 	$homelink = Model\Profile::getMyURL();
