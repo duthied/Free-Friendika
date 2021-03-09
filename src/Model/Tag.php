@@ -519,6 +519,23 @@ class Tag
 	}
 
 	/**
+	 * Fetch the blocked tags as SQL
+	 *
+	 * @return string 
+	 */
+	private static function getBlockedSQL()
+	{
+		$blocked_txt = DI::config()->get('system', 'blocked_tags');
+		if (empty($blocked_txt)) {
+			return '';
+		}
+
+		$blocked = explode(',', $blocked_txt);
+		array_walk($blocked, function(&$value) { $value = "'" . DBA::escape(trim($value)) . "'";});
+		return " AND NOT `name` IN (" . implode(',', $blocked) . ")";
+	}
+
+	/**
 	 * Creates a list of the most frequent global hashtags over the given period
 	 *
 	 * @param int $period Period in hours to consider posts
@@ -528,9 +545,11 @@ class Tag
 	 */
 	public static function setGlobalTrendingHashtags(int $period, int $limit = 10)
 	{
+		$block_sql = self::getBlockedSQL();
+
 		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
 			FROM `tag-search-view`
-			WHERE `private` = ? AND `uid` = ? AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
+			WHERE `private` = ? AND `uid` = ? AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR) $block_sql
 			GROUP BY `term` ORDER BY `score` DESC LIMIT ?",
 			Item::PUBLIC, 0, $period, $limit);
 
@@ -571,9 +590,11 @@ class Tag
 	 */
 	public static function setLocalTrendingHashtags(int $period, int $limit = 10)
 	{
+		$block_sql = self::getBlockedSQL();
+
 		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
 			FROM `tag-search-view`
-			WHERE `private` = ? AND `wall` AND `origin` AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR)
+			WHERE `private` = ? AND `wall` AND `origin` AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR) $block_sql
 			GROUP BY `term` ORDER BY `score` DESC LIMIT ?",
 			Item::PUBLIC, $period, $limit);
 
