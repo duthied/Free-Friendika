@@ -7,5 +7,7 @@
 {{$stack_trace}}
 {{$trace}}</pre>
 {{/if}}
+{{if $back}}
 	<p><button type="button" onclick="window.history.back()" class="btn btn-primary">{{$back}}</button></p>
+{{/if}}
 </div>
