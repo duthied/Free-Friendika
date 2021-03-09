@@ -131,7 +131,9 @@ class Proxy extends BaseModule
 		// Store original image
 		if ($direct_cache) {
 			// direct cache , store under ./proxy/
-			file_put_contents($basepath . '/proxy/' . ProxyUtils::proxifyUrl($request['url'], true), $image->asString());
+			$filename = $basepath . '/proxy/' . ProxyUtils::proxifyUrl($request['url'], true)
+			file_put_contents($filename, $image->asString());
+			chmod($filename, DI::config()->get('system', 'proxy_file_chmod', 0640));
 		} elseif($cachefile !== '') {
 			// cache file
 			file_put_contents($cachefile, $image->asString());
@@ -149,7 +151,9 @@ class Proxy extends BaseModule
 
 		// Store scaled image
 		if ($direct_cache && $request['sizetype'] != '') {
-			file_put_contents($basepath . '/proxy/' . ProxyUtils::proxifyUrl($request['url'], true) . $request['sizetype'], $image->asString());
+			$filename = $basepath . '/proxy/' . ProxyUtils::proxifyUrl($request['url'], true) . $request['sizetype'];
+			file_put_contents($filename, $image->asString());
+			chmod($filename, DI::config()->get('system', 'proxy_file_chmod', 0640));
 		}
 
 		self::responseImageHttpCache($image);
