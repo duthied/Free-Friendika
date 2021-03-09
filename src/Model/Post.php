@@ -313,7 +313,7 @@ class Post
 			AND (NOT `causer-blocked` OR `causer-id` = ? OR `causer-id` IS NULL) AND NOT `contact-blocked`
 			AND ((NOT `contact-readonly` AND NOT `contact-pending` AND (`contact-rel` IN (?, ?)))
 				OR `self` OR `gravity` != ? OR `contact-uid` = ?)
-			AND NOT EXISTS (SELECT `uri-id` FROM `post-user` WHERE `uid` = ? AND `uri-id` = `" . $view . "`.`uri-id` AND `hidden`)
+			AND NOT EXISTS (SELECT `uri-id` FROM `post-user` USE INDEX (`uid_uri-id`) WHERE `uid` = ? AND `uri-id` = `" . $view . "`.`uri-id` AND `hidden`)
 			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `author-id` AND `blocked`)
 			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `owner-id` AND `blocked`)
 			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `author-id` AND `ignored` AND `gravity` = ?)
