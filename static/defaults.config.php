@@ -121,6 +121,10 @@ return [
 		// Deny public access to the local user directory.
 		'block_local_dir' => false,
 
+		// blocked_tags (String)
+		// Comma separated list of hash tags that shouldn't be displayed in the trending tags
+		'blocked_tags' => '',
+
 		// community_no_sharer (Boolean)
 		// Don't display sharing accounts on the global community
 		'community_no_sharer' => false,
