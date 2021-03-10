@@ -33,6 +33,7 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Event;
+use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
@@ -366,6 +367,19 @@ class Processor
 		$item['plink'] = $activity['alternate-url'] ?? $item['uri'];
 
 		$item = self::constructAttachList($activity, $item);
+
+		// We received the post via AP, so we set the protocol of the server to AP
+		$contact = Contact::getById($item['author-id'], ['gsid']);
+		if (!empty($contact['gsid'])) {
+			GServer::setProtocol($contact['gsid'], Post\DeliveryData::ACTIVITYPUB);
+		}
+
+		if ($item['author-id'] != $item['owner-id']) {
+			$contact = Contact::getById($item['owner-id'], ['gsid']);
+			if (!empty($contact['gsid'])) {
+				GServer::setProtocol($contact['gsid'], Post\DeliveryData::ACTIVITYPUB);
+			}
+		}
 
 		return $item;
 	}

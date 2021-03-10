@@ -1793,7 +1793,7 @@ class GServer
 			}
 		}
 
-		Logger::info('Protocol for server', ['protocol' => $protocol, 'old' => $old, 'id' => $gsid, 'url' => $gserver['url']]);
+		Logger::info('Protocol for server', ['protocol' => $protocol, 'old' => $old, 'id' => $gsid, 'url' => $gserver['url'], 'callstack' => System::callstack(20)]);
 		DBA::update('gserver', ['protocol' => $protocol], ['id' => $gsid]);
 	}
 
