@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-rc (Red Hot Poker)
--- DB_UPDATE_VERSION 1410
+-- DB_UPDATE_VERSION 1411
 -- ------------------------------------------
 
 
@@ -197,6 +197,9 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	 INDEX `uid_network_self_lastupdate` (`uid`,`network`,`self`,`last-update`),
 	 INDEX `uid_lastitem` (`uid`,`last-item`),
 	 INDEX `baseurl` (`baseurl`(64)),
+	 INDEX `uid_contact-type` (`uid`,`contact-type`),
+	 INDEX `uid_self_contact-type` (`uid`,`self`,`contact-type`),
+	 INDEX `self_network_uid` (`self`,`network`,`uid`),
 	 INDEX `gsid` (`gsid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
@@ -1489,6 +1492,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-thread-user`.`pubmail` AS `pubmail`,
 	`post-user`.`visible` AS `visible`,
 	`post-thread-user`.`starred` AS `starred`,
+	`post-thread-user`.`pinned` AS `pinned`,
 	`post-user`.`unseen` AS `unseen`,
 	`post-user`.`deleted` AS `deleted`,
 	`post-user`.`origin` AS `origin`,
@@ -1648,6 +1652,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-thread-user`.`ignored` AS `ignored`,
 	`post-user`.`visible` AS `visible`,
 	`post-thread-user`.`starred` AS `starred`,
+	`post-thread-user`.`pinned` AS `pinned`,
 	`post-thread-user`.`unseen` AS `unseen`,
 	`post-user`.`deleted` AS `deleted`,
 	`post-thread-user`.`origin` AS `origin`,
