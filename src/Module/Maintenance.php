@@ -52,7 +52,7 @@ class Maintenance extends BaseModule
 		return Renderer::replaceMacros($tpl, [
 			'$title' => DI::l10n()->t('System down for maintenance'),
 			'$message' => DI::l10n()->t('This Friendica node is currently in maintenance mode, either automatically because it is self-updating or manually by the node administrator. This condition should be temporary, please come back in a few minutes.'),
-			'$thrown' => is_site_admin() ? $reason : '',
+			'$thrown' => $reason,
 			'$stack_trace' => '',
 			'$trace' => '',
 		]);
