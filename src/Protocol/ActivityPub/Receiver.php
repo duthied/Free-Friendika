@@ -101,7 +101,8 @@ class Receiver
 
 		$apcontact = APContact::getByURL($actor);
 		if (empty($apcontact)) {
-			Logger::notice('Unable to retrieve AP contact for actor', ['actor' => $actor]);
+			Logger::notice('Unable to retrieve AP contact for actor - message is discarded', ['actor' => $actor]);
+			return;
 		} elseif ($apcontact['type'] == 'Application' && $apcontact['nick'] == 'relay') {
 			self::processRelayPost($ldactivity, $actor);
 			return;
