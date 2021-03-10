@@ -302,7 +302,6 @@ return [
 	'/login'              => [Module\Security\Login::class,  [R::GET, R::POST]],
 	'/logout'             => [Module\Security\Logout::class, [R::GET, R::POST]],
 	'/magic'              => [Module\Magic::class,           [R::GET]],
-	'/maintenance'        => [Module\Maintenance::class,     [R::GET]],
 	'/manifest'           => [Module\Manifest::class,        [R::GET]],
 	'/friendica.webmanifest'  => [Module\Manifest::class,    [R::GET]],
 	'/modexp/{nick}'      => [Module\PublicRSAKey::class,    [R::GET]],
