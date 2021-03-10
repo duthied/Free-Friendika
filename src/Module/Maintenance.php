@@ -22,6 +22,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
@@ -43,7 +44,17 @@ class Maintenance extends BaseModule
 		}
 
 		$exception = new HTTPException\ServiceUnavailableException($reason);
-		$exception->httpdesc = DI::l10n()->t('System down for maintenance');
-		throw $exception;
+
+		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $exception->getCode() . ' ' . DI::l10n()->t('System down for maintenance'));
+
+		$tpl = Renderer::getMarkupTemplate('exception.tpl');
+
+		return Renderer::replaceMacros($tpl, [
+			'$title' => DI::l10n()->t('System down for maintenance'),
+			'$message' => DI::l10n()->t('This Friendica node is currently in maintenance mode, either automatically because it is self-updating or manually by the node administrator. This condition should be temporary, please come back in a few minutes.'),
+			'$thrown' => $reason,
+			'$stack_trace' => '',
+			'$trace' => '',
+		]);
 	}
 }

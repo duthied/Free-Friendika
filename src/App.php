@@ -24,6 +24,8 @@ namespace Friendica;
 use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
+use Friendica\App\Module;
+use Friendica\Module\Maintenance;
 use Friendica\Security\Authentication;
 use Friendica\Core\Config\Cache;
 use Friendica\Core\Config\IConfig;
@@ -499,8 +501,6 @@ class App
 			// but we need "view" module for stylesheet
 			if ($this->mode->isInstall() && $moduleName !== 'install') {
 				$this->baseURL->redirect('install');
-			} elseif (!$this->mode->isInstall() && !$this->mode->has(App\Mode::MAINTENANCEDISABLED) && $moduleName !== 'maintenance') {
-				$this->baseURL->redirect('maintenance');
 			} else {
 				$this->checkURL();
 				Core\Update::check($this->getBasePath(), false, $this->mode);
@@ -544,9 +544,13 @@ class App
 			// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
 			$page['page_title'] = $moduleName;
 
-			// determine the module class and save it to the module instance
-			// @todo there's an implicit dependency due SESSION::start(), so it has to be called here (yet)
-			$module = $module->determineClass($this->args, $router, $this->config);
+			if (!$this->mode->isInstall() && !$this->mode->has(App\Mode::MAINTENANCEDISABLED)) {
+				$module = new Module('maintenance', Maintenance::class);
+			} else {
+				// determine the module class and save it to the module instance
+				// @todo there's an implicit dependency due SESSION::start(), so it has to be called here (yet)
+				$module = $module->determineClass($this->args, $router, $this->config);
+			}
 
 			// Let the module run it's internal process (init, get, post, ...)
 			$module->run($this->l10n, $this->baseURL, $this->logger, $this->profiler, $_SERVER, $_POST);
