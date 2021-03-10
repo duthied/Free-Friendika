@@ -320,17 +320,7 @@ class Post
 			AND NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `owner-id` AND `ignored` AND `gravity` = ?)",
 			0, Contact::SHARING, Contact::FRIEND, GRAVITY_PARENT, 0, $uid, $uid, $uid, $uid, GRAVITY_PARENT, $uid, GRAVITY_PARENT]);
 
-		$select_string = '';
-
-		if (in_array('pinned', $selected)) {
-			$selected = array_flip($selected);
-			unset($selected['pinned']);
-			$selected = array_flip($selected);	
-
-			$select_string = "(SELECT `pinned` FROM `post-thread-user` WHERE `uri-id` = `" . $view . "`.`uri-id` AND uid=`" . $view . "`.`uid`) AS `pinned`, ";
-		}
-
-		$select_string .= implode(', ', array_map([DBA::class, 'quoteIdentifier'], $selected));
+		$select_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], $selected));
 
 		$condition_string = DBA::buildCondition($condition);
 		$param_string = DBA::buildParameter($params);

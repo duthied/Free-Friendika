@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1410);
+	define('DB_UPDATE_VERSION', 1411);
 }
 
 return [
@@ -256,6 +256,9 @@ return [
 			"uid_network_self_lastupdate" => ["uid", "network", "self", "last-update"],
 			"uid_lastitem" => ["uid", "last-item"],
 			"baseurl" => ["baseurl(64)"],
+			"uid_contact-type" => ["uid", "contact-type"],
+			"uid_self_contact-type" => ["uid", "self", "contact-type"],
+			"self_network_uid" => ["self", "network", "uid"],
 			"gsid" => ["gsid"]
 		]
 	],
