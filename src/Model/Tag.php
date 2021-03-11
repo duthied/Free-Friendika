@@ -547,10 +547,10 @@ class Tag
 	{
 		$block_sql = self::getBlockedSQL();
 
-		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
+		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`, COUNT(DISTINCT(`author-id`)) as `authors`
 			FROM `tag-search-view`
 			WHERE `private` = ? AND `uid` = ? AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR) $block_sql
-			GROUP BY `term` ORDER BY `score` DESC LIMIT ?",
+			GROUP BY `term` ORDER BY `authors` DESC, `score` DESC LIMIT ?",
 			Item::PUBLIC, 0, $period, $limit);
 
 		if (DBA::isResult($tagsStmt)) {
@@ -592,10 +592,10 @@ class Tag
 	{
 		$block_sql = self::getBlockedSQL();
 
-		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`
+		$tagsStmt = DBA::p("SELECT `name` AS `term`, COUNT(*) AS `score`, COUNT(DISTINCT(`author-id`)) as `authors`
 			FROM `tag-search-view`
 			WHERE `private` = ? AND `wall` AND `origin` AND `received` > DATE_SUB(NOW(), INTERVAL ? HOUR) $block_sql
-			GROUP BY `term` ORDER BY `score` DESC LIMIT ?",
+			GROUP BY `term` ORDER BY `authors` DESC, `score` DESC LIMIT ?",
 			Item::PUBLIC, $period, $limit);
 
 		if (DBA::isResult($tagsStmt)) {

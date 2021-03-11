@@ -783,6 +783,7 @@
 			"gravity" => ["post-user", "gravity"],
 			"received" => ["post-user", "received"],
 			"network" => ["post-user", "network"],
+			"author-id" => ["post-user", "author-id"],
 			"name" => ["tag", "name"],
 		],
 		"query" => "FROM `post-tag`
