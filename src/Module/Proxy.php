@@ -131,7 +131,7 @@ class Proxy extends BaseModule
 		// Store original image
 		if ($direct_cache) {
 			// direct cache , store under ./proxy/
-			$filename = $basepath . '/proxy/' . ProxyUtils::proxifyUrl($request['url'], true)
+			$filename = $basepath . '/proxy/' . ProxyUtils::proxifyUrl($request['url'], true);
 			file_put_contents($filename, $image->asString());
 			chmod($filename, DI::config()->get('system', 'proxy_file_chmod', 0640));
 		} elseif($cachefile !== '') {
