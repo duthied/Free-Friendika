@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-rc (Red Hot Poker)
--- DB_UPDATE_VERSION 1411
+-- DB_UPDATE_VERSION 1412
 -- ------------------------------------------
 
 
@@ -2231,6 +2231,7 @@ CREATE VIEW `tag-search-view` AS SELECT
 	`post-user`.`gravity` AS `gravity`,
 	`post-user`.`received` AS `received`,
 	`post-user`.`network` AS `network`,
+	`post-user`.`author-id` AS `author-id`,
 	`tag`.`name` AS `name`
 	FROM `post-tag`
 			INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid`
