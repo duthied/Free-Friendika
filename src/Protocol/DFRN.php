@@ -34,6 +34,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\FContact;
+use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
@@ -2603,6 +2604,14 @@ class DFRN
 		}
 
 		Logger::log("Import DFRN message for user " . $importer["importer_uid"] . " from contact " . $importer["id"], Logger::DEBUG);
+
+		if (!empty($importer['gsid'])) {
+			if ($protocol == Conversation::PARCEL_DIASPORA_DFRN) {
+				GServer::setProtocol($importer['gsid'], Post\DeliveryData::DFRN);
+			} elseif ($protocol == Conversation::PARCEL_LEGACY_DFRN) {
+				GServer::setProtocol($importer['gsid'], Post\DeliveryData::LEGACY_DFRN);
+			}
+		}
 
 		// is it a public forum? Private forums aren't exposed with this method
 		$forum = intval(XML::getFirstNodeValue($xpath, "/atom:feed/dfrn:community/text()"));

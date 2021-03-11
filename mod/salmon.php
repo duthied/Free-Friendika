@@ -25,6 +25,8 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\GServer;
+use Friendica\Model\Post;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
@@ -183,6 +185,10 @@ function salmon_post(App $a, $xml = '') {
 				);
 			}
 		}
+	}
+
+	if (!empty($r[0]['gsid'])) {
+		GServer::setProtocol($r[0]['gsid'], Post\DeliveryData::OSTATUS);
 	}
 
 	// Have we ignored the person?

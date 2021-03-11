@@ -35,6 +35,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FContact;
+use Friendica\Model\GServer;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\Mail;
@@ -1498,6 +1499,10 @@ class Diaspora
 			return false;
 		}
 
+		if (!empty($contact['gsid'])) {
+			GServer::setProtocol($contact['gsid'], Post\DeliveryData::DIASPORA);
+		}
+
 		$message_id = self::messageExists($importer["uid"], $guid);
 		if ($message_id) {
 			return true;
@@ -1682,6 +1687,10 @@ class Diaspora
 			return false;
 		}
 
+		if (!empty($contact['gsid'])) {
+			GServer::setProtocol($contact['gsid'], Post\DeliveryData::DIASPORA);
+		}
+
 		$conversation = DBA::selectFirst('conv', [], ['uid' => $importer["uid"], 'guid' => $guid]);
 		if (!DBA::isResult($conversation)) {
 			$r = q(
@@ -1739,6 +1748,10 @@ class Diaspora
 		$contact = self::allowedContactByHandle($importer, $sender, true);
 		if (!$contact) {
 			return false;
+		}
+
+		if (!empty($contact['gsid'])) {
+			GServer::setProtocol($contact['gsid'], Post\DeliveryData::DIASPORA);
 		}
 
 		$message_id = self::messageExists($importer["uid"], $guid);
@@ -1851,6 +1864,10 @@ class Diaspora
 			return false;
 		}
 
+		if (!empty($contact['gsid'])) {
+			GServer::setProtocol($contact['gsid'], Post\DeliveryData::DIASPORA);
+		}
+
 		$conversation = null;
 
 		$condition = ['uid' => $importer["uid"], 'guid' => $conversation_guid];
@@ -1909,6 +1926,10 @@ class Diaspora
 		$contact = self::allowedContactByHandle($importer, $author, true);
 		if (!$contact) {
 			return false;
+		}
+
+		if (!empty($contact['gsid'])) {
+			GServer::setProtocol($contact['gsid'], Post\DeliveryData::DIASPORA);
 		}
 
 		if (self::messageExists($importer["uid"], $guid)) {
@@ -2407,6 +2428,10 @@ class Diaspora
 			return false;
 		}
 
+		if (!empty($contact['gsid'])) {
+			GServer::setProtocol($contact['gsid'], Post\DeliveryData::DIASPORA);
+		}
+
 		$message_id = self::messageExists($importer["uid"], $guid);
 		if ($message_id) {
 			return true;
@@ -2677,6 +2702,10 @@ class Diaspora
 		$contact = self::allowedContactByHandle($importer, $author, false);
 		if (!$contact) {
 			return false;
+		}
+
+		if (!empty($contact['gsid'])) {
+			GServer::setProtocol($contact['gsid'], Post\DeliveryData::DIASPORA);
 		}
 
 		$message_id = self::messageExists($importer["uid"], $guid);

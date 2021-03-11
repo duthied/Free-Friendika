@@ -25,11 +25,11 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Protocol\Feed;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Strings;
 use Friendica\Util\Network;
-use Friendica\Core\System;
+use Friendica\Model\GServer;
+use Friendica\Model\Post;
 
 function hub_return($valid, $body)
 {
@@ -132,6 +132,10 @@ function pubsub_post(App $a)
 			Logger::log('Contact ' . $author["author-link"] . ' (' . $contact_id . ') for user ' . $nick . " wasn't found - ignored. XML: " . $xml);
 			hub_post_return();
 		}
+	}
+
+	if (!empty($contact['gsid'])) {
+		GServer::setProtocol($contact['gsid'], Post\DeliveryData::OSTATUS);
 	}
 
 	if (!in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND]) && ($contact['network'] != Protocol::FEED)) {
