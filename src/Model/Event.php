@@ -518,7 +518,7 @@ class Event
 		// Query for the event by event id
 		$events = DBA::toArray(DBA::p("SELECT `event`.*, `post-user-view`.`id` AS `itemid` FROM `event`
 			LEFT JOIN `post-user-view` ON `post-user-view`.`event-id` = `event`.`id` AND `post-user-view`.`uid` = `event`.`uid`
-			WHERE `event`.`uid` = %d AND `event`.`id` = %d $sql_extra",
+			WHERE `event`.`uid` = ? AND `event`.`id` = ? $sql_extra",
 			$owner_uid, $event_id));
 
 		if (DBA::isResult($events)) {
