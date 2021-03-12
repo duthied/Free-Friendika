@@ -311,7 +311,7 @@ class StorageManager
 
 				if ($destinationRef !== '') {
 					$this->logger->info('update row');
-					if ($this->dba->update($table, ['backend-class' => $destination, 'backend-ref' => $destinationRef, 'data' => ''], ['id' => $id])) {
+					if ($this->dba->update($table, ['backend-class' => $destination::getName(), 'backend-ref' => $destinationRef, 'data' => ''], ['id' => $id])) {
 						if (!empty($source)) {
 							$this->logger->info('Delete data from old backend.', ['oldBackend' => $source, 'oldReference' => $sourceRef]);
 							$source->delete($sourceRef);
