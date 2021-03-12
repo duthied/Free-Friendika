@@ -305,7 +305,7 @@ class StorageManager
 					$data = $source->get($sourceRef);
 				}
 
-				$this->logger->info('Save data to new backend.', ['newBackend' => $destination]);
+				$this->logger->info('Save data to new backend.', ['newBackend' => $destination::getName()]);
 				$destinationRef = $destination->put($data);
 				$this->logger->info('Saved data.', ['newReference' => $destinationRef]);
 
