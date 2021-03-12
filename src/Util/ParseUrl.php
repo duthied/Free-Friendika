@@ -52,6 +52,30 @@ class ParseUrl
 	const MIN_DESC_COUNT = 100;
 
 	/**
+	 * Fetch the content type of the given url
+	 * @param string $url URL of the page
+	 * @return string content type 
+	 */
+	public static function getContentType(string $url)
+	{
+		$curlResult = DI::httpRequest()->head($url);
+		if (!$curlResult->isSuccess()) {
+			return '';
+		}
+
+		$contenttype =  $curlResult->getHeader('Content-Type');
+		if (empty($contenttype)) {
+			return '';
+		}
+		
+		if (!preg_match('#(image|video|audio)/#i', $contenttype, $matches)) {
+			return '';
+		}
+
+		return array_pop($matches);
+	}
+
+	/**
 	 * Search for chached embeddable data of an url otherwise fetch it
 	 *
 	 * @param string $url         The url of the page which should be scraped

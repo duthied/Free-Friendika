@@ -94,11 +94,10 @@ class ParseUrl extends BaseModule
 		}
 
 		if ($format == 'json') {
-			$siteinfo = Util\ParseUrl::getSiteinfoCached($url);
+			$type = Util\ParseUrl::getContentType($url);
 
-			if (empty($siteinfo['title']) && empty($siteinfo['text']) && empty($siteinfo['image'])
-				&& in_array($siteinfo['type'], ['image', 'video', 'audio'])) {
-				switch ($siteinfo['type']) {
+			if (in_array($type, ['image', 'video', 'audio'])) {
+				switch ($type) {
 					case 'video':
 						$content_type = 'video';
 						break;
@@ -114,6 +113,8 @@ class ParseUrl extends BaseModule
 				$ret['data'] = ['url' => $url];
 				$ret['success'] = true;
 			} else {
+				$siteinfo = Util\ParseUrl::getSiteinfoCached($url);
+
 				unset($siteinfo['keywords']);
 
 				$ret['data'] = $siteinfo;
