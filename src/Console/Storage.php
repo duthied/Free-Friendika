@@ -23,6 +23,7 @@ namespace Friendica\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\Core\StorageManager;
+use Friendica\Model\Storage\StorageException;
 
 /**
  * tool to manage storage backend and stored data from CLI
@@ -164,6 +165,10 @@ HELP;
 
 		$current = $this->storageManager->getBackend();
 		$total = 0;
+
+		if (is_null($current)) {
+			throw new StorageException(sprintf("Cannot move to legacy storage. Please select a storage backend."));
+		}
 
 		do {
 			$moved = $this->storageManager->move($current, $tables, $this->getOption('n', 5000));
