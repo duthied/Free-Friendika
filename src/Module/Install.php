@@ -26,6 +26,7 @@ use Friendica\BaseModule;
 use Friendica\Core;
 use Friendica\Core\Config\Cache;
 use Friendica\Core\Renderer;
+use Friendica\Core\Theme;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Friendica\Util\BasePath;
@@ -162,6 +163,16 @@ class Install extends BaseModule
 				}
 
 				self::$installer->installDatabase($configCache->get('system', 'basepath'));
+			
+				// install allowed themes to register theme hooks
+				// this is same as "Reload active theme" in /admin/themes
+				$allowed_themes = Theme::getAllowedList();
+				$allowed_themes = array_unique($allowed_themes);
+				foreach ($allowed_themes as $theme) {
+					Theme::uninstall($theme);
+					Theme::install($theme);
+				}
+				Theme::setAllowedList($allowed_themes);
 
 				break;
 		}
