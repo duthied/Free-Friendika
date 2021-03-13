@@ -571,9 +571,9 @@ return [
 		// Timeout in seconds for fetching the XRD links.
 		'xrd_timeout' => 20,
 
-		// proxy_file_chmod (Integer)
-		// Access rights for downloaded files in /proxy/ directory
-		'proxy_file_chmod' => 0640,
+		// proxy_file_chmod (Octal Integer)
+		// Access rights for downloaded files in /proxy/ directory like 0640
+		'proxy_file_chmod' => 0,
 	],
 	'experimental' => [
 		// exp_themes (Boolean)
