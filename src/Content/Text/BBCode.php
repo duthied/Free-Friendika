@@ -2257,10 +2257,10 @@ class BBCode
 			return $result;
 		}
 
-		$type = ParseUrl::getContentType($url);
+		$siteinfo = ParseUrl::getSiteinfoCached($url);
 
-		if (in_array($type, ['image', 'video', 'audio'])) {
-			switch ($type) {
+		if (in_array($siteinfo['type'], ['image', 'video', 'audio'])) {
+			switch ($siteinfo['type']) {
 				case 'video':
 					$bbcode = "\n" . '[video]' . $url . '[/video]' . "\n";
 					break;
@@ -2274,8 +2274,6 @@ class BBCode
 
 			return $bbcode;
 		}
-
-		$siteinfo = ParseUrl::getSiteinfoCached($url);
 
 		unset($siteinfo['keywords']);
 

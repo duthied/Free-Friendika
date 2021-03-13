@@ -210,6 +210,12 @@ class ParseUrl
 			return $siteinfo;
 		}
 
+		$type = self::getContentType($url);
+		if (in_array($type, ['image', 'video', 'audio'])) {
+			$siteinfo['type'] = $type;
+			return $siteinfo;
+		}
+
 		$curlResult = DI::httpRequest()->get($url);
 		if (!$curlResult->isSuccess()) {
 			return $siteinfo;
@@ -251,7 +257,7 @@ class ParseUrl
 			$oembed_data = OEmbed::fetchURL($url);
 
 			if (!empty($oembed_data->type)) {
-				if (!in_array($oembed_data->type, ['error', 'rich', ''])) {
+				if (!in_array($oembed_data->type, ['error', 'rich', 'image', 'video', 'audio', ''])) {
 					$siteinfo['type'] = $oembed_data->type;
 				}
 
