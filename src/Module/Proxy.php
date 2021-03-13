@@ -127,13 +127,16 @@ class Proxy extends BaseModule
 		}
 
 		$basepath = $a->getBasePath();
+		$filepermission = DI::config()->get('system', 'proxy_file_chmod');
 
 		// Store original image
 		if ($direct_cache) {
 			// direct cache , store under ./proxy/
 			$filename = $basepath . '/proxy/' . ProxyUtils::proxifyUrl($request['url'], true);
 			file_put_contents($filename, $image->asString());
-			chmod($filename, DI::config()->get('system', 'proxy_file_chmod'));
+			if (!empty($filepermission)) {
+				chmod($filename, $filepermission);
+			}
 		} elseif($cachefile !== '') {
 			// cache file
 			file_put_contents($cachefile, $image->asString());
@@ -153,7 +156,9 @@ class Proxy extends BaseModule
 		if ($direct_cache && $request['sizetype'] != '') {
 			$filename = $basepath . '/proxy/' . ProxyUtils::proxifyUrl($request['url'], true) . $request['sizetype'];
 			file_put_contents($filename, $image->asString());
-			chmod($filename, DI::config()->get('system', 'proxy_file_chmod'));
+			if (!empty($filepermission)) {
+				chmod($filename, $filepermission);
+			}
 		}
 
 		self::responseImageHttpCache($image);

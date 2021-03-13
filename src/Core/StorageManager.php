@@ -305,13 +305,13 @@ class StorageManager
 					$data = $source->get($sourceRef);
 				}
 
-				$this->logger->info('Save data to new backend.', ['newBackend' => $destination]);
+				$this->logger->info('Save data to new backend.', ['newBackend' => $destination::getName()]);
 				$destinationRef = $destination->put($data);
 				$this->logger->info('Saved data.', ['newReference' => $destinationRef]);
 
 				if ($destinationRef !== '') {
 					$this->logger->info('update row');
-					if ($this->dba->update($table, ['backend-class' => $destination, 'backend-ref' => $destinationRef, 'data' => ''], ['id' => $id])) {
+					if ($this->dba->update($table, ['backend-class' => $destination::getName(), 'backend-ref' => $destinationRef, 'data' => ''], ['id' => $id])) {
 						if (!empty($source)) {
 							$this->logger->info('Delete data from old backend.', ['oldBackend' => $source, 'oldReference' => $sourceRef]);
 							$source->delete($sourceRef);
