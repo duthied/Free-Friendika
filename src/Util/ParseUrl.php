@@ -52,6 +52,26 @@ class ParseUrl
 	const MIN_DESC_COUNT = 100;
 
 	/**
+	 * Fetch the content type of the given url
+	 * @param string $url URL of the page
+	 * @return array content type 
+	 */
+	public static function getContentType(string $url)
+	{
+		$curlResult = DI::httpRequest()->head($url);
+		if (!$curlResult->isSuccess()) {
+			return [];
+		}
+
+		$contenttype =  $curlResult->getHeader('Content-Type');
+		if (empty($contenttype)) {
+			return [];
+		}
+
+		return explode('/', current(explode(';', $contenttype)));
+	}
+
+	/**
 	 * Search for chached embeddable data of an url otherwise fetch it
 	 *
 	 * @param string $url         The url of the page which should be scraped
@@ -186,6 +206,18 @@ class ParseUrl
 			return $siteinfo;
 		}
 
+		$type = self::getContentType($url);
+		Logger::info('Got content-type', ['content-type' => $type, 'url' => $url]);
+		if (!empty($type) && in_array($type[0], ['image', 'video', 'audio'])) {
+			$siteinfo['type'] = $type[0];
+			return $siteinfo;
+		}
+
+		if ((count($type) >= 2) && (($type[0] != 'text') || ($type[1] != 'html'))) {
+			Logger::info('Unparseable content-type, quitting here, ', ['content-type' => $type, 'url' => $url]);
+			return $siteinfo;
+		}
+
 		$curlResult = DI::httpRequest()->get($url);
 		if (!$curlResult->isSuccess()) {
 			return $siteinfo;
@@ -195,21 +227,6 @@ class ParseUrl
 
 		// If the file is too large then exit
 		if (($curlResult->getInfo()['download_content_length'] ?? 0) > 1000000) {
-			return $siteinfo;
-		}
-
-		// Native media type, no need for HTML parsing
-		$type = $curlResult->getHeader('Content-Type');
-		if ($type) {
-			preg_match('#(image|video|audio)/#i', $type, $matches);
-			if ($matches) {
-				$siteinfo['type'] = array_pop($matches);
-				return $siteinfo;
-			}
-		}
-
-		// If it isn't a HTML file then exit
-		if (($curlResult->getContentType() != '') && !strstr(strtolower($curlResult->getContentType()), 'html')) {
 			return $siteinfo;
 		}
 
@@ -227,7 +244,7 @@ class ParseUrl
 			$oembed_data = OEmbed::fetchURL($url);
 
 			if (!empty($oembed_data->type)) {
-				if (!in_array($oembed_data->type, ['error', 'rich', ''])) {
+				if (!in_array($oembed_data->type, ['error', 'rich', 'image', 'video', 'audio', ''])) {
 					$siteinfo['type'] = $oembed_data->type;
 				}
 
