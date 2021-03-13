@@ -54,25 +54,21 @@ class ParseUrl
 	/**
 	 * Fetch the content type of the given url
 	 * @param string $url URL of the page
-	 * @return string content type 
+	 * @return array content type 
 	 */
 	public static function getContentType(string $url)
 	{
 		$curlResult = DI::httpRequest()->head($url);
 		if (!$curlResult->isSuccess()) {
-			return '';
+			return [];
 		}
 
 		$contenttype =  $curlResult->getHeader('Content-Type');
 		if (empty($contenttype)) {
-			return '';
-		}
-		
-		if (!preg_match('#(image|video|audio)/#i', $contenttype, $matches)) {
-			return '';
+			return [];
 		}
 
-		return array_pop($matches);
+		return explode('/', current(explode(';', $contenttype)));
 	}
 
 	/**
@@ -211,8 +207,14 @@ class ParseUrl
 		}
 
 		$type = self::getContentType($url);
-		if (in_array($type, ['image', 'video', 'audio'])) {
-			$siteinfo['type'] = $type;
+		Logger::info('Got content-type', ['content-type' => $type, 'url' => $url]);
+		if (!empty($type) && in_array($type[0], ['image', 'video', 'audio'])) {
+			$siteinfo['type'] = $type[0];
+			return $siteinfo;
+		}
+
+		if ((count($type) >= 2) && (($type[0] != 'text') || ($type[1] != 'html'))) {
+			Logger::info('Unparseable content-type, quitting here, ', ['content-type' => $type, 'url' => $url]);
 			return $siteinfo;
 		}
 
@@ -225,21 +227,6 @@ class ParseUrl
 
 		// If the file is too large then exit
 		if (($curlResult->getInfo()['download_content_length'] ?? 0) > 1000000) {
-			return $siteinfo;
-		}
-
-		// Native media type, no need for HTML parsing
-		$type = $curlResult->getHeader('Content-Type');
-		if ($type) {
-			preg_match('#(image|video|audio)/#i', $type, $matches);
-			if ($matches) {
-				$siteinfo['type'] = array_pop($matches);
-				return $siteinfo;
-			}
-		}
-
-		// If it isn't a HTML file then exit
-		if (($curlResult->getContentType() != '') && !strstr(strtolower($curlResult->getContentType()), 'html')) {
 			return $siteinfo;
 		}
 
