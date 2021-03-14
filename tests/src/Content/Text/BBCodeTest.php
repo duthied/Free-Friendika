@@ -63,6 +63,9 @@ class BBCodeTest extends MockedTest
 		$this->configMock->shouldReceive('get')
 			->with('system', 'big_emojis')
 			->andReturn(false);
+		$this->configMock->shouldReceive('get')
+			->with('system', 'allowed_oembed')
+			->andReturn('');
 
 		$l10nMock = Mockery::mock(L10n::class);
 		$l10nMock->shouldReceive('t')->withAnyArgs()->andReturnUsing(function ($args) { return $args; });
@@ -75,6 +78,8 @@ class BBCodeTest extends MockedTest
 		$this->dice->shouldReceive('create')
 		           ->with(BaseURL::class)
 		           ->andReturn($baseUrlMock);
+		$baseUrlMock->shouldReceive('getHostname')->withNoArgs()->andReturn('friendica.local');
+		$baseUrlMock->shouldReceive('getUrlPath')->withNoArgs()->andReturn('');
 
 		$config = \HTMLPurifier_HTML5Config::createDefault();
 		$config->set('HTML.Doctype', 'HTML5');

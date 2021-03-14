@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.03-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-10 09:43-0500\n"
+"POT-Creation-Date: 2021-03-14 13:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -912,7 +912,7 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#: mod/cal.php:277 mod/events.php:421 src/Module/Install.php:196
+#: mod/cal.php:277 mod/events.php:421 src/Module/Install.php:207
 msgid "Next"
 msgstr ""
 
@@ -1290,12 +1290,12 @@ msgstr ""
 #: src/Module/Admin/Blocklist/Server.php:99
 #: src/Module/Admin/Blocklist/Server.php:100
 #: src/Module/Admin/Item/Delete.php:70 src/Module/Debug/Probe.php:60
-#: src/Module/Install.php:189 src/Module/Install.php:222
-#: src/Module/Install.php:227 src/Module/Install.php:246
-#: src/Module/Install.php:257 src/Module/Install.php:262
+#: src/Module/Install.php:200 src/Module/Install.php:233
+#: src/Module/Install.php:238 src/Module/Install.php:257
 #: src/Module/Install.php:268 src/Module/Install.php:273
-#: src/Module/Install.php:287 src/Module/Install.php:302
-#: src/Module/Install.php:329 src/Module/Register.php:135
+#: src/Module/Install.php:279 src/Module/Install.php:284
+#: src/Module/Install.php:298 src/Module/Install.php:313
+#: src/Module/Install.php:340 src/Module/Register.php:135
 #: src/Module/Security/TwoFactor/Verify.php:99
 #: src/Module/Settings/TwoFactor/Index.php:133
 #: src/Module/Settings/TwoFactor/Verify.php:141
@@ -1341,11 +1341,11 @@ msgstr ""
 #: src/Module/Admin/Item/Source.php:65 src/Module/Contact/Advanced.php:132
 #: src/Module/Contact/Poke.php:155 src/Module/Contact.php:604
 #: src/Module/Debug/ActivityPubConversion.php:141
-#: src/Module/Debug/Babel.php:315 src/Module/Debug/Localtime.php:64
+#: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
 #: src/Module/Debug/Probe.php:55 src/Module/Debug/WebFinger.php:53
 #: src/Module/Delegation.php:152 src/Module/FriendSuggest.php:129
-#: src/Module/Install.php:234 src/Module/Install.php:276
-#: src/Module/Install.php:313 src/Module/Invite.php:175
+#: src/Module/Install.php:245 src/Module/Install.php:287
+#: src/Module/Install.php:324 src/Module/Invite.php:175
 #: src/Module/Item/Compose.php:144 src/Module/Profile/Profile.php:243
 #: src/Module/Settings/Profile/Index.php:237 src/Object/Post.php:954
 #: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
@@ -2058,7 +2058,7 @@ msgid "Resubscribing to OStatus contacts"
 msgstr ""
 
 #: mod/repair_ostatus.php:50 src/Module/Debug/ActivityPubConversion.php:130
-#: src/Module/Debug/Babel.php:295 src/Module/Security/TwoFactor/Verify.php:96
+#: src/Module/Debug/Babel.php:293 src/Module/Security/TwoFactor/Verify.php:96
 msgid "Error"
 msgid_plural "Errors"
 msgstr[0] ""
@@ -3198,7 +3198,7 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: src/Content/ContactSelector.php:127 src/Module/Debug/Babel.php:309
+#: src/Content/ContactSelector.php:127 src/Module/Debug/Babel.php:307
 msgid "Diaspora"
 msgstr ""
 
@@ -3620,11 +3620,11 @@ msgstr ""
 msgid "Site map"
 msgstr ""
 
-#: src/Content/OEmbed.php:269
+#: src/Content/OEmbed.php:270
 msgid "Embedding disabled"
 msgstr ""
 
-#: src/Content/OEmbed.php:387
+#: src/Content/OEmbed.php:388
 msgid "Embedded content"
 msgstr ""
 
@@ -3636,39 +3636,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:963 src/Content/Text/BBCode.php:1607
-#: src/Content/Text/BBCode.php:1608
+#: src/Content/Text/BBCode.php:961 src/Content/Text/BBCode.php:1605
+#: src/Content/Text/BBCode.php:1606
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1065
+#: src/Content/Text/BBCode.php:1063
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1090 src/Model/Item.php:2732
+#: src/Content/Text/BBCode.php:1088 src/Model/Item.php:2732
 #: src/Model/Item.php:2738
 msgid "link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1525 src/Content/Text/HTML.php:947
+#: src/Content/Text/BBCode.php:1523 src/Content/Text/HTML.php:947
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1556
+#: src/Content/Text/BBCode.php:1554
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1610 src/Content/Text/BBCode.php:1611
+#: src/Content/Text/BBCode.php:1608 src/Content/Text/BBCode.php:1609
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1824
+#: src/Content/Text/BBCode.php:1822
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1839
+#: src/Content/Text/BBCode.php:1837
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -3916,8 +3916,8 @@ msgid ""
 "or mysql."
 msgstr ""
 
-#: src/Core/Installer.php:199 src/Module/Install.php:195
-#: src/Module/Install.php:354
+#: src/Core/Installer.php:199 src/Module/Install.php:206
+#: src/Module/Install.php:365
 msgid "Please see the file \"doc/INSTALL.md\"."
 msgstr ""
 
@@ -5822,15 +5822,15 @@ msgstr ""
 msgid "Open"
 msgstr ""
 
-#: src/Module/Admin/Site.php:522 src/Module/Install.php:204
+#: src/Module/Admin/Site.php:522 src/Module/Install.php:215
 msgid "No SSL policy, links will track page SSL state"
 msgstr ""
 
-#: src/Module/Admin/Site.php:523 src/Module/Install.php:205
+#: src/Module/Admin/Site.php:523 src/Module/Install.php:216
 msgid "Force all links to use SSL"
 msgstr ""
 
-#: src/Module/Admin/Site.php:524 src/Module/Install.php:206
+#: src/Module/Admin/Site.php:524 src/Module/Install.php:217
 msgid "Self-signed certificate, use SSL for local links only (discouraged)"
 msgstr ""
 
@@ -5993,11 +5993,11 @@ msgstr ""
 msgid "Theme for mobile devices"
 msgstr ""
 
-#: src/Module/Admin/Site.php:608 src/Module/Install.php:214
+#: src/Module/Admin/Site.php:608 src/Module/Install.php:225
 msgid "SSL link policy"
 msgstr ""
 
-#: src/Module/Admin/Site.php:608 src/Module/Install.php:216
+#: src/Module/Admin/Site.php:608 src/Module/Install.php:227
 msgid "Determines whether generated links should be forced to use SSL"
 msgstr ""
 
@@ -6149,13 +6149,14 @@ msgid ""
 msgstr ""
 
 #: src/Module/Admin/Site.php:627
-msgid "Allowed OEmbed domains"
+msgid "Trusted third-party domains"
 msgstr ""
 
 #: src/Module/Admin/Site.php:627
 msgid ""
-"Comma separated list of domains which oembed content is allowed to be "
-"displayed. Wildcards are accepted."
+"Comma separated list of domains from which content is allowed to be embedded "
+"in posts like with OEmbed. All sub-domains of the listed domains are allowed "
+"as well."
 msgstr ""
 
 #: src/Module/Admin/Site.php:628
@@ -8063,87 +8064,87 @@ msgstr ""
 msgid "HTML Input"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:188
+#: src/Module/Debug/Babel.php:186
 msgid "HTML Purified (raw)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:193
+#: src/Module/Debug/Babel.php:191
 msgid "HTML Purified (hex)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:198
+#: src/Module/Debug/Babel.php:196
 msgid "HTML Purified"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:204
+#: src/Module/Debug/Babel.php:202
 msgid "HTML::toBBCode"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:210
+#: src/Module/Debug/Babel.php:208
 msgid "HTML::toBBCode => BBCode::convert"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:215
+#: src/Module/Debug/Babel.php:213
 msgid "HTML::toBBCode => BBCode::convert (raw HTML)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:221
+#: src/Module/Debug/Babel.php:219
 msgid "HTML::toBBCode => BBCode::toPlaintext"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:227
+#: src/Module/Debug/Babel.php:225
 msgid "HTML::toMarkdown"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:233
+#: src/Module/Debug/Babel.php:231
 msgid "HTML::toPlaintext"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:239
+#: src/Module/Debug/Babel.php:237
 msgid "HTML::toPlaintext (compact)"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:257
+#: src/Module/Debug/Babel.php:255
 msgid "Decoded post"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:278
+#: src/Module/Debug/Babel.php:276
 msgid "Post array before expand entities"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:285
+#: src/Module/Debug/Babel.php:283
 msgid "Post converted"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:290
+#: src/Module/Debug/Babel.php:288
 msgid "Converted body"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:296
+#: src/Module/Debug/Babel.php:294
 msgid "Twitter addon is absent from the addon/ folder."
 msgstr ""
 
-#: src/Module/Debug/Babel.php:306
+#: src/Module/Debug/Babel.php:304
 msgid "Babel Diagnostic"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:307
+#: src/Module/Debug/Babel.php:305
 msgid "Source text"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:308
+#: src/Module/Debug/Babel.php:306
 msgid "BBCode"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:310
+#: src/Module/Debug/Babel.php:308
 msgid "Markdown"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:311
+#: src/Module/Debug/Babel.php:309
 msgid "HTML"
 msgstr ""
 
-#: src/Module/Debug/Babel.php:313
+#: src/Module/Debug/Babel.php:311
 msgid "Twitter Source / Tweet URL (requires API key)"
 msgstr ""
 
@@ -8420,155 +8421,155 @@ msgstr ""
 msgid "Method Not Allowed."
 msgstr ""
 
-#: src/Module/Install.php:177
+#: src/Module/Install.php:188
 msgid "Friendica Communications Server - Setup"
 msgstr ""
 
-#: src/Module/Install.php:188
+#: src/Module/Install.php:199
 msgid "System check"
 msgstr ""
 
-#: src/Module/Install.php:190 src/Module/Install.php:247
-#: src/Module/Install.php:330
+#: src/Module/Install.php:201 src/Module/Install.php:258
+#: src/Module/Install.php:341
 msgid "Requirement not satisfied"
 msgstr ""
 
-#: src/Module/Install.php:191
+#: src/Module/Install.php:202
 msgid "Optional requirement not satisfied"
 msgstr ""
 
-#: src/Module/Install.php:192
+#: src/Module/Install.php:203
 msgid "OK"
 msgstr ""
 
-#: src/Module/Install.php:197
+#: src/Module/Install.php:208
 msgid "Check again"
 msgstr ""
 
-#: src/Module/Install.php:212
+#: src/Module/Install.php:223
 msgid "Base settings"
 msgstr ""
 
-#: src/Module/Install.php:219
+#: src/Module/Install.php:230
 msgid "Host name"
 msgstr ""
 
-#: src/Module/Install.php:221
+#: src/Module/Install.php:232
 msgid ""
 "Overwrite this field in case the determinated hostname isn't right, "
 "otherweise leave it as is."
 msgstr ""
 
-#: src/Module/Install.php:224
+#: src/Module/Install.php:235
 msgid "Base path to installation"
 msgstr ""
 
-#: src/Module/Install.php:226
+#: src/Module/Install.php:237
 msgid ""
 "If the system cannot detect the correct path to your installation, enter the "
 "correct path here. This setting should only be set if you are using a "
 "restricted system and symbolic links to your webroot."
 msgstr ""
 
-#: src/Module/Install.php:229
+#: src/Module/Install.php:240
 msgid "Sub path of the URL"
 msgstr ""
 
-#: src/Module/Install.php:231
+#: src/Module/Install.php:242
 msgid ""
 "Overwrite this field in case the sub path determination isn't right, "
 "otherwise leave it as is. Leaving this field blank means the installation is "
 "at the base URL without sub path."
 msgstr ""
 
-#: src/Module/Install.php:242
+#: src/Module/Install.php:253
 msgid "Database connection"
 msgstr ""
 
-#: src/Module/Install.php:243
+#: src/Module/Install.php:254
 msgid ""
 "In order to install Friendica we need to know how to connect to your "
 "database."
 msgstr ""
 
-#: src/Module/Install.php:244
+#: src/Module/Install.php:255
 msgid ""
 "Please contact your hosting provider or site administrator if you have "
 "questions about these settings."
 msgstr ""
 
-#: src/Module/Install.php:245
+#: src/Module/Install.php:256
 msgid ""
 "The database you specify below should already exist. If it does not, please "
 "create it before continuing."
 msgstr ""
 
-#: src/Module/Install.php:254
+#: src/Module/Install.php:265
 msgid "Database Server Name"
 msgstr ""
 
-#: src/Module/Install.php:259
+#: src/Module/Install.php:270
 msgid "Database Login Name"
 msgstr ""
 
-#: src/Module/Install.php:265
+#: src/Module/Install.php:276
 msgid "Database Login Password"
 msgstr ""
 
-#: src/Module/Install.php:267
+#: src/Module/Install.php:278
 msgid "For security reasons the password must not be empty"
 msgstr ""
 
-#: src/Module/Install.php:270
+#: src/Module/Install.php:281
 msgid "Database Name"
 msgstr ""
 
-#: src/Module/Install.php:274 src/Module/Install.php:304
+#: src/Module/Install.php:285 src/Module/Install.php:315
 msgid "Please select a default timezone for your website"
 msgstr ""
 
-#: src/Module/Install.php:289
+#: src/Module/Install.php:300
 msgid "Site settings"
 msgstr ""
 
-#: src/Module/Install.php:299
+#: src/Module/Install.php:310
 msgid "Site administrator email address"
 msgstr ""
 
-#: src/Module/Install.php:301
+#: src/Module/Install.php:312
 msgid ""
 "Your account email address must match this in order to use the web admin "
 "panel."
 msgstr ""
 
-#: src/Module/Install.php:308
+#: src/Module/Install.php:319
 msgid "System Language:"
 msgstr ""
 
-#: src/Module/Install.php:310
+#: src/Module/Install.php:321
 msgid ""
 "Set the default language for your Friendica installation interface and to "
 "send emails."
 msgstr ""
 
-#: src/Module/Install.php:322
+#: src/Module/Install.php:333
 msgid "Your Friendica site database has been installed."
 msgstr ""
 
-#: src/Module/Install.php:332
+#: src/Module/Install.php:343
 msgid "Installation finished"
 msgstr ""
 
-#: src/Module/Install.php:352
+#: src/Module/Install.php:363
 msgid "<h1>What next</h1>"
 msgstr ""
 
-#: src/Module/Install.php:353
+#: src/Module/Install.php:364
 msgid ""
 "IMPORTANT: You will need to [manually] setup a scheduled task for the worker."
 msgstr ""
 
-#: src/Module/Install.php:356
+#: src/Module/Install.php:367
 #, php-format
 msgid ""
 "Go to your new Friendica node <a href=\"%s/register\">registration page</a> "
@@ -10427,7 +10428,7 @@ msgstr ""
 msgid "Show fewer"
 msgstr ""
 
-#: src/Protocol/Diaspora.php:3414
+#: src/Protocol/Diaspora.php:3443
 msgid "Attachments:"
 msgstr ""
 
