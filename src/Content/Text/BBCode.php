@@ -29,12 +29,10 @@ use Friendica\Content\Item;
 use Friendica\Content\OEmbed;
 use Friendica\Content\PageInfo;
 use Friendica\Content\Smilies;
-use Friendica\Content\Text\HTMLPurifier_URIScheme_cid;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
@@ -1877,28 +1875,16 @@ class BBCode
 			$text
 		);
 
-		\HTMLPurifier_URISchemeRegistry::instance()->register('cid', new HTMLPurifier_URIScheme_cid());
+		// Default iframe allowed domains/path
+		$allowedIframeDomains = [
+			DI::baseUrl()->getHostname()
+			. (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : '')
+			. '/oembed/', # The path part has to change with the source in Content\Oembed::iframe
+			'www.youtube.com/embed/',
+			'player.vimeo.com/video/',
+		];
 
-		$config = \HTMLPurifier_HTML5Config::createDefault();
-		$config->set('HTML.Doctype', 'HTML5');
-		$config->set('HTML.SafeIframe', true);
-		$config->set('URI.SafeIframeRegexp', '%^(?:
-			https://www.youtube.com/embed/
-			|
-			https://player.vimeo.com/video/
-			|
-			' . DI::baseUrl() . '/oembed/ # Has to change with the source in Content\Oembed::iframe
-		)%xi');
-		$config->set('Attr.AllowedRel', [
-			'noreferrer' => true,
-			'noopener' => true,
-		]);
-		$config->set('Attr.AllowedFrameTargets', [
-			'_blank' => true,
-		]);
-
-		$HTMLPurifier = new \HTMLPurifier($config);
-		$text = $HTMLPurifier->purify($text);
+		$text = HTML::purify($text, $allowedIframeDomains);
 
 		return $text;
 	}

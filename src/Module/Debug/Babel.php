@@ -180,9 +180,7 @@ class Babel extends BaseModule
 						'content' => $html
 					];
 
-					$config = \HTMLPurifier_Config::createDefault();
-					$HTMLPurifier = new \HTMLPurifier($config);
-					$purified = $HTMLPurifier->purify($html);
+					$purified = Text\HTML::purify($html);
 
 					$results[] = [
 						'title'   => DI::l10n()->t('HTML Purified (raw)'),

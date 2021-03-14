@@ -961,4 +961,63 @@ class HTML
 	{
 		return str_replace('&amp;', '&', $s);
 	}
+
+	/**
+	 * Clean an HTML text for potentially harmful code
+	 *
+	 * @param string $text
+	 * @param array  $allowedIframeDomains List of allowed iframe source domains without the scheme
+	 * @return string
+	 */
+	public static function purify(string $text, array $allowedIframeDomains = []): string
+	{
+		// Allows cid: URL scheme
+		\HTMLPurifier_URISchemeRegistry::instance()->register('cid', new HTMLPurifier_URIScheme_cid());
+
+		$config = \HTMLPurifier_HTML5Config::createDefault();
+		$config->set('HTML.Doctype', 'HTML5');
+
+		// Used to remove iframe with src attribute filtered out
+		$config->set('AutoFormat.RemoveEmpty', true);
+
+		$config->set('HTML.SafeIframe', true);
+
+		array_walk($allowedIframeDomains, function (&$domain) {
+			// Allow the domain and all its eventual sub-domains
+			$domain = '(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)*' . preg_quote(trim($domain, '/'), '%');
+		});
+
+		$config->set('URI.SafeIframeRegexp',
+			'%^https://(?:
+				' . implode('|', $allowedIframeDomains) . '
+			)
+			(?:/|$) # Prevents bogus domains like youtube.com.fake.tld
+			%xi'
+		);
+
+		$config->set('Attr.AllowedRel', [
+			'noreferrer' => true,
+			'noopener' => true,
+		]);
+		$config->set('Attr.AllowedFrameTargets', [
+			'_blank' => true,
+		]);
+
+		/* Uncomment to debug HTMLPurifier behavior
+		$config->set('Core.CollectErrors', true);
+		$config->set('Core.MaintainLineNumbers', true);
+		*/
+
+		$HTMLPurifier = new \HTMLPurifier($config);
+
+		$text = $HTMLPurifier->purify($text);
+
+		/** @var \HTMLPurifier_ErrorCollector $errorCollector */
+		/* Uncomment to debug HTML Purifier behavior
+		$errorCollector = $HTMLPurifier->context->get('ErrorCollector');
+		var_dump($errorCollector->getRaw());
+		*/
+
+		return $text;
+	}
 }
