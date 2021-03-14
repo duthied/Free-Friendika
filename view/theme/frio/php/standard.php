@@ -20,6 +20,8 @@
  * The default site template
  */
 
+use Friendica\DI;
+
 ?>
 <!DOCTYPE html >
 <html>
@@ -27,9 +29,9 @@
 	<title><?php if(!empty($page['title'])) echo $page['title'] ?></title>
 	<meta name="viewport" content="initial-scale=1.0">
 	<meta request="<?php echo htmlspecialchars($_REQUEST['pagename']) ?>">
-	<script type="text/javascript">var baseurl="<?php echo Friendica\DI::baseUrl() ?>";</script>
+	<script type="text/javascript">var baseurl="<?php echo DI::baseUrl() ?>";</script>
 	<script type="text/javascript">var frio="<?php echo "view/theme/frio"; ?>";</script>
-	<?php $baseurl = Friendica\DI::baseUrl(); ?>
+	<?php $baseurl = DI::baseUrl(); ?>
 	<?php $frio = "view/theme/frio"; ?>
 	<?php if(!empty($page['htmlhead'])) echo $page['htmlhead']; ?>
 </head>
@@ -38,8 +40,8 @@
 <a href="#content" class="sr-only sr-only-focusable"><?php echo DI::l10n()->t('Skip to main content'); ?></a>
 <?php
 	if(!empty($page['nav'])) {
-	echo	str_replace("~config.sitename~",Friendica\DI::config()->get('config','sitename'),
-			str_replace("~system.banner~",Friendica\DI::config()->get('system','banner'),
+	echo	str_replace("~config.sitename~", DI::config()->get('config','sitename'),
+			str_replace("~system.banner~", DI::config()->get('system','banner'),
 			$page['nav']
 	));};
 ?>
@@ -70,7 +72,7 @@
 			</div><!--row-->
 		</div><!-- container -->
 
-		<div id="back-to-top" title="back to top">⇧</div>
+		<div id="back-to-top" title="<?php echo DI::l10n()->t('Back to top')?>">⇧</div>
 	</main>
 
 <footer>
