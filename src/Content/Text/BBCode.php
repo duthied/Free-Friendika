@@ -1884,6 +1884,13 @@ class BBCode
 			'player.vimeo.com/video/',
 		];
 
+		$allowedIframeDomains = array_merge(
+			$allowedIframeDomains,
+			DI::config()->get('system', 'allowed_oembed') ?
+				explode(',', DI::config()->get('system', 'allowed_oembed'))
+				: []
+		);
+
 		$text = HTML::purify($text, $allowedIframeDomains);
 
 		return $text;
