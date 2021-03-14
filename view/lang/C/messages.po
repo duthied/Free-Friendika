@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.03-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-14 13:43-0400\n"
+"POT-Creation-Date: 2021-03-14 18:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3620,11 +3620,11 @@ msgstr ""
 msgid "Site map"
 msgstr ""
 
-#: src/Content/OEmbed.php:270
+#: src/Content/OEmbed.php:269
 msgid "Embedding disabled"
 msgstr ""
 
-#: src/Content/OEmbed.php:388
+#: src/Content/OEmbed.php:387
 msgid "Embedded content"
 msgstr ""
 
@@ -10782,8 +10782,12 @@ msgstr ""
 msgid "Leave background image and color empty for theme defaults"
 msgstr ""
 
-#: view/theme/frio/php/default.php:81 view/theme/frio/php/standard.php:38
+#: view/theme/frio/php/default.php:81 view/theme/frio/php/standard.php:40
 msgid "Skip to main content"
+msgstr ""
+
+#: view/theme/frio/php/default.php:152 view/theme/frio/php/standard.php:75
+msgid "Back to top"
 msgstr ""
 
 #: view/theme/frio/php/Image.php:40
