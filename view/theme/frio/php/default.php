@@ -149,7 +149,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 				</div><!--row-->
 			</div><!-- container -->
 
-			<div id="back-to-top" title="back to top">⇧</div>
+			<div id="back-to-top" title="<?php echo DI::l10n()->t('Back to top')?>">⇧</div>
 		</main>
 
 		<footer>
