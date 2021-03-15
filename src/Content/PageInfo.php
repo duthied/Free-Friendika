@@ -129,17 +129,12 @@ class PageInfo
 		}
 
 		// Escape some bad characters
-		$data['url'] = str_replace(['[', ']'], ['&#91;', '&#93;'], htmlentities($data['url'], ENT_QUOTES, 'UTF-8', false));
-		$data['title'] = str_replace(['[', ']'], ['&#91;', '&#93;'], htmlentities($data['title'], ENT_QUOTES, 'UTF-8', false));
+		$text = "[attachment";
 
-		$text = "[attachment type='" . $data['type'] . "'";
-
-		if (!empty($data['url'])) {
-			$text .= " url='" . $data['url'] . "'";
-		}
-
-		if (!empty($data['title'])) {
-			$text .= " title='" . $data['title'] . "'";
+		foreach (['type', 'url', 'title', 'alternative_title', 'publisher', 'publisher_url', 'publisher_image', 'author', 'author_url', 'author_image'] as $field) {
+			if (!empty($data[$field])) {
+				$text .= " " . $field . "='" . str_replace(['[', ']'], ['&#91;', '&#93;'], htmlentities($data[$field], ENT_QUOTES, 'UTF-8', false)) . "'";
+			}
 		}
 
 		if (empty($data['text'])) {
@@ -167,7 +162,7 @@ class PageInfo
 			}
 		}
 
-		$text .= ']' . $data['text'] . '[/attachment]';
+		$text .= ']' . str_replace(['[', ']'], ['&#91;', '&#93;'], $data['text']) . '[/attachment]';
 
 		$hashtags = '';
 		if (!empty($data['keywords'])) {

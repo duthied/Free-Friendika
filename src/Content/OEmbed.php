@@ -143,35 +143,54 @@ class OEmbed
 			DI::cache()->set($cache_key, $json_string, $cache_ttl);
 		}
 
-		if ($oembed->type == 'error') {
+		// Always embed the SSL version
+		if (!empty($oembed->html)) {
+			$oembed->html = str_replace(['http://www.youtube.com/', 'http://player.vimeo.com/'], ['https://www.youtube.com/', 'https://player.vimeo.com/'], $oembed->html);
+		}
+
+		// Improve the OEmbed data with data from OpenGraph, Twitter cards and other sources
+		$data = ParseUrl::getSiteinfoCached($embedurl, true, false);
+		if (($oembed->type == 'error') && empty($data['title']) && empty($data['text'])) {
 			return $oembed;
 		}
 
-		// Always embed the SSL version
-		$oembed->html = str_replace(['http://www.youtube.com/', 'http://player.vimeo.com/'], ['https://www.youtube.com/', 'https://player.vimeo.com/'], $oembed->html);
-
-		// If fetching information doesn't work, then improve via internal functions
-		if ($no_rich_type && ($oembed->type == 'rich')) {
-			$data = ParseUrl::getSiteinfoCached($embedurl, true, false);
+		if ($no_rich_type || ($oembed->type == 'error')) {
+			$oembed->html = '';
 			$oembed->type = $data['type'];
 
 			if ($oembed->type == 'photo') {
 				$oembed->url = $data['url'];
 			}
+		}
 
-			if (isset($data['title'])) {
-				$oembed->title = $data['title'];
-			}
+		if (!empty($data['title']) && empty($oembed->title)) {
+			$oembed->title = $data['title'];
+		}
 
-			if (isset($data['text'])) {
-				$oembed->description = $data['text'];
-			}
+		if (!empty($data['text']) && empty($oembed->description)) {
+			$oembed->description = $data['text'];
+		}
 
-			if (!empty($data['images'])) {
-				$oembed->thumbnail_url = $data['images'][0]['src'];
-				$oembed->thumbnail_width = $data['images'][0]['width'];
-				$oembed->thumbnail_height = $data['images'][0]['height'];
-			}
+		if (!empty($data['publisher']) && empty($oembed->provider_name)) {
+			$oembed->provider_name = $data['publisher'];
+		}
+
+		if (!empty($data['publisher_url']) && empty($oembed->provider_url)) {
+			$oembed->provider_url = $data['publisher_url'];
+		}
+
+		if (!empty($data['author']) && empty($oembed->author_name)) {
+			$oembed->author_name = $data['author'];
+		}
+
+		if (!empty($data['author_url']) && empty($oembed->author_url)) {
+			$oembed->author_url = $data['author_url'];
+		}
+
+		if (!empty($data['images']) && empty($oembed->thumbnail_url)) {
+			$oembed->thumbnail_url = $data['images'][0]['src'];
+			$oembed->thumbnail_width = $data['images'][0]['width'];
+			$oembed->thumbnail_height = $data['images'][0]['height'];
 		}
 
 		Hook::callAll('oembed_fetch_url', $embedurl, $oembed);

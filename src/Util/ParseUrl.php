@@ -300,7 +300,6 @@ class ParseUrl
 		@$doc->loadHTML($body);
 
 		XML::deleteNode($doc, 'style');
-		XML::deleteNode($doc, 'script');
 		XML::deleteNode($doc, 'option');
 		XML::deleteNode($doc, 'h1');
 		XML::deleteNode($doc, 'h2');
@@ -392,6 +391,9 @@ class ParseUrl
 				case 'dc.description':
 					$siteinfo['text'] = trim($meta_tag['content']);
 					break;
+				case 'dc.creator':
+					$siteinfo['publisher'] = trim($meta_tag['content']);
+					break;
 				case 'keywords':
 					$keywords = explode(',', $meta_tag['content']);
 					break;
@@ -426,12 +428,46 @@ class ParseUrl
 					case 'og:image':
 						$siteinfo['image'] = $meta_tag['content'];
 						break;
+					case 'og:image:url':
+						$siteinfo['image'] = $meta_tag['content'];
+						break;
+					case 'og:image:secure_url':
+						$siteinfo['image'] = $meta_tag['content'];
+						break;
 					case 'og:title':
 						$siteinfo['title'] = trim($meta_tag['content']);
 						break;
 					case 'og:description':
 						$siteinfo['text'] = trim($meta_tag['content']);
 						break;
+					case 'og:site_name':
+						$siteinfo['publisher'] = trim($meta_tag['content']);
+						break;
+					case 'twitter:description':
+						$siteinfo['text'] = trim($meta_tag['content']);
+						break;
+					case 'twitter:title':
+						$siteinfo['title'] = trim($meta_tag['content']);
+						break;
+					case 'twitter:image':
+						$siteinfo['image'] = $meta_tag['content'];
+						break;
+				}
+			}
+		}
+
+		$list = $xpath->query("//script[@type='application/ld+json']");
+		foreach ($list as $node) {
+			if (!empty($node->nodeValue)) {
+				$nodevalue = html_entity_decode($node->nodeValue, ENT_COMPAT, 'UTF-8');
+				if ($jsonld = json_decode($nodevalue, true)) {
+					if (!empty($jsonld['@graph']) && is_array($jsonld['@graph'])) {
+						foreach ($jsonld['@graph'] as $part) {
+							$siteinfo = self::parseJsonLd($siteinfo, $part);
+						}
+					} else {
+						$siteinfo = self::parseJsonLd($siteinfo, $jsonld);
+					}
 				}
 			}
 		}
@@ -468,6 +504,281 @@ class ParseUrl
 		Hook::callAll('getsiteinfo', $siteinfo);
 
 		return $siteinfo;
+	}
+
+	/**
+	 * Improve the siteinfo with information from the provided JSON-LD information
+	 * @see https://jsonld.com/
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLd(array $siteinfo, array $jsonld)
+	{
+		$type = JsonLD::fetchElement($jsonld, '@type');
+
+		switch ($type) {
+			case 'Article':
+			case 'NewsArticle':
+				return self::parseJsonLdArticle($siteinfo, $jsonld);
+			case 'WebPage':
+				return self::parseJsonLdWebPage($siteinfo, $jsonld);
+			case 'WebSite':
+				return self::parseJsonLdWebSite($siteinfo, $jsonld);
+			case 'Organization':
+				return self::parseJsonLdWebOrganization($siteinfo, $jsonld);
+			case 'Person':
+				return self::parseJsonLdWebPerson($siteinfo, $jsonld);
+			case 'BreadcrumbList':
+			case 'Audio': /// @todo Can contain direct media links to audio - can be interesting in the future
+			case 'VideoObject':
+			case 'ImageObject':
+			case 'LiveBlogPosting':
+			case 'SocialMediaPosting':
+					// quit silently
+				return $siteinfo;
+			default:
+				Logger::info('Unsupported or unknown type', ['type' => $type, 'url' => $siteinfo['url']]);
+				return $siteinfo;
+		}
+	}
+
+	/**
+	 * Improve the siteinfo with information from the provided JSON-LD information concerning authors and publishers
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdAuthor(array $siteinfo, array $jsonld)
+	{
+		$jsonldinfo = [];
+
+		if (is_array($jsonld['publisher'])) {
+			$content = JsonLD::fetchElement($jsonld, 'publisher', 'name', '@type', 'Organization');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['publisher'] = trim($content);
+			}
+
+			$content = JsonLD::fetchElement($jsonld, 'publisher', 'url', '@type', 'Organization');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['publisher_url'] = trim($content);
+			}
+
+			$brand = JsonLD::fetchElement($jsonld, 'publisher', 'brand', '@type', 'Organization');
+			if (!empty($brand)) {
+				$content = JsonLD::fetchElement($brand, 'name', '@type', 'brand');
+				if (!empty($content) && is_string($content)) {
+					$jsonldinfo['publisher'] = trim($content);
+				}
+			}
+		}
+
+		if (is_array($jsonld['author'])) {
+			$content = JsonLD::fetchElement($jsonld, 'author', 'name', '@type', 'Organization');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['publisher'] = trim($content);
+			}
+
+			$content = JsonLD::fetchElement($jsonld, 'author', 'url', '@type', 'Organization');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['publisher_url'] = trim($content);
+			}
+
+			$content = JsonLD::fetchElement($jsonld, 'author', 'name', '@type', 'Person');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['author'] = trim($content);
+			}
+
+			$content = JsonLD::fetchElement($jsonld, 'author', 'url', '@type', 'Person');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['author_url'] = trim($content);
+			}
+		}
+
+		Logger::info('Fetched author information', ['fetched' => $jsonldinfo]);
+
+		return array_merge($siteinfo, $jsonldinfo);
+	}
+
+	/**
+	 * Improve the siteinfo with information from the provided JSON-LD Article information
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdArticle(array $siteinfo, array $jsonld)
+	{
+		$jsonldinfo = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'headline');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['title'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'alternativeHeadline');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['alternative_title'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'description');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['text'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'image', 'url', '@type', 'ImageObject');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['image'] = trim($content);
+		}
+
+/// @todo Check for the correct separator, also check for dpublicates before adding
+//		$content = JsonLD::fetchElement($jsonld, 'keywords');
+//		if (!empty($content) && is_string($content)) {
+//			$jsonldinfo['keywords'] = trim($content);
+//		}
+
+		$jsonldinfo = self::parseJsonLdAuthor($jsonldinfo, $jsonld);
+
+		Logger::info('Fetched article information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
+
+		return array_merge($siteinfo, $jsonldinfo);
+	}
+
+	/**
+	 * Improve the siteinfo with information from the provided JSON-LD WebPage information
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdWebPage(array $siteinfo, array $jsonld)
+	{
+		$jsonldinfo = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'name');
+		if (!empty($content)) {
+			$jsonldinfo['title'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'description');
+		if (!empty($content)) {
+			$jsonldinfo['text'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
+		if (!empty($content)) {
+			$jsonldinfo['image'] = trim($content);
+		}
+
+		$jsonldinfo = self::parseJsonLdAuthor($jsonldinfo, $jsonld);
+
+		Logger::info('Fetched webpage information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
+
+		return array_merge($siteinfo, $jsonldinfo);
+	}
+
+	/**
+	 * Improve the siteinfo with information from the provided JSON-LD WebSite information
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdWebSite(array $siteinfo, array $jsonld)
+	{
+		$jsonldinfo = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'name');
+		if (!empty($content)) {
+			$jsonldinfo['publisher'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'description');
+		if (!empty($content)) {
+			$jsonldinfo['publisher_description'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'url');
+		if (!empty($content)) {
+			$jsonldinfo['publisher_url'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
+		if (!empty($content)) {
+			$jsonldinfo['image'] = trim($content);
+		}
+
+		$jsonldinfo = self::parseJsonLdAuthor($jsonldinfo, $jsonld);
+
+		Logger::info('Fetched WebSite information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
+		return array_merge($siteinfo, $jsonldinfo);
+	}
+
+	/**
+	 * Improve the siteinfo with information from the provided JSON-LD Organization information
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdWebOrganization(array $siteinfo, array $jsonld)
+	{
+		$jsonldinfo = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'name');
+		if (!empty($content)) {
+			$jsonldinfo['publisher'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'url');
+		if (!empty($content)) {
+			$jsonldinfo['publisher_url'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'logo', 'url', '@type', 'ImageObject');
+		if (!empty($content)) {
+			$jsonldinfo['publisher_image'] = trim($content);
+		}
+
+		Logger::info('Fetched Organization information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
+		return array_merge($siteinfo, $jsonldinfo);
+	}
+
+	/**
+	 * Improve the siteinfo with information from the provided JSON-LD Person information
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdWebPerson(array $siteinfo, array $jsonld)
+	{
+		$jsonldinfo = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'name');
+		if (!empty($content)) {
+			$jsonldinfo['author'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'description');
+		if (!empty($content)) {
+			$jsonldinfo['author_description'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'url');
+		if (!empty($content)) {
+			$jsonldinfo['author_url'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'image', 'url', '@type', 'ImageObject');
+		if (!empty($content)) {
+			$jsonldinfo['author_image'] = trim($content);
+		}
+
+		Logger::info('Fetched Person information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
+		return array_merge($siteinfo, $jsonldinfo);
 	}
 
 	/**
