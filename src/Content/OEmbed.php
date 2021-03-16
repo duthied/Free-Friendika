@@ -62,11 +62,12 @@ class OEmbed
 	 *
 	 * @param string $embedurl     The URL from which the data should be fetched.
 	 * @param bool   $no_rich_type If set to true rich type content won't be fetched.
+	 * @param bool   $use_parseurl Use the "ParseUrl" functionality to add additional data
 	 *
 	 * @return \Friendica\Object\OEmbed
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchURL($embedurl, $no_rich_type = false)
+	public static function fetchURL($embedurl, bool $no_rich_type = false, bool $use_parseurl = true)
 	{
 		$embedurl = trim($embedurl, '\'"');
 
@@ -149,48 +150,51 @@ class OEmbed
 		}
 
 		// Improve the OEmbed data with data from OpenGraph, Twitter cards and other sources
-		$data = ParseUrl::getSiteinfoCached($embedurl, true, false);
-		if (($oembed->type == 'error') && empty($data['title']) && empty($data['text'])) {
-			return $oembed;
-		}
+		if ($use_parseurl) {
+			$data = ParseUrl::getSiteinfoCached($embedurl, true, false);
 
-		if ($no_rich_type || ($oembed->type == 'error')) {
-			$oembed->html = '';
-			$oembed->type = $data['type'];
-
-			if ($oembed->type == 'photo') {
-				$oembed->url = $data['url'];
+			if (($oembed->type == 'error') && empty($data['title']) && empty($data['text'])) {
+				return $oembed;
 			}
-		}
 
-		if (!empty($data['title'])) {
-			$oembed->title = $data['title'];
-		}
+			if ($no_rich_type || ($oembed->type == 'error')) {
+				$oembed->html = '';
+				$oembed->type = $data['type'];
 
-		if (!empty($data['text'])) {
-			$oembed->description = $data['text'];
-		}
+				if ($oembed->type == 'photo') {
+					$oembed->url = $data['url'];
+				}
+			}
 
-		if (!empty($data['publisher_name'])) {
-			$oembed->provider_name = $data['publisher_name'];
-		}
+			if (!empty($data['title'])) {
+				$oembed->title = $data['title'];
+			}
 
-		if (!empty($data['publisher_url'])) {
-			$oembed->provider_url = $data['publisher_url'];
-		}
+			if (!empty($data['text'])) {
+				$oembed->description = $data['text'];
+			}
 
-		if (!empty($data['author_name'])) {
-			$oembed->author_name = $data['author_name'];
-		}
+			if (!empty($data['publisher_name'])) {
+				$oembed->provider_name = $data['publisher_name'];
+			}
 
-		if (!empty($data['author_url'])) {
-			$oembed->author_url = $data['author_url'];
-		}
+			if (!empty($data['publisher_url'])) {
+				$oembed->provider_url = $data['publisher_url'];
+			}
 
-		if (!empty($data['images'])) {
-			$oembed->thumbnail_url = $data['images'][0]['src'];
-			$oembed->thumbnail_width = $data['images'][0]['width'];
-			$oembed->thumbnail_height = $data['images'][0]['height'];
+			if (!empty($data['author_name'])) {
+				$oembed->author_name = $data['author_name'];
+			}
+
+			if (!empty($data['author_url'])) {
+				$oembed->author_url = $data['author_url'];
+			}
+
+			if (!empty($data['images'])) {
+				$oembed->thumbnail_url = $data['images'][0]['src'];
+				$oembed->thumbnail_width = $data['images'][0]['width'];
+				$oembed->thumbnail_height = $data['images'][0]['height'];
+			}
 		}
 
 		Hook::callAll('oembed_fetch_url', $embedurl, $oembed);

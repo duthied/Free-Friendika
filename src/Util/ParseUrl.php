@@ -241,7 +241,7 @@ class ParseUrl
 		$body = $curlResult->getBody();
 
 		if ($do_oembed) {
-			$oembed_data = OEmbed::fetchURL($url);
+			$oembed_data = OEmbed::fetchURL($url, false, false);
 
 			if (!empty($oembed_data->type)) {
 				if (!in_array($oembed_data->type, ['error', 'rich', 'image', 'video', 'audio', ''])) {
@@ -250,13 +250,25 @@ class ParseUrl
 
 				// See https://github.com/friendica/friendica/pull/5763#discussion_r217913178
 				if ($siteinfo['type'] != 'photo') {
-					if (isset($oembed_data->title)) {
+					if (!empty($oembed_data->title)) {
 						$siteinfo['title'] = trim($oembed_data->title);
 					}
-					if (isset($oembed_data->description)) {
+					if (!empty($oembed_data->description)) {
 						$siteinfo['text'] = trim($oembed_data->description);
 					}
-					if (isset($oembed_data->thumbnail_url)) {
+					if (!empty($oembed_data->author_name)) {
+						$siteinfo['author_name'] = trim($oembed_data->author_name);
+					}
+					if (!empty($oembed_data->author_url)) {
+						$siteinfo['author_url'] = trim($oembed_data->author_url);
+					}
+					if (!empty($oembed_data->provider_name)) {
+						$siteinfo['publisher_name'] = trim($oembed_data->provider_name);
+					}
+					if (!empty($oembed_data->provider_url)) {
+						$siteinfo['publisher_url'] = trim($oembed_data->provider_url);
+					}
+					if (!empty($oembed_data->thumbnail_url)) {
 						$siteinfo['image'] = $oembed_data->thumbnail_url;
 					}
 				}
