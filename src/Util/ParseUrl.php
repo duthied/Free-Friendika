@@ -563,6 +563,16 @@ class ParseUrl
 		$jsonldinfo = [];
 
 		if (!empty($jsonld['publisher']) && is_array($jsonld['publisher'])) {
+			$content = JsonLD::fetchElement($jsonld, 'publisher', 'name', '@type', 'Person');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['publisher_name'] = trim($content);
+			}
+
+			$content = JsonLD::fetchElement($jsonld, 'publisher', 'url', '@type', 'Person');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['publisher_url'] = trim($content);
+			}
+
 			$content = JsonLD::fetchElement($jsonld, 'publisher', 'name', '@type', 'Organization');
 			if (!empty($content) && is_string($content)) {
 				$jsonldinfo['publisher_name'] = trim($content);
@@ -574,7 +584,7 @@ class ParseUrl
 			}
 
 			$brand = JsonLD::fetchElement($jsonld, 'publisher', 'brand', '@type', 'Organization');
-			if (!empty($brand)) {
+			if (!empty($brand) && is_array($brand)) {
 				$content = JsonLD::fetchElement($brand, 'name', '@type', 'brand');
 				if (!empty($content) && is_string($content)) {
 					$jsonldinfo['publisher_name'] = trim($content);
@@ -585,12 +595,12 @@ class ParseUrl
 		if (!empty($jsonld['author']) && is_array($jsonld['author'])) {
 			$content = JsonLD::fetchElement($jsonld, 'author', 'name', '@type', 'Organization');
 			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['publisher_name'] = trim($content);
+				$jsonldinfo['author_name'] = trim($content);
 			}
 
 			$content = JsonLD::fetchElement($jsonld, 'author', 'url', '@type', 'Organization');
 			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['publisher_url'] = trim($content);
+				$jsonldinfo['author_url'] = trim($content);
 			}
 
 			$content = JsonLD::fetchElement($jsonld, 'author', 'name', '@type', 'Person');
