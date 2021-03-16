@@ -392,7 +392,7 @@ class ParseUrl
 					$siteinfo['text'] = trim($meta_tag['content']);
 					break;
 				case 'dc.creator':
-					$siteinfo['publisher'] = trim($meta_tag['content']);
+					$siteinfo['publisher_name'] = trim($meta_tag['content']);
 					break;
 				case 'keywords':
 					$keywords = explode(',', $meta_tag['content']);
@@ -441,7 +441,7 @@ class ParseUrl
 						$siteinfo['text'] = trim($meta_tag['content']);
 						break;
 					case 'og:site_name':
-						$siteinfo['publisher'] = trim($meta_tag['content']);
+						$siteinfo['publisher_name'] = trim($meta_tag['content']);
 						break;
 					case 'twitter:description':
 						$siteinfo['text'] = trim($meta_tag['content']);
@@ -555,10 +555,10 @@ class ParseUrl
 	{
 		$jsonldinfo = [];
 
-		if (is_array($jsonld['publisher'])) {
+		if (!empty($jsonld['publisher']) && is_array($jsonld['publisher'])) {
 			$content = JsonLD::fetchElement($jsonld, 'publisher', 'name', '@type', 'Organization');
 			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['publisher'] = trim($content);
+				$jsonldinfo['publisher_name'] = trim($content);
 			}
 
 			$content = JsonLD::fetchElement($jsonld, 'publisher', 'url', '@type', 'Organization');
@@ -570,15 +570,15 @@ class ParseUrl
 			if (!empty($brand)) {
 				$content = JsonLD::fetchElement($brand, 'name', '@type', 'brand');
 				if (!empty($content) && is_string($content)) {
-					$jsonldinfo['publisher'] = trim($content);
+					$jsonldinfo['publisher_name'] = trim($content);
 				}
 			}
 		}
 
-		if (is_array($jsonld['author'])) {
+		if (!empty($jsonld['author']) && is_array($jsonld['author'])) {
 			$content = JsonLD::fetchElement($jsonld, 'author', 'name', '@type', 'Organization');
 			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['publisher'] = trim($content);
+				$jsonldinfo['publisher_name'] = trim($content);
 			}
 
 			$content = JsonLD::fetchElement($jsonld, 'author', 'url', '@type', 'Organization');
@@ -588,7 +588,7 @@ class ParseUrl
 
 			$content = JsonLD::fetchElement($jsonld, 'author', 'name', '@type', 'Person');
 			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['author'] = trim($content);
+				$jsonldinfo['author_name'] = trim($content);
 			}
 
 			$content = JsonLD::fetchElement($jsonld, 'author', 'url', '@type', 'Person');
@@ -692,7 +692,7 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'name');
 		if (!empty($content)) {
-			$jsonldinfo['publisher'] = trim($content);
+			$jsonldinfo['publisher_name'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'description');
@@ -729,7 +729,7 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'name');
 		if (!empty($content)) {
-			$jsonldinfo['publisher'] = trim($content);
+			$jsonldinfo['publisher_name'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
@@ -739,7 +739,7 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'logo', 'url', '@type', 'ImageObject');
 		if (!empty($content)) {
-			$jsonldinfo['publisher_image'] = trim($content);
+			$jsonldinfo['publisher_img'] = trim($content);
 		}
 
 		Logger::info('Fetched Organization information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
@@ -759,7 +759,7 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'name');
 		if (!empty($content)) {
-			$jsonldinfo['author'] = trim($content);
+			$jsonldinfo['author_name'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'description');
@@ -774,7 +774,7 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'image', 'url', '@type', 'ImageObject');
 		if (!empty($content)) {
-			$jsonldinfo['author_image'] = trim($content);
+			$jsonldinfo['author_img'] = trim($content);
 		}
 
 		Logger::info('Fetched Person information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);

@@ -56,6 +56,7 @@ use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Security\Security;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\ParseUrl;
 use Friendica\Worker\Delivery;
 
 function item_post(App $a) {
@@ -217,12 +218,15 @@ function item_post(App $a) {
 
 		$attachment_img_width  = $_REQUEST['attachment_img_width'] ??  0;
 		$attachment_img_height = $_REQUEST['attachment_img_height'] ?? 0;
-		$attachment = [
-			'type'   => $attachment_type,
-			'title'  => $attachment_title,
-			'text'   => $attachment_text,
-			'url'    => $attachment_url,
-		];
+
+		// Fetch the basic attachment data
+		$attachment = ParseUrl::getSiteinfoCached($attachment_url);
+
+		// Overwrite the basic data with possible changes from the frontend
+		$attachment['type'] = $attachment_type;
+		$attachment['title'] = $attachment_title;
+		$attachment['text'] = $attachment_text;
+		$attachment['url'] = $attachment_url;
 
 		if (!empty($attachment_img_src)) {
 			$attachment['images'] = [
@@ -232,6 +236,8 @@ function item_post(App $a) {
 					'height' => $attachment_img_height
 				]
 			];
+		} else {
+			unset($attachment['images']);
 		}
 
 		$att_bbcode = "\n" . PageInfo::getFooterFromData($attachment);

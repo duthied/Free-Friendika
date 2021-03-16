@@ -131,7 +131,7 @@ class PageInfo
 		// Escape some bad characters
 		$text = "[attachment";
 
-		foreach (['type', 'url', 'title', 'alternative_title', 'publisher', 'publisher_url', 'publisher_image', 'author', 'author_url', 'author_image'] as $field) {
+		foreach (['type', 'url', 'title', 'alternative_title', 'publisher_name', 'publisher_url', 'publisher_img', 'author_name', 'author_url', 'author_img'] as $field) {
 			if (!empty($data[$field])) {
 				$text .= " " . $field . "='" . str_replace(['[', ']'], ['&#91;', '&#93;'], htmlentities($data[$field], ENT_QUOTES, 'UTF-8', false)) . "'";
 			}

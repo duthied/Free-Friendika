@@ -163,31 +163,31 @@ class OEmbed
 			}
 		}
 
-		if (!empty($data['title']) && empty($oembed->title)) {
+		if (!empty($data['title'])) {
 			$oembed->title = $data['title'];
 		}
 
-		if (!empty($data['text']) && empty($oembed->description)) {
+		if (!empty($data['text'])) {
 			$oembed->description = $data['text'];
 		}
 
-		if (!empty($data['publisher']) && empty($oembed->provider_name)) {
-			$oembed->provider_name = $data['publisher'];
+		if (!empty($data['publisher_name'])) {
+			$oembed->provider_name = $data['publisher_name'];
 		}
 
-		if (!empty($data['publisher_url']) && empty($oembed->provider_url)) {
+		if (!empty($data['publisher_url'])) {
 			$oembed->provider_url = $data['publisher_url'];
 		}
 
-		if (!empty($data['author']) && empty($oembed->author_name)) {
-			$oembed->author_name = $data['author'];
+		if (!empty($data['author_name'])) {
+			$oembed->author_name = $data['author_name'];
 		}
 
-		if (!empty($data['author_url']) && empty($oembed->author_url)) {
+		if (!empty($data['author_url'])) {
 			$oembed->author_url = $data['author_url'];
 		}
 
-		if (!empty($data['images']) && empty($oembed->thumbnail_url)) {
+		if (!empty($data['images'])) {
 			$oembed->thumbnail_url = $data['images'][0]['src'];
 			$oembed->thumbnail_width = $data['images'][0]['width'];
 			$oembed->thumbnail_height = $data['images'][0]['height'];
