@@ -151,7 +151,7 @@ class OEmbed
 
 		// Improve the OEmbed data with data from OpenGraph, Twitter cards and other sources
 		if ($use_parseurl) {
-			$data = ParseUrl::getSiteinfoCached($embedurl, true, false);
+			$data = ParseUrl::getSiteinfoCached($embedurl, false);
 
 			if (($oembed->type == 'error') && empty($data['title']) && empty($data['text'])) {
 				return $oembed;

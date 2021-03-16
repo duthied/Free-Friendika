@@ -75,8 +75,6 @@ class ParseUrl
 	 * Search for chached embeddable data of an url otherwise fetch it
 	 *
 	 * @param string $url         The url of the page which should be scraped
-	 * @param bool   $no_guessing If true the parse doens't search for
-	 *                            preview pictures
 	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
 	 *                            to avoid endless loops
 	 *
@@ -85,7 +83,7 @@ class ParseUrl
 	 *    string 'type'     => Content type
 	 *    string 'title'    => (optional) The title of the content
 	 *    string 'text'     => (optional) The description for the content
-	 *    string 'image'    => (optional) A preview image of the content (only available if $no_geuessing = false)
+	 *    string 'image'    => (optional) A preview image of the content
 	 *    array  'images'   => (optional) Array of preview pictures
 	 *    string 'keywords' => (optional) The tags which belong to the content
 	 *
@@ -93,7 +91,7 @@ class ParseUrl
 	 * @see   ParseUrl::getSiteinfo() for more information about scraping
 	 * embeddable content
 	 */
-	public static function getSiteinfoCached($url, $no_guessing = false, $do_oembed = true): array
+	public static function getSiteinfoCached($url, $do_oembed = true): array
 	{
 		if (empty($url)) {
 			return [
@@ -105,14 +103,14 @@ class ParseUrl
 		$urlHash = hash('sha256', $url);
 
 		$parsed_url = DBA::selectFirst('parsed_url', ['content'],
-			['url_hash' => $urlHash, 'guessing' => !$no_guessing, 'oembed' => $do_oembed]
+			['url_hash' => $urlHash, 'oembed' => $do_oembed]
 		);
 		if (!empty($parsed_url['content'])) {
 			$data = unserialize($parsed_url['content']);
 			return $data;
 		}
 
-		$data = self::getSiteinfo($url, $no_guessing, $do_oembed);
+		$data = self::getSiteinfo($url, $do_oembed);
 
 		$expires = $data['expires'];
 
@@ -122,7 +120,6 @@ class ParseUrl
 			'parsed_url',
 			[
 				'url_hash' => $urlHash,
-				'guessing' => !$no_guessing,
 				'oembed'   => $do_oembed,
 				'url'      => $url,
 				'content'  => serialize($data),
@@ -146,8 +143,6 @@ class ParseUrl
 	 * \<meta name="description" content="An awesome description"\>
 	 *
 	 * @param string $url         The url of the page which should be scraped
-	 * @param bool   $no_guessing If true the parse doens't search for
-	 *                            preview pictures
 	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
 	 *                            to avoid endless loops
 	 * @param int    $count       Internal counter to avoid endless loops
@@ -157,7 +152,7 @@ class ParseUrl
 	 *    string 'type'     => Content type (error, link, photo, image, audio, video)
 	 *    string 'title'    => (optional) The title of the content
 	 *    string 'text'     => (optional) The description for the content
-	 *    string 'image'    => (optional) A preview image of the content (only available if $no_guessing = false)
+	 *    string 'image'    => (optional) A preview image of the content
 	 *    array  'images'   => (optional) Array of preview pictures
 	 *    string 'keywords' => (optional) The tags which belong to the content
 	 *
@@ -175,7 +170,7 @@ class ParseUrl
 	 * </body>
 	 * @endverbatim
 	 */
-	public static function getSiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1)
+	public static function getSiteinfo($url, $do_oembed = true, $count = 1)
 	{
 		if (empty($url)) {
 			return [
@@ -343,7 +338,7 @@ class ParseUrl
 					}
 				}
 				if ($content != '') {
-					$siteinfo = self::getSiteinfo($content, $no_guessing, $do_oembed, ++$count);
+					$siteinfo = self::getSiteinfo($content, $do_oembed, ++$count);
 					return $siteinfo;
 				}
 			}

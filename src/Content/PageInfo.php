@@ -187,7 +187,7 @@ class PageInfo
 	 */
 	public static function queryUrl(string $url, string $photo = '', bool $keywords = false, string $keyword_denylist = '')
 	{
-		$data = ParseUrl::getSiteinfoCached($url, true);
+		$data = ParseUrl::getSiteinfoCached($url);
 
 		if ($photo != '') {
 			$data['images'][0]['src'] = $photo;
