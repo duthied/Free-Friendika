@@ -746,13 +746,32 @@ class ParseUrl
 
 			$brand = JsonLD::fetchElement($jsonld, 'publisher', 'brand', '@type', 'Organization');
 			if (!empty($brand) && is_array($brand)) {
-				$content = JsonLD::fetchElement($brand, 'name', '@type', 'brand');
+				$content = JsonLD::fetchElement($brand, 'name');
 				if (!empty($content) && is_string($content)) {
 					$jsonldinfo['publisher_name'] = trim($content);
 				}
-				$content = JsonLD::fetchElement($brand, 'url', '@type', 'brand');
+
+				$content = JsonLD::fetchElement($brand, 'sameAs');
 				if (!empty($content) && is_string($content)) {
 					$jsonldinfo['publisher_url'] = trim($content);
+				}
+
+				$content = JsonLD::fetchElement($brand, 'url');
+				if (!empty($content) && is_string($content)) {
+					$jsonldinfo['publisher_url'] = trim($content);
+				}
+
+				$content = JsonLD::fetchElement($brand, 'logo', 'url');
+				if (!empty($content) && is_string($content)) {
+					$jsonldinfo['publisher_img'] = trim($content);
+				}
+			}
+
+			$logo = JsonLD::fetchElement($jsonld, 'publisher', 'logo');
+			if (!empty($logo) && is_array($logo)) {
+				$content = JsonLD::fetchElement($logo, 'url');
+				if (!empty($content) && is_string($content)) {
+					$jsonldinfo['publisher_img'] = trim($content);
 				}
 			}
 		} elseif (!empty($jsonld['publisher']) && is_string($jsonld['publisher'])) {
@@ -773,6 +792,14 @@ class ParseUrl
 			$content = JsonLD::fetchElement($jsonld, 'author', 'url');
 			if (!empty($content) && is_string($content)) {
 				$jsonldinfo['author_url'] = trim($content);
+			}
+
+			$logo = JsonLD::fetchElement($jsonld, 'author', 'logo');
+			if (!empty($logo) && is_array($logo)) {
+				$content = JsonLD::fetchElement($logo, 'url');
+				if (!empty($content) && is_string($content)) {
+					$jsonldinfo['author_img'] = trim($content);
+				}
 			}
 		} elseif (!empty($jsonld['author']) && is_string($jsonld['author'])) {
 			$jsonldinfo['author_name'] = trim($jsonld['author']);
