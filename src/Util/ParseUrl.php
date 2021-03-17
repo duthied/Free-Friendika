@@ -556,29 +556,70 @@ class ParseUrl
 			return $siteinfo;
 		}
 
+		// Silently ignore some types that aren't processed
+		if (in_array($type, ['SiteNavigationElement', 'JobPosting', 'CreativeWork',
+			'WPHeader', 'WPSideBar', 'WPFooter', 'LegalService', 
+			'ItemList', 'BreadcrumbList', 'Blog', 'Dataset', 'Product'])) {
+			return $siteinfo;
+		}
+
 		switch ($type) {
 			case 'Article':
+			case 'AdvertiserContentArticle':
 			case 'NewsArticle':
+			case 'Report':
+			case 'SatiricalArticle':
 			case 'ScholarlyArticle':
+			case 'SocialMediaPosting':
+			case 'TechArticle':
 			case 'ReportageNewsArticle':
 			case 'SocialMediaPosting':
-			case 'LiveBlogPosting':
 			case 'BlogPosting':
+			case 'LiveBlogPosting':
 			case 'DiscussionForumPosting':
 				return self::parseJsonLdArticle($siteinfo, $jsonld);
 			case 'WebPage':
+			case 'AboutPage':
+			case 'CheckoutPage':
 			case 'CollectionPage':
+			case 'ContactPage':
+			case 'FAQPage':
+			case 'ItemPage':
+			case 'MedicalWebPage':
+			case 'ProfilePage':
+			case 'QAPage':
+			case 'RealEstateListing':
+			case 'SearchResultsPage':
+			case 'MediaGallery':			
 			case 'ImageGallery':
+			case 'VideoGallery':
 			case 'RadioEpisode':
 			case 'Event':
 				return self::parseJsonLdWebPage($siteinfo, $jsonld);
 			case 'WebSite':
 				return self::parseJsonLdWebSite($siteinfo, $jsonld);
 			case 'Organization':
-			case 'NewsMediaOrganization':
+			case 'Airline':
+			case 'Consortium':
+			case 'Corporation':
+			case 'EducationalOrganization':
+			case 'FundingScheme':
+			case 'GovernmentOrganization':
+			case 'LibrarySystem':
 			case 'LocalBusiness':
+			case 'MedicalOrganization':
+			case 'NGO':
+			case 'NewsMediaOrganization':
+			case 'Project':
+			case 'SportsOrganization':
+			case 'WorkersUnion':
 				return self::parseJsonLdWebOrganization($siteinfo, $jsonld);
 			case 'Person':
+			case 'Patient':
+				case 'PerformingGroup':
+			case 'DanceGroup';
+			case 'MusicGroup':
+			case 'TheaterGroup':			
 				return self::parseJsonLdWebPerson($siteinfo, $jsonld);
 			case 'AudioObject':
 			case 'Audio':
@@ -587,23 +628,8 @@ class ParseUrl
 				return self::parseJsonLdMediaObject($siteinfo, $jsonld, 'video');
 			case 'ImageObject':
 				return self::parseJsonLdMediaObject($siteinfo, $jsonld, 'images');
-
-			case 'WPHeader':
-			case 'WPSideBar':
-			case 'WPFooter':
-
-			case 'LegalService':
-			case 'MusicGroup':
-
-			case 'ItemList':
-			case 'BreadcrumbList':
- 			case 'Blog':
-			case 'Dataset':
-			case 'Product':
-				// quit silently
-				return $siteinfo;
 			default:
-				Logger::info('Unsupported or unknown type', ['type' => $type, 'url' => $siteinfo['url']]);
+				Logger::info('Unknown type', ['type' => $type, 'url' => $siteinfo['url']]);
 				return $siteinfo;
 		}
 	}
@@ -640,6 +666,10 @@ class ParseUrl
 				$content = JsonLD::fetchElement($brand, 'name', '@type', 'brand');
 				if (!empty($content) && is_string($content)) {
 					$jsonldinfo['publisher_name'] = trim($content);
+				}
+				$content = JsonLD::fetchElement($brand, 'url', '@type', 'brand');
+				if (!empty($content) && is_string($content)) {
+					$jsonldinfo['publisher_url'] = trim($content);
 				}
 			}
 		} elseif (!empty($jsonld['publisher']) && is_string($jsonld['publisher'])) {
@@ -829,6 +859,11 @@ class ParseUrl
 			$jsonldinfo['publisher_description'] = trim($content);
 		}
 
+		$content = JsonLD::fetchElement($jsonld, 'sameAs');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['publisher_url'] = trim($content);
+		}
+
 		$content = JsonLD::fetchElement($jsonld, 'url');
 		if (!empty($content)) {
 			$jsonldinfo['publisher_url'] = trim($content);
@@ -837,6 +872,16 @@ class ParseUrl
 		$content = JsonLD::fetchElement($jsonld, 'logo', 'url', '@type', 'ImageObject');
 		if (!empty($content)) {
 			$jsonldinfo['publisher_img'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'brand', 'name', '@type', 'Organization');
+		if (!empty($content)) {
+			$jsonldinfo['publisher_name'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'brand', 'url', '@type', 'Organization');
+		if (!empty($content)) {
+			$jsonldinfo['publisher_url'] = trim($content);
 		}
 
 		Logger::info('Fetched Organization information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
@@ -863,6 +908,11 @@ class ParseUrl
 		$content = JsonLD::fetchElement($jsonld, 'description');
 		if (!empty($content)) {
 			$jsonldinfo['author_description'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'sameAs');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['author_url'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
