@@ -478,7 +478,7 @@ class ParseUrl
 			$siteinfo['type'] = 'link';
 		}
 
-		if (!empty($siteinfo['image'])) {
+		if (!empty($siteinfo['image']) && empty($siteinfo['images'])) {
 			$src = self::completeUrl($siteinfo['image'], $url);
 
 			unset($siteinfo['image']);
@@ -561,8 +561,14 @@ class ParseUrl
 			case 'NewsArticle':
 			case 'ScholarlyArticle':
 			case 'ReportageNewsArticle':
+			case 'SocialMediaPosting':
+			case 'LiveBlogPosting':
+			case 'BlogPosting':
+			case 'DiscussionForumPosting':
 				return self::parseJsonLdArticle($siteinfo, $jsonld);
 			case 'WebPage':
+			case 'CollectionPage':
+			case 'ImageGallery':
 			case 'RadioEpisode':
 			case 'Event':
 				return self::parseJsonLdWebPage($siteinfo, $jsonld);
@@ -571,31 +577,29 @@ class ParseUrl
 			case 'Organization':
 			case 'NewsMediaOrganization':
 			case 'LocalBusiness':
-					return self::parseJsonLdWebOrganization($siteinfo, $jsonld);
+				return self::parseJsonLdWebOrganization($siteinfo, $jsonld);
 			case 'Person':
 				return self::parseJsonLdWebPerson($siteinfo, $jsonld);
-			case 'Audio':
 			case 'AudioObject':
-				return self::parseJsonLdAudio($siteinfo, $jsonld);
-
+			case 'Audio':
+				return self::parseJsonLdMediaObject($siteinfo, $jsonld, 'audio');
 			case 'VideoObject':
+				return self::parseJsonLdMediaObject($siteinfo, $jsonld, 'video');
 			case 'ImageObject':
+				return self::parseJsonLdMediaObject($siteinfo, $jsonld, 'images');
 
-			case 'WPHeader': // Temp
-			case 'WPSideBar': // Temp
-			case 'WPFooter': // Temp
+			case 'WPHeader':
+			case 'WPSideBar':
+			case 'WPFooter':
 
-			case 'LiveBlogPosting':
-			case 'SocialMediaPosting':
-			case 'BreadcrumbList':
-			case 'ItemList':
 			case 'LegalService':
 			case 'MusicGroup':
+
+			case 'ItemList':
+			case 'BreadcrumbList':
  			case 'Blog':
-			case 'BlogPosting':
 			case 'Dataset':
-			case 'CollectionPage':
-			case 'ImageGallery':
+			case 'Product':
 				// quit silently
 				return $siteinfo;
 			default:
@@ -668,6 +672,7 @@ class ParseUrl
 
 	/**
 	 * Improve the siteinfo with information from the provided JSON-LD Article information
+	 * @see https://schema.org/Article
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
@@ -727,6 +732,7 @@ class ParseUrl
 
 	/**
 	 * Improve the siteinfo with information from the provided JSON-LD WebPage information
+	 * @see https://schema.org/WebPage
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
@@ -765,6 +771,7 @@ class ParseUrl
 
 	/**
 	 * Improve the siteinfo with information from the provided JSON-LD WebSite information
+	 * @see https://schema.org/WebSite
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
@@ -802,6 +809,7 @@ class ParseUrl
 
 	/**
 	 * Improve the siteinfo with information from the provided JSON-LD Organization information
+	 * @see https://schema.org/Organization
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
@@ -837,6 +845,7 @@ class ParseUrl
 
 	/**
 	 * Improve the siteinfo with information from the provided JSON-LD Person information
+	 * @see https://schema.org/Person
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
@@ -871,38 +880,70 @@ class ParseUrl
 	}
 
 	/**
-	 * Improve the siteinfo with information from the provided JSON-LD Audio information
+	 * Improve the siteinfo with information from the provided JSON-LD MediaObject
+	 * @see https://schema.org/MediaObject
 	 *
 	 * @param array $siteinfo
 	 * @param array $jsonld
 	 * @return array siteinfo
 	 */
-	private static function parseJsonLdAudio(array $siteinfo, array $jsonld)
+	private static function parseJsonLdMediaObject(array $siteinfo, array $jsonld, string $name)
 	{
-		$jsonldinfo = [];
+		$media = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'caption');
+		if (!empty($content)) {
+			$media['caption'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'url');
+		if (!empty($content)) {
+			$media['src'] = trim($content);
+		}
 
 		$content = JsonLD::fetchElement($jsonld, 'description');
 		if (!empty($content)) {
-			$jsonldinfo['audio_description'] = trim($content);
+			$media['description'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'name');
-		if (!empty($content)) {
-			$jsonldinfo['audio_description'] = trim($content);
+		if (!empty($content) && (($media['description'] ?? '') != trim($content))) {
+			$media['name'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'contentUrl');
 		if (!empty($content)) {
-			$jsonldinfo['audio_url'] = trim($content);
+			$media['content'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'embedUrl');
+		if (!empty($content)) {
+			$media['embed'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'height');
+		if (!empty($content)) {
+			$media['height'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'width');
+		if (!empty($content)) {
+			$media['width'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
 		if (!empty($content)) {
-			$jsonldinfo['audio_img'] = trim($content);
+			$media['preview'] = trim($content);
 		}
 
-		Logger::info('Fetched Audio information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
-		return array_merge($siteinfo, $jsonldinfo);
+		$content = JsonLD::fetchElement($jsonld, 'image');
+		if (!empty($content)) {
+			$media['image'] = trim($content);
+		}
+
+		Logger::info('Fetched Media information', ['url' => $siteinfo['url'], 'fetched' => $media]);
+		$siteinfo[$name][] = $media;
+		return $siteinfo;
 	}
 
 	/**
