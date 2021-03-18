@@ -451,6 +451,11 @@ function render_messages(array $msg, $t)
 		$body_e = $rr['body'];
 		$to_name_e = $rr['name'];
 
+		if (is_null($rr['url'])) {
+			// contact-id is pointing to a non existing contact
+			continue;
+		}
+
 		$contact = Contact::getByURL($rr['url'], false, ['thumb', 'addr', 'id', 'avatar']);
 		$from_photo = Contact::getThumb($contact, $rr['thumb'] ?: $rr['from-photo']);
 
