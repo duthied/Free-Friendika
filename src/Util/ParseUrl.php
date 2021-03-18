@@ -600,7 +600,7 @@ class ParseUrl
 	{
 		if (!empty($jsonld['@graph']) && is_array($jsonld['@graph'])) {
 			foreach ($jsonld['@graph'] as $part) {
-				$siteinfo = self::parseJsonLd($siteinfo, $part);
+				$siteinfo = self::parseParts($siteinfo, $part);
 			}
 		} elseif (!empty($jsonld['@type'])) {
 			$siteinfo = self::parseJsonLd($siteinfo, $jsonld);
@@ -641,7 +641,7 @@ class ParseUrl
 
 		// Silently ignore some types that aren't processed
 		if (in_array($type, ['SiteNavigationElement', 'JobPosting', 'CreativeWork', 'MusicAlbum',
-			'WPHeader', 'WPSideBar', 'WPFooter', 'LegalService', 
+			'WPHeader', 'WPSideBar', 'WPFooter', 'LegalService', 'MusicRecording',
 			'ItemList', 'BreadcrumbList', 'Blog', 'Dataset', 'Product'])) {
 			return $siteinfo;
 		}
