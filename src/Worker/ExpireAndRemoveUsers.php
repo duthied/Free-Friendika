@@ -45,21 +45,20 @@ class ExpireAndRemoveUsers
 		// Remove any freshly expired account
 		$users = DBA::select('user', ['uid'], ['account_expired' => true, 'account_removed' => false]);
 		while ($user = DBA::fetch($users)) {
-			User::remove($user['uid']);
+			if ($user['uid'] != 0) {
+				User::remove($user['uid']);
+			}
 		}
 		DBA::close($users);
 
 		// delete user records for recently removed accounts
-		$users = DBA::select('user', ['uid'], ["`account_removed` AND `account_expires_on` < UTC_TIMESTAMP() "]);
+		$users = DBA::select('user', ['uid'], ["`account_removed` AND `account_expires_on` < UTC_TIMESTAMP()  AND `uid` != ?", 0]);
 		while ($user = DBA::fetch($users)) {
-			// Delete the contacts of this user
-			$self = DBA::selectFirst('contact', ['nurl'], ['self' => true, 'uid' => $user['uid']]);
-			if (DBA::isResult($self)) {
-				DBA::delete('contact', ['nurl' => $self['nurl'], 'self' => false]);
-			}
-
 			// We have to delete photo entries by hand because otherwise the photo data won't be deleted
 			Photo::delete(['uid' => $user['uid']]);
+
+			// Delete the contacts of this user
+			DBA::delete('contact', ['uid' => $user['uid']]);
 
 			// These tables contain the permissionset which will also be deleted when a user is deleted.
 			// It seems that sometimes the system wants to delete the records in the wrong order.
