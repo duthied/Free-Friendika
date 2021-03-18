@@ -58,6 +58,12 @@ class ExpireAndRemoveUsers
 			Photo::delete(['uid' => $user['uid']]);
 
 			// Delete the contacts of this user
+			$self = DBA::selectFirst('contact', ['nurl'], ['self' => true, 'uid' => $user['uid']]);
+			if (DBA::isResult($self)) {
+				DBA::delete('contact', ['nurl' => $self['nurl'], 'self' => false]);
+			}
+
+			// Delete all contacts of this user
 			DBA::delete('contact', ['uid' => $user['uid']]);
 
 			// These tables contain the permissionset which will also be deleted when a user is deleted.
