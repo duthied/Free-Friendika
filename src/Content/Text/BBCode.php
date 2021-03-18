@@ -322,14 +322,14 @@ class BBCode
 						$data = ['url' => $url, 'type' => 'photo'];
 					} else {
 						// Checking, if the link goes to a picture
-						$data = ParseUrl::getSiteinfoCached($pictures[0][1], true);
+						$data = ParseUrl::getSiteinfoCached($pictures[0][1]);
 					}
 
 					// Workaround:
 					// Sometimes photo posts to the own album are not detected at the start.
 					// So we seem to cannot use the cache for these cases. That's strange.
 					if (($data['type'] != 'photo') && strstr($pictures[0][1], "/photos/")) {
-						$data = ParseUrl::getSiteinfo($pictures[0][1], true);
+						$data = ParseUrl::getSiteinfo($pictures[0][1]);
 					}
 
 					if ($data['type'] == 'photo') {
@@ -416,7 +416,7 @@ class BBCode
 				$post['text'] = trim($body);
 			}
 		} elseif (isset($post['url']) && ($post['type'] == 'video')) {
-			$data = ParseUrl::getSiteinfoCached($post['url'], true);
+			$data = ParseUrl::getSiteinfoCached($post['url']);
 
 			if (isset($data['images'][0])) {
 				$post['image'] = $data['images'][0]['src'];

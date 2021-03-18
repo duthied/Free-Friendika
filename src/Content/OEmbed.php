@@ -62,11 +62,12 @@ class OEmbed
 	 *
 	 * @param string $embedurl     The URL from which the data should be fetched.
 	 * @param bool   $no_rich_type If set to true rich type content won't be fetched.
+	 * @param bool   $use_parseurl Use the "ParseUrl" functionality to add additional data
 	 *
 	 * @return \Friendica\Object\OEmbed
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchURL($embedurl, $no_rich_type = false)
+	public static function fetchURL($embedurl, bool $no_rich_type = false, bool $use_parseurl = true)
 	{
 		$embedurl = trim($embedurl, '\'"');
 
@@ -143,28 +144,50 @@ class OEmbed
 			DI::cache()->set($cache_key, $json_string, $cache_ttl);
 		}
 
-		if ($oembed->type == 'error') {
-			return $oembed;
+		// Always embed the SSL version
+		if (!empty($oembed->html)) {
+			$oembed->html = str_replace(['http://www.youtube.com/', 'http://player.vimeo.com/'], ['https://www.youtube.com/', 'https://player.vimeo.com/'], $oembed->html);
 		}
 
-		// Always embed the SSL version
-		$oembed->html = str_replace(['http://www.youtube.com/', 'http://player.vimeo.com/'], ['https://www.youtube.com/', 'https://player.vimeo.com/'], $oembed->html);
+		// Improve the OEmbed data with data from OpenGraph, Twitter cards and other sources
+		if ($use_parseurl) {
+			$data = ParseUrl::getSiteinfoCached($embedurl, false);
 
-		// If fetching information doesn't work, then improve via internal functions
-		if ($no_rich_type && ($oembed->type == 'rich')) {
-			$data = ParseUrl::getSiteinfoCached($embedurl, true, false);
-			$oembed->type = $data['type'];
-
-			if ($oembed->type == 'photo') {
-				$oembed->url = $data['url'];
+			if (($oembed->type == 'error') && empty($data['title']) && empty($data['text'])) {
+				return $oembed;
 			}
 
-			if (isset($data['title'])) {
+			if ($no_rich_type || ($oembed->type == 'error')) {
+				$oembed->html = '';
+				$oembed->type = $data['type'];
+
+				if ($oembed->type == 'photo') {
+					$oembed->url = $data['url'];
+				}
+			}
+
+			if (!empty($data['title'])) {
 				$oembed->title = $data['title'];
 			}
 
-			if (isset($data['text'])) {
+			if (!empty($data['text'])) {
 				$oembed->description = $data['text'];
+			}
+
+			if (!empty($data['publisher_name'])) {
+				$oembed->provider_name = $data['publisher_name'];
+			}
+
+			if (!empty($data['publisher_url'])) {
+				$oembed->provider_url = $data['publisher_url'];
+			}
+
+			if (!empty($data['author_name'])) {
+				$oembed->author_name = $data['author_name'];
+			}
+
+			if (!empty($data['author_url'])) {
+				$oembed->author_url = $data['author_url'];
 			}
 
 			if (!empty($data['images'])) {
