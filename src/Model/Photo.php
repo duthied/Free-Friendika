@@ -364,14 +364,19 @@ class Photo
 	public static function delete(array $conditions, array $options = [])
 	{
 		// get photo to delete data info
-		$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
+		$photos = DBA::select('photo', ['id', 'backend-class', 'backend-ref'], $conditions);
 
-		foreach($photos as $photo) {
+		while ($photo = DBA::fetch($photos)) {
 			$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
 			if ($backend_class !== null) {
-				$backend_class->delete($photo["backend-ref"] ?? '');
+				if ($backend_class->delete($photo["backend-ref"] ?? '')) {
+					// Delete the photos after they had been deleted successfully
+					DBA::delete("photo", ['id' => $photo['id']]);
+				}
 			}
 		}
+
+		DBA::close($photos);
 
 		return DBA::delete("photo", $conditions, $options);
 	}
