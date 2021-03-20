@@ -399,7 +399,7 @@ class User
 			return false;
 		}
 
-		if (!$repairMissing) {
+		if (!$repairMissing || $owner['account_expired']) {
 			return $owner;
 		}
 
@@ -1366,6 +1366,9 @@ class User
 		// save username (actually the nickname as it is guaranteed
 		// unique), so it cannot be re-registered in the future.
 		DBA::insert('userd', ['username' => $user['nickname']]);
+
+		// Remove all personal settings, especially connector settings
+		DBA::delete('pconfig', ['uid' => $uid]);
 
 		// The user and related data will be deleted in Friendica\Worker\ExpireAndRemoveUsers
 		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc('now + 7 day')], ['uid' => $uid]);
