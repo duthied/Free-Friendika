@@ -50,7 +50,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	// Update this value to the current date whenever changes are made to BBCode::convert
-	const VERSION = '2020-12-18-video-embeds';
+	const VERSION = '2021-03-21';
 
 	const INTERNAL = 0;
 	const API = 2;
@@ -154,6 +154,7 @@ class BBCode
 			'after'         => '',
 			'image'         => null,
 			'url'           => '',
+			'author_name'   => '',
 			'provider_name' => '',
 			'provider_url'  => '',
 			'title'         => '',
@@ -254,17 +255,66 @@ class BBCode
 			$data['preview'] = html_entity_decode($preview, ENT_QUOTES, 'UTF-8');
 		}
 
+		$provider_name = '';
+		preg_match("/publisher_name='(.*?)'/ism", $attributes, $matches);
+		if (!empty($matches[1])) {
+			$provider_name = $matches[1];
+		}
+
+		preg_match('/publisher_name="(.*?)"/ism', $attributes, $matches);
+		if (!empty($matches[1])) {
+			$provider_name = $matches[1];
+		}
+
+		if ($provider_name != '') {
+			$data['provider_name'] = html_entity_decode($provider_name, ENT_QUOTES, 'UTF-8');
+		}
+
+		$provider_url = '';
+		preg_match("/publisher_url='(.*?)'/ism", $attributes, $matches);
+		if (!empty($matches[1])) {
+			$provider_url = $matches[1];
+		}
+
+		preg_match('/publisher_url="(.*?)"/ism', $attributes, $matches);
+		if (!empty($matches[1])) {
+			$provider_url = $matches[1];
+		}
+
+		if ($provider_url != '') {
+			$data['provider_url'] = html_entity_decode($provider_url, ENT_QUOTES, 'UTF-8');
+		}
+
+		$author_name = '';
+		preg_match("/author_name='(.*?)'/ism", $attributes, $matches);
+		if (!empty($matches[1])) {
+			$author_name = $matches[1];
+		}
+
+		preg_match('/author_name="(.*?)"/ism', $attributes, $matches);
+		if (!empty($matches[1])) {
+			$author_name = $matches[1];
+		}
+
+		if (($author_name != '') && ($author_name != $provider_name)) {
+			$data['author_name'] = html_entity_decode($author_name, ENT_QUOTES, 'UTF-8');
+		}
+
 		$data['description'] = trim($match[3]);
 
 		$data['after'] = trim($match[4]);
 
 		$parts = parse_url($data['url']);
 		if (!empty($parts['scheme']) && !empty($parts['host'])) {
-			$data['provider_name'] = $parts['host'];
-			$data['provider_url'] = $parts['scheme'] . '://' . $parts['host'];
+			if (empty($data['provider_name'])) {
+				$data['provider_name'] = $parts['host'];
+			}
+			if (empty($data['provider_url'])) {
+				$data['provider_url'] = $parts['scheme'] . '://' . $parts['host'];
 
-			if (!empty($parts['port'])) {
-				$data['provider_url'] .= ':' . $parts['port'];
+				if (!empty($parts['port'])) {
+					$data['provider_url'] .= ':' . $parts['port'];
+				}
 			}
 		}
 
@@ -688,8 +738,12 @@ class BBCode
 				$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($bbcode)));
 			}
 
-			if (!empty($data['url'])) {
-				$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
+			if (!empty($data['provider_url']) && !empty($data['provider_name'])) {
+				if (!empty($data['author_name'])) {
+					$return .= sprintf('<sup><a href="%s">%s (%s)</a></sup>', $data['provider_url'], $data['author_name'], $data['provider_name']);
+				} else {
+					$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['provider_url'], $data['provider_name']);
+				}
 			}
 
 			if ($simplehtml != self::CONNECTORS) {

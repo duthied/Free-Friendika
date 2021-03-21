@@ -820,11 +820,6 @@ class ParseUrl
 				$jsonldinfo['publisher_name'] = trim($content);
 			}
 
-			$content = JsonLD::fetchElement($jsonld, 'publisher', 'sameAs');
-			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['publisher_url'] = trim($content);
-			}
-
 			$content = JsonLD::fetchElement($jsonld, 'publisher', 'url');
 			if (!empty($content) && is_string($content)) {
 				$jsonldinfo['publisher_url'] = trim($content);
@@ -835,11 +830,6 @@ class ParseUrl
 				$content = JsonLD::fetchElement($brand, 'name');
 				if (!empty($content) && is_string($content)) {
 					$jsonldinfo['publisher_name'] = trim($content);
-				}
-
-				$content = JsonLD::fetchElement($brand, 'sameAs');
-				if (!empty($content) && is_string($content)) {
-					$jsonldinfo['publisher_url'] = trim($content);
 				}
 
 				$content = JsonLD::fetchElement($brand, 'url');
@@ -1053,11 +1043,6 @@ class ParseUrl
 		$content = JsonLD::fetchElement($jsonld, 'description');
 		if (!empty($content)) {
 			$jsonldinfo['publisher_description'] = trim($content);
-		}
-
-		$content = JsonLD::fetchElement($jsonld, 'sameAs');
-		if (!empty($content) && is_string($content)) {
-			$jsonldinfo['publisher_url'] = trim($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
