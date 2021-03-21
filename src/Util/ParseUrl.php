@@ -478,19 +478,13 @@ class ParseUrl
 			$siteinfo['type'] = 'link';
 		}
 
-		if (!empty($siteinfo['image']) && empty($siteinfo['images'])) {
-			$src = self::completeUrl($siteinfo['image'], $url);
-
+		if (!empty($siteinfo['image'])) {
+			$siteinfo['images'] = $siteinfo['images'] ?? [];
+			array_unshift($siteinfo['images'], ['url' => $siteinfo['image']]);
 			unset($siteinfo['image']);
-
-			$photodata = Images::getInfoFromURLCached($src);
-
-			if (($photodata) && ($photodata[0] > 10) && ($photodata[1] > 10)) {
-				$siteinfo['images'][] = ['src' => $src,
-					'width' => $photodata[0],
-					'height' => $photodata[1]];
-			}
 		}
+
+		$siteinfo = self::checkMedia($url, $siteinfo);
 
 		if (!empty($siteinfo['text']) && mb_strlen($siteinfo['text']) > self::MAX_DESC_COUNT) {
 			$siteinfo['text'] = mb_substr($siteinfo['text'], 0, self::MAX_DESC_COUNT) . '…';
@@ -504,6 +498,98 @@ class ParseUrl
 
 		Hook::callAll('getsiteinfo', $siteinfo);
 
+		return $siteinfo;
+	}
+
+	/**
+	 * Check the attached media elements.
+	 * Fix existing data and add missing data.
+	 *
+	 * @param string $page_url
+	 * @param array $siteinfo
+	 * @return void
+	 */
+	private static function checkMedia(string $page_url, array $siteinfo)
+	{
+		if (!empty($siteinfo['images'])) {
+			array_walk($siteinfo['images'], function (&$image) use ($page_url) {
+				// According to the specifications someone could place a picture url into the content field as well.
+				// But this doesn't seem to happen in the wild, so we don't cover it here.
+				$image['url'] = self::completeUrl($image['url'], $page_url);
+				$photodata = Images::getInfoFromURLCached($image['url']);
+				if (!empty($photodata) && ($photodata[0] > 50) && ($photodata[1] > 50)) {
+					$image['src'] = $image['url'];
+					$image['width'] = $photodata[0];
+					$image['height'] = $photodata[1];
+					$image['contenttype'] = $photodata['mime'];
+					unset($image['url']);
+					ksort($image);
+				} else {
+					$image = [];
+				}
+			});
+
+			$siteinfo['images'] = array_values(array_filter($siteinfo['images']));
+		}
+
+		foreach (['audio', 'video'] as $element) {
+			if (!empty($siteinfo[$element])) {
+				array_walk($siteinfo[$element], function (&$media) use ($page_url, &$siteinfo) {
+					$url = '';
+					$embed = '';
+					$content = '';
+					$contenttype = '';
+					foreach (['embed', 'content', 'url'] as $field) {
+						if (!empty($media[$field])) {
+							$media[$field] = self::completeUrl($media[$field], $page_url);
+							$type = self::getContentType($media[$field]);
+							if ($type[0] == 'text') {
+								if ($field == 'embed') {
+									$embed = $media[$field];
+								} else {
+									$url = $media[$field];
+								}
+							} elseif (!empty($type[0])) {
+								$content = $media[$field];
+								$contenttype = implode('/', $type);
+							}
+						}
+						unset($media[$field]);
+					}
+
+					foreach (['image', 'preview'] as $field) {
+						if (!empty($media[$field])) {
+							$media[$field] = self::completeUrl($media[$field], $page_url);
+						}
+					}
+
+					if (!empty($url)) {
+						$media['url'] = $url;
+					}
+					if (!empty($embed)) {
+						$media['embed'] = $embed;
+						if (!empty($media['main'])) {
+							$siteinfo['embed'] = $embed;
+						}
+					}
+					if (!empty($content)) {
+						$media['src'] = $content;
+					}
+					if (!empty($contenttype)) {
+						$media['contenttype'] = $contenttype;
+					}
+					if (empty($url) && empty($content) && empty($embed)) {
+						$media = [];
+					}
+					ksort($media);
+				});
+
+				$siteinfo[$element] = array_values(array_filter($siteinfo[$element]));
+			}
+			if (empty($siteinfo[$element])) {
+				unset($siteinfo[$element]);
+			}
+		}
 		return $siteinfo;
 	}
 
@@ -1058,7 +1144,12 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
 		if (!empty($content)) {
-			$media['src'] = trim($content);
+			$media['url'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'mainEntityOfPage');
+		if (!empty($content)) {
+			$media['main'] = Strings::compareLink($content, $siteinfo['url']);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'description');
@@ -1091,14 +1182,18 @@ class ParseUrl
 			$media['width'] = trim($content);
 		}
 
-		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
-		if (!empty($content)) {
-			$media['preview'] = trim($content);
-		}
-
 		$content = JsonLD::fetchElement($jsonld, 'image');
 		if (!empty($content)) {
 			$media['image'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
+		if (!empty($content) && (($media['image'] ?? '') != trim($content))) {
+			if (!empty($media['image'])) {
+				$media['preview'] = trim($content);
+			} else {
+				$media['image'] = trim($content);
+			}
 		}
 
 		Logger::info('Fetched Media information', ['url' => $siteinfo['url'], 'fetched' => $media]);
