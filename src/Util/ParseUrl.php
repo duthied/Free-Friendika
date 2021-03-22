@@ -466,8 +466,7 @@ class ParseUrl
 		$list = $xpath->query("//script[@type='application/ld+json']");
 		foreach ($list as $node) {
 			if (!empty($node->nodeValue)) {
-				$nodevalue = html_entity_decode($node->nodeValue, ENT_COMPAT, 'UTF-8');
-				if ($jsonld = json_decode($nodevalue, true)) {
+				if ($jsonld = json_decode($node->nodeValue, true)) {
 					$siteinfo = self::parseParts($siteinfo, $jsonld);
 				}
 			}
@@ -701,9 +700,15 @@ class ParseUrl
 			if ($numeric_keys) {
 				foreach ($jsonld as $part) {
 					$siteinfo = self::parseParts($siteinfo, $part);
-				}	
+				}
 			}
 		}
+
+		array_walk_recursive($siteinfo, function (&$element) {
+			if (is_string($element)) {
+				$element = html_entity_decode($element, ENT_COMPAT, 'UTF-8');
+			}
+		});
 
 		return $siteinfo;
 	}
