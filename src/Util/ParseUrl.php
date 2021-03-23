@@ -512,19 +512,20 @@ class ParseUrl
 	{
 		if (!empty($siteinfo['images'])) {
 			array_walk($siteinfo['images'], function (&$image) use ($page_url) {
+				$image = [];
 				// According to the specifications someone could place a picture url into the content field as well.
 				// But this doesn't seem to happen in the wild, so we don't cover it here.
-				$image['url'] = self::completeUrl($image['url'], $page_url);
-				$photodata = Images::getInfoFromURLCached($image['url']);
-				if (!empty($photodata) && ($photodata[0] > 50) && ($photodata[1] > 50)) {
-					$image['src'] = $image['url'];
-					$image['width'] = $photodata[0];
-					$image['height'] = $photodata[1];
-					$image['contenttype'] = $photodata['mime'];
-					unset($image['url']);
-					ksort($image);
-				} else {
-					$image = [];
+				if (!empty($image['url'])) {
+					$image['url'] = self::completeUrl($image['url'], $page_url);
+					$photodata = Images::getInfoFromURLCached($image['url']);
+					if (!empty($photodata) && ($photodata[0] > 50) && ($photodata[1] > 50)) {
+						$image['src'] = $image['url'];
+						$image['width'] = $photodata[0];
+						$image['height'] = $photodata[1];
+						$image['contenttype'] = $photodata['mime'];
+						unset($image['url']);
+						ksort($image);
+					}
 				}
 			});
 
@@ -542,7 +543,7 @@ class ParseUrl
 						if (!empty($media[$field])) {
 							$media[$field] = self::completeUrl($media[$field], $page_url);
 							$type = self::getContentType($media[$field]);
-							if ($type[0] == 'text') {
+							if (($type[0] ?? '') == 'text') {
 								if ($field == 'embed') {
 									$embed = $media[$field];
 								} else {
@@ -685,7 +686,9 @@ class ParseUrl
 	{
 		if (!empty($jsonld['@graph']) && is_array($jsonld['@graph'])) {
 			foreach ($jsonld['@graph'] as $part) {
-				$siteinfo = self::parseParts($siteinfo, $part);
+				if (!empty($part)) {
+					$siteinfo = self::parseParts($siteinfo, $part);
+				}
 			}
 		} elseif (!empty($jsonld['@type'])) {
 			$siteinfo = self::parseJsonLd($siteinfo, $jsonld);
@@ -699,7 +702,9 @@ class ParseUrl
 			}
 			if ($numeric_keys) {
 				foreach ($jsonld as $part) {
-					$siteinfo = self::parseParts($siteinfo, $part);
+					if (!empty($part)) {
+						$siteinfo = self::parseParts($siteinfo, $part);
+					}
 				}
 			}
 		}
