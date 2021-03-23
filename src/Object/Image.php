@@ -541,7 +541,12 @@ class Image
 			do {
 				// FIXME - implement horizontal bias for scaling as in following GD functions
 				// to allow very tall images to be constrained only horizontally.
-				$this->image->scaleImage($dest_width, $dest_height);
+				try {
+					$this->image->scaleImage($dest_width, $dest_height);
+				} catch (Exception $e) {
+					// Imagick couldn't use the data
+					return false;
+				}
 			} while ($this->image->nextImage());
 
 			// These may not be necessary anymore
