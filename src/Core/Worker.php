@@ -311,6 +311,10 @@ class Worker
 		}
 
 		$argv = json_decode($queue['parameter'], true);
+		if (!is_array($argv)) {
+			$argv = [];
+		}
+
 		if (!empty($queue['command'])) {
 			array_unshift($argv, $queue['command']);
 		}
