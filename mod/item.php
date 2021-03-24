@@ -221,6 +221,7 @@ function item_post(App $a) {
 
 		// Fetch the basic attachment data
 		$attachment = ParseUrl::getSiteinfoCached($attachment_url);
+		unset($attachment['keywords']);
 
 		// Overwrite the basic data with possible changes from the frontend
 		$attachment['type'] = $attachment_type;
