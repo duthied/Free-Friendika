@@ -9,7 +9,6 @@ Friendica Documentation and Resources
 	* [Creating posts](help/Text_editor)
 	* [BBCode tag reference](help/BBCode)
 	* [Comment, sort and delete posts](help/Text_comment)
-	* [Profiles](help/Profiles)
 	* [Accesskey reference](help/Accesskeys)
 	* [Events](help/events)
 * You and other users
