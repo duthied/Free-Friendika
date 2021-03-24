@@ -69,7 +69,7 @@ class Objects extends BaseModule
 			}
 		}
 
-		$item = Post::selectFirst(['id', 'uid', 'origin', 'author-link', 'changed', 'private', 'psid', 'gravity'],
+		$item = Post::selectFirst(['id', 'uid', 'origin', 'author-link', 'changed', 'private', 'psid', 'gravity', 'deleted', 'parent-uri-id'],
 			['uri-id' => $itemuri['id']], ['order' => ['origin' => true]]);
 
 		if (!DBA::isResult($item)) {
@@ -93,8 +93,16 @@ class Objects extends BaseModule
 			}
 		}
 
-		// Valid items are original post or posted from this node (including in the case of a forum)
-		if (!$validated || !$item['origin'] && (parse_url($item['author-link'], PHP_URL_HOST) != parse_url(DI::baseUrl()->get(), PHP_URL_HOST))) {
+		if ($validated) {
+			// Valid items are original post or posted from this node (including in the case of a forum)
+			$validated = ($item['origin'] || (parse_url($item['author-link'], PHP_URL_HOST) == parse_url(DI::baseUrl()->get(), PHP_URL_HOST)));
+
+			if (!$validated && $item['deleted']) {
+				$validated = Post::exists(['origin' => true, 'uri-id' => $item['parent-uri-id']]);
+			}
+		}
+
+		if (!$validated) {
 			throw new HTTPException\NotFoundException();
 		}
 

@@ -214,13 +214,8 @@ class Post
 			$pinned = DI::l10n()->t('pinned item');
 		}
 
-		if ($origin && ($item['gravity'] != GRAVITY_PARENT) && ($item['network'] == Protocol::ACTIVITYPUB)) {
-			// ActivityPub doesn't allow removal of remote comments
-			$delete = DI::l10n()->t('Delete locally');
-		} else {
-			// Showing the one or the other text, depending upon if we can only hide it or really delete it.
-			$delete = $origin ? DI::l10n()->t('Delete globally') : DI::l10n()->t('Remove locally');
-		}
+		// Showing the one or the other text, depending upon if we can only hide it or really delete it.
+		$delete = $origin ? DI::l10n()->t('Delete globally') : DI::l10n()->t('Remove locally');
 
 		$drop = false;
 		$block = false;

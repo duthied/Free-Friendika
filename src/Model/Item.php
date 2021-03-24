@@ -241,7 +241,7 @@ class Item
 			if ($item['uid'] == $uid) {
 				self::markForDeletionById($item['id'], PRIORITY_HIGH);
 			} elseif ($item['uid'] != 0) {
-				Logger::log('Wrong ownership. Not deleting item ' . $item['id']);
+				Logger::notice('Wrong ownership. Not deleting item', ['id' => $item['id']]);
 			}
 		}
 		DBA::close($items);
