@@ -1069,25 +1069,27 @@ class Transmitter
 			return false;
 		}
 
-		$condition = ['item-uri' => $item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
-		$conversation = DBA::selectFirst('conversation', ['source'], $condition);
-		if (!$item['origin'] && DBA::isResult($conversation)) {
-			$data = json_decode($conversation['source'], true);
-			if (!empty($data['type'])) {
-				if (in_array($data['type'], ['Create', 'Update'])) {
-					if ($object_mode) {
-						unset($data['@context']);
-						unset($data['signature']);
+		if (!$item['deleted']) {
+			$condition = ['item-uri' => $item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
+			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
+			if (!$item['origin'] && DBA::isResult($conversation)) {
+				$data = json_decode($conversation['source'], true);
+				if (!empty($data['type'])) {
+					if (in_array($data['type'], ['Create', 'Update'])) {
+						if ($object_mode) {
+							unset($data['@context']);
+							unset($data['signature']);
+						}
+						Logger::info('Return stored conversation', ['item' => $item_id]);
+						return $data;
+					} elseif (in_array('as:' . $data['type'], Receiver::CONTENT_TYPES)) {
+						if (!empty($data['@context'])) {
+							$context = $data['@context'];
+							unset($data['@context']);
+						}
+						unset($data['actor']);
+						$object = $data;
 					}
-					Logger::info('Return stored conversation', ['item' => $item_id]);
-					return $data;
-				} elseif (in_array('as:' . $data['type'], Receiver::CONTENT_TYPES)) {
-					if (!empty($data['@context'])) {
-						$context = $data['@context'];
-						unset($data['@context']);
-					}
-					unset($data['actor']);
-					$object = $data;
 				}
 			}
 		}
@@ -1106,7 +1108,9 @@ class Transmitter
 			$data = [];
 		}
 
-		if (($item['gravity'] == GRAVITY_ACTIVITY) && ($type != 'Undo')) {
+		if ($type == 'Delete') {
+			$data['id'] = Item::newURI($item['uid'], $item['guid']) . '/' . $type;;
+		} elseif (($item['gravity'] == GRAVITY_ACTIVITY) && ($type != 'Undo')) {
 			$data['id'] = $item['uri'];
 		} else {
 			$data['id'] = $item['uri'] . '/' . $type;
