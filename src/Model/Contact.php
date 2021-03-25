@@ -2821,6 +2821,9 @@ class Contact
 		$count = 0;
 
 		foreach ($urls as $url) {
+			if (empty($url) || !is_string($url)) {
+				continue;
+			}
 			$contact = self::getByURL($url, false, ['id', 'updated']);
 			if (empty($contact['id'])) {
 				Worker::add(PRIORITY_LOW, 'AddContact', 0, $url);
