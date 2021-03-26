@@ -519,7 +519,9 @@ class Notifier
 				$contact['network'] = Protocol::DFRN;
 			}
 
-			if (in_array($contact['id'], $ap_contacts)) {
+			// Deletions are always sent via DFRN as well.
+			// This is done until we can perform deletions of foreign comments on our own threads via AP.
+			if (($cmd != Delivery::DELETION) && in_array($contact['id'], $ap_contacts)) {
 				Logger::info('Contact is already delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['target' => $post_uriid, 'uid' => $sender_uid, 'contact' => $contact['url']]);
 				continue;
 			}
