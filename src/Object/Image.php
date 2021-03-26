@@ -576,6 +576,21 @@ class Image
 	}
 
 	/**
+	 * Convert a GIF to a PNG to make it static
+	 */
+	public function toStatic()
+	{
+		if ($this->type != 'image/gif') {
+			return;
+		}
+
+		if ($this->isImagick()) {
+			$this->type == 'image/png';
+			$this->image->setFormat('png');
+		}
+	}
+
+	/**
 	 * @param integer $max maximum
 	 * @param integer $x   x coordinate
 	 * @param integer $y   y coordinate

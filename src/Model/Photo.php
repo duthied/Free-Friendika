@@ -460,6 +460,29 @@ class Photo
 		if ($Image->isValid()) {
 			$Image->scaleToSquare(300);
 
+			$filesize = strlen($Image->asString());
+			$maximagesize = DI::config()->get('system', 'maximagesize');
+			if (!empty($maximagesize) && ($filesize > $maximagesize)) {
+				Logger::info('Avatar exceeds image limit', ['uid' => $uid, 'cid' => $cid, 'maximagesize' => $maximagesize, 'size' => $filesize, 'type' => $Image->getType()]);
+				if (($Image->getType() == 'image/gif')) {
+					$Image->toStatic();
+					$Image = new Image($Image->asString(), 'image/png');
+
+					$filesize = strlen($Image->asString());
+					Logger::info('Converted gif to a static png', ['uid' => $uid, 'cid' => $cid, 'size' => $filesize, 'type' => $Image->getType()]);
+				}
+				if ($filesize > $maximagesize) {
+					foreach ([160, 80] as $pixels) {
+						if ($filesize > $maximagesize) {
+							Logger::info('Resize', ['uid' => $uid, 'cid' => $cid, 'size' => $filesize, 'max' => $maximagesize, 'pixels' => $pixels, 'type' => $Image->getType()]);
+							$Image->scaleDown($pixels);
+							$filesize = strlen($Image->asString());
+						}
+					}
+				}
+				Logger::info('Avatar is resized', ['uid' => $uid, 'cid' => $cid, 'size' => $filesize, 'type' => $Image->getType()]);
+			}
+
 			$r = self::store($Image, $uid, $cid, $resource_id, $filename, self::CONTACT_PHOTOS, 4);
 
 			if ($r === false) {
