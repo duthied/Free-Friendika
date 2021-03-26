@@ -464,7 +464,7 @@ class Photo
 			$maximagesize = DI::config()->get('system', 'maximagesize');
 			if (!empty($maximagesize) && ($filesize > $maximagesize)) {
 				Logger::info('Avatar exceeds image limit', ['uid' => $uid, 'cid' => $cid, 'maximagesize' => $maximagesize, 'size' => $filesize, 'type' => $Image->getType()]);
-				if (($Image->getType() == 'image/gif')) {
+				if ($Image->getType() == 'image/gif') {
 					$Image->toStatic();
 					$Image = new Image($Image->asString(), 'image/png');
 
