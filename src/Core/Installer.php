@@ -562,7 +562,7 @@ class Installer
 
 			if ($fetchResult->getReturnCode() != 204) {
 				$status = false;
-				$help = DI::l10n()->t('Url rewrite in .htaccess seems not working. Make sure you copied .htaccess-dist to .htaccess.');
+				$help = DI::l10n()->t('Url rewrite in .htaccess seems not working. Make sure you copied .htaccess-dist to .htaccess.') . EOL;
 				$help .= DI::l10n()->t('In some circumstances (like running inside containers), you can skip this error.');
 				$error_msg = [];
 				$error_msg['head'] = DI::l10n()->t('Error message from Curl when fetching');
