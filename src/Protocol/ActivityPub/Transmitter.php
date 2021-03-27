@@ -1330,7 +1330,7 @@ class Transmitter
 			return $match[0];
 		}
 
-		return '[url=' . ($data['alias'] ?: $data['url']) . ']@' . $data['nick'] . '[/url]';
+		return '[url=' . $data['url'] . ']@' . $data['nick'] . '[/url]';
 	}
 
 	/**
