@@ -942,7 +942,7 @@ class ParseUrl
 					$siteinfo['keywords'][] = trim($keyword);
 				}
 			}
-		} else {
+		} elseif (!empty($jsonld['keywords'])) {
 			$content = JsonLD::fetchElementArray($jsonld, 'keywords');
 			if (!empty($content) && is_array($content)) {
 				$jsonldinfo['keywords'] = $content;
