@@ -546,7 +546,6 @@ class Installer
 	 *
 	 * @param string $baseurl The baseurl of the app
 	 * @return bool false if something required failed
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function checkHtAccess($baseurl)
 	{
@@ -563,14 +562,16 @@ class Installer
 
 			if ($fetchResult->getReturnCode() != 204) {
 				$status = false;
-				$help = DI::l10n()->t('Url rewrite in .htaccess is not working. Make sure you copied .htaccess-dist to .htaccess.');
+				$help = DI::l10n()->t('Url rewrite in .htaccess seems not working. Make sure you copied .htaccess-dist to .htaccess.');
+				$help .= DI::l10n()->t('In some circumstances (like running inside containers), you can skip this error.');
 				$error_msg = [];
 				$error_msg['head'] = DI::l10n()->t('Error message from Curl when fetching');
 				$error_msg['url'] = $fetchResult->getRedirectUrl();
 				$error_msg['msg'] = $fetchResult->getError();
 			}
 
-			$this->addCheck(DI::l10n()->t('Url rewrite is working'), $status, true, $help, $error_msg);
+			/// @TODO Required false because of cURL issues in containers - see https://github.com/friendica/docker/issues/134
+			$this->addCheck(DI::l10n()->t('Url rewrite is working'), $status, false, $help, $error_msg);
 		} else {
 			// cannot check modrewrite if libcurl is not installed
 			/// @TODO Maybe issue warning here?
