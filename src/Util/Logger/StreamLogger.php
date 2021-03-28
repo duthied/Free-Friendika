@@ -161,8 +161,8 @@ class StreamLogger extends AbstractLogger
 		$logMessage .= $this->channel . ' ';
 		$logMessage .= '[' . strtoupper($level) . ']: ';
 		$logMessage .= $this->psrInterpolate($message, $context) . ' ';
-		$logMessage .= @json_encode($context) . ' - ';
-		$logMessage .= @json_encode($record);
+		$logMessage .= $this->jsonEncodeArray($context) . ' - ';
+		$logMessage .= $this->jsonEncodeArray($record);
 		$logMessage .= PHP_EOL;
 
 		return $logMessage;
