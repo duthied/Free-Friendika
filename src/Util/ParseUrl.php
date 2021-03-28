@@ -512,7 +512,6 @@ class ParseUrl
 	{
 		if (!empty($siteinfo['images'])) {
 			array_walk($siteinfo['images'], function (&$image) use ($page_url) {
-				$image = [];
 				// According to the specifications someone could place a picture url into the content field as well.
 				// But this doesn't seem to happen in the wild, so we don't cover it here.
 				if (!empty($image['url'])) {
