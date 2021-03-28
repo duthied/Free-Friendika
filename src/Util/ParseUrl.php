@@ -714,7 +714,7 @@ class ParseUrl
 
 		array_walk_recursive($siteinfo, function (&$element) {
 			if (is_string($element)) {
-				$element = html_entity_decode($element, ENT_COMPAT, 'UTF-8');
+				$element = trim(strip_tags(html_entity_decode($element, ENT_COMPAT, 'UTF-8')));
 			}
 		});
 
