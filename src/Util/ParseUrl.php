@@ -524,7 +524,11 @@ class ParseUrl
 						$image['contenttype'] = $photodata['mime'];
 						unset($image['url']);
 						ksort($image);
+					} else {
+						$image = [];
 					}
+				} else {
+					$image = [];
 				}
 			});
 
