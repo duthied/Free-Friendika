@@ -86,7 +86,7 @@ class JitConfig extends BaseConfig
 			$dbvalue = $this->configModel->get($cat, $key);
 
 			if (isset($dbvalue)) {
-				$this->configCache->set($cat, $key, $dbvalue);
+				$this->configCache->set($cat, $key, $dbvalue, Cache::SOURCE_DB);
 				unset($dbvalue);
 			}
 
@@ -105,7 +105,7 @@ class JitConfig extends BaseConfig
 	public function set(string $cat, string $key, $value)
 	{
 		// set the cache first
-		$cached = $this->configCache->set($cat, $key, $value);
+		$cached = $this->configCache->set($cat, $key, $value, Cache::SOURCE_DB);
 
 		// If there is no connected adapter, we're finished
 		if (!$this->configModel->isConnected()) {

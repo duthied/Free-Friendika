@@ -81,7 +81,7 @@ class PreloadConfig extends BaseConfig
 			if ($this->configModel->isConnected()) {
 				$config = $this->configModel->get($cat, $key);
 				if (isset($config)) {
-					$this->configCache->set($cat, $key, $config);
+					$this->configCache->set($cat, $key, $config, Cache::SOURCE_DB);
 				}
 			}
 		}
@@ -102,7 +102,7 @@ class PreloadConfig extends BaseConfig
 		}
 
 		// set the cache first
-		$cached = $this->configCache->set($cat, $key, $value);
+		$cached = $this->configCache->set($cat, $key, $value, Cache::SOURCE_DB);
 
 		// If there is no connected adapter, we're finished
 		if (!$this->configModel->isConnected()) {
@@ -132,5 +132,19 @@ class PreloadConfig extends BaseConfig
 		$storeRemoved = $this->configModel->delete($cat, $key);
 
 		return $cacheRemoved || $storeRemoved;
+	}
+
+	public function testSetDouble()
+	{
+		$this->configModel->shouldReceive('isConnected')
+						  ->andReturn(true);
+
+		// constructor loading
+		$this->configModel->shouldReceive('load')
+						  ->with('config')
+						  ->andReturn(['config' => ['test' => 'it']])
+						  ->once();
+
+		parent::testSetDouble();
 	}
 }

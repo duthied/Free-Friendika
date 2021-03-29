@@ -95,8 +95,7 @@ class Invite extends BaseModule
 				$nmessage = $message;
 			}
 
-			$additional_headers = 'From: ' . $app->user['email'] . "\n"
-				. 'Sender: ' . DI::emailer()->getSiteEmailAddress() . "\n"
+			$additional_headers = 'From: "' . $app->user['email'] . '" <' . DI::emailer()->getSiteEmailAddress() . ">\n"
 				. 'Content-type: text/plain; charset=UTF-8' . "\n"
 				. 'Content-transfer-encoding: 8bit';
 

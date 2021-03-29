@@ -319,4 +319,27 @@ class CacheTest extends MockedTest
 		self::assertEquals(23, $configCache->get('database', 'password'));
 		self::assertEmpty($configCache->get('database', 'username'));
 	}
+
+	/**
+	 * Test the set() method with overrides
+	 * @dataProvider dataTests
+	 */
+	public function testSetOverrides($data)
+	{
+
+		$configCache = new Cache();
+		$configCache->load($data, Cache::SOURCE_DB);
+
+		// test with wrong override
+		self::assertFalse($configCache->set('system', 'test', '1234567', Cache::SOURCE_FILE));
+		self::assertEquals($data['system']['test'], $configCache->get('system', 'test'));
+
+		// test with override (equal)
+		self::assertTrue($configCache->set('system', 'test', '8910', Cache::SOURCE_DB));
+		self::assertEquals('8910', $configCache->get('system', 'test'));
+
+		// test with override (over)
+		self::assertTrue($configCache->set('system', 'test', '111213', Cache::SOURCE_ENV));
+		self::assertEquals('111213', $configCache->get('system', 'test'));
+	}
 }

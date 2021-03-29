@@ -133,9 +133,9 @@ class Installer
 			$returnVal = false;
 		}
 
-		if (!$this->checkHtAccess($baseurl)) {
-			$returnVal = false;
-		}
+		/// @TODO This check should not block installations because of containerization issues
+		/// @see https://github.com/friendica/docker/issues/134
+		$this->checkHtAccess($baseurl);
 
 		return $returnVal;
 	}

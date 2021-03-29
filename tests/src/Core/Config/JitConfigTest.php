@@ -198,4 +198,58 @@ class JitConfigTest extends ConfigTest
 
 		parent::testDeleteWithDB();
 	}
+
+	public function testSetGetHighPrio()
+	{
+		$this->configModel->shouldReceive('isConnected')
+						  ->andReturn(true);
+
+		// constructor loading
+		$this->configModel->shouldReceive('load')
+						  ->with('config')
+						  ->andReturn(['config' => []])
+						  ->once();
+
+		$this->configModel->shouldReceive('get')
+						  ->with('config', 'test')
+						  ->andReturn('prio')
+						  ->once();
+
+		$this->configModel->shouldReceive('set')
+						  ->with('config', 'test', '123')
+						  ->andReturn(true)
+						  ->once();
+
+		$this->configModel->shouldReceive('get')
+						  ->with('config', 'test')
+						  ->andReturn('123')
+						  ->once();
+
+		parent::testSetGetHighPrio();
+	}
+
+	public function testSetGetLowPrio()
+	{
+		$this->configModel->shouldReceive('isConnected')
+						  ->andReturn(true);
+
+		// constructor loading
+		$this->configModel->shouldReceive('load')
+						  ->with('config')
+						  ->andReturn(['config' => ['test' => 'it']])
+						  ->once();
+
+		$this->configModel->shouldReceive('set')
+						  ->with('config', 'test', '123')
+						  ->andReturn(true)
+						  ->once();
+
+		// mocking one get without result
+		$this->configModel->shouldReceive('get')
+						  ->with('config', 'test')
+						  ->andReturn('it')
+						  ->once();
+
+		parent::testSetGetLowPrio();
+	}
 }

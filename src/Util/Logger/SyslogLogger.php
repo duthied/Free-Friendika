@@ -195,8 +195,8 @@ class SyslogLogger extends AbstractLogger
 		$logMessage .= $this->channel . ' ';
 		$logMessage .= '[' . $this->logToString[$level] . ']: ';
 		$logMessage .= $this->psrInterpolate($message, $context) . ' ';
-		$logMessage .= @json_encode($context) . ' - ';
-		$logMessage .= @json_encode($record);
+		$logMessage .= $this->jsonEncodeArray($context) . ' - ';
+		$logMessage .= $this->jsonEncodeArray($record);
 
 		return $logMessage;
 	}

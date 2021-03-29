@@ -512,7 +512,6 @@ class ParseUrl
 	{
 		if (!empty($siteinfo['images'])) {
 			array_walk($siteinfo['images'], function (&$image) use ($page_url) {
-				$image = [];
 				// According to the specifications someone could place a picture url into the content field as well.
 				// But this doesn't seem to happen in the wild, so we don't cover it here.
 				if (!empty($image['url'])) {
@@ -525,7 +524,11 @@ class ParseUrl
 						$image['contenttype'] = $photodata['mime'];
 						unset($image['url']);
 						ksort($image);
+					} else {
+						$image = [];
 					}
+				} else {
+					$image = [];
 				}
 			});
 
@@ -711,7 +714,7 @@ class ParseUrl
 
 		array_walk_recursive($siteinfo, function (&$element) {
 			if (is_string($element)) {
-				$element = html_entity_decode($element, ENT_COMPAT, 'UTF-8');
+				$element = trim(strip_tags(html_entity_decode($element, ENT_COMPAT, 'UTF-8')));
 			}
 		});
 

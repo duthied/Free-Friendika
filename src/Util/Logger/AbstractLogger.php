@@ -104,6 +104,28 @@ abstract class AbstractLogger implements LoggerInterface
 	}
 
 	/**
+	 * JSON Encodes an complete array including objects with "__toString()" methods
+	 *
+	 * @param array $input an Input Array to encode
+	 *
+	 * @return false|string The json encoded output of the array
+	 */
+	protected function jsonEncodeArray(array $input)
+	{
+		$output = [];
+
+		foreach ($input as $key => $value) {
+			if (method_exists($value, '__toString')) {
+				$output[$key] = $value->__toString();
+			} else {
+				$output[$key] = $value;
+			}
+		}
+
+		return @json_encode($output);
+	}
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function emergency($message, array $context = array())
