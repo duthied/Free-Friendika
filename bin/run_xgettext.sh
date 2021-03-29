@@ -94,7 +94,7 @@ case "$MODE" in
 	;;
 	'default')
 		sed -i "s/SOME DESCRIPTIVE TITLE./FRIENDICA Distributed Social Network/g" "$OUTFILE"
-		sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER/2010-$(date +%Y) the Friendica Project/g" "$OUTFILE"
+		sed -i "s/YEAR THE PACKAGE'S COPYRIGHT HOLDER/2010-$(date +%Y), the Friendica project/g" "$OUTFILE"
 		sed -i "s/FIRST AUTHOR <EMAIL@ADDRESS>, YEAR./Mike Macgirvin, 2010/g" "$OUTFILE"
 		sed -i "s/PACKAGE VERSION/$F9KVERSION/g" "$OUTFILE"
 		sed -i "s/PACKAGE/Friendica/g" "$OUTFILE"

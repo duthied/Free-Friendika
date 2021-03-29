@@ -2,7 +2,7 @@
 /**
  * Filebrowser - Friendica Communications Server
  *
- * Copyright (c) 2010-2015 the Friendica Project
+ * Copyright (c) 2010-2021, the Friendica project
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
