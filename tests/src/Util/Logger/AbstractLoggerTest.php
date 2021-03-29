@@ -159,4 +159,23 @@ abstract class AbstractLoggerTest extends MockedTest
 
 		self::assertContains(@json_encode($context), $text);
 	}
+
+	/**
+	 * Test a message with an exception
+	 */
+	public function testExceptionHandling()
+	{
+		$e = new \Exception("Test String", 123);
+		$eFollowUp = new \Exception("FollowUp", 456, $e);
+
+		$assertion = $eFollowUp->__toString();
+
+		$logger = $this->getInstance();
+		$logger->alert('test', ['e' => $eFollowUp]);
+		$text = $this->getContent();
+
+		self::assertLogline($text);
+
+		self::assertContains(@json_encode($assertion), $this->getContent());
+	}
 }
