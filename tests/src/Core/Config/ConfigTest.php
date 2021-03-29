@@ -437,4 +437,35 @@ abstract class ConfigTest extends MockedTest
 
 		self::assertEmpty($this->testedConfig->getCache()->getAll());
 	}
+
+	/**
+	 * Test the configuration get() and set() method where the db value has a higher prio than the config file
+	 */
+	public function testSetGetHighPrio()
+	{
+		$this->testedConfig = $this->getInstance();
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+
+		$this->testedConfig->getCache()->set('config', 'test', 'prio', Cache::SOURCE_FILE);
+		self::assertEquals('prio', $this->testedConfig->get('config', 'test'));
+
+		// now you have to get the new variable entry because of the new set the get refresh succeed as well
+		self::assertTrue($this->testedConfig->set('config', 'test', '123'));
+		self::assertEquals('123', $this->testedConfig->get('config', 'test', '', true));
+	}
+
+	/**
+	 * Test the configuration get() and set() method where the db value has a lower prio than the env
+	 */
+	public function testSetGetLowPrio()
+	{
+		$this->testedConfig = $this->getInstance();
+		self::assertInstanceOf(Cache::class, $this->testedConfig->getCache());
+		self::assertEquals('it', $this->testedConfig->get('config', 'test'));
+
+		$this->testedConfig->getCache()->set('config', 'test', 'prio', Cache::SOURCE_ENV);
+		// now you have to get the env variable entry as output, even with a new set (which failed) and a get refresh
+		self::assertFalse($this->testedConfig->set('config', 'test', '123'));
+		self::assertEquals('prio', $this->testedConfig->get('config', 'test', '', true));
+	}
 }
