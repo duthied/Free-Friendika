@@ -3,11 +3,12 @@
 namespace Friendica\Test\src\Security\TwoFactor\Factory;
 
 use Friendica\Security\TwoFactor\Factory\TrustedBrowser;
+use Friendica\Test\MockedTest;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Strings;
 
-class TrustedBrowserTest extends \PHPUnit_Framework_TestCase
+class TrustedBrowserTest extends MockedTest
 {
 	public function testCreateFromTableRowSuccess()
 	{

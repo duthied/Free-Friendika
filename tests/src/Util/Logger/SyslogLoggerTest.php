@@ -95,6 +95,7 @@ class SyslogLoggerTest extends AbstractLoggerTest
 
 	/**
 	 * Test the close() method
+	 * @doesNotPerformAssertions
 	 */
 	public function testClose()
 	{

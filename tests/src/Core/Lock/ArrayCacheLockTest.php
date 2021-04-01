@@ -33,7 +33,6 @@ class ArrayCacheLockTest extends LockTest
 
 	public function testLockTTL()
 	{
-		// ArrayCache doesn't support TTL
-		return true;
+		self::markTestSkipped("ArrayCache doesn't support TTL");
 	}
 }

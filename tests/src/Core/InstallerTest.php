@@ -463,10 +463,11 @@ class InstallerTest extends MockedTest
 
 	/**
 	 * Test the setup of the config cache for installation
+	 * @doesNotPerformAssertions
 	 */
 	public function testSetUpCache()
 	{
-		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
+		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; })->times(5);
 
 		$install = new Installer();
 		$configCache = Mockery::mock(Cache::class);

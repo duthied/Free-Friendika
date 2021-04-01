@@ -3,10 +3,11 @@
 namespace Friendica\Test\src\Security\TwoFactor\Model;
 
 use Friendica\Security\TwoFactor\Model\TrustedBrowser;
+use Friendica\Test\MockedTest;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
-class TrustedBrowserTest extends \PHPUnit_Framework_TestCase
+class TrustedBrowserTest extends MockedTest
 {
 	public function test__construct()
 	{

@@ -40,6 +40,7 @@ class ArrayCacheTest extends MemoryCacheTest
 	public function testTTL()
 	{
 		// Array Cache doesn't support TTL
+		self::markTestSkipped("Array Cache doesn't support TTL");
 		return true;
 	}
 }

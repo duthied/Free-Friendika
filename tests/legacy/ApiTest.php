@@ -22,6 +22,8 @@ require_once __DIR__ . '/../../include/api.php';
  *
  * Functions that use header() need to be tested in a separate process.
  * @see https://phpunit.de/manual/5.7/en/appendixes.annotations.html#appendixes.annotations.runTestsInSeparateProcesses
+ *
+ * @backupGlobals enabled
  */
 class ApiTest extends FixtureTest
 {
@@ -108,10 +110,6 @@ class ApiTest extends FixtureTest
 			'authenticated' => true,
 			'uid'           => $this->selfUser['id']
 		];
-
-		$_POST   = [];
-		$_GET    = [];
-		$_SERVER = [];
 	}
 
 	/**
@@ -140,7 +138,7 @@ class ApiTest extends FixtureTest
 	 *
 	 * @return void
 	 */
-	private function assertOtherUser(array $user)
+	private function assertOtherUser(array $user = [])
 	{
 		self::assertEquals($this->otherUser['id'], $user['id']);
 		self::assertEquals($this->otherUser['id'], $user['id_str']);
@@ -157,10 +155,10 @@ class ApiTest extends FixtureTest
 	 *
 	 * @return void
 	 */
-	private function assertStatus(array $status)
+	private function assertStatus(array $status = [])
 	{
-		self::assertInternalType('string', $status['text']);
-		self::assertInternalType('int', $status['id']);
+		self::assertInternalType('string', $status['text'] ?? '');
+		self::assertInternalType('int', $status['id'] ?? '');
 		// We could probably do more checks here.
 	}
 
@@ -171,7 +169,7 @@ class ApiTest extends FixtureTest
 	 *
 	 * @return void
 	 */
-	private function assertList(array $list)
+	private function assertList(array $list = [])
 	{
 		self::assertInternalType('string', $list['name']);
 		self::assertInternalType('int', $list['id']);
@@ -188,7 +186,7 @@ class ApiTest extends FixtureTest
 	 *
 	 * @return void
 	 */
-	private function assertXml($result, $root_element)
+	private function assertXml($result = '', $root_element = '')
 	{
 		self::assertStringStartsWith('<?xml version="1.0"?>', $result);
 		self::assertContains('<' . $root_element, $result);
@@ -304,6 +302,7 @@ class ApiTest extends FixtureTest
 	 *
 	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @expectedException Friendica\Network\HTTPException\UnauthorizedException
 	 */
 	public function testApiLoginWithoutLogin()
@@ -316,6 +315,7 @@ class ApiTest extends FixtureTest
 	 *
 	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @expectedException Friendica\Network\HTTPException\UnauthorizedException
 	 */
 	public function testApiLoginWithBadLogin()
@@ -349,6 +349,7 @@ class ApiTest extends FixtureTest
 	 *
 	 * @return void
 	 * @runInSeparateProcess
+	 * @doesNotPerformAssertions
 	 */
 	public function testApiLoginWithCorrectLogin()
 	{
@@ -1312,8 +1313,8 @@ class ApiTest extends FixtureTest
 
 	/**
 	 * Test the api_media_upload() function.
-	 *
-	 * @return void
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @expectedException Friendica\Network\HTTPException\BadRequestException
 	 */
 	public function testApiMediaUpload()
@@ -1504,7 +1505,7 @@ class ApiTest extends FixtureTest
 		$result             = api_search('json');
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
-			self::assertContains('reply', $status['text'], null, true);
+			self::assertContains('reply', $status['text'], '', true);
 		}
 	}
 
@@ -1520,7 +1521,7 @@ class ApiTest extends FixtureTest
 		$result            = api_search('json');
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
-			self::assertContains('reply', $status['text'], null, true);
+			self::assertContains('reply', $status['text'], '', true);
 		}
 	}
 
@@ -1536,14 +1537,13 @@ class ApiTest extends FixtureTest
 		$result          = api_search('json');
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
-			self::assertContains('reply', $status['text'], null, true);
+			self::assertContains('reply', $status['text'], '', true);
 		}
 	}
 
 	/**
 	 * Test the api_search() function with an q parameter contains hashtag.
-	 *
-	 * @return void
+	 * @doesNotPerformAssertions
 	 */
 	public function testApiSearchWithHashtag()
 	{
@@ -1551,14 +1551,13 @@ class ApiTest extends FixtureTest
 		$result        = api_search('json');
 		foreach ($result['status'] as $status) {
 			self::assertStatus($status);
-			self::assertContains('#friendica', $status['text'], null, true);
+			self::assertContains('#friendica', $status['text'], '', true);
 		}
 	}
 
 	/**
 	 * Test the api_search() function with an exclude_replies parameter.
-	 *
-	 * @return void
+	 * @doesNotPerformAssertions
 	 */
 	public function testApiSearchWithExcludeReplies()
 	{
@@ -2474,8 +2473,7 @@ class ApiTest extends FixtureTest
 
 	/**
 	 * Test the api_format_items() function.
-	 *
-	 * @return void
+	 * @doesNotPerformAssertions
 	 */
 	public function testApiFormatItems()
 	{
@@ -2500,8 +2498,7 @@ class ApiTest extends FixtureTest
 
 	/**
 	 * Test the api_format_items() function with an XML result.
-	 *
-	 * @return void
+	 * @doesNotPerformAssertions
 	 */
 	public function testApiFormatItemsWithXml()
 	{
@@ -2617,8 +2614,7 @@ class ApiTest extends FixtureTest
 
 	/**
 	 * Test the api_lists_statuses() function with a list ID.
-	 *
-	 * @return void
+	 * @doesNotPerformAssertions
 	 */
 	public function testApiListsStatusesWithListId()
 	{
@@ -3271,8 +3267,6 @@ class ApiTest extends FixtureTest
 
 	/**
 	 * Test the api_fr_photo_create_update() function.
-	 *
-	 * @return void
 	 * @expectedException Friendica\Network\HTTPException\BadRequestException
 	 */
 	public function testApiFrPhotoCreateUpdate()
