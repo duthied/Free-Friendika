@@ -300,8 +300,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_login() function without any login.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @preserveGlobalState disabled
 	 * @expectedException Friendica\Network\HTTPException\UnauthorizedException
 	 */
@@ -313,8 +313,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_login() function with a bad login.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @preserveGlobalState disabled
 	 * @expectedException Friendica\Network\HTTPException\UnauthorizedException
 	 */
@@ -347,8 +347,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_login() function with a correct login.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @doesNotPerformAssertions
 	 */
 	public function testApiLoginWithCorrectLogin()
@@ -361,8 +361,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_login() function with a remote user.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @expectedException Friendica\Network\HTTPException\UnauthorizedException
 	 */
 	public function testApiLoginWithRemoteUser()
@@ -405,8 +405,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_call() function.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiCall()
 	{
@@ -432,8 +432,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_call() function with the profiled enabled.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiCallWithProfiler()
 	{
@@ -469,8 +469,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_call() function without any result.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiCallWithNoResult()
 	{
@@ -495,8 +495,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_call() function with an unimplemented API.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiCallWithUninplementedApi()
 	{
@@ -509,8 +509,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_call() function with a JSON result.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiCallWithJson()
 	{
@@ -535,8 +535,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_call() function with an XML result.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiCallWithXml()
 	{
@@ -561,8 +561,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_call() function with an RSS result.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiCallWithRss()
 	{
@@ -588,8 +588,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_call() function with an Atom result.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiCallWithAtom()
 	{
@@ -615,8 +615,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_call() function with an unallowed method.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiCallWithWrongMethod()
 	{
@@ -636,8 +636,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_call() function with an unauthorized user.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiCallWithWrongAuth()
 	{
@@ -661,8 +661,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_error() function with a JSON result.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiErrorWithJson()
 	{
@@ -675,8 +675,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_error() function with an XML result.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiErrorWithXml()
 	{
@@ -696,8 +696,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_error() function with an RSS result.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiErrorWithRss()
 	{
@@ -717,8 +717,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_error() function with an Atom result.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiErrorWithAtom()
 	{
@@ -860,8 +860,8 @@ class ApiTest extends FixtureTest
 	/**
 	 * Test the api_get_user() function with an user that is not allowed to use the API.
 	 *
-	 * @return void
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testApiGetUserWithoutApiUser()
 	{
