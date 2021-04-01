@@ -50,7 +50,7 @@ class ApiTest extends FixtureTest
 	/**
 	 * Create variables used by tests.
 	 */
-	protected function setUp()
+	protected function setUp() : void
 	{
 		global $API, $called_api;
 		$API = [];

@@ -27,4 +27,18 @@ namespace Friendica\Test;
 abstract class DatabaseTest extends MockedTest
 {
 	use DatabaseTestTrait;
+
+	protected function setUp(): void
+	{
+		$this->setUpDb();
+
+		parent::setUp();
+	}
+
+	protected function tearDown(): void
+	{
+		$this->tearDownDb();
+
+		parent::tearDown();
+	}
 }

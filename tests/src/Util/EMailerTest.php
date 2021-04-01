@@ -35,7 +35,7 @@ class EMailerTest extends MockedTest
 	/** @var BaseURL|MockInterface */
 	private $baseUrl;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -53,7 +53,7 @@ class EMailerTest extends MockedTest
 		$this->baseUrl->shouldReceive('get')->andReturn('http://friendica.local');
 	}
 
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		EmailerSpy::$MAIL_DATA = [];
 

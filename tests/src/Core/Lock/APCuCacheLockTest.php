@@ -29,7 +29,7 @@ use Friendica\Core\Lock\CacheLock;
  */
 class APCuCacheLockTest extends LockTest
 {
-	protected function setUp()
+	protected function setUp(): void
 	{
 		if (!APCuCache::isAvailable()) {
 			static::markTestSkipped('APCu is not available');

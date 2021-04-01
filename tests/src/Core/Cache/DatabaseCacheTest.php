@@ -36,9 +36,11 @@ class DatabaseCacheTest extends CacheTest
 	use DatabaseTestTrait;
 	use VFSTrait;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$this->setUpVfsDir();
+
+		$this->setUpDb();
 
 		parent::setUp();
 	}
@@ -60,9 +62,12 @@ class DatabaseCacheTest extends CacheTest
 		return $this->cache;
 	}
 
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		$this->cache->clear(false);
+
+		$this->tearDownDb();
+
 		parent::tearDown();
 	}
 }

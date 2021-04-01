@@ -32,7 +32,7 @@ abstract class ConsoleTest extends MockedTest
 	 */
 	protected $consoleArgv = [ 'consoleTest.php' ];
 
-	protected function setUp()
+	protected function setUp() : void
 	{
 		parent::setUp();
 

@@ -38,7 +38,7 @@ abstract class LockTest extends MockedTest
 
 	abstract protected function getInstance();
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -46,7 +46,7 @@ abstract class LockTest extends MockedTest
 		$this->instance->releaseAll(true);
 	}
 
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		$this->instance->releaseAll(true);
 		parent::tearDown();

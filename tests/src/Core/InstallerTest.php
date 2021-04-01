@@ -45,7 +45,7 @@ class InstallerTest extends MockedTest
 	 */
 	private $dice;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -62,6 +62,15 @@ class InstallerTest extends MockedTest
 		           ->andReturn($this->l10nMock);
 
 		DI::init($this->dice);
+	}
+
+	public static function tearDownAfterClass(): void
+	{
+		// Reset mocking
+		global $phpMock;
+		$phpMock = [];
+
+		parent::tearDownAfterClass();
 	}
 
 	private function mockL10nT(string $text, $times = null)
@@ -467,7 +476,7 @@ class InstallerTest extends MockedTest
 	 */
 	public function testSetUpCache()
 	{
-		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; })->times(5);
+		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		$install = new Installer();
 		$configCache = Mockery::mock(Cache::class);

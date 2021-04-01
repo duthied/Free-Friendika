@@ -26,7 +26,7 @@ abstract class FixtureTest extends DatabaseTest
 	/**
 	 * Create variables used by tests.
 	 */
-	protected function setUp()
+	protected function setUp() : void
 	{
 		parent::setUp();
 

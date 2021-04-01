@@ -38,9 +38,11 @@ class DatabaseStorageTest extends StorageTest
 	use DatabaseTestTrait;
 	use VFSTrait;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$this->setUpVfsDir();
+
+		$this->setUpDb();
 
 		parent::setUp();
 	}
@@ -67,5 +69,12 @@ class DatabaseStorageTest extends StorageTest
 	protected function assertOption(IStorage $storage)
 	{
 		self::assertEmpty($storage->getOptions());
+	}
+
+	protected function tearDown(): void
+	{
+		$this->tearDownDb();
+
+		parent::tearDown();
 	}
 }

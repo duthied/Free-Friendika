@@ -31,7 +31,7 @@ abstract class MemoryCacheTest extends CacheTest
 	 */
 	protected $instance;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 

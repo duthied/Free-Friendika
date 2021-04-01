@@ -42,7 +42,7 @@ class ServerBlockConsoleTest extends ConsoleTest
 	 */
 	private $configMock;
 
-	protected function setUp()
+	protected function setUp() : void
 	{
 		parent::setUp();
 

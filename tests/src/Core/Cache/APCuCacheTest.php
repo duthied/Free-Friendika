@@ -28,7 +28,7 @@ use Friendica\Core\Cache\APCuCache;
  */
 class APCuCacheTest extends MemoryCacheTest
 {
-	protected function setUp()
+	protected function setUp(): void
 	{
 		if (!APCuCache::isAvailable()) {
 			static::markTestSkipped('APCu is not available');
@@ -43,7 +43,7 @@ class APCuCacheTest extends MemoryCacheTest
 		return $this->cache;
 	}
 
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		$this->cache->clear(false);
 		parent::tearDown();

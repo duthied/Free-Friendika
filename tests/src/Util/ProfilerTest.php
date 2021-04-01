@@ -35,7 +35,7 @@ class ProfilerTest extends MockedTest
 	 */
 	private $logger;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 

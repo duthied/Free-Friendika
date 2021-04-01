@@ -53,7 +53,7 @@ class ModeTest extends MockedTest
 	 */
 	private $configCacheMock;
 
-	protected function setUp()
+	protected function setUp() : void
 	{
 		parent::setUp();
 

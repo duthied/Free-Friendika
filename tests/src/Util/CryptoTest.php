@@ -29,6 +29,15 @@ use PHPUnit\Framework\TestCase;
 
 class CryptoTest extends TestCase
 {
+	public static function tearDownAfterClass(): void
+	{
+		// Reset mocking
+		global $phpMock;
+		$phpMock = [];
+
+		parent::tearDownAfterClass();
+	}
+
 	/**
 	 * Replaces random_int results with given mocks
 	 *

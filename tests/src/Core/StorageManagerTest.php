@@ -57,7 +57,7 @@ class StorageManagerTest extends DatabaseTest
 
 	use VFSTrait;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -296,7 +296,7 @@ class StorageManagerTest extends DatabaseTest
 	public function testMoveStorage($name, $assert, $assertName, $userBackend)
 	{
 		if (!$userBackend) {
-			return;
+			self::markTestSkipped("No user backend");
 		}
 
 		$this->loadFixture(__DIR__ . '/../../datasets/storage/database.fixture.php', $this->dba);

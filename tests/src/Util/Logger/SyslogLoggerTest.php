@@ -31,7 +31,7 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	 */
 	private $logger;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -86,8 +86,13 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	 */
 	public function testServerException()
 	{
-		$this->expectException(\UnexpectedValueException::class);
-		$this->expectExceptionMessageRegExp("/Can\'t open syslog for ident \".*\" and facility \".*\": .* /");
+		if (PHP_MAJOR_VERSION < 8) {
+			$this->expectException(\UnexpectedValueException::class);
+			$this->expectExceptionMessageRegExp("/Can\'t open syslog for ident \".*\" and facility \".*\": .* /");
+		} else {
+			$this->expectException(\TypeError::class);
+			$this->expectExceptionMessage("openlog(): Argument #3 (\$facility) must be of type int, string given");
+		}
 
 		$logger = new SyslogLoggerWrapper('test', $this->introspection, LogLevel::DEBUG, null, 'a string');
 		$logger->emergency('not working');

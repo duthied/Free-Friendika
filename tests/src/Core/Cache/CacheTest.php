@@ -81,7 +81,7 @@ abstract class CacheTest extends MockedTest
 
 	abstract protected function getInstance();
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 

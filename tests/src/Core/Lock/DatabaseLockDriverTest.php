@@ -38,9 +38,11 @@ class DatabaseLockDriverTest extends LockTest
 
 	protected $pid = 123;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$this->setUpVfsDir();
+
+		$this->setUpDb();
 
 		parent::setUp();
 	}
@@ -59,5 +61,12 @@ class DatabaseLockDriverTest extends LockTest
 		$dba = new StaticDatabase($configCache, $profiler, $logger);
 
 		return new DatabaseLock($dba, $this->pid);
+	}
+
+	protected function tearDown(): void
+	{
+		$this->tearDownDb();
+
+		parent::tearDown();
 	}
 }

@@ -58,7 +58,7 @@ abstract class AbstractLoggerTest extends MockedTest
 	 */
 	abstract protected function getInstance($level = LogLevel::DEBUG);
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 

@@ -40,7 +40,7 @@ class LockConsoleTest extends ConsoleTest
 	 */
 	private $lockMock;
 
-	protected function setUp()
+	protected function setUp() : void
 	{
 		parent::setUp();
 
