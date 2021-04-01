@@ -115,7 +115,7 @@ abstract class AbstractLogger implements LoggerInterface
 		$output = [];
 
 		foreach ($input as $key => $value) {
-			if (method_exists($value, '__toString')) {
+			if (is_object($value) && method_exists($value, '__toString')) {
 				$output[$key] = $value->__toString();
 			} else {
 				$output[$key] = $value;
