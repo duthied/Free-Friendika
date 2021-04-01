@@ -188,8 +188,12 @@ class Photo
 	 */
 	public static function getImageDataForPhoto(array $photo)
 	{
+		if (!empty($photo['data'])) {
+			return $photo['data'];
+		}
+
 		$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
-		if ($backendClass === null) {
+		if (empty($backendClass)) {
 			// legacy data storage in "data" column
 			$i = self::selectFirst(['data'], ['id' => $photo['id']]);
 			if ($i === false) {
@@ -308,7 +312,7 @@ class Photo
 			$storage = DI::storage();
 		}
 
-		if ($storage === null) {
+		if (empty($storage)) {
 			$data = $Image->asString();
 		} else {
 			$backend_ref = $storage->put($Image->asString(), $backend_ref);
@@ -368,7 +372,7 @@ class Photo
 
 		while ($photo = DBA::fetch($photos)) {
 			$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
-			if ($backend_class !== null) {
+			if (!empty($backend_class)) {
 				if ($backend_class->delete($photo["backend-ref"] ?? '')) {
 					// Delete the photos after they had been deleted successfully
 					DBA::delete("photo", ['id' => $photo['id']]);
@@ -402,7 +406,7 @@ class Photo
 
 			foreach($photos as $photo) {
 				$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
-				if ($backend_class !== null) {
+				if (!empty($backend_class)) {
 					$fields["backend-ref"] = $backend_class->put($img->asString(), $photo['backend-ref']);
 				} else {
 					$fields["data"] = $img->asString();
