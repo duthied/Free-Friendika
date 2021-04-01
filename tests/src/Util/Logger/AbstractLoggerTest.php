@@ -178,4 +178,15 @@ abstract class AbstractLoggerTest extends MockedTest
 
 		self::assertContains(@json_encode($assertion), $this->getContent());
 	}
+
+	public function testNoObjectHandling()
+	{
+		$logger = $this->getInstance();
+		$logger->alert('test', ['e' => ['test' => 'test']]);
+		$text = $this->getContent();
+
+		self::assertLogline($text);
+
+		self::assertContains('test', $this->getContent());
+	}
 }
