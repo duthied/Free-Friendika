@@ -224,10 +224,10 @@ class ExpirePosts
 					AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `post-user` INNER JOIN `contact` ON `contact`.`id` = `contact-id` AND `notify_new_posts`
 						WHERE `parent-uri-id` = `post-thread`.`uri-id`)
 					AND NOT `uri-id` IN (SELECT `parent-uri-id` FROM `post-user`
-						WHERE (`origin` OR `event-id` != 0 OR `post-type` = ?) AND `parent-uri-id` = `post-thread`.`uri-id`)
+						WHERE (`origin` OR `event-id` != 0 OR `post-type` IN (?, ?)) AND `parent-uri-id` = `post-thread`.`uri-id`)
 					AND NOT `uri-id` IN (SELECT `uri-id` FROM `post-content`
 						WHERE `resource-id` != 0 AND `uri-id` = `post-thread`.`uri-id`))",
-				$expire_days, Item::PT_PERSONAL_NOTE]);
+				$expire_days, Item::PT_PERSONAL_NOTE, Item::PT_IMAGE]);
 
 			Logger::notice('Start deleting expired threads');
 			$affected_count = 0;

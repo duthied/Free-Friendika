@@ -34,14 +34,14 @@ class RemoveUnusedContacts
 {
 	public static function execute()
 	{
-		$condition = ["`uid` = ? AND NOT `self` AND NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` != ?)
+		$condition = ["`id` != ? AND `uid` = ? AND NOT `self` AND NOT `nurl` IN (SELECT `nurl` FROM `contact` WHERE `uid` != ?)
 			AND (NOT `network` IN (?, ?, ?, ?, ?, ?) OR (`archive` AND `success_update` < UTC_TIMESTAMP() - INTERVAL ? DAY))
 			AND NOT `id` IN (SELECT `author-id` FROM `post-user`) AND NOT `id` IN (SELECT `owner-id` FROM `post-user`)
 			AND NOT `id` IN (SELECT `causer-id` FROM `post-user`) AND NOT `id` IN (SELECT `cid` FROM `post-tag`)
 			AND NOT `id` IN (SELECT `contact-id` FROM `post-user`) AND NOT `id` IN (SELECT `cid` FROM `user-contact`)
 			AND NOT `id` IN (SELECT `cid` FROM `event`) AND NOT `id` IN (SELECT `contact-id` FROM `group_member`)
 			AND `created` < UTC_TIMESTAMP() - INTERVAL ? DAY",
-			0, 0, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Protocol::ACTIVITYPUB, 365, 30];
+			0, 0, 0, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Protocol::ACTIVITYPUB, 365, 30];
 
 		$total = DBA::count('contact', $condition);
 		Logger::notice('Starting removal', ['total' => $total]);
