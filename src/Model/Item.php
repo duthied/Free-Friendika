@@ -2157,7 +2157,7 @@ class Item
 
 			// Only expire posts, not photos and photo comments
 
-			if (!$expire_photos && strlen($item['resource-id'])) {
+			if (!$expire_photos && (!empty($item['resource-id']) || ($item['post-type'] == self::PT_IMAGE))) {
 				continue;
 			} elseif (!$expire_starred && intval($item['starred'])) {
 				continue;

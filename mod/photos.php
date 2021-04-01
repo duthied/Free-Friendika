@@ -784,7 +784,7 @@ function photos_post(App $a)
 	$arr['guid']          = System::createUUID();
 	$arr['uid']           = $page_owner_uid;
 	$arr['uri']           = $uri;
-	$arr['type']          = 'photo';
+	$arr['post-type']     = Item::PT_IMAGE;
 	$arr['wall']          = 1;
 	$arr['resource-id']   = $resource_id;
 	$arr['contact-id']    = $owner_record['id'];
