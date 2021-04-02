@@ -191,6 +191,8 @@ $a->strings["In order to store these compiled templates, the web server needs to
 $a->strings["Please ensure that the user that your web server runs as (e.g. www-data) has write access to this folder."] = "Biztosítsa, hogy a webkiszolgálót futtató felhasználónak (például www-data) legyen írási hozzáférése ehhez a mappához.";
 $a->strings["Note: as a security measure, you should give the web server write access to view/smarty3/ only--not the template files (.tpl) that it contains."] = "Megjegyzés: biztonsági intézkedésként csak a „view/smarty3/” mappához kell írási hozzáférést adnia a webkiszolgálónak, nem azokhoz a sablonfájlokhoz (.tpl), amelyeket tartalmaz.";
 $a->strings["view/smarty3 is writable"] = "A „view/smarty3” írható";
+$a->strings["Url rewrite in .htaccess seems not working. Make sure you copied .htaccess-dist to .htaccess."] = "Úgy tűnik, hogy a .htaccess fájlban lévő URL átírás nem működik. Győződjön meg arról, hogy lemásolta-e a .htaccess-dist fájlt .htaccess néven.";
+$a->strings["In some circumstances (like running inside containers), you can skip this error."] = "Bizonyos körülmények között (például konténereken belül való futtatáskor) átugorhatja ezt a hibát.";
 $a->strings["Error message from Curl when fetching"] = "Hibaüzenet a cURL-től a lekéréskor";
 $a->strings["Url rewrite is working"] = "Az URL átírás működik";
 $a->strings["ImageMagick PHP extension is not installed"] = "Az ImageMagick PHP-kiterjesztés nincs telepítve";
