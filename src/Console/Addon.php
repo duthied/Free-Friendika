@@ -55,9 +55,9 @@ class Addon extends \Asika\SimpleConsole\Console
 		$help = <<<HELP
 console user - Modify addon settings per console commands.
 Usage
-	bin/console addon list all [-s|--start=0] [-c|--count=50] [-h|--help|-?] [-v]
-	bin/console addon list enabled [-s|--start=0] [-c|--count=50] [-h|--help|-?] [-v]
-	bin/console addon list disabled [-s|--start=0] [-c|--count=50] [-h|--help|-?] [-v]
+	bin/console addon list all [-h|--help|-?] [-v]
+	bin/console addon list enabled [-h|--help|-?] [-v]
+	bin/console addon list disabled [-h|--help|-?] [-v]
 	bin/console addon enable <addonname> [-h|--help|-?] [-v]
 	bin/console addon disable <addonname> [-h|--help|-?] [-v]
 
@@ -123,8 +123,6 @@ HELP;
 	private function list()
 	{
 		$subCmd = $this->getArgument(1);
-		$start = $this->getOption(['s', 'start'], 0);
-		$count = $this->getOption(['c', 'count'], Pager::ITEMS_PER_PAGE);
 
 		$table = new Console_Table();
 		switch ($subCmd) {
