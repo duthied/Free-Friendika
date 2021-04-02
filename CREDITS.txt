@@ -43,6 +43,7 @@ Beluga
 Ben
 Ben Roberts
 ben-utzer
+Beringer Zsolt
 BinkaDroid
 Bjoessi
 bufalo1973
@@ -58,6 +59,7 @@ Christian M. Grube
 Christian Vogeley
 Christian Wiwie
 Cohan Robinson
+Colby Sollars
 Copiis Praeesse
 CrystalStiletto
 Cyboulette
@@ -87,6 +89,7 @@ Eric Côté
 erik
 Erkan Yilmaz
 Eugene Veresk
+Extarys
 Fabian Dost
 Fabio Comuni
 felixgilles
@@ -106,6 +109,7 @@ Gregory Smith
 guzzisti
 Haakon Meland Eriksen
 Hans Meine
+hauke
 Hauke
 Hauke Altmann
 Herbert Thielen
@@ -179,6 +183,7 @@ mytbk
 nathilia-peirce
 Nicola Spanti
 nobody
+nupplaPhil
 Olaf Conradi
 Oliver
 Olivier
@@ -203,6 +208,7 @@ R C
 Rabuzarus
 Radek
 Rafael Garau
+Rafael Kalachev
 Rain Hawk
 Rainulf Pineda
 Ralf Thees
@@ -227,6 +233,7 @@ Samuli Valavuo
 Sandro Santilli
 Sebastian Egbers
 sella
+Senex Petrovic
 Seth
 Silke Meyer
 Simon L'nu
@@ -243,6 +250,7 @@ Sveinn í Felli
 Sven Anders
 Sylke Vicious
 Sylvain Lagacé
+szymon.filip
 Sérgio Lima
 Taekus
 Tazman DeVille
@@ -270,12 +278,12 @@ U-SOUND\mike
 ufic
 Ulf Rompe
 Unknown
-Valvin A
+utzer
+Valvin
 Vasudev Kamath
 Vasya Novikov
 Vinzenz Vietzke
 vislav
-vladimir N
 Vladimir Núñez
 VVelox
 Vít Šesták 'v6ak'
