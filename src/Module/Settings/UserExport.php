@@ -2,7 +2,7 @@
 /**
  * @copyright Copyright (C) 2010-2021, the Friendica project
  *
- * @license GNU AGPL version 3 or any later version
+ * @license   GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -30,6 +30,7 @@ use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Module\BaseSettings;
+use Friendica\Network\HTTPException;
 
 /**
  * Module to export user data
@@ -46,9 +47,18 @@ class UserExport extends BaseSettings
 	 *
 	 * If there is an action required through the URL / path, react
 	 * accordingly and export the requested data.
-	 **/
+	 *
+	 * @param array $parameters Router-supplied parameters
+	 * @return string
+	 * @throws HTTPException\ForbiddenException
+	 * @throws HTTPException\InternalServerErrorException
+	 */
 	public static function content(array $parameters = [])
 	{
+		if (!local_user()) {
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		}
+
 		parent::content($parameters);
 
 		/**
@@ -68,14 +78,22 @@ class UserExport extends BaseSettings
 			'$options' => $options
 		]);
 	}
+
 	/**
 	 * raw content generated for the different choices made
 	 * by the user. At the moment this returns a JSON file
 	 * to the browser which then offers a save / open dialog
 	 * to the user.
-	 **/
+	 *
+	 * @param array $parameters Router-supplied parameters
+	 * @throws HTTPException\ForbiddenException
+	 */
 	public static function rawContent(array $parameters = [])
 	{
+		if (!local_user() || !empty(DI::app()->user['uid']) && DI::app()->user['uid'] != local_user()) {
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		}
+
 		$args = DI::args();
 		if ($args->getArgc() == 3) {
 			// @TODO Replace with router-provided arguments
@@ -85,26 +103,29 @@ class UserExport extends BaseSettings
 				case "backup":
 					header("Content-type: application/json");
 					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '.' . $action . '"');
-					self::exportAll(DI::app());
-					exit();
+					self::exportAll(local_user());
 					break;
 				case "account":
 					header("Content-type: application/json");
 					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '.' . $action . '"');
-					self::exportAccount(DI::app());
-					exit();
+					self::exportAccount(local_user());
 					break;
 				case "contact":
 					header("Content-type: application/csv");
-					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '-contacts.csv'. '"');
-					self::exportContactsAsCSV();
-					exit();
+					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '-contacts.csv' . '"');
+					self::exportContactsAsCSV(local_user());
 					break;
-				default:
-					exit();
 			}
+
+			exit();
 		}
 	}
+
+	/**
+	 * @param string $query
+	 * @return array
+	 * @throws \Exception
+	 */
 	private static function exportMultiRow(string $query)
 	{
 		$dbStructure = DBStructure::definition(DI::app()->getBasePath(), false);
@@ -132,6 +153,11 @@ class UserExport extends BaseSettings
 		return $result;
 	}
 
+	/**
+	 * @param string $query
+	 * @return array
+	 * @throws \Exception
+	 */
 	private static function exportRow(string $query)
 	{
 		$dbStructure = DBStructure::definition(DI::app()->getBasePath(), false);
@@ -142,12 +168,12 @@ class UserExport extends BaseSettings
 		$result = [];
 		$r = q($query);
 		if (DBA::isResult($r)) {
-
 			foreach ($r as $rr) {
 				foreach ($rr as $k => $v) {
 					if (empty($dbStructure[$table]['fields'][$k])) {
 						continue;
 					}
+
 					switch ($dbStructure[$table]['fields'][$k]['type']) {
 						case 'datetime':
 							$result[$k] = $v ?? DBA::NULL_DATETIME;
@@ -159,59 +185,76 @@ class UserExport extends BaseSettings
 				}
 			}
 		}
+
 		return $result;
 	}
 
 	/**
 	 * Export a list of the contacts as CSV file as e.g. Mastodon and Pleroma are doing.
-	 **/
-	private static function exportContactsAsCSV()
+	 *
+	 * @param int $user_id
+	 * @throws \Exception
+	 */
+	private static function exportContactsAsCSV(int $user_id)
 	{
+		if (!$user_id) {
+			throw new \RuntimeException(DI::l10n()->t('Permission denied.'));
+		}
+
 		// write the table header (like Mastodon)
 		echo "Account address, Show boosts\n";
 		// get all the contacts
-		$contacts = DBA::select('contact', ['addr', 'url'], ['uid' => $_SESSION['uid'], 'self' => false, 'rel' => [1,3], 'deleted' => false]);
+		$contacts = DBA::select('contact', ['addr', 'url'], ['uid' => $user_id, 'self' => false, 'rel' => [1, 3], 'deleted' => false]);
 		while ($contact = DBA::fetch($contacts)) {
 			echo ($contact['addr'] ?: $contact['url']) . ", true\n";
 		}
 		DBA::close($contacts);
 	}
-	private static function exportAccount(App $a)
+
+	/**
+	 * @param int $user_id
+	 * @throws \Exception
+	 */
+	private static function exportAccount(int $user_id)
 	{
+		if (!$user_id) {
+			throw new \RuntimeException(DI::l10n()->t('Permission denied.'));
+		}
+
 		$user = self::exportRow(
-			sprintf("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval(local_user()))
+			sprintf("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", $user_id)
 		);
 
 		$contact = self::exportMultiRow(
-			sprintf("SELECT * FROM `contact` WHERE `uid` = %d ", intval(local_user()))
+			sprintf("SELECT * FROM `contact` WHERE `uid` = %d ", $user_id)
 		);
 
 
 		$profile = self::exportMultiRow(
-			sprintf("SELECT *, 'default' AS `profile_name`, 1 AS `is-default` FROM `profile` WHERE `uid` = %d ", intval(local_user()))
+			sprintf("SELECT *, 'default' AS `profile_name`, 1 AS `is-default` FROM `profile` WHERE `uid` = %d ", $user_id)
 		);
 
 		$profile_fields = self::exportMultiRow(
-			sprintf("SELECT * FROM `profile_field` WHERE `uid` = %d ", intval(local_user()))
+			sprintf("SELECT * FROM `profile_field` WHERE `uid` = %d ", $user_id)
 		);
 
 		$photo = self::exportMultiRow(
-			sprintf("SELECT * FROM `photo` WHERE uid = %d AND profile = 1", intval(local_user()))
+			sprintf("SELECT * FROM `photo` WHERE uid = %d AND profile = 1", $user_id)
 		);
 		foreach ($photo as &$p) {
 			$p['data'] = bin2hex($p['data']);
 		}
 
 		$pconfig = self::exportMultiRow(
-			sprintf("SELECT * FROM `pconfig` WHERE uid = %d", intval(local_user()))
+			sprintf("SELECT * FROM `pconfig` WHERE uid = %d", $user_id)
 		);
 
 		$group = self::exportMultiRow(
-			sprintf("SELECT * FROM `group` WHERE uid = %d", intval(local_user()))
+			sprintf("SELECT * FROM `group` WHERE uid = %d", $user_id)
 		);
 
 		$group_member = self::exportMultiRow(
-			sprintf("SELECT `group_member`.`gid`, `group_member`.`contact-id` FROM `group_member` INNER JOIN `group` ON `group`.`id` = `group_member`.`gid` WHERE `group`.`uid` = %d", intval(local_user()))
+			sprintf("SELECT `group_member`.`gid`, `group_member`.`contact-id` FROM `group_member` INNER JOIN `group` ON `group`.`id` = `group_member`.`gid` WHERE `group`.`uid` = %d", $user_id)
 		);
 
 		$output = [
@@ -234,21 +277,25 @@ class UserExport extends BaseSettings
 	/**
 	 * echoes account data and items as separated json, one per line
 	 *
-	 * @param App $a
+	 * @param int $user_id
 	 * @throws \Exception
 	 */
-	private static function exportAll(App $a)
+	private static function exportAll(int $user_id)
 	{
-		self::exportAccount($a);
+		if (!$user_id) {
+			throw new \RuntimeException(DI::l10n()->t('Permission denied.'));
+		}
+
+		self::exportAccount($user_id);
 		echo "\n";
 
-		$total = Post::count(['uid' => local_user()]);
+		$total = Post::count(['uid' => $user_id]);
 		// chunk the output to avoid exhausting memory
 
 		for ($x = 0; $x < $total; $x += 500) {
-			$items = Post::selectToArray(Item::ITEM_FIELDLIST, ['uid' => local_user()], ['limit' => [$x, 500]]);
+			$items = Post::selectToArray(Item::ITEM_FIELDLIST, ['uid' => $user_id], ['limit' => [$x, 500]]);
 			$output = ['item' => $items];
-			echo json_encode($output, JSON_PARTIAL_OUTPUT_ON_ERROR). "\n";
+			echo json_encode($output, JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n";
 		}
 	}
 }
