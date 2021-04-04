@@ -162,6 +162,9 @@ class Processor
 			return $item;
 		}
 
+		$leading = '';
+		$trailing = '';
+
 		foreach ($activity['attachments'] as $attach) {
 			switch ($attach['type']) {
 				case 'link':
@@ -193,37 +196,47 @@ class Processor
 							}
 						}
 
-						$item['body'] .= "\n";
-
 						// image is the preview/thumbnail URL
 						if (!empty($attach['image'])) {
-							$item['body'] .= '[url=' . $attach['url'] . ']';
+							$trailing .= '[url=' . $attach['url'] . ']';
 							$attach['url'] = $attach['image'];
 						}
 
 						if (empty($attach['name'])) {
-							$item['body'] .= '[img]' . $attach['url'] . '[/img]';
+							$trailing .= '[img]' . $attach['url'] . '[/img]';
 						} else {
-							$item['body'] .= '[img=' . $attach['url'] . ']' . $attach['name'] . '[/img]';
+							$trailing .= '[img=' . $attach['url'] . ']' . $attach['name'] . '[/img]';
 						}
 
 						if (!empty($attach['image'])) {
-							$item['body'] .= '[/url]';
+							$trailing .= '[/url]';
 						}
 					} elseif ($filetype == 'audio') {
 						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
 							continue 2;
 						}
 
-						$item['body'] = '[audio]' . $attach['url'] . "[/audio]\n" . $item['body'];
+						$leading .= '[audio]' . $attach['url'] . "[/audio]\n";
 					} elseif ($filetype == 'video') {
 						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
 							continue 2;
 						}
 
-						$item['body'] = '[video]' . $attach['url'] . "[/video]\n" . $item['body'];
+						$leading .= '[video]' . $attach['url'] . "[/video]\n";
 					}
 			}
+		}
+
+		if (!empty($leading) && !empty(trim($item['body']))) {
+			$item['body'] = $leading . "[hr]\n" . $item['body'];
+		} elseif (!empty($leading)) {
+			$item['body'] = $leading;
+		}
+
+		if (!empty($trailing) && !empty(trim($item['body']))) {
+			$item['body'] = $item['body'] . "\n[hr]" . $trailing;
+		} elseif (!empty($trailing)) {
+			$item['body'] = $trailing;
 		}
 
 		return $item;
