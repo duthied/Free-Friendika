@@ -1,10 +1,23 @@
-Version 2021.03 (unreleased)
+Version 2021.04 (unreleased)
   Friendica Core
+    Updated to the translations xx [translation teams]
     Removed the frontend worker [annando]
 
   Friendica Addons
+    Updated to the translations BG, DE, EN-US, ES, HU, IT [translation teams]
+    Adapted the addons to the new database schema [annando]
+    Adapted the addons to the new class structure [annando, MrPetovan]
+    deprecated flash based addons (sniper, mahjongg) [urbalazs]
+    smileybutton addon was reworked [MrPetovan]
+    twitter
+      Fixed an OEmbed problem with URL handling [MrPetovan]
 
   Closed Issues
+    8910, 9402, 9640, 9677, 9698, 9716, 9733, 9743, 9746, 9753, 9761,
+    9764, 9767, 9777, 9782, 9789, 9799, 9811, 9814, 9820, 9827, 9846,
+    9854, 9856, 9872, 9875, 9879, 9881, 9885, 9895, 9905, 9907, 9912,
+    9914, 9929, 9936, 9948, 9950, 9962, 9971, 9975, 9977, 9980, 9996,
+    10017, 10032, 10041, 10047, 10050, 10068, 10105, 10107, 10110
 
 Version 2021.01 (2021-01-04)
   Friendica Core
