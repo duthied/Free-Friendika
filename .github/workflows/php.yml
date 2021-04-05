@@ -82,9 +82,6 @@ jobs:
         run: |
           mysql -h"127.0.0.1" -P"$PORT" -utest -ptest test < database.sql
 
-      - name: Test with Parallel-lint
-        run: vendor/bin/parallel-lint --exclude vendor/ --exclude view/asset/ .
-
       - name: Test with phpunit
         run: $(git rev-parse --show-toplevel)/bin/phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
         env:
