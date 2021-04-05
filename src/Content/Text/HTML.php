@@ -1003,20 +1003,19 @@ class HTML
 			'_blank' => true,
 		]);
 
-		/* Uncomment to debug HTMLPurifier behavior
-		$config->set('Core.CollectErrors', true);
-		$config->set('Core.MaintainLineNumbers', true);
-		*/
+
+		// Uncomment to debug HTMLPurifier behavior
+		//$config->set('Core.CollectErrors', true);
+		//$config->set('Core.MaintainLineNumbers', true);
 
 		$HTMLPurifier = new \HTMLPurifier($config);
 
 		$text = $HTMLPurifier->purify($text);
 
 		/** @var \HTMLPurifier_ErrorCollector $errorCollector */
-		/* Uncomment to debug HTML Purifier behavior
-		$errorCollector = $HTMLPurifier->context->get('ErrorCollector');
-		var_dump($errorCollector->getRaw());
-		*/
+		// Uncomment to debug HTML Purifier behavior
+		//$errorCollector = $HTMLPurifier->context->get('ErrorCollector');
+		//var_dump($errorCollector->getRaw());
 
 		return $text;
 	}
