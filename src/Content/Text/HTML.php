@@ -1003,20 +1003,26 @@ class HTML
 			'_blank' => true,
 		]);
 
-		/* Uncomment to debug HTMLPurifier behavior
-		$config->set('Core.CollectErrors', true);
-		$config->set('Core.MaintainLineNumbers', true);
-		*/
+		$config->set('AutoFormat.RemoveEmpty.Predicate', [
+			'colgroup' => [],        // |
+			'th'       => [],        // |
+			'td'       => [],        // |
+			'iframe'   => ['src'],   // ↳ Default HTMLPurify values
+			'i'        => ['class'], // Allows forkawesome icons
+		]);
+
+		// Uncomment to debug HTMLPurifier behavior
+		//$config->set('Core.CollectErrors', true);
+		//$config->set('Core.MaintainLineNumbers', true);
 
 		$HTMLPurifier = new \HTMLPurifier($config);
 
 		$text = $HTMLPurifier->purify($text);
 
 		/** @var \HTMLPurifier_ErrorCollector $errorCollector */
-		/* Uncomment to debug HTML Purifier behavior
-		$errorCollector = $HTMLPurifier->context->get('ErrorCollector');
-		var_dump($errorCollector->getRaw());
-		*/
+		// Uncomment to debug HTML Purifier behavior
+		//$errorCollector = $HTMLPurifier->context->get('ErrorCollector');
+		//var_dump($errorCollector->getRaw());
 
 		return $text;
 	}
