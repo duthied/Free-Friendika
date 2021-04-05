@@ -2643,50 +2643,7 @@ class Item
 			return $s;
 		}
 
-		$as = '';
-		$vhead = false;
-		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
-			$mime = $attachment['mimetype'];
-
-			$author = ['uid' => 0, 'id' => $item['author-id'],
-				'network' => $item['author-network'], 'url' => $item['author-link']];
-			$the_url = Contact::magicLinkByContact($author, $attachment['url']);
-
-			if (strpos($mime, 'video') !== false) {
-				if (!$vhead) {
-					$vhead = true;
-					DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('videos_head.tpl'));
-				}
-
-				$as .= Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
-					'$video' => [
-						'id'     => $item['author-id'],
-						'title'  => DI::l10n()->t('View Video'),
-						'src'    => $the_url,
-						'mime'   => $mime,
-					],
-				]);
-			}
-
-			$filetype = strtolower(substr($mime, 0, strpos($mime, '/')));
-			if ($filetype) {
-				$filesubtype = strtolower(substr($mime, strpos($mime, '/') + 1));
-				$filesubtype = str_replace('.', '-', $filesubtype);
-			} else {
-				$filetype = 'unkn';
-				$filesubtype = 'unkn';
-			}
-
-			$title = Strings::escapeHtml(trim(($attachment['description'] ?? '') ?: $attachment['url']));
-			$title .= ' ' . ($attachment['size'] ?? 0) . ' ' . DI::l10n()->t('bytes');
-
-			$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
-			$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" rel="noopener noreferrer" >' . $icon . '</a>';
-		}
-
-		if ($as != '') {
-			$s .= '<div class="body-attach">'.$as.'<div class="clear"></div></div>';
-		}
+		$s = self::addMediaAttachments($item, $s);
 
 		// Map.
 		if (strpos($s, '<div class="map">') !== false && !empty($item['coord'])) {
@@ -2708,6 +2665,74 @@ class Item
 		Hook::callAll('prepare_body_final', $hook_data);
 
 		return $hook_data['html'];
+	}
+
+	/**
+	 * Add media attachments to the content
+	 *
+	 * @param array $item
+	 * @param string $content
+	 * @return modified content
+	 */
+	private static function addMediaAttachments(array $item, string $content)
+	{
+		$leading = '';
+		$trailing = '';
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
+			$mime = $attachment['mimetype'];
+
+			$author = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
+			$the_url = Contact::magicLinkByContact($author, $attachment['url']);
+
+			$filetype = strtolower(substr($mime, 0, strpos($mime, '/')));
+			if ($filetype) {
+				$filesubtype = strtolower(substr($mime, strpos($mime, '/') + 1));
+				$filesubtype = str_replace('.', '-', $filesubtype);
+			} else {
+				$filetype = 'unkn';
+				$filesubtype = 'unkn';
+			}
+
+			if (($filetype == 'video')) {
+				/// @todo Move the template to /content as well
+				$leading .= Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
+					'$video' => [
+						'id'     => $item['author-id'],
+						'src'    => $the_url,
+						'mime'   => $mime,
+					],
+				]);
+			} elseif ($filetype == 'audio') {
+				$leading .= Renderer::replaceMacros(Renderer::getMarkupTemplate('content/audio.tpl'), [
+					'$audio' => [
+						'id'     => $item['author-id'],
+						'src'    => $the_url,
+						'mime'   => $mime,
+					],
+				]);
+			} else {
+				$title = Strings::escapeHtml(trim(($attachment['description'] ?? '') ?: $attachment['url']));
+
+				if (!empty($attachment['size'])) {
+					$title .= ' ' . $attachment['size'] . ' ' . DI::l10n()->t('bytes');
+				}
+
+				/// @todo Use a template
+				$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
+				$trailing .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" rel="noopener noreferrer" >' . $icon . '</a>';
+			}
+		}
+
+		if ($leading != '') {
+			$content = '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . $content;
+		}
+
+		if ($trailing != '') {
+			$content .= '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>';
+		}
+
+		return $content;
 	}
 
 	/**

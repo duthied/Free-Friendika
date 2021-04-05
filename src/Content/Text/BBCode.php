@@ -50,7 +50,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	// Update this value to the current date whenever changes are made to BBCode::convert
-	const VERSION = '2021-03-21';
+	const VERSION = '2021-04-05';
 
 	const INTERNAL = 0;
 	const API = 2;
@@ -1669,7 +1669,7 @@ class BBCode
 				if ($try_oembed) {
 					// html5 video and audio
 					$text = preg_replace("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4).*?)\[\/video\]/ism",
-						'<video src="$1" controls width="' . $a->videowidth . '" height="' . $a->videoheight . '" loop="true"><a href="$1">$1</a></video>', $text);
+						'<video src="$1" controls width="100%" height="auto"><a href="$1">$1</a></video>', $text);
 
 					$text = preg_replace_callback("/\[video\](.*?)\[\/video\]/ism", $try_oembed_callback, $text);
 					$text = preg_replace_callback("/\[audio\](.*?)\[\/audio\]/ism", $try_oembed_callback, $text);
