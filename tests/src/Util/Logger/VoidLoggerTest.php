@@ -32,6 +32,7 @@ class VoidLoggerTest extends MockedTest
 	/**
 	 * Test if the profiler is profiling data
 	 * @dataProvider dataTests
+	 * @doesNotPerformAssertions
 	 */
 	public function testNormal($function, $message, array $context)
 	{
@@ -41,6 +42,7 @@ class VoidLoggerTest extends MockedTest
 
 	/**
 	 * Test the log() function
+	 * @doesNotPerformAssertions
 	 */
 	public function testProfilingLog()
 	{

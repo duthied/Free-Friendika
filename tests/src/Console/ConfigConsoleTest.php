@@ -38,7 +38,7 @@ class ConfigConsoleTest extends ConsoleTest
 	/** @var IConfig|LegacyMockInterface|MockInterface */
 	private $configMock;
 
-	protected function setUp()
+	protected function setUp() : void
 	{
 		parent::setUp();
 

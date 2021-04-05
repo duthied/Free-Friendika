@@ -18,7 +18,7 @@ class ProcessTest extends DatabaseTest
 	/** @var StaticDatabase */
 	private $dba;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -71,6 +71,9 @@ class ProcessTest extends DatabaseTest
 		self::assertEquals([['command' => 'test']], $this->dba->selectToArray('process', ['command'], ['pid' => 1]));
 	}
 
+	/**
+	 * @doesNotPerformAssertions
+	 */
 	public function testWrongDelete()
 	{
 		$process = new Process($this->dba);

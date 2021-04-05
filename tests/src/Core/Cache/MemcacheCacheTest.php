@@ -56,7 +56,7 @@ class MemcacheCacheTest extends MemoryCacheTest
 		return $this->cache;
 	}
 
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		$this->cache->clear(false);
 		parent::tearDown();

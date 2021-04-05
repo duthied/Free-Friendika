@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.2', '7.3', '7.4']
+        php-versions: ['7.3', '7.4', '8.0']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -62,6 +62,9 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist
 
+      - name: Setup PHPUnit 8
+        run: bin/dev/setup-phpunit.sh
+
       - name: Copy default Friendica config
         run: cp config/local-sample.config.php config/local.config.php
 
@@ -83,7 +86,7 @@ jobs:
         run: vendor/bin/parallel-lint --exclude vendor/ --exclude view/asset/ .
 
       - name: Test with phpunit
-        run: vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
+        run: $(git rev-parse --show-toplevel)/bin/phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
         env:
           MYSQL_HOST: 127.0.0.1
           MYSQL_PORT: ${{ job.services.mariadb.ports[3306] }}

@@ -51,7 +51,7 @@ class MailBuilderTest extends MockedTest
 	/** @var string */
 	private $defaultHeaders;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 

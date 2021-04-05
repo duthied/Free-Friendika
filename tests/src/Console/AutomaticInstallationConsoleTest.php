@@ -76,7 +76,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 	 */
 	private $dice;
 
-	public function setUp()
+	public function setUp() : void
 	{
 		static::markTestSkipped('Needs class \'Installer\' as constructing argument for console tests');
 

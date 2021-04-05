@@ -55,7 +55,7 @@ abstract class ConfigTest extends MockedTest
 	}
 
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 

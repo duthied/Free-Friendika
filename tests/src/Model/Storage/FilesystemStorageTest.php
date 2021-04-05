@@ -39,7 +39,7 @@ class FilesystemStorageTest extends StorageTest
 	/** @var MockInterface|IConfig */
 	protected $config;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		$this->setUpVfsDir();
 

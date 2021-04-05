@@ -37,7 +37,7 @@ class UserTest extends MockedTest
 	private $child;
 	private $manage;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 

@@ -29,23 +29,23 @@ use Friendica\Test\Util\Database\StaticDatabase;
  */
 trait DatabaseTestTrait
 {
-	protected function setUp()
+	protected function setUpDb()
 	{
 		StaticDatabase::statConnect($_SERVER);
 		// Rollbacks every DB usage (in case the test couldn't call tearDown)
 		StaticDatabase::statRollback();
 		// Start the first, outer transaction
 		StaticDatabase::getGlobConnection()->beginTransaction();
-
-		parent::setUp();
 	}
 
-	protected function tearDown()
+	protected function tearDownDb()
 	{
-		// Rollbacks every DB usage so we don't commit anything into the DB
-		StaticDatabase::statRollback();
-
-		parent::tearDown();
+		try {
+			// Rollbacks every DB usage so we don't commit anything into the DB
+			StaticDatabase::statRollback();
+		} catch (\PDOException $exception) {
+			print_r("Found already rolled back transaction");
+		}
 	}
 
 	/**

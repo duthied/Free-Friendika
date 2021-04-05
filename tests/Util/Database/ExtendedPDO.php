@@ -67,8 +67,9 @@ class ExtendedPDO extends PDO
 	 */
 	public function beginTransaction()
 	{
-		if($this->_transactionDepth == 0 || !$this->hasSavepoint()) {
+		if($this->_transactionDepth <= 0 || !$this->hasSavepoint()) {
 			parent::beginTransaction();
+			$this->_transactionDepth = $this->_transactionDepth < 0 ? 0 : $this->_transactionDepth;
 		} else {
 			$this->exec("SAVEPOINT LEVEL{$this->_transactionDepth}");
 		}
@@ -85,8 +86,9 @@ class ExtendedPDO extends PDO
 	{
 		$this->_transactionDepth--;
 
-		if($this->_transactionDepth == 0 || !$this->hasSavepoint()) {
+		if($this->_transactionDepth <= 0 || !$this->hasSavepoint()) {
 			parent::commit();
+			$this->_transactionDepth = $this->_transactionDepth < 0 ? 0 : $this->_transactionDepth;
 		} else {
 			$this->exec("RELEASE SAVEPOINT LEVEL{$this->_transactionDepth}");
 		}
@@ -100,8 +102,7 @@ class ExtendedPDO extends PDO
 	 */
 	public function rollBack()
 	{
-
-		if ($this->_transactionDepth == 0) {
+		if ($this->_transactionDepth <= 0) {
 			throw new PDOException('Rollback error : There is no transaction started');
 		}
 

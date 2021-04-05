@@ -41,7 +41,7 @@ class ProfilerLoggerTest extends MockedTest
 	 */
 	private $profiler;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -52,6 +52,7 @@ class ProfilerLoggerTest extends MockedTest
 	/**
 	 * Test if the profiler is profiling data
 	 * @dataProvider dataTests
+	 * @doesNotPerformAssertions
 	 */
 	public function testProfiling($function, $message, array $context)
 	{
@@ -64,6 +65,7 @@ class ProfilerLoggerTest extends MockedTest
 
 	/**
 	 * Test the log() function
+	 * @doesNotPerformAssertions
 	 */
 	public function testProfilingLog()
 	{

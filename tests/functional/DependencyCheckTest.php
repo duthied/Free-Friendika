@@ -45,7 +45,7 @@ class DependencyCheckTest extends TestCase
 	 */
 	private $dice;
 
-	protected function setUp()
+	protected function setUp() : void
 	{
 		parent::setUp();
 

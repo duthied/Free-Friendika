@@ -30,7 +30,7 @@ use Friendica\Test\Util\Database\StaticDatabase;
 
 class DBStructureTest extends DatabaseTest
 {
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 

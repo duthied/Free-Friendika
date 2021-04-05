@@ -57,7 +57,7 @@ abstract class PConfigTest extends MockedTest
 	}
 
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 

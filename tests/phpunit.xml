@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <phpunit
-	bootstrap="bootstrap.php"
-	verbose="true">
+		bootstrap="bootstrap.php"
+		verbose="true"
+		backupGlobals="false"
+		timeoutForSmallTests="900"
+		timeoutForMediumTests="900"
+		timeoutForLargeTests="900">
 	<testsuite name='friendica'>
 		<directory suffix='.php'>functional/</directory>
 		<directory suffix='.php'>include/</directory>
 		<directory suffix='.php'>src/</directory>
-		<directory suffix='.php'>./</directory>
 	</testsuite>
 	<!-- Filters for Code Coverage -->
 	<filter>
 		<whitelist>
 			<directory suffix=".php">..</directory>
 			<exclude>
-				<directory suffix=".php">../config</directory>
-				<directory suffix=".php">../doc</directory>
-				<directory suffix=".php">../images</directory>
-				<directory suffix=".php">../library</directory>
-				<directory suffix=".php">../spec</directory>
-				<directory suffix=".php">../tests</directory>
-				<directory suffix=".php">../view</directory>
+				<directory suffix=".php">config/</directory>
+				<directory suffix=".php">doc/</directory>
+				<directory suffix=".php">images/</directory>
+				<directory suffix=".php">library/</directory>
+				<directory suffix=".php">spec/</directory>
+				<directory suffix=".php">tests/</directory>
+				<directory suffix=".php">view/</directory>
+				<directory suffix=".php">vendor/</directory>
 			</exclude>
 		</whitelist>
 	</filter>
-	<listeners>
-		<listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
-	</listeners>
 </phpunit>

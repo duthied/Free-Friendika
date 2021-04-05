@@ -35,7 +35,7 @@ class CookieTest extends MockedTest
 	/** @var MockInterface|BaseURL */
 	private $baseUrl;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		StaticCookie::clearStatic();
 
@@ -45,7 +45,7 @@ class CookieTest extends MockedTest
 		$this->baseUrl = \Mockery::mock(BaseURL::class);
 	}
 
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		StaticCookie::clearStatic();
 

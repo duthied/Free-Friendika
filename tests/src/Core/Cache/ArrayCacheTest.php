@@ -31,7 +31,7 @@ class ArrayCacheTest extends MemoryCacheTest
 		return $this->cache;
 	}
 
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		$this->cache->clear(false);
 		parent::tearDown();
@@ -40,6 +40,7 @@ class ArrayCacheTest extends MemoryCacheTest
 	public function testTTL()
 	{
 		// Array Cache doesn't support TTL
+		self::markTestSkipped("Array Cache doesn't support TTL");
 		return true;
 	}
 }

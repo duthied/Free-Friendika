@@ -32,7 +32,7 @@ use Mockery\MockInterface;
 
 class SemaphoreLockTest extends LockTest
 {
-	protected function setUp()
+	protected function setUp(): void
 	{
 		/** @var MockInterface|Dice $dice */
 		$dice = Mockery::mock(Dice::class)->makePartial();
@@ -61,8 +61,7 @@ class SemaphoreLockTest extends LockTest
 
 	public function testLockTTL()
 	{
-		// Semaphore doesn't work with TTL
-		return true;
+		self::markTestSkipped("Semaphore doesn't work with TTL");
 	}
 
 	/**

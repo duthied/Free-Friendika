@@ -35,7 +35,7 @@ class BBCodeTest extends MockedTest
 	use VFSTrait;
 	use AppMockTrait;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 		$this->setUpVfsDir();
