@@ -2676,7 +2676,8 @@ class Item
 	 */
 	private static function addMediaAttachments(array $item, string $content)
 	{
-		$attached = '';
+		$leading = '';
+		$trailing = '';
 		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
 			$mime = $attachment['mimetype'];
 
@@ -2694,7 +2695,8 @@ class Item
 			}
 
 			if (($filetype == 'video')) {
-				$attached .= Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
+				/// @todo Move the template to /content as well
+				$leading .= Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
 					'$video' => [
 						'id'     => $item['author-id'],
 						'src'    => $the_url,
@@ -2702,7 +2704,7 @@ class Item
 					],
 				]);
 			} elseif ($filetype == 'audio') {
-				$attached .= Renderer::replaceMacros(Renderer::getMarkupTemplate('audio.tpl'), [
+				$leading .= Renderer::replaceMacros(Renderer::getMarkupTemplate('content/audio.tpl'), [
 					'$audio' => [
 						'id'     => $item['author-id'],
 						'src'    => $the_url,
@@ -2718,12 +2720,16 @@ class Item
 
 				/// @todo Use a template
 				$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
-				$attached .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" rel="noopener noreferrer" >' . $icon . '</a>';
+				$trailing .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" rel="noopener noreferrer" >' . $icon . '</a>';
 			}
 		}
 
-		if ($attached != '') {
-			$content .= '<div class="body-attach">' . $attached . '<div class="clear"></div></div>';
+		if ($leading != '') {
+			$content = '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . $content;
+		}
+
+		if ($trailing != '') {
+			$content .= '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>';
 		}
 
 		return $content;
