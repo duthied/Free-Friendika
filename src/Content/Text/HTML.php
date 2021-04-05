@@ -1003,6 +1003,13 @@ class HTML
 			'_blank' => true,
 		]);
 
+		$config->set('AutoFormat.RemoveEmpty.Predicate', [
+			'colgroup' => [],        // |
+			'th'       => [],        // |
+			'td'       => [],        // |
+			'iframe'   => ['src'],   // ↳ Default HTMLPurify values
+			'i'        => ['class'], // Allows forkawesome icons
+		]);
 
 		// Uncomment to debug HTMLPurifier behavior
 		//$config->set('Core.CollectErrors', true);
