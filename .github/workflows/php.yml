@@ -62,10 +62,8 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist
 
-      - name: Install PHPUnit 8
-        run: curl -O -L https://phar.phpunit.de/phpunit-8.phar
-          && chmod +x phpunit-8.phar
-          && mv phpunit-8.phar /usr/local/bin/phpunit
+      - name: Setup PHPUnit 8
+        run: bin/dev/setup-phpunit.sh
 
       - name: Copy default Friendica config
         run: cp config/local-sample.config.php config/local.config.php
@@ -88,7 +86,7 @@ jobs:
         run: vendor/bin/parallel-lint --exclude vendor/ --exclude view/asset/ .
 
       - name: Test with phpunit
-        run: /usr/local/bin/phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
+        run: $(git rev-parse --show-toplevel)/bin/phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
         env:
           MYSQL_HOST: 127.0.0.1
           MYSQL_PORT: ${{ job.services.mariadb.ports[3306] }}

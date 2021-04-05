@@ -79,3 +79,6 @@ venv/
 
 #Ignore log folder
 /log
+
+#Ignore temporary installed phpunit
+/bin/phpunit
