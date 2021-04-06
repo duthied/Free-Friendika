@@ -3,11 +3,11 @@ on: pull_request
 
 jobs:
   php-linters:
+    name: php${{ matrix.php-versions }} lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
         php-versions: ['7.3', '7.4', '8.0']
-    name: php${{ matrix.php-versions }} lint
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -18,3 +18,23 @@ jobs:
           coverage: none
       - name: Lint
         run: bin/composer.phar run lint
+
+  php-cs-fixer:
+    name: php-cs check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Set up php
+        uses: shivammathur/setup-php@master
+        with:
+          php-version: 7.2
+          coverage: none
+          tools: cs2pr
+      - name: Install dependencies
+        run: bin/composer.phar run cs:install
+      - name: Run coding standards check
+        run: |
+          bin/composer.phar run cs:check -- --format=checkstyle | cs2pr
+          bin/composer.phar run cs:check || ( echo 'Please run `bin/composer.phar run cs:fix` to format your code' && exit 1 )
+        shell: bash
