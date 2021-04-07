@@ -10,7 +10,7 @@ jobs:
         php-versions: ['7.3', '7.4', '8.0']
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
       - name: Set up php${{ matrix.php-versions }}
         uses: shivammathur/setup-php@master
         with:
@@ -24,17 +24,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
+      - name: Get changed files
+        id: changes
+        uses: jitterbit/get-changed-files@v1
       - name: Set up php
         uses: shivammathur/setup-php@master
         with:
           php-version: 7.2
           coverage: none
-          tools: cs2pr
       - name: Install dependencies
         run: bin/composer.phar run cs:install
       - name: Run coding standards check
         run: |
-          bin/composer.phar run cs:check -- --format=checkstyle | cs2pr
-          bin/composer.phar run cs:check || ( echo 'Please run `bin/composer.phar run cs:fix` to format your code' && exit 1 )
+          if ! echo "${{ steps.changes.outputs.all }}" | grep -qE "^(\\.php_cs(\\.dist)?|composer\\.lock)$"; then EXTRA_ARGS=$(printf -- '--path-mode=intersection\n--\n%s' "${{ steps.changes.outputs.all }}"); else EXTRA_ARGS=''; fi
+          bin/dev/php-cs-fixer/vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation --using-cache=no ${EXTRA_ARGS}
         shell: bash
