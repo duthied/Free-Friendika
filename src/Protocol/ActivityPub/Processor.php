@@ -198,31 +198,47 @@ class Processor
 
 						// image is the preview/thumbnail URL
 						if (!empty($attach['image'])) {
-							$trailing .= '[url=' . $attach['url'] . ']';
+							$media = '[url=' . $attach['url'] . ']';
 							$attach['url'] = $attach['image'];
+						} else {
+							$media = '';
 						}
 
 						if (empty($attach['name'])) {
-							$trailing .= '[img]' . $attach['url'] . '[/img]';
+							$media .= '[img]' . $attach['url'] . '[/img]';
 						} else {
-							$trailing .= '[img=' . $attach['url'] . ']' . $attach['name'] . '[/img]';
+							$media .= '[img=' . $attach['url'] . ']' . $attach['name'] . '[/img]';
 						}
 
 						if (!empty($attach['image'])) {
-							$trailing .= '[/url]';
+							$media .= '[/url]';
 						}
+
+						if ($item['post-type'] == Item::PT_IMAGE) {
+							$leading .= $media;
+						} else {
+							$trailing .= $media;
+						}		
 					} elseif ($filetype == 'audio') {
 						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
 							continue 2;
 						}
 
-						$leading .= '[audio]' . $attach['url'] . "[/audio]\n";
+						if ($item['post-type'] == Item::PT_AUDIO) {
+							$leading .= '[audio]' . $attach['url'] . "[/audio]\n";
+						} else {
+							$trailing .= '[audio]' . $attach['url'] . "[/audio]\n";
+						}
 					} elseif ($filetype == 'video') {
 						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
 							continue 2;
 						}
 
-						$leading .= '[video]' . $attach['url'] . "[/video]\n";
+						if ($item['post-type'] == Item::PT_VIDEO) {
+							$leading .= '[video]' . $attach['url'] . "[/video]\n";
+						} else {
+							$trailing .= '[video]' . $attach['url'] . "[/video]\n";
+						}
 					}
 			}
 		}
@@ -250,7 +266,7 @@ class Processor
 	 */
 	public static function updateItem($activity)
 	{
-		$item = Post::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
+		$item = Post::selectFirst(['uri', 'uri-id', 'thr-parent', 'gravity', 'post-type'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('No existing item, item will be created', ['uri' => $activity['id']]);
 			$item = self::createItem($activity);
@@ -334,6 +350,24 @@ class Processor
 
 		if (!empty($activity['from-relay'])) {
 			$item['direction'] = Conversation::RELAY;
+		}
+
+		if ($activity['object_type'] == 'as:Article') {
+			$item['post-type'] = Item::PT_ARTICLE;
+		} elseif ($activity['object_type'] == 'as:Audio') {
+			$item['post-type'] = Item::PT_AUDIO;
+		} elseif ($activity['object_type'] == 'as:Document') {
+			$item['post-type'] = Item::PT_DOCUMENT;
+		} elseif ($activity['object_type'] == 'as:Event') {
+			$item['post-type'] = Item::PT_EVENT;
+		} elseif ($activity['object_type'] == 'as:Image') {
+			$item['post-type'] = Item::PT_IMAGE;
+		} elseif ($activity['object_type'] == 'as:Page') {
+			$item['post-type'] = Item::PT_PAGE;
+		} elseif ($activity['object_type'] == 'as:Video') {
+			$item['post-type'] = Item::PT_VIDEO;
+		} else {
+			$item['post-type'] = Item::PT_NOTE;
 		}
 
 		$item['isForum'] = false;
@@ -456,6 +490,7 @@ class Processor
 		$item['verb'] = $verb;
 		$item['thr-parent'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
+		unset($item['post-type']);
 		$item['object-type'] = Activity\ObjectType::NOTE;
 
 		$item['diaspora_signed_text'] = $activity['diaspora:like'] ?? '';
@@ -629,34 +664,34 @@ class Processor
 			$type = $activity['reception_type'][$receiver] ?? Receiver::TARGET_UNKNOWN;
 			switch($type) {
 				case Receiver::TARGET_TO:
-					$item['post-type'] = Item::PT_TO;
+					$item['post-reason'] = Item::PR_TO;
 					break;
 				case Receiver::TARGET_CC:
-					$item['post-type'] = Item::PT_CC;
+					$item['post-reason'] = Item::PR_CC;
 					break;
 				case Receiver::TARGET_BTO:
-					$item['post-type'] = Item::PT_BTO;
+					$item['post-reason'] = Item::PR_BTO;
 					break;
 				case Receiver::TARGET_BCC:
-					$item['post-type'] = Item::PT_BCC;
+					$item['post-reason'] = Item::PR_BCC;
 					break;
 				case Receiver::TARGET_FOLLOWER:
-					$item['post-type'] = Item::PT_FOLLOWER;
+					$item['post-reason'] = Item::PR_FOLLOWER;
 					break;
 				case Receiver::TARGET_ANSWER:
-					$item['post-type'] = Item::PT_COMMENT;
+					$item['post-reason'] = Item::PR_COMMENT;
 					break;
 				case Receiver::TARGET_GLOBAL:
-					$item['post-type'] = Item::PT_GLOBAL;
+					$item['post-reason'] = Item::PR_GLOBAL;
 					break;
 				default:
-					$item['post-type'] = Item::PT_ARTICLE;
+					$item['post-reason'] = Item::PR_NONE;
 			}
 
 			if (!empty($activity['from-relay'])) {
-				$item['post-type'] = Item::PT_RELAY;
+				$item['post-reason'] = Item::PR_RELAY;
 			} elseif (!empty($activity['thread-completion'])) {
-				$item['post-type'] = Item::PT_FETCHED;
+				$item['post-reason'] = Item::PR_FETCHED;
 			}
 
 			if ($item['isForum'] ?? false) {

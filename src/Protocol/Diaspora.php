@@ -1536,11 +1536,11 @@ class Diaspora
 
 		// Will be overwritten for sharing accounts in Item::insert
 		if ($fetched) {
-			$datarray["post-type"] = Item::PT_FETCHED;
+			$datarray["post-reason"] = Item::PR_FETCHED;
 		} elseif ($datarray["uid"] == 0) {
-			$datarray["post-type"] = Item::PT_GLOBAL;
+			$datarray["post-reason"] = Item::PR_GLOBAL;
 		} else {
-			$datarray["post-type"] = Item::PT_COMMENT;
+			$datarray["post-reason"] = Item::PR_COMMENT;
 		}
 
 		$datarray["guid"] = $guid;
@@ -1553,6 +1553,7 @@ class Diaspora
 		$datarray['thr-parent'] = $thr_parent ?: $toplevel_parent_item['uri'];
 
 		$datarray["object-type"] = Activity\ObjectType::COMMENT;
+		$datarray["post-type"] = Item::PT_NOTE;
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
@@ -2737,8 +2738,10 @@ class Diaspora
 			}
 
 			$datarray["object-type"] = Activity\ObjectType::IMAGE;
+			$datarray["post-type"] = Item::PT_IMAGE;
 		} else {
 			$datarray["object-type"] = Activity\ObjectType::NOTE;
+			$datarray["post-type"] = Item::PT_NOTE;
 
 			// Add OEmbed and other information to the body
 			if (!self::isHubzilla($contact["url"])) {
@@ -2773,9 +2776,9 @@ class Diaspora
 		$datarray["direction"] = $fetched ? Conversation::PULL : Conversation::PUSH;
 
 		if ($fetched) {
-			$datarray["post-type"] = Item::PT_FETCHED;
+			$datarray["post-reason"] = Item::PR_FETCHED;
 		} elseif ($datarray["uid"] == 0) {
-			$datarray["post-type"] = Item::PT_GLOBAL;
+			$datarray["post-reason"] = Item::PR_GLOBAL;
 		}
 
 		$datarray["body"] = self::replacePeopleGuid($body, $contact["url"]);

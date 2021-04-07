@@ -2195,6 +2195,12 @@ class DFRN
 
 		$item["title"] = XML::getFirstNodeValue($xpath, "atom:title/text()", $entry);
 
+		if (!empty($item["title"])) {
+			$item["post-type"] = Item::PT_ARTICLE;
+		} else {
+			$item["post-type"] = Item::PT_NOTE;
+		}
+
 		$item["created"] = XML::getFirstNodeValue($xpath, "atom:published/text()", $entry);
 
 		$item["body"] = XML::getFirstNodeValue($xpath, "dfrn:env/text()", $entry);
@@ -2426,8 +2432,8 @@ class DFRN
 
 		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
 			// Will be overwritten for sharing accounts in Item::insert
-			if (empty($item['post-type']) && ($entrytype == DFRN::REPLY)) {
-				$item['post-type'] = Item::PT_COMMENT;
+			if (empty($item['post-reason']) && ($entrytype == DFRN::REPLY)) {
+				$item['post-reason'] = Item::PR_COMMENT;
 			}
 
 			$posted_id = Item::insert($item);
@@ -2588,7 +2594,7 @@ class DFRN
 		$header["direction"] = $direction;
 
 		if ($direction === Conversation::RELAY) {
-			$header['post-type'] = Item::PT_RELAY;
+			$header['post-reason'] = Item::PR_RELAY;
 		}
 
 		// Update the contact table if the data has changed

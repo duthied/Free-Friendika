@@ -55,19 +55,22 @@ class Item
 	const PT_VIDEO = 18;
 	const PT_DOCUMENT = 19;
 	const PT_EVENT = 32;
-	const PT_TAG = 64;
-	const PT_TO = 65;
-	const PT_CC = 66;
-	const PT_BTO = 67;
-	const PT_BCC = 68;
-	const PT_FOLLOWER = 69;
-	const PT_ANNOUNCEMENT = 70;
-	const PT_COMMENT = 71;
-	const PT_STORED = 72;
-	const PT_GLOBAL = 73;
-	const PT_RELAY = 74;
-	const PT_FETCHED = 75;
 	const PT_PERSONAL_NOTE = 128;
+
+	// Posting reasons (Why had a post been stored for a user?)
+	const PR_NONE = 0;
+	const PR_TAG = 64;
+	const PR_TO = 65;
+	const PR_CC = 66;
+	const PR_BTO = 67;
+	const PR_BCC = 68;
+	const PR_FOLLOWER = 69;
+	const PR_ANNOUNCEMENT = 70;
+	const PR_COMMENT = 71;
+	const PR_STORED = 72;
+	const PR_GLOBAL = 73;
+	const PR_RELAY = 74;
+	const PR_FETCHED = 75;
 
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = [
@@ -92,7 +95,7 @@ class Item
 	const DELIVER_FIELDLIST = ['uid', 'id', 'parent', 'uri-id', 'uri', 'thr-parent', 'parent-uri', 'guid',
 			'parent-guid', 'received', 'created', 'edited', 'verb', 'object-type', 'object', 'target',
 			'private', 'title', 'body', 'raw-body', 'location', 'coord', 'app',
-			'inform', 'deleted', 'extid', 'post-type', 'gravity',
+			'inform', 'deleted', 'extid', 'post-type', 'post-reason', 'gravity',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'author-id', 'author-link', 'author-name', 'author-avatar', 'owner-id', 'owner-link', 'contact-uid',
 			'signed_text', 'network', 'wall', 'contact-id', 'plink', 'forum_mode', 'origin',
@@ -107,7 +110,7 @@ class Item
 			'contact-id', 'wall', 'gravity', 'extid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'inform',
-			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
+			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type', 'post-reason',
 			'private', 'pubmail', 'visible', 'starred',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
 			'title', 'content-warning', 'body', 'location', 'coord', 'app',
@@ -744,6 +747,10 @@ class Item
 			return 0;
 		}
 
+		if (!isset($item['post-type'])) {
+			$item['post-type'] = empty($item['title']) ? self::PT_NOTE : self::PT_ARTICLE;
+		}
+
 		$item['wall']          = intval($item['wall'] ?? 0);
 		$item['extid']         = trim($item['extid'] ?? '');
 		$item['author-name']   = trim($item['author-name'] ?? '');
@@ -762,7 +769,6 @@ class Item
 		$item['coord']         = trim($item['coord'] ?? '');
 		$item['visible']       = (isset($item['visible']) ? intval($item['visible']) : 1);
 		$item['deleted']       = 0;
-		$item['post-type']     = ($item['post-type'] ?? '') ?: self::PT_ARTICLE;
 		$item['verb']          = trim($item['verb'] ?? '');
 		$item['object-type']   = trim($item['object-type'] ?? '');
 		$item['object']        = trim($item['object'] ?? '');
@@ -810,7 +816,7 @@ class Item
 
 		$actor = ($item['gravity'] == GRAVITY_PARENT) ? $item['owner-id'] : $item['author-id'];
 		if (!$item['origin'] && ($item['uid'] != 0) && Contact::isSharing($actor, $item['uid'])) {
-			$item['post-type'] = self::PT_FOLLOWER;
+			$item['post-reason'] = self::PR_FOLLOWER;
 		}
 
 		// Ensure that there is an avatar cache
@@ -1115,7 +1121,7 @@ class Item
 	 */
 	private static function setOwnerforResharedItem(array $item)
 	{
-		$parent = Post::selectFirst(['id', 'causer-id', 'owner-id', 'author-id', 'author-link', 'origin', 'post-type'],
+		$parent = Post::selectFirst(['id', 'causer-id', 'owner-id', 'author-id', 'author-link', 'origin', 'post-reason'],
 			['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
 		if (!DBA::isResult($parent)) {
 			Logger::error('Parent not found', ['uri-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
@@ -1135,7 +1141,7 @@ class Item
 		}
 
 		if ($author['contact-type'] != Contact::TYPE_COMMUNITY) {
-			if ($parent['post-type'] == self::PT_ANNOUNCEMENT) {
+			if ($parent['post-reason'] == self::PR_ANNOUNCEMENT) {
 				Logger::info('The parent is already marked as announced: quit', ['causer' => $parent['causer-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
 				return;
 			}
@@ -1144,8 +1150,8 @@ class Item
 				Logger::info('The resharer is no forum: quit', ['resharer' => $item['author-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
 				return;
 			}
-			self::update(['post-type' => self::PT_ANNOUNCEMENT, 'causer-id' => $item['author-id']], ['id' => $parent['id']]);
-			Logger::info('Set announcement post-type', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
+			self::update(['post-reason' => self::PR_ANNOUNCEMENT, 'causer-id' => $item['author-id']], ['id' => $parent['id']]);
+			Logger::info('Set announcement post-reason', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
 			return;
 		}
 
@@ -1169,7 +1175,7 @@ class Item
 			if (Contact::isSharing($item['author-id'], $uid)) {
 				$fields = [];
 			} else {
-				$fields = ['post-type' => self::PT_TAG];
+				$fields = ['post-reason' => self::PR_TAG];
 			}
 
 			$stored = self::storeForUserByUriId($item['uri-id'], $uid, $fields);
@@ -1289,7 +1295,7 @@ class Item
 			return 0;
 		}
 
-		$item['post-type'] = self::PT_STORED;
+		$item['post-reason'] = self::PR_STORED;
 
 		$item = array_merge($item, $fields);
 
@@ -1416,7 +1422,7 @@ class Item
 			unset($item['starred']);
 			unset($item['postopts']);
 			unset($item['inform']);
-			unset($item['post-type']);
+			unset($item['post-reason']);
 			if ($item['uri-id'] == $item['parent-uri-id']) {
 				$item['contact-id'] = $item['owner-id'];
 			} else {
@@ -1479,7 +1485,7 @@ class Item
 		unset($item['starred']);
 		unset($item['postopts']);
 		unset($item['inform']);
-		unset($item['post-type']);
+		unset($item['post-reason']);
 		$item['contact-id'] = Contact::getIdForURL($item['author-link']);
 
 		$public_shadow = self::insert($item, false, true);
@@ -2157,7 +2163,7 @@ class Item
 
 			// Only expire posts, not photos and photo comments
 
-			if (!$expire_photos && (!empty($item['resource-id']) || ($item['post-type'] == self::PT_IMAGE))) {
+			if (!$expire_photos && !empty($item['resource-id'])) {
 				continue;
 			} elseif (!$expire_starred && intval($item['starred'])) {
 				continue;
@@ -2696,21 +2702,31 @@ class Item
 
 			if (($filetype == 'video')) {
 				/// @todo Move the template to /content as well
-				$leading .= Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
+				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
 					'$video' => [
 						'id'     => $item['author-id'],
 						'src'    => $the_url,
 						'mime'   => $mime,
 					],
 				]);
+				if ($item['post-type'] == Item::PT_VIDEO) {
+					$leading .= $media;
+				} else {
+					$trailing .= $media;
+				}
 			} elseif ($filetype == 'audio') {
-				$leading .= Renderer::replaceMacros(Renderer::getMarkupTemplate('content/audio.tpl'), [
+				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/audio.tpl'), [
 					'$audio' => [
 						'id'     => $item['author-id'],
 						'src'    => $the_url,
 						'mime'   => $mime,
 					],
 				]);
+				if ($item['post-type'] == Item::PT_AUDIO) {
+					$leading .= $media;
+				} else {
+					$trailing .= $media;
+				}
 			} else {
 				$title = Strings::escapeHtml(trim(($attachment['description'] ?? '') ?: $attachment['url']));
 

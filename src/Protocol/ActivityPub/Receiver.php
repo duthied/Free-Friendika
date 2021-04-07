@@ -522,7 +522,7 @@ class Receiver
 						return;
 					}
 
-					$item['post-type'] = Item::PT_ANNOUNCEMENT;
+					$item['post-reason'] = Item::PR_ANNOUNCEMENT;
 					ActivityPub\Processor::postItem($object_data, $item);
 
 					$announce_object_data = self::processObject($activity);
