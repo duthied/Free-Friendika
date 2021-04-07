@@ -3,14 +3,14 @@ on: pull_request
 
 jobs:
   php-linters:
+    name: php${{ matrix.php-versions }} lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
         php-versions: ['7.3', '7.4', '8.0']
-    name: php${{ matrix.php-versions }} lint
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
       - name: Set up php${{ matrix.php-versions }}
         uses: shivammathur/setup-php@master
         with:
@@ -18,3 +18,25 @@ jobs:
           coverage: none
       - name: Lint
         run: bin/composer.phar run lint
+
+  php-cs-fixer:
+    name: php-cs check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get changed files
+        id: changes
+        uses: jitterbit/get-changed-files@v1
+      - name: Set up php
+        uses: shivammathur/setup-php@master
+        with:
+          php-version: 7.2
+          coverage: none
+      - name: Install dependencies
+        run: bin/composer.phar run cs:install
+      - name: Run coding standards check
+        run: |
+          if ! echo "${{ steps.changes.outputs.all }}" | grep -qE "^(\\.php_cs(\\.dist)?|composer\\.lock)$"; then EXTRA_ARGS=$(printf -- '--path-mode=intersection\n--\n%s' "${{ steps.changes.outputs.all }}"); else EXTRA_ARGS=''; fi
+          bin/dev/php-cs-fixer/vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --diff --diff-format=udiff --dry-run --stop-on-violation --using-cache=no ${EXTRA_ARGS}
+        shell: bash
