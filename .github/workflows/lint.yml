@@ -38,5 +38,5 @@ jobs:
       - name: Run coding standards check
         run: |
           if ! echo "${{ steps.changes.outputs.all }}" | grep -qE "^(\\.php_cs(\\.dist)?|composer\\.lock)$"; then EXTRA_ARGS=$(printf -- '--path-mode=intersection\n--\n%s' "${{ steps.changes.outputs.all }}"); else EXTRA_ARGS=''; fi
-          bin/dev/php-cs-fixer/vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation --using-cache=no ${EXTRA_ARGS}
+          bin/dev/php-cs-fixer/vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --diff --diff-format=udiff --dry-run --stop-on-violation --using-cache=no ${EXTRA_ARGS}
         shell: bash
