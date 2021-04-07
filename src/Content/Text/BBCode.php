@@ -50,7 +50,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	// Update this value to the current date whenever changes are made to BBCode::convert
-	const VERSION = '2021-04-05';
+	const VERSION = '2021-04-07';
 
 	const INTERNAL = 0;
 	const API = 2;
@@ -1404,10 +1404,14 @@ class BBCode
 				$search = ["\n[th]", "[th]\n", " [th]", "\n[/th]", "[/th]\n", "[/th] ",
 					"\n[td]", "[td]\n", " [td]", "\n[/td]", "[/td]\n", "[/td] ",
 					"\n[tr]", "[tr]\n", " [tr]", "[tr] ", "\n[/tr]", "[/tr]\n", " [/tr]", "[/tr] ",
+					"\n[hr]", "[hr]\n", " [hr]", "[hr] ",
+					"\n[attachment ", " [attachment ", "\n[/attachment]", "[/attachment]\n", " [/attachment]", "[/attachment] ",
 					"[table]\n", "[table] ", " [table]", "\n[/table]", " [/table]", "[/table] "];
 				$replace = ["[th]", "[th]", "[th]", "[/th]", "[/th]", "[/th]",
 					"[td]", "[td]", "[td]", "[/td]", "[/td]", "[/td]",
 					"[tr]", "[tr]", "[tr]", "[tr]", "[/tr]", "[/tr]", "[/tr]", "[/tr]",
+					"[hr]", "[hr]", "[hr]", "[hr]",
+					"[attachment ", "[attachment ", "[/attachment]", "[/attachment]", "[/attachment]", "[/attachment]",
 					"[table]", "[table]", "[table]", "[/table]", "[/table]", "[/table]"];
 				do {
 					$oldtext = $text;
