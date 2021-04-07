@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.03-rc (Red Hot Poker)
--- DB_UPDATE_VERSION 1412
+-- DB_UPDATE_VERSION 1413
 -- ------------------------------------------
 
 
@@ -934,7 +934,7 @@ CREATE TABLE IF NOT EXISTS `post` (
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the owner of this item',
 	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
 	`causer-id` int unsigned COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
-	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, bookmark, ...)',
+	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, image, article, ...)',
 	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
 	`private` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0=public, 1=private, 2=unlisted',
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -1100,7 +1100,8 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the owner of this item',
 	`author-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Link to the contact table with uid=0 of the author of this item',
 	`causer-id` int unsigned COMMENT 'Link to the contact table with uid=0 of the contact that caused the item creation',
-	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, bookmark, ...)',
+	`post-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Post type (personal note, image, article, ...)',
+	`post-reason` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Reason why the post arrived at the user',
 	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
 	`private` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0=public, 1=private, 2=unlisted',
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -1488,6 +1489,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-user`.`received` AS `received`,
 	`post-thread-user`.`changed` AS `changed`,
 	`post-user`.`post-type` AS `post-type`,
+	`post-user`.`post-reason` AS `post-reason`,
 	`post-user`.`private` AS `private`,
 	`post-thread-user`.`pubmail` AS `pubmail`,
 	`post-user`.`visible` AS `visible`,
@@ -1647,6 +1649,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-thread-user`.`received` AS `received`,
 	`post-thread-user`.`changed` AS `changed`,
 	`post-user`.`post-type` AS `post-type`,
+	`post-user`.`post-reason` AS `post-reason`,
 	`post-user`.`private` AS `private`,
 	`post-thread-user`.`pubmail` AS `pubmail`,
 	`post-thread-user`.`ignored` AS `ignored`,

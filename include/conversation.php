@@ -725,7 +725,7 @@ function conversation_fetch_comments($thread_items, bool $pinned, array $activit
 	while ($row = Post::fetch($thread_items)) {
 		if (!empty($activity)) {
 			if (($row['gravity'] == GRAVITY_PARENT)) {
-				$row['post-type'] = Item::PT_ANNOUNCEMENT;
+				$row['post-reason'] = Item::PR_ANNOUNCEMENT;
 				$row = array_merge($row, $activity);
 				$contact = Contact::getById($activity['causer-id'], ['url', 'name', 'thumb']);
 				$row['causer-link'] = $contact['url'];
@@ -739,26 +739,26 @@ function conversation_fetch_comments($thread_items, bool $pinned, array $activit
 
 		$name = $row['causer-contact-type'] == Contact::TYPE_RELAY ? $row['causer-link'] : $row['causer-name'];
 
-		switch ($row['post-type']) {
-			case Item::PT_TO:
+		switch ($row['post-reason']) {
+			case Item::PR_TO:
 				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'to')];
 				break;
-			case Item::PT_CC:
+			case Item::PR_CC:
 				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'cc')];
 				break;
-			case Item::PT_BTO:
+			case Item::PR_BTO:
 				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bto')];
 				break;
-			case Item::PT_BCC:
+			case Item::PR_BCC:
 				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'bcc')];
 				break;
-			case Item::PT_FOLLOWER:
+			case Item::PR_FOLLOWER:
 				$row['direction'] = ['direction' => 6, 'title' => DI::l10n()->t('You are following %s.', $row['author-name'])];
 				break;
-			case Item::PT_TAG:
+			case Item::PR_TAG:
 				$row['direction'] = ['direction' => 4, 'title' => DI::l10n()->t('Tagged')];
 				break;
-			case Item::PT_ANNOUNCEMENT:
+			case Item::PR_ANNOUNCEMENT:
 				if (!empty($row['causer-id']) && DI::pConfig()->get(local_user(), 'system', 'display_resharer')) {
 					$row['owner-id'] = $row['causer-id'];
 					$row['owner-link'] = $row['causer-link'];
@@ -773,19 +773,19 @@ function conversation_fetch_comments($thread_items, bool $pinned, array $activit
 				}
 				$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Reshared') : DI::l10n()->t('Reshared by %s', $name))];
 				break;
-			case Item::PT_COMMENT:
+			case Item::PR_COMMENT:
 				$row['direction'] = ['direction' => 5, 'title' => DI::l10n()->t('%s is participating in this thread.', $row['author-name'])];
 				break;
-			case Item::PT_STORED:
+			case Item::PR_STORED:
 				$row['direction'] = ['direction' => 8, 'title' => DI::l10n()->t('Stored')];
 				break;
-			case Item::PT_GLOBAL:
+			case Item::PR_GLOBAL:
 				$row['direction'] = ['direction' => 9, 'title' => DI::l10n()->t('Global')];
 				break;
-			case Item::PT_RELAY:
+			case Item::PR_RELAY:
 				$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Relayed') : DI::l10n()->t('Relayed by %s.', $name))];
 				break;
-			case Item::PT_FETCHED:
+			case Item::PR_FETCHED:
 				$row['direction'] = ['direction' => 2, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Fetched') : DI::l10n()->t('Fetched because of %s', $name))];
 				break;
 			}
@@ -878,7 +878,7 @@ function conversation_fetch_items(array $parent, array $items, array $condition,
 		$condition[0] .= " AND NOT `author-hidden`";
 	}
 
-	$thread_items = Post::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-type']), $condition, $params);
+	$thread_items = Post::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-reason']), $condition, $params);
 
 	$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false, $activity);
 

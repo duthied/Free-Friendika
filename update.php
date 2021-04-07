@@ -883,6 +883,8 @@ function update_1404()
 				continue 2;
 		}
 		DBA::update('workerqueue', ['parameter' => json_encode($parameters)], ['id' => $task['id']]);
+
+		return Update::SUCCESS;
 	}
 }
 
@@ -898,6 +900,15 @@ function update_1407()
 		return Update::FAILED;
 	}
 	if (!DBA::e("UPDATE `post-thread-user` SET `causer-id` = NULL WHERE `causer-id` = 0")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function update_1413()
+{
+	if (!DBA::e("UPDATE `post-user` SET `post-reason` = `post-type` WHERE `post-type` >= 64 and `post-type` <= 75")) {
 		return Update::FAILED;
 	}
 }

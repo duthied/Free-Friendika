@@ -381,6 +381,7 @@ class Event
 				$item_arr['visible']       = 1;
 				$item_arr['verb']          = Activity::POST;
 				$item_arr['object-type']   = Activity\ObjectType::EVENT;
+				$item_arr['post-type']     = Item::PT_EVENT;
 				$item_arr['origin']        = $event['cid'] === 0 ? 1 : 0;
 				$item_arr['body']          = self::getBBCode($event);
 				$item_arr['event-id']      = $event['id'];

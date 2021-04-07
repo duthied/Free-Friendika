@@ -235,6 +235,7 @@ class Feed
 		$header["private"] = Item::PUBLIC;
 		$header["verb"] = Activity::POST;
 		$header["object-type"] = Activity\ObjectType::NOTE;
+		$header["post-type"] = Item::PT_ARTICLE;
 
 		$header["contact-id"] = $contact["id"] ?? 0;
 
@@ -537,6 +538,10 @@ class Feed
 				if (($item['plink'] != '') && !strstr($item["body"], $item['plink'])) {
 					$item["body"] .= "[hr][url]" . $item['plink'] . "[/url]";
 				}
+			}
+
+			if (empty($item['title'])) {
+				$item['post-type'] = Item::PT_NOTE;
 			}
 
 			Logger::info('Stored feed', ['item' => $item]);
