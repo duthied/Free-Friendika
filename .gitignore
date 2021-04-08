@@ -82,3 +82,6 @@ venv/
 
 #Ignore temporary installed phpunit
 /bin/phpunit
+
+#Ignore cache file
+.php_cs.cache
