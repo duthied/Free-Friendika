@@ -513,7 +513,7 @@ class Processor
 		$event['finish']    = $activity['end-time'];
 		$event['nofinish']  = empty($event['finish']);
 		$event['location']  = $activity['location'];
-		$event['adjust']    = true;
+		$event['adjust']    = $activity['adjust'] ?? true;
 		$event['cid']       = $item['contact-id'];
 		$event['uid']       = $item['uid'];
 		$event['uri']       = $item['uri'];

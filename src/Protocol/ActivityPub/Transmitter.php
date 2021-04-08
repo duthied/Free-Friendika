@@ -1408,7 +1408,7 @@ class Transmitter
 	 * @return array with the event data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function createEvent($item)
+	private static function createEvent($item)
 	{
 		$event = [];
 		$event['name'] = $item['event-summary'];
@@ -1423,6 +1423,8 @@ class Transmitter
 			$item['location'] = $item['event-location'];
 			$event['location'] = self::createLocation($item);
 		}
+
+		$event['dfrn:adjust'] = (bool)$item['event-adjust'];
 
 		return $event;
 	}
