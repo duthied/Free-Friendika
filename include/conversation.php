@@ -878,7 +878,7 @@ function conversation_fetch_items(array $parent, array $items, array $condition,
 		$condition[0] .= " AND NOT `author-hidden`";
 	}
 
-	$thread_items = Post::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-reason']), $condition, $params);
+	$thread_items = Post::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['pinned', 'contact-uid', 'gravity', 'post-type', 'post-reason']), $condition, $params);
 
 	$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false, $activity);
 
