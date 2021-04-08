@@ -1372,6 +1372,7 @@ class Receiver
 		$object_data = self::getSource($object, $object_data);
 		$object_data['start-time'] = JsonLD::fetchElement($object, 'as:startTime', '@value');
 		$object_data['end-time'] = JsonLD::fetchElement($object, 'as:endTime', '@value');
+		$object_data['adjust'] = JsonLD::fetchElement($object, 'dfrn:adjust', '@value');
 		$object_data['location'] = $location;
 		$object_data['latitude'] = JsonLD::fetchElement($object, 'as:location', 'as:latitude', '@type', 'as:Place');
 		$object_data['latitude'] = JsonLD::fetchElement($object_data, 'latitude', '@value');
