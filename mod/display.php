@@ -188,12 +188,14 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	if ($update) {
 		$uri_id = $_REQUEST['uri_id'];
 		$item = Post::selectFirst(['uid', 'parent-uri-id'], ['uri-id' => $uri_id, 'uid' => $update_uid]);
-		if ($item['uid'] != 0) {
-			$a->profile = ['uid' => intval($item['uid'])];
-		} else {
-			$a->profile = ['uid' => intval($update_uid)];
+		if (!empty($item)) {
+			if ($item['uid'] != 0) {
+				$a->profile = ['uid' => intval($item['uid'])];
+			} else {
+				$a->profile = ['uid' => intval($update_uid)];
+			}
+			$parent_uri_id = $item['parent-uri-id'];
 		}
-		$parent_uri_id = $item['parent-uri-id'];
 	} else {
 		$uri_id = (($a->argc > 2) ? $a->argv[2] : 0);
 		$parent_uri_id = $uri_id;
