@@ -1346,7 +1346,7 @@ class Transmitter
 			return '';
 		}
 
-		$data = Contact::getByURL($match[1], false, ['addr', 'nick']);
+		$data = Contact::getByURL($match[1], false, ['addr']);
 		if (empty($data['addr'])) {
 			return $match[0];
 		}
@@ -1517,7 +1517,7 @@ class Transmitter
 			$body = $item['raw-body'] ?? self::removePictures($body);
 		} elseif (($type == 'Article') && empty($data['summary'])) {
 			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
-			$summary = preg_replace_callback($regexp, ['\Friendica\Protocol\ActivityPub\Transmitter', 'mentionAddrCallback'], $body);
+			$summary = preg_replace_callback($regexp, ['self', 'mentionAddrCallback'], $body);
 			$data['summary'] = BBCode::toPlaintext(Plaintext::shorten(self::removePictures($summary), 1000));
 		}
 
