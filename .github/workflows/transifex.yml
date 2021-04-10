@@ -1,0 +1,29 @@
+name: Check Transifex
+on: [push, pull_request]
+
+jobs:
+  messages:
+    name: Check message.po changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install gettext
+        run: sudo apt-get install gettext
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run Xgettext
+        run: ./bin/run_xgettext.sh
+
+      - name: Commit changed message.po
+        run: |
+          git config --local user.email "workflow@github.com"
+          git config --local user.name "GitHub Workflow"
+          git add ./view/lang/C/messages.po
+          git commit -m "Update message.po" || echo "Nothing to update"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
