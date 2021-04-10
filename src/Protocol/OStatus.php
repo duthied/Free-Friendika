@@ -735,7 +735,7 @@ class OStatus
 
 		$curlResult = DI::httpRequest()->get($conversation, ['accept_content' => 'application/atom+xml, text/html']);
 
-		if (!$curlResult->isSuccess()) {
+		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return;
 		}
 
@@ -928,7 +928,7 @@ class OStatus
 		$stored = false;
 		$curlResult = DI::httpRequest()->get($related, ['accept_content' => 'application/atom+xml, text/html']);
 
-		if (!$curlResult->isSuccess()) {
+		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return;
 		}
 

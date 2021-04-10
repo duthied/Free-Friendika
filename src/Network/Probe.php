@@ -439,6 +439,9 @@ class Probe
 		}
 
 		$body = $curlResult->getBody();
+		if (empty($body)) {
+			return false;
+		}
 
 		$doc = new DOMDocument();
 		@$doc->loadHTML($body);
@@ -1274,7 +1277,7 @@ class Probe
 			return [];
 		}
 		$content = $curlResult->getBody();
-		if (!$content) {
+		if (empty($content)) {
 			return [];
 		}
 
@@ -1610,7 +1613,7 @@ class Probe
 	private static function pumpioProfileData($profile_link)
 	{
 		$curlResult = DI::httpRequest()->get($profile_link);
-		if (!$curlResult->isSuccess()) {
+		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return [];
 		}
 
