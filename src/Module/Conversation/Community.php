@@ -359,6 +359,9 @@ class Community extends BaseModule
 		$r = Post::selectThreadForUser(0, ['uri-id', 'commented', 'author-link'], $condition, $params);
 
 		$items = Post::toArray($r);
+		if (empty($items)) {
+			return [];
+		}
 
 		// Previous page case: once we get the relevant items closest to min_id, we need to restore the expected display order
 		if (empty($item_id) && isset($min_id) && !isset($max_id)) {
