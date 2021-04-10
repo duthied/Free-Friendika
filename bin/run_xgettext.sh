@@ -61,7 +61,7 @@ KEYWORDS="-k -kt -ktt:1,2"
 echo "Extract strings to $OUTFILE.."
 rm "$OUTFILE"; touch "$OUTFILE"
 
-find_result=$(find "$FINDSTARTDIR" $FINDOPTS -name "*.php" -type f)
+find_result=$(find "$FINDSTARTDIR" $FINDOPTS -name "*.php" -type f | sort)
 
 total_files=$(wc -l <<< "${find_result}")
 
