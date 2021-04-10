@@ -1,9 +1,9 @@
-name: Check Transifex
+name: Transifex
 on: [push, pull_request]
 
 jobs:
   messages:
-    name: Check message.po changes
+    name: Check messages.po changes
     runs-on: ubuntu-latest
     steps:
       - name: Install gettext
@@ -15,15 +15,16 @@ jobs:
       - name: Run Xgettext
         run: ./bin/run_xgettext.sh
 
-      - name: Commit changed message.po
+      - name: Check if messages.po needs an update
         run: |
-          git config --local user.email "workflow@github.com"
-          git config --local user.name "GitHub Workflow"
-          git add ./view/lang/C/messages.po
-          git commit -m "Update message.po" || echo "Nothing to update"
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+          echo "::group::Check messages.po"
+          # Skip first 4 lines in possible diff, because they're header
+          # Skip all lines of the git diff starting with "@@" or comments or starting "POT-Creation-Date"
+          if [[ $(git diff -U0 ./view/lang/C/messages.po | awk '!/@@|-"POT-Creation-Date|+"POT-Creation-Date|-#|+#/{print }' | wc -l) > 4 ]]; then
+            echo "::error file=messages.po::messages.po is out of date"
+            exit 1
+          else
+            echo "Nothing to update"
+          fi
+          echo "::endgroup::"
+        shell: bash
