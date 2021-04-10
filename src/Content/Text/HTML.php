@@ -605,6 +605,10 @@ class HTML
 		// Collecting all links
 		$urls = self::collectURLs($message);
 
+		if (empty($message)) {
+			return '';
+		}
+
 		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
 		self::tagToBBCode($doc, 'html', [], '', '');

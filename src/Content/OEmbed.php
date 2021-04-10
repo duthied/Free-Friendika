@@ -98,7 +98,7 @@ class OEmbed
 			if (!in_array($ext, $noexts)) {
 				// try oembed autodiscovery
 				$html_text = DI::httpRequest()->fetch($embedurl, 15, 'text/*');
-				if ($html_text) {
+				if (!empty($html_text)) {
 					$dom = new DOMDocument();
 					if (@$dom->loadHTML($html_text)) {
 						$xpath = new DOMXPath($dom);

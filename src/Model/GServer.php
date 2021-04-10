@@ -1475,6 +1475,10 @@ class GServer
 	 */
 	private static function analyseRootBody($curlResult, array $serverdata, string $url)
 	{
+		if (empty($curlResult->getBody())) {
+			return $serverdata;
+		}
+
 		$doc = new DOMDocument();
 		@$doc->loadHTML($curlResult->getBody());
 		$xpath = new DOMXPath($doc);

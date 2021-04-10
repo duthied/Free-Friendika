@@ -214,7 +214,7 @@ class ParseUrl
 		}
 
 		$curlResult = DI::httpRequest()->get($url);
-		if (!$curlResult->isSuccess()) {
+		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return $siteinfo;
 		}
 

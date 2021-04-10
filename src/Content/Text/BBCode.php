@@ -1178,7 +1178,11 @@ class BBCode
 
 				// if its not a picture then look if its a page that contains a picture link
 				$body = DI::httpRequest()->fetch($match[1]);
-
+				if (empty($body)) {
+					DI::cache()->set($cache_key, $text);
+					return $text;
+				}
+		
 				$doc = new DOMDocument();
 				@$doc->loadHTML($body);
 				$xpath = new DOMXPath($doc);
@@ -1214,8 +1218,6 @@ class BBCode
 
 	private static function cleanPictureLinksCallback($match)
 	{
-		$a = DI::app();
-
 		// When the picture link is the own photo path then we can avoid fetching the link
 		$own_photo_url = preg_quote(Strings::normaliseLink(DI::baseUrl()->get()) . '/photos/');
 		if (preg_match('|' . $own_photo_url . '.*?/image/|', Strings::normaliseLink($match[1]))) {
@@ -1257,6 +1259,10 @@ class BBCode
 
 			// if its not a picture then look if its a page that contains a picture link
 			$body = DI::httpRequest()->fetch($match[1]);
+			if (empty($body)) {
+				DI::cache()->set($cache_key, $text);
+				return $text;
+			}
 
 			$doc = new DOMDocument();
 			@$doc->loadHTML($body);
