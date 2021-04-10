@@ -1334,6 +1334,27 @@ class Transmitter
 	}
 
 	/**
+	 * Callback function to replace a Friendica style mention in a mention for a summary
+	 *
+	 * @param array $match Matching values for the callback
+	 * @return string Replaced mention
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function mentionAddrCallback($match)
+	{
+		if (empty($match[1])) {
+			return '';
+		}
+
+		$data = Contact::getByURL($match[1], false, ['addr']);
+		if (empty($data['addr'])) {
+			return $match[0];
+		}
+
+		return '@' . $data['addr'];
+	}
+
+	/**
 	 * Remove image elements since they are added as attachment
 	 *
 	 * @param string $body
@@ -1495,7 +1516,9 @@ class Transmitter
 		if ($type == 'Note') {
 			$body = $item['raw-body'] ?? self::removePictures($body);
 		} elseif (($type == 'Article') && empty($data['summary'])) {
-			$data['summary'] = BBCode::toPlaintext(Plaintext::shorten(self::removePictures($body), 1000));
+			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
+			$summary = preg_replace_callback($regexp, ['self', 'mentionAddrCallback'], $body);
+			$data['summary'] = BBCode::toPlaintext(Plaintext::shorten(self::removePictures($summary), 1000));
 		}
 
 		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions')) {
