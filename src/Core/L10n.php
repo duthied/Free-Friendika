@@ -287,6 +287,8 @@ class L10n
 	 */
 	public function tt(string $singular, string $plural, int $count)
 	{
+		$s = null;
+
 		if (!empty($this->strings[$singular])) {
 			$t = $this->strings[$singular];
 			if (is_array($t)) {
@@ -297,16 +299,20 @@ class L10n
 					$i = $this->stringPluralSelectDefault($count);
 				}
 
-				// for some languages there is only a single array item
-				if (!isset($t[$i])) {
+				if (isset($t[$i])) {
+					$s = $t[$i];
+				} elseif (count($t) > 0) {
+					// for some languages there is only a single array item
 					$s = $t[0];
 				} else {
-					$s = $t[$i];
+					$this->logger->warning('Found empty strings array.', ['singular' => $singular, 'plural' => $plural, 'array' => $t]);
 				}
 			} else {
 				$s = $t;
 			}
-		} elseif ($this->stringPluralSelectDefault($count)) {
+		}
+
+		if (is_null($s) && $this->stringPluralSelectDefault($count)) {
 			$s = $plural;
 		} else {
 			$s = $singular;
