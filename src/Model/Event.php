@@ -293,11 +293,10 @@ class Event
 		}
 		$private = intval($arr['private'] ?? 0);
 
-		$conditions = ['uid' => $event['uid']];
 		if ($event['cid']) {
-			$conditions['id'] = $event['cid'];
+			$conditions = ['id' => $event['cid']];
 		} else {
-			$conditions['self'] = true;
+			$conditions = ['uid' => $event['uid'], 'self' => true];
 		}
 
 		$contact = DBA::selectFirst('contact', [], $conditions);
