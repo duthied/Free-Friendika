@@ -489,7 +489,7 @@ function events_content(App $a)
 		$fdt = $orig_event['finish'] ?? 'now';
 
 		$tz = date_default_timezone_get();
-		if (!empty($orig_event)) {
+		if (isset($orig_event['adjust'])) {
 			$tz = ($orig_event['adjust'] ? date_default_timezone_get() : 'UTC');
 		}
 
