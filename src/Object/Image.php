@@ -230,9 +230,13 @@ class Image
 		}
 
 		if ($this->isImagick()) {
-			/* Clean it */
-			$this->image = $this->image->deconstructImages();
-			return $this->image;
+			try {
+				/* Clean it */
+				$this->image = $this->image->deconstructImages();
+				return $this->image;
+			} catch (Exception $e) {
+				return false;
+			}
 		}
 		return $this->image;
 	}
@@ -676,10 +680,14 @@ class Image
 		}
 
 		if ($this->isImagick()) {
-			/* Clean it */
-			$this->image = $this->image->deconstructImages();
-			$string = $this->image->getImagesBlob();
-			return $string;
+			try {
+				/* Clean it */
+				$this->image = $this->image->deconstructImages();
+				$string = $this->image->getImagesBlob();
+				return $string;
+			} catch (Exception $e) {
+				return false;
+			}
 		}
 
 		ob_start();
