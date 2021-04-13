@@ -69,7 +69,7 @@ button[type="submit"]:not(.btn),
 select,
 textarea,
 .form-control {
-	border: none;
+	border: 2px solid transparent;
 	background-color: $nav_bg;
 	color: $font_color;
 	box-shadow: 0 0 3px #dadada;
@@ -332,4 +332,18 @@ input[type="text"].tt-input {
 
 #back-to-top {
 	border: 1px solid $nav_icon_color;
+}
+
+.acpopup {
+	background-color: $nav_bg;
+	box-shadow: 0px 6px 12px rgba(218, 218, 218, .18);
+	-webkit-box-shadow: 0px 6px 12px rgba(218, 218, 218, .18);
+}
+
+.textcomplete-item > a {
+	color: $nav_icon_color !important;
+}
+
+.textcomplete-item.active > a {
+	background-color: $nav_icon_hover_color !important;
 }
