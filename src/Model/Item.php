@@ -2684,7 +2684,12 @@ class Item
 	{
 		$leading = '';
 		$trailing = '';
-		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO,
+			Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
+			if (in_array($attachment['type'], [Post\Media::AUDIO, Post\Media::VIDEO]) && strpos($item['body'], $attachment['url'])) {
+				continue;
+			}
+
 			$mime = $attachment['mimetype'];
 
 			$author = ['uid' => 0, 'id' => $item['author-id'],

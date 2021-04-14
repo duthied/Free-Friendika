@@ -36,12 +36,17 @@ use Friendica\Util\Images;
  */
 class Media
 {
-	const UNKNOWN  = 0;
-	const IMAGE    = 1;
-	const VIDEO    = 2;
-	const AUDIO    = 3;
-	const TORRENT  = 16;
-	const DOCUMENT = 128;
+	const UNKNOWN     = 0;
+	const IMAGE       = 1;
+	const VIDEO       = 2;
+	const AUDIO       = 3;
+	const TEXT        = 4;
+	const APPLICATION = 5;
+	const TORRENT     = 16;
+	const HTML        = 17;
+	const XML         = 18;
+	const PLAIN       = 19;
+	const DOCUMENT    = 128;
 
 	/**
 	 * Insert a post-media record
@@ -51,7 +56,7 @@ class Media
 	 */
 	public static function insert(array $media, bool $force = false)
 	{
-		if (empty($media['url']) || empty($media['uri-id']) || empty($media['type'])) {
+		if (empty($media['url']) || empty($media['uri-id']) || !isset($media['type'])) {
 			Logger::warning('Incomplete media data', ['media' => $media]);
 			return;
 		}
@@ -64,12 +69,7 @@ class Media
 			return;
 		}
 
-		$fields = ['mimetype', 'height', 'width', 'size', 'preview', 'preview-height', 'preview-width', 'description'];
-		foreach ($fields as $field) {
-			if (empty($media[$field])) {
-				unset($media[$field]);
-			}
-		}
+		$media = self::unsetEmptyFields($media);
 
 		// We are storing as fast as possible to avoid duplicated network requests
 		// when fetching additional information for pictures and other content.
@@ -78,6 +78,7 @@ class Media
 		$stored = $media;
 
 		$media = self::fetchAdditionalData($media);
+		$media = self::unsetEmptyFields($media);
 
 		if (array_diff_assoc($media, $stored)) {
 			$result = DBA::insert('post-media', $media, Database::INSERT_UPDATE);
@@ -85,6 +86,23 @@ class Media
 		} else {
 			Logger::info('Nothing to update', ['media' => $media]);
 		}
+	}
+
+	/**
+	 * Remove empty media fields
+	 *
+	 * @param array $media
+	 * @return array cleaned media array
+	 */
+	private static function unsetEmptyFields(array $media)
+	{
+		$fields = ['mimetype', 'height', 'width', 'size', 'preview', 'preview-height', 'preview-width', 'description'];
+		foreach ($fields as $field) {
+			if (empty($media[$field])) {
+				unset($media[$field]);
+			}
+		}
+		return $media;
 	}
 
 	/**
@@ -130,23 +148,22 @@ class Media
 	public static function fetchAdditionalData(array $media)
 	{
 		// Fetch the mimetype or size if missing.
-		// We don't do it for torrent links since they need special treatment.
-		// We don't do this for images, since we are fetching their details some lines later anyway.
-		if (!in_array($media['type'], [self::TORRENT, self::IMAGE]) && (empty($media['mimetype']) || empty($media['size']))) {
+		if (empty($media['mimetype']) || empty($media['size'])) {
 			$timeout = DI::config()->get('system', 'xrd_timeout');
 			$curlResult = DI::httpRequest()->head($media['url'], ['timeout' => $timeout]);
 			if ($curlResult->isSuccess()) {
-				$header = $curlResult->getHeaderArray();
-				if (empty($media['mimetype']) && !empty($header['content-type'])) {
-					$media['mimetype'] = $header['content-type'];
+				if (empty($media['mimetype'])) {
+					$media['mimetype'] = $curlResult->getHeader('Content-Type');
 				}
-				if (empty($media['size']) && !empty($header['content-length'])) {
-					$media['size'] = $header['content-length'];
+				if (empty($media['size'])) {
+					$media['size'] = (int)$curlResult->getHeader('Content-Length');
 				}
+			} else {
+				Logger::notice('Could not fetch head', ['media' => $media]);
 			}
 		}
 
-		$filetype = !empty($media['mimetype']) ? strtolower(substr($media['mimetype'], 0, strpos($media['mimetype'], '/'))) : '';
+		$filetype = !empty($media['mimetype']) ? strtolower(current(explode('/', $media['mimetype']))) : '';
 
 		if (($media['type'] == self::IMAGE) || ($filetype == 'image')) {
 			$imagedata = Images::getInfoFromURLCached($media['url']);
@@ -155,6 +172,8 @@ class Media
 				$media['size'] = $imagedata['size'];
 				$media['width'] = $imagedata[0];
 				$media['height'] = $imagedata[1];
+			} else {
+				Logger::notice('No image data', ['media' => $media]);
 			}
 			if (!empty($media['preview'])) {
 				$imagedata = Images::getInfoFromURLCached($media['preview']);
@@ -164,7 +183,63 @@ class Media
 				}
 			}
 		}
+
+		if ($media['type'] != self::DOCUMENT) {
+			$media = self::addType($media);
+		}
+
 		return $media;
+	}
+
+	/**
+	 * Add the detected type to the media array
+	 *
+	 * @param array $data 
+	 * @return array data array with the detected type
+	 */
+	public static function addType(array $data)
+	{
+		if (empty($data['mimetype'])) {
+			Logger::info('No MimeType provided', ['media' => $data]);
+			return $data;
+		}
+
+		$type = explode('/', current(explode(';', $data['mimetype'])));
+		if (count($type) < 2) {
+			Logger::info('Unknown MimeType', ['type' => $type, 'media' => $data]);
+			$data['type'] = self::UNKNOWN;
+			return $data;
+		}
+
+		$filetype = strtolower($type[0]);
+		$subtype = strtolower($type[1]);
+
+		if ($filetype == 'image') {
+			$data['type'] = self::IMAGE;
+		} elseif ($filetype == 'video') {
+			$data['type'] = self::VIDEO;
+		} elseif ($filetype == 'audio') {
+			$data['type'] = self::AUDIO;
+		} elseif (($filetype == 'text') && ($subtype == 'html')) {
+			$data['type'] = self::HTML;
+		} elseif (($filetype == 'text') && ($subtype == 'xml')) {
+			$data['type'] = self::XML;
+		} elseif (($filetype == 'text') && ($subtype == 'plain')) {
+			$data['type'] = self::PLAIN;
+		} elseif ($filetype == 'text') {
+			$data['type'] = self::TEXT;
+		} elseif (($filetype == 'application') && ($subtype == 'x-bittorrent')) {
+			$data['type'] = self::TORRENT;
+		} elseif ($filetype == 'application') {
+			$data['type'] = self::APPLICATION;
+		} else {
+			$data['type'] = self::UNKNOWN;
+			Logger::info('Unknown type', ['filetype' => $filetype, 'subtype' => $subtype, 'media' => $data]);
+			return $data;
+		}
+
+		Logger::debug('Detected type', ['filetype' => $filetype, 'subtype' => $subtype, 'media' => $data]);
+		return $data;
 	}
 
 	/**
