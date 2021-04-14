@@ -123,21 +123,7 @@ class Processor
 		}
 
 		$data = ['uri-id' => $uriid];
-
-		$filetype = strtolower(substr($attachment['mediaType'], 0, strpos($attachment['mediaType'], '/')));
-		if ($filetype == 'image') {
-			$data['type'] = Post\Media::IMAGE;
-		} elseif ($filetype == 'video') {
-			$data['type'] = Post\Media::VIDEO;
-		} elseif ($filetype == 'audio') {
-			$data['type'] = Post\Media::AUDIO;
-		} elseif (in_array($attachment['mediaType'], ['application/x-bittorrent', 'application/x-bittorrent;x-scheme-handler/magnet'])) {
-			$data['type'] = Post\Media::TORRENT;
-		} else {
-			Logger::info('Unknown type', ['attachment' => $attachment]);
-			return;
-		}
-
+		$data['type'] = Post\Media::UNKNOWN;
 		$data['url'] = $attachment['url'];
 		$data['mimetype'] = $attachment['mediaType'];
 		$data['height'] = $attachment['height'] ?? null;
