@@ -349,6 +349,9 @@ class ParseUrl
 			$siteinfo['title'] = trim($list->item(0)->nodeValue);
 		}
 
+		$twitter_card = false;
+		$twitter_image = false;
+
 		$list = $xpath->query('//meta[@name]');
 		foreach ($list as $node) {
 			$meta_tag = [];
@@ -376,6 +379,7 @@ class ParseUrl
 					break;
 				case 'twitter:image':
 					$siteinfo['image'] = $meta_tag['content'];
+					$twitter_image = true;
 					break;
 				case 'twitter:image:src':
 					$siteinfo['image'] = $meta_tag['content'];
@@ -383,7 +387,7 @@ class ParseUrl
 				case 'twitter:card':
 					// Detect photo pages
 					if ($meta_tag['content'] == 'summary_large_image') {
-						$siteinfo['type'] = 'photo';
+						$twitter_card = true;
 					}
 					break;
 				case 'twitter:description':
@@ -458,6 +462,7 @@ class ParseUrl
 						break;
 					case 'twitter:image':
 						$siteinfo['image'] = $meta_tag['content'];
+						$twitter_image = true;
 						break;
 				}
 			}
@@ -473,8 +478,8 @@ class ParseUrl
 		}
 
 		// Prevent to have a photo type without an image
-		if ((empty($siteinfo['image']) || !empty($siteinfo['text'])) && ($siteinfo['type'] == 'photo')) {
-			$siteinfo['type'] = 'link';
+		if ($twitter_card && $twitter_image && !empty($siteinfo['image'])) {
+			$siteinfo['type'] = 'photo';
 		}
 
 		if (!empty($siteinfo['image'])) {

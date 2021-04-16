@@ -162,7 +162,13 @@ class OEmbed
 				$oembed->type = $data['type'];
 
 				if ($oembed->type == 'photo') {
-					$oembed->url = $data['url'];
+					if (!empty($data['images'])) {
+						$oembed->url = $data['images'][0]['src'];
+						$oembed->width = $data['images'][0]['width'];
+						$oembed->height = $data['images'][0]['height'];
+					} else {
+						$oembed->type = 'link';
+					}
 				}
 			}
 
@@ -190,7 +196,7 @@ class OEmbed
 				$oembed->author_url = $data['author_url'];
 			}
 
-			if (!empty($data['images'])) {
+			if (!empty($data['images']) && ($oembed->type != 'photo')) {
 				$oembed->thumbnail_url = $data['images'][0]['src'];
 				$oembed->thumbnail_width = $data['images'][0]['width'];
 				$oembed->thumbnail_height = $data['images'][0]['height'];
