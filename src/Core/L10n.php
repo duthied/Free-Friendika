@@ -304,9 +304,9 @@ class L10n
 				} elseif (count($t) > 0) {
 					// for some languages there is only a single array item
 					$s = $t[0];
-				} else {
-					$this->logger->warning('Found empty strings array.', ['singular' => $singular, 'plural' => $plural, 'array' => $t]);
 				}
+				// if $t is empty, skip it, because empty strings array are indended
+				// to make string file smaller when there's no translation
 			} else {
 				$s = $t;
 			}
