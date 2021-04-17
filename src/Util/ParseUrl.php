@@ -477,10 +477,11 @@ class ParseUrl
 			}
 		}
 
+// Currently deactivated, see https://github.com/friendica/friendica/pull/10148#issuecomment-821512658		
 		// Prevent to have a photo type without an image
-		if ($twitter_card && $twitter_image && !empty($siteinfo['image'])) {
-			$siteinfo['type'] = 'photo';
-		}
+//		if ($twitter_card && $twitter_image && !empty($siteinfo['image'])) {
+//			$siteinfo['type'] = 'photo';
+//		}
 
 		if (!empty($siteinfo['image'])) {
 			$siteinfo['images'] = $siteinfo['images'] ?? [];
