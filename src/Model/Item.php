@@ -2684,7 +2684,8 @@ class Item
 	{
 		$leading = '';
 		$trailing = '';
-		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::AUDIO, Post\Media::VIDEO,
+		// currently deactivated the request for Post\Media::VIDEO since it creates mutliple videos from Peertube
+		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::AUDIO, 
 			Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
 			if (in_array($attachment['type'], [Post\Media::AUDIO, Post\Media::VIDEO]) && strpos($item['body'], $attachment['url'])) {
 				continue;
