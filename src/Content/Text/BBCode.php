@@ -169,135 +169,52 @@ class BBCode
 
 		$data['text'] = trim($match[1]);
 
-		$type = '';
-		preg_match("/type='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$type = strtolower($matches[1]);
+		foreach (['type', 'url', 'title', 'image', 'preview', 'publisher_name', 'publisher_url', 'author_name', 'author_url'] as $field) {
+			$value = '';
+			preg_match("/" . $field . "='(.*?)'/ism", $attributes, $matches);
+			if (!empty($matches[1])) {
+				$value = $matches[1];
+			}
+	
+			preg_match('/' . $field . '="(.*?)"/ism', $attributes, $matches);
+			if (!empty($matches[1])) {
+				$value = $matches[1];
+			}
+	
+			if ($value != '') {
+				switch ($field) {
+					case 'publisher_name':
+						$data['provider_name'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+						break;
+					case 'publisher_url':
+						$data['provider_url'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+						break;
+					case 'author_name':
+						$data['author_name'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+						if ($data['provider_name'] == $data['author_name']) {
+							$data['author_name'] = '';
+						}
+						break;
+					case 'author_url':
+						$data['author_url'] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+						if ($data['provider_url'] == $data['author_url']) {
+							$data['author_url'] = '';
+						}
+						break;
+					case 'title':
+						$value = self::convert(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), false, true);
+						$value = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+						$value = str_replace(['[', ']'], ['&#91;', '&#93;'], $value);
+						$data['title'] = $value;
+					default:
+						$data[$field] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+						break;
+				}
+			}
 		}
 
-		preg_match('/type="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$type = strtolower($matches[1]);
-		}
-
-		if ($type == '') {
+		if (!in_array($data['type'], ['link', 'audio', 'photo', 'video'])) {
 			return [];
-		}
-
-		if (!in_array($type, ['link', 'audio', 'photo', 'video'])) {
-			return [];
-		}
-
-		if ($type != '') {
-			$data['type'] = $type;
-		}
-
-		$url = '';
-		preg_match("/url='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$url = $matches[1];
-		}
-
-		preg_match('/url="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$url = $matches[1];
-		}
-
-		if ($url != '') {
-			$data['url'] = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
-		}
-
-		$title = '';
-		preg_match("/title='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$title = $matches[1];
-		}
-
-		preg_match('/title="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$title = $matches[1];
-		}
-
-		if ($title != '') {
-			$title = self::convert(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, true);
-			$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
-			$title = str_replace(['[', ']'], ['&#91;', '&#93;'], $title);
-			$data['title'] = $title;
-		}
-
-		$image = '';
-		preg_match("/image='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$image = $matches[1];
-		}
-
-		preg_match('/image="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$image = $matches[1];
-		}
-
-		if ($image != '') {
-			$data['image'] = html_entity_decode($image, ENT_QUOTES, 'UTF-8');
-		}
-
-		$preview = '';
-		preg_match("/preview='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$preview = $matches[1];
-		}
-
-		preg_match('/preview="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$preview = $matches[1];
-		}
-
-		if ($preview != '') {
-			$data['preview'] = html_entity_decode($preview, ENT_QUOTES, 'UTF-8');
-		}
-
-		$provider_name = '';
-		preg_match("/publisher_name='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$provider_name = $matches[1];
-		}
-
-		preg_match('/publisher_name="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$provider_name = $matches[1];
-		}
-
-		if ($provider_name != '') {
-			$data['provider_name'] = html_entity_decode($provider_name, ENT_QUOTES, 'UTF-8');
-		}
-
-		$provider_url = '';
-		preg_match("/publisher_url='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$provider_url = $matches[1];
-		}
-
-		preg_match('/publisher_url="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$provider_url = $matches[1];
-		}
-
-		if ($provider_url != '') {
-			$data['provider_url'] = html_entity_decode($provider_url, ENT_QUOTES, 'UTF-8');
-		}
-
-		$author_name = '';
-		preg_match("/author_name='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$author_name = $matches[1];
-		}
-
-		preg_match('/author_name="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$author_name = $matches[1];
-		}
-
-		if (($author_name != '') && ($author_name != $provider_name)) {
-			$data['author_name'] = html_entity_decode($author_name, ENT_QUOTES, 'UTF-8');
 		}
 
 		$data['description'] = trim($match[3]);
@@ -309,7 +226,7 @@ class BBCode
 			if (empty($data['provider_name'])) {
 				$data['provider_name'] = $parts['host'];
 			}
-			if (empty($data['provider_url'])) {
+			if (empty($data['provider_url']) || empty(parse_url($data['provider_url'], PHP_URL_SCHEME))) {
 				$data['provider_url'] = $parts['scheme'] . '://' . $parts['host'];
 
 				if (!empty($parts['port'])) {
@@ -342,6 +259,8 @@ class BBCode
 			foreach ($pictures as $picture) {
 				if (Photo::isLocal($picture[1])) {
 					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => $picture[2]];
+				} else {
+					$post['remote_images'][] = ['url' => $picture[1], 'description' => $picture[2]];
 				}
 			}
 			if (!empty($post['images']) && !empty($post['images'][0]['description'])) {
@@ -353,6 +272,8 @@ class BBCode
 			foreach ($pictures as $picture) {
 				if (Photo::isLocal($picture[1])) {
 					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => ''];
+				} else {
+					$post['remote_images'][] = ['url' => $picture[1], 'description' => ''];
 				}
 			}
 		}
@@ -413,16 +334,16 @@ class BBCode
 					}
 				}
 			} elseif (preg_match_all("(\[img\](.*?)\[\/img\])ism", $body, $pictures, PREG_SET_ORDER)) {
-				if ((count($pictures) == 1) && !$has_title) {
+				if ((count($pictures) > 0) && !$has_title) {
 					$post['type'] = 'photo';
-					$post['image'] = $pictures[0][1];
-					$post['text'] = str_replace($pictures[0][0], '', $body);
 				} elseif (count($pictures) > 0) {
 					$post['type'] = 'link';
 					$post['url'] = $plink;
+				}
+
+				if (count($pictures) > 0) {
 					$post['image'] = $pictures[0][1];
 					$post['text'] = $body;
-
 					foreach ($pictures as $picture) {
 						$post['text'] = trim(str_replace($picture[0], '', $post['text']));
 					}
@@ -465,6 +386,15 @@ class BBCode
 				$post['type'] = "text";
 				$post['text'] = trim($body);
 			}
+
+			if (($post['type'] == 'photo') && empty($post['images']) && !empty($post['remote_images'])) {
+				$post['images'] = $post['remote_images'];
+				$post['image'] = $post['images'][0]['url'];
+				if (!empty($post['images']) && !empty($post['images'][0]['description'])) {
+					$post['image_description'] = $post['images'][0]['description'];
+				}
+			}
+			unset($post['remote_images']);
 		} elseif (isset($post['url']) && ($post['type'] == 'video')) {
 			$data = ParseUrl::getSiteinfoCached($post['url']);
 
@@ -543,7 +473,7 @@ class BBCode
 		$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism', $s, $matches, PREG_SET_ORDER);
 		if ($c) {
 			foreach ($matches as $mtch) {
-				Logger::log('scale_external_image: ' . $mtch[1]);
+				Logger::info('scale_external_image', ['image' => $mtch[1]]);
 
 				$hostname = str_replace('www.', '', substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3));
 				if (stristr($mtch[1], $hostname)) {
