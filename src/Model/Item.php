@@ -150,7 +150,7 @@ class Item
 			return false;
 		}
 
-		if (!empty($fields['extid']) && empty($fields['external-id'])) {
+		if (isset($fields['extid'])) {
 			$fields['external-id'] = ItemURI::getIdByURI($fields['extid']);
 		}
 
