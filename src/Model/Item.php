@@ -150,6 +150,10 @@ class Item
 			return false;
 		}
 
+		if (!empty($fields['extid']) && empty($fields['external-id'])) {
+			$fields['external-id'] = ItemURI::getIdByURI($fields['extid']);
+		}
+
 		if (!empty($fields['verb'])) {
 			$fields['vid'] = Verb::getID($fields['verb']);
 		}
