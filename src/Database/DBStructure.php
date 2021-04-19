@@ -192,6 +192,9 @@ class DBStructure
 	public static function definition($basePath, $with_addons_structure = true)
 	{
 		if (!self::$definition) {
+			if (empty($basePath)) {
+				$basePath = DI::app()->getBasePath();
+			}
 
 			$filename = $basePath . '/static/dbstructure.config.php';
 
