@@ -170,16 +170,8 @@ class BBCode
 		$data['text'] = trim($match[1]);
 
 		foreach (['type', 'url', 'title', 'image', 'preview', 'publisher_name', 'publisher_url', 'author_name', 'author_url'] as $field) {
-			$value = '';
-			preg_match("/" . $field . "='(.*?)'/ism", $attributes, $matches);
-			if (!empty($matches[1])) {
-				$value = $matches[1];
-			}
-	
-			preg_match('/' . $field . '="(.*?)"/ism', $attributes, $matches);
-			if (!empty($matches[1])) {
-				$value = $matches[1];
-			}
+			preg_match('/' . preg_quote($field, '/') . '=("|\')(.*?)\1/ism', $attributes, $matches);
+			$value = $matches[2] ?? '';
 	
 			if ($value != '') {
 				switch ($field) {
@@ -334,19 +326,17 @@ class BBCode
 					}
 				}
 			} elseif (preg_match_all("(\[img\](.*?)\[\/img\])ism", $body, $pictures, PREG_SET_ORDER)) {
-				if ((count($pictures) > 0) && !$has_title) {
-					$post['type'] = 'photo';
-				} elseif (count($pictures) > 0) {
+				if ($has_title) {
 					$post['type'] = 'link';
 					$post['url'] = $plink;
+				} else {
+					$post['type'] = 'photo';
 				}
 
-				if (count($pictures) > 0) {
-					$post['image'] = $pictures[0][1];
-					$post['text'] = $body;
-					foreach ($pictures as $picture) {
-						$post['text'] = trim(str_replace($picture[0], '', $post['text']));
-					}
+				$post['image'] = $pictures[0][1];
+				$post['text'] = $body;
+				foreach ($pictures as $picture) {
+					$post['text'] = trim(str_replace($picture[0], '', $post['text']));
 				}
 			}
 
