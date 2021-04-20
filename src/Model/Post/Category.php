@@ -183,7 +183,7 @@ class Category
 
 		if (preg_match_all("/\<(.*?)\>/ism", $files, $result)) {
 			foreach ($result[1] as $file) {
-				self::storeFileByURIId($uri_id, $uid, self::FILE, $file);
+				self::storeFileByURIId($uri_id, $uid, self::CATEGORY, $file);
 			}
 		}
 	}
