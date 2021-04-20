@@ -22,6 +22,7 @@ Version 2021.04 (unreleased)
     Enhanced the video BBCode tag [MrPetovan]
     Enhanced the installation wizard [fabrixxm]
     Enhanced the handling of #tags [MrPetovan]
+    Enhanced the handling of audio attachments [annando]
     Moved API endpoints to pin, star, ignore and like items [MrPetovan]
     Updated the composer dependencies [MrPetovan]
     Reworked the database structure [annando]
@@ -35,6 +36,7 @@ Version 2021.04 (unreleased)
     Fixed a bug in the storage move command [fabrixxm, utzer]
     Fixed a bug in the mime type handling [jurassic-c]
     Fixed a problem with the /parseurl path [MrPetovan]
+    Fixed a problem with mentions in the summary of a posting [annando]
     Removed the front-end worker [annando]
     Added a security.txt file to the repository [MrPetovan]
     Added remember device setting for the 2FA [MrPetovan]
@@ -51,6 +53,7 @@ Version 2021.04 (unreleased)
     smileybutton addon was reworked [MrPetovan]
     twitter
       Fixed an OEmbed problem with URL handling [MrPetovan]
+      Improved handling of Photo postings [annando]
 
   Closed Issues
     8910, 9402, 9640, 9677, 9698, 9716, 9733, 9743, 9746, 9753, 9761,
