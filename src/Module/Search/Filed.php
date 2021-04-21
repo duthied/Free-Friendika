@@ -47,16 +47,23 @@ class Filed extends BaseSearch
 				DI::config()->get('system', 'itemspage_network'));
 		}
 
+		$last_uriid = isset($_GET['last_uriid']) ? intval($_GET['last_uriid']) : 0;
+
 		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), $itemspage_network);
 
 		$term_condition = ['type' => Category::FILE, 'uid' => local_user()];
 		if ($file) {
 			$term_condition['name'] = $file;
 		}
+
+		if (!empty($last_uriid)) {
+			$term_condition = DBA::mergeConditions($term_condition, ["`uri-id` < ?", $last_uriid]);
+		}
+
 		$term_params = ['order' => ['uri-id' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 		$result = DBA::select('category-view', ['uri-id'], $term_condition, $term_params);
 
-		$total = DBA::count('category-view', $term_condition);
+		$count = DBA::count('category-view', $term_condition);
 
 		$posts = [];
 		while ($term = DBA::fetch($result)) {
@@ -77,7 +84,7 @@ class Filed extends BaseSearch
 		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
 		} else {
-			$o .= $pager->renderFull($total);
+			$o .= $pager->renderMinimal($count);
 		}
 
 		return $o;
