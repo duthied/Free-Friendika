@@ -37,6 +37,7 @@ Version 2021.04 (unreleased)
     Fixed a bug in the mime type handling [jurassic-c]
     Fixed a problem with the /parseurl path [MrPetovan]
     Fixed a problem with mentions in the summary of a posting [annando]
+    Fixed a bug with the endless scroll in saved folders [annando]
     Removed the front-end worker [annando]
     Added a security.txt file to the repository [MrPetovan]
     Added remember device setting for the 2FA [MrPetovan]
@@ -60,7 +61,8 @@ Version 2021.04 (unreleased)
     9764, 9767, 9777, 9782, 9789, 9799, 9811, 9814, 9820, 9827, 9846,
     9854, 9856, 9872, 9875, 9879, 9881, 9885, 9895, 9905, 9907, 9912,
     9914, 9929, 9936, 9948, 9950, 9962, 9971, 9975, 9977, 9980, 9996,
-    10017, 10032, 10041, 10047, 10050, 10068, 10105, 10107, 10110
+    10017, 10032, 10041, 10047, 10050, 10068, 10105, 10107, 10110,
+    10156
 
 Version 2021.01 (2021-01-04)
   Friendica Core
