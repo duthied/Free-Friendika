@@ -137,6 +137,49 @@ HELP;
 	}
 
 	/**
+	 * Retrieves the user nick, either as an argument or from a prompt
+	 *
+	 * @param int $arg_index Index of the nick argument in the arguments list
+	 *
+	 * @return string nick of the user
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private function getNick($arg_index)
+	{
+		$nick = $this->getArgument($arg_index);
+
+		if (!$nick) {
+			$this->out($this->l10n->t('Enter user nickname: '));
+			$nick = CliPrompt::prompt();
+			if (empty($nick)) {
+				throw new RuntimeException('A nick name must be set.');
+			}
+		}
+
+		return $nick;
+	}
+
+	/**
+	 * Retrieves the user from a nick supplied as an argument or from a prompt
+	 *
+	 * @param int $arg_index Index of the nick argument in the arguments list
+	 *
+	 * @return mixed user data or dba failure result
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private function getUserByNick($arg_index)
+	{
+		$nick = $this->getNick($arg_index);
+
+		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
+		if (!$this->dba->isResult($user)) {
+			throw new RuntimeException($this->l10n->t('User not found'));
+		}
+
+		return $user;
+	}
+
+	/**
 	 * Sets a new password
 	 *
 	 * @return int Return code of this command
@@ -145,12 +188,7 @@ HELP;
 	 */
 	private function password()
 	{
-		$nick = $this->getArgument(1);
-
-		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
-		if (!$this->dba->isResult($user)) {
-			throw new RuntimeException($this->l10n->t('User not found'));
-		}
+		$user = $this->getUserByNick(1);
 
 		$password = $this->getArgument(2);
 
@@ -235,20 +273,7 @@ HELP;
 	 */
 	private function pendingUser(bool $allow = true)
 	{
-		$nick = $this->getArgument(1);
-
-		if (!$nick) {
-			$this->out($this->l10n->t('Enter user nickname: '));
-			$nick = CliPrompt::prompt();
-			if (empty($nick)) {
-				throw new RuntimeException('A nick name must be set.');
-			}
-		}
-
-		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
-		if (empty($user)) {
-			throw new RuntimeException($this->l10n->t('User not found'));
-		}
+		$user = $this->getUserByNick(1);
 
 		$pending = Register::getPendingForUser($user['uid'] ?? 0);
 		if (empty($pending)) {
@@ -268,20 +293,7 @@ HELP;
 	 */
 	private function blockUser(bool $block = true)
 	{
-		$nick = $this->getArgument(1);
-
-		if (!$nick) {
-			$this->out($this->l10n->t('Enter user nickname: '));
-			$nick = CliPrompt::prompt();
-			if (empty($nick)) {
-				throw new RuntimeException('A nick name must be set.');
-			}
-		}
-
-		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
-		if (empty($user)) {
-			throw new RuntimeException($this->l10n->t('User not found'));
-		}
+		$user = $this->getUserByNick(1);
 
 		return $block ? UserModel::block($user['uid'] ?? 0) : UserModel::block($user['uid'] ?? 0, false);
 	}
@@ -294,20 +306,7 @@ HELP;
 	 */
 	private function deleteUser()
 	{
-		$nick = $this->getArgument(1);
-
-		if (!$nick) {
-			$this->out($this->l10n->t('Enter user nickname: '));
-			$nick = CliPrompt::prompt();
-			if (empty($nick)) {
-				throw new RuntimeException('A nick name must be set.');
-			}
-		}
-
-		$user = $this->dba->selectFirst('user', ['uid', 'account_removed'], ['nickname' => $nick]);
-		if (empty($user)) {
-			throw new RuntimeException($this->l10n->t('User not found'));
-		}
+		$user = $this->getUserByNick(1);
 
 		if (!empty($user['account_removed'])) {
 			$this->out($this->l10n->t('User has already been marked for deletion.'));
@@ -315,7 +314,7 @@ HELP;
 		}
 
 		if (!$this->getOption('y')) {
-			$this->out($this->l10n->t('Type "yes" to delete %s', $nick));
+			$this->out($this->l10n->t('Type "yes" to delete %s', $this->getArgument(1)));
 			if (CliPrompt::prompt() !== 'yes') {
 				throw new RuntimeException($this->l10n->t('Deletion aborted.'));
 			}
