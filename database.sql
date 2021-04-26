@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2021.03-rc (Red Hot Poker)
--- DB_UPDATE_VERSION 1413
+-- Friendica 2021.06-dev (Siberian Iris)
+-- DB_UPDATE_VERSION 1414
 -- ------------------------------------------
 
 
@@ -1037,6 +1037,13 @@ CREATE TABLE IF NOT EXISTS `post-media` (
 	`preview-height` smallint unsigned COMMENT 'Height of the preview picture',
 	`preview-width` smallint unsigned COMMENT 'Width of the preview picture',
 	`description` text COMMENT '',
+	`name` varchar(255) COMMENT 'Name of the media',
+	`author-url` varbinary(255) COMMENT 'URL of the author of the media',
+	`author-name` varchar(255) COMMENT 'Name of the author of the media',
+	`author-image` varbinary(255) COMMENT 'Image of the author of the media',
+	`publisher-url` varbinary(255) COMMENT 'URL of the publisher of the media',
+	`publisher-name` varchar(255) COMMENT 'Name of the publisher of the media',
+	`publisher-image` varbinary(255) COMMENT 'Image of the publisher of the media',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-id-url` (`uri-id`,`url`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
