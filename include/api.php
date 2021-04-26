@@ -2040,13 +2040,13 @@ function api_statuses_repeat($type)
 
 	$fields = ['uri-id', 'network', 'body', 'title', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 	$item = Post::selectFirst($fields, ['id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED]]);
- 
+
 	if (DBA::isResult($item) && !empty($item['body'])) {
 		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::TWITTER])) {
 			if (!Item::performActivity($id, 'announce', local_user())) {
 				throw new InternalServerErrorException();
 			}
-		
+
 			$item_id = $id;
 		} else {
 			if (strpos($item['body'], "[/share]") !== false) {
@@ -2508,7 +2508,8 @@ function api_format_messages($item, $recipient, $sender)
  */
 function api_convert_item($item)
 {
-	$body = $item['body'];
+	$body = api_add_attachments_to_body($item);
+
 	$entities = api_get_entitities($statustext, $body);
 
 	// Add pictures to the attachment array and remove them from the body
@@ -2577,6 +2578,52 @@ function api_convert_item($item)
 }
 
 /**
+ * Add media attachments to the body
+ *
+ * @param array $item
+ * @return string body with added media
+ */
+function api_add_attachments_to_body(array $item)
+{
+	$body = $item['body'];
+
+	foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::IMAGE, Post\Media::AUDIO, Post\Media::VIDEO]) as $media) {
+		if (Item::containsLink($item['body'], $media['url'])) {
+			continue;
+		}
+
+		if ($media['type'] == Post\Media::IMAGE) {
+			if (!empty($media['description'])) {
+				$body .= "\n[img=" . $media['url'] . ']' . $media['description'] .'[/img]';
+			} else {
+				$body .= "\n[img]" . $media['url'] .'[/img]';
+			}
+		} elseif ($media['type'] == Post\Media::AUDIO) {
+			$body .= "\n[audio]" . $media['url'] . "[/audio]\n";
+		} elseif ($media['type'] == Post\Media::VIDEO) {
+			$body .= "\n[video]" . $media['url'] . "[/video]\n";
+		}
+	}
+
+	if (strpos($body, '[/img]') !== false) {
+		return $body;
+	}
+
+	foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::HTML]) as $media) {
+		if (!empty($media['preview'])) {
+			$description = $media['description'] ?: $media['name'];
+			if (!empty($description)) {
+				$body .= "\n[img=" . $media['preview'] . ']' . $description .'[/img]';
+			} else {
+				$body .= "\n[img]" . $media['preview'] .'[/img]';
+			}
+		}
+	}
+
+	return $body;
+}
+
+/**
  *
  * @param string $body
  *
@@ -2604,7 +2651,11 @@ function api_get_attachments(&$body)
 		$imagedata = Images::getInfoFromURLCached($image);
 
 		if ($imagedata) {
-			$attachments[] = ["url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
+			if (DI::config()->get("system", "proxy_disabled")) {
+				$attachments[] = ["url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
+			} else {
+				$attachments[] = ["url" => ProxyUtils::proxifyUrl($image, false), "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
+			}
 		}
 	}
 
@@ -2628,7 +2679,7 @@ function api_get_entitities(&$text, $bbcode)
 		preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
 
 		foreach ($images[1] as $image) {
-			$replace = ProxyUtils::proxifyUrl($image);
+			$replace = ProxyUtils::proxifyUrl($image, false);
 			$text = str_replace($image, $replace, $text);
 		}
 		return [];
@@ -2743,7 +2794,7 @@ function api_get_entitities(&$text, $bbcode)
 				// If image cache is activated, then use the following sizes:
 				// thumb  (150), small (340), medium (600) and large (1024)
 				if (!DI::config()->get("system", "proxy_disabled")) {
-					$media_url = ProxyUtils::proxifyUrl($url);
+					$media_url = ProxyUtils::proxifyUrl($url, false);
 
 					$sizes = [];
 					$scale = Images::getScalingDimensions($image[0], $image[1], 150);
@@ -4824,7 +4875,7 @@ function prepare_photo_data($type, $scale, $photo_id)
 		"SELECT %s `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
 					`type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`,
 					MIN(`scale`) AS `minscale`, MAX(`scale`) AS `maxscale`
-			FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' %s GROUP BY 
+			FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' %s GROUP BY
 			       `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
 			       `type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`",
 		$data_sql,
@@ -5994,12 +6045,12 @@ api_register_func('api/saved_searches/list', 'api_saved_searches_list', true);
  *
  * @return void
  */
-function bindComments(&$data) 
+function bindComments(&$data)
 {
 	if (count($data) == 0) {
 		return;
 	}
-	
+
 	$ids = [];
 	$comments = [];
 	foreach ($data as $item) {

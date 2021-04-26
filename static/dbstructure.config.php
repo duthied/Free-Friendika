@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1413);
+	define('DB_UPDATE_VERSION', 1414);
 }
 
 return [
@@ -1092,6 +1092,13 @@ return [
 			"preview-height" => ["type" => "smallint unsigned", "comment" => "Height of the preview picture"],
 			"preview-width" => ["type" => "smallint unsigned", "comment" => "Width of the preview picture"],
 			"description" => ["type" => "text", "comment" => ""],
+			"name" => ["type" => "varchar(255)", "comment" => "Name of the media"],
+			"author-url" => ["type" => "varbinary(255)", "comment" => "URL of the author of the media"],
+			"author-name" => ["type" => "varchar(255)", "comment" => "Name of the author of the media"],
+			"author-image" => ["type" => "varbinary(255)", "comment" => "Image of the author of the media"],
+			"publisher-url" => ["type" => "varbinary(255)", "comment" => "URL of the publisher of the media"],
+			"publisher-name" => ["type" => "varchar(255)", "comment" => "Name of the publisher of the media"],
+			"publisher-image" => ["type" => "varbinary(255)", "comment" => "Image of the publisher of the media"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -1122,7 +1129,7 @@ return [
 			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"received" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
-			"changed" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date that something in the conversation changed, indicating clients should fetch the conversation again"],			
+			"changed" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date that something in the conversation changed, indicating clients should fetch the conversation again"],
 			"commented" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""]
 		],
 		"indexes" => [

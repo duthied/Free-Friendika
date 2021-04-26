@@ -21,12 +21,15 @@
 
 namespace Friendica\Model\Post;
 
+use Friendica\Content\PageInfo;
+use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Images;
+use Friendica\Util\ParseUrl;
 
 /**
  * Class Media
@@ -62,7 +65,7 @@ class Media
 		}
 
 		// "document" has got the lowest priority. So when the same file is both attached as document
-		// and embedded as picture then we only store the picture or replace the document 
+		// and embedded as picture then we only store the picture or replace the document
 		$found = DBA::selectFirst('post-media', ['type'], ['uri-id' => $media['uri-id'], 'url' => $media['url']]);
 		if (!$force && !empty($found) && (($found['type'] != self::DOCUMENT) || ($media['type'] == self::DOCUMENT))) {
 			Logger::info('Media already exists', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'callstack' => System::callstack()]);
@@ -188,13 +191,27 @@ class Media
 			$media = self::addType($media);
 		}
 
+		if ($media['type'] == self::HTML) {
+			$data = ParseUrl::getSiteinfoCached($media['url'], false);
+			$media['preview'] = $data['images'][0]['src'] ?? null;
+			$media['preview-height'] = $data['images'][0]['height'] ?? null;
+			$media['preview-width'] = $data['images'][0]['width'] ?? null;
+			$media['description'] = $data['text'] ?? null;
+			$media['name'] = $data['title'] ?? null;
+			$media['author-url'] = $data['author_url'] ?? null;
+			$media['author-name'] = $data['author_name'] ?? null;
+			$media['author-image'] = $data['author_img'] ?? null;
+			$media['publisher-url'] = $data['publisher_url'] ?? null;
+			$media['publisher-name'] = $data['publisher_name'] ?? null;
+			$media['publisher-image'] = $data['publisher_img'] ?? null;
+		}
 		return $media;
 	}
 
 	/**
 	 * Add the detected type to the media array
 	 *
-	 * @param array $data 
+	 * @param array $data
 	 * @return array data array with the detected type
 	 */
 	public static function addType(array $data)
@@ -274,7 +291,7 @@ class Media
 				}
 				$body = str_replace($picture[0], '', $body);
 				$image = str_replace('-1.', '-0.', $picture[2]);
-				$attachments[] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
+				$attachments[$image] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
 					'preview' => $picture[2], 'description' => $picture[3]];
 			}
 		}
@@ -282,7 +299,7 @@ class Media
 		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				$body = str_replace($picture[0], '', $body);
-				$attachments[] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $picture[1], 'description' => $picture[2]];
+				$attachments[$picture[1]] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $picture[1], 'description' => $picture[2]];
 			}
 		}
 
@@ -293,7 +310,7 @@ class Media
 				}
 				$body = str_replace($picture[0], '', $body);
 				$image = str_replace('-1.', '-0.', $picture[2]);
-				$attachments[] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
+				$attachments[$image] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $image,
 					'preview' => $picture[2], 'description' => null];
 			}
 		}
@@ -301,22 +318,28 @@ class Media
 		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
 				$body = str_replace($picture[0], '', $body);
-				$attachments[] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $picture[1]];
+				$attachments[$picture[1]] = ['uri-id' => $uriid, 'type' => self::IMAGE, 'url' => $picture[1]];
 			}
 		}
 
 		if (preg_match_all("/\[audio\]([^\[\]]*)\[\/audio\]/ism", $body, $audios, PREG_SET_ORDER)) {
 			foreach ($audios as $audio) {
 				$body = str_replace($audio[0], '', $body);
-				$attachments[] = ['uri-id' => $uriid, 'type' => self::AUDIO, 'url' => $audio[1]];
+				$attachments[$audio[1]] = ['uri-id' => $uriid, 'type' => self::AUDIO, 'url' => $audio[1]];
 			}
 		}
 
 		if (preg_match_all("/\[video\]([^\[\]]*)\[\/video\]/ism", $body, $videos, PREG_SET_ORDER)) {
 			foreach ($videos as $video) {
 				$body = str_replace($video[0], '', $body);
-				$attachments[] = ['uri-id' => $uriid, 'type' => self::VIDEO, 'url' => $video[1]];
+				$attachments[$video[1]] = ['uri-id' => $uriid, 'type' => self::VIDEO, 'url' => $video[1]];
 			}
+		}
+
+		$url = PageInfo::getRelevantUrlFromBody($body);
+		if (!empty($url)) {
+			Logger::debug('Got page url', ['url' => $url]);
+			$attachments[$url] = ['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url];
 		}
 
 		foreach ($attachments as $attachment) {
@@ -324,6 +347,38 @@ class Media
 		}
 
 		return trim($body);
+	}
+
+	/**
+	 * Add media links from the attachment field
+	 *
+	 * @param integer $uriid
+	 * @param string $body
+	 */
+	public static function insertFromAttachmentData(int $uriid, string $body)
+	{
+		$data = BBCode::getAttachmentData($body);
+		if (empty($data))  {
+			return;
+		}
+
+		Logger::info('Adding attachment data', ['data' => $data]);
+		$attachment = [
+			'uri-id' => $uriid,
+			'type' => self::HTML,
+			'url' => $data['url'],
+			'preview' => $data['preview'] ?? null,
+			'description' => $data['description'] ?? null,
+			'name' => $data['title'] ?? null,
+			'author-url' => $data['author_url'] ?? null,
+			'author-name' => $data['author_name'] ?? null,
+			'publisher-url' => $data['provider_url'] ?? null,
+			'publisher-name' => $data['provider_name'] ?? null,
+		];
+		if (!empty($data['image'])) {
+			$attachment['preview'] = $data['image'];
+		}
+		self::insert($attachment);
 	}
 
 	/**
@@ -368,5 +423,68 @@ class Media
 		}
 
 		return DBA::selectToArray('post-media', [], $condition);
+	}
+
+	/**
+	 * Checks if media attachments are associated with the provided item ID.
+	 *
+	 * @param int $uri_id
+	 * @param array $types
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function existsByURIId(int $uri_id, array $types = [])
+	{
+		$condition = ['uri-id' => $uri_id];
+
+		if (!empty($types)) {
+			$condition = DBA::mergeConditions($condition, ['type' => $types]);
+		}
+
+		return DBA::exists('post-media', $condition);
+	}
+
+	/**
+	 * Split the attachment media in the three segments "visual", "link" and "additional"
+	 * 
+	 * @param int $uri_id 
+	 * @return array attachments
+	 */
+	public static function splitAttachments(int $uri_id)
+	{
+		$attachments = ['visual' => [], 'link' => [], 'additional' => []];
+
+		$media = self::getByURIId($uri_id);
+		if (empty($media)) {
+			return $attachments;
+		}
+
+		foreach ($media as $medium) {
+			$type = explode('/', current(explode(';', $medium['mimetype'])));
+			if (count($type) < 2) {
+				Logger::info('Unknown MimeType', ['type' => $type, 'media' => $medium]);
+				$filetype = 'unkn';
+				$subtype = 'unkn';
+			} else {
+				$filetype = strtolower($type[0]);
+				$subtype = strtolower($type[1]);
+			}
+
+			$medium['filetype'] = $filetype;
+			$medium['subtype'] = $subtype;
+
+			if ($medium['type'] == self::HTML || (($filetype == 'text') && ($subtype == 'html'))) {
+				$attachments['link'][] = $medium;
+				continue;
+			}
+
+			if (in_array($medium['type'], [self::AUDIO, self::VIDEO, self::IMAGE]) ||
+				in_array($filetype, ['audio', 'video', 'image'])) {
+					$attachments['visual'][] = $medium;
+			} else {
+					$attachments['additional'][] = $medium;
+			}
+		}
+		return $attachments;
 	}
 }

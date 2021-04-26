@@ -54,7 +54,7 @@ class ParseUrl
 	/**
 	 * Fetch the content type of the given url
 	 * @param string $url URL of the page
-	 * @return array content type 
+	 * @return array content type
 	 */
 	public static function getContentType(string $url)
 	{
@@ -197,7 +197,7 @@ class ParseUrl
 		];
 
 		if ($count > 10) {
-			Logger::log('Endless loop detected for ' . $url, Logger::DEBUG);
+			Logger::notice('Endless loop detected', ['url' => $url]);
 			return $siteinfo;
 		}
 
@@ -297,7 +297,7 @@ class ParseUrl
 			// See https://github.com/friendica/friendica/issues/5470#issuecomment-418351211
 			$charset = str_ireplace('latin-1', 'latin1', $charset);
 
-			Logger::log('detected charset ' . $charset, Logger::DEBUG);
+			Logger::info('detected charset', ['charset' => $charset]);
 			$body = iconv($charset, 'UTF-8//TRANSLIT', $body);
 		}
 
@@ -477,7 +477,7 @@ class ParseUrl
 			}
 		}
 
-// Currently deactivated, see https://github.com/friendica/friendica/pull/10148#issuecomment-821512658		
+// Currently deactivated, see https://github.com/friendica/friendica/pull/10148#issuecomment-821512658
 		// Prevent to have a photo type without an image
 //		if ($twitter_card && $twitter_image && !empty($siteinfo['image'])) {
 //			$siteinfo['type'] = 'photo';
@@ -778,7 +778,7 @@ class ParseUrl
 			case 'QAPage':
 			case 'RealEstateListing':
 			case 'SearchResultsPage':
-			case 'MediaGallery':			
+			case 'MediaGallery':
 			case 'ImageGallery':
 			case 'VideoGallery':
 			case 'RadioEpisode':
@@ -807,7 +807,7 @@ class ParseUrl
 			case 'PerformingGroup':
 			case 'DanceGroup';
 			case 'MusicGroup':
-			case 'TheaterGroup':			
+			case 'TheaterGroup':
 				return self::parseJsonLdWebPerson($siteinfo, $jsonld);
 			case 'AudioObject':
 			case 'Audio':

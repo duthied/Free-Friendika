@@ -23,7 +23,6 @@ namespace Friendica\Protocol;
 
 use DOMDocument;
 use DOMXPath;
-use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache\Duration;
@@ -673,11 +672,6 @@ class OStatus
 
 		$item["body"] .= $add_body;
 
-		// Only add additional data when there is no picture in the post
-		if (!strstr($item["body"], '[/img]')) {
-			$item["body"] = PageInfo::searchAndAppendToBody($item["body"]);
-		}
-
 		Tag::storeFromBody($item['uri-id'], $item['body']);
 
 		// Mastodon Content Warning
@@ -1098,7 +1092,9 @@ class OStatus
 						if (($item["object-type"] == Activity\ObjectType::QUESTION)
 							|| ($item["object-type"] == Activity\ObjectType::EVENT)
 						) {
-							$item["body"] .= "\n" . PageInfo::getFooterFromUrl($attribute['href']);
+							Post\Media::insert(['uri-id' => $item['uri-id'], 'type' => Post\Media::UNKNOWN,
+								'url' => $attribute['href'], 'mimetype' => $attribute['type'] ?? null,
+								'size' => $attribute['length'] ?? null, 'description' => $attribute['title'] ?? null]);
 						}
 						break;
 					case "ostatus:conversation":
@@ -1125,7 +1121,9 @@ class OStatus
 							}
 							$link_data['related'] = $attribute['href'];
 						} else {
-							$item["body"] .= "\n" . PageInfo::getFooterFromUrl($attribute['href']);
+							Post\Media::insert(['uri-id' => $item['uri-id'], 'type' => Post\Media::UNKNOWN,
+								'url' => $attribute['href'], 'mimetype' => $attribute['type'] ?? null,
+								'size' => $attribute['length'] ?? null, 'description' => $attribute['title'] ?? null]);
 						}
 						break;
 					case "self":

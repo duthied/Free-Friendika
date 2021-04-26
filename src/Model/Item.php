@@ -21,6 +21,7 @@
 
 namespace Friendica\Model;
 
+use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -34,6 +35,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Post;
+use Friendica\Model\Post\Media;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
@@ -177,8 +179,10 @@ class Item
 
 		while ($item = DBA::fetch($items)) {
 			if (!empty($fields['body'])) {
+				Post\Media::insertFromAttachmentData($item['uri-id'], $fields['body']);
+
 				$content_fields = ['raw-body' => trim($fields['raw-body'] ?? $fields['body'])];
-	
+
 				// Remove all media attachments from the body and store them in the post-media table
 				$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
 				$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
@@ -508,7 +512,7 @@ class Item
 	public static function isValid(array $item)
 	{
 		// When there is no content then we don't post it
-		if ($item['body'] . $item['title'] == '') {
+		if (($item['body'] . $item['title'] == '') && !Post\Media::existsByURIId($item['uri-id'])) {
 			Logger::notice('No body, no title.');
 			return false;
 		}
@@ -955,6 +959,8 @@ class Item
 			self::setOwnerforResharedItem($item);
 		}
 
+		Post\Media::insertFromAttachmentData($item['uri-id'], $item['body']);
+
 		// Remove all media attachments from the body and store them in the post-media table
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
@@ -1074,7 +1080,7 @@ class Item
 				Hook::callAll('post_local_end', $posted_item);
 			} else {
 				Hook::callAll('post_remote_end', $posted_item);
-			}		
+			}
 		}
 
 		if ($posted_item['gravity'] === GRAVITY_PARENT) {
@@ -1099,7 +1105,7 @@ class Item
 
 		if ($transmit) {
 			// Don't relay participation messages
-			if (($posted_item['verb'] == Activity::FOLLOW) && 
+			if (($posted_item['verb'] == Activity::FOLLOW) &&
 				(!$posted_item['origin'] || ($posted_item['author-id'] != Contact::getPublicIdByUserId($uid)))) {
 				Logger::info('Participation messages will not be relayed', ['item' => $posted_item['id'], 'uri' => $posted_item['uri'], 'verb' => $posted_item['verb']]);
 				$transmit = false;
@@ -1647,7 +1653,7 @@ class Item
 			// or it had been done by a "regular" contact.
 			if (!empty($arr['wall'])) {
 				$condition = ['id' => $arr['contact-id']];
-			} else { 
+			} else {
 				$condition = ['id' => $arr['contact-id'], 'self' => false];
 			}
 			DBA::update('contact', ['failed' => false, 'success_update' => $arr['received'], 'last-item' => $arr['received']], $condition);
@@ -1782,7 +1788,7 @@ class Item
 				}
 			}
 		}
-		
+
 		if (!$mention) {
 			if (($community_page || $prvgroup) &&
 				  !$item['wall'] && !$item['origin'] && ($item['gravity'] == GRAVITY_PARENT)) {
@@ -2442,10 +2448,10 @@ class Item
 
 	/**
 	 * Get a permission SQL string for the given user
-	 * 
-	 * @param int $owner_id 
-	 * @param string $table 
-	 * @return string 
+	 *
+	 * @param int $owner_id
+	 * @param string $table
+	 * @return string
 	 */
 	public static function getPermissionsSQLByUserId(int $owner_id, string $table = '')
 	{
@@ -2633,7 +2639,10 @@ class Item
 			unset($hook_data);
 		}
 
+		$orig_body = $item['body'];
+		$item['body'] = preg_replace("/\s*\[attachment .*\].*?\[\/attachment\]\s*/ism", '', $item['body']);
 		self::putInCache($item);
+		$item['body'] = $orig_body;
 		$s = $item["rendered-html"];
 
 		$hook_data = [
@@ -2653,7 +2662,24 @@ class Item
 			return $s;
 		}
 
-		$s = self::addMediaAttachments($item, $s);
+		$shared = BBCode::fetchShareAttributes($item['body']);
+		if (!empty($shared['guid'])) {
+			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
+			$shared_uri_id = $shared_item['uri-id'] ?? 0;
+			$shared_plink = $shared_item['plink'] ?? '';
+			$attachments = Post\Media::splitAttachments($shared_uri_id);
+			$s = self::addVisualAttachments($attachments, $item, $s, true);
+			$s = self::addLinkAttachment($attachments, $item, $s, true, '');
+			$s = self::addNonVisualAttachments($attachments, $item, $s, true);
+		} else {
+			$shared_uri_id = 0;
+			$shared_plink = '';
+		}
+
+		$attachments = Post\Media::splitAttachments($item['uri-id']);
+		$s = self::addVisualAttachments($attachments, $item, $s, false);
+		$s = self::addLinkAttachment($attachments, $item, $s, false, $shared_plink);
+		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
 
 		// Map.
 		if (strpos($s, '<div class="map">') !== false && !empty($item['coord'])) {
@@ -2678,45 +2704,55 @@ class Item
 	}
 
 	/**
-	 * Add media attachments to the content
+	 * Check if the body contains a link
 	 *
+	 * @param string $body
+	 * @param string $url
+	 * @return bool
+	 */
+	public static function containsLink(string $body, string $url)
+	{
+		if (strpos($body, $url)) {
+			return true;
+		}
+		foreach ([0, 1, 2] as $size) {
+			if (preg_match('#/photo/.*-' . $size . '\.#ism', $url) &&
+				strpos(preg_replace('#(/photo/.*)-[012]\.#ism', '$1-' . $size . '.', $body), $url)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Add visual attachments to the content
+	 *
+	 * @param array $attachments
 	 * @param array $item
 	 * @param string $content
-	 * @return modified content
+	 * @return string modified content
 	 */
-	private static function addMediaAttachments(array $item, string $content)
+	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared)
 	{
 		$leading = '';
 		$trailing = '';
-		// currently deactivated the request for Post\Media::VIDEO since it creates mutliple videos from Peertube
-		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::AUDIO, 
-			Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
-			if (in_array($attachment['type'], [Post\Media::AUDIO, Post\Media::VIDEO]) && strpos($item['body'], $attachment['url'])) {
+
+		foreach ($attachments['visual'] as $attachment) {
+			if (self::containsLink($item['body'], $attachment['url'])) {
 				continue;
 			}
-
-			$mime = $attachment['mimetype'];
 
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
 			$the_url = Contact::magicLinkByContact($author, $attachment['url']);
 
-			$filetype = strtolower(substr($mime, 0, strpos($mime, '/')));
-			if ($filetype) {
-				$filesubtype = strtolower(substr($mime, strpos($mime, '/') + 1));
-				$filesubtype = str_replace('.', '-', $filesubtype);
-			} else {
-				$filetype = 'unkn';
-				$filesubtype = 'unkn';
-			}
-
-			if (($filetype == 'video')) {
+			if (($attachment['filetype'] == 'video')) {
 				/// @todo Move the template to /content as well
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
 					'$video' => [
 						'id'     => $item['author-id'],
 						'src'    => $the_url,
-						'mime'   => $mime,
+						'mime'   => $attachment['mimetype'],
 					],
 				]);
 				if ($item['post-type'] == Item::PT_VIDEO) {
@@ -2724,12 +2760,12 @@ class Item
 				} else {
 					$trailing .= $media;
 				}
-			} elseif ($filetype == 'audio') {
+			} elseif ($attachment['filetype'] == 'audio') {
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/audio.tpl'), [
 					'$audio' => [
 						'id'     => $item['author-id'],
 						'src'    => $the_url,
-						'mime'   => $mime,
+						'mime'   => $attachment['mimetype'],
 					],
 				]);
 				if ($item['post-type'] == Item::PT_AUDIO) {
@@ -2737,21 +2773,119 @@ class Item
 				} else {
 					$trailing .= $media;
 				}
-			} else {
-				$title = Strings::escapeHtml(trim(($attachment['description'] ?? '') ?: $attachment['url']));
-
-				if (!empty($attachment['size'])) {
-					$title .= ' ' . $attachment['size'] . ' ' . DI::l10n()->t('bytes');
-				}
-
-				/// @todo Use a template
-				$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
-				$trailing .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" rel="noopener noreferrer" >' . $icon . '</a>';
+			} elseif ($attachment['filetype'] == 'image') {
+				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
+					'$image' => [
+						'src'    => $the_url,
+						'attachment'   => $attachment,
+					],
+				]);
+				$trailing .= $media;
 			}
 		}
 
-		if ($leading != '') {
-			$content = '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . $content;
+		if ($shared) {
+			$content = str_replace(BBCode::ANCHOR, '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . BBCode::ANCHOR, $content);
+			$content = str_replace(BBCode::ANCHOR, BBCode::ANCHOR . '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>', $content);
+		} else {
+			if ($leading != '') {
+				$content = '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . $content;
+			}
+
+			if ($trailing != '') {
+				$content .= '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>';
+			}
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Add link attachment to the content
+	 *
+	 * @param array  $attachments
+	 * @param array  $item
+	 * @param string $content
+	 * @param bool   $shared
+	 * @return string modified content
+	 */
+	private static function addLinkAttachment(array $attachments, array $item, string $content, bool $shared, string $ignore_link)
+	{
+		// @ToDo Check only for audio and video
+		$preview = empty($attachments['visual']);
+
+		if (!empty($attachments['link'])) {
+			foreach ($attachments['link'] as $link) {
+				if (!Strings::compareLink($link['url'], $ignore_link)) {
+					$attachment = $link;
+				}
+			}
+		}
+
+		if (!empty($attachment)) {
+			$data = [
+				'author_img'     => $attachment['author-image'] ?? '',
+				'author_name'    => $attachment['author-name'] ?? '',
+				'author_url'     => $attachment['author-url'] ?? '',
+				'publisher_img'  => $attachment['publisher-image'] ?? '',
+				'publisher_name' => $attachment['publisher-name'] ?? '',
+				'publisher_url'  => $attachment['publisher-url'] ?? '',
+				'text'           => $attachment['description'] ?? '',
+				'title'          => $attachment['name'] ?? '',
+				'type'           => 'link',
+				'url'            => $attachment['url'] ?? '',
+			];
+
+			if ($preview && !empty($attachment['preview']) && !empty($attachment['preview-height']) && !empty($attachment['preview-width'])) {
+				$data['images'][] = ['src' => $attachment['preview'],
+					'width' => $attachment['preview-width'], 'height' => $attachment['preview-height']];
+			}
+			$footer = PageInfo::getFooterFromData($data);
+		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $item['body'], $match)) {
+			$footer = $match[1];
+		}
+
+		if (!empty($footer)) {
+			// @todo Use a template
+			$rendered = BBCode::convert($footer);
+			if ($shared) {
+				return str_replace(BBCode::ANCHOR, BBCode::ANCHOR . $rendered, $content);
+			} else {
+				return $content . $rendered;
+			}
+		}
+		return $content;
+	}
+
+	/**
+	 * Add non visual attachments to the content
+	 *
+	 * @param array $attachments
+	 * @param array $item
+	 * @param string $content
+	 * @return string modified content
+	 */
+	private static function addNonVisualAttachments(array $attachments, array $item, string $content)
+	{
+		$trailing = '';
+		foreach ($attachments['additional'] as $attachment) {
+			if (strpos($item['body'], $attachment['url'])) {
+				continue;
+			}
+
+			$author = ['uid' => 0, 'id' => $item['author-id'],
+				'network' => $item['author-network'], 'url' => $item['author-link']];
+			$the_url = Contact::magicLinkByContact($author, $attachment['url']);
+
+			$title = Strings::escapeHtml(trim(($attachment['description'] ?? '') ?: $attachment['url']));
+
+			if (!empty($attachment['size'])) {
+				$title .= ' ' . $attachment['size'] . ' ' . DI::l10n()->t('bytes');
+			}
+
+			/// @todo Use a template
+			$icon = '<div class="attachtype icon s22 type-' . $attachment['filetype'] . ' subtype-' . $attachment['subtype'] . '"></div>';
+			$trailing .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" rel="noopener noreferrer" >' . $icon . '</a>';
 		}
 
 		if ($trailing != '') {
@@ -2849,8 +2983,8 @@ class Item
 	}
 
 	/**
-	 * Return the URI for a link to the post 
-	 * 
+	 * Return the URI for a link to the post
+	 *
 	 * @param string $uri URI or link to post
 	 *
 	 * @return string URI
