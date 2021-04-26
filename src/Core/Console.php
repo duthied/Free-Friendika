@@ -44,6 +44,7 @@ class Console extends \Asika\SimpleConsole\Console
 Usage: bin/console [--version] [-h|--help|-?] <command> [<args>] [-v]
 
 Commands:
+	addon                  Addon management
 	cache                  Manage node cache
 	config                 Edit site config
 	createdoxygen          Generate Doxygen headers
@@ -74,6 +75,7 @@ HELP;
 	}
 
 	protected $subConsoles = [
+		'addon'                  => Friendica\Console\Addon::class,
 		'cache'                  => Friendica\Console\Cache::class,
 		'config'                 => Friendica\Console\Config::class,
 		'createdoxygen'          => Friendica\Console\CreateDoxygen::class,
