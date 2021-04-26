@@ -65,8 +65,13 @@ class ConfigConsoleTest extends ConsoleTest
 		$this->configMock
 			->shouldReceive('get')
 			->with('config', 'test')
-			->andReturn('now')
+			->andReturn('old')
 			->twice();
+		$this->configMock
+			->shouldReceive('get')
+			->with('config', 'test')
+			->andReturn('now')
+			->once();
 
 		$console = new Config($this->appMode, $this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'config');
@@ -116,6 +121,23 @@ class ConfigConsoleTest extends ConsoleTest
 		$txt = $this->dumpExecute($console);
 
 		self::assertEquals("[Error] config.test is an array and can't be set using this command.\n", $txt);
+	}
+
+	public function testSetExistingValue()
+	{
+		$this->configMock
+			->shouldReceive('get')
+			->with('config', 'test')
+			->andReturn('now')
+			->twice();
+
+		$console = new Config($this->appMode, $this->configMock, $this->consoleArgv);
+		$console->setArgument(0, 'config');
+		$console->setArgument(1, 'test');
+		$console->setArgument(2, 'now');
+		$txt = $this->dumpExecute($console);
+
+		self::assertEquals("[Error] config.test already set to now.\n", $txt);
 	}
 
 	public function testTooManyArguments()
@@ -171,7 +193,7 @@ CONF;
 			->shouldReceive('get')
 			->with('test', 'it')
 			->andReturn(null)
-			->once();
+			->twice();
 		$console = new Config($this->appMode, $this->configMock, [$this->consoleArgv]);
 		$console->setArgument(0, 'test');
 		$console->setArgument(1, 'it');
