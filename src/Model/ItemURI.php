@@ -78,4 +78,25 @@ class ItemURI
 
 		return $itemuri['id'];
 	}
+	/**
+	 * Searched for an id of a given guid.
+	 *
+	 * @param string $guid
+	 *
+	 * @return integer item-uri id
+	 * @throws \Exception
+	 */
+	public static function getIdByGUID($guid)
+	{
+		// If the GUID gets too long we only take the first parts and hope for best
+		$guid = substr($guid, 0, 255);
+
+		$itemuri = DBA::selectFirst('item-uri', ['id'], ['guid' => $guid]);
+
+		if (!DBA::isResult($itemuri)) {
+			return 0;
+		}
+
+		return $itemuri['id'];
+	}
 }

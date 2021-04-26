@@ -50,7 +50,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	// Update this value to the current date whenever changes are made to BBCode::convert
-	const VERSION = '2021-04-07';
+	const VERSION = '2021-04-24';
 
 	const INTERNAL = 0;
 	const API = 2;
@@ -61,6 +61,7 @@ class BBCode
 	const BACKLINK = 8;
 	const ACTIVITYPUB = 9;
 
+	const ANCHOR = '<br class="anchor">';
 	/**
 	 * Fetches attachment data that were generated the old way
 	 *
@@ -155,6 +156,7 @@ class BBCode
 			'image'         => null,
 			'url'           => '',
 			'author_name'   => '',
+			'author_url'    => '',
 			'provider_name' => '',
 			'provider_url'  => '',
 			'title'         => '',
@@ -172,7 +174,7 @@ class BBCode
 		foreach (['type', 'url', 'title', 'image', 'preview', 'publisher_name', 'publisher_url', 'author_name', 'author_url'] as $field) {
 			preg_match('/' . preg_quote($field, '/') . '=("|\')(.*?)\1/ism', $attributes, $matches);
 			$value = $matches[2] ?? '';
-	
+
 			if ($value != '') {
 				switch ($field) {
 					case 'publisher_name':
@@ -940,6 +942,26 @@ class BBCode
 	}
 
 	/**
+	 *
+	 * @param  string   $text     A BBCode string
+	 * @return array share attributes
+	 */
+	public static function fetchShareAttributes($text)
+	{
+		$attributes = [];
+		if (!preg_match("/(.*?)\[share(.*?)\](.*)\[\/share\]/ism", $text, $matches)) {
+			return $attributes;
+		}
+
+		$attribute_string = $matches[2];
+		foreach (['author', 'profile', 'avatar', 'link', 'posted', 'guid'] as $field) {
+			preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
+			$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
+		}
+		return $attributes;
+	}
+
+	/**
 	 * This function converts a [share] block to text according to a provided callback function whose signature is:
 	 *
 	 * function(array $attributes, array $author_contact, string $content, boolean $is_quote_share): string
@@ -1064,7 +1086,7 @@ class BBCode
 					'$guid'         => $attributes['guid'],
 					'$network_name' => ContactSelector::networkToName($network, $attributes['profile']),
 					'$network_icon' => ContactSelector::networkToIcon($network, $attributes['profile']),
-					'$content'      => self::setMentions(trim($content), 0, $network),
+					'$content'      => self::setMentions(trim($content), 0, $network) . self::ANCHOR,
 				]);
 				break;
 		}
@@ -1102,7 +1124,7 @@ class BBCode
 					DI::cache()->set($cache_key, $text);
 					return $text;
 				}
-		
+
 				$doc = new DOMDocument();
 				@$doc->loadHTML($body);
 				$xpath = new DOMXPath($doc);

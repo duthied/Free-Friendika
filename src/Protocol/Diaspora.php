@@ -22,7 +22,6 @@
 namespace Friendica\Protocol;
 
 use Friendica\Content\Feature;
-use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Cache\Duration;
@@ -1067,7 +1066,7 @@ class Diaspora
 	 *      'key' => The public key of the author
 	 * @throws \Exception
 	 */
-	private static function message($guid, $server, $level = 0)
+	public static function message($guid, $server, $level = 0)
 	{
 		if ($level > 5) {
 			return false;
@@ -2303,9 +2302,6 @@ class Diaspora
 
 				$item["body"] = self::replacePeopleGuid($item["body"], $item["author-link"]);
 
-				// Add OEmbed and other information to the body
-				$item["body"] = PageInfo::searchAndAppendToBody($item["body"], false, true);
-
 				return $item;
 			} else {
 				return $item;
@@ -2489,7 +2485,7 @@ class Diaspora
 
 		Tag::storeFromBody($datarray['uri-id'], $datarray["body"]);
 
-		Post\Media::copy($original_item['uri-id'], $datarray['uri-id']);
+		//Post\Media::copy($original_item['uri-id'], $datarray['uri-id']);
 		$datarray["app"]  = $original_item["app"];
 
 		$datarray["plink"] = self::plink($author, $guid);
@@ -2733,8 +2729,8 @@ class Diaspora
 		if ($data->photo) {
 			foreach ($data->photo as $photo) {
 				self::storePhotoAsMedia($datarray['uri-id'], $photo);
-				$body = "[img]".XML::unescape($photo->remote_photo_path).
-					XML::unescape($photo->remote_photo_name)."[/img]\n".$body;
+				//$body = "[img]".XML::unescape($photo->remote_photo_path).
+				//	XML::unescape($photo->remote_photo_name)."[/img]\n".$body;
 			}
 
 			$datarray["object-type"] = Activity\ObjectType::IMAGE;
@@ -2742,11 +2738,6 @@ class Diaspora
 		} else {
 			$datarray["object-type"] = Activity\ObjectType::NOTE;
 			$datarray["post-type"] = Item::PT_NOTE;
-
-			// Add OEmbed and other information to the body
-			if (!self::isHubzilla($contact["url"])) {
-				$body = PageInfo::searchAndAppendToBody($body, false, true);
-			}
 		}
 
 		/// @todo enable support for polls

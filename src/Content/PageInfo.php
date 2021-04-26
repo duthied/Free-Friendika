@@ -73,7 +73,7 @@ class PageInfo
 			// Additional link attachments are prepended before the existing [attachment] tag
 			$body = substr_replace($body, "\n[bookmark=" . $data['url'] . ']' . $linkTitle . "[/bookmark]\n", $existingAttachmentPos, 0);
 		} else {
-			$footer = PageInfo::getFooterFromData($data, $no_photos);
+			$footer = self::getFooterFromData($data, $no_photos);
 			$body = self::stripTrailingUrlFromBody($body, $data['url']);
 			$body .= "\n" . $footer;
 		}
@@ -155,7 +155,7 @@ class PageInfo
 				if (empty($data['text'])) {
 					$data['text'] = $data['title'];
 				}
-		
+
 				if (empty($data['text'])) {
 					$data['text'] = $data['url'];
 				}
@@ -246,7 +246,7 @@ class PageInfo
 	 * @param bool   $searchNakedUrls Whether we should pick a naked URL (outside of BBCode tags) as a last resort
 	 * @return string|null
 	 */
-	protected static function getRelevantUrlFromBody(string $body, bool $searchNakedUrls = false)
+	public static function getRelevantUrlFromBody(string $body, bool $searchNakedUrls = false)
 	{
 		$URLSearchString = 'https?://[^\[\]]*';
 

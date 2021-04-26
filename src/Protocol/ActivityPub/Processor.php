@@ -135,113 +135,20 @@ class Processor
 	}
 
 	/**
-	 * Add attachment data to the item array
+	 * Stire attachment data
 	 *
 	 * @param array   $activity
 	 * @param array   $item
-	 *
-	 * @return array array
 	 */
-	private static function constructAttachList($activity, $item)
+	private static function storeAttachments($activity, $item)
 	{
 		if (empty($activity['attachments'])) {
-			return $item;
+			return;
 		}
-
-		$leading = '';
-		$trailing = '';
 
 		foreach ($activity['attachments'] as $attach) {
-			switch ($attach['type']) {
-				case 'link':
-					$data = [
-						'url'      => $attach['url'],
-						'type'     => $attach['type'],
-						'title'    => $attach['title'] ?? '',
-						'text'     => $attach['desc']  ?? '',
-						'image'    => $attach['image'] ?? '',
-						'images'   => [],
-						'keywords' => [],
-					];
-					$item['body'] = PageInfo::appendDataToBody($item['body'], $data);
-					break;
-				default:
-					self::storeAttachmentAsMedia($item['uri-id'], $attach);
-
-					$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
-					if ($filetype == 'image') {
-						if (!empty($activity['source'])) {
-							foreach ([0, 1, 2] as $size) {
-								if (preg_match('#/photo/.*-' . $size . '\.#ism', $attach['url']) && 
-									strpos(preg_replace('#(/photo/.*)-[012]\.#ism', '$1-' . $size . '.', $activity['source']), $attach['url'])) {
-									continue 3;
-								}
-							}
-							if (strpos($activity['source'], $attach['url'])) {
-								continue 2;
-							}
-						}
-
-						// image is the preview/thumbnail URL
-						if (!empty($attach['image'])) {
-							$media = '[url=' . $attach['url'] . ']';
-							$attach['url'] = $attach['image'];
-						} else {
-							$media = '';
-						}
-
-						if (empty($attach['name'])) {
-							$media .= '[img]' . $attach['url'] . '[/img]';
-						} else {
-							$media .= '[img=' . $attach['url'] . ']' . $attach['name'] . '[/img]';
-						}
-
-						if (!empty($attach['image'])) {
-							$media .= '[/url]';
-						}
-
-						if ($item['post-type'] == Item::PT_IMAGE) {
-							$leading .= $media;
-						} else {
-							$trailing .= $media;
-						}		
-					} elseif ($filetype == 'audio') {
-						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-							continue 2;
-						}
-
-						if ($item['post-type'] == Item::PT_AUDIO) {
-							$leading .= '[audio]' . $attach['url'] . "[/audio]\n";
-						} else {
-							$trailing .= '[audio]' . $attach['url'] . "[/audio]\n";
-						}
-					} elseif ($filetype == 'video') {
-						if (!empty($activity['source']) && strpos($activity['source'], $attach['url'])) {
-							continue 2;
-						}
-
-						if ($item['post-type'] == Item::PT_VIDEO) {
-							$leading .= '[video]' . $attach['url'] . "[/video]\n";
-						} else {
-							$trailing .= '[video]' . $attach['url'] . "[/video]\n";
-						}
-					}
-			}
+			self::storeAttachmentAsMedia($item['uri-id'], $attach);
 		}
-
-		if (!empty($leading) && !empty(trim($item['body']))) {
-			$item['body'] = $leading . "[hr]\n" . $item['body'];
-		} elseif (!empty($leading)) {
-			$item['body'] = $leading;
-		}
-
-		if (!empty($trailing) && !empty(trim($item['body']))) {
-			$item['body'] = $item['body'] . "\n[hr]" . $trailing;
-		} elseif (!empty($trailing)) {
-			$item['body'] = $trailing;
-		}
-
-		return $item;
 	}
 
 	/**
@@ -265,7 +172,7 @@ class Processor
 
 		$item = self::processContent($activity, $item);
 
-		$item = self::constructAttachList($activity, $item);
+		self::storeAttachments($activity, $item);
 
 		if (empty($item)) {
 			return;
@@ -399,7 +306,7 @@ class Processor
 
 		$item['plink'] = $activity['alternate-url'] ?? $item['uri'];
 
-		$item = self::constructAttachList($activity, $item);
+		self::storeAttachments($activity, $item);
 
 		// We received the post via AP, so we set the protocol of the server to AP
 		$contact = Contact::getById($item['author-id'], ['gsid']);
@@ -863,12 +770,12 @@ class Processor
 
 		$object = ActivityPub::fetchContent($url, $uid);
 		if (empty($object)) {
-			Logger::log('Activity ' . $url . ' was not fetchable, aborting.');
+			Logger::notice('Activity was not fetchable, aborting.', ['url' => $url]);
 			return '';
 		}
 
 		if (empty($object['id'])) {
-			Logger::log('Activity ' . $url . ' has got not id, aborting. ' . json_encode($object));
+			Logger::notice('Activity has got not id, aborting. ', ['url' => $url, 'object' => $object]);
 			return '';
 		}
 
@@ -1019,7 +926,7 @@ class Processor
 			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 		}
 
-		Logger::log('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
+		Logger::notice('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
 	}
 
 	/**

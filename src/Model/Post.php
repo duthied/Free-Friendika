@@ -406,7 +406,7 @@ class Post
 		if (!DBA::isResult($postthreaduser)) {
 			return $postthreaduser;
 		}
-	
+
 		$pinned = [];
 		while ($useritem = DBA::fetch($postthreaduser)) {
 			$pinned[] = $useritem['uri-id'];
