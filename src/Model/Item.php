@@ -2706,9 +2706,9 @@ class Item
 	/**
 	 * Check if the body contains a link
 	 *
-	 * @param string $body 
-	 * @param string $url 
-	 * @return bool 
+	 * @param string $body
+	 * @param string $url
+	 * @return bool
 	 */
 	public static function containsLink(string $body, string $url)
 	{
@@ -2716,7 +2716,7 @@ class Item
 			return true;
 		}
 		foreach ([0, 1, 2] as $size) {
-			if (preg_match('#/photo/.*-' . $size . '\.#ism', $url) && 
+			if (preg_match('#/photo/.*-' . $size . '\.#ism', $url) &&
 				strpos(preg_replace('#(/photo/.*)-[012]\.#ism', '$1-' . $size . '.', $body), $url)) {
 				return true;
 			}
@@ -2728,7 +2728,7 @@ class Item
 	 * Add visual attachments to the content
 	 *
 	 * @param array $attachments
-	 * @param array $item 
+	 * @param array $item
 	 * @param string $content
 	 * @return string modified content
 	 */
@@ -2741,7 +2741,7 @@ class Item
 			if (self::containsLink($item['body'], $attachment['url'])) {
 				continue;
 			}
-	
+
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
 			$the_url = Contact::magicLinkByContact($author, $attachment['url']);
@@ -2791,7 +2791,7 @@ class Item
 			if ($leading != '') {
 				$content = '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . $content;
 			}
-	
+
 			if ($trailing != '') {
 				$content .= '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>';
 			}
@@ -2804,7 +2804,7 @@ class Item
 	 * Add link attachment to the content
 	 *
 	 * @param array  $attachments
-	 * @param array  $item 
+	 * @param array  $item
 	 * @param string $content
 	 * @param bool   $shared
 	 * @return string modified content
@@ -2861,7 +2861,7 @@ class Item
 	 * Add non visual attachments to the content
 	 *
 	 * @param array $attachments
-	 * @param array $item 
+	 * @param array $item
 	 * @param string $content
 	 * @return string modified content
 	 */
