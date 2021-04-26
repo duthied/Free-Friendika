@@ -45,6 +45,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Notification;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
@@ -612,6 +613,8 @@ function item_post(App $a) {
 	$datarray['postopts']      = $postopts;
 	$datarray['origin']        = $origin;
 	$datarray['object']        = $object;
+
+	$datarray["uri-id"]        = ItemURI::getIdByURI($datarray["uri"]);
 
 	/*
 	 * These fields are for the convenience of addons...
