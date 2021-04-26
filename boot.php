@@ -37,8 +37,8 @@ use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
-define('FRIENDICA_CODENAME',     'Red Hot Poker');
-define('FRIENDICA_VERSION',      '2021.03-rc');
+define('FRIENDICA_CODENAME',     'Siberian Iris');
+define('FRIENDICA_VERSION',      '2021.04');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_TABLE_STRUCTURE_VERSION', 1288);
 
