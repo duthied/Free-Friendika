@@ -2728,8 +2728,6 @@ class Diaspora
 		if ($data->photo) {
 			foreach ($data->photo as $photo) {
 				self::storePhotoAsMedia($datarray['uri-id'], $photo);
-				//$body = "[img]".XML::unescape($photo->remote_photo_path).
-				//	XML::unescape($photo->remote_photo_name)."[/img]\n".$body;
 			}
 
 			$datarray["object-type"] = Activity\ObjectType::IMAGE;

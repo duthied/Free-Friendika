@@ -21,7 +21,6 @@
 
 namespace Friendica\Model;
 
-use Exception;
 use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
