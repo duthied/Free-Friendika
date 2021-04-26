@@ -1,10 +1,68 @@
-Version 2021.03 (unreleased)
+Version 2021.04 (unreleased)
   Friendica Core
-    Removed the frontend worker [annando]
+    Updates to the translations BG, DE, EN-US, ES, HU, IT, RU [translation teams]
+    Updates to the themes (frio) [Extarys, MrPetovan]
+    Updates to the documentation [tobiasd, urbalazs]
+    General code cleanup [annando, MrPetovan, Quix0r]
+    Enhanced the babel functionality to work with some addons [MrPetovan]
+    Enhanced the import of mails [annando]
+    Enhanced the PHP8 compatibility [annando, nupplaphil, realkinetix]
+    Enhanced federation with diaspora*, Peertube, Pleroma [annando]
+    Enhanced the admin panel federation overview [annando]
+    Enhanced the federated deletion of items [annando]
+    Enhanced the usability of Friendica in containers [nupplaphil]
+    Enhanced the handling of contact avatars [annando]
+    Enhanced the display of shared postings [annando]
+    Enhanced the process of deleting items [annando]
+    Enhanced the trending tags [annando]
+    Enhanced the maintenance page [MrPetovan]
+    Enhanced the performance [annando]
+    Enhanced the PWA [Extarys]
+    Enhanced the handling of private messages [fabrixxm]
+    Enhanced the video BBCode tag [MrPetovan]
+    Enhanced the installation wizard [fabrixxm]
+    Enhanced the handling of #tags [MrPetovan]
+    Enhanced the handling of audio attachments [annando]
+    Moved API endpoints to pin, star, ignore and like items [MrPetovan]
+    Updated the composer dependencies [MrPetovan]
+    Reworked the database structure [annando]
+    Fixed a bug in accessing uexport and uimport [MrPetovan]
+    Fixed a bug while logging [nupplaphil]
+    Fixed a bug handling legacy photo storage [annando]
+    Fixed a bug while parsing fetched HTML [annando]
+    Fixed a bug that prevented images to be fetched [annando]
+    Fixed a bug that caused content being handled for expired users [annando]
+    Fixed some problems of handling OEmbed content [MrPetovan]
+    Fixed a bug in the storage move command [fabrixxm, utzer]
+    Fixed a bug in the mime type handling [jurassic-c]
+    Fixed a problem with the /parseurl path [MrPetovan]
+    Fixed a problem with mentions in the summary of a posting [annando]
+    Fixed a bug with the endless scroll in saved folders [annando]
+    Removed the front-end worker [annando]
+    Added a security.txt file to the repository [MrPetovan]
+    Added remember device setting for the 2FA [MrPetovan]
+    Added the possibility to block tags from the trending tags [annando]
+    Added the possibility to chmod proxied files [Quix0r]
 
   Friendica Addons
+    Updated to the translations BG, DE, EN-US, ES, HU, IT [translation teams]
+    Adapted the addons to the new database schema [annando]
+    Adapted the addons to the new class structure [annando, MrPetovan]
+    deprecated flash based addons (sniper, mahjongg) [urbalazs]
+    mailstream
+      better URL handling [mexon]
+    smileybutton addon was reworked [MrPetovan]
+    twitter
+      Fixed an OEmbed problem with URL handling [MrPetovan]
+      Improved handling of Photo postings [annando]
 
   Closed Issues
+    8910, 9402, 9640, 9677, 9698, 9716, 9733, 9743, 9746, 9753, 9761,
+    9764, 9767, 9777, 9782, 9789, 9799, 9811, 9814, 9820, 9827, 9846,
+    9854, 9856, 9872, 9875, 9879, 9881, 9885, 9895, 9905, 9907, 9912,
+    9914, 9929, 9936, 9948, 9950, 9962, 9971, 9975, 9977, 9980, 9996,
+    10017, 10032, 10041, 10047, 10050, 10068, 10105, 10107, 10110,
+    10156
 
 Version 2021.01 (2021-01-04)
   Friendica Core
