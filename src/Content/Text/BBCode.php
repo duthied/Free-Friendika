@@ -605,15 +605,18 @@ class BBCode
 	 * @param string  $text
 	 * @param integer $simplehtml
 	 * @param bool    $tryoembed
+	 * @param array   $data
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function convertAttachment($text, $simplehtml = self::INTERNAL, $tryoembed = true)
+	public static function convertAttachment($text, $simplehtml = self::INTERNAL, $tryoembed = true, array $data = [])
 	{
-		$data = self::getAttachmentData($text);
+		$data = $data ?: self::getAttachmentData($text);
 		if (empty($data) || empty($data['url'])) {
 			return $text;
 		}
+
+		$stamp1 = microtime(true);
 
 		if (isset($data['title'])) {
 			$data['title'] = strip_tags($data['title']);
@@ -655,9 +658,8 @@ class BBCode
 			}
 
 			if (!empty($data['description']) && $data['description'] != $data['title']) {
-				// Sanitize the HTML by converting it to BBCode
-				$bbcode = HTML::toBBCode($data['description']);
-				$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($bbcode)));
+				// Sanitize the HTML
+				$return .= sprintf('<blockquote>%s</blockquote>', trim(HTML::purify($data['description'])));
 			}
 
 			if (!empty($data['provider_url']) && !empty($data['provider_name'])) {
@@ -673,6 +675,7 @@ class BBCode
 			}
 		}
 
+		DI::profiler()->saveTimestamp($stamp1, 'rendering');
 		return trim(($data['text'] ?? '') . ' ' . $return . ' ' . ($data['after'] ?? ''));
 	}
 

@@ -2734,6 +2734,7 @@ class Item
 	 */
 	private static function addVisualAttachments(array $attachments, array $item, string $content, bool $shared)
 	{
+		$stamp1 = microtime(true);
 		$leading = '';
 		$trailing = '';
 
@@ -2797,6 +2798,7 @@ class Item
 			}
 		}
 
+		DI::profiler()->saveTimestamp($stamp1, 'rendering');
 		return $content;
 	}
 
@@ -2811,6 +2813,7 @@ class Item
 	 */
 	private static function addLinkAttachment(array $attachments, array $item, string $content, bool $shared, string $ignore_link)
 	{
+		$stamp1 = microtime(true);
 		// @ToDo Check only for audio and video
 		$preview = empty($attachments['visual']);
 
@@ -2823,31 +2826,37 @@ class Item
 		}
 
 		if (!empty($attachment)) {
+			$footer = '';
 			$data = [
-				'author_img'     => $attachment['author-image'] ?? '',
-				'author_name'    => $attachment['author-name'] ?? '',
-				'author_url'     => $attachment['author-url'] ?? '',
-				'publisher_img'  => $attachment['publisher-image'] ?? '',
-				'publisher_name' => $attachment['publisher-name'] ?? '',
-				'publisher_url'  => $attachment['publisher-url'] ?? '',
-				'text'           => $attachment['description'] ?? '',
-				'title'          => $attachment['name'] ?? '',
-				'type'           => 'link',
-				'url'            => $attachment['url'] ?? '',
-			];
+				'after' => '',
+				'author_name' => $attachment['author-name'] ?? '',
+				'author_url' =>  $attachment['author-url'] ?? '',
+				'description' => $attachment['description'] ?? '',
+				'image' => '',
+				'preview' => '',
+				'provider_name' => $attachment['publisher-name'] ?? '',
+				'provider_url' => $attachment['publisher-url'] ?? '',
+				'text' => '',
+				'title' => $attachment['name'] ?? '',
+				'type' => 'link',
+				'url' => $attachment['url']];
 
-			if ($preview && !empty($attachment['preview']) && !empty($attachment['preview-height']) && !empty($attachment['preview-width'])) {
-				$data['images'][] = ['src' => $attachment['preview'],
-					'width' => $attachment['preview-width'], 'height' => $attachment['preview-height']];
+			if ($preview) {
+				if ($attachment['preview-width'] >= 500) {
+					$data['image'] = $attachment['preview'] ?? '';
+				} else {
+					$data['preview'] = $attachment['preview'] ?? '';
+				}
 			}
-			$footer = PageInfo::getFooterFromData($data);
 		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $item['body'], $match)) {
 			$footer = $match[1];
+			$data = [];
 		}
+		DI::profiler()->saveTimestamp($stamp1, 'rendering');
 
-		if (!empty($footer)) {
+		if (!empty($footer) || !empty($data)) {
 			// @todo Use a template
-			$rendered = BBCode::convert($footer);
+			$rendered = BBCode::convertAttachment($footer, BBCode::INTERNAL, false, $data);
 			if ($shared) {
 				return str_replace(BBCode::ANCHOR, BBCode::ANCHOR . $rendered, $content);
 			} else {
@@ -2867,6 +2876,7 @@ class Item
 	 */
 	private static function addNonVisualAttachments(array $attachments, array $item, string $content)
 	{
+		$stamp1 = microtime(true);
 		$trailing = '';
 		foreach ($attachments['additional'] as $attachment) {
 			if (strpos($item['body'], $attachment['url'])) {
@@ -2892,6 +2902,7 @@ class Item
 			$content .= '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>';
 		}
 
+		DI::profiler()->saveTimestamp($stamp1, 'rendering');
 		return $content;
 	}
 
