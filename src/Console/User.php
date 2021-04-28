@@ -97,9 +97,9 @@ HELP;
 	{
 		parent::__construct($argv);
 
-		$this->appMode     = $appMode;
-		$this->l10n        = $l10n;
-		$this->dba         = $dba;
+		$this->appMode = $appMode;
+		$this->l10n    = $l10n;
+		$this->dba     = $dba;
 		$this->pConfig = $pConfig;
 	}
 
@@ -343,8 +343,8 @@ HELP;
 	private function listUser()
 	{
 		$subCmd = $this->getArgument(1);
-		$start = $this->getOption(['s', 'start'], 0);
-		$count = $this->getOption(['c', 'count'], Pager::ITEMS_PER_PAGE);
+		$start  = $this->getOption(['s', 'start'], 0);
+		$count  = $this->getOption(['c', 'count'], Pager::ITEMS_PER_PAGE);
 
 		$table = new Console_Table();
 
@@ -408,7 +408,7 @@ HELP;
 		];
 
 		$subCmd = $this->getArgument(1);
-		$param = $this->getArgument(2);
+		$param  = $this->getArgument(2);
 
 		$table = new Console_Table();
 		$table->setHeaders(['UID', 'GUID', 'Name', 'Nick', 'E-Mail', 'Register', 'Login', 'Verified', 'Blocked']);
@@ -503,8 +503,8 @@ HELP;
 				}
 
 				if (array_key_exists($category, $values) and
-				    array_key_exists($key, $values[$category]) and
-				    $values[$category][$key] == $value) {
+					array_key_exists($key, $values[$category]) and
+					$values[$category][$key] == $value) {
 					throw new RuntimeException('Value not changed');
 				}
 
