@@ -1,7 +1,7 @@
 <div class="video-top-wrapper lframe" id="video-top-wrapper-{{$video.id}}">
 	{{* set preloading to none to lessen the load on the server *}}
-	<video controls preload="none" data-setup="" width="100%" height="auto">
-		<source src="{{$video.src}}" type="{{$video.mime}}" />
+	<video src="{{$video.src}}" controls {{if $video.preview}}preload="none" poster="{{$video.preview}}" {else}preload="metadata" {{/if}}width="100%" height="auto">
+		<a href="{{$video.src}}">{{$video.name}}</a>
 	</video>
 
 {{if $delete_url }}

@@ -261,8 +261,7 @@ input[type="submit"],
 
 @media (min-width: 768px) {
 	.wall-item-container .wall-item-links,
-	.wall-item-container .wall-item-actions button,
-	.wall-item-container .body-attach > a {
+	.wall-item-container .wall-item-actions button > a {
 		opacity: 0.5;
 		-webkit-transition: all 0.25s ease-in-out;
 		-moz-transition: all 0.25s ease-in-out;
@@ -271,8 +270,7 @@ input[type="submit"],
 		transition: all 0.25s ease-in-out;
 	}
 	.wall-item-container:hover .wall-item-links,
-	.wall-item-container:hover .wall-item-actions button,
-	.wall-item-container:hover .body-attach > a {
+	.wall-item-container:hover .wall-item-actions button > a {
 		opacity: 1;
 		-webkit-transition: all 0.25s ease-in-out;
 		-moz-transition: all 0.25s ease-in-out;
