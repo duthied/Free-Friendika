@@ -1988,8 +1988,7 @@ code > .hl-main {
 	}
 	/* Like/Comment/etc buttons */
 	.wall-item-container .wall-item-links,
-	.wall-item-container .wall-item-actions button,
-	.wall-item-container .body-attach > a {
+	.wall-item-container .wall-item-actions button > a {
 		opacity: 0.4;
 
 		-webkit-transition: all 0.25s ease-in-out;
@@ -1999,8 +1998,7 @@ code > .hl-main {
 		transition: all 0.25s ease-in-out;
 	}
 	.wall-item-container:hover .wall-item-links,
-	.wall-item-container:hover .wall-item-actions button,
-	.wall-item-container:hover .body-attach > a {
+	.wall-item-container:hover .wall-item-actions button > a {
 		opacity: 1;
 
 		-webkit-transition: all 0.25s ease-in-out;

@@ -35,13 +35,13 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Post;
-use Friendica\Model\Post\Media;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 use LanguageDetection\Language;
@@ -2667,7 +2667,7 @@ class Item
 			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
 			$shared_uri_id = $shared_item['uri-id'] ?? 0;
 			$shared_plink = $shared_item['plink'] ?? '';
-			$attachments = Post\Media::splitAttachments($shared_uri_id);
+			$attachments = Post\Media::splitAttachments($shared_uri_id, $shared['guid']);
 			$s = self::addVisualAttachments($attachments, $item, $s, true);
 			$s = self::addLinkAttachment($attachments, $item, $s, true, '');
 			$s = self::addNonVisualAttachments($attachments, $item, $s, true);
@@ -2676,7 +2676,7 @@ class Item
 			$shared_plink = '';
 		}
 
-		$attachments = Post\Media::splitAttachments($item['uri-id']);
+		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid']);
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
 		$s = self::addLinkAttachment($attachments, $item, $s, false, $shared_plink);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
@@ -2747,13 +2747,21 @@ class Item
 				'network' => $item['author-network'], 'url' => $item['author-link']];
 			$the_url = Contact::magicLinkByContact($author, $attachment['url']);
 
+			if (!empty($attachment['preview'])) {
+				$preview_url = Proxy::proxifyUrl(Contact::magicLinkByContact($author, $attachment['preview']));
+			} else {
+				$preview_url = '';
+			}
+
 			if (($attachment['filetype'] == 'video')) {
 				/// @todo Move the template to /content as well
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
 					'$video' => [
-						'id'     => $item['author-id'],
-						'src'    => $the_url,
-						'mime'   => $attachment['mimetype'],
+						'id'      => $attachment['id'],
+						'src'     => $the_url,
+						'name'    => $attachment['name'] ?: $attachment['url'],
+						'preview' => $preview_url,
+						'mime'    => $attachment['mimetype'],
 					],
 				]);
 				if ($item['post-type'] == Item::PT_VIDEO) {
@@ -2764,8 +2772,9 @@ class Item
 			} elseif ($attachment['filetype'] == 'audio') {
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/audio.tpl'), [
 					'$audio' => [
-						'id'     => $item['author-id'],
+						'id'     => $attachment['id'],
 						'src'    => $the_url,
+						'name'    => $attachment['name'] ?: $attachment['url'],
 						'mime'   => $attachment['mimetype'],
 					],
 				]);
@@ -2775,9 +2784,13 @@ class Item
 					$trailing .= $media;
 				}
 			} elseif ($attachment['filetype'] == 'image') {
+				if (empty($preview_url) && (max($attachment['width'], $attachment['height']) > 600)) {
+					$preview_url = Proxy::proxifyUrl($the_url, false, ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
+				}
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
 					'$image' => [
-						'src'    => $the_url,
+						'src'    => Proxy::proxifyUrl($the_url),
+						'preview' => $preview_url,
 						'attachment'   => $attachment,
 					],
 				]);

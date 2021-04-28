@@ -1268,14 +1268,6 @@ class Receiver
 			} elseif ($filetype == 'video') {
 				$height = (int)JsonLD::fetchElement($url, 'as:height', '@value');
 				$size = (int)JsonLD::fetchElement($url, 'pt:size', '@value');
-
-				// We save bandwidth by using a moderate height (alt least 480 pixel height)
-				// Peertube normally uses these heights: 240, 360, 480, 720, 1080
-				if (!empty($attachments[$filetype]['height']) &&
-					($height > $attachments[$filetype]['height']) && ($attachments[$filetype]['height'] >= 480)) {
-					continue;
-				}
-
 				$attachments[$filetype] = ['type' => $mediatype, 'url' => $href, 'height' => $height, 'size' => $size];
 			} elseif (in_array($mediatype, ['application/x-bittorrent', 'application/x-bittorrent;x-scheme-handler/magnet'])) {
 				$height = (int)JsonLD::fetchElement($url, 'as:height', '@value');
