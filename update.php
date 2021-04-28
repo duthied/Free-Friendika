@@ -660,7 +660,7 @@ function update_1380()
 
 function pre_update_1395()
 {
-	if (DBStructure::existsTable('post-user') && !DBA::e("DROP TABLE `post-user`")) {
+	if (DBStructure::existsTable('post-user') && !DBStructure::existsColumn('post-user', ['id']) && !DBA::e("DROP TABLE `post-user`")) {
 		return Update::FAILED;
 	}
 	return Update::SUCCESS;
