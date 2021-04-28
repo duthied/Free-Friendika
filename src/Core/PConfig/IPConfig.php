@@ -35,7 +35,7 @@ interface IPConfig
 	 * @param int $uid The user_id
 	 * @param string $cat The category of the configuration value
 	 *
-	 * @return void
+	 * @return array The loaded config array
 	 * @see Cache
 	 *
 	 */

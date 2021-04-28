@@ -52,6 +52,10 @@ class User extends \Asika\SimpleConsole\Console
 	 * @var Database
 	 */
 	private $dba;
+	/**
+	 * @var IPConfig
+	 */
+	private $pConfig;
 
 	protected function getHelp()
 	{
@@ -89,13 +93,14 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, array $argv = null)
+	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, IPConfig $pConfig, array $argv = null)
 	{
 		parent::__construct($argv);
 
 		$this->appMode     = $appMode;
 		$this->l10n        = $l10n;
 		$this->dba         = $dba;
+		$this->pConfig = $pConfig;
 	}
 
 	protected function doExecute()
@@ -463,8 +468,7 @@ HELP;
 			}
 		}
 
-		$pconfig = \Friendica\DI::pConfig();
-		$values = $pconfig->load($user['uid'], $category);
+		$values = $this->pConfig->load($user['uid'], $category);
 
 		switch ($subCmd) {
 			case 'list':
