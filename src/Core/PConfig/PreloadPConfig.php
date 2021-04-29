@@ -68,6 +68,8 @@ class PreloadPConfig extends BasePConfig
 
 		// load the whole category out of the DB into the cache
 		$this->configCache->load($uid, $config);
+
+		return $config;
 	}
 
 	/**

@@ -52,6 +52,10 @@ class User extends \Asika\SimpleConsole\Console
 	 * @var Database
 	 */
 	private $dba;
+	/**
+	 * @var IPConfig
+	 */
+	private $pConfig;
 
 	protected function getHelp()
 	{
@@ -89,13 +93,14 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, array $argv = null)
+	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, IPConfig $pConfig, array $argv = null)
 	{
 		parent::__construct($argv);
 
-		$this->appMode     = $appMode;
-		$this->l10n        = $l10n;
-		$this->dba         = $dba;
+		$this->appMode = $appMode;
+		$this->l10n    = $l10n;
+		$this->dba     = $dba;
+		$this->pConfig = $pConfig;
 	}
 
 	protected function doExecute()
@@ -338,8 +343,8 @@ HELP;
 	private function listUser()
 	{
 		$subCmd = $this->getArgument(1);
-		$start = $this->getOption(['s', 'start'], 0);
-		$count = $this->getOption(['c', 'count'], Pager::ITEMS_PER_PAGE);
+		$start  = $this->getOption(['s', 'start'], 0);
+		$count  = $this->getOption(['c', 'count'], Pager::ITEMS_PER_PAGE);
 
 		$table = new Console_Table();
 
@@ -403,7 +408,7 @@ HELP;
 		];
 
 		$subCmd = $this->getArgument(1);
-		$param = $this->getArgument(2);
+		$param  = $this->getArgument(2);
 
 		$table = new Console_Table();
 		$table->setHeaders(['UID', 'GUID', 'Name', 'Nick', 'E-Mail', 'Register', 'Login', 'Verified', 'Blocked']);
@@ -463,8 +468,7 @@ HELP;
 			}
 		}
 
-		$pconfig = \Friendica\DI::pConfig();
-		$values = $pconfig->load($user['uid'], $category);
+		$values = $this->pConfig->load($user['uid'], $category);
 
 		switch ($subCmd) {
 			case 'list':
@@ -499,8 +503,8 @@ HELP;
 				}
 
 				if (array_key_exists($category, $values) and
-				    array_key_exists($key, $values[$category]) and
-				    $values[$category][$key] == $value) {
+					array_key_exists($key, $values[$category]) and
+					$values[$category][$key] == $value) {
 					throw new RuntimeException('Value not changed');
 				}
 
