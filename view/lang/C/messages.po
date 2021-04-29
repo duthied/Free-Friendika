@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 2021.03-rc\n"
+"Project-Id-Version: 2021.06-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-10 20:30+0200\n"
+"POT-Creation-Date: 2021-04-28 23:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,7 @@ msgstr[1] ""
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr ""
 
-#: include/api.php:4452 mod/photos.php:107 mod/photos.php:211
+#: include/api.php:4503 mod/photos.php:107 mod/photos.php:211
 #: mod/photos.php:639 mod/photos.php:1043 mod/photos.php:1060
 #: mod/photos.php:1609 src/Model/User.php:1045 src/Model/User.php:1053
 #: src/Model/User.php:1061 src/Module/Settings/Profile/Photo/Crop.php:97
@@ -54,7 +54,7 @@ msgstr ""
 msgid "%1$s poked %2$s"
 msgstr ""
 
-#: include/conversation.php:227 src/Model/Item.php:2497
+#: include/conversation.php:227 src/Model/Item.php:2507
 msgid "event"
 msgstr ""
 
@@ -62,7 +62,7 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: include/conversation.php:235 mod/tagger.php:90 src/Model/Item.php:2499
+#: include/conversation.php:235 mod/tagger.php:90 src/Model/Item.php:2509
 msgid "photo"
 msgstr ""
 
@@ -820,18 +820,18 @@ msgid "Please visit %s to approve or reject the request."
 msgstr ""
 
 #: mod/api.php:52 mod/api.php:57 mod/dfrn_confirm.php:78 mod/editpost.php:37
-#: mod/events.php:231 mod/follow.php:55 mod/follow.php:135 mod/item.php:183
-#: mod/item.php:188 mod/item.php:905 mod/message.php:69 mod/message.php:112
+#: mod/events.php:231 mod/follow.php:55 mod/follow.php:135 mod/item.php:184
+#: mod/item.php:189 mod/item.php:908 mod/message.php:69 mod/message.php:112
 #: mod/notes.php:44 mod/ostatus_subscribe.php:30 mod/photos.php:176
 #: mod/photos.php:922 mod/repair_ostatus.php:31 mod/settings.php:47
 #: mod/settings.php:65 mod/settings.php:498 mod/suggest.php:34
 #: mod/uimport.php:32 mod/unfollow.php:35 mod/unfollow.php:50
 #: mod/unfollow.php:82 mod/wall_attach.php:78 mod/wall_attach.php:81
-#: mod/wallmessage.php:35 mod/wallmessage.php:59 mod/wallmessage.php:96
-#: mod/wallmessage.php:120 mod/wall_upload.php:99 mod/wall_upload.php:102
+#: mod/wall_upload.php:99 mod/wall_upload.php:102 mod/wallmessage.php:35
+#: mod/wallmessage.php:59 mod/wallmessage.php:96 mod/wallmessage.php:120
 #: src/Module/Attach.php:56 src/Module/BaseApi.php:59 src/Module/BaseApi.php:65
-#: src/Module/BaseNotifications.php:88 src/Module/Contact/Advanced.php:43
-#: src/Module/Contact.php:385 src/Module/Delegation.php:118
+#: src/Module/BaseNotifications.php:88 src/Module/Contact.php:385
+#: src/Module/Contact/Advanced.php:43 src/Module/Delegation.php:118
 #: src/Module/FollowConfirm.php:16 src/Module/FriendSuggest.php:44
 #: src/Module/Group.php:45 src/Module/Group.php:90 src/Module/Invite.php:40
 #: src/Module/Invite.php:127 src/Module/Notifications/Notification.php:47
@@ -920,21 +920,21 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: mod/cal.php:280 mod/events.php:426 src/Model/Event.php:464
+#: mod/cal.php:280 mod/events.php:426 src/Model/Event.php:463
 msgid "today"
 msgstr ""
 
-#: mod/cal.php:281 mod/events.php:427 src/Model/Event.php:465
+#: mod/cal.php:281 mod/events.php:427 src/Model/Event.php:464
 #: src/Util/Temporal.php:330
 msgid "month"
 msgstr ""
 
-#: mod/cal.php:282 mod/events.php:428 src/Model/Event.php:466
+#: mod/cal.php:282 mod/events.php:428 src/Model/Event.php:465
 #: src/Util/Temporal.php:331
 msgid "week"
 msgstr ""
 
-#: mod/cal.php:283 mod/events.php:429 src/Model/Event.php:467
+#: mod/cal.php:283 mod/events.php:429 src/Model/Event.php:466
 #: src/Util/Temporal.php:332
 msgid "day"
 msgstr ""
@@ -943,8 +943,7 @@ msgstr ""
 msgid "list"
 msgstr ""
 
-#: mod/cal.php:297 src/Console/User.php:152 src/Console/User.php:250
-#: src/Console/User.php:283 src/Console/User.php:309 src/Model/User.php:607
+#: mod/cal.php:297 src/Console/User.php:183 src/Model/User.php:607
 #: src/Module/Admin/Users/Active.php:73 src/Module/Admin/Users/Blocked.php:74
 #: src/Module/Admin/Users/Index.php:80 src/Module/Admin/Users/Pending.php:71
 #: src/Module/Api/Twitter/ContactEndpoint.php:73
@@ -1324,7 +1323,7 @@ msgid "Description:"
 msgstr ""
 
 #: mod/events.php:563 src/Model/Event.php:84 src/Model/Event.php:111
-#: src/Model/Event.php:473 src/Model/Event.php:960 src/Model/Profile.php:358
+#: src/Model/Event.php:472 src/Model/Event.php:959 src/Model/Profile.php:358
 #: src/Module/Contact.php:646 src/Module/Directory.php:156
 #: src/Module/Notifications/Introductions.php:172
 #: src/Module/Profile/Profile.php:190
@@ -1342,8 +1341,8 @@ msgstr ""
 #: mod/events.php:575 mod/message.php:205 mod/message.php:373
 #: mod/photos.php:951 mod/photos.php:1054 mod/photos.php:1339
 #: mod/photos.php:1380 mod/photos.php:1437 mod/photos.php:1512
-#: src/Module/Admin/Item/Source.php:65 src/Module/Contact/Advanced.php:132
-#: src/Module/Contact.php:604 src/Module/Contact/Poke.php:155
+#: src/Module/Admin/Item/Source.php:65 src/Module/Contact.php:604
+#: src/Module/Contact/Advanced.php:132 src/Module/Contact/Poke.php:155
 #: src/Module/Debug/ActivityPubConversion.php:141
 #: src/Module/Debug/Babel.php:313 src/Module/Debug/Localtime.php:64
 #: src/Module/Debug/Probe.php:55 src/Module/Debug/WebFinger.php:53
@@ -1426,27 +1425,27 @@ msgstr ""
 msgid "The contact could not be added."
 msgstr ""
 
-#: mod/item.php:134 mod/item.php:138
+#: mod/item.php:135 mod/item.php:139
 msgid "Unable to locate original post."
 msgstr ""
 
-#: mod/item.php:339 mod/item.php:344
+#: mod/item.php:340 mod/item.php:345
 msgid "Empty post discarded."
 msgstr ""
 
-#: mod/item.php:705
+#: mod/item.php:708
 msgid "Post updated."
 msgstr ""
 
-#: mod/item.php:722 mod/item.php:727
+#: mod/item.php:725 mod/item.php:730
 msgid "Item wasn't stored."
 msgstr ""
 
-#: mod/item.php:738
+#: mod/item.php:741
 msgid "Item couldn't be fetched."
 msgstr ""
 
-#: mod/item.php:884 src/Module/Admin/Themes/Details.php:39
+#: mod/item.php:887 src/Module/Admin/Themes/Details.php:39
 #: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:47
 #: src/Module/Debug/ItemBody.php:60
 msgid "Item not found."
@@ -2096,11 +2095,11 @@ msgstr ""
 msgid "Passwords do not match."
 msgstr ""
 
-#: mod/settings.php:281 src/Console/User.php:166
+#: mod/settings.php:281 src/Console/User.php:211
 msgid "Password update failed. Please try again."
 msgstr ""
 
-#: mod/settings.php:284 src/Console/User.php:169
+#: mod/settings.php:284 src/Console/User.php:214
 msgid "Password changed."
 msgstr ""
 
@@ -2989,6 +2988,10 @@ msgstr ""
 msgid "File upload failed."
 msgstr ""
 
+#: mod/wall_upload.php:233
+msgid "Wall Photos"
+msgstr ""
+
 #: mod/wallmessage.php:68 mod/wallmessage.php:129
 #, php-format
 msgid "Number of daily wall messages for %s exceeded. Message failed."
@@ -3009,8 +3012,8 @@ msgid ""
 "your site allow private mail from unknown senders."
 msgstr ""
 
-#: mod/wall_upload.php:233
-msgid "Wall Photos"
+#: src/App.php:311
+msgid "No system theme config value set."
 msgstr ""
 
 #: src/App/Module.php:241
@@ -3029,10 +3032,6 @@ msgstr ""
 
 #: src/App/Page.php:299
 msgid "toggle mobile"
-msgstr ""
-
-#: src/App.php:311
-msgid "No system theme config value set."
 msgstr ""
 
 #: src/App/Router.php:234
@@ -3070,6 +3069,18 @@ msgstr ""
 
 #: src/BaseModule.php:202
 msgid "Common"
+msgstr ""
+
+#: src/Console/Addon.php:177 src/Console/Addon.php:202
+msgid "Addon not found"
+msgstr ""
+
+#: src/Console/Addon.php:181
+msgid "Addon already enabled"
+msgstr ""
+
+#: src/Console/Addon.php:206
+msgid "Addon already disabled"
 msgstr ""
 
 #: src/Console/ArchiveContact.php:105
@@ -3113,42 +3124,53 @@ msgstr ""
 msgid "All pending post updates are done."
 msgstr ""
 
-#: src/Console/User.php:158
-msgid "Enter new password: "
-msgstr ""
-
-#: src/Console/User.php:193
-msgid "Enter user name: "
-msgstr ""
-
-#: src/Console/User.php:201 src/Console/User.php:241 src/Console/User.php:274
-#: src/Console/User.php:300
+#: src/Console/User.php:159 src/Console/User.php:246
 msgid "Enter user nickname: "
 msgstr ""
 
-#: src/Console/User.php:209
+#: src/Console/User.php:203
+msgid "Enter new password: "
+msgstr ""
+
+#: src/Console/User.php:238
+msgid "Enter user name: "
+msgstr ""
+
+#: src/Console/User.php:254
 msgid "Enter user email address: "
 msgstr ""
 
-#: src/Console/User.php:217
+#: src/Console/User.php:262
 msgid "Enter a language (optional): "
 msgstr ""
 
-#: src/Console/User.php:255
+#: src/Console/User.php:287
 msgid "User is not pending."
 msgstr ""
 
-#: src/Console/User.php:313
+#: src/Console/User.php:319
 msgid "User has already been marked for deletion."
 msgstr ""
 
-#: src/Console/User.php:318
+#: src/Console/User.php:324
 #, php-format
 msgid "Type \"yes\" to delete %s"
 msgstr ""
 
-#: src/Console/User.php:320
+#: src/Console/User.php:326
 msgid "Deletion aborted."
+msgstr ""
+
+#: src/Console/User.php:449
+msgid "Enter category: "
+msgstr ""
+
+#: src/Console/User.php:459
+msgid "Enter key: "
+msgstr ""
+
+#: src/Console/User.php:494
+msgid "Enter value: "
 msgstr ""
 
 #: src/Content/BoundariesPager.php:116 src/Content/Pager.php:171
@@ -3624,11 +3646,11 @@ msgstr ""
 msgid "Site map"
 msgstr ""
 
-#: src/Content/OEmbed.php:292
+#: src/Content/OEmbed.php:298
 msgid "Embedding disabled"
 msgstr ""
 
-#: src/Content/OEmbed.php:410
+#: src/Content/OEmbed.php:416
 msgid "Embedded content"
 msgstr ""
 
@@ -3640,39 +3662,39 @@ msgstr ""
 msgid "last"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1015 src/Content/Text/BBCode.php:1669
-#: src/Content/Text/BBCode.php:1670
+#: src/Content/Text/BBCode.php:940 src/Content/Text/BBCode.php:1614
+#: src/Content/Text/BBCode.php:1615
 msgid "Image/photo"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1117
+#: src/Content/Text/BBCode.php:1062
 #, php-format
 msgid ""
 "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1142 src/Model/Item.php:2773
-#: src/Model/Item.php:2779
+#: src/Content/Text/BBCode.php:1087 src/Model/Item.php:2941
+#: src/Model/Item.php:2947
 msgid "link to source"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1587 src/Content/Text/HTML.php:951
+#: src/Content/Text/BBCode.php:1532 src/Content/Text/HTML.php:951
 msgid "Click to open/close"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1618
+#: src/Content/Text/BBCode.php:1563
 msgid "$1 wrote:"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1672 src/Content/Text/BBCode.php:1673
+#: src/Content/Text/BBCode.php:1617 src/Content/Text/BBCode.php:1618
 msgid "Encrypted content"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1886
+#: src/Content/Text/BBCode.php:1831
 msgid "Invalid source protocol"
 msgstr ""
 
-#: src/Content/Text/BBCode.php:1901
+#: src/Content/Text/BBCode.php:1846
 msgid "Invalid link protocol"
 msgstr ""
 
@@ -3687,33 +3709,6 @@ msgstr ""
 #: src/Content/Text/HTML.php:893 src/Model/Profile.php:439
 #: src/Module/Contact.php:340
 msgid "Follow"
-msgstr ""
-
-#: src/Content/Widget/CalendarExport.php:63
-msgid "Export"
-msgstr ""
-
-#: src/Content/Widget/CalendarExport.php:64
-msgid "Export calendar as ical"
-msgstr ""
-
-#: src/Content/Widget/CalendarExport.php:65
-msgid "Export calendar as csv"
-msgstr ""
-
-#: src/Content/Widget/ContactBlock.php:73
-msgid "No contacts"
-msgstr ""
-
-#: src/Content/Widget/ContactBlock.php:105
-#, php-format
-msgid "%d Contact"
-msgid_plural "%d Contacts"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Content/Widget/ContactBlock.php:124
-msgid "View Contacts"
 msgstr ""
 
 #: src/Content/Widget.php:49
@@ -3840,6 +3835,33 @@ msgstr ""
 
 #: src/Content/Widget.php:537 src/Module/Admin/BaseUsers.php:50
 msgid "All"
+msgstr ""
+
+#: src/Content/Widget/CalendarExport.php:63
+msgid "Export"
+msgstr ""
+
+#: src/Content/Widget/CalendarExport.php:64
+msgid "Export calendar as ical"
+msgstr ""
+
+#: src/Content/Widget/CalendarExport.php:65
+msgid "Export calendar as csv"
+msgstr ""
+
+#: src/Content/Widget/ContactBlock.php:73
+msgid "No contacts"
+msgstr ""
+
+#: src/Content/Widget/ContactBlock.php:105
+#, php-format
+msgid "%d Contact"
+msgid_plural "%d Contacts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Content/Widget/ContactBlock.php:124
+msgid "View Contacts"
 msgstr ""
 
 #: src/Content/Widget/SavedSearches.php:47
@@ -4192,201 +4214,201 @@ msgstr ""
 msgid "Could not connect to database."
 msgstr ""
 
-#: src/Core/L10n.php:371 src/Model/Event.php:432
+#: src/Core/L10n.php:377 src/Model/Event.php:431
 #: src/Module/Settings/Display.php:178
 msgid "Monday"
 msgstr ""
 
-#: src/Core/L10n.php:371 src/Model/Event.php:433
+#: src/Core/L10n.php:377 src/Model/Event.php:432
 msgid "Tuesday"
 msgstr ""
 
-#: src/Core/L10n.php:371 src/Model/Event.php:434
+#: src/Core/L10n.php:377 src/Model/Event.php:433
 msgid "Wednesday"
 msgstr ""
 
-#: src/Core/L10n.php:371 src/Model/Event.php:435
+#: src/Core/L10n.php:377 src/Model/Event.php:434
 msgid "Thursday"
 msgstr ""
 
-#: src/Core/L10n.php:371 src/Model/Event.php:436
+#: src/Core/L10n.php:377 src/Model/Event.php:435
 msgid "Friday"
 msgstr ""
 
-#: src/Core/L10n.php:371 src/Model/Event.php:437
+#: src/Core/L10n.php:377 src/Model/Event.php:436
 msgid "Saturday"
 msgstr ""
 
-#: src/Core/L10n.php:371 src/Model/Event.php:431
+#: src/Core/L10n.php:377 src/Model/Event.php:430
 #: src/Module/Settings/Display.php:178
 msgid "Sunday"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Model/Event.php:452
+#: src/Core/L10n.php:381 src/Model/Event.php:451
 msgid "January"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Model/Event.php:453
+#: src/Core/L10n.php:381 src/Model/Event.php:452
 msgid "February"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Model/Event.php:454
+#: src/Core/L10n.php:381 src/Model/Event.php:453
 msgid "March"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Model/Event.php:455
+#: src/Core/L10n.php:381 src/Model/Event.php:454
 msgid "April"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Core/L10n.php:395 src/Model/Event.php:443
+#: src/Core/L10n.php:381 src/Core/L10n.php:401 src/Model/Event.php:442
 msgid "May"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Model/Event.php:456
+#: src/Core/L10n.php:381 src/Model/Event.php:455
 msgid "June"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Model/Event.php:457
+#: src/Core/L10n.php:381 src/Model/Event.php:456
 msgid "July"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Model/Event.php:458
+#: src/Core/L10n.php:381 src/Model/Event.php:457
 msgid "August"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Model/Event.php:459
+#: src/Core/L10n.php:381 src/Model/Event.php:458
 msgid "September"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Model/Event.php:460
+#: src/Core/L10n.php:381 src/Model/Event.php:459
 msgid "October"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Model/Event.php:461
+#: src/Core/L10n.php:381 src/Model/Event.php:460
 msgid "November"
 msgstr ""
 
-#: src/Core/L10n.php:375 src/Model/Event.php:462
+#: src/Core/L10n.php:381 src/Model/Event.php:461
 msgid "December"
 msgstr ""
 
-#: src/Core/L10n.php:391 src/Model/Event.php:424
+#: src/Core/L10n.php:397 src/Model/Event.php:423
 msgid "Mon"
 msgstr ""
 
-#: src/Core/L10n.php:391 src/Model/Event.php:425
+#: src/Core/L10n.php:397 src/Model/Event.php:424
 msgid "Tue"
 msgstr ""
 
-#: src/Core/L10n.php:391 src/Model/Event.php:426
+#: src/Core/L10n.php:397 src/Model/Event.php:425
 msgid "Wed"
 msgstr ""
 
-#: src/Core/L10n.php:391 src/Model/Event.php:427
+#: src/Core/L10n.php:397 src/Model/Event.php:426
 msgid "Thu"
 msgstr ""
 
-#: src/Core/L10n.php:391 src/Model/Event.php:428
+#: src/Core/L10n.php:397 src/Model/Event.php:427
 msgid "Fri"
 msgstr ""
 
-#: src/Core/L10n.php:391 src/Model/Event.php:429
+#: src/Core/L10n.php:397 src/Model/Event.php:428
 msgid "Sat"
 msgstr ""
 
-#: src/Core/L10n.php:391 src/Model/Event.php:423
+#: src/Core/L10n.php:397 src/Model/Event.php:422
 msgid "Sun"
 msgstr ""
 
-#: src/Core/L10n.php:395 src/Model/Event.php:439
+#: src/Core/L10n.php:401 src/Model/Event.php:438
 msgid "Jan"
 msgstr ""
 
-#: src/Core/L10n.php:395 src/Model/Event.php:440
+#: src/Core/L10n.php:401 src/Model/Event.php:439
 msgid "Feb"
 msgstr ""
 
-#: src/Core/L10n.php:395 src/Model/Event.php:441
+#: src/Core/L10n.php:401 src/Model/Event.php:440
 msgid "Mar"
 msgstr ""
 
-#: src/Core/L10n.php:395 src/Model/Event.php:442
+#: src/Core/L10n.php:401 src/Model/Event.php:441
 msgid "Apr"
 msgstr ""
 
-#: src/Core/L10n.php:395 src/Model/Event.php:444
+#: src/Core/L10n.php:401 src/Model/Event.php:443
 msgid "Jun"
 msgstr ""
 
-#: src/Core/L10n.php:395 src/Model/Event.php:445
+#: src/Core/L10n.php:401 src/Model/Event.php:444
 msgid "Jul"
 msgstr ""
 
-#: src/Core/L10n.php:395 src/Model/Event.php:446
+#: src/Core/L10n.php:401 src/Model/Event.php:445
 msgid "Aug"
 msgstr ""
 
-#: src/Core/L10n.php:395
+#: src/Core/L10n.php:401
 msgid "Sep"
 msgstr ""
 
-#: src/Core/L10n.php:395 src/Model/Event.php:448
+#: src/Core/L10n.php:401 src/Model/Event.php:447
 msgid "Oct"
 msgstr ""
 
-#: src/Core/L10n.php:395 src/Model/Event.php:449
+#: src/Core/L10n.php:401 src/Model/Event.php:448
 msgid "Nov"
 msgstr ""
 
-#: src/Core/L10n.php:395 src/Model/Event.php:450
+#: src/Core/L10n.php:401 src/Model/Event.php:449
 msgid "Dec"
 msgstr ""
 
-#: src/Core/L10n.php:414
+#: src/Core/L10n.php:420
 msgid "poke"
 msgstr ""
 
-#: src/Core/L10n.php:414
+#: src/Core/L10n.php:420
 msgid "poked"
 msgstr ""
 
-#: src/Core/L10n.php:415
+#: src/Core/L10n.php:421
 msgid "ping"
 msgstr ""
 
-#: src/Core/L10n.php:415
+#: src/Core/L10n.php:421
 msgid "pinged"
 msgstr ""
 
-#: src/Core/L10n.php:416
+#: src/Core/L10n.php:422
 msgid "prod"
 msgstr ""
 
-#: src/Core/L10n.php:416
+#: src/Core/L10n.php:422
 msgid "prodded"
 msgstr ""
 
-#: src/Core/L10n.php:417
+#: src/Core/L10n.php:423
 msgid "slap"
 msgstr ""
 
-#: src/Core/L10n.php:417
+#: src/Core/L10n.php:423
 msgid "slapped"
 msgstr ""
 
-#: src/Core/L10n.php:418
+#: src/Core/L10n.php:424
 msgid "finger"
 msgstr ""
 
-#: src/Core/L10n.php:418
+#: src/Core/L10n.php:424
 msgid "fingered"
 msgstr ""
 
-#: src/Core/L10n.php:419
+#: src/Core/L10n.php:425
 msgid "rebuff"
 msgstr ""
 
-#: src/Core/L10n.php:419
+#: src/Core/L10n.php:425
 msgid "rebuffed"
 msgstr ""
 
@@ -4532,16 +4554,16 @@ msgstr ""
 msgid "Errors encountered performing database changes: "
 msgstr ""
 
-#: src/Database/DBStructure.php:436
+#: src/Database/DBStructure.php:439
 msgid "Another database update is currently running."
 msgstr ""
 
-#: src/Database/DBStructure.php:440
+#: src/Database/DBStructure.php:443
 #, php-format
 msgid "%s: Database update"
 msgstr ""
 
-#: src/Database/DBStructure.php:740
+#: src/Database/DBStructure.php:743
 #, php-format
 msgid "%s: updating %s table."
 msgstr ""
@@ -4687,71 +4709,71 @@ msgstr ""
 msgid "Unable to retrieve contact information."
 msgstr ""
 
-#: src/Model/Event.php:50 src/Model/Event.php:872
+#: src/Model/Event.php:50 src/Model/Event.php:871
 #: src/Module/Debug/Localtime.php:36
 msgid "l F d, Y \\@ g:i A"
 msgstr ""
 
-#: src/Model/Event.php:77 src/Model/Event.php:94 src/Model/Event.php:471
-#: src/Model/Event.php:942
+#: src/Model/Event.php:77 src/Model/Event.php:94 src/Model/Event.php:470
+#: src/Model/Event.php:941
 msgid "Starts:"
 msgstr ""
 
-#: src/Model/Event.php:80 src/Model/Event.php:100 src/Model/Event.php:472
-#: src/Model/Event.php:946
+#: src/Model/Event.php:80 src/Model/Event.php:100 src/Model/Event.php:471
+#: src/Model/Event.php:945
 msgid "Finishes:"
 msgstr ""
 
-#: src/Model/Event.php:421
+#: src/Model/Event.php:420
 msgid "all-day"
 msgstr ""
 
-#: src/Model/Event.php:447
+#: src/Model/Event.php:446
 msgid "Sept"
 msgstr ""
 
-#: src/Model/Event.php:469
+#: src/Model/Event.php:468
 msgid "No events to display"
 msgstr ""
 
-#: src/Model/Event.php:588
+#: src/Model/Event.php:587
 msgid "l, F j"
 msgstr ""
 
-#: src/Model/Event.php:619
+#: src/Model/Event.php:618
 msgid "Edit event"
 msgstr ""
 
-#: src/Model/Event.php:620
+#: src/Model/Event.php:619
 msgid "Duplicate event"
 msgstr ""
 
-#: src/Model/Event.php:621
+#: src/Model/Event.php:620
 msgid "Delete event"
 msgstr ""
 
-#: src/Model/Event.php:873
+#: src/Model/Event.php:872
 msgid "D g:i A"
 msgstr ""
 
-#: src/Model/Event.php:874
+#: src/Model/Event.php:873
 msgid "g:i A"
 msgstr ""
 
-#: src/Model/Event.php:961 src/Model/Event.php:963
+#: src/Model/Event.php:960 src/Model/Event.php:962
 msgid "Show map"
 msgstr ""
 
-#: src/Model/Event.php:962
+#: src/Model/Event.php:961
 msgid "Hide map"
 msgstr ""
 
-#: src/Model/Event.php:1054
+#: src/Model/Event.php:1053
 #, php-format
 msgid "%s's birthday"
 msgstr ""
 
-#: src/Model/Event.php:1055
+#: src/Model/Event.php:1054
 #, php-format
 msgid "Happy Birthday %s"
 msgstr ""
@@ -4800,39 +4822,39 @@ msgstr ""
 msgid "Edit groups"
 msgstr ""
 
-#: src/Model/Item.php:1556
+#: src/Model/Item.php:1566
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr ""
 
-#: src/Model/Item.php:2501
+#: src/Model/Item.php:2511
 msgid "activity"
 msgstr ""
 
-#: src/Model/Item.php:2503 src/Object/Post.php:545
+#: src/Model/Item.php:2513 src/Object/Post.php:545
 msgid "comment"
 msgid_plural "comments"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Model/Item.php:2506
+#: src/Model/Item.php:2516
 msgid "post"
 msgstr ""
 
-#: src/Model/Item.php:2620
+#: src/Model/Item.php:2630
 #, php-format
 msgid "Content warning: %s"
 msgstr ""
 
-#: src/Model/Item.php:2734
+#: src/Model/Item.php:2906
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:2767
+#: src/Model/Item.php:2935
 msgid "View on separate page"
 msgstr ""
 
-#: src/Model/Item.php:2768
+#: src/Model/Item.php:2936
 msgid "view on separate page"
 msgstr ""
 
@@ -7363,121 +7385,6 @@ msgstr ""
 msgid "The post was created"
 msgstr ""
 
-#: src/Module/Contact/Advanced.php:92
-msgid "Contact update failed."
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:109
-msgid ""
-"<strong>WARNING: This is highly advanced</strong> and if you enter incorrect "
-"information your communications with this contact may stop working."
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:110
-msgid ""
-"Please use your browser 'Back' button <strong>now</strong> if you are "
-"uncertain what to do on this page."
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:130
-msgid "Return to contact editor"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:135
-msgid "Account Nickname"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:136
-msgid "@Tagname - overrides Name/Nickname"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:137
-msgid "Account URL"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:138
-msgid "Account URL Alias"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:139
-msgid "Friend Request URL"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:140
-msgid "Friend Confirm URL"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:141
-msgid "Notification Endpoint URL"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:142
-msgid "Poll/Feed URL"
-msgstr ""
-
-#: src/Module/Contact/Advanced.php:143
-msgid "New photo from this URL"
-msgstr ""
-
-#: src/Module/Contact/Contacts.php:31 src/Module/Conversation/Network.php:175
-msgid "Invalid contact."
-msgstr ""
-
-#: src/Module/Contact/Contacts.php:54
-msgid "No known contacts."
-msgstr ""
-
-#: src/Module/Contact/Contacts.php:68 src/Module/Profile/Common.php:99
-msgid "No common contacts."
-msgstr ""
-
-#: src/Module/Contact/Contacts.php:80 src/Module/Profile/Contacts.php:97
-#, php-format
-msgid "Follower (%s)"
-msgid_plural "Followers (%s)"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Contact/Contacts.php:84 src/Module/Profile/Contacts.php:100
-#, php-format
-msgid "Following (%s)"
-msgid_plural "Following (%s)"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Contact/Contacts.php:88 src/Module/Profile/Contacts.php:103
-#, php-format
-msgid "Mutual friend (%s)"
-msgid_plural "Mutual friends (%s)"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Contact/Contacts.php:90 src/Module/Profile/Contacts.php:105
-#, php-format
-msgid "These contacts both follow and are followed by <strong>%s</strong>."
-msgstr ""
-
-#: src/Module/Contact/Contacts.php:96 src/Module/Profile/Common.php:87
-#, php-format
-msgid "Common contact (%s)"
-msgid_plural "Common contacts (%s)"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Module/Contact/Contacts.php:98 src/Module/Profile/Common.php:89
-#, php-format
-msgid ""
-"Both <strong>%s</strong> and yourself have publicly interacted with these "
-"contacts (follow, comment or likes on public posts)."
-msgstr ""
-
-#: src/Module/Contact/Contacts.php:104 src/Module/Profile/Contacts.php:111
-#, php-format
-msgid "Contact (%s)"
-msgid_plural "Contacts (%s)"
-msgstr[0] ""
-msgstr[1] ""
-
 #: src/Module/Contact.php:94
 #, php-format
 msgid "%d contact edited."
@@ -7837,6 +7744,121 @@ msgstr ""
 #: src/Module/Contact.php:1192
 msgid "Delete contact"
 msgstr ""
+
+#: src/Module/Contact/Advanced.php:92
+msgid "Contact update failed."
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:109
+msgid ""
+"<strong>WARNING: This is highly advanced</strong> and if you enter incorrect "
+"information your communications with this contact may stop working."
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:110
+msgid ""
+"Please use your browser 'Back' button <strong>now</strong> if you are "
+"uncertain what to do on this page."
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:130
+msgid "Return to contact editor"
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:135
+msgid "Account Nickname"
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:136
+msgid "@Tagname - overrides Name/Nickname"
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:137
+msgid "Account URL"
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:138
+msgid "Account URL Alias"
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:139
+msgid "Friend Request URL"
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:140
+msgid "Friend Confirm URL"
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:141
+msgid "Notification Endpoint URL"
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:142
+msgid "Poll/Feed URL"
+msgstr ""
+
+#: src/Module/Contact/Advanced.php:143
+msgid "New photo from this URL"
+msgstr ""
+
+#: src/Module/Contact/Contacts.php:31 src/Module/Conversation/Network.php:175
+msgid "Invalid contact."
+msgstr ""
+
+#: src/Module/Contact/Contacts.php:54
+msgid "No known contacts."
+msgstr ""
+
+#: src/Module/Contact/Contacts.php:68 src/Module/Profile/Common.php:99
+msgid "No common contacts."
+msgstr ""
+
+#: src/Module/Contact/Contacts.php:80 src/Module/Profile/Contacts.php:97
+#, php-format
+msgid "Follower (%s)"
+msgid_plural "Followers (%s)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Contact/Contacts.php:84 src/Module/Profile/Contacts.php:100
+#, php-format
+msgid "Following (%s)"
+msgid_plural "Following (%s)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Contact/Contacts.php:88 src/Module/Profile/Contacts.php:103
+#, php-format
+msgid "Mutual friend (%s)"
+msgid_plural "Mutual friends (%s)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Contact/Contacts.php:90 src/Module/Profile/Contacts.php:105
+#, php-format
+msgid "These contacts both follow and are followed by <strong>%s</strong>."
+msgstr ""
+
+#: src/Module/Contact/Contacts.php:96 src/Module/Profile/Common.php:87
+#, php-format
+msgid "Common contact (%s)"
+msgid_plural "Common contacts (%s)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Module/Contact/Contacts.php:98 src/Module/Profile/Common.php:89
+#, php-format
+msgid ""
+"Both <strong>%s</strong> and yourself have publicly interacted with these "
+"contacts (follow, comment or likes on public posts)."
+msgstr ""
+
+#: src/Module/Contact/Contacts.php:104 src/Module/Profile/Contacts.php:111
+#, php-format
+msgid "Contact (%s)"
+msgid_plural "Contacts (%s)"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Module/Contact/Poke.php:113
 msgid "Error while sending poke, please retry."
@@ -8266,6 +8288,23 @@ msgstr ""
 msgid "- select -"
 msgstr ""
 
+#: src/Module/FriendSuggest.php:65
+msgid "Suggested contact not found."
+msgstr ""
+
+#: src/Module/FriendSuggest.php:84
+msgid "Friend suggestion sent."
+msgstr ""
+
+#: src/Module/FriendSuggest.php:121
+msgid "Suggest Friends"
+msgstr ""
+
+#: src/Module/FriendSuggest.php:124
+#, php-format
+msgid "Suggest a friend for %s"
+msgstr ""
+
 #: src/Module/Friendica.php:61
 msgid "Installed addons/apps:"
 msgstr ""
@@ -8307,23 +8346,6 @@ msgstr ""
 #: src/Module/Friendica.php:103
 msgid ""
 "Suggestions, praise, etc. - please email \"info\" at \"friendi - dot - ca"
-msgstr ""
-
-#: src/Module/FriendSuggest.php:65
-msgid "Suggested contact not found."
-msgstr ""
-
-#: src/Module/FriendSuggest.php:84
-msgid "Friend suggestion sent."
-msgstr ""
-
-#: src/Module/FriendSuggest.php:121
-msgid "Suggest Friends"
-msgstr ""
-
-#: src/Module/FriendSuggest.php:124
-#, php-format
-msgid "Suggest a friend for %s"
 msgstr ""
 
 #: src/Module/Group.php:61
@@ -8414,6 +8436,10 @@ msgstr ""
 msgid "Add contact to group"
 msgstr ""
 
+#: src/Module/HTTPException/MethodNotAllowed.php:32
+msgid "Method Not Allowed."
+msgstr ""
+
 #: src/Module/Help.php:62
 msgid "Help:"
 msgstr ""
@@ -8425,10 +8451,6 @@ msgstr ""
 
 #: src/Module/HoverCard.php:47
 msgid "No profile"
-msgstr ""
-
-#: src/Module/HTTPException/MethodNotAllowed.php:32
-msgid "Method Not Allowed."
 msgstr ""
 
 #: src/Module/Install.php:188
@@ -8910,19 +8932,19 @@ msgstr ""
 
 #: src/Module/Profile/Profile.php:322 src/Module/Profile/Profile.php:325
 #: src/Module/Profile/Status.php:65 src/Module/Profile/Status.php:68
-#: src/Protocol/Feed.php:945 src/Protocol/OStatus.php:1258
+#: src/Protocol/Feed.php:945 src/Protocol/OStatus.php:1256
 #, php-format
 msgid "%s's timeline"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:323 src/Module/Profile/Status.php:66
-#: src/Protocol/Feed.php:949 src/Protocol/OStatus.php:1262
+#: src/Protocol/Feed.php:949 src/Protocol/OStatus.php:1260
 #, php-format
 msgid "%s's posts"
 msgstr ""
 
 #: src/Module/Profile/Profile.php:324 src/Module/Profile/Status.php:67
-#: src/Protocol/Feed.php:952 src/Protocol/OStatus.php:1265
+#: src/Protocol/Feed.php:952 src/Protocol/OStatus.php:1263
 #, php-format
 msgid "%s's comments"
 msgstr ""
@@ -10434,25 +10456,25 @@ msgstr ""
 msgid "Show fewer"
 msgstr ""
 
-#: src/Protocol/Diaspora.php:3446
+#: src/Protocol/Diaspora.php:3464
 msgid "Attachments:"
 msgstr ""
 
-#: src/Protocol/OStatus.php:1760
+#: src/Protocol/OStatus.php:1758
 #, php-format
 msgid "%s is now following %s."
 msgstr ""
 
-#: src/Protocol/OStatus.php:1761
+#: src/Protocol/OStatus.php:1759
 msgid "following"
 msgstr ""
 
-#: src/Protocol/OStatus.php:1764
+#: src/Protocol/OStatus.php:1762
 #, php-format
 msgid "%s stopped following %s."
 msgstr ""
 
-#: src/Protocol/OStatus.php:1765
+#: src/Protocol/OStatus.php:1763
 msgid "stopped following"
 msgstr ""
 
@@ -10788,14 +10810,6 @@ msgstr ""
 msgid "Leave background image and color empty for theme defaults"
 msgstr ""
 
-#: view/theme/frio/php/default.php:81 view/theme/frio/php/standard.php:40
-msgid "Skip to main content"
-msgstr ""
-
-#: view/theme/frio/php/default.php:152 view/theme/frio/php/standard.php:75
-msgid "Back to top"
-msgstr ""
-
 #: view/theme/frio/php/Image.php:40
 msgid "Top Banner"
 msgstr ""
@@ -10830,6 +10844,14 @@ msgstr ""
 
 #: view/theme/frio/php/Image.php:43
 msgid "Repeat image to fill the screen."
+msgstr ""
+
+#: view/theme/frio/php/default.php:81 view/theme/frio/php/standard.php:40
+msgid "Skip to main content"
+msgstr ""
+
+#: view/theme/frio/php/default.php:152 view/theme/frio/php/standard.php:75
+msgid "Back to top"
 msgstr ""
 
 #: view/theme/frio/theme.php:207
