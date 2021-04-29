@@ -184,6 +184,7 @@ class Item
 				$content_fields = ['raw-body' => trim($fields['raw-body'] ?? $fields['body'])];
 
 				// Remove all media attachments from the body and store them in the post-media table
+				// @todo On shared postings (Diaspora style and commented reshare) don't fetch content from rhe shared part
 				$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
 				$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
 			}
@@ -2639,10 +2640,10 @@ class Item
 			unset($hook_data);
 		}
 
-		$orig_body = $item['body'];
+		$body = $item['body'];
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $item['body']);
 		self::putInCache($item);
-		$item['body'] = $orig_body;
+		$item['body'] = $body;
 		$s = $item["rendered-html"];
 
 		$hook_data = [
@@ -2666,19 +2667,23 @@ class Item
 		if (!empty($shared['guid'])) {
 			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
 			$shared_uri_id = $shared_item['uri-id'] ?? 0;
-			$shared_plink = $shared_item['plink'] ?? '';
+			$shared_links = [strtolower($shared_item['plink'] ?? '')];
 			$attachments = Post\Media::splitAttachments($shared_uri_id, $shared['guid']);
 			$s = self::addVisualAttachments($attachments, $item, $s, true);
-			$s = self::addLinkAttachment($attachments, $item, $s, true, '');
+			$s = self::addLinkAttachment($attachments, $body, $s, true, []);
 			$s = self::addNonVisualAttachments($attachments, $item, $s, true);
+			$shared_links = array_merge($shared_links, array_column($attachments['visual'], 'url'));
+			$shared_links = array_merge($shared_links, array_column($attachments['link'], 'url'));
+			$shared_links = array_merge($shared_links, array_column($attachments['additional'], 'url'));
+			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
 		} else {
 			$shared_uri_id = 0;
-			$shared_plink = '';
+			$shared_links = [];
 		}
 
-		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid']);
+		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'], $shared_links);
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
-		$s = self::addLinkAttachment($attachments, $item, $s, false, $shared_plink);
+		$s = self::addLinkAttachment($attachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
 
 		// Map.
@@ -2819,12 +2824,13 @@ class Item
 	 * Add link attachment to the content
 	 *
 	 * @param array  $attachments
-	 * @param array  $item
+	 * @param string $body
 	 * @param string $content
 	 * @param bool   $shared
+	 * @param array $ignore_links
 	 * @return string modified content
 	 */
-	private static function addLinkAttachment(array $attachments, array $item, string $content, bool $shared, string $ignore_link)
+	private static function addLinkAttachment(array $attachments, string $body, string $content, bool $shared, array $ignore_links)
 	{
 		$stamp1 = microtime(true);
 		// @ToDo Check only for audio and video
@@ -2832,14 +2838,13 @@ class Item
 
 		if (!empty($attachments['link'])) {
 			foreach ($attachments['link'] as $link) {
-				if (!Strings::compareLink($link['url'], $ignore_link)) {
+				if (!in_array(strtolower($link['url']), $ignore_links)) {
 					$attachment = $link;
 				}
 			}
 		}
 
 		if (!empty($attachment)) {
-			$footer = '';
 			$data = [
 				'after' => '',
 				'author_name' => $attachment['author-name'] ?? '',
@@ -2861,15 +2866,14 @@ class Item
 					$data['preview'] = $attachment['preview'] ?? '';
 				}
 			}
-		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $item['body'], $match)) {
-			$footer = $match[1];
-			$data = [];
+		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $body, $match)) {
+			$data = BBCode::getAttachmentData($match[1]);
 		}
 		DI::profiler()->saveTimestamp($stamp1, 'rendering');
 
-		if (!empty($footer) || !empty($data)) {
+		if (!empty($data) && !in_array($data['url'], $ignore_links)) {
 			// @todo Use a template
-			$rendered = BBCode::convertAttachment($footer, BBCode::INTERNAL, false, $data);
+			$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data);
 			if ($shared) {
 				return str_replace(BBCode::ANCHOR, BBCode::ANCHOR . $rendered, $content);
 			} else {

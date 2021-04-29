@@ -447,11 +447,12 @@ class Media
 	/**
 	 * Split the attachment media in the three segments "visual", "link" and "additional"
 	 * 
-	 * @param int $uri_id 
+	 * @param int    $uri_id 
 	 * @param string $guid
+	 * @param array  $links ist of links that shouldn't be added 
 	 * @return array attachments
 	 */
-	public static function splitAttachments(int $uri_id, string $guid = '')
+	public static function splitAttachments(int $uri_id, string $guid = '', array $links = [])
 	{
 		$attachments = ['visual' => [], 'link' => [], 'additional' => []];
 
@@ -464,6 +465,11 @@ class Media
 		$selected = '';
 
 		foreach ($media as $medium) {
+			$medium['url'] = strtolower($medium['url']);
+			if (in_array($medium['url'], $links)) {
+				continue;
+			}
+
 			$type = explode('/', current(explode(';', $medium['mimetype'])));
 			if (count($type) < 2) {
 				Logger::info('Unknown MimeType', ['type' => $type, 'media' => $medium]);
