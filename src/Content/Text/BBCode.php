@@ -408,7 +408,7 @@ class BBCode
 	 */
 	public static function removeAttachment($body, $no_link_desc = false)
 	{
-		return preg_replace_callback("/\s*\[attachment (.*)\](.*?)\[\/attachment\]\s*/ism",
+		return preg_replace_callback("/\s*\[attachment (.*?)\](.*?)\[\/attachment\]\s*/ism",
 			function ($match) use ($no_link_desc) {
 				$attach_data = self::getAttachmentData($match[0]);
 				if (empty($attach_data['url'])) {
