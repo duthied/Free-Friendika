@@ -28,6 +28,8 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Util\Images;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Strings;
@@ -518,5 +520,44 @@ class Media
 			}
 		}
 		return $attachments;
+	}
+
+	/**
+	 * Add media attachments to the body
+	 *
+	 * @param int $uriid
+	 * @return string body
+	 */
+	public static function addAttachmentsToBody(int $uriid)
+	{
+		$item = Post::selectFirst(['body'], ['uri-id' => $uriid]);
+		if (!DBA::isResult($item)) {
+			return '';
+		}
+		$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $item['body']);
+
+		foreach (self::getByURIId($uriid, [self::IMAGE, self::AUDIO, self::VIDEO]) as $media) {
+			if (Item::containsLink($body, $media['url'])) {
+				continue;
+			}
+
+			if ($media['type'] == self::IMAGE) {
+				if (!empty($media['description'])) {
+					$body .= "\n[img=" . $media['url'] . ']' . $media['description'] .'[/img]';
+				} else {
+					$body .= "\n[img]" . $media['url'] .'[/img]';
+				}
+			} elseif ($media['type'] == self::AUDIO) {
+				$body .= "\n[audio]" . $media['url'] . "[/audio]\n";
+			} elseif ($media['type'] == self::VIDEO) {
+				$body .= "\n[video]" . $media['url'] . "[/video]\n";
+			}
+		}
+
+		if (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $item['body'], $match)) {
+			$body .= "\n" . $match[1];
+		}
+
+		return $body;
 	}
 }

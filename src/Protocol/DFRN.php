@@ -899,10 +899,10 @@ class DFRN
 			$entry->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
 		}
 
+		$body = Post\Media::addAttachmentsToBody($item['uri-id']);
+
 		if ($item['private'] == Item::PRIVATE) {
-			$body = Item::fixPrivatePhotos($item['body'], $owner['uid'], $item, $cid);
-		} else {
-			$body = $item['body'];
+			$body = Item::fixPrivatePhotos($body, $owner['uid'], $item, $cid);
 		}
 
 		// Remove the abstract element. It is only locally important.
