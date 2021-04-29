@@ -2799,13 +2799,18 @@ class Item
 						'attachment'   => $attachment,
 					],
 				]);
-				$trailing .= $media;
+				// On Diaspora posts the attached pictures are leading
+				if ($item['network'] == Protocol::DIASPORA) {
+					$leading .= $media;
+				} else {
+					$trailing .= $media;
+				}
 			}
 		}
 
 		if ($shared) {
-			$content = str_replace(BBCode::ANCHOR, '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . BBCode::ANCHOR, $content);
-			$content = str_replace(BBCode::ANCHOR, BBCode::ANCHOR . '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>', $content);
+			$content = str_replace(BBCode::TOP_ANCHOR, '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . BBCode::TOP_ANCHOR, $content);
+			$content = str_replace(BBCode::BOTTOM_ANCHOR, '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>' . BBCode::BOTTOM_ANCHOR, $content);
 		} else {
 			if ($leading != '') {
 				$content = '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . $content;
@@ -2881,7 +2886,7 @@ class Item
 			// @todo Use a template
 			$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data);
 			if ($shared) {
-				return str_replace(BBCode::ANCHOR, BBCode::ANCHOR . $rendered, $content);
+				return str_replace(BBCode::BOTTOM_ANCHOR, BBCode::BOTTOM_ANCHOR . $rendered, $content);
 			} else {
 				return $content . $rendered;
 			}
