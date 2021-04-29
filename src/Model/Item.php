@@ -2838,7 +2838,13 @@ class Item
 
 		if (!empty($attachments['link'])) {
 			foreach ($attachments['link'] as $link) {
-				if (!in_array(strtolower($link['url']), $ignore_links)) {
+				$found = false;
+				foreach ($ignore_links as $ignore_link) {
+					if (Strings::compareLink($link['url'], $ignore_link)) {
+						$found = true;
+					}
+				}
+				if (!$found) {
 					$attachment = $link;
 				}
 			}
