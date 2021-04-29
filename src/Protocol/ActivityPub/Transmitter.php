@@ -1291,22 +1291,35 @@ class Transmitter
 			$attachments[] = $attachment;
 		}
 		*/
-		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
-			$attachments[] = ['type' => 'Document',
-				'mediaType' => $attachment['mimetype'],
-				'url' => $attachment['url'],
-				'name' => $attachment['description']];
+		$uriids = [$item['uri-id']];
+		$shared = BBCode::fetchShareAttributes($item['body']);
+		if (!empty($shared['guid'])) {
+			$shared_item = Post::selectFirst(['uri-id'], ['guid' => $shared['guid']]);
+			if (!empty($shared_item['uri-id'])) {
+				$uriids[] = $shared_item['uri-id'];
+			}
+		}
+
+		foreach ($uriids as $uriid) {
+			foreach (Post\Media::getByURIId($uriid, [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
+				$attachments[] = ['type' => 'Document',
+					'mediaType' => $attachment['mimetype'],
+					'url' => $attachment['url'],
+					'name' => $attachment['description']];
+			}
 		}
 
 		if ($type != 'Note') {
 			return $attachments;
 		}
 
-		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]) as $attachment) {
-			$attachments[] = ['type' => 'Document',
-				'mediaType' => $attachment['mimetype'],
-				'url' => $attachment['url'],
-				'name' => $attachment['description']];
+		foreach ($uriids as $uriid) {
+			foreach (Post\Media::getByURIId($uriid, [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]) as $attachment) {
+				$attachments[] = ['type' => 'Document',
+					'mediaType' => $attachment['mimetype'],
+					'url' => $attachment['url'],
+					'name' => $attachment['description']];
+			}
 		}
 
 		return $attachments;
