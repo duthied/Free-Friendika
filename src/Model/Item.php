@@ -1706,7 +1706,7 @@ class Item
 					return ("[bookmark=" . str_replace("#", "&num;", $match[1]) . "]" . str_replace("#", "&num;", $match[2]) . "[/bookmark]");
 				}, $body);
 
-			$body = preg_replace_callback("/\[attachment (.*)\](.*?)\[\/attachment\]/ism",
+			$body = preg_replace_callback("/\[attachment (.*?)\](.*?)\[\/attachment\]/ism",
 				function ($match) {
 					return ("[attachment " . str_replace("#", "&num;", $match[1]) . "]" . $match[2] . "[/attachment]");
 				}, $body);
@@ -2640,7 +2640,7 @@ class Item
 		}
 
 		$orig_body = $item['body'];
-		$item['body'] = preg_replace("/\s*\[attachment .*\].*?\[\/attachment\]\s*/ism", '', $item['body']);
+		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $item['body']);
 		self::putInCache($item);
 		$item['body'] = $orig_body;
 		$s = $item["rendered-html"];
