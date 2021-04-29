@@ -30,6 +30,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Images;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Strings;
 
 /**
  * Class Media
@@ -465,9 +466,10 @@ class Media
 		$selected = '';
 
 		foreach ($media as $medium) {
-			$medium['url'] = strtolower($medium['url']);
-			if (in_array($medium['url'], $links)) {
-				continue;
+			foreach ($links as $link) {
+				if (Strings::compareLink($link, $medium['url'])) {
+					continue 2;
+				}
 			}
 
 			$type = explode('/', current(explode(';', $medium['mimetype'])));
