@@ -1885,7 +1885,7 @@ class OStatus
 		XML::addElement($doc, $entry, "id", $item["uri"]);
 		XML::addElement($doc, $entry, "title", html_entity_decode($title, ENT_QUOTES, 'UTF-8'));
 
-		$body = Post\Media::addAttachmentsToBody($item['uri-id']);
+		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 		$body = self::formatPicturePost($body);
 
 		if (!empty($item['title'])) {

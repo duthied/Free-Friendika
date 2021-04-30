@@ -3406,7 +3406,7 @@ class Diaspora
 			$type = "reshare";
 		} else {
 			$title = $item["title"];
-			$body = Post\Media::addAttachmentsToBody($item['uri-id']);
+			$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 
 			// Fetch the title from an attached link - if there is one
 			if (empty($item["title"]) && DI::pConfig()->get($owner['uid'], 'system', 'attach_link_title')) {
@@ -3620,7 +3620,7 @@ class Diaspora
 			$thread_parent_item = Post::selectFirst(['guid', 'author-id', 'author-link', 'gravity'], ['uri' => $item['thr-parent'], 'uid' => $item['uid']]);
 		}
 
-		$body = Post\Media::addAttachmentsToBody($item['uri-id']);
+		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 
 		// The replied to autor mention is prepended for clarity if:
 		// - Item replied isn't yours

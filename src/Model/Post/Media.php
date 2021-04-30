@@ -526,15 +526,19 @@ class Media
 	 * Add media attachments to the body
 	 *
 	 * @param int $uriid
+	 * @param string $body
 	 * @return string body
 	 */
-	public static function addAttachmentsToBody(int $uriid)
+	public static function addAttachmentsToBody(int $uriid, string $body = '')
 	{
-		$item = Post::selectFirst(['body'], ['uri-id' => $uriid]);
-		if (!DBA::isResult($item)) {
-			return '';
+		if (empty($body)) {
+			$item = Post::selectFirst(['body'], ['uri-id' => $uriid]);
+			if (!DBA::isResult($item)) {
+				return '';
+			}
+			$body = $item['body'];
 		}
-		$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $item['body']);
+		$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
 
 		foreach (self::getByURIId($uriid, [self::IMAGE, self::AUDIO, self::VIDEO]) as $media) {
 			if (Item::containsLink($body, $media['url'])) {
