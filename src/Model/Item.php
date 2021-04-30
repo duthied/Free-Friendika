@@ -2743,6 +2743,7 @@ class Item
 		$leading = '';
 		$trailing = '';
 
+		// @todo In the future we should make a single for the template engine with all media in it. This allows more flexibilty.
 		foreach ($attachments['visual'] as $attachment) {
 			if (self::containsLink($item['body'], $attachment['url'])) {
 				continue;
