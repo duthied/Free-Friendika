@@ -184,7 +184,7 @@ class Item
 				$content_fields = ['raw-body' => trim($fields['raw-body'] ?? $fields['body'])];
 
 				// Remove all media attachments from the body and store them in the post-media table
-				// @todo On shared postings (Diaspora style and commented reshare) don't fetch content from rhe shared part
+				// @todo On shared postings (Diaspora style and commented reshare) don't fetch content from the shared part
 				$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
 				$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
 			}
@@ -2833,7 +2833,7 @@ class Item
 	 * @param string $body
 	 * @param string $content
 	 * @param bool   $shared
-	 * @param array $ignore_links
+	 * @param array  $ignore_links A list of URLs to ignore
 	 * @return string modified content
 	 */
 	private static function addLinkAttachment(array $attachments, string $body, string $content, bool $shared, array $ignore_links)
@@ -2883,7 +2883,7 @@ class Item
 		}
 		DI::profiler()->saveTimestamp($stamp1, 'rendering');
 
-		if (!empty($data) && !in_array($data['url'], $ignore_links)) {
+		if (isset($data['url']) && !in_array($data['url'], $ignore_links)) {
 			// @todo Use a template
 			$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data);
 			if ($shared) {
