@@ -2640,7 +2640,7 @@ class Item
 			unset($hook_data);
 		}
 
-		$body = $item['body'];
+		$body = $item['body'] ?? '';
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $item['body']);
 		self::putInCache($item);
 		$item['body'] = $body;
