@@ -538,6 +538,8 @@ class Media
 			}
 			$body = $item['body'];
 		}
+		$original_body = $body;
+
 		$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
 
 		foreach (self::getByURIId($uriid, [self::IMAGE, self::AUDIO, self::VIDEO]) as $media) {
@@ -558,7 +560,7 @@ class Media
 			}
 		}
 
-		if (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $item['body'], $match)) {
+		if (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $original_body, $match)) {
 			$body .= "\n" . $match[1];
 		}
 
