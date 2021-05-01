@@ -37,11 +37,11 @@
 
 	<div class="panel-body">
 		<div class="profile-header">
-			<h3 class="fn p-name">{{$profile.name}}</h3>
+			<h3 class="fn p-name" dir="auto">{{$profile.name}}</h3>
 
 			{{if $profile.addr}}<div class="p-addr">{{include file="sub/punct_wrap.tpl" text=$profile.addr}}</div>{{/if}}
 
-			{{if $profile.about}}<div class="title">{{$profile.about nofilter}}</div>{{/if}}
+			{{if $profile.about}}<div class="title" dir="auto">{{$profile.about nofilter}}</div>{{/if}}
 
 			{{if $account_type}}<div class="account-type">({{$account_type}})</div>{{/if}}
 		</div>
