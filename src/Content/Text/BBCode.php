@@ -61,7 +61,8 @@ class BBCode
 	const BACKLINK = 8;
 	const ACTIVITYPUB = 9;
 
-	const ANCHOR = '<br class="anchor">';
+	const TOP_ANCHOR = '<br class="top-anchor">';
+	const BOTTOM_ANCHOR = '<br class="button-anchor">';
 	/**
 	 * Fetches attachment data that were generated the old way
 	 *
@@ -1089,7 +1090,7 @@ class BBCode
 					'$guid'         => $attributes['guid'],
 					'$network_name' => ContactSelector::networkToName($network, $attributes['profile']),
 					'$network_icon' => ContactSelector::networkToIcon($network, $attributes['profile']),
-					'$content'      => self::setMentions(trim($content), 0, $network) . self::ANCHOR,
+					'$content'      => self::TOP_ANCHOR . self::setMentions(trim($content), 0, $network) . self::BOTTOM_ANCHOR,
 				]);
 				break;
 		}

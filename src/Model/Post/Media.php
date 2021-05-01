@@ -28,8 +28,11 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Util\Images;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Strings;
 
 /**
  * Class Media
@@ -447,11 +450,12 @@ class Media
 	/**
 	 * Split the attachment media in the three segments "visual", "link" and "additional"
 	 * 
-	 * @param int $uri_id 
+	 * @param int    $uri_id 
 	 * @param string $guid
+	 * @param array  $links ist of links that shouldn't be added 
 	 * @return array attachments
 	 */
-	public static function splitAttachments(int $uri_id, string $guid = '')
+	public static function splitAttachments(int $uri_id, string $guid = '', array $links = [])
 	{
 		$attachments = ['visual' => [], 'link' => [], 'additional' => []];
 
@@ -464,6 +468,12 @@ class Media
 		$selected = '';
 
 		foreach ($media as $medium) {
+			foreach ($links as $link) {
+				if (Strings::compareLink($link, $medium['url'])) {
+					continue 2;
+				}
+			}
+
 			$type = explode('/', current(explode(';', $medium['mimetype'])));
 			if (count($type) < 2) {
 				Logger::info('Unknown MimeType', ['type' => $type, 'media' => $medium]);
@@ -510,5 +520,48 @@ class Media
 			}
 		}
 		return $attachments;
+	}
+
+	/**
+	 * Add media attachments to the body
+	 *
+	 * @param int $uriid
+	 * @param string $body
+	 * @return string body
+	 */
+	public static function addAttachmentsToBody(int $uriid, string $body = '')
+	{
+		if (empty($body)) {
+			$item = Post::selectFirst(['body'], ['uri-id' => $uriid]);
+			if (!DBA::isResult($item)) {
+				return '';
+			}
+			$body = $item['body'];
+		}
+		$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
+
+		foreach (self::getByURIId($uriid, [self::IMAGE, self::AUDIO, self::VIDEO]) as $media) {
+			if (Item::containsLink($body, $media['url'])) {
+				continue;
+			}
+
+			if ($media['type'] == self::IMAGE) {
+				if (!empty($media['description'])) {
+					$body .= "\n[img=" . $media['url'] . ']' . $media['description'] .'[/img]';
+				} else {
+					$body .= "\n[img]" . $media['url'] .'[/img]';
+				}
+			} elseif ($media['type'] == self::AUDIO) {
+				$body .= "\n[audio]" . $media['url'] . "[/audio]\n";
+			} elseif ($media['type'] == self::VIDEO) {
+				$body .= "\n[video]" . $media['url'] . "[/video]\n";
+			}
+		}
+
+		if (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $item['body'], $match)) {
+			$body .= "\n" . $match[1];
+		}
+
+		return $body;
 	}
 }
