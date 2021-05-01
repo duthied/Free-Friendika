@@ -21,7 +21,6 @@
 
 namespace Friendica\Model;
 
-use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -960,7 +959,13 @@ class Item
 			self::setOwnerforResharedItem($item);
 		}
 
-		Post\Media::insertFromAttachmentData($item['uri-id'], $item['body']);
+		if (isset($item['attachments'])) {
+			foreach ($item['attachments'] as $attachment) {
+				$attachment['uri-id'] = $item['uri-id'];
+				Post\Media::insert($attachment);
+			}
+			unset($item['attachments']);
+		}
 
 		// Remove all media attachments from the body and store them in the post-media table
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
@@ -2884,6 +2889,20 @@ class Item
 		DI::profiler()->saveTimestamp($stamp1, 'rendering');
 
 		if (isset($data['url']) && !in_array($data['url'], $ignore_links)) {
+			$parts = parse_url($data['url']);
+			if (!empty($parts['scheme']) && !empty($parts['host'])) {
+				if (empty($data['provider_name'])) {
+					$data['provider_name'] = $parts['host'];
+				}
+				if (empty($data['provider_url']) || empty(parse_url($data['provider_url'], PHP_URL_SCHEME))) {
+					$data['provider_url'] = $parts['scheme'] . '://' . $parts['host'];
+
+					if (!empty($parts['port'])) {
+						$data['provider_url'] .= ':' . $parts['port'];
+					}
+				}
+			}
+
 			// @todo Use a template
 			$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data);
 			if ($shared) {
