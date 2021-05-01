@@ -1,7 +1,7 @@
 
 <div class="vcard h-card">
 
-	<div class="fn p-name">{{$profile.name}}</div>
+	<div class="fn p-name" dir="auto">{{$profile.name}}</div>
 	
 	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
 	
@@ -13,7 +13,7 @@
 	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}
 	{{if $profile.network_link}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_link nofilter}}</dd></dl>{{/if}}
 	{{if $location}}
-		<dl class="location">
+		<dl class="location" dir="auto">
 			<dt class="location-label">{{$location}}</dt>
 			<dd class="adr h-adr">
 				{{if $profile.address}}<p class="street-address p-street-address">{{$profile.address nofilter}}</p>{{/if}}
@@ -37,7 +37,7 @@
 
 	{{if $homepage}}<dl class="homepage"><dt class="homepage-label">{{$homepage}}</dt><dd class="homepage-url u-url"><a href="{{$profile.homepage}}" rel="me" target="_blank" rel="noopener noreferrer">{{$profile.homepage}}</a></dd></dl>{{/if}}
 
-	{{if $about}}<dl class="about"><dt class="about-label">{{$about}}</dt><dd class="x-network">{{$profile.about nofilter}}</dd></dl>{{/if}}
+	{{if $about}}<dl class="about"><dt class="about-label">{{$about}}</dt><dd class="x-network" dir="auto">{{$profile.about nofilter}}</dd></dl>{{/if}}
 
 	{{include file="diaspora_vcard.tpl"}}
 

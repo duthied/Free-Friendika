@@ -1,8 +1,8 @@
 
 <div class="vcard h-card">
-	<div class="fn p-name">{{$name}}</div>
+	<div class="fn p-name" dir="auto">{{$name}}</div>
 	{{if $addr}}<div class="p-addr">{{$addr}}</div>{{/if}}
-	{{if $about}}<div class="title p-job-title">{{$about nofilter}}</div>{{/if}}
+	{{if $about}}<div class="title p-about" dir="auto">{{$about nofilter}}</div>{{/if}}
 	{{if $url}}
 	<div id="profile-photo-wrapper"><a href="{{$url}}"><img class="vcard-photo photo u-photo" style="width: 175px; height: 175px;" src="{{$photo}}" alt="{{$name}}" /></a></div>
 	{{else}}
