@@ -473,12 +473,14 @@ class HTTPSignature
 	public static function getSigner($content, $http_headers)
 	{
 		if (empty($http_headers['HTTP_SIGNATURE'])) {
+			Logger::info('No HTTP_SIGNATURE header');
 			return false;
 		}
 
 		if (!empty($content)) {
 			$object = json_decode($content, true);
 			if (empty($object)) {
+				Logger::info('No object');
 				return false;
 			}
 
@@ -507,6 +509,7 @@ class HTTPSignature
 		$sig_block = self::parseSigHeader($http_headers['HTTP_SIGNATURE']);
 
 		if (empty($sig_block) || empty($sig_block['headers']) || empty($sig_block['keyId'])) {
+			Logger::info('No headers or keyId');
 			return false;
 		}
 
@@ -519,6 +522,7 @@ class HTTPSignature
 		$signed_data = rtrim($signed_data, "\n");
 
 		if (empty($signed_data)) {
+			Logger::info('Signed data is empty');
 			return false;
 		}
 
@@ -541,11 +545,13 @@ class HTTPSignature
 		}
 
 		if (empty($algorithm)) {
+			Logger::info('No alagorithm');
 			return false;
 		}
 
 		$key = self::fetchKey($sig_block['keyId'], $actor);
 		if (empty($key)) {
+			Logger::info('Empty key');
 			return false;
 		}
 
@@ -554,14 +560,16 @@ class HTTPSignature
 
 			// We now delete everything that we possibly knew from this actor
 			Contact::deleteContactByUrl($key['url']);
-			return false;
+			return null;
 		}
 
 		if (empty($key['pubkey'])) {
+			Logger::info('Empty pubkey');
 			return false;
 		}
 
 		if (!Crypto::rsaVerify($signed_data, $sig_block['signature'], $key['pubkey'], $algorithm)) {
+			Logger::info('Verification failed');
 			return false;
 		}
 
@@ -580,6 +588,7 @@ class HTTPSignature
 			/// @todo add all hashes from the rfc
 
 			if (!empty($hashalg) && base64_encode(hash($hashalg, $content, true)) != $digest[1]) {
+				Logger::info('Digest does not match');
 				return false;
 			}
 
@@ -599,6 +608,7 @@ class HTTPSignature
 		// Check the content-length when it is part of the signed data
 		if (in_array('content-length', $sig_block['headers'])) {
 			if (strlen($content) != $headers['content-length']) {
+				Logger::info('Content length does not match');
 				return false;
 			}
 		}
@@ -606,6 +616,7 @@ class HTTPSignature
 		// Ensure that the authentication had been done with some content
 		// Without this check someone could authenticate with fakeable data
 		if (!$hasGoodSignedContent) {
+			Logger::info('No good signed content');
 			return false;
 		}
 
