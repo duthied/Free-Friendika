@@ -112,6 +112,10 @@ class Delayed
 	 */
 	public static function publish(array $item, int $notify = 0, array $taglist = [], array $attachments = [], bool $unprepared = false, string $uri = '')
 	{
+		if (!empty($attachments)) {
+			$item['attachments'] = $attachments;
+		}
+
 		if ($unprepared) {
 			$_SESSION['authenticated'] = true;
 			$_SESSION['uid'] = $item['uid'];
@@ -156,11 +160,6 @@ class Delayed
 
 			foreach ($taglist as $tag) {
 				Tag::store($feeditem['uri-id'], Tag::HASHTAG, $tag);
-			}
-
-			foreach ($attachments as $attachment) {
-				$attachment['uri-id'] = $feeditem['uri-id'];
-				Media::insert($attachment);
 			}
 		}
 

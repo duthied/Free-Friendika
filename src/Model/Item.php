@@ -21,7 +21,6 @@
 
 namespace Friendica\Model;
 
-use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -960,7 +959,13 @@ class Item
 			self::setOwnerforResharedItem($item);
 		}
 
-		Post\Media::insertFromAttachmentData($item['uri-id'], $item['body']);
+		if (isset($item['attachments'])) {
+			foreach ($item['attachments'] as $attachment) {
+				$attachment['uri-id'] = $item['uri-id'];
+				Post\Media::insert($attachment);
+			}
+			unset($item['attachments']);
+		}
 
 		// Remove all media attachments from the body and store them in the post-media table
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);

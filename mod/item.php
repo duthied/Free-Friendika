@@ -614,7 +614,8 @@ function item_post(App $a) {
 	$datarray['origin']        = $origin;
 	$datarray['object']        = $object;
 
-	$datarray["uri-id"]        = ItemURI::getIdByURI($datarray["uri"]);
+	$datarray['uri-id']        = ItemURI::getIdByURI($datarray['uri']);
+	$datarray['attachments']   = $_REQUEST['attachments'] ?? [];
 
 	/*
 	 * These fields are for the convenience of addons...
