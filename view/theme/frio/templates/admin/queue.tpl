@@ -5,6 +5,7 @@
 	<table class="table">
 		<tr>
 			<th>{{$id_header}}</th>
+			<th>{{$command_header}}</th>
 			<th>{{$param_header}}</th>
 			<th>{{$created_header}}</th>
 			<th>{{$prio_header}}</th>
@@ -12,6 +13,7 @@
 		{{foreach $entries as $e}}
 		<tr>
 			<td>{{$e.id}}</td>
+			<td>{{$e.command}}</td>
 			<td>{{$e.parameter}}</td>
 			<td>{{$e.created}}</td>
 			<td>{{$e.priority}}</td>
