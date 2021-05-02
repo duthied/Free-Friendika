@@ -178,7 +178,7 @@ HELP;
 		$nick = $this->getNick($arg_index);
 
 		$user = UserModel::getByNickname($nick, ['uid']);
-		if (!$user) {
+		if (empty($user)) {
 			throw new RuntimeException($this->l10n->t('User not found'));
 		}
 
@@ -206,7 +206,7 @@ HELP;
 		try {
 			$result = UserModel::updatePassword($user['uid'], $password);
 
-			if (!$result) {
+			if (empty($result)) {
 				throw new \Exception($this->l10n->t('Password update failed. Please try again.'));
 			}
 
@@ -425,7 +425,7 @@ HELP;
 				return false;
 		}
 
-		if ($user) {
+		if (!empty($user)) {
 			$table->addRow($user);
 		}
 		$this->out($table->getTable());
