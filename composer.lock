@@ -889,16 +889,16 @@
         },
         {
             "name": "level-2/dice",
-            "version": "4.0.2",
+            "version": "4.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Level-2/Dice.git",
-                "reference": "b9336d9200d0165c31e982374dc5d8d2552807bc"
+                "reference": "3e9a8548398c01e2527110c916a93f6efa17ac9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Level-2/Dice/zipball/b9336d9200d0165c31e982374dc5d8d2552807bc",
-                "reference": "b9336d9200d0165c31e982374dc5d8d2552807bc",
+                "url": "https://api.github.com/repos/Level-2/Dice/zipball/3e9a8548398c01e2527110c916a93f6efa17ac9c",
+                "reference": "3e9a8548398c01e2527110c916a93f6efa17ac9c",
                 "shasum": ""
             },
             "require": {
@@ -931,7 +931,7 @@
                 "di",
                 "ioc"
             ],
-            "time": "2020-01-28T13:47:49+00:00"
+            "time": "2021-04-20T14:06:06+00:00"
         },
         {
             "name": "lightopenid/lightopenid",
