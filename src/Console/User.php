@@ -26,7 +26,6 @@ use Friendica\App;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\IPConfig;
-use Friendica\Database\Database;
 use Friendica\Model\Register;
 use Friendica\Model\User as UserModel;
 use Friendica\Util\Temporal;
@@ -89,7 +88,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, IPConfig $pConfig, array $argv = null)
+	public function __construct(App\Mode $appMode, L10n $l10n, IPConfig $pConfig, array $argv = null)
 	{
 		parent::__construct($argv);
 
