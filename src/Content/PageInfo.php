@@ -257,11 +257,11 @@ class PageInfo
 		$body = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '', $body);
 
 		// Search for pure links
-		preg_match("/\[url\](.*?)\[\/url\]/ism", $body, $matches);
+		preg_match("/\[url\](https?:.*?)\[\/url\]/ism", $body, $matches);
 
 		if (!$matches) {
 			// Search for links with descriptions
-			preg_match("/\[url\=(.*?)\].*?\[\/url\]/ism", $body, $matches);
+			preg_match("/\[url\=(https?:.*?)\].*?\[\/url\]/ism", $body, $matches);
 		}
 
 		if (!$matches && $searchNakedUrls) {
