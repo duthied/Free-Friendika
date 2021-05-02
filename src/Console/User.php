@@ -26,7 +26,6 @@ use Friendica\App;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\IPConfig;
-use Friendica\Database\Database;
 use Friendica\Model\Register;
 use Friendica\Model\User as UserModel;
 use Friendica\Util\Temporal;
@@ -48,10 +47,6 @@ class User extends \Asika\SimpleConsole\Console
 	 * @var L10n
 	 */
 	private $l10n;
-	/**
-	 * @var Database
-	 */
-	private $dba;
 	/**
 	 * @var IPConfig
 	 */
@@ -93,13 +88,12 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, IPConfig $pConfig, array $argv = null)
+	public function __construct(App\Mode $appMode, L10n $l10n, IPConfig $pConfig, array $argv = null)
 	{
 		parent::__construct($argv);
 
 		$this->appMode = $appMode;
 		$this->l10n    = $l10n;
-		$this->dba     = $dba;
 		$this->pConfig = $pConfig;
 	}
 
@@ -176,15 +170,15 @@ HELP;
 	 *
 	 * @param int $arg_index Index of the nick argument in the arguments list
 	 *
-	 * @return mixed user data or dba failure result
+	 * @return array|boolean User record with uid field, or false if user is not found
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function getUserByNick($arg_index)
 	{
 		$nick = $this->getNick($arg_index);
 
-		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
-		if (!$this->dba->isResult($user)) {
+		$user = UserModel::getByNickname($nick, ['uid']);
+		if (empty($user)) {
 			throw new RuntimeException($this->l10n->t('User not found'));
 		}
 
@@ -212,7 +206,7 @@ HELP;
 		try {
 			$result = UserModel::updatePassword($user['uid'], $password);
 
-			if (!$this->dba->isResult($result)) {
+			if (empty($result)) {
 				throw new \Exception($this->l10n->t('Password update failed. Please try again.'));
 			}
 
@@ -431,7 +425,9 @@ HELP;
 				return false;
 		}
 
-		$table->addRow($user);
+		if (!empty($user)) {
+			$table->addRow($user);
+		}
 		$this->out($table->getTable());
 
 		return true;
@@ -489,7 +485,7 @@ HELP;
 					throw new RuntimeException('Key does not exist');
 				}
 
-				$this->out($pconfig->get($user['uid'], $category, $key));
+				$this->out($this->pConfig->get($user['uid'], $category, $key));
 				break;
 			case 'set':
 				$value = $this->getArgument(5);
@@ -508,7 +504,7 @@ HELP;
 					throw new RuntimeException('Value not changed');
 				}
 
-				$pconfig->set($user['uid'], $category, $key, $value);
+				$this->pConfig->set($user['uid'], $category, $key, $value);
 				break;
 			case 'delete':
 				if (!array_key_exists($category, $values)) {
@@ -518,7 +514,7 @@ HELP;
 					throw new RuntimeException('Key does not exist');
 				}
 
-				$pconfig->delete($user['uid'], $category, $key);
+				$this->pConfig->delete($user['uid'], $category, $key);
 				break;
 			default:
 				$this->out($this->getHelp());
