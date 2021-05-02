@@ -971,6 +971,8 @@ class Item
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
 
+		Post\Media::insertFromAttachmentData($item['uri-id'], $item['body']);
+
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
 
@@ -2646,7 +2648,7 @@ class Item
 		}
 
 		$body = $item['body'] ?? '';
-		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $item['body']);
+		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
 		self::putInCache($item);
 		$item['body'] = $body;
 		$s = $item["rendered-html"];
@@ -2722,6 +2724,12 @@ class Item
 	 */
 	public static function containsLink(string $body, string $url)
 	{
+		// Make sure that for example site parameters aren't used when testing if the link is contained in the body
+		$urlparts = parse_url($url);
+		unset($urlparts['query']);
+		unset($urlparts['fragment']);
+		$url = Network::unparseURL($urlparts);
+
 		if (strpos($body, $url)) {
 			return true;
 		}

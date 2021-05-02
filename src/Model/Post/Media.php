@@ -286,6 +286,8 @@ class Media
 		// Simplify image codes
 		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 
+		$unshared_body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+
 		$attachments = [];
 		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
@@ -346,7 +348,10 @@ class Media
 		}
 
 		foreach ($attachments as $attachment) {
-			self::insert($attachment);
+			// Only store attachments that are part of the unshared body
+			if (strpos($unshared_body, $attachment['url']) !== false) {
+				self::insert($attachment);
+			}
 		}
 
 		return trim($body);
@@ -360,6 +365,9 @@ class Media
 	 */
 	public static function insertFromAttachmentData(int $uriid, string $body)
 	{
+		// Don't look at the shared content
+		$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+
 		$data = BBCode::getAttachmentData($body);
 		if (empty($data))  {
 			return;
@@ -548,10 +556,18 @@ class Media
 			}
 
 			if ($media['type'] == self::IMAGE) {
-				if (!empty($media['description'])) {
-					$body .= "\n[img=" . $media['url'] . ']' . $media['description'] .'[/img]';
+				if (!empty($media['preview'])) {
+					if (!empty($media['description'])) {
+						$body .= "\n[url=" . $media['url'] . "][img=" . $media['preview'] . ']' . $media['description'] .'[/img][/url]';
+					} else {
+						$body .= "\n[url=" . $media['url'] . "][img]" . $media['preview'] .'[/img][/url]';
+					}
 				} else {
-					$body .= "\n[img]" . $media['url'] .'[/img]';
+					if (!empty($media['description'])) {
+						$body .= "\n[img=" . $media['url'] . ']' . $media['description'] .'[/img]';
+					} else {
+						$body .= "\n[img]" . $media['url'] .'[/img]';
+					}
 				}
 			} elseif ($media['type'] == self::AUDIO) {
 				$body .= "\n[audio]" . $media['url'] . "[/audio]\n";

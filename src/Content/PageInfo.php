@@ -253,10 +253,15 @@ class PageInfo
 		// Fix for Mastodon where the mentions are in a different format
 		$body = preg_replace("~\[url=($URLSearchString)]([#!@])(.*?)\[/url]~is", '$2[url=$1]$3[/url]', $body);
 
-		preg_match("~(?<![!#@])\[url]($URLSearchString)\[/url]$~is", $body, $matches);
+		// Remove all hashtags and mentions
+		$body = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '', $body);
+
+		// Search for pure links
+		preg_match("/\[url\](.*?)\[\/url\]/ism", $body, $matches);
 
 		if (!$matches) {
-			preg_match("~(?<![!#@])\[url=($URLSearchString)].*\[/url]$~is", $body, $matches);
+			// Search for links with descriptions
+			preg_match("/\[url\=(.*?)\].*?\[\/url\]/ism", $body, $matches);
 		}
 
 		if (!$matches && $searchNakedUrls) {
