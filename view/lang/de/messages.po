@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-28 23:33+0200\n"
-"PO-Revision-Date: 2021-04-29 08:45+0000\n"
+"POT-Creation-Date: 2021-05-02 09:56+0200\n"
+"PO-Revision-Date: 2021-05-03 08:47+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -79,7 +79,7 @@ msgstr[1] "Das wöchentliche Limit von %d Beiträgen wurde erreicht. Der Beitrag
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr "Das monatliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wurde verworfen."
 
-#: include/api.php:4503 mod/photos.php:107 mod/photos.php:211
+#: include/api.php:4518 mod/photos.php:107 mod/photos.php:211
 #: mod/photos.php:639 mod/photos.php:1043 mod/photos.php:1060
 #: mod/photos.php:1609 src/Model/User.php:1045 src/Model/User.php:1053
 #: src/Model/User.php:1061 src/Module/Settings/Profile/Photo/Crop.php:97
@@ -96,7 +96,7 @@ msgstr "Profilbilder"
 msgid "%1$s poked %2$s"
 msgstr "%1$s stupste %2$s"
 
-#: include/conversation.php:227 src/Model/Item.php:2507
+#: include/conversation.php:227 src/Model/Item.php:2513
 msgid "event"
 msgstr "Veranstaltung"
 
@@ -104,7 +104,7 @@ msgstr "Veranstaltung"
 msgid "status"
 msgstr "Status"
 
-#: include/conversation.php:235 mod/tagger.php:90 src/Model/Item.php:2509
+#: include/conversation.php:235 mod/tagger.php:90 src/Model/Item.php:2515
 msgid "photo"
 msgstr "Foto"
 
@@ -866,7 +866,7 @@ msgstr "Bitte besuche %s, um die Anfrage zu bearbeiten."
 
 #: mod/api.php:52 mod/api.php:57 mod/dfrn_confirm.php:78 mod/editpost.php:37
 #: mod/events.php:231 mod/follow.php:55 mod/follow.php:135 mod/item.php:184
-#: mod/item.php:189 mod/item.php:908 mod/message.php:69 mod/message.php:112
+#: mod/item.php:189 mod/item.php:909 mod/message.php:69 mod/message.php:112
 #: mod/notes.php:44 mod/ostatus_subscribe.php:30 mod/photos.php:176
 #: mod/photos.php:922 mod/repair_ostatus.php:31 mod/settings.php:47
 #: mod/settings.php:65 mod/settings.php:498 mod/suggest.php:34
@@ -989,7 +989,7 @@ msgstr "Tag"
 msgid "list"
 msgstr "Liste"
 
-#: mod/cal.php:297 src/Console/User.php:183 src/Model/User.php:607
+#: mod/cal.php:297 src/Console/User.php:188 src/Model/User.php:607
 #: src/Module/Admin/Users/Active.php:73 src/Module/Admin/Users/Blocked.php:74
 #: src/Module/Admin/Users/Index.php:80 src/Module/Admin/Users/Pending.php:71
 #: src/Module/Api/Twitter/ContactEndpoint.php:73
@@ -1479,19 +1479,19 @@ msgstr "Konnte den Originalbeitrag nicht finden."
 msgid "Empty post discarded."
 msgstr "Leerer Beitrag wurde verworfen."
 
-#: mod/item.php:708
+#: mod/item.php:709
 msgid "Post updated."
 msgstr "Beitrag aktualisiert."
 
-#: mod/item.php:725 mod/item.php:730
+#: mod/item.php:726 mod/item.php:731
 msgid "Item wasn't stored."
 msgstr "Eintrag wurde nicht gespeichert"
 
-#: mod/item.php:741
+#: mod/item.php:742
 msgid "Item couldn't be fetched."
 msgstr "Eintrag konnte nicht geholt werden."
 
-#: mod/item.php:887 src/Module/Admin/Themes/Details.php:39
+#: mod/item.php:888 src/Module/Admin/Themes/Details.php:39
 #: src/Module/Admin/Themes/Index.php:59 src/Module/Debug/ItemBody.php:47
 #: src/Module/Debug/ItemBody.php:60
 msgid "Item not found."
@@ -2138,11 +2138,11 @@ msgstr "Die Umzugsbenachrichtigung wurde an Deine Kontakte versendet."
 msgid "Passwords do not match."
 msgstr "Die Passwörter stimmen nicht überein."
 
-#: mod/settings.php:281 src/Console/User.php:211
+#: mod/settings.php:281 src/Console/User.php:216
 msgid "Password update failed. Please try again."
 msgstr "Aktualisierung des Passworts gescheitert, bitte versuche es noch einmal."
 
-#: mod/settings.php:284 src/Console/User.php:214
+#: mod/settings.php:284 src/Console/User.php:219
 msgid "Password changed."
 msgstr "Passwort geändert."
 
@@ -3170,52 +3170,52 @@ msgstr "Ausstehende Post-Updates ausführen"
 msgid "All pending post updates are done."
 msgstr "Alle ausstehenden Post-Updates wurden ausgeführt."
 
-#: src/Console/User.php:159 src/Console/User.php:246
+#: src/Console/User.php:164 src/Console/User.php:251
 msgid "Enter user nickname: "
 msgstr "Spitzname angeben:"
 
-#: src/Console/User.php:203
+#: src/Console/User.php:208
 msgid "Enter new password: "
 msgstr "Neues Passwort eingeben:"
 
-#: src/Console/User.php:238
+#: src/Console/User.php:243
 msgid "Enter user name: "
 msgstr "Nutzername angeben"
 
-#: src/Console/User.php:254
+#: src/Console/User.php:259
 msgid "Enter user email address: "
 msgstr "E-Mail Adresse angeben:"
 
-#: src/Console/User.php:262
+#: src/Console/User.php:267
 msgid "Enter a language (optional): "
 msgstr "Sprache angeben (optional):"
 
-#: src/Console/User.php:287
+#: src/Console/User.php:292
 msgid "User is not pending."
 msgstr "Benutzer wartet nicht."
 
-#: src/Console/User.php:319
+#: src/Console/User.php:324
 msgid "User has already been marked for deletion."
 msgstr "User wurde bereits zum Löschen ausgewählt"
 
-#: src/Console/User.php:324
+#: src/Console/User.php:329
 #, php-format
 msgid "Type \"yes\" to delete %s"
 msgstr "\"yes\" eingeben um %s zu löschen"
 
-#: src/Console/User.php:326
+#: src/Console/User.php:331
 msgid "Deletion aborted."
 msgstr "Löschvorgang abgebrochen."
 
-#: src/Console/User.php:449
+#: src/Console/User.php:454
 msgid "Enter category: "
 msgstr "Kategorie eingeben"
 
-#: src/Console/User.php:459
+#: src/Console/User.php:464
 msgid "Enter key: "
 msgstr "Schlüssel eingeben"
 
-#: src/Console/User.php:494
+#: src/Console/User.php:498
 msgid "Enter value: "
 msgstr "Wert eingeben"
 
@@ -3708,38 +3708,38 @@ msgstr "vorige"
 msgid "last"
 msgstr "letzte"
 
-#: src/Content/Text/BBCode.php:940 src/Content/Text/BBCode.php:1614
-#: src/Content/Text/BBCode.php:1615
+#: src/Content/Text/BBCode.php:941 src/Content/Text/BBCode.php:1615
+#: src/Content/Text/BBCode.php:1616
 msgid "Image/photo"
 msgstr "Bild/Foto"
 
-#: src/Content/Text/BBCode.php:1062
+#: src/Content/Text/BBCode.php:1063
 #, php-format
 msgid "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a>%3$s"
 
-#: src/Content/Text/BBCode.php:1087 src/Model/Item.php:2941
-#: src/Model/Item.php:2947
+#: src/Content/Text/BBCode.php:1088 src/Model/Item.php:2976
+#: src/Model/Item.php:2982
 msgid "link to source"
 msgstr "Link zum Originalbeitrag"
 
-#: src/Content/Text/BBCode.php:1532 src/Content/Text/HTML.php:951
+#: src/Content/Text/BBCode.php:1533 src/Content/Text/HTML.php:951
 msgid "Click to open/close"
 msgstr "Zum Öffnen/Schließen klicken"
 
-#: src/Content/Text/BBCode.php:1563
+#: src/Content/Text/BBCode.php:1564
 msgid "$1 wrote:"
 msgstr "$1 hat geschrieben:"
 
-#: src/Content/Text/BBCode.php:1617 src/Content/Text/BBCode.php:1618
+#: src/Content/Text/BBCode.php:1618 src/Content/Text/BBCode.php:1619
 msgid "Encrypted content"
 msgstr "Verschlüsselter Inhalt"
 
-#: src/Content/Text/BBCode.php:1831
+#: src/Content/Text/BBCode.php:1832
 msgid "Invalid source protocol"
 msgstr "Ungültiges Quell-Protokoll"
 
-#: src/Content/Text/BBCode.php:1846
+#: src/Content/Text/BBCode.php:1847
 msgid "Invalid link protocol"
 msgstr "Ungültiges Link-Protokoll"
 
@@ -4867,39 +4867,39 @@ msgstr "Gruppenname:"
 msgid "Edit groups"
 msgstr "Gruppen bearbeiten"
 
-#: src/Model/Item.php:1566
+#: src/Model/Item.php:1572
 #, php-format
 msgid "Detected languages in this post:\\n%s"
 msgstr "Erkannte Sprachen in diesem Beitrag:\\n%s"
 
-#: src/Model/Item.php:2511
+#: src/Model/Item.php:2517
 msgid "activity"
 msgstr "Aktivität"
 
-#: src/Model/Item.php:2513 src/Object/Post.php:545
+#: src/Model/Item.php:2519 src/Object/Post.php:545
 msgid "comment"
 msgid_plural "comments"
 msgstr[0] "Kommentar"
 msgstr[1] "Kommentare"
 
-#: src/Model/Item.php:2516
+#: src/Model/Item.php:2522
 msgid "post"
 msgstr "Beitrag"
 
-#: src/Model/Item.php:2630
+#: src/Model/Item.php:2636
 #, php-format
 msgid "Content warning: %s"
 msgstr "Inhaltswarnung: %s"
 
-#: src/Model/Item.php:2906
+#: src/Model/Item.php:2941
 msgid "bytes"
 msgstr "Byte"
 
-#: src/Model/Item.php:2935
+#: src/Model/Item.php:2970
 msgid "View on separate page"
 msgstr "Auf separater Seite ansehen"
 
-#: src/Model/Item.php:2936
+#: src/Model/Item.php:2971
 msgid "view on separate page"
 msgstr "auf separater Seite ansehen"
 
@@ -5820,14 +5820,18 @@ msgid "ID"
 msgstr "ID"
 
 #: src/Module/Admin/Queue.php:76
+msgid "Command"
+msgstr "Befehl"
+
+#: src/Module/Admin/Queue.php:77
 msgid "Job Parameters"
 msgstr "Parameter der Aufgabe"
 
-#: src/Module/Admin/Queue.php:77
+#: src/Module/Admin/Queue.php:78
 msgid "Created"
 msgstr "Erstellt"
 
-#: src/Module/Admin/Queue.php:78
+#: src/Module/Admin/Queue.php:79
 msgid "Priority"
 msgstr "Priorität"
 
@@ -8971,19 +8975,19 @@ msgstr "Betrachten als"
 
 #: src/Module/Profile/Profile.php:322 src/Module/Profile/Profile.php:325
 #: src/Module/Profile/Status.php:65 src/Module/Profile/Status.php:68
-#: src/Protocol/Feed.php:945 src/Protocol/OStatus.php:1256
+#: src/Protocol/Feed.php:943 src/Protocol/OStatus.php:1256
 #, php-format
 msgid "%s's timeline"
 msgstr "Timeline von %s"
 
 #: src/Module/Profile/Profile.php:323 src/Module/Profile/Status.php:66
-#: src/Protocol/Feed.php:949 src/Protocol/OStatus.php:1260
+#: src/Protocol/Feed.php:947 src/Protocol/OStatus.php:1260
 #, php-format
 msgid "%s's posts"
 msgstr "Beiträge von %s"
 
 #: src/Module/Profile/Profile.php:324 src/Module/Profile/Status.php:67
-#: src/Protocol/Feed.php:952 src/Protocol/OStatus.php:1263
+#: src/Protocol/Feed.php:950 src/Protocol/OStatus.php:1263
 #, php-format
 msgid "%s's comments"
 msgstr "Kommentare von %s"
@@ -10499,7 +10503,7 @@ msgstr "Zeige mehr"
 msgid "Show fewer"
 msgstr "Zeige weniger"
 
-#: src/Protocol/Diaspora.php:3464
+#: src/Protocol/Diaspora.php:3434
 msgid "Attachments:"
 msgstr "Anhänge:"
 
