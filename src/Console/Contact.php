@@ -269,7 +269,7 @@ HELP;
 				break;
 			case 'url':
 				$user = $this->getUserByNick(2);
-				$url  = $this->getArgument(3);
+				$url     = $this->getArgument(3);
 				$contact = ContactModel::getByURLForUser($url, $user['uid'], false, $fields);
 				if (!empty($contact)) {
 					$addRow($contact);
