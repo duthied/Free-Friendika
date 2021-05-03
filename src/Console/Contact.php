@@ -23,7 +23,6 @@ namespace Friendica\Console;
 
 use Console_Table;
 use Friendica\App;
-use Friendica\Content\Pager;
 use Friendica\Model\Contact as ContactModel;
 use Friendica\Model\User as UserModel;
 use Friendica\Util\Temporal;
@@ -169,8 +168,7 @@ HELP;
 
 		if ($result['success']) {
 			$this->out('User ' . $user['nickname'] . ' now connected to ' . $url . ', contact ID ' . $result['cid']);
-		}
-		else {
+		} else {
 			throw new RuntimeException($result['message']);
 		}
 	}
@@ -246,7 +244,7 @@ HELP;
 		$table = new Console_Table();
 		$table->setHeaders(['ID', 'UID', 'Network', 'Name', 'Nick', 'URL', 'E-Mail', 'Created', 'Updated', 'Blocked', 'Deleted']);
 
-		$addRow = function($row) use (&$table) {
+		$addRow = function ($row) use (&$table) {
 			$table->addRow([
 				$row['id'],
 				$row['uid'],
@@ -263,7 +261,7 @@ HELP;
 		};
 		switch ($subCmd) {
 			case 'id':
-		       		$cid = $this->getArgument(2);
+				$cid     = $this->getArgument(2);
 				$contact = ContactModel::getById($cid, $fields);
 				if (!empty($contact)) {
 					$addRow($contact);
@@ -271,7 +269,7 @@ HELP;
 				break;
 			case 'url':
 				$user = $this->getUserByNick(2);
-		       		$url = $this->getArgument(3);
+				$url  = $this->getArgument(3);
 				$contact = ContactModel::getByURLForUser($url, $user['uid'], false, $fields);
 				if (!empty($contact)) {
 					$addRow($contact);
