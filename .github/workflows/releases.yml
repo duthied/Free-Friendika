@@ -1,7 +1,7 @@
 name: Generate release packages
-on: [pull_request]
-#  release:
-#    types: [published]
+on:
+  release:
+    types: [published]
 jobs:
   release:
     name: Create release
@@ -50,7 +50,6 @@ jobs:
           cd build
           ARTIFACT=${{ steps.artifact.outputs.name }}
           sha256sum "${ARTIFACT}" > "${ARTIFACT}.sha256"
-          echo "::set-output name=name::${ARTIFACT}.sha256"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
@@ -58,9 +57,11 @@ jobs:
           name: friendica
           path: build/
 
-  #      - name: Upload to release
-  #        uses: JasonEtco/upload-to-release@master
-  #        with:
-  #          args: build/friendica-full-${{ steps.release.outputs.version }}.tar.gz application/zip
-  #        env:
-  #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/${{ steps.artifact.outputs.name }}.tar.gz
+            build/${{ steps.artifact.outputs.name }}.tar.gz.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
