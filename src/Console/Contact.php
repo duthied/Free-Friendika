@@ -268,7 +268,7 @@ HELP;
 				}
 				break;
 			case 'url':
-				$user = $this->getUserByNick(2);
+				$user    = $this->getUserByNick(2);
 				$url     = $this->getArgument(3);
 				$contact = ContactModel::getByURLForUser($url, $user['uid'], false, $fields);
 				if (!empty($contact)) {
