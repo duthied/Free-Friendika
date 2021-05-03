@@ -175,6 +175,7 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  * Simple Auth allow username in form of <pre>user@server</pre>, ignoring server part
  *
  * @param App $a App
+ * @param bool $do_login try to log in when not logged in, otherwise quit silently
  * @throws ForbiddenException
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
@@ -185,8 +186,10 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  *               'authenticated' => return status,
  *               'user_record' => return authenticated user record
  */
-function api_login(App $a)
+function api_login(App $a, bool $do_login = true)
 {
+	$_SESSION["allow_api"] = false;
+
 	// workaround for HTTP-auth in CGI mode
 	if (!empty($_SERVER['REDIRECT_REMOTE_USER'])) {
 		$userpass = base64_decode(substr($_SERVER["REDIRECT_REMOTE_USER"], 6));
@@ -214,6 +217,10 @@ function api_login(App $a)
 			die();
 		} catch (Exception $e) {
 			Logger::warning(API_LOG_PREFIX . 'OAuth error', ['module' => 'api', 'action' => 'login', 'exception' => $e->getMessage()]);
+		}
+
+		if (!$do_login) {
+			return;
 		}
 
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
@@ -257,6 +264,9 @@ function api_login(App $a)
 	}
 
 	if (!DBA::isResult($record)) {
+		if (!$do_login) {
+			return;
+		}
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');

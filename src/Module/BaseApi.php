@@ -92,6 +92,22 @@ class BaseApi extends BaseModule
 	}
 
 	/**
+	 * Get current user id, returns 0 if not logged in
+	 *
+	 * @return int User ID
+	 */
+	protected static function getCurrentUserID()
+	{
+		if (is_null(self::$current_user_id)) {
+			api_login(DI::app(), false);
+
+			self::$current_user_id = api_user();
+		}
+
+		return (int)self::$current_user_id;
+	}
+
+	/**
 	 * Get user info array.
 	 *
 	 * @param int|string $contact_id Contact ID or URL
