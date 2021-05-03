@@ -1270,6 +1270,7 @@ $a->strings["This page lists the deferred worker jobs. This are jobs that couldn
 $a->strings["Inspect Worker Queue"] = "Worker-Warteschlange inspizieren";
 $a->strings["This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you've set up during install."] = "Auf dieser Seite werden die derzeit in der Warteschlange befindlichen Worker-Jobs aufgelistet. Diese Jobs werden vom Cronjob verarbeitet, den du während der Installation eingerichtet hast.";
 $a->strings["ID"] = "ID";
+$a->strings["Command"] = "Befehl";
 $a->strings["Job Parameters"] = "Parameter der Aufgabe";
 $a->strings["Created"] = "Erstellt";
 $a->strings["Priority"] = "Priorität";
