@@ -711,7 +711,7 @@ class ParseUrl
 			}
 			if ($numeric_keys) {
 				foreach ($jsonld as $part) {
-					if (!empty($part)) {
+					if (!empty($part) && is_array($part)) {
 						$siteinfo = self::parseParts($siteinfo, $part);
 					}
 				}
