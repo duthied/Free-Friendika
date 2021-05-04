@@ -159,7 +159,7 @@ HELP;
 		}
 
 		$network = $this->getArgument(3);
-		if (empty($network) && $network !== '') {
+		if ($network === null) {
 			$this->out('Enter network, or leave blank: ');
 			$network = CliPrompt::prompt();
 		}
