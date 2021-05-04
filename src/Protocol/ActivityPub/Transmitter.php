@@ -1556,7 +1556,7 @@ class Transmitter
 			$richbody = preg_replace_callback($regexp, ['self', 'mentionCallback'], $item['body']);
 			$richbody = BBCode::removeAttachment($richbody);
 
-			$data['contentMap'][$language] = BBCode::convert($richbody, false);
+			$data['contentMap'][$language] = BBCode::convert($richbody, false, BBCode::EXTERNAL);
 		}
 
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];

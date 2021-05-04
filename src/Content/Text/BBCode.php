@@ -53,6 +53,7 @@ class BBCode
 	const VERSION = '2021-05-01';
 
 	const INTERNAL = 0;
+	const EXTERNAL = 1;
 	const API = 2;
 	const DIASPORA = 3;
 	const CONNECTORS = 4;
@@ -1386,7 +1387,7 @@ class BBCode
 				// Handle attached links or videos
 				if ($simple_html == self::ACTIVITYPUB) {
 					$text = self::removeAttachment($text);
-				} elseif (!in_array($simple_html, [self::INTERNAL, self::CONNECTORS])) {
+				} elseif (!in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::CONNECTORS])) {
 					$text = self::removeAttachment($text, true);
 				} else {
 					$text = self::convertAttachment($text, $simple_html, $try_oembed);
@@ -1396,9 +1397,9 @@ class BBCode
 				$text = str_replace('[nosmile]', '', $text);
 
 				// Replace non graphical smilies for external posts
-				if (!$nosmile && !$for_plaintext) {
-					$text = self::performWithEscapedTags($text, ['img'], function ($text) {
-						return Smilies::replace($text);
+				if (!$nosmile) {
+					$text = self::performWithEscapedTags($text, ['img'], function ($text) use ($simple_html, $for_plaintext) {
+						return Smilies::replace($text, ($simple_html != self::INTERNAL) || $for_plaintext);
 					});
 				}
 
