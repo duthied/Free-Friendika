@@ -2909,6 +2909,14 @@ class Item
 			if (!empty($data['description']) && (($data['title'] == $data['description']) || ($percent > 95) || (strpos($content, $data['description']) !== false))) {
 				$data['description'] = '';
 			}
+
+			if (!empty($data['author_name']) && !empty($data['provider_name'])) {
+				$data['author_name'] = '';
+			}
+
+			if (!empty($data['author_url']) && !empty($data['provider_url'])) {
+				$data['author_url'] = '';
+			}
 		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $body, $match)) {
 			$data = BBCode::getAttachmentData($match[1]);
 		}
