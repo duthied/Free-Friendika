@@ -1104,20 +1104,14 @@ class BBCode
 		$text = DI::cache()->get($cache_key);
 
 		if (is_null($text)) {
-			$a = DI::app();
+			$curlResult = DI::httpRequest()->head($match[1], ['timeout' => DI::config()->get('system', 'xrd_timeout')]);
+			if ($curlResult->isSuccess()) {
+				$mimetype = $curlResult->getHeader('Content-Type');
+			} else {
+				$mimetype = '';
+			}
 
-			$stamp1 = microtime(true);
-
-			$ch = @curl_init($match[1]);
-			@curl_setopt($ch, CURLOPT_NOBODY, true);
-			@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			@curl_setopt($ch, CURLOPT_USERAGENT, DI::httpRequest()->getUserAgent());
-			@curl_exec($ch);
-			$curl_info = @curl_getinfo($ch);
-
-			DI::profiler()->saveTimestamp($stamp1, "network");
-
-			if (substr($curl_info['content_type'], 0, 6) == 'image/') {
+			if (substr($mimetype, 0, 6) == 'image/') {
 				$text = "[url=" . $match[1] . ']' . $match[1] . "[/url]";
 			} else {
 				$text = "[url=" . $match[2] . ']' . $match[2] . "[/url]";
@@ -1181,20 +1175,15 @@ class BBCode
 			return $text;
 		}
 
-		// Only fetch the header, not the content
-		$stamp1 = microtime(true);
-
-		$ch = @curl_init($match[1]);
-		@curl_setopt($ch, CURLOPT_NOBODY, true);
-		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, DI::httpRequest()->getUserAgent());
-		@curl_exec($ch);
-		$curl_info = @curl_getinfo($ch);
-
-		DI::profiler()->saveTimestamp($stamp1, "network");
+		$curlResult = DI::httpRequest()->head($match[1], ['timeout' => DI::config()->get('system', 'xrd_timeout')]);
+		if ($curlResult->isSuccess()) {
+			$mimetype = $curlResult->getHeader('Content-Type');
+		} else {
+			$mimetype = '';
+		}
 
 		// if its a link to a picture then embed this picture
-		if (substr($curl_info['content_type'], 0, 6) == 'image/') {
+		if (substr($mimetype, 0, 6) == 'image/') {
 			$text = '[img]' . $match[1] . '[/img]';
 		} else {
 			if (!empty($match[3])) {
