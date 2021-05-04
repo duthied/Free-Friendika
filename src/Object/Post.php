@@ -223,9 +223,12 @@ class Post
 			$drop = [
 				'dropping' => $dropping,
 				'pagedrop' => $item['pagedrop'],
-				'select'   => DI::l10n()->t('Select'),
-				'delete'   => $delete,
+				'select' => DI::l10n()->t('Select'),
+				'delete' => $delete,
 			];
+		}
+
+		if (!$item['self']) {
 			$block = [
 				'blocking' => true,
 				'block'   => DI::l10n()->t('Block %s', $item['author-name']),

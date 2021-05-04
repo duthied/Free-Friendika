@@ -888,7 +888,8 @@ function conversation_fetch_items(array $parent, array $items, array $condition,
 	return $items;
 }
 
-function item_photo_menu($item) {
+function item_photo_menu($item)
+{
 	$sub_link = '';
 	$poke_link = '';
 	$contact_url = '';
@@ -929,8 +930,8 @@ function item_photo_menu($item) {
 	if (!empty($pcid)) {
 		$contact_url = 'contact/' . $pcid;
 		$posts_link  = $contact_url . '/posts';
-		$block_link  = $contact_url . '/block';
-		$ignore_link = $contact_url . '/ignore';
+		$block_link  = $item['self'] ? '' : $contact_url . '/block';
+		$ignore_link = $item['self'] ? '' : $contact_url . '/ignore';
 	}
 
 	if ($cid && !$item['self']) {
@@ -983,7 +984,7 @@ function item_photo_menu($item) {
 		if (strpos($v, 'javascript:') === 0) {
 			$v = substr($v, 11);
 			$o .= '<li role="menuitem"><a onclick="' . $v . '">' . $k . '</a></li>' . PHP_EOL;
-		} elseif ($v!='') {
+		} elseif ($v) {
 			$o .= '<li role="menuitem"><a href="' . $v . '">' . $k . '</a></li>' . PHP_EOL;
 		}
 	}
