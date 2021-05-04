@@ -172,13 +172,17 @@ class Item
 
 		Logger::info('Updating per single row method', ['fields' => $fields, 'condition' => $condition]);
 
-		$items = Post::select(['id', 'origin', 'uri-id', 'uid'], $condition);
+		$items = Post::select(['id', 'origin', 'uri-id', 'uid', 'author-network'], $condition);
 
 		$notify_items = [];
 
 		while ($item = DBA::fetch($items)) {
 			if (!empty($fields['body'])) {
 				Post\Media::insertFromAttachmentData($item['uri-id'], $fields['body']);
+
+				if ($item['author-network'] != Protocol::DFRN) {
+					Post\Media::insertFromRelevantUrl($item['uri-id'], $fields['body']);
+				}
 
 				$content_fields = ['raw-body' => trim($fields['raw-body'] ?? $fields['body'])];
 
@@ -967,11 +971,15 @@ class Item
 			unset($item['attachments']);
 		}
 
+		Post\Media::insertFromAttachmentData($item['uri-id'], $item['body']);
+
+		if (!DBA::exists('contact', ['id' => $item['author-id'], 'network' => Protocol::DFRN])) {
+			Post\Media::insertFromRelevantUrl($item['uri-id'], $item['body']);
+		}
+
 		// Remove all media attachments from the body and store them in the post-media table
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
-
-		Post\Media::insertFromAttachmentData($item['uri-id'], $item['body']);
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
@@ -2891,28 +2899,56 @@ class Item
 					$data['preview'] = $attachment['preview'] ?? '';
 				}
 			}
+
+			if (!empty($data['description']) && !empty($content)) {
+				similar_text($data['description'], $content, $percent);
+			} else {
+				$percent = 0;
+			}
+
+			if (!empty($data['description']) && (($data['title'] == $data['description']) || ($percent > 95) || (strpos($content, $data['description']) !== false))) {
+				$data['description'] = '';
+			}
+
+			if (!empty($data['author_name']) && !empty($data['provider_name'])) {
+				$data['author_name'] = '';
+			}
+
+			if (!empty($data['author_url']) && !empty($data['provider_url'])) {
+				$data['author_url'] = '';
+			}
 		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $body, $match)) {
 			$data = BBCode::getAttachmentData($match[1]);
 		}
 		DI::profiler()->saveTimestamp($stamp1, 'rendering');
 
 		if (isset($data['url']) && !in_array($data['url'], $ignore_links)) {
-			$parts = parse_url($data['url']);
-			if (!empty($parts['scheme']) && !empty($parts['host'])) {
-				if (empty($data['provider_name'])) {
-					$data['provider_name'] = $parts['host'];
-				}
-				if (empty($data['provider_url']) || empty(parse_url($data['provider_url'], PHP_URL_SCHEME))) {
-					$data['provider_url'] = $parts['scheme'] . '://' . $parts['host'];
+			if (!empty($data['description']) || !empty($data['image'] || !empty($data['preview']))) {
+				$parts = parse_url($data['url']);
+				if (!empty($parts['scheme']) && !empty($parts['host'])) {
+					if (empty($data['provider_name'])) {
+						$data['provider_name'] = $parts['host'];
+					}
+					if (empty($data['provider_url']) || empty(parse_url($data['provider_url'], PHP_URL_SCHEME))) {
+						$data['provider_url'] = $parts['scheme'] . '://' . $parts['host'];
 
-					if (!empty($parts['port'])) {
-						$data['provider_url'] .= ':' . $parts['port'];
+						if (!empty($parts['port'])) {
+							$data['provider_url'] .= ':' . $parts['port'];
+						}
 					}
 				}
+
+				// @todo Use a template
+				$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data);
+			} elseif (!self::containsLink($content, $data['url'])) {
+				$rendered = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/link.tpl'), [
+					'$url'  => $data['url'],
+					'$title' => $data['title'],
+				]);
+			} else {
+				return $content;
 			}
 
-			// @todo Use a template
-			$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data);
 			if ($shared) {
 				return str_replace(BBCode::BOTTOM_ANCHOR, BBCode::BOTTOM_ANCHOR . $rendered, $content);
 			} else {

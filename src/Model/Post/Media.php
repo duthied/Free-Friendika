@@ -341,12 +341,6 @@ class Media
 			}
 		}
 
-		$url = PageInfo::getRelevantUrlFromBody($body);
-		if (!empty($url)) {
-			Logger::debug('Got page url', ['url' => $url]);
-			$attachments[$url] = ['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url];
-		}
-
 		foreach ($attachments as $attachment) {
 			// Only store attachments that are part of the unshared body
 			if (strpos($unshared_body, $attachment['url']) !== false) {
@@ -355,6 +349,37 @@ class Media
 		}
 
 		return trim($body);
+	}
+
+	/**
+	 * Add media links from a relevant url in the body
+	 *
+	 * @param integer $uriid
+	 * @param string $body
+	 */
+	public static function insertFromRelevantUrl(int $uriid, string $body)
+	{
+		// Don't look at the shared content
+		$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+
+		// Remove all hashtags and mentions
+		$body = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '', $body);
+
+		// Search for pure links
+		if (preg_match_all("/\[url\](https?:.*?)\[\/url\]/ism", $body, $matches)) {
+			foreach ($matches[1] as $url) {
+				Logger::info('Got page url (link without description)', ['uri-id' => $uriid, 'url' => $url]);
+				self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url]);
+			}
+		}
+
+		// Search for links with descriptions
+		if (preg_match_all("/\[url\=(https?:.*?)\].*?\[\/url\]/ism", $body, $matches)) {
+			foreach ($matches[1] as $url) {
+				Logger::info('Got page url (link with description)', ['uri-id' => $uriid, 'url' => $url]);
+				self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url]);
+			}
+		}
 	}
 
 	/**
