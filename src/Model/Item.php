@@ -2871,7 +2871,8 @@ class Item
 						$found = true;
 					}
 				}
-				if (!$found) {
+				// @todo Judge between the links to use the one with most information
+				if (!$found && (empty($attachment) || empty($attachment['name']) || empty($attachment['description']))) {
 					$attachment = $link;
 				}
 			}

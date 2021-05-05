@@ -1260,37 +1260,6 @@ class Transmitter
 	{
 		$attachments = [];
 
-		// Currently deactivated, since it creates side effects on Mastodon and Pleroma.
-		// It will be reactivated, once this cleared.
-		/*
-		$attach_data = BBCode::getAttachmentData($item['body']);
-		if (!empty($attach_data['url'])) {
-			$attachment = ['type' => 'Page',
-				'mediaType' => 'text/html',
-				'url' => $attach_data['url']];
-
-			if (!empty($attach_data['title'])) {
-				$attachment['name'] = $attach_data['title'];
-			}
-
-			if (!empty($attach_data['description'])) {
-				$attachment['summary'] = $attach_data['description'];
-			}
-
-			if (!empty($attach_data['image'])) {
-				$imgdata = Images::getInfoFromURLCached($attach_data['image']);
-				if ($imgdata) {
-					$attachment['icon'] = ['type' => 'Image',
-						'mediaType' => $imgdata['mime'],
-						'width' => $imgdata[0],
-						'height' => $imgdata[1],
-						'url' => $attach_data['image']];
-				}
-			}
-
-			$attachments[] = $attachment;
-		}
-		*/
 		$uriids = [$item['uri-id']];
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (!empty($shared['guid'])) {
@@ -1300,8 +1269,14 @@ class Transmitter
 			}
 		}
 
+		$urls = [];
 		foreach ($uriids as $uriid) {
-			foreach (Post\Media::getByURIId($uriid, [Post\Media::DOCUMENT, Post\Media::TORRENT, Post\Media::UNKNOWN]) as $attachment) {
+			foreach (Post\Media::getByURIId($uriid, [Post\Media::DOCUMENT, Post\Media::TORRENT]) as $attachment) {
+				if (in_array($attachment['url'], $urls)) {
+					continue;
+				}
+				$urls[] = $attachment['url'];
+
 				$attachments[] = ['type' => 'Document',
 					'mediaType' => $attachment['mimetype'],
 					'url' => $attachment['url'],
@@ -1315,11 +1290,30 @@ class Transmitter
 
 		foreach ($uriids as $uriid) {
 			foreach (Post\Media::getByURIId($uriid, [Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]) as $attachment) {
+				if (in_array($attachment['url'], $urls)) {
+					continue;
+				}
+				$urls[] = $attachment['url'];
+
 				$attachments[] = ['type' => 'Document',
 					'mediaType' => $attachment['mimetype'],
 					'url' => $attachment['url'],
 					'name' => $attachment['description']];
 			}
+			// Currently deactivated, since it creates side effects on Mastodon and Pleroma.
+			// It will be activated, once this cleared.
+			/*
+			foreach (Post\Media::getByURIId($uriid, [Post\Media::HTML]) as $attachment) {
+				if (in_array($attachment['url'], $urls)) {
+					continue;
+				}
+				$urls[] = $attachment['url'];
+
+				$attachments[] = ['type' => 'Page',
+					'mediaType' => $attachment['mimetype'],
+					'url' => $attachment['url'],
+					'name' => $attachment['description']];
+			}*/
 		}
 
 		return $attachments;

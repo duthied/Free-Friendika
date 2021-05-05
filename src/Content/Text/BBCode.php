@@ -1893,7 +1893,7 @@ class BBCode
 
 		$text = HTML::purify($text, $allowedIframeDomains);
 
-		return $text;
+		return trim($text);
 	}
 
 	/**
