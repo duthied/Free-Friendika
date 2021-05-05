@@ -1626,8 +1626,10 @@ $a->strings["%d contact edited."] = [
 	1 => "%d Kontakte bearbeitet.",
 ];
 $a->strings["Could not access contact record."] = "Konnte nicht auf die Kontaktdaten zugreifen.";
+$a->strings["You can't block yourself"] = "Du kannst dich nicht selbst blockieren";
 $a->strings["Contact has been blocked"] = "Kontakt wurde blockiert";
 $a->strings["Contact has been unblocked"] = "Kontakt wurde wieder freigegeben";
+$a->strings["You can't ignore yourself"] = "Du kannst dich nicht selbst ignorieren";
 $a->strings["Contact has been ignored"] = "Kontakt wurde ignoriert";
 $a->strings["Contact has been unignored"] = "Kontakt wird nicht mehr ignoriert";
 $a->strings["Contact has been archived"] = "Kontakt wurde archiviert";
