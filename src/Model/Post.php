@@ -127,12 +127,13 @@ class Post
 	 * Check if post data exists
 	 *
 	 * @param array $condition array of fields for condition
+	 * @param bool  $user_mode true = post-user-view, false = post-view
 	 *
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
 	 */
-	public static function exists($condition) {
-		return DBA::exists('post-user-view', $condition);
+	public static function exists($condition, bool $user_mode = true) {
+		return DBA::exists($user_mode ? 'post-user-view' : 'post-view', $condition);
 	}
 
 	/**
@@ -140,6 +141,7 @@ class Post
 	 *
 	 * @param array        $condition array of fields for condition
 	 * @param array        $params    Array of several parameters
+	 * @param bool         $user_mode true = post-user-view, false = post-view
 	 *
 	 * @return int
 	 *
@@ -151,9 +153,9 @@ class Post
 	 * $count = Post::count($condition);
 	 * @throws \Exception
 	 */
-	public static function count(array $condition = [], array $params = [])
+	public static function count(array $condition = [], array $params = [], bool $user_mode = true)
 	{
-		return DBA::count('post-user-view', $condition, $params);
+		return DBA::count($user_mode ? 'post-user-view' : 'post-view', $condition, $params);
 	}
 
 	/**

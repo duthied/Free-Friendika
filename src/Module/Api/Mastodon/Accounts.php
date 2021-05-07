@@ -46,7 +46,7 @@ class Accounts extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$account = DI::mstdnAccount()->createFromContactId($id);
+		$account = DI::mstdnAccount()->createFromContactId($id, self::getCurrentUserID());
 		System::jsonExit($account);
 	}
 }
