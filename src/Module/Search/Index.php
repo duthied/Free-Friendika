@@ -34,7 +34,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
-use Friendica\Model\ItemContent;
 use Friendica\Model\Post;
 use Friendica\Model\Tag;
 use Friendica\Module\BaseSearch;
