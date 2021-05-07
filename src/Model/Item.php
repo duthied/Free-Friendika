@@ -2872,7 +2872,10 @@ class Item
 					}
 				}
 				// @todo Judge between the links to use the one with most information
-				if (!$found && (empty($attachment) || empty($attachment['name']) || empty($attachment['description']))) {
+				if (!$found && (empty($attachment) || !empty($link['author-name']) ||
+					(empty($attachment['name']) && !empty($link['name'])) ||
+					(empty($attachment['description']) && !empty($link['description'])) ||
+					(empty($attachment['preview']) && !empty($link['preview'])))) {
 					$attachment = $link;
 				}
 			}
@@ -3261,5 +3264,34 @@ class Item
 		}
 
 		return true;
+	}
+
+	/**
+	 * Improve the data in shared posts
+	 *
+	 * @param array $item
+	 * @return string body
+	 */
+	public static function improveSharedDataInBody(array $item)
+	{
+		$shared = BBCode::fetchShareAttributes($item['body']);
+		if (!empty($shared['link'])) {
+			$id = self::fetchByLink($shared['link']);
+			Logger::info('Fetched shared post', ['uri-id' => $item['uri-id'], 'id' => $id, 'author' => $shared['profile'], 'url' => $shared['link'], 'guid' => $shared['guid'], 'callstack' => System::callstack()]);
+			if ($id) {
+				$shared_item = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'title', 'body'], ['id' => $id]);
+				$shared_content = BBCode::getShareOpeningTag($shared_item['author-name'], $shared_item['author-link'], $shared_item['author-avatar'], $shared_item['plink'], $shared_item['created'], $shared_item['guid']);
+
+				if (!empty($shared_item['title'])) {
+					$shared_content .= '[h3]'.$shared_item['title'].'[/h3]'."\n";
+				}
+
+				$shared_content .= $shared_item['body'];
+
+				$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $shared_content . '[/share]', $item['body']);
+				Logger::info('New shared data', ['uri-id' => $item['uri-id'], 'id' => $id, 'shared_item' => $shared_item]);
+			}
+		}
+		return $item['body'];
 	}
 }

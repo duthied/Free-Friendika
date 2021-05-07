@@ -2245,6 +2245,8 @@ class DFRN
 
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 
+		$item["body"] = Item::improveSharedDataInBody($item);
+
 		Tag::storeFromBody($item['uri-id'], $item["body"]);
 
 		// We store the data from "dfrn:diaspora_signature" in a different table, this is done in "Item::insert"
@@ -2340,7 +2342,7 @@ class DFRN
 				return 403;
 			}
 		}
-				
+
 		// Get the type of the item (Top level post, reply or remote reply)
 		$entrytype = self::getEntryType($importer, $item);
 
