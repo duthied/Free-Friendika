@@ -80,6 +80,7 @@ class Tag extends BaseApi
 
 		if (!empty($min_id)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $min_id]);
+
 			$params['order'] = ['uri-id'];
 		}
 
