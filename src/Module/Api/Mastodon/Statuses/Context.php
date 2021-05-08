@@ -79,6 +79,7 @@ class Context extends BaseApi
 	{
 		if (!empty($parents[$id])) {
 			$list[] = $parents[$id];
+
 			$list = self::getParents($parents[$id], $parents, $list);
 		}
 		return $list;
@@ -89,6 +90,7 @@ class Context extends BaseApi
 		if (!empty($children[$id])) {
 			foreach ($children[$id] as $child) {
 				$list[] = $child;
+
 				$list = self::getChildren($child, $children, $list);
 			}
 		}
