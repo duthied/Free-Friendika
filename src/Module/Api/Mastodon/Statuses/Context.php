@@ -45,13 +45,15 @@ class Context extends BaseApi
 		}
 
 		$id = $parameters['id'];
+
 		$parent = Post::selectFirst(['parent-uri-id'], ['uri-id' => $id]);
 		if (!DBA::isResult($parent)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$parents = [];
+		$parents  = [];
 		$children = [];
+
 		$posts = Post::select(['uri-id', 'thr-parent-id'], ['parent-uri-id' => $parent['parent-uri-id']], [], false);
 		while ($post = Post::fetch($posts)) {
 			if ($post['uri-id'] == $post['thr-parent-id']) {
