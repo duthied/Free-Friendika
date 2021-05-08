@@ -71,6 +71,7 @@ class Following extends BaseApi
 
 		if (!empty($min_id)) {
 			$condition = DBA::mergeConditions($condition, ["`relation-cid` > ?", $min_id]);
+
 			$params['order'] = ['cid'];
 		}
 

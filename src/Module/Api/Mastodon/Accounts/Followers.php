@@ -71,6 +71,7 @@ class Followers extends BaseApi
 
 		if (!empty($min_id)) {
 			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $min_id]);
+
 			$params['order'] = ['cid'];
 		}
 
