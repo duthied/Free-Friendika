@@ -22,15 +22,19 @@
 namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\Core\System;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
- * @see https://docs.joinmastodon.org/methods/accounts/
+ * @see https://docs.joinmastodon.org/methods/statuses/
  */
-class Accounts extends BaseApi
+class Statuses extends BaseApi
 {
+	public static function delete(array $parameters = [])
+	{
+		self::unsupported('delete');
+	}
+
 	/**
 	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -41,12 +45,6 @@ class Accounts extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$id = $parameters['id'];
-		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
-			DI::mstdnError()->RecordNotFound();
-		}
-
-		$account = DI::mstdnAccount()->createFromContactId($id, self::getCurrentUserID());
-		System::jsonExit($account);
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], self::getCurrentUserID()));
 	}
 }

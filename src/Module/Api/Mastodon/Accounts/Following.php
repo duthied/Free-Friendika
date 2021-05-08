@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Module\Api\Mastodon\Accounts;
 
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -29,7 +29,7 @@ use Friendica\Module\BaseApi;
 /**
  * @see https://docs.joinmastodon.org/methods/accounts/
  */
-class Accounts extends BaseApi
+class Following extends BaseApi
 {
 	/**
 	 * @param array $parameters
@@ -37,6 +37,9 @@ class Accounts extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
+		self::login();
+		$uid = self::getCurrentUserID();
+
 		if (empty($parameters['id'])) {
 			DI::mstdnError()->RecordNotFound();
 		}
@@ -46,7 +49,38 @@ class Accounts extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$account = DI::mstdnAccount()->createFromContactId($id, self::getCurrentUserID());
-		System::jsonExit($account);
+		// Return results older than this id
+		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
+		// Return results newer than this id
+		$since_id = (int)!isset($_REQUEST['since_id']) ? 0 : $_REQUEST['since_id'];
+		// Maximum number of results to return. Defaults to 20.
+		$limit = (int)!isset($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
+
+
+		$params = ['order' => ['relation-cid' => true], 'limit' => $limit];
+
+		$condition = ['cid' => $id, 'follows' => true];
+
+		if (!empty($max_id)) {
+			$condition = DBA::mergeConditions($condition, ["`relation-cid` < ?", $max_id]);
+		}
+
+		if (!empty($since_id)) {
+			$condition = DBA::mergeConditions($condition, ["`relation-cid` > ?", $since_id]);
+		}
+
+		if (!empty($min_id)) {
+			$condition = DBA::mergeConditions($condition, ["`relation-cid` > ?", $min_id]);
+
+			$params['order'] = ['cid'];
+		}
+
+		$followers = DBA::select('contact-relation', ['relation-cid'], $condition, $parameters);
+		while ($follower = DBA::fetch($followers)) {
+			$accounts[] = DI::mstdnAccount()->createFromContactId($follower['relation-cid'], $uid);
+		}
+		DBA::close($followers);
+
+		System::jsonExit($accounts);
 	}
 }

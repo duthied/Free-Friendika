@@ -22,14 +22,14 @@
 namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\Core\System;
-use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Module\BaseApi;
 
 /**
- * @see https://docs.joinmastodon.org/methods/accounts/
+ * @see https://docs.joinmastodon.org/methods/accounts/suggestions/
  */
-class Accounts extends BaseApi
+class Suggestions extends BaseApi
 {
 	/**
 	 * @param array $parameters
@@ -37,16 +37,20 @@ class Accounts extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		if (empty($parameters['id'])) {
-			DI::mstdnError()->RecordNotFound();
+		self::login();
+		$uid = self::getCurrentUserID();
+
+		// Maximum number of results to return. Defaults to 40.
+		$limit = (int)!isset($_REQUEST['limit']) ? 40 : $_REQUEST['limit'];
+
+		$suggestions = Contact\Relation::getSuggestions($uid, 0, $limit);
+
+		$accounts = [];
+
+		foreach ($suggestions as $suggestion) {
+			$accounts[] = DI::mstdnAccount()->createFromContactId($suggestion['id'], $uid);
 		}
 
-		$id = $parameters['id'];
-		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
-			DI::mstdnError()->RecordNotFound();
-		}
-
-		$account = DI::mstdnAccount()->createFromContactId($id, self::getCurrentUserID());
-		System::jsonExit($account);
+		System::jsonExit($accounts);
 	}
 }

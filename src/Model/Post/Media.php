@@ -21,7 +21,6 @@
 
 namespace Friendica\Model\Post;
 
-use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
@@ -64,6 +63,11 @@ class Media
 	{
 		if (empty($media['url']) || empty($media['uri-id']) || !isset($media['type'])) {
 			Logger::warning('Incomplete media data', ['media' => $media]);
+			return;
+		}
+
+		if (DBA::exists('post-media', ['uri-id' => $media['uri-id'], 'preview' => $media['url']])) {
+			Logger::info('Media already exists as preview', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'callstack' => System::callstack()]);
 			return;
 		}
 
@@ -499,12 +503,24 @@ class Media
 
 		$height = 0;
 		$selected = '';
+		$previews = [];
 
 		foreach ($media as $medium) {
 			foreach ($links as $link) {
 				if (Strings::compareLink($link, $medium['url'])) {
 					continue 2;
 				}
+			}
+
+			// Avoid adding separate media entries for previews
+			foreach ($previews as $preview) {
+				if (Strings::compareLink($preview, $medium['url'])) {
+					continue 2;
+				}
+			}
+			
+			if (!empty($medium['preview'])) {
+				$previews[] = $medium['preview'];
 			}
 
 			$type = explode('/', current(explode(';', $medium['mimetype'])));

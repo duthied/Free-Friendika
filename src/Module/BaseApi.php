@@ -22,6 +22,8 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 
@@ -53,6 +55,32 @@ class BaseApi extends BaseModule
 		}
 	}
 
+	public static function delete(array $parameters = [])
+	{
+		if (!api_user()) {
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
+		}
+
+		$a = DI::app();
+
+		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		}
+	}
+
+	public static function patch(array $parameters = [])
+	{
+		if (!api_user()) {
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
+		}
+
+		$a = DI::app();
+
+		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		}
+	}
+
 	public static function post(array $parameters = [])
 	{
 		if (!api_user()) {
@@ -64,6 +92,29 @@ class BaseApi extends BaseModule
 		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
+	}
+
+	public static function put(array $parameters = [])
+	{
+		if (!api_user()) {
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
+		}
+
+		$a = DI::app();
+
+		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		}
+	}
+
+	public static function unsupported(string $method = 'all')
+	{
+		$path = DI::args()->getQueryString();
+		Logger::info('Unimplemented API call', ['path' => $path, 'method' => $method]);
+		$error = DI::l10n()->t('API endpoint %s %s is not implemented', strtoupper($method), $path);
+		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');;
+		$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
+		System::jsonError(501, $errorobj->toArray());
 	}
 
 	/**

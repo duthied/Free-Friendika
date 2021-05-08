@@ -19,68 +19,62 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon\Accounts;
+namespace Friendica\Module\Api\Mastodon\Timelines;
 
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
-use Friendica\Model\Verb;
 use Friendica\Module\BaseApi;
-use Friendica\Protocol\Activity;
+use Friendica\Network\HTTPException;
 
 /**
- * @see https://docs.joinmastodon.org/methods/accounts/
+ * @see https://docs.joinmastodon.org/methods/timelines/
  */
-class Statuses extends BaseApi
+class Tag extends BaseApi
 {
 	/**
 	 * @param array $parameters
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		if (empty($parameters['id'])) {
+		self::login();
+		$uid = self::getCurrentUserID();
+
+		if (empty($parameters['hashtag'])) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$id = $parameters['id'];
-		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
-			DI::mstdnError()->RecordNotFound();
-		}
-
-		// Show only statuses with media attached? Defaults to false.
+		// If true, return only local statuses. Defaults to false.
+		$local = (bool)!isset($_REQUEST['local']) ? false : ($_REQUEST['local'] == 'true');
+		// If true, return only statuses with media attachments. Defaults to false.
 		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true'); // Currently not supported
-		// Return results older than this id
+		// Return results older than this ID.
 		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
-		// Return results newer than this id
+		// Return results newer than this ID.
 		$since_id = (int)!isset($_REQUEST['since_id']) ? 0 : $_REQUEST['since_id'];
-		// Return results immediately newer than this id
+		// Return results immediately newer than this ID.
 		$min_id = (int)!isset($_REQUEST['min_id']) ? 0 : $_REQUEST['min_id'];
 		// Maximum number of results to return. Defaults to 20.
 		$limit = (int)!isset($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $limit];
 
-		$uid = self::getCurrentUserID();
+		$condition = ["`name` = ? AND (`uid` = ? OR (`uid` = ? AND NOT `global`))
+			AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
+			$parameters['hashtag'], 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
 
-		if (!$uid) {
-			$condition = ['author-id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED],
-				'uid' => 0, 'network' => Protocol::FEDERATED];
-		} else {
-			$condition = ["`author-id` = ? AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))", $id, $uid];
+		if ($local) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
 		}
-
-		$condition = DBA::mergeConditions($condition, ["(`gravity` IN (?, ?) OR (`gravity` = ? AND `vid` = ?))",
-			GRAVITY_PARENT, GRAVITY_COMMENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE)]);
 
 		if ($only_media) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
 				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
 		}
-	
+
 		if (!empty($max_id)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $max_id]);
 		}
@@ -91,10 +85,11 @@ class Statuses extends BaseApi
 
 		if (!empty($min_id)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $min_id]);
+
 			$params['order'] = ['uri-id'];
 		}
 
-		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);
+		$items = DBA::select('tag-search-view', ['uri-id'], $condition, $params);
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {

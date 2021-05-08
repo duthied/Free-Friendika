@@ -19,17 +19,18 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Module\Api\Mastodon\Accounts;
 
 use Friendica\Core\System;
-use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 
 /**
  * @see https://docs.joinmastodon.org/methods/accounts/
  */
-class Accounts extends BaseApi
+class VerifyCredentials extends BaseApi
 {
 	/**
 	 * @param array $parameters
@@ -37,16 +38,21 @@ class Accounts extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		if (empty($parameters['id'])) {
+		self::login();
+		$uid = self::getCurrentUserID();
+
+		$self = User::getOwnerDataById($uid);
+		if (empty($self)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$id = $parameters['id'];
-		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
+		$cdata = Contact::getPublicAndUserContacID($self['id'], $uid);
+		if (empty($cdata)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$account = DI::mstdnAccount()->createFromContactId($id, self::getCurrentUserID());
+		// @todo Support the source property,
+		$account = DI::mstdnAccount()->createFromContactId($cdata['user'], $uid);
 		System::jsonExit($account);
 	}
 }
