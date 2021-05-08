@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
@@ -30,6 +31,11 @@ use Friendica\Module\BaseApi;
  */
 class Statuses extends BaseApi
 {
+	public static function delete(array $parameters = [])
+	{
+		self::unsupported('delete');
+	}
+
 	/**
 	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

@@ -276,9 +276,21 @@ class Module
 
 		$profiler->set(microtime(true) - $timestamp, 'init');
 
-		if ($server['REQUEST_METHOD'] === 'POST') {
+		if ($server['REQUEST_METHOD'] === Router::DELETE) {
+			call_user_func([$this->module_class, 'delete'], $this->module_parameters);
+		}
+
+		if ($server['REQUEST_METHOD'] === Router::PATCH) {
+			call_user_func([$this->module_class, 'patch'], $this->module_parameters);
+		}
+
+		if ($server['REQUEST_METHOD'] === Router::POST) {
 			Core\Hook::callAll($this->module . '_mod_post', $post);
 			call_user_func([$this->module_class, 'post'], $this->module_parameters);
+		}
+
+		if ($server['REQUEST_METHOD'] === Router::PUT) {
+			call_user_func([$this->module_class, 'put'], $this->module_parameters);
 		}
 
 		Core\Hook::callAll($this->module . '_mod_afterpost', $placeholder);

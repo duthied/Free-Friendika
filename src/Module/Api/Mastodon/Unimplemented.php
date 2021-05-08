@@ -21,9 +21,6 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\Core\Logger;
-use Friendica\Core\System;
-use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
@@ -35,13 +32,44 @@ class Unimplemented extends BaseApi
 	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
+	public static function delete(array $parameters = [])
+	{
+		self::unsupported('delete');
+	}
+
+	/**
+	 * @param array $parameters
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function patch(array $parameters = [])
+	{
+		self::unsupported('patch');
+	}
+
+	/**
+	 * @param array $parameters
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function post(array $parameters = [])
+	{
+		self::unsupported('post');
+	}
+
+	/**
+	 * @param array $parameters
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function put(array $parameters = [])
+	{
+		self::unsupported('put');
+	}
+
+	/**
+	 * @param array $parameters
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
 	public static function rawContent(array $parameters = [])
 	{
-		$path = DI::args()->getQueryString();
-		Logger::info('Unimplemented API call', ['path' => $path]);
-		$error = DI::l10n()->t('API endpoint "%s" is not implemented', $path);
-		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');;
-		$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
-		System::jsonError(501, $errorobj->toArray());
+		self::unsupported('get');
 	}
 }
