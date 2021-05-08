@@ -58,6 +58,7 @@ class Context extends BaseApi
 				continue;
 			}
 			$parents[$post['uri-id']] = $post['thr-parent-id'];
+
 			$children[$post['thr-parent-id']][] = $post['uri-id'];
 		}
 		DBA::close($posts);
