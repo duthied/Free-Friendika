@@ -126,7 +126,7 @@ return [
 			'/scheduled_statuses'                => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
 			'/scheduled_statuses/{id:\d+}'       => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::PUT, R::DELETE]],
 			'/statuses'                          => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
-			'/statuses/{id:\d+}'                 => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::DELETE]],
+			'/statuses/{id:\d+}'                 => [Module\Api\Mastodon\Statuses::class,                 [R::GET, R::DELETE]],
 			'/statuses/{id:\d+}/context'         => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
 			'/statuses/{id:\d+}/reblogged_by'    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
 			'/statuses/{id:\d+}/favourited_by'   => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
