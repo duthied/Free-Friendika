@@ -50,6 +50,7 @@ class FavouritedBy extends BaseApi
 		}
 
 		$activities = Post::select(['author-id'], ['thr-parent-id' => $id, 'gravity' => GRAVITY_ACTIVITY, 'verb' => Activity::LIKE], [], false);
+
 		$accounts = [];
 
 		while ($activity = Post::fetch($activities)) {
