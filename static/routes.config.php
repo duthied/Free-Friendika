@@ -75,7 +75,7 @@ return [
 			'/accounts/{id:\d+}/note'            => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
 			'/accounts/relationships'            => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
 			'/accounts/search'                   => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
-			'/accounts/verify_credentials'       => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
+			'/accounts/verify_credentials'       => [Module\Api\Mastodon\Accounts\VerifyCredentials::class, [R::GET       ]],
 			'/accounts/update_credentials'       => [Module\Api\Mastodon\Unimplemented::class,            [R::PATCH       ]],
 			'/admin/accounts'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
 			'/admin/accounts/{id:\d+}'           => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
