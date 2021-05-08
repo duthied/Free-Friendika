@@ -267,13 +267,14 @@ class Post
 	 * @param array $selected  Array of selected fields, empty for all
 	 * @param array $condition Array of fields for condition
 	 * @param array $params    Array of several parameters
+	 * @param bool  $user_mode true = post-user-view, false = post-view
 	 *
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public static function select(array $selected = [], array $condition = [], $params = [])
+	public static function select(array $selected = [], array $condition = [], $params = [], bool $user_mode = true)
 	{
-		return self::selectView('post-user-view', $selected, $condition, $params);
+		return self::selectView($user_mode ? 'post-user-view' : 'post-view', $selected, $condition, $params);
 	}
 
 	/**

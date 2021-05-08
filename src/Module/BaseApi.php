@@ -110,7 +110,7 @@ class BaseApi extends BaseModule
 	public static function unsupported(string $method = 'all')
 	{
 		$path = DI::args()->getQueryString();
-		Logger::info('Unimplemented API call', ['path' => $path, 'method' => $method]);
+		Logger::info('Unimplemented API call', ['method' => $method, 'path' => $path, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
 		$error = DI::l10n()->t('API endpoint %s %s is not implemented', strtoupper($method), $path);
 		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');;
 		$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
