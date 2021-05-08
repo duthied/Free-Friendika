@@ -70,6 +70,11 @@ class Tag extends BaseApi
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
 		}
 
+		if ($only_media) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
+				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
+		}
+
 		if (!empty($max_id)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $max_id]);
 		}
