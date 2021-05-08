@@ -111,7 +111,7 @@ class BaseApi extends BaseModule
 	{
 		$path = DI::args()->getQueryString();
 		Logger::info('Unimplemented API call', ['path' => $path, 'method' => $method]);
-		$error = DI::l10n()->t('API endpoint %s "%s" is not implemented', $method, $path);
+		$error = DI::l10n()->t('API endpoint %s %s is not implemented', strtoupper($method), $path);
 		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');;
 		$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 		System::jsonError(501, $errorobj->toArray());
