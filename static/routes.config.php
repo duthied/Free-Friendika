@@ -57,7 +57,7 @@ return [
 
 	'/api' => [
 		'/v1' => [
-			'/accounts'                          => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
+			'/accounts'                          => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not implemented
 			'/accounts/{id:\d+}'                 => [Module\Api\Mastodon\Accounts::class,                 [R::GET         ]],
 			'/accounts/{id:\d+}/statuses'        => [Module\Api\Mastodon\Accounts\Statuses::class,        [R::GET         ]],
 			'/accounts/{id:\d+}/followers'       => [Module\Api\Mastodon\Accounts\Followers::class,       [R::GET         ]],
@@ -70,8 +70,8 @@ return [
 			'/accounts/{id:\d+}/unblock'         => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
 			'/accounts/{id:\d+}/mute'            => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
 			'/accounts/{id:\d+}/unmute'          => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
-			'/accounts/{id:\d+}/pin'             => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
-			'/accounts/{id:\d+}/unpin'           => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
+			'/accounts/{id:\d+}/pin'             => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not implemented
+			'/accounts/{id:\d+}/unpin'           => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not implemented
 			'/accounts/{id:\d+}/note'            => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
 			'/accounts/relationships'            => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
 			'/accounts/search'                   => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
@@ -99,7 +99,7 @@ return [
 			'/endorsements'                      => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
 			'/favourites'                        => [Module\Api\Mastodon\Favourited::class,               [R::GET         ]],
 			'/featured_tags'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST]], // not implemented
-			'/featured_tags/{id:\d+}'            => [Module\Api\Mastodon\Unimplemented::class,            [R::DELETE      ]],
+			'/featured_tags/{id:\d+}'            => [Module\Api\Mastodon\Unimplemented::class,            [R::DELETE      ]], // not implemented
 			'/featured_tags/suggestions'         => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
 			'/filters'                           => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
 			'/filters/{id:\d+}'                  => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST, R::PUT, R::DELETE]], // not implemented
@@ -122,7 +122,7 @@ return [
 			'/polls/{id:\d+}'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
 			'/polls/{id:\d+}/votes'              => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not implemented
 			'/preferences'                       => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
-			'/reports'                           => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
+			'/reports'                           => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not implemented
 			'/scheduled_statuses'                => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
 			'/scheduled_statuses/{id:\d+}'       => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::PUT, R::DELETE]], // not implemented
 			'/statuses'                          => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
@@ -141,7 +141,7 @@ return [
 			'/statuses/{id:\d+}/pin'             => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
 			'/statuses/{id:\d+}/unpin'           => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
 			'/suggestions'                       => [Module\Api\Mastodon\Suggestions::class,              [R::GET         ]],
-			'/suggestions/{id:\d+}'              => [Module\Api\Mastodon\Unimplemented::class,            [R::DELETE      ]],
+			'/suggestions/{id:\d+}'              => [Module\Api\Mastodon\Unimplemented::class,            [R::DELETE      ]], // not implemented
 			'/timelines/home'                    => [Module\Api\Mastodon\Timelines\Home::class,           [R::GET         ]],
 			'/timelines/list/{id:\d+}'           => [Module\Api\Mastodon\Timelines\ListTimeline::class,   [R::GET         ]],
 			'/timelines/public'                  => [Module\Api\Mastodon\Timelines\PublicTimeline::class, [R::GET         ]],
