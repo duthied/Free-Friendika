@@ -38,6 +38,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`GET /api/v1/instance`](https://docs.joinmastodon.org/methods/instance#fetch-instance)
 - [`GET /api/v1/instance/peers`](https://docs.joinmastodon.org/methods/instance#list-of-connected-domains)
 - [`GET /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/)
+- [`GET /api/v1/suggestions`](https://docs.joinmastodon.org/methods/accounts/suggestions/)
 - [`GET /api/v1/timelines/home`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/list/:id`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/public`](https://docs.joinmastodon.org/methods/timelines/)

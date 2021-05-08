@@ -140,7 +140,7 @@ return [
 			'/statuses/{id:\d+}/unmute'          => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
 			'/statuses/{id:\d+}/pin'             => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
 			'/statuses/{id:\d+}/unpin'           => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
-			'/suggestions'                       => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
+			'/suggestions'                       => [Module\Api\Mastodon\Suggestions::class,              [R::GET         ]],
 			'/suggestions/{id:\d+}'              => [Module\Api\Mastodon\Unimplemented::class,            [R::DELETE      ]],
 			'/timelines/home'                    => [Module\Api\Mastodon\Timelines\Home::class,           [R::GET         ]],
 			'/timelines/list/{id:\d+}'           => [Module\Api\Mastodon\Timelines\ListTimeline::class,   [R::GET         ]],
