@@ -47,7 +47,7 @@ class Notifications extends BaseApi
 			if (!DBA::exists('notify', ['id' => $id, 'uid' => $uid])) {
 				DI::mstdnError()->RecordNotFound();
 			}
-			System::jsonExit(DI::mstdnNotification()->create($id));
+			System::jsonExit(DI::mstdnNotification()->createFromNotifyId($id));
 		}
 
 		// Return results older than this ID
@@ -110,7 +110,7 @@ class Notifications extends BaseApi
 
 		$notify = DBA::select('notify', ['id'], $condition, $params);
 		while ($notification = DBA::fetch($notify)) {
-			$notifications[] = DI::mstdnNotification()->create($notification['id']);
+			$notifications[] = DI::mstdnNotification()->createFromNotifyId($notification['id']);
 		}
 
 		if (!empty($min_id)) {

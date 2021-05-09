@@ -60,7 +60,7 @@ class Lists extends BaseApi
 
 			$groups = DBA::select('group', ['id'], ['uid' => $uid, 'deleted' => false]);
 			while ($group = DBA::fetch($groups)) {
-				$lists[] = DI::mstdnList()->create($group['id']);
+				$lists[] = DI::mstdnList()->createFromGroupId($group['id']);
 			}
 			DBA::close($groups);
 		} else {
@@ -68,7 +68,7 @@ class Lists extends BaseApi
 			if (!DBA::exists('group',['uid' => $uid, 'deleted' => false])) {
 				DI::mstdnError()->RecordNotFound();
 			}
-			$lists = DI::mstdnList()->create($id);
+			$lists = DI::mstdnList()->createFromGroupId($id);
 		}
 
 		System::jsonExit($lists);

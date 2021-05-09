@@ -29,7 +29,7 @@ use Friendica\Model\Notification as ModelNotification;
 
 class Notification extends BaseFactory
 {
-	public function create(int $id)
+	public function createFromNotifyId(int $id)
 	{
 		$notification = DBA::selectFirst('notify', [], ['id' => $id]);
 		if (!DBA::isResult($notification)) {

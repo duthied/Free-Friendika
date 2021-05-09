@@ -56,7 +56,7 @@ class Lists extends BaseApi
 		if (!empty($cdata['user'])) {
 			$groups = DBA::select('group_member', ['gid'], ['contact-id' => $cdata['user']]);
 			while ($group = DBA::fetch($groups)) {
-				$lists[] = DI::mstdnList()->create($group['gid']);
+				$lists[] = DI::mstdnList()->createFromGroupId($group['gid']);
 			}
 			DBA::close($groups);
 		}

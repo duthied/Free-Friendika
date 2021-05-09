@@ -26,7 +26,7 @@ use Friendica\Database\DBA;
 
 class ListEntity extends BaseFactory
 {
-	public function create(int $id)
+	public function createFromGroupId(int $id)
 	{
 		$group = DBA::selectFirst('group', ['name'], ['id' => $id, 'deleted' => false]);
 		return new \Friendica\Object\Api\Mastodon\ListEntity($id, $group['name'] ?? '', 'list');
