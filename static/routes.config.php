@@ -115,8 +115,8 @@ return [
 			'/media'                             => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
 			'/media/{id:\d+}'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::PUT]], // @todo
 			'/mutes'                             => [Module\Api\Mastodon\Mutes::class,                    [R::GET         ]],
-			'/notifications'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
-			'/notifications/{id:\d+}'            => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
+			'/notifications'                     => [Module\Api\Mastodon\Notifications::class,            [R::GET         ]],
+			'/notifications/{id:\d+}'            => [Module\Api\Mastodon\Notifications::class,            [R::GET         ]],
 			'/notifications/clear'               => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
 			'/notifications/{id:\d+}/dismiss'    => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
 			'/polls/{id:\d+}'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented

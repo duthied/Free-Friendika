@@ -312,6 +312,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Notification
+	 */
+	public static function mstdnNotification()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Notification::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Tag
 	 */
 	public static function mstdnTag()

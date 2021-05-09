@@ -48,6 +48,8 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`GET /api/v1/lists/:id`](https://docs.joinmastodon.org/methods/timelines/lists/)
 - [`GET /api/v1/lists/:id/accounts`](https://docs.joinmastodon.org/methods/timelines/lists/)
 - [`GET /api/v1/mutes`](https://docs.joinmastodon.org/methods/accounts/mutes/)
+- [`GET /api/v1/notifications`](https://docs.joinmastodon.org/methods/notifications/)
+- [`GET /api/v1/notifications/:id`](https://docs.joinmastodon.org/methods/notifications/)
 - [`GET /api/v1/preferences`](https://docs.joinmastodon.org/methods/accounts/preferences/)
 - [`GET /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/)
 - [`GET /api/v1/statuses/:id/context`](https://docs.joinmastodon.org/methods/statuses/)
