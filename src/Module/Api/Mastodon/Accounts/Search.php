@@ -28,6 +28,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Module\BaseApi;
 use Friendica\Object\Search\ContactResult;
+
 /**
  * @see https://docs.joinmastodon.org/methods/accounts/
  */
