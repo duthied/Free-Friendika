@@ -1,789 +1,914 @@
 <?php
-
-define( 'UPDATE_VERSION' , 1094 );
-
 /**
+ * @copyright Copyright (C) 2010-2021, the Friendica project
  *
- * update.php - automatic system update
+ * @license GNU AGPL version 3 or any later version
  *
- * Automatically update database schemas and any other development changes such that
- * copying the latest files from the source code repository will always perform a clean
- * and painless upgrade.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Each function in this file is named update_nnnn() where nnnn is an increasing number 
- * which began counting at 1000.
- * 
- * At the top of the file "boot.php" is a define for DB_UPDATE_VERSION. Any time there is a change
- * to the database schema or one which requires an upgrade path from the existing application,
- * the DB_UPDATE_VERSION and the UPDATE_VERSION at the top of this file are incremented.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- * The current DB_UPDATE_VERSION is stored in the config area of the database. If the application starts up
- * and DB_UPDATE_VERSION is greater than the last stored build number, we will process every update function 
- * in order from the currently stored value to the new DB_UPDATE_VERSION. This is expected to bring the system 
- * up to current without requiring re-installation or manual intervention.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * Once the upgrade functions have completed, the current DB_UPDATE_VERSION is stored as the current value.
- * The DB_UPDATE_VERSION will always be one greater than the last numbered script in this file. 
+ * Automatic post-databse structure change updates
  *
- * If you change the database schema, the following are required:
- *    1. Update the file database.sql to match the new schema.
- *    2. Update this file by adding a new function at the end with the number of the current DB_UPDATE_VERSION.
- *       This function should modify the current database schema and perform any other steps necessary
- *       to ensure that upgrade is silent and free from requiring interaction.
- *    3. Increment the DB_UPDATE_VERSION in boot.php *AND* the UPDATE_VERSION in this file to match it
- *    4. TEST the upgrade prior to checkin and filing a pull request.
+ * These functions are responsible for doing critical post update changes to the data (not the structure) in the database.
  *
+ * Database structure changes are done in static/dbstructure.config.php
+ *
+ * For non-critical database migrations, please add a method in the Database\PostUpdate class
+ *
+ * If there is a need for a post update to a structure change, update this file
+ * by adding a new function at the end with the number of the new DB_UPDATE_VERSION.
+ *
+ * The numbered script in this file has to be exactly like the DB_UPDATE_VERSION
+ *
+ * Example:
+ * You are currently on version 4711 and you are preparing changes that demand an update script.
+ *
+ * 1. Create a function "update_4712()" here in the update.php
+ * 2. Apply the needed structural changes in static/dbStructure.php
+ * 3. Set DB_UPDATE_VERSION in static/dbstructure.config.php to 4712.
+ *
+ * If you need to run a script before the database update, name the function "pre_update_4712()"
  */
 
+use Friendica\Core\Logger;
+use Friendica\Core\Update;
+use Friendica\Core\Worker;
+use Friendica\Database\Database;
+use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
+use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Model\Item;
+use Friendica\Model\Notification;
+use Friendica\Model\Photo;
+use Friendica\Model\Post;
+use Friendica\Model\Storage;
+use Friendica\Worker\Delivery;
 
+// Post-update script of PR 5751
+function update_1298()
+{
+	$keys = ['gender', 'marital', 'sexual'];
+	foreach ($keys as $translateKey) {
+		$allData = DBA::select('profile', ['id', $translateKey]);
+		$allLangs = DI::l10n()->getAvailableLanguages();
+		$success = 0;
+		$fail = 0;
+		foreach ($allData as $key => $data) {
+			$toTranslate = $data[$translateKey];
+			if ($toTranslate != '') {
+				foreach ($allLangs as $key => $lang) {
+					$a = new \stdClass();
+					$a->strings = [];
 
-function update_1000() {
+					// First we get the the localizations
+					if (file_exists("view/lang/$lang/strings.php")) {
+						include "view/lang/$lang/strings.php";
+					}
+					if (file_exists("addon/morechoice/lang/$lang/strings.php")) {
+						include "addon/morechoice/lang/$lang/strings.php";
+					}
 
-	q("ALTER TABLE `item` DROP `like`, DROP `dislike` ");
+					$localizedStrings = $a->strings;
+					unset($a);
 
-	q("ALTER TABLE `item` ADD `verb` CHAR( 255 ) NOT NULL AFTER `body` ,
-		ADD `object-type` CHAR( 255 ) NOT NULL AFTER `verb` ,
-		ADD `object` TEXT NOT NULL AFTER `object-type` ");
+					$key = array_search($toTranslate, $localizedStrings);
+					if ($key !== false) {
+						break;
+					}
 
-	q("ALTER TABLE `intro` ADD `duplex` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `knowyou` ");
-	q("ALTER TABLE `contact` ADD `duplex` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `rel` ");
- 	q("ALTER TABLE `contact` CHANGE `issued-pubkey` `issued-pubkey` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");  
-	q("ALTER TABLE `contact` ADD `term-date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `avatar-date`");
-}
+					// defaulting to empty string
+					$key = '';
+				}
 
-function update_1001() {
-	q("ALTER TABLE `item` ADD `wall` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `type` ");
-	q("ALTER TABLE `item` ADD INDEX ( `wall` )");  
-}
-
-function update_1002() {
-	q("ALTER TABLE `item` ADD `gravity` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `wall` ");
-}
-
-function update_1003() {
-	q("ALTER TABLE `contact` DROP `issued-pubkey` , DROP `ret-id` , DROP `ret-pubkey` ");
-	q("ALTER TABLE `contact` ADD `usehub` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `ret-aes`");
-	q("ALTER TABLE `contact` ADD `hub-verify` CHAR( 255 ) NOT NULL AFTER `usehub`");
-	q("ALTER TABLE `contact` ADD INDEX ( `uid` ) ,  ADD INDEX ( `self` ),  ADD INDEX ( `issued-id` ),  ADD INDEX ( `dfrn-id` )"); 
-	q("ALTER TABLE `contact` ADD INDEX ( `blocked` ),   ADD INDEX ( `readonly` )");
-}
-
-function update_1004() {
-	q("ALTER TABLE `contact` ADD `subhub` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `usehub`");
-}
-
-function update_1005() {
-
-	q("ALTER TABLE `user` ADD `spubkey` TEXT NOT NULL AFTER `prvkey` ,
-		ADD `sprvkey` TEXT NOT NULL AFTER `spubkey`");
-
-}
-
-function update_1006() {
-
-	// create 's' keys for everybody that does not have one
-
-	$r = q("SELECT * FROM `user` WHERE `spubkey` = '' ");
-	if(count($r)) {
-		foreach($r as $rr) {
-			$sres=openssl_pkey_new(array('encrypt_key' => false ));
-			$sprvkey = '';
-			openssl_pkey_export($sres, $sprvkey);
-			$spkey = openssl_pkey_get_details($sres);
-			$spubkey = $spkey["key"];
-			$r = q("UPDATE `user` SET `spubkey` = '%s', `sprvkey` = '%s'
-				WHERE `uid` = %d LIMIT 1",
-				dbesc($spubkey),
-				dbesc($sprvkey),
-				intval($rr['uid'])
-			);
-		}
-	}
-}
-
-function update_1007() {
-	q("ALTER TABLE `user` ADD `page-flags` INT NOT NULL DEFAULT '0' AFTER `notify-flags`");
-	q("ALTER TABLE `user` ADD INDEX ( `nickname` )");  
-}
-
-function update_1008() {
-	q("ALTER TABLE `profile` ADD `with` TEXT NOT NULL AFTER `marital` ");
-}
-
-function update_1009() {
-	q("ALTER TABLE `user` ADD `allow_location` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `default-location` ");
-}
-
-function update_1010() {
-	q("ALTER TABLE `contact` ADD `lrdd` CHAR( 255 ) NOT NULL AFTER `url` ");
-}
-
-function update_1011() {
-	q("ALTER TABLE `contact` ADD `nick` CHAR( 255 ) NOT NULL AFTER `name` ");
-	$r = q("SELECT * FROM `contact` WHERE 1");
-	if(count($r)) {
-		foreach($r as $rr) {
-				q("UPDATE `contact` SET `nick` = '%s' WHERE `id` = %d LIMIT 1",
-					dbesc(basename($rr['url'])),
-					intval($rr['id'])
-				);
-		}
-	}
-}
-
-function update_1012() {
-	q("ALTER TABLE `item` ADD `inform` MEDIUMTEXT NOT NULL AFTER `tag` ");
-}
-
-function update_1013() {
-	q("ALTER TABLE `item` ADD `target-type` CHAR( 255 ) NOT NULL 
-		AFTER `object` , ADD `target` TEXT NOT NULL AFTER `target-type`");
-} 
-
-function update_1014() {
-	require_once('include/Photo.php');
-	q("ALTER TABLE `contact` ADD `micro` TEXT NOT NULL AFTER `thumb` ");
-	$r = q("SELECT * FROM `photo` WHERE `scale` = 4");
-	if(count($r)) {
-		foreach($r as $rr) {
-			$ph = new Photo($rr['data']);
-			if($ph->is_valid()) {
-				$ph->scaleImage(48);
-				$ph->store($rr['uid'],$rr['contact-id'],$rr['resource-id'],$rr['filename'],$rr['album'],6,(($rr['profile']) ? 1 : 0));
+				if ($key == '') {
+					$fail++;
+				} else {
+					DBA::update('profile', [$translateKey => $key], ['id' => $data['id']]);
+					Logger::notice('Updated contact', ['action' => 'update', 'contact' => $data['id'], "$translateKey" => $key,
+						'was' => $data[$translateKey]]);
+					Worker::add(PRIORITY_LOW, 'ProfileUpdate', $data['id']);
+					Contact::updateSelfFromUserID($data['id']);
+					$success++;
+				}
 			}
 		}
+
+		Logger::notice($translateKey . " fix completed", ['action' => 'update', 'translateKey' => $translateKey, 'Success' => $success, 'Fail' => $fail ]);
 	}
-	$r = q("SELECT * FROM `contact` WHERE 1");
-	if(count($r)) {
-		foreach($r as $rr) {		
-			if(stristr($rr['thumb'],'avatar'))
-				q("UPDATE `contact` SET `micro` = '%s' WHERE `id` = %d LIMIT 1",
-					dbesc(str_replace('avatar','micro',$rr['thumb'])),
-					intval($rr['id']));
-			else
-				q("UPDATE `contact` SET `micro` = '%s' WHERE `id` = %d LIMIT 1",
-					dbesc(str_replace('5.jpg','6.jpg',$rr['thumb'])),
-					intval($rr['id']));
+	return Update::SUCCESS;
+}
+
+function update_1309()
+{
+	$queue = DBA::select('queue', ['id', 'cid', 'guid']);
+	while ($entry = DBA::fetch($queue)) {
+		$contact = DBA::selectFirst('contact', ['uid'], ['id' => $entry['cid']]);
+		if (!DBA::isResult($contact)) {
+			continue;
+		}
+
+		$item = Post::selectFirst(['id', 'gravity'], ['uid' => $contact['uid'], 'guid' => $entry['guid']]);
+		if (!DBA::isResult($item)) {
+			continue;
+		}
+
+		$deliver_options = ['priority' => PRIORITY_MEDIUM, 'dont_fork' => true];
+		Worker::add($deliver_options, 'Delivery', Delivery::POST, $item['id'], $entry['cid']);
+		Logger::info('Added delivery worker', ['item' => $item['id'], 'contact' => $entry['cid']]);
+		DBA::delete('queue', ['id' => $entry['id']]);
+	}
+	return Update::SUCCESS;
+}
+
+function update_1315()
+{
+	if (DBStructure::existsTable('item-delivery-data')) {
+		DBA::delete('item-delivery-data', ['postopts' => '', 'inform' => '', 'queue_count' => 0, 'queue_done' => 0]);
+	}
+	return Update::SUCCESS;
+}
+
+function update_1318()
+{
+	DBA::update('profile', ['marital' => "In a relation"], ['marital' => "Unavailable"]);
+	DBA::update('profile', ['marital' => "Single"], ['marital' => "Available"]);
+
+	Worker::add(PRIORITY_LOW, 'ProfileUpdate');
+	return Update::SUCCESS;
+}
+
+function update_1323()
+{
+	$users = DBA::select('user', ['uid']);
+	while ($user = DBA::fetch($users)) {
+		Contact::updateSelfFromUserID($user['uid']);
+	}
+	DBA::close($users);
+
+	return Update::SUCCESS;
+}
+
+function update_1327()
+{
+	$contacts = DBA::select('contact', ['uid', 'id', 'blocked', 'readonly'], ["`uid` != ? AND (`blocked` OR `readonly`) AND NOT `pending`", 0]);
+	while ($contact = DBA::fetch($contacts)) {
+		Contact\User::setBlocked($contact['id'], $contact['uid'], $contact['blocked']);
+		Contact\User::setIgnored($contact['id'], $contact['uid'], $contact['readonly']);
+	}
+	DBA::close($contacts);
+
+	return Update::SUCCESS;
+}
+
+function update_1330()
+{
+	$currStorage = DI::config()->get('storage', 'class', '');
+
+	// set the name of the storage instead of the classpath as config
+	if (!empty($currStorage)) {
+		/** @var Storage\IStorage $currStorage */
+		if (!DI::config()->set('storage', 'name', $currStorage::getName())) {
+			return Update::FAILED;
+		}
+
+		// try to delete the class since it isn't needed. This won't work with config files
+		DI::config()->delete('storage', 'class');
+	}
+
+	// Update attachments and photos
+	if (!DBA::p("UPDATE `photo` SET `photo`.`backend-class` = SUBSTR(`photo`.`backend-class`, 25) WHERE `photo`.`backend-class` LIKE 'Friendica\\\Model\\\Storage\\\%' ESCAPE '|'") ||
+	    !DBA::p("UPDATE `attach` SET `attach`.`backend-class` = SUBSTR(`attach`.`backend-class`, 25) WHERE `attach`.`backend-class` LIKE 'Friendica\\\Model\\\Storage\\\%' ESCAPE '|'")) {
+		return Update::FAILED;
+	};
+
+	return Update::SUCCESS;
+}
+
+function update_1332()
+{
+	$condition = ["`is-default` IS NOT NULL"];
+	$profiles = DBA::select('profile', [], $condition);
+
+	while ($profile = DBA::fetch($profiles)) {
+		DI::profileField()->migrateFromLegacyProfile($profile);
+	}
+	DBA::close($profiles);
+
+	DBA::update('contact', ['profile-id' => null], ['`profile-id` IS NOT NULL']);
+
+	return Update::SUCCESS;
+}
+
+function update_1347()
+{
+	foreach (Item::ACTIVITIES as $index => $activity) {
+		DBA::insert('verb', ['id' => $index + 1, 'name' => $activity], Database::INSERT_IGNORE);
+	}
+
+	return Update::SUCCESS;
+}
+
+function pre_update_1348()
+{
+	if (!DBA::exists('contact', ['id' => 0])) {
+		DBA::insert('contact', ['nurl' => '']);
+		$lastid = DBA::lastInsertId();
+		if ($lastid != 0) {
+			DBA::update('contact', ['id' => 0], ['id' => $lastid]);
 		}
 	}
+
+	// The tables "permissionset" and "tag" could or could not exist during the update.
+	// This depends upon the previous version. Depending upon this situation we have to add
+	// the "0" values before adding the foreign keys - or after would be sufficient.
+
+	update_1348();
+
+	DBA::e("DELETE FROM `auth_codes` WHERE NOT `client_id` IN (SELECT `client_id` FROM `clients`)");
+	DBA::e("DELETE FROM `tokens` WHERE NOT `client_id` IN (SELECT `client_id` FROM `clients`)");
+
+	return Update::SUCCESS;
 }
 
-function update_1015() {
-	q("ALTER TABLE `item` CHANGE `body` `body` mediumtext NOT NULL");
-}
-
-function update_1016() {
-	q("ALTER TABLE `user` ADD `openid` CHAR( 255 ) NOT NULL AFTER `email` ");
-}
-
-function update_1017() {
-
-	q(" CREATE TABLE IF NOT EXISTS `clients` (
-`client_id` VARCHAR( 20 ) NOT NULL ,
-`pw` VARCHAR( 20 ) NOT NULL ,
-`redirect_uri` VARCHAR( 200 ) NOT NULL ,
-PRIMARY KEY ( `client_id` )
-) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
-
-	q(" CREATE TABLE IF NOT EXISTS `tokens` (
-`id` VARCHAR( 40 ) NOT NULL ,
-`client_id` VARCHAR( 20 ) NOT NULL ,
-`expires` INT NOT NULL ,
-`scope` VARCHAR( 200 ) NOT NULL ,
-PRIMARY KEY ( `id` )
-) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
-
-	q("CREATE TABLE IF NOT EXISTS `auth_codes` (
-`id` VARCHAR( 40 ) NOT NULL ,
-`client_id` VARCHAR( 20 ) NOT NULL ,
-`redirect_uri` VARCHAR( 200 ) NOT NULL ,
-`expires` INT NOT NULL ,
-`scope` VARCHAR( 250 ) NOT NULL ,
-PRIMARY KEY ( `id` )
-) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
-
-}
-
-function update_1018() {
-	q("CREATE TABLE IF NOT EXISTS `queue` (
-`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-`cid` INT NOT NULL ,
-`created` DATETIME NOT NULL ,
-`last` DATETIME NOT NULL ,
-`content` MEDIUMTEXT NOT NULL
-) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
-}
-
-function update_1019() {
-	q("ALTER TABLE `mail` DROP `delivered`");
-	q("ALTER TABLE `profile` ADD `showwith` TINYINT(1) NOT NULL DEFAULT '0' AFTER `marital` ");
-}
-
-function update_1020() {
-	q("ALTER TABLE `profile` DROP `showwith`");
-	q("ALTER TABLE `item` ADD `thr-parent` CHAR( 255 ) NOT NULL AFTER `parent-uri` ");
-}
-
-function update_1021() {
-	q("ALTER TABLE `profile_check` ADD `sec` CHAR( 255 ) NOT NULL AFTER `dfrn_id` ");
-	q("ALTER TABLE `profile_check` ADD `cid` INT(10) unsigned  NOT NULL DEFAULT '0' AFTER `uid`");
-	q("ALTER TABLE `item` ADD `private` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `deny_gid` ");
-}
-
-function update_1022() {
-	q("CREATE TABLE `pconfig` (
-		`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-		`uid` INT NOT NULL DEFAULT '0',
-		`cat` CHAR( 255 ) NOT NULL ,
-		`k` CHAR( 255 ) NOT NULL ,
-		`v` MEDIUMTEXT NOT NULL
-		) ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci ");
-}
-
-function update_1023() {
-	q("ALTER TABLE `user` ADD `register_date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `timezone` ,
-	ADD `login_date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `register_date` ");
-}
-
-function update_1024() {
-	q("ALTER TABLE `profile` ADD `keywords` TEXT NOT NULL AFTER `religion` ");
-}
-
-function update_1025() {
-	q("ALTER TABLE `user` ADD `maxreq` int(11) NOT NULL DEFAULT '10' AFTER `pwdreset` ");
-}
-
-function update_1026() {
-	q("CREATE TABLE IF NOT EXISTS `hook` (
-	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`hook` CHAR( 255 ) NOT NULL ,
-	`file` CHAR( 255 ) NOT NULL ,
-	`function` CHAR( 255 ) NOT NULL
-	) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
-}
-
-
-function update_1027() {
-	q("CREATE TABLE IF NOT EXISTS `addon` (
-	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`name` CHAR( 255 ) NOT NULL ,
-	`version` CHAR( 255 ) NOT NULL ,
-	`installed` TINYINT( 1 ) NOT NULL DEFAULT '0' 
-	) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
-}
-
-function update_1028() {
-	q("ALTER TABLE `user` ADD `openidserver` text NOT NULL AFTER `deny_gid` ");
-}
-
-function update_1029() {
-	q("ALTER TABLE `contact` ADD `info` MEDIUMTEXT NOT NULL AFTER `reason` ");
-}
-
-function update_1030() {
-	q("ALTER TABLE `contact` ADD `bdyear` CHAR( 4 ) NOT NULL COMMENT 'birthday notify flag' AFTER `profile-id` ");
-
-	q("CREATE TABLE IF NOT EXISTS `event` (
-	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`uid` INT NOT NULL ,
-	`cid` INT NOT NULL ,
-	`created` DATETIME NOT NULL ,
-	`edited` DATETIME NOT NULL ,
-	`start` DATETIME NOT NULL ,
-	`finish` DATETIME NOT NULL ,
-	`desc` TEXT NOT NULL ,
-	`location` TEXT NOT NULL ,
-	`type` CHAR( 255 ) NOT NULL ,
-	`adjust` TINYINT( 1 ) NOT NULL DEFAULT '1',
-	`allow_cid` MEDIUMTEXT NOT NULL ,
-	`allow_gid` MEDIUMTEXT NOT NULL ,
-	`deny_cid` MEDIUMTEXT NOT NULL ,
-	`deny_gid` MEDIUMTEXT NOT NULL
-	) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
-
-
-}
-
-function update_1031() {
-	// Repair any bad links that slipped into the item table
-	$r = q("SELECT `id`, `object` FROM `item` WHERE `object` != '' ");
-	if($r && count($r)) {
-		foreach($r as $rr) {
-			if(strstr($rr['object'],'type=&quot;http')) {
-				q("UPDATE `item` SET `object` = '%s' WHERE `id` = %d LIMIT 1",
-					dbesc(str_replace('type=&quot;http','href=&quot;http',$rr['object'])),
-					intval($rr['id'])
-				);
-			}
+function update_1348()
+{
+	// Insert a permissionset with id=0
+	// Inserting it without an ID and then changing the value to 0 tricks the auto increment
+	if (!DBA::exists('permissionset', ['id' => 0])) {
+		DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
+		$lastid = DBA::lastInsertId();
+		if ($lastid != 0) {
+			DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
 		}
 	}
+
+	if (!DBA::exists('tag', ['id' => 0])) {
+		DBA::insert('tag', ['name' => '']);
+		$lastid = DBA::lastInsertId();
+		if ($lastid != 0) {
+			DBA::update('tag', ['id' => 0], ['id' => $lastid]);
+		}
+	}
+
+	return Update::SUCCESS;
 }
+
+function update_1349()
+{
+	if (!DBStructure::existsTable('item-activity')) {
+		return Update::SUCCESS;
+	}
+
+	$correct = true;
+	foreach (Item::ACTIVITIES as $index => $activity) {
+		if (!DBA::exists('verb', ['id' => $index + 1, 'name' => $activity])) {
+			$correct = false;
+		}
+	}
+
+	if (!$correct) {
+		// The update failed - but it cannot be recovered, since the data doesn't match our expectation
+		// This means that we can't use this "shortcut" to fill the "vid" field and we have to rely upon
+		// the postupdate. This is not fatal, but means that it will take some longer time for the system
+		// to fill all data.
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("UPDATE `item` INNER JOIN `item-activity` ON `item`.`uri-id` = `item-activity`.`uri-id`
+		SET `vid` = `item-activity`.`activity` + 1 WHERE `gravity` = ? AND (`vid` IS NULL OR `vid` = 0)", GRAVITY_ACTIVITY)) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function update_1351()
+{
+	if (DBStructure::existsTable('thread') && !DBA::e("UPDATE `thread` INNER JOIN `item` ON `thread`.`iid` = `item`.`id` SET `thread`.`uri-id` = `item`.`uri-id`")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function pre_update_1354()
+{
+	if (DBStructure::existsColumn('contact', ['ffi_keyword_blacklist'])
+		&& !DBStructure::existsColumn('contact', ['ffi_keyword_denylist'])
+		&& !DBA::e("ALTER TABLE `contact` CHANGE `ffi_keyword_blacklist` `ffi_keyword_denylist` text null")) {
+		return Update::FAILED;
+	}
+	return Update::SUCCESS;
+}
+
+function update_1354()
+{
+	if (DBStructure::existsColumn('contact', ['ffi_keyword_blacklist'])
+		&& DBStructure::existsColumn('contact', ['ffi_keyword_denylist'])) {
+		if (!DBA::e("UPDATE `contact` SET `ffi_keyword_denylist` = `ffi_keyword_blacklist`")) {
+			return Update::FAILED;
+		}
+
+		// When the data had been copied then the main task is done.
+		// Having the old field removed is only beauty but not crucial.
+		// So we don't care if this was successful or not.
+		DBA::e("ALTER TABLE `contact` DROP `ffi_keyword_blacklist`");
+	}
+	return Update::SUCCESS;
+}
+
+function update_1357()
+{
+	if (!DBA::e("UPDATE `contact` SET `failed` = true WHERE `success_update` < `failure_update` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `contact` SET `failed` = false WHERE `success_update` > `failure_update` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `contact` SET `failed` = false WHERE `updated` > `failure_update` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `contact` SET `failed` = false WHERE `last-item` > `failure_update` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `gserver` SET `failed` = true WHERE `last_contact` < `last_failure` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `gserver` SET `failed` = false WHERE `last_contact` > `last_failure` AND `failed` IS NULL")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function pre_update_1358()
+{
+	if (!DBA::e("DELETE FROM `contact-relation` WHERE NOT `relation-cid` IN (SELECT `id` FROM `contact`) OR NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function pre_update_1363()
+{
+	Photo::delete(["`contact-id` != ? AND NOT `contact-id` IN (SELECT `id` FROM `contact`)", 0]);
+	return Update::SUCCESS;
+}
+
+function pre_update_1364()
+{
+	if (!DBA::e("DELETE FROM `2fa_recovery_codes` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `2fa_app_specific_password` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `attach` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `clients` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `conv` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `fsuggest` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `group` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `intro` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `manage` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `manage` WHERE NOT `mid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `mail` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `mailacct` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `notify` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `openwebauth-token` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `pconfig` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `profile` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `profile_check` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `profile_field` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `push_subscriber` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `register` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `search` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `tokens` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `user-contact` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('user-item') && !DBA::e("DELETE FROM `user-item` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `notify-threads` WHERE NOT `receiver-uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `event` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `fsuggest` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `group_member` WHERE NOT `contact-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `intro` WHERE NOT `contact-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `profile_check` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `user-contact` WHERE NOT `cid` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `group_member` WHERE NOT `gid` IN (SELECT `id` FROM `group`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `gserver-tag` WHERE NOT `gserver-id` IN (SELECT `id` FROM `gserver`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('user-item') && !DBA::e("DELETE FROM `user-item` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function pre_update_1365()
+{
+	if (!DBA::e("DELETE FROM `notify-threads` WHERE NOT `notify-id` IN (SELECT `id` FROM `notify`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('thread') && !DBA::e("DELETE FROM `thread` WHERE NOT `iid` IN (SELECT `id` FROM `item`)")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function update_1375()
+{
+	if (!DBA::e("UPDATE `item` SET `thr-parent` = `parent-uri`, `thr-parent-id` = `parent-uri-id` WHERE `thr-parent` = ''")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function pre_update_1376()
+{
+	// Insert a user with uid=0
+	DBStructure::checkInitialValues();
+
+	if (!DBA::e("DELETE FROM `item` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `event` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('thread') && !DBA::e("DELETE FROM `thread` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `permissionset` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `openwebauth-token` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `post-category` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	Photo::delete(["NOT `uid` IN (SELECT `uid` FROM `user`)"]);
+
+	if (!DBA::e("DELETE FROM `contact` WHERE NOT `uid` IN (SELECT `uid` FROM `user`)")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function pre_update_1377()
+{
+	DBStructure::checkInitialValues();
+
+	if (!DBA::e("DELETE FROM `item` WHERE NOT `author-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `item` WHERE NOT `owner-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `item` SET `contact-id` = `owner-id` WHERE NOT `contact-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('thread') && !DBA::e("DELETE FROM `thread` WHERE NOT `author-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('thread') && !DBA::e("DELETE FROM `thread` WHERE NOT `owner-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('thread') && !DBA::e("UPDATE `thread` SET `contact-id` = `owner-id` WHERE NOT `contact-id` IN (SELECT `id` FROM `contact`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `notify` SET `uri-id` = NULL WHERE `uri-id` = 0")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('diaspora-interaction') && !DBA::e("DELETE FROM `diaspora-interaction` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('item-activity') && !DBA::e("DELETE FROM `item-activity` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('item-content') && !DBA::e("DELETE FROM `item-content` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `notify` WHERE `uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `notify` SET `parent-uri-id` = NULL WHERE `parent-uri-id` = 0")) {
+		return Update::FAILED;
+	}
+	if (!DBA::e("DELETE FROM `notify` WHERE `parent-uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `notify-threads` SET `master-parent-uri-id` = NULL WHERE `master-parent-uri-id` = 0")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `notify-threads` WHERE `master-parent-uri-id` NOT IN (SELECT `id` FROM `item-uri`)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("DELETE FROM `notify-threads` WHERE `master-parent-item` NOT IN (SELECT `id` FROM `item`)")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function update_1380()
+{
+	if (!DBA::e("UPDATE `notify` INNER JOIN `item` ON `item`.`id` = `notify`.`iid` SET `notify`.`uri-id` = `item`.`uri-id` WHERE `notify`.`uri-id` IS NULL AND `notify`.`otype` IN (?, ?)",
+		Notification\ObjectType::ITEM, Notification\ObjectType::PERSON)) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `notify` INNER JOIN `item` ON `item`.`id` = `notify`.`parent` SET `notify`.`parent-uri-id` = `item`.`uri-id` WHERE `notify`.`parent-uri-id` IS NULL AND `notify`.`otype` IN (?, ?)",
+		Notification\ObjectType::ITEM, Notification\ObjectType::PERSON)) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function pre_update_1395()
+{
+	if (DBStructure::existsTable('post-user') && !DBA::e("DROP TABLE `post-user`")) {
+		return Update::FAILED;
+	}
+	return Update::SUCCESS;
+}
+
+function update_1395()
+{
+	if (!DBA::e("INSERT INTO `post-user`(`id`, `uri-id`, `uid`, `contact-id`, `unseen`, `origin`, `psid`)
+		SELECT `id`, `uri-id`, `uid`, `contact-id`, `unseen`, `origin`, `psid` FROM `item`
+		ON DUPLICATE KEY UPDATE `contact-id` = `item`.`contact-id`, `unseen` = `item`.`unseen`, `origin` = `item`.`origin`, `psid` = `item`.`psid`")) {
+		return Update::FAILED;
+	}
+
+	if (DBStructure::existsTable('user-item') && !DBA::e("INSERT INTO `post-user`(`uri-id`, `uid`, `hidden`, `notification-type`)
+		SELECT `uri-id`, `user-item`.`uid`, `hidden`,`notification-type` FROM `user-item`
+			INNER JOIN `item` ON `item`.`id` = `user-item`.`iid`
+		ON DUPLICATE KEY UPDATE `hidden` = `user-item`.`hidden`, `notification-type` = `user-item`.`notification-type`")) {
+		return Update::FAILED;
+	}
+	return Update::SUCCESS;
+}
+
+function update_1396()
+{
+	if (!DBStructure::existsTable('item-content')) {
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("INSERT IGNORE INTO `post-content`(`uri-id`, `title`, `content-warning`, `body`, `raw-body`,
+		`location`, `coord`, `language`, `app`, `rendered-hash`, `rendered-html`,
+		`object-type`, `object`, `target-type`, `target`, `resource-id`, `plink`)
+		SELECT `item-content`.`uri-id`, `item-content`.`title`, `item-content`.`content-warning`,
+			`item-content`.`body`, `item-content`.`raw-body`, `item-content`.`location`, `item-content`.`coord`,
+			`item-content`.`language`, `item-content`.`app`, `item-content`.`rendered-hash`,
+			`item-content`.`rendered-html`, `item-content`.`object-type`, `item-content`.`object`,
+			`item-content`.`target-type`, `item-content`.`target`, `item`.`resource-id`, `item-content`.`plink`
+			FROM `item-content` INNER JOIN `item` ON `item`.`uri-id` = `item-content`.`uri-id`")) {
+		return Update::FAILED;
+	}
+	return Update::SUCCESS;
+}
+
+function update_1397()
+{
+	if (!DBA::e("INSERT INTO `post-user-notification`(`uri-id`, `uid`, `notification-type`)
+		SELECT `uri-id`, `uid`, `notification-type` FROM `post-user` WHERE `notification-type` != 0
+		ON DUPLICATE KEY UPDATE `uri-id` = `post-user`.`uri-id`, `uid` = `post-user`.`uid`, `notification-type` = `post-user`.`notification-type`")) {
+		return Update::FAILED;
+	}
+
+	if (!DBStructure::existsTable('user-item')) {
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("INSERT INTO `post-user-notification`(`uri-id`, `uid`, `notification-type`)
+		SELECT `uri-id`, `user-item`.`uid`, `notification-type` FROM `user-item`
+			INNER JOIN `item` ON `item`.`id` = `user-item`.`iid` WHERE `notification-type` != 0
+		ON DUPLICATE KEY UPDATE `notification-type` = `user-item`.`notification-type`")) {
+		return Update::FAILED;
+	}
+
+	if (!DBStructure::existsTable('thread')) {
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("INSERT IGNORE INTO `post-thread-user`(`uri-id`, `uid`, `pinned`, `starred`, `ignored`, `wall`, `pubmail`, `forum_mode`)
+		SELECT `thread`.`uri-id`, `thread`.`uid`, `user-item`.`pinned`, `thread`.`starred`,
+			`thread`.`ignored`, `thread`.`wall`, `thread`.`pubmail`, `thread`.`forum_mode`
+		FROM `thread` LEFT JOIN `user-item` ON `user-item`.`iid` = `thread`.`iid`")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function update_1398()
+{
+	if (!DBStructure::existsTable('thread')) {
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("INSERT IGNORE INTO `post-thread` (`uri-id`, `owner-id`, `author-id`, `network`, `created`, `received`, `changed`, `commented`)
+		SELECT `uri-id`, `owner-id`, `author-id`, `network`, `created`, `received`, `changed`, `commented` FROM `thread`")) {
+			return Update::FAILED;
+	}
+
+	if (!DBStructure::existsTable('thread')) {
+		return Update::SUCCESS;
+	}
+
+	if (!DBA::e("UPDATE `post-thread-user` INNER JOIN `thread` ON `thread`.`uid` = `post-thread-user`.`uid` AND `thread`.`uri-id` = `post-thread-user`.`uri-id`
+		SET `post-thread-user`.`mention` = `thread`.`mention`")) {
+			return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function update_1399()
+{
+	if (!DBA::e("UPDATE `post-thread-user` INNER JOIN `post-user` ON `post-user`.`uid` = `post-thread-user`.`uid` AND `post-user`.`uri-id` = `post-thread-user`.`uri-id`
+		SET `post-thread-user`.`contact-id` = `post-user`.`contact-id`, `post-thread-user`.`unseen` = `post-user`.`unseen`, 
+		`post-thread-user`.`hidden` = `post-user`.`hidden`, `post-thread-user`.`origin` = `post-user`.`origin`, 
+		`post-thread-user`.`psid` = `post-user`.`psid`, `post-thread-user`.`post-user-id` = `post-user`.`id`")) {
+			return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function update_1400()
+{
+	if (!DBA::e("INSERT IGNORE INTO `post` (`uri-id`, `parent-uri-id`, `thr-parent-id`, `owner-id`, `author-id`, `network`,
+		`created`, `received`, `edited`, `gravity`, `causer-id`, `post-type`, `vid`, `private`, `visible`, `deleted`, `global`)
+		SELECT `uri-id`, `parent-uri-id`, `thr-parent-id`, `owner-id`, `author-id`, `network`, `created`, `received`, `edited`, 
+			`gravity`, `causer-id`, `post-type`, `vid`, `private`, `visible`, `deleted`, `global` FROM `item`")) {
+			return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `post-user` INNER JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
+		INNER JOIN `event` ON `item`.`event-id` = `event`.`id` AND `event`.`id` != 0
+		SET `post-user`.`event-id` = `item`.`event-id`")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `post-user` INNER JOIN `item` ON `item`.`uri-id` = `post-user`.`uri-id` AND `item`.`uid` = `post-user`.`uid`
+		SET `post-user`.`wall` = `item`.`wall`, `post-user`.`parent-uri-id` = `item`.`parent-uri-id`,
+		`post-user`.`thr-parent-id` = `item`.`thr-parent-id`,
+		`post-user`.`created` = `item`.`created`, `post-user`.`edited` = `item`.`edited`,
+		`post-user`.`received` = `item`.`received`, `post-user`.`gravity` = `item`.`gravity`,
+		`post-user`.`network` = `item`.`network`, `post-user`.`owner-id` = `item`.`owner-id`,
+		`post-user`.`author-id` = `item`.`author-id`, `post-user`.`causer-id` = `item`.`causer-id`,
+		`post-user`.`post-type` = `item`.`post-type`, `post-user`.`vid` = `item`.`vid`,
+		`post-user`.`private` = `item`.`private`, `post-user`.`global` = `item`.`global`,
+		`post-user`.`visible` = `item`.`visible`, `post-user`.`deleted` = `item`.`deleted`")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("INSERT IGNORE INTO `post-thread-user` (`uri-id`, `owner-id`, `author-id`, `causer-id`, `network`,
+		`created`, `received`, `changed`, `commented`, `uid`,  `wall`, `contact-id`, `unseen`, `hidden`, `origin`, `psid`, `post-user-id`)
+		SELECT `uri-id`, `owner-id`, `author-id`, `causer-id`, `network`, `created`, `received`, `received`, `received`,
+			`uid`, `wall`, `contact-id`, `unseen`, `hidden`, `origin`, `psid`, `id`
+		FROM `post-user` WHERE `gravity` = 0 AND NOT EXISTS(SELECT `uri-id` FROM `post-thread-user` WHERE `post-user-id` = `post-user`.id)")) {
+		return Update::FAILED;
+	}
+
+	if (!DBA::e("UPDATE `post-thread-user` INNER JOIN `post-thread` ON `post-thread-user`.`uri-id` = `post-thread`.`uri-id`
+		SET `post-thread-user`.`owner-id` = `post-thread`.`owner-id`, `post-thread-user`.`author-id` = `post-thread`.`author-id`,
+		`post-thread-user`.`causer-id` = `post-thread`.`causer-id`, `post-thread-user`.`network` = `post-thread`.`network`,
+		`post-thread-user`.`created` = `post-thread`.`created`, `post-thread-user`.`received` = `post-thread`.`received`,
+		`post-thread-user`.`changed` = `post-thread`.`changed`, `post-thread-user`.`commented` = `post-thread`.`commented`")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function pre_update_1403()
+{
+	// Necessary before a primary key change
+	if (!DBA::e("DROP TABLE `parsed_url`")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
+}
+
+function update_1404()
+{
+	$tasks = DBA::select('workerqueue', ['id', 'command', 'parameter'], ['command' => ['notifier', 'delivery', 'apdelivery', 'done' => false]]);
+	while ($task = DBA::fetch($tasks)) {
+		$parameters = json_decode($task['parameter'], true);
 	
-function update_1032() {
-	q("ALTER TABLE `profile` ADD `pdesc` CHAR( 255 ) NOT NULL AFTER `name` ");
-}
-
-function update_1033() {
-	q("CREATE TABLE IF NOT EXISTS `cache` (
- 		`k` CHAR( 255 ) NOT NULL PRIMARY KEY ,
- 		`v` TEXT NOT NULL,
- 		`updated` DATETIME NOT NULL
-		) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
-}
-
-
-function update_1034() {
-
-	// If you have any of these parent-less posts they can cause problems, and 
-	// we need to delete them. You can't see them anyway.
-	// Legitimate items will usually get re-created on the next 
-	// pull from the hub.
-	// But don't get rid of a post that may have just come in 
-	// and may not yet have the parent id set.
-
-	q("DELETE FROM `item` WHERE `parent` = 0 AND `created` < UTC_TIMESTAMP() - INTERVAL 2 MINUTE");
-
-}
-
-
-function update_1035() {
-
-	q("ALTER TABLE `contact` ADD `success_update` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `last-update` ");
-
-}
-
-function update_1036() {
-
-	$r = dbq("SELECT * FROM `contact` WHERE `network` = 'dfrn' && `photo` LIKE '%include/photo%' ");
-	if(count($r)) {
-		foreach($r as $rr) {
-			q("UPDATE `contact` SET `photo` = '%s', `thumb` = '%s', `micro` = '%s' WHERE `id` = %d LIMIT 1",
-				dbesc(str_replace('include/photo','photo',$rr['photo'])),
-				dbesc(str_replace('include/photo','photo',$rr['thumb'])),
-				dbesc(str_replace('include/photo','photo',$rr['micro'])),
-				intval($rr['id']));
+		if (in_array($parameters[0], [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
+			continue;
 		}
-	}
-}
-
-function update_1037() {
-
-	q("ALTER TABLE `contact` CHANGE `lrdd` `alias` CHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ");
-
-}
-
-function update_1038() {
- q("ALTER TABLE `item` ADD `plink` CHAR( 255 ) NOT NULL AFTER `target` ");
-}
-
-function update_1039() {
-	q("ALTER TABLE `addon` ADD `timestamp` BIGINT NOT NULL DEFAULT '0'");
-}
-
-
-function update_1040() {
-
-	q("CREATE TABLE IF NOT EXISTS `fcontact` (
-	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`url` CHAR( 255 ) NOT NULL ,
-	`name` CHAR( 255 ) NOT NULL ,
-	`photo` CHAR( 255 ) NOT NULL
-	) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
-
-	q("CREATE TABLE IF NOT EXISTS `ffinder` (
-	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`uid` INT UNSIGNED NOT NULL ,
-	`cid` INT UNSIGNED NOT NULL ,
-	`fid` INT UNSIGNED NOT NULL
-	) ENGINE = MYISAM DEFAULT CHARSET=utf8 ");
-
-}
-
-function update_1041() {
-	q("ALTER TABLE `profile` CHANGE `keywords` `prv_keywords` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ");
-	q("ALTER TABLE `profile` ADD `pub_keywords` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `religion` ");
-}
-
-function update_1042() {
-	q("ALTER TABLE `user` ADD `expire` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `maxreq` ");
-}
-
-
-function update_1043() {
-	q("ALTER TABLE `user` ADD `blockwall` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `blocked` ");
-}
-
-function update_1044() {
-	q("ALTER TABLE `profile` ADD FULLTEXT ( `pub_keywords` ) ");
-	q("ALTER TABLE `profile` ADD FULLTEXT ( `prv_keywords` ) ");
-}
-
-function update_1045() {
-	q("ALTER TABLE `user` ADD `language` CHAR( 16 ) NOT NULL DEFAULT 'en' AFTER `timezone` ");
-}
-
-function update_1046() {
-	q("ALTER TABLE `item` ADD `attach` MEDIUMTEXT NOT NULL AFTER `tag` ");
-}
-
-function update_1047() {
-	q("ALTER TABLE `contact` ADD `writable` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `readonly` ");
-}
-
-function update_1048() {
-	q("UPDATE `contact` SET `writable` = 1 WHERE `network` = 'stat' AND `notify` != '' ");
-}
-
-function update_1049() {
-	q("CREATE TABLE `mailacct` (
-	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`uid` INT NOT NULL,
-	`server` CHAR( 255 ) NOT NULL ,
-	`user` CHAR( 255 ) NOT NULL ,
-	`pass` CHAR( 255 ) NOT NULL ,
-	`reply_to` CHAR( 255 ) NOT NULL ,
-	`last_check` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'
-	) ENGINE = MYISAM ");
-}
-
-function update_1050() {
-	q("CREATE TABLE `attach` (
-	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`uid` INT NOT NULL ,
-	`filetype` CHAR( 64 ) NOT NULL ,
-	`filesize` INT NOT NULL ,
-	`data` LONGBLOB NOT NULL ,
-	`created` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-	`edited` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-	`allow_cid` MEDIUMTEXT NOT NULL ,
-	`allow_gid` MEDIUMTEXT NOT NULL ,
-	`deny_cid` MEDIUMTEXT NOT NULL ,
-	`deny_gid` MEDIUMTEXT NOT NULL
-	) ENGINE = MYISAM ");
-
-}
-
-function update_1051() {
-	q("ALTER TABLE `mailacct` ADD `port` INT NOT NULL AFTER `server` ,
-		ADD `ssltype` CHAR( 16 ) NOT NULL AFTER `port` ,
-		ADD `mailbox` CHAR( 255 ) NOT NULL AFTER `ssltype` ");
-
-	q("ALTER TABLE `contact` ADD `addr` CHAR( 255 ) NOT NULL AFTER `url` ");
-}
-
-function update_1052() {
-	q("ALTER TABLE `mailacct` CHANGE `pass` `pass` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
-	q("ALTER TABLE `mailacct` ADD `pubmail` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `reply_to` ");
-	q("ALTER TABLE `item` ADD `pubmail` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `private` ");
-}
-
-
-function update_1053() {
-	q("ALTER TABLE `item` ADD `extid` CHAR( 255 ) NOT NULL AFTER `parent-uri` , ADD INDEX ( `extid` ) ");
-}
-
-function update_1054() {
-	q("ALTER TABLE `register` ADD `language` CHAR( 16 ) NOT NULL AFTER `password` ");
-}
-
-function update_1055() {
-	q("ALTER TABLE `profile` ADD `hidewall` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `hide-friends` ");
-}
-
-function update_1056() {
-	q("ALTER TABLE `attach` ADD `hash` CHAR( 64 ) NOT NULL AFTER `uid` ");
-}
-
-function update_1057() {
-	q("ALTER TABLE `attach` ADD `filename` CHAR( 255 ) NOT NULL AFTER `hash` ");
-}
-
-function update_1058() {
-	q("ALTER TABLE `item` ADD `event-id` INT NOT NULL AFTER `resource-id` ");
-}
-
-function update_1059() {
-	q("ALTER TABLE `queue` ADD `network` CHAR( 32 ) NOT NULL AFTER `cid` ");
-}
-
-function update_1060() {
-	q("ALTER TABLE `event` ADD `uri` CHAR( 255 ) NOT NULL AFTER `cid` ");
-}
-
-function update_1061() {
-	q("ALTER TABLE `event` ADD `nofinish` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `type` ");
-}
-
-function update_1062() {
-	q("ALTER TABLE `user` ADD `prvnets` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `page-flags` ");
-}
-function update_1063() {
-	q("ALTER TABLE `addon` ADD `plugin_admin` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `timestamp` ");
-}
-
-function update_1064() {
-	q("ALTER TABLE `item` ADD `app` CHAR( 255 ) NOT NULL AFTER `body` ");
-}
-
-function update_1065() {
-	q("ALTER TABLE `intro` ADD `fid` INT NOT NULL DEFAULT '0' AFTER `uid`");
-}
-
-function update_1066() {
-	$r = q("ALTER TABLE `item` ADD `received` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `edited` ");
-	if($r)
-		q("ALTER TABLE `item` ADD INDEX ( `received` ) ");
-
-	$r = q("UPDATE `item` SET `received` = `edited` WHERE 1");
-}
-
-function update_1067() {
-	q("ALTER TABLE `ffinder` ADD `type` CHAR( 16 ) NOT NULL AFTER `id` ,
-	ADD `note` TEXT NOT NULL AFTER `type` ");
-}
-
-function update_1068() {
-	// 1067 was short-sighted. Undo it.
-	q("ALTER TABLE `ffinder` DROP `type` , DROP `note` ");
-
-	// and do this instead.
-
-	q("CREATE TABLE IF NOT EXISTS `fsuggest` (
-	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`uid` INT NOT NULL ,
-	`cid` INT NOT NULL ,
-	`name` CHAR( 255 ) NOT NULL ,
-	`url` CHAR( 255 ) NOT NULL ,
-	`photo` CHAR( 255 ) NOT NULL ,
-	`note` TEXT NOT NULL ,
-	`created` DATETIME NOT NULL 
-	) ENGINE = MYISAM DEFAULT CHARSET=utf8");
-
-}
-
-function update_1069() {
-	q("ALTER TABLE `fsuggest` ADD `request` CHAR( 255 ) NOT NULL AFTER `url` ");
-	q("ALTER TABLE `fcontact` ADD `request` CHAR( 255 ) NOT NULL AFTER `photo` ");
-}
-
-// mail body needs to accomodate private photos
-
-function update_1070() {
-	q("ALTER TABLE `mail` CHANGE `body` `body` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ");
-}
-
-function update_1071() {
-	q("ALTER TABLE `photo` ADD INDEX ( `uid` ) ");
-	q("ALTER TABLE `photo` ADD INDEX ( `resource-id` ) ");
-	q("ALTER TABLE `photo` ADD INDEX ( `album` ) ");
-	q("ALTER TABLE `photo` ADD INDEX ( `scale` ) ");
-	q("ALTER TABLE `photo` ADD INDEX ( `profile` ) ");
-
-}
-
-function update_1072() {
-	q("ALTER TABLE `item` ADD `starred` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `visible` ");
-	q("ALTER TABLE `item` ADD INDEX ( `starred` ) ");
-}
-
-function update_1073() {
-	q("ALTER TABLE `contact` ADD `remote_self` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `self` ");
-}
-
-function update_1074() {
-	q("ALTER TABLE `user` ADD `hidewall` TINYINT( 1) NOT NULL DEFAULT '0' AFTER `blockwall` ");
-	$r = q("SELECT `uid` FROM `profile` WHERE `is-default` = 1 AND `hidewall` = 1");
-	if(count($r)) {
-		foreach($r as $rr)
-			q("UPDATE `user` SET `hidewall` = 1 WHERE `uid` = %d LIMIT 1",
-				intval($rr['uid'])
-			);
-	}
-	q("ALTER TABLE `profile` DROP `hidewall`");
-}
-
-function update_1075() {
-	q("ALTER TABLE `user` ADD `guid` CHAR( 16 ) NOT NULL AFTER `uid` ");
-	$r = q("SELECT `uid` FROM `user` WHERE 1");
-	if(count($r)) {
-		foreach($r as $rr) {
-			$found = true;
-			do {
-				$guid = substr(random_string(),0,16);
-				$x = q("SELECT `uid` FROM `user` WHERE `guid` = '%s' LIMIT 1",
-					dbesc($guid)
-				);
-				if(! count($x))
-					$found = false;
-			} while ($found == true );
-
-			q("UPDATE `user` SET `guid` = '%s' WHERE `uid` = %d LIMIT 1",
-				dbesc($guid),
-				intval($rr['uid'])
-			);
+	
+		switch (strtolower($task['command'])) {
+			case 'notifier':
+				if (count($parameters) == 3) {
+					continue 2;
+				}
+				$item = DBA::selectFirst('item', ['uid', 'uri-id'], ['id' => $parameters[1]]);
+				if (!DBA::isResult($item)) {
+					continue 2;
+				}
+	
+				$parameters[1] = $item['uri-id'];
+				$parameters[2] = $item['uid'];
+				break;
+			case 'delivery':
+				if (count($parameters) == 4) {
+					continue 2;
+				}
+				$item = DBA::selectFirst('item', ['uid', 'uri-id'], ['id' => $parameters[1]]);
+				if (!DBA::isResult($item)) {
+					continue 2;
+				}
+	
+				$parameters[1] = $item['uri-id'];
+				$parameters[3] = $item['uid'];
+				break;
+			case 'apdelivery':
+				if (count($parameters) == 6) {
+					continue 2;
+				}
+	
+				if (empty($parameters[4])) {
+					$parameters[4] = [];
+				}
+	
+				$item = DBA::selectFirst('item', ['uri-id'], ['id' => $parameters[1]]);
+				if (!DBA::isResult($item)) {
+					continue 2;
+				}
+	
+				$parameters[5] = $item['uri-id'];
+				break;
+			default:
+				continue 2;
 		}
+		DBA::update('workerqueue', ['parameter' => json_encode($parameters)], ['id' => $task['id']]);
+
+		return Update::SUCCESS;
 	}
 }
 
-function update_1076() {
-	q("CREATE TABLE `guid` ( `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-		`guid` CHAR( 16 ) NOT NULL , INDEX ( `guid` ) ) ENGINE = MYISAM ");
-
-}
-
-// There was a typo in 1076 so we'll try again in 1077 to make sure
-// We'll also make it big enough to allow for future growth, I seriously 
-// doubt Diaspora will be able to leave guids at 16 bytes,
-// and we can also use the same structure for our own larger guids
-
-function update_1077() {
-	q("CREATE TABLE IF NOT EXISTS `guid` ( `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-		`guid` CHAR( 16 ) NOT NULL , INDEX ( `guid` ) ) ENGINE = MYISAM ");
-
-	q("ALTER TABLE `guid` CHANGE `guid` `guid` CHAR( 64 ) NOT NULL"); 
-}
-
-function update_1078() {
-	q("ALTER TABLE `item` ADD `guid` CHAR( 64 ) NOT NULL AFTER `id` , ADD INDEX ( `guid` ) ");
-}
-
-function update_1079() {
-	q("CREATE TABLE IF NOT EXISTS `sign` (
-	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`iid` INT UNSIGNED NOT NULL ,
-	`signed_text` MEDIUMTEXT NOT NULL ,
-	`signature` TEXT NOT NULL ,
-	`signer` CHAR( 255 ) NOT NULL ,
-	INDEX ( `iid` )
-	) ENGINE = MYISAM ");
-
-	q("ALTER TABLE `fcontact` ADD `nick` CHAR( 255 ) NOT NULL ,
-	ADD `addr` CHAR( 255 ) NOT NULL ,
-	ADD `notify` CHAR( 255 ) NOT NULL ,
-	ADD `poll` CHAR( 255 ) NOT NULL ,
-	ADD `confirm` CHAR( 255 ) NOT NULL ,
-	ADD `priority` TINYINT( 1 ) NOT NULL ,
-	ADD `network` CHAR( 32 ) NOT NULL ,
-	ADD `alias` CHAR( 255 ) NOT NULL ,
-	ADD `pubkey` TEXT NOT NULL ,
-	ADD INDEX ( `addr` ) , 
-	ADD INDEX ( `network` ) ");
-
-}
-
-function update_1080() {
-	q("ALTER TABLE `fcontact` ADD `updated` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
-}
-
-function update_1081() {
-	// there was a typo in update 1081 so it was corrected and moved up to 1082
-}
-
-function update_1082() {
-	q("ALTER TABLE `photo` ADD `guid` CHAR( 64 ) NOT NULL AFTER `contact-id`,
-		ADD INDEX ( `guid` )  ");
-	// make certain the following code is only executed once
-	$r = q("select `id` from `photo` where `guid` != '' limit 1");
-	if($r && count($r))
-		return;
-	$r = q("SELECT distinct(`resource-id`) FROM `photo` WHERE 1 group by `id`");
-	if(count($r)) {
-		foreach($r as $rr) {
-			$guid = get_guid();
-			q("update `photo` set `guid` = '%s' where `resource-id` = '%s'",
-				dbesc($guid),
-				dbesc($rr['resource-id'])
-			);
-		}
+function update_1407()
+{
+	if (!DBA::e("UPDATE `post` SET `causer-id` = NULL WHERE `causer-id` = 0")) {
+		return Update::FAILED;
 	}
-}
-
-function update_1083() {
-	q("CREATE TABLE IF NOT EXISTS `deliverq` (
-	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`cmd` CHAR( 32 ) NOT NULL ,
-	`item` INT NOT NULL ,
-	`contact` INT NOT NULL
-	) ENGINE = MYISAM ");
-
-}
-
-function update_1084() {
-	q("ALTER TABLE `contact` ADD `attag` CHAR( 255 ) NOT NULL AFTER `nick` ");
-}
-
-function update_1085() {
-	q("CREATE TABLE IF NOT EXISTS `search` (
-	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`uid` INT NOT NULL ,
-	`term` CHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-	INDEX ( `uid` ),
-	INDEX ( `term` )
-	) ENGINE = MYISAM ");
-}
-
-function update_1086() {
-	q("ALTER TABLE `item` ADD `bookmark` tinyint(1) NOT NULL DEFAULT '0' AFTER `starred` ");
-}
-
-function update_1087() {
-	q("ALTER TABLE `item` ADD `commented` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `edited` ");
-
-	$r = q("SELECT `id` FROM `item` WHERE `parent` = `id` ");
-	if(count($r)) {
-		foreach($r as $rr) {
-			$x = q("SELECT max(`created`) AS `cdate` FROM `item` WHERE `parent` = %d LIMIT 1",
-				intval($rr['id'])
-			);
-			if(count($x))
-				q("UPDATE `item` SET `commented` = '%s' WHERE `id` = %d LIMIT 1",
-					dbesc($x[0]['cdate']),
-					intval($rr['id'])
-				);
-		}
+	if (!DBA::e("UPDATE `post-user` SET `causer-id` = NULL WHERE `causer-id` = 0")) {
+		return Update::FAILED;
 	}
+	if (!DBA::e("UPDATE `post-thread` SET `causer-id` = NULL WHERE `causer-id` = 0")) {
+		return Update::FAILED;
+	}
+	if (!DBA::e("UPDATE `post-thread-user` SET `causer-id` = NULL WHERE `causer-id` = 0")) {
+		return Update::FAILED;
+	}
+
+	return Update::SUCCESS;
 }
 
-function update_1088() {
-	q("ALTER TABLE `user` ADD `account_expired` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `expire` ,
-		ADD `account_expires_on` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `account_expired` ,
-		ADD `expire_notification_sent` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `account_expires_on` ");
-}
-
-function update_1089() {
-	q("ALTER TABLE `user` ADD `blocktags` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `hidewall` ");
-}
-
-function update_1090() {
-	q("ALTER TABLE `contact` ADD `batch` char(255) NOT NULL AFTER `prvkey` ");
-
-	q("UPDATE `contact` SET `batch` = concat(substring_index(`url`,'/',3),'/receive/public') WHERE `network` = 'dspr' ");
-
-}
-
-function update_1091() {
-
-	// catch a few stragglers that may have crept in before we added this on remote connects
-	q("UPDATE `contact` SET `batch` = concat(substring_index(`url`,'/',3),'/receive/public') WHERE `network` = 'dspr' AND `batch` = '' ");
-	q("ALTER TABLE `queue` ADD `batch` TINYINT( 1 ) NOT NULL DEFAULT '0' ");
-	q("ALTER TABLE `fcontact` ADD `batch` char(255) NOT NULL AFTER `addr` ");
-
-}
-
-function update_1092() {
-	q("ALTER TABLE `user` ADD INDEX ( `login_date` ) ");
-	q("ALTER TABLE `user` ADD INDEX ( `account_expired` ) ");
-}
-
-function update_1093() {
-	q("CREATE TABLE IF NOT EXISTS `fserver` (
-	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-	`server` CHAR( 255 ) NOT NULL ,
-	`posturl` CHAR( 255 ) NOT NULL ,
-	`key` TEXT NOT NULL,
-	INDEX ( `server` )
-	) ENGINE = MYISAM ");
-
-	q("ALTER TABLE `group` ADD `visible` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `uid` ");
-
+function update_1413()
+{
+	if (!DBA::e("UPDATE `post-user` SET `post-reason` = `post-type` WHERE `post-type` >= 64 and `post-type` <= 75")) {
+		return Update::FAILED;
+	}
 }
