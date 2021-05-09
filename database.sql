@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.06-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1414
+-- DB_UPDATE_VERSION 1415
 -- ------------------------------------------
 
 
@@ -363,6 +363,21 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	 INDEX `gsid` (`gsid`),
 	FOREIGN KEY (`gsid`) REFERENCES `gserver` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='ActivityPub compatible contacts - used in the ActivityPub implementation';
+
+--
+-- TABLE application
+--
+CREATE TABLE IF NOT EXISTS `application` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'generated index',
+	`client_id` varchar(64) NOT NULL COMMENT '',
+	`client_secret` varchar(64) NOT NULL COMMENT '',
+	`name` varchar(255) NOT NULL COMMENT '',
+	`redirect_uri` varchar(255) NOT NULL COMMENT '',
+	`website` varchar(255) COMMENT '',
+	`scopes` varchar(255) COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `client_id` (`client_id`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth application';
 
 --
 -- TABLE attach

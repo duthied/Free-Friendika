@@ -86,7 +86,7 @@ return [
 			'/announcements'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
 			'/announcements/{id:\d+}/dismiss'    => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not implemented
 			'/announcements/{id:\d+}/reactions/{name}' => [Module\Api\Mastodon\Unimplemented::class,      [R::PUT, R::DELETE]], // not implemented
-			'/apps'                              => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
+			'/apps'                              => [Module\Api\Mastodon\Apps::class,                     [        R::POST]],
 			'/apps/verify_credentials'           => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
 			'/blocks'                            => [Module\Api\Mastodon\Blocks::class,                   [R::GET         ]],
 			'/bookmarks'                         => [Module\Api\Mastodon\Bookmarks::class,                [R::GET         ]],

@@ -240,6 +240,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Application
+	 */
+	public static function mstdnApplication()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Application::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Attachment
 	 */
 	public static function mstdnAttachment()
