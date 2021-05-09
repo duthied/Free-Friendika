@@ -23,11 +23,6 @@ namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseDataTransferObject;
-use Friendica\Collection\Api\Mastodon\Fields;
-use Friendica\Content\Text\BBCode;
-use Friendica\Database\DBA;
-use Friendica\Model\Contact;
-use Friendica\Util\DateTimeFormat;
 
 /**
  * Class Preferences
@@ -59,9 +54,9 @@ class Preferences extends BaseDataTransferObject
 	public function __construct(string $visibility, bool $sensitive, string $language, string $media, bool $spoilers)
 	{
 		$this->{'posting:default:visibility'} = $visibility;
-		$this->{'posting:default:sensitive'} = $sensitive;
-		$this->{'posting:default:language'} = $language;
-		$this->{'reading:expand:media'} = $media;
-		$this->{'reading:expand:spoilers'} = $spoilers;
+		$this->{'posting:default:sensitive'}  = $sensitive;
+		$this->{'posting:default:language'}   = $language;
+		$this->{'reading:expand:media'}       = $media;
+		$this->{'reading:expand:spoilers'}    = $spoilers;
 	}
 }
