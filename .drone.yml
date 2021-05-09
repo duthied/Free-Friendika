@@ -1,6 +1,6 @@
 kind: pipeline
 type: docker
-name: Check messasges.po
+name: Check messages.po
 
 steps:
   - name: Run default Xgettext
