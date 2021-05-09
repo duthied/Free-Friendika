@@ -22,10 +22,7 @@
 namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\Core\System;
-use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
-use Friendica\Model\Notification;
 use Friendica\Model\Photo;
 use Friendica\Module\BaseApi;
 
