@@ -90,9 +90,9 @@ return [
 			'/apps/verify_credentials'           => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
 			'/blocks'                            => [Module\Api\Mastodon\Blocks::class,                   [R::GET         ]],
 			'/bookmarks'                         => [Module\Api\Mastodon\Bookmarks::class,                [R::GET         ]],
-			'/conversations'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
-			'/conversations/{id:\d+}'            => [Module\Api\Mastodon\Unimplemented::class,            [R::DELETE      ]],
-			'/conversations/{id:\d+}/read'       => [Module\Api\Mastodon\Unimplemented::class,            [R::POST        ]],
+			'/conversations'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not implemented
+			'/conversations/{id:\d+}'            => [Module\Api\Mastodon\Unimplemented::class,            [R::DELETE      ]], // not implemented
+			'/conversations/{id:\d+}/read'       => [Module\Api\Mastodon\Unimplemented::class,            [R::POST        ]], // not implemented
 			'/custom_emojis'                     => [Module\Api\Mastodon\CustomEmojis::class,             [R::GET         ]],
 			'/domain_blocks'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST, R::DELETE]], // not implemented
 			'/directory'                         => [Module\Api\Mastodon\Directory::class,                [R::GET         ]],
@@ -113,7 +113,7 @@ return [
 			'/lists/{id:\d+}/accounts'           => [Module\Api\Mastodon\Lists\Accounts::class,           [R::GET, R::POST, R::DELETE]],
 			'/markers'                           => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST]], // not implemented
 			'/media'                             => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]],
-			'/media/{id:\d+}'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::PUT]], // @todo
+			'/media/{id:\d+}'                    => [Module\Api\Mastodon\Media::class,                    [R::GET, R::PUT]],
 			'/mutes'                             => [Module\Api\Mastodon\Mutes::class,                    [R::GET         ]],
 			'/notifications'                     => [Module\Api\Mastodon\Notifications::class,            [R::GET         ]],
 			'/notifications/{id:\d+}'            => [Module\Api\Mastodon\Notifications::class,            [R::GET         ]],
