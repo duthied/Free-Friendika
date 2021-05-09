@@ -37,16 +37,16 @@ class Apps extends BaseApi
 	 */
 	public static function post(array $parameters = [])
 	{
-		$name = !isset($_REQUEST['client_name']) ? '' : $_REQUEST['client_name'];
+		$name     = !isset($_REQUEST['client_name']) ? '' : $_REQUEST['client_name'];
 		$redirect = !isset($_REQUEST['redirect_uris']) ? '' : $_REQUEST['redirect_uris'];
-		$scopes = !isset($_REQUEST['scopes']) ? '' : $_REQUEST['scopes'];
-		$website = !isset($_REQUEST['website']) ? '' : $_REQUEST['website'];
+		$scopes   = !isset($_REQUEST['scopes']) ? '' : $_REQUEST['scopes'];
+		$website  = !isset($_REQUEST['website']) ? '' : $_REQUEST['website'];
 
 		if (empty($name) || empty($redirect)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$client_id = base64_encode(openssl_random_pseudo_bytes(32));
+		$client_id     = base64_encode(openssl_random_pseudo_bytes(32));
 		$client_secret = bin2hex(random_bytes(32));
 
 		$fields = ['client_id' => $client_id, 'client_secret' => $client_secret, 'name' => $name, 'redirect_uri' => $redirect];
