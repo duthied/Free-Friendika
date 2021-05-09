@@ -24,12 +24,13 @@ namespace Friendica\Module\Api\Mastodon\Accounts;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Module\BaseApi;
 
 /**
  * @see https://docs.joinmastodon.org/methods/accounts/
  */
-class Following extends BaseApi
+class Lists extends BaseApi
 {
 	/**
 	 * @param array $parameters
@@ -49,42 +50,17 @@ class Following extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		// Return results older than this id
-		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
-		// Return results newer than this id
-		$since_id = (int)!isset($_REQUEST['since_id']) ? 0 : $_REQUEST['since_id'];
-		// Maximum number of results to return. Defaults to 20.
-		$limit = (int)!isset($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
+		$lists = [];
 
-
-		$params = ['order' => ['relation-cid' => true], 'limit' => $limit];
-
-		$condition = ['cid' => $id, 'follows' => true];
-
-		if (!empty($max_id)) {
-			$condition = DBA::mergeConditions($condition, ["`relation-cid` < ?", $max_id]);
+		$cdata = Contact::getPublicAndUserContacID($id, $uid);
+		if (!empty($cdata['user'])) {
+			$groups = DBA::select('group_member', ['gid'], ['contact-id' => $cdata['user']]);
+			while ($group = DBA::fetch($groups)) {
+				$lists[] = DI::mstdnList()->create($group['gid']);
+			}
+			DBA::close($groups);
 		}
 
-		if (!empty($since_id)) {
-			$condition = DBA::mergeConditions($condition, ["`relation-cid` > ?", $since_id]);
-		}
-
-		if (!empty($min_id)) {
-			$condition = DBA::mergeConditions($condition, ["`relation-cid` > ?", $min_id]);
-
-			$params['order'] = ['cid'];
-		}
-
-		$followers = DBA::select('contact-relation', ['relation-cid'], $condition, $parameters);
-		while ($follower = DBA::fetch($followers)) {
-			$accounts[] = DI::mstdnAccount()->createFromContactId($follower['relation-cid'], $uid);
-		}
-		DBA::close($followers);
-
-		if (!empty($min_id)) {
-			array_reverse($accounts);
-		}
-
-		System::jsonExit($accounts);
+		System::jsonExit($lists);
 	}
 }

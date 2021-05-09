@@ -2763,11 +2763,12 @@ class Contact
 	 *
 	 * @param string $search Name or nick
 	 * @param string $mode   Search mode (e.g. "community")
+	 * @param int    $uid    User ID
 	 *
 	 * @return array with search results
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function searchByName($search, $mode = '')
+	public static function searchByName(string $search, string $mode = '', int $uid = 0)
 	{
 		if (empty($search)) {
 			return [];
@@ -2800,7 +2801,7 @@ class Contact
 				NOT `failed` AND `uid` = ? AND
 				(`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?) $extra_sql
 				ORDER BY `nurl` DESC LIMIT 1000",
-			Protocol::DFRN, Protocol::ACTIVITYPUB, $ostatus, $diaspora, 0, $search, $search, $search
+			Protocol::DFRN, Protocol::ACTIVITYPUB, $ostatus, $diaspora, $uid, $search, $search, $search
 		);
 
 		$contacts = DBA::toArray($results);

@@ -15,13 +15,15 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 
 ## Implemented endpoints
 
-- [`GET /api/v1//accounts/:id`](https://docs.joinmastodon.org/methods/accounts/#retrieve-information)
-- [`GET /api/v1//accounts/:id/statuses`](https://docs.joinmastodon.org/methods/accounts/#retrieve-information)
-- [`GET /api/v1//accounts/:id/followers`](https://docs.joinmastodon.org/methods/accounts/)
-- [`GET /api/v1//accounts/:id/following`](https://docs.joinmastodon.org/methods/accounts/)
+- [`GET /api/v1/accounts/:id`](https://docs.joinmastodon.org/methods/accounts/#retrieve-information)
+- [`GET /api/v1/accounts/:id/statuses`](https://docs.joinmastodon.org/methods/accounts/#retrieve-information)
+- [`GET /api/v1/accounts/:id/followers`](https://docs.joinmastodon.org/methods/accounts/)
+- [`GET /api/v1/accounts/:id/following`](https://docs.joinmastodon.org/methods/accounts/)
+- [`GET /api/v1/accounts/:id/lists`](https://docs.joinmastodon.org/methods/accounts/)
+- [`GET /api/v1/accounts/search`](https://docs.joinmastodon.org/methods/accounts)
+- [`GET /api/v1/accounts/verify_credentials`](https://docs.joinmastodon.org/methods/accounts)
 - [`GET /api/v1/blocks`](https://docs.joinmastodon.org/methods/accounts/blocks/)
 - [`GET /api/v1/bookmarks`](https://docs.joinmastodon.org/methods/accounts/bookmarks/)
-- [`GET /api/v1//accounts/verify_credentials`](https://docs.joinmastodon.org/methods/accounts)
 - [`GET /api/v1/custom_emojis`](https://docs.joinmastodon.org/methods/instance/custom_emojis/)
     - Doesn't return unicode emojis since they aren't using an image URL
 
@@ -42,7 +44,11 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 
 - [`GET /api/v1/instance`](https://docs.joinmastodon.org/methods/instance#fetch-instance)
 - [`GET /api/v1/instance/peers`](https://docs.joinmastodon.org/methods/instance#list-of-connected-domains)
+- [`GET /api/v1/lists`](https://docs.joinmastodon.org/methods/timelines/lists/)
+- [`GET /api/v1/lists/:id`](https://docs.joinmastodon.org/methods/timelines/lists/)
+- [`GET /api/v1/lists/:id/accounts`](https://docs.joinmastodon.org/methods/timelines/lists/)
 - [`GET /api/v1/mutes`](https://docs.joinmastodon.org/methods/accounts/mutes/)
+- [`GET /api/v1/preferences`](https://docs.joinmastodon.org/methods/accounts/preferences/)
 - [`GET /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/)
 - [`GET /api/v1/statuses/:id/context`](https://docs.joinmastodon.org/methods/statuses/)
 - [`GET /api/v1/statuses/:id/reblogged_by`](https://docs.joinmastodon.org/methods/statuses/)

@@ -296,6 +296,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\ListEntity
+	 */
+	public static function mstdnList()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\ListEntity::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Mention
 	 */
 	public static function mstdnMention()
