@@ -41,7 +41,7 @@ use Friendica\Protocol\Activity;
  *                      type, event, otype, activity, verb, uid, cid, origin_cid, item, link,
  *                      source_name, source_mail, source_nick, source_link, source_photo,
  *                      show_in_notification_page
- * 
+ *
  * @return bool
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
@@ -273,7 +273,7 @@ function notification($params)
 			$epreamble = $l10n->t('%1$s [url=%2$s]shared a post[/url] from %3$s.',
 				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 				$params['link'], '[url='.$params['origin_link'].']'.$params['origin_name'].'[/url]'
-			);			
+			);
 		}
 
 		$sitelink = $l10n->t('Please visit %s to view and/or reply to the conversation.');

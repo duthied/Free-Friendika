@@ -74,7 +74,7 @@ class Search extends BaseApi
 					}
 					if ($result instanceof ContactResult) {
 						$id = Contact::getIdForURL($result->getUrl(), 0, false);
-						$accounts[] = DI::mstdnAccount()->createFromContactId($id, $uid);	
+						$accounts[] = DI::mstdnAccount()->createFromContactId($id, $uid);
 					}
 				}
 			}

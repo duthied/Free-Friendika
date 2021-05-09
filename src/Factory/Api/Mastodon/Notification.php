@@ -67,7 +67,7 @@ class Notification extends BaseFactory
 			case ModelNotification\Type::SHARE:
 				$type = 'status';
 				break;
-			
+
 			default:
 				return null;
 		}
