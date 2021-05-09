@@ -86,8 +86,7 @@ class Notifications extends BaseApi
 
 		if (!in_array('mention', $exclude_types)) {
 			$condition['type'] = array_merge($condition['type'],
-				[Notification\Type::WALL, Notification\Type::COMMENT, Notification\Type::MAIL,
-				Notification\Type::TAG_SELF, Notification\Type::POKE]);
+				[Notification\Type::WALL, Notification\Type::COMMENT, Notification\Type::MAIL, Notification\Type::TAG_SELF, Notification\Type::POKE]);
 		}
 
 		if (!in_array('status', $exclude_types)) {
