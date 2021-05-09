@@ -37,11 +37,11 @@ class Application extends BaseFactory
 		}
 
 		$object = new \Friendica\Object\Api\Mastodon\Application(
-			$application['name'], 
-			$application['client_id'], 
-			$application['client_secret'], 
-			$application['id'], 
-			$application['redirect_uri'], 
+			$application['name'],
+			$application['client_id'],
+			$application['client_secret'],
+			$application['id'],
+			$application['redirect_uri'],
 			$application['website']);
 
 		return $object->toArray();
