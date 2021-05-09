@@ -74,12 +74,14 @@ class Search extends BaseApi
 					}
 					if ($result instanceof ContactResult) {
 						$id = Contact::getIdForURL($result->getUrl(), 0, false);
+
 						$accounts[] = DI::mstdnAccount()->createFromContactId($id, $uid);
 					}
 				}
 			}
 		} else {
 			$contacts = Contact::searchByName($q, '', $uid);
+
 			$counter = 0;
 			foreach ($contacts as $contact) {
 				if (!in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND])) {
