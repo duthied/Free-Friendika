@@ -3020,7 +3020,7 @@ class Item
 			];
 
 			if (!empty($item['plink'])) {
-				$ret["href"] = DI::baseUrl()->remove($item['plink']);
+				$ret['href'] = DI::baseUrl()->remove($item['plink']);
 				$ret["title"] = DI::l10n()->t('link to source');
 			}
 		} elseif (!empty($item['plink']) && ($item['private'] != self::PRIVATE)) {
@@ -3028,6 +3028,7 @@ class Item
 				'href' => $item['plink'],
 				'orig' => $item['plink'],
 				'title' => DI::l10n()->t('link to source'),
+				'orig_title' => DI::l10n()->t('Link to source'),
 			];
 		} else {
 			$ret = [];
