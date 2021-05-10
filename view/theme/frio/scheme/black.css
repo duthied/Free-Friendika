@@ -385,3 +385,12 @@ input[type="text"].tt-input {
 .textcomplete-item.active > a {
 	background-color: $nav_icon_hover_color !important;
 }
+
+#preview_profile-jot-text, .comment-edit-form .preview {
+	background-color: $nav_bg;
+	border-width: 1px;
+}
+
+textarea#profile-jot-text:focus + #preview_profile-jot-text, textarea.comment-edit-text:focus + .comment-edit-form .preview {
+	border-color: $link_color;
+}
