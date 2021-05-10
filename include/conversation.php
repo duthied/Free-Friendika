@@ -1212,6 +1212,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$edimg'        => DI::l10n()->t('Image'),
 		'$edurl'        => DI::l10n()->t('Link'),
 		'$edattach'     => DI::l10n()->t('Link or Media'),
+		'$edvideo'      => DI::l10n()->t('Video'),
 		'$setloc'       => DI::l10n()->t('Set your location'),
 		'$shortsetloc'  => DI::l10n()->t('set location'),
 		'$noloc'        => DI::l10n()->t('Clear browser location'),
