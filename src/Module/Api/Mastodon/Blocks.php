@@ -80,6 +80,10 @@ class Blocks extends BaseApi
 		}
 		DBA::close($followers);
 
+		if (!empty($min_id)) {
+			array_reverse($accounts);
+		}
+
 		System::jsonExit($accounts);
 	}
 }

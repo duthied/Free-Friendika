@@ -264,7 +264,7 @@ class Contact
 			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, $uid];
 			$contact = DBA::selectFirst('contact', $fields, $condition, $options);
 		}
-		
+
 		if (!DBA::isResult($contact)) {
 			return [];
 		}
@@ -307,7 +307,7 @@ class Contact
 		}
 
 		$contact = self::getByURL($url, $update, $fields);
-		if (!empty($contact['id'])) {		
+		if (!empty($contact['id'])) {
 			$contact['cid'] = 0;
 			$contact['zid'] = $contact['id'];
 		}
@@ -1274,7 +1274,7 @@ class Contact
 	 *
 	 * @param string $contact_url Contact URL
 	 * @param bool   $thread_mode
-	 * @param int    $update      Update mode 
+	 * @param int    $update      Update mode
 	 * @param int    $parent      Item parent ID for the update mode
 	 * @return string posts in HTML
 	 * @throws \Exception
@@ -1289,7 +1289,7 @@ class Contact
 	 *
 	 * @param int  $cid         Contact ID
 	 * @param bool $thread_mode
-	 * @param int  $update      Update mode 
+	 * @param int  $update      Update mode
 	 * @param int  $parent     Item parent ID for the update mode
 	 * @return string posts in HTML
 	 * @throws \Exception
@@ -1347,7 +1347,7 @@ class Contact
 			$o = '';
 		}
 
-		if ($thread_mode) {		
+		if ($thread_mode) {
 			$items = Post::toArray(Post::selectForUser(local_user(), ['uri-id', 'gravity', 'parent-uri-id', 'thr-parent-id', 'author-id'], $condition, $params));
 
 			$o .= conversation($a, $items, 'contacts', $update, false, 'commented', local_user());
@@ -1607,12 +1607,12 @@ class Contact
 				$avatar['size'] = 48;
 				$default = self::DEFAULT_AVATAR_MICRO;
 				break;
-	
+
 			case Proxy::SIZE_THUMB:
 				$avatar['size'] = 80;
 				$default = self::DEFAULT_AVATAR_THUMB;
 				break;
-	
+
 			case Proxy::SIZE_SMALL:
 			default:
 				$avatar['size'] = 300;
@@ -1720,7 +1720,7 @@ class Contact
 					$contact['thumb'] ?? '',
 					$contact['micro'] ?? '',
 				];
-		
+
 				foreach ($data as $image_uri) {
 					$image_rid = Photo::ridFromURI($image_uri);
 					if ($image_rid && !Photo::exists(['resource-id' => $image_rid, 'uid' => $uid])) {
@@ -2027,7 +2027,7 @@ class Contact
 			if (Contact\Relation::isDiscoverable($ret['url'])) {
 				Worker::add(PRIORITY_LOW, 'ContactDiscovery', $ret['url']);
 			}
-	
+
 			// Update the public contact
 			if ($uid != 0) {
 				$contact = self::getByURL($ret['url'], false, ['id']);
@@ -2763,11 +2763,12 @@ class Contact
 	 *
 	 * @param string $search Name or nick
 	 * @param string $mode   Search mode (e.g. "community")
+	 * @param int    $uid    User ID
 	 *
 	 * @return array with search results
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function searchByName($search, $mode = '')
+	public static function searchByName(string $search, string $mode = '', int $uid = 0)
 	{
 		if (empty($search)) {
 			return [];
@@ -2800,7 +2801,7 @@ class Contact
 				NOT `failed` AND `uid` = ? AND
 				(`addr` LIKE ? OR `name` LIKE ? OR `nick` LIKE ?) $extra_sql
 				ORDER BY `nurl` DESC LIMIT 1000",
-			Protocol::DFRN, Protocol::ACTIVITYPUB, $ostatus, $diaspora, 0, $search, $search, $search
+			Protocol::DFRN, Protocol::ACTIVITYPUB, $ostatus, $diaspora, $uid, $search, $search, $search
 		);
 
 		$contacts = DBA::toArray($results);
