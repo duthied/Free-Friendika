@@ -1086,7 +1086,7 @@ class BBCode
 					'$avatar'       => $attributes['avatar'],
 					'$author'       => $attributes['author'],
 					'$link'         => $attributes['link'],
-					'$link_title'   => DI::l10n()->t('link to source'),
+					'$link_title'   => DI::l10n()->t('Link to source'),
 					'$posted'       => $attributes['posted'],
 					'$guid'         => $attributes['guid'],
 					'$network_name' => ContactSelector::networkToName($network, $attributes['profile']),

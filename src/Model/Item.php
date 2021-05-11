@@ -3016,18 +3016,18 @@ class Item
 				'href' => "display/" . $item['guid'],
 				'orig' => "display/" . $item['guid'],
 				'title' => DI::l10n()->t('View on separate page'),
-				'orig_title' => DI::l10n()->t('view on separate page'),
+				'orig_title' => DI::l10n()->t('View on separate page'),
 			];
 
 			if (!empty($item['plink'])) {
 				$ret['href'] = DI::baseUrl()->remove($item['plink']);
-				$ret["title"] = DI::l10n()->t('link to source');
+				$ret['title'] = DI::l10n()->t('Link to source');
 			}
 		} elseif (!empty($item['plink']) && ($item['private'] != self::PRIVATE)) {
 			$ret = [
 				'href' => $item['plink'],
 				'orig' => $item['plink'],
-				'title' => DI::l10n()->t('link to source'),
+				'title' => DI::l10n()->t('Link to source'),
 				'orig_title' => DI::l10n()->t('Link to source'),
 			];
 		} else {

@@ -211,7 +211,7 @@ class Post
 		$origin = $item['origin'] || $item['parent-origin'];
 
 		if ($item['pinned']) {
-			$pinned = DI::l10n()->t('pinned item');
+			$pinned = DI::l10n()->t('Pinned item');
 		}
 
 		// Showing the one or the other text, depending upon if we can only hide it or really delete it.
@@ -236,7 +236,7 @@ class Post
 			];
 		}
 
-		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? DI::l10n()->t("save to folder") : false);
+		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? DI::l10n()->t('Save to folder') : false);
 
 		$profile_name = $item['author-name'];
 		if (!empty($item['author-link']) && empty($item['author-name'])) {
@@ -300,12 +300,12 @@ class Post
 				$ignored = PostModel\ThreadUser::getIgnored($item['uri-id'], local_user());
 				if ($item['mention'] || $ignored) {
 					$ignore = [
-						'do'        => DI::l10n()->t("ignore thread"),
-						'undo'      => DI::l10n()->t("unignore thread"),
-						'toggle'    => DI::l10n()->t("toggle ignore status"),
+						'do'        => DI::l10n()->t('Ignore thread'),
+						'undo'      => DI::l10n()->t('Unignore thread'),
+						'toggle'    => DI::l10n()->t('Toggle ignore status'),
 						'classdo'   => $ignored ? "hidden" : "",
 						'classundo' => $ignored ? "" : "hidden",
-						'ignored'   => DI::l10n()->t('ignored'),
+						'ignored'   => DI::l10n()->t('Ignored'),
 					];
 				}
 
@@ -314,28 +314,28 @@ class Post
 						$ispinned = ($item['pinned'] ? 'pinned' : 'unpinned');
 
 						$pin = [
-							'do'        => DI::l10n()->t('pin'),
-							'undo'      => DI::l10n()->t('unpin'),
-							'toggle'    => DI::l10n()->t('toggle pin status'),
+							'do'        => DI::l10n()->t('Pin'),
+							'undo'      => DI::l10n()->t('Unpin'),
+							'toggle'    => DI::l10n()->t('Toggle pin status'),
 							'classdo'   => $item['pinned'] ? 'hidden' : '',
 							'classundo' => $item['pinned'] ? '' : 'hidden',
-							'pinned'   => DI::l10n()->t('pinned'),
+							'pinned'   => DI::l10n()->t('Pinned'),
 						];
 					}
 
 					$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
 					$star = [
-						'do'        => DI::l10n()->t("add star"),
-						'undo'      => DI::l10n()->t("remove star"),
-						'toggle'    => DI::l10n()->t("toggle star status"),
+						'do'        => DI::l10n()->t('Add star'),
+						'undo'      => DI::l10n()->t('Remove star'),
+						'toggle'    => DI::l10n()->t('Toggle star status'),
 						'classdo'   => $item['starred'] ? "hidden" : "",
 						'classundo' => $item['starred'] ? "" : "hidden",
-						'starred'   => DI::l10n()->t('starred'),
+						'starred'   => DI::l10n()->t('Starred'),
 					];
 
 					$tagger = [
-						'add'   => DI::l10n()->t("add tag"),
+						'add'   => DI::l10n()->t('Add tag'),
 						'class' => "",
 					];
 				}
@@ -345,8 +345,8 @@ class Post
 		}
 
 		if ($conv->isWritable()) {
-			$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29")      , DI::l10n()->t("like")];
-			$buttons['dislike'] = [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t("dislike")];
+			$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29")      , DI::l10n()->t('Like')];
+			$buttons['dislike'] = [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t('Dislike')];
 			if ($shareable) {
 				$buttons['share'] = [DI::l10n()->t('Quote share this'), DI::l10n()->t('Quote Share')];
 			}
@@ -402,7 +402,7 @@ class Post
 
 		// Fetching of Diaspora posts doesn't always work. There are issues with reshares and possibly comments
 		if (($item['network'] != Protocol::DIASPORA) && empty($comment) && !empty(Session::get('remote_comment'))) {
-			$remote_comment = [DI::l10n()->t('Comment this item on your system'), DI::l10n()->t('remote comment'),
+			$remote_comment = [DI::l10n()->t('Comment this item on your system'), DI::l10n()->t('Remote comment'),
 				str_replace('{uri}', urlencode($item['uri']), Session::get('remote_comment'))];
 		} else {
 			$remote_comment = '';
