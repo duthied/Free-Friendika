@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.06-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-10 19:05-0400\n"
+"POT-Creation-Date: 2021-05-11 16:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -336,7 +336,7 @@ msgid "Visible to <strong>everybody</strong>"
 msgstr ""
 
 #: include/conversation.php:1184 src/Module/Item/Compose.php:153
-#: src/Object/Post.php:961
+#: src/Object/Post.php:966
 msgid "Please enter a image/video/audio/webpage URL:"
 msgstr ""
 
@@ -365,7 +365,7 @@ msgid "Share"
 msgstr ""
 
 #: include/conversation.php:1202 mod/editpost.php:89 mod/photos.php:1382
-#: src/Module/Contact/Poke.php:154 src/Object/Post.php:952
+#: src/Module/Contact/Poke.php:154 src/Object/Post.php:957
 msgid "Loading..."
 msgstr ""
 
@@ -387,42 +387,42 @@ msgid "attach file"
 msgstr ""
 
 #: include/conversation.php:1207 src/Module/Item/Compose.php:145
-#: src/Object/Post.php:953
+#: src/Object/Post.php:958
 msgid "Bold"
 msgstr ""
 
 #: include/conversation.php:1208 src/Module/Item/Compose.php:146
-#: src/Object/Post.php:954
+#: src/Object/Post.php:959
 msgid "Italic"
 msgstr ""
 
 #: include/conversation.php:1209 src/Module/Item/Compose.php:147
-#: src/Object/Post.php:955
+#: src/Object/Post.php:960
 msgid "Underline"
 msgstr ""
 
 #: include/conversation.php:1210 src/Module/Item/Compose.php:148
-#: src/Object/Post.php:956
+#: src/Object/Post.php:961
 msgid "Quote"
 msgstr ""
 
 #: include/conversation.php:1211 src/Module/Item/Compose.php:149
-#: src/Object/Post.php:957
+#: src/Object/Post.php:962
 msgid "Code"
 msgstr ""
 
 #: include/conversation.php:1212 src/Module/Item/Compose.php:150
-#: src/Object/Post.php:958
+#: src/Object/Post.php:963
 msgid "Image"
 msgstr ""
 
 #: include/conversation.php:1213 src/Module/Item/Compose.php:151
-#: src/Object/Post.php:959
+#: src/Object/Post.php:964
 msgid "Link"
 msgstr ""
 
 #: include/conversation.php:1214 src/Module/Item/Compose.php:152
-#: src/Object/Post.php:960
+#: src/Object/Post.php:965
 msgid "Link or Media"
 msgstr ""
 
@@ -472,7 +472,7 @@ msgstr ""
 
 #: include/conversation.php:1239 mod/editpost.php:125 mod/events.php:573
 #: mod/photos.php:1381 mod/photos.php:1438 mod/photos.php:1513
-#: src/Module/Item/Compose.php:154 src/Object/Post.php:962
+#: src/Module/Item/Compose.php:154 src/Object/Post.php:967
 msgid "Preview"
 msgstr ""
 
@@ -833,10 +833,10 @@ msgstr ""
 #: mod/unfollow.php:82 mod/wall_attach.php:78 mod/wall_attach.php:81
 #: mod/wall_upload.php:99 mod/wall_upload.php:102 mod/wallmessage.php:35
 #: mod/wallmessage.php:59 mod/wallmessage.php:96 mod/wallmessage.php:120
-#: src/Module/Attach.php:56 src/Module/BaseApi.php:61 src/Module/BaseApi.php:67
-#: src/Module/BaseApi.php:74 src/Module/BaseApi.php:80
-#: src/Module/BaseApi.php:87 src/Module/BaseApi.php:93
-#: src/Module/BaseApi.php:100 src/Module/BaseApi.php:106
+#: src/Module/Attach.php:56 src/Module/BaseApi.php:64 src/Module/BaseApi.php:70
+#: src/Module/BaseApi.php:77 src/Module/BaseApi.php:83
+#: src/Module/BaseApi.php:90 src/Module/BaseApi.php:96
+#: src/Module/BaseApi.php:103 src/Module/BaseApi.php:109
 #: src/Module/BaseNotifications.php:88 src/Module/Contact.php:385
 #: src/Module/Contact/Advanced.php:43 src/Module/Delegation.php:118
 #: src/Module/FollowConfirm.php:16 src/Module/FriendSuggest.php:44
@@ -1357,7 +1357,7 @@ msgstr ""
 #: src/Module/Install.php:245 src/Module/Install.php:287
 #: src/Module/Install.php:324 src/Module/Invite.php:174
 #: src/Module/Item/Compose.php:144 src/Module/Profile/Profile.php:243
-#: src/Module/Settings/Profile/Index.php:237 src/Object/Post.php:951
+#: src/Module/Settings/Profile/Index.php:237 src/Object/Post.php:956
 #: view/theme/duepuntozero/config.php:69 view/theme/frio/config.php:160
 #: view/theme/quattro/config.php:71 view/theme/vier/config.php:119
 msgid "Submit"
@@ -1527,7 +1527,7 @@ msgid ""
 "your email for further instructions."
 msgstr ""
 
-#: mod/lostpass.php:130 src/Module/Security/Login.php:144
+#: mod/lostpass.php:130 src/Module/Security/Login.php:148
 msgid "Nickname or Email: "
 msgstr ""
 
@@ -1535,7 +1535,7 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
-#: mod/lostpass.php:146 src/Module/Security/Login.php:156
+#: mod/lostpass.php:146 src/Module/Security/Login.php:160
 msgid "Password Reset"
 msgstr ""
 
@@ -1767,7 +1767,7 @@ msgstr ""
 msgid "failed"
 msgstr ""
 
-#: mod/ostatus_subscribe.php:98 src/Object/Post.php:308
+#: mod/ostatus_subscribe.php:98
 msgid "ignored"
 msgstr ""
 
@@ -1984,16 +1984,16 @@ msgstr ""
 
 #: mod/photos.php:1377 mod/photos.php:1434 mod/photos.php:1509
 #: src/Module/Contact.php:1104 src/Module/Item/Compose.php:142
-#: src/Object/Post.php:948
+#: src/Object/Post.php:953
 msgid "This is you"
 msgstr ""
 
 #: mod/photos.php:1379 mod/photos.php:1436 mod/photos.php:1511
-#: src/Object/Post.php:491 src/Object/Post.php:950
+#: src/Object/Post.php:491 src/Object/Post.php:955
 msgid "Comment"
 msgstr ""
 
-#: mod/photos.php:1533
+#: mod/photos.php:1533 src/Object/Post.php:348
 msgid "Like"
 msgstr ""
 
@@ -2001,7 +2001,7 @@ msgstr ""
 msgid "I like this (toggle)"
 msgstr ""
 
-#: mod/photos.php:1535
+#: mod/photos.php:1535 src/Object/Post.php:349
 msgid "Dislike"
 msgstr ""
 
@@ -3409,7 +3409,7 @@ msgstr ""
 msgid "@name, !forum, #tags, content"
 msgstr ""
 
-#: src/Content/Nav.php:183 src/Module/Security/Login.php:141
+#: src/Content/Nav.php:183 src/Module/Security/Login.php:145
 msgid "Logout"
 msgstr ""
 
@@ -3418,7 +3418,7 @@ msgid "End this session"
 msgstr ""
 
 #: src/Content/Nav.php:185 src/Module/Bookmarklet.php:46
-#: src/Module/Security/Login.php:142
+#: src/Module/Security/Login.php:146
 msgid "Login"
 msgstr ""
 
@@ -3482,7 +3482,7 @@ msgid "Home Page"
 msgstr ""
 
 #: src/Content/Nav.php:220 src/Module/Register.php:155
-#: src/Module/Security/Login.php:102
+#: src/Module/Security/Login.php:106
 msgid "Register"
 msgstr ""
 
@@ -3681,8 +3681,8 @@ msgid ""
 msgstr ""
 
 #: src/Content/Text/BBCode.php:1089 src/Model/Item.php:3024
-#: src/Model/Item.php:3030
-msgid "link to source"
+#: src/Model/Item.php:3030 src/Model/Item.php:3031
+msgid "Link to source"
 msgstr ""
 
 #: src/Content/Text/BBCode.php:1523 src/Content/Text/HTML.php:951
@@ -4855,16 +4855,8 @@ msgstr ""
 msgid "bytes"
 msgstr ""
 
-#: src/Model/Item.php:3018
+#: src/Model/Item.php:3018 src/Model/Item.php:3019
 msgid "View on separate page"
-msgstr ""
-
-#: src/Model/Item.php:3019
-msgid "view on separate page"
-msgstr ""
-
-#: src/Model/Item.php:3031
-msgid "Link to source"
 msgstr ""
 
 #: src/Model/Mail.php:120 src/Model/Mail.php:258
@@ -5028,13 +5020,13 @@ msgstr ""
 msgid "Invalid OpenID url"
 msgstr ""
 
-#: src/Model/User.php:843 src/Security/Authentication.php:223
+#: src/Model/User.php:843 src/Security/Authentication.php:224
 msgid ""
 "We encountered a problem while logging in with the OpenID you provided. "
 "Please check the correct spelling of the ID."
 msgstr ""
 
-#: src/Model/User.php:843 src/Security/Authentication.php:223
+#: src/Model/User.php:843 src/Security/Authentication.php:224
 msgid "The error message was:"
 msgstr ""
 
@@ -7329,12 +7321,12 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
-#: src/Module/BaseApi.php:114
+#: src/Module/BaseApi.php:117
 #, php-format
 msgid "API endpoint %s %s is not implemented"
 msgstr ""
 
-#: src/Module/BaseApi.php:115
+#: src/Module/BaseApi.php:118
 msgid ""
 "The API endpoint is currently not implemented but might be in the future."
 msgstr ""
@@ -7662,6 +7654,7 @@ msgid "Only show blocked contacts"
 msgstr ""
 
 #: src/Module/Contact.php:823 src/Module/Contact.php:870
+#: src/Object/Post.php:308
 msgid "Ignored"
 msgstr ""
 
@@ -7986,7 +7979,7 @@ msgstr ""
 msgid "Posts that mention or involve you"
 msgstr ""
 
-#: src/Module/Conversation/Network.php:265
+#: src/Module/Conversation/Network.php:265 src/Object/Post.php:334
 msgid "Starred"
 msgstr ""
 
@@ -9141,49 +9134,49 @@ msgstr ""
 msgid "Search term was not removed."
 msgstr ""
 
-#: src/Module/Security/Login.php:101
+#: src/Module/Security/Login.php:105
 msgid "Create a New Account"
 msgstr ""
 
-#: src/Module/Security/Login.php:126
+#: src/Module/Security/Login.php:130
 msgid "Your OpenID: "
 msgstr ""
 
-#: src/Module/Security/Login.php:129
+#: src/Module/Security/Login.php:133
 msgid ""
 "Please enter your username and password to add the OpenID to your existing "
 "account."
 msgstr ""
 
-#: src/Module/Security/Login.php:131
+#: src/Module/Security/Login.php:135
 msgid "Or login using OpenID: "
 msgstr ""
 
-#: src/Module/Security/Login.php:145
+#: src/Module/Security/Login.php:149
 msgid "Password: "
 msgstr ""
 
-#: src/Module/Security/Login.php:146
+#: src/Module/Security/Login.php:150
 msgid "Remember me"
 msgstr ""
 
-#: src/Module/Security/Login.php:155
+#: src/Module/Security/Login.php:159
 msgid "Forgot your password?"
 msgstr ""
 
-#: src/Module/Security/Login.php:158
+#: src/Module/Security/Login.php:162
 msgid "Website Terms of Service"
 msgstr ""
 
-#: src/Module/Security/Login.php:159
+#: src/Module/Security/Login.php:163
 msgid "terms of service"
 msgstr ""
 
-#: src/Module/Security/Login.php:161
+#: src/Module/Security/Login.php:165
 msgid "Website Privacy Policy"
 msgstr ""
 
-#: src/Module/Security/Login.php:162
+#: src/Module/Security/Login.php:166
 msgid "privacy policy"
 msgstr ""
 
@@ -10284,7 +10277,7 @@ msgid "Private Message"
 msgstr ""
 
 #: src/Object/Post.php:214
-msgid "pinned item"
+msgid "Pinned item"
 msgstr ""
 
 #: src/Object/Post.php:218
@@ -10301,7 +10294,7 @@ msgid "Block %s"
 msgstr ""
 
 #: src/Object/Post.php:239
-msgid "save to folder"
+msgid "Save to folder"
 msgstr ""
 
 #: src/Object/Post.php:273
@@ -10317,59 +10310,47 @@ msgid "I might attend"
 msgstr ""
 
 #: src/Object/Post.php:303
-msgid "ignore thread"
+msgid "Ignore thread"
 msgstr ""
 
 #: src/Object/Post.php:304
-msgid "unignore thread"
+msgid "Unignore thread"
 msgstr ""
 
 #: src/Object/Post.php:305
-msgid "toggle ignore status"
+msgid "Toggle ignore status"
 msgstr ""
 
 #: src/Object/Post.php:317
-msgid "pin"
+msgid "Pin"
 msgstr ""
 
 #: src/Object/Post.php:318
-msgid "unpin"
+msgid "Unpin"
 msgstr ""
 
 #: src/Object/Post.php:319
-msgid "toggle pin status"
+msgid "Toggle pin status"
 msgstr ""
 
 #: src/Object/Post.php:322
-msgid "pinned"
+msgid "Pinned"
 msgstr ""
 
 #: src/Object/Post.php:329
-msgid "add star"
+msgid "Add star"
 msgstr ""
 
 #: src/Object/Post.php:330
-msgid "remove star"
+msgid "Remove star"
 msgstr ""
 
 #: src/Object/Post.php:331
-msgid "toggle star status"
-msgstr ""
-
-#: src/Object/Post.php:334
-msgid "starred"
+msgid "Toggle star status"
 msgstr ""
 
 #: src/Object/Post.php:338
-msgid "add tag"
-msgstr ""
-
-#: src/Object/Post.php:348
-msgid "like"
-msgstr ""
-
-#: src/Object/Post.php:349
-msgid "dislike"
+msgid "Add tag"
 msgstr ""
 
 #: src/Object/Post.php:351
@@ -10406,7 +10387,7 @@ msgid "Comment this item on your system"
 msgstr ""
 
 #: src/Object/Post.php:405
-msgid "remote comment"
+msgid "Remote comment"
 msgstr ""
 
 #: src/Object/Post.php:417
@@ -10579,20 +10560,20 @@ msgstr ""
 msgid "Contact information and Social Networks"
 msgstr ""
 
-#: src/Security/Authentication.php:209 src/Security/Authentication.php:261
+#: src/Security/Authentication.php:210 src/Security/Authentication.php:262
 msgid "Login failed."
 msgstr ""
 
-#: src/Security/Authentication.php:272
+#: src/Security/Authentication.php:273
 msgid "Login failed. Please check your credentials."
 msgstr ""
 
-#: src/Security/Authentication.php:391
+#: src/Security/Authentication.php:392
 #, php-format
 msgid "Welcome %s"
 msgstr ""
 
-#: src/Security/Authentication.php:392
+#: src/Security/Authentication.php:393
 msgid "Please upload a profile photo."
 msgstr ""
 
