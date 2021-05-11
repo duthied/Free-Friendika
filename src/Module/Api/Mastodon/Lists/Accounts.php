@@ -65,12 +65,18 @@ class Accounts extends BaseApi
 		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
 		// Return results newer than this id
 		$since_id = (int)!isset($_REQUEST['since_id']) ? 0 : $_REQUEST['since_id'];
-		// Maximum number of results to return. Defaults to 20.
+		// Maximum number of results. Defaults to 40. Max 40.
+		// Set to 0 in order to get all accounts without pagination.
 		$limit = (int)!isset($_REQUEST['limit']) ? 40 : $_REQUEST['limit'];
 
 
-		$params = ['order' => ['contact-id' => true], 'limit' => $limit];
+		$params = ['order' => ['contact-id' => true]];
 
+		if ($limit != 0) {
+			$params['limit'] = $limit;
+
+		}
+	
 		$condition = ['gid' => $id];
 
 		if (!empty($max_id)) {
@@ -86,6 +92,8 @@ class Accounts extends BaseApi
 
 			$params['order'] = ['contact-id'];
 		}
+
+		$accounts = [];
 
 		$members = DBA::select('group_member', ['contact-id'], $condition, $params);
 		while ($member = DBA::fetch($members)) {
