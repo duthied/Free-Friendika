@@ -887,8 +887,13 @@ class Post
 
 		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 		foreach ($terms as $term) {
+			if (!$term['url']) {
+				DI::logger()->warning('Mention term with no URL', ['term' => $term]);
+				continue;
+			}
+
 			$profile = Contact::getByURL($term['url'], false, ['addr', 'contact-type']);
-			if (!empty($profile['addr']) && ((($profile['contact-type'] ?? '') ?: Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&
+			if (!empty($profile['addr']) && (($profile['contact-type'] ?? Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&
 				($profile['addr'] != $owner['addr']) && !strstr($text, $profile['addr'])) {
 				$text .= '@' . $profile['addr'] . ' ';
 			}
@@ -945,9 +950,9 @@ class Post
 				'$qcomment'    => $qcomment,
 				'$default'     => $default_text,
 				'$profile_uid' => $uid,
-				'$mylink'      => DI::baseUrl()->remove($a->contact['url']),
+				'$mylink'      => DI::baseUrl()->remove($a->contact['url'] ?? ''),
 				'$mytitle'     => DI::l10n()->t('This is you'),
-				'$myphoto'     => DI::baseUrl()->remove($a->contact['thumb']),
+				'$myphoto'     => DI::baseUrl()->remove($a->contact['thumb'] ?? ''),
 				'$comment'     => DI::l10n()->t('Comment'),
 				'$submit'      => DI::l10n()->t('Submit'),
 				'$loading'     => DI::l10n()->t('Loading...'),
