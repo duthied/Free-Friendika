@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\OAuth;
 
-use Friendica\Core\Logger;
 use Friendica\Module\BaseApi;
 
 /**
