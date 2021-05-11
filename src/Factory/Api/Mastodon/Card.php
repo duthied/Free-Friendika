@@ -40,6 +40,8 @@ class Card extends BaseFactory
 		$item = Post::selectFirst(['nody'], ['uri-id' => $uriId]);
 		if (!empty($item['body'])) {
 			$data = BBCode::getAttachmentData($item['body']);
+		} else {
+			$data = [];
 		}
 
 		foreach (Post\Media::getByURIId($uriId, [Post\Media::HTML]) as $attached) {
