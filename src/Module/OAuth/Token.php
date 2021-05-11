@@ -61,6 +61,7 @@ class Token extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		System::jsonExit(['access_token' => $token['access_token'], 'token_type' => 'Bearer', 'scope' => $application['scopes']]);
+		// @todo Use entity class
+		System::jsonExit(['access_token' => $token['access_token'], 'token_type' => 'Bearer', 'scope' => $application['scopes'], 'created_at' => $token['created_at']]);
 	}
 }

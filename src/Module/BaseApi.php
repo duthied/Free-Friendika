@@ -28,6 +28,7 @@ use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
+use Friendica\Util\DateTimeFormat;
 
 require_once __DIR__ . '/../../include/api.php';
 
@@ -218,7 +219,7 @@ class BaseApi extends BaseModule
 		$code         = bin2hex(openssl_random_pseudo_bytes(32));
 		$access_token = bin2hex(openssl_random_pseudo_bytes(32));
 
-		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token];
+		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token, 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
 		if (!DBA::insert('application-token', $fields, Database::INSERT_UPDATE)) {
 			return [];
 		}
