@@ -54,6 +54,7 @@ class Token extends BaseApi
 		}
 
 		$condition = ['application-id' => $application['id'], 'code' => $code];
+
 		$token = DBA::selectFirst('application-token', ['access_token'], $condition);
 		if (!DBA::isResult($token)) {
 			Logger::warning('Token not found', $condition);
