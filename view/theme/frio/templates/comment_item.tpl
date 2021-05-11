@@ -5,7 +5,6 @@
 <div class="comment-wwedit-wrapper" id="comment-edit-wrapper-{{$id}}">
 {{/if}}
 	<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="item" method="post">
-		<input type="hidden" name="type" value="{{$type}}" />
 		<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
 		<input type="hidden" name="parent" value="{{$parent}}" />
 		{{*<!--<input type="hidden" name="return" value="{{$return_path}}" />-->*}}

@@ -1,11 +1,11 @@
-{{* we have modified the navmenu (look at function frio_remote_nav() ) to have remote links. $nav.userinfo is a new variable and replaces the original $userinfo variable *}}
-{{if $nav.userinfo}}
+{{* we have modified the navmenu (look at function frio_remote_nav() ) to have remote links. *}}
+{{if $userinfo}}
 	<header>
 		{{* {{$langselector}} *}}
 
 		<div id="site-location">{{$sitelocation}}</div>
 		<div id="banner" class="hidden-sm hidden-xs">
-			{{* show on remote/visitor connections an other logo which symols that fact*}}
+			{{* show on remote/visitor connections an other logo which symbols that fact*}}
 			{{if $nav.remote}}
 				<a href="{{$baseurl}}">
 					<div id="remote-logo-img" aria-label="{{$home}}"></div>
@@ -141,7 +141,6 @@
 						{{if $nav.search}}
 							<li id="search-box" class="hidden-xs">
 								<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
-									<!-- <img class="hidden-xs" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
 									<div class="form-group form-group-search">
 										<input accesskey="s" id="nav-search-input-field" class="form-control form-search"
 											type="text" name="q" data-toggle="tooltip" title="{{$search_hint}}"
@@ -154,17 +153,17 @@
 						{{/if}}
 
 						{{* The user dropdown menu *}}
-						{{if $nav.userinfo}}
+						{{if $userinfo}}
 							<li id="nav-user-linkmenu" class="dropdown account nav-menu hidden-xs">
 								<button accesskey="u" id="main-menu" class="btn-link dropdown-toggle nav-avatar"
 									data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false"
 									aria-controls="nav-user-menu">
 									<div aria-hidden="true" class="user-title pull-left hidden-xs hidden-sm hidden-md">
-										<strong>{{$nav.userinfo.name}}</strong><br>
+										<strong>{{$userinfo.name}}</strong><br>
 										{{if $nav.remote}}<span class="trunctate">{{$nav.remote}}</span>{{/if}}
 									</div>
 
-									<img id="avatar" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}">
+									<img id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}">
 									<span class="caret"></span>
 								</button>
 
@@ -300,9 +299,9 @@
 								{{/if}}
 							{{/if}}
 							<li role="presentation" class="list-group-item">
-								<img src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}"
+								<img src="{{$userinfo.icon}}" alt="{{$userinfo.name}}"
 									style="max-width:15px; max-height:15px; min-width:15px; min-height:15px; width:15px; height:15px;">
-								{{$nav.userinfo.name}}{{if $nav.remote}} ({{$nav.remote}}){{/if}}
+								{{$userinfo.name}}{{if $nav.remote}} ({{$nav.remote}}){{/if}}
 							</li>
 							{{foreach $nav.usermenu as $usermenu}}
 								<li role="menuitem" class="list-group-item"><a role="menuitem" class="{{$usermenu.2}}"
@@ -369,11 +368,8 @@
 			</div><!-- end of div for navbar width-->
 		</div><!-- /.container -->
 	</nav><!-- /.navbar -->
-{{/if}}
-
-
-{{* The navbar for users which are not logged in *}}
-{{if $nav.userinfo == ''}}
+{{else}}
+	{{* The navbar for users which are not logged in *}}
 	<nav class="navbar navbar-fixed-top">
 		<div class="container">
 			<div class="navbar-header pull-left">
@@ -402,14 +398,12 @@
 			</div>
 		</div>
 	</nav>
-
 {{/if}}
 
 {{* provide a a search input for mobile view, which expands by pressing the search icon *}}
 <div id="search-mobile" class="hidden-lg hidden-md hidden-sm collapse row well">
 	<div class="col-xs-12">
 		<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
-			<!-- <img class="hidden-xs" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
 			<div class="form-group form-group-search">
 				<input id="nav-search-input-field-mobile" class="form-control form-search" type="text" name="q"
 					data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$nav.search.1}}">

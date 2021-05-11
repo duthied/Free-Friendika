@@ -186,10 +186,11 @@ function frio_contact_photo_menu(App $a, &$args)
  *  Some links will point to the local pages because the user would expect
  *  local page (these pages are: search, community, help, apps, directory).
  *
- * @param App $a The App class
- * @param array $nav The original nav menu
+ * @param App   $a        The App class
+ * @param array $nav_info The original nav info array: nav, banner, userinfo, sitelocation
+ * @throws Exception
  */
-function frio_remote_nav(App $a, array &$nav)
+function frio_remote_nav(App $a, array &$nav_info)
 {
 	// get the homelink from $_XSESSION
 	$homelink = Model\Profile::getMyURL();
@@ -204,16 +205,16 @@ function frio_remote_nav(App $a, array &$nav)
 		$remoteUser = Contact::selectFirst($fields, ['uid' => $a->user['uid'], 'self' => true]);
 	} elseif (!local_user() && remote_user()) {
 		$remoteUser = Contact::getById(remote_user(), $fields);
-		$nav['remote'] = DI::l10n()->t('Guest');
+		$nav_info['nav']['remote'] = DI::l10n()->t('Guest');
 	} elseif (Model\Profile::getMyURL()) {
 		$remoteUser = Contact::getByURL($homelink, null, $fields);
-		$nav['remote'] = DI::l10n()->t('Visitor');
+		$nav_info['nav']['remote'] = DI::l10n()->t('Visitor');
 	} else {
 		$remoteUser = null;
 	}
 
 	if (DBA::isResult($remoteUser)) {
-		$nav['userinfo'] = [
+		$nav_info['userinfo'] = [
 			'icon' => Contact::getMicro($remoteUser),
 			'name' => $remoteUser['name'],
 		];
@@ -222,19 +223,19 @@ function frio_remote_nav(App $a, array &$nav)
 
 	if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
 		// user menu
-		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
-		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
-		$nav['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
-		$nav['usermenu'][] = [$server_url . '/videos/' . $remoteUser['nick'], DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
-		$nav['usermenu'][] = [$server_url . '/events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
+		$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
+		$nav_info['nav']['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
+		$nav_info['nav']['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
+		$nav_info['nav']['usermenu'][] = [$server_url . '/videos/' . $remoteUser['nick'], DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
+		$nav_info['nav']['usermenu'][] = [$server_url . '/events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
 
 		// navbar links
-		$nav['network'] = [$server_url . '/network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
-		$nav['events'] = [$server_url . '/events', DI::l10n()->t('Events'), '', DI::l10n()->t('Events and Calendar')];
-		$nav['messages'] = [$server_url . '/message', DI::l10n()->t('Messages'), '', DI::l10n()->t('Private mail')];
-		$nav['settings'] = [$server_url . '/settings', DI::l10n()->t('Settings'), '', DI::l10n()->t('Account settings')];
-		$nav['contacts'] = [$server_url . '/contact', DI::l10n()->t('Contacts'), '', DI::l10n()->t('Manage/edit friends and contacts')];
-		$nav['sitename'] = DI::config()->get('config', 'sitename');
+		$nav_info['nav']['network'] = [$server_url . '/network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
+		$nav_info['nav']['events'] = [$server_url . '/events', DI::l10n()->t('Events'), '', DI::l10n()->t('Events and Calendar')];
+		$nav_info['nav']['messages'] = [$server_url . '/message', DI::l10n()->t('Messages'), '', DI::l10n()->t('Private mail')];
+		$nav_info['nav']['settings'] = [$server_url . '/settings', DI::l10n()->t('Settings'), '', DI::l10n()->t('Account settings')];
+		$nav_info['nav']['contacts'] = [$server_url . '/contact', DI::l10n()->t('Contacts'), '', DI::l10n()->t('Manage/edit friends and contacts')];
+		$nav_info['nav']['sitename'] = DI::config()->get('config', 'sitename');
 	}
 }
 

@@ -427,6 +427,8 @@ class Post
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
+			'comment_firstcollapsed' => false,
+			'comment_lastcollapsed' => false,
 			'suppress_tags'   => DI::config()->get('system', 'suppress_tags'),
 			'tags'            => $tags['tags'],
 			'hashtags'        => $tags['hashtags'],
@@ -543,10 +545,7 @@ class Post
 			}
 		}
 
-		if ($this->isToplevel()) {
-			$result['total_comments_num'] = "$total_children";
-			$result['total_comments_text'] = DI::l10n()->tt('comment', 'comments', $total_children);
-		}
+		$result['total_comments_num'] = $this->isToplevel() ? $total_children : 0;
 
 		$result['private'] = $item['private'];
 		$result['toplevel'] = ($this->isToplevel() ? 'toplevel_item' : '');
