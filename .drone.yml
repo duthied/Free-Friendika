@@ -1,0 +1,14 @@
+kind: pipeline
+type: docker
+name: Check messages.po
+
+steps:
+  - name: Run default Xgettext
+    image: friendicaci/transifex
+    commands:
+      - ./bin/run_xgettext.sh
+
+  - name: Check default
+    image: friendicaci/transifex
+    commands:
+      - /check-messages.sh

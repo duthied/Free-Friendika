@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-04 09:08-0400\n"
-"PO-Revision-Date: 2021-05-04 16:28+0000\n"
+"POT-Creation-Date: 2021-05-08 12:25+0000\n"
+"PO-Revision-Date: 2021-05-08 16:11+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -874,8 +874,11 @@ msgstr "Bitte besuche %s, um die Anfrage zu bearbeiten."
 #: mod/unfollow.php:82 mod/wall_attach.php:78 mod/wall_attach.php:81
 #: mod/wall_upload.php:99 mod/wall_upload.php:102 mod/wallmessage.php:35
 #: mod/wallmessage.php:59 mod/wallmessage.php:96 mod/wallmessage.php:120
-#: src/Module/Attach.php:56 src/Module/BaseApi.php:59
-#: src/Module/BaseApi.php:65 src/Module/BaseNotifications.php:88
+#: src/Module/Attach.php:56 src/Module/BaseApi.php:61
+#: src/Module/BaseApi.php:67 src/Module/BaseApi.php:74
+#: src/Module/BaseApi.php:80 src/Module/BaseApi.php:87
+#: src/Module/BaseApi.php:93 src/Module/BaseApi.php:100
+#: src/Module/BaseApi.php:106 src/Module/BaseNotifications.php:88
 #: src/Module/Contact.php:385 src/Module/Contact/Advanced.php:43
 #: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:16
 #: src/Module/FriendSuggest.php:44 src/Module/Group.php:45
@@ -1209,8 +1212,8 @@ msgstr "Bitte bestätige Deine Kontaktanfrage bei %s."
 #: mod/dfrn_request.php:600 mod/display.php:179 mod/photos.php:836
 #: mod/videos.php:129 src/Module/Conversation/Community.php:188
 #: src/Module/Debug/Probe.php:39 src/Module/Debug/WebFinger.php:38
-#: src/Module/Directory.php:49 src/Module/Search/Index.php:51
-#: src/Module/Search/Index.php:56
+#: src/Module/Directory.php:49 src/Module/Search/Index.php:50
+#: src/Module/Search/Index.php:55
 msgid "Public access denied."
 msgstr "Öffentlicher Zugriff verweigert."
 
@@ -3087,33 +3090,33 @@ msgstr "Diese Methode ist in diesem Modul nicht erlaubt. Erlaubte Methoden sind:
 msgid "Page not found."
 msgstr "Seite nicht gefunden."
 
-#: src/BaseModule.php:150
+#: src/BaseModule.php:180
 msgid ""
 "The form security token was not correct. This probably happened because the "
 "form has been opened for too long (>3 hours) before submitting it."
 msgstr "Das Sicherheitsmerkmal war nicht korrekt. Das passiert meistens, wenn das Formular vor dem Absenden zu lange geöffnet war (länger als 3 Stunden)."
 
-#: src/BaseModule.php:179
+#: src/BaseModule.php:209
 msgid "All contacts"
 msgstr "Alle Kontakte"
 
-#: src/BaseModule.php:184 src/Content/Widget.php:238 src/Core/ACL.php:183
+#: src/BaseModule.php:214 src/Content/Widget.php:238 src/Core/ACL.php:183
 #: src/Module/Contact.php:860 src/Module/PermissionTooltip.php:77
 #: src/Module/PermissionTooltip.php:99
 msgid "Followers"
 msgstr "Folgende"
 
-#: src/BaseModule.php:189 src/Content/Widget.php:239
+#: src/BaseModule.php:219 src/Content/Widget.php:239
 #: src/Module/Contact.php:861
 msgid "Following"
 msgstr "Gefolgte"
 
-#: src/BaseModule.php:194 src/Content/Widget.php:240
+#: src/BaseModule.php:224 src/Content/Widget.php:240
 #: src/Module/Contact.php:862
 msgid "Mutual friends"
 msgstr "Beidseitige Freundschaft"
 
-#: src/BaseModule.php:202
+#: src/BaseModule.php:232
 msgid "Common"
 msgstr "Gemeinsam"
 
@@ -3550,7 +3553,7 @@ msgid "Addon applications, utilities, games"
 msgstr "Zusätzliche Anwendungen, Dienstprogramme, Spiele"
 
 #: src/Content/Nav.php:220 src/Content/Text/HTML.php:899
-#: src/Module/Search/Index.php:100
+#: src/Module/Search/Index.php:99
 msgid "Search"
 msgstr "Suche"
 
@@ -3708,38 +3711,38 @@ msgstr "vorige"
 msgid "last"
 msgstr "letzte"
 
-#: src/Content/Text/BBCode.php:941 src/Content/Text/BBCode.php:1615
-#: src/Content/Text/BBCode.php:1616
+#: src/Content/Text/BBCode.php:942 src/Content/Text/BBCode.php:1605
+#: src/Content/Text/BBCode.php:1606
 msgid "Image/photo"
 msgstr "Bild/Foto"
 
-#: src/Content/Text/BBCode.php:1063
+#: src/Content/Text/BBCode.php:1064
 #, php-format
 msgid "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a> %3$s"
 msgstr "<a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">%2$s</a>%3$s"
 
-#: src/Content/Text/BBCode.php:1088 src/Model/Item.php:3020
-#: src/Model/Item.php:3026
+#: src/Content/Text/BBCode.php:1089 src/Model/Item.php:3024
+#: src/Model/Item.php:3030
 msgid "link to source"
 msgstr "Link zum Originalbeitrag"
 
-#: src/Content/Text/BBCode.php:1533 src/Content/Text/HTML.php:951
+#: src/Content/Text/BBCode.php:1523 src/Content/Text/HTML.php:951
 msgid "Click to open/close"
 msgstr "Zum Öffnen/Schließen klicken"
 
-#: src/Content/Text/BBCode.php:1564
+#: src/Content/Text/BBCode.php:1554
 msgid "$1 wrote:"
 msgstr "$1 hat geschrieben:"
 
-#: src/Content/Text/BBCode.php:1618 src/Content/Text/BBCode.php:1619
+#: src/Content/Text/BBCode.php:1608 src/Content/Text/BBCode.php:1609
 msgid "Encrypted content"
 msgstr "Verschlüsselter Inhalt"
 
-#: src/Content/Text/BBCode.php:1832
+#: src/Content/Text/BBCode.php:1822
 msgid "Invalid source protocol"
 msgstr "Ungültiges Quell-Protokoll"
 
-#: src/Content/Text/BBCode.php:1847
+#: src/Content/Text/BBCode.php:1837
 msgid "Invalid link protocol"
 msgstr "Ungültiges Link-Protokoll"
 
@@ -4891,15 +4894,15 @@ msgstr "Beitrag"
 msgid "Content warning: %s"
 msgstr "Inhaltswarnung: %s"
 
-#: src/Model/Item.php:2985
+#: src/Model/Item.php:2989
 msgid "bytes"
 msgstr "Byte"
 
-#: src/Model/Item.php:3014
+#: src/Model/Item.php:3018
 msgid "View on separate page"
 msgstr "Auf separater Seite ansehen"
 
-#: src/Model/Item.php:3015
+#: src/Model/Item.php:3019
 msgid "view on separate page"
 msgstr "auf separater Seite ansehen"
 
@@ -7257,16 +7260,6 @@ msgstr "Hinweis vom Nutzer"
 msgid "Deny"
 msgstr "Verwehren"
 
-#: src/Module/Api/Mastodon/Unimplemented.php:42
-#, php-format
-msgid "API endpoint \"%s\" is not implemented"
-msgstr "API endpoint \"%s\" is not implemented"
-
-#: src/Module/Api/Mastodon/Unimplemented.php:43
-msgid ""
-"The API endpoint is currently not implemented but might be in the future."
-msgstr "The API endpoint is currently not implemented but might be in the future."
-
 #: src/Module/Api/Twitter/ContactEndpoint.php:65 src/Module/Contact.php:400
 msgid "Contact not found"
 msgstr "Kontakt nicht gefunden"
@@ -7368,6 +7361,16 @@ msgstr "Addon Features"
 #: src/Module/BaseAdmin.php:127
 msgid "User registrations waiting for confirmation"
 msgstr "Nutzeranmeldungen, die auf Bestätigung warten"
+
+#: src/Module/BaseApi.php:114
+#, php-format
+msgid "API endpoint %s %s is not implemented"
+msgstr "API Endpunkt %s %s ist nicht implementiert"
+
+#: src/Module/BaseApi.php:115
+msgid ""
+"The API endpoint is currently not implemented but might be in the future."
+msgstr "The API endpoint is currently not implemented but might be in the future."
 
 #: src/Module/BaseProfile.php:55 src/Module/Contact.php:947
 msgid "Profile Details"
@@ -7723,7 +7726,7 @@ msgstr "Verwalte deine Kontaktgruppen"
 msgid "Search your contacts"
 msgstr "Suche in deinen Kontakten"
 
-#: src/Module/Contact.php:883 src/Module/Search/Index.php:193
+#: src/Module/Contact.php:883 src/Module/Search/Index.php:192
 #, php-format
 msgid "Results for: %s"
 msgstr "Ergebnisse für: %s"
@@ -7963,8 +7966,8 @@ msgstr "Einschließen"
 msgid "Hide"
 msgstr "Verbergen"
 
-#: src/Module/Conversation/Community.php:149 src/Module/Search/Index.php:140
-#: src/Module/Search/Index.php:180
+#: src/Module/Conversation/Community.php:149 src/Module/Search/Index.php:139
+#: src/Module/Search/Index.php:179
 msgid "No results."
 msgstr "Keine Ergebnisse."
 
@@ -9146,15 +9149,15 @@ msgid ""
 " or <strong>%s</strong> directly on your system."
 msgstr "Gib entweder deine Webfinger- (user@domain.tld) oder die Profil-Adresse an. Wenn dies von deinem System nicht unterstützt wird, folge bitte <strong>%s</strong> oder <strong>%s</strong> direkt von deinem System. "
 
-#: src/Module/Search/Index.php:55
+#: src/Module/Search/Index.php:54
 msgid "Only logged in users are permitted to perform a search."
 msgstr "Nur eingeloggten Benutzern ist das Suchen gestattet."
 
-#: src/Module/Search/Index.php:77
+#: src/Module/Search/Index.php:76
 msgid "Only one search per minute is permitted for not logged in users."
 msgstr "Es ist nur eine Suchanfrage pro Minute für nicht eingeloggte Benutzer gestattet."
 
-#: src/Module/Search/Index.php:191
+#: src/Module/Search/Index.php:190
 #, php-format
 msgid "Items tagged with: %s"
 msgstr "Beiträge, die mit %s getaggt sind"

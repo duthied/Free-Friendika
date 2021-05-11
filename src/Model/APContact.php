@@ -235,7 +235,7 @@ class APContact
 		unset($parts['path']);
 
 		if (empty($apcontact['addr'])) {
-			if (!empty($apcontact['nick'])) {
+			if (!empty($apcontact['nick']) && is_array($parts)) {
 				$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
 			} else {
 				$apcontact['addr'] = '';

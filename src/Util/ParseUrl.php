@@ -695,7 +695,7 @@ class ParseUrl
 	{
 		if (!empty($jsonld['@graph']) && is_array($jsonld['@graph'])) {
 			foreach ($jsonld['@graph'] as $part) {
-				if (!empty($part)) {
+				if (!empty($part) && is_array($part)) {
 					$siteinfo = self::parseParts($siteinfo, $part);
 				}
 			}
