@@ -2870,9 +2870,9 @@ class Diaspora
 			return false;
 		}
 
-		$aes_key = openssl_random_pseudo_bytes(32);
+		$aes_key = random_bytes(32);
 		$b_aes_key = base64_encode($aes_key);
-		$iv = openssl_random_pseudo_bytes(16);
+		$iv = random_bytes(16);
 		$b_iv = base64_encode($iv);
 
 		$ciphertext = self::aesEncrypt($aes_key, $iv, $msg);

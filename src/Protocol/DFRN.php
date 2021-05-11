@@ -1272,7 +1272,7 @@ class DFRN
 
 			switch ($rino_remote_version) {
 				case 1:
-					$key = openssl_random_pseudo_bytes(16);
+					$key = random_bytes(16);
 					$data = self::aesEncrypt($postvars['data'], $key);
 					break;
 

@@ -46,8 +46,8 @@ class Apps extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$client_id     = bin2hex(openssl_random_pseudo_bytes(32));
-		$client_secret = bin2hex(openssl_random_pseudo_bytes(32));
+		$client_id     = bin2hex(random_bytes(32));
+		$client_secret = bin2hex(random_bytes(32));
 
 		$fields = ['client_id' => $client_id, 'client_secret' => $client_secret, 'name' => $name, 'redirect_uri' => $redirect];
 

@@ -216,8 +216,8 @@ class BaseApi extends BaseModule
 
 	public static function getTokenForUser(array $application, int $uid)
 	{
-		$code         = bin2hex(openssl_random_pseudo_bytes(32));
-		$access_token = bin2hex(openssl_random_pseudo_bytes(32));
+		$code         = bin2hex(random_bytes(32));
+		$access_token = bin2hex(random_bytes(32));
 
 		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token, 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
 		if (!DBA::insert('application-token', $fields, Database::INSERT_UPDATE)) {
