@@ -22,9 +22,6 @@
 namespace Friendica\Module\OAuth;
 
 use Friendica\Core\Logger;
-use Friendica\Core\Session;
-use Friendica\Database\Database;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
 
