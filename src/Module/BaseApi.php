@@ -179,7 +179,7 @@ class BaseApi extends BaseModule
 
 	private static function checkBearer(string $authorization)
 	{
-		return(strpos($authorization, 'Bearer ') !== false);
+		return (substr($authorization, 0, 7) == 'Bearer ');
 	}
 
 	private static function getUserByBearer(string $authorization)
