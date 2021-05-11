@@ -36,8 +36,6 @@ class Authorize extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		//return;
-
 		$response_type = !isset($_REQUEST['response_type']) ? '' : $_REQUEST['response_type'];
 		if ($response_type != 'code') {
 			Logger::warning('Wrong or missing response type', ['response_type' => $response_type]);
@@ -52,7 +50,9 @@ class Authorize extends BaseApi
 		$uid = local_user();
 		if (empty($uid)) {
 			Logger::info('Redirect to login');
-			DI::app()->redirect('login?return_path=/oauth/authorize');
+			$request = $_REQUEST;
+			unset($request['pagename']);
+			DI::app()->redirect('login?return_path=/oauth/authorize' . urlencode('?' . http_build_query($request)));
 		} else {
 			Logger::info('Already logged in user', ['uid' => $uid]);
 		}
