@@ -181,7 +181,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		 * random key which is encrypted with their site public key.
 		 */
 
-		$src_aes_key = openssl_random_pseudo_bytes(64);
+		$src_aes_key = random_bytes(64);
 
 		$result = '';
 		openssl_private_encrypt($dfrn_id, $result, $user['prvkey']);

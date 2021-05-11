@@ -24,8 +24,11 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Database\Database;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
+use Friendica\Util\DateTimeFormat;
 
 require_once __DIR__ . '/../../include/api.php';
 
@@ -110,7 +113,7 @@ class BaseApi extends BaseModule
 	public static function unsupported(string $method = 'all')
 	{
 		$path = DI::args()->getQueryString();
-		Logger::info('Unimplemented API call', ['method' => $method, 'path' => $path, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+		Logger::info('Unimplemented API call', ['method' => $method, 'path' => $path, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'request' => $_REQUEST ?? []]);
 		$error = DI::l10n()->t('API endpoint %s %s is not implemented', strtoupper($method), $path);
 		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');;
 		$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
@@ -135,6 +138,14 @@ class BaseApi extends BaseModule
 	 */
 	protected static function login()
 	{
+		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+		$authorization = $_SERVER['AUTHORIZATION'] ?? $authorization;
+
+		if (self::checkBearer($authorization)) {
+			self::$current_user_id = self::getUserByBearer($authorization);
+			return (bool)self::$current_user_id;
+		}
+
 		api_login(DI::app());
 
 		self::$current_user_id = api_user();
@@ -149,6 +160,14 @@ class BaseApi extends BaseModule
 	 */
 	protected static function getCurrentUserID()
 	{
+		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+		$authorization = $_SERVER['AUTHORIZATION'] ?? $authorization;
+
+		if (self::checkBearer($authorization)) {
+			self::$current_user_id = self::getUserByBearer($authorization);
+			return (int)self::$current_user_id;
+		}
+
 		if (is_null(self::$current_user_id)) {
 			api_login(DI::app(), false);
 
@@ -158,6 +177,55 @@ class BaseApi extends BaseModule
 		return (int)self::$current_user_id;
 	}
 
+	private static function checkBearer(string $authorization)
+	{
+		return (substr($authorization, 0, 7) == 'Bearer ');
+	}
+
+	private static function getUserByBearer(string $authorization)
+	{
+		$bearer = trim(substr($authorization, 6));
+		$condition = ['access_token' => $bearer];
+		$token = DBA::selectFirst('application-token', ['uid'], $condition);
+		if (!DBA::isResult($token)) {
+			Logger::warning('Token not found', $condition);
+			return 0;
+		}
+		Logger::info('Token found', $token);
+		return $token['uid'];
+	}
+
+	public static function getApplication()
+	{
+		$redirect_uri = !isset($_REQUEST['redirect_uri']) ? '' : $_REQUEST['redirect_uri'];
+		$client_id    = !isset($_REQUEST['client_id']) ? '' : $_REQUEST['client_id'];
+
+		if (empty($redirect_uri) || empty($client_id)) {
+			Logger::warning('Incomplete request');
+			return [];
+		}
+
+		$condition = ['redirect_uri' => $redirect_uri, 'client_id' => $client_id];
+		$application = DBA::selectFirst('application', [], $condition);
+		if (!DBA::isResult($application)) {
+			Logger::warning('Application not found', $condition);
+			return [];
+		}
+		return $application;
+	}
+
+	public static function getTokenForUser(array $application, int $uid)
+	{
+		$code         = bin2hex(random_bytes(32));
+		$access_token = bin2hex(random_bytes(32));
+
+		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token, 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
+		if (!DBA::insert('application-token', $fields, Database::INSERT_UPDATE)) {
+			return [];
+		}
+
+		return DBA::selectFirst('application-token', [], ['application-id' => $application['id'], 'uid' => $uid]);
+	}
 	/**
 	 * Get user info array.
 	 *
@@ -207,7 +275,7 @@ class BaseApi extends BaseModule
 				$return = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
 				break;
 		}
-		
+
 		return $return;
 	}
 

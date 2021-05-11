@@ -331,9 +331,9 @@ return [
 		'/mark/all' => [Module\Notifications\Notification::class, [R::GET]],
 		'/{id:\d+}' => [Module\Notifications\Notification::class, [R::GET, R::POST]],
 	],
-	'/oauth/authorize'             => [Module\Api\Mastodon\Unimplemented::class, [R::GET]],
-	'/oauth/revoke'                => [Module\Api\Mastodon\Unimplemented::class, [R::POST]],
-	'/oauth/token'                 => [Module\Api\Mastodon\Unimplemented::class, [R::POST]],
+	'/oauth/authorize'             => [Module\OAuth\Authorize::class, [R::GET]],
+	'/oauth/revoke'                => [Module\OAuth\Revoke::class, [R::POST]],
+	'/oauth/token'                 => [Module\OAuth\Token::class, [R::POST]],
 	'/objects/{guid}[/{activity}]' => [Module\Objects::class, [R::GET]],
 
 	'/oembed'         => [

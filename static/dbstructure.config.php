@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1415);
+	define('DB_UPDATE_VERSION', 1416);
 }
 
 return [
@@ -440,6 +440,20 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"client_id" => ["UNIQUE", "client_id"]
+		]
+	],
+	"application-token" => [
+		"comment" => "OAuth user token",
+		"fields" => [
+			"application-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["application" => "id"], "comment" => ""],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
+			"code" => ["type" => "varchar(64)", "not null" => "1", "comment" => ""],
+			"access_token" => ["type" => "varchar(64)", "not null" => "1", "comment" => ""],
+			"created_at" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "creation time"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["application-id", "uid"],
+			"uid_id" => ["uid", "application-id"],
 		]
 	],
 	"attach" => [

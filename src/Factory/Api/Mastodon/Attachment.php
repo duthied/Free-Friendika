@@ -59,7 +59,7 @@ class Attachment extends BaseFactory
 	public function createFromUriId(int $uriId)
 	{
 		$attachments = [];
-		foreach (Post\Media::getByURIId($uriId) as $attachment) {
+		foreach (Post\Media::getByURIId($uriId, [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE]) as $attachment) {
 
 			$filetype = !empty($attachment['mimetype']) ? strtolower(substr($attachment['mimetype'], 0, strpos($attachment['mimetype'], '/'))) : '';
 
