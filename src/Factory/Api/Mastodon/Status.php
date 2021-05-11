@@ -24,7 +24,6 @@ namespace Friendica\Factory\Api\Mastodon;
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
 use Friendica\Content\ContactSelector;
-use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Post;
@@ -86,12 +85,10 @@ class Status extends BaseFactory
 
 		$sensitive = DBA::exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw']);
 		$application = new \Friendica\Object\Api\Mastodon\Application($item['app'] ?: ContactSelector::networkToName($item['network'], $item['author-link']));
-		$mentions = DI::mstdnMention()->createFromUriId($uriId);
-		$tags = DI::mstdnTag()->createFromUriId($uriId);
 
-		$data = BBCode::getAttachmentData($item['body']);
-		$card = new \Friendica\Object\Api\Mastodon\Card($data);
-
+		$mentions    = DI::mstdnMention()->createFromUriId($uriId);
+		$tags        = DI::mstdnTag()->createFromUriId($uriId);
+		$card        = DI::mstdnCard()->createFromUriId($uriId);
 		$attachments = DI::mstdnAttachment()->createFromUriId($uriId);
 
 		if ($item['vid'] == Verb::getID(Activity::ANNOUNCE)) {

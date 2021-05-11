@@ -2927,7 +2927,7 @@ class Item
 		DI::profiler()->saveTimestamp($stamp1, 'rendering');
 
 		if (isset($data['url']) && !in_array($data['url'], $ignore_links)) {
-			if (!empty($data['description']) || !empty($data['image'] || !empty($data['preview']))) {
+			if (!empty($data['description']) || !empty($data['image']) || !empty($data['preview'])) {
 				$parts = parse_url($data['url']);
 				if (!empty($parts['scheme']) && !empty($parts['host'])) {
 					if (empty($data['provider_name'])) {

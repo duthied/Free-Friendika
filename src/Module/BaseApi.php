@@ -138,15 +138,13 @@ class BaseApi extends BaseModule
 	 */
 	protected static function login()
 	{
-		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-		$authorization = $_SERVER['AUTHORIZATION'] ?? $authorization;
-
-		if (self::checkBearer($authorization)) {
-			self::$current_user_id = self::getUserByBearer($authorization);
-			return (bool)self::$current_user_id;
+		if (empty(self::$current_user_id)) {
+			self::$current_user_id = self::getUserByBearer();
 		}
 
-		api_login(DI::app());
+		if (empty(self::$current_user_id)) {
+			api_login(DI::app());
+		}
 
 		self::$current_user_id = api_user();
 
@@ -160,15 +158,11 @@ class BaseApi extends BaseModule
 	 */
 	protected static function getCurrentUserID()
 	{
-		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-		$authorization = $_SERVER['AUTHORIZATION'] ?? $authorization;
-
-		if (self::checkBearer($authorization)) {
-			self::$current_user_id = self::getUserByBearer($authorization);
-			return (int)self::$current_user_id;
+		if (empty(self::$current_user_id)) {
+			self::$current_user_id = self::getUserByBearer();
 		}
 
-		if (is_null(self::$current_user_id)) {
+		if (empty(self::$current_user_id)) {
 			api_login(DI::app(), false);
 
 			self::$current_user_id = api_user();
@@ -177,14 +171,16 @@ class BaseApi extends BaseModule
 		return (int)self::$current_user_id;
 	}
 
-	private static function checkBearer(string $authorization)
+	private static function getUserByBearer()
 	{
-		return (substr($authorization, 0, 7) == 'Bearer ');
-	}
+		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+		$authorization = $_SERVER['AUTHORIZATION'] ?? $authorization;
 
-	private static function getUserByBearer(string $authorization)
-	{
-		$bearer = trim(substr($authorization, 6));
+		if (substr($authorization, 0, 7) != 'Bearer ') {
+			return 0;
+		}
+
+		$bearer = trim(substr($authorization, 7));
 		$condition = ['access_token' => $bearer];
 		$token = DBA::selectFirst('application-token', ['uid'], $condition);
 		if (!DBA::isResult($token)) {
