@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.06-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1415
+-- DB_UPDATE_VERSION 1416
 -- ------------------------------------------
 
 
@@ -378,6 +378,21 @@ CREATE TABLE IF NOT EXISTS `application` (
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `client_id` (`client_id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth application';
+
+--
+-- TABLE application-token
+--
+CREATE TABLE IF NOT EXISTS `application-token` (
+	`application-id` int unsigned NOT NULL COMMENT '',
+	`uid` mediumint unsigned NOT NULL COMMENT 'Owner User id',
+	`code` varchar(64) NOT NULL COMMENT '',
+	`access_token` varchar(64) NOT NULL COMMENT '',
+	`created_at` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'creation time',
+	 PRIMARY KEY(`application-id`,`uid`),
+	 INDEX `uid_id` (`uid`,`application-id`),
+	FOREIGN KEY (`application-id`) REFERENCES `application` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth user token';
 
 --
 -- TABLE attach
