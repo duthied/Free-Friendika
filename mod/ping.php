@@ -139,7 +139,7 @@ function ping_init(App $a)
 			local_user(), Verb::getID(Activity::FOLLOW)];
 		$items = Post::selectForUser(local_user(), ['wall', 'uid', 'uri-id'], $condition);
 		if (DBA::isResult($items)) {
-			$items_unseen = Post::toArray($items);
+			$items_unseen = Post::toArray($items, false);
 			$arr = ['items' => $items_unseen];
 			Hook::callAll('network_ping', $arr);
 
