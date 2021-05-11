@@ -19,50 +19,52 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Module\OAuth;
 
-use Friendica\Core\System;
+use Friendica\Core\Logger;
+use Friendica\Core\Session;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
- * Apps class to register new OAuth clients
+ * Dummy class for all currently unimplemented endpoints
  */
-class Apps extends BaseApi
+class Authorize extends BaseApi
 {
 	/**
 	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function post(array $parameters = [])
+	public static function rawContent(array $parameters = [])
 	{
-		$name     = !isset($_REQUEST['client_name']) ? '' : $_REQUEST['client_name'];
-		$redirect = !isset($_REQUEST['redirect_uris']) ? '' : $_REQUEST['redirect_uris'];
-		$scopes   = !isset($_REQUEST['scopes']) ? '' : $_REQUEST['scopes'];
-		$website  = !isset($_REQUEST['website']) ? '' : $_REQUEST['website'];
+		//return;
 
-		if (empty($name) || empty($redirect)) {
+		$response_type = !isset($_REQUEST['response_type']) ? '' : $_REQUEST['response_type'];
+		if ($response_type != 'code') {
+			Logger::warning('Wrong or missing response type', ['response_type' => $response_type]);
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$client_id     = bin2hex(openssl_random_pseudo_bytes(32));
-		$client_secret = bin2hex(openssl_random_pseudo_bytes(32));
-
-		$fields = ['client_id' => $client_id, 'client_secret' => $client_secret, 'name' => $name, 'redirect_uri' => $redirect];
-
-		if (!empty($scopes)) {
-			$fields['scopes'] = $scopes;
-		}
-
-		if (!empty($website)) {
-			$fields['website'] = $website;
-		}
-
-		if (!DBA::insert('application', $fields)) {
+		$application = self::getApplication();
+		if (empty($application)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		System::jsonExit(DI::mstdnApplication()->createFromApplicationId(DBA::lastInsertId()));
+		$uid = local_user();
+		if (empty($uid)) {
+			Logger::info('Redirect to login');
+			DI::app()->redirect('login?return_path=/oauth/authorize');
+		} else {
+			Logger::info('Already logged in user', ['uid' => $uid]);
+		}
+
+		$token = self::getTokenForUser($application, $uid);
+		if (!$token) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		DI::app()->redirect($application['redirect_uri'] . '?code=' . $token['code']);
 	}
 }

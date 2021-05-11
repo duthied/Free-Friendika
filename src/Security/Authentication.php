@@ -39,6 +39,7 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use LightOpenID;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Psr\Log\LoggerInterface;
 
 /**

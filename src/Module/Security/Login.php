@@ -36,8 +36,12 @@ class Login extends BaseModule
 {
 	public static function content(array $parameters = [])
 	{
+		$return_path = !isset($_REQUEST['return_path']) ? '' : $_REQUEST['return_path'];
+
 		if (local_user()) {
-			DI::baseUrl()->redirect();
+			DI::baseUrl()->redirect($return_path);
+		} elseif (!empty($return_path)) {
+			Session::set('return_path', $return_path);
 		}
 
 		return self::form(Session::get('return_path'), intval(DI::config()->get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
