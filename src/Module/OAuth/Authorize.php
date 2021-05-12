@@ -49,19 +49,19 @@ class Authorize extends BaseApi
 
 		$request = $_REQUEST;
 		unset($request['pagename']);
-		$redirect = urlencode('oauth/authorize?' . http_build_query($request));
+		$redirect = 'oauth/authorize?' . http_build_query($request);
 
 		$uid = local_user();
 		if (empty($uid)) {
 			Logger::info('Redirect to login');
-			DI::app()->redirect('login?return_path=' . $redirect);
+			DI::app()->redirect('login?return_path=' . urlencode($redirect));
 		} else {
 			Logger::info('Already logged in user', ['uid' => $uid]);
 		}
 
 		if (!self::existsTokenForUser($application, $uid) && !DI::session()->get('oauth_acknowledge')) {
 			Logger::info('Redirect to acknowledge');
-			DI::app()->redirect('oauth/acknowledge?return_path=' . $redirect);
+			DI::app()->redirect('oauth/acknowledge?' . http_build_query(['return_path' => $redirect, 'application' => $application['name']]));
 		}
 
 		DI::session()->remove('oauth_acknowledge');
