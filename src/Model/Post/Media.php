@@ -288,9 +288,13 @@ class Media
 	public static function insertFromBody(int $uriid, string $body)
 	{
 		// Simplify image codes
-		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+		$unshared_body = $body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 
-		$unshared_body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+		// Only remove the shared data from "real" reshares
+		$shared = BBCode::fetchShareAttributes($body);
+		if (!empty($shared['guid'])) {
+			$unshared_body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+		}
 
 		$attachments = [];
 		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
@@ -363,8 +367,12 @@ class Media
 	 */
 	public static function insertFromRelevantUrl(int $uriid, string $body)
 	{
-		// Don't look at the shared content
-		$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+		// Only remove the shared data from "real" reshares
+		$shared = BBCode::fetchShareAttributes($body);
+		if (!empty($shared['guid'])) {
+			// Don't look at the shared content
+			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+		}
 
 		// Remove all hashtags and mentions
 		$body = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '', $body);

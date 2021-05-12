@@ -43,7 +43,7 @@ class Statuses extends BaseApi
 	public static function rawContent(array $parameters = [])
 	{
 		if (empty($parameters['id'])) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		$id = $parameters['id'];
@@ -52,7 +52,7 @@ class Statuses extends BaseApi
 		}
 
 		// Show only statuses with media attached? Defaults to false.
-		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true'); // Currently not supported
+		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true');
 		// Return results older than this id
 		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
 		// Return results newer than this id

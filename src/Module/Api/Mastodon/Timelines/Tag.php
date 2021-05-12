@@ -44,13 +44,13 @@ class Tag extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['hashtag'])) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		// If true, return only local statuses. Defaults to false.
 		$local = (bool)!isset($_REQUEST['local']) ? false : ($_REQUEST['local'] == 'true');
 		// If true, return only statuses with media attachments. Defaults to false.
-		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true'); // Currently not supported
+		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true');
 		// Return results older than this ID.
 		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
 		// Return results newer than this ID.

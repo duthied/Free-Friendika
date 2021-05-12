@@ -26,7 +26,7 @@ use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
- * Dummy class for all currently unimplemented endpoints
+ * @see https://docs.joinmastodon.org/spec/oauth/
  */
 class Authorize extends BaseApi
 {
@@ -36,30 +36,39 @@ class Authorize extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		//return;
-
-		$response_type = !isset($_REQUEST['response_type']) ? '' : $_REQUEST['response_type'];
+		$response_type = $_REQUEST['response_type'] ?? '';
 		if ($response_type != 'code') {
 			Logger::warning('Wrong or missing response type', ['response_type' => $response_type]);
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		$application = self::getApplication();
 		if (empty($application)) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
+
+		$request = $_REQUEST;
+		unset($request['pagename']);
+		$redirect = 'oauth/authorize?' . http_build_query($request);
 
 		$uid = local_user();
 		if (empty($uid)) {
 			Logger::info('Redirect to login');
-			DI::app()->redirect('login?return_path=/oauth/authorize');
+			DI::app()->redirect('login?return_path=' . urlencode($redirect));
 		} else {
 			Logger::info('Already logged in user', ['uid' => $uid]);
 		}
 
-		$token = self::getTokenForUser($application, $uid);
+		if (!self::existsTokenForUser($application, $uid) && !DI::session()->get('oauth_acknowledge')) {
+			Logger::info('Redirect to acknowledge');
+			DI::app()->redirect('oauth/acknowledge?' . http_build_query(['return_path' => $redirect, 'application' => $application['name']]));
+		}
+
+		DI::session()->remove('oauth_acknowledge');
+
+		$token = self::createTokenForUser($application, $uid);
 		if (!$token) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		DI::app()->redirect($application['redirect_uri'] . '?code=' . $token['code']);

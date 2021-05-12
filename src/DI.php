@@ -256,6 +256,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Card
+	 */
+	public static function mstdnCard()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Card::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Emoji
 	 */
 	public static function mstdnEmoji()

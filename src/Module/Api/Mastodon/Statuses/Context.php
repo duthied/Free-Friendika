@@ -41,7 +41,7 @@ class Context extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		$id = $parameters['id'];
@@ -54,7 +54,8 @@ class Context extends BaseApi
 		$parents  = [];
 		$children = [];
 
-		$posts = Post::select(['uri-id', 'thr-parent-id'], ['parent-uri-id' => $parent['parent-uri-id']], [], false);
+		$posts = Post::select(['uri-id', 'thr-parent-id'],
+			['parent-uri-id' => $parent['parent-uri-id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]], [], false);
 		while ($post = Post::fetch($posts)) {
 			if ($post['uri-id'] == $post['thr-parent-id']) {
 				continue;
@@ -67,12 +68,24 @@ class Context extends BaseApi
 
 		$statuses = ['ancestors' => [], 'descendants' => []];
 
+		$ancestors = [];
 		foreach (self::getParents($id, $parents) as $ancestor) {
-			$statuses['ancestors'][] = DI::mstdnStatus()->createFromUriId($ancestor, $uid);
+			$ancestors[$ancestor] = DI::mstdnStatus()->createFromUriId($ancestor, $uid);
 		}
 
+		ksort($ancestors);
+		foreach ($ancestors as $ancestor) {
+			$statuses['ancestors'][] = $ancestor;
+		}
+
+		$descendants = [];
 		foreach (self::getChildren($id, $children) as $descendant) {
-			$statuses['descendants'][] = DI::mstdnStatus()->createFromUriId($descendant, $uid);
+			$descendants[] = DI::mstdnStatus()->createFromUriId($descendant, $uid);
+		}
+
+		ksort($descendants);
+		foreach ($descendants as $descendant) {
+			$statuses['descendants'][] = $descendant;
 		}
 
 		System::jsonExit($statuses);

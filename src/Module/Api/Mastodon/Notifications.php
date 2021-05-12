@@ -63,7 +63,7 @@ class Notifications extends BaseApi
 		$limit = (int)!isset($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
 
 		// Array of types to exclude (follow, favourite, reblog, mention, poll, follow_request)
-		$exclude_types = !isset($_REQUEST['exclude_types']) ? [] : $_REQUEST['exclude_types'];
+		$exclude_types = $_REQUEST['exclude_types'] ?? [];
 
 		// Return only notifications received from this account
 		$account_id = (int)!isset($_REQUEST['account_id']) ? 0 : $_REQUEST['account_id'];

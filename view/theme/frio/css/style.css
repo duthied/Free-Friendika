@@ -3410,6 +3410,7 @@ section .profile-match-wrapper {
 .mod-home.is-not-singleuser nav.navbar,
 .mod-login nav.navbar {
 	background-color: transparent;
+	position: inherit;
 }
 .mod-home.is-not-singleuser #topbar-second,
 .mod-login #topbar-second {

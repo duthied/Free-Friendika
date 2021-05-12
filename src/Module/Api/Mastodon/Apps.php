@@ -37,13 +37,13 @@ class Apps extends BaseApi
 	 */
 	public static function post(array $parameters = [])
 	{
-		$name     = !isset($_REQUEST['client_name']) ? '' : $_REQUEST['client_name'];
-		$redirect = !isset($_REQUEST['redirect_uris']) ? '' : $_REQUEST['redirect_uris'];
-		$scopes   = !isset($_REQUEST['scopes']) ? '' : $_REQUEST['scopes'];
-		$website  = !isset($_REQUEST['website']) ? '' : $_REQUEST['website'];
+		$name     = $_REQUEST['client_name'] ?? '';
+		$redirect = $_REQUEST['redirect_uris'] ?? '';
+		$scopes   = $_REQUEST['scopes'] ?? '';
+		$website  = $_REQUEST['website'] ?? '';
 
 		if (empty($name) || empty($redirect)) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Missing parameters'));
 		}
 
 		$client_id     = bin2hex(random_bytes(32));
@@ -60,7 +60,7 @@ class Apps extends BaseApi
 		}
 
 		if (!DBA::insert('application', $fields)) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->InternalError();
 		}
 
 		System::jsonExit(DI::mstdnApplication()->createFromApplicationId(DBA::lastInsertId()));

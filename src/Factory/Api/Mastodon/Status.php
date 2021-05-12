@@ -86,13 +86,27 @@ class Status extends BaseFactory
 
 		$sensitive = DBA::exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw']);
 		$application = new \Friendica\Object\Api\Mastodon\Application($item['app'] ?: ContactSelector::networkToName($item['network'], $item['author-link']));
-		$mentions = DI::mstdnMention()->createFromUriId($uriId);
-		$tags = DI::mstdnTag()->createFromUriId($uriId);
 
-		$data = BBCode::getAttachmentData($item['body']);
-		$card = new \Friendica\Object\Api\Mastodon\Card($data);
-
+		$mentions    = DI::mstdnMention()->createFromUriId($uriId);
+		$tags        = DI::mstdnTag()->createFromUriId($uriId);
+		$card        = DI::mstdnCard()->createFromUriId($uriId);
 		$attachments = DI::mstdnAttachment()->createFromUriId($uriId);
+
+		$shared = BBCode::fetchShareAttributes($item['body']);
+		if (!empty($shared['guid'])) {
+			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
+
+			$shared_uri_id = $shared_item['uri-id'] ?? 0;
+
+			$mentions    = array_merge($mentions, DI::mstdnMention()->createFromUriId($shared_uri_id));
+			$tags        = array_merge($tags, DI::mstdnTag()->createFromUriId($shared_uri_id));
+			$attachments = array_merge($attachments, DI::mstdnAttachment()->createFromUriId($shared_uri_id));
+
+			if (empty($card->toArray())) {
+				$card = DI::mstdnCard()->createFromUriId($shared_uri_id);
+			}
+		}
+
 
 		if ($item['vid'] == Verb::getID(Activity::ANNOUNCE)) {
 			$reshare = $this->createFromUriId($item['thr-parent-id'], $uid)->toArray();

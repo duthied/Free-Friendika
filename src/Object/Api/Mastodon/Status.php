@@ -134,7 +134,7 @@ class Status extends BaseDataTransferObject
 		$this->mentions = $mentions;
 		$this->tags = $tags;
 		$this->emojis = [];
-		//$this->card = $card;
+		$this->card = $card->toArray() ?: null;
 		$this->poll = null;
 	}
 

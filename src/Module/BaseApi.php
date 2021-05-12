@@ -110,12 +110,18 @@ class BaseApi extends BaseModule
 		}
 	}
 
+	/**
+	 * Quit execution with the message that the endpoint isn't implemented
+	 *
+	 * @param string $method
+	 * @return void
+	 */
 	public static function unsupported(string $method = 'all')
 	{
 		$path = DI::args()->getQueryString();
 		Logger::info('Unimplemented API call', ['method' => $method, 'path' => $path, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'request' => $_REQUEST ?? []]);
 		$error = DI::l10n()->t('API endpoint %s %s is not implemented', strtoupper($method), $path);
-		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');;
+		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');
 		$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 		System::jsonError(501, $errorobj->toArray());
 	}
@@ -138,15 +144,14 @@ class BaseApi extends BaseModule
 	 */
 	protected static function login()
 	{
-		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-		$authorization = $_SERVER['AUTHORIZATION'] ?? $authorization;
-
-		if (self::checkBearer($authorization)) {
-			self::$current_user_id = self::getUserByBearer($authorization);
-			return (bool)self::$current_user_id;
+		if (empty(self::$current_user_id)) {
+			self::$current_user_id = self::getUserByBearer();
 		}
 
-		api_login(DI::app());
+		if (empty(self::$current_user_id)) {
+			// The execution stops here if no one is logged in
+			api_login(DI::app());
+		}
 
 		self::$current_user_id = api_user();
 
@@ -160,15 +165,12 @@ class BaseApi extends BaseModule
 	 */
 	protected static function getCurrentUserID()
 	{
-		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-		$authorization = $_SERVER['AUTHORIZATION'] ?? $authorization;
-
-		if (self::checkBearer($authorization)) {
-			self::$current_user_id = self::getUserByBearer($authorization);
-			return (int)self::$current_user_id;
+		if (empty(self::$current_user_id)) {
+			self::$current_user_id = self::getUserByBearer();
 		}
 
-		if (is_null(self::$current_user_id)) {
+		if (empty(self::$current_user_id)) {
+			// Fetch the user id if logged in - but don't fail if not
 			api_login(DI::app(), false);
 
 			self::$current_user_id = api_user();
@@ -177,14 +179,20 @@ class BaseApi extends BaseModule
 		return (int)self::$current_user_id;
 	}
 
-	private static function checkBearer(string $authorization)
+	/**
+	 * Get the user id via the Bearer token
+	 *
+	 * @return int User-ID
+	 */
+	private static function getUserByBearer()
 	{
-		return (substr($authorization, 0, 7) == 'Bearer ');
-	}
+		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 
-	private static function getUserByBearer(string $authorization)
-	{
-		$bearer = trim(substr($authorization, 6));
+		if (substr($authorization, 0, 7) != 'Bearer ') {
+			return 0;
+		}
+
+		$bearer = trim(substr($authorization, 7));
 		$condition = ['access_token' => $bearer];
 		$token = DBA::selectFirst('application-token', ['uid'], $condition);
 		if (!DBA::isResult($token)) {
@@ -195,17 +203,30 @@ class BaseApi extends BaseModule
 		return $token['uid'];
 	}
 
+	/**
+	 * Get the application record via the proved request header fields
+	 *
+	 * @return array application record
+	 */
 	public static function getApplication()
 	{
-		$redirect_uri = !isset($_REQUEST['redirect_uri']) ? '' : $_REQUEST['redirect_uri'];
-		$client_id    = !isset($_REQUEST['client_id']) ? '' : $_REQUEST['client_id'];
+		$redirect_uri  = $_REQUEST['redirect_uri'] ?? '';
+		$client_id     = $_REQUEST['client_id'] ?? '';
+		$client_secret = $_REQUEST['client_secret'] ?? '';
 
-		if (empty($redirect_uri) || empty($client_id)) {
-			Logger::warning('Incomplete request');
+		if ((empty($redirect_uri) && empty($client_secret)) || empty($client_id)) {
+			Logger::warning('Incomplete request', ['request' => $_REQUEST]);
 			return [];
 		}
 
-		$condition = ['redirect_uri' => $redirect_uri, 'client_id' => $client_id];
+		$condition = ['client_id' => $client_id];
+		if (!empty($client_secret)) {
+			$condition['client_secret'] = $client_secret;
+		}
+		if (!empty($redirect_uri)) {
+			$condition['redirect_uri'] = $redirect_uri;
+		}
+
 		$application = DBA::selectFirst('application', [], $condition);
 		if (!DBA::isResult($application)) {
 			Logger::warning('Application not found', $condition);
@@ -214,7 +235,38 @@ class BaseApi extends BaseModule
 		return $application;
 	}
 
+	/**
+	 * Check if an token for the application and user exists
+	 *
+	 * @param array $application
+	 * @param integer $uid
+	 * @return boolean
+	 */
+	public static function existsTokenForUser(array $application, int $uid)
+	{
+		return DBA::exists('application-token', ['application-id' => $application['id'], 'uid' => $uid]);
+	}
+
+	/**
+	 * Fetch the token for the given application and user
+	 *
+	 * @param array $application
+	 * @param integer $uid
+	 * @return array application record
+	 */
 	public static function getTokenForUser(array $application, int $uid)
+	{
+		return DBA::selectFirst('application-token', [], ['application-id' => $application['id'], 'uid' => $uid]);
+	}
+
+	/**
+	 * Create and fetch an token for the application and user
+	 *
+	 * @param array $application
+	 * @param integer $uid
+	 * @return array application record
+	 */
+	public static function createTokenForUser(array $application, int $uid)
 	{
 		$code         = bin2hex(random_bytes(32));
 		$access_token = bin2hex(random_bytes(32));
@@ -226,6 +278,7 @@ class BaseApi extends BaseModule
 
 		return DBA::selectFirst('application-token', [], ['application-id' => $application['id'], 'uid' => $uid]);
 	}
+
 	/**
 	 * Get user info array.
 	 *

@@ -46,7 +46,7 @@ class Media extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		$id = $parameters['id'];

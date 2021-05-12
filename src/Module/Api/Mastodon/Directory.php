@@ -44,7 +44,7 @@ class Directory extends BaseApi
 	{
 		$offset = (int)!isset($_REQUEST['offset']) ? 0 : $_REQUEST['offset'];
 		$limit = (int)!isset($_REQUEST['limit']) ? 40 : $_REQUEST['limit'];
-		$order = !isset($_REQUEST['order']) ? 'active' : $_REQUEST['order'];
+		$order = $_REQUEST['order'] ?? 'active';
 		$local = (bool)!isset($_REQUEST['local']) ? false : ($_REQUEST['local'] == 'true');
 
 		Logger::info('directory', ['offset' => $offset, 'limit' => $limit, 'order' => $order, 'local' => $local]);

@@ -21,15 +21,33 @@
 
 namespace Friendica\Module\OAuth;
 
+use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
- * @see https://docs.joinmastodon.org/spec/oauth/
+ * Acknowledgement of OAuth requests
  */
-class Revoke extends BaseApi
+class Acknowledge extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
-		self::unsupported('post');
+		DI::session()->set('oauth_acknowledge', true);
+		DI::app()->redirect(DI::session()->get('return_path'));
+	}
+
+	public static function content(array $parameters = [])
+	{
+		DI::session()->set('return_path', $_REQUEST['return_path'] ?? '');
+
+		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('oauth_authorize.tpl'), [
+			'$title'     => DI::l10n()->t('Authorize application connection'),
+			'$app'       => ['name' => $_REQUEST['application'] ?? ''],
+			'$authorize' => DI::l10n()->t('Do you want to authorize this application to access your posts and contacts, and/or create new posts for you?'),
+			'$yes'       => DI::l10n()->t('Yes'),
+			'$no'        => DI::l10n()->t('No'),
+		]);
+
+		return $o;
 	}
 }
