@@ -43,11 +43,11 @@ class Acknowledge extends BaseApi
 
 		$tpl = Renderer::getMarkupTemplate('oauth_authorize.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$title' => DI::l10n()->t('Authorize application connection'),
-			'$app' => ['name' => $_REQUEST['application'] ?? ''],
+			'$title'     => DI::l10n()->t('Authorize application connection'),
+			'$app'       => ['name' => $_REQUEST['application'] ?? ''],
 			'$authorize' => DI::l10n()->t('Do you want to authorize this application to access your posts and contacts, and/or create new posts for you?'),
-			'$yes' => DI::l10n()->t('Yes'),
-			'$no' => DI::l10n()->t('No'),
+			'$yes'       => DI::l10n()->t('Yes'),
+			'$no'        => DI::l10n()->t('No'),
 		]);
 
 		return $o;
