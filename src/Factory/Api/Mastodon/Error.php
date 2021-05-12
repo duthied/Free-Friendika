@@ -35,4 +35,31 @@ class Error extends BaseFactory
 
 		System::jsonError(404, $errorobj->toArray());
 	}
+
+	public function UnprocessableEntity(string $error = '')
+	{
+		$error = $error ?: DI::l10n()->t('Unprocessable Entity');
+		$error_description = '';
+		$errorobj = New \Friendica\Object\Api\Mastodon\Error($error, $error_description);
+
+		System::jsonError(422, $errorobj->toArray());
+	}
+
+	public function Unauthorized(string $error = '')
+	{
+		$error = $error ?: DI::l10n()->t('Unauthorized');
+		$error_description = '';
+		$errorobj = New \Friendica\Object\Api\Mastodon\Error($error, $error_description);
+
+		System::jsonError(401, $errorobj->toArray());
+	}
+
+	public function InternalError(string $error = '')
+	{
+		$error = $error ?: DI::l10n()->t('Internal Server Error');
+		$error_description = '';
+		$errorobj = New \Friendica\Object\Api\Mastodon\Error($error, $error_description);
+
+		System::jsonError(500, $errorobj->toArray());
+	}
 }
