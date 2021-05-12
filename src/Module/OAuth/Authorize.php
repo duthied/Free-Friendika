@@ -64,6 +64,8 @@ class Authorize extends BaseApi
 			DI::app()->redirect('oauth/acknowledge?return_path=' . $redirect);
 		}
 
+		DI::session()->remove('oauth_acknowledge');
+
 		$token = self::createTokenForUser($application, $uid);
 		if (!$token) {
 			DI::mstdnError()->RecordNotFound();
