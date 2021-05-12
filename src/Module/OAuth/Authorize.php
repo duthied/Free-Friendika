@@ -52,7 +52,7 @@ class Authorize extends BaseApi
 			Logger::info('Redirect to login');
 			$request = $_REQUEST;
 			unset($request['pagename']);
-			DI::app()->redirect('login?return_path=/oauth/authorize' . urlencode('?' . http_build_query($request)));
+			DI::app()->redirect('login?return_path=' . urlencode('/oauth/authorize?' . http_build_query($request)));
 		} else {
 			Logger::info('Already logged in user', ['uid' => $uid]);
 		}
