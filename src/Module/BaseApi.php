@@ -218,7 +218,17 @@ class BaseApi extends BaseModule
 		return $application;
 	}
 
+	public static function existsTokenForUser(array $application, int $uid)
+	{
+		return DBA::exists('application-token', ['application-id' => $application['id'], 'uid' => $uid]);
+	}
+
 	public static function getTokenForUser(array $application, int $uid)
+	{
+		return DBA::selectFirst('application-token', [], ['application-id' => $application['id'], 'uid' => $uid]);
+	}
+
+	public static function createTokenForUser(array $application, int $uid)
 	{
 		$code         = bin2hex(random_bytes(32));
 		$access_token = bin2hex(random_bytes(32));
@@ -230,6 +240,7 @@ class BaseApi extends BaseModule
 
 		return DBA::selectFirst('application-token', [], ['application-id' => $application['id'], 'uid' => $uid]);
 	}
+
 	/**
 	 * Get user info array.
 	 *

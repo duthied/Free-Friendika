@@ -47,17 +47,24 @@ class Authorize extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
+		$request = $_REQUEST;
+		unset($request['pagename']);
+		$redirect = urlencode('oauth/authorize?' . http_build_query($request));
+
 		$uid = local_user();
 		if (empty($uid)) {
 			Logger::info('Redirect to login');
-			$request = $_REQUEST;
-			unset($request['pagename']);
-			DI::app()->redirect('login?return_path=' . urlencode('/oauth/authorize?' . http_build_query($request)));
+			DI::app()->redirect('login?return_path=' . $redirect);
 		} else {
 			Logger::info('Already logged in user', ['uid' => $uid]);
 		}
 
-		$token = self::getTokenForUser($application, $uid);
+		if (!self::existsTokenForUser($application, $uid) && !DI::session()->get('oauth_acknowledge')) {
+			Logger::info('Redirect to acknowledge');
+			DI::app()->redirect('oauth/acknowledge?return_path=' . $redirect);
+		}
+
+		$token = self::createTokenForUser($application, $uid);
 		if (!$token) {
 			DI::mstdnError()->RecordNotFound();
 		}

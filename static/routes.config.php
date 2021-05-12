@@ -331,9 +331,14 @@ return [
 		'/mark/all' => [Module\Notifications\Notification::class, [R::GET]],
 		'/{id:\d+}' => [Module\Notifications\Notification::class, [R::GET, R::POST]],
 	],
-	'/oauth/authorize'             => [Module\OAuth\Authorize::class, [R::GET]],
-	'/oauth/revoke'                => [Module\OAuth\Revoke::class, [R::POST]],
-	'/oauth/token'                 => [Module\OAuth\Token::class, [R::POST]],
+
+	'/oauth' => [
+		'/acknowledge' => [Module\OAuth\Acknowledge::class, [R::GET, R::POST]],
+		'/authorize'   => [Module\OAuth\Authorize::class,   [R::GET]],
+		'/revoke'      => [Module\OAuth\Revoke::class,      [R::POST]],
+		'/token'       => [Module\OAuth\Token::class,       [R::POST]],
+	],
+
 	'/objects/{guid}[/{activity}]' => [Module\Objects::class, [R::GET]],
 
 	'/oembed'         => [
