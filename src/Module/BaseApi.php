@@ -110,12 +110,18 @@ class BaseApi extends BaseModule
 		}
 	}
 
+	/**
+	 * Quit execution with the message that the endpoint isn't implemented
+	 *
+	 * @param string $method
+	 * @return void
+	 */
 	public static function unsupported(string $method = 'all')
 	{
 		$path = DI::args()->getQueryString();
 		Logger::info('Unimplemented API call', ['method' => $method, 'path' => $path, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'request' => $_REQUEST ?? []]);
 		$error = DI::l10n()->t('API endpoint %s %s is not implemented', strtoupper($method), $path);
-		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');;
+		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');
 		$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 		System::jsonError(501, $errorobj->toArray());
 	}
@@ -143,6 +149,7 @@ class BaseApi extends BaseModule
 		}
 
 		if (empty(self::$current_user_id)) {
+			// The execution stops here if no one is logged in
 			api_login(DI::app());
 		}
 
@@ -163,6 +170,7 @@ class BaseApi extends BaseModule
 		}
 
 		if (empty(self::$current_user_id)) {
+			// Fetch the user id if logged in - but don't fail if not
 			api_login(DI::app(), false);
 
 			self::$current_user_id = api_user();
@@ -171,6 +179,11 @@ class BaseApi extends BaseModule
 		return (int)self::$current_user_id;
 	}
 
+	/**
+	 * Get the user id via the Bearer token
+	 *
+	 * @return int User-ID
+	 */
 	private static function getUserByBearer()
 	{
 		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
@@ -191,6 +204,11 @@ class BaseApi extends BaseModule
 		return $token['uid'];
 	}
 
+	/**
+	 * Get the application record via the proved request header fields
+	 *
+	 * @return array application record
+	 */
 	public static function getApplication()
 	{
 		$redirect_uri  = !isset($_REQUEST['redirect_uri']) ? '' : $_REQUEST['redirect_uri'];
@@ -218,16 +236,37 @@ class BaseApi extends BaseModule
 		return $application;
 	}
 
+	/**
+	 * Check if an token for the application and user exists
+	 *
+	 * @param array $application
+	 * @param integer $uid
+	 * @return boolean
+	 */
 	public static function existsTokenForUser(array $application, int $uid)
 	{
 		return DBA::exists('application-token', ['application-id' => $application['id'], 'uid' => $uid]);
 	}
 
+	/**
+	 * Fetch the token for the given application and user
+	 *
+	 * @param array $application
+	 * @param integer $uid
+	 * @return array application record
+	 */
 	public static function getTokenForUser(array $application, int $uid)
 	{
 		return DBA::selectFirst('application-token', [], ['application-id' => $application['id'], 'uid' => $uid]);
 	}
 
+	/**
+	 * Create and fetch an token for the application and user
+	 *
+	 * @param array $application
+	 * @param integer $uid
+	 * @return array application record
+	 */
 	public static function createTokenForUser(array $application, int $uid)
 	{
 		$code         = bin2hex(random_bytes(32));
