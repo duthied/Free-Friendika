@@ -36,7 +36,7 @@ class Authorize extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		$response_type = !isset($_REQUEST['response_type']) ? '' : $_REQUEST['response_type'];
+		$response_type = $_REQUEST['response_type'] ?? '';
 		if ($response_type != 'code') {
 			Logger::warning('Wrong or missing response type', ['response_type' => $response_type]);
 			DI::mstdnError()->RecordNotFound();

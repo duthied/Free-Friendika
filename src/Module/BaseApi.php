@@ -210,9 +210,9 @@ class BaseApi extends BaseModule
 	 */
 	public static function getApplication()
 	{
-		$redirect_uri  = !isset($_REQUEST['redirect_uri']) ? '' : $_REQUEST['redirect_uri'];
-		$client_id     = !isset($_REQUEST['client_id']) ? '' : $_REQUEST['client_id'];
-		$client_secret = !isset($_REQUEST['client_secret']) ? '' : $_REQUEST['client_secret'];
+		$redirect_uri  = $_REQUEST['redirect_uri'] ?? '';
+		$client_id     = $_REQUEST['client_id'] ?? '';
+		$client_secret = $_REQUEST['client_secret'] ?? '';
 
 		if ((empty($redirect_uri) && empty($client_secret)) || empty($client_id)) {
 			Logger::warning('Incomplete request', ['request' => $_REQUEST]);

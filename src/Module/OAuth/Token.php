@@ -34,9 +34,9 @@ class Token extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
-		$client_secret = !isset($_REQUEST['client_secret']) ? '' : $_REQUEST['client_secret'];
-		$code          = !isset($_REQUEST['code']) ? '' : $_REQUEST['code'];
-		$grant_type    = !isset($_REQUEST['grant_type']) ? '' : $_REQUEST['grant_type'];
+		$client_secret = $_REQUEST['client_secret'] ?? '';
+		$code          = $_REQUEST['code'] ?? '';
+		$grant_type    = $_REQUEST['grant_type'] ?? '';
 
 		if ($grant_type != 'authorization_code') {
 			Logger::warning('Unsupported or missing grant type', ['request' => $_REQUEST]);

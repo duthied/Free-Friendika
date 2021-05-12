@@ -36,7 +36,7 @@ class Login extends BaseModule
 {
 	public static function content(array $parameters = [])
 	{
-		$return_path = !isset($_REQUEST['return_path']) ? '' : $_REQUEST['return_path'];
+		$return_path = $_REQUEST['return_path'] ?? '' ;
 
 		if (local_user()) {
 			DI::baseUrl()->redirect($return_path);
