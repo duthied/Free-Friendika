@@ -26,7 +26,7 @@ use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
- * Dummy class for all currently unimplemented endpoints
+ * @see https://docs.joinmastodon.org/spec/oauth/
  */
 class Authorize extends BaseApi
 {

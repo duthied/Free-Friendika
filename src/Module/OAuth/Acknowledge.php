@@ -21,13 +21,12 @@
 
 namespace Friendica\Module\OAuth;
 
-use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
- * Dummy class for all currently unimplemented endpoints
+ * Acknowledgement of OAuth requests
  */
 class Acknowledge extends BaseApi
 {
