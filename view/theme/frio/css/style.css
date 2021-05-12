@@ -961,7 +961,6 @@ ul li .intro-wrapper button.intro-action-link {
 	font-weight: 400;
 	font-size: 13px;
 	padding: 4px 15px;
-	text-transform: capitalize;
 	width: 100%;
 	text-align: left;
 }
@@ -1943,11 +1942,6 @@ code > .hl-main {
 .wall-item-actions .checkbox {
 	margin: 0;
 	margin-left: 20px;
-}
-.wall-item-actions .button-comments,
-.wall-item-actions .button-votes,
-.wall-item-actions .button-likes {
-	text-transform: capitalize;
 }
 .wall-item-actions button:hover {
 	color: $font_color_darker;
