@@ -39,12 +39,12 @@ class Authorize extends BaseApi
 		$response_type = $_REQUEST['response_type'] ?? '';
 		if ($response_type != 'code') {
 			Logger::warning('Wrong or missing response type', ['response_type' => $response_type]);
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		$application = self::getApplication();
 		if (empty($application)) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		$request = $_REQUEST;
@@ -68,7 +68,7 @@ class Authorize extends BaseApi
 
 		$token = self::createTokenForUser($application, $uid);
 		if (!$token) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		DI::app()->redirect($application['redirect_uri'] . '?code=' . $token['code']);

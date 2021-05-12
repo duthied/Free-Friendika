@@ -42,7 +42,7 @@ class Statuses extends BaseApi
 	public static function rawContent(array $parameters = [])
 	{
 		if (empty($parameters['id'])) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], self::getCurrentUserID()));

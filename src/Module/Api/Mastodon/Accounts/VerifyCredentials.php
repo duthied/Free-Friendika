@@ -43,12 +43,12 @@ class VerifyCredentials extends BaseApi
 
 		$self = User::getOwnerDataById($uid);
 		if (empty($self)) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->InternalError();
 		}
 
 		$cdata = Contact::getPublicAndUserContacID($self['id'], $uid);
 		if (empty($cdata)) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->InternalError();
 		}
 
 		// @todo Support the source property,

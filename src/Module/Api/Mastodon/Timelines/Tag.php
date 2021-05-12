@@ -44,7 +44,7 @@ class Tag extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['hashtag'])) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		// If true, return only local statuses. Defaults to false.
