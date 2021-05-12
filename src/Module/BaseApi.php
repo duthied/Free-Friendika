@@ -187,7 +187,6 @@ class BaseApi extends BaseModule
 	private static function getUserByBearer()
 	{
 		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-		$authorization = $_SERVER['AUTHORIZATION'] ?? $authorization;
 
 		if (substr($authorization, 0, 7) != 'Bearer ') {
 			return 0;
