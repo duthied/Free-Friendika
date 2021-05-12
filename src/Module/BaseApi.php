@@ -193,15 +193,23 @@ class BaseApi extends BaseModule
 
 	public static function getApplication()
 	{
-		$redirect_uri = !isset($_REQUEST['redirect_uri']) ? '' : $_REQUEST['redirect_uri'];
-		$client_id    = !isset($_REQUEST['client_id']) ? '' : $_REQUEST['client_id'];
+		$redirect_uri  = !isset($_REQUEST['redirect_uri']) ? '' : $_REQUEST['redirect_uri'];
+		$client_id     = !isset($_REQUEST['client_id']) ? '' : $_REQUEST['client_id'];
+		$client_secret = !isset($_REQUEST['client_secret']) ? '' : $_REQUEST['client_secret'];
 
-		if (empty($redirect_uri) || empty($client_id)) {
-			Logger::warning('Incomplete request');
+		if ((empty($redirect_uri) && empty($client_secret)) || empty($client_id)) {
+			Logger::warning('Incomplete request', ['request' => $_REQUEST]);
 			return [];
 		}
 
-		$condition = ['redirect_uri' => $redirect_uri, 'client_id' => $client_id];
+		$condition = ['client_id' => $client_id];
+		if (!empty($client_secret)) {
+			$condition['client_secret'] = $client_secret;
+		}
+		if (!empty($redirect_uri)) {
+			$condition['redirect_uri'] = $redirect_uri;
+		}
+
 		$application = DBA::selectFirst('application', [], $condition);
 		if (!DBA::isResult($application)) {
 			Logger::warning('Application not found', $condition);

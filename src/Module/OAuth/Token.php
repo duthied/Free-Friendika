@@ -39,18 +39,18 @@ class Token extends BaseApi
 		$grant_type    = !isset($_REQUEST['grant_type']) ? '' : $_REQUEST['grant_type'];
 
 		if ($grant_type != 'authorization_code') {
-			Logger::warning('Wrong or missing grant type', ['grant_type' => $grant_type]);
-			DI::mstdnError()->RecordNotFound();
+			Logger::warning('Unsupported or missing grant type', ['request' => $_REQUEST]);
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Unsupported or missing grant type'));
 		}
 
 		$application = self::getApplication();
 		if (empty($application)) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		if ($application['client_secret'] != $client_secret) {
 			Logger::warning('Wrong client secret', $client_secret);
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->Unauthorized();
 		}
 
 		$condition = ['application-id' => $application['id'], 'code' => $code];
@@ -58,7 +58,7 @@ class Token extends BaseApi
 		$token = DBA::selectFirst('application-token', ['access_token', 'created_at'], $condition);
 		if (!DBA::isResult($token)) {
 			Logger::warning('Token not found', $condition);
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->Unauthorized();
 		}
 
 		// @todo Use entity class

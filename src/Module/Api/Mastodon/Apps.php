@@ -43,7 +43,7 @@ class Apps extends BaseApi
 		$website  = !isset($_REQUEST['website']) ? '' : $_REQUEST['website'];
 
 		if (empty($name) || empty($redirect)) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Missing parameters'));
 		}
 
 		$client_id     = bin2hex(random_bytes(32));
@@ -60,7 +60,7 @@ class Apps extends BaseApi
 		}
 
 		if (!DBA::insert('application', $fields)) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->InternalError();
 		}
 
 		System::jsonExit(DI::mstdnApplication()->createFromApplicationId(DBA::lastInsertId()));
