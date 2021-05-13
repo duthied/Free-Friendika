@@ -41,6 +41,15 @@ class Token extends BaseApi
 		$client_id     = $_REQUEST['client_id'] ?? '';
 		$client_secret = $_REQUEST['client_secret'] ?? '';
 
+		// AndStatus transmits the client data in the AUTHORIZATION header field, see https://github.com/andstatus/andstatus/issues/530
+		if (empty($client_id) && !empty($_SERVER['HTTP_AUTHORIZATION']) && (substr($_SERVER['HTTP_AUTHORIZATION'], 0, 6) == 'Basic ')) {
+			$datapair = explode(':', base64_decode(trim(substr($_SERVER['HTTP_AUTHORIZATION'], 6))));
+			if (count($datapair) == 2) {
+				$client_id     = $datapair[0];
+				$client_secret = $datapair[1];
+			}
+		}
+
 		if ($grant_type != 'authorization_code') {
 			Logger::warning('Unsupported or missing grant type', ['request' => $_REQUEST]);
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Unsupported or missing grant type'));

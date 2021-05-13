@@ -21,7 +21,6 @@
 
 namespace Friendica\Module;
 
-use Exception;
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
@@ -30,6 +29,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Network;
 
 require_once __DIR__ . '/../../include/api.php';
 
@@ -125,6 +125,45 @@ class BaseApi extends BaseModule
 		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');
 		$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 		System::jsonError(501, $errorobj->toArray());
+	}
+
+	/**
+	 * Get post data that is transmitted as JSON
+	 *
+	 * @return array request data
+	 */
+	public static function getJsonPostData()
+	{
+		$postdata = Network::postdata();
+		if (empty($postdata)) {
+			return [];
+		}
+
+		return json_decode($postdata, true);
+	}
+
+	/**
+	 * Get request data for put requests
+	 *
+	 * @return array request data
+	 */
+	public static function getPutData()
+	{
+		$rawdata = Network::postdata();
+		if (empty($rawdata)) {
+			return [];
+		}
+
+		$putdata = [];
+
+		foreach (explode('&', $rawdata) as $value) {
+			$data = explode('=', $value);
+			if (count($data) == 2) {
+				$putdata[$data[0]] = urldecode($data[1]);
+			}
+		}
+
+		return $putdata;
 	}
 
 	/**

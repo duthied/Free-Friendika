@@ -19,24 +19,16 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Module\Api\Mastodon\Accounts;
 
 use Friendica\Core\System;
-use Friendica\DI;
-use Friendica\Model\Photo;
 use Friendica\Module\BaseApi;
 
 /**
- * @see https://docs.joinmastodon.org/methods/statuses/media/
+ * @see https://docs.joinmastodon.org/methods/accounts/
  */
-class Media extends BaseApi
+class IdentityProofs extends BaseApi
 {
-	public static function put(array $parameters = [])
-	{
-		$data = self::getPutData();
-		self::unsupported('put');
-	}
-
 	/**
 	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -44,17 +36,7 @@ class Media extends BaseApi
 	public static function rawContent(array $parameters = [])
 	{
 		self::login();
-		$uid = self::getCurrentUserID();
 
-		if (empty($parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
-		}
-
-		$id = $parameters['id'];
-		if (!Photo::exists(['id' => $id, 'uid' => $uid])) {
-			DI::mstdnError()->RecordNotFound();
-		}
-
-		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($id));
+		System::jsonExit([]);
 	}
 }

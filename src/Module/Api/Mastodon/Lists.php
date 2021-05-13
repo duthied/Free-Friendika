@@ -22,9 +22,9 @@
 namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\Core\System;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Friendica\Model\Group;
 
 /**
  * @see https://docs.joinmastodon.org/methods/timelines/lists/
@@ -33,17 +33,55 @@ class Lists extends BaseApi
 {
 	public static function delete(array $parameters = [])
 	{
-		self::unsupported('delete');
+		self::login();
+
+		$uid = self::getCurrentUserID();
+
+		if (empty($parameters['id'])) {
+			DI::mstdnError()->UnprocessableEntity();
+		}
+
+		if (!Group::exists($parameters['id'], $uid)) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		if (!Group::remove($parameters['id'])) {
+			DI::mstdnError()->InternalError();
+		}
+
+		System::jsonExit([]);
 	}
 
 	public static function post(array $parameters = [])
 	{
-		self::unsupported('post');
+		self::login();
+
+		$uid   = self::getCurrentUserID();
+		$title = $_REQUEST['title'] ?? '';
+
+		if (empty($title)) {
+			DI::mstdnError()->UnprocessableEntity();
+		}
+
+		Group::create($uid, $title);
+
+		$id = Group::getIdByName($uid, $title);
+		if (!$id) {
+			DI::mstdnError()->InternalError();
+		}
+
+		System::jsonExit(DI::mstdnList()->createFromGroupId($id));
 	}
 
 	public static function put(array $parameters = [])
 	{
-		self::unsupported('put');
+		$data = self::getPutData();
+
+		if (empty($data['title']) || empty($parameters['id'])) {
+			DI::mstdnError()->UnprocessableEntity();
+		}
+
+		Group::update($parameters['id'], $data['title']);
 	}
 
 	/**
@@ -58,14 +96,15 @@ class Lists extends BaseApi
 		if (empty($parameters['id'])) {
 			$lists = [];
 
-			$groups = DBA::select('group', ['id'], ['uid' => $uid, 'deleted' => false]);
-			while ($group = DBA::fetch($groups)) {
+			$groups = Group::getByUserId($uid);
+
+			foreach ($groups as $group) {
 				$lists[] = DI::mstdnList()->createFromGroupId($group['id']);
 			}
-			DBA::close($groups);
 		} else {
 			$id = $parameters['id'];
-			if (!DBA::exists('group',['uid' => $uid, 'deleted' => false])) {
+
+			if (!Group::exists($id, $uid)) {
 				DI::mstdnError()->RecordNotFound();
 			}
 			$lists = DI::mstdnList()->createFromGroupId($id);
