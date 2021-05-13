@@ -30,6 +30,12 @@ use Friendica\Module\BaseApi;
  */
 class Statuses extends BaseApi
 {
+	public static function post(array $parameters = [])
+	{
+		$data = self::getJsonPostData();
+		self::unsupported('post');
+	}
+
 	public static function delete(array $parameters = [])
 	{
 		self::unsupported('delete');

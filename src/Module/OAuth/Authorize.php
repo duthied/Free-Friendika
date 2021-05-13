@@ -85,6 +85,6 @@ class Authorize extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		DI::app()->redirect($application['redirect_uri'] . '?' . http_build_query(['code' => $token['code'], 'state' => $state]));
+		DI::app()->redirect($application['redirect_uri'] . (strpos($application['redirect_uri'], '?') ? '&' : '?') . http_build_query(['code' => $token['code'], 'state' => $state]));
 	}
 }
