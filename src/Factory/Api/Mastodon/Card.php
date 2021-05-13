@@ -37,7 +37,7 @@ class Card extends BaseFactory
 	 */
 	public function createFromUriId(int $uriId)
 	{
-		$item = Post::selectFirst(['nody'], ['uri-id' => $uriId]);
+		$item = Post::selectFirst(['body'], ['uri-id' => $uriId]);
 		if (!empty($item['body'])) {
 			$data = BBCode::getAttachmentData($item['body']);
 		} else {

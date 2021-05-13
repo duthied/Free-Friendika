@@ -9,6 +9,21 @@ Friendica provides the following endpoints defined in [the official Mastodon API
 
 Authentication is the same as described in [Using the APIs](help/api#Authentication).
 
+## Clients
+
+Supported mobile apps:
+
+- Tusky
+- Husky
+- twitlatte
+
+Unsupported mobile apps:
+
+- [Subway Tooter](https://github.com/tateisu/SubwayTooter) Uses the wrong grant_type when requesting a token, possibly a problem in the server type detection of the app. See issue https://github.com/tateisu/SubwayTooter/issues/156
+- [Mammut](https://github.com/jamiesanson/Mammut) States that the instance doesn't exist. Most likely an issue in the vitality check of the app, see issue https://github.com/jamiesanson/Mammut/issues/19
+- [AndStatus](https://github.com/andstatus/andstatus) Doesn't provide all data at token request, see issue https://github.com/andstatus/andstatus/issues/537
+- [Fedilab](https://framagit.org/tom79/fedilab) Automatically uses the legacy API, see issue: https://framagit.org/tom79/fedilab/-/issues/520
+
 ## Entities
 
 These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/entities/).

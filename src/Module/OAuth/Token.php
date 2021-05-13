@@ -29,39 +29,44 @@ use Friendica\Module\BaseApi;
 
 /**
  * @see https://docs.joinmastodon.org/spec/oauth/
+ * @see https://aaronparecki.com/oauth-2-simplified/
  */
 class Token extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
-		$client_secret = $_REQUEST['client_secret'] ?? '';
-		$code          = $_REQUEST['code'] ?? '';
 		$grant_type    = $_REQUEST['grant_type'] ?? '';
+		$code          = $_REQUEST['code'] ?? '';
+		$redirect_uri  = $_REQUEST['redirect_uri'] ?? '';
+		$client_id     = $_REQUEST['client_id'] ?? '';
+		$client_secret = $_REQUEST['client_secret'] ?? '';
 
 		if ($grant_type != 'authorization_code') {
 			Logger::warning('Unsupported or missing grant type', ['request' => $_REQUEST]);
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Unsupported or missing grant type'));
 		}
 
-		$application = self::getApplication();
+		if (empty($client_id) || empty($client_secret) || empty($redirect_uri)) {
+			Logger::warning('Incomplete request data', ['request' => $_REQUEST]);
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Incomplete request data'));
+		}
+
+		$application = self::getApplication($client_id, $client_secret, $redirect_uri);
 		if (empty($application)) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		if ($application['client_secret'] != $client_secret) {
-			Logger::warning('Wrong client secret', $client_secret);
-			DI::mstdnError()->Unauthorized();
-		}
-
-		$condition = ['application-id' => $application['id'], 'code' => $code];
+		// For security reasons only allow freshly created tokens
+		$condition = ["`application-id` = ? AND `code` = ? AND `created_at` > UTC_TIMESTAMP() - INTERVAL ? MINUTE", $application['id'], $code, 5];
 
 		$token = DBA::selectFirst('application-token', ['access_token', 'created_at'], $condition);
 		if (!DBA::isResult($token)) {
-			Logger::warning('Token not found', $condition);
+			Logger::warning('Token not found or outdated', $condition);
 			DI::mstdnError()->Unauthorized();
 		}
 
-		// @todo Use entity class
-		System::jsonExit(['access_token' => $token['access_token'], 'token_type' => 'Bearer', 'scope' => $application['scopes'], 'created_at' => $token['created_at']]);
+		$object = new \Friendica\Object\Api\Mastodon\Token($token['access_token'], 'Bearer', $application['scopes'], $token['created_at']);
+
+		System::jsonExit($object->toArray());
 	}
 }

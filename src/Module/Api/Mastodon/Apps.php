@@ -25,6 +25,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Friendica\Util\Network;
 
 /**
  * Apps class to register new OAuth clients
@@ -37,6 +38,17 @@ class Apps extends BaseApi
 	 */
 	public static function post(array $parameters = [])
 	{
+		// Workaround for AndStatus, see issue https://github.com/andstatus/andstatus/issues/538
+		if (empty($_REQUEST['client_name']) || empty($_REQUEST['redirect_uris'])) {
+			$postdata = Network::postdata();
+			if (!empty($postdata)) {
+				$_REQUEST = json_decode($postdata, true);
+				if (empty($_REQUEST)) {
+					DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Missing parameters'));
+				}
+			}
+		}
+
 		$name     = $_REQUEST['client_name'] ?? '';
 		$redirect = $_REQUEST['redirect_uris'] ?? '';
 		$scopes   = $_REQUEST['scopes'] ?? '';
