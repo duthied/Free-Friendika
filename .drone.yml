@@ -12,3 +12,33 @@ steps:
     image: friendicaci/transifex
     commands:
       - /check-messages.sh
+---
+kind: pipeline
+type: docker
+name: php7.3-lint
+
+steps:
+  - name: Test
+    image: php:7.3
+    commands:
+      - ./bin/composer.phar run lint
+---
+kind: pipeline
+type: docker
+name: php7.4-lint
+
+steps:
+  - name: Test
+    image: php:7.4
+    commands:
+      - ./bin/composer.phar run lint
+---
+kind: pipeline
+type: docker
+name: php8.0-lint
+
+steps:
+  - name: Test
+    image: php:8.0
+    commands:
+      - ./bin/composer.phar run lint
