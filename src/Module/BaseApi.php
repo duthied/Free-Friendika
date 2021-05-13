@@ -21,6 +21,7 @@
 
 namespace Friendica\Module;
 
+use Exception;
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
@@ -206,19 +207,13 @@ class BaseApi extends BaseModule
 	/**
 	 * Get the application record via the proved request header fields
 	 *
+	 * @param string $client_id
+	 * @param string $client_secret
+	 * @param string $redirect_uri
 	 * @return array application record
 	 */
-	public static function getApplication()
+	public static function getApplication(string $client_id, string $client_secret, string $redirect_uri)
 	{
-		$redirect_uri  = $_REQUEST['redirect_uri'] ?? '';
-		$client_id     = $_REQUEST['client_id'] ?? '';
-		$client_secret = $_REQUEST['client_secret'] ?? '';
-
-		if ((empty($redirect_uri) && empty($client_secret)) || empty($client_id)) {
-			Logger::warning('Incomplete request', ['request' => $_REQUEST]);
-			return [];
-		}
-
 		$condition = ['client_id' => $client_id];
 		if (!empty($client_secret)) {
 			$condition['client_secret'] = $client_secret;
@@ -262,16 +257,19 @@ class BaseApi extends BaseModule
 	/**
 	 * Create and fetch an token for the application and user
 	 *
-	 * @param array $application
+	 * @param array   $application
 	 * @param integer $uid
+	 * @param string  $scope
 	 * @return array application record
 	 */
-	public static function createTokenForUser(array $application, int $uid)
+	public static function createTokenForUser(array $application, int $uid, string $scope)
 	{
 		$code         = bin2hex(random_bytes(32));
 		$access_token = bin2hex(random_bytes(32));
 
-		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token, 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
+		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token, 'scopes' => $scope,
+			'read' => (stripos($scope, 'read') !== false), 'write' => (stripos($scope, 'write') !== false),
+			'follow' => (stripos($scope, 'follow') !== false), 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
 		if (!DBA::insert('application-token', $fields, Database::INSERT_UPDATE)) {
 			return [];
 		}

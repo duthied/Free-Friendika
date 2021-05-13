@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.06-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1416
+-- DB_UPDATE_VERSION 1417
 -- ------------------------------------------
 
 
@@ -375,6 +375,9 @@ CREATE TABLE IF NOT EXISTS `application` (
 	`redirect_uri` varchar(255) NOT NULL COMMENT '',
 	`website` varchar(255) COMMENT '',
 	`scopes` varchar(255) COMMENT '',
+	`read` boolean COMMENT 'Read scope',
+	`write` boolean COMMENT 'Write scope',
+	`follow` boolean COMMENT 'Follow scope',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `client_id` (`client_id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth application';
@@ -387,7 +390,11 @@ CREATE TABLE IF NOT EXISTS `application-token` (
 	`uid` mediumint unsigned NOT NULL COMMENT 'Owner User id',
 	`code` varchar(64) NOT NULL COMMENT '',
 	`access_token` varchar(64) NOT NULL COMMENT '',
-	`created_at` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'creation time',
+	`created_at` datetime NOT NULL COMMENT 'creation time',
+	`scopes` varchar(255) COMMENT '',
+	`read` boolean COMMENT 'Read scope',
+	`write` boolean COMMENT 'Write scope',
+	`follow` boolean COMMENT 'Follow scope',
 	 PRIMARY KEY(`application-id`,`uid`),
 	 INDEX `uid_id` (`uid`,`application-id`),
 	FOREIGN KEY (`application-id`) REFERENCES `application` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
@@ -1499,6 +1506,28 @@ CREATE TABLE IF NOT EXISTS `workerqueue` (
 	 INDEX `done_pid_retrial` (`done`,`pid`,`retrial`),
 	 INDEX `done_pid_priority_created` (`done`,`pid`,`priority`,`created`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Background tasks queue entries';
+
+--
+-- VIEW application-view
+--
+DROP VIEW IF EXISTS `application-view`;
+CREATE VIEW `application-view` AS SELECT 
+	`application`.`id` AS `id`,
+	`application-token`.`uid` AS `uid`,
+	`application`.`name` AS `name`,
+	`application`.`redirect_uri` AS `redirect_uri`,
+	`application`.`website` AS `website`,
+	`application`.`client_id` AS `client_id`,
+	`application`.`client_secret` AS `client_secret`,
+	`application-token`.`code` AS `code`,
+	`application-token`.`access_token` AS `access_token`,
+	`application-token`.`created_at` AS `created_at`,
+	`application-token`.`scopes` AS `scopes`,
+	`application-token`.`read` AS `read`,
+	`application-token`.`write` AS `write`,
+	`application-token`.`follow` AS `follow`
+	FROM `application-token`
+			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`;
 
 --
 -- VIEW post-user-view

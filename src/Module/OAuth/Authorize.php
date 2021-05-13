@@ -27,6 +27,7 @@ use Friendica\Module\BaseApi;
 
 /**
  * @see https://docs.joinmastodon.org/spec/oauth/
+ * @see https://aaronparecki.com/oauth-2-simplified/
  */
 class Authorize extends BaseApi
 {
@@ -37,15 +38,28 @@ class Authorize extends BaseApi
 	public static function rawContent(array $parameters = [])
 	{
 		$response_type = $_REQUEST['response_type'] ?? '';
+		$client_id     = $_REQUEST['client_id'] ?? '';
+		$client_secret = $_REQUEST['client_secret'] ?? ''; // Isn't normally provided. We will use it if present.
+		$redirect_uri  = $_REQUEST['redirect_uri'] ?? '';
+		$scope         = $_REQUEST['scope'] ?? 'read';
+		$state         = $_REQUEST['state'] ?? '';
+
 		if ($response_type != 'code') {
-			Logger::warning('Wrong or missing response type', ['response_type' => $response_type]);
-			DI::mstdnError()->UnprocessableEntity();
+			Logger::warning('Unsupported or missing response type', ['request' => $_REQUEST]);
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Unsupported or missing response type'));
 		}
 
-		$application = self::getApplication();
+		if (empty($client_id) || empty($redirect_uri)) {
+			Logger::warning('Incomplete request data', ['request' => $_REQUEST]);
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Incomplete request data'));
+		}
+
+		$application = self::getApplication($client_id, $client_secret, $redirect_uri);
 		if (empty($application)) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
+
+		// @todo Compare the application scope and requested scope
 
 		$request = $_REQUEST;
 		unset($request['pagename']);
@@ -66,11 +80,11 @@ class Authorize extends BaseApi
 
 		DI::session()->remove('oauth_acknowledge');
 
-		$token = self::createTokenForUser($application, $uid);
+		$token = self::createTokenForUser($application, $uid, $scope);
 		if (!$token) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		DI::app()->redirect($application['redirect_uri'] . '?code=' . $token['code']);
+		DI::app()->redirect($application['redirect_uri'] . '?' . http_build_query(['code' => $token['code'], 'state' => $state]));
 	}
 }

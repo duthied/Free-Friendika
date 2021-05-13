@@ -2914,11 +2914,11 @@ class Item
 				$data['description'] = '';
 			}
 
-			if (!empty($data['author_name']) && !empty($data['provider_name'])) {
+			if (($data['author_name'] ?? '') == ($data['provider_name'] ?? '')) {
 				$data['author_name'] = '';
 			}
 
-			if (!empty($data['author_url']) && !empty($data['provider_url'])) {
+			if (($data['author_url'] ?? '') == ($data['provider_url'] ?? '')) {
 				$data['author_url'] = '';
 			}
 		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $body, $match)) {

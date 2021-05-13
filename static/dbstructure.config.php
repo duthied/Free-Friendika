@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1416);
+	define('DB_UPDATE_VERSION', 1417);
 }
 
 return [
@@ -436,6 +436,9 @@ return [
 			"redirect_uri" => ["type" => "varchar(255)", "not null" => "1", "comment" => ""],
 			"website" => ["type" => "varchar(255)", "comment" => ""],
 			"scopes" => ["type" => "varchar(255)", "comment" => ""],
+			"read" => ["type" => "boolean", "comment" => "Read scope"],
+			"write" => ["type" => "boolean", "comment" => "Write scope"],
+			"follow" => ["type" => "boolean", "comment" => "Follow scope"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -449,7 +452,11 @@ return [
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
 			"code" => ["type" => "varchar(64)", "not null" => "1", "comment" => ""],
 			"access_token" => ["type" => "varchar(64)", "not null" => "1", "comment" => ""],
-			"created_at" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "creation time"],
+			"created_at" => ["type" => "datetime", "not null" => "1", "comment" => "creation time"],
+			"scopes" => ["type" => "varchar(255)", "comment" => ""],
+			"read" => ["type" => "boolean", "comment" => "Read scope"],
+			"write" => ["type" => "boolean", "comment" => "Write scope"],
+			"follow" => ["type" => "boolean", "comment" => "Follow scope"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["application-id", "uid"],
