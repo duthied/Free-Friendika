@@ -61,3 +61,156 @@ steps:
     commands:
       - export CHANGED_FILES="$(git diff --name-status ${DRONE_COMMIT_BEFORE}..${DRONE_COMMIT_AFTER} | grep ^A | cut -f2)"
       - /check-php-cs.sh
+---
+kind: pipeline
+type: docker
+name: php7.3-mariadb
+
+steps:
+  - name: Test Friendica
+    image: friendicaci/php7.3:php7.3.28
+    environment:
+      MYSQL_HOST: "mariadb"
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_USER: "test"
+      REDIS_HOST: "redis"
+      MEMCACHED_HOST: "memcached"
+      MEMCACHE_HOST: "memcached"
+    commands:
+      - composer validate
+      - composer install --prefer-dist
+      - cp config/local-sample.config.php config/local.config.php
+      - while ! mysqladmin ping -h$MYSQL_HOST -P$MYSQL_PORT --silent; do sleep 1; done
+      - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
+      - phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
+  - name: Codecov
+    image: plugins/codecov
+    when:
+      repo:
+        - friendica/friendica
+    settings:
+      token:
+        from_secret: codecov-token
+      files:
+        - clover.xml
+
+services:
+  - name: mariadb
+    image: mariadb:latest
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      MYSQL_DATABASE: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_USER: "test"
+    tmpfs:
+      - /var/lib/mysql
+
+  - name: memcached
+    image: memcached
+
+  - name: redis
+    image: redis
+---
+kind: pipeline
+type: docker
+name: php7.4-mariadb
+
+steps:
+  - name: Test Friendica
+    image: friendicaci/php7.4:php7.4.18
+    environment:
+      MYSQL_HOST: "mariadb"
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_USER: "test"
+      REDIS_HOST: "redis"
+      MEMCACHED_HOST: "memcached"
+      MEMCACHE_HOST: "memcached"
+    commands:
+      - composer validate
+      - composer install --prefer-dist
+      - cp config/local-sample.config.php config/local.config.php
+      - while ! mysqladmin ping -h$MYSQL_HOST -P$MYSQL_PORT --silent; do sleep 1; done
+      - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
+      - phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
+  - name: Codecov
+    image: plugins/codecov
+    when:
+      repo:
+        - friendica/friendica
+    settings:
+      token:
+        from_secret: codecov-token
+      files:
+        - clover.xml
+
+services:
+  - name: mariadb
+    image: mariadb:latest
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      MYSQL_DATABASE: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_USER: "test"
+    tmpfs:
+      - /var/lib/mysql
+
+  - name: memcached
+    image: memcached
+
+  - name: redis
+    image: redis
+---
+kind: pipeline
+type: docker
+name: php8.0-mariadb
+
+steps:
+  - name: Test Friendica
+    image: friendicaci/php8.0:php8.0.5
+    environment:
+      MYSQL_HOST: "mariadb"
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_USER: "test"
+      REDIS_HOST: "redis"
+      MEMCACHED_HOST: "memcached"
+      MEMCACHE_HOST: "memcached"
+    commands:
+      - composer validate
+      - composer install --prefer-dist
+      - cp config/local-sample.config.php config/local.config.php
+      - while ! mysqladmin ping -h$MYSQL_HOST -P$MYSQL_PORT --silent; do sleep 1; done
+      - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
+      - phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
+  - name: Codecov
+    image: plugins/codecov
+    when:
+      repo:
+        - friendica/friendica
+    settings:
+      token:
+        from_secret: codecov-token
+      files:
+        - clover.xml
+
+services:
+  - name: mariadb
+    image: mariadb:latest
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      MYSQL_DATABASE: "test"
+      MYSQL_PASSWORD: "test"
+      MYSQL_USER: "test"
+    tmpfs:
+      - /var/lib/mysql
+
+  - name: memcached
+    image: memcached
+
+  - name: redis
+    image: redis
