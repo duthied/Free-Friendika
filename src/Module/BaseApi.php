@@ -267,9 +267,9 @@ class BaseApi extends BaseModule
 		$code         = bin2hex(random_bytes(32));
 		$access_token = bin2hex(random_bytes(32));
 
-		// @todo store the scope
-
-		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token, 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
+		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token, 'scopes' => $scope,
+			'read' => (stripos($scope, 'read') !== false), 'write' => (stripos($scope, 'write') !== false),
+			'follow' => (stripos($scope, 'follow') !== false), 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
 		if (!DBA::insert('application-token', $fields, Database::INSERT_UPDATE)) {
 			return [];
 		}

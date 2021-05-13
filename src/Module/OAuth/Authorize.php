@@ -41,7 +41,7 @@ class Authorize extends BaseApi
 		$client_id     = $_REQUEST['client_id'] ?? '';
 		$client_secret = $_REQUEST['client_secret'] ?? ''; // Isn't normally provided. We will use it if present.
 		$redirect_uri  = $_REQUEST['redirect_uri'] ?? '';
-		$scope         = $_REQUEST['scope'] ?? '';
+		$scope         = $_REQUEST['scope'] ?? 'read';
 		$state         = $_REQUEST['state'] ?? '';
 
 		if ($response_type != 'code') {

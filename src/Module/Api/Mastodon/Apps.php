@@ -51,7 +51,7 @@ class Apps extends BaseApi
 
 		$name     = $_REQUEST['client_name'] ?? '';
 		$redirect = $_REQUEST['redirect_uris'] ?? '';
-		$scopes   = $_REQUEST['scopes'] ?? '';
+		$scopes   = $_REQUEST['scopes'] ?? 'read';
 		$website  = $_REQUEST['website'] ?? '';
 
 		if (empty($name) || empty($redirect)) {
@@ -66,6 +66,10 @@ class Apps extends BaseApi
 		if (!empty($scopes)) {
 			$fields['scopes'] = $scopes;
 		}
+
+		$fields['read']   = (stripos($scopes, 'read') !== false);
+		$fields['write']  = (stripos($scopes, 'write') !== false);
+		$fields['follow'] = (stripos($scopes, 'follow') !== false);
 
 		if (!empty($website)) {
 			$fields['website'] = $website;
