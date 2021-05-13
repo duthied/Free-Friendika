@@ -1526,7 +1526,8 @@ CREATE VIEW `application-view` AS SELECT
 	`application-token`.`read` AS `read`,
 	`application-token`.`write` AS `write`,
 	`application-token`.`follow` AS `follow`
-	FROM `application-token` INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`;
+	FROM `application-token`
+			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`;
 
 --
 -- VIEW post-user-view

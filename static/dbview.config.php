@@ -54,7 +54,8 @@
 			"write" => ["application-token", "write"],
 			"follow" => ["application-token", "follow"],
 		],
-		"query" => "FROM `application-token` INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`"
+		"query" => "FROM `application-token`
+			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`"
 	],
 	"post-user-view" => [
 		"fields" => [
