@@ -43,10 +43,10 @@ class Token extends BaseDataTransferObject
 	/**
 	 * Creates a token record
 	 *
-	 * @param string $access_token 
-	 * @param string $token_type 
-	 * @param string $scope 
-	 * @param string $created_at 
+	 * @param string $access_token
+	 * @param string $token_type
+	 * @param string $scope
+	 * @param string $created_at
 	 */
 	public function __construct(string $access_token, string $token_type, string $scope, string $created_at)
 	{

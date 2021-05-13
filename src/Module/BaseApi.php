@@ -207,9 +207,9 @@ class BaseApi extends BaseModule
 	/**
 	 * Get the application record via the proved request header fields
 	 *
-	 * @param string $client_id 
-	 * @param string $client_secret 
-	 * @param string $redirect_uri 
+	 * @param string $client_id
+	 * @param string $client_secret
+	 * @param string $redirect_uri
 	 * @return array application record
 	 */
 	public static function getApplication(string $client_id, string $client_secret, string $redirect_uri)
