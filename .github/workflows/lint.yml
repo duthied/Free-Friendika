@@ -2,23 +2,6 @@ name: Lint
 on: pull_request
 
 jobs:
-  php-linters:
-    name: php${{ matrix.php-versions }} lint
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php-versions: ['7.3', '7.4', '8.0']
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set up php${{ matrix.php-versions }}
-        uses: shivammathur/setup-php@master
-        with:
-          php-version: ${{ matrix.php-versions }}
-          coverage: none
-      - name: Lint
-        run: bin/composer.phar run lint
-
   php-cs-fixer:
     name: php-cs check
     runs-on: ubuntu-latest
