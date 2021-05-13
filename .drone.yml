@@ -47,22 +47,17 @@ kind: pipeline
 type: docker
 name: php-cs check
 
+trigger:
+  event:
+    - pull_request
+
 steps:
   - name: Install dependencies
     image: composer
     commands:
       - ./bin/composer.phar run cs:install
-    when:
-      event:
-        include:
-          - pull_request
-
   - name: Run coding standards check
     image: friendicaci/php-cs
     commands:
       - export CHANGED_FILES="$(git diff --name-status ${DRONE_COMMIT_BEFORE}..${DRONE_COMMIT_AFTER} | grep ^A | cut -f2)"
       - /check-php-cs.sh
-    when:
-      event:
-        include:
-          - pull_request
