@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.06-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-11 16:03-0400\n"
+"POT-Creation-Date: 2021-05-13 14:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -858,7 +858,7 @@ msgstr ""
 msgid "Permission denied."
 msgstr ""
 
-#: mod/api.php:102 mod/api.php:124
+#: mod/api.php:102 mod/api.php:124 src/Module/OAuth/Acknowledge.php:44
 msgid "Authorize application connection"
 msgstr ""
 
@@ -870,19 +870,20 @@ msgstr ""
 msgid "Please login to continue."
 msgstr ""
 
-#: mod/api.php:126
+#: mod/api.php:126 src/Module/OAuth/Acknowledge.php:46
 msgid ""
 "Do you want to authorize this application to access your posts and contacts, "
 "and/or create new posts for you?"
 msgstr ""
 
 #: mod/api.php:127 src/Module/Contact.php:464
-#: src/Module/Notifications/Introductions.php:123 src/Module/Register.php:115
+#: src/Module/Notifications/Introductions.php:123
+#: src/Module/OAuth/Acknowledge.php:47 src/Module/Register.php:115
 msgid "Yes"
 msgstr ""
 
 #: mod/api.php:128 src/Module/Notifications/Introductions.php:123
-#: src/Module/Register.php:116
+#: src/Module/OAuth/Acknowledge.php:48 src/Module/Register.php:116
 msgid "No"
 msgstr ""
 
@@ -4579,6 +4580,20 @@ msgstr ""
 msgid "Record not found"
 msgstr ""
 
+#: src/Factory/Api/Mastodon/Error.php:41
+msgid "Unprocessable Entity"
+msgstr ""
+
+#: src/Factory/Api/Mastodon/Error.php:50
+#: src/Module/Special/HTTPException.php:50
+msgid "Unauthorized"
+msgstr ""
+
+#: src/Factory/Api/Mastodon/Error.php:59
+#: src/Module/Special/HTTPException.php:53
+msgid "Internal Server Error"
+msgstr ""
+
 #: src/Factory/Notification/Introduction.php:135
 msgid "Friend Suggestion"
 msgstr ""
@@ -7219,6 +7234,10 @@ msgstr ""
 msgid "Deny"
 msgstr ""
 
+#: src/Module/Api/Mastodon/Apps.php:46
+msgid "Missing parameters"
+msgstr ""
+
 #: src/Module/Api/Twitter/ContactEndpoint.php:65 src/Module/Contact.php:400
 msgid "Contact not found"
 msgstr ""
@@ -7321,12 +7340,12 @@ msgstr ""
 msgid "User registrations waiting for confirmation"
 msgstr ""
 
-#: src/Module/BaseApi.php:117
+#: src/Module/BaseApi.php:123
 #, php-format
 msgid "API endpoint %s %s is not implemented"
 msgstr ""
 
-#: src/Module/BaseApi.php:118
+#: src/Module/BaseApi.php:124
 msgid ""
 "The API endpoint is currently not implemented but might be in the future."
 msgstr ""
@@ -8865,6 +8884,10 @@ msgstr ""
 msgid "Show all"
 msgstr ""
 
+#: src/Module/OAuth/Token.php:43
+msgid "Unsupported or missing grant type"
+msgstr ""
+
 #: src/Module/PermissionTooltip.php:25
 #, php-format
 msgid "Wrong type \"%s\", expected one of: %s"
@@ -9985,20 +10008,12 @@ msgstr ""
 msgid "Bad Request"
 msgstr ""
 
-#: src/Module/Special/HTTPException.php:50
-msgid "Unauthorized"
-msgstr ""
-
 #: src/Module/Special/HTTPException.php:51
 msgid "Forbidden"
 msgstr ""
 
 #: src/Module/Special/HTTPException.php:52
 msgid "Not Found"
-msgstr ""
-
-#: src/Module/Special/HTTPException.php:53
-msgid "Internal Server Error"
 msgstr ""
 
 #: src/Module/Special/HTTPException.php:54
