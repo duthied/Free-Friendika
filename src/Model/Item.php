@@ -2918,7 +2918,7 @@ class Item
 				$data['author_name'] = '';
 			}
 
-			if (($data['author_url'] ?? '') && ($data['provider_url'] ?? '')) {
+			if (($data['author_url'] ?? '') == ($data['provider_url'] ?? '')) {
 				$data['author_url'] = '';
 			}
 		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $body, $match)) {
