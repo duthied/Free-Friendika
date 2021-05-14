@@ -23,9 +23,12 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
+use Friendica\DI;
+use Friendica\Model\Photo;
 use Friendica\Network\HTTPException;
 use Friendica\Model\Post;
 use Friendica\Repository\ProfileField;
+use Friendica\Util\Images;
 use Friendica\Util\Proxy;
 use Psr\Log\LoggerInterface;
 
@@ -56,7 +59,7 @@ class Attachment extends BaseFactory
 	public function createFromUriId(int $uriId)
 	{
 		$attachments = [];
-		foreach (Post\Media::getByURIId($uriId) as $attachment) {
+		foreach (Post\Media::getByURIId($uriId, [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE]) as $attachment) {
 
 			$filetype = !empty($attachment['mimetype']) ? strtolower(substr($attachment['mimetype'], 0, strpos($attachment['mimetype'], '/'))) : '';
 
@@ -92,5 +95,37 @@ class Attachment extends BaseFactory
 		}
 
 		return $attachments;
+	}
+
+	/**
+	 * @param int $id id of the photo
+	 * @return array
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public function createFromPhoto(int $id)
+	{
+		$photo = Photo::selectFirst(['resource-id', 'uid', 'id', 'title', 'type'], ['id' => $id]);
+		if (empty($photo)) {
+			return null;
+		}
+
+		$attachment = ['id' => $photo['id'], 'description' => $photo['title']];
+
+		$phototypes = Images::supportedTypes();
+		$ext = $phototypes[$photo['type']];
+
+		$url = DI::baseUrl() . '/photo/' . $photo['resource-id'] . '-0.' . $ext;
+
+		$preview = Photo::selectFirst(['scale'], ["`resource-id` = ? AND `uid` = ? AND `scale` > ?", $photo['resource-id'], $photo['uid'], 0], ['order' => ['scale']]);
+		if (empty($scale)) {
+			$preview_url = DI::baseUrl() . '/photo/' . $photo['resource-id'] . '-' . $preview['scale'] . '.' . $ext;
+		} else {
+			$preview_url = '';
+		}
+
+
+		$object = new \Friendica\Object\Api\Mastodon\Attachment($attachment, 'image', $url, $preview_url, '');
+		return $object->toArray();
 	}
 }

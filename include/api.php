@@ -175,6 +175,7 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  * Simple Auth allow username in form of <pre>user@server</pre>, ignoring server part
  *
  * @param App $a App
+ * @param bool $do_login try to log in when not logged in, otherwise quit silently
  * @throws ForbiddenException
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
@@ -185,8 +186,10 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  *               'authenticated' => return status,
  *               'user_record' => return authenticated user record
  */
-function api_login(App $a)
+function api_login(App $a, bool $do_login = true)
 {
+	$_SESSION["allow_api"] = false;
+
 	// workaround for HTTP-auth in CGI mode
 	if (!empty($_SERVER['REDIRECT_REMOTE_USER'])) {
 		$userpass = base64_decode(substr($_SERVER["REDIRECT_REMOTE_USER"], 6));
@@ -214,6 +217,10 @@ function api_login(App $a)
 			die();
 		} catch (Exception $e) {
 			Logger::warning(API_LOG_PREFIX . 'OAuth error', ['module' => 'api', 'action' => 'login', 'exception' => $e->getMessage()]);
+		}
+
+		if (!$do_login) {
+			return;
 		}
 
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
@@ -247,7 +254,7 @@ function api_login(App $a)
 	*/
 	Hook::callAll('authenticate', $addon_auth);
 
-	if ($addon_auth['authenticated'] && count($addon_auth['user_record'])) {
+	if ($addon_auth['authenticated'] && !empty($addon_auth['user_record'])) {
 		$record = $addon_auth['user_record'];
 	} else {
 		$user_id = User::authenticate(trim($user), trim($password), true);
@@ -257,6 +264,9 @@ function api_login(App $a)
 	}
 
 	if (!DBA::isResult($record)) {
+		if (!$do_login) {
+			return;
+		}
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
@@ -1021,7 +1031,7 @@ function api_statuses_mediap($type)
 
 	$_REQUEST['profile_uid'] = api_user();
 	$_REQUEST['api_source'] = true;
-	$txt = requestdata('status');
+	$txt = requestdata('status') ?? '';
 	/// @TODO old-lost code?
 	//$txt = urldecode(requestdata('status'));
 
@@ -1076,7 +1086,7 @@ function api_statuses_update($type)
 
 	// convert $_POST array items to the form we use for web posts.
 	if (requestdata('htmlstatus')) {
-		$txt = requestdata('htmlstatus');
+		$txt = requestdata('htmlstatus') ?? '';
 		if ((strpos($txt, '<') !== false) || (strpos($txt, '>') !== false)) {
 			$txt = HTML::toBBCodeVideo($txt);
 
@@ -1157,30 +1167,56 @@ function api_statuses_update($type)
 		}
 	}
 
-	if (!empty($_FILES['media'])) {
+	if (requestdata('media_ids')) {
+		$ids = explode(',', requestdata('media_ids') ?? '');
+	} elseif (!empty($_FILES['media'])) {
 		// upload the image if we have one
 		$picture = wall_upload_post($a, false);
 		if (is_array($picture)) {
-			$_REQUEST['body'] .= "\n\n" . '[url=' . $picture["albumpage"] . '][img]' . $picture["preview"] . "[/img][/url]";
+			$ids[] = $picture['id'];
 		}
 	}
 
-	if (requestdata('media_ids')) {
-		$ids = explode(',', requestdata('media_ids'));
+	$attachments = [];
+	$ressources = [];
+
+	if (!empty($ids)) {
 		foreach ($ids as $id) {
-			$r = q(
-				"SELECT `resource-id`, `scale`, `nickname`, `type`, `desc` FROM `photo` INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = %d) AND `scale` > 0 AND `photo`.`uid` = %d ORDER BY `photo`.`width` DESC LIMIT 1",
-				intval($id),
-				api_user()
-			);
-			if (DBA::isResult($r)) {
+			$media = DBA::toArray(DBA::p("SELECT `resource-id`, `scale`, `nickname`, `type`, `desc`, `filename`, `datasize`, `width`, `height` FROM `photo`
+					INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN
+						(SELECT `resource-id` FROM `photo` WHERE `id` = ?) AND `photo`.`uid` = ?
+					ORDER BY `photo`.`width` DESC LIMIT 2", $id, api_user()));
+				
+			if (!empty($media)) {
+				$ressources[] = $media[0]['resource-id'];
 				$phototypes = Images::supportedTypes();
-				$ext = $phototypes[$r[0]['type']];
-				$description = $r[0]['desc'] ?? '';
-				$_REQUEST['body'] .= "\n\n" . '[url=' . DI::baseUrl() . '/photos/' . $r[0]['nickname'] . '/image/' . $r[0]['resource-id'] . ']';
-				$_REQUEST['body'] .= '[img=' . DI::baseUrl() . '/photo/' . $r[0]['resource-id'] . '-' . $r[0]['scale'] . '.' . $ext . ']' . $description . '[/img][/url]';
+				$ext = $phototypes[$media[0]['type']];
+			
+				$attachment = ['type' => Post\Media::IMAGE, 'mimetype' => $media[0]['type'],
+					'url' => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
+					'size' => $media[0]['datasize'],
+					'name' => $media[0]['filename'] ?: $media[0]['resource-id'],
+					'description' => $media[0]['desc'] ?? '',
+					'width' => $media[0]['width'],
+					'height' => $media[0]['height']];
+			
+				if (count($media) > 1) {
+					$attachment['preview'] = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
+					$attachment['preview-width'] = $media[1]['width'];
+					$attachment['preview-height'] = $media[1]['height'];
+				}
+				$attachments[] = $attachment;
 			}
 		}
+
+		// We have to avoid that the post is rejected because of an empty body
+		if (empty($_REQUEST['body'])) {
+			$_REQUEST['body'] = '[hr]'; 
+		}
+	}
+
+	if (!empty($attachments)) {
+		$_REQUEST['attachments'] = $attachments;
 	}
 
 	// set this so that the item_post() function is quiet and doesn't redirect or emit json
@@ -1193,6 +1229,13 @@ function api_statuses_update($type)
 
 	// call out normal post function
 	$item_id = item_post($a);
+
+	if (!empty($ressources) && !empty($item_id)) {
+		$item = Post::selectFirst(['uri-id', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'], ['id' => $item_id]);
+		foreach ($ressources as $ressource) {
+			Photo::setPermissionForRessource($ressource, api_user(), $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
+		}
+	}
 
 	// output the post that we just posted.
 	return api_status_show($type, $item_id);
@@ -2534,7 +2577,7 @@ function api_convert_item($item)
 		$statustext = mb_substr($statustext, 0, 1000) . "... \n" . ($item['plink'] ?? '');
 	}
 
-	$statushtml = BBCode::convert(BBCode::removeAttachment($body), false);
+	$statushtml = BBCode::convert(BBCode::removeAttachment($body), false, BBCode::API, true);
 
 	// Workaround for clients with limited HTML parser functionality
 	$search = ["<br>", "<blockquote>", "</blockquote>",
@@ -2585,25 +2628,7 @@ function api_convert_item($item)
  */
 function api_add_attachments_to_body(array $item)
 {
-	$body = $item['body'];
-
-	foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::IMAGE, Post\Media::AUDIO, Post\Media::VIDEO]) as $media) {
-		if (Item::containsLink($item['body'], $media['url'])) {
-			continue;
-		}
-
-		if ($media['type'] == Post\Media::IMAGE) {
-			if (!empty($media['description'])) {
-				$body .= "\n[img=" . $media['url'] . ']' . $media['description'] .'[/img]';
-			} else {
-				$body .= "\n[img]" . $media['url'] .'[/img]';
-			}
-		} elseif ($media['type'] == Post\Media::AUDIO) {
-			$body .= "\n[audio]" . $media['url'] . "[/audio]\n";
-		} elseif ($media['type'] == Post\Media::VIDEO) {
-			$body .= "\n[video]" . $media['url'] . "[/video]\n";
-		}
-	}
+	$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 
 	if (strpos($body, '[/img]') !== false) {
 		return $body;

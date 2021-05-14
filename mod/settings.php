@@ -500,77 +500,26 @@ function settings_content(App $a)
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'oauth')) {
-		if (($a->argc > 2) && ($a->argv[2] === 'add')) {
-			$tpl = Renderer::getMarkupTemplate('settings/oauth_edit.tpl');
-			$o .= Renderer::replaceMacros($tpl, [
-				'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
-				'$title'	=> DI::l10n()->t('Add application'),
-				'$submit'	=> DI::l10n()->t('Save Settings'),
-				'$cancel'	=> DI::l10n()->t('Cancel'),
-				'$name'		=> ['name', DI::l10n()->t('Name'), '', ''],
-				'$key'		=> ['key', DI::l10n()->t('Consumer Key'), '', ''],
-				'$secret'	=> ['secret', DI::l10n()->t('Consumer Secret'), '', ''],
-				'$redirect'	=> ['redirect', DI::l10n()->t('Redirect'), '', ''],
-				'$icon'		=> ['icon', DI::l10n()->t('Icon url'), '', ''],
-			]);
-			return $o;
-		}
-
-		if (($a->argc > 3) && ($a->argv[2] === 'edit')) {
-			$r = q("SELECT * FROM clients WHERE client_id='%s' AND uid=%d",
-					DBA::escape($a->argv[3]),
-					local_user());
-
-			if (!DBA::isResult($r)) {
-				notice(DI::l10n()->t("You can't edit this application."));
-				return;
-			}
-			$app = $r[0];
-
-			$tpl = Renderer::getMarkupTemplate('settings/oauth_edit.tpl');
-			$o .= Renderer::replaceMacros($tpl, [
-				'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
-				'$title'	=> DI::l10n()->t('Add application'),
-				'$submit'	=> DI::l10n()->t('Update'),
-				'$cancel'	=> DI::l10n()->t('Cancel'),
-				'$name'		=> ['name', DI::l10n()->t('Name'), $app['name'] , ''],
-				'$key'		=> ['key', DI::l10n()->t('Consumer Key'), $app['client_id'], ''],
-				'$secret'	=> ['secret', DI::l10n()->t('Consumer Secret'), $app['pw'], ''],
-				'$redirect'	=> ['redirect', DI::l10n()->t('Redirect'), $app['redirect_uri'], ''],
-				'$icon'		=> ['icon', DI::l10n()->t('Icon url'), $app['icon'], ''],
-			]);
-			return $o;
-		}
-
 		if (($a->argc > 3) && ($a->argv[2] === 'delete')) {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth', 't');
 
-			DBA::delete('clients', ['client_id' => $a->argv[3], 'uid' => local_user()]);
+			DBA::delete('application-token', ['application-id' => $a->argv[3], 'uid' => local_user()]);
 			DI::baseUrl()->redirect('settings/oauth/', true);
 			return;
 		}
 
-		/// @TODO validate result with DBA::isResult()
-		$r = q("SELECT clients.*, tokens.id as oauth_token, (clients.uid=%d) AS my
-				FROM clients
-				LEFT JOIN tokens ON clients.client_id=tokens.client_id
-				WHERE clients.uid IN (%d, 0)",
-				local_user(),
-				local_user());
-
+		$applications = DBA::selectToArray('application-view', ['id', 'uid', 'name', 'website', 'scopes', 'created_at'], ['uid' => local_user()]);
 
 		$tpl = Renderer::getMarkupTemplate('settings/oauth.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
-			'$baseurl'	=> DI::baseUrl()->get(true),
-			'$title'	=> DI::l10n()->t('Connected Apps'),
-			'$add'		=> DI::l10n()->t('Add application'),
-			'$edit'		=> DI::l10n()->t('Edit'),
-			'$delete'		=> DI::l10n()->t('Delete'),
-			'$consumerkey' => DI::l10n()->t('Client key starts with'),
-			'$noname'	=> DI::l10n()->t('No name'),
-			'$remove'	=> DI::l10n()->t('Remove authorization'),
-			'$apps'		=> $r,
+			'$baseurl'             => DI::baseUrl()->get(true),
+			'$title'               => DI::l10n()->t('Connected Apps'),
+			'$name'                => DI::l10n()->t('Name'),
+			'$website'             => DI::l10n()->t('Home Page'),
+			'$created_at'          => DI::l10n()->t('Created'),
+			'$delete'              => DI::l10n()->t('Remove authorization'),
+			'$apps'                => $applications,
 		]);
 		return $o;
 	}

@@ -1,7 +1,7 @@
 
 <div class="vcard h-card">
 
-	<div class="fn p-name">{{$profile.name}}</div>
+	<div class="fn p-name" dir="auto">{{$profile.name}}</div>
 	
 	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
 	
@@ -12,7 +12,7 @@
 	{{if $profile.network_link}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_link nofilter}}</dd></dl>{{/if}}
 
 	{{if $location}}
-		<dl class="location">
+		<dl class="location" dir="auto">
 			<dt class="location-label">{{$location}}</dt>
 			<dd class="adr h-adr">
 				{{if $profile.address}}<p class="street-address p-street-address">{{$profile.address nofilter}}</p>{{/if}}
@@ -21,7 +21,7 @@
 		</dl>
 	{{/if}}
 
-	{{if $profile.about}}<div class="title">{{$profile.about nofilter}}</div>{{/if}}
+	{{if $profile.about}}<div class="title" dir="auto">{{$profile.about nofilter}}</div>{{/if}}
 
 	{{if $profile.upubkey}}<div class="key" style="display:none;">{{$profile.upubkey}}</div>{{/if}}
 

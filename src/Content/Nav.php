@@ -144,9 +144,9 @@ class Nav
 	 *    array 'userinfo' => Array of user information (name, icon)
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function getInfo(App $a)
+	private static function getInfo(App $a): array
 	{
-		$ssl_state = ((local_user()) ? true : false);
+		$ssl_state = (bool) local_user();
 
 		/*
 		 * Our network is distributed, and as you visit friends some of the
@@ -158,13 +158,27 @@ class Nav
 
 		$sitelocation = $myident . substr(DI::baseUrl()->get($ssl_state), strpos(DI::baseUrl()->get($ssl_state), '//') + 2);
 
-		// nav links: array of array('href', 'text', 'extra css classes', 'title')
-		$nav = [];
+		$nav = [
+			'admin'         => null,
+			'apps'          => null,
+			'community'     => null,
+			'home'          => null,
+			'events'        => null,
+			'login'         => null,
+			'logout'        => null,
+			'langselector'  => null,
+			'messages'      => null,
+			'network'       => null,
+			'notifications' => null,
+			'remote'        => null,
+			'search'        => null,
+			'usermenu'      => [],
+		];
 
 		// Display login or logout
-		$nav['usermenu'] = [];
 		$userinfo = null;
 
+		// nav links: array of array('href', 'text', 'extra css classes', 'title')
 		if (Session::isAuthenticated()) {
 			$nav['logout'] = ['logout', DI::l10n()->t('Logout'), '', DI::l10n()->t('End this session')];
 		} else {
@@ -297,13 +311,15 @@ class Nav
 			$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 		}
 
-		Hook::callAll('nav_info', $nav);
-
-		return [
+		$nav_info = [
+			'banner'       => $banner,
+			'nav'          => $nav,
 			'sitelocation' => $sitelocation,
-			'nav' => $nav,
-			'banner' => $banner,
-			'userinfo' => $userinfo,
+			'userinfo'     => $userinfo,
 		];
+
+		Hook::callAll('nav_info', $nav_info);
+
+		return $nav_info;
 	}
 }

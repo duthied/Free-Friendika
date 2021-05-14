@@ -47,6 +47,7 @@ Commands:
 	addon                  Addon management
 	cache                  Manage node cache
 	config                 Edit site config
+	contact                Contact management
 	createdoxygen          Generate Doxygen headers
 	dbstructure            Do database updates
 	docbloxerrorchecker    Check the file tree for DocBlox errors
@@ -78,6 +79,7 @@ HELP;
 		'addon'                  => Friendica\Console\Addon::class,
 		'cache'                  => Friendica\Console\Cache::class,
 		'config'                 => Friendica\Console\Config::class,
+		'contact'                => Friendica\Console\Contact::class,
 		'createdoxygen'          => Friendica\Console\CreateDoxygen::class,
 		'docbloxerrorchecker'    => Friendica\Console\DocBloxErrorChecker::class,
 		'dbstructure'            => Friendica\Console\DatabaseStructure::class,

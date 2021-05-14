@@ -21,7 +21,6 @@
 
 namespace Friendica\Model;
 
-use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
@@ -173,7 +172,7 @@ class Item
 
 		Logger::info('Updating per single row method', ['fields' => $fields, 'condition' => $condition]);
 
-		$items = Post::select(['id', 'origin', 'uri-id', 'uid'], $condition);
+		$items = Post::select(['id', 'origin', 'uri-id', 'uid', 'author-network'], $condition);
 
 		$notify_items = [];
 
@@ -181,9 +180,14 @@ class Item
 			if (!empty($fields['body'])) {
 				Post\Media::insertFromAttachmentData($item['uri-id'], $fields['body']);
 
+				if ($item['author-network'] != Protocol::DFRN) {
+					Post\Media::insertFromRelevantUrl($item['uri-id'], $fields['body']);
+				}
+
 				$content_fields = ['raw-body' => trim($fields['raw-body'] ?? $fields['body'])];
 
 				// Remove all media attachments from the body and store them in the post-media table
+				// @todo On shared postings (Diaspora style and commented reshare) don't fetch content from the shared part
 				$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
 				$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
 			}
@@ -959,7 +963,19 @@ class Item
 			self::setOwnerforResharedItem($item);
 		}
 
+		if (isset($item['attachments'])) {
+			foreach ($item['attachments'] as $attachment) {
+				$attachment['uri-id'] = $item['uri-id'];
+				Post\Media::insert($attachment);
+			}
+			unset($item['attachments']);
+		}
+
 		Post\Media::insertFromAttachmentData($item['uri-id'], $item['body']);
+
+		if (!DBA::exists('contact', ['id' => $item['author-id'], 'network' => Protocol::DFRN])) {
+			Post\Media::insertFromRelevantUrl($item['uri-id'], $item['body']);
+		}
 
 		// Remove all media attachments from the body and store them in the post-media table
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
@@ -1706,7 +1722,7 @@ class Item
 					return ("[bookmark=" . str_replace("#", "&num;", $match[1]) . "]" . str_replace("#", "&num;", $match[2]) . "[/bookmark]");
 				}, $body);
 
-			$body = preg_replace_callback("/\[attachment (.*)\](.*?)\[\/attachment\]/ism",
+			$body = preg_replace_callback("/\[attachment (.*?)\](.*?)\[\/attachment\]/ism",
 				function ($match) {
 					return ("[attachment " . str_replace("#", "&num;", $match[1]) . "]" . $match[2] . "[/attachment]");
 				}, $body);
@@ -2639,10 +2655,10 @@ class Item
 			unset($hook_data);
 		}
 
-		$orig_body = $item['body'];
-		$item['body'] = preg_replace("/\s*\[attachment .*\].*?\[\/attachment\]\s*/ism", '', $item['body']);
+		$body = $item['body'] ?? '';
+		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
 		self::putInCache($item);
-		$item['body'] = $orig_body;
+		$item['body'] = $body;
 		$s = $item["rendered-html"];
 
 		$hook_data = [
@@ -2666,19 +2682,23 @@ class Item
 		if (!empty($shared['guid'])) {
 			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
 			$shared_uri_id = $shared_item['uri-id'] ?? 0;
-			$shared_plink = $shared_item['plink'] ?? '';
+			$shared_links = [strtolower($shared_item['plink'] ?? '')];
 			$attachments = Post\Media::splitAttachments($shared_uri_id, $shared['guid']);
 			$s = self::addVisualAttachments($attachments, $item, $s, true);
-			$s = self::addLinkAttachment($attachments, $item, $s, true, '');
+			$s = self::addLinkAttachment($attachments, $body, $s, true, []);
 			$s = self::addNonVisualAttachments($attachments, $item, $s, true);
+			$shared_links = array_merge($shared_links, array_column($attachments['visual'], 'url'));
+			$shared_links = array_merge($shared_links, array_column($attachments['link'], 'url'));
+			$shared_links = array_merge($shared_links, array_column($attachments['additional'], 'url'));
+			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
 		} else {
 			$shared_uri_id = 0;
-			$shared_plink = '';
+			$shared_links = [];
 		}
 
-		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid']);
+		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'], $shared_links);
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
-		$s = self::addLinkAttachment($attachments, $item, $s, false, $shared_plink);
+		$s = self::addLinkAttachment($attachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
 
 		// Map.
@@ -2712,6 +2732,12 @@ class Item
 	 */
 	public static function containsLink(string $body, string $url)
 	{
+		// Make sure that for example site parameters aren't used when testing if the link is contained in the body
+		$urlparts = parse_url($url);
+		unset($urlparts['query']);
+		unset($urlparts['fragment']);
+		$url = Network::unparseURL($urlparts);
+
 		if (strpos($body, $url)) {
 			return true;
 		}
@@ -2738,6 +2764,7 @@ class Item
 		$leading = '';
 		$trailing = '';
 
+		// @todo In the future we should make a single for the template engine with all media in it. This allows more flexibilty.
 		foreach ($attachments['visual'] as $attachment) {
 			if (self::containsLink($item['body'], $attachment['url'])) {
 				continue;
@@ -2794,13 +2821,18 @@ class Item
 						'attachment'   => $attachment,
 					],
 				]);
-				$trailing .= $media;
+				// On Diaspora posts the attached pictures are leading
+				if ($item['network'] == Protocol::DIASPORA) {
+					$leading .= $media;
+				} else {
+					$trailing .= $media;
+				}
 			}
 		}
 
 		if ($shared) {
-			$content = str_replace(BBCode::ANCHOR, '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . BBCode::ANCHOR, $content);
-			$content = str_replace(BBCode::ANCHOR, BBCode::ANCHOR . '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>', $content);
+			$content = str_replace(BBCode::TOP_ANCHOR, '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . BBCode::TOP_ANCHOR, $content);
+			$content = str_replace(BBCode::BOTTOM_ANCHOR, '<div class="body-attach">' . $trailing . '<div class="clear"></div></div>' . BBCode::BOTTOM_ANCHOR, $content);
 		} else {
 			if ($leading != '') {
 				$content = '<div class="body-attach">' . $leading . '<div class="clear"></div></div>' . $content;
@@ -2819,12 +2851,13 @@ class Item
 	 * Add link attachment to the content
 	 *
 	 * @param array  $attachments
-	 * @param array  $item
+	 * @param string $body
 	 * @param string $content
 	 * @param bool   $shared
+	 * @param array  $ignore_links A list of URLs to ignore
 	 * @return string modified content
 	 */
-	private static function addLinkAttachment(array $attachments, array $item, string $content, bool $shared, string $ignore_link)
+	private static function addLinkAttachment(array $attachments, string $body, string $content, bool $shared, array $ignore_links)
 	{
 		$stamp1 = microtime(true);
 		// @ToDo Check only for audio and video
@@ -2832,14 +2865,23 @@ class Item
 
 		if (!empty($attachments['link'])) {
 			foreach ($attachments['link'] as $link) {
-				if (!Strings::compareLink($link['url'], $ignore_link)) {
+				$found = false;
+				foreach ($ignore_links as $ignore_link) {
+					if (Strings::compareLink($link['url'], $ignore_link)) {
+						$found = true;
+					}
+				}
+				// @todo Judge between the links to use the one with most information
+				if (!$found && (empty($attachment) || !empty($link['author-name']) ||
+					(empty($attachment['name']) && !empty($link['name'])) ||
+					(empty($attachment['description']) && !empty($link['description'])) ||
+					(empty($attachment['preview']) && !empty($link['preview'])))) {
 					$attachment = $link;
 				}
 			}
 		}
 
 		if (!empty($attachment)) {
-			$footer = '';
 			$data = [
 				'after' => '',
 				'author_name' => $attachment['author-name'] ?? '',
@@ -2861,17 +2903,58 @@ class Item
 					$data['preview'] = $attachment['preview'] ?? '';
 				}
 			}
-		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $item['body'], $match)) {
-			$footer = $match[1];
-			$data = [];
+
+			if (!empty($data['description']) && !empty($content)) {
+				similar_text($data['description'], $content, $percent);
+			} else {
+				$percent = 0;
+			}
+
+			if (!empty($data['description']) && (($data['title'] == $data['description']) || ($percent > 95) || (strpos($content, $data['description']) !== false))) {
+				$data['description'] = '';
+			}
+
+			if (($data['author_name'] ?? '') == ($data['provider_name'] ?? '')) {
+				$data['author_name'] = '';
+			}
+
+			if (($data['author_url'] ?? '') == ($data['provider_url'] ?? '')) {
+				$data['author_url'] = '';
+			}
+		} elseif (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $body, $match)) {
+			$data = BBCode::getAttachmentData($match[1]);
 		}
 		DI::profiler()->saveTimestamp($stamp1, 'rendering');
 
-		if (!empty($footer) || !empty($data)) {
-			// @todo Use a template
-			$rendered = BBCode::convertAttachment($footer, BBCode::INTERNAL, false, $data);
+		if (isset($data['url']) && !in_array($data['url'], $ignore_links)) {
+			if (!empty($data['description']) || !empty($data['image']) || !empty($data['preview'])) {
+				$parts = parse_url($data['url']);
+				if (!empty($parts['scheme']) && !empty($parts['host'])) {
+					if (empty($data['provider_name'])) {
+						$data['provider_name'] = $parts['host'];
+					}
+					if (empty($data['provider_url']) || empty(parse_url($data['provider_url'], PHP_URL_SCHEME))) {
+						$data['provider_url'] = $parts['scheme'] . '://' . $parts['host'];
+
+						if (!empty($parts['port'])) {
+							$data['provider_url'] .= ':' . $parts['port'];
+						}
+					}
+				}
+
+				// @todo Use a template
+				$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data);
+			} elseif (!self::containsLink($content, $data['url'])) {
+				$rendered = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/link.tpl'), [
+					'$url'  => $data['url'],
+					'$title' => $data['title'],
+				]);
+			} else {
+				return $content;
+			}
+
 			if ($shared) {
-				return str_replace(BBCode::ANCHOR, BBCode::ANCHOR . $rendered, $content);
+				return str_replace(BBCode::BOTTOM_ANCHOR, BBCode::BOTTOM_ANCHOR . $rendered, $content);
 			} else {
 				return $content . $rendered;
 			}
@@ -2933,18 +3016,19 @@ class Item
 				'href' => "display/" . $item['guid'],
 				'orig' => "display/" . $item['guid'],
 				'title' => DI::l10n()->t('View on separate page'),
-				'orig_title' => DI::l10n()->t('view on separate page'),
+				'orig_title' => DI::l10n()->t('View on separate page'),
 			];
 
 			if (!empty($item['plink'])) {
-				$ret["href"] = DI::baseUrl()->remove($item['plink']);
-				$ret["title"] = DI::l10n()->t('link to source');
+				$ret['href'] = DI::baseUrl()->remove($item['plink']);
+				$ret['title'] = DI::l10n()->t('Link to source');
 			}
 		} elseif (!empty($item['plink']) && ($item['private'] != self::PRIVATE)) {
 			$ret = [
 				'href' => $item['plink'],
 				'orig' => $item['plink'],
-				'title' => DI::l10n()->t('link to source'),
+				'title' => DI::l10n()->t('Link to source'),
+				'orig_title' => DI::l10n()->t('Link to source'),
 			];
 		} else {
 			$ret = [];
@@ -3181,5 +3265,42 @@ class Item
 		}
 
 		return true;
+	}
+
+	/**
+	 * Improve the data in shared posts
+	 *
+	 * @param array $item
+	 * @return string body
+	 */
+	public static function improveSharedDataInBody(array $item)
+	{
+		$shared = BBCode::fetchShareAttributes($item['body']);
+		if (empty($shared['link'])) {
+			return $item['body'];	
+		}
+		
+		$id = self::fetchByLink($shared['link']);
+		Logger::info('Fetched shared post', ['uri-id' => $item['uri-id'], 'id' => $id, 'author' => $shared['profile'], 'url' => $shared['link'], 'guid' => $shared['guid'], 'callstack' => System::callstack()]);
+		if (!$id) {
+			return $item['body'];	
+		}
+
+		$shared_item = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'title', 'body'], ['id' => $id]);
+		if (!DBA::isResult($shared_item)) {
+			return $item['body'];	
+		}
+
+		$shared_content = BBCode::getShareOpeningTag($shared_item['author-name'], $shared_item['author-link'], $shared_item['author-avatar'], $shared_item['plink'], $shared_item['created'], $shared_item['guid']);
+
+		if (!empty($shared_item['title'])) {
+			$shared_content .= '[h3]'.$shared_item['title'].'[/h3]'."\n";
+		}
+
+		$shared_content .= $shared_item['body'];
+
+		$item['body'] = preg_replace("/\[share.*?\](.*)\[\/share\]/ism", $shared_content . '[/share]', $item['body']);
+		Logger::info('New shared data', ['uri-id' => $item['uri-id'], 'id' => $id, 'shared_item' => $shared_item]);
+		return $item['body'];
 	}
 }

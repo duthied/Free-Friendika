@@ -726,16 +726,33 @@ class Photo
 			 * Then set the permissions to public.
 			 */
 
-			$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
-					'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny,
-					'accessible' => DI::pConfig()->get($uid, 'system', 'accessible-photos', false)];
-
-			$condition = ['resource-id' => $image_rid, 'uid' => $uid];
-			Logger::info('Set permissions', ['condition' => $condition, 'permissions' => $fields]);
-			Photo::update($fields, $condition);
+			self::setPermissionForRessource($image_rid, $uid, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 		}
 
 		return true;
+	}
+
+	/**
+	 * Add permissions to photo ressource
+	 * @todo mix with previous photo permissions
+	 * 
+	 * @param string $image_rid
+	 * @param integer $uid
+	 * @param string $str_contact_allow
+	 * @param string $str_group_allow
+	 * @param string $str_contact_deny
+	 * @param string $str_group_deny
+	 * @return void
+	 */
+	public static function setPermissionForRessource(string $image_rid, int $uid, string $str_contact_allow, string $str_group_allow, string $str_contact_deny, string $str_group_deny)
+	{
+		$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
+		'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny,
+		'accessible' => DI::pConfig()->get($uid, 'system', 'accessible-photos', false)];
+
+		$condition = ['resource-id' => $image_rid, 'uid' => $uid];
+		Logger::info('Set permissions', ['condition' => $condition, 'permissions' => $fields]);
+		Photo::update($fields, $condition);
 	}
 
 	/**

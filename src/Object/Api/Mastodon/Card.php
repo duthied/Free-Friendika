@@ -39,9 +39,17 @@ class Card extends BaseDataTransferObject
 	/** @var string */
 	protected $type;
 	/** @var string */
+	protected $author_name;
+	/** @var string */
+	protected $author_url;
+	/** @var string */
 	protected $provider_name;
 	/** @var string */
 	protected $provider_url;
+	/** @var int */
+	protected $width;
+	/** @var int */
+	protected $height;
 	/** @var string */
 	protected $image;
 
@@ -57,9 +65,13 @@ class Card extends BaseDataTransferObject
 		$this->title         = $attachment['title'] ?? '';
 		$this->description   = $attachment['description'] ?? '';
 		$this->type          = $attachment['type'] ?? '';
-		$this->image         = $attachment['image'] ?? '';
+		$this->author_name   = $attachment['author_name'] ?? '';
+		$this->author_url    = $attachment['author_url'] ?? '';
 		$this->provider_name = $attachment['provider_name'] ?? '';
 		$this->provider_url  = $attachment['provider_url'] ?? '';
+		$this->width         = $attachment['width'] ?? 0;
+		$this->height        = $attachment['height'] ?? 0;
+		$this->image         = $attachment['image'] ?? '';
 	}
 
 	/**

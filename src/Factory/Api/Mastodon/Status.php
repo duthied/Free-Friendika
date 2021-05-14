@@ -23,6 +23,7 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
+use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -60,9 +61,9 @@ class Status extends BaseFactory
 	 */
 	public function createFromUriId(int $uriId, $uid = 0)
 	{
-		$fields = ['uri-id', 'uid', 'author-id', 'starred', 'app', 'title', 'body', 'raw-body', 'created',
+		$fields = ['uri-id', 'uid', 'author-id', 'author-link', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
 			'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity'];
-		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => $uid]);
+		$item = Post::selectFirst($fields, ['uri-id' => $uriId, 'uid' => [0, $uid]], ['order' => ['uid' => true]]);
 		if (!$item) {
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . 'not found' . ($uid ? ' for user ' . $uid : '.'));
 		}
@@ -70,32 +71,46 @@ class Status extends BaseFactory
 		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
 
 		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(
-			Post::count(['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_COMMENT]),
-			Post::count(['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]),
-			Post::count(['thr-parent-id' => $uriId, 'uid' => $uid, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)])
+			Post::count(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_COMMENT], [], false),
+			Post::count(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)], [], false),
+			Post::count(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)], [], false)
 		);
 
 		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(
 			Post::exists(['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE)]),
 			Post::exists(['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE)]),
-			Post\ThreadUser::getIgnored($uriId, $item['uid']),
+			Post\ThreadUser::getIgnored($uriId, $uid),
 			(bool)$item['starred'],
-			Post\ThreadUser::getPinned($uriId, $item['uid'])
+			Post\ThreadUser::getPinned($uriId, $uid)
 		);
 
 		$sensitive = DBA::exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw']);
-		$application = new \Friendica\Object\Api\Mastodon\Application($item['app'] ?? '');
-		$mentions = DI::mstdnMention()->createFromUriId($uriId);
-		$tags = DI::mstdnTag()->createFromUriId($uriId);
+		$application = new \Friendica\Object\Api\Mastodon\Application($item['app'] ?: ContactSelector::networkToName($item['network'], $item['author-link']));
 
-		$data = BBCode::getAttachmentData($item['body']);
-		$card = new \Friendica\Object\Api\Mastodon\Card($data);
-
+		$mentions    = DI::mstdnMention()->createFromUriId($uriId);
+		$tags        = DI::mstdnTag()->createFromUriId($uriId);
+		$card        = DI::mstdnCard()->createFromUriId($uriId);
 		$attachments = DI::mstdnAttachment()->createFromUriId($uriId);
+
+		$shared = BBCode::fetchShareAttributes($item['body']);
+		if (!empty($shared['guid'])) {
+			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
+
+			$shared_uri_id = $shared_item['uri-id'] ?? 0;
+
+			$mentions    = array_merge($mentions, DI::mstdnMention()->createFromUriId($shared_uri_id));
+			$tags        = array_merge($tags, DI::mstdnTag()->createFromUriId($shared_uri_id));
+			$attachments = array_merge($attachments, DI::mstdnAttachment()->createFromUriId($shared_uri_id));
+
+			if (empty($card->toArray())) {
+				$card = DI::mstdnCard()->createFromUriId($shared_uri_id);
+			}
+		}
+
 
 		if ($item['vid'] == Verb::getID(Activity::ANNOUNCE)) {
 			$reshare = $this->createFromUriId($item['thr-parent-id'], $uid)->toArray();
-			$reshared_item = Post::selectFirst(['title', 'body'], ['uri-id' => $item['thr-parent-id'], 'uid' => $uid]);
+			$reshared_item = Post::selectFirst(['title', 'body'], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $uid]]);
 			$item['title'] = $reshared_item['title'] ?? $item['title'];
 			$item['body'] = $reshared_item['body'] ?? $item['body'];
 		} else {

@@ -73,6 +73,26 @@ abstract class BaseModule
 	}
 
 	/**
+	 * Module DELETE method to process submitted data
+	 *
+	 * Extend this method if the module is supposed to process DELETE requests.
+	 * Doesn't display any content
+	 */
+	public static function delete(array $parameters = [])
+	{
+	}
+
+	/**
+	 * Module PATCH method to process submitted data
+	 *
+	 * Extend this method if the module is supposed to process PATCH requests.
+	 * Doesn't display any content
+	 */
+	public static function patch(array $parameters = [])
+	{
+	}
+
+	/**
 	 * Module POST method to process submitted data
 	 *
 	 * Extend this method if the module is supposed to process POST requests.
@@ -89,6 +109,16 @@ abstract class BaseModule
 	 * Unknown purpose
 	 */
 	public static function afterpost(array $parameters = [])
+	{
+	}
+
+	/**
+	 * Module PUT method to process submitted data
+	 *
+	 * Extend this method if the module is supposed to process PUT requests.
+	 * Doesn't display any content
+	 */
+	public static function put(array $parameters = [])
 	{
 	}
 

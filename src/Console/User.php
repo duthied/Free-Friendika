@@ -26,7 +26,6 @@ use Friendica\App;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\IPConfig;
-use Friendica\Database\Database;
 use Friendica\Model\Register;
 use Friendica\Model\User as UserModel;
 use Friendica\Util\Temporal;
@@ -49,9 +48,9 @@ class User extends \Asika\SimpleConsole\Console
 	 */
 	private $l10n;
 	/**
-	 * @var Database
+	 * @var IPConfig
 	 */
-	private $dba;
+	private $pConfig;
 
 	protected function getHelp()
 	{
@@ -89,13 +88,13 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, array $argv = null)
+	public function __construct(App\Mode $appMode, L10n $l10n, IPConfig $pConfig, array $argv = null)
 	{
 		parent::__construct($argv);
 
-		$this->appMode     = $appMode;
-		$this->l10n        = $l10n;
-		$this->dba         = $dba;
+		$this->appMode = $appMode;
+		$this->l10n    = $l10n;
+		$this->pConfig = $pConfig;
 	}
 
 	protected function doExecute()
@@ -171,15 +170,15 @@ HELP;
 	 *
 	 * @param int $arg_index Index of the nick argument in the arguments list
 	 *
-	 * @return mixed user data or dba failure result
+	 * @return array|boolean User record with uid field, or false if user is not found
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function getUserByNick($arg_index)
 	{
 		$nick = $this->getNick($arg_index);
 
-		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
-		if (!$this->dba->isResult($user)) {
+		$user = UserModel::getByNickname($nick, ['uid']);
+		if (empty($user)) {
 			throw new RuntimeException($this->l10n->t('User not found'));
 		}
 
@@ -207,7 +206,7 @@ HELP;
 		try {
 			$result = UserModel::updatePassword($user['uid'], $password);
 
-			if (!$this->dba->isResult($result)) {
+			if (empty($result)) {
 				throw new \Exception($this->l10n->t('Password update failed. Please try again.'));
 			}
 
@@ -338,8 +337,8 @@ HELP;
 	private function listUser()
 	{
 		$subCmd = $this->getArgument(1);
-		$start = $this->getOption(['s', 'start'], 0);
-		$count = $this->getOption(['c', 'count'], Pager::ITEMS_PER_PAGE);
+		$start  = $this->getOption(['s', 'start'], 0);
+		$count  = $this->getOption(['c', 'count'], Pager::ITEMS_PER_PAGE);
 
 		$table = new Console_Table();
 
@@ -403,7 +402,7 @@ HELP;
 		];
 
 		$subCmd = $this->getArgument(1);
-		$param = $this->getArgument(2);
+		$param  = $this->getArgument(2);
 
 		$table = new Console_Table();
 		$table->setHeaders(['UID', 'GUID', 'Name', 'Nick', 'E-Mail', 'Register', 'Login', 'Verified', 'Blocked']);
@@ -426,7 +425,9 @@ HELP;
 				return false;
 		}
 
-		$table->addRow($user);
+		if (!empty($user)) {
+			$table->addRow($user);
+		}
 		$this->out($table->getTable());
 
 		return true;
@@ -463,8 +464,7 @@ HELP;
 			}
 		}
 
-		$pconfig = \Friendica\DI::pConfig();
-		$values = $pconfig->load($user['uid'], $category);
+		$values = $this->pConfig->load($user['uid'], $category);
 
 		switch ($subCmd) {
 			case 'list':
@@ -485,7 +485,7 @@ HELP;
 					throw new RuntimeException('Key does not exist');
 				}
 
-				$this->out($pconfig->get($user['uid'], $category, $key));
+				$this->out($this->pConfig->get($user['uid'], $category, $key));
 				break;
 			case 'set':
 				$value = $this->getArgument(5);
@@ -499,12 +499,12 @@ HELP;
 				}
 
 				if (array_key_exists($category, $values) and
-				    array_key_exists($key, $values[$category]) and
-				    $values[$category][$key] == $value) {
+					array_key_exists($key, $values[$category]) and
+					$values[$category][$key] == $value) {
 					throw new RuntimeException('Value not changed');
 				}
 
-				$pconfig->set($user['uid'], $category, $key, $value);
+				$this->pConfig->set($user['uid'], $category, $key, $value);
 				break;
 			case 'delete':
 				if (!array_key_exists($category, $values)) {
@@ -514,7 +514,7 @@ HELP;
 					throw new RuntimeException('Key does not exist');
 				}
 
-				$pconfig->delete($user['uid'], $category, $key);
+				$this->pConfig->delete($user['uid'], $category, $key);
 				break;
 			default:
 				$this->out($this->getHelp());

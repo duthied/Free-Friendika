@@ -1,0 +1,63 @@
+kind: pipeline
+type: docker
+name: Check messages.po
+
+steps:
+  - name: Run default Xgettext
+    image: friendicaci/transifex
+    commands:
+      - ./bin/run_xgettext.sh
+
+  - name: Check default
+    image: friendicaci/transifex
+    commands:
+      - /check-messages.sh
+---
+kind: pipeline
+type: docker
+name: php7.3-lint
+
+steps:
+  - name: Test
+    image: php:7.3
+    commands:
+      - ./bin/composer.phar run lint
+---
+kind: pipeline
+type: docker
+name: php7.4-lint
+
+steps:
+  - name: Test
+    image: php:7.4
+    commands:
+      - ./bin/composer.phar run lint
+---
+kind: pipeline
+type: docker
+name: php8.0-lint
+
+steps:
+  - name: Test
+    image: php:8.0
+    commands:
+      - ./bin/composer.phar run lint
+---
+kind: pipeline
+type: docker
+name: php-cs check
+
+trigger:
+  event:
+    - pull_request
+
+steps:
+  - name: Install dependencies
+    image: composer
+    commands:
+      - ./bin/composer.phar run cs:install
+  - name: Run coding standards check
+    image: friendicaci/php-cs
+    commands:
+      - export CHANGED_FILES="$(git diff --name-status ${DRONE_COMMIT_BEFORE}..${DRONE_COMMIT_AFTER} | grep ^A | cut -f2)"
+      - /check-php-cs.sh

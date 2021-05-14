@@ -21,15 +21,17 @@
 
 namespace Friendica\Model\Post;
 
-use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
+use Friendica\Model\Post;
 use Friendica\Util\Images;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Strings;
 
 /**
  * Class Media
@@ -61,6 +63,11 @@ class Media
 	{
 		if (empty($media['url']) || empty($media['uri-id']) || !isset($media['type'])) {
 			Logger::warning('Incomplete media data', ['media' => $media]);
+			return;
+		}
+
+		if (DBA::exists('post-media', ['uri-id' => $media['uri-id'], 'preview' => $media['url']])) {
+			Logger::info('Media already exists as preview', ['uri-id' => $media['uri-id'], 'url' => $media['url'], 'callstack' => System::callstack()]);
 			return;
 		}
 
@@ -281,7 +288,13 @@ class Media
 	public static function insertFromBody(int $uriid, string $body)
 	{
 		// Simplify image codes
-		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+		$unshared_body = $body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+
+		// Only remove the shared data from "real" reshares
+		$shared = BBCode::fetchShareAttributes($body);
+		if (!empty($shared['guid'])) {
+			$unshared_body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+		}
 
 		$attachments = [];
 		if (preg_match_all("#\[url=([^\]]+?)\]\s*\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]\s*\[/url\]#ism", $body, $pictures, PREG_SET_ORDER)) {
@@ -336,17 +349,49 @@ class Media
 			}
 		}
 
-		$url = PageInfo::getRelevantUrlFromBody($body);
-		if (!empty($url)) {
-			Logger::debug('Got page url', ['url' => $url]);
-			$attachments[$url] = ['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url];
-		}
-
 		foreach ($attachments as $attachment) {
-			self::insert($attachment);
+			// Only store attachments that are part of the unshared body
+			if (strpos($unshared_body, $attachment['url']) !== false) {
+				self::insert($attachment);
+			}
 		}
 
 		return trim($body);
+	}
+
+	/**
+	 * Add media links from a relevant url in the body
+	 *
+	 * @param integer $uriid
+	 * @param string $body
+	 */
+	public static function insertFromRelevantUrl(int $uriid, string $body)
+	{
+		// Only remove the shared data from "real" reshares
+		$shared = BBCode::fetchShareAttributes($body);
+		if (!empty($shared['guid'])) {
+			// Don't look at the shared content
+			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+		}
+
+		// Remove all hashtags and mentions
+		$body = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '', $body);
+
+		// Search for pure links
+		if (preg_match_all("/\[url\](https?:.*?)\[\/url\]/ism", $body, $matches)) {
+			foreach ($matches[1] as $url) {
+				Logger::info('Got page url (link without description)', ['uri-id' => $uriid, 'url' => $url]);
+				self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url]);
+			}
+		}
+
+		// Search for links with descriptions
+		if (preg_match_all("/\[url\=(https?:.*?)\].*?\[\/url\]/ism", $body, $matches)) {
+			foreach ($matches[1] as $url) {
+				Logger::info('Got page url (link with description)', ['uri-id' => $uriid, 'url' => $url]);
+				self::insert(['uri-id' => $uriid, 'type' => self::UNKNOWN, 'url' => $url]);
+			}
+		}
 	}
 
 	/**
@@ -357,6 +402,9 @@ class Media
 	 */
 	public static function insertFromAttachmentData(int $uriid, string $body)
 	{
+		// Don't look at the shared content
+		$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
+
 		$data = BBCode::getAttachmentData($body);
 		if (empty($data))  {
 			return;
@@ -447,11 +495,12 @@ class Media
 	/**
 	 * Split the attachment media in the three segments "visual", "link" and "additional"
 	 * 
-	 * @param int $uri_id 
+	 * @param int    $uri_id 
 	 * @param string $guid
+	 * @param array  $links ist of links that shouldn't be added 
 	 * @return array attachments
 	 */
-	public static function splitAttachments(int $uri_id, string $guid = '')
+	public static function splitAttachments(int $uri_id, string $guid = '', array $links = [])
 	{
 		$attachments = ['visual' => [], 'link' => [], 'additional' => []];
 
@@ -462,8 +511,26 @@ class Media
 
 		$height = 0;
 		$selected = '';
+		$previews = [];
 
 		foreach ($media as $medium) {
+			foreach ($links as $link) {
+				if (Strings::compareLink($link, $medium['url'])) {
+					continue 2;
+				}
+			}
+
+			// Avoid adding separate media entries for previews
+			foreach ($previews as $preview) {
+				if (Strings::compareLink($preview, $medium['url'])) {
+					continue 2;
+				}
+			}
+			
+			if (!empty($medium['preview'])) {
+				$previews[] = $medium['preview'];
+			}
+
 			$type = explode('/', current(explode(';', $medium['mimetype'])));
 			if (count($type) < 2) {
 				Logger::info('Unknown MimeType', ['type' => $type, 'media' => $medium]);
@@ -510,5 +577,58 @@ class Media
 			}
 		}
 		return $attachments;
+	}
+
+	/**
+	 * Add media attachments to the body
+	 *
+	 * @param int $uriid
+	 * @param string $body
+	 * @return string body
+	 */
+	public static function addAttachmentsToBody(int $uriid, string $body = '')
+	{
+		if (empty($body)) {
+			$item = Post::selectFirst(['body'], ['uri-id' => $uriid]);
+			if (!DBA::isResult($item)) {
+				return '';
+			}
+			$body = $item['body'];
+		}
+		$original_body = $body;
+
+		$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
+
+		foreach (self::getByURIId($uriid, [self::IMAGE, self::AUDIO, self::VIDEO]) as $media) {
+			if (Item::containsLink($body, $media['url'])) {
+				continue;
+			}
+
+			if ($media['type'] == self::IMAGE) {
+				if (!empty($media['preview'])) {
+					if (!empty($media['description'])) {
+						$body .= "\n[url=" . $media['url'] . "][img=" . $media['preview'] . ']' . $media['description'] .'[/img][/url]';
+					} else {
+						$body .= "\n[url=" . $media['url'] . "][img]" . $media['preview'] .'[/img][/url]';
+					}
+				} else {
+					if (!empty($media['description'])) {
+						$body .= "\n[img=" . $media['url'] . ']' . $media['description'] .'[/img]';
+					} else {
+						$body .= "\n[img]" . $media['url'] .'[/img]';
+					}
+				}
+			} elseif ($media['type'] == self::AUDIO) {
+				$body .= "\n[audio]" . $media['url'] . "[/audio]\n";
+			} elseif ($media['type'] == self::VIDEO) {
+				$body .= "\n[video]" . $media['url'] . "[/video]\n";
+			}
+		}
+
+		if (preg_match("/.*(\[attachment.*?\].*?\[\/attachment\]).*/ism", $original_body, $match)) {
+			$body .= "\n" . $match[1];
+		}
+
+		return $body;
 	}
 }

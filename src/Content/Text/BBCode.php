@@ -50,9 +50,10 @@ use Friendica\Util\XML;
 class BBCode
 {
 	// Update this value to the current date whenever changes are made to BBCode::convert
-	const VERSION = '2021-04-24';
+	const VERSION = '2021-05-01';
 
 	const INTERNAL = 0;
+	const EXTERNAL = 1;
 	const API = 2;
 	const DIASPORA = 3;
 	const CONNECTORS = 4;
@@ -61,7 +62,8 @@ class BBCode
 	const BACKLINK = 8;
 	const ACTIVITYPUB = 9;
 
-	const ANCHOR = '<br class="anchor">';
+	const TOP_ANCHOR = '<br class="top-anchor">';
+	const BOTTOM_ANCHOR = '<br class="button-anchor">';
 	/**
 	 * Fetches attachment data that were generated the old way
 	 *
@@ -408,7 +410,7 @@ class BBCode
 	 */
 	public static function removeAttachment($body, $no_link_desc = false)
 	{
-		return preg_replace_callback("/\s*\[attachment (.*)\](.*?)\[\/attachment\]\s*/ism",
+		return preg_replace_callback("/\s*\[attachment (.*?)\](.*?)\[\/attachment\]\s*/ism",
 			function ($match) use ($no_link_desc) {
 				$attach_data = self::getAttachmentData($match[0]);
 				if (empty($attach_data['url'])) {
@@ -1084,12 +1086,12 @@ class BBCode
 					'$avatar'       => $attributes['avatar'],
 					'$author'       => $attributes['author'],
 					'$link'         => $attributes['link'],
-					'$link_title'   => DI::l10n()->t('link to source'),
+					'$link_title'   => DI::l10n()->t('Link to source'),
 					'$posted'       => $attributes['posted'],
 					'$guid'         => $attributes['guid'],
 					'$network_name' => ContactSelector::networkToName($network, $attributes['profile']),
 					'$network_icon' => ContactSelector::networkToIcon($network, $attributes['profile']),
-					'$content'      => self::setMentions(trim($content), 0, $network) . self::ANCHOR,
+					'$content'      => self::TOP_ANCHOR . self::setMentions(trim($content), 0, $network) . self::BOTTOM_ANCHOR,
 				]);
 				break;
 		}
@@ -1103,20 +1105,14 @@ class BBCode
 		$text = DI::cache()->get($cache_key);
 
 		if (is_null($text)) {
-			$a = DI::app();
+			$curlResult = DI::httpRequest()->head($match[1], ['timeout' => DI::config()->get('system', 'xrd_timeout')]);
+			if ($curlResult->isSuccess()) {
+				$mimetype = $curlResult->getHeader('Content-Type');
+			} else {
+				$mimetype = '';
+			}
 
-			$stamp1 = microtime(true);
-
-			$ch = @curl_init($match[1]);
-			@curl_setopt($ch, CURLOPT_NOBODY, true);
-			@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			@curl_setopt($ch, CURLOPT_USERAGENT, DI::httpRequest()->getUserAgent());
-			@curl_exec($ch);
-			$curl_info = @curl_getinfo($ch);
-
-			DI::profiler()->saveTimestamp($stamp1, "network");
-
-			if (substr($curl_info['content_type'], 0, 6) == 'image/') {
+			if (substr($mimetype, 0, 6) == 'image/') {
 				$text = "[url=" . $match[1] . ']' . $match[1] . "[/url]";
 			} else {
 				$text = "[url=" . $match[2] . ']' . $match[2] . "[/url]";
@@ -1180,20 +1176,15 @@ class BBCode
 			return $text;
 		}
 
-		// Only fetch the header, not the content
-		$stamp1 = microtime(true);
-
-		$ch = @curl_init($match[1]);
-		@curl_setopt($ch, CURLOPT_NOBODY, true);
-		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		@curl_setopt($ch, CURLOPT_USERAGENT, DI::httpRequest()->getUserAgent());
-		@curl_exec($ch);
-		$curl_info = @curl_getinfo($ch);
-
-		DI::profiler()->saveTimestamp($stamp1, "network");
+		$curlResult = DI::httpRequest()->head($match[1], ['timeout' => DI::config()->get('system', 'xrd_timeout')]);
+		if ($curlResult->isSuccess()) {
+			$mimetype = $curlResult->getHeader('Content-Type');
+		} else {
+			$mimetype = '';
+		}
 
 		// if its a link to a picture then embed this picture
-		if (substr($curl_info['content_type'], 0, 6) == 'image/') {
+		if (substr($mimetype, 0, 6) == 'image/') {
 			$text = '[img]' . $match[1] . '[/img]';
 		} else {
 			if (!empty($match[3])) {
@@ -1396,7 +1387,7 @@ class BBCode
 				// Handle attached links or videos
 				if ($simple_html == self::ACTIVITYPUB) {
 					$text = self::removeAttachment($text);
-				} elseif (!in_array($simple_html, [self::INTERNAL, self::CONNECTORS])) {
+				} elseif (!in_array($simple_html, [self::INTERNAL, self::EXTERNAL, self::CONNECTORS])) {
 					$text = self::removeAttachment($text, true);
 				} else {
 					$text = self::convertAttachment($text, $simple_html, $try_oembed);
@@ -1406,9 +1397,9 @@ class BBCode
 				$text = str_replace('[nosmile]', '', $text);
 
 				// Replace non graphical smilies for external posts
-				if (!$nosmile && !$for_plaintext) {
-					$text = self::performWithEscapedTags($text, ['img'], function ($text) {
-						return Smilies::replace($text);
+				if (!$nosmile) {
+					$text = self::performWithEscapedTags($text, ['img'], function ($text) use ($simple_html, $for_plaintext) {
+						return Smilies::replace($text, ($simple_html != self::INTERNAL) || $for_plaintext);
 					});
 				}
 
@@ -1730,7 +1721,7 @@ class BBCode
 						$text);
 				} elseif (!$simple_html) {
 					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
-						'$1<a href="$2" class="userinfo mention" title="$3">$3</a>',
+						'$1<a href="$2" class="userinfo mention" title="$3"><bdi>$3</bdi></a>',
 						$text);
 				}
 
@@ -1902,7 +1893,7 @@ class BBCode
 
 		$text = HTML::purify($text, $allowedIframeDomains);
 
-		return $text;
+		return trim($text);
 	}
 
 	/**

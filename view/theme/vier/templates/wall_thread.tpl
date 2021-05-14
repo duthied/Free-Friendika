@@ -74,7 +74,7 @@
 
 		<div itemprop="description" class="wall-item-content">
 			{{if $item.title}}<h2><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h2>{{/if}}
-			<div class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}">{{$item.body_html nofilter}}</div>
+			<div class="wall-item-body e-content {{if !$item.title}}p-name{{/if}}" dir="auto">{{$item.body_html nofilter}}</div>
 		</div>
 	</div>
 	<div class="wall-item-bottom">
@@ -155,7 +155,7 @@
 			{{/if}}
 			</div>
 
-			<div class="wall-item-location">{{$item.location_html nofilter}} {{$item.postopts}}</div>
+			<div class="wall-item-location">{{$item.location_html nofilter}}</div>
 
 			<div class="wall-item-actions-isevent">
 			</div>

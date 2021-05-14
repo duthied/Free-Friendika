@@ -21,7 +21,6 @@
 
 namespace Friendica\Protocol\ActivityPub;
 
-use Friendica\Content\PageInfo;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Text\Markdown;
@@ -464,6 +463,7 @@ class Processor
 		if (!empty($activity['source'])) {
 			$item['body'] = $activity['source'];
 			$item['raw-body'] = $content;
+			$item['body'] = Item::improveSharedDataInBody($item);
 		} else {
 			if (empty($activity['directmessage']) && ($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
 				$item_private = !in_array(0, $activity['item_receiver']);

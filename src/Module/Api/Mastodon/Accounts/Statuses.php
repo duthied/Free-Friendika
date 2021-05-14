@@ -43,7 +43,7 @@ class Statuses extends BaseApi
 	public static function rawContent(array $parameters = [])
 	{
 		if (empty($parameters['id'])) {
-			DI::mstdnError()->RecordNotFound();
+			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		$id = $parameters['id'];
@@ -52,7 +52,7 @@ class Statuses extends BaseApi
 		}
 
 		// Show only statuses with media attached? Defaults to false.
-		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true'); // Currently not supported
+		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true');
 		// Return results older than this id
 		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
 		// Return results newer than this id
@@ -64,12 +64,23 @@ class Statuses extends BaseApi
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $limit];
 
-		$condition = ['author-id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED],
-			'uid' => 0, 'network' => Protocol::FEDERATED];
+		$uid = self::getCurrentUserID();
+
+		if (!$uid) {
+			$condition = ['author-id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED],
+				'uid' => 0, 'network' => Protocol::FEDERATED];
+		} else {
+			$condition = ["`author-id` = ? AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))", $id, $uid];
+		}
 
 		$condition = DBA::mergeConditions($condition, ["(`gravity` IN (?, ?) OR (`gravity` = ? AND `vid` = ?))",
 			GRAVITY_PARENT, GRAVITY_COMMENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE)]);
 
+		if ($only_media) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
+				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
+		}
+	
 		if (!empty($max_id)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $max_id]);
 		}
@@ -83,11 +94,11 @@ class Statuses extends BaseApi
 			$params['order'] = ['uri-id'];
 		}
 
-		$items = Post::selectForUser(0, ['uri-id', 'uid'], $condition, $params);
+		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
-			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $item['uid']);
+			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
 		}
 		DBA::close($items);
 

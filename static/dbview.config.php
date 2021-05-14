@@ -37,6 +37,26 @@
  */
 
  return [
+	"application-view" => [
+		"fields" => [
+			"id" => ["application", "id"],
+			"uid" => ["application-token", "uid"],
+			"name" => ["application", "name"],
+			"redirect_uri" => ["application", "redirect_uri"],
+			"website" => ["application", "website"],
+			"client_id" => ["application", "client_id"],
+			"client_secret" => ["application", "client_secret"],
+			"code" => ["application-token", "code"],
+			"access_token" => ["application-token", "access_token"],
+			"created_at" => ["application-token", "created_at"],
+			"scopes" => ["application-token", "scopes"],
+			"read" => ["application-token", "read"],
+			"write" => ["application-token", "write"],
+			"follow" => ["application-token", "follow"],
+		],
+		"query" => "FROM `application-token`
+			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`"
+	],
 	"post-user-view" => [
 		"fields" => [
 			"id" => ["post-user", "id"],

@@ -22,8 +22,14 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Logger;
+use Friendica\Core\System;
+use Friendica\Database\Database;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Network;
 
 require_once __DIR__ . '/../../include/api.php';
 
@@ -53,6 +59,32 @@ class BaseApi extends BaseModule
 		}
 	}
 
+	public static function delete(array $parameters = [])
+	{
+		if (!api_user()) {
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
+		}
+
+		$a = DI::app();
+
+		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		}
+	}
+
+	public static function patch(array $parameters = [])
+	{
+		if (!api_user()) {
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
+		}
+
+		$a = DI::app();
+
+		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		}
+	}
+
 	public static function post(array $parameters = [])
 	{
 		if (!api_user()) {
@@ -64,6 +96,74 @@ class BaseApi extends BaseModule
 		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
+	}
+
+	public static function put(array $parameters = [])
+	{
+		if (!api_user()) {
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
+		}
+
+		$a = DI::app();
+
+		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
+		}
+	}
+
+	/**
+	 * Quit execution with the message that the endpoint isn't implemented
+	 *
+	 * @param string $method
+	 * @return void
+	 */
+	public static function unsupported(string $method = 'all')
+	{
+		$path = DI::args()->getQueryString();
+		Logger::info('Unimplemented API call', ['method' => $method, 'path' => $path, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'request' => $_REQUEST ?? []]);
+		$error = DI::l10n()->t('API endpoint %s %s is not implemented', strtoupper($method), $path);
+		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');
+		$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
+		System::jsonError(501, $errorobj->toArray());
+	}
+
+	/**
+	 * Get post data that is transmitted as JSON
+	 *
+	 * @return array request data
+	 */
+	public static function getJsonPostData()
+	{
+		$postdata = Network::postdata();
+		if (empty($postdata)) {
+			return [];
+		}
+
+		return json_decode($postdata, true);
+	}
+
+	/**
+	 * Get request data for put requests
+	 *
+	 * @return array request data
+	 */
+	public static function getPutData()
+	{
+		$rawdata = Network::postdata();
+		if (empty($rawdata)) {
+			return [];
+		}
+
+		$putdata = [];
+
+		foreach (explode('&', $rawdata) as $value) {
+			$data = explode('=', $value);
+			if (count($data) == 2) {
+				$putdata[$data[0]] = urldecode($data[1]);
+			}
+		}
+
+		return $putdata;
 	}
 
 	/**
@@ -84,11 +184,136 @@ class BaseApi extends BaseModule
 	 */
 	protected static function login()
 	{
-		api_login(DI::app());
+		if (empty(self::$current_user_id)) {
+			self::$current_user_id = self::getUserByBearer();
+		}
+
+		if (empty(self::$current_user_id)) {
+			// The execution stops here if no one is logged in
+			api_login(DI::app());
+		}
 
 		self::$current_user_id = api_user();
 
 		return (bool)self::$current_user_id;
+	}
+
+	/**
+	 * Get current user id, returns 0 if not logged in
+	 *
+	 * @return int User ID
+	 */
+	protected static function getCurrentUserID()
+	{
+		if (empty(self::$current_user_id)) {
+			self::$current_user_id = self::getUserByBearer();
+		}
+
+		if (empty(self::$current_user_id)) {
+			// Fetch the user id if logged in - but don't fail if not
+			api_login(DI::app(), false);
+
+			self::$current_user_id = api_user();
+		}
+
+		return (int)self::$current_user_id;
+	}
+
+	/**
+	 * Get the user id via the Bearer token
+	 *
+	 * @return int User-ID
+	 */
+	private static function getUserByBearer()
+	{
+		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+
+		if (substr($authorization, 0, 7) != 'Bearer ') {
+			return 0;
+		}
+
+		$bearer = trim(substr($authorization, 7));
+		$condition = ['access_token' => $bearer];
+		$token = DBA::selectFirst('application-token', ['uid'], $condition);
+		if (!DBA::isResult($token)) {
+			Logger::warning('Token not found', $condition);
+			return 0;
+		}
+		Logger::info('Token found', $token);
+		return $token['uid'];
+	}
+
+	/**
+	 * Get the application record via the proved request header fields
+	 *
+	 * @param string $client_id
+	 * @param string $client_secret
+	 * @param string $redirect_uri
+	 * @return array application record
+	 */
+	public static function getApplication(string $client_id, string $client_secret, string $redirect_uri)
+	{
+		$condition = ['client_id' => $client_id];
+		if (!empty($client_secret)) {
+			$condition['client_secret'] = $client_secret;
+		}
+		if (!empty($redirect_uri)) {
+			$condition['redirect_uri'] = $redirect_uri;
+		}
+
+		$application = DBA::selectFirst('application', [], $condition);
+		if (!DBA::isResult($application)) {
+			Logger::warning('Application not found', $condition);
+			return [];
+		}
+		return $application;
+	}
+
+	/**
+	 * Check if an token for the application and user exists
+	 *
+	 * @param array $application
+	 * @param integer $uid
+	 * @return boolean
+	 */
+	public static function existsTokenForUser(array $application, int $uid)
+	{
+		return DBA::exists('application-token', ['application-id' => $application['id'], 'uid' => $uid]);
+	}
+
+	/**
+	 * Fetch the token for the given application and user
+	 *
+	 * @param array $application
+	 * @param integer $uid
+	 * @return array application record
+	 */
+	public static function getTokenForUser(array $application, int $uid)
+	{
+		return DBA::selectFirst('application-token', [], ['application-id' => $application['id'], 'uid' => $uid]);
+	}
+
+	/**
+	 * Create and fetch an token for the application and user
+	 *
+	 * @param array   $application
+	 * @param integer $uid
+	 * @param string  $scope
+	 * @return array application record
+	 */
+	public static function createTokenForUser(array $application, int $uid, string $scope)
+	{
+		$code         = bin2hex(random_bytes(32));
+		$access_token = bin2hex(random_bytes(32));
+
+		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token, 'scopes' => $scope,
+			'read' => (stripos($scope, 'read') !== false), 'write' => (stripos($scope, 'write') !== false),
+			'follow' => (stripos($scope, 'follow') !== false), 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
+		if (!DBA::insert('application-token', $fields, Database::INSERT_UPDATE)) {
+			return [];
+		}
+
+		return DBA::selectFirst('application-token', [], ['application-id' => $application['id'], 'uid' => $uid]);
 	}
 
 	/**
@@ -140,7 +365,7 @@ class BaseApi extends BaseModule
 				$return = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
 				break;
 		}
-		
+
 		return $return;
 	}
 

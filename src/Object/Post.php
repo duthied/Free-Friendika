@@ -211,7 +211,7 @@ class Post
 		$origin = $item['origin'] || $item['parent-origin'];
 
 		if ($item['pinned']) {
-			$pinned = DI::l10n()->t('pinned item');
+			$pinned = DI::l10n()->t('Pinned item');
 		}
 
 		// Showing the one or the other text, depending upon if we can only hide it or really delete it.
@@ -223,9 +223,12 @@ class Post
 			$drop = [
 				'dropping' => $dropping,
 				'pagedrop' => $item['pagedrop'],
-				'select'   => DI::l10n()->t('Select'),
-				'delete'   => $delete,
+				'select' => DI::l10n()->t('Select'),
+				'delete' => $delete,
 			];
+		}
+
+		if (!$item['self']) {
 			$block = [
 				'blocking' => true,
 				'block'   => DI::l10n()->t('Block %s', $item['author-name']),
@@ -233,7 +236,7 @@ class Post
 			];
 		}
 
-		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? DI::l10n()->t("save to folder") : false);
+		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? DI::l10n()->t('Save to folder') : false);
 
 		$profile_name = $item['author-name'];
 		if (!empty($item['author-link']) && empty($item['author-name'])) {
@@ -297,12 +300,12 @@ class Post
 				$ignored = PostModel\ThreadUser::getIgnored($item['uri-id'], local_user());
 				if ($item['mention'] || $ignored) {
 					$ignore = [
-						'do'        => DI::l10n()->t("ignore thread"),
-						'undo'      => DI::l10n()->t("unignore thread"),
-						'toggle'    => DI::l10n()->t("toggle ignore status"),
+						'do'        => DI::l10n()->t('Ignore thread'),
+						'undo'      => DI::l10n()->t('Unignore thread'),
+						'toggle'    => DI::l10n()->t('Toggle ignore status'),
 						'classdo'   => $ignored ? "hidden" : "",
 						'classundo' => $ignored ? "" : "hidden",
-						'ignored'   => DI::l10n()->t('ignored'),
+						'ignored'   => DI::l10n()->t('Ignored'),
 					];
 				}
 
@@ -311,28 +314,28 @@ class Post
 						$ispinned = ($item['pinned'] ? 'pinned' : 'unpinned');
 
 						$pin = [
-							'do'        => DI::l10n()->t('pin'),
-							'undo'      => DI::l10n()->t('unpin'),
-							'toggle'    => DI::l10n()->t('toggle pin status'),
+							'do'        => DI::l10n()->t('Pin'),
+							'undo'      => DI::l10n()->t('Unpin'),
+							'toggle'    => DI::l10n()->t('Toggle pin status'),
 							'classdo'   => $item['pinned'] ? 'hidden' : '',
 							'classundo' => $item['pinned'] ? '' : 'hidden',
-							'pinned'   => DI::l10n()->t('pinned'),
+							'pinned'   => DI::l10n()->t('Pinned'),
 						];
 					}
 
 					$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
 					$star = [
-						'do'        => DI::l10n()->t("add star"),
-						'undo'      => DI::l10n()->t("remove star"),
-						'toggle'    => DI::l10n()->t("toggle star status"),
+						'do'        => DI::l10n()->t('Add star'),
+						'undo'      => DI::l10n()->t('Remove star'),
+						'toggle'    => DI::l10n()->t('Toggle star status'),
 						'classdo'   => $item['starred'] ? "hidden" : "",
 						'classundo' => $item['starred'] ? "" : "hidden",
-						'starred'   => DI::l10n()->t('starred'),
+						'starred'   => DI::l10n()->t('Starred'),
 					];
 
 					$tagger = [
-						'add'   => DI::l10n()->t("add tag"),
+						'add'   => DI::l10n()->t('Add tag'),
 						'class' => "",
 					];
 				}
@@ -342,8 +345,8 @@ class Post
 		}
 
 		if ($conv->isWritable()) {
-			$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29")      , DI::l10n()->t("like")];
-			$buttons['dislike'] = [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t("dislike")];
+			$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29")      , DI::l10n()->t('Like')];
+			$buttons['dislike'] = [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t('Dislike')];
 			if ($shareable) {
 				$buttons['share'] = [DI::l10n()->t('Quote share this'), DI::l10n()->t('Quote Share')];
 			}
@@ -399,7 +402,7 @@ class Post
 
 		// Fetching of Diaspora posts doesn't always work. There are issues with reshares and possibly comments
 		if (($item['network'] != Protocol::DIASPORA) && empty($comment) && !empty(Session::get('remote_comment'))) {
-			$remote_comment = [DI::l10n()->t('Comment this item on your system'), DI::l10n()->t('remote comment'),
+			$remote_comment = [DI::l10n()->t('Comment this item on your system'), DI::l10n()->t('Remote comment'),
 				str_replace('{uri}', urlencode($item['uri']), Session::get('remote_comment'))];
 		} else {
 			$remote_comment = '';
@@ -424,6 +427,8 @@ class Post
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
+			'comment_firstcollapsed' => false,
+			'comment_lastcollapsed' => false,
 			'suppress_tags'   => DI::config()->get('system', 'suppress_tags'),
 			'tags'            => $tags['tags'],
 			'hashtags'        => $tags['hashtags'],
@@ -540,10 +545,7 @@ class Post
 			}
 		}
 
-		if ($this->isToplevel()) {
-			$result['total_comments_num'] = "$total_children";
-			$result['total_comments_text'] = DI::l10n()->tt('comment', 'comments', $total_children);
-		}
+		$result['total_comments_num'] = $this->isToplevel() ? $total_children : 0;
 
 		$result['private'] = $item['private'];
 		$result['toplevel'] = ($this->isToplevel() ? 'toplevel_item' : '');
@@ -884,8 +886,13 @@ class Post
 
 		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 		foreach ($terms as $term) {
+			if (!$term['url']) {
+				DI::logger()->warning('Mention term with no URL', ['term' => $term]);
+				continue;
+			}
+
 			$profile = Contact::getByURL($term['url'], false, ['addr', 'contact-type']);
-			if (!empty($profile['addr']) && ((($profile['contact-type'] ?? '') ?: Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&
+			if (!empty($profile['addr']) && (($profile['contact-type'] ?? Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&
 				($profile['addr'] != $owner['addr']) && !strstr($text, $profile['addr'])) {
 				$text .= '@' . $profile['addr'] . ' ';
 			}
@@ -942,9 +949,9 @@ class Post
 				'$qcomment'    => $qcomment,
 				'$default'     => $default_text,
 				'$profile_uid' => $uid,
-				'$mylink'      => DI::baseUrl()->remove($a->contact['url']),
+				'$mylink'      => DI::baseUrl()->remove($a->contact['url'] ?? ''),
 				'$mytitle'     => DI::l10n()->t('This is you'),
-				'$myphoto'     => DI::baseUrl()->remove($a->contact['thumb']),
+				'$myphoto'     => DI::baseUrl()->remove($a->contact['thumb'] ?? ''),
 				'$comment'     => DI::l10n()->t('Comment'),
 				'$submit'      => DI::l10n()->t('Submit'),
 				'$loading'     => DI::l10n()->t('Loading...'),

@@ -888,7 +888,8 @@ function conversation_fetch_items(array $parent, array $items, array $condition,
 	return $items;
 }
 
-function item_photo_menu($item) {
+function item_photo_menu($item)
+{
 	$sub_link = '';
 	$poke_link = '';
 	$contact_url = '';
@@ -929,8 +930,8 @@ function item_photo_menu($item) {
 	if (!empty($pcid)) {
 		$contact_url = 'contact/' . $pcid;
 		$posts_link  = $contact_url . '/posts';
-		$block_link  = $contact_url . '/block';
-		$ignore_link = $contact_url . '/ignore';
+		$block_link  = $item['self'] ? '' : $contact_url . '/block';
+		$ignore_link = $item['self'] ? '' : $contact_url . '/ignore';
 	}
 
 	if ($cid && !$item['self']) {
@@ -983,7 +984,7 @@ function item_photo_menu($item) {
 		if (strpos($v, 'javascript:') === 0) {
 			$v = substr($v, 11);
 			$o .= '<li role="menuitem"><a onclick="' . $v . '">' . $k . '</a></li>' . PHP_EOL;
-		} elseif ($v!='') {
+		} elseif ($v) {
 			$o .= '<li role="menuitem"><a href="' . $v . '">' . $k . '</a></li>' . PHP_EOL;
 		}
 	}
@@ -1211,6 +1212,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$edimg'        => DI::l10n()->t('Image'),
 		'$edurl'        => DI::l10n()->t('Link'),
 		'$edattach'     => DI::l10n()->t('Link or Media'),
+		'$edvideo'      => DI::l10n()->t('Video'),
 		'$setloc'       => DI::l10n()->t('Set your location'),
 		'$shortsetloc'  => DI::l10n()->t('set location'),
 		'$noloc'        => DI::l10n()->t('Clear browser location'),

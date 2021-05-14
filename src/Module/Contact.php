@@ -413,6 +413,10 @@ class Contact extends BaseModule
 			}
 
 			if ($cmd === 'block') {
+				if (public_contact() === $contact_id) {
+					throw new BadRequestException(DI::l10n()->t('You can\'t block yourself'));
+				}
+
 				self::blockContact($contact_id);
 
 				$blocked = Model\Contact\User::isBlocked($contact_id, local_user());
@@ -423,6 +427,10 @@ class Contact extends BaseModule
 			}
 
 			if ($cmd === 'ignore') {
+				if (public_contact() === $contact_id) {
+					throw new BadRequestException(DI::l10n()->t('You can\'t ignore yourself'));
+				}
+
 				self::ignoreContact($contact_id);
 
 				$ignored = Model\Contact\User::isIgnored($contact_id, local_user());

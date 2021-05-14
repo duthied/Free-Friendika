@@ -240,11 +240,27 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Application
+	 */
+	public static function mstdnApplication()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Application::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Attachment
 	 */
 	public static function mstdnAttachment()
 	{
 		return self::$dice->create(Factory\Api\Mastodon\Attachment::class);
+	}
+
+	/**
+	 * @return Factory\Api\Mastodon\Card
+	 */
+	public static function mstdnCard()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Card::class);
 	}
 
 	/**
@@ -296,11 +312,27 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\ListEntity
+	 */
+	public static function mstdnList()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\ListEntity::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Mention
 	 */
 	public static function mstdnMention()
 	{
 		return self::$dice->create(Factory\Api\Mastodon\Mention::class);
+	}
+
+	/**
+	 * @return Factory\Api\Mastodon\Notification
+	 */
+	public static function mstdnNotification()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Notification::class);
 	}
 
 	/**

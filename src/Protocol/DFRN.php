@@ -899,10 +899,10 @@ class DFRN
 			$entry->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
 		}
 
+		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
+
 		if ($item['private'] == Item::PRIVATE) {
-			$body = Item::fixPrivatePhotos($item['body'], $owner['uid'], $item, $cid);
-		} else {
-			$body = $item['body'];
+			$body = Item::fixPrivatePhotos($body, $owner['uid'], $item, $cid);
 		}
 
 		// Remove the abstract element. It is only locally important.
@@ -1272,7 +1272,7 @@ class DFRN
 
 			switch ($rino_remote_version) {
 				case 1:
-					$key = openssl_random_pseudo_bytes(16);
+					$key = random_bytes(16);
 					$data = self::aesEncrypt($postvars['data'], $key);
 					break;
 
@@ -1441,19 +1441,19 @@ class DFRN
 	/**
 	 * Fetch the author data from head or entry items
 	 *
-	 * @param object $xpath     XPath object
-	 * @param object $context   In which context should the data be searched
-	 * @param array  $importer  Record of the importer user mixed with contact of the content
-	 * @param string $element   Element name from which the data is fetched
-	 * @param bool   $onlyfetch Should the data only be fetched or should it update the contact record as well
-	 * @param string $xml       optional, default empty
+	 * @param \DOMXPath $xpath     XPath object
+	 * @param \DOMNode  $context   In which context should the data be searched
+	 * @param array     $importer  Record of the importer user mixed with contact of the content
+	 * @param string    $element   Element name from which the data is fetched
+	 * @param bool      $onlyfetch Should the data only be fetched or should it update the contact record as well
+	 * @param string    $xml       optional, default empty
 	 *
 	 * @return array Relevant data of the author
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @todo  Find good type-hints for all parameter
 	 */
-	private static function fetchauthor($xpath, $context, $importer, $element, $onlyfetch, $xml = "")
+	private static function fetchauthor(\DOMXPath $xpath, \DOMNode $context, $importer, $element, $onlyfetch, $xml = "")
 	{
 		$author = [];
 		$author["name"] = XML::getFirstNodeValue($xpath, $element."/atom:name/text()", $context);
@@ -1609,12 +1609,14 @@ class DFRN
 			}
 
 			// "dfrn:birthday" contains the birthday converted to UTC
-			$birthday = XML::getFirstNodeValue($xpath, $element . "/poco:birthday/text()", $context);
-
-			if (strtotime($birthday) > time()) {
-				$bd_timestamp = strtotime($birthday);
-
-				$poco["bdyear"] = date("Y", $bd_timestamp);
+			$birthday = XML::getFirstNodeValue($xpath, $element . "/dfrn:birthday/text()", $context);
+			try {
+				$birthday_date = new \DateTime($birthday);
+				if ($birthday_date > new \DateTime()) {
+					$poco["bdyear"] = $birthday_date->format("Y");
+				}
+			} catch (\Exception $e) {
+				// Invalid birthday
 			}
 
 			// "poco:birthday" is the birthday in the format "yyyy-mm-dd"
@@ -2245,6 +2247,8 @@ class DFRN
 
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
 
+		$item["body"] = Item::improveSharedDataInBody($item);
+
 		Tag::storeFromBody($item['uri-id'], $item["body"]);
 
 		// We store the data from "dfrn:diaspora_signature" in a different table, this is done in "Item::insert"
@@ -2340,7 +2344,7 @@ class DFRN
 				return 403;
 			}
 		}
-				
+
 		// Get the type of the item (Top level post, reply or remote reply)
 		$entrytype = self::getEntryType($importer, $item);
 

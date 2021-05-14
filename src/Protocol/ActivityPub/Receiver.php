@@ -111,8 +111,11 @@ class Receiver
 		}
 
 		$http_signer = HTTPSignature::getSigner($body, $header);
-		if (empty($http_signer)) {
+		if ($http_signer === false) {
 			Logger::warning('Invalid HTTP signature, message will be discarded.');
+			return;
+		} elseif (empty($http_signer)) {
+			Logger::info('Signer is a tombstone. The message will be discarded, the signer account is deleted.');
 			return;
 		} else {
 			Logger::info('Valid HTTP signature', ['signer' => $http_signer]);

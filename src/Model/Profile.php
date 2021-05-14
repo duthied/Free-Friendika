@@ -412,7 +412,12 @@ class Profile
 			}
 		}
 
-		$p = [];
+		// Expected profile/vcard.tpl profile.* template variables
+		$p = [
+			'address' => null,
+			'edit' => null,
+			'upubkey' => null,
+		];
 		foreach ($profile as $k => $v) {
 			$k = str_replace('-', '_', $k);
 			$p[$k] = $v;

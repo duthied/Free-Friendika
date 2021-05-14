@@ -2870,9 +2870,9 @@ class Diaspora
 			return false;
 		}
 
-		$aes_key = openssl_random_pseudo_bytes(32);
+		$aes_key = random_bytes(32);
 		$b_aes_key = base64_encode($aes_key);
-		$iv = openssl_random_pseudo_bytes(16);
+		$iv = random_bytes(16);
 		$b_iv = base64_encode($iv);
 
 		$ciphertext = self::aesEncrypt($aes_key, $iv, $msg);
@@ -3367,36 +3367,6 @@ class Diaspora
 	}
 
 	/**
-	 * Add media attachments to the body
-	 *
-	 * @param array $item
-	 * @return string body
-	 */
-	private static function addAttachments(array $item)
-	{
-		$body = $item['body'];
-
-		foreach (Post\Media::getByURIId($item['uri-id'], [Post\Media::IMAGE, Post\Media::AUDIO, Post\Media::VIDEO]) as $media) {
-			if (Item::containsLink($item['body'], $media['url'])) {
-				continue;
-			}
-
-			if ($media['type'] == Post\Media::IMAGE) {
-				if (!empty($media['description'])) {
-					$body .= "\n[img=" . $media['url'] . ']' . $media['description'] .'[/img]';
-				} else {
-					$body .= "\n[img]" . $media['url'] .'[/img]';
-				}
-			} elseif ($media['type'] == Post\Media::AUDIO) {
-				$body .= "\n[audio]" . $media['url'] . "[/audio]\n";
-			} elseif ($media['type'] == Post\Media::VIDEO) {
-				$body .= "\n[video]" . $media['url'] . "[/video]\n";
-			}
-		}
-		return $body;
-	}
-
-	/**
 	 * Create a post (status message or reshare)
 	 *
 	 * @param array $item  The item that will be exported
@@ -3436,7 +3406,7 @@ class Diaspora
 			$type = "reshare";
 		} else {
 			$title = $item["title"];
-			$body = self::addAttachments($item);
+			$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 
 			// Fetch the title from an attached link - if there is one
 			if (empty($item["title"]) && DI::pConfig()->get($owner['uid'], 'system', 'attach_link_title')) {
@@ -3650,7 +3620,7 @@ class Diaspora
 			$thread_parent_item = Post::selectFirst(['guid', 'author-id', 'author-link', 'gravity'], ['uri' => $item['thr-parent'], 'uid' => $item['uid']]);
 		}
 
-		$body = self::addAttachments($item);
+		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 
 		// The replied to autor mention is prepended for clarity if:
 		// - Item replied isn't yours

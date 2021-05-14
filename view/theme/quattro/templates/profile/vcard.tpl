@@ -1,7 +1,7 @@
 <div class="vcard h-card">
 
 	<div class="tool">
-		<div class="fn p-name">{{$profile.name}}</div>
+		<div class="fn p-name" dir="auto">{{$profile.name}}</div>
 		{{if $profile.edit}}
 			<div class="action">
 			<a class="icon s16 edit ttright" href="#" rel="#profiles-menu" title="{{$profile.edit.3}}"><span>{{$profile.edit.1}}</span></a>
@@ -24,23 +24,23 @@
 	{{if $profile.network_link}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$profile.network_link nofilter}}</dd></dl>{{/if}}
 
 	{{if $location}}
-		<dl class="location">
-			<dt class="location-label">{{$location}}</dt>
-			<dd class="adr h-adr">
-				{{if $profile.address}}<p class="street-address p-street-address">{{$profile.address nofilter}}</p>{{/if}}
-				{{if $profile.location}}<p class="p-location">{{$profile.location}}</p>{{/if}}
-			</dd>
-		</dl>
+	<dl class="location" dir="auto">
+		<dt class="location-label">{{$location}}</dt>
+		<dd class="adr h-adr">
+			{{if $profile.address}}<p class="street-address p-street-address">{{$profile.address nofilter}}</p>{{/if}}
+			{{if $profile.location}}<p class="p-location">{{$profile.location}}</p>{{/if}}
+		</dd>
+	</dl>
 	{{/if}}
 
-	{{if $about}}<div class="title">{{$profile.about nofilter}}</div>{{/if}}
+	{{if $about}}<div class="title" dir="auto">{{$profile.about nofilter}}</div>{{/if}}
 
-        {{if $profile.xmpp}}
-                <dl class="xmpp">
-                        <dt class="xmpp-label">{{$xmpp}}</dt>
-                        <dd class="xmpp-data">{{$profile.xmpp}}</dd>
-                </dl>
-        {{/if}}
+    {{if $profile.xmpp}}
+	<dl class="xmpp">
+        <dt class="xmpp-label">{{$xmpp}}</dt>
+        <dd class="xmpp-data">{{$profile.xmpp}}</dd>
+	</dl>
+    {{/if}}
 
 	{{if $profile.upubkey}}<div class="key" style="display:none;">{{$profile.upubkey}}</div>{{/if}}
 

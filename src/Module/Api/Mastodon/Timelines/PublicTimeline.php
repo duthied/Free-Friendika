@@ -46,7 +46,7 @@ class PublicTimeline extends BaseApi
 		// Show only remote statuses? Defaults to false.
 		$remote = (bool)!isset($_REQUEST['remote']) ? false : ($_REQUEST['remote'] == 'true');
 		// Show only statuses with media attached? Defaults to false.
-		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true'); // Currently not supported
+		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true');
 		// Return results older than this id
 		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
 		// Return results newer than this id
@@ -67,6 +67,11 @@ class PublicTimeline extends BaseApi
 
 		if ($remote) {
 			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
+		}
+
+		if ($only_media) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
+				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
 		}
 
 		if (!empty($max_id)) {
