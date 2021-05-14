@@ -80,7 +80,7 @@ class Instance extends BaseDataTransferObject
 		$instance->description = DI::config()->get('config', 'info');
 		$instance->email = DI::config()->get('config', 'admin_email');
 		$instance->version = FRIENDICA_VERSION;
-		$instance->urls = []; // Not supported
+		$instance->urls = null; // Not supported
 		$instance->stats = Stats::get();
 		$instance->thumbnail = $baseUrl->get() . (DI::config()->get('system', 'shortcut_icon') ?? 'images/friendica-32.png');
 		$instance->languages = [DI::config()->get('system', 'language')];
