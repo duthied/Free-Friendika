@@ -18,11 +18,11 @@ Supported mobile apps:
 - twitlatte
 - AndStatus
 - Twidere
+- Subway Tooter
 
 Unsupported mobile apps:
 
-- [Subway Tooter](https://github.com/tateisu/SubwayTooter) Uses the wrong grant_type when requesting a token, possibly a problem in the server type detection of the app. See issue https://github.com/tateisu/SubwayTooter/issues/156
-- [Mammut](https://github.com/jamiesanson/Mammut) States that the instance doesn't exist. Most likely an issue in the vitality check of the app, see issue https://github.com/jamiesanson/Mammut/issues/19
+- [Mammut](https://github.com/jamiesanson/Mammut) There are problems with the token request, see issue https://github.com/jamiesanson/Mammut/issues/19
 - [Fedilab](https://framagit.org/tom79/fedilab) Automatically uses the legacy API, see issue: https://framagit.org/tom79/fedilab/-/issues/520
 
 ## Entities
