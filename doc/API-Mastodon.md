@@ -13,12 +13,12 @@ Authentication is the same as described in [Using the APIs](help/api#Authenticat
 
 Supported mobile apps:
 
-- Tusky
-- Husky
-- twitlatte
-- AndStatus
-- Twidere
-- Subway Tooter
+- [Tusky](https://tusky.app)
+- [Husky](https://husky.fwgs.ru)
+- [twitlatte](https://github.com/moko256/twitlatte)
+- [AndStatus](http://andstatus.org)
+- [Twidere](https://github.com/TwidereProject/)
+- [Subway Tooter](https://github.com/tateisu/SubwayTooter)
 
 Unsupported mobile apps:
 
