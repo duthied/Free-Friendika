@@ -50,12 +50,7 @@ class Token extends BaseApi
 			}
 		}
 
-		if ($grant_type != 'authorization_code') {
-			Logger::warning('Unsupported or missing grant type', ['request' => $_REQUEST]);
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Unsupported or missing grant type'));
-		}
-
-		if (empty($client_id) || empty($client_secret) || empty($redirect_uri)) {
+		if (empty($client_id) || empty($client_secret)) {
 			Logger::warning('Incomplete request data', ['request' => $_REQUEST]);
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Incomplete request data'));
 		}
@@ -65,13 +60,23 @@ class Token extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		// For security reasons only allow freshly created tokens
-		$condition = ["`application-id` = ? AND `code` = ? AND `created_at` > UTC_TIMESTAMP() - INTERVAL ? MINUTE", $application['id'], $code, 5];
+		if ($grant_type == 'client_credentials') {
+			// the "client_credentials" are used as a token for the application itself.
+			// see https://aaronparecki.com/oauth-2-simplified/#client-credentials
+			$token = self::createTokenForUser($application, 0, '');
+		} elseif ($grant_type == 'authorization_code') {
+			// For security reasons only allow freshly created tokens
+			$condition = ["`redirect_uri` = ? AND `id` = ? AND `code` = ? AND `created_at` > UTC_TIMESTAMP() - INTERVAL ? MINUTE",
+				$redirect_uri, $application['id'], $code, 5];
 
-		$token = DBA::selectFirst('application-token', ['access_token', 'created_at'], $condition);
-		if (!DBA::isResult($token)) {
-			Logger::warning('Token not found or outdated', $condition);
-			DI::mstdnError()->Unauthorized();
+			$token = DBA::selectFirst('application-view', ['access_token', 'created_at'], $condition);
+			if (!DBA::isResult($token)) {
+				Logger::warning('Token not found or outdated', $condition);
+				DI::mstdnError()->Unauthorized();
+			}
+		} else {
+			Logger::warning('Unsupported or missing grant type', ['request' => $_REQUEST]);
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Unsupported or missing grant type'));
 		}
 
 		$object = new \Friendica\Object\Api\Mastodon\Token($token['access_token'], 'Bearer', $application['scopes'], $token['created_at']);
