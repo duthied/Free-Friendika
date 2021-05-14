@@ -2410,6 +2410,50 @@ class Contact
 	}
 
 	/**
+	 * Follow a contact
+	 *
+	 * @param int $cid Public contact id
+	 * @param int $uid  User ID
+	 *
+	 * @return bool "true" if following had been successful
+	 */
+	public static function follow(int $cid, int $uid)
+	{
+		$user = User::getById($uid);
+		if (empty($user)) {
+			return false;
+		}
+
+		$contact = self::getById($cid, ['url']);
+
+		$result = self::createFromProbe($user, $contact['url'], false);
+
+		return $result['cid'];
+	}
+
+	/**
+	 * Unfollow a contact
+	 *
+	 * @param int $cid Public contact id
+	 * @param int $uid  User ID
+	 *
+	 * @return bool "true" if unfollowing had been successful
+	 */
+	public static function unfollow(int $cid, int $uid)
+	{
+		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		if (empty($cdata['user'])) {
+			return false;
+		}
+
+		$contact = self::getById($cdata['user']);
+
+		self::removeSharer([], $contact);
+
+		return true;
+	}
+
+	/**
 	 * @param array  $importer Owner (local user) data
 	 * @param array  $contact  Existing owner-specific contact data we want to expand the relationship with. Optional.
 	 * @param array  $datarray An item-like array with at least the 'author-id' and 'author-url' keys for the contact. Mandatory.
@@ -2554,7 +2598,7 @@ class Contact
 		return null;
 	}
 
-	public static function removeFollower($importer, $contact, array $datarray = [], $item = "")
+	public static function removeFollower($importer, $contact)
 	{
 		if (($contact['rel'] == self::FRIEND) || ($contact['rel'] == self::SHARING)) {
 			DBA::update('contact', ['rel' => self::SHARING], ['id' => $contact['id']]);
@@ -2563,7 +2607,7 @@ class Contact
 		}
 	}
 
-	public static function removeSharer($importer, $contact, array $datarray = [], $item = "")
+	public static function removeSharer($importer, $contact)
 	{
 		if (($contact['rel'] == self::FRIEND) || ($contact['rel'] == self::FOLLOWER)) {
 			DBA::update('contact', ['rel' => self::FOLLOWER], ['id' => $contact['id']]);

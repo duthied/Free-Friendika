@@ -38,12 +38,32 @@ class Relationship extends BaseFactory
 	}
 
 	/**
+	 * @param int $publicContactId Contact row id with uid = 0
+	 * @param int $uid User ID
+	 * @return RelationshipEntity
+	 * @throws \Exception
+	 */
+	public function createFromPublicContactId(int $publicContactId, int $uid)
+	{
+		$cdata = Contact::getPublicAndUserContacID($publicContactId, $uid);
+		if (!empty($cdata)) {
+			$cid = $cdata['user'];
+		} else {
+			$cid = $publicContactId;
+		}
+
+		return $this->createFromContact(Contact::getById($cid));
+	}
+
+	/**
 	 * @param array $userContact Full contact row record with uid != 0
 	 * @return RelationshipEntity
 	 */
 	public function createFromContact(array $userContact)
 	{
-		return new RelationshipEntity($userContact['id'], $userContact);
+		return new RelationshipEntity($userContact['id'], $userContact,
+			Contact\User::isBlocked($userContact['id'], $userContact['uid']),
+			Contact\User::isIgnored($userContact['id'], $userContact['uid']));
 	}
 
 	/**

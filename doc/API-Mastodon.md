@@ -13,17 +13,18 @@ Authentication is the same as described in [Using the APIs](help/api#Authenticat
 
 Supported mobile apps:
 
-- [Tusky](https://tusky.app)
-- [Husky](https://husky.fwgs.ru)
-- [twitlatte](https://github.com/moko256/twitlatte)
 - [AndStatus](http://andstatus.org)
-- [Twidere](https://github.com/TwidereProject/)
+- [Husky](https://husky.fwgs.ru)
 - [Subway Tooter](https://github.com/tateisu/SubwayTooter)
+- [Tusky](https://tusky.app)
+- [Twidere](https://github.com/TwidereProject/)
+- [twitlatte](https://github.com/moko256/twitlatte)
+- [Yuito](https://github.com/accelforce/Yuito)
 
 Unsupported mobile apps:
 
-- [Mammut](https://github.com/jamiesanson/Mammut) There are problems with the token request, see issue https://github.com/jamiesanson/Mammut/issues/19
 - [Fedilab](https://framagit.org/tom79/fedilab) Automatically uses the legacy API, see issue: https://framagit.org/tom79/fedilab/-/issues/520
+- [Mammut](https://github.com/jamiesanson/Mammut) There are problems with the token request, see issue https://github.com/jamiesanson/Mammut/issues/19
 
 ## Entities
 

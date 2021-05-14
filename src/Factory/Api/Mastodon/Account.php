@@ -44,9 +44,9 @@ class Account extends BaseFactory
 	{
 		parent::__construct($logger);
 
-		$this->baseUrl = $baseURL;
+		$this->baseUrl      = $baseURL;
 		$this->profileField = $profileField;
-		$this->mstdnField = $mstdnField;
+		$this->mstdnField   = $mstdnField;
 	}
 
 	/**
@@ -61,7 +61,7 @@ class Account extends BaseFactory
 		$cdata = Contact::getPublicAndUserContacID($contactId, $uid);
 		if (!empty($cdata)) {
 			$publicContact = Contact::getById($cdata['public']);
-			$userContact = Contact::getById($cdata['user']);
+			$userContact   = Contact::getById($cdata['user']);
 		} else {
 			$publicContact = Contact::getById($contactId);
 			$userContact = [];

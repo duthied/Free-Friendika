@@ -52,7 +52,7 @@ class Favourited extends BaseApi
 
 		$params = ['order' => ['thr-parent-id' => true], 'limit' => $limit];
 
-		$condition = ['gravity' => GRAVITY_ACTIVITY, 'verb' => Activity::LIKE, 'uid' => $uid];
+		$condition = ['gravity' => GRAVITY_ACTIVITY, 'origin' => true, 'verb' => Activity::LIKE, 'uid' => $uid];
 
 		if (!empty($max_id)) {
 			$condition = DBA::mergeConditions($condition, ["`thr-parent-id` < ?", $max_id]);
