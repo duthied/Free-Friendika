@@ -76,7 +76,7 @@ return [
 			'/accounts/relationships'            => [Module\Api\Mastodon\Accounts\Relationships::class,   [R::GET         ]],
 			'/accounts/search'                   => [Module\Api\Mastodon\Accounts\Search::class,          [R::GET         ]],
 			'/accounts/verify_credentials'       => [Module\Api\Mastodon\Accounts\VerifyCredentials::class, [R::GET       ]],
-			'/accounts/update_credentials'       => [Module\Api\Mastodon\Unimplemented::class,            [R::PATCH       ]], // @todo
+			'/accounts/update_credentials'       => [Module\Api\Mastodon\Accounts\UpdateCredentials::class, [R::PATCH     ]],
 			'/admin/accounts'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/admin/accounts/{id:\d+}'           => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/admin/accounts/{id:\d+}/{action}'  => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
