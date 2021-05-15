@@ -37,42 +37,61 @@ class Relationship extends BaseDataTransferObject
 	/** @var bool */
 	protected $following = false;
 	/** @var bool */
-	protected $followed_by = false;
+	protected $requested = false;
+	/**
+	 * Unsupported
+	 * @var bool
+	 */
+	protected $endorsed = false;
 	/** @var bool */
-	protected $blocking = false;
+	protected $followed_by = false;
 	/** @var bool */
 	protected $muting = false;
 	/** @var bool */
 	protected $muting_notifications = false;
+	/**
+	 * Unsupported
+	 * @var bool
+	 */
+	protected $showing_reblogs = true;
 	/** @var bool */
-	protected $requested = false;
+	protected $notifying = false;
+	/** @var bool */
+	protected $blocking = false;
 	/** @var bool */
 	protected $domain_blocking = false;
 	/**
 	 * Unsupported
 	 * @var bool
 	 */
-	protected $showing_reblogs = true;
+	protected $blocked_by = false;
 	/**
 	 * Unsupported
-	 * @var bool
+	 * @var string
 	 */
-	protected $endorsed = false;
+	protected $note = '';
 
 	/**
 	 * @param int   $userContactId Contact row Id with uid != 0
 	 * @param array $userContact   Full Contact table record with uid != 0
+	 * @param bool  $blocked "true" if user is blocked
+	 * @param bool  $muted "true" if user is muted
 	 */
-	public function __construct(int $userContactId, array $userContact = [])
+	public function __construct(int $userContactId, array $userContact = [], bool $blocked = false, bool $muted = false)
 	{
 		$this->id                   = $userContactId;
 		$this->following            = in_array($userContact['rel'] ?? 0, [Contact::SHARING, Contact::FRIEND]);
-		$this->followed_by          = in_array($userContact['rel'] ?? 0, [Contact::FOLLOWER, Contact::FRIEND]);
-		$this->blocking             = (bool)$userContact['blocked'] ?? false;
-		$this->muting               = (bool)$userContact['readonly'] ?? false;
-		$this->muting_notifications = (bool)$userContact['readonly'] ?? false;
 		$this->requested            = (bool)$userContact['pending'] ?? false;
+		$this->endorsed             = false;
+		$this->followed_by          = in_array($userContact['rel'] ?? 0, [Contact::FOLLOWER, Contact::FRIEND]);
+		$this->muting               = (bool)($userContact['readonly'] ?? false) || $muted;
+		$this->muting_notifications = $this->muting;
+		$this->showing_reblogs      = true;
+		$this->notifying            = (bool)$userContact['notify_new_posts'] ?? false;
+		$this->blocking             = (bool)($userContact['blocked'] ?? false) || $blocked;
 		$this->domain_blocking      = Network::isUrlBlocked($userContact['url'] ?? '');
+		$this->blocked_by           = false;
+		$this->note                 = '';
 
 		return $this;
 	}
