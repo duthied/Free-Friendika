@@ -84,17 +84,7 @@ steps:
       - cp config/local-sample.config.php config/local.config.php
       - while ! mysqladmin ping -h$MYSQL_HOST -P$MYSQL_PORT --silent; do sleep 1; done
       - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
-      - phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
-  - name: Codecov
-    image: plugins/codecov
-    when:
-      repo:
-        - friendica/friendica
-    settings:
-      token:
-        from_secret: codecov-token
-      files:
-        - clover.xml
+      - phpunit --configuration tests/phpunit.xml
 
 services:
   - name: mariadb
@@ -130,6 +120,7 @@ steps:
       MEMCACHED_HOST: "memcached"
       MEMCACHE_HOST: "memcached"
     commands:
+      - phpenmod xdebug
       - composer validate
       - composer install --prefer-dist
       - cp config/local-sample.config.php config/local.config.php
@@ -186,17 +177,7 @@ steps:
       - cp config/local-sample.config.php config/local.config.php
       - while ! mysqladmin ping -h$MYSQL_HOST -P$MYSQL_PORT --silent; do sleep 1; done
       - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
-      - phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
-  - name: Codecov
-    image: plugins/codecov
-    when:
-      repo:
-        - friendica/friendica
-    settings:
-      token:
-        from_secret: codecov-token
-      files:
-        - clover.xml
+      - phpunit --configuration tests/phpunit.xml
 
 services:
   - name: mariadb
