@@ -48,7 +48,7 @@ class Bookmark extends BaseApi
 		}
 
 		if ($item['gravity'] != GRAVITY_PARENT) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting post can be bookmarked'));
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be bookmarked'));
 		}
 
 		Item::update(['starred' => true], ['id' => $item['id']]);

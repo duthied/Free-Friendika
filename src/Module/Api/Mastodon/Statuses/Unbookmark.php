@@ -48,7 +48,7 @@ class Unbookmark extends BaseApi
 		}
 
 		if ($item['gravity'] != GRAVITY_PARENT) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting post can be unbookmarked'));
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be unbookmarked'));
 		}
 
 		Item::update(['starred' => false], ['id' => $item['id']]);

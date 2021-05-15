@@ -47,6 +47,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`GET /api/v1/accounts/:id/followers`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/:id/following`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/:id/lists`](https://docs.joinmastodon.org/methods/accounts/)
+- [`GET /api/v1/accounts/relationships`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/search`](https://docs.joinmastodon.org/methods/accounts)
 - [`GET /api/v1/accounts/verify_credentials`](https://docs.joinmastodon.org/methods/accounts)
 - [`POST /api/v1/apps`](https://docs.joinmastodon.org/methods/apps/)
@@ -115,7 +116,6 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 These emdpoints are planned to be implemented
 
 - [`POST /api/v1/accounts/:id/note`](https://docs.joinmastodon.org/methods/accounts/)
-- [`GET /api/v1/accounts/relationships`](https://docs.joinmastodon.org/methods/accounts/)
 - [`PATCH /api/v1/accounts/update_credentials`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/apps/verify_credentials`](https://docs.joinmastodon.org/methods/apps/)
 - [`GET /api/v1/conversations`](https://docs.joinmastodon.org/methods/timelines/conversations/)

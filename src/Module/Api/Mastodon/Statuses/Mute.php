@@ -47,7 +47,7 @@ class Mute extends BaseApi
 		}
 
 		if ($item['gravity'] != GRAVITY_PARENT) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting post can be muted'));
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be muted'));
 		}
 
 		Post\ThreadUser::setIgnored($parameters['id'], $uid, true);

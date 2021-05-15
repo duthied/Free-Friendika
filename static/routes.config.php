@@ -73,7 +73,7 @@ return [
 			'/accounts/{id:\d+}/pin'             => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/accounts/{id:\d+}/unpin'           => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/accounts/{id:\d+}/note'            => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // @todo
-			'/accounts/relationships'            => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
+			'/accounts/relationships'            => [Module\Api\Mastodon\Accounts\Relationships::class,   [R::GET         ]],
 			'/accounts/search'                   => [Module\Api\Mastodon\Accounts\Search::class,          [R::GET         ]],
 			'/accounts/verify_credentials'       => [Module\Api\Mastodon\Accounts\VerifyCredentials::class, [R::GET       ]],
 			'/accounts/update_credentials'       => [Module\Api\Mastodon\Unimplemented::class,            [R::PATCH       ]], // @todo

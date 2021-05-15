@@ -19,39 +19,41 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon\Statuses;
+namespace Friendica\Module\Api\Mastodon\Accounts;
 
+use Friendica\Core\Search as CoreSearch;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Post;
+use Friendica\Model\Contact;
 use Friendica\Module\BaseApi;
+use Friendica\Object\Search\ContactResult;
 
 /**
- * @see https://docs.joinmastodon.org/methods/statuses/
+ * @see https://docs.joinmastodon.org/methods/accounts/
  */
-class Pin extends BaseApi
+class Relationships extends BaseApi
 {
-	public static function post(array $parameters = [])
+	/**
+	 * @param array $parameters
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function rawContent(array $parameters = [])
 	{
 		self::login();
 		$uid = self::getCurrentUserID();
+
 
 		if (empty($parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id', 'gravity'], ['uri-id' => $parameters['id'], 'uid' => [$uid, 0]]);
-		if (!DBA::isResult($item)) {
-			DI::mstdnError()->RecordNotFound();
+		$relationsships = [];
+
+		foreach ($parameters['id'] as $id) {
+			$relationsships[] = DI::mstdnRelationship()->createFromPublicContactId($id, $uid);
 		}
 
-		if ($item['gravity'] != GRAVITY_PARENT) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be pinned'));
-		}
-
-		Post\ThreadUser::setPinned($parameters['id'], $uid, true);
-
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], $uid)->toArray());
+		System::jsonExit($relationsships);
 	}
 }

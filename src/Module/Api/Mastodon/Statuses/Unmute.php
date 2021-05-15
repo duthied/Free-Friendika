@@ -47,7 +47,7 @@ class Unmute extends BaseApi
 		}
 
 		if ($item['gravity'] != GRAVITY_PARENT) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting post can be unmuted'));
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be unmuted'));
 		}
 
 		Post\ThreadUser::setIgnored($parameters['id'], $uid, false);

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.06-dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-15 10:13+0000\n"
+"POT-Creation-Date: 2021-05-15 10:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7201,16 +7201,16 @@ msgid "Missing parameters"
 msgstr ""
 
 #: src/Module/Api/Mastodon/Statuses/Bookmark.php:51
-msgid "Only starting post can be bookmarked"
+msgid "Only starting posts can be bookmarked"
 msgstr ""
 
 #: src/Module/Api/Mastodon/Statuses/Mute.php:50
-msgid "Only starting post can be muted"
+msgid "Only starting posts can be muted"
 msgstr ""
 
 #: src/Module/Api/Mastodon/Statuses/Pin.php:50
 #: src/Module/Api/Mastodon/Statuses/Unpin.php:50
-msgid "Only starting post can be pinned"
+msgid "Only starting posts can be pinned"
 msgstr ""
 
 #: src/Module/Api/Mastodon/Statuses/Reblog.php:53
@@ -7219,11 +7219,11 @@ msgid "Posts from %s can't be shared"
 msgstr ""
 
 #: src/Module/Api/Mastodon/Statuses/Unbookmark.php:51
-msgid "Only starting post can be unbookmarked"
+msgid "Only starting posts can be unbookmarked"
 msgstr ""
 
 #: src/Module/Api/Mastodon/Statuses/Unmute.php:50
-msgid "Only starting post can be unmuted"
+msgid "Only starting posts can be unmuted"
 msgstr ""
 
 #: src/Module/Api/Mastodon/Statuses/Unreblog.php:53

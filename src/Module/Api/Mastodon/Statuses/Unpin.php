@@ -47,7 +47,7 @@ class Unpin extends BaseApi
 		}
 
 		if ($item['gravity'] != GRAVITY_PARENT) {
-			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting post can be pinned'));
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Only starting posts can be pinned'));
 		}
 
 		Post\ThreadUser::setPinned($parameters['id'], $uid, false);
