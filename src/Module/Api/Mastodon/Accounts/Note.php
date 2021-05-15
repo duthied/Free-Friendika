@@ -22,6 +22,7 @@
 namespace Friendica\Module\Api\Mastodon\Accounts;
 
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Module\BaseApi;
@@ -29,7 +30,7 @@ use Friendica\Module\BaseApi;
 /**
  * @see https://docs.joinmastodon.org/methods/accounts/
  */
-class Unmute extends BaseApi
+class Note extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
@@ -40,7 +41,12 @@ class Unmute extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		Contact\User::setIgnored($parameters['id'], $uid, false);
+		$cdata = Contact::getPublicAndUserContacID($parameters['id'], $uid);
+		if (empty($cdata['user'])) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		DBA::update('contact', ['info' => $_REQUEST['comment'] ?? ''], ['id' => $cdata['user']]);
 
 		System::jsonExit(DI::mstdnRelationship()->createFromContactId($parameters['id'], $uid)->toArray());
 	}

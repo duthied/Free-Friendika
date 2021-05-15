@@ -33,20 +33,17 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 ## Implemented endpoints
 
 - [`GET /api/v1/accounts/:id`](https://docs.joinmastodon.org/methods/accounts/#retrieve-information)
-- [`GET /api/v1/accounts/:id/statuses`](https://docs.joinmastodon.org/methods/accounts/)
-- [`GET /api/v1/accounts/:id/followers`](https://docs.joinmastodon.org/methods/accounts/)
-- [`GET /api/v1/accounts/:id/following`](https://docs.joinmastodon.org/methods/accounts/)
-- [`GET /api/v1/accounts/:id/lists`](https://docs.joinmastodon.org/methods/accounts/)
-- [`POST /api/v1/accounts/:id/follow`](https://docs.joinmastodon.org/methods/accounts/)
-- [`POST /api/v1/accounts/:id/unfollow`](https://docs.joinmastodon.org/methods/accounts/)
 - [`POST /api/v1/accounts/:id/block`](https://docs.joinmastodon.org/methods/accounts/)
-- [`POST /api/v1/accounts/:id/unblock`](https://docs.joinmastodon.org/methods/accounts/)
-- [`POST /api/v1/accounts/:id/mute`](https://docs.joinmastodon.org/methods/accounts/)
-- [`POST /api/v1/accounts/:id/unmute`](https://docs.joinmastodon.org/methods/accounts/)
-- [`GET /api/v1/accounts/:id/statuses`](https://docs.joinmastodon.org/methods/accounts/#retrieve-information)
+- [`POST /api/v1/accounts/:id/follow`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/:id/followers`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/:id/following`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/:id/lists`](https://docs.joinmastodon.org/methods/accounts/)
+- [`POST /api/v1/accounts/:id/mute`](https://docs.joinmastodon.org/methods/accounts/)
+- [`POST /api/v1/accounts/:id/note`](https://docs.joinmastodon.org/methods/accounts/)
+- [`GET /api/v1/accounts/:id/statuses`](https://docs.joinmastodon.org/methods/accounts/)
+- [`POST /api/v1/accounts/:id/unfollow`](https://docs.joinmastodon.org/methods/accounts/)
+- [`POST /api/v1/accounts/:id/unblock`](https://docs.joinmastodon.org/methods/accounts/)
+- [`POST /api/v1/accounts/:id/unmute`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/relationships`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/search`](https://docs.joinmastodon.org/methods/accounts)
 - [`GET /api/v1/accounts/verify_credentials`](https://docs.joinmastodon.org/methods/accounts)
@@ -115,7 +112,6 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 
 These emdpoints are planned to be implemented
 
-- [`POST /api/v1/accounts/:id/note`](https://docs.joinmastodon.org/methods/accounts/)
 - [`PATCH /api/v1/accounts/update_credentials`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/apps/verify_credentials`](https://docs.joinmastodon.org/methods/apps/)
 - [`GET /api/v1/conversations`](https://docs.joinmastodon.org/methods/timelines/conversations/)
