@@ -131,7 +131,6 @@ These emdpoints are planned to be implemented
 
 These endpoints won't be implemented, since they refer to functionality that doesn't exist in Friendica
 
-- [`GET /api/v1/instance/activity`](https://docs.joinmastodon.org/methods/instance#weekly-activity)
 - [`POST /api/v1/accounts`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/accounts/:id/identity_proofs`](https://docs.joinmastodon.org/methods/accounts/)
 - [`POST /api/v1/accounts/:id/pin`](https://docs.joinmastodon.org/methods/accounts/)
