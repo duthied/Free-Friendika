@@ -119,6 +119,7 @@ steps:
       REDIS_HOST: "redis"
       MEMCACHED_HOST: "memcached"
       MEMCACHE_HOST: "memcached"
+      XDEBUG_MODE: "coverage"
     commands:
       - phpenmod xdebug
       - composer validate
