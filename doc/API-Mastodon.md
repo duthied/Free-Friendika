@@ -85,6 +85,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`POST /api/v1/notifications/clear`](https://docs.joinmastodon.org/methods/notifications/)
 - [`POST /api/v1/notifications/:id/dismiss`](https://docs.joinmastodon.org/methods/notifications/)
 - [`GET /api/v1/preferences`](https://docs.joinmastodon.org/methods/accounts/preferences/)
+- [`POST /api/v1/statuses`](https://docs.joinmastodon.org/methods/statuses/)
 - [`GET /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/)
 - [`DELETE /api/v1/statuses/:id`](https://docs.joinmastodon.org/methods/statuses/)
 - [`GET /api/v1/statuses/:id/context`](https://docs.joinmastodon.org/methods/statuses/)
@@ -120,7 +121,6 @@ These emdpoints are planned to be implemented
 - [`GET /api/v1/instance/activity`](https://docs.joinmastodon.org/methods/instance#weekly-activity)
 - [`POST /api/v1/media`](https://docs.joinmastodon.org/methods/statuses/media/)
 - [`PUT /api/v1/media/:id`](https://docs.joinmastodon.org/methods/statuses/media/)
-- [`POST /api/v1/statuses`](https://docs.joinmastodon.org/methods/statuses/)
 - [`GET /api/v1/timelines/direct`](https://docs.joinmastodon.org/methods/timelines/)
 
 ## Non supportable endpoints
