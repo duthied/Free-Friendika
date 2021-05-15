@@ -19,57 +19,37 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Module\Api\Mastodon\Accounts;
 
-use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
-use Friendica\Model\Item;
-use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 
 /**
- * @see https://docs.joinmastodon.org/methods/statuses/
+ * @see https://docs.joinmastodon.org/methods/accounts/
  */
-class Statuses extends BaseApi
+class Relationships extends BaseApi
 {
-	public static function post(array $parameters = [])
-	{
-		$data = self::getJsonPostData();
-		self::unsupported('post');
-	}
-
-	public static function delete(array $parameters = [])
-	{
-		self::login();
-		$uid = self::getCurrentUserID();
-
-		if (empty($parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
-		}
-
-		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => $parameters['id'], 'uid' => $uid]);
-		if (empty($item['id'])) {
-			DI::mstdnError()->RecordNotFound();
-		}
-
-		if (!Item::markForDeletionById($item['id'])) {
-			DI::mstdnError()->RecordNotFound();
-		}
-
-		System::jsonExit([]);
-	}
-
 	/**
 	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function rawContent(array $parameters = [])
 	{
+		self::login();
+		$uid = self::getCurrentUserID();
+
+
 		if (empty($parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], self::getCurrentUserID()));
+		$relationsships = [];
+
+		foreach ($parameters['id'] as $id) {
+			$relationsships[] = DI::mstdnRelationship()->createFromPublicContactId($id, $uid);
+		}
+
+		System::jsonExit($relationsships);
 	}
 }

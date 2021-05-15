@@ -29,7 +29,7 @@ use Friendica\Model\Notification;
 use Friendica\Module\BaseApi;
 
 /**
- * @see https://docs.joinmastodon.org/methods/accounts/mutes/
+ * @see https://docs.joinmastodon.org/methods/notifications/
  */
 class Notifications extends BaseApi
 {

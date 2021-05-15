@@ -19,10 +19,12 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Module\Api\Mastodon\Statuses;
 
-use Friendica\Core\Logger;
+use Friendica\Content\ContactSelector;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Post;
@@ -31,15 +33,9 @@ use Friendica\Module\BaseApi;
 /**
  * @see https://docs.joinmastodon.org/methods/statuses/
  */
-class Statuses extends BaseApi
+class Reblog extends BaseApi
 {
 	public static function post(array $parameters = [])
-	{
-		$data = self::getJsonPostData();
-		self::unsupported('post');
-	}
-
-	public static function delete(array $parameters = [])
 	{
 		self::login();
 		$uid = self::getCurrentUserID();
@@ -48,28 +44,17 @@ class Statuses extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => $parameters['id'], 'uid' => $uid]);
-		if (empty($item['id'])) {
+		$item = Post::selectFirstForUser($uid, ['id', 'network'], ['uri-id' => $parameters['id'], 'uid' => [$uid, 0]]);
+		if (!DBA::isResult($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		if (!Item::markForDeletionById($item['id'])) {
-			DI::mstdnError()->RecordNotFound();
+		if (!in_array($item['network'], [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::TWITTER])) {
+			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t("Posts from %s can't be shared", ContactSelector::networkToName($item['network'])));
 		}
 
-		System::jsonExit([]);
-	}
+		Item::performActivity($item['id'], 'announce', $uid);
 
-	/**
-	 * @param array $parameters
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function rawContent(array $parameters = [])
-	{
-		if (empty($parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
-		}
-
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], self::getCurrentUserID()));
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], $uid)->toArray());
 	}
 }
