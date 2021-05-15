@@ -2116,6 +2116,32 @@ class BBCode
 	}
 
 	/**
+	 * Expand tags to URLs
+	 *
+	 * @param string $body 
+	 * @return string body with expanded tags 
+	 */
+	public static function expandTags(string $body)
+	{
+		return preg_replace_callback("/([!#@])([^\^ \x0D\x0A,;:?\']*[^\^ \x0D\x0A,;:?!\'.])/",
+			function ($match) {
+				switch ($match[1]) {
+					case '!':
+					case '@':
+						$contact = Contact::getByURL($match[2]);
+						if (!empty($contact)) {
+							return $match[1] . '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
+						} else {
+							return $match[1] . $match[2];
+						}
+						break;
+					case '#':
+						return $match[1] . '[url=' . 'https://' . DI::baseUrl() . '/search?tag=' . $match[2] . ']' . $match[2] . '[/url]';
+				}
+			}, $body);
+	}
+
+	/**
 	 * Perform a custom function on a text after having escaped blocks enclosed in the provided tag list.
 	 *
 	 * @param string   $text

@@ -43,6 +43,10 @@ class BaseApi extends BaseModule
 	 * @var bool|int
 	 */
 	protected static $current_user_id;
+	/**
+	 * @var array
+	 */
+	protected static $current_token = [];
 
 	public static function init(array $parameters = [])
 	{
@@ -185,7 +189,12 @@ class BaseApi extends BaseModule
 	protected static function login()
 	{
 		if (empty(self::$current_user_id)) {
-			self::$current_user_id = self::getUserByBearer();
+			self::$current_token = self::getTokenByBearer();
+			if (!empty(self::$current_token['uid'])) {
+				self::$current_user_id = self::$current_token['uid'];
+			} else {
+				self::$current_user_id = 0;
+			}
 		}
 
 		if (empty(self::$current_user_id)) {
@@ -199,6 +208,16 @@ class BaseApi extends BaseModule
 	}
 
 	/**
+	 * Get current application
+	 *
+	 * @return array token
+	 */
+	protected static function getCurrentApplication()
+	{
+		return self::$current_token;
+	}
+
+	/**
 	 * Get current user id, returns 0 if not logged in
 	 *
 	 * @return int User ID
@@ -206,7 +225,13 @@ class BaseApi extends BaseModule
 	protected static function getCurrentUserID()
 	{
 		if (empty(self::$current_user_id)) {
-			self::$current_user_id = self::getUserByBearer();
+			self::$current_token = self::getTokenByBearer();
+			if (!empty(self::$current_token['uid'])) {
+				self::$current_user_id = self::$current_token['uid'];
+			} else {
+				self::$current_user_id = 0;
+			}
+
 		}
 
 		if (empty(self::$current_user_id)) {
@@ -220,27 +245,27 @@ class BaseApi extends BaseModule
 	}
 
 	/**
-	 * Get the user id via the Bearer token
+	 * Get the user token via the Bearer token
 	 *
-	 * @return int User-ID
+	 * @return array User Token
 	 */
-	private static function getUserByBearer()
+	private static function getTokenByBearer()
 	{
 		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 
 		if (substr($authorization, 0, 7) != 'Bearer ') {
-			return 0;
+			return [];
 		}
 
 		$bearer = trim(substr($authorization, 7));
 		$condition = ['access_token' => $bearer];
-		$token = DBA::selectFirst('application-token', ['uid'], $condition);
+		$token = DBA::selectFirst('application-view', ['uid', 'id', 'name', 'website', 'created_at', 'read', 'write', 'follow'], $condition);
 		if (!DBA::isResult($token)) {
 			Logger::warning('Token not found', $condition);
-			return 0;
+			return [];
 		}
 		Logger::info('Token found', $token);
-		return $token['uid'];
+		return $token;
 	}
 
 	/**
