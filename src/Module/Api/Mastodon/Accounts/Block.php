@@ -42,6 +42,6 @@ class Block extends BaseApi
 
 		Contact\User::setBlocked($parameters['id'], $uid, true);
 
-		System::jsonExit(DI::mstdnRelationship()->createFromPublicContactId($parameters['id'], $uid)->toArray());
+		System::jsonExit(DI::mstdnRelationship()->createFromContactId($parameters['id'], $uid)->toArray());
 	}
 }

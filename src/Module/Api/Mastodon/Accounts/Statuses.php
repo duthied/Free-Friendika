@@ -62,6 +62,9 @@ class Statuses extends BaseApi
 		// Maximum number of results to return. Defaults to 20.
 		$limit = (int)!isset($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
 
+		$pinned = (bool)!isset($_REQUEST['pinned']) ? false : ($_REQUEST['pinned'] == 'true');
+		$exclude_replies = (bool)!isset($_REQUEST['exclude_replies']) ? false : ($_REQUEST['exclude_replies'] == 'true');
+
 		$params = ['order' => ['uri-id' => true], 'limit' => $limit];
 
 		$uid = self::getCurrentUserID();
@@ -92,6 +95,14 @@ class Statuses extends BaseApi
 		if (!empty($min_id)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $min_id]);
 			$params['order'] = ['uri-id'];
+		}
+
+		if ($pinned) {
+			$condition = DBA::mergeConditions($condition, ['pinned' => true]);
+		}
+
+		if ($exclude_replies) {
+			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
 		}
 
 		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);

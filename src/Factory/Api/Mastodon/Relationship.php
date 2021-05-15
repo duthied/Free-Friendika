@@ -28,50 +28,21 @@ use Friendica\Model\Contact;
 class Relationship extends BaseFactory
 {
 	/**
-	 * @param int $userContactId Contact row id with uid != 0
-	 * @return RelationshipEntity
-	 * @throws \Exception
-	 */
-	public function createFromContactId(int $userContactId)
-	{
-		return $this->createFromContact(Contact::getById($userContactId));
-	}
-
-	/**
-	 * @param int $publicContactId Contact row id with uid = 0
+	 * @param int $contactId Contact ID (public or user contact)
 	 * @param int $uid User ID
 	 * @return RelationshipEntity
 	 * @throws \Exception
 	 */
-	public function createFromPublicContactId(int $publicContactId, int $uid)
+	public function createFromContactId(int $contactId, int $uid)
 	{
-		$cdata = Contact::getPublicAndUserContacID($publicContactId, $uid);
+		$cdata = Contact::getPublicAndUserContacID($contactId, $uid);
 		if (!empty($cdata)) {
 			$cid = $cdata['user'];
 		} else {
-			$cid = $publicContactId;
+			$cid = $contactId;
 		}
 
-		return $this->createFromContact(Contact::getById($cid));
-	}
-
-	/**
-	 * @param array $userContact Full contact row record with uid != 0
-	 * @return RelationshipEntity
-	 */
-	public function createFromContact(array $userContact)
-	{
-		return new RelationshipEntity($userContact['id'], $userContact,
-			Contact\User::isBlocked($userContact['id'], $userContact['uid']),
-			Contact\User::isIgnored($userContact['id'], $userContact['uid']));
-	}
-
-	/**
-	 * @param int $userContactId Contact row id with uid != 0
-	 * @return RelationshipEntity
-	 */
-	public function createDefaultFromContactId(int $userContactId)
-	{
-		return new RelationshipEntity($userContactId);
+		return new RelationshipEntity($cdata['public'], Contact::getById($cid),
+			Contact\User::isBlocked($cid, $uid), Contact\User::isIgnored($cid, $uid));
 	}
 }

@@ -31,15 +31,6 @@ use Friendica\Network\HTTPException;
  */
 class FollowRequests extends BaseApi
 {
-	public static function init(array $parameters = [])
-	{
-		parent::init($parameters);
-
-		if (!self::login()) {
-			throw new HTTPException\UnauthorizedException();
-		}
-	}
-
 	/**
 	 * @param array $parameters
 	 * @throws HTTPException\BadRequestException
@@ -54,9 +45,10 @@ class FollowRequests extends BaseApi
 	 */
 	public static function post(array $parameters = [])
 	{
-		parent::post($parameters);
+		self::login();
+		$uid = self::getCurrentUserID();
 
-		$introduction = DI::intro()->selectFirst(['id' => $parameters['id'], 'uid' => self::$current_user_id]);
+		$introduction = DI::intro()->selectFirst(['id' => $parameters['id'], 'uid' => $uid]);
 
 		$contactId = $introduction->{'contact-id'};
 
@@ -64,17 +56,17 @@ class FollowRequests extends BaseApi
 			case 'authorize':
 				$introduction->confirm();
 
-				$relationship = DI::mstdnRelationship()->createFromContactId($contactId);
+				$relationship = DI::mstdnRelationship()->createFromContactId($contactId, $uid);
 				break;
 			case 'ignore':
 				$introduction->ignore();
 
-				$relationship = DI::mstdnRelationship()->createDefaultFromContactId($contactId);
+				$relationship = DI::mstdnRelationship()->createFromContactId($contactId, $uid);
 				break;
 			case 'reject':
 				$introduction->discard();
 
-				$relationship = DI::mstdnRelationship()->createDefaultFromContactId($contactId);
+				$relationship = DI::mstdnRelationship()->createFromContactId($contactId, $uid);
 				break;
 			default:
 				throw new HTTPException\BadRequestException('Unexpected action parameter, expecting "authorize", "ignore" or "reject"');
@@ -91,6 +83,9 @@ class FollowRequests extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
+		self::login();
+		$uid = self::getCurrentUserID();
+
 		$min_id = $_GET['min_id'] ?? null;
 		$max_id = $_GET['max_id'] ?? null;
 		$limit = intval($_GET['limit'] ?? 40);
@@ -98,7 +93,7 @@ class FollowRequests extends BaseApi
 		$baseUrl = DI::baseUrl();
 
 		$introductions = DI::intro()->selectByBoundaries(
-			['`uid` = ? AND NOT `ignore`', self::$current_user_id],
+			['`uid` = ? AND NOT `ignore`', $uid],
 			['order' => ['id' => 'DESC']],
 			$min_id,
 			$max_id,

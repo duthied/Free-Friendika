@@ -28,7 +28,7 @@ use Friendica\Util\Network;
 /**
  * Class Relationship
  *
- * @see https://docs.joinmastodon.org/api/entities/#relationship
+ * @see https://docs.joinmastodon.org/entities/relationship/
  */
 class Relationship extends BaseDataTransferObject
 {
@@ -72,26 +72,36 @@ class Relationship extends BaseDataTransferObject
 	protected $note = '';
 
 	/**
-	 * @param int   $userContactId Contact row Id with uid != 0
-	 * @param array $userContact   Full Contact table record with uid != 0
+	 * @param int   $contactId Contact row Id with uid != 0
+	 * @param array $contactRecord   Full Contact table record with uid != 0
 	 * @param bool  $blocked "true" if user is blocked
 	 * @param bool  $muted "true" if user is muted
 	 */
-	public function __construct(int $userContactId, array $userContact = [], bool $blocked = false, bool $muted = false)
+	public function __construct(int $contactId, array $contactRecord = [], bool $blocked = false, bool $muted = false)
 	{
-		$this->id                   = $userContactId;
-		$this->following            = in_array($userContact['rel'] ?? 0, [Contact::SHARING, Contact::FRIEND]);
-		$this->requested            = (bool)$userContact['pending'] ?? false;
+		$this->id                   = $contactId;
+		$this->following            = false;
+		$this->requested            = false;
 		$this->endorsed             = false;
-		$this->followed_by          = in_array($userContact['rel'] ?? 0, [Contact::FOLLOWER, Contact::FRIEND]);
-		$this->muting               = (bool)($userContact['readonly'] ?? false) || $muted;
-		$this->muting_notifications = $this->muting;
+		$this->followed_by          = false;
+		$this->muting               = $muted;
+		$this->muting_notifications = false;
 		$this->showing_reblogs      = true;
-		$this->notifying            = (bool)$userContact['notify_new_posts'] ?? false;
-		$this->blocking             = (bool)($userContact['blocked'] ?? false) || $blocked;
-		$this->domain_blocking      = Network::isUrlBlocked($userContact['url'] ?? '');
+		$this->notifying            = false;
+		$this->blocking             = $blocked;
+		$this->domain_blocking      = Network::isUrlBlocked($contactRecord['url'] ?? '');
 		$this->blocked_by           = false;
 		$this->note                 = '';
+
+		if ($contactRecord['uid'] != 0) {
+			$this->following   = in_array($contactRecord['rel'] ?? 0, [Contact::SHARING, Contact::FRIEND]);
+			$this->requested   = (bool)($contactRecord['pending'] ?? false);
+			$this->followed_by = in_array($contactRecord['rel'] ?? 0, [Contact::FOLLOWER, Contact::FRIEND]);
+			$this->muting      = (bool)($contactRecord['readonly'] ?? false) || $muted;
+			$this->notifying   = (bool)$contactRecord['notify_new_posts'] ?? false;
+			$this->blocking    = (bool)($contactRecord['blocked'] ?? false) || $blocked;
+			$this->note        = $contactRecord['info'];
+		}
 
 		return $this;
 	}

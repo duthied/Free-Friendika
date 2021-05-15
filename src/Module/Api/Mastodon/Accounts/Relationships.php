@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon\Accounts;
 
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
@@ -39,15 +40,14 @@ class Relationships extends BaseApi
 		self::login();
 		$uid = self::getCurrentUserID();
 
-
-		if (empty($parameters['id'])) {
+		if (empty($_REQUEST['id']) || !is_array($_REQUEST['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		$relationsships = [];
 
-		foreach ($parameters['id'] as $id) {
-			$relationsships[] = DI::mstdnRelationship()->createFromPublicContactId($id, $uid);
+		foreach ($_REQUEST['id'] as $id) {
+			$relationsships[] = DI::mstdnRelationship()->createFromContactId($id, $uid);
 		}
 
 		System::jsonExit($relationsships);
