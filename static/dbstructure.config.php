@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1417);
+	define('DB_UPDATE_VERSION', 1418);
 }
 
 return [
@@ -439,6 +439,7 @@ return [
 			"read" => ["type" => "boolean", "comment" => "Read scope"],
 			"write" => ["type" => "boolean", "comment" => "Write scope"],
 			"follow" => ["type" => "boolean", "comment" => "Follow scope"],
+			"push" => ["type" => "boolean", "comment" => "Push scope"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -457,6 +458,7 @@ return [
 			"read" => ["type" => "boolean", "comment" => "Read scope"],
 			"write" => ["type" => "boolean", "comment" => "Write scope"],
 			"follow" => ["type" => "boolean", "comment" => "Follow scope"],
+			"push" => ["type" => "boolean", "comment" => "Push scope"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["application-id", "uid"],

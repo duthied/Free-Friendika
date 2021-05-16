@@ -53,6 +53,7 @@
 			"read" => ["application-token", "read"],
 			"write" => ["application-token", "write"],
 			"follow" => ["application-token", "follow"],
+			"push" => ["application-token", "push"],
 		],
 		"query" => "FROM `application-token`
 			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`"

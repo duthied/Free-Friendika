@@ -38,7 +38,7 @@ class VerifyCredentials extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$self = User::getOwnerDataById($uid);

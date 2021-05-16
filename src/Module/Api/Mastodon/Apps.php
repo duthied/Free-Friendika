@@ -67,9 +67,10 @@ class Apps extends BaseApi
 			$fields['scopes'] = $scopes;
 		}
 
-		$fields['read']   = (stripos($scopes, 'read') !== false);
-		$fields['write']  = (stripos($scopes, 'write') !== false);
-		$fields['follow'] = (stripos($scopes, 'follow') !== false);
+		$fields['read']   = (stripos($scopes, self::SCOPE_READ) !== false);
+		$fields['write']  = (stripos($scopes, self::SCOPE_WRITE) !== false);
+		$fields['follow'] = (stripos($scopes, self::SCOPE_FOLLOW) !== false);
+		$fields['push'] = (stripos($scopes, self::SCOPE_PUSH) !== false);
 
 		if (!empty($website)) {
 			$fields['website'] = $website;

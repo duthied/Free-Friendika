@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.06-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1417
+-- DB_UPDATE_VERSION 1418
 -- ------------------------------------------
 
 
@@ -378,6 +378,7 @@ CREATE TABLE IF NOT EXISTS `application` (
 	`read` boolean COMMENT 'Read scope',
 	`write` boolean COMMENT 'Write scope',
 	`follow` boolean COMMENT 'Follow scope',
+	`push` boolean COMMENT 'Push scope',
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `client_id` (`client_id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='OAuth application';
@@ -395,6 +396,7 @@ CREATE TABLE IF NOT EXISTS `application-token` (
 	`read` boolean COMMENT 'Read scope',
 	`write` boolean COMMENT 'Write scope',
 	`follow` boolean COMMENT 'Follow scope',
+	`push` boolean COMMENT 'Push scope',
 	 PRIMARY KEY(`application-id`,`uid`),
 	 INDEX `uid_id` (`uid`,`application-id`),
 	FOREIGN KEY (`application-id`) REFERENCES `application` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
@@ -1525,7 +1527,8 @@ CREATE VIEW `application-view` AS SELECT
 	`application-token`.`scopes` AS `scopes`,
 	`application-token`.`read` AS `read`,
 	`application-token`.`write` AS `write`,
-	`application-token`.`follow` AS `follow`
+	`application-token`.`follow` AS `follow`,
+	`application-token`.`push` AS `push`
 	FROM `application-token`
 			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`;
 

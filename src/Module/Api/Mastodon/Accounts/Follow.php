@@ -33,7 +33,7 @@ class Follow extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {
@@ -42,6 +42,6 @@ class Follow extends BaseApi
 
 		$cid = Contact::follow($parameters['id'], self::getCurrentUserID());
 
-		System::jsonExit(DI::mstdnRelationship()->createFromContactId($cid)->toArray());
+		System::jsonExit(DI::mstdnRelationship()->createFromContactId($cid, $uid)->toArray());
 	}
 }

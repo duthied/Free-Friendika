@@ -37,7 +37,7 @@ class Reblog extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {

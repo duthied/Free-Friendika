@@ -38,7 +38,7 @@ class Lists extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {

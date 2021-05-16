@@ -54,6 +54,15 @@ class Error extends BaseFactory
 		System::jsonError(401, $errorobj->toArray());
 	}
 
+	public function Forbidden(string $error = '')
+	{
+		$error = $error ?: DI::l10n()->t('Token is not authorized with a valid user or is missing a required scope');
+		$error_description = '';
+		$errorobj = New \Friendica\Object\Api\Mastodon\Error($error, $error_description);
+
+		System::jsonError(403, $errorobj->toArray());
+	}
+
 	public function InternalError(string $error = '')
 	{
 		$error = $error ?: DI::l10n()->t('Internal Server Error');

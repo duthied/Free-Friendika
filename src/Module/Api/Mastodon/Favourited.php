@@ -40,7 +40,7 @@ class Favourited extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		// Maximum number of results to return. Defaults to 20.

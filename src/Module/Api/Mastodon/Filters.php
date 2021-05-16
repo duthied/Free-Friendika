@@ -19,36 +19,22 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon\Statuses;
+namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\Core\System;
-use Friendica\Database\DBA;
-use Friendica\DI;
-use Friendica\Model\Item;
-use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 
 /**
- * @see https://docs.joinmastodon.org/methods/statuses/
+ * @see https://docs.joinmastodon.org/methods/accounts/filters/
  */
-class Favourite extends BaseApi
+class Filters extends BaseApi
 {
-	public static function post(array $parameters = [])
+	/**
+	 * @param array $parameters
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_WRITE);
-		$uid = self::getCurrentUserID();
-
-		if (empty($parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
-		}
-
-		$item = Post::selectFirstForUser($uid, ['id'], ['uri-id' => $parameters['id'], 'uid' => [$uid, 0]]);
-		if (!DBA::isResult($item)) {
-			DI::mstdnError()->RecordNotFound();
-		}
-
-		Item::performActivity($item['id'], 'like', $uid);
-
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], $uid)->toArray());
+		System::jsonError(404, ['error' => 'Record not found']);
 	}
 }

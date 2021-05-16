@@ -31,6 +31,8 @@ class Markers extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
+		self::login(self::SCOPE_WRITE);
+
 		self::unsupported('post');
 	}
 
@@ -40,7 +42,7 @@ class Markers extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_READ);
 
 		System::jsonExit([]);
 	}
