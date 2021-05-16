@@ -49,8 +49,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-13 15:15+0000\n"
-"PO-Revision-Date: 2021-05-14 05:41+0000\n"
+"POT-Creation-Date: 2021-05-16 07:41+0000\n"
+"PO-Revision-Date: 2021-05-16 12:57+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -877,11 +877,11 @@ msgstr "Bitte besuche %s, um die Anfrage zu bearbeiten."
 #: mod/unfollow.php:82 mod/wall_attach.php:78 mod/wall_attach.php:81
 #: mod/wall_upload.php:99 mod/wall_upload.php:102 mod/wallmessage.php:35
 #: mod/wallmessage.php:59 mod/wallmessage.php:96 mod/wallmessage.php:120
-#: src/Module/Attach.php:56 src/Module/BaseApi.php:65
-#: src/Module/BaseApi.php:71 src/Module/BaseApi.php:78
-#: src/Module/BaseApi.php:84 src/Module/BaseApi.php:91
-#: src/Module/BaseApi.php:97 src/Module/BaseApi.php:104
-#: src/Module/BaseApi.php:110 src/Module/BaseNotifications.php:88
+#: src/Module/Attach.php:56 src/Module/BaseApi.php:74
+#: src/Module/BaseApi.php:80 src/Module/BaseApi.php:87
+#: src/Module/BaseApi.php:93 src/Module/BaseApi.php:100
+#: src/Module/BaseApi.php:106 src/Module/BaseApi.php:113
+#: src/Module/BaseApi.php:119 src/Module/BaseNotifications.php:88
 #: src/Module/Contact.php:385 src/Module/Contact/Advanced.php:43
 #: src/Module/Delegation.php:118 src/Module/FollowConfirm.php:16
 #: src/Module/FriendSuggest.php:44 src/Module/Group.php:45
@@ -4600,6 +4600,11 @@ msgid "Unauthorized"
 msgstr "Nicht autorisiert"
 
 #: src/Factory/Api/Mastodon/Error.php:59
+msgid ""
+"Token is not authorized with a valid user or is missing a required scope"
+msgstr "Token ist nicht durch einen gültigen Benutzer autorisiert oder es fehlt ein erforderlicher Geltungsbereich"
+
+#: src/Factory/Api/Mastodon/Error.php:68
 #: src/Module/Special/HTTPException.php:53
 msgid "Internal Server Error"
 msgstr "Interner Serverfehler"
@@ -7238,6 +7243,37 @@ msgstr "Verwehren"
 msgid "Missing parameters"
 msgstr "Fehlende Parameter"
 
+#: src/Module/Api/Mastodon/Statuses/Bookmark.php:51
+msgid "Only starting posts can be bookmarked"
+msgstr "Lesezeichen können nur für den ersten Beitrag einer Unterhaltung angelegt werden"
+
+#: src/Module/Api/Mastodon/Statuses/Mute.php:50
+msgid "Only starting posts can be muted"
+msgstr "Nur die ersten Beiträge von Unterhaltungen können stumm geschaltet werden"
+
+#: src/Module/Api/Mastodon/Statuses/Pin.php:50
+#: src/Module/Api/Mastodon/Statuses/Unpin.php:50
+msgid "Only starting posts can be pinned"
+msgstr "Nur die ersten Beiträge von Unterhaltungen können angeheftet werden"
+
+#: src/Module/Api/Mastodon/Statuses/Reblog.php:53
+#, php-format
+msgid "Posts from %s can't be shared"
+msgstr "Beiträge von %s können nicht geteilt werden"
+
+#: src/Module/Api/Mastodon/Statuses/Unbookmark.php:51
+msgid "Only starting posts can be unbookmarked"
+msgstr "Lesezeichen können nur für die ersten Beiträge einer Unterhaltung entfernt werden"
+
+#: src/Module/Api/Mastodon/Statuses/Unmute.php:50
+msgid "Only starting posts can be unmuted"
+msgstr "Nur die ersten Beiträge einer Unterhaltung können wieder auf laut gestellt werden"
+
+#: src/Module/Api/Mastodon/Statuses/Unreblog.php:53
+#, php-format
+msgid "Posts from %s can't be unshared"
+msgstr "Beiträge von %s können nicht ungeteilt werden"
+
 #: src/Module/Api/Twitter/ContactEndpoint.php:65 src/Module/Contact.php:400
 msgid "Contact not found"
 msgstr "Kontakt nicht gefunden"
@@ -7340,12 +7376,12 @@ msgstr "Addon Features"
 msgid "User registrations waiting for confirmation"
 msgstr "Nutzeranmeldungen, die auf Bestätigung warten"
 
-#: src/Module/BaseApi.php:124
+#: src/Module/BaseApi.php:133
 #, php-format
 msgid "API endpoint %s %s is not implemented"
 msgstr "API Endpunkt %s %s ist nicht implementiert"
 
-#: src/Module/BaseApi.php:125
+#: src/Module/BaseApi.php:134
 msgid ""
 "The API endpoint is currently not implemented but might be in the future."
 msgstr "The API endpoint is currently not implemented but might be in the future."
@@ -8888,11 +8924,11 @@ msgstr "Alle anzeigen"
 msgid "Unsupported or missing response type"
 msgstr "Der Typ der Antwort fehlt oder wird nicht unterstützt"
 
-#: src/Module/OAuth/Authorize.php:54 src/Module/OAuth/Token.php:51
+#: src/Module/OAuth/Authorize.php:54 src/Module/OAuth/Token.php:55
 msgid "Incomplete request data"
 msgstr "Daten der Anfrage sind nicht vollständig"
 
-#: src/Module/OAuth/Token.php:46
+#: src/Module/OAuth/Token.php:79
 msgid "Unsupported or missing grant type"
 msgstr "Der Grant-Typ fehlt oder wird nicht unterstützt"
 
