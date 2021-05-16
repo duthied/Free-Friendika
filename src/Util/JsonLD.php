@@ -24,6 +24,7 @@ namespace Friendica\Util;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Exception;
+use Friendica\Core\System;
 use Friendica\DI;
 
 /**
@@ -65,6 +66,20 @@ class JsonLD
 		$data = jsonld_default_document_loader($url);
 		DI::cache()->set('documentLoader:' . $url, $data, Duration::DAY);
 		return $data;
+	}
+
+	public static function removeSecurityLink(array $json)
+	{
+		if (!is_array($json['@context'])) {
+			return $json;
+		}
+
+		if (($key = array_search('https://w3id.org/security/v1', $json['@context'])) !== false) {
+			unset($json['@context'][$key]);
+			$json['@context'] = array_values(array_filter($json['@context']));
+		}
+
+		return $json;
 	}
 
 	public static function fixContext(array $json)
@@ -111,7 +126,7 @@ class JsonLD
 	 */
 	public static function normalize($json)
 	{
-		$json = self::fixContext($json);
+		$json = self::removeSecurityLink($json);
 
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
@@ -177,7 +192,7 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			Logger::error('compacting error');
+			Logger::error('compacting error', ['callstack' => System::callstack(20)]);
 			// Sooner or later we should log some details as well - but currently this leads to memory issues
 			// Logger::log('compacting error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
 		}

@@ -60,7 +60,7 @@ use Friendica\Util\JsonLD;
 class ActivityPub
 {
 	const PUBLIC_COLLECTION = 'https://www.w3.org/ns/activitystreams#Public';
-	const CONTEXT = ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
+	const CONTEXT = ['https://www.w3.org/ns/activitystreams',
 		['vcard' => 'http://www.w3.org/2006/vcard/ns#',
 		'dfrn' => 'http://purl.org/macgirvin/dfrn/1.0/',
 		'diaspora' => 'https://diasporafoundation.org/ns/',
