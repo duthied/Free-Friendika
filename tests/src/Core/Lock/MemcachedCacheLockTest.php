@@ -60,11 +60,17 @@ class MemcachedCacheLockTest extends LockTest
 		return $lock;
 	}
 
+	/**
+	 * @doesNotPerformAssertions
+	 */
 	public function testGetLocks()
 	{
 		static::markTestIncomplete('Race condition because of too fast getLocks() which uses a workaround');
 	}
 
+	/**
+	 * @doesNotPerformAssertions
+	 */
 	public function testGetLocksWithPrefix()
 	{
 		static::markTestIncomplete('Race condition because of too fast getLocks() which uses a workaround');

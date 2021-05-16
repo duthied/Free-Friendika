@@ -66,6 +66,7 @@ class MemcacheCacheTest extends MemoryCacheTest
 	 * @small
 	 *
 	 * @dataProvider dataSimple
+	 * @doesNotPerformAssertions
 	 */
 	public function testGetAllKeys($value1, $value2, $value3)
 	{

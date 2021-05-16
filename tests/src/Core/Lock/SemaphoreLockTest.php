@@ -59,6 +59,9 @@ class SemaphoreLockTest extends LockTest
 		return new SemaphoreLock();
 	}
 
+	/**
+	 * @doesNotPerformAssertions
+	 */
 	public function testLockTTL()
 	{
 		self::markTestSkipped("Semaphore doesn't work with TTL");

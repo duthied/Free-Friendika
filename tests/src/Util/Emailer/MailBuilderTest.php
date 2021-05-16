@@ -93,6 +93,7 @@ class MailBuilderTest extends MockedTest
 	 * Test if the builder can create full rendered emails
 	 *
 	 * @todo Create test once "Renderer" and "BBCode" are dynamic
+	 * @doesNotPerformAssertions
 	 */
 	public function testBuilderWithNonRawEmail()
 	{

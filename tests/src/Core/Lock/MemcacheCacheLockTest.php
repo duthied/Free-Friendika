@@ -63,6 +63,7 @@ class MemcacheCacheLockTest extends LockTest
 
 	/**
 	 * @small
+	 * @doesNotPerformAssertions
 	 */
 	public function testGetLocks()
 	{
@@ -71,6 +72,7 @@ class MemcacheCacheLockTest extends LockTest
 
 	/**
 	 * @small
+	 * @doesNotPerformAssertions
 	 */
 	public function testGetLocksWithPrefix()
 	{
