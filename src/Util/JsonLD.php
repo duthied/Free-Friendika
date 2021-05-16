@@ -69,49 +69,14 @@ class JsonLD
 		return $data;
 	}
 
-	public static function removeSecurityLink(array $json)
+	private static function replaceSecurityLink(array $json)
 	{
 		if (!is_array($json['@context'])) {
 			return $json;
 		}
 
 		if (($key = array_search('https://w3id.org/security/v1', $json['@context'])) !== false) {
-			unset($json['@context'][$key]);
-			$json['@context'] = array_values(array_filter($json['@context']));
-		}
-
-		return $json;
-	}
-
-	public static function fixContext(array $json)
-	{
-		// Preparation for adding possibly missing content to the context
-		if (!empty($json['@context']) && is_string($json['@context'])) {
-			$json['@context'] = [$json['@context']];
-		}
-
-		if (($key = array_search('https://w3id.org/security/v1', $json['@context'])) !== false) {
-			unset($json['@context'][$key]);
-			$json['@context'] = array_values(array_filter($json['@context']));
-		}
-
-		$last_entry = count($json['@context']) - 1;
-
-		$additional = [
-			'w3id' => 'https://w3id.org/security#',
-			'signature' => 'w3id:signature',
-			'RsaSignature2017' => 'w3id:RsaSignature2017',
-			'created' => 'w3id:created',
-			'creator' => 'w3id:creator',
-			'nonce' => 'w3id:nonce',
-			'signatureValue' => 'w3id:signatureValue',
-			'publicKey' => 'w3id:publicKey',
-			'publicKeyPem' => 'w3id:publicKeyPem'];
-
-		if (is_array($json['@context'][$last_entry])) {
-			$json['@context'][$last_entry] = array_merge($json['@context'][$last_entry], $additional);
-		} else {
-			$json['@context'][] = $additional;
+			$json['@context'][$key] = DI::baseUrl() . '/static/w3id-security-v1.json';
 		}
 
 		return $json;
@@ -127,7 +92,7 @@ class JsonLD
 	 */
 	public static function normalize($json)
 	{
-		$json = self::removeSecurityLink($json);
+		$json = self::replaceSecurityLink($json);
 
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
@@ -163,32 +128,23 @@ class JsonLD
 	 */
 	public static function compact($json)
 	{
-		$context = $json['@context'] ?? [];
-		$json['@context'] = ActivityPub::CONTEXT;
-
-		$compacted = self::internalCompact($json);
+		$compacted = self::internalCompact($json, false);
 		if (empty($compacted)) {
-			Logger::info('Failed to compact with our context');
-			$json['@context'] = $context;
-			$compacted = self::internalCompact($json);
-			if (empty($compacted)) {
-				Logger::info('Failed to compact with original context');
-			} else {
-				Logger::info('Successful compacted with original context');
-			}
+			$json['@context'] = ActivityPub::CONTEXT;
+			$compacted = self::internalCompact($json, true);
 		}
 
 		return $compacted;
 	}
 
-	private static function internalCompact($json)
+	private static function internalCompact($json, bool $error_log)
 	{
-		$json = self::fixContext($json);
+		$json = self::replaceSecurityLink($json);
 
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
 		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams#',
-			'w3id' => (object)['@id' => 'https://w3id.org/security#', '@type' => '@id'],
+			'w3id' => 'https://w3id.org/security#',
 			'ldp' => (object)['@id' => 'http://www.w3.org/ns/ldp#', '@type' => '@id'],
 			'vcard' => (object)['@id' => 'http://www.w3.org/2006/vcard/ns#', '@type' => '@id'],
 			'dfrn' => (object)['@id' => 'http://purl.org/macgirvin/dfrn/1.0/', '@type' => '@id'],
@@ -199,6 +155,17 @@ class JsonLD
 			'litepub' => (object)['@id' => 'http://litepub.social/ns#', '@type' => '@id'],
 			'sc' => (object)['@id' => 'http://schema.org#', '@type' => '@id'],
 			'pt' => (object)['@id' => 'https://joinpeertube.org/ns#', '@type' => '@id']];
+
+		// Preparation for adding possibly missing content to the context
+		if (!empty($json['@context']) && is_string($json['@context'])) {
+			$json['@context'] = [$json['@context']];
+		}
+
+		// Workaround for servers with missing context
+		// See issue https://github.com/nextcloud/social/issues/330
+		if (!empty($json['@context']) && is_array($json['@context'])) {
+			$json['@context'][] = DI::baseUrl() . '/static/w3id-security-v1.json';
+		}
 
 		// Trying to avoid memory problems with large content fields
 		if (!empty($json['object']['source']['content'])) {
@@ -213,7 +180,9 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			Logger::error('compacting error', ['line' => $e->getLine(), 'message' => $e->getMessage(),'callstack' => System::callstack(20)]);
+			if ($error_log) {
+				Logger::error('compacting error', ['line' => $e->getLine(), 'message' => $e->getMessage(),'callstack' => System::callstack(20)]);
+			}
 		}
 
 		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
