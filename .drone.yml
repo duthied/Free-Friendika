@@ -70,7 +70,7 @@ steps:
   - name: Test Friendica
     image: friendicaci/php7.3:php7.3.28
     environment:
-      MYSQL_HOST: "mariadb"
+      MYSQL_HOST: "wrong"
       MYSQL_PORT: 3306
       MYSQL_DATABASE: "test"
       MYSQL_PASSWORD: "test"
@@ -82,7 +82,7 @@ steps:
       - composer validate
       - composer install --prefer-dist
       - cp config/local-sample.config.php config/local.config.php
-      - while ! mysqladmin ping -h$MYSQL_HOST -P$MYSQL_PORT --silent; do sleep 1; done
+      - if ! bin/wait-for-connection $MYSQL_HOST $MYSQL_PORT 300; then echo "[ERROR] Waited 300 seconds, no response" >&2; exit 1; fi
       - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
       - phpunit --configuration tests/phpunit.xml
 
@@ -125,7 +125,7 @@ steps:
       - composer validate
       - composer install --prefer-dist
       - cp config/local-sample.config.php config/local.config.php
-      - while ! mysqladmin ping -h$MYSQL_HOST -P$MYSQL_PORT --silent; do sleep 1; done
+      - if ! bin/wait-for-connection $MYSQL_HOST $MYSQL_PORT 300; then echo "[ERROR] Waited 300 seconds, no response" >&2; exit 1; fi
       - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
       - phpunit --configuration tests/phpunit.xml --coverage-clover clover.xml
   - name: Codecov
@@ -176,7 +176,7 @@ steps:
       - composer validate
       - composer install --prefer-dist
       - cp config/local-sample.config.php config/local.config.php
-      - while ! mysqladmin ping -h$MYSQL_HOST -P$MYSQL_PORT --silent; do sleep 1; done
+      - if ! bin/wait-for-connection $MYSQL_HOST $MYSQL_PORT 300; then echo "[ERROR] Waited 300 seconds, no response" >&2; exit 1; fi
       - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
       - phpunit --configuration tests/phpunit.xml
 
