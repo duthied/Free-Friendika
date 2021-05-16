@@ -33,7 +33,7 @@ class Block extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {

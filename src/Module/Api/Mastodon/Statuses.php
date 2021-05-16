@@ -42,7 +42,7 @@ class Statuses extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$data = self::getJsonPostData();
@@ -190,7 +190,7 @@ class Statuses extends BaseApi
 
 	public static function delete(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {

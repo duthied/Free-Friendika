@@ -33,6 +33,9 @@ class Media extends BaseApi
 {
 	public static function put(array $parameters = [])
 	{
+		self::login(self::SCOPE_WRITE);
+		$uid = self::getCurrentUserID();
+
 		$data = self::getPutData();
 		self::unsupported('put');
 	}
@@ -43,7 +46,7 @@ class Media extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {

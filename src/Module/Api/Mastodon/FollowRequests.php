@@ -45,7 +45,7 @@ class FollowRequests extends BaseApi
 	 */
 	public static function post(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_FOLLOW);
 		$uid = self::getCurrentUserID();
 
 		$introduction = DI::intro()->selectFirst(['id' => $parameters['id'], 'uid' => $uid]);
@@ -83,7 +83,7 @@ class FollowRequests extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login();
+		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$min_id = $_GET['min_id'] ?? null;

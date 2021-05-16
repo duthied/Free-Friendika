@@ -35,6 +35,11 @@ require_once __DIR__ . '/../../include/api.php';
 
 class BaseApi extends BaseModule
 {
+	const SCOPE_READ   = 'read';
+	const SCOPE_WRITE  = 'write';
+	const SCOPE_FOLLOW = 'follow';
+	const SCOPE_PUSH   = 'push';
+
 	/**
 	 * @var string json|xml|rss|atom
 	 */
@@ -175,6 +180,8 @@ class BaseApi extends BaseModule
 	 *
 	 * Simple Auth allow username in form of <pre>user@server</pre>, ignoring server part
 	 *
+	 * @param string $scope the requested scope (read, write, follow)
+	 *
 	 * @return bool Was a user authenticated?
 	 * @throws HTTPException\ForbiddenException
 	 * @throws HTTPException\UnauthorizedException
@@ -186,7 +193,7 @@ class BaseApi extends BaseModule
 	 *               'authenticated' => return status,
 	 *               'user_record' => return authenticated user record
 	 */
-	protected static function login()
+	protected static function login(string $scope)
 	{
 		if (empty(self::$current_user_id)) {
 			self::$current_token = self::getTokenByBearer();
@@ -194,6 +201,13 @@ class BaseApi extends BaseModule
 				self::$current_user_id = self::$current_token['uid'];
 			} else {
 				self::$current_user_id = 0;
+			}
+		}
+
+		if (!empty($scope) && !empty(self::$current_token)) {
+			if (empty(self::$current_token[$scope])) {
+				Logger::warning('The requested scope is not allowed', ['scope' => $scope, 'application' => self::$current_token]);
+				DI::mstdnError()->Forbidden();
 			}
 		}
 
@@ -259,7 +273,7 @@ class BaseApi extends BaseModule
 
 		$bearer = trim(substr($authorization, 7));
 		$condition = ['access_token' => $bearer];
-		$token = DBA::selectFirst('application-view', ['uid', 'id', 'name', 'website', 'created_at', 'read', 'write', 'follow'], $condition);
+		$token = DBA::selectFirst('application-view', ['uid', 'id', 'name', 'website', 'created_at', 'read', 'write', 'follow', 'push'], $condition);
 		if (!DBA::isResult($token)) {
 			Logger::warning('Token not found', $condition);
 			return [];
@@ -332,8 +346,18 @@ class BaseApi extends BaseModule
 		$access_token = bin2hex(random_bytes(32));
 
 		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token, 'scopes' => $scope,
-			'read' => (stripos($scope, 'read') !== false), 'write' => (stripos($scope, 'write') !== false),
-			'follow' => (stripos($scope, 'follow') !== false), 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
+			'read' => (stripos($scope, self::SCOPE_READ) !== false),
+			'write' => (stripos($scope, self::SCOPE_WRITE) !== false),
+			'follow' => (stripos($scope, self::SCOPE_FOLLOW) !== false),
+			'push' => (stripos($scope, self::SCOPE_PUSH) !== false),
+			 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
+
+		foreach ([self::SCOPE_READ, self::SCOPE_WRITE, self::SCOPE_WRITE, self::SCOPE_PUSH] as $scope) {
+			if ($fields[$scope] && !$application[$scope]) {
+				Logger::warning('Requested token scope is not allowed for the application', ['token' => $fields, 'application' => $application]);
+			}
+		}
+	
 		if (!DBA::insert('application-token', $fields, Database::INSERT_UPDATE)) {
 			return [];
 		}
