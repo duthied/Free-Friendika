@@ -70,7 +70,7 @@ steps:
   - name: Test Friendica
     image: friendicaci/php7.3:php7.3.28
     environment:
-      MYSQL_HOST: "wrong"
+      MYSQL_HOST: "mariadb"
       MYSQL_PORT: 3306
       MYSQL_DATABASE: "test"
       MYSQL_PASSWORD: "test"
