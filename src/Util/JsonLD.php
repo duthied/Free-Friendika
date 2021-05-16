@@ -26,6 +26,7 @@ use Friendica\Core\Logger;
 use Exception;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * This class contain methods to work with JsonLD data
@@ -162,6 +163,26 @@ class JsonLD
 	 */
 	public static function compact($json)
 	{
+		$context = $json['@context'] ?? [];
+		$json['@context'] = ActivityPub::CONTEXT;
+
+		$compacted = self::internalCompact($json);
+		if (empty($compacted)) {
+			Logger::info('Failed to compact with our context');
+			$json['@context'] = $context;
+			$compacted = self::internalCompact($json);
+			if (empty($compacted)) {
+				Logger::info('Failed to compact with original context');
+			} else {
+				Logger::info('Successful compacted with original context');
+			}
+		}
+
+		return $compacted;
+	}
+
+	private static function internalCompact($json)
+	{
 		$json = self::fixContext($json);
 
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
@@ -192,9 +213,7 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			Logger::error('compacting error', ['callstack' => System::callstack(20)]);
-			// Sooner or later we should log some details as well - but currently this leads to memory issues
-			// Logger::log('compacting error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
+			Logger::error('compacting error', ['line' => $e->getLine(), 'message' => $e->getMessage(),'callstack' => System::callstack(20)]);
 		}
 
 		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
