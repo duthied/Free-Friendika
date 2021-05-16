@@ -67,6 +67,40 @@ class JsonLD
 		return $data;
 	}
 
+	public static function fixContext(array $json)
+	{
+		// Preparation for adding possibly missing content to the context
+		if (!empty($json['@context']) && is_string($json['@context'])) {
+			$json['@context'] = [$json['@context']];
+		}
+
+		if (($key = array_search('https://w3id.org/security/v1', $json['@context'])) !== false) {
+			unset($json['@context'][$key]);
+			$json['@context'] = array_values(array_filter($json['@context']));
+		}
+
+		$last_entry = count($json['@context']) - 1;
+
+		$additional = [
+			'w3id' => 'https://w3id.org/security#',
+			'signature' => 'w3id:signature',
+			'RsaSignature2017' => 'w3id:RsaSignature2017',
+			'created' => 'w3id:created',
+			'creator' => 'w3id:creator',
+			'nonce' => 'w3id:nonce',
+			'signatureValue' => 'w3id:signatureValue',
+			'publicKey' => 'w3id:publicKey',
+			'publicKeyPem' => 'w3id:publicKeyPem'];
+
+		if (is_array($json['@context'][$last_entry])) {
+			$json['@context'][$last_entry] = array_merge($json['@context'][$last_entry], $additional);
+		} else {
+			$json['@context'][] = $additional;
+		}
+
+		return $json;
+	}
+
 	/**
 	 * Normalises a given JSON array
 	 *
@@ -77,6 +111,8 @@ class JsonLD
 	 */
 	public static function normalize($json)
 	{
+		$json = self::fixContext($json);
+
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
@@ -111,6 +147,8 @@ class JsonLD
 	 */
 	public static function compact($json)
 	{
+		$json = self::fixContext($json);
+
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
 		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams#',
@@ -125,17 +163,6 @@ class JsonLD
 			'litepub' => (object)['@id' => 'http://litepub.social/ns#', '@type' => '@id'],
 			'sc' => (object)['@id' => 'http://schema.org#', '@type' => '@id'],
 			'pt' => (object)['@id' => 'https://joinpeertube.org/ns#', '@type' => '@id']];
-
-		// Preparation for adding possibly missing content to the context
-		if (!empty($json['@context']) && is_string($json['@context'])) {
-			$json['@context'] = [$json['@context']];
-		}
-
-		// Workaround for servers with missing context
-		// See issue https://github.com/nextcloud/social/issues/330
-		if (!empty($json['@context']) && is_array($json['@context'])) {
-			$json['@context'][] = 'https://w3id.org/security/v1';
-		}
 
 		// Trying to avoid memory problems with large content fields
 		if (!empty($json['object']['source']['content'])) {
