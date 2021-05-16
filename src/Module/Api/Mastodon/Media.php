@@ -21,6 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Photo;
@@ -31,13 +32,46 @@ use Friendica\Module\BaseApi;
  */
 class Media extends BaseApi
 {
+	public static function post(array $parameters = [])
+	{
+		self::login(self::SCOPE_WRITE);
+		$uid = self::getCurrentUserID();
+
+		Logger::info('Photo post', ['request' => $_REQUEST, 'files' => $_FILES]);
+
+		if (empty($_FILES['file'])) {
+			DI::mstdnError()->UnprocessableEntity();
+		}
+	
+		$media = Photo::upload($uid, $_FILES['file']);
+		if (empty($media)) {
+			DI::mstdnError()->UnprocessableEntity();
+		}
+
+		Logger::info('Uploaded photo', ['media' => $media]);
+
+		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($media['id']));
+	}
+
 	public static function put(array $parameters = [])
 	{
 		self::login(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$data = self::getPutData();
-		self::unsupported('put');
+
+		if (empty($parameters['id'])) {
+			DI::mstdnError()->UnprocessableEntity();
+		}
+
+		$photo = Photo::selectFirst(['resource-id'], ['id' => $parameters['id'], 'uid' => $uid]);
+		if (empty($photo['resource-id'])) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		Photo::update(['desc' => $data['description'] ?? ''], ['resource-id' => $photo['resource-id']]);
+
+		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($parameters['id']));
 	}
 
 	/**

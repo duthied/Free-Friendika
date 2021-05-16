@@ -835,4 +835,167 @@ class Photo
 
 		return DBA::exists('photo', ['resource-id' => $guid]);
 	}
+
+	/**
+	 * 
+	 * @param int   $uid   User ID
+	 * @param array $files uploaded file array
+	 * @return array photo record
+	 */
+	public static function upload(int $uid, array $files)
+	{
+		Logger::info('starting new upload');
+
+		$user = User::getOwnerDataById($uid);
+		if (empty($user)) {
+			Logger::notice('User not found', ['uid' => $uid]);
+			return [];
+		}
+
+		if (empty($files)) {
+			Logger::notice('Empty upload file');
+			return [];
+		}
+
+		if (!empty($files['tmp_name'])) {
+			if (is_array($files['tmp_name'])) {
+				$src = $files['tmp_name'][0];
+			} else {
+				$src = $files['tmp_name'];
+			}
+		} else {
+			$src = '';
+		}
+
+		if (!empty($files['name'])) {
+			if (is_array($files['name'])) {
+				$filename = basename($files['name'][0]);
+			} else {
+				$filename = basename($files['name']);
+			}
+		} else {
+			$filename = '';
+		}
+
+		if (!empty($files['size'])) {
+			if (is_array($files['size'])) {
+				$filesize = intval($files['size'][0]);
+			} else {
+				$filesize = intval($files['size']);
+			}
+		} else {
+			$filesize = 0;
+		}
+
+		if (!empty($files['type'])) {
+			if (is_array($files['type'])) {
+				$filetype = $files['type'][0];
+			} else {
+				$filetype = $files['type'];
+			}
+		} else {
+			$filetype = '';
+		}
+
+		if (empty($src)) {
+			Logger::notice('No source file name', ['uid' => $uid, 'files' => $files]);
+			return [];
+		}
+
+		$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
+
+		Logger::info('File upload', ['src' => $src, 'filename' => $filename, 'size' => $filesize, 'type' => $filetype]);
+
+		$imagedata = @file_get_contents($src);
+		$Image = new Image($imagedata, $filetype);
+		if (!$Image->isValid()) {
+			Logger::notice('Image is unvalid', ['uid' => $uid, 'files' => $files]);
+			return [];
+		}
+
+		$Image->orient($src);
+		@unlink($src);
+
+		$max_length = DI::config()->get('system', 'max_image_length');
+		if (!$max_length) {
+			$max_length = MAX_IMAGE_LENGTH;
+		}
+		if ($max_length > 0) {
+			$Image->scaleDown($max_length);
+			$filesize = strlen($Image->asString());
+			Logger::info('File upload: Scaling picture to new size', ['max-length' => $max_length]);
+		}
+
+		$width = $Image->getWidth();
+		$height = $Image->getHeight();
+
+		$maximagesize = DI::config()->get('system', 'maximagesize');
+
+		if (!empty($maximagesize) && ($filesize > $maximagesize)) {
+			// Scale down to multiples of 640 until the maximum size isn't exceeded anymore
+			foreach ([5120, 2560, 1280, 640] as $pixels) {
+				if (($filesize > $maximagesize) && (max($width, $height) > $pixels)) {
+					Logger::info('Resize', ['size' => $filesize, 'width' => $width, 'height' => $height, 'max' => $maximagesize, 'pixels' => $pixels]);
+					$Image->scaleDown($pixels);
+					$filesize = strlen($Image->asString());
+					$width = $Image->getWidth();
+					$height = $Image->getHeight();
+				}
+			}
+			if ($filesize > $maximagesize) {
+				@unlink($src);
+				Logger::notice('Image size is too big', ['size' => $filesize, 'max' => $maximagesize]);
+				return [];
+			}
+		}
+
+		$resource_id = Photo::newResource();
+		$album       = DI::l10n()->t('Wall Photos');
+		$defperm     = '<' . $user['id'] . '>';
+
+		$smallest = 0;
+
+		$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 0, 0, $defperm);
+		if (!$r) {
+			Logger::notice('Photo could not be stored');
+			return [];
+		}
+
+		if ($width > 640 || $height > 640) {
+			$Image->scaleDown(640);
+			$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 1, 0, $defperm);
+			if ($r) {
+				$smallest = 1;
+			}
+		}
+
+		if ($width > 320 || $height > 320) {
+			$Image->scaleDown(320);
+			$r = Photo::store($Image, $user['uid'], 0, $resource_id, $filename, $album, 2, 0, $defperm);
+			if ($r && ($smallest == 0)) {
+				$smallest = 2;
+			}
+		}
+
+		$condition = ['resource-id' => $resource_id];
+		$photo = self::selectFirst(['id', 'datasize', 'width', 'height', 'type'], $condition, ['order' => ['width' => true]]);
+		if (empty($photo)) {
+			Logger::notice('Photo not found', ['condition' => $condition]);
+			return [];
+		}
+
+		$picture = [];
+
+		$picture['id']        = $photo['id'];
+		$picture['size']      = $photo['datasize'];
+		$picture['width']     = $photo['width'];
+		$picture['height']    = $photo['height'];
+		$picture['type']      = $photo['type'];
+		$picture['albumpage'] = DI::baseUrl() . '/photos/' . $user['nickname'] . '/image/' . $resource_id;
+		$picture['picture']   = DI::baseUrl() . '/photo/{$resource_id}-0.' . $Image->getExt();
+		$picture['preview']   = DI::baseUrl() . '/photo/{$resource_id}-{$smallest}.' . $Image->getExt();
+
+		Logger::info('upload done', ['picture' => $picture]);
+		return $picture;
+	}
 }

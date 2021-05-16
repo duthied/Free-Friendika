@@ -932,7 +932,25 @@ class Item
 		if ($notify) {
 			$item['edit'] = false;
 			$item['parent'] = $parent_id;
+
+			// Trigger automatic reactions for addons
+			$item['api_source'] = true;
+
+			// We have to tell the hooks who we are - this really should be improved
+			if (!local_user()) {
+				$_SESSION['authenticated'] = true;
+				$_SESSION['uid'] = $uid;
+				$dummy_session = true;
+			} else {
+				$dummy_session = false;
+			}
+
 			Hook::callAll('post_local', $item);
+
+			if ($dummy_session) {
+				unset($_SESSION['authenticated']);
+				unset($_SESSION['uid']);
+			}
 		} else {
 			Hook::callAll('post_remote', $item);
 		}
@@ -1970,13 +1988,6 @@ class Item
 			$datarray["app"] = "Feed";
 			$result = true;
 		}
-
-		// Trigger automatic reactions for addons
-		$datarray['api_source'] = true;
-
-		// We have to tell the hooks who we are - this really should be improved
-		$_SESSION['authenticated'] = true;
-		$_SESSION['uid'] = $contact['uid'];
 
 		return (bool)$result;
 	}

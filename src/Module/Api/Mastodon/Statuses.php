@@ -29,6 +29,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
+use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Module\BaseApi;
@@ -155,6 +156,8 @@ class Statuses extends BaseApi
 				if (empty($media)) {
 					continue;
 				}
+
+				Photo::setPermissionForRessource($media[0]['resource-id'], $uid, $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
 
 				$ressources[] = $media[0]['resource-id'];
 				$phototypes = Images::supportedTypes();
