@@ -152,7 +152,7 @@ class JsonLD
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
 		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams#',
-			'w3id' => 'https://w3id.org/security#',
+			'w3id' => (object)['@id' => 'https://w3id.org/security#', '@type' => '@id'],
 			'ldp' => (object)['@id' => 'http://www.w3.org/ns/ldp#', '@type' => '@id'],
 			'vcard' => (object)['@id' => 'http://www.w3.org/2006/vcard/ns#', '@type' => '@id'],
 			'dfrn' => (object)['@id' => 'http://purl.org/macgirvin/dfrn/1.0/', '@type' => '@id'],
