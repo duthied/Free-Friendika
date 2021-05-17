@@ -899,7 +899,7 @@ class DFRN
 			$entry->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
 		}
 
-		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
+		$body = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body'] ?? '');
 
 		if ($item['private'] == Item::PRIVATE) {
 			$body = Item::fixPrivatePhotos($body, $owner['uid'], $item, $cid);

@@ -122,6 +122,7 @@ These emdpoints are planned to be implemented
 - [`POST /api/v1/conversations/:id/read`](https://docs.joinmastodon.org/methods/timelines/conversations/)
 - [`GET /api/v1/instance/activity`](https://docs.joinmastodon.org/methods/instance#weekly-activity)
 - [`GET /api/v1/timelines/direct`](https://docs.joinmastodon.org/methods/timelines/)
+- [`GET /api/v2/search`](https://docs.joinmastodon.org/methods/search/)
 
 ## Non supportable endpoints
 
