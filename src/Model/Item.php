@@ -2707,7 +2707,7 @@ class Item
 			$shared_links = [];
 		}
 
-		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'], $shared_links);
+		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links);
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
 		$s = self::addLinkAttachment($attachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
