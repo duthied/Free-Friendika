@@ -37,6 +37,9 @@ class ArrayCacheTest extends MemoryCacheTest
 		parent::tearDown();
 	}
 
+	/**
+	 * @doesNotPerformAssertions
+	 */
 	public function testTTL()
 	{
 		// Array Cache doesn't support TTL

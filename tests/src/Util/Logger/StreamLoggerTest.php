@@ -193,6 +193,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 	/**
 	 * Test a relative path
+	 * @doesNotPerformAssertions
 	 */
 	public function testRealPath()
 	{

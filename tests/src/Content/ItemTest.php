@@ -25,6 +25,9 @@ use Friendica\Test\MockedTest;
 
 class ItemTest extends MockedTest
 {
+	/**
+	 * @doesNotPerformAssertions
+	 */
 	public function testDetermineCategoriesTerms()
 	{
 		static::markTestIncomplete('Test data needed.');

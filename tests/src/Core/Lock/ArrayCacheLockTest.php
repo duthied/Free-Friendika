@@ -31,6 +31,9 @@ class ArrayCacheLockTest extends LockTest
 		return new CacheLock(new ArrayCache('localhost'));
 	}
 
+	/**
+	 * @doesNotPerformAssertions
+	 */
 	public function testLockTTL()
 	{
 		self::markTestSkipped("ArrayCache doesn't support TTL");
