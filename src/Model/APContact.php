@@ -258,29 +258,23 @@ class APContact
 		}
 
 		if (!empty($apcontact['following'])) {
-			$data = ActivityPub::fetchContent($apcontact['following']);
-			if (!empty($data)) {
-				if (!empty($data['totalItems'])) {
-					$apcontact['following_count'] = $data['totalItems'];
-				}
+			$following = ActivityPub::fetchContent($apcontact['following']);
+			if (!empty($following['totalItems'])) {
+				$apcontact['following_count'] = $following['totalItems'];
 			}
 		}
 
 		if (!empty($apcontact['followers'])) {
-			$data = ActivityPub::fetchContent($apcontact['followers']);
-			if (!empty($data)) {
-				if (!empty($data['totalItems'])) {
-					$apcontact['followers_count'] = $data['totalItems'];
-				}
+			$followers = ActivityPub::fetchContent($apcontact['followers']);
+			if (!empty($followers['totalItems'])) {
+				$apcontact['followers_count'] = $followers['totalItems'];
 			}
 		}
 
 		if (!empty($apcontact['outbox'])) {
-			$data = ActivityPub::fetchContent($apcontact['outbox']);
-			if (!empty($data)) {
-				if (!empty($data['totalItems'])) {
-					$apcontact['statuses_count'] = $data['totalItems'];
-				}
+			$outbox = ActivityPub::fetchContent($apcontact['outbox']);
+			if (!empty($outbox['totalItems'])) {
+				$apcontact['statuses_count'] = $outbox['totalItems'];
 			}
 		}
 
@@ -333,7 +327,7 @@ class APContact
 
 		if (empty($apcontact['subscribe'])) {
 			$apcontact['subscribe'] = null;
-		}		
+		}
 
 		if (!empty($apcontact['baseurl']) && empty($fetched_contact['gsid'])) {
 			$apcontact['gsid'] = GServer::getID($apcontact['baseurl']);

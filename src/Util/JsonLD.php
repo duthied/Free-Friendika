@@ -41,6 +41,21 @@ class JsonLD
 	 */
 	public static function documentLoader($url)
 	{
+		switch ($url) {
+			case 'https://w3id.org/security/v1':
+				$url = DI::baseUrl() . '/static/security-v1.jsonld';
+				break;
+			case 'https://w3id.org/identity/v1':
+				$url = DI::baseUrl() . '/static/identity-v1.jsonld';
+				break;
+			case 'https://www.w3.org/ns/activitystreams':
+				$url = DI::baseUrl() . '/static/activitystreams.jsonld';
+				break;
+			default:
+				Logger::info('Got url', ['url' =>$url]);
+				break;
+		}
+
 		$recursion = 0;
 
 		$x = debug_backtrace();
@@ -67,40 +82,6 @@ class JsonLD
 		return $data;
 	}
 
-	public static function fixContext(array $json)
-	{
-		// Preparation for adding possibly missing content to the context
-		if (!empty($json['@context']) && is_string($json['@context'])) {
-			$json['@context'] = [$json['@context']];
-		}
-
-		if (($key = array_search('https://w3id.org/security/v1', $json['@context'])) !== false) {
-			unset($json['@context'][$key]);
-			$json['@context'] = array_values(array_filter($json['@context']));
-		}
-
-		$last_entry = count($json['@context']) - 1;
-
-		$additional = [
-			'w3id' => 'https://w3id.org/security#',
-			'signature' => 'w3id:signature',
-			'RsaSignature2017' => 'w3id:RsaSignature2017',
-			'created' => 'w3id:created',
-			'creator' => 'w3id:creator',
-			'nonce' => 'w3id:nonce',
-			'signatureValue' => 'w3id:signatureValue',
-			'publicKey' => 'w3id:publicKey',
-			'publicKeyPem' => 'w3id:publicKeyPem'];
-
-		if (is_array($json['@context'][$last_entry])) {
-			$json['@context'][$last_entry] = array_merge($json['@context'][$last_entry], $additional);
-		} else {
-			$json['@context'][] = $additional;
-		}
-
-		return $json;
-	}
-
 	/**
 	 * Normalises a given JSON array
 	 *
@@ -111,8 +92,6 @@ class JsonLD
 	 */
 	public static function normalize($json)
 	{
-		$json = self::fixContext($json);
-
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
@@ -147,12 +126,10 @@ class JsonLD
 	 */
 	public static function compact($json)
 	{
-		$json = self::fixContext($json);
-
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
 		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams#',
-			'w3id' => (object)['@id' => 'https://w3id.org/security#', '@type' => '@id'],
+			'w3id' => 'https://w3id.org/security#',
 			'ldp' => (object)['@id' => 'http://www.w3.org/ns/ldp#', '@type' => '@id'],
 			'vcard' => (object)['@id' => 'http://www.w3.org/2006/vcard/ns#', '@type' => '@id'],
 			'dfrn' => (object)['@id' => 'http://purl.org/macgirvin/dfrn/1.0/', '@type' => '@id'],
@@ -163,6 +140,17 @@ class JsonLD
 			'litepub' => (object)['@id' => 'http://litepub.social/ns#', '@type' => '@id'],
 			'sc' => (object)['@id' => 'http://schema.org#', '@type' => '@id'],
 			'pt' => (object)['@id' => 'https://joinpeertube.org/ns#', '@type' => '@id']];
+
+		// Preparation for adding possibly missing content to the context
+		if (!empty($json['@context']) && is_string($json['@context'])) {
+			$json['@context'] = [$json['@context']];
+		}
+
+		// Workaround for servers with missing context
+		// See issue https://github.com/nextcloud/social/issues/330
+		if (!empty($json['@context']) && is_array($json['@context'])) {
+			$json['@context'][] = 'https://w3id.org/security/v1';
+		}
 
 		// Trying to avoid memory problems with large content fields
 		if (!empty($json['object']['source']['content'])) {
@@ -177,9 +165,7 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			Logger::error('compacting error');
-			// Sooner or later we should log some details as well - but currently this leads to memory issues
-			// Logger::log('compacting error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
+			Logger::error('compacting error', ['line' => $e->getLine(), 'message' => $e->getMessage()]);
 		}
 
 		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
