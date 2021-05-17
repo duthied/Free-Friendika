@@ -192,7 +192,7 @@ class APContact
 
 		$apcontact['sharedinbox'] = '';
 		if (!empty($compacted['as:endpoints'])) {
-			$apcontact['sharedinbox'] = JsonLD::fetchElement($compacted['as:endpoints'], 'as:sharedbox', '@id');
+			$apcontact['sharedinbox'] = JsonLD::fetchElement($compacted['as:endpoints'], 'as:sharedInbox', '@id');
 			self::unarchiveInbox($apcontact['sharedinbox'], true);
 		}
 
