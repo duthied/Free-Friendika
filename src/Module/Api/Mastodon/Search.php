@@ -178,6 +178,7 @@ class Search extends BaseApi
 	private static function searchHashtags(string $q, bool $exclude_unreviewed, int $limit, int $offset)
 	{
 		$q = ltrim($q, '#');
+
 		$params = ['order' => ['name'], 'limit' => [$offset, $limit]];
 
 		$condition = ["`id` IN (SELECT `tid` FROM `post-tag` WHERE `type` = ? AND `tid` = `id`) AND `name` LIKE ?", Tag::HASHTAG, $q . '%'];
