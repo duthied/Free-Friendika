@@ -165,10 +165,11 @@ class APContact
 			return $fetched_contact;
 		}
 
-		if (empty($data['id'])) {
+		$compacted = JsonLD::compact($data);
+		if (empty($compacted['@id'])) {
 			return $fetched_contact;
 		}
-		
+
 		// Detect multiple fast repeating request to the same address
 		// See https://github.com/friendica/friendica/issues/9303
 		$cachekey = 'apcontact:getByURL:' . $url;
@@ -179,39 +180,40 @@ class APContact
 			DI::cache()->set($cachekey, System::callstack(20), Duration::FIVE_MINUTES);
 		}
 
-		$apcontact['url'] = $data['id'];
-		$apcontact['uuid'] = JsonLD::fetchElement($data, 'diaspora:guid');
-		$apcontact['type'] = JsonLD::fetchElement($data, 'type');
-		$apcontact['following'] = JsonLD::fetchElement($data, 'following');
-		$apcontact['followers'] = JsonLD::fetchElement($data, 'followers');
-		$apcontact['inbox'] = JsonLD::fetchElement($data, 'inbox');
+		$apcontact['url'] = $compacted['@id'];
+		$apcontact['uuid'] = JsonLD::fetchElement($compacted, 'diaspora:guid', '@value');
+		$apcontact['type'] = str_replace('as:', '', JsonLD::fetchElement($compacted, '@type'));
+		$apcontact['following'] = JsonLD::fetchElement($compacted, 'as:following', '@id');
+		$apcontact['followers'] = JsonLD::fetchElement($compacted, 'as:followers', '@id');
+		$apcontact['inbox'] = JsonLD::fetchElement($compacted, 'ldp:inbox', '@id');
 		self::unarchiveInbox($apcontact['inbox'], false);
-		$apcontact['outbox'] = JsonLD::fetchElement($data, 'outbox');
+
+		$apcontact['outbox'] = JsonLD::fetchElement($compacted, 'as:outbox', '@id');
 
 		$apcontact['sharedinbox'] = '';
-		if (!empty($data['endpoints'])) {
-			$apcontact['sharedinbox'] = JsonLD::fetchElement($data['endpoints'], 'sharedInbox');
+		if (!empty($compacted['as:endpoints'])) {
+			$apcontact['sharedinbox'] = JsonLD::fetchElement($compacted['as:endpoints'], 'as:sharedbox', '@id');
 			self::unarchiveInbox($apcontact['sharedinbox'], true);
 		}
 
-		$apcontact['nick'] = JsonLD::fetchElement($data, 'preferredUsername') ?? '';
-		$apcontact['name'] = JsonLD::fetchElement($data, 'name');
+		$apcontact['nick'] = JsonLD::fetchElement($compacted, 'as:preferredUsername', '@value') ?? '';
+		$apcontact['name'] = JsonLD::fetchElement($compacted, 'as:name', '@value');
 
 		if (empty($apcontact['name'])) {
 			$apcontact['name'] = $apcontact['nick'];
 		}
 
-		$apcontact['about'] = HTML::toBBCode(JsonLD::fetchElement($data, 'summary'));
+		$apcontact['about'] = HTML::toBBCode(JsonLD::fetchElement($compacted, 'as:summary', '@value'));
 
-		$apcontact['photo'] = JsonLD::fetchElement($data, 'icon');
-		if (is_array($apcontact['photo']) || !empty($data['icon']['url'])) {
-			$apcontact['photo'] = JsonLD::fetchElement($data['icon'], 'url');
+		$apcontact['photo'] = JsonLD::fetchElement($compacted, 'as:icon', '@id');
+		if (is_array($apcontact['photo']) || !empty($compacted['as:icon']['as:url']['@id'])) {
+			$apcontact['photo'] = JsonLD::fetchElement($compacted['as:icon'], 'as:url', '@id');
 		}
 
 		if (empty($apcontact['alias'])) {
-			$apcontact['alias'] = JsonLD::fetchElement($data, 'url');
+			$apcontact['alias'] = JsonLD::fetchElement($compacted, 'as:url', '@id');
 			if (is_array($apcontact['alias'])) {
-				$apcontact['alias'] = JsonLD::fetchElement($data['url'], 'href');
+				$apcontact['alias'] = JsonLD::fetchElement($compacted['as:url'], 'as:href', '@id');
 			}
 		}
 
@@ -241,18 +243,18 @@ class APContact
 		}
 
 		$apcontact['pubkey'] = null;
-		if (!empty($data['publicKey'])) {
-			$apcontact['pubkey'] = trim(JsonLD::fetchElement($data['publicKey'], 'publicKeyPem'));
+		if (!empty($compacted['w3id:publicKey'])) {
+			$apcontact['pubkey'] = trim(JsonLD::fetchElement($compacted['w3id:publicKey'], 'w3id:publicKeyPem', '@value'));
 			if (strstr($apcontact['pubkey'], 'RSA ')) {
 				$apcontact['pubkey'] = Crypto::rsaToPem($apcontact['pubkey']);
 			}
 		}
 
-		$apcontact['manually-approve'] = (int)JsonLD::fetchElement($data, 'manuallyApprovesFollowers');
+		$apcontact['manually-approve'] = (int)JsonLD::fetchElement($compacted, 'as:manuallyApprovesFollowers');
 
-		if (!empty($data['generator'])) {
-			$apcontact['baseurl'] = JsonLD::fetchElement($data['generator'], 'url');
-			$apcontact['generator'] = JsonLD::fetchElement($data['generator'], 'name');
+		if (!empty($compacted['as:generator'])) {
+			$apcontact['baseurl'] = JsonLD::fetchElement($compacted['as:generator'], 'as:url', '@id');
+			$apcontact['generator'] = JsonLD::fetchElement($compacted['as:generator'], 'as:name', '@value');
 		}
 
 		if (!empty($apcontact['following'])) {
