@@ -24,9 +24,7 @@ namespace Friendica\Util;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Exception;
-use Friendica\Core\System;
 use Friendica\DI;
-use Friendica\Protocol\ActivityPub;
 
 /**
  * This class contain methods to work with JsonLD data
@@ -43,6 +41,21 @@ class JsonLD
 	 */
 	public static function documentLoader($url)
 	{
+		switch ($url) {
+			case 'https://w3id.org/security/v1':
+				$url = DI::baseUrl() . '/static/security-v1.jsonld';
+				break;
+			case 'https://w3id.org/identity/v1':
+				$url = DI::baseUrl() . '/static/identity-v1.jsonld';
+				break;
+			case 'https://www.w3.org/ns/activitystreams':
+				$url = DI::baseUrl() . '/static/activitystreams.jsonld';
+				break;
+			default:
+				Logger::info('Got url', ['url' =>$url]);
+				break;
+		}
+
 		$recursion = 0;
 
 		$x = debug_backtrace();
@@ -69,19 +82,6 @@ class JsonLD
 		return $data;
 	}
 
-	private static function replaceSecurityLink(array $json)
-	{
-		if (!is_array($json['@context'])) {
-			return $json;
-		}
-
-		if (($key = array_search('https://w3id.org/security/v1', $json['@context'])) !== false) {
-			$json['@context'][$key] = DI::baseUrl() . '/static/w3id-security-v1.json';
-		}
-
-		return $json;
-	}
-
 	/**
 	 * Normalises a given JSON array
 	 *
@@ -92,8 +92,6 @@ class JsonLD
 	 */
 	public static function normalize($json)
 	{
-		$json = self::replaceSecurityLink($json);
-
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
@@ -128,19 +126,6 @@ class JsonLD
 	 */
 	public static function compact($json)
 	{
-		$compacted = self::internalCompact($json, false);
-		if (empty($compacted)) {
-			$json['@context'] = ActivityPub::CONTEXT;
-			$compacted = self::internalCompact($json, true);
-		}
-
-		return $compacted;
-	}
-
-	private static function internalCompact($json, bool $error_log)
-	{
-		$json = self::replaceSecurityLink($json);
-
 		jsonld_set_document_loader('Friendica\Util\JsonLD::documentLoader');
 
 		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams#',
@@ -164,7 +149,7 @@ class JsonLD
 		// Workaround for servers with missing context
 		// See issue https://github.com/nextcloud/social/issues/330
 		if (!empty($json['@context']) && is_array($json['@context'])) {
-			$json['@context'][] = DI::baseUrl() . '/static/w3id-security-v1.json';
+			$json['@context'][] = 'https://w3id.org/security/v1';
 		}
 
 		// Trying to avoid memory problems with large content fields
@@ -180,9 +165,7 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			if ($error_log) {
-				Logger::error('compacting error', ['line' => $e->getLine(), 'message' => $e->getMessage(),'callstack' => System::callstack(20)]);
-			}
+			Logger::error('compacting error', ['line' => $e->getLine(), 'message' => $e->getMessage()]);
 		}
 
 		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
