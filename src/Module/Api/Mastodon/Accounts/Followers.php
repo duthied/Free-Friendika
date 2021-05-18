@@ -49,24 +49,22 @@ class Followers extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		// Return results older than this id
-		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
-		// Return results newer than this id
-		$since_id = (int)!isset($_REQUEST['since_id']) ? 0 : $_REQUEST['since_id'];
-		// Maximum number of results to return. Defaults to 20.
-		$limit = (int)!isset($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
+		$request = self::getRequest([
+			'max_id'   => 0,  // Return results older than this id
+			'since_id' => 0,  // Return results newer than this id
+			'limit'    => 20, // Maximum number of results to return. Defaults to 20.
+		]);
 
-
-		$params = ['order' => ['cid' => true], 'limit' => $limit];
+		$params = ['order' => ['cid' => true], 'limit' => $request['limit']];
 
 		$condition = ['relation-cid' => $id, 'follows' => true];
 
-		if (!empty($max_id)) {
-			$condition = DBA::mergeConditions($condition, ["`cid` < ?", $max_id]);
+		if (!empty($request['max_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`cid` < ?", $request['max_id']]);
 		}
 
-		if (!empty($since_id)) {
-			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $since_id]);
+		if (!empty($request['since_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $request['since_id']]);
 		}
 
 		if (!empty($min_id)) {

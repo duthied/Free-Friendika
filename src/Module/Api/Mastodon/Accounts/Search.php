@@ -43,34 +43,32 @@ class Search extends BaseApi
 		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		// What to search for
-		$q = $_REQUEST['q'] ?? '';
-		// Maximum number of results. Defaults to 40.
-		$limit = (int)($_REQUEST['limit'] ?? 40);
-		// Attempt WebFinger lookup. Defaults to false. Use this when q is an exact address.
-		$resolve = ($_REQUEST['resolve'] ?? '') == 'true';
-		// Only who the user is following. Defaults to false.
-		$following = ($_REQUEST['following'] ?? '') == 'true';
+		$request = self::getRequest([
+			'q'         => '',    // What to search for
+			'limit'     => 40,    // Maximum number of results. Defaults to 40.
+			'resolve'   => false, // Attempt WebFinger lookup. Defaults to false. Use this when q is an exact address.
+			'following' => false, // Only who the user is following. Defaults to false.
+		]);
 
 		$accounts = [];
 
-		if (!$following) {
-			if ((strrpos($q, '@') > 0) && $resolve) {
-				$results = CoreSearch::getContactsFromProbe($q);
+		if (!$request['following']) {
+			if ((strrpos($request['q'], '@') > 0) && $request['resolve']) {
+				$results = CoreSearch::getContactsFromProbe($request['q']);
 			}
 
 			if (empty($results)) {
 				if (DI::config()->get('system', 'poco_local_search')) {
-					$results = CoreSearch::getContactsFromLocalDirectory($q, CoreSearch::TYPE_ALL, 0, $limit);
+					$results = CoreSearch::getContactsFromLocalDirectory($request['q'], CoreSearch::TYPE_ALL, 0, $request['limit']);
 				} elseif (!empty(DI::config()->get('system', 'directory'))) {
-					$results = CoreSearch::getContactsFromGlobalDirectory($q, CoreSearch::TYPE_ALL, 1);
+					$results = CoreSearch::getContactsFromGlobalDirectory($request['q'], CoreSearch::TYPE_ALL, 1);
 				}
 			}
 
 			if (!empty($results)) {
 				$counter = 0;
 				foreach ($results->getResults() as $result) {
-					if (++$counter > $limit) {
+					if (++$counter > $request['limit']) {
 						continue;
 					}
 					if ($result instanceof ContactResult) {
@@ -81,14 +79,14 @@ class Search extends BaseApi
 				}
 			}
 		} else {
-			$contacts = Contact::searchByName($q, '', $uid);
+			$contacts = Contact::searchByName($request['q'], '', $uid);
 
 			$counter = 0;
 			foreach ($contacts as $contact) {
 				if (!in_array($contact['rel'], [Contact::SHARING, Contact::FRIEND])) {
 					continue;
 				}
-				if (++$counter > $limit) {
+				if (++$counter > $request['limit']) {
 					continue;
 				}
 				$accounts[] = DI::mstdnAccount()->createFromContactId($contact['id'], $uid);

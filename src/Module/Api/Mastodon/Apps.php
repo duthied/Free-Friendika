@@ -38,42 +38,42 @@ class Apps extends BaseApi
 	 */
 	public static function post(array $parameters = [])
 	{
+		$request = self::getRequest([
+			'client_name'   => '',
+			'redirect_uris' => '',
+			'scopes'        => 'read',
+			'website'       => '',
+		]);
+
 		// Workaround for AndStatus, see issue https://github.com/andstatus/andstatus/issues/538
-		if (empty($_REQUEST['client_name']) || empty($_REQUEST['redirect_uris'])) {
-			$postdata = Network::postdata();
-			if (!empty($postdata)) {
-				$_REQUEST = json_decode($postdata, true);
-				if (empty($_REQUEST)) {
-					DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Missing parameters'));
-				}
+		$postdata = Network::postdata();
+		if (!empty($postdata)) {
+			$postrequest = json_decode($postdata, true);
+			if (!empty($postrequest) && is_array($postrequest)) {
+				$request = array_merge($request, $$postrequest);
 			}
 		}
-
-		$name     = $_REQUEST['client_name'] ?? '';
-		$redirect = $_REQUEST['redirect_uris'] ?? '';
-		$scopes   = $_REQUEST['scopes'] ?? 'read';
-		$website  = $_REQUEST['website'] ?? '';
-
-		if (empty($name) || empty($redirect)) {
+			
+		if (empty($request['client_name']) || empty($request['redirect_uris'])) {
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Missing parameters'));
 		}
 
 		$client_id     = bin2hex(random_bytes(32));
 		$client_secret = bin2hex(random_bytes(32));
 
-		$fields = ['client_id' => $client_id, 'client_secret' => $client_secret, 'name' => $name, 'redirect_uri' => $redirect];
+		$fields = ['client_id' => $client_id, 'client_secret' => $client_secret, 'name' => $request['client_name'], 'redirect_uri' => $request['redirect_uris']];
 
-		if (!empty($scopes)) {
-			$fields['scopes'] = $scopes;
+		if (!empty($request['scopes'])) {
+			$fields['scopes'] = $request['scopes'];
 		}
 
-		$fields['read']   = (stripos($scopes, self::SCOPE_READ) !== false);
-		$fields['write']  = (stripos($scopes, self::SCOPE_WRITE) !== false);
-		$fields['follow'] = (stripos($scopes, self::SCOPE_FOLLOW) !== false);
-		$fields['push'] = (stripos($scopes, self::SCOPE_PUSH) !== false);
+		$fields['read']   = (stripos($request['scopes'], self::SCOPE_READ) !== false);
+		$fields['write']  = (stripos($request['scopes'], self::SCOPE_WRITE) !== false);
+		$fields['follow'] = (stripos($request['scopes'], self::SCOPE_FOLLOW) !== false);
+		$fields['push']   = (stripos($request['scopes'], self::SCOPE_PUSH) !== false);
 
-		if (!empty($website)) {
-			$fields['website'] = $website;
+		if (!empty($request['website'])) {
+			$fields['website'] = $request['website'];
 		}
 
 		if (!DBA::insert('application', $fields)) {

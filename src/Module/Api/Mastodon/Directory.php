@@ -42,14 +42,16 @@ class Directory extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		$offset = (int)!isset($_REQUEST['offset']) ? 0 : $_REQUEST['offset'];
-		$limit = (int)!isset($_REQUEST['limit']) ? 40 : $_REQUEST['limit'];
-		$order = $_REQUEST['order'] ?? 'active';
-		$local = (bool)!isset($_REQUEST['local']) ? false : ($_REQUEST['local'] == 'true');
+		$request = self::getRequest([
+			'offset' => 0,        // How many accounts to skip before returning results. Default 0.
+			'limit'  => 40,       // How many accounts to load. Default 40.
+			'order'  => 'active', // active to sort by most recently posted statuses (default) or new to sort by most recently created profiles.
+			'local'  => false,    // Only return local accounts.
+		]);
 
-		Logger::info('directory', ['offset' => $offset, 'limit' => $limit, 'order' => $order, 'local' => $local]);
+		Logger::info('directory', ['offset' => $request['offset'], 'limit' => $request['limit'], 'order' => $request['order'], 'local' => $request['local']]);
 
-		if ($local) {
+		if ($request['local']) {
 			$table = 'owner-view';
 			$condition = ['net-publish' => true];
 		} else {
@@ -57,8 +59,8 @@ class Directory extends BaseApi
 			$condition = ['uid' => 0, 'hidden' => false, 'network' => Protocol::FEDERATED];
 		}
 
-		$params = ['limit' => [$offset, $limit],
-			'order' => [($order == 'active') ? 'last-item' : 'created' => true]];
+		$params = ['limit' => [$request['offset'], $request['limit']],
+			'order' => [($request['order'] == 'active') ? 'last-item' : 'created' => true]];
 
 		$accounts = [];
 		$contacts = DBA::select($table, ['id', 'uid'], $condition, $params);

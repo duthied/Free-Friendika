@@ -43,23 +43,23 @@ class Favourited extends BaseApi
 		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		// Maximum number of results to return. Defaults to 20.
-		$limit = (int)!isset($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
-		// Return results immediately newer than id
-		$min_id = (int)!isset($_REQUEST['min_id']) ? 0 : $_REQUEST['min_id'];
-		// Return results older than id
-		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
+		$request = self::getRequest([
+			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.
+			'min_id'     => 0,     // Return results immediately newer than id
+			'max_id'     => 0,     // Return results older than id
+			'with_muted' => false, // Unknown parameter
+		]);
 
-		$params = ['order' => ['thr-parent-id' => true], 'limit' => $limit];
+		$params = ['order' => ['thr-parent-id' => true], 'limit' => $request['limit']];
 
 		$condition = ['gravity' => GRAVITY_ACTIVITY, 'origin' => true, 'verb' => Activity::LIKE, 'uid' => $uid];
 
-		if (!empty($max_id)) {
-			$condition = DBA::mergeConditions($condition, ["`thr-parent-id` < ?", $max_id]);
+		if (!empty($request['max_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`thr-parent-id` < ?", $request['max_id']]);
 		}
 
-		if (!empty($min_id)) {
-			$condition = DBA::mergeConditions($condition, ["`thr-parent-id` > ?", $min_id]);
+		if (!empty($request['min_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`thr-parent-id` > ?", $request['min_id']]);
 
 			$params['order'] = ['thr-parent-id'];
 		}
@@ -72,7 +72,7 @@ class Favourited extends BaseApi
 		}
 		DBA::close($items);
 
-		if (!empty($min_id)) {
+		if (!empty($request['min_id'])) {
 			array_reverse($statuses);
 		}
 
