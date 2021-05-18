@@ -47,44 +47,34 @@ class Search extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
-			'max_id'  => 0, 'min_id' => 0, 'account_id' => 0, 'type' => '', 'exclude_unreviewed' => false,
-			'resolve' => false, 'q' => '', 'limit' => 20, 'offset' => 0, 'following' => false]);
-
-		// If provided, statuses returned will be authored only by this account
-		$account_id = $request['account_id'];
-		// Return results older than this id
-		$max_id = $request['max_id'];
-		// Return results immediately newer than this id
-		$min_id = $request['min_id'];
-		// Enum(accounts, hashtags, statuses)
-		$type = $request['type'];
-		// Filter out unreviewed tags? Defaults to false. Use true when trying to find trending tags.
-		$exclude_unreviewed = $request['exclude_unreviewed'];
-		// The search query
-		$q = $request['q'];
-		// Attempt WebFinger lookup. Defaults to false.
-		$resolve = $request['resolve'];
-		// Maximum number of results to load, per type. Defaults to 20. Max 40.
-		$limit = min($request['limit'], 40);
-		// Offset in search results. Used for pagination. Defaults to 0.
-		$offset = $request['offset'];
-		// Only who the user is following. Defaults to false.
-		$following = $request['following'];
-
-		if (empty($q)) {
+			'account_id'         => 0,     // If provided, statuses returned will be authored only by this account
+			'max_id'             => 0,     // Return results older than this id
+			'min_id'             => 0,     // Return results immediately newer than this id
+			'type'               => '',    // Enum(accounts, hashtags, statuses)
+			'exclude_unreviewed' => false, // Filter out unreviewed tags? Defaults to false. Use true when trying to find trending tags.
+			'q'                  => '',    // The search query
+			'resolve'            => false, // Attempt WebFinger lookup. Defaults to false.
+			'limit'              => 20,    // Maximum number of results to load, per type. Defaults to 20. Max 40.
+			'offset'             => 0,     // Maximum number of results to load, per type. Defaults to 20. Max 40.
+			'following'          => false, // Only who the user is following. Defaults to false.
+		]);
+		
+		if (empty($request['q'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
+		$limit = min($request['limit'], 40);
+
 		$result = ['accounts' => [], 'statuses' => [], 'hashtags' => []];
 
-		if (empty($type) || ($type == 'accounts')) {
-			$result['accounts'] = self::searchAccounts($uid, $q, $resolve, $limit, $offset, $following);
+		if (empty($request['type']) || ($request['type'] == 'accounts')) {
+			$result['accounts'] = self::searchAccounts($uid, $request['q'], $request['resolve'], $limit, $request['offset'], $request['following']);
 		}
-		if ((empty($type) || ($type == 'statuses')) && (strpos($q, '@') == false)) {
-			$result['statuses'] = self::searchStatuses($uid, $q, $account_id, $max_id, $min_id, $limit, $offset);
+		if ((empty($request['type']) || ($request['type'] == 'statuses')) && (strpos($request['q'], '@') == false)) {
+			$result['statuses'] = self::searchStatuses($uid, $request['q'], $request['account_id'], $request['max_id'], $request['min_id'], $limit, $request['offset']);
 		}
-		if ((empty($type) || ($type == 'hashtags')) && (strpos($q, '@') == false)) {
-			$result['hashtags'] = self::searchHashtags($q, $exclude_unreviewed, $limit, $offset);
+		if ((empty($request['type']) || ($request['type'] == 'hashtags')) && (strpos($request['q'], '@') == false)) {
+			$result['hashtags'] = self::searchHashtags($request['q'], $request['exclude_unreviewed'], $limit, $request['offset']);
 		}
 
 		System::jsonExit($result);
