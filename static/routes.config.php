@@ -150,7 +150,7 @@ return [
 			'/trends'                            => [Module\Api\Mastodon\Trends::class,                   [R::GET         ]],
 		],
 		'/v2' => [
-			'/search'                            => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
+			'/search'                            => [Module\Api\Mastodon\Search::class,                   [R::GET         ]],
 		],
 		'/friendica' => [
 			'/profile/show'                      => [Module\Api\Friendica\Profile\Show::class, [R::GET         ]],

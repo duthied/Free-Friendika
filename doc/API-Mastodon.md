@@ -109,6 +109,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`GET /api/v1/timelines/public`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/tag/:hashtag`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/trends`](https://docs.joinmastodon.org/methods/instance/trends/)
+- [`GET /api/v2/search`](https://docs.joinmastodon.org/methods/search/)
 
 
 ## Currently unimplemented endpoints
@@ -122,7 +123,6 @@ These emdpoints are planned to be implemented
 - [`POST /api/v1/conversations/:id/read`](https://docs.joinmastodon.org/methods/timelines/conversations/)
 - [`GET /api/v1/instance/activity`](https://docs.joinmastodon.org/methods/instance#weekly-activity)
 - [`GET /api/v1/timelines/direct`](https://docs.joinmastodon.org/methods/timelines/)
-- [`GET /api/v2/search`](https://docs.joinmastodon.org/methods/search/)
 
 ## Non supportable endpoints
 

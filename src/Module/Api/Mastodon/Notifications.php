@@ -50,23 +50,29 @@ class Notifications extends BaseApi
 			System::jsonExit(DI::mstdnNotification()->createFromNotifyId($id));
 		}
 
+		$request = self::getRequest(['max_id' => 0, 'since_id' => 0, 'min_id' => 0, 'limit' => 20,
+			'exclude_types' => [], 'account_id' => 0, 'with_muted' => false]);
+
 		// Return results older than this ID
-		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
+		$max_id = $request['max_id'];
 
 		// Return results newer than this ID
-		$since_id = (int)!isset($_REQUEST['since_id']) ? 0 : $_REQUEST['since_id'];
+		$since_id = $request['since_id'];
 
 		// Return results immediately newer than this ID
-		$min_id = (int)!isset($_REQUEST['min_id']) ? 0 : $_REQUEST['min_id'];
+		$min_id = $request['min_id'];
 
 		// Maximum number of results to return (default 20)
-		$limit = (int)!isset($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
+		$limit = $request['limit'];
 
 		// Array of types to exclude (follow, favourite, reblog, mention, poll, follow_request)
-		$exclude_types = $_REQUEST['exclude_types'] ?? [];
+		$exclude_types = $request['exclude_types'];
 
 		// Return only notifications received from this account
-		$account_id = (int)!isset($_REQUEST['account_id']) ? 0 : $_REQUEST['account_id'];
+		$account_id = $request['account_id'];
+
+		// Unknown parameter
+		$with_muted = $request['with_muted'];
 
 		$params = ['order' => ['id' => true], 'limit' => $limit];
 

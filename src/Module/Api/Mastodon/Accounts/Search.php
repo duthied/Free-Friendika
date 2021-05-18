@@ -44,13 +44,13 @@ class Search extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		// What to search for
-		$q = (int)!isset($_REQUEST['q']) ? 0 : $_REQUEST['q'];
+		$q = $_REQUEST['q'] ?? '';
 		// Maximum number of results. Defaults to 40.
-		$limit = (int)!isset($_REQUEST['limit']) ? 40 : $_REQUEST['limit'];
+		$limit = (int)($_REQUEST['limit'] ?? 40);
 		// Attempt WebFinger lookup. Defaults to false. Use this when q is an exact address.
-		$resolve = (int)!isset($_REQUEST['resolve']) ? 0 : $_REQUEST['resolve'];
+		$resolve = ($_REQUEST['resolve'] ?? '') == 'true';
 		// Only who the user is following. Defaults to false.
-		$following = (int)!isset($_REQUEST['following']) ? 0 : $_REQUEST['following'];
+		$following = ($_REQUEST['following'] ?? '') == 'true';
 
 		$accounts = [];
 

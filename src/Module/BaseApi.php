@@ -137,6 +137,43 @@ class BaseApi extends BaseModule
 	}
 
 	/**
+	 * Processes data from GET requests and sets defaults
+	 *
+	 * @return array request data
+	 */
+	public static function getRequest(array $defaults) {
+		$request = [];
+
+		foreach ($defaults as $parameter => $defaultvalue) {
+			if (is_string($defaultvalue)) {
+				$request[$parameter] = $_REQUEST[$parameter] ?? $defaultvalue;
+			} elseif (is_int($defaultvalue)) {
+				$request[$parameter] = (int)($_REQUEST[$parameter] ?? $defaultvalue);
+			} elseif (is_float($defaultvalue)) {
+				$request[$parameter] = (float)($_REQUEST[$parameter] ?? $defaultvalue);
+			} elseif (is_array($defaultvalue)) {
+				$request[$parameter] = $_REQUEST[$parameter] ?? [];
+			} elseif (is_bool($defaultvalue)) {
+				$request[$parameter] = in_array(strtolower($_REQUEST[$parameter] ?? ''), ['true', '1']);
+			} else {
+				Logger::notice('Unhandled default value type', ['parameter' => $parameter, 'type' => gettype($defaultvalue)]);
+			}
+		}
+
+		foreach ($_REQUEST ?? [] as $parameter => $value) {
+			if ($parameter == 'pagename') {
+				continue;
+			}
+			if (!in_array($parameter, array_keys($defaults))) {
+				Logger::notice('Unhandled request field', ['parameter' => $parameter, 'value' => $value, 'command' => DI::args()->getCommand()]);
+			}
+		}
+
+		Logger::debug('Got request parameters', ['request' => $request, 'command' => DI::args()->getCommand()]);
+		return $request;
+	}
+
+	/**
 	 * Get post data that is transmitted as JSON
 	 *
 	 * @return array request data
