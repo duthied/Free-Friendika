@@ -55,17 +55,17 @@ class Search extends BaseApi
 		// Enum(accounts, hashtags, statuses)
 		$type = $_REQUEST['type'] ?? '';
 		// Filter out unreviewed tags? Defaults to false. Use true when trying to find trending tags.
-		$exclude_unreviewed = (bool)!isset($_REQUEST['exclude_unreviewed']) ? false : ($_REQUEST['exclude_unreviewed'] == 'true');
+		$exclude_unreviewed = ($_REQUEST['exclude_unreviewed'] ?? '') == 'true';
 		// The search query
 		$q = $_REQUEST['q'] ?? '';
 		// Attempt WebFinger lookup. Defaults to false.
-		$resolve = (bool)!isset($_REQUEST['resolve']) ? false : ($_REQUEST['resolve'] == 'true');
+		$resolve = ($_REQUEST['resolve'] ?? '') == 'true';
 		// Maximum number of results to load, per type. Defaults to 20. Max 40.
 		$limit = (int)($_REQUEST['limit'] ?? 20);
 		// Offset in search results. Used for pagination. Defaults to 0.
 		$offset = (int)($_REQUEST['offset'] ?? 0);
 		// Only who the user is following. Defaults to false.
-		$following = (bool)!isset($_REQUEST['following']) ? false : ($_REQUEST['following'] == 'true');
+		$following = ($_REQUEST['following'] ?? '') == 'true';
 
 		$result = ['accounts' => [], 'statuses' => [], 'hashtags' => []];
 

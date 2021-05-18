@@ -46,11 +46,11 @@ class Search extends BaseApi
 		// What to search for
 		$q = $_REQUEST['q'] ?? '';
 		// Maximum number of results. Defaults to 40.
-		$limit = (int)$_REQUEST['limit'] ?? 40;
+		$limit = (int)($_REQUEST['limit'] ?? 40);
 		// Attempt WebFinger lookup. Defaults to false. Use this when q is an exact address.
-		$resolve = (bool)!isset($_REQUEST['resolve']) ? false : ($_REQUEST['resolve'] == 'true');
+		$resolve = ($_REQUEST['resolve'] ?? '') == 'true';
 		// Only who the user is following. Defaults to false.
-		$following = (bool)!isset($_REQUEST['following']) ? false : ($_REQUEST['following'] == 'true');
+		$following = ($_REQUEST['following'] ?? '') == 'true';
 
 		$accounts = [];
 
