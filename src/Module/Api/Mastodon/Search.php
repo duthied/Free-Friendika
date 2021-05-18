@@ -65,7 +65,7 @@ class Search extends BaseApi
 		// Attempt WebFinger lookup. Defaults to false.
 		$resolve = $request['resolve'];
 		// Maximum number of results to load, per type. Defaults to 20. Max 40.
-		$limit = max($request['limit'], 40);
+		$limit = min($request['limit'], 40);
 		// Offset in search results. Used for pagination. Defaults to 0.
 		$offset = $request['offset'];
 		// Only who the user is following. Defaults to false.
