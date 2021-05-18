@@ -51,21 +51,18 @@ class Statuses extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		// Show only statuses with media attached? Defaults to false.
-		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true');
-		// Return results older than this id
-		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
-		// Return results newer than this id
-		$since_id = (int)!isset($_REQUEST['since_id']) ? 0 : $_REQUEST['since_id'];
-		// Return results immediately newer than this id
-		$min_id = (int)!isset($_REQUEST['min_id']) ? 0 : $_REQUEST['min_id'];
-		// Maximum number of results to return. Defaults to 20.
-		$limit = (int)!isset($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
+		$request = self::getRequest([
+			'only_media'      => false, // Show only statuses with media attached? Defaults to false.
+			'max_id'          => 0,     // Return results older than this id
+			'since_id'        => 0,     // Return results newer than this id
+			'min_id'          => 0,     // Return results immediately newer than this id
+			'limit'           => 20,    // Maximum number of results to return. Defaults to 20.
+			'pinned'          => false, // Only pinned posts
+			'exclude_replies' => false, // Don't show comments
+			'with_muted'      => false, // Unknown parameter
+		]);
 
-		$pinned = (bool)!isset($_REQUEST['pinned']) ? false : ($_REQUEST['pinned'] == 'true');
-		$exclude_replies = (bool)!isset($_REQUEST['exclude_replies']) ? false : ($_REQUEST['exclude_replies'] == 'true');
-
-		$params = ['order' => ['uri-id' => true], 'limit' => $limit];
+		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		$uid = self::getCurrentUserID();
 
@@ -79,29 +76,29 @@ class Statuses extends BaseApi
 		$condition = DBA::mergeConditions($condition, ["(`gravity` IN (?, ?) OR (`gravity` = ? AND `vid` = ?))",
 			GRAVITY_PARENT, GRAVITY_COMMENT, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE)]);
 
-		if ($only_media) {
+		if ($request['only_media']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
 				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
 		}
 	
-		if (!empty($max_id)) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $max_id]);
+		if (!empty($request['max_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);
 		}
 
-		if (!empty($since_id)) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $since_id]);
+		if (!empty($request['since_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['since_id']]);
 		}
 
-		if (!empty($min_id)) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $min_id]);
+		if (!empty($request['min_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
 			$params['order'] = ['uri-id'];
 		}
 
-		if ($pinned) {
+		if ($request['pinned']) {
 			$condition = DBA::mergeConditions($condition, ['pinned' => true]);
 		}
 
-		if ($exclude_replies) {
+		if ($request['exclude_replies']) {
 			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
 		}
 
@@ -113,7 +110,7 @@ class Statuses extends BaseApi
 		}
 		DBA::close($items);
 
-		if (!empty($min_id)) {
+		if (!empty($request['min_id'])) {
 			array_reverse($statuses);
 		}
 

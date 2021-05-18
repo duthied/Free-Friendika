@@ -42,35 +42,33 @@ class Home extends BaseApi
 		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		// Return results older than id
-		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
-		// Return results newer than id
-		$since_id = (int)!isset($_REQUEST['since_id']) ? 0 : $_REQUEST['since_id'];
-		// Return results immediately newer than id
-		$min_id = (int)!isset($_REQUEST['min_id']) ? 0 : $_REQUEST['min_id'];
-		// Maximum number of results to return. Defaults to 20.
-		$limit = (int)!isset($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
-		// Return only local statuses? Defaults to false.
-		$local = (bool)!isset($_REQUEST['local']) ? false : ($_REQUEST['local'] == 'true');
+		$request = self::getRequest([
+			'max_id'     => 0,     // Return results older than id
+			'since_id'   => 0,     // Return results newer than id
+			'min_id'     => 0,     // Return results immediately newer than id
+			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.
+			'local'      => false, // Return only local statuses? Defaults to false.
+			'with_muted' => false, // Unknown parameter
+		]);
 
-		$params = ['order' => ['uri-id' => true], 'limit' => $limit];
+		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		$condition = ['gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'uid' => $uid];
 
-		if ($local) {
+		if ($request['local']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
 		}
 
-		if (!empty($max_id)) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $max_id]);
+		if (!empty($request['max_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);
 		}
 
-		if (!empty($since_id)) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $since_id]);
+		if (!empty($request['since_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['since_id']]);
 		}
 
-		if (!empty($min_id)) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $min_id]);
+		if (!empty($request['min_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
 
 			$params['order'] = ['uri-id'];
 		}
@@ -83,7 +81,7 @@ class Home extends BaseApi
 		}
 		DBA::close($items);
 
-		if (!empty($min_id)) {
+		if (!empty($request['min_id'])) {
 			array_reverse($statuses);
 		}
 

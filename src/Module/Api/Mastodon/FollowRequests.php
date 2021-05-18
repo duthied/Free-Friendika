@@ -79,25 +79,27 @@ class FollowRequests extends BaseApi
 	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
-	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#pending-follows
+	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests/
 	 */
 	public static function rawContent(array $parameters = [])
 	{
 		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		$min_id = $_GET['min_id'] ?? null;
-		$max_id = $_GET['max_id'] ?? null;
-		$limit = intval($_GET['limit'] ?? 40);
+		$request = self::getRequest([
+			'min_id' => 0,
+			'max_id' => 0,
+			'limit'  => 40, // Maximum number of results to return. Defaults to 40. Paginate using the HTTP Link header.
+		]);
 
 		$baseUrl = DI::baseUrl();
 
 		$introductions = DI::intro()->selectByBoundaries(
 			['`uid` = ? AND NOT `ignore`', $uid],
 			['order' => ['id' => 'DESC']],
-			$min_id,
-			$max_id,
-			$limit
+			$request['min_id'],
+			$request['max_id'],
+			$request['limit']
 		);
 
 		$return = [];
@@ -113,11 +115,11 @@ class FollowRequests extends BaseApi
 
 		$base_query = [];
 		if (isset($_GET['limit'])) {
-			$base_query['limit'] = $limit;
+			$base_query['limit'] = $request['limit'];
 		}
 
 		$links = [];
-		if ($introductions->getTotalCount() > $limit) {
+		if ($introductions->getTotalCount() > $request['limit']) {
 			$links[] = '<' . $baseUrl->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['max_id' => $introductions[count($introductions) - 1]->id]) . '>; rel="next"';
 		}
 

@@ -61,30 +61,26 @@ class Accounts extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		// Return results older than this id
-		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
-		// Return results newer than this id
-		$since_id = (int)!isset($_REQUEST['since_id']) ? 0 : $_REQUEST['since_id'];
-		// Maximum number of results. Defaults to 40. Max 40.
-		// Set to 0 in order to get all accounts without pagination.
-		$limit = (int)!isset($_REQUEST['limit']) ? 40 : $_REQUEST['limit'];
-
+		$request = self::getRequest([
+			'max_id'   => 0,  // Return results older than this id
+			'since_id' => 0,  // Return results newer than this id
+			'limit'    => 40, // Maximum number of results. Defaults to 40. Max 40. Set to 0 in order to get all accounts without pagination.
+		]);
 
 		$params = ['order' => ['contact-id' => true]];
 
-		if ($limit != 0) {
-			$params['limit'] = $limit;
-
+		if ($request['limit'] != 0) {
+			$params['limit'] = min($request['limit'], 40);
 		}
 	
 		$condition = ['gid' => $id];
 
-		if (!empty($max_id)) {
-			$condition = DBA::mergeConditions($condition, ["`contact-id` < ?", $max_id]);
+		if (!empty($request['max_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`contact-id` < ?", $request['max_id']]);
 		}
 
-		if (!empty($since_id)) {
-			$condition = DBA::mergeConditions($condition, ["`contact-id` > ?", $since_id]);
+		if (!empty($request['since_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`contact-id` > ?", $request['since_id']]);
 		}
 
 		if (!empty($min_id)) {
