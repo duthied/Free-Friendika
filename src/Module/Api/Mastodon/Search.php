@@ -46,8 +46,8 @@ class Search extends BaseApi
 		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		$request = self::getRequest(
-			['max_id' => 0, 'min_id' => 0, 'account_id' => 0, 'type' => '', 'exclude_unreviewed' => false,
+		$request = self::getRequest([
+			'max_id'  => 0, 'min_id' => 0, 'account_id' => 0, 'type' => '', 'exclude_unreviewed' => false,
 			'resolve' => false, 'q' => '', 'limit' => 20, 'offset' => 0, 'following' => false]);
 
 		// If provided, statuses returned will be authored only by this account
