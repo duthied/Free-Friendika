@@ -46,26 +46,30 @@ class Search extends BaseApi
 		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
+		$request = self::getRequest(['account_id' => 0, 'max_id' => 0, 'min_id' => 0, 'type' => '',
+			'exclude_unreviewed' => false, 'q' => '', 'resolve' => false, 'limit' => 20,
+			'offset' => 0, 'following' => false]);
+
 		// If provided, statuses returned will be authored only by this account
-		$account_id = $_REQUEST['account_id'] ?? '';
+		$account_id = $request['account_id'];
 		// Return results older than this id
-		$max_id = (int)($_REQUEST['max_id'] ?? 0);
+		$max_id = $request['max_id'];
 		// Return results immediately newer than this id
-		$min_id = (int)($_REQUEST['min_id'] ?? 0);
+		$min_id = $request['min_id'];
 		// Enum(accounts, hashtags, statuses)
-		$type = $_REQUEST['type'] ?? '';
+		$type = $request['type'];
 		// Filter out unreviewed tags? Defaults to false. Use true when trying to find trending tags.
-		$exclude_unreviewed = ($_REQUEST['exclude_unreviewed'] ?? '') == 'true';
+		$exclude_unreviewed = $request['exclude_unreviewed'];
 		// The search query
-		$q = $_REQUEST['q'] ?? '';
+		$q = $request['q'];
 		// Attempt WebFinger lookup. Defaults to false.
-		$resolve = ($_REQUEST['resolve'] ?? '') == 'true';
+		$resolve = $request['resolve'];
 		// Maximum number of results to load, per type. Defaults to 20. Max 40.
-		$limit = (int)($_REQUEST['limit'] ?? 20);
+		$limit = $request['limit'];
 		// Offset in search results. Used for pagination. Defaults to 0.
-		$offset = (int)($_REQUEST['offset'] ?? 0);
+		$offset = $request['offset'];
 		// Only who the user is following. Defaults to false.
-		$following = ($_REQUEST['following'] ?? '') == 'true';
+		$following = $request['following'];
 
 		$result = ['accounts' => [], 'statuses' => [], 'hashtags' => []];
 
