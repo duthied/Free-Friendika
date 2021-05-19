@@ -22,10 +22,8 @@
 namespace Friendica\Module\Api\Mastodon\Apps;
 
 use Friendica\Core\System;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
-use Friendica\Util\Network;
 
 /**
  * @see https://docs.joinmastodon.org/methods/apps/
