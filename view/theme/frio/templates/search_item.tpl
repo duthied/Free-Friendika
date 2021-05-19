@@ -97,7 +97,7 @@
 			{{* item content *}}
 			<div class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
 				{{if $item.title}}
-				<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h4><br /></span>
+				<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading" dir="auto"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h4><br /></span>
 				{{/if}}
 
 				<div class="wall-item-body" id="wall-item-body-{{$item.id}}" dir="auto">{{$item.body_html nofilter}}</div>
@@ -278,7 +278,7 @@
 			</div>
 			{{/if}}
 
-			<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}">
+			<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}" dir="auto">
 			{{if $item.conv}}
 				<a href="{{$item.conv.href}}" id="context-{{$item.id}}" title="{{$item.conv.title}}">{{$item.conv.title}}</a>
 			{{/if}}
