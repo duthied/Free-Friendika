@@ -315,7 +315,7 @@ class BaseApi extends BaseModule
 			Logger::warning('Token not found', $condition);
 			return [];
 		}
-		Logger::info('Token found', $token);
+		Logger::debug('Token found', $token);
 		return $token;
 	}
 

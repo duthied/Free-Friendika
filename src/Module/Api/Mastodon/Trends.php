@@ -37,8 +37,9 @@ class Trends extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		// Maximum number of results to return. Defaults to 10.
-		$limit = (int)!isset($_REQUEST['limit']) ? 10 : $_REQUEST['limit'];
+		$request = self::getRequest([
+			'limit' => 20, // Maximum number of results to return. Defaults to 10.
+		]);
 
 		$trending = [];
 		$tags = Tag::getGlobalTrendingHashtags(24, 20);
@@ -48,6 +49,6 @@ class Trends extends BaseApi
 			$trending[] = $hashtag->toArray();
 		}
 
-		System::jsonExit(array_slice($trending, 0, $limit));
+		System::jsonExit(array_slice($trending, 0, $request['limit']));
 	}
 }

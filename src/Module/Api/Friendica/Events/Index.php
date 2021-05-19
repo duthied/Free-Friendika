@@ -39,11 +39,13 @@ class Index extends BaseApi
 			throw new HTTPException\ForbiddenException();
 		}
 
-		$since_id = $_REQUEST['since_id'] ?? 0;
-		$count    = $_REQUEST['count'] ?? 20;
+		$request = self::getRequest([
+			'since_id' => 0,
+			'count'    => 0,
+		]);
 
-		$condition = ["`id` > ? AND `uid` = ?", $since_id, self::$current_user_id];
-		$params = ['limit' => $count];
+		$condition = ["`id` > ? AND `uid` = ?", $request['since_id'], self::$current_user_id];
+		$params = ['limit' => $request['count']];
 		$events = DBA::selectToArray('event', [], $condition, $params);
 
 		$items = [];

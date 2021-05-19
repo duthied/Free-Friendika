@@ -27,7 +27,7 @@ use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
- * @see https://docs.joinmastodon.org/methods/timelines/lists/
+ * @see https://docs.joinmastodon.org/methods/timelines/lists/#accounts-in-a-list
  *
  * Currently the output will be unordered since we use public contact ids in the api and not user contact ids.
  */
@@ -60,6 +60,8 @@ class Accounts extends BaseApi
 		if (!DBA::exists('group', ['id' => $id, 'uid' => $uid])) {
 			DI::mstdnError()->RecordNotFound();
 		}
+
+		// @todo provide HTTP link header
 
 		$request = self::getRequest([
 			'max_id'   => 0,  // Return results older than this id

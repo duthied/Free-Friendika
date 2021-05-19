@@ -43,11 +43,13 @@ class Favourited extends BaseApi
 		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
+		// @todo provide HTTP link header
+
 		$request = self::getRequest([
 			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.
 			'min_id'     => 0,     // Return results immediately newer than id
 			'max_id'     => 0,     // Return results older than id
-			'with_muted' => false, // Unknown parameter
+			'with_muted' => false, // Pleroma extension: return activities by muted (not by blocked!) users.
 		]);
 
 		$params = ['order' => ['thr-parent-id' => true], 'limit' => $request['limit']];

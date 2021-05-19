@@ -43,12 +43,15 @@ class Home extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
-			'max_id'     => 0,     // Return results older than id
-			'since_id'   => 0,     // Return results newer than id
-			'min_id'     => 0,     // Return results immediately newer than id
-			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.
-			'local'      => false, // Return only local statuses? Defaults to false.
-			'with_muted' => false, // Unknown parameter
+			'max_id'          => 0,     // Return results older than id
+			'since_id'        => 0,     // Return results newer than id
+			'min_id'          => 0,     // Return results immediately newer than id
+			'limit'           => 20,    // Maximum number of results to return. Defaults to 20.
+			'local'           => false, // Return only local statuses?
+			'with_muted'      => false, // Pleroma extension: return activities by muted (not by blocked!) users.
+			'only_media'      => false, // Show only statuses with media attached? Defaults to false.
+			'remote'          => false, // Show only remote statuses? Defaults to false.
+			'exclude_replies' => false, // Don't show comments
 		]);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
@@ -71,6 +74,19 @@ class Home extends BaseApi
 			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
 
 			$params['order'] = ['uri-id'];
+		}
+
+		if ($request['only_media']) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
+				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
+		}
+
+		if ($request['remote']) {
+			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
+		}
+
+		if ($request['exclude_replies']) {
+			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
 		}
 
 		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);

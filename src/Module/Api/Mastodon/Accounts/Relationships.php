@@ -40,13 +40,17 @@ class Relationships extends BaseApi
 		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		if (empty($_REQUEST['id']) || !is_array($_REQUEST['id'])) {
+		$request = self::getRequest([
+			'id' => [],
+		]);
+
+		if (empty($request['id']) || !is_array($request['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
 		$relationsships = [];
 
-		foreach ($_REQUEST['id'] as $id) {
+		foreach ($request['id'] as $id) {
 			$relationsships[] = DI::mstdnRelationship()->createFromContactId($id, $uid);
 		}
 

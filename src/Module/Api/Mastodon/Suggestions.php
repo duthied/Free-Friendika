@@ -40,10 +40,11 @@ class Suggestions extends BaseApi
 		self::login(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
-		// Maximum number of results to return. Defaults to 40.
-		$limit = (int)!isset($_REQUEST['limit']) ? 40 : $_REQUEST['limit'];
+		$request = self::getRequest([
+			'limit' => 40, // Maximum number of results to return. Defaults to 40.
+		]);
 
-		$suggestions = Contact\Relation::getSuggestions($uid, 0, $limit);
+		$suggestions = Contact\Relation::getSuggestions($uid, 0, $request['limit']);
 
 		$accounts = [];
 

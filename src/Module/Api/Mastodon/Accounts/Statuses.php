@@ -59,7 +59,9 @@ class Statuses extends BaseApi
 			'limit'           => 20,    // Maximum number of results to return. Defaults to 20.
 			'pinned'          => false, // Only pinned posts
 			'exclude_replies' => false, // Don't show comments
-			'with_muted'      => false, // Unknown parameter
+			'with_muted'      => false, // Pleroma extension: return activities by muted (not by blocked!) users.
+			'exclude_reblogs' => false, // Undocumented parameter
+			'tagged'          => false, // Undocumented parameter
 		]);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];

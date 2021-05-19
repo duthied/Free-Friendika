@@ -43,11 +43,11 @@ class Bookmarks extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
-			'limit'    => 20, // Maximum number of results to return. Defaults to 20.
-			'max_id'   => 0,  // Return results older than id
-			'since_id' => 0,  // Return results newer than id
-			'min_id'   => 0,  // Return results immediately newer than id
-			'with_muted' => false, // Unknown parameter
+			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.
+			'max_id'     => 0,     // Return results older than id
+			'since_id'   => 0,     // Return results newer than id
+			'min_id'     => 0,     // Return results immediately newer than id
+			'with_muted' => false, // Pleroma extension: return activities by muted (not by blocked!) users.
 		]);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];

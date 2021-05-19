@@ -37,24 +37,26 @@ class Authorize extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		$response_type = $_REQUEST['response_type'] ?? '';
-		$client_id     = $_REQUEST['client_id'] ?? '';
-		$client_secret = $_REQUEST['client_secret'] ?? ''; // Isn't normally provided. We will use it if present.
-		$redirect_uri  = $_REQUEST['redirect_uri'] ?? '';
-		$scope         = $_REQUEST['scope'] ?? 'read';
-		$state         = $_REQUEST['state'] ?? '';
+		$request = self::getRequest([
+			'response_type' => '',
+			'client_id'     => '',
+			'client_secret' => '', // Isn't normally provided. We will use it if present.
+			'redirect_uri'  => '',
+			'scope'         => 'read',
+			'state'         => '',
+		]);
 
-		if ($response_type != 'code') {
+		if ($request['response_type'] != 'code') {
 			Logger::warning('Unsupported or missing response type', ['request' => $_REQUEST]);
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Unsupported or missing response type'));
 		}
 
-		if (empty($client_id) || empty($redirect_uri)) {
+		if (empty($request['client_id']) || empty($request['redirect_uri'])) {
 			Logger::warning('Incomplete request data', ['request' => $_REQUEST]);
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Incomplete request data'));
 		}
 
-		$application = self::getApplication($client_id, $client_secret, $redirect_uri);
+		$application = self::getApplication($request['client_id'], $request['client_secret'], $request['redirect_uri']);
 		if (empty($application)) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
@@ -80,11 +82,11 @@ class Authorize extends BaseApi
 
 		DI::session()->remove('oauth_acknowledge');
 
-		$token = self::createTokenForUser($application, $uid, $scope);
+		$token = self::createTokenForUser($application, $uid, $request['scope']);
 		if (!$token) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		DI::app()->redirect($application['redirect_uri'] . (strpos($application['redirect_uri'], '?') ? '&' : '?') . http_build_query(['code' => $token['code'], 'state' => $state]));
+		DI::app()->redirect($application['redirect_uri'] . (strpos($application['redirect_uri'], '?') ? '&' : '?') . http_build_query(['code' => $token['code'], 'state' => $request['state']]));
 	}
 }
