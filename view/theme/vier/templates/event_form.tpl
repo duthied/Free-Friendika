@@ -6,7 +6,7 @@
 {{$desc nofilter}}
 </p>
 
-<form id="event-edit-form" action="{{$post}}" method="post" >
+<form id="event-edit-form" action="{{$post}}" method="post">
 
 <input type="hidden" name="event_id" value="{{$eid}}" />
 <input type="hidden" name="cid" value="{{$cid}}" />

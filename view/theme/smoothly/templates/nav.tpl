@@ -17,7 +17,7 @@
 		</ul>
 	</div>
 	
-	<div id="user-menu" >
+	<div id="user-menu">
 		<a id="user-menu-label" onclick="openClose('user-menu-popup'); return false" href="{{$nav.home.0}}">{{$sitelocation}}</a>
 		
 		<ul id="user-menu-popup" 

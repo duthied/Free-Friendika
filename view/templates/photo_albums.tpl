@@ -2,7 +2,7 @@
 	<h3>{{$title}}</h3>
 	<ul role="menubar" class="sidebar-photos-albums-ul">
 		<li role="menuitem" class="sidebar-photos-albums-li">
-			<a href="{{$baseurl}}/photos/{{$nick}}" class="sidebar-photos-albums-element" title="{{$title}}" >{{$recent}}</a>
+			<a href="{{$baseurl}}/photos/{{$nick}}" class="sidebar-photos-albums-element" title="{{$title}}">{{$recent}}</a>
 		</li>
 
 		{{if $albums}}
@@ -19,6 +19,6 @@
 	</ul>
 
 	{{if $can_post}}
-	<div class="photos-upload-link" ><a href="{{$upload.1}}">{{$upload.0}}</a></div>
+	<div class="photos-upload-link"><a href="{{$upload.1}}">{{$upload.0}}</a></div>
 	{{/if}}
 </div>

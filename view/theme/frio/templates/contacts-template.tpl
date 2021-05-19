@@ -14,7 +14,7 @@
 
 	{{* The search input field to search for contacts *}}
 	<div id="contacts-search-wrapper">
-		<form id="contacts-search-form" class="navbar-form" role="search" action="{{$cmd}}" method="get" >
+		<form id="contacts-search-form" class="navbar-form" role="search" action="{{$cmd}}" method="get">
 			<div class="row">
 				<div class="form-group form-group-search">
 					<input type="text" name="search" id="contacts-search" class="search-input form-control form-search" onfocus="this.select();" value="{{$search}}" placeholder="{{$desc nofilter}}"/>

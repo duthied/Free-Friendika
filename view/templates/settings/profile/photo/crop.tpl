@@ -8,7 +8,7 @@
 		<p><img src="{{$image_url}}" id="croppa" class="imgCrop" alt="{{$title}}"></p>
 	</div>
 
-	<div id="cropimage-preview-wrapper" >
+	<div id="cropimage-preview-wrapper">
 		<div id="previewWrap" class="crop-preview"></div>
 	</div>
 

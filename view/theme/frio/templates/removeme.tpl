@@ -5,7 +5,7 @@
 	<div id="remove-account-wrapper">
 		<div id="remove-account-desc">{{$desc nofilter}}</div>
 
-		<form action="{{$basedir}}/removeme" autocomplete="off" method="post" >
+		<form action="{{$basedir}}/removeme" autocomplete="off" method="post">
 			<input type="hidden" name="verify" value="{{$hash}}" />
 
 			<div id="remove-account-pass-wrapper" class="form-group">
@@ -14,7 +14,7 @@
 			</div>
 			<div id="remove-account-pass-end"></div>
 
-			<div class="form-group pull-right settings-submit-wrapper" >
+			<div class="form-group pull-right settings-submit-wrapper">
 				<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}"><i class="fa fa-trash fa-fw"></i>&nbsp;{{$submit}}</button>
 			</div>
 			<div class="clear"></div>

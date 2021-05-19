@@ -9,7 +9,7 @@
 </div>
 <br />
 
-<form id="contact-advanced-form" action="contact/{{$contact_id}}/advanced" method="post" >
+<form id="contact-advanced-form" action="contact/{{$contact_id}}/advanced" method="post">
 
 	<!-- <h4>{{$contact_name}}</h4> -->
 

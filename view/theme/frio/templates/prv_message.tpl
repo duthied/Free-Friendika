@@ -1,6 +1,6 @@
 
 <div id="prvmail-wrapper">
-<form id="prvmail-form" action="message" method="post" >
+<form id="prvmail-form" action="message" method="post">
 
 	{{$parent nofilter}}
 

@@ -5,7 +5,7 @@
 
 <div id="remove-account-desc">{{$desc nofilter}}</div>
 
-<form action="{{$basedir}}/removeme" autocomplete="off" method="post" >
+<form action="{{$basedir}}/removeme" autocomplete="off" method="post">
 <input type="hidden" name="verify" value="{{$hash}}" />
 
 <div id="remove-account-pass-wrapper">

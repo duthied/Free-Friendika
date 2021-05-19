@@ -1,5 +1,5 @@
 
-<form id="login-form" action="{{$dest_url}}" role="form" method="post" >
+<form id="login-form" action="{{$dest_url}}" role="form" method="post">
 	<div id="login-group" role="group" aria-labelledby="login-head">
 		<input type="hidden" name="auth-params" value="login" />
 
@@ -9,7 +9,7 @@
 			{{include file="field_input.tpl" field=$lname}}
 			{{include file="field_password.tpl" field=$lpassword}}
 			<div id="login-lost-password-link">
-				<a href="lostpass" title="{{$lostpass}}" id="lost-password-link" >{{$lostlink}}</a>
+				<a href="lostpass" title="{{$lostpass}}" id="lost-password-link">{{$lostlink}}</a>
 			</div>
 			<div id="login-end"></div>
 		</div>
@@ -23,7 +23,7 @@
 		{{include file="field_checkbox.tpl" field=$lremember}}
 
 		<div id="login-submit-wrapper">
-			<div class="pull-right" >
+			<div class="pull-right">
 				<button type="submit" name="submit" id="login-submit-button" class="btn btn-primary" value="{{$login}}">{{$login}}</button>
 			</div>
 		</div>

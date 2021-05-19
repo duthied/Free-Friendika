@@ -9,7 +9,7 @@
 				<li>
 					<a href="{{$profile.edit.0}}">{{$profile.edit.1}}</a>
 				</li>
-				<li><a href="settings/profile/photo" >{{$profile.menu.chg_photo}}</a></li>
+				<li><a href="settings/profile/photo">{{$profile.menu.chg_photo}}</a></li>
 			</ul>
 			</div>
 		{{/if}}

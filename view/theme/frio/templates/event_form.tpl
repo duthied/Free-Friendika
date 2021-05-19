@@ -63,7 +63,7 @@
 			{{/if}}
 
 			{{* The submit button - saves the event *}}
-			<div class="pull-right" >
+			<div class="pull-right">
 				<button id="event-submit" type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 			</div>
 			<div class="clear"></div>
@@ -75,7 +75,7 @@
 			{{* The textarea for the event description *}}
 			<div class="form-group">
 				<div id="event-desc-text"><b>{{$d_text}}</b></div>
-				<textarea id="comment-edit-text-desc" class="form-control text-autosize" name="desc" >{{$d_orig}}</textarea>
+				<textarea id="comment-edit-text-desc" class="form-control text-autosize" name="desc">{{$d_orig}}</textarea>
 				<ul id="event-desc-text-edit-bb" class="comment-edit-bb comment-icon-list nav nav-pills hidden-xs pull-left">
 					{{* commented out because it isn't implemented yet
 					<li>

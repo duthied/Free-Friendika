@@ -121,7 +121,7 @@
 							</button>
 						</li>
 						<li role="presentation" id="character-counter" class="grey jothidden text-info pull-right"></li>
-						<li role="presentation" id="profile-rotator-wrapper" class="pull-right" style="display: {{$visitor}};" >
+						<li role="presentation" id="profile-rotator-wrapper" class="pull-right" style="display: {{$visitor}};">
 							<img role="presentation" id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
 						</li>
 						<li role="presentation" id="profile-jot-plugin-wrapper">

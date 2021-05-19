@@ -2,14 +2,14 @@
 <div class="generic-page-wrapper">
 	{{if $header}}<h3>{{$header}}:&nbsp;{{$name}}{{if $account_type}}&nbsp;<small>({{$account_type}})</small>{{/if}}</h3>{{/if}}
 
-	<div id="contact-edit-wrapper" >
+	<div id="contact-edit-wrapper">
 
 		{{* Insert Tab-Nav *}}
 		{{$tab_str nofilter}}
 
 
 		<div id="contact-edit-content-wrapper">
-			<form action="contact/{{$contact_id}}" method="post" >
+			<form action="contact/{{$contact_id}}" method="post">
 
 				{{* This is the Action menu where contact related actions like 'ignore', 'hide' can be performed *}}
 				<ul id="contact-edit-actions" class="nav nav-pills preferences">
@@ -18,7 +18,7 @@
 							<i class="fa fa-angle-down" aria-hidden="true"></i>&nbsp;{{$contact_action_button}}
 						</button>
 
-						<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="contact-edit-actions-button" aria-haspopup="true" id="contact-actions-menu" >
+						<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="contact-edit-actions-button" aria-haspopup="true" id="contact-actions-menu">
 							{{if $lblsuggest}}<li role="presentation"><a role="menuitem" href="{{$contact_actions.suggest.url}}" title="{{$contact_actions.suggest.title}}">{{$contact_actions.suggest.label}}</a></li>{{/if}}
 							{{if $poll_enabled}}<li role="presentation"><a role="menuitem" href="{{$contact_actions.update.url}}" title="{{$contact_actions.update.title}}">{{$contact_actions.update.label}}</a></li>{{/if}}
 							{{if $contact_actions.updateprofile}}<li role="presentation"><a role="menuitem" href="{{$contact_actions.updateprofile.url}}" title="{{$contact_actions.updateprofile.title}}">{{$contact_actions.updateprofile.label}}</a></li>{{/if}}
@@ -141,7 +141,7 @@
 
 								{{include file="field_checkbox.tpl" field=$hidden}}
 
-								<div class="pull-right settings-submit-wrapper" >
+								<div class="pull-right settings-submit-wrapper">
 									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 								</div>
 								<div class="clear"></div>
@@ -164,7 +164,7 @@
 
 								{{include file="field_textarea.tpl" field=$cinfo}}
 
-								<div class="pull-right settings-submit-wrapper" >
+								<div class="pull-right settings-submit-wrapper">
 									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 								</div>
 								<div class="clear"></div>

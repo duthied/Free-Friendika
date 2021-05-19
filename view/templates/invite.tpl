@@ -1,5 +1,5 @@
 
-<form action="invite" method="post" id="invite-form" >
+<form action="invite" method="post" id="invite-form">
 
 	<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
