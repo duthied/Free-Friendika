@@ -87,7 +87,7 @@ return [
 			'/announcements/{id:\d+}/dismiss'    => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/announcements/{id:\d+}/reactions/{name}' => [Module\Api\Mastodon\Unimplemented::class,      [R::PUT, R::DELETE]], // not supported
 			'/apps'                              => [Module\Api\Mastodon\Apps::class,                     [        R::POST]],
-			'/apps/verify_credentials'           => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
+			'/apps/verify_credentials'           => [Module\Api\Mastodon\Apps\VerifyCredentials::class,   [R::GET         ]],
 			'/blocks'                            => [Module\Api\Mastodon\Blocks::class,                   [R::GET         ]],
 			'/bookmarks'                         => [Module\Api\Mastodon\Bookmarks::class,                [R::GET         ]],
 			'/conversations'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
