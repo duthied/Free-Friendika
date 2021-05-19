@@ -11,7 +11,7 @@
 	<span class="received" style="display: none;">{{$item.received}}</span>
 	<span class="created" style="display: none;">{{$item.created_date}}</span>
 	<span class="uriid" style="display: none;">{{$item.uriid}}</span>
-	<div class="wall-item-container panel-body{{$item.indent}} {{$item.shiny}} {{$item.previewing}}" >
+	<div class="wall-item-container panel-body{{$item.indent}} {{$item.shiny}} {{$item.previewing}}">
 		<div class="media">
 			{{* Put additional actions in a top-right dropdown menu *}}
 
@@ -176,7 +176,7 @@
 				{{* Put additional actions in a dropdown menu *}}
 				{{if $item.edpost || $item.tagger || $item.filer || $item.pin || $item.star || $item.follow_thread || $item.ignore || $item.drop.dropping}}
 					<span role="presentation" class="separator"></span>
-					<span class="more-links btn-group{{if $item.thread_level > 1}} dropup{{/if}}">
+					<span class="more-links btn-group{{if $item.thread_level> 1}} dropup{{/if}}">
 						<button type="button" class="btn-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i>&nbsp;{{$item.menu}}</button>
 						<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenuOptions-{{$item.id}}">
 						{{if $item.edpost}} {{* edit the posting *}}
@@ -278,7 +278,7 @@
 			</div>
 			{{/if}}
 
-			<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}" >
+			<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}">
 			{{if $item.conv}}
 				<a href="{{$item.conv.href}}" id="context-{{$item.id}}" title="{{$item.conv.title}}">{{$item.conv.title}}</a>
 			{{/if}}
