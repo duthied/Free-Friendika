@@ -35,6 +35,7 @@ class Conversation extends BaseFactory
 		$last_status = null;
 
 		$ids = [];
+
 		$mails = DBA::select('mail', ['id', 'from-url', 'uid', 'seen'], ['convid' => $id], ['order' => ['id' => true]]);
 		while ($mail = DBA::fetch($mails)) {
 			if (!$mail['seen']) {
