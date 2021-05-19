@@ -31,7 +31,7 @@ Here's the structure:
  * Status: {Unsupported|Arbitrary status}
  */
 ```
- 
+
 You can also provide a longer documentation in a `README` or `README.md` file.
 The latter will be converted from Markdown to HTML in the addon detail page.
 
@@ -447,7 +447,7 @@ Form field array structure is:
 - **field**: Standard field data structure to be used by `field_checkbox.tpl` and `field_select.tpl`.
 
 For `checkbox`, **field** is:
-  - [0] (String): Form field name; Mandatory. 
+  - [0] (String): Form field name; Mandatory.
   - [1]: (String): Form field label; Optional, default is none.
   - [2]: (Boolean): Whether the checkbox should be checked by default; Optional, default is false.
   - [3]: (String): Additional help text; Optional, default is none.
@@ -458,7 +458,7 @@ For `select`, **field** is:
   - [1] (String): Form field label; Optional, default is none.
   - [2] (Boolean): Default value to be selected by default; Optional, default is none.
   - [3] (String): Additional help text; Optional, default is none.
-  - [4] (Array): Associative array of options. Item key is option value, item value is option label; Mandatory. 
+  - [4] (Array): Associative array of options. Item key is option value, item value is option label; Mandatory.
 
 ### route_collection
 Called just before dispatching the router.
@@ -470,7 +470,7 @@ Hook data is a `\FastRoute\RouterCollector` object that should be used to add ad
 
 Called before trying to detect the target network of a URL.
 If any registered hook function sets the `result` key of the hook data array, it will be returned immediately.
-Hook functions should also return immediately if the hook data contains an existing result. 
+Hook functions should also return immediately if the hook data contains an existing result.
 
 Hook data:
 
@@ -666,14 +666,35 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('event_updated', $event['id']);
     Hook::callAll("event_created", $event['id']);
 
+### src/Model/Register.php
+
+    Hook::callAll('authenticate', $addon_auth);
+
 ### src/Model/User.php
 
+    Hook::callAll('authenticate', $addon_auth);
     Hook::callAll('register_account', $uid);
     Hook::callAll('remove_user', $user);
 
 ### src/Module/PermissionTooltip.php
 
     Hook::callAll('lockview_content', $item);
+
+### src/Module/Settings/Delegation.php
+
+    Hook::callAll('authenticate', $addon_auth);
+
+### src/Module/Settings/TwoFactor/Index.php
+
+    Hook::callAll('authenticate', $addon_auth);
+
+### src/Security/Authenticate.php
+
+    Hook::callAll('authenticate', $addon_auth);
+
+### src/Security/ExAuth.php
+
+    Hook::callAll('authenticate', $addon_auth);
 
 ### src/Content/ContactBlock.php
 
@@ -713,7 +734,7 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 ### src/Core/Authentication.php
 
     Hook::callAll('logged_in', $a->user);
-    
+
 ### src/Core/StorageManager
 
     Hook::callAll('storage_instance', $data);

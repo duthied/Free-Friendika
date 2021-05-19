@@ -544,6 +544,24 @@ class User
 			}
 
 			return $user['uid'];
+		} else {
+			$addon_auth = [
+				'username'      => $user['nickname'],
+				'password'      => $password,
+				'authenticated' => 0,
+				'user_record'   => null
+			];
+
+			/*
+			 * An addon indicates successful login by setting 'authenticated' to non-zero value and returning a user record
+			 * Addons should never set 'authenticated' except to indicate success - as hooks may be chained
+			 * and later addons should not interfere with an earlier one that succeeded.
+			 */
+			Hook::callAll('authenticate', $addon_auth);
+
+			if ($addon_auth['authenticated'] && $addon_auth['user_record']) {
+				return $user['uid'];
+			}
 		}
 
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Login failed'));
@@ -584,7 +602,7 @@ class User
 			if (is_int($user_info)) {
 				$user = DBA::selectFirst(
 					'user',
-					['uid', 'password', 'legacy_password'],
+					['uid', 'nickname', 'password', 'legacy_password'],
 					[
 						'uid' => $user_info,
 						'blocked' => 0,
@@ -594,7 +612,7 @@ class User
 					]
 				);
 			} else {
-				$fields = ['uid', 'password', 'legacy_password'];
+				$fields = ['uid', 'nickname', 'password', 'legacy_password'];
 				$condition = [
 					"(`email` = ? OR `username` = ? OR `nickname` = ?)
 					AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified`",
