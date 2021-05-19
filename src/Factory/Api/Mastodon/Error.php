@@ -22,17 +22,24 @@
 namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
 
 class Error extends BaseFactory
 {
+	private function logError(int $errorno, string $error)
+	{
+		Logger::info('API Error', ['no' => $errorno, 'error' => $error, 'method' => $_SERVER['REQUEST_METHOD'] ?? '', 'command' => DI::args()->getQueryString(), 'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+	}
+
 	public function RecordNotFound()
 	{
 		$error = DI::l10n()->t('Record not found');
 		$error_description = '';
 		$errorobj = New \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 
+		$this->logError(404, $error);
 		System::jsonError(404, $errorobj->toArray());
 	}
 
@@ -42,6 +49,7 @@ class Error extends BaseFactory
 		$error_description = '';
 		$errorobj = New \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 
+		$this->logError(422, $error);
 		System::jsonError(422, $errorobj->toArray());
 	}
 
@@ -51,6 +59,7 @@ class Error extends BaseFactory
 		$error_description = '';
 		$errorobj = New \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 
+		$this->logError(401, $error);
 		System::jsonError(401, $errorobj->toArray());
 	}
 
@@ -60,6 +69,7 @@ class Error extends BaseFactory
 		$error_description = '';
 		$errorobj = New \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 
+		$this->logError(403, $error);
 		System::jsonError(403, $errorobj->toArray());
 	}
 
@@ -69,6 +79,7 @@ class Error extends BaseFactory
 		$error_description = '';
 		$errorobj = New \Friendica\Object\Api\Mastodon\Error($error, $error_description);
 
+		$this->logError(500, $error);
 		System::jsonError(500, $errorobj->toArray());
 	}
 }
