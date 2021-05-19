@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-16 07:41+0000\n"
-"PO-Revision-Date: 2021-05-19 01:30+0000\n"
+"PO-Revision-Date: 2021-05-19 09:06+0000\n"
 "Last-Translator: XMPPはいいぞ\n"
 "Language-Team: Japanese (http://www.transifex.com/Friendica/friendica/language/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -2587,7 +2587,7 @@ msgstr "（スパムの悪用を防ぐため）"
 
 #: mod/settings.php:824
 msgid "Allow your profile to be searchable globally?"
-msgstr ""
+msgstr "自分のプロフィールを世界中で検索できるようにしますか？"
 
 #: mod/settings.php:824
 msgid ""
@@ -2595,17 +2595,17 @@ msgid ""
 " profile will be searchable on remote systems. This setting also determines "
 "whether Friendica will inform search engines that your profile should be "
 "indexed or not."
-msgstr ""
+msgstr "他の人があなたを簡単に見つけてフォローできるようにしたい場合は、この設定を有効にしてください。あなたのプロフィールはリモートシステムで検索可能です。この設定は、Friendicaが検索エンジンにあなたのプロフィールをインデックス化するかどうかも決定します。"
 
 #: mod/settings.php:825
 msgid "Hide your contact/friend list from viewers of your profile?"
-msgstr ""
+msgstr "プロフィールの閲覧者からコンタクト/友人リストを非表示にしますか？"
 
 #: mod/settings.php:825
 msgid ""
 "A list of your contacts is displayed on your profile page. Activate this "
 "option to disable the display of your contact list."
-msgstr ""
+msgstr "自分のプロフィールページには、コンタクトリストが表示されます。このオプションを有効にすると、コンタクトリストの表示が無効になります。"
 
 #: mod/settings.php:826
 msgid "Hide your profile details from anonymous viewers?"
@@ -2620,18 +2620,18 @@ msgstr "匿名の訪問者には、プロフィールページで使用してい
 
 #: mod/settings.php:827
 msgid "Make public posts unlisted"
-msgstr ""
+msgstr "公開投稿を非表示にする"
 
 #: mod/settings.php:827
 msgid ""
 "Your public posts will not appear on the community pages or in search "
 "results, nor be sent to relay servers. However they can still appear on "
 "public feeds on remote servers."
-msgstr ""
+msgstr "公開された投稿は、コミュニティページや検索結果には表示されず、中継サーバーにも送信されません。ただし、リモートサーバーの公開フィードには表示されます。"
 
 #: mod/settings.php:828
 msgid "Make all posted pictures accessible"
-msgstr ""
+msgstr "投稿した写真は全てアクセス可能にする"
 
 #: mod/settings.php:828
 msgid ""
@@ -2639,7 +2639,7 @@ msgid ""
 "is a workaround for the problem that most other networks can't handle "
 "permissions on pictures. Non public pictures still won't be visible for the "
 "public on your photo albums though."
-msgstr ""
+msgstr "このオプションは、投稿したすべての写真をダイレクトリンクでアクセスできるようにします。これは、他の多くのネットワークが写真のパーミッションを処理できないという問題を回避するためのものです。ただし、公開していない写真はフォトアルバムでは一般に公開されません。"
 
 #: mod/settings.php:829
 msgid "Allow friends to post to your profile page?"
@@ -2695,7 +2695,7 @@ msgstr "投稿の有効期限"
 
 #: mod/settings.php:840
 msgid "When activated, posts and comments will be expired."
-msgstr ""
+msgstr "有効にすると、投稿とコメントは期限切れになるでしょう。"
 
 #: mod/settings.php:841
 msgid "Expire personal notes"
@@ -2704,35 +2704,35 @@ msgstr "個人メモの有効期限"
 #: mod/settings.php:841
 msgid ""
 "When activated, the personal notes on your profile page will be expired."
-msgstr ""
+msgstr "有効にすると、プロフィールページ上の個人メモは期限切れになるでしょう。"
 
 #: mod/settings.php:842
 msgid "Expire starred posts"
-msgstr ""
+msgstr "スター付き投稿の有効期限"
 
 #: mod/settings.php:842
 msgid ""
 "Starring posts keeps them from being expired. That behaviour is overwritten "
 "by this setting."
-msgstr ""
+msgstr "投稿にスターを付けると、投稿が期限切れにならないようにします。動作はこの設定で上書きされます。"
 
 #: mod/settings.php:843
 msgid "Expire photos"
-msgstr ""
+msgstr "写真の有効期限"
 
 #: mod/settings.php:843
 msgid "When activated, photos will be expired."
-msgstr ""
+msgstr "有効にすると、写真は期限切れになるでしょう。"
 
 #: mod/settings.php:844
 msgid "Only expire posts by others"
-msgstr ""
+msgstr "他のユーザーによる投稿のみを期限切れにする"
 
 #: mod/settings.php:844
 msgid ""
 "When activated, your own posts never expire. Then the settings above are "
 "only valid for posts you received."
-msgstr ""
+msgstr "有効にすると、自分の投稿は期限切れになりません。そうすると、上記の設定は自分が受け取った投稿に対してのみ有効となります。"
 
 #: mod/settings.php:847
 msgid "Notification Settings"
@@ -9399,14 +9399,14 @@ msgstr "10秒以上。 -1を入力して無効にします。"
 
 #: src/Module/Settings/Display.php:207
 msgid "Automatic updates only at the top of the post stream pages"
-msgstr ""
+msgstr "投稿ストリームページの上部でのみ自動更新"
 
 #: src/Module/Settings/Display.php:207
 msgid ""
 "Auto update may add new posts at the top of the post stream pages, which can"
 " affect the scroll position and perturb normal reading if it happens "
 "anywhere else the top of the page."
-msgstr ""
+msgstr "自動更新では、投稿ストリームページの最上部に新しい記事が追加されることがあります。これがページの最上部以外の場所で発生すると、スクロール位置に影響を与え、普通に読むことが妨げられることがあります。"
 
 #: src/Module/Settings/Display.php:208
 msgid "Don't show emoticons"
@@ -9416,7 +9416,7 @@ msgstr "絵文字を表示しない"
 msgid ""
 "Normally emoticons are replaced with matching symbols. This setting disables"
 " this behaviour."
-msgstr ""
+msgstr "通常、絵文字は一致する記号に置き換えられます。この設定は、この動作を無効にします。"
 
 #: src/Module/Settings/Display.php:209
 msgid "Infinite scroll"
@@ -9424,7 +9424,7 @@ msgstr "無限スクロール"
 
 #: src/Module/Settings/Display.php:209
 msgid "Automatic fetch new items when reaching the page end."
-msgstr ""
+msgstr "ページの最後に到達したとき、新規項目を自動取得する"
 
 #: src/Module/Settings/Display.php:210
 msgid "Disable Smart Threading"
@@ -9436,11 +9436,11 @@ msgstr "外部スレッドのインデントについて、自動抑制を無効
 
 #: src/Module/Settings/Display.php:211
 msgid "Hide the Dislike feature"
-msgstr ""
+msgstr "嫌い機能を隠す"
 
 #: src/Module/Settings/Display.php:211
 msgid "Hides the Dislike button and dislike reactions on posts and comments."
-msgstr ""
+msgstr "投稿とコメント上の嫌いボタンと嫌いの反応を隠す"
 
 #: src/Module/Settings/Display.php:212
 msgid "Display the resharer"
@@ -10611,51 +10611,51 @@ msgstr ""
 
 #: src/Util/Temporal.php:321
 msgid "less than a second ago"
-msgstr ""
+msgstr "1秒以内前"
 
 #: src/Util/Temporal.php:329
 msgid "year"
-msgstr ""
+msgstr "年"
 
 #: src/Util/Temporal.php:329
 msgid "years"
-msgstr ""
+msgstr "年"
 
 #: src/Util/Temporal.php:330
 msgid "months"
-msgstr ""
+msgstr "月"
 
 #: src/Util/Temporal.php:331
 msgid "weeks"
-msgstr ""
+msgstr "週間"
 
 #: src/Util/Temporal.php:332
 msgid "days"
-msgstr ""
+msgstr "日"
 
 #: src/Util/Temporal.php:333
 msgid "hour"
-msgstr ""
+msgstr "時間"
 
 #: src/Util/Temporal.php:333
 msgid "hours"
-msgstr ""
+msgstr "時間"
 
 #: src/Util/Temporal.php:334
 msgid "minute"
-msgstr ""
+msgstr "分"
 
 #: src/Util/Temporal.php:334
 msgid "minutes"
-msgstr ""
+msgstr "分"
 
 #: src/Util/Temporal.php:335
 msgid "second"
-msgstr ""
+msgstr "秒"
 
 #: src/Util/Temporal.php:335
 msgid "seconds"
-msgstr ""
+msgstr "秒"
 
 #: src/Util/Temporal.php:345
 #, php-format
@@ -10665,7 +10665,7 @@ msgstr ""
 #: src/Util/Temporal.php:348
 #, php-format
 msgid "%1$d %2$s ago"
-msgstr ""
+msgstr "%1$d%2$s前"
 
 #: src/Worker/Delivery.php:570
 msgid "(no subject)"
