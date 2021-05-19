@@ -46,9 +46,9 @@ class Conversation extends BaseDataTransferObject
 
 	public function __construct(string $id, array $accounts, bool $unread, \Friendica\Object\Api\Mastodon\Status $last_status)
 	{
-		$this->id = $id;
-		$this->accounts = $accounts;
-		$this->unread = $unread;
+		$this->id          = $id;
+		$this->accounts    = $accounts;
+		$this->unread      = $unread;
 		$this->last_status = $last_status;
 	}
 }

@@ -155,16 +155,16 @@ class Status extends BaseFactory
 		$reshare     = [];
 
 		$item = [
-			'uri-id' => $mail['id'],
-			'created' => $mail['created'],
-			'thr-parent-id' => 0,
+			'uri-id'           => $mail['id'],
+			'created'          => $mail['created'],
+			'thr-parent-id'    => 0,
 			'parent-author-id' => 0,
-			'title' => $conv['subject'],
-			'private' => Item::PRIVATE,
-			'language' => '',
-			'uri' => $mail['uri'],
-			'plink' => '',
-			'body' => BBCode::convert($mail['body'], false, BBCode::API)
+			'title'            => $conv['subject'],
+			'private'          => Item::PRIVATE,
+			'language'         => '',
+			'uri'              => $mail['uri'],
+			'plink'            => '',
+			'body'             => BBCode::convert($mail['body'], false, BBCode::API)
 		];
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare);
