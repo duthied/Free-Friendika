@@ -39,7 +39,7 @@ class Read extends BaseApi
 		if (!empty($parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
-		
+
 		DBA::update('mail', ['seen' => true], ['convid' => $parameters['id'], 'uid' => $uid]);
 
 		System::jsonExit(DI::mstdnConversation()->CreateFromConvId($parameters['id'])->toArray());
