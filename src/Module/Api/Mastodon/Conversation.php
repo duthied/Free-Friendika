@@ -64,12 +64,31 @@ class Conversation extends BaseApi
 
 		$params = ['order' => ['id' => true], 'limit' => $request['limit']];
 
-		$convs = DBA::select('conv', ['id'], ['uid' => $uid], $params);
+		$condition = ['uid' => $uid];
+
+		if (!empty($request['max_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`id` < ?", $request['max_id']]);
+		}
+
+		if (!empty($request['since_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`id` > ?", $request['since_id']]);
+		}
+
+		if (!empty($request['min_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`id` > ?", $request['min_id']]);
+			$params['order'] = ['id'];
+		}
+
+		$convs = DBA::select('conv', ['id'], $condition, $params);
 
 		$conversations = [];
 
 		foreach ($convs as $conv) {
 			$conversations[] = DI::mstdnConversation()->CreateFromConvId($conv['id']);
+		}
+
+		if (!empty($request['min_id'])) {
+			array_reverse($conversations);
 		}
 
 		System::jsonExit($conversations);
