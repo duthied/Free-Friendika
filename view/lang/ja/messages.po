@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-16 07:41+0000\n"
-"PO-Revision-Date: 2021-05-16 09:31+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2021-05-19 01:30+0000\n"
+"Last-Translator: XMPPはいいぞ\n"
 "Language-Team: Japanese (http://www.transifex.com/Friendica/friendica/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -9227,7 +9227,7 @@ msgstr "<p>モバイルデバイスにアクセスできなくなった場合に
 #: src/Module/Security/TwoFactor/Verify.php:98
 #, php-format
 msgid "Don’t have your phone? <a href=\"%s\">Enter a two-factor recovery code</a>"
-msgstr "お使いの携帯電話を持ってませんか？ <a href=\"%s\">2要素認証の回復コードを入力</a>"
+msgstr "お使いの携帯電話を持ってませんか？ <a href=\"%s\">二要素認証の回復コードを入力</a>"
 
 #: src/Module/Security/TwoFactor/Recovery.php:86
 msgid "Please enter a recovery code"
@@ -9250,7 +9250,7 @@ msgstr "認証アプリからコードを入力してください"
 
 #: src/Module/Security/TwoFactor/Verify.php:100
 msgid "This is my two-factor authenticator app device"
-msgstr ""
+msgstr "これは私の二要素認証アプリデバイスです"
 
 #: src/Module/Security/TwoFactor/Verify.php:101
 msgid "Verify code and complete login"
@@ -9699,7 +9699,7 @@ msgid ""
 "<p>App-specific passwords are randomly generated passwords used instead your"
 " regular password to authenticate your account on third-party applications "
 "that don't support two-factor authentication.</p>"
-msgstr "<p>アプリ固有のパスワードは、2要素認証をサポートしないサードパーティアプリケーションでアカウントを認証するために、通常のパスワードの代わりに使用されるランダムに生成されたパスワードです。</p>"
+msgstr "<p>アプリ固有のパスワードは、二要素認証をサポートしないサードパーティアプリケーションでアカウントを認証するために、通常のパスワードの代わりに使用されるランダムに生成されたパスワードです。</p>"
 
 #: src/Module/Settings/TwoFactor/AppSpecific.php:117
 msgid ""
@@ -9753,7 +9753,7 @@ msgstr "間違ったパスワード"
 msgid ""
 "<p>Use an application on a mobile device to get two-factor authentication "
 "codes when prompted on login.</p>"
-msgstr "<p>ログイン時にプロンプトが表示されたら、モバイルデバイスのアプリケーションを使用して2要素認証コードを取得します。</p>"
+msgstr "<p>ログイン時にプロンプトが表示されたら、モバイルデバイスのアプリケーションを使用して二要素認証コードを取得します。</p>"
 
 #: src/Module/Settings/TwoFactor/Index.php:117
 msgid "Authenticator app"
@@ -9801,7 +9801,7 @@ msgstr "生成されたアプリ固有のパスワード"
 msgid ""
 "<p>These randomly generated passwords allow you to authenticate on apps not "
 "supporting two-factor authentication.</p>"
-msgstr "<p>これらのランダムに生成されたパスワードを使用すると、2要素認証をサポートしていないアプリで認証できます。</p>"
+msgstr "<p>これらのランダムに生成されたパスワードを使用すると、二要素認証をサポートしていないアプリで認証できます。</p>"
 
 #: src/Module/Settings/TwoFactor/Index.php:133
 msgid "Current password:"
@@ -9811,7 +9811,7 @@ msgstr "現在のパスワード："
 msgid ""
 "You need to provide your current password to change two-factor "
 "authentication settings."
-msgstr "2要素認証設定を変更するには、現在のパスワードを入力する必要があります。"
+msgstr "二要素認証設定を変更するには、現在のパスワードを入力する必要があります。"
 
 #: src/Module/Settings/TwoFactor/Index.php:134
 msgid "Enable two-factor authentication"
@@ -9946,7 +9946,7 @@ msgstr "<p>このQRコードを認証アプリでスキャンして、提供さ�
 msgid ""
 "<p>Or you can open the following URL in your mobile device:</p><p><a "
 "href=\"%s\">%s</a></p>"
-msgstr ""
+msgstr "<p>または、モバイルデバイスで次のURLを開くことができます。</p> <p> <a href=\"%s\"> %s </a> </p>"
 
 #: src/Module/Settings/TwoFactor/Verify.php:142
 msgid "Verify code and enable two-factor authentication"
@@ -9971,7 +9971,7 @@ msgid ""
 "Export your account info, contacts and all your items as json. Could be a "
 "very big file, and could take a lot of time. Use this to make a full backup "
 "of your account (photos are not exported)"
-msgstr ""
+msgstr "アカウント情報、コンタクト、すべてのアイテムをjsonとしてエクスポートします。非常に大きなファイルになる可能性があり、時間がかかる可能性があります。これを使用して、アカウントの完全バックアップを作成します（写真はエクスポートされません）"
 
 #: src/Module/Settings/UserExport.php:71
 msgid "Export Contacts to CSV"
@@ -10155,7 +10155,7 @@ msgid ""
 "Set some public keywords for your profile which describe your interests. We "
 "may be able to find other people with similar interests and suggest "
 "friendships."
-msgstr ""
+msgstr "あなたの興味を説明するいくつかの公開キーワードをプロフィールに設定します。同様の興味を持つ他の人を見つけ、友情を提案することができるかもしれません。"
 
 #: src/Module/Welcome.php:65
 msgid "Connecting"
@@ -10280,7 +10280,7 @@ msgstr "編集"
 
 #: src/Object/Post.php:214
 msgid "Pinned item"
-msgstr ""
+msgstr "ピン留め項目"
 
 #: src/Object/Post.php:218
 msgid "Delete globally"
@@ -10297,7 +10297,7 @@ msgstr ""
 
 #: src/Object/Post.php:239
 msgid "Save to folder"
-msgstr ""
+msgstr "フォルダーに保存"
 
 #: src/Object/Post.php:273
 msgid "I will attend"
@@ -10313,11 +10313,11 @@ msgstr "私は出席するかもしれません"
 
 #: src/Object/Post.php:303
 msgid "Ignore thread"
-msgstr ""
+msgstr "スレッドを無視"
 
 #: src/Object/Post.php:304
 msgid "Unignore thread"
-msgstr ""
+msgstr "無視しないスレッド"
 
 #: src/Object/Post.php:305
 msgid "Toggle ignore status"
@@ -10603,7 +10603,7 @@ msgstr ""
 
 #: src/Util/Temporal.php:167
 msgid "YYYY-MM-DD or MM-DD"
-msgstr ""
+msgstr "YYYY-MM-DDまたはMM-DD"
 
 #: src/Util/Temporal.php:314
 msgid "never"
@@ -10765,17 +10765,17 @@ msgstr ""
 
 #: view/theme/frio/config.php:167
 msgid "Copy or paste schemestring"
-msgstr ""
+msgstr "スキーム文字列のコピーまたは貼り付け"
 
 #: view/theme/frio/config.php:167
 msgid ""
 "You can copy this string to share your theme with others. Pasting here "
 "applies the schemestring"
-msgstr ""
+msgstr "この文字列をコピーして、テーマを他の人と共有できます。ここに貼り付けると、スキーム文字列が適用されます"
 
 #: view/theme/frio/config.php:168
 msgid "Navigation bar background color"
-msgstr ""
+msgstr "ナビゲーションバーの背景色"
 
 #: view/theme/frio/config.php:169
 msgid "Navigation bar icon color "
