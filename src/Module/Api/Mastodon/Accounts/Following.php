@@ -49,10 +49,12 @@ class Following extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
+		// @todo provide HTTP link header
+
 		$request = self::getRequest([
 			'max_id'   => 0,  // Return results older than this id
 			'since_id' => 0,  // Return results newer than this id
-			'limit'    => 20, // Maximum number of results to return. Defaults to 20.
+			'limit'    => 40, // Maximum number of results to return. Defaults to 40.
 		]);
 
 		$params = ['order' => ['relation-cid' => true], 'limit' => $request['limit']];

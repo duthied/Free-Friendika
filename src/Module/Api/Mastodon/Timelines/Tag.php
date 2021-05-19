@@ -47,44 +47,46 @@ class Tag extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		// If true, return only local statuses. Defaults to false.
-		$local = (bool)!isset($_REQUEST['local']) ? false : ($_REQUEST['local'] == 'true');
-		// If true, return only statuses with media attachments. Defaults to false.
-		$only_media = (bool)!isset($_REQUEST['only_media']) ? false : ($_REQUEST['only_media'] == 'true');
-		// Return results older than this ID.
-		$max_id = (int)!isset($_REQUEST['max_id']) ? 0 : $_REQUEST['max_id'];
-		// Return results newer than this ID.
-		$since_id = (int)!isset($_REQUEST['since_id']) ? 0 : $_REQUEST['since_id'];
-		// Return results immediately newer than this ID.
-		$min_id = (int)!isset($_REQUEST['min_id']) ? 0 : $_REQUEST['min_id'];
-		// Maximum number of results to return. Defaults to 20.
-		$limit = (int)!isset($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
+		$request = self::getRequest([
+			'local'      => false, // If true, return only local statuses. Defaults to false.
+			'remote'     => false, // Show only remote statuses? Defaults to false.
+			'only_media' => false, // If true, return only statuses with media attachments. Defaults to false.
+			'max_id'     => 0,     // Return results older than this ID.
+			'since_id'   => 0,     // Return results newer than this ID.
+			'min_id'     => 0,     // Return results immediately newer than this ID.
+			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.
+			'with_muted' => false, // Pleroma extension: return activities by muted (not by blocked!) users.
+		]);
 
-		$params = ['order' => ['uri-id' => true], 'limit' => $limit];
+		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		$condition = ["`name` = ? AND (`uid` = ? OR (`uid` = ? AND NOT `global`))
 			AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
 			$parameters['hashtag'], 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
 
-		if ($local) {
+		if ($request['local']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
 		}
 
-		if ($only_media) {
+		if ($request['remote']) {
+			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
+		}
+
+		if ($request['only_media']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
 				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
 		}
 
-		if (!empty($max_id)) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $max_id]);
+		if (!empty($request['max_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);
 		}
 
-		if (!empty($since_id)) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $since_id]);
+		if (!empty($request['since_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['since_id']]);
 		}
 
-		if (!empty($min_id)) {
-			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $min_id]);
+		if (!empty($request['min_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
 
 			$params['order'] = ['uri-id'];
 		}
@@ -97,7 +99,7 @@ class Tag extends BaseApi
 		}
 		DBA::close($items);
 
-		if (!empty($min_id)) {
+		if (!empty($request['min_id'])) {
 			array_reverse($statuses);
 		}
 

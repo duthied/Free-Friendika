@@ -57,7 +57,7 @@ class Notifications extends BaseApi
 			'limit'         => 20,    // Maximum number of results to return (default 20)
 			'exclude_types' => [],    // Array of types to exclude (follow, favourite, reblog, mention, poll, follow_request)
 			'account_id'    => 0,     // Return only notifications received from this account
-			'with_muted'    => false, // Unknown parameter
+			'with_muted'    => false, // Pleroma extension: return activities by muted (not by blocked!) users.
 			'count'         => 0,     // Unknown parameter
 		]);
 

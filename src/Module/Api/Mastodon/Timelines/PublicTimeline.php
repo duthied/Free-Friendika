@@ -49,7 +49,7 @@ class PublicTimeline extends BaseApi
 			'since_id'   => 0,     // Return results newer than this id
 			'min_id'     => 0,     // Return results immediately newer than this id
 			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.
-			'with_muted' => false, // Unknown parameter
+			'with_muted' => false, // Pleroma extension: return activities by muted (not by blocked!) users.
 		]);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];

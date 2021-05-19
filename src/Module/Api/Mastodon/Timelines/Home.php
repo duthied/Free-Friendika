@@ -47,8 +47,11 @@ class Home extends BaseApi
 			'since_id'   => 0,     // Return results newer than id
 			'min_id'     => 0,     // Return results immediately newer than id
 			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.
-			'local'      => false, // Return only local statuses? Defaults to false.
-			'with_muted' => false, // Unknown parameter
+			'local'      => false, // Return only local statuses?
+			'with_muted' => false, // Pleroma extension: return activities by muted (not by blocked!) users.
+			'only_media' => false, // Show only statuses with media attached? Defaults to false.
+			'local'      => false, // Show only local statuses? Defaults to false.
+			'remote'     => false, // Show only remote statuses? Defaults to false.
 		]);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
@@ -71,6 +74,19 @@ class Home extends BaseApi
 			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
 
 			$params['order'] = ['uri-id'];
+		}
+
+		if ($request['only_media']) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
+				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
+		}
+
+		if ($request['local']) {
+			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
+		}
+
+		if ($request['remote']) {
+			$condition = DBA::mergeConditions($condition, ["NOT `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
 		}
 
 		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params);

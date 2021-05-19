@@ -57,15 +57,18 @@ class Lists extends BaseApi
 		self::login(self::SCOPE_WRITE);
 
 		$uid   = self::getCurrentUserID();
-		$title = $_REQUEST['title'] ?? '';
 
-		if (empty($title)) {
+		$request = self::getRequest([
+			'title' => '',
+		]);
+
+		if (empty($request['title'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		Group::create($uid, $title);
+		Group::create($uid, $request['title']);
 
-		$id = Group::getIdByName($uid, $title);
+		$id = Group::getIdByName($uid, $request['title']);
 		if (!$id) {
 			DI::mstdnError()->InternalError();
 		}

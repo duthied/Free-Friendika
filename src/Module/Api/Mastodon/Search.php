@@ -55,8 +55,8 @@ class Search extends BaseApi
 			'q'                  => '',    // The search query
 			'resolve'            => false, // Attempt WebFinger lookup. Defaults to false.
 			'limit'              => 20,    // Maximum number of results to load, per type. Defaults to 20. Max 40.
-			'offset'             => 0,     // Maximum number of results to load, per type. Defaults to 20. Max 40.
-			'following'          => false, // Only who the user is following. Defaults to false.
+			'offset'             => 0,     // Offset in search results. Used for pagination. Defaults to 0.
+			'following'          => false, // Only include accounts that the user is following. Defaults to false.
 		]);
 		
 		if (empty($request['q'])) {
