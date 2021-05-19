@@ -264,6 +264,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Conversation
+	 */
+	public static function mstdnConversation()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Conversation::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\Emoji
 	 */
 	public static function mstdnEmoji()

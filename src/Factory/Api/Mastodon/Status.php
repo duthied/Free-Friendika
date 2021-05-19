@@ -27,6 +27,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
@@ -116,6 +117,55 @@ class Status extends BaseFactory
 		} else {
 			$reshare = [];
 		}
+
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare);
+	}
+
+	/**
+	 * @param int $uriId id of the mail
+	 * @param int $uid   mail user
+	 * @return \Friendica\Object\Api\Mastodon\Status
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public function createFromMailId(int $id, $uid = 0)
+	{
+		$mail = DBA::selectFirst('mail', [], ['id' => $id, 'uid' => $uid]);
+		if (!$mail) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		$conv = DBA::selectFirst('conv', ['subject'], ['id' => $mail['convid'], 'uid' => $uid]);
+		if (!$conv) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		$account = DI::mstdnAccount()->createFromContactId($mail['contact-id']);
+
+		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(0, 0, 0);
+
+		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(false, false, false, false, false);
+
+		$sensitive   = false;
+		$application = new \Friendica\Object\Api\Mastodon\Application('');
+		$mentions    = [];
+		$tags        = [];
+		$card        = new \Friendica\Object\Api\Mastodon\Card([]);
+		$attachments = [];
+		$reshare     = [];
+
+		$item = [
+			'uri-id' => $mail['id'],
+			'created' => $mail['created'],
+			'thr-parent-id' => 0,
+			'parent-author-id' => 0,
+			'title' => $conv['subject'],
+			'private' => Item::PRIVATE,
+			'language' => '',
+			'uri' => $mail['uri'],
+			'plink' => '',
+			'body' => BBCode::convert($mail['body'], false, BBCode::API)
+		];
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare);
 	}

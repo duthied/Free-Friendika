@@ -51,6 +51,9 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`GET /api/v1/apps/verify_credentials`](https://docs.joinmastodon.org/methods/apps/)
 - [`GET /api/v1/blocks`](https://docs.joinmastodon.org/methods/accounts/blocks/)
 - [`GET /api/v1/bookmarks`](https://docs.joinmastodon.org/methods/accounts/bookmarks/)
+- [`GET /api/v1/conversations`](https://docs.joinmastodon.org/methods/timelines/conversations/)
+- [`DELETE /api/v1/conversations/:id`](https://docs.joinmastodon.org/methods/timelines/conversations/)
+- [`POST /api/v1/conversations/:id/read`](https://docs.joinmastodon.org/methods/timelines/conversations/)
 - [`GET /api/v1/custom_emojis`](https://docs.joinmastodon.org/methods/instance/custom_emojis/)
     - Doesn't return unicode emojis since they aren't using an image URL
 
@@ -118,9 +121,6 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 These emdpoints are planned to be implemented
 
 - [`PATCH /api/v1/accounts/update_credentials`](https://docs.joinmastodon.org/methods/accounts/)
-- [`GET /api/v1/conversations`](https://docs.joinmastodon.org/methods/timelines/conversations/)
-- [`DELETE /api/v1/conversations/:id`](https://docs.joinmastodon.org/methods/timelines/conversations/)
-- [`POST /api/v1/conversations/:id/read`](https://docs.joinmastodon.org/methods/timelines/conversations/)
 - [`GET /api/v1/instance/activity`](https://docs.joinmastodon.org/methods/instance#weekly-activity)
 - [`GET /api/v1/timelines/direct`](https://docs.joinmastodon.org/methods/timelines/)
 
