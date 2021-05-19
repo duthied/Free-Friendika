@@ -40,6 +40,5 @@ class VerifyCredentials extends BaseApi
 		}
 
 		System::jsonExit($application['id']);
-		
 	}
 }
