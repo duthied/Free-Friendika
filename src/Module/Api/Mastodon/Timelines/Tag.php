@@ -48,14 +48,15 @@ class Tag extends BaseApi
 		}
 
 		$request = self::getRequest([
-			'local'      => false, // If true, return only local statuses. Defaults to false.
-			'remote'     => false, // Show only remote statuses? Defaults to false.
-			'only_media' => false, // If true, return only statuses with media attachments. Defaults to false.
-			'max_id'     => 0,     // Return results older than this ID.
-			'since_id'   => 0,     // Return results newer than this ID.
-			'min_id'     => 0,     // Return results immediately newer than this ID.
-			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.
-			'with_muted' => false, // Pleroma extension: return activities by muted (not by blocked!) users.
+			'local'           => false, // If true, return only local statuses. Defaults to false.
+			'remote'          => false, // Show only remote statuses? Defaults to false.
+			'only_media'      => false, // If true, return only statuses with media attachments. Defaults to false.
+			'max_id'          => 0,     // Return results older than this ID.
+			'since_id'        => 0,     // Return results newer than this ID.
+			'min_id'          => 0,     // Return results immediately newer than this ID.
+			'limit'           => 20,    // Maximum number of results to return. Defaults to 20.
+			'with_muted'      => false, // Pleroma extension: return activities by muted (not by blocked!) users.
+			'exclude_replies' => false, // Don't show comments
 		]);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
@@ -75,6 +76,10 @@ class Tag extends BaseApi
 		if ($request['only_media']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
 				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
+		}
+
+		if ($request['exclude_replies']) {
+			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
 		}
 
 		if (!empty($request['max_id'])) {

@@ -47,14 +47,15 @@ class ListTimeline extends BaseApi
 		}
 
 		$request = self::getRequest([
-			'max_id'     => 0,     // Return results older than id
-			'since_id'   => 0,     // Return results newer than id
-			'min_id'     => 0,     // Return results immediately newer than id
-			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.Return results older than this ID.
-			'with_muted' => false, // Pleroma extension: return activities by muted (not by blocked!) users.
-			'only_media' => false, // Show only statuses with media attached? Defaults to false.
-			'local'      => false, // Show only local statuses? Defaults to false.
-			'remote'     => false, // Show only remote statuses? Defaults to false.
+			'max_id'          => 0,     // Return results older than id
+			'since_id'        => 0,     // Return results newer than id
+			'min_id'          => 0,     // Return results immediately newer than id
+			'limit'           => 20,    // Maximum number of results to return. Defaults to 20.Return results older than this ID.
+			'with_muted'      => false, // Pleroma extension: return activities by muted (not by blocked!) users.
+			'only_media'      => false, // Show only statuses with media attached? Defaults to false.
+			'local'           => false, // Show only local statuses? Defaults to false.
+			'remote'          => false, // Show only remote statuses? Defaults to false.
+			'exclude_replies' => false, // Don't show comments
 		]);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
@@ -79,6 +80,10 @@ class ListTimeline extends BaseApi
 		if ($request['only_media']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-media` WHERE `type` IN (?, ?, ?))",
 				Post\Media::AUDIO, Post\Media::IMAGE, Post\Media::VIDEO]);
+		}
+
+		if ($request['exclude_replies']) {
+			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
 		}
 
 		if ($request['local']) {

@@ -42,14 +42,15 @@ class PublicTimeline extends BaseApi
 	public static function rawContent(array $parameters = [])
 	{
 		$request = self::getRequest([
-			'local'      => false, // Show only local statuses? Defaults to false.
-			'remote'     => false, // Show only remote statuses? Defaults to false.
-			'only_media' => false, // Show only statuses with media attached? Defaults to false.
-			'max_id'     => 0,     // Return results older than this id
-			'since_id'   => 0,     // Return results newer than this id
-			'min_id'     => 0,     // Return results immediately newer than this id
-			'limit'      => 20,    // Maximum number of results to return. Defaults to 20.
-			'with_muted' => false, // Pleroma extension: return activities by muted (not by blocked!) users.
+			'local'           => false, // Show only local statuses? Defaults to false.
+			'remote'          => false, // Show only remote statuses? Defaults to false.
+			'only_media'      => false, // Show only statuses with media attached? Defaults to false.
+			'max_id'          => 0,     // Return results older than this id
+			'since_id'        => 0,     // Return results newer than this id
+			'min_id'          => 0,     // Return results immediately newer than this id
+			'limit'           => 20,    // Maximum number of results to return. Defaults to 20.
+			'with_muted'      => false, // Pleroma extension: return activities by muted (not by blocked!) users.
+			'exclude_replies' => false, // Don't show comments
 		]);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
@@ -81,6 +82,10 @@ class PublicTimeline extends BaseApi
 		if (!empty($request['min_id'])) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` > ?", $request['min_id']]);
 			$params['order'] = ['uri-id'];
+		}
+
+		if ($request['exclude_replies']) {
+			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
 		}
 
 		$items = Post::selectForUser(0, ['uri-id', 'uid'], $condition, $params);
