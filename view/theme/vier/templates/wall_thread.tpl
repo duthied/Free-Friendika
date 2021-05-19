@@ -45,7 +45,7 @@
 
 			</div>
 			{{if $item.owner_url}}
-			<div aria-hidden="true" class="contact-photo-wrapper mframe wwto" id="wall-item-ownerphoto-wrapper-{{$item.id}}" >
+			<div aria-hidden="true" class="contact-photo-wrapper mframe wwto" id="wall-item-ownerphoto-wrapper-{{$item.id}}">
 				<a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="contact-photo-link u-url" id="wall-item-ownerphoto-link-{{$item.id}}">
 					<img src="{{$item.owner_photo}}" class="contact-photo {{$item.osparkle}} p-name u-photo" id="wall-item-ownerphoto-{{$item.id}}" alt="{{$item.owner_name}}" />
 				</a>

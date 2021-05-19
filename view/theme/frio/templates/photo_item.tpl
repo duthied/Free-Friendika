@@ -43,7 +43,7 @@
 			<div class="wall-item-title" id="wall-item-title-{{$id}}">{{$title}}</div>
 			{{/if}}
 
-			<div class="wall-item-body {{if !$title}}p-name{{/if}}" id="wall-item-body-{{$id}}" >{{$body}}</div>
+			<div class="wall-item-body {{if !$title}}p-name{{/if}}" id="wall-item-body-{{$id}}" dir="auto">{{$body}}</div>
 		</div>
 
 		<div class="wall-item-wrapper-end clear"></div>
