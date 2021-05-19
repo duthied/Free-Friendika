@@ -39,7 +39,7 @@ class Conversation extends BaseApi
 		if (!empty($parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
-		
+
 		DBA::delete('conv', ['id' => $parameters['id'], 'uid' => $uid]);
 		DBA::delete('mail', ['convid' => $parameters['id'], 'uid' => $uid]);
 
@@ -65,6 +65,7 @@ class Conversation extends BaseApi
 		$params = ['order' => ['id' => true], 'limit' => $request['limit']];
 
 		$convs = DBA::select('conv', ['id'], ['uid' => $uid], $params);
+
 		$conversations = [];
 
 		foreach ($convs as $conv) {
