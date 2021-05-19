@@ -240,34 +240,12 @@ class Authentication
 	{
 		$record = null;
 
-		$addon_auth = [
-			'username'      => $username,
-			'password'      => $password,
-			'authenticated' => 0,
-			'user_record'   => null
-		];
-
-		/*
-		 * An addon indicates successful login by setting 'authenticated' to non-zero value and returning a user record
-		 * Addons should never set 'authenticated' except to indicate success - as hooks may be chained
-		 * and later addons should not interfere with an earlier one that succeeded.
-		 */
-		Hook::callAll('authenticate', $addon_auth);
-
 		try {
-			if ($addon_auth['authenticated']) {
-				$record = $addon_auth['user_record'];
-
-				if (empty($record)) {
-					throw new Exception($this->l10n->t('Login failed.'));
-				}
-			} else {
-				$record = $this->dba->selectFirst(
-					'user',
-					[],
-					['uid' => User::getIdFromPasswordAuthentication($username, $password)]
-				);
-			}
+			$record = $this->dba->selectFirst(
+				'user',
+				[],
+				['uid' => User::getIdFromPasswordAuthentication($username, $password)]
+			);
 		} catch (Exception $e) {
 			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => Strings::escapeTags($username), 'ip' => $_SERVER['REMOTE_ADDR']]);
 			notice($this->l10n->t('Login failed. Please check your credentials.'));
