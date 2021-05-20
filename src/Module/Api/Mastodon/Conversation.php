@@ -76,6 +76,7 @@ class Conversation extends BaseApi
 
 		if (!empty($request['min_id'])) {
 			$condition = DBA::mergeConditions($condition, ["`id` > ?", $request['min_id']]);
+
 			$params['order'] = ['id'];
 		}
 
