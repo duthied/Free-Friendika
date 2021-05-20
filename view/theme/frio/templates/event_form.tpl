@@ -75,7 +75,7 @@
 			{{* The textarea for the event description *}}
 			<div class="form-group">
 				<div id="event-desc-text"><b>{{$d_text}}</b></div>
-				<textarea id="comment-edit-text-desc" class="form-control text-autosize" name="desc">{{$d_orig}}</textarea>
+				<textarea id="comment-edit-text-desc" class="form-control text-autosize" name="desc" dir="auto">{{$d_orig}}</textarea>
 				<ul id="event-desc-text-edit-bb" class="comment-edit-bb comment-icon-list nav nav-pills hidden-xs pull-left">
 					{{* commented out because it isn't implemented yet
 					<li>
@@ -122,7 +122,7 @@
 			{{* The textarea for the event location *}}
 			<div class="form-group">
 				<div id="event-location-text"><b>{{$l_text}}</b></div>
-				<textarea id="comment-edit-text-loc" class="form-control text-autosize" name="location">{{$l_orig}}</textarea>
+				<textarea id="comment-edit-text-loc" class="form-control text-autosize" name="location" dir="auto">{{$l_orig}}</textarea>
 				<ul id="comment-tools-loc" class="comment-edit-bb comment-icon-list nav nav-pills hidden-xs pull-left">
 					{{* commented out because it isn't implemented yet
 					<li>

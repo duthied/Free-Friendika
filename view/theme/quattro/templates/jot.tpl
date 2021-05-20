@@ -1,9 +1,9 @@
 <form id="profile-jot-form" action="{{$action}}" method="post">
 	<div id="jot">
 		<div id="profile-jot-desc" class="jothidden">&nbsp;</div>
-		<input name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" title="{{$placeholdertitle}}" value="{{$title}}" class="jothidden" style="display:none" />
+		<input name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" title="{{$placeholdertitle}}" value="{{$title}}" class="jothidden" style="display:none" dir="auto" />
 		{{if $placeholdercategory}}
-		<input name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" title="{{$placeholdercategory}}" value="{{$category}}" class="jothidden" style="display:none" />
+		<input name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" title="{{$placeholdercategory}}" value="{{$category}}" class="jothidden" style="display:none" dir="auto" />
 		{{/if}}
 		<div id="character-counter" class="grey jothidden"></div>
 		<input type="hidden" name="wall" value="{{$wall}}" />
@@ -19,7 +19,7 @@
 		<input type="hidden" name="contact_allow[]" value="<{{$notes_cid}}>" />
 		{{/if}}
 
-		<textarea rows="5" cols="64" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
+		<textarea rows="5" cols="64" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}" dir="auto">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
 
 		<ul id="jot-tools" class="jothidden" style="display:none">
 			<li><a href="#" onclick="return false;" id="wall-image-upload" title="{{$upload}}">{{$shortupload}}</a></a></li>

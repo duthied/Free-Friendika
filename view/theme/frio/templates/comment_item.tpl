@@ -39,7 +39,7 @@
 			</span>
 		</p>
 		<p>
-			<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty form-control text-autosize" name="body" placeholder="{{$comment}}" rows="3" data-default="{{$default}}">{{$default}}</textarea>
+			<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty form-control text-autosize" name="body" placeholder="{{$comment}}" rows="3" data-default="{{$default}}" dir="auto">{{$default}}</textarea>
 		</p>
 {{if $qcomment}}
 		<p>

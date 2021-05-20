@@ -16,16 +16,16 @@
 		<input type="hidden" name="preview" id="jot-preview" value="0" />
 		<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
 		<div id="jot-title-wrap">
-			<input name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" value="{{$title}}" class="jothidden" style="display:none">
+			<input name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" value="{{$title}}" class="jothidden" style="display:none" dir="auto">
 		</div>
 		{{if $placeholdercategory}}
 		<div id="jot-category-wrap">
-			<input name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" value="{{$category}}" class="jothidden" style="display:none" />
+			<input name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" value="{{$category}}" class="jothidden" style="display:none" dir="auto" />
 		</div>
 		{{/if}}
 		<div id="jot-text-wrap">
 			<img id="profile-jot-text-loading" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" /><br>
-			<textarea rows="5" cols="80" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}">
+			<textarea rows="5" cols="80" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}" dir="auto">
 			{{if $content}}{{$content nofilter}}{{/if}}
 			</textarea>
 		</div>

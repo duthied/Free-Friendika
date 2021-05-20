@@ -18,13 +18,13 @@
 		{{if $notes_cid}}
 		<input type="hidden" name="contact_allow[]" value="<{{$notes_cid}}>" />
 		{{/if}}
-		<div id="jot-title-wrap"><input name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" value="{{$title}}" class="jothidden" style="display:none"></div>
+		<div id="jot-title-wrap"><input name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" value="{{$title}}" class="jothidden" style="display:none" dir="auto"></div>
 		{{if $placeholdercategory}}
-		<div id="jot-category-wrap"><input name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" value="{{$category}}" class="jothidden" style="display:none" /></div>
+		<div id="jot-category-wrap"><input name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" value="{{$category}}" class="jothidden" style="display:none" dir="auto"></div>
 		{{/if}}
 		<div id="jot-text-wrap">
 		<img id="profile-jot-text-loading" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
-		<textarea rows="5" cols="64" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
+		<textarea rows="5" cols="64" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}" dir="auto">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
 		</div>
 
 <div id="profile-jot-submit-wrapper" class="jothidden">

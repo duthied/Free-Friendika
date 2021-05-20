@@ -25,7 +25,7 @@
 
 
 <div id="event-desc-text">{{$d_text}}</div>
-<textarea id="comment-edit-text-desc" rows="8" cols="64" name="desc" autocomplete="off">{{$d_orig}}</textarea>
+<textarea id="comment-edit-text-desc" rows="8" cols="64" name="desc" autocomplete="off" dir="auto">{{$d_orig}}</textarea>
 <div id="event-desc-text-edit-bb" class="comment-edit-bb">
 	<a title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="desc"><i class="icon-picture"></i></a>
 	<a title="{{$edurl}}" data-role="insert-formatting" data-bbcode="url" data-id="desc"><i class="icon-link"></i></a>
@@ -38,7 +38,7 @@
 </div>
 
 <div id="event-location-text">{{$l_text}}</div>
-<textarea id="comment-edit-text-location" rows="4" cols="64" name="location">{{$l_orig}}</textarea>
+<textarea id="comment-edit-text-location" rows="4" cols="64" name="location" dir="auto">{{$l_orig}}</textarea>
 <div id="event-location-text-edit-bb" class="comment-edit-bb">
 	<a title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="location"><i class="icon-picture"></i></a>
 	<a title="{{$edurl}}" data-role="insert-formatting" data-bbcode="url" data-id="location"><i class="icon-link"></i></a>
