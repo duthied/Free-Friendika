@@ -861,7 +861,7 @@ class Transmitter
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function ItemArrayFromMail($mail_id)
+	public static function ItemArrayFromMail($mail_id, $use_title = false)
 	{
 		$mail = DBA::selectFirst('mail', [], ['id' => $mail_id]);
 		if (!DBA::isResult($mail)) {
@@ -870,29 +870,37 @@ class Transmitter
 
 		$mail['uri-id'] = ItemURI::insert(['uri' => $mail['uri'], 'guid' => $mail['guid']]);
 
-		$reply = DBA::selectFirst('mail', ['uri'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
+		$reply = DBA::selectFirst('mail', ['uri', 'from-url', 'guid'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
 
 		// Making the post more compatible for Mastodon by:
 		// - Making it a note and not an article (no title)
 		// - Moving the title into the "summary" field that is used as a "content warning"
-		$mail['body'] = '[abstract]' . $mail['title'] . "[/abstract]\n" . $mail['body'];
-		$mail['title'] = '';
 
-		$mail['author-link'] = $mail['owner-link'] = $mail['from-url'];
-		$mail['allow_cid'] = '<'.$mail['contact-id'].'>';
-		$mail['allow_gid'] = '';
-		$mail['deny_cid'] = '';
-		$mail['deny_gid'] = '';
-		$mail['private'] = true;
-		$mail['deleted'] = false;
-		$mail['edited'] = $mail['created'];
-		$mail['plink'] = $mail['uri'];
-		$mail['thr-parent'] = $reply['uri'];
-		$mail['gravity'] = ($mail['reply'] ? GRAVITY_COMMENT: GRAVITY_PARENT);
+		if ($use_title) {
+			$mail['body']         = $mail['body'];
+			$mail['title']        = $mail['title'];
+		} else {
+			$mail['body']         = '[abstract]' . $mail['title'] . "[/abstract]\n" . $mail['body'];
+			$mail['title']        = '';
+		}
 
-		$mail['event-type'] = '';
-
-		$mail['parent'] = 0;
+		$mail['author-link']      = $mail['owner-link'] = $mail['from-url'];
+		$mail['author-id']        = Contact::getIdForURL($mail['author-link'], 0, false); 
+		$mail['allow_cid']        = '<'.$mail['contact-id'].'>';
+		$mail['allow_gid']        = '';
+		$mail['deny_cid']         = '';
+		$mail['deny_gid']         = '';
+		$mail['private']          = Item::PRIVATE;
+		$mail['deleted']          = false;
+		$mail['edited']           = $mail['created'];
+		$mail['plink']            = $mail['uri'];
+		$mail['thr-parent']       = $reply['uri'];
+		$mail['thr-parent-id']    = ItemURI::insert(['uri' => $reply['uri'], 'guid' => $reply['guid']]);
+		$mail['parent-author-id'] = Contact::getIdForURL($reply['from-url'], 0, false);
+		$mail['gravity']          = ($mail['reply'] ? GRAVITY_COMMENT: GRAVITY_PARENT);
+		$mail['event-type']       = '';
+		$mail['language']         = '';
+		$mail['parent']           = 0;
 
 		return $mail;
 	}

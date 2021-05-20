@@ -31,6 +31,7 @@ use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Repository\ProfileField;
 use Psr\Log\LoggerInterface;
 
@@ -116,6 +117,36 @@ class Status extends BaseFactory
 		} else {
 			$reshare = [];
 		}
+
+		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare);
+	}
+
+	/**
+	 * @param int $uriId id of the mail
+	 * @return \Friendica\Object\Api\Mastodon\Status
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public function createFromMailId(int $id)
+	{
+		$item = ActivityPub\Transmitter::ItemArrayFromMail($id, true);
+		if (empty($item)) {
+			DI::mstdnError()->RecordNotFound();
+		}
+
+		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
+
+		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(0, 0, 0);
+
+		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(false, false, false, false, false);
+
+		$sensitive   = false;
+		$application = new \Friendica\Object\Api\Mastodon\Application('');
+		$mentions    = [];
+		$tags        = [];
+		$card        = new \Friendica\Object\Api\Mastodon\Card([]);
+		$attachments = [];
+		$reshare     = [];
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare);
 	}
