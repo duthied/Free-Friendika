@@ -67,12 +67,12 @@ class Direct extends BaseApi
 			$params['order'] = ['id'];
 		}
 
-		$mails = DBA::select('mail', ['id', 'uid'], $condition, $params);
+		$mails = DBA::select('mail', ['id'], $condition, $params);
 
 		$statuses = [];
 
 		while ($mail = DBA::fetch($mails)) {
-			$statuses[] = DI::mstdnStatus()->createFromMailId($mail['id'], $mail['uid']);
+			$statuses[] = DI::mstdnStatus()->createFromMailId($mail['id']);
 		}
 
 		if (!empty($request['min_id'])) {

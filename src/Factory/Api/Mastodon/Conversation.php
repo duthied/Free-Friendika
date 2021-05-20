@@ -50,10 +50,10 @@ class Conversation extends BaseFactory
 			$ids[] = $id;
 
 			if (empty($last_status)) {
-				$last_status = DI::mstdnStatus()->createFromMailId($mail['id'], $mail['uid']);
+				$last_status = DI::mstdnStatus()->createFromMailId($mail['id']);
 			}
 
-			$accounts[] = DI::mstdnAccount()->createFromContactId($id, $mail['uid']);
+			$accounts[] = DI::mstdnAccount()->createFromContactId($id, 0);
 		}
 
 		return new \Friendica\Object\Api\Mastodon\Conversation($id, $accounts, $unread, $last_status);

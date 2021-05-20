@@ -123,12 +123,11 @@ class Status extends BaseFactory
 
 	/**
 	 * @param int $uriId id of the mail
-	 * @param int $uid   mail user
 	 * @return \Friendica\Object\Api\Mastodon\Status
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function createFromMailId(int $id, $uid)
+	public function createFromMailId(int $id)
 	{
 		$item = ActivityPub\Transmitter::ItemArrayFromMail($id, true);
 		if (empty($item)) {
