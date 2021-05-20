@@ -32,7 +32,7 @@
 				
 		</div>			
 		<div class="wall-item-content" id="wall-item-content-{{$item.id}}">
-			<div class="wall-item-title" id="wall-item-title-{{$item.id}}">{{$item.title}}</div>
+			<div class="wall-item-title" id="wall-item-title-{{$item.id}}" dir="auto">{{$item.title}}</div>
 			<div class="wall-item-title-end"></div>
 			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" dir="auto">{{$item.body_html nofilter}}</div>
 			{{if $item.has_cats}}
@@ -56,9 +56,9 @@
 	<div class="wall-item-wrapper-end"></div>
 
 
-	<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}">
+	<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}" dir="auto">
 	{{if $item.conv}}
-			<a href='{{$item.conv.href}}' id='context-{{$item.id}}' title='{{$item.conv.title}}'>{{$item.conv.title}}</a>
+		<a href="{{$item.conv.href}}" id="context-{{$item.id}}" title="{{$item.conv.title}}">{{$item.conv.title}}</a>
 	{{/if}}
 	</div>
 

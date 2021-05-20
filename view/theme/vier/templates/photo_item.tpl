@@ -30,9 +30,8 @@
 		</div>
 	</div>
 	<div class="wall-item-bottom">
-		<div class="">
-			<!-- {{if $plink}}<a title="{{$plink.title}}" href="{{$plink.href}}"><i class="icon-link icon-large"></i></a>{{/if}} -->
-			{{if $conv}}<a href='{{$conv.href}}' id='context-{{$id}}' title='{{$conv.title}}'><i class="icon-link icon-large"></i></a>{{/if}}
+		<div dir="auto">
+			{{if $conv}}<a href="{{$conv.href}}" id="context-{{$id}}" title="{{$conv.title}}"><i class="icon-link icon-large"></i></a>{{/if}}
 		</div>
 		<div class="wall-item-actions">
 

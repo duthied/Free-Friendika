@@ -6,16 +6,16 @@
 
 	<form action="photos/{{$nickname}}" enctype="multipart/form-data" method="post" name="photos-upload-form" id="photos-upload-form">
 		<div id="photos-upload-div" class="form-group">
-			<label id="photos-upload-text" for="photos-upload-newalbum" >{{$newalbum}}</label>
+			<label id="photos-upload-text" for="photos-upload-newalbum">{{$newalbum}}</label>
 
 			<input id="photos-upload-album-select" class="form-control" placeholder="{{$existalbumtext}}" list="dl-photo-upload" type="text" name="album" size="4">
 			<datalist id="dl-photo-upload">{{$albumselect  nofilter}}</datalist>
 		</div>
 		<div id="photos-upload-end" class="clearfix"></div>
 
-		<div id="photos-upload-noshare-div" class="photos-upload-noshare-div checkbox pull-left" >
+		<div id="photos-upload-noshare-div" class="photos-upload-noshare-div checkbox pull-left">
 			<input id="photos-upload-noshare" type="checkbox" name="not_visible" value="1" checked/>
-			<label id="photos-upload-noshare-text" for="photos-upload-noshare" >{{$nosharetext}}</label>
+			<label id="photos-upload-noshare-text" for="photos-upload-noshare">{{$nosharetext}}</label>
 		</div>
 
 		{{if $alt_uploader}}

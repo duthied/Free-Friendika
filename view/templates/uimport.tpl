@@ -10,5 +10,5 @@
 	<div id="register-submit-wrapper">
 		<input type="submit" name="submit" id="register-submit-button" value="{{$regbutt}}" />
 	</div>
-	<div id="register-submit-end" ></div>    
+	<div id="register-submit-end"></div>
 </form>

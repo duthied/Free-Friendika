@@ -1,10 +1,10 @@
 
 {{* template incomming contact request and suggested contacts *}}
 
-<div class="intro-wrapper media" id="intro-{{$intro_id}}" >
+<div class="intro-wrapper media" id="intro-{{$intro_id}}">
 
 	{{* Contact Photo *}}
-	<div class="intro-photo-wrapper dropdown pull-left" >
+	<div class="intro-photo-wrapper dropdown pull-left">
 		<img id="photo-{{$intro_id}}" class="intro-photo media-object" src="{{$photo}}" title="{{$fullname}}" alt="{{$fullname}}" />
 	</div>
 
@@ -70,13 +70,13 @@
 					{{include file="field_radio.tpl" field=$friend}}
 					{{include file="field_radio.tpl" field=$follower}}
 				</div>
-				<input type="hidden" name="dfrn_id" value="{{$dfrn_id}}" >
-				<input type="hidden" name="intro_id" value="{{$intro_id}}" >
-				<input type="hidden" name="contact_id" value="{{$contact_id}}" >
+				<input type="hidden" name="dfrn_id" value="{{$dfrn_id}}">
+				<input type="hidden" name="intro_id" value="{{$intro_id}}">
+				<input type="hidden" name="contact_id" value="{{$contact_id}}">
 				{{else}}
 				{{if $note}}<div>{{$note}}</div>{{/if}}
-				<input type="hidden" name="url" value="{{$url}}" >
-				<input type="hidden" name="dfrn-url" value="{{$dfrn_url}}" >
+				<input type="hidden" name="url" value="{{$url}}">
+				<input type="hidden" name="dfrn-url" value="{{$dfrn_url}}">
 				{{/if}}
 				<div class="pull-right">
 					<button class="btn btn-primary intro-submit-approve" type="submit" name="submit" value="{{$approve}}">{{$approve}}</button>

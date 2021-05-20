@@ -1,11 +1,11 @@
-<div id="contact-edit-wrapper" >
+<div id="contact-edit-wrapper">
 
 	{{* Insert Tab-Nav *}}
 	{{$tab_str nofilter}}
 
 
-	<div id="contact-edit-nav-wrapper" >
-		<form action="contact/{{$contact_id}}" method="post" >
+	<div id="contact-edit-nav-wrapper">
+		<form action="contact/{{$contact_id}}" method="post">
 			<div id="contact-edit-links">
 				<div id="contact-edit-status-wrapper">
 					<span id="contact-edit-contact-status">{{$contact_status}}</span>
@@ -14,7 +14,7 @@
 					<div id="contact-edit-actions">
 						<a class="btn" rel="#contact-actions-menu" href="#" id="contact-edit-actions-button">{{$contact_action_button}}</a>
 
-						<ul role="menu" aria-haspopup="true" id="contact-actions-menu" class="menu-popup" >
+						<ul role="menu" aria-haspopup="true" id="contact-actions-menu" class="menu-popup">
 							{{if $lblsuggest}}<li role="menuitem"><a  href="#" title="{{$contact_actions.suggest.title}}" onclick="window.location.href='{{$contact_actions.suggest.url}}'; return false;">{{$contact_actions.suggest.label}}</a></li>{{/if}}
 							{{if $poll_enabled}}<li role="menuitem"><a  href="#" title="{{$contact_actions.update.title}}" onclick="window.location.href='{{$contact_actions.update.url}}'; return false;">{{$contact_actions.update.label}}</a></li>{{/if}}
 							{{if $contact_actions.updateprofile}}<li role="menuitem"><a href="{{$contact_actions.updateprofile.url}}" title="{{$contact_actions.updateprofile.title}}">{{$contact_actions.updateprofile.label}}</a></li>{{/if}}
@@ -64,7 +64,7 @@
 			<div id="contact-edit-settings">
 				<input type="hidden" name="contact_id" value="{{$contact_id}}">
 
-					<div id="contact-edit-end" ></div>
+					<div id="contact-edit-end"></div>
 					{{include file="field_checkbox.tpl" field=$notify}}
 					{{if $fetch_further_information}}
 						{{include file="field_select.tpl" field=$fetch_further_information}}

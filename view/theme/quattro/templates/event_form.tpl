@@ -3,7 +3,7 @@
 
 <p>{{$desc nofilter}}</p>
 
-<form id="event-edit-form" action="{{$post}}" method="post" >
+<form id="event-edit-form" action="{{$post}}" method="post">
 
 	<input type="hidden" name="event_id" value="{{$eid}}" />
 	<input type="hidden" name="cid" value="{{$cid}}" />
@@ -30,7 +30,7 @@
 
 	{{$acl nofilter}}
 
-	<div class="settings-submit-wrapper" >
+	<div class="settings-submit-wrapper">
 		<input id="event-edit-preview" type="submit" name="preview" value="{{$preview}}" onclick="doEventPreview(); return false;" />
 		<input id="event-submit" type="submit" name="submit" value="{{$submit}}" />
 	</div>

@@ -11,7 +11,7 @@
 
 		{{include file="field_input.tpl" field=$verify_code}}
 
-		<div class="form-group settings-submit-wrapper" >
+		<div class="form-group settings-submit-wrapper">
 			<button type="submit" name="action" id="confirm-submit-button" class="btn btn-primary confirm-button" value="verify">{{$verify_label}}</button>
 		</div>
 	</form>

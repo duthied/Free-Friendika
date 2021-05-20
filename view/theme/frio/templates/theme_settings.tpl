@@ -1,5 +1,5 @@
 <script src="{{$baseurl}}/view/theme/quattro/jquery.tools.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
-<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
+<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
 <div class="form-group field select">
 	<label for="id_{{$scheme.0}}">{{$scheme.1}}</label>

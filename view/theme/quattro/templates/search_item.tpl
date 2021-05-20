@@ -26,7 +26,7 @@
 			<div class="wall-item-location">{{$item.location_html nofilter}}</div>
 		</div>
 		<div class="wall-item-content">
-			{{if $item.title}}<h2><a href="{{$item.plink.href}}">{{$item.title}}</a></h2>{{/if}}
+			{{if $item.title}}<h2 dir="auto"><a href="{{$item.plink.href}}">{{$item.title}}</a></h2>{{/if}}
 			<div class="wall-item-body" dir="auto">{{$item.body_html nofilter}}</div>
 		</div>
 	</div>
@@ -89,8 +89,8 @@
 		<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like_html nofilter}}</div>
 		<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike_html nofilter}}</div>
 		{{if $item.conv}}
-		<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}">
-			<a href='{{$item.conv.href}}' id='context-{{$item.id}}' title='{{$item.conv.title}}'>{{$item.conv.title}}</a>
+		<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}" dir="auto">
+			<a href="{{$item.conv.href}}" id="context-{{$item.id}}" title="{{$item.conv.title}}">{{$item.conv.title}}</a>
 		</div>
 		{{/if}}
 	</div>

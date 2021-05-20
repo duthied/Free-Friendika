@@ -46,9 +46,9 @@
 	<div class="wall-item-wrapper-end"></div>
 
 
-	<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}">
+	<div class="wall-item-conv" id="wall-item-conv-{{$item.id}}" dir="auto">
 	{{if $item.conv}}
-			<a href='{{$item.conv.href}}' id='context-{{$item.id}}' title='{{$item.conv.title}}'>{{$item.conv.title}}</a>
+		<a href="{{$item.conv.href}}" id="context-{{$item.id}}" title="{{$item.conv.title}}">{{$item.conv.title}}</a>
 	{{/if}}
 	</div>
 	<div class="wall-item-wrapper-end"></div>

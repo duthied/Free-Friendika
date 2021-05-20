@@ -50,7 +50,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	// Update this value to the current date whenever changes are made to BBCode::convert
-	const VERSION = '2021-05-01';
+	const VERSION = '2021-05-21';
 
 	const INTERNAL = 0;
 	const EXTERNAL = 1;
@@ -1721,7 +1721,7 @@ class BBCode
 						$text);
 				} elseif (!$simple_html) {
 					$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
-						'$1<a href="$2" class="userinfo mention" title="$3"><bdi>$3</bdi></a>',
+						'<bdi>$1<a href="$2" class="userinfo mention" title="$3">$3</a></bdi>',
 						$text);
 				}
 

@@ -2,7 +2,7 @@
 {{foreach $events as $event}}
 	<div class="event">
 	
-	{{if $event.item.author_name}}<a href="{{$event.item.author_link}}" ><img src="{{$event.item.author_avatar}}" height="32" width="32" />{{$event.item.author_name}}</a>{{/if}}
+	{{if $event.item.author_name}}<a href="{{$event.item.author_link}}"><img src="{{$event.item.author_avatar}}" height="32" width="32" />{{$event.item.author_name}}</a>{{/if}}
 	{{$event.html nofilter}}
 	{{if $event.plink.orig}}<a href="{{$event.plink.orig}}" title="{{$event.plink.orig_title}}" target="_blank" rel="noopener noreferrer" class="plink-event-link icon s22 remote-link"></a>{{/if}}
 	{{if $event.edit}}<a href="{{$event.edit.0}}" title="{{$event.edit.1}}" class="edit-event-link icon s22 pencil"></a>{{/if}}

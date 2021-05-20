@@ -22,7 +22,7 @@
 			{{foreach $users as $u}}
 				<tr>
 					<td><img class="avatar-nano" src="{{$u.micro}}" title="{{$u.nickname}}"></td>
-					<td><a href="{{$u.url}}" title="{{$u.nickname}}" >{{$u.name}}</a></td>
+					<td><a href="{{$u.url}}" title="{{$u.nickname}}">{{$u.name}}</a></td>
 					<td>{{$u.email}}</td>
 					<td>{{$u.deleted}}</td>
 				</tr>

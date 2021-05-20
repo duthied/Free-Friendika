@@ -60,7 +60,7 @@
 		<div>
 		<hr class="line-dots">
 		</div>
-			<div class="wall-item-title p-name" id="wall-item-title-{{$item.id}}">{{$item.title}}</div>
+			<div class="wall-item-title p-name" id="wall-item-title-{{$item.id}}" dir="auto">{{$item.title}}</div>
 			<div class="wall-item-title-end"></div>
 			<div class="wall-item-body" id="wall-item-body-{{$item.id}}">
 				<span class="e-content" dir="auto">{{$item.body_html nofilter}}</span>

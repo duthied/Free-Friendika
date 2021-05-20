@@ -8,7 +8,7 @@
 {{/if}}
 
 <div id="directory-search-wrapper">
-	<form id="directory-search-form" action="{{$search_mod}}" method="get" >
+	<form id="directory-search-form" action="{{$search_mod}}" method="get">
 		<span class="dirsearch-desc">{{$desc nofilter}}</span>
 		<input type="text" name="search" id="directory-search" class="search-input" onfocus="this.select();" value="{{$search}}" />
 		<input type="submit" name="submit" id="directory-search-submit" value="{{$submit}}" class="button" />
@@ -25,6 +25,6 @@
 	{{include file="contact_template.tpl"}}
 {{/foreach}}
 
-<div class="directory-end" ></div>
+<div class="directory-end"></div>
 
 {{$paginate nofilter}}
