@@ -515,7 +515,20 @@ class User
 	 */
 	public static function getIdFromPasswordAuthentication($user_info, $password, $third_party = false)
 	{
-		$user = self::getAuthenticationInfo($user_info);
+		// Addons registered with the "authenticate" hook may create the user on the
+		// fly. `getAuthenticationInfo` will fail if the user doesn't exist yet. If
+		// the user doesn't exist, we should give the addons a chance to create the
+		// user in our database, if applicable, before re-throwing the exception if
+		// they fail.
+		try {
+			$user = self::getAuthenticationInfo($user_info);
+		} catch (Exception $e) {
+			if (is_string($user_info)) {
+				return self::getIdFromAuthenticateHooks($user_info, $password);
+			} else {
+				throw $e;
+			}
+		}
 
 		if ($third_party && DI::pConfig()->get($user['uid'], '2fa', 'verified')) {
 			// Third-party apps can't verify two-factor authentication, we use app-specific passwords instead
@@ -545,23 +558,39 @@ class User
 
 			return $user['uid'];
 		} else {
-			$addon_auth = [
-				'username'      => $user['nickname'],
-				'password'      => $password,
-				'authenticated' => 0,
-				'user_record'   => null
-			];
+			return self::getIdFromAuthenticateHooks($user['nickname'], $password); // throws
+		}
 
-			/*
-			 * An addon indicates successful login by setting 'authenticated' to non-zero value and returning a user record
-			 * Addons should never set 'authenticated' except to indicate success - as hooks may be chained
-			 * and later addons should not interfere with an earlier one that succeeded.
-			 */
-			Hook::callAll('authenticate', $addon_auth);
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Login failed'));
+	}
 
-			if ($addon_auth['authenticated'] && $addon_auth['user_record']) {
-				return $user['uid'];
-			}
+	/**
+	 * Try to obtain a user ID via "authenticate" hook addons
+	 *
+	 * Returns the user id associated with a successful password authentication
+	 *
+	 * @param string $username
+	 * @param string $password
+	 * @return int User Id if authentication is successful
+	 * @throws HTTPException\ForbiddenException
+	 */
+	public static function getIdFromAuthenticateHooks($username, $password) {
+		$addon_auth = [
+			'username'      => $username,
+			'password'      => $password,
+			'authenticated' => 0,
+			'user_record'   => null
+		];
+
+		/*
+		 * An addon indicates successful login by setting 'authenticated' to non-zero value and returning a user record
+		 * Addons should never set 'authenticated' except to indicate success - as hooks may be chained
+		 * and later addons should not interfere with an earlier one that succeeded.
+		 */
+		Hook::callAll('authenticate', $addon_auth);
+
+		if ($addon_auth['authenticated'] && $addon_auth['user_record']) {
+			return $user['uid'];
 		}
 
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Login failed'));
