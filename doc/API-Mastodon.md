@@ -108,6 +108,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 - [`POST /api/v1/statuses/:id/pin`](https://docs.joinmastodon.org/methods/statuses/)
 - [`POST /api/v1/statuses/:id/unpin`](https://docs.joinmastodon.org/methods/statuses/)
 - [`GET /api/v1/suggestions`](https://docs.joinmastodon.org/methods/accounts/suggestions/)
+- [`GET /api/v1/timelines/direct`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/home`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/list/:id`](https://docs.joinmastodon.org/methods/timelines/)
 - [`GET /api/v1/timelines/public`](https://docs.joinmastodon.org/methods/timelines/)
@@ -122,7 +123,6 @@ These emdpoints are planned to be implemented
 
 - [`PATCH /api/v1/accounts/update_credentials`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/instance/activity`](https://docs.joinmastodon.org/methods/instance#weekly-activity)
-- [`GET /api/v1/timelines/direct`](https://docs.joinmastodon.org/methods/timelines/)
 
 ## Non supportable endpoints
 

@@ -27,11 +27,11 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Repository\ProfileField;
 use Psr\Log\LoggerInterface;
 
@@ -128,19 +128,14 @@ class Status extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function createFromMailId(int $id, $uid = 0)
+	public function createFromMailId(int $id, $uid)
 	{
-		$mail = DBA::selectFirst('mail', [], ['id' => $id, 'uid' => $uid]);
-		if (!$mail) {
+		$item = ActivityPub\Transmitter::ItemArrayFromMail($id, true);
+		if (empty($item)) {
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$conv = DBA::selectFirst('conv', ['subject'], ['id' => $mail['convid'], 'uid' => $uid]);
-		if (!$conv) {
-			DI::mstdnError()->RecordNotFound();
-		}
-
-		$account = DI::mstdnAccount()->createFromContactId($mail['contact-id']);
+		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
 
 		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(0, 0, 0);
 
@@ -153,19 +148,6 @@ class Status extends BaseFactory
 		$card        = new \Friendica\Object\Api\Mastodon\Card([]);
 		$attachments = [];
 		$reshare     = [];
-
-		$item = [
-			'uri-id'           => $mail['id'],
-			'created'          => $mail['created'],
-			'thr-parent-id'    => 0,
-			'parent-author-id' => 0,
-			'title'            => $conv['subject'],
-			'private'          => Item::PRIVATE,
-			'language'         => '',
-			'uri'              => $mail['uri'],
-			'plink'            => '',
-			'body'             => BBCode::convert($mail['body'], false, BBCode::API)
-		];
 
 		return new \Friendica\Object\Api\Mastodon\Status($item, $account, $counts, $userAttributes, $sensitive, $application, $mentions, $tags, $card, $attachments, $reshare);
 	}

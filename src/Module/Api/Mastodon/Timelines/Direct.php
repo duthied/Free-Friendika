@@ -19,36 +19,23 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Module\Api\Mastodon\Timelines;
 
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
+use Friendica\Network\HTTPException;
 
 /**
- * @see https://docs.joinmastodon.org/methods/timelines/conversations/
+ * @see https://docs.joinmastodon.org/methods/timelines/
  */
-class Conversation extends BaseApi
+class Direct extends BaseApi
 {
-	public static function delete(array $parameters = [])
-	{
-		self::login(self::SCOPE_WRITE);
-		$uid = self::getCurrentUserID();
-
-		if (!empty($parameters['id'])) {
-			DI::mstdnError()->UnprocessableEntity();
-		}
-
-		DBA::delete('conv', ['id' => $parameters['id'], 'uid' => $uid]);
-		DBA::delete('mail', ['convid' => $parameters['id'], 'uid' => $uid]);
-
-		System::jsonExit([]);
-	}
-
 	/**
 	 * @param array $parameters
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function rawContent(array $parameters = [])
 	{
@@ -56,10 +43,10 @@ class Conversation extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
-			'limit'    => 20, // Maximum number of results. Defaults to 20. Max 40.
-			'max_id'   => 0,  // Return results older than this ID. Use HTTP Link header to paginate.
-			'since_id' => 0,  // Return results newer than this ID. Use HTTP Link header to paginate.
-			'min_id'   => 0,  // Return results immediately newer than this ID. Use HTTP Link header to paginate.
+			'max_id'          => 0,     // Return results older than id
+			'since_id'        => 0,     // Return results newer than id
+			'min_id'          => 0,     // Return results immediately newer than id
+			'limit'           => 20,    // Maximum number of results to return. Defaults to 20.
 		]);
 
 		$params = ['order' => ['id' => true], 'limit' => $request['limit']];
@@ -80,20 +67,18 @@ class Conversation extends BaseApi
 			$params['order'] = ['id'];
 		}
 
-		$convs = DBA::select('conv', ['id'], $condition, $params);
+		$mails = DBA::select('mail', ['id', 'uid'], $condition, $params);
 
-		$conversations = [];
+		$statuses = [];
 
-		while ($conv = DBA::fetch($convs)) {
-			$conversations[] = DI::mstdnConversation()->CreateFromConvId($conv['id']);
+		while ($mail = DBA::fetch($mails)) {
+			$statuses[] = DI::mstdnStatus()->createFromMailId($mail['id'], $mail['uid']);
 		}
-
-		DBA::close($convs);
 
 		if (!empty($request['min_id'])) {
-			array_reverse($conversations);
+			array_reverse($statuses);
 		}
 
-		System::jsonExit($conversations);
+		System::jsonExit($statuses);
 	}
 }
