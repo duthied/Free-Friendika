@@ -530,7 +530,7 @@ class User
 			// exactly what will happen here. Creating a numeric username would create
 			// abiguity with user IDs, possibly opening up an attack vector.
 			// So let's be very careful about that.
-			if (empty($username) || is_numeric($user_info) || is_numeric($user_info['nickname'] ?? '')) {
+			if (empty($username) || is_numeric($username)) {
 				throw $e;
 			}
 
