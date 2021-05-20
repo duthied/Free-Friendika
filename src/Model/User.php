@@ -523,11 +523,19 @@ class User
 		try {
 			$user = self::getAuthenticationInfo($user_info);
 		} catch (Exception $e) {
-			if (is_string($user_info)) {
-				return self::getIdFromAuthenticateHooks($user_info, $password);
-			} else {
+			// Addons can create users, and creating a numeric username would create
+			// abiguity with user IDs, possibly opening up an attack vector.
+			// So let's be very careful about that.
+			if (is_numeric($user_info) || is_numeric($user_info['nickname'] ?? '')) {
 				throw $e;
 			}
+
+			$username = (is_string($user_info) ? $user_info : $user_info['nickname'] ?? '');
+
+			if (!$username) {
+				throw $e;
+			}
+			return self::getIdFromAuthenticateHooks($user_info, $password);
 		}
 
 		if ($third_party && DI::pConfig()->get($user['uid'], '2fa', 'verified')) {
@@ -590,7 +598,7 @@ class User
 		Hook::callAll('authenticate', $addon_auth);
 
 		if ($addon_auth['authenticated'] && $addon_auth['user_record']) {
-			return $user['uid'];
+			return $addon_auth['user_record']['uid'];
 		}
 
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Login failed'));
