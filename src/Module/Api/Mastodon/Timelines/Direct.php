@@ -24,7 +24,6 @@ namespace Friendica\Module\Api\Mastodon\Timelines;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Post;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 
@@ -43,10 +42,10 @@ class Direct extends BaseApi
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
-			'max_id'          => 0,     // Return results older than id
-			'since_id'        => 0,     // Return results newer than id
-			'min_id'          => 0,     // Return results immediately newer than id
-			'limit'           => 20,    // Maximum number of results to return. Defaults to 20.
+			'max_id'   => 0,  // Return results older than id
+			'since_id' => 0,  // Return results newer than id
+			'min_id'   => 0,  // Return results immediately newer than id
+			'limit'    => 20, // Maximum number of results to return. Defaults to 20.
 		]);
 
 		$params = ['order' => ['id' => true], 'limit' => $request['limit']];
