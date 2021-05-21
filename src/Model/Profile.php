@@ -145,7 +145,7 @@ class Profile
 	 */
 	public static function load(App $a, $nickname, array $profiledata = [], $show_connect = true)
 	{
-		$user = DBA::selectFirst('user', [], ['nickname' => $nickname, 'account_removed' => false]);
+		$user = User::getByNickname($nickname);
 
 		if (!DBA::isResult($user) && empty($profiledata)) {
 			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
