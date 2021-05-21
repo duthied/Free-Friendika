@@ -145,7 +145,7 @@ class Profile
 	 */
 	public static function load(App $a, $nickname, array $profiledata = [], $show_connect = true)
 	{
-		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
+		$user = User::getByNickname($nickname);
 
 		if (!DBA::isResult($user) && empty($profiledata)) {
 			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
@@ -166,7 +166,17 @@ class Profile
 			}
 		}
 
-		$profile = !empty($user['uid']) ? User::getOwnerDataById($user['uid'], false) : [];
+		if (empty($user['uid'])) {
+			$profile = [];
+		} else {
+			$contact_id = Contact::getIdForURL(Strings::normaliseLink(DI::baseurl() . '/profile/' . $nickname), local_user());
+			$profile = array_merge(
+				$user,
+				Contact::getById($contact_id),
+				Profile::getByUID($user['uid']),
+			);
+			$profile['cid'] = $contact_id;
+		}
 
 		if (empty($profile) && empty($profiledata)) {
 			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
@@ -334,7 +344,7 @@ class Profile
 
 			if (Contact::canReceivePrivateMessages($profile)) {
 				if ($visitor_is_followed || $visitor_is_following) {
-					$wallmessage_link = $visitor_base_path . '/message/new/' . base64_encode($profile['addr'] ?? '');
+					$wallmessage_link = $visitor_base_path . '/message/new/' . $profile['cid'];
 				} elseif ($visitor_is_authenticated && !empty($profile['unkmail'])) {
 					$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 				}
