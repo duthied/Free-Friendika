@@ -169,12 +169,13 @@ class Profile
 		if (empty($user['uid'])) {
 			$profile = [];
 		} else {
+			$contact_id = Contact::getIdForURL(Strings::normaliseLink(DI::baseurl() . '/profile/' . $nickname), local_user());
 			$profile = array_merge(
 				$user,
+				Contact::getById($contact_id),
 				Profile::getByUID($user['uid']),
-				Contact::getById(Contact::getIdForURL(Strings::normaliseLink(DI::baseurl() . '/profile/' . $nickname), local_user()))
 			);
-			$profile['cid'] = $profile['id'];
+			$profile['cid'] = $contact_id;
 		}
 
 		if (empty($profile) && empty($profiledata)) {
