@@ -126,8 +126,8 @@ These emdpoints are planned to be implemented somewhere in the future.
 
 ## Dummy endpoints
 
-These endpoints are returning empty data to avoid error messages with (for example) mobile clients.
-They belong to a functionality that doesn't exist in Friendica yet.
+These endpoints are returning empty data to avoid error messages when using third party clients.
+They refer to features that don't exist in Friendica yet.
 
 - [`GET /api/v1/accounts/:id/identity_proofs`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/announcements`](https://docs.joinmastodon.org/methods/announcements/)
@@ -139,7 +139,7 @@ They belong to a functionality that doesn't exist in Friendica yet.
 ## Non supportable endpoints
 
 These endpoints won't be implemented at the moment.
-They belong to a functionality that doesn't exist in Friendica yet.
+They refer to features that don't exist in Friendica yet.
 
 - [`POST /api/v1/accounts`](https://docs.joinmastodon.org/methods/accounts/)
 - [`POST /api/v1/accounts/:id/pin`](https://docs.joinmastodon.org/methods/accounts/)
