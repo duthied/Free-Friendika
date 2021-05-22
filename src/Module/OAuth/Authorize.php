@@ -63,9 +63,9 @@ class Authorize extends BaseApi
 
 		// @todo Compare the application scope and requested scope
 
-		$request = $_REQUEST;
-		unset($request['pagename']);
-		$redirect = 'oauth/authorize?' . http_build_query($request);
+		$redirect_request = $_REQUEST;
+		unset($redirect_request['pagename']);
+		$redirect = 'oauth/authorize?' . http_build_query($redirect_request);
 
 		$uid = local_user();
 		if (empty($uid)) {
