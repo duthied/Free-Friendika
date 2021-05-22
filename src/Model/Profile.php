@@ -166,17 +166,7 @@ class Profile
 			}
 		}
 
-		if (empty($user['uid'])) {
-			$profile = [];
-		} else {
-			$contact_id = Contact::getIdForURL(Strings::normaliseLink(DI::baseurl() . '/profile/' . $nickname), local_user());
-			$profile = array_merge(
-				$user,
-				Contact::getById($contact_id),
-				Profile::getByUID($user['uid']),
-			);
-			$profile['cid'] = $contact_id;
-		}
+		$profile = !empty($user['uid']) ? User::getOwnerDataById($user['uid'], false) : [];
 
 		if (empty($profile) && empty($profiledata)) {
 			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
@@ -344,7 +334,7 @@ class Profile
 
 			if (Contact::canReceivePrivateMessages($profile)) {
 				if ($visitor_is_followed || $visitor_is_following) {
-					$wallmessage_link = $visitor_base_path . '/message/new/' . $profile['cid'];
+					$wallmessage_link = $visitor_base_path . '/message/new/' . base64_encode($profile['addr'] ?? '');
 				} elseif ($visitor_is_authenticated && !empty($profile['unkmail'])) {
 					$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 				}
