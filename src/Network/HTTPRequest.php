@@ -70,7 +70,7 @@ class HTTPRequest implements IHTTPRequest
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function get(string $url, array $opts = [], int &$redirects = 0)
+	public function get(string $url, array $opts = [], &$redirects = 0)
 	{
 		$stamp1 = microtime(true);
 
@@ -222,7 +222,7 @@ class HTTPRequest implements IHTTPRequest
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function post(string $url, $params, array $headers = [], int $timeout = 0, int &$redirects = 0)
+	public function post(string $url, $params, array $headers = [], int $timeout = 0, &$redirects = 0)
 	{
 		$stamp1 = microtime(true);
 
@@ -447,7 +447,7 @@ class HTTPRequest implements IHTTPRequest
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '', int &$redirects = 0)
+	public function fetch(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '', &$redirects = 0)
 	{
 		$ret = $this->fetchFull($url, $timeout, $accept_content, $cookiejar, $redirects);
 
@@ -461,7 +461,7 @@ class HTTPRequest implements IHTTPRequest
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '', int &$redirects = 0)
+	public function fetchFull(string $url, int $timeout = 0, string $accept_content = '', string $cookiejar = '', &$redirects = 0)
 	{
 		return $this->get(
 			$url,

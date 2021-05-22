@@ -326,7 +326,7 @@ function settings_post(App $a)
 	$detailed_notif   = (($_POST['detailed_notif'] == 1) ? 1 : 0);
 
 	$notify_ignored   = (($_POST['notify_ignored'] == 1) ? 1 : 0);
-	
+
 	$notify = 0;
 
 	if (!empty($_POST['notify1'])) {

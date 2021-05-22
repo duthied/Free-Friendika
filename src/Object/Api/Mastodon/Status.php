@@ -114,7 +114,8 @@ class Status extends BaseDataTransferObject
 		$this->visibility = $visibility[$item['private']];
 
 		$languages = json_decode($item['language'], true);
-		$this->language = is_array($languages) ? array_key_first($languages) : null;
+		reset($languages);
+		$this->language = is_array($languages) ? key($languages) : null;
 
 		$this->uri = $item['uri'];
 		$this->url = $item['plink'] ?? null;

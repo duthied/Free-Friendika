@@ -1186,12 +1186,12 @@ function api_statuses_update($type)
 					INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN
 						(SELECT `resource-id` FROM `photo` WHERE `id` = ?) AND `photo`.`uid` = ?
 					ORDER BY `photo`.`width` DESC LIMIT 2", $id, api_user()));
-				
+
 			if (!empty($media)) {
 				$ressources[] = $media[0]['resource-id'];
 				$phototypes = Images::supportedTypes();
 				$ext = $phototypes[$media[0]['type']];
-			
+
 				$attachment = ['type' => Post\Media::IMAGE, 'mimetype' => $media[0]['type'],
 					'url' => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
 					'size' => $media[0]['datasize'],
@@ -1199,7 +1199,7 @@ function api_statuses_update($type)
 					'description' => $media[0]['desc'] ?? '',
 					'width' => $media[0]['width'],
 					'height' => $media[0]['height']];
-			
+
 				if (count($media) > 1) {
 					$attachment['preview'] = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
 					$attachment['preview-width'] = $media[1]['width'];
