@@ -100,7 +100,6 @@ Filip Bugaj
 Filip H.F. "FiXato" Slagter
 FlxAlbroscheit
 foss
-foss-
 Francesco Apruzzese
 Frank Dieckmann
 Frederico Gonçalves Guimarães
@@ -113,7 +112,6 @@ Gregory Smith
 guzzisti
 Haakon Meland Eriksen
 Hans Meine
-hauke
 Hauke
 Hauke Altmann
 Herbert Thielen
@@ -162,7 +160,6 @@ maase2
 Mai Anh Nguyen
 Manuel Pérez Monís
 Marcin Klessa
-marcin mikołajczak
 Marcin Mikołajczak
 Marcus Müller
 Marie Olive
@@ -286,8 +283,6 @@ Ulf Rompe
 Unknown
 utzer
 Valvin
-valvin
-Valvin A
 Vasudev Kamath
 Vasya Novikov
 very-ape
