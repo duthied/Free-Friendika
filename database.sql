@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2021.06-dev (Siberian Iris)
--- DB_UPDATE_VERSION 1418
+-- Friendica 2021.06-rc (Siberian Iris)
+-- DB_UPDATE_VERSION 1419
 -- ------------------------------------------
 
 
@@ -751,6 +751,7 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	`from-photo` varchar(255) NOT NULL DEFAULT '' COMMENT 'contact photo link of the sender',
 	`from-url` varchar(255) NOT NULL DEFAULT '' COMMENT 'profile linke of the sender',
 	`contact-id` varchar(255) COMMENT 'contact.id',
+	`author-id` int unsigned COMMENT 'Link to the contact table with uid=0 of the author of the mail',
 	`convid` int unsigned COMMENT 'conv.id',
 	`title` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`body` mediumtext COMMENT '',
@@ -759,7 +760,11 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	`replied` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`unknown` boolean NOT NULL DEFAULT '0' COMMENT 'if sender not in the contact table this is 1',
 	`uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`uri-id` int unsigned COMMENT 'Item-uri id of the related mail',
 	`parent-uri` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related mail',
+	`thr-parent` varchar(255) COMMENT '',
+	`thr-parent-id` int unsigned COMMENT 'Id of the item-uri table that contains the thread parent uri',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'creation time of the private message',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_seen` (`uid`,`seen`),
@@ -767,7 +772,15 @@ CREATE TABLE IF NOT EXISTS `mail` (
 	 INDEX `uri` (`uri`(64)),
 	 INDEX `parent-uri` (`parent-uri`(64)),
 	 INDEX `contactid` (`contact-id`(32)),
-	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
+	 INDEX `author-id` (`author-id`),
+	 INDEX `uri-id` (`uri-id`),
+	 INDEX `parent-uri-id` (`parent-uri-id`),
+	 INDEX `thr-parent-id` (`thr-parent-id`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`author-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`thr-parent-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='private messages';
 
 --

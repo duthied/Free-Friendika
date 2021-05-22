@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1418);
+	define('DB_UPDATE_VERSION', 1419);
 }
 
 return [
@@ -818,6 +818,7 @@ return [
 			"from-photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "contact photo link of the sender"],
 			"from-url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "profile linke of the sender"],
 			"contact-id" => ["type" => "varchar(255)", "relation" => ["contact" => "id"], "comment" => "contact.id"],
+			"author-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id", "on delete" => "restrict"], "comment" => "Link to the contact table with uid=0 of the author of the mail"],
 			"convid" => ["type" => "int unsigned", "relation" => ["conv" => "id"], "comment" => "conv.id"],
 			"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"body" => ["type" => "mediumtext", "comment" => ""],
@@ -826,7 +827,11 @@ return [
 			"replied" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"unknown" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "if sender not in the contact table this is 1"],
 			"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the related mail"],
 			"parent-uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related mail"],
+			"thr-parent" => ["type" => "varchar(255)", "comment" => ""],
+			"thr-parent-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the thread parent uri"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "creation time of the private message"],
 		],
 		"indexes" => [
@@ -836,6 +841,10 @@ return [
 			"uri" => ["uri(64)"],
 			"parent-uri" => ["parent-uri(64)"],
 			"contactid" => ["contact-id(32)"],
+			"author-id" => ["author-id"],
+			"uri-id" => ["uri-id"],
+			"parent-uri-id" => ["parent-uri-id"],
+			"thr-parent-id" => ["thr-parent-id"],
 		]
 	],
 	"mailacct" => [

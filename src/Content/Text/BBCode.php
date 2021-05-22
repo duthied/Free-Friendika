@@ -1039,7 +1039,9 @@ class BBCode
 
 		switch ($simplehtml) {
 			case self::API:
-				$text = ($is_quote_share? '<br>' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
+				$text = ($is_quote_share? '<br>' : '') .
+				'<p><b><a href="' . $attributes['link'] . '">' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . "</a>:</b> </p>\n" .
+				'<blockquote class="shared_content">' . $content . '</blockquote>';
 				break;
 			case self::DIASPORA:
 				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0) {
