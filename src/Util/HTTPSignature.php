@@ -558,8 +558,10 @@ class HTTPSignature
 		if (!empty($key['url']) && !empty($key['type']) && ($key['type'] == 'Tombstone')) {
 			Logger::info('Actor is a tombstone', ['key' => $key]);
 
-			// We now delete everything that we possibly knew from this actor
-			Contact::deleteContactByUrl($key['url']);
+			if (!Contact::isLocal($key['url'])) {
+				// We now delete everything that we possibly knew from this actor
+				Contact::deleteContactByUrl($key['url']);
+			}
 			return null;
 		}
 
