@@ -868,24 +868,19 @@ class Transmitter
 			return [];
 		}
 
-		$mail['uri-id'] = ItemURI::insert(['uri' => $mail['uri'], 'guid' => $mail['guid']]);
-
-		$reply = DBA::selectFirst('mail', ['uri', 'from-url', 'guid'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
+		$reply = DBA::selectFirst('mail', ['uri', 'uri-id', 'from-url'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
 
 		// Making the post more compatible for Mastodon by:
 		// - Making it a note and not an article (no title)
 		// - Moving the title into the "summary" field that is used as a "content warning"
 
-		if ($use_title) {
-			$mail['body']         = $mail['body'];
-			$mail['title']        = $mail['title'];
-		} else {
+		if (!$use_title) {
 			$mail['body']         = '[abstract]' . $mail['title'] . "[/abstract]\n" . $mail['body'];
 			$mail['title']        = '';
 		}
 
 		$mail['author-link']      = $mail['owner-link'] = $mail['from-url'];
-		$mail['author-id']        = Contact::getIdForURL($mail['author-link'], 0, false); 
+		$mail['owner-id']         = $mail['author-id'];
 		$mail['allow_cid']        = '<'.$mail['contact-id'].'>';
 		$mail['allow_gid']        = '';
 		$mail['deny_cid']         = '';
@@ -893,9 +888,9 @@ class Transmitter
 		$mail['private']          = Item::PRIVATE;
 		$mail['deleted']          = false;
 		$mail['edited']           = $mail['created'];
-		$mail['plink']            = $mail['uri'];
-		$mail['thr-parent']       = $reply['uri'];
-		$mail['thr-parent-id']    = ItemURI::insert(['uri' => $reply['uri'], 'guid' => $reply['guid']]);
+		$mail['plink']            = DI::baseUrl() . '/message/' . $mail['id'];
+		$mail['parent-uri']       = $reply['uri'];
+		$mail['parent-uri-id']    = $reply['uri-id'];
 		$mail['parent-author-id'] = Contact::getIdForURL($reply['from-url'], 0, false);
 		$mail['gravity']          = ($mail['reply'] ? GRAVITY_COMMENT: GRAVITY_PARENT);
 		$mail['event-type']       = '';
