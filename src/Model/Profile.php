@@ -268,13 +268,13 @@ class Profile
 		// contact ID for the user viewing this page. Use 'nurl' to look up the
 		// correct contact table entry for the logged-in user.
 		$is_contact = !empty($profile['nurl']);
-		$contact = [];
+		$profile_contact = [];
 
 		if ($is_contact) {
 			if (local_user() && ($profile['uid'] ?? '') != local_user()) {
-				$contact = Contact::getById(Contact::getIdForURL($profile['nurl'], local_user()));
+				$profile_contact = Contact::getById(Contact::getIdForURL($profile['nurl'], local_user()));
 			} else {
-				$contact = $profile;
+				$profile_contact = $profile;
 			}
 		}
 
@@ -310,12 +310,6 @@ class Profile
 			$visitor_contact = Contact::selectFirst(['rel'], ['uid' => $profile['uid'], 'nurl' => Strings::normaliseLink(self::getMyURL())]);
 		}
 
-		// Who is this profile to the logged-in user?
-		$profile_contact = [];
-		if (!empty($contact) && self::getMyURL()) {
-			$profile_contact = $contact['rel'];
-		}
-
 		$profile_is_dfrn = $profile['network'] == Protocol::DFRN;
 		$profile_is_native = in_array($profile['network'], Protocol::NATIVE_SUPPORT);
 		$local_user_is_self = self::getMyURL() && ($profile['url'] == self::getMyURL());
@@ -346,9 +340,9 @@ class Profile
 				$subscribe_feed_link = 'dfrn_poll/' . $profile['nickname'];
 			}
 
-			if (Contact::canReceivePrivateMessages($contact)) {
+			if (Contact::canReceivePrivateMessages($profile_contact)) {
 				if ($visitor_is_followed || $visitor_is_following) {
-					$wallmessage_link = $visitor_base_path . '/message/new/' . $contact['id'];
+					$wallmessage_link = $visitor_base_path . '/message/new/' . $profile_contact['id'];
 				} elseif ($visitor_is_authenticated && !empty($profile['unkmail'])) {
 					$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 				}
