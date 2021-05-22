@@ -95,6 +95,7 @@ class HTTPInputData
 			}
 
 			$result = self::parseRawHeader($stream, $raw_headers, $boundary, $result);
+
 			$raw_headers = '';
 		}
 
@@ -115,6 +116,7 @@ class HTTPInputData
 				continue;
 			}
 			list($name, $value) = explode(':', $header, 2);
+
 			$headers[strtolower($name)] = ltrim($value, ' ');
 		}
 
@@ -145,6 +147,7 @@ class HTTPInputData
 
 		if (isset($headers['content-type'])) {
 			$tmp = explode(';', $headers['content-type']);
+
 			$contentType = $tmp[0];
 		} else {
 			$contentType = 'unknown';
@@ -214,10 +217,10 @@ class HTTPInputData
 			}
 
 			if ($encoding !== '' && strtoupper($encoding) !== 'UTF-8' && strtoupper($encoding) !== 'UTF8') {
-					$tmp = mb_convert_encoding($fullValue, 'UTF-8', $encoding);
-					if ($tmp !== false) {
-						$fullValue = $tmp;
-					}
+				$tmp = mb_convert_encoding($fullValue, 'UTF-8', $encoding);
+				if ($tmp !== false) {
+					$fullValue = $tmp;
+				}
 			}
 		}
 
