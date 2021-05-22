@@ -271,8 +271,11 @@ class Profile
 		$contact = [];
 
 		if ($is_contact) {
-			$contact_id = Contact::getIdForURL($profile['nurl'], local_user());
-			$contact = Contact::getById($contact_id);
+			if (local_user() && ($profile['uid'] ?? '') != local_user()) {
+				$contact = Contact::getById(Contact::getIdForURL($profile['nurl'], local_user()));
+			} else {
+				$contact = $profile;
+			}
 		}
 
 		if (empty($profile['nickname'])) {
