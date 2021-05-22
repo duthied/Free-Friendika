@@ -159,9 +159,9 @@ class HTTPInputData
 		if ($fileHandle === false) {
 			$error = UPLOAD_ERR_CANT_WRITE;
 		} else {
-			$lastLine = NULL;
+			$lastLine = null;
 			while (($chunk = fgets($stream, 8096)) !== false && strpos($chunk, $boundary) !== 0) {
-				if ($lastLine !== NULL) {
+				if ($lastLine !== null) {
 					if (fwrite($fileHandle, $lastLine) === false) {
 						$error = UPLOAD_ERR_CANT_WRITE;
 						break;
@@ -170,7 +170,7 @@ class HTTPInputData
 				$lastLine = $chunk;
 			}
 
-			if ($lastLine !== NULL && $error !== UPLOAD_ERR_CANT_WRITE) {
+			if ($lastLine !== null && $error !== UPLOAD_ERR_CANT_WRITE) {
 				if (fwrite($fileHandle, rtrim($lastLine, "\r\n")) === false) {
 					$error = UPLOAD_ERR_CANT_WRITE;
 				}
@@ -189,17 +189,17 @@ class HTTPInputData
 	private static function fetchVariables($stream, string $boundary, string $name, array $variables)
 	{
 		$fullValue = '';
-		$lastLine = NULL;
+		$lastLine  = null;
 
 		while (($chunk = fgets($stream)) !== false && strpos($chunk, $boundary) !== 0) {
-			if ($lastLine !== NULL) {
+			if ($lastLine !== null) {
 				$fullValue .= $lastLine;
 			}
 
 			$lastLine = $chunk;
 		}
 
-		if ($lastLine !== NULL) {
+		if ($lastLine !== null) {
 			$fullValue .= rtrim($lastLine, "\r\n");
 		}
 
