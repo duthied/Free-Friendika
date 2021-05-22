@@ -1,5 +1,5 @@
 
-<form action="photos/{{$nickname}}/image/{{$resource_id}}/edit" method="post" id="photo_edit_form" >
+<form action="photos/{{$nickname}}/image/{{$resource_id}}/edit" method="post" id="photo_edit_form">
 
 	<input type="hidden" name="item_id" value="{{$item_id}}" />
 	<input type="hidden" name="origaname" value="{{$album.2}}" />
@@ -12,14 +12,14 @@
 	{{include file="field_radio.tpl" field=$rotate_cw}}
 	{{include file="field_radio.tpl" field=$rotate_ccw}}
 
-	<div id="photo-edit-perms" class="photo-edit-perms" >
+	<div id="photo-edit-perms" class="photo-edit-perms">
 		<a href="#photo-edit-perms-select" id="photo-edit-perms-menu" class="button popupbox" title="{{$permissions}}">
-			<span id="jot-perms-icon" class="icon {{$lockstate}}" ></span>{{$permissions}}
+			<span id="jot-perms-icon" class="icon {{$lockstate}}"></span>{{$permissions}}
 		</a>
 		<div id="photo-edit-perms-menu-end"></div>
 
 		<div style="display: none;">
-			<div id="photo-edit-perms-select" >
+			<div id="photo-edit-perms-select">
 				{{$aclselect nofilter}}
 			</div>
 		</div>

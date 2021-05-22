@@ -18,7 +18,7 @@
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 		<div>{{$regenerate_message}}</div>
 
-		<div class="form-group pull-right settings-submit-wrapper" >
+		<div class="form-group pull-right settings-submit-wrapper">
 			<button type="submit" name="action" id="confirm-submit-button" class="btn btn-primary confirm-button" value="regenerate">{{$regenerate_label}}</button>
 		</div>
 	</form>

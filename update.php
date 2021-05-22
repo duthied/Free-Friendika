@@ -49,6 +49,7 @@ use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\ItemURI;
 use Friendica\Model\Notification;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
@@ -911,4 +912,32 @@ function update_1413()
 	if (!DBA::e("UPDATE `post-user` SET `post-reason` = `post-type` WHERE `post-type` >= 64 and `post-type` <= 75")) {
 		return Update::FAILED;
 	}
+}
+
+function update_1419()
+{
+	$mails = DBA::select('mail', ['id', 'from-url', 'uri', 'parent-uri', 'guid'], [], ['order' => ['id']]);
+	while ($mail = DBA::fetch($mails)) {
+		$fields = [];
+		$fields['author-id'] = Contact::getIdForURL($mail['from-url'], 0, false);
+		if (empty($fields['author-id'])) {
+			continue;
+		}
+
+		$fields['uri-id']        = ItemURI::insert(['uri' => $mail['uri'], 'guid' => $mail['guid']]);
+		$fields['parent-uri-id'] = ItemURI::getIdByURI($mail['parent-uri']);
+
+		$reply = DBA::selectFirst('mail', ['uri', 'uri-id', 'guid'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
+		if (!empty($reply)) {
+			$fields['thr-parent'] = $reply['uri'];
+			if (!empty($reply['uri-id'])) {
+				$fields['thr-parent-id'] = $reply['uri-id'];
+			} else {
+				$fields['thr-parent-id'] = ItemURI::insert(['uri' => $reply['uri'], 'guid' => $reply['guid']]);
+			}
+		}
+
+		DBA::update('mail', $fields, ['id' => $mail['id']]);
+	}
+	return Update::SUCCESS;
 }

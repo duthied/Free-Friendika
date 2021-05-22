@@ -64,7 +64,7 @@
 			{{include file="field_select.tpl" field=$mail_action}}
 			{{include file="field_input.tpl" field=$mail_movetofolder}}
 
-			<div class="settings-submit-wrapper" >
+			<div class="settings-submit-wrapper">
 				<input type="submit" id="imap-submit" name="imap-submit" class="settings-submit" value="{{$submit}}" />
 			</div>
 		</div>

@@ -71,6 +71,20 @@ class Mail
 			return false;
 		}
 
+		$msg['author-id']     = Contact::getIdForURL($msg['from-url'], 0, false);
+		$msg['uri-id']        = ItemURI::insert(['uri' => $msg['uri'], 'guid' => $msg['guid']]);
+		$msg['parent-uri-id'] = ItemURI::getIdByURI($msg['parent-uri']);
+
+		if ($msg['reply']) {
+			$reply = DBA::selectFirst('mail', ['uri', 'uri-id'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
+
+			$msg['thr-parent']    = $reply['uri'];
+			$msg['thr-parent-id'] = $reply['uri-id'];
+		} else {
+			$msg['thr-parent']    = $msg['uri'];
+			$msg['thr-parent-id'] = $msg['uri-id'];
+		}
+
 		DBA::insert('mail', $msg);
 
 		$msg['id'] = DBA::lastInsertId();

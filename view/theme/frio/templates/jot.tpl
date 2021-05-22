@@ -93,14 +93,14 @@
 					{{if $notes_cid}}
 					<input type="hidden" name="contact_allow[]" value="<{{$notes_cid}}>" />
 					{{/if}}
-					<div id="jot-title-wrap"><input name="title" id="jot-title" class="jothidden jotforms form-control" type="text" placeholder="{{$placeholdertitle}}" title="{{$placeholdertitle}}" value="{{$title}}" style="display:block;" /></div>
+					<div id="jot-title-wrap"><input name="title" id="jot-title" class="jothidden jotforms form-control" type="text" placeholder="{{$placeholdertitle}}" title="{{$placeholdertitle}}" value="{{$title}}" style="display:block;" dir="auto" /></div>
 					{{if $placeholdercategory}}
-					<div id="jot-category-wrap"><input name="category" id="jot-category" class="jothidden jotforms form-control" type="text" placeholder="{{$placeholdercategory}}" title="{{$placeholdercategory}}" value="{{$category}}" /></div>
+					<div id="jot-category-wrap"><input name="category" id="jot-category" class="jothidden jotforms form-control" type="text" placeholder="{{$placeholdercategory}}" title="{{$placeholdercategory}}" value="{{$category}}" dir="auto" /></div>
 					{{/if}}
 
 					{{* The jot text field in which the post text is inserted *}}
 					<div id="jot-text-wrap">
-						<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
+						<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;" dir="auto">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
 					</div>
 
 					<ul id="profile-jot-submit-wrapper" class="jothidden nav nav-pills">
@@ -121,7 +121,7 @@
 							</button>
 						</li>
 						<li role="presentation" id="character-counter" class="grey jothidden text-info pull-right"></li>
-						<li role="presentation" id="profile-rotator-wrapper" class="pull-right" style="display: {{$visitor}};" >
+						<li role="presentation" id="profile-rotator-wrapper" class="pull-right" style="display: {{$visitor}};">
 							<img role="presentation" id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
 						</li>
 						<li role="presentation" id="profile-jot-plugin-wrapper">

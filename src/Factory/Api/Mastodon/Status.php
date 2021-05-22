@@ -136,7 +136,9 @@ class Status extends BaseFactory
 
 		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
 
-		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(0, 0, 0);
+		$replies = DBA::count('mail', ['thr-parent-id' => $item['uri-id'], 'reply' => true]);
+
+		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts($replies, 0, 0);
 
 		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(false, false, false, false, false);
 

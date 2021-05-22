@@ -1,4 +1,4 @@
-<div class="basic-content" >
+<div class="basic-content">
 	<div class="hover-card-details">
 		<div class="hover-card-header left-align">
 			<div class="hover-card-pic left-align">

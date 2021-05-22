@@ -1,10 +1,10 @@
 
-<div class="contact-wrapper" id="contact-entry-wrapper-{{$id}}" >
-	{{if $contact.ignlnk}}<a href="{{$contact.ignlnk}}" title="{{$contact.ignore}}" class="icon drophide profile-match-ignore" onmouseout="imgdull(this);" onmouseover="imgbright(this);" onclick="return confirmDelete();" ></a>{{/if}}
-	<div class="contact-photo-wrapper" >
+<div class="contact-wrapper" id="contact-entry-wrapper-{{$id}}">
+	{{if $contact.ignlnk}}<a href="{{$contact.ignlnk}}" title="{{$contact.ignore}}" class="icon drophide profile-match-ignore" onmouseout="imgdull(this);" onmouseover="imgbright(this);" onclick="return confirmDelete();"></a>{{/if}}
+	<div class="contact-photo-wrapper">
 		<div class="contact-photo mframe" id="contact-entry-photo-{{$contact.id}}"
 		onmouseover="if (typeof t{{$contact.id}} != 'undefined') clearTimeout(t{{$contact.id}}); openMenu('contact-photo-menu-button-{{$contact.id}}')" 
-		onmouseout="t{{$contact.id}}=setTimeout('closeMenu(\'contact-photo-menu-button-{{$contact.id}}\'); closeMenu(\'contact-photo-menu-{{$contact.id}}\');',200)" >
+		onmouseout="t{{$contact.id}}=setTimeout('closeMenu(\'contact-photo-menu-button-{{$contact.id}}\'); closeMenu(\'contact-photo-menu-{{$contact.id}}\');',200)">
 
 			<a href="{{$contact.url}}" title="{{$contact.img_hover}}" /><img src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" /></a>
 
@@ -26,15 +26,15 @@
 		</div>
 			
 	</div>
-	<div class="contact-name" id="contact-entry-name-{{$contact.id}}" >
+	<div class="contact-name" id="contact-entry-name-{{$contact.id}}">
 		{{$contact.name}}
 		{{if $contact.account_type}} <span class="contact-entry-details" id="contact-entry-accounttype-{{$contact.id}}">({{$contact.account_type}})</span>{{/if}}
 	</div>
-	{{if $contact.alt_text}}<div class="contact-details" id="contact-entry-rel-{{$contact.id}}" >{{$contact.alt_text}}</div>{{/if}}
-	{{if $contact.itemurl}}<div class="contact-details" id="contact-entry-url-{{$contact.id}}" >{{$contact.itemurl}}</div>{{/if}}
-	{{if $contact.tags}}<div class="contact-details" id="contact-entry-tags-{{$contact.id}}" >{{$contact.tags}}</div>{{/if}}
-	{{if $contact.details}}<div class="contact-details" id="contact-entry-details-{{$contact.id}}" >{{$contact.details}}</div>{{/if}}
-	{{if $contact.network}}<div class="contact-details" id="contact-entry-network-{{$contact.id}}" >{{$contact.network}}</div>{{/if}}
+	{{if $contact.alt_text}}<div class="contact-details" id="contact-entry-rel-{{$contact.id}}">{{$contact.alt_text}}</div>{{/if}}
+	{{if $contact.itemurl}}<div class="contact-details" id="contact-entry-url-{{$contact.id}}">{{$contact.itemurl}}</div>{{/if}}
+	{{if $contact.tags}}<div class="contact-details" id="contact-entry-tags-{{$contact.id}}">{{$contact.tags}}</div>{{/if}}
+	{{if $contact.details}}<div class="contact-details" id="contact-entry-details-{{$contact.id}}">{{$contact.details}}</div>{{/if}}
+	{{if $contact.network}}<div class="contact-details" id="contact-entry-network-{{$contact.id}}">{{$contact.network}}</div>{{/if}}
 
 	{{if $contact.connlnk}}
 	<div class="contact-entry-connect"><a href="{{$contact.connlnk}}" title="{{$contact.conntxt}}">{{$contact.conntxt}}</a></div>

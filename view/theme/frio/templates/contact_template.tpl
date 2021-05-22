@@ -110,11 +110,11 @@
 					{{* @todo this needs some changing in core because $contact.account_type contains a translated string which may notbe the same in every language *}}
 					</h4>
 				</div>
-				{{if $contact.alt_text}}<div class="contact-entry-details contact-entry-rel" id="contact-entry-rel-{{$contact.id}}" >{{$contact.alt_text}}</div>{{/if}}
-				{{if $contact.itemurl}}<div class="contact-entry-details contact-entry-url" id="contact-entry-url-{{$contact.id}}" >{{$contact.itemurl}}</div>{{/if}}
-				{{if $contact.tags}}<div class="contact-entry-details" id="contact-entry-tags-{{$contact.id}}" >{{$contact.tags}}</div>{{/if}}
-				{{if $contact.details}}<div class="contact-entry-details contact-entry-tags" id="contact-entry-details-{{$contact.id}}" >{{$contact.details}}</div>{{/if}}
-				{{if $contact.network}}<div class="contact-entry-details contact-entry-network" id="contact-entry-network-{{$contact.id}}" >{{$contact.network}}</div>{{/if}}
+				{{if $contact.alt_text}}<div class="contact-entry-details contact-entry-rel" id="contact-entry-rel-{{$contact.id}}">{{$contact.alt_text}}</div>{{/if}}
+				{{if $contact.itemurl}}<div class="contact-entry-details contact-entry-url" id="contact-entry-url-{{$contact.id}}">{{$contact.itemurl}}</div>{{/if}}
+				{{if $contact.tags}}<div class="contact-entry-details" id="contact-entry-tags-{{$contact.id}}">{{$contact.tags}}</div>{{/if}}
+				{{if $contact.details}}<div class="contact-entry-details contact-entry-tags" id="contact-entry-details-{{$contact.id}}">{{$contact.details}}</div>{{/if}}
+				{{if $contact.network}}<div class="contact-entry-details contact-entry-network" id="contact-entry-network-{{$contact.id}}">{{$contact.network}}</div>{{/if}}
 			</div>
 
 			{{* The checkbox to perform batch actions to these contacts (for batch actions have a look at contacts-template.tpl) *}}
@@ -233,11 +233,11 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 					{{* @todo this needs some changing in core because $contact.account_type contains a translated string which may notbe the same in every language *}}
 					</h4>
 				</div>
-				{if $alt_text}<div class="contact-entry-details" id="contact-entry-rel-{$id}" >{$alt_text}</div>{/if}
-				{if $itemurl}<div class="contact-entry-details" id="contact-entry-url-{$id}" >{$itemurl}</div>{/if}
-				{if $tags}<div class="contact-entry-details" id="contact-entry-tags-{$id}" >{$tags}</div>{/if}
-				{if $details}<div class="contact-entry-details" id="contact-entry-details-{$id}" >{$details}</div>{/if}
-				{if $network}<div class="contact-entry-details" id="contact-entry-network-{$id}" >{$network}</div>{/if}
+				{if $alt_text}<div class="contact-entry-details" id="contact-entry-rel-{$id}">{$alt_text}</div>{/if}
+				{if $itemurl}<div class="contact-entry-details" id="contact-entry-url-{$id}">{$itemurl}</div>{/if}
+				{if $tags}<div class="contact-entry-details" id="contact-entry-tags-{$id}">{$tags}</div>{/if}
+				{if $details}<div class="contact-entry-details" id="contact-entry-details-{$id}">{$details}</div>{/if}
+				{if $network}<div class="contact-entry-details" id="contact-entry-network-{$id}">{$network}</div>{/if}
 			</div>
 
 			{{* The checkbox to perform batch actions to these contacts (for batch actions have a look at contacts-template.tpl) *}}

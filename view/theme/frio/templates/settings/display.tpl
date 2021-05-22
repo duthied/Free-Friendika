@@ -1,6 +1,6 @@
 <div class="generic-page-wrapper">
 	<h1>{{$ptitle}}</h1>
-	<form action="settings/display" id="settings-form" method="post" autocomplete="off" >
+	<form action="settings/display" id="settings-form" method="post" autocomplete="off">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 		<div class="panel-group panel-group-settings" id="settings" role="tablist" aria-multiselectable="true">

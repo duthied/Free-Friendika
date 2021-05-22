@@ -55,6 +55,7 @@ class RemoveContact {
 		}
 
 		DBA::delete('mail', ['contact-id' => $id]);
+		DBA::delete('mail', ['author-id' => $id]);
 
 		Post\ThreadUser::delete(['author-id' => $id]);
 		Post\ThreadUser::delete(['owner-id' => $id]);

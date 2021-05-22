@@ -1,6 +1,6 @@
 
 
-<p id="dfrn-request-homecoming" >
+<p id="dfrn-request-homecoming">
 {{$welcome}}
 <br />
 {{$please}}
@@ -16,7 +16,7 @@
 <input type="checkbox" name="hidden-contact" value="1" />
 
 
-<div id="dfrn-request-homecoming-submit-wrapper" >
+<div id="dfrn-request-homecoming-submit-wrapper">
 <input id="dfrn-request-homecoming-submit" type="submit" name="submit" value="{{$submit}}" />
 </div>
 </form>

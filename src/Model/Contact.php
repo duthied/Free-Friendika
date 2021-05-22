@@ -1941,6 +1941,11 @@ class Contact
 			return false;
 		}
 
+		if (Contact::isLocal($ret['url'])) {
+			Logger::info('Local contacts are not updated here.');
+			return true;
+		}
+
 		if (!empty($ret['account-type']) && $ret['account-type'] == User::ACCOUNT_TYPE_DELETED) {
 			Logger::info('Deleted account', ['id' => $id, 'url' => $ret['url'], 'ret' => $ret]);
 			self::remove($id);

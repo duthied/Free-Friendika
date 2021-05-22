@@ -8,11 +8,11 @@
 			<input type="hidden" name="wall" value="{{$wall}}" />
 
 			<div id="jot-title-wrap">
-				<input type="text" name="title" id="jot-title" class="jothidden jotforms form-control" placeholder="{{$placeholdertitle}}" title="{{$placeholdertitle}}" value="{{$title}}" tabindex="1"/>
+				<input type="text" name="title" id="jot-title" class="jothidden jotforms form-control" placeholder="{{$placeholdertitle}}" title="{{$placeholdertitle}}" value="{{$title}}" tabindex="1" dir="auto" />
 			</div>
 		    {{if $placeholdercategory}}
 				<div id="jot-category-wrap">
-					<input name="category" id="jot-category" class="jothidden jotforms form-control" type="text" placeholder="{{$placeholdercategory}}" title="{{$placeholdercategory}}" value="{{$category}}" tabindex="2"/>
+					<input name="category" id="jot-category" class="jothidden jotforms form-control" type="text" placeholder="{{$placeholdercategory}}" title="{{$placeholdercategory}}" value="{{$category}}" tabindex="2" dir="auto" />
 				</div>
 		    {{/if}}
 
@@ -44,7 +44,7 @@
 				</span>
 			</p>
 			<p>
-				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text form-control text-autosize" name="body" placeholder="{{$default}}" rows="7" tabindex="3">{{$body}}</textarea>
+				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text form-control text-autosize" name="body" placeholder="{{$default}}" rows="7" tabindex="3" dir="auto" dir="auto">{{$body}}</textarea>
 			</p>
 
 			<p class="comment-edit-submit-wrapper">

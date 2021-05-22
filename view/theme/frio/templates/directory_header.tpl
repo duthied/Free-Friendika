@@ -10,7 +10,7 @@
 
 	{{* The search input field to search for contacts *}}
 	<div id="directory-search-wrapper">
-		<form id="directory-search-form" class="navbar-form" role="search" action="{{$search_mod}}" method="get" >
+		<form id="directory-search-form" class="navbar-form" role="search" action="{{$search_mod}}" method="get">
 			<div class="row">
 				<div class="col-md-2"></div>
 				<div class="col-md-8 ">
@@ -35,7 +35,7 @@
 	{{/foreach}}
 	</ul>
 
-	<div class="directory-end" ></div>
+	<div class="directory-end"></div>
 
 	{{$paginate nofilter}}
 </div>

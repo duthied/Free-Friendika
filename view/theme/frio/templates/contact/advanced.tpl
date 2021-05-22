@@ -11,7 +11,7 @@
 	</div>
 	<br />
 
-	<form id="contact-advanced-form" action="contact/{{$contact_id}}/advanced" method="post" >
+	<form id="contact-advanced-form" action="contact/{{$contact_id}}/advanced" method="post">
 
 		<!-- <h4>{{$contact_name}}</h4> -->
 
@@ -35,7 +35,7 @@
 
 		{{include file="field_input.tpl" field=$photo}}
 
-		<div class="pull-right settings-submit-wrapper" >
+		<div class="pull-right settings-submit-wrapper">
 			<button type="submit" name="submit" class="btn btn-primary" value="{{$lbl_submit}}">{{$lbl_submit}}</button>
 		</div>
 		<div class="clear"></div>

@@ -1,6 +1,6 @@
 <h2>{{$header}}</h2>
 
-<div class="intro-wrapper" id="intro-{{$contact_id}}" >
+<div class="intro-wrapper" id="intro-{{$contact_id}}">
 
 <p class="intro-desc">{{$str_notification_type}} {{$str_type}}</p>
 <img id="photo-{{$contact_id}}" class="intro-photo" src="{{$photo}}" width="175" height=175" title="{{$fullname}}" alt="{{$fullname}}" />
@@ -25,9 +25,9 @@
 	{{include file="field_radio.tpl" field=$follower}}
 </div>
 
-<input type="hidden" name="dfrn_id" value="{{$dfrn_id}}" >
-<input type="hidden" name="intro_id" value="{{$intro_id}}" >
-<input type="hidden" name="contact_id" value="{{$contact_id}}" >
+<input type="hidden" name="dfrn_id" value="{{$dfrn_id}}">
+<input type="hidden" name="intro_id" value="{{$intro_id}}">
+<input type="hidden" name="contact_id" value="{{$contact_id}}">
 
 <input class="intro-submit-approve" type="submit" name="submit" value="{{$approve}}" />
 </form>

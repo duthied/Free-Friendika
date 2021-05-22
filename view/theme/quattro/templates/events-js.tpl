@@ -1,6 +1,6 @@
 
 {{$tabs nofilter}}
-<h2>{{$title}} <a class="actionbutton" href="{{$new_event.0}}" ><i class="icon add s10"></i> {{$new_event.1}}</a></h2>
+<h2>{{$title}} <a class="actionbutton" href="{{$new_event.0}}"><i class="icon add s10"></i> {{$new_event.1}}</a></h2>
 
 <div id="new-event-link"></div>
 
