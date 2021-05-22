@@ -46,6 +46,8 @@ ben-utzer
 Beringer Zsolt
 BinkaDroid
 Bjoessi
+bob lebonche
+Boris Daniel Martinez Millàn
 bufalo1973
 ButterflyOfFire
 Calango Jr
@@ -71,6 +73,7 @@ Daria Początek
 David
 David Martín Miranda
 David Rabel
+Davide Pesenti
 Dean Townsley
 Denis Chenu
 dependabot[bot]
@@ -97,6 +100,7 @@ Filip Bugaj
 Filip H.F. "FiXato" Slagter
 FlxAlbroscheit
 foss
+foss-
 Francesco Apruzzese
 Frank Dieckmann
 Frederico Gonçalves Guimarães
@@ -158,6 +162,7 @@ maase2
 Mai Anh Nguyen
 Manuel Pérez Monís
 Marcin Klessa
+marcin mikołajczak
 Marcin Mikołajczak
 Marcus Müller
 Marie Olive
@@ -265,6 +270,7 @@ Tino
 Tobias Diekershoff
 Tobias Hößl
 Tom
+Tom Aurlund
 tomamplius
 tomtom84
 Tony Baldwin
@@ -280,16 +286,23 @@ Ulf Rompe
 Unknown
 utzer
 Valvin
+valvin
+Valvin A
 Vasudev Kamath
 Vasya Novikov
+very-ape
 Vinzenz Vietzke
 vislav
+vladimir N
 Vladimir Núñez
 VVelox
 Vít Šesták 'v6ak'
 Waldemar Stoczkowski
+Wil Tur
 Wouter Broers
+XMPPはいいぞ
 Yasen Pramatarov
+Yasmine A
 ylms
 Zach Prezkuta
 Zane C. Bowers-Hadley
