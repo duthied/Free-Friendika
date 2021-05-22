@@ -29,7 +29,7 @@ use Friendica\Module\BaseApi;
 /**
  * @see https://docs.joinmastodon.org/methods/timelines/conversations/
  */
-class Conversation extends BaseApi
+class Conversations extends BaseApi
 {
 	public static function delete(array $parameters = [])
 	{

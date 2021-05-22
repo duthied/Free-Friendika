@@ -90,9 +90,9 @@ return [
 			'/apps/verify_credentials'           => [Module\Api\Mastodon\Apps\VerifyCredentials::class,   [R::GET         ]],
 			'/blocks'                            => [Module\Api\Mastodon\Blocks::class,                   [R::GET         ]],
 			'/bookmarks'                         => [Module\Api\Mastodon\Bookmarks::class,                [R::GET         ]],
-			'/conversations'                     => [Module\Api\Mastodon\Conversation::class,             [R::GET         ]],
-			'/conversations/{id:\d+}'            => [Module\Api\Mastodon\Conversation::class,             [R::DELETE      ]],
-			'/conversations/{id:\d+}/read'       => [Module\Api\Mastodon\Conversation\Read::class,        [R::POST        ]],
+			'/conversations'                     => [Module\Api\Mastodon\Conversations::class,            [R::GET         ]],
+			'/conversations/{id:\d+}'            => [Module\Api\Mastodon\Conversations::class,            [R::DELETE      ]],
+			'/conversations/{id:\d+}/read'       => [Module\Api\Mastodon\Conversations\Read::class,       [R::POST        ]],
 			'/custom_emojis'                     => [Module\Api\Mastodon\CustomEmojis::class,             [R::GET         ]],
 			'/domain_blocks'                     => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST, R::DELETE]], // not supported
 			'/directory'                         => [Module\Api\Mastodon\Directory::class,                [R::GET         ]],

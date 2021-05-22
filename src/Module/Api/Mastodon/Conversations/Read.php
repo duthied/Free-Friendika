@@ -19,7 +19,7 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon\Conversation;
+namespace Friendica\Module\Api\Mastodon\Conversations;
 
 use Friendica\Core\System;
 use Friendica\Database\DBA;
