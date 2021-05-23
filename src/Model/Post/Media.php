@@ -600,7 +600,7 @@ class Media
 		$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
 
 		foreach (self::getByURIId($uriid, [self::IMAGE, self::AUDIO, self::VIDEO]) as $media) {
-			if (Item::containsLink($body, $media['url'])) {
+			if (Item::containsLink($body, $media['url'], $media['type'])) {
 				continue;
 			}
 
