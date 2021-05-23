@@ -145,7 +145,7 @@ class Profile
 	 */
 	public static function load(App $a, $nickname, array $profiledata = [], $show_connect = true)
 	{
-		$user = User::getByNickname($nickname);
+		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
 
 		if (!DBA::isResult($user) && empty($profiledata)) {
 			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
@@ -263,8 +263,20 @@ class Profile
 		$o = '';
 		$location = false;
 
-		// This function can also use contact information in $profile
-		$is_contact = !empty($profile['cid']);
+		// This function can also use contact information in $profile, but the 'cid'
+		// value is going to be coming from 'owner-view', which means it's the wrong
+		// contact ID for the user viewing this page. Use 'nurl' to look up the
+		// correct contact table entry for the logged-in user.
+		$profile_contact = [];
+
+		if (!empty($profile['nurl'] ?? '')) {
+			if (local_user() && ($profile['uid'] ?? '') != local_user()) {
+				$profile_contact = Contact::getById(Contact::getIdForURL($profile['nurl'], local_user()));
+			}
+			if (!empty($profile['cid']) && self::getMyURL()) {
+				$profile_contact = Contact::selectFirst(['rel'], ['id' => $profile['cid']]);
+			}
+		}
 
 		if (empty($profile['nickname'])) {
 			Logger::warning('Received profile with no nickname', ['profile' => $profile, 'callstack' => System::callstack(10)]);
@@ -292,14 +304,10 @@ class Profile
 		$subscribe_feed_link = null;
 		$wallmessage_link = null;
 
+		// Who is the logged-in user to this profile?
 		$visitor_contact = [];
 		if (!empty($profile['uid']) && self::getMyURL()) {
 			$visitor_contact = Contact::selectFirst(['rel'], ['uid' => $profile['uid'], 'nurl' => Strings::normaliseLink(self::getMyURL())]);
-		}
-
-		$profile_contact = [];
-		if (!empty($profile['cid']) && self::getMyURL()) {
-			$profile_contact = Contact::selectFirst(['rel'], ['id' => $profile['cid']]);
 		}
 
 		$profile_is_dfrn = $profile['network'] == Protocol::DFRN;
@@ -332,17 +340,19 @@ class Profile
 				$subscribe_feed_link = 'dfrn_poll/' . $profile['nickname'];
 			}
 
-			if (Contact::canReceivePrivateMessages($profile)) {
+			if (Contact::canReceivePrivateMessages($profile_contact)) {
 				if ($visitor_is_followed || $visitor_is_following) {
-					$wallmessage_link = $visitor_base_path . '/message/new/' . base64_encode($profile['addr'] ?? '');
+					$wallmessage_link = $visitor_base_path . '/message/new/' . $profile_contact['id'];
 				} elseif ($visitor_is_authenticated && !empty($profile['unkmail'])) {
 					$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 				}
 			}
 		}
 
-		// show edit profile to yourself
-		if (!$is_contact && $local_user_is_self) {
+		// show edit profile to yourself, but only if this is not meant to be
+		// rendered as a "contact". i.e., if 'self' (a "contact" table column) isn't
+		// set in $profile.
+		if (!isset($profile['self']) && $local_user_is_self) {
 			$profile['edit'] = [DI::baseUrl() . '/settings/profile', DI::l10n()->t('Edit profile'), '', DI::l10n()->t('Edit profile')];
 			$profile['menu'] = [
 				'chg_photo' => DI::l10n()->t('Change profile photo'),
