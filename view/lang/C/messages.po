@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.06-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-21 18:18+0000\n"
+"POT-Creation-Date: 2021-05-23 07:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1117,11 +1117,11 @@ msgstr ""
 msgid "Invalid profile URL."
 msgstr ""
 
-#: mod/dfrn_request.php:355 src/Model/Contact.php:2159
+#: mod/dfrn_request.php:355 src/Model/Contact.php:2164
 msgid "Disallowed profile URL."
 msgstr ""
 
-#: mod/dfrn_request.php:361 src/Model/Contact.php:2164
+#: mod/dfrn_request.php:361 src/Model/Contact.php:2169
 #: src/Module/Friendica.php:80
 msgid "Blocked domain"
 msgstr ""
@@ -4072,7 +4072,8 @@ msgid "Program execution functions"
 msgstr ""
 
 #: src/Core/Installer.php:468
-msgid "Error: Program execution functions required but not enabled."
+msgid ""
+"Error: Program execution functions (proc_open) required but not enabled."
 msgstr ""
 
 #: src/Core/Installer.php:474
@@ -4645,60 +4646,60 @@ msgstr ""
 msgid "Forum"
 msgstr ""
 
-#: src/Model/Contact.php:2169
+#: src/Model/Contact.php:2174
 msgid "Connect URL missing."
 msgstr ""
 
-#: src/Model/Contact.php:2178
+#: src/Model/Contact.php:2183
 msgid ""
 "The contact could not be added. Please check the relevant network "
 "credentials in your Settings -> Social Networks page."
 msgstr ""
 
-#: src/Model/Contact.php:2219
+#: src/Model/Contact.php:2224
 msgid ""
 "This site is not configured to allow communications with other networks."
 msgstr ""
 
-#: src/Model/Contact.php:2220 src/Model/Contact.php:2233
+#: src/Model/Contact.php:2225 src/Model/Contact.php:2238
 msgid "No compatible communication protocols or feeds were discovered."
 msgstr ""
 
-#: src/Model/Contact.php:2231
+#: src/Model/Contact.php:2236
 msgid "The profile address specified does not provide adequate information."
 msgstr ""
 
-#: src/Model/Contact.php:2236
+#: src/Model/Contact.php:2241
 msgid "An author or name was not found."
 msgstr ""
 
-#: src/Model/Contact.php:2239
+#: src/Model/Contact.php:2244
 msgid "No browser URL could be matched to this address."
 msgstr ""
 
-#: src/Model/Contact.php:2242
+#: src/Model/Contact.php:2247
 msgid ""
 "Unable to match @-style Identity Address with a known protocol or email "
 "contact."
 msgstr ""
 
-#: src/Model/Contact.php:2243
+#: src/Model/Contact.php:2248
 msgid "Use mailto: in front of address to force email check."
 msgstr ""
 
-#: src/Model/Contact.php:2249
+#: src/Model/Contact.php:2254
 msgid ""
 "The profile address specified belongs to a network which has been disabled "
 "on this site."
 msgstr ""
 
-#: src/Model/Contact.php:2254
+#: src/Model/Contact.php:2259
 msgid ""
 "Limited profile. This person will be unable to receive direct/personal "
 "notifications from you."
 msgstr ""
 
-#: src/Model/Contact.php:2313
+#: src/Model/Contact.php:2318
 msgid "Unable to retrieve contact information."
 msgstr ""
 
@@ -4845,7 +4846,7 @@ msgstr ""
 msgid "View on separate page"
 msgstr ""
 
-#: src/Model/Mail.php:120 src/Model/Mail.php:258
+#: src/Model/Mail.php:134 src/Model/Mail.php:272
 msgid "[no subject]"
 msgstr ""
 
