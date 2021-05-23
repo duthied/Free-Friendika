@@ -39,8 +39,6 @@ class HTTPInputDataTest extends MockedTest
 	 */
 	public function dataStream()
 	{
-		
-
 		return [
 			'example' => [
 				'contenttype' => 'multipart/form-data;boundary=43395968-f65c-437e-b536-5b33e3e3c7e5;charset=utf8',
