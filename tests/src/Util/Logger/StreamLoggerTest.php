@@ -128,7 +128,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	public function testWrongUrl()
 	{
 		$this->expectException(\UnexpectedValueException::class);
-		$this->expectExceptionMessageRegExp("/The stream or file .* could not be opened: .* /");
+		$this->expectExceptionMessageMatches("/The stream or file .* could not be opened: .* /");
 
 		$logfile = vfsStream::newFile('friendica.log')
 			->at($this->root)->chmod(0);
@@ -144,7 +144,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	public function testWrongDir()
 	{
 		$this->expectException(\UnexpectedValueException::class);
-		$this->expectExceptionMessageRegExp("/Directory .* cannot get created: .* /");
+		$this->expectExceptionMessageMatches("/Directory .* cannot get created: .* /");
 
 		static::markTestIncomplete('We need a platform independent way to set directory to readonly');
 
@@ -159,7 +159,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	public function testWrongMinimumLevel()
 	{
 		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessageRegExp("/The level \".*\" is not valid./");
+		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 
 		$logger = new StreamLogger('test', 'file.text', $this->introspection, $this->fileSystem, 'NOPE');
 	}
@@ -170,7 +170,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	public function testWrongLogLevel()
 	{
 		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessageRegExp("/The level \".*\" is not valid./");
+		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 
 		$logfile = vfsStream::newFile('friendica.log')
 			->at($this->root);

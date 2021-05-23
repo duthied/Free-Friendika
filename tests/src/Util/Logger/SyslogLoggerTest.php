@@ -63,7 +63,7 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	public function testWrongMinimumLevel()
 	{
 		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessageRegExp("/The level \".*\" is not valid./");
+		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 		
 		$logger = new SyslogLoggerWrapper('test', $this->introspection, 'NOPE');
 	}
@@ -74,7 +74,7 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	public function testWrongLogLevel()
 	{
 		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessageRegExp("/The level \".*\" is not valid./");
+		$this->expectExceptionMessageMatches("/The level \".*\" is not valid./");
 
 		$logger = new SyslogLoggerWrapper('test', $this->introspection);
 
@@ -88,7 +88,7 @@ class SyslogLoggerTest extends AbstractLoggerTest
 	{
 		if (PHP_MAJOR_VERSION < 8) {
 			$this->expectException(\UnexpectedValueException::class);
-			$this->expectExceptionMessageRegExp("/Can\'t open syslog for ident \".*\" and facility \".*\": .* /");
+			$this->expectExceptionMessageMatches("/Can\'t open syslog for ident \".*\" and facility \".*\": .* /");
 		} else {
 			$this->expectException(\TypeError::class);
 			$this->expectExceptionMessage("openlog(): Argument #3 (\$facility) must be of type int, string given");

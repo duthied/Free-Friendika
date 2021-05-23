@@ -78,16 +78,16 @@ class EMailerTest extends MockedTest
 
 		self::assertTrue($emailer->send($testEmail));
 
-		self::assertContains("X-Friendica-Host: friendica.local", EmailerSpy::$MAIL_DATA['headers']);
-		self::assertContains("X-Friendica-Platform: Friendica", EmailerSpy::$MAIL_DATA['headers']);
-		self::assertContains("List-ID: <notification.friendica.local>", EmailerSpy::$MAIL_DATA['headers']);
-		self::assertContains("List-Archive: <http://friendica.local/notifications/system>", EmailerSpy::$MAIL_DATA['headers']);
-		self::assertContains("Reply-To: Sender <sender@friendica.local>", EmailerSpy::$MAIL_DATA['headers']);
-		self::assertContains("MIME-Version: 1.0", EmailerSpy::$MAIL_DATA['headers']);
+		self::assertStringContainsString("X-Friendica-Host: friendica.local", EmailerSpy::$MAIL_DATA['headers']);
+		self::assertStringContainsString("X-Friendica-Platform: Friendica", EmailerSpy::$MAIL_DATA['headers']);
+		self::assertStringContainsString("List-ID: <notification.friendica.local>", EmailerSpy::$MAIL_DATA['headers']);
+		self::assertStringContainsString("List-Archive: <http://friendica.local/notifications/system>", EmailerSpy::$MAIL_DATA['headers']);
+		self::assertStringContainsString("Reply-To: Sender <sender@friendica.local>", EmailerSpy::$MAIL_DATA['headers']);
+		self::assertStringContainsString("MIME-Version: 1.0", EmailerSpy::$MAIL_DATA['headers']);
 		// Base64 "Test Text"
-		self::assertContains(chunk_split(base64_encode('Test Text')), EmailerSpy::$MAIL_DATA['body']);
+		self::assertStringContainsString(chunk_split(base64_encode('Test Text')), EmailerSpy::$MAIL_DATA['body']);
 		// Base64 "Test Message<b>Bold</b>"
-		self::assertContains(chunk_split(base64_encode("Test Message<b>Bold</b>")), EmailerSpy::$MAIL_DATA['body']);
+		self::assertStringContainsString(chunk_split(base64_encode("Test Message<b>Bold</b>")), EmailerSpy::$MAIL_DATA['body']);
 		self::assertEquals("Test Subject", EmailerSpy::$MAIL_DATA['subject']);
 		self::assertEquals("recipient@friendica.local", EmailerSpy::$MAIL_DATA['to']);
 		self::assertEquals("-f sender@friendica.local", EmailerSpy::$MAIL_DATA['parameters']);
