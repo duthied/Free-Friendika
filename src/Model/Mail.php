@@ -197,7 +197,7 @@ class Mail
 			$replyto = $convuri;
 		}
 
-		$post_id =self::insert(
+		$post_id = self::insert(
 			[
 				'uid' => local_user(),
 				'guid' => $guid,
