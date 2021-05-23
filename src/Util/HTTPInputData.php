@@ -58,7 +58,7 @@ class HTTPInputData
 		}
 
 		// can be handled by built in PHP functionality
-		$content = file_get_contents('php://input');
+		$content = static::getPhpInputContent();
 
 		$variables = json_decode($content);
 
@@ -73,7 +73,7 @@ class HTTPInputData
 	{
 		$result = ['variables' => [], 'files' => []];
 
-		$stream = fopen('php://input', 'rb');
+		$stream = static::getPhpInputStream();
 
 		$sanity = fgets($stream, strlen($boundary) + 5);
 
@@ -258,5 +258,25 @@ class HTTPInputData
 		}
 
 		return $variables;
+	}
+
+	/**
+	 * Returns the current PHP input stream
+	 * Mainly used for test doubling
+	 * @return false|resource
+	 */
+	protected static function getPhpInputStream()
+	{
+		return fopen('php://input', 'rb');
+	}
+
+	/**
+	 * Returns the content of tje current PHP input
+	 * Mainly used for test doubling
+	 * @return false|string
+	 */
+	protected static function getPhpInputContent()
+	{
+		return file_get_contents('php://input');
 	}
 }
