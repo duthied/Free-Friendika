@@ -248,7 +248,7 @@ class InstallerTest extends MockedTest
 		self::assertFalse($install->checkFunctions());
 		self::assertCheckExist(9,
 			'Program execution functions',
-			'Error: Program execution functions required but not enabled.',
+			'Error: Program execution functions (proc_open) required but not enabled.',
 			false,
 			true,
 			$install->getChecks());
