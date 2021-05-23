@@ -34,6 +34,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
+use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
@@ -464,6 +465,11 @@ class App
 						if (Core\Session::get('visitor_home') != $_GET["zrl"]) {
 							Core\Session::set('my_url', $_GET['zrl']);
 							Core\Session::set('authenticated', 0);
+
+							$remote_contact = Contact::getByURL($_GET['zrl'], false, ['subscribe']);
+							if (!empty($remote_contact['subscribe'])) {
+								$_SESSION['remote_comment'] = $remote_contact['subscribe'];
+							}
 						}
 
 						Model\Profile::zrlInit($this);
