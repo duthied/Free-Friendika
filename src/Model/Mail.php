@@ -36,15 +36,14 @@ use Friendica\Worker\Delivery;
 class Mail
 {
 	/**
-	 * Insert received private message
+	 * Insert private message
 	 *
 	 * @param array $msg
+	 * @param bool  $notifiction
 	 * @return int|boolean Message ID or false on error
 	 */
-	public static function insert($msg)
+	public static function insert($msg, $notifiction = true)
 	{
-		$user = User::getById($msg['uid']);
-
 		if (!isset($msg['reply'])) {
 			$msg['reply'] = DBA::exists('mail', ['parent-uri' => $msg['parent-uri']]);
 		}
@@ -63,6 +62,10 @@ class Mail
 
 		$msg['created'] = (!empty($msg['created']) ? DateTimeFormat::utc($msg['created']) : DateTimeFormat::utcNow());
 
+		$msg['author-id']     = Contact::getIdForURL($msg['from-url'], 0, false);
+		$msg['uri-id']        = ItemURI::insert(['uri' => $msg['uri'], 'guid' => $msg['guid']]);
+		$msg['parent-uri-id'] = ItemURI::getIdByURI($msg['parent-uri']);
+
 		DBA::lock('mail');
 
 		if (DBA::exists('mail', ['uri' => $msg['uri'], 'uid' => $msg['uid']])) {
@@ -71,12 +74,8 @@ class Mail
 			return false;
 		}
 
-		$msg['author-id']     = Contact::getIdForURL($msg['from-url'], 0, false);
-		$msg['uri-id']        = ItemURI::insert(['uri' => $msg['uri'], 'guid' => $msg['guid']]);
-		$msg['parent-uri-id'] = ItemURI::getIdByURI($msg['parent-uri']);
-
 		if ($msg['reply']) {
-			$reply = DBA::selectFirst('mail', ['uri', 'uri-id'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
+			$reply = DBA::selectFirst('mail', ['uri', 'uri-id'], ['parent-uri' => $msg['parent-uri'], 'reply' => false]);
 
 			$msg['thr-parent']    = $reply['uri'];
 			$msg['thr-parent-id'] = $reply['uri-id'];
@@ -95,19 +94,22 @@ class Mail
 			DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $msg['convid']]);
 		}
 
-		// send notifications.
-		$notif_params = [
-			'type'  => Notification\Type::MAIL,
-			'otype' => Notification\ObjectType::MAIL,
-			'verb'  => Activity::POST,
-			'uid'   => $user['uid'],
-			'cid'   => $msg['contact-id'],
-			'link'  => DI::baseUrl() . '/message/' . $msg['id'],
-		];
+		if ($notifiction) {
+			$user = User::getById($msg['uid']);
+			// send notifications.
+			$notif_params = [
+				'type'  => Notification\Type::MAIL,
+				'otype' => Notification\ObjectType::MAIL,
+				'verb'  => Activity::POST,
+				'uid'   => $user['uid'],
+				'cid'   => $msg['contact-id'],
+				'link'  => DI::baseUrl() . '/message/' . $msg['id'],
+			];
 
-		notification($notif_params);
+			notification($notif_params);
 
-		Logger::info('Mail is processed, notification was sent.', ['id' => $msg['id'], 'uri' => $msg['uri']]);
+			Logger::info('Mail is processed, notification was sent.', ['id' => $msg['id'], 'uri' => $msg['uri']]);
+		}
 
 		return $msg['id'];
 	}
@@ -195,9 +197,7 @@ class Mail
 			$replyto = $convuri;
 		}
 
-		$post_id = null;
-		$success = DBA::insert(
-			'mail',
+		$post_id = self::insert(
 			[
 				'uid' => local_user(),
 				'guid' => $guid,
@@ -214,12 +214,8 @@ class Mail
 				'uri' => $uri,
 				'parent-uri' => $replyto,
 				'created' => DateTimeFormat::utcNow()
-			]
+			], false
 		);
-
-		if ($success) {
-			$post_id = DBA::lastInsertId();
-		}
 
 		/**
 		 *
@@ -301,8 +297,7 @@ class Mail
 			return -4;
 		}
 
-		DBA::insert(
-			'mail',
+		self::insert(
 			[
 				'uid' => $recipient['uid'],
 				'guid' => $guid,
@@ -320,7 +315,7 @@ class Mail
 				'parent-uri' => $me['url'],
 				'created' => DateTimeFormat::utcNow(),
 				'unknown' => 1
-			]
+			], false
 		);
 
 		return 0;
