@@ -351,7 +351,7 @@ class Media
 
 		foreach ($attachments as $attachment) {
 			// Only store attachments that are part of the unshared body
-			if (strpos($unshared_body, $attachment['url']) !== false) {
+			if (Item::containsLink($unshared_body, $attachment['url'], $attachment['type'])) {
 				self::insert($attachment);
 			}
 		}
@@ -600,7 +600,7 @@ class Media
 		$body = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", '', $body);
 
 		foreach (self::getByURIId($uriid, [self::IMAGE, self::AUDIO, self::VIDEO]) as $media) {
-			if (Item::containsLink($body, $media['url'])) {
+			if (Item::containsLink($body, $media['url'], $media['type'])) {
 				continue;
 			}
 
