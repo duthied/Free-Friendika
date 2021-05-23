@@ -29,7 +29,7 @@ class HTTPInputData
 {
 	public static function process()
 	{
-		$content_parts = explode(';', $_SERVER['CONTENT_TYPE'] ?? 'application/x-www-form-urlencoded');
+		$content_parts = explode(';', static::getContentType());
 
 		$boundary = '';
 		$encoding = '';
@@ -263,6 +263,7 @@ class HTTPInputData
 	/**
 	 * Returns the current PHP input stream
 	 * Mainly used for test doubling
+	 *
 	 * @return false|resource
 	 */
 	protected static function getPhpInputStream()
@@ -273,10 +274,22 @@ class HTTPInputData
 	/**
 	 * Returns the content of the current PHP input
 	 * Mainly used for test doubling
+	 *
 	 * @return false|string
 	 */
 	protected static function getPhpInputContent()
 	{
 		return file_get_contents('php://input');
+	}
+
+	/**
+	 * Returns the content type string of the current call
+	 * Mainly used for test doubling
+	 *
+	 * @return false|string
+	 */
+	protected static function getContentType()
+	{
+		return $_SERVER['CONTENT_TYPE'] ?? 'application/x-www-form-urlencoded';
 	}
 }

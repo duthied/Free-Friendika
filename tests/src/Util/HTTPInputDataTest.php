@@ -27,6 +27,7 @@ use Friendica\Util\HTTPInputData;
 
 /**
  * Testing HTTPInputData
+ *
  * @see	HTTPInputData
  */
 class HTTPInputDataTest extends MockedTest
@@ -35,6 +36,7 @@ class HTTPInputDataTest extends MockedTest
 	 * Returns the data stream for the unit test
 	 * Each array element of the first hierarchy represents one test run
 	 * Each array element of the second hierarchy represents the parameters, passed to the test function
+	 *
 	 * @return array[]
 	 */
 	public function dataStream()
@@ -67,16 +69,17 @@ class HTTPInputDataTest extends MockedTest
 
 	/**
 	 * Tests the HTTPInputData::process() method
-	 * @see HTTPInputData::process()
-	 * @param string $contenttype The content typer of the transmitted data
+	 *
+	 * @param string $contentType The content typer of the transmitted data
 	 * @param string $input       The input, we got from the data stream
 	 * @param array  $expected    The expected output
+	 *
 	 * @dataProvider dataStream
+	 * @see HTTPInputData::process()
 	 */
-	public function testHttpInput(string $contenttype, string $input, array $expected)
+	public function testHttpInput(string $contentType, string $input, array $expected)
 	{
-		$_SERVER['CONTENT_TYPE'] = $contenttype;
-
+		HTTPInputDataDouble::setPhpInputContentType($contentType);
 		HTTPInputDataDouble::setPhpInputContent($input);
 		$stream = fopen('php://memory', 'r+');
 		fwrite($stream, $input);
