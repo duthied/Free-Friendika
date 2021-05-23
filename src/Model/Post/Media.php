@@ -351,7 +351,7 @@ class Media
 
 		foreach ($attachments as $attachment) {
 			// Only store attachments that are part of the unshared body
-			if (strpos($unshared_body, $attachment['url']) !== false) {
+			if (Item::containsLink($unshared_body, $attachment['url'], $attachment['type'])) {
 				self::insert($attachment);
 			}
 		}
