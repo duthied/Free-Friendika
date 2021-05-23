@@ -47,7 +47,7 @@ class HTTPInputDataTest extends MockedTest
 					'variables' => [
 						'display_name'      => 'User Name',
 						'note'              => 'About me',
-						'locked'            => false,
+						'locked'            => 'false',
 						'fields_attributes' => [
 							0 => [
 								'name'  => 'variable 1',
