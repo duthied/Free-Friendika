@@ -41,6 +41,8 @@ class PublicTimeline extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
+		$uid = self::getCurrentUserID();
+
 		$request = self::getRequest([
 			'local'           => false, // Show only local statuses? Defaults to false.
 			'remote'          => false, // Show only remote statuses? Defaults to false.
@@ -88,7 +90,12 @@ class PublicTimeline extends BaseApi
 			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
 		}
 
-		$items = Post::selectForUser(0, ['uri-id', 'uid'], $condition, $params);
+		if (!empty($uid)) {
+			$condition = DBA::mergeConditions($condition,
+				["NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `parent-author-id` AND (`blocked` OR `ignored`))", $uid]);
+		}
+
+		$items = Post::selectForUser($uid, ['uri-id', 'uid'], $condition, $params);
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
