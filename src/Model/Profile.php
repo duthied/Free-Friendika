@@ -267,14 +267,14 @@ class Profile
 		// value is going to be coming from 'owner-view', which means it's the wrong
 		// contact ID for the user viewing this page. Use 'nurl' to look up the
 		// correct contact table entry for the logged-in user.
-		$is_contact = !empty($profile['nurl']);
 		$profile_contact = [];
 
-		if ($is_contact) {
+		if (!empty($profile['nurl'] ?? '')) {
 			if (local_user() && ($profile['uid'] ?? '') != local_user()) {
 				$profile_contact = Contact::getById(Contact::getIdForURL($profile['nurl'], local_user()));
-			} else {
-				$profile_contact = $profile;
+			}
+			if (!empty($profile['cid']) && self::getMyURL()) {
+				$profile_contact = Contact::selectFirst(['rel'], ['id' => $profile['cid']]);
 			}
 		}
 
@@ -349,8 +349,10 @@ class Profile
 			}
 		}
 
-		// show edit profile to yourself
-		if (!$is_contact && $local_user_is_self) {
+		// show edit profile to yourself, but only if this is not meant to be
+		// rendered as a "contact". i.e., if 'self' (a "contact" table column) isn't
+		// set in $profile.
+		if (!isset($profile['self']) && $local_user_is_self) {
 			$profile['edit'] = [DI::baseUrl() . '/settings/profile', DI::l10n()->t('Edit profile'), '', DI::l10n()->t('Edit profile')];
 			$profile['menu'] = [
 				'chg_photo' => DI::l10n()->t('Change profile photo'),
