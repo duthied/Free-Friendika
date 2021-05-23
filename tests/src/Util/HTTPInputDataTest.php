@@ -46,16 +46,16 @@ class HTTPInputDataTest extends MockedTest
 				'input'    => file_get_contents(__DIR__ . '/../../datasets/http/example1.httpinput'),
 				'expected' => [
 					'variables' => [
-						'display_name' => 'User Name',
-						'note' => 'About me',
-						'locked' => false,
+						'display_name'      => 'User Name',
+						'note'              => 'About me',
+						'locked'            => false,
 						'fields_attributes' => [
 							0 => [
-								'name' => 'variable 1',
+								'name'  => 'variable 1',
 								'value' => 'value 1',
 							],
 							1 => [
-								'name' => 'variable 2',
+								'name'  => 'variable 2',
 								'value' => 'value 2',
 							]
 						]
