@@ -103,7 +103,7 @@ class InstallerTest extends MockedTest
 		$this->mockL10nT('File Information PHP module', 1);
 		$this->mockL10nT('Error: File Information PHP module required but not installed.', 1);
 		$this->mockL10nT('Program execution functions', 1);
-		$this->mockL10nT('Error: Program execution functions required but not enabled.', 1);
+		$this->mockL10nT('Error: Program execution functions (proc_open) required but not enabled.', 1);
 	}
 
 	private function assertCheckExist($position, $title, $help, $status, $required, $assertionArray)
