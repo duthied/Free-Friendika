@@ -39,12 +39,13 @@ class HTTPInputDataTest extends MockedTest
 	 */
 	public function dataStream()
 	{
-		$_SERVER['CONTENT_TYPE'] = 'multipart/form-data;boundary=43395968-f65c-437e-b536-5b33e3e3c7e5;charset=utf8';
+		
 
 		return [
 			'example' => [
-				'input'    => file_get_contents(__DIR__ . '/../../datasets/http/example1.httpinput'),
-				'expected' => [
+				'contenttype' => 'multipart/form-data;boundary=43395968-f65c-437e-b536-5b33e3e3c7e5;charset=utf8',
+				'input'       => file_get_contents(__DIR__ . '/../../datasets/http/example1.httpinput'),
+				'expected'    => [
 					'variables' => [
 						'display_name'      => 'User Name',
 						'note'              => 'About me',
@@ -69,12 +70,15 @@ class HTTPInputDataTest extends MockedTest
 	/**
 	 * Tests the HTTPInputData::process() method
 	 * @see HTTPInputData::process()
-	 * @param string $input The input, we got from the data stream
-	 * @param array  $expected The expected output
+	 * @param string $contenttype The content typer of the transmitted data
+	 * @param string $input       The input, we got from the data stream
+	 * @param array  $expected    The expected output
 	 * @dataProvider dataStream
 	 */
-	public function testHttpInput(string $input, array $expected)
+	public function testHttpInput(string $contenttype, string $input, array $expected)
 	{
+		$_SERVER['CONTENT_TYPE'] = $contenttype;
+
 		HTTPInputDataDouble::setPhpInputContent($input);
 		$stream = fopen('php://memory', 'r+');
 		fwrite($stream, $input);
