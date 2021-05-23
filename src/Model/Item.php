@@ -2739,15 +2739,22 @@ class Item
 	 *
 	 * @param string $body
 	 * @param string $url
+	 * @param int    $type
 	 * @return bool
 	 */
-	public static function containsLink(string $body, string $url)
+	public static function containsLink(string $body, string $url, int $type = 0)
 	{
 		// Make sure that for example site parameters aren't used when testing if the link is contained in the body
 		$urlparts = parse_url($url);
 		unset($urlparts['query']);
 		unset($urlparts['fragment']);
 		$url = Network::unparseURL($urlparts);
+
+		// Remove media links to only search in embedded content
+		// @todo Check images for image link, audio for audio links, ...
+		if (in_array($type, [Post\Media::AUDIO, Post\Media::VIDEO, Post\Media::IMAGE])) {
+			$body = preg_replace("/\[url=[^\[\]]*\](.*)\[\/url\]/Usi", ' $1 ', $body);
+		}
 
 		if (strpos($body, $url)) {
 			return true;
@@ -2777,7 +2784,7 @@ class Item
 
 		// @todo In the future we should make a single for the template engine with all media in it. This allows more flexibilty.
 		foreach ($attachments['visual'] as $attachment) {
-			if (self::containsLink($item['body'], $attachment['url'])) {
+			if (self::containsLink($item['body'], $attachment['url'], $attachment['type'])) {
 				continue;
 			}
 
@@ -2955,7 +2962,7 @@ class Item
 
 				// @todo Use a template
 				$rendered = BBCode::convertAttachment('', BBCode::INTERNAL, false, $data);
-			} elseif (!self::containsLink($content, $data['url'])) {
+			} elseif (!self::containsLink($content, $data['url'], Post\Media::HTML)) {
 				$rendered = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/link.tpl'), [
 					'$url'  => $data['url'],
 					'$title' => $data['title'],
