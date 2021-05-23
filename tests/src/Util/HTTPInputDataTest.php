@@ -39,13 +39,26 @@ class HTTPInputDataTest extends MockedTest
 	 */
 	public function dataStream()
 	{
+		$_SERVER['CONTENT_TYPE'] = 'multipart/form-data;boundary=43395968-f65c-437e-b536-5b33e3e3c7e5;charset=utf8';
+
 		return [
 			'example' => [
 				'input'    => file_get_contents(__DIR__ . '/../../datasets/http/example1.httpinput'),
 				'expected' => [
 					'variables' => [
-						'var1' => 'value1',
-						'var2' => 'value2',
+						'display_name' => 'User Name',
+						'note' => 'About me',
+						'locked' => false,
+						'fields_attributes' => [
+							0 => [
+								'name' => 'variable 1',
+								'value' => 'value 1',
+							],
+							1 => [
+								'name' => 'variable 2',
+								'value' => 'value 2',
+							]
+						]
 					],
 					'files' => []
 				]
