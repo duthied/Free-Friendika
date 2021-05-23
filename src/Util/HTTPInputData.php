@@ -271,7 +271,7 @@ class HTTPInputData
 	}
 
 	/**
-	 * Returns the content of tje current PHP input
+	 * Returns the content of the current PHP input
 	 * Mainly used for test doubling
 	 * @return false|string
 	 */

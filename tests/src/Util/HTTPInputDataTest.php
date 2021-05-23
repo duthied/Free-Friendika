@@ -41,11 +41,11 @@ class HTTPInputDataTest extends MockedTest
 	{
 		return [
 			'example' => [
-				'input'    => 'anything you want',
+				'input'    => file_get_contents(__DIR__ . '/../../datasets/http/example1.httpinput'),
 				'expected' => [
 					'variables' => [
-						'var1' => 'value',
-						'var2' => 'value',
+						'var1' => 'value1',
+						'var2' => 'value2',
 					],
 					'files' => []
 				]
@@ -69,6 +69,6 @@ class HTTPInputDataTest extends MockedTest
 
 		HTTPInputDataDouble::setPhpInputStream($stream);
 		$output = HTTPInputDataDouble::process();
-		$this->assertEqualsCanonicalizing($output, $expected);
+		$this->assertEqualsCanonicalizing($expected, $output);
 	}
 }
