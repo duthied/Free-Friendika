@@ -89,7 +89,7 @@ class HTTPInputDataTest extends MockedTest
 							'tmp_name' => '/tmp/phpf85nKJ',
 							'error' => 0,
 							'size' => 349330
-						],		
+						],
 						'header' => [
 							'name' => 'V2B6Z1IICGPM',
 							'type' => 'image/png',
