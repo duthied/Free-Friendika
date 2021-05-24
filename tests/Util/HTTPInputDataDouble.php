@@ -83,4 +83,16 @@ class HTTPInputDataDouble extends HTTPInputData
 	{
 		return static::$injectedContentType;
 	}
+
+	protected static function fetchFileData($stream, string $boundary, array $headers, string $filename)
+	{
+		$data = parent::fetchFileData($stream, $boundary, $headers, $filename);
+		if (!empty($data['tmp_name'])) {
+			unlink($data['tmp_name']);
+			$data['tmp_name'] = $data['name'];
+		}
+
+		return $data;
+	}
+
 }

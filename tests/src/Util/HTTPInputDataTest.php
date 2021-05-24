@@ -64,7 +64,6 @@ class HTTPInputDataTest extends MockedTest
 					'files' => []
 				]
 			],
-			/*
 			'multipart-file' => [
 				'contenttype' => 'multipart/form-data;boundary=6d4d5a40-651a-4468-a62e-5a6ca2bf350d;charset=utf8',
 				'input'       => file_get_contents(__DIR__ . '/../../datasets/http/multipart-file.httpinput'),
@@ -87,21 +86,20 @@ class HTTPInputDataTest extends MockedTest
 						'avatar' => [
 							'name'     => '8ZUCS34Y5XNH',
 							'type'     => 'image/png',
-							'tmp_name' => '/tmp/phpf85nKJ',
+							'tmp_name' => '8ZUCS34Y5XNH',
 							'error'    => 0,
 							'size'     => 349330
 						],
 						'header' => [
 							'name'     => 'V2B6Z1IICGPM',
 							'type'     => 'image/png',
-							'tmp_name' => '/tmp/phpe3sqHT',
+							'tmp_name' => 'V2B6Z1IICGPM',
 							'error'    => 0,
 							'size'     => 1323635
 						]
 					]
 				]
 			],
-			*/
 			'form-urlencoded' => [
 				'contenttype' => 'application/x-www-form-urlencoded;charset=utf8',
 				'input'       => file_get_contents(__DIR__ . '/../../datasets/http/form-urlencoded.httpinput'),

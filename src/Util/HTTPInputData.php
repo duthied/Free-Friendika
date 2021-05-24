@@ -141,7 +141,7 @@ class HTTPInputData
 		return ['variables' => $variables, 'files' => $files];
 	}
 
-	private static function fetchFileData($stream, string $boundary, array $headers, string $filename)
+	protected static function fetchFileData($stream, string $boundary, array $headers, string $filename)
 	{
 		$error = UPLOAD_ERR_OK;
 
