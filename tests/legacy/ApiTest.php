@@ -2266,6 +2266,7 @@ class ApiTest extends FixtureTest
 			[
 				'network' => 'feed',
 				'title'   => 'item_title',
+				'uri-id'  => 1,
 				// We need a long string to test that it is correctly cut
 				'body'    => 'perspiciatis impedit voluptatem quis molestiae ea qui ' .
 				             'reiciendis dolorum aut ducimus sunt consequatur inventore dolor ' .
@@ -2308,12 +2309,13 @@ class ApiTest extends FixtureTest
 			[
 				'network' => 'feed',
 				'title'   => 'item_title',
+				'uri-id'  => 1,
 				'body'    => '',
 				'plink'   => 'item_plink'
 			]
 		);
-		self::assertEquals('item_title', $result['text']);
-		self::assertEquals('<h4>item_title</h4><br>item_plink', $result['html']);
+		self::assertEquals("item_title\n\nParent status", $result['text']);
+		self::assertEquals('<h4>item_title</h4><br>Parent statusitem_plink', $result['html']);
 	}
 
 	/**
@@ -2325,8 +2327,9 @@ class ApiTest extends FixtureTest
 	{
 		$result = api_convert_item(
 			[
-				'title' => 'item_title',
-				'body'  => 'item_title item_body'
+				'title'  => 'item_title',
+				'body'   => 'item_title item_body',
+				'uri-id' => 1,
 			]
 		);
 		self::assertEquals('item_title item_body', $result['text']);
