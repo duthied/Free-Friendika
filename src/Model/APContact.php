@@ -26,6 +26,7 @@ use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityNamespace;
@@ -348,6 +349,9 @@ class APContact
 			Logger::info('Delete changed profile url', ['old' => $url, 'new' => $apcontact['url']]);
 			DBA::delete('apcontact', ['url' => $url]);
 		}
+
+		// Limit the length on incoming fields
+		$apcontact = DBStructure::getFieldsForTable('apcontact', $apcontact);
 
 		if (DBA::exists('apcontact', ['url' => $apcontact['url']])) {
 			DBA::update('apcontact', $apcontact, ['url' => $apcontact['url']]);
