@@ -32,6 +32,21 @@ class ReversedFileReader implements \Iterator
     const BUFFER_SIZE = 4096;
     const SEPARATOR = "\n";
 
+    /** @var int */
+    private $filesize;
+
+    /** @var int */
+    private $pos;
+
+    /** @var array */
+    private $buffer;
+
+    /** @var int */
+    private $key;
+
+    /** @var string */
+    private $value;
+
     public function __construct($filename)
     {
         $this->_fh = fopen($filename, 'r');
@@ -39,25 +54,25 @@ class ReversedFileReader implements \Iterator
 			// this should use a custom exception.
 			throw \Exception("Unable to open $filename");
 		}
-        $this->_filesize = filesize($filename);
-        $this->_pos = -1;
-        $this->_buffer = null;
-        $this->_key = -1;
-        $this->_value = null;
+        $this->filesize = filesize($filename);
+        $this->pos = -1;
+        $this->buffer = null;
+        $this->key = -1;
+        $this->value = null;
     }
 
     public function _read($size)
     {
-        $this->_pos -= $size;
-        fseek($this->_fh, $this->_pos);
+        $this->pos -= $size;
+        fseek($this->_fh, $this->pos);
         return fread($this->_fh, $size);
     }
 
     public function _readline()
     {
-        $buffer =& $this->_buffer;
+        $buffer =& $this->buffer;
         while (true) {
-            if ($this->_pos == 0) {
+            if ($this->pos == 0) {
                 return array_pop($buffer);
             }
             if (count($buffer) > 1) {
@@ -69,33 +84,33 @@ class ReversedFileReader implements \Iterator
 
     public function next()
     {
-        ++$this->_key;
-        $this->_value = $this->_readline();
+        ++$this->key;
+        $this->value = $this->_readline();
     }
 
     public function rewind()
     {
-        if ($this->_filesize > 0) {
-            $this->_pos = $this->_filesize;
-            $this->_value = null;
-            $this->_key = -1;
-            $this->_buffer = explode(self::SEPARATOR, $this->_read($this->_filesize % self::BUFFER_SIZE ?: self::BUFFER_SIZE));
+        if ($this->filesize > 0) {
+            $this->pos = $this->filesize;
+            $this->value = null;
+            $this->key = -1;
+            $this->buffer = explode(self::SEPARATOR, $this->_read($this->filesize % self::BUFFER_SIZE ?: self::BUFFER_SIZE));
             $this->next();
         }
     }
 
     public function key()
 	{
-		return $this->_key;
+		return $this->key;
 	}
 
     public function current()
 	{
-		return $this->_value;
+		return $this->value;
 	}
 
     public function valid()
 	{
-		return ! is_null($this->_value);
+		return ! is_null($this->value);
 	}
 }

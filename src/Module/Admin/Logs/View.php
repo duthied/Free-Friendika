@@ -26,6 +26,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\Module\BaseAdmin;
 use Friendica\Model\Log\ParsedLogIterator;
+use Psr\Log\LogLevel;
 
 class View extends BaseAdmin
 {
@@ -43,11 +44,34 @@ class View extends BaseAdmin
 		$error = null;
 
 
+		$search = $_GET['q'] ?? '';
+		$filters_valid_values = [
+			'level' => [
+				'',
+				LogLevel::CRITICAL,
+				LogLevel::ERROR,
+				LogLevel::WARNING,
+				LogLevel::NOTICE,
+				LogLevel::INFO,
+				LogLevel::DEBUG,
+			],
+			'context' => ['', 'index', 'worker'],
+		];
+		$filters = [
+			'level' => $_GET['level'] ?? '',
+			'context' => $_GET['context'] ?? '',
+		];
+		foreach($filters as $k=>$v) {
+			if ($v == '' || !in_array($v, $filters_valid_values[$k])) {
+				unset($filters[$k]);
+			}
+		}
+
 		if (!file_exists($f)) {
 			$error = DI::l10n()->t('Error trying to open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s exist and is readable.', $f);
 		} else {
 			try {
-				$data = new ParsedLogIterator($f, self::LIMIT);
+				$data = new ParsedLogIterator($f, self::LIMIT, $filters, $search);
 			} catch (Exception $e) {
 				$error = DI::l10n()->t('Couldn\'t open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s is readable.', $f);
 			}
@@ -56,8 +80,11 @@ class View extends BaseAdmin
 			'$title' => DI::l10n()->t('Administration'),
 			'$page' => DI::l10n()->t('View Logs'),
 			'$data' => $data,
+			'$q' => $search,
+			'$filters' => $filters,
+			'$filtersvalues' => $filters_valid_values,
 			'$error' => $error,
-			'$logname' => DI::config()->get('system', 'logfile')
+			'$logname' => DI::config()->get('system', 'logfile'),
 		]);
 	}
 }
