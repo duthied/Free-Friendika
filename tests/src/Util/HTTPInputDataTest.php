@@ -80,7 +80,7 @@ class HTTPInputDataTest extends MockedTest
 				'expected'    => [
 					'variables' => [
 						'media_ids'    => [],
-						'sensitive'    => false, 
+						'sensitive'    => false,
 						'status'       => 'Test Status',
 						'visibility'   => 'private',
 						'spoiler_text' => 'Title'
