@@ -79,7 +79,7 @@ class HTTPInputDataTest extends MockedTest
 				'input'       => file_get_contents(__DIR__ . '/../../datasets/http/form-urlencoded-json.httpinput'),
 				'expected'    => [
 					'variables' => [
-						'media_ids'    => [],
+						'media_ids'    => [1],
 						'sensitive'    => false,
 						'status'       => 'Test Status',
 						'visibility'   => 'private',
