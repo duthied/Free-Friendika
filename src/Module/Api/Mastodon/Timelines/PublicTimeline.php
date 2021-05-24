@@ -58,7 +58,7 @@ class PublicTimeline extends BaseApi
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		$condition = ['gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'private' => Item::PUBLIC,
-			'uid' => 0, 'network' => Protocol::FEDERATED];
+			'uid' => 0, 'network' => Protocol::FEDERATED, 'parent-author-blocked' => false, 'parent-author-hidden' => false];
 
 		if ($request['local']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
