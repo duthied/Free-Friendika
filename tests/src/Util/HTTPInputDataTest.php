@@ -113,7 +113,7 @@ class HTTPInputDataTest extends MockedTest
 				]
 			],
 			'form-urlencoded-json' => [
-				'contenttype' => 'application/x-www-form-urlencoded-json;charset=utf8',
+				'contenttype' => 'application/x-www-form-urlencoded;charset=utf8',
 				'input'       => file_get_contents(__DIR__ . '/../../datasets/http/form-urlencoded-json.httpinput'),
 				'expected'    => [
 					'variables' => [
