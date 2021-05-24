@@ -18,11 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 namespace Friendica\Model\Log;
 
-use \Friendica\Util\ReversedFileReader;
-use \Friendica\Object\Log\ParsedLog;
-
+use Friendica\Util\ReversedFileReader;
+use Friendica\Object\Log\ParsedLog;
 
 /**
  * An iterator which returns `\Friendica\Objec\Log\ParsedLog` instances
@@ -36,7 +36,7 @@ class ParsedLogIterator implements \Iterator
 	private $reader;
 
 	/** @var ParsedLog current iterator value*/
-	private $value; 
+	private $value;
 
 	/** @var int max number of lines to read */
 	private $limit;
@@ -54,19 +54,19 @@ class ParsedLogIterator implements \Iterator
 	 * @param array $filter		filters per column
 	 * @param string $search	string to search to filter lines
 	 */
-	public function __construct(string $filename, int $limit=0, array $filters=[], string $search="")
+	public function __construct(string $filename, int $limit = 0, array $filters = [], string $search = "")
 	{
-		$this->reader = new ReversedFileReader($filename);
-		$this->value = null;
-		$this->limit = $limit;
+		$this->reader  = new ReversedFileReader($filename);
+		$this->value   = null;
+		$this->limit   = $limit;
 		$this->filters = $filters;
-		$this->search = $search;
+		$this->search  = $search;
 	}
 
 	/**
 	 * Check if parsed log line match filters.
 	 * Always match if no filters are set.
-	 * 
+	 *
 	 * @param ParsedLog $parsedlog
 	 * @return bool
 	 */
@@ -74,7 +74,7 @@ class ParsedLogIterator implements \Iterator
 	{
 		$match = true;
 		foreach ($this->filters as $filter => $filtervalue) {
-			switch($filter) {
+			switch ($filter) {
 				case "level":
 					$match = $match && ($parsedlog->level == strtoupper($filtervalue));
 					break;
@@ -89,7 +89,7 @@ class ParsedLogIterator implements \Iterator
 	/**
 	 * Check if parsed log line match search.
 	 * Always match if no search query is set.
-	 * 
+	 *
 	 * @param ParsedLog $parsedlog
 	 * @return bool
 	 */
@@ -98,20 +98,20 @@ class ParsedLogIterator implements \Iterator
 		if ($this->search != "") {
 			return strstr($parsedlog->logline, $this->search) !== false;
 		}
-		return True;
+		return true;
 	}
 
 	/**
 	 * Read a line from reader and parse.
 	 * Returns null if limit is reached or the reader is invalid.
-	 * 
+	 *
 	 * @param ParsedLog $parsedlog
 	 * @return ?ParsedLog
 	 */
 	private function read()
 	{
 		$this->reader->next();
-		if ($this->limit > 0 && $this->reader->key() > $this->limit  || !$this->reader->valid()) {
+		if ($this->limit > 0 && $this->reader->key() > $this->limit || !$this->reader->valid()) {
 			return null;
 		}
 
@@ -126,7 +126,7 @@ class ParsedLogIterator implements \Iterator
 		// if read() has not retuned none and
 		// the line don't match filters or search
 		// 	read the next line
-		while(is_null($parsed) == false && !($this->filter($parsed)  && $this->search($parsed))) {
+		while (is_null($parsed) == false && !($this->filter($parsed) && $this->search($parsed))) {
 			$parsed = $this->read();
 		}
 		$this->value = $parsed;
@@ -153,6 +153,4 @@ class ParsedLogIterator implements \Iterator
 	{
 		return ! is_null($this->value);
 	}
-
 }
-

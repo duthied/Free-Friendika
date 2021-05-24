@@ -21,7 +21,6 @@
 
 namespace Friendica\Util;
 
-
 /**
  * An iterator which returns lines from file in reversed order
  *
@@ -29,87 +28,87 @@ namespace Friendica\Util;
  */
 class ReversedFileReader implements \Iterator
 {
-    const BUFFER_SIZE = 4096;
-    const SEPARATOR = "\n";
+	const BUFFER_SIZE = 4096;
+	const SEPARATOR   = "\n";
 
-    /** @var int */
-    private $filesize;
+	/** @var int */
+	private $filesize;
 
-    /** @var int */
-    private $pos;
+	/** @var int */
+	private $pos;
 
-    /** @var array */
-    private $buffer;
+	/** @var array */
+	private $buffer;
 
-    /** @var int */
-    private $key;
+	/** @var int */
+	private $key;
 
-    /** @var string */
-    private $value;
+	/** @var string */
+	private $value;
 
-    public function __construct($filename)
-    {
-        $this->_fh = fopen($filename, 'r');
+	public function __construct($filename)
+	{
+		$this->_fh = fopen($filename, 'r');
 		if (!$this->_fh) {
 			// this should use a custom exception.
 			throw \Exception("Unable to open $filename");
 		}
-        $this->filesize = filesize($filename);
-        $this->pos = -1;
-        $this->buffer = null;
-        $this->key = -1;
-        $this->value = null;
-    }
+		$this->filesize = filesize($filename);
+		$this->pos      = -1;
+		$this->buffer   = null;
+		$this->key      = -1;
+		$this->value    = null;
+	}
 
-    public function _read($size)
-    {
-        $this->pos -= $size;
-        fseek($this->_fh, $this->pos);
-        return fread($this->_fh, $size);
-    }
+	public function _read($size)
+	{
+		$this->pos -= $size;
+		fseek($this->_fh, $this->pos);
+		return fread($this->_fh, $size);
+	}
 
-    public function _readline()
-    {
-        $buffer =& $this->buffer;
-        while (true) {
-            if ($this->pos == 0) {
-                return array_pop($buffer);
-            }
-            if (count($buffer) > 1) {
-                return array_pop($buffer);
-            }
-            $buffer = explode(self::SEPARATOR, $this->_read(self::BUFFER_SIZE) . $buffer[0]);
-        }
-    }
+	public function _readline()
+	{
+		$buffer = & $this->buffer;
+		while (true) {
+			if ($this->pos == 0) {
+				return array_pop($buffer);
+			}
+			if (count($buffer) > 1) {
+				return array_pop($buffer);
+			}
+			$buffer = explode(self::SEPARATOR, $this->_read(self::BUFFER_SIZE) . $buffer[0]);
+		}
+	}
 
-    public function next()
-    {
-        ++$this->key;
-        $this->value = $this->_readline();
-    }
+	public function next()
+	{
+		++$this->key;
+		$this->value = $this->_readline();
+	}
 
-    public function rewind()
-    {
-        if ($this->filesize > 0) {
-            $this->pos = $this->filesize;
-            $this->value = null;
-            $this->key = -1;
-            $this->buffer = explode(self::SEPARATOR, $this->_read($this->filesize % self::BUFFER_SIZE ?: self::BUFFER_SIZE));
-            $this->next();
-        }
-    }
+	public function rewind()
+	{
+		if ($this->filesize > 0) {
+			$this->pos    = $this->filesize;
+			$this->value  = null;
+			$this->key    = -1;
+			$this->buffer = explode(self::SEPARATOR, $this->_read($this->filesize % self::BUFFER_SIZE ?: self::BUFFER_SIZE));
+			$this->next();
+		}
+	}
 
-    public function key()
+	public function key()
 	{
 		return $this->key;
 	}
 
-    public function current()
+	public function current()
 	{
 		return $this->value;
 	}
 
-    public function valid()
+	public function valid()
 	{
 		return ! is_null($this->value);
 	}

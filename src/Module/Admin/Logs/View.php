@@ -39,12 +39,12 @@ class View extends BaseAdmin
 		$t = Renderer::getMarkupTemplate('admin/logs/view.tpl');
 		DI::page()->registerFooterScript(Theme::getPathForFile('js/module/admin/logs/view.js'));
 
-		$f = DI::config()->get('system', 'logfile');
-		$data = null;
+		$f     = DI::config()->get('system', 'logfile');
+		$data  = null;
 		$error = null;
 
-
 		$search = $_GET['q'] ?? '';
+
 		$filters_valid_values = [
 			'level' => [
 				'',
@@ -58,10 +58,10 @@ class View extends BaseAdmin
 			'context' => ['', 'index', 'worker'],
 		];
 		$filters = [
-			'level' => $_GET['level'] ?? '',
+			'level'   => $_GET['level'] ?? '',
 			'context' => $_GET['context'] ?? '',
 		];
-		foreach($filters as $k=>$v) {
+		foreach ($filters as $k => $v) {
 			if ($v == '' || !in_array($v, $filters_valid_values[$k])) {
 				unset($filters[$k]);
 			}
@@ -77,14 +77,14 @@ class View extends BaseAdmin
 			}
 		}
 		return Renderer::replaceMacros($t, [
-			'$title' => DI::l10n()->t('Administration'),
-			'$page' => DI::l10n()->t('View Logs'),
-			'$data' => $data,
-			'$q' => $search,
-			'$filters' => $filters,
+			'$title'         => DI::l10n()->t('Administration'),
+			'$page'          => DI::l10n()->t('View Logs'),
+			'$data'          => $data,
+			'$q'             => $search,
+			'$filters'       => $filters,
 			'$filtersvalues' => $filters_valid_values,
-			'$error' => $error,
-			'$logname' => DI::config()->get('system', 'logfile'),
+			'$error'         => $error,
+			'$logname'       => DI::config()->get('system', 'logfile'),
 		]);
 	}
 }

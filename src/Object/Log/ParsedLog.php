@@ -18,6 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 namespace Friendica\Object\Log;
 
 /**
@@ -64,18 +65,22 @@ class ParsedLog
 	private function parse($logline)
 	{
 		list($logline, $jsonsource) = explode(' - ', $logline);
+
 		$jsondata = null;
+
 		if (strpos($logline, '{"') > 0) {
 			list($logline, $jsondata) = explode('{"', $logline, 2);
+
 			$jsondata = '{"' . $jsondata;
 		}
 		preg_match(self::REGEXP, $logline, $matches);
-		$this->date = $matches[1];
+
+		$this->date    = $matches[1];
 		$this->context = $matches[2];
-		$this->level = $matches[3];
+		$this->level   = $matches[3];
 		$this->message = $matches[4];
-		$this->data = $jsondata;
-		$this->source = $jsonsource;
+		$this->data    = $jsondata;
+		$this->source  = $jsonsource;
 		$this->try_fix_json();
 
 		$this->logline = $logline;
@@ -83,7 +88,7 @@ class ParsedLog
 
 	/**
 	 * Fix message / data split
-	 * 
+	 *
 	 * In log boundary between message and json data is not specified.
 	 * If message  contains '{' the parser thinks there starts the json data.
 	 * This method try to parse the found json and if it fails, search for next '{'
@@ -112,12 +117,12 @@ class ParsedLog
 	 *
 	 * @return array
 	 */
-	public function get_data() {
+	public function get_data()
+	{
 		$data = json_decode($this->data, true);
 		if ($data) {
-			foreach($data as $k => $v) {
-				$v = print_r($v, true);
-				$data[$k] = $v;
+			foreach ($data as $k => $v) {
+				$data[$k] = print_r($v, true);
 			}
 		}
 		return $data;
@@ -128,7 +133,8 @@ class ParsedLog
 	 *
 	 * @return array
 	 */
-	public function get_source() {
+	public function get_source()
+	{
 		return json_decode($this->source, true);
 	}
 }
