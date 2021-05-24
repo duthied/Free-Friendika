@@ -94,5 +94,4 @@ class HTTPInputDataDouble extends HTTPInputData
 
 		return $data;
 	}
-
 }
