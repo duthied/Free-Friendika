@@ -30,7 +30,6 @@ use Friendica\Core\Installer;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
 use Friendica\Util\BasePath;
-use Friendica\Util\ConfigFileLoader;
 use RuntimeException;
 
 class AutomaticInstallation extends Console
@@ -139,15 +138,16 @@ HELP;
 		$config_file = $this->getOption(['f', 'file']);
 
 		if (!empty($config_file)) {
-
 			if (!file_exists($config_file)) {
 				throw new RuntimeException("ERROR: Config file does not exist.\n");
 			}
 
-			//reload the config cache
-			$loader = new ConfigFileLoader($config_file);
-			$loader->setupCache($configCache);
-
+			//append config file to the config cache
+			$config = include($config_file);
+			if (!is_array($config)) {
+				throw new Exception('Error loading config file ' . $config_file);
+			}
+			$configCache->load($config, Cache::SOURCE_FILE);
 		} else {
 			// Creating config file
 			$this->out("Creating config file...\n");
@@ -229,7 +229,7 @@ HELP;
 		if (!empty($config_file) && $config_file != 'config' . DIRECTORY_SEPARATOR . 'local.config.php') {
 			// Copy config file
 			$this->out("Copying config file...\n");
-			if (!copy($basePathConf . DIRECTORY_SEPARATOR . $config_file, $basePathConf . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
+			if (!copy($config_file, $basePathConf . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
 				throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $basePathConf . "'" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.config.php' manually.\n");
 			}
 		}
