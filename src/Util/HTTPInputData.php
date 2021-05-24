@@ -60,7 +60,7 @@ class HTTPInputData
 		// can be handled by built in PHP functionality
 		$content = static::getPhpInputContent();
 
-		$variables = json_decode($content);
+		$variables = json_decode($content, true);
 
 		if (empty($variables)) {
 			parse_str($content, $variables);
