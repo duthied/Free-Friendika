@@ -196,6 +196,8 @@
 			"parent-author-link" => ["parent-post-author", "url"],
 			"parent-author-name" => ["parent-post-author", "name"],
 			"parent-author-network" => ["parent-post-author", "network"],
+			"parent-author-blocked" => ["parent-post-author", "blocked"],
+			"parent-author-hidden" => ["parent-post-author", "hidden"],
 		],
 		"query" => "FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`

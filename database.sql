@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.06-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1419
+-- DB_UPDATE_VERSION 1420
 -- ------------------------------------------
 
 
@@ -1685,7 +1685,9 @@ CREATE VIEW `post-user-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`
+	`parent-post-author`.`network` AS `parent-author-network`,
+	`parent-post-author`.`blocked` AS `parent-author-blocked`,
+	`parent-post-author`.`hidden` AS `parent-author-hidden`
 	FROM `post-user`
 			STRAIGHT_JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-user`.`contact-id`
