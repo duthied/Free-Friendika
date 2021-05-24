@@ -111,7 +111,7 @@ HELP;
 	protected function doExecute()
 	{
 		// Initialise the app
-		$this->out("Initializing setup...\n");
+		$this->out("Initializing setup...");
 
 		$installer = new Installer();
 
@@ -120,10 +120,10 @@ HELP;
 		$basepath     = new BasePath($basePathConf);
 		$installer->setUpCache($configCache, $basepath->getPath());
 
-		$this->out(" Complete!\n\n");
+		$this->out(" Complete!\n");
 
 		// Check Environment
-		$this->out("Checking environment...\n");
+		$this->out("Checking environment...");
 
 		$installer->resetChecks();
 
@@ -132,14 +132,15 @@ HELP;
 			throw new RuntimeException($errorMessage);
 		}
 
-		$this->out(" Complete!\n\n");
+		$this->out(" Complete!\n");
 
 		// if a config file is set,
 		$config_file = $this->getOption(['f', 'file']);
 
 		if (!empty($config_file)) {
+			$this->out("Loading config file '$config_file'...");
 			if (!file_exists($config_file)) {
-				throw new RuntimeException("ERROR: Config file does not exist.\n");
+				throw new RuntimeException("ERROR: Config file does not exist.");
 			}
 
 			//append config file to the config cache
@@ -150,7 +151,7 @@ HELP;
 			$configCache->load($config, Cache::SOURCE_FILE);
 		} else {
 			// Creating config file
-			$this->out("Creating config file...\n");
+			$this->out("Creating config file...");
 
 			$save_db = $this->getOption(['s', 'savedb'], false);
 
@@ -202,10 +203,10 @@ HELP;
 			$installer->createConfig($configCache);
 		}
 
-		$this->out("Complete!\n\n");
+		$this->out(" Complete!\n");
 
 		// Check database connection
-		$this->out("Checking database...\n");
+		$this->out("Checking database...");
 
 		$installer->resetChecks();
 
@@ -214,7 +215,7 @@ HELP;
 			throw new RuntimeException($errorMessage);
 		}
 
-		$this->out(" Complete!\n\n");
+		$this->out(" Complete!\n");
 
 		// Install database
 		$this->out("Inserting data into database...\n");
@@ -228,24 +229,24 @@ HELP;
 
 		if (!empty($config_file) && $config_file != 'config' . DIRECTORY_SEPARATOR . 'local.config.php') {
 			// Copy config file
-			$this->out("Copying config file...\n");
+			$this->out("Copying config file...");
 			if (!copy($config_file, $basePathConf . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
 				throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $basePathConf . "'" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.config.php' manually.\n");
 			}
 		}
 
-		$this->out(" Complete!\n\n");
+		$this->out(" Complete!\n");
 
 		// Install theme
-		$this->out("Installing theme\n");
+		$this->out("Installing theme");
 		if (!empty($this->config->get('system', 'theme'))) {
 			Theme::install($this->config->get('system', 'theme'));
-			$this->out(" Complete\n\n");
+			$this->out(" Complete\n");
 		} else {
-			$this->out(" Theme setting is empty. Please check the file 'config/local.config.php'\n\n");
+			$this->out(" Theme setting is empty. Please check the file 'config/local.config.php'\n");
 		}
 
-		$this->out("\nInstallation is finished\n");
+		$this->out("\nInstallation is finished");
 
 		return 0;
 	}
