@@ -132,7 +132,7 @@ class HTTPInputData
 		$filename = $matches[4] ?? '';
 
 		if (!empty($filename)) {
-			$files[$name] = self::fetchFileData($stream, $boundary, $headers, $filename);
+			$files[$name] = static::fetchFileData($stream, $boundary, $headers, $filename);
 			return ['variables' => $variables, 'files' => $files];
 		} else {
 			$variables = self::fetchVariables($stream, $boundary, $headers, $name, $variables);
