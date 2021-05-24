@@ -84,18 +84,18 @@ class HTTPInputDataTest extends MockedTest
 					],
 					'files' => [
 						'avatar' => [
-							'name' => '8ZUCS34Y5XNH',
-							'type' => 'image/png',
+							'name'     => '8ZUCS34Y5XNH',
+							'type'     => 'image/png',
 							'tmp_name' => '/tmp/phpf85nKJ',
-							'error' => 0,
-							'size' => 349330
+							'error'    => 0,
+							'size'     => 349330
 						],
 						'header' => [
-							'name' => 'V2B6Z1IICGPM',
-							'type' => 'image/png',
+							'name'     => 'V2B6Z1IICGPM',
+							'type'     => 'image/png',
 							'tmp_name' => '/tmp/phpe3sqHT',
-							'error' => 0,
-							'size' => 1323635
+							'error'    => 0,
+							'size'     => 1323635
 						]
 					]
 				]
