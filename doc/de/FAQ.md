@@ -36,9 +36,10 @@ Wenn Du Deinen Account nicht nutzen kannst, kannst Du einen Account auf einer ö
 Wenn du dir keinen weiteren Friendica Account einrichten willst, kannst du auch gerne über einen der folgenden alternativen Kanäle Hilfe suchen:
 
   * Friendica Support Forum: [@helpers@forum.friendi.ca](https://forum.friendi.ca/~helpers)
-  * XMPP: support(at)forum.friendi.ca
-  * IRC: [#friendica at freenode.net](https://webchat.freenode.net/?settings=#friendica)
-  * Matrix: [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
+  * Chats der Friendica Community (die IRC, Matrix und XMPP Räume sind mit einer Brücke verbunden)
+    * XMPP: support(at)forum.friendi.ca
+    * IRC: #friendica aut libera.chat oder [#friendica auf freenode.net](https://webchat.freenode.net/?settings=#friendica)
+    * Matrix: [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
   * [Mailing List](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca)
   <!--- * [XMPP](xmpp:support@forum.friendi.ca?join)
 	https://github.com/github/markup/issues/202
