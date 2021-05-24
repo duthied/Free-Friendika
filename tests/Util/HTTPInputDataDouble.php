@@ -33,9 +33,12 @@ class HTTPInputDataDouble extends HTTPInputData
 	protected static $injectedStream = false;
 	/** @var false|string */
 	protected static $injectedContent = false;
+	/** @var false|string */
+	protected static $injectedContentType = false;
 
 	/**
 	 * injects the PHP input stream for a test
+	 *
 	 * @param false|resource $stream
 	 */
 	public static function setPhpInputStream($stream)
@@ -45,11 +48,22 @@ class HTTPInputDataDouble extends HTTPInputData
 
 	/**
 	 * injects the PHP input content for a test
+	 *
 	 * @param false|string $content
 	 */
 	public static function setPhpInputContent($content)
 	{
 		self::$injectedContent = $content;
+	}
+
+	/**
+	 * injects the PHP input content type for a test
+	 *
+	 * @param false|string $contentType
+	 */
+	public static function setPhpInputContentType($contentType)
+	{
+		self::$injectedContentType = $contentType;
 	}
 
 	/** {@inheritDoc} */
@@ -62,5 +76,11 @@ class HTTPInputDataDouble extends HTTPInputData
 	protected static function getPhpInputContent()
 	{
 		return static::$injectedContent;
+	}
+
+	/** {@inheritDoc} */
+	protected static function getContentType()
+	{
+		return static::$injectedContentType;
 	}
 }
