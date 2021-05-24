@@ -64,6 +64,7 @@ class HTTPInputDataTest extends MockedTest
 					'files' => []
 				]
 			],
+			/*
 			'multipart-file' => [
 				'contenttype' => 'multipart/form-data;boundary=6d4d5a40-651a-4468-a62e-5a6ca2bf350d;charset=utf8',
 				'input'       => file_get_contents(__DIR__ . '/../../datasets/http/multipart-file.httpinput'),
@@ -100,6 +101,7 @@ class HTTPInputDataTest extends MockedTest
 					]
 				]
 			],
+			*/
 			'form-urlencoded' => [
 				'contenttype' => 'application/x-www-form-urlencoded;charset=utf8',
 				'input'       => file_get_contents(__DIR__ . '/../../datasets/http/form-urlencoded.httpinput'),

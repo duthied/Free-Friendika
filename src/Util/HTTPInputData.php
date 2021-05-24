@@ -135,7 +135,7 @@ class HTTPInputData
 			$files[$name] = self::fetchFileData($stream, $boundary, $headers, $filename);
 			return ['variables' => $variables, 'files' => $files];
 		} else {
-			$variables = self::fetchVariables($stream, $boundary, $name, $variables);
+			$variables = self::fetchVariables($stream, $boundary, $headers, $name, $variables);
 		}
 
 		return ['variables' => $variables, 'files' => $files];
@@ -186,7 +186,7 @@ class HTTPInputData
 		];
 	}
 
-	private static function fetchVariables($stream, string $boundary, string $name, array $variables)
+	private static function fetchVariables($stream, string $boundary, array $headers, string $name, array $variables)
 	{
 		$fullValue = '';
 		$lastLine  = null;
