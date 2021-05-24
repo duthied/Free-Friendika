@@ -40,9 +40,9 @@ class HTTPInputDataTest extends MockedTest
 	public function dataStream()
 	{
 		return [
-			'example' => [
+			'multipart' => [
 				'contenttype' => 'multipart/form-data;boundary=43395968-f65c-437e-b536-5b33e3e3c7e5;charset=utf8',
-				'input'       => file_get_contents(__DIR__ . '/../../datasets/http/example1.httpinput'),
+				'input'       => file_get_contents(__DIR__ . '/../../datasets/http/multipart.httpinput'),
 				'expected'    => [
 					'variables' => [
 						'display_name'      => 'User Name',
@@ -58,6 +58,30 @@ class HTTPInputDataTest extends MockedTest
 								'value' => 'value 2',
 							]
 						]
+					],
+					'files' => []
+				]
+			],
+			'form-urlencoded' => [
+				'contenttype' => 'application/x-www-form-urlencoded;charset=utf8',
+				'input'       => file_get_contents(__DIR__ . '/../../datasets/http/form-urlencoded.httpinput'),
+				'expected'    => [
+					'variables' => [
+						'title' => 'Test2',
+					],
+					'files' => []
+				]
+			],
+			'form-urlencoded-json' => [
+				'contenttype' => 'application/x-www-form-urlencoded;charset=utf8',
+				'input'       => file_get_contents(__DIR__ . '/../../datasets/http/form-urlencoded-json.httpinput'),
+				'expected'    => [
+					'variables' => [
+						'media_ids'    => [],
+						'sensitive'    => false, 
+						'status'       => 'Test Status',
+						'visibility'   => 'private',
+						'spoiler_text' => 'Title'
 					],
 					'files' => []
 				]
