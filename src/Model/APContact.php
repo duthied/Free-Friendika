@@ -361,7 +361,7 @@ class APContact
 
 		Logger::info('Updated profile', ['url' => $url]);
 
-		return $apcontact;
+		return DBA::selectFirst('apcontact', [], ['url' => $apcontact['url']]) ?: [];
 	}
 
 	/**
