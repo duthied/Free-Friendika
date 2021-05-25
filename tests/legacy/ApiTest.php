@@ -2309,13 +2309,13 @@ class ApiTest extends FixtureTest
 			[
 				'network' => 'feed',
 				'title'   => 'item_title',
-				'uri-id'  => 1,
+				'uri-id'  => -1,
 				'body'    => '',
 				'plink'   => 'item_plink'
 			]
 		);
-		self::assertEquals("item_title\n\nParent status", $result['text']);
-		self::assertEquals('<h4>item_title</h4><br>Parent statusitem_plink', $result['html']);
+		self::assertEquals("item_title", $result['text']);
+		self::assertEquals('<h4>item_title</h4><br>item_plink', $result['html']);
 	}
 
 	/**
