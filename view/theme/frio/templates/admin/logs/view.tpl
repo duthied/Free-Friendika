@@ -6,13 +6,54 @@
 		<div id="admin-error-message-wrapper" class="alert alert-warning">
 			<p>{{$error nofilter}}</p>
 		</div>
-		{{else}}
+	{{else}}
+		<form method="get" class="row">
+			<div class="col-xs-10">
+				<div class="form-group form-group-search">
+					<input accesskey="s" id="nav-search-input-field" class="form-control form-search"
+						type="text" name="q" data-toggle="tooltip" title="Search in logs"
+						placeholder="Search" value="{{$q}}">
+					<button class="btn btn-default btn-sm form-button-search"
+						type="submit">Search</button>
+				</div>
+			</div>
+			<div class="xol-xs-2">
+				<a href="/admin/logs/view" class="btn btn-default">Show all</a>
+			</div>
+		</form>
+
 		<table class="table table-hover">
 			<thead>
 				<tr>
 					<th>Date</th>
-					<th>Level</th>
-					<th>Context</th>
+					<th class="dropdown">
+						<a class="dropdown-toggle text-nowrap" type="button" id="level" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							Level {{if $filters.level}}({{$filters.level}}){{/if}}<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="level">
+							{{foreach $filtersvalues.level as $v }}
+								<li {{if $filters.level == $v}}class="active"{{/if}}>
+									<a href="/admin/logs/view?level={{$v}}" data-filter="level" data-filter-value="{{$v}}">
+										{{if $v == ""}}ALL{{/if}}{{$v}}
+									</a>
+								</li>
+							{{/foreach}}
+						</ul>
+					</th>
+					<th class="dropdown">
+						<a class="dropdown-toggle text-nowrap" type="button" id="context" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							Context {{if $filters.context}}({{$filters.context}}){{/if}}<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="context">
+							{{foreach $filtersvalues.context as $v }}
+								<li {{if $filters.context == $v}}class="active"{{/if}}>
+									<a href="/admin/logs/view?context={{$v}}" data-filter="context" data-filter-value="{{$v}}">
+										{{if $v == ""}}ALL{{/if}}{{$v}}
+									</a>
+								</li>
+							{{/foreach}}
+						</ul>
+					</th>
 					<th>Message</th>
 				</tr>
 			</thead>
@@ -28,14 +69,14 @@
 						{{elseif $row->level == "NOTICE"}}bg-info
 						{{elseif $row->level == "DEBUG"}}text-muted
 						{{/if}}
-					   ">{{$row->level}}</td>
+					">{{$row->level}}</td>
 					<td>{{$row->context}}</td>
 					<td style="width:80%">{{$row->message}}</td>
 				</tr>
 				{{/foreach}}
 			</tbody>
 		</table>
-		{{/if}}
+	{{/if}}
 </div>
 
 <div id="logdetail" class="modal fade" tabindex="-1" role="dialog">
@@ -86,6 +127,8 @@
 
 			</div>
 			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-previous>&lt;</button>
+				<button type="button" class="btn btn-default" data-next>&gt;</button>
 				<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
 			</div>
 		</div><!-- /.modal-content -->
