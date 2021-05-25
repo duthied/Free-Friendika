@@ -33,7 +33,7 @@ User
 If this FAQ does not answer your question you can always reach out to the community via the following options:
 
   * Friendica Support Forum: [@helpers@forum.friendi.ca](https://forum.friendi.ca/~helpers)
-  * Community chat rooms (the IRC, Matrix and XMPP rooms are bridged)
+  * Community chat rooms (the IRC, Matrix and XMPP rooms are bridged) these public chats are logged [from IRC](https://gnusociarg.nsupdate.info/2021/%23friendica/) and [Matrix](https://view.matrix.org/alias/%23friendi.ca:matrix.org/)
     * XMPP: support(at)forum.friendi.ca
     * IRC: #friendica at libera.chat or  [#friendica at freenode.net](https://webchat.freenode.net/?settings=#friendica)
     * Matrix: [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
