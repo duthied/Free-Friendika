@@ -162,7 +162,7 @@ class HTTPInputData
 			$lastLine = null;
 			while (($chunk = fgets($stream, 8096)) !== false && strpos($chunk, $boundary) !== 0) {
 				if ($lastLine !== null) {
-					if (fwrite($fileHandle, $lastLine) === false) {
+					if (!fwrite($fileHandle, $lastLine)) {
 						$error = UPLOAD_ERR_CANT_WRITE;
 						break;
 					}
@@ -171,7 +171,7 @@ class HTTPInputData
 			}
 
 			if ($lastLine !== null && $error !== UPLOAD_ERR_CANT_WRITE) {
-				if (fwrite($fileHandle, rtrim($lastLine, "\r\n")) === false) {
+				if (!fwrite($fileHandle, rtrim($lastLine, "\r\n"))) {
 					$error = UPLOAD_ERR_CANT_WRITE;
 				}
 			}
