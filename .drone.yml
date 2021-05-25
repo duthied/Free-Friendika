@@ -67,6 +67,11 @@ type: docker
 name: php7.3-mariadb
 
 steps:
+  - name: Composer install
+    image: friendicaci/php7.4:php7.4.18
+    commands:
+      - composer validate
+      - composer install --prefer-dist
   - name: Test Friendica
     image: friendicaci/php7.3:php7.3.28
     environment:
@@ -79,8 +84,6 @@ steps:
       MEMCACHED_HOST: "memcached"
       MEMCACHE_HOST: "memcached"
     commands:
-      - composer validate
-      - composer install --prefer-dist
       - cp config/local-sample.config.php config/local.config.php
       - if ! bin/wait-for-connection $MYSQL_HOST $MYSQL_PORT 300; then echo "[ERROR] Waited 300 seconds, no response" >&2; exit 1; fi
       - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
@@ -108,6 +111,11 @@ type: docker
 name: php7.4-mariadb
 
 steps:
+  - name: Composer install
+    image: friendicaci/php7.4:php7.4.18
+    commands:
+      - composer validate
+      - composer install --prefer-dist
   - name: Test Friendica
     image: friendicaci/php7.4:php7.4.18
     environment:
@@ -122,8 +130,6 @@ steps:
       XDEBUG_MODE: "coverage"
     commands:
       - phpenmod xdebug
-      - composer validate
-      - composer install --prefer-dist
       - cp config/local-sample.config.php config/local.config.php
       - if ! bin/wait-for-connection $MYSQL_HOST $MYSQL_PORT 300; then echo "[ERROR] Waited 300 seconds, no response" >&2; exit 1; fi
       - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
@@ -161,6 +167,11 @@ type: docker
 name: php8.0-mariadb
 
 steps:
+  - name: Composer install
+    image: friendicaci/php7.4:php7.4.18
+    commands:
+      - composer validate
+      - composer install --prefer-dist
   - name: Test Friendica
     image: friendicaci/php8.0:php8.0.5
     environment:
@@ -173,8 +184,6 @@ steps:
       MEMCACHED_HOST: "memcached"
       MEMCACHE_HOST: "memcached"
     commands:
-      - composer validate
-      - composer install --prefer-dist
       - cp config/local-sample.config.php config/local.config.php
       - if ! bin/wait-for-connection $MYSQL_HOST $MYSQL_PORT 300; then echo "[ERROR] Waited 300 seconds, no response" >&2; exit 1; fi
       - mysql -h$MYSQL_HOST -P$MYSQL_PORT -p$MYSQL_PASSWORD -u$MYSQL_USER $MYSQL_DATABASE < database.sql
