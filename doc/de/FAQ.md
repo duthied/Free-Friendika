@@ -193,6 +193,7 @@ Beispiel: Friendica Support
 ### Gibt es Clients für Friendica?
 
 Friendica verwendet eine [Twitter/GNU Social](help/api) kompatible API.
+Seit der Version 2021.06 unterstützt Friendica außerdem die Mastodon API.
 Das bedeutet, dass du jeden Twitter/GNU Social Client verwenden kannst in dem du den API Pfad entsprechend änderst.
 
 Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell für Friendica entwickelt werden:
@@ -206,6 +207,11 @@ Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell f
   * Mustard and Mustard-Mod
 * SailfishOS
   * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
+  * [Husky](https://husky.fwgs.ru)
+  * [Subway Tooter](https://github.com/tateisu/SubwayTooter)
+  * [Tusky](https://tusky.app)
+  * [twitlatte](https://github.com/moko256/twitlatte)
+  * [Yuito](https://github.com/accelforce/Yuito)
 * Linux
   * Hotot
   * Choqok
