@@ -242,8 +242,10 @@ class DBStructure
 		foreach ($fieldnames as $field) {
 			if (isset($data[$field])) {
 				// Limit the length of varchar, varbinary, char and binrary fields
-				if (is_string($data[$field]) && preg_match("/[char|binary]\((\d*)\)/", $definition[$table]['fields'][$field]['type'], $result)) {
+				if (is_string($data[$field]) && preg_match("/char\((\d*)\)/", $definition[$table]['fields'][$field]['type'], $result)) {
 					$data[$field] = mb_substr($data[$field], 0, $result[1]);
+				} elseif (is_string($data[$field]) && preg_match("/binary\((\d*)\)/", $definition[$table]['fields'][$field]['type'], $result)) {
+					$data[$field] = substr($data[$field], 0, $result[1]);
 				}
 				$fields[$field] = $data[$field];
 			}
