@@ -782,7 +782,7 @@ class Notifier
 			if ((count($receivers) == 1) && Network::isLocalLink($inbox)) {
 				$contact = Contact::getById($receivers[0], ['url']);
 				if ($target_uid = User::getIdForURL($contact['url'])) {
-					$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH];
+					$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH, 'post-reason' => Item::PR_BCC];
 					Item::storeForUserByUriId($target_item['uri-id'], $target_uid, $fields, $target_item['uid']);
 					Logger::info('Delivered locally', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 					continue;
