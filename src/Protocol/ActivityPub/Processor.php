@@ -602,6 +602,12 @@ class Processor
 				continue;
 			}
 
+			if (!$item['isForum'] && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) &&
+				($item['post-reason'] == Item::PR_BCC) && !Contact::isSharingByURL($activity['author'], $receiver)) {
+				Logger::info('Top level post via BCC from a non follower, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
+				continue;
+			}
+
 			if (DI::pConfig()->get($receiver, 'system', 'accept_only_sharer', false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
 				$skip = !Contact::isSharingByURL($activity['author'], $receiver);
 
