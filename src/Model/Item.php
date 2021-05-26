@@ -1355,7 +1355,7 @@ class Item
 	public static function storeForUserByUriId(int $uri_id, int $uid, array $fields = [], int $source_uid = 0)
 	{
 		if ($uid == $source_uid) {
-			Logger::warning('target UID must be be equal to the source UID', ['uri-id' => $uri_id, 'uid' => $uid]);
+			Logger::warning('target UID must not be be equal to the source UID', ['uri-id' => $uri_id, 'uid' => $uid]);
 			return 0;
 		}
 

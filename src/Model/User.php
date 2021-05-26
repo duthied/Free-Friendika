@@ -312,7 +312,7 @@ class User
 	 */
 	public static function getIdForURL(string $url)
 	{
-		// Avoid any database requests when the hostname isn't even part of the url.
+		// Avoid database queries when the local node hostname isn't even part of the url.
 		if (!Contact::isLocal($url)) {
 			return 0;
 		}
