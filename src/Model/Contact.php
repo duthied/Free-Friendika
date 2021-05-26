@@ -1941,7 +1941,7 @@ class Contact
 			return false;
 		}
 
-		if (Contact::isLocal($ret['url'])) {
+		if (self::isLocal($ret['url'])) {
 			Logger::info('Local contacts are not updated here.');
 			return true;
 		}

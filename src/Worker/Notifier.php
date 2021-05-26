@@ -41,6 +41,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Relay;
 use Friendica\Protocol\Salmon;
+use Friendica\Util\Network;
 
 /*
  * The notifier is typically called with:
@@ -313,7 +314,7 @@ class Notifier
 				/// @todo Possibly we should not uplink when the author is the forum itself?
 
 				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)
-					&& ($target_item['verb'] != Activity::ANNOUNCE)) {						
+					&& ($target_item['verb'] != Activity::ANNOUNCE)) {
 					Worker::add($a->queue['priority'], 'Notifier', Delivery::UPLINK, $post_uriid, $sender_uid);
 				}
 
@@ -494,29 +495,32 @@ class Notifier
 	/**
 	 * Deliver the message to the contacts
 	 *
-	 * @param string $cmd 
-	 * @param int $post_uriid 
+	 * @param string $cmd
+	 * @param int $post_uriid
 	 * @param int $sender_uid
-	 * @param array $target_item 
-	 * @param array $thr_parent 
-	 * @param array $owner 
-	 * @param bool $batch_delivery 
-	 * @param array $contacts 
-	 * @param array $ap_contacts 
-	 * @param array $conversants 
-	 * @return int 
-	 * @throws InternalServerErrorException 
-	 * @throws Exception 
+	 * @param array $target_item
+	 * @param array $thr_parent
+	 * @param array $owner
+	 * @param bool $batch_delivery
+	 * @param array $contacts
+	 * @param array $ap_contacts
+	 * @param array $conversants
+	 * @return int
+	 * @throws InternalServerErrorException
+	 * @throws Exception
 	 */
 	private static function delivery(string $cmd, int $post_uriid, int $sender_uid, array $target_item, array $thr_parent, array $owner, bool $batch_delivery, bool $in_batch, array $contacts, array $ap_contacts, array $conversants = [])
 	{
-		$a = DI::app(); 
+		$a = DI::app();
 		$delivery_queue_count = 0;
 
 		foreach ($contacts as $contact) {
-			// Ensure that local contacts are delivered via DFRN
-			if (Contact::isLocal($contact['url'])) {
-				$contact['network'] = Protocol::DFRN;
+			// Direct delivery of local contacts
+			if ($target_uid = User::getIdForURL($contact['url'])) {
+				Logger::info('Direct delivery', ['uri-id' => $target_item['uri-id'], 'target' => $target_uid]);
+				$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH];
+				Item::storeForUserByUriId($target_item['uri-id'], $target_uid, $fields, $target_item['uid']);
+				continue;
 			}
 
 			// Deletions are always sent via DFRN as well.
@@ -575,19 +579,19 @@ class Notifier
 	/**
 	 * Deliver the message via OStatus
 	 *
-	 * @param int $target_id 
-	 * @param array $target_item 
-	 * @param array $owner 
-	 * @param array $url_recipients 
-	 * @param bool $public_message 
-	 * @param bool $push_notify 
-	 * @return int 
-	 * @throws InternalServerErrorException 
-	 * @throws Exception 
+	 * @param int $target_id
+	 * @param array $target_item
+	 * @param array $owner
+	 * @param array $url_recipients
+	 * @param bool $public_message
+	 * @param bool $push_notify
+	 * @return int
+	 * @throws InternalServerErrorException
+	 * @throws Exception
 	 */
 	private static function deliverOStatus(int $target_id, array $target_item, array $owner, array $url_recipients, bool $public_message, bool $push_notify)
 	{
-		$a = DI::app(); 
+		$a = DI::app();
 		$delivery_queue_count = 0;
 
 		$url_recipients = array_filter($url_recipients);
@@ -774,6 +778,16 @@ class Notifier
 
 		foreach ($inboxes as $inbox => $receivers) {
 			$contacts = array_merge($contacts, $receivers);
+
+			if ((count($receivers) == 1) && Network::isLocalLink($inbox)) {
+				$contact = Contact::getById($receivers[0], ['url']);
+				if ($target_uid = User::getIdForURL($contact['url'])) {
+					$fields = ['protocol' => Conversation::PARCEL_LOCAL_DFRN, 'direction' => Conversation::PUSH];
+					Item::storeForUserByUriId($target_item['uri-id'], $target_uid, $fields, $target_item['uid']);
+					Logger::info('Delivered locally', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
+					continue;
+				}
+			}
 
 			Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 

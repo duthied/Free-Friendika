@@ -313,7 +313,7 @@ class User
 	public static function getIdForURL(string $url)
 	{
 		// Avoid any database requests when the hostname isn't even part of the url.
-		if (!strpos($url, DI::baseUrl()->getHostname())) {
+		if (!Contact::isLocal($url)) {
 			return 0;
 		}
 

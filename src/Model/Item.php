@@ -1018,6 +1018,30 @@ class Item
 
 		if (empty($item['event-id'])) {
 			unset($item['event-id']);
+
+			$ev = Event::fromBBCode($item['body']);
+			if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['start'])) {
+				Logger::info('Event found.');
+				$ev['cid']       = $item['contact-id'];
+				$ev['uid']       = $item['uid'];
+				$ev['uri']       = $item['uri'];
+				$ev['edited']    = $item['edited'];
+				$ev['private']   = $item['private'];
+				$ev['guid']      = $item['guid'];
+				$ev['plink']     = $item['plink'];
+				$ev['network']   = $item['network'];
+				$ev['protocol']  = $item['protocol'];
+				$ev['direction'] = $item['direction'];
+				$ev['source']    = $item['source'];
+
+				$event = DBA::selectFirst('event', ['id'], ['uri' => $item['uri'], 'uid' => $item['uid']]);
+				if (DBA::isResult($event)) {
+					$ev['id'] = $event['id'];
+				}
+
+				$item['event-id'] = Event::store($ev);
+				Logger::info('Event was stored', ['id' => $item['event-id']]);
+			}
 		}
 
 		if (empty($item['causer-id'])) {
@@ -1322,19 +1346,26 @@ class Item
 	/**
 	 * Store a public item defined by their URI-ID for the given users
 	 *
-	 * @param integer $uri_id URI-ID of the given item
-	 * @param integer $uid    The user that will receive the item entry
-	 * @param array   $fields Additional fields to be stored
+	 * @param integer $uri_id     URI-ID of the given item
+	 * @param integer $uid        The user that will receive the item entry
+	 * @param array   $fields     Additional fields to be stored
+	 * @param integer $source_uid User id of the source post
 	 * @return integer stored item id
 	 */
-	public static function storeForUserByUriId(int $uri_id, int $uid, array $fields = [])
+	public static function storeForUserByUriId(int $uri_id, int $uid, array $fields = [], int $source_uid = 0)
 	{
-		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['uri-id' => $uri_id, 'uid' => 0]);
-		if (!DBA::isResult($item)) {
+		if ($uid == $source_uid) {
+			Logger::warning('target UID must be be equal to the source UID', ['uri-id' => $uri_id, 'uid' => $uid]);
 			return 0;
 		}
 
-		if (($item['private'] == self::PRIVATE) || !in_array($item['network'], Protocol::FEDERATED)) {
+		$item = Post::selectFirst(self::ITEM_FIELDLIST, ['uri-id' => $uri_id, 'uid' => $source_uid]);
+		if (!DBA::isResult($item)) {
+			Logger::warning('Item could not be fetched', ['uri-id' => $uri_id, 'uid' => $source_uid]);
+			return 0;
+		}
+
+		if (($source_uid == 0) && (($item['private'] == self::PRIVATE) || !in_array($item['network'], Protocol::FEDERATED))) {
 			Logger::notice('Item is private or not from a federated network. It will not be stored for the user.', ['uri-id' => $uri_id, 'uid' => $uid, 'private' => $item['private'], 'network' => $item['network']]);
 			return 0;
 		}
@@ -1343,8 +1374,24 @@ class Item
 
 		$item = array_merge($item, $fields);
 
+		$is_reshare = ($item['gravity'] == GRAVITY_ACTIVITY) && ($item['verb'] == Activity::ANNOUNCE);
+
+		if ((($item['gravity'] == GRAVITY_PARENT) || $is_reshare) &&
+			DI::pConfig()->get($uid, 'system', 'accept_only_sharer') &&
+			!Contact::isSharingByURL($item['author-link'], $uid) &&
+			!Contact::isSharingByURL($item['owner-link'], $uid)) {
+			Logger::info('Contact is not a follower, thread will not be stored', ['author' => $item['author-link'], 'uid' => $uid]);
+			return 0;
+		}
+
+		if ((($item['gravity'] == GRAVITY_COMMENT) || $is_reshare) && !Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $uid])) {
+			// Only do an auto complete with the source uid "0" to prevent privavy problems
+			$result = self::storeForUserByUriId($item['thr-parent-id'], $uid);
+			Logger::info('Fetched thread parent', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'result' => $result]);
+		}
+
 		$stored = self::storeForUser($item, $uid);
-		Logger::info('Public item stored for user', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'stored' => $stored]);
+		Logger::info('Item stored for user', ['uri-id' => $item['uri-id'], 'uid' => $uid, 'source-uid' => $source_uid, 'stored' => $stored]);
 		return $stored;
 	}
 
@@ -1364,11 +1411,21 @@ class Item
 		}
 
 		unset($item['id']);
-		unset($item['parent']);
 		unset($item['mention']);
 		unset($item['starred']);
 		unset($item['unseen']);
 		unset($item['psid']);
+		unset($item['pinned']);
+		unset($item['ignored']);
+		unset($item['pubmail']);
+		unset($item['forum_mode']);
+
+		//unset($item['post-reason']);
+		//unset($item['protocol']);
+		unset($item['event-id']);
+		unset($item['hidden']);
+		unset($item['notification-type']);
+		//unset($item['resource-id']);
 
 		$item['uid'] = $uid;
 		$item['origin'] = 0;
@@ -1394,8 +1451,6 @@ class Item
 			$item['contact-id'] = $self['id'];
 		}
 
-		/// @todo Handling of "event-id"
-
 		$notify = false;
 		if ($item['gravity'] == GRAVITY_PARENT) {
 			$contact = DBA::selectFirst('contact', [], ['id' => $item['contact-id'], 'self' => false]);
@@ -1407,9 +1462,9 @@ class Item
 		$distributed = self::insert($item, $notify, true);
 
 		if (!$distributed) {
-			Logger::info("Distributed public item wasn't stored", ['uri-id' => $item['uri-id'], 'user' => $uid]);
+			Logger::info("Distributed item wasn't stored", ['uri-id' => $item['uri-id'], 'user' => $uid]);
 		} else {
-			Logger::info('Distributed public item was stored', ['uri-id' => $item['uri-id'], 'user' => $uid, 'stored' => $distributed]);
+			Logger::info('Distributed item was stored', ['uri-id' => $item['uri-id'], 'user' => $uid, 'stored' => $distributed]);
 		}
 		return $distributed;
 	}
@@ -3295,18 +3350,18 @@ class Item
 	{
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (empty($shared['link'])) {
-			return $item['body'];	
+			return $item['body'];
 		}
-		
+
 		$id = self::fetchByLink($shared['link']);
 		Logger::info('Fetched shared post', ['uri-id' => $item['uri-id'], 'id' => $id, 'author' => $shared['profile'], 'url' => $shared['link'], 'guid' => $shared['guid'], 'callstack' => System::callstack()]);
 		if (!$id) {
-			return $item['body'];	
+			return $item['body'];
 		}
 
 		$shared_item = Post::selectFirst(['author-name', 'author-link', 'author-avatar', 'plink', 'created', 'guid', 'title', 'body'], ['id' => $id]);
 		if (!DBA::isResult($shared_item)) {
-			return $item['body'];	
+			return $item['body'];
 		}
 
 		$shared_content = BBCode::getShareOpeningTag($shared_item['author-name'], $shared_item['author-link'], $shared_item['author-avatar'], $shared_item['plink'], $shared_item['created'], $shared_item['guid']);
