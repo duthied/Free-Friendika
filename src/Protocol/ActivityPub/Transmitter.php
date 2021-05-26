@@ -748,10 +748,6 @@ class Transmitter
 
 		$contacts = DBA::select('contact', ['id', 'url', 'network', 'protocol', 'gsid'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
-			if (Contact::isLocal($contact['url'])) {
-				continue;
-			}
-
 			if (!self::isAPContact($contact, $networks)) {
 				continue;
 			}
@@ -766,7 +762,7 @@ class Transmitter
 
 			$profile = APContact::getByURL($contact['url'], false);
 			if (!empty($profile)) {
-				if (empty($profile['sharedinbox']) || $personal) {
+				if (empty($profile['sharedinbox']) || $personal || Contact::isLocal($contact['url'])) {
 					$target = $profile['inbox'];
 				} else {
 					$target = $profile['sharedinbox'];
@@ -829,15 +825,11 @@ class Transmitter
 				if ($item_profile && ($receiver == $item_profile['followers']) && ($uid == $profile_uid)) {
 					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal, self::isAPPost($last_id)));
 				} else {
-					if (Contact::isLocal($receiver)) {
-						continue;
-					}
-
 					$profile = APContact::getByURL($receiver, false);
 					if (!empty($profile)) {
 						$contact = Contact::getByURLForUser($receiver, $uid, false, ['id']);
 
-						if (empty($profile['sharedinbox']) || $personal || $blindcopy) {
+						if (empty($profile['sharedinbox']) || $personal || $blindcopy || Contact::isLocal($receiver)) {
 							$target = $profile['inbox'];
 						} else {
 							$target = $profile['sharedinbox'];

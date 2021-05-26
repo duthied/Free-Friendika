@@ -164,15 +164,16 @@ class Post
 	 * @param array $fields
 	 * @param array $condition
 	 * @param array $params
+	 * @param bool  $user_mode true = post-user-view, false = post-view
 	 * @return bool|array
 	 * @throws \Exception
 	 * @see   DBA::select
 	 */
-	public static function selectFirst(array $fields = [], array $condition = [], $params = [])
+	public static function selectFirst(array $fields = [], array $condition = [], $params = [], bool $user_mode = true)
 	{
 		$params['limit'] = 1;
 
-		$result = self::select($fields, $condition, $params);
+		$result = self::select($fields, $condition, $params, $user_mode);
 
 		if (is_bool($result)) {
 			return $result;
