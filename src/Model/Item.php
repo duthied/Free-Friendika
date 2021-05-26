@@ -1386,8 +1386,9 @@ class Item
 
 		if ((($item['gravity'] == GRAVITY_COMMENT) || $is_reshare) && !Post::exists(['uri-id' => $item['thr-parent-id'], 'uid' => $uid])) {
 			// Only do an auto complete with the source uid "0" to prevent privavy problems
-			$result = self::storeForUserByUriId($item['thr-parent-id'], $uid);
-			Logger::info('Fetched thread parent', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'result' => $result]);
+			$causer = $item['causer-id'] ?: $item['author-id'];
+			$result = self::storeForUserByUriId($item['thr-parent-id'], $uid, ['causer-id' => $causer, 'post-reason' => self::PR_FETCHED]);
+			Logger::info('Fetched thread parent', ['uri-id' => $item['thr-parent-id'], 'uid' => $uid, 'causer' => $causer, 'result' => $result]);
 		}
 
 		$stored = self::storeForUser($item, $uid);
@@ -1420,12 +1421,9 @@ class Item
 		unset($item['pubmail']);
 		unset($item['forum_mode']);
 
-		//unset($item['post-reason']);
-		//unset($item['protocol']);
 		unset($item['event-id']);
 		unset($item['hidden']);
 		unset($item['notification-type']);
-		//unset($item['resource-id']);
 
 		$item['uid'] = $uid;
 		$item['origin'] = 0;
