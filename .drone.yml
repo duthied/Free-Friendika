@@ -67,11 +67,36 @@ type: docker
 name: php7.3-mariadb
 
 steps:
+  - name: Restore cache
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: '{{ .Repo.Name }}_php73_{{ arch }}_{{ os }}'
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - name: cache
+        path: /tmp/cache
   - name: Composer install
-    image: friendicaci/php7.4:php7.4.18
+    image: friendicaci/php7.3:php7.3.28
     commands:
-      - composer validate
-      - composer install --prefer-dist
+      - export COMPOSER_HOME=.composer
+      - ./bin/composer.phar validate
+      - ./bin/composer.phar install --prefer-dist
+  - name: Rebuild cache
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: '{{ .Repo.Name }}_php73_{{ arch }}_{{ os }}'
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - name: cache
+        path: /tmp/cache
   - name: Test Friendica
     image: friendicaci/php7.3:php7.3.28
     environment:
@@ -105,6 +130,11 @@ services:
 
   - name: redis
     image: redis
+
+volumes:
+  - name: cache
+    host:
+      path: /tmp/drone-cache
 ---
 kind: pipeline
 type: docker
