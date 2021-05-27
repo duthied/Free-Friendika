@@ -52,15 +52,45 @@ trigger:
     - pull_request
 
 steps:
+  - name: Restore cache
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: '{{ .Repo.Name }}_phpcs_{{ arch }}_{{ os }}'
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - name: cache
+        path: /tmp/cache
   - name: Install dependencies
     image: composer
     commands:
+      - export COMPOSER_HOME=.composer
       - ./bin/composer.phar run cs:install
+  - name: Rebuild cache
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: '{{ .Repo.Name }}_phpcs_{{ arch }}_{{ os }}'
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - name: cache
+        path: /tmp/cache
   - name: Run coding standards check
     image: friendicaci/php-cs
     commands:
       - export CHANGED_FILES="$(git diff --name-status ${DRONE_COMMIT_BEFORE}..${DRONE_COMMIT_AFTER} | grep ^A | cut -f2)"
       - /check-php-cs.sh
+
+volumes:
+  - name: cache
+    host:
+      path: /tmp/drone-cache
 ---
 kind: pipeline
 type: docker
@@ -216,6 +246,11 @@ services:
 
   - name: redis
     image: redis
+
+volumes:
+  - name: cache
+    host:
+      path: /tmp/drone-cache
 ---
 kind: pipeline
 type: docker
@@ -285,3 +320,8 @@ services:
 
   - name: redis
     image: redis
+
+volumes:
+  - name: cache
+    host:
+      path: /tmp/drone-cache
