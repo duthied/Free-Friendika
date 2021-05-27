@@ -81,7 +81,7 @@ class Status extends BaseFactory
 			Post::exists(['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE), 'deleted' => false]),
 			Post::exists(['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE), 'deleted' => false]),
 			Post\ThreadUser::getIgnored($uriId, $uid),
-			(bool)$item['starred'],
+			(bool)($item['starred'] && ($item['gravity'] == GRAVITY_PARENT)),
 			Post\ThreadUser::getPinned($uriId, $uid)
 		);
 
