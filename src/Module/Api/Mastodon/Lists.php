@@ -78,13 +78,16 @@ class Lists extends BaseApi
 
 	public static function put(array $parameters = [])
 	{
-		$data = self::getPutData();
+		$request = self::getRequest([
+			'title'          => '', // The title of the list to be updated.
+			'replies_policy' => '', // Enumerable oneOf followed list none.
+		]);
 
-		if (empty($data['title']) || empty($parameters['id'])) {
+		if (empty($request['title']) || empty($parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		Group::update($parameters['id'], $data['title']);
+		Group::update($parameters['id'], $request['title']);
 	}
 
 	/**
