@@ -87,10 +87,11 @@ class Relation
 
 		$uid = User::getIdForURL($url);
 		if (!empty($uid)) {
-			// Fetch the followers/followings locally
+			Logger::info('Fetch the followers/followings locally', ['url' => $url]);
 			$followers = self::getContacts($uid, [Contact::FOLLOWER, Contact::FRIEND]);
 			$followings = self::getContacts($uid, [Contact::SHARING, Contact::FRIEND]);
-		} else {
+		} elseif (!Contact::isLocal($url)) {
+			Logger::info('Fetch the followers/followings by polling the endpoints', ['url' => $url]);
 			$apcontact = APContact::getByURL($url, false);
 
 			if (!empty($apcontact['followers']) && is_string($apcontact['followers'])) {
@@ -104,6 +105,10 @@ class Relation
 			} else {
 				$followings = [];
 			}
+		} else {
+			Logger::notice('Contact seems to be local but could not be found here', ['url' => $url]);
+			$followers = [];
+			$followings = [];
 		}
 
 		if (empty($followers) && empty($followings)) {
