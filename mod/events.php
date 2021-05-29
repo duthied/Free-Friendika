@@ -59,7 +59,7 @@ function events_init(App $a)
 		DI::page()['aside'] = '';
 	}
 
-	$cal_widget = CalendarExport::getHTML();
+	$cal_widget = CalendarExport::getHTML(local_user());
 
 	DI::page()['aside'] .= $cal_widget;
 
