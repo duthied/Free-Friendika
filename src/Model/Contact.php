@@ -271,7 +271,7 @@ class Contact
 
 		// Update the contact in the background if needed
 		$updated = max($contact['success_update'], $contact['created'], $contact['updated'], $contact['last-update'], $contact['failure_update']);
-		if (($updated < DateTimeFormat::utc('now -7 days')) && in_array($contact['network'], Protocol::FEDERATED)) {
+		if (($updated < DateTimeFormat::utc('now -7 days')) && in_array($contact['network'], Protocol::FEDERATED) && !self::isLocalById($contact['id'])) {
 			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id']);
 		}
 
