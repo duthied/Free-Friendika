@@ -53,7 +53,7 @@ class Statuses extends BaseApi
 			'in_reply_to_id' => 0,     // ID of the status being replied to, if status is a reply
 			'sensitive'      => false, // Mark status and attached media as sensitive?
 			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
-			'visibility'     => '',    // Visibility of the posted status. Enumerable oneOf public, unlisted, private, direct.
+			'visibility'     => '',    // Visibility of the posted status. One of: "public", "unlisted", "private" or "direct".
 			'scheduled_at'   => '',    // ISO 8601 Datetime at which to schedule a status. Providing this paramter will cause ScheduledStatus to be returned instead of Status. Must be at least 5 minutes in the future.
 			'language'       => '',    // ISO 639 language code for this status.
 		]);

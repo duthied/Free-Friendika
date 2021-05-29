@@ -80,7 +80,7 @@ class Lists extends BaseApi
 	{
 		$request = self::getRequest([
 			'title'          => '', // The title of the list to be updated.
-			'replies_policy' => '', // Enumerable oneOf followed list none.
+			'replies_policy' => '', // One of: "followed", "list", or "none".
 		]);
 
 		if (empty($request['title']) || empty($parameters['id'])) {
