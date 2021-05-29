@@ -78,10 +78,12 @@ class Relation
 	{
 		$contact = Contact::getByURL($url);
 		if (empty($contact)) {
+			Logger::info('Contact not found', ['url' => $url]);
 			return;
 		}
 
 		if (!self::isDiscoverable($url, $contact)) {
+			Logger::info('Contact is not discoverable', ['url' => $url]);
 			return;
 		}
 
