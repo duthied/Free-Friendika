@@ -84,7 +84,7 @@ function cal_init(App $a)
 		'$about' => BBCode::convert($a->profile['about']),
 	]);
 
-	$cal_widget = Widget\CalendarExport::getHTML();
+	$cal_widget = Widget\CalendarExport::getHTML($user['uid']);
 
 	if (empty(DI::page()['aside'])) {
 		DI::page()['aside'] = '';
