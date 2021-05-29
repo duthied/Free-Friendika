@@ -602,7 +602,7 @@ class Processor
 				continue;
 			}
 
-			if (!$item['isForum'] && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) &&
+			if (!($item['isForum'] ?? false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT) &&
 				($item['post-reason'] == Item::PR_BCC) && !Contact::isSharingByURL($activity['author'], $receiver)) {
 				Logger::info('Top level post via BCC from a non sharer, ignoring', ['uid' => $receiver, 'contact' => $item['contact-id']]);
 				continue;
