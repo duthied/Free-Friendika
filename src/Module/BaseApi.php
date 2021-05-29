@@ -141,7 +141,8 @@ class BaseApi extends BaseModule
 	 *
 	 * @return array request data
 	 */
-	public static function getRequest(array $defaults) {
+	public static function getRequest(array $defaults)
+	{
 		$httpinput = HTTPInputData::process();
 		$input = array_merge($httpinput['variables'], $httpinput['files'], $_REQUEST);
 
