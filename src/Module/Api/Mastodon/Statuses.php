@@ -46,21 +46,22 @@ class Statuses extends BaseApi
 		self::login(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$data = self::getJsonPostData();
-
-		$status         = $data['status'] ?? '';
-		$media_ids      = $data['media_ids'] ?? [];
-		$in_reply_to_id = $data['in_reply_to_id'] ?? 0;
-		$sensitive      = $data['sensitive'] ?? false; // @todo Possibly trigger "nsfw" flag?
-		$spoiler_text   = $data['spoiler_text'] ?? '';
-		$visibility     = $data['visibility'] ?? '';
-		$scheduled_at   = $data['scheduled_at'] ?? ''; // Currently unsupported, but maybe in the future
-		$language       = $data['language'] ?? '';
+		$request = self::getRequest([
+			'status'         => '',    // Text content of the status. If media_ids is provided, this becomes optional. Attaching a poll is optional while status is provided.
+			'media_ids'      => [],    // Array of Attachment ids to be attached as media. If provided, status becomes optional, and poll cannot be used.
+			'poll'           => [],    // Poll data. If provided, media_ids cannot be used, and poll[expires_in] must be provided.
+			'in_reply_to_id' => 0,     // ID of the status being replied to, if status is a reply
+			'sensitive'      => false, // Mark status and attached media as sensitive?
+			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
+			'visibility'     => '',    // Visibility of the posted status. One of: "public", "unlisted", "private" or "direct".
+			'scheduled_at'   => '',    // ISO 8601 Datetime at which to schedule a status. Providing this paramter will cause ScheduledStatus to be returned instead of Status. Must be at least 5 minutes in the future.
+			'language'       => '',    // ISO 639 language code for this status.
+		]);
 
 		$owner = User::getOwnerDataById($uid);
 
 		// The imput is defined as text. So we can use Markdown for some enhancements
-		$body = Markdown::toBBCode($status);
+		$body = Markdown::toBBCode($request['status']);
 
 		$body = BBCode::expandTags($body);
 
@@ -69,7 +70,7 @@ class Statuses extends BaseApi
 		$item['verb']       = Activity::POST;
 		$item['contact-id'] = $owner['id'];
 		$item['author-id']  = $item['owner-id'] = Contact::getPublicIdByUserId($uid);
-		$item['title']      = $spoiler_text;
+		$item['title']      = $request['spoiler_text'];
 		$item['body']       = $body;
 
 		if (!empty(self::getCurrentApplication()['name'])) {
@@ -80,7 +81,7 @@ class Statuses extends BaseApi
 			$item['app'] = 'API';
 		}
 
-		switch ($visibility) {
+		switch ($request['visibility']) {
 			case 'public':
 				$item['allow_cid'] = '';
 				$item['allow_gid'] = '';
@@ -112,7 +113,7 @@ class Statuses extends BaseApi
 			case 'direct':
 				// Direct messages are currently unsupported
 				DI::mstdnError()->InternalError('Direct messages are currently unsupported');
-				break;		
+				break;
 			default:
 				$item['allow_cid'] = $owner['allow_cid'];
 				$item['allow_gid'] = $owner['allow_gid'];
@@ -129,12 +130,12 @@ class Statuses extends BaseApi
 				break;
 		}
 
-		if (!empty($language)) {
-			$item['language'] = json_encode([$language => 1]);
+		if (!empty($request['language'])) {
+			$item['language'] = json_encode([$request['language'] => 1]);
 		}
 
-		if ($in_reply_to_id) {
-			$parent = Post::selectFirst(['uri'], ['uri-id' => $in_reply_to_id, 'uid' => [0, $uid]]);
+		if ($request['in_reply_to_id']) {
+			$parent = Post::selectFirst(['uri'], ['uri-id' => $request['in_reply_to_id'], 'uid' => [0, $uid]]);
 			$item['thr-parent']  = $parent['uri'];
 			$item['gravity']     = GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
@@ -143,16 +144,16 @@ class Statuses extends BaseApi
 			$item['object-type'] = Activity\ObjectType::NOTE;
 		}
 
-		if (!empty($media_ids)) {
+		if (!empty($request['media_ids'])) {
 			$item['object-type'] = Activity\ObjectType::IMAGE;
 			$item['post-type']   = Item::PT_IMAGE;
 			$item['attachments'] = [];
 
-			foreach ($media_ids as $id) {
+			foreach ($request['media_ids'] as $id) {
 				$media = DBA::toArray(DBA::p("SELECT `resource-id`, `scale`, `type`, `desc`, `filename`, `datasize`, `width`, `height` FROM `photo`
 						WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = ?) AND `photo`.`uid` = ?
 						ORDER BY `photo`.`width` DESC LIMIT 2", $id, $uid));
-					
+
 				if (empty($media)) {
 					continue;
 				}
@@ -162,7 +163,7 @@ class Statuses extends BaseApi
 				$ressources[] = $media[0]['resource-id'];
 				$phototypes = Images::supportedTypes();
 				$ext = $phototypes[$media[0]['type']];
-			
+
 				$attachment = ['type' => Post\Media::IMAGE, 'mimetype' => $media[0]['type'],
 					'url' => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
 					'size' => $media[0]['datasize'],
@@ -170,7 +171,7 @@ class Statuses extends BaseApi
 					'description' => $media[0]['desc'] ?? '',
 					'width' => $media[0]['width'],
 					'height' => $media[0]['height']];
-			
+
 				if (count($media) > 1) {
 					$attachment['preview'] = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
 					$attachment['preview-width'] = $media[1]['width'];
@@ -184,7 +185,7 @@ class Statuses extends BaseApi
 		if (!empty($id)) {
 			$item = Post::selectFirst(['uri-id'], ['id' => $id]);
 			if (!empty($item['uri-id'])) {
-				System::jsonExit(DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid));		
+				System::jsonExit(DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid));
 			}
 		}
 
