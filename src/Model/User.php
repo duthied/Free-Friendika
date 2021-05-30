@@ -1123,6 +1123,8 @@ class User
 					Photo::update(['profile' => 1], ['resource-id' => $resource_id]);
 				}
 			}
+
+			Contact::updateSelfFromUserID($uid, true);
 		}
 
 		Hook::callAll('register_account', $uid);
