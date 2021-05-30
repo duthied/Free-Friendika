@@ -50,7 +50,7 @@ class Apps extends BaseApi
 		if (!empty($postdata)) {
 			$postrequest = json_decode($postdata, true);
 			if (!empty($postrequest) && is_array($postrequest)) {
-				$request = array_merge($request, $$postrequest);
+				$request = array_merge($request, $postrequest);
 			}
 		}
 			
