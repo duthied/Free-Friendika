@@ -566,18 +566,13 @@ class Contact
 	 */
 	public static function createSelfFromUserId($uid)
 	{
-		// Only create the entry if it doesn't exist yet
-		if (DBA::exists('contact', ['uid' => $uid, 'self' => true])) {
-			return true;
-		}
-
 		$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'pubkey', 'prvkey'],
 			['uid' => $uid, 'account_expired' => false]);
 		if (!DBA::isResult($user)) {
 			return false;
 		}
 
-		$return = DBA::insert('contact', [
+		$contact = [
 			'uid'         => $user['uid'],
 			'created'     => DateTimeFormat::utcNow(),
 			'self'        => 1,
@@ -602,7 +597,23 @@ class Contact
 			'uri-date'    => DateTimeFormat::utcNow(),
 			'avatar-date' => DateTimeFormat::utcNow(),
 			'closeness'   => 0
-		]);
+		];
+
+		$return = true;
+
+		// Only create the entry if it doesn't exist yet
+		if (!DBA::exists('contact', ['uid' => $uid, 'self' => true])) {
+			$return = DBA::insert('contact', $contact);
+		}
+
+		// Create the public contact
+		if (!DBA::exists('contact', ['nurl' => $contact['nurl'], 'uid' => 0])) {
+			$contact['self']   = false;
+			$contact['uid']    = 0;
+			$contact['prvkey'] = null;
+
+			DBA::insert('contact', $contact, Database::INSERT_IGNORE);
+		}
 
 		return $return;
 	}
