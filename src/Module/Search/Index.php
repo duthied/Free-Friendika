@@ -170,8 +170,10 @@ class Index extends BaseSearch
 		}
 
 		if (!empty($uriids)) {
-			$params = ['order' => ['id' => true], 'group_by' => ['uri-id']];
-			$items = Post::toArray(Post::selectForUser(local_user(), Item::DISPLAY_FIELDLIST, ['uri-id' => $uriids], $params));
+			$condition = ["(`uid` = ? OR (`uid` = ? AND NOT `global`))", 0, local_user()];
+			$condition = DBA::mergeConditions($condition, ['uri-id' => $uriids]);
+			$params = ['order' => ['id' => true]];
+			$items = Post::toArray(Post::selectForUser(local_user(), Item::DISPLAY_FIELDLIST, $condition, $params));
 		}
 
 		if (empty($items)) {
