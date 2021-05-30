@@ -180,16 +180,18 @@ class Item
 			if (!empty($fields['body'])) {
 				Post\Media::insertFromAttachmentData($item['uri-id'], $fields['body']);
 
-				if ($item['author-network'] != Protocol::DFRN) {
-					Post\Media::insertFromRelevantUrl($item['uri-id'], $fields['body']);
-				}
-
 				$content_fields = ['raw-body' => trim($fields['raw-body'] ?? $fields['body'])];
 
 				// Remove all media attachments from the body and store them in the post-media table
 				// @todo On shared postings (Diaspora style and commented reshare) don't fetch content from the shared part
 				$content_fields['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $content_fields['raw-body']);
 				$content_fields['raw-body'] = self::setHashtags($content_fields['raw-body']);
+
+				if ($item['author-network'] != Protocol::DFRN) {
+					Post\Media::insertFromRelevantUrl($item['uri-id'], $content_fields['raw-body']);
+				}
+
+				Post\Content::update($item['uri-id'], $content_fields);
 			}
 
 			if (!empty($fields['file'])) {
@@ -991,13 +993,13 @@ class Item
 
 		Post\Media::insertFromAttachmentData($item['uri-id'], $item['body']);
 
-		if (!DBA::exists('contact', ['id' => $item['author-id'], 'network' => Protocol::DFRN])) {
-			Post\Media::insertFromRelevantUrl($item['uri-id'], $item['body']);
-		}
-
 		// Remove all media attachments from the body and store them in the post-media table
 		$item['raw-body'] = Post\Media::insertFromBody($item['uri-id'], $item['raw-body']);
 		$item['raw-body'] = self::setHashtags($item['raw-body']);
+
+		if (!DBA::exists('contact', ['id' => $item['author-id'], 'network' => Protocol::DFRN])) {
+			Post\Media::insertFromRelevantUrl($item['uri-id'], $item['raw-body']);
+		}
 
 		// Check for hashtags in the body and repair or add hashtag links
 		$item['body'] = self::setHashtags($item['body']);
