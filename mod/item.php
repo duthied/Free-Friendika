@@ -410,21 +410,22 @@ function item_post(App $a) {
 				}
 			}
 
-			$success = ItemHelper::replaceTag($body, $inform, local_user() ? local_user() : $profile_uid, $tag, $network);
-			if ($success['replaced']) {
-				$tagged[] = $tag;
-			}
-			// When the forum is private or the forum is addressed with a "!" make the post private
-			if (!empty($success['contact']['prv']) || ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
-				$private_forum = $success['contact']['prv'];
-				$only_to_forum = ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
-				$private_id = $success['contact']['id'];
-				$forum_contact = $success['contact'];
-			} elseif (!empty($success['contact']['forum']) && ($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
-				$private_forum = false;
-				$only_to_forum = true;
-				$private_id = $success['contact']['id'];
-				$forum_contact = $success['contact'];
+			if ($success = ItemHelper::replaceTag($body, $inform, local_user() ? local_user() : $profile_uid, $tag, $network)) {
+				if ($success['replaced']) {
+					$tagged[] = $tag;
+				}
+				// When the forum is private or the forum is addressed with a "!" make the post private
+				if (!empty($success['contact']['prv']) || ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION])) {
+					$private_forum = $success['contact']['prv'];
+					$only_to_forum = ($tag_type == Tag::TAG_CHARACTER[Tag::EXCLUSIVE_MENTION]);
+					$private_id = $success['contact']['id'];
+					$forum_contact = $success['contact'];
+				} elseif (!empty($success['contact']['forum']) && ($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
+					$private_forum = false;
+					$only_to_forum = true;
+					$private_id = $success['contact']['id'];
+					$forum_contact = $success['contact'];
+				}
 			}
 		}
 

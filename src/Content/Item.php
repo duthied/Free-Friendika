@@ -127,16 +127,6 @@ class Item
 			$tag_type = substr($tag, 0, 1);
 			//is it already replaced?
 			if (strpos($tag, '[url=')) {
-				// Checking for the alias that is used for OStatus
-				$pattern = '/[@!]\[url\=(.*?)\](.*?)\[\/url\]/ism';
-				if (preg_match($pattern, $tag, $matches)) {
-					$data = Contact::getByURL($matches[1], false, ['alias', 'nick']);
-
-					if ($data['alias'] != '') {
-						$newtag = '@[url=' . $data['alias'] . ']' . $data['nick'] . '[/url]';
-					}
-				}
-
 				return $replaced;
 			}
 
