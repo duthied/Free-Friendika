@@ -4049,13 +4049,6 @@ class Diaspora
 			return false;
 		}
 
-		$parent = Post::selectFirst(['parent-uri'], ['uri' => $item['thr-parent']]);
-		if (!DBA::isResult($parent)) {
-			return;
-		}
-
-		$item['parent-uri'] = $parent['parent-uri'];
-
 		$message = self::constructComment($item, $owner);
 		if ($message === false) {
 			return false;

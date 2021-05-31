@@ -713,13 +713,6 @@ function item_post(App $a) {
 	unset($datarray['self']);
 	unset($datarray['api_source']);
 
-	if ($origin) {
-		$signed = Diaspora::createCommentSignature($uid, $datarray);
-		if (!empty($signed)) {
-			$datarray['diaspora_signed_text'] = json_encode($signed);
-		}
-	}
-
 	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {
