@@ -4049,6 +4049,11 @@ class Diaspora
 			return false;
 		}
 
+		// This is only needed for the automated tests
+		if (empty($owner['uprvkey'])) {
+			return false;
+		}
+
 		$message = self::constructComment($item, $owner);
 		if ($message === false) {
 			return false;
