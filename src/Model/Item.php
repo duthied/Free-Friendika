@@ -1060,7 +1060,14 @@ class Item
 			Post\Content::insert($item['uri-id'], $item);
 		}
 
-		// Diaspora signature
+		// Create Diaspora signature
+		if ($item['origin'] && empty($item['diaspora_signed_text'])) {
+			$signed = Diaspora::createCommentSignature($uid, $item);
+			if (!empty($signed)) {
+				$item['diaspora_signed_text'] = json_encode($signed);
+			}
+		}
+
 		if (!empty($item['diaspora_signed_text'])) {
 			DBA::replace('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $item['diaspora_signed_text']]);
 		}
