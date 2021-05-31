@@ -802,6 +802,7 @@ class GServer
 	/**
 	 * Parses Nodeinfo 2
 	 *
+	 * @see https://git.feneas.org/jaywink/nodeinfo2
 	 * @param string $nodeinfo_url address of the nodeinfo path
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -850,7 +851,9 @@ class GServer
 		if (!empty($nodeinfo['protocols'])) {
 			$protocols = [];
 			foreach ($nodeinfo['protocols'] as $protocol) {
-				$protocols[$protocol] = true;
+				if (is_string($protocol)) {
+					$protocols[$protocol] = true;
+				}
 			}
 
 			if (!empty($protocols['dfrn'])) {
