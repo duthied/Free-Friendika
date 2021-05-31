@@ -2864,7 +2864,7 @@ class Item
 						'mime'    => $attachment['mimetype'],
 					],
 				]);
-				if ($item['post-type'] == Item::PT_VIDEO) {
+				if (($item['post-type'] ?? null) == Item::PT_VIDEO) {
 					$leading .= $media;
 				} else {
 					$trailing .= $media;
