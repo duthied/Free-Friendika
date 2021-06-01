@@ -66,7 +66,7 @@ class Notification extends BaseFactory
 			return null;
 		}
 
-		$account = DI::mstdnAccount()->createFromContactId($notification['actor-id']);
+		$account = DI::mstdnAccount()->createFromContactId($notification['actor-id'], $notification['uid']);
 
 		if (!empty($notification['target-uri-id'])) {
 			try {
