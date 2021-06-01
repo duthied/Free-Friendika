@@ -24,6 +24,7 @@ namespace Friendica\Factory\Api\Mastodon;
 use Friendica\BaseFactory;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Protocol\Activity;
@@ -46,7 +47,10 @@ class Notification extends BaseFactory
 		status         = Someone you enabled notifications for has posted a status
 		*/
 
-		if (($notification['vid'] == Verb::getID(Activity::ANNOUNCE)) &&
+		if (($notification['vid'] == Verb::getID(Activity::FOLLOW)) && ($notification['type'] == Post\UserNotification::NOTIF_NONE)) {
+			$contact = Contact::getById($notification['actor-id'], ['pending']);
+			$type = $contact['pending'] ? $type = 'follow_request' : 'follow';
+		} elseif (($notification['vid'] == Verb::getID(Activity::ANNOUNCE)) &&
 			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
 			$type = 'reblog';
 		} elseif (in_array($notification['vid'], [Verb::getID(Activity::LIKE), Verb::getID(Activity::DISLIKE)]) &&
