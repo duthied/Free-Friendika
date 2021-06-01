@@ -177,7 +177,7 @@ class UserNotification
 
 		if (self::checkShared($item, $uid)) {
 			$notification_type = $notification_type | self::NOTIF_SHARED;
-			self::insertNotication(self::NOTIF_SHARED, $uid, $item);
+			self::insertNoticationByItem(self::NOTIF_SHARED, $uid, $item);
 			$notified = true;
 		} else {
 			$notified = false;
@@ -201,7 +201,7 @@ class UserNotification
 		if (self::checkExplicitMention($item, $profiles)) {
 			$notification_type = $notification_type | self::NOTIF_EXPLICIT_TAGGED;
 			if (!$notified) {
-				self::insertNotication( self::NOTIF_EXPLICIT_TAGGED, $uid, $item);
+				self::insertNoticationByItem( self::NOTIF_EXPLICIT_TAGGED, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -209,7 +209,7 @@ class UserNotification
 		if (self::checkImplicitMention($item, $profiles)) {
 			$notification_type = $notification_type | self::NOTIF_IMPLICIT_TAGGED;
 			if (!$notified) {
-				self::insertNotication(self::NOTIF_IMPLICIT_TAGGED, $uid, $item);
+				self::insertNoticationByItem(self::NOTIF_IMPLICIT_TAGGED, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -217,7 +217,7 @@ class UserNotification
 		if (self::checkDirectComment($item, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_DIRECT_COMMENT;
 			if (!$notified) {
-				self::insertNotication(self::NOTIF_DIRECT_COMMENT, $uid, $item);
+				self::insertNoticationByItem(self::NOTIF_DIRECT_COMMENT, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -225,7 +225,7 @@ class UserNotification
 		if (self::checkDirectCommentedThread($item, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_DIRECT_THREAD_COMMENT;
 			if (!$notified) {
-				self::insertNotication(self::NOTIF_DIRECT_THREAD_COMMENT, $uid, $item);
+				self::insertNoticationByItem(self::NOTIF_DIRECT_THREAD_COMMENT, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -233,7 +233,7 @@ class UserNotification
 		if (self::checkCommentedThread($item, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_THREAD_COMMENT;
 			if (!$notified) {
-				self::insertNotication(self::NOTIF_THREAD_COMMENT, $uid, $item);
+				self::insertNoticationByItem(self::NOTIF_THREAD_COMMENT, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -241,7 +241,7 @@ class UserNotification
 		if (self::checkCommentedParticipation($item, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_COMMENT_PARTICIPATION;
 			if (!$notified) {
-				self::insertNotication(self::NOTIF_COMMENT_PARTICIPATION, $uid, $item);
+				self::insertNoticationByItem(self::NOTIF_COMMENT_PARTICIPATION, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -249,7 +249,7 @@ class UserNotification
 		if (self::checkActivityParticipation($item, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_ACTIVITY_PARTICIPATION;
 			if (!$notified) {
-				self::insertNotication(self::NOTIF_ACTIVITY_PARTICIPATION, $uid, $item);
+				self::insertNoticationByItem(self::NOTIF_ACTIVITY_PARTICIPATION, $uid, $item);
 				$notified = true;
 			}
 		}
@@ -266,7 +266,15 @@ class UserNotification
 		self::update($item['uri-id'], $uid, $fields, true);
 	}
 
-	private static function insertNotication(int $type, int $uid, array $item)
+	/**
+	 * Add a notification entry for a given item array
+	 *
+	 * @param int $type   User notification type
+	 * @param int $uid    User ID
+	 * @param array $item Item array
+	 * @return boolean
+	 */
+	private static function insertNoticationByItem(int $type, int $uid, array $item)
 	{
 		if (($item['gravity'] == GRAVITY_ACTIVITY) &&
 			!in_array($type, [self::NOTIF_DIRECT_COMMENT, self::NOTIF_DIRECT_THREAD_COMMENT])) {
@@ -275,10 +283,10 @@ class UserNotification
 		}
 
 		$fields = [
-			'uid' => $uid, 
-			'vid' => $item['vid'], 
+			'uid' => $uid,
+			'vid' => $item['vid'],
 			'type' => $type,
-			'actor-id' => $item['author-id'], 
+			'actor-id' => $item['author-id'],
 			'parent-uri-id' => $item['parent-uri-id'],
 			'created' => DateTimeFormat::utcNow(),
 		];
@@ -289,7 +297,28 @@ class UserNotification
 			$fields['target-uri-id'] = $item['uri-id'];
 		}
 
-		DBA::insert('notification', $fields);
+		return DBA::insert('notification', $fields);
+	}
+
+	/**
+	 * Add a notification entry
+	 *
+	 * @param int $actor Contact ID of the actor
+	 * @param int $vid   Verb ID
+	 * @param int $uid   User ID
+	 * @return boolean
+	 */
+	public static function insertNotication(int $actor, int $vid, int $uid)
+	{
+		$fields = [
+			'uid' => $uid,
+			'vid' => $vid,
+			'type' => self::NOTIF_NONE,
+			'actor-id' => $actor,
+			'created' => DateTimeFormat::utcNow(),
+		];
+
+		return DBA::insert('notification', $fields);
 	}
 
 	/**

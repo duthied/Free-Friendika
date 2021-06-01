@@ -2536,6 +2536,8 @@ class Contact
 			// Ensure to always have the correct network type, independent from the connection request method
 			self::updateFromProbe($contact['id']);
 
+			Post\UserNotification::insertNotication($contact['id'], Verb::getID(Activity::FOLLOW), $importer['uid']);
+
 			return true;
 		} else {
 			// send email notification to owner?
@@ -2566,6 +2568,8 @@ class Contact
 			self::updateFromProbe($contact_id);
 
 			self::updateAvatar($contact_id, $photo, true);
+
+			Post\UserNotification::insertNotication($contact_id, Verb::getID(Activity::FOLLOW), $importer['uid']);
 
 			$contact_record = DBA::selectFirst('contact', ['id', 'network', 'name', 'url', 'photo'], ['id' => $contact_id]);
 
