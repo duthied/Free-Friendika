@@ -715,6 +715,8 @@ class Contact
 			DBA::update('contact', $fields, ['id' => $self['id']]);
 
 			// Update the public contact as well
+			$fields['prvkey'] = null;
+			$fields['self']   = false;
 			DBA::update('contact', $fields, ['uid' => 0, 'nurl' => $self['nurl']]);
 
 			// Update the profile

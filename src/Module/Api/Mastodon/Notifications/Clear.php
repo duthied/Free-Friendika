@@ -35,7 +35,7 @@ class Clear extends BaseApi
 		self::login(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		DBA::update('notify', ['seen' => true], ['uid' => $uid]);
+		DBA::update('notification', ['seen' => true], ['uid' => $uid]);
 
 		System::jsonExit([]);
 	}

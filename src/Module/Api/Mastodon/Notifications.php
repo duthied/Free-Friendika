@@ -25,8 +25,10 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\Notification;
+use Friendica\Model\Post;
+use Friendica\Model\Verb;
 use Friendica\Module\BaseApi;
+use Friendica\Protocol\Activity;
 
 /**
  * @see https://docs.joinmastodon.org/methods/notifications/
@@ -63,7 +65,7 @@ class Notifications extends BaseApi
 
 		$params = ['order' => ['id' => true], 'limit' => $request['limit']];
 
-		$condition = ['uid' => $uid, 'seen' => false, 'type' => []];
+		$condition = ['uid' => $uid, 'seen' => false];
 
 		if (!empty($request['account_id'])) {
 			$contact = Contact::getById($request['account_id'], ['url']);
@@ -72,17 +74,32 @@ class Notifications extends BaseApi
 			}
 		}
 
-		if (!in_array('follow_request', $request['exclude_types'])) {
-			$condition['type'] = array_merge($condition['type'], [Notification\Type::INTRO]);
+		if (in_array('follow_request', $request['exclude_types'])) {
+			$condition = DBA::mergeConditions($condition, ["NOT `vid` IN (?)", Verb::getID(Activity::FOLLOW)]);
 		}
 
-		if (!in_array('mention', $request['exclude_types'])) {
-			$condition['type'] = array_merge($condition['type'],
-				[Notification\Type::WALL, Notification\Type::COMMENT, Notification\Type::MAIL, Notification\Type::TAG_SELF, Notification\Type::POKE]);
+		if (in_array('favourite', $request['exclude_types'])) {
+			$condition = DBA::mergeConditions($condition, ["(NOT `vid` IN (?, ?) OR NOT `type` IN (?, ?))",
+				Verb::getID(Activity::LIKE), Verb::getID(Activity::DISLIKE),
+				Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_THREAD_COMMENT]);
 		}
 
-		if (!in_array('status', $request['exclude_types'])) {
-			$condition['type'] = array_merge($condition['type'], [Notification\Type::SHARE]);
+		if (in_array('reblog', $request['exclude_types'])) {
+			$condition = DBA::mergeConditions($condition, ["(NOT `vid` IN (?) OR NOT `type` IN (?, ?))",
+				Verb::getID(Activity::ANNOUNCE),
+				Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_THREAD_COMMENT]);
+		}
+
+		if (in_array('mention', $request['exclude_types'])) {
+			$condition = DBA::mergeConditions($condition, ["(NOT `vid` IN (?) OR NOT `type` IN (?, ?, ?, ?, ?))",
+				Verb::getID(Activity::POST), Post\UserNotification::NOTIF_EXPLICIT_TAGGED,
+				Post\UserNotification::NOTIF_IMPLICIT_TAGGED, Post\UserNotification::NOTIF_DIRECT_COMMENT,
+				Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT, Post\UserNotification::NOTIF_THREAD_COMMENT]);
+		}
+
+		if (in_array('status', $request['exclude_types'])) {
+			$condition = DBA::mergeConditions($condition, ["(NOT `vid` IN (?) OR NOT `type` IN (?))",
+				Verb::getID(Activity::POST), Post\UserNotification::NOTIF_SHARED]);
 		}
 
 		if (!empty($request['max_id'])) {
@@ -101,9 +118,12 @@ class Notifications extends BaseApi
 
 		$notifications = [];
 
-		$notify = DBA::select('notify', ['id'], $condition, $params);
+		$notify = DBA::select('notification', ['id'], $condition, $params);
 		while ($notification = DBA::fetch($notify)) {
-			$notifications[] = DI::mstdnNotification()->createFromNotifyId($notification['id']);
+			$entry = DI::mstdnNotification()->createFromNotifyId($notification['id']);
+			if (!empty($entry)) {
+				$notifications[] = $entry;
+			}
 		}
 
 		if (!empty($request['min_id'])) {
