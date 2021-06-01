@@ -289,7 +289,7 @@ class UserNotification
 			$fields['target-uri-id'] = $item['uri-id'];
 		}
 
-		dba::insert('notification', $fields);
+		DBA::insert('notification', $fields);
 	}
 
 	/**

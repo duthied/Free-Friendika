@@ -30,7 +30,7 @@ use Friendica\Protocol\Activity;
 
 class Notification extends BaseFactory
 {
-	public function createFromNotifyId(int $id)
+	public function createFromNotificationId(int $id)
 	{
 		$notification = DBA::selectFirst('notification', [], ['id' => $id]);
 		if (!DBA::isResult($notification)) {
