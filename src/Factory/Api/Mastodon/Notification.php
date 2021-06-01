@@ -24,23 +24,18 @@ namespace Friendica\Factory\Api\Mastodon;
 use Friendica\BaseFactory;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
-use Friendica\Model\Notification as ModelNotification;
+use Friendica\Model\Post;
+use Friendica\Model\Verb;
+use Friendica\Protocol\Activity;
 
 class Notification extends BaseFactory
 {
-	public function createFromNotifyId(int $id)
+	public function createFromNotificationId(int $id)
 	{
-		$notification = DBA::selectFirst('notify', [], ['id' => $id]);
+		$notification = DBA::selectFirst('notification', [], ['id' => $id]);
 		if (!DBA::isResult($notification)) {
 			return null;
 		}
-
-		$cid = Contact::getIdForURL($notification['url'], 0, false);
-		if (empty($cid)) {
-			return null;
-		}
-
 		/*
 		follow         = Someone followed you
 		follow_request = Someone requested to follow you
@@ -51,32 +46,27 @@ class Notification extends BaseFactory
 		status         = Someone you enabled notifications for has posted a status
 		*/
 
-		switch ($notification['type']) {
-			case ModelNotification\Type::INTRO:
-				$type = 'follow_request';
-				break;
-
-			case ModelNotification\Type::WALL:
-			case ModelNotification\Type::COMMENT:
-			case ModelNotification\Type::MAIL:
-			case ModelNotification\Type::TAG_SELF:
-			case ModelNotification\Type::POKE:
-				$type = 'mention';
-				break;
-
-			case ModelNotification\Type::SHARE:
-				$type = 'status';
-				break;
-
-			default:
-				return null;
+		if (($notification['vid'] == Verb::getID(Activity::ANNOUNCE)) &&
+			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
+			$type = 'reblog';
+		} elseif (in_array($notification['vid'], [Verb::getID(Activity::LIKE), Verb::getID(Activity::DISLIKE)]) &&
+			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
+			$type = 'favourite';
+		} elseif ($notification['type'] == Post\UserNotification::NOTIF_SHARED) {
+			$type = 'status';
+		} elseif (in_array($notification['type'], [Post\UserNotification::NOTIF_EXPLICIT_TAGGED,
+			Post\UserNotification::NOTIF_IMPLICIT_TAGGED, Post\UserNotification::NOTIF_DIRECT_COMMENT,
+			Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT, Post\UserNotification::NOTIF_THREAD_COMMENT])) {
+			$type = 'mention';
+		} else {
+			return null;
 		}
 
-		$account = DI::mstdnAccount()->createFromContactId($cid);
+		$account = DI::mstdnAccount()->createFromContactId($notification['actor-id']);
 
-		if (!empty($notification['uri-id'])) {
+		if (!empty($notification['target-uri-id'])) {
 			try {
-				$status = DI::mstdnStatus()->createFromUriId($notification['uri-id'], $notification['uid']);
+				$status = DI::mstdnStatus()->createFromUriId($notification['target-uri-id'], $notification['uid']);
 			} catch (\Throwable $th) {
 				$status = null;
 			}
@@ -84,6 +74,6 @@ class Notification extends BaseFactory
 			$status = null;
 		}
 
-		return new \Friendica\Object\Api\Mastodon\Notification($id, $type, $notification['date'], $account, $status);
+		return new \Friendica\Object\Api\Mastodon\Notification($id, $type, $notification['created'], $account, $status);
 	}
 }

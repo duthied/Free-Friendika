@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.06-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1420
+-- DB_UPDATE_VERSION 1421
 -- ------------------------------------------
 
 
@@ -818,6 +818,33 @@ CREATE TABLE IF NOT EXISTS `manage` (
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`mid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='table of accounts that can manage each other';
+
+--
+-- TABLE notification
+--
+CREATE TABLE IF NOT EXISTS `notification` (
+	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
+	`uid` mediumint unsigned COMMENT 'Owner User id',
+	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
+	`type` tinyint unsigned COMMENT '',
+	`actor-id` int unsigned COMMENT 'Link to the contact table with uid=0 of the actor that caused the notification',
+	`target-uri-id` int unsigned COMMENT 'Item-uri id of the related post',
+	`parent-uri-id` int unsigned COMMENT 'Item-uri id of the parent of the related post',
+	`created` datetime COMMENT '',
+	`seen` boolean DEFAULT '0' COMMENT '',
+	 PRIMARY KEY(`id`),
+	 UNIQUE INDEX `uid_vid_type_actor-id_target-uri-id` (`uid`,`vid`,`type`,`actor-id`,`target-uri-id`),
+	 INDEX `vid` (`vid`),
+	 INDEX `actor-id` (`actor-id`),
+	 INDEX `target-uri-id` (`target-uri-id`),
+	 INDEX `parent-uri-id` (`parent-uri-id`),
+	 INDEX `seen_uid` (`seen`,`uid`),
+	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`vid`) REFERENCES `verb` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`actor-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`target-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='notifications';
 
 --
 -- TABLE notify

@@ -40,7 +40,7 @@ class Dismiss extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		DBA::update('notify', ['seen' => true], ['uid' => $uid, 'id' => $parameters['id']]);
+		DBA::update('notification', ['seen' => true], ['uid' => $uid, 'id' => $parameters['id']]);
 
 		System::jsonExit([]);
 	}
