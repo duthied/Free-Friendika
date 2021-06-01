@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-29 20:29+0000\n"
-"PO-Revision-Date: 2021-05-30 03:03+0000\n"
+"PO-Revision-Date: 2021-05-31 23:48+0000\n"
 "Last-Translator: XMPPはいいぞ\n"
 "Language-Team: Japanese (http://www.transifex.com/Friendica/friendica/language/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -1023,7 +1023,7 @@ msgstr "' %s 'のユーザーレコードが見つかりません"
 
 #: mod/dfrn_confirm.php:398
 msgid "Our site encryption key is apparently messed up."
-msgstr "当サイトの暗号化キーが破損しているようです。"
+msgstr "当サイトの暗号化鍵が破損しているようです。"
 
 #: mod/dfrn_confirm.php:409
 msgid "Empty site URL was provided or URL could not be decrypted by us."
@@ -1401,7 +1401,7 @@ msgstr "このコンタクトは既に追加されています。"
 
 #: mod/follow.php:100
 msgid "The network type couldn't be detected. Contact can't be added."
-msgstr "ネットワークタイプを検出できませんでした。コンタクトを追加できません。"
+msgstr "ネットワークの種類を検出できませんでした。コンタクトを追加できません。"
 
 #: mod/follow.php:108
 msgid "Diaspora support isn't enabled. Contact can't be added."
@@ -3974,7 +3974,7 @@ msgstr "PHP register_argc_argv"
 msgid ""
 "Error: the \"openssl_pkey_new\" function on this system is not able to "
 "generate encryption keys"
-msgstr "エラー：このシステムの\"openssl_pkey_new \"関数は暗号化キーを生成できません"
+msgstr "エラー：このシステムの\"openssl_pkey_new \"関数は暗号化鍵を生成できません"
 
 #: src/Core/Installer.php:335
 msgid ""
@@ -3984,7 +3984,7 @@ msgstr "Windowsで実行している場合は、「 http://www.php.net/manual/en
 
 #: src/Core/Installer.php:338
 msgid "Generate encryption keys"
-msgstr "暗号化キーを生成する"
+msgstr "暗号化鍵を生成する"
 
 #: src/Core/Installer.php:390
 msgid ""
@@ -8770,7 +8770,7 @@ msgstr ""
 
 #: src/Module/Manifest.php:42
 msgid "A Decentralized Social Network"
-msgstr ""
+msgstr "分権化されたソーシャルネットワーク"
 
 #: src/Module/Notifications/Introductions.php:78
 msgid "Show Ignored Requests"
@@ -8783,7 +8783,7 @@ msgstr "無視されたリクエストを隠す"
 #: src/Module/Notifications/Introductions.php:94
 #: src/Module/Notifications/Introductions.php:163
 msgid "Notification type:"
-msgstr "通知タイプ："
+msgstr "通知の種類："
 
 #: src/Module/Notifications/Introductions.php:97
 msgid "Suggested by:"
