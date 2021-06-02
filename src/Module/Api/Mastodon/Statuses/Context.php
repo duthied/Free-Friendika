@@ -72,22 +72,18 @@ class Context extends BaseApi
 
 		$statuses = ['ancestors' => [], 'descendants' => []];
 
-		$ancestors = [];
-		foreach (self::getParents($id, $parents) as $ancestor) {
-			$ancestors[] = $ancestor;
-		}
+		$ancestors = self::getParents($id, $parents);
 
 		asort($ancestors);
+
 		foreach (array_slice($ancestors, 0, $request['limit']) as $ancestor) {
 			$statuses['ancestors'][] = DI::mstdnStatus()->createFromUriId($ancestor, $uid);;
 		}
 
-		$descendants = [];
-		foreach (self::getChildren($id, $children) as $descendant) {
-			$descendants[] = $descendant; 
-		}
+		$descendants = self::getChildren($id, $children);
 
 		asort($descendants);
+
 		foreach (array_slice($descendants, 0, $request['limit']) as $descendant) {
 			$statuses['descendants'][] = DI::mstdnStatus()->createFromUriId($descendant, $uid);
 		}
