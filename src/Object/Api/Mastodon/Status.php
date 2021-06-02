@@ -100,7 +100,7 @@ class Status extends BaseDataTransferObject
 	public function __construct(array $item, Account $account, Counts $counts, UserAttributes $userAttributes, bool $sensitive, Application $application, array $mentions, array $tags, Card $card, array $attachments, array $reblog)
 	{
 		$this->id         = (string)$item['uri-id'];
-		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::ATOM);
+		$this->created_at = DateTimeFormat::utc($item['created'], DateTimeFormat::API);
 
 		if ($item['gravity'] == GRAVITY_COMMENT) {
 			$this->in_reply_to_id         = (string)$item['thr-parent-id'];
