@@ -1,3 +1,57 @@
+Version 2021.06 (unreleased)
+  Friendica Core
+    Updates to the translation DE, EN-GB, HU, IT, JA [translation teams]
+    Updates to the themes (frio, vier) [annando, MrPetovan]
+    Updates to the documentation [annando, nupplaphil]
+    Updated composer and dependencies [nupplaphil, MrPetovan]
+    General code cleanup [annando, nupplaphil, mexon, MrPetova, very-apen]
+    Enhanced the Mastodon compatible API [annando]
+    Enhanced the possibilities to download the calendar [annando]
+    Enhanced the Vagrand development box setup [fabrixxm]
+    Enhanced the console commands [fabrixxm, mexon]
+    Enhances the support of PHP8 [nupplaphil, MrPetovan]
+    Enhanced the link detection [annando]
+    Enhanced the worker task display in the admin panel [tobiasd]
+    Enhanced the installation wizard [tobiasd]
+    Fixed information contained in the nodeinfo [MrPetovan]
+    Fixed an avatar setting problem during the account creation [nupplaphil]
+    Fixed a display problem with picture only postings from Diaspora* [annando]
+    Fixed a problem receiving BCC postings from accounts that are not followed [annando]
+    Fixed a problem with local delivery of postings [annando]
+    Fixed a problem with block/ignore via API [nupplaphil]
+    Fixed a problem with directory search results [MrPetovan]
+    Make birthday time comparison 32-bit safe in Protocol/DFRN [MrPetovan]
+    CI process was switched to drone [nupplaphil]
+    The "authenticate" hook was moved deeper into the process [very-ape]
+    Added support for RTL languages [MrPetovan]
+  
+  Friendica Addons
+      Updated to the translations DE, IT, JA [translation teams]
+    nitter
+      added addon to replace links to twitter in postings [tobiasd]
+    keycloakpassword
+      added addon for password-based authentication against Keycloak [very-ape]
+    SAML
+      added addon to support SAML services [very-ape]
+    twitter
+      improved the image upload [annando]
+      improved the exception handling [nupplaphil]
+      incoming posts are unlisted [annando]
+    openstreetmap
+      Ensure location key is available in hook data [MrPetovan]
+    catavatar
+      make the addon work again [nupplaphil]
+    securemail
+      fixed a problem in connection with the phpmailer addon [nupplaphil]
+    Blockbot
+      Move Zabbix to the "good" agents [annando]
+    mailstream
+      adaptation of new addon functionalities and code improvements [mexon]
+  
+  Closed Issues
+    7967, 9064, 9993, 10055, 10147, 10184, 10198, 10205, 10210, 10219,
+    10232, 10254, 10287, 10293, 10306, 10312, 10314, 10342
+
 Version 2021.04 (2021-04-26)
   Friendica Core
     Updates to the translations BG, DE, EN-US, ES, HU, IT, RU [translation teams]
