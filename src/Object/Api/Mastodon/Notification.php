@@ -52,7 +52,7 @@ class Notification extends BaseDataTransferObject
 	{
 		$this->id         = (string)$id;
 		$this->type       = $type;
-		$this->created_at = DateTimeFormat::utc($created_at, DateTimeFormat::API);
+		$this->created_at = DateTimeFormat::utc($created_at, DateTimeFormat::JSON);
 		$this->account    = $account->toArray();
 
 		if (!empty($status)) {
