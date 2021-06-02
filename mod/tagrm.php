@@ -81,25 +81,27 @@ function tagrm_content(App $a)
 {
 	$o = '';
 
+	$photo_return = $_SESSION['photo_return'] ?? '';
+
 	if (!local_user()) {
-		DI::baseUrl()->redirect($_SESSION['photo_return']);
+		DI::baseUrl()->redirect($photo_return);
 		// NOTREACHED
 	}
 
 	if ($a->argc == 3) {
 		update_tags($a->argv[1], [Strings::escapeTags(trim(hex2bin($a->argv[2])))]);
-		DI::baseUrl()->redirect($_SESSION['photo_return']);
+		DI::baseUrl()->redirect($photo_return);
 	}
 
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 	if (!$item_id) {
-		DI::baseUrl()->redirect($_SESSION['photo_return']);
+		DI::baseUrl()->redirect($photo_return);
 		// NOTREACHED
 	}
 
 	$item = Post::selectFirst(['uri-id'], ['id' => $item_id, 'uid' => local_user()]);
 	if (!DBA::isResult($item)) {
-		DI::baseUrl()->redirect($_SESSION['photo_return']);
+		DI::baseUrl()->redirect($photo_return);
 	}
 
 	$tag_text = Tag::getCSVByURIId($item['uri-id']);
@@ -107,7 +109,7 @@ function tagrm_content(App $a)
 	$arr = explode(',', $tag_text);
 
 	if (empty($arr)) {
-		DI::baseUrl()->redirect($_SESSION['photo_return']);
+		DI::baseUrl()->redirect($photo_return);
 	}
 
 	$o .= '<h3>' . DI::l10n()->t('Remove Item Tag') . '</h3>';

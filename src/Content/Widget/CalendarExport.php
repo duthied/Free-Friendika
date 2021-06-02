@@ -21,9 +21,9 @@
 
 namespace Friendica\Content\Widget;
 
-use Friendica\Content\Feature;
 use Friendica\Core\Renderer;
 use Friendica\DI;
+use Friendica\Model\User;
 
 /**
  * TagCloud widget
@@ -34,36 +34,27 @@ class CalendarExport
 {
 	/**
 	 * Get the events widget.
+	 * @param int $uid
 	 *
 	 * @return string Formated HTML of the calendar widget.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getHTML() {
-		$a = DI::app();
-
-		if (empty($a->data['user'])) {
-			return;
+	public static function getHTML(int $uid = 0) {
+		if (empty($uid)) {
+			return '';
 		}
 
-		$owner_uid = intval($a->data['user']['uid']);
-
-		// The permission testing is a little bit tricky because we have to respect many cases.
-
-		// It's not the private events page (we don't get the $owner_uid for /events).
-		if (!local_user() && !$owner_uid) {
-			return;
+		$user = User::getById($uid, ['nickname']);
+		if (empty($user['nickname'])) {
+			return '';
 		}
-
-		// $a->data is only available if the profile page is visited. If the visited page is not part
-		// of the profile page it should be the personal /events page. So we can use $a->user.
-		$user = ($a->data['user']['nickname'] ?? '') ?: $a->user['nickname'];
 
 		$tpl = Renderer::getMarkupTemplate("widget/events.tpl");
 		$return = Renderer::replaceMacros($tpl, [
 			'$etitle'      => DI::l10n()->t("Export"),
 			'$export_ical' => DI::l10n()->t("Export calendar as ical"),
 			'$export_csv'  => DI::l10n()->t("Export calendar as csv"),
-			'$user'        => $user
+			'$user'        => $user['nickname']
 		]);
 
 		return $return;

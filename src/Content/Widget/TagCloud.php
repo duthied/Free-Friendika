@@ -127,8 +127,8 @@ class TagCloud
 	private static function tagCalc(array $arr)
 	{
 		$tags = [];
-		$min = 1e9;
-		$max = -1e9;
+		$min = 1000000000.0;
+		$max = -1000000000.0;
 		$x = 0;
 
 		if (!$arr) {
@@ -145,7 +145,7 @@ class TagCloud
 		}
 
 		usort($tags, 'self::tagsSort');
-		$range = max(.01, $max - $min) * 1.0001;
+		$range = max(0.01, $max - $min) * 1.0001;
 
 		for ($x = 0; $x < count($tags); $x ++) {
 			$tags[$x][2] = 1 + floor(9 * ($tags[$x][1] - $min) / $range);

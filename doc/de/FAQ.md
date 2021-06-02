@@ -36,9 +36,10 @@ Wenn Du Deinen Account nicht nutzen kannst, kannst Du einen Account auf einer ö
 Wenn du dir keinen weiteren Friendica Account einrichten willst, kannst du auch gerne über einen der folgenden alternativen Kanäle Hilfe suchen:
 
   * Friendica Support Forum: [@helpers@forum.friendi.ca](https://forum.friendi.ca/~helpers)
-  * XMPP: support(at)forum.friendi.ca
-  * IRC: [#friendica at freenode.net](https://webchat.freenode.net/?settings=#friendica)
-  * Matrix: [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
+  * Chats der Friendica Community (die IRC, Matrix und XMPP Räume sind mit einer Brücke verbunden) Logs dieser öffentlichen Chaträume können [hier aus dem IRC](https://gnusociarg.nsupdate.info/2021/%23frie) und [hier aus der Matrix](https://view.matrix.org/alias/%23friendi.ca:matrix.org/) gefunden werden.
+    * XMPP: support(at)forum.friendi.ca
+    * IRC: #friendica aut libera.chat oder [#friendica auf freenode.net](https://webchat.freenode.net/?settings=#friendica)
+    * Matrix: [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
   * [Mailing List](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca)
   <!--- * [XMPP](xmpp:support@forum.friendi.ca?join)
 	https://github.com/github/markup/issues/202
@@ -192,6 +193,7 @@ Beispiel: Friendica Support
 ### Gibt es Clients für Friendica?
 
 Friendica verwendet eine [Twitter/GNU Social](help/api) kompatible API.
+Seit der Version 2021.06 unterstützt Friendica außerdem die Mastodon API.
 Das bedeutet, dass du jeden Twitter/GNU Social Client verwenden kannst in dem du den API Pfad entsprechend änderst.
 
 Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell für Friendica entwickelt werden:
@@ -205,6 +207,11 @@ Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell f
   * Mustard and Mustard-Mod
 * SailfishOS
   * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
+  * [Husky](https://husky.fwgs.ru)
+  * [Subway Tooter](https://github.com/tateisu/SubwayTooter)
+  * [Tusky](https://tusky.app)
+  * [twitlatte](https://github.com/moko256/twitlatte)
+  * [Yuito](https://github.com/accelforce/Yuito)
 * Linux
   * Hotot
   * Choqok

@@ -69,7 +69,7 @@ class ExtendedPDO extends PDO
 	{
 		if($this->_transactionDepth <= 0 || !$this->hasSavepoint()) {
 			parent::beginTransaction();
-			$this->_transactionDepth = $this->_transactionDepth < 0 ? 0 : $this->_transactionDepth;
+			$this->_transactionDepth = 0;
 		} else {
 			$this->exec("SAVEPOINT LEVEL{$this->_transactionDepth}");
 		}
@@ -84,14 +84,15 @@ class ExtendedPDO extends PDO
 	 */
 	public function commit()
 	{
+		// We don't want to "really" commit something, so skip the most outer hierarchy
+		if ($this->_transactionDepth <= 1 && $this->hasSavepoint()) {
+			$this->_transactionDepth = $this->_transactionDepth <= 0 ? 0 : 1;
+			return true;
+		}
+
 		$this->_transactionDepth--;
 
-		if($this->_transactionDepth <= 0 || !$this->hasSavepoint()) {
-			parent::commit();
-			$this->_transactionDepth = $this->_transactionDepth < 0 ? 0 : $this->_transactionDepth;
-		} else {
-			$this->exec("RELEASE SAVEPOINT LEVEL{$this->_transactionDepth}");
-		}
+		$this->exec("RELEASE SAVEPOINT LEVEL{$this->_transactionDepth}");
 	}
 
 	/**
@@ -102,14 +103,15 @@ class ExtendedPDO extends PDO
 	 */
 	public function rollBack()
 	{
-		if ($this->_transactionDepth <= 0) {
-			throw new PDOException('Rollback error : There is no transaction started');
-		}
-
 		$this->_transactionDepth--;
 
-		if($this->_transactionDepth == 0 || !$this->hasSavepoint()) {
-			parent::rollBack();
+		if($this->_transactionDepth <= 0 || !$this->hasSavepoint()) {
+			$this->_transactionDepth = 0;
+			try {
+				parent::rollBack();
+			} catch (PDOException $e) {
+				// this shouldn't happen, but it does ...
+			}
 		} else {
 			$this->exec("ROLLBACK TO SAVEPOINT LEVEL{$this->_transactionDepth}");
 		}

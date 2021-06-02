@@ -122,7 +122,6 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 These emdpoints are planned to be implemented somewhere in the future.
 
 - [`PATCH /api/v1/accounts/update_credentials`](https://docs.joinmastodon.org/methods/accounts/)
-- [`GET /api/v1/instance/activity`](https://docs.joinmastodon.org/methods/instance#weekly-activity)
 
 ## Dummy endpoints
 
@@ -139,7 +138,7 @@ They refer to features that don't exist in Friendica yet.
 ## Non supportable endpoints
 
 These endpoints won't be implemented at the moment.
-They refer to features that don't exist in Friendica yet.
+They refer to features or data that don't exist in Friendica yet.
 
 - [`POST /api/v1/accounts`](https://docs.joinmastodon.org/methods/accounts/)
 - [`POST /api/v1/accounts/:id/pin`](https://docs.joinmastodon.org/methods/accounts/)
@@ -164,6 +163,7 @@ They refer to features that don't exist in Friendica yet.
 - [`POST /api/v1/filters/:id`](https://docs.joinmastodon.org/methods/accounts/filters/)
 - [`PUT /api/v1/filters/:id`](https://docs.joinmastodon.org/methods/accounts/filters/)
 - [`DELETE /api/v1/filters/:id`](https://docs.joinmastodon.org/methods/accounts/filters/)
+- [`GET /api/v1/instance/activity`](https://docs.joinmastodon.org/methods/instance#weekly-activity)
 - [`POST /api/v1/markers`](https://docs.joinmastodon.org/methods/timelines/markers/)
 - [`GET /api/v1/polls/:id`](https://docs.joinmastodon.org/methods/statuses/polls/)
 - [`POST /api/v1/polls/:id/votes`](https://docs.joinmastodon.org/methods/statuses/polls/)

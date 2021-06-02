@@ -44,6 +44,10 @@ class Context extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
+		$request = self::getRequest([
+			'limit'    => 40, // Maximum number of results to return. Defaults to 40.
+		]);
+
 		$id = $parameters['id'];
 
 		$parent = Post::selectFirst(['parent-uri-id'], ['uri-id' => $id]);
@@ -68,24 +72,20 @@ class Context extends BaseApi
 
 		$statuses = ['ancestors' => [], 'descendants' => []];
 
-		$ancestors = [];
-		foreach (self::getParents($id, $parents) as $ancestor) {
-			$ancestors[$ancestor] = DI::mstdnStatus()->createFromUriId($ancestor, $uid);
+		$ancestors = self::getParents($id, $parents);
+
+		asort($ancestors);
+
+		foreach (array_slice($ancestors, 0, $request['limit']) as $ancestor) {
+			$statuses['ancestors'][] = DI::mstdnStatus()->createFromUriId($ancestor, $uid);;
 		}
 
-		ksort($ancestors);
-		foreach ($ancestors as $ancestor) {
-			$statuses['ancestors'][] = $ancestor;
-		}
+		$descendants = self::getChildren($id, $children);
 
-		$descendants = [];
-		foreach (self::getChildren($id, $children) as $descendant) {
-			$descendants[] = DI::mstdnStatus()->createFromUriId($descendant, $uid);
-		}
+		asort($descendants);
 
-		ksort($descendants);
-		foreach ($descendants as $descendant) {
-			$statuses['descendants'][] = $descendant;
+		foreach (array_slice($descendants, 0, $request['limit']) as $descendant) {
+			$statuses['descendants'][] = DI::mstdnStatus()->createFromUriId($descendant, $uid);
 		}
 
 		System::jsonExit($statuses);

@@ -271,7 +271,7 @@ class Contact
 
 		// Update the contact in the background if needed
 		$updated = max($contact['success_update'], $contact['created'], $contact['updated'], $contact['last-update'], $contact['failure_update']);
-		if (($updated < DateTimeFormat::utc('now -7 days')) && in_array($contact['network'], Protocol::FEDERATED)) {
+		if (($updated < DateTimeFormat::utc('now -7 days')) && in_array($contact['network'], Protocol::FEDERATED) && !self::isLocalById($contact['id'])) {
 			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id']);
 		}
 
@@ -566,18 +566,13 @@ class Contact
 	 */
 	public static function createSelfFromUserId($uid)
 	{
-		// Only create the entry if it doesn't exist yet
-		if (DBA::exists('contact', ['uid' => $uid, 'self' => true])) {
-			return true;
-		}
-
 		$user = DBA::selectFirst('user', ['uid', 'username', 'nickname', 'pubkey', 'prvkey'],
 			['uid' => $uid, 'account_expired' => false]);
 		if (!DBA::isResult($user)) {
 			return false;
 		}
 
-		$return = DBA::insert('contact', [
+		$contact = [
 			'uid'         => $user['uid'],
 			'created'     => DateTimeFormat::utcNow(),
 			'self'        => 1,
@@ -602,7 +597,23 @@ class Contact
 			'uri-date'    => DateTimeFormat::utcNow(),
 			'avatar-date' => DateTimeFormat::utcNow(),
 			'closeness'   => 0
-		]);
+		];
+
+		$return = true;
+
+		// Only create the entry if it doesn't exist yet
+		if (!DBA::exists('contact', ['uid' => $uid, 'self' => true])) {
+			$return = DBA::insert('contact', $contact);
+		}
+
+		// Create the public contact
+		if (!DBA::exists('contact', ['nurl' => $contact['nurl'], 'uid' => 0])) {
+			$contact['self']   = false;
+			$contact['uid']    = 0;
+			$contact['prvkey'] = null;
+
+			DBA::insert('contact', $contact, Database::INSERT_IGNORE);
+		}
 
 		return $return;
 	}
@@ -704,6 +715,8 @@ class Contact
 			DBA::update('contact', $fields, ['id' => $self['id']]);
 
 			// Update the public contact as well
+			$fields['prvkey'] = null;
+			$fields['self']   = false;
 			DBA::update('contact', $fields, ['uid' => 0, 'nurl' => $self['nurl']]);
 
 			// Update the profile
@@ -1941,7 +1954,7 @@ class Contact
 			return false;
 		}
 
-		if (Contact::isLocal($ret['url'])) {
+		if (self::isLocal($ret['url'])) {
 			Logger::info('Local contacts are not updated here.');
 			return true;
 		}
@@ -2523,6 +2536,8 @@ class Contact
 			// Ensure to always have the correct network type, independent from the connection request method
 			self::updateFromProbe($contact['id']);
 
+			Post\UserNotification::insertNotication($contact['id'], Verb::getID(Activity::FOLLOW), $importer['uid']);
+
 			return true;
 		} else {
 			// send email notification to owner?
@@ -2553,6 +2568,8 @@ class Contact
 			self::updateFromProbe($contact_id);
 
 			self::updateAvatar($contact_id, $photo, true);
+
+			Post\UserNotification::insertNotication($contact_id, Verb::getID(Activity::FOLLOW), $importer['uid']);
 
 			$contact_record = DBA::selectFirst('contact', ['id', 'network', 'name', 'url', 'photo'], ['id' => $contact_id]);
 

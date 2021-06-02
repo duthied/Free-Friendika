@@ -59,7 +59,7 @@ class ConfigFileLoaderTest extends MockedTest
 	 */
 	public function testLoadConfigWrong()
 	{
-		$this->expectExceptionMessageRegExp("/Error loading config file \w+/");
+		$this->expectExceptionMessageMatches("/Error loading config file \w+/");
 		$this->expectException(\Exception::class);
 		$this->delConfigFile('local.config.php');
 

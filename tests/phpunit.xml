@@ -8,7 +8,7 @@
 		timeoutForLargeTests="900">
 	<testsuite name='friendica'>
 		<directory suffix='.php'>functional/</directory>
-		<directory suffix='.php'>include/</directory>
+		<directory suffix='.php'>legacy/</directory>
 		<directory suffix='.php'>src/</directory>
 	</testsuite>
 	<!-- Filters for Code Coverage -->
@@ -16,14 +16,14 @@
 		<whitelist>
 			<directory suffix=".php">..</directory>
 			<exclude>
-				<directory suffix=".php">config/</directory>
-				<directory suffix=".php">doc/</directory>
-				<directory suffix=".php">images/</directory>
-				<directory suffix=".php">library/</directory>
-				<directory suffix=".php">spec/</directory>
-				<directory suffix=".php">tests/</directory>
-				<directory suffix=".php">view/</directory>
-				<directory suffix=".php">vendor/</directory>
+				<directory suffix=".php">../config/</directory>
+				<directory suffix=".php">../doc/</directory>
+				<directory suffix=".php">../images/</directory>
+				<directory suffix=".php">../library/</directory>
+				<directory suffix=".php">../spec/</directory>
+				<directory suffix=".php">../tests/</directory>
+				<directory suffix=".php">../view/</directory>
+				<directory suffix=".php">../vendor/</directory>
 			</exclude>
 		</whitelist>
 	</filter>

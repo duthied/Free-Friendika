@@ -835,7 +835,7 @@ function update_1404()
 	while ($task = DBA::fetch($tasks)) {
 		$parameters = json_decode($task['parameter'], true);
 	
-		if (in_array($parameters[0], [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
+		if (is_array($parameters) && count($parameters) && in_array($parameters[0], [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
 			continue;
 		}
 	

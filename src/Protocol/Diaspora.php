@@ -4049,12 +4049,10 @@ class Diaspora
 			return false;
 		}
 
-		$parent = Post::selectFirst(['parent-uri'], ['uri' => $item['thr-parent']]);
-		if (!DBA::isResult($parent)) {
-			return;
+		// This is only needed for the automated tests
+		if (empty($owner['uprvkey'])) {
+			return false;
 		}
-
-		$item['parent-uri'] = $parent['parent-uri'];
 
 		$message = self::constructComment($item, $owner);
 		if ($message === false) {

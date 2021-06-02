@@ -29,7 +29,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
+use Friendica\Util\HTTPInputData;
 
 require_once __DIR__ . '/../../include/api.php';
 
@@ -129,7 +129,7 @@ class BaseApi extends BaseModule
 	public static function unsupported(string $method = 'all')
 	{
 		$path = DI::args()->getQueryString();
-		Logger::info('Unimplemented API call', ['method' => $method, 'path' => $path, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'request' => $_REQUEST ?? []]);
+		Logger::info('Unimplemented API call', ['method' => $method, 'path' => $path, 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'request' => HTTPInputData::process()]);
 		$error = DI::l10n()->t('API endpoint %s %s is not implemented', strtoupper($method), $path);
 		$error_description = DI::l10n()->t('The API endpoint is currently not implemented but might be in the future.');
 		$errorobj = new \Friendica\Object\Api\Mastodon\Error($error, $error_description);
@@ -141,26 +141,30 @@ class BaseApi extends BaseModule
 	 *
 	 * @return array request data
 	 */
-	public static function getRequest(array $defaults) {
+	public static function getRequest(array $defaults)
+	{
+		$httpinput = HTTPInputData::process();
+		$input = array_merge($httpinput['variables'], $httpinput['files'], $_REQUEST);
+
 		$request = [];
 
 		foreach ($defaults as $parameter => $defaultvalue) {
 			if (is_string($defaultvalue)) {
-				$request[$parameter] = $_REQUEST[$parameter] ?? $defaultvalue;
+				$request[$parameter] = $input[$parameter] ?? $defaultvalue;
 			} elseif (is_int($defaultvalue)) {
-				$request[$parameter] = (int)($_REQUEST[$parameter] ?? $defaultvalue);
+				$request[$parameter] = (int)($input[$parameter] ?? $defaultvalue);
 			} elseif (is_float($defaultvalue)) {
-				$request[$parameter] = (float)($_REQUEST[$parameter] ?? $defaultvalue);
+				$request[$parameter] = (float)($input[$parameter] ?? $defaultvalue);
 			} elseif (is_array($defaultvalue)) {
-				$request[$parameter] = $_REQUEST[$parameter] ?? [];
+				$request[$parameter] = $input[$parameter] ?? [];
 			} elseif (is_bool($defaultvalue)) {
-				$request[$parameter] = in_array(strtolower($_REQUEST[$parameter] ?? ''), ['true', '1']);
+				$request[$parameter] = in_array(strtolower($input[$parameter] ?? ''), ['true', '1']);
 			} else {
 				Logger::notice('Unhandled default value type', ['parameter' => $parameter, 'type' => gettype($defaultvalue)]);
 			}
 		}
 
-		foreach ($_REQUEST ?? [] as $parameter => $value) {
+		foreach ($input ?? [] as $parameter => $value) {
 			if ($parameter == 'pagename') {
 				continue;
 			}
@@ -171,45 +175,6 @@ class BaseApi extends BaseModule
 
 		Logger::debug('Got request parameters', ['request' => $request, 'command' => DI::args()->getCommand()]);
 		return $request;
-	}
-
-	/**
-	 * Get post data that is transmitted as JSON
-	 *
-	 * @return array request data
-	 */
-	public static function getJsonPostData()
-	{
-		$postdata = Network::postdata();
-		if (empty($postdata)) {
-			return [];
-		}
-
-		return json_decode($postdata, true);
-	}
-
-	/**
-	 * Get request data for put requests
-	 *
-	 * @return array request data
-	 */
-	public static function getPutData()
-	{
-		$rawdata = Network::postdata();
-		if (empty($rawdata)) {
-			return [];
-		}
-
-		$putdata = [];
-
-		foreach (explode('&', $rawdata) as $value) {
-			$data = explode('=', $value);
-			if (count($data) == 2) {
-				$putdata[$data[0]] = urldecode($data[1]);
-			}
-		}
-
-		return $putdata;
 	}
 
 	/**
@@ -394,7 +359,7 @@ class BaseApi extends BaseModule
 				Logger::warning('Requested token scope is not allowed for the application', ['token' => $fields, 'application' => $application]);
 			}
 		}
-	
+
 		if (!DBA::insert('application-token', $fields, Database::INSERT_UPDATE)) {
 			return [];
 		}

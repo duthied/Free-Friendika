@@ -401,9 +401,13 @@ class Post
 		}
 
 		// Fetching of Diaspora posts doesn't always work. There are issues with reshares and possibly comments
-		if (($item['network'] != Protocol::DIASPORA) && empty($comment) && !empty(Session::get('remote_comment'))) {
+		if (!local_user() && ($item['network'] != Protocol::DIASPORA) && !empty(Session::get('remote_comment'))) {
 			$remote_comment = [DI::l10n()->t('Comment this item on your system'), DI::l10n()->t('Remote comment'),
 				str_replace('{uri}', urlencode($item['uri']), Session::get('remote_comment'))];
+
+			// Ensure to either display the remote comment or the local activities
+			$buttons = [];
+			$comment_html = '';
 		} else {
 			$remote_comment = '';
 		}

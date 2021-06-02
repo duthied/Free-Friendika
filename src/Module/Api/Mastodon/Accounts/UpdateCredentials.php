@@ -21,8 +21,9 @@
 
 namespace Friendica\Module\Api\Mastodon\Accounts;
 
+use Friendica\Core\Logger;
 use Friendica\Module\BaseApi;
-use Friendica\Util\Network;
+use Friendica\Util\HTTPInputData;
 
 /**
  * @see https://docs.joinmastodon.org/methods/accounts/
@@ -34,9 +35,10 @@ class UpdateCredentials extends BaseApi
 		self::login(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$data = Network::postdata();
+		$data = HTTPInputData::process();
 
-		// @todo Parse the raw data that is in the "multipart/form-data" format
+		Logger::info('Patch data', ['data' => $data]);
+
 		self::unsupported('patch');
 	}
 }

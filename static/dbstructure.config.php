@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1419);
+	define('DB_UPDATE_VERSION', 1421);
 }
 
 return [
@@ -880,6 +880,29 @@ return [
 			"PRIMARY" => ["id"],
 			"uid_mid" => ["UNIQUE", "uid", "mid"],
 			"mid" => ["mid"],
+		]
+	],
+	"notification" => [
+		"comment" => "notifications",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
+			"uid" => ["type" => "mediumint unsigned", "foreign" => ["user" => "uid"], "comment" => "Owner User id"],
+			"vid" => ["type" => "smallint unsigned", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
+			"type" => ["type" => "tinyint unsigned", "comment" => ""],
+			"actor-id" => ["type" => "int unsigned", "foreign" => ["contact" => "id"], "comment" => "Link to the contact table with uid=0 of the actor that caused the notification"],
+			"target-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the related post"],
+			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Item-uri id of the parent of the related post"],
+			"created" => ["type" => "datetime", "comment" => ""],
+			"seen" => ["type" => "boolean", "default" => "0", "comment" => ""],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uid_vid_type_actor-id_target-uri-id" => ["UNIQUE", "uid", "vid", "type", "actor-id", "target-uri-id"],
+			"vid" => ["vid"],
+			"actor-id" => ["actor-id"],
+			"target-uri-id" => ["target-uri-id"],
+			"parent-uri-id" => ["parent-uri-id"],
+			"seen_uid" => ["seen", "uid"],
 		]
 	],
 	"notify" => [

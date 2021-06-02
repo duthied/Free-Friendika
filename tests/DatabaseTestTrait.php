@@ -34,6 +34,8 @@ trait DatabaseTestTrait
 		StaticDatabase::statConnect($_SERVER);
 		// Rollbacks every DB usage (in case the test couldn't call tearDown)
 		StaticDatabase::statRollback();
+		// Rollback the first, outer transaction just 2 be sure
+		StaticDatabase::getGlobConnection()->rollBack();
 		// Start the first, outer transaction
 		StaticDatabase::getGlobConnection()->beginTransaction();
 	}

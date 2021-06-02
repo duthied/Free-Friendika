@@ -41,6 +41,8 @@ class PublicTimeline extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
+		$uid = self::getCurrentUserID();
+
 		$request = self::getRequest([
 			'local'           => false, // Show only local statuses? Defaults to false.
 			'remote'          => false, // Show only remote statuses? Defaults to false.
@@ -56,7 +58,7 @@ class PublicTimeline extends BaseApi
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		$condition = ['gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'private' => Item::PUBLIC,
-			'uid' => 0, 'network' => Protocol::FEDERATED];
+			'uid' => 0, 'network' => Protocol::FEDERATED, 'parent-author-blocked' => false, 'parent-author-hidden' => false];
 
 		if ($request['local']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
@@ -88,7 +90,12 @@ class PublicTimeline extends BaseApi
 			$condition = DBA::mergeConditions($condition, ['gravity' => GRAVITY_PARENT]);
 		}
 
-		$items = Post::selectForUser(0, ['uri-id', 'uid'], $condition, $params);
+		if (!empty($uid)) {
+			$condition = DBA::mergeConditions($condition,
+				["NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `parent-author-id` AND (`blocked` OR `ignored`))", $uid]);
+		}
+
+		$items = Post::selectForUser($uid, ['uri-id', 'uid'], $condition, $params);
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {

@@ -737,8 +737,6 @@ function conversation_fetch_comments($thread_items, bool $pinned, array $activit
 			}
 		}
 
-		$name = $row['causer-contact-type'] == Contact::TYPE_RELAY ? $row['causer-link'] : $row['causer-name'];
-
 		switch ($row['post-reason']) {
 			case Item::PR_TO:
 				$row['direction'] = ['direction' => 7, 'title' => DI::l10n()->t('You had been addressed (%s).', 'to')];
@@ -769,9 +767,9 @@ function conversation_fetch_comments($thread_items, bool $pinned, array $activit
 				if (($row['gravity'] == GRAVITY_PARENT) && !empty($row['causer-id'])) {
 					$causer = ['uid' => 0, 'id' => $row['causer-id'],
 						'network' => $row['causer-network'], 'url' => $row['causer-link']];
-					$row['reshared'] = DI::l10n()->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkByContact($causer)) .'">' . htmlentities($name) . '</a>');
+					$row['reshared'] = DI::l10n()->t('%s reshared this.', '<a href="'. htmlentities(Contact::magicLinkByContact($causer)) .'">' . htmlentities($row['causer-name']) . '</a>');
 				}
-				$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Reshared') : DI::l10n()->t('Reshared by %s', $name))];
+				$row['direction'] = ['direction' => 3, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Reshared') : DI::l10n()->t('Reshared by %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
 			case Item::PR_COMMENT:
 				$row['direction'] = ['direction' => 5, 'title' => DI::l10n()->t('%s is participating in this thread.', $row['author-name'])];
@@ -783,10 +781,10 @@ function conversation_fetch_comments($thread_items, bool $pinned, array $activit
 				$row['direction'] = ['direction' => 9, 'title' => DI::l10n()->t('Global')];
 				break;
 			case Item::PR_RELAY:
-				$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Relayed') : DI::l10n()->t('Relayed by %s.', $name))];
+				$row['direction'] = ['direction' => 10, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Relayed') : DI::l10n()->t('Relayed by %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
 			case Item::PR_FETCHED:
-				$row['direction'] = ['direction' => 2, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Fetched') : DI::l10n()->t('Fetched because of %s', $name))];
+				$row['direction'] = ['direction' => 2, 'title' => (empty($row['causer-id']) ? DI::l10n()->t('Fetched') : DI::l10n()->t('Fetched because of %s <%s>', $row['causer-name'], $row['causer-link']))];
 				break;
 			}
 

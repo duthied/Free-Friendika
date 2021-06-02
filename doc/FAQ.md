@@ -33,9 +33,10 @@ User
 If this FAQ does not answer your question you can always reach out to the community via the following options:
 
   * Friendica Support Forum: [@helpers@forum.friendi.ca](https://forum.friendi.ca/~helpers)
-  * XMPP: support(at)forum.friendi.ca
-  * IRC: [#friendica at freenode.net](https://webchat.freenode.net/?settings=#friendica)
-  * Matrix: [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
+  * Community chat rooms (the IRC, Matrix and XMPP rooms are bridged) these public chats are logged [from IRC](https://gnusociarg.nsupdate.info/2021/%23friendica/) and [Matrix](https://view.matrix.org/alias/%23friendi.ca:matrix.org/)
+    * XMPP: support(at)forum.friendi.ca
+    * IRC: #friendica at libera.chat or  [#friendica at freenode.net](https://webchat.freenode.net/?settings=#friendica)
+    * Matrix: [#friendica-en:matrix.org](https://matrix.to/#/#friendica-en:matrix.org) or [#friendi.ca:matrix.org](https://matrix.to/#/#friendi.ca:matrix.org)
   * [Mailing List](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca)
   <!--- * [XMPP](xmpp:support@forum.friendi.ca?join)
 	https://github.com/github/markup/issues/202
@@ -182,6 +183,7 @@ Example: Friendica Support
 ### What friendica clients can I use?
 
 Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your platform as long as you can change the API path in its settings.
+Since the 2021.06 release, Friendica also supports the Mastodon API.
 Here is a list of known working clients:
 
 * Android
@@ -195,6 +197,11 @@ Here is a list of known working clients:
   * [Choqok](https://choqok.kde.org)
 * Windows
   * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) (Windows 10)
+  * [Husky](https://husky.fwgs.ru)
+  * [Subway Tooter](https://github.com/tateisu/SubwayTooter)
+  * [Tusky](https://tusky.app)
+  * [twitlatte](https://github.com/moko256/twitlatte)
+  * [Yuito](https://github.com/accelforce/Yuito)
 
 Depending on the features of the client you might encounter some glitches in usability, like being limited in the length of your postings to 140 characters and having no access to the [permission settings](help/Groups-and-Privacy).
 

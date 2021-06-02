@@ -52,7 +52,7 @@ class Bookmarks extends BaseApi
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
-		$condition = ['pinned' => true, 'uid' => $uid];
+		$condition = ['starred' => true, 'uid' => $uid];
 
 		if (!empty($request['max_id'])) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $request['max_id']]);

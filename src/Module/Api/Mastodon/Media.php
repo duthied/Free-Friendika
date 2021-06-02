@@ -58,7 +58,12 @@ class Media extends BaseApi
 		self::login(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
-		$data = self::getPutData();
+		$request = self::getRequest([
+			'file'        => [], // The file to be attached, using multipart form data.
+			'thumbnail'   => [], // The custom thumbnail of the media to be attached, using multipart form data.
+			'description' => '', // A plain-text description of the media, for accessibility purposes.
+			'focus'       => '', // Two floating points (x,y), comma-delimited ranging from -1.0 to 1.0
+		]);
 
 		if (empty($parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
@@ -69,7 +74,7 @@ class Media extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		Photo::update(['desc' => $data['description'] ?? ''], ['resource-id' => $photo['resource-id']]);
+		Photo::update(['desc' => $request['description']], ['resource-id' => $photo['resource-id']]);
 
 		System::jsonExit(DI::mstdnAttachment()->createFromPhoto($parameters['id']));
 	}

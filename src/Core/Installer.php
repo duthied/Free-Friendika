@@ -465,7 +465,7 @@ class Installer
 
 		$status = $this->checkFunction('proc_open',
 			DI::l10n()->t('Program execution functions'),
-			DI::l10n()->t('Error: Program execution functions required but not enabled.'),
+			DI::l10n()->t('Error: Program execution functions (proc_open) required but not enabled.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;

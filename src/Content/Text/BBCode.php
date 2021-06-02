@@ -2196,9 +2196,7 @@ class BBCode
 					}
 				}
 
-				$success = Item::replaceTag($body, $inform, $profile_uid, $tag, $network);
-
-				if ($success['replaced']) {
+				if (($success = Item::replaceTag($body, $inform, $profile_uid, $tag, $network)) && $success['replaced']) {
 					$tagged[] = $tag;
 				}
 			}

@@ -43,7 +43,7 @@ class Attach extends BaseModule
 
 		// @TODO: Replace with parameter from router
 		$item_id = intval($a->argv[1]);
-		
+
 		// Check for existence
 		$item = MAttach::exists(['id' => $item_id]);
 		if ($item === false) {
