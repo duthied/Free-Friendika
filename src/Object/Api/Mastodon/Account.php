@@ -108,7 +108,7 @@ class Account extends BaseDataTransferObject
 		$userContactCreated = $userContact['created'] ?? DBA::NULL_DATETIME;
 
 		$created = $userContactCreated < $publicContactCreated && ($userContactCreated != DBA::NULL_DATETIME) ? $userContactCreated : $publicContactCreated;
-		$this->created_at      = DateTimeFormat::utc($created, DateTimeFormat::API);
+		$this->created_at      = DateTimeFormat::utc($created, DateTimeFormat::JSON);
 
 		$this->note            = BBCode::convert($publicContact['about'], false);
 		$this->url             = $publicContact['url'];

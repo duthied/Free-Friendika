@@ -53,6 +53,6 @@ class Token extends BaseDataTransferObject
 		$this->access_token = $access_token;
 		$this->token_type   = $token_type;
 		$this->scope        = $scope;
-		$this->created_at   = DateTimeFormat::utc($created_at, DateTimeFormat::API);
+		$this->created_at   = DateTimeFormat::utc($created_at, DateTimeFormat::JSON);
 	}
 }
