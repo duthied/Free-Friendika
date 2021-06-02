@@ -238,7 +238,7 @@ class BaseApi extends BaseModule
 	 *
 	 * @return int User ID
 	 */
-	protected static function getCurrentUserID()
+	public static function getCurrentUserID(bool $nologin = false)
 	{
 		if (empty(self::$current_user_id)) {
 			self::$current_token = self::getTokenByBearer();
@@ -247,7 +247,10 @@ class BaseApi extends BaseModule
 			} else {
 				self::$current_user_id = 0;
 			}
+		}
 
+		if ($nologin) {
+			return (int)self::$current_user_id;
 		}
 
 		if (empty(self::$current_user_id)) {
