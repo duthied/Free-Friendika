@@ -73,6 +73,7 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 
 
 - [`GET /api/v1/instance`](https://docs.joinmastodon.org/methods/instance#fetch-instance)
+- GET /api/v1/instance/rules Undocumented, returns Terms of Service
 - [`GET /api/v1/instance/peers`](https://docs.joinmastodon.org/methods/instance#list-of-connected-domains)
 - [`GET /api/v1/lists`](https://docs.joinmastodon.org/methods/timelines/lists/)
 - [`POST /api/v1/lists`](https://docs.joinmastodon.org/methods/timelines/lists/)
@@ -140,7 +141,9 @@ They refer to features that don't exist in Friendica yet.
 These endpoints won't be implemented at the moment.
 They refer to features or data that don't exist in Friendica yet.
 
+- POST /api/meta Misskey API endpoint.
 - [`POST /api/v1/accounts`](https://docs.joinmastodon.org/methods/accounts/)
+- [`GET /api/v1/accounts/:id/featured_tags`](https://docs.joinmastodon.org/methods/accounts/)
 - [`POST /api/v1/accounts/:id/pin`](https://docs.joinmastodon.org/methods/accounts/)
 - [`POST /api/v1/accounts/:id/unpin`](https://docs.joinmastodon.org/methods/accounts/)
 - [`GET /api/v1/admin/accounts`](https://docs.joinmastodon.org/methods/admin/)
@@ -167,8 +170,13 @@ They refer to features or data that don't exist in Friendica yet.
 - [`POST /api/v1/markers`](https://docs.joinmastodon.org/methods/timelines/markers/)
 - [`GET /api/v1/polls/:id`](https://docs.joinmastodon.org/methods/statuses/polls/)
 - [`POST /api/v1/polls/:id/votes`](https://docs.joinmastodon.org/methods/statuses/polls/)
+- [`DELETE /api/v1/push/subscription`](https://docs.joinmastodon.org/methods/notifications/push/)
+- [`GET /api/v1/push/subscription`](https://docs.joinmastodon.org/methods/notifications/push/)
+- [`PUSH /api/v1/push/subscription`](https://docs.joinmastodon.org/methods/notifications/push/)
+- [`PUT /api/v1/push/subscription`](https://docs.joinmastodon.org/methods/notifications/push/)
 - [`POST /api/v1/reports`](https://docs.joinmastodon.org/methods/accounts/reports/)
 - [`GET /api/v1/scheduled_statuses/:id`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 - [`PUT /api/v1/scheduled_statuses/:id`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 - [`DELETE /api/v1/scheduled_statuses/:id`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
+- [`GET /api/v1/streaming`](https://docs.joinmastodon.org/methods/timelines/streaming/)
 - [`DELETE /api/v1/suggestions/:id`](https://docs.joinmastodon.org/methods/accounts/suggestions/)
