@@ -44,6 +44,7 @@ use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Model\Verb;
+use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\ExpectationFailedException;
@@ -88,6 +89,11 @@ $called_api = [];
  */
 function api_user()
 {
+	$user = BaseApi::getCurrentUserID(true);
+	if (!empty($user)) {
+		return $user;
+	}
+
 	if (!empty($_SESSION['allow_api'])) {
 		return local_user();
 	}
