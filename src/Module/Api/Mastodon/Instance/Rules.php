@@ -40,10 +40,11 @@ class Rules extends BaseApi
 	public static function rawContent(array $parameters = [])
 	{
 		$rules = [];
-		$id = 0;
+		$id    = 0;
 
 		if (DI::config()->get('system', 'tosdisplay')) {
 			$html = BBCode::convert(DI::config()->get('system', 'tostext'), false, BBCode::EXTERNAL);
+
 			$msg = HTML::toPlaintext($html, 0, true);
 			foreach (explode("\n", $msg) as $line) {
 				$line = trim($line);
