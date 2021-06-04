@@ -24,6 +24,7 @@ namespace Friendica\Module\Api\Mastodon;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Module\BaseApi;
 
 /**
@@ -37,13 +38,22 @@ class Accounts extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		if (empty($parameters['id'])) {
+		if (empty($parameters['id']) && empty($parameters['name'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$id = $parameters['id'];
-		if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
-			DI::mstdnError()->RecordNotFound();
+		if (!empty($parameters['id'])) {
+			$id = $parameters['id'];
+			if (!DBA::exists('contact', ['id' => $id, 'uid' => 0])) {
+				DI::mstdnError()->RecordNotFound();
+			}
+		} else {
+			$contact = Contact::selectFirst(['id'], ['nick' => $parameters['name'], 'uid' => 0]);
+			if (!empty($contact['id'])) {
+				$id = $contact['id'];
+			} elseif (!($id = Contact::getIdForURL($parameters['name'], 0, false))) {
+				DI::mstdnError()->RecordNotFound();
+			}
 		}
 
 		$account = DI::mstdnAccount()->createFromContactId($id, self::getCurrentUserID());

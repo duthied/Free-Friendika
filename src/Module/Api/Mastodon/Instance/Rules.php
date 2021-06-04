@@ -19,31 +19,41 @@
  *
  */
 
-namespace Friendica\Module\Api\Mastodon;
+namespace Friendica\Module\Api\Mastodon\Instance;
 
+use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Friendica\Network\HTTPException;
 
 /**
- * @see https://docs.joinmastodon.org/methods/accounts/filters/
+ * Undocumented API endpoint
  */
-class Filters extends BaseApi
+class Rules extends BaseApi
 {
-	public static function post(array $parameters = [])
-	{
-		self::login(self::SCOPE_WRITE);
-
-		self::unsupported('post');
-	}
-
 	/**
 	 * @param array $parameters
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		$rules = [];
+		$id    = 0;
 
-		System::jsonExit([]);
+		if (DI::config()->get('system', 'tosdisplay')) {
+			$html = BBCode::convert(DI::config()->get('system', 'tostext'), false, BBCode::EXTERNAL);
+
+			$msg = HTML::toPlaintext($html, 0, true);
+			foreach (explode("\n", $msg) as $line) {
+				$line = trim($line);
+				if ($line) {
+					$rules[] = ['id' => (string)++$id, 'text' => $line];
+				}
+			}
+		}
+
+		System::jsonExit($rules);
 	}
 }
