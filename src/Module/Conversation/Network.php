@@ -20,8 +20,10 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Model\Verb;
 use Friendica\Module\Contact as ModuleContact;
 use Friendica\Module\Security\Login;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 
 class Network extends BaseModule
@@ -388,7 +390,9 @@ class Network extends BaseModule
 		if (self::$groupId) {
 			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)", self::$groupId]);
 		} elseif (self::$forumContactId) {
-			$conditionFields['contact-id'] = self::$forumContactId;
+			$conditionStrings = DBA::mergeConditions($conditionStrings, 
+				["((`contact-id` = ?) OR EXISTS(SELECT `uri-id` FROM `post-user-view` WHERE `post-user-view`.`parent-uri-id` = `network-thread-view`.`uri-id` AND (`contact-id` = ? AND `gravity` = ? AND `vid` = ? AND `uid` = ?)))",
+				self::$forumContactId, self::$forumContactId, GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), local_user()]);
 		}
 
 		// Currently only the order modes "received" and "commented" are in use
