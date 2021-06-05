@@ -22,19 +22,34 @@
 namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
-use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Protocol\Activity;
+use Psr\Log\LoggerInterface;
 
 class Notification extends BaseFactory
 {
+	/** @var Database */
+	private $dba;
+	/** @var Account */
+	private $mstdnAccountFactory;
+	/** @var Status */
+	private $mstdnStatusFactory;
+	
+	public function __construct(LoggerInterface $logger, Database $dba, Account $mstdnAccountFactory, Status $mstdnStatusFactoryFactory)
+	{
+		parent::__construct($logger);
+		$this->dba = $dba;
+		$this->mstdnAccountFactory = $mstdnAccountFactory;
+		$this->mstdnStatusFactory = $mstdnStatusFactoryFactory;
+	}
+
 	public function createFromNotificationId(int $id)
 	{
-		$notification = DBA::selectFirst('notification', [], ['id' => $id]);
-		if (!DBA::isResult($notification)) {
+		$notification = $this->dba->selectFirst('notification', [], ['id' => $id]);
+		if (!$this->dba->isResult($notification)) {
 			return null;
 		}
 		/*
@@ -66,11 +81,11 @@ class Notification extends BaseFactory
 			return null;
 		}
 
-		$account = DI::mstdnAccount()->createFromContactId($notification['actor-id'], $notification['uid']);
+		$account = $this->mstdnAccountFactory->createFromContactId($notification['actor-id'], $notification['uid']);
 
 		if (!empty($notification['target-uri-id'])) {
 			try {
-				$status = DI::mstdnStatus()->createFromUriId($notification['target-uri-id'], $notification['uid']);
+				$status = $this->mstdnStatusFactory->createFromUriId($notification['target-uri-id'], $notification['uid']);
 			} catch (\Throwable $th) {
 				$status = null;
 			}

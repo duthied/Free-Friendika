@@ -32,7 +32,7 @@ use Psr\Log\LoggerInterface;
 class FollowRequest extends BaseFactory
 {
 	/** @var BaseURL */
-	protected $baseUrl;
+	private $baseUrl;
 
 	public function __construct(LoggerInterface $logger, BaseURL $baseURL)
 	{

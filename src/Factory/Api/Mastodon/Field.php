@@ -32,7 +32,7 @@ class Field extends BaseFactory
 {
 	/**
 	 * @param ProfileField $profileField
-	 * @return \Friendica\Api\Entity\Mastodon\Field
+	 * @return \Friendica\Object\Api\Mastodon\Field
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public function createFromProfileField(ProfileField $profileField)

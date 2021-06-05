@@ -23,11 +23,9 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
-use Friendica\DI;
 use Friendica\Model\Photo;
 use Friendica\Network\HTTPException;
 use Friendica\Model\Post;
-use Friendica\Repository\ProfileField;
 use Friendica\Util\Images;
 use Friendica\Util\Proxy;
 use Psr\Log\LoggerInterface;
@@ -35,19 +33,13 @@ use Psr\Log\LoggerInterface;
 class Attachment extends BaseFactory
 {
 	/** @var BaseURL */
-	protected $baseUrl;
-	/** @var ProfileField */
-	protected $profileField;
-	/** @var Field */
-	protected $mstdnField;
+	private $baseUrl;
 
-	public function __construct(LoggerInterface $logger, BaseURL $baseURL, ProfileField $profileField, Field $mstdnField)
+	public function __construct(LoggerInterface $logger, BaseURL $baseURL)
 	{
 		parent::__construct($logger);
 
 		$this->baseUrl = $baseURL;
-		$this->profileField = $profileField;
-		$this->mstdnField = $mstdnField;
 	}
 
 	/**
@@ -115,11 +107,11 @@ class Attachment extends BaseFactory
 		$phototypes = Images::supportedTypes();
 		$ext = $phototypes[$photo['type']];
 
-		$url = DI::baseUrl() . '/photo/' . $photo['resource-id'] . '-0.' . $ext;
+		$url = $this->baseUrl . '/photo/' . $photo['resource-id'] . '-0.' . $ext;
 
 		$preview = Photo::selectFirst(['scale'], ["`resource-id` = ? AND `uid` = ? AND `scale` > ?", $photo['resource-id'], $photo['uid'], 0], ['order' => ['scale']]);
 		if (empty($scale)) {
-			$preview_url = DI::baseUrl() . '/photo/' . $photo['resource-id'] . '-' . $preview['scale'] . '.' . $ext;
+			$preview_url = $this->baseUrl . '/photo/' . $photo['resource-id'] . '-' . $preview['scale'] . '.' . $ext;
 		} else {
 			$preview_url = '';
 		}

@@ -22,13 +22,23 @@
 namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
-use Friendica\Database\DBA;
+use Friendica\Database\Database;
+use Psr\Log\LoggerInterface;
 
 class ListEntity extends BaseFactory
 {
+	/** @var Database */
+	private $dba;
+
+	public function __construct(LoggerInterface $logger, Database $dba)
+	{
+		parent::__construct($logger);
+		$this->dba = $dba;
+	}
+
 	public function createFromGroupId(int $id)
 	{
-		$group = DBA::selectFirst('group', ['name'], ['id' => $id, 'deleted' => false]);
+		$group = $this->dba->selectFirst('group', ['name'], ['id' => $id, 'deleted' => false]);
 		return new \Friendica\Object\Api\Mastodon\ListEntity($id, $group['name'] ?? '', 'list');
 	}
 }

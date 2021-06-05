@@ -288,14 +288,6 @@ abstract class DI
 	}
 
 	/**
-	 * @return Factory\Api\Mastodon\Field
-	 */
-	public static function mstdnField()
-	{
-		return self::$dice->create(Factory\Api\Mastodon\Field::class);
-	}
-
-	/**
 	 * @return Factory\Api\Mastodon\FollowRequest
 	 */
 	public static function mstdnFollowRequest()
@@ -328,27 +320,11 @@ abstract class DI
 	}
 
 	/**
-	 * @return Factory\Api\Mastodon\Mention
-	 */
-	public static function mstdnMention()
-	{
-		return self::$dice->create(Factory\Api\Mastodon\Mention::class);
-	}
-
-	/**
 	 * @return Factory\Api\Mastodon\Notification
 	 */
 	public static function mstdnNotification()
 	{
 		return self::$dice->create(Factory\Api\Mastodon\Notification::class);
-	}
-
-	/**
-	 * @return Factory\Api\Mastodon\Tag
-	 */
-	public static function mstdnTag()
-	{
-		return self::$dice->create(Factory\Api\Mastodon\Tag::class);
 	}
 
 	/**

@@ -25,25 +25,18 @@ use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
 use Friendica\Model\Tag as TagModel;
 use Friendica\Network\HTTPException;
-use Friendica\Repository\ProfileField;
 use Psr\Log\LoggerInterface;
 
 class Tag extends BaseFactory
 {
 	/** @var BaseURL */
-	protected $baseUrl;
-	/** @var ProfileField */
-	protected $profileField;
-	/** @var Field */
-	protected $mstdnField;
+	private $baseUrl;
 
-	public function __construct(LoggerInterface $logger, BaseURL $baseURL, ProfileField $profileField, Field $mstdnField)
+	public function __construct(LoggerInterface $logger, BaseURL $baseURL)
 	{
 		parent::__construct($logger);
 
 		$this->baseUrl = $baseURL;
-		$this->profileField = $profileField;
-		$this->mstdnField = $mstdnField;
 	}
 
 	/**

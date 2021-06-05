@@ -23,44 +23,37 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
+use Friendica\Collection\Api\Mastodon\Mentions;
 use Friendica\Model\Contact;
 use Friendica\Model\Tag;
 use Friendica\Network\HTTPException;
-use Friendica\Repository\ProfileField;
 use Psr\Log\LoggerInterface;
 
 class Mention extends BaseFactory
 {
 	/** @var BaseURL */
-	protected $baseUrl;
-	/** @var ProfileField */
-	protected $profileField;
-	/** @var Field */
-	protected $mstdnField;
+	private $baseUrl;
 
-	public function __construct(LoggerInterface $logger, BaseURL $baseURL, ProfileField $profileField, Field $mstdnField)
+	public function __construct(LoggerInterface $logger, BaseURL $baseURL)
 	{
 		parent::__construct($logger);
 
 		$this->baseUrl = $baseURL;
-		$this->profileField = $profileField;
-		$this->mstdnField = $mstdnField;
 	}
 
 	/**
 	 * @param int $uriId Uri-ID of the item
-	 * @return array
+	 * @return Mentions
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public function createFromUriId(int $uriId)
 	{
-		$mentions = [];
+		$mentions = new Mentions();
 		$tags = Tag::getByURIId($uriId, [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION]);
 		foreach ($tags as $tag) {
 			$contact = Contact::getByURL($tag['url'], false);
-			$mention = new \Friendica\Object\Api\Mastodon\Mention($this->baseUrl, $tag, $contact);
-			$mentions[] = $mention->toArray();
+			$mentions->append(new \Friendica\Object\Api\Mastodon\Mention($this->baseUrl, $tag, $contact));
 		}
 		return $mentions;
 	}

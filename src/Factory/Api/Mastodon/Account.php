@@ -34,19 +34,19 @@ use Psr\Log\LoggerInterface;
 class Account extends BaseFactory
 {
 	/** @var BaseURL */
-	protected $baseUrl;
+	private $baseUrl;
 	/** @var ProfileField */
-	protected $profileField;
+	private $profileFieldRepo;
 	/** @var Field */
-	protected $mstdnField;
+	private $mstdnFieldFactory;
 
-	public function __construct(LoggerInterface $logger, BaseURL $baseURL, ProfileField $profileField, Field $mstdnField)
+	public function __construct(LoggerInterface $logger, BaseURL $baseURL, ProfileField $profileFieldRepo, Field $mstdnFieldFactory)
 	{
 		parent::__construct($logger);
 
-		$this->baseUrl      = $baseURL;
-		$this->profileField = $profileField;
-		$this->mstdnField   = $mstdnField;
+		$this->baseUrl           = $baseURL;
+		$this->profileFieldRepo  = $profileFieldRepo;
+		$this->mstdnFieldFactory = $mstdnFieldFactory;
 	}
 
 	/**
@@ -75,8 +75,8 @@ class Account extends BaseFactory
 
 		$self_contact = Contact::selectFirst(['uid'], ['nurl' => $publicContact['nurl'], 'self' => true]);
 		if (!empty($self_contact['uid'])) {
-			$profileFields = $this->profileField->select(['uid' => $self_contact['uid'], 'psid' => PermissionSet::PUBLIC]);
-			$fields        = $this->mstdnField->createFromProfileFields($profileFields);
+			$profileFields = $this->profileFieldRepo->select(['uid' => $self_contact['uid'], 'psid' => PermissionSet::PUBLIC]);
+			$fields        = $this->mstdnFieldFactory->createFromProfileFields($profileFields);
 		} else {
 			$fields = new Fields();
 		}
@@ -94,8 +94,8 @@ class Account extends BaseFactory
 	{
 		$publicContact = Contact::selectFirst([], ['uid' => $userId, 'self' => true]);
 
-		$profileFields = $this->profileField->select(['uid' => $userId, 'psid' => PermissionSet::PUBLIC]);
-		$fields        = $this->mstdnField->createFromProfileFields($profileFields);
+		$profileFields = $this->profileFieldRepo->select(['uid' => $userId, 'psid' => PermissionSet::PUBLIC]);
+		$fields        = $this->mstdnFieldFactory->createFromProfileFields($profileFields);
 
 		$apcontact     = APContact::getByURL($publicContact['url'], false);
 

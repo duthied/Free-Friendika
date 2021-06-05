@@ -22,28 +22,41 @@
 namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
-use Friendica\Database\DBA;
+use Friendica\Database\Database;
+use Friendica\Network\HTTPException\InternalServerErrorException;
+use Psr\Log\LoggerInterface;
 
 class Application extends BaseFactory
 {
+	/** @var Database */
+	private $dba;
+
+	public function __construct(LoggerInterface $logger, Database $dba)
+	{
+		parent::__construct($logger);
+		$this->dba = $dba;
+	}
+
 	/**
 	 * @param int $id Application ID
+	 *
+	 * @return \Friendica\Object\Api\Mastodon\Application
+	 *
+	 * @throws InternalServerErrorException
 	 */
 	public function createFromApplicationId(int $id)
 	{
-		$application = DBA::selectFirst('application', ['client_id', 'client_secret', 'id', 'name', 'redirect_uri', 'website'], ['id' => $id]);
-		if (!DBA::isResult($application)) {
+		$application = $this->dba->selectFirst('application', ['client_id', 'client_secret', 'id', 'name', 'redirect_uri', 'website'], ['id' => $id]);
+		if (!$this->dba->isResult($application)) {
 			return [];
 		}
 
-		$object = new \Friendica\Object\Api\Mastodon\Application(
+		return new \Friendica\Object\Api\Mastodon\Application(
 			$application['name'],
 			$application['client_id'],
 			$application['client_secret'],
 			$application['id'],
 			$application['redirect_uri'],
 			$application['website']);
-
-		return $object->toArray();
 	}
 }
