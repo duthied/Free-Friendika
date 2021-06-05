@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Friendica\Collection\Api\Mastodon;
 
 use Friendica\BaseCollection;
