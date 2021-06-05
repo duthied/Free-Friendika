@@ -1919,7 +1919,7 @@ class Item
 
 		// also reset all the privacy bits to the forum default permissions
 
-		$private = ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) ? self::PRIVATE : self::PUBLIC;
+		$private = ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) ? self::PRIVATE : self::UNLISTED;
 
 		$psid = PermissionSet::getIdFromACL(
 			$user['uid'],

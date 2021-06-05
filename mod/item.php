@@ -436,8 +436,8 @@ function item_post(App $a) {
 	$original_contact_id = $contact_id;
 
 	if (!$toplevel_item_id && !empty($forum_contact) && ($private_forum || $only_to_forum)) {
-		// we tagged a forum in a top level post. Now we change the post
-		$private = $private_forum;
+		// we tagged a forum in a top level post. Now we change the post		
+		$private = $private_forum ? Item::PRIVATE : Item::UNLISTED;
 
 		if ($only_to_forum) {
 			$postopts = '';
