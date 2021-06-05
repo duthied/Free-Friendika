@@ -60,6 +60,7 @@ return [
 			'/accounts'                          => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/accounts/{id:\d+}'                 => [Module\Api\Mastodon\Accounts::class,                 [R::GET         ]],
 			'/accounts/{id:\d+}/statuses'        => [Module\Api\Mastodon\Accounts\Statuses::class,        [R::GET         ]],
+			'/accounts/{id:\d+}/featured_tags'   => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
 			'/accounts/{id:\d+}/followers'       => [Module\Api\Mastodon\Accounts\Followers::class,       [R::GET         ]],
 			'/accounts/{id:\d+}/following'       => [Module\Api\Mastodon\Accounts\Following::class,       [R::GET         ]],
 			'/accounts/{id:\d+}/lists'           => [Module\Api\Mastodon\Accounts\Lists::class,           [R::GET         ]],
@@ -77,6 +78,7 @@ return [
 			'/accounts/search'                   => [Module\Api\Mastodon\Accounts\Search::class,          [R::GET         ]],
 			'/accounts/update_credentials'       => [Module\Api\Mastodon\Accounts\UpdateCredentials::class, [R::PATCH     ]],
 			'/accounts/verify_credentials'       => [Module\Api\Mastodon\Accounts\VerifyCredentials::class, [R::GET       ]],
+			'/accounts/{name}'                   => [Module\Api\Mastodon\Accounts::class,                 [R::GET         ]],
 			'/admin/accounts'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/admin/accounts/{id:\d+}'           => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/admin/accounts/{id:\d+}/{action}'  => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
@@ -108,6 +110,7 @@ return [
 			'/instance'                          => [Module\Api\Mastodon\Instance::class,                 [R::GET         ]],
 			'/instance/activity'                 => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // @todo
 			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class,           [R::GET         ]],
+			'/instance/rules'                    => [Module\Api\Mastodon\Instance\Rules::class,           [R::GET         ]], // not supported
 			'/lists'                             => [Module\Api\Mastodon\Lists::class,                    [R::GET, R::POST]],
 			'/lists/{id:\d+}'                    => [Module\Api\Mastodon\Lists::class,                    [R::GET, R::PUT, R::DELETE]],
 			'/lists/{id:\d+}/accounts'           => [Module\Api\Mastodon\Lists\Accounts::class,           [R::GET, R::POST, R::DELETE]],
@@ -122,6 +125,7 @@ return [
 			'/polls/{id:\d+}'                    => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]], // not supported
 			'/polls/{id:\d+}/votes'              => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/preferences'                       => [Module\Api\Mastodon\Preferences::class,              [R::GET         ]],
+			'/push/subscription'                 => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::POST, R::PUT, R::DELETE]], // not supported
 			'/reports'                           => [Module\Api\Mastodon\Unimplemented::class,            [        R::POST]], // not supported
 			'/scheduled_statuses'                => [Module\Api\Mastodon\ScheduledStatuses::class,        [R::GET         ]], // Dummy, not supported
 			'/scheduled_statuses/{id:\d+}'       => [Module\Api\Mastodon\Unimplemented::class,            [R::GET, R::PUT, R::DELETE]], // not supported
@@ -140,6 +144,7 @@ return [
 			'/statuses/{id:\d+}/unmute'          => [Module\Api\Mastodon\Statuses\Unmute::class,          [        R::POST]],
 			'/statuses/{id:\d+}/pin'             => [Module\Api\Mastodon\Statuses\Pin::class,             [        R::POST]],
 			'/statuses/{id:\d+}/unpin'           => [Module\Api\Mastodon\Statuses\Unpin::class,           [        R::POST]],
+			'/streaming'                         => [Module\Api\Mastodon\Unimplemented::class,            [R::GET         ]],
 			'/suggestions'                       => [Module\Api\Mastodon\Suggestions::class,              [R::GET         ]],
 			'/suggestions/{id:\d+}'              => [Module\Api\Mastodon\Unimplemented::class,            [R::DELETE      ]], // not implemented
 			'/timelines/direct'                  => [Module\Api\Mastodon\Timelines\Direct::class,         [R::GET         ]],
@@ -160,6 +165,7 @@ return [
 		'/followers/list'                        => [Module\Api\Twitter\FollowersList::class,  [R::GET         ]],
 		'/friends/ids'                           => [Module\Api\Twitter\FriendsIds::class,     [R::GET         ]],
 		'/friends/list'                          => [Module\Api\Twitter\FriendsList::class,    [R::GET         ]],
+		'/meta'                                  => [Module\Api\Mastodon\Unimplemented::class, [R::POST        ]], // not supported
 		'/oembed'                                => [Module\Api\Mastodon\Unimplemented::class, [R::GET         ]],
 		'/proofs'                                => [Module\Api\Mastodon\Proofs::class,        [R::GET         ]], // Dummy, not supported
 	],

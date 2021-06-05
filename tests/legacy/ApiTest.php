@@ -157,8 +157,8 @@ class ApiTest extends FixtureTest
 	 */
 	private function assertStatus(array $status = [])
 	{
-		self::assertInternalType('string', $status['text'] ?? '');
-		self::assertInternalType('int', $status['id'] ?? '');
+		self::assertIsString($status['text'] ?? '');
+		self::assertIsInt($status['id'] ?? '');
 		// We could probably do more checks here.
 	}
 
@@ -171,9 +171,9 @@ class ApiTest extends FixtureTest
 	 */
 	private function assertList(array $list = [])
 	{
-		self::assertInternalType('string', $list['name']);
-		self::assertInternalType('int', $list['id']);
-		self::assertInternalType('string', $list['id_str']);
+		self::assertIsString($list['name']);
+		self::assertIsInt($list['id']);
+		self::assertIsString('string', $list['id_str']);
 		self::assertContains($list['mode'], ['public', 'private']);
 		// We could probably do more checks here.
 	}
@@ -762,7 +762,7 @@ class ApiTest extends FixtureTest
 	public function testApiRssExtraWithoutUserInfo()
 	{
 		$result = api_rss_extra($this->app, [], null);
-		self::assertInternalType('array', $result['$user']);
+		self::assertIsArray($result['$user']);
 		self::assertArrayHasKey('alternate', $result['$rss']);
 		self::assertArrayHasKey('self', $result['$rss']);
 		self::assertArrayHasKey('base', $result['$rss']);
@@ -2355,7 +2355,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetAttachmentsWithImage()
 	{
 		$body = '[img]http://via.placeholder.com/1x1.png[/img]';
-		self::assertInternalType('array', api_get_attachments($body));
+		self::assertIsArray(api_get_attachments($body));
 	}
 
 	/**
@@ -2367,7 +2367,7 @@ class ApiTest extends FixtureTest
 	{
 		$_SERVER['HTTP_USER_AGENT'] = 'AndStatus';
 		$body                       = '[img]http://via.placeholder.com/1x1.png[/img]';
-		self::assertInternalType('array', api_get_attachments($body));
+		self::assertIsArray(api_get_attachments($body));
 	}
 
 	/**
@@ -2378,7 +2378,7 @@ class ApiTest extends FixtureTest
 	public function testApiGetEntitities()
 	{
 		$text = 'text';
-		self::assertInternalType('array', api_get_entitities($text, 'bbcode'));
+		self::assertIsArray(api_get_entitities($text, 'bbcode'));
 	}
 
 	/**
@@ -2391,10 +2391,10 @@ class ApiTest extends FixtureTest
 		$_REQUEST['include_entities'] = 'true';
 		$text                         = 'text';
 		$result                       = api_get_entitities($text, 'bbcode');
-		self::assertInternalType('array', $result['hashtags']);
-		self::assertInternalType('array', $result['symbols']);
-		self::assertInternalType('array', $result['urls']);
-		self::assertInternalType('array', $result['user_mentions']);
+		self::assertIsArray($result['hashtags']);
+		self::assertIsArray($result['symbols']);
+		self::assertIsArray($result['urls']);
+		self::assertIsArray($result['user_mentions']);
 	}
 
 	/**
@@ -2532,7 +2532,7 @@ class ApiTest extends FixtureTest
 		$result = api_account_rate_limit_status('json');
 		self::assertEquals(150, $result['hash']['remaining_hits']);
 		self::assertEquals(150, $result['hash']['hourly_limit']);
-		self::assertInternalType('int', $result['hash']['reset_time_in_seconds']);
+		self::assertIsInt($result['hash']['reset_time_in_seconds']);
 	}
 
 	/**

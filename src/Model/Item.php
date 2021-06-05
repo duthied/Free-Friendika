@@ -2882,7 +2882,7 @@ class Item
 						'mime'   => $attachment['mimetype'],
 					],
 				]);
-				if ($item['post-type'] == Item::PT_AUDIO) {
+				if (($item['post-type'] ?? null) == Item::PT_AUDIO) {
 					$leading .= $media;
 				} else {
 					$trailing .= $media;
