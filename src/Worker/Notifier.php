@@ -283,6 +283,16 @@ class Notifier
 				}
 
 				Logger::log('Notify ' . $target_item["guid"] .' via PuSH: ' . ($push_notify ? "Yes":"No"), Logger::DEBUG);
+			} elseif ($targets = Tag::getByURIId($target_item['uri-id'], [Tag::EXCLUSIVE_MENTION])) {
+				$followup = true;
+
+				foreach ($targets as $target) {
+					$cid = Contact::getIdForURL($target['url'], $uid, false);
+					if ($cid) {
+						$recipients_followup[] = $cid;
+						Logger::info('Exclusively delivering', ['guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'url' => $target['url']]);
+					}
+				}
 			} else {
 				$followup = false;
 

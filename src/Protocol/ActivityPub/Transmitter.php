@@ -533,6 +533,8 @@ class Transmitter
 			$actor_profile = APContact::getByURL($item['author-link']);
 		}
 
+		$exclusive = false;
+
 		$terms = Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION]);
 
 		if ($item['private'] != Item::PRIVATE) {
@@ -557,6 +559,9 @@ class Transmitter
 			foreach ($terms as $term) {
 				$profile = APContact::getByURL($term['url'], false);
 				if (!empty($profile)) {
+					if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
+						$exclusive = true;
+					}
 					$data['to'][] = $profile['url'];
 				}
 			}
@@ -612,7 +617,7 @@ class Transmitter
 									$data['cc'][] = $actor_profile['followers'];
 								}
 							}
-						} else {
+						} elseif (!$exclusive) {
 							// Public thread parent post always are directed to the followers
 							if (($item['private'] != Item::PRIVATE) && !$forum_mode) {
 								$data['cc'][] = $actor_profile['followers'];

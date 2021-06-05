@@ -1061,7 +1061,7 @@ class Item
 		}
 
 		// Create Diaspora signature
-		if ($item['origin'] && empty($item['diaspora_signed_text'])) {
+		if ($item['origin'] && empty($item['diaspora_signed_text']) && ($item['gravity'] != GRAVITY_PARENT)) {
 			$signed = Diaspora::createCommentSignature($uid, $item);
 			if (!empty($signed)) {
 				$item['diaspora_signed_text'] = json_encode($signed);
@@ -1227,13 +1227,10 @@ class Item
 				Logger::info('The resharer is no forum: quit', ['resharer' => $item['author-id'], 'owner' => $parent['owner-id'], 'author' => $parent['author-id'], 'uid' => $item['uid']]);
 				return;
 			}
-			self::update(['post-reason' => self::PR_ANNOUNCEMENT, 'causer-id' => $item['author-id']], ['id' => $parent['id']]);
-			Logger::info('Set announcement post-reason', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
-			return;
 		}
 
-		self::update(['owner-id' => $item['author-id'], 'contact-id' => $cid], ['id' => $parent['id']]);
-		Logger::info('Change owner of the parent', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid'], 'owner-id' => $item['author-id'], 'contact-id' => $cid]);
+		self::update(['post-reason' => self::PR_ANNOUNCEMENT, 'causer-id' => $item['author-id']], ['id' => $parent['id']]);
+		Logger::info('Set announcement post-reason', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
 	}
 
 	/**
@@ -1922,7 +1919,7 @@ class Item
 
 		// also reset all the privacy bits to the forum default permissions
 
-		$private = ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) ? self::PRIVATE : self::PUBLIC;
+		$private = ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) ? self::PRIVATE : self::UNLISTED;
 
 		$psid = PermissionSet::getIdFromACL(
 			$user['uid'],
