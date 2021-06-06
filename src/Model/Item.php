@@ -1909,6 +1909,15 @@ class Item
 			return false;
 		}
 
+		self::performActivity($item['id'], 'announce', $uid);
+
+		/**
+		 * All the following lines are only needed for private forums and compatibility to older systems without AP support.
+		 * A possible way would be that the followers list of a forum would always be readable by all followers.
+		 * So this would mean that the comment distribution could be done exactly for the intended audience.
+		 * Or possibly we could store the receivers that had been in the "announce" message above and use this.
+		 */
+
 		// now change this copy of the post to a forum head message and deliver to all the tgroup members
 		$self = DBA::selectFirst('contact', ['id', 'name', 'url', 'thumb'], ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
@@ -1918,8 +1927,13 @@ class Item
 		$owner_id = Contact::getIdForURL($self['url']);
 
 		// also reset all the privacy bits to the forum default permissions
-
-		$private = ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) ? self::PRIVATE : self::UNLISTED;
+		if ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) {
+			$private = self::PRIVATE;
+		} elseif (DI::pConfig()->get($user['uid'], 'system', 'unlisted')) {
+			$private = self::UNLISTED;
+		} else {
+			$private = self::PUBLIC;
+		}
 
 		$psid = PermissionSet::getIdFromACL(
 			$user['uid'],
@@ -1936,8 +1950,6 @@ class Item
 		self::update($fields, ['id' => $item['id']]);
 
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, (int)$item['uri-id'], (int)$item['uid']);
-
-		self::performActivity($item['id'], 'announce', $uid);
 
 		return false;
 	}

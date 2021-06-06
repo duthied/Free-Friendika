@@ -42,6 +42,7 @@ use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Relay;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 /*
  * The notifier is typically called with:
@@ -249,6 +250,20 @@ class Notifier
 				$direct_forum_delivery = true;
 			}
 
+			$exclusive_delivery = false;
+
+			$exclusive_targets = Tag::getByURIId($parent['uri-id'], [Tag::EXCLUSIVE_MENTION]);
+			if (!empty($exclusive_targets)) {
+				$exclusive_delivery = true;
+				Logger::info('Possible Exclusively delivering', ['uid' => $target_item['uid'], 'guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id']]);
+				foreach ($exclusive_targets as $target) {
+					if (Strings::compareLink($owner['url'], $target['url'])) {
+						$exclusive_delivery = false;
+						Logger::info('False Exclusively delivering', ['uid' => $target_item['uid'], 'guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'url' => $target['url']]);
+					}
+				}
+			}
+
 			if ($relay_to_owner) {
 				// local followup to remote post
 				$followup = true;
@@ -283,14 +298,14 @@ class Notifier
 				}
 
 				Logger::log('Notify ' . $target_item["guid"] .' via PuSH: ' . ($push_notify ? "Yes":"No"), Logger::DEBUG);
-			} elseif ($targets = Tag::getByURIId($target_item['uri-id'], [Tag::EXCLUSIVE_MENTION])) {
+			} elseif ($exclusive_delivery) {
 				$followup = true;
 
-				foreach ($targets as $target) {
+				foreach ($exclusive_targets as $target) {
 					$cid = Contact::getIdForURL($target['url'], $uid, false);
 					if ($cid) {
 						$recipients_followup[] = $cid;
-						Logger::info('Exclusively delivering', ['guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'url' => $target['url']]);
+						Logger::info('Exclusively delivering', ['uid' => $target_item['uid'], 'guid' => $target_item['guid'], 'uri-id' => $target_item['uri-id'], 'url' => $target['url']]);
 					}
 				}
 			} else {

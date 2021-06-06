@@ -663,13 +663,14 @@ class Receiver
 		}
 
 		if (!empty($actor)) {
-			$profile = APContact::getByURL($actor);
+			$profile   = APContact::getByURL($actor);
 			$followers = $profile['followers'] ?? '';
-
-			Logger::log('Actor: ' . $actor . ' - Followers: ' . $followers, Logger::DEBUG);
+			$is_forum  = $actor['type'] == 'Group';
+			Logger::info('Got actor and followers', ['actor' => $actor, 'followers' => $followers]);
 		} else {
 			Logger::info('Empty actor', ['activity' => $activity]);
 			$followers = '';
+			$is_forum  = false;
 		}
 
 		// We have to prevent false follower assumptions upon thread completions
@@ -692,7 +693,7 @@ class Receiver
 				}
 
 				// Fetch the receivers for the public and the followers collection
-				if (in_array($receiver, [$followers, self::PUBLIC_COLLECTION]) && !empty($actor)) {
+				if ((($receiver == $followers) || (($receiver == self::PUBLIC_COLLECTION) && !$is_forum)) && !empty($actor)) {
 					$receivers = self::getReceiverForActor($actor, $tags, $receivers, $follower_target);
 					continue;
 				}
