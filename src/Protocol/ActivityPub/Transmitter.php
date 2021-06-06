@@ -561,6 +561,9 @@ class Transmitter
 				if (!empty($profile)) {
 					if ($term['type'] == Tag::EXCLUSIVE_MENTION) {
 						$exclusive = true;
+						if (!empty($profile['followers']) && ($profile['type'] == 'Group')) {
+							$data['cc'][] = $profile['followers'];
+						}
 					}
 					$data['to'][] = $profile['url'];
 				}
