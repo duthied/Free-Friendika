@@ -618,7 +618,9 @@ class Transmitter
 								}
 							}
 						} elseif (!$exclusive) {
-							// Public thread parent post always are directed to the followers
+							// Public thread parent post always are directed to the followers.
+							// This mustn't be done by posts that are directed to forum servers via the exclusive mention.
+							// But possibly in that case we could add the "followers" collection of the forum to the message.
 							if (($item['private'] != Item::PRIVATE) && !$forum_mode) {
 								$data['cc'][] = $actor_profile['followers'];
 							}
