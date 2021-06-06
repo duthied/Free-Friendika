@@ -1921,9 +1921,9 @@ class Item
 		if ($user['allow_cid'] || $user['allow_gid'] || $user['deny_cid'] || $user['deny_gid']) {
 			$private = self::PRIVATE;
 		} elseif (DI::pConfig()->get($user['uid'], 'system', 'unlisted')) {
-			$private = Item::UNLISTED;
+			$private = self::UNLISTED;
 		} else {
-			$private = Item::PUBLIC;
+			$private = self::PUBLIC;
 		}
 
 		$psid = PermissionSet::getIdFromACL(
