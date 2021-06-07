@@ -665,7 +665,7 @@ class Receiver
 		if (!empty($actor)) {
 			$profile   = APContact::getByURL($actor);
 			$followers = $profile['followers'] ?? '';
-			$is_forum  = $actor['type'] == 'Group';
+			$is_forum  = ($actor['type'] ?? '') == 'Group';
 			Logger::info('Got actor and followers', ['actor' => $actor, 'followers' => $followers]);
 		} else {
 			Logger::info('Empty actor', ['activity' => $activity]);
