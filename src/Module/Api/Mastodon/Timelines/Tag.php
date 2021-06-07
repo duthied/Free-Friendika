@@ -47,6 +47,13 @@ class Tag extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
+		/**
+		 * @todo Respect missing parameters
+		 * @see https://github.com/tootsuite/mastodon/blob/main/app/controllers/api/v1/timelines/tag_controller.rb
+		 * 
+		 * There seem to be the parameters "any", "all", and "none".
+		 */
+
 		$request = self::getRequest([
 			'local'           => false, // If true, return only local statuses. Defaults to false.
 			'remote'          => false, // Show only remote statuses? Defaults to false.

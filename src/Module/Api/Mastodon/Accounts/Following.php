@@ -57,27 +57,27 @@ class Following extends BaseApi
 			'limit'    => 40, // Maximum number of results to return. Defaults to 40.
 		]);
 
-		$params = ['order' => ['relation-cid' => true], 'limit' => $request['limit']];
+		$params = ['order' => ['cid' => true], 'limit' => $request['limit']];
 
-		$condition = ['cid' => $id, 'follows' => true];
+		$condition = ['relation-cid' => $id, 'follows' => true];
 
 		if (!empty($request['max_id'])) {
-			$condition = DBA::mergeConditions($condition, ["`relation-cid` < ?", $request['max_id']]);
+			$condition = DBA::mergeConditions($condition, ["`cid` < ?", $request['max_id']]);
 		}
 
 		if (!empty($request['since_id'])) {
-			$condition = DBA::mergeConditions($condition, ["`relation-cid` > ?", $request['since_id']]);
+			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $request['since_id']]);
 		}
 
 		if (!empty($min_id)) {
-			$condition = DBA::mergeConditions($condition, ["`relation-cid` > ?", $min_id]);
+			$condition = DBA::mergeConditions($condition, ["`cid` > ?", $min_id]);
 
 			$params['order'] = ['cid'];
 		}
 
-		$followers = DBA::select('contact-relation', ['relation-cid'], $condition, $parameters);
+		$followers = DBA::select('contact-relation', ['cid'], $condition, $parameters);
 		while ($follower = DBA::fetch($followers)) {
-			$accounts[] = DI::mstdnAccount()->createFromContactId($follower['relation-cid'], $uid);
+			$accounts[] = DI::mstdnAccount()->createFromContactId($follower['cid'], $uid);
 		}
 		DBA::close($followers);
 
