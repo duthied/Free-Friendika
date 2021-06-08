@@ -120,8 +120,10 @@ class OAuth
 			return [];
 		}
 
-		$bearer = trim(substr($authorization, 7));
+		$bearer    = trim(substr($authorization, 7));
+
 		$condition = ['access_token' => $bearer];
+
 		$token = DBA::selectFirst('application-view', ['uid', 'id', 'name', 'website', 'created_at', 'read', 'write', 'follow', 'push'], $condition);
 		if (!DBA::isResult($token)) {
 			Logger::warning('Token not found', $condition);
@@ -194,12 +196,17 @@ class OAuth
 		$code         = bin2hex(random_bytes(32));
 		$access_token = bin2hex(random_bytes(32));
 
-		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token, 'scopes' => $scope,
-			'read' => (stripos($scope, self::SCOPE_READ) !== false),
-			'write' => (stripos($scope, self::SCOPE_WRITE) !== false),
-			'follow' => (stripos($scope, self::SCOPE_FOLLOW) !== false),
-			'push' => (stripos($scope, self::SCOPE_PUSH) !== false),
-			 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
+		$fields = [
+			'application-id' => $application['id'],
+			'uid'            => $uid,
+			'code'           => $code,
+			'access_token'   => $access_token,
+			'scopes'         => $scope,
+			'read'           => (stripos($scope, self::SCOPE_READ) !== false),
+			'write'          => (stripos($scope, self::SCOPE_WRITE) !== false),
+			'follow'         => (stripos($scope, self::SCOPE_FOLLOW) !== false),
+			'push'           => (stripos($scope, self::SCOPE_PUSH) !== false),
+			'created_at'     => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
 
 		foreach ([self::SCOPE_READ, self::SCOPE_WRITE, self::SCOPE_WRITE, self::SCOPE_PUSH] as $scope) {
 			if ($fields[$scope] && !$application[$scope]) {
