@@ -24,6 +24,7 @@ namespace Friendica\Security;
 use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\Module\BaseApi;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -31,11 +32,6 @@ use Friendica\Util\DateTimeFormat;
  */
 class OAuth
 {
-	const SCOPE_READ   = 'read';
-	const SCOPE_WRITE  = 'write';
-	const SCOPE_FOLLOW = 'follow';
-	const SCOPE_PUSH   = 'push';
-
 	/**
 	 * @var bool|int
 	 */
@@ -76,35 +72,6 @@ class OAuth
 		}
 
 		return self::$current_token;
-	}
-
-	/**
-	 * Check if the provided scope does exist
-	 *
-	 * @param string $scope the requested scope (read, write, follow, push)
-	 *
-	 * @return bool "true" if the scope is allowed
-	 */
-	public static function isAllowedScope(string $scope)
-	{
-		$token = self::getCurrentApplicationToken();
-
-		if (empty($token)) {
-			Logger::notice('Empty application token');
-			return false;
-		}
-
-		if (!isset($token[$scope])) {
-			Logger::warning('The requested scope does not exist', ['scope' => $scope, 'application' => $token]);
-			return false;
-		}
-
-		if (empty($token[$scope])) {
-			Logger::warning('The requested scope is not allowed', ['scope' => $scope, 'application' => $token]);
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
@@ -200,13 +167,13 @@ class OAuth
 			'code'           => $code,
 			'access_token'   => $access_token,
 			'scopes'         => $scope,
-			'read'           => (stripos($scope, self::SCOPE_READ) !== false),
-			'write'          => (stripos($scope, self::SCOPE_WRITE) !== false),
-			'follow'         => (stripos($scope, self::SCOPE_FOLLOW) !== false),
-			'push'           => (stripos($scope, self::SCOPE_PUSH) !== false),
+			'read'           => (stripos($scope, BaseApi::SCOPE_READ) !== false),
+			'write'          => (stripos($scope, BaseApi::SCOPE_WRITE) !== false),
+			'follow'         => (stripos($scope, BaseApi::SCOPE_FOLLOW) !== false),
+			'push'           => (stripos($scope, BaseApi::SCOPE_PUSH) !== false),
 			'created_at'     => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
 
-		foreach ([self::SCOPE_READ, self::SCOPE_WRITE, self::SCOPE_WRITE, self::SCOPE_PUSH] as $scope) {
+		foreach ([BaseApi::SCOPE_READ, BaseApi::SCOPE_WRITE, BaseApi::SCOPE_WRITE, BaseApi::SCOPE_PUSH] as $scope) {
 			if ($fields[$scope] && !$application[$scope]) {
 				Logger::warning('Requested token scope is not allowed for the application', ['token' => $fields, 'application' => $application]);
 			}

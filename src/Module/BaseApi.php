@@ -34,13 +34,9 @@ require_once __DIR__ . '/../../include/api.php';
 
 class BaseApi extends BaseModule
 {
-	/** @deprecated Use OAuth class constant */
 	const SCOPE_READ   = 'read';
-	/** @deprecated Use OAuth class constant */
 	const SCOPE_WRITE  = 'write';
-	/** @deprecated Use OAuth class constant */
 	const SCOPE_FOLLOW = 'follow';
-	/** @deprecated Use OAuth class constant */
 	const SCOPE_PUSH   = 'push';
 
 	/**
@@ -173,24 +169,14 @@ class BaseApi extends BaseModule
 	}
 
 	/**
+	 * @deprecated Use checkAllowedScope instead
 	 * Log in user via OAuth or Basic HTTP Auth.
 	 *
 	 * @param string $scope the requested scope (read, write, follow)
 	 */
 	protected static function login(string $scope)
 	{
-		$uid = OAuth::getCurrentUserID();
-
-		if (!empty($uid)) {
-			if (!OAuth::isAllowedScope($scope)) {
-				DI::mstdnError()->Forbidden();
-			}
-		}
-
-		if (empty($uid)) {
-			// The execution stops here if no one is logged in
-			BasicAuth::getCurrentUserID(true);
-		}
+		self::checkAllowedScope($scope);
 	}
 
 	/**
@@ -223,6 +209,32 @@ class BaseApi extends BaseModule
 		}
 
 		return (int)$uid;
+	}
+
+	/**
+	 * Check if the provided scope does exist.
+	 * halts execution on missing scope or when not logged in.
+	 *
+	 * @param string $scope the requested scope (read, write, follow, push)
+	 */
+	public static function checkAllowedScope(string $scope)
+	{
+		$token = self::getCurrentApplication();
+
+		if (empty($token)) {
+			Logger::notice('Empty application token');
+			DI::mstdnError()->Forbidden();
+		}
+
+		if (!isset($token[$scope])) {
+			Logger::warning('The requested scope does not exist', ['scope' => $scope, 'application' => $token]);
+			DI::mstdnError()->Forbidden();
+		}
+
+		if (empty($token[$scope])) {
+			Logger::warning('The requested scope is not allowed', ['scope' => $scope, 'application' => $token]);
+			DI::mstdnError()->Forbidden();
+		}
 	}
 
 	/**

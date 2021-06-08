@@ -46,7 +46,7 @@ class BasicAuth
 	 *
 	 * @return int User ID
 	 */
-	public static function getCurrentUserID(bool $login = true)
+	public static function getCurrentUserID(bool $login)
 	{
 		if (empty(self::$current_user_id)) {
 			api_login(DI::app(), $login);
@@ -64,7 +64,7 @@ class BasicAuth
 	 */
 	public static function getCurrentApplicationToken()
 	{
-		if (empty(self::getCurrentUserID())) {
+		if (empty(self::getCurrentUserID(true))) {
 			return [];
 		}
 
