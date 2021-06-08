@@ -39,9 +39,7 @@ abstract class ContactEndpoint extends BaseApi
 	{
 		parent::init($parameters);
 
-		if (!self::login(self::SCOPE_READ)) {
-			throw new HTTPException\UnauthorizedException();
-		}
+		self::login(self::SCOPE_READ);
 	}
 
 	/**
