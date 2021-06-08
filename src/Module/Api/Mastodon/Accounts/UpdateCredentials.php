@@ -32,7 +32,7 @@ class UpdateCredentials extends BaseApi
 {
 	public static function patch(array $parameters = [])
 	{
-		self::login(self::SCOPE_WRITE);
+		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$data = HTTPInputData::process();

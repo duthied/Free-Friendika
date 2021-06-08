@@ -33,7 +33,7 @@ class Lists extends BaseApi
 {
 	public static function delete(array $parameters = [])
 	{
-		self::login(self::SCOPE_WRITE);
+		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {
@@ -53,7 +53,7 @@ class Lists extends BaseApi
 
 	public static function post(array $parameters = [])
 	{
-		self::login(self::SCOPE_WRITE);
+		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
@@ -94,7 +94,7 @@ class Lists extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {

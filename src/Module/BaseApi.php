@@ -169,17 +169,6 @@ class BaseApi extends BaseModule
 	}
 
 	/**
-	 * @deprecated Use checkAllowedScope instead
-	 * Log in user via OAuth or Basic HTTP Auth.
-	 *
-	 * @param string $scope the requested scope (read, write, follow)
-	 */
-	protected static function login(string $scope)
-	{
-		self::checkAllowedScope($scope);
-	}
-
-	/**
 	 * Get current application token
 	 *
 	 * @return array token

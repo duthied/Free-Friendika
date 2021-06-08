@@ -34,7 +34,7 @@ class Media extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
-		self::login(self::SCOPE_WRITE);
+		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		Logger::info('Photo post', ['request' => $_REQUEST, 'files' => $_FILES]);
@@ -55,7 +55,7 @@ class Media extends BaseApi
 
 	public static function put(array $parameters = [])
 	{
-		self::login(self::SCOPE_WRITE);
+		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
@@ -85,7 +85,7 @@ class Media extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		if (empty($parameters['id'])) {
