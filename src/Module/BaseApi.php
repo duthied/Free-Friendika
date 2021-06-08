@@ -173,7 +173,7 @@ class BaseApi extends BaseModule
 	}
 
 	/**
-	 * Log in user via OAuth1 or Simple HTTP Auth.
+	 * Log in user via OAuth or Simple HTTP Auth.
 	 *
 	 * Simple Auth allow username in form of <pre>user@server</pre>, ignoring server part
 	 *

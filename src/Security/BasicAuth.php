@@ -68,7 +68,10 @@ class BasicAuth
 	}
 
 	/**
-	 * Get current user id, returns 0 if not logged in
+	 * Get current user id, returns 0 if $login is set to false and not logged in.
+	 * When $login is true, the execution will stop when not logged in.
+	 *
+	 * @param bool $login Perform a login request if "true"
 	 *
 	 * @return int User ID
 	 */
