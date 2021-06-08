@@ -35,16 +35,15 @@ class Index extends BaseApi
 {
 	public static function rawContent(array $parameters = [])
 	{
-		if (self::login(self::SCOPE_READ) === false) {
-			throw new HTTPException\ForbiddenException();
-		}
+		self::login(self::SCOPE_READ);
+		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
 			'since_id' => 0,
 			'count'    => 0,
 		]);
 
-		$condition = ["`id` > ? AND `uid` = ?", $request['since_id'], self::$current_user_id];
+		$condition = ["`id` > ? AND `uid` = ?", $request['since_id'], $uid];
 		$params = ['limit' => $request['count']];
 		$events = DBA::selectToArray('event', [], $condition, $params);
 

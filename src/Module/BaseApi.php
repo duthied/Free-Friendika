@@ -24,34 +24,29 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
-use Friendica\Database\Database;
-use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
-use Friendica\Util\DateTimeFormat;
+use Friendica\Security\BasicAuth;
+use Friendica\Security\OAuth;
 use Friendica\Util\HTTPInputData;
 
 require_once __DIR__ . '/../../include/api.php';
 
 class BaseApi extends BaseModule
 {
+	/** @deprecated Use OAuth class constant */
 	const SCOPE_READ   = 'read';
+	/** @deprecated Use OAuth class constant */
 	const SCOPE_WRITE  = 'write';
+	/** @deprecated Use OAuth class constant */
 	const SCOPE_FOLLOW = 'follow';
+	/** @deprecated Use OAuth class constant */
 	const SCOPE_PUSH   = 'push';
 
 	/**
 	 * @var string json|xml|rss|atom
 	 */
 	protected static $format = 'json';
-	/**
-	 * @var bool|int
-	 */
-	protected static $current_user_id;
-	/**
-	 * @var array
-	 */
-	protected static $current_token = [];
 
 	public static function init(array $parameters = [])
 	{
@@ -184,7 +179,6 @@ class BaseApi extends BaseModule
 	 *
 	 * @param string $scope the requested scope (read, write, follow)
 	 *
-	 * @return bool Was a user authenticated?
 	 * @throws HTTPException\ForbiddenException
 	 * @throws HTTPException\UnauthorizedException
 	 * @throws HTTPException\InternalServerErrorException
@@ -197,40 +191,34 @@ class BaseApi extends BaseModule
 	 */
 	protected static function login(string $scope)
 	{
-		if (empty(self::$current_user_id)) {
-			self::$current_token = self::getTokenByBearer();
-			if (!empty(self::$current_token['uid'])) {
-				self::$current_user_id = self::$current_token['uid'];
-			} else {
-				self::$current_user_id = 0;
-			}
-		}
-
-		if (!empty($scope) && !empty(self::$current_token)) {
-			if (empty(self::$current_token[$scope])) {
-				Logger::warning('The requested scope is not allowed', ['scope' => $scope, 'application' => self::$current_token]);
+		$token = OAuth::getCurrentApplicationToken();
+		if (!empty($token)) {
+			if (!OAuth::isAllowedScope($scope)) {
 				DI::mstdnError()->Forbidden();
 			}
+			$uid = OAuth::getCurrentUserID();
 		}
 
-		if (empty(self::$current_user_id)) {
+		if (empty($uid)) {
 			// The execution stops here if no one is logged in
-			api_login(DI::app());
+			BasicAuth::getCurrentUserID(true);
 		}
-
-		self::$current_user_id = api_user();
-
-		return (bool)self::$current_user_id;
 	}
 
 	/**
-	 * Get current application
+	 * Get current application token
 	 *
 	 * @return array token
 	 */
 	protected static function getCurrentApplication()
 	{
-		return self::$current_token;
+		$token = OAuth::getCurrentApplicationToken();
+
+		if (empty($token)) {
+			$token = BasicAuth::getCurrentApplicationToken();
+		}
+
+		return $token;
 	}
 
 	/**
@@ -238,136 +226,15 @@ class BaseApi extends BaseModule
 	 *
 	 * @return int User ID
 	 */
-	public static function getCurrentUserID(bool $nologin = false)
+	public static function getCurrentUserID()
 	{
-		if (empty(self::$current_user_id)) {
-			self::$current_token = self::getTokenByBearer();
-			if (!empty(self::$current_token['uid'])) {
-				self::$current_user_id = self::$current_token['uid'];
-			} else {
-				self::$current_user_id = 0;
-			}
+		$uid = OAuth::getCurrentUserID();
+
+		if (empty($uid)) {
+			$uid = BasicAuth::getCurrentUserID(false);
 		}
 
-		if ($nologin) {
-			return (int)self::$current_user_id;
-		}
-
-		if (empty(self::$current_user_id)) {
-			// Fetch the user id if logged in - but don't fail if not
-			api_login(DI::app(), false);
-
-			self::$current_user_id = api_user();
-		}
-
-		return (int)self::$current_user_id;
-	}
-
-	/**
-	 * Get the user token via the Bearer token
-	 *
-	 * @return array User Token
-	 */
-	private static function getTokenByBearer()
-	{
-		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-
-		if (substr($authorization, 0, 7) != 'Bearer ') {
-			return [];
-		}
-
-		$bearer = trim(substr($authorization, 7));
-		$condition = ['access_token' => $bearer];
-		$token = DBA::selectFirst('application-view', ['uid', 'id', 'name', 'website', 'created_at', 'read', 'write', 'follow', 'push'], $condition);
-		if (!DBA::isResult($token)) {
-			Logger::warning('Token not found', $condition);
-			return [];
-		}
-		Logger::debug('Token found', $token);
-		return $token;
-	}
-
-	/**
-	 * Get the application record via the proved request header fields
-	 *
-	 * @param string $client_id
-	 * @param string $client_secret
-	 * @param string $redirect_uri
-	 * @return array application record
-	 */
-	public static function getApplication(string $client_id, string $client_secret, string $redirect_uri)
-	{
-		$condition = ['client_id' => $client_id];
-		if (!empty($client_secret)) {
-			$condition['client_secret'] = $client_secret;
-		}
-		if (!empty($redirect_uri)) {
-			$condition['redirect_uri'] = $redirect_uri;
-		}
-
-		$application = DBA::selectFirst('application', [], $condition);
-		if (!DBA::isResult($application)) {
-			Logger::warning('Application not found', $condition);
-			return [];
-		}
-		return $application;
-	}
-
-	/**
-	 * Check if an token for the application and user exists
-	 *
-	 * @param array $application
-	 * @param integer $uid
-	 * @return boolean
-	 */
-	public static function existsTokenForUser(array $application, int $uid)
-	{
-		return DBA::exists('application-token', ['application-id' => $application['id'], 'uid' => $uid]);
-	}
-
-	/**
-	 * Fetch the token for the given application and user
-	 *
-	 * @param array $application
-	 * @param integer $uid
-	 * @return array application record
-	 */
-	public static function getTokenForUser(array $application, int $uid)
-	{
-		return DBA::selectFirst('application-token', [], ['application-id' => $application['id'], 'uid' => $uid]);
-	}
-
-	/**
-	 * Create and fetch an token for the application and user
-	 *
-	 * @param array   $application
-	 * @param integer $uid
-	 * @param string  $scope
-	 * @return array application record
-	 */
-	public static function createTokenForUser(array $application, int $uid, string $scope)
-	{
-		$code         = bin2hex(random_bytes(32));
-		$access_token = bin2hex(random_bytes(32));
-
-		$fields = ['application-id' => $application['id'], 'uid' => $uid, 'code' => $code, 'access_token' => $access_token, 'scopes' => $scope,
-			'read' => (stripos($scope, self::SCOPE_READ) !== false),
-			'write' => (stripos($scope, self::SCOPE_WRITE) !== false),
-			'follow' => (stripos($scope, self::SCOPE_FOLLOW) !== false),
-			'push' => (stripos($scope, self::SCOPE_PUSH) !== false),
-			 'created_at' => DateTimeFormat::utcNow(DateTimeFormat::MYSQL)];
-
-		foreach ([self::SCOPE_READ, self::SCOPE_WRITE, self::SCOPE_WRITE, self::SCOPE_PUSH] as $scope) {
-			if ($fields[$scope] && !$application[$scope]) {
-				Logger::warning('Requested token scope is not allowed for the application', ['token' => $fields, 'application' => $application]);
-			}
-		}
-
-		if (!DBA::insert('application-token', $fields, Database::INSERT_UPDATE)) {
-			return [];
-		}
-
-		return DBA::selectFirst('application-token', [], ['application-id' => $application['id'], 'uid' => $uid]);
+		return (int)$uid;
 	}
 
 	/**

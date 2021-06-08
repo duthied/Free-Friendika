@@ -24,6 +24,7 @@ namespace Friendica\Module\OAuth;
 use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Friendica\Security\OAuth;
 
 /**
  * @see https://docs.joinmastodon.org/spec/oauth/
@@ -56,7 +57,7 @@ class Authorize extends BaseApi
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Incomplete request data'));
 		}
 
-		$application = self::getApplication($request['client_id'], $request['client_secret'], $request['redirect_uri']);
+		$application = OAuth::getApplication($request['client_id'], $request['client_secret'], $request['redirect_uri']);
 		if (empty($application)) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
@@ -75,14 +76,14 @@ class Authorize extends BaseApi
 			Logger::info('Already logged in user', ['uid' => $uid]);
 		}
 
-		if (!self::existsTokenForUser($application, $uid) && !DI::session()->get('oauth_acknowledge')) {
+		if (!OAuth::existsTokenForUser($application, $uid) && !DI::session()->get('oauth_acknowledge')) {
 			Logger::info('Redirect to acknowledge');
 			DI::app()->redirect('oauth/acknowledge?' . http_build_query(['return_path' => $redirect, 'application' => $application['name']]));
 		}
 
 		DI::session()->remove('oauth_acknowledge');
 
-		$token = self::createTokenForUser($application, $uid, $request['scope']);
+		$token = OAuth::createTokenForUser($application, $uid, $request['scope']);
 		if (!$token) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
