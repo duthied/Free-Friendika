@@ -120,9 +120,7 @@ class OAuth
 			return [];
 		}
 
-		$bearer    = trim(substr($authorization, 7));
-
-		$condition = ['access_token' => $bearer];
+		$condition = ['access_token' => trim(substr($authorization, 7))];
 
 		$token = DBA::selectFirst('application-view', ['uid', 'id', 'name', 'website', 'created_at', 'read', 'write', 'follow', 'push'], $condition);
 		if (!DBA::isResult($token)) {
