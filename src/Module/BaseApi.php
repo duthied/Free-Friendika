@@ -61,52 +61,44 @@ class BaseApi extends BaseModule
 
 	public static function delete(array $parameters = [])
 	{
-		if (!api_user()) {
-			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
-		}
+		self::checkAllowedScope(self::SCOPE_WRITE);
 
 		$a = DI::app();
 
-		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
+		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
 
 	public static function patch(array $parameters = [])
 	{
-		if (!api_user()) {
-			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
-		}
+		self::checkAllowedScope(self::SCOPE_WRITE);
 
 		$a = DI::app();
 
-		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
+		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
 
 	public static function post(array $parameters = [])
 	{
-		if (!api_user()) {
-			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
-		}
+		self::checkAllowedScope(self::SCOPE_WRITE);
 
 		$a = DI::app();
 
-		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
+		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
 
 	public static function put(array $parameters = [])
 	{
-		if (!api_user()) {
-			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
-		}
+		self::checkAllowedScope(self::SCOPE_WRITE);
 
 		$a = DI::app();
 
-		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
+		if (!empty($a->user['uid']) && $a->user['uid'] != self::getCurrentUserID()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
