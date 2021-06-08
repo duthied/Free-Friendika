@@ -38,6 +38,8 @@ class Accounts extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
+		$uid = self::getCurrentUserID();
+
 		if (empty($parameters['id']) && empty($parameters['name'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
@@ -56,7 +58,7 @@ class Accounts extends BaseApi
 			}
 		}
 
-		$account = DI::mstdnAccount()->createFromContactId($id, self::getCurrentUserID());
+		$account = DI::mstdnAccount()->createFromContactId($id, $uid);
 		System::jsonExit($account);
 	}
 }

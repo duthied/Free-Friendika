@@ -173,21 +173,9 @@ class BaseApi extends BaseModule
 	}
 
 	/**
-	 * Log in user via OAuth or Simple HTTP Auth.
-	 *
-	 * Simple Auth allow username in form of <pre>user@server</pre>, ignoring server part
+	 * Log in user via OAuth or Basic HTTP Auth.
 	 *
 	 * @param string $scope the requested scope (read, write, follow)
-	 *
-	 * @throws HTTPException\ForbiddenException
-	 * @throws HTTPException\UnauthorizedException
-	 * @throws HTTPException\InternalServerErrorException
-	 * @hook  'authenticate'
-	 *               array $addon_auth
-	 *               'username' => username from login form
-	 *               'password' => password from login form
-	 *               'authenticated' => return status,
-	 *               'user_record' => return authenticated user record
 	 */
 	protected static function login(string $scope)
 	{

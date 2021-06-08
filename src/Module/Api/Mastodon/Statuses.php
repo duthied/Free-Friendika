@@ -219,10 +219,12 @@ class Statuses extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
+		$uid = self::getCurrentUserID();
+
 		if (empty($parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], self::getCurrentUserID()));
+		System::jsonExit(DI::mstdnStatus()->createFromUriId($parameters['id'], $uid));
 	}
 }

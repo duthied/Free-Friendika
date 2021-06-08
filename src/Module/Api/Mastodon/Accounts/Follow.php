@@ -40,7 +40,7 @@ class Follow extends BaseApi
 			DI::mstdnError()->UnprocessableEntity();
 		}
 
-		$cid = Contact::follow($parameters['id'], self::getCurrentUserID());
+		$cid = Contact::follow($parameters['id'], $uid);
 
 		System::jsonExit(DI::mstdnRelationship()->createFromContactId($cid, $uid)->toArray());
 	}
