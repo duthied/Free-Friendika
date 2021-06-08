@@ -191,12 +191,12 @@ class BaseApi extends BaseModule
 	 */
 	protected static function login(string $scope)
 	{
-		$token = OAuth::getCurrentApplicationToken();
-		if (!empty($token)) {
+		$uid = OAuth::getCurrentUserID();
+
+		if (!empty($uid)) {
 			if (!OAuth::isAllowedScope($scope)) {
 				DI::mstdnError()->Forbidden();
 			}
-			$uid = OAuth::getCurrentUserID();
 		}
 
 		if (empty($uid)) {
