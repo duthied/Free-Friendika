@@ -77,10 +77,27 @@ class BasicAuth
 			return self::$current_token;
 		}
 
+		$source = $_REQUEST['source'] ?? '';
+
+		// Support for known clients that doesn't send a source name
+		if (empty($source) && !empty($_SERVER['HTTP_USER_AGENT'])) {
+			if(strpos($_SERVER['HTTP_USER_AGENT'], "Twidere") !== false) {
+				$source = 'Twidere';
+			}
+
+			Logger::info('Unrecognized user-agent', ['http_user_agent' => $_SERVER['HTTP_USER_AGENT']]);
+		} else {
+			Logger::info('Empty user-agent');
+		}
+
+		if (empty($source)) {
+			$source = 'api';
+		}
+
 		self::$current_token = [
 			'uid'        => self::$current_user_id,
 			'id'         => 0,
-			'name'       => api_source(),
+			'name'       => $source,
 			'website'    => '',
 			'created_at' => DBA::NULL_DATETIME,
 			'read'       => true,
@@ -114,32 +131,32 @@ class BasicAuth
 			}
 		}
 
-		$user = $_SERVER['PHP_AUTH_USER'] ?? '';
+		$user     = $_SERVER['PHP_AUTH_USER'] ?? '';
 		$password = $_SERVER['PHP_AUTH_PW'] ?? '';
-	
+
 		// allow "user@server" login (but ignore 'server' part)
 		$at = strstr($user, "@", true);
 		if ($at) {
 			$user = $at;
 		}
-	
+
 		// next code from mod/auth.php. needs better solution
 		$record = null;
-	
+
 		$addon_auth = [
 			'username' => trim($user),
 			'password' => trim($password),
 			'authenticated' => 0,
 			'user_record' => null,
 		];
-	
+
 		/*
 		* An addon indicates successful login by setting 'authenticated' to non-zero value and returning a user record
 		* Addons should never set 'authenticated' except to indicate success - as hooks may be chained
 		* and later addons should not interfere with an earlier one that succeeded.
 		*/
 		Hook::callAll('authenticate', $addon_auth);
-	
+
 		if ($addon_auth['authenticated'] && !empty($addon_auth['user_record'])) {
 			$record = $addon_auth['user_record'];
 		} else {
@@ -148,32 +165,32 @@ class BasicAuth
 				$record = DBA::selectFirst('user', [], ['uid' => $user_id]);
 			} catch (Exception $ex) {
 				$record = [];
-			}			
+			}
 		}
-	
+
 		if (empty($record)) {
 			if (!$do_login) {
 				return 0;
 			}
-			Logger::debug('failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
+			Logger::debug('Access denied', ['parameters' => $_SERVER]);
 			header('WWW-Authenticate: Basic realm="Friendica"');
 			throw new UnauthorizedException("This API requires login");
 		}
-	
+
 		// Don't refresh the login date more often than twice a day to spare database writes
 		$login_refresh = strcmp(DateTimeFormat::utc('now - 12 hours'), $record['login_date']) > 0;
-	
+
 		DI::auth()->setForUser($a, $record, false, false, $login_refresh);
-	
+
 		Session::set('allow_api', true);
-	
+
 		Hook::callAll('logged_in', $a->user);
-	
+
 		if (Session::get('allow_api')) {
 			self::$current_user_id = local_user();
 		} else {
 			self::$current_user_id = 0;
 		}
 		return self::$current_user_id;
-	}	
+	}
 }
