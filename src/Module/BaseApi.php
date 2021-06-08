@@ -181,7 +181,7 @@ class BaseApi extends BaseModule
 	 *
 	 * @return int User ID
 	 */
-	public static function getCurrentUserID()
+	protected static function getCurrentUserID()
 	{
 		$uid = OAuth::getCurrentUserID();
 
