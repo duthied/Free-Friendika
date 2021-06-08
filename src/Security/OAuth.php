@@ -46,6 +46,39 @@ class OAuth
 	protected static $current_token = [];
 
 	/**
+	 * Get current user id, returns 0 if not logged in
+	 *
+	 * @return int User ID
+	 */
+	public static function getCurrentUserID()
+	{
+		if (empty(self::$current_user_id)) {
+			$token = self::getCurrentApplicationToken();
+			if (!empty($token['uid'])) {
+				self::$current_user_id = $token['uid'];
+			} else {
+				self::$current_user_id = 0;
+			}
+		}
+
+		return (int)self::$current_user_id;
+	}
+
+	/**
+	 * Get current application token
+	 *
+	 * @return array token
+	 */
+	public static function getCurrentApplicationToken()
+	{
+		if (empty(self::$current_token)) {
+			self::$current_token = self::getTokenByBearer();
+		}
+
+		return self::$current_token;
+	}
+
+	/**
 	 * Check if the provided scope does exist
 	 *
 	 * @param string $scope the requested scope (read, write, follow, push)
@@ -72,39 +105,6 @@ class OAuth
 		}
 
 		return true;
-	}
-
-	/**
-	 * Get current application token
-	 *
-	 * @return array token
-	 */
-	public static function getCurrentApplicationToken()
-	{
-		if (empty(self::$current_token)) {
-			self::$current_token = self::getTokenByBearer();
-		}
-
-		return self::$current_token;
-	}
-
-	/**
-	 * Get current user id, returns 0 if not logged in
-	 *
-	 * @return int User ID
-	 */
-	public static function getCurrentUserID()
-	{
-		if (empty(self::$current_user_id)) {
-			$token = self::getCurrentApplicationToken();
-			if (!empty($token['uid'])) {
-				self::$current_user_id = $token['uid'];
-			} else {
-				self::$current_user_id = 0;
-			}
-		}
-
-		return (int)self::$current_user_id;
 	}
 
 	/**

@@ -39,6 +39,25 @@ class BasicAuth
 	protected static $current_token = [];
 
 	/**
+	 * Get current user id, returns 0 if $login is set to false and not logged in.
+	 * When $login is true, the execution will stop when not logged in.
+	 *
+	 * @param bool $login Perform a login request if "true"
+	 *
+	 * @return int User ID
+	 */
+	public static function getCurrentUserID(bool $login = true)
+	{
+		if (empty(self::$current_user_id)) {
+			api_login(DI::app(), $login);
+
+			self::$current_user_id = api_user();
+		}
+
+		return (int)self::$current_user_id;
+	}
+
+	/**
 	 * Fetch a dummy application token
 	 *
 	 * @return array token
@@ -65,24 +84,5 @@ class BasicAuth
 			'push'       => false];
 
 		return self::$current_token;
-	}
-
-	/**
-	 * Get current user id, returns 0 if $login is set to false and not logged in.
-	 * When $login is true, the execution will stop when not logged in.
-	 *
-	 * @param bool $login Perform a login request if "true"
-	 *
-	 * @return int User ID
-	 */
-	public static function getCurrentUserID(bool $login = true)
-	{
-		if (empty(self::$current_user_id)) {
-			api_login(DI::app(), $login);
-
-			self::$current_user_id = api_user();
-		}
-
-		return (int)self::$current_user_id;
 	}
 }
