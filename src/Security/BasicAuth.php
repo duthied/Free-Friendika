@@ -60,8 +60,8 @@ class BasicAuth
 			'website'    => '',
 			'created_at' => DBA::NULL_DATETIME,
 			'read'       => true,
-			'write'      => true, 
-			'follow'     => true, 
+			'write'      => true,
+			'follow'     => true,
 			'push'       => false];
 
 		return self::$current_token;
