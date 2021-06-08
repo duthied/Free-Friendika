@@ -44,7 +44,6 @@ use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Model\User;
 use Friendica\Model\Verb;
-use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\ExpectationFailedException;
@@ -58,6 +57,7 @@ use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Security\FKOAuth1;
+use Friendica\Security\OAuth;
 use Friendica\Security\OAuth1\OAuthRequest;
 use Friendica\Security\OAuth1\OAuthUtil;
 use Friendica\Util\DateTimeFormat;
@@ -89,7 +89,7 @@ $called_api = [];
  */
 function api_user()
 {
-	$user = BaseApi::getCurrentUserID(true);
+	$user = OAuth::getCurrentUserID();
 	if (!empty($user)) {
 		return $user;
 	}

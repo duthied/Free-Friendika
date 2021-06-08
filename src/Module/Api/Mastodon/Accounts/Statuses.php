@@ -42,6 +42,8 @@ class Statuses extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
+		$uid = self::getCurrentUserID();
+
 		if (empty($parameters['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
@@ -65,8 +67,6 @@ class Statuses extends BaseApi
 		]);
 
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
-
-		$uid = self::getCurrentUserID();
 
 		if (!$uid) {
 			$condition = ['author-id' => $id, 'private' => [Item::PUBLIC, Item::UNLISTED],

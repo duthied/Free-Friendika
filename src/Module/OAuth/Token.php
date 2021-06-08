@@ -26,6 +26,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseApi;
+use Friendica\Security\OAuth;
 
 /**
  * @see https://docs.joinmastodon.org/spec/oauth/
@@ -57,7 +58,7 @@ class Token extends BaseApi
 			DI::mstdnError()->UnprocessableEntity(DI::l10n()->t('Incomplete request data'));
 		}
 
-		$application = self::getApplication($request['client_id'], $request['client_secret'], $request['redirect_uri']);
+		$application = OAuth::getApplication($request['client_id'], $request['client_secret'], $request['redirect_uri']);
 		if (empty($application)) {
 			DI::mstdnError()->UnprocessableEntity();
 		}
@@ -65,7 +66,7 @@ class Token extends BaseApi
 		if ($request['grant_type'] == 'client_credentials') {
 			// the "client_credentials" are used as a token for the application itself.
 			// see https://aaronparecki.com/oauth-2-simplified/#client-credentials
-			$token = self::createTokenForUser($application, 0, '');
+			$token = OAuth::createTokenForUser($application, 0, '');
 		} elseif ($request['grant_type'] == 'authorization_code') {
 			// For security reasons only allow freshly created tokens
 			$condition = ["`redirect_uri` = ? AND `id` = ? AND `code` = ? AND `created_at` > UTC_TIMESTAMP() - INTERVAL ? MINUTE",

@@ -33,7 +33,7 @@ class Conversations extends BaseApi
 {
 	public static function delete(array $parameters = [])
 	{
-		self::login(self::SCOPE_WRITE);
+		self::checkAllowedScope(self::SCOPE_WRITE);
 		$uid = self::getCurrentUserID();
 
 		if (!empty($parameters['id'])) {
@@ -52,7 +52,7 @@ class Conversations extends BaseApi
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		self::login(self::SCOPE_READ);
+		self::checkAllowedScope(self::SCOPE_READ);
 		$uid = self::getCurrentUserID();
 
 		$request = self::getRequest([
