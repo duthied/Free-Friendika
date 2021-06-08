@@ -73,7 +73,7 @@ class Status extends BaseFactory
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromUriId(int $uriId, $uid = 0)
+	public function createFromUriId(int $uriId, $uid = 0): \Friendica\Object\Api\Mastodon\Status
 	{
 		$fields = ['uri-id', 'uid', 'author-id', 'author-link', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
 			'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity'];
@@ -163,9 +163,9 @@ class Status extends BaseFactory
 	 *
 	 * @return \Friendica\Object\Api\Mastodon\Status
 	 * @throws HTTPException\InternalServerErrorException
-	 * @throws ImagickException
+	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromMailId(int $id)
+	public function createFromMailId(int $id): \Friendica\Object\Api\Mastodon\Status
 	{
 		$item = ActivityPub\Transmitter::ItemArrayFromMail($id, true);
 		if (empty($item)) {

@@ -23,6 +23,7 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
 use Friendica\Database\Database;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Psr\Log\LoggerInterface;
 
 class ListEntity extends BaseFactory
@@ -36,7 +37,10 @@ class ListEntity extends BaseFactory
 		$this->dba = $dba;
 	}
 
-	public function createFromGroupId(int $id)
+	/**
+	 * @throws InternalServerErrorException
+	 */
+	public function createFromGroupId(int $id): \Friendica\Object\Api\Mastodon\ListEntity
 	{
 		$group = $this->dba->selectFirst('group', ['name'], ['id' => $id, 'deleted' => false]);
 		return new \Friendica\Object\Api\Mastodon\ListEntity($id, $group['name'] ?? '', 'list');

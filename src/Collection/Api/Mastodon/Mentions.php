@@ -10,7 +10,7 @@ class Mentions extends BaseCollection
 	/**
 	 * @return Mention
 	 */
-	public function current()
+	public function current(): Mention
 	{
 		return parent::current();
 	}

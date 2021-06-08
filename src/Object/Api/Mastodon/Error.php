@@ -40,7 +40,6 @@ class Error extends BaseDataTransferObject
 	 *
 	 * @param string $error
 	 * @param string error_description
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function __construct(string $error, string $error_description)
 	{

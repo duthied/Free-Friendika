@@ -29,6 +29,7 @@ use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
 use Friendica\Repository\PermissionSet;
 use Friendica\Repository\ProfileField;
+use ImagickException;
 use Psr\Log\LoggerInterface;
 
 class Account extends BaseFactory
@@ -52,11 +53,12 @@ class Account extends BaseFactory
 	/**
 	 * @param int $contactId
 	 * @param int $uid        Public contact (=0) or owner user id
+	 *
 	 * @return \Friendica\Object\Api\Mastodon\Account
 	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
+	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromContactId(int $contactId, $uid = 0)
+	public function createFromContactId(int $contactId, $uid = 0): \Friendica\Object\Api\Mastodon\Account
 	{
 		$cdata = Contact::getPublicAndUserContacID($contactId, $uid);
 		if (!empty($cdata)) {
@@ -64,7 +66,7 @@ class Account extends BaseFactory
 			$userContact   = Contact::getById($cdata['user']);
 		} else {
 			$publicContact = Contact::getById($contactId);
-			$userContact = [];
+			$userContact   = [];
 		}
 
 		if (empty($publicContact)) {
@@ -87,18 +89,17 @@ class Account extends BaseFactory
 	/**
 	 * @param int $userId
 	 * @return \Friendica\Object\Api\Mastodon\Account
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
+	 * @throws ImagickException|HTTPException\InternalServerErrorException
 	 */
-	public function createFromUserId(int $userId)
+	public function createFromUserId(int $userId): \Friendica\Object\Api\Mastodon\Account
 	{
 		$publicContact = Contact::selectFirst([], ['uid' => $userId, 'self' => true]);
 
 		$profileFields = $this->profileFieldRepo->select(['uid' => $userId, 'psid' => PermissionSet::PUBLIC]);
 		$fields        = $this->mstdnFieldFactory->createFromProfileFields($profileFields);
 
-		$apcontact     = APContact::getByURL($publicContact['url'], false);
+		$apContact = APContact::getByURL($publicContact['url'], false);
 
-		return new \Friendica\Object\Api\Mastodon\Account($this->baseUrl, $publicContact, $fields, $apcontact);
+		return new \Friendica\Object\Api\Mastodon\Account($this->baseUrl, $publicContact, $fields, $apContact);
 	}
 }

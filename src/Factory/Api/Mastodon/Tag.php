@@ -43,14 +43,13 @@ class Tag extends BaseFactory
 	 * @param int $uriId Uri-ID of the item
 	 * @return array
 	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
 	 */
-	public function createFromUriId(int $uriId)
+	public function createFromUriId(int $uriId): array
 	{
 		$hashtags = [];
-		$tags = TagModel::getByURIId($uriId, [TagModel::HASHTAG]);
+		$tags     = TagModel::getByURIId($uriId, [TagModel::HASHTAG]);
 		foreach ($tags as $tag) {
-			$hashtag = new \Friendica\Object\Api\Mastodon\Tag($this->baseUrl, $tag);
+			$hashtag    = new \Friendica\Object\Api\Mastodon\Tag($this->baseUrl, $tag);
 			$hashtags[] = $hashtag->toArray();
 		}
 		return $hashtags;

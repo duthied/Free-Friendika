@@ -37,13 +37,13 @@ class Notification extends BaseFactory
 	private $mstdnAccountFactory;
 	/** @var Status */
 	private $mstdnStatusFactory;
-	
+
 	public function __construct(LoggerInterface $logger, Database $dba, Account $mstdnAccountFactory, Status $mstdnStatusFactoryFactory)
 	{
 		parent::__construct($logger);
-		$this->dba = $dba;
+		$this->dba                 = $dba;
 		$this->mstdnAccountFactory = $mstdnAccountFactory;
-		$this->mstdnStatusFactory = $mstdnStatusFactoryFactory;
+		$this->mstdnStatusFactory  = $mstdnStatusFactoryFactory;
 	}
 
 	public function createFromNotificationId(int $id)
@@ -64,7 +64,7 @@ class Notification extends BaseFactory
 
 		if (($notification['vid'] == Verb::getID(Activity::FOLLOW)) && ($notification['type'] == Post\UserNotification::NOTIF_NONE)) {
 			$contact = Contact::getById($notification['actor-id'], ['pending']);
-			$type = $contact['pending'] ? $type = 'follow_request' : 'follow';
+			$type    = $contact['pending'] ? $type    = 'follow_request' : 'follow';
 		} elseif (($notification['vid'] == Verb::getID(Activity::ANNOUNCE)) &&
 			in_array($notification['type'], [Post\UserNotification::NOTIF_DIRECT_COMMENT, Post\UserNotification::NOTIF_DIRECT_THREAD_COMMENT])) {
 			$type = 'reblog';

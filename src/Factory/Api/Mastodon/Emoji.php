@@ -26,7 +26,7 @@ use Friendica\Collection\Api\Mastodon\Emojis;
 
 class Emoji extends BaseFactory
 {
-	public function create(string $shortcode, string $url)
+	public function create(string $shortcode, string $url): \Friendica\Object\Api\Mastodon\Emoji
 	{
 		return new \Friendica\Object\Api\Mastodon\Emoji($shortcode, $url);
 	}
@@ -35,7 +35,7 @@ class Emoji extends BaseFactory
 	 * @param array $smilies
 	 * @return Emojis
 	 */
-	public function createCollectionFromSmilies(array $smilies)
+	public function createCollectionFromSmilies(array $smilies): Emojis
 	{
 		$prototype = null;
 
@@ -47,7 +47,7 @@ class Emoji extends BaseFactory
 
 				if ($prototype === null) {
 					$prototype = $this->create($shortcode, $url);
-					$emojis[] = $prototype;
+					$emojis[]  = $prototype;
 				} else {
 					$emojis[] = \Friendica\Object\Api\Mastodon\Emoji::createFromPrototype($prototype, $shortcode, $url);
 				}

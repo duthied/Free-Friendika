@@ -45,15 +45,14 @@ class Mention extends BaseFactory
 	 * @param int $uriId Uri-ID of the item
 	 * @return Mentions
 	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
 	 */
-	public function createFromUriId(int $uriId)
+	public function createFromUriId(int $uriId): Mentions
 	{
 		$mentions = new Mentions();
-		$tags = Tag::getByURIId($uriId, [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION]);
+		$tags     = Tag::getByURIId($uriId, [Tag::MENTION, Tag::EXCLUSIVE_MENTION, Tag::IMPLICIT_MENTION]);
 		foreach ($tags as $tag) {
-			$contact = Contact::getByURL($tag['url'], false);
-			$mentions->append(new \Friendica\Object\Api\Mastodon\Mention($this->baseUrl, $tag, $contact));
+			$contact    = Contact::getByURL($tag['url'], false);
+			$mentions[] = new \Friendica\Object\Api\Mastodon\Mention($this->baseUrl, $tag, $contact);
 		}
 		return $mentions;
 	}

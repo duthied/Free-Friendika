@@ -24,6 +24,8 @@ namespace Friendica\Factory\Api\Mastodon;
 use Friendica\BaseFactory;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
+use Friendica\Network\HTTPException;
+use ImagickException;
 use Psr\Log\LoggerInterface;
 
 class Conversation extends BaseFactory
@@ -43,7 +45,10 @@ class Conversation extends BaseFactory
 		$this->mstdnAccountFactory = $mstdnAccountFactoryFactory;
 	}
 
-	public function CreateFromConvId(int $id)
+	/**
+	 * @throws ImagickException|HTTPException\InternalServerErrorException|HTTPException\NotFoundException
+	 */
+	public function CreateFromConvId(int $id): \Friendica\Object\Api\Mastodon\Conversation
 	{
 		$accounts    = [];
 		$unread      = false;

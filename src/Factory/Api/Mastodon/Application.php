@@ -44,11 +44,11 @@ class Application extends BaseFactory
 	 *
 	 * @throws InternalServerErrorException
 	 */
-	public function createFromApplicationId(int $id)
+	public function createFromApplicationId(int $id): \Friendica\Object\Api\Mastodon\Application
 	{
 		$application = $this->dba->selectFirst('application', ['client_id', 'client_secret', 'id', 'name', 'redirect_uri', 'website'], ['id' => $id]);
 		if (!$this->dba->isResult($application)) {
-			return [];
+			throw new InternalServerErrorException(sprintf("ID '%s' not found", $id));
 		}
 
 		return new \Friendica\Object\Api\Mastodon\Application(
