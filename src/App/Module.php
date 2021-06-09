@@ -265,6 +265,20 @@ class Module
 			$logger->debug('index.php: page not found.', ['request_uri' => $server['REQUEST_URI'], 'address' => $server['REMOTE_ADDR'], 'query' => $server['QUERY_STRING']]);
 		}
 
+		// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS
+		// @todo Check allowed methods per requested path
+		if ($server['REQUEST_METHOD'] === Router::OPTIONS) {
+			header('HTTP/1.1 204 No Content');
+			header('Allow: ' . implode(',', Router::ALLOWED_METHODS));
+			// Deactivated until we know about possible side effects
+			// header('Access-Control-Allow-Credentials: true');
+			// header('Access-Control-Allow-Headers: Authorization,Content-Type');
+			// header('Access-Control-Allow-Methods: ' . implode(',', Router::ALLOWED_METHODS));
+			// header('Access-Control-Allow-Origin: ' . DI::baseUrl());
+			// header('Access-Control-Max-Age: 86400');
+			exit();
+		}
+
 		$placeholder = '';
 
 		$profiler->set(microtime(true), 'ready');
