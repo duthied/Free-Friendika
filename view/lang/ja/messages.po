@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-29 20:29+0000\n"
-"PO-Revision-Date: 2021-05-31 23:48+0000\n"
+"PO-Revision-Date: 2021-06-09 04:51+0000\n"
 "Last-Translator: XMPPはいいぞ\n"
 "Language-Team: Japanese (http://www.transifex.com/Friendica/friendica/language/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -9008,7 +9008,7 @@ msgstr "招待コード："
 
 #: src/Module/Register.php:145
 msgid "Your Full Name (e.g. Joe Smith, real or real-looking): "
-msgstr "あなたの氏名（例：ジョー・スミス、本物または本物の見た目）："
+msgstr "あなたの氏名（例：ジョー・スミス、本物または本物のような）："
 
 #: src/Module/Register.php:146
 msgid ""
