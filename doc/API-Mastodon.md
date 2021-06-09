@@ -20,6 +20,7 @@ Supported mobile apps:
 - [Twidere](https://github.com/TwidereProject/)
 - [twitlatte](https://github.com/moko256/twitlatte)
 - [Yuito](https://github.com/accelforce/Yuito)
+- [Amaroq](https://github.com/ReticentJohn/Amaroq/tree/master)
 
 Unsupported mobile apps:
 
