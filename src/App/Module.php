@@ -265,6 +265,8 @@ class Module
 			$logger->debug('index.php: page not found.', ['request_uri' => $server['REQUEST_URI'], 'address' => $server['REMOTE_ADDR'], 'query' => $server['QUERY_STRING']]);
 		}
 
+		// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS
+		// @todo Check allowed methods per requested path
 		if ($server['REQUEST_METHOD'] === Router::OPTIONS) {
 			header('HTTP/1.1 204 No Content');
 			header('Allow: ' . implode(',', Router::ALLOWED_METHODS));
