@@ -11,7 +11,7 @@ Authentication is the same as described in [Using the APIs](help/api#Authenticat
 
 ## Clients
 
-Supported mobile apps:
+Supported apps:
 
 - [AndStatus](http://andstatus.org)
 - [Husky](https://husky.fwgs.ru)
@@ -20,11 +20,17 @@ Supported mobile apps:
 - [Twidere](https://github.com/TwidereProject/)
 - [twitlatte](https://github.com/moko256/twitlatte)
 - [Yuito](https://github.com/accelforce/Yuito)
+- [Amaroq](https://github.com/ReticentJohn/Amaroq/tree/master)
 
-Unsupported mobile apps:
+Unsupported apps:
 
 - [Fedilab](https://framagit.org/tom79/fedilab) Automatically uses the legacy API, see issue: https://framagit.org/tom79/fedilab/-/issues/520
 - [Mammut](https://github.com/jamiesanson/Mammut) There are problems with the token request, see issue https://github.com/jamiesanson/Mammut/issues/19
+- [Mast](https://github.com/Beesitech/Mast) Doesn't accept the entered instance name. Claims that it is invalid (Message is: "Not a valid instance (may be closed or dead)")
+- [Pinafore](https://github.com/nolanlawson/pinafore) Returns message "Error: NetworkError when attempting to fetch resource.. Is this a valid Mastodon instance?"
+- [Mastonaut](https://mastonaut.app/)
+- [Toot!](https://apps.apple.com/app/toot/id1229021451)
+- [Halycon](https://www.halcyon.social/) Doesn't load content, creates masses of HTTP requests
 
 ## Entities
 
