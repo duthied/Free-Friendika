@@ -267,11 +267,13 @@ class Module
 
 		if ($server['REQUEST_METHOD'] === Router::OPTIONS) {
 			header('HTTP/1.1 204 No Content');
-			header('access-control-allow-credentials: true');
-			header('access-control-allow-headers: Authorization,Content-Type');
-			header('access-control-allow-methods: ' . implode(',', Router::ALLOWED_METHODS));
-			header('access-control-allow-origin: *');
-			header('access-control-max-age: 86400');
+			header('Allow: ' . implode(',', Router::ALLOWED_METHODS));
+			// Deactivated until we know about possible side effects
+			// header('Access-Control-Allow-Credentials: true');
+			// header('Access-Control-Allow-Headers: Authorization,Content-Type');
+			// header('Access-Control-Allow-Methods: ' . implode(',', Router::ALLOWED_METHODS));
+			// header('Access-Control-Allow-Origin: ' . DI::baseUrl());
+			// header('Access-Control-Max-Age: 86400');
 			exit();
 		}
 
