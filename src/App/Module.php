@@ -265,6 +265,16 @@ class Module
 			$logger->debug('index.php: page not found.', ['request_uri' => $server['REQUEST_URI'], 'address' => $server['REMOTE_ADDR'], 'query' => $server['QUERY_STRING']]);
 		}
 
+		if ($server['REQUEST_METHOD'] === Router::OPTIONS) {
+			header('HTTP/1.1 204 No Content');
+			header('access-control-allow-credentials: true');
+			header('access-control-allow-headers: Authorization,Content-Type');
+			header('access-control-allow-methods: ' . implode(',', Router::ALLOWED_METHODS));
+			header('access-control-allow-origin: *');
+			header('access-control-max-age: 86400');
+			exit();
+		}
+
 		$placeholder = '';
 
 		$profiler->set(microtime(true), 'ready');
