@@ -23,7 +23,6 @@ namespace Friendica\Module\OAuth;
 
 use Friendica\Core\Logger;
 use Friendica\DI;
-use Friendica\Model\Post\Content;
 use Friendica\Module\BaseApi;
 use Friendica\Security\OAuth;
 
@@ -33,6 +32,8 @@ use Friendica\Security\OAuth;
  */
 class Authorize extends BaseApi
 {
+	private static $oauth_code = '';
+
 	/**
 	 * @param array $parameters
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -93,18 +94,15 @@ class Authorize extends BaseApi
 			DI::app()->redirect($application['redirect_uri'] . (strpos($application['redirect_uri'], '?') ? '&' : '?') . http_build_query(['code' => $token['code'], 'state' => $request['state']]));
 		}
 
-		DI::session()->set('oauth_token_code', $token['code']);
+		self::$oauth_code = $token['code'];
 	}
 
 	public static function content(array $parameters = [])
 	{
-		$code = DI::session()->get('oauth_token_code');
-		DI::session()->remove('oauth_token_code');
-
-		if (empty($code)) {
+		if (empty(self::$oauth_code)) {
 			return '';
 		}
 
-		return DI::l10n()->t('Please copy the following authentication code into your application and close this window: %s', $code);
+		return DI::l10n()->t('Please copy the following authentication code into your application and close this window: %s', self::$oauth_code);
 	}
 }
