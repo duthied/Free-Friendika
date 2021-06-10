@@ -34,7 +34,7 @@ class Application extends BaseDataTransferObject
 	protected $client_id;
 	/** @var string */
 	protected $client_secret;
-	/** @var int */
+	/** @var string */
 	protected $id;
 	/** @var string */
 	protected $name;
@@ -53,7 +53,7 @@ class Application extends BaseDataTransferObject
 	{
 		$this->client_id     = $client_id;
 		$this->client_secret = $client_secret;
-		$this->id            = $id;
+		$this->id            = (string)$id;
 		$this->name          = $name;
 		$this->redirect_uri  = $redirect_uri;
 		$this->website       = $website;
