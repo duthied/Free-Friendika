@@ -34,6 +34,7 @@ Authentication is the same as described in [Using the APIs](help/api#Authenticat
 ### Unsupported apps
 
 #### Android
+- [Fedi](https://play.google.com/store/apps/details?id=com.fediverse.app) Authenticates, but doesn't load posts and throws several errors
 - [Fedilab](https://framagit.org/tom79/fedilab) Automatically uses the legacy API, see issue: https://framagit.org/tom79/fedilab/-/issues/520
 - [Mammut](https://github.com/jamiesanson/Mammut) There are problems with the token request, see issue https://github.com/jamiesanson/Mammut/issues/19
 
