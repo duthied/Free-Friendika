@@ -39,6 +39,6 @@ class VerifyCredentials extends BaseApi
 			DI::mstdnError()->Unauthorized();
 		}
 
-		System::jsonExit($application['id']);
+		System::jsonExit(DI::mstdnApplication()->createFromApplicationId($application['id']));
 	}
 }
