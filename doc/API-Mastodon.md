@@ -17,6 +17,7 @@ Authentication is the same as described in [Using the APIs](help/api#Authenticat
 
 - [AndStatus](http://andstatus.org)
 - [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
+- [Fedi](https://play.google.com/store/apps/details?id=com.fediverse.app)
 - [Husky](https://husky.fwgs.ru)
 - [Roma](https://play.google.com/store/apps/details?id=tech.bigfig.roma)
 - [Subway Tooter](https://github.com/tateisu/SubwayTooter)
@@ -28,27 +29,26 @@ Authentication is the same as described in [Using the APIs](help/api#Authenticat
 #### iOS
 - [Amaroq](https://github.com/ReticentJohn/Amaroq/tree/master)
 - [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
+- [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281)
+- [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699)
 - [StarPterano](https://apps.apple.com/de/app/starpterano/id1436972796) Uses an OAuth method where you have to manually copy and paste the provided code.
 - [Stella](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048?l=ms)
+- [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466) entered hostname must match in upper/lower case. Currently crashes on "Status" type notifications.
 
 ### Unsupported apps
 
 #### Android
-- [Fedi](https://play.google.com/store/apps/details?id=com.fediverse.app) Authenticates, but doesn't load posts and throws several errors
 - [Fedilab](https://framagit.org/tom79/fedilab) Automatically uses the legacy API, see issue: https://framagit.org/tom79/fedilab/-/issues/520
 - [Mammut](https://github.com/jamiesanson/Mammut) There are problems with the token request, see issue https://github.com/jamiesanson/Mammut/issues/19
 
 #### iOS
-- [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281) Authenticates, but doesn't load posts and throws several errors
 - [Mast](https://github.com/Beesitech/Mast) Doesn't accept the entered instance name. Claims that it is invalid (Message is: "Not a valid instance (may be closed or dead)")
-- [Mastonaut](https://mastonaut.app/)
-- [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699) Authenticates, but doesn't load content
 - [Toot!](https://apps.apple.com/app/toot/id1229021451)
-- [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466) Doesn't recognize server, loads /api/v1/instance in some endless loop
 
 #### Other
 
 - [Halycon](https://www.halcyon.social/) Doesn't load content, creates masses of HTTP requests
+- [Mastonaut](https://mastonaut.app/)
 - [Pinafore](https://github.com/nolanlawson/pinafore) Returns message "Error: NetworkError when attempting to fetch resource.. Is this a valid Mastodon instance?"
 
 ## Entities
