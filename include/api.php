@@ -95,11 +95,6 @@ function api_user()
 		return $user;
 	}
 
-	$user = BasicAuth::getCurrentUserID(false);
-	if (!empty($user)) {
-		return $user;
-	}
-
 	if (!empty($_SESSION['allow_api'])) {
 		return local_user();
 	}
