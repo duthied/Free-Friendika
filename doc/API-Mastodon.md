@@ -35,6 +35,9 @@ Authentication is the same as described in [Using the APIs](help/api#Authenticat
 - [Stella](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048?l=ms)
 - [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466) entered hostname must match in upper/lower case. Currently crashes on "Status" type notifications.
 
+#### Desktop
+- [Whalebird](https://whalebird.social)
+
 ### Unsupported apps
 
 #### Android
