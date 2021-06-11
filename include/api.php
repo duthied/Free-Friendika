@@ -56,7 +56,6 @@ use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
-use Friendica\Security\BasicAuth;
 use Friendica\Security\FKOAuth1;
 use Friendica\Security\OAuth;
 use Friendica\Security\OAuth1\OAuthRequest;
