@@ -39,6 +39,8 @@ class Instance extends BaseDataTransferObject
 	/** @var string */
 	protected $title;
 	/** @var string */
+	protected $short_description;
+	/** @var string */
 	protected $description;
 	/** @var string */
 	protected $email;
@@ -58,8 +60,12 @@ class Instance extends BaseDataTransferObject
 	protected $registrations;
 	/** @var bool */
 	protected $approval_required;
+	/** @var bool */
+	protected $invites_enabled;
 	/** @var Account|null */
 	protected $contact_account = null;
+	/** @var array */
+	protected $rules = [];
 
 	/**
 	 * Creates an instance record
@@ -77,7 +83,7 @@ class Instance extends BaseDataTransferObject
 		$instance = new Instance();
 		$instance->uri = $baseUrl->get();
 		$instance->title = DI::config()->get('config', 'sitename');
-		$instance->description = DI::config()->get('config', 'info');
+		$instance->short_description = $instance->description = DI::config()->get('config', 'info');
 		$instance->email = DI::config()->get('config', 'admin_email');
 		$instance->version = FRIENDICA_VERSION;
 		$instance->urls = null; // Not supported
@@ -87,6 +93,7 @@ class Instance extends BaseDataTransferObject
 		$instance->max_toot_chars = (int)DI::config()->get('config', 'api_import_size', DI::config()->get('config', 'max_import_size'));
 		$instance->registrations = ($register_policy != Register::CLOSED);
 		$instance->approval_required = ($register_policy == Register::APPROVE);
+		$instance->invites_enabled = false;
 		$instance->contact_account = [];
 
 		if (!empty(DI::config()->get('config', 'admin_email'))) {

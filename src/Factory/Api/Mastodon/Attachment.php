@@ -86,8 +86,8 @@ class Attachment extends BaseFactory
 					$preview = Proxy::proxifyUrl($attachment['url'], false, Proxy::SIZE_SMALL);
 				}
 			} else {
-				$url = '';
-				$preview = '';
+				$url = Proxy::proxifyUrl($attachment['url']);
+				$preview = Proxy::proxifyUrl($attachment['preview'] ?? '');
 			}
 
 			$object = new \Friendica\Object\Api\Mastodon\Attachment($attachment, $type, $url, $preview, $remote);

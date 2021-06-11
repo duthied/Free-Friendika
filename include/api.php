@@ -181,7 +181,6 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  * Simple Auth allow username in form of <pre>user@server</pre>, ignoring server part
  *
  * @param App $a App
- * @param bool $do_login try to log in when not logged in, otherwise quit silently
  * @throws ForbiddenException
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
@@ -192,7 +191,7 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  *               'authenticated' => return status,
  *               'user_record' => return authenticated user record
  */
-function api_login(App $a, bool $do_login = true)
+function api_login(App $a)
 {
 	$_SESSION["allow_api"] = false;
 
@@ -223,10 +222,6 @@ function api_login(App $a, bool $do_login = true)
 			die();
 		} catch (Exception $e) {
 			Logger::warning(API_LOG_PREFIX . 'OAuth error', ['module' => 'api', 'action' => 'login', 'exception' => $e->getMessage()]);
-		}
-
-		if (!$do_login) {
-			return;
 		}
 
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
@@ -270,9 +265,6 @@ function api_login(App $a, bool $do_login = true)
 	}
 
 	if (!DBA::isResult($record)) {
-		if (!$do_login) {
-			return;
-		}
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
@@ -608,7 +600,7 @@ function api_get_user(App $a, $contact_id = null)
 			api_login($a);
 			return false;
 		} else {
-			$user = $_SESSION['uid'];
+			$user = api_user();
 			$extra_query = "AND `contact`.`uid` = %d AND `contact`.`self` ";
 		}
 	}
