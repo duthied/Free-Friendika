@@ -116,11 +116,22 @@ function api_user()
  */
 function api_source()
 {
-	$application = OAuth::getCurrentApplicationToken();
-	if (empty($application)) {
-		$application = BasicAuth::getCurrentApplicationToken();
+	if (requestdata('source')) {
+		return requestdata('source');
 	}
-	return $application['name'] ?? 'api';
+
+	// Support for known clients that doesn't send a source name
+	if (!empty($_SERVER['HTTP_USER_AGENT'])) {
+		if(strpos($_SERVER['HTTP_USER_AGENT'], "Twidere") !== false) {
+			return "Twidere";
+		}
+
+		Logger::info(API_LOG_PREFIX . 'Unrecognized user-agent', ['module' => 'api', 'action' => 'source', 'http_user_agent' => $_SERVER['HTTP_USER_AGENT']]);
+	} else {
+		Logger::info(API_LOG_PREFIX . 'Empty user-agent', ['module' => 'api', 'action' => 'source']);
+	}
+
+	return "api";
 }
 
 /**
