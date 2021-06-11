@@ -100,6 +100,10 @@ function api_user()
 		return $user;
 	}
 
+	if (!empty($_SESSION['allow_api'])) {
+		return local_user();
+	}
+
 	return false;
 }
 
