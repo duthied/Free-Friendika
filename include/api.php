@@ -56,6 +56,7 @@ use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
+use Friendica\Security\BasicAuth;
 use Friendica\Security\FKOAuth1;
 use Friendica\Security\OAuth;
 use Friendica\Security\OAuth1\OAuthRequest;
@@ -94,8 +95,9 @@ function api_user()
 		return $user;
 	}
 
-	if (!empty($_SESSION['allow_api'])) {
-		return local_user();
+	$user = BasicAuth::getCurrentUserID(false);
+	if (!empty($user)) {
+		return $user;
 	}
 
 	return false;
@@ -115,22 +117,11 @@ function api_user()
  */
 function api_source()
 {
-	if (requestdata('source')) {
-		return requestdata('source');
+	$application = OAuth::getCurrentApplicationToken();
+	if (empty($application)) {
+		$application = BasicAuth::getCurrentApplicationToken();
 	}
-
-	// Support for known clients that doesn't send a source name
-	if (!empty($_SERVER['HTTP_USER_AGENT'])) {
-		if(strpos($_SERVER['HTTP_USER_AGENT'], "Twidere") !== false) {
-			return "Twidere";
-		}
-
-		Logger::info(API_LOG_PREFIX . 'Unrecognized user-agent', ['module' => 'api', 'action' => 'source', 'http_user_agent' => $_SERVER['HTTP_USER_AGENT']]);
-	} else {
-		Logger::info(API_LOG_PREFIX . 'Empty user-agent', ['module' => 'api', 'action' => 'source']);
-	}
-
-	return "api";
+	return $application['name'] ?? 'api';
 }
 
 /**
@@ -181,7 +172,6 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  * Simple Auth allow username in form of <pre>user@server</pre>, ignoring server part
  *
  * @param App $a App
- * @param bool $do_login try to log in when not logged in, otherwise quit silently
  * @throws ForbiddenException
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
@@ -192,7 +182,7 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  *               'authenticated' => return status,
  *               'user_record' => return authenticated user record
  */
-function api_login(App $a, bool $do_login = true)
+function api_login(App $a)
 {
 	$_SESSION["allow_api"] = false;
 
@@ -223,10 +213,6 @@ function api_login(App $a, bool $do_login = true)
 			die();
 		} catch (Exception $e) {
 			Logger::warning(API_LOG_PREFIX . 'OAuth error', ['module' => 'api', 'action' => 'login', 'exception' => $e->getMessage()]);
-		}
-
-		if (!$do_login) {
-			return;
 		}
 
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
@@ -270,9 +256,6 @@ function api_login(App $a, bool $do_login = true)
 	}
 
 	if (!DBA::isResult($record)) {
-		if (!$do_login) {
-			return;
-		}
 		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
@@ -608,7 +591,7 @@ function api_get_user(App $a, $contact_id = null)
 			api_login($a);
 			return false;
 		} else {
-			$user = $_SESSION['uid'];
+			$user = api_user();
 			$extra_query = "AND `contact`.`uid` = %d AND `contact`.`self` ";
 		}
 	}
