@@ -138,7 +138,11 @@ class Federation extends BaseAdmin
 				$versionCounts = self::removeVersionSuffixes($versionCounts);
 			}
 
-			$versionCounts = self::sortVersion($versionCounts);
+			if (!in_array($platform, ['other', 'relay', 'mistpark'])) {
+				$versionCounts = self::sortVersion($versionCounts);
+			} else {
+				ksort($versionCounts);
+			}
 
 			$gserver['platform'] = $systems[$platform]['name'];
 
