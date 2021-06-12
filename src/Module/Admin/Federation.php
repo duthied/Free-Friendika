@@ -85,7 +85,7 @@ class Federation extends BaseAdmin
 				} elseif (in_array($gserver['platform'], ['osada', 'mistpark', 'roadhouse', 'zap'])) {
 					$version['version'] = $gserver['platform'] . ' ' . $version['version'];
 				} elseif (in_array($gserver['platform'], ['activityrelay', 'pub-relay', 'selective-relay', 'aoderelay'])) {
-						$version['version'] = $gserver['platform'] . '-' . $version['version'];
+					$version['version'] = $gserver['platform'] . '-' . $version['version'];
 				}
 
 				$versionCounts[] = $version;
@@ -133,7 +133,7 @@ class Federation extends BaseAdmin
 			} elseif ($platform == 'diaspora') {
 				$versionCounts = self::reformaDiasporaVersions($versionCounts);
 			} elseif ($platform == 'relay') {
-				$versionCounts = self::reformaRelayVersions($versionCounts);
+				$versionCounts = self::reformatRelayVersions($versionCounts);
 			} elseif (in_array($platform, ['funkwhale', 'mastodon', 'mobilizon', 'misskey'])) {
 				$versionCounts = self::removeVersionSuffixes($versionCounts);
 			}
@@ -306,7 +306,7 @@ class Federation extends BaseAdmin
 	 * @param array $versionCounts list of version numbers
 	 * @return array with cleaned version numbers
 	 */
-	private static function reformaRelayVersions(array $versionCounts)
+	private static function reformatRelayVersions(array $versionCounts)
 	{
 		$compacted = [];
 		foreach ($versionCounts as $key => $value) {
