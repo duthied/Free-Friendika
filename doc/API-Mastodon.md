@@ -21,6 +21,7 @@ Authentication is the same as described in [Using the APIs](help/api#Authenticat
 - [Husky](https://husky.fwgs.ru)
 - [Roma](https://play.google.com/store/apps/details?id=tech.bigfig.roma)
 - [Subway Tooter](https://github.com/tateisu/SubwayTooter)
+- [Tooot](https://tooot.app/)
 - [Tusky](https://tusky.app)
 - [Twidere](https://github.com/TwidereProject/)
 - [twitlatte](https://github.com/moko256/twitlatte)
@@ -33,6 +34,7 @@ Authentication is the same as described in [Using the APIs](help/api#Authenticat
 - [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699)
 - [StarPterano](https://apps.apple.com/de/app/starpterano/id1436972796) Uses an OAuth method where you have to manually copy and paste the provided code.
 - [Stella](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048?l=ms)
+- [Tooot](https://tooot.app/)
 - [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466) entered hostname must match in upper/lower case. Currently crashes on "Status" type notifications.
 
 #### Desktop
