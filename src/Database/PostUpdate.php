@@ -740,7 +740,7 @@ class PostUpdate
 		Logger::info('Start', ['rest' => DBA::count('photo', $condition)]);
 
 		$rows = 0;
-		$photos = DBA::select('photo', [], $condition, ['limit' => 10000]);
+		$photos = DBA::select('photo', [], $condition, ['limit' => 100]);
 
 		if (DBA::errorNo() != 0) {
 			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
