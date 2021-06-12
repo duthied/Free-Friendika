@@ -52,7 +52,7 @@ class Preferences extends BaseApi
 		$sensitive = false;
 		$language  = $user['language'];
 		$media     = DI::pConfig()->get($uid, 'nsfw', 'disable') ? 'show_all' : 'default';
-		$spoilers  = DI::pConfig()->get($uid, 'system', 'disable_cw');
+		$spoilers  = (bool)DI::pConfig()->get($uid, 'system', 'disable_cw');
 
 		$preferences = new \Friendica\Object\Api\Mastodon\Preferences($visibility, $sensitive, $language, $media, $spoilers);
 
