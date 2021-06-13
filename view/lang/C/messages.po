@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.06-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-10 06:29+0000\n"
+"POT-Creation-Date: 2021-06-13 17:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,26 +18,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-#: include/api.php:1143
+#: include/api.php:1135
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: include/api.php:1157
+#: include/api.php:1149
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural "Weekly posting limit of %d posts reached. The post was rejected."
 msgstr[0] ""
 msgstr[1] ""
 
-#: include/api.php:1171
+#: include/api.php:1163
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr ""
 
-#: include/api.php:4534 mod/photos.php:107 mod/photos.php:211
+#: include/api.php:4526 mod/photos.php:107 mod/photos.php:211
 #: mod/photos.php:639 mod/photos.php:1043 mod/photos.php:1060
 #: mod/photos.php:1609 src/Model/User.php:1100 src/Model/User.php:1108
 #: src/Model/User.php:1116 src/Module/Settings/Profile/Photo/Crop.php:97
@@ -1599,19 +1599,11 @@ msgstr ""
 msgid "No keywords to match. Please add keywords to your profile."
 msgstr ""
 
-#: mod/match.php:105 src/Content/Pager.php:216
-msgid "first"
-msgstr ""
-
-#: mod/match.php:110 src/Content/Pager.php:276
-msgid "next"
-msgstr ""
-
-#: mod/match.php:120 src/Module/BaseSearch.php:117
+#: mod/match.php:93 src/Module/BaseSearch.php:117
 msgid "No matches"
 msgstr ""
 
-#: mod/match.php:125
+#: mod/match.php:98
 msgid "Profile Match"
 msgstr ""
 
@@ -3626,8 +3618,16 @@ msgstr ""
 msgid "Embedded content"
 msgstr ""
 
+#: src/Content/Pager.php:216
+msgid "first"
+msgstr ""
+
 #: src/Content/Pager.php:221
 msgid "prev"
+msgstr ""
+
+#: src/Content/Pager.php:276
+msgid "next"
 msgstr ""
 
 #: src/Content/Pager.php:281
@@ -5234,7 +5234,7 @@ msgstr ""
 
 #: src/Module/Admin/Addons/Details.php:111 src/Module/Admin/Addons/Index.php:67
 #: src/Module/Admin/Blocklist/Contact.php:78
-#: src/Module/Admin/Blocklist/Server.php:88 src/Module/Admin/Federation.php:141
+#: src/Module/Admin/Blocklist/Server.php:88 src/Module/Admin/Federation.php:159
 #: src/Module/Admin/Item/Delete.php:65 src/Module/Admin/Logs/Settings.php:80
 #: src/Module/Admin/Logs/View.php:64 src/Module/Admin/Queue.php:72
 #: src/Module/Admin/Site.php:579 src/Module/Admin/Summary.php:232
@@ -5567,26 +5567,26 @@ msgstr ""
 msgid "Manage Additional Features"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:54
+#: src/Module/Admin/Federation.php:56
 msgid "Other"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:108 src/Module/Admin/Federation.php:268
+#: src/Module/Admin/Federation.php:118 src/Module/Admin/Federation.php:348
 msgid "unknown"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:136
+#: src/Module/Admin/Federation.php:154
 msgid ""
 "This page offers you some numbers to the known part of the federated social "
 "network your Friendica node is part of. These numbers are not complete but "
 "only reflect the part of the network your node is aware of."
 msgstr ""
 
-#: src/Module/Admin/Federation.php:142 src/Module/BaseAdmin.php:87
+#: src/Module/Admin/Federation.php:160 src/Module/BaseAdmin.php:87
 msgid "Federation Statistics"
 msgstr ""
 
-#: src/Module/Admin/Federation.php:146
+#: src/Module/Admin/Federation.php:164
 #, php-format
 msgid ""
 "Currently this node is aware of %d nodes with %d registered users from the "
@@ -8881,15 +8881,15 @@ msgstr ""
 msgid "Show all"
 msgstr ""
 
-#: src/Module/OAuth/Authorize.php:53
+#: src/Module/OAuth/Authorize.php:54
 msgid "Unsupported or missing response type"
 msgstr ""
 
-#: src/Module/OAuth/Authorize.php:58 src/Module/OAuth/Token.php:58
+#: src/Module/OAuth/Authorize.php:59 src/Module/OAuth/Token.php:58
 msgid "Incomplete request data"
 msgstr ""
 
-#: src/Module/OAuth/Authorize.php:108
+#: src/Module/OAuth/Authorize.php:106
 #, php-format
 msgid ""
 "Please copy the following authentication code into your application and "
