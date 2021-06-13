@@ -188,6 +188,7 @@ class DBStructure
 			$filename = DI::basePath() . '/doc/database/db_' . $name . '.md';
 			file_put_contents($filename, $content);
 		}
+		asort($tables);
 		$content = Renderer::replaceMacros(Renderer::getMarkupTemplate('tables.tpl'), [
 			'$tables'  => $tables,	
 		]);

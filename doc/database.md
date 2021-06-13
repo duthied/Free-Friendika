@@ -5,14 +5,6 @@ Database Tables
 
 | Table | Description |
 |-------|-------------|
-| [gserver](help/database/db_gserver) | Global servers |
-| [user](help/database/db_user) | The local users |
-| [contact](help/database/db_contact) | contact table |
-| [item-uri](help/database/db_item-uri) | URI and GUID for items |
-| [tag](help/database/db_tag) | tags and mentions |
-| [clients](help/database/db_clients) | OAuth usage |
-| [permissionset](help/database/db_permissionset) |  |
-| [verb](help/database/db_verb) | Activity Verbs |
 | [2fa_app_specific_password](help/database/db_2fa_app_specific_password) | Two-factor app-specific _password |
 | [2fa_recovery_codes](help/database/db_2fa_recovery_codes) | Two-factor authentication recovery codes |
 | [2fa_trusted_browser](help/database/db_2fa_trusted_browser) | Two-factor authentication trusted browsers |
@@ -24,7 +16,9 @@ Database Tables
 | [auth_codes](help/database/db_auth_codes) | OAuth usage |
 | [cache](help/database/db_cache) | Stores temporary data |
 | [challenge](help/database/db_challenge) |  |
+| [clients](help/database/db_clients) | OAuth usage |
 | [config](help/database/db_config) | main configuration storage |
+| [contact](help/database/db_contact) | contact table |
 | [contact-relation](help/database/db_contact-relation) | Contact relations |
 | [conv](help/database/db_conv) | private messages |
 | [conversation](help/database/db_conversation) | Raw data and structure information for messages |
@@ -35,11 +29,13 @@ Database Tables
 | [fsuggest](help/database/db_fsuggest) | friend suggestion stuff |
 | [group](help/database/db_group) | privacy groups, group info |
 | [group_member](help/database/db_group_member) | privacy groups, member info |
+| [gserver](help/database/db_gserver) | Global servers |
 | [gserver-tag](help/database/db_gserver-tag) | Tags that the server has subscribed |
 | [hook](help/database/db_hook) | addon hook registry |
 | [host](help/database/db_host) | Hostname |
 | [inbox-status](help/database/db_inbox-status) | Status of ActivityPub inboxes |
 | [intro](help/database/db_intro) |  |
+| [item-uri](help/database/db_item-uri) | URI and GUID for items |
 | [locks](help/database/db_locks) |  |
 | [mail](help/database/db_mail) | private messages |
 | [mailacct](help/database/db_mailacct) | Mail account data for fetching mails |
@@ -51,6 +47,7 @@ Database Tables
 | [openwebauth-token](help/database/db_openwebauth-token) | Store OpenWebAuth token to verify contacts |
 | [parsed_url](help/database/db_parsed_url) | cache for &#039;parse_url&#039; queries |
 | [pconfig](help/database/db_pconfig) | personal (per user) configuration storage |
+| [permissionset](help/database/db_permissionset) |  |
 | [photo](help/database/db_photo) | photo storage |
 | [post](help/database/db_post) | Structure for all posts |
 | [post-category](help/database/db_post-category) | post relation to categories |
@@ -59,8 +56,8 @@ Database Tables
 | [post-media](help/database/db_post-media) | Attached media |
 | [post-tag](help/database/db_post-tag) | post relation to tags |
 | [post-thread](help/database/db_post-thread) | Thread related data |
-| [post-user](help/database/db_post-user) | User specific post data |
 | [post-thread-user](help/database/db_post-thread-user) | Thread related data per user |
+| [post-user](help/database/db_post-user) | User specific post data |
 | [post-user-notification](help/database/db_post-user-notification) | User post notifications |
 | [process](help/database/db_process) | Currently running system processes |
 | [profile](help/database/db_profile) | user profiles data |
@@ -71,8 +68,11 @@ Database Tables
 | [search](help/database/db_search) |  |
 | [session](help/database/db_session) | web session storage |
 | [storage](help/database/db_storage) | Data stored by Database storage backend |
+| [tag](help/database/db_tag) | tags and mentions |
 | [tokens](help/database/db_tokens) | OAuth usage |
-| [userd](help/database/db_userd) | Deleted usernames |
+| [user](help/database/db_user) | The local users |
 | [user-contact](help/database/db_user-contact) | User specific public contact data |
+| [userd](help/database/db_userd) | Deleted usernames |
+| [verb](help/database/db_verb) | Activity Verbs |
 | [worker-ipc](help/database/db_worker-ipc) | Inter process communication between the frontend and the worker |
 | [workerqueue](help/database/db_workerqueue) | Background tasks queue entries |
