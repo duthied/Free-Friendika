@@ -1,10 +1,11 @@
 Table manage
-============
+===========
+table of accounts that can manage each other
 
-| Field | Description   | Type    | Null | Key | Default | Extra           |
-| ----- | ------------- | ------- | ---- | --- | ------- | --------------- |
-| id    | sequential ID | int(11) | NO   | PRI | NULL    | auto_increment  |
-| uid   | user.id       | int(11) | NO   | MUL | 0       |                 |
-| mid   |               | int(11) | NO   |     | 0       |                 |
+| Field | Description | Type | Null | Key | Default | Extra |
+| ----- | ----------- | ---- | ---- | --- | ------- | ----- |
+| id | sequential ID | int unsigned | YES | PRI |  | auto_increment |    
+| uid | User id | mediumint unsigned | YES |  | 0 |  |    
+| mid | User id | mediumint unsigned | YES |  | 0 |  |    
 
 Return to [database documentation](help/database)

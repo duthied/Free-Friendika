@@ -3,50 +3,76 @@ Database Tables
 
 * [Home](help)
 
-| Table                                                | Description                                      |
-|------------------------------------------------------|--------------------------------------------------|
-| [addon](help/database/db_addon)                      | registered addons                               |
-| [attach](help/database/db_attach)                    | file attachments                                 |
-| [auth_codes](help/database/db_auth_codes)            | OAuth usage                                      |
-| [cache](help/database/db_cache)                      | OEmbed cache                                     |
-| [challenge](help/database/db_challenge)              |                                                  |
-| [clients](help/database/db_clients)                  | OAuth usage                                      |
-| [config](help/database/db_config)                    | main configuration storage                       |
-| [contact](help/database/db_contact)                  | contact table                                    |
-| [conv](help/database/db_conv)                        | private messages                                 |
-| [conversation](help/database/db_conversation)        | Raw data and structure information for messages  |
-| [event](help/database/db_event)                      | Events                                           |
-| [fcontact](help/database/db_fcontact)                | friend suggestion stuff                          |
-| [fsuggest](help/database/db_fsuggest)                | friend suggestion stuff                          |
-| [group](help/database/db_group)                      | privacy groups, group info                       |
-| [group_member](help/database/db_group_member)        | privacy groups, member info                      |
-| [gserver](help/database/db_gserver)                  |                                                  |
-| [hook](help/database/db_hook)                        | addon hook registry                             |
-| [intro](help/database/db_intro)                      |                                                  |
-| [item](help/database/db_item)                        | all posts                                        |
-| [locks](help/database/db_locks)                      |                                                  |
-| [mail](help/database/db_mail)                        | private messages                                 |
-| [mailacct](help/database/db_mailacct)                |                                                  |
-| [manage](help/database/db_manage)                    | table of accounts that can "su" each other       |
-| [notify](help/database/db_notify)                    | notifications                                    |
-| [notify-threads](help/database/db_notify-threads)    |                                                  |
-| [oembed](help/database/db_oembed)                    | cache for OEmbed queries                         |
-| [parsed_url](help/database/db_parsed_url)            | cache for "parse_url" queries                    |
-| [pconfig](help/database/db_pconfig)                  | personal (per user) configuration storage        |
-| [photo](help/database/db_photo)                      | photo storage                                    |
-| [poll](help/database/db_poll)                        | data for polls                                   |
-| [poll_result](help/database/db_poll_result)          | data for poll elements                           |
-| [profile](help/database/db_profile)                  | user profiles data                               |
-| [profile_check](help/database/db_profile_check)      | DFRN remote auth use                             |
-| [push_subscriber](help/database/db_push_subscriber)  |                                                  |
-| [queue](help/database/db_queue)                      |                                                  |
-| [register](help/database/db_register)                | registrations requiring admin approval           |
-| [search](help/database/db_search)                    |                                                  |
-| [session](help/database/db_session)                  | web session storage                              |
-| [sign](help/database/db_sign)                        | Diaspora signatures                              |
-| [term](help/database/db_term)                        | item taxonomy (categories, tags, etc.) table     |
-| [thread](help/database/db_thread)                    |                                                  |
-| [tokens](help/database/db_tokens)                    | OAuth usage                                      |
-| [user](help/database/db_user)                        | local user table                                 |
-| [userd](help/database/db_userd)                      |                                                  |
-| [workerqueue](help/database/db_workerqueue)          |                                                  |
+| Table | Description |
+|-------|-------------|
+| [gserver](help/database/db_gserver) | Global servers |
+| [user](help/database/db_user) | The local users |
+| [contact](help/database/db_contact) | contact table |
+| [item-uri](help/database/db_item-uri) | URI and GUID for items |
+| [tag](help/database/db_tag) | tags and mentions |
+| [clients](help/database/db_clients) | OAuth usage |
+| [permissionset](help/database/db_permissionset) |  |
+| [verb](help/database/db_verb) | Activity Verbs |
+| [2fa_app_specific_password](help/database/db_2fa_app_specific_password) | Two-factor app-specific _password |
+| [2fa_recovery_codes](help/database/db_2fa_recovery_codes) | Two-factor authentication recovery codes |
+| [2fa_trusted_browser](help/database/db_2fa_trusted_browser) | Two-factor authentication trusted browsers |
+| [addon](help/database/db_addon) | registered addons |
+| [apcontact](help/database/db_apcontact) | ActivityPub compatible contacts - used in the ActivityPub implementation |
+| [application](help/database/db_application) | OAuth application |
+| [application-token](help/database/db_application-token) | OAuth user token |
+| [attach](help/database/db_attach) | file attachments |
+| [auth_codes](help/database/db_auth_codes) | OAuth usage |
+| [cache](help/database/db_cache) | Stores temporary data |
+| [challenge](help/database/db_challenge) |  |
+| [config](help/database/db_config) | main configuration storage |
+| [contact-relation](help/database/db_contact-relation) | Contact relations |
+| [conv](help/database/db_conv) | private messages |
+| [conversation](help/database/db_conversation) | Raw data and structure information for messages |
+| [delayed-post](help/database/db_delayed-post) | Posts that are about to be distributed at a later time |
+| [diaspora-interaction](help/database/db_diaspora-interaction) | Signed Diaspora Interaction |
+| [event](help/database/db_event) | Events |
+| [fcontact](help/database/db_fcontact) | Diaspora compatible contacts - used in the Diaspora implementation |
+| [fsuggest](help/database/db_fsuggest) | friend suggestion stuff |
+| [group](help/database/db_group) | privacy groups, group info |
+| [group_member](help/database/db_group_member) | privacy groups, member info |
+| [gserver-tag](help/database/db_gserver-tag) | Tags that the server has subscribed |
+| [hook](help/database/db_hook) | addon hook registry |
+| [host](help/database/db_host) | Hostname |
+| [inbox-status](help/database/db_inbox-status) | Status of ActivityPub inboxes |
+| [intro](help/database/db_intro) |  |
+| [locks](help/database/db_locks) |  |
+| [mail](help/database/db_mail) | private messages |
+| [mailacct](help/database/db_mailacct) | Mail account data for fetching mails |
+| [manage](help/database/db_manage) | table of accounts that can manage each other |
+| [notification](help/database/db_notification) | notifications |
+| [notify](help/database/db_notify) | notifications |
+| [notify-threads](help/database/db_notify-threads) |  |
+| [oembed](help/database/db_oembed) | cache for OEmbed queries |
+| [openwebauth-token](help/database/db_openwebauth-token) | Store OpenWebAuth token to verify contacts |
+| [parsed_url](help/database/db_parsed_url) | cache for &#039;parse_url&#039; queries |
+| [pconfig](help/database/db_pconfig) | personal (per user) configuration storage |
+| [photo](help/database/db_photo) | photo storage |
+| [post](help/database/db_post) | Structure for all posts |
+| [post-category](help/database/db_post-category) | post relation to categories |
+| [post-content](help/database/db_post-content) | Content for all posts |
+| [post-delivery-data](help/database/db_post-delivery-data) | Delivery data for items |
+| [post-media](help/database/db_post-media) | Attached media |
+| [post-tag](help/database/db_post-tag) | post relation to tags |
+| [post-thread](help/database/db_post-thread) | Thread related data |
+| [post-user](help/database/db_post-user) | User specific post data |
+| [post-thread-user](help/database/db_post-thread-user) | Thread related data per user |
+| [post-user-notification](help/database/db_post-user-notification) | User post notifications |
+| [process](help/database/db_process) | Currently running system processes |
+| [profile](help/database/db_profile) | user profiles data |
+| [profile_check](help/database/db_profile_check) | DFRN remote auth use |
+| [profile_field](help/database/db_profile_field) | Custom profile fields |
+| [push_subscriber](help/database/db_push_subscriber) | Used for OStatus: Contains feed subscribers |
+| [register](help/database/db_register) | registrations requiring admin approval |
+| [search](help/database/db_search) |  |
+| [session](help/database/db_session) | web session storage |
+| [storage](help/database/db_storage) | Data stored by Database storage backend |
+| [tokens](help/database/db_tokens) | OAuth usage |
+| [userd](help/database/db_userd) | Deleted usernames |
+| [user-contact](help/database/db_user-contact) | User specific public contact data |
+| [worker-ipc](help/database/db_worker-ipc) | Inter process communication between the frontend and the worker |
+| [workerqueue](help/database/db_workerqueue) | Background tasks queue entries |

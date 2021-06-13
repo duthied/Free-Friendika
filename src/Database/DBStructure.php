@@ -24,6 +24,7 @@ namespace Friendica\Database;
 use Exception;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\User;
@@ -157,6 +158,41 @@ class DBStructure
 			DBA::errorNo(), DBA::errorMessage());
 
 		return DI::l10n()->t('Errors encountered performing database changes: ') . $message . EOL;
+	}
+
+	public static function writeStructure()
+	{
+		Renderer::registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
+
+		$tables = [];
+		foreach (self::definition(null) as $name => $definition) {
+			$fields = [];
+			foreach ($definition['fields'] as $key => $value) {
+				$field = [];
+				$field['name']    = $key;
+				$field['comment'] = $value['comment'] ?? '';
+				$field['type']    = $value['type'];
+				$field['notnull'] = ($value['not null'] ?? false) ? 'YES' : 'NO';
+				$field['primary'] = ($value['primary'] ?? false) ? 'PRI' : '';
+				$field['default'] = $value['default'] ?? '';
+				$field['extra']   = $value['extra'] ?? '';
+		
+				$fields[] = $field;
+			}
+			$tables[] = ['name' => $name, 'comment' => $definition['comment']];
+			$content = Renderer::replaceMacros(Renderer::getMarkupTemplate('structure.tpl'), [
+				'$name'    => $name,
+				'$comment' => $definition['comment'],
+				'$fields'  => $fields,
+			]);
+			$filename = DI::basePath() . '/doc/database/db_' . $name . '.md';
+			file_put_contents($filename, $content);
+		}
+		$content = Renderer::replaceMacros(Renderer::getMarkupTemplate('tables.tpl'), [
+			'$tables'  => $tables,	
+		]);
+		$filename = DI::basePath() . '/doc/database.md';
+		file_put_contents($filename, $content);		
 	}
 
 	public static function printStructure($basePath)

@@ -1,11 +1,12 @@
 Table config
-============
+===========
+main configuration storage
 
-| Field | Description | Type             | Null | Key | Default | Extra           |
-| ----- | ----------- | ---------------- | ---- | --- | ------- | --------------- |
-| id    |             | int(10) unsigned | NO   | PRI | NULL    | auto_increment  |
-| cat   |             | char(255)        | NO   | MUL |         |                 |
-| k     |             | char(255)        | NO   |     |         |                 |
-| v     |             | text             | NO   |     | NULL    |                 |
+| Field | Description | Type | Null | Key | Default | Extra |
+| ----- | ----------- | ---- | ---- | --- | ------- | ----- |
+| id |  | int unsigned | YES | PRI |  | auto_increment |    
+| cat |  | varbinary(50) | YES |  |  |  |    
+| k |  | varbinary(50) | YES |  |  |  |    
+| v |  | mediumtext | NO |  |  |  |    
 
 Return to [database documentation](help/database)

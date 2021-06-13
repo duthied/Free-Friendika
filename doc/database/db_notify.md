@@ -1,24 +1,26 @@
 Table notify
-============
+===========
+notifications
 
-| Field      | Description                       | Type         | Null | Key | Default             | Extra           |
-| ---------- | --------------------------------- | ------------ | ---- | --- | ------------------- | --------------- |
-| id         | sequential ID                     | int(11)      | NO   | PRI | NULL                | auto_increment  |
-| hash       |                                   | varchar(64)  | NO   |     |                     |                 |
-| type       |                                   | int(11)      | NO   |     | 0                   |                 |
-| name       |                                   | varchar(255) | NO   |     |                     |                 |
-| url        |                                   | varchar(255) | NO   |     |                     |                 |
-| photo      |                                   | varchar(255) | NO   |     |                     |                 |
-| date       |                                   | datetime     | NO   |     | 0001-01-01 00:00:00 |                 |
-| msg        |                                   | mediumtext   | YES  |     | NULL                |                 |
-| uid        | user.id of the owner of this data | int(11)      | NO   | MUL | 0                   |                 |
-| link       |                                   | varchar(255) | NO   |     |                     |                 |
-| iid        | item.id                           | int(11)      | NO   |     | 0                   |                 |
-| parent     |                                   | int(11)      | NO   |     | 0                   |                 |
-| seen       |                                   | tinyint(1)   | NO   |     | 0                   |                 |
-| verb       |                                   | varchar(255) | NO   |     |                     |                 |
-| otype      |                                   | varchar(16)  | NO   |     |                     |                 |
-| name_cache | Cached bbcode parsing of name     | tinytext     | YES  |     | NULL                |                 |
-| msg_cache  | Cached bbcode parsing of msg      | mediumtext   | YES  |     | NULL                |                 |
+| Field | Description | Type | Null | Key | Default | Extra |
+| ----- | ----------- | ---- | ---- | --- | ------- | ----- |
+| id | sequential ID | int unsigned | YES | PRI |  | auto_increment |    
+| type |  | smallint unsigned | YES |  | 0 |  |    
+| name |  | varchar(255) | YES |  |  |  |    
+| url |  | varchar(255) | YES |  |  |  |    
+| photo |  | varchar(255) | YES |  |  |  |    
+| date |  | datetime | YES |  | 0001-01-01 00:00:00 |  |    
+| msg |  | mediumtext | NO |  |  |  |    
+| uid | Owner User id | mediumint unsigned | YES |  | 0 |  |    
+| link |  | varchar(255) | YES |  |  |  |    
+| iid |  | int unsigned | NO |  |  |  |    
+| parent |  | int unsigned | NO |  |  |  |    
+| uri-id | Item-uri id of the related post | int unsigned | NO |  |  |  |    
+| parent-uri-id | Item-uri id of the parent of the related post | int unsigned | NO |  |  |  |    
+| seen |  | boolean | YES |  | 0 |  |    
+| verb |  | varchar(100) | YES |  |  |  |    
+| otype |  | varchar(10) | YES |  |  |  |    
+| name_cache | Cached bbcode parsing of name | tinytext | NO |  |  |  |    
+| msg_cache | Cached bbcode parsing of msg | mediumtext | NO |  |  |  |    
 
 Return to [database documentation](help/database)
