@@ -66,54 +66,27 @@ function match_content(App $a)
 	$params = [];
 	$tags = trim($profile['pub_keywords'] . ' ' . $profile['prv_keywords']);
 
+	if (DI::mode()->isMobile()) {
+		$limit = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network',
+			DI::config()->get('system', 'itemspage_network_mobile'));
+	} else {
+		$limit = DI::pConfig()->get(local_user(), 'system', 'itemspage_network',
+			DI::config()->get('system', 'itemspage_network'));
+	}
+
 	$params['s'] = $tags;
 	$params['n'] = 100;
 
-	if (strlen(DI::config()->get('system', 'directory'))) {
-		$host = Search::getGlobalDirectory();
-	} else {
-		$host = DI::baseUrl();
-	}
-
-	$msearch_json = DI::httpRequest()->post($host . '/msearch', $params)->getBody();
-
-	$msearch = json_decode($msearch_json);
-
-	$start = $_GET['start'] ?? 0;
 	$entries = [];
-	$paginate = '';
-
-	if (!empty($msearch->results)) {
-		for ($i = $start;count($entries) < 10 && $i < $msearch->total; $i++) {
-			$profile = $msearch->results[$i];
-
-			// Already known contact
-			if (!$profile || Contact::getIdForURL($profile->url, local_user())) {
-				continue;
-			}
-
-			$contact = Contact::getByURLForUser($profile->url, local_user());
-			if (!empty($contact)) {
-				$entries[] = ModuleContact::getContactTemplateVars($contact);
-			}
+	foreach ([Search::getGlobalDirectory(), DI::baseUrl()] as $server) {
+		if (empty($server)) {
+			continue;
 		}
 
-		$data = [
-			'class' => 'pager',
-			'first' => [
-				'url'   => 'match',
-				'text'  => DI::l10n()->t('first'),
-				'class' => 'previous' . ($start == 0 ? 'disabled' : '')
-			],
-			'next'  => [
-				'url'   => 'match?start=' . $i,
-				'text'  => DI::l10n()->t('next'),
-				'class' =>  'next' . ($i >= $msearch->total ? ' disabled' : '')
-			]
-		];
-
-		$tpl = Renderer::getMarkupTemplate('paginate.tpl');
-		$paginate = Renderer::replaceMacros($tpl, ['pager' => $data]);
+		$msearch = json_decode(DI::httpRequest()->post($server . '/msearch', $params)->getBody());
+		if (!empty($msearch)) {
+			$entries = match_get_contacts($msearch, $entries, $limit);
+		}
 	}
 
 	if (empty($entries)) {
@@ -123,9 +96,37 @@ function match_content(App $a)
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
 	$o = Renderer::replaceMacros($tpl, [
 		'$title'    => DI::l10n()->t('Profile Match'),
-		'$contacts' => $entries,
-		'$paginate' => $paginate
+		'$contacts' => array_slice($entries, 0, $limit),
 	]);
 
 	return $o;
+}
+
+function match_get_contacts($msearch, $entries, $limit)
+{
+	if (empty($msearch->results)) {
+		return $entries;
+	}
+
+	foreach ($msearch->results as $profile) {
+		if (!$profile) {
+			continue;
+		}
+
+		// Already known contact
+		$contact = Contact::getByURL($profile->url, null, ['rel'], local_user());
+		if (!empty($contact) && in_array($contact['rel'], [Contact::FRIEND, Contact::SHARING])) {
+			continue;
+		}
+
+		$contact = Contact::getByURLForUser($profile->url, local_user());
+		if (!empty($contact)) {
+			$entries[$contact['id']] = ModuleContact::getContactTemplateVars($contact);
+		}
+
+		if (count($entries) == $limit) {
+			break;
+		}
+	}
+	return $entries;
 }
