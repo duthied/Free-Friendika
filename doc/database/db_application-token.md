@@ -3,6 +3,9 @@ Table application-token
 
 OAuth user token
 
+Fields
+------
+
 | Field          | Description   | Type               | Null | Key | Default | Extra |
 | -------------- | ------------- | ------------------ | ---- | --- | ------- | ----- |
 | application-id |               | int unsigned       | NO   | PRI | NULL    |       |
@@ -15,5 +18,21 @@ OAuth user token
 | write          | Write scope   | boolean            | YES  |     | NULL    |       |
 | follow         | Follow scope  | boolean            | YES  |     | NULL    |       |
 | push           | Push scope    | boolean            | YES  |     | NULL    |       |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | application-id, uid |
+| uid_id | uid, application-id |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| application-id | [application](help/database/db_application) | id |
+| uid | [user](help/database/db_user) | uid |
 
 Return to [database documentation](help/database)

@@ -3,6 +3,9 @@ Table notify
 
 notifications
 
+Fields
+------
+
 | Field         | Description                                   | Type               | Null | Key | Default             | Extra          |
 | ------------- | --------------------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id            | sequential ID                                 | int unsigned       | NO   | PRI | NULL                | auto_increment |
@@ -23,5 +26,26 @@ notifications
 | otype         |                                               | varchar(10)        | NO   |     |                     |                |
 | name_cache    | Cached bbcode parsing of name                 | tinytext           | YES  |     | NULL                |                |
 | msg_cache     | Cached bbcode parsing of msg                  | mediumtext         | YES  |     | NULL                |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| seen_uid_date | seen, uid, date |
+| uid_date | uid, date |
+| uid_type_link | uid, type, link(190) |
+| uri-id | uri-id |
+| parent-uri-id | parent-uri-id |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
+| uri-id | [item-uri](help/database/db_item-uri) | id |
+| parent-uri-id | [item-uri](help/database/db_item-uri) | id |
 
 Return to [database documentation](help/database)

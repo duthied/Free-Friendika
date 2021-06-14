@@ -3,6 +3,9 @@ Table openwebauth-token
 
 Store OpenWebAuth token to verify contacts
 
+Fields
+------
+
 | Field   | Description                | Type               | Null | Key | Default             | Extra          |
 | ------- | -------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id      | sequential ID              | int unsigned       | NO   | PRI | NULL                | auto_increment |
@@ -11,5 +14,20 @@ Store OpenWebAuth token to verify contacts
 | token   | A generated token          | varchar(255)       | NO   |     |                     |                |
 | meta    |                            | varchar(255)       | NO   |     |                     |                |
 | created | datetime of creation       | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| uid | uid |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
 
 Return to [database documentation](help/database)

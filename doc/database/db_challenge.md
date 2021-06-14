@@ -3,6 +3,9 @@ Table challenge
 
 
 
+Fields
+------
+
 | Field       | Description   | Type         | Null | Key | Default | Extra          |
 | ----------- | ------------- | ------------ | ---- | --- | ------- | -------------- |
 | id          | sequential ID | int unsigned | NO   | PRI | NULL    | auto_increment |
@@ -11,5 +14,14 @@ Table challenge
 | expire      |               | int unsigned | NO   |     | 0       |                |
 | type        |               | varchar(255) | NO   |     |         |                |
 | last_update |               | varchar(255) | NO   |     |         |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| expire | expire |
+
 
 Return to [database documentation](help/database)

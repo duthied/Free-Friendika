@@ -3,6 +3,9 @@ Table intro
 
 
 
+Fields
+------
+
 | Field      | Description   | Type               | Null | Key | Default             | Extra          |
 | ---------- | ------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id         | sequential ID | int unsigned       | NO   | PRI | NULL                | auto_increment |
@@ -16,5 +19,22 @@ Table intro
 | datetime   |               | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
 | blocked    |               | boolean            | NO   |     | 1                   |                |
 | ignore     |               | boolean            | NO   |     | 0                   |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| contact-id | contact-id |
+| uid | uid |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
+| contact-id | [contact](help/database/db_contact) | id |
 
 Return to [database documentation](help/database)

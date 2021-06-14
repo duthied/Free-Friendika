@@ -3,6 +3,9 @@ Table post-user
 
 User specific post data
 
+Fields
+------
+
 | Field             | Description                                                                       | Type               | Null | Key | Default             | Extra          |
 | ----------------- | --------------------------------------------------------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id                |                                                                                   | int unsigned       | NO   | PRI | NULL                | auto_increment |
@@ -35,5 +38,49 @@ User specific post data
 | wall              | This item was posted to the wall of uid                                           | boolean            | NO   |     | 0                   |                |
 | origin            | item originated at this site                                                      | boolean            | NO   |     | 0                   |                |
 | psid              | ID of the permission set of this post                                             | int unsigned       | YES  |     | NULL                |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| uid_uri-id | UNIQUE, uid, uri-id |
+| uri-id | uri-id |
+| parent-uri-id | parent-uri-id |
+| thr-parent-id | thr-parent-id |
+| external-id | external-id |
+| owner-id | owner-id |
+| author-id | author-id |
+| causer-id | causer-id |
+| vid | vid |
+| contact-id | contact-id |
+| event-id | event-id |
+| psid | psid |
+| author-id_uid | author-id, uid |
+| author-id_received | author-id, received |
+| parent-uri-id_uid | parent-uri-id, uid |
+| uid_contactid | uid, contact-id |
+| uid_unseen_contactid | uid, unseen, contact-id |
+| uid_unseen | uid, unseen |
+| uid_hidden_uri-id | uid, hidden, uri-id |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uri-id | [item-uri](help/database/db_item-uri) | id |
+| parent-uri-id | [item-uri](help/database/db_item-uri) | id |
+| thr-parent-id | [item-uri](help/database/db_item-uri) | id |
+| external-id | [item-uri](help/database/db_item-uri) | id |
+| owner-id | [contact](help/database/db_contact) | id |
+| author-id | [contact](help/database/db_contact) | id |
+| causer-id | [contact](help/database/db_contact) | id |
+| vid | [verb](help/database/db_verb) | id |
+| uid | [user](help/database/db_user) | uid |
+| contact-id | [contact](help/database/db_contact) | id |
+| event-id | [event](help/database/db_event) | id |
+| psid | [permissionset](help/database/db_permissionset) | id |
 
 Return to [database documentation](help/database)

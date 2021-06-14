@@ -3,6 +3,9 @@ Table apcontact
 
 ActivityPub compatible contacts - used in the ActivityPub implementation
 
+Fields
+------
+
 | Field            | Description                  | Type           | Null | Key | Default             | Extra |
 | ---------------- | ---------------------------- | -------------- | ---- | --- | ------------------- | ----- |
 | url              | URL of the contact           | varbinary(255) | NO   | PRI | NULL                |       |
@@ -29,5 +32,25 @@ ActivityPub compatible contacts - used in the ActivityPub implementation
 | followers_count  | Number of followers          | int unsigned   | YES  |     | 0                   |       |
 | statuses_count   | Number of posts              | int unsigned   | YES  |     | 0                   |       |
 | updated          |                              | datetime       | NO   |     | 0001-01-01 00:00:00 |       |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | url |
+| addr | addr(32) |
+| alias | alias(190) |
+| followers | followers(190) |
+| baseurl | baseurl(190) |
+| sharedinbox | sharedinbox(190) |
+| gsid | gsid |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| gsid | [gserver](help/database/db_gserver) | id |
 
 Return to [database documentation](help/database)

@@ -3,6 +3,9 @@ Table event
 
 Events
 
+Fields
+------
+
 | Field     | Description                                            | Type               | Null | Key | Default             | Extra          |
 | --------- | ------------------------------------------------------ | ------------------ | ---- | --- | ------------------- | -------------- |
 | id        | sequential ID                                          | int unsigned       | NO   | PRI | NULL                | auto_increment |
@@ -25,5 +28,22 @@ Events
 | allow_gid | Access Control - list of allowed groups                | mediumtext         | YES  |     | NULL                |                |
 | deny_cid  | Access Control - list of denied contact.id             | mediumtext         | YES  |     | NULL                |                |
 | deny_gid  | Access Control - list of denied groups                 | mediumtext         | YES  |     | NULL                |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| uid_start | uid, start |
+| cid | cid |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
+| cid | [contact](help/database/db_contact) | id |
 
 Return to [database documentation](help/database)

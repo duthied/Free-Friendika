@@ -3,6 +3,9 @@ Table mail
 
 private messages
 
+Fields
+------
+
 | Field         | Description                                                    | Type               | Null | Key | Default             | Extra          |
 | ------------- | -------------------------------------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id            | sequential ID                                                  | int unsigned       | NO   | PRI | NULL                | auto_increment |
@@ -27,5 +30,32 @@ private messages
 | thr-parent    |                                                                | varchar(255)       | YES  |     | NULL                |                |
 | thr-parent-id | Id of the item-uri table that contains the thread parent uri   | int unsigned       | YES  |     | NULL                |                |
 | created       | creation time of the private message                           | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| uid_seen | uid, seen |
+| convid | convid |
+| uri | uri(64) |
+| parent-uri | parent-uri(64) |
+| contactid | contact-id(32) |
+| author-id | author-id |
+| uri-id | uri-id |
+| parent-uri-id | parent-uri-id |
+| thr-parent-id | thr-parent-id |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
+| author-id | [contact](help/database/db_contact) | id |
+| uri-id | [item-uri](help/database/db_item-uri) | id |
+| parent-uri-id | [item-uri](help/database/db_item-uri) | id |
+| thr-parent-id | [item-uri](help/database/db_item-uri) | id |
 
 Return to [database documentation](help/database)

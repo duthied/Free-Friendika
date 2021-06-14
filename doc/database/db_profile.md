@@ -3,6 +3,9 @@ Table profile
 
 user profiles data
 
+Fields
+------
+
 | Field        | Description                                   | Type               | Null | Key | Default    | Extra          |
 | ------------ | --------------------------------------------- | ------------------ | ---- | --- | ---------- | -------------- |
 | id           | sequential ID                                 | int unsigned       | NO   | PRI | NULL       | auto_increment |
@@ -47,5 +50,21 @@ user profiles data
 | thumb        |                                               | varchar(255)       | NO   |     |            |                |
 | publish      | publish default profile in local directory    | boolean            | NO   |     | 0          |                |
 | net-publish  | publish profile in global directory           | boolean            | NO   |     | 0          |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| uid_is-default | uid, is-default |
+| pub_keywords | FULLTEXT, pub_keywords |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
 
 Return to [database documentation](help/database)

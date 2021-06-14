@@ -3,6 +3,9 @@ Table conv
 
 private messages
 
+Fields
+------
+
 | Field   | Description                               | Type               | Null | Key | Default             | Extra          |
 | ------- | ----------------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id      | sequential ID                             | int unsigned       | NO   | PRI | NULL                | auto_increment |
@@ -13,5 +16,20 @@ private messages
 | created | creation timestamp                        | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
 | updated | edited timestamp                          | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
 | subject | subject of initial message                | text               | YES  |     | NULL                |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| uid | uid |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
 
 Return to [database documentation](help/database)

@@ -3,6 +3,9 @@ Table post-delivery-data
 
 Delivery data for items
 
+Fields
+------
+
 | Field        | Description                                                                                                                                                | Type         | Null | Key | Default | Extra |
 | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | ---- | --- | ------- | ----- |
 | uri-id       | Id of the item-uri table entry that contains the item uri                                                                                                  | int unsigned | NO   | PRI | NULL    |       |
@@ -16,5 +19,19 @@ Delivery data for items
 | legacy_dfrn  | Number of successful deliveries via legacy DFRN                                                                                                            | mediumint    | NO   |     | 0       |       |
 | diaspora     | Number of successful deliveries via Diaspora                                                                                                               | mediumint    | NO   |     | 0       |       |
 | ostatus      | Number of successful deliveries via OStatus                                                                                                                | mediumint    | NO   |     | 0       |       |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | uri-id |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uri-id | [item-uri](help/database/db_item-uri) | id |
 
 Return to [database documentation](help/database)

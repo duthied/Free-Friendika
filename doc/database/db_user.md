@@ -3,6 +3,9 @@ Table user
 
 The local users
 
+Fields
+------
+
 | Field                    | Description                                               | Type               | Null | Key | Default             | Extra          |
 | ------------------------ | --------------------------------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | uid                      | sequential ID                                             | mediumint unsigned | NO   | PRI | NULL                | auto_increment |
@@ -50,5 +53,23 @@ The local users
 | deny_cid                 | default permission for this user                          | mediumtext         | YES  |     | NULL                |                |
 | deny_gid                 | default permission for this user                          | mediumtext         | YES  |     | NULL                |                |
 | openidserver             |                                                           | text               | YES  |     | NULL                |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | uid |
+| nickname | nickname(32) |
+| parent-uid | parent-uid |
+| guid | guid |
+| email | email(64) |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| parent-uid | [user](help/database/db_user) | uid |
 
 Return to [database documentation](help/database)

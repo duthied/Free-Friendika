@@ -3,6 +3,9 @@ Table photo
 
 photo storage
 
+Fields
+------
+
 | Field         | Description                                            | Type               | Null | Key | Default             | Extra          |
 | ------------- | ------------------------------------------------------ | ------------------ | ---- | --- | ------------------- | -------------- |
 | id            | sequential ID                                          | int unsigned       | NO   | PRI | NULL                | auto_increment |
@@ -32,5 +35,26 @@ photo storage
 | backend-class | Storage backend class                                  | tinytext           | YES  |     | NULL                |                |
 | backend-ref   | Storage backend data reference                         | text               | YES  |     | NULL                |                |
 | updated       |                                                        | datetime           | NO   |     | 0001-01-01 00:00:00 |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| contactid | contact-id |
+| uid_contactid | uid, contact-id |
+| uid_profile | uid, profile |
+| uid_album_scale_created | uid, album(32), scale, created |
+| uid_album_resource-id_created | uid, album(32), resource-id, created |
+| resource-id | resource-id |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
+| contact-id | [contact](help/database/db_contact) | id |
 
 Return to [database documentation](help/database)

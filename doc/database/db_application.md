@@ -3,6 +3,9 @@ Table application
 
 OAuth application
 
+Fields
+------
+
 | Field         | Description     | Type         | Null | Key | Default | Extra          |
 | ------------- | --------------- | ------------ | ---- | --- | ------- | -------------- |
 | id            | generated index | int unsigned | NO   | PRI | NULL    | auto_increment |
@@ -16,5 +19,14 @@ OAuth application
 | write         | Write scope     | boolean      | YES  |     | NULL    |                |
 | follow        | Follow scope    | boolean      | YES  |     | NULL    |                |
 | push          | Push scope      | boolean      | YES  |     | NULL    |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| client_id | UNIQUE, client_id |
+
 
 Return to [database documentation](help/database)

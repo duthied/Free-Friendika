@@ -3,6 +3,9 @@ Table fcontact
 
 Diaspora compatible contacts - used in the Diaspora implementation
 
+Fields
+------
+
 | Field    | Description   | Type             | Null | Key | Default             | Extra          |
 | -------- | ------------- | ---------------- | ---- | --- | ------------------- | -------------- |
 | id       | sequential ID | int unsigned     | NO   | PRI | NULL                | auto_increment |
@@ -22,5 +25,15 @@ Diaspora compatible contacts - used in the Diaspora implementation
 | alias    |               | varchar(255)     | NO   |     |                     |                |
 | pubkey   |               | text             | YES  |     | NULL                |                |
 | updated  |               | datetime         | NO   |     | 0001-01-01 00:00:00 |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| addr | addr(32) |
+| url | UNIQUE, url(190) |
+
 
 Return to [database documentation](help/database)

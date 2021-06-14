@@ -3,6 +3,9 @@ Table post-thread-user
 
 Thread related data per user
 
+Fields
+------
+
 | Field        | Description                                                                                             | Type               | Null | Key | Default             | Extra |
 | ------------ | ------------------------------------------------------------------------------------------------------- | ------------------ | ---- | --- | ------------------- | ----- |
 | uri-id       | Id of the item-uri table entry that contains the item uri                                               | int unsigned       | NO   | PRI | NULL                |       |
@@ -28,5 +31,40 @@ Thread related data per user
 | origin       | item originated at this site                                                                            | boolean            | NO   |     | 0                   |       |
 | psid         | ID of the permission set of this post                                                                   | int unsigned       | YES  |     | NULL                |       |
 | post-user-id | Id of the post-user table                                                                               | int unsigned       | YES  |     | NULL                |       |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | uid, uri-id |
+| uri-id | uri-id |
+| owner-id | owner-id |
+| author-id | author-id |
+| causer-id | causer-id |
+| uid | uid |
+| contact-id | contact-id |
+| psid | psid |
+| post-user-id | post-user-id |
+| commented | commented |
+| uid_received | uid, received |
+| uid_pinned | uid, pinned |
+| uid_commented | uid, commented |
+| uid_starred | uid, starred |
+| uid_mention | uid, mention |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uri-id | [item-uri](help/database/db_item-uri) | id |
+| owner-id | [contact](help/database/db_contact) | id |
+| author-id | [contact](help/database/db_contact) | id |
+| causer-id | [contact](help/database/db_contact) | id |
+| uid | [user](help/database/db_user) | uid |
+| contact-id | [contact](help/database/db_contact) | id |
+| psid | [permissionset](help/database/db_permissionset) | id |
+| post-user-id | [post-user](help/database/db_post-user) | id |
 
 Return to [database documentation](help/database)

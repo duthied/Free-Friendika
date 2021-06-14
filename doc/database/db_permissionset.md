@@ -3,6 +3,9 @@ Table permissionset
 
 
 
+Fields
+------
+
 | Field     | Description                                            | Type               | Null | Key | Default | Extra          |
 | --------- | ------------------------------------------------------ | ------------------ | ---- | --- | ------- | -------------- |
 | id        | sequential ID                                          | int unsigned       | NO   | PRI | NULL    | auto_increment |
@@ -11,5 +14,20 @@ Table permissionset
 | allow_gid | Access Control - list of allowed groups                | mediumtext         | YES  |     | NULL    |                |
 | deny_cid  | Access Control - list of denied contact.id             | mediumtext         | YES  |     | NULL    |                |
 | deny_gid  | Access Control - list of denied groups                 | mediumtext         | YES  |     | NULL    |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| uid_allow_cid_allow_gid_deny_cid_deny_gid | uid, allow_cid(50), allow_gid(30), deny_cid(50), deny_gid(30) |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
 
 Return to [database documentation](help/database)

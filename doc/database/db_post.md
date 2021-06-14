@@ -3,6 +3,9 @@ Table post
 
 Structure for all posts
 
+Fields
+------
+
 | Field         | Description                                                                       | Type              | Null | Key | Default             | Extra |
 | ------------- | --------------------------------------------------------------------------------- | ----------------- | ---- | --- | ------------------- | ----- |
 | uri-id        | Id of the item-uri table entry that contains the item uri                         | int unsigned      | NO   | PRI | NULL                |       |
@@ -23,5 +26,33 @@ Structure for all posts
 | global        |                                                                                   | boolean           | NO   |     | 0                   |       |
 | visible       |                                                                                   | boolean           | NO   |     | 0                   |       |
 | deleted       | item has been marked for deletion                                                 | boolean           | NO   |     | 0                   |       |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | uri-id |
+| parent-uri-id | parent-uri-id |
+| thr-parent-id | thr-parent-id |
+| external-id | external-id |
+| owner-id | owner-id |
+| author-id | author-id |
+| causer-id | causer-id |
+| vid | vid |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uri-id | [item-uri](help/database/db_item-uri) | id |
+| parent-uri-id | [item-uri](help/database/db_item-uri) | id |
+| thr-parent-id | [item-uri](help/database/db_item-uri) | id |
+| external-id | [item-uri](help/database/db_item-uri) | id |
+| owner-id | [contact](help/database/db_contact) | id |
+| author-id | [contact](help/database/db_contact) | id |
+| causer-id | [contact](help/database/db_contact) | id |
+| vid | [verb](help/database/db_verb) | id |
 
 Return to [database documentation](help/database)

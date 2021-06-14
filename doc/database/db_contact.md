@@ -3,6 +3,9 @@ Table contact
 
 contact table
 
+Fields
+------
+
 | Field                     | Description                                               | Type               | Null | Key | Default             | Extra          |
 | ------------------------- | --------------------------------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id                        | sequential ID                                             | int unsigned       | NO   | PRI | NULL                | auto_increment |
@@ -85,5 +88,42 @@ contact table
 | notify_new_posts          |                                                           | boolean            | NO   |     | 0                   |                |
 | fetch_further_information |                                                           | tinyint unsigned   | NO   |     | 0                   |                |
 | ffi_keyword_denylist      |                                                           | text               | YES  |     | NULL                |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| uid_name | uid, name(190) |
+| self_uid | self, uid |
+| alias_uid | alias(128), uid |
+| pending_uid | pending, uid |
+| blocked_uid | blocked, uid |
+| uid_rel_network_poll | uid, rel, network, poll(64), archive |
+| uid_network_batch | uid, network, batch(64) |
+| batch_contact-type | batch(64), contact-type |
+| addr_uid | addr(128), uid |
+| nurl_uid | nurl(128), uid |
+| nick_uid | nick(128), uid |
+| attag_uid | attag(96), uid |
+| dfrn-id | dfrn-id(64) |
+| issued-id | issued-id(64) |
+| network_uid_lastupdate | network, uid, last-update |
+| uid_network_self_lastupdate | uid, network, self, last-update |
+| uid_lastitem | uid, last-item |
+| baseurl | baseurl(64) |
+| uid_contact-type | uid, contact-type |
+| uid_self_contact-type | uid, self, contact-type |
+| self_network_uid | self, network, uid |
+| gsid | gsid |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
+| gsid | [gserver](help/database/db_gserver) | id |
 
 Return to [database documentation](help/database)

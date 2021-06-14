@@ -3,6 +3,9 @@ Table notification
 
 notifications
 
+Fields
+------
+
 | Field         | Description                                                                    | Type               | Null | Key | Default | Extra          |
 | ------------- | ------------------------------------------------------------------------------ | ------------------ | ---- | --- | ------- | -------------- |
 | id            | sequential ID                                                                  | int unsigned       | NO   | PRI | NULL    | auto_increment |
@@ -14,5 +17,29 @@ notifications
 | parent-uri-id | Item-uri id of the parent of the related post                                  | int unsigned       | YES  |     | NULL    |                |
 | created       |                                                                                | datetime           | YES  |     | NULL    |                |
 | seen          |                                                                                | boolean            | YES  |     | 0       |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| uid_vid_type_actor-id_target-uri-id | UNIQUE, uid, vid, type, actor-id, target-uri-id |
+| vid | vid |
+| actor-id | actor-id |
+| target-uri-id | target-uri-id |
+| parent-uri-id | parent-uri-id |
+| seen_uid | seen, uid |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
+| vid | [verb](help/database/db_verb) | id |
+| actor-id | [contact](help/database/db_contact) | id |
+| target-uri-id | [item-uri](help/database/db_item-uri) | id |
+| parent-uri-id | [item-uri](help/database/db_item-uri) | id |
 
 Return to [database documentation](help/database)

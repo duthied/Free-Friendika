@@ -3,6 +3,9 @@ Table gserver
 
 Global servers
 
+Fields
+------
+
 | Field            | Description                                        | Type             | Null | Key | Default             | Extra          |
 | ---------------- | -------------------------------------------------- | ---------------- | ---- | --- | ------------------- | -------------- |
 | id               | sequential ID                                      | int unsigned     | NO   | PRI | NULL                | auto_increment |
@@ -28,5 +31,16 @@ Global servers
 | last_failure     | Last failed connection request                     | datetime         | YES  |     | 0001-01-01 00:00:00 |                |
 | failed           | Connection failed                                  | boolean          | YES  |     | NULL                |                |
 | next_contact     | Next connection request                            | datetime         | YES  |     | 0001-01-01 00:00:00 |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| nurl | UNIQUE, nurl(190) |
+| next_contact | next_contact |
+| network | network |
+
 
 Return to [database documentation](help/database)

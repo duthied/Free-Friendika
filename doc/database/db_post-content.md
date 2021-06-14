@@ -3,6 +3,9 @@ Table post-content
 
 Content for all posts
 
+Fields
+------
+
 | Field           | Description                                                                                                               | Type         | Null | Key | Default | Extra |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------ | ---- | --- | ------- | ----- |
 | uri-id          | Id of the item-uri table entry that contains the item uri                                                                 | int unsigned | NO   | PRI | NULL    |       |
@@ -22,5 +25,22 @@ Content for all posts
 | target          | JSON encoded target structure if used                                                                                     | text         | YES  |     | NULL    |       |
 | resource-id     | Used to link other tables to items, it identifies the linked resource (e.g. photo) and if set must also set resource_type | varchar(32)  | NO   |     |         |       |
 | plink           | permalink or URL to a displayable copy of the message at its source                                                       | varchar(255) | NO   |     |         |       |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | uri-id |
+| plink | plink(191) |
+| resource-id | resource-id |
+| title-content-warning-body | FULLTEXT, title, content-warning, body |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uri-id | [item-uri](help/database/db_item-uri) | id |
 
 Return to [database documentation](help/database)

@@ -3,6 +3,9 @@ Table attach
 
 file attachments
 
+Fields
+------
+
 | Field         | Description                                           | Type               | Null | Key | Default             | Extra          |
 | ------------- | ----------------------------------------------------- | ------------------ | ---- | --- | ------------------- | -------------- |
 | id            | generated index                                       | int unsigned       | NO   | PRI | NULL                | auto_increment |
@@ -20,5 +23,20 @@ file attachments
 | deny_gid      | Access Control - list of denied groups                | mediumtext         | YES  |     | NULL                |                |
 | backend-class | Storage backend class                                 | tinytext           | YES  |     | NULL                |                |
 | backend-ref   | Storage backend data reference                        | text               | YES  |     | NULL                |                |
+
+Indexes
+------------
+
+| Name | Fields |
+|------|---------|
+| PRIMARY | id |
+| uid | uid |
+
+Foreign Keys
+------------
+
+| Field | Target Table | Target Field |
+|-------|--------------|--------------|
+| uid | [user](help/database/db_user) | uid |
 
 Return to [database documentation](help/database)
