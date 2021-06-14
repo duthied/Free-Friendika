@@ -14,7 +14,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 {{foreach $indexes as $index}}
 | {{$index.name}} | {{$index.fields}} |
 {{/foreach}}
