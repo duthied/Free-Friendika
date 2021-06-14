@@ -1,19 +1,20 @@
 Table application
 ===========
+
 OAuth application
 
-| Field         | Description     | Type         | Null | Key | Default | Extra          |    
-| ------------- | --------------- | ------------ | ---- | --- | ------- | -------------- |    
-| id            | generated index | int unsigned | NO   | PRI | NULL    | auto_increment |    
-| client_id     |                 | varchar(64)  | NO   |     | NULL    |                |    
-| client_secret |                 | varchar(64)  | NO   |     | NULL    |                |    
-| name          |                 | varchar(255) | NO   |     | NULL    |                |    
-| redirect_uri  |                 | varchar(255) | NO   |     | NULL    |                |    
-| website       |                 | varchar(255) | YES  |     | NULL    |                |    
-| scopes        |                 | varchar(255) | YES  |     | NULL    |                |    
-| read          | Read scope      | boolean      | YES  |     | NULL    |                |    
-| write         | Write scope     | boolean      | YES  |     | NULL    |                |    
-| follow        | Follow scope    | boolean      | YES  |     | NULL    |                |    
-| push          | Push scope      | boolean      | YES  |     | NULL    |                |    
+| Field         | Description     | Type         | Null | Key | Default | Extra          |
+| ------------- | --------------- | ------------ | ---- | --- | ------- | -------------- |
+| id            | generated index | int unsigned | NO   | PRI | NULL    | auto_increment |
+| client_id     |                 | varchar(64)  | NO   |     | NULL    |                |
+| client_secret |                 | varchar(64)  | NO   |     | NULL    |                |
+| name          |                 | varchar(255) | NO   |     | NULL    |                |
+| redirect_uri  |                 | varchar(255) | NO   |     | NULL    |                |
+| website       |                 | varchar(255) | YES  |     | NULL    |                |
+| scopes        |                 | varchar(255) | YES  |     | NULL    |                |
+| read          | Read scope      | boolean      | YES  |     | NULL    |                |
+| write         | Write scope     | boolean      | YES  |     | NULL    |                |
+| follow        | Follow scope    | boolean      | YES  |     | NULL    |                |
+| push          | Push scope      | boolean      | YES  |     | NULL    |                |
 
 Return to [database documentation](help/database)
