@@ -183,25 +183,48 @@ Example: Friendica Support
 ### What friendica clients can I use?
 
 Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your platform as long as you can change the API path in its settings.
-Since the 2021.06 release, Friendica also supports the Mastodon API.
+Since the 2021.06 release, Friendica also supports the [Mastodon API](help/API-Mastodon) which works with a lot of Mastodon clients.
 Here is a list of known working clients:
 
-* Android
-  * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) ([F-Droid](https://git.friendi.ca/lubuwest/Friendiqa#install), [Google Play](https://play.google.com/store/apps/details?id=org.qtproject.friendiqa))
-  * [Fedilab](https://fedilab.app) ([F-Droid](https://f-droid.org/app/fr.gouv.etalab.mastodon), [Google Play](https://play.google.com/store/apps/details?id=app.fedilab.android))
-  * [AndStatus](http://andstatus.org) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.andstatus.app), [Google Play](https://play.google.com/store/apps/details?id=org.andstatus.app))
-  * [Twidere](https://dimension.im/) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.mariotaku.twidere), [Google Play](https://play.google.com/store/apps/details?id=com.twidere.twiderex), [GitHub](https://github.com/TwidereProject/Twidere-Android))
-* SailfishOS
-  * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
-* Linux
-  * [Choqok](https://choqok.kde.org)
-* Windows
-  * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) (Windows 10)
-  * [Husky](https://husky.fwgs.ru)
-  * [Subway Tooter](https://github.com/tateisu/SubwayTooter)
-  * [Tusky](https://tusky.app)
-  * [twitlatte](https://github.com/moko256/twitlatte)
-  * [Yuito](https://github.com/accelforce/Yuito)
+#### Android
+
+* [AndStatus](http://andstatus.org) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.andstatus.app), [Google Play](https://play.google.com/store/apps/details?id=org.andstatus.app))
+* [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
+* [DiCa](https://dica.mixi.cool/) (Available at Google Play)
+* [Fedi](https://play.google.com/store/apps/details?id=com.fediverse.app)
+* [Fedilab](https://fedilab.app) ([F-Droid](https://f-droid.org/app/fr.gouv.etalab.mastodon), [Google Play](https://play.google.com/store/apps/details?id=app.fedilab.android))
+* [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) ([F-Droid](https://git.friendi.ca/lubuwest/Friendiqa#install), [Google Play](https://play.google.com/store/apps/details?id=org.qtproject.friendiqa))
+* [Husky](https://husky.fwgs.ru)
+* [Roma](https://play.google.com/store/apps/details?id=tech.bigfig.roma)
+* [Subway Tooter](https://github.com/tateisu/SubwayTooter)
+* [Tooot](https://tooot.app/)
+* [Tusky](https://tusky.app)
+* [Twidere](https://dimension.im/) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.mariotaku.twidere), [Google Play](https://play.google.com/store/apps/details?id=com.twidere.twiderex), [GitHub](https://github.com/TwidereProject/Twidere-Android))
+* [twitlatte](https://github.com/moko256/twitlatte)
+* [Yuito](https://github.com/accelforce/Yuito)
+
+#### SailfishOS
+* [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
+#### iOS
+
+* [Amaroq](https://github.com/ReticentJohn/Amaroq/tree/master)
+* [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
+* [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281)
+* [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699)
+* [StarPterano](https://apps.apple.com/de/app/starpterano/id1436972796) Uses an OAuth method where you have to manually copy and paste the provided code.
+* [Stella](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048?l=ms)
+* [Tooot](https://tooot.app/)
+* [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466) entered hostname must match in upper/lower case. Currently crashes on "Status" type notifications.
+
+#### Linux
+
+* [Choqok](https://choqok.kde.org)
+* [Whalebird](https://whalebird.social)
+* [TheDesk](https://ja.mstdn.wiki/TheDesk)
+* [Toot](https://toot.readthedocs.io/en/latest/)
+* [Tootle](https://github.com/bleakgrey/tootle)
+#### Windows
+* [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) (Windows 10)
 
 Depending on the features of the client you might encounter some glitches in usability, like being limited in the length of your postings to 140 characters and having no access to the [permission settings](help/Groups-and-Privacy).
 
