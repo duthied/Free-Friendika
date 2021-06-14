@@ -57,13 +57,13 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | uid |
-| nickname | nickname(32) |
-| parent-uid | parent-uid |
-| guid | guid |
-| email | email(64) |
+| Name       | Fields       |
+| ---------- | ------------ |
+| PRIMARY    | uid          |
+| nickname   | nickname(32) |
+| parent-uid | parent-uid   |
+| guid       | guid         |
+| email      | email(64)    |
 
 Foreign Keys
 ------------

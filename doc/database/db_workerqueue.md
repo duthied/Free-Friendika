@@ -22,17 +22,17 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| command | command |
-| done_command_parameter | done, command, parameter(64) |
-| done_executed | done, executed |
+| Name                          | Fields                           |
+| ----------------------------- | -------------------------------- |
+| PRIMARY                       | id                               |
+| command                       | command                          |
+| done_command_parameter        | done, command, parameter(64)     |
+| done_executed                 | done, executed                   |
 | done_priority_retrial_created | done, priority, retrial, created |
-| done_priority_next_try | done, priority, next_try |
-| done_pid_next_try | done, pid, next_try |
-| done_pid_retrial | done, pid, retrial |
-| done_pid_priority_created | done, pid, priority, created |
+| done_priority_next_try        | done, priority, next_try         |
+| done_pid_next_try             | done, pid, next_try              |
+| done_pid_retrial              | done, pid, retrial               |
+| done_pid_priority_created     | done, pid, priority, created     |
 
 
 Return to [database documentation](help/database)

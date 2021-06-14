@@ -18,9 +18,9 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name            | Fields                |
+| --------------- | --------------------- |
+| PRIMARY         | id                    |
 | uid_description | uid, description(190) |
 
 Foreign Keys

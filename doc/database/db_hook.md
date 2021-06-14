@@ -17,10 +17,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| priority | priority |
+| Name               | Fields                       |
+| ------------------ | ---------------------------- |
+| PRIMARY            | id                           |
+| priority           | priority                     |
 | hook_file_function | UNIQUE, hook, file, function |
 
 

@@ -14,9 +14,9 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name     | Fields       |
+| -------- | ------------ |
+| PRIMARY  | id           |
 | username | username(32) |
 
 

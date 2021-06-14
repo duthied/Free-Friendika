@@ -18,12 +18,12 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name                 | Fields               |
+| -------------------- | -------------------- |
+| PRIMARY              | id                   |
 | master-parent-uri-id | master-parent-uri-id |
-| receiver-uid | receiver-uid |
-| notify-id | notify-id |
+| receiver-uid         | receiver-uid         |
+| notify-id            | notify-id            |
 
 Foreign Keys
 ------------

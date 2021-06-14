@@ -15,9 +15,9 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | pid |
+| Name    | Fields  |
+| ------- | ------- |
+| PRIMARY | pid     |
 | command | command |
 
 

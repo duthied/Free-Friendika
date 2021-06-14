@@ -54,11 +54,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| uid_is-default | uid, is-default |
-| pub_keywords | FULLTEXT, pub_keywords |
+| Name           | Fields                 |
+| -------------- | ---------------------- |
+| PRIMARY        | id                     |
+| uid_is-default | uid, is-default        |
+| pub_keywords   | FULLTEXT, pub_keywords |
 
 Foreign Keys
 ------------

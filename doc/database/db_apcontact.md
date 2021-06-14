@@ -36,15 +36,15 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | url |
-| addr | addr(32) |
-| alias | alias(190) |
-| followers | followers(190) |
-| baseurl | baseurl(190) |
+| Name        | Fields           |
+| ----------- | ---------------- |
+| PRIMARY     | url              |
+| addr        | addr(32)         |
+| alias       | alias(190)       |
+| followers   | followers(190)   |
+| baseurl     | baseurl(190)     |
 | sharedinbox | sharedinbox(190) |
-| gsid | gsid |
+| gsid        | gsid             |
 
 Foreign Keys
 ------------

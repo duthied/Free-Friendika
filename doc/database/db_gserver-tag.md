@@ -14,10 +14,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
+| Name    | Fields          |
+| ------- | --------------- |
 | PRIMARY | gserver-id, tag |
-| tag | tag |
+| tag     | tag             |
 
 Foreign Keys
 ------------

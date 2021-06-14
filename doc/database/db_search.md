@@ -15,11 +15,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name     | Fields        |
+| -------- | ------------- |
+| PRIMARY  | id            |
 | uid_term | uid, term(64) |
-| term | term(64) |
+| term     | term(64)      |
 
 Foreign Keys
 ------------

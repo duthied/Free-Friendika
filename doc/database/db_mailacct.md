@@ -25,10 +25,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| uid | uid |
+| Name    | Fields |
+| ------- | ------ |
+| PRIMARY | id     |
+| uid     | uid    |
 
 Foreign Keys
 ------------

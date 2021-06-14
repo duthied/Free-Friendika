@@ -23,9 +23,9 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name      | Fields            |
+| --------- | ----------------- |
+| PRIMARY   | id                |
 | client_id | UNIQUE, client_id |
 
 

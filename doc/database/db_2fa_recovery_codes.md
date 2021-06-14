@@ -16,8 +16,8 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
+| Name    | Fields    |
+| ------- | --------- |
 | PRIMARY | uid, code |
 
 Foreign Keys

@@ -21,15 +21,15 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name                                | Fields                                          |
+| ----------------------------------- | ----------------------------------------------- |
+| PRIMARY                             | id                                              |
 | uid_vid_type_actor-id_target-uri-id | UNIQUE, uid, vid, type, actor-id, target-uri-id |
-| vid | vid |
-| actor-id | actor-id |
-| target-uri-id | target-uri-id |
-| parent-uri-id | parent-uri-id |
-| seen_uid | seen, uid |
+| vid                                 | vid                                             |
+| actor-id                            | actor-id                                        |
+| target-uri-id                       | target-uri-id                                   |
+| parent-uri-id                       | parent-uri-id                                   |
+| seen_uid                            | seen, uid                                       |
 
 Foreign Keys
 ------------

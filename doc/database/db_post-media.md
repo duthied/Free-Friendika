@@ -31,9 +31,9 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name       | Fields              |
+| ---------- | ------------------- |
+| PRIMARY    | id                  |
 | uri-id-url | UNIQUE, uri-id, url |
 
 Foreign Keys

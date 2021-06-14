@@ -166,10 +166,27 @@ class DBStructure
 
 		$tables = [];
 		foreach (self::definition(null) as $name => $definition) {
-			$indexes = [];
+			$indexes  = [[
+				'name'   => 'Name',
+				'fields' => 'Fields',
+			],
+			[
+				'name'   => '-',
+				'fields' => '-',
+			]];
+
+			$lengths = ['name' => 4, 'fields' => 6];
 			foreach ($definition['indexes'] as $key => $value) {
-				$indexes[] = ['name' => $key, 'fields' => implode(', ', $value)];
+				$fieldlist = implode(', ', $value);
+				$indexes[] = ['name' => $key, 'fields' => $fieldlist];
+				$lengths['name']   = max($lengths['name'], strlen($key));
+				$lengths['fields'] = max($lengths['fields'], strlen($fieldlist));
 			}
+
+			array_walk_recursive($indexes, function(&$value, $key) use ($lengths)
+			{
+				$value = str_pad($value, $lengths[$key], $value === '-' ? '-' : ' ');
+			});
 
 			$foreign = [];
 			$fields  = [[

@@ -16,9 +16,9 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name    | Fields                |
+| ------- | --------------------- |
+| PRIMARY | id                    |
 | uid_uri | UNIQUE, uid, uri(190) |
 
 Foreign Keys

@@ -14,9 +14,9 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name    | Fields |
+| ------- | ------ |
+| PRIMARY | id     |
 
 
 Return to [database documentation](help/database)

@@ -18,10 +18,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
+| Name    | Fields    |
+| ------- | --------- |
 | PRIMARY | client_id |
-| uid | uid |
+| uid     | uid       |
 
 Foreign Keys
 ------------

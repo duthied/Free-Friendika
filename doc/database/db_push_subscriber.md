@@ -22,11 +22,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name     | Fields   |
+| -------- | -------- |
+| PRIMARY  | id       |
 | next_try | next_try |
-| uid | uid |
+| uid      | uid      |
 
 Foreign Keys
 ------------

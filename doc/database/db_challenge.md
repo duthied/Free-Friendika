@@ -18,10 +18,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| expire | expire |
+| Name    | Fields |
+| ------- | ------ |
+| PRIMARY | id     |
+| expire  | expire |
 
 
 Return to [database documentation](help/database)

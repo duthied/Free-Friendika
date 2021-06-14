@@ -20,11 +20,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | item-uri |
+| Name             | Fields           |
+| ---------------- | ---------------- |
+| PRIMARY          | item-uri         |
 | conversation-uri | conversation-uri |
-| received | received |
+| received         | received         |
 
 
 Return to [database documentation](help/database)

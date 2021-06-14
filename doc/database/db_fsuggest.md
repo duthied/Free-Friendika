@@ -21,11 +21,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| cid | cid |
-| uid | uid |
+| Name    | Fields |
+| ------- | ------ |
+| PRIMARY | id     |
+| cid     | cid    |
+| uid     | uid    |
 
 Foreign Keys
 ------------

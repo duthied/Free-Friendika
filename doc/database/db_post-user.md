@@ -42,28 +42,28 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| uid_uri-id | UNIQUE, uid, uri-id |
-| uri-id | uri-id |
-| parent-uri-id | parent-uri-id |
-| thr-parent-id | thr-parent-id |
-| external-id | external-id |
-| owner-id | owner-id |
-| author-id | author-id |
-| causer-id | causer-id |
-| vid | vid |
-| contact-id | contact-id |
-| event-id | event-id |
-| psid | psid |
-| author-id_uid | author-id, uid |
-| author-id_received | author-id, received |
-| parent-uri-id_uid | parent-uri-id, uid |
-| uid_contactid | uid, contact-id |
+| Name                 | Fields                  |
+| -------------------- | ----------------------- |
+| PRIMARY              | id                      |
+| uid_uri-id           | UNIQUE, uid, uri-id     |
+| uri-id               | uri-id                  |
+| parent-uri-id        | parent-uri-id           |
+| thr-parent-id        | thr-parent-id           |
+| external-id          | external-id             |
+| owner-id             | owner-id                |
+| author-id            | author-id               |
+| causer-id            | causer-id               |
+| vid                  | vid                     |
+| contact-id           | contact-id              |
+| event-id             | event-id                |
+| psid                 | psid                    |
+| author-id_uid        | author-id, uid          |
+| author-id_received   | author-id, received     |
+| parent-uri-id_uid    | parent-uri-id, uid      |
+| uid_contactid        | uid, contact-id         |
 | uid_unseen_contactid | uid, unseen, contact-id |
-| uid_unseen | uid, unseen |
-| uid_hidden_uri-id | uid, hidden, uri-id |
+| uid_unseen           | uid, unseen             |
+| uid_hidden_uri-id    | uid, hidden, uri-id     |
 
 Foreign Keys
 ------------

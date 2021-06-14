@@ -29,11 +29,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | uri-id |
-| plink | plink(191) |
-| resource-id | resource-id |
+| Name                       | Fields                                 |
+| -------------------------- | -------------------------------------- |
+| PRIMARY                    | uri-id                                 |
+| plink                      | plink(191)                             |
+| resource-id                | resource-id                            |
 | title-content-warning-body | FULLTEXT, title, content-warning, body |
 
 Foreign Keys

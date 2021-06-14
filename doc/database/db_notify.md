@@ -30,14 +30,14 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| seen_uid_date | seen, uid, date |
-| uid_date | uid, date |
+| Name          | Fields               |
+| ------------- | -------------------- |
+| PRIMARY       | id                   |
+| seen_uid_date | seen, uid, date      |
+| uid_date      | uid, date            |
 | uid_type_link | uid, type, link(190) |
-| uri-id | uri-id |
-| parent-uri-id | parent-uri-id |
+| uri-id        | uri-id               |
+| parent-uri-id | parent-uri-id        |
 
 Foreign Keys
 ------------

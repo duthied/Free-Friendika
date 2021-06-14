@@ -19,11 +19,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name           | Fields          |
+| -------------- | --------------- |
+| PRIMARY        | id              |
 | installed_name | installed, name |
-| name | UNIQUE, name |
+| name           | UNIQUE, name    |
 
 
 Return to [database documentation](help/database)

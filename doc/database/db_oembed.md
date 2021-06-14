@@ -16,10 +16,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
+| Name    | Fields        |
+| ------- | ------------- |
 | PRIMARY | url, maxwidth |
-| created | created |
+| created | created       |
 
 
 Return to [database documentation](help/database)

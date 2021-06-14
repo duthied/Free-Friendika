@@ -17,10 +17,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
+| Name    | Fields      |
+| ------- | ----------- |
 | PRIMARY | cookie_hash |
-| uid | uid |
+| uid     | uid         |
 
 Foreign Keys
 ------------

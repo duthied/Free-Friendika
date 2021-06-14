@@ -17,10 +17,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | cid, relation-cid |
-| relation-cid | relation-cid |
+| Name         | Fields            |
+| ------------ | ----------------- |
+| PRIMARY      | cid, relation-cid |
+| relation-cid | relation-cid      |
 
 Foreign Keys
 ------------

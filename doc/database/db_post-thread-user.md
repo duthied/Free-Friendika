@@ -35,23 +35,23 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | uid, uri-id |
-| uri-id | uri-id |
-| owner-id | owner-id |
-| author-id | author-id |
-| causer-id | causer-id |
-| uid | uid |
-| contact-id | contact-id |
-| psid | psid |
-| post-user-id | post-user-id |
-| commented | commented |
-| uid_received | uid, received |
-| uid_pinned | uid, pinned |
+| Name          | Fields         |
+| ------------- | -------------- |
+| PRIMARY       | uid, uri-id    |
+| uri-id        | uri-id         |
+| owner-id      | owner-id       |
+| author-id     | author-id      |
+| causer-id     | causer-id      |
+| uid           | uid            |
+| contact-id    | contact-id     |
+| psid          | psid           |
+| post-user-id  | post-user-id   |
+| commented     | commented      |
+| uid_received  | uid, received  |
+| uid_pinned    | uid, pinned    |
 | uid_commented | uid, commented |
-| uid_starred | uid, starred |
-| uid_mention | uid, mention |
+| uid_starred   | uid, starred   |
+| uid_mention   | uid, mention   |
 
 Foreign Keys
 ------------

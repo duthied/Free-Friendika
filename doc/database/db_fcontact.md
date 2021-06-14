@@ -29,11 +29,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| addr | addr(32) |
-| url | UNIQUE, url(190) |
+| Name    | Fields           |
+| ------- | ---------------- |
+| PRIMARY | id               |
+| addr    | addr(32)         |
+| url     | UNIQUE, url(190) |
 
 
 Return to [database documentation](help/database)

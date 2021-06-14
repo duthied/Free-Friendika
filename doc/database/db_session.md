@@ -16,11 +16,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| sid | sid(64) |
-| expire | expire |
+| Name    | Fields  |
+| ------- | ------- |
+| PRIMARY | id      |
+| sid     | sid(64) |
+| expire  | expire  |
 
 
 Return to [database documentation](help/database)

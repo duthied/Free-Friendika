@@ -17,10 +17,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
+| Name    | Fields   |
+| ------- | -------- |
 | PRIMARY | uid, cid |
-| cid | cid |
+| cid     | cid      |
 
 Foreign Keys
 ------------

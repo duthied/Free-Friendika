@@ -15,11 +15,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| uri | UNIQUE, uri |
-| guid | guid |
+| Name    | Fields      |
+| ------- | ----------- |
+| PRIMARY | id          |
+| uri     | UNIQUE, uri |
+| guid    | guid        |
 
 
 Return to [database documentation](help/database)

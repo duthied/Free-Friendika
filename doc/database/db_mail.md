@@ -34,18 +34,18 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| uid_seen | uid, seen |
-| convid | convid |
-| uri | uri(64) |
-| parent-uri | parent-uri(64) |
-| contactid | contact-id(32) |
-| author-id | author-id |
-| uri-id | uri-id |
-| parent-uri-id | parent-uri-id |
-| thr-parent-id | thr-parent-id |
+| Name          | Fields         |
+| ------------- | -------------- |
+| PRIMARY       | id             |
+| uid_seen      | uid, seen      |
+| convid        | convid         |
+| uri           | uri(64)        |
+| parent-uri    | parent-uri(64) |
+| contactid     | contact-id(32) |
+| author-id     | author-id      |
+| uri-id        | uri-id         |
+| parent-uri-id | parent-uri-id  |
+| thr-parent-id | thr-parent-id  |
 
 Foreign Keys
 ------------

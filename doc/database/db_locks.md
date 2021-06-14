@@ -17,9 +17,9 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name         | Fields        |
+| ------------ | ------------- |
+| PRIMARY      | id            |
 | name_expires | name, expires |
 
 

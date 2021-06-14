@@ -16,10 +16,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| cat_k | UNIQUE, cat, k |
+| Name    | Fields         |
+| ------- | -------------- |
+| PRIMARY | id             |
+| cat_k   | UNIQUE, cat, k |
 
 
 Return to [database documentation](help/database)

@@ -14,10 +14,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| name | name |
+| Name    | Fields |
+| ------- | ------ |
+| PRIMARY | id     |
+| name    | name   |
 
 
 Return to [database documentation](help/database)

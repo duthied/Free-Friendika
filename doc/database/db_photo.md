@@ -39,15 +39,15 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| contactid | contact-id |
-| uid_contactid | uid, contact-id |
-| uid_profile | uid, profile |
-| uid_album_scale_created | uid, album(32), scale, created |
+| Name                          | Fields                               |
+| ----------------------------- | ------------------------------------ |
+| PRIMARY                       | id                                   |
+| contactid                     | contact-id                           |
+| uid_contactid                 | uid, contact-id                      |
+| uid_profile                   | uid, profile                         |
+| uid_album_scale_created       | uid, album(32), scale, created       |
 | uid_album_resource-id_created | uid, album(32), resource-id, created |
-| resource-id | resource-id |
+| resource-id                   | resource-id                          |
 
 Foreign Keys
 ------------

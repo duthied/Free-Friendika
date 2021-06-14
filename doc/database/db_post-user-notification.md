@@ -15,10 +15,10 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
+| Name    | Fields      |
+| ------- | ----------- |
 | PRIMARY | uid, uri-id |
-| uri-id | uri-id |
+| uri-id  | uri-id      |
 
 Foreign Keys
 ------------

@@ -21,13 +21,13 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | uri-id |
-| owner-id | owner-id |
+| Name      | Fields    |
+| --------- | --------- |
+| PRIMARY   | uri-id    |
+| owner-id  | owner-id  |
 | author-id | author-id |
 | causer-id | causer-id |
-| received | received |
+| received  | received  |
 | commented | commented |
 
 Foreign Keys

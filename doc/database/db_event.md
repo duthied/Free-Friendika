@@ -32,11 +32,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
+| Name      | Fields     |
+| --------- | ---------- |
+| PRIMARY   | id         |
 | uid_start | uid, start |
-| cid | cid |
+| cid       | cid        |
 
 Foreign Keys
 ------------

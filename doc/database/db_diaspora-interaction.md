@@ -14,8 +14,8 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
+| Name    | Fields |
+| ------- | ------ |
 | PRIMARY | uri-id |
 
 Foreign Keys

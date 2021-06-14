@@ -30,16 +30,16 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | uri-id |
+| Name          | Fields        |
+| ------------- | ------------- |
+| PRIMARY       | uri-id        |
 | parent-uri-id | parent-uri-id |
 | thr-parent-id | thr-parent-id |
-| external-id | external-id |
-| owner-id | owner-id |
-| author-id | author-id |
-| causer-id | causer-id |
-| vid | vid |
+| external-id   | external-id   |
+| owner-id      | owner-id      |
+| author-id     | author-id     |
+| causer-id     | causer-id     |
+| vid           | vid           |
 
 Foreign Keys
 ------------

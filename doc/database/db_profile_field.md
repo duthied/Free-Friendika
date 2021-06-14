@@ -20,12 +20,12 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
-| PRIMARY | id |
-| uid | uid |
-| order | order |
-| psid | psid |
+| Name    | Fields |
+| ------- | ------ |
+| PRIMARY | id     |
+| uid     | uid    |
+| order   | order  |
+| psid    | psid   |
 
 Foreign Keys
 ------------

@@ -19,11 +19,11 @@ Fields
 Indexes
 ------------
 
-| Name | Fields |
-|------|--------|
+| Name    | Fields                     |
+| ------- | -------------------------- |
 | PRIMARY | url_hash, guessing, oembed |
-| created | created |
-| expires | expires |
+| created | created                    |
+| expires | expires                    |
 
 
 Return to [database documentation](help/database)
