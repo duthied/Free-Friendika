@@ -4,8 +4,8 @@ table of accounts that can manage each other
 
 | Field | Description | Type | Null | Key | Default | Extra |
 | ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| id | sequential ID | int unsigned | YES | PRI | NULL | auto_increment |    
-| uid | User id | mediumint unsigned | YES |  | 0 |  |    
-| mid | User id | mediumint unsigned | YES |  | 0 |  |    
+| id | sequential ID | int unsigned | NO | PRI | NULL | auto_increment |    
+| uid | User id | mediumint unsigned | NO |  | 0 |  |    
+| mid | User id | mediumint unsigned | NO |  | 0 |  |    
 
 Return to [database documentation](help/database)

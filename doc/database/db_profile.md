@@ -4,47 +4,47 @@ user profiles data
 
 | Field | Description | Type | Null | Key | Default | Extra |
 | ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| id | sequential ID | int unsigned | YES | PRI | NULL | auto_increment |    
-| uid | Owner User id | mediumint unsigned | YES |  | 0 |  |    
-| profile-name | Deprecated | varchar(255) | NO |  | NULL |  |    
-| is-default | Deprecated | boolean | NO |  | NULL |  |    
-| hide-friends | Hide friend list from viewers of this profile | boolean | YES |  | 0 |  |    
-| name |  | varchar(255) | YES |  |  |  |    
-| pdesc | Deprecated | varchar(255) | NO |  | NULL |  |    
-| dob | Day of birth | varchar(32) | YES |  | 0000-00-00 |  |    
-| address |  | varchar(255) | YES |  |  |  |    
-| locality |  | varchar(255) | YES |  |  |  |    
-| region |  | varchar(255) | YES |  |  |  |    
-| postal-code |  | varchar(32) | YES |  |  |  |    
-| country-name |  | varchar(255) | YES |  |  |  |    
-| hometown | Deprecated | varchar(255) | NO |  | NULL |  |    
-| gender | Deprecated | varchar(32) | NO |  | NULL |  |    
-| marital | Deprecated | varchar(255) | NO |  | NULL |  |    
-| with | Deprecated | text | NO |  | NULL |  |    
-| howlong | Deprecated | datetime | NO |  | NULL |  |    
-| sexual | Deprecated | varchar(255) | NO |  | NULL |  |    
-| politic | Deprecated | varchar(255) | NO |  | NULL |  |    
-| religion | Deprecated | varchar(255) | NO |  | NULL |  |    
-| pub_keywords |  | text | NO |  | NULL |  |    
-| prv_keywords |  | text | NO |  | NULL |  |    
-| likes | Deprecated | text | NO |  | NULL |  |    
-| dislikes | Deprecated | text | NO |  | NULL |  |    
-| about | Profile description | text | NO |  | NULL |  |    
-| summary | Deprecated | varchar(255) | NO |  | NULL |  |    
-| music | Deprecated | text | NO |  | NULL |  |    
-| book | Deprecated | text | NO |  | NULL |  |    
-| tv | Deprecated | text | NO |  | NULL |  |    
-| film | Deprecated | text | NO |  | NULL |  |    
-| interest | Deprecated | text | NO |  | NULL |  |    
-| romance | Deprecated | text | NO |  | NULL |  |    
-| work | Deprecated | text | NO |  | NULL |  |    
-| education | Deprecated | text | NO |  | NULL |  |    
-| contact | Deprecated | text | NO |  | NULL |  |    
-| homepage |  | varchar(255) | YES |  |  |  |    
-| xmpp |  | varchar(255) | YES |  |  |  |    
-| photo |  | varchar(255) | YES |  |  |  |    
-| thumb |  | varchar(255) | YES |  |  |  |    
-| publish | publish default profile in local directory | boolean | YES |  | 0 |  |    
-| net-publish | publish profile in global directory | boolean | YES |  | 0 |  |    
+| id | sequential ID | int unsigned | NO | PRI | NULL | auto_increment |    
+| uid | Owner User id | mediumint unsigned | NO |  | 0 |  |    
+| profile-name | Deprecated | varchar(255) | YES |  | NULL |  |    
+| is-default | Deprecated | boolean | YES |  | NULL |  |    
+| hide-friends | Hide friend list from viewers of this profile | boolean | NO |  | 0 |  |    
+| name |  | varchar(255) | NO |  |  |  |    
+| pdesc | Deprecated | varchar(255) | YES |  | NULL |  |    
+| dob | Day of birth | varchar(32) | NO |  | 0000-00-00 |  |    
+| address |  | varchar(255) | NO |  |  |  |    
+| locality |  | varchar(255) | NO |  |  |  |    
+| region |  | varchar(255) | NO |  |  |  |    
+| postal-code |  | varchar(32) | NO |  |  |  |    
+| country-name |  | varchar(255) | NO |  |  |  |    
+| hometown | Deprecated | varchar(255) | YES |  | NULL |  |    
+| gender | Deprecated | varchar(32) | YES |  | NULL |  |    
+| marital | Deprecated | varchar(255) | YES |  | NULL |  |    
+| with | Deprecated | text | YES |  | NULL |  |    
+| howlong | Deprecated | datetime | YES |  | NULL |  |    
+| sexual | Deprecated | varchar(255) | YES |  | NULL |  |    
+| politic | Deprecated | varchar(255) | YES |  | NULL |  |    
+| religion | Deprecated | varchar(255) | YES |  | NULL |  |    
+| pub_keywords |  | text | YES |  | NULL |  |    
+| prv_keywords |  | text | YES |  | NULL |  |    
+| likes | Deprecated | text | YES |  | NULL |  |    
+| dislikes | Deprecated | text | YES |  | NULL |  |    
+| about | Profile description | text | YES |  | NULL |  |    
+| summary | Deprecated | varchar(255) | YES |  | NULL |  |    
+| music | Deprecated | text | YES |  | NULL |  |    
+| book | Deprecated | text | YES |  | NULL |  |    
+| tv | Deprecated | text | YES |  | NULL |  |    
+| film | Deprecated | text | YES |  | NULL |  |    
+| interest | Deprecated | text | YES |  | NULL |  |    
+| romance | Deprecated | text | YES |  | NULL |  |    
+| work | Deprecated | text | YES |  | NULL |  |    
+| education | Deprecated | text | YES |  | NULL |  |    
+| contact | Deprecated | text | YES |  | NULL |  |    
+| homepage |  | varchar(255) | NO |  |  |  |    
+| xmpp |  | varchar(255) | NO |  |  |  |    
+| photo |  | varchar(255) | NO |  |  |  |    
+| thumb |  | varchar(255) | NO |  |  |  |    
+| publish | publish default profile in local directory | boolean | NO |  | 0 |  |    
+| net-publish | publish profile in global directory | boolean | NO |  | 0 |  |    
 
 Return to [database documentation](help/database)

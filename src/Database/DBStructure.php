@@ -172,7 +172,7 @@ class DBStructure
 				$field['name']    = $key;
 				$field['comment'] = $value['comment'] ?? '';
 				$field['type']    = $value['type'];
-				$field['notnull'] = ($value['not null'] ?? false) ? 'YES' : 'NO';
+				$field['null']    = ($value['not null'] ?? false) ? 'NO' : 'YES';
 				$field['primary'] = ($value['primary'] ?? false) ? 'PRI' : '';
 				$field['default'] = $value['default'] ?? 'NULL';
 				$field['extra']   = $value['extra'] ?? '';

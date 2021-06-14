@@ -4,22 +4,22 @@ Diaspora compatible contacts - used in the Diaspora implementation
 
 | Field | Description | Type | Null | Key | Default | Extra |
 | ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| id | sequential ID | int unsigned | YES | PRI | NULL | auto_increment |    
-| guid | unique id | varchar(255) | YES |  |  |  |    
-| url |  | varchar(255) | YES |  |  |  |    
-| name |  | varchar(255) | YES |  |  |  |    
-| photo |  | varchar(255) | YES |  |  |  |    
-| request |  | varchar(255) | YES |  |  |  |    
-| nick |  | varchar(255) | YES |  |  |  |    
-| addr |  | varchar(255) | YES |  |  |  |    
-| batch |  | varchar(255) | YES |  |  |  |    
-| notify |  | varchar(255) | YES |  |  |  |    
-| poll |  | varchar(255) | YES |  |  |  |    
-| confirm |  | varchar(255) | YES |  |  |  |    
-| priority |  | tinyint unsigned | YES |  | 0 |  |    
-| network |  | char(4) | YES |  |  |  |    
-| alias |  | varchar(255) | YES |  |  |  |    
-| pubkey |  | text | NO |  | NULL |  |    
-| updated |  | datetime | YES |  | 0001-01-01 00:00:00 |  |    
+| id | sequential ID | int unsigned | NO | PRI | NULL | auto_increment |    
+| guid | unique id | varchar(255) | NO |  |  |  |    
+| url |  | varchar(255) | NO |  |  |  |    
+| name |  | varchar(255) | NO |  |  |  |    
+| photo |  | varchar(255) | NO |  |  |  |    
+| request |  | varchar(255) | NO |  |  |  |    
+| nick |  | varchar(255) | NO |  |  |  |    
+| addr |  | varchar(255) | NO |  |  |  |    
+| batch |  | varchar(255) | NO |  |  |  |    
+| notify |  | varchar(255) | NO |  |  |  |    
+| poll |  | varchar(255) | NO |  |  |  |    
+| confirm |  | varchar(255) | NO |  |  |  |    
+| priority |  | tinyint unsigned | NO |  | 0 |  |    
+| network |  | char(4) | NO |  |  |  |    
+| alias |  | varchar(255) | NO |  |  |  |    
+| pubkey |  | text | YES |  | NULL |  |    
+| updated |  | datetime | NO |  | 0001-01-01 00:00:00 |  |    
 
 Return to [database documentation](help/database)

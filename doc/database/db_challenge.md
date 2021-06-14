@@ -4,11 +4,11 @@ Table challenge
 
 | Field | Description | Type | Null | Key | Default | Extra |
 | ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| id | sequential ID | int unsigned | YES | PRI | NULL | auto_increment |    
-| challenge |  | varchar(255) | YES |  |  |  |    
-| dfrn-id |  | varchar(255) | YES |  |  |  |    
-| expire |  | int unsigned | YES |  | 0 |  |    
-| type |  | varchar(255) | YES |  |  |  |    
-| last_update |  | varchar(255) | YES |  |  |  |    
+| id | sequential ID | int unsigned | NO | PRI | NULL | auto_increment |    
+| challenge |  | varchar(255) | NO |  |  |  |    
+| dfrn-id |  | varchar(255) | NO |  |  |  |    
+| expire |  | int unsigned | NO |  | 0 |  |    
+| type |  | varchar(255) | NO |  |  |  |    
+| last_update |  | varchar(255) | NO |  |  |  |    
 
 Return to [database documentation](help/database)
