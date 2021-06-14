@@ -166,8 +166,33 @@ class DBStructure
 
 		$tables = [];
 		foreach (self::definition(null) as $name => $definition) {
-			$fields  = [];
-			$lengths = [];
+			$fields  = [[
+				'name'    => 'Field',
+				'comment' => 'Description',
+				'type'    => 'Type',
+				'null'    => 'Null',
+				'primary' => 'Key',
+				'default' => 'Default',
+				'extra'   => 'Extra',
+			], 
+			[
+				'name'    => '-',
+				'comment' => '-',
+				'type'    => '-',
+				'null'    => '-',
+				'primary' => '-',
+				'default' => '-',
+				'extra'   => '-',
+			]];
+			$lengths = [
+				'name'    => 5,
+				'comment' => 11,
+				'type'    => 4,
+				'null'    => 4,
+				'primary' => 3,
+				'default' => 7,
+				'extra'   => 5,
+			];
 			foreach ($definition['fields'] as $key => $value) {
 				$field = [];
 				$field['name']    = $key;
@@ -186,9 +211,9 @@ class DBStructure
 
 			array_walk_recursive($fields, function(&$value, $key) use ($lengths)
 			{
-				$value = str_pad($value, $lengths[$key]);
+				$value = str_pad($value, $lengths[$key], $value === '-' ? '-' : ' ');
 			});
-
+			
 			$tables[] = ['name' => $name, 'comment' => $definition['comment']];
 			$content = Renderer::replaceMacros(Renderer::getMarkupTemplate('structure.tpl'), [
 				'$name'    => $name,

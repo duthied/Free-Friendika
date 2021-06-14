@@ -2,20 +2,20 @@ Table mailacct
 ===========
 Mail account data for fetching mails
 
-| Field | Description | Type | Null | Key | Default | Extra |
-| ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| id           | sequential ID | int unsigned       | NO  | PRI | NULL                | auto_increment |    
-| uid          | User id       | mediumint unsigned | NO  |     | 0                   |                |    
-| server       |               | varchar(255)       | NO  |     |                     |                |    
-| port         |               | smallint unsigned  | NO  |     | 0                   |                |    
-| ssltype      |               | varchar(16)        | NO  |     |                     |                |    
-| mailbox      |               | varchar(255)       | NO  |     |                     |                |    
-| user         |               | varchar(255)       | NO  |     |                     |                |    
-| pass         |               | text               | YES |     | NULL                |                |    
-| reply_to     |               | varchar(255)       | NO  |     |                     |                |    
-| action       |               | tinyint unsigned   | NO  |     | 0                   |                |    
-| movetofolder |               | varchar(255)       | NO  |     |                     |                |    
-| pubmail      |               | boolean            | NO  |     | 0                   |                |    
-| last_check   |               | datetime           | NO  |     | 0001-01-01 00:00:00 |                |    
+| Field        | Description   | Type               | Null | Key | Default             | Extra          |    
+| ------------ | ------------- | ------------------ | ---- | --- | ------------------- | -------------- |    
+| id           | sequential ID | int unsigned       | NO   | PRI | NULL                | auto_increment |    
+| uid          | User id       | mediumint unsigned | NO   |     | 0                   |                |    
+| server       |               | varchar(255)       | NO   |     |                     |                |    
+| port         |               | smallint unsigned  | NO   |     | 0                   |                |    
+| ssltype      |               | varchar(16)        | NO   |     |                     |                |    
+| mailbox      |               | varchar(255)       | NO   |     |                     |                |    
+| user         |               | varchar(255)       | NO   |     |                     |                |    
+| pass         |               | text               | YES  |     | NULL                |                |    
+| reply_to     |               | varchar(255)       | NO   |     |                     |                |    
+| action       |               | tinyint unsigned   | NO   |     | 0                   |                |    
+| movetofolder |               | varchar(255)       | NO   |     |                     |                |    
+| pubmail      |               | boolean            | NO   |     | 0                   |                |    
+| last_check   |               | datetime           | NO   |     | 0001-01-01 00:00:00 |                |    
 
 Return to [database documentation](help/database)
