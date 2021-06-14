@@ -6,5 +6,5 @@ Database Tables
 | Table | Description |
 |-------|-------------|
 {{foreach $tables as $table}}
-| [{{$table.name}}](help/database/db_{{$table.name}}) | {{$table.comment}} |
+| [{{$table.name nofilter}}](help/database/db_{{$table.name nofilter}}) | {{$table.comment nofilter}} |
 {{/foreach}}

@@ -24,7 +24,7 @@ Fields
 | nofinish  | if event does have no end this is 1                    | boolean            | NO   |     | 0                   |                |
 | adjust    | adjust to timezone of the recipient (0 or 1)           | boolean            | NO   |     | 1                   |                |
 | ignore    | 0 or 1                                                 | boolean            | NO   |     | 0                   |                |
-| allow_cid | Access Control - list of allowed contact.id &#039;&lt;19&gt;&lt;78&gt;&#039; | mediumtext         | YES  |     | NULL                |                |
+| allow_cid | Access Control - list of allowed contact.id '<19><78>' | mediumtext         | YES  |     | NULL                |                |
 | allow_gid | Access Control - list of allowed groups                | mediumtext         | YES  |     | NULL                |                |
 | deny_cid  | Access Control - list of denied contact.id             | mediumtext         | YES  |     | NULL                |                |
 | deny_gid  | Access Control - list of denied groups                 | mediumtext         | YES  |     | NULL                |                |

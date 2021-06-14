@@ -27,7 +27,7 @@ Fields
 | subscribe        |                              | varchar(255)   | YES  |     | NULL                |       |
 | baseurl          | baseurl of the ap contact    | varchar(255)   | YES  |     | NULL                |       |
 | gsid             | Global Server ID             | int unsigned   | YES  |     | NULL                |       |
-| generator        | Name of the contact&#039;s system | varchar(255)   | YES  |     | NULL                |       |
+| generator        | Name of the contact's system | varchar(255)   | YES  |     | NULL                |       |
 | following_count  | Number of following contacts | int unsigned   | YES  |     | 0                   |       |
 | followers_count  | Number of followers          | int unsigned   | YES  |     | 0                   |       |
 | statuses_count   | Number of posts              | int unsigned   | YES  |     | 0                   |       |

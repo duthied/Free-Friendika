@@ -1,20 +1,20 @@
-Table {{$name}}
+Table {{$name nofilter}}
 ===========
 
-{{$comment}}
+{{$comment nofilter}}
 
 Fields
 ------
 
 {{foreach $fields as $field}}
-| {{$field.name}} | {{$field.comment}} | {{$field.type}} | {{$field.null}} | {{$field.primary}} | {{$field.default}} | {{$field.extra}} |
+| {{$field.name nofilter}} | {{$field.comment nofilter}} | {{$field.type nofilter}} | {{$field.null nofilter}} | {{$field.primary nofilter}} | {{$field.default nofilter}} | {{$field.extra nofilter}} |
 {{/foreach}}
 
 Indexes
 ------------
 
 {{foreach $indexes as $index}}
-| {{$index.name}} | {{$index.fields}} |
+| {{$index.name nofilter}} | {{$index.fields nofilter}} |
 {{/foreach}}
 
 {{if $foreign}}
@@ -24,7 +24,7 @@ Foreign Keys
 | Field | Target Table | Target Field |
 |-------|--------------|--------------|
 {{foreach $foreign as $key}}
-| {{$key.field}} | [{{$key.targettable}}](help/database/db_{{$key.targettable}}) | {{$key.targetfield}} |
+| {{$key.field nofilter}} | [{{$key.targettable nofilter}}](help/database/db_{{$key.targettable nofilter}}) | {{$key.targetfield nofilter}} |
 {{/foreach}}
 {{/if}}
 

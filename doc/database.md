@@ -45,7 +45,7 @@ Database Tables
 | [notify-threads](help/database/db_notify-threads) |  |
 | [oembed](help/database/db_oembed) | cache for OEmbed queries |
 | [openwebauth-token](help/database/db_openwebauth-token) | Store OpenWebAuth token to verify contacts |
-| [parsed_url](help/database/db_parsed_url) | cache for &#039;parse_url&#039; queries |
+| [parsed_url](help/database/db_parsed_url) | cache for 'parse_url' queries |
 | [pconfig](help/database/db_pconfig) | personal (per user) configuration storage |
 | [permissionset](help/database/db_permissionset) |  |
 | [photo](help/database/db_photo) | photo storage |
