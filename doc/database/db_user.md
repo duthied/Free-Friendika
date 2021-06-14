@@ -58,7 +58,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | uid |
 | nickname | nickname(32) |
 | parent-uid | parent-uid |

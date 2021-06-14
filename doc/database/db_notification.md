@@ -22,7 +22,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | uid_vid_type_actor-id_target-uri-id | UNIQUE, uid, vid, type, actor-id, target-uri-id |
 | vid | vid |

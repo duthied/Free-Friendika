@@ -17,7 +17,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | url, maxwidth |
 | created | created |
 

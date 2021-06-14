@@ -36,7 +36,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | uid, uri-id |
 | uri-id | uri-id |
 | owner-id | owner-id |

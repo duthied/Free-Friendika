@@ -16,7 +16,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | type_name_url | UNIQUE, name, url |
 | url | url |

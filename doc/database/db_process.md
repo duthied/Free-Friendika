@@ -16,7 +16,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | pid |
 | command | command |
 

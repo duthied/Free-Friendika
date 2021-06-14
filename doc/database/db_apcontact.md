@@ -37,7 +37,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | url |
 | addr | addr(32) |
 | alias | alias(190) |

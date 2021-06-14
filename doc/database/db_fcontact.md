@@ -30,7 +30,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | addr | addr(32) |
 | url | UNIQUE, url(190) |

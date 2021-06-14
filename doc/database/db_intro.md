@@ -24,7 +24,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | contact-id | contact-id |
 | uid | uid |

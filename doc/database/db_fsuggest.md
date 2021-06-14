@@ -22,7 +22,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | cid | cid |
 | uid | uid |

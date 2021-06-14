@@ -40,7 +40,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | contactid | contact-id |
 | uid_contactid | uid, contact-id |

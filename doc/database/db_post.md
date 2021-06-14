@@ -31,7 +31,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | uri-id |
 | parent-uri-id | parent-uri-id |
 | thr-parent-id | thr-parent-id |

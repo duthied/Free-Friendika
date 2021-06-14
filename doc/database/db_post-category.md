@@ -17,7 +17,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | uri-id, uid, type, tid |
 | uri-id | tid |
 | uid | uid |

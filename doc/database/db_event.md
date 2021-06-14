@@ -33,7 +33,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | uid_start | uid, start |
 | cid | cid |

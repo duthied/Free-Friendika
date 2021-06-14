@@ -23,7 +23,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | application-id, uid |
 | uid_id | uid, application-id |
 

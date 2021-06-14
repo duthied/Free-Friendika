@@ -43,7 +43,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | uid_uri-id | UNIQUE, uid, uri-id |
 | uri-id | uri-id |

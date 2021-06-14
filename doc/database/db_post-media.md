@@ -32,7 +32,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | uri-id-url | UNIQUE, uri-id, url |
 

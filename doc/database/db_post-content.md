@@ -30,7 +30,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | uri-id |
 | plink | plink(191) |
 | resource-id | resource-id |

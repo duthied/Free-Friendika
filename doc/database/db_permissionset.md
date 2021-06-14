@@ -19,7 +19,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | uid_allow_cid_allow_gid_deny_cid_deny_gid | uid, allow_cid(50), allow_gid(30), deny_cid(50), deny_gid(30) |
 

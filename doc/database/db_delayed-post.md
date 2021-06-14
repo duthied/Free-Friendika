@@ -17,7 +17,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | uid_uri | UNIQUE, uid, uri(190) |
 

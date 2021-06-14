@@ -36,7 +36,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | nurl | UNIQUE, nurl(190) |
 | next_contact | next_contact |

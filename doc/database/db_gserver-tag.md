@@ -15,7 +15,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | gserver-id, tag |
 | tag | tag |
 

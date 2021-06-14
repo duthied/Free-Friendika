@@ -16,7 +16,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | uri | UNIQUE, uri |
 | guid | guid |

@@ -16,7 +16,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | contactid | contact-id |
 | gid_contactid | UNIQUE, gid, contact-id |

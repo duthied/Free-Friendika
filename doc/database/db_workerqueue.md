@@ -23,7 +23,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | command | command |
 | done_command_parameter | done, command, parameter(64) |

@@ -23,7 +23,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | next_try | next_try |
 | uid | uid |

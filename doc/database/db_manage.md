@@ -16,7 +16,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | uid_mid | UNIQUE, uid, mid |
 | mid | mid |

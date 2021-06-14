@@ -18,7 +18,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | uid_cat_k | UNIQUE, uid, cat, k |
 

@@ -93,7 +93,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | uid_name | uid, name(190) |
 | self_uid | self, uid |

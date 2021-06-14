@@ -22,7 +22,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | uri-id |
 | owner-id | owner-id |
 | author-id | author-id |

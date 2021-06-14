@@ -35,7 +35,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | uid_seen | uid, seen |
 | convid | convid |

@@ -21,7 +21,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | item-uri |
 | conversation-uri | conversation-uri |
 | received | received |

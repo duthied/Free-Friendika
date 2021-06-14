@@ -20,7 +20,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | installed_name | installed, name |
 | name | UNIQUE, name |

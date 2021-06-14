@@ -31,7 +31,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | seen_uid_date | seen, uid, date |
 | uid_date | uid, date |

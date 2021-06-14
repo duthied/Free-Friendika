@@ -18,7 +18,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | cid, relation-cid |
 | relation-cid | relation-cid |
 

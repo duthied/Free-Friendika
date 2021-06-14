@@ -19,7 +19,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | client_id |
 | uid | uid |
 

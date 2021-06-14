@@ -19,7 +19,7 @@ Indexes
 ------------
 
 | Name | Fields |
-|------|---------|
+|------|--------|
 | PRIMARY | id |
 | master-parent-uri-id | master-parent-uri-id |
 | receiver-uid | receiver-uid |
