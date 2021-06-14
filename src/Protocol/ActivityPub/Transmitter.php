@@ -68,13 +68,9 @@ class Transmitter
 	 */
 	public static function addRelayServerInboxes(array $inboxes = [])
 	{
-		$contacts = DBA::select('apcontact', ['inbox'],
-			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` = ?)",
-				'Application', 0, Contact::FRIEND]);
-		while ($contact = DBA::fetch($contacts)) {
+		foreach (Relay::getList(['inbox']) as $contact) {
 			$inboxes[$contact['inbox']] = $contact['inbox'];
 		}
-		DBA::close($contacts);
 
 		return $inboxes;
 	}
@@ -92,7 +88,7 @@ class Transmitter
 			return $inboxes;
 		}
 
-		$relays = Relay::getList($item_id, [], [Protocol::ACTIVITYPUB]);
+		$relays = Relay::getDirectRelayList($item_id);
 		if (empty($relays)) {
 			return $inboxes;
 		}
