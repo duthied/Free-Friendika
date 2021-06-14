@@ -24,6 +24,7 @@ namespace Friendica\Database;
 use Exception;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\User;
@@ -157,6 +158,110 @@ class DBStructure
 			DBA::errorNo(), DBA::errorMessage());
 
 		return DI::l10n()->t('Errors encountered performing database changes: ') . $message . EOL;
+	}
+
+	public static function writeStructure()
+	{
+		Renderer::registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
+
+		$tables = [];
+		foreach (self::definition(null) as $name => $definition) {
+			$indexes  = [[
+				'name'   => 'Name',
+				'fields' => 'Fields',
+			],
+			[
+				'name'   => '-',
+				'fields' => '-',
+			]];
+
+			$lengths = ['name' => 4, 'fields' => 6];
+			foreach ($definition['indexes'] as $key => $value) {
+				$fieldlist = implode(', ', $value);
+				$indexes[] = ['name' => $key, 'fields' => $fieldlist];
+				$lengths['name']   = max($lengths['name'], strlen($key));
+				$lengths['fields'] = max($lengths['fields'], strlen($fieldlist));
+			}
+
+			array_walk_recursive($indexes, function(&$value, $key) use ($lengths)
+			{
+				$value = str_pad($value, $lengths[$key], $value === '-' ? '-' : ' ');
+			});
+
+			$foreign = [];
+			$fields  = [[
+				'name'    => 'Field',
+				'comment' => 'Description',
+				'type'    => 'Type',
+				'null'    => 'Null',
+				'primary' => 'Key',
+				'default' => 'Default',
+				'extra'   => 'Extra',
+			],
+			[
+				'name'    => '-',
+				'comment' => '-',
+				'type'    => '-',
+				'null'    => '-',
+				'primary' => '-',
+				'default' => '-',
+				'extra'   => '-',
+			]];
+			$lengths = [
+				'name'    => 5,
+				'comment' => 11,
+				'type'    => 4,
+				'null'    => 4,
+				'primary' => 3,
+				'default' => 7,
+				'extra'   => 5,
+			];
+			foreach ($definition['fields'] as $key => $value) {
+				$field = [];
+				$field['name']    = $key;
+				$field['comment'] = $value['comment'] ?? '';
+				$field['type']    = $value['type'];
+				$field['null']    = ($value['not null'] ?? false) ? 'NO' : 'YES';
+				$field['primary'] = ($value['primary'] ?? false) ? 'PRI' : '';
+				$field['default'] = $value['default'] ?? 'NULL';
+				$field['extra']   = $value['extra'] ?? '';
+
+				foreach ($field as $fieldname => $fieldvalue) {
+					$lengths[$fieldname] = max($lengths[$fieldname] ?? 0, strlen($fieldvalue));
+				}
+				$fields[] = $field;
+
+				if (!empty($value['foreign'])) {
+					$foreign[] = [
+						'field'       => $key,
+						'targettable' => array_keys($value['foreign'])[0],
+						'targetfield' => array_values($value['foreign'])[0]
+					];
+				}
+			}
+
+			array_walk_recursive($fields, function(&$value, $key) use ($lengths)
+			{
+				$value = str_pad($value, $lengths[$key], $value === '-' ? '-' : ' ');
+			});
+
+			$tables[] = ['name' => $name, 'comment' => $definition['comment']];
+			$content = Renderer::replaceMacros(Renderer::getMarkupTemplate('structure.tpl'), [
+				'$name'    => $name,
+				'$comment' => $definition['comment'],
+				'$fields'  => $fields,
+				'$indexes' => $indexes,
+				'$foreign' => $foreign,
+			]);
+			$filename = DI::basePath() . '/doc/database/db_' . $name . '.md';
+			file_put_contents($filename, $content);
+		}
+		asort($tables);
+		$content = Renderer::replaceMacros(Renderer::getMarkupTemplate('tables.tpl'), [
+			'$tables'  => $tables,
+		]);
+		$filename = DI::basePath() . '/doc/database.md';
+		file_put_contents($filename, $content);
 	}
 
 	public static function printStructure($basePath)
@@ -1206,7 +1311,7 @@ class DBStructure
 				if ($verbose) {
 					echo "Zero contact added\n";
 				}
-			}		
+			}
 		} elseif (self::existsTable('contact') && $verbose) {
 			echo "Zero contact already added\n";
 		} elseif ($verbose) {
@@ -1230,7 +1335,7 @@ class DBStructure
 
 		if (self::existsTable('permissionset')) {
 			if (!DBA::exists('permissionset', ['id' => 0])) {
-				DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);	
+				DBA::insert('permissionset', ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']);
 				$lastid = DBA::lastInsertId();
 				if ($lastid != 0) {
 					DBA::update('permissionset', ['id' => 0], ['id' => $lastid]);
@@ -1265,7 +1370,7 @@ class DBStructure
 		} elseif ($verbose) {
 			echo "permissionset: Table not found\n";
 		}
-	
+
 		if (!self::existsForeignKeyForField('tokens', 'client_id')) {
 			$tokens = DBA::p("SELECT `tokens`.`id` FROM `tokens`
 				LEFT JOIN `clients` ON `clients`.`client_id` = `tokens`.`client_id`
