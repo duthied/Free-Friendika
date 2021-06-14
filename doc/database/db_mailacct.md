@@ -4,14 +4,14 @@ Mail account data for fetching mails
 
 | Field | Description | Type | Null | Key | Default | Extra |
 | ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| id | sequential ID | int unsigned | YES | PRI |  | auto_increment |    
+| id | sequential ID | int unsigned | YES | PRI | NULL | auto_increment |    
 | uid | User id | mediumint unsigned | YES |  | 0 |  |    
 | server |  | varchar(255) | YES |  |  |  |    
 | port |  | smallint unsigned | YES |  | 0 |  |    
 | ssltype |  | varchar(16) | YES |  |  |  |    
 | mailbox |  | varchar(255) | YES |  |  |  |    
 | user |  | varchar(255) | YES |  |  |  |    
-| pass |  | text | NO |  |  |  |    
+| pass |  | text | NO |  | NULL |  |    
 | reply_to |  | varchar(255) | YES |  |  |  |    
 | action |  | tinyint unsigned | YES |  | 0 |  |    
 | movetofolder |  | varchar(255) | YES |  |  |  |    

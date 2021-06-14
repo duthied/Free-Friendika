@@ -4,7 +4,7 @@ Store OpenWebAuth token to verify contacts
 
 | Field | Description | Type | Null | Key | Default | Extra |
 | ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| id | sequential ID | int unsigned | YES | PRI |  | auto_increment |    
+| id | sequential ID | int unsigned | YES | PRI | NULL | auto_increment |    
 | uid | User id - currently unused | mediumint unsigned | YES |  | 0 |  |    
 | type | Verify type | varchar(32) | YES |  |  |  |    
 | token | A generated token | varchar(255) | YES |  |  |  |    

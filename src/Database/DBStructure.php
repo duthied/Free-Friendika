@@ -174,7 +174,7 @@ class DBStructure
 				$field['type']    = $value['type'];
 				$field['notnull'] = ($value['not null'] ?? false) ? 'YES' : 'NO';
 				$field['primary'] = ($value['primary'] ?? false) ? 'PRI' : '';
-				$field['default'] = $value['default'] ?? '';
+				$field['default'] = $value['default'] ?? 'NULL';
 				$field['extra']   = $value['extra'] ?? '';
 		
 				$fields[] = $field;

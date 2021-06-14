@@ -4,7 +4,7 @@ addon hook registry
 
 | Field | Description | Type | Null | Key | Default | Extra |
 | ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| id | sequential ID | int unsigned | YES | PRI |  | auto_increment |    
+| id | sequential ID | int unsigned | YES | PRI | NULL | auto_increment |    
 | hook | name of hook | varbinary(100) | YES |  |  |  |    
 | file | relative filename of hook handler | varbinary(200) | YES |  |  |  |    
 | function | function name of hook handler | varbinary(200) | YES |  |  |  |    

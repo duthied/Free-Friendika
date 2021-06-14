@@ -4,10 +4,10 @@ Thread related data per user
 
 | Field | Description | Type | Null | Key | Default | Extra |
 | ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| uri-id | Id of the item-uri table entry that contains the item uri | int unsigned | YES | PRI |  |  |    
+| uri-id | Id of the item-uri table entry that contains the item uri | int unsigned | YES | PRI | NULL |  |    
 | owner-id | Item owner | int unsigned | YES |  | 0 |  |    
 | author-id | Item author | int unsigned | YES |  | 0 |  |    
-| causer-id | Link to the contact table with uid=0 of the contact that caused the item creation | int unsigned | NO |  |  |  |    
+| causer-id | Link to the contact table with uid=0 of the contact that caused the item creation | int unsigned | NO |  | NULL |  |    
 | network |  | char(4) | YES |  |  |  |    
 | created |  | datetime | YES |  | 0001-01-01 00:00:00 |  |    
 | received |  | datetime | YES |  | 0001-01-01 00:00:00 |  |    
@@ -25,7 +25,7 @@ Thread related data per user
 | unseen | post has not been seen | boolean | YES |  | 1 |  |    
 | hidden | Marker to hide the post from the user | boolean | YES |  | 0 |  |    
 | origin | item originated at this site | boolean | YES |  | 0 |  |    
-| psid | ID of the permission set of this post | int unsigned | NO |  |  |  |    
-| post-user-id | Id of the post-user table | int unsigned | NO |  |  |  |    
+| psid | ID of the permission set of this post | int unsigned | NO |  | NULL |  |    
+| post-user-id | Id of the post-user table | int unsigned | NO |  | NULL |  |    
 
 Return to [database documentation](help/database)

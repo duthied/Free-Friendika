@@ -4,7 +4,7 @@ Table locks
 
 | Field | Description | Type | Null | Key | Default | Extra |
 | ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| id | sequential ID | int unsigned | YES | PRI |  | auto_increment |    
+| id | sequential ID | int unsigned | YES | PRI | NULL | auto_increment |    
 | name |  | varchar(128) | YES |  |  |  |    
 | locked |  | boolean | YES |  | 0 |  |    
 | pid | Process ID | int unsigned | YES |  | 0 |  |    

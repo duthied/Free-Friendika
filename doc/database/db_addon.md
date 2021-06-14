@@ -4,7 +4,7 @@ registered addons
 
 | Field | Description | Type | Null | Key | Default | Extra |
 | ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| id |  | int unsigned | YES | PRI |  | auto_increment |    
+| id |  | int unsigned | YES | PRI | NULL | auto_increment |    
 | name | addon base (file)name | varchar(50) | YES |  |  |  |    
 | version | currently unused | varchar(50) | YES |  |  |  |    
 | installed | currently always 1 | boolean | YES |  | 0 |  |    

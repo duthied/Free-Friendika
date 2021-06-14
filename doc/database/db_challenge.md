@@ -4,7 +4,7 @@ Table challenge
 
 | Field | Description | Type | Null | Key | Default | Extra |
 | ----- | ----------- | ---- | ---- | --- | ------- | ----- |
-| id | sequential ID | int unsigned | YES | PRI |  | auto_increment |    
+| id | sequential ID | int unsigned | YES | PRI | NULL | auto_increment |    
 | challenge |  | varchar(255) | YES |  |  |  |    
 | dfrn-id |  | varchar(255) | YES |  |  |  |    
 | expire |  | int unsigned | YES |  | 0 |  |    
