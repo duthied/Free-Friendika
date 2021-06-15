@@ -391,11 +391,11 @@ class User
 			if (!DBA::exists('user', ['uid' => $uid]) || !$repairMissing) {
 				return false;
 			}
-			if (!DBA::exists('contact', ['uid' => $uid, 'self' => true])) {
-				Contact::createSelfFromUserId($uid);
-			}
 			if (!DBA::exists('profile', ['uid' => $uid])) {
 				DBA::insert('profile', ['uid' => $uid]);
+			}
+			if (!DBA::exists('contact', ['uid' => $uid, 'self' => true])) {
+				Contact::createSelfFromUserId($uid);
 			}
 			$owner = self::getOwnerDataById($uid, false);
 		}
