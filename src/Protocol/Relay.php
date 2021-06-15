@@ -29,7 +29,6 @@ use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
-use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Model\Search;
 use Friendica\Model\Tag;
@@ -54,12 +53,7 @@ class Relay
 	{
 		$config = DI::config();
 
-		$subscribe = $config->get('system', 'relay_subscribe', false);
-		if ($subscribe) {
-			$scope = $config->get('system', 'relay_scope', SR_SCOPE_ALL);
-		} else {
-			$scope = SR_SCOPE_NONE;
-		}
+		$scope = $config->get('system', 'relay_scope');
 
 		if ($scope == SR_SCOPE_NONE) {
 			Logger::info('Server does not accept relay posts - rejected', ['network' => $network, 'url' => $url]);
@@ -168,7 +162,7 @@ class Relay
 			return;
 		}
 
-		if (DBA::isResult($old)) {	
+		if (DBA::isResult($old)) {
 			$fields['updated'] = DateTimeFormat::utcNow();
 
 			Logger::info('Update relay contact', ['server' => $gserver['url'], 'id' => $old['id'], 'fields' => $fields]);
@@ -224,75 +218,64 @@ class Relay
 	}
 
 	/**
-	 * Return a list of relay servers
-	 *
-	 * The list contains not only the official relays but also servers that we serve directly
+	 * Return a list of servers that we serve via the direct relay
 	 *
 	 * @param integer $item_id  id of the item that is sent
 	 * @param array   $contacts Previously fetched contacts
-	 * @param array   $networks Networks of the relay servers 
+	 * @param array   $networks Networks of the relay servers
 	 *
 	 * @return array of relay servers
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getList(int $item_id, array $contacts, array $networks)
+	public static function getDirectRelayList(int $item_id)
 	{
 		$serverlist = [];
 
-		// Fetching relay servers
-		$serverdata = DI::config()->get("system", "relay_server");
-
-		if (!empty($serverdata)) {
-			$servers = explode(",", $serverdata);
-			foreach ($servers as $server) {
-				$gserver = DBA::selectFirst('gserver', ['id', 'url', 'network'], ['nurl' => Strings::normaliseLink($server)]);
-				if (DBA::isResult($gserver)) {
-					$serverlist[$gserver['id']] = $gserver;
-				}
-			}
+		if (!DI::config()->get("system", "relay_directly", false)) {
+			return [];
 		}
 
-		if (DI::config()->get("system", "relay_directly", false)) {
-			// We distribute our stuff based on the parent to ensure that the thread will be complete
-			$parent = Post::selectFirst(['uri-id'], ['id' => $item_id]);
-			if (!DBA::isResult($parent)) {
-				return;
-			}
+		// We distribute our stuff based on the parent to ensure that the thread will be complete
+		$parent = Post::selectFirst(['uri-id'], ['id' => $item_id]);
+		if (!DBA::isResult($parent)) {
+			return [];
+		}
 
-			// Servers that want to get all content
-			$servers = DBA::select('gserver', ['id', 'url', 'network'], ['relay-subscribe' => true, 'relay-scope' => 'all']);
+		// Servers that want to get all content
+		$servers = DBA::select('gserver', ['id', 'url', 'network'], ['relay-subscribe' => true, 'relay-scope' => 'all']);
+		while ($server = DBA::fetch($servers)) {
+			$serverlist[$server['id']] = $server;
+		}
+		DBA::close($servers);
+
+		// All tags of the current post
+		$tags = DBA::select('tag-view', ['name'], ['uri-id' => $parent['uri-id'], 'type' => Tag::HASHTAG]);
+		$taglist = [];
+		while ($tag = DBA::fetch($tags)) {
+			$taglist[] = $tag['name'];
+		}
+		DBA::close($tags);
+
+		// All servers who wants content with this tag
+		$tagserverlist = [];
+		if (!empty($taglist)) {
+			$tagserver = DBA::select('gserver-tag', ['gserver-id'], ['tag' => $taglist]);
+			while ($server = DBA::fetch($tagserver)) {
+				$tagserverlist[] = $server['gserver-id'];
+			}
+			DBA::close($tagserver);
+		}
+
+		// All adresses with the given id
+		if (!empty($tagserverlist)) {
+			$servers = DBA::select('gserver', ['id', 'url', 'network'], ['relay-subscribe' => true, 'relay-scope' => 'tags', 'id' => $tagserverlist]);
 			while ($server = DBA::fetch($servers)) {
 				$serverlist[$server['id']] = $server;
 			}
 			DBA::close($servers);
-
-			// All tags of the current post
-			$tags = DBA::select('tag-view', ['name'], ['uri-id' => $parent['uri-id'], 'type' => Tag::HASHTAG]);
-			$taglist = [];
-			while ($tag = DBA::fetch($tags)) {
-				$taglist[] = $tag['name'];
-			}
-			DBA::close($tags);
-
-			// All servers who wants content with this tag
-			$tagserverlist = [];
-			if (!empty($taglist)) {
-				$tagserver = DBA::select('gserver-tag', ['gserver-id'], ['tag' => $taglist]);
-				while ($server = DBA::fetch($tagserver)) {
-					$tagserverlist[] = $server['gserver-id'];
-				}
-				DBA::close($tagserver);
-			}
-
-			// All adresses with the given id
-			if (!empty($tagserverlist)) {
-				$servers = DBA::select('gserver', ['id', 'url', 'network'], ['relay-subscribe' => true, 'relay-scope' => 'tags', 'id' => $tagserverlist]);
-				while ($server = DBA::fetch($servers)) {
-					$serverlist[$server['id']] = $server;
-				}
-				DBA::close($servers);
-			}
 		}
+
+		$contacts = [];
 
 		// Now we are collecting all relay contacts
 		foreach ($serverlist as $gserver) {
@@ -304,13 +287,22 @@ class Relay
 			if (empty($contact)) {
 				continue;
 			}
-
-			if (in_array($contact['network'], $networks) && !in_array($contact['batch'], array_column($contacts, 'batch'))) {
-				$contacts[] = $contact;
-			}
 		}
 
 		return $contacts;
+	}
+
+	/**
+	 * Return a list of relay servers
+	 *
+	 * @param array $fields Field list
+	 * @return array 
+	 * @throws Exception 
+	 */
+	public static function getList($fields = []):array
+	{
+		return DBA::selectToArray('apcontact', $fields,
+			["`type` = ? AND `url` IN (SELECT `url` FROM `contact` WHERE `uid` = ? AND `rel` = ?)", 'Application', 0, Contact::FRIEND]);
 	}
 
 	/**

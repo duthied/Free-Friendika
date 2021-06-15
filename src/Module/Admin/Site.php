@@ -32,6 +32,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Module\BaseAdmin;
 use Friendica\Module\Register;
+use Friendica\Protocol\Relay;
 use Friendica\Util\BasePath;
 use Friendica\Util\EMailer\MailBuilder;
 use Friendica\Util\Strings;
@@ -208,8 +209,6 @@ class Site extends BaseAdmin
 		$worker_fastlane  = !empty($_POST['worker_fastlane']);
 
 		$relay_directly    = !empty($_POST['relay_directly']);
-		$relay_server      = (!empty($_POST['relay_server'])      ? Strings::escapeTags(trim($_POST['relay_server']))       : '');
-		$relay_subscribe   = !empty($_POST['relay_subscribe']);
 		$relay_scope       = (!empty($_POST['relay_scope'])       ? Strings::escapeTags(trim($_POST['relay_scope']))        : '');
 		$relay_server_tags = (!empty($_POST['relay_server_tags']) ? Strings::escapeTags(trim($_POST['relay_server_tags']))  : '');
 		$relay_deny_tags   = (!empty($_POST['relay_deny_tags'])   ? Strings::escapeTags(trim($_POST['relay_deny_tags']))    : '');
@@ -418,8 +417,6 @@ class Site extends BaseAdmin
 		DI::config()->set('system', 'worker_fastlane'  , $worker_fastlane);
 
 		DI::config()->set('system', 'relay_directly'   , $relay_directly);
-		DI::config()->set('system', 'relay_server'     , $relay_server);
-		DI::config()->set('system', 'relay_subscribe'  , $relay_subscribe);
 		DI::config()->set('system', 'relay_scope'      , $relay_scope);
 		DI::config()->set('system', 'relay_server_tags', $relay_server_tags);
 		DI::config()->set('system', 'relay_deny_tags'  , $relay_deny_tags);
@@ -589,6 +586,10 @@ class Site extends BaseAdmin
 			'$performance'       => DI::l10n()->t('Performance'),
 			'$worker_title'      => DI::l10n()->t('Worker'),
 			'$relay_title'       => DI::l10n()->t('Message Relay'),
+			'$relay_description' => DI::l10n()->t('Use the command "console relay" in the command line to add or remove relays.'),
+			'$no_relay_list'     => DI::l10n()->t('The system is not subscribed to any relays at the moment.'),
+			'$relay_list_title'  => DI::l10n()->t('The system is currently subscribed to the following relays:'),
+			'$relay_list'        => Relay::getList(['url']),
 			'$relocate'          => DI::l10n()->t('Relocate Instance'),
 			'$relocate_warning'  => DI::l10n()->t('<strong>Warning!</strong> Advanced function. Could make this server unreachable.'),
 			'$baseurl'           => DI::baseUrl()->get(true),
@@ -688,10 +689,8 @@ class Site extends BaseAdmin
 			'$worker_queues'          => ['worker_queues', DI::l10n()->t('Maximum number of parallel workers'), DI::config()->get('system', 'worker_queues'), DI::l10n()->t('On shared hosters set this to %d. On larger systems, values of %d are great. Default value is %d.', 5, 20, 10)],
 			'$worker_fastlane'        => ['worker_fastlane', DI::l10n()->t('Enable fastlane'), DI::config()->get('system', 'worker_fastlane'), DI::l10n()->t('When enabed, the fastlane mechanism starts an additional worker if processes with higher priority are blocked by processes of lower priority.')],
 
-			'$relay_subscribe'        => ['relay_subscribe', DI::l10n()->t('Use relay servers'), DI::config()->get('system', 'relay_subscribe'), DI::l10n()->t('Enables the receiving of public posts from relay servers. They will be included in the search, subscribed tags and on the global community page.')],
-			'$relay_server'           => ['relay_server', DI::l10n()->t('"Social Relay" server'), DI::config()->get('system', 'relay_server'), DI::l10n()->t('Address of the "Social Relay" server where public posts should be send to. For example %s. ActivityRelay servers are administrated via the "console relay" command line command.', 'https://social-relay.isurf.ca')],
 			'$relay_directly'         => ['relay_directly', DI::l10n()->t('Direct relay transfer'), DI::config()->get('system', 'relay_directly'), DI::l10n()->t('Enables the direct transfer to other servers without using the relay servers')],
-			'$relay_scope'            => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), ['' => DI::l10n()->t('Disabled'), 'all' => DI::l10n()->t('all'), 'tags' => DI::l10n()->t('tags')]],
+			'$relay_scope'            => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), [SR_SCOPE_NONE => DI::l10n()->t('Disabled'), SR_SCOPE_ALL => DI::l10n()->t('all'), SR_SCOPE_TAGS => DI::l10n()->t('tags')]],
 			'$relay_server_tags'      => ['relay_server_tags', DI::l10n()->t('Server tags'), DI::config()->get('system', 'relay_server_tags'), DI::l10n()->t('Comma separated list of tags for the "tags" subscription.')],
 			'$relay_deny_tags'        => ['relay_deny_tags', DI::l10n()->t('Deny Server tags'), DI::config()->get('system', 'relay_deny_tags'), DI::l10n()->t('Comma separated list of tags that are rejected.')],
 			'$relay_user_tags'        => ['relay_user_tags', DI::l10n()->t('Allow user tags'), DI::config()->get('system', 'relay_user_tags'), DI::l10n()->t('If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".')],

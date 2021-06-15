@@ -1,11 +1,26 @@
 Table session
-=============
+===========
 
-| Field  | Description   | Type                | Null | Key | Default | Extra           |
-| ------ | ------------- | ------------------- | ---- | --- | ------- | --------------- |
-| id     | sequential ID | bigint(20) unsigned | NO   | PRI | NULL    | auto_increment  |
-| sid    |               | varchar(255)        | NO   | MUL |         |                 |
-| data   |               | text                | NO   |     | NULL    |                 |
-| expire |               | int(10) unsigned    | NO   | MUL | 0       |                 |
+web session storage
+
+Fields
+------
+
+| Field  | Description   | Type            | Null | Key | Default | Extra          |
+| ------ | ------------- | --------------- | ---- | --- | ------- | -------------- |
+| id     | sequential ID | bigint unsigned | NO   | PRI | NULL    | auto_increment |
+| sid    |               | varbinary(255)  | NO   |     |         |                |
+| data   |               | text            | YES  |     | NULL    |                |
+| expire |               | int unsigned    | NO   |     | 0       |                |
+
+Indexes
+------------
+
+| Name    | Fields  |
+| ------- | ------- |
+| PRIMARY | id      |
+| sid     | sid(64) |
+| expire  | expire  |
+
 
 Return to [database documentation](help/database)
