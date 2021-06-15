@@ -86,8 +86,6 @@ class Index extends BaseSettings
 			return;
 		}
 
-		$namechanged = $profile['name'] != $name;
-
 		$about = Strings::escapeTags(trim($_POST['about']));
 		$address = Strings::escapeTags(trim($_POST['address']));
 		$locality = Strings::escapeTags(trim($_POST['locality']));
@@ -114,8 +112,7 @@ class Index extends BaseSettings
 
 		DI::profileField()->saveCollection($profileFields);
 
-		$result = DBA::update(
-			'profile',
+		$result = Profile::update(
 			[
 				'name'         => $name,
 				'about'        => $about,
@@ -130,26 +127,13 @@ class Index extends BaseSettings
 				'pub_keywords' => $pub_keywords,
 				'prv_keywords' => $prv_keywords,
 			],
-			['uid' => local_user()]
+			local_user()
 		);
 
 		if (!$result) {
 			notice(DI::l10n()->t('Profile couldn\'t be updated.'));
 			return;
 		}
-
-		if ($namechanged) {
-			DBA::update('user', ['username' => $name], ['uid' => local_user()]);
-		}
-
-		Contact::updateSelfFromUserID(local_user());
-
-		// Update global directory in background
-		if (Session::get('my_url') && strlen(DI::config()->get('system', 'directory'))) {
-			Worker::add(PRIORITY_LOW, 'Directory', Session::get('my_url'));
-		}
-
-		Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 	}
 
 	public static function content(array $parameters = [])
