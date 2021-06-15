@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2021.06-rc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-13 11:02+0000\n"
+"POT-Creation-Date: 2021-06-15 17:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4489,33 +4489,33 @@ msgstr ""
 msgid "Done. You can now login with your username and password"
 msgstr ""
 
-#: src/Database/DBStructure.php:64
+#: src/Database/DBStructure.php:65
 #, php-format
 msgid "The database version had been set to %s."
 msgstr ""
 
-#: src/Database/DBStructure.php:77
+#: src/Database/DBStructure.php:78
 #, php-format
 msgid ""
 "The post update is at version %d, it has to be at %d to safely drop the "
 "tables."
 msgstr ""
 
-#: src/Database/DBStructure.php:89
+#: src/Database/DBStructure.php:90
 msgid "No unused tables found."
 msgstr ""
 
-#: src/Database/DBStructure.php:94
+#: src/Database/DBStructure.php:95
 msgid ""
 "These tables are not used for friendica and will be deleted when you execute "
 "\"dbstructure drop -e\":"
 msgstr ""
 
-#: src/Database/DBStructure.php:132
+#: src/Database/DBStructure.php:133
 msgid "There are no tables on MyISAM or InnoDB with the Antelope file format."
 msgstr ""
 
-#: src/Database/DBStructure.php:156
+#: src/Database/DBStructure.php:157
 #, php-format
 msgid ""
 "\n"
@@ -4523,20 +4523,20 @@ msgid ""
 "%s\n"
 msgstr ""
 
-#: src/Database/DBStructure.php:159
+#: src/Database/DBStructure.php:160
 msgid "Errors encountered performing database changes: "
 msgstr ""
 
-#: src/Database/DBStructure.php:445
+#: src/Database/DBStructure.php:550
 msgid "Another database update is currently running."
 msgstr ""
 
-#: src/Database/DBStructure.php:449
+#: src/Database/DBStructure.php:554
 #, php-format
 msgid "%s: Database update"
 msgstr ""
 
-#: src/Database/DBStructure.php:749
+#: src/Database/DBStructure.php:854
 #, php-format
 msgid "%s: updating %s table."
 msgstr ""
