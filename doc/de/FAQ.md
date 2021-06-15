@@ -199,6 +199,7 @@ Seit der Version 2021.06 unterstützt Friendica außerdem die [Mastodon API](hel
 Hier ist eine Liste von Clients, die speziell für Friendica entwickelt werden oder die mit Friendica kompatibel sind:
 
 #### Android
+
 * [AndStatus](http://andstatus.org) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.andstatus.app), [Google Play](https://play.google.com/store/apps/details?id=org.andstatus.app))
 * [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
 * [DiCa](https://dica.mixi.cool/) (Gibt es bei Google Play)
@@ -215,9 +216,11 @@ Hier ist eine Liste von Clients, die speziell für Friendica entwickelt werden o
 * [Yuito](https://github.com/accelforce/Yuito)
 
 #### SailfishOS
+
 * [Friendly](https://openrepos.net/content/fabrixxm/friendly#comment-form)
 
 #### iOS
+
 - [Amaroq](https://github.com/ReticentJohn/Amaroq/tree/master)
 - [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
 - [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281)
@@ -228,6 +231,7 @@ Hier ist eine Liste von Clients, die speziell für Friendica entwickelt werden o
 - [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466) Der eingegene Hostname muss in Groß-/Kleinschreibung mit dem Hostnamen des Systems übereinstimmen. Die aktuelle Version stürzt bei Benachrichtungen bom Typ "status" ab.
 
 #### Linux
+
 * [Choqok](https://choqok.kde.org)
 * [Whalebird](https://whalebird.social)
 * [TheDesk](https://ja.mstdn.wiki/TheDesk)
@@ -235,6 +239,7 @@ Hier ist eine Liste von Clients, die speziell für Friendica entwickelt werden o
 * [Tootle](https://github.com/bleakgrey/tootle)
 
 #### Windows
+
 * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) für Windows 10
 
 Admin
