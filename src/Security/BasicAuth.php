@@ -124,7 +124,7 @@ class BasicAuth
 		// workaround for HTTP-auth in CGI mode
 		if (!empty($_SERVER['REDIRECT_REMOTE_USER'])) {
 			$userpass = base64_decode(substr($_SERVER["REDIRECT_REMOTE_USER"], 6));
-			if (strlen($userpass)) {
+			if (!empty($userpass) && strpos($userpass, ':')) {
 				list($name, $password) = explode(':', $userpass);
 				$_SERVER['PHP_AUTH_USER'] = $name;
 				$_SERVER['PHP_AUTH_PW'] = $password;
