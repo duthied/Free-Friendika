@@ -95,7 +95,7 @@ class PublicTimeline extends BaseApi
 				["NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `parent-author-id` AND (`blocked` OR `ignored`))", $uid]);
 		}
 
-		$items = Post::selectForUser($uid, ['uri-id'], $condition, $params, false);
+		$items = Post::selectPostsForUser($uid, ['uri-id'], $condition, $params);
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {

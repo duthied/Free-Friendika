@@ -124,24 +124,22 @@ class Post
 	}
 
 	/**
-	 * Check if post data exists
+	 * Check if post-user-view records exists
 	 *
 	 * @param array $condition array of fields for condition
-	 * @param bool  $user_mode true = post-user-view, false = post-view
 	 *
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
 	 */
-	public static function exists($condition, bool $user_mode = true) {
-		return DBA::exists($user_mode ? 'post-user-view' : 'post-view', $condition);
+	public static function exists($condition) {
+		return DBA::exists('post-user-view', $condition);
 	}
 
 	/**
-	 * Counts the posts satisfying the provided condition
+	 * Counts the post-user-view records satisfying the provided condition
 	 *
 	 * @param array        $condition array of fields for condition
 	 * @param array        $params    Array of several parameters
-	 * @param bool         $user_mode true = post-user-view, false = post-view
 	 *
 	 * @return int
 	 *
@@ -153,13 +151,34 @@ class Post
 	 * $count = Post::count($condition);
 	 * @throws \Exception
 	 */
-	public static function count(array $condition = [], array $params = [], bool $user_mode = true)
+	public static function count(array $condition = [], array $params = [])
 	{
-		return DBA::count($user_mode ? 'post-user-view' : 'post-view', $condition, $params);
+		return DBA::count('post-user-view', $condition, $params);
 	}
 
 	/**
-	 * Retrieve a single record from the post table and returns it in an associative array
+	 * Counts the post-view records satisfying the provided condition
+	 *
+	 * @param array        $condition array of fields for condition
+	 * @param array        $params    Array of several parameters
+	 *
+	 * @return int
+	 *
+	 * Example:
+	 * $condition = ["network" => 'dspr'];
+	 * or:
+	 * $condition = ["`network` IN (?, ?)", 1, 'dfrn', 'dspr'];
+	 *
+	 * $count = Post::count($condition);
+	 * @throws \Exception
+	 */
+	public static function countPosts(array $condition = [], array $params = [])
+	{
+		return DBA::count('post-view', $condition, $params);
+	}
+
+	/**
+	 * Retrieve a single record from the post-user-view view and returns it in an associative array
 	 *
 	 * @param array $fields
 	 * @param array $condition
@@ -169,11 +188,11 @@ class Post
 	 * @throws \Exception
 	 * @see   DBA::select
 	 */
-	public static function selectFirst(array $fields = [], array $condition = [], $params = [], bool $user_mode = true)
+	public static function selectFirst(array $fields = [], array $condition = [], $params = [])
 	{
 		$params['limit'] = 1;
 
-		$result = self::select($fields, $condition, $params, $user_mode);
+		$result = self::select($fields, $condition, $params);
 
 		if (is_bool($result)) {
 			return $result;
@@ -185,7 +204,32 @@ class Post
 	}
 
 	/**
-	 * Retrieve a single record from the post-thread table and returns it in an associative array
+	 * Retrieve a single record from the post-view view and returns it in an associative array
+	 *
+	 * @param array $fields
+	 * @param array $condition
+	 * @param array $params
+	 * @return bool|array
+	 * @throws \Exception
+	 * @see   DBA::select
+	 */
+	public static function selectFirstPost(array $fields = [], array $condition = [], $params = [])
+	{
+		$params['limit'] = 1;
+
+		$result = self::selectPosts($fields, $condition, $params);
+
+		if (is_bool($result)) {
+			return $result;
+		} else {
+			$row = self::fetch($result);
+			DBA::close($result);
+			return $row;
+		}
+	}
+
+	/**
+	 * Retrieve a single record from the post-thread-user-view view and returns it in an associative array
 	 *
 	 * @param array $fields
 	 * @param array $condition
@@ -210,7 +254,7 @@ class Post
 	}
 
 	/**
-	 * Select rows from the post table and returns them as an array
+	 * Select rows from the post-user-view view and returns them as an array
 	 *
 	 * @param array $selected  Array of selected fields, empty for all
 	 * @param array $condition Array of fields for condition
@@ -263,23 +307,37 @@ class Post
 	}
 
 	/**
-	 * Select rows from the post table
+	 * Select rows from the post-user-view view
 	 *
 	 * @param array $selected  Array of selected fields, empty for all
 	 * @param array $condition Array of fields for condition
 	 * @param array $params    Array of several parameters
-	 * @param bool  $user_mode true = post-user-view, false = post-view
 	 *
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public static function select(array $selected = [], array $condition = [], $params = [], bool $user_mode = true)
+	public static function select(array $selected = [], array $condition = [], $params = [])
 	{
-		return self::selectView($user_mode ? 'post-user-view' : 'post-view', $selected, $condition, $params);
+		return self::selectView('post-user-view', $selected, $condition, $params);
 	}
 
 	/**
-	 * Select rows from the post table
+	 * Select rows from the post-view view
+	 *
+	 * @param array $selected  Array of selected fields, empty for all
+	 * @param array $condition Array of fields for condition
+	 * @param array $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 * @throws \Exception
+	 */
+	public static function selectPosts(array $selected = [], array $condition = [], $params = [])
+	{
+		return self::selectView('post-view', $selected, $condition, $params);
+	}
+
+	/**
+	 * Select rows from the post-thread-user-view view
 	 *
 	 * @param array $selected  Array of selected fields, empty for all
 	 * @param array $condition Array of fields for condition
@@ -336,24 +394,39 @@ class Post
 	}
 
 	/**
-	 * Select rows from the post view for a given user
+	 * Select rows from the post-user-view view for a given user
 	 *
 	 * @param integer $uid       User ID
 	 * @param array   $selected  Array of selected fields, empty for all
 	 * @param array   $condition Array of fields for condition
 	 * @param array   $params    Array of several parameters
-	 * @param bool    $user_mode true = post-user-view, false = post-view
 	 *
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [], bool $user_mode = true)
+	public static function selectForUser($uid, array $selected = [], array $condition = [], $params = [])
 	{
-		return self::selectViewForUser($user_mode ? 'post-user-view' : 'post-view', $uid, $selected, $condition, $params);
+		return self::selectViewForUser('post-user-view', $uid, $selected, $condition, $params);
 	}
 
-		/**
-	 * Select rows from the post view for a given user
+	/**
+	 * Select rows from the post-view view for a given user
+	 *
+	 * @param integer $uid       User ID
+	 * @param array   $selected  Array of selected fields, empty for all
+	 * @param array   $condition Array of fields for condition
+	 * @param array   $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 * @throws \Exception
+	 */
+	public static function selectPostsForUser($uid, array $selected = [], array $condition = [], $params = [])
+	{
+		return self::selectViewForUser('post-view', $uid, $selected, $condition, $params);
+	}
+
+	/**
+	 * Select rows from the post-thread-user-view view for a given user
 	 *
 	 * @param integer $uid       User ID
 	 * @param array   $selected  Array of selected fields, empty for all
@@ -369,7 +442,7 @@ class Post
 	}
 
 	/**
-	 * Retrieve a single record from the post view for a given user and returns it in an associative array
+	 * Retrieve a single record from the post-user-view view for a given user and returns it in an associative array
 	 *
 	 * @param integer $uid User ID
 	 * @param array   $selected
@@ -395,7 +468,7 @@ class Post
 	}
 
 	/**
-	 * Select pinned rows from the item table for a given user
+	 * Select pinned rows from the post-thread-user table for a given user
 	 *
 	 * @param integer $uid       User ID
 	 * @param array   $selected  Array of selected fields, empty for all
