@@ -1139,6 +1139,42 @@ class User
 	}
 
 	/**
+	 * Update a user entry and distribute the changes if needed
+	 *
+	 * @param array $fields
+	 * @param integer $uid
+	 * @return boolean
+	 */
+	public static function update(array $fields, int $uid): bool
+	{
+		$old_owner = self::getOwnerDataById($uid);
+		if (empty($old_owner)) {
+			return false;
+		}
+
+		if (!DBA::update('user', $fields, ['uid' => $uid])) {
+			return false;
+		}
+
+		$update = Contact::updateSelfFromUserID($uid);
+
+		$owner = self::getOwnerDataById($uid);
+		if (empty($owner)) {
+			return false;
+		}
+
+		if ($old_owner['name'] != $owner['name']) {
+			Profile::update(['name' => $owner['name']], $uid);
+		}
+
+		if ($update) {
+			Profile::publishUpdate($uid);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Sets block state for a given user
 	 *
 	 * @param int  $uid   The user id

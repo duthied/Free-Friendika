@@ -30,9 +30,9 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Notification;
+use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
@@ -447,37 +447,14 @@ function settings_post(App $a)
 		$fields['openidserver'] = '';
 	}
 
-	if (!DBA::update('user', $fields, ['uid' => local_user()])) {
+	$profile_fields = ['publish' => $publish, 'net-publish' => $net_publish, 'hide-friends' => $hide_friends];
+
+	if (!User::update($fields, local_user()) || !Profile::update($profile_fields, local_user())) {
 		notice(DI::l10n()->t('Settings were not updated.'));
 	}
 
 	// clear session language
 	unset($_SESSION['language']);
-
-	q("UPDATE `profile`
-		SET `publish` = %d,
-		`name` = '%s',
-		`net-publish` = %d,
-		`hide-friends` = %d
-		WHERE `uid` = %d",
-		intval($publish),
-		DBA::escape($username),
-		intval($net_publish),
-		intval($hide_friends),
-		intval(local_user())
-	);
-
-	Contact::updateSelfFromUserID(local_user());
-
-	if (($old_visibility != $net_publish) || ($page_flags != $old_page_flags)) {
-		// Update global directory in background
-		$url = $_SESSION['my_url'];
-		if ($url && strlen(DI::config()->get('system', 'directory'))) {
-			Worker::add(PRIORITY_LOW, "Directory", $url);
-		}
-	}
-
-	Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 
 	DI::baseUrl()->redirect('settings');
 	return; // NOTREACHED

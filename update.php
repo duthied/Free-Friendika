@@ -53,6 +53,7 @@ use Friendica\Model\ItemURI;
 use Friendica\Model\Notification;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
+use Friendica\Model\Profile;
 use Friendica\Model\Storage;
 use Friendica\Worker\Delivery;
 
@@ -98,8 +99,9 @@ function update_1298()
 					DBA::update('profile', [$translateKey => $key], ['id' => $data['id']]);
 					Logger::notice('Updated contact', ['action' => 'update', 'contact' => $data['id'], "$translateKey" => $key,
 						'was' => $data[$translateKey]]);
-					Worker::add(PRIORITY_LOW, 'ProfileUpdate', $data['id']);
+
 					Contact::updateSelfFromUserID($data['id']);
+					Profile::publishUpdate($data['id']);
 					$success++;
 				}
 			}
@@ -153,7 +155,9 @@ function update_1323()
 {
 	$users = DBA::select('user', ['uid']);
 	while ($user = DBA::fetch($users)) {
-		Contact::updateSelfFromUserID($user['uid']);
+		if (Contact::updateSelfFromUserID($user['uid'])) {
+			Profile::publishUpdate($user['uid']);
+		}
 	}
 	DBA::close($users);
 

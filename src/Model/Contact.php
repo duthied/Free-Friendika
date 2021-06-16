@@ -623,6 +623,7 @@ class Contact
 	 *
 	 * @param int     $uid
 	 * @param boolean $update_avatar Force the avatar update
+	 * @return bool   "true" if updated
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
@@ -632,20 +633,20 @@ class Contact
 			'photo', 'thumb', 'micro', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
-			return;
+			return false;
 		}
 
 		$fields = ['nickname', 'page-flags', 'account-type', 'prvkey', 'pubkey'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $uid, 'account_expired' => false]);
 		if (!DBA::isResult($user)) {
-			return;
+			return false;
 		}
 
 		$fields = ['name', 'photo', 'thumb', 'about', 'address', 'locality', 'region',
 			'country-name', 'pub_keywords', 'xmpp', 'net-publish'];
 		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid]);
 		if (!DBA::isResult($profile)) {
-			return;
+			return false;
 		}
 
 		$file_suffix = 'jpg';
@@ -724,6 +725,8 @@ class Contact
 				'thumb' => DI::baseUrl() . '/photo/avatar/' . $uid .'.' . $file_suffix];
 			DBA::update('profile', $fields, ['uid' => $uid]);
 		}
+
+		return $update;
 	}
 
 	/**

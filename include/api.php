@@ -42,6 +42,7 @@ use Friendica\Model\Mail;
 use Friendica\Model\Notification;
 use Friendica\Model\Photo;
 use Friendica\Model\Post;
+use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
@@ -4552,12 +4553,7 @@ function api_account_update_profile_image($type)
 	Contact::updateSelfFromUserID(api_user(), true);
 
 	// Update global directory in background
-	$url = DI::baseUrl() . '/profile/' . DI::app()->user['nickname'];
-	if ($url && strlen(DI::config()->get('system', 'directory'))) {
-		Worker::add(PRIORITY_LOW, "Directory", $url);
-	}
-
-	Worker::add(PRIORITY_LOW, 'ProfileUpdate', api_user());
+	Profile::publishUpdate(api_user());
 
 	// output for client
 	if ($data) {
@@ -4608,11 +4604,7 @@ function api_account_update_profile($type)
 		DBA::update('contact', ['about' => $_POST['description']], ['id' => $api_user['id']]);
 	}
 
-	Worker::add(PRIORITY_LOW, 'ProfileUpdate', $local_user);
-	// Update global directory in background
-	if ($api_user['url'] && strlen(DI::config()->get('system', 'directory'))) {
-		Worker::add(PRIORITY_LOW, "Directory", $api_user['url']);
-	}
+	Profile::publishUpdate($local_user);
 
 	return api_account_verify_credentials($type);
 }
