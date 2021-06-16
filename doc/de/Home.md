@@ -54,7 +54,7 @@ Friendica - Dokumentation und Ressourcen
 * [Class Autoloading](help/autoloader) (EN)
 * [Using Composer](help/Composer) (EN)
 * [Code-Referenz (mit doxygen generiert - setzt Cookies)](doc/html/)
-* [Twitter/GNU Social API Functions](help/api) (EN)
+* [API Dokumentation](help/api) (EN)
 * [Translation of Friendica](help/translations) (EN)
 * [Run tests](help/Tests) (EN)
 
