@@ -52,7 +52,7 @@ class Token extends BaseApi
 			$authorization = $_SERVER['REDIRECT_REMOTE_USER'] ?? '';
 		}
 
-		if (empty($request['client_id']) && !empty($authorization) && (substr($authorization, 0, 6) == 'Basic ')) {
+		if (empty($request['client_id']) && substr($authorization, 0, 6) == 'Basic ') {
 			$datapair = explode(':', base64_decode(trim(substr($authorization, 6))));
 			if (count($datapair) == 2) {
 				$request['client_id']     = $datapair[0];
