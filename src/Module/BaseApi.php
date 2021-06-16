@@ -213,8 +213,8 @@ class BaseApi extends BaseModule
 
 		$prev_request = $next_request = $request;
 
-		$prev_request['min_id'] = self::$boundaries['max'] + 1;
-		$next_request['max_id'] = self::$boundaries['min'] - 1;
+		$prev_request['min_id'] = self::$boundaries['max'];
+		$next_request['max_id'] = self::$boundaries['min'];
 
 		$command = DI::baseUrl() . '/' . DI::args()->getCommand();
 
