@@ -725,6 +725,7 @@ class Contact
 				'thumb' => DI::baseUrl() . '/photo/avatar/' . $uid .'.' . $file_suffix];
 			DBA::update('profile', $fields, ['uid' => $uid]);
 		}
+
 		return $update;
 	}
 

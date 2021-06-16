@@ -123,7 +123,7 @@ class Profile
 		}
 
 		if ($update) {
-			self::publishUpdate($uid);
+			self::publishUpdate($uid, ($old_owner['net-publish'] != $owner['net-publish']));
 		}
 
 		return true;
@@ -131,15 +131,17 @@ class Profile
 
 	/**
 	 * Publish a changed profile
-	 * @param int $uid 
+	 * @param int  $uid
+	 * @param bool $force Force publishing to the directory
 	 */
-	public static function publishUpdate(int $uid)
+	public static function publishUpdate(int $uid, bool $force = false)
 	{
 		$owner = User::getOwnerDataById($uid);
 		if (empty($owner)) {
 			return;
 		}
-		if ($owner['net-publish']) {
+
+		if ($owner['net-publish'] || $force) {
 			// Update global directory in background
 			if (Search::getGlobalDirectory()) {
 				Worker::add(PRIORITY_LOW, 'Directory', $owner['url']);
