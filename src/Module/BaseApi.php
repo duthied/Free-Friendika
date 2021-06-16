@@ -44,6 +44,16 @@ class BaseApi extends BaseModule
 	 */
 	protected static $format = 'json';
 
+	/**
+	 * @var array
+	 */
+	protected static $boundaries = [];
+
+	/**
+	 * @var array
+	 */
+	protected static $request = [];
+
 	public static function init(array $parameters = [])
 	{
 		$arguments = DI::args();
@@ -129,6 +139,11 @@ class BaseApi extends BaseModule
 		$httpinput = HTTPInputData::process();
 		$input = array_merge($httpinput['variables'], $httpinput['files'], $_REQUEST);
 
+		self::$request    = $input;
+		self::$boundaries = [];
+
+		unset(self::$request['pagename']);
+
 		$request = [];
 
 		foreach ($defaults as $parameter => $defaultvalue) {
@@ -158,6 +173,55 @@ class BaseApi extends BaseModule
 
 		Logger::debug('Got request parameters', ['request' => $request, 'command' => DI::args()->getCommand()]);
 		return $request;
+	}
+
+	/**
+	 * Set boundaries for the "link" header
+	 * @param array $boundaries
+	 * @param int $id
+	 * @return array
+	 */
+	protected static function setBoundaries(int $id)
+	{
+		if (!isset(self::$boundaries['min'])) {
+			self::$boundaries['min'] = $id;
+		}
+
+		if (!isset(self::$boundaries['max'])) {
+			self::$boundaries['max'] = $id;
+		}
+
+		self::$boundaries['min'] = min(self::$boundaries['min'], $id);
+		self::$boundaries['max'] = max(self::$boundaries['max'], $id);
+	}
+
+	/**
+	 * Set the "link" header with "next" and "prev" links
+	 * @return void
+	 */
+	protected static function setLinkHeader()
+	{
+		if (empty(self::$boundaries)) {
+			return;
+		}
+
+		$request = self::$request;
+
+		unset($request['min_id']);
+		unset($request['max_id']);
+		unset($request['since_id']);
+
+		$prev_request = $next_request = $request;
+
+		$prev_request['min_id'] = self::$boundaries['max'] + 1;
+		$next_request['max_id'] = self::$boundaries['min'] - 1;
+
+		$command = DI::baseUrl() . '/' . DI::args()->getCommand();
+
+		$prev = $command . '?' . http_build_query($prev_request);
+		$next = $command . '?' . http_build_query($next_request);
+
+		header('Link: <' . $next . '>; rel="next", <' . $prev . '>; rel="prev"');
 	}
 
 	/**

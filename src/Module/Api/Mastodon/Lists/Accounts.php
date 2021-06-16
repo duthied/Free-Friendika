@@ -95,6 +95,7 @@ class Accounts extends BaseApi
 
 		$members = DBA::select('group_member', ['contact-id'], $condition, $params);
 		while ($member = DBA::fetch($members)) {
+			self::setBoundaries($member['contact-id']);
 			$accounts[] = DI::mstdnAccount()->createFromContactId($member['contact-id'], $uid);
 		}
 		DBA::close($members);
@@ -103,6 +104,7 @@ class Accounts extends BaseApi
 			array_reverse($accounts);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($accounts);
 	}
 }

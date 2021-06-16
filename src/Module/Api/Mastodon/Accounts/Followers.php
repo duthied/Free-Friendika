@@ -77,6 +77,7 @@ class Followers extends BaseApi
 
 		$followers = DBA::select('contact-relation', ['relation-cid'], $condition, $parameters);
 		while ($follower = DBA::fetch($followers)) {
+			self::setBoundaries($follower['relation-cid']);
 			$accounts[] = DI::mstdnAccount()->createFromContactId($follower['relation-cid'], $uid);
 		}
 		DBA::close($followers);
@@ -85,6 +86,7 @@ class Followers extends BaseApi
 			array_reverse($accounts);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($accounts);
 	}
 }
