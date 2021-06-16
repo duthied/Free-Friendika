@@ -162,8 +162,6 @@ class DBStructure
 
 	public static function writeStructure()
 	{
-		Renderer::registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
-
 		$tables = [];
 		foreach (self::definition(null) as $name => $definition) {
 			$indexes  = [[
