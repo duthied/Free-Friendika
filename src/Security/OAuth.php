@@ -83,6 +83,11 @@ class OAuth
 	{
 		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 
+		if (empty($authorization)) {
+			// workaround for HTTP-auth in CGI mode
+			$authorization = $_SERVER['REDIRECT_REMOTE_USER'] ?? '';
+		}
+
 		if (substr($authorization, 0, 7) != 'Bearer ') {
 			return [];
 		}

@@ -46,8 +46,14 @@ class Token extends BaseApi
 		]);
 
 		// AndStatus transmits the client data in the AUTHORIZATION header field, see https://github.com/andstatus/andstatus/issues/530
-		if (empty($request['client_id']) && !empty($_SERVER['HTTP_AUTHORIZATION']) && (substr($_SERVER['HTTP_AUTHORIZATION'], 0, 6) == 'Basic ')) {
-			$datapair = explode(':', base64_decode(trim(substr($_SERVER['HTTP_AUTHORIZATION'], 6))));
+		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+		if (empty($authorization)) {
+			// workaround for HTTP-auth in CGI mode
+			$authorization = $_SERVER['REDIRECT_REMOTE_USER'] ?? '';
+		}
+
+		if (empty($request['client_id']) && !empty($authorization) && (substr($authorization, 0, 6) == 'Basic ')) {
+			$datapair = explode(':', base64_decode(trim(substr($authorization, 6))));
 			if (count($datapair) == 2) {
 				$request['client_id']     = $datapair[0];
 				$request['client_secret'] = $datapair[1];
