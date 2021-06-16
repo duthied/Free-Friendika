@@ -172,6 +172,8 @@ HELP;
 
 		Friendica\DI::init($this->dice);
 
+		Renderer::registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
+
 		/** @var Console $subconsole */
 		$subconsole = $this->dice->create($className, [$subargs]);
 
