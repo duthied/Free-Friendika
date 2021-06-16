@@ -70,6 +70,7 @@ class Favourited extends BaseApi
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
+			self::setBoundaries($item['thr-parent-id']);
 			$statuses[] = DI::mstdnStatus()->createFromUriId($item['thr-parent-id'], $uid);
 		}
 		DBA::close($items);
@@ -78,6 +79,7 @@ class Favourited extends BaseApi
 			array_reverse($statuses);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($statuses);
 	}
 }

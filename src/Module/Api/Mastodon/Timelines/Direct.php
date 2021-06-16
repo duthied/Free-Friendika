@@ -71,6 +71,7 @@ class Direct extends BaseApi
 		$statuses = [];
 
 		while ($mail = DBA::fetch($mails)) {
+			self::setBoundaries($mail['uri-id']);
 			$statuses[] = DI::mstdnStatus()->createFromMailId($mail['id']);
 		}
 
@@ -78,6 +79,7 @@ class Direct extends BaseApi
 			array_reverse($statuses);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($statuses);
 	}
 }

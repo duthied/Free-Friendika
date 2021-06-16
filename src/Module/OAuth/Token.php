@@ -37,16 +37,23 @@ class Token extends BaseApi
 	public static function post(array $parameters = [])
 	{
 		$request = self::getRequest([
-			'grant_type'    => '',
-			'code'          => '',
-			'redirect_uri'  => '',
-			'client_id'     => '',
-			'client_secret' => '',
+			'client_id'     => '', // Client ID, obtained during app registration
+			'client_secret' => '', // Client secret, obtained during app registration
+			'redirect_uri'  => '', // Set a URI to redirect the user to. If this parameter is set to "urn:ietf:wg:oauth:2.0:oob" then the token will be shown instead. Must match one of the redirect URIs declared during app registration.
+			'scope'         => 'read', // List of requested OAuth scopes, separated by spaces. Must be a subset of scopes declared during app registration. If not provided, defaults to "read".
+			'code'          => '', // A user authorization code, obtained via /oauth/authorize
+			'grant_type'    => '', // Set equal to "authorization_code" if code is provided in order to gain user-level access. Otherwise, set equal to "client_credentials" to obtain app-level access only.
 		]);
 
 		// AndStatus transmits the client data in the AUTHORIZATION header field, see https://github.com/andstatus/andstatus/issues/530
-		if (empty($request['client_id']) && !empty($_SERVER['HTTP_AUTHORIZATION']) && (substr($_SERVER['HTTP_AUTHORIZATION'], 0, 6) == 'Basic ')) {
-			$datapair = explode(':', base64_decode(trim(substr($_SERVER['HTTP_AUTHORIZATION'], 6))));
+		$authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+		if (empty($authorization)) {
+			// workaround for HTTP-auth in CGI mode
+			$authorization = $_SERVER['REDIRECT_REMOTE_USER'] ?? '';
+		}
+
+		if (empty($request['client_id']) && substr($authorization, 0, 6) == 'Basic ') {
+			$datapair = explode(':', base64_decode(trim(substr($authorization, 6))));
 			if (count($datapair) == 2) {
 				$request['client_id']     = $datapair[0];
 				$request['client_secret'] = $datapair[1];

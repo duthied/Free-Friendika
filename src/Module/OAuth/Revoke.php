@@ -21,6 +21,10 @@
 
 namespace Friendica\Module\OAuth;
 
+use Friendica\Core\Logger;
+use Friendica\Core\System;
+use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Module\BaseApi;
 
 /**
@@ -30,6 +34,20 @@ class Revoke extends BaseApi
 {
 	public static function post(array $parameters = [])
 	{
-		self::unsupported('post');
+		$request = self::getRequest([
+			'client_id'     => '', // Client ID, obtained during app registration
+			'client_secret' => '', // Client secret, obtained during app registration
+			'token'         => '', // The previously obtained token, to be invalidated
+		]);
+
+		$condition = ['client_id' => $request['client_id'], 'client_secret' => $request['client_secret'], 'access_token' => $request['token']];
+		$token = DBA::selectFirst('application-view', ['id'], $condition);
+		if (empty($token['id'])) {
+			Logger::warning('Token not found', $condition);
+			DI::mstdnError()->Unauthorized();
+		}
+
+		DBA::delete('application-token', ['application-id' => $token['id']]);
+		System::jsonExit([]);
 	}
 }

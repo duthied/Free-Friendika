@@ -41,11 +41,12 @@ class Authorize extends BaseApi
 	public static function rawContent(array $parameters = [])
 	{
 		$request = self::getRequest([
-			'response_type' => '',
-			'client_id'     => '',
+			'force_login'   => '', // Forces the user to re-login, which is necessary for authorizing with multiple accounts from the same instance.
+			'response_type' => '', // Should be set equal to "code".
+			'client_id'     => '', // Client ID, obtained during app registration.
 			'client_secret' => '', // Isn't normally provided. We will use it if present.
-			'redirect_uri'  => '',
-			'scope'         => 'read',
+			'redirect_uri'  => '', // Set a URI to redirect the user to. If this parameter is set to "urn:ietf:wg:oauth:2.0:oob" then the authorization code will be shown instead. Must match one of the redirect URIs declared during app registration.
+			'scope'         => 'read', // List of requested OAuth scopes, separated by spaces (or by pluses, if using query parameters). Must be a subset of scopes declared during app registration. If not provided, defaults to "read".
 			'state'         => '',
 		]);
 

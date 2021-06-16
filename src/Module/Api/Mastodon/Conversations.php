@@ -85,6 +85,7 @@ class Conversations extends BaseApi
 		$conversations = [];
 
 		while ($conv = DBA::fetch($convs)) {
+			self::setBoundaries($conv['id']);
 			$conversations[] = DI::mstdnConversation()->CreateFromConvId($conv['id']);
 		}
 
@@ -94,6 +95,7 @@ class Conversations extends BaseApi
 			array_reverse($conversations);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($conversations);
 	}
 }

@@ -29,8 +29,10 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\Core\Session;
 use Friendica\Core\System;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Protocol\Activity;
@@ -82,6 +84,71 @@ class Profile
 	public static function getListByUser(int $uid, array $fields = [])
 	{
 		return DBA::selectToArray('profile', $fields, ['uid' => $uid]);
+	}
+
+	/**
+	 * Update a profile entry and distribute the changes if needed
+	 *
+	 * @param array $fields
+	 * @param integer $uid
+	 * @return boolean
+	 */
+	public static function update(array $fields, int $uid): bool
+	{
+		$old_owner = User::getOwnerDataById($uid);
+		if (empty($old_owner)) {
+			return false;
+		}
+
+		if (!DBA::update('profile', $fields, ['uid' => $uid])) {
+			return false;
+		}
+
+		$update = Contact::updateSelfFromUserID($uid);
+
+		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			return false;
+		}
+
+		if ($old_owner['name'] != $owner['name']) {
+			User::update(['username' => $owner['name']], $uid);
+		}
+
+		$profile_fields = ['postal-code', 'dob', 'prv_keywords', 'homepage'];
+		foreach ($profile_fields as $field) {
+			if ($old_owner[$field] != $owner[$field]) {
+				$update = true;
+			}
+		}
+
+		if ($update) {
+			self::publishUpdate($uid, ($old_owner['net-publish'] != $owner['net-publish']));
+		}
+
+		return true;
+	}
+
+	/**
+	 * Publish a changed profile
+	 * @param int  $uid
+	 * @param bool $force Force publishing to the directory
+	 */
+	public static function publishUpdate(int $uid, bool $force = false)
+	{
+		$owner = User::getOwnerDataById($uid);
+		if (empty($owner)) {
+			return;
+		}
+
+		if ($owner['net-publish'] || $force) {
+			// Update global directory in background
+			if (Search::getGlobalDirectory()) {
+				Worker::add(PRIORITY_LOW, 'Directory', $owner['url']);
+			}
+		}
+
+		Worker::add(PRIORITY_LOW, 'ProfileUpdate', $uid);
 	}
 
 	/**
