@@ -128,6 +128,7 @@ class Notifications extends BaseApi
 
 		$notify = DBA::select('notification', ['id'], $condition, $params);
 		while ($notification = DBA::fetch($notify)) {
+			self::setBoundaries($notification['id']);
 			$entry = DI::mstdnNotification()->createFromNotificationId($notification['id']);
 			if (!empty($entry)) {
 				$notifications[] = $entry;
@@ -138,6 +139,7 @@ class Notifications extends BaseApi
 			array_reverse($notifications);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($notifications);
 	}
 }

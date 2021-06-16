@@ -98,6 +98,7 @@ class ListTimeline extends BaseApi
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
+			self::setBoundaries($item['uri-id']);
 			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
 		}
 		DBA::close($items);
@@ -106,6 +107,7 @@ class ListTimeline extends BaseApi
 			array_reverse($statuses);
 		}
 
+		self::setLinkHeader();
 		System::jsonExit($statuses);
 	}
 }
