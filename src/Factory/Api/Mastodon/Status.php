@@ -72,9 +72,9 @@ class Status extends BaseFactory
 		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
 
 		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(
-			Post::count(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_COMMENT, 'deleted' => false], [], false),
-			Post::count(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE), 'deleted' => false], [], false),
-			Post::count(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE), 'deleted' => false], [], false)
+			Post::countPosts(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_COMMENT, 'deleted' => false], []),
+			Post::countPosts(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE), 'deleted' => false], []),
+			Post::countPosts(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE), 'deleted' => false], [])
 		);
 
 		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(

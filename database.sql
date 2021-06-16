@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.06-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1421
+-- DB_UPDATE_VERSION 1422
 -- ------------------------------------------
 
 
@@ -1874,7 +1874,9 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`
+	`parent-post-author`.`network` AS `parent-author-network`,
+	`parent-post-author`.`blocked` AS `parent-author-blocked`,
+	`parent-post-author`.`hidden` AS `parent-author-hidden`
 	FROM `post-thread-user`
 			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
@@ -1938,6 +1940,31 @@ CREATE VIEW `post-view` AS SELECT
 	`post-content`.`target-type` AS `target-type`,
 	`post-content`.`target` AS `target`,
 	`post-content`.`resource-id` AS `resource-id`,
+	`post`.`author-id` AS `contact-id`,
+	`author`.`url` AS `contact-link`,
+	`author`.`addr` AS `contact-addr`,
+	`author`.`name` AS `contact-name`,
+	`author`.`nick` AS `contact-nick`,
+	`author`.`thumb` AS `contact-avatar`,
+	`author`.`network` AS `contact-network`,
+	`author`.`blocked` AS `contact-blocked`,
+	`author`.`hidden` AS `contact-hidden`,
+	`author`.`readonly` AS `contact-readonly`,
+	`author`.`archive` AS `contact-archive`,
+	`author`.`pending` AS `contact-pending`,
+	`author`.`rel` AS `contact-rel`,
+	`author`.`uid` AS `contact-uid`,
+	`author`.`contact-type` AS `contact-contact-type`,
+	IF (`post`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `author`.`writable`) AS `writable`,
+	false AS `self`,
+	`author`.`id` AS `cid`,
+	`author`.`alias` AS `alias`,
+	`author`.`photo` AS `photo`,
+	`author`.`name-date` AS `name-date`,
+	`author`.`uri-date` AS `uri-date`,
+	`author`.`avatar-date` AS `avatar-date`,
+	`author`.`thumb` AS `thumb`,
+	`author`.`dfrn-id` AS `dfrn-id`,
 	`post`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -1973,7 +2000,9 @@ CREATE VIEW `post-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`
+	`parent-post-author`.`network` AS `parent-author-network`,
+	`parent-post-author`.`blocked` AS `parent-author-blocked`,
+	`parent-post-author`.`hidden` AS `parent-author-hidden`
 	FROM `post`
 			STRAIGHT_JOIN `post-thread` ON `post-thread`.`uri-id` = `post`.`parent-uri-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post`.`author-id`
@@ -2033,6 +2062,31 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post-content`.`target-type` AS `target-type`,
 	`post-content`.`target` AS `target`,
 	`post-content`.`resource-id` AS `resource-id`,
+	`post-thread`.`author-id` AS `contact-id`,
+	`author`.`url` AS `contact-link`,
+	`author`.`addr` AS `contact-addr`,
+	`author`.`name` AS `contact-name`,
+	`author`.`nick` AS `contact-nick`,
+	`author`.`thumb` AS `contact-avatar`,
+	`author`.`network` AS `contact-network`,
+	`author`.`blocked` AS `contact-blocked`,
+	`author`.`hidden` AS `contact-hidden`,
+	`author`.`readonly` AS `contact-readonly`,
+	`author`.`archive` AS `contact-archive`,
+	`author`.`pending` AS `contact-pending`,
+	`author`.`rel` AS `contact-rel`,
+	`author`.`uid` AS `contact-uid`,
+	`author`.`contact-type` AS `contact-contact-type`,
+	IF (`post`.`network` IN ('apub', 'dfrn', 'dspr', 'stat'), true, `author`.`writable`) AS `writable`,
+	false AS `self`,
+	`author`.`id` AS `cid`,
+	`author`.`alias` AS `alias`,
+	`author`.`photo` AS `photo`,
+	`author`.`name-date` AS `name-date`,
+	`author`.`uri-date` AS `uri-date`,
+	`author`.`avatar-date` AS `avatar-date`,
+	`author`.`thumb` AS `thumb`,
+	`author`.`dfrn-id` AS `dfrn-id`,
 	`post-thread`.`author-id` AS `author-id`,
 	`author`.`url` AS `author-link`,
 	`author`.`addr` AS `author-addr`,
@@ -2068,7 +2122,9 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`parent-post`.`author-id` AS `parent-author-id`,
 	`parent-post-author`.`url` AS `parent-author-link`,
 	`parent-post-author`.`name` AS `parent-author-name`,
-	`parent-post-author`.`network` AS `parent-author-network`
+	`parent-post-author`.`network` AS `parent-author-network`,
+	`parent-post-author`.`blocked` AS `parent-author-blocked`,
+	`parent-post-author`.`hidden` AS `parent-author-hidden`
 	FROM `post-thread`
 			INNER JOIN `post` ON `post`.`uri-id` = `post-thread`.`uri-id`
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-thread`.`author-id`

@@ -49,7 +49,7 @@ class RebloggedBy extends BaseApi
 			DI::mstdnError()->RecordNotFound();
 		}
 
-		$activities = Post::select(['author-id'], ['thr-parent-id' => $id, 'gravity' => GRAVITY_ACTIVITY, 'verb' => Activity::ANNOUNCE], [], false);
+		$activities = Post::selectPosts(['author-id'], ['thr-parent-id' => $id, 'gravity' => GRAVITY_ACTIVITY, 'verb' => Activity::ANNOUNCE]);
 
 		$accounts = [];
 

@@ -58,7 +58,7 @@ class PublicTimeline extends BaseApi
 		$params = ['order' => ['uri-id' => true], 'limit' => $request['limit']];
 
 		$condition = ['gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'private' => Item::PUBLIC,
-			'uid' => 0, 'network' => Protocol::FEDERATED, 'parent-author-blocked' => false, 'parent-author-hidden' => false];
+			'network' => Protocol::FEDERATED, 'parent-author-blocked' => false, 'parent-author-hidden' => false];
 
 		if ($request['local']) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `origin`)"]);
@@ -95,12 +95,12 @@ class PublicTimeline extends BaseApi
 				["NOT EXISTS (SELECT `cid` FROM `user-contact` WHERE `uid` = ? AND `cid` = `parent-author-id` AND (`blocked` OR `ignored`))", $uid]);
 		}
 
-		$items = Post::selectForUser($uid, ['uri-id', 'uid'], $condition, $params);
+		$items = Post::selectPostsForUser($uid, ['uri-id'], $condition, $params);
 
 		$statuses = [];
 		while ($item = Post::fetch($items)) {
 			self::setBoundaries($item['uri-id']);
-			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $item['uid']);
+			$statuses[] = DI::mstdnStatus()->createFromUriId($item['uri-id'], $uid);
 		}
 		DBA::close($items);
 
