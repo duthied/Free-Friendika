@@ -35,13 +35,7 @@ class XSocialRelay extends BaseModule
 	{
 		$config = DI::config();
 
-		$subscribe = $config->get('system', 'relay_subscribe', false);
-
-		if ($subscribe) {
-			$scope = $config->get('system', 'relay_scope', SR_SCOPE_ALL);
-		} else {
-			$scope = SR_SCOPE_NONE;
-		}
+		$scope = $config->get('system', 'relay_scope');
 
 		$systemTags = [];
 		$userTags = [];
@@ -63,7 +57,7 @@ class XSocialRelay extends BaseModule
 		$tagList = array_unique(array_merge($systemTags, $userTags));
 
 		$relay = [
-			'subscribe' => $subscribe,
+			'subscribe' => ($scope != SR_SCOPE_NONE),
 			'scope'     => $scope,
 			'tags'      => $tagList,
 			'protocols' => [

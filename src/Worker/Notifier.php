@@ -39,7 +39,6 @@ use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
-use Friendica\Protocol\Relay;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -442,12 +441,12 @@ class Notifier
 		$batch_delivery = false;
 
 		if ($public_message && !in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION]) && !$followup) {
-			$relay_list = [];
+			$participants = [];
 
 			if ($diaspora_delivery && !$unlisted) {
 				$batch_delivery = true;
 
-				$relay_list_stmt = DBA::p(
+				$participants_stmt = DBA::p(
 					"SELECT
 						`batch`, `network`, `protocol`,
 						ANY_VALUE(`id`) AS `id`,
@@ -466,17 +465,11 @@ class Notifier
 					$owner['uid'],
 					Contact::SHARING
 				);
-				$relay_list = DBA::toArray($relay_list_stmt);
+				$participants = DBA::toArray($participants_stmt);
 
 				// Fetch the participation list
 				// The function will ensure that there are no duplicates
-				$relay_list = Diaspora::participantsForThread($target_item, $relay_list);
-
-				// Add the relay to the list, avoid duplicates.
-				// Don't send community posts to the relay. Forum posts via the Diaspora protocol are looking ugly.
-				if (!$followup && !Item::isForumPost($target_item, $owner) && !self::isForumPost($target_item)) {
-					$relay_list = Relay::getList($target_id, $relay_list, [Protocol::DFRN, Protocol::DIASPORA]);
-				}
+				$participants = Diaspora::participantsForThread($target_item, $participants);
 			}
 
 			$condition = ['network' => Protocol::DFRN, 'uid' => $owner['uid'], 'blocked' => false,
@@ -484,7 +477,7 @@ class Notifier
 
 			$contacts = DBA::toArray(DBA::select('contact', ['id', 'url', 'addr', 'name', 'network', 'protocol'], $condition));
 
-			$conversants = array_merge($contacts, $relay_list);
+			$conversants = array_merge($contacts, $participants);
 
 			$delivery_queue_count += self::delivery($cmd, $post_uriid, $sender_uid, $target_item, $thr_parent, $owner, $batch_delivery, true, $conversants, $ap_contacts, []);
 

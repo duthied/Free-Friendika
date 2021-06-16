@@ -13,44 +13,21 @@ Authentication is the same as described in [Using the APIs](help/api#Authenticat
 
 ### Supported apps
 
-#### Android
-
-- [AndStatus](http://andstatus.org)
-- [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
-- [Fedi](https://play.google.com/store/apps/details?id=com.fediverse.app)
-- [Husky](https://husky.fwgs.ru)
-- [Roma](https://play.google.com/store/apps/details?id=tech.bigfig.roma)
-- [Subway Tooter](https://github.com/tateisu/SubwayTooter)
-- [Tooot](https://tooot.app/)
-- [Tusky](https://tusky.app)
-- [Twidere](https://github.com/TwidereProject/)
-- [twitlatte](https://github.com/moko256/twitlatte)
-- [Yuito](https://github.com/accelforce/Yuito)
-
-#### iOS
-- [Amaroq](https://github.com/ReticentJohn/Amaroq/tree/master)
-- [B4X for Pleroma & Mastodon](https://github.com/AnywhereSoftware/B4X-Pleroma)
-- [Fedi](https://apps.apple.com/de/app/fedi-for-pleroma-and-mastodon/id1478806281)
-- [Roma](https://apps.apple.com/de/app/roma-for-pleroma-and-mastodon/id1445328699)
-- [StarPterano](https://apps.apple.com/de/app/starpterano/id1436972796) Uses an OAuth method where you have to manually copy and paste the provided code.
-- [Stella](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048?l=ms)
-- [Tooot](https://tooot.app/)
-- [Tootle](https://apps.apple.com/de/app/tootle-for-mastodon/id1236013466) entered hostname must match in upper/lower case. Currently crashes on "Status" type notifications.
-
-#### Desktop
-- [Whalebird](https://whalebird.social)
+For supported apps please have a look at the [FAQ](help/FAQ#clients)
 
 ### Unsupported apps
 
 #### Android
+
 - [Fedilab](https://framagit.org/tom79/fedilab) Automatically uses the legacy API, see issue: https://framagit.org/tom79/fedilab/-/issues/520
 - [Mammut](https://github.com/jamiesanson/Mammut) There are problems with the token request, see issue https://github.com/jamiesanson/Mammut/issues/19
 
 #### iOS
+
 - [Mast](https://github.com/Beesitech/Mast) Doesn't accept the entered instance name. Claims that it is invalid (Message is: "Not a valid instance (may be closed or dead)")
 - [Toot!](https://apps.apple.com/app/toot/id1229021451)
 
-#### Other
+#### Desktop
 
 - [Halycon](https://www.halcyon.social/) Doesn't load content, creates masses of HTTP requests
 - [Mastonaut](https://mastonaut.app/)

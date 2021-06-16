@@ -164,9 +164,13 @@ return [
 		// Comma separated list of tags that are rejected.
 		'relay_deny_tags' => '',
 
-		// relay_server (String)
-		// Address of the relay server where public posts should be send to.
-		'relay_server' => 'https://social-relay.isurf.ca',
+		// relay_directly (Boolean)
+		// Directly transmit content to relay subscribers without using a relay server
+		'relay_directly' => false,
+
+		// relay_scope (SR_SCOPE_NONE, SR_SCOPE_TAGS or SR_SCOPE_ALL)
+		// Defines the scope of accepted posts from the relay servers
+		'relay_scope' => SR_SCOPE_NONE,
 
 		// relay_server_tags (String)
 		// Comma separated list of tags for the "tags" subscription.
