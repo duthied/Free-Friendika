@@ -151,6 +151,7 @@ class ActivityPub
 		$profile['outbox'] = $apcontact['outbox'];
 		$profile['sharedinbox'] = $apcontact['sharedinbox'];
 		$profile['photo'] = $apcontact['photo'];
+		$profile['header'] = $apcontact['header'];
 		$profile['account-type'] = self::getAccountType($apcontact);
 		$profile['community'] = ($profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY);
 		// $profile['keywords']

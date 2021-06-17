@@ -211,6 +211,11 @@ class APContact
 			$apcontact['photo'] = JsonLD::fetchElement($compacted['as:icon'], 'as:url', '@id');
 		}
 
+		$apcontact['header'] = JsonLD::fetchElement($compacted, 'as:image', '@id');
+		if (is_array($apcontact['header']) || !empty($compacted['as:image']['as:url']['@id'])) {
+			$apcontact['header'] = JsonLD::fetchElement($compacted['as:image'], 'as:url', '@id');
+		}
+
 		if (empty($apcontact['alias'])) {
 			$apcontact['alias'] = JsonLD::fetchElement($compacted, 'as:url', '@id');
 			if (is_array($apcontact['alias'])) {

@@ -114,9 +114,8 @@ class Account extends BaseDataTransferObject
 		$this->url             = $publicContact['url'];
 		$this->avatar          = $userContact['avatar'] ?? $publicContact['avatar'];
 		$this->avatar_static   = $userContact['avatar'] ?? $publicContact['avatar'];
-		// No header picture in Friendica
-		$this->header          = '';
-		$this->header_static   = '';
+		$this->header          = ($userContact['header'] ?? $publicContact['header']) ?? '';
+		$this->header_static   = ($userContact['header'] ?? $publicContact['header']) ?? '';
 		$this->followers_count = $apcontact['followers_count'] ?? 0;
 		$this->following_count = $apcontact['following_count'] ?? 0;
 		$this->statuses_count  = $apcontact['statuses_count'] ?? 0;
