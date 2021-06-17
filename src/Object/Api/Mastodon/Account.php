@@ -115,7 +115,7 @@ class Account extends BaseDataTransferObject
 		$this->url             = $publicContact['url'];
 		$this->avatar          = ($userContact['photo'] ?? $publicContact['photo']) ?: Proxy::proxifyUrl($userContact['avatar'] ?? $publicContact['avatar']);
 		$this->avatar_static   = $this->avatar;
-		$this->header          = Proxy::proxifyUrl(($userContact['header'] ?? $publicContact['header']) ?? '');
+		$this->header          = Proxy::proxifyUrl($userContact['header'] ?? $publicContact['header'] ?? '');
 		$this->header_static   = $this->header;
 		$this->followers_count = $apcontact['followers_count'] ?? 0;
 		$this->following_count = $apcontact['following_count'] ?? 0;
