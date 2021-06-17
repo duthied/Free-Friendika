@@ -283,24 +283,17 @@ class Profile
 	}
 
 	/**
-	 * Get all profile data of a local user
-	 *
-	 * If the viewer is an authenticated remote viewer, the profile displayed is the
-	 * one that has been configured for his/her viewing in the Contact manager.
-	 * Passing a non-zero profile ID can also allow a preview of a selected profile
-	 * by the owner
+	 * Get the profile for the given nick name
 	 *
 	 * Includes all available profile data
 	 *
 	 * @param string $nickname   nick
-	 * @param int    $uid        uid
-	 * @param int    $profile_id ID of the profile
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getByNickname($nickname, $uid = 0)
+	public static function getByNickname($nickname)
 	{
-		$profile = DBA::selectFirst('owner-view', [], ['nickname' => $nickname, 'uid' => $uid]);
+		$profile = DBA::selectFirst('owner-view', [], ['nickname' => $nickname]);
 		return $profile;
 	}
 

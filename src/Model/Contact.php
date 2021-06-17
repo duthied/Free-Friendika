@@ -1103,7 +1103,7 @@ class Contact
 		if (($uid == 0) && (empty($data['network']) || ($data['network'] == Protocol::PHANTOM))) {
 			// Fetch data for the public contact via the first found personal contact
 			/// @todo Check if this case can happen at all (possibly with mail accounts?)
-			$fields = ['name', 'nick', 'url', 'addr', 'alias', 'avatar', 'contact-type',
+			$fields = ['name', 'nick', 'url', 'addr', 'alias', 'avatar', 'header', 'contact-type',
 				'keywords', 'location', 'about', 'unsearchable', 'batch', 'notify', 'poll',
 				'request', 'confirm', 'poco', 'subscribe', 'network', 'baseurl', 'gsid'];
 
@@ -1949,8 +1949,8 @@ class Contact
 		// These fields aren't updated by this routine:
 		// 'xmpp', 'sensitive'
 
-		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe', 'manually-approve',
-			'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
+		$fields = ['uid', 'avatar', 'header', 'name', 'nick', 'location', 'keywords', 'about', 'subscribe',
+			'manually-approve', 'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
 			'network', 'alias', 'baseurl', 'gsid', 'forum', 'prv', 'contact-type', 'pubkey', 'last-item'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {

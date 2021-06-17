@@ -21,6 +21,7 @@ Fields
 | name             |                              | varchar(255)   | YES  |     | NULL                |       |
 | about            |                              | text           | YES  |     | NULL                |       |
 | photo            |                              | varchar(255)   | YES  |     | NULL                |       |
+| header           | Header picture               | varchar(255)   | YES  |     | NULL                |       |
 | addr             |                              | varchar(255)   | YES  |     | NULL                |       |
 | alias            |                              | varchar(255)   | YES  |     | NULL                |       |
 | pubkey           |                              | text           | YES  |     | NULL                |       |

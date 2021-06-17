@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1422);
+	define('DB_UPDATE_VERSION', 1423);
 }
 
 return [
@@ -177,6 +177,7 @@ return [
 			"photo" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo of the contact"],
 			"thumb" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo (thumb size)"],
 			"micro" => ["type" => "varchar(255)", "default" => "", "comment" => "Link to the profile photo (micro size)"],
+			"header" => ["type" => "varchar(255)", "comment" => "Header picture"],
 			"site-pubkey" => ["type" => "text", "comment" => ""],
 			"issued-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -404,6 +405,7 @@ return [
 			"name" => ["type" => "varchar(255)", "comment" => ""],
 			"about" => ["type" => "text", "comment" => ""],
 			"photo" => ["type" => "varchar(255)", "comment" => ""],
+			"header" => ["type" => "varchar(255)", "comment" => "Header picture"],
 			"addr" => ["type" => "varchar(255)", "comment" => ""],
 			"alias" => ["type" => "varchar(255)", "comment" => ""],
 			"pubkey" => ["type" => "text", "comment" => ""],

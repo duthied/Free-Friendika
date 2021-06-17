@@ -50,7 +50,7 @@ class NoScrape extends BaseModule
 			System::jsonError(403, 'Authentication required');
 		}
 
-		$profile = Profile::getByNickname($which, local_user());
+		$profile = Profile::getByNickname($which);
 
 		if (empty($profile['uid'])) {
 			System::jsonError(404, 'Profile not found');

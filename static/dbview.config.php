@@ -723,6 +723,7 @@
 			"photo" => ["contact", "photo"],
 			"thumb" => ["contact", "thumb"],
 			"micro" => ["contact", "micro"],
+			"header" => ["contact", "header"],
 			"site-pubkey" => ["contact", "site-pubkey"],
 			"issued-id" => ["contact", "issued-id"],
 			"dfrn-id" => ["contact", "dfrn-id"],

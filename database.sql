@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.06-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1422
+-- DB_UPDATE_VERSION 1423
 -- ------------------------------------------
 
 
@@ -120,6 +120,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`photo` varchar(255) DEFAULT '' COMMENT 'Link to the profile photo of the contact',
 	`thumb` varchar(255) DEFAULT '' COMMENT 'Link to the profile photo (thumb size)',
 	`micro` varchar(255) DEFAULT '' COMMENT 'Link to the profile photo (micro size)',
+	`header` varchar(255) COMMENT 'Header picture',
 	`site-pubkey` text COMMENT '',
 	`issued-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`dfrn-id` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -343,6 +344,7 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	`name` varchar(255) COMMENT '',
 	`about` text COMMENT '',
 	`photo` varchar(255) COMMENT '',
+	`header` varchar(255) COMMENT 'Header picture',
 	`addr` varchar(255) COMMENT '',
 	`alias` varchar(255) COMMENT '',
 	`pubkey` text COMMENT '',
@@ -2256,6 +2258,7 @@ CREATE VIEW `owner-view` AS SELECT
 	`contact`.`photo` AS `photo`,
 	`contact`.`thumb` AS `thumb`,
 	`contact`.`micro` AS `micro`,
+	`contact`.`header` AS `header`,
 	`contact`.`site-pubkey` AS `site-pubkey`,
 	`contact`.`issued-id` AS `issued-id`,
 	`contact`.`dfrn-id` AS `dfrn-id`,

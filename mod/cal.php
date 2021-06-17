@@ -67,7 +67,7 @@ function cal_init(App $a)
 		return;
 	}
 
-	$a->profile = Profile::getByNickname($nick, $a->profile_uid);
+	$a->profile = Profile::getByNickname($nick);
 	if (empty($a->profile)) {
 		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 	}

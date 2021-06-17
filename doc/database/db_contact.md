@@ -30,6 +30,7 @@ Fields
 | photo                     | Link to the profile photo of the contact                  | varchar(255)       | YES  |     |                     |                |
 | thumb                     | Link to the profile photo (thumb size)                    | varchar(255)       | YES  |     |                     |                |
 | micro                     | Link to the profile photo (micro size)                    | varchar(255)       | YES  |     |                     |                |
+| header                    | Header picture                                            | varchar(255)       | YES  |     | NULL                |                |
 | site-pubkey               |                                                           | text               | YES  |     | NULL                |                |
 | issued-id                 |                                                           | varchar(255)       | NO   |     |                     |                |
 | dfrn-id                   |                                                           | varchar(255)       | NO   |     |                     |                |
