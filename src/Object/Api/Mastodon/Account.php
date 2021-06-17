@@ -28,6 +28,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Proxy;
 
 /**
  * Class Account
@@ -112,10 +113,10 @@ class Account extends BaseDataTransferObject
 
 		$this->note            = BBCode::convert($publicContact['about'], false);
 		$this->url             = $publicContact['url'];
-		$this->avatar          = $userContact['avatar'] ?? $publicContact['avatar'];
-		$this->avatar_static   = $userContact['avatar'] ?? $publicContact['avatar'];
-		$this->header          = ($userContact['header'] ?? $publicContact['header']) ?? '';
-		$this->header_static   = ($userContact['header'] ?? $publicContact['header']) ?? '';
+		$this->avatar          = ($userContact['photo'] ?? $publicContact['photo']) ?: Proxy::proxifyUrl($userContact['avatar'] ?? $publicContact['avatar']);
+		$this->avatar_static   = $this->avatar;
+		$this->header          = Proxy::proxifyUrl(($userContact['header'] ?? $publicContact['header']) ?? '');
+		$this->header_static   = $this->header;
 		$this->followers_count = $apcontact['followers_count'] ?? 0;
 		$this->following_count = $apcontact['following_count'] ?? 0;
 		$this->statuses_count  = $apcontact['statuses_count'] ?? 0;
