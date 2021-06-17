@@ -608,7 +608,7 @@ class Transmitter
 							// But comments to forums aren't directed to the followers collection
 							// This rule is only valid when the actor isn't the forum.
 							// The forum needs to transmit their content to their followers.
-							if (($profile['type'] == 'Group') && ($profile['url'] != $actor_profile['url'])) {
+							if (($profile['type'] == 'Group') && ($profile['url'] != ($actor_profile['url'] ?? ''))) {
 								$data['to'][] = $profile['url'];
 							} else {
 								$data['cc'][] = $profile['url'];
