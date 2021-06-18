@@ -24,9 +24,9 @@ namespace Friendica\Object\Api\Mastodon;
 use Friendica\BaseDataTransferObject;
 
 /**
- * Class Error
+ * Class Token
  *
- * @see https://docs.joinmastodon.org/entities/error
+ * @see https://docs.joinmastodon.org/entities/token/
  */
 class Token extends BaseDataTransferObject
 {
