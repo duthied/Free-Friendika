@@ -22,7 +22,6 @@
 namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\BaseDataTransferObject;
-use Friendica\Util\DateTimeFormat;
 
 /**
  * Class Error
