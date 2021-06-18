@@ -200,6 +200,7 @@ Here is a list of known working clients:
 * [Tooot](https://tooot.app/)
 * [Tusky](https://tusky.app)
 * [Twidere](https://dimension.im/) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.mariotaku.twidere), [Google Play](https://play.google.com/store/apps/details?id=com.twidere.twiderex), [GitHub](https://github.com/TwidereProject/Twidere-Android))
+* [TwidereX](https://github.com/TwidereProject/TwidereX-Android)
 * [twitlatte](https://github.com/moko256/twitlatte)
 * [Yuito](https://github.com/accelforce/Yuito)
 
