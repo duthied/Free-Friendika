@@ -58,8 +58,8 @@ class Context extends BaseApi
 		$parents  = [];
 		$children = [];
 
-		$posts = Post::select(['uri-id', 'thr-parent-id'],
-			['parent-uri-id' => $parent['parent-uri-id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]], [], false);
+		$posts = Post::selectPosts(['uri-id', 'thr-parent-id'],
+			['parent-uri-id' => $parent['parent-uri-id'], 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]], []);
 		while ($post = Post::fetch($posts)) {
 			if ($post['uri-id'] == $post['thr-parent-id']) {
 				continue;
