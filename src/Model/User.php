@@ -1505,6 +1505,10 @@ class User
 	 */
 	public static function identities($uid)
 	{
+		if (empty($uid)) {
+			return [];
+		}
+
 		$identities = [];
 
 		$user = DBA::selectFirst('user', ['uid', 'nickname', 'username', 'parent-uid'], ['uid' => $uid]);

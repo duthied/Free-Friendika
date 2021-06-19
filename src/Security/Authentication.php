@@ -342,8 +342,10 @@ class Authentication
 			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $user_record['uid']]);
 
 			// Set the login date for all identities of the user
-			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()],
-				['parent-uid' => $masterUid, 'account_removed' => false]);
+			if (!empty($masterUid)) {
+				$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()],
+					['parent-uid' => $masterUid, 'account_removed' => false]);
+			}
 		}
 
 		if ($login_initial) {
