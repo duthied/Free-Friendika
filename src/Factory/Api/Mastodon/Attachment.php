@@ -76,7 +76,7 @@ class Attachment extends BaseFactory
 					$preview = Proxy::proxifyUrl($attachment['url'], false, Proxy::SIZE_SMALL);
 				}
 			} else {
-				$url     = Proxy::proxifyUrl($attachment['url     ']);
+				$url     = Proxy::proxifyUrl($attachment['url']);
 				$preview = Proxy::proxifyUrl($attachment['preview'] ?? '');
 			}
 
