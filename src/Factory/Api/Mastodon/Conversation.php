@@ -22,13 +22,33 @@
 namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\BaseFactory;
-use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\Database\Database;
 use Friendica\Model\Contact;
+use Friendica\Network\HTTPException;
+use ImagickException;
+use Psr\Log\LoggerInterface;
 
 class Conversation extends BaseFactory
 {
-	public function CreateFromConvId(int $id)
+	/** @var Database */
+	private $dba;
+	/** @var Status */
+	private $mstdnStatusFactory;
+	/** @var Account */
+	private $mstdnAccountFactory;
+
+	public function __construct(LoggerInterface $logger, Database $dba, Status $mstdnStatusFactory, Account $mstdnAccountFactoryFactory)
+	{
+		parent::__construct($logger);
+		$this->dba                 = $dba;
+		$this->mstdnStatusFactory  = $mstdnStatusFactory;
+		$this->mstdnAccountFactory = $mstdnAccountFactoryFactory;
+	}
+
+	/**
+	 * @throws ImagickException|HTTPException\InternalServerErrorException|HTTPException\NotFoundException
+	 */
+	public function CreateFromConvId(int $id): \Friendica\Object\Api\Mastodon\Conversation
 	{
 		$accounts    = [];
 		$unread      = false;
@@ -36,8 +56,8 @@ class Conversation extends BaseFactory
 
 		$ids = [];
 
-		$mails = DBA::select('mail', ['id', 'from-url', 'uid', 'seen'], ['convid' => $id], ['order' => ['id' => true]]);
-		while ($mail = DBA::fetch($mails)) {
+		$mails = $this->dba->select('mail', ['id', 'from-url', 'uid', 'seen'], ['convid' => $id], ['order' => ['id' => true]]);
+		while ($mail = $this->dba->fetch($mails)) {
 			if (!$mail['seen']) {
 				$unread = true;
 			}
@@ -50,10 +70,10 @@ class Conversation extends BaseFactory
 			$ids[] = $id;
 
 			if (empty($last_status)) {
-				$last_status = DI::mstdnStatus()->createFromMailId($mail['id']);
+				$last_status = $this->mstdnStatusFactory->createFromMailId($mail['id']);
 			}
 
-			$accounts[] = DI::mstdnAccount()->createFromContactId($id, 0);
+			$accounts[] = $this->mstdnAccountFactory->createFromContactId($id, 0);
 		}
 
 		return new \Friendica\Object\Api\Mastodon\Conversation($id, $accounts, $unread, $last_status);

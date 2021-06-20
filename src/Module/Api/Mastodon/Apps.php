@@ -80,6 +80,6 @@ class Apps extends BaseApi
 			DI::mstdnError()->InternalError();
 		}
 
-		System::jsonExit(DI::mstdnApplication()->createFromApplicationId(DBA::lastInsertId()));
+		System::jsonExit(DI::mstdnApplication()->createFromApplicationId(DBA::lastInsertId())->toArray());
 	}
 }

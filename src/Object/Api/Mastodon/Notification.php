@@ -21,7 +21,9 @@
 
 namespace Friendica\Object\Api\Mastodon;
 
+use Exception;
 use Friendica\BaseDataTransferObject;
+use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -45,8 +47,7 @@ class Notification extends BaseDataTransferObject
 	/**
 	 * Creates a notification record
 	 *
-	 * @param array   $item
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HttpException\InternalServerErrorException|Exception
 	 */
 	public function __construct(int $id, string $type, string $created_at, Account $account = null, Status $status = null)
 	{

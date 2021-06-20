@@ -27,12 +27,13 @@ use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Introduction;
 use Friendica\Network\HTTPException;
+use ImagickException;
 use Psr\Log\LoggerInterface;
 
 class FollowRequest extends BaseFactory
 {
 	/** @var BaseURL */
-	protected $baseUrl;
+	private $baseUrl;
 
 	public function __construct(LoggerInterface $logger, BaseURL $baseURL)
 	{
@@ -44,10 +45,9 @@ class FollowRequest extends BaseFactory
 	/**
 	 * @param Introduction $introduction
 	 * @return \Friendica\Object\Api\Mastodon\FollowRequest
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
+	 * @throws ImagickException|HTTPException\InternalServerErrorException
 	 */
-	public function createFromIntroduction(Introduction $introduction)
+	public function createFromIntroduction(Introduction $introduction): \Friendica\Object\Api\Mastodon\FollowRequest
 	{
 		$cdata = Contact::getPublicAndUserContacID($introduction->{'contact-id'}, $introduction->uid);
 
@@ -57,10 +57,10 @@ class FollowRequest extends BaseFactory
 		}
 
 		$publicContact = Contact::getById($cdata['public']);
-		$userContact = Contact::getById($cdata['user']);
+		$userContact   = Contact::getById($cdata['user']);
 
-		$apcontact = APContact::getByURL($publicContact['url'], false);
+		$apContact = APContact::getByURL($publicContact['url'], false);
 
-		return new \Friendica\Object\Api\Mastodon\FollowRequest($this->baseUrl, $introduction->id, $publicContact, $apcontact, $userContact);
+		return new \Friendica\Object\Api\Mastodon\FollowRequest($this->baseUrl, $introduction->id, $publicContact, $apContact, $userContact);
 	}
 }

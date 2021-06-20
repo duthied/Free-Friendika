@@ -21,46 +21,59 @@
 
 namespace Friendica\Factory\Api\Mastodon;
 
-use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Text\BBCode;
-use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\Database\Database;
 use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
-use Friendica\Repository\ProfileField;
+use ImagickException;
 use Psr\Log\LoggerInterface;
 
 class Status extends BaseFactory
 {
-	/** @var BaseURL */
-	protected $baseUrl;
-	/** @var ProfileField */
-	protected $profileField;
-	/** @var Field */
-	protected $mstdnField;
+	/** @var Database */
+	private $dba;
+	/** @var Account */
+	private $mstdnAccountFactory;
+	/** @var Mention */
+	private $mstdnMentionFactory;
+	/** @var Tag */
+	private $mstdnTagFactory;
+	/** @var Card */
+	private $mstdnCardFactory;
+	/** @var Attachment */
+	private $mstdnAttachementFactory;
+	/** @var Error */
+	private $mstdnErrorFactory;
 
-	public function __construct(LoggerInterface $logger, BaseURL $baseURL, ProfileField $profileField, Field $mstdnField)
+	public function __construct(LoggerInterface $logger, Database $dba,
+		Account $mstdnAccountFactory, Mention $mstdnMentionFactory,
+		Tag $mstdnTagFactory, Card $mstdnCardFactory,
+		Attachment $mstdnAttachementFactory, Error $mstdnErrorFactory)
 	{
 		parent::__construct($logger);
-
-		$this->baseUrl = $baseURL;
-		$this->profileField = $profileField;
-		$this->mstdnField = $mstdnField;
+		$this->dba                     = $dba;
+		$this->mstdnAccountFactory     = $mstdnAccountFactory;
+		$this->mstdnMentionFactory     = $mstdnMentionFactory;
+		$this->mstdnTagFactory         = $mstdnTagFactory;
+		$this->mstdnCardFactory        = $mstdnCardFactory;
+		$this->mstdnAttachementFactory = $mstdnAttachementFactory;
+		$this->mstdnErrorFactory       = $mstdnErrorFactory;
 	}
 
 	/**
 	 * @param int $uriId Uri-ID of the item
 	 * @param int $uid   Item user
+	 *
 	 * @return \Friendica\Object\Api\Mastodon\Status
 	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
+	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromUriId(int $uriId, $uid = 0)
+	public function createFromUriId(int $uriId, $uid = 0): \Friendica\Object\Api\Mastodon\Status
 	{
 		$fields = ['uri-id', 'uid', 'author-id', 'author-link', 'starred', 'app', 'title', 'body', 'raw-body', 'created', 'network',
 			'thr-parent-id', 'parent-author-id', 'language', 'uri', 'plink', 'private', 'vid', 'gravity'];
@@ -69,29 +82,53 @@ class Status extends BaseFactory
 			throw new HTTPException\NotFoundException('Item with URI ID ' . $uriId . 'not found' . ($uid ? ' for user ' . $uid : '.'));
 		}
 
-		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
+		$account = $this->mstdnAccountFactory->createFromContactId($item['author-id']);
 
 		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts(
 			Post::countPosts(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_COMMENT, 'deleted' => false], []),
-			Post::countPosts(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE), 'deleted' => false], []),
-			Post::countPosts(['thr-parent-id' => $uriId, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE), 'deleted' => false], [])
+			Post::countPosts([
+				'thr-parent-id' => $uriId,
+				'gravity'       => GRAVITY_ACTIVITY,
+				'vid'           => Verb::getID(Activity::ANNOUNCE),
+				'deleted'       => false
+			], []),
+			Post::countPosts([
+				'thr-parent-id' => $uriId,
+				'gravity'       => GRAVITY_ACTIVITY,
+				'vid'           => Verb::getID(Activity::LIKE),
+				'deleted'       => false
+			], [])
 		);
 
 		$userAttributes = new \Friendica\Object\Api\Mastodon\Status\UserAttributes(
-			Post::exists(['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::LIKE), 'deleted' => false]),
-			Post::exists(['thr-parent-id' => $uriId, 'uid' => $uid, 'origin' => true, 'gravity' => GRAVITY_ACTIVITY, 'vid' => Verb::getID(Activity::ANNOUNCE), 'deleted' => false]),
+			Post::exists([
+				'thr-parent-id' => $uriId,
+				'uid'           => $uid,
+				'origin'        => true,
+				'gravity'       => GRAVITY_ACTIVITY,
+				'vid'           => Verb::getID(Activity::LIKE)
+				, 'deleted'     => false
+			]),
+			Post::exists([
+				'thr-parent-id' => $uriId,
+				'uid'           => $uid,
+				'origin'        => true,
+				'gravity'       => GRAVITY_ACTIVITY,
+				'vid'           => Verb::getID(Activity::ANNOUNCE),
+				'deleted'       => false
+			]),
 			Post\ThreadUser::getIgnored($uriId, $uid),
 			(bool)($item['starred'] && ($item['gravity'] == GRAVITY_PARENT)),
 			Post\ThreadUser::getPinned($uriId, $uid)
 		);
 
-		$sensitive = DBA::exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw']);
+		$sensitive   = $this->dba->exists('tag-view', ['uri-id' => $uriId, 'name' => 'nsfw']);
 		$application = new \Friendica\Object\Api\Mastodon\Application($item['app'] ?: ContactSelector::networkToName($item['network'], $item['author-link']));
 
-		$mentions    = DI::mstdnMention()->createFromUriId($uriId);
-		$tags        = DI::mstdnTag()->createFromUriId($uriId);
-		$card        = DI::mstdnCard()->createFromUriId($uriId);
-		$attachments = DI::mstdnAttachment()->createFromUriId($uriId);
+		$mentions    = $this->mstdnMentionFactory->createFromUriId($uriId)->getArrayCopy();
+		$tags        = $this->mstdnTagFactory->createFromUriId($uriId);
+		$card        = $this->mstdnCardFactory->createFromUriId($uriId);
+		$attachments = $this->mstdnAttachementFactory->createFromUriId($uriId);
 
 		$shared = BBCode::fetchShareAttributes($item['body']);
 		if (!empty($shared['guid'])) {
@@ -99,21 +136,21 @@ class Status extends BaseFactory
 
 			$shared_uri_id = $shared_item['uri-id'] ?? 0;
 
-			$mentions    = array_merge($mentions, DI::mstdnMention()->createFromUriId($shared_uri_id));
-			$tags        = array_merge($tags, DI::mstdnTag()->createFromUriId($shared_uri_id));
-			$attachments = array_merge($attachments, DI::mstdnAttachment()->createFromUriId($shared_uri_id));
+			$mentions    = array_merge($mentions, $this->mstdnMentionFactory->createFromUriId($shared_uri_id)->getArrayCopy());
+			$tags        = array_merge($tags, $this->mstdnTagFactory->createFromUriId($shared_uri_id));
+			$attachments = array_merge($attachments, $this->mstdnAttachementFactory->createFromUriId($shared_uri_id));
 
 			if (empty($card->toArray())) {
-				$card = DI::mstdnCard()->createFromUriId($shared_uri_id);
+				$card = $this->mstdnCardFactory->createFromUriId($shared_uri_id);
 			}
 		}
 
 
 		if ($item['vid'] == Verb::getID(Activity::ANNOUNCE)) {
-			$reshare = $this->createFromUriId($item['thr-parent-id'], $uid)->toArray();
-			$reshared_item = Post::selectFirst(['title', 'body'], ['uri-id' => $item['thr-parent-id'], 'uid' => [0, $uid]]);
+			$reshare       = $this->createFromUriId($item['thr-parent-id'], $uid)->toArray();
+			$reshared_item = Post::selectFirst(['title', 'body'], ['uri-id' => $item['thr-parent-id'],'uid' => [0, $uid]]);
 			$item['title'] = $reshared_item['title'] ?? $item['title'];
-			$item['body'] = $reshared_item['body'] ?? $item['body'];
+			$item['body']  = $reshared_item['body'] ?? $item['body'];
 		} else {
 			$reshare = [];
 		}
@@ -123,20 +160,21 @@ class Status extends BaseFactory
 
 	/**
 	 * @param int $uriId id of the mail
+	 *
 	 * @return \Friendica\Object\Api\Mastodon\Status
 	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
+	 * @throws ImagickException|HTTPException\NotFoundException
 	 */
-	public function createFromMailId(int $id)
+	public function createFromMailId(int $id): \Friendica\Object\Api\Mastodon\Status
 	{
 		$item = ActivityPub\Transmitter::ItemArrayFromMail($id, true);
 		if (empty($item)) {
-			DI::mstdnError()->RecordNotFound();
+			$this->mstdnErrorFactory->RecordNotFound();
 		}
 
-		$account = DI::mstdnAccount()->createFromContactId($item['author-id']);
+		$account = $this->mstdnAccountFactory->createFromContactId($item['author-id']);
 
-		$replies = DBA::count('mail', ['thr-parent-id' => $item['uri-id'], 'reply' => true]);
+		$replies = $this->dba->count('mail', ['thr-parent-id' => $item['uri-id'], 'reply' => true]);
 
 		$counts = new \Friendica\Object\Api\Mastodon\Status\Counts($replies, 0, 0);
 
