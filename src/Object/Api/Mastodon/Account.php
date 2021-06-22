@@ -26,6 +26,7 @@ use Friendica\BaseDataTransferObject;
 use Friendica\Collection\Api\Mastodon\Fields;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy;
@@ -115,7 +116,7 @@ class Account extends BaseDataTransferObject
 		$this->url             = $publicContact['url'];
 		$this->avatar          = ($userContact['photo'] ?? $publicContact['photo']) ?: Proxy::proxifyUrl($userContact['avatar'] ?? $publicContact['avatar']);
 		$this->avatar_static   = $this->avatar;
-		$this->header          = Proxy::proxifyUrl($userContact['header'] ?? $publicContact['header'] ?? '');
+		$this->header          = Proxy::proxifyUrl($userContact['header'] ?? $publicContact['header'] ?? '') ?: DI::baseUrl() . '/images/blank.png'; 
 		$this->header_static   = $this->header;
 		$this->followers_count = $apcontact['followers_count'] ?? 0;
 		$this->following_count = $apcontact['following_count'] ?? 0;

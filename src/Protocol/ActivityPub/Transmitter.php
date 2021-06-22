@@ -391,6 +391,14 @@ class Transmitter
 
 		if (!empty($contact['header'])) {
 			$data['image'] = ['type' => 'Image', 'url' => $contact['header']];
+
+			$resourceid = Photo::ridFromURI($contact['header']);
+			if (!empty($resourceid)) {
+				$photo = Photo::selectFirst(['type'], ["resource-id" => $resourceid]);
+				if (!empty($photo['type'])) {
+					$data['image']['mediaType'] = $photo['type'];
+				}
+			}
 		}
 
 		$data['generator'] = self::getService();
