@@ -379,8 +379,27 @@ class Transmitter
 			'owner' => $contact['url'],
 			'publicKeyPem' => $user['pubkey']];
 		$data['endpoints'] = ['sharedInbox' => DI::baseUrl() . '/inbox'];
-		$data['icon'] = ['type' => 'Image',
-			'url' => $contact['photo']];
+		$data['icon'] = ['type' => 'Image', 'url' => $contact['photo']];
+
+		$resourceid = Photo::ridFromURI($contact['photo']);
+		if (!empty($resourceid)) {
+			$photo = Photo::selectFirst(['type'], ["resource-id" => $resourceid]);
+			if (!empty($photo['type'])) {
+				$data['icon']['mediaType'] = $photo['type'];
+			}
+		}
+
+		if (!empty($contact['header'])) {
+			$data['image'] = ['type' => 'Image', 'url' => $contact['header']];
+
+			$resourceid = Photo::ridFromURI($contact['header']);
+			if (!empty($resourceid)) {
+				$photo = Photo::selectFirst(['type'], ["resource-id" => $resourceid]);
+				if (!empty($photo['type'])) {
+					$data['image']['mediaType'] = $photo['type'];
+				}
+			}
+		}
 
 		$data['generator'] = self::getService();
 
