@@ -65,7 +65,7 @@ Options
     -H|--dbhost <host>        The host of the mysql/mariadb database (env MYSQL_HOST)
     -p|--dbport <port>        The port of the mysql/mariadb database (env MYSQL_PORT)
     -d|--dbdata <database>    The name of the mysql/mariadb database (env MYSQL_DATABASE)
-    -U|--dbuser <username>    The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
+    -u|--dbuser <username>    The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
     -P|--dbpass <password>    The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
     -U|--url <url>            The full base URL of Friendica - f.e. 'https://friendica.local/sub' (env FRIENDICA_URL) 
     -B|--phppath <php_path>   The path of the PHP binary (env FRIENDICA_PHP_PATH)
@@ -162,7 +162,7 @@ HELP;
 				$this->getOption(['d', 'dbdata'],
 					($save_db) ? getenv('MYSQL_DATABASE') : ''));
 			$configCache->set('database', 'username',
-				$this->getOption(['U', 'dbuser'],
+				$this->getOption(['u', 'dbuser'],
 					($save_db) ? getenv('MYSQL_USER') . getenv('MYSQL_USERNAME') : ''));
 			$configCache->set('database', 'password',
 				$this->getOption(['P', 'dbpass'],
