@@ -443,6 +443,13 @@ function item_post(App $a) {
 			$postopts = '';
 		}
 
+		if (!$private_forum) {
+			$str_contact_allow = '';
+			$str_group_allow   = '';
+			$str_contact_deny  = '';
+			$str_group_deny    = '';
+		}
+
 		if ($private_forum || !APContact::getByURL($forum_contact['url'])) {
 			$str_group_allow = '';
 			$str_contact_deny = '';
