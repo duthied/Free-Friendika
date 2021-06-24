@@ -21,7 +21,7 @@
 
 namespace Friendica\Model\Storage;
 
-use \BadMethodCallException;
+use BadMethodCallException;
 use Friendica\DI;
 
 /**
