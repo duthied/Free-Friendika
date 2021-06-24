@@ -44,8 +44,12 @@ class Relationships extends BaseApi
 			'id' => [],
 		]);
 
-		if (empty($request['id']) || !is_array($request['id'])) {
+		if (empty($request['id'])) {
 			DI::mstdnError()->UnprocessableEntity();
+		}
+
+		if (!is_array($request['id'])) {
+			$request['id'] = [$request['id']];
 		}
 
 		$relationsships = [];

@@ -265,17 +265,35 @@ class Module
 			$logger->debug('index.php: page not found.', ['request_uri' => $server['REQUEST_URI'], 'address' => $server['REMOTE_ADDR'], 'query' => $server['QUERY_STRING']]);
 		}
 
+		// @see https://github.com/tootsuite/mastodon/blob/c3aef491d66aec743a3a53e934a494f653745b61/config/initializers/cors.rb
+		if (substr($_REQUEST['pagename'] ?? '', 0, 12) == '.well-known/') {
+			header('Access-Control-Allow-Origin: *');
+			header('Access-Control-Allow-Headers: *');
+			header('Access-Control-Allow-Methods: ' . Router::GET);
+			header('Access-Control-Allow-Credentials: false');
+		} elseif (substr($_REQUEST['pagename'] ?? '', 0, 8) == 'profile/') {
+			header('Access-Control-Allow-Origin: *');
+			header('Access-Control-Allow-Headers: *');
+			header('Access-Control-Allow-Methods: ' . Router::GET);
+			header('Access-Control-Allow-Credentials: false');
+		} elseif (substr($_REQUEST['pagename'] ?? '', 0, 4) == 'api/') {
+			header('Access-Control-Allow-Origin: *');
+			header('Access-Control-Allow-Headers: *');
+			header('Access-Control-Allow-Methods: ' . implode(',', Router::ALLOWED_METHODS));
+			header('Access-Control-Allow-Credentials: false');
+			header('Access-Control-Expose-Headers: Link');
+		} elseif (substr($_REQUEST['pagename'] ?? '', 0, 11) == 'oauth/token') {
+			header('Access-Control-Allow-Origin: *');
+			header('Access-Control-Allow-Headers: *');
+			header('Access-Control-Allow-Methods: ' . Router::POST);
+			header('Access-Control-Allow-Credentials: false');
+		}
+
 		// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS
 		// @todo Check allowed methods per requested path
 		if ($server['REQUEST_METHOD'] === Router::OPTIONS) {
 			header('HTTP/1.1 204 No Content');
 			header('Allow: ' . implode(',', Router::ALLOWED_METHODS));
-			// Deactivated until we know about possible side effects
-			// header('Access-Control-Allow-Credentials: true');
-			// header('Access-Control-Allow-Headers: Authorization,Content-Type');
-			// header('Access-Control-Allow-Methods: ' . implode(',', Router::ALLOWED_METHODS));
-			// header('Access-Control-Allow-Origin: ' . DI::baseUrl());
-			// header('Access-Control-Max-Age: 86400');
 			exit();
 		}
 
