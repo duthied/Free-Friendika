@@ -237,7 +237,7 @@ Here is a list of known working clients:
 
 Depending on the features of the client you might encounter some glitches in usability, like being limited in the length of your postings to 140 characters and having no access to the [permission settings](help/Groups-and-Privacy).
 
-#### Desktop
+#### Web Frontend
 
 - [Halcyon](https://www.halcyon.social/)
 - [Pinafore](https://github.com/nolanlawson/pinafore)

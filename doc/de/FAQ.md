@@ -247,7 +247,7 @@ Hier ist eine Liste von Clients, die speziell für Friendica entwickelt werden o
 
 * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) für Windows 10
 
-#### Desktop
+#### Web
 
 - [Halcyon](https://www.halcyon.social/)
 - [Pinafore](https://github.com/nolanlawson/pinafore)
