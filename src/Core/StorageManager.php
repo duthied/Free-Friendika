@@ -126,6 +126,9 @@ class StorageManager
 					case Storage\SystemResource::getName():
 						$this->backendInstances[$name] = new Storage\SystemResource();
 						break;
+					case Storage\ExternalResource::getName():
+						$this->backendInstances[$name] = new Storage\ExternalResource();
+						break;
 					default:
 						$data = [
 							'name'    => $name,
@@ -158,7 +161,7 @@ class StorageManager
 	public function isValidBackend(string $name = null, bool $onlyUserBackend = false)
 	{
 		return array_key_exists($name, $this->backends) ||
-		       (!$onlyUserBackend && $name === Storage\SystemResource::getName());
+		       (!$onlyUserBackend && in_array($name, [Storage\SystemResource::getName(), Storage\ExternalResource::getName()]));
 	}
 
 	/**

@@ -1614,7 +1614,7 @@ class Contact
 	 *
 	 * @param array $contact  contact array
 	 * @param string $size    Size of the avatar picture
-	 * @return void
+	 * @return string avatar URL
 	 */
 	public static function getDefaultAvatar(array $contact, string $size)
 	{

@@ -44,11 +44,6 @@ class Photo extends BaseModule
 	public static function rawContent(array $parameters = [])
 	{
 		$totalstamp = microtime(true);
-		$a = DI::app();
-		// @TODO: Replace with parameter from router
-		if ($a->argc <= 1 || $a->argc > 4) {
-			throw new \Friendica\Network\HTTPException\BadRequestException();
-		}
 
 		if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
 			header("HTTP/1.1 304 Not Modified");
@@ -69,30 +64,27 @@ class Photo extends BaseModule
 		$customsize = 0;
 		$photo = false;
 		$scale = null;
-		// @TODO: Replace with parameter from router
 		$stamp = microtime(true);
-		switch($a->argc) {
-			case 4:
-				$customsize = intval($a->argv[2]);
-				$uid = MPhoto::stripExtension($a->argv[3]);
-				$photo = self::getAvatar($uid, $a->argv[1]);
-				break;
-			case 3:
-				$uid = MPhoto::stripExtension($a->argv[2]);
-				$photo = self::getAvatar($uid, $a->argv[1]);
-				break;
-			case 2:
-				$photoid = MPhoto::stripExtension($a->argv[1]);
-				$scale = 0;
-				if (substr($photoid, -2, 1) == "-") {
-					$scale = intval(substr($photoid, -1, 1));
-					$photoid = substr($photoid, 0, -2);
-				}
-				$photo = MPhoto::getPhoto($photoid, $scale);
-				if ($photo === false) {
-					throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('The Photo with id %s is not available.', $photoid));
-				}
-				break;
+		if (!empty($parameters['customsize'])) {
+			$customsize = intval($parameters['customsize']);
+			$uid = MPhoto::stripExtension($parameters['name']);
+			$photo = self::getAvatar($uid, $parameters['type']);
+		} elseif (!empty($parameters['type'])) {
+			$uid = MPhoto::stripExtension($parameters['name']);
+			$photo = self::getAvatar($uid, $parameters['type']);
+		} elseif (!empty($parameters['name'])) {
+			$photoid = MPhoto::stripExtension($parameters['name']);
+			$scale = 0;
+			if (substr($photoid, -2, 1) == "-") {
+				$scale = intval(substr($photoid, -1, 1));
+				$photoid = substr($photoid, 0, -2);
+			}
+			$photo = MPhoto::getPhoto($photoid, $scale);
+			if ($photo === false) {
+				throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('The Photo with id %s is not available.', $photoid));
+			}
+		} else {
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 		$fetch = microtime(true) - $stamp;
 
@@ -160,6 +152,36 @@ class Photo extends BaseModule
 	private static function getAvatar($uid, $type="avatar")
 	{
 		switch($type) {
+			case "contact":
+				$contact = Contact::getById($uid, ['uid', 'url', 'avatar', 'photo']);
+				if (empty($contact)) {
+					return false;
+				}
+				If (($contact['uid'] != 0) && empty($contact['photo']) && empty($contact['avatar'])) {
+					$contact = Contact::getByURL($contact['url'], false, ['avatar', 'photo']);
+				}
+				if (!empty($contact['photo'])) {
+					$url = $contact['photo'];
+				} elseif (!empty($contact['avatar'])) {
+					$url = $contact['avatar'];
+				} else {
+					$url = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
+				}
+				return MPhoto::createPhotoForExternalResource($url);
+			case "header":
+				$contact = Contact::getById($uid, ['uid', 'url', 'header']);
+				if (empty($contact)) {
+					return false;
+				}
+				If (($contact['uid'] != 0) && empty($contact['header'])) {
+					$contact = Contact::getByURL($contact['url'], false, ['header']);
+				}
+				if (!empty($contact['header'])) {
+					$url = $contact['header'];
+				} else {
+					$url = DI::baseUrl() . '/images/blank.png';
+				}
+				return MPhoto::createPhotoForExternalResource($url);
 			case "profile":
 			case "custom":
 				$scale = 4;
@@ -189,7 +211,12 @@ class Photo extends BaseModule
 					$default = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
 			}
 	
-			$photo = MPhoto::createPhotoForSystemResource($default);
+			$parts = parse_url($default);
+			if (!empty($parts['scheme']) || !empty($parts['host'])) {
+				$photo = MPhoto::createPhotoForExternalResource($default);
+			} else {
+				$photo = MPhoto::createPhotoForSystemResource($default);
+			}
 		}
 		return $photo;
 	}

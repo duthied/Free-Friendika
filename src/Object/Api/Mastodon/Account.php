@@ -29,7 +29,6 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Proxy;
 
 /**
  * Class Account
@@ -114,9 +113,9 @@ class Account extends BaseDataTransferObject
 
 		$this->note            = BBCode::convert($publicContact['about'], false);
 		$this->url             = $publicContact['url'];
-		$this->avatar          = ($userContact['photo'] ?? $publicContact['photo']) ?: Proxy::proxifyUrl($userContact['avatar'] ?? $publicContact['avatar']);
+		$this->avatar          = (($userContact['photo'] ?? '') ?: $publicContact['photo']) ?: DI::baseUrl() . '/photo/contact/'. (($userContact['id'] ?? 0) ?: $publicContact['id']);
 		$this->avatar_static   = $this->avatar;
-		$this->header          = Proxy::proxifyUrl($userContact['header'] ?? $publicContact['header'] ?? '') ?: DI::baseUrl() . '/images/blank.png'; 
+		$this->header          = DI::baseUrl() . '/photo/header/'. (($userContact['id'] ?? 0) ?: $publicContact['id']);
 		$this->header_static   = $this->header;
 		$this->followers_count = $apcontact['followers_count'] ?? 0;
 		$this->following_count = $apcontact['following_count'] ?? 0;

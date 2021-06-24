@@ -363,9 +363,9 @@ return [
 	'/permission/tooltip/{type}/{id:\d+}' => [Module\PermissionTooltip::class, [R::GET]],
 
 	'/photo' => [
-		'/{name}'                    => [Module\Photo::class, [R::GET]],
-		'/{type}/{name}'             => [Module\Photo::class, [R::GET]],
-		'/{type}/{customize}/{name}' => [Module\Photo::class, [R::GET]],
+		'/{name}'                     => [Module\Photo::class, [R::GET]],
+		'/{type}/{name}'              => [Module\Photo::class, [R::GET]],
+		'/{type}/{customsize}/{name}' => [Module\Photo::class, [R::GET]],
 	],
 
 	'/pretheme'          => [Module\ThemeDetails::class, [R::GET]],
