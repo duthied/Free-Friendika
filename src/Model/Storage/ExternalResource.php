@@ -22,33 +22,34 @@
 namespace Friendica\Model\Storage;
 
 use \BadMethodCallException;
+use Friendica\DI;
 
 /**
- * System resource storage class
+ * External resource storage class
  *
- * This class is used to load system resources, like images.
+ * This class is used to load external resources, like images.
  * Is not intended to be selectable by admins as default storage class.
  */
-class SystemResource implements IStorage
+class ExternalResource implements IStorage
 {
-	const NAME = 'SystemResource';
-
-	// Valid folders to look for resources
-	const VALID_FOLDERS = ["images"];
+	const NAME = 'ExternalResource';
 
 	/**
 	 * @inheritDoc
 	 */
 	public function get(string $filename)
 	{
-		$folder = dirname($filename);
-		if (!in_array($folder, self::VALID_FOLDERS)) {
+		$parts = parse_url($filename);
+		if (empty($parts['scheme']) || empty($parts['host'])) {
 			return "";
 		}
-		if (!file_exists($filename)) {
+
+		$curlResult = DI::httpRequest()->get($filename);
+		if ($curlResult->isSuccess()) {
+			return $curlResult->getBody();
+		} else {
 			return "";
 		}
-		return file_get_contents($filename);
 	}
 
 	/**

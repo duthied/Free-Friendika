@@ -27,6 +27,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Model\Storage\ExternalResource;
 use Friendica\Model\Storage\SystemResource;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
@@ -263,6 +264,28 @@ class Photo
 		return $photo;
 	}
 
+	/**
+	 * Construct a photo array for an external resource image
+	 *
+	 * @param string $url      Image URL
+	 * @param string $mimetype Image mime type. Defaults to "image/jpeg"
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function createPhotoForExternalResource($url, $mimetype = "image/jpeg")
+	{
+		$fields = self::getFields();
+		$values = array_fill(0, count($fields), "");
+
+		$photo                  = array_combine($fields, $values);
+		$photo['backend-class'] = ExternalResource::NAME;
+		$photo['backend-ref']   = $url;
+		$photo['type']          = $mimetype;
+		$photo['cacheable']     = false;
+
+		return $photo;
+	}
 
 	/**
 	 * store photo metadata in db and binary in default backend
