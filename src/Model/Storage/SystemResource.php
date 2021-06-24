@@ -22,6 +22,7 @@
 namespace Friendica\Model\Storage;
 
 use \BadMethodCallException;
+use Friendica\DI;
 
 /**
  * System resource storage class
@@ -41,6 +42,16 @@ class SystemResource implements IStorage
 	 */
 	public function get(string $filename)
 	{
+		$parts = parse_url($filename);
+		if (!empty($parts['scheme']) && !empty($parts['host'])) {
+			$curlResult = DI::httpRequest()->get($filename);
+			if ($curlResult->isSuccess()) {
+				return $curlResult->getBody();
+			} else {
+				return "";
+			}
+		}
+
 		$folder = dirname($filename);
 		if (!in_array($folder, self::VALID_FOLDERS)) {
 			return "";
