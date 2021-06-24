@@ -249,7 +249,7 @@ Hier ist eine Liste von Clients, die speziell für Friendica entwickelt werden o
 
 #### Desktop
 
-- [Halycon](https://www.halcyon.social/)
+- [Halcyon](https://www.halcyon.social/)
 - [Pinafore](https://github.com/nolanlawson/pinafore)
 
 Admin

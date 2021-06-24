@@ -239,7 +239,7 @@ Depending on the features of the client you might encounter some glitches in usa
 
 #### Desktop
 
-- [Halycon](https://www.halcyon.social/)
+- [Halcyon](https://www.halcyon.social/)
 - [Pinafore](https://github.com/nolanlawson/pinafore)
 
 Admin
