@@ -239,9 +239,18 @@ Hier ist eine Liste von Clients, die speziell für Friendica entwickelt werden o
 * [Toot](https://toot.readthedocs.io/en/latest/)
 * [Tootle](https://github.com/bleakgrey/tootle)
 
+#### MacOS
+
+- [Mastonaut](https://mastonaut.app/)
+
 #### Windows
 
 * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) für Windows 10
+
+#### Desktop
+
+- [Halycon](https://www.halcyon.social/)
+- [Pinafore](https://github.com/nolanlawson/pinafore)
 
 Admin
 --------
