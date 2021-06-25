@@ -27,12 +27,6 @@ For supported apps please have a look at the [FAQ](help/FAQ#clients)
 - [Mast](https://github.com/Beesitech/Mast) Doesn't accept the entered instance name. Claims that it is invalid (Message is: "Not a valid instance (may be closed or dead)")
 - [Toot!](https://apps.apple.com/app/toot/id1229021451)
 
-#### Desktop
-
-- [Halycon](https://www.halcyon.social/) Doesn't load content, creates masses of HTTP requests
-- [Mastonaut](https://mastonaut.app/)
-- [Pinafore](https://github.com/nolanlawson/pinafore) Returns message "Error: NetworkError when attempting to fetch resource.. Is this a valid Mastodon instance?"
-
 ## Entities
 
 These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/entities/).

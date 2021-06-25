@@ -227,11 +227,20 @@ Here is a list of known working clients:
 * [Toot](https://toot.readthedocs.io/en/latest/)
 * [Tootle](https://github.com/bleakgrey/tootle)
 
+#### MacOS
+
+- [Mastonaut](https://mastonaut.app/)
+
 #### Windows
 
 * [Friendica Mobile](https://www.microsoft.com/de-DE/store/p/friendica-mobile/9nblggh0fhmn?rtc=1) (Windows 10)
 
 Depending on the features of the client you might encounter some glitches in usability, like being limited in the length of your postings to 140 characters and having no access to the [permission settings](help/Groups-and-Privacy).
+
+#### Web Frontend
+
+- [Halcyon](https://www.halcyon.social/)
+- [Pinafore](https://github.com/nolanlawson/pinafore)
 
 Admin
 --------
