@@ -1663,6 +1663,28 @@ class Contact
 	}
 
 	/**
+	 * Get avatar link for given contact id
+	 *
+	 * @param integer $cid contact id
+	 * @return string avatar link
+	 */
+	public static function getAvatarUrlForId(int $cid):string
+	{
+		return DI::baseUrl() . '/photo/contact/' . $cid;
+	}
+
+	/**
+	 * Get header link for given contact id
+	 *
+	 * @param integer $cid contact id
+	 * @return string header link
+	 */
+	public static function getHeaderUrlForId(int $cid):string
+	{
+		return DI::baseUrl() . '/photo/header/' . $cid;
+	}
+
+	/**
 	 * Updates the avatar links in a contact only if needed
 	 *
 	 * @param int    $cid          Contact id
