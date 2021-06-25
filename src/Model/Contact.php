@@ -1668,9 +1668,9 @@ class Contact
 	 * @param integer $cid contact id
 	 * @return string avatar link
 	 */
-	public static function getAvatarForContact(int $cid):string
+	public static function getAvatarUrlForId(int $cid):string
 	{
-		return DI::baseUrl() . '/photo/contact/'. $cid;
+		return DI::baseUrl() . '/photo/contact/' . $cid;
 	}
 
 	/**
@@ -1679,9 +1679,9 @@ class Contact
 	 * @param integer $cid contact id
 	 * @return string header link
 	 */
-	public static function getHeaderForContact(int $cid):string
+	public static function getHeaderUrlForId(int $cid):string
 	{
-		return DI::baseUrl() . '/photo/header/'. $cid;
+		return DI::baseUrl() . '/photo/header/' . $cid;
 	}
 
 	/**
