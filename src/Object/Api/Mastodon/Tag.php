@@ -35,6 +35,8 @@ class Tag extends BaseDataTransferObject
 	protected $name;
 	/** @var string */
 	protected $url = null;
+	/** @var array */
+	protected $history = [];
 
 	/**
 	 * Creates a hashtag record from an tag-view record.
@@ -43,9 +45,10 @@ class Tag extends BaseDataTransferObject
 	 * @param array   $tag     tag-view record
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(BaseURL $baseUrl, array $tag)
+	public function __construct(BaseURL $baseUrl, array $tag, array $history = [])
 	{
-		$this->name = strtolower($tag['name']);
-		$this->url  = $baseUrl . '/search?tag=' . urlencode($this->name);
+		$this->name    = strtolower($tag['name']);
+		$this->url     = $baseUrl . '/search?tag=' . urlencode($this->name);
+		$this->history = $history;
 	}
 }
