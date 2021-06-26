@@ -159,6 +159,10 @@ class Item
 			$fields['vid'] = Verb::getID($fields['verb']);
 		}
 
+		if (empty($fields['edited'])) {
+			$previous = Post::selectFirst(['edited'], $condition);
+		}
+
 		$rows = Post::update($fields, $condition);
 		if (is_bool($rows)) {
 			return $rows;
@@ -203,8 +207,8 @@ class Item
 			}
 
 			// We only need to notfiy others when it is an original entry from us.
-			// Only call the notifier when the item has some content relevant change.
-			if ($item['origin'] && in_array('edited', array_keys($fields))) {
+			// Only call the notifier when the item had been edited and records had been changed.
+			if ($item['origin'] && !empty($fields['edited']) && ($previous['edited'] != $fields['edited'])) {
 				$notify_items[] = $item['id'];
 			}
 		}
