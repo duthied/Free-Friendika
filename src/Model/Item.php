@@ -159,7 +159,7 @@ class Item
 			$fields['vid'] = Verb::getID($fields['verb']);
 		}
 
-		if (empty($fields['edited'])) {
+		if (!empty($fields['edited'])) {
 			$previous = Post::selectFirst(['edited'], $condition);
 		}
 
