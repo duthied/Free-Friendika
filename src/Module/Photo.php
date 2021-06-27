@@ -27,6 +27,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo as MPhoto;
+use Friendica\Model\Post;
 use Friendica\Util\Proxy;
 use Friendica\Object\Image;
 
@@ -68,10 +69,10 @@ class Photo extends BaseModule
 		if (!empty($parameters['customsize'])) {
 			$customsize = intval($parameters['customsize']);
 			$uid = MPhoto::stripExtension($parameters['name']);
-			$photo = self::getAvatar($uid, $parameters['type']);
+			$photo = self::getAvatar($uid, $parameters['type'], $customsize);
 		} elseif (!empty($parameters['type'])) {
 			$uid = MPhoto::stripExtension($parameters['name']);
-			$photo = self::getAvatar($uid, $parameters['type']);
+			$photo = self::getAvatar($uid, $parameters['type'], Proxy::PIXEL_SMALL);
 		} elseif (!empty($parameters['name'])) {
 			$photoid = MPhoto::stripExtension($parameters['name']);
 			$scale = 0;
@@ -149,23 +150,56 @@ class Photo extends BaseModule
 		exit();
 	}
 
-	private static function getAvatar($uid, $type="avatar")
+	private static function getAvatar($uid, $type="avatar", $customsize)
 	{
 		switch($type) {
-			case "contact":
-				$contact = Contact::getById($uid, ['uid', 'url', 'avatar', 'photo']);
+			case "preview":
+				$media = DBA::selectFirst('post-media', ['preview', 'url', 'type', 'uri-id'], ['id' => $uid]);
+				if (empty($media)) {
+					return false;
+				}
+				$url = $media['preview'];
+
+				if (empty($url) && ($media['type'] == Post\Media::IMAGE)) {
+					$url = $media['url'];
+				}
+
+				if (empty($url)) {
+					return false;
+				}
+
+				$author = Contact::selectFirst([], ["`id` IN (SELECT `author-id` FROM `post` WHERE `uri-id` = ?)", $media['uri-id']]);
+				$url = Contact::magicLinkByContact($author, $url);
+
+				return MPhoto::createPhotoForExternalResource($url);
+			case "media":
+				$media = DBA::selectFirst('post-media', ['url'], ['id' => $uid, 'type' => Post\Media::IMAGE]);
+				if (empty($media['url'])) {
+					return false;
+				}
+
+				$author = Contact::selectFirst([], ["`id` IN (SELECT `author-id` FROM `post` WHERE `uri-id` = ?)", $media['uri-id']]);
+				$url = Contact::magicLinkByContact($author, $media['url']);
+
+				return MPhoto::createPhotoForExternalResource($url);
+			   case "contact":
+				$contact = Contact::getById($uid, ['uid', 'url', 'avatar', 'photo', 'xmpp', 'addr']);
 				if (empty($contact)) {
 					return false;
 				}
 				If (($contact['uid'] != 0) && empty($contact['photo']) && empty($contact['avatar'])) {
-					$contact = Contact::getByURL($contact['url'], false, ['avatar', 'photo']);
+					$contact = Contact::getByURL($contact['url'], false, ['avatar', 'photo', 'xmpp', 'addr']);
 				}
 				if (!empty($contact['photo'])) {
 					$url = $contact['photo'];
 				} elseif (!empty($contact['avatar'])) {
 					$url = $contact['avatar'];
+				} elseif ($customsize <= Proxy::PIXEL_MICRO) {
+					$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_MICRO);
+				} elseif ($customsize <= Proxy::PIXEL_THUMB) {
+					$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
 				} else {
-					$url = DI::baseUrl() . Contact::DEFAULT_AVATAR_PHOTO;
+					$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
 				}
 				return MPhoto::createPhotoForExternalResource($url);
 			case "header":
@@ -210,7 +244,7 @@ class Photo extends BaseModule
 				default:
 					$default = Contact::getDefaultAvatar($contact, Proxy::SIZE_THUMB);
 			}
-	
+
 			$parts = parse_url($default);
 			if (!empty($parts['scheme']) || !empty($parts['host'])) {
 				$photo = MPhoto::createPhotoForExternalResource($default);

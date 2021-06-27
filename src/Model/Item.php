@@ -2863,12 +2863,8 @@ class Item
 				continue;
 			}
 
-			$author = ['uid' => 0, 'id' => $item['author-id'],
-				'network' => $item['author-network'], 'url' => $item['author-link']];
-			$the_url = Contact::magicLinkByContact($author, $attachment['url']);
-
 			if (!empty($attachment['preview'])) {
-				$preview_url = Proxy::proxifyUrl(Contact::magicLinkByContact($author, $attachment['preview']));
+				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE); 
 			} else {
 				$preview_url = '';
 			}
@@ -2878,7 +2874,7 @@ class Item
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
 					'$video' => [
 						'id'      => $attachment['id'],
-						'src'     => $the_url,
+						'src'     => $attachment['url'],
 						'name'    => $attachment['name'] ?: $attachment['url'],
 						'preview' => $preview_url,
 						'mime'    => $attachment['mimetype'],
@@ -2893,8 +2889,8 @@ class Item
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/audio.tpl'), [
 					'$audio' => [
 						'id'     => $attachment['id'],
-						'src'    => $the_url,
-						'name'    => $attachment['name'] ?: $attachment['url'],
+						'src'    => $attachment['url'],
+						'name'   => $attachment['name'] ?: $attachment['url'],
 						'mime'   => $attachment['mimetype'],
 					],
 				]);
@@ -2904,14 +2900,11 @@ class Item
 					$trailing .= $media;
 				}
 			} elseif ($attachment['filetype'] == 'image') {
-				if (empty($preview_url) && (max($attachment['width'], $attachment['height']) > 600)) {
-					$preview_url = Proxy::proxifyUrl($the_url, false, ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE);
-				}
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
-					'$image' => [
-						'src'    => Proxy::proxifyUrl($the_url),
-						'preview' => $preview_url,
-						'attachment'   => $attachment,
+					'$image' => [ 
+						'src'        => Post\Media::getUrlForId($attachment['id']),
+						'preview'    => Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE),
+						'attachment' => $attachment,
 					],
 				]);
 				// On Diaspora posts the attached pictures are leading
@@ -2989,11 +2982,11 @@ class Item
 				'type' => 'link',
 				'url' => $attachment['url']];
 
-			if ($preview) {
+			if ($preview && !empty($attachment['preview'])) {
 				if ($attachment['preview-width'] >= 500) {
-					$data['image'] = $attachment['preview'] ?? '';
+					$data['image'] = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_MEDIUM); 
 				} else {
-					$data['preview'] = $attachment['preview'] ?? '';
+					$data['preview'] = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_MEDIUM);
 				}
 			}
 

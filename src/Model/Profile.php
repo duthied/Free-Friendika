@@ -329,9 +329,9 @@ class Profile
 		// correct contact table entry for the logged-in user.
 		$profile_contact = [];
 
-		if (!empty($profile['nurl'] ?? '')) {
-			if (local_user() && ($profile['uid'] ?? '') != local_user()) {
-				$profile_contact = Contact::getById(Contact::getIdForURL($profile['nurl'], local_user()));
+		if (!empty($profile['nurl'])) {
+			if (local_user() && ($profile['uid'] ?? 0) != local_user()) {
+				$profile_contact = Contact::getByURL($profile['nurl'], null, ['rel'], local_user());
 			}
 			if (!empty($profile['cid']) && self::getMyURL()) {
 				$profile_contact = Contact::selectFirst(['rel'], ['id' => $profile['cid']]);
@@ -357,6 +357,12 @@ class Profile
 			$profile_url = $profile['url'];
 		} else {
 			$profile_url = DI::baseUrl()->get() . '/profile/' . $profile['nickname'];
+		}
+
+		if (!empty($profile['id'])) {
+			$cid = $profile['id'];
+		} else {
+			$cid = Contact::getIdForURL($profile_url, false);
 		}
 
 		$follow_link = null;
@@ -501,11 +507,9 @@ class Profile
 			$p['address'] = BBCode::convert($p['address']);
 		}
 
-		if (isset($p['photo'])) {
-			$p['photo'] = ProxyUtils::proxifyUrl($p['photo'], false, ProxyUtils::SIZE_SMALL);
-		}
+		$p['photo'] = Contact::getAvatarUrlForId($cid);
 
-		$p['url'] = Contact::magicLink(($p['url'] ?? '') ?: $profile_url);
+		$p['url'] = Contact::magicLink($profile_url);
 
 		$tpl = Renderer::getMarkupTemplate('profile/vcard.tpl');
 		$o .= Renderer::replaceMacros($tpl, [

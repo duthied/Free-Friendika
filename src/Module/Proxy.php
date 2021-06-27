@@ -181,7 +181,7 @@ class Proxy extends BaseModule
 	private static function getRequestInfo()
 	{
 		$a = DI::app();
-		$size = 1024;
+		$size = ProxyUtils::PIXEL_LARGE;
 		$sizetype = '';
 
 		// Look for filename in the arguments
@@ -203,23 +203,23 @@ class Proxy extends BaseModule
 
 			// thumb, small, medium and large.
 			if (substr($url, -6) == ':micro') {
-				$size = 48;
+				$size = ProxyUtils::PIXEL_MICRO;
 				$sizetype = ':micro';
 				$url = substr($url, 0, -6);
 			} elseif (substr($url, -6) == ':thumb') {
-				$size = 80;
+				$size = ProxyUtils::PIXEL_THUMB;
 				$sizetype = ':thumb';
 				$url = substr($url, 0, -6);
 			} elseif (substr($url, -6) == ':small') {
-				$size = 300;
+				$size = ProxyUtils::PIXEL_SMALL;
 				$url = substr($url, 0, -6);
 				$sizetype = ':small';
 			} elseif (substr($url, -7) == ':medium') {
-				$size = 600;
+				$size = ProxyUtils::PIXEL_MEDIUM;
 				$url = substr($url, 0, -7);
 				$sizetype = ':medium';
 			} elseif (substr($url, -6) == ':large') {
-				$size = 1024;
+				$size = ProxyUtils::PIXEL_LARGE;
 				$url = substr($url, 0, -6);
 				$sizetype = ':large';
 			}

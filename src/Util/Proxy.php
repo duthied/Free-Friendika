@@ -37,11 +37,20 @@ class Proxy
 	/**
 	 * Sizes constants
 	 */
-	const SIZE_MICRO  = 'micro';
-	const SIZE_THUMB  = 'thumb';
-	const SIZE_SMALL  = 'small';
-	const SIZE_MEDIUM = 'medium';
-	const SIZE_LARGE  = 'large';
+	const SIZE_MICRO  = 'micro'; // 48
+	const SIZE_THUMB  = 'thumb'; // 80
+	const SIZE_SMALL  = 'small'; // 300
+	const SIZE_MEDIUM = 'medium'; // 600
+	const SIZE_LARGE  = 'large'; // 1024
+
+	/**
+	 * Pixel Sizes
+	 */
+	const PIXEL_MICRO  = 48;
+	const PIXEL_THUMB  = 80;
+	const PIXEL_SMALL  = 300;
+	const PIXEL_MEDIUM = 600;
+	const PIXEL_LARGE  = 1024;
 
 	/**
 	 * Accepted extensions

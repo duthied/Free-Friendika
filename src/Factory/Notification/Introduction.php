@@ -139,7 +139,7 @@ class Introduction extends BaseFactory
 						'madeby_zrl'     => Contact::magicLink($notification['url']),
 						'madeby_addr'    => $notification['addr'],
 						'contact_id'     => $notification['contact-id'],
-						'photo'          => (!empty($notification['fphoto']) ? Proxy::proxifyUrl($notification['fphoto'], false, Proxy::SIZE_SMALL) : Contact::DEFAULT_AVATAR_PHOTO),
+						'photo'          => Contact::getAvatarUrlForUrl($notification['furl'], 0, Proxy::SIZE_SMALL),
 						'name'           => $notification['fname'],
 						'url'            => $notification['furl'],
 						'zrl'            => Contact::magicLink($notification['furl']),

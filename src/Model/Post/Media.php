@@ -31,6 +31,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Post;
 use Friendica\Util\Images;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 
 /**
@@ -494,10 +495,10 @@ class Media
 
 	/**
 	 * Split the attachment media in the three segments "visual", "link" and "additional"
-	 * 
-	 * @param int    $uri_id 
+	 *
+	 * @param int    $uri_id
 	 * @param string $guid
-	 * @param array  $links ist of links that shouldn't be added 
+	 * @param array  $links ist of links that shouldn't be added
 	 * @return array attachments
 	 */
 	public static function splitAttachments(int $uri_id, string $guid = '', array $links = [])
@@ -526,7 +527,7 @@ class Media
 					continue 2;
 				}
 			}
-			
+
 			if (!empty($medium['preview'])) {
 				$previews[] = $medium['preview'];
 			}
@@ -630,5 +631,65 @@ class Media
 		}
 
 		return $body;
+	}
+
+	/**
+	 * Get preview link for given media id
+	 *
+	 * @param integer $id   media id
+	 * @param string  $size One of the ProxyUtils::SIZE_* constants
+	 * @return string preview link
+	 */
+	public static function getPreviewUrlForId(int $id, string $size = ''):string
+	{
+		$url = DI::baseUrl() . '/photo/preview/';
+		switch ($size) {
+			case Proxy::SIZE_MICRO:
+				$url .= Proxy::PIXEL_MICRO . '/';
+				break;
+			case Proxy::SIZE_THUMB:
+				$url .= Proxy::PIXEL_THUMB . '/';
+				break;
+			case Proxy::SIZE_SMALL:
+				$url .= Proxy::PIXEL_SMALL . '/';
+				break;
+			case Proxy::SIZE_MEDIUM:
+				$url .= Proxy::PIXEL_MEDIUM . '/';
+				break;
+			case Proxy::SIZE_LARGE:
+				$url .= Proxy::PIXEL_LARGE . '/';
+				break;
+		}
+		return $url . $id;
+	}
+
+	/**
+	 * Get media link for given media id
+	 *
+	 * @param integer $id   media id
+	 * @param string  $size One of the ProxyUtils::SIZE_* constants
+	 * @return string media link
+	 */
+	public static function getUrlForId(int $id, string $size = ''):string
+	{
+		$url = DI::baseUrl() . '/photo/media/';
+		switch ($size) {
+			case Proxy::SIZE_MICRO:
+				$url .= Proxy::PIXEL_MICRO . '/';
+				break;
+			case Proxy::SIZE_THUMB:
+				$url .= Proxy::PIXEL_THUMB . '/';
+				break;
+			case Proxy::SIZE_SMALL:
+				$url .= Proxy::PIXEL_SMALL . '/';
+				break;
+			case Proxy::SIZE_MEDIUM:
+				$url .= Proxy::PIXEL_MEDIUM . '/';
+				break;
+			case Proxy::SIZE_LARGE:
+				$url .= Proxy::PIXEL_LARGE . '/';
+				break;
+		}
+		return $url . $id;
 	}
 }
