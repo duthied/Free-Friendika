@@ -13,6 +13,7 @@ Version 2021.06 (unreleased)
     Enhanced the link detection [annando]
     Enhanced the worker task display in the admin panel [tobiasd]
     Enhanced the installation wizard [tobiasd]
+    Enhanced the federation statistics page [annando]
     Fixed information contained in the nodeinfo [MrPetovan]
     Fixed an avatar setting problem during the account creation [nupplaphil]
     Fixed a display problem with picture only postings from Diaspora* [annando]
@@ -20,13 +21,18 @@ Version 2021.06 (unreleased)
     Fixed a problem with local delivery of postings [annando]
     Fixed a problem with block/ignore via API [nupplaphil]
     Fixed a problem with directory search results [MrPetovan]
+    Fixed problems with the console autoinstall command [annando, tobiasd]
+    Fixed problems with forum delivery
+    Removed the Diaspora* relay support [annando]
+    Removed the system user from the user countings [annando]
     Make birthday time comparison 32-bit safe in Protocol/DFRN [MrPetovan]
     CI process was switched to drone [nupplaphil]
     The "authenticate" hook was moved deeper into the process [very-ape]
     Added support for RTL languages [MrPetovan]
+    Added download link for the calendar entries [annando]
   
   Friendica Addons
-      Updates to the translations DE, IT, JA [translation teams]
+      Updates to the translations DE, HU, IT, JA [translation teams]
     nitter
       added addon to replace links to twitter in postings [tobiasd]
     keycloakpassword
@@ -47,10 +53,13 @@ Version 2021.06 (unreleased)
       Move Zabbix to the "good" agents [annando]
     mailstream
       adaptation of new addon functionalities and code improvements [mexon]
+    phpmailer
+      updated dependencies [nupplaphil]
   
   Closed Issues
     7967, 9064, 9993, 10055, 10147, 10184, 10198, 10205, 10210, 10219,
-    10232, 10254, 10287, 10293, 10306, 10312, 10314, 10342
+    10232, 10254, 10287, 10293, 10306, 10312, 10342, 10364, 10375, 10378,
+    10392, 10424, 10433
 
 Version 2021.04 (2021-04-26)
   Friendica Core
