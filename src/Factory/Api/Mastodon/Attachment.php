@@ -70,7 +70,7 @@ class Attachment extends BaseFactory
 				$url     = Post\Media::getPreviewUrlForId($attachment['id']);
 				$preview = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_SMALL);
 			} else {
-				$url = Proxy::proxifyUrl($attachment['url']);
+				$url = $attachment['url'];
 
 				if (!empty($attachment['preview'])) {
 					$preview = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_SMALL);
