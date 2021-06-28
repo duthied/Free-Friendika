@@ -173,8 +173,8 @@ class Photo extends BaseModule
 
 				return MPhoto::createPhotoForExternalResource($url);
 			case "media":
-				$media = DBA::selectFirst('post-media', ['url'], ['id' => $uid, 'type' => Post\Media::IMAGE]);
-				if (empty($media['url'])) {
+				$media = DBA::selectFirst('post-media', ['url', 'uri-id'], ['id' => $uid, 'type' => Post\Media::IMAGE]);
+				if (empty($media)) {
 					return false;
 				}
 
