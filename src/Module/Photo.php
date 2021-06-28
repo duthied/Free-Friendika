@@ -171,17 +171,17 @@ class Photo extends BaseModule
 				$author = Contact::selectFirst([], ["`id` IN (SELECT `author-id` FROM `post` WHERE `uri-id` = ?)", $media['uri-id']]);
 				$url = Contact::magicLinkByContact($author, $url);
 
-				return MPhoto::createPhotoForExternalResource($url);
+				return MPhoto::createPhotoForExternalResource($url, (int)local_user());
 			case "media":
-				$media = DBA::selectFirst('post-media', ['url'], ['id' => $uid, 'type' => Post\Media::IMAGE]);
-				if (empty($media['url'])) {
+				$media = DBA::selectFirst('post-media', ['url', 'uri-id'], ['id' => $uid, 'type' => Post\Media::IMAGE]);
+				if (empty($media)) {
 					return false;
 				}
 
 				$author = Contact::selectFirst([], ["`id` IN (SELECT `author-id` FROM `post` WHERE `uri-id` = ?)", $media['uri-id']]);
 				$url = Contact::magicLinkByContact($author, $media['url']);
 
-				return MPhoto::createPhotoForExternalResource($url);
+				return MPhoto::createPhotoForExternalResource($url, (int)local_user());
 			case "contact":
 				$contact = Contact::getById($uid, ['uid', 'url', 'avatar', 'photo', 'xmpp', 'addr']);
 				if (empty($contact)) {

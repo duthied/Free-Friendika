@@ -268,21 +268,22 @@ class Photo
 	 * Construct a photo array for an external resource image
 	 *
 	 * @param string $url      Image URL
+	 * @param int    $uid      User ID of the requesting person
 	 * @param string $mimetype Image mime type. Defaults to "image/jpeg"
 	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function createPhotoForExternalResource($url, $mimetype = "image/jpeg")
+	public static function createPhotoForExternalResource($url, $uid = 0, $mimetype = "image/jpeg")
 	{
 		$fields = self::getFields();
 		$values = array_fill(0, count($fields), "");
 
 		$photo                  = array_combine($fields, $values);
 		$photo['backend-class'] = ExternalResource::NAME;
-		$photo['backend-ref']   = $url;
+		$photo['backend-ref']   = json_encode(['url' => $url, 'uid' => $uid]);
 		$photo['type']          = $mimetype;
-		$photo['cacheable']     = false;
+		$photo['cacheable']     = true;
 
 		return $photo;
 	}

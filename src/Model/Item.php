@@ -2742,6 +2742,23 @@ class Item
 		}
 
 		$body = $item['body'] ?? '';
+		$shared = BBCode::fetchShareAttributes($body);
+		if (!empty($shared['guid'])) {
+			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
+			$shared_uri_id = $shared_item['uri-id'] ?? 0;
+			$shared_links = [strtolower($shared_item['plink'] ?? '')];
+			$shared_attachments = Post\Media::splitAttachments($shared_uri_id, $shared['guid']);
+			$shared_links = array_merge($shared_links, array_column($shared_attachments['visual'], 'url'));
+			$shared_links = array_merge($shared_links, array_column($shared_attachments['link'], 'url'));
+			$shared_links = array_merge($shared_links, array_column($shared_attachments['additional'], 'url'));
+			$item['body'] = self::replaceVisualAttachments($shared_attachments, $item['body']);
+		} else {
+			$shared_uri_id = 0;
+			$shared_links = [];
+		}
+		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links);
+		$item['body'] = self::replaceVisualAttachments($attachments, $item['body'] ?? '');
+
 		$item['body'] = preg_replace("/\s*\[attachment .*?\].*?\[\/attachment\]\s*/ism", "\n", $item['body']);
 		self::putInCache($item);
 		$item['body'] = $body;
@@ -2764,25 +2781,13 @@ class Item
 			return $s;
 		}
 
-		$shared = BBCode::fetchShareAttributes($item['body']);
-		if (!empty($shared['guid'])) {
-			$shared_item = Post::selectFirst(['uri-id', 'plink'], ['guid' => $shared['guid']]);
-			$shared_uri_id = $shared_item['uri-id'] ?? 0;
-			$shared_links = [strtolower($shared_item['plink'] ?? '')];
-			$attachments = Post\Media::splitAttachments($shared_uri_id, $shared['guid']);
-			$s = self::addVisualAttachments($attachments, $item, $s, true);
-			$s = self::addLinkAttachment($attachments, $body, $s, true, []);
-			$s = self::addNonVisualAttachments($attachments, $item, $s, true);
-			$shared_links = array_merge($shared_links, array_column($attachments['visual'], 'url'));
-			$shared_links = array_merge($shared_links, array_column($attachments['link'], 'url'));
-			$shared_links = array_merge($shared_links, array_column($attachments['additional'], 'url'));
+		if (!empty($shared_attachments)) {
+			$s = self::addVisualAttachments($shared_attachments, $item, $s, true);
+			$s = self::addLinkAttachment($shared_attachments, $body, $s, true, []);
+			$s = self::addNonVisualAttachments($shared_attachments, $item, $s, true);
 			$body = preg_replace("/\s*\[share .*?\].*?\[\/share\]\s*/ism", '', $body);
-		} else {
-			$shared_uri_id = 0;
-			$shared_links = [];
 		}
 
-		$attachments = Post\Media::splitAttachments($item['uri-id'], $item['guid'] ?? '', $shared_links);
 		$s = self::addVisualAttachments($attachments, $item, $s, false);
 		$s = self::addLinkAttachment($attachments, $body, $s, false, $shared_links);
 		$s = self::addNonVisualAttachments($attachments, $item, $s, false);
@@ -2844,6 +2849,28 @@ class Item
 	}
 
 	/**
+	 * Replace visual attachments in the body
+	 *
+	 * @param array $attachments
+	 * @param string $body
+	 * @return string modified body
+	 */
+	private static function replaceVisualAttachments(array $attachments, string $body)
+	{
+		$stamp1 = microtime(true);
+
+		foreach ($attachments['visual'] as $attachment) {
+			if (!empty($attachment['preview'])) {
+				$body = str_replace($attachment['preview'], Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE), $body);
+			} elseif ($attachment['filetype'] == 'image') {
+				$body = str_replace($attachment['url'], Post\Media::getUrlForId($attachment['id']), $body);
+			}
+		}
+		DI::profiler()->saveTimestamp($stamp1, 'rendering');
+		return $body;
+	}
+
+	/**
 	 * Add visual attachments to the content
 	 *
 	 * @param array $attachments
@@ -2864,7 +2891,7 @@ class Item
 			}
 
 			if (!empty($attachment['preview'])) {
-				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE); 
+				$preview_url = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_LARGE);
 			} else {
 				$preview_url = '';
 			}
@@ -2901,7 +2928,7 @@ class Item
 				}
 			} elseif ($attachment['filetype'] == 'image') {
 				$media = Renderer::replaceMacros(Renderer::getMarkupTemplate('content/image.tpl'), [
-					'$image' => [ 
+					'$image' => [
 						'src'        => Post\Media::getUrlForId($attachment['id']),
 						'preview'    => Post\Media::getPreviewUrlForId($attachment['id'], ($attachment['width'] > $attachment['height']) ? Proxy::SIZE_MEDIUM : Proxy::SIZE_LARGE),
 						'attachment' => $attachment,
@@ -2984,7 +3011,7 @@ class Item
 
 			if ($preview && !empty($attachment['preview'])) {
 				if ($attachment['preview-width'] >= 500) {
-					$data['image'] = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_MEDIUM); 
+					$data['image'] = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_MEDIUM);
 				} else {
 					$data['preview'] = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_MEDIUM);
 				}
