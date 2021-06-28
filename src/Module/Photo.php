@@ -182,7 +182,7 @@ class Photo extends BaseModule
 				$url = Contact::magicLinkByContact($author, $media['url']);
 
 				return MPhoto::createPhotoForExternalResource($url);
-			   case "contact":
+			case "contact":
 				$contact = Contact::getById($uid, ['uid', 'url', 'avatar', 'photo', 'xmpp', 'addr']);
 				if (empty($contact)) {
 					return false;
