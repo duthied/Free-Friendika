@@ -201,7 +201,7 @@ class Photo extends BaseModule
 				} else {
 					$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
 				}
-				return MPhoto::createPhotoForExternalResource($url, 0);
+				return MPhoto::createPhotoForExternalResource($url);
 			case "header":
 				$contact = Contact::getById($uid, ['uid', 'url', 'header']);
 				if (empty($contact)) {
@@ -215,7 +215,7 @@ class Photo extends BaseModule
 				} else {
 					$url = DI::baseUrl() . '/images/blank.png';
 				}
-				return MPhoto::createPhotoForExternalResource($url, 0);
+				return MPhoto::createPhotoForExternalResource($url);
 			case "profile":
 			case "custom":
 				$scale = 4;
@@ -247,7 +247,7 @@ class Photo extends BaseModule
 
 			$parts = parse_url($default);
 			if (!empty($parts['scheme']) || !empty($parts['host'])) {
-				$photo = MPhoto::createPhotoForExternalResource($default, 0);
+				$photo = MPhoto::createPhotoForExternalResource($default);
 			} else {
 				$photo = MPhoto::createPhotoForSystemResource($default);
 			}

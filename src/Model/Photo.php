@@ -274,7 +274,7 @@ class Photo
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function createPhotoForExternalResource($url, $uid, $mimetype = "image/jpeg")
+	public static function createPhotoForExternalResource($url, $uid = 0, $mimetype = "image/jpeg")
 	{
 		$fields = self::getFields();
 		$values = array_fill(0, count($fields), "");
