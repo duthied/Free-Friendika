@@ -502,21 +502,20 @@ function settings_content(App $a)
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'addon')) {
-		$settings_addons = "";
+		$addon_settings_forms = [];
 
-		$r = q("SELECT * FROM `hook` WHERE `hook` = 'addon_settings' ");
-		if (!DBA::isResult($r)) {
-			$settings_addons = DI::l10n()->t('No Addon settings configured');
+		foreach (DI::dba()->select('hook', ['file', 'function'], ['hook' => 'addon_settings']) as $hook) {
+			$data = '';
+			Hook::callSingle(DI::app(), 'addon_settings', [$hook['file'], $hook['function']], $data);
+			$addon_settings_forms[] = $data;
 		}
-
-		Hook::callAll('addon_settings', $settings_addons);
-
 
 		$tpl = Renderer::getMarkupTemplate('settings/addons.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_addon"),
 			'$title'	=> DI::l10n()->t('Addon Settings'),
-			'$settings_addons' => $settings_addons
+			'$no_addons_settings_configured' => DI::l10n()->t('No Addon settings configured'),
+			'$addon_settings_forms' => $addon_settings_forms,
 		]);
 		return $o;
 	}
