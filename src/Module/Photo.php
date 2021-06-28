@@ -171,7 +171,7 @@ class Photo extends BaseModule
 				$author = Contact::selectFirst([], ["`id` IN (SELECT `author-id` FROM `post` WHERE `uri-id` = ?)", $media['uri-id']]);
 				$url = Contact::magicLinkByContact($author, $url);
 
-				return MPhoto::createPhotoForExternalResource($url);
+				return MPhoto::createPhotoForExternalResource($url, local_user());
 			case "media":
 				$media = DBA::selectFirst('post-media', ['url', 'uri-id'], ['id' => $uid, 'type' => Post\Media::IMAGE]);
 				if (empty($media)) {
@@ -181,7 +181,7 @@ class Photo extends BaseModule
 				$author = Contact::selectFirst([], ["`id` IN (SELECT `author-id` FROM `post` WHERE `uri-id` = ?)", $media['uri-id']]);
 				$url = Contact::magicLinkByContact($author, $media['url']);
 
-				return MPhoto::createPhotoForExternalResource($url);
+				return MPhoto::createPhotoForExternalResource($url, local_user());
 			case "contact":
 				$contact = Contact::getById($uid, ['uid', 'url', 'avatar', 'photo', 'xmpp', 'addr']);
 				if (empty($contact)) {
@@ -201,7 +201,7 @@ class Photo extends BaseModule
 				} else {
 					$url = Contact::getDefaultAvatar($contact, Proxy::SIZE_SMALL);
 				}
-				return MPhoto::createPhotoForExternalResource($url);
+				return MPhoto::createPhotoForExternalResource($url, local_user());
 			case "header":
 				$contact = Contact::getById($uid, ['uid', 'url', 'header']);
 				if (empty($contact)) {
@@ -215,7 +215,7 @@ class Photo extends BaseModule
 				} else {
 					$url = DI::baseUrl() . '/images/blank.png';
 				}
-				return MPhoto::createPhotoForExternalResource($url);
+				return MPhoto::createPhotoForExternalResource($url, local_user());
 			case "profile":
 			case "custom":
 				$scale = 4;
@@ -247,7 +247,7 @@ class Photo extends BaseModule
 
 			$parts = parse_url($default);
 			if (!empty($parts['scheme']) || !empty($parts['host'])) {
-				$photo = MPhoto::createPhotoForExternalResource($default);
+				$photo = MPhoto::createPhotoForExternalResource($default, local_user());
 			} else {
 				$photo = MPhoto::createPhotoForSystemResource($default);
 			}

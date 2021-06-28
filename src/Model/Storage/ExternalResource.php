@@ -22,7 +22,7 @@
 namespace Friendica\Model\Storage;
 
 use BadMethodCallException;
-use Friendica\DI;
+use Friendica\Util\HTTPSignature;
 
 /**
  * External resource storage class
@@ -37,16 +37,21 @@ class ExternalResource implements IStorage
 	/**
 	 * @inheritDoc
 	 */
-	public function get(string $filename)
+	public function get(string $reference)
 	{
-		$parts = parse_url($filename);
+		$data = json_decode($reference);
+		if (empty($data->url)) {
+			return "";
+		}
+
+		$parts = parse_url($data->url);
 		if (empty($parts['scheme']) || empty($parts['host'])) {
 			return "";
 		}
 
-		$curlResult = DI::httpRequest()->get($filename);
-		if ($curlResult->isSuccess()) {
-			return $curlResult->getBody();
+		$fetchResult = HTTPSignature::fetchRaw($data->url, $data->uid);
+		if ($fetchResult->isSuccess()) {
+			return $fetchResult->getBody();
 		} else {
 			return "";
 		}
@@ -55,12 +60,12 @@ class ExternalResource implements IStorage
 	/**
 	 * @inheritDoc
 	 */
-	public function put(string $data, string $filename = '')
+	public function put(string $data, string $reference = '')
 	{
 		throw new BadMethodCallException();
 	}
 
-	public function delete(string $filename)
+	public function delete(string $reference)
 	{
 		throw new BadMethodCallException();
 	}
