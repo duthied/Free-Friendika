@@ -67,17 +67,16 @@ class Attachment extends BaseFactory
 
 			$remote = $attachment['url'];
 			if ($type == 'image') {
-				if (Proxy::isLocalImage($attachment['url'])) {
-					$url     = $attachment['url'];
-					$preview = $attachment['preview'] ?? $url;
-					$remote  = '';
-				} else {
-					$url     = Proxy::proxifyUrl($attachment['url']);
-					$preview = Proxy::proxifyUrl($attachment['url'], false, Proxy::SIZE_SMALL);
-				}
+				$url     = Post\Media::getPreviewUrlForId($attachment['id']);
+				$preview = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_SMALL);
 			} else {
-				$url     = Proxy::proxifyUrl($attachment['url']);
-				$preview = Proxy::proxifyUrl($attachment['preview'] ?? '');
+				$url = $attachment['url'];
+
+				if (!empty($attachment['preview'])) {
+					$preview = Post\Media::getPreviewUrlForId($attachment['id'], Proxy::SIZE_SMALL);
+				} else {
+					$preview = '';
+				}
 			}
 
 			$object        = new \Friendica\Object\Api\Mastodon\Attachment($attachment, $type, $url, $preview, $remote);

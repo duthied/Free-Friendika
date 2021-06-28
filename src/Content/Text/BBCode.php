@@ -997,7 +997,7 @@ class BBCode
 					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}
 
-				$author_contact = Contact::getByURL($attributes['profile'], false, ['url', 'addr', 'name', 'micro']);
+				$author_contact = Contact::getByURL($attributes['profile'], false, ['id', 'url', 'addr', 'name', 'micro']);
 				$author_contact['url'] = ($author_contact['url'] ?? $attributes['profile']);
 				$author_contact['addr'] = ($author_contact['addr'] ?? '') ?: Protocol::getAddrFromProfileUrl($attributes['profile']);
 
@@ -1005,7 +1005,9 @@ class BBCode
 				$attributes['avatar']   = ($author_contact['micro'] ?? '') ?: $attributes['avatar'];
 				$attributes['profile']  = ($author_contact['url']   ?? '') ?: $attributes['profile'];
 
-				if ($attributes['avatar']) {
+				if (!empty($author_contact['id'])) {
+					$attributes['avatar'] = Contact::getAvatarUrlForId($author_contact['id'], ProxyUtils::SIZE_THUMB);
+				} elseif ($attributes['avatar']) {
 					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
 				}
 

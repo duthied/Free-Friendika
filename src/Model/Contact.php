@@ -1510,14 +1510,10 @@ class Contact
 			$avatar = $contact['avatar'];
 		}
 
-		if (empty($avatar)) {
-			$avatar = self::getDefaultAvatar([], $size);
-		}
-
-		if (Proxy::isLocalImage($avatar)) {
+		if (!empty($avatar) && Proxy::isLocalImage($avatar)) {
 			return $avatar;
 		} else {
-			return Proxy::proxifyUrl($avatar, false, $size);
+			return self::getAvatarUrlForId($contact['id'], $size);
 		}
 	}
 
@@ -1665,12 +1661,47 @@ class Contact
 	/**
 	 * Get avatar link for given contact id
 	 *
-	 * @param integer $cid contact id
+	 * @param integer $cid  contact id
+	 * @param string  $size One of the ProxyUtils::SIZE_* constants
 	 * @return string avatar link
 	 */
-	public static function getAvatarUrlForId(int $cid):string
+	public static function getAvatarUrlForId(int $cid, string $size = ''):string
 	{
-		return DI::baseUrl() . '/photo/contact/' . $cid;
+		$url = DI::baseUrl() . '/photo/contact/';
+		switch ($size) {
+			case Proxy::SIZE_MICRO:
+				$url .= Proxy::PIXEL_MICRO . '/';
+				break;
+			case Proxy::SIZE_THUMB:
+				$url .= Proxy::PIXEL_THUMB . '/';
+				break;
+			case Proxy::SIZE_SMALL:
+				$url .= Proxy::PIXEL_SMALL . '/';
+				break;
+			case Proxy::SIZE_MEDIUM:
+				$url .= Proxy::PIXEL_MEDIUM . '/';
+				break;
+			case Proxy::SIZE_LARGE:
+				$url .= Proxy::PIXEL_LARGE . '/';
+				break;
+		}
+		return $url . $cid;
+	}
+
+	/**
+	 * Get avatar link for given contact URL
+	 *
+	 * @param string  $url  contact url
+	 * @param integer $uid  user id
+	 * @param string  $size One of the ProxyUtils::SIZE_* constants
+	 * @return string avatar link
+	 */
+	public static function getAvatarUrlForUrl(string $url, int $uid, string $size = ''):string
+	{
+		$condition = ["`nurl` = ? AND ((`uid` = ? AND `network` IN (?, ?)) OR `uid` = ?)",
+			Strings::normaliseLink($url), $uid, Protocol::FEED, Protocol::MAIL, 0];
+		$contact = self::selectFirst(['id'], $condition);
+		return self::getAvatarUrlForId($contact['id'] ?? 0, $size);
 	}
 
 	/**
