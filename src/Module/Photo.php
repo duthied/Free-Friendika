@@ -63,6 +63,7 @@ class Photo extends BaseModule
 		}
 
 		$customsize = 0;
+		$square_resize = true;
 		$photo = false;
 		$scale = null;
 		$stamp = microtime(true);
@@ -70,6 +71,7 @@ class Photo extends BaseModule
 			$customsize = intval($parameters['customsize']);
 			$uid = MPhoto::stripExtension($parameters['name']);
 			$photo = self::getAvatar($uid, $parameters['type'], $customsize);
+			$square_resize = !in_array($parameters['type'], ['media', 'preview']);
 		} elseif (!empty($parameters['type'])) {
 			$uid = MPhoto::stripExtension($parameters['name']);
 			$photo = self::getAvatar($uid, $parameters['type'], Proxy::PIXEL_SMALL);
@@ -105,9 +107,13 @@ class Photo extends BaseModule
 		}
 
 		// if customsize is set and image is not a gif, resize it
-		if ($photo['type'] !== "image/gif" && $customsize > 0 && $customsize < 501) {
+		if ($photo['type'] !== "image/gif" && $customsize > 0 && $customsize <= Proxy::PIXEL_THUMB && $square_resize) {
 			$img = new Image($imgdata, $photo['type']);
 			$img->scaleToSquare($customsize);
+			$imgdata = $img->asString();
+		} elseif ($photo['type'] !== "image/gif" && $customsize > 0) {
+			$img = new Image($imgdata, $photo['type']);
+			$img->scaleDown($customsize);
 			$imgdata = $img->asString();
 		}
 
@@ -168,9 +174,6 @@ class Photo extends BaseModule
 					return false;
 				}
 
-				$author = Contact::selectFirst([], ["`id` IN (SELECT `author-id` FROM `post` WHERE `uri-id` = ?)", $media['uri-id']]);
-				$url = Contact::magicLinkByContact($author, $url);
-
 				return MPhoto::createPhotoForExternalResource($url, (int)local_user());
 			case "media":
 				$media = DBA::selectFirst('post-media', ['url', 'uri-id'], ['id' => $uid, 'type' => Post\Media::IMAGE]);
@@ -178,10 +181,7 @@ class Photo extends BaseModule
 					return false;
 				}
 
-				$author = Contact::selectFirst([], ["`id` IN (SELECT `author-id` FROM `post` WHERE `uri-id` = ?)", $media['uri-id']]);
-				$url = Contact::magicLinkByContact($author, $media['url']);
-
-				return MPhoto::createPhotoForExternalResource($url, (int)local_user());
+				return MPhoto::createPhotoForExternalResource($media['url'], (int)local_user());
 			case "contact":
 				$contact = Contact::getById($uid, ['uid', 'url', 'avatar', 'photo', 'xmpp', 'addr']);
 				if (empty($contact)) {
