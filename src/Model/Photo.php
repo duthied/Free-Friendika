@@ -283,7 +283,7 @@ class Photo
 		$photo['backend-class'] = ExternalResource::NAME;
 		$photo['backend-ref']   = json_encode(['url' => $url, 'uid' => $uid]);
 		$photo['type']          = $mimetype;
-		$photo['cacheable']     = false;
+		$photo['cacheable']     = true;
 
 		return $photo;
 	}
