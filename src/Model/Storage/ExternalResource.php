@@ -22,7 +22,7 @@
 namespace Friendica\Model\Storage;
 
 use BadMethodCallException;
-use Friendica\DI;
+use Friendica\Network\IHTTPRequest;
 
 /**
  * External resource storage class
@@ -34,6 +34,14 @@ class ExternalResource implements IStorage
 {
 	const NAME = 'ExternalResource';
 
+	/** @var IHTTPRequest */
+	private $httpRequest;
+
+	public function __construct(IHTTPRequest $httpRequest)
+	{
+		$this->httpRequest = $httpRequest;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -44,7 +52,7 @@ class ExternalResource implements IStorage
 			return "";
 		}
 
-		$curlResult = DI::httpRequest()->get($filename);
+		$curlResult = $this->httpRequest->get($filename);
 		if ($curlResult->isSuccess()) {
 			return $curlResult->getBody();
 		} else {

@@ -23,6 +23,8 @@ namespace Friendica\Model\Storage;
 
 /**
  * Interface for storage backends
+ *
+ * @todo Split this interface into "IStorage" for get() operations (including Resource fetching) and "IUserStorage" for real user backends including put/delete/options
  */
 interface IStorage
 {
