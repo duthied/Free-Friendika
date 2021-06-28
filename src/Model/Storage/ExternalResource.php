@@ -23,6 +23,7 @@ namespace Friendica\Model\Storage;
 
 use BadMethodCallException;
 use Friendica\Util\HTTPSignature;
+use Friendica\Network\IHTTPRequest;
 
 /**
  * External resource storage class
@@ -33,6 +34,14 @@ use Friendica\Util\HTTPSignature;
 class ExternalResource implements IStorage
 {
 	const NAME = 'ExternalResource';
+
+	/** @var IHTTPRequest */
+	private $httpRequest;
+
+	public function __construct(IHTTPRequest $httpRequest)
+	{
+		$this->httpRequest = $httpRequest;
+	}
 
 	/**
 	 * @inheritDoc
