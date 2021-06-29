@@ -1502,18 +1502,22 @@ class Contact
 		if (!empty($contact)) {
 			$contact = self::checkAvatarCacheByArray($contact, $no_update);
 			if (!empty($contact[$field])) {
-				$avatar = $contact[$field];
+				return $contact[$field];
+			} elseif (!empty($contact['id'])) {
+				return self::getAvatarUrlForId($contact['id'], $size, $contact['updated'] ?? '');
+			} elseif (!empty($contact['avatar'])) {
+				$avatar = $contact['avatar'];
 			}
 		}
 
-		if ($no_update && empty($avatar) && !empty($contact['avatar'])) {
-			$avatar = $contact['avatar'];
+		if (empty($avatar)) {
+			$avatar = self::getDefaultAvatar([], $size);
 		}
 
-		if (!empty($avatar) && Proxy::isLocalImage($avatar)) {
+		if (Proxy::isLocalImage($avatar)) {
 			return $avatar;
 		} else {
-			return self::getAvatarUrlForId($contact['id'], $size);
+			return Proxy::proxifyUrl($avatar, false, $size);
 		}
 	}
 
@@ -1661,12 +1665,20 @@ class Contact
 	/**
 	 * Get avatar link for given contact id
 	 *
-	 * @param integer $cid  contact id
-	 * @param string  $size One of the ProxyUtils::SIZE_* constants
+	 * @param integer $cid     contact id
+	 * @param string  $size    One of the ProxyUtils::SIZE_* constants
+	 * @param string  $updated Contact update date
 	 * @return string avatar link
 	 */
-	public static function getAvatarUrlForId(int $cid, string $size = ''):string
+	public static function getAvatarUrlForId(int $cid, string $size = '', string $updated = ''):string
 	{
+		// We have to fetch the "updated" variable when it wasn't provided
+		// The parameter can be provided to improve performance
+		if (empty($updated)) {
+			$contact = self::getById($cid, ['updated']);
+			$updated = $contact['updated'] ?? '';
+		}
+
 		$url = DI::baseUrl() . '/photo/contact/';
 		switch ($size) {
 			case Proxy::SIZE_MICRO:
@@ -1685,7 +1697,7 @@ class Contact
 				$url .= Proxy::PIXEL_LARGE . '/';
 				break;
 		}
-		return $url . $cid;
+		return $url . $cid . ($updated ? '?ts=' . strtotime($updated) : '');
 	}
 
 	/**
@@ -1700,19 +1712,47 @@ class Contact
 	{
 		$condition = ["`nurl` = ? AND ((`uid` = ? AND `network` IN (?, ?)) OR `uid` = ?)",
 			Strings::normaliseLink($url), $uid, Protocol::FEED, Protocol::MAIL, 0];
-		$contact = self::selectFirst(['id'], $condition);
-		return self::getAvatarUrlForId($contact['id'] ?? 0, $size);
+		$contact = self::selectFirst(['id', 'updated'], $condition);
+		return self::getAvatarUrlForId($contact['id'] ?? 0, $size, $contact['updated']);
 	}
 
 	/**
 	 * Get header link for given contact id
 	 *
-	 * @param integer $cid contact id
+	 * @param integer $cid     contact id
+	 * @param string  $size    One of the ProxyUtils::SIZE_* constants
+	 * @param string  $updated Contact update date
 	 * @return string header link
 	 */
-	public static function getHeaderUrlForId(int $cid):string
+	public static function getHeaderUrlForId(int $cid, string $size = '', string $updated = ''):string
 	{
-		return DI::baseUrl() . '/photo/header/' . $cid;
+		// We have to fetch the "updated" variable when it wasn't provided
+		// The parameter can be provided to improve performance
+		if (empty($updated)) {
+			$contact = self::getById($cid, ['updated']);
+			$updated = $contact['updated'] ?? '';
+		}
+
+		$url = DI::baseUrl() . '/photo/header/';
+		switch ($size) {
+			case Proxy::SIZE_MICRO:
+				$url .= Proxy::PIXEL_MICRO . '/';
+				break;
+			case Proxy::SIZE_THUMB:
+				$url .= Proxy::PIXEL_THUMB . '/';
+				break;
+			case Proxy::SIZE_SMALL:
+				$url .= Proxy::PIXEL_SMALL . '/';
+				break;
+			case Proxy::SIZE_MEDIUM:
+				$url .= Proxy::PIXEL_MEDIUM . '/';
+				break;
+			case Proxy::SIZE_LARGE:
+				$url .= Proxy::PIXEL_LARGE . '/';
+				break;
+		}
+
+		return $url . $cid . ($updated ? '?ts=' . strtotime($updated) : '');
 	}
 
 	/**
