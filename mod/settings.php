@@ -504,7 +504,7 @@ function settings_content(App $a)
 	if (($a->argc > 1) && ($a->argv[1] === 'addon')) {
 		$addon_settings_forms = [];
 
-		foreach (DI::dba()->select('hook', ['file', 'function'], ['hook' => 'addon_settings']) as $hook) {
+		foreach (DI::dba()->selectToArray('hook', ['file', 'function'], ['hook' => 'addon_settings']) as $hook) {
 			$data = '';
 			Hook::callSingle(DI::app(), 'addon_settings', [$hook['file'], $hook['function']], $data);
 			$addon_settings_forms[] = $data;
