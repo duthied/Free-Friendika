@@ -33,6 +33,7 @@ use Friendica\Model\Post;
 use Friendica\Model\Verb;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Proxy;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
@@ -340,13 +341,9 @@ function ping_init(App $a)
 		usort($notifications, $sort_function);
 
 		array_walk($notifications, function (&$notification) {
-			if (empty($notification['photo'])) {
-				$contact = Contact::getByURL($notification['url'], false, ['micro', 'id', 'avatar']);
-				$notification['photo'] = Contact::getMicro($contact, $notification['photo']);
-			}
-
+			$notification['photo']     = Contact::getAvatarUrlForUrl($notification['url'], local_user(), Proxy::SIZE_MICRO);
 			$notification['timestamp'] = DateTimeFormat::local($notification['date']);
-			$notification['date'] = Temporal::getRelativeDate($notification['date']);
+			$notification['date']      = Temporal::getRelativeDate($notification['date']);
 		});
 	}
 

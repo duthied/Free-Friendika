@@ -191,6 +191,14 @@ class Photo extends BaseModule
 					$contact = Contact::getByURL($contact['url'], false, ['avatar', 'photo', 'xmpp', 'addr']);
 				}
 				if (!empty($contact['photo'])) {
+					// Fetch photo directly
+					$resourceid = MPhoto::ridFromURI($contact['photo']);
+					if (!empty($resourceid)) {
+						$photo = MPhoto::selectFirst([], ['resource-id' => $resourceid], ['order' => ['scale']]);
+						if (!empty($photo)) {
+							return $photo;
+						}
+					}
 					$url = $contact['photo'];
 				} elseif (!empty($contact['avatar'])) {
 					$url = $contact['avatar'];

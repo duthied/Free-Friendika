@@ -39,6 +39,7 @@ use Friendica\Model\User;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
@@ -459,7 +460,7 @@ class Post
 			'profile_url'     => $profile_link,
 			'name'            => $profile_name,
 			'item_photo_menu_html' => item_photo_menu($item),
-			'thumb'           => DI::baseUrl()->remove($item['author-avatar']),
+			'thumb'           => DI::baseUrl()->remove(Contact::getAvatarUrlForUrl($item['author-link'], $item['uid'], Proxy::SIZE_THUMB)),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
 			'title'           => $title,

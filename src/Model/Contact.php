@@ -1501,10 +1501,10 @@ class Contact
 	{
 		if (!empty($contact)) {
 			$contact = self::checkAvatarCacheByArray($contact, $no_update);
-			if (!empty($contact[$field])) {
-				return $contact[$field];
-			} elseif (!empty($contact['id'])) {
+			if (!empty($contact['id'])) {
 				return self::getAvatarUrlForId($contact['id'], $size, $contact['updated'] ?? '');
+			} elseif (!empty($contact[$field])) {
+				return $contact[$field];
 			} elseif (!empty($contact['avatar'])) {
 				$avatar = $contact['avatar'];
 			}
@@ -1713,7 +1713,7 @@ class Contact
 		$condition = ["`nurl` = ? AND ((`uid` = ? AND `network` IN (?, ?)) OR `uid` = ?)",
 			Strings::normaliseLink($url), $uid, Protocol::FEED, Protocol::MAIL, 0];
 		$contact = self::selectFirst(['id', 'updated'], $condition);
-		return self::getAvatarUrlForId($contact['id'] ?? 0, $size, $contact['updated']);
+		return self::getAvatarUrlForId($contact['id'] ?? 0, $size, $contact['updated'] ?? '');
 	}
 
 	/**
