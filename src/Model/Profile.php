@@ -507,9 +507,9 @@ class Profile
 			$p['address'] = BBCode::convert($p['address']);
 		}
 
-		$p['photo'] = Contact::getAvatarUrlForId($cid);
+		$p['photo'] = Contact::getAvatarUrlForId($cid, ProxyUtils::SIZE_SMALL);
 
-		$p['url'] = Contact::magicLink($profile_url);
+		$p['url'] = Contact::magicLinkById($cid);
 
 		$tpl = Renderer::getMarkupTemplate('profile/vcard.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
