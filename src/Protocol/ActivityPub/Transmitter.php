@@ -325,7 +325,7 @@ class Transmitter
 				return [];
 			}
 
-			$fields = ['locality', 'region', 'country-name'];
+			$fields = ['locality', 'region', 'country-name', 'net-publish'];
 			$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid]);
 			if (!DBA::isResult($profile)) {
 				return [];
@@ -340,7 +340,7 @@ class Transmitter
 			$contact = User::getSystemAccount();
 			$user = ['guid' => '', 'nickname' => $contact['nick'], 'pubkey' => $contact['pubkey'],
 				'account-type' => $contact['contact-type'], 'page-flags' => User::PAGE_FLAGS_NORMAL];
-			$profile = ['locality' => '', 'region' => '', 'country-name' => ''];
+			$profile = ['locality' => '', 'region' => '', 'country-name' => '', 'net-publish' => false];
 		}
 
 		$data = ['@context' => ActivityPub::CONTEXT];
@@ -375,6 +375,7 @@ class Transmitter
 
 		$data['url'] = $contact['url'];
 		$data['manuallyApprovesFollowers'] = in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
+		$data['discoverable'] = $profile['net-publish'];
 		$data['publicKey'] = ['id' => $contact['url'] . '#main-key',
 			'owner' => $contact['url'],
 			'publicKeyPem' => $user['pubkey']];

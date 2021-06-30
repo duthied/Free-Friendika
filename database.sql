@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2021.06-rc (Siberian Iris)
--- DB_UPDATE_VERSION 1423
+-- DB_UPDATE_VERSION 1424
 -- ------------------------------------------
 
 
@@ -340,6 +340,7 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	`outbox` varchar(255) COMMENT '',
 	`sharedinbox` varchar(255) COMMENT '',
 	`manually-approve` boolean COMMENT '',
+	`discoverable` boolean COMMENT 'Mastodon extension: true if profile is published in their directory',
 	`nick` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`name` varchar(255) COMMENT '',
 	`about` text COMMENT '',

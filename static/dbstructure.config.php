@@ -55,7 +55,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1423);
+	define('DB_UPDATE_VERSION', 1424);
 }
 
 return [
@@ -401,6 +401,7 @@ return [
 			"outbox" => ["type" => "varchar(255)", "comment" => ""],
 			"sharedinbox" => ["type" => "varchar(255)", "comment" => ""],
 			"manually-approve" => ["type" => "boolean", "comment" => ""],
+			"discoverable" => ["type" => "boolean", "comment" => "Mastodon extension: true if profile is published in their directory"],
 			"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"name" => ["type" => "varchar(255)", "comment" => ""],
 			"about" => ["type" => "text", "comment" => ""],
