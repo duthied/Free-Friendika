@@ -1427,8 +1427,8 @@ class OStatus
 		$attributes = [
 				"rel" => "avatar",
 				"type" => "image/jpeg", // To-Do?
-				"media:width" => ProxyUtils::SIZE_SMALL,
-				"media:height" => ProxyUtils::SIZE_SMALL,
+				"media:width" => ProxyUtils::PIXEL_SMALL,
+				"media:height" => ProxyUtils::PIXEL_SMALL,
 				"href" => Contact::getAvatarUrlForId($owner['id'], ProxyUtils::SIZE_SMALL, $owner['updated'])];
 		XML::addElement($doc, $author, "link", "", $attributes);
 
