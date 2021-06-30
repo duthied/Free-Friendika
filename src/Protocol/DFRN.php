@@ -51,6 +51,7 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
@@ -618,7 +619,8 @@ class DFRN
 		XML::addElement($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
 
 		$attributes = ["rel" => "photo", "type" => "image/jpeg",
-					"media:width" => 300, "media:height" => 300, "href" => $owner['photo']];
+					"media:width" => Proxy::PIXEL_SMALL, "media:height" => Proxy::PIXEL_SMALL,
+					"href" => Contact::getAvatarUrlForId($owner['id'], Proxy::SIZE_SMALL, $owner['updated'])];
 
 		if (!$public || !$hide) {
 			$attributes["dfrn:updated"] = $picdate;

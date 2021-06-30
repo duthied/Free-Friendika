@@ -1427,18 +1427,18 @@ class OStatus
 		$attributes = [
 				"rel" => "avatar",
 				"type" => "image/jpeg", // To-Do?
-				"media:width" => 300,
-				"media:height" => 300,
-				"href" => $owner["photo"]];
+				"media:width" => ProxyUtils::SIZE_SMALL,
+				"media:height" => ProxyUtils::SIZE_SMALL,
+				"href" => Contact::getAvatarUrlForId($owner['id'], ProxyUtils::SIZE_SMALL, $owner['updated'])];
 		XML::addElement($doc, $author, "link", "", $attributes);
 
 		if (isset($owner["thumb"])) {
 			$attributes = [
 					"rel" => "avatar",
 					"type" => "image/jpeg", // To-Do?
-					"media:width" => 80,
-					"media:height" => 80,
-					"href" => $owner["thumb"]];
+					"media:width" => ProxyUtils::PIXEL_THUMB,
+					"media:height" => ProxyUtils::PIXEL_THUMB,
+					"href" => Contact::getAvatarUrlForId($owner['id'], ProxyUtils::SIZE_THUMB, $owner['updated'])];
 			XML::addElement($doc, $author, "link", "", $attributes);
 		}
 
