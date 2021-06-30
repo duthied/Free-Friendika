@@ -102,7 +102,7 @@ class Photo extends BaseModule
 		$stamp = microtime(true);
 		$imgdata = MPhoto::getImageDataForPhoto($photo);
 
-		// The mimetype for an external resources can only be known after it had been fetched
+		// The mimetype for an external resource can only be known after it had been fetched
 		if ($photo['backend-class'] == ExternalResource::NAME) {
 			$mimetype = Images::getMimeTypeByData($imgdata);
 			if (!empty($mimetype)) {
