@@ -245,13 +245,17 @@ class Photo
 	 * Construct a photo array for a system resource image
 	 *
 	 * @param string $filename Image file name relative to code root
-	 * @param string $mimetype Image mime type. Defaults to "image/jpeg"
+	 * @param string $mimetype Image mime type. Is guessed by file name when empty.
 	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function createPhotoForSystemResource($filename, $mimetype = "image/jpeg")
+	public static function createPhotoForSystemResource($filename, $mimetype = '')
 	{
+		if (empty($mimetype)) {
+			$mimetype = Images::guessTypeByExtension($filename);
+		}
+
 		$fields = self::getFields();
 		$values = array_fill(0, count($fields), "");
 
@@ -269,13 +273,17 @@ class Photo
 	 *
 	 * @param string $url      Image URL
 	 * @param int    $uid      User ID of the requesting person
-	 * @param string $mimetype Image mime type. Defaults to "image/jpeg"
+	 * @param string $mimetype Image mime type. Is guessed by file name when empty.
 	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function createPhotoForExternalResource($url, $uid = 0, $mimetype = "image/jpeg")
+	public static function createPhotoForExternalResource($url, $uid = 0, $mimetype = '')
 	{
+		if (empty($mimetype)) {
+			$mimetype = Images::guessTypeByExtension($url);
+		}
+
 		$fields = self::getFields();
 		$values = array_fill(0, count($fields), "");
 
