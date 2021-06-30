@@ -42,6 +42,7 @@ use Friendica\Object\Thread;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
@@ -603,7 +604,7 @@ function conversation(App $a, array $items, $mode, $update, $preview = false, $o
 					'name' => $profile_name,
 					'sparkle' => $sparkle,
 					'lock' => false,
-					'thumb' => DI::baseUrl()->remove($item['author-avatar']),
+					'thumb' => DI::baseUrl()->remove(Contact::getAvatarUrlForUrl($item['author-link'], $item['uid'], Proxy::SIZE_THUMB)),
 					'title' => $title,
 					'body_html' => $body_html,
 					'tags' => $tags['tags'],

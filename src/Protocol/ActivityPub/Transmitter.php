@@ -331,7 +331,7 @@ class Transmitter
 				return [];
 			}
 
-			$fields = ['name', 'url', 'location', 'about', 'avatar', 'photo'];
+			$fields = ['id', 'name', 'url', 'location', 'about', 'avatar', 'photo', 'updated'];
 			$contact = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 			if (!DBA::isResult($contact)) {
 				return [];
@@ -379,7 +379,7 @@ class Transmitter
 			'owner' => $contact['url'],
 			'publicKeyPem' => $user['pubkey']];
 		$data['endpoints'] = ['sharedInbox' => DI::baseUrl() . '/inbox'];
-		$data['icon'] = ['type' => 'Image', 'url' => $contact['photo']];
+		$data['icon'] = ['type' => 'Image', 'url' => Contact::getAvatarUrlForId($contact['id'], '', $contact['updated'])];
 
 		$resourceid = Photo::ridFromURI($contact['photo']);
 		if (!empty($resourceid)) {
@@ -390,7 +390,7 @@ class Transmitter
 		}
 
 		if (!empty($contact['header'])) {
-			$data['image'] = ['type' => 'Image', 'url' => $contact['header']];
+			$data['image'] = ['type' => 'Image', 'url' => Contact::getHeaderUrlForId($contact['id'], '', $contact['updated'])];
 
 			$resourceid = Photo::ridFromURI($contact['header']);
 			if (!empty($resourceid)) {
