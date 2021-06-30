@@ -1272,7 +1272,7 @@ class OStatus
 		XML::addElement($doc, $root, "id", DI::baseUrl() . "/profile/" . $owner["nick"]);
 		XML::addElement($doc, $root, "title", $title);
 		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], DI::config()->get('config', 'sitename')));
-		XML::addElement($doc, $root, "logo", $owner["photo"]);
+		XML::addElement($doc, $root, "logo", Contact::getAvatarUrlForId($owner['id'], ProxyUtils::SIZE_SMALL, $owner['updated']));
 		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
 
 		$author = self::addAuthor($doc, $owner, true);
