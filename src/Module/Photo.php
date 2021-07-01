@@ -28,10 +28,12 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo as MPhoto;
 use Friendica\Model\Post;
+use Friendica\Model\Profile;
 use Friendica\Model\Storage\ExternalResource;
 use Friendica\Model\Storage\SystemResource;
 use Friendica\Util\Proxy;
 use Friendica\Object\Image;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\Images;
 
 /**
@@ -63,6 +65,11 @@ class Photo extends BaseModule
 				header_remove("Cache-Control");
 			}
 			exit;
+		}
+
+		$requester = HTTPSignature::getSigner('', $_SERVER);
+		if (!empty($requester)) {
+			Profile::addVisitorCookieForHandle($requester);
 		}
 
 		$customsize = 0;
