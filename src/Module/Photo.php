@@ -29,6 +29,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Photo as MPhoto;
 use Friendica\Model\Post;
 use Friendica\Model\Storage\ExternalResource;
+use Friendica\Model\Storage\SystemResource;
 use Friendica\Util\Proxy;
 use Friendica\Object\Image;
 use Friendica\Util\Images;
@@ -102,8 +103,8 @@ class Photo extends BaseModule
 		$stamp = microtime(true);
 		$imgdata = MPhoto::getImageDataForPhoto($photo);
 
-		// The mimetype for an external resource can only be known after it had been fetched
-		if ($photo['backend-class'] == ExternalResource::NAME) {
+		// The mimetype for an external or system resource can only be known reliably after it had been fetched
+		if (in_array($photo['backend-class'], [ExternalResource::NAME, SystemResource::NAME])) {
 			$mimetype = Images::getMimeTypeByData($imgdata);
 			if (!empty($mimetype)) {
 				$photo['type'] = $mimetype;
