@@ -63,7 +63,6 @@ class Module
 		'outbox',
 		'poco',
 		'post',
-		'proxy',
 		'pubsub',
 		'pubsubhubbub',
 		'receive',
