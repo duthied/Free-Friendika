@@ -284,6 +284,8 @@ class APContact
 			}
 		}
 
+		$apcontact['discoverable'] = JsonLD::fetchElement($compacted, 'toot:discoverable', '@value');
+
 		// To-Do
 
 		// Unhandled

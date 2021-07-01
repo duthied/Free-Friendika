@@ -65,9 +65,11 @@ class ActivityPub
 		'dfrn' => 'http://purl.org/macgirvin/dfrn/1.0/',
 		'diaspora' => 'https://diasporafoundation.org/ns/',
 		'litepub' => 'http://litepub.social/ns#',
+		'toot' => 'http://joinmastodon.org/ns#',
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
 		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
-		'directMessage' => 'litepub:directMessage']];
+		'directMessage' => 'litepub:directMessage',
+		'discoverable' => 'toot:discoverable']];
 	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application', 'Tombstone'];
 	/**
 	 * Checks if the web request is done for the AP protocol
@@ -165,6 +167,10 @@ class ActivityPub
 		$profile['manually-approve'] = $apcontact['manually-approve'];
 		$profile['baseurl'] = $apcontact['baseurl'];
 		$profile['gsid'] = $apcontact['gsid'];
+
+		if (!is_null($apcontact['discoverable'])) {
+			$profile['hide'] = !$apcontact['discoverable'];
+		}
 
 		// Remove all "null" fields
 		foreach ($profile as $field => $content) {
