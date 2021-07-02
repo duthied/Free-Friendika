@@ -953,6 +953,10 @@ class BBCode
 	 */
 	public static function fetchShareAttributes($text)
 	{
+		// See Issue https://github.com/friendica/friendica/issues/10454
+		// Hashtags in usernames are expanded to links. This here is a quick fix. 
+		$text = preg_replace('/([@!#])\[url\=.*?\](.*?)\[\/url\]/ism', '$1$2', $text);
+
 		$attributes = [];
 		if (!preg_match("/(.*?)\[share(.*?)\](.*)\[\/share\]/ism", $text, $matches)) {
 			return $attributes;
