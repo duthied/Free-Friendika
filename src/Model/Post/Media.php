@@ -28,8 +28,10 @@ use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
+use Friendica\Model\Photo;
 use Friendica\Model\Post;
 use Friendica\Util\Images;
+use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
@@ -158,6 +160,10 @@ class Media
 	 */
 	public static function fetchAdditionalData(array $media)
 	{
+		if (Network::isLocalLink($media['url'])) {
+			$media = self::fetchLocalData($media);
+		}
+
 		// Fetch the mimetype or size if missing.
 		if (empty($media['mimetype']) || empty($media['size'])) {
 			$timeout = DI::config()->get('system', 'xrd_timeout');
@@ -213,6 +219,36 @@ class Media
 			$media['publisher-name'] = $data['publisher_name'] ?? null;
 			$media['publisher-image'] = $data['publisher_img'] ?? null;
 		}
+		return $media;
+	}
+
+	/**
+	 * Fetch media data from local resources
+	 * @param array $media 
+	 * @return array media with added data
+	 */
+	private static function fetchLocalData(array $media)
+	{
+		if (!preg_match('|.*?/photo/(.*[a-fA-F0-9])\-(.*[0-9])\..*[\w]|', $media['url'], $matches)) {
+			return $media;
+		}
+		$photo = Photo::selectFirst([], ['resource-id' => $matches[1], 'scale' => $matches[2]]);
+		if (!empty($photo)) {
+			$media['mimetype'] = $photo['type'];
+			$media['size'] = $photo['datasize'];
+			$media['width'] = $photo['width'];
+			$media['height'] = $photo['height'];
+		}
+
+		if (!preg_match('|.*?/photo/(.*[a-fA-F0-9])\-(.*[0-9])\..*[\w]|', $media['preview'], $matches)) {
+			return $media;
+		}
+		$photo = Photo::selectFirst([], ['resource-id' => $matches[1], 'scale' => $matches[2]]);
+		if (!empty($photo)) {
+			$media['preview-width'] = $photo['width'];
+			$media['preview-height'] = $photo['height'];
+		}
+
 		return $media;
 	}
 

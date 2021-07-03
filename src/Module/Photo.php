@@ -33,8 +33,8 @@ use Friendica\Model\Storage\ExternalResource;
 use Friendica\Model\Storage\SystemResource;
 use Friendica\Util\Proxy;
 use Friendica\Object\Image;
-use Friendica\Util\HTTPSignature;
 use Friendica\Util\Images;
+use Friendica\Util\Network;
 
 /**
  * Photo Module
@@ -67,10 +67,7 @@ class Photo extends BaseModule
 			exit;
 		}
 
-		$requester = HTTPSignature::getSigner('', $_SERVER);
-		if (!empty($requester)) {
-			Profile::addVisitorCookieForHandle($requester);
-		}
+		Profile::addVisitorCookieForHTTPSigner();
 
 		$customsize = 0;
 		$square_resize = true;
@@ -193,11 +190,19 @@ class Photo extends BaseModule
 					return false;
 				}
 
+				if (Network::isLocalLink($url) && preg_match('|.*?/photo/(.*[a-fA-F0-9])\-(.*[0-9])\..*[\w]|', $url, $matches)) {
+					return MPhoto::getPhoto($matches[1], $matches[2]);
+				}
+		
 				return MPhoto::createPhotoForExternalResource($url, (int)local_user());
 			case "media":
 				$media = DBA::selectFirst('post-media', ['url', 'uri-id'], ['id' => $uid, 'type' => Post\Media::IMAGE]);
 				if (empty($media)) {
 					return false;
+				}
+
+				if (Network::isLocalLink($media['url']) && preg_match('|.*?/photo/(.*[a-fA-F0-9])\-(.*[0-9])\..*[\w]|', $media['url'], $matches)) {
+					return MPhoto::getPhoto($matches[1], $matches[2]);
 				}
 
 				return MPhoto::createPhotoForExternalResource($media['url'], (int)local_user());
