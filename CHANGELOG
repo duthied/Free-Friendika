@@ -1,4 +1,4 @@
-Version 2021.06 (unreleased)
+Version 2021.07 (unreleased)
   Friendica Core
     Updates to the translation DE, EN-GB, HU, IT, JA [translation teams]
     Updates to the themes (frio, vier) [annando, MrPetovan]
@@ -14,6 +14,7 @@ Version 2021.06 (unreleased)
     Enhanced the worker task display in the admin panel [tobiasd]
     Enhanced the installation wizard [tobiasd]
     Enhanced the federation statistics page [annando]
+    Enhanced the profile picture handling [annando]
     Fixed information contained in the nodeinfo [MrPetovan]
     Fixed an avatar setting problem during the account creation [nupplaphil]
     Fixed a display problem with picture only postings from Diaspora* [annando]
@@ -22,7 +23,10 @@ Version 2021.06 (unreleased)
     Fixed a problem with block/ignore via API [nupplaphil]
     Fixed a problem with directory search results [MrPetovan]
     Fixed problems with the console autoinstall command [annando, tobiasd]
-    Fixed problems with forum delivery
+    Fixed problems with forum delivery [annando]
+    Fixed a problem fetching photos in private postings [annando]
+    Fixed a problem with author names containing hash tags [annando]
+    Fixed problems with the addon settings [MrPetovan]
     Removed the Diaspora* relay support [annando]
     Removed the system user from the user countings [annando]
     Make birthday time comparison 32-bit safe in Protocol/DFRN [MrPetovan]
@@ -58,8 +62,8 @@ Version 2021.06 (unreleased)
   
   Closed Issues
     7967, 9064, 9993, 10055, 10147, 10184, 10198, 10205, 10210, 10219,
-    10232, 10254, 10287, 10293, 10306, 10312, 10342, 10364, 10375, 10378,
-    10392, 10424, 10433
+    10232, 10254, 10287, 10293, 10306, 10312, 10314, 10342, 10364, 10375,
+    10378, 10392, 10424, 10433, 10439, 10443
 
 Version 2021.04 (2021-04-26)
   Friendica Core
