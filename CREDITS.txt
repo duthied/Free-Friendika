@@ -46,6 +46,8 @@ ben-utzer
 Beringer Zsolt
 BinkaDroid
 Bjoessi
+bob lebonche
+Boris Daniel Martinez Millàn
 bufalo1973
 ButterflyOfFire
 Calango Jr
@@ -71,6 +73,7 @@ Daria Początek
 David
 David Martín Miranda
 David Rabel
+Davide Pesenti
 Dean Townsley
 Denis Chenu
 dependabot[bot]
@@ -109,7 +112,6 @@ Gregory Smith
 guzzisti
 Haakon Meland Eriksen
 Hans Meine
-hauke
 Hauke
 Hauke Altmann
 Herbert Thielen
@@ -259,12 +261,14 @@ Thecross
 Thomas
 Thomas Willingham
 thorsten23
+Till Mohr
 Tim Stahel
 TiMESPLiNTER
 Tino
 Tobias Diekershoff
 Tobias Hößl
 Tom
+Tom Aurlund
 tomamplius
 tomtom84
 Tony Baldwin
@@ -282,14 +286,19 @@ utzer
 Valvin
 Vasudev Kamath
 Vasya Novikov
+very-ape
 Vinzenz Vietzke
 vislav
+vladimir N
 Vladimir Núñez
 VVelox
 Vít Šesták 'v6ak'
 Waldemar Stoczkowski
+Wil Tur
 Wouter Broers
+XMPPはいいぞ
 Yasen Pramatarov
+Yasmine A
 ylms
 Zach Prezkuta
 Zane C. Bowers-Hadley
