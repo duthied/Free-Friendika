@@ -22,9 +22,9 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
-use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 
 /**
@@ -56,5 +56,49 @@ class RemoveUnusedAvatars
 		}
 		DBA::close($contacts);
 		Logger::notice('Removal done', ['count' => $count, 'total' => $total]);
+
+		self::fixPhotoContacts();
+	}
+
+	private static function fixPhotoContacts()
+	{
+		$total = 0;
+		$deleted = 0;
+		$updated1 = 0;
+		$updated2 = 0;
+		Logger::notice('Starting contact fix');
+		$photos = DBA::select('photo', [], ["`uid` = ? AND `contact-id` IN (SELECT `id` FROM `contact` WHERE `uid` != ?)", 0, 0]);
+		while ($photo = DBA::fetch($photos)) {
+			$total++;
+			$photo_contact = Contact::getById($photo['contact-id']);
+			$resource = Photo::ridFromURI($photo_contact['photo']);
+			if ($photo['resource-id'] == $resource) {
+				$contact = DBA::selectFirst('contact', [], ['nurl' => $photo_contact['nurl'], 'uid' => 0]);
+				if (!empty($contact['photo']) && ($contact['photo'] == $photo_contact['photo'])) {
+					Logger::notice('Photo updated to public user', ['id' => $photo['id'], 'contact-id' => $contact['id']]);
+					DBA::update('photo', ['contact-id' => $contact['id']], ['id' => $photo['id']]);
+					$updated1++;
+				}
+			} else {
+				$updated = false;
+				$contacts = DBA::select('contact', [], ['nurl' => $photo_contact['nurl']]);
+				while ($contact = DBA::fetch($contacts)) {
+					if ($photo['resource-id'] == Photo::ridFromURI($contact['photo'])) {
+						Logger::notice('Photo updated to given user', ['id' => $photo['id'], 'contact-id' => $contact['id'], 'uid' => $contact['uid']]);
+						DBA::update('photo', ['contact-id' => $contact['id'], 'uid' => $contact['uid']], ['id' => $photo['id']]);
+						$updated = true;
+						$updated2++;
+					}
+				}		
+				DBA::close($contacts);
+				if (!$updated) {
+					Logger::notice('Photo deleted', ['id' => $photo['id']]);
+					Photo::delete(['id' => $photo['id']]);
+					$deleted++;
+				}
+			}
+		}
+		DBA::close($photos);
+		Logger::notice('Contact fix done', ['total' => $total, 'updated1' => $updated1, 'updated2' => $updated2, 'deleted' => $deleted]);
 	}
 }
