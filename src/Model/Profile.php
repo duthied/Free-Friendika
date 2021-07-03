@@ -38,6 +38,7 @@ use Friendica\DI;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
@@ -828,11 +829,11 @@ class Profile
 		// Try to find the public contact entry of the visitor.
 		$cid = Contact::getIdForURL($handle);
 		if (!$cid) {
-			Logger::log('unable to finger ' . $handle, Logger::DEBUG);
+			Logger::info('Handle not found', ['handle' => $handle]);
 			return [];
 		}
 
-		$visitor = DBA::selectFirst('contact', [], ['id' => $cid]);
+		$visitor = Contact::getById($cid);
 
 		// Authenticate the visitor.
 		$_SESSION['authenticated'] = 1;
@@ -849,6 +850,19 @@ class Profile
 		Logger::info('Authenticated visitor', ['url' => $visitor['url']]);
 
 		return $visitor;
+	}
+
+	/**
+	 * Set the visitor cookies (see remote_user()) for signed HTTP requests
+	 * @return array Visitor contact array
+	 */
+	public static function addVisitorCookieForHTTPSigner()
+	{
+		$requester = HTTPSignature::getSigner('', $_SERVER);
+		if (empty($requester)) {
+			return [];
+		}
+		return Profile::addVisitorCookieForHandle($requester);
 	}
 
 	/**
