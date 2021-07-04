@@ -58,6 +58,7 @@ class RemoveUnusedAvatars
 		Logger::notice('Removal done', ['count' => $count, 'total' => $total]);
 
 		self::fixPhotoContacts();
+		self::deleteDuplicates();
 	}
 
 	private static function fixPhotoContacts()
@@ -67,7 +68,7 @@ class RemoveUnusedAvatars
 		$updated1 = 0;
 		$updated2 = 0;
 		Logger::notice('Starting contact fix');
-		$photos = DBA::select('photo', [], ["`uid` = ? AND `contact-id` IN (SELECT `id` FROM `contact` WHERE `uid` != ?)", 0, 0]);
+		$photos = DBA::select('photo', [], ["`uid` = ? AND `contact-id` IN (SELECT `id` FROM `contact` WHERE `uid` != ?) AND `contact-id` != ? AND `scale` IN (?, ?, ?)", 0, 0, 0, 4, 5, 6]);
 		while ($photo = DBA::fetch($photos)) {
 			$total++;
 			$photo_contact = Contact::getById($photo['contact-id']);
@@ -100,5 +101,28 @@ class RemoveUnusedAvatars
 		}
 		DBA::close($photos);
 		Logger::notice('Contact fix done', ['total' => $total, 'updated1' => $updated1, 'updated2' => $updated2, 'deleted' => $deleted]);
+	}
+
+	public static function deleteDuplicates()
+	{
+		$size = [4 => 'photo', 5 => 'thumb', 6 => 'micro'];
+
+		$total = 0;
+		$deleted = 0;
+		Logger::notice('Starting duplicate removal');
+		$photos = DBA::p("SELECT `photo`.`id`, `photo`.`uid`, `photo`.`scale`, `photo`.`album`, `photo`.`contact-id`, `photo`.`resource-id`, `contact`.`photo`, `contact`.`thumb`, `contact`.`micro` FROM `photo` INNER JOIN `contact` ON `contact`.`id` = `photo`.`contact-id` and `photo`.`contact-id` != ? AND `photo`.`scale` IN (?, ?, ?)", 0, 4, 5, 6);
+		while ($photo = DBA::fetch($photos)) {
+			$resource = Photo::ridFromURI($photo[$size[$photo['scale']]]);
+			if ($resource != $photo['resource-id'] && !empty($resource)) {
+				$total++;
+				if (DBA::exists('photo', ['resource-id' => $resource, 'scale' => $photo['scale']])) {
+					Logger::notice('Photo deleted', ['id' => $photo['id']]);
+					Photo::delete(['id' => $photo['id']]);
+					$deleted++;
+				}
+			}
+		}
+		DBA::close($photos);
+		Logger::notice('Duplicate removal done', ['total' => $total, 'deleted' => $deleted]);
 	}
 }
