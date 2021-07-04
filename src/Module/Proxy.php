@@ -45,8 +45,12 @@ class Proxy extends BaseModule
 	 * Sets application instance and checks if /proxy/ path is writable.
 	 *
 	 */
-	public static function init(array $parameters = [])
+	public static function rawContent(array $parameters = [])
 	{
+		if (!local_user()) {
+			throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
+		}
+
 		// Set application instance here
 		$a = DI::app();
 
