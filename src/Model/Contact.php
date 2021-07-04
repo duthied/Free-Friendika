@@ -2205,7 +2205,7 @@ class Contact
 			}
 		}
 		if (!empty($fields)) {
-			DBA::update('contact', $fields, ['id' => $id]);
+			DBA::update('contact', $fields, ['id' => $id, 'self' => false]);
 			Logger::info('Updating local contact', ['id' => $id]);
 		}
 	}
