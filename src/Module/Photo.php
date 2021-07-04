@@ -214,7 +214,7 @@ class Photo extends BaseModule
 				If (($contact['uid'] != 0) && empty($contact['photo']) && empty($contact['avatar'])) {
 					$contact = Contact::getByURL($contact['url'], false, ['avatar', 'photo', 'xmpp', 'addr']);
 				}
-				if (!empty($contact['photo'])) {
+				if (!empty($contact['photo']) && !empty($contact['avatar'])) {
 					// Fetch photo directly
 					$resourceid = MPhoto::ridFromURI($contact['photo']);
 					if (!empty($resourceid)) {
@@ -223,7 +223,8 @@ class Photo extends BaseModule
 							return $photo;
 						}
 					}
-					$url = $contact['photo'];
+					// We continue with the avatar link when the photo link is invalid
+					$url = $contact['avatar'];
 				} elseif (!empty($contact['avatar'])) {
 					$url = $contact['avatar'];
 				} elseif ($customsize <= Proxy::PIXEL_MICRO) {
